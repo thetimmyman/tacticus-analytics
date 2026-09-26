@@ -1,0 +1,26 @@
+{
+  "activeAbility": "SquigLaunchas",
+  "allianceId": "Xenos",
+  "baseRarity": "Common",
+  "damageProfiles": [],
+  "description": "",
+  "factionId": "Orks",
+  "gameId": "orksRukkatrukk",
+  "id": "rukkatrukk",
+  "itemSlots": [],
+  "longName": "Rukkatrukk",
+  "meleeWeapon": null,
+  "movement": 3,
+  "mowActiveAbility": [],
+  "mythicAbilities": [
+    "MoreGitzOverEre"
+  ],
+  "name": "Rukkatrukk",
+  "passiveAbility": null,
+  "rangeWeapon": null,
+  "ranks": [],
+  "sorting": 44,
+  "traits": [
+    "MachineOfWar"
+  ]
+}

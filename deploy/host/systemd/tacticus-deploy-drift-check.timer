@@ -1,0 +1,12 @@
+[Unit]
+Description=Daily host-side drift check for the tacticus edge runtime
+
+[Timer]
+OnCalendar=*-*-* 09:20:00
+RandomizedDelaySec=5m
+# Catch up a run missed while the host was down: a drift report skipped is a
+# day of unknown production state, not a day of clean production state.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

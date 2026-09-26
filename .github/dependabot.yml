@@ -1,0 +1,38 @@
+version: 2
+
+# No separate npm entry for workspaces: they share the root lockfile, and two
+# entries mutating one lockfile always conflict.
+
+updates:
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+
+  # Root app plus workspaces; monthly, grouped and capped to keep PR noise low.
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+    open-pull-requests-limit: 3
+    groups:
+      production-dependencies:
+        dependency-type: 'production'
+        patterns:
+          - '*'
+      development-dependencies:
+        dependency-type: 'development'
+        patterns:
+          - '*'
+    ignore:
+      # Majors are migrations done one at a time; grouped, one major blocks every
+      # routine bump. Security updates are unaffected.
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+      # Pinned via package.json `overrides`; a bump would fight the pin. Keep in
+      # sync with that block.
+      - dependency-name: 'postcss' # overrides: next > postcss 8.5.25 (exact)
+      - dependency-name: 'esbuild' # overrides: tsx > esbuild 0.25.12 (exact)
+      - dependency-name: 'linkify-it' # overrides: linkify-it 5.0.2 (exact)
+      - dependency-name: '@types/react' # overrides: recharts > @types/react ^18
+      - dependency-name: 'sharp' # overrides: sharp ^0.35.3

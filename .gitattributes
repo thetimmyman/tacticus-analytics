@@ -1,0 +1,6 @@
+# Keep local tooling hooks runnable from Linux, macOS, WSL, and Flatpak shells.
+.husky/* text eol=lf
+.husky/_/* text eol=lf
+*.sh text eol=lf
+*.bash text eol=lf
+*.mjs text eol=lf

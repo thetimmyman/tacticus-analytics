@@ -1,0 +1,48 @@
+{
+  "appId": "tacticus-analytics",
+  "displayName": "TACTICUS ANALYTICS",
+  "repository": "thetimmyman/tacticus-analytics",
+  "packageName": "tacticus-analytics",
+  "siteHosts": ["tacticusanalytics.com", "www.tacticusanalytics.com"],
+  "apiHosts": ["api.tacticusanalytics.com"],
+  "internalApiHosts": [
+    "supabase-kong",
+    "supabase-kong.tacticus.svc",
+    "supabase-kong.tacticus.svc.cluster.local"
+  ],
+  "localHosts": ["localhost", "127.0.0.1"],
+  "imageRepository": "ghcr.io/thetimmyman/tacticus-analytics-web",
+  "kubernetesNamespace": "tacticus",
+  "kubernetesDeployment": "tacticus-clean-web-v2",
+  "requiredPaths": ["app/(public)/explore/page.tsx"],
+  "forbiddenPaths": ["k8s/eot-stack"],
+  "contentRules": [
+    {
+      "path": ".github/workflows/build-clean-image.yml",
+      "required": [
+        "IMAGE: ghcr.io/thetimmyman/tacticus-analytics-web",
+        "NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}",
+        "NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}"
+      ],
+      "forbidden": [
+        "eyeofterror.win",
+        "tacticus-nextjs",
+        "inputs.variant",
+        "push_latest"
+      ]
+    },
+    {
+      "path": "docker/Dockerfile.prod",
+      "required": [
+        "RUN node scripts/dev/verify-app-identity.mjs",
+        "ENV TACTICUS_APP_ID=tacticus-analytics",
+        "COPY --from=builder --chown=nextjs:nodejs /app/.app-identity.json ./.app-identity.json",
+        "CMD [\"sh\", \"-c\", \"APP_IDENTITY_RUNTIME=1 node scripts/dev/verify-app-identity.mjs && exec ./node_modules/.bin/next start\"]"
+      ]
+    },
+    {
+      "path": "package.json",
+      "required": ["\"dev\": \"next dev --port 3000\""]
+    }
+  ]
+}

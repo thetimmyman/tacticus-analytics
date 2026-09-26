@@ -1,0 +1,30 @@
+[
+  {
+    "Guild": "G",
+    "Season": "1",
+    "userId": "u1",
+    "Name": "Boss",
+    "damageDealt": 10,
+    "remainingHp": 20,
+    "timestamp": "2025-01-01T00:00:00.000Z",
+    "encounterId": 1,
+    "displayName": "User One",
+    "encounterType": "Battle",
+    "type": "BOSS",
+    "unitId": "U1"
+  },
+  {
+    "Guild": "G",
+    "Season": "1",
+    "userId": "u2",
+    "Name": "Boss",
+    "damageDealt": 5,
+    "remainingHp": 25,
+    "timestamp": "2025-01-01T00:01:00.000Z",
+    "encounterId": 2,
+    "displayName": "User Two",
+    "encounterType": "Battle",
+    "type": "BOSS",
+    "unitId": "U2"
+  }
+]

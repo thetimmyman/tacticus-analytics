@@ -1,0 +1,1716 @@
+{
+  "id": "iw-guild-34-members",
+  "name": "Synthetic Guild (34 members)",
+  "description": "Synthetic player fixture with 34 active members",
+  "guildSize": 34,
+  "members": [
+    {
+      "playerId": "synthetic-player-01",
+      "displayName": "Synthetic Player 01",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 474589,
+          "player_vs_guild_avg": -0.11
+        },
+        "Sho'Syl": {
+          "average_damage": 418338,
+          "player_vs_guild_avg": 0.02
+        },
+        "TervigonKronos": {
+          "average_damage": 1612262,
+          "player_vs_guild_avg": 0
+        },
+        "Thaddeus": {
+          "average_damage": 1050000,
+          "player_vs_guild_avg": 0
+        },
+        "HiveTyrantLeviathan": {
+          "average_damage": 1568517,
+          "player_vs_guild_avg": -0.02
+        },
+        "ScreamerKiller": {
+          "average_damage": 1311095,
+          "player_vs_guild_avg": -0.08
+        },
+        "Eldyron": {
+          "average_damage": 639506,
+          "player_vs_guild_avg": 0.07
+        },
+        "Actus": {
+          "average_damage": 668134,
+          "player_vs_guild_avg": 0.21
+        },
+        "BelisariusRW": {
+          "average_damage": 812129,
+          "player_vs_guild_avg": -0.01
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 860839,
+          "player_vs_guild_avg": 0.09
+        },
+        "Ghazghkull": {
+          "average_damage": 1308749,
+          "player_vs_guild_avg": 0.19
+        },
+        "Aethana": {
+          "average_damage": 1385373,
+          "player_vs_guild_avg": 0.19
+        },
+        "Tanksmasha": {
+          "average_damage": 488915,
+          "player_vs_guild_avg": -0.08
+        },
+        "Gibbascrapz": {
+          "average_damage": 600728,
+          "player_vs_guild_avg": -0.03
+        },
+        "RogalDorn": {
+          "average_damage": 1221877,
+          "player_vs_guild_avg": 0.07
+        },
+        "Mesophet": {
+          "average_damage": 426753,
+          "player_vs_guild_avg": 0.02
+        },
+        "Magnus": {
+          "average_damage": 442788,
+          "player_vs_guild_avg": -0.16
+        },
+        "SilentKing": {
+          "average_damage": 1405258,
+          "player_vs_guild_avg": 0.1
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-02",
+      "displayName": "Synthetic Player 02",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 486925,
+          "player_vs_guild_avg": -0.08
+        },
+        "ScreamerKiller": {
+          "average_damage": 1469681,
+          "player_vs_guild_avg": 0.03
+        },
+        "RogalDorn": {
+          "average_damage": 1139377,
+          "player_vs_guild_avg": 0
+        },
+        "Re'Vas": {
+          "average_damage": 677104,
+          "player_vs_guild_avg": 0.33
+        },
+        "Thaddeus": {
+          "average_damage": 1050000,
+          "player_vs_guild_avg": 0
+        },
+        "HiveTyrantGorgon": {
+          "average_damage": 1726264,
+          "player_vs_guild_avg": 0.24
+        },
+        "TervigonKronos": {
+          "average_damage": 1586416,
+          "player_vs_guild_avg": -0.02
+        },
+        "HiveTyrantLeviathan": {
+          "average_damage": 1862951,
+          "player_vs_guild_avg": 0.17
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 626415,
+          "player_vs_guild_avg": -0.21
+        },
+        "Sibyll": {
+          "average_damage": 570471,
+          "player_vs_guild_avg": 0.08
+        },
+        "Eldyron": {
+          "average_damage": 545105,
+          "player_vs_guild_avg": -0.08
+        },
+        "Magnus": {
+          "average_damage": 480670,
+          "player_vs_guild_avg": -0.09
+        },
+        "SilentKing": {
+          "average_damage": 1284743,
+          "player_vs_guild_avg": 0.01
+        },
+        "BelisariusRW": {
+          "average_damage": 397654,
+          "player_vs_guild_avg": -0.51
+        },
+        "Hapthatra": {
+          "average_damage": 579511,
+          "player_vs_guild_avg": 0
+        },
+        "Ghazghkull": {
+          "average_damage": 996997,
+          "player_vs_guild_avg": -0.1
+        },
+        "Mesophet": {
+          "average_damage": 341870,
+          "player_vs_guild_avg": -0.18
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-03",
+      "displayName": "Synthetic Player 03",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "RogalDorn": {
+          "average_damage": 1187845,
+          "player_vs_guild_avg": 0.04
+        },
+        "Riptide": {
+          "average_damage": 635165,
+          "player_vs_guild_avg": 0.2
+        },
+        "Sho'Syl": {
+          "average_damage": 287077,
+          "player_vs_guild_avg": -0.3
+        },
+        "ScreamerKiller": {
+          "average_damage": 1432420,
+          "player_vs_guild_avg": 0
+        },
+        "HiveTyrantGorgon": {
+          "average_damage": 1605517,
+          "player_vs_guild_avg": 0.15
+        },
+        "HiveTyrantLeviathan": {
+          "average_damage": 1565148,
+          "player_vs_guild_avg": -0.02
+        },
+        "Eldyron": {
+          "average_damage": 494077,
+          "player_vs_guild_avg": -0.17
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 753451,
+          "player_vs_guild_avg": -0.05
+        },
+        "Tanksmasha": {
+          "average_damage": 318678,
+          "player_vs_guild_avg": -0.4
+        },
+        "BelisariusRW": {
+          "average_damage": 864229,
+          "player_vs_guild_avg": 0.06
+        },
+        "Sibyll": {
+          "average_damage": 666654,
+          "player_vs_guild_avg": 0.26
+        },
+        "Ghazghkull": {
+          "average_damage": 1056663,
+          "player_vs_guild_avg": -0.04
+        },
+        "Thaumacus": {
+          "average_damage": 633532,
+          "player_vs_guild_avg": -0.16
+        },
+        "Hapthatra": {
+          "average_damage": 426114,
+          "player_vs_guild_avg": -0.27
+        },
+        "Magnus": {
+          "average_damage": 518058,
+          "player_vs_guild_avg": -0.02
+        },
+        "Mesophet": {
+          "average_damage": 420933,
+          "player_vs_guild_avg": 0.01
+        },
+        "SilentKing": {
+          "average_damage": 1597499,
+          "player_vs_guild_avg": 0.25
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-04",
+      "displayName": "Synthetic Player 04",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "HiveTyrantGorgon": {
+          "average_damage": 1295009,
+          "player_vs_guild_avg": -0.07
+        },
+        "TervigonKronos": {
+          "average_damage": 1785606,
+          "player_vs_guild_avg": 0.11
+        },
+        "Riptide": {
+          "average_damage": 539327,
+          "player_vs_guild_avg": 0.02
+        },
+        "ScreamerKiller": {
+          "average_damage": 1160306,
+          "player_vs_guild_avg": -0.19
+        },
+        "HiveTyrantLeviathan": {
+          "average_damage": 1573453,
+          "player_vs_guild_avg": -0.01
+        },
+        "Sibyll": {
+          "average_damage": 608039,
+          "player_vs_guild_avg": 0.15
+        },
+        "Aethana": {
+          "average_damage": 881389,
+          "player_vs_guild_avg": -0.25
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 688463,
+          "player_vs_guild_avg": -0.13
+        },
+        "Ghazghkull": {
+          "average_damage": 1069062,
+          "player_vs_guild_avg": -0.03
+        },
+        "BelisariusRW": {
+          "average_damage": 661155,
+          "player_vs_guild_avg": -0.19
+        },
+        "Eldyron": {
+          "average_damage": 615626,
+          "player_vs_guild_avg": 0.03
+        },
+        "Gibbascrapz": {
+          "average_damage": 556988,
+          "player_vs_guild_avg": -0.1
+        },
+        "Tanksmasha": {
+          "average_damage": 395552,
+          "player_vs_guild_avg": -0.25
+        },
+        "SilentKing": {
+          "average_damage": 1274684,
+          "player_vs_guild_avg": 0
+        },
+        "Magnus": {
+          "average_damage": 446945,
+          "player_vs_guild_avg": -0.16
+        },
+        "Mesophet": {
+          "average_damage": 362375,
+          "player_vs_guild_avg": -0.13
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-05",
+      "displayName": "Synthetic Player 05",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "Sibyll": {
+          "average_damage": 456936,
+          "player_vs_guild_avg": -0.13
+        },
+        "TervigonKronos": {
+          "average_damage": 1526703,
+          "player_vs_guild_avg": -0.05
+        },
+        "RogalDorn": {
+          "average_damage": 1004334,
+          "player_vs_guild_avg": -0.12
+        },
+        "Riptide": {
+          "average_damage": 328522,
+          "player_vs_guild_avg": -0.38
+        },
+        "ScreamerKiller": {
+          "average_damage": 1362511,
+          "player_vs_guild_avg": -0.04
+        },
+        "HiveTyrantLeviathan": {
+          "average_damage": 1527167,
+          "player_vs_guild_avg": -0.04
+        },
+        "Re'Vas": {
+          "average_damage": 177816,
+          "player_vs_guild_avg": -0.65
+        },
+        "BelisariusRW": {
+          "average_damage": 815369,
+          "player_vs_guild_avg": 0
+        },
+        "Tanksmasha": {
+          "average_damage": 477162,
+          "player_vs_guild_avg": -0.1
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 779111,
+          "player_vs_guild_avg": -0.01
+        },
+        "Ghazghkull": {
+          "average_damage": 1209745,
+          "player_vs_guild_avg": 0.1
+        },
+        "Eldyron": {
+          "average_damage": 584432,
+          "player_vs_guild_avg": -0.02
+        },
+        "Magnus": {
+          "average_damage": 540551,
+          "player_vs_guild_avg": 0.02
+        },
+        "Hapthatra": {
+          "average_damage": 570348,
+          "player_vs_guild_avg": -0.02
+        },
+        "SilentKing": {
+          "average_damage": 1082758,
+          "player_vs_guild_avg": -0.15
+        },
+        "Abraxas": {
+          "average_damage": 810886,
+          "player_vs_guild_avg": -0.15
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-06",
+      "displayName": "Synthetic Player 06",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "Re'Vas": {
+          "average_damage": 373367,
+          "player_vs_guild_avg": -0.27
+        },
+        "ScreamerKiller": {
+          "average_damage": 1398798,
+          "player_vs_guild_avg": -0.02
+        },
+        "HiveTyrantLeviathan": {
+          "average_damage": 1747040,
+          "player_vs_guild_avg": 0.09
+        },
+        "HiveTyrantGorgon": {
+          "average_damage": 1525120,
+          "player_vs_guild_avg": 0.1
+        },
+        "Riptide": {
+          "average_damage": 615507,
+          "player_vs_guild_avg": 0.16
+        },
+        "Sho'Syl": {
+          "average_damage": 379879,
+          "player_vs_guild_avg": -0.07
+        },
+        "RogalDorn": {
+          "average_damage": 1098266,
+          "player_vs_guild_avg": -0.03
+        },
+        "BelisariusRW": {
+          "average_damage": 847188,
+          "player_vs_guild_avg": 0.04
+        },
+        "Ghazghkull": {
+          "average_damage": 1188844,
+          "player_vs_guild_avg": 0.08
+        },
+        "Tanksmasha": {
+          "average_damage": 657183,
+          "player_vs_guild_avg": 0.24
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 666182,
+          "player_vs_guild_avg": -0.16
+        },
+        "Aethana": {
+          "average_damage": 1642881,
+          "player_vs_guild_avg": 0.41
+        },
+        "Magnus": {
+          "average_damage": 534198,
+          "player_vs_guild_avg": 0.01
+        },
+        "Mesophet": {
+          "average_damage": 475098,
+          "player_vs_guild_avg": 0.13
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-07",
+      "displayName": "Synthetic Player 07",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "ScreamerKiller": {
+          "average_damage": 1536113,
+          "player_vs_guild_avg": 0.08
+        },
+        "Riptide": {
+          "average_damage": 731902,
+          "player_vs_guild_avg": 0.38
+        },
+        "TervigonKronos": {
+          "average_damage": 2046170,
+          "player_vs_guild_avg": 0.27
+        },
+        "RogalDorn": {
+          "average_damage": 1095686,
+          "player_vs_guild_avg": -0.04
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 649732,
+          "player_vs_guild_avg": -0.18
+        },
+        "Aethana": {
+          "average_damage": 1152353,
+          "player_vs_guild_avg": -0.01
+        },
+        "Gibbascrapz": {
+          "average_damage": 633325,
+          "player_vs_guild_avg": 0.02
+        },
+        "BelisariusRW": {
+          "average_damage": 805441,
+          "player_vs_guild_avg": -0.01
+        },
+        "Ghazghkull": {
+          "average_damage": 1005133,
+          "player_vs_guild_avg": -0.09
+        },
+        "Magnus": {
+          "average_damage": 508335,
+          "player_vs_guild_avg": -0.04
+        },
+        "Hapthatra": {
+          "average_damage": 644062,
+          "player_vs_guild_avg": 0.11
+        },
+        "SilentKing": {
+          "average_damage": 1175197,
+          "player_vs_guild_avg": -0.08
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-08",
+      "displayName": "Synthetic Player 08",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 497030,
+          "player_vs_guild_avg": -0.06
+        },
+        "ScreamerKiller": {
+          "average_damage": 1368435,
+          "player_vs_guild_avg": -0.04
+        },
+        "HiveTyrantLeviathan": {
+          "average_damage": 1509539,
+          "player_vs_guild_avg": -0.05
+        },
+        "TervigonKronos": {
+          "average_damage": 1809283,
+          "player_vs_guild_avg": 0.12
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 771794,
+          "player_vs_guild_avg": -0.02
+        },
+        "BelisariusRW": {
+          "average_damage": 822790,
+          "player_vs_guild_avg": 0.01
+        },
+        "RogalDorn": {
+          "average_damage": 1140990,
+          "player_vs_guild_avg": 0
+        },
+        "Ghazghkull": {
+          "average_damage": 1106486,
+          "player_vs_guild_avg": 0
+        },
+        "Actus": {
+          "average_damage": 517989,
+          "player_vs_guild_avg": -0.06
+        },
+        "Magnus": {
+          "average_damage": 586870,
+          "player_vs_guild_avg": 0.11
+        },
+        "SilentKing": {
+          "average_damage": 1181687,
+          "player_vs_guild_avg": -0.07
+        },
+        "Hapthatra": {
+          "average_damage": 575237,
+          "player_vs_guild_avg": -0.01
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-09",
+      "displayName": "Synthetic Player 09",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 568813,
+          "player_vs_guild_avg": 0.07
+        },
+        "HiveTyrantLeviathan": {
+          "average_damage": 1785804,
+          "player_vs_guild_avg": 0.12
+        },
+        "RogalDorn": {
+          "average_damage": 1267646,
+          "player_vs_guild_avg": 0.11
+        },
+        "ScreamerKiller": {
+          "average_damage": 1396581,
+          "player_vs_guild_avg": -0.02
+        },
+        "Sho'Syl": {
+          "average_damage": 518860,
+          "player_vs_guild_avg": 0.26
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 890388,
+          "player_vs_guild_avg": 0.13
+        },
+        "Ghazghkull": {
+          "average_damage": 1250294,
+          "player_vs_guild_avg": 0.13
+        },
+        "BelisariusRW": {
+          "average_damage": 952669,
+          "player_vs_guild_avg": 0.17
+        },
+        "SilentKing": {
+          "average_damage": 1529309,
+          "player_vs_guild_avg": 0.2
+        },
+        "Magnus": {
+          "average_damage": 590074,
+          "player_vs_guild_avg": 0.11
+        },
+        "Hapthatra": {
+          "average_damage": 610380,
+          "player_vs_guild_avg": 0.05
+        },
+        "Thaumacus": {
+          "average_damage": 485683,
+          "player_vs_guild_avg": -0.36
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-10",
+      "displayName": "Synthetic Player 10",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 491325,
+          "player_vs_guild_avg": -0.07
+        },
+        "HiveTyrantLeviathan": {
+          "average_damage": 1529689,
+          "player_vs_guild_avg": -0.04
+        },
+        "TervigonKronos": {
+          "average_damage": 1374071,
+          "player_vs_guild_avg": -0.15
+        },
+        "HiveTyrantGorgon": {
+          "average_damage": 1846028,
+          "player_vs_guild_avg": 0.33
+        },
+        "Ghazghkull": {
+          "average_damage": 1065714,
+          "player_vs_guild_avg": -0.03
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 811577,
+          "player_vs_guild_avg": 0.03
+        },
+        "BelisariusRW": {
+          "average_damage": 854541,
+          "player_vs_guild_avg": 0.05
+        },
+        "RogalDorn": {
+          "average_damage": 1261624,
+          "player_vs_guild_avg": 0.11
+        },
+        "ScreamerKiller": {
+          "average_damage": 1741301,
+          "player_vs_guild_avg": 0.22
+        },
+        "Magnus": {
+          "average_damage": 543850,
+          "player_vs_guild_avg": 0.03
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-11",
+      "displayName": "Synthetic Player 11",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 503721,
+          "player_vs_guild_avg": -0.05
+        },
+        "HiveTyrantGorgon": {
+          "average_damage": 1339609,
+          "player_vs_guild_avg": -0.04
+        },
+        "RogalDorn": {
+          "average_damage": 1099897,
+          "player_vs_guild_avg": -0.03
+        },
+        "Sho'Syl": {
+          "average_damage": 247943,
+          "player_vs_guild_avg": -0.4
+        },
+        "Aethana": {
+          "average_damage": 1316685,
+          "player_vs_guild_avg": 0.13
+        },
+        "ScreamerKiller": {
+          "average_damage": 1431654,
+          "player_vs_guild_avg": 0
+        },
+        "BelisariusRW": {
+          "average_damage": 833185,
+          "player_vs_guild_avg": 0.02
+        },
+        "Ghazghkull": {
+          "average_damage": 1062286,
+          "player_vs_guild_avg": -0.04
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 623086,
+          "player_vs_guild_avg": -0.21
+        },
+        "SilentKing": {
+          "average_damage": 1087803,
+          "player_vs_guild_avg": -0.15
+        },
+        "Hapthatra": {
+          "average_damage": 573143,
+          "player_vs_guild_avg": -0.01
+        },
+        "Magnus": {
+          "average_damage": 538049,
+          "player_vs_guild_avg": 0.02
+        },
+        "Abraxas": {
+          "average_damage": 848314,
+          "player_vs_guild_avg": -0.11
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-12",
+      "displayName": "Synthetic Player 12",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 595124,
+          "player_vs_guild_avg": 0.12
+        },
+        "HiveTyrantLeviathan": {
+          "average_damage": 1717882,
+          "player_vs_guild_avg": 0.08
+        },
+        "RogalDorn": {
+          "average_damage": 1137204,
+          "player_vs_guild_avg": 0
+        },
+        "ScreamerKiller": {
+          "average_damage": 1339819,
+          "player_vs_guild_avg": -0.06
+        },
+        "Thaddeus": {
+          "average_damage": 1050000,
+          "player_vs_guild_avg": 0
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 689259,
+          "player_vs_guild_avg": -0.13
+        },
+        "Aethana": {
+          "average_damage": 1583259,
+          "player_vs_guild_avg": 0.35
+        },
+        "Ghazghkull": {
+          "average_damage": 836951,
+          "player_vs_guild_avg": -0.24
+        },
+        "Tanksmasha": {
+          "average_damage": 474280,
+          "player_vs_guild_avg": -0.1
+        },
+        "Eldyron": {
+          "average_damage": 390920,
+          "player_vs_guild_avg": -0.34
+        },
+        "Hapthatra": {
+          "average_damage": 499663,
+          "player_vs_guild_avg": -0.14
+        },
+        "SilentKing": {
+          "average_damage": 1100020,
+          "player_vs_guild_avg": -0.14
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-13",
+      "displayName": "Synthetic Player 13",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 520562,
+          "player_vs_guild_avg": -0.02
+        },
+        "RogalDorn": {
+          "average_damage": 1311643,
+          "player_vs_guild_avg": 0.15
+        },
+        "Sho'Syl": {
+          "average_damage": 469976,
+          "player_vs_guild_avg": 0.14
+        },
+        "ScreamerKiller": {
+          "average_damage": 1444245,
+          "player_vs_guild_avg": 0.01
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 904943,
+          "player_vs_guild_avg": 0.15
+        },
+        "BelisariusRW": {
+          "average_damage": 871552,
+          "player_vs_guild_avg": 0.07
+        },
+        "Ghazghkull": {
+          "average_damage": 1227974,
+          "player_vs_guild_avg": 0.11
+        },
+        "Actus": {
+          "average_damage": 623023,
+          "player_vs_guild_avg": 0.13
+        },
+        "SilentKing": {
+          "average_damage": 1491147,
+          "player_vs_guild_avg": 0.17
+        },
+        "Abraxas": {
+          "average_damage": 1050000,
+          "player_vs_guild_avg": 0.1
+        },
+        "Hapthatra": {
+          "average_damage": 687121,
+          "player_vs_guild_avg": 0.18
+        },
+        "Gibbascrapz": {
+          "average_damage": 666400,
+          "player_vs_guild_avg": 0.08
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-14",
+      "displayName": "Synthetic Player 14",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "Sho'Syl": {
+          "average_damage": 498466,
+          "player_vs_guild_avg": 0.21
+        },
+        "Thaddeus": {
+          "average_damage": 1050000,
+          "player_vs_guild_avg": 0
+        },
+        "RogalDorn": {
+          "average_damage": 1127161,
+          "player_vs_guild_avg": -0.01
+        },
+        "HiveTyrantGorgon": {
+          "average_damage": 1152912,
+          "player_vs_guild_avg": -0.17
+        },
+        "ScreamerKiller": {
+          "average_damage": 1281859,
+          "player_vs_guild_avg": -0.1
+        },
+        "Riptide": {
+          "average_damage": 537152,
+          "player_vs_guild_avg": 0.01
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 822005,
+          "player_vs_guild_avg": 0.04
+        },
+        "BelisariusRW": {
+          "average_damage": 843088,
+          "player_vs_guild_avg": 0.03
+        },
+        "Ghazghkull": {
+          "average_damage": 1407939,
+          "player_vs_guild_avg": 0.28
+        },
+        "Magnus": {
+          "average_damage": 582085,
+          "player_vs_guild_avg": 0.1
+        },
+        "SilentKing": {
+          "average_damage": 1554094,
+          "player_vs_guild_avg": 0.22
+        },
+        "Mesophet": {
+          "average_damage": 280909,
+          "player_vs_guild_avg": -0.33
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-15",
+      "displayName": "Synthetic Player 15",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 500087,
+          "player_vs_guild_avg": -0.06
+        },
+        "TervigonKronos": {
+          "average_damage": 1584346,
+          "player_vs_guild_avg": -0.02
+        },
+        "HiveTyrantLeviathan": {
+          "average_damage": 1535979,
+          "player_vs_guild_avg": -0.04
+        },
+        "Sho'Syl": {
+          "average_damage": 313256,
+          "player_vs_guild_avg": -0.24
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 633856,
+          "player_vs_guild_avg": -0.2
+        },
+        "Ghazghkull": {
+          "average_damage": 1090828,
+          "player_vs_guild_avg": -0.01
+        },
+        "ScreamerKiller": {
+          "average_damage": 1523403,
+          "player_vs_guild_avg": 0.07
+        },
+        "BelisariusRW": {
+          "average_damage": 805638,
+          "player_vs_guild_avg": -0.01
+        },
+        "Magnus": {
+          "average_damage": 560131,
+          "player_vs_guild_avg": 0.06
+        },
+        "RogalDorn": {
+          "average_damage": 1275641,
+          "player_vs_guild_avg": 0.12
+        },
+        "Mesophet": {
+          "average_damage": 406970,
+          "player_vs_guild_avg": -0.03
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-16",
+      "displayName": "Synthetic Player 16",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 441799,
+          "player_vs_guild_avg": -0.17
+        },
+        "HiveTyrantLeviathan": {
+          "average_damage": 1483394,
+          "player_vs_guild_avg": -0.07
+        },
+        "TervigonKronos": {
+          "average_damage": 1360948,
+          "player_vs_guild_avg": -0.16
+        },
+        "BelisariusRW": {
+          "average_damage": 890951,
+          "player_vs_guild_avg": 0.09
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 869904,
+          "player_vs_guild_avg": 0.1
+        },
+        "Ghazghkull": {
+          "average_damage": 969861,
+          "player_vs_guild_avg": -0.12
+        },
+        "Tanksmasha": {
+          "average_damage": 586854,
+          "player_vs_guild_avg": 0.11
+        },
+        "RogalDorn": {
+          "average_damage": 1194799,
+          "player_vs_guild_avg": 0.05
+        },
+        "Magnus": {
+          "average_damage": 617731,
+          "player_vs_guild_avg": 0.17
+        },
+        "SilentKing": {
+          "average_damage": 1008635,
+          "player_vs_guild_avg": -0.21
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-17",
+      "displayName": "Synthetic Player 17",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "HiveTyrantLeviathan": {
+          "average_damage": 1640361,
+          "player_vs_guild_avg": 0.03
+        },
+        "RogalDorn": {
+          "average_damage": 924302,
+          "player_vs_guild_avg": -0.19
+        },
+        "Riptide": {
+          "average_damage": 440776,
+          "player_vs_guild_avg": -0.17
+        },
+        "ScreamerKiller": {
+          "average_damage": 1310654,
+          "player_vs_guild_avg": -0.08
+        },
+        "Ghazghkull": {
+          "average_damage": 1204690,
+          "player_vs_guild_avg": 0.09
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 837456,
+          "player_vs_guild_avg": 0.06
+        },
+        "SilentKing": {
+          "average_damage": 1419727,
+          "player_vs_guild_avg": 0.11
+        },
+        "Magnus": {
+          "average_damage": 435642,
+          "player_vs_guild_avg": -0.18
+        },
+        "Hapthatra": {
+          "average_damage": 720915,
+          "player_vs_guild_avg": 0.24
+        },
+        "Mesophet": {
+          "average_damage": 400061,
+          "player_vs_guild_avg": -0.04
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-18",
+      "displayName": "Synthetic Player 18",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "RogalDorn": {
+          "average_damage": 1036053,
+          "player_vs_guild_avg": -0.09
+        },
+        "ScreamerKiller": {
+          "average_damage": 1430705,
+          "player_vs_guild_avg": 0
+        },
+        "Riptide": {
+          "average_damage": 507186,
+          "player_vs_guild_avg": -0.04
+        },
+        "HiveTyrantGorgon": {
+          "average_damage": 1297460,
+          "player_vs_guild_avg": -0.07
+        },
+        "TervigonKronos": {
+          "average_damage": 1878458,
+          "player_vs_guild_avg": 0.17
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 812722,
+          "player_vs_guild_avg": 0.03
+        },
+        "BelisariusRW": {
+          "average_damage": 865105,
+          "player_vs_guild_avg": 0.06
+        },
+        "Ghazghkull": {
+          "average_damage": 1009986,
+          "player_vs_guild_avg": -0.08
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-19",
+      "displayName": "Synthetic Player 19",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 638770,
+          "player_vs_guild_avg": 0.2
+        },
+        "ScreamerKiller": {
+          "average_damage": 1494654,
+          "player_vs_guild_avg": 0.05
+        },
+        "RogalDorn": {
+          "average_damage": 1228081,
+          "player_vs_guild_avg": 0.08
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 959667,
+          "player_vs_guild_avg": 0.22
+        },
+        "BelisariusRW": {
+          "average_damage": 993478,
+          "player_vs_guild_avg": 0.21
+        },
+        "Ghazghkull": {
+          "average_damage": 1129922,
+          "player_vs_guild_avg": 0.02
+        },
+        "Mesophet": {
+          "average_damage": 453850,
+          "player_vs_guild_avg": 0.08
+        },
+        "SilentKing": {
+          "average_damage": 1150515,
+          "player_vs_guild_avg": -0.1
+        },
+        "Magnus": {
+          "average_damage": 557828,
+          "player_vs_guild_avg": 0.05
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-20",
+      "displayName": "Synthetic Player 20",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 291327,
+          "player_vs_guild_avg": -0.45
+        },
+        "RogalDorn": {
+          "average_damage": 984408,
+          "player_vs_guild_avg": -0.14
+        },
+        "ScreamerKiller": {
+          "average_damage": 1295590,
+          "player_vs_guild_avg": -0.09
+        },
+        "HiveTyrantLeviathan": {
+          "average_damage": 1512204,
+          "player_vs_guild_avg": -0.05
+        },
+        "Sibyll": {
+          "average_damage": 312863,
+          "player_vs_guild_avg": -0.41
+        },
+        "BelisariusRW": {
+          "average_damage": 752799,
+          "player_vs_guild_avg": -0.08
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 607932,
+          "player_vs_guild_avg": -0.23
+        },
+        "Ghazghkull": {
+          "average_damage": 995796,
+          "player_vs_guild_avg": -0.1
+        },
+        "Magnus": {
+          "average_damage": 395557,
+          "player_vs_guild_avg": -0.25
+        },
+        "SilentKing": {
+          "average_damage": 1054155,
+          "player_vs_guild_avg": -0.17
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-21",
+      "displayName": "Synthetic Player 21",
+      "availableTokens": 2,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 528275,
+          "player_vs_guild_avg": -0.01
+        },
+        "RogalDorn": {
+          "average_damage": 1193224,
+          "player_vs_guild_avg": 0.05
+        },
+        "BelisariusRW": {
+          "average_damage": 758946,
+          "player_vs_guild_avg": -0.07
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 760617,
+          "player_vs_guild_avg": -0.04
+        },
+        "ScreamerKiller": {
+          "average_damage": 1547613,
+          "player_vs_guild_avg": 0.08
+        },
+        "Sibyll": {
+          "average_damage": 455245,
+          "player_vs_guild_avg": -0.14
+        },
+        "Gibbascrapz": {
+          "average_damage": 660061,
+          "player_vs_guild_avg": 0.07
+        },
+        "Mesophet": {
+          "average_damage": 384754,
+          "player_vs_guild_avg": -0.08
+        },
+        "Magnus": {
+          "average_damage": 576706,
+          "player_vs_guild_avg": 0.09
+        },
+        "Hapthatra": {
+          "average_damage": 582136,
+          "player_vs_guild_avg": 0
+        },
+        "Thaumacus": {
+          "average_damage": 724406,
+          "player_vs_guild_avg": -0.04
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-22",
+      "displayName": "Synthetic Player 22",
+      "availableTokens": 2,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 487117,
+          "player_vs_guild_avg": -0.08
+        },
+        "RogalDorn": {
+          "average_damage": 845370,
+          "player_vs_guild_avg": -0.26
+        },
+        "TervigonKronos": {
+          "average_damage": 912358,
+          "player_vs_guild_avg": -0.43
+        },
+        "HiveTyrantLeviathan": {
+          "average_damage": 1391384,
+          "player_vs_guild_avg": -0.13
+        },
+        "BelisariusRW": {
+          "average_damage": 779534,
+          "player_vs_guild_avg": -0.05
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 624858,
+          "player_vs_guild_avg": -0.21
+        },
+        "Ghazghkull": {
+          "average_damage": 1150438,
+          "player_vs_guild_avg": 0.04
+        },
+        "Actus": {
+          "average_damage": 505589,
+          "player_vs_guild_avg": -0.09
+        },
+        "Tanksmasha": {
+          "average_damage": 801994,
+          "player_vs_guild_avg": 0.52
+        },
+        "Magnus": {
+          "average_damage": 476796,
+          "player_vs_guild_avg": -0.1
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-23",
+      "displayName": "Synthetic Player 23",
+      "availableTokens": 2,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 538437,
+          "player_vs_guild_avg": 0.01
+        },
+        "Sho'Syl": {
+          "average_damage": 371158,
+          "player_vs_guild_avg": -0.1
+        },
+        "BelisariusRW": {
+          "average_damage": 773685,
+          "player_vs_guild_avg": -0.05
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 795181,
+          "player_vs_guild_avg": 0.01
+        },
+        "Sibyll": {
+          "average_damage": 645903,
+          "player_vs_guild_avg": 0.22
+        },
+        "Tanksmasha": {
+          "average_damage": 486551,
+          "player_vs_guild_avg": -0.08
+        },
+        "Ghazghkull": {
+          "average_damage": 985311,
+          "player_vs_guild_avg": -0.11
+        },
+        "Mesophet": {
+          "average_damage": 427029,
+          "player_vs_guild_avg": 0.02
+        },
+        "Magnus": {
+          "average_damage": 520121,
+          "player_vs_guild_avg": -0.02
+        },
+        "SilentKing": {
+          "average_damage": 960975,
+          "player_vs_guild_avg": -0.25
+        },
+        "Gibbascrapz": {
+          "average_damage": 568087,
+          "player_vs_guild_avg": -0.08
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-24",
+      "displayName": "Synthetic Player 24",
+      "availableTokens": 2,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 767483,
+          "player_vs_guild_avg": 0.45
+        },
+        "Re'Vas": {
+          "average_damage": 569859,
+          "player_vs_guild_avg": 0.12
+        },
+        "Gibbascrapz": {
+          "average_damage": 638457,
+          "player_vs_guild_avg": 0.03
+        },
+        "RogalDorn": {
+          "average_damage": 1236638,
+          "player_vs_guild_avg": 0.09
+        },
+        "Eldyron": {
+          "average_damage": 626613,
+          "player_vs_guild_avg": 0.05
+        },
+        "Magnus": {
+          "average_damage": 528488,
+          "player_vs_guild_avg": 0
+        },
+        "SilentKing": {
+          "average_damage": 1510115,
+          "player_vs_guild_avg": 0.19
+        },
+        "Hapthatra": {
+          "average_damage": 567370,
+          "player_vs_guild_avg": -0.02
+        },
+        "Mesophet": {
+          "average_damage": 379324,
+          "player_vs_guild_avg": -0.09
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-25",
+      "displayName": "Synthetic Player 25",
+      "availableTokens": 2,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 447746,
+          "player_vs_guild_avg": -0.16
+        },
+        "RogalDorn": {
+          "average_damage": 958302,
+          "player_vs_guild_avg": -0.16
+        },
+        "TervigonKronos": {
+          "average_damage": 1332313,
+          "player_vs_guild_avg": -0.17
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 620250,
+          "player_vs_guild_avg": -0.21
+        },
+        "Ghazghkull": {
+          "average_damage": 931240,
+          "player_vs_guild_avg": -0.16
+        },
+        "BelisariusRW": {
+          "average_damage": 830154,
+          "player_vs_guild_avg": 0.02
+        },
+        "Actus": {
+          "average_damage": 488479,
+          "player_vs_guild_avg": -0.12
+        },
+        "Magnus": {
+          "average_damage": 496665,
+          "player_vs_guild_avg": -0.06
+        },
+        "SilentKing": {
+          "average_damage": 643849,
+          "player_vs_guild_avg": -0.49
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-26",
+      "displayName": "Synthetic Player 26",
+      "availableTokens": 1,
+      "preferences": {},
+      "performanceData": {
+        "Thaumacus": {
+          "average_damage": 862121,
+          "player_vs_guild_avg": 0.14
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 611590,
+          "player_vs_guild_avg": -0.23
+        },
+        "SilentKing": {
+          "average_damage": 1296683,
+          "player_vs_guild_avg": 0.02
+        },
+        "Mesophet": {
+          "average_damage": 380541,
+          "player_vs_guild_avg": -0.09
+        },
+        "Abraxas": {
+          "average_damage": 971601,
+          "player_vs_guild_avg": 0.02
+        },
+        "Aethana": {
+          "average_damage": 728000,
+          "player_vs_guild_avg": -0.38
+        },
+        "RogalDorn": {
+          "average_damage": 1518246,
+          "player_vs_guild_avg": 0.33
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-27",
+      "displayName": "Synthetic Player 27",
+      "availableTokens": 1,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 447861,
+          "player_vs_guild_avg": -0.16
+        },
+        "Sibyll": {
+          "average_damage": 570076,
+          "player_vs_guild_avg": 0.08
+        },
+        "RogalDorn": {
+          "average_damage": 542552,
+          "player_vs_guild_avg": -0.52
+        },
+        "Actus": {
+          "average_damage": 519607,
+          "player_vs_guild_avg": -0.06
+        },
+        "BelisariusRW": {
+          "average_damage": 802419,
+          "player_vs_guild_avg": -0.02
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 685315,
+          "player_vs_guild_avg": -0.13
+        },
+        "Ghazghkull": {
+          "average_damage": 1186169,
+          "player_vs_guild_avg": 0.08
+        },
+        "Magnus": {
+          "average_damage": 614494,
+          "player_vs_guild_avg": 0.16
+        },
+        "SilentKing": {
+          "average_damage": 248980,
+          "player_vs_guild_avg": -0.8
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-28",
+      "displayName": "Synthetic Player 28",
+      "availableTokens": 1,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 592224,
+          "player_vs_guild_avg": 0.12
+        },
+        "ScreamerKiller": {
+          "average_damage": 1083752,
+          "player_vs_guild_avg": -0.24
+        },
+        "Actus": {
+          "average_damage": 539660,
+          "player_vs_guild_avg": -0.03
+        },
+        "Eldyron": {
+          "average_damage": 554893,
+          "player_vs_guild_avg": -0.07
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 932760,
+          "player_vs_guild_avg": 0.18
+        },
+        "Ghazghkull": {
+          "average_damage": 1394911,
+          "player_vs_guild_avg": 0.26
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-29",
+      "displayName": "Synthetic Player 29",
+      "availableTokens": 1,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 485977,
+          "player_vs_guild_avg": -0.08
+        },
+        "Sho'Syl": {
+          "average_damage": 321070,
+          "player_vs_guild_avg": -0.22
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 856628,
+          "player_vs_guild_avg": 0.09
+        },
+        "Ghazghkull": {
+          "average_damage": 1024817,
+          "player_vs_guild_avg": -0.07
+        },
+        "BelisariusRW": {
+          "average_damage": 839729,
+          "player_vs_guild_avg": 0.03
+        },
+        "SilentKing": {
+          "average_damage": 943243,
+          "player_vs_guild_avg": -0.26
+        },
+        "Magnus": {
+          "average_damage": 489386,
+          "player_vs_guild_avg": -0.08
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-30",
+      "displayName": "Synthetic Player 30",
+      "availableTokens": 1,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 539089,
+          "player_vs_guild_avg": 0.02
+        },
+        "Sibyll": {
+          "average_damage": 470002,
+          "player_vs_guild_avg": -0.11
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 784056,
+          "player_vs_guild_avg": -0.01
+        },
+        "Eldyron": {
+          "average_damage": 623643,
+          "player_vs_guild_avg": 0.05
+        },
+        "Actus": {
+          "average_damage": 487912,
+          "player_vs_guild_avg": -0.12
+        },
+        "BelisariusRW": {
+          "average_damage": 770511,
+          "player_vs_guild_avg": -0.06
+        },
+        "Magnus": {
+          "average_damage": 440078,
+          "player_vs_guild_avg": -0.17
+        },
+        "Mesophet": {
+          "average_damage": 396182,
+          "player_vs_guild_avg": -0.05
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-31",
+      "displayName": "Synthetic Player 31",
+      "availableTokens": 1,
+      "preferences": {},
+      "performanceData": {
+        "SilentKing": {
+          "average_damage": 1196603,
+          "player_vs_guild_avg": -0.06
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 716966,
+          "player_vs_guild_avg": -0.09
+        },
+        "Hapthatra": {
+          "average_damage": 512175,
+          "player_vs_guild_avg": -0.12
+        },
+        "Aethana": {
+          "average_damage": 721939,
+          "player_vs_guild_avg": -0.38
+        },
+        "BelisariusRW": {
+          "average_damage": 629793,
+          "player_vs_guild_avg": -0.23
+        },
+        "Magnus": {
+          "average_damage": 551769,
+          "player_vs_guild_avg": 0.04
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-32",
+      "displayName": "Synthetic Player 32",
+      "availableTokens": 1,
+      "preferences": {},
+      "performanceData": {
+        "Magnus": {
+          "average_damage": 645368,
+          "player_vs_guild_avg": 0.22
+        },
+        "Ghazghkull": {
+          "average_damage": 939248,
+          "player_vs_guild_avg": -0.15
+        },
+        "BelisariusRW": {
+          "average_damage": 895034,
+          "player_vs_guild_avg": 0.09
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 729089,
+          "player_vs_guild_avg": -0.08
+        },
+        "SilentKing": {
+          "average_damage": 916005,
+          "player_vs_guild_avg": -0.28
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-33",
+      "displayName": "Synthetic Player 33",
+      "availableTokens": 1,
+      "preferences": {},
+      "performanceData": {
+        "BelisariusRW": {
+          "average_damage": 779422,
+          "player_vs_guild_avg": -0.05
+        },
+        "AvatarOfKhaine": {
+          "average_damage": 555037,
+          "player_vs_guild_avg": -0.3
+        },
+        "RogalDorn": {
+          "average_damage": 482094,
+          "player_vs_guild_avg": -0.58
+        },
+        "Ghazghkull": {
+          "average_damage": 1028996,
+          "player_vs_guild_avg": -0.07
+        }
+      }
+    },
+    {
+      "playerId": "synthetic-player-34",
+      "displayName": "Synthetic Player 34",
+      "availableTokens": 1,
+      "preferences": {},
+      "performanceData": {
+        "Riptide": {
+          "average_damage": 373374,
+          "player_vs_guild_avg": -0.3
+        }
+      }
+    }
+  ],
+  "bossHpData": {
+    "legendary": {
+      "L1": 5000000,
+      "L2": 7500000,
+      "L3": 10000000,
+      "L4": 12500000,
+      "L5": 15000000
+    },
+    "mythic": {
+      "M1": 30000000
+    },
+    "byBossName": {}
+  },
+  "defaultConstraints": {
+    "maxTokensPerPlayer": 3,
+    "maxTokensPerBoss": 3,
+    "minTokensPerBoss": 1,
+    "flexibleTokens": true
+  },
+  "notes": "Generated from IW guild battle data. 34 members with performance data."
+}

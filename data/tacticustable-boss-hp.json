@@ -1,0 +1,1855 @@
+{
+  "scrapedAt": "2026-04-10T03:01:17.180Z",
+  "source": "tacticustable.com",
+  "byBoss": {
+    "Magnus": {
+      "M2": {
+        "hp": 37500000,
+        "prime1Hp": 2250000,
+        "prime2Hp": 2625000
+      },
+      "M1": {
+        "hp": 30000000,
+        "prime1Hp": 1800000,
+        "prime2Hp": 2100000
+      },
+      "L5": {
+        "hp": 15000000,
+        "prime1Hp": 900000,
+        "prime2Hp": 1050000
+      },
+      "L4": {
+        "hp": 12500000,
+        "prime1Hp": 750000,
+        "prime2Hp": 875000
+      },
+      "L3": {
+        "hp": 10000000,
+        "prime1Hp": 600000,
+        "prime2Hp": 700000
+      },
+      "L2": {
+        "hp": 7500000,
+        "prime1Hp": 450000,
+        "prime2Hp": 525000
+      },
+      "L1": {
+        "hp": 5000000,
+        "prime1Hp": 300000,
+        "prime2Hp": 350000
+      }
+    },
+    "Avatar": {
+      "M2": {
+        "hp": 31250000,
+        "prime1Hp": 2187500,
+        "prime2Hp": 2187500
+      },
+      "M1": {
+        "hp": 25000000,
+        "prime1Hp": 1750000,
+        "prime2Hp": 1750000
+      },
+      "L5": {
+        "hp": 12500000,
+        "prime1Hp": 875000,
+        "prime2Hp": 875000
+      },
+      "L4": {
+        "hp": 10400000,
+        "prime1Hp": 728000,
+        "prime2Hp": 728000
+      },
+      "L3": {
+        "hp": 8330000,
+        "prime1Hp": 583100,
+        "prime2Hp": 583100
+      },
+      "L2": {
+        "hp": 6250000,
+        "prime1Hp": 437500,
+        "prime2Hp": 437500
+      },
+      "L1": {
+        "hp": 4165000,
+        "prime1Hp": 291550,
+        "prime2Hp": 291550
+      }
+    },
+    "Rogaldorn": {
+      "M2": {
+        "hp": 37500000,
+        "prime1Hp": 3000000,
+        "prime2Hp": 2625000
+      },
+      "M1": {
+        "hp": 30000000,
+        "prime1Hp": 2400000,
+        "prime2Hp": 2100000
+      },
+      "L5": {
+        "hp": 15000000,
+        "prime1Hp": 1200000,
+        "prime2Hp": 1050000
+      },
+      "L4": {
+        "hp": 12500000,
+        "prime1Hp": 1000000,
+        "prime2Hp": 875000
+      },
+      "L3": {
+        "hp": 10000000,
+        "prime1Hp": 800000,
+        "prime2Hp": 700000
+      },
+      "L2": {
+        "hp": 7500000,
+        "prime1Hp": 600000,
+        "prime2Hp": 525000
+      },
+      "L1": {
+        "hp": 5000000,
+        "prime1Hp": 400000,
+        "prime2Hp": 350000
+      }
+    },
+    "ScreamerKiller": {
+      "M2": {
+        "hp": 37500000,
+        "prime1Hp": 3000000,
+        "prime2Hp": 3000000
+      },
+      "M1": {
+        "hp": 30000000,
+        "prime1Hp": 2400000,
+        "prime2Hp": 2400000
+      },
+      "L5": {
+        "hp": 15000000,
+        "prime1Hp": 1200000,
+        "prime2Hp": 1200000
+      },
+      "L4": {
+        "hp": 12500000,
+        "prime1Hp": 1000000,
+        "prime2Hp": 1000000
+      },
+      "L3": {
+        "hp": 10000000,
+        "prime1Hp": 800000,
+        "prime2Hp": 800000
+      },
+      "L2": {
+        "hp": 7500000,
+        "prime1Hp": 600000,
+        "prime2Hp": 600000
+      },
+      "L1": {
+        "hp": 5000000,
+        "prime1Hp": 400000,
+        "prime2Hp": 400000
+      }
+    },
+    "Mortarion": {
+      "M2": {
+        "hp": 37500000,
+        "prime1Hp": 2625000,
+        "prime2Hp": 593600
+      },
+      "M1": {
+        "hp": 30000000,
+        "prime1Hp": 2100000,
+        "prime2Hp": 533400
+      },
+      "L5": {
+        "hp": 15000000,
+        "prime1Hp": 1050000,
+        "prime2Hp": 500500
+      },
+      "L4": {
+        "hp": 12500000,
+        "prime1Hp": 875000,
+        "prime2Hp": 380800
+      },
+      "L3": {
+        "hp": 10000000,
+        "prime1Hp": 700000,
+        "prime2Hp": 289100
+      },
+      "L2": {
+        "hp": 7500000,
+        "prime1Hp": 525000,
+        "prime2Hp": 231000
+      },
+      "L1": {
+        "hp": 5000000,
+        "prime1Hp": 350000,
+        "prime2Hp": 175000
+      }
+    },
+    "Ghazghkull": {
+      "M2": {
+        "hp": 31250000,
+        "prime1Hp": 2500000,
+        "prime2Hp": 2500000
+      },
+      "M1": {
+        "hp": 25000000,
+        "prime1Hp": 2000000,
+        "prime2Hp": 2000000
+      },
+      "L5": {
+        "hp": 12500000,
+        "prime1Hp": 1000000,
+        "prime2Hp": 1000000
+      },
+      "L4": {
+        "hp": 10400000,
+        "prime1Hp": 832000,
+        "prime2Hp": 832000
+      },
+      "L3": {
+        "hp": 8330000,
+        "prime1Hp": 666400,
+        "prime2Hp": 666400
+      },
+      "L2": {
+        "hp": 6250000,
+        "prime1Hp": 500000,
+        "prime2Hp": 500000
+      },
+      "L1": {
+        "hp": 4165000,
+        "prime1Hp": 333200,
+        "prime2Hp": 333200
+      }
+    },
+    "SilentKing": {
+      "M2": {
+        "hp": 37500000,
+        "prime1Hp": 3000000,
+        "prime2Hp": 3000000
+      },
+      "M1": {
+        "hp": 30000000,
+        "prime1Hp": 2400000,
+        "prime2Hp": 2400000
+      },
+      "L5": {
+        "hp": 15000000,
+        "prime1Hp": 1200000,
+        "prime2Hp": 1200000
+      },
+      "L4": {
+        "hp": 12500000,
+        "prime1Hp": 1000000,
+        "prime2Hp": 1000000
+      },
+      "L3": {
+        "hp": 10000000,
+        "prime1Hp": 800000,
+        "prime2Hp": 800000
+      },
+      "L2": {
+        "hp": 7500000,
+        "prime1Hp": 600000,
+        "prime2Hp": 600000
+      },
+      "L1": {
+        "hp": 5000000,
+        "prime1Hp": 400000,
+        "prime2Hp": 400000
+      }
+    },
+    "HiveTyrantGorgon": {
+      "M2": {
+        "hp": 37500000,
+        "prime1Hp": 3000000,
+        "prime2Hp": 3000000
+      },
+      "M1": {
+        "hp": 30000000,
+        "prime1Hp": 2400000,
+        "prime2Hp": 2400000
+      },
+      "L5": {
+        "hp": 15000000,
+        "prime1Hp": 1200000,
+        "prime2Hp": 1200000
+      },
+      "L4": {
+        "hp": 12500000,
+        "prime1Hp": 1000000,
+        "prime2Hp": 1000000
+      },
+      "L3": {
+        "hp": 10000000,
+        "prime1Hp": 800000,
+        "prime2Hp": 800000
+      },
+      "L2": {
+        "hp": 7500000,
+        "prime1Hp": 600000,
+        "prime2Hp": 600000
+      },
+      "L1": {
+        "hp": 5000000,
+        "prime1Hp": 400000,
+        "prime2Hp": 400000
+      }
+    },
+    "HiveTyrantKronos": {
+      "M2": {
+        "hp": 37500000,
+        "prime1Hp": 3000000,
+        "prime2Hp": 3000000
+      },
+      "M1": {
+        "hp": 30000000,
+        "prime1Hp": 2400000,
+        "prime2Hp": 2400000
+      },
+      "L5": {
+        "hp": 15000000,
+        "prime1Hp": 1200000,
+        "prime2Hp": 1200000
+      },
+      "L4": {
+        "hp": 12500000,
+        "prime1Hp": 1000000,
+        "prime2Hp": 1000000
+      },
+      "L3": {
+        "hp": 10000000,
+        "prime1Hp": 800000,
+        "prime2Hp": 800000
+      },
+      "L2": {
+        "hp": 7500000,
+        "prime1Hp": 600000,
+        "prime2Hp": 600000
+      },
+      "L1": {
+        "hp": 5000000,
+        "prime1Hp": 400000,
+        "prime2Hp": 400000
+      }
+    },
+    "HiveTyrantLeviathan": {
+      "M2": {
+        "hp": 37500000,
+        "prime1Hp": 3000000,
+        "prime2Hp": 3000000
+      },
+      "M1": {
+        "hp": 30000000,
+        "prime1Hp": 2400000,
+        "prime2Hp": 2400000
+      },
+      "L5": {
+        "hp": 15000000,
+        "prime1Hp": 1200000,
+        "prime2Hp": 1200000
+      },
+      "L4": {
+        "hp": 12500000,
+        "prime1Hp": 1000000,
+        "prime2Hp": 1000000
+      },
+      "L3": {
+        "hp": 10000000,
+        "prime1Hp": 800000,
+        "prime2Hp": 800000
+      },
+      "L2": {
+        "hp": 7500000,
+        "prime1Hp": 600000,
+        "prime2Hp": 600000
+      },
+      "L1": {
+        "hp": 5000000,
+        "prime1Hp": 400000,
+        "prime2Hp": 400000
+      }
+    },
+    "TervigonGorgon": {
+      "M2": {
+        "hp": 37500000,
+        "prime1Hp": 3000000,
+        "prime2Hp": 3000000
+      },
+      "M1": {
+        "hp": 30000000,
+        "prime1Hp": 2400000,
+        "prime2Hp": 2400000
+      },
+      "L5": {
+        "hp": 15000000,
+        "prime1Hp": 1200000,
+        "prime2Hp": 1200000
+      },
+      "L4": {
+        "hp": 12500000,
+        "prime1Hp": 1000000,
+        "prime2Hp": 1000000
+      },
+      "L3": {
+        "hp": 10000000,
+        "prime1Hp": 800000,
+        "prime2Hp": 800000
+      },
+      "L2": {
+        "hp": 7500000,
+        "prime1Hp": 600000,
+        "prime2Hp": 600000
+      },
+      "L1": {
+        "hp": 5000000,
+        "prime1Hp": 400000,
+        "prime2Hp": 400000
+      }
+    },
+    "TervigonKronos": {
+      "M2": {
+        "hp": 37500000,
+        "prime1Hp": 3000000,
+        "prime2Hp": 3000000
+      },
+      "M1": {
+        "hp": 30000000,
+        "prime1Hp": 2400000,
+        "prime2Hp": 2400000
+      },
+      "L5": {
+        "hp": 15000000,
+        "prime1Hp": 1200000,
+        "prime2Hp": 1200000
+      },
+      "L4": {
+        "hp": 12500000,
+        "prime1Hp": 1000000,
+        "prime2Hp": 1000000
+      },
+      "L3": {
+        "hp": 10000000,
+        "prime1Hp": 800000,
+        "prime2Hp": 800000
+      },
+      "L2": {
+        "hp": 7500000,
+        "prime1Hp": 600000,
+        "prime2Hp": 600000
+      },
+      "L1": {
+        "hp": 5000000,
+        "prime1Hp": 400000,
+        "prime2Hp": 400000
+      }
+    },
+    "TervigonLeviathan": {
+      "M2": {
+        "hp": 37500000,
+        "prime1Hp": 3000000,
+        "prime2Hp": 3000000
+      },
+      "M1": {
+        "hp": 30000000,
+        "prime1Hp": 2400000,
+        "prime2Hp": 2400000
+      },
+      "L5": {
+        "hp": 15000000,
+        "prime1Hp": 1200000,
+        "prime2Hp": 1200000
+      },
+      "L4": {
+        "hp": 12500000,
+        "prime1Hp": 1000000,
+        "prime2Hp": 1000000
+      },
+      "L3": {
+        "hp": 10000000,
+        "prime1Hp": 800000,
+        "prime2Hp": 800000
+      },
+      "L2": {
+        "hp": 7500000,
+        "prime1Hp": 600000,
+        "prime2Hp": 600000
+      },
+      "L1": {
+        "hp": 5000000,
+        "prime1Hp": 400000,
+        "prime2Hp": 400000
+      }
+    },
+    "Riptide": {
+      "M2": {
+        "hp": 37500000,
+        "prime1Hp": 2250000,
+        "prime2Hp": 2250000
+      },
+      "M1": {
+        "hp": 30000000,
+        "prime1Hp": 1800000,
+        "prime2Hp": 1800000
+      },
+      "L5": {
+        "hp": 15000000,
+        "prime1Hp": 900000,
+        "prime2Hp": 900000
+      },
+      "L4": {
+        "hp": 12500000,
+        "prime1Hp": 750000,
+        "prime2Hp": 750000
+      },
+      "L3": {
+        "hp": 10000000,
+        "prime1Hp": 600000,
+        "prime2Hp": 600000
+      },
+      "L2": {
+        "hp": 7500000,
+        "prime1Hp": 450000,
+        "prime2Hp": 450000
+      },
+      "L1": {
+        "hp": 5000000,
+        "prime1Hp": 300000,
+        "prime2Hp": 300000
+      }
+    },
+    "Belisarius": {
+      "M2": {
+        "hp": 37500000,
+        "prime1Hp": 2250000,
+        "prime2Hp": 2625000
+      },
+      "M1": {
+        "hp": 30000000,
+        "prime1Hp": 1800000,
+        "prime2Hp": 2100000
+      },
+      "L5": {
+        "hp": 15000000,
+        "prime1Hp": 900000,
+        "prime2Hp": 1050000
+      },
+      "L4": {
+        "hp": 12500000,
+        "prime1Hp": 750000,
+        "prime2Hp": 875000
+      },
+      "L3": {
+        "hp": 10000000,
+        "prime1Hp": 600000,
+        "prime2Hp": 700000
+      },
+      "L2": {
+        "hp": 7500000,
+        "prime1Hp": 450000,
+        "prime2Hp": 525000
+      },
+      "L1": {
+        "hp": 5000000,
+        "prime1Hp": 300000,
+        "prime2Hp": 350000
+      }
+    }
+  },
+  "byLevel": {
+    "M2": {
+      "Magnus": 37500000,
+      "Avatar": 31250000,
+      "Rogaldorn": 37500000,
+      "ScreamerKiller": 37500000,
+      "Mortarion": 37500000,
+      "Ghazghkull": 31250000,
+      "SilentKing": 37500000,
+      "HiveTyrantGorgon": 37500000,
+      "HiveTyrantKronos": 37500000,
+      "HiveTyrantLeviathan": 37500000,
+      "TervigonGorgon": 37500000,
+      "TervigonKronos": 37500000,
+      "TervigonLeviathan": 37500000,
+      "Riptide": 37500000,
+      "Belisarius": 37500000
+    },
+    "M1": {
+      "Magnus": 30000000,
+      "Avatar": 25000000,
+      "Rogaldorn": 30000000,
+      "ScreamerKiller": 30000000,
+      "Mortarion": 30000000,
+      "Ghazghkull": 25000000,
+      "SilentKing": 30000000,
+      "HiveTyrantGorgon": 30000000,
+      "HiveTyrantKronos": 30000000,
+      "HiveTyrantLeviathan": 30000000,
+      "TervigonGorgon": 30000000,
+      "TervigonKronos": 30000000,
+      "TervigonLeviathan": 30000000,
+      "Riptide": 30000000,
+      "Belisarius": 30000000
+    },
+    "L5": {
+      "Magnus": 15000000,
+      "Avatar": 12500000,
+      "Rogaldorn": 15000000,
+      "ScreamerKiller": 15000000,
+      "Mortarion": 15000000,
+      "Ghazghkull": 12500000,
+      "SilentKing": 15000000,
+      "HiveTyrantGorgon": 15000000,
+      "HiveTyrantKronos": 15000000,
+      "HiveTyrantLeviathan": 15000000,
+      "TervigonGorgon": 15000000,
+      "TervigonKronos": 15000000,
+      "TervigonLeviathan": 15000000,
+      "Riptide": 15000000,
+      "Belisarius": 15000000
+    },
+    "L4": {
+      "Magnus": 12500000,
+      "Avatar": 10400000,
+      "Rogaldorn": 12500000,
+      "ScreamerKiller": 12500000,
+      "Mortarion": 12500000,
+      "Ghazghkull": 10400000,
+      "SilentKing": 12500000,
+      "HiveTyrantGorgon": 12500000,
+      "HiveTyrantKronos": 12500000,
+      "HiveTyrantLeviathan": 12500000,
+      "TervigonGorgon": 12500000,
+      "TervigonKronos": 12500000,
+      "TervigonLeviathan": 12500000,
+      "Riptide": 12500000,
+      "Belisarius": 12500000
+    },
+    "L3": {
+      "Magnus": 10000000,
+      "Avatar": 8330000,
+      "Rogaldorn": 10000000,
+      "ScreamerKiller": 10000000,
+      "Mortarion": 10000000,
+      "Ghazghkull": 8330000,
+      "SilentKing": 10000000,
+      "HiveTyrantGorgon": 10000000,
+      "HiveTyrantKronos": 10000000,
+      "HiveTyrantLeviathan": 10000000,
+      "TervigonGorgon": 10000000,
+      "TervigonKronos": 10000000,
+      "TervigonLeviathan": 10000000,
+      "Riptide": 10000000,
+      "Belisarius": 10000000
+    },
+    "L2": {
+      "Magnus": 7500000,
+      "Avatar": 6250000,
+      "Rogaldorn": 7500000,
+      "ScreamerKiller": 7500000,
+      "Mortarion": 7500000,
+      "Ghazghkull": 6250000,
+      "SilentKing": 7500000,
+      "HiveTyrantGorgon": 7500000,
+      "HiveTyrantKronos": 7500000,
+      "HiveTyrantLeviathan": 7500000,
+      "TervigonGorgon": 7500000,
+      "TervigonKronos": 7500000,
+      "TervigonLeviathan": 7500000,
+      "Riptide": 7500000,
+      "Belisarius": 7500000
+    },
+    "L1": {
+      "Magnus": 5000000,
+      "Avatar": 4165000,
+      "Rogaldorn": 5000000,
+      "ScreamerKiller": 5000000,
+      "Mortarion": 5000000,
+      "Ghazghkull": 4165000,
+      "SilentKing": 5000000,
+      "HiveTyrantGorgon": 5000000,
+      "HiveTyrantKronos": 5000000,
+      "HiveTyrantLeviathan": 5000000,
+      "TervigonGorgon": 5000000,
+      "TervigonKronos": 5000000,
+      "TervigonLeviathan": 5000000,
+      "Riptide": 5000000,
+      "Belisarius": 5000000
+    }
+  },
+  "primesByLevel": {
+    "M2": {
+      "Magnus": {
+        "prime1": 2250000,
+        "prime2": 2625000
+      },
+      "Avatar": {
+        "prime1": 2187500,
+        "prime2": 2187500
+      },
+      "Rogaldorn": {
+        "prime1": 3000000,
+        "prime2": 2625000
+      },
+      "ScreamerKiller": {
+        "prime1": 3000000,
+        "prime2": 3000000
+      },
+      "Mortarion": {
+        "prime1": 2625000,
+        "prime2": 593600
+      },
+      "Ghazghkull": {
+        "prime1": 2500000,
+        "prime2": 2500000
+      },
+      "SilentKing": {
+        "prime1": 3000000,
+        "prime2": 3000000
+      },
+      "HiveTyrantGorgon": {
+        "prime1": 3000000,
+        "prime2": 3000000
+      },
+      "HiveTyrantKronos": {
+        "prime1": 3000000,
+        "prime2": 3000000
+      },
+      "HiveTyrantLeviathan": {
+        "prime1": 3000000,
+        "prime2": 3000000
+      },
+      "TervigonGorgon": {
+        "prime1": 3000000,
+        "prime2": 3000000
+      },
+      "TervigonKronos": {
+        "prime1": 3000000,
+        "prime2": 3000000
+      },
+      "TervigonLeviathan": {
+        "prime1": 3000000,
+        "prime2": 3000000
+      },
+      "Riptide": {
+        "prime1": 2250000,
+        "prime2": 2250000
+      },
+      "Belisarius": {
+        "prime1": 2250000,
+        "prime2": 2625000
+      }
+    },
+    "M1": {
+      "Magnus": {
+        "prime1": 1800000,
+        "prime2": 2100000
+      },
+      "Avatar": {
+        "prime1": 1750000,
+        "prime2": 1750000
+      },
+      "Rogaldorn": {
+        "prime1": 2400000,
+        "prime2": 2100000
+      },
+      "ScreamerKiller": {
+        "prime1": 2400000,
+        "prime2": 2400000
+      },
+      "Mortarion": {
+        "prime1": 2100000,
+        "prime2": 533400
+      },
+      "Ghazghkull": {
+        "prime1": 2000000,
+        "prime2": 2000000
+      },
+      "SilentKing": {
+        "prime1": 2400000,
+        "prime2": 2400000
+      },
+      "HiveTyrantGorgon": {
+        "prime1": 2400000,
+        "prime2": 2400000
+      },
+      "HiveTyrantKronos": {
+        "prime1": 2400000,
+        "prime2": 2400000
+      },
+      "HiveTyrantLeviathan": {
+        "prime1": 2400000,
+        "prime2": 2400000
+      },
+      "TervigonGorgon": {
+        "prime1": 2400000,
+        "prime2": 2400000
+      },
+      "TervigonKronos": {
+        "prime1": 2400000,
+        "prime2": 2400000
+      },
+      "TervigonLeviathan": {
+        "prime1": 2400000,
+        "prime2": 2400000
+      },
+      "Riptide": {
+        "prime1": 1800000,
+        "prime2": 1800000
+      },
+      "Belisarius": {
+        "prime1": 1800000,
+        "prime2": 2100000
+      }
+    },
+    "L5": {
+      "Magnus": {
+        "prime1": 900000,
+        "prime2": 1050000
+      },
+      "Avatar": {
+        "prime1": 875000,
+        "prime2": 875000
+      },
+      "Rogaldorn": {
+        "prime1": 1200000,
+        "prime2": 1050000
+      },
+      "ScreamerKiller": {
+        "prime1": 1200000,
+        "prime2": 1200000
+      },
+      "Mortarion": {
+        "prime1": 1050000,
+        "prime2": 500500
+      },
+      "Ghazghkull": {
+        "prime1": 1000000,
+        "prime2": 1000000
+      },
+      "SilentKing": {
+        "prime1": 1200000,
+        "prime2": 1200000
+      },
+      "HiveTyrantGorgon": {
+        "prime1": 1200000,
+        "prime2": 1200000
+      },
+      "HiveTyrantKronos": {
+        "prime1": 1200000,
+        "prime2": 1200000
+      },
+      "HiveTyrantLeviathan": {
+        "prime1": 1200000,
+        "prime2": 1200000
+      },
+      "TervigonGorgon": {
+        "prime1": 1200000,
+        "prime2": 1200000
+      },
+      "TervigonKronos": {
+        "prime1": 1200000,
+        "prime2": 1200000
+      },
+      "TervigonLeviathan": {
+        "prime1": 1200000,
+        "prime2": 1200000
+      },
+      "Riptide": {
+        "prime1": 900000,
+        "prime2": 900000
+      },
+      "Belisarius": {
+        "prime1": 900000,
+        "prime2": 1050000
+      }
+    },
+    "L4": {
+      "Magnus": {
+        "prime1": 750000,
+        "prime2": 875000
+      },
+      "Avatar": {
+        "prime1": 728000,
+        "prime2": 728000
+      },
+      "Rogaldorn": {
+        "prime1": 1000000,
+        "prime2": 875000
+      },
+      "ScreamerKiller": {
+        "prime1": 1000000,
+        "prime2": 1000000
+      },
+      "Mortarion": {
+        "prime1": 875000,
+        "prime2": 380800
+      },
+      "Ghazghkull": {
+        "prime1": 832000,
+        "prime2": 832000
+      },
+      "SilentKing": {
+        "prime1": 1000000,
+        "prime2": 1000000
+      },
+      "HiveTyrantGorgon": {
+        "prime1": 1000000,
+        "prime2": 1000000
+      },
+      "HiveTyrantKronos": {
+        "prime1": 1000000,
+        "prime2": 1000000
+      },
+      "HiveTyrantLeviathan": {
+        "prime1": 1000000,
+        "prime2": 1000000
+      },
+      "TervigonGorgon": {
+        "prime1": 1000000,
+        "prime2": 1000000
+      },
+      "TervigonKronos": {
+        "prime1": 1000000,
+        "prime2": 1000000
+      },
+      "TervigonLeviathan": {
+        "prime1": 1000000,
+        "prime2": 1000000
+      },
+      "Riptide": {
+        "prime1": 750000,
+        "prime2": 750000
+      },
+      "Belisarius": {
+        "prime1": 750000,
+        "prime2": 875000
+      }
+    },
+    "L3": {
+      "Magnus": {
+        "prime1": 600000,
+        "prime2": 700000
+      },
+      "Avatar": {
+        "prime1": 583100,
+        "prime2": 583100
+      },
+      "Rogaldorn": {
+        "prime1": 800000,
+        "prime2": 700000
+      },
+      "ScreamerKiller": {
+        "prime1": 800000,
+        "prime2": 800000
+      },
+      "Mortarion": {
+        "prime1": 700000,
+        "prime2": 289100
+      },
+      "Ghazghkull": {
+        "prime1": 666400,
+        "prime2": 666400
+      },
+      "SilentKing": {
+        "prime1": 800000,
+        "prime2": 800000
+      },
+      "HiveTyrantGorgon": {
+        "prime1": 800000,
+        "prime2": 800000
+      },
+      "HiveTyrantKronos": {
+        "prime1": 800000,
+        "prime2": 800000
+      },
+      "HiveTyrantLeviathan": {
+        "prime1": 800000,
+        "prime2": 800000
+      },
+      "TervigonGorgon": {
+        "prime1": 800000,
+        "prime2": 800000
+      },
+      "TervigonKronos": {
+        "prime1": 800000,
+        "prime2": 800000
+      },
+      "TervigonLeviathan": {
+        "prime1": 800000,
+        "prime2": 800000
+      },
+      "Riptide": {
+        "prime1": 600000,
+        "prime2": 600000
+      },
+      "Belisarius": {
+        "prime1": 600000,
+        "prime2": 700000
+      }
+    },
+    "L2": {
+      "Magnus": {
+        "prime1": 450000,
+        "prime2": 525000
+      },
+      "Avatar": {
+        "prime1": 437500,
+        "prime2": 437500
+      },
+      "Rogaldorn": {
+        "prime1": 600000,
+        "prime2": 525000
+      },
+      "ScreamerKiller": {
+        "prime1": 600000,
+        "prime2": 600000
+      },
+      "Mortarion": {
+        "prime1": 525000,
+        "prime2": 231000
+      },
+      "Ghazghkull": {
+        "prime1": 500000,
+        "prime2": 500000
+      },
+      "SilentKing": {
+        "prime1": 600000,
+        "prime2": 600000
+      },
+      "HiveTyrantGorgon": {
+        "prime1": 600000,
+        "prime2": 600000
+      },
+      "HiveTyrantKronos": {
+        "prime1": 600000,
+        "prime2": 600000
+      },
+      "HiveTyrantLeviathan": {
+        "prime1": 600000,
+        "prime2": 600000
+      },
+      "TervigonGorgon": {
+        "prime1": 600000,
+        "prime2": 600000
+      },
+      "TervigonKronos": {
+        "prime1": 600000,
+        "prime2": 600000
+      },
+      "TervigonLeviathan": {
+        "prime1": 600000,
+        "prime2": 600000
+      },
+      "Riptide": {
+        "prime1": 450000,
+        "prime2": 450000
+      },
+      "Belisarius": {
+        "prime1": 450000,
+        "prime2": 525000
+      }
+    },
+    "L1": {
+      "Magnus": {
+        "prime1": 300000,
+        "prime2": 350000
+      },
+      "Avatar": {
+        "prime1": 291550,
+        "prime2": 291550
+      },
+      "Rogaldorn": {
+        "prime1": 400000,
+        "prime2": 350000
+      },
+      "ScreamerKiller": {
+        "prime1": 400000,
+        "prime2": 400000
+      },
+      "Mortarion": {
+        "prime1": 350000,
+        "prime2": 175000
+      },
+      "Ghazghkull": {
+        "prime1": 333200,
+        "prime2": 333200
+      },
+      "SilentKing": {
+        "prime1": 400000,
+        "prime2": 400000
+      },
+      "HiveTyrantGorgon": {
+        "prime1": 400000,
+        "prime2": 400000
+      },
+      "HiveTyrantKronos": {
+        "prime1": 400000,
+        "prime2": 400000
+      },
+      "HiveTyrantLeviathan": {
+        "prime1": 400000,
+        "prime2": 400000
+      },
+      "TervigonGorgon": {
+        "prime1": 400000,
+        "prime2": 400000
+      },
+      "TervigonKronos": {
+        "prime1": 400000,
+        "prime2": 400000
+      },
+      "TervigonLeviathan": {
+        "prime1": 400000,
+        "prime2": 400000
+      },
+      "Riptide": {
+        "prime1": 300000,
+        "prime2": 300000
+      },
+      "Belisarius": {
+        "prime1": 300000,
+        "prime2": 350000
+      }
+    }
+  },
+  "raw": [
+    {
+      "bossName": "ThousMagnus",
+      "level": "M2",
+      "hp": 37500000,
+      "prime1Hp": 2250000,
+      "prime2Hp": 2625000
+    },
+    {
+      "bossName": "ThousMagnus",
+      "level": "M1",
+      "hp": 30000000,
+      "prime1Hp": 1800000,
+      "prime2Hp": 2100000
+    },
+    {
+      "bossName": "ThousMagnus",
+      "level": "L5",
+      "hp": 15000000,
+      "prime1Hp": 900000,
+      "prime2Hp": 1050000
+    },
+    {
+      "bossName": "ThousMagnus",
+      "level": "L4",
+      "hp": 12500000,
+      "prime1Hp": 750000,
+      "prime2Hp": 875000
+    },
+    {
+      "bossName": "ThousMagnus",
+      "level": "L3",
+      "hp": 10000000,
+      "prime1Hp": 600000,
+      "prime2Hp": 700000
+    },
+    {
+      "bossName": "ThousMagnus",
+      "level": "L2",
+      "hp": 7500000,
+      "prime1Hp": 450000,
+      "prime2Hp": 525000
+    },
+    {
+      "bossName": "ThousMagnus",
+      "level": "L1",
+      "hp": 5000000,
+      "prime1Hp": 300000,
+      "prime2Hp": 350000
+    },
+    {
+      "bossName": "EldarAvatar",
+      "level": "M2",
+      "hp": 31250000,
+      "prime1Hp": 2187500,
+      "prime2Hp": 2187500
+    },
+    {
+      "bossName": "EldarAvatar",
+      "level": "M1",
+      "hp": 25000000,
+      "prime1Hp": 1750000,
+      "prime2Hp": 1750000
+    },
+    {
+      "bossName": "EldarAvatar",
+      "level": "L5",
+      "hp": 12500000,
+      "prime1Hp": 875000,
+      "prime2Hp": 875000
+    },
+    {
+      "bossName": "EldarAvatar",
+      "level": "L4",
+      "hp": 10400000,
+      "prime1Hp": 728000,
+      "prime2Hp": 728000
+    },
+    {
+      "bossName": "EldarAvatar",
+      "level": "L3",
+      "hp": 8330000,
+      "prime1Hp": 583100,
+      "prime2Hp": 583100
+    },
+    {
+      "bossName": "EldarAvatar",
+      "level": "L2",
+      "hp": 6250000,
+      "prime1Hp": 437500,
+      "prime2Hp": 437500
+    },
+    {
+      "bossName": "EldarAvatar",
+      "level": "L1",
+      "hp": 4165000,
+      "prime1Hp": 291550,
+      "prime2Hp": 291550
+    },
+    {
+      "bossName": "AstraRogaldorn",
+      "level": "M2",
+      "hp": 37500000,
+      "prime1Hp": 3000000,
+      "prime2Hp": 2625000
+    },
+    {
+      "bossName": "AstraRogaldorn",
+      "level": "M1",
+      "hp": 30000000,
+      "prime1Hp": 2400000,
+      "prime2Hp": 2100000
+    },
+    {
+      "bossName": "AstraRogaldorn",
+      "level": "L5",
+      "hp": 15000000,
+      "prime1Hp": 1200000,
+      "prime2Hp": 1050000
+    },
+    {
+      "bossName": "AstraRogaldorn",
+      "level": "L4",
+      "hp": 12500000,
+      "prime1Hp": 1000000,
+      "prime2Hp": 875000
+    },
+    {
+      "bossName": "AstraRogaldorn",
+      "level": "L3",
+      "hp": 10000000,
+      "prime1Hp": 800000,
+      "prime2Hp": 700000
+    },
+    {
+      "bossName": "AstraRogaldorn",
+      "level": "L2",
+      "hp": 7500000,
+      "prime1Hp": 600000,
+      "prime2Hp": 525000
+    },
+    {
+      "bossName": "AstraRogaldorn",
+      "level": "L1",
+      "hp": 5000000,
+      "prime1Hp": 400000,
+      "prime2Hp": 350000
+    },
+    {
+      "bossName": "TyranScreamerKiller",
+      "level": "M2",
+      "hp": 37500000,
+      "prime1Hp": 3000000,
+      "prime2Hp": 3000000
+    },
+    {
+      "bossName": "TyranScreamerKiller",
+      "level": "M1",
+      "hp": 30000000,
+      "prime1Hp": 2400000,
+      "prime2Hp": 2400000
+    },
+    {
+      "bossName": "TyranScreamerKiller",
+      "level": "L5",
+      "hp": 15000000,
+      "prime1Hp": 1200000,
+      "prime2Hp": 1200000
+    },
+    {
+      "bossName": "TyranScreamerKiller",
+      "level": "L4",
+      "hp": 12500000,
+      "prime1Hp": 1000000,
+      "prime2Hp": 1000000
+    },
+    {
+      "bossName": "TyranScreamerKiller",
+      "level": "L3",
+      "hp": 10000000,
+      "prime1Hp": 800000,
+      "prime2Hp": 800000
+    },
+    {
+      "bossName": "TyranScreamerKiller",
+      "level": "L2",
+      "hp": 7500000,
+      "prime1Hp": 600000,
+      "prime2Hp": 600000
+    },
+    {
+      "bossName": "TyranScreamerKiller",
+      "level": "L1",
+      "hp": 5000000,
+      "prime1Hp": 400000,
+      "prime2Hp": 400000
+    },
+    {
+      "bossName": "DeathMortarion",
+      "level": "M2",
+      "hp": 37500000,
+      "prime1Hp": 2625000,
+      "prime2Hp": 593600
+    },
+    {
+      "bossName": "DeathMortarion",
+      "level": "M1",
+      "hp": 30000000,
+      "prime1Hp": 2100000,
+      "prime2Hp": 533400
+    },
+    {
+      "bossName": "DeathMortarion",
+      "level": "L5",
+      "hp": 15000000,
+      "prime1Hp": 1050000,
+      "prime2Hp": 500500
+    },
+    {
+      "bossName": "DeathMortarion",
+      "level": "L4",
+      "hp": 12500000,
+      "prime1Hp": 875000,
+      "prime2Hp": 380800
+    },
+    {
+      "bossName": "DeathMortarion",
+      "level": "L3",
+      "hp": 10000000,
+      "prime1Hp": 700000,
+      "prime2Hp": 289100
+    },
+    {
+      "bossName": "DeathMortarion",
+      "level": "L2",
+      "hp": 7500000,
+      "prime1Hp": 525000,
+      "prime2Hp": 231000
+    },
+    {
+      "bossName": "DeathMortarion",
+      "level": "L1",
+      "hp": 5000000,
+      "prime1Hp": 350000,
+      "prime2Hp": 175000
+    },
+    {
+      "bossName": "OrksGhazghkull",
+      "level": "M2",
+      "hp": 31250000,
+      "prime1Hp": 2500000,
+      "prime2Hp": 2500000
+    },
+    {
+      "bossName": "OrksGhazghkull",
+      "level": "M1",
+      "hp": 25000000,
+      "prime1Hp": 2000000,
+      "prime2Hp": 2000000
+    },
+    {
+      "bossName": "OrksGhazghkull",
+      "level": "L5",
+      "hp": 12500000,
+      "prime1Hp": 1000000,
+      "prime2Hp": 1000000
+    },
+    {
+      "bossName": "OrksGhazghkull",
+      "level": "L4",
+      "hp": 10400000,
+      "prime1Hp": 832000,
+      "prime2Hp": 832000
+    },
+    {
+      "bossName": "OrksGhazghkull",
+      "level": "L3",
+      "hp": 8330000,
+      "prime1Hp": 666400,
+      "prime2Hp": 666400
+    },
+    {
+      "bossName": "OrksGhazghkull",
+      "level": "L2",
+      "hp": 6250000,
+      "prime1Hp": 500000,
+      "prime2Hp": 500000
+    },
+    {
+      "bossName": "OrksGhazghkull",
+      "level": "L1",
+      "hp": 4165000,
+      "prime1Hp": 333200,
+      "prime2Hp": 333200
+    },
+    {
+      "bossName": "NecroSilentKing",
+      "level": "M2",
+      "hp": 37500000,
+      "prime1Hp": 3000000,
+      "prime2Hp": 3000000
+    },
+    {
+      "bossName": "NecroSilentKing",
+      "level": "M1",
+      "hp": 30000000,
+      "prime1Hp": 2400000,
+      "prime2Hp": 2400000
+    },
+    {
+      "bossName": "NecroSilentKing",
+      "level": "L5",
+      "hp": 15000000,
+      "prime1Hp": 1200000,
+      "prime2Hp": 1200000
+    },
+    {
+      "bossName": "NecroSilentKing",
+      "level": "L4",
+      "hp": 12500000,
+      "prime1Hp": 1000000,
+      "prime2Hp": 1000000
+    },
+    {
+      "bossName": "NecroSilentKing",
+      "level": "L3",
+      "hp": 10000000,
+      "prime1Hp": 800000,
+      "prime2Hp": 800000
+    },
+    {
+      "bossName": "NecroSilentKing",
+      "level": "L2",
+      "hp": 7500000,
+      "prime1Hp": 600000,
+      "prime2Hp": 600000
+    },
+    {
+      "bossName": "NecroSilentKing",
+      "level": "L1",
+      "hp": 5000000,
+      "prime1Hp": 400000,
+      "prime2Hp": 400000
+    },
+    {
+      "bossName": "TyranHiveTyrantGorgon",
+      "level": "M2",
+      "hp": 37500000,
+      "prime1Hp": 3000000,
+      "prime2Hp": 3000000
+    },
+    {
+      "bossName": "TyranHiveTyrantGorgon",
+      "level": "M1",
+      "hp": 30000000,
+      "prime1Hp": 2400000,
+      "prime2Hp": 2400000
+    },
+    {
+      "bossName": "TyranHiveTyrantGorgon",
+      "level": "L5",
+      "hp": 15000000,
+      "prime1Hp": 1200000,
+      "prime2Hp": 1200000
+    },
+    {
+      "bossName": "TyranHiveTyrantGorgon",
+      "level": "L4",
+      "hp": 12500000,
+      "prime1Hp": 1000000,
+      "prime2Hp": 1000000
+    },
+    {
+      "bossName": "TyranHiveTyrantGorgon",
+      "level": "L3",
+      "hp": 10000000,
+      "prime1Hp": 800000,
+      "prime2Hp": 800000
+    },
+    {
+      "bossName": "TyranHiveTyrantGorgon",
+      "level": "L2",
+      "hp": 7500000,
+      "prime1Hp": 600000,
+      "prime2Hp": 600000
+    },
+    {
+      "bossName": "TyranHiveTyrantGorgon",
+      "level": "L1",
+      "hp": 5000000,
+      "prime1Hp": 400000,
+      "prime2Hp": 400000
+    },
+    {
+      "bossName": "TyranHiveTyrantKronos",
+      "level": "M2",
+      "hp": 37500000,
+      "prime1Hp": 3000000,
+      "prime2Hp": 3000000
+    },
+    {
+      "bossName": "TyranHiveTyrantKronos",
+      "level": "M1",
+      "hp": 30000000,
+      "prime1Hp": 2400000,
+      "prime2Hp": 2400000
+    },
+    {
+      "bossName": "TyranHiveTyrantKronos",
+      "level": "L5",
+      "hp": 15000000,
+      "prime1Hp": 1200000,
+      "prime2Hp": 1200000
+    },
+    {
+      "bossName": "TyranHiveTyrantKronos",
+      "level": "L4",
+      "hp": 12500000,
+      "prime1Hp": 1000000,
+      "prime2Hp": 1000000
+    },
+    {
+      "bossName": "TyranHiveTyrantKronos",
+      "level": "L3",
+      "hp": 10000000,
+      "prime1Hp": 800000,
+      "prime2Hp": 800000
+    },
+    {
+      "bossName": "TyranHiveTyrantKronos",
+      "level": "L2",
+      "hp": 7500000,
+      "prime1Hp": 600000,
+      "prime2Hp": 600000
+    },
+    {
+      "bossName": "TyranHiveTyrantKronos",
+      "level": "L1",
+      "hp": 5000000,
+      "prime1Hp": 400000,
+      "prime2Hp": 400000
+    },
+    {
+      "bossName": "TyranHiveTyrantLeviathan",
+      "level": "M2",
+      "hp": 37500000,
+      "prime1Hp": 3000000,
+      "prime2Hp": 3000000
+    },
+    {
+      "bossName": "TyranHiveTyrantLeviathan",
+      "level": "M1",
+      "hp": 30000000,
+      "prime1Hp": 2400000,
+      "prime2Hp": 2400000
+    },
+    {
+      "bossName": "TyranHiveTyrantLeviathan",
+      "level": "L5",
+      "hp": 15000000,
+      "prime1Hp": 1200000,
+      "prime2Hp": 1200000
+    },
+    {
+      "bossName": "TyranHiveTyrantLeviathan",
+      "level": "L4",
+      "hp": 12500000,
+      "prime1Hp": 1000000,
+      "prime2Hp": 1000000
+    },
+    {
+      "bossName": "TyranHiveTyrantLeviathan",
+      "level": "L3",
+      "hp": 10000000,
+      "prime1Hp": 800000,
+      "prime2Hp": 800000
+    },
+    {
+      "bossName": "TyranHiveTyrantLeviathan",
+      "level": "L2",
+      "hp": 7500000,
+      "prime1Hp": 600000,
+      "prime2Hp": 600000
+    },
+    {
+      "bossName": "TyranHiveTyrantLeviathan",
+      "level": "L1",
+      "hp": 5000000,
+      "prime1Hp": 400000,
+      "prime2Hp": 400000
+    },
+    {
+      "bossName": "TyranTervigonGorgon",
+      "level": "M2",
+      "hp": 37500000,
+      "prime1Hp": 3000000,
+      "prime2Hp": 3000000
+    },
+    {
+      "bossName": "TyranTervigonGorgon",
+      "level": "M1",
+      "hp": 30000000,
+      "prime1Hp": 2400000,
+      "prime2Hp": 2400000
+    },
+    {
+      "bossName": "TyranTervigonGorgon",
+      "level": "L5",
+      "hp": 15000000,
+      "prime1Hp": 1200000,
+      "prime2Hp": 1200000
+    },
+    {
+      "bossName": "TyranTervigonGorgon",
+      "level": "L4",
+      "hp": 12500000,
+      "prime1Hp": 1000000,
+      "prime2Hp": 1000000
+    },
+    {
+      "bossName": "TyranTervigonGorgon",
+      "level": "L3",
+      "hp": 10000000,
+      "prime1Hp": 800000,
+      "prime2Hp": 800000
+    },
+    {
+      "bossName": "TyranTervigonGorgon",
+      "level": "L2",
+      "hp": 7500000,
+      "prime1Hp": 600000,
+      "prime2Hp": 600000
+    },
+    {
+      "bossName": "TyranTervigonGorgon",
+      "level": "L1",
+      "hp": 5000000,
+      "prime1Hp": 400000,
+      "prime2Hp": 400000
+    },
+    {
+      "bossName": "TyranTervigonKronos",
+      "level": "M2",
+      "hp": 37500000,
+      "prime1Hp": 3000000,
+      "prime2Hp": 3000000
+    },
+    {
+      "bossName": "TyranTervigonKronos",
+      "level": "M1",
+      "hp": 30000000,
+      "prime1Hp": 2400000,
+      "prime2Hp": 2400000
+    },
+    {
+      "bossName": "TyranTervigonKronos",
+      "level": "L5",
+      "hp": 15000000,
+      "prime1Hp": 1200000,
+      "prime2Hp": 1200000
+    },
+    {
+      "bossName": "TyranTervigonKronos",
+      "level": "L4",
+      "hp": 12500000,
+      "prime1Hp": 1000000,
+      "prime2Hp": 1000000
+    },
+    {
+      "bossName": "TyranTervigonKronos",
+      "level": "L3",
+      "hp": 10000000,
+      "prime1Hp": 800000,
+      "prime2Hp": 800000
+    },
+    {
+      "bossName": "TyranTervigonKronos",
+      "level": "L2",
+      "hp": 7500000,
+      "prime1Hp": 600000,
+      "prime2Hp": 600000
+    },
+    {
+      "bossName": "TyranTervigonKronos",
+      "level": "L1",
+      "hp": 5000000,
+      "prime1Hp": 400000,
+      "prime2Hp": 400000
+    },
+    {
+      "bossName": "TyranTervigonLeviathan",
+      "level": "M2",
+      "hp": 37500000,
+      "prime1Hp": 3000000,
+      "prime2Hp": 3000000
+    },
+    {
+      "bossName": "TyranTervigonLeviathan",
+      "level": "M1",
+      "hp": 30000000,
+      "prime1Hp": 2400000,
+      "prime2Hp": 2400000
+    },
+    {
+      "bossName": "TyranTervigonLeviathan",
+      "level": "L5",
+      "hp": 15000000,
+      "prime1Hp": 1200000,
+      "prime2Hp": 1200000
+    },
+    {
+      "bossName": "TyranTervigonLeviathan",
+      "level": "L4",
+      "hp": 12500000,
+      "prime1Hp": 1000000,
+      "prime2Hp": 1000000
+    },
+    {
+      "bossName": "TyranTervigonLeviathan",
+      "level": "L3",
+      "hp": 10000000,
+      "prime1Hp": 800000,
+      "prime2Hp": 800000
+    },
+    {
+      "bossName": "TyranTervigonLeviathan",
+      "level": "L2",
+      "hp": 7500000,
+      "prime1Hp": 600000,
+      "prime2Hp": 600000
+    },
+    {
+      "bossName": "TyranTervigonLeviathan",
+      "level": "L1",
+      "hp": 5000000,
+      "prime1Hp": 400000,
+      "prime2Hp": 400000
+    },
+    {
+      "bossName": "TauRiptide",
+      "level": "M2",
+      "hp": 37500000,
+      "prime1Hp": 2250000,
+      "prime2Hp": 2250000
+    },
+    {
+      "bossName": "TauRiptide",
+      "level": "M1",
+      "hp": 30000000,
+      "prime1Hp": 1800000,
+      "prime2Hp": 1800000
+    },
+    {
+      "bossName": "TauRiptide",
+      "level": "L5",
+      "hp": 15000000,
+      "prime1Hp": 900000,
+      "prime2Hp": 900000
+    },
+    {
+      "bossName": "TauRiptide",
+      "level": "L4",
+      "hp": 12500000,
+      "prime1Hp": 750000,
+      "prime2Hp": 750000
+    },
+    {
+      "bossName": "TauRiptide",
+      "level": "L3",
+      "hp": 10000000,
+      "prime1Hp": 600000,
+      "prime2Hp": 600000
+    },
+    {
+      "bossName": "TauRiptide",
+      "level": "L2",
+      "hp": 7500000,
+      "prime1Hp": 450000,
+      "prime2Hp": 450000
+    },
+    {
+      "bossName": "TauRiptide",
+      "level": "L1",
+      "hp": 5000000,
+      "prime1Hp": 300000,
+      "prime2Hp": 300000
+    },
+    {
+      "bossName": "AdmecBelisarius",
+      "level": "M2",
+      "hp": 37500000,
+      "prime1Hp": 2250000,
+      "prime2Hp": 2625000
+    },
+    {
+      "bossName": "AdmecBelisarius",
+      "level": "M1",
+      "hp": 30000000,
+      "prime1Hp": 1800000,
+      "prime2Hp": 2100000
+    },
+    {
+      "bossName": "AdmecBelisarius",
+      "level": "L5",
+      "hp": 15000000,
+      "prime1Hp": 900000,
+      "prime2Hp": 1050000
+    },
+    {
+      "bossName": "AdmecBelisarius",
+      "level": "L4",
+      "hp": 12500000,
+      "prime1Hp": 750000,
+      "prime2Hp": 875000
+    },
+    {
+      "bossName": "AdmecBelisarius",
+      "level": "L3",
+      "hp": 10000000,
+      "prime1Hp": 600000,
+      "prime2Hp": 700000
+    },
+    {
+      "bossName": "AdmecBelisarius",
+      "level": "L2",
+      "hp": 7500000,
+      "prime1Hp": 450000,
+      "prime2Hp": 525000
+    },
+    {
+      "bossName": "AdmecBelisarius",
+      "level": "L1",
+      "hp": 5000000,
+      "prime1Hp": 300000,
+      "prime2Hp": 350000
+    }
+  ]
+}

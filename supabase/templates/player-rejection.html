@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>++ APPLICATION STATUS ++</title>
+    <!--[if mso]>
+      <noscript>
+        <xml>
+          <o:OfficeDocumentSettings>
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+          </o:OfficeDocumentSettings>
+        </xml>
+      </noscript>
+    <![endif]-->
+    <style>
+      @media screen and (max-width: 600px) {
+        .container-table {
+          width: 100% !important;
+        }
+        .content-padding {
+          padding: 20px !important;
+        }
+      }
+    </style>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background-color: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+    "
+  >
+    <table
+      role="presentation"
+      cellpadding="0"
+      cellspacing="0"
+      width="100%"
+      style="background-color: #ffffff"
+    >
+      <tr>
+        <td align="center" style="padding: 40px 20px">
+          <table
+            class="container-table"
+            role="presentation"
+            cellpadding="0"
+            cellspacing="0"
+            width="600"
+            style="background: #ffffff"
+          >
+            <!-- Header -->
+            <tr>
+              <td
+                style="
+                  padding: 30px 30px 20px 30px;
+                  text-align: center;
+                  border-bottom: 2px solid #4169e1;
+                "
+              >
+                <div
+                  style="font-size: 36px; color: #4169e1; margin-bottom: 20px"
+                >
+                  &#11042; &#9881; &#11042;
+                </div>
+                <h1
+                  style="
+                    margin: 0;
+                    font-size: 22px;
+                    color: #1a1a1a;
+                    letter-spacing: 1px;
+                  "
+                >
+                  APPLICATION STATUS
+                </h1>
+                <p style="margin: 8px 0 0 0; font-size: 14px; color: #666666">
+                  {{ .GuildName }}
+                </p>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td class="content-padding" style="padding: 30px">
+                <p style="margin: 0 0 16px 0; font-size: 16px; color: #1a1a1a">
+                  {{ .PlayerName }},
+                </p>
+
+                <p
+                  style="
+                    margin: 0 0 16px 0;
+                    font-size: 15px;
+                    line-height: 1.6;
+                    color: #333333;
+                  "
+                >
+                  Thank you for applying to {{ .GuildName }}. After reviewing
+                  your application, we are not able to offer you a place at this
+                  time.
+                </p>
+
+                <!-- Reason-specific guidance. The service renders exactly one of these
+                                 blocks; NO_EMAIL_REASONS never reach this template at all. -->
+                {{ if eq .RejectionReason "level too low" }}
+                <table
+                  role="presentation"
+                  cellpadding="0"
+                  cellspacing="0"
+                  width="100%"
+                  style="
+                    margin: 0 0 16px 0;
+                    background: #f5f7ff;
+                    border-left: 3px solid #4169e1;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 16px">
+                      <p
+                        style="
+                          margin: 0 0 8px 0;
+                          font-size: 14px;
+                          font-weight: bold;
+                          color: #1a1a1a;
+                        "
+                      >
+                        Account level
+                      </p>
+                      <p
+                        style="
+                          margin: 0;
+                          font-size: 14px;
+                          line-height: 1.6;
+                          color: #333333;
+                        "
+                      >
+                        Your account is below the level range we can currently
+                        support. This is the most straightforward reason to
+                        resolve &mdash; keep building your roster and you are
+                        welcome to apply again once you have progressed.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+                {{ end }} {{ if eq .RejectionReason "No valid Tacticus Planner
+                Link" }}
+                <table
+                  role="presentation"
+                  cellpadding="0"
+                  cellspacing="0"
+                  width="100%"
+                  style="
+                    margin: 0 0 16px 0;
+                    background: #f5f7ff;
+                    border-left: 3px solid #4169e1;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 16px">
+                      <p
+                        style="
+                          margin: 0 0 8px 0;
+                          font-size: 14px;
+                          font-weight: bold;
+                          color: #1a1a1a;
+                        "
+                      >
+                        Roster link missing or unreadable
+                      </p>
+                      <p
+                        style="
+                          margin: 0;
+                          font-size: 14px;
+                          line-height: 1.6;
+                          color: #333333;
+                        "
+                      >
+                        We could not open the Tacticus Planner link on your
+                        application, so we had no roster to review. If you
+                        resubmit with a working, publicly viewable link, we will
+                        review it properly.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+                {{ end }} {{ if eq .RejectionReason "No space available" }}
+                <table
+                  role="presentation"
+                  cellpadding="0"
+                  cellspacing="0"
+                  width="100%"
+                  style="
+                    margin: 0 0 16px 0;
+                    background: #f5f7ff;
+                    border-left: 3px solid #4169e1;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 16px">
+                      <p
+                        style="
+                          margin: 0 0 8px 0;
+                          font-size: 14px;
+                          font-weight: bold;
+                          color: #1a1a1a;
+                        "
+                      >
+                        No open roster slot
+                      </p>
+                      <p
+                        style="
+                          margin: 0;
+                          font-size: 14px;
+                          line-height: 1.6;
+                          color: #333333;
+                        "
+                      >
+                        This one is not about your application &mdash; we simply
+                        have no free slot right now. Slots open regularly, so
+                        please do apply again.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+                {{ end }}
+
+                <p
+                  style="
+                    margin: 0 0 16px 0;
+                    font-size: 15px;
+                    line-height: 1.6;
+                    color: #333333;
+                  "
+                >
+                  You are welcome to reapply. If anything above is unclear,
+                  reply to this message and an officer will get back to you.
+                </p>
+
+                <p style="margin: 0; font-size: 15px; color: #333333">
+                  &mdash; The {{ .GuildName }} officer team
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td
+                style="
+                  padding: 20px 30px 30px 30px;
+                  text-align: center;
+                  border-top: 1px solid #e5e5e5;
+                "
+              >
+                <p style="margin: 0; font-size: 12px; color: #888888">
+                  Sent by Tacticus Analytics because you submitted a guild
+                  application.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

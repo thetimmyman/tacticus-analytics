@@ -1,0 +1,565 @@
+{
+  "count": 70,
+  "modifiers": {
+    "boss_debuff_AnnihilatorBeam_2": {
+      "amount": 2,
+      "description": "Annihilator Beam targets 2 fewer hexes",
+      "shortDescription": "Annihilator Beam -2 hexes",
+      "subtarget": "nrOfTargets",
+      "target": "AnnihilatorBeam",
+      "type": "bossAbilityConstantDecrease"
+    },
+    "boss_debuff_ArcScourge": {
+      "amount": 30,
+      "description": "Arc Scourge now deals 30% less <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span>",
+      "shortDescription": "Arc Scourge -30%  Damage",
+      "subtarget": "minDmg,maxDmg",
+      "target": "ArcScourge",
+      "type": "bossAbilityVariablePctDecrease"
+    },
+    "boss_debuff_ArchContaminator_hits_2": {
+      "amount": 2,
+      "description": "Arch-Contaminator scores 2 fewer <span class=\"Stat Stat_Hits\"><img src='/images/icons/ui_icon_stat_hits.png' class='iconText'/>hits</span>",
+      "shortDescription": "Arch-Contaminator -2  hits",
+      "subtarget": "nrOfHits",
+      "target": "ArchContaminator",
+      "type": "bossAbilityConstantDecrease"
+    },
+    "boss_debuff_BarbgauntUnitReduction": {
+      "amount": 1,
+      "description": "1x Barbgaunt removed from the battlefield",
+      "shortDescription": "1x Barbgaunt removed from battle",
+      "subtarget": "GuildBoss6Npc5TyranBarbgaunt",
+      "target": "unitId",
+      "type": "unitAmountDecrease"
+    },
+    "boss_debuff_BladeOfMagnus": {
+      "amount": 25,
+      "description": "Blade of Magnus now deals 25% less <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span>",
+      "shortDescription": "Blade of Magnus -25%  Damage",
+      "subtarget": null,
+      "target": "BladeOfMagnus",
+      "type": "bossAbilityAllStatsPctDecrease"
+    },
+    "boss_debuff_BloodRunsAngerRisesWarCalls_15": {
+      "amount": 15,
+      "description": "<span class=\"Faction_Aeldari\">Guardians</span> spawned by {[BOSS_NAME]} now have -15% <span class=\"Stat Stat_Health\"><img src='/images/icons/ui_icon_stat_health.png' class='iconText'/>Health</span>, <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span> and <span class=\"Stat Stat_Armor\"><img src='/images/icons/ui_icon_stat_armor.png' class='iconText'/>Armour</span>.",
+      "shortDescription": "Guardians spawned by boss now have -15% Health, Damage and Armour.",
+      "subtarget": null,
+      "target": "BloodRunsAngerRisesWarCallsReworked",
+      "type": "bossAbilityAllStatsPctDecrease"
+    },
+    "boss_debuff_CadianGuardsmenUnitReduction": {
+      "amount": 4,
+      "description": "4x Cadian Guardsman removed from the battlefield",
+      "shortDescription": "4x Cadian Guardsman removed from battle",
+      "subtarget": "GuildBoss7Npc1AstraGuardsman",
+      "target": "unitId",
+      "type": "unitAmountDecrease"
+    },
+    "boss_debuff_CallRipperSwarms2_25": {
+      "amount": 25,
+      "description": "<span class=\"Faction_Tyranids\">Ripper Swarms</span> spawned by {[BOSS_NAME]} now have -25% <span class=\"Stat Stat_Health\"><img src='/images/icons/ui_icon_stat_health.png' class='iconText'/>Health</span>, <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span> and <span class=\"Stat Stat_Armor\"><img src='/images/icons/ui_icon_stat_armor.png' class='iconText'/>Armour</span>",
+      "shortDescription": "Ripper Swarms spawned by boss now have -25% Health, Damage and Armour",
+      "subtarget": null,
+      "target": "CallRipperSwarms2",
+      "type": "bossAbilityAllStatsPctDecrease"
+    },
+    "boss_debuff_CallRipperSwarms3_25": {
+      "amount": 25,
+      "description": "<span class=\"Faction_Tyranids\">Ripper Swarms</span> spawned by {[BOSS_NAME]} now have -25% <span class=\"Stat Stat_Health\"><img src='/images/icons/ui_icon_stat_health.png' class='iconText'/>Health</span>, <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span> and <span class=\"Stat Stat_Armor\"><img src='/images/icons/ui_icon_stat_armor.png' class='iconText'/>Armour</span>",
+      "shortDescription": "Ripper Swarms spawned by boss now have -25% Health, Damage and Armour",
+      "subtarget": null,
+      "target": "CallRipperSwarms3",
+      "type": "bossAbilityAllStatsPctDecrease"
+    },
+    "boss_debuff_CallRipperSwarms_25": {
+      "amount": 25,
+      "description": "<span class=\"Faction_Tyranids\">Ripper Swarms</span> spawned by {[BOSS_NAME]} now have -25% <span class=\"Stat Stat_Health\"><img src='/images/icons/ui_icon_stat_health.png' class='iconText'/>Health</span>, <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span> and <span class=\"Stat Stat_Armor\"><img src='/images/icons/ui_icon_stat_armor.png' class='iconText'/>Armour</span>",
+      "shortDescription": "Ripper Swarms spawned by boss now have -25% Health, Damage and Armour",
+      "subtarget": null,
+      "target": "CallRipperSwarms",
+      "type": "bossAbilityAllStatsPctDecrease"
+    },
+    "boss_debuff_DaGreatWaaagh_nrOfSummons_1": {
+      "amount": 1,
+      "description": "Da Great Waaagh! <span class=\"Trait Summon\"><img src='/images/icons/ui_icon_trait_summon.png' class='iconText'/>summons</span> 1 fewer <span class=\"Faction_Orks\">Ork Boyz</span>",
+      "shortDescription": "Da Great Waaagh! -1 Ork Boyz",
+      "subtarget": "nrOfSummons",
+      "target": "DaGreatWaaagh",
+      "type": "bossAbilityConstantDecrease"
+    },
+    "boss_debuff_DaGreatWaaagh_nrOfSummons_2": {
+      "amount": 2,
+      "description": "Da Great Waaagh! <span class=\"Trait Summon\"><img src='/images/icons/ui_icon_trait_summon.png' class='iconText'/>summons</span> 2 fewer <span class=\"Faction_Orks\">Ork Boyz</span>",
+      "shortDescription": "Da Great Waaagh! -2 Ork Boyz",
+      "subtarget": "nrOfSummons",
+      "target": "DaGreatWaaagh",
+      "type": "bossAbilityConstantDecrease"
+    },
+    "boss_debuff_DeathScream_disable": {
+      "amount": 100,
+      "description": "Death Scream no longer <span class=\"Debuff_Stunned\"><img src='/images/icons/stunned_effect.png' class='iconText'/>stuns</span> all targets hit",
+      "shortDescription": "Death Scream no longer stuns",
+      "subtarget": "stunChance",
+      "target": "DeathScream",
+      "type": "bossAbilityConstantDecrease"
+    },
+    "boss_debuff_ElectropriestUnitReduction": {
+      "amount": 1,
+      "description": "1x Electro-priest removed from the battlefield",
+      "shortDescription": "1x Electro-priest removed from battle",
+      "subtarget": "GuildBoss10Npc2AdmecElectropriest",
+      "target": "unitId",
+      "type": "unitAmountDecrease"
+    },
+    "boss_debuff_Fealty_hits_2": {
+      "amount": 2,
+      "description": "Fealty scores 2 fewer <span class=\"Stat Stat_Hits\"><img src='/images/icons/ui_icon_stat_hits.png' class='iconText'/>hits</span>",
+      "shortDescription": "Fealty scores 2 fewer hits",
+      "subtarget": "nrOfHits",
+      "target": "Fealty",
+      "type": "bossAbilityConstantDecrease"
+    },
+    "boss_debuff_GazeOfMagnus": {
+      "amount": 20,
+      "description": "Gaze of Magnus now deals 20% less <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span>",
+      "shortDescription": "Gaze of Magnus -20%  Damage",
+      "subtarget": null,
+      "target": "GazeOfMagnus",
+      "type": "bossAbilityAllStatsPctDecrease"
+    },
+    "boss_debuff_GuardianUnitReduction": {
+      "amount": 3,
+      "description": "3x Guardian removed from the battlefield",
+      "shortDescription": "3x Guardian removed from battle",
+      "subtarget": "GuildBoss8Npc1EldarGuardian",
+      "target": "unitId",
+      "type": "unitAmountDecrease"
+    },
+    "boss_debuff_GunnersKillOnSite_nrOfCrits_1": {
+      "amount": 1,
+      "description": "Gunners, Kill on Sight! now needs 1 less <span class=\"Stat Stat_CritDamage\"><img src='/images/icons/ui_icon_stat_critdamage.png' class='iconText'/>Crit</span> to end the ability",
+      "shortDescription": "Gunners, Kill on Sight! needs 1 less Crit to end",
+      "subtarget": "nrOfCrits",
+      "target": "GunnersKillOnSight",
+      "type": "bossAbilityVariableDecrease"
+    },
+    "boss_debuff_Hapthatra_hp_30": {
+      "amount": 30,
+      "description": "Hapthatra has their <span class=\"Stat Stat_Health\"><img src='/images/icons/ui_icon_stat_health.png' class='iconText'/>Health</span> reduced by 30%",
+      "shortDescription": "Hapthatra Health -30% ",
+      "subtarget": "hp",
+      "target": "GuildBoss3Minion2NecroHapthatra",
+      "type": "unitStatPctDecrease"
+    },
+    "boss_debuff_Hapthatra_hp_50": {
+      "amount": 50,
+      "description": "Hapthatra has their <span class=\"Stat Stat_Health\"><img src='/images/icons/ui_icon_stat_health.png' class='iconText'/>Health</span> reduced by 50%",
+      "shortDescription": "Hapthatra Health -50% ",
+      "subtarget": "hp",
+      "target": "GuildBoss3Minion2NecroHapthatra",
+      "type": "unitStatPctDecrease"
+    },
+    "boss_debuff_HellblasterUnitReduction": {
+      "amount": 1,
+      "description": "1x Hellblaster removed from the battlefield",
+      "shortDescription": "1x Hellblaster removed from battle",
+      "subtarget": "GuildBoss12Npc2DarkaHellblaster",
+      "target": "unitId",
+      "type": "unitAmountDecrease"
+    },
+    "boss_debuff_HormagauntUnitReduction": {
+      "amount": 3,
+      "description": "3x Hormagaunt removed from the battlefield",
+      "shortDescription": "3x Hormagaunt removed from battle",
+      "subtarget": "GuildBoss6Npc1TyranHormagaunt",
+      "target": "unitId",
+      "type": "unitAmountDecrease"
+    },
+    "boss_debuff_InvocationOfMachineVengeance": {
+      "amount": 15,
+      "description": "<span class=\"Faction_AdeptusMechanicus\">Tech-priest Enginseers</span> spawned by {[BOSS_NAME]} now have -15% <span class=\"Stat Stat_Health\"><img src='/images/icons/ui_icon_stat_health.png' class='iconText'/>Health</span>, <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span> and <span class=\"Stat Stat_Armor\"><img src='/images/icons/ui_icon_stat_armor.png' class='iconText'/>Armour</span>.",
+      "shortDescription": "Summoned Tech-priest Enginseers now have -15% Health, Damage and Armour.",
+      "subtarget": "summonHp,summonDmg,summonArmor",
+      "target": "InvocationOfMachineVengeance",
+      "type": "bossAbilityVariablePctDecrease"
+    },
+    "boss_debuff_LivingBatteringRam_disable": {
+      "amount": 100,
+      "description": "Living Battering Ram no longer <span class=\"Debuff_Stunned\"><img src='/images/icons/stunned_effect.png' class='iconText'/>stuns</span> the target",
+      "shortDescription": "Living Battering Ram no longer stuns",
+      "subtarget": "stunChance",
+      "target": "LivingBatteringRam",
+      "type": "bossAbilityConstantDecrease"
+    },
+    "boss_debuff_MassiveScythingTalons_15": {
+      "amount": 15,
+      "description": "<span class=\"KEY_not_underscored\">Massive Scything Talons</span> now deal -15% <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span> to the enemy units adjacent to its main melee target and to the {[BOSS_NAME]}",
+      "shortDescription": "Massive Scything Talons now deal -15% Damage to the enemy units adjacent to its main melee target and to the boss",
+      "subtarget": null,
+      "target": "MassiveScythingTalons",
+      "type": "bossAbilityAllStatsPctDecrease"
+    },
+    "boss_debuff_MassiveScythingTalons_20": {
+      "amount": 20,
+      "description": "<span class=\"KEY_not_underscored\">Massive Scything Talons</span> now deal -20% <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span> to the enemy units adjacent to its main melee target and to the {[BOSS_NAME]}",
+      "shortDescription": "Massive Scything Talons now deal -20% Damage to the enemy units adjacent to its main melee target and to the boss",
+      "subtarget": null,
+      "target": "MassiveScythingTalons",
+      "type": "bossAbilityAllStatsPctDecrease"
+    },
+    "boss_debuff_Mesophet_hp_30": {
+      "amount": 30,
+      "description": "Mesophet has their <span class=\"Stat Stat_Health\"><img src='/images/icons/ui_icon_stat_health.png' class='iconText'/>Health</span> reduced by 30%",
+      "shortDescription": "Mesophet Health -30% ",
+      "subtarget": "hp",
+      "target": "GuildBoss3Minion1NecroMesophet",
+      "type": "unitStatPctDecrease"
+    },
+    "boss_debuff_Mesophet_hp_50": {
+      "amount": 50,
+      "description": "Mesophet has their <span class=\"Stat Stat_Health\"><img src='/images/icons/ui_icon_stat_health.png' class='iconText'/>Health</span> reduced by 50%",
+      "shortDescription": "Mesophet Health -50% ",
+      "subtarget": "hp",
+      "target": "GuildBoss3Minion1NecroMesophet",
+      "type": "unitStatPctDecrease"
+    },
+    "boss_debuff_MoltenForm": {
+      "amount": 33,
+      "description": "Molten Form damage reduction amount -33%",
+      "shortDescription": "Molten Form damage reduction decreased",
+      "subtarget": "dmgPctReduction",
+      "target": "MoltenForm",
+      "type": "bossAbilityConstantDecrease"
+    },
+    "boss_debuff_MortarUnitReduction": {
+      "amount": 1,
+      "description": "1x Cadian Mortar Team removed from the battlefield",
+      "shortDescription": "1x Cadian Mortar Team removed from battle",
+      "subtarget": "GuildBoss7Npc4Mortar",
+      "target": "unitId",
+      "type": "unitAmountDecrease"
+    },
+    "boss_debuff_NeedsMoreDakka_hits_1": {
+      "amount": 1,
+      "description": "Needs More Dakka! scores 1 fewer <span class=\"Stat Stat_Hits\"><img src='/images/icons/ui_icon_stat_hits.png' class='iconText'/>hits</span>",
+      "shortDescription": "Needs More Dakka! -1  hits",
+      "subtarget": "nrOfHits",
+      "target": "NeedsMoreDakka",
+      "type": "bossAbilityConstantDecrease"
+    },
+    "boss_debuff_NeedsMoreDakka_hits_2": {
+      "amount": 2,
+      "description": "Needs More Dakka! scores 2 fewer <span class=\"Stat Stat_Hits\"><img src='/images/icons/ui_icon_stat_hits.png' class='iconText'/>hits</span>",
+      "shortDescription": "Needs More Dakka! -2  hits",
+      "subtarget": "nrOfHits",
+      "target": "NeedsMoreDakka",
+      "type": "bossAbilityConstantDecrease"
+    },
+    "boss_debuff_NovaCharge": {
+      "amount": 2,
+      "description": "Nova Charge targets 2 fewer hexes",
+      "shortDescription": "Nova Charge -2 hexes",
+      "subtarget": "nrOfTargets",
+      "target": "NovaCharge",
+      "type": "bossAbilityConstantDecrease"
+    },
+    "boss_debuff_PrehensilePincerTail_25": {
+      "amount": 25,
+      "description": "The Prehensile pincer tail now deals -25% <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span>",
+      "shortDescription": "The Prehensile pincer tail now deals -25% Damage",
+      "subtarget": null,
+      "target": "PrehensilePincerTail",
+      "type": "bossAbilityAllStatsPctDecrease"
+    },
+    "boss_debuff_ProperKilly_disable": {
+      "amount": 1,
+      "description": "Proper Killy score 1 fewer <span class=\"Stat Stat_Hits\"><img src='/images/icons/ui_icon_stat_hits.png' class='iconText'/>hits</span>",
+      "shortDescription": "Proper Killy -1  hits",
+      "subtarget": "nrOfHits",
+      "target": "ProperKilly",
+      "type": "bossAbilityConstantDecrease"
+    },
+    "boss_debuff_ProphetOfGorkAndMork_nrOfAttacks_1": {
+      "amount": 1,
+      "description": "+1  attacks needed to trigger Prophet of Gork and Mork",
+      "shortDescription": "Prophet of Gork and Mork +1  attacks",
+      "subtarget": "nrOfAttacks",
+      "target": "ProphetOfGorkAndMork",
+      "type": "bossAbilityConstantIncrease"
+    },
+    "boss_debuff_ProphetOfGorkAndMork_nrOfAttacks_2": {
+      "amount": 2,
+      "description": "+2  attacks needed to trigger Prophet of Gork and Mork",
+      "shortDescription": "Prophet of Gork and Mork +2  attacks",
+      "subtarget": "nrOfAttacks",
+      "target": "ProphetOfGorkAndMork",
+      "type": "bossAbilityConstantIncrease"
+    },
+    "boss_debuff_RevoltinglyResilient_hits_1": {
+      "amount": 1,
+      "description": "Revoltingly Resilient triggers after 1 more <span class=\"Stat Stat_Hits\"><img src='/images/icons/ui_icon_stat_hits.png' class='iconText'/>hit</span>",
+      "shortDescription": "Revoltingly Resilient +1  start hits",
+      "subtarget": "nrOfHits",
+      "target": "RevoltinglyResilient",
+      "type": "bossAbilityConstantIncrease"
+    },
+    "boss_debuff_RubricMarineUnitReduction": {
+      "amount": 1,
+      "description": "1x Rubric Marine removed from the battlefield",
+      "shortDescription": "1x Rubric Marine removed from battle",
+      "subtarget": "GuildBoss9Npc3ThousRubricMarine",
+      "target": "unitId",
+      "type": "unitAmountDecrease"
+    },
+    "boss_debuff_SelfRepairMechanism": {
+      "amount": 1,
+      "description": "Self-Repair Mechanism begins 1 round later",
+      "shortDescription": "Self-Repair Mechanism begins 1 round later",
+      "subtarget": "nrOfRounds",
+      "target": "SelfRepairMechanism",
+      "type": "bossAbilityConstantIncrease"
+    },
+    "boss_debuff_SelfRepairMechanismReworked": {
+      "amount": 1,
+      "description": "Self-Repair Mechanism begins 1 round later",
+      "shortDescription": "Self-Repair Mechanism begins 1 round later",
+      "subtarget": "nrOfRounds",
+      "target": "SelfRepairMechanismReworked",
+      "type": "bossAbilityConstantIncrease"
+    },
+    "boss_debuff_ShieldDroneUnitReduction": {
+      "amount": 1,
+      "description": "1x Shield Drone removed from the battlefield",
+      "shortDescription": "1x Shield Drone removed from battle",
+      "subtarget": "GuildBoss11Npc3TauDroneShield",
+      "target": "unitId",
+      "type": "unitAmountDecrease"
+    },
+    "boss_debuff_SpawnTermagants2_15": {
+      "amount": 15,
+      "description": "<span class=\"Faction_Tyranids\">Termagants</span> spawned by {[BOSS_NAME]} now have -15% <span class=\"Stat Stat_Health\"><img src='/images/icons/ui_icon_stat_health.png' class='iconText'/>Health</span>, <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span> and <span class=\"Stat Stat_Armor\"><img src='/images/icons/ui_icon_stat_armor.png' class='iconText'/>Armour</span>.",
+      "shortDescription": "Termagants spawned by boss now have -15% Health, Damage and Armour.",
+      "subtarget": null,
+      "target": "SpawnTermagants2",
+      "type": "bossAbilityAllStatsPctDecrease"
+    },
+    "boss_debuff_SpawnTermagants2_20": {
+      "amount": 20,
+      "description": "<span class=\"Faction_Tyranids\">Termagants</span> spawned by {[BOSS_NAME]} now have -20% <span class=\"Stat Stat_Health\"><img src='/images/icons/ui_icon_stat_health.png' class='iconText'/>Health</span>, <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span> and <span class=\"Stat Stat_Armor\"><img src='/images/icons/ui_icon_stat_armor.png' class='iconText'/>Armour</span>.",
+      "shortDescription": "Termagants spawned by boss now have -20% Health, Damage and Armour.",
+      "subtarget": null,
+      "target": "SpawnTermagants2",
+      "type": "bossAbilityAllStatsPctDecrease"
+    },
+    "boss_debuff_SpawnTermagants3_15": {
+      "amount": 15,
+      "description": "<span class=\"Faction_Tyranids\">Termagants</span> spawned by {[BOSS_NAME]} now have -15% <span class=\"Stat Stat_Health\"><img src='/images/icons/ui_icon_stat_health.png' class='iconText'/>Health</span>, <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span> and <span class=\"Stat Stat_Armor\"><img src='/images/icons/ui_icon_stat_armor.png' class='iconText'/>Armour</span>.",
+      "shortDescription": "Termagants spawned by boss now have -15% Health, Damage and Armour.",
+      "subtarget": null,
+      "target": "SpawnTermagants3",
+      "type": "bossAbilityAllStatsPctDecrease"
+    },
+    "boss_debuff_SpawnTermagants3_20": {
+      "amount": 20,
+      "description": "<span class=\"Faction_Tyranids\">Termagants</span> spawned by {[BOSS_NAME]} now have -20% <span class=\"Stat Stat_Health\"><img src='/images/icons/ui_icon_stat_health.png' class='iconText'/>Health</span>, <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span> and <span class=\"Stat Stat_Armor\"><img src='/images/icons/ui_icon_stat_armor.png' class='iconText'/>Armour</span>.",
+      "shortDescription": "Termagants spawned by boss now have -20% Health, Damage and Armour.",
+      "subtarget": null,
+      "target": "SpawnTermagants3",
+      "type": "bossAbilityAllStatsPctDecrease"
+    },
+    "boss_debuff_SpawnTermagants_15": {
+      "amount": 15,
+      "description": "<span class=\"Faction_Tyranids\">Termagants</span> spawned by {[BOSS_NAME]} now have -15% <span class=\"Stat Stat_Health\"><img src='/images/icons/ui_icon_stat_health.png' class='iconText'/>Health</span>, <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span> and <span class=\"Stat Stat_Armor\"><img src='/images/icons/ui_icon_stat_armor.png' class='iconText'/>Armour</span>.",
+      "shortDescription": "Termagants spawned by boss now have -15% Health, Damage and Armour.",
+      "subtarget": null,
+      "target": "SpawnTermagants",
+      "type": "bossAbilityAllStatsPctDecrease"
+    },
+    "boss_debuff_SpawnTermagants_20": {
+      "amount": 20,
+      "description": "<span class=\"Faction_Tyranids\">Termagants</span> spawned by {[BOSS_NAME]} now have -20% <span class=\"Stat Stat_Health\"><img src='/images/icons/ui_icon_stat_health.png' class='iconText'/>Health</span>, <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span> and <span class=\"Stat Stat_Armor\"><img src='/images/icons/ui_icon_stat_armor.png' class='iconText'/>Armour</span>.",
+      "shortDescription": "Termagants spawned by boss now have -20% Health, Damage and Armour.",
+      "subtarget": null,
+      "target": "SpawnTermagants",
+      "type": "bossAbilityAllStatsPctDecrease"
+    },
+    "boss_debuff_StranglethornCannon_25": {
+      "amount": 25,
+      "description": "<span class=\"KEY_not_underscored\">The Stranglethorn Cannon</span> now deals -25% <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span>",
+      "shortDescription": "The Stranglethorn Cannon now deals -25% Damage",
+      "subtarget": null,
+      "target": "StranglethornCannon",
+      "type": "bossAbilityAllStatsPctDecrease"
+    },
+    "boss_debuff_TargetLock": {
+      "amount": 15,
+      "description": "Target Lock now deals 15% less <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span>",
+      "shortDescription": "Target Lock -15%  Damage",
+      "subtarget": null,
+      "target": "TargetLock",
+      "type": "bossAbilityAllStatsPctDecrease"
+    },
+    "boss_debuff_TerminatorUnitReduction": {
+      "amount": 1,
+      "description": "1x Scarab Occult Terminator removed from the battlefield",
+      "shortDescription": "1x Scarab Occult Terminator removed from battle",
+      "subtarget": "GuildBoss9Npc4ThousTerminator",
+      "target": "unitId",
+      "type": "unitAmountDecrease"
+    },
+    "boss_debuff_TheEmperorsShield": {
+      "amount": 1,
+      "description": "The Emperor's Shield requires 1 additional <span class=\"Stat Stat_Hits\"><img src='/images/icons/ui_icon_stat_hits.png' class='iconText'/>hit</span>",
+      "shortDescription": "The Emperor's Shield requires 1 additional hit",
+      "subtarget": "nrOfAttacks",
+      "target": "TheEmperorsShield",
+      "type": "bossAbilityVariableIncrease"
+    },
+    "boss_debuff_TreasonOfTzeentch": {
+      "amount": 25,
+      "description": "Copies created with Treason of Tzeentch have 25% less <span class=\"Stat Stat_Health\"><img src='/images/icons/ui_icon_stat_health.png' class='iconText'/>Health</span>",
+      "shortDescription": "Treason of Tzeentch copies -25%  Health",
+      "subtarget": "hpPct",
+      "target": "TreasonOfTzeentch",
+      "type": "bossAbilityVariableDecrease"
+    },
+    "boss_debuff_WarlockUnitReduction": {
+      "amount": 1,
+      "description": "1x Warlock removed from the battlefield",
+      "shortDescription": "1x Warlock removed from battle",
+      "subtarget": "GuildBoss8Npc2EldarWarlock",
+      "target": "unitId",
+      "type": "unitAmountDecrease"
+    },
+    "boss_debuff_WeakerRearArmour_extraCritChance_10": {
+      "amount": 10,
+      "description": "Weaker Rear Armour increases Crit Chance by 10%",
+      "shortDescription": "Weaker Rear Armour increases Crit Chance by 10%",
+      "subtarget": "extraCritChance",
+      "target": "WeakerRearArmour",
+      "type": "bossAbilityVariableIncrease"
+    },
+    "boss_debuff_blockChance_15": {
+      "amount": 15,
+      "description": "<span class=\"Stat Stat_Block\"><img src='/images/icons/ui_icon_stat_block.png' class='iconText'/>Block</span> <span class=\"Stat Stat_Chance\"><img src='/images/icons/ui_icon_stat_chance.png' class='iconText'/>Chance</span> reduced by 15%.",
+      "shortDescription": "Block Chance -15% ",
+      "subtarget": null,
+      "target": "blockChance",
+      "type": "bossStatDecrease"
+    },
+    "boss_debuff_critChance_10": {
+      "amount": 10,
+      "description": "{[UNIT_NAME]} has their <span class=\"Stat\">Crit Chance</span> reduced by 10%",
+      "shortDescription": "Crit Chance reduced by 10%",
+      "subtarget": null,
+      "target": "critChance",
+      "type": "bossStatDecrease"
+    },
+    "boss_debuff_critDmg_25": {
+      "amount": 25,
+      "description": "<span class=\"Stat Stat_CritDamage\"><img src='/images/icons/ui_icon_stat_critdamage.png' class='iconText'/>Crit Damage</span> reduced by 25%",
+      "shortDescription": "Crit Damage reduced by 25%",
+      "subtarget": null,
+      "target": "critDmg",
+      "type": "bossStatPctDecrease"
+    },
+    "boss_debuff_dmg_10": {
+      "amount": 10,
+      "description": "Attack <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span> reduced by 10%",
+      "shortDescription": "Damage -10% ",
+      "subtarget": null,
+      "target": "dmg",
+      "type": "bossStatPctDecrease"
+    },
+    "boss_debuff_dmg_15": {
+      "amount": 15,
+      "description": "Attack <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span> reduced by 15%",
+      "shortDescription": "Damage -15% ",
+      "subtarget": null,
+      "target": "dmg",
+      "type": "bossStatPctDecrease"
+    },
+    "boss_debuff_dmg_20": {
+      "amount": 20,
+      "description": "Attack <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span> reduced by 20%",
+      "shortDescription": "Damage -20% ",
+      "subtarget": null,
+      "target": "dmg",
+      "type": "bossStatPctDecrease"
+    },
+    "boss_debuff_dmg_25": {
+      "amount": 25,
+      "description": "Attack <span class=\"Stat Stat_Damage\"><img src='/images/icons/ui_icon_stat_damage.png' class='iconText'/>Damage</span> reduced by 25%",
+      "shortDescription": "Damage -25% ",
+      "subtarget": null,
+      "target": "dmg",
+      "type": "bossStatPctDecrease"
+    },
+    "boss_debuff_fixedArmor_10": {
+      "amount": 10,
+      "description": "<span class=\"Stat Stat_Armor\"><img src='/images/icons/ui_icon_stat_armor.png' class='iconText'/>Armour</span> reduced by 10%.",
+      "shortDescription": "Armour -10% ",
+      "subtarget": null,
+      "target": "fixedArmor",
+      "type": "bossStatPctDecrease"
+    },
+    "boss_debuff_fixedArmor_15": {
+      "amount": 15,
+      "description": "<span class=\"Stat Stat_Armor\"><img src='/images/icons/ui_icon_stat_armor.png' class='iconText'/>Armour</span> reduced by 15%.",
+      "shortDescription": "Armour -15% ",
+      "subtarget": null,
+      "target": "fixedArmor",
+      "type": "bossStatPctDecrease"
+    },
+    "boss_debuff_fixedArmor_20": {
+      "amount": 20,
+      "description": "<span class=\"Stat Stat_Armor\"><img src='/images/icons/ui_icon_stat_armor.png' class='iconText'/>Armour</span> reduced by 20%.",
+      "shortDescription": "Armour -20% ",
+      "subtarget": null,
+      "target": "fixedArmor",
+      "type": "bossStatPctDecrease"
+    },
+    "boss_debuff_fixedArmor_25": {
+      "amount": 25,
+      "description": "<span class=\"Stat Stat_Armor\"><img src='/images/icons/ui_icon_stat_armor.png' class='iconText'/>Armour</span> reduced by 25%.",
+      "shortDescription": "Armour -25% ",
+      "subtarget": null,
+      "target": "fixedArmor",
+      "type": "bossStatPctDecrease"
+    },
+    "boss_debuff_hits_1": {
+      "amount": 1,
+      "description": "All attacks' <span class=\"Stat Stat_Hits\"><img src='/images/icons/ui_icon_stat_hits.png' class='iconText'/>Hits</span> reduced by 1.",
+      "shortDescription": "Hits -1 ",
+      "subtarget": null,
+      "target": "hits",
+      "type": "bossStatDecrease"
+    },
+    "boss_debuff_movement_1": {
+      "amount": 1,
+      "description": "<span class=\"Stat Stat_Movement\"><img src='/images/icons/ui_icon_stat_movement.png' class='iconText'/>Movement</span> reduced by 1.",
+      "shortDescription": "Movement -1 ",
+      "subtarget": null,
+      "target": "movement",
+      "type": "bossStatDecrease"
+    },
+    "boss_debuff_summonChance_30": {
+      "amount": 30,
+      "description": "Host Of Plagues <span class=\"Stat Stat_Chance\"><img src='/images/icons/ui_icon_stat_chance.png' class='iconText'/>Chance</span> to trigger reduced by 30%",
+      "shortDescription": "Host Of Plagues -30%  Chance",
+      "subtarget": "chance",
+      "target": "HostOfPlagues",
+      "type": "bossAbilityConstantDecrease"
+    },
+    "boss_debuff_summonChance_40": {
+      "amount": 40,
+      "description": "Host Of Plagues <span class=\"Stat Stat_Chance\"><img src='/images/icons/ui_icon_stat_chance.png' class='iconText'/>Chance</span> to trigger reduced by 40%",
+      "shortDescription": "Host Of Plagues -40%  Chance",
+      "subtarget": "chance",
+      "target": "HostOfPlagues",
+      "type": "bossAbilityConstantDecrease"
+    }
+  }
+}

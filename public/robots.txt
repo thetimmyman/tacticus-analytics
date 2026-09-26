@@ -1,0 +1,55 @@
+# Robots.txt for Tacticus Analytics
+# https://www.tacticusanalytics.com
+
+User-agent: *
+Allow: /
+Allow: /explore
+Allow: /privacy
+Allow: /terms
+Allow: /faq
+Allow: /acknowledgements
+
+# Block dashboard and protected routes
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /profile/
+Disallow: /guild-management/
+Disallow: /cluster-stats/
+Disallow: /super-admin/
+Disallow: /player-stats/
+Disallow: /token-usage/
+Disallow: /votlw/
+Disallow: /boss/
+
+# Sitemaps
+Sitemap: https://www.tacticusanalytics.com/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Bot-specific rules
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# Block bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /

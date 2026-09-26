@@ -1,0 +1,1834 @@
+{
+  "activeAbility": "FireAndReposition",
+  "allianceId": "Xenos",
+  "baseRarity": "Common",
+  "damageProfiles": [
+    "Physical",
+    "Energy"
+  ],
+  "description": "",
+  "factionId": "Aeldari",
+  "gameId": "eldarRanger",
+  "id": "calandis",
+  "itemSlots": [
+    "I_Crit",
+    "I_Crit",
+    "I_Booster_Crit"
+  ],
+  "longName": "Calandis",
+  "meleeWeapon": {
+    "damageProfile": "Physical",
+    "hits": 1,
+    "pierceDescription": "",
+    "piercingRatio": 0,
+    "range": null,
+    "traits": []
+  },
+  "movement": 3,
+  "mowActiveAbility": [],
+  "mythicAbilities": null,
+  "name": "Calandis",
+  "passiveAbility": "WireweaveNet",
+  "rangeWeapon": {
+    "damageProfile": "Energy",
+    "hits": 1,
+    "pierceDescription": "30% pierce ratio",
+    "piercingRatio": 30,
+    "range": 3,
+    "traits": []
+  },
+  "ranks": [
+    {
+      "armor": 18,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpC006"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpC007"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgC007"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgC015"
+        },
+        {
+          "amount": 2,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmC003"
+        }
+      ],
+      "damage": 45,
+      "health": 70,
+      "level": "STONE I",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 9,
+          "statType": "hp",
+          "upgradeId": "upgHpC006"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 9,
+          "statType": "hp",
+          "upgradeId": "upgHpC007"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 6,
+          "statType": "dmg",
+          "upgradeId": "upgDmgC007"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 6,
+          "statType": "dmg",
+          "upgradeId": "upgDmgC015"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 3,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmC003"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 3,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmC003"
+        }
+      ]
+    },
+    {
+      "armor": 24,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpC015"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpC008"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgC005"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgU009"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmC004"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmU013"
+        }
+      ],
+      "damage": 57,
+      "health": 88,
+      "level": "STONE II",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 11,
+          "statType": "hp",
+          "upgradeId": "upgHpC015"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 11,
+          "statType": "hp",
+          "upgradeId": "upgHpC008"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 5,
+          "statType": "dmg",
+          "upgradeId": "upgDmgC005"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 9,
+          "statType": "dmg",
+          "upgradeId": "upgDmgU009"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 1,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmC004"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 3,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmU013"
+        }
+      ]
+    },
+    {
+      "armor": 28,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpC016"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpU001"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgU007C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgU009"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmC013"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmU013"
+        }
+      ],
+      "damage": 71,
+      "health": 110,
+      "level": "STONE III",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 9,
+          "statType": "hp",
+          "upgradeId": "upgHpC016"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 18,
+          "statType": "hp",
+          "upgradeId": "upgHpU001"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 10,
+          "statType": "dmg",
+          "upgradeId": "upgDmgU007C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 7,
+          "statType": "dmg",
+          "upgradeId": "upgDmgU009"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 2,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmC013"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 5,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmU013"
+        }
+      ]
+    },
+    {
+      "armor": 35,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpU015"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpU007"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgU012"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgU017C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmU003C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmU014"
+        }
+      ],
+      "damage": 88,
+      "health": 137,
+      "level": "IRON I",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 18,
+          "statType": "hp",
+          "upgradeId": "upgHpU015"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 18,
+          "statType": "hp",
+          "upgradeId": "upgHpU007"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 9,
+          "statType": "dmg",
+          "upgradeId": "upgDmgU012"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 14,
+          "statType": "dmg",
+          "upgradeId": "upgDmgU017C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 5,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmU003C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 4,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmU014"
+        }
+      ]
+    },
+    {
+      "armor": 44,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpU015"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpU001"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgU007C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgR14C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmU006"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmR013C"
+        }
+      ],
+      "damage": 111,
+      "health": 173,
+      "level": "IRON II",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 21,
+          "statType": "hp",
+          "upgradeId": "upgHpU015"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 21,
+          "statType": "hp",
+          "upgradeId": "upgHpU001"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 12,
+          "statType": "dmg",
+          "upgradeId": "upgDmgU007C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 15,
+          "statType": "dmg",
+          "upgradeId": "upgDmgR14C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 4,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmU006"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 7,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmR013C"
+        }
+      ]
+    },
+    {
+      "armor": 55,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpR004C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpR014"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgR028"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgU017C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmU002"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmR013C"
+        }
+      ],
+      "damage": 138,
+      "health": 215,
+      "level": "IRON III",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 31,
+          "statType": "hp",
+          "upgradeId": "upgHpR004C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 24,
+          "statType": "hp",
+          "upgradeId": "upgHpR014"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 18,
+          "statType": "dmg",
+          "upgradeId": "upgDmgR028"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 18,
+          "statType": "dmg",
+          "upgradeId": "upgDmgU017C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 5,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmU002"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 9,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmR013C"
+        }
+      ]
+    },
+    {
+      "armor": 69,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpR028"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpR006C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgR008C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgR004C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmR006"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmR014C"
+        }
+      ],
+      "damage": 174,
+      "health": 270,
+      "level": "BRONZE I",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 29,
+          "statType": "hp",
+          "upgradeId": "upgHpR028"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 39,
+          "statType": "hp",
+          "upgradeId": "upgHpR006C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 22,
+          "statType": "dmg",
+          "upgradeId": "upgDmgR008C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 22,
+          "statType": "dmg",
+          "upgradeId": "upgDmgR004C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 8,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmR006"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 10,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmR014C"
+        }
+      ]
+    },
+    {
+      "armor": 87,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpE028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpR003C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgR008C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgE007C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmR028"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmE011C"
+        }
+      ],
+      "damage": 218,
+      "health": 338,
+      "level": "BRONZE II",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 47,
+          "statType": "hp",
+          "upgradeId": "upgHpE028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 38,
+          "statType": "hp",
+          "upgradeId": "upgHpR003C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 24,
+          "statType": "dmg",
+          "upgradeId": "upgDmgR008C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 30,
+          "statType": "dmg",
+          "upgradeId": "upgDmgE007C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 8,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmR028"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 14,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmE011C"
+        }
+      ]
+    },
+    {
+      "armor": 109,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpR018"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpE006C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgE028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgR017C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmE028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmE014C"
+        }
+      ],
+      "damage": 272,
+      "health": 423,
+      "level": "BRONZE III",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 40,
+          "statType": "hp",
+          "upgradeId": "upgHpR018"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 66,
+          "statType": "hp",
+          "upgradeId": "upgHpE006C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 38,
+          "statType": "dmg",
+          "upgradeId": "upgDmgE028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 30,
+          "statType": "dmg",
+          "upgradeId": "upgDmgR017C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 14,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmE028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 14,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmE014C"
+        }
+      ]
+    },
+    {
+      "armor": 137,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpE028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpE014C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgE028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgE004"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmE028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmE011C"
+        }
+      ],
+      "damage": 340,
+      "health": 529,
+      "level": "SILVER I",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 67,
+          "statType": "hp",
+          "upgradeId": "upgHpE028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 67,
+          "statType": "hp",
+          "upgradeId": "upgHpE014C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 48,
+          "statType": "dmg",
+          "upgradeId": "upgDmgE028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 38,
+          "statType": "dmg",
+          "upgradeId": "upgDmgE004"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 17,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmE028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 17,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmE011C"
+        }
+      ]
+    },
+    {
+      "armor": 171,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpE028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpE012"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgL028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgE007C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmL028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmE014C"
+        }
+      ],
+      "damage": 426,
+      "health": 663,
+      "level": "SILVER II",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 92,
+          "statType": "hp",
+          "upgradeId": "upgHpE028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 74,
+          "statType": "hp",
+          "upgradeId": "upgHpE012"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 58,
+          "statType": "dmg",
+          "upgradeId": "upgDmgL028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 49,
+          "statType": "dmg",
+          "upgradeId": "upgDmgE007C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 23,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmL028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 19,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmE014C"
+        }
+      ]
+    },
+    {
+      "armor": 213,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpL028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpL014C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgE028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgL017C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmE028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmL011C"
+        }
+      ],
+      "damage": 533,
+      "health": 829,
+      "level": "SILVER III",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 105,
+          "statType": "hp",
+          "upgradeId": "upgHpL028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 105,
+          "statType": "hp",
+          "upgradeId": "upgHpL014C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 61,
+          "statType": "dmg",
+          "upgradeId": "upgDmgE028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 74,
+          "statType": "dmg",
+          "upgradeId": "upgDmgL017C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 25,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmE028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 29,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmL011C"
+        }
+      ]
+    },
+    {
+      "armor": 267,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpL001C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgL028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgL005C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmL028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmL009C"
+        }
+      ],
+      "damage": 668,
+      "health": 1039,
+      "level": "GOLD I",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 131,
+          "statType": "hp",
+          "upgradeId": "upgHpL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 131,
+          "statType": "hp",
+          "upgradeId": "upgHpL001C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 84,
+          "statType": "dmg",
+          "upgradeId": "upgDmgL028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 84,
+          "statType": "dmg",
+          "upgradeId": "upgDmgL005C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 34,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmL028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 34,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmL009C"
+        }
+      ]
+    },
+    {
+      "armor": 335,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpL028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpL001C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgL005C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmL011C"
+        }
+      ],
+      "damage": 836,
+      "health": 1301,
+      "level": "GOLD II",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 164,
+          "statType": "hp",
+          "upgradeId": "upgHpL028C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 164,
+          "statType": "hp",
+          "upgradeId": "upgHpL001C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 105,
+          "statType": "dmg",
+          "upgradeId": "upgDmgL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 105,
+          "statType": "dmg",
+          "upgradeId": "upgDmgL005C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 42,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 42,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmL011C"
+        }
+      ]
+    },
+    {
+      "armor": 419,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpL014C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgL017C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmL009C"
+        }
+      ],
+      "damage": 1046,
+      "health": 1629,
+      "level": "GOLD III",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 205,
+          "statType": "hp",
+          "upgradeId": "upgHpL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 205,
+          "statType": "hp",
+          "upgradeId": "upgHpL014C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 132,
+          "statType": "dmg",
+          "upgradeId": "upgDmgL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 132,
+          "statType": "dmg",
+          "upgradeId": "upgDmgL017C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 53,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 53,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmL009C"
+        }
+      ]
+    },
+    {
+      "armor": 525,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpL017C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgL005C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmL003C"
+        }
+      ],
+      "damage": 1310,
+      "health": 2039,
+      "level": "DIAMOND I",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 256,
+          "statType": "hp",
+          "upgradeId": "upgHpL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 256,
+          "statType": "hp",
+          "upgradeId": "upgHpL017C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 165,
+          "statType": "dmg",
+          "upgradeId": "upgDmgL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 165,
+          "statType": "dmg",
+          "upgradeId": "upgDmgL005C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 66,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 66,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmL003C"
+        }
+      ]
+    },
+    {
+      "armor": 657,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpL212C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgL212C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmL212C"
+        }
+      ],
+      "damage": 1640,
+      "health": 2551,
+      "level": "DIAMOND II",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 322,
+          "statType": "hp",
+          "upgradeId": "upgHpL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 322,
+          "statType": "hp",
+          "upgradeId": "upgHpL212C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 207,
+          "statType": "dmg",
+          "upgradeId": "upgDmgL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 207,
+          "statType": "dmg",
+          "upgradeId": "upgDmgL212C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 82,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 82,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmL212C"
+        }
+      ]
+    },
+    {
+      "armor": 821,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpL212C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgM213C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgL212C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmM213C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmL212C"
+        }
+      ],
+      "damage": 2054,
+      "health": 3195,
+      "level": "DIAMOND III",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 175,
+          "statType": "hp",
+          "upgradeId": "upgHpL128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 175,
+          "statType": "hp",
+          "upgradeId": "upgHpL212C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 121,
+          "statType": "dmg",
+          "upgradeId": "upgDmgM213C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 103,
+          "statType": "dmg",
+          "upgradeId": "upgDmgL212C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 48,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmM213C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 42,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmL212C"
+        }
+      ]
+    },
+    {
+      "armor": 911,
+      "basicUpgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpM128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgHpL212C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgM213C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgDmgL212C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmM213C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": null,
+          "statType": null,
+          "upgradeId": "upgArmL212C"
+        }
+      ],
+      "damage": 2278,
+      "health": 3545,
+      "level": "MYTHIC I",
+      "upgrades": [
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 188,
+          "statType": "hp",
+          "upgradeId": "upgHpM128C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 161,
+          "statType": "hp",
+          "upgradeId": "upgHpL212C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 121,
+          "statType": "dmg",
+          "upgradeId": "upgDmgM213C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 104,
+          "statType": "dmg",
+          "upgradeId": "upgDmgL212C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 48,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmM213C"
+        },
+        {
+          "amount": 1,
+          "crafting": null,
+          "statIncrease": 42,
+          "statType": "fixedArmor",
+          "upgradeId": "upgArmL212C"
+        }
+      ]
+    },
+    {
+      "armor": 1001,
+      "basicUpgrades": [],
+      "damage": 2503,
+      "health": 3894,
+      "level": "MYTHIC II",
+      "upgrades": []
+    }
+  ],
+  "sorting": 50,
+  "traits": [
+    "HeavyWeapon",
+    "Overwatch"
+  ]
+}

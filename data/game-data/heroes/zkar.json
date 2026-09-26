@@ -1,0 +1,26 @@
+{
+  "activeAbility": "AetherStride",
+  "allianceId": "Chaos",
+  "baseRarity": "Common",
+  "damageProfiles": [],
+  "description": "",
+  "factionId": "ThousandSons",
+  "gameId": "thousDaemonPrince",
+  "id": "zkar",
+  "itemSlots": [],
+  "longName": "Z'Kar",
+  "meleeWeapon": null,
+  "movement": 3,
+  "mowActiveAbility": [],
+  "mythicAbilities": [
+    "CabalOfSorcerers"
+  ],
+  "name": "Z'Kar",
+  "passiveAbility": null,
+  "rangeWeapon": null,
+  "ranks": [],
+  "sorting": 75,
+  "traits": [
+    "MachineOfWar"
+  ]
+}

@@ -1,0 +1,48 @@
+name: Edge Runtime Ancestry Check
+
+# Live `tacticus` edge-runtime tag must be an ancestor of origin/main; schedule-only as it reads
+# live state. Never set EDGE_RUNTIME_LIVE_TAG here: it would fabricate a PASS.
+
+on:
+  schedule:
+    - cron: '27 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: edge-runtime-ancestry-check
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: edge-runtime-ancestry-check
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, amd64-builder]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+      - name: Run edge-runtime ancestry gate against live cluster state
+        # A pipe would mask the exit code, so capture it, write the summary, then exit.
+        run: |
+          set -uo pipefail
+          rc=0
+          node scripts/governance/check-edge-runtime-ancestry.mjs \
+            > edge-runtime-ancestry-report.txt 2>&1 || rc=$?
+          cat edge-runtime-ancestry-report.txt
+          {
+            echo "### Edge runtime ancestry check (namespace tacticus)"
+            echo '```'
+            cat edge-runtime-ancestry-report.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$rc"

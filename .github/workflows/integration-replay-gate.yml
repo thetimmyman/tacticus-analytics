@@ -1,0 +1,58 @@
+name: Integration Replay Gate
+
+# Tests the schema over HTTP on a local Supabase stack (RLS and GDPR suites, local-only).
+# Not a required check; live-only gaps must be declared.
+
+on:
+  schedule:
+    # An hour after the pgTAP gate so they do not contend for a runner.
+    - cron: '41 7 * * *'
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: 'Runner labels as a JSON array, e.g. ["ubuntu-latest"]'
+        required: false
+        type: string
+  pull_request:
+    paths:
+      - 'tests/integration/rls/**'
+      - 'tests/integration/gdpr/**'
+      - 'tests/integration/helpers/**'
+      - 'scripts/dev/integration-replay-stack.sh'
+      - 'scripts/dev/lib/replay-migrations.sh'
+      - '.github/workflows/integration-replay-gate.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: integration-replay-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration-replay:
+    name: integration-replay
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    # Runner from `DB_LANE_RUNNER`; public-repo and fork PRs are pinned to ubuntu-latest.
+    runs-on: >-
+      ${{ (github.event_name == 'pull_request' && (!github.event.repository.private || github.event.pull_request.head.repo.full_name != github.repository)) && 'ubuntu-latest' || fromJSON(inputs.runner || vars.DB_LANE_RUNNER || '["self-hosted", "amd64-builder"]') }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Verify application repository identity
+        run: npm run app:identity:check
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Replay stack and integration suites
+        run: npm run test:integration:replay
+      - name: Stop the stack
+        if: always()
+        run: bash scripts/dev/integration-replay-stack.sh down

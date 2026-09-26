@@ -1,0 +1,27 @@
+{
+  "$comment": "Community display names for guild-war board ids used by the vendored GlobalConfig. Boards shuffle across zones between battles; the name follows the board, not the zone.",
+  "boards": {
+    "C1_15": { "name": "Grasslands" },
+    "C1_23": { "name": "Sniper's Nest", "aliases": ["Sniper's Nests"] },
+    "C1_37": { "name": "Three Bridges" },
+    "C1_70": { "name": "Five Pillars" },
+    "CE2_06": {
+      "name": "Deathleaper's Cove",
+      "aliases": ["Deathleapers Cove"]
+    },
+    "EC1_09": { "name": "Right Ridge" },
+    "EMC1_06": { "name": "Left Ridge" },
+    "MC1_11": { "name": "Split" },
+    "MC1_31": { "name": "The Bridge", "aliases": ["Single Bridge"] },
+    "LHE_Desert_02": { "name": "Gulch" },
+    "LHE_Desert_03": { "name": "Oasis", "aliases": ["Oasis (Wonderwall)"] },
+    "LHE_Desert_04": { "name": "Canyon" },
+    "LHE_Desert_05": { "name": "Peak" },
+    "LHE_Desert_06": { "name": "RV Point" },
+    "PVP_desert_10": { "name": "AFUITM", "aliases": ["PVP_Desert_10"] }
+  },
+  "preloadedButNeverPooled": {
+    "$comment": "Present in GlobalConfig guildWar.boardsToInclude (asset preload superset) but absent from EVERY season config's mapPool — never playable, hence no community name exists. Verified 2026-08-10 across all 10 season configs.",
+    "boardIds": ["C1_45", "PVP_desert_06"]
+  }
+}

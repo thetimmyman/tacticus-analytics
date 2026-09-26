@@ -1,0 +1,26 @@
+{
+  "activeAbility": "HadesAutocannons",
+  "allianceId": "Chaos",
+  "baseRarity": "Common",
+  "damageProfiles": [],
+  "description": "",
+  "factionId": "BlackLegion",
+  "gameId": "blackForgefiend",
+  "id": "forgefiend",
+  "itemSlots": [],
+  "longName": "Forgefiend",
+  "meleeWeapon": null,
+  "movement": 3,
+  "mowActiveAbility": [],
+  "mythicAbilities": [
+    "ContemptuousDisregard"
+  ],
+  "name": "Forgefiend",
+  "passiveAbility": null,
+  "rangeWeapon": null,
+  "ranks": [],
+  "sorting": 32,
+  "traits": [
+    "MachineOfWar"
+  ]
+}

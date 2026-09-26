@@ -1,0 +1,118 @@
+# Source of truth for the SHAPE of the `tacticus` edge runtime Deployment, extracted from live state;
+# the image comes from the pin. deploy/tacticus/README.md covers what was stripped and the apply path.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: supabase-edge-functions
+  namespace: tacticus
+  labels:
+    app: supabase-edge-functions
+spec:
+  replicas: 2
+  # Non-default (API default is 10), deliberately.
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: supabase-edge-functions
+  template:
+    metadata:
+      labels:
+        app: supabase-edge-functions
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/arch
+                    operator: In
+                    values:
+                      - arm64
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: NotIn
+                    values:
+                      - desktop-wsl
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      # Fail-soft: an unreadable override falls through to upstream, never a crashloop.
+      volumes:
+        - name: loki-config-override
+          configMap:
+            name: loki-config-override
+            optional: true
+      containers:
+        - name: edge-runtime
+          # Never hardcode an image: render-edge-manifests.sh substitutes this token from deploy/tacticus.pin.json;
+          # it is not a valid image ref, so an un-rendered apply cannot ship a stale tag.
+          image: PIN_PLACEHOLDER_RENDER_FROM_deploy/tacticus.pin.json
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9000
+          env:
+            - name: SUPABASE_URL
+              value: http://supabase-kong.tacticus.svc.cluster.local:8000
+            - name: SUPABASE_ANON_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: tacticus-secrets
+                  key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+            - name: SUPABASE_SERVICE_ROLE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: tacticus-secrets
+                  key: SUPABASE_SERVICE_ROLE_KEY
+            - name: SUPABASE_DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: tacticus-secrets
+                  key: SUPABASE_DB_URL
+                  optional: true
+            - name: ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: tacticus-secrets
+                  key: ENCRYPTION_KEY
+            - name: ENCRYPTION_KEY_PREVIOUS
+              valueFrom:
+                secretKeyRef:
+                  name: tacticus-secrets
+                  key: ENCRYPTION_KEY_PREVIOUS
+                  optional: true
+            - name: VERIFY_JWT
+              value: 'false'
+            - name: LOKI_SCRAPER_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: tacticus-secrets
+                  key: LOKI_SCRAPER_CLIENT_SECRET
+            - name: LOKI_SCRAPER_USER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: tacticus-secrets
+                  key: LOKI_SCRAPER_USER_ID
+            # Upstream globalConfig 404s and the hardcoded build string is stale, so LOKI would reject the session
+            # and silently skip the roster write. The self-heal CronJob maintains this ConfigMap daily.
+            - name: LOKI_CONFIG_OVERRIDE_DIR
+              value: /etc/loki-config-override
+          volumeMounts:
+            - name: loki-config-override
+              mountPath: /etc/loki-config-override
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 9000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 384Mi
+            limits:
+              cpu: 500m
+              memory: 768Mi

@@ -1,0 +1,15 @@
+# The `tacticus` edge runtime Service, extracted from live state. See deploy/tacticus/README.md.
+apiVersion: v1
+kind: Service
+metadata:
+  name: supabase-edge-functions
+  namespace: tacticus
+  labels:
+    app: supabase-edge-functions
+spec:
+  selector:
+    app: supabase-edge-functions
+  ports:
+    - port: 9000
+      targetPort: 9000
+      protocol: TCP

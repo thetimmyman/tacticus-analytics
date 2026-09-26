@@ -1,0 +1,12 @@
+{
+  "eventResult": {
+    "eventId": "synthetic-app-start-success",
+    "eventResultType": "SUCCESS",
+    "eventResponseData": {},
+    "failure": null,
+    "errorCode": null,
+    "errorMessage": null,
+    "errorPath": null
+  },
+  "event": null
+}

@@ -1,0 +1,8 @@
+# Anchor for supabase/tests/pgtap/suites.txt.
+#
+# Two totals, kept deliberately apart from the roster so that editing the
+# roster without editing this file makes the runner refuse to start rather
+# than quietly re-baseline itself. `suites` is the number of ROSTER lines;
+# `assertions` is the sum of their `# <count>` values.
+suites 51
+assertions 791

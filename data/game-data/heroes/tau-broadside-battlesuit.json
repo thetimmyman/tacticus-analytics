@@ -1,0 +1,26 @@
+{
+  "activeAbility": "HeavyRailRifle",
+  "allianceId": "Xenos",
+  "baseRarity": "Common",
+  "damageProfiles": [],
+  "description": "",
+  "factionId": "Tau",
+  "gameId": "tauBroadside",
+  "id": "tau-broadside-battlesuit",
+  "itemSlots": [],
+  "longName": "Tson'ji",
+  "meleeWeapon": null,
+  "movement": 3,
+  "mowActiveAbility": [],
+  "mythicAbilities": [
+    "ElectrochaffBackups"
+  ],
+  "name": "Tson'ji",
+  "passiveAbility": null,
+  "rangeWeapon": null,
+  "ranks": [],
+  "sorting": 62,
+  "traits": [
+    "MachineOfWar"
+  ]
+}

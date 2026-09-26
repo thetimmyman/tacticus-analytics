@@ -1,0 +1,1002 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2025-12-09",
+  "featureName": "Boss Playbooks",
+  "premium": true,
+  "bosses": [
+    {
+      "id": "magnus",
+      "name": "Magnus the Red",
+      "wikiUrl": "https://tacticus.wiki.gg/wiki/Magnus",
+      "tacticusTableIds": {
+        "boss": "GuildBoss9Boss1ThousMagnus",
+        "prime1": "GuildBoss9MiniBoss1ThousSorcerer",
+        "prime2": "GuildBoss9MiniBoss2ThousInfernalMaster"
+      },
+      "faction": "Thousand Sons",
+      "bannedFaction": "ThousandSons",
+      "turnLimit": 6,
+      "movement": 5,
+      "encounterMix": { "boss": 4, "crystal": 8 },
+      "boards": [
+        "GB_Magnus_01",
+        "GB_Magnus_02",
+        "GB_Magnus_03",
+        "GB_Magnus_04"
+      ],
+      "playbook": "magnus-playbook.md",
+      "primesPlaybook": "magnus-primes-playbook.md",
+      "threats": [
+        {
+          "ability": "Treason of Tzeentch",
+          "danger": "critical",
+          "trigger": "High-value unit exposed; spikes at 120k/480k damage"
+        },
+        {
+          "ability": "Tzeentch's Firestorm",
+          "danger": "high",
+          "trigger": "3+ units clustered; 7s telegraph"
+        },
+        {
+          "ability": "Blade of Magnus",
+          "danger": "medium",
+          "trigger": "Adjacent enemies; enhanced at 140k/560k"
+        },
+        {
+          "ability": "Gaze of Magnus",
+          "danger": "medium",
+          "trigger": "Triggered passive; 13s total telegraph"
+        }
+      ],
+      "keyThresholds": [
+        {
+          "hpLost": 120000,
+          "modifier": "Treason Enhanced (Tier 1)",
+          "impact": "Longer duration, resistance pierce"
+        },
+        {
+          "hpLost": 140000,
+          "modifier": "Blade Enhanced (Tier 1)",
+          "impact": "+crit, armor penetration"
+        },
+        {
+          "hpLost": 360000,
+          "modifier": "Gaze Enhanced",
+          "impact": "DoT added, splash radius increased"
+        },
+        {
+          "hpLost": 480000,
+          "modifier": "Treason Enhanced (Tier 2)",
+          "impact": "Multi-target possible"
+        },
+        {
+          "hpLost": 560000,
+          "modifier": "Blade Enhanced (Tier 2)",
+          "impact": "+100% damage, cleave splash"
+        }
+      ],
+      "cooldowns": [
+        { "ability": "Tzeentch's Firestorm", "turns": 2 },
+        { "ability": "Treason of Tzeentch", "turns": 3 },
+        { "ability": "Blade of Magnus", "turns": 1 }
+      ],
+      "coreMechanic": "Probability-weighted decisions based on board state"
+    },
+    {
+      "id": "mortarion",
+      "name": "Mortarion",
+      "wikiUrl": "https://tacticus.wiki.gg/wiki/Mortarion",
+      "tacticusTableIds": {
+        "boss": "GuildBoss5Boss1DeathMortarion",
+        "prime1": "GuildBoss5MiniBoss1DeathRotbone",
+        "prime2": "GuildBoss5MiniBoss2DeathBlightbringer"
+      },
+      "faction": "Death Guard",
+      "bannedFaction": "DeathGuard",
+      "turnLimit": 6,
+      "movement": 4,
+      "encounterMix": { "boss": 4, "crystal": 8 },
+      "boards": [
+        "GB_Mortarion_01",
+        "GB_Mortarion_02",
+        "GB_Mortarion_02_1",
+        "GB_Mortarion_03",
+        "GB_Mortarion_04"
+      ],
+      "playbook": "mortarion-playbook.md",
+      "primesPlaybook": "mortarion-primes-playbook.md",
+      "threats": [
+        {
+          "ability": "Mortarion's Plague Wind",
+          "danger": "critical",
+          "trigger": "3+ units in frontal fan; refreshes DoTs"
+        },
+        {
+          "ability": "The Lantern",
+          "danger": "high",
+          "trigger": "Line-of-sight with 2+ colinear targets"
+        },
+        {
+          "ability": "Reaping Scythe",
+          "danger": "medium",
+          "trigger": "Adjacent enemies; enhanced by ArchContaminator"
+        }
+      ],
+      "keyThresholds": [
+        {
+          "hpLost": 19900,
+          "modifier": "summonChance +30%",
+          "impact": "Poxwalkers/Blightlords incoming"
+        },
+        {
+          "hpLost": 39800,
+          "modifier": "fixedArmor +20",
+          "impact": "Small hits become worthless"
+        },
+        {
+          "hpLost": 79600,
+          "modifier": "RevoltinglyResilient",
+          "impact": "DR + auto-heal; bring dispel"
+        },
+        {
+          "hpLost": 175000,
+          "modifier": "dmg +25%",
+          "impact": "Plague Wind becomes lethal"
+        }
+      ],
+      "cooldowns": [
+        { "ability": "Reaping Scythe", "turns": 1 },
+        { "ability": "The Lantern", "turns": 2 },
+        { "ability": "Plague Wind", "turns": 3 }
+      ],
+      "coreMechanic": "DoT stacking and armor layering"
+    },
+    {
+      "id": "silent-king",
+      "name": "The Silent King",
+      "wikiUrl": "https://tacticus.wiki.gg/wiki/Silent_King",
+      "tacticusTableIds": {
+        "boss": "GuildBoss3Boss1NecroSilentKing",
+        "prime1": "GuildBoss3Minion3NecroMenhir"
+      },
+      "faction": "Necrons",
+      "bannedFaction": "Necrons",
+      "turnLimit": 6,
+      "movement": 4,
+      "encounterMix": { "boss": 4, "crystal": 8 },
+      "boards": ["GB_SK_01", "GB_SK_02", "GB_SK_03", "GB_SK_04"],
+      "playbook": "silent-king-playbook.md",
+      "primesPlaybook": "silent-king-primes-playbook.md",
+      "threats": [
+        {
+          "ability": "Annihilator Beam",
+          "danger": "critical",
+          "trigger": "Clear LOS lane exists (Menhir creates corridor)"
+        },
+        {
+          "ability": "My Will Be Done",
+          "danger": "high",
+          "trigger": "At least one Menhir alive"
+        },
+        {
+          "ability": "Breath of Silence",
+          "danger": "medium",
+          "trigger": "4 throne pads unoccupied"
+        }
+      ],
+      "keyThresholds": [
+        {
+          "hpLost": 50000,
+          "modifier": "AnnihilatorBeam_2",
+          "impact": "+damage, +charges (crystal only)"
+        },
+        {
+          "hpLost": 125000,
+          "modifier": "hits_1",
+          "impact": "+1 hit to abilities"
+        }
+      ],
+      "cooldowns": [
+        {
+          "ability": "Annihilator Beam",
+          "turns": 2,
+          "notes": "Marks hexes, resolves next turn"
+        },
+        {
+          "ability": "My Will Be Done",
+          "turns": 1,
+          "notes": "Only with Menhirs alive"
+        },
+        {
+          "ability": "Breath of Silence",
+          "turns": 2,
+          "notes": "Requires empty pads"
+        }
+      ],
+      "coreMechanic": "Pad control and Menhir management"
+    },
+    {
+      "id": "ghazghkull",
+      "name": "Ghazghkull Thraka",
+      "wikiUrl": "https://tacticus.wiki.gg/wiki/Ghazghkull",
+      "tacticusTableIds": {
+        "boss": "GuildBoss4Boss1OrksGhazghkull",
+        "prime1": "GuildBoss4MiniBoss1OrksBigMek",
+        "prime2": "GuildBoss4MiniBoss2OrksNob"
+      },
+      "faction": "Orks",
+      "bannedFaction": "Orks",
+      "turnLimit": 6,
+      "movement": 4,
+      "encounterMix": { "boss": 10, "crystal": 20 },
+      "boards": [
+        "GB_Dakka_01",
+        "GB_Dakka_02",
+        "GB_Dakka_03",
+        "GB_Dakka_03_1",
+        "GB_Dakka_04",
+        "GB_Dakka_05"
+      ],
+      "playbook": "ghazghkull-playbook.md",
+      "primesPlaybook": "ghazghkull-primes-playbook.md",
+      "threats": [
+        {
+          "ability": "Needs More Dakka",
+          "danger": "critical",
+          "trigger": "Targets line up; enhanced by hits modifiers"
+        },
+        {
+          "ability": "Ere We Go",
+          "danger": "high",
+          "trigger": "Gap-closer; chains with Prophet attacks"
+        },
+        {
+          "ability": "Da Great Waaagh!",
+          "danger": "medium",
+          "trigger": "Damage thresholds spawn Boyz/Squighogs"
+        }
+      ],
+      "keyThresholds": [
+        {
+          "hpLost": 1500,
+          "modifier": "Waaagh summons (Tier 1)",
+          "impact": "Basic Boyz/Grotz appear"
+        },
+        {
+          "hpLost": 3000,
+          "modifier": "Dakka +hits (Tier 1)",
+          "impact": "Extra shots per salvo"
+        },
+        {
+          "hpLost": 12000,
+          "modifier": "Proper Killy disabled",
+          "impact": "Burst window!"
+        }
+      ],
+      "cooldowns": [
+        { "ability": "Needs More Dakka", "turns": 1 },
+        { "ability": "Da Great Waaagh!", "turns": 2 },
+        { "ability": "Ere We Go", "turns": 1.5, "notes": "Depends on movement" }
+      ],
+      "coreMechanic": "Dense modifier thresholds, continuous scaling"
+    },
+    {
+      "id": "avatar-of-khaine",
+      "name": "Avatar of Khaine",
+      "wikiUrl": "https://tacticus.wiki.gg/wiki/Avatar_of_Khaine",
+      "tacticusTableIds": {
+        "boss": "GuildBoss8Boss1EldarAvatar",
+        "prime1": "GuildBoss8MiniBoss1EldarAutarch",
+        "prime2": "GuildBoss8MiniBoss2EldarFarseer"
+      },
+      "faction": "Aeldari",
+      "bannedFaction": "Aeldari",
+      "turnLimit": 6,
+      "movement": 3,
+      "encounterMix": { "boss": 11, "crystal": 22 },
+      "boards": [
+        "GB_Khaine_01",
+        "GB_Khaine_02",
+        "GB_Khaine_03",
+        "GB_Khaine_04",
+        "GB_Khaine_05"
+      ],
+      "playbook": "avatar-of-khaine-playbook.md",
+      "primesPlaybook": "avatar-of-khaine-primes-playbook.md",
+      "threats": [
+        {
+          "ability": "Wrath of Khaine Unleashed",
+          "danger": "critical",
+          "trigger": "3+ units within 3 tiles; late-game default"
+        },
+        {
+          "ability": "Wailing Doom Sweeps",
+          "danger": "high",
+          "trigger": "2+ melee targets adjacent (120° cleave)"
+        },
+        {
+          "ability": "Blood Runs, Anger Rises",
+          "danger": "high",
+          "trigger": "Berserk buff; perma-crit by turn 6"
+        }
+      ],
+      "keyThresholds": [
+        {
+          "hpLost": 2100,
+          "modifier": "MoltenForm (Tier 1)",
+          "impact": "DoT aura begins"
+        },
+        {
+          "hpLost": 2100,
+          "modifier": "BloodRuns (Tier 1)",
+          "impact": "Crit + movement buff starts"
+        },
+        {
+          "hpLost": 875000,
+          "modifier": "BloodRuns (Max)",
+          "impact": "Perma-crit state"
+        }
+      ],
+      "cooldowns": [
+        { "ability": "Wailing Doom Sweeps", "turns": 1 },
+        { "ability": "Wailing Doom Strikes", "turns": 1 },
+        { "ability": "Wrath of Khaine", "turns": 2.5 }
+      ],
+      "coreMechanic": "Berserk scaling over encounter duration"
+    },
+    {
+      "id": "belisarius",
+      "name": "Belisarius Cawl",
+      "wikiUrl": "https://tacticus.wiki.gg/wiki/Belisarius_Cawl",
+      "tacticusTableIds": {
+        "boss": "GuildBoss10Boss1AdmecBelisarius",
+        "prime1": "GuildBoss10MiniBoss1AdmecMarshall",
+        "prime2": "GuildBoss10MiniBoss2AdmecManipulus"
+      },
+      "faction": "Adeptus Mechanicus",
+      "bannedFaction": "AdeptusMechanicus",
+      "turnLimit": 6,
+      "movement": 4,
+      "encounterMix": { "boss": 12, "crystal": 24 },
+      "boards": [
+        "GB_Belisarius_01",
+        "GB_Belisarius_02",
+        "GB_Belisarius_03",
+        "GB_Belisarius_04"
+      ],
+      "playbook": "belisarius-playbook.md",
+      "primesPlaybook": "belisarius-primes-playbook.md",
+      "threats": [
+        {
+          "ability": "Solar Atomizer",
+          "danger": "critical",
+          "trigger": "Players line up in lane"
+        },
+        {
+          "ability": "Arc Scourge",
+          "danger": "high",
+          "trigger": "2+ units within 3 tiles; chains through clusters"
+        },
+        {
+          "ability": "Invocation of Machine Vengeance",
+          "danger": "medium",
+          "trigger": "Buff opener; enhances subsequent attacks"
+        }
+      ],
+      "keyThresholds": [
+        {
+          "hpLost": 2160,
+          "modifier": "Invocation Enhanced",
+          "impact": "Longer buff duration"
+        },
+        {
+          "hpLost": 5040,
+          "modifier": "Arc Scourge Enhanced",
+          "impact": "More chain targets"
+        },
+        {
+          "hpLost": 10800,
+          "modifier": "Self Repair Mechanism",
+          "impact": "Auto-heal pulses"
+        }
+      ],
+      "cooldowns": [
+        { "ability": "Invocation", "turns": 2 },
+        { "ability": "Arc Scourge", "turns": 1 },
+        { "ability": "Solar Atomizer", "turns": 2.5 },
+        { "ability": "Shroud Psalm", "turns": 2 }
+      ],
+      "coreMechanic": "Canticle buff/damage/defense rotation"
+    },
+    {
+      "id": "riptide",
+      "name": "Tau Riptide",
+      "wikiUrl": "https://tacticus.wiki.gg/wiki/Riptide",
+      "tacticusTableIds": {
+        "boss": "GuildBoss11Boss1TauRiptide",
+        "prime1": "GuildBoss11MiniBoss1TauMarksman",
+        "prime2": "GuildBoss11MiniBoss2TauCrisis"
+      },
+      "faction": "Tau",
+      "bannedFaction": "Tau",
+      "turnLimit": 6,
+      "movement": 4,
+      "encounterMix": { "boss": 4, "crystal": 8 },
+      "boards": ["GB_Riptide_01", "GB_Riptide_02", "GB_Riptide_03"],
+      "playbook": "riptide-playbook.md",
+      "primesPlaybook": "riptide-primes-playbook.md",
+      "seasonRestriction": "Season 2 only",
+      "threats": [
+        {
+          "ability": "Nova Charge",
+          "danger": "critical",
+          "trigger": "Clustering; scales rapidly with thresholds"
+        },
+        {
+          "ability": "Target Lock",
+          "danger": "high",
+          "trigger": "Passive marking; enables guaranteed follow-up crits"
+        },
+        {
+          "ability": "Nova Shield",
+          "danger": "medium",
+          "trigger": "Defensive bubble; extends to adjacent drones"
+        }
+      ],
+      "keyThresholds": [
+        {
+          "hpLost": 2160,
+          "modifier": "Target Lock Enhanced",
+          "impact": "More marked targets"
+        },
+        {
+          "hpLost": 8640,
+          "modifier": "Nova Charge Enhanced",
+          "impact": "Blast radius + DoT increased"
+        },
+        {
+          "hpLost": 10800,
+          "modifier": "movement_1 (slow)",
+          "impact": "Burst window!"
+        }
+      ],
+      "cooldowns": [
+        { "ability": "Nova Boost", "turns": 1.5 },
+        { "ability": "Nova Shield", "turns": 2 },
+        { "ability": "Nova Charge", "turns": 2 }
+      ],
+      "coreMechanic": "Nova system cycling with drone support"
+    },
+    {
+      "id": "lion",
+      "name": "Lion El'Jonson",
+      "wikiUrl": "https://tacticus.wiki.gg/wiki/Lion_El%27Jonson",
+      "tacticusTableIds": {
+        "boss": "GuildBoss12Boss1DarkaLion",
+        "prime1": "GuildBoss12MiniBoss1DarkaTerminator",
+        "prime2": "GuildBoss12MiniBoss2DarkaCompanion"
+      },
+      "faction": "Dark Angels",
+      "bannedFaction": "DarkAngels",
+      "turnLimit": 6,
+      "movement": 3,
+      "encounterMix": { "boss": 4, "crystal": 8 },
+      "boards": ["GB_Lion_01", "GB_Lion_02", "GB_Lion_03"],
+      "playbook": "lion-playbook.md",
+      "primesPlaybook": "lion-primes-playbook.md",
+      "threats": [
+        {
+          "ability": "Instruments of Vengeance",
+          "danger": "critical",
+          "trigger": "Ranged burst plus Terminator summon pressure"
+        },
+        {
+          "ability": "Martial Exemplar",
+          "danger": "high",
+          "trigger": "Adjacent targets; one-tile melee sweep with crit scaling"
+        },
+        {
+          "ability": "The Lion's Wrath",
+          "danger": "high",
+          "trigger": "Short cooldown hybrid Power/Piercing strike"
+        }
+      ],
+      "keyThresholds": [
+        {
+          "hpLost": 200000,
+          "modifier": "fixedArmor_15 / dmg_15",
+          "impact": "Prime-side stat reductions begin"
+        },
+        {
+          "hpLost": 400000,
+          "modifier": "critChance_10",
+          "impact": "Burst windows shift as crit pressure changes"
+        },
+        {
+          "hpLost": 1000000,
+          "modifier": "TheEmperorsShield / Fealty",
+          "impact": "Late prime thresholds alter defensive and follow-up mechanics"
+        }
+      ],
+      "cooldowns": [
+        { "ability": "Instruments of Vengeance", "turns": 2 },
+        { "ability": "Martial Exemplar", "turns": 2 },
+        { "ability": "The Lion's Wrath", "turns": 1 }
+      ],
+      "coreMechanic": "Dark Angels melee boss with summon and defensive follow-up pressure"
+    },
+    {
+      "id": "rogal-dorn",
+      "name": "Rogal Dorn",
+      "wikiUrl": "https://tacticus.wiki.gg/wiki/Rogal_Dorn",
+      "tacticusTableIds": {
+        "boss": "GuildBoss7Boss1AstraRogaldorn",
+        "prime1": "GuildBoss7MiniBoss1AstraPrimarisPsy",
+        "prime2": "GuildBoss7MiniBoss2AstraOrdnance"
+      },
+      "faction": "Astra Militarum",
+      "bannedFaction": "AstraMilitarum",
+      "turnLimit": 6,
+      "movement": 4,
+      "encounterMix": { "boss": 8, "crystal": 16 },
+      "boards": [
+        "GB_RogalDorn_01",
+        "GB_RogalDorn_02",
+        "GB_RogalDorn_03",
+        "GB_RogalDorn_04",
+        "GB_RogalDorn_05",
+        "GB_RogalDorn_06"
+      ],
+      "playbook": "rogal-dorn-playbook.md",
+      "primesPlaybook": "rogal-dorn-primes-playbook.md",
+      "threats": [
+        {
+          "ability": "Pound Them to Dust",
+          "danger": "critical",
+          "trigger": "Multiple enemies behind same cover"
+        },
+        {
+          "ability": "Gunners Kill on Sight",
+          "danger": "high",
+          "trigger": "Marked target or flanking; crit stacks"
+        },
+        {
+          "ability": "Weaker Rear Armour",
+          "danger": "high",
+          "trigger": "Counter-crit when attacked from behind"
+        }
+      ],
+      "keyThresholds": [
+        {
+          "hpLost": 5040,
+          "modifier": "dmg_20",
+          "impact": "Main damage scaling"
+        },
+        {
+          "hpLost": 5760,
+          "modifier": "Weaker Rear Armour crit",
+          "impact": "Counter-attacks hit harder"
+        },
+        {
+          "hpLost": 10080,
+          "modifier": "Gunners crit stacks",
+          "impact": "Focus fire becomes lethal"
+        }
+      ],
+      "cooldowns": [
+        { "ability": "Pound Them to Dust", "turns": 1 },
+        { "ability": "Gunners Kill on Sight", "turns": 2 }
+      ],
+      "coreMechanic": "Positional combat with front/rear armor zones"
+    },
+    {
+      "id": "screamer-killer",
+      "name": "Screamer-Killer",
+      "wikiUrl": "https://tacticus.wiki.gg/wiki/Screamer-Killer",
+      "tacticusTableIds": {
+        "boss": "GuildBoss6Boss1TyranScreamerKiller",
+        "prime1": "GuildBoss6MiniBoss1TyranNeurothrope",
+        "prime2": "GuildBoss6MiniBoss2TyranWingedPrime"
+      },
+      "faction": "Tyranids",
+      "bannedFaction": "Tyranids",
+      "turnLimit": 6,
+      "movement": 4,
+      "encounterMix": { "boss": 16, "crystal": 32 },
+      "boards": [
+        "GB_Screamer_01",
+        "GB_Screamer_02",
+        "GB_Screamer_03",
+        "GB_Screamer_04"
+      ],
+      "playbook": "screamer-killer-playbook.md",
+      "primesPlaybook": "screamer-killer-primes-playbook.md",
+      "threats": [
+        {
+          "ability": "Death Scream",
+          "danger": "critical",
+          "trigger": "2+ targets in front arc; stuns/roots"
+        },
+        {
+          "ability": "Living Battering Ram",
+          "danger": "high",
+          "trigger": "Clear lane to backliner; gap-closer"
+        },
+        {
+          "ability": "Unparalleled Ferocity",
+          "danger": "high",
+          "trigger": "Self-buff + multi-hit combo; follows stuns"
+        }
+      ],
+      "keyThresholds": [
+        {
+          "hpLost": 2160,
+          "modifier": "DeathScream_disable",
+          "impact": "Burst window!"
+        },
+        {
+          "hpLost": 2160,
+          "modifier": "LivingBatteringRam_disable",
+          "impact": "Burst window!"
+        },
+        {
+          "hpLost": 2880,
+          "modifier": "critDmg_25",
+          "impact": "Ferocity becomes lethal"
+        }
+      ],
+      "cooldowns": [
+        { "ability": "Living Battering Ram", "turns": 1 },
+        { "ability": "Death Scream", "turns": 2 },
+        { "ability": "Unparalleled Ferocity", "turns": 2 }
+      ],
+      "coreMechanic": "Disable windows that temporarily block abilities"
+    },
+    {
+      "id": "hive-tyrant-kronos",
+      "name": "Hive Tyrant (Kronos)",
+      "wikiUrl": "https://tacticus.wiki.gg/wiki/Hive_Tyrant",
+      "tacticusTableIds": {
+        "boss": "GuildBoss2Boss2TyranHiveTyrantKronos",
+        "prime1": "GuildBoss1MiniBoss2TyranWarriorKronos"
+      },
+      "faction": "Tyranids",
+      "bannedFaction": "Tyranids",
+      "strain": "Kronos",
+      "turnLimit": 6,
+      "movement": 4,
+      "encounterMix": { "boss": 4, "crystal": 8 },
+      "boards": ["GB_03", "GB_06"],
+      "playbook": "hive-tyrant-kronos-playbook.md",
+      "primesPlaybook": "tyranid-warriors-primes-playbook.md",
+      "threats": [
+        {
+          "ability": "Stranglethorn Cannon",
+          "danger": "critical",
+          "trigger": "2+ targets aligned; suppresses groups"
+        },
+        {
+          "ability": "Catalyst",
+          "danger": "high",
+          "trigger": "Synapse unit below 70% HP"
+        },
+        {
+          "ability": "Call Ripper Swarms 2.0",
+          "danger": "medium",
+          "trigger": "Board control loss; very low thresholds"
+        }
+      ],
+      "keyThresholds": [
+        {
+          "hpLost": 900,
+          "modifier": "dmg_15, fixedArmor_15",
+          "impact": "Scaling begins immediately"
+        },
+        {
+          "hpLost": 1800,
+          "modifier": "StranglethornCannon_25",
+          "impact": "Cannon becomes dominant"
+        },
+        {
+          "hpLost": 7200,
+          "modifier": "movement_1",
+          "impact": "Repositioning window!"
+        }
+      ],
+      "cooldowns": [
+        { "ability": "Stranglethorn Cannon", "turns": 1 },
+        { "ability": "Catalyst", "turns": 2 },
+        { "ability": "Call Ripper Swarms 2.0", "turns": 2 }
+      ],
+      "coreMechanic": "Soul Hunger targeting psykers/buffed units"
+    },
+    {
+      "id": "hive-tyrant-gorgon",
+      "name": "Hive Tyrant (Gorgon)",
+      "wikiUrl": "https://tacticus.wiki.gg/wiki/Hive_Tyrant",
+      "tacticusTableIds": {
+        "boss": "GuildBoss2Boss3TyranHiveTyrantGorgon",
+        "prime1": "GuildBoss1MiniBoss3TyranWarriorGorgon"
+      },
+      "faction": "Tyranids",
+      "bannedFaction": "Tyranids",
+      "strain": "Gorgon",
+      "turnLimit": 6,
+      "movement": 4,
+      "encounterMix": { "boss": 6, "crystal": 12 },
+      "boards": ["GB_03", "GB_04"],
+      "playbook": "hive-tyrant-gorgon-playbook.md",
+      "primesPlaybook": "tyranid-warriors-primes-playbook.md",
+      "threats": [
+        {
+          "ability": "Stranglethorn Cannon",
+          "danger": "critical",
+          "trigger": "2+ targets within 5 tiles aligned"
+        },
+        {
+          "ability": "Catalyst",
+          "danger": "high",
+          "trigger": "Any synapse unit below 70% HP"
+        },
+        {
+          "ability": "Call Ripper Swarms 3.0",
+          "danger": "medium",
+          "trigger": "Board control; low thresholds"
+        }
+      ],
+      "keyThresholds": [
+        {
+          "hpLost": 360,
+          "modifier": "dmg_15, fixedArmor_15",
+          "impact": "Scaling starts immediately"
+        },
+        {
+          "hpLost": 720,
+          "modifier": "StranglethornCannon_25",
+          "impact": "Cannon becomes lethal"
+        },
+        {
+          "hpLost": 2880,
+          "modifier": "movement_1",
+          "impact": "Repositioning window!"
+        }
+      ],
+      "cooldowns": [
+        { "ability": "Stranglethorn Cannon", "turns": 1 },
+        { "ability": "Catalyst", "turns": 2 },
+        { "ability": "Call Ripper Swarms 3.0", "turns": 2 }
+      ],
+      "coreMechanic": "Adaptive Toxins stacking on hit targets"
+    },
+    {
+      "id": "hive-tyrant-leviathan",
+      "name": "Hive Tyrant (Leviathan)",
+      "wikiUrl": "https://tacticus.wiki.gg/wiki/Hive_Tyrant",
+      "tacticusTableIds": {
+        "boss": "GuildBoss2Boss1TyranHiveTyrantLeviathan",
+        "prime1": "GuildBoss1MiniBoss1TyranWarriorLeviathan"
+      },
+      "faction": "Tyranids",
+      "bannedFaction": "Tyranids",
+      "strain": "Leviathan",
+      "turnLimit": 6,
+      "movement": 4,
+      "encounterMix": { "boss": 8, "crystal": 16 },
+      "boards": ["GB_02", "GB_04", "GB_05"],
+      "playbook": "hive-tyrant-leviathan-playbook.md",
+      "primesPlaybook": "tyranid-warriors-primes-playbook.md",
+      "threats": [
+        {
+          "ability": "Stranglethorn Cannon",
+          "danger": "critical",
+          "trigger": "Clustered targets; roots/knockback"
+        },
+        {
+          "ability": "Synaptic Imperative",
+          "danger": "high",
+          "trigger": "Passive; grants AP after powers"
+        },
+        {
+          "ability": "Call Ripper Swarms 1.0",
+          "danger": "medium",
+          "trigger": "Low cost; fires almost every other turn"
+        }
+      ],
+      "keyThresholds": [
+        {
+          "hpLost": 270,
+          "modifier": "dmg_15, fixedArmor_15",
+          "impact": "Only 270 damage!"
+        },
+        {
+          "hpLost": 540,
+          "modifier": "StranglethornCannon_25",
+          "impact": "Cannon enhanced"
+        },
+        {
+          "hpLost": 2160,
+          "modifier": "movement_1",
+          "impact": "Repositioning window!"
+        }
+      ],
+      "cooldowns": [
+        { "ability": "Stranglethorn Cannon", "turns": 1 },
+        { "ability": "Catalyst", "turns": 2 },
+        { "ability": "Call Ripper Swarms 1.0", "turns": 2 }
+      ],
+      "coreMechanic": "Synaptic Imperative grants bonus AP after casts"
+    },
+    {
+      "id": "tervigon-kronos",
+      "name": "Tervigon (Kronos)",
+      "wikiUrl": "https://tacticus.wiki.gg/wiki/Tervigon",
+      "tacticusTableIds": {
+        "boss": "GuildBoss1Boss2TyranTervigonKronos",
+        "prime1": "GuildBoss1MiniBoss2TyranWarriorKronos"
+      },
+      "faction": "Tyranids",
+      "bannedFaction": "Tyranids",
+      "strain": "Kronos",
+      "turnLimit": 6,
+      "movement": 4,
+      "encounterMix": { "boss": 3, "crystal": 6 },
+      "boards": ["GB_05", "GB_06"],
+      "playbook": "tervigon-kronos-playbook.md",
+      "primesPlaybook": "tyranid-warriors-primes-playbook.md",
+      "threats": [
+        {
+          "ability": "Bio Barrage",
+          "danger": "critical",
+          "trigger": "Passive; splashes on every cast"
+        },
+        {
+          "ability": "Catalyst",
+          "danger": "high",
+          "trigger": "Any ally damaged; applied frequently"
+        },
+        {
+          "ability": "Spawn Termagants 2",
+          "danger": "medium",
+          "trigger": "Cooldown only ~1 turn; constant spawns"
+        }
+      ],
+      "keyThresholds": [
+        {
+          "hpLost": 900,
+          "modifier": "dmg_15, fixedArmor_15",
+          "impact": "Scaling begins"
+        },
+        {
+          "hpLost": 1800,
+          "modifier": "SpawnTermagants2_15",
+          "impact": "Increased brood size"
+        },
+        {
+          "hpLost": 7200,
+          "modifier": "movement_1",
+          "impact": "Repositioning window!"
+        }
+      ],
+      "cooldowns": [
+        { "ability": "Spawn Termagants 2", "turns": 1 },
+        { "ability": "Catalyst", "turns": 2 }
+      ],
+      "coreMechanic": "Narrow corridor control with Synaptic Backlash"
+    },
+    {
+      "id": "tervigon-gorgon",
+      "name": "Tervigon (Gorgon)",
+      "wikiUrl": "https://tacticus.wiki.gg/wiki/Tervigon",
+      "tacticusTableIds": {
+        "boss": "GuildBoss1Boss3TyranTervigonGorgon",
+        "prime1": "GuildBoss1MiniBoss3TyranWarriorGorgon"
+      },
+      "faction": "Tyranids",
+      "bannedFaction": "Tyranids",
+      "strain": "Gorgon",
+      "turnLimit": 6,
+      "movement": 4,
+      "encounterMix": { "boss": 6, "crystal": 12 },
+      "boards": ["GB_03", "GB_04", "GB_06"],
+      "playbook": "tervigon-gorgon-playbook.md",
+      "primesPlaybook": "tyranid-warriors-primes-playbook.md",
+      "threats": [
+        {
+          "ability": "Spawn Termagants 3",
+          "danger": "high",
+          "trigger": "Free pads around Tervigon/Warrior"
+        },
+        {
+          "ability": "Catalyst",
+          "danger": "high",
+          "trigger": "Any ally has taken damage"
+        },
+        {
+          "ability": "Massive Scything Talons",
+          "danger": "critical",
+          "trigger": "Enemies adjacent; enhanced by thresholds"
+        }
+      ],
+      "keyThresholds": [
+        {
+          "hpLost": 360,
+          "modifier": "dmg_15, fixedArmor_15",
+          "impact": "Scaling begins early"
+        },
+        {
+          "hpLost": 720,
+          "modifier": "SpawnTermagants3_15",
+          "impact": "Gaunt stats reduced 15%"
+        },
+        {
+          "hpLost": 2880,
+          "modifier": "movement_1",
+          "impact": "Repositioning window!"
+        }
+      ],
+      "cooldowns": [
+        { "ability": "Spawn Termagants 3", "turns": 1 },
+        { "ability": "Catalyst", "turns": 2 }
+      ],
+      "coreMechanic": "Spawn pad control determines ability availability"
+    },
+    {
+      "id": "tervigon-leviathan",
+      "name": "Tervigon (Leviathan)",
+      "wikiUrl": "https://tacticus.wiki.gg/wiki/Tervigon",
+      "tacticusTableIds": {
+        "boss": "GuildBoss1Boss1TyranTervigonLeviathan",
+        "prime1": "GuildBoss1MiniBoss1TyranWarriorLeviathan"
+      },
+      "faction": "Tyranids",
+      "bannedFaction": "Tyranids",
+      "strain": "Leviathan",
+      "turnLimit": 6,
+      "movement": 4,
+      "encounterMix": { "boss": 10, "crystal": 20 },
+      "boards": ["GB_02", "GB_04", "GB_05"],
+      "playbook": "tervigon-leviathan-playbook.md",
+      "primesPlaybook": "tyranid-warriors-primes-playbook.md",
+      "threats": [
+        {
+          "ability": "Stranglethorn Cannon",
+          "danger": "critical",
+          "trigger": "2+ targets aligned within 5 tiles"
+        },
+        {
+          "ability": "Spawn Termagants",
+          "danger": "high",
+          "trigger": "Free pads around Tervigon/Warrior"
+        },
+        {
+          "ability": "Catalyst",
+          "danger": "high",
+          "trigger": "Any ally lost 15%+ HP"
+        }
+      ],
+      "keyThresholds": [
+        {
+          "hpLost": 180,
+          "modifier": "dmg_15, fixedArmor_15",
+          "impact": "Only 180 damage!"
+        },
+        {
+          "hpLost": 360,
+          "modifier": "SpawnTermagants_15",
+          "impact": "Gaunt stats reduced 15%"
+        },
+        {
+          "hpLost": 1440,
+          "modifier": "movement_1",
+          "impact": "Repositioning window!"
+        }
+      ],
+      "cooldowns": [
+        { "ability": "Spawn Termagants", "turns": 1 },
+        { "ability": "Catalyst", "turns": 2 },
+        { "ability": "Stranglethorn Cannon", "turns": 1 }
+      ],
+      "coreMechanic": "Dual threat: Spawn pads + Stranglethorn lines"
+    }
+  ]
+}

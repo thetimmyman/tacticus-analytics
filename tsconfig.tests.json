@@ -1,0 +1,30 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": false,
+    "types": ["node", "vitest/globals"]
+  },
+  "include": [
+    "*.ts",
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "modules/**/*.ts",
+    "modules/**/*.tsx",
+    "packages/**/*.ts",
+    "packages/**/*.tsx",
+    "types/**/*.d.ts",
+    "next-env.d.ts",
+    "tests/**/*.ts",
+    "tests/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "supabase/functions/**/*",
+    "scripts/**/*",
+    "scripts/.archive-debug/**/*",
+    "scripts/.archive-test/**/*",
+    "archived/**/*",
+    "reference/**/*"
+  ]
+}

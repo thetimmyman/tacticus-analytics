@@ -1,0 +1,1350 @@
+{
+  "ActOfFaith": [
+    {
+      "id": "celestine",
+      "name": "Celestine"
+    },
+    {
+      "id": "isabella",
+      "name": "Isabella"
+    },
+    {
+      "id": "morvenn-vahl",
+      "name": "Morvenn Vahl"
+    },
+    {
+      "id": "roswitha",
+      "name": "Roswitha"
+    },
+    {
+      "id": "vindicta",
+      "name": "Vindicta"
+    }
+  ],
+  "Ambush": [
+    {
+      "id": "hollan",
+      "name": "Hollan"
+    },
+    {
+      "id": "isaak",
+      "name": "Isaak"
+    },
+    {
+      "id": "judh",
+      "name": "Judh"
+    },
+    {
+      "id": "xybia",
+      "name": "Xybia"
+    }
+  ],
+  "BeastSlayer": [
+    {
+      "id": "blackmane",
+      "name": "Ragnar"
+    },
+    {
+      "id": "farsight",
+      "name": "Farsight"
+    },
+    {
+      "id": "judh",
+      "name": "Judh"
+    },
+    {
+      "id": "kariyan",
+      "name": "Kariyan"
+    },
+    {
+      "id": "snotflogga",
+      "name": "Snotflogga"
+    },
+    {
+      "id": "tanksmasha",
+      "name": "Tanksmasha"
+    },
+    {
+      "id": "titus",
+      "name": "Titus"
+    }
+  ],
+  "BigTarget": [
+    {
+      "id": "aesoth",
+      "name": "Aesoth"
+    },
+    {
+      "id": "boss-gulgortz",
+      "name": "Gulgortz"
+    },
+    {
+      "id": "farsight",
+      "name": "Farsight"
+    },
+    {
+      "id": "kut-skoden",
+      "name": "Kut"
+    },
+    {
+      "id": "morvenn-vahl",
+      "name": "Morvenn Vahl"
+    },
+    {
+      "id": "revas",
+      "name": "Re'vas"
+    },
+    {
+      "id": "snappawrecka",
+      "name": "Snappawrecka"
+    },
+    {
+      "id": "tyrant-guard",
+      "name": "Tyrant Guard"
+    },
+    {
+      "id": "volk",
+      "name": "Volk"
+    }
+  ],
+  "BlessingsOfKhorne": [
+    {
+      "id": "azkor",
+      "name": "Azkor"
+    },
+    {
+      "id": "kharn",
+      "name": "Kharn"
+    },
+    {
+      "id": "macer",
+      "name": "Macer"
+    },
+    {
+      "id": "tarvakh",
+      "name": "Tarvakh"
+    },
+    {
+      "id": "wrask",
+      "name": "Wrask"
+    }
+  ],
+  "Camouflage": [
+    {
+      "id": "commander-shadowsun",
+      "name": "Shadowsun"
+    },
+    {
+      "id": "cyrus",
+      "name": "Cyrus"
+    },
+    {
+      "id": "deathleaper",
+      "name": "Deathleaper"
+    },
+    {
+      "id": "exitor-rho",
+      "name": "Exitor-Rho"
+    },
+    {
+      "id": "forcas",
+      "name": "Forcas"
+    },
+    {
+      "id": "sekhetar-robot",
+      "name": "Sekhetar Robot"
+    },
+    {
+      "id": "shosyl",
+      "name": "Sho'syl"
+    }
+  ],
+  "ContagionsOfNurgle": [
+    {
+      "id": "corrodius",
+      "name": "Corrodius"
+    },
+    {
+      "id": "maladus",
+      "name": "Maladus"
+    },
+    {
+      "id": "nauseous-rotbone",
+      "name": "Nauseous"
+    },
+    {
+      "id": "pestillian",
+      "name": "Pestillian"
+    },
+    {
+      "id": "typhus",
+      "name": "Typhus"
+    }
+  ],
+  "CrushingStrike": [
+    {
+      "id": "baraqiel",
+      "name": "Baraqiel"
+    },
+    {
+      "id": "boss-gulgortz",
+      "name": "Gulgortz"
+    },
+    {
+      "id": "brother-burchard",
+      "name": "Burchard"
+    },
+    {
+      "id": "havyr",
+      "name": "Havyr"
+    },
+    {
+      "id": "laviscus",
+      "name": "Laviscus"
+    },
+    {
+      "id": "lysander",
+      "name": "Lysander"
+    },
+    {
+      "id": "marneus-calgar",
+      "name": "Calgar"
+    },
+    {
+      "id": "trajann",
+      "name": "Trajann"
+    },
+    {
+      "id": "tyrant-guard",
+      "name": "Tyrant Guard"
+    }
+  ],
+  "Daemon": [
+    {
+      "id": "azkor",
+      "name": "Azkor"
+    },
+    {
+      "id": "volk",
+      "name": "Volk"
+    }
+  ],
+  "Explodes": [
+    {
+      "id": "aleph-null",
+      "name": "Aleph-Null"
+    },
+    {
+      "id": "morvenn-vahl",
+      "name": "Morvenn Vahl"
+    },
+    {
+      "id": "snappawrecka",
+      "name": "Snappawrecka"
+    }
+  ],
+  "FinalJustice": [
+    {
+      "id": "ancient-thoread",
+      "name": "Thoread"
+    },
+    {
+      "id": "azrael",
+      "name": "Azrael"
+    },
+    {
+      "id": "baldr",
+      "name": "Baldr"
+    },
+    {
+      "id": "blackmane",
+      "name": "Ragnar"
+    },
+    {
+      "id": "boss-gulgortz",
+      "name": "Gulgortz"
+    },
+    {
+      "id": "brother-jaeger",
+      "name": "Jaeger"
+    },
+    {
+      "id": "dante",
+      "name": "Dante"
+    },
+    {
+      "id": "high-marshal-helbrecht",
+      "name": "Helbrecht"
+    },
+    {
+      "id": "kharn",
+      "name": "Kharn"
+    },
+    {
+      "id": "marneus-calgar",
+      "name": "Calgar"
+    },
+    {
+      "id": "sarquael",
+      "name": "Sarquael"
+    },
+    {
+      "id": "titus",
+      "name": "Titus"
+    },
+    {
+      "id": "ulf",
+      "name": "Ulf"
+    },
+    {
+      "id": "winged-prime",
+      "name": "Winged Prime"
+    }
+  ],
+  "Flying": [
+    {
+      "id": "actus",
+      "name": "Actus"
+    },
+    {
+      "id": "aethana",
+      "name": "Aethana"
+    },
+    {
+      "id": "ahriman",
+      "name": "Ahriman"
+    },
+    {
+      "id": "aleph-null",
+      "name": "Aleph-Null"
+    },
+    {
+      "id": "bellator",
+      "name": "Bellator"
+    },
+    {
+      "id": "celestine",
+      "name": "Celestine"
+    },
+    {
+      "id": "commander-shadowsun",
+      "name": "Shadowsun"
+    },
+    {
+      "id": "dante",
+      "name": "Dante"
+    },
+    {
+      "id": "farsight",
+      "name": "Farsight"
+    },
+    {
+      "id": "haarkeen-worldclaimer",
+      "name": "Haarken"
+    },
+    {
+      "id": "lhykhis",
+      "name": "Lhykhis"
+    },
+    {
+      "id": "mataneo",
+      "name": "Mataneo"
+    },
+    {
+      "id": "neurothrope",
+      "name": "Neurothrope"
+    },
+    {
+      "id": "parasite-of-mortrex",
+      "name": "Parasite of Mortrex"
+    },
+    {
+      "id": "revas",
+      "name": "Re'vas"
+    },
+    {
+      "id": "thaumachus",
+      "name": "Thaumachus"
+    },
+    {
+      "id": "thothmek",
+      "name": "Thothmek"
+    },
+    {
+      "id": "thutmose",
+      "name": "Thutmose"
+    },
+    {
+      "id": "winged-prime",
+      "name": "Winged Prime"
+    },
+    {
+      "id": "yazaghor",
+      "name": "Yazaghor"
+    }
+  ],
+  "GetStuckIn": [
+    {
+      "id": "boss-gulgortz",
+      "name": "Gulgortz"
+    },
+    {
+      "id": "gibbascrapz",
+      "name": "Gibbascrapz"
+    },
+    {
+      "id": "snappawrecka",
+      "name": "Snappawrecka"
+    },
+    {
+      "id": "snotflogga",
+      "name": "Snotflogga"
+    },
+    {
+      "id": "tanksmasha",
+      "name": "Tanksmasha"
+    }
+  ],
+  "Healer": [
+    {
+      "id": "baldr",
+      "name": "Baldr"
+    },
+    {
+      "id": "hollan",
+      "name": "Hollan"
+    },
+    {
+      "id": "incisus",
+      "name": "Incisus"
+    },
+    {
+      "id": "isabella",
+      "name": "Isabella"
+    },
+    {
+      "id": "nauseous-rotbone",
+      "name": "Nauseous"
+    },
+    {
+      "id": "nicodemus",
+      "name": "Nicodemus"
+    }
+  ],
+  "HeavyWeapon": [
+    {
+      "id": "baraqiel",
+      "name": "Baraqiel"
+    },
+    {
+      "id": "calandis",
+      "name": "Calandis"
+    },
+    {
+      "id": "certus",
+      "name": "Certus"
+    },
+    {
+      "id": "maugan-ra",
+      "name": "Maugan Ra"
+    },
+    {
+      "id": "sarquael",
+      "name": "Sarquael"
+    },
+    {
+      "id": "shiron",
+      "name": "Shiron"
+    },
+    {
+      "id": "sy-gex",
+      "name": "Sy-gex"
+    },
+    {
+      "id": "vindicta",
+      "name": "Vindicta"
+    },
+    {
+      "id": "volk",
+      "name": "Volk"
+    }
+  ],
+  "IndirectFire": [
+    {
+      "id": "thaddeus-noble",
+      "name": "Thaddeus"
+    }
+  ],
+  "Infiltrate": [
+    {
+      "id": "certus",
+      "name": "Certus"
+    },
+    {
+      "id": "commander-shadowsun",
+      "name": "Shadowsun"
+    },
+    {
+      "id": "cyrus",
+      "name": "Cyrus"
+    },
+    {
+      "id": "darkstrider",
+      "name": "Darkstrider"
+    },
+    {
+      "id": "deathleaper",
+      "name": "Deathleaper"
+    },
+    {
+      "id": "exitor-rho",
+      "name": "Exitor-Rho"
+    },
+    {
+      "id": "jain-zar",
+      "name": "Jain Zar"
+    },
+    {
+      "id": "lhykhis",
+      "name": "Lhykhis"
+    },
+    {
+      "id": "patermine",
+      "name": "The Patermine"
+    },
+    {
+      "id": "sekhetar-robot",
+      "name": "Sekhetar Robot"
+    },
+    {
+      "id": "tjark",
+      "name": "Tjark"
+    }
+  ],
+  "LetTheGalaxyBurn": [
+    {
+      "id": "abaddon-the-despoiler",
+      "name": "Abaddon"
+    },
+    {
+      "id": "angrax",
+      "name": "Angrax"
+    },
+    {
+      "id": "archimatos",
+      "name": "Archimatos"
+    },
+    {
+      "id": "haarkeen-worldclaimer",
+      "name": "Haarken"
+    },
+    {
+      "id": "volk",
+      "name": "Volk"
+    }
+  ],
+  "LivingMetal": [
+    {
+      "id": "aleph-null",
+      "name": "Aleph-Null"
+    },
+    {
+      "id": "anuphet",
+      "name": "Anuphet"
+    },
+    {
+      "id": "imospekh",
+      "name": "Imospekh"
+    },
+    {
+      "id": "makhotep",
+      "name": "Makhotep"
+    },
+    {
+      "id": "thothmek",
+      "name": "Thothmek"
+    },
+    {
+      "id": "thutmose",
+      "name": "Thutmose"
+    }
+  ],
+  "MachineOfWar": [
+    {
+      "id": "biovore",
+      "name": "Biovore"
+    },
+    {
+      "id": "exorcist",
+      "name": "Exorcist"
+    },
+    {
+      "id": "forgefiend",
+      "name": "Forgefiend"
+    },
+    {
+      "id": "galatian",
+      "name": "Galatian"
+    },
+    {
+      "id": "malleus-rocket-launcher",
+      "name": "Malleus Rocket Launcher"
+    },
+    {
+      "id": "plagueburst-crawler",
+      "name": "Plagueburst Crawler"
+    },
+    {
+      "id": "reanimator",
+      "name": "Reanimator"
+    },
+    {
+      "id": "rukkatrukk",
+      "name": "Rukkatrukk"
+    },
+    {
+      "id": "storm-speeder",
+      "name": "Storm Speeder"
+    },
+    {
+      "id": "tau-broadside-battlesuit",
+      "name": "Tson'ji"
+    },
+    {
+      "id": "zkar",
+      "name": "Z'Kar"
+    }
+  ],
+  "MartialKatah": [
+    {
+      "id": "aesoth",
+      "name": "Aesoth"
+    },
+    {
+      "id": "kariyan",
+      "name": "Kariyan"
+    },
+    {
+      "id": "trajann",
+      "name": "Trajann"
+    },
+    {
+      "id": "tyrith",
+      "name": "Tyrith"
+    }
+  ],
+  "Mechanic": [
+    {
+      "id": "actus",
+      "name": "Actus"
+    },
+    {
+      "id": "aleph-null",
+      "name": "Aleph-Null"
+    },
+    {
+      "id": "gibbascrapz",
+      "name": "Gibbascrapz"
+    },
+    {
+      "id": "virtuvius",
+      "name": "Vitruvius"
+    },
+    {
+      "id": "vynn",
+      "name": "Vynn"
+    }
+  ],
+  "Mechanical": [
+    {
+      "id": "actus",
+      "name": "Actus"
+    },
+    {
+      "id": "aleph-null",
+      "name": "Aleph-Null"
+    },
+    {
+      "id": "ammuk",
+      "name": "Ammuk"
+    },
+    {
+      "id": "anuphet",
+      "name": "Anuphet"
+    },
+    {
+      "id": "boss-gulgortz",
+      "name": "Gulgortz"
+    },
+    {
+      "id": "exitor-rho",
+      "name": "Exitor-Rho"
+    },
+    {
+      "id": "farsight",
+      "name": "Farsight"
+    },
+    {
+      "id": "imospekh",
+      "name": "Imospekh"
+    },
+    {
+      "id": "makhotep",
+      "name": "Makhotep"
+    },
+    {
+      "id": "morvenn-vahl",
+      "name": "Morvenn Vahl"
+    },
+    {
+      "id": "revas",
+      "name": "Re'vas"
+    },
+    {
+      "id": "sekhetar-robot",
+      "name": "Sekhetar Robot"
+    },
+    {
+      "id": "snappawrecka",
+      "name": "Snappawrecka"
+    },
+    {
+      "id": "sy-gex",
+      "name": "Sy-gex"
+    },
+    {
+      "id": "tan-gida",
+      "name": "Tan Gi'da"
+    },
+    {
+      "id": "thothmek",
+      "name": "Thothmek"
+    },
+    {
+      "id": "thutmose",
+      "name": "Thutmose"
+    },
+    {
+      "id": "virtuvius",
+      "name": "Vitruvius"
+    }
+  ],
+  "MkXGravis": [
+    {
+      "id": "bellator",
+      "name": "Bellator"
+    },
+    {
+      "id": "brother-burchard",
+      "name": "Burchard"
+    },
+    {
+      "id": "marneus-calgar",
+      "name": "Calgar"
+    }
+  ],
+  "Overwatch": [
+    {
+      "id": "azrael",
+      "name": "Azrael"
+    },
+    {
+      "id": "calandis",
+      "name": "Calandis"
+    },
+    {
+      "id": "certus",
+      "name": "Certus"
+    },
+    {
+      "id": "imospekh",
+      "name": "Imospekh"
+    },
+    {
+      "id": "maugan-ra",
+      "name": "Maugan Ra"
+    },
+    {
+      "id": "ramus",
+      "name": "Ramus"
+    },
+    {
+      "id": "sarquael",
+      "name": "Sarquael"
+    },
+    {
+      "id": "sekhetar-robot",
+      "name": "Sekhetar Robot"
+    },
+    {
+      "id": "sy-gex",
+      "name": "Sy-gex"
+    }
+  ],
+  "Parry": [
+    {
+      "id": "ancient-thoread",
+      "name": "Thoread"
+    },
+    {
+      "id": "atlacoya",
+      "name": "Atlacoya"
+    },
+    {
+      "id": "brother-jaeger",
+      "name": "Jaeger"
+    },
+    {
+      "id": "forcas",
+      "name": "Forcas"
+    },
+    {
+      "id": "hascule",
+      "name": "Hascule"
+    },
+    {
+      "id": "high-marshal-helbrecht",
+      "name": "Helbrecht"
+    },
+    {
+      "id": "kariyan",
+      "name": "Kariyan"
+    },
+    {
+      "id": "lucius",
+      "name": "Lucius"
+    },
+    {
+      "id": "sword-brother-godswyl",
+      "name": "Godswyl"
+    }
+  ],
+  "PrioritisedEfficiency": [
+    {
+      "id": "ammuk",
+      "name": "Ammuk"
+    },
+    {
+      "id": "havyr",
+      "name": "Havyr"
+    },
+    {
+      "id": "kimm",
+      "name": "Kimm"
+    },
+    {
+      "id": "uthar",
+      "name": "Uthar"
+    },
+    {
+      "id": "vynn",
+      "name": "Vynn"
+    }
+  ],
+  "Psyker": [
+    {
+      "id": "abraxas",
+      "name": "Abraxas"
+    },
+    {
+      "id": "ahriman",
+      "name": "Ahriman"
+    },
+    {
+      "id": "archimatos",
+      "name": "Archimatos"
+    },
+    {
+      "id": "eldryon",
+      "name": "Eldryon"
+    },
+    {
+      "id": "mephiston",
+      "name": "Mephiston"
+    },
+    {
+      "id": "neurothrope",
+      "name": "Neurothrope"
+    },
+    {
+      "id": "sibyll-devine",
+      "name": "Sibyll"
+    },
+    {
+      "id": "stormcaller",
+      "name": "Njal"
+    },
+    {
+      "id": "thaumachus",
+      "name": "Thaumachus"
+    },
+    {
+      "id": "typhus",
+      "name": "Typhus"
+    },
+    {
+      "id": "varro-tigurius",
+      "name": "Tigurius"
+    },
+    {
+      "id": "xybia",
+      "name": "Xybia"
+    }
+  ],
+  "PutridExplosion": [
+    {
+      "id": "pestillian",
+      "name": "Pestillian"
+    }
+  ],
+  "RangedSpecialist": [
+    {
+      "id": "commander-shadowsun",
+      "name": "Shadowsun"
+    },
+    {
+      "id": "darkstrider",
+      "name": "Darkstrider"
+    },
+    {
+      "id": "neurothrope",
+      "name": "Neurothrope"
+    },
+    {
+      "id": "revas",
+      "name": "Re'vas"
+    },
+    {
+      "id": "shosyl",
+      "name": "Sho'syl"
+    }
+  ],
+  "RapidAssault": [
+    {
+      "id": "blackmane",
+      "name": "Ragnar"
+    },
+    {
+      "id": "brother-jaeger",
+      "name": "Jaeger"
+    },
+    {
+      "id": "cezare",
+      "name": "Cezare"
+    },
+    {
+      "id": "dante",
+      "name": "Dante"
+    },
+    {
+      "id": "kariyan",
+      "name": "Kariyan"
+    },
+    {
+      "id": "kharn",
+      "name": "Kharn"
+    },
+    {
+      "id": "lucien",
+      "name": "Lucien"
+    },
+    {
+      "id": "mataneo",
+      "name": "Mataneo"
+    },
+    {
+      "id": "mephiston",
+      "name": "Mephiston"
+    },
+    {
+      "id": "nicodemus",
+      "name": "Nicodemus"
+    },
+    {
+      "id": "sword-brother-godswyl",
+      "name": "Godswyl"
+    },
+    {
+      "id": "tarvakh",
+      "name": "Tarvakh"
+    },
+    {
+      "id": "wrask",
+      "name": "Wrask"
+    }
+  ],
+  "Resilient": [
+    {
+      "id": "abaddon-the-despoiler",
+      "name": "Abaddon"
+    },
+    {
+      "id": "aesoth",
+      "name": "Aesoth"
+    },
+    {
+      "id": "anuphet",
+      "name": "Anuphet"
+    },
+    {
+      "id": "arjac-rockfist",
+      "name": "Arjac"
+    },
+    {
+      "id": "azkor",
+      "name": "Azkor"
+    },
+    {
+      "id": "commissar-yarrick",
+      "name": "Yarrick"
+    },
+    {
+      "id": "corrodius",
+      "name": "Corrodius"
+    },
+    {
+      "id": "havyr",
+      "name": "Havyr"
+    },
+    {
+      "id": "kariyan",
+      "name": "Kariyan"
+    },
+    {
+      "id": "lucien",
+      "name": "Lucien"
+    },
+    {
+      "id": "lysander",
+      "name": "Lysander"
+    },
+    {
+      "id": "macer",
+      "name": "Macer"
+    },
+    {
+      "id": "maladus",
+      "name": "Maladus"
+    },
+    {
+      "id": "marshal-dreir",
+      "name": "Dreir"
+    },
+    {
+      "id": "nauseous-rotbone",
+      "name": "Nauseous"
+    },
+    {
+      "id": "pestillian",
+      "name": "Pestillian"
+    },
+    {
+      "id": "trajann",
+      "name": "Trajann"
+    },
+    {
+      "id": "typhus",
+      "name": "Typhus"
+    },
+    {
+      "id": "tyrith",
+      "name": "Tyrith"
+    },
+    {
+      "id": "uthar",
+      "name": "Uthar"
+    }
+  ],
+  "ShadowInTheWarp": [
+    {
+      "id": "neurothrope",
+      "name": "Neurothrope"
+    }
+  ],
+  "SuppressiveFire": [
+    {
+      "id": "brother-burchard",
+      "name": "Burchard"
+    },
+    {
+      "id": "cyrus",
+      "name": "Cyrus"
+    },
+    {
+      "id": "darkstrider",
+      "name": "Darkstrider"
+    },
+    {
+      "id": "shiron",
+      "name": "Shiron"
+    },
+    {
+      "id": "thaddeus-noble",
+      "name": "Thaddeus"
+    },
+    {
+      "id": "thothmek",
+      "name": "Thothmek"
+    },
+    {
+      "id": "toth",
+      "name": "Toth"
+    },
+    {
+      "id": "volk",
+      "name": "Volk"
+    }
+  ],
+  "Synapse": [
+    {
+      "id": "neurothrope",
+      "name": "Neurothrope"
+    },
+    {
+      "id": "parasite-of-mortrex",
+      "name": "Parasite of Mortrex"
+    },
+    {
+      "id": "patermine",
+      "name": "The Patermine"
+    },
+    {
+      "id": "winged-prime",
+      "name": "Winged Prime"
+    }
+  ],
+  "TeleportStrike": [
+    {
+      "id": "aethana",
+      "name": "Aethana"
+    },
+    {
+      "id": "angrax",
+      "name": "Angrax"
+    },
+    {
+      "id": "arjac-rockfist",
+      "name": "Arjac"
+    },
+    {
+      "id": "baraqiel",
+      "name": "Baraqiel"
+    },
+    {
+      "id": "cezare",
+      "name": "Cezare"
+    },
+    {
+      "id": "dante",
+      "name": "Dante"
+    },
+    {
+      "id": "deathleaper",
+      "name": "Deathleaper"
+    },
+    {
+      "id": "lysander",
+      "name": "Lysander"
+    },
+    {
+      "id": "mataneo",
+      "name": "Mataneo"
+    },
+    {
+      "id": "wrask",
+      "name": "Wrask"
+    }
+  ],
+  "TerminatorArmour": [
+    {
+      "id": "abaddon-the-despoiler",
+      "name": "Abaddon"
+    },
+    {
+      "id": "angrax",
+      "name": "Angrax"
+    },
+    {
+      "id": "arjac-rockfist",
+      "name": "Arjac"
+    },
+    {
+      "id": "baraqiel",
+      "name": "Baraqiel"
+    },
+    {
+      "id": "cezare",
+      "name": "Cezare"
+    },
+    {
+      "id": "lysander",
+      "name": "Lysander"
+    },
+    {
+      "id": "maladus",
+      "name": "Maladus"
+    },
+    {
+      "id": "stormcaller",
+      "name": "Njal"
+    },
+    {
+      "id": "toth",
+      "name": "Toth"
+    },
+    {
+      "id": "typhus",
+      "name": "Typhus"
+    },
+    {
+      "id": "wrask",
+      "name": "Wrask"
+    }
+  ],
+  "Terrifying": [
+    {
+      "id": "asmodai",
+      "name": "Asmodai"
+    },
+    {
+      "id": "atlacoya",
+      "name": "Atlacoya"
+    },
+    {
+      "id": "azkor",
+      "name": "Azkor"
+    },
+    {
+      "id": "baldr",
+      "name": "Baldr"
+    },
+    {
+      "id": "dante",
+      "name": "Dante"
+    },
+    {
+      "id": "deathleaper",
+      "name": "Deathleaper"
+    },
+    {
+      "id": "haarkeen-worldclaimer",
+      "name": "Haarken"
+    },
+    {
+      "id": "maugan-ra",
+      "name": "Maugan Ra"
+    },
+    {
+      "id": "mephiston",
+      "name": "Mephiston"
+    },
+    {
+      "id": "patermine",
+      "name": "The Patermine"
+    },
+    {
+      "id": "tjark",
+      "name": "Tjark"
+    }
+  ],
+  "ThrillSeekers": [
+    {
+      "id": "adamatar",
+      "name": "Adamatar"
+    },
+    {
+      "id": "hascule",
+      "name": "Hascule"
+    },
+    {
+      "id": "laviscus",
+      "name": "Laviscus"
+    },
+    {
+      "id": "lucius",
+      "name": "Lucius"
+    },
+    {
+      "id": "shiron",
+      "name": "Shiron"
+    }
+  ],
+  "Unstoppable": [
+    {
+      "id": "arjac-rockfist",
+      "name": "Arjac"
+    },
+    {
+      "id": "azkor",
+      "name": "Azkor"
+    },
+    {
+      "id": "exitor-rho",
+      "name": "Exitor-Rho"
+    },
+    {
+      "id": "kimm",
+      "name": "Kimm"
+    },
+    {
+      "id": "lucien",
+      "name": "Lucien"
+    },
+    {
+      "id": "marshal-dreir",
+      "name": "Dreir"
+    },
+    {
+      "id": "patermine",
+      "name": "The Patermine"
+    },
+    {
+      "id": "stormcaller",
+      "name": "Njal"
+    },
+    {
+      "id": "tanksmasha",
+      "name": "Tanksmasha"
+    },
+    {
+      "id": "ulf",
+      "name": "Ulf"
+    },
+    {
+      "id": "wrask",
+      "name": "Wrask"
+    }
+  ],
+  "Vehicle": [
+    {
+      "id": "sy-gex",
+      "name": "Sy-gex"
+    }
+  ],
+  "WeaverOfFate": [
+    {
+      "id": "abraxas",
+      "name": "Abraxas"
+    },
+    {
+      "id": "ahriman",
+      "name": "Ahriman"
+    },
+    {
+      "id": "sekhetar-robot",
+      "name": "Sekhetar Robot"
+    },
+    {
+      "id": "thaumachus",
+      "name": "Thaumachus"
+    },
+    {
+      "id": "toth",
+      "name": "Toth"
+    },
+    {
+      "id": "yazaghor",
+      "name": "Yazaghor"
+    }
+  ]
+}

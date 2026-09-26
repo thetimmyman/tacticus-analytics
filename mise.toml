@@ -1,0 +1,15 @@
+# Toolchain pins — single source of truth for workstation, sandbox, Framework
+# clone, and any host with mise activated. Companion to .nvmrc (which CI
+# setup-node reads); keep the two in agreement.
+#
+# Added 2026-08-07 after a session lost time to node-20-vs-22 drift: engines
+# said <21 while two workflows ran 22 and the host carried both. See
+# docs/ops/READ-ONLY-DB-ACCESS.md "The Postgres MCP server" for the sibling
+# incident that motivated auditing this class of drift.
+#
+# Python is deliberately NOT pinned here yet: the engine venv is 3.13-conda
+# while prod is 3.11 — unifying that is its own change with its own tests,
+# tracked in the tooling-adoption follow-ups. Don't add a python pin casually;
+# it would shadow the engine venv.
+[tools]
+node = "22"

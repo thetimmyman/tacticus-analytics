@@ -1,0 +1,26 @@
+{
+  "activeAbility": "ThriceBlessedConflagration",
+  "allianceId": "Imperial",
+  "baseRarity": "Common",
+  "damageProfiles": [],
+  "description": "",
+  "factionId": "Sisterhood",
+  "gameId": "adeptExorcist",
+  "id": "exorcist",
+  "itemSlots": [],
+  "longName": "Exorcist",
+  "meleeWeapon": null,
+  "movement": 3,
+  "mowActiveAbility": [],
+  "mythicAbilities": [
+    "ShieldOfFaith"
+  ],
+  "name": "Exorcist",
+  "passiveAbility": null,
+  "rangeWeapon": null,
+  "ranks": [],
+  "sorting": 12,
+  "traits": [
+    "MachineOfWar"
+  ]
+}

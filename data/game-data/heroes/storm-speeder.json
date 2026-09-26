@@ -1,0 +1,26 @@
+{
+  "activeAbility": "DeathOnTheWind",
+  "allianceId": "Imperial",
+  "baseRarity": "Common",
+  "damageProfiles": [],
+  "description": "",
+  "factionId": "DarkAngels",
+  "gameId": "darkaStormSpeeder",
+  "id": "storm-speeder",
+  "itemSlots": [],
+  "longName": "Storm Speeder",
+  "meleeWeapon": null,
+  "movement": 3,
+  "mowActiveAbility": [],
+  "mythicAbilities": [
+    "MastersOfManoeuvre"
+  ],
+  "name": "Storm Speeder",
+  "passiveAbility": null,
+  "rangeWeapon": null,
+  "ranks": [],
+  "sorting": 82,
+  "traits": [
+    "MachineOfWar"
+  ]
+}

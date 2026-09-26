@@ -1,0 +1,80 @@
+/** String error codes for public API docs; distinct from the numeric route-handler ErrorCode enum. */
+export enum ApiErrorCode {
+  MISSING_REQUIRED_FIELDS = 'MISSING_REQUIRED_FIELDS',
+  INVALID_GUILD_CODE = 'INVALID_GUILD_CODE',
+  INVALID_API_KEY = 'INVALID_API_KEY',
+  INVALID_WEBHOOK_URL = 'INVALID_WEBHOOK_URL',
+  INVALID_LEADERBOARD_TYPE = 'INVALID_LEADERBOARD_TYPE',
+  INVALID_SEASON = 'INVALID_SEASON',
+  INVALID_REQUEST = 'INVALID_REQUEST',
+  INVALID_REQUEST_FORMAT = 'INVALID_REQUEST_FORMAT',
+  WEBHOOK_NOT_CONFIGURED = 'WEBHOOK_NOT_CONFIGURED',
+  WEBHOOK_DISABLED = 'WEBHOOK_DISABLED',
+  DISCORD_WEBHOOK_INVALID = 'DISCORD_WEBHOOK_INVALID',
+  MESSAGE_TOO_LONG = 'MESSAGE_TOO_LONG',
+  NOTIFICATION_SEND_FAILED = 'NOTIFICATION_SEND_FAILED',
+  UNAUTHORIZED = 'UNAUTHORIZED',
+  INVALID_CREDENTIALS = 'INVALID_CREDENTIALS',
+  INSUFFICIENT_PERMISSIONS = 'INSUFFICIENT_PERMISSIONS',
+  AUTHENTICATION_REQUIRED = 'AUTHENTICATION_REQUIRED',
+  ADMIN_ACCESS_REQUIRED = 'ADMIN_ACCESS_REQUIRED',
+  AUTH_REQUIRED = 'AUTH_REQUIRED',
+  PERMISSION_DENIED = 'PERMISSION_DENIED',
+  RATE_LIMITED = 'RATE_LIMITED',
+  USER_PROFILE_NOT_FOUND = 'USER_PROFILE_NOT_FOUND',
+  USER_NOT_FOUND = 'USER_NOT_FOUND',
+  RESOURCE_NOT_FOUND = 'RESOURCE_NOT_FOUND',
+  GUILD_ALREADY_EXISTS = 'GUILD_ALREADY_EXISTS',
+  PROTECTED_GUILD_CODE = 'PROTECTED_GUILD_CODE',
+  DUPLICATE_REQUEST = 'DUPLICATE_REQUEST',
+  LOKI_API_FAILURE = 'LOKI_API_FAILURE',
+  TACTICUS_API_FAILURE = 'TACTICUS_API_FAILURE',
+  DISCORD_API_FAILURE = 'DISCORD_API_FAILURE',
+  EXTERNAL_API_ERROR = 'EXTERNAL_API_ERROR',
+  SESSION_REFRESH_FAILURE = 'SESSION_REFRESH_FAILURE',
+  DATABASE_ERROR = 'DATABASE_ERROR',
+  SYNC_FAILURE = 'SYNC_FAILURE',
+  FETCH_FAILED = 'FETCH_FAILED',
+  UPDATE_FAILED = 'UPDATE_FAILED',
+  EMAIL_SEND_FAILED = 'EMAIL_SEND_FAILED',
+  ENCRYPTION_ERROR = 'ENCRYPTION_ERROR',
+  CONFIGURATION_ERROR = 'CONFIGURATION_ERROR',
+  INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR',
+  INTERNAL_ERROR = 'INTERNAL_ERROR',
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR'
+}
+
+export function validateGuildCode(guildCode: string): {
+  valid: boolean
+  error?: ApiErrorCode
+  message?: string
+} {
+  if (!guildCode || typeof guildCode !== 'string') {
+    return {
+      valid: false,
+      error: ApiErrorCode.MISSING_REQUIRED_FIELDS,
+      message: 'Guild code is required'
+    }
+  }
+
+  const normalizedCode = guildCode.toUpperCase().trim()
+
+  if (!/^[A-Z]{2,7}$/.test(normalizedCode)) {
+    return {
+      valid: false,
+      error: ApiErrorCode.INVALID_GUILD_CODE,
+      message: 'Guild code must be 2-7 uppercase letters'
+    }
+  }
+
+  const protectedGuildCodes = ['TEST', 'DEMO']
+  if (protectedGuildCodes.includes(normalizedCode)) {
+    return {
+      valid: false,
+      error: ApiErrorCode.PROTECTED_GUILD_CODE,
+      message: `Guild code ${normalizedCode} is reserved and cannot be created via onboarding`
+    }
+  }
+
+  return { valid: true }
+}

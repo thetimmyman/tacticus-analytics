@@ -1,0 +1,39 @@
+Copyright (c) 2025-2026 Tacticus Analytics. All rights reserved.
+
+This software and its accompanying documentation are proprietary and
+confidential. No licence, express or implied, is granted to any person to use,
+copy, modify, merge, publish, distribute, sublicense, or sell any part of this
+work, except as set out below.
+
+LIMITED PERMISSION FOR SECURITY AUDIT
+
+Where a copy of this repository (or a snapshot derived from it) has been
+supplied to a named reviewer for the purpose of a security or code audit, that
+reviewer is permitted, for the duration of the engagement only, to:
+
+  (a) store and read the supplied copy;
+  (b) run it locally for the purpose of the review; and
+  (c) report findings to the copyright holder.
+
+That permission does not extend to redistribution, publication, disclosure to
+third parties, or any production or commercial use. On completion of the
+engagement the reviewer shall delete the supplied copy on request.
+
+NO WARRANTY
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+THIRD-PARTY RIGHTS
+
+This project is an unofficial, fan-made analytics tool. Warhammer 40,000,
+Warhammer 40,000: Tacticus, and all associated names, races, characters,
+imagery, and logos are trademarks and/or copyright of Games Workshop Limited
+and/or Snowprint Studios, used here without endorsement or affiliation. No
+challenge to their status is intended. All rights in that material remain with
+their respective owners, and nothing in this notice grants any right in it.

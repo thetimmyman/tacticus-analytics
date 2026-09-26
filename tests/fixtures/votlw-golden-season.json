@@ -1,0 +1,354 @@
+{
+  "$comment": "Golden fixture: ONE synthetic season asserted by BOTH runtimes: pgTAP against the canonical SQL RPC get_votlw_set_winners (supabase/tests/pgtap/votlw_set_winners_golden.sql, kept in lockstep with this file; update both together) and vitest against the client calc (tests/unit/calculations/votlw-golden-fixture.test.ts). Scenarios: SweepGated has 2 tokens but 1 is a non-qualifying sweep, so the min-2 medal gate excludes the highest average; SweepLifted has a sweep ABOVE the guild baseline that is re-included and lifts it to silver; SideAvgWinner wins the side boss on its sweep-free average (1,090,000) while its all-hits average (813,333) is below RawAvgLeader's 980,000; SingleBattleA/SingleBattleB have a single meaningful battle and are blocked by the side-boss min-2 gate; GoldenThad has nobody with 2+ meaningful battles, so the side award is legitimately empty; OneShotBronze's 2nd hit is a one-shot (damage >= maxHp) and MUST count; biggest hit includes sweep damage (SweepLifted 1,960,000); Most Damage is raw total including sweeps.",
+  "guild": "GOLDEN-FIXTURE",
+  "season": "999",
+  "baseTime": "2026-01-01T00:00:00Z",
+  "rows": [
+    {
+      "player": "SteadyGold",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 0,
+      "encounterIndex": 0,
+      "boss": "GoldenDorn",
+      "dmg": 1050000,
+      "remainingHp": 550000,
+      "maxHp": 2000000,
+      "minute": 0
+    },
+    {
+      "player": "SteadyGold",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 0,
+      "encounterIndex": 0,
+      "boss": "GoldenDorn",
+      "dmg": 1250000,
+      "remainingHp": 350000,
+      "maxHp": 2000000,
+      "minute": 1
+    },
+    {
+      "player": "SweepGated",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 0,
+      "encounterIndex": 0,
+      "boss": "GoldenDorn",
+      "dmg": 1700000,
+      "remainingHp": 300000,
+      "maxHp": 2000000,
+      "minute": 2
+    },
+    {
+      "player": "SweepGated",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 0,
+      "encounterIndex": 0,
+      "boss": "GoldenDorn",
+      "dmg": 150000,
+      "remainingHp": 0,
+      "maxHp": 2000000,
+      "minute": 3
+    },
+    {
+      "player": "OneShotBronze",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 0,
+      "encounterIndex": 0,
+      "boss": "GoldenDorn",
+      "dmg": 950000,
+      "remainingHp": 1050000,
+      "maxHp": 2000000,
+      "minute": 4
+    },
+    {
+      "player": "OneShotBronze",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 0,
+      "encounterIndex": 0,
+      "boss": "GoldenDorn",
+      "dmg": 750000,
+      "remainingHp": 0,
+      "maxHp": 700000,
+      "minute": 5
+    },
+    {
+      "player": "SweepLifted",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 0,
+      "encounterIndex": 0,
+      "boss": "GoldenDorn",
+      "dmg": 450000,
+      "remainingHp": 1550000,
+      "maxHp": 2000000,
+      "minute": 6
+    },
+    {
+      "player": "SweepLifted",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 0,
+      "encounterIndex": 0,
+      "boss": "GoldenDorn",
+      "dmg": 650000,
+      "remainingHp": 1350000,
+      "maxHp": 2000000,
+      "minute": 7
+    },
+    {
+      "player": "SweepLifted",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 0,
+      "encounterIndex": 0,
+      "boss": "GoldenDorn",
+      "dmg": 1960000,
+      "remainingHp": 0,
+      "maxHp": 2000000,
+      "minute": 8
+    },
+    {
+      "player": "SideAvgWinner",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 1,
+      "encounterIndex": 1,
+      "boss": "GoldenSibyll",
+      "dmg": 1030000,
+      "remainingHp": 250000,
+      "maxHp": 1500000,
+      "minute": 10
+    },
+    {
+      "player": "SideAvgWinner",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 1,
+      "encounterIndex": 1,
+      "boss": "GoldenSibyll",
+      "dmg": 1150000,
+      "remainingHp": 100000,
+      "maxHp": 1500000,
+      "minute": 11
+    },
+    {
+      "player": "SideAvgWinner",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 1,
+      "encounterIndex": 1,
+      "boss": "GoldenSibyll",
+      "dmg": 260000,
+      "remainingHp": 0,
+      "maxHp": 1500000,
+      "minute": 12
+    },
+    {
+      "player": "RawAvgLeader",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 1,
+      "encounterIndex": 1,
+      "boss": "GoldenSibyll",
+      "dmg": 960000,
+      "remainingHp": 350000,
+      "maxHp": 1500000,
+      "minute": 13
+    },
+    {
+      "player": "RawAvgLeader",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 1,
+      "encounterIndex": 1,
+      "boss": "GoldenSibyll",
+      "dmg": 1000000,
+      "remainingHp": 250000,
+      "maxHp": 1500000,
+      "minute": 14
+    },
+    {
+      "player": "SingleBattleA",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 1,
+      "encounterIndex": 1,
+      "boss": "GoldenSibyll",
+      "dmg": 970000,
+      "remainingHp": 400000,
+      "maxHp": 1500000,
+      "minute": 15
+    },
+    {
+      "player": "SingleBattleB",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 1,
+      "encounterIndex": 1,
+      "boss": "GoldenSibyll",
+      "dmg": 925000,
+      "remainingHp": 450000,
+      "maxHp": 1500000,
+      "minute": 16
+    },
+    {
+      "player": "SingleBattleB",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 1,
+      "encounterIndex": 1,
+      "boss": "GoldenSibyll",
+      "dmg": 120000,
+      "remainingHp": 0,
+      "maxHp": 1500000,
+      "minute": 17
+    },
+    {
+      "player": "SoloToken",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 2,
+      "encounterIndex": 2,
+      "boss": "GoldenThad",
+      "dmg": 820000,
+      "remainingHp": 680000,
+      "maxHp": 1500000,
+      "minute": 20
+    },
+    {
+      "player": "SweepOnly",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 2,
+      "encounterIndex": 2,
+      "boss": "GoldenThad",
+      "dmg": 320000,
+      "remainingHp": 0,
+      "maxHp": 1500000,
+      "minute": 21
+    },
+    {
+      "player": "SweepOnly",
+      "rarity": "Legendary",
+      "set": 0,
+      "encounterId": 2,
+      "encounterIndex": 2,
+      "boss": "GoldenThad",
+      "dmg": 380000,
+      "remainingHp": 0,
+      "maxHp": 1500000,
+      "minute": 22
+    },
+    {
+      "player": "MythicGold",
+      "rarity": "Mythic",
+      "set": 0,
+      "encounterId": 0,
+      "encounterIndex": 0,
+      "boss": "GoldenMagnus",
+      "dmg": 1550000,
+      "remainingHp": 1450000,
+      "maxHp": 3000000,
+      "minute": 30
+    },
+    {
+      "player": "MythicGold",
+      "rarity": "Mythic",
+      "set": 0,
+      "encounterId": 0,
+      "encounterIndex": 0,
+      "boss": "GoldenMagnus",
+      "dmg": 1550000,
+      "remainingHp": 1350000,
+      "maxHp": 3000000,
+      "minute": 31
+    },
+    {
+      "player": "MythicSilver",
+      "rarity": "Mythic",
+      "set": 0,
+      "encounterId": 0,
+      "encounterIndex": 0,
+      "boss": "GoldenMagnus",
+      "dmg": 1450000,
+      "remainingHp": 1550000,
+      "maxHp": 3000000,
+      "minute": 32
+    },
+    {
+      "player": "MythicSilver",
+      "rarity": "Mythic",
+      "set": 0,
+      "encounterId": 0,
+      "encounterIndex": 0,
+      "boss": "GoldenMagnus",
+      "dmg": 1450000,
+      "remainingHp": 1450000,
+      "maxHp": 3000000,
+      "minute": 33
+    }
+  ],
+  "expected": [
+    {
+      "rarity": "Legendary",
+      "set": 0,
+      "levelString": "L1",
+      "bossName": "GoldenDorn",
+      "gold": {
+        "player": "SteadyGold",
+        "value": 1150000
+      },
+      "silver": {
+        "player": "SweepLifted",
+        "value": 1020000
+      },
+      "bronze": {
+        "player": "OneShotBronze",
+        "value": 850000
+      },
+      "mostDamage": {
+        "player": "SweepLifted",
+        "value": 3060000
+      },
+      "sideBoss1": {
+        "player": "SideAvgWinner",
+        "value": 1090000
+      },
+      "sideBoss2": {},
+      "biggestHit": {
+        "player": "SweepLifted",
+        "value": 1960000
+      }
+    },
+    {
+      "rarity": "Mythic",
+      "set": 0,
+      "levelString": "M1",
+      "bossName": "GoldenMagnus",
+      "gold": {
+        "player": "MythicGold",
+        "value": 1550000
+      },
+      "silver": {
+        "player": "MythicSilver",
+        "value": 1450000
+      },
+      "bronze": {},
+      "mostDamage": {
+        "player": "MythicGold",
+        "value": 3100000
+      },
+      "sideBoss1": {},
+      "sideBoss2": {},
+      "biggestHit": {
+        "player": "MythicGold",
+        "value": 1550000
+      }
+    }
+  ]
+}

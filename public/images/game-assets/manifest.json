@@ -1,0 +1,766 @@
+{
+  "version": 2,
+  "generatedAt": "2026-05-24T05:15:00.000Z",
+  "provenanceClass": "non-canonical-presentation-overlay",
+  "mechanicsAuthority": false,
+  "sourceAuthority": "community/wiki presentation only",
+  "assets": {
+    "terrain": {
+      "bridge": {
+        "id": "bridge",
+        "label": "Bridge",
+        "webIconUrl": "/images/game-assets/terrain/terrain_bridge.png",
+        "source": "tacticus-wiki:Terrain_Bridge.png",
+        "aliases": ["bridge", "Bridge", "terrain_bridge.png"]
+      },
+      "brokenice": {
+        "id": "brokenice",
+        "label": "Broken Ice",
+        "webIconUrl": "/images/game-assets/terrain/terrain_broken_ice.png",
+        "source": "tacticus-wiki:Terrain_Broken_Ice.png",
+        "aliases": [
+          "broken ice",
+          "Broken Ice",
+          "brokenice",
+          "terrain_broken_ice.png"
+        ]
+      },
+      "cliff": {
+        "id": "cliff",
+        "label": "Cliff",
+        "webIconUrl": "/images/game-assets/terrain/terrain_cliff.png",
+        "source": "tacticus-wiki:Terrain_Cliff.png",
+        "aliases": [
+          "cliff",
+          "Cliff",
+          "elevation",
+          "high ground",
+          "highground",
+          "terrain_cliff.png"
+        ]
+      },
+      "contamination": {
+        "id": "contamination",
+        "label": "Contamination",
+        "webIconUrl": "/images/game-assets/terrain/terrain_contamination.png",
+        "source": "tacticus-wiki:Terrain_Contamination.png",
+        "aliases": [
+          "contaminated",
+          "contamination",
+          "Contamination",
+          "terrain_contamination.png"
+        ]
+      },
+      "despoiledground": {
+        "id": "despoiledground",
+        "label": "Despoiled Ground",
+        "webIconUrl": "/images/game-assets/terrain/terrain_despoiled_ground.png",
+        "source": "tacticus-wiki:Despoiled_Ground_effect_Icon.png",
+        "aliases": [
+          "despoiled ground",
+          "Despoiled Ground",
+          "despoiledground",
+          "terrain_despoiled_ground.png"
+        ]
+      },
+      "fire": {
+        "id": "fire",
+        "label": "Fire",
+        "webIconUrl": "/images/game-assets/terrain/terrain_fire.png",
+        "source": "tacticus-wiki:Terrain_Fire.png",
+        "aliases": [
+          "burning",
+          "envfiretiledamage",
+          "fire",
+          "Fire",
+          "terrain_fire.png"
+        ]
+      },
+      "healinghex": {
+        "id": "healinghex",
+        "label": "Healing Hex",
+        "webIconUrl": "/images/game-assets/terrain/terrain_healing_hex.png",
+        "source": "tacticus-wiki:Terrain_Healing_Hex.png",
+        "aliases": [
+          "heal",
+          "healing hex",
+          "Healing Hex",
+          "healinghex",
+          "terrain_healing_hex.png"
+        ]
+      },
+      "ice": {
+        "id": "ice",
+        "label": "Ice",
+        "webIconUrl": "/images/game-assets/terrain/terrain_ice.png",
+        "source": "tacticus-wiki:Terrain_Ice.png",
+        "aliases": ["ice", "Ice", "terrain_ice.png"]
+      },
+      "impassable": {
+        "id": "impassable",
+        "label": "Impassable",
+        "webIconUrl": "/images/game-assets/terrain/terrain_impassable.png",
+        "source": "tacticus-wiki:Terrain_Impassable.png",
+        "aliases": [
+          "block",
+          "blocked",
+          "impassable",
+          "Impassable",
+          "terrain_impassable.png",
+          "wall"
+        ]
+      },
+      "normal": {
+        "id": "normal",
+        "label": "Normal Terrain",
+        "webIconUrl": "/images/game-assets/terrain/terrain_normal.png",
+        "source": "tacticus-wiki:Terrain_Normal.png",
+        "aliases": [
+          "clear",
+          "floor",
+          "normal",
+          "Normal Terrain",
+          "open",
+          "plain",
+          "terrain_normal.png"
+        ]
+      },
+      "razorwire": {
+        "id": "razorwire",
+        "label": "Razor Wire",
+        "webIconUrl": "/images/game-assets/terrain/terrain_razor_wire.png",
+        "source": "tacticus-wiki:Terrain_Razor_Wire.png",
+        "aliases": [
+          "barbed wire",
+          "barbedwire",
+          "barbwire",
+          "razor wire",
+          "Razor Wire",
+          "razorwire",
+          "terrain_razor_wire.png"
+        ]
+      },
+      "tallgrass": {
+        "id": "tallgrass",
+        "label": "Tall Grass",
+        "webIconUrl": "/images/game-assets/terrain/terrain_tall_grass.png",
+        "source": "tacticus-wiki:Terrain_Tall_Grass.png",
+        "aliases": [
+          "bush",
+          "dry bush",
+          "drybush",
+          "grass",
+          "tall grass",
+          "Tall Grass",
+          "tallgrass",
+          "terrain_tall_grass.png"
+        ]
+      },
+      "temperate": {
+        "id": "temperate",
+        "label": "Temperate",
+        "webIconUrl": "/images/game-assets/terrain/terrain_temperate.png",
+        "source": "tacticus-wiki:Terrain_Temperate.png",
+        "aliases": ["temperate", "Temperate", "terrain_temperate.png"]
+      },
+      "trench": {
+        "id": "trench",
+        "label": "Trenches",
+        "webIconUrl": "/images/game-assets/terrain/terrain_trenches.png",
+        "source": "tacticus-wiki:Terrain_Trenches.png",
+        "aliases": ["terrain_trenches.png", "trench", "trenches", "Trenches"]
+      },
+      "tyranidspawn": {
+        "id": "tyranidspawn",
+        "label": "Tyranid Spawn",
+        "webIconUrl": "/images/game-assets/terrain/terrain_tyranid_spawn.png",
+        "source": "tacticus-wiki:Terrain_Tyranid_Spawn.png",
+        "aliases": [
+          "terrain_tyranid_spawn.png",
+          "tyranid spawn",
+          "Tyranid Spawn",
+          "tyranidspawn"
+        ]
+      },
+      "wavespawn": {
+        "id": "wavespawn",
+        "label": "Wave Spawn",
+        "webIconUrl": "/images/game-assets/terrain/terrain_wave_spawn.png",
+        "source": "tacticus-wiki:Terrain_Wave_Spawn.png",
+        "aliases": [
+          "spawn",
+          "terrain_wave_spawn.png",
+          "wave spawn",
+          "Wave Spawn",
+          "wavespawn"
+        ]
+      }
+    },
+    "trait": {
+      "actoffaith": {
+        "id": "actoffaith",
+        "label": "Act of Faith",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_act_of_faith_01.png",
+        "source": "github-datamine:ui_icon_trait_act_of_faith_01.png",
+        "aliases": [
+          "Act of Faith",
+          "actoffaith",
+          "ActOfFaith",
+          "ui_icon_trait_act_of_faith_01.png"
+        ]
+      },
+      "ambush": {
+        "id": "ambush",
+        "label": "Ambush",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_ambush_01.png",
+        "source": "github-datamine:ui_icon_trait_ambush_01.png",
+        "aliases": ["ambush", "Ambush", "ui_icon_trait_ambush_01.png"]
+      },
+      "battlefatigue": {
+        "id": "battlefatigue",
+        "label": "Battle Fatigue",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_battle_fatigue_01.png",
+        "source": "github-datamine:ui_icon_trait_battle_fatigue_01.png",
+        "aliases": [
+          "Battle Fatigue",
+          "battlefatigue",
+          "BattleFatigue",
+          "ui_icon_trait_battle_fatigue_01.png"
+        ]
+      },
+      "beastslayer": {
+        "id": "beastslayer",
+        "label": "Beast Slayer",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_beast_slayer_01.png",
+        "source": "github-datamine:ui_icon_trait_beast_slayer_01.png",
+        "aliases": [
+          "Beast Slayer",
+          "beastslayer",
+          "BeastSlayer",
+          "BeastSnagga",
+          "ui_icon_trait_beast_slayer_01.png"
+        ]
+      },
+      "beastsnagga": {
+        "id": "beastsnagga",
+        "label": "Beast Slayer",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_beast_snagga_01.png",
+        "source": "github-datamine:ui_icon_trait_beast_snagga_01.png",
+        "aliases": [
+          "Beast Slayer",
+          "BeastSlayer",
+          "beastsnagga",
+          "BeastSnagga",
+          "ui_icon_trait_beast_snagga_01.png"
+        ]
+      },
+      "bigtarget": {
+        "id": "bigtarget",
+        "label": "Big Target",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_big_target_01.png",
+        "source": "github-datamine:ui_icon_trait_big_target_01.png",
+        "aliases": [
+          "Big Target",
+          "bigtarget",
+          "BigTarget",
+          "ui_icon_trait_big_target_01.png"
+        ]
+      },
+      "blessingsofkhorne": {
+        "id": "blessingsofkhorne",
+        "label": "Blessings of Khorne",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_blessing_of_khorne_01.png",
+        "source": "github-datamine:ui_icon_trait_blessing_of_khorne_01.png",
+        "aliases": [
+          "Blessings of Khorne",
+          "blessingsofkhorne",
+          "BlessingsOfKhorne",
+          "ui_icon_trait_blessing_of_khorne_01.png"
+        ]
+      },
+      "bossadjutant": {
+        "id": "bossadjutant",
+        "label": "Boss Adjutant",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_boss_adjutant_01.png",
+        "source": "github-datamine:ui_icon_trait_boss_adjutant_01.png",
+        "aliases": [
+          "Boss Adjutant",
+          "bossadjutant",
+          "BossAdjutant",
+          "ui_icon_trait_boss_adjutant_01.png"
+        ]
+      },
+      "camouflage": {
+        "id": "camouflage",
+        "label": "Camouflage",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_camouflage_01.png",
+        "source": "github-datamine:ui_icon_trait_camouflage_01.png",
+        "aliases": [
+          "camouflage",
+          "Camouflage",
+          "ui_icon_trait_camouflage_01.png"
+        ]
+      },
+      "closecombatweakness": {
+        "id": "closecombatweakness",
+        "label": "Close Combat Weakness",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_combat_weakness_01.png",
+        "source": "github-datamine:ui_icon_trait_combat_weakness_01.png",
+        "aliases": [
+          "Close Combat Weakness",
+          "closecombatweakness",
+          "CloseCombatWeakness",
+          "ui_icon_trait_combat_weakness_01.png"
+        ]
+      },
+      "contagionsofnurgle": {
+        "id": "contagionsofnurgle",
+        "label": "Contagions of Nurgle",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_contagions_01.png",
+        "source": "github-datamine:ui_icon_trait_contagions_01.png",
+        "aliases": [
+          "Contagions of Nurgle",
+          "contagionsofnurgle",
+          "ContagionsOfNurgle",
+          "ui_icon_trait_contagions_01.png"
+        ]
+      },
+      "crushingstrike": {
+        "id": "crushingstrike",
+        "label": "Crushing Strike",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_crushing_strike_01.png",
+        "source": "github-datamine:ui_icon_trait_crushing_strike_01.png",
+        "aliases": [
+          "Crushing Strike",
+          "crushingstrike",
+          "CrushingStrike",
+          "ui_icon_trait_crushing_strike_01.png"
+        ]
+      },
+      "daemon": {
+        "id": "daemon",
+        "label": "Daemon",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_daemonic_01.png",
+        "source": "github-datamine:ui_icon_trait_daemonic_01.png",
+        "aliases": ["daemon", "Daemon", "ui_icon_trait_daemonic_01.png"]
+      },
+      "dakka": {
+        "id": "dakka",
+        "label": "Dakka",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_dakka_01.png",
+        "source": "github-datamine:ui_icon_trait_dakka_01.png",
+        "aliases": ["dakka", "Dakka", "ui_icon_trait_dakka_01.png"]
+      },
+      "diminutive": {
+        "id": "diminutive",
+        "label": "Diminutive",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_diminuitive_01.png",
+        "source": "github-datamine:ui_icon_trait_diminuitive_01.png",
+        "aliases": [
+          "diminutive",
+          "Diminutive",
+          "ui_icon_trait_diminuitive_01.png"
+        ]
+      },
+      "emplacement": {
+        "id": "emplacement",
+        "label": "Emplacement",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_emplacement_01.png",
+        "source": "github-datamine:ui_icon_trait_emplacement_01.png",
+        "aliases": [
+          "emplacement",
+          "Emplacement",
+          "ui_icon_trait_emplacement_01.png"
+        ]
+      },
+      "explodes": {
+        "id": "explodes",
+        "label": "Explodes",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_explodes_01.png",
+        "source": "github-datamine:ui_icon_trait_explodes_01.png",
+        "aliases": ["explodes", "Explodes", "ui_icon_trait_explodes_01.png"]
+      },
+      "finaljustice": {
+        "id": "finaljustice",
+        "label": "Final Vengeance",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_only_in_death_01.png",
+        "source": "github-datamine:ui_icon_trait_only_in_death_01.png",
+        "aliases": [
+          "Final Vengeance",
+          "finaljustice",
+          "FinalJustice",
+          "ui_icon_trait_only_in_death_01.png"
+        ]
+      },
+      "flying": {
+        "id": "flying",
+        "label": "Flying",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_flying_01.png",
+        "source": "github-datamine:ui_icon_trait_flying_01.png",
+        "aliases": ["flying", "Flying", "ui_icon_trait_flying_01.png"]
+      },
+      "healer": {
+        "id": "healer",
+        "label": "Healer",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_healer_01.png",
+        "source": "github-datamine:ui_icon_trait_healer_01.png",
+        "aliases": ["healer", "Healer", "ui_icon_trait_healer_01.png"]
+      },
+      "heavyweapon": {
+        "id": "heavyweapon",
+        "label": "Heavy Weapon",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_heavy_weapon_01.png",
+        "source": "github-datamine:ui_icon_trait_heavy_weapon_01.png",
+        "aliases": [
+          "Heavy Weapon",
+          "heavyweapon",
+          "HeavyWeapon",
+          "ui_icon_trait_heavy_weapon_01.png"
+        ]
+      },
+      "immune": {
+        "id": "immune",
+        "label": "Immune",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_immune_01.png",
+        "source": "github-datamine:ui_icon_trait_immune_01.png",
+        "aliases": ["immune", "Immune", "ui_icon_trait_immune_01.png"]
+      },
+      "impervious": {
+        "id": "impervious",
+        "label": "Impervious",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_impervious_01.png",
+        "source": "github-datamine:ui_icon_trait_impervious_01.png",
+        "aliases": [
+          "impervious",
+          "Impervious",
+          "ui_icon_trait_impervious_01.png"
+        ]
+      },
+      "indirectfire": {
+        "id": "indirectfire",
+        "label": "Indirect Fire",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_indirect_fire_01.png",
+        "source": "github-datamine:ui_icon_trait_indirect_fire_01.png",
+        "aliases": [
+          "Indirect Fire",
+          "indirectfire",
+          "IndirectFire",
+          "ui_icon_trait_indirect_fire_01.png"
+        ]
+      },
+      "infiltrate": {
+        "id": "infiltrate",
+        "label": "Infiltrate",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_infiltrate_01.png",
+        "source": "github-datamine:ui_icon_trait_infiltrate_01.png",
+        "aliases": [
+          "infiltrate",
+          "Infiltrate",
+          "ui_icon_trait_infiltrate_01.png"
+        ]
+      },
+      "instinctivebehaviour": {
+        "id": "instinctivebehaviour",
+        "label": "Instinctive Behaviour",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_instinctive_behaviour_01.png",
+        "source": "github-datamine:ui_icon_trait_instinctive_behaviour_01.png",
+        "aliases": [
+          "Instinctive Behaviour",
+          "instinctivebehaviour",
+          "InstinctiveBehaviour",
+          "ui_icon_trait_instinctive_behaviour_01.png"
+        ]
+      },
+      "letthegalaxyburn": {
+        "id": "letthegalaxyburn",
+        "label": "Let the Galaxy Burn",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_let_the_galaxy_burn_01.png",
+        "source": "github-datamine:ui_icon_trait_let_the_galaxy_burn_01.png",
+        "aliases": [
+          "Let the Galaxy Burn",
+          "LetGalaxyBurn",
+          "letthegalaxyburn",
+          "LetTheGalaxyBurn",
+          "ui_icon_trait_let_the_galaxy_burn_01.png"
+        ]
+      },
+      "livingmetal": {
+        "id": "livingmetal",
+        "label": "Living Metal",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_livingmetall_01.png",
+        "source": "github-datamine:ui_icon_trait_livingmetall_01.png",
+        "aliases": [
+          "Living Metal",
+          "livingmetal",
+          "LivingMetal",
+          "ui_icon_trait_livingmetall_01.png"
+        ]
+      },
+      "martialkatah": {
+        "id": "martialkatah",
+        "label": "Martial Ka'tah",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_martial_katah_01.png",
+        "source": "github-datamine:ui_icon_trait_martial_katah_01.png",
+        "aliases": [
+          "Martial Ka'tah",
+          "martialkatah",
+          "MartialKatah",
+          "ui_icon_trait_martial_katah_01.png"
+        ]
+      },
+      "mechanic": {
+        "id": "mechanic",
+        "label": "Mechanic",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_mechanic_01.png",
+        "source": "github-datamine:ui_icon_trait_mechanic_01.png",
+        "aliases": ["mechanic", "Mechanic", "ui_icon_trait_mechanic_01.png"]
+      },
+      "mechanical": {
+        "id": "mechanical",
+        "label": "Mechanical",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_mechanical_01.png",
+        "source": "github-datamine:ui_icon_trait_mechanical_01.png",
+        "aliases": [
+          "mechanical",
+          "Mechanical",
+          "ui_icon_trait_mechanical_01.png"
+        ]
+      },
+      "mkxgravis": {
+        "id": "mkxgravis",
+        "label": "Mk X Gravis",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_mk_gravis_01.png",
+        "source": "github-datamine:ui_icon_trait_mk_gravis_01.png",
+        "aliases": [
+          "Mk X Gravis",
+          "mkxgravis",
+          "MkXGravis",
+          "ui_icon_trait_mk_gravis_01.png"
+        ]
+      },
+      "object": {
+        "id": "object",
+        "label": "Object",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_object_01.png",
+        "source": "github-datamine:ui_icon_trait_object_01.png",
+        "aliases": ["object", "Object", "ui_icon_trait_object_01.png"]
+      },
+      "overwatch": {
+        "id": "overwatch",
+        "label": "Overwatch",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_overwatch_01.png",
+        "source": "github-datamine:ui_icon_trait_overwatch_01.png",
+        "aliases": ["overwatch", "Overwatch", "ui_icon_trait_overwatch_01.png"]
+      },
+      "parry": {
+        "id": "parry",
+        "label": "Parry",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_parry_01.png",
+        "source": "github-datamine:ui_icon_trait_parry_01.png",
+        "aliases": ["parry", "Parry", "ui_icon_trait_parry_01.png"]
+      },
+      "prioritisedefficiency": {
+        "id": "prioritisedefficiency",
+        "label": "Prioritised Efficiency",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_prioritised_efficiency_01.png",
+        "source": "github-datamine:ui_icon_trait_prioritised_efficiency_01.png",
+        "aliases": [
+          "Prioritised Efficiency",
+          "prioritisedefficiency",
+          "PrioritisedEfficiency",
+          "ui_icon_trait_prioritised_efficiency_01.png"
+        ]
+      },
+      "psyker": {
+        "id": "psyker",
+        "label": "Psyker",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_psychic_01.png",
+        "source": "github-datamine:ui_icon_trait_psychic_01.png",
+        "aliases": [
+          "Psychic",
+          "psyker",
+          "Psyker",
+          "ui_icon_trait_psychic_01.png"
+        ]
+      },
+      "putridexplosion": {
+        "id": "putridexplosion",
+        "label": "Putrid Explosion",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_putrid_explosion_01.png",
+        "source": "github-datamine:ui_icon_trait_putrid_explosion_01.png",
+        "aliases": [
+          "Putrid Explosion",
+          "putridexplosion",
+          "PutridExplosion",
+          "ui_icon_trait_putrid_explosion_01.png"
+        ]
+      },
+      "rangedspecialist": {
+        "id": "rangedspecialist",
+        "label": "Ranged Specialist",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_ranged_specialist_01.png",
+        "source": "github-datamine:ui_icon_trait_ranged_specialist_01.png",
+        "aliases": [
+          "Ranged Specialist",
+          "rangedspecialist",
+          "RangedSpecialist",
+          "ui_icon_trait_ranged_specialist_01.png"
+        ]
+      },
+      "rapidassault": {
+        "id": "rapidassault",
+        "label": "Rapid Assault",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_rapid_assault_01.png",
+        "source": "github-datamine:ui_icon_trait_rapid_assault_01.png",
+        "aliases": [
+          "Rapid Assault",
+          "rapidassault",
+          "RapidAssault",
+          "ui_icon_trait_rapid_assault_01.png"
+        ]
+      },
+      "resilient": {
+        "id": "resilient",
+        "label": "Resilient",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_resilient_01.png",
+        "source": "github-datamine:ui_icon_trait_resilient_01.png",
+        "aliases": ["resilient", "Resilient", "ui_icon_trait_resilient_01.png"]
+      },
+      "shadowinthewarp": {
+        "id": "shadowinthewarp",
+        "label": "Shadow in the Warp",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_shadow_in_the_warp_01.png",
+        "source": "github-datamine:ui_icon_trait_shadow_in_the_warp_01.png",
+        "aliases": [
+          "Shadow in the Warp",
+          "shadowinthewarp",
+          "ShadowInTheWarp",
+          "ui_icon_trait_shadow_in_the_warp_01.png"
+        ]
+      },
+      "steppable": {
+        "id": "steppable",
+        "label": "Steppable",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_steppable_01.png",
+        "source": "github-datamine:ui_icon_trait_steppable_01.png",
+        "aliases": ["steppable", "Steppable", "ui_icon_trait_steppable_01.png"]
+      },
+      "summon": {
+        "id": "summon",
+        "label": "Summon",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_summon_01.png",
+        "source": "github-datamine:ui_icon_trait_summon_01.png",
+        "aliases": ["summon", "Summon", "ui_icon_trait_summon_01.png"]
+      },
+      "suppressivefire": {
+        "id": "suppressivefire",
+        "label": "Suppressive Fire",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_supressive_fire_01.png",
+        "source": "github-datamine:ui_icon_trait_supressive_fire_01.png",
+        "aliases": [
+          "Suppressive Fire",
+          "suppressivefire",
+          "SuppressiveFire",
+          "SupressiveFire",
+          "ui_icon_trait_supressive_fire_01.png"
+        ]
+      },
+      "swarm": {
+        "id": "swarm",
+        "label": "Swarm",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_swarm_01.png",
+        "source": "github-datamine:ui_icon_trait_swarm_01.png",
+        "aliases": ["swarm", "Swarm", "ui_icon_trait_swarm_01.png"]
+      },
+      "synapse": {
+        "id": "synapse",
+        "label": "Synapse",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_synapse_01.png",
+        "source": "github-datamine:ui_icon_trait_synapse_01.png",
+        "aliases": ["synapse", "Synapse", "ui_icon_trait_synapse_01.png"]
+      },
+      "teleportstrike": {
+        "id": "teleportstrike",
+        "label": "Deep Strike",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_teleport_strike_01.png",
+        "source": "github-datamine:ui_icon_trait_teleport_strike_01.png",
+        "aliases": [
+          "Deep Strike",
+          "teleportstrike",
+          "TeleportStrike",
+          "ui_icon_trait_teleport_strike_01.png"
+        ]
+      },
+      "terminatorarmour": {
+        "id": "terminatorarmour",
+        "label": "Terminator Armour",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_terminator_amour_01.png",
+        "source": "github-datamine:ui_icon_trait_terminator_amour_01.png",
+        "aliases": [
+          "Terminator Armor",
+          "Terminator Armour",
+          "TerminatorArmor",
+          "terminatorarmour",
+          "TerminatorArmour",
+          "ui_icon_trait_terminator_amour_01.png"
+        ]
+      },
+      "terrifying": {
+        "id": "terrifying",
+        "label": "Terrifying",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_terrifying_01.png",
+        "source": "github-datamine:ui_icon_trait_terrifying_01.png",
+        "aliases": [
+          "terrifying",
+          "Terrifying",
+          "ui_icon_trait_terrifying_01.png"
+        ]
+      },
+      "thrillseekers": {
+        "id": "thrillseekers",
+        "label": "Thrill Seekers",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_thrill_seekers_01.png",
+        "source": "github-datamine:ui_icon_trait_thrill_seekers_01.png",
+        "aliases": [
+          "Thrill Seekers",
+          "thrillseekers",
+          "ThrillSeekers",
+          "ui_icon_trait_thrill_seekers_01.png"
+        ]
+      },
+      "twomanteam": {
+        "id": "twomanteam",
+        "label": "2-man Team",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_2_man_team_01.png",
+        "source": "github-datamine:ui_icon_trait_2_man_team_01.png",
+        "aliases": [
+          "2-man Team",
+          "twomanteam",
+          "TwoManTeam",
+          "ui_icon_trait_2_man_team_01.png"
+        ]
+      },
+      "vehicle": {
+        "id": "vehicle",
+        "label": "Vehicle",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_vehicle_01.png",
+        "source": "github-datamine:ui_icon_trait_vehicle_01.png",
+        "aliases": ["ui_icon_trait_vehicle_01.png", "vehicle", "Vehicle"]
+      },
+      "weaveroffate": {
+        "id": "weaveroffate",
+        "label": "Weaver Of Fates",
+        "webIconUrl": "/images/game-assets/traits/ui_icon_trait_weavers_of_fate_01.png",
+        "source": "github-datamine:ui_icon_trait_weavers_of_fate_01.png",
+        "aliases": [
+          "ui_icon_trait_weavers_of_fate_01.png",
+          "Weaver Of Fates",
+          "weaveroffate",
+          "WeaverOfFate",
+          "WeaverOfFates",
+          "WeaversOfFate"
+        ]
+      }
+    }
+  }
+}

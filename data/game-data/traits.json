@@ -1,0 +1,582 @@
+{
+  "ActOfFaith": {
+    "id": "ActOfFaith",
+    "powerModifier": 103,
+    "variables": null
+  },
+  "Ambush": {
+    "id": "Ambush",
+    "powerModifier": 130,
+    "variables": null
+  },
+  "BattleFatigue": {
+    "id": "BattleFatigue",
+    "powerModifier": 80,
+    "variables": null
+  },
+  "BeastSlayer": {
+    "id": "BeastSlayer",
+    "powerModifier": 106,
+    "variables": null
+  },
+  "BeastSnagga": {
+    "id": "BeastSnagga",
+    "powerModifier": 106,
+    "variables": null
+  },
+  "BigTarget": {
+    "id": "BigTarget",
+    "powerModifier": 102,
+    "variables": null
+  },
+  "BlessingsOfKhorne": {
+    "id": "BlessingsOfKhorne",
+    "powerModifier": 108,
+    "variables": null
+  },
+  "Boss": {
+    "id": "Boss",
+    "powerModifier": 100,
+    "variables": null
+  },
+  "BossAdjutant": {
+    "id": "BossAdjutant",
+    "powerModifier": 125,
+    "variables": null
+  },
+  "Camouflage": {
+    "id": "Camouflage",
+    "powerModifier": 105,
+    "variables": null
+  },
+  "CloseCombatWeakness": {
+    "id": "CloseCombatWeakness",
+    "powerModifier": 85,
+    "variables": null
+  },
+  "ContagionsOfNurgle": {
+    "id": "ContagionsOfNurgle",
+    "powerModifier": 106,
+    "variables": null
+  },
+  "CounterCharge": {
+    "id": "CounterCharge",
+    "powerModifier": 100,
+    "variables": null
+  },
+  "CrushingStrike": {
+    "id": "CrushingStrike",
+    "powerModifier": 100,
+    "variables": null
+  },
+  "Daemon": {
+    "id": "Daemon",
+    "powerModifier": 102,
+    "variables": null
+  },
+  "Dakka": {
+    "id": "Dakka",
+    "powerModifier": 125,
+    "variables": null
+  },
+  "DeathToTheFalseEmperor": {
+    "id": "DeathToTheFalseEmperor",
+    "powerModifier": 101,
+    "variables": null
+  },
+  "Decoy": {
+    "id": "Decoy",
+    "powerModifier": 50,
+    "variables": null
+  },
+  "Diminutive": {
+    "id": "Diminutive",
+    "powerModifier": 105,
+    "variables": null
+  },
+  "Emplacement": {
+    "id": "Emplacement",
+    "powerModifier": 108,
+    "variables": null
+  },
+  "Explodes": {
+    "id": "Explodes",
+    "powerModifier": 101,
+    "variables": null
+  },
+  "FinalJustice": {
+    "id": "FinalJustice",
+    "powerModifier": 105,
+    "variables": null
+  },
+  "Flying": {
+    "id": "Flying",
+    "powerModifier": 108,
+    "variables": null
+  },
+  "GetStuckIn": {
+    "id": "GetStuckIn",
+    "powerModifier": 115,
+    "variables": null
+  },
+  "Healer": {
+    "id": "Healer",
+    "powerModifier": 105,
+    "variables": null
+  },
+  "HeavyWeapon": {
+    "id": "HeavyWeapon",
+    "powerModifier": 106,
+    "variables": null
+  },
+  "Hero": {
+    "id": "Hero",
+    "powerModifier": 100,
+    "variables": null
+  },
+  "Immune": {
+    "id": "Immune",
+    "powerModifier": 106,
+    "variables": null
+  },
+  "Impervious": {
+    "id": "Impervious",
+    "powerModifier": 300,
+    "variables": null
+  },
+  "IndirectFire": {
+    "id": "IndirectFire",
+    "powerModifier": 106,
+    "variables": null
+  },
+  "Infiltrate": {
+    "id": "Infiltrate",
+    "powerModifier": 110,
+    "variables": null
+  },
+  "InstinctiveBehaviour": {
+    "id": "InstinctiveBehaviour",
+    "powerModifier": 70,
+    "variables": null
+  },
+  "Invincible": {
+    "id": "Invincible",
+    "powerModifier": 100,
+    "variables": null
+  },
+  "LetTheGalaxyBurn": {
+    "id": "LetTheGalaxyBurn",
+    "powerModifier": 101,
+    "variables": null
+  },
+  "LetTheGalaxyBurnChancePct": {
+    "id": "LetTheGalaxyBurnChancePct",
+    "powerModifier": null,
+    "variables": 33
+  },
+  "LivingMetal": {
+    "id": "LivingMetal",
+    "powerModifier": 110,
+    "variables": null
+  },
+  "MachineOfWar": {
+    "id": "MachineOfWar",
+    "powerModifier": 100,
+    "variables": null
+  },
+  "MartialKatah": {
+    "id": "MartialKatah",
+    "powerModifier": 110,
+    "variables": null
+  },
+  "Mechanic": {
+    "id": "Mechanic",
+    "powerModifier": 103,
+    "variables": null
+  },
+  "Mechanical": {
+    "id": "Mechanical",
+    "powerModifier": 95,
+    "variables": null
+  },
+  "MkXGravis": {
+    "id": "MkXGravis",
+    "powerModifier": 128,
+    "variables": null
+  },
+  "Mounted": {
+    "id": "Mounted",
+    "powerModifier": 102,
+    "variables": null
+  },
+  "NonAttacking": {
+    "id": "NonAttacking",
+    "powerModifier": 30,
+    "variables": null
+  },
+  "Object": {
+    "id": "Object",
+    "powerModifier": 50,
+    "variables": null
+  },
+  "Overwatch": {
+    "id": "Overwatch",
+    "powerModifier": 115,
+    "variables": null
+  },
+  "Parry": {
+    "id": "Parry",
+    "powerModifier": 103,
+    "variables": null
+  },
+  "PermaDeath": {
+    "id": "PermaDeath",
+    "powerModifier": 100,
+    "variables": null
+  },
+  "PrioritisedEfficiency": {
+    "id": "PrioritisedEfficiency",
+    "powerModifier": 110,
+    "variables": null
+  },
+  "Psyker": {
+    "id": "Psyker",
+    "powerModifier": 125,
+    "variables": null
+  },
+  "PutridExplosion": {
+    "id": "PutridExplosion",
+    "powerModifier": 102,
+    "variables": null
+  },
+  "RangedSpecialist": {
+    "id": "RangedSpecialist",
+    "powerModifier": 105,
+    "variables": null
+  },
+  "RapidAssault": {
+    "id": "RapidAssault",
+    "powerModifier": 100,
+    "variables": null
+  },
+  "Resilient": {
+    "id": "Resilient",
+    "powerModifier": 118,
+    "variables": null
+  },
+  "ShadowInTheWarp": {
+    "id": "ShadowInTheWarp",
+    "powerModifier": 102,
+    "variables": null
+  },
+  "Steppable": {
+    "id": "Steppable",
+    "powerModifier": 10,
+    "variables": null
+  },
+  "Summon": {
+    "id": "Summon",
+    "powerModifier": 100,
+    "variables": null
+  },
+  "SuppressiveFire": {
+    "id": "SuppressiveFire",
+    "powerModifier": 104,
+    "variables": null
+  },
+  "Swarm": {
+    "id": "Swarm",
+    "powerModifier": 105,
+    "variables": null
+  },
+  "Synapse": {
+    "id": "Synapse",
+    "powerModifier": 102,
+    "variables": null
+  },
+  "TeleportStrike": {
+    "id": "TeleportStrike",
+    "powerModifier": 105,
+    "variables": null
+  },
+  "TerminatorArmour": {
+    "id": "TerminatorArmour",
+    "powerModifier": 105,
+    "variables": null
+  },
+  "Terrifying": {
+    "id": "Terrifying",
+    "powerModifier": 115,
+    "variables": null
+  },
+  "ThrillSeekers": {
+    "id": "ThrillSeekers",
+    "powerModifier": 103,
+    "variables": null
+  },
+  "TwoManTeam": {
+    "id": "TwoManTeam",
+    "powerModifier": 104,
+    "variables": null
+  },
+  "Unstoppable": {
+    "id": "Unstoppable",
+    "powerModifier": 102,
+    "variables": null
+  },
+  "Vehicle": {
+    "id": "Vehicle",
+    "powerModifier": 101,
+    "variables": null
+  },
+  "WeaverOfFate": {
+    "id": "WeaverOfFate",
+    "powerModifier": 105,
+    "variables": null
+  },
+  "ambushUnitToSpawn": {
+    "id": "ambushUnitToSpawn",
+    "powerModifier": null,
+    "variables": "genesSmnDecoy"
+  },
+  "beastSlayerBlockAsMaxArmorPct": {
+    "id": "beastSlayerBlockAsMaxArmorPct",
+    "powerModifier": null,
+    "variables": 100
+  },
+  "beastSlayerBlockChance": {
+    "id": "beastSlayerBlockChance",
+    "powerModifier": null,
+    "variables": 10
+  },
+  "beastSlayerExtraDmgPct": {
+    "id": "beastSlayerExtraDmgPct",
+    "powerModifier": null,
+    "variables": 20
+  },
+  "beastSnaggaBlockChance": {
+    "id": "beastSnaggaBlockChance",
+    "powerModifier": null,
+    "variables": 10
+  },
+  "beastSnaggaDmgAsMaxHpPct": {
+    "id": "beastSnaggaDmgAsMaxHpPct",
+    "powerModifier": null,
+    "variables": 20
+  },
+  "beastSnaggaDmgBonus": {
+    "id": "beastSnaggaDmgBonus",
+    "powerModifier": null,
+    "variables": 20
+  },
+  "blessingsOfKhorneDmgPctReduction": {
+    "id": "blessingsOfKhorneDmgPctReduction",
+    "powerModifier": null,
+    "variables": 8
+  },
+  "blessingsOfKhorneExtraDmgPct": {
+    "id": "blessingsOfKhorneExtraDmgPct",
+    "powerModifier": null,
+    "variables": 3
+  },
+  "blessingsOfKhorneMaxDefeatedUnits": {
+    "id": "blessingsOfKhorneMaxDefeatedUnits",
+    "powerModifier": null,
+    "variables": 8
+  },
+  "bossAdjutantDmgPct": {
+    "id": "bossAdjutantDmgPct",
+    "powerModifier": null,
+    "variables": 1
+  },
+  "bossAdjutantDmgReductionPct": {
+    "id": "bossAdjutantDmgReductionPct",
+    "powerModifier": null,
+    "variables": 66
+  },
+  "camouflageHitReduction_1": {
+    "id": "camouflageHitReduction_1",
+    "powerModifier": null,
+    "variables": 1
+  },
+  "camouflageHitReduction_2": {
+    "id": "camouflageHitReduction_2",
+    "powerModifier": null,
+    "variables": 2
+  },
+  "camouflageHitReduction_3": {
+    "id": "camouflageHitReduction_3",
+    "powerModifier": null,
+    "variables": 3
+  },
+  "closeCombatWeaknessMeleeDmgPctReduction": {
+    "id": "closeCombatWeaknessMeleeDmgPctReduction",
+    "powerModifier": null,
+    "variables": -50
+  },
+  "closeCombatWeaknessRangeDmgPctReduction": {
+    "id": "closeCombatWeaknessRangeDmgPctReduction",
+    "powerModifier": null,
+    "variables": -25
+  },
+  "contagionsOfNurgleArmorOneAura": {
+    "id": "contagionsOfNurgleArmorOneAura",
+    "powerModifier": null,
+    "variables": -20
+  },
+  "contagionsOfNurgleArmorTwoOrMoreAuras": {
+    "id": "contagionsOfNurgleArmorTwoOrMoreAuras",
+    "powerModifier": null,
+    "variables": -40
+  },
+  "crushingStrikeExtraDmgPct": {
+    "id": "crushingStrikeExtraDmgPct",
+    "powerModifier": null,
+    "variables": 50
+  },
+  "daemonBlockChance": {
+    "id": "daemonBlockChance",
+    "powerModifier": null,
+    "variables": 25
+  },
+  "daemonBlockDamagePercentage": {
+    "id": "daemonBlockDamagePercentage",
+    "powerModifier": null,
+    "variables": 50
+  },
+  "dakkaExtraHits": {
+    "id": "dakkaExtraHits",
+    "powerModifier": null,
+    "variables": 2
+  },
+  "deathToTheFalseEmperorExtraHitChance": {
+    "id": "deathToTheFalseEmperorExtraHitChance",
+    "powerModifier": null,
+    "variables": 50
+  },
+  "diminutiveHitReduction": {
+    "id": "diminutiveHitReduction",
+    "powerModifier": null,
+    "variables": 1
+  },
+  "emplacementMeleeDmgModifier": {
+    "id": "emplacementMeleeDmgModifier",
+    "powerModifier": null,
+    "variables": -50
+  },
+  "emplacementRangedDmgModifier": {
+    "id": "emplacementRangedDmgModifier",
+    "powerModifier": null,
+    "variables": 50
+  },
+  "explodesDmg": {
+    "id": "explodesDmg",
+    "powerModifier": null,
+    "variables": 25
+  },
+  "getStuckInChance": {
+    "id": "getStuckInChance",
+    "powerModifier": null,
+    "variables": 30
+  },
+  "getStuckInChance_2": {
+    "id": "getStuckInChance_2",
+    "powerModifier": null,
+    "variables": 100
+  },
+  "heavyWeaponExtraDmg": {
+    "id": "heavyWeaponExtraDmg",
+    "powerModifier": null,
+    "variables": 25
+  },
+  "livingMetalHp": {
+    "id": "livingMetalHp",
+    "powerModifier": null,
+    "variables": 10
+  },
+  "martialKatahDmgReductionPct": {
+    "id": "martialKatahDmgReductionPct",
+    "powerModifier": null,
+    "variables": 20
+  },
+  "martialKatahExtraDmgPct": {
+    "id": "martialKatahExtraDmgPct",
+    "powerModifier": null,
+    "variables": 100
+  },
+  "parryHitReduction": {
+    "id": "parryHitReduction",
+    "powerModifier": null,
+    "variables": 1
+  },
+  "prioritisedEfficiencyDmgReductionPct": {
+    "id": "prioritisedEfficiencyDmgReductionPct",
+    "powerModifier": null,
+    "variables": 33
+  },
+  "prioritisedEfficiencyExtraDmgPct": {
+    "id": "prioritisedEfficiencyExtraDmgPct",
+    "powerModifier": null,
+    "variables": 25
+  },
+  "psykerExtraDmg": {
+    "id": "psykerExtraDmg",
+    "powerModifier": null,
+    "variables": 50
+  },
+  "putridExplosionDamageProfile": {
+    "id": "putridExplosionDamageProfile",
+    "powerModifier": null,
+    "variables": "Toxic"
+  },
+  "putridExplosionDmgPct": {
+    "id": "putridExplosionDmgPct",
+    "powerModifier": null,
+    "variables": 25
+  },
+  "putridExplosionFactionId": {
+    "id": "putridExplosionFactionId",
+    "powerModifier": null,
+    "variables": "DeathGuard"
+  },
+  "rangedSpecialistDmgPct": {
+    "id": "rangedSpecialistDmgPct",
+    "powerModifier": null,
+    "variables": 33
+  },
+  "rapidAssaultExtraDmgPct": {
+    "id": "rapidAssaultExtraDmgPct",
+    "powerModifier": null,
+    "variables": 25
+  },
+  "shadowInTheWarpDmgModifier": {
+    "id": "shadowInTheWarpDmgModifier",
+    "powerModifier": null,
+    "variables": -25
+  },
+  "shadowInTheWarpRange": {
+    "id": "shadowInTheWarpRange",
+    "powerModifier": null,
+    "variables": 2
+  },
+  "terminatorArmourDmgReduction": {
+    "id": "terminatorArmourDmgReduction",
+    "powerModifier": null,
+    "variables": -75
+  },
+  "terminatorArmourExcludedDmgProfiles": {
+    "id": "terminatorArmourExcludedDmgProfiles",
+    "powerModifier": null,
+    "variables": "Psychic,DirectDamage"
+  },
+  "thrillSeekersExtraCritChance": {
+    "id": "thrillSeekersExtraCritChance",
+    "powerModifier": null,
+    "variables": 15
+  },
+  "thrillSeekersNrOfRounds": {
+    "id": "thrillSeekersNrOfRounds",
+    "powerModifier": null,
+    "variables": 1
+  }
+}

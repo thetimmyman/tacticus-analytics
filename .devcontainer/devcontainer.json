@@ -1,0 +1,44 @@
+{
+  "name": "Tacticus Analytics",
+  "dockerComposeFile": "../docker-compose.local.yml",
+  "service": "nextjs-local",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+      },
+
+      "extensions": [
+        "bradlc.vscode-tailwindcss",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "github.vscode-github-actions",
+        "ms-azuretools.vscode-containers",
+        "ms-vscode.vscode-typescript-next",
+        "openai.chatgpt",
+        "redhat.vscode-yaml",
+        "vitest.explorer"
+      ]
+    }
+  },
+
+  "forwardPorts": [3000, 6379],
+  "portsAttributes": {
+    "3000": {
+      "label": "Next.js App",
+      "onAutoForward": "openBrowser"
+    },
+    "6379": {
+      "label": "Redis"
+    }
+  },
+
+  "postCreateCommand": "corepack enable && corepack prepare npm@10.9.7 --activate && npm ci",
+  "overrideCommand": false,
+  "remoteUser": "root"
+}

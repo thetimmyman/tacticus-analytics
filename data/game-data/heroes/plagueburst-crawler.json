@@ -1,0 +1,26 @@
+{
+  "activeAbility": "EntropyCannons",
+  "allianceId": "Chaos",
+  "baseRarity": "Common",
+  "damageProfiles": [],
+  "description": "",
+  "factionId": "DeathGuard",
+  "gameId": "deathCrawler",
+  "id": "plagueburst-crawler",
+  "itemSlots": [],
+  "longName": "Plagueburst Crawler",
+  "meleeWeapon": null,
+  "movement": 3,
+  "mowActiveAbility": [],
+  "mythicAbilities": [
+    "BlightedLand"
+  ],
+  "name": "Plagueburst Crawler",
+  "passiveAbility": null,
+  "rangeWeapon": null,
+  "ranks": [],
+  "sorting": 38,
+  "traits": [
+    "MachineOfWar"
+  ]
+}

@@ -1,0 +1,681 @@
+{
+  "AdeptusAstartes": [
+    {
+      "id": "cyrus",
+      "name": "Cyrus",
+      "rarity": "Epic"
+    },
+    {
+      "id": "lysander",
+      "name": "Lysander",
+      "rarity": "Legendary"
+    }
+  ],
+  "AdeptusMechanicus": [
+    {
+      "id": "actus",
+      "name": "Actus",
+      "rarity": "Rare"
+    },
+    {
+      "id": "exitor-rho",
+      "name": "Exitor-Rho",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "sy-gex",
+      "name": "Sy-gex",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "tan-gida",
+      "name": "Tan Gi'da",
+      "rarity": "Rare"
+    },
+    {
+      "id": "virtuvius",
+      "name": "Vitruvius",
+      "rarity": "Legendary"
+    }
+  ],
+  "Aeldari": [
+    {
+      "id": "aethana",
+      "name": "Aethana",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "calandis",
+      "name": "Calandis",
+      "rarity": "Common"
+    },
+    {
+      "id": "eldryon",
+      "name": "Eldryon",
+      "rarity": "Rare"
+    },
+    {
+      "id": "jain-zar",
+      "name": "Jain Zar",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "lhykhis",
+      "name": "Lhykhis",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "maugan-ra",
+      "name": "Maugan Ra",
+      "rarity": "Legendary"
+    }
+  ],
+  "AstraMilitarum": [
+    {
+      "id": "castellan-creed",
+      "name": "Creed",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "commissar-yarrick",
+      "name": "Yarrick",
+      "rarity": "Rare"
+    },
+    {
+      "id": "kut-skoden",
+      "name": "Kut",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "malleus-rocket-launcher",
+      "name": "Malleus Rocket Launcher",
+      "rarity": "Common"
+    },
+    {
+      "id": "marshal-dreir",
+      "name": "Dreir",
+      "rarity": "Epic"
+    },
+    {
+      "id": "sibyll-devine",
+      "name": "Sibyll",
+      "rarity": "Common"
+    },
+    {
+      "id": "thaddeus-noble",
+      "name": "Thaddeus",
+      "rarity": "Rare"
+    }
+  ],
+  "BlackLegion": [
+    {
+      "id": "abaddon-the-despoiler",
+      "name": "Abaddon",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "angrax",
+      "name": "Angrax",
+      "rarity": "Common"
+    },
+    {
+      "id": "archimatos",
+      "name": "Archimatos",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "forgefiend",
+      "name": "Forgefiend",
+      "rarity": "Common"
+    },
+    {
+      "id": "haarkeen-worldclaimer",
+      "name": "Haarken",
+      "rarity": "Epic"
+    },
+    {
+      "id": "volk",
+      "name": "Volk",
+      "rarity": "Rare"
+    }
+  ],
+  "BlackTemplars": [
+    {
+      "id": "ancient-thoread",
+      "name": "Thoread",
+      "rarity": "Rare"
+    },
+    {
+      "id": "brother-burchard",
+      "name": "Burchard",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "brother-jaeger",
+      "name": "Jaeger",
+      "rarity": "Epic"
+    },
+    {
+      "id": "high-marshal-helbrecht",
+      "name": "Helbrecht",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "sword-brother-godswyl",
+      "name": "Godswyl",
+      "rarity": "Common"
+    }
+  ],
+  "BloodAngels": [
+    {
+      "id": "cezare",
+      "name": "Cezare",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "dante",
+      "name": "Dante",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "lucien",
+      "name": "Lucien",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "mataneo",
+      "name": "Mataneo",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "mephiston",
+      "name": "Mephiston",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "nicodemus",
+      "name": "Nicodemus",
+      "rarity": "Rare"
+    }
+  ],
+  "Custodes": [
+    {
+      "id": "aesoth",
+      "name": "Aesoth",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "atlacoya",
+      "name": "Atlacoya",
+      "rarity": "Rare"
+    },
+    {
+      "id": "kariyan",
+      "name": "Kariyan",
+      "rarity": "Epic"
+    },
+    {
+      "id": "trajann",
+      "name": "Trajann",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "tyrith",
+      "name": "Tyrith",
+      "rarity": "Rare"
+    }
+  ],
+  "DarkAngels": [
+    {
+      "id": "asmodai",
+      "name": "Asmodai",
+      "rarity": "Epic"
+    },
+    {
+      "id": "azrael",
+      "name": "Azrael",
+      "rarity": "Epic"
+    },
+    {
+      "id": "baraqiel",
+      "name": "Baraqiel",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "forcas",
+      "name": "Forcas",
+      "rarity": "Rare"
+    },
+    {
+      "id": "ramus",
+      "name": "Ramus",
+      "rarity": "Rare"
+    },
+    {
+      "id": "sarquael",
+      "name": "Sarquael",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "storm-speeder",
+      "name": "Storm Speeder",
+      "rarity": "Common"
+    }
+  ],
+  "DeathGuard": [
+    {
+      "id": "corrodius",
+      "name": "Corrodius",
+      "rarity": "Rare"
+    },
+    {
+      "id": "maladus",
+      "name": "Maladus",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "nauseous-rotbone",
+      "name": "Nauseous",
+      "rarity": "Epic"
+    },
+    {
+      "id": "pestillian",
+      "name": "Pestillian",
+      "rarity": "Rare"
+    },
+    {
+      "id": "plagueburst-crawler",
+      "name": "Plagueburst Crawler",
+      "rarity": "Common"
+    },
+    {
+      "id": "typhus",
+      "name": "Typhus",
+      "rarity": "Legendary"
+    }
+  ],
+  "EmperorsChildren": [
+    {
+      "id": "adamatar",
+      "name": "Adamatar",
+      "rarity": "Rare"
+    },
+    {
+      "id": "hascule",
+      "name": "Hascule",
+      "rarity": "Rare"
+    },
+    {
+      "id": "laviscus",
+      "name": "Laviscus",
+      "rarity": "Epic"
+    },
+    {
+      "id": "lucius",
+      "name": "Lucius",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "shiron",
+      "name": "Shiron",
+      "rarity": "Uncommon"
+    }
+  ],
+  "Genestealers": [
+    {
+      "id": "hollan",
+      "name": "Hollan",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "isaak",
+      "name": "Isaak",
+      "rarity": "Rare"
+    },
+    {
+      "id": "judh",
+      "name": "Judh",
+      "rarity": "Epic"
+    },
+    {
+      "id": "patermine",
+      "name": "The Patermine",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "xybia",
+      "name": "Xybia",
+      "rarity": "Rare"
+    }
+  ],
+  "LeaguesOfVotann": [
+    {
+      "id": "ammuk",
+      "name": "Ammuk",
+      "rarity": "Rare"
+    },
+    {
+      "id": "havyr",
+      "name": "Havyr",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "kimm",
+      "name": "Kimm",
+      "rarity": "Epic"
+    },
+    {
+      "id": "uthar",
+      "name": "Uthar",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "vynn",
+      "name": "Vynn",
+      "rarity": "Rare"
+    }
+  ],
+  "Necrons": [
+    {
+      "id": "aleph-null",
+      "name": "Aleph-Null",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "anuphet",
+      "name": "Anuphet",
+      "rarity": "Epic"
+    },
+    {
+      "id": "imospekh",
+      "name": "Imospekh",
+      "rarity": "Common"
+    },
+    {
+      "id": "makhotep",
+      "name": "Makhotep",
+      "rarity": "Common"
+    },
+    {
+      "id": "reanimator",
+      "name": "Reanimator",
+      "rarity": "Common"
+    },
+    {
+      "id": "thothmek",
+      "name": "Thothmek",
+      "rarity": "Rare"
+    },
+    {
+      "id": "thutmose",
+      "name": "Thutmose",
+      "rarity": "Rare"
+    }
+  ],
+  "Orks": [
+    {
+      "id": "boss-gulgortz",
+      "name": "Gulgortz",
+      "rarity": "Epic"
+    },
+    {
+      "id": "gibbascrapz",
+      "name": "Gibbascrapz",
+      "rarity": "Common"
+    },
+    {
+      "id": "rukkatrukk",
+      "name": "Rukkatrukk",
+      "rarity": "Common"
+    },
+    {
+      "id": "snappawrecka",
+      "name": "Snappawrecka",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "snotflogga",
+      "name": "Snotflogga",
+      "rarity": "Rare"
+    },
+    {
+      "id": "tanksmasha",
+      "name": "Tanksmasha",
+      "rarity": "Epic"
+    }
+  ],
+  "Sisterhood": [
+    {
+      "id": "celestine",
+      "name": "Celestine",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "exorcist",
+      "name": "Exorcist",
+      "rarity": "Common"
+    },
+    {
+      "id": "isabella",
+      "name": "Isabella",
+      "rarity": "Rare"
+    },
+    {
+      "id": "morvenn-vahl",
+      "name": "Morvenn Vahl",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "roswitha",
+      "name": "Roswitha",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "vindicta",
+      "name": "Vindicta",
+      "rarity": "Common"
+    }
+  ],
+  "SpaceWolves": [
+    {
+      "id": "arjac-rockfist",
+      "name": "Arjac",
+      "rarity": "Rare"
+    },
+    {
+      "id": "baldr",
+      "name": "Baldr",
+      "rarity": "Rare"
+    },
+    {
+      "id": "blackmane",
+      "name": "Ragnar",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "stormcaller",
+      "name": "Njal",
+      "rarity": "Epic"
+    },
+    {
+      "id": "tjark",
+      "name": "Tjark",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "ulf",
+      "name": "Ulf",
+      "rarity": "Uncommon"
+    }
+  ],
+  "Tau": [
+    {
+      "id": "aun-shi",
+      "name": "Aun'Shi",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "commander-shadowsun",
+      "name": "Shadowsun",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "darkstrider",
+      "name": "Darkstrider",
+      "rarity": "Rare"
+    },
+    {
+      "id": "farsight",
+      "name": "Farsight",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "revas",
+      "name": "Re'vas",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "shosyl",
+      "name": "Sho'syl",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "tau-broadside-battlesuit",
+      "name": "Tson'ji",
+      "rarity": "Common"
+    }
+  ],
+  "ThousandSons": [
+    {
+      "id": "abraxas",
+      "name": "Abraxas",
+      "rarity": "Rare"
+    },
+    {
+      "id": "ahriman",
+      "name": "Ahriman",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "sekhetar-robot",
+      "name": "Sekhetar Robot",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "thaumachus",
+      "name": "Thaumachus",
+      "rarity": "Epic"
+    },
+    {
+      "id": "toth",
+      "name": "Toth",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "yazaghor",
+      "name": "Yazaghor",
+      "rarity": "Common"
+    },
+    {
+      "id": "zkar",
+      "name": "Z'Kar",
+      "rarity": "Common"
+    }
+  ],
+  "Tyranids": [
+    {
+      "id": "biovore",
+      "name": "Biovore",
+      "rarity": "Common"
+    },
+    {
+      "id": "deathleaper",
+      "name": "Deathleaper",
+      "rarity": "Epic"
+    },
+    {
+      "id": "neurothrope",
+      "name": "Neurothrope",
+      "rarity": "Rare"
+    },
+    {
+      "id": "parasite-of-mortrex",
+      "name": "Parasite of Mortrex",
+      "rarity": "Epic"
+    },
+    {
+      "id": "tyrant-guard",
+      "name": "Tyrant Guard",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "winged-prime",
+      "name": "Winged Prime",
+      "rarity": "Rare"
+    }
+  ],
+  "Ultramarines": [
+    {
+      "id": "bellator",
+      "name": "Bellator",
+      "rarity": "Common"
+    },
+    {
+      "id": "certus",
+      "name": "Certus",
+      "rarity": "Common"
+    },
+    {
+      "id": "galatian",
+      "name": "Galatian",
+      "rarity": "Common"
+    },
+    {
+      "id": "incisus",
+      "name": "Incisus",
+      "rarity": "Common"
+    },
+    {
+      "id": "marneus-calgar",
+      "name": "Calgar",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "titus",
+      "name": "Titus",
+      "rarity": "Epic"
+    },
+    {
+      "id": "varro-tigurius",
+      "name": "Tigurius",
+      "rarity": "Uncommon"
+    }
+  ],
+  "WorldEaters": [
+    {
+      "id": "azkor",
+      "name": "Azkor",
+      "rarity": "Rare"
+    },
+    {
+      "id": "kharn",
+      "name": "Kharn",
+      "rarity": "Legendary"
+    },
+    {
+      "id": "macer",
+      "name": "Macer",
+      "rarity": "Uncommon"
+    },
+    {
+      "id": "tarvakh",
+      "name": "Tarvakh",
+      "rarity": "Rare"
+    },
+    {
+      "id": "wrask",
+      "name": "Wrask",
+      "rarity": "Uncommon"
+    }
+  ]
+}

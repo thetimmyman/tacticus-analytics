@@ -1,0 +1,154 @@
+{
+  "bosses": [
+    {
+      "uiId": "magnus",
+      "engineNameOrId": "GuildBoss9Boss1ThousMagnus",
+      "displayName": "Magnus",
+      "aliases": ["magnus", "magnus the red", "guildboss9boss1thousmagnus"]
+    },
+    {
+      "uiId": "avatar",
+      "engineNameOrId": "GuildBoss8Boss1EldarAvatar",
+      "displayName": "Avatar of Khaine",
+      "aliases": ["avatar", "avatar of khaine", "guildboss8boss1eldaravatar"]
+    },
+    {
+      "uiId": "rogaldorn",
+      "engineNameOrId": "GuildBoss7Boss1AstraRogaldorn",
+      "displayName": "Rogal Dorn",
+      "aliases": ["rogaldorn", "rogal dorn", "guildboss7boss1astrarogaldorn"]
+    },
+    {
+      "uiId": "screamerkiller",
+      "engineNameOrId": "GuildBoss6Boss1TyranScreamerKiller",
+      "displayName": "Screamer-Killer",
+      "aliases": [
+        "screamerkiller",
+        "screamer killer",
+        "screamer-killer",
+        "guildboss6boss1tyranscreamerkiller"
+      ]
+    },
+    {
+      "uiId": "mortarion",
+      "engineNameOrId": "GuildBoss5Boss1DeathMortarion",
+      "displayName": "Mortarion",
+      "aliases": ["mortarion", "guildboss5boss1deathmortarion"]
+    },
+    {
+      "uiId": "ghazghkull",
+      "engineNameOrId": "GuildBoss4Boss1OrksGhazghkull",
+      "displayName": "Ghazghkull",
+      "aliases": [
+        "ghazghkull",
+        "ghazghkull thraka",
+        "guildboss4boss1orksghazghkull"
+      ]
+    },
+    {
+      "uiId": "silentking",
+      "engineNameOrId": "GuildBoss3Boss1NecroSilentKing",
+      "displayName": "Szarekh",
+      "aliases": [
+        "silentking",
+        "silent king",
+        "szarekh",
+        "guildboss3boss1necrosilentking"
+      ]
+    },
+    {
+      "uiId": "hivetyrantgorgon",
+      "engineNameOrId": "GuildBoss2Boss3TyranHiveTyrantGorgon",
+      "displayName": "Hive Tyrant (Gorgon)",
+      "aliases": [
+        "hivetyrantgorgon",
+        "hive tyrant gorgon",
+        "hive tyrant (gorgon)",
+        "guildboss2boss3tyranhivetyrantgorgon"
+      ]
+    },
+    {
+      "uiId": "hivetyrantkronos",
+      "engineNameOrId": "GuildBoss2Boss2TyranHiveTyrantKronos",
+      "displayName": "Hive Tyrant (Kronos)",
+      "aliases": [
+        "hivetyrantkronos",
+        "hive tyrant kronos",
+        "hive tyrant (kronos)",
+        "guildboss2boss2tyranhivetyrantkronos"
+      ]
+    },
+    {
+      "uiId": "hivetyrantleviathan",
+      "engineNameOrId": "GuildBoss2Boss1TyranHiveTyrantLeviathan",
+      "displayName": "Hive Tyrant (Leviathan)",
+      "aliases": [
+        "hivetyrantleviathan",
+        "hive tyrant leviathan",
+        "hive tyrant (leviathan)",
+        "guildboss2boss1tyranhivetyrantleviathan"
+      ]
+    },
+    {
+      "uiId": "tervigongorgon",
+      "engineNameOrId": "GuildBoss1Boss3TyranTervigonGorgon",
+      "displayName": "Tervigon (Gorgon)",
+      "aliases": [
+        "tervigongorgon",
+        "tervigon gorgon",
+        "tervigon (gorgon)",
+        "guildboss1boss3tyrantervigongorgon"
+      ]
+    },
+    {
+      "uiId": "tervigonkronos",
+      "engineNameOrId": "GuildBoss1Boss2TyranTervigonKronos",
+      "displayName": "Tervigon (Kronos)",
+      "aliases": [
+        "tervigonkronos",
+        "tervigon kronos",
+        "tervigon (kronos)",
+        "guildboss1boss2tyrantervigonkronos"
+      ]
+    },
+    {
+      "uiId": "tervigonleviathan",
+      "engineNameOrId": "GuildBoss1Boss1TyranTervigonLeviathan",
+      "displayName": "Tervigon (Leviathan)",
+      "aliases": [
+        "tervigonleviathan",
+        "tervigon leviathan",
+        "tervigon (leviathan)",
+        "guildboss1boss1tyrantervigonleviathan"
+      ]
+    },
+    {
+      "uiId": "riptide",
+      "engineNameOrId": "GuildBoss11Boss1TauRiptide",
+      "displayName": "Riptide",
+      "aliases": ["riptide", "guildboss11boss1tauriptide"]
+    },
+    {
+      "uiId": "belisarius",
+      "engineNameOrId": "GuildBoss10Boss1AdmecBelisarius",
+      "displayName": "Belisarius Cawl",
+      "aliases": [
+        "belisarius",
+        "belisarius cawl",
+        "guildboss10boss1admecbelisarius"
+      ]
+    },
+    {
+      "uiId": "lion",
+      "engineNameOrId": "GuildBoss12Boss1DarkaLion",
+      "displayName": "Lion El'Jonson",
+      "aliases": [
+        "lion",
+        "lion el'jonson",
+        "lion el jonson",
+        "darka lion",
+        "guildboss12boss1darkalion"
+      ]
+    }
+  ]
+}

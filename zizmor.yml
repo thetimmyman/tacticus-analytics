@@ -1,0 +1,2 @@
+# No repository-specific suppressions: resolve findings in the workflow.
+rules: {}

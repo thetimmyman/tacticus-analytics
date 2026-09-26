@@ -1,0 +1,26 @@
+{
+  "activeAbility": "MalleusRocketLauncher",
+  "allianceId": "Imperial",
+  "baseRarity": "Common",
+  "damageProfiles": [],
+  "description": "",
+  "factionId": "AstraMilitarum",
+  "gameId": "astraOrdnanceBattery",
+  "id": "malleus-rocket-launcher",
+  "itemSlots": [],
+  "longName": "Malleus Rocket Launcher",
+  "meleeWeapon": null,
+  "movement": 3,
+  "mowActiveAbility": [],
+  "mythicAbilities": [
+    "OnMyPosition"
+  ],
+  "name": "Malleus Rocket Launcher",
+  "passiveAbility": null,
+  "rangeWeapon": null,
+  "ranks": [],
+  "sorting": 26,
+  "traits": [
+    "MachineOfWar"
+  ]
+}
