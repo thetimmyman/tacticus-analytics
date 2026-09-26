@@ -1,0 +1,1566 @@
+/* Enhanced Particle Effects for Rarity Badges and Components */
+
+/* Base particle styles with random positioning */
+.particle-base {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  z-index: 1;
+  opacity: 0;
+}
+
+/* Mythic Particles - Fiery sparks and embers */
+.mythic-particle {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  z-index: 1;
+  opacity: 0;
+  animation: mythicSpark 4s infinite ease-in-out;
+  box-shadow:
+    0 0 6px currentColor,
+    0 0 12px currentColor;
+}
+
+.mythic-particle:nth-child(1) {
+  top: 15%;
+  left: 10%;
+  animation-delay: 0s;
+  animation-duration: 3.5s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 140, 0, 0.9) 0%,
+    rgba(255, 69, 0, 0.7) 50%,
+    transparent 70%
+  );
+}
+
+.mythic-particle:nth-child(2) {
+  top: 35%;
+  left: 25%;
+  animation-delay: 1.2s;
+  animation-duration: 4.2s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 195, 0, 0.8) 0%,
+    rgba(255, 140, 0, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.mythic-particle:nth-child(3) {
+  top: 60%;
+  left: 60%;
+  animation-delay: 2.1s;
+  animation-duration: 3.8s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 69, 0, 0.7) 0%,
+    rgba(255, 107, 53, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+.mythic-particle:nth-child(4) {
+  top: 80%;
+  left: 85%;
+  animation-delay: 3.4s;
+  animation-duration: 4.5s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 107, 53, 0.8) 0%,
+    rgba(255, 140, 0, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.mythic-particle:nth-child(5) {
+  top: 25%;
+  left: 75%;
+  animation-delay: 0.8s;
+  animation-duration: 3.2s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 159, 67, 0.9) 0%,
+    rgba(255, 195, 0, 0.7) 50%,
+    transparent 70%
+  );
+}
+
+.mythic-particle:nth-child(6) {
+  top: 70%;
+  left: 20%;
+  animation-delay: 2.8s;
+  animation-duration: 4.1s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 140, 0, 0.8) 0%,
+    rgba(255, 69, 0, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.mythic-particle:nth-child(7) {
+  top: 45%;
+  left: 5%;
+  animation-delay: 1.5s;
+  animation-duration: 3.7s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 195, 0, 0.7) 0%,
+    rgba(255, 159, 67, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+.mythic-particle:nth-child(8) {
+  top: 90%;
+  left: 45%;
+  animation-delay: 3.8s;
+  animation-duration: 4.3s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 69, 0, 0.8) 0%,
+    rgba(255, 140, 0, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.mythic-particle:nth-child(9) {
+  top: 10%;
+  left: 95%;
+  animation-delay: 0.3s;
+  animation-duration: 3.9s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 107, 53, 0.9) 0%,
+    rgba(255, 195, 0, 0.7) 50%,
+    transparent 70%
+  );
+}
+
+.mythic-particle:nth-child(10) {
+  top: 55%;
+  left: 90%;
+  animation-delay: 2.2s;
+  animation-duration: 4.7s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 159, 67, 0.6) 0%,
+    rgba(255, 69, 0, 0.4) 50%,
+    transparent 70%
+  );
+}
+
+.mythic-particle:nth-child(11) {
+  top: 95%;
+  left: 10%;
+  animation-delay: 3.6s;
+  animation-duration: 3.4s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 140, 0, 0.9) 0%,
+    rgba(255, 107, 53, 0.7) 50%,
+    transparent 70%
+  );
+}
+
+.mythic-particle:nth-child(12) {
+  top: 5%;
+  left: 35%;
+  animation-delay: 0.9s;
+  animation-duration: 4.4s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 195, 0, 0.8) 0%,
+    rgba(255, 140, 0, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.mythic-particle:nth-child(13) {
+  top: 40%;
+  left: 70%;
+  animation-delay: 1.7s;
+  animation-duration: 3.6s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 69, 0, 0.7) 0%,
+    rgba(255, 159, 67, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+.mythic-particle:nth-child(14) {
+  top: 75%;
+  left: 55%;
+  animation-delay: 2.9s;
+  animation-duration: 4s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 107, 53, 0.8) 0%,
+    rgba(255, 195, 0, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.mythic-particle:nth-child(15) {
+  top: 20%;
+  left: 65%;
+  animation-delay: 0.5s;
+  animation-duration: 4.8s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 140, 0, 0.7) 0%,
+    rgba(255, 69, 0, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+/* Legendary Particles - Crystalline sparkles */
+.diamond-particle,
+.legendary-particle {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  z-index: 1;
+  opacity: 0;
+  animation: legendarySparkle 5s infinite ease-in-out;
+  box-shadow:
+    0 0 4px rgba(147, 197, 253, 0.7),
+    0 0 8px rgba(196, 181, 253, 0.5);
+}
+
+.diamond-particle:nth-child(1),
+.legendary-particle:nth-child(1) {
+  top: 20%;
+  left: 15%;
+  animation-delay: 0s;
+  animation-duration: 4.5s;
+  background: radial-gradient(
+    circle,
+    rgba(147, 197, 253, 0.8) 0%,
+    rgba(180, 220, 255, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.diamond-particle:nth-child(2),
+.legendary-particle:nth-child(2) {
+  top: 45%;
+  left: 40%;
+  animation-delay: 1.5s;
+  animation-duration: 5.2s;
+  background: radial-gradient(
+    circle,
+    rgba(196, 181, 253, 0.7) 0%,
+    rgba(147, 197, 253, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+.diamond-particle:nth-child(3),
+.legendary-particle:nth-child(3) {
+  top: 65%;
+  left: 70%;
+  animation-delay: 2.8s;
+  animation-duration: 4.8s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.6) 0%,
+    rgba(196, 181, 253, 0.4) 50%,
+    transparent 70%
+  );
+}
+
+.diamond-particle:nth-child(4),
+.legendary-particle:nth-child(4) {
+  top: 30%;
+  left: 80%;
+  animation-delay: 0.7s;
+  animation-duration: 5.5s;
+  background: radial-gradient(
+    circle,
+    rgba(185, 242, 255, 0.7) 0%,
+    rgba(147, 197, 253, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+.diamond-particle:nth-child(5),
+.legendary-particle:nth-child(5) {
+  top: 75%;
+  left: 25%;
+  animation-delay: 3.2s;
+  animation-duration: 4.3s;
+  background: radial-gradient(
+    circle,
+    rgba(147, 197, 253, 0.8) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.diamond-particle:nth-child(6),
+.legendary-particle:nth-child(6) {
+  top: 10%;
+  left: 55%;
+  animation-delay: 1.8s;
+  animation-duration: 5.1s;
+  background: radial-gradient(
+    circle,
+    rgba(196, 181, 253, 0.6) 0%,
+    rgba(185, 242, 255, 0.4) 50%,
+    transparent 70%
+  );
+}
+
+.diamond-particle:nth-child(7),
+.legendary-particle:nth-child(7) {
+  top: 85%;
+  left: 50%;
+  animation-delay: 0.4s;
+  animation-duration: 4.7s;
+  background: radial-gradient(
+    circle,
+    rgba(147, 197, 253, 0.7) 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+.diamond-particle:nth-child(8),
+.legendary-particle:nth-child(8) {
+  top: 35%;
+  left: 5%;
+  animation-delay: 2.6s;
+  animation-duration: 5.4s;
+  background: radial-gradient(
+    circle,
+    rgba(185, 242, 255, 0.8) 0%,
+    rgba(196, 181, 253, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.diamond-particle:nth-child(9),
+.legendary-particle:nth-child(9) {
+  top: 55%;
+  left: 85%;
+  animation-delay: 1.1s;
+  animation-duration: 4.9s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(147, 197, 253, 0.3) 50%,
+    transparent 70%
+  );
+}
+
+.diamond-particle:nth-child(10),
+.legendary-particle:nth-child(10) {
+  top: 95%;
+  left: 15%;
+  animation-delay: 3.7s;
+  animation-duration: 5.3s;
+  background: radial-gradient(
+    circle,
+    rgba(196, 181, 253, 0.9) 0%,
+    rgba(185, 242, 255, 0.7) 50%,
+    transparent 70%
+  );
+}
+
+.diamond-particle:nth-child(11),
+.legendary-particle:nth-child(11) {
+  top: 15%;
+  left: 85%;
+  animation-delay: 0.8s;
+  animation-duration: 4.6s;
+  background: radial-gradient(
+    circle,
+    rgba(147, 197, 253, 0.6) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 70%
+  );
+}
+
+.diamond-particle:nth-child(12),
+.legendary-particle:nth-child(12) {
+  top: 50%;
+  left: 25%;
+  animation-delay: 2.4s;
+  animation-duration: 5.7s;
+  background: radial-gradient(
+    circle,
+    rgba(185, 242, 255, 0.7) 0%,
+    rgba(196, 181, 253, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+.diamond-particle:nth-child(13),
+.legendary-particle:nth-child(13) {
+  top: 80%;
+  left: 75%;
+  animation-delay: 1.6s;
+  animation-duration: 4.4s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(147, 197, 253, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.diamond-particle:nth-child(14),
+.legendary-particle:nth-child(14) {
+  top: 25%;
+  left: 35%;
+  animation-delay: 3.1s;
+  animation-duration: 5s;
+  background: radial-gradient(
+    circle,
+    rgba(196, 181, 253, 0.5) 0%,
+    rgba(185, 242, 255, 0.3) 50%,
+    transparent 70%
+  );
+}
+
+.diamond-particle:nth-child(15),
+.legendary-particle:nth-child(15) {
+  top: 60%;
+  left: 10%;
+  animation-delay: 0.6s;
+  animation-duration: 5.2s;
+  background: radial-gradient(
+    circle,
+    rgba(147, 197, 253, 0.8) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+/* Epic Particles - Golden shimmers */
+.epic-particle {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  z-index: 1;
+  opacity: 0;
+  animation: epicShimmer 4.5s infinite ease-in-out;
+  box-shadow:
+    0 0 5px rgba(255, 215, 0, 0.6),
+    0 0 10px rgba(255, 235, 59, 0.4);
+}
+
+.epic-particle:nth-child(1) {
+  top: 18%;
+  left: 12%;
+  animation-delay: 0s;
+  animation-duration: 4.2s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 0, 0.9) 0%,
+    rgba(255, 223, 105, 0.7) 50%,
+    transparent 70%
+  );
+}
+
+.epic-particle:nth-child(2) {
+  top: 42%;
+  left: 35%;
+  animation-delay: 1.4s;
+  animation-duration: 4.8s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 235, 59, 0.8) 0%,
+    rgba(255, 215, 0, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.epic-particle:nth-child(3) {
+  top: 68%;
+  left: 65%;
+  animation-delay: 2.3s;
+  animation-duration: 4.1s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 223, 105, 0.7) 0%,
+    rgba(255, 235, 59, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+.epic-particle:nth-child(4) {
+  top: 85%;
+  left: 88%;
+  animation-delay: 3.1s;
+  animation-duration: 4.6s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 0, 0.8) 0%,
+    rgba(255, 223, 105, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.epic-particle:nth-child(5) {
+  top: 28%;
+  left: 78%;
+  animation-delay: 0.9s;
+  animation-duration: 3.9s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 235, 59, 0.9) 0%,
+    rgba(255, 215, 0, 0.7) 50%,
+    transparent 70%
+  );
+}
+
+.epic-particle:nth-child(6) {
+  top: 55%;
+  left: 22%;
+  animation-delay: 2.7s;
+  animation-duration: 4.4s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 223, 105, 0.8) 0%,
+    rgba(255, 235, 59, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.epic-particle:nth-child(7) {
+  top: 8%;
+  left: 90%;
+  animation-delay: 0.7s;
+  animation-duration: 4s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 0, 0.7) 0%,
+    rgba(255, 223, 105, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+.epic-particle:nth-child(8) {
+  top: 78%;
+  left: 8%;
+  animation-delay: 3.3s;
+  animation-duration: 4.9s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 235, 59, 0.9) 0%,
+    rgba(255, 215, 0, 0.7) 50%,
+    transparent 70%
+  );
+}
+
+.epic-particle:nth-child(9) {
+  top: 38%;
+  left: 92%;
+  animation-delay: 1.1s;
+  animation-duration: 3.8s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 223, 105, 0.6) 0%,
+    rgba(255, 235, 59, 0.4) 50%,
+    transparent 70%
+  );
+}
+
+.epic-particle:nth-child(10) {
+  top: 92%;
+  left: 75%;
+  animation-delay: 2.5s;
+  animation-duration: 4.7s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 0, 0.8) 0%,
+    rgba(255, 223, 105, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.epic-particle:nth-child(11) {
+  top: 25%;
+  left: 15%;
+  animation-delay: 0.2s;
+  animation-duration: 4.2s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 235, 59, 0.7) 0%,
+    rgba(255, 215, 0, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+.epic-particle:nth-child(12) {
+  top: 58%;
+  left: 48%;
+  animation-delay: 1.9s;
+  animation-duration: 4.5s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 223, 105, 0.9) 0%,
+    rgba(255, 235, 59, 0.7) 50%,
+    transparent 70%
+  );
+}
+
+.epic-particle:nth-child(13) {
+  top: 15%;
+  left: 62%;
+  animation-delay: 3s;
+  animation-duration: 3.5s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 0, 0.6) 0%,
+    rgba(255, 223, 105, 0.4) 50%,
+    transparent 70%
+  );
+}
+
+.epic-particle:nth-child(14) {
+  top: 82%;
+  left: 38%;
+  animation-delay: 0.4s;
+  animation-duration: 4.6s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 235, 59, 0.8) 0%,
+    rgba(255, 215, 0, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.epic-particle:nth-child(15) {
+  top: 48%;
+  left: 82%;
+  animation-delay: 2.1s;
+  animation-duration: 4.1s;
+  background: radial-gradient(
+    circle,
+    rgba(255, 223, 105, 0.7) 0%,
+    rgba(255, 235, 59, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+/* Rare Particles - Blue energy wisps */
+.rare-particle {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  z-index: 1;
+  opacity: 0;
+  animation: rareWisp 5.5s infinite ease-in-out;
+  box-shadow:
+    0 0 4px rgba(59, 130, 246, 0.5),
+    0 0 8px rgba(96, 165, 250, 0.3);
+}
+
+.rare-particle:nth-child(1) {
+  top: 22%;
+  left: 18%;
+  animation-delay: 0s;
+  animation-duration: 5.2s;
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.7) 0%,
+    rgba(96, 165, 250, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+.rare-particle:nth-child(2) {
+  top: 48%;
+  left: 45%;
+  animation-delay: 1.8s;
+  animation-duration: 5.8s;
+  background: radial-gradient(
+    circle,
+    rgba(96, 165, 250, 0.6) 0%,
+    rgba(147, 197, 253, 0.4) 50%,
+    transparent 70%
+  );
+}
+
+.rare-particle:nth-child(3) {
+  top: 72%;
+  left: 72%;
+  animation-delay: 2.9s;
+  animation-duration: 5.1s;
+  background: radial-gradient(
+    circle,
+    rgba(147, 197, 253, 0.6) 0%,
+    rgba(59, 130, 246, 0.4) 50%,
+    transparent 70%
+  );
+}
+
+.rare-particle:nth-child(4) {
+  top: 15%;
+  left: 65%;
+  animation-delay: 0.6s;
+  animation-duration: 5.6s;
+  background: radial-gradient(
+    circle,
+    rgba(37, 99, 235, 0.7) 0%,
+    rgba(96, 165, 250, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+.rare-particle:nth-child(5) {
+  top: 65%;
+  left: 28%;
+  animation-delay: 3.4s;
+  animation-duration: 4.9s;
+  background: radial-gradient(
+    circle,
+    rgba(96, 165, 250, 0.8) 0%,
+    rgba(147, 197, 253, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.rare-particle:nth-child(6) {
+  top: 88%;
+  left: 82%;
+  animation-delay: 1.3s;
+  animation-duration: 5.7s;
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.6) 0%,
+    rgba(96, 165, 250, 0.4) 50%,
+    transparent 70%
+  );
+}
+
+.rare-particle:nth-child(7) {
+  top: 12%;
+  left: 8%;
+  animation-delay: 2.7s;
+  animation-duration: 5.3s;
+  background: radial-gradient(
+    circle,
+    rgba(147, 197, 253, 0.7) 0%,
+    rgba(37, 99, 235, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+.rare-particle:nth-child(8) {
+  top: 35%;
+  left: 88%;
+  animation-delay: 0.9s;
+  animation-duration: 6s;
+  background: radial-gradient(
+    circle,
+    rgba(96, 165, 250, 0.5) 0%,
+    rgba(59, 130, 246, 0.3) 50%,
+    transparent 70%
+  );
+}
+
+.rare-particle:nth-child(9) {
+  top: 78%;
+  left: 12%;
+  animation-delay: 3.8s;
+  animation-duration: 5.4s;
+  background: radial-gradient(
+    circle,
+    rgba(37, 99, 235, 0.8) 0%,
+    rgba(147, 197, 253, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.rare-particle:nth-child(10) {
+  top: 52%;
+  left: 62%;
+  animation-delay: 1.5s;
+  animation-duration: 5.8s;
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.9) 0%,
+    rgba(96, 165, 250, 0.7) 50%,
+    transparent 70%
+  );
+}
+
+.rare-particle:nth-child(11) {
+  top: 25%;
+  left: 38%;
+  animation-delay: 2.3s;
+  animation-duration: 5.1s;
+  background: radial-gradient(
+    circle,
+    rgba(147, 197, 253, 0.4) 0%,
+    rgba(59, 130, 246, 0.2) 50%,
+    transparent 70%
+  );
+}
+
+.rare-particle:nth-child(12) {
+  top: 95%;
+  left: 48%;
+  animation-delay: 0.7s;
+  animation-duration: 5.9s;
+  background: radial-gradient(
+    circle,
+    rgba(96, 165, 250, 0.7) 0%,
+    rgba(37, 99, 235, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+.rare-particle:nth-child(13) {
+  top: 8%;
+  left: 78%;
+  animation-delay: 3.2s;
+  animation-duration: 5s;
+  background: radial-gradient(
+    circle,
+    rgba(37, 99, 235, 0.6) 0%,
+    rgba(147, 197, 253, 0.4) 50%,
+    transparent 70%
+  );
+}
+
+.rare-particle:nth-child(14) {
+  top: 68%;
+  left: 92%;
+  animation-delay: 1.7s;
+  animation-duration: 5.6s;
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.8) 0%,
+    rgba(96, 165, 250, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.rare-particle:nth-child(15) {
+  top: 42%;
+  left: 22%;
+  animation-delay: 2.9s;
+  animation-duration: 5.2s;
+  background: radial-gradient(
+    circle,
+    rgba(147, 197, 253, 0.9) 0%,
+    rgba(59, 130, 246, 0.7) 50%,
+    transparent 70%
+  );
+}
+
+/* Uncommon Particles - Green nature sparkles */
+.uncommon-particle {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  z-index: 1;
+  opacity: 0;
+  animation: uncommonFloat 6s infinite ease-in-out;
+  box-shadow:
+    0 0 3px rgba(34, 197, 94, 0.4),
+    0 0 6px rgba(74, 222, 128, 0.3);
+}
+
+.uncommon-particle:nth-child(1) {
+  top: 25%;
+  left: 20%;
+  animation-delay: 0s;
+  animation-duration: 5.8s;
+  background: radial-gradient(
+    circle,
+    rgba(34, 197, 94, 0.6) 0%,
+    rgba(74, 222, 128, 0.4) 50%,
+    transparent 70%
+  );
+}
+
+.uncommon-particle:nth-child(2) {
+  top: 50%;
+  left: 50%;
+  animation-delay: 2.1s;
+  animation-duration: 6.2s;
+  background: radial-gradient(
+    circle,
+    rgba(74, 222, 128, 0.5) 0%,
+    rgba(34, 197, 94, 0.3) 50%,
+    transparent 70%
+  );
+}
+
+.uncommon-particle:nth-child(3) {
+  top: 75%;
+  left: 75%;
+  animation-delay: 3.5s;
+  animation-duration: 5.5s;
+  background: radial-gradient(
+    circle,
+    rgba(22, 163, 74, 0.6) 0%,
+    rgba(74, 222, 128, 0.4) 50%,
+    transparent 70%
+  );
+}
+
+.uncommon-particle:nth-child(4) {
+  top: 35%;
+  left: 85%;
+  animation-delay: 1.2s;
+  animation-duration: 6.1s;
+  background: radial-gradient(
+    circle,
+    rgba(74, 222, 128, 0.7) 0%,
+    rgba(34, 197, 94, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+.uncommon-particle:nth-child(5) {
+  top: 85%;
+  left: 35%;
+  animation-delay: 3.8s;
+  animation-duration: 5.7s;
+  background: radial-gradient(
+    circle,
+    rgba(22, 163, 74, 0.6) 0%,
+    rgba(74, 222, 128, 0.4) 50%,
+    transparent 70%
+  );
+}
+
+.uncommon-particle:nth-child(6) {
+  top: 15%;
+  left: 65%;
+  animation-delay: 0.5s;
+  animation-duration: 6.3s;
+  background: radial-gradient(
+    circle,
+    rgba(34, 197, 94, 0.8) 0%,
+    rgba(22, 163, 74, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.uncommon-particle:nth-child(7) {
+  top: 65%;
+  left: 15%;
+  animation-delay: 2.8s;
+  animation-duration: 6s;
+  background: radial-gradient(
+    circle,
+    rgba(74, 222, 128, 0.5) 0%,
+    rgba(34, 197, 94, 0.3) 50%,
+    transparent 70%
+  );
+}
+
+.uncommon-particle:nth-child(8) {
+  top: 95%;
+  left: 85%;
+  animation-delay: 1.6s;
+  animation-duration: 5.9s;
+  background: radial-gradient(
+    circle,
+    rgba(22, 163, 74, 0.7) 0%,
+    rgba(74, 222, 128, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+.uncommon-particle:nth-child(9) {
+  top: 5%;
+  left: 15%;
+  animation-delay: 4.1s;
+  animation-duration: 6.4s;
+  background: radial-gradient(
+    circle,
+    rgba(34, 197, 94, 0.4) 0%,
+    rgba(22, 163, 74, 0.2) 50%,
+    transparent 70%
+  );
+}
+
+.uncommon-particle:nth-child(10) {
+  top: 45%;
+  left: 95%;
+  animation-delay: 0.8s;
+  animation-duration: 5.6s;
+  background: radial-gradient(
+    circle,
+    rgba(74, 222, 128, 0.9) 0%,
+    rgba(34, 197, 94, 0.7) 50%,
+    transparent 70%
+  );
+}
+
+.uncommon-particle:nth-child(11) {
+  top: 78%;
+  left: 58%;
+  animation-delay: 3.2s;
+  animation-duration: 6.2s;
+  background: radial-gradient(
+    circle,
+    rgba(22, 163, 74, 0.5) 0%,
+    rgba(74, 222, 128, 0.3) 50%,
+    transparent 70%
+  );
+}
+
+.uncommon-particle:nth-child(12) {
+  top: 28%;
+  left: 42%;
+  animation-delay: 1.9s;
+  animation-duration: 5.8s;
+  background: radial-gradient(
+    circle,
+    rgba(34, 197, 94, 0.6) 0%,
+    rgba(22, 163, 74, 0.4) 50%,
+    transparent 70%
+  );
+}
+
+.uncommon-particle:nth-child(13) {
+  top: 58%;
+  left: 78%;
+  animation-delay: 2.6s;
+  animation-duration: 6.1s;
+  background: radial-gradient(
+    circle,
+    rgba(74, 222, 128, 0.8) 0%,
+    rgba(34, 197, 94, 0.6) 50%,
+    transparent 70%
+  );
+}
+
+.uncommon-particle:nth-child(14) {
+  top: 12%;
+  left: 88%;
+  animation-delay: 0.3s;
+  animation-duration: 6.5s;
+  background: radial-gradient(
+    circle,
+    rgba(22, 163, 74, 0.9) 0%,
+    rgba(74, 222, 128, 0.7) 50%,
+    transparent 70%
+  );
+}
+
+.uncommon-particle:nth-child(15) {
+  top: 88%;
+  left: 12%;
+  animation-delay: 3.7s;
+  animation-duration: 5.4s;
+  background: radial-gradient(
+    circle,
+    rgba(34, 197, 94, 0.7) 0%,
+    rgba(22, 163, 74, 0.5) 50%,
+    transparent 70%
+  );
+}
+
+/* Common Particles - Subtle grey motes */
+.common-particle {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  z-index: 1;
+  opacity: 0;
+  animation: commonDrift 7s infinite ease-in-out;
+  box-shadow:
+    0 0 2px rgba(148, 163, 184, 0.3),
+    0 0 4px rgba(148, 163, 184, 0.2);
+}
+
+.common-particle:nth-child(1) {
+  top: 30%;
+  left: 25%;
+  animation-delay: 0s;
+  animation-duration: 6.8s;
+  background: radial-gradient(
+    circle,
+    rgba(148, 163, 184, 0.4) 0%,
+    rgba(100, 116, 139, 0.2) 50%,
+    transparent 70%
+  );
+}
+
+.common-particle:nth-child(2) {
+  top: 60%;
+  left: 60%;
+  animation-delay: 2.5s;
+  animation-duration: 7.2s;
+  background: radial-gradient(
+    circle,
+    rgba(100, 116, 139, 0.3) 0%,
+    rgba(148, 163, 184, 0.2) 50%,
+    transparent 70%
+  );
+}
+
+.common-particle:nth-child(3) {
+  top: 80%;
+  left: 80%;
+  animation-delay: 4.1s;
+  animation-duration: 6.5s;
+  background: radial-gradient(
+    circle,
+    rgba(148, 163, 184, 0.5) 0%,
+    rgba(100, 116, 139, 0.3) 50%,
+    transparent 70%
+  );
+}
+
+.common-particle:nth-child(4) {
+  top: 40%;
+  left: 40%;
+  animation-delay: 1.8s;
+  animation-duration: 7.1s;
+  background: radial-gradient(
+    circle,
+    rgba(100, 116, 139, 0.4) 0%,
+    rgba(148, 163, 184, 0.2) 50%,
+    transparent 70%
+  );
+}
+
+.common-particle:nth-child(5) {
+  top: 70%;
+  left: 15%;
+  animation-delay: 3.5s;
+  animation-duration: 6.9s;
+  background: radial-gradient(
+    circle,
+    rgba(148, 163, 184, 0.3) 0%,
+    rgba(100, 116, 139, 0.1) 50%,
+    transparent 70%
+  );
+}
+
+.common-particle:nth-child(6) {
+  top: 15%;
+  left: 70%;
+  animation-delay: 0.7s;
+  animation-duration: 7.3s;
+  background: radial-gradient(
+    circle,
+    rgba(100, 116, 139, 0.5) 0%,
+    rgba(148, 163, 184, 0.3) 50%,
+    transparent 70%
+  );
+}
+
+.common-particle:nth-child(7) {
+  top: 85%;
+  left: 45%;
+  animation-delay: 2.9s;
+  animation-duration: 6.7s;
+  background: radial-gradient(
+    circle,
+    rgba(148, 163, 184, 0.2) 0%,
+    rgba(100, 116, 139, 0.1) 50%,
+    transparent 70%
+  );
+}
+
+.common-particle:nth-child(8) {
+  top: 55%;
+  left: 85%;
+  animation-delay: 1.3s;
+  animation-duration: 7s;
+  background: radial-gradient(
+    circle,
+    rgba(100, 116, 139, 0.3) 0%,
+    rgba(148, 163, 184, 0.2) 50%,
+    transparent 70%
+  );
+}
+
+.common-particle:nth-child(9) {
+  top: 20%;
+  left: 20%;
+  animation-delay: 4.6s;
+  animation-duration: 6.8s;
+  background: radial-gradient(
+    circle,
+    rgba(148, 163, 184, 0.4) 0%,
+    rgba(100, 116, 139, 0.2) 50%,
+    transparent 70%
+  );
+}
+
+.common-particle:nth-child(10) {
+  top: 90%;
+  left: 90%;
+  animation-delay: 0.2s;
+  animation-duration: 7.4s;
+  background: radial-gradient(
+    circle,
+    rgba(100, 116, 139, 0.2) 0%,
+    rgba(148, 163, 184, 0.1) 50%,
+    transparent 70%
+  );
+}
+
+.common-particle:nth-child(11) {
+  top: 10%;
+  left: 50%;
+  animation-delay: 3.1s;
+  animation-duration: 6.6s;
+  background: radial-gradient(
+    circle,
+    rgba(148, 163, 184, 0.3) 0%,
+    rgba(100, 116, 139, 0.2) 50%,
+    transparent 70%
+  );
+}
+
+.common-particle:nth-child(12) {
+  top: 50%;
+  left: 10%;
+  animation-delay: 1.7s;
+  animation-duration: 7.2s;
+  background: radial-gradient(
+    circle,
+    rgba(100, 116, 139, 0.4) 0%,
+    rgba(148, 163, 184, 0.3) 50%,
+    transparent 70%
+  );
+}
+
+.common-particle:nth-child(13) {
+  top: 75%;
+  left: 65%;
+  animation-delay: 2.4s;
+  animation-duration: 6.9s;
+  background: radial-gradient(
+    circle,
+    rgba(148, 163, 184, 0.2) 0%,
+    rgba(100, 116, 139, 0.1) 50%,
+    transparent 70%
+  );
+}
+
+.common-particle:nth-child(14) {
+  top: 35%;
+  left: 75%;
+  animation-delay: 0.9s;
+  animation-duration: 7.1s;
+  background: radial-gradient(
+    circle,
+    rgba(100, 116, 139, 0.3) 0%,
+    rgba(148, 163, 184, 0.2) 50%,
+    transparent 70%
+  );
+}
+
+.common-particle:nth-child(15) {
+  top: 65%;
+  left: 35%;
+  animation-delay: 3.8s;
+  animation-duration: 6.4s;
+  background: radial-gradient(
+    circle,
+    rgba(148, 163, 184, 0.4) 0%,
+    rgba(100, 116, 139, 0.3) 50%,
+    transparent 70%
+  );
+}
+
+/* Keyframe Animations */
+@keyframes mythicSpark {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) translateX(-10px) scale(0.3) rotate(0deg);
+  }
+  15% {
+    opacity: 0.8;
+    transform: translateY(10px) translateX(-5px) scale(0.7) rotate(45deg);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-5px) translateX(5px) scale(1) rotate(180deg);
+  }
+  85% {
+    opacity: 0.6;
+    transform: translateY(-15px) translateX(10px) scale(0.8) rotate(270deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-25px) translateX(15px) scale(0.2) rotate(360deg);
+  }
+}
+
+@keyframes legendarySparkle {
+  0% {
+    opacity: 0;
+    transform: translateY(15px) scale(0.2) rotate(0deg);
+    filter: brightness(0.5);
+  }
+  20% {
+    opacity: 0.9;
+    transform: translateY(8px) scale(0.8) rotate(72deg);
+    filter: brightness(1.2);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.1) rotate(180deg);
+    filter: brightness(1.5);
+  }
+  80% {
+    opacity: 0.7;
+    transform: translateY(-12px) scale(0.9) rotate(288deg);
+    filter: brightness(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.3) rotate(360deg);
+    filter: brightness(0.7);
+  }
+}
+
+@keyframes epicShimmer {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) translateX(-8px) scale(0.4);
+    filter: hue-rotate(0deg) brightness(0.8);
+  }
+  25% {
+    opacity: 0.7;
+    transform: translateY(5px) translateX(-2px) scale(0.9);
+    filter: hue-rotate(15deg) brightness(1.3);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-8px) translateX(4px) scale(1.2);
+    filter: hue-rotate(30deg) brightness(1.6);
+  }
+  75% {
+    opacity: 0.8;
+    transform: translateY(-18px) translateX(8px) scale(0.7);
+    filter: hue-rotate(15deg) brightness(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-28px) translateX(12px) scale(0.3);
+    filter: hue-rotate(0deg) brightness(0.6);
+  }
+}
+
+@keyframes rareWisp {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) translateX(-6px) scale(0.3);
+  }
+  30% {
+    opacity: 0.6;
+    transform: translateY(3px) translateX(-1px) scale(0.8);
+  }
+  60% {
+    opacity: 0.9;
+    transform: translateY(-6px) translateX(3px) scale(1);
+  }
+  90% {
+    opacity: 0.4;
+    transform: translateY(-15px) translateX(7px) scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-22px) translateX(10px) scale(0.2);
+  }
+}
+
+@keyframes uncommonFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.4);
+  }
+  40% {
+    opacity: 0.5;
+    transform: translateY(2px) scale(0.9);
+  }
+  70% {
+    opacity: 0.7;
+    transform: translateY(-4px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.3);
+  }
+}
+
+@keyframes commonDrift {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.5);
+  }
+  50% {
+    opacity: 0.4;
+    transform: translateY(-2px) scale(0.8);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.2);
+  }
+}
+
+/* Additional particle variations for higher density */
+.particle-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.particle-container::before,
+.particle-container::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Subtle Mythic background glow */
+.rarity-badge--mythic {
+  position: relative;
+}
+
+.rarity-badge--mythic::before {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 140, 0, 0.1) 0%,
+    transparent 70%
+  );
+  animation: mythicGlow 3s ease-in-out infinite alternate;
+  opacity: 0.6;
+}
+
+/* Subtle Legendary background glow */
+.rarity-badge--legendary::before {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(147, 197, 253, 0.08) 0%,
+    transparent 70%
+  );
+  animation: legendaryGlow 4s ease-in-out infinite alternate;
+  opacity: 0.5;
+}
+
+/* Subtle Epic background glow */
+.rarity-badge--epic::before {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 215, 0, 0.06) 0%,
+    transparent 70%
+  );
+  animation: epicGlow 3.5s ease-in-out infinite alternate;
+  opacity: 0.4;
+}
+
+/* Removed background particle grids to avoid grid-like appearance */
+
+@keyframes mythicGlow {
+  0% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes legendaryGlow {
+  0% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.7;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes epicGlow {
+  0% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.6;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes particleField {
+  0% {
+    background-position:
+      0px 0px,
+      2px 2px,
+      4px 4px,
+      6px 6px,
+      8px 8px,
+      10px 10px,
+      1px 1px,
+      3px 3px,
+      5px 5px,
+      7px 7px;
+  }
+  100% {
+    background-position:
+      10px 10px,
+      12px 12px,
+      14px 14px,
+      16px 16px,
+      18px 18px,
+      20px 20px,
+      11px 11px,
+      13px 13px,
+      15px 15px,
+      17px 17px;
+  }
+}
+
+/* Performance optimizations for particles */
+.mythic-particle,
+.diamond-particle,
+.legendary-particle,
+.epic-particle,
+.rare-particle,
+.uncommon-particle,
+.common-particle {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  contain: layout style paint;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .mythic-particle,
+  .diamond-particle,
+  .legendary-particle,
+  .epic-particle,
+  .rare-particle,
+  .uncommon-particle,
+  .common-particle,
+  .rarity-badge--mythic::before,
+  .rarity-badge--legendary::before,
+  .rarity-badge--epic::before {
+    animation: none !important;
+    opacity: 0.3 !important;
+  }
+}

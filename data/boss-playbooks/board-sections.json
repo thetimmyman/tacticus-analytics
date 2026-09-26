@@ -1,0 +1,191 @@
+{
+  "_comment": "Board grouping for the boss-playbook Maps/Boards section. Keyed by playbook boss id. main = the boss's own boards (GB_<token>_NN), support = the prime/mini-boss boards (GB_<token>_support_NN). bossType keys into boss_mapping for the Main/Prime display names. Board ids must exist in the maps table. WI-1970 made main boards the shared source for display, sim selection, and replay ingest by mirroring every main[] board into playbooks.json `boards`; support[] remains section-only because playbooks.json `boards` is a flat main-board catalog. Tyranid variants share a generic board pool with no per-variant support mapping, so they list main boards only. See docs/work-items/archive/WI-1960-BOSS-BOARD-SECTIONS.md and docs/work-items/archive/WI-1970-V140-BOARDS-TERRAIN-AND-SOURCE-UNIFY.md.",
+  "magnus": {
+    "bossType": "Magnus",
+    "main": ["GB_Magnus_01", "GB_Magnus_02", "GB_Magnus_03", "GB_Magnus_04"],
+    "support": [
+      "GB_Magnus_support_01",
+      "GB_Magnus_support_02",
+      "GB_Magnus_support_05",
+      "GB_Magnus_support_06"
+    ]
+  },
+  "mortarion": {
+    "bossType": "Mortarion",
+    "main": [
+      "GB_Mortarion_01",
+      "GB_Mortarion_02",
+      "GB_Mortarion_02_1",
+      "GB_Mortarion_03",
+      "GB_Mortarion_04"
+    ],
+    "support": [
+      "GB_Mortarion_support_01",
+      "GB_Mortarion_support_02",
+      "GB_Mortarion_support_03",
+      "GB_Mortarion_support_04",
+      "GB_Mortarion_support_04_1",
+      "GB_Mortarion_support_05",
+      "GB_Mortarion_support_05_1",
+      "GB_Mortarion_support_06"
+    ]
+  },
+  "silent-king": {
+    "bossType": "SilentKing",
+    "main": ["GB_SK_01", "GB_SK_02", "GB_SK_03", "GB_SK_04"],
+    "support": [
+      "GB_SK_support_01",
+      "GB_SK_support_02",
+      "GB_SK_support_03",
+      "GB_SK_support_04",
+      "GB_SK_support_05",
+      "GB_SK_support_06",
+      "GB_SK_support_07",
+      "GB_SK_support_08"
+    ]
+  },
+  "ghazghkull": {
+    "bossType": "Ghazghkull",
+    "main": [
+      "GB_Dakka_01",
+      "GB_Dakka_02",
+      "GB_Dakka_03",
+      "GB_Dakka_03_1",
+      "GB_Dakka_04",
+      "GB_Dakka_05"
+    ],
+    "support": [
+      "GB_Dakka_support_01",
+      "GB_Dakka_support_02",
+      "GB_Dakka_support_03",
+      "GB_Dakka_support_04",
+      "GB_Dakka_support_04_1",
+      "GB_Dakka_support_05",
+      "GB_Dakka_support_05_1",
+      "GB_Dakka_support_06"
+    ]
+  },
+  "avatar-of-khaine": {
+    "bossType": "AvatarOfKhaine",
+    "main": [
+      "GB_Khaine_01",
+      "GB_Khaine_02",
+      "GB_Khaine_03",
+      "GB_Khaine_04",
+      "GB_Khaine_05"
+    ],
+    "support": [
+      "GB_Khaine_support_01",
+      "GB_Khaine_support_02",
+      "GB_Khaine_support_03",
+      "GB_Khaine_support_04",
+      "GB_Khaine_support_05",
+      "GB_Khaine_support_06"
+    ]
+  },
+  "belisarius": {
+    "bossType": "BelisariusRW",
+    "main": [
+      "GB_Belisarius_01",
+      "GB_Belisarius_02",
+      "GB_Belisarius_03",
+      "GB_Belisarius_04"
+    ],
+    "support": [
+      "GB_Belisarius_support_01",
+      "GB_Belisarius_support_02",
+      "GB_Belisarius_support_03",
+      "GB_Belisarius_support_04",
+      "GB_Belisarius_support_05",
+      "GB_Belisarius_support_06"
+    ]
+  },
+  "riptide": {
+    "bossType": "Riptide",
+    "main": ["GB_Riptide_01", "GB_Riptide_02", "GB_Riptide_03"],
+    "support": [
+      "GB_Riptide_support_01",
+      "GB_Riptide_support_02",
+      "GB_Riptide_support_03",
+      "GB_Riptide_support_04"
+    ]
+  },
+  "lion": {
+    "bossType": "Lion",
+    "main": ["GB_Lion_01", "GB_Lion_02", "GB_Lion_03"],
+    "support": [
+      "GB_Lion_support_01",
+      "GB_Lion_support_02",
+      "GB_Lion_support_03",
+      "GB_Lion_support_04"
+    ]
+  },
+  "rogal-dorn": {
+    "bossType": "RogalDorn",
+    "main": [
+      "GB_RogalDorn_01",
+      "GB_RogalDorn_02",
+      "GB_RogalDorn_03",
+      "GB_RogalDorn_04",
+      "GB_RogalDorn_05",
+      "GB_RogalDorn_06"
+    ],
+    "support": [
+      "GB_RogalDorn_support_01",
+      "GB_RogalDorn_support_02",
+      "GB_RogalDorn_support_03",
+      "GB_RogalDorn_support_04",
+      "GB_RogalDorn_support_05",
+      "GB_RogalDorn_support_06"
+    ]
+  },
+  "screamer-killer": {
+    "bossType": "ScreamerKiller",
+    "main": [
+      "GB_Screamer_01",
+      "GB_Screamer_02",
+      "GB_Screamer_03",
+      "GB_Screamer_04"
+    ],
+    "support": [
+      "GB_Screamer_support_01",
+      "GB_Screamer_support_02",
+      "GB_Screamer_support_03",
+      "GB_Screamer_support_04",
+      "GB_Screamer_support_05",
+      "GB_Screamer_support_06",
+      "GB_Screamer_support_07",
+      "GB_Screamer_support_08"
+    ]
+  },
+  "hive-tyrant-kronos": {
+    "bossType": "HiveTyrantKronos",
+    "main": ["GB_03", "GB_06"],
+    "support": []
+  },
+  "hive-tyrant-gorgon": {
+    "bossType": "HiveTyrantGorgon",
+    "main": ["GB_03", "GB_04"],
+    "support": []
+  },
+  "hive-tyrant-leviathan": {
+    "bossType": "HiveTyrantLeviathan",
+    "main": ["GB_02", "GB_04", "GB_05"],
+    "support": []
+  },
+  "tervigon-kronos": {
+    "bossType": "TervigonKronos",
+    "main": ["GB_05", "GB_06"],
+    "support": []
+  },
+  "tervigon-gorgon": {
+    "bossType": "TervigonGorgon",
+    "main": ["GB_03", "GB_04", "GB_06"],
+    "support": []
+  },
+  "tervigon-leviathan": {
+    "bossType": "TervigonLeviathan",
+    "main": ["GB_02", "GB_04", "GB_05"],
+    "support": []
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-09-25",
+  "publicationCertified": true,
+  "groups": [
+    {
+      "id": "game-derived",
+      "pathPrefixes": [
+        "public/images/game-assets/",
+        "public/images/bosses/",
+        "public/images/frames/",
+        "public/images/portraits/",
+        "public/images/ranks/",
+        "public/images/stars/",
+        "public/images/tokens/",
+        "public/images/war-zones/"
+      ],
+      "exactPaths": [],
+      "trackedAssetCount": 980,
+      "source": "Game and community-wiki presentation imagery",
+      "rightsStatus": "snowprint-permission-granted",
+      "publicationApproved": true,
+      "rightsEvidence": "Written permission from Snowprint Studios (Tacticus publisher) to use its game art, granted to the operator. Evidence is held privately by the operator; see docs/asset-provenance.md (PS-106)."
+    },
+    {
+      "id": "third-party-icons",
+      "pathPrefixes": [],
+      "exactPaths": ["public/images/tacticus-raidman.svg"],
+      "trackedAssetCount": 1,
+      "source": "game-icons.net \"Custodian helmet\" by Delapouite, via SVG Repo (svgrepo.com/svg/322139); not Snowprint game art",
+      "rightsStatus": "cc-by-3.0",
+      "publicationApproved": true,
+      "rightsEvidence": "CC BY 3.0 (game-icons.net licence, verified 2026-09-25). Attribution: THIRD_PARTY_NOTICES.md and the SVG file header."
+    },
+    {
+      "id": "community-creators",
+      "pathPrefixes": [],
+      "exactPaths": [
+        "public/images/TimmyMan.png",
+        "public/images/dbpreacher.png",
+        "public/images/homina.png",
+        "public/images/nandi-profile.jpg",
+        "public/images/tacticus_planner.png",
+        "public/images/terminus_maximus.png",
+        "public/images/thecorpseemperor-profile.jpg",
+        "public/tablethetable.png"
+      ],
+      "trackedAssetCount": 0,
+      "source": "Removed community-creator profiles and project marks; paths retained as a publication denylist",
+      "rightsStatus": "redistribution-permission-unverified",
+      "publicationApproved": false,
+      "containsPersonalIdentity": true
+    },
+    {
+      "id": "site-ui-and-branding",
+      "pathPrefixes": ["public/icons/"],
+      "exactPaths": [
+        "public/favicon.svg",
+        "public/grid.svg",
+        "public/images/logo-no-words.png",
+        "public/images/logo-words.png"
+      ],
+      "trackedAssetCount": 8,
+      "source": "Repository UI and branding assets; public/icons/*.png generated from public/favicon.svg via scripts/assets/generate-pwa-icons.mjs (PS-275)",
+      "rightsStatus": "operator-owned",
+      "publicationApproved": true,
+      "rightsEvidence": "The site's own UI and branding; publication approved by the operator for the public release (2026-09-25)."
+    }
+  ]
+}

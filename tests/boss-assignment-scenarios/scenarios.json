@@ -1,0 +1,3092 @@
+{
+  "$schema": "./schema.json",
+  "scenarios": [
+    {
+      "id": "mortarion-rotation-30",
+      "name": "Mortarion rotation with 30-member guild",
+      "description": "Standard Mortarion boss rotation with full guild coverage",
+      "category": "coverage_calculation",
+      "priority": "critical",
+      "tags": ["30-members", "coverage", "mortarion"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Mortarion",
+          "bossType": "Mortarion",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Mortarion",
+          "bossType": "Mortarion",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L4 Mortarion",
+          "bossType": "Mortarion",
+          "level": "L4",
+          "isPrime": false,
+          "hp": 12500000,
+          "requiredTokens": 10,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L3 Mortarion",
+          "bossType": "Mortarion",
+          "level": "L3",
+          "isPrime": false,
+          "hp": 10000000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-coverage",
+          "description": "M1 Mortarion should have good coverage",
+          "target": "boss.M1 Mortarion.coveragePercent",
+          "operator": "gte",
+          "expected": 80
+        },
+        {
+          "id": "uses-most-tokens",
+          "description": "Should use most available tokens",
+          "target": "result.totalTokensUsed",
+          "operator": "gte",
+          "expected": 45
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-130", "WI-180", "WI-181"],
+      "rotationString": "M1 L5 L4 L3"
+    },
+    {
+      "id": "magnus-rotation-30",
+      "name": "Magnus rotation with 30-member guild",
+      "description": "Standard Magnus boss rotation with full guild coverage",
+      "category": "coverage_calculation",
+      "priority": "critical",
+      "tags": ["30-members", "coverage", "magnus"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Magnus",
+          "bossType": "Magnus",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Magnus",
+          "bossType": "Magnus",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L4 Magnus",
+          "bossType": "Magnus",
+          "level": "L4",
+          "isPrime": false,
+          "hp": 12500000,
+          "requiredTokens": 10,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L3 Magnus",
+          "bossType": "Magnus",
+          "level": "L3",
+          "isPrime": false,
+          "hp": 10000000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-coverage",
+          "description": "M1 Magnus should have good coverage",
+          "target": "boss.M1 Magnus.coveragePercent",
+          "operator": "gte",
+          "expected": 80
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"],
+      "rotationString": "M1 L5 L4 L3"
+    },
+    {
+      "id": "mortarion-rotation-29",
+      "name": "Mortarion rotation with 29-member guild",
+      "description": "Mortarion boss rotation with 29 members",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["29-members", "coverage", "mortarion"],
+      "guildSize": 29,
+      "guildFixture": "guild-29-members",
+      "bosses": [
+        {
+          "id": "M1 Mortarion",
+          "bossType": "Mortarion",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Mortarion",
+          "bossType": "Mortarion",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-has-allocation",
+          "description": "M1 should have at least 10 tokens",
+          "target": "boss.M1 Mortarion.allocatedTokens",
+          "operator": "gte",
+          "expected": 10
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180"]
+    },
+    {
+      "id": "mortarion-rotation-28",
+      "name": "Mortarion rotation with 28-member guild",
+      "description": "Mortarion boss rotation with 28 members",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["28-members", "coverage", "mortarion"],
+      "guildSize": 28,
+      "guildFixture": "guild-28-members",
+      "bosses": [
+        {
+          "id": "M1 Mortarion",
+          "bossType": "Mortarion",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Mortarion",
+          "bossType": "Mortarion",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-has-allocation",
+          "description": "M1 should have at least 10 tokens",
+          "target": "boss.M1 Mortarion.allocatedTokens",
+          "operator": "gte",
+          "expected": 10
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180"]
+    },
+    {
+      "id": "mortarion-rotation-27",
+      "name": "Mortarion rotation with 27-member guild",
+      "description": "Mortarion boss rotation with 27 members",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["27-members", "coverage", "mortarion"],
+      "guildSize": 27,
+      "guildFixture": "guild-27-members",
+      "bosses": [
+        {
+          "id": "M1 Mortarion",
+          "bossType": "Mortarion",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Mortarion",
+          "bossType": "Mortarion",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-has-allocation",
+          "description": "M1 should have at least 10 tokens",
+          "target": "boss.M1 Mortarion.allocatedTokens",
+          "operator": "gte",
+          "expected": 10
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180"]
+    },
+    {
+      "id": "mortarion-rotation-26",
+      "name": "Mortarion rotation with 26-member guild",
+      "description": "Mortarion boss rotation with 26 members",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["26-members", "coverage", "mortarion"],
+      "guildSize": 26,
+      "guildFixture": "guild-26-members",
+      "bosses": [
+        {
+          "id": "M1 Mortarion",
+          "bossType": "Mortarion",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Mortarion",
+          "bossType": "Mortarion",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-has-allocation",
+          "description": "M1 should have at least 10 tokens",
+          "target": "boss.M1 Mortarion.allocatedTokens",
+          "operator": "gte",
+          "expected": 10
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180"]
+    },
+    {
+      "id": "mortarion-rotation-25",
+      "name": "Mortarion rotation with 25-member guild",
+      "description": "Mortarion boss rotation with 25 members (minimum for this feature)",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["25-members", "coverage", "mortarion", "minimum-guild"],
+      "guildSize": 25,
+      "guildFixture": "guild-25-members",
+      "bosses": [
+        {
+          "id": "M1 Mortarion",
+          "bossType": "Mortarion",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Mortarion",
+          "bossType": "Mortarion",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 85% with smaller guild",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 85
+        },
+        {
+          "id": "m1-has-allocation",
+          "description": "M1 should have at least 10 tokens",
+          "target": "boss.M1 Mortarion.allocatedTokens",
+          "operator": "gte",
+          "expected": 10
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180"]
+    },
+    {
+      "id": "max-tokens-enforcement-mortarion-30",
+      "name": "Max tokens per boss constraint enforcement (Mortarion, 30 members)",
+      "description": "Verify that maxTokensPerBoss is enforced as a per-player-per-boss cap",
+      "category": "constraint_enforcement",
+      "priority": "critical",
+      "tags": [
+        "constraint",
+        "max-tokens",
+        "WI-130",
+        "regression",
+        "30-members",
+        "mortarion"
+      ],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Mortarion",
+          "bossType": "Mortarion",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 30,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "boss-can-exceed-3-total",
+          "description": "Total tokens on boss CAN exceed 3 (it's per-player cap, not total cap)",
+          "target": "boss.M1 Mortarion.allocatedTokens",
+          "operator": "gte",
+          "expected": 15
+        },
+        {
+          "id": "no-player-exceeds-3-per-boss",
+          "description": "No individual player should have more than 3 tokens on this boss",
+          "target": "player.allocations.M1 Mortarion",
+          "operator": "all_satisfy",
+          "expected": {
+            "operator": "lte",
+            "value": 3
+          }
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-130", "WI-180"]
+    },
+    {
+      "id": "preference-avoid-mortarion-30",
+      "name": "Player avoid preference respected (Mortarion, 30 members)",
+      "description": "Verify that players who mark M1 Mortarion as avoid get assigned to L5 instead",
+      "category": "preference_handling",
+      "priority": "high",
+      "tags": ["preference", "avoid", "30-members", "mortarion"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Mortarion",
+          "bossType": "Mortarion",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Mortarion",
+          "bossType": "Mortarion",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "avoider-gets-fewer-tokens",
+          "description": "NewMember01 who marked M1 Mortarion as avoid should get fewer or zero tokens there",
+          "target": "player.NewMember01.allocations.M1 Mortarion",
+          "operator": "lte",
+          "expected": 1
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-130", "WI-180"]
+    },
+    {
+      "id": "preference-preferred-mortarion-30",
+      "name": "Player preferred preference respected (Mortarion, 30 members)",
+      "description": "Verify that players who mark Mortarion as 'preferred' get higher allocation",
+      "category": "preference_handling",
+      "priority": "high",
+      "tags": ["preference", "preferred", "30-members", "mortarion"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Mortarion",
+          "bossType": "Mortarion",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Mortarion",
+          "bossType": "Mortarion",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "preferrer-gets-preferred-boss",
+          "description": "TopDPS2 who prefers M1 Mortarion should have M1 allocation",
+          "target": "player.TopDPS2.allocations.M1 Mortarion",
+          "operator": "gte",
+          "expected": 1
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180"]
+    },
+    {
+      "id": "magnus-rotation-25",
+      "name": "Magnus rotation with 25-member guild",
+      "description": "Magnus boss rotation with minimum 25 members",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["25-members", "coverage", "magnus", "minimum-guild"],
+      "guildSize": 25,
+      "guildFixture": "guild-25-members",
+      "bosses": [
+        {
+          "id": "M1 Magnus",
+          "bossType": "Magnus",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Magnus",
+          "bossType": "Magnus",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-good",
+          "description": "Overall coverage should be at least 85% with smaller guild",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 85
+        },
+        {
+          "id": "m1-has-allocation",
+          "description": "M1 Magnus should have at least 10 tokens",
+          "target": "boss.M1 Magnus.allocatedTokens",
+          "operator": "gte",
+          "expected": 10
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180"]
+    },
+    {
+      "id": "ghazghkull-rotation-30",
+      "name": "Ghazghkull rotation with 30-member guild",
+      "description": "Standard Ghazghkull boss rotation",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["30-members", "coverage", "ghazghkull"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Ghazghkull",
+          "bossType": "Ghazghkull",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 24990000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Ghazghkull",
+          "bossType": "Ghazghkull",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 12495000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L4 Ghazghkull",
+          "bossType": "Ghazghkull",
+          "level": "L4",
+          "isPrime": false,
+          "hp": 10412500,
+          "requiredTokens": 10,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L3 Ghazghkull",
+          "bossType": "Ghazghkull",
+          "level": "L3",
+          "isPrime": false,
+          "hp": 8330000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-coverage",
+          "description": "M1 should have good coverage",
+          "target": "boss.M1 Ghazghkull.coveragePercent",
+          "operator": "gte",
+          "expected": 80
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"],
+      "rotationString": "M1 L5 L4 L3"
+    },
+    {
+      "id": "avatar-of-khaine-rotation-30",
+      "name": "Avatar of Khaine rotation with 30-member guild",
+      "description": "Standard Avatar of Khaine boss rotation",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["30-members", "coverage", "avatar-of-khaine"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Avatar of Khaine",
+          "bossType": "AvatarOfKhaine",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 25000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Avatar of Khaine",
+          "bossType": "AvatarOfKhaine",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 25000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L4 Avatar of Khaine",
+          "bossType": "AvatarOfKhaine",
+          "level": "L4",
+          "isPrime": false,
+          "hp": 10412500,
+          "requiredTokens": 10,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L3 Avatar of Khaine",
+          "bossType": "AvatarOfKhaine",
+          "level": "L3",
+          "isPrime": false,
+          "hp": 8330000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-coverage",
+          "description": "M1 should have good coverage",
+          "target": "boss.M1 Avatar of Khaine.coveragePercent",
+          "operator": "gte",
+          "expected": 80
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"],
+      "rotationString": "M1 L5 L4 L3"
+    },
+    {
+      "id": "belisarius-rotation-30",
+      "name": "Belisarius Cawl rotation with 30-member guild",
+      "description": "Standard Belisarius Cawl boss rotation",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["30-members", "coverage", "belisarius"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Belisarius",
+          "bossType": "BelisariusRW",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Belisarius",
+          "bossType": "BelisariusRW",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L4 undefined",
+          "bossType": "BelisariusRW",
+          "level": "L4",
+          "isPrime": false,
+          "hp": null,
+          "requiredTokens": 10,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L3 undefined",
+          "bossType": "BelisariusRW",
+          "level": "L3",
+          "isPrime": false,
+          "hp": null,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-coverage",
+          "description": "M1 should have good coverage",
+          "target": "boss.M1 Belisarius.coveragePercent",
+          "operator": "gte",
+          "expected": 80
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"],
+      "rotationString": "M1 L5 L4 L3"
+    },
+    {
+      "id": "screamer-killer-rotation-30",
+      "name": "Screamer Killer rotation with 30-member guild",
+      "description": "Standard Screamer Killer boss rotation",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["30-members", "coverage", "screamer-killer"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Screamer Killer",
+          "bossType": "ScreamerKiller",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Screamer Killer",
+          "bossType": "ScreamerKiller",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L4 Screamer Killer",
+          "bossType": "ScreamerKiller",
+          "level": "L4",
+          "isPrime": false,
+          "hp": 12500000,
+          "requiredTokens": 10,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L3 Screamer Killer",
+          "bossType": "ScreamerKiller",
+          "level": "L3",
+          "isPrime": false,
+          "hp": 10000000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-coverage",
+          "description": "M1 should have good coverage",
+          "target": "boss.M1 Screamer Killer.coveragePercent",
+          "operator": "gte",
+          "expected": 80
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"],
+      "rotationString": "M1 L5 L4 L3"
+    },
+    {
+      "id": "rogal-dorn-rotation-30",
+      "name": "Rogal Dorn rotation with 30-member guild",
+      "description": "Standard Rogal Dorn boss rotation",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["30-members", "coverage", "rogal-dorn"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Rogal Dorn",
+          "bossType": "RogalDorn",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Rogal Dorn",
+          "bossType": "RogalDorn",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 25000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L4 Rogal Dorn",
+          "bossType": "RogalDorn",
+          "level": "L4",
+          "isPrime": false,
+          "hp": 12500000,
+          "requiredTokens": 10,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L3 Rogal Dorn",
+          "bossType": "RogalDorn",
+          "level": "L3",
+          "isPrime": false,
+          "hp": 10000000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-coverage",
+          "description": "M1 should have good coverage",
+          "target": "boss.M1 Rogal Dorn.coveragePercent",
+          "operator": "gte",
+          "expected": 80
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"],
+      "rotationString": "M1 L5 L4 L3"
+    },
+    {
+      "id": "szarekh-rotation-30",
+      "name": "Szarekh (Silent King) rotation with 30-member guild",
+      "description": "Standard Szarekh boss rotation",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["30-members", "coverage", "szarekh", "silent-king"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Szarekh",
+          "bossType": "Szarekh",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Szarekh",
+          "bossType": "Szarekh",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L4 Szarekh",
+          "bossType": "Szarekh",
+          "level": "L4",
+          "isPrime": false,
+          "hp": 12500000,
+          "requiredTokens": 10,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L3 Szarekh",
+          "bossType": "Szarekh",
+          "level": "L3",
+          "isPrime": false,
+          "hp": 10000000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-coverage",
+          "description": "M1 should have good coverage",
+          "target": "boss.M1 Szarekh.coveragePercent",
+          "operator": "gte",
+          "expected": 80
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"],
+      "rotationString": "M1 L5 L4 L3"
+    },
+    {
+      "id": "riptide-rotation-30",
+      "name": "Riptide rotation with 30-member guild",
+      "description": "Standard Riptide boss rotation",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["30-members", "coverage", "riptide"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Riptide",
+          "bossType": "Riptide",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Riptide",
+          "bossType": "Riptide",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L4 Riptide",
+          "bossType": "Riptide",
+          "level": "L4",
+          "isPrime": false,
+          "hp": 12500000,
+          "requiredTokens": 10,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L3 Riptide",
+          "bossType": "Riptide",
+          "level": "L3",
+          "isPrime": false,
+          "hp": 10000000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-coverage",
+          "description": "M1 should have good coverage",
+          "target": "boss.M1 Riptide.coveragePercent",
+          "operator": "gte",
+          "expected": 80
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"],
+      "rotationString": "M1 L5 L4 L3"
+    },
+    {
+      "id": "hive-tyrant-leviathan-rotation-30",
+      "name": "Hive Tyrant (Leviathan) rotation with 30-member guild",
+      "description": "Standard Hive Tyrant Leviathan variant rotation",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["30-members", "coverage", "hive-tyrant", "leviathan"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Hive Tyrant (Leviathan)",
+          "bossType": "HiveTyrantLeviathan",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Hive Tyrant (Leviathan)",
+          "bossType": "HiveTyrantLeviathan",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L4 Hive Tyrant (Leviathan)",
+          "bossType": "HiveTyrantLeviathan",
+          "level": "L4",
+          "isPrime": false,
+          "hp": 12500000,
+          "requiredTokens": 10,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L3 Hive Tyrant (Leviathan)",
+          "bossType": "HiveTyrantLeviathan",
+          "level": "L3",
+          "isPrime": false,
+          "hp": 10000000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-coverage",
+          "description": "M1 should have good coverage",
+          "target": "boss.M1 Hive Tyrant (Leviathan).coveragePercent",
+          "operator": "gte",
+          "expected": 80
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"],
+      "rotationString": "M1 L5 L4 L3"
+    },
+    {
+      "id": "hive-tyrant-kronos-rotation-30",
+      "name": "Hive Tyrant (Kronos) rotation with 30-member guild",
+      "description": "Standard Hive Tyrant Kronos variant rotation",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["30-members", "coverage", "hive-tyrant", "kronos"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Hive Tyrant (Kronos)",
+          "bossType": "HiveTyrantKronos",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Hive Tyrant (Kronos)",
+          "bossType": "HiveTyrantKronos",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L4 Hive Tyrant (Kronos)",
+          "bossType": "HiveTyrantKronos",
+          "level": "L4",
+          "isPrime": false,
+          "hp": 12500000,
+          "requiredTokens": 10,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L3 Hive Tyrant (Kronos)",
+          "bossType": "HiveTyrantKronos",
+          "level": "L3",
+          "isPrime": false,
+          "hp": 10000000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-coverage",
+          "description": "M1 should have good coverage",
+          "target": "boss.M1 Hive Tyrant (Kronos).coveragePercent",
+          "operator": "gte",
+          "expected": 80
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"],
+      "rotationString": "M1 L5 L4 L3"
+    },
+    {
+      "id": "hive-tyrant-gorgon-rotation-30",
+      "name": "Hive Tyrant (Gorgon) rotation with 30-member guild",
+      "description": "Standard Hive Tyrant Gorgon variant rotation",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["30-members", "coverage", "hive-tyrant", "gorgon"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Hive Tyrant (Gorgon)",
+          "bossType": "HiveTyrantGorgon",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Hive Tyrant (Gorgon)",
+          "bossType": "HiveTyrantGorgon",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L4 Hive Tyrant (Gorgon)",
+          "bossType": "HiveTyrantGorgon",
+          "level": "L4",
+          "isPrime": false,
+          "hp": 12500000,
+          "requiredTokens": 10,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L3 Hive Tyrant (Gorgon)",
+          "bossType": "HiveTyrantGorgon",
+          "level": "L3",
+          "isPrime": false,
+          "hp": 10000000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-coverage",
+          "description": "M1 should have good coverage",
+          "target": "boss.M1 Hive Tyrant (Gorgon).coveragePercent",
+          "operator": "gte",
+          "expected": 80
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"],
+      "rotationString": "M1 L5 L4 L3"
+    },
+    {
+      "id": "tervigon-leviathan-rotation-30",
+      "name": "Tervigon (Leviathan) rotation with 30-member guild",
+      "description": "Standard Tervigon Leviathan variant rotation",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["30-members", "coverage", "tervigon", "leviathan"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Tervigon (Leviathan)",
+          "bossType": "TervigonLeviathan",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Tervigon (Leviathan)",
+          "bossType": "TervigonLeviathan",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L4 Tervigon (Leviathan)",
+          "bossType": "TervigonLeviathan",
+          "level": "L4",
+          "isPrime": false,
+          "hp": 12500000,
+          "requiredTokens": 10,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L3 Tervigon (Leviathan)",
+          "bossType": "TervigonLeviathan",
+          "level": "L3",
+          "isPrime": false,
+          "hp": 10000000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-coverage",
+          "description": "M1 should have good coverage",
+          "target": "boss.M1 Tervigon (Leviathan).coveragePercent",
+          "operator": "gte",
+          "expected": 80
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"],
+      "rotationString": "M1 L5 L4 L3"
+    },
+    {
+      "id": "tervigon-kronos-rotation-30",
+      "name": "Tervigon (Kronos) rotation with 30-member guild",
+      "description": "Standard Tervigon Kronos variant rotation",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["30-members", "coverage", "tervigon", "kronos"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Tervigon (Kronos)",
+          "bossType": "TervigonKronos",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Tervigon (Kronos)",
+          "bossType": "TervigonKronos",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L4 Tervigon (Kronos)",
+          "bossType": "TervigonKronos",
+          "level": "L4",
+          "isPrime": false,
+          "hp": 12500000,
+          "requiredTokens": 10,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L3 Tervigon (Kronos)",
+          "bossType": "TervigonKronos",
+          "level": "L3",
+          "isPrime": false,
+          "hp": 10000000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-coverage",
+          "description": "M1 should have good coverage",
+          "target": "boss.M1 Tervigon (Kronos).coveragePercent",
+          "operator": "gte",
+          "expected": 80
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"],
+      "rotationString": "M1 L5 L4 L3"
+    },
+    {
+      "id": "tervigon-gorgon-rotation-30",
+      "name": "Tervigon (Gorgon) rotation with 30-member guild",
+      "description": "Standard Tervigon Gorgon variant rotation",
+      "category": "coverage_calculation",
+      "priority": "high",
+      "tags": ["30-members", "coverage", "tervigon", "gorgon"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Tervigon (Gorgon)",
+          "bossType": "TervigonGorgon",
+          "level": "M1",
+          "isPrime": false,
+          "hp": 30000000,
+          "requiredTokens": 15,
+          "rarity": "Mythic"
+        },
+        {
+          "id": "L5 Tervigon (Gorgon)",
+          "bossType": "TervigonGorgon",
+          "level": "L5",
+          "isPrime": false,
+          "hp": 15000000,
+          "requiredTokens": 12,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L4 Tervigon (Gorgon)",
+          "bossType": "TervigonGorgon",
+          "level": "L4",
+          "isPrime": false,
+          "hp": 12500000,
+          "requiredTokens": 10,
+          "rarity": "Legendary"
+        },
+        {
+          "id": "L3 Tervigon (Gorgon)",
+          "bossType": "TervigonGorgon",
+          "level": "L3",
+          "isPrime": false,
+          "hp": 10000000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "overall-coverage-high",
+          "description": "Overall coverage should be at least 90%",
+          "target": "result.overallCoverage",
+          "operator": "gte",
+          "expected": 90
+        },
+        {
+          "id": "m1-coverage",
+          "description": "M1 should have good coverage",
+          "target": "boss.M1 Tervigon (Gorgon).coveragePercent",
+          "operator": "gte",
+          "expected": 80
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"],
+      "rotationString": "M1 L5 L4 L3"
+    },
+    {
+      "id": "ghazghkull-prime-gibbascrapz-30",
+      "name": "Gibbascrapz (Ghazghkull Prime 1) encounter",
+      "description": "Gibbascrapz prime encounter - left prime of Ghazghkull",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime", "ghazghkull", "gibbascrapz"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Gibbascrapz",
+          "bossType": "Ghazghkull",
+          "level": "M1",
+          "isPrime": true,
+          "primePosition": "left",
+          "primeName": "Gibbascrapz",
+          "hp": 25000000,
+          "requiredTokens": 10,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.M1 Gibbascrapz.allocatedTokens",
+          "operator": "gte",
+          "expected": 8
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "ghazghkull-prime-tanksmasha-30",
+      "name": "Tanksmasha (Ghazghkull Prime 2) encounter",
+      "description": "Tanksmasha prime encounter - right prime of Ghazghkull",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime", "ghazghkull", "tanksmasha"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Tanksmasha",
+          "bossType": "Ghazghkull",
+          "level": "M1",
+          "isPrime": true,
+          "primePosition": "right",
+          "primeName": "Tanksmasha",
+          "hp": 15000000,
+          "requiredTokens": 10,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.M1 Tanksmasha.allocatedTokens",
+          "operator": "gte",
+          "expected": 8
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "avatar-prime-aethana-30",
+      "name": "Aethana (Avatar of Khaine Prime 1) encounter",
+      "description": "Aethana prime encounter - left prime of Avatar of Khaine",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime", "avatar-of-khaine", "aethana"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Aethana",
+          "bossType": "AvatarOfKhaine",
+          "level": "M1",
+          "isPrime": true,
+          "primePosition": "left",
+          "primeName": "Aethana",
+          "hp": 15000000,
+          "requiredTokens": 10,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.M1 Aethana.allocatedTokens",
+          "operator": "gte",
+          "expected": 8
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "avatar-prime-eldyron-30",
+      "name": "Eldyron (Avatar of Khaine Prime 2) encounter",
+      "description": "Eldyron prime encounter - right prime of Avatar of Khaine",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime", "avatar-of-khaine", "eldyron"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Eldyron",
+          "bossType": "AvatarOfKhaine",
+          "level": "M1",
+          "isPrime": true,
+          "primePosition": "right",
+          "primeName": "Eldyron",
+          "hp": 25000000,
+          "requiredTokens": 10,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.M1 Eldyron.allocatedTokens",
+          "operator": "gte",
+          "expected": 8
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "magnus-prime-thaumacus-30",
+      "name": "Thaumacus (Magnus Prime 1) encounter",
+      "description": "Thaumacus prime encounter - left prime of Magnus",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime", "magnus", "thaumacus"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Thaumacus",
+          "bossType": "Magnus",
+          "level": "M1",
+          "isPrime": true,
+          "primePosition": "left",
+          "primeName": "Thaumacus",
+          "hp": 15000000,
+          "requiredTokens": 10,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.M1 Thaumacus.allocatedTokens",
+          "operator": "gte",
+          "expected": 8
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "magnus-prime-abraxas-30",
+      "name": "Abraxas (Magnus Prime 2) encounter",
+      "description": "Abraxas prime encounter - right prime of Magnus",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime", "magnus", "abraxas"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Abraxas",
+          "bossType": "Magnus",
+          "level": "M1",
+          "isPrime": true,
+          "primePosition": "right",
+          "primeName": "Abraxas",
+          "hp": 25000000,
+          "requiredTokens": 10,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.M1 Abraxas.allocatedTokens",
+          "operator": "gte",
+          "expected": 8
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "belisarius-prime-tangida-30",
+      "name": "Tan Gi'da (Belisarius Prime 1) encounter",
+      "description": "Tan Gi'da prime encounter - left prime of Belisarius Cawl",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime", "belisarius", "tan-gida"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Tan Gi'da",
+          "bossType": "BelisariusRW",
+          "level": "M1",
+          "isPrime": true,
+          "primePosition": "left",
+          "primeName": "Tan Gi'da",
+          "hp": 15000000,
+          "requiredTokens": 10,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.M1 Tan Gi'da.allocatedTokens",
+          "operator": "gte",
+          "expected": 8
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "belisarius-prime-actus-30",
+      "name": "Actus (Belisarius Prime 2) encounter",
+      "description": "Actus prime encounter - right prime of Belisarius Cawl",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime", "belisarius", "actus"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Actus",
+          "bossType": "BelisariusRW",
+          "level": "M1",
+          "isPrime": true,
+          "primePosition": "right",
+          "primeName": "Actus",
+          "hp": 15000000,
+          "requiredTokens": 10,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.M1 Actus.allocatedTokens",
+          "operator": "gte",
+          "expected": 8
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "screamer-killer-prime-neurothrope-30",
+      "name": "Neurothrope (Screamer Killer Prime 1) encounter",
+      "description": "Neurothrope prime encounter - left prime of Screamer Killer",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime", "screamer-killer", "neurothrope"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Neurothrope",
+          "bossType": "ScreamerKiller",
+          "level": "M1",
+          "isPrime": true,
+          "primePosition": "left",
+          "primeName": "Neurothrope",
+          "hp": 15000000,
+          "requiredTokens": 10,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.M1 Neurothrope.allocatedTokens",
+          "operator": "gte",
+          "expected": 8
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "screamer-killer-prime-winged-prime-30",
+      "name": "Winged Prime (Screamer Killer Prime 2) encounter",
+      "description": "Winged Prime prime encounter - right prime of Screamer Killer",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime", "screamer-killer", "winged-prime"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Winged Prime",
+          "bossType": "ScreamerKiller",
+          "level": "M1",
+          "isPrime": true,
+          "primePosition": "right",
+          "primeName": "Winged Prime",
+          "hp": 15000000,
+          "requiredTokens": 10,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.M1 Winged Prime.allocatedTokens",
+          "operator": "gte",
+          "expected": 8
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "rogal-dorn-prime-sibyll-30",
+      "name": "Sibyll (Rogal Dorn Prime 1) encounter",
+      "description": "Sibyll prime encounter - left prime of Rogal Dorn",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime", "rogal-dorn", "sibyll"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Sibyll",
+          "bossType": "RogalDorn",
+          "level": "M1",
+          "isPrime": true,
+          "primePosition": "left",
+          "primeName": "Sibyll",
+          "hp": 15000000,
+          "requiredTokens": 10,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.M1 Sibyll.allocatedTokens",
+          "operator": "gte",
+          "expected": 8
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "rogal-dorn-prime-thaddeus-30",
+      "name": "Thaddeus (Rogal Dorn Prime 2) encounter",
+      "description": "Thaddeus prime encounter - right prime of Rogal Dorn",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime", "rogal-dorn", "thaddeus"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Thaddeus",
+          "bossType": "RogalDorn",
+          "level": "M1",
+          "isPrime": true,
+          "primePosition": "right",
+          "primeName": "Thaddeus",
+          "hp": 25000000,
+          "requiredTokens": 10,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.M1 Thaddeus.allocatedTokens",
+          "operator": "gte",
+          "expected": 8
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "mortarion-prime-rotbone-30",
+      "name": "Rotbone (Mortarion Prime 1) encounter",
+      "description": "Rotbone prime encounter - left prime of Mortarion",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime", "mortarion", "rotbone"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Rotbone",
+          "bossType": "Mortarion",
+          "level": "M1",
+          "isPrime": true,
+          "primePosition": "left",
+          "primeName": "Rotbone",
+          "hp": 15000000,
+          "requiredTokens": 10,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.M1 Rotbone.allocatedTokens",
+          "operator": "gte",
+          "expected": 8
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "mortarion-prime-corrodius-30",
+      "name": "Corrodius (Mortarion Prime 2) encounter",
+      "description": "Corrodius prime encounter - right prime of Mortarion",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime", "mortarion", "corrodius"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Corrodius",
+          "bossType": "Mortarion",
+          "level": "M1",
+          "isPrime": true,
+          "primePosition": "right",
+          "primeName": "Corrodius",
+          "hp": 15000000,
+          "requiredTokens": 10,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.M1 Corrodius.allocatedTokens",
+          "operator": "gte",
+          "expected": 8
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "szarekh-prime-mesophet-30",
+      "name": "Mesophet (Szarekh Prime 1) encounter",
+      "description": "Mesophet prime encounter - left prime of Szarekh",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime", "szarekh", "mesophet"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Mesophet",
+          "bossType": "Szarekh",
+          "level": "M1",
+          "isPrime": true,
+          "primePosition": "left",
+          "primeName": "Mesophet",
+          "hp": 2400000,
+          "requiredTokens": 10,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.M1 Mesophet.allocatedTokens",
+          "operator": "gte",
+          "expected": 8
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "szarekh-prime-hapthatra-30",
+      "name": "Hapthatra (Szarekh Prime 2) encounter",
+      "description": "Hapthatra prime encounter - right prime of Szarekh",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime", "szarekh", "hapthatra"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Hapthatra",
+          "bossType": "Szarekh",
+          "level": "M1",
+          "isPrime": true,
+          "primePosition": "right",
+          "primeName": "Hapthatra",
+          "hp": 2400000,
+          "requiredTokens": 10,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.M1 Hapthatra.allocatedTokens",
+          "operator": "gte",
+          "expected": 8
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "riptide-prime-tau-marksman-30",
+      "name": "Tau Marksman (Riptide Prime 1) encounter",
+      "description": "Tau Marksman prime encounter - left prime of Riptide",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime", "riptide", "tau-marksman"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Tau Marksman",
+          "bossType": "Riptide",
+          "level": "M1",
+          "isPrime": true,
+          "primePosition": "left",
+          "primeName": "Tau Marksman",
+          "hp": 15000000,
+          "requiredTokens": 10,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.M1 Tau Marksman.allocatedTokens",
+          "operator": "gte",
+          "expected": 8
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "riptide-prime-tau-crisis-30",
+      "name": "Tau Crisis Suit (Riptide Prime 2) encounter",
+      "description": "Tau Crisis Suit prime encounter - right prime of Riptide",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime", "riptide", "tau-crisis"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "M1 Tau Crisis Suit",
+          "bossType": "Riptide",
+          "level": "M1",
+          "isPrime": true,
+          "primePosition": "right",
+          "primeName": "Tau Crisis Suit",
+          "hp": 15000000,
+          "requiredTokens": 10,
+          "rarity": "Mythic"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.M1 Tau Crisis Suit.allocatedTokens",
+          "operator": "gte",
+          "expected": 8
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "ghazghkull-prime-gibbascrapz-l5-30",
+      "name": "Gibbascrapz (Ghazghkull Prime 1) L5 encounter",
+      "description": "Gibbascrapz prime L5 encounter - left prime of Ghazghkull",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime-l5", "ghazghkull", "gibbascrapz", "l5"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "L5 Gibbascrapz",
+          "bossType": "Ghazghkull",
+          "level": "L5",
+          "isPrime": true,
+          "primePosition": "left",
+          "primeName": "Gibbascrapz",
+          "hp": 999999,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.L5 Gibbascrapz.allocatedTokens",
+          "operator": "gte",
+          "expected": 6
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "ghazghkull-prime-tanksmasha-l5-30",
+      "name": "Tanksmasha (Ghazghkull Prime 2) L5 encounter",
+      "description": "Tanksmasha prime L5 encounter - right prime of Ghazghkull",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime-l5", "ghazghkull", "tanksmasha", "l5"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "L5 Tanksmasha",
+          "bossType": "Ghazghkull",
+          "level": "L5",
+          "isPrime": true,
+          "primePosition": "right",
+          "primeName": "Tanksmasha",
+          "hp": 999999,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.L5 Tanksmasha.allocatedTokens",
+          "operator": "gte",
+          "expected": 6
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "avatar-prime-aethana-l5-30",
+      "name": "Aethana (Avatar of Khaine Prime 1) L5 encounter",
+      "description": "Aethana prime L5 encounter - left prime of Avatar of Khaine",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime-l5", "avatar-of-khaine", "aethana", "l5"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "L5 Aethana",
+          "bossType": "AvatarOfKhaine",
+          "level": "L5",
+          "isPrime": true,
+          "primePosition": "left",
+          "primeName": "Aethana",
+          "hp": 875001,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.L5 Aethana.allocatedTokens",
+          "operator": "gte",
+          "expected": 6
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "avatar-prime-eldyron-l5-30",
+      "name": "Eldyron (Avatar of Khaine Prime 2) L5 encounter",
+      "description": "Eldyron prime L5 encounter - right prime of Avatar of Khaine",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime-l5", "avatar-of-khaine", "eldyron", "l5"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "L5 Eldyron",
+          "bossType": "AvatarOfKhaine",
+          "level": "L5",
+          "isPrime": true,
+          "primePosition": "right",
+          "primeName": "Eldyron",
+          "hp": 875001,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.L5 Eldyron.allocatedTokens",
+          "operator": "gte",
+          "expected": 6
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "magnus-prime-thaumacus-l5-30",
+      "name": "Thaumacus (Magnus Prime 1) L5 encounter",
+      "description": "Thaumacus prime L5 encounter - left prime of Magnus",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime-l5", "magnus", "thaumacus", "l5"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "L5 Thaumacus",
+          "bossType": "Magnus",
+          "level": "L5",
+          "isPrime": true,
+          "primePosition": "left",
+          "primeName": "Thaumacus",
+          "hp": 900000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.L5 Thaumacus.allocatedTokens",
+          "operator": "gte",
+          "expected": 6
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "magnus-prime-abraxas-l5-30",
+      "name": "Abraxas (Magnus Prime 2) L5 encounter",
+      "description": "Abraxas prime L5 encounter - right prime of Magnus",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime-l5", "magnus", "abraxas", "l5"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "L5 Abraxas",
+          "bossType": "Magnus",
+          "level": "L5",
+          "isPrime": true,
+          "primePosition": "right",
+          "primeName": "Abraxas",
+          "hp": 1050000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.L5 Abraxas.allocatedTokens",
+          "operator": "gte",
+          "expected": 6
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "belisarius-prime-tangida-l5-30",
+      "name": "Tan Gi'da (Belisarius Prime 1) L5 encounter",
+      "description": "Tan Gi'da prime L5 encounter - left prime of Belisarius Cawl",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime-l5", "belisarius", "tan-gida", "l5"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "L5 Tan Gi'da",
+          "bossType": "BelisariusRW",
+          "level": "L5",
+          "isPrime": true,
+          "primePosition": "left",
+          "primeName": "Tan Gi'da",
+          "hp": 900000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.L5 Tan Gi'da.allocatedTokens",
+          "operator": "gte",
+          "expected": 6
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "belisarius-prime-actus-l5-30",
+      "name": "Actus (Belisarius Prime 2) L5 encounter",
+      "description": "Actus prime L5 encounter - right prime of Belisarius Cawl",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime-l5", "belisarius", "actus", "l5"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "L5 Actus",
+          "bossType": "BelisariusRW",
+          "level": "L5",
+          "isPrime": true,
+          "primePosition": "right",
+          "primeName": "Actus",
+          "hp": 1050000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.L5 Actus.allocatedTokens",
+          "operator": "gte",
+          "expected": 6
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "screamer-killer-prime-neurothrope-l5-30",
+      "name": "Neurothrope (Screamer Killer Prime 1) L5 encounter",
+      "description": "Neurothrope prime L5 encounter - left prime of Screamer Killer",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": [
+        "30-members",
+        "prime-l5",
+        "screamer-killer",
+        "neurothrope",
+        "l5"
+      ],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "L5 Neurothrope",
+          "bossType": "ScreamerKiller",
+          "level": "L5",
+          "isPrime": true,
+          "primePosition": "left",
+          "primeName": "Neurothrope",
+          "hp": 1200000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.L5 Neurothrope.allocatedTokens",
+          "operator": "gte",
+          "expected": 6
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "screamer-killer-prime-winged-prime-l5-30",
+      "name": "Winged Prime (Screamer Killer Prime 2) L5 encounter",
+      "description": "Winged Prime prime L5 encounter - right prime of Screamer Killer",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": [
+        "30-members",
+        "prime-l5",
+        "screamer-killer",
+        "winged-prime",
+        "l5"
+      ],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "L5 Winged Prime",
+          "bossType": "ScreamerKiller",
+          "level": "L5",
+          "isPrime": true,
+          "primePosition": "right",
+          "primeName": "Winged Prime",
+          "hp": 1200000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.L5 Winged Prime.allocatedTokens",
+          "operator": "gte",
+          "expected": 6
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "rogal-dorn-prime-sibyll-l5-30",
+      "name": "Sibyll (Rogal Dorn Prime 1) L5 encounter",
+      "description": "Sibyll prime L5 encounter - left prime of Rogal Dorn",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime-l5", "rogal-dorn", "sibyll", "l5"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "L5 Sibyll",
+          "bossType": "RogalDorn",
+          "level": "L5",
+          "isPrime": true,
+          "primePosition": "left",
+          "primeName": "Sibyll",
+          "hp": 1200000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.L5 Sibyll.allocatedTokens",
+          "operator": "gte",
+          "expected": 6
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "rogal-dorn-prime-thaddeus-l5-30",
+      "name": "Thaddeus (Rogal Dorn Prime 2) L5 encounter",
+      "description": "Thaddeus prime L5 encounter - right prime of Rogal Dorn",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime-l5", "rogal-dorn", "thaddeus", "l5"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "L5 Thaddeus",
+          "bossType": "RogalDorn",
+          "level": "L5",
+          "isPrime": true,
+          "primePosition": "right",
+          "primeName": "Thaddeus",
+          "hp": 1050000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.L5 Thaddeus.allocatedTokens",
+          "operator": "gte",
+          "expected": 6
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "mortarion-prime-rotbone-l5-30",
+      "name": "Rotbone (Mortarion Prime 1) L5 encounter",
+      "description": "Rotbone prime L5 encounter - left prime of Mortarion",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime-l5", "mortarion", "rotbone", "l5"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "L5 Rotbone",
+          "bossType": "Mortarion",
+          "level": "L5",
+          "isPrime": true,
+          "primePosition": "left",
+          "primeName": "Rotbone",
+          "hp": 1050000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.L5 Rotbone.allocatedTokens",
+          "operator": "gte",
+          "expected": 6
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "mortarion-prime-corrodius-l5-30",
+      "name": "Corrodius (Mortarion Prime 2) L5 encounter",
+      "description": "Corrodius prime L5 encounter - right prime of Mortarion",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime-l5", "mortarion", "corrodius", "l5"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "L5 Corrodius",
+          "bossType": "Mortarion",
+          "level": "L5",
+          "isPrime": true,
+          "primePosition": "right",
+          "primeName": "Corrodius",
+          "hp": 291201,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.L5 Corrodius.allocatedTokens",
+          "operator": "gte",
+          "expected": 6
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "szarekh-prime-mesophet-l5-30",
+      "name": "Mesophet (Szarekh Prime 1) L5 encounter",
+      "description": "Mesophet prime L5 encounter - left prime of Szarekh",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime-l5", "szarekh", "mesophet", "l5"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "L5 Mesophet",
+          "bossType": "Szarekh",
+          "level": "L5",
+          "isPrime": true,
+          "primePosition": "left",
+          "primeName": "Mesophet",
+          "hp": 1200000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.L5 Mesophet.allocatedTokens",
+          "operator": "gte",
+          "expected": 6
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "szarekh-prime-hapthatra-l5-30",
+      "name": "Hapthatra (Szarekh Prime 2) L5 encounter",
+      "description": "Hapthatra prime L5 encounter - right prime of Szarekh",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime-l5", "szarekh", "hapthatra", "l5"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "L5 Hapthatra",
+          "bossType": "Szarekh",
+          "level": "L5",
+          "isPrime": true,
+          "primePosition": "right",
+          "primeName": "Hapthatra",
+          "hp": 1200000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.L5 Hapthatra.allocatedTokens",
+          "operator": "gte",
+          "expected": 6
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "riptide-prime-tau-marksman-l5-30",
+      "name": "Tau Marksman (Riptide Prime 1) L5 encounter",
+      "description": "Tau Marksman prime L5 encounter - left prime of Riptide",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime-l5", "riptide", "tau-marksman", "l5"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "L5 Tau Marksman",
+          "bossType": "Riptide",
+          "level": "L5",
+          "isPrime": true,
+          "primePosition": "left",
+          "primeName": "Tau Marksman",
+          "hp": 900000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.L5 Tau Marksman.allocatedTokens",
+          "operator": "gte",
+          "expected": 6
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    },
+    {
+      "id": "riptide-prime-tau-crisis-l5-30",
+      "name": "Tau Crisis Suit (Riptide Prime 2) L5 encounter",
+      "description": "Tau Crisis Suit prime L5 encounter - right prime of Riptide",
+      "category": "prime_encounter",
+      "priority": "high",
+      "tags": ["30-members", "prime-l5", "riptide", "tau-crisis", "l5"],
+      "guildSize": 30,
+      "guildFixture": "guild-30-members",
+      "bosses": [
+        {
+          "id": "L5 Tau Crisis Suit",
+          "bossType": "Riptide",
+          "level": "L5",
+          "isPrime": true,
+          "primePosition": "right",
+          "primeName": "Tau Crisis Suit",
+          "hp": 900000,
+          "requiredTokens": 8,
+          "rarity": "Legendary"
+        }
+      ],
+      "constraints": {
+        "maxTokensPerPlayer": 3,
+        "maxTokensPerBoss": 3,
+        "minTokensPerBoss": 1,
+        "flexibleTokens": true
+      },
+      "assertions": [
+        {
+          "id": "prime-has-allocation",
+          "description": "Prime should receive token allocation",
+          "target": "boss.L5 Tau Crisis Suit.allocatedTokens",
+          "operator": "gte",
+          "expected": 6
+        }
+      ],
+      "createdAt": "2026-01-21T00:00:00Z",
+      "version": "1.0.0",
+      "relatedWorkItems": ["WI-180", "WI-181"]
+    }
+  ]
+}

@@ -1,0 +1,178 @@
+.boss-portrait-frame {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1.35rem;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(
+      115% 120% at 50% -10%,
+      rgba(94, 234, 212, 0.2),
+      transparent 65%
+    ),
+    linear-gradient(135deg, rgba(10, 15, 25, 0.92), rgba(15, 23, 42, 0.68));
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow:
+    0 22px 55px -30px rgba(8, 13, 28, 0.85),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition:
+    transform 280ms ease,
+    box-shadow 280ms ease;
+}
+
+.boss-portrait-frame::before {
+  content: '';
+  position: absolute;
+  inset: -35%;
+  background: radial-gradient(
+    60% 60% at 50% 35%,
+    rgba(94, 234, 212, 0.35),
+    transparent 70%
+  );
+  filter: blur(28px);
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 400ms ease;
+}
+
+.boss-portrait-frame:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 28px 60px -32px rgba(46, 95, 225, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.boss-portrait-frame:hover::before {
+  opacity: 0.8;
+}
+
+.boss-portrait-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 90% at 50% 45%,
+      transparent 58%,
+      rgba(10, 12, 20, 0.92) 100%
+    ),
+    linear-gradient(190deg, transparent 48%, rgba(12, 28, 56, 0.65) 100%);
+  opacity: 0.78;
+  mix-blend-mode: multiply;
+  transition: opacity 320ms ease;
+}
+
+.boss-portrait-frame:hover .boss-portrait-overlay {
+  opacity: 0.62;
+}
+
+.boss-portrait-image {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+  object-position: center 42%;
+  transition:
+    transform 420ms ease,
+    filter 420ms ease;
+  -webkit-mask-image: radial-gradient(
+    ellipse 110% 90% at 50% 44%,
+    rgba(0, 0, 0, 1) 60%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 110% 90% at 50% 44%,
+    rgba(0, 0, 0, 1) 60%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  filter: saturate(1.05) contrast(1.02)
+    drop-shadow(0 18px 32px rgba(14, 26, 54, 0.28));
+}
+
+.boss-portrait-image--loading {
+  filter: saturate(0.65) contrast(0.92);
+  transform: scale(0.97);
+}
+
+.boss-portrait-frame:hover .boss-portrait-image {
+  transform: translateY(-1px) scale(1.025);
+  filter: saturate(1.18) contrast(1.06)
+    drop-shadow(0 24px 38px rgba(46, 95, 225, 0.32));
+}
+
+.boss-portrait-skeleton,
+.boss-portrait-placeholder {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(
+      circle at 35% 18%,
+      rgba(96, 165, 250, 0.35),
+      transparent 65%
+    ),
+    linear-gradient(140deg, rgba(30, 41, 59, 0.92), rgba(12, 19, 36, 0.88));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.boss-portrait-skeleton {
+  animation: bossPortraitPulse 1.4s ease-in-out infinite;
+}
+
+.boss-portrait-placeholder__pulse {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.55);
+  animation: bossPortraitPulse 1.6s ease-in-out infinite;
+  box-shadow: 0 0 18px rgba(96, 165, 250, 0.4);
+}
+
+.boss-portrait-placeholder {
+  border: 1px dashed rgba(148, 163, 184, 0.28);
+}
+
+.boss-portrait-loading__initials {
+  color: rgba(226, 232, 240, 0.86);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow:
+    0 8px 18px rgba(15, 23, 42, 0.75),
+    0 0 14px rgba(96, 165, 250, 0.34);
+}
+
+.boss-portrait-fallback {
+  color: rgba(226, 232, 240, 0.9);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background:
+    radial-gradient(
+      115% 115% at 20% 20%,
+      rgba(148, 163, 184, 0.22),
+      transparent 60%
+    ),
+    linear-gradient(150deg, rgba(24, 33, 55, 0.95), rgba(12, 19, 36, 0.85));
+}
+
+.boss-portrait-fallback__initials {
+  text-shadow:
+    0 10px 24px rgba(15, 23, 42, 0.65),
+    0 3px 10px rgba(96, 165, 250, 0.35);
+}
+
+@keyframes bossPortraitPulse {
+  0%,
+  100% {
+    opacity: 0.52;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}

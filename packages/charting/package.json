@@ -1,0 +1,18 @@
+{
+  "name": "@tacticus/charting",
+  "version": "0.0.1",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./theme": "./src/theme/index.ts",
+    "./components": "./src/components/index.ts",
+    "./styles": "./src/styles/index.ts",
+    "./tooltip": "./src/tooltip/index.ts"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "recharts": "^3.0.0"
+  }
+}

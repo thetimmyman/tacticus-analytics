@@ -1,0 +1,26 @@
+{
+  "activeAbility": "DutyEternal",
+  "allianceId": "Imperial",
+  "baseRarity": "Common",
+  "damageProfiles": [],
+  "description": "",
+  "factionId": "Ultramarines",
+  "gameId": "ultraDreadnought",
+  "id": "galatian",
+  "itemSlots": [],
+  "longName": "Galatian",
+  "meleeWeapon": null,
+  "movement": 3,
+  "mowActiveAbility": [],
+  "mythicAbilities": [
+    "WisdomOfTheAncients"
+  ],
+  "name": "Galatian",
+  "passiveAbility": null,
+  "rangeWeapon": null,
+  "ranks": [],
+  "sorting": 6,
+  "traits": [
+    "MachineOfWar"
+  ]
+}

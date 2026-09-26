@@ -1,0 +1,254 @@
+name: Build Edge Runtime Image
+
+# Builds supabase/functions into an edge-runtime image and pushes it to GHCR; stamp-pin opens
+# the pin PR. No `pull_request` trigger: self-hosted runners never build fork code.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/**'
+      - 'docker/Dockerfile.edge-runtime'
+      - 'scripts/build-edge-runtime-image.sh'
+      - '.github/workflows/build-edge-runtime-image.yml'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Image tag; defaults to the eight-character commit SHA
+        required: false
+        type: string
+
+concurrency:
+  # Serialize per TAG, not per ref; see build-clean-image.yml.
+  group: build-edge-runtime-image-${{ inputs.tag || github.sha }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  IMAGE: ghcr.io/thetimmyman/tacticus-analytics-edge-runtime
+
+jobs:
+  prep:
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, amd64-builder]
+    timeout-minutes: 5
+    outputs:
+      tag: ${{ steps.tag.outputs.value }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Resolve image tag
+        id: tag
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          value="${INPUT_TAG:-$(git rev-parse --short=8 HEAD)}"
+          # 122 chars max: per-arch legs append `-amd64`/`-arm64`; Docker caps tags at 128.
+          if ! printf '%s' "$value" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9_.-]{0,121}$'; then
+            echo "::error::Invalid image tag"
+            exit 1
+          fi
+          printf 'value=%s\n' "$value" >> "$GITHUB_OUTPUT"
+
+  build-amd64:
+    permissions:
+      contents: read
+      packages: write
+    needs: prep
+    runs-on: [self-hosted, amd64-builder]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Isolate docker config for this job
+        run: echo "DOCKER_CONFIG=$RUNNER_TEMP/docker" >> "$GITHUB_ENV"
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+      - name: Log in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and publish linux/amd64 (native, no QEMU)
+        env:
+          IMAGE_TAG: ${{ needs.prep.outputs.tag }}
+        run: |
+          scripts/build-edge-runtime-image.sh \
+            --push \
+            --platform linux/amd64 \
+            --tag "${IMAGE_TAG}-amd64"
+      # The shell build has no digest output, so resolve the tag to a digest before scanning.
+      - name: Scan pushed linux/amd64 image for CRITICAL CVEs
+        env:
+          TRIVY_ENFORCE: ${{ vars.TRIVY_ENFORCE }}
+          IMAGE_TAG: ${{ needs.prep.outputs.tag }}
+        run: |
+          set -euo pipefail
+          tagged_ref="$IMAGE:${IMAGE_TAG}-amd64"
+          digest="$(scripts/ci/retry-imagetools-inspect.sh "$tagged_ref" | awk '$1 == "Digest:" && d == "" { d = $2 } END { print d }')"
+          if [[ ! "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "::error::Could not resolve pushed amd64 image digest" >&2
+            exit 1
+          fi
+          scripts/ci/trivy-scan-image.sh "$IMAGE@$digest"
+
+  build-arm64:
+    permissions:
+      contents: read
+      packages: write
+    needs: prep
+    runs-on: [self-hosted, arm64-builder]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Isolate docker config for this job
+        run: echo "DOCKER_CONFIG=$RUNNER_TEMP/docker" >> "$GITHUB_ENV"
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+      - name: Log in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and publish linux/arm64 (native, no QEMU)
+        env:
+          IMAGE_TAG: ${{ needs.prep.outputs.tag }}
+        run: |
+          scripts/build-edge-runtime-image.sh \
+            --push \
+            --platform linux/arm64 \
+            --tag "${IMAGE_TAG}-arm64"
+      - name: Scan pushed linux/arm64 image for CRITICAL CVEs
+        env:
+          TRIVY_ENFORCE: ${{ vars.TRIVY_ENFORCE }}
+          IMAGE_TAG: ${{ needs.prep.outputs.tag }}
+        run: |
+          set -euo pipefail
+          tagged_ref="$IMAGE:${IMAGE_TAG}-arm64"
+          digest="$(scripts/ci/retry-imagetools-inspect.sh "$tagged_ref" | awk '$1 == "Digest:" && d == "" { d = $2 } END { print d }')"
+          if [[ ! "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "::error::Could not resolve pushed arm64 image digest" >&2
+            exit 1
+          fi
+          scripts/ci/trivy-scan-image.sh "$IMAGE@$digest"
+
+  merge-manifest:
+    permissions:
+      contents: read
+      packages: write
+    needs: [prep, build-amd64, build-arm64]
+    runs-on: [self-hosted, amd64-builder]
+    timeout-minutes: 10
+    outputs:
+      digest: ${{ steps.publish.outputs.digest }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Isolate docker config for this job
+        run: echo "DOCKER_CONFIG=$RUNNER_TEMP/docker" >> "$GITHUB_ENV"
+      - name: Log in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Merge per-arch images into one multi-arch manifest
+        env:
+          TAG: ${{ needs.prep.outputs.tag }}
+        run: |
+          set -euo pipefail
+          docker buildx imagetools create \
+            -t "$IMAGE:$TAG" \
+            "$IMAGE:$TAG-amd64" \
+            "$IMAGE:$TAG-arm64"
+      # GHCR can lag the `create` above, so inspect retries on "not found".
+      - name: Verify manifest contains both arches
+        env:
+          TAG: ${{ needs.prep.outputs.tag }}
+        run: |
+          set -euo pipefail
+          scripts/ci/retry-imagetools-inspect.sh "$IMAGE:$TAG"
+          raw="$(scripts/ci/retry-imagetools-inspect.sh "$IMAGE:$TAG" --raw)"
+          echo "$raw" | grep -q '"architecture": "amd64"' || { echo "::error::amd64 missing from $IMAGE:$TAG manifest"; exit 1; }
+          echo "$raw" | grep -q '"architecture": "arm64"' || { echo "::error::arm64 missing from $IMAGE:$TAG manifest"; exit 1; }
+          echo "OK: $IMAGE:$TAG is a multi-arch manifest with amd64 + arm64."
+      - name: Publish image reference
+        id: publish
+        env:
+          TAG: ${{ needs.prep.outputs.tag }}
+        run: |
+          set -euo pipefail
+          digest="$(scripts/ci/retry-imagetools-inspect.sh "$IMAGE:$TAG" | awk '$1 == "Digest:" && d == "" { d = $2 } END { print d }')"
+          if [[ ! "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "::error::Could not resolve multi-arch digest for $IMAGE:$TAG"
+            exit 1
+          fi
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Edge runtime image"
+            echo "\`$IMAGE:$TAG@$digest\`"
+            echo "No manifest or rollout change is included in this build — image is built and pushed only."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Binds the pushed digest to its source tree in deploy/tacticus.pin.json. Push-to-main only:
+  # a dispatch build must never become the live pin. Opens a PR because main is protected.
+  stamp-pin:
+    if: github.event_name == 'push'
+    permissions:
+      contents: write
+      pull-requests: write
+    needs: [prep, merge-manifest]
+    runs-on: [self-hosted, amd64-builder]
+    timeout-minutes: 5
+    steps:
+      # GITHUB_TOKEN may not open PRs; STAMP_PIN_TOKEN (a repo-scoped PAT) is used when set.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+          token: ${{ secrets.STAMP_PIN_TOKEN || github.token }}
+      - name: Stamp deploy/tacticus.pin.json and open a PR
+        env:
+          TAG: ${{ needs.prep.outputs.tag }}
+          DIGEST: ${{ needs.merge-manifest.outputs.digest }}
+          GH_TOKEN: ${{ secrets.STAMP_PIN_TOKEN || github.token }}
+        run: |
+          set -euo pipefail
+          receipt="$(scripts/edge-runtime-receipt.sh HEAD)"
+          commit="$(echo "$receipt" | jq -r '.commit')"
+          functions_tree="$(echo "$receipt" | jq -r '.functions_tree')"
+          dockerfile_blob="$(echo "$receipt" | jq -r '.dockerfile_blob')"
+          jq -n \
+            --arg image "$IMAGE" \
+            --arg tag "$TAG" \
+            --arg digest "$DIGEST" \
+            --arg commit "$commit" \
+            --arg functions_tree "$functions_tree" \
+            --arg dockerfile_blob "$dockerfile_blob" \
+            '{namespace: "tacticus", image: $image, tag: $tag, digest: $digest, commit: $commit, functions_tree: $functions_tree, dockerfile_blob: $dockerfile_blob}' \
+            > deploy/tacticus.pin.json
+          if git diff --quiet -- deploy/tacticus.pin.json; then
+            echo "Pin already up to date at $commit; nothing to do."
+            exit 0
+          fi
+          branch="ci/stamp-tacticus-pin-${TAG}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add deploy/tacticus.pin.json
+          git commit -m "chore(PS-539): stamp tacticus pin at ${TAG}"
+          git push origin "$branch"
+          # The branch is pushed, so the helper treats gh's PR-creation refusal as success.
+          BRANCH="$branch" \
+          PR_TITLE="chore(PS-539): stamp tacticus pin at ${TAG}" \
+          PR_BODY="Automated pin stamp for namespace \`tacticus\` from this build. commit=${commit} functions_tree=${functions_tree} dockerfile_blob=${dockerfile_blob} digest=${DIGEST}." \
+            scripts/ci/stamp-pin-open-pr.sh

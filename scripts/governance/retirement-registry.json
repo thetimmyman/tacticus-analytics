@@ -1,0 +1,144 @@
+{
+  "description": "PS-517 retirement registry. Each entry is a capability this product retired, the ruling that retired it, and a concrete signature checkable against LIVE state (database or cluster) -- never a repo grep. A repo-only check reports clean even when a shared migration or a shared container image reinstates the capability outside this repo's control, which has already happened twice (see scripts/governance/check-retirement-registry.mjs header). Signatures are keyed to the product that retired them; a signature is only ever evaluated against that product.",
+  "entries": [
+    {
+      "capability": "guild-war-sync",
+      "product": "tacticus-analytics",
+      "ruling": "Guild-war sync retired; replaced by manual upload (job 149).",
+      "rulingDate": "job-149",
+      "rulingSource": "job 149 (ticket ruling). Quoted verbatim in supabase/migrations/20260920010000_ps516_drop_guild_war_sync_columns.sql and supabase/migrations/20260925030000_ps516_drop_guild_war_sync_machinery.sql, which retire the DB-side remnants; this registry entry was the first place it was written down.",
+      "signatures": [
+        {
+          "type": "db-column-value",
+          "target": "general",
+          "description": "any of the five retired guild_config war-sync state columns present on the shared General database. PS-516 dropped them; before that drop the row-value signature was `SELECT count(*) ... WHERE war_sync_enabled = true` (19 rows in the original ticket, 17 at the refreshed review). Once the column is gone that query ERRORS, which this gate reports as `could not reach live state` rather than as a clean retirement, so the signature is now the columns themselves -- a strictly stronger one: a shared migration that re-adds the column is caught even before it sets a row true.",
+          "table": "public.guild_config",
+          "column": "war_sync_enabled",
+          "detect": "SELECT count(*) FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'guild_config' AND column_name IN ('war_sync_enabled', 'consecutive_war_sync_failures', 'last_war_sync_error_at', 'last_war_sync_error_reason', 'last_war_sync_error_details')",
+          "expected": 0
+        },
+        {
+          "type": "db-table-exists",
+          "target": "general",
+          "description": "any dead guild-war-sync table reappearing on the shared General database; the manual guild-war upload tables are deliberately not listed",
+          "tables": [
+            "public.guild_war_sync_cooldown",
+            "public.guild_war_sync_leases",
+            "public.guild_war_sync_outcomes",
+            "public.guild_war_raw_events"
+          ],
+          "detect": "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = ANY($1)",
+          "expected": "no rows"
+        },
+        {
+          "type": "cluster-edge-function",
+          "target": "tacticus",
+          "description": "retired guild-war-sync edge function(s) redeployed into this product's supabase-edge-functions pod by a shared image",
+          "deployment": "supabase-edge-functions",
+          "functionNames": ["guild-war-sync", "guild-war-sync-all"],
+          "expected": "absent"
+        }
+      ]
+    },
+    {
+      "capability": "competitive-intel",
+      "product": "tacticus-analytics",
+      "ruling": "Competitive Intel application surface extracted from this repository under WI-5950; the 18-table/49-function schema it depended on was dropped from the shared General database as orphaned (zero reads/writes for the life of the current primary).",
+      "rulingDate": "2026-09-03",
+      "rulingSource": "supabase/migrations/20260903120000_retire_competitive_intel_schema.sql",
+      "signatures": [
+        {
+          "type": "db-table-exists",
+          "target": "general",
+          "description": "any table from the dropped Competitive Intel schema reappearing on the shared General database",
+          "tables": [
+            "public.competitive_rival_replay_blob",
+            "public.competitive_public_totals",
+            "public.rival_reconstructed_hits",
+            "public.competitive_guild_labels"
+          ],
+          "detect": "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = ANY($1)",
+          "expected": "no rows"
+        }
+      ]
+    },
+    {
+      "capability": "captured-replay-surface",
+      "product": "tacticus-analytics",
+      "ruling": "The captured/rival replay ingestion, linking and serving surface (guild-war replay linking, captured-replay catalog/serving/projection tables, guildchat replay capture) retired from the shared General database.",
+      "rulingDate": "2026-09-03",
+      "rulingSource": "supabase/migrations/20260903160000_retire_ta_captured_replay_surface.sql",
+      "note": "Do not confuse with the surviving, unrelated 'terminus-maximus' community replay feature (public.boss_playbook_replays), which is explicitly NOT retired -- see supabase/migrations/20260904000000_rescope_terminus_replays_to_cluster.sql and 20260904050000_restore_terminus_replays_public.sql.",
+      "signatures": [
+        {
+          "type": "db-table-exists",
+          "target": "general",
+          "description": "any table from the dropped captured-replay surface reappearing on the shared General database",
+          "tables": [
+            "public.guild_war_replay_link",
+            "public.captured_replay_projection",
+            "public.captured_replay_serving_current",
+            "public.guildchat_replay_captures"
+          ],
+          "detect": "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = ANY($1)",
+          "expected": "no rows"
+        }
+      ]
+    },
+    {
+      "capability": "historical-backfill-queue-processor",
+      "product": "tacticus-analytics",
+      "ruling": "The pre-modular historical backfill queue processor (edge function process-backfill-queue) retired under PS-414. It called two RPCs -- process_historical_backfill_queue and complete_historical_backfill_queue_item -- that no migration in this repository's history ever created, over a historical_backfill_queue table that likewise never existed here, and it fanned out to /functions/v1/historical-backfill, an edge function that is not in this repository and is not routable by the edge runtime's VALID_FUNCTIONS. No pg_cron schedule and no application code invoked it. The surviving path is historical-backfill-modular, which is both cron-scheduled and invoked from app/lib/jobs.",
+      "rulingDate": "2026-09-19",
+      "rulingSource": "PS-414",
+      "signatures": [
+        {
+          "type": "cluster-edge-function",
+          "target": "tacticus",
+          "description": "the retired process-backfill-queue edge function redeployed into this product's supabase-edge-functions pod by a shared image",
+          "deployment": "supabase-edge-functions",
+          "functionNames": ["process-backfill-queue"],
+          "expected": "absent"
+        }
+      ]
+    },
+    {
+      "capability": "orphaned-user-mapping-cleanup",
+      "product": "tacticus-analytics",
+      "ruling": "The orphaned-user-mapping cleanup caller (edge function cleanup-orphaned-mappings) retired under PS-414. It called cleanup_orphaned_user_mappings, an RPC that no migration in this repository's history ever created. No pg_cron job and no application code invoked the edge function, so it had never done anything.",
+      "rulingDate": "2026-09-24",
+      "rulingSource": "PS-414",
+      "signatures": [
+        {
+          "type": "cluster-edge-function",
+          "target": "tacticus",
+          "description": "the retired cleanup-orphaned-mappings edge function redeployed into this product's supabase-edge-functions pod by a shared image",
+          "deployment": "supabase-edge-functions",
+          "functionNames": ["cleanup-orphaned-mappings"],
+          "expected": "absent"
+        }
+      ]
+    },
+    {
+      "capability": "season-retention-purge",
+      "product": "tacticus-analytics",
+      "ruling": "TA keeps every season unless the database runs short of space (operator ruling 2026-09-25). The season purge paths are retired: the purge-old-seasons edge function and its sync-modular-workflow caller, the worker's full-sync delete loop, and public.purge_old_seasons() with its pg_cron job (live jobid 154).",
+      "rulingDate": "2026-09-25",
+      "rulingSource": "operator ruling 2026-09-25 (PR #316)",
+      "signatures": [
+        {
+          "type": "cluster-edge-function",
+          "target": "tacticus",
+          "description": "the retired purge-old-seasons edge function redeployed into this product's supabase-edge-functions pod by a shared image",
+          "deployment": "supabase-edge-functions",
+          "functionNames": ["purge-old-seasons"],
+          "expected": "absent"
+        }
+      ]
+    }
+  ],
+  "openQuestions": [
+    "Competitive Intel and captured-replay-surface signatures above are table names read directly out of the DROP TABLE lists in the 2026-09-03 retirement migrations. That is strong live-checkable evidence, but neither migration cites an edge-function name or cluster deployment the way guild-war-sync does -- if either capability also had a dedicated edge function, this registry does not yet cover it. Flagging as open rather than guessing a function name.",
+    "The original 'job 149' ruling for guild-war sync is ticket-only; PS-516's migration now quotes its text (\"TA has no guild war syncing. Only manual uploads.\") in-repo. If job 149 has a canonical write-up elsewhere, its source should replace 'job 149 (ticket ruling)' here."
+  ]
+}

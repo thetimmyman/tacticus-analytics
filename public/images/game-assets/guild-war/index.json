@@ -1,0 +1,696 @@
+{
+  "boardThumbnails": {
+    "C1_23": "boards/C1_23.webp",
+    "C1_37": "boards/C1_37.webp",
+    "C1_70": "boards/C1_70.webp",
+    "CE2_06": "boards/CE2_06.webp",
+    "EC1_09": "boards/EC1_09.webp",
+    "EMC1_06": "boards/EMC1_06.webp",
+    "LHE_Desert_02": "boards/LHE_Desert_02.webp",
+    "LHE_Desert_03": "boards/LHE_Desert_03.webp",
+    "LHE_Desert_04": "boards/LHE_Desert_04.webp",
+    "LHE_Desert_05": "boards/LHE_Desert_05.webp",
+    "LHE_Desert_06": "boards/LHE_Desert_06.webp",
+    "MC1_11": "boards/MC1_11.webp",
+    "MC1_31": "boards/MC1_31.webp",
+    "PVP_desert_10": "boards/PVP_desert_10.webp"
+  },
+  "boardsMissingArt": ["C1_15"],
+  "note": "Season-keyed Guild War map. Derived from guildWar.guildWarSeasonConfigs in the production GlobalConfig -- the 5x3 zone grid and the board pool BOTH rotate by season, so neither is hardcoded. Re-run after any GlobalConfig refresh.",
+  "provenanceClass": "production-build-presentation-art",
+  "schemaVersion": 1,
+  "seasons": {
+    "guildWarSeasonA": {
+      "mapPool": [
+        {
+          "boardId": "EC1_09",
+          "spawnPointsSet": 2
+        },
+        {
+          "boardId": "C1_37",
+          "spawnPointsSet": 5
+        },
+        {
+          "boardId": "EMC1_06",
+          "spawnPointsSet": 2
+        },
+        {
+          "boardId": "MC1_11",
+          "spawnPointsSet": 3
+        },
+        {
+          "boardId": "LHE_Desert_02",
+          "spawnPointsSet": 1
+        },
+        {
+          "boardId": "C1_70",
+          "spawnPointsSet": 4
+        },
+        {
+          "boardId": "C1_23",
+          "spawnPointsSet": 5
+        },
+        {
+          "boardId": "CE2_06",
+          "spawnPointsSet": 2
+        },
+        {
+          "boardId": "PVP_desert_10",
+          "spawnPointsSet": 1
+        },
+        {
+          "boardId": "LHE_Desert_04",
+          "spawnPointsSet": 4
+        },
+        {
+          "boardId": "C1_15",
+          "spawnPointsSet": 5
+        },
+        {
+          "boardId": "LHE_Desert_03",
+          "spawnPointsSet": 1
+        },
+        {
+          "boardId": "MC1_31",
+          "spawnPointsSet": 3
+        },
+        {
+          "boardId": "LHE_Desert_05",
+          "spawnPointsSet": 1
+        },
+        {
+          "boardId": "LHE_Desert_06",
+          "spawnPointsSet": 0
+        }
+      ],
+      "nextSeasonConfigId": "guildWarSeasonB",
+      "zoneGrid": [
+        ["Trenches1", "Trenches2", "Trenches3"],
+        ["Bunker1", "LandingPad1", "Bunker2"],
+        ["ArtilleryPosition1", "AntiAirBattery", "ArtilleryPosition2"],
+        ["SupplyDepot", "LandingPad2", "Armoury"],
+        ["MedicaeStation1", "HQ", "MedicaeStation2"]
+      ],
+      "zoneTypes": {
+        "AntiAirBattery": {
+          "buffId": "EnvFlakFire_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "antiAirBattery"
+        },
+        "Armoury": {
+          "buffId": "EnvArmourSupplies_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "armory"
+        },
+        "ArtilleryPosition1": {
+          "buffId": "EnvArtillerySupport_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "artilleryPosition"
+        },
+        "ArtilleryPosition2": {
+          "buffId": "EnvArtillerySupport_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "artilleryPosition"
+        },
+        "Bunker1": {
+          "buffId": "EnvFortified_Local",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "bunker"
+        },
+        "Bunker2": {
+          "buffId": "EnvFortified_Local",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "bunker"
+        },
+        "HQ": {
+          "buffId": null,
+          "canBeMoved": true,
+          "score": 40000,
+          "visualId": "hq"
+        },
+        "LandingPad1": {
+          "buffId": "EnvAngelsOfDeath_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "landingPad"
+        },
+        "LandingPad2": {
+          "buffId": "EnvAngelsOfDeath_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "landingPad"
+        },
+        "MedicaeStation1": {
+          "buffId": "EnvDefenderHealthBuff2_Global",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "fieldHospital"
+        },
+        "MedicaeStation2": {
+          "buffId": "EnvDefenderHealthBuff2_Global",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "fieldHospital"
+        },
+        "SupplyDepot": {
+          "buffId": null,
+          "canBeMoved": true,
+          "score": 30000,
+          "visualId": "supplyDump"
+        },
+        "Trenches1": {
+          "buffId": null,
+          "canBeMoved": false,
+          "score": 10000,
+          "visualId": "trenches"
+        },
+        "Trenches2": {
+          "buffId": null,
+          "canBeMoved": false,
+          "score": 10000,
+          "visualId": "trenches"
+        },
+        "Trenches3": {
+          "buffId": null,
+          "canBeMoved": false,
+          "score": 10000,
+          "visualId": "trenches"
+        }
+      }
+    },
+    "guildWarSeasonB": {
+      "mapPool": [
+        {
+          "boardId": "EC1_09",
+          "spawnPointsSet": 2
+        },
+        {
+          "boardId": "C1_37",
+          "spawnPointsSet": 5
+        },
+        {
+          "boardId": "EMC1_06",
+          "spawnPointsSet": 2
+        },
+        {
+          "boardId": "MC1_11",
+          "spawnPointsSet": 3
+        },
+        {
+          "boardId": "LHE_Desert_02",
+          "spawnPointsSet": 1
+        },
+        {
+          "boardId": "C1_70",
+          "spawnPointsSet": 4
+        },
+        {
+          "boardId": "C1_23",
+          "spawnPointsSet": 5
+        },
+        {
+          "boardId": "CE2_06",
+          "spawnPointsSet": 2
+        },
+        {
+          "boardId": "PVP_desert_10",
+          "spawnPointsSet": 1
+        },
+        {
+          "boardId": "LHE_Desert_04",
+          "spawnPointsSet": 4
+        },
+        {
+          "boardId": "C1_15",
+          "spawnPointsSet": 5
+        },
+        {
+          "boardId": "LHE_Desert_03",
+          "spawnPointsSet": 1
+        },
+        {
+          "boardId": "MC1_31",
+          "spawnPointsSet": 3
+        },
+        {
+          "boardId": "LHE_Desert_05",
+          "spawnPointsSet": 1
+        },
+        {
+          "boardId": "LHE_Desert_06",
+          "spawnPointsSet": 0
+        }
+      ],
+      "nextSeasonConfigId": "guildWarSeasonC",
+      "zoneGrid": [
+        ["Trenches1", "Trenches2", "Trenches3"],
+        ["Bunker1", "LandingPad1", "Bunker2"],
+        ["ArtilleryPosition1", "AntiAirBattery", "ArtilleryPosition2"],
+        ["SupplyDepot", "LandingPad2", "Armoury"],
+        ["MedicaeStation1", "HQ", "MedicaeStation2"]
+      ],
+      "zoneTypes": {
+        "AntiAirBattery": {
+          "buffId": "EnvFlakFire_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "antiAirBattery"
+        },
+        "Armoury": {
+          "buffId": "EnvArmourSupplies_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "armory"
+        },
+        "ArtilleryPosition1": {
+          "buffId": "EnvArtillerySupport_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "artilleryPosition"
+        },
+        "ArtilleryPosition2": {
+          "buffId": "EnvArtillerySupport_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "artilleryPosition"
+        },
+        "Bunker1": {
+          "buffId": "EnvFortified_Local",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "bunker"
+        },
+        "Bunker2": {
+          "buffId": "EnvFortified_Local",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "bunker"
+        },
+        "HQ": {
+          "buffId": null,
+          "canBeMoved": true,
+          "score": 40000,
+          "visualId": "hq"
+        },
+        "LandingPad1": {
+          "buffId": "EnvAngelsOfDeath_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "landingPad"
+        },
+        "LandingPad2": {
+          "buffId": "EnvAngelsOfDeath_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "landingPad"
+        },
+        "MedicaeStation1": {
+          "buffId": "EnvDefenderHealthBuff2_Global",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "fieldHospital"
+        },
+        "MedicaeStation2": {
+          "buffId": "EnvDefenderHealthBuff2_Global",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "fieldHospital"
+        },
+        "SupplyDepot": {
+          "buffId": null,
+          "canBeMoved": true,
+          "score": 30000,
+          "visualId": "supplyDump"
+        },
+        "Trenches1": {
+          "buffId": null,
+          "canBeMoved": false,
+          "score": 10000,
+          "visualId": "trenches"
+        },
+        "Trenches2": {
+          "buffId": null,
+          "canBeMoved": false,
+          "score": 10000,
+          "visualId": "trenches"
+        },
+        "Trenches3": {
+          "buffId": null,
+          "canBeMoved": false,
+          "score": 10000,
+          "visualId": "trenches"
+        }
+      }
+    },
+    "guildWarSeasonC": {
+      "mapPool": [
+        {
+          "boardId": "EC1_09",
+          "spawnPointsSet": 2
+        },
+        {
+          "boardId": "C1_37",
+          "spawnPointsSet": 5
+        },
+        {
+          "boardId": "EMC1_06",
+          "spawnPointsSet": 2
+        },
+        {
+          "boardId": "MC1_11",
+          "spawnPointsSet": 3
+        },
+        {
+          "boardId": "LHE_Desert_02",
+          "spawnPointsSet": 1
+        },
+        {
+          "boardId": "C1_70",
+          "spawnPointsSet": 4
+        },
+        {
+          "boardId": "C1_23",
+          "spawnPointsSet": 5
+        },
+        {
+          "boardId": "CE2_06",
+          "spawnPointsSet": 2
+        },
+        {
+          "boardId": "PVP_desert_10",
+          "spawnPointsSet": 1
+        },
+        {
+          "boardId": "LHE_Desert_04",
+          "spawnPointsSet": 4
+        },
+        {
+          "boardId": "C1_15",
+          "spawnPointsSet": 5
+        },
+        {
+          "boardId": "LHE_Desert_03",
+          "spawnPointsSet": 1
+        },
+        {
+          "boardId": "MC1_31",
+          "spawnPointsSet": 3
+        },
+        {
+          "boardId": "LHE_Desert_05",
+          "spawnPointsSet": 1
+        },
+        {
+          "boardId": "LHE_Desert_06",
+          "spawnPointsSet": 0
+        }
+      ],
+      "nextSeasonConfigId": "guildWarSeasonD",
+      "zoneGrid": [
+        ["Trenches1", "Trenches2", "Trenches3"],
+        ["Bunker1", "AntiAirBattery1", "Bunker2"],
+        ["ArtilleryPosition1", "Armoury", "ArtilleryPosition2"],
+        ["MedicaeStation1", "AntiAirBattery2", "MedicaeStation2"],
+        ["SupplyDepot", "HQ", "ComsStation"]
+      ],
+      "zoneTypes": {
+        "AntiAirBattery1": {
+          "buffId": "EnvFlakFire_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "antiAirBattery"
+        },
+        "AntiAirBattery2": {
+          "buffId": "EnvFlakFire_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "antiAirBattery"
+        },
+        "Armoury": {
+          "buffId": "EnvArmourSupplies_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "armory"
+        },
+        "ArtilleryPosition1": {
+          "buffId": "EnvArtillerySupport_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "artilleryPosition"
+        },
+        "ArtilleryPosition2": {
+          "buffId": "EnvArtillerySupport_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "artilleryPosition"
+        },
+        "Bunker1": {
+          "buffId": "EnvFortified_Local",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "bunker"
+        },
+        "Bunker2": {
+          "buffId": "EnvFortified_Local",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "bunker"
+        },
+        "ComsStation": {
+          "buffId": "EnvValkyrieStrike_Global",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "radarStation"
+        },
+        "HQ": {
+          "buffId": null,
+          "canBeMoved": true,
+          "score": 40000,
+          "visualId": "hq"
+        },
+        "MedicaeStation1": {
+          "buffId": "EnvDefenderHealthBuff2_Global",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "fieldHospital"
+        },
+        "MedicaeStation2": {
+          "buffId": "EnvDefenderHealthBuff2_Global",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "fieldHospital"
+        },
+        "SupplyDepot": {
+          "buffId": null,
+          "canBeMoved": true,
+          "score": 30000,
+          "visualId": "supplyDump"
+        },
+        "Trenches1": {
+          "buffId": null,
+          "canBeMoved": false,
+          "score": 10000,
+          "visualId": "trenches"
+        },
+        "Trenches2": {
+          "buffId": null,
+          "canBeMoved": false,
+          "score": 10000,
+          "visualId": "trenches"
+        },
+        "Trenches3": {
+          "buffId": null,
+          "canBeMoved": false,
+          "score": 10000,
+          "visualId": "trenches"
+        }
+      }
+    },
+    "guildWarSeasonD": {
+      "mapPool": [
+        {
+          "boardId": "EC1_09",
+          "spawnPointsSet": 2
+        },
+        {
+          "boardId": "C1_37",
+          "spawnPointsSet": 5
+        },
+        {
+          "boardId": "EMC1_06",
+          "spawnPointsSet": 2
+        },
+        {
+          "boardId": "MC1_11",
+          "spawnPointsSet": 3
+        },
+        {
+          "boardId": "LHE_Desert_02",
+          "spawnPointsSet": 1
+        },
+        {
+          "boardId": "C1_70",
+          "spawnPointsSet": 4
+        },
+        {
+          "boardId": "C1_23",
+          "spawnPointsSet": 5
+        },
+        {
+          "boardId": "CE2_06",
+          "spawnPointsSet": 2
+        },
+        {
+          "boardId": "PVP_desert_10",
+          "spawnPointsSet": 1
+        },
+        {
+          "boardId": "LHE_Desert_04",
+          "spawnPointsSet": 4
+        },
+        {
+          "boardId": "C1_15",
+          "spawnPointsSet": 5
+        },
+        {
+          "boardId": "LHE_Desert_03",
+          "spawnPointsSet": 1
+        },
+        {
+          "boardId": "MC1_31",
+          "spawnPointsSet": 3
+        },
+        {
+          "boardId": "LHE_Desert_05",
+          "spawnPointsSet": 1
+        },
+        {
+          "boardId": "LHE_Desert_06",
+          "spawnPointsSet": 0
+        }
+      ],
+      "nextSeasonConfigId": "guildWarSeasonA",
+      "zoneGrid": [
+        ["Trenches1", "Trenches2", "Trenches3"],
+        ["Bunker1", "AntiAirBattery1", "Bunker2"],
+        ["ArtilleryPosition1", "Armoury", "ArtilleryPosition2"],
+        ["MedicaeStation1", "AntiAirBattery2", "MedicaeStation2"],
+        ["SupplyDepot", "HQ", "ComsStation"]
+      ],
+      "zoneTypes": {
+        "AntiAirBattery1": {
+          "buffId": "EnvFlakFire_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "antiAirBattery"
+        },
+        "AntiAirBattery2": {
+          "buffId": "EnvFlakFire_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "antiAirBattery"
+        },
+        "Armoury": {
+          "buffId": "EnvArmourSupplies_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "armory"
+        },
+        "ArtilleryPosition1": {
+          "buffId": "EnvArtillerySupport_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "artilleryPosition"
+        },
+        "ArtilleryPosition2": {
+          "buffId": "EnvArtillerySupport_Regional",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "artilleryPosition"
+        },
+        "Bunker1": {
+          "buffId": "EnvFortified_Local",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "bunker"
+        },
+        "Bunker2": {
+          "buffId": "EnvFortified_Local",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "bunker"
+        },
+        "ComsStation": {
+          "buffId": "EnvValkyrieStrike_Global",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "radarStation"
+        },
+        "HQ": {
+          "buffId": null,
+          "canBeMoved": true,
+          "score": 40000,
+          "visualId": "hq"
+        },
+        "MedicaeStation1": {
+          "buffId": "EnvDefenderHealthBuff2_Global",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "fieldHospital"
+        },
+        "MedicaeStation2": {
+          "buffId": "EnvDefenderHealthBuff2_Global",
+          "canBeMoved": true,
+          "score": 16000,
+          "visualId": "fieldHospital"
+        },
+        "SupplyDepot": {
+          "buffId": null,
+          "canBeMoved": true,
+          "score": 30000,
+          "visualId": "supplyDump"
+        },
+        "Trenches1": {
+          "buffId": null,
+          "canBeMoved": false,
+          "score": 10000,
+          "visualId": "trenches"
+        },
+        "Trenches2": {
+          "buffId": null,
+          "canBeMoved": false,
+          "score": 10000,
+          "visualId": "trenches"
+        },
+        "Trenches3": {
+          "buffId": null,
+          "canBeMoved": false,
+          "score": 10000,
+          "visualId": "trenches"
+        }
+      }
+    }
+  },
+  "sourceBuildId": "v1.41.101.2498_prod_android",
+  "zoneIcons": {
+    "antiairbattery": "zones/antiairbattery.png",
+    "armoury": "zones/armoury.png",
+    "artilleryposition": "zones/artilleryposition.png",
+    "barracks": "zones/barracks.png",
+    "bunker": "zones/bunker.png",
+    "destroyed": "zones/destroyed.png",
+    "fieldhospital": "zones/fieldhospital.png",
+    "hq": "zones/hq.png",
+    "landingpad": "zones/landingpad.png",
+    "radarstation": "zones/radarstation.png",
+    "supplydump": "zones/supplydump.png",
+    "trenches": "zones/trenches.png",
+    "warprift": "zones/warprift.png"
+  }
+}

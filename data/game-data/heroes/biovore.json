@@ -1,0 +1,26 @@
+{
+  "activeAbility": "BioMinefield",
+  "allianceId": "Xenos",
+  "baseRarity": "Common",
+  "damageProfiles": [],
+  "description": "",
+  "factionId": "Tyranids",
+  "gameId": "tyranBiovore",
+  "id": "biovore",
+  "itemSlots": [],
+  "longName": "Biovore",
+  "meleeWeapon": null,
+  "movement": 3,
+  "mowActiveAbility": [],
+  "mythicAbilities": [
+    "HyperCorrosiveAcid"
+  ],
+  "name": "Biovore",
+  "passiveAbility": null,
+  "rangeWeapon": null,
+  "ranks": [],
+  "sorting": 88,
+  "traits": [
+    "MachineOfWar"
+  ]
+}

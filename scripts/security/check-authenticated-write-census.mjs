@@ -1,0 +1,641 @@
+#!/usr/bin/env node
+/**
+ * Gate for ps218-authenticated-write-census.json (authenticated write grants and
+ * their revoke/keep decisions) against callers, migration and pgTAP. Usage: --selftest | --scan | --writers
+ */
+
+import { execFileSync } from 'node:child_process'
+import fs from 'node:fs'
+import path from 'node:path'
+import process from 'node:process'
+import { fileURLToPath } from 'node:url'
+
+const HERE = path.dirname(fileURLToPath(import.meta.url))
+const REPO_ROOT = path.resolve(HERE, '..', '..')
+const CENSUS_PATH = path.join(HERE, 'ps218-authenticated-write-census.json')
+const MIGRATION_PATH = path.join(
+  REPO_ROOT,
+  'supabase/migrations/20260925080000_ps218_revoke_authenticated_write_grants.sql'
+)
+const PGTAP_PATH = path.join(
+  REPO_ROOT,
+  'supabase/tests/pgtap/ps218_authenticated_write_grants.sql'
+)
+
+// `db()` is the cookie-bound (authenticated) client and `serviceDb()` the
+// service-role client; a write is classified by which one its receiver came from.
+const SERVICE_RHS =
+  /serviceDb\s*\(|createServiceClient\s*\(|SUPABASE_SERVICE_ROLE_KEY|getServiceClient\s*\(|createSupabaseClient\s*\(/
+const REQUEST_RHS =
+  /\bawait\s+db\s*\(\s*\)|\bdbClient\s*\(\s*\)|createBrowserClient\s*\(|createAuthenticatedDataClient\s*\(|storageClient\s*\(|await\s+createClient\s*\(\s*\)/
+const WRITE_VERB = /\.(insert|upsert|update|delete)\s*[(<]/
+
+/** Claims behind the name-only attribution rules; --scan re-verifies each. */
+export const PROVENANCE_RULES = [
+  {
+    kind: 'SERVICE(edge)',
+    claim:
+      'supabase/functions/** only ever builds a client from _shared/supabase-client.ts, which uses SUPABASE_SERVICE_ROLE_KEY; no ANON_KEY appears anywhere under supabase/functions/.',
+    verify: () =>
+      grepAbsent(/ANON_KEY/, (f) => f.startsWith('supabase/functions/'))
+  },
+  {
+    kind: 'SERVICE(param-type)',
+    claim:
+      "a receiver declared `x: ServiceSupabaseClient` is service-role ONLY when no file casts a value to that type and reaches the receiver's module: the alias is plain TypedSupabaseClient, so the annotation proves nothing on its own. The sync worker chain that uses it enters at app/api/sync/worker/route.ts, which builds its client with serviceDb(). A module reachable from a file containing `as ... ServiceSupabaseClient` through modules that declare a ServiceSupabaseClient parameter is cast-tainted, and its param-type writes stay UNKNOWN.",
+    verify: () =>
+      /serviceDb\s*\(/.test(readIfPresent('app/api/sync/worker/route.ts'))
+  },
+  {
+    kind: 'SERVICE(test-admin)',
+    claim:
+      'a receiver declared `x: MinimalClient` under tests/integration/helpers/ is service-role: both callers (tests/integration/rls/rls.test.ts, tests/integration/gdpr/gdpr.test.ts) construct it from SUPABASE_SERVICE_ROLE_KEY.',
+    verify: () =>
+      /SUPABASE_SERVICE_ROLE_KEY/.test(
+        readIfPresent('tests/integration/rls/rls.test.ts')
+      ) &&
+      /SUPABASE_SERVICE_ROLE_KEY/.test(
+        readIfPresent('tests/integration/gdpr/gdpr.test.ts')
+      )
+  }
+]
+
+function readIfPresent(rel) {
+  const abs = path.join(REPO_ROOT, rel)
+  return fs.existsSync(abs) ? fs.readFileSync(abs, 'utf8') : ''
+}
+
+function grepAbsent(pattern, filter) {
+  for (const rel of trackedFiles()) {
+    if (!filter(rel)) continue
+    if (pattern.test(readIfPresent(rel))) return false
+  }
+  return true
+}
+
+let TRACKED = null
+function trackedFiles() {
+  if (TRACKED) return TRACKED
+  TRACKED = execFileSync(
+    'git',
+    ['-C', REPO_ROOT, 'ls-files', '*.ts', '*.tsx', '*.js', '*.mjs'],
+    { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }
+  )
+    .split('\n')
+    .filter(Boolean)
+    // Its --selftest fixtures are not call sites.
+    .filter(
+      (rel) => rel !== 'scripts/security/check-authenticated-write-census.mjs'
+    )
+  return TRACKED
+}
+
+export function scanSource(rel, text, ctx = {}) {
+  const out = []
+  const lines = text.split('\n')
+  const castTainted = ctx.castTainted ?? new Set()
+  for (let i = 0; i < lines.length; i++) {
+    const sites = [
+      ...lines[i].matchAll(
+        /\.from\(\s*['"`]([A-Za-z_][A-Za-z0-9_]*)['"`]\s*\)/g
+      )
+    ]
+    if (sites.length === 0) continue
+    const withRecv = [
+      ...lines[i].matchAll(
+        /([A-Za-z0-9_$.\][]+)\s*\.from\(\s*['"`]([A-Za-z_][A-Za-z0-9_]*)['"`]\s*\)/g
+      )
+    ]
+    for (const site of sites) {
+      const table = site[1]
+      const window = lines.slice(i, i + 7).join('\n')
+      let after = window.slice(window.indexOf(site[0]) + site[0].length)
+      // Stop at the next `.from(` so a later chain's write is not attributed here.
+      const nextFrom = after.indexOf('.from(')
+      if (nextFrom !== -1) after = after.slice(0, nextFrom)
+      const verb = after.match(WRITE_VERB)
+      if (!verb) {
+        // Follow a stored query builder alias until the name is re-bound.
+        const alias = lines[i].match(
+          /\b(?:const|let|var)\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*(?:await\s+)?([A-Za-z0-9_$.\][]+)\s*\.from\(/
+        )
+        if (!alias) continue
+        const aliasRecv = alias[2]
+        const name = escapeRegExp(alias[1])
+        const rest = lines.slice(i + 1).join('\n')
+        const rebind = rest.search(
+          new RegExp(`\\b(?:const|let|var)\\s+${name}\\b`)
+        )
+        const scope = rebind === -1 ? rest : rest.slice(0, rebind)
+        const use = new RegExp(
+          `\\b${name}\\s*\\.\\s*(insert|upsert|update|delete)\\s*[(<]`,
+          'g'
+        )
+        for (const m of scope.matchAll(use)) {
+          const useLine = i + 2 + scope.slice(0, m.index).split('\n').length - 1
+          out.push({
+            table,
+            file: rel,
+            line: useLine,
+            verb: m[1],
+            client: classify(rel, text, lines, i, aliasRecv, castTainted)
+          })
+        }
+        continue
+      }
+
+      let recv = withRecv.find((x) => x[2] === table)?.[1] ?? null
+      if (!recv) {
+        for (let j = i - 1; j >= Math.max(0, i - 4); j--) {
+          const tail = lines[j].match(/([A-Za-z0-9_$]+)\s*$/)
+          if (tail) {
+            recv = tail[1]
+            break
+          }
+        }
+      }
+
+      out.push({
+        table,
+        file: rel,
+        line: i + 1,
+        verb: verb[1],
+        client: classify(rel, text, lines, i, recv, castTainted)
+      })
+    }
+  }
+  return out
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
+}
+
+function classify(rel, text, lines, lineIndex, recv, castTainted = new Set()) {
+  if (rel.startsWith('supabase/functions/')) return 'SERVICE(edge)'
+  if (!recv) return 'UNKNOWN'
+  const base = escapeRegExp(recv.split('.')[0])
+
+  // Nearest preceding binding wins: a file may reuse a name for both clients.
+  for (let j = lineIndex; j >= 0; j--) {
+    const assign = lines[j].match(
+      new RegExp(`\\b(?:const|let|var)\\s+${base}\\b[^=]*=\\s*(.*)$`)
+    )
+    if (!assign) continue
+    const rhs = assign[1] + '\n' + lines.slice(j + 1, j + 3).join('\n')
+    if (SERVICE_RHS.test(rhs)) return 'SERVICE'
+    if (REQUEST_RHS.test(rhs)) return 'REQUEST'
+    return 'UNKNOWN'
+  }
+
+  // Injected clients: only the two parameter types in PROVENANCE_RULES decide;
+  // anything else stays UNKNOWN and keeps its grant.
+  if (new RegExp(`\\b${base}\\s*:\\s*ServiceSupabaseClient\\b`).test(text)) {
+    // If any caller casts to this alias, the annotation proves nothing.
+    return castTainted.has(rel)
+      ? 'UNKNOWN(param-type-cast)'
+      : 'SERVICE(param-type)'
+  }
+  if (
+    rel.startsWith('tests/integration/helpers/') &&
+    new RegExp(`\\b${base}\\s*:\\s*MinimalClient\\b`).test(text)
+  ) {
+    return 'SERVICE(test-admin)'
+  }
+
+  const service = SERVICE_RHS.test(text)
+  const request = REQUEST_RHS.test(text)
+  if (service && !request) return 'SERVICE(file)'
+  if (request && !service) return 'REQUEST(file)'
+  return 'UNKNOWN'
+}
+
+/** The suite's ps218_swept array and the `-- ps218_kept_policy` / `-- ps218_kept_undecided` arrays. */
+export function pgtapLists(sql) {
+  const out = {}
+  const grab = (key, re) => {
+    const m = sql.match(re)
+    if (!m) return
+    out[key] = new Set(
+      [...m[1].matchAll(/'([A-Za-z_][A-Za-z0-9_]*)'/g)].map((x) => x[1])
+    )
+  }
+  grab(
+    'ps218_swept',
+    /INSERT INTO ps218_swept \(relname\) SELECT unnest\(ARRAY\[([\s\S]*?)\]::text\[\]\)/
+  )
+  grab('ps218_kept_policy', /-- ps218_kept_policy\n([\s\S]*?)\]::text\[\]/)
+  grab(
+    'ps218_kept_undecided',
+    /-- ps218_kept_undecided\n([\s\S]*?)\]::text\[\]/
+  )
+  return out
+}
+
+export function isServiceClient(client) {
+  return client.startsWith('SERVICE')
+}
+
+const SERVICE_CAST = /\bas\s+(?:unknown\s+as\s+)?ServiceSupabaseClient\b/
+
+function resolveImport(fromRel, spec, tracked) {
+  let base
+  if (spec.startsWith('@/')) base = spec.slice(2)
+  else if (spec.startsWith('.'))
+    base = path.posix.normalize(
+      path.posix.join(path.posix.dirname(fromRel), spec)
+    )
+  else return null
+  for (const cand of [
+    base,
+    `${base}.ts`,
+    `${base}.tsx`,
+    `${base}.js`,
+    `${base}.mjs`,
+    `${base}/index.ts`,
+    `${base}/index.tsx`
+  ]) {
+    if (tracked.has(cand)) return cand
+  }
+  return null
+}
+
+function valueImports(rel, text, tracked) {
+  const out = []
+  const re =
+    /^\s*import\s+(?!type\b)[^'"]*?from\s+['"]([^'"]+)['"]|^\s*export\s+(?!type\b)[^'"]*?from\s+['"]([^'"]+)['"]/gm
+  for (const m of text.matchAll(re)) {
+    const hit = resolveImport(rel, m[1] ?? m[2], tracked)
+    if (hit) out.push(hit)
+  }
+  return out
+}
+
+const SERVICE_PARAM = /\b[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*ServiceSupabaseClient\b/
+
+function isTestFile(rel) {
+  return /^tests\//.test(rel) || /\.(test|spec)\.[cm]?[jt]sx?$/.test(rel)
+}
+
+/** Modules a ServiceSupabaseClient cast reaches via typed params; annotation proves nothing there. */
+export function castTaintedModules(files, read) {
+  const tracked = new Set(files)
+  const seen = new Set()
+  const queue = []
+  for (const rel of files) {
+    if (isTestFile(rel)) continue
+    const text = read(rel)
+    if (!SERVICE_CAST.test(text)) continue
+    queue.push(...valueImports(rel, text, tracked))
+  }
+  while (queue.length > 0) {
+    const rel = queue.pop()
+    if (seen.has(rel)) continue
+    const text = read(rel)
+    if (!SERVICE_PARAM.test(text)) continue
+    seen.add(rel)
+    queue.push(...valueImports(rel, text, tracked))
+  }
+  return seen
+}
+
+export function scanTree() {
+  const byTable = new Map()
+  const castTainted = castTaintedModules(trackedFiles(), readIfPresent)
+  for (const rel of trackedFiles()) {
+    for (const hit of scanSource(rel, readIfPresent(rel), { castTainted })) {
+      if (!byTable.has(hit.table)) byTable.set(hit.table, [])
+      byTable.get(hit.table).push(hit)
+    }
+  }
+  return byTable
+}
+
+function scan() {
+  const census = JSON.parse(fs.readFileSync(CENSUS_PATH, 'utf8'))
+  const errors = []
+  const writers = scanTree()
+
+  for (const rule of PROVENANCE_RULES) {
+    if (!rule.verify()) {
+      errors.push(
+        `the provenance claim behind the ${rule.kind} attribution rule no longer holds: ${rule.claim}`
+      )
+    }
+  }
+
+  const revoke = []
+  const keepUndecided = []
+  const keepPolicy = []
+  for (const [table, row] of Object.entries(census.tables)) {
+    if (row.decision === 'revoke') revoke.push(table)
+    else if (row.decision === 'keep-undecided') keepUndecided.push(table)
+    else if (row.decision === 'keep-policy-governed') keepPolicy.push(table)
+    else errors.push(`${table}: unknown decision '${row.decision}'`)
+  }
+
+  for (const table of revoke) {
+    const live = (writers.get(table) ?? []).filter(
+      (h) => !isServiceClient(h.client)
+    )
+    for (const h of live) {
+      errors.push(
+        `${table} was swept by PS-218 (authenticated holds no INSERT/UPDATE/DELETE on it) but ` +
+          `${h.file}:${h.line} now writes it (.${h.verb}) on a client this scan cannot prove is ` +
+          `service-role (${h.client}). That write will fail with "permission denied", not silently ` +
+          `affect zero rows. Move it to serviceDb(), or re-judge the table and update ` +
+          `scripts/security/ps218-authenticated-write-census.json and the PS-218 migration together.`
+      )
+    }
+  }
+
+  for (const table of keepUndecided) {
+    const live = (writers.get(table) ?? []).filter(
+      (h) => !isServiceClient(h.client)
+    )
+    if (live.length === 0) {
+      errors.push(
+        `${table} is recorded as 'keep-undecided' -- its grant was left alone only because a ` +
+          `committed write site could not be proved service-role -- but no such site exists any ` +
+          `more. Re-judge it: either sweep it (move it to 'revoke' and add it to the PS-218 ` +
+          `migration and pgTAP suite) or record why it stays.`
+      )
+    }
+  }
+
+  const migration = readIfPresent(path.relative(REPO_ROOT, MIGRATION_PATH))
+  if (!migration) {
+    errors.push(
+      `migration not found: ${path.relative(REPO_ROOT, MIGRATION_PATH)}`
+    )
+  } else {
+    const named = new Set(
+      [
+        ...migration.matchAll(/^\s*'([a-zA-Z_][a-zA-Z0-9_]*)',?\s*(?:--.*)?$/gm)
+      ].map((m) => m[1])
+    )
+    for (const t of revoke) {
+      if (!named.has(t))
+        errors.push(
+          `${t} is 'revoke' in the census but the PS-218 migration does not name it`
+        )
+    }
+    for (const t of named) {
+      if (!revoke.includes(t))
+        errors.push(
+          `the PS-218 migration names ${t}, which the census does not mark 'revoke'`
+        )
+    }
+  }
+
+  const pgtap = readIfPresent(path.relative(REPO_ROOT, PGTAP_PATH))
+  if (!pgtap) {
+    errors.push(
+      `pgTAP suite not found: ${path.relative(REPO_ROOT, PGTAP_PATH)}`
+    )
+  } else {
+    const lists = pgtapLists(pgtap)
+    const expected = {
+      ps218_swept: revoke,
+      ps218_kept_policy: keepPolicy,
+      ps218_kept_undecided: keepUndecided
+    }
+    for (const [list, want] of Object.entries(expected)) {
+      const got = lists[list]
+      if (!got) {
+        errors.push(`the PS-218 pgTAP suite has no ${list} list`)
+        continue
+      }
+      for (const t of want)
+        if (!got.has(t))
+          errors.push(
+            `${t} is in the census set for ${list} but the PS-218 pgTAP suite does not list it there`
+          )
+      for (const t of got)
+        if (!want.includes(t))
+          errors.push(
+            `the PS-218 pgTAP suite lists ${t} in ${list}, which the census does not`
+          )
+    }
+  }
+
+  if (errors.length > 0) {
+    console.error('PS-218 authenticated-write census: FAIL')
+    for (const e of errors) console.error(`  - ${e}`)
+    process.exit(1)
+  }
+
+  console.log(
+    `PS-218 authenticated-write census: OK -- ${revoke.length} swept, ` +
+      `${keepUndecided.length} left undecided, ${keepPolicy.length} policy-governed ` +
+      `(${revoke.length + keepUndecided.length + keepPolicy.length} tables carried the grant at ` +
+      `migration head ${census.acl_snapshot.migration_head}).`
+  )
+  console.log(
+    '  this lane judges the source tree only; the ACL half is judged by ' +
+      'supabase/tests/pgtap/ps218_authenticated_write_grants.sql against a replayed schema, ' +
+      'and neither lane can see production ACLs.'
+  )
+}
+
+const FIXTURES = [
+  {
+    name: 'service-role write is attributed to service_role',
+    rel: 'app/lib/x.ts',
+    src: `const supabase = serviceDb()\nawait supabase.from('ps218_fixture_table').insert({ a: 1 })\n`,
+    expect: (h) => h.length === 1 && h[0].client === 'SERVICE'
+  },
+  {
+    name: 'request-client write is attributed to authenticated',
+    rel: 'app/lib/x.ts',
+    src: `const supabase = await db()\nawait supabase.from('ps218_fixture_table').upsert({ a: 1 })\n`,
+    expect: (h) => h.length === 1 && h[0].client === 'REQUEST'
+  },
+  {
+    name: 'the nearest binding wins when one file reuses the name',
+    rel: 'app/lib/x.ts',
+    src:
+      `const supabase = await db()\nawait supabase.from('a').select()\n` +
+      `const supabase2 = serviceDb()\nawait supabase2.from('ps218_fixture_table').delete()\n`,
+    expect: (h) => h.length === 1 && h[0].client === 'SERVICE'
+  },
+  {
+    name: 'an injected client of unknown provenance stays UNKNOWN',
+    rel: 'app/lib/x.ts',
+    src: `export async function f(supabase: TypedSupabaseClient) {\n  await supabase.from('ps218_fixture_table').update({ a: 1 })\n}\n`,
+    expect: (h) => h.length === 1 && h[0].client === 'UNKNOWN'
+  },
+  {
+    name: 'a ServiceSupabaseClient parameter is service-role',
+    rel: 'app/lib/x.ts',
+    src: `export async function f(supabase: ServiceSupabaseClient) {\n  await supabase.from('ps218_fixture_table').update({ a: 1 })\n}\n`,
+    expect: (h) => h.length === 1 && h[0].client === 'SERVICE(param-type)'
+  },
+  {
+    name: 'an edge function write is service-role',
+    rel: 'supabase/functions/f/index.ts',
+    src: `await supabase.from('ps218_fixture_table').insert({ a: 1 })\n`,
+    expect: (h) => h.length === 1 && h[0].client === 'SERVICE(edge)'
+  },
+  {
+    name: 'a read is not a write',
+    rel: 'app/lib/x.ts',
+    src: `const supabase = await db()\nawait supabase.from('ps218_fixture_table').select('*')\n`,
+    expect: (h) => h.length === 0
+  },
+  {
+    name: 'a write split across lines is still found',
+    rel: 'app/lib/x.ts',
+    src: `const supabase = await db()\nawait supabase\n  .from('ps218_fixture_table')\n  .insert({ a: 1 })\n`,
+    expect: (h) => h.length === 1 && h[0].client === 'REQUEST'
+  },
+  {
+    name: 'a write through a stored query builder is found (PR #322 review)',
+    rel: 'app/lib/x.ts',
+    src:
+      `const supabase = await db()\nconst tbl = supabase.from('ps218_fixture_table')\n` +
+      `const { data } = await tbl.select('id')\n\n\n\n\n\n\n\n` +
+      `await tbl\n  .update({ a: 1 })\n  .eq('id', 1)\n`,
+    expect: (h) =>
+      h.length === 1 &&
+      h[0].client === 'REQUEST' &&
+      h[0].verb === 'update' &&
+      h[0].line === 11
+  },
+  {
+    name: 'a query-builder alias stops at its re-binding',
+    rel: 'app/lib/x.ts',
+    src:
+      `const supabase = await db()\nconst tbl = supabase.from('ps218_fixture_table')\n` +
+      `await tbl.select('id')\n}\nfunction g() {\nconst tbl = other.from('unrelated')\nawait tbl.delete()\n`,
+    expect: (h) =>
+      h.every((x) => x.table !== 'ps218_fixture_table') &&
+      h.some((x) => x.table === 'unrelated' && x.verb === 'delete')
+  },
+  {
+    name: 'a ServiceSupabaseClient parameter in a cast-tainted module is UNKNOWN (PR #322 review)',
+    rel: 'app/lib/x.ts',
+    ctx: { castTainted: new Set(['app/lib/x.ts']) },
+    src: `export async function f(supabase: ServiceSupabaseClient) {\n  await supabase.from('ps218_fixture_table').insert({ a: 1 })\n}\n`,
+    expect: (h) => h.length === 1 && h[0].client === 'UNKNOWN(param-type-cast)'
+  }
+]
+
+const TAINT_FIXTURES = [
+  {
+    name: 'a db() client cast to ServiceSupabaseClient taints the module it is passed into',
+    files: {
+      'app/api/r/route.ts': `import { db } from '@/app/lib/db'\nimport { f } from '@/app/lib/w'\nconst s = await db()\nawait f(s as unknown as ServiceSupabaseClient)\n`,
+      'app/lib/w.ts': `export async function f(supabase: ServiceSupabaseClient) {}\n`,
+      'app/lib/db.ts': `export const db = 1\n`
+    },
+    expect: (t) => t.has('app/lib/w.ts') && !t.has('app/lib/db.ts')
+  },
+  {
+    name: 'taint follows ServiceSupabaseClient-typed helpers transitively',
+    files: {
+      'app/api/r/route.ts': `import { f } from '../../lib/w'\nf(x as ServiceSupabaseClient)\n`,
+      'app/lib/w.ts': `import { g } from './v'\nexport async function f(supabase: ServiceSupabaseClient) { await g(supabase) }\n`,
+      'app/lib/v.ts': `export async function g(client: ServiceSupabaseClient) {}\n`
+    },
+    expect: (t) => t.has('app/lib/w.ts') && t.has('app/lib/v.ts')
+  },
+  {
+    name: 'a unit test casting a mock does not taint anything',
+    files: {
+      'tests/unit/w.test.ts': `import { f } from '@/app/lib/w'\nf(mock as unknown as ServiceSupabaseClient)\n`,
+      'app/lib/w.ts': `export async function f(supabase: ServiceSupabaseClient) {}\n`
+    },
+    expect: (t) => t.size === 0
+  },
+  {
+    name: 'no cast anywhere taints nothing',
+    files: {
+      'app/api/r/route.ts': `import { f } from '@/app/lib/w'\nf(serviceDb())\n`,
+      'app/lib/w.ts': `export async function f(supabase: ServiceSupabaseClient) {}\n`
+    },
+    expect: (t) => t.size === 0
+  }
+]
+
+function selftest() {
+  let failed = 0
+  for (const f of FIXTURES) {
+    const hits = scanSource(f.rel, f.src, f.ctx)
+    if (f.expect(hits)) {
+      console.log(`  ok   ${f.name}`)
+    } else {
+      failed += 1
+      console.error(
+        `  FAIL ${f.name} -- got ${JSON.stringify(hits.map((h) => [h.client, h.verb, h.line]))}`
+      )
+    }
+  }
+  {
+    // Prove the parser tells the three lists apart and reads each completely.
+    const lists = pgtapLists(
+      `INSERT INTO ps218_swept (relname) SELECT unnest(ARRAY[\n    'a',\n    'b'\n  ]::text[]);\n` +
+        `SELECT relname, 'keep-policy-governed' FROM unnest(ARRAY[ -- ps218_kept_policy\n    'c'\n  ]::text[]) AS relname;\n` +
+        `SELECT relname, 'keep-undecided' FROM unnest(ARRAY[ -- ps218_kept_undecided\n    'd',\n    'e'\n  ]::text[]) AS relname;\n`
+    )
+    const ok =
+      [...lists.ps218_swept].join() === 'a,b' &&
+      [...lists.ps218_kept_policy].join() === 'c' &&
+      [...lists.ps218_kept_undecided].join() === 'd,e'
+    if (ok) console.log('  ok   the pgTAP suite lists are parsed apart')
+    else {
+      failed += 1
+      console.error('  FAIL the pgTAP suite lists are parsed apart')
+    }
+  }
+  for (const f of TAINT_FIXTURES) {
+    const tainted = castTaintedModules(
+      Object.keys(f.files),
+      (rel) => f.files[rel] ?? ''
+    )
+    if (f.expect(tainted)) {
+      console.log(`  ok   ${f.name}`)
+    } else {
+      failed += 1
+      console.error(`  FAIL ${f.name} -- got ${JSON.stringify([...tainted])}`)
+    }
+  }
+
+  try {
+    const census = JSON.parse(fs.readFileSync(CENSUS_PATH, 'utf8'))
+    const decisions = new Set(
+      Object.values(census.tables).map((r) => r.decision)
+    )
+    for (const d of decisions) {
+      if (!['revoke', 'keep-undecided', 'keep-policy-governed'].includes(d)) {
+        failed += 1
+        console.error(`  FAIL census carries an unknown decision: ${d}`)
+      }
+    }
+    console.log(
+      `  ok   census parses (${Object.keys(census.tables).length} tables)`
+    )
+  } catch (error) {
+    failed += 1
+    console.error(`  FAIL census does not parse: ${error.message}`)
+  }
+
+  if (failed > 0) {
+    console.error(`PS-218 census selftest: FAIL (${failed})`)
+    process.exit(1)
+  }
+  console.log('PS-218 census selftest: OK')
+}
+
+const mode = process.argv[2]
+if (mode === '--selftest') selftest()
+else if (mode === '--scan') scan()
+else if (mode === '--writers') {
+  const byTable = scanTree()
+  console.log(JSON.stringify(Object.fromEntries([...byTable].sort()), null, 1))
+} else {
+  console.error(
+    'usage: check-authenticated-write-census.mjs --selftest | --scan | --writers'
+  )
+  process.exit(2)
+}

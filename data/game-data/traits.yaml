@@ -1,0 +1,592 @@
+schemaVersion: 1
+version: v1.41.101.2498
+source:
+  channel: google-play-production
+  gameConfig:
+    file: 0dac07b85404278e1999a06541fbe10d.json
+    sha256: 3ee33444f4dd9ed1dd7de9f3d83e7daf3742ebc68b7e3a25a2dee406c494f39d
+  globalConfig:
+    file: 6aee32710d799adf11b155d82d5e7e7a.json
+    sha256: a38706480e1561e5b90b0b7c90102e85915e186cc82fcd25b32f32a95c10110b
+  kind: attested production Android hydrated config pair
+  packageName: com.snowprintstudios.tacticus
+  sourceAttestationDigestSha256: 6e12c55d4a58f90c190b34d4f0355a93924743cbb51da5be31c8f1ece08da619
+  versionCode: 2498
+  versionName: 1.41.101
+count: 69
+traits:
+- id: ActOfFaith
+  gameId: ActOfFaith
+  simpleName: Act of Faith
+  name: <style="Act_Of_Faith">Act of Faith</style>
+  description: This unit gets +{[extraCritChance]}% <style="Stat_Chance">Crit Chance</style> and increases their <style="Stat_CritDamage">Crit Damage</style> by {[extraCritDmgPct]}% each time a friendly <style="Aliance_Imperial">Imperial</style> unit dies or kills an enemy unit. Once this unit crits, this bonus resets.
+  hero: true
+  powerModifier: 103
+  variables: null
+- id: Ambush
+  gameId: Ambush
+  simpleName: Ambush
+  name: <style="Ambush">Ambush</style>
+  description: The first time this unit is defeated, it leaves behind a <style="Decoy">decoy</style> and at the beginning of their next turn, if there is still a friendly decoy on the battlefield, it is resurrected with full <style="Stat_Health">Health</style> on a random friendly decoy and can immediately take a turn. <style="Character">Characters</style> resurrect before <style="NonCharacter">Non-Character</style> units.
+  hero: true
+  powerModifier: 130
+  variables: null
+- id: BattleFatigue
+  gameId: BattleFatigue
+  simpleName: Battle Fatigue
+  name: <style="Battle_Fatigue">Battle Fatigue</style>
+  description: If a friendly unit is defeated in an adjacent hex, there’s a <style="Stat_Chance">{[chance]}% chance</style> that this unit flees and is removed from the battle. <style="Stat_Chance">+{[chance_2]}%</style> if it was <style="Overkill">overkilled</style>.
+  hero: null
+  powerModifier: 80
+  variables: null
+- id: BeastSlayer
+  gameId: BeastSlayer
+  simpleName: Beast Slayer
+  name: <style="Beast_Snagga">Beast Slayer</style>
+  description: This unit deals <style="Stat_Damage">+{[extraDmgPct]}% Damage</style> with melee attacks to <style="Big_Target">Big Targets</style> and <style="Vehicle">Vehicles</style>. It also has an added <style="Stat_Chance">{[blockChance]}% chance</style> to <style="Stat_Block">Block</style> Damage equal to its current <style="Stat_Armor">Armour</style>.
+  hero: true
+  powerModifier: 106
+  variables: null
+- id: BeastSnagga
+  gameId: BeastSnagga
+  simpleName: Beast Slayer
+  name: <style="Beast_Snagga">Beast Slayer</style>
+  description: Deals +{[extraDmgPct]}% <style="Stat_Melee">melee</style> Damage to <style="Big_Target">Big Targets</style> and <style="Vehicle">Vehicles</style>. Has an added <style="Stat_Chance">{[blockChance]}% chance</style> to <style="Stat_Block">Block</style> {[blockDmgPct]}% of its max Health as Damage.
+  hero: null
+  powerModifier: 106
+  variables: null
+- id: BigTarget
+  gameId: BigTarget
+  simpleName: Big Target
+  name: <style="Big_Target">Big Target</style>
+  description: Due to its size, this unit benefits less from cover but also provides some obstruction to enemy sighting. Does not get any bonuses from <style="Tile_Grass">Tall Grass</style> and <style="Tile_Trench">Trenches</style>. Adjacent friendly units receive <style="Stat_Hits">-1 hit</style> from <style="Stat_Range">ranged</style> attacks, to a minimum of 1. Cannot be displaced.
+  hero: true
+  powerModifier: 102
+  variables: null
+- id: BlessingsOfKhorne
+  gameId: BlessingsOfKhorne
+  simpleName: Blessings of Khorne
+  name: <style="BlessingsOfKhorne">Blessings of Khorne</style>
+  description: Deals <style="Stat">{[extraDmgPct]}%</style> more damage and receives <style="Stat">{[dmgPctReduction]}%</style> less <style="DMG_Psychic">Psychic Damage</style> for each unit that was defeated in melee this battle. Counts up to a maximum of {[nrOfHeroes]} defeated units.
+  hero: true
+  powerModifier: 108
+  variables: null
+- id: Boss
+  gameId: Boss
+  simpleName: Boss
+  name: Boss
+  description: ''
+  hero: null
+  powerModifier: 100
+  variables: null
+- id: BossAdjutant
+  gameId: BossAdjutant
+  simpleName: Boss Adjutant
+  name: Boss Adjutant
+  description: This unit takes <style="Stat_Damage">-{[damagePctReduction]}% Damage</style>. At the end of each turn, this unit loses {[damagePct]}% of its current <style="Stat_Health">Health</style> for each time it was attacked that turn.
+  hero: null
+  powerModifier: 125
+  variables: null
+- id: Camouflage
+  gameId: Camouflage
+  simpleName: Camouflage
+  name: <style="Camouflage">Camouflage</style>
+  description: <style="Stat_Range">Ranged</style> attacks against this character score <style="Stat_Hits">-1 hit</style>. This increases to <style="Stat_Hits">-2 hits</style> if this character is more than 2 hexes away from the attacker or to <style="Stat_Hits">-3 hits</style> when in <style="Tile_Grass">Tall Grass</style>. Attackers always score at least <style="Stat_Hits">1 hit</style>.
+  hero: true
+  powerModifier: 105
+  variables: null
+- id: CloseCombatWeakness
+  gameId: CloseCombatWeakness
+  simpleName: Close Combat Weakness
+  name: <style="Combat_Weakness">Close Combat Weakness</style>
+  description: Whenever this unit is adjacent – or started the turn adjacent – to enemy units, it deals <style="Stat_Damage">{[dmgPctReduction]}% Damage</style> with <style="Stat_Melee">melee</style> attacks and <style="Stat_Damage">{[dmgPctReduction_2]}% Damage</style> with <style="Stat_Range">ranged</style> attacks.
+  hero: null
+  powerModifier: 85
+  variables: null
+- id: ContagionsOfNurgle
+  gameId: ContagionsOfNurgle
+  simpleName: Contagions of Nurgle
+  name: <style="ContagionsOfNurgle">Contagions of Nurgle</style>
+  description: 'This unit is surrounded by an aura that expands over time. Enemies have {[armorReduction]}% <style="Stat_Armor">Armour</style> while in this aura. If they stand in two or more overlapping enemy auras, they have {[armorReduction2]}% <style="Stat_Armor">Armour</style> instead.
+
+
+    Aura:
+
+    Round 1-2: <style="Stat_Range">range 1</style>
+
+    Round 3-4: <style="Stat_Range">range 2</style>
+
+    Round 5+: <style="Stat_Range">range 3</style>'
+  hero: true
+  powerModifier: 106
+  variables: null
+- id: CrushingStrike
+  gameId: CrushingStrike
+  simpleName: Crushing Strike
+  name: <style="CrushingStrike">Crushing Strike</style>
+  description: This unit deals <style="Stat_Damage">+{[extraDmgPct]}% Damage</style> with normal <style="Stat_Melee">Melee</style> attacks if it has not moved this turn.
+  hero: true
+  powerModifier: 100
+  variables: null
+- id: Daemon
+  gameId: Daemon
+  simpleName: Daemon
+  name: <style="Daemon">Daemon</style>
+  description: This unit has an additional <style="Stat_Chance">{[blockChance]}% chance</style> to <style="Stat_Block">Block</style> up to {[blockDmgPct]}% of its own current <style="Stat_Damage">Damage</style> stat.
+  hero: true
+  powerModifier: 102
+  variables: null
+- id: Dakka
+  gameId: Dakka
+  simpleName: Dakka
+  name: <style="Dakka">Dakka</style>
+  description: For attacks with <style="Stat_Range">range 3</style> or more, has <style="Stat_Hits">+{[extraHit]} hits</style> if the target is at <style="Stat_Range">range 2</style>.
+  hero: null
+  powerModifier: 125
+  variables: null
+- id: Decoy
+  gameId: Decoy
+  simpleName: Decoy
+  name: Decoy
+  description: ''
+  hero: null
+  powerModifier: 50
+  variables: null
+- id: Diminutive
+  gameId: Diminutive
+  simpleName: Diminutive
+  name: <style="Diminutive">Diminutive</style>
+  description: Due to its tiny stature, this unit reduces incoming multi-hit attacks by <style="Stat_Hits">{[hitsReduction]} hit</style>, to a minimum of 1.
+  hero: null
+  powerModifier: 105
+  variables: null
+- id: Emplacement
+  gameId: Emplacement
+  simpleName: Emplacement
+  name: <style="Emplacement">Emplacement</style>
+  description: This unit always deals <style="Stat_Damage">{[damageModifier]}% Damage</style> in <style="Stat_Melee">melee</style> and its <style="Stat_Range">ranged</style> attacks deal <style="Stat_Damage">+{[damageModifier_2]}% Damage</style> if it has not moved this turn.
+  hero: null
+  powerModifier: 108
+  variables: null
+- id: Explodes
+  gameId: Explodes
+  simpleName: Explodes
+  name: <style="Explodes">Explodes</style>
+  description: This unit <style="Explodes">explodes</style> on death, dealing <style="Stat">25%</style> of its max <style="Stat_Health">Health</style> as <style="DMG_Direct">Direct Damage</style> to all adjacent units
+  hero: true
+  powerModifier: 101
+  variables: null
+- id: FinalJustice
+  gameId: FinalJustice
+  simpleName: Final Vengeance
+  name: <style="FinalJustice">Final Vengeance</style>
+  description: When this unit loses its last <style="Stat_Health">Health</style>, it immediately performs a <style="NormalAttack">normal attack</style> on an eligible target and is then defeated as normal, unless <style="Overkill">Overkilled</style>
+  hero: true
+  powerModifier: 105
+  variables: null
+- id: Flying
+  gameId: Flying
+  simpleName: Flying
+  name: <style="Flying">Flying</style>
+  description: Can traverse impassable hexes and enemies and move between any elevation.
+  hero: true
+  powerModifier: 108
+  variables: null
+- id: GetStuckIn
+  gameId: GetStuckIn
+  simpleName: Get Stuck In
+  name: <style="GetStuckIn">Get Stuck In</style>
+  description: For every 2 hits this unit scores with an attack against an enemy within range 2, it has a <style="STAT">{[chance]}%</style> chance to score an additional <style="Stat_Hits">hit</style>. If 2 or more friendly <style="Faction_Orks">Orks</style> or 4 or more friendly units are adjacent to the target, the chance is increased to <style="STAT">{[chance_2]}%</style>.
+  hero: true
+  powerModifier: 115
+  variables: null
+- id: Healer
+  gameId: Healer
+  simpleName: Healer
+  name: <style="Healer">Healer</style>
+  description: 'Can <style="Healing">heal</style> a friendly unit as its action.
+
+    The amount of <style="Stat_Health">Health</style> restored equals the Healer’s <style="Stat_Damage">Damage</style> multiplied by the highest number of <style="Stat_Hits">hits</style> of any of their weapons. '
+  hero: true
+  powerModifier: 105
+  variables: null
+- id: HeavyWeapon
+  gameId: HeavyWeapon
+  simpleName: Heavy Weapon
+  name: <style="Heavy_Weapon">Heavy Weapon</style>
+  description: When this unit has not moved this turn, it deals <style="Stat_Damage">+{[extraDmgPct]}% Damage</style> with ranged attacks.
+  hero: true
+  powerModifier: 106
+  variables: null
+- id: Hero
+  gameId: Hero
+  simpleName: Hero
+  name: Hero
+  description: ''
+  hero: null
+  powerModifier: 100
+  variables: null
+- id: HitsMultipleMembers
+  gameId: HitsMultipleMembers
+  simpleName: HitsMultipleMembers
+  name: HitsMultipleMembers
+  description: ''
+  hero: null
+  powerModifier: null
+  variables: null
+- id: Immune
+  gameId: Immune
+  simpleName: Immune
+  name: <style="Immune">Immune</style>
+  description: 'This unit is immune to special hexes and <style="HexEffect">hex effects</style>, and cannot have its <style="Stat_Armor">Armour</style>, <style="Stat_Hits">hits</style>, <style="Stat_Movement">Movement</style> or <style="Stat_Range">Range</style> reduced.
+
+
+    Additionally, this unit cannot be <style="Debuff_Stunned">Stunned</style>, <style="Debuff_Pinned">Suppressed</style> or <style="Debuff_Taunted">Taunted</style>, and does not receive knockback damage.'
+  hero: null
+  powerModifier: 106
+  variables: null
+- id: Impervious
+  gameId: Impervious
+  simpleName: Impervious
+  name: <style="Impervious">Impervious</style>
+  description: Has to be hit by a <style="Stat_CritDamage">Crit</style> to take any Damage, but is instantly defeated by a <style="Stat_CritDamage">Crit</style>.
+  hero: null
+  powerModifier: 300
+  variables: null
+- id: IndirectFire
+  gameId: IndirectFire
+  simpleName: Indirect Fire
+  name: <style="Indirect_Fire">Indirect Fire</style>
+  description: Can fire over <style="Out_Of_Sight">obscuring</style> hexes and hit targets in <style="Tile_Trench">Trenches</style>
+  hero: true
+  powerModifier: 106
+  variables: null
+- id: Infiltrate
+  gameId: Infiltrate
+  simpleName: Infiltrate
+  name: <style="Infiltrate">Infiltrate</style>
+  description: This unit does not trigger <style="Overwatch">Overwatch</style>
+  hero: true
+  powerModifier: 110
+  variables: null
+- id: InstinctiveBehaviour
+  gameId: InstinctiveBehaviour
+  simpleName: Instinctive Behaviour
+  name: <style="Instinctive_Behaviour">Instinctive Behaviour</style>
+  description: This unit always tries to attack the closest enemy unit. If there are targets in range, this unit does not move before attacking.
+  hero: null
+  powerModifier: 70
+  variables: null
+- id: Invincible
+  gameId: Invincible
+  simpleName: Invincible
+  name: Invincible
+  description: ''
+  hero: null
+  powerModifier: 100
+  variables: null
+- id: LasCannon
+  gameId: LasCannon
+  simpleName: LasCannon
+  name: LasCannon
+  description: ''
+  hero: null
+  powerModifier: null
+  variables: null
+- id: LetTheGalaxyBurn
+  gameId: LetTheGalaxyBurn
+  simpleName: Let the Galaxy Burn
+  name: <style="LetTheGalaxyBurn">Let the Galaxy Burn</style>
+  description: All attacks have a <style="Stat">{[chance]}% chance</style> to score an additional <style="Stat_Hits">hit</style> and add <style="Tile_DespoiledGround">Despoiled Ground</style> to the hex of the attacked unit. If the attacked unit is already on a hex with a <style="HexEffect">hex effect</style>, the attack automatically scores an additional <style="Stat_Hits">hit</style> but does not add <style="Tile_DespoiledGround">Despoiled Ground</style>.
+  hero: true
+  powerModifier: 101
+  variables: null
+- id: LivingMetal
+  gameId: LivingMetal
+  simpleName: Living Metal
+  name: <style="Living_Metal">Living Metal</style>
+  description: <style="Regenerate">Regenerates</style> <style="Stat">{[hpPct]}%</style> of its max <style="Stat_Health">Health</style> at the start of the players' turn. This unit is also <style="Mechanical">Mechanical</style>
+  hero: true
+  powerModifier: 110
+  variables: null
+- id: MachineOfWar
+  gameId: MachineOfWar
+  simpleName: Machine of War
+  name: <style="MoW">Machine of War</style>
+  description: "<style=\"MoW\">Machines of War</style> stand beside the battlefield and provide two additional powerful abilities to use multiple times during the battle. Some of them cost <style=\"Resource_MachinesOfWarAmmo\">Munitions</style> and some have a <style=\"Cooldown\">cooldown</style> before you can use them. Machines of War cannot be targeted in their off-battlefield position and are destroyed when a battle is lost. \n\nNot every game mode allows to field Machines of War!"
+  hero: true
+  powerModifier: 100
+  variables: null
+- id: MartialKatah
+  gameId: MartialKatah
+  simpleName: Martial Ka'tah
+  name: <style="MartialKatah">Martial Ka'tah</style>
+  description: <style="NormalAttack">Normal attacks</style> against this unit deal <style="Stat_Damage">-{[dmgReductionPct]}% Damage</style>. This unit deals <style="Stat_Damage">+{[extraDmgPct]}% Damage</style> with all attacks against <style="Summon">Summons</style>.
+  hero: true
+  powerModifier: 110
+  variables: null
+- id: Mechanic
+  gameId: Mechanic
+  simpleName: Mechanic
+  name: <style="Mechanic">Mechanic</style>
+  description: 'Can <style="Repairing">repair</style> a friendly <style="Mechanical">Mechanical</style> unit as its action.
+
+    The amount of <style="Stat_Health">Health</style> restored equals the <style="Mechanic">Mechanic</style>''s Damage multiplied by the highest number of <style="Stat_Hits">hits</style> of any of their weapons.'
+  hero: true
+  powerModifier: 103
+  variables: null
+- id: Mechanical
+  gameId: Mechanical
+  simpleName: Mechanical
+  name: <style="Mechanical">Mechanical</style>
+  description: 'Cannot be <style="Healing">healed</style>, but can be <style="Repairing">repaired</style> instead.
+
+    <i>Note: units with the <style="Living_Metal">Living Metal</style> trait also count as being <style="Mechanical">Mechanical</style></i>'
+  hero: true
+  powerModifier: 95
+  variables: null
+- id: MkXGravis
+  gameId: MkXGravis
+  simpleName: Mk X Gravis
+  name: <style="Mk_Gravis">MK X Gravis</style>
+  description: Any incoming <style="Stat_Damage">Damage</style> has to go through <style="Stat_Armor">Armour</style> a second time. Does not apply to <style="Stat_CritDamage">Crits</style>
+  hero: true
+  powerModifier: 128
+  variables: null
+- id: NoBlocking
+  gameId: NoBlocking
+  simpleName: NoBlocking
+  name: NoBlocking
+  description: ''
+  hero: null
+  powerModifier: null
+  variables: null
+- id: NonAttacking
+  gameId: NonAttacking
+  simpleName: NonAttacking
+  name: NonAttacking
+  description: ''
+  hero: null
+  powerModifier: 30
+  variables: null
+- id: Object
+  gameId: Object
+  simpleName: Object
+  name: <style="Object">Object</style>
+  description: Automatically takes its action, if any, at the beginning of the turn. Cannot be <style="Healing">healed</style> or <style="Repairing">repaired</style>. A player loses the battle if their only remaining units are <style="Object">Objects</style>
+  hero: null
+  powerModifier: 50
+  variables: null
+- id: OnFire
+  gameId: OnFire
+  simpleName: OnFire
+  name: OnFire
+  description: ''
+  hero: null
+  powerModifier: null
+  variables: null
+- id: OnMelta
+  gameId: OnMelta
+  simpleName: OnMelta
+  name: OnMelta
+  description: ''
+  hero: null
+  powerModifier: null
+  variables: null
+- id: OnToxic
+  gameId: OnToxic
+  simpleName: OnToxic
+  name: OnToxic
+  description: ''
+  hero: null
+  powerModifier: null
+  variables: null
+- id: Overwatch
+  gameId: Overwatch
+  simpleName: Overwatch
+  name: <style="Overwatch">Overwatch</style>
+  description: If this unit has not attacked during its turn, nor after that, it attacks when an enemy moves within range during the enemy's turn
+  hero: true
+  powerModifier: 115
+  variables: null
+- id: Parry
+  gameId: Parry
+  simpleName: Parry
+  name: <style="Parry">Parry</style>
+  description: This unit reduces incoming <style="Stat_Melee">melee</style> multi-hit attacks by <style="Stat_Hits">{[hitsReduction]} hit</style>, to a minimum of 1.
+  hero: true
+  powerModifier: 103
+  variables: null
+- id: PermaDeath
+  gameId: PermaDeath
+  simpleName: PermaDeath
+  name: PermaDeath
+  description: ''
+  hero: null
+  powerModifier: 100
+  variables: null
+- id: PrioritisedEfficiency
+  gameId: PrioritisedEfficiency
+  simpleName: Prioritised Efficiency
+  name: <style="PrioritisedEfficiency">Prioritised Efficiency</style>
+  description: 'At the beginning of each turn and until the end of that turn, this unit gains an effect depending on its stance. Whenever a friendly <style="Character">character</style> with <style="PrioritisedEfficiency">Prioritised Efficiency</style> uses an active ability, the stance switches for all friendly units with this trait.
+
+
+    Hostile Acquisition: Deals <style="Stat_Damage">+{[extraDmgPct]}% Damage</style> with all attacks and gains <style="Stat_Movement">+1 Movement</style>.
+
+    Fortify Takeover: Takes <style="Stat_Damage">-{[dmgReductionPct]}% Damage</style>.'
+  hero: true
+  powerModifier: 110
+  variables: null
+- id: Psyker
+  gameId: Psyker
+  simpleName: Psyker
+  name: <style="Psyker">Psyker</style>
+  description: When this unit performs a <style="NormalAttack">normal ranged attack</style>, it also deals {[extraDmgPct]}% of its <style="Stat_Damage">Damage</style> to a random enemy adjacent to the target.
+  hero: true
+  powerModifier: 125
+  variables: null
+- id: PutridExplosion
+  gameId: PutridExplosion
+  simpleName: Putrid Explosion
+  name: <style="Putrid_Explosion">Putrid Explosion</style>
+  description: This unit explodes when defeated, dealing {[extraDmgPct]}% of its max <style="Stat_Health">Health</style> as <style="DMG_Toxic">Toxic</style> Damage to all adjacent units except to <style="Faction_DeathGuard">Death Guard</style> units.
+  hero: true
+  powerModifier: 102
+  variables: null
+- id: RangedSpecialist
+  gameId: RangedSpecialist
+  simpleName: Ranged Specialist
+  name: <style="RangedSpecialist">Ranged Specialist</style>
+  description: If this unit did not start its turn adjacent to an enemy unit, it deals <style="Stat_Damage">+{[extraDmgPct]}% Damage</style> with ranged attacks.
+  hero: true
+  powerModifier: 105
+  variables: null
+- id: RapidAssault
+  gameId: RapidAssault
+  simpleName: Rapid Assault
+  name: <style="RapidAssault">Rapid Assault</style>
+  description: This unit has <style="Stat_Movement">+1 Movement</style> until it makes either a melee or ranged attack. Its first attack each battle and all following attacks it makes in the same turn deal <style="Stat_Damage">+{[extraDmgPct]}% Damage</style>.
+  hero: true
+  powerModifier: 100
+  variables: null
+- id: Resilient
+  gameId: Resilient
+  simpleName: Resilient
+  name: <style="Resilient">Resilient</style>
+  description: If this unit is not already at <style="Stat_Health">1 Health</style> and would be defeated, its <style="Stat_Health">Health</style> is instead reduced to <style="Stat_Health">1 Health</style>, unless <style="Overkill">Overkilled</style>.
+  hero: true
+  powerModifier: 118
+  variables: null
+- id: ShadowInTheWarp
+  gameId: ShadowInTheWarp
+  simpleName: Shadow in the Warp
+  name: <style="Shadow_In_The_Warp">Shadow in the Warp</style>
+  description: Enemy <style="Psyker">Psykers</style> within {[range]} hexes deal {[dmgPct]}% <style="DMG_Psychic">Psychic Damage</style>. Does not affect <style="Faction_Tyranids">Tyranid</style> <style="Psyker">Psykers</style>.
+  hero: true
+  powerModifier: 102
+  variables: null
+- id: Steppable
+  gameId: Steppable
+  simpleName: Steppable
+  name: <style="Steppable">Steppable</style>
+  description: Will be destroyed if stepped on or if damaged, but cannot be targeted.
+  hero: null
+  powerModifier: 10
+  variables: null
+- id: Summon
+  gameId: Summon
+  simpleName: Summon
+  name: <style="Summon">Summon</style>
+  description: Moves and attacks automatically at the beginning of its turn
+  hero: null
+  powerModifier: 100
+  variables: null
+- id: SuppressiveFire
+  gameId: SuppressiveFire
+  simpleName: Suppressive Fire
+  name: <style="Suppressive_Fire">Suppressive Fire</style>
+  description: An enemy hit by this unit’s ranged attack becomes <style="Debuff_Pinned">Suppressed</style>.
+  hero: true
+  powerModifier: 104
+  variables: null
+- id: Swarm
+  gameId: Swarm
+  simpleName: Swarm
+  name: <style="Swarm">Swarm</style>
+  description: "Attacks with <style=\"Stat_Hits\">1 hit</style> per individual member of the swarm. Each incoming hit can deal <style=\"Stat_Damage\">Damage</style> only to one member. Does not apply to <style=\"DMG_Blast\">Blast Damage</style>.\nFor each member defeated, the swarm attacks with 1 fewer <style=\"Stat_Hits\">hit</style>. \n<style=\"Healing\">Healing</style> this unit can revive dead members of the swarm."
+  hero: null
+  powerModifier: 105
+  variables: null
+- id: Synapse
+  gameId: Synapse
+  simpleName: Synapse
+  name: <style="Synapse">Synapse</style>
+  description: Friendly units within 2 hexes ignore the effects of <style="Instinctive_Behaviour">Instinctive Behaviour</style> and <style="Battle_Fatigue">Battle Fatigue</style>.
+  hero: true
+  powerModifier: 102
+  variables: null
+- id: TeleportStrike
+  gameId: TeleportStrike
+  simpleName: Deep Strike
+  name: <style="Teleport_Strike">Deep Strike</style>
+  description: "This unit starts the battle in Deep Strike. \n\nUnits in Deep Strike can move to any free hex on the battlefield that is not adjacent to an enemy, or they can move normally from their current position. They cannot be targeted or damaged until they have taken an action or ended their turn."
+  hero: true
+  powerModifier: 105
+  variables: null
+- id: TerminatorArmour
+  gameId: TerminatorArmour
+  simpleName: Terminator Armour
+  name: <style="Terminator_Armor">Terminator Armour</style>
+  description: The first attack each turn against this unit deals <style="Stat">{[dmgPctReduction]}% Damage</style>. <style="Stat_Hits">Hits</style> dealing <style="DMG_Psychic">Psychic</style> or <style="DMG_Direct">Direct</style> Damage are excluded. This unit cannot be <style="Debuff_Pinned">Suppressed</style>.
+  hero: true
+  powerModifier: 105
+  variables: null
+- id: Terrifying
+  gameId: Terrifying
+  simpleName: Terrifying
+  name: <style="Terrifying">Terrifying</style>
+  description: Takes <style="Stat">{[defensePct]}% Damage</style> from <style="Stat_Melee">Melee</style> attacks
+  hero: true
+  powerModifier: 115
+  variables: null
+- id: ThrillSeekers
+  gameId: ThrillSeekers
+  simpleName: Thrill Seekers
+  name: <style="ThrillSeekers">Thrill Seekers</style>
+  description: Each turn, when this unit takes <style="Stat_Damage">Damage</style> or targets an enemy with full <style="Stat_Health">Health</style>, it becomes <i>Thrilled</i> for {[nrOfRounds]} round. While <i>Thrilled</i>, its <style="Stat_CritChance">Crit Chance</style> is increased by <style="Stat">+{[extraCritChance]}%</style> and if it defeats an enemy with a <style="Stat_CritDamage">Crit</style>, that enemy is <style="Obliterated">always overkilled</style>.
+  hero: true
+  powerModifier: 103
+  variables: null
+- id: TwoManTeam
+  gameId: TwoManTeam
+  simpleName: 2-man Team
+  name: <style="2_Man_Team">2-man Team</style>
+  description: Takes a maximum of <style="Stat">50%</style> of its max <style="Stat_Health">Health</style> in <style="Stat_Damage">Damage</style> from a single <style="Stat_Hits">hit</style>. Does not apply to <style="DMG_Blast">Blast Damage</style>. Once below <style="Stat">50%</style> of its max <style="Stat_Health">Health</style>, cannot be <style="Healing">healed</style> above <style="Stat">50%</style> of its max <style="Stat_Health">Health</style> again.
+  hero: null
+  powerModifier: 104
+  variables: null
+- id: Unstoppable
+  gameId: Unstoppable
+  simpleName: Unstoppable
+  name: <style="Unstoppable">Unstoppable</style>
+  description: This unit does not have to stop on special hexes and <style="HexEffect">hex effects</style> that would normally force a unit to end their <style="Stat_Movement">Movement</style>.
+  hero: true
+  powerModifier: 102
+  variables: null
+- id: Vehicle
+  gameId: Vehicle
+  simpleName: Vehicle
+  name: <style="Vehicle">Vehicle</style>
+  description: This unit does not have to stop on special hexes and <style="HexEffect">hex effects</style> that would normally force a unit to end their <style="Stat_Movement">Movement</style>. Does not get any bonuses from <style="Tile_Grass">Tall Grass</style> and <style="Tile_Trench">Trenches</style>. This unit is also <style="Mechanical">Mechanical</style>.
+  hero: true
+  powerModifier: 101
+  variables: null
+- id: WeaverOfFate
+  gameId: WeaverOfFate
+  simpleName: Weaver Of Fates
+  name: <style="WeaverOfFate">Weaver of Fates</style>
+  description: In any turn where 3 or more enemy units have taken <style="DMG_Psychic">Psychic Damage</style>, this unit will deal the maximum possible <style="Stat_Damage">Damage</style> with its attacks and abilities on that turn.
+  hero: true
+  powerModifier: 105
+  variables: null

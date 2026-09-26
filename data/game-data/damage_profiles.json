@@ -1,0 +1,108 @@
+[
+  {
+    "PiercingRatio": 1,
+    "id": "Physical"
+  },
+  {
+    "PiercingRatio": 15,
+    "id": "Projectile"
+  },
+  {
+    "PiercingRatio": 10,
+    "Traits": [
+      "LasCannon"
+    ],
+    "id": "Las"
+  },
+  {
+    "PiercingRatio": 20,
+    "id": "Bolter"
+  },
+  {
+    "PiercingRatio": 25,
+    "Traits": [
+      "OnFire"
+    ],
+    "id": "Flame"
+  },
+  {
+    "PiercingRatio": 35,
+    "id": "Particle"
+  },
+  {
+    "PiercingRatio": 40,
+    "id": "Acid"
+  },
+  {
+    "PiercingRatio": 40,
+    "id": "Power"
+  },
+  {
+    "PiercingRatio": 65,
+    "id": "Plasma"
+  },
+  {
+    "PiercingRatio": 75,
+    "Traits": [
+      "OnMelta"
+    ],
+    "id": "Melta"
+  },
+  {
+    "PiercingRatio": 55,
+    "id": "HeavyRound"
+  },
+  {
+    "PiercingRatio": 60,
+    "id": "Gauss"
+  },
+  {
+    "PiercingRatio": 100,
+    "Traits": [
+      "NoBlocking"
+    ],
+    "id": "Psychic"
+  },
+  {
+    "PiercingRatio": 100,
+    "id": "DirectDamage"
+  },
+  {
+    "PiercingRatio": 30,
+    "id": "Energy"
+  },
+  {
+    "PiercingRatio": 20,
+    "id": "Chain"
+  },
+  {
+    "PiercingRatio": 15,
+    "Traits": [
+      "HitsMultipleMembers"
+    ],
+    "id": "Blast"
+  },
+  {
+    "PiercingRatio": 80,
+    "id": "Piercing"
+  },
+  {
+    "PiercingRatio": 30,
+    "id": "Bio"
+  },
+  {
+    "PiercingRatio": 20,
+    "id": "Pulse"
+  },
+  {
+    "PiercingRatio": 70,
+    "Traits": [
+      "OnToxic"
+    ],
+    "id": "Toxic"
+  },
+  {
+    "PiercingRatio": 50,
+    "id": "Eviscerate"
+  }
+]

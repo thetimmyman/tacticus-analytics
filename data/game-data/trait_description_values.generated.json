@@ -1,0 +1,262 @@
+{
+  "count": 45,
+  "crosswalk": {
+    "path": "scripts/data/trait_description_variable_crosswalk.json",
+    "sha256": "8763d1f9e5d5ab6a743e2038c58aec80c07fcfa6e01d92303d8dba614838cdf2"
+  },
+  "schemaVersion": 1,
+  "source": {
+    "channel": "google-play-production",
+    "gameConfig": {
+      "file": "0dac07b85404278e1999a06541fbe10d.json",
+      "sha256": "3ee33444f4dd9ed1dd7de9f3d83e7daf3742ebc68b7e3a25a2dee406c494f39d"
+    },
+    "globalConfig": {
+      "file": "6aee32710d799adf11b155d82d5e7e7a.json",
+      "sha256": "a38706480e1561e5b90b0b7c90102e85915e186cc82fcd25b32f32a95c10110b"
+    },
+    "kind": "attested production Android hydrated config pair",
+    "packageName": "com.snowprintstudios.tacticus",
+    "sourceAttestationDigestSha256": "6e12c55d4a58f90c190b34d4f0355a93924743cbb51da5be31c8f1ece08da619",
+    "versionCode": 2498,
+    "versionName": "1.41.101"
+  },
+  "traits": {
+    "ActOfFaith": {
+      "extraCritChance": {
+        "sourcePath": "clientGameConfig.globalValues.actOfFaithExtraCritChance",
+        "value": 10
+      },
+      "extraCritDmgPct": {
+        "sourcePath": "clientGameConfig.globalValues.actOfFaithExtraCritDmgPct",
+        "value": 25
+      }
+    },
+    "BattleFatigue": {
+      "chance": {
+        "sourcePath": "clientGameConfig.globalValues.battleFatigueFleeChance",
+        "value": 10
+      },
+      "chance_2": {
+        "sourcePath": "clientGameConfig.globalValues.battleFatigueFleeChanceOverkill",
+        "value": 40
+      }
+    },
+    "BeastSlayer": {
+      "blockChance": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.beastSlayerBlockChance",
+        "value": 10
+      },
+      "extraDmgPct": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.beastSlayerExtraDmgPct",
+        "value": 20
+      }
+    },
+    "BeastSnagga": {
+      "blockChance": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.beastSnaggaBlockChance",
+        "value": 10
+      },
+      "blockDmgPct": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.beastSnaggaDmgAsMaxHpPct",
+        "value": 20
+      },
+      "extraDmgPct": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.beastSnaggaDmgBonus",
+        "value": 20
+      }
+    },
+    "BlessingsOfKhorne": {
+      "dmgPctReduction": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.blessingsOfKhorneDmgPctReduction",
+        "value": 8
+      },
+      "extraDmgPct": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.blessingsOfKhorneExtraDmgPct",
+        "value": 3
+      },
+      "nrOfHeroes": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.blessingsOfKhorneMaxDefeatedUnits",
+        "value": 8
+      }
+    },
+    "BossAdjutant": {
+      "damagePct": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.bossAdjutantDmgPct",
+        "value": 1
+      },
+      "damagePctReduction": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.bossAdjutantDmgReductionPct",
+        "value": 66
+      }
+    },
+    "CloseCombatWeakness": {
+      "dmgPctReduction": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.closeCombatWeaknessMeleeDmgPctReduction",
+        "value": -50
+      },
+      "dmgPctReduction_2": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.closeCombatWeaknessRangeDmgPctReduction",
+        "value": -25
+      }
+    },
+    "ContagionsOfNurgle": {
+      "armorReduction": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.contagionsOfNurgleArmorOneAura",
+        "value": -20
+      },
+      "armorReduction2": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.contagionsOfNurgleArmorTwoOrMoreAuras",
+        "value": -40
+      }
+    },
+    "CrushingStrike": {
+      "extraDmgPct": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.crushingStrikeExtraDmgPct",
+        "value": 50
+      }
+    },
+    "Daemon": {
+      "blockChance": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.daemonBlockChance",
+        "value": 25
+      },
+      "blockDmgPct": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.daemonBlockDamagePercentage",
+        "value": 50
+      }
+    },
+    "Dakka": {
+      "extraHit": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.dakkaExtraHits",
+        "value": 2
+      }
+    },
+    "Diminutive": {
+      "hitsReduction": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.diminutiveHitReduction",
+        "value": 1
+      }
+    },
+    "Emplacement": {
+      "damageModifier": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.emplacementMeleeDmgModifier",
+        "value": -50
+      },
+      "damageModifier_2": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.emplacementRangedDmgModifier",
+        "value": 50
+      }
+    },
+    "GetStuckIn": {
+      "chance": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.getStuckInChance",
+        "value": 30
+      },
+      "chance_2": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.getStuckInChance_2",
+        "value": 100
+      }
+    },
+    "HeavyWeapon": {
+      "extraDmgPct": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.heavyWeaponExtraDmg",
+        "value": 25
+      }
+    },
+    "LetTheGalaxyBurn": {
+      "chance": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.LetTheGalaxyBurnChancePct",
+        "value": 33
+      }
+    },
+    "LivingMetal": {
+      "hpPct": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.livingMetalHp",
+        "value": 10
+      }
+    },
+    "MartialKatah": {
+      "dmgReductionPct": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.martialKatahDmgReductionPct",
+        "value": 20
+      },
+      "extraDmgPct": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.martialKatahExtraDmgPct",
+        "value": 100
+      }
+    },
+    "Parry": {
+      "hitsReduction": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.parryHitReduction",
+        "value": 1
+      }
+    },
+    "PrioritisedEfficiency": {
+      "dmgReductionPct": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.prioritisedEfficiencyDmgReductionPct",
+        "value": 33
+      },
+      "extraDmgPct": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.prioritisedEfficiencyExtraDmgPct",
+        "value": 25
+      }
+    },
+    "Psyker": {
+      "extraDmgPct": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.psykerExtraDmg",
+        "value": 50
+      }
+    },
+    "PutridExplosion": {
+      "extraDmgPct": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.putridExplosionDmgPct",
+        "value": 25
+      }
+    },
+    "RangedSpecialist": {
+      "extraDmgPct": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.rangedSpecialistDmgPct",
+        "value": 33
+      }
+    },
+    "RapidAssault": {
+      "extraDmgPct": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.rapidAssaultExtraDmgPct",
+        "value": 25
+      }
+    },
+    "ShadowInTheWarp": {
+      "dmgPct": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.shadowInTheWarpDmgModifier",
+        "value": -25
+      },
+      "range": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.shadowInTheWarpRange",
+        "value": 2
+      }
+    },
+    "TerminatorArmour": {
+      "dmgPctReduction": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.terminatorArmourDmgReduction",
+        "value": -75
+      }
+    },
+    "Terrifying": {
+      "defensePct": {
+        "sourcePath": "clientGameConfig.globalValues.terrifyingBonus",
+        "value": -30
+      }
+    },
+    "ThrillSeekers": {
+      "extraCritChance": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.thrillSeekersExtraCritChance",
+        "value": 15
+      },
+      "nrOfRounds": {
+        "sourcePath": "clientGameConfig.globalValues.traitVariables.thrillSeekersNrOfRounds",
+        "value": 1
+      }
+    }
+  }
+}

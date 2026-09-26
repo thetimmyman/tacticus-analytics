@@ -1,0 +1,704 @@
+{
+  "$schema": "../schema.json",
+  "id": "guild-25-members",
+  "name": "Guild (25 members)",
+  "description": "25 member guild fixture for allocation testing",
+  "guildSize": 25,
+  "members": [
+    {
+      "playerId": "p01",
+      "displayName": "TopDPS1",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 2000000,
+          "player_vs_guild_avg": 0.67
+        },
+        "L5 Mortarion": {
+          "average_damage": 1600000,
+          "player_vs_guild_avg": 0.6
+        },
+        "L4 Mortarion": {
+          "average_damage": 1400000,
+          "player_vs_guild_avg": 0.56
+        },
+        "L3 Mortarion": {
+          "average_damage": 1200000,
+          "player_vs_guild_avg": 0.5
+        },
+        "M1 Magnus": { "average_damage": 1900000, "player_vs_guild_avg": 0.63 },
+        "L5 Magnus": { "average_damage": 1550000, "player_vs_guild_avg": 0.55 }
+      }
+    },
+    {
+      "playerId": "p02",
+      "displayName": "TopDPS2",
+      "availableTokens": 3,
+      "preferences": { "M1 Mortarion": "preferred" },
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 1900000,
+          "player_vs_guild_avg": 0.58
+        },
+        "L5 Mortarion": {
+          "average_damage": 1500000,
+          "player_vs_guild_avg": 0.5
+        },
+        "L4 Mortarion": {
+          "average_damage": 1300000,
+          "player_vs_guild_avg": 0.44
+        },
+        "L3 Mortarion": {
+          "average_damage": 1100000,
+          "player_vs_guild_avg": 0.38
+        },
+        "M1 Magnus": { "average_damage": 1850000, "player_vs_guild_avg": 0.54 },
+        "L5 Magnus": { "average_damage": 1450000, "player_vs_guild_avg": 0.45 }
+      }
+    },
+    {
+      "playerId": "p03",
+      "displayName": "TopDPS3",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 1850000,
+          "player_vs_guild_avg": 0.54
+        },
+        "L5 Mortarion": {
+          "average_damage": 1450000,
+          "player_vs_guild_avg": 0.45
+        },
+        "L4 Mortarion": {
+          "average_damage": 1250000,
+          "player_vs_guild_avg": 0.39
+        },
+        "L3 Mortarion": {
+          "average_damage": 1050000,
+          "player_vs_guild_avg": 0.31
+        },
+        "M1 Magnus": { "average_damage": 1800000, "player_vs_guild_avg": 0.5 },
+        "L5 Magnus": { "average_damage": 1400000, "player_vs_guild_avg": 0.4 }
+      }
+    },
+    {
+      "playerId": "p04",
+      "displayName": "Veteran1",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 1700000,
+          "player_vs_guild_avg": 0.42
+        },
+        "L5 Mortarion": {
+          "average_damage": 1350000,
+          "player_vs_guild_avg": 0.35
+        },
+        "L4 Mortarion": {
+          "average_damage": 1150000,
+          "player_vs_guild_avg": 0.28
+        },
+        "L3 Mortarion": {
+          "average_damage": 950000,
+          "player_vs_guild_avg": 0.19
+        },
+        "M1 Magnus": { "average_damage": 1650000, "player_vs_guild_avg": 0.38 },
+        "L5 Magnus": { "average_damage": 1300000, "player_vs_guild_avg": 0.3 }
+      }
+    },
+    {
+      "playerId": "p05",
+      "displayName": "Veteran2",
+      "availableTokens": 3,
+      "preferences": { "L5 Mortarion": "preferred" },
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 1650000,
+          "player_vs_guild_avg": 0.38
+        },
+        "L5 Mortarion": {
+          "average_damage": 1400000,
+          "player_vs_guild_avg": 0.4
+        },
+        "L4 Mortarion": {
+          "average_damage": 1200000,
+          "player_vs_guild_avg": 0.33
+        },
+        "L3 Mortarion": {
+          "average_damage": 1000000,
+          "player_vs_guild_avg": 0.25
+        },
+        "M1 Magnus": { "average_damage": 1600000, "player_vs_guild_avg": 0.33 },
+        "L5 Magnus": { "average_damage": 1350000, "player_vs_guild_avg": 0.35 }
+      }
+    },
+    {
+      "playerId": "p06",
+      "displayName": "Veteran3",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 1600000,
+          "player_vs_guild_avg": 0.33
+        },
+        "L5 Mortarion": {
+          "average_damage": 1300000,
+          "player_vs_guild_avg": 0.3
+        },
+        "L4 Mortarion": {
+          "average_damage": 1100000,
+          "player_vs_guild_avg": 0.22
+        },
+        "L3 Mortarion": {
+          "average_damage": 900000,
+          "player_vs_guild_avg": 0.13
+        },
+        "M1 Magnus": { "average_damage": 1550000, "player_vs_guild_avg": 0.29 },
+        "L5 Magnus": { "average_damage": 1250000, "player_vs_guild_avg": 0.25 }
+      }
+    },
+    {
+      "playerId": "p07",
+      "displayName": "Veteran4",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 1550000,
+          "player_vs_guild_avg": 0.29
+        },
+        "L5 Mortarion": {
+          "average_damage": 1250000,
+          "player_vs_guild_avg": 0.25
+        },
+        "L4 Mortarion": {
+          "average_damage": 1050000,
+          "player_vs_guild_avg": 0.17
+        },
+        "L3 Mortarion": {
+          "average_damage": 850000,
+          "player_vs_guild_avg": 0.06
+        },
+        "M1 Magnus": { "average_damage": 1500000, "player_vs_guild_avg": 0.25 },
+        "L5 Magnus": { "average_damage": 1200000, "player_vs_guild_avg": 0.2 }
+      }
+    },
+    {
+      "playerId": "p08",
+      "displayName": "Veteran5",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 1500000,
+          "player_vs_guild_avg": 0.25
+        },
+        "L5 Mortarion": {
+          "average_damage": 1200000,
+          "player_vs_guild_avg": 0.2
+        },
+        "L4 Mortarion": {
+          "average_damage": 1000000,
+          "player_vs_guild_avg": 0.11
+        },
+        "L3 Mortarion": {
+          "average_damage": 800000,
+          "player_vs_guild_avg": 0.0
+        },
+        "M1 Magnus": { "average_damage": 1450000, "player_vs_guild_avg": 0.21 },
+        "L5 Magnus": { "average_damage": 1150000, "player_vs_guild_avg": 0.15 }
+      }
+    },
+    {
+      "playerId": "p09",
+      "displayName": "Regular1",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 1400000,
+          "player_vs_guild_avg": 0.17
+        },
+        "L5 Mortarion": {
+          "average_damage": 1100000,
+          "player_vs_guild_avg": 0.1
+        },
+        "L4 Mortarion": {
+          "average_damage": 950000,
+          "player_vs_guild_avg": 0.06
+        },
+        "L3 Mortarion": {
+          "average_damage": 780000,
+          "player_vs_guild_avg": -0.03
+        },
+        "M1 Magnus": { "average_damage": 1350000, "player_vs_guild_avg": 0.13 },
+        "L5 Magnus": { "average_damage": 1050000, "player_vs_guild_avg": 0.05 }
+      }
+    },
+    {
+      "playerId": "p10",
+      "displayName": "Regular2",
+      "availableTokens": 3,
+      "preferences": { "M1 Mortarion": "avoid" },
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 1350000,
+          "player_vs_guild_avg": 0.13
+        },
+        "L5 Mortarion": {
+          "average_damage": 1080000,
+          "player_vs_guild_avg": 0.08
+        },
+        "L4 Mortarion": {
+          "average_damage": 920000,
+          "player_vs_guild_avg": 0.02
+        },
+        "L3 Mortarion": {
+          "average_damage": 760000,
+          "player_vs_guild_avg": -0.05
+        },
+        "M1 Magnus": { "average_damage": 1300000, "player_vs_guild_avg": 0.08 },
+        "L5 Magnus": { "average_damage": 1030000, "player_vs_guild_avg": 0.03 }
+      }
+    },
+    {
+      "playerId": "p11",
+      "displayName": "Regular3",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 1300000,
+          "player_vs_guild_avg": 0.08
+        },
+        "L5 Mortarion": {
+          "average_damage": 1050000,
+          "player_vs_guild_avg": 0.05
+        },
+        "L4 Mortarion": {
+          "average_damage": 900000,
+          "player_vs_guild_avg": 0.0
+        },
+        "L3 Mortarion": {
+          "average_damage": 750000,
+          "player_vs_guild_avg": -0.06
+        },
+        "M1 Magnus": { "average_damage": 1250000, "player_vs_guild_avg": 0.04 },
+        "L5 Magnus": { "average_damage": 1000000, "player_vs_guild_avg": 0.0 }
+      }
+    },
+    {
+      "playerId": "p12",
+      "displayName": "Regular4",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 1250000,
+          "player_vs_guild_avg": 0.04
+        },
+        "L5 Mortarion": {
+          "average_damage": 1020000,
+          "player_vs_guild_avg": 0.02
+        },
+        "L4 Mortarion": {
+          "average_damage": 880000,
+          "player_vs_guild_avg": -0.02
+        },
+        "L3 Mortarion": {
+          "average_damage": 730000,
+          "player_vs_guild_avg": -0.09
+        },
+        "M1 Magnus": { "average_damage": 1200000, "player_vs_guild_avg": 0.0 },
+        "L5 Magnus": { "average_damage": 970000, "player_vs_guild_avg": -0.03 }
+      }
+    },
+    {
+      "playerId": "p13",
+      "displayName": "Regular5",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 1200000,
+          "player_vs_guild_avg": 0.0
+        },
+        "L5 Mortarion": {
+          "average_damage": 1000000,
+          "player_vs_guild_avg": 0.0
+        },
+        "L4 Mortarion": {
+          "average_damage": 860000,
+          "player_vs_guild_avg": -0.04
+        },
+        "L3 Mortarion": {
+          "average_damage": 720000,
+          "player_vs_guild_avg": -0.1
+        },
+        "M1 Magnus": {
+          "average_damage": 1150000,
+          "player_vs_guild_avg": -0.04
+        },
+        "L5 Magnus": { "average_damage": 950000, "player_vs_guild_avg": -0.05 }
+      }
+    },
+    {
+      "playerId": "p14",
+      "displayName": "Regular6",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 1150000,
+          "player_vs_guild_avg": -0.04
+        },
+        "L5 Mortarion": {
+          "average_damage": 980000,
+          "player_vs_guild_avg": -0.02
+        },
+        "L4 Mortarion": {
+          "average_damage": 840000,
+          "player_vs_guild_avg": -0.07
+        },
+        "L3 Mortarion": {
+          "average_damage": 700000,
+          "player_vs_guild_avg": -0.13
+        },
+        "M1 Magnus": {
+          "average_damage": 1100000,
+          "player_vs_guild_avg": -0.08
+        },
+        "L5 Magnus": { "average_damage": 930000, "player_vs_guild_avg": -0.07 }
+      }
+    },
+    {
+      "playerId": "p15",
+      "displayName": "Regular7",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 1100000,
+          "player_vs_guild_avg": -0.08
+        },
+        "L5 Mortarion": {
+          "average_damage": 950000,
+          "player_vs_guild_avg": -0.05
+        },
+        "L4 Mortarion": {
+          "average_damage": 820000,
+          "player_vs_guild_avg": -0.09
+        },
+        "L3 Mortarion": {
+          "average_damage": 690000,
+          "player_vs_guild_avg": -0.14
+        },
+        "M1 Magnus": {
+          "average_damage": 1050000,
+          "player_vs_guild_avg": -0.13
+        },
+        "L5 Magnus": { "average_damage": 900000, "player_vs_guild_avg": -0.1 }
+      }
+    },
+    {
+      "playerId": "p16",
+      "displayName": "Mid1",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 1050000,
+          "player_vs_guild_avg": -0.13
+        },
+        "L5 Mortarion": {
+          "average_damage": 920000,
+          "player_vs_guild_avg": -0.08
+        },
+        "L4 Mortarion": {
+          "average_damage": 800000,
+          "player_vs_guild_avg": -0.11
+        },
+        "L3 Mortarion": {
+          "average_damage": 680000,
+          "player_vs_guild_avg": -0.15
+        },
+        "M1 Magnus": {
+          "average_damage": 1000000,
+          "player_vs_guild_avg": -0.17
+        },
+        "L5 Magnus": { "average_damage": 870000, "player_vs_guild_avg": -0.13 }
+      }
+    },
+    {
+      "playerId": "p17",
+      "displayName": "Mid2",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 1000000,
+          "player_vs_guild_avg": -0.17
+        },
+        "L5 Mortarion": {
+          "average_damage": 880000,
+          "player_vs_guild_avg": -0.12
+        },
+        "L4 Mortarion": {
+          "average_damage": 780000,
+          "player_vs_guild_avg": -0.13
+        },
+        "L3 Mortarion": {
+          "average_damage": 660000,
+          "player_vs_guild_avg": -0.18
+        },
+        "M1 Magnus": { "average_damage": 950000, "player_vs_guild_avg": -0.21 },
+        "L5 Magnus": { "average_damage": 830000, "player_vs_guild_avg": -0.17 }
+      }
+    },
+    {
+      "playerId": "p18",
+      "displayName": "Mid3",
+      "availableTokens": 3,
+      "preferences": { "L4 Mortarion": "preferred" },
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 950000,
+          "player_vs_guild_avg": -0.21
+        },
+        "L5 Mortarion": {
+          "average_damage": 850000,
+          "player_vs_guild_avg": -0.15
+        },
+        "L4 Mortarion": {
+          "average_damage": 900000,
+          "player_vs_guild_avg": 0.0
+        },
+        "L3 Mortarion": {
+          "average_damage": 640000,
+          "player_vs_guild_avg": -0.2
+        },
+        "M1 Magnus": { "average_damage": 900000, "player_vs_guild_avg": -0.25 },
+        "L5 Magnus": { "average_damage": 800000, "player_vs_guild_avg": -0.2 }
+      }
+    },
+    {
+      "playerId": "p19",
+      "displayName": "Mid4",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 900000,
+          "player_vs_guild_avg": -0.25
+        },
+        "L5 Mortarion": {
+          "average_damage": 820000,
+          "player_vs_guild_avg": -0.18
+        },
+        "L4 Mortarion": {
+          "average_damage": 740000,
+          "player_vs_guild_avg": -0.18
+        },
+        "L3 Mortarion": {
+          "average_damage": 620000,
+          "player_vs_guild_avg": -0.23
+        },
+        "M1 Magnus": { "average_damage": 850000, "player_vs_guild_avg": -0.29 },
+        "L5 Magnus": { "average_damage": 770000, "player_vs_guild_avg": -0.23 }
+      }
+    },
+    {
+      "playerId": "p20",
+      "displayName": "Mid5",
+      "availableTokens": 3,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 850000,
+          "player_vs_guild_avg": -0.29
+        },
+        "L5 Mortarion": {
+          "average_damage": 780000,
+          "player_vs_guild_avg": -0.22
+        },
+        "L4 Mortarion": {
+          "average_damage": 720000,
+          "player_vs_guild_avg": -0.2
+        },
+        "L3 Mortarion": {
+          "average_damage": 600000,
+          "player_vs_guild_avg": -0.25
+        },
+        "M1 Magnus": { "average_damage": 800000, "player_vs_guild_avg": -0.33 },
+        "L5 Magnus": { "average_damage": 730000, "player_vs_guild_avg": -0.27 }
+      }
+    },
+    {
+      "playerId": "p21",
+      "displayName": "Casual1",
+      "availableTokens": 2,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 800000,
+          "player_vs_guild_avg": -0.33
+        },
+        "L5 Mortarion": {
+          "average_damage": 740000,
+          "player_vs_guild_avg": -0.26
+        },
+        "L4 Mortarion": {
+          "average_damage": 680000,
+          "player_vs_guild_avg": -0.24
+        },
+        "L3 Mortarion": {
+          "average_damage": 580000,
+          "player_vs_guild_avg": -0.28
+        },
+        "M1 Magnus": { "average_damage": 750000, "player_vs_guild_avg": -0.38 },
+        "L5 Magnus": { "average_damage": 690000, "player_vs_guild_avg": -0.31 }
+      }
+    },
+    {
+      "playerId": "p22",
+      "displayName": "Casual2",
+      "availableTokens": 2,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 750000,
+          "player_vs_guild_avg": -0.38
+        },
+        "L5 Mortarion": {
+          "average_damage": 700000,
+          "player_vs_guild_avg": -0.3
+        },
+        "L4 Mortarion": {
+          "average_damage": 650000,
+          "player_vs_guild_avg": -0.28
+        },
+        "L3 Mortarion": {
+          "average_damage": 550000,
+          "player_vs_guild_avg": -0.31
+        },
+        "M1 Magnus": { "average_damage": 700000, "player_vs_guild_avg": -0.42 },
+        "L5 Magnus": { "average_damage": 650000, "player_vs_guild_avg": -0.35 }
+      }
+    },
+    {
+      "playerId": "p23",
+      "displayName": "Casual3",
+      "availableTokens": 2,
+      "preferences": { "L3 Mortarion": "preferred" },
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 700000,
+          "player_vs_guild_avg": -0.42
+        },
+        "L5 Mortarion": {
+          "average_damage": 660000,
+          "player_vs_guild_avg": -0.34
+        },
+        "L4 Mortarion": {
+          "average_damage": 620000,
+          "player_vs_guild_avg": -0.31
+        },
+        "L3 Mortarion": {
+          "average_damage": 700000,
+          "player_vs_guild_avg": -0.13
+        },
+        "M1 Magnus": { "average_damage": 650000, "player_vs_guild_avg": -0.46 },
+        "L5 Magnus": { "average_damage": 610000, "player_vs_guild_avg": -0.39 }
+      }
+    },
+    {
+      "playerId": "p24",
+      "displayName": "Casual4",
+      "availableTokens": 2,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 650000,
+          "player_vs_guild_avg": -0.46
+        },
+        "L5 Mortarion": {
+          "average_damage": 620000,
+          "player_vs_guild_avg": -0.38
+        },
+        "L4 Mortarion": {
+          "average_damage": 580000,
+          "player_vs_guild_avg": -0.36
+        },
+        "L3 Mortarion": {
+          "average_damage": 500000,
+          "player_vs_guild_avg": -0.38
+        },
+        "M1 Magnus": { "average_damage": 600000, "player_vs_guild_avg": -0.5 },
+        "L5 Magnus": { "average_damage": 570000, "player_vs_guild_avg": -0.43 }
+      }
+    },
+    {
+      "playerId": "p25",
+      "displayName": "Casual5",
+      "availableTokens": 2,
+      "preferences": {},
+      "performanceData": {
+        "M1 Mortarion": {
+          "average_damage": 600000,
+          "player_vs_guild_avg": -0.5
+        },
+        "L5 Mortarion": {
+          "average_damage": 580000,
+          "player_vs_guild_avg": -0.42
+        },
+        "L4 Mortarion": {
+          "average_damage": 540000,
+          "player_vs_guild_avg": -0.4
+        },
+        "L3 Mortarion": {
+          "average_damage": 480000,
+          "player_vs_guild_avg": -0.4
+        },
+        "M1 Magnus": { "average_damage": 550000, "player_vs_guild_avg": -0.54 },
+        "L5 Magnus": { "average_damage": 530000, "player_vs_guild_avg": -0.47 }
+      }
+    }
+  ],
+  "bossHpData": {
+    "legendary": {
+      "L1": 5000000,
+      "L2": 8000000,
+      "L3": 12000000,
+      "L4": 18000000,
+      "L5": 25000000
+    },
+    "mythic": {
+      "M1": 45000000
+    },
+    "byBossName": {
+      "Mortarion": {
+        "M1": 48000000,
+        "L5": 26000000,
+        "L4": 18000000,
+        "L3": 12000000
+      },
+      "Magnus": {
+        "M1": 45000000,
+        "L5": 24000000,
+        "L4": 17000000,
+        "L3": 11000000
+      }
+    }
+  },
+  "defaultConstraints": {
+    "maxTokensPerPlayer": 3,
+    "maxTokensPerBoss": 3,
+    "minTokensPerBoss": 1,
+    "flexibleTokens": true
+  },
+  "notes": "25 members: 20 with 3 tokens, 5 casual members with 2 tokens. Performance data for Mortarion and Magnus bosses."
+}

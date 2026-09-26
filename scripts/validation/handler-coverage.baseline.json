@@ -1,0 +1,82 @@
+{
+  "$schema_note": "PS-79 / TA-A-023. The operator's record of which job_types the work_queue actually carries. scripts/validation/check-handler-coverage.mjs FAILS the worker image roll when any job_type listed here has no registered handler in the image.",
+  "why_this_file_exists": "Most work_queue traffic is enqueued by pg_cron jobs created live with cron.schedule_in_database; their command bodies are not tracked in this repository at all (see supabase/migrations/20260904030000_ps22_retire_guc_secret_channel_general.sql). The checker can therefore only discover two producers statically (one SQL INSERT in a migration, one TypeScript insert in the onboarding route). Everything else has to be recorded here, from the live queue, or the gate is near-vacuous.",
+  "refresh": {
+    "last_refreshed_from_database": null,
+    "seeded_from": "repository documentation (the pg_cron/schedule statements in each handler's header and in app/lib/jobs/register-*-handlers.ts) — NOT yet from the live queue",
+    "command": "psql -d postgres -Atc \"SELECT job_type, count(*) FROM work_queue WHERE created_at > now()-interval '14 days' GROUP BY 1 ORDER BY 2 DESC\"",
+    "how": [
+      "1. Run the command above against the operational database.",
+      "2. Replace the job_types array below with one entry per row: {\"job_type\": <col 1>, \"count\": <col 2>, \"source\": \"proof query\"}.",
+      "3. Set last_refreshed_from_database to the date you ran it.",
+      "4. Run `npm run jobs:handler-coverage:check`. A new job_type with no handler fails the gate here, in a PR, instead of dead-lettering rows after an image roll.",
+      "5. To compare the other direction, diff the handlers.txt the checker writes against `psql -d postgres -Atc \"SELECT DISTINCT job_type FROM work_queue WHERE created_at > now()-interval '14 days' ORDER BY 1\"`."
+    ]
+  },
+  "job_types": [
+    {
+      "job_type": "daily-alert-summary",
+      "source": "pg_cron (app/lib/jobs/daily-alert-summary.ts header)"
+    },
+    {
+      "job_type": "discord-leaderboard-update-cluster",
+      "source": "pg_cron (app/lib/jobs/discord-leaderboard-update.ts header)"
+    },
+    {
+      "job_type": "discord-leaderboard-update-guild",
+      "source": "pg_cron (app/lib/jobs/discord-leaderboard-update.ts header)"
+    },
+    {
+      "job_type": "guild-batch-sync",
+      "source": "pg_cron (hourly; app/lib/jobs/guild-batch-sync.ts header)"
+    },
+    {
+      "job_type": "guild_historical_backfill",
+      "source": "app/api/onboarding/cluster/add-guild/route.ts (also found statically)"
+    },
+    {
+      "job_type": "premium-guild-sync",
+      "source": "pg_cron (app/lib/jobs/guild-sync.ts:363 note)"
+    },
+    {
+      "job_type": "reconcile-guild-ranks",
+      "source": "pg_cron (scheduled reconciler; app/lib/jobs/reconcile-guild-ranks.ts header)"
+    },
+    {
+      "job_type": "refresh-explore-snapshots",
+      "source": "pg_cron (app/lib/jobs/refresh-explore-snapshots.ts header)"
+    },
+    {
+      "job_type": "refresh-meta-atlas",
+      "source": "pg_cron (app/lib/jobs/refresh-meta-atlas.ts header)"
+    },
+    {
+      "job_type": "roster-backfill",
+      "source": "pg_cron (app/lib/jobs/roster-backfill.ts header)"
+    },
+    {
+      "job_type": "roster-loki-backfill",
+      "source": "pg_cron (app/lib/jobs/roster-loki-backfill.ts header)"
+    },
+    {
+      "job_type": "season-transition-monitor",
+      "source": "pg_cron (app/lib/jobs/season-transition-monitor.ts header)"
+    },
+    {
+      "job_type": "sync-scheduler",
+      "source": "pg_cron (app/lib/jobs/sync-scheduler.ts header)"
+    },
+    {
+      "job_type": "token-audit-guild",
+      "source": "pg_cron fan-out (app/lib/jobs/token-audit-guild.ts header)"
+    },
+    {
+      "job_type": "user-ban-reconcile",
+      "source": "enqueue_user_ban_reconciliation_jobs (also found statically)"
+    },
+    {
+      "job_type": "user-token-alert-scan",
+      "source": "pg_cron (app/lib/jobs/user-token-alert-scan.ts header)"
+    }
+  ]
+}

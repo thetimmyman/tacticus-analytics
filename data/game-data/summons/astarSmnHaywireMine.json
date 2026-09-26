@@ -1,0 +1,27 @@
+{
+  "ability_type": "passive",
+  "armor_by_level": [],
+  "damage_by_level": [],
+  "health_by_level": [],
+  "id": "astarSmnHaywireMine",
+  "max_summons": null,
+  "name": "Haywire Mine",
+  "summoner_abilities": [
+    {
+      "ability_id": "HaywireMine",
+      "ability_type": "passive",
+      "armor_by_level": [],
+      "damage_by_level": [],
+      "health_by_level": [],
+      "max_summons": null,
+      "reference_fields": [
+        "unitToSpawn"
+      ],
+      "spawns": true,
+      "summoner_hero": "cyrus"
+    }
+  ],
+  "summoner_ability": "HaywireMine",
+  "summoner_ability_id": "HaywireMine",
+  "summoner_hero": "cyrus"
+}

@@ -1,0 +1,12 @@
+# Edge functions build for this repo's own supabase/functions tree.
+#
+# Base image ships the Supabase edge-runtime binary (Deno-based, multi-arch
+# upstream: linux/amd64 + linux/arm64). This Dockerfile only adds this repo's
+# function source on top of it — the router at supabase/functions/main
+# dispatches by path (see that file's VALID_FUNCTIONS set), so one image
+# serves all 76 functions.
+FROM ghcr.io/supabase/edge-runtime:v1.76.2
+
+COPY supabase/functions /home/deno/functions
+
+CMD [ "start", "--main-service", "/home/deno/functions/main" ]

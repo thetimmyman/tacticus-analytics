@@ -1,0 +1,6 @@
+# Default repository ownership.
+* @thetimmyman
+
+# Generated database and auth boundaries.
+packages/app-core/src/database.generated.ts @thetimmyman
+proxy.ts @thetimmyman

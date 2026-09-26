@@ -1,0 +1,250 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "boss-assignment-scenario-schema",
+  "title": "Boss Assignment Scenario Schema",
+  "description": "Schema for boss assignment validation scenarios and guild fixtures",
+  "definitions": {
+    "scenarioPriority": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low"]
+    },
+    "scenarioCategory": {
+      "type": "string",
+      "enum": [
+        "token_allocation",
+        "boss_rotation",
+        "name_normalization",
+        "coverage_calculation",
+        "constraint_enforcement",
+        "preference_handling",
+        "prime_encounter",
+        "data_source",
+        "edge_case",
+        "regression"
+      ]
+    },
+    "preference": {
+      "type": "string",
+      "enum": ["preferred", "avoid", "neutral"]
+    },
+    "performanceEntry": {
+      "type": "object",
+      "properties": {
+        "average_damage": { "type": "number", "minimum": 0 },
+        "player_vs_guild_avg": { "type": "number" }
+      },
+      "required": ["average_damage", "player_vs_guild_avg"]
+    },
+    "member": {
+      "type": "object",
+      "properties": {
+        "playerId": { "type": "string" },
+        "displayName": { "type": "string" },
+        "availableTokens": { "type": "integer", "minimum": 0, "maximum": 10 },
+        "preferences": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/preference" }
+        },
+        "performanceData": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/performanceEntry" }
+        }
+      },
+      "required": [
+        "playerId",
+        "displayName",
+        "availableTokens",
+        "performanceData"
+      ]
+    },
+    "bossHpData": {
+      "type": "object",
+      "properties": {
+        "legendary": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        },
+        "mythic": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        },
+        "byBossName": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "properties": {
+        "maxTokensPerPlayer": { "type": "integer", "minimum": 1 },
+        "maxTokensPerBoss": { "type": "integer", "minimum": 1 },
+        "minTokensPerBoss": { "type": "integer", "minimum": 0 },
+        "flexibleTokens": { "type": "boolean" }
+      },
+      "required": ["maxTokensPerPlayer", "maxTokensPerBoss", "minTokensPerBoss"]
+    },
+    "guildFixture": {
+      "type": "object",
+      "properties": {
+        "$schema": { "type": "string" },
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "guildSize": { "type": "integer", "minimum": 1 },
+        "members": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/member" }
+        },
+        "bossHpData": { "$ref": "#/definitions/bossHpData" },
+        "defaultConstraints": { "$ref": "#/definitions/constraints" },
+        "notes": { "type": "string" }
+      },
+      "required": ["id", "name", "guildSize", "members", "defaultConstraints"]
+    },
+    "assertionOperator": {
+      "type": "string",
+      "enum": [
+        "equals",
+        "gte",
+        "lte",
+        "between",
+        "not_empty",
+        "sum_equals",
+        "all_satisfy",
+        "contains",
+        "coverage_gte"
+      ]
+    },
+    "assertion": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "description": { "type": "string" },
+        "target": { "type": "string" },
+        "operator": { "$ref": "#/definitions/assertionOperator" },
+        "expected": {},
+        "tolerance": { "type": "number" }
+      },
+      "required": ["id", "description", "target", "operator"]
+    },
+    "bossConfig": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "bossType": { "type": "string" },
+        "level": {
+          "type": "string",
+          "enum": ["L1", "L2", "L3", "L4", "L5", "M1"]
+        },
+        "isPrime": { "type": "boolean" },
+        "primeNumber": { "type": "integer", "enum": [1, 2] },
+        "primePosition": { "type": "string", "enum": ["left", "right"] },
+        "primeName": { "type": "string" },
+        "hp": { "type": "number", "minimum": 0 },
+        "requiredTokens": { "type": "integer", "minimum": 1 },
+        "rarity": { "type": "string", "enum": ["Mythic", "Legendary"] }
+      },
+      "required": ["id", "bossType", "level", "hp", "requiredTokens", "rarity"]
+    },
+    "scenario": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "$ref": "#/definitions/scenarioCategory" },
+        "priority": { "$ref": "#/definitions/scenarioPriority" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "guildSize": { "type": "integer" },
+        "guildFixture": { "type": "string" },
+        "rotationString": {
+          "type": "string",
+          "description": "Space-separated difficulty levels (e.g., 'M1 L5 L4 L3')"
+        },
+        "bosses": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/bossConfig" }
+        },
+        "players": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/member" }
+        },
+        "constraints": { "$ref": "#/definitions/constraints" },
+        "assertions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/assertion" }
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "version": { "type": "string" },
+        "relatedWorkItems": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": [
+        "id",
+        "name",
+        "category",
+        "priority",
+        "bosses",
+        "constraints",
+        "assertions"
+      ]
+    },
+    "baseline": {
+      "type": "object",
+      "properties": {
+        "scenarioId": { "type": "string" },
+        "version": { "type": "string" },
+        "capturedAt": { "type": "string", "format": "date-time" },
+        "expectedAllocations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": { "type": "number" }
+          }
+        },
+        "expectedCoverage": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "allocated": { "type": "number" },
+              "required": { "type": "number" },
+              "percent": { "type": "number" }
+            }
+          }
+        },
+        "expectedTotalTokens": { "type": "number" },
+        "passCount": { "type": "integer" },
+        "failCount": { "type": "integer" },
+        "lastValidated": { "type": "string", "format": "date-time" },
+        "gameVersion": { "type": "string" },
+        "season": { "type": "integer" },
+        "requiresRevalidation": { "type": "boolean" }
+      },
+      "required": [
+        "scenarioId",
+        "version",
+        "capturedAt",
+        "expectedAllocations",
+        "expectedCoverage"
+      ]
+    }
+  },
+  "oneOf": [
+    { "$ref": "#/definitions/guildFixture" },
+    { "$ref": "#/definitions/scenario" },
+    {
+      "type": "object",
+      "properties": {
+        "scenarios": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/scenario" }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/baseline" }
+    }
+  ]
+}

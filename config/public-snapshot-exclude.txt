@@ -1,0 +1,38 @@
+# Paths dropped from the PUBLIC snapshot of this repository.
+#
+# The private repository keeps everything. The public snapshot (built by
+# scripts/release/export-public-snapshot.sh) is the app and what it needs to
+# build, test and run -- not the internal record of how it got here. Anything
+# listed here is internal documentation: work items, architecture and design
+# notes, product decisions, security write-ups, runbooks, process templates
+# and history.
+#
+# Rules: one git pathspec per line (a directory prefix ends in `/`, `**`
+# globs are allowed); `#` starts a comment. Nothing listed here may be READ
+# by application, build or test code -- the export script re-runs the gates
+# on the stripped tree to prove it. Comment-only mentions ("see docs/...")
+# are fine and are reported, not failed.
+#
+# Infrastructure (deploy/, cluster manifests, runner topology) is NOT handled
+# here: several gates read deploy/ at test time, so removing it is the
+# private-overlay split tracked in docs/PUBLIC-RELEASE-CHECKLIST.md, not a
+# doc deletion.
+
+# Internal documentation tree: API notes, CI/runner topology, design and
+# architecture notes, deploy runbooks, security write-ups, retention
+# proposals, asset-provenance evidence notes, and the release checklist itself.
+docs/
+
+# Contribution-process templates (issue forms, PR template, contributor guide).
+.github/CONTRIBUTING.md
+.github/pull_request_template.md
+.github/ISSUE_TEMPLATE/
+
+# Per-directory developer READMEs. The root README.md stays (a public repo
+# needs one) and is rewritten for the public audience at flip time.
+**/README.md
+!README.md
+
+# Local agent run reports (also gitignored; listed so an accidental commit
+# can never reach the public snapshot).
+RESULT.md

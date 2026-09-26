@@ -1,0 +1,565 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+/tests/coverage
+/config/test-results/
+/playwright-report/
+/storybook-static/
+/test-results/
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+**/.DS_Store
+*.pem
+
+# Windows-specific
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+*.stackdump
+$RECYCLE.BIN/
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+.active-slot
+.tmp/
+.local-backups/
+
+# Operator-provisioned Dozzle verifier. The public template is
+# docker/dozzle/users.example.yml; never commit the generated users.yml.
+/docker/dozzle/users.yml
+
+# Coverage directory used by tools like istanbul
+/coverage
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
+.grunt
+
+# Bower dependency directory (https://bower.io/)
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons (https://nodejs.org/api/addons.html)
+build/Release
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Snowpack dependency directory (https://snowpack.dev/)
+web_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+out
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+!/public/
+/public/*
+!/public/asset-provenance.json
+!/public/favicon.svg
+!/public/grid.svg
+!/public/manifest.json
+!/public/robots.txt
+!/public/sitemap.xml
+# PWA manifest icons generated from public/favicon.svg via
+# scripts/assets/generate-pwa-icons.mjs (PS-275).
+!/public/icons/
+!/public/icons/**
+!/public/images/
+/public/images/*
+!/public/images/bosses/
+!/public/images/bosses/**
+!/public/images/frames/
+!/public/images/frames/**
+!/public/images/game-assets/
+!/public/images/game-assets/**
+# Roster tile art extracted from an attested Tacticus LIVE build.
+!/public/images/portraits/
+!/public/images/portraits/**
+!/public/images/logo-no-words.png
+!/public/images/logo-words.png
+!/public/images/tacticus-raidman.svg
+# Vendored datamine sprites: rank icons + war-zone images, served
+# same-origin instead of hot-linking the unrstuart/datamine_tacticus GitHub repo.
+!/public/images/ranks/
+!/public/images/ranks/**
+!/public/images/stars/
+!/public/images/stars/**
+!/public/images/war-zones/
+!/public/images/war-zones/**
+# Token game-mode icons for the /home Token Availability widget.
+!/public/images/tokens/
+!/public/images/tokens/**
+
+# Vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# SWC
+.swc/
+
+# Turbo
+.turbo
+
+# local env files
+.env
+.env.*
+!.env.example
+!.env.local.example
+.env*.local
+.env.production.local
+.env.upstash
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+/.env.local
+
+# MCP configuration (contains sensitive credentials)
+.mcp.json
+
+# Private keys, credential bundles, and local authentication stores
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.kdbx
+*.ovpn
+id_rsa
+id_rsa.*
+id_dsa
+id_dsa.*
+id_ecdsa
+id_ecdsa.*
+id_ed25519
+id_ed25519.*
+.netrc
+.pypirc
+**/credentials.json
+**/service-account*.json
+**/service_account*.json
+**/client_secret_*.json
+**/*-credentials.json
+!**/credentials.example.json
+!**/service-account*.example.json
+!**/service_account*.example.json
+!**/client_secret_*.example.json
+!**/*-credentials.example.json
+**/.aws/credentials
+**/.docker/config.json
+**/application_default_credentials.json
+.sentryclirc
+.pgpass
+.psql_history
+.rediscli_history
+.my.cnf
+.git-credentials
+.bash_history
+.zsh_history
+.python_history
+.config/gh/
+.config/glab-cli/
+.config/gcloud/
+.azure/
+.terraform.d/credentials.tfrc.json
+credentials.tfrc.json
+.vault-token
+.pulumi/
+
+# Local infrastructure credentials and secret-bearing variable files
+kubeconfig
+kubeconfig.*
+!kubeconfig.example
+!kubeconfig.*.example
+.envrc
+.direnv/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+!.dev.vars.*.example
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+!*.tfvars.json.example
+
+# Terraform local state, plans, overrides, and provider cache
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfplan.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# Cloud/provider CLI state and authenticated browser sessions
+.wrangler/
+.firebase/
+firebase-debug.log*
+playwright/.auth/
+blob-report/
+storageState*.json
+storage-state*.json
+
+# Local databases, database exports, and diagnostic captures
+*.sqlite
+*.sqlite3
+*.db
+*.db3
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite3-journal
+*.sqlite3-shm
+*.sqlite3-wal
+*.dump
+*.dmp
+*.sql.gz
+*.sql.bz2
+*.sql.xz
+*.har
+*.pcap
+*.pcapng
+/core
+/core.*
+*.core
+*.heapdump
+*.hprof
+dump.rdb
+appendonly.aof
+
+# Project organization
+/archive/
+# archived/
+app/api/debug/
+docs/reports/
+*.log
+# Bare `temp*` is unanchored, so it matched any path segment starting with
+# "temp" anywhere in the tree (it silently swallowed supabase/templates/).
+# Anchored to the forms actually intended.
+/temp/
+/temp-*
+/temp.*
+
+# Local deploy overlays generated by operator tooling
+/k8s/.deploy-overlays/
+
+# Generated reports and bot-written latest artifacts
+/scripts/reports/
+/docs/parity-program/AUTOMATION_STATUS_DASHBOARD.md
+/monitoring/egress-report-*.json
+/docs/work-items/audits/data/indexes/
+
+# Half-written generated type outputs should be replaced atomically, not tracked.
+/packages/app-core/src/database.generated.ts.new
+
+# Local full schema docs; checked-in schema docs stay concise.
+/docs/database/SCHEMA_GENERATED.full.md
+
+# Local maintenance exports may contain decrypted credentials or API keys.
+scripts/maintenance/*.csv
+
+# Archived database schemas (deleted objects backup)
+supabase/schema/archive/
+
+# Windows batch files (local tools) - excluding important scripts
+# *.bat
+
+# Development SQL files
+database/migrations/*.sql
+
+# Cleanup script
+/cleanup-docs.sh
+
+# Claude local settings
+.claude/settings.local.json
+
+# Claudeception skill repo (third-party, track extracted skills separately)
+.claude/skills/claudeception/
+
+# Claude hook runtime state (session-local, not project artifacts)
+.claude/compact-state.json
+.claude/circuit-breaker-state.json
+.claude/quality-gate-ran.flag
+
+# Claude agent worktree storage (local-only, multi-hundred-MB, never commit)
+.claude/worktrees/
+
+# Migration artifacts (test reports, rollback scripts)
+/migration-artifacts/
+
+# Skip migration analysis for manual/backup files
+scripts/sql-scripts/manual-migration.sql
+scripts/sql-scripts/*.backup
+scripts/sql-scripts/manual-*
+scripts/sql-scripts/*-backup.sql
+
+# Legacy migrations that cause CI safety warnings but are safe
+supabase/migrations/20250819_cleanup_broken_token_system.sql
+supabase/migrations/20250828053450_create_member_stats_materialized_view.sql
+supabase/migrations/20250828_debug_meta_team_categorization.sql
+supabase/migrations/20250828_fix_meta_teams_final.sql
+supabase/migrations/20250828_add_meta_teams_triggers.sql
+
+# Temporary cleanup and analysis files
+scripts/cleanup/
+/CODE_CLEANUP_SUMMARY.md
+/COMMIT_STRATEGY.md
+/CONSTANTS_CONSOLIDATION_REPORT.md
+/TYPESCRIPT_BUILD_STATUS.md
+/TYPESCRIPT_SOLUTION_PLAN.md
+
+# Backup files
+*.backup
+*.bak
+*~
+*.tmp
+*.orig
+*.rej
+*.swp
+*.swo
+
+# Local editor and desktop state
+.idea/
+.fleet/
+.zed/
+*.iml
+.directory
+.Trash-*
+.nfs*
+.AppleDouble
+.LSOverride
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.~lock.*#
+
+# Test and temporary markdown files in root
+/test-*.md
+
+# Reference repositories and external code
+/reference/
+
+*storybook.log
+storybook-static
+
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Sentry Config File
+/.env.sentry-build-plugin
+/test-api-output.json
+
+# Debug/analysis output files
+/lint-results.json
+/db-push-output.*
+/.supabase-status.json
+nul
+
+# Scratch/exploration scripts (root-level one-offs)
+/examine_*.py
+/extract_*.py
+/explore_*.py
+/find_*.py
+/inspect_*.py
+/robust_*.py
+/patch_source.py
+/query_*.py
+/strip_and_convert.py
+
+# Scratch data/output files (root-level one-offs)
+/ability_details.txt
+/ability_power_curve.json
+/actus_analysis.md
+/config_curves.txt
+/config_keys.txt
+/config_structure.txt
+/global_general_keys.txt
+/global_values.txt
+/output.txt
+/progression_steps.json
+/user-troubleshoot-output.txt
+
+# Loki API raw data snapshots
+data/loki-api/guild-war-raw/
+docker/storage_data.tar.gz
+
+# Claude Code runtime lock (per-session scheduled-task tracking).
+.claude/scheduled_tasks.lock
+
+# Local design-handoff bundles (claude.ai/design exports — not production code)
+.tmp-design/
+
+# Auto-generated audit ledgers (regenerable from audit_boss_playbooks.py)
+_tmp_*.md
+_tmp_*.json
+
+# Local Cloudflare tunnel snapshots (one-time exports)
+/cf-current.json
+
+# Per-WI ad-hoc log captures (e.g. wi265_lag_*.txt) — never durable artifacts
+/wi[0-9]*_*.txt
+
+# Local Sentry triage snapshots (one-time exports from sentry CLI)
+/sentry_*.json
+
+# Guild War helper runtime data. These contain local paths, player/Discord
+# mappings, Discord channel URLs, and per-run guild snapshots.
+/assets/tacticus_gw/tacticus_gw_share/config.json
+/assets/tacticus_gw/tacticus_gw_share/player_mapping.json
+/assets/tacticus_gw/tacticus_gw_share/map_mapping.json
+/assets/tacticus_gw/tacticus_gw_share/last_snapshot.json
+
+# Supabase Table Editor *_rows.csv exports under data/ — DB tables are the
+# source of truth; CSV dumps are debug artifacts, never durable.
+data/*_rows.csv
+data/**/*_rows.csv
+data/guild war csv files/
+data/raw-api/
+data/logs/
+
+# Local backups of sensitive configs — never commit
+.local-backups/
+
+# Local kubeconfig that some ops scripts drop in the repo root
+.kube/
+
+# Ephemeral working state from parallel agent sessions
+# (WI-NNN/ subdirs, audit-evidence, audit-closure, etc.)
+# Already covered by `_tmp_*` above but `tmp/` is the canonical scratchpad now.
+/tmp/
+
+# Editor extension binaries (do not commit)
+*.vsix
+
+# Python venv created by the CI Python gates (atlas/llm-catalog) and local runs
+.venv/
+
+# Deno lockfiles (Supabase edge functions) — tooling-regenerated, not tracked
+deno.lock
+
+# Per-lane environment (local, per-worktree)
+.lane-env
+
+# Generated per-player/per-guild API-key issue reports. They carry real
+# player identifiers and are regenerable — never commit the output.
+supabase/reports/
+
+# Local agent run reports (never committed)
+/RESULT.md

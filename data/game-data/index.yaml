@@ -1,0 +1,40 @@
+counts:
+  abilities: 572
+  bossDebuffs: 70
+  damageProfiles: 22
+  guildBossSeasons: 5
+  guildRaidUnits: 98
+  heroes: 127
+  items: 214
+  machinesOfWar: 65
+  modifierDebuffs: 70
+  npcs: 491
+  summons: 65
+  traitDescriptionVariables: 45
+  traits: 116
+  upgrades: 558
+files:
+  abilities: abilities/summary.json
+  damage_profiles: damage_profiles.json
+  guild_raid: guild-raid/summary.json
+  heroes: heroes_index.json
+  items: items.json
+  machines_of_war: machines_of_war.json
+  npcs: npcs.json
+  trait_description_values: trait_description_values.generated.json
+  traits: traits.json
+  upgrades: upgrades.json
+source:
+  channel: google-play-production
+  gameConfig:
+    file: 0dac07b85404278e1999a06541fbe10d.json
+    sha256: 3ee33444f4dd9ed1dd7de9f3d83e7daf3742ebc68b7e3a25a2dee406c494f39d
+  globalConfig:
+    file: 6aee32710d799adf11b155d82d5e7e7a.json
+    sha256: a38706480e1561e5b90b0b7c90102e85915e186cc82fcd25b32f32a95c10110b
+  kind: attested production Android hydrated config pair
+  packageName: com.snowprintstudios.tacticus
+  sourceAttestationDigestSha256: 6e12c55d4a58f90c190b34d4f0355a93924743cbb51da5be31c8f1ece08da619
+  versionCode: 2498
+  versionName: 1.41.101
+version: v1.41.101.2498

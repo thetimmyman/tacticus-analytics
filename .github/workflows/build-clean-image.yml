@@ -1,0 +1,398 @@
+name: Build Clean Web Image
+
+# Native multi-arch: each arch builds on its own runner and merge-manifest joins the tags.
+# No QEMU: an emulated `next build` is too slow and OOMs.
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Image tag; defaults to the eight-character commit SHA
+        required: false
+        type: string
+      force_fail:
+        description: >-
+          PS-406 test-only: fail `prep` immediately to exercise the
+          alert-on-failure job. The `prep` step below only reads this when
+          the triggering event is workflow_dispatch, so a push event can
+          never see it set.
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  # Serialize per TAG, not per ref: GitHub keeps only the newest pending run per group.
+  group: build-clean-image-${{ inputs.tag || github.sha }}
+  cancel-in-progress: false
+
+# Read-only by default; packages:write is granted only to the GHCR-writing jobs.
+permissions:
+  contents: read
+
+env:
+  IMAGE: ghcr.io/thetimmyman/tacticus-analytics-web
+  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+  NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+  NEXT_PUBLIC_DISCORD_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_DISCORD_CLIENT_ID }}
+  NEXT_PUBLIC_ENABLE_DISCORD_AUTH: ${{ secrets.NEXT_PUBLIC_ENABLE_DISCORD_AUTH }}
+  NEXT_PUBLIC_ENABLE_GOOGLE_AUTH: ${{ secrets.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH }}
+  NEXT_PUBLIC_VIDEO_CDN_URL: ${{ secrets.NEXT_PUBLIC_VIDEO_CDN_URL }}
+  NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+  # Public value, but a repo variable so no personal address is committed.
+  NEXT_PUBLIC_CONTACT_EMAIL: ${{ vars.NEXT_PUBLIC_CONTACT_EMAIL }}
+
+jobs:
+  prep:
+    # Fork PRs must never run self-hosted. Not a merge block (skipped jobs pass);
+    # `fork-pr-block` in governance-baseline.yml is. Later jobs all `needs: prep`.
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    # amd64-builder, not `cheap`: some `cheap` runners have no node/npm.
+    runs-on: [self-hosted, amd64-builder]
+    timeout-minutes: 10
+    outputs:
+      tag: ${{ steps.tag.outputs.value }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # Test-only hook; the event_name check keeps it unreachable from `push`.
+      - name: PS-406 force-fail (test only)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.force_fail == true }}
+        run: |
+          echo "::error::force_fail=true was passed on workflow_dispatch — deliberate failure for PS-406 alert testing, not a real build problem."
+          exit 1
+      - name: Verify application repository identity
+        run: npm run app:identity:check
+      - name: Resolve image tag
+        id: tag
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          value="${INPUT_TAG:-$(git rev-parse --short=8 HEAD)}"
+          # 122 chars max: per-arch legs append `-amd64`/`-arm64`; Docker caps tags at 128.
+          if ! printf '%s' "$value" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9_.-]{0,121}$'; then
+            echo "::error::Invalid image tag"
+            exit 1
+          fi
+          printf 'value=%s\n' "$value" >> "$GITHUB_OUTPUT"
+      # Self-test first so a broken regex cannot pass vacuously. No `npm ci` in this lane,
+      # so only the dependency-free checks run.
+      - name: Verify clean-source gate
+        run: |
+          node scripts/security/check-clean-repo.mjs --selftest
+          node scripts/security/check-clean-repo.mjs --scan
+      # Re-checks the exact tree being published.
+      - name: Verify gitleaks gate
+        run: |
+          if ! command -v gitleaks >/dev/null 2>&1; then
+            echo "::error title=gitleaks gate misconfigured::gitleaks is not installed on this runner."
+            exit 1
+          fi
+          bash scripts/security/check-gitleaks.sh --selftest
+          bash scripts/security/check-gitleaks.sh --scan
+      - name: Verify runtime PII asset boundary
+        run: npm run security:runtime-pii-assets
+      # A missing handler for a queued job_type dead-letters every row; fail before pushing.
+      - name: Verify worker handler coverage
+        run: |
+          set -euo pipefail
+          node scripts/validation/check-handler-coverage.mjs
+          {
+            echo "### Worker handler coverage"
+            echo
+            echo "Handlers registered in this image (diff against the live queue's job_types):"
+            echo
+            echo '```'
+            cat "$RUNNER_TEMP/handlers.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  build-amd64:
+    permissions:
+      contents: read
+      packages: write
+    needs: prep
+    runs-on: [self-hosted, amd64-builder]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # Runners on one host share a user, so a concurrent `docker login` could overwrite credentials.
+      # Exported via GITHUB_ENV (`runner` is not allowed in job-level `env:`) so buildx inherits it.
+      - name: Isolate docker config for this job
+        run: echo "DOCKER_CONFIG=$RUNNER_TEMP/docker" >> "$GITHUB_ENV"
+      - name: Verify application repository identity
+        run: npm run app:identity:check
+      # The builder sits outside the runner's cgroup, so bound its memory directly.
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+        with:
+          driver-opts: memory=16g
+      - name: Log in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and publish linux/amd64 (native, no QEMU)
+        id: build
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        with:
+          context: .
+          file: docker/Dockerfile.prod
+          platforms: linux/amd64
+          push: true
+          tags: ${{ env.IMAGE }}:${{ needs.prep.outputs.tag }}-amd64
+          build-args: |
+            GITHUB_REPOSITORY=${{ github.repository }}
+            NEXT_PUBLIC_SUPABASE_URL=${{ env.NEXT_PUBLIC_SUPABASE_URL }}
+            NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ env.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+            NEXT_PUBLIC_SITE_URL=${{ env.NEXT_PUBLIC_SITE_URL }}
+            NEXT_PUBLIC_DISCORD_CLIENT_ID=${{ env.NEXT_PUBLIC_DISCORD_CLIENT_ID }}
+            NEXT_PUBLIC_ENABLE_DISCORD_AUTH=${{ env.NEXT_PUBLIC_ENABLE_DISCORD_AUTH }}
+            NEXT_PUBLIC_ENABLE_GOOGLE_AUTH=${{ env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH }}
+            NEXT_PUBLIC_VIDEO_CDN_URL=${{ env.NEXT_PUBLIC_VIDEO_CDN_URL }}
+            NEXT_PUBLIC_SENTRY_DSN=${{ env.NEXT_PUBLIC_SENTRY_DSN }}
+            NEXT_PUBLIC_CONTACT_EMAIL=${{ env.NEXT_PUBLIC_CONTACT_EMAIL }}
+          # Per-arch cache scope so the legs do not overwrite each other's cache.
+          cache-from: type=gha,scope=amd64
+          cache-to: type=gha,mode=max,scope=amd64
+      # Scan by digest so a moved tag cannot race it; suppressions go in .trivyignore.
+      # A shell step, not trivy-action: the Actions policy allows only GitHub, docker/* and setup-deno.
+      - name: Scan pushed linux/amd64 image for CRITICAL CVEs
+        env:
+          TRIVY_ENFORCE: ${{ vars.TRIVY_ENFORCE }}
+          IMAGE_REF: ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
+        run: scripts/ci/trivy-scan-image.sh "$IMAGE_REF"
+
+  build-arm64:
+    permissions:
+      contents: read
+      packages: write
+    needs: prep
+    runs-on: [self-hosted, arm64-builder]
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Isolate docker config for this job
+        run: echo "DOCKER_CONFIG=$RUNNER_TEMP/docker" >> "$GITHUB_ENV"
+      # No node on the arm64 runner, and setup-node's cache trips zizmor: use the base image.
+      - name: Verify application repository identity
+        # No git remote in the container: pass the build's repository attestation.
+        run: |
+          docker run --rm -v "$PWD:/app:ro" -w /app \
+            -e GITHUB_REPOSITORY="$GITHUB_REPOSITORY" node:22-alpine \
+            node scripts/dev/verify-app-identity.mjs
+      # Bound the builder so a runaway `next build` dies before the host does.
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+        with:
+          driver-opts: memory=24g
+      - name: Log in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and publish linux/arm64 (native, no QEMU)
+        id: build
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        with:
+          context: .
+          file: docker/Dockerfile.prod
+          platforms: linux/arm64
+          push: true
+          tags: ${{ env.IMAGE }}:${{ needs.prep.outputs.tag }}-arm64
+          build-args: |
+            GITHUB_REPOSITORY=${{ github.repository }}
+            NEXT_PUBLIC_SUPABASE_URL=${{ env.NEXT_PUBLIC_SUPABASE_URL }}
+            NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ env.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+            NEXT_PUBLIC_SITE_URL=${{ env.NEXT_PUBLIC_SITE_URL }}
+            NEXT_PUBLIC_DISCORD_CLIENT_ID=${{ env.NEXT_PUBLIC_DISCORD_CLIENT_ID }}
+            NEXT_PUBLIC_ENABLE_DISCORD_AUTH=${{ env.NEXT_PUBLIC_ENABLE_DISCORD_AUTH }}
+            NEXT_PUBLIC_ENABLE_GOOGLE_AUTH=${{ env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH }}
+            NEXT_PUBLIC_VIDEO_CDN_URL=${{ env.NEXT_PUBLIC_VIDEO_CDN_URL }}
+            NEXT_PUBLIC_SENTRY_DSN=${{ env.NEXT_PUBLIC_SENTRY_DSN }}
+            NEXT_PUBLIC_CONTACT_EMAIL=${{ env.NEXT_PUBLIC_CONTACT_EMAIL }}
+          cache-from: type=gha,scope=arm64
+          cache-to: type=gha,mode=max,scope=arm64
+      - name: Scan pushed linux/arm64 image for CRITICAL CVEs
+        env:
+          TRIVY_ENFORCE: ${{ vars.TRIVY_ENFORCE }}
+          IMAGE_REF: ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
+        run: scripts/ci/trivy-scan-image.sh "$IMAGE_REF"
+
+  merge-manifest:
+    permissions:
+      contents: read
+      packages: write
+    needs: [prep, build-amd64, build-arm64]
+    # Kept off `x64-heavy`, which a standby runner also carries.
+    runs-on: [self-hosted, amd64-builder]
+    timeout-minutes: 15
+    steps:
+      # `imagetools` uses the default builder, so no buildx setup is needed.
+      - name: Isolate docker config for this job
+        run: echo "DOCKER_CONFIG=$RUNNER_TEMP/docker" >> "$GITHUB_ENV"
+      # Checkout provides scripts/ci/retry-imagetools-inspect.sh.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Log in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Merge per-arch images into one multi-arch manifest
+        env:
+          TAG: ${{ needs.prep.outputs.tag }}
+        run: |
+          set -euo pipefail
+          docker buildx imagetools create \
+            -t "$IMAGE:$TAG" \
+            "$IMAGE:$TAG-amd64" \
+            "$IMAGE:$TAG-arm64"
+      # Retry: a just-pushed manifest may briefly 404. `unknown/unknown` entries are attestations.
+      - name: Verify manifest contains both arches
+        env:
+          TAG: ${{ needs.prep.outputs.tag }}
+        run: |
+          set -euo pipefail
+          scripts/ci/retry-imagetools-inspect.sh "$IMAGE:$TAG"
+          raw="$(scripts/ci/retry-imagetools-inspect.sh "$IMAGE:$TAG" --raw)"
+          echo "$raw" | grep -q '"architecture": "amd64"' || { echo "::error::amd64 missing from $IMAGE:$TAG manifest"; exit 1; }
+          echo "$raw" | grep -q '"architecture": "arm64"' || { echo "::error::arm64 missing from $IMAGE:$TAG manifest"; exit 1; }
+          echo "OK: $IMAGE:$TAG is a multi-arch manifest with amd64 + arm64."
+      - name: Publish immutable image reference
+        env:
+          TAG: ${{ needs.prep.outputs.tag }}
+        run: |
+          set -euo pipefail
+          # awk reads to EOF: an early `exit` SIGPIPEs the inspect under pipefail.
+          digest="$(scripts/ci/retry-imagetools-inspect.sh "$IMAGE:$TAG" | awk '$1 == "Digest:" && d == "" { d = $2 } END { print d }')"
+          if [[ ! "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "::error::Could not resolve multi-arch digest for $IMAGE:$TAG"
+            exit 1
+          fi
+          echo "IMAGE_REF=$IMAGE:$TAG@$digest"
+          echo "### Immutable image" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`$IMAGE:$TAG@$digest\`" >> "$GITHUB_STEP_SUMMARY"
+      - name: Smoke-test the published image
+        env:
+          TAG: ${{ needs.prep.outputs.tag }}
+          ENCRYPTION_KEY: 0000000000000000000000000000000000000000000000000000000000000000
+          SUPABASE_SERVICE_ROLE_KEY: smoke-service-role-placeholder
+          CRON_SECRET: smoke-cron-secret
+          HEALTH_CHECK_SECRET: smoke-health-secret
+          LOKI_SCRAPER_USER_ID: smoke-user-id-placeholder
+          LOKI_SCRAPER_CLIENT_SECRET: smoke-client-secret-placeholder
+        run: |
+          set -euo pipefail
+          docker pull "$IMAGE:$TAG"
+          cid="$(docker run -d \
+            -e NEXT_PUBLIC_SUPABASE_URL \
+            -e NEXT_PUBLIC_SUPABASE_ANON_KEY \
+            -e NEXT_PUBLIC_SITE_URL \
+            -e ENCRYPTION_KEY \
+            -e SUPABASE_SERVICE_ROLE_KEY \
+            -e CRON_SECRET \
+            -e HEALTH_CHECK_SECRET \
+            -e LOKI_SCRAPER_USER_ID \
+            -e LOKI_SCRAPER_CLIENT_SECRET \
+            "$IMAGE:$TAG")"
+          # shellcheck disable=SC2317,SC2329 # SC2317 on older shellcheck (GitHub-hosted image), SC2329 on newer
+          cleanup() {
+            docker logs "$cid" || true
+            docker rm -f "$cid" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          for _ in $(seq 1 45); do
+            if docker exec "$cid" node -e \
+              "fetch('http://127.0.0.1:3000/api/health/process').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::Clean image did not become healthy"
+          exit 1
+
+  # Separate job because a `prep` failure skips all others. `always()` is required: the
+  # implicit `success()` would skip it and `failure()` alone misses cancelled runs.
+  alert-on-failure:
+    name: Alert on build failure
+    needs: [prep, build-amd64, build-arm64, merge-manifest]
+    if: |
+      always() && (
+        needs.prep.result == 'failure' || needs.prep.result == 'cancelled' ||
+        needs.build-amd64.result == 'failure' || needs.build-amd64.result == 'cancelled' ||
+        needs.build-arm64.result == 'failure' || needs.build-arm64.result == 'cancelled' ||
+        needs.merge-manifest.result == 'failure' || needs.merge-manifest.result == 'cancelled'
+      )
+    runs-on: [self-hosted, amd64-builder]
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      # Open/comment on the tracking issue (see scripts/ci/report-ci-failure.sh).
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Verify gh CLI is present
+        # gh may be missing on self-hosted runners; fail loudly rather than skip the alert.
+        run: |
+          if ! command -v gh >/dev/null 2>&1; then
+            echo "::error title=Alert job misconfigured::gh CLI is not installed on this runner; PS-406 alerting cannot open/update the tracking issue."
+            exit 1
+          fi
+      - name: Compose failure summary
+        id: summary
+        env:
+          PREP: ${{ needs.prep.result }}
+          BUILD_AMD64: ${{ needs.build-amd64.result }}
+          BUILD_ARM64: ${{ needs.build-arm64.result }}
+          MERGE_MANIFEST: ${{ needs.merge-manifest.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SHA: ${{ github.sha }}
+          REF: ${{ github.ref_name }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          body_file="$RUNNER_TEMP/ps406-build-failure-body.md"
+          {
+            echo "\`build-clean-image\` did not produce a usable image."
+            echo
+            echo "- ref: \`$REF\` (event: \`$EVENT\`)"
+            echo "- sha: \`$SHA\`"
+            echo "- run: $RUN_URL"
+            echo "- prep: \`$PREP\`"
+            echo "- build-amd64: \`$BUILD_AMD64\`"
+            echo "- build-arm64: \`$BUILD_ARM64\`"
+            echo "- merge-manifest: \`$MERGE_MANIFEST\`"
+            echo
+            echo "Until this is resolved, \`main\` keeps serving whatever tag last built successfully — check with the main-image-present.yml schedule (PS-406) whether HEAD actually has a published image."
+          } > "$body_file"
+          echo "body_file=$body_file" >> "$GITHUB_OUTPUT"
+      - name: Open or update tracking issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          BODY_FILE: ${{ steps.summary.outputs.body_file }}
+        run: |
+          set -euo pipefail
+          scripts/ci/report-ci-failure.sh \
+            "ci-build-failure" \
+            "build-clean-image failed on main: $SHA" \
+            "$BODY_FILE"

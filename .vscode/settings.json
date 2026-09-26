@@ -1,0 +1,15 @@
+{
+  "window.title": "TA GENERAL | ${rootName} | ${activeEditorShort}",
+  "workbench.colorCustomizations": {
+    "titleBar.activeBackground": "#075985",
+    "titleBar.activeForeground": "#ffffff",
+    "titleBar.inactiveBackground": "#0c4a6e",
+    "titleBar.inactiveForeground": "#bae6fd",
+    "statusBar.background": "#0369a1",
+    "statusBar.foreground": "#ffffff"
+  },
+  "terminal.integrated.env.linux": {
+    "TACTICUS_APP_ID": "tacticus-analytics"
+  },
+  "task.allowAutomaticTasks": "on"
+}

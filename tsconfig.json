@@ -1,0 +1,67 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["DOM", "DOM.Iterable", "ES2022", "ES2021.WeakRef"],
+    "skipLibCheck": true,
+    "allowJs": false,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
+    "noImplicitReturns": false,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./app/*", "./*"],
+      "@/app/*": ["./app/*"],
+      "@/components/*": ["./app/components/*"],
+      "@/lib/*": ["./app/lib/*"],
+      "@/types/*": ["./app/types/*"],
+      "@types/react": ["./node_modules/@types/react"],
+      "@types/react-dom": ["./node_modules/@types/react-dom"],
+      "@tacticus/ui-kit": ["./packages/ui-kit/src"],
+      "@tacticus/ui-kit/*": ["./packages/ui-kit/src/*"],
+      "@tacticus/app-core": ["./packages/app-core/src"],
+      "@tacticus/app-core/*": ["./packages/app-core/src/*"],
+      "@tacticus/charting": ["./packages/charting/src"],
+      "@tacticus/charting/*": ["./packages/charting/src/*"],
+      "@tacticus/solver-core": ["./packages/solver-core/src"],
+      "@tacticus/solver-core/*": ["./packages/solver-core/src/*"]
+    }
+  },
+  "include": [
+    "*.ts",
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "modules/**/*.ts",
+    "modules/**/*.tsx",
+    "packages/**/*.ts",
+    "packages/**/*.tsx",
+    "tests/type/**/*.ts",
+    "types/**/*.d.ts",
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    ".next/dev/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "supabase/functions/**/*",
+    "scripts/**/*",
+    "scripts/.archive-debug/**/*",
+    "scripts/.archive-test/**/*",
+    "archived/**/*",
+    "reference/**/*"
+  ]
+}

@@ -1,0 +1,281 @@
+{
+  "count": 32,
+  "debuffs": {
+    "GuildBoss10MiniBoss1AdmecMarshall_1BelisariusRW": [
+      "boss_debuff_InvocationOfMachineVengeance",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_InvocationOfMachineVengeance",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_SelfRepairMechanismReworked"
+    ],
+    "GuildBoss10MiniBoss2AdmecManipulus_2BelisariusRW": [
+      "boss_debuff_ElectropriestUnitReduction",
+      "boss_debuff_ArcScourge",
+      "boss_debuff_ElectropriestUnitReduction",
+      "boss_debuff_blockChance_15",
+      "boss_debuff_SelfRepairMechanismReworked"
+    ],
+    "GuildBoss11MiniBoss1TauMarksman_1Riptide": [
+      "boss_debuff_TargetLock",
+      "boss_debuff_ShieldDroneUnitReduction",
+      "boss_debuff_TargetLock",
+      "boss_debuff_NovaCharge",
+      "boss_debuff_movement_1"
+    ],
+    "GuildBoss11MiniBoss2TauCrisis_2Riptide": [
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_ShieldDroneUnitReduction",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_NovaCharge",
+      "boss_debuff_blockChance_15"
+    ],
+    "GuildBoss12MiniBoss1DarkaTerminator_1Lion": [
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_critChance_10",
+      "boss_debuff_HellblasterUnitReduction",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_TheEmperorsShield"
+    ],
+    "GuildBoss12MiniBoss2DarkaCompanion_2Lion": [
+      "boss_debuff_dmg_15",
+      "boss_debuff_critChance_10",
+      "boss_debuff_HellblasterUnitReduction",
+      "boss_debuff_dmg_15",
+      "boss_debuff_Fealty_hits_2"
+    ],
+    "GuildBoss1MiniBoss1TyranWarriorLeviathan_1HiveTyrantLeviathan": [
+      "boss_debuff_dmg_15",
+      "boss_debuff_StranglethornCannon_25",
+      "boss_debuff_dmg_15",
+      "boss_debuff_CallRipperSwarms_25",
+      "boss_debuff_dmg_15",
+      "boss_debuff_StranglethornCannon_25",
+      "boss_debuff_dmg_15",
+      "boss_debuff_movement_1"
+    ],
+    "GuildBoss1MiniBoss1TyranWarriorLeviathan_1TervigonLeviathan": [
+      "boss_debuff_dmg_15",
+      "boss_debuff_MassiveScythingTalons_15",
+      "boss_debuff_dmg_15",
+      "boss_debuff_MassiveScythingTalons_15",
+      "boss_debuff_dmg_15",
+      "boss_debuff_MassiveScythingTalons_20",
+      "boss_debuff_dmg_15",
+      "boss_debuff_movement_1"
+    ],
+    "GuildBoss1MiniBoss1TyranWarriorLeviathan_2HiveTyrantLeviathan": [
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_PrehensilePincerTail_25",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_CallRipperSwarms_25",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_PrehensilePincerTail_25",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_movement_1"
+    ],
+    "GuildBoss1MiniBoss1TyranWarriorLeviathan_2TervigonLeviathan": [
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_SpawnTermagants_15",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_SpawnTermagants_15",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_SpawnTermagants_20",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_movement_1"
+    ],
+    "GuildBoss1MiniBoss2TyranWarriorKronos_1HiveTyrantKronos": [
+      "boss_debuff_dmg_15",
+      "boss_debuff_StranglethornCannon_25",
+      "boss_debuff_dmg_15",
+      "boss_debuff_CallRipperSwarms2_25",
+      "boss_debuff_dmg_15",
+      "boss_debuff_StranglethornCannon_25",
+      "boss_debuff_dmg_15",
+      "boss_debuff_movement_1"
+    ],
+    "GuildBoss1MiniBoss2TyranWarriorKronos_1TervigonKronos": [
+      "boss_debuff_dmg_15",
+      "boss_debuff_MassiveScythingTalons_15",
+      "boss_debuff_dmg_15",
+      "boss_debuff_MassiveScythingTalons_15",
+      "boss_debuff_dmg_15",
+      "boss_debuff_MassiveScythingTalons_20",
+      "boss_debuff_dmg_15",
+      "boss_debuff_movement_1"
+    ],
+    "GuildBoss1MiniBoss2TyranWarriorKronos_2HiveTyrantKronos": [
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_PrehensilePincerTail_25",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_CallRipperSwarms2_25",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_PrehensilePincerTail_25",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_movement_1"
+    ],
+    "GuildBoss1MiniBoss2TyranWarriorKronos_2TervigonKronos": [
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_SpawnTermagants2_15",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_SpawnTermagants2_15",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_SpawnTermagants2_20",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_movement_1"
+    ],
+    "GuildBoss1MiniBoss3TyranWarriorGorgon_1HiveTyrantGorgon": [
+      "boss_debuff_dmg_15",
+      "boss_debuff_StranglethornCannon_25",
+      "boss_debuff_dmg_15",
+      "boss_debuff_CallRipperSwarms3_25",
+      "boss_debuff_dmg_15",
+      "boss_debuff_StranglethornCannon_25",
+      "boss_debuff_dmg_15",
+      "boss_debuff_movement_1"
+    ],
+    "GuildBoss1MiniBoss3TyranWarriorGorgon_1TervigonGorgon": [
+      "boss_debuff_dmg_15",
+      "boss_debuff_MassiveScythingTalons_15",
+      "boss_debuff_dmg_15",
+      "boss_debuff_MassiveScythingTalons_15",
+      "boss_debuff_dmg_15",
+      "boss_debuff_MassiveScythingTalons_20",
+      "boss_debuff_dmg_15",
+      "boss_debuff_movement_1"
+    ],
+    "GuildBoss1MiniBoss3TyranWarriorGorgon_2HiveTyrantGorgon": [
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_PrehensilePincerTail_25",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_CallRipperSwarms3_25",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_PrehensilePincerTail_25",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_movement_1"
+    ],
+    "GuildBoss1MiniBoss3TyranWarriorGorgon_2TervigonGorgon": [
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_SpawnTermagants3_15",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_SpawnTermagants3_15",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_SpawnTermagants3_20",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_movement_1"
+    ],
+    "GuildBoss3Minion3NecroMenhir_1": [
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_Hapthatra_hp_50",
+      "boss_debuff_fixedArmor_25",
+      "boss_debuff_AnnihilatorBeam_2",
+      "boss_debuff_hits_1",
+      "boss_debuff_fixedArmor_25",
+      "boss_debuff_Hapthatra_hp_50",
+      "boss_debuff_AnnihilatorBeam_2"
+    ],
+    "GuildBoss3Minion3NecroMenhir_2": [
+      "boss_debuff_dmg_15",
+      "boss_debuff_Mesophet_hp_50",
+      "boss_debuff_dmg_25",
+      "boss_debuff_AnnihilatorBeam_2",
+      "boss_debuff_hits_1",
+      "boss_debuff_dmg_25",
+      "boss_debuff_Mesophet_hp_50",
+      "boss_debuff_AnnihilatorBeam_2"
+    ],
+    "GuildBoss4MiniBoss1OrksBigMek_1": [
+      "boss_debuff_fixedArmor_10",
+      "boss_debuff_NeedsMoreDakka_hits_1",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_NeedsMoreDakka_hits_1",
+      "boss_debuff_ProphetOfGorkAndMork_nrOfAttacks_1",
+      "boss_debuff_fixedArmor_25",
+      "boss_debuff_NeedsMoreDakka_hits_2",
+      "boss_debuff_ProphetOfGorkAndMork_nrOfAttacks_2"
+    ],
+    "GuildBoss4MiniBoss2OrksNob_2": [
+      "boss_debuff_DaGreatWaaagh_nrOfSummons_1",
+      "boss_debuff_dmg_10",
+      "boss_debuff_DaGreatWaaagh_nrOfSummons_1",
+      "boss_debuff_dmg_15",
+      "boss_debuff_DaGreatWaaagh_nrOfSummons_1",
+      "boss_debuff_dmg_25",
+      "boss_debuff_DaGreatWaaagh_nrOfSummons_2",
+      "boss_debuff_ProperKilly_disable"
+    ],
+    "GuildBoss5MiniBoss1DeathRotbone_1": [
+      "boss_debuff_ArchContaminator_hits_2",
+      "boss_debuff_fixedArmor_20",
+      "boss_debuff_ArchContaminator_hits_2",
+      "boss_debuff_RevoltinglyResilient_hits_1",
+      "boss_debuff_ArchContaminator_hits_2",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_dmg_25"
+    ],
+    "GuildBoss5MiniBoss2DeathBlightbringer_2": [
+      "boss_debuff_summonChance_30",
+      "boss_debuff_fixedArmor_20",
+      "boss_debuff_summonChance_30",
+      "boss_debuff_RevoltinglyResilient_hits_1",
+      "boss_debuff_summonChance_30",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_movement_1"
+    ],
+    "GuildBoss6MiniBoss1TyranNeurothrope_1": [
+      "boss_debuff_BarbgauntUnitReduction",
+      "boss_debuff_dmg_15",
+      "boss_debuff_DeathScream_disable",
+      "boss_debuff_critDmg_25",
+      "boss_debuff_BarbgauntUnitReduction"
+    ],
+    "GuildBoss6MiniBoss2TyranWingedPrime_2": [
+      "boss_debuff_HormagauntUnitReduction",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_LivingBatteringRam_disable",
+      "boss_debuff_critDmg_25",
+      "boss_debuff_HormagauntUnitReduction"
+    ],
+    "GuildBoss7MiniBoss1AstraPrimarisPsy_1": [
+      "boss_debuff_WeakerRearArmour_extraCritChance_10",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_CadianGuardsmenUnitReduction",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_WeakerRearArmour_extraCritChance_10"
+    ],
+    "GuildBoss7MiniBoss2AstraOrdnance_2": [
+      "boss_debuff_dmg_20",
+      "boss_debuff_GunnersKillOnSite_nrOfCrits_1",
+      "boss_debuff_dmg_20",
+      "boss_debuff_MortarUnitReduction",
+      "boss_debuff_dmg_20"
+    ],
+    "GuildBoss8MiniBoss1EldarAutarch_1": [
+      "boss_debuff_BloodRunsAngerRisesWarCalls_15",
+      "boss_debuff_dmg_15",
+      "boss_debuff_GuardianUnitReduction",
+      "boss_debuff_dmg_15",
+      "boss_debuff_BloodRunsAngerRisesWarCalls_15"
+    ],
+    "GuildBoss8MiniBoss2EldarFarseer_2": [
+      "boss_debuff_MoltenForm",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_WarlockUnitReduction",
+      "boss_debuff_fixedArmor_15",
+      "boss_debuff_MoltenForm"
+    ],
+    "GuildBoss9MiniBoss1ThousSorcerer_1": [
+      "boss_debuff_TreasonOfTzeentch",
+      "boss_debuff_TerminatorUnitReduction",
+      "boss_debuff_GazeOfMagnus",
+      "boss_debuff_TreasonOfTzeentch",
+      "boss_debuff_RubricMarineUnitReduction"
+    ],
+    "GuildBoss9MiniBoss2ThousInfernalMaster_2": [
+      "boss_debuff_BladeOfMagnus",
+      "boss_debuff_TerminatorUnitReduction",
+      "boss_debuff_GazeOfMagnus",
+      "boss_debuff_BladeOfMagnus",
+      "boss_debuff_RubricMarineUnitReduction"
+    ]
+  }
+}

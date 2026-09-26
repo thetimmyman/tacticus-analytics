@@ -1,0 +1,91 @@
+# Migrations the replay in scripts/dev/lib/replay-migrations.sh cannot apply to a
+# database seeded only from this repository, with the measured reason for each.
+#
+# An entry prefixed `cli-stack:` fails only on the Supabase CLI stack and applies
+# cleanly on the pgTAP shim lane; it is accepted on both and never produces a
+# prune note.
+#
+# THIS FILE IS A GATE, NOT A NOTE. A migration that fails and is NOT listed here
+# makes the replay exit non-zero and the lane refuse to run its assertions --
+# because a schema that is missing an object nobody noticed is a schema every
+# later assertion silently judges the wrong thing against. Add an entry only
+# when the failure is genuinely live-data-only or live-object-only, and paste
+# the migration's own error text as the reason.
+#
+# Reasons captured on 2026-09-20 from
+#   bash scripts/dev/pgtap-throwaway.sh <one suite>
+# against postgres:17 + the runner's auth/storage shim.
+
+# WI-8360 unexpected pg_db_role_setting identity (count 1, shared t, owner
+# supabase_admin). LANE-SPECIFIC: this one fails only on the Supabase CLI stack,
+# whose database image owns pg_catalog.pg_db_role_setting as supabase_admin
+# rather than postgres -- the reason integration-replay-stack.sh disables the
+# CLI's own migration pass in the first place (see WHY NOT `supabase start` ON
+# ITS OWN in that file). It applies cleanly on the pgTAP shim lane, which is why
+# that lane prints the "listed but applied cleanly" prune note for it instead of
+# failing. Nothing to do with this repository's code.
+cli-stack:20260831150100_wi8360_revoke_pg_db_role_setting_public_select.sql
+
+# relation "storage.objects" does not exist -- the replay fixture supplies
+# only the Storage buckets/prefixes shape required by PS-392; it intentionally
+# omits the unrelated Storage objects table and its live RLS pre-state.
+20260901220000_wi7290_storage_objects_rls_authorization.sql
+
+# Verify counts live-only functions matching the captured-replay predicate;
+# none of them exist here, so the count cannot be met.
+20260903160000_retire_ta_captured_replay_surface.sql
+
+# Guarded on cron.job (pg_cron), which this replay does not install.
+20260903190000_retire_orphaned_member_stats_summary.sql
+
+# PS-18 verify: zero rows with source_system = 'terminus-maximus' in
+# public.boss_playbook_replays -- live data, not schema.
+20260904000000_rescope_terminus_replays_to_cluster.sql
+
+# PS-19 verify: neither backup table was present when this migration started
+# and its version is not in the ledger; refuses a vacuous pass.
+20260904010000_drop_leftover_backup_tables.sql
+
+# PS-22 post-condition: live-only functions still read a credential GUC, and
+# cron.job is absent.
+20260904030000_ps22_retire_guc_secret_channel_general.sql
+
+# PS-22 step 2 requires step 1 (20260904030000) to have applied.
+20260904040000_ps22_reset_guc_secret_keys_general.sql
+
+# PS-136 verify: all 1690 listed replay ids are absent -- live data.
+20260904050000_restore_terminus_replays_public.sql
+
+# PS-200 verify: public.token_estimator_rate_breaches(...) is live-only.
+20260904080000_ps200_estimator_freshness_guard.sql
+
+# PS-277: cron.job is not present; pg_cron is required to schedule retention.
+20260904110000_ps277_auth_audit_log_retention.sql
+
+# relation "public.cluster_recruitment_requirements" does not exist -- live-only
+# table, no migration here creates it.
+20260904120000_ps263_auth_users_fk_actions.sql
+
+# PS-258 verify: get_distinct_seasons proacl differs from the live pre-state
+# (the baseline still carries the anon grant live has revoked).
+20260904130000_ps258_numeric_season_ordering.sql
+
+# PS-291: public.get_guild_showcase(text) is live-only.
+20260904140000_ps291_guild_total_carriers_obey_privacy.sql
+
+# function public.get_application_with_messages(uuid) does not exist -- live-only.
+20260904150000_ps285_anon_definer_oracles.sql
+
+# PS-364: public.buckets is absent -- Storage is not in the shim.
+20260904210000_ps364_revoke_anon_buckets.sql
+
+# PS-381: public.get_application_with_messages(uuid) is live-only.
+20260904220000_ps381_null_applicant_read_guard.sql
+
+# ERROR:  PS-293 verify: public.token_estimator_rate_breaches(text,bigint,bigint,bigint) is absent
+# The same blocker 20260904080000 carries: that helper is live-only and no
+# migration in this tree creates it. Everything before the verify block --
+# the database guard, the CREATE OR REPLACE, the ALTER, the COMMENT and the
+# ACL restatement -- applies cleanly, and pg_proc.prosrc then hashes to the
+# body pin in the header. Measured on 2026-09-21 against a replayed throwaway.
+20260921130000_ps293_late_arrival_window.sql

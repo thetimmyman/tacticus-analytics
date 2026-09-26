@@ -1,0 +1,47 @@
+# PS-114: named allowlist for scripts/dev/lint-sql.mjs's RLS-without-policy gate.
+#
+# Every table below has ALTER TABLE ... ENABLE ROW LEVEL SECURITY in
+# supabase/migrations/ with no matching CREATE POLICY. That is not
+# automatically a bug: a table can be *intentionally* fail-closed (no
+# policy at all, so every direct read/write is denied and access only
+# happens through a SECURITY DEFINER function or the service role).
+#
+# These are the tables that were already in that state at the PS-114
+# baseline (2026-09-03), captured before the gate went from a silent
+# count to a hard failure. Adding a new RLS-enabled, policy-less table
+# now requires a deliberate addition to this file -- lint-sql will
+# otherwise fail naming the table.
+#
+# If a listed table gains a CREATE POLICY (or is dropped/renamed), lint-sql
+# emits a warning telling you to prune its line from here -- do so.
+#
+# Format: one `schema.table` per line, `#` starts a comment.
+
+public._ha_state
+public.battle_row_erasures
+public.boss_tiers
+public.cluster_rankings_refresh_state
+public.discord_token_reminders
+public.external_war_meta_cores
+public.external_war_meta_lineups
+public.external_war_meta_quarantine
+public.external_war_meta_snapshots
+public.function_locks
+public.global_strength_thresholds
+public.meta_atlas_dag_edges
+public.onboarding_jobs
+public.pgnet_watchdog_state
+public.player_identity_attestation_revocations
+public.player_identity_attestations
+public.player_identity_discord_generation_activations
+public.player_identity_discord_invalidation_events
+public.player_identity_discord_unlink_pending
+public.player_identity_quarantine_events
+public.player_identity_quarantine_evidence
+public.player_identity_quarantine_pii
+public.player_identity_subject_authority_blocks
+public.player_invite_codes
+public.schema_migrations
+public.sync_drain_runs
+public.token_audit_snapshots
+public.user_bans

@@ -1,0 +1,3135 @@
+{
+  "ticket": "PS-218",
+  "what": "Every public table on which the `authenticated` role holds INSERT, UPDATE or DELETE, with the evidence used to decide whether that grant has a committed writer.",
+  "discipline": "measured, not guessed -- see scripts/security/check-authenticated-write-census.mjs for how each half was derived and what re-checks it.",
+  "acl_snapshot": {
+    "source": "throwaway PostgreSQL 17 container seeded by scripts/dev/pgtap-throwaway.sh from the committed clean baseline (supabase/migrations/20260813000000_clean_baseline.sql) plus every later migration that lane can apply",
+    "production_database_read": false,
+    "migration_head": "20260925060000_port_war_room_shared_teams.sql",
+    "repo_head": "origin/main@3f5e2b0e",
+    "tables_carrying_the_grant": 122,
+    "known_unapplicable_migrations": [
+      "20260901220000_wi7290_storage_objects_rls_authorization.sql",
+      "20260903160000_retire_ta_captured_replay_surface.sql",
+      "20260903190000_retire_orphaned_member_stats_summary.sql",
+      "20260904000000_rescope_terminus_replays_to_cluster.sql",
+      "20260904010000_drop_leftover_backup_tables.sql",
+      "20260904030000_ps22_retire_guc_secret_channel_general.sql",
+      "20260904040000_ps22_reset_guc_secret_keys_general.sql",
+      "20260904050000_restore_terminus_replays_public.sql",
+      "20260904080000_ps200_estimator_freshness_guard.sql",
+      "20260904110000_ps277_auth_audit_log_retention.sql",
+      "20260904120000_ps263_auth_users_fk_actions.sql",
+      "20260904130000_ps258_numeric_season_ordering.sql",
+      "20260904140000_ps291_guild_total_carriers_obey_privacy.sql",
+      "20260904150000_ps285_anon_definer_oracles.sql",
+      "20260904210000_ps364_revoke_anon_buckets.sql",
+      "20260904220000_ps381_null_applicant_read_guard.sql",
+      "20260921130000_ps293_late_arrival_window.sql"
+    ],
+    "blind_spots": [
+      "the migrations listed above cannot be applied on the replay lane, so any grant they change is invisible here",
+      "production ACLs may have drifted from the committed migrations; the replay snapshot above cannot see that drift and this lane never reads production -- see production_observations for drift an operator measured separately"
+    ],
+    "measured_on": "2026-09-25",
+    "previous_measurement": {
+      "migration_head": "20260919012000_ps669_retain_departed_player_mappings.sql",
+      "tables_carrying_the_grant": 122,
+      "delta": "guild_war_raw_events (was revoke) dropped by 20260925030000_ps516_drop_guild_war_sync_machinery.sql; no table gained the grant, no decision changed; re-measured again after #319: guild_war_meta_teams (new, leader write policy, written by app/api/guild-war/war-room/route.ts on the request client) added as keep-policy-governed; swept set unchanged; PR #322 review: role_reconciliation_events moved revoke -> keep-undecided (app/api/guild-roles/reconcile/route.ts casts its db() client to ServiceSupabaseClient and role-reconciler.ts inserts into it), and stored query-builder writes are now followed"
+    },
+    "unapplicable_migrations_assessment": "none of the unapplicable migrations grants or revokes INSERT/UPDATE/DELETE for authenticated on a public table or creates a write policy on one (checked 2026-09-25); they can only hide tables the replay never creates, and the migration re-checks every premise (existence, RLS, arming policy, service_role write) against the database it runs on"
+  },
+  "production_observations": {
+    "provenance": "NOT part of acl_snapshot, which stays replay-only (production_database_read: false). Reported by the operator from a dry run of 20260925080000 on the production primary (db postgres) on 2026-09-25, inside a transaction ending in ROLLBACK; nothing changed. Recorded here as reported, not re-measured by this lane.",
+    "production_database_read": true,
+    "read_by": "operator, out of band",
+    "dry_run_result": "refused by the service_role precondition before the drift-tolerance amendment",
+    "drift": "13 swept tables grant neither authenticated nor service_role INSERT/UPDATE/DELETE on production (already hardened): cluster_rankings_refresh_state, guild_raid_boss_difficulty, guild_war_visibility_audit, player_identity_attestation_revocations, player_identity_attestations, player_identity_discord_generation_activations, player_identity_discord_invalidation_events, player_identity_discord_unlink_pending, player_identity_quarantine_events, player_identity_quarantine_evidence, player_identity_quarantine_pii, player_identity_subject_authority_blocks, player_invite_codes",
+    "production_tables_with_authenticated_write": 87,
+    "replay_tables_with_authenticated_write": 122,
+    "production_ledger_head": "20260925140000_authenticator_memberships_noinherit (20260925080000 not applied)",
+    "consequence": "the migration skips (and NOTICEs) swept tables where authenticated already holds no write; the replay-derived keep sets are an upper bound on production"
+  },
+  "writer_scan": {
+    "source": "scripts/security/check-authenticated-write-census.mjs --writers, over `git ls-files`",
+    "chokepoint": "app/lib/db/index.ts -- db() is the cookie-bound anon-key client (PostgREST resolves it to `authenticated`), serviceDb() is the service-role client; app/lib/db/client.ts is the browser half",
+    "unresolved_is_conservative": "a write site whose client cannot be proved service-role counts AGAINST revoking, never for it",
+    "indirect_writers_checked": "SECURITY INVOKER functions executable by authenticated, and INVOKER trigger functions, whose bodies name a swept table were enumerated on the replayed database; each one that writes a swept table is called only on a service-role client (serviceDb, ServiceSupabaseClient, createDirectClient with the service key, edge functions) or by cron. Live-only functions are not visible to this check.",
+    "cast_taint": "a ServiceSupabaseClient-typed receiver is service-role only if no non-test file casts a value to that type and reaches the module through ServiceSupabaseClient-typed parameters; reached modules report UNKNOWN(param-type-cast)"
+  },
+  "counts": {
+    "keep-undecided": 22,
+    "revoke": 55,
+    "keep-policy-governed": 45
+  },
+  "tables": {
+    "EOT_GR_data": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/player-api-key/sync/route.ts",
+          "line": 282,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/sync/db-operations/raid-upsert.ts",
+          "line": 56,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/sync/db-operations/raid-upsert.ts",
+          "line": 73,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/sync/post-sync-hooks.ts",
+          "line": 350,
+          "verb": "delete",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/sync/worker-jobs/raid-sync.ts",
+          "line": 494,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/sync/worker-jobs/raid-sync.ts",
+          "line": 528,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/sync/worker-jobs/season-reconcile.ts",
+          "line": 67,
+          "verb": "delete",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/sync/worker-jobs/validation-sync.ts",
+          "line": 44,
+          "verb": "delete",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "supabase/functions/purge-old-seasons/index.ts",
+          "line": 158,
+          "verb": "delete",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "tests/integration/gdpr/gdpr.test.ts",
+          "line": 255,
+          "verb": "insert",
+          "client": "SERVICE(file)"
+        },
+        {
+          "file": "tests/integration/gdpr/gdpr.test.ts",
+          "line": 291,
+          "verb": "delete",
+          "client": "SERVICE(file)"
+        }
+      ],
+      "undecided_write_sites": 5,
+      "decision": "keep-undecided"
+    },
+    "_ha_state": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "ability_metadata": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "audit_logs": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/audit/log-guild-config-change.ts",
+          "line": 158,
+          "verb": "insert",
+          "client": "SERVICE(file)"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "bomb_tracking": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["Allow updates through function"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/sync/db-operations/bomb-tracking.ts",
+          "line": 68,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 1,
+      "decision": "keep-policy-governed"
+    },
+    "boss_assignment_configs": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["Officers can manage assignment config"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "boss_mapping": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "boss_name_aliases": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "boss_playbook_tactics": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "Editors can delete boss_playbook_tactics",
+        "Editors can insert boss_playbook_tactics",
+        "Editors can update boss_playbook_tactics"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "boss_playbook_tactics_history": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "Editors can insert boss_playbook_tactics_history"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "boss_playbook_team_requirements": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "Editors can delete boss_playbook_team_requirements",
+        "Editors can insert boss_playbook_team_requirements",
+        "Editors can update boss_playbook_team_requirements"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/playbooks/[bossId]/requirements/route.ts",
+          "line": 195,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 1,
+      "decision": "keep-policy-governed"
+    },
+    "boss_target_tokens": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["boss_target_tokens_write"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/boss-assignments/target-tokens/route.ts",
+          "line": 321,
+          "verb": "upsert",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/boss-assignments/target-tokens/route.ts",
+          "line": 437,
+          "verb": "delete",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/boss-assignments/target-tokens/seed/route.ts",
+          "line": 596,
+          "verb": "delete",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/boss-assignments/target-tokens/seed/route.ts",
+          "line": 611,
+          "verb": "upsert",
+          "client": "REQUEST"
+        }
+      ],
+      "undecided_write_sites": 4,
+      "decision": "keep-policy-governed"
+    },
+    "boss_tiers": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "carousel_items": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["App admins can manage carousel items"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/admin/carousel/[id]/route.ts",
+          "line": 14,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/admin/carousel/[id]/route.ts",
+          "line": 54,
+          "verb": "delete",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/admin/carousel/route.ts",
+          "line": 29,
+          "verb": "insert",
+          "client": "REQUEST"
+        }
+      ],
+      "undecided_write_sites": 3,
+      "decision": "keep-policy-governed"
+    },
+    "cluster_rankings_refresh_state": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "clusters": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "wi3136_cluster_creators_delete",
+        "wi3136_cluster_leaders_insert",
+        "wi3136_cluster_leaders_update"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/(dashboard)/leaderboards/components/cluster-management/hooks/useClusterConfigActions.ts",
+          "line": 28,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/clusters/create-cluster/route.ts",
+          "line": 67,
+          "verb": "insert",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/clusters/create/route.ts",
+          "line": 186,
+          "verb": "insert",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/utils/invite-codes.ts",
+          "line": 199,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/lib/utils/invite-codes.ts",
+          "line": 247,
+          "verb": "update",
+          "client": "REQUEST"
+        }
+      ],
+      "undecided_write_sites": 3,
+      "decision": "keep-policy-governed"
+    },
+    "coaching_task_deliveries": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "coaching_task_delivery_dedup": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "coaching_task_delivery_rate_buckets": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "coaching_tasks": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/officer/coaching-tasks/[id]/route.ts",
+          "line": 93,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/officer/coaching-tasks/route.ts",
+          "line": 311,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 2,
+      "decision": "keep-undecided"
+    },
+    "discord_channel_guilds": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/discord/interactions/command-handlers/handlers/guild-config.ts",
+          "line": 89,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/discord/interactions/command-handlers/handlers/guild-config.ts",
+          "line": 96,
+          "verb": "delete",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/discord/interactions/command-handlers/handlers/guild-config.ts",
+          "line": 112,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/discord/interactions/command-handlers/handlers/guild-config.ts",
+          "line": 120,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/discord/interactions/command-handlers/handlers/guild-config.ts",
+          "line": 138,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/discord/interactions/command-handlers/handlers/link.ts",
+          "line": 315,
+          "verb": "delete",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 6,
+      "decision": "keep-undecided"
+    },
+    "discord_invite_codes": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["Discord invites managed by officers"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/cluster/discord-links/route.ts",
+          "line": 390,
+          "verb": "insert",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/cluster/discord-links/route.ts",
+          "line": 481,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/discord/interactions/command-handlers/handlers/link.ts",
+          "line": 230,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/discord/interactions/command-handlers/handlers/link.ts",
+          "line": 538,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/components/discord/DiscordIntegration.tsx",
+          "line": 238,
+          "verb": "insert",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/components/discord/DiscordIntegration.tsx",
+          "line": 268,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "supabase/functions/discord-bot-oauth/index.ts",
+          "line": 134,
+          "verb": "update",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "supabase/functions/discord-bot-oauth/index.ts",
+          "line": 185,
+          "verb": "update",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "supabase/functions/discord-notifications/general-commands.ts",
+          "line": 258,
+          "verb": "update",
+          "client": "SERVICE(edge)"
+        }
+      ],
+      "undecided_write_sites": 4,
+      "decision": "keep-policy-governed"
+    },
+    "discord_message_tracking": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "supabase/functions/update-discord-leaderboards/index.ts",
+          "line": 338,
+          "verb": "upsert",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "supabase/functions/update-discord-leaderboards/index.ts",
+          "line": 520,
+          "verb": "upsert",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "supabase/functions/update-discord-leaderboards/index.ts",
+          "line": 721,
+          "verb": "upsert",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "supabase/functions/update-discord-leaderboards/index.ts",
+          "line": 863,
+          "verb": "upsert",
+          "client": "SERVICE(edge)"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "discord_server_guilds": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/discord/interactions/command-handlers/handlers/link.ts",
+          "line": 205,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/discord/interactions/command-handlers/handlers/link.ts",
+          "line": 302,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/discord/interactions/command-handlers/handlers/link.ts",
+          "line": 522,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "supabase/functions/discord-bot-oauth/index.ts",
+          "line": 155,
+          "verb": "upsert",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "supabase/functions/discord-notifications/general-commands.ts",
+          "line": 233,
+          "verb": "upsert",
+          "client": "SERVICE(edge)"
+        }
+      ],
+      "undecided_write_sites": 3,
+      "decision": "keep-undecided"
+    },
+    "discord_token_reminders": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/discord/interactions/command-handlers/handlers/link.ts",
+          "line": 321,
+          "verb": "delete",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/discord/interactions/command-handlers/handlers/reminders.ts",
+          "line": 73,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "supabase/functions/discord-notifications/raid-commands.ts",
+          "line": 275,
+          "verb": "upsert",
+          "client": "SERVICE(edge)"
+        }
+      ],
+      "undecided_write_sites": 2,
+      "decision": "keep-undecided"
+    },
+    "discord_user_guild_defaults": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/discord/interactions/command-handlers/handlers/guild-config.ts",
+          "line": 200,
+          "verb": "delete",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/discord/interactions/command-handlers/handlers/guild-config.ts",
+          "line": 243,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/discord/interactions/command-handlers/handlers/link.ts",
+          "line": 329,
+          "verb": "delete",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 3,
+      "decision": "keep-undecided"
+    },
+    "discord_user_permissions": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "discord_webhook_logs": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/discord/webhook-service.ts",
+          "line": 160,
+          "verb": "insert",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/herald/config.ts",
+          "line": 680,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/herald/dispatch/bomb-range-dispatch.ts",
+          "line": 348,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/herald/preview.ts",
+          "line": 609,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 3,
+      "decision": "keep-undecided"
+    },
+    "execution_locks": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/auth/user-ban-lock.ts",
+          "line": 63,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/auth/user-ban-lock.ts",
+          "line": 101,
+          "verb": "delete",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/auth/user-ban-lock.ts",
+          "line": 114,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/auth/user-ban-lock.ts",
+          "line": 139,
+          "verb": "delete",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 4,
+      "decision": "keep-undecided"
+    },
+    "feature_access_grants": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "feature_access_grants_manage_admins",
+        "feature_access_grants_manage_leaders"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/admin/users/bulk/route.ts",
+          "line": 217,
+          "verb": "upsert",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/admin/users/bulk/route.ts",
+          "line": 229,
+          "verb": "delete",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/services/feature-release-service.ts",
+          "line": 473,
+          "verb": "delete",
+          "client": "SERVICE"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "feature_releases": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["feature_releases_manage_admins"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "gdpr_data_exports": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["Users can create export requests"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/compliance/gdpr-manager.ts",
+          "line": 273,
+          "verb": "insert",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/compliance/gdpr-manager.ts",
+          "line": 352,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/compliance/gdpr-manager.ts",
+          "line": 400,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/compliance/gdpr-manager.ts",
+          "line": 440,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/compliance/gdpr-manager.ts",
+          "line": 1045,
+          "verb": "delete",
+          "client": "SERVICE"
+        },
+        {
+          "file": "tests/integration/gdpr/gdpr.test.ts",
+          "line": 295,
+          "verb": "delete",
+          "client": "SERVICE(file)"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "gdpr_deletion_requests": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["Users can create deletion requests"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/compliance/gdpr-manager.ts",
+          "line": 608,
+          "verb": "insert",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/compliance/gdpr-manager.ts",
+          "line": 667,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "tests/integration/gdpr/gdpr.test.ts",
+          "line": 298,
+          "verb": "delete",
+          "client": "SERVICE(file)"
+        },
+        {
+          "file": "tests/integration/gdpr/gdpr.test.ts",
+          "line": 428,
+          "verb": "insert",
+          "client": "SERVICE(file)"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "gdpr_processing_log": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/compliance/gdpr-manager.ts",
+          "line": 248,
+          "verb": "insert",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/compliance/gdpr-manager.ts",
+          "line": 1036,
+          "verb": "delete",
+          "client": "SERVICE"
+        },
+        {
+          "file": "tests/integration/gdpr/gdpr.test.ts",
+          "line": 301,
+          "verb": "delete",
+          "client": "SERVICE(file)"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "gdpr_user_consent": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "Users can update their consent",
+        "Users can withdraw consent"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "global_strength_thresholds": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/admin/global-thresholds/[id]/route.ts",
+          "line": 33,
+          "verb": "update",
+          "client": "SERVICE"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "guild_api_incident_notification_state": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "guild_boss_season_rotation": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/loki/rotation-cache.ts",
+          "line": 209,
+          "verb": "insert",
+          "client": "SERVICE"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "guild_code_legacy_map": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "guild_config": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["guild_config_update_by_role"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/(dashboard)/guild-management/settings/useHeraldNotificationSettings.ts",
+          "line": 129,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/(dashboard)/guild-management/settings/useHeraldNotificationSettings.ts",
+          "line": 164,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/(dashboard)/guild-management/settings/useHeraldNotificationSettings.ts",
+          "line": 203,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/(dashboard)/leaderboards/components/cluster-management/hooks/useGuildEditingActions.ts",
+          "line": 101,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/(dashboard)/leaderboards/components/cluster-management/hooks/useGuildEditingActions.ts",
+          "line": 170,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/(dashboard)/leaderboards/components/cluster-management/hooks/useGuildEditingActions.ts",
+          "line": 217,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/admin/auto-invalidate-api-keys/route.ts",
+          "line": 94,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/admin/guild-cleanup/route.ts",
+          "line": 330,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/clusters/create/route.ts",
+          "line": 344,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/clusters/create/route.ts",
+          "line": 452,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/clusters/create/route.ts",
+          "line": 565,
+          "verb": "insert",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/clusters/create/route.ts",
+          "line": 648,
+          "verb": "delete",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/clusters/join/route.ts",
+          "line": 243,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/clusters/join/route.ts",
+          "line": 375,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/clusters/join/route.ts",
+          "line": 522,
+          "verb": "insert",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/clusters/join/route.ts",
+          "line": 629,
+          "verb": "delete",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/guild/claim/route.ts",
+          "line": 325,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/guild/create-config/route.ts",
+          "line": 568,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/guild/replace-api-key/route.ts",
+          "line": 175,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/guild/update-api-key/route.ts",
+          "line": 107,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/guild/update-api-key/route.ts",
+          "line": 367,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/guild/validate-api-key/route.ts",
+          "line": 133,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/guild/validate-api-key/route.ts",
+          "line": 259,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/onboarding/complete-via-invite/route.ts",
+          "line": 124,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/user/activity/route.ts",
+          "line": 102,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/webhooks/save/route.ts",
+          "line": 363,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/components/votlw/actions.ts",
+          "line": 61,
+          "verb": "update",
+          "client": "REQUEST(file)"
+        },
+        {
+          "file": "app/lib/loki/guild-client.ts",
+          "line": 55,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/services/guild-settings-service.ts",
+          "line": 365,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/services/guild-settings-service.ts",
+          "line": 496,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/services/guild-settings-service.ts",
+          "line": 558,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/sync/db-operations/sync-status.ts",
+          "line": 82,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/sync/guild-config-discovery.ts",
+          "line": 124,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/sync/loki-rankings.ts",
+          "line": 459,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/sync/loki-session-api.ts",
+          "line": 116,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/sync/post-sync-hooks.ts",
+          "line": 125,
+          "verb": "update",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/sync/post-sync-hooks.ts",
+          "line": 164,
+          "verb": "update",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/sync/post-sync-hooks.ts",
+          "line": 236,
+          "verb": "update",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/sync/sync-job-lifecycle.ts",
+          "line": 123,
+          "verb": "update",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/sync/sync-job-lifecycle.ts",
+          "line": 148,
+          "verb": "update",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/sync/sync-job-lifecycle.ts",
+          "line": 170,
+          "verb": "update",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/sync/worker-jobs/player-sync.ts",
+          "line": 38,
+          "verb": "update",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "supabase/functions/admin-enable-modular-sync/index.ts",
+          "line": 37,
+          "verb": "update",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "tests/integration/gdpr/gdpr.test.ts",
+          "line": 231,
+          "verb": "upsert",
+          "client": "SERVICE(file)"
+        },
+        {
+          "file": "tests/integration/gdpr/gdpr.test.ts",
+          "line": 304,
+          "verb": "delete",
+          "client": "SERVICE(file)"
+        },
+        {
+          "file": "tests/integration/rls/rls.test.ts",
+          "line": 151,
+          "verb": "upsert",
+          "client": "SERVICE(file)"
+        },
+        {
+          "file": "tests/integration/rls/rls.test.ts",
+          "line": 210,
+          "verb": "delete",
+          "client": "SERVICE(file)"
+        }
+      ],
+      "undecided_write_sites": 21,
+      "decision": "keep-policy-governed"
+    },
+    "guild_historical_backfill_history": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "guild_historical_backfill_status": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "guild_raid_boss_difficulty": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "guild_raid_season_plan_assignments": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "gr_season_plan_assignments_delete_officers",
+        "gr_season_plan_assignments_insert_officers",
+        "gr_season_plan_assignments_update_officers"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "guild_raid_season_plan_sessions": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "gr_season_plan_sessions_delete_officers",
+        "gr_season_plan_sessions_insert_officers",
+        "gr_season_plan_sessions_update_officers"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "guild_raid_season_plans": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "gr_season_plans_delete_officers",
+        "gr_season_plans_insert_officers",
+        "gr_season_plans_update_officers"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/guild-raid/season-plan/save/route.ts",
+          "line": 65,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 1,
+      "decision": "keep-policy-governed"
+    },
+    "guild_roster_scoring_config": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/guild-roles/config/route.ts",
+          "line": 129,
+          "verb": "upsert",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/roster-development/scoring-config/route.ts",
+          "line": 226,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 2,
+      "decision": "keep-undecided"
+    },
+    "guild_sync_history": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "guild_sync_status": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "authenticated_users_can_insert",
+        "authenticated_users_can_update"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/guild/create-config/initial-sync.ts",
+          "line": 251,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/guild/trigger-sync/route.ts",
+          "line": 104,
+          "verb": "upsert",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/sync/db-operations/sync-status.ts",
+          "line": 52,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "tests/integration/rls/rls.test.ts",
+          "line": 189,
+          "verb": "upsert",
+          "client": "SERVICE(file)"
+        },
+        {
+          "file": "tests/integration/rls/rls.test.ts",
+          "line": 204,
+          "verb": "delete",
+          "client": "SERVICE(file)"
+        }
+      ],
+      "undecided_write_sites": 2,
+      "decision": "keep-policy-governed"
+    },
+    "guild_themes": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/compliance/erase-user-data.ts",
+          "line": 119,
+          "verb": "update",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 1,
+      "decision": "keep-undecided"
+    },
+    "guild_war_battles": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/war/guild-war-ingestor.ts",
+          "line": 431,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 1,
+      "decision": "keep-undecided"
+    },
+    "guild_war_defensive_lineups": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "Guild officers can manage defensive lineups"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "guild_war_leaderboards": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "guild_war_lineups": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["Service role can manage war lineups"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/war/guild-war-ingestor.ts",
+          "line": 420,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 1,
+      "decision": "keep-policy-governed"
+    },
+    "guild_war_matches": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/guild-war/import/route.ts",
+          "line": 296,
+          "verb": "upsert",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/war/guild-war-ingestor.ts",
+          "line": 186,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 1,
+      "decision": "keep-undecided"
+    },
+    "guild_war_meta_teams": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["guild_war_meta_teams_leader_write"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/guild-war/war-room/route.ts",
+          "line": 233,
+          "verb": "insert",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/guild-war/war-room/route.ts",
+          "line": 286,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/guild-war/war-room/route.ts",
+          "line": 329,
+          "verb": "delete",
+          "client": "REQUEST"
+        }
+      ],
+      "undecided_write_sites": 3,
+      "decision": "keep-policy-governed"
+    },
+    "guild_war_participation": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/guild-war/import/route.ts",
+          "line": 204,
+          "verb": "upsert",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/war/guild-war-ingestor.ts",
+          "line": 503,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 1,
+      "decision": "keep-undecided"
+    },
+    "guild_war_player_attempts": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/guild-war/import/route.ts",
+          "line": 158,
+          "verb": "upsert",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/war/guild-war-ingestor.ts",
+          "line": 369,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 1,
+      "decision": "keep-undecided"
+    },
+    "guild_war_settings": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "Guild officers can manage war settings"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/(dashboard)/wars/_components/WarStrategy.tsx",
+          "line": 89,
+          "verb": "upsert",
+          "client": "REQUEST"
+        }
+      ],
+      "undecided_write_sites": 1,
+      "decision": "keep-policy-governed"
+    },
+    "guild_war_visibility_audit": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "guild_war_zone_assignment_entries": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "Guild officers can manage zone assignment entries",
+        "Service role can manage zone assignment entries"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "guild_war_zone_assignments": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "Guild officers can manage zone assignments",
+        "Service role can manage zone assignments"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/(dashboard)/wars/_components/ZoneManagement.tsx",
+          "line": 284,
+          "verb": "upsert",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/(dashboard)/wars/_components/ZoneManagement.tsx",
+          "line": 307,
+          "verb": "upsert",
+          "client": "REQUEST"
+        }
+      ],
+      "undecided_write_sites": 2,
+      "decision": "keep-policy-governed"
+    },
+    "guild_war_zone_events": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "guild_war_zones": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/guild-war/import/route.ts",
+          "line": 332,
+          "verb": "upsert",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/war/guild-war-ingestor.ts",
+          "line": 218,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 1,
+      "decision": "keep-undecided"
+    },
+    "herald_boss_availability": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/herald/dispatch/availability-dispatch.ts",
+          "line": 141,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/herald/dispatch/availability-dispatch.ts",
+          "line": 409,
+          "verb": "delete",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/herald/run-phases/availability.ts",
+          "line": 140,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 3,
+      "decision": "keep-undecided"
+    },
+    "herald_boss_config": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["herald_boss_config_officer_write"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/herald/boss-config/route.ts",
+          "line": 790,
+          "verb": "delete",
+          "client": "REQUEST"
+        }
+      ],
+      "undecided_write_sites": 1,
+      "decision": "keep-policy-governed"
+    },
+    "herald_config_versions": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["herald_config_versions_officer_write"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/herald/config-versions/route.ts",
+          "line": 193,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/herald/config-versions/route.ts",
+          "line": 196,
+          "verb": "insert",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/herald/config-versions/route.ts",
+          "line": 205,
+          "verb": "upsert",
+          "client": "REQUEST"
+        }
+      ],
+      "undecided_write_sites": 3,
+      "decision": "keep-policy-governed"
+    },
+    "herald_meta_role_mapping": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "herald_meta_role_mapping_officer_write"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/herald/role-mappings/route.ts",
+          "line": 377,
+          "verb": "delete",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/herald/role-mappings/seed-from-meta-atlas/route.ts",
+          "line": 167,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/herald/config.ts",
+          "line": 785,
+          "verb": "update",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 3,
+      "decision": "keep-policy-governed"
+    },
+    "herald_posted_events": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/herald/dispatch/availability-dispatch.ts",
+          "line": 190,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/herald/dispatch/bomb-range-dispatch.ts",
+          "line": 168,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/herald/dispatch/bomb-range-dispatch.ts",
+          "line": 295,
+          "verb": "delete",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/herald/dispatch/defeat-dispatch.ts",
+          "line": 103,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/herald/dispatch/defeat-dispatch.ts",
+          "line": 266,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/herald/dispatch/defeat-dispatch.ts",
+          "line": 301,
+          "verb": "delete",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/herald/run-phases/defeat.ts",
+          "line": 91,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 7,
+      "decision": "keep-undecided"
+    },
+    "hero_mappings": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/sync/db-operations/unit-tracking.ts",
+          "line": 157,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 1,
+      "decision": "keep-undecided"
+    },
+    "log_export_requests": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "Officers and leaders can create export requests"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "supabase/functions/process-log-exports/index.ts",
+          "line": 43,
+          "verb": "update",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "supabase/functions/process-log-exports/index.ts",
+          "line": 124,
+          "verb": "update",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "supabase/functions/process-log-exports/index.ts",
+          "line": 137,
+          "verb": "update",
+          "client": "SERVICE(edge)"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "login_audit": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "maps": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "meta_atlas_dag_edges": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "meta_atlas_data": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "onboarding_jobs": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/onboarding/jobs/process/route.ts",
+          "line": 67,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/onboarding/jobs/process/route.ts",
+          "line": 94,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/onboarding/jobs/process/route.ts",
+          "line": 111,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/onboarding/jobs/process/route.ts",
+          "line": 135,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/onboarding/jobs/process/route.ts",
+          "line": 162,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/onboarding/jobs.ts",
+          "line": 92,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/onboarding/jobs.ts",
+          "line": 145,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "tests/unit/scripts/check-handler-coverage.test.ts",
+          "line": 107,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 3,
+      "decision": "keep-undecided"
+    },
+    "onboarding_progress": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["Users manage own onboarding progress"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/onboarding/cluster/add-guild/route.ts",
+          "line": 341,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/onboarding/cluster/requeue-guild/route.ts",
+          "line": 127,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/onboarding/complete-via-invite/route.ts",
+          "line": 91,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/onboarding/data-sync/start/route.ts",
+          "line": 181,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/onboarding/data-sync/start/route.ts",
+          "line": 237,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/onboarding/jobs/process/route.ts",
+          "line": 171,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/onboarding/start/route.ts",
+          "line": 44,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/onboarding/start/route.ts",
+          "line": 79,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/lib/onboarding/job-runner.ts",
+          "line": 232,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/onboarding/job-runner.ts",
+          "line": 259,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/onboarding/job-runner.ts",
+          "line": 285,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/onboarding/job-runner.ts",
+          "line": 318,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/onboarding/progress.ts",
+          "line": 52,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 12,
+      "decision": "keep-policy-governed"
+    },
+    "pgnet_watchdog_state": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "player_achievements": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "player_avatar_frames": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["Service role can modify avatar frames"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "player_claim_audit": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/onboarding/claim/consume/route.ts",
+          "line": 117,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/onboarding/leader/claim-seat/route.ts",
+          "line": 159,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/profile/change-player-id/route.ts",
+          "line": 152,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 3,
+      "decision": "keep-undecided"
+    },
+    "player_identity_attestation_revocations": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "tests/integration/helpers/attested-player-mapping.ts",
+          "line": 126,
+          "verb": "insert",
+          "client": "SERVICE(test-admin)"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "player_identity_attestations": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "tests/integration/helpers/attested-player-mapping.ts",
+          "line": 83,
+          "verb": "insert",
+          "client": "SERVICE(test-admin)"
+        },
+        {
+          "file": "tests/integration/rls/rls.test.ts",
+          "line": 309,
+          "verb": "insert",
+          "client": "SERVICE(file)"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "player_identity_discord_generation_activations": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "player_identity_discord_invalidation_events": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "player_identity_discord_unlink_pending": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "player_identity_quarantine_events": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "player_identity_quarantine_evidence": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "player_identity_quarantine_pii": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "player_identity_subject_authority_blocks": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "player_invite_codes": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "player_mapping": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": false,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["users_manage_own_record"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/admin/guild-cleanup/route.ts",
+          "line": 210,
+          "verb": "delete",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/clusters/_lib/membership-authority.ts",
+          "line": 264,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/guild-tokens/sync/route.ts",
+          "line": 239,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/guild-tokens/sync/route.ts",
+          "line": 276,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/guild-tokens/sync/route.ts",
+          "line": 335,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/guild/create-config/initial-sync.ts",
+          "line": 68,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/guild/create-config/initial-sync.ts",
+          "line": 168,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/guild/create-config/initial-sync.ts",
+          "line": 215,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/player-api-key/route.ts",
+          "line": 418,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/player-api-key/sync/route.ts",
+          "line": 160,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/player-api-key/sync/route.ts",
+          "line": 346,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/player-api-key/sync/route.ts",
+          "line": 371,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/tokens/route.ts",
+          "line": 499,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/components/BossFavorites.tsx",
+          "line": 220,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/lib/jobs/reconcile-guild-ranks.ts",
+          "line": 404,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/player/roster-sync.ts",
+          "line": 192,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/profile/persist-player-api-key.ts",
+          "line": 64,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/services/feature-release-service.ts",
+          "line": 501,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/sync/db-operations/player-mappings.ts",
+          "line": 405,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/sync/worker-jobs/player-sync.ts",
+          "line": 71,
+          "verb": "upsert",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/sync/worker-jobs/raid-sync.ts",
+          "line": 1031,
+          "verb": "upsert",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/sync/worker-jobs/raid-sync.ts",
+          "line": 1049,
+          "verb": "update",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/token-service/snapshot-write.ts",
+          "line": 27,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/war/guild-war-ingestor.ts",
+          "line": 480,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "tests/integration/helpers/attested-player-mapping.ts",
+          "line": 66,
+          "verb": "insert",
+          "client": "SERVICE(test-admin)"
+        },
+        {
+          "file": "tests/integration/helpers/attested-player-mapping.ts",
+          "line": 102,
+          "verb": "update",
+          "client": "SERVICE(test-admin)"
+        },
+        {
+          "file": "tests/integration/helpers/attested-player-mapping.ts",
+          "line": 139,
+          "verb": "delete",
+          "client": "SERVICE(test-admin)"
+        },
+        {
+          "file": "tests/integration/rls/rls.test.ts",
+          "line": 294,
+          "verb": "insert",
+          "client": "SERVICE(file)"
+        },
+        {
+          "file": "tests/integration/rls/rls.test.ts",
+          "line": 323,
+          "verb": "update",
+          "client": "SERVICE(file)"
+        },
+        {
+          "file": "tests/integration/rls/rls.test.ts",
+          "line": 335,
+          "verb": "delete",
+          "client": "SERVICE(file)"
+        }
+      ],
+      "undecided_write_sites": 11,
+      "decision": "keep-policy-governed"
+    },
+    "player_meta_roles": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "player_meta_roles_leader_write",
+        "player_meta_roles_self_write"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/player-meta-roles/route.ts",
+          "line": 222,
+          "verb": "upsert",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/player-meta-roles/route.ts",
+          "line": 317,
+          "verb": "delete",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/lib/discord/role-reconciler.ts",
+          "line": 744,
+          "verb": "upsert",
+          "client": "UNKNOWN(param-type-cast)"
+        }
+      ],
+      "undecided_write_sites": 3,
+      "decision": "keep-policy-governed"
+    },
+    "player_roster": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["Users can manage own roster"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/player/roster-sync.ts",
+          "line": 308,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 1,
+      "decision": "keep-policy-governed"
+    },
+    "raid_progression_config": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "Service role can manage progression config"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "role_reconciliation_events": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/discord/role-reconciler.ts",
+          "line": 134,
+          "verb": "insert",
+          "client": "UNKNOWN(param-type-cast)"
+        }
+      ],
+      "undecided_write_sites": 1,
+      "decision": "keep-undecided"
+    },
+    "schema_migrations": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "season_boss_lineup": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "season_calendar": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["season_calendar_service_write"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/sync/post-sync-hooks.ts",
+          "line": 284,
+          "verb": "upsert",
+          "client": "SERVICE(param-type)"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "season_summary_tracking": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "supabase/functions/detect-season-end/index.ts",
+          "line": 132,
+          "verb": "insert",
+          "client": "SERVICE(edge)"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "season_tracking": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "Allow service role access to season tracking"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "sync_health": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/sync/worker-jobs/validation-sync.ts",
+          "line": 66,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 1,
+      "decision": "keep-undecided"
+    },
+    "sync_metrics": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "sync_queue": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/sync/sync-job-lifecycle.ts",
+          "line": 35,
+          "verb": "update",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/sync/sync-job-lifecycle.ts",
+          "line": 217,
+          "verb": "update",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/sync/worker-jobs/raid-sync.ts",
+          "line": 219,
+          "verb": "update",
+          "client": "SERVICE(param-type)"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "system_config": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "tests/integration/rls/rls.test.ts",
+          "line": 139,
+          "verb": "upsert",
+          "client": "SERVICE(file)"
+        },
+        {
+          "file": "tests/integration/rls/rls.test.ts",
+          "line": 214,
+          "verb": "delete",
+          "client": "SERVICE(file)"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "system_logs": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "token_audit_snapshots": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/token-audit/run-token-audit.ts",
+          "line": 477,
+          "verb": "insert",
+          "client": "SERVICE(file)"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "token_burn_state": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "token_cap_notifications": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "Allow authenticated cap notification creation",
+        "Allow authenticated cap notification updates"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "supabase/functions/check-capped-players/index.ts",
+          "line": 191,
+          "verb": "insert",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "supabase/functions/check-capped-players/index.ts",
+          "line": 257,
+          "verb": "update",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "supabase/functions/process-cap-notifications/index.ts",
+          "line": 19,
+          "verb": "delete",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "supabase/functions/process-cap-notifications/index.ts",
+          "line": 141,
+          "verb": "update",
+          "client": "SERVICE(edge)"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "token_notification_events": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "token_notification_preferences": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "upcoming_season_assignments": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "Officers can manage their guild assignments"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "upcoming_season_bosses": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "Officers can manage their guild boss selections"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/season-config/_write-helpers.ts",
+          "line": 300,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/season-config/_write-helpers.ts",
+          "line": 340,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 2,
+      "decision": "keep-policy-governed"
+    },
+    "user_briefing_state": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "user_briefing_state_delete_own",
+        "user_briefing_state_insert_own",
+        "user_briefing_state_update_own"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/briefing/seen/route.ts",
+          "line": 40,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/briefing/load-since-last-visit.ts",
+          "line": 96,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        }
+      ],
+      "undecided_write_sites": 2,
+      "decision": "keep-policy-governed"
+    },
+    "user_token_alert_prefs": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "user_token_alert_prefs_owner_delete",
+        "user_token_alert_prefs_owner_insert",
+        "user_token_alert_prefs_owner_update"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/user/token-alerts/route.ts",
+          "line": 403,
+          "verb": "upsert",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/user/token-alerts/route.ts",
+          "line": 466,
+          "verb": "insert",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/user/token-alerts/route.ts",
+          "line": 486,
+          "verb": "update",
+          "client": "REQUEST"
+        }
+      ],
+      "undecided_write_sites": 3,
+      "decision": "keep-policy-governed"
+    },
+    "user_token_alert_state": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/api/user/token-alerts/route.ts",
+          "line": 557,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/token-alerts/scan.ts",
+          "line": 386,
+          "verb": "upsert",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/token-alerts/scan.ts",
+          "line": 611,
+          "verb": "upsert",
+          "client": "SERVICE"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "votlw_winners": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "supabase/functions/calculate-votlw/index.ts",
+          "line": 91,
+          "verb": "upsert",
+          "client": "SERVICE(edge)"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "war_player_lineups": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "Service role can manage all lineups",
+        "Users can manage their own lineups"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/(dashboard)/wars/_hooks/useWarLineups.ts",
+          "line": 133,
+          "verb": "upsert",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/(dashboard)/wars/_hooks/useWarLineups.ts",
+          "line": 175,
+          "verb": "delete",
+          "client": "REQUEST"
+        }
+      ],
+      "undecided_write_sites": 2,
+      "decision": "keep-policy-governed"
+    },
+    "webhook_config": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [
+        "Officers and leaders can manage guild webhooks",
+        "webhook_config_leader_cluster_manage"
+      ],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/(dashboard)/leaderboards/components/UnifiedWebhookManager.tsx",
+          "line": 340,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/clusters/create/route.ts",
+          "line": 231,
+          "verb": "insert",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/discord-webhooks/boss-assignments/route.ts",
+          "line": 289,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/discord-webhooks/boss-assignments/route.ts",
+          "line": 296,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/discord-webhooks/event-notification/route.ts",
+          "line": 241,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/discord-webhooks/new-member/route.ts",
+          "line": 388,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/discord-webhooks/version-update/route.ts",
+          "line": 294,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/webhooks/save/route.ts",
+          "line": 247,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/webhooks/save/route.ts",
+          "line": 293,
+          "verb": "insert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/api/webhooks/test/route.ts",
+          "line": 565,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/lib/compliance/erase-user-data.ts",
+          "line": 106,
+          "verb": "update",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/webhooks/webhook-helper.ts",
+          "line": 170,
+          "verb": "update",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/lib/webhooks/webhook-helper.ts",
+          "line": 186,
+          "verb": "insert",
+          "client": "REQUEST"
+        },
+        {
+          "file": "supabase/functions/daily-summary/index.ts",
+          "line": 384,
+          "verb": "update",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "supabase/functions/detect-season-end/index.ts",
+          "line": 391,
+          "verb": "update",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "supabase/functions/gr-availability/index.ts",
+          "line": 246,
+          "verb": "update",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "supabase/functions/process-cap-notifications/index.ts",
+          "line": 149,
+          "verb": "update",
+          "client": "SERVICE(edge)"
+        }
+      ],
+      "undecided_write_sites": 10,
+      "decision": "keep-policy-governed"
+    },
+    "webhook_cron_jobs": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": ["Leaders can manage webhook jobs"],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "keep-policy-governed"
+    },
+    "work_queue": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [
+        {
+          "file": "app/lib/sync/post-sync-hooks.ts",
+          "line": 334,
+          "verb": "insert",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "supabase/functions/sync-modular-workflow/index.ts",
+          "line": 1155,
+          "verb": "insert",
+          "client": "SERVICE(edge)"
+        }
+      ],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    },
+    "write_queue": {
+      "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
+      "authenticated_select": true,
+      "rls_enabled": true,
+      "authenticated_write_policies": [],
+      "service_role_retains_write": true,
+      "committed_write_sites": [],
+      "undecided_write_sites": 0,
+      "decision": "revoke"
+    }
+  }
+}

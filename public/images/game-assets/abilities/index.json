@@ -1,0 +1,4729 @@
+{
+  "version": 1,
+  "sourceBuildId": "v1.41.101-android",
+  "provenanceClass": "production-build-presentation-art",
+  "mechanicsAuthority": false,
+  "count": 472,
+  "abilities": {
+    "aberranthypermorph": {
+      "slug": "aberranthypermorph",
+      "abilityName": "AberrantHypermorph",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_AberrantHypermorph",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_aberranthypermorph.png",
+      "sourceBundle": "abilities/active2/aberranthypermorph_f07203b7bee46020953a78188cc3178f"
+    },
+    "ablativeplating": {
+      "slug": "ablativeplating",
+      "abilityName": "AblativePlating",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_AblativePlating",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_ablativeplating.png",
+      "sourceBundle": "abilities/triggered2/ablativeplating_cdfe7a8a43890f9eac36008aeaabe79f"
+    },
+    "adaptivetoxins": {
+      "slug": "adaptivetoxins",
+      "abilityName": "AdaptiveToxins",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_AdaptiveToxins",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_adaptivetoxins.png",
+      "sourceBundle": "abilities/triggered2/adaptivetoxins_502d85b50eb39cd0d0aaeafcf725409d"
+    },
+    "adrenalglands": {
+      "slug": "adrenalglands",
+      "abilityName": "AdrenalGlands",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_AdrenalGlands",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_adrenalglands.png",
+      "sourceBundle": "abilities/triggered2/adrenalglands_652cf902a56cb9b4b4b2ca09ef62fe4b"
+    },
+    "adrenalsurge": {
+      "slug": "adrenalsurge",
+      "abilityName": "AdrenalSurge",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_AdrenalSurge",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_adrenalsurge.png",
+      "sourceBundle": "abilities/triggered2/adrenalsurge_7dd737f6a2ed3a73918d6e19f69b1389"
+    },
+    "aetherstride": {
+      "slug": "aetherstride",
+      "abilityName": "AetherStride",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_AetherStride",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_aetherstride.png",
+      "sourceBundle": "abilities/active2/aetherstride_f24ffa3bb915577b87d547132a186a9f"
+    },
+    "aggressiveonslaught": {
+      "slug": "aggressiveonslaught",
+      "abilityName": "AggressiveOnslaught",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_AggressiveOnslaught",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_aggressiveonslaught.png",
+      "sourceBundle": "abilities/triggered2/aggressiveonslaught_3718815f52585f9d7b98b636f0e9e6f3"
+    },
+    "allisdust": {
+      "slug": "allisdust",
+      "abilityName": "AllIsDust",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_AllIsDust",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_allisdust.png",
+      "sourceBundle": "abilities/triggered2/allisdust_5901fbbea687f727ae709bb121157d21"
+    },
+    "alphawarrior": {
+      "slug": "alphawarrior",
+      "abilityName": "AlphaWarrior",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_AlphaWarrior",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_alphawarrior.png",
+      "sourceBundle": "abilities/active2/alphawarrior_bc777892ecea21a3e88b5f2d31176e3d"
+    },
+    "amuletofthevoidwyrm": {
+      "slug": "amuletofthevoidwyrm",
+      "abilityName": "AmuletOfTheVoidwyrm",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_AmuletOfTheVoidwyrm",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_amuletofthevoidwyrm.png",
+      "sourceBundle": "abilities/triggered2/amuletofthevoidwyrm_d344ecfa18d91de7567e21e94702aebd"
+    },
+    "ancestralfortune": {
+      "slug": "ancestralfortune",
+      "abilityName": "AncestralFortune",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_AncestralFortune",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_ancestralfortune.png",
+      "sourceBundle": "abilities/active2/ancestralfortune_ce941e1ccc2d70f66198324a8180e5fe"
+    },
+    "ancientfury": {
+      "slug": "ancientfury",
+      "abilityName": "AncientFury",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_AncientFury",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_ancientfury.png",
+      "sourceBundle": "abilities/triggered2/ancientfury_c325cda8af59a19a6b88ea7c0391b42c"
+    },
+    "annihilatorbeam": {
+      "slug": "annihilatorbeam",
+      "abilityName": "AnnihilatorBeam",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_AnnihilatorBeam",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_annihilatorbeam.png",
+      "sourceBundle": "abilities/active2/annihilatorbeam_cdf86d955f9af7d1b5e483f1edbbebfd"
+    },
+    "anvilshield": {
+      "slug": "anvilshield",
+      "abilityName": "AnvilShield",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_AnvilShield",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_anvilshield.png",
+      "sourceBundle": "abilities/triggered2/anvilshield_52e10bdec3daaaedf281ccd8024200b9"
+    },
+    "arcaneshield": {
+      "slug": "arcaneshield",
+      "abilityName": "ArcaneShield",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ArcaneShield",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_arcaneshield.png",
+      "sourceBundle": "abilities/triggered2/arcaneshield_237efcbd067ade02a066332a0374d011"
+    },
+    "archcontaminator": {
+      "slug": "archcontaminator",
+      "abilityName": "ArchContaminator",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ArchContaminator",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_archcontaminator.png",
+      "sourceBundle": "abilities/triggered2/archcontaminator_dfb3a12d3e6cbaf3d61bf2d5c7afe6b3"
+    },
+    "arcscourge": {
+      "slug": "arcscourge",
+      "abilityName": "ArcScourge",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_ArcScourge",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_arcscourge.png",
+      "sourceBundle": "abilities/active2/arcscourge_23b42d6b517bd036ddc5701800eb2315"
+    },
+    "armouredmight": {
+      "slug": "armouredmight",
+      "abilityName": "ArmouredMight",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ArmouredMight",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_armouredmight.png",
+      "sourceBundle": "abilities/triggered2/armouredmight_71feace9ccfbec9770bcf8a6c74d48cb"
+    },
+    "armourofshriekingsouls": {
+      "slug": "armourofshriekingsouls",
+      "abilityName": "ArmourofShriekingSouls",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ArmourofShriekingSouls",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_armourofshriekingsouls.png",
+      "sourceBundle": "abilities/triggered2/armourofshriekingsouls_906894f54f2f9ea843ffbb0b7545bf6c"
+    },
+    "astartesbanner": {
+      "slug": "astartesbanner",
+      "abilityName": "AstartesBanner",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_AstartesBanner",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_astartesbanner.png",
+      "sourceBundle": "abilities/triggered2/astartesbanner_e8977ddaedb926760fbfd56af5cf5d88"
+    },
+    "atemptingtrap": {
+      "slug": "atemptingtrap",
+      "abilityName": "ATemptingTrap",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ATemptingTrap",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_atemptingtrap.png",
+      "sourceBundle": "abilities/triggered2/atemptingtrap_d577e31e68b44fa3efd5dfbd96b61d51"
+    },
+    "attemptedpossession": {
+      "slug": "attemptedpossession",
+      "abilityName": "AttemptedPossession",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_AttemptedPossession",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_attemptedpossession.png",
+      "sourceBundle": "abilities/active2/attemptedpossession_2f6914bf26d7b1e22cff1ce7126f6566"
+    },
+    "augmentedassault": {
+      "slug": "augmentedassault",
+      "abilityName": "AugmentedAssault",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_AugmentedAssault",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_augmentedassault.png",
+      "sourceBundle": "abilities/active2/augmentedassault_f829738c3bc78f2ecfdfd9d783bb2e8a"
+    },
+    "avalancheofmuscle": {
+      "slug": "avalancheofmuscle",
+      "abilityName": "AvalancheOfMuscle",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_AvalancheOfMuscle",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_avalancheofmuscle.png",
+      "sourceBundle": "abilities/triggered2/avalancheofmuscle_5ae7648484347a5935b279d45a9be092"
+    },
+    "barbedovipositor": {
+      "slug": "barbedovipositor",
+      "abilityName": "BarbedOvipositor",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_BarbedOvipositor",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_barbedovipositor.png",
+      "sourceBundle": "abilities/triggered2/barbedovipositor_abc01a8f755c6c1add3df420bacde2b4"
+    },
+    "basiliskbarrage": {
+      "slug": "basiliskbarrage",
+      "abilityName": "BasiliskBarrage",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_BasiliskBarrage",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_basiliskbarrage.png",
+      "sourceBundle": "abilities/active2/basiliskbarrage_2f3b2b9f5494eed39e61b0cfec2dfff6"
+    },
+    "battlefocus": {
+      "slug": "battlefocus",
+      "abilityName": "BattleFocus",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_BattleFocus",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_battlefocus.png",
+      "sourceBundle": "abilities/triggered2/battlefocus_83303c39545aa6022d7c562391a634ce"
+    },
+    "beaconofrage": {
+      "slug": "beaconofrage",
+      "abilityName": "BeaconOfRage",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_BeaconOfRage",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_beaconofrage.png",
+      "sourceBundle": "abilities/triggered2/beaconofrage_7a004a598d26b1cffc72b78b707ff5d0"
+    },
+    "bigbadaboom": {
+      "slug": "bigbadaboom",
+      "abilityName": "BigBadaBoom",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_BigBadaBoom",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_bigbadaboom.png",
+      "sourceBundle": "abilities/triggered2/bigbadaboom_d360a3f97be7e2375b9b5ce803db81af"
+    },
+    "bigbadaboomreworked": {
+      "slug": "bigbadaboomreworked",
+      "abilityName": "BigBadaBoomReworked",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_BigBadaBoomReworked",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_bigbadaboomreworked.png",
+      "sourceBundle": "abilities/triggered2/bigbadaboomreworked_e8b0d3b516d472b6a2a3e61a52566227"
+    },
+    "biobarrage": {
+      "slug": "biobarrage",
+      "abilityName": "BioBarrage",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_BioBarrage",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_biobarrage.png",
+      "sourceBundle": "abilities/triggered2/biobarrage_3a682831f746d8f9428d41d945601de8"
+    },
+    "biominefield": {
+      "slug": "biominefield",
+      "abilityName": "BioMinefield",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_BioMinefield",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_biominefield.png",
+      "sourceBundle": "abilities/active2/biominefield_98063f7562d716857224929a1d9f17c1"
+    },
+    "blackrage": {
+      "slug": "blackrage",
+      "abilityName": "BlackRage",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_BlackRage",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_blackrage.png",
+      "sourceBundle": "abilities/active2/blackrage_84b4fb2bc07bba443d6ae16baaa69b43"
+    },
+    "bladeofmagnus": {
+      "slug": "bladeofmagnus",
+      "abilityName": "BladeOfMagnus",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_BladeOfMagnus",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_bladeofmagnus.png",
+      "sourceBundle": "abilities/active2/bladeofmagnus_60fddf6986c67b642e9697eb18f95b37"
+    },
+    "bladeoftheancestors": {
+      "slug": "bladeoftheancestors",
+      "abilityName": "BladeOfTheAncestors",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_BladeOfTheAncestors",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_bladeoftheancestors.png",
+      "sourceBundle": "abilities/triggered2/bladeoftheancestors_ebbecb1c2d88356be1d57df359d6e2e0"
+    },
+    "blightedland": {
+      "slug": "blightedland",
+      "abilityName": "BlightedLand",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_BlightedLand",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_blightedland.png",
+      "sourceBundle": "abilities/triggered2/blightedland_946c61fc623a26bf7694d5be0ad6d3c1"
+    },
+    "blightgrenades": {
+      "slug": "blightgrenades",
+      "abilityName": "BlightGrenades",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_BlightGrenades",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_blightgrenades.png",
+      "sourceBundle": "abilities/active2/blightgrenades_f5d87e550892dce3d2959b5639e913f9"
+    },
+    "blisteringassault": {
+      "slug": "blisteringassault",
+      "abilityName": "BlisteringAssault",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_BlisteringAssault",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_blisteringassault.png",
+      "sourceBundle": "abilities/triggered2/blisteringassault_b5ae20544de809e1fdc7f54bce1b5d3e"
+    },
+    "bloodchalice": {
+      "slug": "bloodchalice",
+      "abilityName": "BloodChalice",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_BloodChalice",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_bloodchalice.png",
+      "sourceBundle": "abilities/active2/bloodchalice_046486f62039ad4a4fd843b3d6f6b72c"
+    },
+    "bloodrunsangerriseswarcalls": {
+      "slug": "bloodrunsangerriseswarcalls",
+      "abilityName": "BloodRunsAngerRisesWarCalls",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_BloodRunsAngerRisesWarCalls",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_bloodrunsangerriseswarcalls.png",
+      "sourceBundle": "abilities/triggered2/bloodrunsangerriseswarcalls_f9e8bc1e3c96b2cdcfc556733cb1e994"
+    },
+    "bloodyfury": {
+      "slug": "bloodyfury",
+      "abilityName": "BloodyFury",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_BloodyFury",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_bloodyfury.png",
+      "sourceBundle": "abilities/active2/bloodyfury_10bd7269c10a42f1e2688587dc195737"
+    },
+    "boltstorm": {
+      "slug": "boltstorm",
+      "abilityName": "Boltstorm",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Boltstorm",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_boltstorm.png",
+      "sourceBundle": "abilities/triggered2/boltstorm_c781f76ad820f68b738d11cd0d8ecc64"
+    },
+    "bookoffate": {
+      "slug": "bookoffate",
+      "abilityName": "BookOfFate",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_BookOfFate",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_bookoffate.png",
+      "sourceBundle": "abilities/triggered2/bookoffate_f1dd726b3b2f2ef359196e2c60fa38e2"
+    },
+    "bossadjutant": {
+      "slug": "bossadjutant",
+      "abilityName": "BossAdjutant",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_BossAdjutant",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_bossadjutant.png",
+      "sourceBundle": "abilities/triggered2/bossadjutant_db36d90ffa45b06120909b23af031b88"
+    },
+    "bounce": {
+      "slug": "bounce",
+      "abilityName": "Bounce",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Bounce",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_bounce.png",
+      "sourceBundle": "abilities/triggered2/bounce_d505527a60be4e297f094a5ea46c8961"
+    },
+    "brazierofholyfire": {
+      "slug": "brazierofholyfire",
+      "abilityName": "BrazierOfHolyFire",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_BrazierOfHolyFire",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_brazierofholyfire.png",
+      "sourceBundle": "abilities/active2/brazierofholyfire_bc5e47c55c4c829cab433a1b14c22d71"
+    },
+    "breathofsilence": {
+      "slug": "breathofsilence",
+      "abilityName": "BreathOfSilence",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_BreathOfSilence",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_breathofsilence.png",
+      "sourceBundle": "abilities/active2/breathofsilence_ba1e4cd77b7044a3a038b1c1650bc59d"
+    },
+    "bringerofdespair": {
+      "slug": "bringerofdespair",
+      "abilityName": "BringerOfDespair",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_BringerOfDespair",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_bringerofdespair.png",
+      "sourceBundle": "abilities/active2/bringerofdespair_58e710f6ff7e9486521bedd2778539ee"
+    },
+    "broodprogenitor": {
+      "slug": "broodprogenitor",
+      "abilityName": "BroodProgenitor",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_BroodProgenitor",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_broodprogenitor.png",
+      "sourceBundle": "abilities/triggered2/broodprogenitor_5dc2cd1c3831a4f56845a49c69916f7f"
+    },
+    "burrowers": {
+      "slug": "burrowers",
+      "abilityName": "Burrowers",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Burrowers",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_burrowers.png",
+      "sourceBundle": "abilities/active2/burrowers_63eaf42c6c2ea5b198837ee6f2cab572"
+    },
+    "cabalofsorcerers": {
+      "slug": "cabalofsorcerers",
+      "abilityName": "CabalOfSorcerers",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_CabalOfSorcerers",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_cabalofsorcerers.png",
+      "sourceBundle": "abilities/triggered2/cabalofsorcerers_100f0eb7785386dbc19dab598485b6e1"
+    },
+    "calibanitegreatsword": {
+      "slug": "calibanitegreatsword",
+      "abilityName": "CalibaniteGreatsword",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_CalibaniteGreatsword",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_calibanitegreatsword.png",
+      "sourceBundle": "abilities/active2/calibanitegreatsword_cebe6a9ece0ff6661481cc93ffc63795"
+    },
+    "callinreinforcements": {
+      "slug": "callinreinforcements",
+      "abilityName": "CallInReinforcements",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_CallInReinforcements",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_callinreinforcements.png",
+      "sourceBundle": "abilities/triggered2/callinreinforcements_1c0c77746e363cfb118836b7ed879314"
+    },
+    "callripperswarms": {
+      "slug": "callripperswarms",
+      "abilityName": "CallRipperSwarms",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_CallRipperSwarms",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_callripperswarms.png",
+      "sourceBundle": "abilities/active2/callripperswarms_28f7708f96cf70729dea5f8522075d6b"
+    },
+    "callripperswarms2": {
+      "slug": "callripperswarms2",
+      "abilityName": "CallRipperSwarms2",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_CallRipperSwarms2",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_callripperswarms2.png",
+      "sourceBundle": "abilities/active2/callripperswarms2_4868fb04651e4cd1fff5ad6e44778048"
+    },
+    "callripperswarms3": {
+      "slug": "callripperswarms3",
+      "abilityName": "CallRipperSwarms3",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_CallRipperSwarms3",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_callripperswarms3.png",
+      "sourceBundle": "abilities/active2/callripperswarms3_bb6fef2172f336c6c3c0325d6e3e5a14"
+    },
+    "catalyst": {
+      "slug": "catalyst",
+      "abilityName": "Catalyst",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Catalyst",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_catalyst.png",
+      "sourceBundle": "abilities/active2/catalyst_275871f540c2bbf03469ae7a2d6bee95"
+    },
+    "chaliceofbaal": {
+      "slug": "chaliceofbaal",
+      "abilityName": "ChaliceOfBaal",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ChaliceOfBaal",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_chaliceofbaal.png",
+      "sourceBundle": "abilities/triggered2/chaliceofbaal_ae8209009d806d4bb6b99d38b3802338"
+    },
+    "championofthefeast": {
+      "slug": "championofthefeast",
+      "abilityName": "ChampionOfTheFeast",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ChampionOfTheFeast",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_championofthefeast.png",
+      "sourceBundle": "abilities/triggered2/championofthefeast_8212454611a8e54a8ad46366c681eb6b"
+    },
+    "chronometron": {
+      "slug": "chronometron",
+      "abilityName": "Chronometron",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Chronometron",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_chronometron.png",
+      "sourceBundle": "abilities/active2/chronometron_4efc706c6a4ae2081bbd59882405be63"
+    },
+    "cloudofflies": {
+      "slug": "cloudofflies",
+      "abilityName": "CloudOfFlies",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_CloudOfFlies",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_cloudofflies.png",
+      "sourceBundle": "abilities/triggered2/cloudofflies_199723d9fac3b6f5e461730cdd847c0d"
+    },
+    "conceal": {
+      "slug": "conceal",
+      "abilityName": "Conceal",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Conceal",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_conceal.png",
+      "sourceBundle": "abilities/triggered2/conceal_30178660c98559ac7bfc8c6fc8f5ccb9"
+    },
+    "condemnorstake": {
+      "slug": "condemnorstake",
+      "abilityName": "CondemnorStake",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_CondemnorStake",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_condemnorstake.png",
+      "sourceBundle": "abilities/triggered2/condemnorstake_50b92083c3c6977126c7dfdf2ffebfcb"
+    },
+    "contemptuousdisregard": {
+      "slug": "contemptuousdisregard",
+      "abilityName": "ContemptuousDisregard",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ContemptuousDisregard",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_contemptuousdisregard.png",
+      "sourceBundle": "abilities/triggered2/contemptuousdisregard_5f81b213039001ee95b6613ac041549f"
+    },
+    "controledict": {
+      "slug": "controledict",
+      "abilityName": "ControlEdict",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ControlEdict",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_controledict.png",
+      "sourceBundle": "abilities/triggered2/controledict_cf3bf1ac4966550ef2460c5201483bd3"
+    },
+    "cordclaw": {
+      "slug": "cordclaw",
+      "abilityName": "CordClaw",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_CordClaw",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_cordclaw.png",
+      "sourceBundle": "abilities/active2/cordclaw_789d8b3684dd1f0ceb254c9f4680243d"
+    },
+    "cosmichorror": {
+      "slug": "cosmichorror",
+      "abilityName": "CosmicHorror",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_CosmicHorror",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_cosmichorror.png",
+      "sourceBundle": "abilities/triggered2/cosmichorror_501a49d8fc65ba59b968f8bbc4ac837e"
+    },
+    "crazedfocus": {
+      "slug": "crazedfocus",
+      "abilityName": "CrazedFocus",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_CrazedFocus",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_crazedfocus.png",
+      "sourceBundle": "abilities/triggered2/crazedfocus_6dfadfe0b15e15b0ea25891f4d66fb43"
+    },
+    "crusadeofwrath": {
+      "slug": "crusadeofwrath",
+      "abilityName": "CrusadeOfWrath",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_CrusadeOfWrath",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_crusadeofwrath.png",
+      "sourceBundle": "abilities/active2/crusadeofwrath_ad3b2b2d77524f50411d8fb394f0cd9f"
+    },
+    "crushingclaws": {
+      "slug": "crushingclaws",
+      "abilityName": "CrushingClaws",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_CrushingClaws",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_crushingclaws.png",
+      "sourceBundle": "abilities/active2/crushingclaws_edcc5439afb4f129c12283b43b7125f7"
+    },
+    "cultdemagogue": {
+      "slug": "cultdemagogue",
+      "abilityName": "CultDemagogue",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_CultDemagogue",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_cultdemagogue.png",
+      "sourceBundle": "abilities/active2/cultdemagogue_e2959dbd28b9c939591fa5444a0f9fe6"
+    },
+    "cursedofthewalkingpox": {
+      "slug": "cursedofthewalkingpox",
+      "abilityName": "CursedOfTheWalkingPox",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_CursedOfTheWalkingPox",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_cursedofthewalkingpox.png",
+      "sourceBundle": "abilities/triggered2/cursedofthewalkingpox_40e3f10bf6891b170517d35cc7483aad"
+    },
+    "cursedplaguebell": {
+      "slug": "cursedplaguebell",
+      "abilityName": "CursedPlagueBell",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_CursedPlagueBell",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_cursedplaguebell.png",
+      "sourceBundle": "abilities/triggered2/cursedplaguebell_9e42b846d48aa8619318fec61a27f908"
+    },
+    "cyclicionblaster": {
+      "slug": "cyclicionblaster",
+      "abilityName": "CyclicIonBlaster",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_CyclicIonBlaster",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_cyclicionblaster.png",
+      "sourceBundle": "abilities/triggered2/cyclicionblaster_0fac1943ec29e7dd3f187ac0a44105af"
+    },
+    "dabossiswatchin": {
+      "slug": "dabossiswatchin",
+      "abilityName": "DaBossIsWatchin",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_DaBossIsWatchin",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_dabossiswatchin.png",
+      "sourceBundle": "abilities/triggered2/dabossiswatchin_207328d9104b16d11d65fb86938741a5"
+    },
+    "daemonfleshplate": {
+      "slug": "daemonfleshplate",
+      "abilityName": "DaemonFleshPlate",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_DaemonFleshPlate",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_daemonfleshplate.png",
+      "sourceBundle": "abilities/triggered2/daemonfleshplate_bc56fd15ead2608f79aaca5aa930a307"
+    },
+    "daemonicordnance": {
+      "slug": "daemonicordnance",
+      "abilityName": "DaemonicOrdnance",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_DaemonicOrdnance",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_daemonicordnance.png",
+      "sourceBundle": "abilities/active2/daemonicordnance_7ae02d1653fce8503da66c6eb319c7c5"
+    },
+    "daemonicpatrons": {
+      "slug": "daemonicpatrons",
+      "abilityName": "DaemonicPatrons",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_DaemonicPatrons",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_daemonicpatrons.png",
+      "sourceBundle": "abilities/active2/daemonicpatrons_5741fd716430aad06fe41e79b5e5a0c6"
+    },
+    "dagreatwaaagh": {
+      "slug": "dagreatwaaagh",
+      "abilityName": "DaGreatWaaagh",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_DaGreatWaaagh",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_dagreatwaaagh.png",
+      "sourceBundle": "abilities/active2/dagreatwaaagh_389d147ed707e2b3c6f78c9be67cf207"
+    },
+    "dakkadakkadakka": {
+      "slug": "dakkadakkadakka",
+      "abilityName": "DakkaDakkaDakka",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_DakkaDakkaDakka",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_dakkadakkadakka.png",
+      "sourceBundle": "abilities/active2/dakkadakkadakka_776679d304ac527659d90daa7b37f772"
+    },
+    "darevolushun": {
+      "slug": "darevolushun",
+      "abilityName": "DaRevolushun",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_DaRevolushun",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_darevolushun.png",
+      "sourceBundle": "abilities/triggered2/darevolushun_0db4dc55125e5954a56a75147cec0eae"
+    },
+    "darktalonstrike": {
+      "slug": "darktalonstrike",
+      "abilityName": "DarkTalonStrike",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_DarkTalonStrike",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_darktalonstrike.png",
+      "sourceBundle": "abilities/active2/darktalonstrike_2b13a1b7ff1463afa5e170dd2efb3500"
+    },
+    "daughteroftheabyss": {
+      "slug": "daughteroftheabyss",
+      "abilityName": "DaughteroftheAbyss",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_DaughteroftheAbyss",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_daughteroftheabyss.png",
+      "sourceBundle": "abilities/triggered2/daughteroftheabyss_b050c2235ffae7dca28465529e09dd1b"
+    },
+    "dawnblade": {
+      "slug": "dawnblade",
+      "abilityName": "DawnBlade",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_DawnBlade",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_dawnblade.png",
+      "sourceBundle": "abilities/triggered2/dawnblade_486412af55fb70014ad50b5540033026"
+    },
+    "deathonthewind": {
+      "slug": "deathonthewind",
+      "abilityName": "DeathOnTheWind",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_DeathOnTheWind",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_deathonthewind.png",
+      "sourceBundle": "abilities/active2/deathonthewind_9a3a31b492559a3a668d625dd5416432"
+    },
+    "deathscream": {
+      "slug": "deathscream",
+      "abilityName": "DeathScream",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_DeathScream",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_deathscream.png",
+      "sourceBundle": "abilities/active2/deathscream_f2e412599d5280ae60caa1485b498e72"
+    },
+    "deathwing": {
+      "slug": "deathwing",
+      "abilityName": "Deathwing",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Deathwing",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_deathwing.png",
+      "sourceBundle": "abilities/triggered2/deathwing_972d90aaf4cd141df2e42ce6b29b7f82"
+    },
+    "decoysandmisdirection": {
+      "slug": "decoysandmisdirection",
+      "abilityName": "DecoysAndMisdirection",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_DecoysAndMisdirection",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_decoysandmisdirection.png",
+      "sourceBundle": "abilities/triggered2/decoysandmisdirection_9a98ceccddd89a74d2d1a68a81305293"
+    },
+    "defenderofthegreatergood": {
+      "slug": "defenderofthegreatergood",
+      "abilityName": "DefenderOfTheGreaterGood",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_DefenderOfTheGreaterGood",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_defenderofthegreatergood.png",
+      "sourceBundle": "abilities/triggered2/defenderofthegreatergood_c38539e62926179233558707595c6ae6"
+    },
+    "defendthedivinework": {
+      "slug": "defendthedivinework",
+      "abilityName": "DefendTheDivineWork",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_DefendTheDivineWork",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_defendthedivinework.png",
+      "sourceBundle": "abilities/active2/defendthedivinework_99cfaf88259260ea17dd6e1e5606ab76"
+    },
+    "destroyerhive": {
+      "slug": "destroyerhive",
+      "abilityName": "DestroyerHive",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_DestroyerHive",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_destroyerhive.png",
+      "sourceBundle": "abilities/triggered2/destroyerhive_f4fc68d0128aae6ee42acc7f2ffa61de"
+    },
+    "destroythewitch": {
+      "slug": "destroythewitch",
+      "abilityName": "DestroyTheWitch",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_DestroyTheWitch",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_destroythewitch.png",
+      "sourceBundle": "abilities/triggered2/destroythewitch_fe5409bdad1988c4674d70fce6c8f5b5"
+    },
+    "devastatingrefrain": {
+      "slug": "devastatingrefrain",
+      "abilityName": "DevastatingRefrain",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_DevastatingRefrain",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_devastatingrefrain.png",
+      "sourceBundle": "abilities/active2/devastatingrefrain_2c0c7cae849c884f2eea23fca5931685"
+    },
+    "devoutpush": {
+      "slug": "devoutpush",
+      "abilityName": "DevoutPush",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_DevoutPush",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_devoutpush.png",
+      "sourceBundle": "abilities/active2/devoutpush_41d1f855727ab7f85c5ea647ca550d22"
+    },
+    "doctrinaimperatives": {
+      "slug": "doctrinaimperatives",
+      "abilityName": "DoctrinaImperatives",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_DoctrinaImperatives",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_doctrinaimperatives.png",
+      "sourceBundle": "abilities/active2/doctrinaimperatives_8c76d29a1ee064511f8a27b1835c8584"
+    },
+    "doom": {
+      "slug": "doom",
+      "abilityName": "Doom",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Doom",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_doom.png",
+      "sourceBundle": "abilities/triggered2/doom_f3d3c11d0e7b56bee4df16f0f14c4552"
+    },
+    "doombolt": {
+      "slug": "doombolt",
+      "abilityName": "Doombolt",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Doombolt",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_doombolt.png",
+      "sourceBundle": "abilities/active2/doombolt_39ee999af6bc11795f470d2e240afd1d"
+    },
+    "doomsiren": {
+      "slug": "doomsiren",
+      "abilityName": "DoomSiren",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_DoomSiren",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_doomsiren.png",
+      "sourceBundle": "abilities/active2/doomsiren_1e86aaac862853df78476b34cbad9119"
+    },
+    "drachnyen": {
+      "slug": "drachnyen",
+      "abilityName": "Drachnyen",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Drachnyen",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_drachnyen.png",
+      "sourceBundle": "abilities/active2/drachnyen_ac804c6d4ec8853f8a2a3f05970a43a2"
+    },
+    "drawfire": {
+      "slug": "drawfire",
+      "abilityName": "DrawFire",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_DrawFire",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_drawfire.png",
+      "sourceBundle": "abilities/triggered2/drawfire_c8ed5dc0da1d6099505c5897bec343e1"
+    },
+    "dutyeternal": {
+      "slug": "dutyeternal",
+      "abilityName": "DutyEternal",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_DutyEternal",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_dutyeternal.png",
+      "sourceBundle": "abilities/active2/dutyeternal_b426d503552e075f18a4b6269e907214"
+    },
+    "dw02advancedburstcannon": {
+      "slug": "dw02advancedburstcannon",
+      "abilityName": "Dw02AdvancedBurstCannon",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Dw02AdvancedBurstCannon",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_dw02advancedburstcannon.png",
+      "sourceBundle": "abilities/triggered2/dw02advancedburstcannon_f32369882cd6fafa51787faf447bbd31"
+    },
+    "earlywarningoverride": {
+      "slug": "earlywarningoverride",
+      "abilityName": "EarlyWarningOverride",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_EarlyWarningOverride",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_earlywarningoverride.png",
+      "sourceBundle": "abilities/active2/earlywarningoverride_e695e483abdfe6faa4cd90e7d2800139"
+    },
+    "echoesfromthewarp": {
+      "slug": "echoesfromthewarp",
+      "abilityName": "EchoesFromTheWarp",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_EchoesFromTheWarp",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_echoesfromthewarp.png",
+      "sourceBundle": "abilities/triggered2/echoesfromthewarp_57e7eb71894edbda988dcdba90c23d7b"
+    },
+    "ecogsupport": {
+      "slug": "ecogsupport",
+      "abilityName": "ECogSupport",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ECogSupport",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_ecogsupport.png",
+      "sourceBundle": "abilities/triggered2/ecogsupport_6314dbb3da5fb17a40d70119db7ea5c8"
+    },
+    "ecstaticslaughter": {
+      "slug": "ecstaticslaughter",
+      "abilityName": "EcstaticSlaughter",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_EcstaticSlaughter",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_ecstaticslaughter.png",
+      "sourceBundle": "abilities/triggered2/ecstaticslaughter_8210ce45630b3e2268300bac8c0bfceb"
+    },
+    "electrochaffbackups": {
+      "slug": "electrochaffbackups",
+      "abilityName": "ElectrochaffBackups",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ElectrochaffBackups",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_electrochaffbackups.png",
+      "sourceBundle": "abilities/triggered2/electrochaffbackups_b654d88f5259b1f9a779c3862bb19db9"
+    },
+    "electroshock": {
+      "slug": "electroshock",
+      "abilityName": "ElectroShock",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ElectroShock",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_electroshock.png",
+      "sourceBundle": "abilities/triggered2/electroshock_daf808a5140d351ec9a68e05584781b3"
+    },
+    "embodiedprophecy": {
+      "slug": "embodiedprophecy",
+      "abilityName": "EmbodiedProphecy",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_EmbodiedProphecy",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_embodiedprophecy.png",
+      "sourceBundle": "abilities/triggered2/embodiedprophecy_3e24ce79ecd54f32fbb1d352321e5e4e"
+    },
+    "empyricambush": {
+      "slug": "empyricambush",
+      "abilityName": "EmpyricAmbush",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_EmpyricAmbush",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_empyricambush.png",
+      "sourceBundle": "abilities/active2/empyricambush_78a69ba926445446eb81bfe6178dcef0"
+    },
+    "enmityfortheunworthy": {
+      "slug": "enmityfortheunworthy",
+      "abilityName": "EnmityForTheUnworthy",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_EnmityForTheUnworthy",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_enmityfortheunworthy.png",
+      "sourceBundle": "abilities/triggered2/enmityfortheunworthy_dcfa8434959de2ea0776e79e7371cbe1"
+    },
+    "entropycannons": {
+      "slug": "entropycannons",
+      "abilityName": "EntropyCannons",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_EntropyCannons",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_entropycannons.png",
+      "sourceBundle": "abilities/active2/entropycannons_2f719cee7280f14d68f8f8acc5a53b39"
+    },
+    "erewego": {
+      "slug": "erewego",
+      "abilityName": "EreWeGo",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_EreWeGo",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_erewego.png",
+      "sourceBundle": "abilities/active2/erewego_5fd009fcfb33f7a51b3c40744f896920"
+    },
+    "euphoricstrikes": {
+      "slug": "euphoricstrikes",
+      "abilityName": "EuphoricStrikes",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_EuphoricStrikes",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_euphoricstrikes.png",
+      "sourceBundle": "abilities/active2/euphoricstrikes_18d9445544a32169432871194207b1b7"
+    },
+    "excruciatingfrequencies": {
+      "slug": "excruciatingfrequencies",
+      "abilityName": "ExcruciatingFrequencies",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_ExcruciatingFrequencies",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_excruciatingfrequencies.png",
+      "sourceBundle": "abilities/active2/excruciatingfrequencies_ee9c709ab9465d16c81010f8c4dcd19e"
+    },
+    "executioner": {
+      "slug": "executioner",
+      "abilityName": "Executioner",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Executioner",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_executioner.png",
+      "sourceBundle": "abilities/active2/executioner_a95e64fdd5991bb64746bb34f39625dc"
+    },
+    "exemplarofhate": {
+      "slug": "exemplarofhate",
+      "abilityName": "ExemplarOfHate",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_ExemplarOfHate",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_exemplarofhate.png",
+      "sourceBundle": "abilities/active2/exemplarofhate_6f5e6b1d4040238e1c45a307e72d294d"
+    },
+    "exemplarofthekauyon": {
+      "slug": "exemplarofthekauyon",
+      "abilityName": "ExemplarOfTheKauyon",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_ExemplarOfTheKauyon",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_exemplarofthekauyon.png",
+      "sourceBundle": "abilities/active2/exemplarofthekauyon_5afb1d722809e5a3419511466e9dd0a1"
+    },
+    "exemplarofthemontka": {
+      "slug": "exemplarofthemontka",
+      "abilityName": "ExemplarOfTheMontka",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_ExemplarOfTheMontka",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_exemplarofthemontka.png",
+      "sourceBundle": "abilities/active2/exemplarofthemontka_e7d1a0ffe70e731b6571e7dd6cf7ea28"
+    },
+    "explosive": {
+      "slug": "explosive",
+      "abilityName": "Explosive",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Explosive",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_explosive.png",
+      "sourceBundle": "abilities/triggered2/explosive_933f9c20142f8349820de05ffc1f9a8e"
+    },
+    "explosivemaladies": {
+      "slug": "explosivemaladies",
+      "abilityName": "ExplosiveMaladies",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ExplosiveMaladies",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_explosivemaladies.png",
+      "sourceBundle": "abilities/triggered2/explosivemaladies_358728031604322b9bd1b50c769a2377"
+    },
+    "explosivepresents": {
+      "slug": "explosivepresents",
+      "abilityName": "ExplosivePresents",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_ExplosivePresents",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_explosivepresents.png",
+      "sourceBundle": "abilities/active2/explosivepresents_f5b8a5094d2258399437ee09b57e7c98"
+    },
+    "fealty": {
+      "slug": "fealty",
+      "abilityName": "Fealty",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Fealty",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_fealty.png",
+      "sourceBundle": "abilities/triggered2/fealty_c5b216e492bb624887e4cd062a892c5a"
+    },
+    "fearedinterrogator": {
+      "slug": "fearedinterrogator",
+      "abilityName": "FearedInterrogator",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_FearedInterrogator",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_fearedinterrogator.png",
+      "sourceBundle": "abilities/triggered2/fearedinterrogator_38204b325ef6f9f8a7352a7590f5effd"
+    },
+    "fearoftheunseen": {
+      "slug": "fearoftheunseen",
+      "abilityName": "FearOfTheUnseen",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_FearOfTheUnseen",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_fearoftheunseen.png",
+      "sourceBundle": "abilities/active2/fearoftheunseen_69066040c1bd1469d37cc1d570c43672"
+    },
+    "feedertendrils": {
+      "slug": "feedertendrils",
+      "abilityName": "FeederTendrils",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_FeederTendrils",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_feedertendrils.png",
+      "sourceBundle": "abilities/triggered2/feedertendrils_fd70e1208b846cee413aaf0298839bc6"
+    },
+    "fieldsoffire": {
+      "slug": "fieldsoffire",
+      "abilityName": "FieldsOfFire",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_FieldsOfFire",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_fieldsoffire.png",
+      "sourceBundle": "abilities/triggered2/fieldsoffire_f0432841c9801dc29dbf6068a30288c7"
+    },
+    "fightingretreat": {
+      "slug": "fightingretreat",
+      "abilityName": "FightingRetreat",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_FightingRetreat",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_fightingretreat.png",
+      "sourceBundle": "abilities/active2/fightingretreat_2caa6256997b4565c55966fe62609c37"
+    },
+    "fireandreposition": {
+      "slug": "fireandreposition",
+      "abilityName": "FireAndReposition",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_FireAndReposition",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_fireandreposition.png",
+      "sourceBundle": "abilities/active2/fireandreposition_044da5df417e149522c4a45e041325b9"
+    },
+    "firingposition": {
+      "slug": "firingposition",
+      "abilityName": "FiringPosition",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_FiringPosition",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_firingposition.png",
+      "sourceBundle": "abilities/triggered2/firingposition_08da7b7a6ec69a7c4291fc9faeeaac33"
+    },
+    "firstamongtraitors": {
+      "slug": "firstamongtraitors",
+      "abilityName": "FirstAmongTraitors",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_FirstAmongTraitors",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_firstamongtraitors.png",
+      "sourceBundle": "abilities/triggered2/firstamongtraitors_88d49824b6df0b45f5469a1bff70eff2"
+    },
+    "flailswing": {
+      "slug": "flailswing",
+      "abilityName": "FlailSwing",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_FlailSwing",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_flailswing.png",
+      "sourceBundle": "abilities/active2/flailswing_291bfc4902c1a4a092727088189cfd80"
+    },
+    "flamesofmutation": {
+      "slug": "flamesofmutation",
+      "abilityName": "FlamesOfMutation",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_FlamesOfMutation",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_flamesofmutation.png",
+      "sourceBundle": "abilities/triggered2/flamesofmutation_d2c4e843a64d7b28c7c987edb6545898"
+    },
+    "fleshmetalguns": {
+      "slug": "fleshmetalguns",
+      "abilityName": "FleshmetalGuns",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_FleshmetalGuns",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_fleshmetalguns.png",
+      "sourceBundle": "abilities/triggered2/fleshmetalguns_16a5b46ce9026672b28819288dbdae8d"
+    },
+    "floatingdeath": {
+      "slug": "floatingdeath",
+      "abilityName": "FloatingDeath",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_FloatingDeath",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_floatingdeath.png",
+      "sourceBundle": "abilities/triggered2/floatingdeath_94f03e5f37d3400515ad705d3d31d49e"
+    },
+    "foehammer": {
+      "slug": "foehammer",
+      "abilityName": "Foehammer",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Foehammer",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_foehammer.png",
+      "sourceBundle": "abilities/active2/foehammer_b09802df5516f54c539132bfa400505d"
+    },
+    "forwardobservers": {
+      "slug": "forwardobservers",
+      "abilityName": "ForwardObservers",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_ForwardObservers",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_forwardobservers.png",
+      "sourceBundle": "abilities/active2/forwardobservers_bc9c04544a3e0f5db0a93b12bc7a8c0b"
+    },
+    "forwardspotter": {
+      "slug": "forwardspotter",
+      "abilityName": "ForwardSpotter",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_ForwardSpotter",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_forwardspotter.png",
+      "sourceBundle": "abilities/active2/forwardspotter_288f4a0d4b0244b0048c031059493790"
+    },
+    "foulinfusion": {
+      "slug": "foulinfusion",
+      "abilityName": "FoulInfusion",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_FoulInfusion",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_foulinfusion.png",
+      "sourceBundle": "abilities/active2/foulinfusion_de1842a8b234b54426b8c227519d42db"
+    },
+    "fragbomb": {
+      "slug": "fragbomb",
+      "abilityName": "FragBomb",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_FragBomb",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_fragbomb.png",
+      "sourceBundle": "abilities/active2/fragbomb_8c3305025a54f0e8e26620c52cc7838b"
+    },
+    "fraglance": {
+      "slug": "fraglance",
+      "abilityName": "FragLance",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_FragLance",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_fraglance.png",
+      "sourceBundle": "abilities/triggered2/fraglance_e3541d90f3979d8df6bd57e2a0cd5163"
+    },
+    "fragstorm": {
+      "slug": "fragstorm",
+      "abilityName": "Fragstorm",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Fragstorm",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_fragstorm.png",
+      "sourceBundle": "abilities/active2/fragstorm_f72a5570af387988a2b68dfab06f9099"
+    },
+    "fragstormgrenadelauncher": {
+      "slug": "fragstormgrenadelauncher",
+      "abilityName": "FragstormGrenadeLauncher",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_FragstormGrenadeLauncher",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_fragstormgrenadelauncher.png",
+      "sourceBundle": "abilities/active2/fragstormgrenadelauncher_92ae417a9c2be0b2317be3c8fe90e254"
+    },
+    "frenziedfiring": {
+      "slug": "frenziedfiring",
+      "abilityName": "FrenziedFiring",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_FrenziedFiring",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_frenziedfiring.png",
+      "sourceBundle": "abilities/active2/frenziedfiring_6c15695c118e1765a77724d34a299b0d"
+    },
+    "fuelledbyfury": {
+      "slug": "fuelledbyfury",
+      "abilityName": "FuelledByFury",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_FuelledByFury",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_fuelledbyfury.png",
+      "sourceBundle": "abilities/triggered2/fuelledbyfury_8c0e62d0c9a689a81255c55896595d10"
+    },
+    "fullthrottle": {
+      "slug": "fullthrottle",
+      "abilityName": "FullThrottle",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_FullThrottle",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_fullthrottle.png",
+      "sourceBundle": "abilities/triggered2/fullthrottle_92ecbdfb3605ad8571754117de5dd3a7"
+    },
+    "furyfromthedelve": {
+      "slug": "furyfromthedelve",
+      "abilityName": "FuryFromTheDelve",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_FuryFromTheDelve",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_furyfromthedelve.png",
+      "sourceBundle": "abilities/triggered2/furyfromthedelve_973eaa0c96b140eba4b660d3a4e93b61"
+    },
+    "furyoftheancients": {
+      "slug": "furyoftheancients",
+      "abilityName": "FuryOfTheAncients",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_FuryOfTheAncients",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_furyoftheancients.png",
+      "sourceBundle": "abilities/triggered2/furyoftheancients_6a6c17ad6b5f57fe5cfd020faa95bb9f"
+    },
+    "galvanicfield": {
+      "slug": "galvanicfield",
+      "abilityName": "GalvanicField",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_GalvanicField",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_galvanicfield.png",
+      "sourceBundle": "abilities/triggered2/galvanicfield_d0583416831a8277dec39c3a353f75c0"
+    },
+    "gauntletsofultramar": {
+      "slug": "gauntletsofultramar",
+      "abilityName": "GauntletsOfUltramar",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_GauntletsOfUltramar",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_gauntletsofultramar.png",
+      "sourceBundle": "abilities/active2/gauntletsofultramar_62257339688da1ae4e9dfe59f6049771"
+    },
+    "gazeofmagnus": {
+      "slug": "gazeofmagnus",
+      "abilityName": "GazeOfMagnus",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_GazeOfMagnus",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_gazeofmagnus.png",
+      "sourceBundle": "abilities/triggered2/gazeofmagnus_c517fbecdf821c97f1643e04b84f0316"
+    },
+    "geminaesuperia": {
+      "slug": "geminaesuperia",
+      "abilityName": "GeminaeSuperia",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_GeminaeSuperia",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_geminaesuperia.png",
+      "sourceBundle": "abilities/triggered2/geminaesuperia_f7ad48d3596bf40ec19a9e1d827d9d94"
+    },
+    "getemruntz": {
+      "slug": "getemruntz",
+      "abilityName": "GetEmRuntz",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_GetEmRuntz",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_getemruntz.png",
+      "sourceBundle": "abilities/active2/getemruntz_6069283bc472c361b242e4c5de911ab5"
+    },
+    "grapnellauncher": {
+      "slug": "grapnellauncher",
+      "abilityName": "GrapnelLauncher",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_GrapnelLauncher",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_grapnellauncher.png",
+      "sourceBundle": "abilities/active2/grapnellauncher_4ac457d7e1f0468a4359abb62c83ed41"
+    },
+    "gravitonrifle": {
+      "slug": "gravitonrifle",
+      "abilityName": "GravitonRifle",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_GravitonRifle",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_gravitonrifle.png",
+      "sourceBundle": "abilities/active2/gravitonrifle_e12031f99ff3d05f6dd16673105b8cef"
+    },
+    "greatfrostaxe": {
+      "slug": "greatfrostaxe",
+      "abilityName": "GreatFrostAxe",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_GreatFrostAxe",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_greatfrostaxe.png",
+      "sourceBundle": "abilities/active2/greatfrostaxe_b4a03ed5c3a4fcff5de924404a64f986"
+    },
+    "grimefficiency": {
+      "slug": "grimefficiency",
+      "abilityName": "GrimEfficiency",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_GrimEfficiency",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_grimefficiency.png",
+      "sourceBundle": "abilities/triggered2/grimefficiency_1f0075f712e2e9d5b2c729afa9165018"
+    },
+    "grimretribution": {
+      "slug": "grimretribution",
+      "abilityName": "GrimRetribution",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_GrimRetribution",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_grimretribution.png",
+      "sourceBundle": "abilities/triggered2/grimretribution_8e1313bc085185533b6842a2adc85891"
+    },
+    "grottank": {
+      "slug": "grottank",
+      "abilityName": "GrotTank",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_GrotTank",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_grottank.png",
+      "sourceBundle": "abilities/active2/grottank_81fae7c906aca78aa577064a8dee94f8"
+    },
+    "guardianconstruct": {
+      "slug": "guardianconstruct",
+      "abilityName": "GuardianConstruct",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_GuardianConstruct",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_guardianconstruct.png",
+      "sourceBundle": "abilities/triggered2/guardianconstruct_0483e23b01c4f0c1828b8144cb6012ac"
+    },
+    "guardianorganism": {
+      "slug": "guardianorganism",
+      "abilityName": "GuardianOrganism",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_GuardianOrganism",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_guardianorganism.png",
+      "sourceBundle": "abilities/triggered2/guardianorganism_ef61f824f2256b9156d30171c5298391"
+    },
+    "gunnerskillonsight": {
+      "slug": "gunnerskillonsight",
+      "abilityName": "GunnersKillOnSight",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_GunnersKillOnSight",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_gunnerskillonsight.png",
+      "sourceBundle": "abilities/active2/gunnerskillonsight_4824324c7ff12c5e7621416c0fcc0ebc"
+    },
+    "hadesautocannons": {
+      "slug": "hadesautocannons",
+      "abilityName": "HadesAutocannons",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_HadesAutocannons",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_hadesautocannons.png",
+      "sourceBundle": "abilities/active2/hadesautocannons_5d0bc22783cf5f54e510c4a04a1b31d9"
+    },
+    "hailoflivingammunition": {
+      "slug": "hailoflivingammunition",
+      "abilityName": "HailOfLivingAmmunition",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HailOfLivingAmmunition",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_hailoflivingammunition.png",
+      "sourceBundle": "abilities/triggered2/hailoflivingammunition_c9921e0a14a5f7718f4cb25f949c496d"
+    },
+    "hailstrike": {
+      "slug": "hailstrike",
+      "abilityName": "Hailstrike",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Hailstrike",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_hailstrike.png",
+      "sourceBundle": "abilities/active2/hailstrike_1040e80330c401d64dd55b3cc040bac6"
+    },
+    "hammerofwrath": {
+      "slug": "hammerofwrath",
+      "abilityName": "HammerOfWrath",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_HammerOfWrath",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_hammerofwrath.png",
+      "sourceBundle": "abilities/active2/hammerofwrath_b77b1e74e2d0c5b65c486f6972a0916e"
+    },
+    "harlequinspanoply": {
+      "slug": "harlequinspanoply",
+      "abilityName": "HarlequinsPanoply",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HarlequinsPanoply",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_harlequinspanoply.png",
+      "sourceBundle": "abilities/triggered2/harlequinspanoply_d3bace3b63b074d45a439c763fc4e9b3"
+    },
+    "harvesterofsouls": {
+      "slug": "harvesterofsouls",
+      "abilityName": "HarvesterOfSouls",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_HarvesterOfSouls",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_harvesterofsouls.png",
+      "sourceBundle": "abilities/active2/harvesterofsouls_c894b7925a4f5c6075c8f5202dcedf24"
+    },
+    "hatefulassault": {
+      "slug": "hatefulassault",
+      "abilityName": "HatefulAssault",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HatefulAssault",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_hatefulassault.png",
+      "sourceBundle": "abilities/triggered2/hatefulassault_15a6419d49050e59b2d357c20ac22419"
+    },
+    "haywiremine": {
+      "slug": "haywiremine",
+      "abilityName": "HaywireMine",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HaywireMine",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_haywiremine.png",
+      "sourceBundle": "abilities/triggered2/haywiremine_dba3fd546fed6c51c25b83a7c4843495"
+    },
+    "hazeofcorruption": {
+      "slug": "hazeofcorruption",
+      "abilityName": "HazeOfCorruption",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HazeOfCorruption",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_hazeofcorruption.png",
+      "sourceBundle": "abilities/triggered2/hazeofcorruption_b483482aede1f9e128362f09ba21baed"
+    },
+    "headclaimer": {
+      "slug": "headclaimer",
+      "abilityName": "HeadClaimer",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HeadClaimer",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_headclaimer.png",
+      "sourceBundle": "abilities/triggered2/headclaimer_05f0598d06e618518cb3b81e23ff68ed"
+    },
+    "headwoppaskillchoppa": {
+      "slug": "headwoppaskillchoppa",
+      "abilityName": "HeadwoppasKillchoppa",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HeadwoppasKillchoppa",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_headwoppaskillchoppa.png",
+      "sourceBundle": "abilities/triggered2/headwoppaskillchoppa_79fa1c20a8c7f0599ba1690a843d4e7b"
+    },
+    "heal": {
+      "slug": "heal",
+      "abilityName": "Heal",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Heal",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_heal.png",
+      "sourceBundle": "abilities/active2/heal_82b518541b000ec67e399e88c779f000"
+    },
+    "healingbalms": {
+      "slug": "healingbalms",
+      "abilityName": "HealingBalms",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HealingBalms",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_healingbalms.png",
+      "sourceBundle": "abilities/triggered2/healingbalms_3ecfb29c2448a7eaa8ae3c4ec519ebb2"
+    },
+    "heavyboltpistol": {
+      "slug": "heavyboltpistol",
+      "abilityName": "HeavyBoltPistol",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HeavyBoltPistol",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_heavyboltpistol.png",
+      "sourceBundle": "abilities/triggered2/heavyboltpistol_e5ac7eaad23516c84db7b66f4a5deb63"
+    },
+    "heavygravcannon": {
+      "slug": "heavygravcannon",
+      "abilityName": "HeavyGravCannon",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HeavyGravCannon",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_heavygravcannon.png",
+      "sourceBundle": "abilities/triggered2/heavygravcannon_f8ce485a558fbec644c2661cc2c12344"
+    },
+    "heavyrailrifle": {
+      "slug": "heavyrailrifle",
+      "abilityName": "HeavyRailRifle",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_HeavyRailRifle",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_heavyrailrifle.png",
+      "sourceBundle": "abilities/active2/heavyrailrifle_418cbbb6338873305aee347fc38024c9"
+    },
+    "heavywarpflamer": {
+      "slug": "heavywarpflamer",
+      "abilityName": "HeavyWarpFlamer",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_HeavyWarpFlamer",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_heavywarpflamer.png",
+      "sourceBundle": "abilities/active2/heavywarpflamer_c89b3cd514d91b21bc9cde831be23449"
+    },
+    "hellfireshells": {
+      "slug": "hellfireshells",
+      "abilityName": "HellfireShells",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_HellfireShells",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_hellfireshells.png",
+      "sourceBundle": "abilities/active2/hellfireshells_751393421eae1039a62c9fec0348355a"
+    },
+    "hellfyremissilerack": {
+      "slug": "hellfyremissilerack",
+      "abilityName": "HellfyreMissileRack",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_HellfyreMissileRack",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_hellfyremissilerack.png",
+      "sourceBundle": "abilities/active2/hellfyremissilerack_1d7c9ac9a3f8c609db0abfb7524b7ea2"
+    },
+    "helspear": {
+      "slug": "helspear",
+      "abilityName": "Helspear",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Helspear",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_helspear.png",
+      "sourceBundle": "abilities/triggered2/helspear_f94012516d6589e989d319013dce81b8"
+    },
+    "heraldoftheapocalypse": {
+      "slug": "heraldoftheapocalypse",
+      "abilityName": "HeraldOfTheApocalypse",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_HeraldOfTheApocalypse",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_heraldoftheapocalypse.png",
+      "sourceBundle": "abilities/active2/heraldoftheapocalypse_00b8b79d96147a2673de328fbaee47ff"
+    },
+    "heroicfusillade": {
+      "slug": "heroicfusillade",
+      "abilityName": "HeroicFusillade",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_HeroicFusillade",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_heroicfusillade.png",
+      "sourceBundle": "abilities/active2/heroicfusillade_55ce9bab8cce7641c3cc0034a65f9676"
+    },
+    "holyduel": {
+      "slug": "holyduel",
+      "abilityName": "HolyDuel",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_HolyDuel",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_holyduel.png",
+      "sourceBundle": "abilities/active2/holyduel_be2720d1865497a2012063c0efba237a"
+    },
+    "hostofplagues": {
+      "slug": "hostofplagues",
+      "abilityName": "HostOfPlagues",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HostOfPlagues",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_hostofplagues.png",
+      "sourceBundle": "abilities/triggered2/hostofplagues_a3485f2aefb10d93165430d3cb3a11c7"
+    },
+    "hungeringswarm": {
+      "slug": "hungeringswarm",
+      "abilityName": "HungeringSwarm",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HungeringSwarm",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_hungeringswarm.png",
+      "sourceBundle": "abilities/triggered2/hungeringswarm_37be112bda226e6890a39d88af80e70e"
+    },
+    "hunterofsouls": {
+      "slug": "hunterofsouls",
+      "abilityName": "HunterOfSouls",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HunterOfSouls",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_hunterofsouls.png",
+      "sourceBundle": "abilities/triggered2/hunterofsouls_6848a3a7fb25afd2eaff50d6f64f671a"
+    },
+    "huntersbeyonddeath": {
+      "slug": "huntersbeyonddeath",
+      "abilityName": "HuntersBeyondDeath",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HuntersBeyondDeath",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_huntersbeyonddeath.png",
+      "sourceBundle": "abilities/triggered2/huntersbeyonddeath_3588f5375c969859c96a2421741d5d3a"
+    },
+    "huntersinstincts": {
+      "slug": "huntersinstincts",
+      "abilityName": "HuntersInstincts",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HuntersInstincts",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_huntersinstincts.png",
+      "sourceBundle": "abilities/triggered2/huntersinstincts_5ce9b17453bb98663ebadcd421f13ad1"
+    },
+    "huntthefallen": {
+      "slug": "huntthefallen",
+      "abilityName": "HuntTheFallen",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HuntTheFallen",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_huntthefallen.png",
+      "sourceBundle": "abilities/triggered2/huntthefallen_38c57ec8ed4f0b4fe1c02eab88ec2008"
+    },
+    "hyperaggression": {
+      "slug": "hyperaggression",
+      "abilityName": "HyperAggression",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HyperAggression",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_hyperaggression.png",
+      "sourceBundle": "abilities/triggered2/hyperaggression_4b33d7f31e85d85a49cbed815298a905"
+    },
+    "hypercorrosiveacid": {
+      "slug": "hypercorrosiveacid",
+      "abilityName": "HyperCorrosiveAcid",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HyperCorrosiveAcid",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_hypercorrosiveacid.png",
+      "sourceBundle": "abilities/triggered2/hypercorrosiveacid_6865a1173c2f426fe5032bb30bef5492"
+    },
+    "hypermorph": {
+      "slug": "hypermorph",
+      "abilityName": "Hypermorph",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Hypermorph",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_hypermorph.png",
+      "sourceBundle": "abilities/triggered2/hypermorph_6d10c41a4d23bbd226c4cb6eebff8659"
+    },
+    "hypersensoryabilities": {
+      "slug": "hypersensoryabilities",
+      "abilityName": "HypersensoryAbilities",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_HypersensoryAbilities",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_hypersensoryabilities.png",
+      "sourceBundle": "abilities/triggered2/hypersensoryabilities_de25a00cd62ea444ce476ca46d7a1552"
+    },
+    "iconofobstinacy": {
+      "slug": "iconofobstinacy",
+      "abilityName": "IconOfObstinacy",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_IconOfObstinacy",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_iconofobstinacy.png",
+      "sourceBundle": "abilities/triggered2/iconofobstinacy_5dc42b99d222694b6e7224b6666461ed"
+    },
+    "illusionsoftzeentch": {
+      "slug": "illusionsoftzeentch",
+      "abilityName": "IllusionsOfTzeentch",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_IllusionsOfTzeentch",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_illusionsoftzeentch.png",
+      "sourceBundle": "abilities/triggered2/illusionsoftzeentch_137913ae0a7c984eb3820b8f98b7b1bf"
+    },
+    "impossibleform": {
+      "slug": "impossibleform",
+      "abilityName": "ImpossibleForm",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ImpossibleForm",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_impossibleform.png",
+      "sourceBundle": "abilities/triggered2/impossibleform_4e63d0d6e903ad1f06935c3df327287d"
+    },
+    "incendiaryshells": {
+      "slug": "incendiaryshells",
+      "abilityName": "IncendiaryShells",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_IncendiaryShells",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_incendiaryshells.png",
+      "sourceBundle": "abilities/active2/incendiaryshells_a8392209a57fac23860fb6a776ae8c89"
+    },
+    "incursion": {
+      "slug": "incursion",
+      "abilityName": "Incursion",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Incursion",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_incursion.png",
+      "sourceBundle": "abilities/active2/incursion_bc2eedf625abb7bf0c2958ad836e5e76"
+    },
+    "inescapableaccuracy": {
+      "slug": "inescapableaccuracy",
+      "abilityName": "InescapableAccuracy",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_InescapableAccuracy",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_inescapableaccuracy.png",
+      "sourceBundle": "abilities/triggered2/inescapableaccuracy_6cd14a13599ead56bf24f64fed7c1509"
+    },
+    "infernalcannon": {
+      "slug": "infernalcannon",
+      "abilityName": "InfernalCannon",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_InfernalCannon",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_infernalcannon.png",
+      "sourceBundle": "abilities/active2/infernalcannon_375a1b1388db3ec3783e22f0a707ca1c"
+    },
+    "infernalpacts": {
+      "slug": "infernalpacts",
+      "abilityName": "InfernalPacts",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_InfernalPacts",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_infernalpacts.png",
+      "sourceBundle": "abilities/triggered2/infernalpacts_664d82eb7d7c1c5552d156f890f2916b"
+    },
+    "inspiredtogreatness": {
+      "slug": "inspiredtogreatness",
+      "abilityName": "InspiredToGreatness",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_InspiredToGreatness",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_inspiredtogreatness.png",
+      "sourceBundle": "abilities/active2/inspiredtogreatness_1eab4122c4a589109ea759e530bdd52c"
+    },
+    "instrumentsofvengeance": {
+      "slug": "instrumentsofvengeance",
+      "abilityName": "InstrumentsOfVengeance",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_InstrumentsOfVengeance",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_instrumentsofvengeance.png",
+      "sourceBundle": "abilities/active2/instrumentsofvengeance_d9ebf1664a379b80692528425f97f31b"
+    },
+    "integratedcircuits": {
+      "slug": "integratedcircuits",
+      "abilityName": "IntegratedCircuits",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_IntegratedCircuits",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_integratedcircuits.png",
+      "sourceBundle": "abilities/triggered2/integratedcircuits_0146e3710403634df960f72c15343577"
+    },
+    "intoxicatingelixir": {
+      "slug": "intoxicatingelixir",
+      "abilityName": "IntoxicatingElixir",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_IntoxicatingElixir",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_intoxicatingelixir.png",
+      "sourceBundle": "abilities/triggered2/intoxicatingelixir_890f4a51007a9dad47ec78b43a607123"
+    },
+    "invocationofmachinevengeance": {
+      "slug": "invocationofmachinevengeance",
+      "abilityName": "InvocationOfMachineVengeance",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_InvocationOfMachineVengeance",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_invocationofmachinevengeance.png",
+      "sourceBundle": "abilities/active2/invocationofmachinevengeance_6fa104b989cd000aef34fc77a2d3f5fa"
+    },
+    "ironkinsteeljack": {
+      "slug": "ironkinsteeljack",
+      "abilityName": "IronkinSteeljack",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_IronkinSteeljack",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_ironkinsteeljack.png",
+      "sourceBundle": "abilities/active2/ironkinsteeljack_87026284b1a0de06bdc063133ead6572"
+    },
+    "ititches": {
+      "slug": "ititches",
+      "abilityName": "ItItches",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_ItItches",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_ititches.png",
+      "sourceBundle": "abilities/active2/ititches_fad1d892034002854a33f0c39939d226"
+    },
+    "itsgonnablow": {
+      "slug": "itsgonnablow",
+      "abilityName": "ItsGonnaBlow",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ItsGonnaBlow",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_itsgonnablow.png",
+      "sourceBundle": "abilities/triggered2/itsgonnablow_aca01a9d8b5c220b4dc7c5693970dbdd"
+    },
+    "jakhalstimms": {
+      "slug": "jakhalstimms",
+      "abilityName": "JakhalStimms",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_JakhalStimms",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_jakhalstimms.png",
+      "sourceBundle": "abilities/active2/jakhalstimms_7e1954648ba5d713592955794e2fc3c4"
+    },
+    "kanopener": {
+      "slug": "kanopener",
+      "abilityName": "KanOpener",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_KanOpener",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_kanopener.png",
+      "sourceBundle": "abilities/triggered2/kanopener_65657e598da347b1dfa1b81dc68d987e"
+    },
+    "kardiocoregalvanus": {
+      "slug": "kardiocoregalvanus",
+      "abilityName": "KardiocoreGalvanus",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_KardiocoreGalvanus",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_kardiocoregalvanus.png",
+      "sourceBundle": "abilities/triggered2/kardiocoregalvanus_ca7958e7f0a7279ce7ec5b7d22ef1d8d"
+    },
+    "killmaimburn": {
+      "slug": "killmaimburn",
+      "abilityName": "KillMaimBurn",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_KillMaimBurn",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_killmaimburn.png",
+      "sourceBundle": "abilities/active2/killmaimburn_da6450478a0b162e71e57698a65a2289"
+    },
+    "kissofdeath": {
+      "slug": "kissofdeath",
+      "abilityName": "KissOfDeath",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_KissOfDeath",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_kissofdeath.png",
+      "sourceBundle": "abilities/active2/kissofdeath_0258521281bec86b8d156dabb8a05655"
+    },
+    "kustomforcefield": {
+      "slug": "kustomforcefield",
+      "abilityName": "KustomForceField",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_KustomForceField",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_kustomforcefield.png",
+      "sourceBundle": "abilities/triggered2/kustomforcefield_03feeebdc09db364584a72427a5cf918"
+    },
+    "kustomforcefieldreworked": {
+      "slug": "kustomforcefieldreworked",
+      "abilityName": "KustomForceFieldReworked",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_KustomForceFieldReworked",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_kustomforcefieldreworked.png",
+      "sourceBundle": "abilities/triggered2/kustomforcefieldreworked_1740ba3b4d8e7285ede6f0d168aeacbe"
+    },
+    "lakrimae": {
+      "slug": "lakrimae",
+      "abilityName": "Lakrimae",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Lakrimae",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_lakrimae.png",
+      "sourceBundle": "abilities/triggered2/lakrimae_246377356f7fcecc0f929f1e3448440a"
+    },
+    "lashoftorment": {
+      "slug": "lashoftorment",
+      "abilityName": "LashofTorment",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_LashofTorment",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_lashoftorment.png",
+      "sourceBundle": "abilities/active2/lashoftorment_d2b3f9a1e6bd5e1a864541b6f94f14f0"
+    },
+    "leadingthecharge": {
+      "slug": "leadingthecharge",
+      "abilityName": "LeadingTheCharge",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_LeadingTheCharge",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_leadingthecharge.png",
+      "sourceBundle": "abilities/active2/leadingthecharge_ad98b0e31e4232bae59088caf7087014"
+    },
+    "legacyofcombat": {
+      "slug": "legacyofcombat",
+      "abilityName": "LegacyOfCombat",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_LegacyOfCombat",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_legacyofcombat.png",
+      "sourceBundle": "abilities/triggered2/legacyofcombat_11846408b1583137f7800f8042748048"
+    },
+    "legendarycommander": {
+      "slug": "legendarycommander",
+      "abilityName": "LegendaryCommander",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_LegendaryCommander",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_legendarycommander.png",
+      "sourceBundle": "abilities/triggered2/legendarycommander_4c27c6e1b508cffaefd6e064e2a9db52"
+    },
+    "lethalmiasma": {
+      "slug": "lethalmiasma",
+      "abilityName": "LethalMiasma",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_LethalMiasma",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_lethalmiasma.png",
+      "sourceBundle": "abilities/triggered2/lethalmiasma_082810ec5f35b036fe366e24625a2e37"
+    },
+    "lifewards": {
+      "slug": "lifewards",
+      "abilityName": "Lifewards",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Lifewards",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_lifewards.png",
+      "sourceBundle": "abilities/triggered2/lifewards_90029c47e9787561efd9a65c88974cfb"
+    },
+    "lightimup": {
+      "slug": "lightimup",
+      "abilityName": "LightImUp",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_LightImUp",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_lightimup.png",
+      "sourceBundle": "abilities/triggered2/lightimup_87474c167ed3db95c766e969ddaa30e9"
+    },
+    "lightofsanguinius": {
+      "slug": "lightofsanguinius",
+      "abilityName": "LightOfSanguinius",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_LightOfSanguinius",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_lightofsanguinius.png",
+      "sourceBundle": "abilities/active2/lightofsanguinius_322f2c26099cb3a46bdfb4c75d1a524b"
+    },
+    "lionhelm": {
+      "slug": "lionhelm",
+      "abilityName": "LionHelm",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_LionHelm",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_lionhelm.png",
+      "sourceBundle": "abilities/triggered2/lionhelm_88832536a4dafdaa1f985fd72bbc3005"
+    },
+    "listenupmaggots": {
+      "slug": "listenupmaggots",
+      "abilityName": "ListenUpMaggots",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ListenUpMaggots",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_listenupmaggots.png",
+      "sourceBundle": "abilities/triggered2/listenupmaggots_cccd83d2e8dd7f56f016b8b8fff29615"
+    },
+    "livingbatteringram": {
+      "slug": "livingbatteringram",
+      "abilityName": "LivingBatteringRam",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_LivingBatteringRam",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_livingbatteringram.png",
+      "sourceBundle": "abilities/active2/livingbatteringram_baa73ccf947234128783bcf3e3c1d146"
+    },
+    "loki_swoopinghawk": {
+      "slug": "loki_swoopinghawk",
+      "abilityName": "Loki_SwoopingHawk",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Loki_SwoopingHawk",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_loki_swoopinghawk.png",
+      "sourceBundle": "abilities/active2/loki_swoopinghawk_88e186751cc01d6b384c7b2253d963d0"
+    },
+    "lordoftempests": {
+      "slug": "lordoftempests",
+      "abilityName": "LordOfTempests",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_LordOfTempests",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_lordoftempests.png",
+      "sourceBundle": "abilities/triggered2/lordoftempests_1455f66832c9d5b6d0fd38dace5621ce"
+    },
+    "lordofthehost": {
+      "slug": "lordofthehost",
+      "abilityName": "LordOfTheHost",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_LordOfTheHost",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_lordofthehost.png",
+      "sourceBundle": "abilities/triggered2/lordofthehost_5338ef257758b8856f6185e4b93c2a07"
+    },
+    "macroplasmaincinerator": {
+      "slug": "macroplasmaincinerator",
+      "abilityName": "MacroPlasmaIncinerator",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_MacroPlasmaIncinerator",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_macroplasmaincinerator.png",
+      "sourceBundle": "abilities/active2/macroplasmaincinerator_6b627487d04842d422322fda02fc4386"
+    },
+    "malleusrocketlauncher": {
+      "slug": "malleusrocketlauncher",
+      "abilityName": "MalleusRocketLauncher",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_MalleusRocketLauncher",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_malleusrocketlauncher.png",
+      "sourceBundle": "abilities/active2/malleusrocketlauncher_276dad38a1c8c292a186e29a1494bb61"
+    },
+    "martialapotheosis": {
+      "slug": "martialapotheosis",
+      "abilityName": "MartialApotheosis",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_MartialApotheosis",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_martialapotheosis.png",
+      "sourceBundle": "abilities/triggered2/martialapotheosis_fd43113b2ea970b0ffdd7217dd2a6f89"
+    },
+    "martialexemplar": {
+      "slug": "martialexemplar",
+      "abilityName": "MartialExemplar",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_MartialExemplar",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_martialexemplar.png",
+      "sourceBundle": "abilities/active2/martialexemplar_5ee73db45b0b4baf228ea344563ab0c2"
+    },
+    "martialinspiration": {
+      "slug": "martialinspiration",
+      "abilityName": "MartialInspiration",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_MartialInspiration",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_martialinspiration.png",
+      "sourceBundle": "abilities/active2/martialinspiration_8e6493a43f3d291be4c6b1b9604ecd3c"
+    },
+    "martialsuperiority": {
+      "slug": "martialsuperiority",
+      "abilityName": "MartialSuperiority",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_MartialSuperiority",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_martialsuperiority.png",
+      "sourceBundle": "abilities/triggered2/martialsuperiority_1c8ddfe63eec0b0b16ebfb479884e81f"
+    },
+    "massdriveraccelerator": {
+      "slug": "massdriveraccelerator",
+      "abilityName": "MassDriverAccelerator",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_MassDriverAccelerator",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_massdriveraccelerator.png",
+      "sourceBundle": "abilities/active2/massdriveraccelerator_34ebcf11cd089b29d686b02382c9a5fc"
+    },
+    "massivescythingtalons": {
+      "slug": "massivescythingtalons",
+      "abilityName": "MassiveScythingTalons",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_MassiveScythingTalons",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_massivescythingtalons.png",
+      "sourceBundle": "abilities/triggered2/massivescythingtalons_c7277e13cc67100b9fafaa2c99c558c2"
+    },
+    "masterannihilator": {
+      "slug": "masterannihilator",
+      "abilityName": "MasterAnnihilator",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_MasterAnnihilator",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_masterannihilator.png",
+      "sourceBundle": "abilities/triggered2/masterannihilator_0ac7a49967c43bb6fa07c72cd26ce1f1"
+    },
+    "masterofthetutelaries": {
+      "slug": "masterofthetutelaries",
+      "abilityName": "MasterOfTheTutelaries",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_MasterOfTheTutelaries",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_masterofthetutelaries.png",
+      "sourceBundle": "abilities/active2/masterofthetutelaries_4eb80ab307ba31821b4bcd106e77d5a4"
+    },
+    "mastersofmanoeuvre": {
+      "slug": "mastersofmanoeuvre",
+      "abilityName": "MastersOfManoeuvre",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_MastersOfManoeuvre",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_mastersofmanoeuvre.png",
+      "sourceBundle": "abilities/triggered2/mastersofmanoeuvre_7f26f176cfa221658854976a8eb3d884"
+    },
+    "maugetar": {
+      "slug": "maugetar",
+      "abilityName": "Maugetar",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Maugetar",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_maugetar.png",
+      "sourceBundle": "abilities/triggered2/maugetar_9cea0bb3730cc30808b51e107e8d1c38"
+    },
+    "mawclawsofthyrax": {
+      "slug": "mawclawsofthyrax",
+      "abilityName": "MawClawsOfThyrax",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_MawClawsOfThyrax",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_mawclawsofthyrax.png",
+      "sourceBundle": "abilities/triggered2/mawclawsofthyrax_f099c682184c8d69704298ac4a9521a1"
+    },
+    "medicusministorum": {
+      "slug": "medicusministorum",
+      "abilityName": "MedicusMinistorum",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_MedicusMinistorum",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_medicusministorum.png",
+      "sourceBundle": "abilities/triggered2/medicusministorum_9ec0987424adab34f05f4cfcdb1614b0"
+    },
+    "mightfrombelow": {
+      "slug": "mightfrombelow",
+      "abilityName": "MightFromBelow",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_MightFromBelow",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_mightfrombelow.png",
+      "sourceBundle": "abilities/active2/mightfrombelow_e930b87d158cda1623bcc949aaec4ded"
+    },
+    "mindcontrol": {
+      "slug": "mindcontrol",
+      "abilityName": "MindControl",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_MindControl",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_mindcontrol.png",
+      "sourceBundle": "abilities/active2/mindcontrol_3914fbe3a713b1a87906203ece86cebb"
+    },
+    "mischiefmakers": {
+      "slug": "mischiefmakers",
+      "abilityName": "MischiefMakers",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_MischiefMakers",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_mischiefmakers.png",
+      "sourceBundle": "abilities/triggered2/mischiefmakers_b87d8b97380c7b2e6c538f27210f889b"
+    },
+    "modifiedexoarmour": {
+      "slug": "modifiedexoarmour",
+      "abilityName": "ModifiedExoarmour",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ModifiedExoarmour",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_modifiedexoarmour.png",
+      "sourceBundle": "abilities/triggered2/modifiedexoarmour_420ccac3a3daf47dd1b47c5d6bc3d4b9"
+    },
+    "moltenform": {
+      "slug": "moltenform",
+      "abilityName": "MoltenForm",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_MoltenForm",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_moltenform.png",
+      "sourceBundle": "abilities/triggered2/moltenform_e72c88e27692ad18d98caecb43451586"
+    },
+    "momentshackle": {
+      "slug": "momentshackle",
+      "abilityName": "MomentShackle",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_MomentShackle",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_momentshackle.png",
+      "sourceBundle": "abilities/active2/momentshackle_6de4e4a34b19aa28b07c43ec2a979310"
+    },
+    "monsterslayerofcaliban": {
+      "slug": "monsterslayerofcaliban",
+      "abilityName": "MonsterSlayerOfCaliban",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_MonsterSlayerOfCaliban",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_monsterslayerofcaliban.png",
+      "sourceBundle": "abilities/triggered2/monsterslayerofcaliban_d126a2397e82de6f539e448cdbf5e718"
+    },
+    "moregitzoverere": {
+      "slug": "moregitzoverere",
+      "abilityName": "MoreGitzOverEre",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_MoreGitzOverEre",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_moregitzoverere.png",
+      "sourceBundle": "abilities/triggered2/moregitzoverere_89558b89a250307d70b6358b9533782b"
+    },
+    "mortarionsplaguewind": {
+      "slug": "mortarionsplaguewind",
+      "abilityName": "MortarionsPlagueWind",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_MortarionsPlagueWind",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_mortarionsplaguewind.png",
+      "sourceBundle": "abilities/active2/mortarionsplaguewind_eafb179ccb3748843a9ea87eae44b223"
+    },
+    "multitracker": {
+      "slug": "multitracker",
+      "abilityName": "MultiTracker",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_MultiTracker",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_multitracker.png",
+      "sourceBundle": "abilities/triggered2/multitracker_e3e13024974b06af70ee93e171e14282"
+    },
+    "murderousswing": {
+      "slug": "murderousswing",
+      "abilityName": "MurderousSwing",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_MurderousSwing",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_murderousswing.png",
+      "sourceBundle": "abilities/active2/murderousswing_5d764989583a555b65879ffa6a321016"
+    },
+    "mv71sniperdronesquad": {
+      "slug": "mv71sniperdronesquad",
+      "abilityName": "MV71SniperDroneSquad",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_MV71SniperDroneSquad",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_mv71sniperdronesquad.png",
+      "sourceBundle": "abilities/triggered2/mv71sniperdronesquad_036490d3e315905f15a76133cc5fb256"
+    },
+    "mywillbedone": {
+      "slug": "mywillbedone",
+      "abilityName": "MyWillBeDone",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_MyWillBeDone",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_mywillbedone.png",
+      "sourceBundle": "abilities/active2/mywillbedone_964f9ab57261c239376c22c8797f5cdf"
+    },
+    "nanoscarabrepairprotocols": {
+      "slug": "nanoscarabrepairprotocols",
+      "abilityName": "NanoscarabRepairProtocols",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_NanoscarabRepairProtocols",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_nanoscarabrepairprotocols.png",
+      "sourceBundle": "abilities/active2/nanoscarabrepairprotocols_7a61faabd1ef846a19344211676ee8be"
+    },
+    "needsmoredakka": {
+      "slug": "needsmoredakka",
+      "abilityName": "NeedsMoreDakka",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_NeedsMoreDakka",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_needsmoredakka.png",
+      "sourceBundle": "abilities/active2/needsmoredakka_b9fe65515de2c3dd422466ddad06e03a"
+    },
+    "netherrealmcasket": {
+      "slug": "netherrealmcasket",
+      "abilityName": "NetherrealmCasket",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_NetherrealmCasket",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_netherrealmcasket.png",
+      "sourceBundle": "abilities/triggered2/netherrealmcasket_20121c0c6e6f3110405b03a194e19db6"
+    },
+    "neuroparasite": {
+      "slug": "neuroparasite",
+      "abilityName": "Neuroparasite",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Neuroparasite",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_neuroparasite.png",
+      "sourceBundle": "abilities/triggered2/neuroparasite_b87f1d87c4938ac39ebc32066fd474be"
+    },
+    "nightshroud": {
+      "slug": "nightshroud",
+      "abilityName": "Nightshroud",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Nightshroud",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_nightshroud.png",
+      "sourceBundle": "abilities/triggered2/nightshroud_b4cbba72a851d3e3de51ff6a599723ca"
+    },
+    "noctilithbeacons": {
+      "slug": "noctilithbeacons",
+      "abilityName": "NoctilithBeacons",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_NoctilithBeacons",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_noctilithbeacons.png",
+      "sourceBundle": "abilities/triggered2/noctilithbeacons_8a6bfda07c9292fcf418ce16d6cae21e"
+    },
+    "nohidingfromthewatchers": {
+      "slug": "nohidingfromthewatchers",
+      "abilityName": "NoHidingFromTheWatchers",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_NoHidingFromTheWatchers",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_nohidingfromthewatchers.png",
+      "sourceBundle": "abilities/triggered2/nohidingfromthewatchers_37119153f580d6394989e80d457ec2b5"
+    },
+    "norncrown": {
+      "slug": "norncrown",
+      "abilityName": "NornCrown",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_NornCrown",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_norncrown.png",
+      "sourceBundle": "abilities/triggered2/norncrown_b7bcdf5000eddc704bd7bb8963fe63f5"
+    },
+    "novaboost": {
+      "slug": "novaboost",
+      "abilityName": "NovaBoost",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_NovaBoost",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_novaboost.png",
+      "sourceBundle": "abilities/active2/novaboost_2b4c487a2131584fc7c8559f9cf078ec"
+    },
+    "novacharge": {
+      "slug": "novacharge",
+      "abilityName": "NovaCharge",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_NovaCharge",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_novacharge.png",
+      "sourceBundle": "abilities/active2/novacharge_272a2a7d9002021e235ae2b2ef4b2dfb"
+    },
+    "novashield": {
+      "slug": "novashield",
+      "abilityName": "NovaShield",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_NovaShield",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_novashield.png",
+      "sourceBundle": "abilities/active2/novashield_1644eaea9a00edb023cfd9e009e8e3fa"
+    },
+    "obeisancegenerators": {
+      "slug": "obeisancegenerators",
+      "abilityName": "ObeisanceGenerators",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ObeisanceGenerators",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_obeisancegenerators.png",
+      "sourceBundle": "abilities/triggered2/obeisancegenerators_bff30f91935e4e513ee6d1e737822b18"
+    },
+    "obsessiveannunciation": {
+      "slug": "obsessiveannunciation",
+      "abilityName": "ObsessiveAnnunciation",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ObsessiveAnnunciation",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_obsessiveannunciation.png",
+      "sourceBundle": "abilities/triggered2/obsessiveannunciation_e83a8ea285e2839653b84b9c991d01ca"
+    },
+    "oiwatchit": {
+      "slug": "oiwatchit",
+      "abilityName": "OiWatchIt",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_OiWatchIt",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_oiwatchit.png",
+      "sourceBundle": "abilities/triggered2/oiwatchit_4f88a7429f94c9797e74d96f322b8a2b"
+    },
+    "omnissiahsblessing": {
+      "slug": "omnissiahsblessing",
+      "abilityName": "OmnissiahsBlessing",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_OmnissiahsBlessing",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_omnissiahsblessing.png",
+      "sourceBundle": "abilities/triggered2/omnissiahsblessing_66452ebd6bfe521fea5cd8248ec9bebf"
+    },
+    "onmyposition": {
+      "slug": "onmyposition",
+      "abilityName": "OnMyPosition",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_OnMyPosition",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_onmyposition.png",
+      "sourceBundle": "abilities/triggered2/onmyposition_5b3ae91c8018083c20120aa36aee0efe"
+    },
+    "optimizedgait": {
+      "slug": "optimizedgait",
+      "abilityName": "OptimizedGait",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_OptimizedGait",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_optimizedgait.png",
+      "sourceBundle": "abilities/triggered2/optimizedgait_007f76be98e192023055e04029ff7223"
+    },
+    "orbsofdecay": {
+      "slug": "orbsofdecay",
+      "abilityName": "OrbsOfDecay",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_OrbsOfDecay",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_orbsofdecay.png",
+      "sourceBundle": "abilities/triggered2/orbsofdecay_ed45e7739942d4d0402360ce5b661950"
+    },
+    "overwhelmingwrath": {
+      "slug": "overwhelmingwrath",
+      "abilityName": "OverwhelmingWrath",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_OverwhelmingWrath",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_overwhelmingwrath.png",
+      "sourceBundle": "abilities/active2/overwhelmingwrath_5c50f202e7a420e4fc4bd0124b7c92fc"
+    },
+    "paragonspear": {
+      "slug": "paragonspear",
+      "abilityName": "ParagonSpear",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ParagonSpear",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_paragonspear.png",
+      "sourceBundle": "abilities/triggered2/paragonspear_897c210245648b57e92002bb7bff2777"
+    },
+    "pathofcommand": {
+      "slug": "pathofcommand",
+      "abilityName": "PathOfCommand",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PathOfCommand",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_pathofcommand.png",
+      "sourceBundle": "abilities/triggered2/pathofcommand_0c12329b37977aeb0005014ef2fc3b4a"
+    },
+    "phaeronoftheblades": {
+      "slug": "phaeronoftheblades",
+      "abilityName": "PhaeronOfTheBlades",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PhaeronOfTheBlades",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_phaeronoftheblades.png",
+      "sourceBundle": "abilities/triggered2/phaeronoftheblades_fab4fd92203f27c1e63d6f2185229bbe"
+    },
+    "phaeronofthestars": {
+      "slug": "phaeronofthestars",
+      "abilityName": "PhaeronOfTheStars",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PhaeronOfTheStars",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_phaeronofthestars.png",
+      "sourceBundle": "abilities/triggered2/phaeronofthestars_d79808fc946f0e07471de106e06fdc05"
+    },
+    "phantasm": {
+      "slug": "phantasm",
+      "abilityName": "Phantasm",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Phantasm",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_phantasm.png",
+      "sourceBundle": "abilities/triggered2/phantasm_609f8337ca50ae07807d0bf291778877"
+    },
+    "phasalsubjugator": {
+      "slug": "phasalsubjugator",
+      "abilityName": "PhasalSubjugator",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PhasalSubjugator",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_phasalsubjugator.png",
+      "sourceBundle": "abilities/triggered2/phasalsubjugator_501243e16a1b55541de9ceb14f3c86b4"
+    },
+    "phoenixgem": {
+      "slug": "phoenixgem",
+      "abilityName": "PhoenixGem",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PhoenixGem",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_phoenixgem.png",
+      "sourceBundle": "abilities/triggered2/phoenixgem_e9f39ce37b6713db7195798ef99d6fa2"
+    },
+    "pick_unit": {
+      "slug": "pick_unit",
+      "abilityName": "pick_unit",
+      "kind": "environment",
+      "sprite": "fx_thunderhawk_shadow_01",
+      "width": 512,
+      "height": 512,
+      "webIconUrl": "/images/game-assets/abilities/ability_pick_unit.png",
+      "sourceBundle": "abilities/environment/pick_unit_d27fcf0532c75b2231698c913d065964"
+    },
+    "pilein": {
+      "slug": "pilein",
+      "abilityName": "PileIn",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PileIn",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_pilein.png",
+      "sourceBundle": "abilities/triggered2/pilein_66dd38cd7f805fbd7384ed912f06269e"
+    },
+    "pinpointcounteroffensive": {
+      "slug": "pinpointcounteroffensive",
+      "abilityName": "PinpointCounterOffensive",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PinpointCounterOffensive",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_pinpointcounteroffensive.png",
+      "sourceBundle": "abilities/triggered2/pinpointcounteroffensive_ce0df346029d0e75c2199cf37f8b4ac7"
+    },
+    "plagueburstmortar": {
+      "slug": "plagueburstmortar",
+      "abilityName": "PlagueburstMortar",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_PlagueburstMortar",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_plagueburstmortar.png",
+      "sourceBundle": "abilities/active2/plagueburstmortar_977acb3caaa62f7b65f23d3399116fb7"
+    },
+    "plaguewind": {
+      "slug": "plaguewind",
+      "abilityName": "PlagueWind",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_PlagueWind",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_plaguewind.png",
+      "sourceBundle": "abilities/active2/plaguewind_8bad05ec31b1f9e5f1c4dbd26334ebe9"
+    },
+    "plasmacannon": {
+      "slug": "plasmacannon",
+      "abilityName": "PlasmaCannon",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_PlasmaCannon",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_plasmacannon.png",
+      "sourceBundle": "abilities/active2/plasmacannon_269dc60e19adfd21bab0109fbb2681d6"
+    },
+    "plasmagrenade": {
+      "slug": "plasmagrenade",
+      "abilityName": "PlasmaGrenade",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_PlasmaGrenade",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_plasmagrenade.png",
+      "sourceBundle": "abilities/active2/plasmagrenade_8b3a83b2e37b98954194e4661ba4656b"
+    },
+    "possession": {
+      "slug": "possession",
+      "abilityName": "Possession",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Possession",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_possession.png",
+      "sourceBundle": "abilities/triggered2/possession_51ad9e0ab15f4f7240bd53c77769bdf7"
+    },
+    "poundthemtodust": {
+      "slug": "poundthemtodust",
+      "abilityName": "PoundThemToDust",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_PoundThemToDust",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_poundthemtodust.png",
+      "sourceBundle": "abilities/active2/poundthemtodust_323a88be3f9c2172b8679c0f48f3e271"
+    },
+    "powertrip": {
+      "slug": "powertrip",
+      "abilityName": "PowerTrip",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PowerTrip",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_powertrip.png",
+      "sourceBundle": "abilities/triggered2/powertrip_406bd48d82462a43ef5e282af2cb5e83"
+    },
+    "powerup_armor": {
+      "slug": "powerup_armor",
+      "abilityName": "PowerUp_Armor",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PowerUp_Armor",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_powerup_armor.png",
+      "sourceBundle": "abilities/triggered2/powerup_armor_985f396ca3dd3abb03b5e109886fa954"
+    },
+    "powerup_bomb": {
+      "slug": "powerup_bomb",
+      "abilityName": "PowerUp_Bomb",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PowerUp_Bomb",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_powerup_bomb.png",
+      "sourceBundle": "abilities/triggered2/powerup_bomb_d97ee999f5f1577757ea97d0ec79de9d"
+    },
+    "powerup_damage": {
+      "slug": "powerup_damage",
+      "abilityName": "PowerUp_Damage",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PowerUp_Damage",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_powerup_damage.png",
+      "sourceBundle": "abilities/triggered2/powerup_damage_55970f3af7096d183645b0d8f1e2ce86"
+    },
+    "powerup_healing": {
+      "slug": "powerup_healing",
+      "abilityName": "PowerUp_Healing",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PowerUp_Healing",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_powerup_healing.png",
+      "sourceBundle": "abilities/triggered2/powerup_healing_9a092f576c35adf07dbc3c3fc44d931c"
+    },
+    "powerup_health": {
+      "slug": "powerup_health",
+      "abilityName": "PowerUp_Health",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PowerUp_Health",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_powerup_health.png",
+      "sourceBundle": "abilities/triggered2/powerup_health_12d55fff7878c67ec8a33799c44ac6d9"
+    },
+    "powerup_herospawn": {
+      "slug": "powerup_herospawn",
+      "abilityName": "PowerUp_HeroSpawn",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PowerUp_HeroSpawn",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_powerup_herospawn.png",
+      "sourceBundle": "abilities/triggered2/powerup_herospawn_2c2406257a9b7bddead05351f367ee98"
+    },
+    "powerup_hits": {
+      "slug": "powerup_hits",
+      "abilityName": "PowerUp_Hits",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PowerUp_Hits",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_powerup_hits.png",
+      "sourceBundle": "abilities/triggered2/powerup_hits_39a25f8a72371336e6ccc6379e9af6b8"
+    },
+    "powerup_meleehits": {
+      "slug": "powerup_meleehits",
+      "abilityName": "PowerUp_MeleeHits",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PowerUp_MeleeHits",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_powerup_meleehits.png",
+      "sourceBundle": "abilities/triggered2/powerup_meleehits_8e144cfba7888f5679a3500fd7b07e35"
+    },
+    "powerup_reactivateability": {
+      "slug": "powerup_reactivateability",
+      "abilityName": "PowerUp_ReactivateAbility",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PowerUp_ReactivateAbility",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_powerup_reactivateability.png",
+      "sourceBundle": "abilities/triggered2/powerup_reactivateability_031c54df020038fc4a496f2803dc36b4"
+    },
+    "powerup_reinforcement": {
+      "slug": "powerup_reinforcement",
+      "abilityName": "PowerUp_Reinforcement",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PowerUp_Reinforcement",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_powerup_reinforcement.png",
+      "sourceBundle": "abilities/triggered2/powerup_reinforcement_091879ba9812fd4b593efd589f4372bc"
+    },
+    "powerup_reinforcementshield": {
+      "slug": "powerup_reinforcementshield",
+      "abilityName": "PowerUp_ReinforcementShield",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PowerUp_ReinforcementShield",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_powerup_reinforcementshield.png",
+      "sourceBundle": "abilities/triggered2/powerup_reinforcementshield_fc63075fe93171e5e0e6df1aeeca2a3a"
+    },
+    "powerup_resurrect": {
+      "slug": "powerup_resurrect",
+      "abilityName": "PowerUp_Resurrect",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PowerUp_Resurrect",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_powerup_resurrect.png",
+      "sourceBundle": "abilities/triggered2/powerup_resurrect_6e6fe5f933364bb8c2f9ac954c832c96"
+    },
+    "poxwalkers": {
+      "slug": "poxwalkers",
+      "abilityName": "Poxwalkers",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Poxwalkers",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_poxwalkers.png",
+      "sourceBundle": "abilities/active2/poxwalkers_d01ae475fdada0489d5e1e595c1a8f3b"
+    },
+    "precalibratedpurgesolution": {
+      "slug": "precalibratedpurgesolution",
+      "abilityName": "PreCalibratedPurgeSolution",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PreCalibratedPurgeSolution",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_precalibratedpurgesolution.png",
+      "sourceBundle": "abilities/triggered2/precalibratedpurgesolution_8de18a8ba0be69220882edd6a03544cf"
+    },
+    "precisionshot": {
+      "slug": "precisionshot",
+      "abilityName": "PrecisionShot",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_PrecisionShot",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_precisionshot.png",
+      "sourceBundle": "abilities/active2/precisionshot_0e9768e2e74b18d46918f53ac26fd343"
+    },
+    "predictiveguidance": {
+      "slug": "predictiveguidance",
+      "abilityName": "PredictiveGuidance",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PredictiveGuidance",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_predictiveguidance.png",
+      "sourceBundle": "abilities/triggered2/predictiveguidance_1cd118b4d65de5269e3e57fa4085a953"
+    },
+    "prehensilepincertail": {
+      "slug": "prehensilepincertail",
+      "abilityName": "PrehensilePincerTail",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PrehensilePincerTail",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_prehensilepincertail.png",
+      "sourceBundle": "abilities/triggered2/prehensilepincertail_139414acd02c8c7676427602d818f595"
+    },
+    "primarchofthefirstlegion": {
+      "slug": "primarchofthefirstlegion",
+      "abilityName": "PrimarchOfTheFirstLegion",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PrimarchOfTheFirstLegion",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_primarchofthefirstlegion.png",
+      "sourceBundle": "abilities/triggered2/primarchofthefirstlegion_559eddda4791d98c74777aa5c2dbd52e"
+    },
+    "priorityreclamation": {
+      "slug": "priorityreclamation",
+      "abilityName": "PriorityReclamation",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PriorityReclamation",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_priorityreclamation.png",
+      "sourceBundle": "abilities/triggered2/priorityreclamation_7d11bc85d999c547e7c3ca8c854177d6"
+    },
+    "properkilly": {
+      "slug": "properkilly",
+      "abilityName": "ProperKilly",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ProperKilly",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_properkilly.png",
+      "sourceBundle": "abilities/triggered2/properkilly_30bc37e383e8b359c398029d7d29f375"
+    },
+    "propheticsentinel": {
+      "slug": "propheticsentinel",
+      "abilityName": "PropheticSentinel",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PropheticSentinel",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_propheticsentinel.png",
+      "sourceBundle": "abilities/triggered2/propheticsentinel_c6f617065604e46f9994ba831239949f"
+    },
+    "prophetofgorkandmork": {
+      "slug": "prophetofgorkandmork",
+      "abilityName": "ProphetOfGorkAndMork",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ProphetOfGorkAndMork",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_prophetofgorkandmork.png",
+      "sourceBundle": "abilities/triggered2/prophetofgorkandmork_9571b95cbad04f4d20138c87b84aba81"
+    },
+    "psychicdominion": {
+      "slug": "psychicdominion",
+      "abilityName": "PsychicDominion",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PsychicDominion",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_psychicdominion.png",
+      "sourceBundle": "abilities/triggered2/psychicdominion_5a8388d6fabbe238aee31374f7267e43"
+    },
+    "psychicmaelstrom": {
+      "slug": "psychicmaelstrom",
+      "abilityName": "PsychicMaelstrom",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_PsychicMaelstrom",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_psychicmaelstrom.png",
+      "sourceBundle": "abilities/active2/psychicmaelstrom_2ab94acc221a0561392a72d88823e059"
+    },
+    "psychicstalk": {
+      "slug": "psychicstalk",
+      "abilityName": "PsychicStalk",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PsychicStalk",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_psychicstalk.png",
+      "sourceBundle": "abilities/triggered2/psychicstalk_c0c280ed0d615e0227ba0512c23647eb"
+    },
+    "purgeresponse": {
+      "slug": "purgeresponse",
+      "abilityName": "PurgeResponse",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_PurgeResponse",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_purgeresponse.png",
+      "sourceBundle": "abilities/triggered2/purgeresponse_9a5a1f38032f95d7083bcd7f629e89b9"
+    },
+    "pyreblaster": {
+      "slug": "pyreblaster",
+      "abilityName": "Pyreblaster",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Pyreblaster",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_pyreblaster.png",
+      "sourceBundle": "abilities/triggered2/pyreblaster_ff45f3b7f9694d4a510207044130110d"
+    },
+    "radbombardment": {
+      "slug": "radbombardment",
+      "abilityName": "RadBombardment",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_RadBombardment",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_radbombardment.png",
+      "sourceBundle": "abilities/active2/radbombardment_a81f5b04de924fcc89f0d5917d60a662"
+    },
+    "radsaturation": {
+      "slug": "radsaturation",
+      "abilityName": "RadSaturation",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_RadSaturation",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_radsaturation.png",
+      "sourceBundle": "abilities/triggered2/radsaturation_4eeab4ce219bdd514bbdfdc3721ddef0"
+    },
+    "radzonecorps": {
+      "slug": "radzonecorps",
+      "abilityName": "RadZoneCorps",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_RadZoneCorps",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_radzonecorps.png",
+      "sourceBundle": "abilities/triggered2/radzonecorps_d3e65a9351c723ccdcfd524c3a6078d2"
+    },
+    "rammingspeed": {
+      "slug": "rammingspeed",
+      "abilityName": "RammingSpeed",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_RammingSpeed",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_rammingspeed.png",
+      "sourceBundle": "abilities/active2/rammingspeed_a2dc267c4692ed3877b5c37855e143b9"
+    },
+    "ramshackle": {
+      "slug": "ramshackle",
+      "abilityName": "Ramshackle",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Ramshackle",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_ramshackle.png",
+      "sourceBundle": "abilities/triggered2/ramshackle_d36cf9fb52868338bd29ab9c2c305fd2"
+    },
+    "rapidfire": {
+      "slug": "rapidfire",
+      "abilityName": "RapidFire",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_RapidFire",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_rapidfire.png",
+      "sourceBundle": "abilities/triggered2/rapidfire_4c5a6f3b419ed57ec4e1813370665ffc"
+    },
+    "realityunbound": {
+      "slug": "realityunbound",
+      "abilityName": "RealityUnbound",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_RealityUnbound",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_realityunbound.png",
+      "sourceBundle": "abilities/triggered2/realityunbound_fb7dc66d49bdaf1189235c9a67f02666"
+    },
+    "reanimationbeam": {
+      "slug": "reanimationbeam",
+      "abilityName": "ReanimationBeam",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_ReanimationBeam",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_reanimationbeam.png",
+      "sourceBundle": "abilities/active2/reanimationbeam_a5737136ed8e1abf3be22b0266ee6564"
+    },
+    "reapingscythe": {
+      "slug": "reapingscythe",
+      "abilityName": "ReapingScythe",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_ReapingScythe",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_reapingscythe.png",
+      "sourceBundle": "abilities/active2/reapingscythe_4d766e66ccfe0d77e52b63a172d83081"
+    },
+    "redemptionoftherisen": {
+      "slug": "redemptionoftherisen",
+      "abilityName": "RedemptionOfTheRisen",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_RedemptionOfTheRisen",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_redemptionoftherisen.png",
+      "sourceBundle": "abilities/triggered2/redemptionoftherisen_206c09d24053fac6517b7f72504fdaf9"
+    },
+    "redrampage": {
+      "slug": "redrampage",
+      "abilityName": "RedRampage",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_RedRampage",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_redrampage.png",
+      "sourceBundle": "abilities/triggered2/redrampage_1a7050248a5af49e195a63603e04075f"
+    },
+    "redthirst": {
+      "slug": "redthirst",
+      "abilityName": "RedThirst",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_RedThirst",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_redthirst.png",
+      "sourceBundle": "abilities/triggered2/redthirst_750ff73b9be30169ee18c873d16195b0"
+    },
+    "refusaltobeoutdone": {
+      "slug": "refusaltobeoutdone",
+      "abilityName": "RefusalToBeOutdone",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_RefusalToBeOutdone",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_refusaltobeoutdone.png",
+      "sourceBundle": "abilities/triggered2/refusaltobeoutdone_50f5e6fc626dcd4d4ab0283edf5757d7"
+    },
+    "reinforcedhivenode": {
+      "slug": "reinforcedhivenode",
+      "abilityName": "ReinforcedHiveNode",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ReinforcedHiveNode",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_reinforcedhivenode.png",
+      "sourceBundle": "abilities/triggered2/reinforcedhivenode_0005eb88b4d873055f3e24a90a68be40"
+    },
+    "reinforcements": {
+      "slug": "reinforcements",
+      "abilityName": "Reinforcements",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Reinforcements",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_reinforcements.png",
+      "sourceBundle": "abilities/triggered2/reinforcements_c8512c0f679ca3ea1d9faa619f2d88c9"
+    },
+    "relicboltpistol": {
+      "slug": "relicboltpistol",
+      "abilityName": "RelicBoltPistol",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_RelicBoltPistol",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_relicboltpistol.png",
+      "sourceBundle": "abilities/triggered2/relicboltpistol_07380587290f570c576bb3dc7b6555a6"
+    },
+    "relicoflostcadia": {
+      "slug": "relicoflostcadia",
+      "abilityName": "RelicOfLostCadia",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_RelicOfLostCadia",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_relicoflostcadia.png",
+      "sourceBundle": "abilities/triggered2/relicoflostcadia_3e059ee2ecdf8519e601389708162604"
+    },
+    "relicpowerfist": {
+      "slug": "relicpowerfist",
+      "abilityName": "RelicPowerFist",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_RelicPowerFist",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_relicpowerfist.png",
+      "sourceBundle": "abilities/triggered2/relicpowerfist_645f032ef205ae32300983a8012f7f2e"
+    },
+    "repair": {
+      "slug": "repair",
+      "abilityName": "Repair",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Repair",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_repair.png",
+      "sourceBundle": "abilities/active2/repair_15f589d1b5ce420e3d95522e7877b48d"
+    },
+    "reveal": {
+      "slug": "reveal",
+      "abilityName": "Reveal",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Reveal",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_reveal.png",
+      "sourceBundle": "abilities/active2/reveal_b0970b67763e76e8a1acbcf987e63307"
+    },
+    "revitalizingmalignancy": {
+      "slug": "revitalizingmalignancy",
+      "abilityName": "RevitalizingMalignancy",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_RevitalizingMalignancy",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_revitalizingmalignancy.png",
+      "sourceBundle": "abilities/active2/revitalizingmalignancy_0679fa378b6c2a0b8429dddc3888f5bd"
+    },
+    "revoltinglyresilient": {
+      "slug": "revoltinglyresilient",
+      "abilityName": "RevoltinglyResilient",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_RevoltinglyResilient",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_revoltinglyresilient.png",
+      "sourceBundle": "abilities/triggered2/revoltinglyresilient_46e390f64cd4dd9feaaf295adf25351e"
+    },
+    "righteousrepugnance": {
+      "slug": "righteousrepugnance",
+      "abilityName": "RighteousRepugnance",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_RighteousRepugnance",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_righteousrepugnance.png",
+      "sourceBundle": "abilities/triggered2/righteousrepugnance_a5747ad9c43486564e853c224e0a4d9f"
+    },
+    "ritesofbattle": {
+      "slug": "ritesofbattle",
+      "abilityName": "RitesOfBattle",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_RitesOfBattle",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_ritesofbattle.png",
+      "sourceBundle": "abilities/triggered2/ritesofbattle_b3aa5e5260a022cb8b18d0beee3efa53"
+    },
+    "ritesofmorkai": {
+      "slug": "ritesofmorkai",
+      "abilityName": "RitesOfMorkai",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_RitesOfMorkai",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_ritesofmorkai.png",
+      "sourceBundle": "abilities/active2/ritesofmorkai_a1571b736235314260b38609ee0cf67f"
+    },
+    "ritesofrestoration": {
+      "slug": "ritesofrestoration",
+      "abilityName": "RitesOfRestoration",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_RitesOfRestoration",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_ritesofrestoration.png",
+      "sourceBundle": "abilities/active2/ritesofrestoration_34f4ed8fafd9b07a9a4c91eaeab63b29"
+    },
+    "sabreofsacrifice": {
+      "slug": "sabreofsacrifice",
+      "abilityName": "SabreOfSacrifice",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SabreOfSacrifice",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_sabreofsacrifice.png",
+      "sourceBundle": "abilities/triggered2/sabreofsacrifice_12a71c0e5183fd101a07aaba95649efa"
+    },
+    "sagaofthewarriorborn": {
+      "slug": "sagaofthewarriorborn",
+      "abilityName": "SagaOfTheWarriorBorn",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SagaOfTheWarriorBorn",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_sagaofthewarriorborn.png",
+      "sourceBundle": "abilities/triggered2/sagaofthewarriorborn_d53a588577b0974b86a1a580ce7cbc65"
+    },
+    "sanctorummissile": {
+      "slug": "sanctorummissile",
+      "abilityName": "SanctorumMissile",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_SanctorumMissile",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_sanctorummissile.png",
+      "sourceBundle": "abilities/active2/sanctorummissile_fa054da96059505977976289fd827e5b"
+    },
+    "sanguinarypriest": {
+      "slug": "sanguinarypriest",
+      "abilityName": "SanguinaryPriest",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SanguinaryPriest",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_sanguinarypriest.png",
+      "sourceBundle": "abilities/triggered2/sanguinarypriest_18ab19cb2e1f4fb7922ac144384b9616"
+    },
+    "savageechoes": {
+      "slug": "savageechoes",
+      "abilityName": "SavageEchoes",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_SavageEchoes",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_savageechoes.png",
+      "sourceBundle": "abilities/active2/savageechoes_da073fd171d2565f340bd90b6e27b718"
+    },
+    "savagekiller": {
+      "slug": "savagekiller",
+      "abilityName": "SavageKiller",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SavageKiller",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_savagekiller.png",
+      "sourceBundle": "abilities/triggered2/savagekiller_089c6077c6ad482cf7221161cea25171"
+    },
+    "saviorprotocols": {
+      "slug": "saviorprotocols",
+      "abilityName": "SaviorProtocols",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SaviorProtocols",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_saviorprotocols.png",
+      "sourceBundle": "abilities/triggered2/saviorprotocols_d41613c35c119475ad29e945de956f3f"
+    },
+    "scarabsummon": {
+      "slug": "scarabsummon",
+      "abilityName": "ScarabSummon",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_ScarabSummon",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_scarabsummon.png",
+      "sourceBundle": "abilities/active2/scarabsummon_be9b8f2ad75ef95f5438848566d317e8"
+    },
+    "screamerinvocation": {
+      "slug": "screamerinvocation",
+      "abilityName": "ScreamerInvocation",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ScreamerInvocation",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_screamerinvocation.png",
+      "sourceBundle": "abilities/triggered2/screamerinvocation_247d61e33bc7d0f75b9e22eb2bd4f0db"
+    },
+    "scytheofdust": {
+      "slug": "scytheofdust",
+      "abilityName": "ScytheOfDust",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_ScytheOfDust",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_scytheofdust.png",
+      "sourceBundle": "abilities/active2/scytheofdust_77254afa929983beeff069492b9020b7"
+    },
+    "scythingtalons": {
+      "slug": "scythingtalons",
+      "abilityName": "ScythingTalons",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_ScythingTalons",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_scythingtalons.png",
+      "sourceBundle": "abilities/active2/scythingtalons_2bf27e591840caedb7426ddd011c8182"
+    },
+    "seekermissilefrequencylock": {
+      "slug": "seekermissilefrequencylock",
+      "abilityName": "SeekerMissileFrequencyLock",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_SeekerMissileFrequencyLock",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_seekermissilefrequencylock.png",
+      "sourceBundle": "abilities/active2/seekermissilefrequencylock_6f3a27a011da236f5aa8ba8d649331cf"
+    },
+    "selfrepairmechanism": {
+      "slug": "selfrepairmechanism",
+      "abilityName": "SelfRepairMechanism",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SelfRepairMechanism",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_selfrepairmechanism.png",
+      "sourceBundle": "abilities/triggered2/selfrepairmechanism_cd4d3b0ba007a1f6f34a05c99a602297"
+    },
+    "selfrepairmechanismreworked": {
+      "slug": "selfrepairmechanismreworked",
+      "abilityName": "SelfRepairMechanismReworked",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SelfRepairMechanismReworked",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_selfrepairmechanismreworked.png",
+      "sourceBundle": "abilities/triggered2/selfrepairmechanismreworked_ea060e6ff64105882c9cb5fb32f557a6"
+    },
+    "sentineldirectives": {
+      "slug": "sentineldirectives",
+      "abilityName": "SentinelDirectives",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_SentinelDirectives",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_sentineldirectives.png",
+      "sourceBundle": "abilities/active2/sentineldirectives_4384746390541b44b845125414b4d524"
+    },
+    "sereneunifier": {
+      "slug": "sereneunifier",
+      "abilityName": "SereneUnifier",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SereneUnifier",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_sereneunifier.png",
+      "sourceBundle": "abilities/triggered2/sereneunifier_81676d3067c4ac6f423ab006062d170e"
+    },
+    "shieldoffaith": {
+      "slug": "shieldoffaith",
+      "abilityName": "ShieldOfFaith",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ShieldOfFaith",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_shieldoffaith.png",
+      "sourceBundle": "abilities/triggered2/shieldoffaith_7cb206ed32f0d23748e9b336eeca1c4d"
+    },
+    "shrapnel": {
+      "slug": "shrapnel",
+      "abilityName": "Shrapnel",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Shrapnel",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_shrapnel.png",
+      "sourceBundle": "abilities/triggered2/shrapnel_7200de112e4bc4f028e7337486cac488"
+    },
+    "shroudpsalm": {
+      "slug": "shroudpsalm",
+      "abilityName": "ShroudPsalm",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_ShroudPsalm",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_shroudpsalm.png",
+      "sourceBundle": "abilities/active2/shroudpsalm_9782cd14eb97eef8ad02a68bc29781cb"
+    },
+    "silentdeath": {
+      "slug": "silentdeath",
+      "abilityName": "SilentDeath",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_SilentDeath",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_silentdeath.png",
+      "sourceBundle": "abilities/active2/silentdeath_9a585f65d7688612d5047b2b73736cdb"
+    },
+    "skullsmasher": {
+      "slug": "skullsmasher",
+      "abilityName": "Skullsmasher",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Skullsmasher",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_skullsmasher.png",
+      "sourceBundle": "abilities/triggered2/skullsmasher_f06b6070b2d80a06f0a25331c7ebb6c7"
+    },
+    "skystrike": {
+      "slug": "skystrike",
+      "abilityName": "SkyStrike",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_SkyStrike",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_skystrike.png",
+      "sourceBundle": "abilities/active2/skystrike_cb7cb147456150da57135f6c834eceb0"
+    },
+    "slashingdive": {
+      "slug": "slashingdive",
+      "abilityName": "SlashingDive",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_SlashingDive",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_slashingdive.png",
+      "sourceBundle": "abilities/active2/slashingdive_34a9fb736c73382e9f5e057e400fd484"
+    },
+    "smashaead": {
+      "slug": "smashaead",
+      "abilityName": "SmashaEad",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SmashaEad",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_smashaead.png",
+      "sourceBundle": "abilities/triggered2/smashaead_ceed0d32353befe8eba13172da12f997"
+    },
+    "smashasquigjaws": {
+      "slug": "smashasquigjaws",
+      "abilityName": "SmashaSquigJaws",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SmashaSquigJaws",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_smashasquigjaws.png",
+      "sourceBundle": "abilities/triggered2/smashasquigjaws_d20666edee2358fd0dc88fc18fc72cea"
+    },
+    "solaratomizer": {
+      "slug": "solaratomizer",
+      "abilityName": "SolarAtomizer",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_SolarAtomizer",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_solaratomizer.png",
+      "sourceBundle": "abilities/active2/solaratomizer_f0c48df88c04977440992e834f6fdaa3"
+    },
+    "sorcerousfacade": {
+      "slug": "sorcerousfacade",
+      "abilityName": "SorcerousFacade",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_SorcerousFacade",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_sorcerousfacade.png",
+      "sourceBundle": "abilities/active2/sorcerousfacade_63171a92f5f410fd425e0d5c166ffda3"
+    },
+    "soulhunger": {
+      "slug": "soulhunger",
+      "abilityName": "SoulHunger",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SoulHunger",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_soulhunger.png",
+      "sourceBundle": "abilities/triggered2/soulhunger_e5b4c566e15df65a199fef1653eaad94"
+    },
+    "spawntermagants": {
+      "slug": "spawntermagants",
+      "abilityName": "SpawnTermagants",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_SpawnTermagants",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_spawntermagants.png",
+      "sourceBundle": "abilities/active2/spawntermagants_1401a77482689a72008e4a78470c735f"
+    },
+    "spawntermagants2": {
+      "slug": "spawntermagants2",
+      "abilityName": "SpawnTermagants2",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_SpawnTermagants2",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_spawntermagants2.png",
+      "sourceBundle": "abilities/active2/spawntermagants2_c478558ff8d830b1504d26ea5d2446b6"
+    },
+    "spawntermagants3": {
+      "slug": "spawntermagants3",
+      "abilityName": "SpawnTermagants3",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_SpawnTermagants3",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_spawntermagants3.png",
+      "sourceBundle": "abilities/active2/spawntermagants3_d38d98f01b3d7e56158791c40c56bd5a"
+    },
+    "specialissuecombimelta": {
+      "slug": "specialissuecombimelta",
+      "abilityName": "SpecialIssueCombiMelta",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SpecialIssueCombiMelta",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_specialissuecombimelta.png",
+      "sourceBundle": "abilities/triggered2/specialissuecombimelta_5a5bb07f1e18eda59caa54fa79c5870b"
+    },
+    "spiritleech": {
+      "slug": "spiritleech",
+      "abilityName": "SpiritLeech",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_SpiritLeech",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_spiritleech.png",
+      "sourceBundle": "abilities/active2/spiritleech_7de48b0c0c60379ac219197d2e2daa2c"
+    },
+    "spiritualleader": {
+      "slug": "spiritualleader",
+      "abilityName": "SpiritualLeader",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SpiritualLeader",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_spiritualleader.png",
+      "sourceBundle": "abilities/triggered2/spiritualleader_3f8a4c62d22dab719bbef82eba9c54bd"
+    },
+    "split": {
+      "slug": "split",
+      "abilityName": "Split",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Split",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_split.png",
+      "sourceBundle": "abilities/triggered2/split_ca6200929b93b6676f28eecf2c1a7708"
+    },
+    "sporeminelauncher": {
+      "slug": "sporeminelauncher",
+      "abilityName": "SporeMineLauncher",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_SporeMineLauncher",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_sporeminelauncher.png",
+      "sourceBundle": "abilities/active2/sporeminelauncher_aa6d2b8622863c64f895748b19c5ad1a"
+    },
+    "spotter": {
+      "slug": "spotter",
+      "abilityName": "Spotter",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Spotter",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_spotter.png",
+      "sourceBundle": "abilities/triggered2/spotter_4d178051722a014d5a4e83a17d06b1a8"
+    },
+    "spotterreworked": {
+      "slug": "spotterreworked",
+      "abilityName": "SpotterReworked",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SpotterReworked",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_spotterreworked.png",
+      "sourceBundle": "abilities/triggered2/spotterreworked_9f034e587fa0d6227ef89cd8b26e4f54"
+    },
+    "squighound": {
+      "slug": "squighound",
+      "abilityName": "SquigHound",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SquigHound",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_squighound.png",
+      "sourceBundle": "abilities/triggered2/squighound_576832bafee09578d10122772d231daf"
+    },
+    "squiglaunchas": {
+      "slug": "squiglaunchas",
+      "abilityName": "SquigLaunchas",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_SquigLaunchas",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_squiglaunchas.png",
+      "sourceBundle": "abilities/active2/squiglaunchas_fa1bdd5a929bb618e92221382754e4a0"
+    },
+    "squigmine": {
+      "slug": "squigmine",
+      "abilityName": "SquigMine",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_SquigMine",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_squigmine.png",
+      "sourceBundle": "abilities/active2/squigmine_020303875efeeecb5b9c8329567da589"
+    },
+    "staffofstars": {
+      "slug": "staffofstars",
+      "abilityName": "StaffOfStars",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_StaffOfStars",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_staffofstars.png",
+      "sourceBundle": "abilities/active2/staffofstars_6169ca81a8d082024bba5388a7de1f34"
+    },
+    "standvigil": {
+      "slug": "standvigil",
+      "abilityName": "StandVigil",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_StandVigil",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_standvigil.png",
+      "sourceBundle": "abilities/triggered2/standvigil_cb1a61a0839e0ae2aaee2b8ec2c2bd7c"
+    },
+    "sternguardfocus": {
+      "slug": "sternguardfocus",
+      "abilityName": "SternguardFocus",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_SternguardFocus",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_sternguardfocus.png",
+      "sourceBundle": "abilities/active2/sternguardfocus_029d286bd24a29a178716a32bdd8f4e1"
+    },
+    "stikkbomb": {
+      "slug": "stikkbomb",
+      "abilityName": "Stikkbomb",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Stikkbomb",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_stikkbomb.png",
+      "sourceBundle": "abilities/active2/stikkbomb_995eda96e466aba51eab6fcbacb60f84"
+    },
+    "stormboyzstrike": {
+      "slug": "stormboyzstrike",
+      "abilityName": "StormboyzStrike",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_StormboyzStrike",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_stormboyzstrike.png",
+      "sourceBundle": "abilities/triggered2/stormboyzstrike_17b6911f239944d65a6d2cb5f5196c72"
+    },
+    "stormcaller": {
+      "slug": "stormcaller",
+      "abilityName": "Stormcaller",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Stormcaller",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_stormcaller.png",
+      "sourceBundle": "abilities/active2/stormcaller_12b0fc7c8277ba9d83eb743405f300ab"
+    },
+    "stranglethorncannon": {
+      "slug": "stranglethorncannon",
+      "abilityName": "StranglethornCannon",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_StranglethornCannon",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_stranglethorncannon.png",
+      "sourceBundle": "abilities/active2/stranglethorncannon_77420f33982e12dc1f2dd77b8a0fd424"
+    },
+    "strikefromtheshadows": {
+      "slug": "strikefromtheshadows",
+      "abilityName": "StrikeFromTheShadows",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_StrikeFromTheShadows",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_strikefromtheshadows.png",
+      "sourceBundle": "abilities/active2/strikefromtheshadows_b5370e36dba32075b186ac9a8674e2af"
+    },
+    "structuralanalyser": {
+      "slug": "structuralanalyser",
+      "abilityName": "StructuralAnalyser",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_StructuralAnalyser",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_structuralanalyser.png",
+      "sourceBundle": "abilities/triggered2/structuralanalyser_e569e90bb549ce26878c8fdd8ba66afe"
+    },
+    "supacyborkbody": {
+      "slug": "supacyborkbody",
+      "abilityName": "SupaCyborkBody",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SupaCyborkBody",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_supacyborkbody.png",
+      "sourceBundle": "abilities/triggered2/supacyborkbody_a30f2306b800956506ed1f3d57283294"
+    },
+    "supercharge": {
+      "slug": "supercharge",
+      "abilityName": "Supercharge",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Supercharge",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_supercharge.png",
+      "sourceBundle": "abilities/active2/supercharge_9ef3c31935e4dc169afa23bb5e4852b7"
+    },
+    "supremecommander": {
+      "slug": "supremecommander",
+      "abilityName": "SupremeCommander",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_SupremeCommander",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_supremecommander.png",
+      "sourceBundle": "abilities/active2/supremecommander_2b6829ba2f076f37639243aa3b562d51"
+    },
+    "swornprotector": {
+      "slug": "swornprotector",
+      "abilityName": "SwornProtector",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SwornProtector",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_swornprotector.png",
+      "sourceBundle": "abilities/triggered2/swornprotector_e643a85de58242938ecbfe4418787024"
+    },
+    "synapticbacklash": {
+      "slug": "synapticbacklash",
+      "abilityName": "SynapticBacklash",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SynapticBacklash",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_synapticbacklash.png",
+      "sourceBundle": "abilities/triggered2/synapticbacklash_a7660ccf525703e621de8d6947e3d170"
+    },
+    "synapticimperative": {
+      "slug": "synapticimperative",
+      "abilityName": "SynapticImperative",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SynapticImperative",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_synapticimperative.png",
+      "sourceBundle": "abilities/triggered2/synapticimperative_d7c430e936654ca9b3b0014a216636d7"
+    },
+    "synapticinsight": {
+      "slug": "synapticinsight",
+      "abilityName": "SynapticInsight",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SynapticInsight",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_synapticinsight.png",
+      "sourceBundle": "abilities/triggered2/synapticinsight_c708c0ebe132ec2d324f041337ec9c7f"
+    },
+    "synapticlinchpin": {
+      "slug": "synapticlinchpin",
+      "abilityName": "SynapticLinchpin",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_SynapticLinchpin",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_synapticlinchpin.png",
+      "sourceBundle": "abilities/triggered2/synapticlinchpin_22b6929a4cafb04133752de15ec2bf40"
+    },
+    "tacticalprecision": {
+      "slug": "tacticalprecision",
+      "abilityName": "TacticalPrecision",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_TacticalPrecision",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_tacticalprecision.png",
+      "sourceBundle": "abilities/active2/tacticalprecision_648c28f2658828d31768a9d25edaf66f"
+    },
+    "taintednarthecium": {
+      "slug": "taintednarthecium",
+      "abilityName": "TaintedNarthecium",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_TaintedNarthecium",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_taintednarthecium.png",
+      "sourceBundle": "abilities/triggered2/taintednarthecium_17f466a711b251488fe3e13cb85a1aaa"
+    },
+    "talismanofrage": {
+      "slug": "talismanofrage",
+      "abilityName": "TalismanOfRage",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_TalismanOfRage",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_talismanofrage.png",
+      "sourceBundle": "abilities/triggered2/talismanofrage_c64fbcb58a5fa8ebd21c8202deee3862"
+    },
+    "talonofhorus": {
+      "slug": "talonofhorus",
+      "abilityName": "TalonOfHorus",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_TalonOfHorus",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_talonofhorus.png",
+      "sourceBundle": "abilities/triggered2/talonofhorus_9135c48f37250d817f61aa908fc467a3"
+    },
+    "talonsoftheemperor": {
+      "slug": "talonsoftheemperor",
+      "abilityName": "TalonsoftheEmperor",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_TalonsoftheEmperor",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_talonsoftheemperor.png",
+      "sourceBundle": "abilities/active2/talonsoftheemperor_23d0a6c9ebf665e474a3a65e783cb03c"
+    },
+    "targetingprotocols": {
+      "slug": "targetingprotocols",
+      "abilityName": "TargetingProtocols",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_TargetingProtocols",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_targetingprotocols.png",
+      "sourceBundle": "abilities/active2/targetingprotocols_d35140e1dd7f9ff51c35031db29c7cfc"
+    },
+    "targetlock": {
+      "slug": "targetlock",
+      "abilityName": "TargetLock",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_TargetLock",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_targetlock.png",
+      "sourceBundle": "abilities/triggered2/targetlock_17d981e0e9f86f5dc6c28a898b96ee53"
+    },
+    "terrifyingcrescendo": {
+      "slug": "terrifyingcrescendo",
+      "abilityName": "TerrifyingCrescendo",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_TerrifyingCrescendo",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_terrifyingcrescendo.png",
+      "sourceBundle": "abilities/triggered2/terrifyingcrescendo_98573a9f325e06bd240bc1526e026a42"
+    },
+    "terrorslament": {
+      "slug": "terrorslament",
+      "abilityName": "TerrorsLament",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_TerrorsLament",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_terrorslament.png",
+      "sourceBundle": "abilities/triggered2/terrorslament_8457d5805f32588425401b95c2c353f7"
+    },
+    "theardentblade": {
+      "slug": "theardentblade",
+      "abilityName": "TheArdentBlade",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_TheArdentBlade",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_theardentblade.png",
+      "sourceBundle": "abilities/triggered2/theardentblade_4826c3c20338663afc1f75c1ac36eef7"
+    },
+    "thebetrayer": {
+      "slug": "thebetrayer",
+      "abilityName": "TheBetrayer",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_TheBetrayer",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_thebetrayer.png",
+      "sourceBundle": "abilities/triggered2/thebetrayer_06fd78bfa472ccae11179601724ac705"
+    },
+    "thebloodyhanded": {
+      "slug": "thebloodyhanded",
+      "abilityName": "TheBloodyHanded",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_TheBloodyHanded",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_thebloodyhanded.png",
+      "sourceBundle": "abilities/triggered2/thebloodyhanded_ef493ac48315c71008a25bf032dbf12d"
+    },
+    "theemperorsshield": {
+      "slug": "theemperorsshield",
+      "abilityName": "TheEmperorsShield",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_TheEmperorsShield",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_theemperorsshield.png",
+      "sourceBundle": "abilities/triggered2/theemperorsshield_647b2868b20444d637f0c0642d9c7c43"
+    },
+    "thelantern": {
+      "slug": "thelantern",
+      "abilityName": "TheLantern",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_TheLantern",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_thelantern.png",
+      "sourceBundle": "abilities/active2/thelantern_fa75954a7aa84d0659b4e84a37baae1d"
+    },
+    "thelionswrath": {
+      "slug": "thelionswrath",
+      "abilityName": "TheLionsWrath",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_TheLionsWrath",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_thelionswrath.png",
+      "sourceBundle": "abilities/active2/thelionswrath_f92b5059b9daf5d0506d7a98bcc0280c"
+    },
+    "thequickening": {
+      "slug": "thequickening",
+      "abilityName": "TheQuickening",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_TheQuickening",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_thequickening.png",
+      "sourceBundle": "abilities/active2/thequickening_017244dda50fec3fd4c63d71901ed526"
+    },
+    "thewailingdoomstrikes": {
+      "slug": "thewailingdoomstrikes",
+      "abilityName": "TheWailingDoomStrikes",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_TheWailingDoomStrikes",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_thewailingdoomstrikes.png",
+      "sourceBundle": "abilities/active2/thewailingdoomstrikes_c9c096db3c8a65fcb1e7c7c85aec5317"
+    },
+    "thewailingdoomsweeps": {
+      "slug": "thewailingdoomsweeps",
+      "abilityName": "TheWailingDoomSweeps",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_TheWailingDoomSweeps",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_thewailingdoomsweeps.png",
+      "sourceBundle": "abilities/active2/thewailingdoomsweeps_a29b8d01ac4f486409be734be4711587"
+    },
+    "thewildhost": {
+      "slug": "thewildhost",
+      "abilityName": "TheWildHost",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_TheWildHost",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_thewildhost.png",
+      "sourceBundle": "abilities/triggered2/thewildhost_662fd3846d128b6a0950722212eaa648"
+    },
+    "thewrathfuldead": {
+      "slug": "thewrathfuldead",
+      "abilityName": "TheWrathfulDead",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_TheWrathfulDead",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_thewrathfuldead.png",
+      "sourceBundle": "abilities/triggered2/thewrathfuldead_eab91bceab057318d9323af0e9fd1fc1"
+    },
+    "thewrathofkhaineunleashed": {
+      "slug": "thewrathofkhaineunleashed",
+      "abilityName": "TheWrathOfKhaineUnleashed",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_TheWrathOfKhaineUnleashed",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_thewrathofkhaineunleashed.png",
+      "sourceBundle": "abilities/active2/thewrathofkhaineunleashed_ab951181e4b6e0e36ea023f2bb596003"
+    },
+    "thriceblessedconflagration": {
+      "slug": "thriceblessedconflagration",
+      "abilityName": "ThriceBlessedConflagration",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_ThriceBlessedConflagration",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_thriceblessedconflagration.png",
+      "sourceBundle": "abilities/active2/thriceblessedconflagration_16ec6e83314452e09f26fe7700f24912"
+    },
+    "thunderousassault": {
+      "slug": "thunderousassault",
+      "abilityName": "ThunderousAssault",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_ThunderousAssault",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_thunderousassault.png",
+      "sourceBundle": "abilities/active2/thunderousassault_f30d78aeebf5fa93dbf0e7f771477af0"
+    },
+    "timeflux": {
+      "slug": "timeflux",
+      "abilityName": "TimeFlux",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_TimeFlux",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_timeflux.png",
+      "sourceBundle": "abilities/triggered2/timeflux_b8fd069782a16da1c17d2752c3796f57"
+    },
+    "timesplintermantle": {
+      "slug": "timesplintermantle",
+      "abilityName": "TimesplinterMantle",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_TimesplinterMantle",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_timesplintermantle.png",
+      "sourceBundle": "abilities/triggered2/timesplintermantle_f572cb02f58976508f7459ee90dca449"
+    },
+    "titanhammersquad": {
+      "slug": "titanhammersquad",
+      "abilityName": "TitanhammerSquad",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_TitanhammerSquad",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_titanhammersquad.png",
+      "sourceBundle": "abilities/active2/titanhammersquad_71b7511184a2887ed3a33612a93835ae"
+    },
+    "toughtokill": {
+      "slug": "toughtokill",
+      "abilityName": "ToughToKill",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_ToughToKill",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_toughtokill.png",
+      "sourceBundle": "abilities/triggered2/toughtokill_34535a0638933043ec315f2cafed62a7"
+    },
+    "treasonoftzeentch": {
+      "slug": "treasonoftzeentch",
+      "abilityName": "TreasonOfTzeentch",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_TreasonOfTzeentch",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_treasonoftzeentch.png",
+      "sourceBundle": "abilities/active2/treasonoftzeentch_bd20edc17c9a0b0391ef176239d0f4f6"
+    },
+    "trophytaker": {
+      "slug": "trophytaker",
+      "abilityName": "TrophyTaker",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_TrophyTaker",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_trophytaker.png",
+      "sourceBundle": "abilities/triggered2/trophytaker_f51eadfa79cbc4f1791b60c5b072f83c"
+    },
+    "tunnelinghorror": {
+      "slug": "tunnelinghorror",
+      "abilityName": "TunnelingHorror",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_TunnelingHorror",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_tunnelinghorror.png",
+      "sourceBundle": "abilities/active2/tunnelinghorror_b10e864c4ac943f7ccacbcb2a26235c3"
+    },
+    "twinsmartmissilesystem": {
+      "slug": "twinsmartmissilesystem",
+      "abilityName": "TwinSmartMissileSystem",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_TwinSmartMissileSystem",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_twinsmartmissilesystem.png",
+      "sourceBundle": "abilities/active2/twinsmartmissilesystem_34dae5ad036bf1e79f94608d3a4e7804"
+    },
+    "twistedscience": {
+      "slug": "twistedscience",
+      "abilityName": "TwistedScience",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_TwistedScience",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_twistedscience.png",
+      "sourceBundle": "abilities/triggered2/twistedscience_c644a45661fde84ba2e3933bf7b10949"
+    },
+    "tzeentchsfirestorm": {
+      "slug": "tzeentchsfirestorm",
+      "abilityName": "TzeentchsFirestorm",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_TzeentchsFirestorm",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_tzeentchsfirestorm.png",
+      "sourceBundle": "abilities/active2/tzeentchsfirestorm_406c3d9dc9fa0402d03d274143450197"
+    },
+    "unbreakableduty": {
+      "slug": "unbreakableduty",
+      "abilityName": "UnbreakableDuty",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_UnbreakableDuty",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_unbreakableduty.png",
+      "sourceBundle": "abilities/active2/unbreakableduty_70642388c10505e3a6d979a83d331c20"
+    },
+    "unbridledcarnage": {
+      "slug": "unbridledcarnage",
+      "abilityName": "UnbridledCarnage",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_UnbridledCarnage",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_unbridledcarnage.png",
+      "sourceBundle": "abilities/triggered2/unbridledcarnage_b1df5671448feb2adceb57fb71838fa5"
+    },
+    "unbridledcarnagereworked": {
+      "slug": "unbridledcarnagereworked",
+      "abilityName": "UnbridledCarnageReworked",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_UnbridledCarnageReworked",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_unbridledcarnagereworked.png",
+      "sourceBundle": "abilities/triggered2/unbridledcarnagereworked_374914548d8d7e24fea8b669dc9e5ab0"
+    },
+    "unparalleledferocity": {
+      "slug": "unparalleledferocity",
+      "abilityName": "UnparalleledFerocity",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_UnparalleledFerocity",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_unparalleledferocity.png",
+      "sourceBundle": "abilities/active2/unparalleledferocity_d353efdda6b46df4870e3ffda5e74686"
+    },
+    "unstoppableferocity": {
+      "slug": "unstoppableferocity",
+      "abilityName": "UnstoppableFerocity",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_UnstoppableFerocity",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_unstoppableferocity.png",
+      "sourceBundle": "abilities/triggered2/unstoppableferocity_62ca3982d0a0bbc711d7034dfbd7dfc5"
+    },
+    "unstoppablemomentumreworked": {
+      "slug": "unstoppablemomentumreworked",
+      "abilityName": "UnstoppableMomentumReworked",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_UnstoppableMomentumReworked",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_unstoppablemomentumreworked.png",
+      "sourceBundle": "abilities/active2/unstoppablemomentumreworked_5b2da6cd3e6cb3164470b0a80082b953"
+    },
+    "unwaveringsentinel": {
+      "slug": "unwaveringsentinel",
+      "abilityName": "UnwaveringSentinel",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_UnwaveringSentinel",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_unwaveringsentinel.png",
+      "sourceBundle": "abilities/triggered2/unwaveringsentinel_78bde018024d0193c81d0c5d958ef6e7"
+    },
+    "valkyriestrike": {
+      "slug": "valkyriestrike",
+      "abilityName": "ValkyrieStrike",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_ValkyrieStrike",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_valkyriestrike.png",
+      "sourceBundle": "abilities/active2/valkyriestrike_ef92bda66dbd0d8944d1176cac5285b0"
+    },
+    "vengeancefortheomnissiah": {
+      "slug": "vengeancefortheomnissiah",
+      "abilityName": "VengeanceForTheOmnissiah",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_VengeanceForTheOmnissiah",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_vengeancefortheomnissiah.png",
+      "sourceBundle": "abilities/triggered2/vengeancefortheomnissiah_e054ca953192ce3e71c204917d9cbd55"
+    },
+    "vexillamagnifica": {
+      "slug": "vexillamagnifica",
+      "abilityName": "VexillaMagnifica",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_VexillaMagnifica",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_vexillamagnifica.png",
+      "sourceBundle": "abilities/active2/vexillamagnifica_e352a07e7b1bcf64bfc46fb7128bb340"
+    },
+    "vigilanceeternal": {
+      "slug": "vigilanceeternal",
+      "abilityName": "VigilanceEternal",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_VigilanceEternal",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_vigilanceeternal.png",
+      "sourceBundle": "abilities/active2/vigilanceeternal_1d4a2e50c8e89a9b9237940e752e69d4"
+    },
+    "visionsofheresy": {
+      "slug": "visionsofheresy",
+      "abilityName": "VisionsOfHeresy",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_VisionsOfHeresy",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_visionsofheresy.png",
+      "sourceBundle": "abilities/triggered2/visionsofheresy_95dde0fb98ce8c34efbde51a394d827c"
+    },
+    "vitarus": {
+      "slug": "vitarus",
+      "abilityName": "Vitarus",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Vitarus",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_vitarus.png",
+      "sourceBundle": "abilities/triggered2/vitarus_d4e5e30a8d2985f0dee24481724e4ed0"
+    },
+    "volatile": {
+      "slug": "volatile",
+      "abilityName": "Volatile",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Volatile",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_volatile.png",
+      "sourceBundle": "abilities/triggered2/volatile_477b9599be65028c3bf1e6b26c594e60"
+    },
+    "voltagheistfield": {
+      "slug": "voltagheistfield",
+      "abilityName": "VoltagheistField",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_VoltagheistField",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_voltagheistfield.png",
+      "sourceBundle": "abilities/triggered2/voltagheistfield_a895bfee2c0bad544e07a8b206ec2beb"
+    },
+    "volummsmasterartifice": {
+      "slug": "volummsmasterartifice",
+      "abilityName": "VolummsMasterArtifice",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_VolummsMasterArtifice",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_volummsmasterartifice.png",
+      "sourceBundle": "abilities/triggered2/volummsmasterartifice_da19372e7ed0460dbe02f62e399ef6f6"
+    },
+    "vulnerabletoflameandblast": {
+      "slug": "vulnerabletoflameandblast",
+      "abilityName": "VulnerableToFlameAndBlast",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_VulnerableToFlameAndBlast",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_vulnerabletoflameandblast.png",
+      "sourceBundle": "abilities/triggered2/vulnerabletoflameandblast_9d76919cb8a9f20c917b6699793cdaf7"
+    },
+    "vulnerabletomelee": {
+      "slug": "vulnerabletomelee",
+      "abilityName": "VulnerableToMelee",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_VulnerableToMelee",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_vulnerabletomelee.png",
+      "sourceBundle": "abilities/triggered2/vulnerabletomelee_a0a0685801060c29a6432f8d06a630ce"
+    },
+    "waaagh": {
+      "slug": "waaagh",
+      "abilityName": "Waaagh",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_Waaagh",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_waaagh.png",
+      "sourceBundle": "abilities/active2/waaagh_e7490b529a9b30014f69b332f02e5a1e"
+    },
+    "wallofmirrors": {
+      "slug": "wallofmirrors",
+      "abilityName": "WallOfMirrors",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_WallOfMirrors",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_wallofmirrors.png",
+      "sourceBundle": "abilities/active2/wallofmirrors_3b2017be5f1928afe965ddd905d51e91"
+    },
+    "warconstruct": {
+      "slug": "warconstruct",
+      "abilityName": "WarConstruct",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_WarConstruct",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_warconstruct.png",
+      "sourceBundle": "abilities/active2/warconstruct_ff6af23ba77ae83a767945c33ecf238f"
+    },
+    "warhowl": {
+      "slug": "warhowl",
+      "abilityName": "WarHowl",
+      "kind": "active",
+      "sprite": "ui_icon_ability2_WarHowl",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_warhowl.png",
+      "sourceBundle": "abilities/active2/warhowl_18b7868ab97db868bfdfe1c9c9878332"
+    },
+    "watchedover": {
+      "slug": "watchedover",
+      "abilityName": "WatchedOver",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_WatchedOver",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_watchedover.png",
+      "sourceBundle": "abilities/triggered2/watchedover_524ef56ac5cea51d529b314d2927704e"
+    },
+    "wayoftheshortblade": {
+      "slug": "wayoftheshortblade",
+      "abilityName": "WayOfTheShortBlade",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_WayOfTheShortBlade",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_wayoftheshortblade.png",
+      "sourceBundle": "abilities/triggered2/wayoftheshortblade_5506c627ffe47dffa1b201f654942737"
+    },
+    "weakerreararmour": {
+      "slug": "weakerreararmour",
+      "abilityName": "WeakerRearArmour",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_WeakerRearArmour",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_weakerreararmour.png",
+      "sourceBundle": "abilities/triggered2/weakerreararmour_19fb37e78a5a8353eccb0de66bdbe16d"
+    },
+    "whipcoilbody": {
+      "slug": "whipcoilbody",
+      "abilityName": "WhipcoilBody",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_WhipcoilBody",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_whipcoilbody.png",
+      "sourceBundle": "abilities/triggered2/whipcoilbody_2590836063af699d3e00cd74d57f19df"
+    },
+    "whisperingweb": {
+      "slug": "whisperingweb",
+      "abilityName": "WhisperingWeb",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_WhisperingWeb",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_whisperingweb.png",
+      "sourceBundle": "abilities/triggered2/whisperingweb_3801c99eb49c31d7e2d68d209082491c"
+    },
+    "wireweavenet": {
+      "slug": "wireweavenet",
+      "abilityName": "WireweaveNet",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_WireweaveNet",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_wireweavenet.png",
+      "sourceBundle": "abilities/triggered2/wireweavenet_1de967e2e3912b649bcbb070928cdee2"
+    },
+    "wisdomoftheancients": {
+      "slug": "wisdomoftheancients",
+      "abilityName": "WisdomOfTheAncients",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_WisdomOfTheAncients",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_wisdomoftheancients.png",
+      "sourceBundle": "abilities/triggered2/wisdomoftheancients_da03c703732f53754d7cfb0e7daee5ea"
+    },
+    "wraithcannon": {
+      "slug": "wraithcannon",
+      "abilityName": "Wraithcannon",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_Wraithcannon",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_wraithcannon.png",
+      "sourceBundle": "abilities/triggered2/wraithcannon_61e5600d5ab43466c6de2184aa8e14e1"
+    },
+    "wrathfuldevotion": {
+      "slug": "wrathfuldevotion",
+      "abilityName": "WrathfulDevotion",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_WrathfulDevotion",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_wrathfuldevotion.png",
+      "sourceBundle": "abilities/triggered2/wrathfuldevotion_11985bae5f68d171dd3c97ea5034f4fb"
+    },
+    "wyrdmakershelm": {
+      "slug": "wyrdmakershelm",
+      "abilityName": "WyrdmakersHelm",
+      "kind": "triggered",
+      "sprite": "ui_icon_ability2_WyrdmakersHelm",
+      "width": 174,
+      "height": 174,
+      "webIconUrl": "/images/game-assets/abilities/ability_wyrdmakershelm.png",
+      "sourceBundle": "abilities/triggered2/wyrdmakershelm_90d3672f5201afdd09ee1f2c894b7f89"
+    }
+  }
+}

@@ -1,0 +1,634 @@
+/* Diamond shimmer effect for Legendary bosses - Border-focused with subtle particles */
+@keyframes borderShimmer {
+  0% {
+    border-image-source: linear-gradient(
+      90deg,
+      rgba(147, 197, 253, 0.8),
+      rgba(196, 181, 253, 0.8),
+      rgba(255, 255, 255, 1),
+      rgba(185, 242, 255, 0.8),
+      rgba(147, 197, 253, 0.8)
+    );
+  }
+  50% {
+    border-image-source: linear-gradient(
+      90deg,
+      rgba(196, 181, 253, 0.8),
+      rgba(255, 255, 255, 1),
+      rgba(185, 242, 255, 0.8),
+      rgba(147, 197, 253, 0.8),
+      rgba(196, 181, 253, 0.8)
+    );
+  }
+  100% {
+    border-image-source: linear-gradient(
+      90deg,
+      rgba(147, 197, 253, 0.8),
+      rgba(196, 181, 253, 0.8),
+      rgba(255, 255, 255, 1),
+      rgba(185, 242, 255, 0.8),
+      rgba(147, 197, 253, 0.8)
+    );
+  }
+}
+
+@keyframes borderPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 10px rgba(147, 197, 253, 0.3),
+      inset 0 0 5px rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgba(196, 181, 253, 0.4),
+      inset 0 0 10px rgba(255, 255, 255, 0.15);
+  }
+}
+
+@keyframes subtleParticle {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  20% {
+    opacity: 0.3;
+  }
+  80% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+.diamond-section {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(20, 20, 25, 0.6) 0%,
+    rgba(30, 30, 35, 0.5) 100%
+  );
+  border: 3px solid;
+  border-image: linear-gradient(
+      90deg,
+      rgba(147, 197, 253, 0.8),
+      rgba(196, 181, 253, 0.8),
+      rgba(255, 255, 255, 1),
+      rgba(185, 242, 255, 0.8)
+    )
+    1;
+  animation:
+    borderShimmer 4s ease-in-out infinite,
+    borderPulse 2s ease-in-out infinite;
+  overflow: hidden;
+}
+
+/* Particle effects for Legendary */
+.diamond-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: subtleParticle 8s ease-in-out infinite;
+  z-index: 1;
+}
+
+/* Molten lava effect for Mythic bosses - Clean with rich palette */
+@keyframes mythicBorderShimmer {
+  0% {
+    border-image-source: linear-gradient(
+      90deg,
+      rgba(255, 69, 0, 0.9),
+      rgba(255, 140, 0, 0.9),
+      rgba(255, 195, 0, 1),
+      rgba(255, 107, 53, 0.9),
+      rgba(255, 69, 0, 0.9)
+    );
+  }
+  50% {
+    border-image-source: linear-gradient(
+      90deg,
+      rgba(255, 140, 0, 0.9),
+      rgba(255, 195, 0, 1),
+      rgba(255, 107, 53, 0.9),
+      rgba(255, 69, 0, 0.9),
+      rgba(255, 140, 0, 0.9)
+    );
+  }
+  100% {
+    border-image-source: linear-gradient(
+      90deg,
+      rgba(255, 69, 0, 0.9),
+      rgba(255, 140, 0, 0.9),
+      rgba(255, 195, 0, 1),
+      rgba(255, 107, 53, 0.9),
+      rgba(255, 69, 0, 0.9)
+    );
+  }
+}
+
+@keyframes mythicBorderPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 15px rgba(255, 69, 0, 0.4),
+      inset 0 0 8px rgba(255, 140, 0, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 25px rgba(255, 140, 0, 0.5),
+      inset 0 0 12px rgba(255, 195, 0, 0.2);
+  }
+}
+
+@keyframes emberFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) translateX(0);
+  }
+  20% {
+    opacity: 0.4;
+  }
+  80% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px) translateX(5px);
+  }
+}
+
+.mythic-section {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(30, 15, 10, 0.7) 0%,
+    rgba(40, 20, 15, 0.6) 100%
+  );
+  border: 3px solid;
+  border-image: linear-gradient(
+      90deg,
+      rgba(255, 69, 0, 0.9),
+      rgba(255, 140, 0, 0.9),
+      rgba(255, 195, 0, 1),
+      rgba(255, 107, 53, 0.9)
+    )
+    1;
+  animation:
+    mythicBorderShimmer 4s ease-in-out infinite,
+    mythicBorderPulse 2s ease-in-out infinite;
+  overflow: hidden;
+}
+
+/* Ember particles for Mythic */
+.mythic-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: emberFloat 7s ease-in-out infinite;
+  z-index: 1;
+}
+
+/* Title styles - Refined and hierarchical */
+.diamond-title {
+  color: #93c5fd;
+  font-weight: bold;
+  text-transform: uppercase;
+  background: linear-gradient(
+    90deg,
+    #93c5fd 0%,
+    #c4b5fd 25%,
+    #ffffff 50%,
+    #b9f2ff 75%,
+    #93c5fd 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow:
+    0 0 20px rgba(147, 197, 253, 0.6),
+    0 0 30px rgba(196, 181, 253, 0.4);
+  animation: prismTextFlow 4s linear infinite;
+}
+
+@keyframes prismTextFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.mythic-title {
+  color: #ff6b35;
+  font-weight: bold;
+  text-transform: uppercase;
+  background: linear-gradient(45deg, #ff4500, #ffa500, #ff6b35, #ff4500);
+  background-size: 200% 200%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow:
+    0 0 20px rgba(255, 69, 0, 0.6),
+    0 0 40px rgba(255, 140, 0, 0.4);
+  animation: mythicTextFlow 3s linear infinite;
+}
+
+@keyframes mythicTextFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+/* Epic (Gold/Sparkling) effect */
+@keyframes epicBorderShimmer {
+  0% {
+    border-image-source: linear-gradient(
+      90deg,
+      rgba(255, 215, 0, 0.9),
+      rgba(255, 235, 59, 0.9),
+      rgba(255, 193, 7, 1),
+      rgba(255, 223, 0, 0.9),
+      rgba(255, 215, 0, 0.9)
+    );
+  }
+  50% {
+    border-image-source: linear-gradient(
+      90deg,
+      rgba(255, 235, 59, 0.9),
+      rgba(255, 193, 7, 1),
+      rgba(255, 223, 0, 0.9),
+      rgba(255, 215, 0, 0.9),
+      rgba(255, 235, 59, 0.9)
+    );
+  }
+  100% {
+    border-image-source: linear-gradient(
+      90deg,
+      rgba(255, 215, 0, 0.9),
+      rgba(255, 235, 59, 0.9),
+      rgba(255, 193, 7, 1),
+      rgba(255, 223, 0, 0.9),
+      rgba(255, 215, 0, 0.9)
+    );
+  }
+}
+
+@keyframes epicBorderPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 12px rgba(255, 215, 0, 0.4),
+      inset 0 0 6px rgba(255, 235, 59, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 22px rgba(255, 193, 7, 0.5),
+      inset 0 0 10px rgba(255, 223, 0, 0.2);
+  }
+}
+
+@keyframes sparkleFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(15px) rotate(0deg);
+  }
+  25% {
+    opacity: 0.5;
+  }
+  75% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-15px) rotate(180deg);
+  }
+}
+
+.epic-section {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(25, 20, 5, 0.7) 0%,
+    rgba(35, 25, 10, 0.6) 100%
+  );
+  border: 3px solid;
+  border-image: linear-gradient(
+      90deg,
+      rgba(255, 215, 0, 0.9),
+      rgba(255, 235, 59, 0.9),
+      rgba(255, 193, 7, 1),
+      rgba(255, 223, 0, 0.9)
+    )
+    1;
+  animation:
+    epicBorderShimmer 3.5s ease-in-out infinite,
+    epicBorderPulse 2.5s ease-in-out infinite;
+  overflow: hidden;
+}
+
+.epic-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: sparkleFloat 6s ease-in-out infinite;
+  z-index: 1;
+}
+
+/* Rare (Blue/Dazzling/Pulsing) effect */
+@keyframes rareBorderShimmer {
+  0% {
+    border-image-source: linear-gradient(
+      90deg,
+      rgba(33, 150, 243, 0.8),
+      rgba(3, 169, 244, 0.8),
+      rgba(63, 81, 181, 1),
+      rgba(25, 118, 210, 0.8),
+      rgba(33, 150, 243, 0.8)
+    );
+  }
+  50% {
+    border-image-source: linear-gradient(
+      90deg,
+      rgba(3, 169, 244, 0.8),
+      rgba(63, 81, 181, 1),
+      rgba(25, 118, 210, 0.8),
+      rgba(33, 150, 243, 0.8),
+      rgba(3, 169, 244, 0.8)
+    );
+  }
+  100% {
+    border-image-source: linear-gradient(
+      90deg,
+      rgba(33, 150, 243, 0.8),
+      rgba(3, 169, 244, 0.8),
+      rgba(63, 81, 181, 1),
+      rgba(25, 118, 210, 0.8),
+      rgba(33, 150, 243, 0.8)
+    );
+  }
+}
+
+@keyframes rareBorderPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 10px rgba(33, 150, 243, 0.4),
+      inset 0 0 5px rgba(3, 169, 244, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 18px rgba(63, 81, 181, 0.5),
+      inset 0 0 8px rgba(25, 118, 210, 0.2);
+  }
+}
+
+@keyframes dazzlePulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  30% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  70% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
+.rare-section {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(5, 15, 25, 0.7) 0%,
+    rgba(10, 20, 35, 0.6) 100%
+  );
+  border: 3px solid;
+  border-image: linear-gradient(
+      90deg,
+      rgba(33, 150, 243, 0.8),
+      rgba(3, 169, 244, 0.8),
+      rgba(63, 81, 181, 1),
+      rgba(25, 118, 210, 0.8)
+    )
+    1;
+  animation:
+    rareBorderShimmer 4s ease-in-out infinite,
+    rareBorderPulse 1.8s ease-in-out infinite;
+  overflow: hidden;
+}
+
+.rare-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: dazzlePulse 5s ease-in-out infinite;
+  z-index: 1;
+}
+
+/* Uncommon (Green/Glowing) effect */
+@keyframes uncommonBorderShimmer {
+  0% {
+    border-image-source: linear-gradient(
+      90deg,
+      rgba(76, 175, 80, 0.8),
+      rgba(139, 195, 74, 0.8),
+      rgba(102, 187, 106, 1),
+      rgba(129, 199, 132, 0.8),
+      rgba(76, 175, 80, 0.8)
+    );
+  }
+  50% {
+    border-image-source: linear-gradient(
+      90deg,
+      rgba(139, 195, 74, 0.8),
+      rgba(102, 187, 106, 1),
+      rgba(129, 199, 132, 0.8),
+      rgba(76, 175, 80, 0.8),
+      rgba(139, 195, 74, 0.8)
+    );
+  }
+  100% {
+    border-image-source: linear-gradient(
+      90deg,
+      rgba(76, 175, 80, 0.8),
+      rgba(139, 195, 74, 0.8),
+      rgba(102, 187, 106, 1),
+      rgba(129, 199, 132, 0.8),
+      rgba(76, 175, 80, 0.8)
+    );
+  }
+}
+
+@keyframes uncommonGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 8px rgba(76, 175, 80, 0.3),
+      inset 0 0 4px rgba(139, 195, 74, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 16px rgba(102, 187, 106, 0.4),
+      inset 0 0 8px rgba(129, 199, 132, 0.2);
+  }
+}
+
+@keyframes gentleGlow {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.uncommon-section {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 20, 10, 0.7) 0%,
+    rgba(15, 25, 15, 0.6) 100%
+  );
+  border: 3px solid;
+  border-image: linear-gradient(
+      90deg,
+      rgba(76, 175, 80, 0.8),
+      rgba(139, 195, 74, 0.8),
+      rgba(102, 187, 106, 1),
+      rgba(129, 199, 132, 0.8)
+    )
+    1;
+  animation:
+    uncommonBorderShimmer 5s ease-in-out infinite,
+    uncommonGlow 3s ease-in-out infinite;
+  overflow: hidden;
+}
+
+.uncommon-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: gentleGlow 7s ease-in-out infinite;
+  z-index: 1;
+}
+
+/* Common (Grey/Solid) effect */
+.common-section {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(20, 20, 20, 0.7) 0%,
+    rgba(25, 25, 25, 0.6) 100%
+  );
+  border: 3px solid rgba(158, 158, 158, 0.5);
+  overflow: hidden;
+}
+
+@keyframes subtleFade {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.common-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: subtleFade 10s ease-in-out infinite;
+  z-index: 1;
+}
+
+/* Copy success toast animation */
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-5px) scale(0.9);
+  }
+  15% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  85% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-5px) scale(0.9);
+  }
+}
+
+.animate-fade-in-out {
+  animation: fadeInOut 2s ease-in-out forwards;
+}
+
+/* Shared rarity filter pill styles */
+.rarity-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  border: 1px solid var(--card-border);
+  background: rgba(20, 20, 25, 0.7);
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.rarity-pill:is(:hover, :focus-visible) {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.rarity-pill.is-active {
+  background: color-mix(
+    in srgb,
+    var(--rarity-pill-color, var(--primary)) 18%,
+    transparent
+  );
+  box-shadow: 0 0 12px
+    color-mix(
+      in srgb,
+      var(--rarity-pill-color, var(--primary)) 25%,
+      transparent
+    );
+  color: var(--rarity-pill-color, var(--primary));
+  border-color: var(--rarity-pill-color, var(--primary));
+}
+
+.rarity-pill.reset {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--text-secondary);
+}
+
+.rarity-pill.reset:is(:hover, :focus-visible) {
+  color: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 0 10px rgba(0, 170, 255, 0.2);
+}

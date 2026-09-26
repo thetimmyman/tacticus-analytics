@@ -1,0 +1,27 @@
+# Trivy CVE allowlist (PS-50)
+#
+# Applies to the container image scans in
+# .github/workflows/build-clean-image.yml and
+# .github/workflows/build-edge-runtime-image.yml. Those scans fail the build
+# on any CRITICAL vulnerability that has a fix available and is not listed
+# here.
+#
+# Policy - an entry may only be added with all four of these recorded on the
+# comment lines immediately above it:
+#   CVE id   the exact id Trivy reports (e.g. CVE-2024-12345)
+#   reason   why this image is not exploitable, or why no fixed version of
+#            the affected package is available yet
+#   expiry   YYYY-MM-DD, at most 90 days out. Past the expiry the entry is
+#            deleted and the finding must be fixed or re-justified.
+#   owner    the GitHub handle accountable for clearing the entry
+#
+# Shape of an entry:
+#   # CVE-2024-12345
+#   # reason: not reachable - the affected codec is never loaded at runtime
+#   # expiry: 2026-12-01
+#   # owner:  thetimmyman
+#   CVE-2024-12345
+#
+# There are deliberately no entries below. Nothing has been triaged yet, so
+# every CRITICAL finding is a build failure until it is fixed here or
+# justified above.

@@ -1,0 +1,82 @@
+FROM node:22-alpine AS base
+
+ENV NEXT_TELEMETRY_DISABLED=1
+WORKDIR /app
+
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+COPY package.json package-lock.json ./
+COPY packages ./packages
+COPY apps ./apps
+RUN npm ci --legacy-peer-deps
+
+# Keep build/test tools out of the runtime dependency tree.
+FROM deps AS runtime-deps
+RUN npm prune --omit=dev --ignore-scripts --legacy-peer-deps
+
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_DISCORD_CLIENT_ID
+ARG NEXT_PUBLIC_ENABLE_DISCORD_AUTH=true
+ARG NEXT_PUBLIC_ENABLE_GOOGLE_AUTH=false
+ARG NEXT_PUBLIC_VIDEO_CDN_URL
+ARG NEXT_PUBLIC_SENTRY_DSN
+ARG NEXT_PUBLIC_CONTACT_EMAIL
+# No default: the build caller must attest which GitHub repository supplied
+# this context. A missing value leaves the verifier with no identity signal;
+# a fork or foreign repository value fails the repository contract.
+ARG GITHUB_REPOSITORY
+
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_DISCORD_CLIENT_ID=$NEXT_PUBLIC_DISCORD_CLIENT_ID
+ENV NEXT_PUBLIC_ENABLE_DISCORD_AUTH=$NEXT_PUBLIC_ENABLE_DISCORD_AUTH
+ENV NEXT_PUBLIC_ENABLE_GOOGLE_AUTH=$NEXT_PUBLIC_ENABLE_GOOGLE_AUTH
+ENV NEXT_PUBLIC_VIDEO_CDN_URL=$NEXT_PUBLIC_VIDEO_CDN_URL
+ENV NEXT_PUBLIC_SENTRY_DSN=$NEXT_PUBLIC_SENTRY_DSN
+ENV NEXT_PUBLIC_CONTACT_EMAIL=$NEXT_PUBLIC_CONTACT_EMAIL
+ENV GITHUB_REPOSITORY=$GITHUB_REPOSITORY
+ENV SKIP_TYPECHECK_IN_DOCKER=true
+ENV ALLOW_STALE_STATS=true
+ENV NODE_OPTIONS="--max-old-space-size=12288"
+
+RUN node scripts/dev/verify-app-identity.mjs \
+  && ./node_modules/.bin/next build
+
+FROM base AS runner
+ENV NODE_ENV=production
+ENV TACTICUS_APP_ID=tacticus-analytics
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+ENV NODE_OPTIONS="--max-http-header-size=65536"
+
+RUN apk add --no-cache libc6-compat \
+  && rm -rf /usr/local/lib/node_modules/npm \
+  && rm -f /usr/local/bin/npm /usr/local/bin/npx \
+  && addgroup --system --gid 1001 nodejs \
+  && adduser --system --uid 1001 nextjs
+
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=runtime-deps --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/next.config.js ./next.config.js
+COPY --from=builder --chown=nextjs:nodejs /app/packages ./packages
+COPY --from=builder --chown=nextjs:nodejs /app/.app-identity.json ./.app-identity.json
+COPY --from=builder --chown=nextjs:nodejs /app/scripts/dev/verify-app-identity.mjs ./scripts/dev/verify-app-identity.mjs
+
+# These datasets are loaded by path at runtime.
+COPY --from=builder --chown=nextjs:nodejs /app/data/game-data ./data/game-data
+COPY --from=builder --chown=nextjs:nodejs /app/data/loki-api ./data/loki-api
+COPY --from=builder --chown=nextjs:nodejs /app/data/boss-playbooks ./data/boss-playbooks
+
+USER nextjs
+EXPOSE 3000
+
+CMD ["sh", "-c", "APP_IDENTITY_RUNTIME=1 node scripts/dev/verify-app-identity.mjs && exec ./node_modules/.bin/next start"]

@@ -1,0 +1,8 @@
+{
+  "imports": {
+    "https://esm.sh/": "https://esm.run/",
+    "https://deno.land/std@0.168.0/": "https://deno.land/std@0.168.0/",
+    "@supabase/supabase-js": "https://esm.run/@supabase/supabase-js@2.39.0",
+    "@supabase/supabase-js@2": "https://esm.run/@supabase/supabase-js@2.39.0"
+  }
+}

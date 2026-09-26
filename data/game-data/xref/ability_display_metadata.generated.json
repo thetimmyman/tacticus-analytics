@@ -1,0 +1,2290 @@
+{
+  "ATemptingTrap": {
+    "display_name": "A Tempting Trap",
+    "web_icon_url": "/images/game-assets/abilities/ability_atemptingtrap.png"
+  },
+  "AberrantHypermorph": {
+    "display_name": "Aberrant Hypermorph",
+    "web_icon_url": "/images/game-assets/abilities/ability_aberranthypermorph.png"
+  },
+  "AblativePlating": {
+    "display_name": "Ablative Plating",
+    "web_icon_url": "/images/game-assets/abilities/ability_ablativeplating.png"
+  },
+  "AdaptiveStrategy": {
+    "display_name": "Adaptive Strategy",
+    "web_icon_url": null
+  },
+  "AdaptiveToxins": {
+    "display_name": "Adaptive Toxins",
+    "web_icon_url": "/images/game-assets/abilities/ability_adaptivetoxins.png"
+  },
+  "AdrenalGlands": {
+    "display_name": "Adrenal Glands",
+    "web_icon_url": "/images/game-assets/abilities/ability_adrenalglands.png"
+  },
+  "AdrenalSurge": {
+    "display_name": "Adrenal Surge",
+    "web_icon_url": "/images/game-assets/abilities/ability_adrenalsurge.png"
+  },
+  "AetherStride": {
+    "display_name": "Aether Stride",
+    "web_icon_url": "/images/game-assets/abilities/ability_aetherstride.png"
+  },
+  "AggressiveOnslaught": {
+    "display_name": "Aggressive Onslaught",
+    "web_icon_url": "/images/game-assets/abilities/ability_aggressiveonslaught.png"
+  },
+  "AllIsDust": {
+    "display_name": "All is Dust",
+    "web_icon_url": "/images/game-assets/abilities/ability_allisdust.png"
+  },
+  "AlphaWarrior": {
+    "display_name": "Alpha Warrior",
+    "web_icon_url": "/images/game-assets/abilities/ability_alphawarrior.png"
+  },
+  "AmuletOfTheVoidwyrm": {
+    "display_name": "Amulet of the Voidwyrm",
+    "web_icon_url": "/images/game-assets/abilities/ability_amuletofthevoidwyrm.png"
+  },
+  "AncestralFortune": {
+    "display_name": "Ancestral Fortune",
+    "web_icon_url": "/images/game-assets/abilities/ability_ancestralfortune.png"
+  },
+  "AncientFury": {
+    "display_name": "Ancient Fury",
+    "web_icon_url": "/images/game-assets/abilities/ability_ancientfury.png"
+  },
+  "AnnihilatorBeam": {
+    "display_name": "Annihilator Beam",
+    "web_icon_url": "/images/game-assets/abilities/ability_annihilatorbeam.png"
+  },
+  "AnvilShield": {
+    "display_name": "Anvil Shield",
+    "web_icon_url": "/images/game-assets/abilities/ability_anvilshield.png"
+  },
+  "ArcScourge": {
+    "display_name": "Arc Scourge",
+    "web_icon_url": "/images/game-assets/abilities/ability_arcscourge.png"
+  },
+  "ArcaneShield": {
+    "display_name": "Arcane Shield",
+    "web_icon_url": "/images/game-assets/abilities/ability_arcaneshield.png"
+  },
+  "ArchContaminator": {
+    "display_name": "Arch-Contaminator",
+    "web_icon_url": "/images/game-assets/abilities/ability_archcontaminator.png"
+  },
+  "ArmoriumCherub": {
+    "display_name": "Armorium Cherub",
+    "web_icon_url": null
+  },
+  "ArmourOfShriekingSouls": {
+    "display_name": "Armour of Shrieking Souls",
+    "web_icon_url": "/images/game-assets/abilities/ability_armourofshriekingsouls.png"
+  },
+  "ArmouredMight": {
+    "display_name": "Armoured Might",
+    "web_icon_url": "/images/game-assets/abilities/ability_armouredmight.png"
+  },
+  "AstartesBanner": {
+    "display_name": "Astartes Banner",
+    "web_icon_url": "/images/game-assets/abilities/ability_astartesbanner.png"
+  },
+  "AttemptedPossession": {
+    "display_name": "Attempted Possession",
+    "web_icon_url": "/images/game-assets/abilities/ability_attemptedpossession.png"
+  },
+  "AugmentedAssault": {
+    "display_name": "Augmented Assault",
+    "web_icon_url": "/images/game-assets/abilities/ability_augmentedassault.png"
+  },
+  "AvalancheOfMuscle": {
+    "display_name": "Avalanche of Muscle",
+    "web_icon_url": "/images/game-assets/abilities/ability_avalancheofmuscle.png"
+  },
+  "BarbedOvipositor": {
+    "display_name": "Barbed Ovipositor",
+    "web_icon_url": "/images/game-assets/abilities/ability_barbedovipositor.png"
+  },
+  "BasiliskBarrage": {
+    "display_name": "Basilisk Barrage",
+    "web_icon_url": "/images/game-assets/abilities/ability_basiliskbarrage.png"
+  },
+  "BattleFocus": {
+    "display_name": "Battle Focus",
+    "web_icon_url": "/images/game-assets/abilities/ability_battlefocus.png"
+  },
+  "BeaconOfRage": {
+    "display_name": "Beacon Of Rage",
+    "web_icon_url": "/images/game-assets/abilities/ability_beaconofrage.png"
+  },
+  "BigBadaBoomReworked": {
+    "display_name": "Big Boom",
+    "web_icon_url": "/images/game-assets/abilities/ability_bigbadaboomreworked.png"
+  },
+  "BioBarrage": {
+    "display_name": "Bio Barrage",
+    "web_icon_url": "/images/game-assets/abilities/ability_biobarrage.png"
+  },
+  "BioMinefield": {
+    "display_name": "Bio-Minefield",
+    "web_icon_url": "/images/game-assets/abilities/ability_biominefield.png"
+  },
+  "BlackRage": {
+    "display_name": "Black Rage",
+    "web_icon_url": "/images/game-assets/abilities/ability_blackrage.png"
+  },
+  "BladeOfMagnus": {
+    "display_name": "Blade of Magnus",
+    "web_icon_url": "/images/game-assets/abilities/ability_bladeofmagnus.png"
+  },
+  "BladeOfTheAncestors": {
+    "display_name": "Blade of the Ancestors",
+    "web_icon_url": "/images/game-assets/abilities/ability_bladeoftheancestors.png"
+  },
+  "BlightGrenades": {
+    "display_name": "Blight Grenades",
+    "web_icon_url": "/images/game-assets/abilities/ability_blightgrenades.png"
+  },
+  "BlightedLand": {
+    "display_name": "Blighted Land",
+    "web_icon_url": "/images/game-assets/abilities/ability_blightedland.png"
+  },
+  "BlisteringAssault": {
+    "display_name": "Blistering Assault",
+    "web_icon_url": "/images/game-assets/abilities/ability_blisteringassault.png"
+  },
+  "BloodChalice": {
+    "display_name": "Blood Chalice",
+    "web_icon_url": "/images/game-assets/abilities/ability_bloodchalice.png"
+  },
+  "BloodRunsAngerRisesWarCalls": {
+    "display_name": "BloodRunsAngerRisesWarCalls",
+    "web_icon_url": "/images/game-assets/abilities/ability_bloodrunsangerriseswarcalls.png"
+  },
+  "BloodRunsAngerRisesWarCallsReworked": {
+    "display_name": "Blood Runs! Anger Rises! War Calls!",
+    "web_icon_url": null
+  },
+  "BloodyFury": {
+    "display_name": "Bloody Fury",
+    "web_icon_url": "/images/game-assets/abilities/ability_bloodyfury.png"
+  },
+  "Boltstorm": {
+    "display_name": "Boltstorm",
+    "web_icon_url": "/images/game-assets/abilities/ability_boltstorm.png"
+  },
+  "BookOfFate": {
+    "display_name": "Book of Fate",
+    "web_icon_url": "/images/game-assets/abilities/ability_bookoffate.png"
+  },
+  "BossAdjutant": {
+    "display_name": "Boss Adjutant",
+    "web_icon_url": "/images/game-assets/abilities/ability_bossadjutant.png"
+  },
+  "BossEndFightUndefeated": {
+    "display_name": "BossEndFightUndefeated",
+    "web_icon_url": null
+  },
+  "Bounce": {
+    "display_name": "Bounce",
+    "web_icon_url": "/images/game-assets/abilities/ability_bounce.png"
+  },
+  "BrazierOfHolyFire": {
+    "display_name": "Brazier of Holy Fire",
+    "web_icon_url": "/images/game-assets/abilities/ability_brazierofholyfire.png"
+  },
+  "BreathOfSilence": {
+    "display_name": "Breath of Silence",
+    "web_icon_url": "/images/game-assets/abilities/ability_breathofsilence.png"
+  },
+  "BringerOfDespair": {
+    "display_name": "Bringer of Despair",
+    "web_icon_url": "/images/game-assets/abilities/ability_bringerofdespair.png"
+  },
+  "BroodProgenitor": {
+    "display_name": "Brood Progenitor",
+    "web_icon_url": "/images/game-assets/abilities/ability_broodprogenitor.png"
+  },
+  "Burrowers": {
+    "display_name": "Burrowers",
+    "web_icon_url": "/images/game-assets/abilities/ability_burrowers.png"
+  },
+  "CabalOfSorcerers": {
+    "display_name": "Cabal of Sorcerers",
+    "web_icon_url": "/images/game-assets/abilities/ability_cabalofsorcerers.png"
+  },
+  "CalibaniteGreatsword": {
+    "display_name": "Calibanite Greatsword",
+    "web_icon_url": "/images/game-assets/abilities/ability_calibanitegreatsword.png"
+  },
+  "CallInReinforcements": {
+    "display_name": "Call In Reinforcements",
+    "web_icon_url": "/images/game-assets/abilities/ability_callinreinforcements.png"
+  },
+  "CallRipperSwarms": {
+    "display_name": "Call Ripper Swarms",
+    "web_icon_url": "/images/game-assets/abilities/ability_callripperswarms.png"
+  },
+  "CallRipperSwarms2": {
+    "display_name": "Call Ripper Swarms",
+    "web_icon_url": "/images/game-assets/abilities/ability_callripperswarms2.png"
+  },
+  "CallRipperSwarms3": {
+    "display_name": "Call Ripper Swarms",
+    "web_icon_url": "/images/game-assets/abilities/ability_callripperswarms3.png"
+  },
+  "CamoCloak": {
+    "display_name": "Camo Cloak",
+    "web_icon_url": null
+  },
+  "Catalyst": {
+    "display_name": "Catalyst",
+    "web_icon_url": "/images/game-assets/abilities/ability_catalyst.png"
+  },
+  "ChaliceOfBaal": {
+    "display_name": "Chalice of Baal",
+    "web_icon_url": "/images/game-assets/abilities/ability_chaliceofbaal.png"
+  },
+  "ChampionOfTheFeast": {
+    "display_name": "Champion Of The Feast",
+    "web_icon_url": "/images/game-assets/abilities/ability_championofthefeast.png"
+  },
+  "Chronometron": {
+    "display_name": "Chronometron",
+    "web_icon_url": "/images/game-assets/abilities/ability_chronometron.png"
+  },
+  "CloudOfFlies": {
+    "display_name": "Cloud Of Flies",
+    "web_icon_url": "/images/game-assets/abilities/ability_cloudofflies.png"
+  },
+  "CombatRestoratives": {
+    "display_name": "Combat Restoratives",
+    "web_icon_url": null
+  },
+  "ComingSoonActive": {
+    "display_name": "Active Ability",
+    "web_icon_url": null
+  },
+  "ComingSoonPassive": {
+    "display_name": "Passive Ability",
+    "web_icon_url": null
+  },
+  "Conceal": {
+    "display_name": "Conceal",
+    "web_icon_url": "/images/game-assets/abilities/ability_conceal.png"
+  },
+  "CondemnorStake": {
+    "display_name": "Condemnor Stake",
+    "web_icon_url": "/images/game-assets/abilities/ability_condemnorstake.png"
+  },
+  "ContemptuousDisregard": {
+    "display_name": "Contemptuous Disregard",
+    "web_icon_url": "/images/game-assets/abilities/ability_contemptuousdisregard.png"
+  },
+  "ControlEdict": {
+    "display_name": "Control Edict",
+    "web_icon_url": "/images/game-assets/abilities/ability_controledict.png"
+  },
+  "CordClaw": {
+    "display_name": "Chordclaw",
+    "web_icon_url": "/images/game-assets/abilities/ability_cordclaw.png"
+  },
+  "CosmicHorror": {
+    "display_name": "Cosmic Horror",
+    "web_icon_url": "/images/game-assets/abilities/ability_cosmichorror.png"
+  },
+  "CrazedFocus": {
+    "display_name": "Crazed Focus",
+    "web_icon_url": "/images/game-assets/abilities/ability_crazedfocus.png"
+  },
+  "CrusadeOfWrath": {
+    "display_name": "Crusade Of Wrath",
+    "web_icon_url": "/images/game-assets/abilities/ability_crusadeofwrath.png"
+  },
+  "CrushingClaws": {
+    "display_name": "Crushing Claws",
+    "web_icon_url": "/images/game-assets/abilities/ability_crushingclaws.png"
+  },
+  "CultDemagogue": {
+    "display_name": "Cult Demagogue",
+    "web_icon_url": "/images/game-assets/abilities/ability_cultdemagogue.png"
+  },
+  "CursedOfTheWalkingPox": {
+    "display_name": "Cursed of The Walking Pox",
+    "web_icon_url": "/images/game-assets/abilities/ability_cursedofthewalkingpox.png"
+  },
+  "CursedPlagueBell": {
+    "display_name": "Cursed Plague Bell",
+    "web_icon_url": "/images/game-assets/abilities/ability_cursedplaguebell.png"
+  },
+  "CyclicIonBlaster": {
+    "display_name": "Cyclic Ion Blaster",
+    "web_icon_url": "/images/game-assets/abilities/ability_cyclicionblaster.png"
+  },
+  "DaBossIsWatchin": {
+    "display_name": "Da Boss Is Watchin'",
+    "web_icon_url": "/images/game-assets/abilities/ability_dabossiswatchin.png"
+  },
+  "DaGreatWaaagh": {
+    "display_name": "Da Great Waaagh!",
+    "web_icon_url": "/images/game-assets/abilities/ability_dagreatwaaagh.png"
+  },
+  "DaRevolushun": {
+    "display_name": "Da Revolushun!",
+    "web_icon_url": "/images/game-assets/abilities/ability_darevolushun.png"
+  },
+  "DaemonfleshPlate": {
+    "display_name": "Daemonflesh Plate",
+    "web_icon_url": "/images/game-assets/abilities/ability_daemonfleshplate.png"
+  },
+  "DaemonicOrdnance": {
+    "display_name": "Daemonic Ordnance",
+    "web_icon_url": "/images/game-assets/abilities/ability_daemonicordnance.png"
+  },
+  "DaemonicPatrons": {
+    "display_name": "Daemonic Patrons",
+    "web_icon_url": "/images/game-assets/abilities/ability_daemonicpatrons.png"
+  },
+  "DakkaDakkaDakka": {
+    "display_name": "Dakka! Dakka! Dakka!",
+    "web_icon_url": "/images/game-assets/abilities/ability_dakkadakkadakka.png"
+  },
+  "DarkTalonStrike": {
+    "display_name": "Dark Talon Strike",
+    "web_icon_url": "/images/game-assets/abilities/ability_darktalonstrike.png"
+  },
+  "DaughterOfTheAbyss": {
+    "display_name": "Daughter Of The Abyss",
+    "web_icon_url": "/images/game-assets/abilities/ability_daughteroftheabyss.png"
+  },
+  "DawnBlade": {
+    "display_name": "Dawn Blade",
+    "web_icon_url": "/images/game-assets/abilities/ability_dawnblade.png"
+  },
+  "DeathFromAbove": {
+    "display_name": "Death From Above",
+    "web_icon_url": null
+  },
+  "DeathOnTheWind": {
+    "display_name": "Death on the Wind",
+    "web_icon_url": "/images/game-assets/abilities/ability_deathonthewind.png"
+  },
+  "DeathScream": {
+    "display_name": "Death Scream",
+    "web_icon_url": "/images/game-assets/abilities/ability_deathscream.png"
+  },
+  "Deathwing": {
+    "display_name": "Deathwing",
+    "web_icon_url": "/images/game-assets/abilities/ability_deathwing.png"
+  },
+  "DeathwingKnight": {
+    "display_name": "Deathwing",
+    "web_icon_url": null
+  },
+  "DecoysAndMisdirection": {
+    "display_name": "Decoys and Misdirection",
+    "web_icon_url": "/images/game-assets/abilities/ability_decoysandmisdirection.png"
+  },
+  "DefendTheDivineWork": {
+    "display_name": "Defend The Divine Work",
+    "web_icon_url": "/images/game-assets/abilities/ability_defendthedivinework.png"
+  },
+  "DefenderOfTheGreaterGood": {
+    "display_name": "Defender of the Greater Good",
+    "web_icon_url": "/images/game-assets/abilities/ability_defenderofthegreatergood.png"
+  },
+  "DestroyTheWitch": {
+    "display_name": "Destroy The Witch",
+    "web_icon_url": "/images/game-assets/abilities/ability_destroythewitch.png"
+  },
+  "DestroyerHive": {
+    "display_name": "Destroyer Hive",
+    "web_icon_url": "/images/game-assets/abilities/ability_destroyerhive.png"
+  },
+  "Detonation": {
+    "display_name": "Detonation",
+    "web_icon_url": null
+  },
+  "DevastatingRefrain": {
+    "display_name": "Devastating Refrain",
+    "web_icon_url": "/images/game-assets/abilities/ability_devastatingrefrain.png"
+  },
+  "DevoutPush": {
+    "display_name": "Devout Push",
+    "web_icon_url": "/images/game-assets/abilities/ability_devoutpush.png"
+  },
+  "DoctrinaImperatives": {
+    "display_name": "Doctrina Imperatives",
+    "web_icon_url": "/images/game-assets/abilities/ability_doctrinaimperatives.png"
+  },
+  "Doom": {
+    "display_name": "Doom",
+    "web_icon_url": "/images/game-assets/abilities/ability_doom.png"
+  },
+  "DoomSiren": {
+    "display_name": "Doom Siren",
+    "web_icon_url": "/images/game-assets/abilities/ability_doomsiren.png"
+  },
+  "Doombolt": {
+    "display_name": "Doombolt",
+    "web_icon_url": "/images/game-assets/abilities/ability_doombolt.png"
+  },
+  "Drachnyen": {
+    "display_name": "Drach’nyen",
+    "web_icon_url": "/images/game-assets/abilities/ability_drachnyen.png"
+  },
+  "DrawFire": {
+    "display_name": "Draw Fire",
+    "web_icon_url": "/images/game-assets/abilities/ability_drawfire.png"
+  },
+  "DutyEternal": {
+    "display_name": "Duty Eternal",
+    "web_icon_url": "/images/game-assets/abilities/ability_dutyeternal.png"
+  },
+  "Dw02AdvancedBurstCannon": {
+    "display_name": "DW-02 Advanced Burst Cannon",
+    "web_icon_url": "/images/game-assets/abilities/ability_dw02advancedburstcannon.png"
+  },
+  "EarlyWarningOverride": {
+    "display_name": "Early Warning Override",
+    "web_icon_url": "/images/game-assets/abilities/ability_earlywarningoverride.png"
+  },
+  "EchoesFromTheWarp": {
+    "display_name": "Echoes From the Warp",
+    "web_icon_url": "/images/game-assets/abilities/ability_echoesfromthewarp.png"
+  },
+  "EcogSupport": {
+    "display_name": "E-COG-Support",
+    "web_icon_url": "/images/game-assets/abilities/ability_ecogsupport.png"
+  },
+  "EcstaticSlaughter": {
+    "display_name": "Ecstatic Slaughter",
+    "web_icon_url": "/images/game-assets/abilities/ability_ecstaticslaughter.png"
+  },
+  "ElectroShock": {
+    "display_name": "Electro-Shock",
+    "web_icon_url": "/images/game-assets/abilities/ability_electroshock.png"
+  },
+  "ElectrochaffBackups": {
+    "display_name": "Electrochaff Backups",
+    "web_icon_url": "/images/game-assets/abilities/ability_electrochaffbackups.png"
+  },
+  "EmbodiedProphecy": {
+    "display_name": "Embodied Prophecy",
+    "web_icon_url": "/images/game-assets/abilities/ability_embodiedprophecy.png"
+  },
+  "EmpyricAmbush": {
+    "display_name": "Empyric Ambush",
+    "web_icon_url": "/images/game-assets/abilities/ability_empyricambush.png"
+  },
+  "EnhancementAddTrait:Infiltrate": {
+    "display_name": "EnhancementAddTrait:Infiltrate",
+    "web_icon_url": null
+  },
+  "EnhancementAddTrait:MkXGravis": {
+    "display_name": "EnhancementAddTrait:MkXGravis",
+    "web_icon_url": null
+  },
+  "EnhancementAddTrait:RapidAssault": {
+    "display_name": "EnhancementAddTrait:RapidAssault",
+    "web_icon_url": null
+  },
+  "EnhancementAddTrait:Resilient": {
+    "display_name": "EnhancementAddTrait:Resilient",
+    "web_icon_url": null
+  },
+  "EnhancementCritBoost": {
+    "display_name": "EnhancementCritBoost",
+    "web_icon_url": null
+  },
+  "EnhancementDamageBoost": {
+    "display_name": "EnhancementDamageBoost",
+    "web_icon_url": null
+  },
+  "EnhancementHitBoost": {
+    "display_name": "EnhancementHitBoost",
+    "web_icon_url": null
+  },
+  "EnhancementLifeSteal": {
+    "display_name": "EnhancementLifeSteal",
+    "web_icon_url": null
+  },
+  "EnhancementPierceBoost": {
+    "display_name": "EnhancementPierceBoost",
+    "web_icon_url": null
+  },
+  "EnhancementRegeneration": {
+    "display_name": "EnhancementRegeneration",
+    "web_icon_url": null
+  },
+  "EnhancementSummon:DeathPlagueMarine": {
+    "display_name": "EnhancementSummon:DeathPlagueMarine",
+    "web_icon_url": null
+  },
+  "EnhancementSummon:Electropriest": {
+    "display_name": "EnhancementSummon:Electropriest",
+    "web_icon_url": null
+  },
+  "EnhancementSummon:Eliminator": {
+    "display_name": "EnhancementSummon:Eliminator",
+    "web_icon_url": null
+  },
+  "EnhancementSummon:Harlequin": {
+    "display_name": "EnhancementSummon:Harlequin",
+    "web_icon_url": null
+  },
+  "EnhancementSummon:Havoc": {
+    "display_name": "EnhancementSummon:Havoc",
+    "web_icon_url": null
+  },
+  "EnhancementSummon:Inceptor": {
+    "display_name": "EnhancementSummon:Inceptor",
+    "web_icon_url": null
+  },
+  "EnhancementSummon:Warrior": {
+    "display_name": "EnhancementSummon:Warrior",
+    "web_icon_url": null
+  },
+  "EnhancementSummonHarlequin": {
+    "display_name": "EnhancementSummonHarlequin",
+    "web_icon_url": null
+  },
+  "EnhancementSummonHavoc": {
+    "display_name": "EnhancementSummonHavoc",
+    "web_icon_url": null
+  },
+  "EnhancementSummonWarrior": {
+    "display_name": "EnhancementSummonWarrior",
+    "web_icon_url": null
+  },
+  "EnmityForTheUnworthy": {
+    "display_name": "Enmity for the Unworthy",
+    "web_icon_url": "/images/game-assets/abilities/ability_enmityfortheunworthy.png"
+  },
+  "EntropyCannons": {
+    "display_name": "Entropy Cannons",
+    "web_icon_url": "/images/game-assets/abilities/ability_entropycannons.png"
+  },
+  "EnvAllyAndEnemyNpcs:WarpSurge": {
+    "display_name": "EnvAllyAndEnemyNpcs:WarpSurge",
+    "web_icon_url": null
+  },
+  "EnvCapturePointShield": {
+    "display_name": "EnvCapturePointShield",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:AdeptusMechanicus": {
+    "display_name": "EnvFactionSummons:AdeptusMechanicus",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:Aeldari": {
+    "display_name": "EnvFactionSummons:Aeldari",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:ArmageddonAstra": {
+    "display_name": "EnvFactionSummons:ArmageddonAstra",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:ArmageddonBA": {
+    "display_name": "EnvFactionSummons:ArmageddonBA",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:ArmageddonBT": {
+    "display_name": "EnvFactionSummons:ArmageddonBT",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:ArmageddonOrks": {
+    "display_name": "EnvFactionSummons:ArmageddonOrks",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:ArmageddonSW": {
+    "display_name": "EnvFactionSummons:ArmageddonSW",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:ArmageddonUM": {
+    "display_name": "EnvFactionSummons:ArmageddonUM",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:ArmageddonWE": {
+    "display_name": "EnvFactionSummons:ArmageddonWE",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:AstraMilitarum": {
+    "display_name": "EnvFactionSummons:AstraMilitarum",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:BlackLegion": {
+    "display_name": "EnvFactionSummons:BlackLegion",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:BlackTemplars": {
+    "display_name": "EnvFactionSummons:BlackTemplars",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:Custodes": {
+    "display_name": "EnvFactionSummons:Custodes",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:DarkAngels": {
+    "display_name": "EnvFactionSummons:DarkAngels",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:DeathGuard": {
+    "display_name": "EnvFactionSummons:DeathGuard",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:EmperorsChildren": {
+    "display_name": "EnvFactionSummons:EmperorsChildren",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:Genestealers": {
+    "display_name": "EnvFactionSummons:Genestealers",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:LeaguesOfVotann": {
+    "display_name": "EnvFactionSummons:LeaguesOfVotann",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:Necrons": {
+    "display_name": "EnvFactionSummons:Necrons",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:Sisterhood": {
+    "display_name": "EnvFactionSummons:Sisterhood",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:SpaceWolves": {
+    "display_name": "EnvFactionSummons:SpaceWolves",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:ThousandSons": {
+    "display_name": "EnvFactionSummons:ThousandSons",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:Tyranids": {
+    "display_name": "EnvFactionSummons:Tyranids",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:Ultramarines": {
+    "display_name": "EnvFactionSummons:Ultramarines",
+    "web_icon_url": null
+  },
+  "EnvFactionSummons:WorldEaters": {
+    "display_name": "EnvFactionSummons:WorldEaters",
+    "web_icon_url": null
+  },
+  "EnvSquigSmash": {
+    "display_name": "EnvSquigSmash",
+    "web_icon_url": null
+  },
+  "EnvStatBoost:FactionBoost_AdeptusMechanicus": {
+    "display_name": "EnvStatBoost:FactionBoost_AdeptusMechanicus",
+    "web_icon_url": null
+  },
+  "EnvStatBoost:FactionBoost_BloodAngels": {
+    "display_name": "EnvStatBoost:FactionBoost_BloodAngels",
+    "web_icon_url": null
+  },
+  "EnvStatBoost:FactionBoost_DarkAngels": {
+    "display_name": "EnvStatBoost:FactionBoost_DarkAngels",
+    "web_icon_url": null
+  },
+  "EnvStatBoost:FactionBoost_Orks": {
+    "display_name": "EnvStatBoost:FactionBoost_Orks",
+    "web_icon_url": null
+  },
+  "EnvStatBoost:FactionBoost_SpaceWolves": {
+    "display_name": "EnvStatBoost:FactionBoost_SpaceWolves",
+    "web_icon_url": null
+  },
+  "EnvStatBoost:TraitBoost_Flying": {
+    "display_name": "EnvStatBoost:TraitBoost_Flying",
+    "web_icon_url": null
+  },
+  "EnvStatBoost:TraitBoost_Psyker": {
+    "display_name": "EnvStatBoost:TraitBoost_Psyker",
+    "web_icon_url": null
+  },
+  "EnvStatBoost:TraitBoost_RapidAssault": {
+    "display_name": "EnvStatBoost:TraitBoost_RapidAssault",
+    "web_icon_url": null
+  },
+  "EnvStatBoost:TraitBoost_TerminatorArmour": {
+    "display_name": "EnvStatBoost:TraitBoost_TerminatorArmour",
+    "web_icon_url": null
+  },
+  "EnvStatBoost:WarpSurge": {
+    "display_name": "EnvStatBoost:WarpSurge",
+    "web_icon_url": null
+  },
+  "EnvStrategicBuff:Killzone": {
+    "display_name": "EnvStrategicBuff:Killzone",
+    "web_icon_url": null
+  },
+  "EreWeGo": {
+    "display_name": "'Ere We Go!",
+    "web_icon_url": "/images/game-assets/abilities/ability_erewego.png"
+  },
+  "EuphoricStrikes": {
+    "display_name": "Euphoric Strikes",
+    "web_icon_url": "/images/game-assets/abilities/ability_euphoricstrikes.png"
+  },
+  "ExcruciatingFrequencies": {
+    "display_name": "Excruciating Frequencies",
+    "web_icon_url": "/images/game-assets/abilities/ability_excruciatingfrequencies.png"
+  },
+  "Executioner": {
+    "display_name": "Executioner",
+    "web_icon_url": "/images/game-assets/abilities/ability_executioner.png"
+  },
+  "ExemplarOfHate": {
+    "display_name": "Exemplar of Hate",
+    "web_icon_url": "/images/game-assets/abilities/ability_exemplarofhate.png"
+  },
+  "ExemplarOfTheKauyon": {
+    "display_name": "Exemplar of the Kauyon",
+    "web_icon_url": "/images/game-assets/abilities/ability_exemplarofthekauyon.png"
+  },
+  "ExemplarOfTheMontka": {
+    "display_name": "Exemplar of the Mont'ka",
+    "web_icon_url": "/images/game-assets/abilities/ability_exemplarofthemontka.png"
+  },
+  "Explosive": {
+    "display_name": "Explosive",
+    "web_icon_url": "/images/game-assets/abilities/ability_explosive.png"
+  },
+  "ExplosiveMaladies": {
+    "display_name": "Explosive Maladies",
+    "web_icon_url": "/images/game-assets/abilities/ability_explosivemaladies.png"
+  },
+  "ExplosivePresents": {
+    "display_name": "Explosive Presents",
+    "web_icon_url": "/images/game-assets/abilities/ability_explosivepresents.png"
+  },
+  "FabricatorClawArray": {
+    "display_name": "Fabricator Claw Array",
+    "web_icon_url": null
+  },
+  "Fealty": {
+    "display_name": "Fealty",
+    "web_icon_url": "/images/game-assets/abilities/ability_fealty.png"
+  },
+  "FearOfTheUnseen": {
+    "display_name": "Fear of the Unseen",
+    "web_icon_url": "/images/game-assets/abilities/ability_fearoftheunseen.png"
+  },
+  "FearedInterrogator": {
+    "display_name": "Feared Interrogator",
+    "web_icon_url": "/images/game-assets/abilities/ability_fearedinterrogator.png"
+  },
+  "FeederTendrils": {
+    "display_name": "Feeder Tendrils",
+    "web_icon_url": "/images/game-assets/abilities/ability_feedertendrils.png"
+  },
+  "FieldsOfFire": {
+    "display_name": "Fields of Fire",
+    "web_icon_url": "/images/game-assets/abilities/ability_fieldsoffire.png"
+  },
+  "FightingRetreat": {
+    "display_name": "Fighting Retreat",
+    "web_icon_url": "/images/game-assets/abilities/ability_fightingretreat.png"
+  },
+  "FireAndReposition": {
+    "display_name": "Fire And Reposition",
+    "web_icon_url": "/images/game-assets/abilities/ability_fireandreposition.png"
+  },
+  "FireOfAbsolution": {
+    "display_name": "Fire of Absolution",
+    "web_icon_url": null
+  },
+  "FiringPosition": {
+    "display_name": "Firing Position",
+    "web_icon_url": "/images/game-assets/abilities/ability_firingposition.png"
+  },
+  "FirstAmongTraitors": {
+    "display_name": "First Among Traitors",
+    "web_icon_url": "/images/game-assets/abilities/ability_firstamongtraitors.png"
+  },
+  "FlailSwing": {
+    "display_name": "Flail Swing",
+    "web_icon_url": "/images/game-assets/abilities/ability_flailswing.png"
+  },
+  "FlamesOfMutation": {
+    "display_name": "Flames of Mutation",
+    "web_icon_url": "/images/game-assets/abilities/ability_flamesofmutation.png"
+  },
+  "FleshmetalGuns": {
+    "display_name": "Fleshmetal Guns",
+    "web_icon_url": "/images/game-assets/abilities/ability_fleshmetalguns.png"
+  },
+  "FloatingDeath": {
+    "display_name": "Floating Death",
+    "web_icon_url": "/images/game-assets/abilities/ability_floatingdeath.png"
+  },
+  "Foehammer": {
+    "display_name": "Foehammer",
+    "web_icon_url": "/images/game-assets/abilities/ability_foehammer.png"
+  },
+  "ForwardObservers": {
+    "display_name": "Forward Observers",
+    "web_icon_url": "/images/game-assets/abilities/ability_forwardobservers.png"
+  },
+  "ForwardSpotter": {
+    "display_name": "Forward Spotter",
+    "web_icon_url": "/images/game-assets/abilities/ability_forwardspotter.png"
+  },
+  "FoulInfusion": {
+    "display_name": "Foul Infusion",
+    "web_icon_url": "/images/game-assets/abilities/ability_foulinfusion.png"
+  },
+  "FragBomb": {
+    "display_name": "Frag Bomb",
+    "web_icon_url": "/images/game-assets/abilities/ability_fragbomb.png"
+  },
+  "FragLance": {
+    "display_name": "Frag Lance",
+    "web_icon_url": "/images/game-assets/abilities/ability_fraglance.png"
+  },
+  "Fragstorm": {
+    "display_name": "Fragstorm",
+    "web_icon_url": "/images/game-assets/abilities/ability_fragstorm.png"
+  },
+  "FragstormGrenadeLauncher": {
+    "display_name": "Fragstorm Grenade Launcher",
+    "web_icon_url": "/images/game-assets/abilities/ability_fragstormgrenadelauncher.png"
+  },
+  "FrenziedFiring": {
+    "display_name": "Frenzied Firing",
+    "web_icon_url": "/images/game-assets/abilities/ability_frenziedfiring.png"
+  },
+  "FuelledByFury": {
+    "display_name": "Fuelled by Fury",
+    "web_icon_url": "/images/game-assets/abilities/ability_fuelledbyfury.png"
+  },
+  "FullThrottle": {
+    "display_name": "Full Throttle",
+    "web_icon_url": "/images/game-assets/abilities/ability_fullthrottle.png"
+  },
+  "FuryFromTheDelve": {
+    "display_name": "Fury from the Dêlve",
+    "web_icon_url": "/images/game-assets/abilities/ability_furyfromthedelve.png"
+  },
+  "FuryOfTheAncients": {
+    "display_name": "Fury of the Ancients",
+    "web_icon_url": "/images/game-assets/abilities/ability_furyoftheancients.png"
+  },
+  "GalvanicField": {
+    "display_name": "Galvanic Field",
+    "web_icon_url": "/images/game-assets/abilities/ability_galvanicfield.png"
+  },
+  "GauntletsOfUltramar": {
+    "display_name": "Gauntlets of Ultramar",
+    "web_icon_url": "/images/game-assets/abilities/ability_gauntletsofultramar.png"
+  },
+  "GazeOfMagnus": {
+    "display_name": "Gaze of Magnus",
+    "web_icon_url": "/images/game-assets/abilities/ability_gazeofmagnus.png"
+  },
+  "GeminaeSuperia": {
+    "display_name": "Geminae Superia",
+    "web_icon_url": "/images/game-assets/abilities/ability_geminaesuperia.png"
+  },
+  "GetEmRuntz": {
+    "display_name": "Get ’Em Runtz",
+    "web_icon_url": "/images/game-assets/abilities/ability_getemruntz.png"
+  },
+  "GrapnelLauncher": {
+    "display_name": "Grapnel Launcher",
+    "web_icon_url": "/images/game-assets/abilities/ability_grapnellauncher.png"
+  },
+  "GravitonRifle": {
+    "display_name": "Graviton Rifle",
+    "web_icon_url": "/images/game-assets/abilities/ability_gravitonrifle.png"
+  },
+  "GreatFrostAxe": {
+    "display_name": "Great Frost Axe",
+    "web_icon_url": "/images/game-assets/abilities/ability_greatfrostaxe.png"
+  },
+  "GrimEfficiency": {
+    "display_name": "Grim Efficiency",
+    "web_icon_url": "/images/game-assets/abilities/ability_grimefficiency.png"
+  },
+  "GrimRetribution": {
+    "display_name": "Grim Retribution",
+    "web_icon_url": "/images/game-assets/abilities/ability_grimretribution.png"
+  },
+  "GrotTank": {
+    "display_name": "Grot Tank",
+    "web_icon_url": "/images/game-assets/abilities/ability_grottank.png"
+  },
+  "GuardianConstruct": {
+    "display_name": "Guardian Construct",
+    "web_icon_url": "/images/game-assets/abilities/ability_guardianconstruct.png"
+  },
+  "GuardianOrganism": {
+    "display_name": "Guardian Organism",
+    "web_icon_url": "/images/game-assets/abilities/ability_guardianorganism.png"
+  },
+  "GuildBossRunAway": {
+    "display_name": "GuildBossRunAway",
+    "web_icon_url": null
+  },
+  "GunnersKillOnSight": {
+    "display_name": "Gunners, Kill on Sight!",
+    "web_icon_url": "/images/game-assets/abilities/ability_gunnerskillonsight.png"
+  },
+  "HadesAutocannons": {
+    "display_name": "Hades Autocannons",
+    "web_icon_url": "/images/game-assets/abilities/ability_hadesautocannons.png"
+  },
+  "HailOfLivingAmmunition": {
+    "display_name": "Hail of Living Ammunition",
+    "web_icon_url": "/images/game-assets/abilities/ability_hailoflivingammunition.png"
+  },
+  "Hailstrike": {
+    "display_name": "Hailstrike",
+    "web_icon_url": "/images/game-assets/abilities/ability_hailstrike.png"
+  },
+  "HammerOfWrath": {
+    "display_name": "Hammer of Wrath",
+    "web_icon_url": "/images/game-assets/abilities/ability_hammerofwrath.png"
+  },
+  "HarbingerOfDestruction": {
+    "display_name": "Harbinger of Destruction",
+    "web_icon_url": null
+  },
+  "HarlequinsPanoply": {
+    "display_name": "Harlequin's Panoply",
+    "web_icon_url": "/images/game-assets/abilities/ability_harlequinspanoply.png"
+  },
+  "HarvesterOfSouls": {
+    "display_name": "Harvester Of Souls",
+    "web_icon_url": "/images/game-assets/abilities/ability_harvesterofsouls.png"
+  },
+  "HatefulAssault": {
+    "display_name": "Hateful Assault",
+    "web_icon_url": "/images/game-assets/abilities/ability_hatefulassault.png"
+  },
+  "HaywireMine": {
+    "display_name": "Haywire Mine",
+    "web_icon_url": "/images/game-assets/abilities/ability_haywiremine.png"
+  },
+  "HaywireMineSteppable": {
+    "display_name": "Haywire Mine",
+    "web_icon_url": null
+  },
+  "HazeOfCorruption": {
+    "display_name": "Haze of Corruption",
+    "web_icon_url": "/images/game-assets/abilities/ability_hazeofcorruption.png"
+  },
+  "HeadClaimer": {
+    "display_name": "Head-Claimer",
+    "web_icon_url": "/images/game-assets/abilities/ability_headclaimer.png"
+  },
+  "HeadwoppasKillchoppa": {
+    "display_name": "Headwoppa's Killchoppa",
+    "web_icon_url": "/images/game-assets/abilities/ability_headwoppaskillchoppa.png"
+  },
+  "HealingBalms": {
+    "display_name": "Healing Balms",
+    "web_icon_url": "/images/game-assets/abilities/ability_healingbalms.png"
+  },
+  "HeavyBoltPistol": {
+    "display_name": "Heavy Bolt Pistol",
+    "web_icon_url": "/images/game-assets/abilities/ability_heavyboltpistol.png"
+  },
+  "HeavyGravCannon": {
+    "display_name": "Heavy Grav-Cannon",
+    "web_icon_url": "/images/game-assets/abilities/ability_heavygravcannon.png"
+  },
+  "HeavyRailRifle": {
+    "display_name": "Heavy Rail Rifle",
+    "web_icon_url": "/images/game-assets/abilities/ability_heavyrailrifle.png"
+  },
+  "HeavyWarpFlamer": {
+    "display_name": "Heavy Warpflamer",
+    "web_icon_url": "/images/game-assets/abilities/ability_heavywarpflamer.png"
+  },
+  "HellfireShells": {
+    "display_name": "Hellfire Shells",
+    "web_icon_url": "/images/game-assets/abilities/ability_hellfireshells.png"
+  },
+  "HellfyreMissileRack": {
+    "display_name": "Hellfyre Missile Rack",
+    "web_icon_url": "/images/game-assets/abilities/ability_hellfyremissilerack.png"
+  },
+  "Helspear": {
+    "display_name": "Helspear",
+    "web_icon_url": "/images/game-assets/abilities/ability_helspear.png"
+  },
+  "HeraldOfTheApocalypse": {
+    "display_name": "Herald of the Apocalypse",
+    "web_icon_url": "/images/game-assets/abilities/ability_heraldoftheapocalypse.png"
+  },
+  "HeroicFusillade": {
+    "display_name": "Heroic Fusillade",
+    "web_icon_url": "/images/game-assets/abilities/ability_heroicfusillade.png"
+  },
+  "HolyDuel": {
+    "display_name": "Holy Duel",
+    "web_icon_url": "/images/game-assets/abilities/ability_holyduel.png"
+  },
+  "HostOfPlagues": {
+    "display_name": "Host Of Plagues",
+    "web_icon_url": "/images/game-assets/abilities/ability_hostofplagues.png"
+  },
+  "HungeringSwarm": {
+    "display_name": "Hungering Swarm",
+    "web_icon_url": "/images/game-assets/abilities/ability_hungeringswarm.png"
+  },
+  "HuntTheFallen": {
+    "display_name": "Hunt the Fallen",
+    "web_icon_url": "/images/game-assets/abilities/ability_huntthefallen.png"
+  },
+  "HunterOfSouls": {
+    "display_name": "Hunter of Souls",
+    "web_icon_url": "/images/game-assets/abilities/ability_hunterofsouls.png"
+  },
+  "HuntersBeyondDeath": {
+    "display_name": "Hunters Beyond Death",
+    "web_icon_url": "/images/game-assets/abilities/ability_huntersbeyonddeath.png"
+  },
+  "HuntersInstincts": {
+    "display_name": "Hunter's Instincts",
+    "web_icon_url": "/images/game-assets/abilities/ability_huntersinstincts.png"
+  },
+  "HyperAggression": {
+    "display_name": "Hyper-Aggression",
+    "web_icon_url": "/images/game-assets/abilities/ability_hyperaggression.png"
+  },
+  "HyperCorrosiveAcid": {
+    "display_name": "Hyper Corrosive Acid",
+    "web_icon_url": "/images/game-assets/abilities/ability_hypercorrosiveacid.png"
+  },
+  "Hypermorph": {
+    "display_name": "Hypermorph",
+    "web_icon_url": "/images/game-assets/abilities/ability_hypermorph.png"
+  },
+  "HypersensoryAbilities": {
+    "display_name": "Hypersensory Abilities",
+    "web_icon_url": "/images/game-assets/abilities/ability_hypersensoryabilities.png"
+  },
+  "IconOfObstinacy": {
+    "display_name": "Icon of Obstinacy",
+    "web_icon_url": "/images/game-assets/abilities/ability_iconofobstinacy.png"
+  },
+  "IllusionsOfTzeentch": {
+    "display_name": "Illusions of Tzeentch",
+    "web_icon_url": "/images/game-assets/abilities/ability_illusionsoftzeentch.png"
+  },
+  "ImpossibleForm": {
+    "display_name": "Impossible Form",
+    "web_icon_url": "/images/game-assets/abilities/ability_impossibleform.png"
+  },
+  "IncendiaryShells": {
+    "display_name": "Incendiary Shells",
+    "web_icon_url": "/images/game-assets/abilities/ability_incendiaryshells.png"
+  },
+  "Incursion": {
+    "display_name": "Daemonic Incursion",
+    "web_icon_url": "/images/game-assets/abilities/ability_incursion.png"
+  },
+  "InescapableAccuracy": {
+    "display_name": "Inescapable Accuracy",
+    "web_icon_url": "/images/game-assets/abilities/ability_inescapableaccuracy.png"
+  },
+  "InescapableDeath": {
+    "display_name": "Inescapable Death",
+    "web_icon_url": null
+  },
+  "InfernalCannon": {
+    "display_name": "Infernal Cannon",
+    "web_icon_url": "/images/game-assets/abilities/ability_infernalcannon.png"
+  },
+  "InfernalPacts": {
+    "display_name": "Infernal Pacts",
+    "web_icon_url": "/images/game-assets/abilities/ability_infernalpacts.png"
+  },
+  "InspiredToGreatness": {
+    "display_name": "Inspired to Greatness",
+    "web_icon_url": "/images/game-assets/abilities/ability_inspiredtogreatness.png"
+  },
+  "InstrumentsOfVengeance": {
+    "display_name": "Instruments of Vengeance",
+    "web_icon_url": "/images/game-assets/abilities/ability_instrumentsofvengeance.png"
+  },
+  "IntegratedCircuits": {
+    "display_name": "Integrated Circuits",
+    "web_icon_url": "/images/game-assets/abilities/ability_integratedcircuits.png"
+  },
+  "IntoxicatingElixir": {
+    "display_name": "Intoxicating Elixir",
+    "web_icon_url": "/images/game-assets/abilities/ability_intoxicatingelixir.png"
+  },
+  "InvocationOfMachineVengeance": {
+    "display_name": "Invocation of Machine Vengeance",
+    "web_icon_url": "/images/game-assets/abilities/ability_invocationofmachinevengeance.png"
+  },
+  "IronkinSteeljack": {
+    "display_name": "Ironkin Steeljack",
+    "web_icon_url": "/images/game-assets/abilities/ability_ironkinsteeljack.png"
+  },
+  "ItItches": {
+    "display_name": "It Itches!",
+    "web_icon_url": "/images/game-assets/abilities/ability_ititches.png"
+  },
+  "ItsGonnaBlow": {
+    "display_name": "It’s Gonna Blow",
+    "web_icon_url": "/images/game-assets/abilities/ability_itsgonnablow.png"
+  },
+  "JakhalStimms": {
+    "display_name": "Jakhal Stimms",
+    "web_icon_url": "/images/game-assets/abilities/ability_jakhalstimms.png"
+  },
+  "KanOpener": {
+    "display_name": "KanOpener",
+    "web_icon_url": "/images/game-assets/abilities/ability_kanopener.png"
+  },
+  "KardiocoreGalvanus": {
+    "display_name": "Kardiocore Galvanus",
+    "web_icon_url": "/images/game-assets/abilities/ability_kardiocoregalvanus.png"
+  },
+  "KillMaimBurn": {
+    "display_name": "Kill! Maim! Burn!",
+    "web_icon_url": "/images/game-assets/abilities/ability_killmaimburn.png"
+  },
+  "KissOfDeath": {
+    "display_name": "Kiss of Death",
+    "web_icon_url": "/images/game-assets/abilities/ability_kissofdeath.png"
+  },
+  "KustomForceField": {
+    "display_name": "KustomForceField",
+    "web_icon_url": "/images/game-assets/abilities/ability_kustomforcefield.png"
+  },
+  "KustomForceFieldReworked": {
+    "display_name": "Kustom Force Field",
+    "web_icon_url": "/images/game-assets/abilities/ability_kustomforcefieldreworked.png"
+  },
+  "Lakrimae": {
+    "display_name": "Lakrimae",
+    "web_icon_url": "/images/game-assets/abilities/ability_lakrimae.png"
+  },
+  "LashOfTorment": {
+    "display_name": "Lash of Torment",
+    "web_icon_url": "/images/game-assets/abilities/ability_lashoftorment.png"
+  },
+  "LeadingTheCharge": {
+    "display_name": "Leading the Charge",
+    "web_icon_url": "/images/game-assets/abilities/ability_leadingthecharge.png"
+  },
+  "LegacyOfCombat": {
+    "display_name": "Legacy Of Combat",
+    "web_icon_url": "/images/game-assets/abilities/ability_legacyofcombat.png"
+  },
+  "LegendaryCommander": {
+    "display_name": "Legendary Commander",
+    "web_icon_url": "/images/game-assets/abilities/ability_legendarycommander.png"
+  },
+  "LethalMiasma": {
+    "display_name": "Lethal Miasma",
+    "web_icon_url": "/images/game-assets/abilities/ability_lethalmiasma.png"
+  },
+  "Lifewards": {
+    "display_name": "Lifewards",
+    "web_icon_url": "/images/game-assets/abilities/ability_lifewards.png"
+  },
+  "LightImUp": {
+    "display_name": "Light ’im up!",
+    "web_icon_url": "/images/game-assets/abilities/ability_lightimup.png"
+  },
+  "LightOfSanguinius": {
+    "display_name": "Light of Sanguinius",
+    "web_icon_url": "/images/game-assets/abilities/ability_lightofsanguinius.png"
+  },
+  "LionHelm": {
+    "display_name": "Lion Helm",
+    "web_icon_url": "/images/game-assets/abilities/ability_lionhelm.png"
+  },
+  "ListenUpMaggots": {
+    "display_name": "Listen Up, Maggots!",
+    "web_icon_url": "/images/game-assets/abilities/ability_listenupmaggots.png"
+  },
+  "LivingBatteringRam": {
+    "display_name": "Living Battering Ram",
+    "web_icon_url": "/images/game-assets/abilities/ability_livingbatteringram.png"
+  },
+  "LivingLightning": {
+    "display_name": "Living Lightning",
+    "web_icon_url": null
+  },
+  "Loki_SwoopingHawk": {
+    "display_name": "Swooping Hawk",
+    "web_icon_url": "/images/game-assets/abilities/ability_loki_swoopinghawk.png"
+  },
+  "LordOfTempests": {
+    "display_name": "Lord Of Tempests",
+    "web_icon_url": "/images/game-assets/abilities/ability_lordoftempests.png"
+  },
+  "LordOfTheHost": {
+    "display_name": "Lord of the Host",
+    "web_icon_url": "/images/game-assets/abilities/ability_lordofthehost.png"
+  },
+  "MV71SniperDroneSquad": {
+    "display_name": "MV71 Sniper Drone Squad",
+    "web_icon_url": "/images/game-assets/abilities/ability_mv71sniperdronesquad.png"
+  },
+  "MacroPlasmaIncinerator": {
+    "display_name": "Macro Plasma Incinerator",
+    "web_icon_url": "/images/game-assets/abilities/ability_macroplasmaincinerator.png"
+  },
+  "MalleusRocketLauncher": {
+    "display_name": "Malleus Rocket Barrage",
+    "web_icon_url": "/images/game-assets/abilities/ability_malleusrocketlauncher.png"
+  },
+  "MartialApotheosis": {
+    "display_name": "MartialApotheosis",
+    "web_icon_url": "/images/game-assets/abilities/ability_martialapotheosis.png"
+  },
+  "MartialExemplar": {
+    "display_name": "Martial Exemplar",
+    "web_icon_url": "/images/game-assets/abilities/ability_martialexemplar.png"
+  },
+  "MartialInspiration": {
+    "display_name": "Martial Inspiration",
+    "web_icon_url": "/images/game-assets/abilities/ability_martialinspiration.png"
+  },
+  "MartialSuperiority": {
+    "display_name": "Martial Superiority",
+    "web_icon_url": "/images/game-assets/abilities/ability_martialsuperiority.png"
+  },
+  "MassDriverAccelerator": {
+    "display_name": "Mass Driver Accelerator",
+    "web_icon_url": "/images/game-assets/abilities/ability_massdriveraccelerator.png"
+  },
+  "MassiveScythingTalons": {
+    "display_name": "Massive Scything Talons",
+    "web_icon_url": "/images/game-assets/abilities/ability_massivescythingtalons.png"
+  },
+  "MasterAnnihilator": {
+    "display_name": "Master Annihilator",
+    "web_icon_url": "/images/game-assets/abilities/ability_masterannihilator.png"
+  },
+  "MasterOfTheTutelaries": {
+    "display_name": "Malefic Maelstrom",
+    "web_icon_url": "/images/game-assets/abilities/ability_masterofthetutelaries.png"
+  },
+  "MastersOfManoeuvre": {
+    "display_name": "Masters of Manoeuvre",
+    "web_icon_url": "/images/game-assets/abilities/ability_mastersofmanoeuvre.png"
+  },
+  "Maugetar": {
+    "display_name": "Maugetar",
+    "web_icon_url": "/images/game-assets/abilities/ability_maugetar.png"
+  },
+  "MawClawsOfThyrax": {
+    "display_name": "Maw-Claws of Thyrax",
+    "web_icon_url": "/images/game-assets/abilities/ability_mawclawsofthyrax.png"
+  },
+  "MedicusMinistorum": {
+    "display_name": "Medicus Ministorum",
+    "web_icon_url": "/images/game-assets/abilities/ability_medicusministorum.png"
+  },
+  "MightFromBelow": {
+    "display_name": "Might From Below",
+    "web_icon_url": "/images/game-assets/abilities/ability_mightfrombelow.png"
+  },
+  "MindControl": {
+    "display_name": "Mind Control",
+    "web_icon_url": "/images/game-assets/abilities/ability_mindcontrol.png"
+  },
+  "MischiefMakers": {
+    "display_name": "Mischief Makers",
+    "web_icon_url": "/images/game-assets/abilities/ability_mischiefmakers.png"
+  },
+  "ModifiedExoarmour": {
+    "display_name": "Modified Exoarmour",
+    "web_icon_url": "/images/game-assets/abilities/ability_modifiedexoarmour.png"
+  },
+  "MoltenForm": {
+    "display_name": "Molten Form",
+    "web_icon_url": "/images/game-assets/abilities/ability_moltenform.png"
+  },
+  "MomentShackle": {
+    "display_name": "Moment Shackle",
+    "web_icon_url": "/images/game-assets/abilities/ability_momentshackle.png"
+  },
+  "MonsterSlayerOfCaliban": {
+    "display_name": "Monster Slayer of Caliban",
+    "web_icon_url": "/images/game-assets/abilities/ability_monsterslayerofcaliban.png"
+  },
+  "MoreGitzOverEre": {
+    "display_name": "More Gitz Over 'Ere!",
+    "web_icon_url": "/images/game-assets/abilities/ability_moregitzoverere.png"
+  },
+  "MortarionsPlagueWind": {
+    "display_name": "Mortarion's Plague Wind",
+    "web_icon_url": "/images/game-assets/abilities/ability_mortarionsplaguewind.png"
+  },
+  "MortisRound": {
+    "display_name": "Mortis Round",
+    "web_icon_url": null
+  },
+  "MultiThreatEliminator": {
+    "display_name": "Multi-Threat Eliminator",
+    "web_icon_url": null
+  },
+  "MultiTracker": {
+    "display_name": "Multi-Target",
+    "web_icon_url": "/images/game-assets/abilities/ability_multitracker.png"
+  },
+  "MurderousSwing": {
+    "display_name": "Murderous Swing",
+    "web_icon_url": "/images/game-assets/abilities/ability_murderousswing.png"
+  },
+  "MyWillBeDone": {
+    "display_name": "Voice of the Triarch",
+    "web_icon_url": "/images/game-assets/abilities/ability_mywillbedone.png"
+  },
+  "MyWillBeDoneOverlord": {
+    "display_name": "My Will Be Done",
+    "web_icon_url": null
+  },
+  "NanoscarabRepairProtocols": {
+    "display_name": "Nanoscarab Repair Protocols",
+    "web_icon_url": "/images/game-assets/abilities/ability_nanoscarabrepairprotocols.png"
+  },
+  "Narthecium": {
+    "display_name": "Narthecium",
+    "web_icon_url": null
+  },
+  "NeedsMoreDakka": {
+    "display_name": "Needs More Dakka!",
+    "web_icon_url": "/images/game-assets/abilities/ability_needsmoredakka.png"
+  },
+  "NetherRealmCasket": {
+    "display_name": "Nether-Realm Casket",
+    "web_icon_url": "/images/game-assets/abilities/ability_netherrealmcasket.png"
+  },
+  "Neuroparasite": {
+    "display_name": "Neuroparasite",
+    "web_icon_url": "/images/game-assets/abilities/ability_neuroparasite.png"
+  },
+  "Nightshroud": {
+    "display_name": "Nightshroud",
+    "web_icon_url": "/images/game-assets/abilities/ability_nightshroud.png"
+  },
+  "NoHidingFromTheWatchers": {
+    "display_name": "No Hiding from the Watchers",
+    "web_icon_url": "/images/game-assets/abilities/ability_nohidingfromthewatchers.png"
+  },
+  "NoctilithBeacons": {
+    "display_name": "Noctilith Beacons",
+    "web_icon_url": "/images/game-assets/abilities/ability_noctilithbeacons.png"
+  },
+  "NornCrown": {
+    "display_name": "Norn Crown",
+    "web_icon_url": "/images/game-assets/abilities/ability_norncrown.png"
+  },
+  "NovaBoost": {
+    "display_name": "Nova Boost",
+    "web_icon_url": "/images/game-assets/abilities/ability_novaboost.png"
+  },
+  "NovaCharge": {
+    "display_name": "Nova Charge",
+    "web_icon_url": "/images/game-assets/abilities/ability_novacharge.png"
+  },
+  "NovaShield": {
+    "display_name": "Nova Shield",
+    "web_icon_url": "/images/game-assets/abilities/ability_novashield.png"
+  },
+  "ObeisanceGenerators": {
+    "display_name": "Obeisance Generators",
+    "web_icon_url": "/images/game-assets/abilities/ability_obeisancegenerators.png"
+  },
+  "ObsessiveAnnunciation": {
+    "display_name": "Obsessive Annunciation",
+    "web_icon_url": "/images/game-assets/abilities/ability_obsessiveannunciation.png"
+  },
+  "OiWatchIt": {
+    "display_name": "Oi Watch It",
+    "web_icon_url": "/images/game-assets/abilities/ability_oiwatchit.png"
+  },
+  "OmnissiahsBlessing": {
+    "display_name": "Omnissiah's Blessing",
+    "web_icon_url": "/images/game-assets/abilities/ability_omnissiahsblessing.png"
+  },
+  "OnMyPosition": {
+    "display_name": "On my Position!",
+    "web_icon_url": "/images/game-assets/abilities/ability_onmyposition.png"
+  },
+  "OptimizedGait": {
+    "display_name": "Optimised Gait",
+    "web_icon_url": "/images/game-assets/abilities/ability_optimizedgait.png"
+  },
+  "OrbsOfDecay": {
+    "display_name": "Orbs of Decay",
+    "web_icon_url": "/images/game-assets/abilities/ability_orbsofdecay.png"
+  },
+  "OverwhelmingWrath": {
+    "display_name": "Overwhelming Wrath",
+    "web_icon_url": "/images/game-assets/abilities/ability_overwhelmingwrath.png"
+  },
+  "ParagonSpear": {
+    "display_name": "Paragon Spear",
+    "web_icon_url": "/images/game-assets/abilities/ability_paragonspear.png"
+  },
+  "PathOfCommand": {
+    "display_name": "Path Of Command",
+    "web_icon_url": "/images/game-assets/abilities/ability_pathofcommand.png"
+  },
+  "PhaeronOfTheBlades": {
+    "display_name": "Phaeron of the Blades",
+    "web_icon_url": "/images/game-assets/abilities/ability_phaeronoftheblades.png"
+  },
+  "PhaeronOfTheStars": {
+    "display_name": "Phaeron of the Stars",
+    "web_icon_url": "/images/game-assets/abilities/ability_phaeronofthestars.png"
+  },
+  "Phantasm": {
+    "display_name": "Phantasm",
+    "web_icon_url": "/images/game-assets/abilities/ability_phantasm.png"
+  },
+  "PhasalSubjugator": {
+    "display_name": "Phasal Subjugator",
+    "web_icon_url": "/images/game-assets/abilities/ability_phasalsubjugator.png"
+  },
+  "PhoenixGem": {
+    "display_name": "Phoenix Gem",
+    "web_icon_url": "/images/game-assets/abilities/ability_phoenixgem.png"
+  },
+  "PileIn": {
+    "display_name": "Pile In",
+    "web_icon_url": "/images/game-assets/abilities/ability_pilein.png"
+  },
+  "PinpointCounterOffensive": {
+    "display_name": "Pinpoint Counter Offensive",
+    "web_icon_url": "/images/game-assets/abilities/ability_pinpointcounteroffensive.png"
+  },
+  "PlagueWind": {
+    "display_name": "Plague Wind",
+    "web_icon_url": "/images/game-assets/abilities/ability_plaguewind.png"
+  },
+  "PlagueburstMortar": {
+    "display_name": "Plagueburst Mortar",
+    "web_icon_url": "/images/game-assets/abilities/ability_plagueburstmortar.png"
+  },
+  "PlasmaCannon": {
+    "display_name": "Plasma Cannon",
+    "web_icon_url": "/images/game-assets/abilities/ability_plasmacannon.png"
+  },
+  "PlasmaGrenade": {
+    "display_name": "Plasma Grenade",
+    "web_icon_url": "/images/game-assets/abilities/ability_plasmagrenade.png"
+  },
+  "Possession": {
+    "display_name": "Possession",
+    "web_icon_url": "/images/game-assets/abilities/ability_possession.png"
+  },
+  "PoundThemToDust": {
+    "display_name": "Pound them to Dust!",
+    "web_icon_url": "/images/game-assets/abilities/ability_poundthemtodust.png"
+  },
+  "PowerTrip": {
+    "display_name": "Power Trip",
+    "web_icon_url": "/images/game-assets/abilities/ability_powertrip.png"
+  },
+  "PowerUp_Armor": {
+    "display_name": "Armour power-up",
+    "web_icon_url": "/images/game-assets/abilities/ability_powerup_armor.png"
+  },
+  "PowerUp_Bomb": {
+    "display_name": "Bomb power-up",
+    "web_icon_url": "/images/game-assets/abilities/ability_powerup_bomb.png"
+  },
+  "PowerUp_Damage": {
+    "display_name": "Damage power-up",
+    "web_icon_url": "/images/game-assets/abilities/ability_powerup_damage.png"
+  },
+  "PowerUp_Healing": {
+    "display_name": "Healing power-up",
+    "web_icon_url": "/images/game-assets/abilities/ability_powerup_healing.png"
+  },
+  "PowerUp_Health": {
+    "display_name": "Health power-up",
+    "web_icon_url": "/images/game-assets/abilities/ability_powerup_health.png"
+  },
+  "PowerUp_HeroSpawn:Uthar": {
+    "display_name": "PowerUp_HeroSpawn:Uthar",
+    "web_icon_url": null
+  },
+  "PowerUp_HeroSpawn_BladeChampion": {
+    "display_name": "From Golden Light",
+    "web_icon_url": null
+  },
+  "PowerUp_HeroSpawn_Uthar": {
+    "display_name": "BLADE OF THE ANCESTORS",
+    "web_icon_url": null
+  },
+  "PowerUp_HeroSpawn_VexilusPraetor": {
+    "display_name": "From Golden Light",
+    "web_icon_url": null
+  },
+  "PowerUp_Hits": {
+    "display_name": "Hits power-up",
+    "web_icon_url": "/images/game-assets/abilities/ability_powerup_hits.png"
+  },
+  "PowerUp_MeleeHits": {
+    "display_name": "Melee hits power-up",
+    "web_icon_url": "/images/game-assets/abilities/ability_powerup_meleehits.png"
+  },
+  "PowerUp_ReactivateAbility": {
+    "display_name": "Reactivate ability power-up",
+    "web_icon_url": "/images/game-assets/abilities/ability_powerup_reactivateability.png"
+  },
+  "PowerUp_Reinforcement": {
+    "display_name": "Reinforcement Point power-up",
+    "web_icon_url": "/images/game-assets/abilities/ability_powerup_reinforcement.png"
+  },
+  "PowerUp_ReinforcementShield": {
+    "display_name": "Shield power-up",
+    "web_icon_url": "/images/game-assets/abilities/ability_powerup_reinforcementshield.png"
+  },
+  "PowerUp_Resurrect": {
+    "display_name": "Resurrection power-up",
+    "web_icon_url": "/images/game-assets/abilities/ability_powerup_resurrect.png"
+  },
+  "PowerUp_SummonSpawn_bloodSmnIntercessor": {
+    "display_name": "Jump Pack Intercessor Power-up",
+    "web_icon_url": null
+  },
+  "PowerUp_SummonSpawn_darkaSmnHellblaster": {
+    "display_name": "Hellblaster Power-up",
+    "web_icon_url": null
+  },
+  "PowerUp_SummonSpawn_darkaSmnTerminator": {
+    "display_name": "Deathwing Knight Power-up",
+    "web_icon_url": null
+  },
+  "PowerUp_SummonSpawn_templSmnAggressor": {
+    "display_name": "Aggressor Power-up",
+    "web_icon_url": null
+  },
+  "PowerUp_SummonSpawn_ultraSmnHeavyIntercessor": {
+    "display_name": "Heavy Intercessor Power-up",
+    "web_icon_url": null
+  },
+  "PowerUp_SummonSpawn_ultraSmnInceptor": {
+    "display_name": "Inceptor Power-up",
+    "web_icon_url": null
+  },
+  "Poxwalkers": {
+    "display_name": "Poxwalkers",
+    "web_icon_url": "/images/game-assets/abilities/ability_poxwalkers.png"
+  },
+  "PreCalibratedPurgeSolution": {
+    "display_name": "Pre-Calibrated Purge Solution",
+    "web_icon_url": "/images/game-assets/abilities/ability_precalibratedpurgesolution.png"
+  },
+  "PrecisionShot": {
+    "display_name": "Precision Shot",
+    "web_icon_url": "/images/game-assets/abilities/ability_precisionshot.png"
+  },
+  "PredictiveGuidance": {
+    "display_name": "Predictive Guidance",
+    "web_icon_url": "/images/game-assets/abilities/ability_predictiveguidance.png"
+  },
+  "PrehensilePincerTail": {
+    "display_name": "Prehensile Pincer Tail",
+    "web_icon_url": "/images/game-assets/abilities/ability_prehensilepincertail.png"
+  },
+  "PrimarchOfTheFirstLegion": {
+    "display_name": "Primarch of the First Legion",
+    "web_icon_url": "/images/game-assets/abilities/ability_primarchofthefirstlegion.png"
+  },
+  "PriorityReclamation": {
+    "display_name": "Priority Reclamation",
+    "web_icon_url": "/images/game-assets/abilities/ability_priorityreclamation.png"
+  },
+  "ProperKilly": {
+    "display_name": "Proper Killy",
+    "web_icon_url": "/images/game-assets/abilities/ability_properkilly.png"
+  },
+  "ProphetOfGorkAndMork": {
+    "display_name": "Prophet of Gork and Mork",
+    "web_icon_url": "/images/game-assets/abilities/ability_prophetofgorkandmork.png"
+  },
+  "PropheticSentinel": {
+    "display_name": "Prophetic Sentinel",
+    "web_icon_url": "/images/game-assets/abilities/ability_propheticsentinel.png"
+  },
+  "PsychicDominion": {
+    "display_name": "Psychic Dominion",
+    "web_icon_url": "/images/game-assets/abilities/ability_psychicdominion.png"
+  },
+  "PsychicFortress": {
+    "display_name": "Psychic Fortress",
+    "web_icon_url": null
+  },
+  "PsychicMaelstrom": {
+    "display_name": "Psychic Maelstrom",
+    "web_icon_url": "/images/game-assets/abilities/ability_psychicmaelstrom.png"
+  },
+  "PsychicStalk": {
+    "display_name": "Psychic Stalk",
+    "web_icon_url": "/images/game-assets/abilities/ability_psychicstalk.png"
+  },
+  "PurgeResponse": {
+    "display_name": "Purge Response",
+    "web_icon_url": "/images/game-assets/abilities/ability_purgeresponse.png"
+  },
+  "Pyreblaster": {
+    "display_name": "Pyreblaster",
+    "web_icon_url": "/images/game-assets/abilities/ability_pyreblaster.png"
+  },
+  "RadBombardment": {
+    "display_name": "Rad-Bombardment",
+    "web_icon_url": "/images/game-assets/abilities/ability_radbombardment.png"
+  },
+  "RadSaturation": {
+    "display_name": "Rad-Saturation",
+    "web_icon_url": "/images/game-assets/abilities/ability_radsaturation.png"
+  },
+  "RadZoneCorps": {
+    "display_name": "Rad-Zone Corps",
+    "web_icon_url": "/images/game-assets/abilities/ability_radzonecorps.png"
+  },
+  "RammingSpeed": {
+    "display_name": "RammingSpeed",
+    "web_icon_url": "/images/game-assets/abilities/ability_rammingspeed.png"
+  },
+  "Ramshackle": {
+    "display_name": "Ramshackle",
+    "web_icon_url": "/images/game-assets/abilities/ability_ramshackle.png"
+  },
+  "RapidFire": {
+    "display_name": "Rapid Fire",
+    "web_icon_url": "/images/game-assets/abilities/ability_rapidfire.png"
+  },
+  "RealityUnbound": {
+    "display_name": "Reality Unbound",
+    "web_icon_url": "/images/game-assets/abilities/ability_realityunbound.png"
+  },
+  "ReanimationBeam": {
+    "display_name": "Reanimation Beam",
+    "web_icon_url": "/images/game-assets/abilities/ability_reanimationbeam.png"
+  },
+  "ReanimationProtocols": {
+    "display_name": "Reanimation Protocols",
+    "web_icon_url": null
+  },
+  "ReapingScythe": {
+    "display_name": "Reaping Scythe",
+    "web_icon_url": "/images/game-assets/abilities/ability_reapingscythe.png"
+  },
+  "RedRampage": {
+    "display_name": "Red Rampage",
+    "web_icon_url": "/images/game-assets/abilities/ability_redrampage.png"
+  },
+  "RedThirst": {
+    "display_name": "Red Thirst",
+    "web_icon_url": "/images/game-assets/abilities/ability_redthirst.png"
+  },
+  "RedemptionOfTheRisen": {
+    "display_name": "Redemption of the Risen",
+    "web_icon_url": "/images/game-assets/abilities/ability_redemptionoftherisen.png"
+  },
+  "RefusalToBeOutdone": {
+    "display_name": "Refusal to be Outdone",
+    "web_icon_url": "/images/game-assets/abilities/ability_refusaltobeoutdone.png"
+  },
+  "ReinforcedHiveNode": {
+    "display_name": "Reinforced Hive Node",
+    "web_icon_url": "/images/game-assets/abilities/ability_reinforcedhivenode.png"
+  },
+  "Reinforcements": {
+    "display_name": "Reinforcements!",
+    "web_icon_url": "/images/game-assets/abilities/ability_reinforcements.png"
+  },
+  "RelentlessMarch": {
+    "display_name": "Relentless March",
+    "web_icon_url": null
+  },
+  "RelicBoltPistol": {
+    "display_name": "Relic Bolt Pistol",
+    "web_icon_url": "/images/game-assets/abilities/ability_relicboltpistol.png"
+  },
+  "RelicOfLostCadia": {
+    "display_name": "Relic of Lost Cadia",
+    "web_icon_url": "/images/game-assets/abilities/ability_relicoflostcadia.png"
+  },
+  "RelicPowerFist": {
+    "display_name": "Relic Power Fist",
+    "web_icon_url": "/images/game-assets/abilities/ability_relicpowerfist.png"
+  },
+  "RepairEnthusiast": {
+    "display_name": "RepairEnthusiast",
+    "web_icon_url": null
+  },
+  "ResurrectionOrb": {
+    "display_name": "Resurrection Orb",
+    "web_icon_url": null
+  },
+  "Reveal": {
+    "display_name": "Reveal",
+    "web_icon_url": "/images/game-assets/abilities/ability_reveal.png"
+  },
+  "RevitalizingMalignancy": {
+    "display_name": "Revitalising Malignancy",
+    "web_icon_url": "/images/game-assets/abilities/ability_revitalizingmalignancy.png"
+  },
+  "RevoltinglyResilient": {
+    "display_name": "Revoltingly Resilient",
+    "web_icon_url": "/images/game-assets/abilities/ability_revoltinglyresilient.png"
+  },
+  "RighteousRepugnance": {
+    "display_name": "Righteous Repugnance",
+    "web_icon_url": "/images/game-assets/abilities/ability_righteousrepugnance.png"
+  },
+  "RitesOfBattle": {
+    "display_name": "Rites of Battle",
+    "web_icon_url": "/images/game-assets/abilities/ability_ritesofbattle.png"
+  },
+  "RitesOfMorkai": {
+    "display_name": "Rites of Morkai",
+    "web_icon_url": "/images/game-assets/abilities/ability_ritesofmorkai.png"
+  },
+  "RitesOfRestoration": {
+    "display_name": "Rites of Restoration",
+    "web_icon_url": "/images/game-assets/abilities/ability_ritesofrestoration.png"
+  },
+  "RunsAround": {
+    "display_name": "RunsAround",
+    "web_icon_url": null
+  },
+  "RunsAway": {
+    "display_name": "RunsAway",
+    "web_icon_url": null
+  },
+  "SabreOfSacrifice": {
+    "display_name": "Sabre of Sacrifice",
+    "web_icon_url": "/images/game-assets/abilities/ability_sabreofsacrifice.png"
+  },
+  "SagaOfTheWarriorBorn": {
+    "display_name": "Saga of the Warrior Born",
+    "web_icon_url": "/images/game-assets/abilities/ability_sagaofthewarriorborn.png"
+  },
+  "SanctorumMissile": {
+    "display_name": "Sanctorum Missile",
+    "web_icon_url": "/images/game-assets/abilities/ability_sanctorummissile.png"
+  },
+  "SanguinaryPriest": {
+    "display_name": "Sanguinary Priest",
+    "web_icon_url": "/images/game-assets/abilities/ability_sanguinarypriest.png"
+  },
+  "SavageEchoes": {
+    "display_name": "Savage Echoes",
+    "web_icon_url": "/images/game-assets/abilities/ability_savageechoes.png"
+  },
+  "SavageKiller": {
+    "display_name": "Savage Killer",
+    "web_icon_url": "/images/game-assets/abilities/ability_savagekiller.png"
+  },
+  "SaviorProtocols": {
+    "display_name": "Saviour Protocols",
+    "web_icon_url": "/images/game-assets/abilities/ability_saviorprotocols.png"
+  },
+  "ScarabHive": {
+    "display_name": "Scarab Hive",
+    "web_icon_url": null
+  },
+  "ScarabSummon": {
+    "display_name": "Scarab Summon",
+    "web_icon_url": "/images/game-assets/abilities/ability_scarabsummon.png"
+  },
+  "ScreamerInvocation": {
+    "display_name": "Screamer Invocation",
+    "web_icon_url": "/images/game-assets/abilities/ability_screamerinvocation.png"
+  },
+  "ScytheOfDust": {
+    "display_name": "Scythe of Dust",
+    "web_icon_url": "/images/game-assets/abilities/ability_scytheofdust.png"
+  },
+  "ScythingTalons": {
+    "display_name": "Scything Talons",
+    "web_icon_url": "/images/game-assets/abilities/ability_scythingtalons.png"
+  },
+  "SeekerMissileFrequencyLock": {
+    "display_name": "Seeker Missile Frequency Lock",
+    "web_icon_url": "/images/game-assets/abilities/ability_seekermissilefrequencylock.png"
+  },
+  "SelfRepairMechanism": {
+    "display_name": "Self-Repair Mechanism",
+    "web_icon_url": "/images/game-assets/abilities/ability_selfrepairmechanism.png"
+  },
+  "SelfRepairMechanismReworked": {
+    "display_name": "Self-Repair Mechanism",
+    "web_icon_url": "/images/game-assets/abilities/ability_selfrepairmechanismreworked.png"
+  },
+  "SendInTheNextWave": {
+    "display_name": "Send In The Next Wave",
+    "web_icon_url": null
+  },
+  "SentinelDirectives": {
+    "display_name": "Sentinel Directives",
+    "web_icon_url": "/images/game-assets/abilities/ability_sentineldirectives.png"
+  },
+  "SereneUnifier": {
+    "display_name": "Serene Unifier",
+    "web_icon_url": "/images/game-assets/abilities/ability_sereneunifier.png"
+  },
+  "ShieldOfFaith": {
+    "display_name": "Shield of Faith",
+    "web_icon_url": "/images/game-assets/abilities/ability_shieldoffaith.png"
+  },
+  "ShockAssault": {
+    "display_name": "Shock Assault",
+    "web_icon_url": null
+  },
+  "Shrapnel": {
+    "display_name": "Shrapnel",
+    "web_icon_url": "/images/game-assets/abilities/ability_shrapnel.png"
+  },
+  "ShroudPsalm": {
+    "display_name": "Shroud Psalm",
+    "web_icon_url": "/images/game-assets/abilities/ability_shroudpsalm.png"
+  },
+  "SilentDeath": {
+    "display_name": "Silent Death",
+    "web_icon_url": "/images/game-assets/abilities/ability_silentdeath.png"
+  },
+  "Skullsmasher": {
+    "display_name": "Skullsmasher",
+    "web_icon_url": "/images/game-assets/abilities/ability_skullsmasher.png"
+  },
+  "SkyStrike": {
+    "display_name": "Sky Strike",
+    "web_icon_url": "/images/game-assets/abilities/ability_skystrike.png"
+  },
+  "SlashingDive": {
+    "display_name": "Slashing Dive",
+    "web_icon_url": "/images/game-assets/abilities/ability_slashingdive.png"
+  },
+  "SmashaEad": {
+    "display_name": "Smasha 'Ead",
+    "web_icon_url": "/images/game-assets/abilities/ability_smashaead.png"
+  },
+  "SolarAtomizer": {
+    "display_name": "Solar Atomizer",
+    "web_icon_url": "/images/game-assets/abilities/ability_solaratomizer.png"
+  },
+  "SorcerousFacade": {
+    "display_name": "Sorcerous Facade",
+    "web_icon_url": "/images/game-assets/abilities/ability_sorcerousfacade.png"
+  },
+  "SoulHunger": {
+    "display_name": "Soul Hunger",
+    "web_icon_url": "/images/game-assets/abilities/ability_soulhunger.png"
+  },
+  "SpawnTermagants": {
+    "display_name": "Spawn Termagants",
+    "web_icon_url": "/images/game-assets/abilities/ability_spawntermagants.png"
+  },
+  "SpawnTermagants2": {
+    "display_name": "Spawn Termagants",
+    "web_icon_url": "/images/game-assets/abilities/ability_spawntermagants2.png"
+  },
+  "SpawnTermagants3": {
+    "display_name": "Spawn Termagants",
+    "web_icon_url": "/images/game-assets/abilities/ability_spawntermagants3.png"
+  },
+  "SpecialIssueCombiMelta": {
+    "display_name": "Special-Issue Combi-Melta",
+    "web_icon_url": "/images/game-assets/abilities/ability_specialissuecombimelta.png"
+  },
+  "SpiritLeech": {
+    "display_name": "Spirit Leech",
+    "web_icon_url": "/images/game-assets/abilities/ability_spiritleech.png"
+  },
+  "SpiritualLeader": {
+    "display_name": "Spiritual Leader",
+    "web_icon_url": "/images/game-assets/abilities/ability_spiritualleader.png"
+  },
+  "Split": {
+    "display_name": "Split",
+    "web_icon_url": "/images/game-assets/abilities/ability_split.png"
+  },
+  "SporeMineLauncher": {
+    "display_name": "Spore Mine Launcher",
+    "web_icon_url": "/images/game-assets/abilities/ability_sporeminelauncher.png"
+  },
+  "Spotter": {
+    "display_name": "Spotter",
+    "web_icon_url": "/images/game-assets/abilities/ability_spotter.png"
+  },
+  "SpotterReworked": {
+    "display_name": "Spotter",
+    "web_icon_url": "/images/game-assets/abilities/ability_spotterreworked.png"
+  },
+  "SquigHound": {
+    "display_name": "Squig Hound",
+    "web_icon_url": "/images/game-assets/abilities/ability_squighound.png"
+  },
+  "SquigLaunchas": {
+    "display_name": "Squig Launchas",
+    "web_icon_url": "/images/game-assets/abilities/ability_squiglaunchas.png"
+  },
+  "SquigMine": {
+    "display_name": "Squig Mine",
+    "web_icon_url": "/images/game-assets/abilities/ability_squigmine.png"
+  },
+  "StaffOfStars": {
+    "display_name": "Staff of Stars",
+    "web_icon_url": "/images/game-assets/abilities/ability_staffofstars.png"
+  },
+  "StandVigil": {
+    "display_name": "Stand Vigil",
+    "web_icon_url": "/images/game-assets/abilities/ability_standvigil.png"
+  },
+  "SternguardFocus": {
+    "display_name": "Fire Discipline",
+    "web_icon_url": "/images/game-assets/abilities/ability_sternguardfocus.png"
+  },
+  "Stikkbomb": {
+    "display_name": "Stikkbomb",
+    "web_icon_url": "/images/game-assets/abilities/ability_stikkbomb.png"
+  },
+  "StormOfFlensingBlades": {
+    "display_name": "Storm of Flensing Blades",
+    "web_icon_url": null
+  },
+  "StormOfWrath": {
+    "display_name": "Storm Of Wrath",
+    "web_icon_url": null
+  },
+  "StormboyzStrike": {
+    "display_name": "Stormboyz Strike",
+    "web_icon_url": "/images/game-assets/abilities/ability_stormboyzstrike.png"
+  },
+  "Stormcaller": {
+    "display_name": "Stormcaller",
+    "web_icon_url": "/images/game-assets/abilities/ability_stormcaller.png"
+  },
+  "StranglethornCannon": {
+    "display_name": "Stranglethorn Cannon",
+    "web_icon_url": "/images/game-assets/abilities/ability_stranglethorncannon.png"
+  },
+  "StrikeFromTheShadows": {
+    "display_name": "Strike from the Shadows",
+    "web_icon_url": "/images/game-assets/abilities/ability_strikefromtheshadows.png"
+  },
+  "StructuralAnalyser": {
+    "display_name": "Structural Analyser",
+    "web_icon_url": "/images/game-assets/abilities/ability_structuralanalyser.png"
+  },
+  "SummaryExecution": {
+    "display_name": "Summary Execution",
+    "web_icon_url": null
+  },
+  "SupaCyborkBody": {
+    "display_name": "Supa-Cybork Body",
+    "web_icon_url": "/images/game-assets/abilities/ability_supacyborkbody.png"
+  },
+  "Supercharge": {
+    "display_name": "Supercharge",
+    "web_icon_url": "/images/game-assets/abilities/ability_supercharge.png"
+  },
+  "SupremeCommander": {
+    "display_name": "Supreme Commander",
+    "web_icon_url": "/images/game-assets/abilities/ability_supremecommander.png"
+  },
+  "SwornProtector": {
+    "display_name": "Sworn Protector",
+    "web_icon_url": "/images/game-assets/abilities/ability_swornprotector.png"
+  },
+  "SwornProtector_Protect": {
+    "display_name": "SwornProtector_Protect",
+    "web_icon_url": null
+  },
+  "SynapticBacklash": {
+    "display_name": "Synaptic Backlash",
+    "web_icon_url": "/images/game-assets/abilities/ability_synapticbacklash.png"
+  },
+  "SynapticImperative": {
+    "display_name": "Synaptic Imperative",
+    "web_icon_url": "/images/game-assets/abilities/ability_synapticimperative.png"
+  },
+  "SynapticInsight": {
+    "display_name": "Synaptic Insight",
+    "web_icon_url": "/images/game-assets/abilities/ability_synapticinsight.png"
+  },
+  "SynapticLinchpin": {
+    "display_name": "Synaptic Linchpin",
+    "web_icon_url": "/images/game-assets/abilities/ability_synapticlinchpin.png"
+  },
+  "TacticalPrecision": {
+    "display_name": "Tactical Precision",
+    "web_icon_url": "/images/game-assets/abilities/ability_tacticalprecision.png"
+  },
+  "TaintedNarthecium": {
+    "display_name": "Tainted Narthecium",
+    "web_icon_url": "/images/game-assets/abilities/ability_taintednarthecium.png"
+  },
+  "TalismanOfRage": {
+    "display_name": "Talisman of Rage",
+    "web_icon_url": "/images/game-assets/abilities/ability_talismanofrage.png"
+  },
+  "TalonOfHorus": {
+    "display_name": "Talon of Horus",
+    "web_icon_url": "/images/game-assets/abilities/ability_talonofhorus.png"
+  },
+  "TalonsOfTheEmperor": {
+    "display_name": "Talons Of The Emperor",
+    "web_icon_url": "/images/game-assets/abilities/ability_talonsoftheemperor.png"
+  },
+  "TargetLock": {
+    "display_name": "Target Lock",
+    "web_icon_url": "/images/game-assets/abilities/ability_targetlock.png"
+  },
+  "TargetingProtocols": {
+    "display_name": "Targeting Protocols",
+    "web_icon_url": "/images/game-assets/abilities/ability_targetingprotocols.png"
+  },
+  "TerrifyingCrescendo": {
+    "display_name": "Terrifying Crescendo",
+    "web_icon_url": "/images/game-assets/abilities/ability_terrifyingcrescendo.png"
+  },
+  "TerrorsLament": {
+    "display_name": "Terror's Lament",
+    "web_icon_url": "/images/game-assets/abilities/ability_terrorslament.png"
+  },
+  "TheArdentBlade": {
+    "display_name": "The Ardent Blade",
+    "web_icon_url": "/images/game-assets/abilities/ability_theardentblade.png"
+  },
+  "TheBetrayer": {
+    "display_name": "The Betrayer",
+    "web_icon_url": "/images/game-assets/abilities/ability_thebetrayer.png"
+  },
+  "TheBloodyHanded": {
+    "display_name": "The Bloody Handed",
+    "web_icon_url": "/images/game-assets/abilities/ability_thebloodyhanded.png"
+  },
+  "TheEmperorsShield": {
+    "display_name": "The Emperor's Shield",
+    "web_icon_url": "/images/game-assets/abilities/ability_theemperorsshield.png"
+  },
+  "TheLantern": {
+    "display_name": "The Lantern",
+    "web_icon_url": "/images/game-assets/abilities/ability_thelantern.png"
+  },
+  "TheLionsWrath": {
+    "display_name": "The Lion's Wrath",
+    "web_icon_url": "/images/game-assets/abilities/ability_thelionswrath.png"
+  },
+  "TheQuickening": {
+    "display_name": "The Quickening",
+    "web_icon_url": "/images/game-assets/abilities/ability_thequickening.png"
+  },
+  "TheWailingDoomStrikes": {
+    "display_name": "The Wailing Doom Strikes",
+    "web_icon_url": "/images/game-assets/abilities/ability_thewailingdoomstrikes.png"
+  },
+  "TheWailingDoomSweeps": {
+    "display_name": "The Wailing Doom Sweeps",
+    "web_icon_url": "/images/game-assets/abilities/ability_thewailingdoomsweeps.png"
+  },
+  "TheWildHost": {
+    "display_name": "The Wild Host",
+    "web_icon_url": "/images/game-assets/abilities/ability_thewildhost.png"
+  },
+  "TheWrathOfKhaineUnleashed": {
+    "display_name": "TheWrathOfKhaineUnleashed",
+    "web_icon_url": "/images/game-assets/abilities/ability_thewrathofkhaineunleashed.png"
+  },
+  "TheWrathOfKhaineUnleashedReworked": {
+    "display_name": "The Wrath of Khaine Unleashed",
+    "web_icon_url": null
+  },
+  "TheWrathfulDead": {
+    "display_name": "The Wrathful Dead",
+    "web_icon_url": "/images/game-assets/abilities/ability_thewrathfuldead.png"
+  },
+  "ThriceBlessedConflagration": {
+    "display_name": "Thrice-Blessed Conflagration",
+    "web_icon_url": "/images/game-assets/abilities/ability_thriceblessedconflagration.png"
+  },
+  "ThunderousAssault": {
+    "display_name": "Thunderous Assault",
+    "web_icon_url": "/images/game-assets/abilities/ability_thunderousassault.png"
+  },
+  "TimeFlux": {
+    "display_name": "Time Flux",
+    "web_icon_url": "/images/game-assets/abilities/ability_timeflux.png"
+  },
+  "TimesplinterMantle": {
+    "display_name": "Timesplinter Mantle",
+    "web_icon_url": "/images/game-assets/abilities/ability_timesplintermantle.png"
+  },
+  "TitanhammerSquad": {
+    "display_name": "Titanhammer Squad",
+    "web_icon_url": "/images/game-assets/abilities/ability_titanhammersquad.png"
+  },
+  "ToughToKill": {
+    "display_name": "Tough to Kill",
+    "web_icon_url": "/images/game-assets/abilities/ability_toughtokill.png"
+  },
+  "TreasonOfTzeentch": {
+    "display_name": "Treason of Tzeentch",
+    "web_icon_url": "/images/game-assets/abilities/ability_treasonoftzeentch.png"
+  },
+  "TrophyTaker": {
+    "display_name": "Trophy Taker",
+    "web_icon_url": "/images/game-assets/abilities/ability_trophytaker.png"
+  },
+  "TunnelingHorror": {
+    "display_name": "Tunnelling Horror",
+    "web_icon_url": "/images/game-assets/abilities/ability_tunnelinghorror.png"
+  },
+  "TwinSmartMissileSystem": {
+    "display_name": "Twin Smart Missile System",
+    "web_icon_url": "/images/game-assets/abilities/ability_twinsmartmissilesystem.png"
+  },
+  "TwistedScience": {
+    "display_name": "Twisted Science",
+    "web_icon_url": "/images/game-assets/abilities/ability_twistedscience.png"
+  },
+  "TzeentchsFirestorm": {
+    "display_name": "Tzeentch's Firestorm",
+    "web_icon_url": "/images/game-assets/abilities/ability_tzeentchsfirestorm.png"
+  },
+  "UnbreakableDuty": {
+    "display_name": "Unbreakable Duty",
+    "web_icon_url": "/images/game-assets/abilities/ability_unbreakableduty.png"
+  },
+  "UnbridledCarnageReworked": {
+    "display_name": "Clusta Bomma Precishun Strike",
+    "web_icon_url": "/images/game-assets/abilities/ability_unbridledcarnagereworked.png"
+  },
+  "UnparalleledFerocity": {
+    "display_name": "Unparalleled Ferocity",
+    "web_icon_url": "/images/game-assets/abilities/ability_unparalleledferocity.png"
+  },
+  "UnstoppableFerocity": {
+    "display_name": "Unstoppable Ferocity",
+    "web_icon_url": "/images/game-assets/abilities/ability_unstoppableferocity.png"
+  },
+  "UnstoppableMomentumReworked": {
+    "display_name": "Unstoppable Momentum",
+    "web_icon_url": "/images/game-assets/abilities/ability_unstoppablemomentumreworked.png"
+  },
+  "UnwaveringSentinel": {
+    "display_name": "Unwavering Sentinel",
+    "web_icon_url": "/images/game-assets/abilities/ability_unwaveringsentinel.png"
+  },
+  "ValkyrieStrike": {
+    "display_name": "Valkyrie Strike",
+    "web_icon_url": "/images/game-assets/abilities/ability_valkyriestrike.png"
+  },
+  "VengeanceForTheOmnissiah": {
+    "display_name": "Vengeance for the Omnissiah",
+    "web_icon_url": "/images/game-assets/abilities/ability_vengeancefortheomnissiah.png"
+  },
+  "VexillaMagnifica": {
+    "display_name": "Vexilla Magnifica",
+    "web_icon_url": "/images/game-assets/abilities/ability_vexillamagnifica.png"
+  },
+  "VigilanceEternal": {
+    "display_name": "Vigilance Eternal",
+    "web_icon_url": "/images/game-assets/abilities/ability_vigilanceeternal.png"
+  },
+  "VisionsOfHeresy": {
+    "display_name": "Visions of Heresy",
+    "web_icon_url": "/images/game-assets/abilities/ability_visionsofheresy.png"
+  },
+  "Vitarus": {
+    "display_name": "Vitarus",
+    "web_icon_url": "/images/game-assets/abilities/ability_vitarus.png"
+  },
+  "Volatile": {
+    "display_name": "Volatile",
+    "web_icon_url": "/images/game-assets/abilities/ability_volatile.png"
+  },
+  "VoltagheistField": {
+    "display_name": "Voltagheist Field",
+    "web_icon_url": "/images/game-assets/abilities/ability_voltagheistfield.png"
+  },
+  "VolummsMasterArtifice": {
+    "display_name": "Vôlumm's Master Artifice",
+    "web_icon_url": "/images/game-assets/abilities/ability_volummsmasterartifice.png"
+  },
+  "VulnerableToFlameAndBlast": {
+    "display_name": "Vulnerable to Flame and Blast",
+    "web_icon_url": "/images/game-assets/abilities/ability_vulnerabletoflameandblast.png"
+  },
+  "VulnerableToMelee": {
+    "display_name": "Vulnerable to Melee",
+    "web_icon_url": "/images/game-assets/abilities/ability_vulnerabletomelee.png"
+  },
+  "Waaagh": {
+    "display_name": "Waaagh!",
+    "web_icon_url": "/images/game-assets/abilities/ability_waaagh.png"
+  },
+  "WallOfMirrors": {
+    "display_name": "Wall of Mirrors",
+    "web_icon_url": "/images/game-assets/abilities/ability_wallofmirrors.png"
+  },
+  "WarConstruct": {
+    "display_name": "War Construct",
+    "web_icon_url": "/images/game-assets/abilities/ability_warconstruct.png"
+  },
+  "WarHowl": {
+    "display_name": "War Howl",
+    "web_icon_url": "/images/game-assets/abilities/ability_warhowl.png"
+  },
+  "WatchedOver": {
+    "display_name": "Watched Over",
+    "web_icon_url": "/images/game-assets/abilities/ability_watchedover.png"
+  },
+  "WayOfTheShortBlade": {
+    "display_name": "Way of the Short Blade",
+    "web_icon_url": "/images/game-assets/abilities/ability_wayoftheshortblade.png"
+  },
+  "WeakerRearArmour": {
+    "display_name": "Weaker Rear Armour",
+    "web_icon_url": "/images/game-assets/abilities/ability_weakerreararmour.png"
+  },
+  "WhipcoilBody": {
+    "display_name": "Whipcoil Body",
+    "web_icon_url": "/images/game-assets/abilities/ability_whipcoilbody.png"
+  },
+  "WhisperingWeb": {
+    "display_name": "Whispering Web",
+    "web_icon_url": "/images/game-assets/abilities/ability_whisperingweb.png"
+  },
+  "WireweaveNet": {
+    "display_name": "Wireweave Net",
+    "web_icon_url": "/images/game-assets/abilities/ability_wireweavenet.png"
+  },
+  "WisdomOfTheAncients": {
+    "display_name": "Wisdom of the Ancients",
+    "web_icon_url": "/images/game-assets/abilities/ability_wisdomoftheancients.png"
+  },
+  "Wraithcannon": {
+    "display_name": "Wraithcannon",
+    "web_icon_url": "/images/game-assets/abilities/ability_wraithcannon.png"
+  },
+  "WrathfulDevotion": {
+    "display_name": "Wrathful Devotion",
+    "web_icon_url": "/images/game-assets/abilities/ability_wrathfuldevotion.png"
+  },
+  "WyrdmakersHelm": {
+    "display_name": "Wyrdmaker's Helm",
+    "web_icon_url": "/images/game-assets/abilities/ability_wyrdmakershelm.png"
+  },
+  "testRelicAbility": {
+    "display_name": "testRelicAbility",
+    "web_icon_url": null
+  }
+}

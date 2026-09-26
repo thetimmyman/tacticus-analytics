@@ -1,0 +1,205 @@
+name: Governance Baseline
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: governance-baseline-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Node's 250ms per-address connect default hard-fails npm on a degraded WAN. The heap cap is
+  # per process; fan-out is bounded by vitest maxWorkers and next.config.js cpus.
+  NODE_OPTIONS: >-
+    --max-old-space-size=4096
+    --network-family-autoselection-attempt-timeout=3000
+
+# Branch protection requires the `governance-baseline` and `fork-pr-block` contexts.
+# Public-repo PRs and all fork PRs run on ubuntu-latest (public-pr-runners.test.ts):
+# a public PR on a self-hosted runner is a remote-code-execution path.
+
+jobs:
+  checks:
+    name: checks
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ${{ (github.event_name == 'pull_request' && (!github.event.repository.private || github.event.pull_request.head.repo.full_name != github.repository)) && 'ubuntu-latest' || fromJSON('["self-hosted","amd64-builder"]') }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # Full history: edge:ancestry:check needs origin/main.
+          fetch-depth: 0
+      - name: Verify application repository identity
+        run: npm run app:identity:check
+      - name: Install host tools (GitHub-hosted only)
+        if: runner.environment == 'github-hosted'
+        run: |
+          set -euo pipefail
+          bin="${RUNNER_TEMP}/host-tools"
+          mkdir -p "$bin"
+          fetch() { # url sha256
+            curl -fsSL --retry 3 -o "${RUNNER_TEMP}/tool.tgz" "$1"
+            echo "$2  ${RUNNER_TEMP}/tool.tgz" | sha256sum -c -
+            tar -xzf "${RUNNER_TEMP}/tool.tgz" -C "$bin"
+          }
+          fetch https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
+            551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+          fetch https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz \
+            8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+          fetch https://github.com/zizmorcore/zizmor/releases/download/v1.30.0/zizmor-x86_64-unknown-linux-gnu.tar.gz \
+            ec8c95cd800845abb9bbc5f377ec7c57d2eb8e2386a00a201d3a74ee4092e5ed
+          echo "$bin" >> "$GITHUB_PATH"
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run tooling:check
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run knip -- --treat-config-hints-as-errors
+      # New unused exports fail; separate pass because `--exports` needs different flags.
+      - run: npm run knip:exports:ratchet
+      - run: npm run security:clean-repo
+      - name: Check vendored edge-solver drift
+        run: npm run gen:edge-solver -- --check
+      - name: Lint workflows
+        # Host tools, not npm deps; a missing binary hard-fails rather than skipping.
+        run: |
+          set -euo pipefail
+          if ! command -v actionlint >/dev/null 2>&1; then
+            echo "::error title=Workflow lint gate misconfigured::actionlint is not installed on this runner."
+            exit 1
+          fi
+          if ! command -v zizmor >/dev/null 2>&1; then
+            echo "::error title=Workflow lint gate misconfigured::zizmor is not installed on this runner."
+            exit 1
+          fi
+          npm run lint:actions
+      - run: npm run typecheck
+      - name: Strict type-check
+        run: npm run typecheck:strict
+      - name: Type-check scripts/
+        run: npm run typecheck:scripts
+      - name: Type-check tests/ (ratchet)
+        run: npm run typecheck:tests
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version: v2.x
+      - name: Type-check Supabase edge functions
+        run: npm run typecheck:edge
+      - name: Test Supabase edge functions
+        run: npm run test:edge
+
+  tests:
+    name: tests
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ${{ (github.event_name == 'pull_request' && (!github.event.repository.private || github.event.pull_request.head.repo.full_name != github.repository)) && 'ubuntu-latest' || fromJSON('["self-hosted","amd64-builder"]') }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Verify application repository identity
+        run: npm run app:identity:check
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # The longest leg; runs alone so nothing queues behind it.
+      - run: npm run test
+
+  build:
+    name: build
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ${{ (github.event_name == 'pull_request' && (!github.event.repository.private || github.event.pull_request.head.repo.full_name != github.repository)) && 'ubuntu-latest' || fromJSON('["self-hosted","amd64-builder"]') }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Verify application repository identity
+        run: npm run app:identity:check
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run storybook:build
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://api.tacticusanalytics.com
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: public-ci-placeholder
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+
+  # Rollup carrying the required context. `always()`, not `!cancelled()`: a cancelled run
+  # would skip it, and a skipped required check counts as passing.
+  governance-baseline:
+    name: governance-baseline
+    needs: [checks, tests, build]
+    if: >-
+      ${{ always() && (github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository) }}
+    runs-on: ${{ (github.event_name == 'pull_request' && (!github.event.repository.private || github.event.pull_request.head.repo.full_name != github.repository)) && 'ubuntu-latest' || fromJSON('["self-hosted","amd64-builder"]') }}
+    timeout-minutes: 5
+    steps:
+      - name: Assert every gate succeeded
+        env:
+          GATE_RESULTS: ${{ toJSON(needs.*.result) }}
+        run: |
+          set -euo pipefail
+          echo "gate results: ${GATE_RESULTS}"
+          case "${GATE_RESULTS}" in
+            *failure* | *cancelled* | *skipped*)
+              echo "::error title=Governance baseline failed::at least one gate did not succeed (${GATE_RESULTS})"
+              exit 1
+              ;;
+          esac
+          echo "All gates green."
+
+  # Fork-PR merge block, since skipped gates count as passing. Unguarded, and runs no
+  # repository code, so an untrusted PR has nothing to execute.
+  fork-pr-block:
+    name: fork-pr-block
+    # Always hosted; if hosted minutes run out the job fails to start, which still blocks merge.
+    runs-on: ${{ (github.event_name == 'pull_request' && (!github.event.repository.private || github.event.pull_request.head.repo.full_name != github.repository)) && 'ubuntu-latest' || fromJSON('["self-hosted","amd64-builder"]') }}
+    timeout-minutes: 5
+    steps:
+      - name: Refuse a pull request opened from a fork
+        if: >-
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name != github.repository
+        env:
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+        run: |
+          set -euo pipefail
+          echo "::error title=Fork PR cannot merge::CI for this repository runs on the operator's self-hosted runners, which must never execute code from a fork. The gates above are skipped for this PR, so nothing has actually been verified."
+          printf '%s\n' \
+            "This pull request comes from a fork: ${HEAD_REPO}" \
+            "" \
+            "The self-hosted gates were SKIPPED, not passed. Nothing in this PR" \
+            "has been built, linted, type-checked, or tested by CI." \
+            "" \
+            "Remedy (maintainer): re-create this change as a branch in this" \
+            "repository once you have read the diff, and open the PR from there." \
+            "" \
+            "  git fetch <contributor-remote> <their-branch>" \
+            "  git checkout -b review/<topic> FETCH_HEAD" \
+            "  git push origin review/<topic>" \
+            "" \
+            "The full gate set then runs on the fleet and this check passes."
+          exit 1

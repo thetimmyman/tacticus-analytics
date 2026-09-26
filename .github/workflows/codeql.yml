@@ -1,0 +1,70 @@
+name: CodeQL
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '23 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+# Per-ref; cross-ref limiting is the job-level `concurrency` on `analyze`.
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: CodeQL JavaScript and TypeScript
+    # Fork PRs never run self-hosted; `fork-pr-block` in governance-baseline.yml is the merge block.
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    # Public repo: hosted, uploading to code scanning; private and scheduled runs use the fleet.
+    # Pinned by tests/unit/config/public-pr-runners.test.ts.
+    runs-on: ${{ ((github.event.repository && !github.event.repository.private) || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository)) && 'ubuntu-latest' || fromJSON('["self-hosted","amd64-builder"]') }}
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    # Fleet runs: at most two JVM analyses at once, via two lanes keyed on the commit's last
+    # hex digit. Hosted runs get a unique group and never queue.
+    concurrency:
+      group: codeql-analyze-${{ (github.event.repository && !github.event.repository.private) && format('hosted-{0}', github.run_id) || ((endsWith(github.event.pull_request.head.sha || github.sha, '0') || endsWith(github.event.pull_request.head.sha || github.sha, '1') || endsWith(github.event.pull_request.head.sha || github.sha, '2') || endsWith(github.event.pull_request.head.sha || github.sha, '3') || endsWith(github.event.pull_request.head.sha || github.sha, '4') || endsWith(github.event.pull_request.head.sha || github.sha, '5') || endsWith(github.event.pull_request.head.sha || github.sha, '6') || endsWith(github.event.pull_request.head.sha || github.sha, '7')) && 'lane-a' || 'lane-b') }}
+      cancel-in-progress: false
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: github/codeql-action/init@1c5b675653bb5c22dbe9b12b556ec555138e09fd # v4
+        with:
+          config-file: ./.github/codeql/codeql-config.yml
+          languages: javascript-typescript
+          queries: security-extended
+          # Pinned: CodeQL's JVM autosizes from host RAM and over-allocates on shared runners.
+          ram: 8192
+          threads: 4
+      - uses: github/codeql-action/analyze@1c5b675653bb5c22dbe9b12b556ec555138e09fd # v4
+        with:
+          output: codeql-results
+          # Private code scanning needs Advanced Security; the gate is `Enforce CodeQL findings` either way.
+          upload: ${{ (github.event.repository && !github.event.repository.private) && 'always' || 'never' }}
+          ram: 8192
+          threads: 4
+      - name: Enforce CodeQL findings
+        run: npm run security:codeql:check
+      - name: Retain CodeQL SARIF
+        # Private only (public artifacts are downloadable by anyone); a quota error must not fail the scan.
+        if: ${{ always() && github.event.repository.private == true }}
+        continue-on-error: true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: codeql-sarif
+          path: codeql-results/*.sarif
+          if-no-files-found: error
+          retention-days: 14

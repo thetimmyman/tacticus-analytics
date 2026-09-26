@@ -1,0 +1,63 @@
+name: Dependency Audit
+
+# Runtime tree only; only the critical step can fail, so advisory re-scoring cannot block PRs.
+
+on:
+  pull_request:
+  schedule:
+    - cron: '41 6 * * 2'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Node's 250ms per-address connect default hard-fails npm on a degraded WAN.
+  NODE_OPTIONS: >-
+    --network-family-autoselection-attempt-timeout=3000
+
+jobs:
+  audit:
+    name: dependency-audit
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ${{ (github.event_name == 'pull_request' && (!github.event.repository.private || github.event.pull_request.head.repo.full_name != github.repository)) && 'ubuntu-latest' || fromJSON('["self-hosted","amd64-builder"]') }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+      - name: Report runtime advisories (moderate and above)
+        id: report
+        continue-on-error: true
+        run: |
+          # `set +e` so a failing audit still writes the summary.
+          set +e -uo pipefail
+          npm audit --omit=dev --audit-level=moderate \
+            | tee dependency-audit.txt
+          status="${PIPESTATUS[0]}"
+          {
+            echo '### Dependency audit (runtime tree, moderate and above)'
+            echo
+            if [ "$status" -eq 0 ]; then
+              echo 'No advisories at moderate severity or above.'
+            else
+              echo 'Advisories found. Reporting-only; see the critical-severity step for the merge signal.'
+            fi
+            echo
+            echo '```'
+            cat dependency-audit.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
+      - name: Fail on critical advisories
+        # The only blocking step; no continue-on-error by design.
+        run: npm audit --omit=dev --audit-level=critical

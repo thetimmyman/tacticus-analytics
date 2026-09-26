@@ -1,0 +1,4 @@
+name: Tacticus Analytics CodeQL configuration
+
+paths-ignore:
+  - tests/**

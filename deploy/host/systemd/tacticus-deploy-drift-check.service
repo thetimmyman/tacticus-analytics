@@ -1,0 +1,68 @@
+[Unit]
+# PS-661. This repo describes two `tacticus` Kubernetes objects and an image
+# pin (deploy/tacticus.pin.json, deploy/tacticus/edge-runtime.*) and nothing
+# compared them against the cluster. The roll path and the apply path both
+# existed; the "did it actually land, and is it still what we said" half did
+# not. This unit is that half.
+Description=Host-side deployment drift check for the tacticus edge runtime
+Documentation=file:///usr/local/bin/tacticus-deploy-drift-check.sh
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+
+# NOT root. The check invokes scripts/release/render-edge-manifests.sh out of
+# PROJECT_ROOT, and that checkout is refreshed by pushes without rerunning the
+# installer — so anyone who can write it controls code this unit executes. Run
+# as the checkout's OWNER and that buys an attacker nothing they do not already
+# have: the account able to modify the checkout is the account the code runs
+# as. The installer fills these in from the actual ownership of PROJECT_ROOT
+# and the check itself refuses to execute the renderer if they ever disagree.
+#
+# Running as the owner also means git sees a repository it owns, so the
+# "dubious ownership" rejection that silently emptied the renderer's output
+# cannot arise. No safe.directory entry is needed; if a future layout ever
+# forces one, scope it to the invocation (GIT_CONFIG_COUNT/GIT_CONFIG_KEY_0)
+# rather than writing it into a global git config.
+User=@RUN_USER@
+Group=@RUN_GROUP@
+
+# A get/list-only kubeconfig is enough. The check reads the cluster and
+# compares declared fields in-process; it never runs `kubectl diff`, which is a
+# server-side dry-run apply and would require patch rights on the very objects
+# this unit exists to watch.
+Environment="KUBECONFIG=@KUBECONFIG@"
+# Written by deploy/host/install-systemd-units.sh from the checkout it is run
+# from. No host path is baked into the tracked file: this repository is public
+# and the installer is the single place the host layout is known. Quoted, and
+# escaped by the installer, so a path containing whitespace cannot truncate the
+# assignment and leave the timer pointed at the wrong checkout.
+Environment="PROJECT_ROOT=@PROJECT_ROOT@"
+# Private and writable, so kubectl's discovery cache never tries to write into
+# a home directory this unit mounts read-only.
+Environment=KUBECACHEDIR=/tmp/tacticus-drift-kubecache
+
+ExecStart=/usr/local/bin/tacticus-deploy-drift-check.sh
+TimeoutStartSec=10m
+Nice=10
+
+# The executable is root-owned in /usr/local/bin and this unit cannot gain
+# privilege, so the blast radius of a compromised checkout stops at the
+# unprivileged account that already owned it.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ProtectControlGroups=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+LockPersonality=true
+# Deliberately NOT set: MemoryDenyWriteExecute — node's JIT needs W^X-violating
+# mappings and the unit would die on start.
+
+# No SuccessExitStatus= override on purpose: the script owns an always-exit-0
+# invariant and reports drift on stdout, so a FAILED unit here means the
+# interpreter never started or was killed — a signal worth keeping sharp.

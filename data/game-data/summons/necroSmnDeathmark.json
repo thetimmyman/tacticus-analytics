@@ -1,0 +1,13 @@
+{
+  "ability_type": null,
+  "armor_by_level": [],
+  "damage_by_level": [],
+  "health_by_level": [],
+  "id": "necroSmnDeathmark",
+  "max_summons": null,
+  "name": "Deathmark",
+  "summoner_abilities": [],
+  "summoner_ability": null,
+  "summoner_ability_id": null,
+  "summoner_hero": null
+}

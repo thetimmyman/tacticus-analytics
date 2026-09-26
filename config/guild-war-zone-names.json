@@ -1,0 +1,152 @@
+{
+  "$comment": "CANONICAL guild-war ZONE display names from a vendored game localization snapshot. The game keys names by visualId rather than zone type id. Because several zone type ids share one visualId (Trenches1/2/3 are all \"Frontline\"; Bunker1/2 are both \"Fortified Position\"), `name` adds the disambiguation the community uses. Retired zone ids remain so historical wars continue to render. The edge-function twin is supabase/functions/_shared/guild-war-zone-names.generated.ts.",
+  "schemaVersion": 1,
+  "sourceLocalization": {
+    "file": "vendored-game-localization",
+    "versionName": "1.41.101",
+    "versionCode": 2498,
+    "keyPattern": "UI/GuildWars_WarZone_<visualId>"
+  },
+  "disambiguationPolicy": "Game names key on visualId, so ids sharing a visualId share a game name. `name` appends community disambiguation: positional for the three Frontlines (Left/Mid/Right, per assets/tacticus_gw), numeric suffix otherwise; `short` takes the community shorthand where one exists and otherwise gets the same numeric suffix. `gameName` is always the undisambiguated shipped string.",
+  "zones": {
+    "AntiAirBattery": {
+      "name": "Anti-Air Battery",
+      "short": "Anti-Air",
+      "gameName": "Anti-Air Battery",
+      "visualId": "antiAirBattery"
+    },
+    "AntiAirBattery1": {
+      "name": "Anti-Air Battery 1",
+      "short": "Anti-Air 1",
+      "gameName": "Anti-Air Battery",
+      "visualId": "antiAirBattery"
+    },
+    "AntiAirBattery2": {
+      "name": "Anti-Air Battery 2",
+      "short": "Anti-Air 2",
+      "gameName": "Anti-Air Battery",
+      "visualId": "antiAirBattery"
+    },
+    "Armoury": {
+      "name": "Armoury",
+      "short": "Armoury",
+      "gameName": "Armoury",
+      "visualId": "armory"
+    },
+    "ArtilleryPosition1": {
+      "name": "Artillery Position 1",
+      "short": "Artillery 1",
+      "gameName": "Artillery Position",
+      "visualId": "artilleryPosition"
+    },
+    "ArtilleryPosition2": {
+      "name": "Artillery Position 2",
+      "short": "Artillery 2",
+      "gameName": "Artillery Position",
+      "visualId": "artilleryPosition"
+    },
+    "Bunker1": {
+      "name": "Fortified Position 1",
+      "short": "FP 1",
+      "gameName": "Fortified Position",
+      "visualId": "bunker"
+    },
+    "Bunker2": {
+      "name": "Fortified Position 2",
+      "short": "FP 2",
+      "gameName": "Fortified Position",
+      "visualId": "bunker"
+    },
+    "ComsStation": {
+      "name": "Vox-Station",
+      "short": "Vox",
+      "gameName": "Vox-Station",
+      "visualId": "radarStation"
+    },
+    "Garrison1": {
+      "name": "Troop Garrison 1",
+      "short": "Garrison 1",
+      "gameName": "Troop Garrison",
+      "visualId": "barracks"
+    },
+    "Garrison2": {
+      "name": "Troop Garrison 2",
+      "short": "Garrison 2",
+      "gameName": "Troop Garrison",
+      "visualId": "barracks"
+    },
+    "HQ": {
+      "name": "Headquarters",
+      "short": "HQ",
+      "gameName": "Headquarters",
+      "visualId": "hq"
+    },
+    "LandingPad": {
+      "name": "Landing Pad",
+      "short": "Pad",
+      "gameName": "Landing Pad",
+      "visualId": "landingPad"
+    },
+    "LandingPad1": {
+      "name": "Landing Pad 1",
+      "short": "Pad 1",
+      "gameName": "Landing Pad",
+      "visualId": "landingPad"
+    },
+    "LandingPad2": {
+      "name": "Landing Pad 2",
+      "short": "Pad 2",
+      "gameName": "Landing Pad",
+      "visualId": "landingPad"
+    },
+    "MedicaeStation1": {
+      "name": "Medicae Station 1",
+      "short": "Medicae 1",
+      "gameName": "Medicae Station",
+      "visualId": "fieldHospital"
+    },
+    "MedicaeStation2": {
+      "name": "Medicae Station 2",
+      "short": "Medicae 2",
+      "gameName": "Medicae Station",
+      "visualId": "fieldHospital"
+    },
+    "SupplyDepot": {
+      "name": "Supply Depot",
+      "short": "Depot",
+      "gameName": "Supply Depot",
+      "visualId": "supplyDump"
+    },
+    "Trenches1": {
+      "name": "Left Frontline",
+      "short": "Left FL",
+      "gameName": "Frontline",
+      "visualId": "trenches"
+    },
+    "Trenches2": {
+      "name": "Mid Frontline",
+      "short": "Mid FL",
+      "gameName": "Frontline",
+      "visualId": "trenches"
+    },
+    "Trenches3": {
+      "name": "Right Frontline",
+      "short": "Right FL",
+      "gameName": "Frontline",
+      "visualId": "trenches"
+    },
+    "WarpRift": {
+      "name": "Warp Rift",
+      "short": "Warp Rift",
+      "gameName": "Warp Rift",
+      "visualId": "warpRift"
+    },
+    "unknown": {
+      "name": "Unclear Signal",
+      "short": "Unclear Signal",
+      "gameName": "Unclear Signal",
+      "visualId": "unknown"
+    }
+  },
+  "notInCurrentGlobalConfig": ["Garrison1", "Garrison2", "WarpRift", "unknown"]
+}

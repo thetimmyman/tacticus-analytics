@@ -1,0 +1,4 @@
+{
+  "description": "PS-414 allowlist for scripts/dev/check-rpc-catalog.mjs. Every entry is an RPC name that repository code calls but that no CREATE FUNCTION in supabase/migrations (including the clean baseline) defines. An entry is a TRACKED EXCEPTION, not a pardon: the gate fails if an entry has no caller left, or if the name has since gained a CREATE FUNCTION, so the list cannot rot quietly. Keep it as close to empty as the evidence allows -- the whole point of PS-414 is that a name with no definition is a route that fails without saying so.",
+  "entries": []
+}

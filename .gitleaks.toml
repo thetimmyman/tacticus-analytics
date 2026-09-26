@@ -1,0 +1,74 @@
+# Secret-scanning policy for the clean snapshot repository.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Generated and dependency output"
+paths = [
+  '''(^|/)coverage/''',
+  '''(^|/)node_modules/''',
+  '''(^|/)\.next/''',
+  '''(^|/)\.venv/''',
+  '''(^|/)package-lock\.json$'''
+]
+
+regexes = [
+  '''__SUPABASE_(ANON|SERVICE_ROLE)_KEY__''',
+  '''your-super-secret-jwt-token-with-at-least-32-characters-long''',
+  '''your-(jwt-secret|secure-password|anon-key|service-role-key)''',
+  '''YOUR_(ANON|SERVICE_ROLE|JWT)_KEY''',
+  '''@(example\.sentry\.io|glitchtip\.local)/''',
+  '''findVerifiedDiscordForMapping''',
+  '''resolveVerifiedDiscordIdentities''',
+  '''123456789012345678''',
+  '''SECRET-TACTICUS-KEY-9f8e7d6c''',
+  '''9be90ced4b0c257eb5ef9acd706b9f00cd3723946dfd005d2785be4e3cd12895'''
+]
+
+[[allowlists]]
+description = "Generated game catalog asset ids"
+targetRules = ["generic-api-key"]
+paths = ['''(^|/)data/game-data/.*\.json$''']
+
+# WI-7790 (2026-09-02): the three false-positive classes a real run reported
+# (208 findings, zero secrets). Each is scoped to the rule it trips.
+[[allowlists]]
+description = "Captured game-server config: locaKey localization ids are high-entropy strings, not credentials"
+targetRules = ["generic-api-key"]
+paths = ['''(^|/)data/loki-api/.*\.json$''']
+
+[[allowlists]]
+description = "Import identifier following the 'discord' keyword in chart routes"
+targetRules = ["discord-client-secret"]
+regexes = ['''resolveDiscordGuildSeasonContext''']
+
+[[allowlists]]
+description = "pgTAP sentinel fixtures (documented fake values)"
+targetRules = ["generic-api-key", "discord-client-id"]
+regexes = [
+  '''pgtap-sentinel-[a-z]+-[a-z0-9]+''',
+  '''987654321098765432'''
+]
+
+# PS-404: the first real `gitleaks detect` run wired into CI (previously
+# gitleaks ran in no CI job at all) found these two false-positive classes.
+# Each is a committed, documented test fixture, not a credential.
+[[allowlists]]
+description = "check-secrets.ts's own PATTERN_FIXTURES selftest table (PS-403/PS-448): the two fixture lines a real run flags, asserted to be CAUGHT by check-secrets.ts's own --selftest, not credentials. Scoped with condition = \"AND\" to those two lines in that one file, so any other generic-api-key hit anywhere else in this security-sensitive file is still reported."
+targetRules = ["generic-api-key"]
+paths = ['''(^|/)scripts/security/check-secrets\.ts$''']
+regexTarget = "line"
+regexes = [
+  '''^\s*'DISCORD_BOT_TOKEN=[A-Za-z0-9]+\.selftest',$''',
+  '''^\s*'Generic bearer secret': 'API_KEY=sk_[A-Za-z0-9]+',$'''
+]
+condition = "AND"
+
+[[allowlists]]
+description = "Planted leak-detection markers in API route privacy/auth tests: fixed fake secrets the tests assert never reach a response or log line"
+targetRules = ["generic-api-key"]
+regexes = [
+  '''ps21-[a-z-]+-secret-[0-9a-f]+''',
+  '''PLANTED-[A-Z-]+-[0-9a-f]+'''
+]

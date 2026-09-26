@@ -1,0 +1,169 @@
+name: Main Image Present
+
+# Asserts main's HEAD has a published image after 30 minutes, catching builds that never start.
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+    inputs:
+      expect_sha:
+        description: >-
+          PS-406 test-only: check this short sha instead of resolving
+          origin/main's HEAD (e.g. "deadbeef", which has no image). When set,
+          the 30-minute grace window is skipped — this is an explicit,
+          deliberate probe, not the real staleness check.
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Assert main HEAD has a published image
+    # Fork guard, required by check-clean-repo.mjs even without a `pull_request` trigger.
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, amd64-builder]
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+      packages: read
+      issues: write
+    env:
+      IMAGE: ghcr.io/thetimmyman/tacticus-analytics-web
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Verify gh CLI is present
+        run: |
+          if ! command -v gh >/dev/null 2>&1; then
+            echo "::error title=Check misconfigured::gh CLI is not installed on this runner; PS-406 image-presence check cannot run."
+            exit 1
+          fi
+      - name: Resolve target sha and HEAD age
+        id: target
+        env:
+          EXPECT_SHA: ${{ inputs.expect_sha }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ -n "${EXPECT_SHA:-}" ]]; then
+            sha="$EXPECT_SHA"
+            grace_skipped=true
+            age_minutes=0
+          else
+            # The API with this job's token avoids depending on the host's git credential helper.
+            commit_json="$(gh api "repos/${{ github.repository }}/commits/main")"
+            full_sha="$(jq -r '.sha' <<<"$commit_json")"
+            sha="${full_sha:0:8}"
+            commit_date="$(jq -r '.commit.committer.date' <<<"$commit_json")"
+            commit_epoch="$(date -u -d "$commit_date" +%s)"
+            now_epoch="$(date -u +%s)"
+            age_minutes=$(( (now_epoch - commit_epoch) / 60 ))
+            grace_skipped=false
+          fi
+          {
+            echo "sha=$sha"
+            echo "age_minutes=$age_minutes"
+            echo "grace_skipped=$grace_skipped"
+          } >> "$GITHUB_OUTPUT"
+          echo "Checking for $IMAGE:$sha (HEAD age: ${age_minutes}m, grace window: 30m, skipped: $grace_skipped)"
+      - name: Isolate docker config for this job
+        run: echo "DOCKER_CONFIG=$RUNNER_TEMP/docker" >> "$GITHUB_ENV"
+      # GHCR_PAT: GITHUB_TOKEN's registry read is not guaranteed for a non-pushing job.
+      - name: Log in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+      - name: Check whether the target tag exists
+        id: presence
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHA: ${{ steps.target.outputs.sha }}
+        run: |
+          set -euo pipefail
+          present=false
+          # The versions API may refuse GITHUB_TOKEN; fall back to `docker manifest inspect`.
+          api_output="$(gh api "users/thetimmyman/packages/container/tacticus-analytics-web/versions?per_page=100" --jq '[.[].metadata.container.tags[]?]' 2>&1)" && api_rc=0 || api_rc=$?
+          if [[ $api_rc -eq 0 ]]; then
+            echo "Package-versions API succeeded."
+            if echo "$api_output" | grep -q "\"$SHA\""; then
+              present=true
+            fi
+          else
+            echo "Package-versions API unavailable to this token (expected for a user-owned package — see step comment); falling back to docker manifest inspect." >&2
+            echo "$api_output" >&2
+            if docker manifest inspect "$IMAGE:$SHA" >/dev/null 2>&1; then
+              present=true
+            fi
+          fi
+          echo "present=$present" >> "$GITHUB_OUTPUT"
+      - name: Decide pass/fail
+        id: decide
+        env:
+          PRESENT: ${{ steps.presence.outputs.present }}
+          AGE_MINUTES: ${{ steps.target.outputs.age_minutes }}
+          GRACE_SKIPPED: ${{ steps.target.outputs.grace_skipped }}
+          SHA: ${{ steps.target.outputs.sha }}
+        run: |
+          set -euo pipefail
+          if [[ "$PRESENT" == "true" ]]; then
+            echo "OK: image present."
+            echo "should_alert=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [[ "$GRACE_SKIPPED" != "true" && "$AGE_MINUTES" -lt 30 ]]; then
+            echo "Image not yet present, but HEAD is only ${AGE_MINUTES}m old — within the 30m in-flight-build grace window. Not alerting yet."
+            echo "should_alert=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "::error::No published image found for $IMAGE:$SHA (HEAD age: ${AGE_MINUTES}m, grace window exceeded or explicitly skipped for testing)."
+          echo "should_alert=true" >> "$GITHUB_OUTPUT"
+          exit 1
+      - name: Recent build-clean-image runs
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh run list --repo "${{ github.repository }}" --workflow=build-clean-image.yml \
+            --limit 30 --json databaseId,conclusion,createdAt,headSha,event,url \
+            --jq '[.[] | select(.conclusion != "success" and .conclusion != "")] | .[0:3]' \
+            | tee "$RUNNER_TEMP/recent-non-success.json"
+      - name: Open or update tracking issue
+        if: ${{ !cancelled() && steps.decide.outputs.should_alert == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          SHA: ${{ steps.target.outputs.sha }}
+          AGE_MINUTES: ${{ steps.target.outputs.age_minutes }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          body_file="$RUNNER_TEMP/ps406-image-missing-body.md"
+          recent_file="$RUNNER_TEMP/recent-non-success.json"
+          {
+            echo "\`main\`'s HEAD (\`$SHA\`) has no published image in \`$IMAGE\`."
+            echo
+            echo "- HEAD age: ${AGE_MINUTES} minutes (30m grace window exceeded)"
+            echo "- run: $RUN_URL"
+            echo
+            echo "Last 3 non-success \`build-clean-image\` runs:"
+            echo '```json'
+            cat "$recent_file" 2>/dev/null || echo "(unavailable)"
+            echo '```'
+            echo
+            echo "Production keeps serving the last tag that built. Check build-clean-image.yml directly — this schedule only detects the symptom, not the cause."
+          } > "$body_file"
+          scripts/ci/report-ci-failure.sh \
+            "ci-build-failure" \
+            "main has no published image: $SHA" \
+            "$body_file"

@@ -1,0 +1,1018 @@
+{
+  "abaddon-the-despoiler": {
+    "allianceId": "Chaos",
+    "baseRarity": "Legendary",
+    "factionId": "BlackLegion",
+    "file": "heroes/abaddon-the-despoiler.json",
+    "id": "abaddon-the-despoiler",
+    "name": "Abaddon"
+  },
+  "abraxas": {
+    "allianceId": "Chaos",
+    "baseRarity": "Rare",
+    "factionId": "ThousandSons",
+    "file": "heroes/abraxas.json",
+    "id": "abraxas",
+    "name": "Abraxas"
+  },
+  "actus": {
+    "allianceId": "Imperial",
+    "baseRarity": "Rare",
+    "factionId": "AdeptusMechanicus",
+    "file": "heroes/actus.json",
+    "id": "actus",
+    "name": "Actus"
+  },
+  "adamatar": {
+    "allianceId": "Chaos",
+    "baseRarity": "Rare",
+    "factionId": "EmperorsChildren",
+    "file": "heroes/adamatar.json",
+    "id": "adamatar",
+    "name": "Adamatar"
+  },
+  "aesoth": {
+    "allianceId": "Imperial",
+    "baseRarity": "Uncommon",
+    "factionId": "Custodes",
+    "file": "heroes/aesoth.json",
+    "id": "aesoth",
+    "name": "Aesoth"
+  },
+  "aethana": {
+    "allianceId": "Xenos",
+    "baseRarity": "Uncommon",
+    "factionId": "Aeldari",
+    "file": "heroes/aethana.json",
+    "id": "aethana",
+    "name": "Aethana"
+  },
+  "ahriman": {
+    "allianceId": "Chaos",
+    "baseRarity": "Legendary",
+    "factionId": "ThousandSons",
+    "file": "heroes/ahriman.json",
+    "id": "ahriman",
+    "name": "Ahriman"
+  },
+  "aleph-null": {
+    "allianceId": "Xenos",
+    "baseRarity": "Uncommon",
+    "factionId": "Necrons",
+    "file": "heroes/aleph-null.json",
+    "id": "aleph-null",
+    "name": "Aleph-Null"
+  },
+  "ammuk": {
+    "allianceId": "Xenos",
+    "baseRarity": "Rare",
+    "factionId": "LeaguesOfVotann",
+    "file": "heroes/ammuk.json",
+    "id": "ammuk",
+    "name": "Ammuk"
+  },
+  "ancient-thoread": {
+    "allianceId": "Imperial",
+    "baseRarity": "Rare",
+    "factionId": "BlackTemplars",
+    "file": "heroes/ancient-thoread.json",
+    "id": "ancient-thoread",
+    "name": "Thoread"
+  },
+  "angrax": {
+    "allianceId": "Chaos",
+    "baseRarity": "Common",
+    "factionId": "BlackLegion",
+    "file": "heroes/angrax.json",
+    "id": "angrax",
+    "name": "Angrax"
+  },
+  "anuphet": {
+    "allianceId": "Xenos",
+    "baseRarity": "Epic",
+    "factionId": "Necrons",
+    "file": "heroes/anuphet.json",
+    "id": "anuphet",
+    "name": "Anuphet"
+  },
+  "archimatos": {
+    "allianceId": "Chaos",
+    "baseRarity": "Uncommon",
+    "factionId": "BlackLegion",
+    "file": "heroes/archimatos.json",
+    "id": "archimatos",
+    "name": "Archimatos"
+  },
+  "arjac-rockfist": {
+    "allianceId": "Imperial",
+    "baseRarity": "Rare",
+    "factionId": "SpaceWolves",
+    "file": "heroes/arjac-rockfist.json",
+    "id": "arjac-rockfist",
+    "name": "Arjac"
+  },
+  "asmodai": {
+    "allianceId": "Imperial",
+    "baseRarity": "Epic",
+    "factionId": "DarkAngels",
+    "file": "heroes/asmodai.json",
+    "id": "asmodai",
+    "name": "Asmodai"
+  },
+  "atlacoya": {
+    "allianceId": "Imperial",
+    "baseRarity": "Rare",
+    "factionId": "Custodes",
+    "file": "heroes/atlacoya.json",
+    "id": "atlacoya",
+    "name": "Atlacoya"
+  },
+  "aun-shi": {
+    "allianceId": "Xenos",
+    "baseRarity": "Legendary",
+    "factionId": "Tau",
+    "file": "heroes/aun-shi.json",
+    "id": "aun-shi",
+    "name": "Aun'Shi"
+  },
+  "azkor": {
+    "allianceId": "Chaos",
+    "baseRarity": "Rare",
+    "factionId": "WorldEaters",
+    "file": "heroes/azkor.json",
+    "id": "azkor",
+    "name": "Azkor"
+  },
+  "azrael": {
+    "allianceId": "Imperial",
+    "baseRarity": "Epic",
+    "factionId": "DarkAngels",
+    "file": "heroes/azrael.json",
+    "id": "azrael",
+    "name": "Azrael"
+  },
+  "baldr": {
+    "allianceId": "Imperial",
+    "baseRarity": "Rare",
+    "factionId": "SpaceWolves",
+    "file": "heroes/baldr.json",
+    "id": "baldr",
+    "name": "Baldr"
+  },
+  "baraqiel": {
+    "allianceId": "Imperial",
+    "baseRarity": "Uncommon",
+    "factionId": "DarkAngels",
+    "file": "heroes/baraqiel.json",
+    "id": "baraqiel",
+    "name": "Baraqiel"
+  },
+  "bellator": {
+    "allianceId": "Imperial",
+    "baseRarity": "Common",
+    "factionId": "Ultramarines",
+    "file": "heroes/bellator.json",
+    "id": "bellator",
+    "name": "Bellator"
+  },
+  "biovore": {
+    "allianceId": "Xenos",
+    "baseRarity": "Common",
+    "factionId": "Tyranids",
+    "file": "heroes/biovore.json",
+    "id": "biovore",
+    "name": "Biovore"
+  },
+  "blackmane": {
+    "allianceId": "Imperial",
+    "baseRarity": "Legendary",
+    "factionId": "SpaceWolves",
+    "file": "heroes/blackmane.json",
+    "id": "blackmane",
+    "name": "Ragnar"
+  },
+  "boss-gulgortz": {
+    "allianceId": "Xenos",
+    "baseRarity": "Epic",
+    "factionId": "Orks",
+    "file": "heroes/boss-gulgortz.json",
+    "id": "boss-gulgortz",
+    "name": "Gulgortz"
+  },
+  "brother-burchard": {
+    "allianceId": "Imperial",
+    "baseRarity": "Uncommon",
+    "factionId": "BlackTemplars",
+    "file": "heroes/brother-burchard.json",
+    "id": "brother-burchard",
+    "name": "Burchard"
+  },
+  "brother-jaeger": {
+    "allianceId": "Imperial",
+    "baseRarity": "Epic",
+    "factionId": "BlackTemplars",
+    "file": "heroes/brother-jaeger.json",
+    "id": "brother-jaeger",
+    "name": "Jaeger"
+  },
+  "calandis": {
+    "allianceId": "Xenos",
+    "baseRarity": "Common",
+    "factionId": "Aeldari",
+    "file": "heroes/calandis.json",
+    "id": "calandis",
+    "name": "Calandis"
+  },
+  "castellan-creed": {
+    "allianceId": "Imperial",
+    "baseRarity": "Legendary",
+    "factionId": "AstraMilitarum",
+    "file": "heroes/castellan-creed.json",
+    "id": "castellan-creed",
+    "name": "Creed"
+  },
+  "celestine": {
+    "allianceId": "Imperial",
+    "baseRarity": "Legendary",
+    "factionId": "Sisterhood",
+    "file": "heroes/celestine.json",
+    "id": "celestine",
+    "name": "Celestine"
+  },
+  "certus": {
+    "allianceId": "Imperial",
+    "baseRarity": "Common",
+    "factionId": "Ultramarines",
+    "file": "heroes/certus.json",
+    "id": "certus",
+    "name": "Certus"
+  },
+  "cezare": {
+    "allianceId": "Imperial",
+    "baseRarity": "Uncommon",
+    "factionId": "BloodAngels",
+    "file": "heroes/cezare.json",
+    "id": "cezare",
+    "name": "Cezare"
+  },
+  "commander-shadowsun": {
+    "allianceId": "Xenos",
+    "baseRarity": "Legendary",
+    "factionId": "Tau",
+    "file": "heroes/commander-shadowsun.json",
+    "id": "commander-shadowsun",
+    "name": "Shadowsun"
+  },
+  "commissar-yarrick": {
+    "allianceId": "Imperial",
+    "baseRarity": "Rare",
+    "factionId": "AstraMilitarum",
+    "file": "heroes/commissar-yarrick.json",
+    "id": "commissar-yarrick",
+    "name": "Yarrick"
+  },
+  "corrodius": {
+    "allianceId": "Chaos",
+    "baseRarity": "Rare",
+    "factionId": "DeathGuard",
+    "file": "heroes/corrodius.json",
+    "id": "corrodius",
+    "name": "Corrodius"
+  },
+  "cyrus": {
+    "allianceId": "Imperial",
+    "baseRarity": "Epic",
+    "factionId": "AdeptusAstartes",
+    "file": "heroes/cyrus.json",
+    "id": "cyrus",
+    "name": "Cyrus"
+  },
+  "dante": {
+    "allianceId": "Imperial",
+    "baseRarity": "Legendary",
+    "factionId": "BloodAngels",
+    "file": "heroes/dante.json",
+    "id": "dante",
+    "name": "Dante"
+  },
+  "darkstrider": {
+    "allianceId": "Xenos",
+    "baseRarity": "Rare",
+    "factionId": "Tau",
+    "file": "heroes/darkstrider.json",
+    "id": "darkstrider",
+    "name": "Darkstrider"
+  },
+  "deathleaper": {
+    "allianceId": "Xenos",
+    "baseRarity": "Epic",
+    "factionId": "Tyranids",
+    "file": "heroes/deathleaper.json",
+    "id": "deathleaper",
+    "name": "Deathleaper"
+  },
+  "eldryon": {
+    "allianceId": "Xenos",
+    "baseRarity": "Rare",
+    "factionId": "Aeldari",
+    "file": "heroes/eldryon.json",
+    "id": "eldryon",
+    "name": "Eldryon"
+  },
+  "exitor-rho": {
+    "allianceId": "Imperial",
+    "baseRarity": "Uncommon",
+    "factionId": "AdeptusMechanicus",
+    "file": "heroes/exitor-rho.json",
+    "id": "exitor-rho",
+    "name": "Exitor-Rho"
+  },
+  "exorcist": {
+    "allianceId": "Imperial",
+    "baseRarity": "Common",
+    "factionId": "Sisterhood",
+    "file": "heroes/exorcist.json",
+    "id": "exorcist",
+    "name": "Exorcist"
+  },
+  "farsight": {
+    "allianceId": "Xenos",
+    "baseRarity": "Legendary",
+    "factionId": "Tau",
+    "file": "heroes/farsight.json",
+    "id": "farsight",
+    "name": "Farsight"
+  },
+  "forcas": {
+    "allianceId": "Imperial",
+    "baseRarity": "Rare",
+    "factionId": "DarkAngels",
+    "file": "heroes/forcas.json",
+    "id": "forcas",
+    "name": "Forcas"
+  },
+  "forgefiend": {
+    "allianceId": "Chaos",
+    "baseRarity": "Common",
+    "factionId": "BlackLegion",
+    "file": "heroes/forgefiend.json",
+    "id": "forgefiend",
+    "name": "Forgefiend"
+  },
+  "galatian": {
+    "allianceId": "Imperial",
+    "baseRarity": "Common",
+    "factionId": "Ultramarines",
+    "file": "heroes/galatian.json",
+    "id": "galatian",
+    "name": "Galatian"
+  },
+  "gibbascrapz": {
+    "allianceId": "Xenos",
+    "baseRarity": "Common",
+    "factionId": "Orks",
+    "file": "heroes/gibbascrapz.json",
+    "id": "gibbascrapz",
+    "name": "Gibbascrapz"
+  },
+  "haarkeen-worldclaimer": {
+    "allianceId": "Chaos",
+    "baseRarity": "Epic",
+    "factionId": "BlackLegion",
+    "file": "heroes/haarkeen-worldclaimer.json",
+    "id": "haarkeen-worldclaimer",
+    "name": "Haarken"
+  },
+  "hascule": {
+    "allianceId": "Chaos",
+    "baseRarity": "Rare",
+    "factionId": "EmperorsChildren",
+    "file": "heroes/hascule.json",
+    "id": "hascule",
+    "name": "Hascule"
+  },
+  "havyr": {
+    "allianceId": "Xenos",
+    "baseRarity": "Uncommon",
+    "factionId": "LeaguesOfVotann",
+    "file": "heroes/havyr.json",
+    "id": "havyr",
+    "name": "Havyr"
+  },
+  "high-marshal-helbrecht": {
+    "allianceId": "Imperial",
+    "baseRarity": "Legendary",
+    "factionId": "BlackTemplars",
+    "file": "heroes/high-marshal-helbrecht.json",
+    "id": "high-marshal-helbrecht",
+    "name": "Helbrecht"
+  },
+  "hollan": {
+    "allianceId": "Xenos",
+    "baseRarity": "Uncommon",
+    "factionId": "Genestealers",
+    "file": "heroes/hollan.json",
+    "id": "hollan",
+    "name": "Hollan"
+  },
+  "imospekh": {
+    "allianceId": "Xenos",
+    "baseRarity": "Common",
+    "factionId": "Necrons",
+    "file": "heroes/imospekh.json",
+    "id": "imospekh",
+    "name": "Imospekh"
+  },
+  "incisus": {
+    "allianceId": "Imperial",
+    "baseRarity": "Common",
+    "factionId": "Ultramarines",
+    "file": "heroes/incisus.json",
+    "id": "incisus",
+    "name": "Incisus"
+  },
+  "isaak": {
+    "allianceId": "Xenos",
+    "baseRarity": "Rare",
+    "factionId": "Genestealers",
+    "file": "heroes/isaak.json",
+    "id": "isaak",
+    "name": "Isaak"
+  },
+  "isabella": {
+    "allianceId": "Imperial",
+    "baseRarity": "Rare",
+    "factionId": "Sisterhood",
+    "file": "heroes/isabella.json",
+    "id": "isabella",
+    "name": "Isabella"
+  },
+  "jain-zar": {
+    "allianceId": "Xenos",
+    "baseRarity": "Legendary",
+    "factionId": "Aeldari",
+    "file": "heroes/jain-zar.json",
+    "id": "jain-zar",
+    "name": "Jain Zar"
+  },
+  "judh": {
+    "allianceId": "Xenos",
+    "baseRarity": "Epic",
+    "factionId": "Genestealers",
+    "file": "heroes/judh.json",
+    "id": "judh",
+    "name": "Judh"
+  },
+  "kariyan": {
+    "allianceId": "Imperial",
+    "baseRarity": "Epic",
+    "factionId": "Custodes",
+    "file": "heroes/kariyan.json",
+    "id": "kariyan",
+    "name": "Kariyan"
+  },
+  "kharn": {
+    "allianceId": "Chaos",
+    "baseRarity": "Legendary",
+    "factionId": "WorldEaters",
+    "file": "heroes/kharn.json",
+    "id": "kharn",
+    "name": "Kharn"
+  },
+  "kimm": {
+    "allianceId": "Xenos",
+    "baseRarity": "Epic",
+    "factionId": "LeaguesOfVotann",
+    "file": "heroes/kimm.json",
+    "id": "kimm",
+    "name": "Kimm"
+  },
+  "kut-skoden": {
+    "allianceId": "Imperial",
+    "baseRarity": "Uncommon",
+    "factionId": "AstraMilitarum",
+    "file": "heroes/kut-skoden.json",
+    "id": "kut-skoden",
+    "name": "Kut"
+  },
+  "laviscus": {
+    "allianceId": "Chaos",
+    "baseRarity": "Epic",
+    "factionId": "EmperorsChildren",
+    "file": "heroes/laviscus.json",
+    "id": "laviscus",
+    "name": "Laviscus"
+  },
+  "lhykhis": {
+    "allianceId": "Xenos",
+    "baseRarity": "Legendary",
+    "factionId": "Aeldari",
+    "file": "heroes/lhykhis.json",
+    "id": "lhykhis",
+    "name": "Lhykhis"
+  },
+  "lucien": {
+    "allianceId": "Imperial",
+    "baseRarity": "Uncommon",
+    "factionId": "BloodAngels",
+    "file": "heroes/lucien.json",
+    "id": "lucien",
+    "name": "Lucien"
+  },
+  "lucius": {
+    "allianceId": "Chaos",
+    "baseRarity": "Legendary",
+    "factionId": "EmperorsChildren",
+    "file": "heroes/lucius.json",
+    "id": "lucius",
+    "name": "Lucius"
+  },
+  "lysander": {
+    "allianceId": "Imperial",
+    "baseRarity": "Legendary",
+    "factionId": "AdeptusAstartes",
+    "file": "heroes/lysander.json",
+    "id": "lysander",
+    "name": "Lysander"
+  },
+  "macer": {
+    "allianceId": "Chaos",
+    "baseRarity": "Uncommon",
+    "factionId": "WorldEaters",
+    "file": "heroes/macer.json",
+    "id": "macer",
+    "name": "Macer"
+  },
+  "makhotep": {
+    "allianceId": "Xenos",
+    "baseRarity": "Common",
+    "factionId": "Necrons",
+    "file": "heroes/makhotep.json",
+    "id": "makhotep",
+    "name": "Makhotep"
+  },
+  "maladus": {
+    "allianceId": "Chaos",
+    "baseRarity": "Uncommon",
+    "factionId": "DeathGuard",
+    "file": "heroes/maladus.json",
+    "id": "maladus",
+    "name": "Maladus"
+  },
+  "malleus-rocket-launcher": {
+    "allianceId": "Imperial",
+    "baseRarity": "Common",
+    "factionId": "AstraMilitarum",
+    "file": "heroes/malleus-rocket-launcher.json",
+    "id": "malleus-rocket-launcher",
+    "name": "Malleus Rocket Launcher"
+  },
+  "marneus-calgar": {
+    "allianceId": "Imperial",
+    "baseRarity": "Legendary",
+    "factionId": "Ultramarines",
+    "file": "heroes/marneus-calgar.json",
+    "id": "marneus-calgar",
+    "name": "Calgar"
+  },
+  "marshal-dreir": {
+    "allianceId": "Imperial",
+    "baseRarity": "Epic",
+    "factionId": "AstraMilitarum",
+    "file": "heroes/marshal-dreir.json",
+    "id": "marshal-dreir",
+    "name": "Dreir"
+  },
+  "mataneo": {
+    "allianceId": "Imperial",
+    "baseRarity": "Uncommon",
+    "factionId": "BloodAngels",
+    "file": "heroes/mataneo.json",
+    "id": "mataneo",
+    "name": "Mataneo"
+  },
+  "maugan-ra": {
+    "allianceId": "Xenos",
+    "baseRarity": "Legendary",
+    "factionId": "Aeldari",
+    "file": "heroes/maugan-ra.json",
+    "id": "maugan-ra",
+    "name": "Maugan Ra"
+  },
+  "mephiston": {
+    "allianceId": "Imperial",
+    "baseRarity": "Legendary",
+    "factionId": "BloodAngels",
+    "file": "heroes/mephiston.json",
+    "id": "mephiston",
+    "name": "Mephiston"
+  },
+  "morvenn-vahl": {
+    "allianceId": "Imperial",
+    "baseRarity": "Legendary",
+    "factionId": "Sisterhood",
+    "file": "heroes/morvenn-vahl.json",
+    "id": "morvenn-vahl",
+    "name": "Morvenn Vahl"
+  },
+  "nauseous-rotbone": {
+    "allianceId": "Chaos",
+    "baseRarity": "Epic",
+    "factionId": "DeathGuard",
+    "file": "heroes/nauseous-rotbone.json",
+    "id": "nauseous-rotbone",
+    "name": "Nauseous"
+  },
+  "neurothrope": {
+    "allianceId": "Xenos",
+    "baseRarity": "Rare",
+    "factionId": "Tyranids",
+    "file": "heroes/neurothrope.json",
+    "id": "neurothrope",
+    "name": "Neurothrope"
+  },
+  "nicodemus": {
+    "allianceId": "Imperial",
+    "baseRarity": "Rare",
+    "factionId": "BloodAngels",
+    "file": "heroes/nicodemus.json",
+    "id": "nicodemus",
+    "name": "Nicodemus"
+  },
+  "parasite-of-mortrex": {
+    "allianceId": "Xenos",
+    "baseRarity": "Epic",
+    "factionId": "Tyranids",
+    "file": "heroes/parasite-of-mortrex.json",
+    "id": "parasite-of-mortrex",
+    "name": "Parasite of Mortrex"
+  },
+  "patermine": {
+    "allianceId": "Xenos",
+    "baseRarity": "Legendary",
+    "factionId": "Genestealers",
+    "file": "heroes/patermine.json",
+    "id": "patermine",
+    "name": "The Patermine"
+  },
+  "pestillian": {
+    "allianceId": "Chaos",
+    "baseRarity": "Rare",
+    "factionId": "DeathGuard",
+    "file": "heroes/pestillian.json",
+    "id": "pestillian",
+    "name": "Pestillian"
+  },
+  "plagueburst-crawler": {
+    "allianceId": "Chaos",
+    "baseRarity": "Common",
+    "factionId": "DeathGuard",
+    "file": "heroes/plagueburst-crawler.json",
+    "id": "plagueburst-crawler",
+    "name": "Plagueburst Crawler"
+  },
+  "ramus": {
+    "allianceId": "Imperial",
+    "baseRarity": "Rare",
+    "factionId": "DarkAngels",
+    "file": "heroes/ramus.json",
+    "id": "ramus",
+    "name": "Ramus"
+  },
+  "reanimator": {
+    "allianceId": "Xenos",
+    "baseRarity": "Common",
+    "factionId": "Necrons",
+    "file": "heroes/reanimator.json",
+    "id": "reanimator",
+    "name": "Reanimator"
+  },
+  "revas": {
+    "allianceId": "Xenos",
+    "baseRarity": "Uncommon",
+    "factionId": "Tau",
+    "file": "heroes/revas.json",
+    "id": "revas",
+    "name": "Re'vas"
+  },
+  "roswitha": {
+    "allianceId": "Imperial",
+    "baseRarity": "Uncommon",
+    "factionId": "Sisterhood",
+    "file": "heroes/roswitha.json",
+    "id": "roswitha",
+    "name": "Roswitha"
+  },
+  "rukkatrukk": {
+    "allianceId": "Xenos",
+    "baseRarity": "Common",
+    "factionId": "Orks",
+    "file": "heroes/rukkatrukk.json",
+    "id": "rukkatrukk",
+    "name": "Rukkatrukk"
+  },
+  "sarquael": {
+    "allianceId": "Imperial",
+    "baseRarity": "Uncommon",
+    "factionId": "DarkAngels",
+    "file": "heroes/sarquael.json",
+    "id": "sarquael",
+    "name": "Sarquael"
+  },
+  "sekhetar-robot": {
+    "allianceId": "Chaos",
+    "baseRarity": "Uncommon",
+    "factionId": "ThousandSons",
+    "file": "heroes/sekhetar-robot.json",
+    "id": "sekhetar-robot",
+    "name": "Sekhetar Robot"
+  },
+  "shiron": {
+    "allianceId": "Chaos",
+    "baseRarity": "Uncommon",
+    "factionId": "EmperorsChildren",
+    "file": "heroes/shiron.json",
+    "id": "shiron",
+    "name": "Shiron"
+  },
+  "shosyl": {
+    "allianceId": "Xenos",
+    "baseRarity": "Uncommon",
+    "factionId": "Tau",
+    "file": "heroes/shosyl.json",
+    "id": "shosyl",
+    "name": "Sho'syl"
+  },
+  "sibyll-devine": {
+    "allianceId": "Imperial",
+    "baseRarity": "Common",
+    "factionId": "AstraMilitarum",
+    "file": "heroes/sibyll-devine.json",
+    "id": "sibyll-devine",
+    "name": "Sibyll"
+  },
+  "snappawrecka": {
+    "allianceId": "Xenos",
+    "baseRarity": "Uncommon",
+    "factionId": "Orks",
+    "file": "heroes/snappawrecka.json",
+    "id": "snappawrecka",
+    "name": "Snappawrecka"
+  },
+  "snotflogga": {
+    "allianceId": "Xenos",
+    "baseRarity": "Rare",
+    "factionId": "Orks",
+    "file": "heroes/snotflogga.json",
+    "id": "snotflogga",
+    "name": "Snotflogga"
+  },
+  "storm-speeder": {
+    "allianceId": "Imperial",
+    "baseRarity": "Common",
+    "factionId": "DarkAngels",
+    "file": "heroes/storm-speeder.json",
+    "id": "storm-speeder",
+    "name": "Storm Speeder"
+  },
+  "stormcaller": {
+    "allianceId": "Imperial",
+    "baseRarity": "Epic",
+    "factionId": "SpaceWolves",
+    "file": "heroes/stormcaller.json",
+    "id": "stormcaller",
+    "name": "Njal"
+  },
+  "sword-brother-godswyl": {
+    "allianceId": "Imperial",
+    "baseRarity": "Common",
+    "factionId": "BlackTemplars",
+    "file": "heroes/sword-brother-godswyl.json",
+    "id": "sword-brother-godswyl",
+    "name": "Godswyl"
+  },
+  "sy-gex": {
+    "allianceId": "Imperial",
+    "baseRarity": "Uncommon",
+    "factionId": "AdeptusMechanicus",
+    "file": "heroes/sy-gex.json",
+    "id": "sy-gex",
+    "name": "Sy-gex"
+  },
+  "tan-gida": {
+    "allianceId": "Imperial",
+    "baseRarity": "Rare",
+    "factionId": "AdeptusMechanicus",
+    "file": "heroes/tan-gida.json",
+    "id": "tan-gida",
+    "name": "Tan Gi'da"
+  },
+  "tanksmasha": {
+    "allianceId": "Xenos",
+    "baseRarity": "Epic",
+    "factionId": "Orks",
+    "file": "heroes/tanksmasha.json",
+    "id": "tanksmasha",
+    "name": "Tanksmasha"
+  },
+  "tarvakh": {
+    "allianceId": "Chaos",
+    "baseRarity": "Rare",
+    "factionId": "WorldEaters",
+    "file": "heroes/tarvakh.json",
+    "id": "tarvakh",
+    "name": "Tarvakh"
+  },
+  "tau-broadside-battlesuit": {
+    "allianceId": "Xenos",
+    "baseRarity": "Common",
+    "factionId": "Tau",
+    "file": "heroes/tau-broadside-battlesuit.json",
+    "id": "tau-broadside-battlesuit",
+    "name": "Tson'ji"
+  },
+  "thaddeus-noble": {
+    "allianceId": "Imperial",
+    "baseRarity": "Rare",
+    "factionId": "AstraMilitarum",
+    "file": "heroes/thaddeus-noble.json",
+    "id": "thaddeus-noble",
+    "name": "Thaddeus"
+  },
+  "thaumachus": {
+    "allianceId": "Chaos",
+    "baseRarity": "Epic",
+    "factionId": "ThousandSons",
+    "file": "heroes/thaumachus.json",
+    "id": "thaumachus",
+    "name": "Thaumachus"
+  },
+  "thothmek": {
+    "allianceId": "Xenos",
+    "baseRarity": "Rare",
+    "factionId": "Necrons",
+    "file": "heroes/thothmek.json",
+    "id": "thothmek",
+    "name": "Thothmek"
+  },
+  "thutmose": {
+    "allianceId": "Xenos",
+    "baseRarity": "Rare",
+    "factionId": "Necrons",
+    "file": "heroes/thutmose.json",
+    "id": "thutmose",
+    "name": "Thutmose"
+  },
+  "titus": {
+    "allianceId": "Imperial",
+    "baseRarity": "Epic",
+    "factionId": "Ultramarines",
+    "file": "heroes/titus.json",
+    "id": "titus",
+    "name": "Titus"
+  },
+  "tjark": {
+    "allianceId": "Imperial",
+    "baseRarity": "Uncommon",
+    "factionId": "SpaceWolves",
+    "file": "heroes/tjark.json",
+    "id": "tjark",
+    "name": "Tjark"
+  },
+  "toth": {
+    "allianceId": "Chaos",
+    "baseRarity": "Uncommon",
+    "factionId": "ThousandSons",
+    "file": "heroes/toth.json",
+    "id": "toth",
+    "name": "Toth"
+  },
+  "trajann": {
+    "allianceId": "Imperial",
+    "baseRarity": "Legendary",
+    "factionId": "Custodes",
+    "file": "heroes/trajann.json",
+    "id": "trajann",
+    "name": "Trajann"
+  },
+  "typhus": {
+    "allianceId": "Chaos",
+    "baseRarity": "Legendary",
+    "factionId": "DeathGuard",
+    "file": "heroes/typhus.json",
+    "id": "typhus",
+    "name": "Typhus"
+  },
+  "tyrant-guard": {
+    "allianceId": "Xenos",
+    "baseRarity": "Uncommon",
+    "factionId": "Tyranids",
+    "file": "heroes/tyrant-guard.json",
+    "id": "tyrant-guard",
+    "name": "Tyrant Guard"
+  },
+  "tyrith": {
+    "allianceId": "Imperial",
+    "baseRarity": "Rare",
+    "factionId": "Custodes",
+    "file": "heroes/tyrith.json",
+    "id": "tyrith",
+    "name": "Tyrith"
+  },
+  "ulf": {
+    "allianceId": "Imperial",
+    "baseRarity": "Uncommon",
+    "factionId": "SpaceWolves",
+    "file": "heroes/ulf.json",
+    "id": "ulf",
+    "name": "Ulf"
+  },
+  "uthar": {
+    "allianceId": "Xenos",
+    "baseRarity": "Legendary",
+    "factionId": "LeaguesOfVotann",
+    "file": "heroes/uthar.json",
+    "id": "uthar",
+    "name": "Uthar"
+  },
+  "varro-tigurius": {
+    "allianceId": "Imperial",
+    "baseRarity": "Uncommon",
+    "factionId": "Ultramarines",
+    "file": "heroes/varro-tigurius.json",
+    "id": "varro-tigurius",
+    "name": "Tigurius"
+  },
+  "vindicta": {
+    "allianceId": "Imperial",
+    "baseRarity": "Common",
+    "factionId": "Sisterhood",
+    "file": "heroes/vindicta.json",
+    "id": "vindicta",
+    "name": "Vindicta"
+  },
+  "virtuvius": {
+    "allianceId": "Imperial",
+    "baseRarity": "Legendary",
+    "factionId": "AdeptusMechanicus",
+    "file": "heroes/virtuvius.json",
+    "id": "virtuvius",
+    "name": "Vitruvius"
+  },
+  "volk": {
+    "allianceId": "Chaos",
+    "baseRarity": "Rare",
+    "factionId": "BlackLegion",
+    "file": "heroes/volk.json",
+    "id": "volk",
+    "name": "Volk"
+  },
+  "vynn": {
+    "allianceId": "Xenos",
+    "baseRarity": "Rare",
+    "factionId": "LeaguesOfVotann",
+    "file": "heroes/vynn.json",
+    "id": "vynn",
+    "name": "Vynn"
+  },
+  "winged-prime": {
+    "allianceId": "Xenos",
+    "baseRarity": "Rare",
+    "factionId": "Tyranids",
+    "file": "heroes/winged-prime.json",
+    "id": "winged-prime",
+    "name": "Winged Prime"
+  },
+  "wrask": {
+    "allianceId": "Chaos",
+    "baseRarity": "Uncommon",
+    "factionId": "WorldEaters",
+    "file": "heroes/wrask.json",
+    "id": "wrask",
+    "name": "Wrask"
+  },
+  "xybia": {
+    "allianceId": "Xenos",
+    "baseRarity": "Rare",
+    "factionId": "Genestealers",
+    "file": "heroes/xybia.json",
+    "id": "xybia",
+    "name": "Xybia"
+  },
+  "yazaghor": {
+    "allianceId": "Chaos",
+    "baseRarity": "Common",
+    "factionId": "ThousandSons",
+    "file": "heroes/yazaghor.json",
+    "id": "yazaghor",
+    "name": "Yazaghor"
+  },
+  "zkar": {
+    "allianceId": "Chaos",
+    "baseRarity": "Common",
+    "factionId": "ThousandSons",
+    "file": "heroes/zkar.json",
+    "id": "zkar",
+    "name": "Z'Kar"
+  }
+}

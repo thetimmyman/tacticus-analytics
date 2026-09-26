@@ -1,0 +1,26 @@
+{
+  "activeAbility": "ReanimationBeam",
+  "allianceId": "Xenos",
+  "baseRarity": "Common",
+  "damageProfiles": [],
+  "description": "",
+  "factionId": "Necrons",
+  "gameId": "necroReanimator",
+  "id": "reanimator",
+  "itemSlots": [],
+  "longName": "Reanimator",
+  "meleeWeapon": null,
+  "movement": 3,
+  "mowActiveAbility": [],
+  "mythicAbilities": [
+    "GuardianConstruct"
+  ],
+  "name": "Reanimator",
+  "passiveAbility": null,
+  "rangeWeapon": null,
+  "ranks": [],
+  "sorting": 19,
+  "traits": [
+    "MachineOfWar"
+  ]
+}

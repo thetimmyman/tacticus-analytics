@@ -1,0 +1,45 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  // Run with `npm run knip`. Keeping Knip pinned in devDependencies makes the
+  // same analysis available in clean clones and CI.
+  //
+  // The app router and broad barrel-export surface produce noisy export
+  // results. File reachability is stable enough to enforce alongside the
+  // dependency contract; deeper API-surface reviews can opt into `--exports`.
+  "include": ["files", "dependencies", "unlisted", "unresolved", "binaries"],
+  // Host tools installed by workstation/devcontainer bootstrap, not npm.
+  // magick (ImageMagick): scripts/assets/generate-pwa-icons.mjs (PS-275).
+  "ignoreBinaries": ["actionlint", "zizmor", "magick"],
+  "ignoreDependencies": [
+    "pino-pretty",
+    "node-gyp",
+    "node-addon-api",
+    "critters",
+    "esbuild",
+    "eslint-plugin-react-hooks",
+    // Sentry's bundler plugin consumes webpack as a toolchain peer.
+    "webpack"
+  ],
+  "ignore": [
+    // Deliberate placeholder kept unimported — see eslint.config.mjs:8.
+    "eslint-wi521-exceptions.mjs",
+    // WI-8230 shared guard: app/lib/loki/config-safety.ts re-exports the .cjs
+    // and tsc consumes this .d.cts sidecar, which is never imported by name.
+    "scripts/loki/config-safety-signature.d.cts"
+  ],
+  "workspaces": {
+    ".": {
+      "entry": [
+        // Deno edge functions, deployed to Supabase; each index.ts is a root
+        // and pulls in supabase/functions/_shared/**.
+        "supabase/functions/*/index.ts",
+        // Manually/CI/systemd-invoked operational scripts and tools. Entries,
+        // not full projects: unreferenced scripts stop being flagged, but a
+        // dead helper module under scripts/ still would be.
+        "scripts/**/*.{js,mjs,ts}"
+      ]
+    },
+    "packages/*": {},
+    "apps/*": {}
+  }
+}

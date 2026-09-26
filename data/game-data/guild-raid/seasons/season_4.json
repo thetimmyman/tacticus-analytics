@@ -1,0 +1,1634 @@
+{
+  "id": "guild_boss_season_config_4",
+  "name": "Riptide",
+  "sets": [
+    {
+      "encounters": [
+        {
+          "boardId": "GB_Riptide_01",
+          "bossType": "Riptide",
+          "disallowedFactions": [
+            "Tau"
+          ],
+          "encounterIndex": 0,
+          "enemies": [
+            "GuildBoss11Npc3TauDroneShield:25",
+            "GuildBoss11Npc3TauDroneShield:25",
+            "GuildBoss11Npc3TauDroneShield:25",
+            "GuildBoss11Npc3TauDroneShield:25",
+            "GuildBoss11Npc1TauFireWarrior:25",
+            "GuildBoss11Npc1TauFireWarrior:25",
+            "GuildBoss11Npc1TauFireWarrior:25",
+            "GuildBoss11Npc4TauStealthSuit:25",
+            "GuildBoss11Npc4TauStealthSuit:25"
+          ],
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss11Npc3TauDroneShield:25",
+            "GuildBoss11Npc1TauFireWarrior:25"
+          ],
+          "unitId": "GuildBoss11Boss1TauRiptide:25"
+        },
+        {
+          "boardId": "GB_Riptide_support_01",
+          "bossType": "Riptide",
+          "disallowedFactions": [
+            "Tau"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss11Npc3TauDroneShield:23",
+            "GuildBoss11Npc1TauFireWarrior:23",
+            "GuildBoss11Npc1TauFireWarrior:23",
+            "GuildBoss11Npc2TauDroneSniper:23",
+            "GuildBoss11Npc2TauDroneSniper:23"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss11MiniBoss1TauMarksman:25"
+        },
+        {
+          "boardId": "GB_Riptide_support_03",
+          "bossType": "Riptide",
+          "disallowedFactions": [
+            "Tau"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss11Npc1TauFireWarrior:23",
+            "GuildBoss11Npc1TauFireWarrior:23",
+            "GuildBoss11Npc1TauFireWarrior:23",
+            "GuildBoss11Npc1TauFireWarrior:23",
+            "GuildBoss11Npc1TauFireWarrior:23",
+            "GuildBoss11Npc1TauFireWarrior:23",
+            "GuildBoss11Npc4TauStealthSuit:23",
+            "GuildBoss11Npc4TauStealthSuit:23"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss11MiniBoss2TauCrisis:25"
+        }
+      ],
+      "set": 2,
+      "tier": 5
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_RogalDorn_03",
+          "bossType": "RogalDorn",
+          "disallowedFactions": [
+            "AstraMilitarum"
+          ],
+          "encounterIndex": 0,
+          "enemies": [
+            "GuildBoss7Npc1AstraGuardsman:24",
+            "GuildBoss7Npc1AstraGuardsman:24",
+            "GuildBoss7Npc1AstraGuardsman:24",
+            "GuildBoss7Npc1AstraGuardsman:24",
+            "GuildBoss7Npc1AstraGuardsman:24",
+            "GuildBoss7Npc1AstraGuardsman:24",
+            "GuildBoss7Npc1AstraGuardsman:24",
+            "GuildBoss7Npc1AstraGuardsman:24",
+            "GuildBoss7Npc4Mortar:24",
+            "GuildBoss7Npc4Mortar:24"
+          ],
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss7Npc4Mortar:24",
+            "GuildBoss7Npc1AstraGuardsman:24"
+          ],
+          "unitId": "GuildBoss7Boss1AstraRogaldorn:24"
+        },
+        {
+          "boardId": "GB_RogalDorn_support_01",
+          "bossType": "RogalDorn",
+          "disallowedFactions": [
+            "AstraMilitarum"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss7Npc3AstraVoxcaster:22",
+            "GuildBoss7Npc3AstraVoxcaster:22",
+            "GuildBoss7Npc3AstraVoxcaster:22",
+            "GuildBoss7Npc3AstraVoxcaster:22",
+            "GuildBoss7Npc2AstraLascannon:22",
+            "GuildBoss7Npc2AstraLascannon:22"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss7MiniBoss1AstraPrimarisPsy:24"
+        },
+        {
+          "boardId": "GB_RogalDorn_support_02",
+          "bossType": "RogalDorn",
+          "disallowedFactions": [
+            "AstraMilitarum"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss7Npc4Mortar:22",
+            "GuildBoss7Npc4Mortar:22",
+            "GuildBoss7Npc4Mortar:22",
+            "GuildBoss7Npc4Mortar:22",
+            "GuildBoss7Npc4Mortar:22",
+            "GuildBoss7Npc2AstraLascannon:22",
+            "GuildBoss7Npc2AstraLascannon:22"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss7MiniBoss2AstraOrdnance:24"
+        }
+      ],
+      "set": 1,
+      "tier": 5
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_Screamer_03",
+          "bossType": "ScreamerKiller",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 0,
+          "enemies": [
+            "GuildBoss6Npc5TyranBarbgaunt:23",
+            "GuildBoss6Npc5TyranBarbgaunt:23",
+            "GuildBoss6Npc1TyranHormagaunt:23",
+            "GuildBoss6Npc1TyranHormagaunt:23",
+            "GuildBoss6Npc1TyranHormagaunt:23",
+            "GuildBoss6Npc1TyranHormagaunt:23",
+            "GuildBoss6Npc1TyranHormagaunt:23",
+            "GuildBoss6Npc1TyranHormagaunt:23",
+            "GuildBoss6Npc4TyranWarrior:23",
+            "GuildBoss6Npc4TyranWarrior:23"
+          ],
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss6Npc5TyranBarbgaunt:23",
+            "GuildBoss6Npc1TyranHormagaunt:23"
+          ],
+          "unitId": "GuildBoss6Boss1TyranScreamerKiller:23"
+        },
+        {
+          "boardId": "GB_Screamer_support_05",
+          "bossType": "ScreamerKiller",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss6Npc5TyranBarbgaunt:21",
+            "GuildBoss6Npc5TyranBarbgaunt:21",
+            "GuildBoss6Npc5TyranBarbgaunt:21",
+            "GuildBoss6Npc5TyranBarbgaunt:21",
+            "GuildBoss6Npc3TyranTermagant:21",
+            "GuildBoss6Npc3TyranTermagant:21",
+            "GuildBoss6Npc3TyranTermagant:21",
+            "GuildBoss6Npc3TyranTermagant:21"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss6MiniBoss1TyranNeurothrope:23"
+        },
+        {
+          "boardId": "GB_Screamer_support_06",
+          "bossType": "ScreamerKiller",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss6Npc4TyranWarrior:21",
+            "GuildBoss6Npc4TyranWarrior:21",
+            "GuildBoss6Npc4TyranWarrior:21",
+            "GuildBoss6Npc2TyranRipperSwarm:21",
+            "GuildBoss6Npc2TyranRipperSwarm:21",
+            "GuildBoss6Npc2TyranRipperSwarm:21",
+            "GuildBoss6Npc2TyranRipperSwarm:21"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss6MiniBoss2TyranWingedPrime:23"
+        }
+      ],
+      "set": 0,
+      "tier": 5
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_02",
+          "bossType": "HiveTyrantKronos",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 0,
+          "enemies": null,
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss2Npc2TyranRipperSwarmKronos:22"
+          ],
+          "unitId": "GuildBoss2Boss2TyranHiveTyrantKronos:22"
+        },
+        {
+          "boardId": "GB_support_01",
+          "bossType": "HiveTyrantKronos",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss1Npc2TyranTermagantKronos:20",
+            "GuildBoss1Npc2TyranTermagantKronos:20",
+            "GuildBoss2Npc2TyranRipperSwarmKronos:20",
+            "GuildBoss1Npc5TyranHormagauntKronos:20",
+            "GuildBoss1Npc5TyranHormagauntKronos:20"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss2TyranWarriorKronos:22"
+        },
+        {
+          "boardId": "GB_support_02",
+          "bossType": "HiveTyrantKronos",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss1Npc2TyranTermagantKronos:20",
+            "GuildBoss1Npc2TyranTermagantKronos:20",
+            "GuildBoss2Npc2TyranRipperSwarmKronos:20",
+            "GuildBoss1Npc5TyranHormagauntKronos:20",
+            "GuildBoss1Npc5TyranHormagauntKronos:20"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss2TyranWarriorKronos:22"
+        }
+      ],
+      "set": 4,
+      "tier": 4
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_04",
+          "bossType": "TervigonGorgon",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 0,
+          "enemies": null,
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss1Npc3TyranTermagantGorgon:21"
+          ],
+          "unitId": "GuildBoss1Boss3TyranTervigonGorgon:21"
+        },
+        {
+          "boardId": "GB_support_09",
+          "bossType": "TervigonGorgon",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss1Npc3TyranTermagantGorgon:19",
+            "GuildBoss1Npc3TyranTermagantGorgon:19",
+            "GuildBoss2Npc3TyranRipperSwarmGorgon:19",
+            "GuildBoss1Npc6TyranHormagauntGorgon:19",
+            "GuildBoss1Npc6TyranHormagauntGorgon:19"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss3TyranWarriorGorgon:21"
+        },
+        {
+          "boardId": "GB_support_11",
+          "bossType": "TervigonGorgon",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss1Npc3TyranTermagantGorgon:19",
+            "GuildBoss1Npc3TyranTermagantGorgon:19",
+            "GuildBoss2Npc3TyranRipperSwarmGorgon:19",
+            "GuildBoss1Npc6TyranHormagauntGorgon:19",
+            "GuildBoss1Npc6TyranHormagauntGorgon:19"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss3TyranWarriorGorgon:21"
+        }
+      ],
+      "set": 3,
+      "tier": 4
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_01",
+          "bossType": "HiveTyrantLeviathan",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 0,
+          "enemies": null,
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss2Npc1TyranRipperSwarmLeviathan:20"
+          ],
+          "unitId": "GuildBoss2Boss1TyranHiveTyrantLeviathan:20"
+        },
+        {
+          "boardId": "GB_support_01",
+          "bossType": "HiveTyrantLeviathan",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss1Npc1TyranTermagantLeviathan:18",
+            "GuildBoss1Npc1TyranTermagantLeviathan:18",
+            "GuildBoss2Npc1TyranRipperSwarmLeviathan:18",
+            "GuildBoss1Npc4TyranHormagauntLeviathan:18",
+            "GuildBoss1Npc4TyranHormagauntLeviathan:18"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss1TyranWarriorLeviathan:20"
+        },
+        {
+          "boardId": "GB_support_02",
+          "bossType": "HiveTyrantLeviathan",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss1Npc1TyranTermagantLeviathan:18",
+            "GuildBoss1Npc1TyranTermagantLeviathan:18",
+            "GuildBoss2Npc1TyranRipperSwarmLeviathan:18",
+            "GuildBoss1Npc4TyranHormagauntLeviathan:18",
+            "GuildBoss1Npc4TyranHormagauntLeviathan:18"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss1TyranWarriorLeviathan:20"
+        }
+      ],
+      "set": 2,
+      "tier": 4
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_Screamer_03",
+          "bossType": "ScreamerKiller",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 0,
+          "enemies": [
+            "GuildBoss6Npc5TyranBarbgaunt:19",
+            "GuildBoss6Npc5TyranBarbgaunt:19",
+            "GuildBoss6Npc1TyranHormagaunt:19",
+            "GuildBoss6Npc1TyranHormagaunt:19",
+            "GuildBoss6Npc1TyranHormagaunt:19",
+            "GuildBoss6Npc1TyranHormagaunt:19",
+            "GuildBoss6Npc1TyranHormagaunt:19",
+            "GuildBoss6Npc1TyranHormagaunt:19",
+            "GuildBoss6Npc4TyranWarrior:19",
+            "GuildBoss6Npc4TyranWarrior:19"
+          ],
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss6Npc5TyranBarbgaunt:19",
+            "GuildBoss6Npc1TyranHormagaunt:19"
+          ],
+          "unitId": "GuildBoss6Boss1TyranScreamerKiller:19"
+        },
+        {
+          "boardId": "GB_Screamer_support_05",
+          "bossType": "ScreamerKiller",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss6Npc5TyranBarbgaunt:17",
+            "GuildBoss6Npc5TyranBarbgaunt:17",
+            "GuildBoss6Npc5TyranBarbgaunt:17",
+            "GuildBoss6Npc5TyranBarbgaunt:17",
+            "GuildBoss6Npc3TyranTermagant:17",
+            "GuildBoss6Npc3TyranTermagant:17",
+            "GuildBoss6Npc3TyranTermagant:17",
+            "GuildBoss6Npc3TyranTermagant:17"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss6MiniBoss1TyranNeurothrope:19"
+        },
+        {
+          "boardId": "GB_Screamer_support_06",
+          "bossType": "ScreamerKiller",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss6Npc4TyranWarrior:17",
+            "GuildBoss6Npc4TyranWarrior:17",
+            "GuildBoss6Npc4TyranWarrior:17",
+            "GuildBoss6Npc2TyranRipperSwarm:17",
+            "GuildBoss6Npc2TyranRipperSwarm:17",
+            "GuildBoss6Npc2TyranRipperSwarm:17",
+            "GuildBoss6Npc2TyranRipperSwarm:17"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss6MiniBoss2TyranWingedPrime:19"
+        }
+      ],
+      "set": 1,
+      "tier": 4
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_Riptide_03",
+          "bossType": "Riptide",
+          "disallowedFactions": [
+            "Tau"
+          ],
+          "encounterIndex": 0,
+          "enemies": [
+            "GuildBoss11Npc3TauDroneShield:18",
+            "GuildBoss11Npc3TauDroneShield:18",
+            "GuildBoss11Npc3TauDroneShield:18",
+            "GuildBoss11Npc3TauDroneShield:18",
+            "GuildBoss11Npc1TauFireWarrior:18",
+            "GuildBoss11Npc1TauFireWarrior:18",
+            "GuildBoss11Npc1TauFireWarrior:18",
+            "GuildBoss11Npc4TauStealthSuit:18",
+            "GuildBoss11Npc4TauStealthSuit:18"
+          ],
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss11Npc3TauDroneShield:18",
+            "GuildBoss11Npc1TauFireWarrior:18"
+          ],
+          "unitId": "GuildBoss11Boss1TauRiptide:18"
+        },
+        {
+          "boardId": "GB_Riptide_support_01",
+          "bossType": "Riptide",
+          "disallowedFactions": [
+            "Tau"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss11Npc3TauDroneShield:16",
+            "GuildBoss11Npc1TauFireWarrior:16",
+            "GuildBoss11Npc1TauFireWarrior:16",
+            "GuildBoss11Npc2TauDroneSniper:16",
+            "GuildBoss11Npc2TauDroneSniper:16"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss11MiniBoss1TauMarksman:18"
+        },
+        {
+          "boardId": "GB_Riptide_support_03",
+          "bossType": "Riptide",
+          "disallowedFactions": [
+            "Tau"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss11Npc1TauFireWarrior:16",
+            "GuildBoss11Npc1TauFireWarrior:16",
+            "GuildBoss11Npc1TauFireWarrior:16",
+            "GuildBoss11Npc1TauFireWarrior:16",
+            "GuildBoss11Npc1TauFireWarrior:16",
+            "GuildBoss11Npc1TauFireWarrior:16",
+            "GuildBoss11Npc4TauStealthSuit:16",
+            "GuildBoss11Npc4TauStealthSuit:16"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss11MiniBoss2TauCrisis:18"
+        }
+      ],
+      "set": 0,
+      "tier": 4
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_RogalDorn_04",
+          "bossType": "RogalDorn",
+          "disallowedFactions": [
+            "AstraMilitarum"
+          ],
+          "encounterIndex": 0,
+          "enemies": [
+            "GuildBoss7Npc1AstraGuardsman:17",
+            "GuildBoss7Npc1AstraGuardsman:17",
+            "GuildBoss7Npc1AstraGuardsman:17",
+            "GuildBoss7Npc1AstraGuardsman:17",
+            "GuildBoss7Npc1AstraGuardsman:17",
+            "GuildBoss7Npc1AstraGuardsman:17",
+            "GuildBoss7Npc1AstraGuardsman:17",
+            "GuildBoss7Npc1AstraGuardsman:17",
+            "GuildBoss7Npc4Mortar:17"
+          ],
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss7Npc4Mortar:17",
+            "GuildBoss7Npc1AstraGuardsman:17"
+          ],
+          "unitId": "GuildBoss7Boss1AstraRogaldorn:17"
+        },
+        {
+          "boardId": "GB_RogalDorn_support_03",
+          "bossType": "RogalDorn",
+          "disallowedFactions": [
+            "AstraMilitarum"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss7Npc3AstraVoxcaster:15",
+            "GuildBoss7Npc3AstraVoxcaster:15",
+            "GuildBoss7Npc3AstraVoxcaster:15",
+            "GuildBoss7Npc3AstraVoxcaster:15",
+            "GuildBoss7Npc2AstraLascannon:15",
+            "GuildBoss7Npc2AstraLascannon:15"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss7MiniBoss1AstraPrimarisPsy:17"
+        },
+        {
+          "boardId": "GB_RogalDorn_support_04",
+          "bossType": "RogalDorn",
+          "disallowedFactions": [
+            "AstraMilitarum"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss7Npc4Mortar:15",
+            "GuildBoss7Npc4Mortar:15",
+            "GuildBoss7Npc4Mortar:15",
+            "GuildBoss7Npc4Mortar:15",
+            "GuildBoss7Npc4Mortar:15",
+            "GuildBoss7Npc2AstraLascannon:15",
+            "GuildBoss7Npc2AstraLascannon:15"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss7MiniBoss2AstraOrdnance:17"
+        }
+      ],
+      "set": 4,
+      "tier": 3
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_06",
+          "bossType": "TervigonKronos",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 0,
+          "enemies": null,
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss1Npc2TyranTermagantKronos:16"
+          ],
+          "unitId": "GuildBoss1Boss2TyranTervigonKronos:16"
+        },
+        {
+          "boardId": "GB_support_07",
+          "bossType": "TervigonKronos",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss1Npc2TyranTermagantKronos:14",
+            "GuildBoss1Npc2TyranTermagantKronos:14",
+            "GuildBoss2Npc2TyranRipperSwarmKronos:14",
+            "GuildBoss1Npc5TyranHormagauntKronos:14",
+            "GuildBoss1Npc5TyranHormagauntKronos:14"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss2TyranWarriorKronos:16"
+        },
+        {
+          "boardId": "GB_support_08",
+          "bossType": "TervigonKronos",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss1Npc2TyranTermagantKronos:14",
+            "GuildBoss1Npc2TyranTermagantKronos:14",
+            "GuildBoss2Npc2TyranRipperSwarmKronos:14",
+            "GuildBoss1Npc5TyranHormagauntKronos:14",
+            "GuildBoss1Npc5TyranHormagauntKronos:14"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss2TyranWarriorKronos:16"
+        }
+      ],
+      "set": 3,
+      "tier": 3
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_04",
+          "bossType": "HiveTyrantGorgon",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 0,
+          "enemies": null,
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss2Npc3TyranRipperSwarmGorgon:15"
+          ],
+          "unitId": "GuildBoss2Boss3TyranHiveTyrantGorgon:15"
+        },
+        {
+          "boardId": "GB_support_09",
+          "bossType": "HiveTyrantGorgon",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss1Npc3TyranTermagantGorgon:13",
+            "GuildBoss1Npc3TyranTermagantGorgon:13",
+            "GuildBoss2Npc3TyranRipperSwarmGorgon:13",
+            "GuildBoss1Npc6TyranHormagauntGorgon:13",
+            "GuildBoss1Npc6TyranHormagauntGorgon:13"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss3TyranWarriorGorgon:15"
+        },
+        {
+          "boardId": "GB_support_11",
+          "bossType": "HiveTyrantGorgon",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss1Npc3TyranTermagantGorgon:13",
+            "GuildBoss1Npc3TyranTermagantGorgon:13",
+            "GuildBoss2Npc3TyranRipperSwarmGorgon:13",
+            "GuildBoss1Npc6TyranHormagauntGorgon:13",
+            "GuildBoss1Npc6TyranHormagauntGorgon:13"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss3TyranWarriorGorgon:15"
+        }
+      ],
+      "set": 2,
+      "tier": 3
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_Screamer_03",
+          "bossType": "ScreamerKiller",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 0,
+          "enemies": [
+            "GuildBoss6Npc5TyranBarbgaunt:14",
+            "GuildBoss6Npc5TyranBarbgaunt:14",
+            "GuildBoss6Npc1TyranHormagaunt:14",
+            "GuildBoss6Npc1TyranHormagaunt:14",
+            "GuildBoss6Npc1TyranHormagaunt:14",
+            "GuildBoss6Npc1TyranHormagaunt:14",
+            "GuildBoss6Npc1TyranHormagaunt:14",
+            "GuildBoss6Npc1TyranHormagaunt:14",
+            "GuildBoss6Npc4TyranWarrior:14"
+          ],
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss6Npc5TyranBarbgaunt:14",
+            "GuildBoss6Npc1TyranHormagaunt:14"
+          ],
+          "unitId": "GuildBoss6Boss1TyranScreamerKiller:14"
+        },
+        {
+          "boardId": "GB_Screamer_support_05",
+          "bossType": "ScreamerKiller",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss6Npc5TyranBarbgaunt:12",
+            "GuildBoss6Npc5TyranBarbgaunt:12",
+            "GuildBoss6Npc5TyranBarbgaunt:12",
+            "GuildBoss6Npc5TyranBarbgaunt:12",
+            "GuildBoss6Npc3TyranTermagant:12",
+            "GuildBoss6Npc3TyranTermagant:12",
+            "GuildBoss6Npc3TyranTermagant:12",
+            "GuildBoss6Npc3TyranTermagant:12"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss6MiniBoss1TyranNeurothrope:14"
+        },
+        {
+          "boardId": "GB_Screamer_support_06",
+          "bossType": "ScreamerKiller",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss6Npc4TyranWarrior:12",
+            "GuildBoss6Npc4TyranWarrior:12",
+            "GuildBoss6Npc4TyranWarrior:12",
+            "GuildBoss6Npc2TyranRipperSwarm:12",
+            "GuildBoss6Npc2TyranRipperSwarm:12",
+            "GuildBoss6Npc2TyranRipperSwarm:12",
+            "GuildBoss6Npc2TyranRipperSwarm:12"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss6MiniBoss2TyranWingedPrime:14"
+        }
+      ],
+      "set": 1,
+      "tier": 3
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_05",
+          "bossType": "TervigonLeviathan",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 0,
+          "enemies": null,
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss1Npc1TyranTermagantLeviathan:13"
+          ],
+          "unitId": "GuildBoss1Boss1TyranTervigonLeviathan:13"
+        },
+        {
+          "boardId": "GB_support_01",
+          "bossType": "TervigonLeviathan",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss1Npc1TyranTermagantLeviathan:11",
+            "GuildBoss1Npc1TyranTermagantLeviathan:11",
+            "GuildBoss2Npc1TyranRipperSwarmLeviathan:11",
+            "GuildBoss1Npc4TyranHormagauntLeviathan:11",
+            "GuildBoss1Npc4TyranHormagauntLeviathan:11"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss1TyranWarriorLeviathan:13"
+        },
+        {
+          "boardId": "GB_support_02",
+          "bossType": "TervigonLeviathan",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss1Npc1TyranTermagantLeviathan:11",
+            "GuildBoss1Npc1TyranTermagantLeviathan:11",
+            "GuildBoss2Npc1TyranRipperSwarmLeviathan:11",
+            "GuildBoss1Npc4TyranHormagauntLeviathan:11",
+            "GuildBoss1Npc4TyranHormagauntLeviathan:11"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss1TyranWarriorLeviathan:13"
+        }
+      ],
+      "set": 0,
+      "tier": 3
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_Riptide_02",
+          "bossType": "Riptide",
+          "disallowedFactions": [
+            "Tau"
+          ],
+          "encounterIndex": 0,
+          "enemies": [
+            "GuildBoss11Npc3TauDroneShield:12",
+            "GuildBoss11Npc3TauDroneShield:12",
+            "GuildBoss11Npc3TauDroneShield:12",
+            "GuildBoss11Npc3TauDroneShield:12",
+            "GuildBoss11Npc1TauFireWarrior:12",
+            "GuildBoss11Npc1TauFireWarrior:12",
+            "GuildBoss11Npc1TauFireWarrior:12"
+          ],
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss11Npc3TauDroneShield:12",
+            "GuildBoss11Npc1TauFireWarrior:12"
+          ],
+          "unitId": "GuildBoss11Boss1TauRiptide:12"
+        },
+        {
+          "boardId": "GB_Riptide_support_02",
+          "bossType": "Riptide",
+          "disallowedFactions": [
+            "Tau"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss11Npc3TauDroneShield:10",
+            "GuildBoss11Npc1TauFireWarrior:10",
+            "GuildBoss11Npc1TauFireWarrior:10",
+            "GuildBoss11Npc2TauDroneSniper:10"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss11MiniBoss1TauMarksman:12"
+        },
+        {
+          "boardId": "GB_Riptide_support_04",
+          "bossType": "Riptide",
+          "disallowedFactions": [
+            "Tau"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss11Npc1TauFireWarrior:10",
+            "GuildBoss11Npc1TauFireWarrior:10",
+            "GuildBoss11Npc1TauFireWarrior:10",
+            "GuildBoss11Npc1TauFireWarrior:10",
+            "GuildBoss11Npc4TauStealthSuit:10",
+            "GuildBoss11Npc4TauStealthSuit:10"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss11MiniBoss2TauCrisis:12"
+        }
+      ],
+      "set": 3,
+      "tier": 2
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_RogalDorn_02",
+          "bossType": "RogalDorn",
+          "disallowedFactions": [
+            "AstraMilitarum"
+          ],
+          "encounterIndex": 0,
+          "enemies": [
+            "GuildBoss7Npc1AstraGuardsman:11",
+            "GuildBoss7Npc1AstraGuardsman:11",
+            "GuildBoss7Npc1AstraGuardsman:11",
+            "GuildBoss7Npc1AstraGuardsman:11",
+            "GuildBoss7Npc1AstraGuardsman:11",
+            "GuildBoss7Npc1AstraGuardsman:11",
+            "GuildBoss7Npc1AstraGuardsman:11",
+            "GuildBoss7Npc1AstraGuardsman:11",
+            "GuildBoss7Npc4Mortar:11"
+          ],
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss7Npc4Mortar:11",
+            "GuildBoss7Npc1AstraGuardsman:11"
+          ],
+          "unitId": "GuildBoss7Boss1AstraRogaldorn:11"
+        },
+        {
+          "boardId": "GB_RogalDorn_support_01",
+          "bossType": "RogalDorn",
+          "disallowedFactions": [
+            "AstraMilitarum"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss7Npc3AstraVoxcaster:9",
+            "GuildBoss7Npc3AstraVoxcaster:9",
+            "GuildBoss7Npc3AstraVoxcaster:9",
+            "GuildBoss7Npc3AstraVoxcaster:9",
+            "GuildBoss7Npc2AstraLascannon:9",
+            "GuildBoss7Npc2AstraLascannon:9"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss7MiniBoss1AstraPrimarisPsy:11"
+        },
+        {
+          "boardId": "GB_RogalDorn_support_02",
+          "bossType": "RogalDorn",
+          "disallowedFactions": [
+            "AstraMilitarum"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss7Npc4Mortar:9",
+            "GuildBoss7Npc4Mortar:9",
+            "GuildBoss7Npc4Mortar:9",
+            "GuildBoss7Npc4Mortar:9",
+            "GuildBoss7Npc4Mortar:9",
+            "GuildBoss7Npc2AstraLascannon:9",
+            "GuildBoss7Npc2AstraLascannon:9"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss7MiniBoss2AstraOrdnance:11"
+        }
+      ],
+      "set": 2,
+      "tier": 2
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_06",
+          "bossType": "HiveTyrantKronos",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 0,
+          "enemies": null,
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss2Npc2TyranRipperSwarmKronos:10"
+          ],
+          "unitId": "GuildBoss2Boss2TyranHiveTyrantKronos:10"
+        },
+        {
+          "boardId": "GB_support_07",
+          "bossType": "HiveTyrantKronos",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss1Npc2TyranTermagantKronos:8",
+            "GuildBoss1Npc2TyranTermagantKronos:8",
+            "GuildBoss2Npc2TyranRipperSwarmKronos:8",
+            "GuildBoss1Npc5TyranHormagauntKronos:8"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss2TyranWarriorKronos:10"
+        },
+        {
+          "boardId": "GB_support_08",
+          "bossType": "HiveTyrantKronos",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss1Npc2TyranTermagantKronos:8",
+            "GuildBoss1Npc2TyranTermagantKronos:8",
+            "GuildBoss2Npc2TyranRipperSwarmKronos:8",
+            "GuildBoss1Npc5TyranHormagauntKronos:8"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss2TyranWarriorKronos:10"
+        }
+      ],
+      "set": 1,
+      "tier": 2
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_Screamer_04",
+          "bossType": "ScreamerKiller",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 0,
+          "enemies": [
+            "GuildBoss6Npc5TyranBarbgaunt:9",
+            "GuildBoss6Npc5TyranBarbgaunt:9",
+            "GuildBoss6Npc1TyranHormagaunt:9",
+            "GuildBoss6Npc1TyranHormagaunt:9",
+            "GuildBoss6Npc1TyranHormagaunt:9",
+            "GuildBoss6Npc1TyranHormagaunt:9",
+            "GuildBoss6Npc1TyranHormagaunt:9",
+            "GuildBoss6Npc1TyranHormagaunt:9"
+          ],
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss6Npc5TyranBarbgaunt:9",
+            "GuildBoss6Npc1TyranHormagaunt:9"
+          ],
+          "unitId": "GuildBoss6Boss1TyranScreamerKiller:9"
+        },
+        {
+          "boardId": "GB_Screamer_support_03",
+          "bossType": "ScreamerKiller",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss6Npc5TyranBarbgaunt:7",
+            "GuildBoss6Npc5TyranBarbgaunt:7",
+            "GuildBoss6Npc5TyranBarbgaunt:7",
+            "GuildBoss6Npc5TyranBarbgaunt:7",
+            "GuildBoss6Npc3TyranTermagant:7",
+            "GuildBoss6Npc3TyranTermagant:7",
+            "GuildBoss6Npc3TyranTermagant:7",
+            "GuildBoss6Npc3TyranTermagant:7"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss6MiniBoss1TyranNeurothrope:9"
+        },
+        {
+          "boardId": "GB_Screamer_support_04",
+          "bossType": "ScreamerKiller",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss6Npc4TyranWarrior:7",
+            "GuildBoss6Npc4TyranWarrior:7",
+            "GuildBoss6Npc4TyranWarrior:7",
+            "GuildBoss6Npc2TyranRipperSwarm:7",
+            "GuildBoss6Npc2TyranRipperSwarm:7",
+            "GuildBoss6Npc2TyranRipperSwarm:7",
+            "GuildBoss6Npc2TyranRipperSwarm:7"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss6MiniBoss2TyranWingedPrime:9"
+        }
+      ],
+      "set": 0,
+      "tier": 2
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_Riptide_01",
+          "bossType": "Riptide",
+          "disallowedFactions": [
+            "Tau"
+          ],
+          "encounterIndex": 0,
+          "enemies": [
+            "GuildBoss11Npc3TauDroneShield:8",
+            "GuildBoss11Npc3TauDroneShield:8",
+            "GuildBoss11Npc3TauDroneShield:8",
+            "GuildBoss11Npc3TauDroneShield:8",
+            "GuildBoss11Npc1TauFireWarrior:8",
+            "GuildBoss11Npc1TauFireWarrior:8"
+          ],
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss11Npc3TauDroneShield:8",
+            "GuildBoss11Npc1TauFireWarrior:8"
+          ],
+          "unitId": "GuildBoss11Boss1TauRiptide:8"
+        },
+        {
+          "boardId": "GB_Riptide_support_01",
+          "bossType": "Riptide",
+          "disallowedFactions": [
+            "Tau"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss11Npc3TauDroneShield:7",
+            "GuildBoss11Npc1TauFireWarrior:7",
+            "GuildBoss11Npc1TauFireWarrior:7"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss11MiniBoss1TauMarksman:8"
+        },
+        {
+          "boardId": "GB_Riptide_support_03",
+          "bossType": "Riptide",
+          "disallowedFactions": [
+            "Tau"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss11Npc1TauFireWarrior:7",
+            "GuildBoss11Npc1TauFireWarrior:7",
+            "GuildBoss11Npc1TauFireWarrior:7",
+            "GuildBoss11Npc4TauStealthSuit:7",
+            "GuildBoss11Npc4TauStealthSuit:7"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss11MiniBoss2TauCrisis:8"
+        }
+      ],
+      "set": 3,
+      "tier": 1
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_04",
+          "bossType": "TervigonGorgon",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 0,
+          "enemies": null,
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss1Npc3TyranTermagantGorgon:7"
+          ],
+          "unitId": "GuildBoss1Boss3TyranTervigonGorgon:7"
+        },
+        {
+          "boardId": "GB_support_09",
+          "bossType": "TervigonGorgon",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss1Npc3TyranTermagantGorgon:6",
+            "GuildBoss1Npc3TyranTermagantGorgon:6",
+            "GuildBoss2Npc3TyranRipperSwarmGorgon:6",
+            "GuildBoss1Npc6TyranHormagauntGorgon:6"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss3TyranWarriorGorgon:7"
+        },
+        {
+          "boardId": "GB_support_11",
+          "bossType": "TervigonGorgon",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss1Npc3TyranTermagantGorgon:6",
+            "GuildBoss1Npc3TyranTermagantGorgon:6",
+            "GuildBoss2Npc3TyranRipperSwarmGorgon:6",
+            "GuildBoss1Npc6TyranHormagauntGorgon:6"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss3TyranWarriorGorgon:7"
+        }
+      ],
+      "set": 2,
+      "tier": 1
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_05",
+          "bossType": "HiveTyrantLeviathan",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 0,
+          "enemies": null,
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss2Npc1TyranRipperSwarmLeviathan:6"
+          ],
+          "unitId": "GuildBoss2Boss1TyranHiveTyrantLeviathan:6"
+        },
+        {
+          "boardId": "GB_support_01",
+          "bossType": "HiveTyrantLeviathan",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss1Npc1TyranTermagantLeviathan:5",
+            "GuildBoss1Npc1TyranTermagantLeviathan:5",
+            "GuildBoss2Npc1TyranRipperSwarmLeviathan:5",
+            "GuildBoss1Npc4TyranHormagauntLeviathan:5"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss1TyranWarriorLeviathan:6"
+        },
+        {
+          "boardId": "GB_support_02",
+          "bossType": "HiveTyrantLeviathan",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss1Npc1TyranTermagantLeviathan:5",
+            "GuildBoss1Npc1TyranTermagantLeviathan:5",
+            "GuildBoss2Npc1TyranRipperSwarmLeviathan:5",
+            "GuildBoss1Npc4TyranHormagauntLeviathan:5"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss1TyranWarriorLeviathan:6"
+        }
+      ],
+      "set": 1,
+      "tier": 1
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_06",
+          "bossType": "TervigonKronos",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 0,
+          "enemies": null,
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss1Npc2TyranTermagantKronos:5"
+          ],
+          "unitId": "GuildBoss1Boss2TyranTervigonKronos:5"
+        },
+        {
+          "boardId": "GB_support_07",
+          "bossType": "TervigonKronos",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss1Npc2TyranTermagantKronos:4",
+            "GuildBoss1Npc2TyranTermagantKronos:4",
+            "GuildBoss2Npc2TyranRipperSwarmKronos:4",
+            "GuildBoss1Npc5TyranHormagauntKronos:4"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss2TyranWarriorKronos:5"
+        },
+        {
+          "boardId": "GB_support_08",
+          "bossType": "TervigonKronos",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss1Npc2TyranTermagantKronos:4",
+            "GuildBoss1Npc2TyranTermagantKronos:4",
+            "GuildBoss2Npc2TyranRipperSwarmKronos:4",
+            "GuildBoss1Npc5TyranHormagauntKronos:4"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss2TyranWarriorKronos:5"
+        }
+      ],
+      "set": 0,
+      "tier": 1
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_Screamer_01",
+          "bossType": "ScreamerKiller",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 0,
+          "enemies": [
+            "GuildBoss6Npc5TyranBarbgaunt:4",
+            "GuildBoss6Npc5TyranBarbgaunt:4",
+            "GuildBoss6Npc1TyranHormagaunt:4",
+            "GuildBoss6Npc1TyranHormagaunt:4",
+            "GuildBoss6Npc1TyranHormagaunt:4",
+            "GuildBoss6Npc1TyranHormagaunt:4",
+            "GuildBoss6Npc1TyranHormagaunt:4",
+            "GuildBoss6Npc1TyranHormagaunt:4"
+          ],
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss6Npc5TyranBarbgaunt:4",
+            "GuildBoss6Npc1TyranHormagaunt:4"
+          ],
+          "unitId": "GuildBoss6Boss1TyranScreamerKiller:4"
+        },
+        {
+          "boardId": "GB_Screamer_support_01",
+          "bossType": "ScreamerKiller",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss6Npc5TyranBarbgaunt:4",
+            "GuildBoss6Npc5TyranBarbgaunt:4",
+            "GuildBoss6Npc5TyranBarbgaunt:4",
+            "GuildBoss6Npc5TyranBarbgaunt:4",
+            "GuildBoss6Npc3TyranTermagant:4",
+            "GuildBoss6Npc3TyranTermagant:4",
+            "GuildBoss6Npc3TyranTermagant:4",
+            "GuildBoss6Npc3TyranTermagant:4"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss6MiniBoss1TyranNeurothrope:4"
+        },
+        {
+          "boardId": "GB_Screamer_support_02",
+          "bossType": "ScreamerKiller",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss6Npc4TyranWarrior:4",
+            "GuildBoss6Npc4TyranWarrior:4",
+            "GuildBoss6Npc4TyranWarrior:4",
+            "GuildBoss6Npc2TyranRipperSwarm:4",
+            "GuildBoss6Npc2TyranRipperSwarm:4",
+            "GuildBoss6Npc2TyranRipperSwarm:4",
+            "GuildBoss6Npc2TyranRipperSwarm:4"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss6MiniBoss2TyranWingedPrime:4"
+        }
+      ],
+      "set": 3,
+      "tier": 0
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_03",
+          "bossType": "HiveTyrantGorgon",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 0,
+          "enemies": null,
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss2Npc3TyranRipperSwarmGorgon:3"
+          ],
+          "unitId": "GuildBoss2Boss3TyranHiveTyrantGorgon:3"
+        },
+        {
+          "boardId": "GB_support_05",
+          "bossType": "HiveTyrantGorgon",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss1Npc3TyranTermagantGorgon:3",
+            "GuildBoss1Npc3TyranTermagantGorgon:3",
+            "GuildBoss2Npc3TyranRipperSwarmGorgon:3",
+            "GuildBoss1Npc6TyranHormagauntGorgon:3"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss3TyranWarriorGorgon:3"
+        },
+        {
+          "boardId": "GB_support_06",
+          "bossType": "HiveTyrantGorgon",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss1Npc3TyranTermagantGorgon:3",
+            "GuildBoss1Npc3TyranTermagantGorgon:3",
+            "GuildBoss2Npc3TyranRipperSwarmGorgon:3",
+            "GuildBoss1Npc6TyranHormagauntGorgon:3"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss3TyranWarriorGorgon:3"
+        }
+      ],
+      "set": 2,
+      "tier": 0
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_02",
+          "bossType": "HiveTyrantLeviathan",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 0,
+          "enemies": null,
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss2Npc1TyranRipperSwarmLeviathan:2"
+          ],
+          "unitId": "GuildBoss2Boss1TyranHiveTyrantLeviathan:2"
+        },
+        {
+          "boardId": "GB_support_03",
+          "bossType": "HiveTyrantLeviathan",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss1Npc1TyranTermagantLeviathan:2",
+            "GuildBoss1Npc1TyranTermagantLeviathan:2",
+            "GuildBoss2Npc1TyranRipperSwarmLeviathan:2",
+            "GuildBoss1Npc4TyranHormagauntLeviathan:2"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss1TyranWarriorLeviathan:2"
+        },
+        {
+          "boardId": "GB_support_04",
+          "bossType": "HiveTyrantLeviathan",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss1Npc1TyranTermagantLeviathan:2",
+            "GuildBoss1Npc1TyranTermagantLeviathan:2",
+            "GuildBoss2Npc1TyranRipperSwarmLeviathan:2",
+            "GuildBoss1Npc4TyranHormagauntLeviathan:2"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss1TyranWarriorLeviathan:2"
+        }
+      ],
+      "set": 1,
+      "tier": 0
+    },
+    {
+      "encounters": [
+        {
+          "boardId": "GB_01",
+          "bossType": "TervigonLeviathan",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 0,
+          "enemies": null,
+          "guildBossEncounterType": "Boss",
+          "maxNrOfTurns": 6,
+          "npcId": [
+            "GuildBoss1Npc1TyranTermagantLeviathan:1"
+          ],
+          "unitId": "GuildBoss1Boss1TyranTervigonLeviathan:1"
+        },
+        {
+          "boardId": "GB_support_01",
+          "bossType": "TervigonLeviathan",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 1,
+          "enemies": [
+            "GuildBoss1Npc1TyranTermagantLeviathan:1",
+            "GuildBoss1Npc1TyranTermagantLeviathan:1",
+            "GuildBoss2Npc1TyranRipperSwarmLeviathan:1",
+            "GuildBoss1Npc4TyranHormagauntLeviathan:1"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss1TyranWarriorLeviathan:1"
+        },
+        {
+          "boardId": "GB_support_02",
+          "bossType": "TervigonLeviathan",
+          "disallowedFactions": [
+            "Tyranids"
+          ],
+          "encounterIndex": 2,
+          "enemies": [
+            "GuildBoss1Npc1TyranTermagantLeviathan:1",
+            "GuildBoss1Npc1TyranTermagantLeviathan:1",
+            "GuildBoss2Npc1TyranRipperSwarmLeviathan:1",
+            "GuildBoss1Npc4TyranHormagauntLeviathan:1"
+          ],
+          "guildBossEncounterType": "Crystal",
+          "maxNrOfTurns": 6,
+          "npcId": [],
+          "unitId": "GuildBoss1MiniBoss1TyranWarriorLeviathan:1"
+        }
+      ],
+      "set": 0,
+      "tier": 0
+    }
+  ],
+  "unitId": "GuildBoss11Boss1TauRiptide"
+}

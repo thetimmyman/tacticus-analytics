@@ -1,0 +1,21 @@
+# Generated and package-managed files
+packages/app-core/src/database.generated.ts
+package-lock.json
+data/game-data/**
+
+# Build output and installed dependencies
+**/.next/
+**/node_modules/
+**/dist/
+**/build/
+supabase/.temp/
+
+# Legacy config style; avoid reformatting unrelated sections.
+next.config.js
+
+# Historical documents are preserved as written.
+docs/archive/
+docs/**/archive/
+
+# External/generated data snapshots
+data/loki-api/

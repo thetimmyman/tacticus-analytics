@@ -1,0 +1,261 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+.next
+out
+dist
+build
+
+# Version control
+.git
+.gitignore
+
+# Local Kubernetes config (created in-tree by some ops scripts; root-owned
+# on the mini PC and unreadable by buildx, which fails the entire build
+# context read with EACCES).
+.kube/
+
+# Environment files
+.env
+.env.*
+.env*.local
+.env.upstash
+!.env.example
+!.env.local.example
+.envrc
+.direnv/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+!.dev.vars.*.example
+
+# Private keys, credential bundles, and local authentication stores
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.kdbx
+*.ovpn
+id_rsa
+id_rsa.*
+id_dsa
+id_dsa.*
+id_ecdsa
+id_ecdsa.*
+id_ed25519
+id_ed25519.*
+.netrc
+.pypirc
+.git-credentials
+.bash_history
+.zsh_history
+.python_history
+**/credentials.json
+**/service-account*.json
+**/service_account*.json
+**/client_secret_*.json
+**/*-credentials.json
+!**/credentials.example.json
+!**/service-account*.example.json
+!**/service_account*.example.json
+!**/client_secret_*.example.json
+!**/*-credentials.example.json
+**/.aws/credentials
+**/.docker/config.json
+**/application_default_credentials.json
+.config/gh/
+.config/glab-cli/
+.config/gcloud/
+.azure/
+.sentryclirc
+.pgpass
+.psql_history
+.rediscli_history
+.my.cnf
+.terraform.d/credentials.tfrc.json
+credentials.tfrc.json
+.vault-token
+.pulumi/
+
+# Local infrastructure state and secret-bearing variable files
+kubeconfig
+kubeconfig.*
+!kubeconfig.example
+!kubeconfig.*.example
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+!*.tfvars.json.example
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfplan.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+.wrangler/
+.firebase/
+firebase-debug.log*
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage
+.coverage
+.coverage.*
+coverage.xml
+htmlcov
+.nyc_output
+test-results
+playwright-report
+blob-report
+playwright/.auth
+storageState*.json
+storage-state*.json
+vitest.config.ts.*
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.hypothesis
+.tox
+.nox
+
+# Documentation (not needed in Docker image)
+docs/
+*.md
+!README.md
+
+# Development files
+*.log
+*.bat
+*.sh
+archive/
+archived/
+temp*
+.claude/
+worktrees/
+.worktrees/
+.hypothesis/
+.tmp/
+
+# Dev data files not needed at runtime
+data/guild war csv files/
+data/loki-api/
+!data/loki-api/GlobalConfig.json
+!data/loki-api/boss-mapping.json
+!data/loki-api/season-lineups.json
+data/logs/
+data/raw-api/
+
+# Test files
+tests/
+!tests/
+tests/**
+!tests/setup.vitest.ts
+!tests/mocks/
+!tests/mocks/server-only.ts
+!tests/unit/
+!tests/unit/lib/
+!tests/unit/lib/middleware/
+!tests/unit/lib/middleware/director-rate-limit.test.ts
+
+# Dev tooling (agents, skills, scripts)
+agents/
+claude-skills-repository/
+
+# Monitoring configs (not needed in app container)
+monitoring/
+
+# Archived database schemas
+supabase/schema/archive/
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Vercel
+.vercel
+
+# MCP configuration
+.mcp.json
+
+# Repo-specific generated secrets, exports, overlays, and backup bundles
+docker/dozzle/users.yml
+docker/storage_data.tar.gz
+scripts/maintenance/*.csv
+k8s/.deploy-overlays/
+.local-backups/
+migration-artifacts/
+supabase/reports/
+.lane-env
+
+# Local databases, exports, and diagnostic captures
+*.sqlite
+*.sqlite3
+*.db
+*.db3
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite3-journal
+*.sqlite3-shm
+*.sqlite3-wal
+*.dump
+*.dmp
+*.sql.gz
+*.sql.bz2
+*.sql.xz
+*.har
+*.pcap
+*.pcapng
+*.core
+*.heapdump
+*.hprof
+dump.rdb
+appendonly.aof
+
+# Guild War helper runtime data contains local paths and player/Discord data
+assets/tacticus_gw/tacticus_gw_share/config.json
+assets/tacticus_gw/tacticus_gw_share/player_mapping.json
+assets/tacticus_gw/tacticus_gw_share/map_mapping.json
+assets/tacticus_gw/tacticus_gw_share/last_snapshot.json
+
+# Reference files (Homina)
+reference/
+
+# Historical reference trees are not web-build inputs.
+docs/reference/
+
+# Private-source creator portraits and third-party project marks are not
+# approved for redistribution in the public application image. The creator
+# directory keeps its links and uses the built-in generic icon fallback.
+public/images/TimmyMan.png
+public/images/dbpreacher.png
+public/images/homina.png
+public/images/nandi-profile.jpg
+public/images/tacticus_planner.png
+public/images/terminus_maximus.png
+public/images/thecorpseemperor-profile.jpg
+public/tablethetable.png

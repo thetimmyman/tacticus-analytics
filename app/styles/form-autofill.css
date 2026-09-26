@@ -1,0 +1,67 @@
+/* Tell browsers to use dark-theme form controls (defeats default white
+   autofill backgrounds on Chromium/Firefox dark sites). */
+:root {
+  color-scheme: dark;
+}
+
+/* Override Chrome/Edge/Safari autofill recolouring. The browser ignores
+   `background-color` once autofill kicks in; the only reliable way to
+   recolour is a giant inset box-shadow + -webkit-text-fill-color.
+   Use --input-bg / --input-text since those are actually defined in
+   :root (form-autofill previously referenced --bg-secondary, which is
+   undefined → fell through to browser default = unreadable text). */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+textarea:-webkit-autofill:active,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus,
+select:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--input-bg, #1e293b) inset !important;
+  box-shadow: 0 0 0 1000px var(--input-bg, #1e293b) inset !important;
+  -webkit-text-fill-color: var(--input-text, #f3f4f6) !important;
+  color: var(--input-text, #f3f4f6) !important;
+  caret-color: var(--input-text, #f3f4f6) !important;
+  /* Drop the slow autofill transition Chrome injects (which can briefly
+     reveal the white background while the box-shadow is still applying). */
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* Firefox autofill — uses a different pseudo-class and inline style. */
+input:autofill,
+textarea:autofill,
+select:autofill {
+  background-color: var(--input-bg, #1e293b) !important;
+  color: var(--input-text, #f3f4f6) !important;
+}
+
+/* Ensure consistent text colour for unfilled credential/email inputs even
+   before the autofill rule applies. Keeping the background transparent so
+   the input still picks up theme bg via utility classes. */
+input,
+textarea,
+select {
+  color: var(--input-text, var(--text-primary));
+}
+
+/* Override any browser default styles */
+input:not([type='checkbox']):not([type='radio']),
+textarea,
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Ensure disabled inputs maintain dark theme */
+input:disabled,
+textarea:disabled,
+select:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

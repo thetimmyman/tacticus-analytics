@@ -1,0 +1,538 @@
+{
+  "bySlug": {
+    "avatarofkhaine_aethana": {
+      "portraits": "/images/bosses/portraits/avatarofkhaine_aethana.png",
+      "icons": "/images/bosses/icons/avatarofkhaine_aethana.png",
+      "thumbnails": "/images/bosses/thumbnails/avatarofkhaine_aethana.png"
+    },
+    "avatarofkhaine_eldyron": {
+      "portraits": "/images/bosses/portraits/avatarofkhaine_eldyron.png",
+      "icons": "/images/bosses/icons/avatarofkhaine_eldyron.png",
+      "thumbnails": "/images/bosses/thumbnails/avatarofkhaine_eldyron.png"
+    },
+    "avatarofkhaine_main": {
+      "portraits": "/images/bosses/portraits/avatarofkhaine_main.png",
+      "icons": "/images/bosses/icons/avatarofkhaine_main.png",
+      "thumbnails": "/images/bosses/thumbnails/avatarofkhaine_main.png"
+    },
+    "belisarius_actus": {
+      "portraits": "/images/bosses/portraits/belisarius_actus.png",
+      "icons": "/images/bosses/icons/belisarius_actus.png",
+      "thumbnails": "/images/bosses/thumbnails/belisarius_actus.png"
+    },
+    "belisarius_main": {
+      "portraits": "/images/bosses/portraits/belisarius_main.png",
+      "icons": "/images/bosses/icons/belisarius_main.png",
+      "thumbnails": "/images/bosses/thumbnails/belisarius_main.png"
+    },
+    "belisarius_tan_gida": {
+      "portraits": "/images/bosses/portraits/belisarius_tan_gida.png",
+      "icons": "/images/bosses/icons/belisarius_tan_gida.png",
+      "thumbnails": "/images/bosses/thumbnails/belisarius_tan_gida.png"
+    },
+    "calgar": {
+      "portraits": "/images/bosses/portraits/calgar.png",
+      "icons": "/images/bosses/icons/calgar.png",
+      "thumbnails": "/images/bosses/thumbnails/calgar.png"
+    },
+    "celestine": {
+      "portraits": "/images/bosses/portraits/celestine.png",
+      "icons": "/images/bosses/icons/celestine.png",
+      "thumbnails": "/images/bosses/thumbnails/celestine.png"
+    },
+    "dante": {
+      "portraits": "/images/bosses/portraits/dante.png",
+      "icons": "/images/bosses/icons/dante.png",
+      "thumbnails": "/images/bosses/thumbnails/dante.png"
+    },
+    "ghazghkull_gibbascrapz": {
+      "portraits": "/images/bosses/portraits/ghazghkull_gibbascrapz.png",
+      "icons": "/images/bosses/icons/ghazghkull_gibbascrapz.png",
+      "thumbnails": "/images/bosses/thumbnails/ghazghkull_gibbascrapz.png"
+    },
+    "ghazghkull_main": {
+      "portraits": "/images/bosses/portraits/ghazghkull_main.png",
+      "icons": "/images/bosses/icons/ghazghkull_main.png",
+      "thumbnails": "/images/bosses/thumbnails/ghazghkull_main.png"
+    },
+    "ghazghkull_tanksmasha": {
+      "portraits": "/images/bosses/portraits/ghazghkull_tanksmasha.png",
+      "icons": "/images/bosses/icons/ghazghkull_tanksmasha.png",
+      "thumbnails": "/images/bosses/thumbnails/ghazghkull_tanksmasha.png"
+    },
+    "hivetyrantgorgon_main": {
+      "portraits": "/images/bosses/portraits/hivetyrantgorgon_main.png",
+      "thumbnails": "/images/bosses/thumbnails/hivetyrantgorgon_main.png",
+      "icons": "/images/bosses/portraits/hivetyrantgorgon_main.png"
+    },
+    "hivetyrantkronos_main": {
+      "portraits": "/images/bosses/portraits/hivetyrantkronos_main.png",
+      "thumbnails": "/images/bosses/thumbnails/hivetyrantkronos_main.png",
+      "icons": "/images/bosses/portraits/hivetyrantkronos_main.png"
+    },
+    "hivetyrantleviathan_main": {
+      "portraits": "/images/bosses/portraits/hivetyrantleviathan_main.png",
+      "thumbnails": "/images/bosses/thumbnails/hivetyrantleviathan_main.png",
+      "icons": "/images/bosses/portraits/hivetyrantleviathan_main.png"
+    },
+    "lion_baraqiel": {
+      "portraits": "/images/bosses/portraits/lion_baraqiel.png",
+      "icons": "/images/bosses/icons/lion_baraqiel.png",
+      "thumbnails": "/images/bosses/thumbnails/lion_baraqiel.png"
+    },
+    "lion_forcas": {
+      "portraits": "/images/bosses/portraits/lion_forcas.png",
+      "icons": "/images/bosses/icons/lion_forcas.png",
+      "thumbnails": "/images/bosses/thumbnails/lion_forcas.png"
+    },
+    "lion_main": {
+      "portraits": "/images/bosses/portraits/lion_main.png",
+      "icons": "/images/bosses/icons/lion_main.png",
+      "thumbnails": "/images/bosses/thumbnails/lion_main.png"
+    },
+    "magnus_abraxas": {
+      "portraits": "/images/bosses/portraits/magnus_abraxas.png",
+      "icons": "/images/bosses/icons/magnus_abraxas.png",
+      "thumbnails": "/images/bosses/thumbnails/magnus_abraxas.png"
+    },
+    "magnus_main": {
+      "portraits": "/images/bosses/portraits/magnus_main.png",
+      "icons": "/images/bosses/icons/magnus_main.png",
+      "thumbnails": "/images/bosses/thumbnails/magnus_main.png"
+    },
+    "magnus_thaumacus": {
+      "portraits": "/images/bosses/portraits/magnus_thaumacus.png",
+      "icons": "/images/bosses/icons/magnus_thaumacus.png",
+      "thumbnails": "/images/bosses/thumbnails/magnus_thaumacus.png"
+    },
+    "mortarion_corrodius": {
+      "portraits": "/images/bosses/portraits/mortarion_corrodius.png",
+      "icons": "/images/bosses/icons/mortarion_corrodius.png",
+      "thumbnails": "/images/bosses/thumbnails/mortarion_corrodius.png"
+    },
+    "mortarion_main": {
+      "portraits": "/images/bosses/portraits/mortarion_main.png",
+      "icons": "/images/bosses/icons/mortarion_main.png",
+      "thumbnails": "/images/bosses/thumbnails/mortarion_main.png"
+    },
+    "mortarion_rotbone": {
+      "portraits": "/images/bosses/portraits/mortarion_rotbone.png",
+      "icons": "/images/bosses/icons/mortarion_rotbone.png",
+      "thumbnails": "/images/bosses/thumbnails/mortarion_rotbone.png"
+    },
+    "morvenn_vahl": {
+      "portraits": "/images/bosses/portraits/morvenn_vahl.png",
+      "icons": "/images/bosses/icons/morvenn_vahl.png",
+      "thumbnails": "/images/bosses/thumbnails/morvenn_vahl.png"
+    },
+    "riptide_main": {
+      "portraits": "/images/bosses/portraits/riptide_main.png",
+      "icons": "/images/bosses/icons/riptide_main.png",
+      "thumbnails": "/images/bosses/thumbnails/riptide_main.png"
+    },
+    "riptide_revas": {
+      "portraits": "/images/bosses/portraits/riptide_revas.png",
+      "icons": "/images/bosses/icons/riptide_revas.png",
+      "thumbnails": "/images/bosses/thumbnails/riptide_revas.png"
+    },
+    "riptide_shosyl": {
+      "portraits": "/images/bosses/portraits/riptide_shosyl.png",
+      "icons": "/images/bosses/icons/riptide_shosyl.png",
+      "thumbnails": "/images/bosses/thumbnails/riptide_shosyl.png"
+    },
+    "rogaldorn_main": {
+      "portraits": "/images/bosses/portraits/rogaldorn_main.png",
+      "icons": "/images/bosses/icons/rogaldorn_main.png",
+      "thumbnails": "/images/bosses/thumbnails/rogaldorn_main.png"
+    },
+    "rogaldorn_sibyll": {
+      "portraits": "/images/bosses/portraits/rogaldorn_sibyll.png",
+      "icons": "/images/bosses/icons/rogaldorn_sibyll.png",
+      "thumbnails": "/images/bosses/thumbnails/rogaldorn_sibyll.png"
+    },
+    "rogaldorn_thaddeus": {
+      "portraits": "/images/bosses/portraits/rogaldorn_thaddeus.png",
+      "icons": "/images/bosses/icons/rogaldorn_thaddeus.png",
+      "thumbnails": "/images/bosses/thumbnails/rogaldorn_thaddeus.png"
+    },
+    "screamerkiller_main": {
+      "portraits": "/images/bosses/portraits/screamerkiller_main.png",
+      "icons": "/images/bosses/icons/screamerkiller_main.png",
+      "thumbnails": "/images/bosses/thumbnails/screamerkiller_main.png"
+    },
+    "screamerkiller_neurothrope": {
+      "portraits": "/images/bosses/portraits/screamerkiller_neurothrope.png",
+      "icons": "/images/bosses/icons/screamerkiller_neurothrope.png",
+      "thumbnails": "/images/bosses/thumbnails/screamerkiller_neurothrope.png"
+    },
+    "screamerkiller_winged_prime": {
+      "portraits": "/images/bosses/portraits/screamerkiller_winged_prime.png",
+      "icons": "/images/bosses/icons/screamerkiller_winged_prime.png",
+      "thumbnails": "/images/bosses/thumbnails/screamerkiller_winged_prime.png"
+    },
+    "silentking_hapthatra": {
+      "portraits": "/images/bosses/portraits/silentking_hapthatra.png",
+      "icons": "/images/bosses/icons/silentking_hapthatra.png",
+      "thumbnails": "/images/bosses/thumbnails/silentking_hapthatra.png"
+    },
+    "silentking_main": {
+      "portraits": "/images/bosses/portraits/silentking_main.png",
+      "icons": "/images/bosses/icons/silentking_main.png",
+      "thumbnails": "/images/bosses/thumbnails/silentking_main.png"
+    },
+    "silentking_mesophet": {
+      "portraits": "/images/bosses/portraits/silentking_mesophet.png",
+      "icons": "/images/bosses/icons/silentking_mesophet.png",
+      "thumbnails": "/images/bosses/thumbnails/silentking_mesophet.png"
+    },
+    "tervigongorgon_alpha_prime": {
+      "portraits": "/images/bosses/portraits/tervigongorgon_alpha_prime.png",
+      "thumbnails": "/images/bosses/thumbnails/tervigongorgon_alpha_prime.png",
+      "icons": "/images/bosses/portraits/tervigongorgon_alpha_prime.png"
+    },
+    "tervigongorgon_main": {
+      "portraits": "/images/bosses/portraits/tervigongorgon_main.png",
+      "thumbnails": "/images/bosses/thumbnails/tervigongorgon_main.png",
+      "icons": "/images/bosses/portraits/tervigongorgon_main.png"
+    },
+    "tervigongorgon_omega_prime": {
+      "portraits": "/images/bosses/portraits/tervigongorgon_omega_prime.png",
+      "thumbnails": "/images/bosses/thumbnails/tervigongorgon_omega_prime.png",
+      "icons": "/images/bosses/portraits/tervigongorgon_omega_prime.png"
+    },
+    "tervigonkronos_alpha_prime": {
+      "portraits": "/images/bosses/portraits/tervigonkronos_alpha_prime.png",
+      "thumbnails": "/images/bosses/thumbnails/tervigonkronos_alpha_prime.png",
+      "icons": "/images/bosses/portraits/tervigonkronos_alpha_prime.png"
+    },
+    "tervigonkronos_main": {
+      "portraits": "/images/bosses/portraits/tervigonkronos_main.png",
+      "thumbnails": "/images/bosses/thumbnails/tervigonkronos_main.png",
+      "icons": "/images/bosses/portraits/tervigonkronos_main.png"
+    },
+    "tervigonkronos_omega_prime": {
+      "portraits": "/images/bosses/portraits/tervigonkronos_omega_prime.png",
+      "thumbnails": "/images/bosses/thumbnails/tervigonkronos_omega_prime.png",
+      "icons": "/images/bosses/portraits/tervigonkronos_omega_prime.png"
+    },
+    "tervigonleviathan_alpha_prime": {
+      "portraits": "/images/bosses/portraits/tervigonleviathan_alpha_prime.png",
+      "thumbnails": "/images/bosses/thumbnails/tervigonleviathan_alpha_prime.png",
+      "icons": "/images/bosses/portraits/tervigonleviathan_alpha_prime.png"
+    },
+    "tervigonleviathan_main": {
+      "portraits": "/images/bosses/portraits/tervigonleviathan_main.png",
+      "thumbnails": "/images/bosses/thumbnails/tervigonleviathan_main.png",
+      "icons": "/images/bosses/portraits/tervigonleviathan_main.png"
+    },
+    "tervigonleviathan_omega_prime": {
+      "portraits": "/images/bosses/portraits/tervigonleviathan_omega_prime.png",
+      "thumbnails": "/images/bosses/thumbnails/tervigonleviathan_omega_prime.png",
+      "icons": "/images/bosses/portraits/tervigonleviathan_omega_prime.png"
+    }
+  },
+  "byBase": {
+    "avatarofkhaine": {
+      "variants": [
+        "avatarofkhaine_aethana",
+        "avatarofkhaine_eldyron",
+        "avatarofkhaine_main"
+      ],
+      "default": "avatarofkhaine_main"
+    },
+    "belisarius": {
+      "variants": [
+        "belisarius_actus",
+        "belisarius_main",
+        "belisarius_tan_gida"
+      ],
+      "default": "belisarius_main"
+    },
+    "calgar": {
+      "variants": ["calgar"],
+      "default": "calgar"
+    },
+    "celestine": {
+      "variants": ["celestine"],
+      "default": "celestine"
+    },
+    "dante": {
+      "variants": ["dante"],
+      "default": "dante"
+    },
+    "ghazghkull": {
+      "variants": [
+        "ghazghkull_gibbascrapz",
+        "ghazghkull_main",
+        "ghazghkull_tanksmasha"
+      ],
+      "default": "ghazghkull_main"
+    },
+    "hivetyrantgorgon": {
+      "variants": ["hivetyrantgorgon_main"],
+      "default": "hivetyrantgorgon_main"
+    },
+    "hivetyrantkronos": {
+      "variants": ["hivetyrantkronos_main"],
+      "default": "hivetyrantkronos_main"
+    },
+    "hivetyrantleviathan": {
+      "variants": ["hivetyrantleviathan_main"],
+      "default": "hivetyrantleviathan_main"
+    },
+    "lion": {
+      "variants": ["lion_baraqiel", "lion_forcas", "lion_main"],
+      "default": "lion_main"
+    },
+    "magnus": {
+      "variants": ["magnus_abraxas", "magnus_main", "magnus_thaumacus"],
+      "default": "magnus_main"
+    },
+    "mortarion": {
+      "variants": [
+        "mortarion_corrodius",
+        "mortarion_main",
+        "mortarion_rotbone"
+      ],
+      "default": "mortarion_main"
+    },
+    "morvenn_vahl": {
+      "variants": ["morvenn_vahl"],
+      "default": "morvenn_vahl"
+    },
+    "riptide": {
+      "variants": ["riptide_main", "riptide_revas", "riptide_shosyl"],
+      "default": "riptide_main"
+    },
+    "rogaldorn": {
+      "variants": ["rogaldorn_main", "rogaldorn_sibyll", "rogaldorn_thaddeus"],
+      "default": "rogaldorn_main"
+    },
+    "screamerkiller": {
+      "variants": [
+        "screamerkiller_main",
+        "screamerkiller_neurothrope",
+        "screamerkiller_winged_prime"
+      ],
+      "default": "screamerkiller_main"
+    },
+    "silentking": {
+      "variants": [
+        "silentking_hapthatra",
+        "silentking_main",
+        "silentking_mesophet"
+      ],
+      "default": "silentking_main"
+    },
+    "tervigongorgon": {
+      "variants": [
+        "tervigongorgon_alpha_prime",
+        "tervigongorgon_main",
+        "tervigongorgon_omega_prime"
+      ],
+      "default": "tervigongorgon_main"
+    },
+    "tervigonkronos": {
+      "variants": [
+        "tervigonkronos_alpha_prime",
+        "tervigonkronos_main",
+        "tervigonkronos_omega_prime"
+      ],
+      "default": "tervigonkronos_main"
+    },
+    "tervigonleviathan": {
+      "variants": [
+        "tervigonleviathan_alpha_prime",
+        "tervigonleviathan_main",
+        "tervigonleviathan_omega_prime"
+      ],
+      "default": "tervigonleviathan_main"
+    }
+  },
+  "byAlias": {
+    "aethana": "avatarofkhaine_aethana",
+    "avatarofkhaine_aethana": "avatarofkhaine_aethana",
+    "eldyron": "avatarofkhaine_eldyron",
+    "avatarofkhaine_eldyron": "avatarofkhaine_eldyron",
+    "main": [
+      "avatarofkhaine_main",
+      "belisarius_main",
+      "ghazghkull_main",
+      "hivetyrantgorgon_main",
+      "hivetyrantkronos_main",
+      "hivetyrantleviathan_main",
+      "lion_main",
+      "magnus_main",
+      "mortarion_main",
+      "riptide_main",
+      "rogaldorn_main",
+      "screamerkiller_main",
+      "silentking_main",
+      "tervigongorgon_main",
+      "tervigonkronos_main",
+      "tervigonleviathan_main"
+    ],
+    "avatarofkhaine_main": "avatarofkhaine_main",
+    "actus": "belisarius_actus",
+    "belisarius_actus": "belisarius_actus",
+    "belisarius_main": "belisarius_main",
+    "tan_gida": "belisarius_tan_gida",
+    "belisarius_tan_gida": "belisarius_tan_gida",
+    "gibbascrapz": "ghazghkull_gibbascrapz",
+    "ghazghkull_gibbascrapz": "ghazghkull_gibbascrapz",
+    "ghazghkull_main": "ghazghkull_main",
+    "tanksmasha": "ghazghkull_tanksmasha",
+    "ghazghkull_tanksmasha": "ghazghkull_tanksmasha",
+    "hivetyrantgorgon_main": "hivetyrantgorgon_main",
+    "hivetyrantkronos_main": "hivetyrantkronos_main",
+    "hivetyrantleviathan_main": "hivetyrantleviathan_main",
+    "baraqiel": "lion_baraqiel",
+    "lion_baraqiel": "lion_baraqiel",
+    "forcas": "lion_forcas",
+    "lion_forcas": "lion_forcas",
+    "lion_main": "lion_main",
+    "abraxas": "magnus_abraxas",
+    "magnus_abraxas": "magnus_abraxas",
+    "magnus_main": "magnus_main",
+    "thaumacus": "magnus_thaumacus",
+    "magnus_thaumacus": "magnus_thaumacus",
+    "corrodius": "mortarion_corrodius",
+    "mortarion_corrodius": "mortarion_corrodius",
+    "mortarion_main": "mortarion_main",
+    "rotbone": "mortarion_rotbone",
+    "mortarion_rotbone": "mortarion_rotbone",
+    "riptide_main": "riptide_main",
+    "revas": "riptide_revas",
+    "riptide_revas": "riptide_revas",
+    "shosyl": "riptide_shosyl",
+    "riptide_shosyl": "riptide_shosyl",
+    "rogaldorn_main": "rogaldorn_main",
+    "sibyll": "rogaldorn_sibyll",
+    "rogaldorn_sibyll": "rogaldorn_sibyll",
+    "thaddeus": "rogaldorn_thaddeus",
+    "rogaldorn_thaddeus": "rogaldorn_thaddeus",
+    "screamerkiller_main": "screamerkiller_main",
+    "neurothrope": "screamerkiller_neurothrope",
+    "screamerkiller_neurothrope": "screamerkiller_neurothrope",
+    "winged_prime": "screamerkiller_winged_prime",
+    "screamerkiller_winged_prime": "screamerkiller_winged_prime",
+    "hapthatra": "silentking_hapthatra",
+    "silentking_hapthatra": "silentking_hapthatra",
+    "silentking_main": "silentking_main",
+    "mesophet": "silentking_mesophet",
+    "silentking_mesophet": "silentking_mesophet",
+    "alpha_prime": [
+      "tervigongorgon_alpha_prime",
+      "tervigonkronos_alpha_prime",
+      "tervigonleviathan_alpha_prime"
+    ],
+    "tervigongorgon_alpha_prime": "tervigongorgon_alpha_prime",
+    "tervigongorgon_main": "tervigongorgon_main",
+    "omega_prime": [
+      "tervigongorgon_omega_prime",
+      "tervigonkronos_omega_prime",
+      "tervigonleviathan_omega_prime"
+    ],
+    "tervigongorgon_omega_prime": "tervigongorgon_omega_prime",
+    "tervigonkronos_alpha_prime": "tervigonkronos_alpha_prime",
+    "tervigonkronos_main": "tervigonkronos_main",
+    "tervigonkronos_omega_prime": "tervigonkronos_omega_prime",
+    "tervigonleviathan_alpha_prime": "tervigonleviathan_alpha_prime",
+    "tervigonleviathan_main": "tervigonleviathan_main",
+    "tervigonleviathan_omega_prime": "tervigonleviathan_omega_prime",
+    "avatarofkhaine": "avatarofkhaine_main",
+    "belisarius": "belisarius_main",
+    "ghazghkull": "ghazghkull_main",
+    "hivetyrantgorgon": "hivetyrantgorgon_main",
+    "hivetyrantgorgon_alpha_prime": "hivetyrantgorgon_main",
+    "hivetyrantgorgon_omega_prime": "hivetyrantgorgon_main",
+    "hivetyrantkronos": "hivetyrantkronos_main",
+    "hivetyrantkronos_alpha_prime": "hivetyrantkronos_main",
+    "hivetyrantkronos_omega_prime": "hivetyrantkronos_main",
+    "hivetyrantleviathan": "hivetyrantleviathan_main",
+    "hivetyrantleviathan_alpha_prime": "hivetyrantleviathan_main",
+    "hivetyrantleviathan_omega_prime": "hivetyrantleviathan_main",
+    "lion": "lion_main",
+    "magnus": "magnus_main",
+    "mortarion": "mortarion_main",
+    "riptide": "riptide_main",
+    "rogaldorn": "rogaldorn_main",
+    "screamerkiller": "screamerkiller_main",
+    "silentking": "silentking_main",
+    "tervigongorgon": "tervigongorgon_main",
+    "tervigonkronos": "tervigonkronos_main",
+    "tervigonleviathan": "tervigonleviathan_main",
+    "belisariusrw": "belisarius_main",
+    "szarekh": "silentking_main"
+  },
+  "slugToBase": {
+    "avatarofkhaine_aethana": "avatarofkhaine",
+    "avatarofkhaine_eldyron": "avatarofkhaine",
+    "avatarofkhaine_main": "avatarofkhaine",
+    "belisarius_actus": "belisarius",
+    "belisarius_main": "belisarius",
+    "belisarius_tan_gida": "belisarius",
+    "calgar": "calgar",
+    "celestine": "celestine",
+    "dante": "dante",
+    "ghazghkull_gibbascrapz": "ghazghkull",
+    "ghazghkull_main": "ghazghkull",
+    "ghazghkull_tanksmasha": "ghazghkull",
+    "hivetyrantgorgon_main": "hivetyrantgorgon",
+    "hivetyrantkronos_main": "hivetyrantkronos",
+    "hivetyrantleviathan_main": "hivetyrantleviathan",
+    "lion_baraqiel": "lion",
+    "lion_forcas": "lion",
+    "lion_main": "lion",
+    "magnus_abraxas": "magnus",
+    "magnus_main": "magnus",
+    "magnus_thaumacus": "magnus",
+    "mortarion_corrodius": "mortarion",
+    "mortarion_main": "mortarion",
+    "mortarion_rotbone": "mortarion",
+    "morvenn_vahl": "morvenn_vahl",
+    "riptide_main": "riptide",
+    "riptide_revas": "riptide",
+    "riptide_shosyl": "riptide",
+    "rogaldorn_main": "rogaldorn",
+    "rogaldorn_sibyll": "rogaldorn",
+    "rogaldorn_thaddeus": "rogaldorn",
+    "screamerkiller_main": "screamerkiller",
+    "screamerkiller_neurothrope": "screamerkiller",
+    "screamerkiller_winged_prime": "screamerkiller",
+    "silentking_hapthatra": "silentking",
+    "silentking_main": "silentking",
+    "silentking_mesophet": "silentking",
+    "tervigongorgon_alpha_prime": "tervigongorgon",
+    "tervigongorgon_main": "tervigongorgon",
+    "tervigongorgon_omega_prime": "tervigongorgon",
+    "tervigonkronos_alpha_prime": "tervigonkronos",
+    "tervigonkronos_main": "tervigonkronos",
+    "tervigonkronos_omega_prime": "tervigonkronos",
+    "tervigonleviathan_alpha_prime": "tervigonleviathan",
+    "tervigonleviathan_main": "tervigonleviathan",
+    "tervigonleviathan_omega_prime": "tervigonleviathan",
+    "avatarofkhaine": "avatarofkhaine",
+    "belisarius": "belisarius",
+    "ghazghkull": "ghazghkull",
+    "hivetyrantgorgon": "hivetyrantgorgon",
+    "hivetyrantgorgon_alpha_prime": "hivetyrantgorgon",
+    "hivetyrantgorgon_omega_prime": "hivetyrantgorgon",
+    "hivetyrantkronos": "hivetyrantkronos",
+    "hivetyrantkronos_alpha_prime": "hivetyrantkronos",
+    "hivetyrantkronos_omega_prime": "hivetyrantkronos",
+    "hivetyrantleviathan": "hivetyrantleviathan",
+    "hivetyrantleviathan_alpha_prime": "hivetyrantleviathan",
+    "hivetyrantleviathan_omega_prime": "hivetyrantleviathan",
+    "lion": "lion",
+    "magnus": "magnus",
+    "mortarion": "mortarion",
+    "riptide": "riptide",
+    "rogaldorn": "rogaldorn",
+    "screamerkiller": "screamerkiller",
+    "silentking": "silentking",
+    "tervigongorgon": "tervigongorgon",
+    "tervigonkronos": "tervigonkronos",
+    "tervigonleviathan": "tervigonleviathan"
+  }
+}
