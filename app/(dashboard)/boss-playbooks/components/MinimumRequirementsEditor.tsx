@@ -6,7 +6,7 @@ import {
   ClipboardList,
   Sparkles,
   Users,
-  Building2,
+  BuildingComplex,
   Globe,
   ChevronDown,
   ChevronUp
@@ -645,7 +645,7 @@ export function MinimumRequirementsEditor({
                         className="h-4 w-4 rounded border border-[var(--card-border)]"
                       />
                       <span className="flex items-center gap-1">
-                        <Building2 className="h-3 w-3" />
+                        <BuildingComplex className="h-3 w-3" />
                         Guild-only
                       </span>
                     </label>
@@ -657,7 +657,7 @@ export function MinimumRequirementsEditor({
                   <div className="flex items-center gap-2 text-[10px]">
                     {activeGuildRequirement && (
                       <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                        <Building2 className="h-3 w-3" />
+                        <BuildingComplex className="h-3 w-3" />
                         Guild requirement exists
                       </span>
                     )}

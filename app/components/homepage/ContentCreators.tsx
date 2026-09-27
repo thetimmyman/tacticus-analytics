@@ -2,7 +2,8 @@ import { YouTubeIcon } from '@/app/components/icons/YouTubeIcon'
 import { TikTokIcon } from '@/app/components/icons/TikTokIcon'
 import { GoogleSheetsIcon } from '@/app/components/icons/GoogleSheetsIcon'
 import { DiscordIcon } from '@/app/components/icons/DiscordIcon'
-import { Film, Github, Globe, MessageCircle } from 'lucide-react'
+import { GitHubIcon } from '@/app/components/icons/GitHubIcon'
+import { Film, Globe, MessageCircle } from 'lucide-react'
 
 type LinkType =
   | 'youtube'
@@ -68,7 +69,7 @@ function LinkIcon({ type }: { type: LinkType }) {
     case 'website':
       return <Globe className="w-4 h-4 mr-2" />
     case 'github':
-      return <Github className="w-4 h-4 mr-2" />
+      return <GitHubIcon className="w-4 h-4 mr-2" />
     case 'reddit':
       return <MessageCircle className="w-4 h-4 mr-2" />
     case 'discord':

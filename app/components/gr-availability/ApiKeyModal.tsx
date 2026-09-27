@@ -2,7 +2,7 @@
 
 import { type Dispatch, type SetStateAction } from 'react'
 import { Button } from '@tacticus/ui-kit'
-import { CheckCircle, Key, RefreshCw, Trash2 } from 'lucide-react'
+import { CheckCircle, Key, RefreshCw, Trash } from 'lucide-react'
 import { Modal } from '@/app/components/gr-availability/Modal'
 import { StatusMessageIcon } from '@/app/components/gr-availability/StatusMessageIcon'
 import {
@@ -133,7 +133,7 @@ export const ApiKeyModal = ({
                   </>
                 ) : (
                   <>
-                    <Trash2 className="h-4 w-4" />
+                    <Trash className="h-4 w-4" />
                     <span className="ml-2">Delete Key</span>
                   </>
                 )}
