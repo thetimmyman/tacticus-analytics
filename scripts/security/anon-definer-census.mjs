@@ -94,7 +94,7 @@ export function stripNonCode(sql) {
   return out
 }
 
-export function splitStatements(code) {
+function splitStatements(code) {
   return code
     .split(';')
     .map((statement) => statement.trim())
@@ -189,7 +189,7 @@ const TYPE_ALIASES = new Map([
 ])
 
 // Split on top-level commas so `numeric(10,2)` survives.
-export function splitTopLevel(text) {
+function splitTopLevel(text) {
   const parts = []
   let depth = 0
   let current = ''

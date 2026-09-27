@@ -25,7 +25,7 @@ const EXPORT_CATEGORIES = [
   'classMembers'
 ]
 
-export function extractIdentities(report) {
+function extractIdentities(report) {
   const ids = new Set()
   for (const issue of report.issues ?? []) {
     const file = issue.file
@@ -44,7 +44,7 @@ export function extractIdentities(report) {
   return ids
 }
 
-export function diffAgainstBaseline(currentIds, baselineIds) {
+function diffAgainstBaseline(currentIds, baselineIds) {
   const added = [...currentIds].filter((id) => !baselineIds.has(id)).sort()
   const removed = [...baselineIds].filter((id) => !currentIds.has(id)).sort()
   return { added, removed }

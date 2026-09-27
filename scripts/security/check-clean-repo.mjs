@@ -131,7 +131,7 @@ const SENSITIVE_MARKERS = [
 ]
 
 /** Windows slide across each hex run so an embedded identifier still matches. */
-export function findHashedIdentifiers(content) {
+function findHashedIdentifiers(content) {
   const labels = new Set()
   const seen = new Set()
 
@@ -177,7 +177,7 @@ function readText(relativePath) {
 const FORK_GUARD =
   /github\.event\.pull_request\.head\.repo\.full_name\s*==\s*github\.repository/u
 
-export function findContentViolations(files) {
+function findContentViolations(files) {
   const violations = []
   for (const [file, content] of Object.entries(files)) {
     if (file === SELF || content === null) continue

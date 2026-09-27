@@ -80,7 +80,7 @@ function hasCronSegment(relPath) {
   return segments.includes('cron')
 }
 
-export function selectCronPathFiles(files) {
+function selectCronPathFiles(files) {
   return files.filter(
     (file) =>
       file.startsWith('app/api/') && isRouteFile(file) && hasCronSegment(file)
@@ -146,7 +146,7 @@ function collectGuardBindings(sourceFile, relPath) {
   return { names, namespaces }
 }
 
-export function selectGuardImportingFiles(files, readFile) {
+function selectGuardImportingFiles(files, readFile) {
   const selected = []
   for (const file of files) {
     if (!file.startsWith('app/api/') || !isRouteFile(file)) continue
@@ -501,7 +501,7 @@ function collectExportedHandlers(sourceFile) {
 }
 
 /** @returns {Array<{ file: string, method: string, ok: boolean, reason?: string }>} */
-export function analyzeRouteFile(relPath, text) {
+function analyzeRouteFile(relPath, text) {
   const sourceFile = parse(relPath, text)
   const { names, namespaces } = collectGuardBindings(sourceFile, relPath)
   const literalBooleans = collectLiteralBooleans(sourceFile)
@@ -629,7 +629,7 @@ export function analyzeRouteFile(relPath, text) {
   return results
 }
 
-export function checkManifest(manifestFiles, discovered, pathDiscovered) {
+function checkManifest(manifestFiles, discovered, pathDiscovered) {
   const missing = []
   for (const file of manifestFiles) {
     if (!discovered.has(file)) {
