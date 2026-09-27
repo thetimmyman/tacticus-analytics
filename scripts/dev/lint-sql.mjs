@@ -11,7 +11,7 @@ const DEFAULT_ALLOWLIST_PATH = path.join(
   'rls-no-policy.allowlist.txt'
 )
 
-export function loadAllowlist(allowlistPath = DEFAULT_ALLOWLIST_PATH) {
+function loadAllowlist(allowlistPath = DEFAULT_ALLOWLIST_PATH) {
   const allowlist = new Set()
   if (!existsSync(allowlistPath)) return allowlist
   for (const rawLine of readFileSync(allowlistPath, 'utf8').split(/\r?\n/)) {

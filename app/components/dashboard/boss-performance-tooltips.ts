@@ -5,7 +5,7 @@ import {
 } from '@tacticus/app-core/formatters'
 
 export type TrendDirection = 'improving' | 'declining' | 'stable'
-export type ProblemSeverity = 'low' | 'medium' | 'high'
+type ProblemSeverity = 'low' | 'medium' | 'high'
 
 const trendDescriptions: Record<TrendDirection, string> = {
   improving: 'Performance is improving',

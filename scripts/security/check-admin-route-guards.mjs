@@ -122,7 +122,7 @@ function stripNonCode(source) {
 }
 
 /** Per exported method: wrapper, declared guard kind and whether the limiter is reached. */
-export function analyseRoute(
+function analyseRoute(
   relPath,
   readFile = (p) => fs.readFileSync(path.join(ROOT, p), 'utf8')
 ) {
@@ -198,7 +198,7 @@ export function analyseRoute(
   return { file: relPath, handlers: results }
 }
 
-export function census(files = listRouteFiles()) {
+function census(files = listRouteFiles()) {
   const rows = files.map((file) => {
     const { handlers } = analyseRoute(file)
     const guards = [...new Set(handlers.map((h) => h.guard))]
@@ -219,7 +219,7 @@ export function census(files = listRouteFiles()) {
   }
 }
 
-export function violations(result = census()) {
+function violations(result = census()) {
   const problems = []
   for (const row of result.rows) {
     if (row.methods.length === 0) {

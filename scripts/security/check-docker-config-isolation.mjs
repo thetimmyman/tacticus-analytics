@@ -21,7 +21,7 @@ function workflowFiles() {
 }
 
 /** Per-job blocks: keys under `jobs:` indented by exactly two spaces. */
-export function splitJobs(content) {
+function splitJobs(content) {
   const lines = content.split('\n')
   const jobsIndex = lines.findIndex((line) => /^jobs:\s*$/u.test(line))
   if (jobsIndex === -1) return []
@@ -43,7 +43,7 @@ export function splitJobs(content) {
 }
 
 /** Returns `{ violations, loginJobCount }`; a zero count is itself a violation. */
-export function evaluate(files) {
+function evaluate(files) {
   const violations = []
   let loginJobCount = 0
 
@@ -68,7 +68,7 @@ export function evaluate(files) {
   return { violations, loginJobCount }
 }
 
-export function findViolations(files) {
+function findViolations(files) {
   return evaluate(files).violations
 }
 

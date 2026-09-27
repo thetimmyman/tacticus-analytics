@@ -51,7 +51,7 @@ function walkSourceFiles(dir, out) {
 }
 
 /** @returns {Map<string, string[]>} rpc name -> sorted unique caller paths */
-export function collectRpcCallers(root, callerRoots = CALLER_ROOTS) {
+function collectRpcCallers(root, callerRoots = CALLER_ROOTS) {
   const callers = new Map()
   for (const rel of callerRoots) {
     for (const file of walkSourceFiles(path.join(root, rel), [])) {
@@ -71,7 +71,7 @@ export function collectRpcCallers(root, callerRoots = CALLER_ROOTS) {
   )
 }
 
-export function collectCreatedFunctions(root, migrationsDir = MIGRATIONS_DIR) {
+function collectCreatedFunctions(root, migrationsDir = MIGRATIONS_DIR) {
   const created = new Set()
   const dir = path.join(root, migrationsDir)
   let files
@@ -95,7 +95,7 @@ function readAllowlist(root, allowlistPath = ALLOWLIST_PATH) {
 }
 
 /** Pure, so the selftest can drive it. @returns {{problems: string[], stats: object}} */
-export function evaluate({ callers, created, allowlist }) {
+function evaluate({ callers, created, allowlist }) {
   const problems = []
   const allowByName = new Map(allowlist.map((e) => [e.name, e]))
 

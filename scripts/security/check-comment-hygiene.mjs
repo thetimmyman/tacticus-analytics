@@ -111,7 +111,7 @@ function scriptKind(file) {
   return ts.ScriptKind.JSX
 }
 
-export function extractJsComments(text, file = 'input.ts') {
+function extractJsComments(text, file = 'input.ts') {
   const source = ts.createSourceFile(
     file,
     text,
@@ -168,7 +168,7 @@ export function extractJsComments(text, file = 'input.ts') {
 
 const IDENT_CHAR = /[A-Za-z0-9_$]/u
 
-export function extractSqlComments(text, { skipDollarBodies = false } = {}) {
+function extractSqlComments(text, { skipDollarBodies = false } = {}) {
   const starts = lineStarts(text)
   const comments = []
   let i = 0
@@ -253,7 +253,7 @@ export function extractSqlComments(text, { skipDollarBodies = false } = {}) {
 const HASH_DIRECTIVE =
   /^#\s*(?:shellcheck\b|yaml-language-server\b|zizmor\b|gitleaks:allow|trufflehog:ignore)/u
 
-export function extractHashComments(text, { shell = false } = {}) {
+function extractHashComments(text, { shell = false } = {}) {
   const comments = []
   const lines = text.split('\n')
   let heredoc = null
@@ -284,7 +284,7 @@ export function extractHashComments(text, { shell = false } = {}) {
   return groupLineComments(comments)
 }
 
-export function extractComments(file, text) {
+function extractComments(file, text) {
   if (/\.sql$/u.test(file))
     return extractSqlComments(text, {
       skipDollarBodies: file.startsWith('supabase/migrations/')
@@ -303,7 +303,7 @@ function shown(text) {
   return flat.length > MAX_SHOWN ? `${flat.slice(0, MAX_SHOWN - 3)}...` : flat
 }
 
-export function checkText(file, text) {
+function checkText(file, text) {
   if (isGenerated(text)) return []
   const violations = []
   for (const block of extractComments(file, text)) {

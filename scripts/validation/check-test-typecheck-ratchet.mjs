@@ -30,7 +30,7 @@ const UNPREFIXED_DIAGNOSTIC_RE = /^\s*error (TS\d+):/
 const CONFIG_FILE_DIAGNOSTIC_RE =
   /^\s*([^(]*tsconfig[^(]*\.json)\(\d+,\d+\): error (TS\d+):/
 
-export function parseErrors(output) {
+function parseErrors(output) {
   const errors = []
   for (const line of output.split('\n')) {
     const match = ERROR_LINE_RE.exec(line)
@@ -40,7 +40,7 @@ export function parseErrors(output) {
 }
 
 /** Files by error count; all listed every run because the baseline has no per-file record. */
-export function topFiles(errors, n = Infinity) {
+function topFiles(errors, n = Infinity) {
   const counts = new Map()
   for (const { file } of errors) {
     counts.set(file, (counts.get(file) ?? 0) + 1)
@@ -55,7 +55,7 @@ export function topFiles(errors, n = Infinity) {
  * Diagnostics proving tsc could not check the project at all (counting them
  * would fail open). Not a blanket TS5xxx/TS6xxx range: TS6133 must keep counting.
  */
-export function findFatalDiagnostics(output) {
+function findFatalDiagnostics(output) {
   const fatal = []
   for (const line of output.split('\n')) {
     if (
@@ -69,7 +69,7 @@ export function findFatalDiagnostics(output) {
 }
 
 /** Reasons a tsc run is unusable (empty = valid); `status` is null for `--from`, skipping exit-status rules. */
-export function findUnusableRunReasons({ output, status, spawnError }) {
+function findUnusableRunReasons({ output, status, spawnError }) {
   const reasons = []
   if (spawnError) {
     reasons.push(`tsc could not be executed: ${spawnError}`)
