@@ -22,7 +22,18 @@ regexes = [
   '''findVerifiedDiscordForMapping''',
   '''resolveVerifiedDiscordIdentities''',
   '''123456789012345678''',
-  '''SECRET-TACTICUS-KEY-9f8e7d6c''',
+  '''SECRET-TACTICUS-KEY-9f8e7d6c'''
+]
+
+# A Discord application's public key is an Ed25519 verification key: public by
+# design (Discord shows it in the developer portal) and it can only verify
+# request signatures, never sign them. Scoped to its one use so the same value
+# anywhere else is still reported.
+[[allowlists]]
+description = "Discord application public key: an Ed25519 verification key, public by design (Discord shows it in the developer portal) and it can only verify request signatures, never sign them"
+paths = ['''(^|/)supabase/functions/discord-notifications/index\.ts$''']
+condition = "AND"
+regexes = [
   '''9be90ced4b0c257eb5ef9acd706b9f00cd3723946dfd005d2785be4e3cd12895'''
 ]
 
@@ -31,8 +42,8 @@ description = "Generated game catalog asset ids"
 targetRules = ["generic-api-key"]
 paths = ['''(^|/)data/game-data/.*\.json$''']
 
-# WI-7790 (2026-09-02): the three false-positive classes a real run reported
-# (208 findings, zero secrets). Each is scoped to the rule it trips.
+# False-positive classes from a full scan; each is scoped to the rule it trips
+# so unrelated findings still surface.
 [[allowlists]]
 description = "Captured game-server config: locaKey localization ids are high-entropy strings, not credentials"
 targetRules = ["generic-api-key"]
@@ -51,11 +62,10 @@ regexes = [
   '''987654321098765432'''
 ]
 
-# PS-404: the first real `gitleaks detect` run wired into CI (previously
-# gitleaks ran in no CI job at all) found these two false-positive classes.
-# Each is a committed, documented test fixture, not a credential.
+# Two false-positive classes: each is a committed, documented test fixture,
+# not a credential.
 [[allowlists]]
-description = "check-secrets.ts's own PATTERN_FIXTURES selftest table (PS-403/PS-448): the two fixture lines a real run flags, asserted to be CAUGHT by check-secrets.ts's own --selftest, not credentials. Scoped with condition = \"AND\" to those two lines in that one file, so any other generic-api-key hit anywhere else in this security-sensitive file is still reported."
+description = "check-secrets.ts's own PATTERN_FIXTURES selftest table: the two fixture lines it asserts its --selftest CAUGHT, not credentials. Scoped with condition = \"AND\" to those two lines in that one file, so any other generic-api-key hit anywhere else in this security-sensitive file is still reported."
 targetRules = ["generic-api-key"]
 paths = ['''(^|/)scripts/security/check-secrets\.ts$''']
 regexTarget = "line"
