@@ -29,7 +29,7 @@ const restoreEnv = () => {
 
 const importBrowserModule = async () => {
   vi.resetModules()
-  vi.unmock('@/app/lib/auth/browser')
+  vi.doUnmock('@/app/lib/auth/browser')
   return import('@/app/lib/auth/browser')
 }
 

@@ -276,12 +276,18 @@ function buildClient(db: FakeDb) {
   }
 }
 
+// The db mock reads the client through this ref, so every test's fake db is the one used
+// even when the mocked module is served from vitest's module cache.
+const clientRef: { current: ReturnType<typeof buildClient> | null } = {
+  current: null
+}
+
 async function loadRoute(db: FakeDb) {
   vi.resetModules()
-  const client = buildClient(db)
+  clientRef.current = buildClient(db)
   vi.doMock('@/app/lib/db', () => ({
-    db: async () => client,
-    serviceDb: () => client
+    db: async () => clientRef.current,
+    serviceDb: () => clientRef.current
   }))
   vi.doMock('@/app/lib/middleware/rate-limit', () => ({
     apiSecurityMiddleware: async () => null
