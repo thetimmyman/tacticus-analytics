@@ -25,7 +25,7 @@ function walk(relativePath) {
     .flatMap((entry) => walk(path.join(relativePath, entry.name)))
 }
 
-export function findViolations(files) {
+function findViolations(files) {
   const violations = []
 
   for (const [file, content] of Object.entries(files)) {

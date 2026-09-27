@@ -21,7 +21,7 @@ const ALLOWLIST_PATH = path.join(
 )
 
 // The standby runner's registered labels; change only after re-probing its registration.
-export const STANDBY_RUNNER_LABELS = [
+const STANDBY_RUNNER_LABELS = [
   'self-hosted',
   'linux',
   'x64',
@@ -34,7 +34,7 @@ const STANDBY_LABEL_SET = new Set(
 )
 
 // Case-insensitive: a case-only mismatch must not read as "safe".
-export function jobMatchesStandby(labels) {
+function jobMatchesStandby(labels) {
   if (labels.length === 0) return false
   return labels.every((label) => STANDBY_LABEL_SET.has(label.toLowerCase()))
 }
@@ -86,7 +86,7 @@ function parseBranchValue(raw) {
 }
 
 /** Resolves a `cond && A || B` runs-on to its label-array branches; null otherwise (caller fails closed). */
-export function resolveExpressionBranches(expr) {
+function resolveExpressionBranches(expr) {
   const inner = expr.trim()
 
   const direct = parseBranchValue(inner)
@@ -107,7 +107,7 @@ export function resolveExpressionBranches(expr) {
 }
 
 /** Parse one `runs-on:` value into label-array branches, or null if unclassifiable. */
-export function parseRunsOnScalar(value) {
+function parseRunsOnScalar(value) {
   const trimmed = value.trim()
 
   const exprMatch = trimmed.match(/^\$\{\{([\s\S]*)\}\}$/u)
@@ -129,7 +129,7 @@ export function parseRunsOnScalar(value) {
 }
 
 /** Line-based parse; relies on job ids sitting two spaces under `jobs:`. */
-export function parseWorkflowJobs(source) {
+function parseWorkflowJobs(source) {
   const lines = source.split(/\r?\n/)
   const jobsIndex = lines.findIndex((l) => /^jobs:\s*$/u.test(l))
   if (jobsIndex === -1) return []
@@ -215,7 +215,7 @@ function listWorkflowFiles() {
 }
 
 /** Every job and its branches, matched before the allowlist so the census shows raw reality. */
-export function census(workflowsDir = WORKFLOWS_DIR) {
+function census(workflowsDir = WORKFLOWS_DIR) {
   const rows = []
   const files = fs.existsSync(workflowsDir)
     ? fs
@@ -258,7 +258,7 @@ export function census(workflowsDir = WORKFLOWS_DIR) {
   return rows
 }
 
-export function violations(rows, allowlist) {
+function violations(rows, allowlist) {
   const problems = []
   for (const row of rows) {
     if (!row.matches) continue

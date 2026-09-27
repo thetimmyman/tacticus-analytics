@@ -307,7 +307,7 @@ function coalesceHint(helper, operator, insideNegation = false) {
     : ` or \`COALESCE(auth.role(), '') ${operator} ...\``
 }
 
-export function findViolations(files) {
+function findViolations(files) {
   const violations = []
 
   for (const [file, rawSql] of Object.entries(files)) {
