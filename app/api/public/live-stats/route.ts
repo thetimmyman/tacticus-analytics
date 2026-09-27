@@ -20,7 +20,7 @@ export const GET = withErrorHandler(async () => {
     })
   } catch (error) {
     rethrowIfAppError(error)
-    logger.error('Failed to fetch live stats from API route:', error)
+    logger.error(error, 'Failed to fetch live stats from API route:')
 
     throw Errors.fromResponse(500, {
       message: 'Unable to load live stats right now.'

@@ -336,10 +336,13 @@ export class TacticusAPIClient {
 
   async getPlayer(apiKey: string): Promise<TacticusPlayer | null> {
     try {
-      logger.debug('Fetching player from Tacticus API', {
-        url: `${this.baseUrl}/player`,
-        apiKeyLength: apiKey.length
-      })
+      logger.debug(
+        {
+          url: `${this.baseUrl}/player`,
+          apiKeyLength: apiKey.length
+        },
+        'Fetching player from Tacticus API'
+      )
 
       const response = await fetch(`${this.baseUrl}/player`, {
         method: 'GET',
@@ -369,11 +372,14 @@ export class TacticusAPIClient {
       }
 
       const data = await response.json()
-      logger.debug('Player API response structure:', {
-        hasData: !!data,
-        hasPlayer: !!data?.player,
-        keys: data ? Object.keys(data) : []
-      })
+      logger.debug(
+        {
+          hasData: !!data,
+          hasPlayer: !!data?.player,
+          keys: data ? Object.keys(data) : []
+        },
+        'Player API response structure:'
+      )
 
       if (data && data.player) {
         return data.player as TacticusPlayer
@@ -384,7 +390,7 @@ export class TacticusAPIClient {
         return data as TacticusPlayer
       }
 
-      logger.warn('Unexpected player API response format', { data })
+      logger.warn({ data }, 'Unexpected player API response format')
       return null
     } catch (error: unknown) {
       const details = extractErrorDetails(error)
@@ -414,11 +420,14 @@ export class TacticusAPIClient {
     const maxRetries = options?.maxRetries ?? PLAYER_API_MAX_RETRIES
     try {
       return await tacticusCircuit.execute(async () => {
-        logger.debug('Fetching player from Tacticus API with retry', {
-          url: `${this.baseUrl}/player`,
-          timeout: timeoutMs,
-          maxRetries
-        })
+        logger.debug(
+          {
+            url: `${this.baseUrl}/player`,
+            timeout: timeoutMs,
+            maxRetries
+          },
+          'Fetching player from Tacticus API with retry'
+        )
 
         const response = await withRetry(
           async () => {
@@ -479,14 +488,17 @@ export class TacticusAPIClient {
           return data as TacticusPlayer
         }
 
-        logger.warn('Unexpected player API response format', { data })
+        logger.warn({ data }, 'Unexpected player API response format')
         return null
       })
     } catch (error: unknown) {
       if (error instanceof CircuitOpenError) {
-        logger.warn('Tacticus API circuit is open, skipping request', {
-          timeUntilRetry: error.timeUntilHalfOpen
-        })
+        logger.warn(
+          {
+            timeUntilRetry: error.timeUntilHalfOpen
+          },
+          'Tacticus API circuit is open, skipping request'
+        )
         return null
       }
       const details = extractErrorDetails(error)
@@ -543,9 +555,12 @@ export class TacticusAPIClient {
       })
     } catch (error) {
       if (error instanceof CircuitOpenError) {
-        logger.warn('Tacticus API circuit is open, skipping guild request', {
-          timeUntilRetry: error.timeUntilHalfOpen
-        })
+        logger.warn(
+          {
+            timeUntilRetry: error.timeUntilHalfOpen
+          },
+          'Tacticus API circuit is open, skipping guild request'
+        )
         return null
       }
       const details = extractErrorDetails(error)
@@ -567,8 +582,8 @@ export class TacticusAPIClient {
     try {
       return await tacticusCircuit.execute(async () => {
         logger.debug(
-          'Attempting to fetch guild raid from:',
-          `${this.baseUrl}/guildRaid`
+          { url: `${this.baseUrl}/guildRaid` },
+          'Attempting to fetch guild raid'
         )
         const response = await fetch(`${this.baseUrl}/guildRaid`, {
           method: 'GET',
@@ -608,21 +623,24 @@ export class TacticusAPIClient {
         }
 
         const data = await response.json()
-        logger.debug('Guild raid response received:', {
-          hasData: !!data,
-          season: data?.season,
-          entriesCount: data?.entries?.length || 0
-        })
+        logger.debug(
+          {
+            hasData: !!data,
+            season: data?.season,
+            entriesCount: data?.entries?.length || 0
+          },
+          'Guild raid response received:'
+        )
 
         return normalizeGuildRaidResponse(data as GuildRaidResponse)
       })
     } catch (error) {
       if (error instanceof CircuitOpenError) {
         logger.warn(
-          'Tacticus API circuit is open, skipping guild raid request',
           {
             timeUntilRetry: error.timeUntilHalfOpen
-          }
+          },
+          'Tacticus API circuit is open, skipping guild raid request'
         )
         return null
       }
@@ -683,11 +701,11 @@ export class TacticusAPIClient {
     } catch (error: unknown) {
       if (error instanceof CircuitOpenError) {
         logger.warn(
-          'Tacticus API circuit is open, skipping guild raid season request',
           {
             timeUntilRetry: error.timeUntilHalfOpen,
             season
-          }
+          },
+          'Tacticus API circuit is open, skipping guild raid season request'
         )
         return null
       }
