@@ -1,3 +1,4 @@
+import type { SupabaseClient as BaseSupabaseClient } from '@supabase/supabase-js'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { createClient } from '@supabase/supabase-js'
 import {
@@ -48,7 +49,9 @@ const shouldRunRls =
 
 const describeRls = shouldRunRls ? describe : describe.skip
 
-type SupabaseClient = ReturnType<typeof createClient>
+// Untyped client, as createClient returns without a Database generic.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SupabaseClient = BaseSupabaseClient<any>
 
 type SeedError = {
   message?: string

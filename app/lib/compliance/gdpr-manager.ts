@@ -15,6 +15,7 @@ import type {
   GdprDeletionRequestRow,
   GdprSupabaseClient
 } from '@tacticus/app-core/database-extensions'
+import type { TablesInsert } from '@tacticus/app-core/database.generated'
 
 // The GDPR tables are not in the generated Database type.
 
@@ -163,7 +164,9 @@ export class GDPRManager {
       }
 
       const supabase = this.getServiceClient()
-      const { error } = await supabase.from('gdpr_processing_log').insert(row)
+      const { error } = await supabase
+        .from('gdpr_processing_log')
+        .insert(row as TablesInsert<'gdpr_processing_log'>)
       if (error) throw error
     } catch (error) {
       logger.error(

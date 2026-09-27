@@ -1,3 +1,4 @@
+import type { SupabaseClient as BaseSupabaseClient } from '@supabase/supabase-js'
 /** Requires RUN_GDPR_TESTS=1 and a local Supabase with real keys; skipped otherwise. */
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
@@ -106,7 +107,9 @@ function decideLiveOnlyCoverage(
   return true
 }
 
-type SupabaseClient = ReturnType<typeof createClient>
+// Untyped client, as createClient returns without a Database generic.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SupabaseClient = BaseSupabaseClient<any>
 
 const randomSuffix = () => Math.random().toString(36).slice(2, 8).toUpperCase()
 

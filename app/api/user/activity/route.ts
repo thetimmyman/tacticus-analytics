@@ -8,6 +8,7 @@ import {
 import { Errors } from '@/app/lib/errors/AppError'
 import { requireSessionUser } from '@/app/lib/api/session-user'
 import { createComponentLogger } from '@/app/lib/logging'
+import type { TablesUpdate } from '@tacticus/app-core/database.generated'
 
 const logger = createComponentLogger('api.user.activity')
 
@@ -44,10 +45,9 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     status
   } = await supabase
     .from(CURRENT_USER_PLAYER_MAPPING)
-    .update({ last_active_at: new Date().toISOString() } as Record<
-      string,
-      unknown
-    >)
+    .update({
+      last_active_at: new Date().toISOString()
+    } as TablesUpdate<'player_mapping'>)
     .eq('user_id', user.id)
     .eq('is_current', true)
     .select('guild_code')
@@ -92,7 +92,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       .update({
         sync_tier: 'active',
         updated_at: new Date().toISOString()
-      } as Record<string, unknown>)
+      } as TablesUpdate<'guild_config'>)
       .eq('guild_code', guildCode)
       .neq('sync_tier', 'active')
   }

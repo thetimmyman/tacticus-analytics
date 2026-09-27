@@ -21,6 +21,7 @@ import {
   beginGuildRosterObservation,
   savePlayerMappings
 } from '@/app/lib/sync/db-operations'
+import type { TablesUpdate } from '@tacticus/app-core/database.generated'
 
 async function requestClusterRankingsRefresh(
   supabase: ServiceSupabaseClient
@@ -87,7 +88,7 @@ export async function refreshGuildRoster(
         client_secret_uploaded_by: null,
         client_secret_uploaded_at: null,
         updated_at: new Date().toISOString()
-      })
+      } as TablesUpdate<'guild_config'>)
       .eq('guild_code', guildCode)
     if (clearError) {
       logger.warn(
@@ -232,7 +233,7 @@ export async function runPostSyncHooks(
         if (Object.keys(updates).length > 0) {
           await supabase
             .from('guild_config')
-            .update(updates)
+            .update(updates as TablesUpdate<'guild_config'>)
             .eq('guild_code', guildCode)
           logger.info(
             {

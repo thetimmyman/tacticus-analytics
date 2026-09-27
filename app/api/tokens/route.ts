@@ -9,6 +9,7 @@ import { AppError, Errors } from '@/app/lib/errors/AppError'
 import { requireSessionUser } from '@/app/lib/api/session-user'
 import { requireTokenUsageGuildAccess } from '@/app/api/members/token-usage/access'
 import { toRecord } from '@/app/lib/utils/coerce'
+import type { TablesUpdate } from '@tacticus/app-core/database.generated'
 
 type TokenSource = 'live' | 'cached' | 'fallback'
 
@@ -479,7 +480,7 @@ async function handleTokensRequest(
 
           const { error: updateError } = await supabase
             .from('player_mapping')
-            .update(updatePayload)
+            .update(updatePayload as TablesUpdate<'player_mapping'>)
             .eq('player_id', playerId)
             .eq('is_current', true)
 

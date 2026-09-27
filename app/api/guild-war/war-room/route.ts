@@ -11,6 +11,7 @@ import { formatGuildDisplayLabel } from '@/app/lib/format/guild'
 import { createComponentLogger } from '@/app/lib/logging'
 import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
+import type { TablesUpdate } from '@tacticus/app-core/database.generated'
 
 const logger = createComponentLogger('api.guild-war.war-room')
 
@@ -416,7 +417,7 @@ export const PATCH = withErrorHandler(async (request: NextRequest) => {
   const supabase = await db()
   const { data, error } = await supabase
     .from('guild_war_meta_teams')
-    .update(patch)
+    .update(patch as TablesUpdate<'guild_war_meta_teams'>)
     .eq('id', body.id)
     .eq('guild_code', guildCode)
     .select(TEAM_COLUMNS)

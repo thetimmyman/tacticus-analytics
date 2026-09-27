@@ -443,8 +443,13 @@ export default async function proxy(request: NextRequest) {
             name: string
             value: string
             options: CookieOptions
-          }[]
+          }[],
+          headers: Record<string, string>
         ) {
+          // No-store headers from @supabase/ssr: a shared cache must never keep a session cookie.
+          for (const [key, value] of Object.entries(headers ?? {})) {
+            response.headers.set(key, value)
+          }
           for (const { name, value, options } of cookiesToSet) {
             try {
               const cookieWithDomain = {

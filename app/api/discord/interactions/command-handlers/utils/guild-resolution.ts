@@ -16,6 +16,10 @@ import {
 } from './response-builder'
 import { formatGuildDisplayLabel } from '@/app/lib/format/guild'
 import { resolveVerifiedDiscordIdentities } from '@/app/lib/auth/verified-player-authority'
+import type { SupabaseClient } from '@supabase/supabase-js'
+
+// The Discord link tables are missing from the generated types; query them untyped.
+const untypedDb = (supabase: Supabase) => supabase as unknown as SupabaseClient
 
 interface DiscordServerGuildRow {
   game_guild_code: string | null
@@ -117,8 +121,8 @@ export async function getLinkedGuildsResult(
     return { ok: true, guilds: [] }
   }
 
-  const { data, error } = (await supabase
-    .from('discord_server_guilds' as 'guild_config')
+  const { data, error } = (await untypedDb(supabase)
+    .from('discord_server_guilds')
     .select(
       `
         game_guild_code,
@@ -189,8 +193,8 @@ export async function getChannelDefaultGuild(
     scope === 'notifications'
       ? 'default_for_notifications'
       : 'default_for_tokens'
-  const { data, error } = (await supabase
-    .from('discord_channel_guilds' as 'guild_config')
+  const { data, error } = (await untypedDb(supabase)
+    .from('discord_channel_guilds')
     .select(
       `
         game_guild_code,
@@ -259,8 +263,8 @@ export async function getUserDefaultGuild(
     return null
   }
 
-  const { data, error } = (await supabase
-    .from('discord_user_guild_defaults' as 'guild_config')
+  const { data, error } = (await untypedDb(supabase)
+    .from('discord_user_guild_defaults')
     .select(
       `
         game_guild_code,
