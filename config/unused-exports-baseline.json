@@ -610,8 +610,6 @@
     "packages/app-core/src/database.generated.ts types CompositeTypes",
     "packages/app-core/src/database.generated.ts types Enums",
     "packages/app-core/src/database.generated.ts types Tables",
-    "packages/app-core/src/database.generated.ts types TablesInsert",
-    "packages/app-core/src/database.generated.ts types TablesUpdate",
     "packages/app-core/src/errors.ts types ValidationError",
     "packages/app-core/src/gw-season.ts exports GW_SEASON_ANCHOR_START_MS",
     "packages/app-core/src/gw-season.ts exports GW_SEASON_CADENCE_MS",
