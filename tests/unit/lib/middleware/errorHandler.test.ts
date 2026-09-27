@@ -1,8 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { NextRequest } from 'next/server'
+import { readdirSync } from 'node:fs'
+import { join, relative, sep } from 'node:path'
 import {
   withErrorHandler,
   handleError,
+  sentryOperationTag,
+  DYNAMIC_ROUTE_PARENTS,
   rethrowIfAuthError
 } from '@/app/lib/middleware/errorHandler'
 import { withRequestContext } from '@/app/lib/logging/request-context'
@@ -32,8 +36,92 @@ describe('errorHandler', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockRequest = {
-      url: 'http://localhost/api/test'
+      url: 'http://localhost/api/test',
+      method: 'GET'
     } as unknown as NextRequest
+  })
+
+  describe('sentryOperationTag', () => {
+    it.each([
+      ['GET', '/api/wars/analytics/cores', 'GET:api.wars.analytics.cores'],
+      [
+        'GET',
+        '/api/players/123e4567-e89b-42d3-a456-426614174000',
+        'GET:api.players._'
+      ],
+      ['GET', '/api/players/123', 'GET:api.players._'],
+      ['GET', '/api/players/TestPlayerA', 'GET:api.players._'],
+      ['GET', '/api/players/%41lice', 'GET:api.players._']
+    ])('maps %s %s to a safe operation', (method, path, expected) => {
+      const operation = sentryOperationTag(method, path)
+      expect(operation).toBe(expected)
+      expect(operation).toMatch(/^[A-Za-z0-9_.:-]{1,80}$/u)
+    })
+
+    it.each([
+      [
+        '/api/playbooks/privateplayer/requirements',
+        'GET:api.playbooks._.requirements'
+      ],
+      ['/api/playbooks/seasonal-hub', 'GET:api.playbooks.seasonal-hub'],
+      ['/api/wars/somewar', 'GET:api.wars._'],
+      ['/api/wars/analytics/cores', 'GET:api.wars.analytics.cores'],
+      ['/api/admin/carousel/featured', 'GET:api.admin.carousel._']
+    ])('masks the dynamic position in %s', (path, expected) => {
+      expect(sentryOperationTag('GET', path)).toBe(expected)
+    })
+
+    it('lists every dynamic API route parent with its static siblings', () => {
+      const root = join(process.cwd(), 'app', 'api')
+      const found = new Map<string, Set<string>>()
+      const walk = (dir: string) => {
+        const children = readdirSync(dir, { withFileTypes: true }).filter(
+          (entry) => entry.isDirectory()
+        )
+        if (children.some((entry) => entry.name.startsWith('['))) {
+          const parent = ['api', ...relative(root, dir).split(sep)]
+            .filter((name) => name && !name.startsWith('('))
+            .map((name) => (name.startsWith('[') ? '*' : name))
+            .join('/')
+          found.set(
+            parent,
+            new Set(
+              children
+                .map((entry) => entry.name)
+                .filter((name) => !/^[[(_]/u.test(name))
+            )
+          )
+        }
+        for (const entry of children) walk(join(dir, entry.name))
+      }
+      walk(root)
+
+      expect(
+        Object.fromEntries(
+          [...DYNAMIC_ROUTE_PARENTS].map(([parent, kids]) => [
+            parent,
+            [...kids].sort()
+          ])
+        )
+      ).toEqual(
+        Object.fromEntries(
+          [...found].map(([parent, kids]) => [parent, [...kids].sort()])
+        )
+      )
+    })
+
+    it('truncates long paths and uses UNKNOWN for an unknown method', () => {
+      const operation = sentryOperationTag(
+        undefined,
+        `/${'a'.repeat(40)}/${'b'.repeat(40)}`
+      )
+      expect(operation).toHaveLength(80)
+      expect(operation).toMatch(/^[A-Za-z0-9_.:-]{1,80}$/u)
+      expect(sentryOperationTag(undefined, '/unknown')).toBe('UNKNOWN:unknown')
+      expect(sentryOperationTag('TESTPLAYERA', '/api/test')).toBe(
+        'UNKNOWN:api.test'
+      )
+    })
   })
 
   describe('handleError', () => {
@@ -68,7 +156,13 @@ describe('errorHandler', () => {
       const error = Errors.internal()
       handleError(error, mockRequest)
 
-      expect(captureException).toHaveBeenCalledWith(error)
+      expect(captureException).toHaveBeenCalledWith(error, {
+        tags: {
+          operation: 'GET:api.test',
+          status_code: '500',
+          error_code: String(error.code)
+        }
+      })
     })
 
     it('should handle ZodError and return 400', () => {
@@ -99,7 +193,9 @@ describe('errorHandler', () => {
       expect(response.body.error.code).toBe(ErrorCode.INTERNAL_ERROR)
       expect(response.body.error.statusCode).toBe(500)
       expect(response.body.error.requestId).toBeDefined()
-      expect(captureException).toHaveBeenCalledWith(error)
+      expect(captureException).toHaveBeenCalledWith(error, {
+        tags: { operation: 'GET:api.test', status_code: '500' }
+      })
     })
 
     it('preserves curated message AND functional metadata on >=500 [WI-1930]', () => {
@@ -118,6 +214,31 @@ describe('errorHandler', () => {
   })
 
   describe('withErrorHandler', () => {
+    it('tags a normalized non-standard 5xx response capture', async () => {
+      mockRequest = {
+        url: 'http://localhost/api/wars/analytics/cores',
+        method: 'GET',
+        headers: new Headers()
+      } as unknown as NextRequest
+      const handler = vi.fn(
+        async () =>
+          new Response(JSON.stringify({ error: 'upstream unavailable' }), {
+            status: 502,
+            headers: { 'content-type': 'application/json' }
+          })
+      )
+
+      await withErrorHandler(handler)(mockRequest)
+
+      expect(captureException).toHaveBeenCalledWith(expect.anything(), {
+        tags: {
+          operation: 'GET:api.wars.analytics.cores',
+          status_code: '502',
+          error_code: expect.stringMatching(/^[0-9]+$/u)
+        }
+      })
+    })
+
     it('rejects an oversized mutating request before invoking the handler', async () => {
       mockRequest = {
         url: 'http://localhost/api/internal/cron',
