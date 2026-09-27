@@ -10,7 +10,7 @@ import {
   Key,
   RefreshCw,
   Settings,
-  Trash2
+  Trash
 } from 'lucide-react'
 import { StatusMessageIcon } from '@/app/components/gr-availability/StatusMessageIcon'
 import {
@@ -124,7 +124,7 @@ export const ApiKeyPanel = ({
                     </>
                   ) : (
                     <>
-                      <Trash2 className="h-3 w-3" />
+                      <Trash className="h-3 w-3" />
                       <span className="ml-1 text-xs">Delete Key</span>
                     </>
                   )}

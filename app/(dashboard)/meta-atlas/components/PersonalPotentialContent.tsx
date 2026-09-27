@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { TrendingUp, History, Package, Equal, Key } from 'lucide-react'
+import { TrendingUp, RotateCcwClock, Package, Equal, Key } from 'lucide-react'
 import { formatNumber } from '@tacticus/app-core/formatters'
 import { TeamComparisonView, parseTeamComposition } from './TeamComparisonView'
 import { useMetaAtlasTeamFloor } from '../hooks/useMetaAtlasTeamFloor'
@@ -457,7 +457,7 @@ export function PersonalPotentialContent({
                     : 'text-[var(--text-secondary)] hover:text-white'
               }`}
             >
-              <History className="w-3 h-3" />
+              <RotateCcwClock className="w-3 h-3" />
               Battle History
             </button>
             <button

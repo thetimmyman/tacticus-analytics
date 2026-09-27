@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@tacticus/ui-kit'
 import {
   Copy,
   RefreshCw,
-  Trash2,
+  Trash,
   Plus,
   CheckCircle2,
   AlertCircle,
@@ -695,7 +695,7 @@ export function DiscordIntegration({
                         variant="outline"
                         className="justify-center text-red-600 hover:text-red-700 hover:bg-red-50 w-full md:w-auto"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash className="w-4 h-4" />
                         Disable
                       </Button>
                     )}

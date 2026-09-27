@@ -7,7 +7,7 @@ import {
   ArrowLeft,
   RefreshCw,
   RotateCcw,
-  Trash2,
+  Trash,
   Server,
   CheckCircle,
   XCircle,
@@ -312,7 +312,7 @@ export function DeploymentManager() {
           disabled={actionLoading}
           className="flex items-center gap-2 px-4 py-2 bg-zinc-700 hover:bg-zinc-600 rounded-lg text-white disabled:opacity-50"
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash className="h-4 w-4" />
           Cleanup Old Versions
         </button>
       </div>

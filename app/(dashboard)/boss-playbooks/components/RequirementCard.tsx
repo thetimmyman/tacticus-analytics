@@ -1,7 +1,7 @@
 'use client'
 
 import { memo } from 'react'
-import { CheckCircle2, Building2, Globe, Pencil } from 'lucide-react'
+import { CheckCircle2, BuildingComplex, Globe, Pencil } from 'lucide-react'
 import { useHeroCatalog } from '@/app/lib/catalogs'
 import { resolveHeroPortrait } from '@/app/lib/catalogs/hero-portrait-resolver'
 import { StarDisplayFromCount } from '@/app/components/StarDisplay'
@@ -108,7 +108,7 @@ function RequirementCard({
 
   const scopeIcon =
     scopeColor === 'amber' ? (
-      <Building2 className="h-3 w-3" />
+      <BuildingComplex className="h-3 w-3" />
     ) : (
       <Globe className="h-3 w-3" />
     )

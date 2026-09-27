@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { CheckCircle2, Building2, Pencil, X, Check } from 'lucide-react'
+import { CheckCircle2, BuildingComplex, Pencil, X, Check } from 'lucide-react'
 import { useHeroCatalog } from '@/app/lib/catalogs'
 import { resolveHeroPortrait } from '@/app/lib/catalogs/hero-portrait-resolver'
 import { StarDisplayFromCount } from '@/app/components/StarDisplay'
@@ -339,7 +339,7 @@ export function RequirementEditRow({
                     className="h-4 w-4 rounded border border-[var(--card-border)]"
                   />
                   <span className="flex items-center gap-1">
-                    <Building2 className="h-3 w-3" />
+                    <BuildingComplex className="h-3 w-3" />
                     Guild-only
                   </span>
                 </label>

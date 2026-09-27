@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash } from 'lucide-react'
 import {
   Badge,
   Button,
@@ -235,7 +235,7 @@ export default function MetaTeamTable({
               aria-label={`Delete ${team.name}`}
               title={`Delete ${team.name}`}
             >
-              <Trash2 className="h-4 w-4" aria-hidden="true" />
+              <Trash className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
         )
