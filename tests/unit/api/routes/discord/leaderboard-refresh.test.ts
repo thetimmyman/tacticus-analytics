@@ -1,12 +1,23 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  type Mock
+} from 'vitest'
+
+// vitest 5 types a bare vi.fn() as function-or-constructor; these mocks are called.
+type AnyMock = Mock<(...args: any[]) => any>
 import { NextRequest } from 'next/server'
 import { SERVICE_TIMEOUTS } from '@/app/lib/utils/async-timeout'
 
 describe('POST /api/discord/leaderboard-refresh', () => {
   let POST: (req: NextRequest) => Promise<Response>
-  let mockRequireRole: ReturnType<typeof vi.fn>
-  let mockGuildConfigServiceGetBasic: ReturnType<typeof vi.fn>
-  let mockSupabaseFunctions: { invoke: ReturnType<typeof vi.fn> }
+  let mockRequireRole: AnyMock
+  let mockGuildConfigServiceGetBasic: AnyMock
+  let mockSupabaseFunctions: { invoke: AnyMock }
 
   beforeEach(async () => {
     vi.resetModules()

@@ -1,10 +1,21 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  type Mock
+} from 'vitest'
+
+// vitest 5 types a bare vi.fn() as function-or-constructor; these mocks are called.
+type AnyMock = Mock<(...args: any[]) => any>
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { forwardRef } from 'react'
 import SimplifiedSignupForm from '@/app/(auth)/auth/signup/SimplifiedSignupForm'
 
 const mockPush = vi.fn()
-let mockSignUp: ReturnType<typeof vi.fn>
+let mockSignUp: AnyMock
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({

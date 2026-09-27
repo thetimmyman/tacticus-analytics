@@ -87,7 +87,7 @@ describe('trackImagePerformance', () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true })
     globalAny.fetch = fetchMock as typeof fetch
     globalAny.gtag = vi.fn()
-    globalAny.navigator = globalAny.navigator || ({} as Navigator)
+    if (!globalAny.navigator) vi.stubGlobal('navigator', {} as Navigator)
     globalAny.navigator.connection = { effectiveType: '4g' }
 
     const nowSpy = vi.spyOn(performance, 'now')

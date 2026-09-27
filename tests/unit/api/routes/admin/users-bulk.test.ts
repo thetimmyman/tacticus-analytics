@@ -1,20 +1,23 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
+
+// vitest 5 types a bare vi.fn() as function-or-constructor; these mocks are called.
+type AnyMock = Mock<(...args: any[]) => any>
 import { NextRequest } from 'next/server'
 
-let mockRequireAuth: ReturnType<typeof vi.fn>
-let mockCreateServiceClient: ReturnType<typeof vi.fn>
-let mockFindActivelyBannedAuthUserIds: ReturnType<typeof vi.fn>
-let mockWithUserBanLocks: ReturnType<typeof vi.fn>
-let mockWithUserBanLocksAfterLeaseLoss: ReturnType<typeof vi.fn>
-let mockEnqueueUserBanReconciliation: ReturnType<typeof vi.fn>
+let mockRequireAuth: AnyMock
+let mockCreateServiceClient: AnyMock
+let mockFindActivelyBannedAuthUserIds: AnyMock
+let mockWithUserBanLocks: AnyMock
+let mockWithUserBanLocksAfterLeaseLoss: AnyMock
+let mockEnqueueUserBanReconciliation: AnyMock
 
 class MockUserBanLockLostError extends Error {}
 
 describe('/api/admin/users/bulk', () => {
   let POST: (request: NextRequest) => Promise<Response>
   let mockSupabase: {
-    from: ReturnType<typeof vi.fn>
-    rpc: ReturnType<typeof vi.fn>
+    from: AnyMock
+    rpc: AnyMock
   }
 
   beforeEach(async () => {

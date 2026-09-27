@@ -1,6 +1,6 @@
 import { beforeAll, beforeEach, vi } from 'vitest'
 import { config as loadEnv } from 'dotenv'
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 
 loadEnv({ path: '.env.local', override: false })
 loadEnv({ path: '.env', override: false })

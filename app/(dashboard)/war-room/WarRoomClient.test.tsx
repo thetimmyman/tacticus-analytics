@@ -65,7 +65,11 @@ describe('WarRoomClient', () => {
       refetch: vi.fn()
     })
     mockUseHeroCatalog.mockReturnValue({ data: undefined })
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    // happy-dom has no window.confirm; spyOn cannot wrap a missing method.
+    vi.stubGlobal(
+      'confirm',
+      vi.fn(() => true)
+    )
   })
 
   afterEach(() => {

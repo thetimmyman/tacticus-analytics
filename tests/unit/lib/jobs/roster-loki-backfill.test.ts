@@ -1,4 +1,15 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type Mock
+} from 'vitest'
+
+// vitest 5 types a bare vi.fn() as function-or-constructor; these mocks are called.
+type AnyMock = Mock<(...args: any[]) => any>
 
 type Handler = (
   payload: Record<string, unknown>,
@@ -44,9 +55,9 @@ function memberRows(count: number) {
 
 describe('roster-loki-backfill handler', () => {
   let currentTime: number
-  let getPlayerInfoMock: ReturnType<typeof vi.fn>
-  let persistRosterSnapshotMock: ReturnType<typeof vi.fn>
-  let providerFetchMock: ReturnType<typeof vi.fn>
+  let getPlayerInfoMock: AnyMock
+  let persistRosterSnapshotMock: AnyMock
+  let providerFetchMock: AnyMock
   let physicalCallsPerPlayer: number
   let handler: Handler
   let members: ReturnType<typeof memberRows>

@@ -24,10 +24,9 @@ describe('Daily Alert Summary Core', () => {
     }
 
     mockSend = vi.fn()
-    mockResendConstructor = vi.fn().mockReturnValue({
-      emails: {
-        send: mockSend
-      }
+    // Called with `new`: vitest needs a `function` implementation, not mockReturnValue.
+    mockResendConstructor = vi.fn(function () {
+      return { emails: { send: mockSend } }
     })
 
     vi.doMock('resend', () => ({

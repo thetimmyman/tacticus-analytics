@@ -10,15 +10,32 @@ import {
 import { Registry } from 'prom-client'
 import { createMockGetRequest } from '@/tests/utils'
 
-const { mockQuery, mockServiceClient } = vi.hoisted(() => {
+const { mockQuery, mockServiceClient, settles, rejects } = vi.hoisted(() => {
+  // `await query` calls then(onFulfilled, onRejected): the mock must settle them.
+  const settles =
+    (value: unknown) =>
+    (
+      onFulfilled?: (v: unknown) => unknown,
+      onRejected?: (e: unknown) => unknown
+    ) =>
+      Promise.resolve(value).then(onFulfilled, onRejected)
+  const rejects =
+    (error: unknown) =>
+    (
+      onFulfilled?: (v: unknown) => unknown,
+      onRejected?: (e: unknown) => unknown
+    ) =>
+      Promise.reject(error).then(onFulfilled, onRejected)
   const query = {
     select: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
     limit: vi.fn().mockReturnThis(),
-    then: vi.fn().mockResolvedValue({ data: null, error: null, count: 0 })
+    then: vi.fn(settles({ data: null, error: null, count: 0 }))
   }
   return {
+    settles,
+    rejects,
     mockQuery: query,
     mockServiceClient: {
       from: vi.fn().mockReturnValue(query),
@@ -46,11 +63,13 @@ describe('GET /api/metrics', () => {
     vi.clearAllMocks()
     process.env.METRICS_SECRET = metricsSecret
     mockServiceClient.from.mockReturnValue(mockQuery)
-    mockQuery.then.mockResolvedValue({
-      data: null,
-      error: null,
-      count: 0
-    })
+    mockQuery.then.mockImplementation(
+      settles({
+        data: null,
+        error: null,
+        count: 0
+      })
+    )
     mockServiceClient.rpc.mockResolvedValue({ data: null, error: null })
   })
 
@@ -69,17 +88,19 @@ describe('GET /api/metrics', () => {
 
   const setupSuccessfulMocks = () => {
     const now = new Date().toISOString()
-    mockQuery.then.mockResolvedValue({
-      data: [
-        {
-          updated_at: now,
-          health_status: 'healthy',
-          avg_sync_time_ms: 123
-        }
-      ],
-      error: null,
-      count: 5
-    })
+    mockQuery.then.mockImplementation(
+      settles({
+        data: [
+          {
+            updated_at: now,
+            health_status: 'healthy',
+            avg_sync_time_ms: 123
+          }
+        ],
+        error: null,
+        count: 5
+      })
+    )
     mockServiceClient.rpc.mockResolvedValue({
       data: { active_players: 100 },
       error: null
@@ -154,7 +175,7 @@ describe('GET /api/metrics', () => {
   })
 
   it('includes database status metric when database fails', async () => {
-    mockQuery.then.mockRejectedValue(new Error('Connection failed'))
+    mockQuery.then.mockImplementation(rejects(new Error('Connection failed')))
 
     const response = await GET(createAuthorizedRequest())
     const text = await response.text()

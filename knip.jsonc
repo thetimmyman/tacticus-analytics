@@ -15,7 +15,6 @@
     "node-gyp",
     "node-addon-api",
     "critters",
-    "esbuild",
     "eslint-plugin-react-hooks",
     // Sentry's bundler plugin consumes webpack as a toolchain peer.
     "webpack"

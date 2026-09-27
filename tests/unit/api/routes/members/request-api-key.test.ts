@@ -1,19 +1,22 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
+
+// vitest 5 types a bare vi.fn() as function-or-constructor; these mocks are called.
+type AnyMock = Mock<(...args: any[]) => any>
 vi.mock('@/app/lib/player-mapping-relations', () => ({
   CURRENT_USER_PLAYER_MAPPING: 'player_mapping'
 }))
 
-let mockCreateClient: ReturnType<typeof vi.fn>
-let mockFetch: ReturnType<typeof vi.fn>
-let mockResolveVerifiedPlayers: ReturnType<typeof vi.fn>
-let mockResolveVerifiedDiscordIdentities: ReturnType<typeof vi.fn>
-let mockFindVerifiedDiscordForMapping: ReturnType<typeof vi.fn>
+let mockCreateClient: AnyMock
+let mockFetch: AnyMock
+let mockResolveVerifiedPlayers: AnyMock
+let mockResolveVerifiedDiscordIdentities: AnyMock
+let mockFindVerifiedDiscordForMapping: AnyMock
 
 describe('POST /api/members/request-api-key', () => {
   let POST: (request: Request) => Promise<Response>
   let mockSupabase: {
-    auth: { getUser: ReturnType<typeof vi.fn> }
-    from: ReturnType<typeof vi.fn>
+    auth: { getUser: AnyMock }
+    from: AnyMock
   }
   const originalEnv = process.env
 
