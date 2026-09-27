@@ -22,7 +22,7 @@ export const GET = withErrorHandler(async () => {
 
     return NextResponse.json(stages, {
       headers: {
-        'Cache-Control': 'public, max-age=60, stale-while-revalidate=300'
+        'Cache-Control': 'private, max-age=60, stale-while-revalidate=300'
       }
     })
   } catch (err) {

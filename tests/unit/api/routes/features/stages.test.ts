@@ -74,14 +74,14 @@ describe('GET /api/features/stages', () => {
     expect(json.error.message).toBe('Database error')
   })
 
-  it('sets Cache-Control header for public caching', async () => {
+  it('sets a private Cache-Control (the session client may rotate auth cookies)', async () => {
     mockSupabase.from.mockReturnValue(createChainedMock([]))
 
     const { GET } = await import('@/app/api/features/stages/route')
     const response = await GET()
 
     expect(response.headers.get('Cache-Control')).toBe(
-      'public, max-age=60, stale-while-revalidate=300'
+      'private, max-age=60, stale-while-revalidate=300'
     )
   })
 
