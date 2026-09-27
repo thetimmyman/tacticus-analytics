@@ -355,6 +355,32 @@ describe('PII exposure closure', () => {
     ).toEqual({})
   })
 
+  it('preserves safe route tags and drops tag values containing a slash', () => {
+    expect(
+      sanitizeSentryEvent({
+        tags: {
+          operation: 'GET:api.wars.analytics.cores',
+          status_code: '500',
+          error_code: 'INTERNAL_ERROR',
+          private_path: 'GET:/api/players/Alice'
+        }
+      }).tags
+    ).toEqual({
+      operation: 'GET:api.wars.analytics.cores',
+      status_code: '500',
+      error_code: 'INTERNAL_ERROR'
+    })
+
+    expect(
+      sanitizeSentryEvent({
+        tags: {
+          operation: 'GET:api.players._',
+          unsafe: 'GET:/api/players/Alice'
+        }
+      }).tags
+    ).toEqual({ operation: 'GET:api.players._' })
+  })
+
   it('never trusts an attacker-controlled value merely because it is a correlation field', () => {
     const email = 'victim@example.com'
     const event = sanitizeSentryEvent({
