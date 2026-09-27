@@ -18,6 +18,23 @@ const SUPABASE_ANON_KEY =
 // Singleton: multiple instances cause token refresh storms.
 let browserClientInstance: SupabaseClient<Database> | null = null
 
+export async function settledProcessLock<R>(
+  name: string,
+  acquireTimeout: number,
+  fn: () => Promise<R>
+): Promise<R> {
+  const outcome = await processLock(name, acquireTimeout, async () => {
+    try {
+      return { success: true as const, value: await fn() }
+    } catch (error) {
+      return { success: false as const, error }
+    }
+  })
+
+  if (!outcome.success) throw outcome.error
+  return outcome.value
+}
+
 export function createClient(): SupabaseClient<Database> {
   if (browserClientInstance) {
     return browserClientInstance
@@ -70,7 +87,8 @@ export function createClient(): SupabaseClient<Database> {
         // processLock, not navigator.locks, which aborts under contention on mobile and breaks
         // sign-in. Its timeouts are retried by withTransientAuthRetry; weaker cross-tab refresh
         // coordination is accepted (auth-js tolerates concurrent refreshes).
-        lock: processLock
+        // Settle fn inside processLock so its internal queue promise cannot reject unhandled.
+        lock: settledProcessLock
       }
     }
   )
@@ -126,7 +144,7 @@ export function createStorageClient(): SupabaseClient<Database> {
         persistSession: true,
         detectSessionInUrl: false,
         // Same lock as the main client so the two singletons coordinate in-process.
-        lock: processLock
+        lock: settledProcessLock
       }
     }
   )
