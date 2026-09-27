@@ -246,9 +246,10 @@ const toNullableInteger = (value: unknown): number | null => {
   return Number.isInteger(number) ? number : null
 }
 
-// The baked overlay is read first and would shadow a newer runtime override, so
-// derive the override's future seasons as merge-season-lineups.cjs would. Fails soft.
-const deriveOverrideFutureSeasonEntries = (
+// The baked overlay is read first and would shadow a newer runtime override, so derive
+// the override's window (the running season too: a baked entry for it may be a stale
+// projection, while the live config is what the game is running). Fails soft.
+const deriveOverrideWindowSeasonEntries = (
   effectiveConfig: GlobalConfig,
   extractedAt: string | null
 ): SeasonLineupEntry[] => {
@@ -307,7 +308,7 @@ const deriveOverrideFutureSeasonEntries = (
     )
 
     const entries: SeasonLineupEntry[] = []
-    for (let offset = 1; offset < 5; offset += 1) {
+    for (let offset = 0; offset < 5; offset += 1) {
       const configId = rotation[mod(rotationIndex + offset, rotation.length)]
       if (typeof configId !== 'string') continue
       const rawConfig = (configs as Record<string, unknown>)[configId] as
@@ -390,7 +391,7 @@ export const patchOverlaySeasonsWithOverride = (
   meta: { overrideActive: boolean; extractedAt: string | null }
 ): Record<string, SeasonLineupEntry> => {
   if (!meta.overrideActive) return overlaySeasons
-  const derived = deriveOverrideFutureSeasonEntries(
+  const derived = deriveOverrideWindowSeasonEntries(
     effectiveConfig,
     meta.extractedAt
   )

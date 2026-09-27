@@ -132,6 +132,67 @@ describe('WI-8230 thread-A: patchOverlaySeasonsWithOverride', () => {
     )
   })
 
+  it('replaces a stale projection of the running season with the live lineup', () => {
+    // A baked entry for the running season can be a projection made seasons earlier; the
+    // live config captured during that season is what the game runs, so it must win.
+    const config = overrideConfig()
+    config.guildBoss.guildBossSeasonDataConfigsGDTO.c1 = {
+      tiers: [
+        {
+          sets: [
+            {
+              set: 2,
+              encounters: [
+                { encounterIndex: 0, bossType: 'Belisarius' },
+                { encounterIndex: 1, bossType: 'Belisarius' }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+    const seasons: Record<number, SeasonLineupEntry> = {
+      [CAPTURE_SEASON]: baseOverlaySeason(CAPTURE_SEASON, 'Magnus', {
+        configId: 'c1'
+      })
+    }
+
+    const result = patchOverlaySeasonsWithOverride(seasons, config, {
+      overrideActive: true,
+      extractedAt: EXTRACTED_AT
+    })
+
+    expect(result[CAPTURE_SEASON]!.season).toBe(CAPTURE_SEASON)
+    expect(result[CAPTURE_SEASON]!.configId).toBe('c1')
+    expect(result[CAPTURE_SEASON]!.configVersion).toBe('healed-v2')
+    expect(result[CAPTURE_SEASON]!.encounters.map((e) => e.bossType)).toEqual([
+      'Belisarius',
+      'Belisarius'
+    ])
+    expect(result[CAPTURE_SEASON]!.encounters[0]).toMatchObject({
+      rarityIndex: 0,
+      set: 2,
+      encounterIndex: 0
+    })
+  })
+
+  it('leaves seasons before the running one untouched', () => {
+    const priorSeason = CAPTURE_SEASON - 1
+    const seasons: Record<number, SeasonLineupEntry> = {
+      [priorSeason]: baseOverlaySeason(priorSeason, 'HistoricalBoss')
+    }
+    const config = overrideConfig()
+    for (const id of ['c1', 'c2', 'c3', 'c4']) {
+      config.guildBoss.guildBossSeasonDataConfigsGDTO[id] =
+        config.guildBoss.guildBossSeasonDataConfigsGDTO.c5
+    }
+    const result = patchOverlaySeasonsWithOverride(seasons, config, {
+      overrideActive: true,
+      extractedAt: EXTRACTED_AT
+    })
+    expect(result[priorSeason]!.encounters[0]!.bossType).toBe('HistoricalBoss')
+  })
+
   it('keeps the live partial-loop policy, which arrives as integer strings', () => {
     // loopFromTier/loopFromSet arrive as strings; dropping them makes the planner loop from L1.
     const config = overrideConfig()
