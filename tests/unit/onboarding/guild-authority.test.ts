@@ -1,4 +1,15 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type Mock
+} from 'vitest'
+
+// vitest 5 types a bare vi.fn() as function-or-constructor; these mocks are called.
+type AnyMock = Mock<(...args: any[]) => any>
 
 /** Nothing the client can write may influence which guild a caller may act on. */
 
@@ -6,9 +17,9 @@ const USER = '00000000-0000-4000-8000-000000000003'
 
 let queues: Record<string, Array<{ data: unknown; error: unknown }>>
 let eqFilters: Record<string, Array<[string, unknown]>>
-let mockGetGuild: ReturnType<typeof vi.fn>
-let mockDecryptApiKey: ReturnType<typeof vi.fn>
-let service: { from: ReturnType<typeof vi.fn> }
+let mockGetGuild: AnyMock
+let mockDecryptApiKey: AnyMock
+let service: { from: AnyMock }
 
 function chainFor(table: string) {
   const next = () => queues[table]?.shift() ?? { data: null, error: null }

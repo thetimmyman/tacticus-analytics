@@ -1,4 +1,4 @@
 {
   "$comment": "Ceiling on tsc -p tsconfig.tests.json errors (PS-526). check-test-typecheck-ratchet.mjs fails CI if the count rises above this; --update lowers it (never raises it — that is a hand edit reviewed in the PR that makes it).",
-  "maxErrors": 475
+  "maxErrors": 474
 }

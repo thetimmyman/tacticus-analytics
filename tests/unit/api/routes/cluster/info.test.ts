@@ -1,4 +1,15 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  type Mock
+} from 'vitest'
+
+// vitest 5 types a bare vi.fn() as function-or-constructor; these mocks are called.
+type AnyMock = Mock<(...args: any[]) => any>
 import { NextRequest } from 'next/server'
 
 function createRequest(clusterCode?: string): NextRequest {
@@ -10,8 +21,8 @@ function createRequest(clusterCode?: string): NextRequest {
 
 describe('GET /api/cluster/info', () => {
   let GET: (req: NextRequest) => Promise<Response>
-  let mockRequireRole: ReturnType<typeof vi.fn>
-  let mockFetchClusterDetails: ReturnType<typeof vi.fn>
+  let mockRequireRole: AnyMock
+  let mockFetchClusterDetails: AnyMock
 
   beforeEach(async () => {
     vi.resetModules()

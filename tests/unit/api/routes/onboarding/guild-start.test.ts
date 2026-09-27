@@ -1,26 +1,37 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  type Mock
+} from 'vitest'
+
+// vitest 5 types a bare vi.fn() as function-or-constructor; these mocks are called.
+type AnyMock = Mock<(...args: any[]) => any>
 import { NextRequest } from 'next/server'
 
 let mockAuthedSupabase: {
-  auth: { getUser: ReturnType<typeof vi.fn> }
-  from: ReturnType<typeof vi.fn>
+  auth: { getUser: AnyMock }
+  from: AnyMock
 }
 let mockServiceSupabase: {
-  from: ReturnType<typeof vi.fn>
-  rpc: ReturnType<typeof vi.fn>
+  from: AnyMock
+  rpc: AnyMock
 }
-let mockGetOrCreateOnboardingProgress: ReturnType<typeof vi.fn>
-let mockResetStatusFields: ReturnType<typeof vi.fn>
-let mockValidateApiKeyWithTacticus: ReturnType<typeof vi.fn>
-let mockFetch: ReturnType<typeof vi.fn>
+let mockGetOrCreateOnboardingProgress: AnyMock
+let mockResetStatusFields: AnyMock
+let mockValidateApiKeyWithTacticus: AnyMock
+let mockFetch: AnyMock
 let mockGuildConfigService: {
-  findByCodeOrTag: ReturnType<typeof vi.fn>
-  getFull: ReturnType<typeof vi.fn>
-  exists: ReturnType<typeof vi.fn>
+  findByCodeOrTag: AnyMock
+  getFull: AnyMock
+  exists: AnyMock
 }
-let mockGetGuild: ReturnType<typeof vi.fn>
-let mockCaptureGuildConflict: ReturnType<typeof vi.fn>
-let mockReconcileGuildConflict: ReturnType<typeof vi.fn>
+let mockGetGuild: AnyMock
+let mockCaptureGuildConflict: AnyMock
+let mockReconcileGuildConflict: AnyMock
 
 async function hasSettled<T>(promise: Promise<T>): Promise<boolean> {
   const pending = Symbol('pending')
@@ -1467,7 +1478,7 @@ describe('/api/onboarding/guild/start', () => {
         })
       }
 
-      function storedMessage(chain: { update: ReturnType<typeof vi.fn> }) {
+      function storedMessage(chain: { update: AnyMock }) {
         const settlement = latestGuildSettlementArgs()
         if (settlement?.p_outcome === 'failed') {
           return settlement.p_error_message
