@@ -410,8 +410,12 @@ export async function fetchGuildRankings(
         rankings.guildRaid > MAX_VALID_GUILD_RANKING
       ) {
         logger.warn(
-          { guildCode },
-          `Skipping GR ranking update - value ${rankings.guildRaid} exceeds ${MAX_VALID_GUILD_RANKING} (likely day-off garbage)`
+          {
+            guildCode,
+            value: rankings.guildRaid,
+            max: MAX_VALID_GUILD_RANKING
+          },
+          'Skipping GR ranking update: value exceeds max (likely day-off garbage)'
         )
       }
 
@@ -422,8 +426,8 @@ export async function fetchGuildRankings(
         rankings.guildWar > MAX_VALID_GUILD_RANKING
       ) {
         logger.warn(
-          { guildCode },
-          `Skipping GW ranking update - value ${rankings.guildWar} exceeds ${MAX_VALID_GUILD_RANKING} (likely day-off garbage)`
+          { guildCode, value: rankings.guildWar, max: MAX_VALID_GUILD_RANKING },
+          'Skipping GW ranking update: value exceeds max (likely day-off garbage)'
         )
       }
 
