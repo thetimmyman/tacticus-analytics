@@ -3,7 +3,7 @@
 import clsx from 'clsx'
 import { formatNumber } from '@tacticus/app-core/formatters'
 
-export interface BenchmarkData {
+interface BenchmarkData {
   damage_avg: number
   damage_p75: number
   damage_p90: number

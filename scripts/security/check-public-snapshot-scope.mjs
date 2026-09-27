@@ -99,7 +99,7 @@ const APPROVED_SOURCE_MARKER_PATHS = new Map([
   ]
 ])
 
-export function findForbiddenPaths(paths) {
+function findForbiddenPaths(paths) {
   return paths.filter((candidate) => {
     const file = candidate.replaceAll('\\', '/').toLowerCase()
     if (APPROVED_TERMINUS_REPLAY_PATHS.has(file)) return false
@@ -111,7 +111,7 @@ export function findForbiddenPaths(paths) {
   })
 }
 
-export function findForbiddenSourceMarkers(files) {
+function findForbiddenSourceMarkers(files) {
   const violations = []
   for (const [file, content] of Object.entries(files)) {
     const normalized = file.replaceAll('\\', '/').toLowerCase()
@@ -133,7 +133,7 @@ const SOURCE_SCAN_CODE_EXTENSIONS = /\.(?:js|mjs|ts|tsx|sql)$/
 
 const SOURCE_SCAN_TEXT_EXTENSIONS = /\.(?:md|json|ya?ml)$/
 
-export function isSourceScanTarget(file) {
+function isSourceScanTarget(file) {
   const normalized = file.replaceAll('\\', '/')
   if (SOURCE_SCAN_TEXT_EXTENSIONS.test(normalized)) return true
   return (

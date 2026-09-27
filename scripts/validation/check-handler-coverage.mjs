@@ -7,7 +7,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-export const DEFAULT_BASELINE_RELPATH = path.join(
+const DEFAULT_BASELINE_RELPATH = path.join(
   'scripts',
   'validation',
   'handler-coverage.baseline.json'
@@ -27,7 +27,7 @@ const SQL_PRODUCER_ROOTS = [path.join('supabase', 'migrations')]
 const TS_EXTENSIONS = new Set(['.ts', '.tsx', '.mts'])
 
 /** Blanks comments, preserving offsets; strings stay because the job_types sought are string literals. */
-export function stripComments(source) {
+function stripComments(source) {
   const out = source.split('')
   let i = 0
   const blank = (from, to) => {
@@ -73,7 +73,7 @@ export function stripComments(source) {
   return out.join('')
 }
 
-export function stripSqlComments(sql) {
+function stripSqlComments(sql) {
   const out = sql.split('')
   let i = 0
   const blank = (from, to) => {
@@ -277,7 +277,7 @@ function resolveStringExpression(root, file, source, expr, seen = new Set()) {
   }
 }
 
-export function collectRegisteredHandlers(root) {
+function collectRegisteredHandlers(root) {
   const errors = []
   const handlers = []
 
@@ -411,7 +411,7 @@ function extractRegistrations(root, file, fnName) {
   return { jobTypes, errors }
 }
 
-export function collectStaticProducers(root) {
+function collectStaticProducers(root) {
   const producers = []
   const errors = []
 
@@ -520,7 +520,7 @@ function enclosingSlice(text, index) {
   return { start, text: text.slice(start, end) }
 }
 
-export function loadBaseline(root, baselinePath) {
+function loadBaseline(root, baselinePath) {
   const file = baselinePath ?? path.join(root, DEFAULT_BASELINE_RELPATH)
   if (!fs.existsSync(file)) {
     return {
@@ -565,7 +565,7 @@ export function loadBaseline(root, baselinePath) {
   return { entries, errors, file, meta: parsed }
 }
 
-export function checkHandlerCoverage({ root = process.cwd(), baseline } = {}) {
+function checkHandlerCoverage({ root = process.cwd(), baseline } = {}) {
   const registered = collectRegisteredHandlers(root)
   const staticProducers = collectStaticProducers(root)
   const baselineResult = loadBaseline(root, baseline)
@@ -620,7 +620,7 @@ export function checkHandlerCoverage({ root = process.cwd(), baseline } = {}) {
   }
 }
 
-export function formatReport(report) {
+function formatReport(report) {
   const lines = []
   lines.push('PS-79 worker handler-coverage gate')
   lines.push('')
@@ -675,7 +675,7 @@ export function formatReport(report) {
   return lines.join('\n')
 }
 
-export function handlersArtifact(report) {
+function handlersArtifact(report) {
   return `${report.handlers.map((h) => h.jobType).join('\n')}\n`
 }
 
@@ -693,7 +693,7 @@ function parseArgs(argv) {
   return options
 }
 
-export function main(argv = process.argv.slice(2)) {
+function main(argv = process.argv.slice(2)) {
   const options = parseArgs(argv)
   if (options.help) {
     process.stdout.write(

@@ -32,11 +32,11 @@ const DIGIT_RUN_RE = /(?<!\d)\d{15,21}(?!\d)/gu
 const WORD = '[\\p{L}\\p{N}_]'
 const HYPHEN_PREFIX_RE = /\b[0-9a-f]{8}(?:-[0-9a-f]{4}){1,3}\b/giu
 
-export function sha256Name(name) {
+function sha256Name(name) {
   return createHash('sha256').update(name.trim().toLowerCase()).digest('hex')
 }
 
-export function mask(value) {
+function mask(value) {
   return `${value.slice(0, 2)}******`
 }
 
@@ -54,7 +54,7 @@ function knownFilePath() {
   )
 }
 
-export function parseKnown(text) {
+function parseKnown(text) {
   const ids = new Set()
   const names = new Set()
   for (const raw of text.split(/\r?\n/u)) {
@@ -93,7 +93,7 @@ function loadKnown(file) {
   }
 }
 
-export function parseAllow(text) {
+function parseAllow(text) {
   const entries = JSON.parse(text)
   if (!Array.isArray(entries)) throw new Error(`${ALLOW_FILE} must be an array`)
   const hashes = new Set()
@@ -129,7 +129,7 @@ function wholeWordRe(values, flags) {
  * Names match whole-word and case-sensitively; a name found as a whole word in `gameCorpus`
  * (lowercased game-data text) is a game term, not a leak.
  */
-export function buildScanner({ ids, names }, { allowHashes, gameCorpus }) {
+function buildScanner({ ids, names }, { allowHashes, gameCorpus }) {
   const fullIds = new Set()
   const snowflakes = new Set()
   const opaqueIds = new Set()
@@ -250,7 +250,7 @@ export function buildScanner({ ids, names }, { allowHashes, gameCorpus }) {
   }
 }
 
-export function scanTexts(texts, scanText) {
+function scanTexts(texts, scanText) {
   const out = []
   for (const [file, text] of Object.entries(texts)) {
     if (text === null) continue
@@ -260,7 +260,7 @@ export function scanTexts(texts, scanText) {
 }
 
 /** Number of texts containing each name, whole-word and case-sensitive. */
-export function nameDocFrequency(names, texts) {
+function nameDocFrequency(names, texts) {
   const freq = new Map([...names].map((n) => [n, 0]))
   const simple = [...names].filter(isWordRun)
   const complex = [...names].filter((n) => !isWordRun(n))
@@ -280,7 +280,7 @@ export function nameDocFrequency(names, texts) {
   return freq
 }
 
-export function dropCommonNames(hits, freq) {
+function dropCommonNames(hits, freq) {
   return hits.filter(
     (h) => h.kind !== 'name' || (freq.get(h.value) ?? 0) <= MAX_NAME_FILES
   )

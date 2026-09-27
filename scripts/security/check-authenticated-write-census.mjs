@@ -31,7 +31,7 @@ const REQUEST_RHS =
 const WRITE_VERB = /\.(insert|upsert|update|delete)\s*[(<]/
 
 /** Claims behind the name-only attribution rules; --scan re-verifies each. */
-export const PROVENANCE_RULES = [
+const PROVENANCE_RULES = [
   {
     kind: 'SERVICE(edge)',
     claim:
@@ -90,7 +90,7 @@ function trackedFiles() {
   return TRACKED
 }
 
-export function scanSource(rel, text, ctx = {}) {
+function scanSource(rel, text, ctx = {}) {
   const out = []
   const lines = text.split('\n')
   const castTainted = ctx.castTainted ?? new Set()
@@ -211,7 +211,7 @@ function classify(rel, text, lines, lineIndex, recv, castTainted = new Set()) {
 }
 
 /** The suite's ps218_swept array and the `-- ps218_kept_policy` / `-- ps218_kept_undecided` arrays. */
-export function pgtapLists(sql) {
+function pgtapLists(sql) {
   const out = {}
   const grab = (key, re) => {
     const m = sql.match(re)
@@ -232,7 +232,7 @@ export function pgtapLists(sql) {
   return out
 }
 
-export function isServiceClient(client) {
+function isServiceClient(client) {
   return client.startsWith('SERVICE')
 }
 
@@ -278,7 +278,7 @@ function isTestFile(rel) {
 }
 
 /** Modules a ServiceSupabaseClient cast reaches via typed params; annotation proves nothing there. */
-export function castTaintedModules(files, read) {
+function castTaintedModules(files, read) {
   const tracked = new Set(files)
   const seen = new Set()
   const queue = []
@@ -299,7 +299,7 @@ export function castTaintedModules(files, read) {
   return seen
 }
 
-export function scanTree() {
+function scanTree() {
   const byTable = new Map()
   const castTainted = castTaintedModules(trackedFiles(), readIfPresent)
   for (const rel of trackedFiles()) {
