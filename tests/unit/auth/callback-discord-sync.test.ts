@@ -147,6 +147,16 @@ describe('auth callback — Discord profile sync', () => {
     expect(response.status).toBe(307)
   })
 
+  it('marks every callback response no-store so a shared cache never keeps a session', async () => {
+    const { response } = await runCallback(buildSupabaseStub(null, buildUser()))
+
+    expect(response.headers.get('Cache-Control')).toBe(
+      'private, no-cache, no-store, must-revalidate, max-age=0'
+    )
+    expect(response.headers.get('Pragma')).toBe('no-cache')
+    expect(response.headers.get('Expires')).toBe('0')
+  })
+
   it('still syncs when user_metadata.discord_synced already latched true', async () => {
     const user = buildUser({ metadata: { discord_synced: true } })
     await runCallback(buildSupabaseStub(null, user))

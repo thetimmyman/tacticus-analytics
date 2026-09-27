@@ -51,7 +51,7 @@ describe('Auth Server', () => {
 
       expect(cookieOptions?.getAll()).toEqual([{ name: 'test', value: '123' }])
 
-      cookieOptions?.setAll?.([{ name: 'new', value: '456', options: {} }])
+      cookieOptions?.setAll?.([{ name: 'new', value: '456', options: {} }], {})
       expect(mockCookieStore.set).toHaveBeenCalledWith(
         'new',
         '456',
@@ -79,7 +79,7 @@ describe('Auth Server', () => {
       const cookieOptions = call[2]?.cookies
 
       expect(cookieOptions?.getAll()).toEqual([])
-      expect(() => cookieOptions?.setAll?.([])).not.toThrow()
+      expect(() => cookieOptions?.setAll?.([], {})).not.toThrow()
     })
   })
 
