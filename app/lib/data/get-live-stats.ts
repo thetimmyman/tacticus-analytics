@@ -102,8 +102,8 @@ async function fetchStatsWithClient(
       const logFn =
         code && FUNCTION_NOT_FOUND_CODES.has(code) ? logger.debug : logger.error
       logFn(
-        `Error fetching public stats via RPC (${rpcName}, ${source} client):`,
-        error
+        { err: error, rpcName, source },
+        'Error fetching public stats via RPC'
       )
       return {
         stats: null,
