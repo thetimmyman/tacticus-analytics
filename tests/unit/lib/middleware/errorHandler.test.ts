@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server'
 import {
   withErrorHandler,
   handleError,
+  sentryOperationTag,
   rethrowIfAuthError
 } from '@/app/lib/middleware/errorHandler'
 import { withRequestContext } from '@/app/lib/logging/request-context'
@@ -32,8 +33,40 @@ describe('errorHandler', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockRequest = {
-      url: 'http://localhost/api/test'
+      url: 'http://localhost/api/test',
+      method: 'GET'
     } as unknown as NextRequest
+  })
+
+  describe('sentryOperationTag', () => {
+    it.each([
+      ['GET', '/api/wars/analytics/cores', 'GET:api.wars.analytics.cores'],
+      [
+        'GET',
+        '/api/players/123e4567-e89b-42d3-a456-426614174000',
+        'GET:api.players._'
+      ],
+      ['GET', '/api/players/123', 'GET:api.players._'],
+      ['GET', '/api/players/TestPlayerA', 'GET:api.players._'],
+      ['GET', '/api/players/%41lice', 'GET:api.players._']
+    ])('maps %s %s to a safe operation', (method, path, expected) => {
+      const operation = sentryOperationTag(method, path)
+      expect(operation).toBe(expected)
+      expect(operation).toMatch(/^[A-Za-z0-9_.:-]{1,80}$/u)
+    })
+
+    it('truncates long paths and uses UNKNOWN for an unknown method', () => {
+      const operation = sentryOperationTag(
+        undefined,
+        `/${'a'.repeat(40)}/${'b'.repeat(40)}`
+      )
+      expect(operation).toHaveLength(80)
+      expect(operation).toMatch(/^[A-Za-z0-9_.:-]{1,80}$/u)
+      expect(sentryOperationTag(undefined, '/unknown')).toBe('UNKNOWN:unknown')
+      expect(sentryOperationTag('TESTPLAYERA', '/api/test')).toBe(
+        'UNKNOWN:api.test'
+      )
+    })
   })
 
   describe('handleError', () => {
@@ -68,7 +101,13 @@ describe('errorHandler', () => {
       const error = Errors.internal()
       handleError(error, mockRequest)
 
-      expect(captureException).toHaveBeenCalledWith(error)
+      expect(captureException).toHaveBeenCalledWith(error, {
+        tags: {
+          operation: 'GET:api.test',
+          status_code: '500',
+          error_code: String(error.code)
+        }
+      })
     })
 
     it('should handle ZodError and return 400', () => {
@@ -99,7 +138,9 @@ describe('errorHandler', () => {
       expect(response.body.error.code).toBe(ErrorCode.INTERNAL_ERROR)
       expect(response.body.error.statusCode).toBe(500)
       expect(response.body.error.requestId).toBeDefined()
-      expect(captureException).toHaveBeenCalledWith(error)
+      expect(captureException).toHaveBeenCalledWith(error, {
+        tags: { operation: 'GET:api.test', status_code: '500' }
+      })
     })
 
     it('preserves curated message AND functional metadata on >=500 [WI-1930]', () => {

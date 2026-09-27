@@ -20,6 +20,31 @@ function requestPathname(req?: { url?: string }): string {
   }
 }
 
+const KNOWN_HTTP_METHODS = new Set([
+  'GET',
+  'HEAD',
+  'POST',
+  'PUT',
+  'PATCH',
+  'DELETE',
+  'OPTIONS'
+])
+
+// Tag values must never carry request data: only known methods and static-looking route words survive.
+export function sentryOperationTag(
+  method: string | undefined,
+  pathname: string
+): string {
+  const safeMethod =
+    method && KNOWN_HTTP_METHODS.has(method) ? method : 'UNKNOWN'
+  const segments = pathname
+    .split('/')
+    .filter(Boolean)
+    .map((segment) => (/^[a-z][a-z-]{0,39}$/u.test(segment) ? segment : '_'))
+
+  return `${safeMethod}:${segments.join('.')}`.slice(0, 80)
+}
+
 export function withErrorHandler(
   handler: (req: NextRequest, ...args: any[]) => Promise<Response>
 ) {
@@ -66,7 +91,17 @@ export function handleError(
         errorCode: error.code,
         statusCode: error.statusCode
       })
-      captureException(error)
+      captureException(error, {
+        tags: {
+          operation: sentryOperationTag(req?.method, pathname),
+          status_code: /^[1-5][0-9]{2}$/u.test(String(error.statusCode))
+            ? String(error.statusCode)
+            : 'invalid',
+          error_code: Number.isInteger(error.code)
+            ? String(error.code)
+            : 'invalid'
+        }
+      })
     } else {
       logger.warn(
         {
@@ -135,7 +170,12 @@ export function handleError(
     method: req?.method,
     url: pathname
   })
-  captureException(error)
+  captureException(error, {
+    tags: {
+      operation: sentryOperationTag(req?.method, pathname),
+      status_code: '500'
+    }
+  })
 
   return createErrorResponse(
     {
