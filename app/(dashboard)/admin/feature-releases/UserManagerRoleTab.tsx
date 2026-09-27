@@ -2,7 +2,7 @@
 
 import type { Dispatch, SetStateAction } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@tacticus/ui-kit'
-import { Trash2, Search } from 'lucide-react'
+import { Trash, Search } from 'lucide-react'
 import { formatGuildDisplayLabel } from '@/app/lib/format/guild'
 import { ReleaseStageBadge } from '@/app/components/release/ReleaseStageBadge'
 import {
@@ -99,7 +99,7 @@ export function UserManagerRoleTab({
                       onClick={() => removeFromRole(admin.email, 'admin')}
                       className="text-red-400 hover:text-red-300 transition-colors shrink-0"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash className="h-4 w-4" />
                     </button>
                   </div>
                 ))}
@@ -159,7 +159,7 @@ export function UserManagerRoleTab({
                         }
                         className="text-red-400 hover:text-red-300 transition-colors shrink-0"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash className="h-4 w-4" />
                       </button>
                     </div>
                   ))}

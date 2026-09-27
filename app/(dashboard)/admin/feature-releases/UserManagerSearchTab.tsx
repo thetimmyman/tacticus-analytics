@@ -5,13 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@tacticus/ui-kit'
 import { Button } from '@tacticus/ui-kit'
 import {
   Users,
-  Trash2,
+  Trash,
   Search,
   Loader2,
   UserPlus,
   Filter,
   ChevronDown,
-  Building2,
+  BuildingComplex,
   CheckSquare,
   Square,
   UserCheck,
@@ -357,7 +357,7 @@ export function UserManagerSearchTab({
                         <td className="px-3 py-2">
                           {user.guild_code ? (
                             <div className="flex items-center gap-1 text-[var(--text-secondary)]">
-                              <Building2 className="h-3 w-3" />
+                              <BuildingComplex className="h-3 w-3" />
                               {formatGuildDisplayLabel(null, user.guild_code)}
                             </div>
                           ) : (
@@ -514,7 +514,7 @@ export function UserManagerSearchTab({
                   </>
                 ) : (
                   <>
-                    <Trash2 className="h-4 w-4 mr-1" />
+                    <Trash className="h-4 w-4 mr-1" />
                     Remove from{' '}
                     {bulkRoleType === 'admin'
                       ? 'Admins'

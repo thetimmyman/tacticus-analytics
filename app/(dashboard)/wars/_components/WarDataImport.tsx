@@ -12,7 +12,7 @@ import {
   XCircle,
   Info,
   FileJson,
-  Trash2,
+  Trash,
   Swords,
   Map,
   Target,
@@ -735,7 +735,7 @@ export default function WarDataImport({
         <div className="flex items-center gap-3">
           {jsonText && (
             <Button variant="outline" size="sm" onClick={handleClear}>
-              <Trash2 className="h-4 w-4 mr-2" />
+              <Trash className="h-4 w-4 mr-2" />
               Clear
             </Button>
           )}

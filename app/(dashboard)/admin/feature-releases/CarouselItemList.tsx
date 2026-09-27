@@ -13,7 +13,7 @@ import {
   EyeOff,
   ImageIcon,
   Timer,
-  Trash2
+  Trash
 } from 'lucide-react'
 import { ClientDate } from '@tacticus/ui-kit'
 import { getCarouselTimeRemaining, type CarouselItem } from './carousel-model'
@@ -223,7 +223,7 @@ export function CarouselItemList({
                       className="p-1.5 rounded hover:bg-red-500/20 text-red-400 transition-colors"
                       title="Delete"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash className="h-4 w-4" />
                     </button>
                   </div>
                 </div>

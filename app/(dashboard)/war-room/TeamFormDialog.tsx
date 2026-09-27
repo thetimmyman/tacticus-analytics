@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Trash2 } from 'lucide-react'
+import { Trash } from 'lucide-react'
 import { Button, Input, Label, Textarea } from '@tacticus/ui-kit'
 import {
   RadixDialog,
@@ -250,7 +250,7 @@ export default function TeamFormDialog({
                         aria-label={`Remove ${heroName}`}
                         title={`Remove ${heroName}`}
                       >
-                        <Trash2 className="h-4 w-4" aria-hidden="true" />
+                        <Trash className="h-4 w-4" aria-hidden="true" />
                       </Button>
                     </div>
                   )

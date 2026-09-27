@@ -6,7 +6,7 @@ import {
   Plus,
   Copy,
   RefreshCw,
-  Trash2,
+  Trash,
   AlertTriangle,
   CheckCircle,
   MessageSquare,
@@ -271,7 +271,7 @@ function InviteCard({
               {deletingInviteId === invite.id ? (
                 <RefreshCw className="w-4 h-4 animate-spin" />
               ) : (
-                <Trash2 className="w-4 h-4" />
+                <Trash className="w-4 h-4" />
               )}
             </Button>
           )}
@@ -494,7 +494,7 @@ function SmallInviteCard({
               {deletingInviteId === invite.id ? (
                 <RefreshCw className="w-3 h-3 animate-spin" />
               ) : (
-                <Trash2 className="w-3 h-3" />
+                <Trash className="w-3 h-3" />
               )}
             </Button>
           )}

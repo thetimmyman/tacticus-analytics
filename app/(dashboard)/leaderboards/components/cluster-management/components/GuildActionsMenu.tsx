@@ -6,7 +6,7 @@ import {
   RadixDropdownMenuSeparator,
   RadixDropdownMenuTrigger
 } from '@tacticus/ui-kit/radix-dropdown'
-import { MessageSquare, MoreVertical, Settings, Trash2 } from 'lucide-react'
+import { MessageSquare, MoreVertical, Settings, Trash } from 'lucide-react'
 
 interface GuildActionsMenuProps {
   isWebhooksExpanded: boolean
@@ -64,7 +64,7 @@ export function GuildActionsMenu({
           onClick={onDelete}
           className="flex items-center gap-2 cursor-pointer p-3 hover:bg-red-900/20 text-red-500"
         >
-          <Trash2 className="w-4 h-4" />
+          <Trash className="w-4 h-4" />
           Disable Guild
         </RadixDropdownMenuItem>
       </RadixDropdownMenuContent>

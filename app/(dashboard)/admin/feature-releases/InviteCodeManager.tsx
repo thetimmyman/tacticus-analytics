@@ -8,7 +8,7 @@ import { Button } from '@tacticus/ui-kit'
 import { DataTable, type DataTableColumn } from '@tacticus/ui-kit'
 import {
   KeyRound,
-  Building2,
+  BuildingComplex,
   Search,
   ChevronDown,
   Copy,
@@ -346,7 +346,7 @@ export function InviteCodeManager() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Building2 className="h-5 w-5" />
+            <BuildingComplex className="h-5 w-5" />
             Select Guild
           </CardTitle>
         </CardHeader>
