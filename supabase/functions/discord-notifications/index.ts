@@ -14,6 +14,7 @@ import {
 } from './command-handlers.ts'
 import { createDiscordCommandContext } from './command-context.ts'
 
+// The application's public verification key: public by design, not a credential.
 const DISCORD_PUBLIC_KEY =
   '9be90ced4b0c257eb5ef9acd706b9f00cd3723946dfd005d2785be4e3cd12895'
 
