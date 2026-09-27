@@ -30,19 +30,63 @@ const KNOWN_HTTP_METHODS = new Set([
   'OPTIONS'
 ])
 
-// Tag values must never carry request data: only known methods and static-looking route words survive.
+// Parent route ('*' = dynamic segment) -> its static child dirs; any other child is a [param].
+// Kept in sync with app/api by a test, because a dynamic value can look like a route word.
+export const DYNAMIC_ROUTE_PARENTS: ReadonlyMap<
+  string,
+  ReadonlySet<string>
+> = new Map([
+  ['api/admin/carousel', new Set<string>()],
+  ['api/admin/gdpr/exports', new Set<string>()],
+  ['api/admin/global-thresholds', new Set<string>()],
+  ['api/gdpr/my-data', new Set<string>()],
+  ['api/officer/coaching-tasks', new Set<string>()],
+  ['api/playbooks', new Set(['seasonal-hub'])],
+  ['api/wars', new Set(['analytics'])]
+])
+
+// Tag values must never carry request data: only known methods and static route words survive.
 export function sentryOperationTag(
   method: string | undefined,
   pathname: string
 ): string {
   const safeMethod =
     method && KNOWN_HTTP_METHODS.has(method) ? method : 'UNKNOWN'
-  const segments = pathname
+  // Parent keys use '*' for an already-masked dynamic segment so nested params resolve too.
+  const template: string[] = []
+  const safeSegments = pathname
     .split('/')
     .filter(Boolean)
-    .map((segment) => (/^[a-z][a-z-]{0,39}$/u.test(segment) ? segment : '_'))
+    .map((segment) => {
+      const staticChildren = DYNAMIC_ROUTE_PARENTS.get(template.join('/'))
+      const isDynamic =
+        staticChildren !== undefined && !staticChildren.has(segment)
+      template.push(isDynamic ? '*' : segment)
+      if (isDynamic) return '_'
+      return /^[a-z][a-z-]{0,39}$/u.test(segment) ? segment : '_'
+    })
 
-  return `${safeMethod}:${segments.join('.')}`.slice(0, 80)
+  return `${safeMethod}:${safeSegments.join('.')}`.slice(0, 80)
+}
+
+function sentryErrorTags(
+  method: string | undefined,
+  pathname: string,
+  statusCode: number,
+  errorCode?: unknown
+): Record<string, string> {
+  const tags: Record<string, string> = {
+    operation: sentryOperationTag(method, pathname),
+    status_code: /^[1-5][0-9]{2}$/u.test(String(statusCode))
+      ? String(statusCode)
+      : 'invalid'
+  }
+  if (errorCode !== undefined) {
+    tags.error_code = Number.isInteger(errorCode)
+      ? String(errorCode)
+      : 'invalid'
+  }
+  return tags
 }
 
 export function withErrorHandler(
@@ -92,15 +136,12 @@ export function handleError(
         statusCode: error.statusCode
       })
       captureException(error, {
-        tags: {
-          operation: sentryOperationTag(req?.method, pathname),
-          status_code: /^[1-5][0-9]{2}$/u.test(String(error.statusCode))
-            ? String(error.statusCode)
-            : 'invalid',
-          error_code: Number.isInteger(error.code)
-            ? String(error.code)
-            : 'invalid'
-        }
+        tags: sentryErrorTags(
+          req?.method,
+          pathname,
+          error.statusCode,
+          error.code
+        )
       })
     } else {
       logger.warn(
@@ -171,10 +212,7 @@ export function handleError(
     url: pathname
   })
   captureException(error, {
-    tags: {
-      operation: sentryOperationTag(req?.method, pathname),
-      status_code: '500'
-    }
+    tags: sentryErrorTags(req?.method, pathname, 500)
   })
 
   return createErrorResponse(
@@ -370,7 +408,14 @@ async function normalizeErrorResponse(
       url: pathname,
       originalStatus: response.status
     })
-    captureException(appError)
+    captureException(appError, {
+      tags: sentryErrorTags(
+        req.method,
+        pathname,
+        appError.statusCode,
+        appError.code
+      )
+    })
   } else {
     logger.warn(
       {
