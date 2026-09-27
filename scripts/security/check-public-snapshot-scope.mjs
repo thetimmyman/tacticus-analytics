@@ -77,9 +77,13 @@ const APPROVED_SOURCE_MARKER_PATHS = new Map([
   ['.app-identity.json', new Set(['private-project-name'])],
   // Names the repo split; no implementation detail.
   ['readme.md', new Set(['private-project-name'])],
-  // Recreates cleanup_long_stale_guilds from its live body (a cluster_code literal).
+  // Each recreates cleanup_long_stale_guilds from its live body (a cluster_code literal).
   [
     'supabase/migrations/20260925030000_ps516_drop_guild_war_sync_machinery.sql',
+    new Set(['cluster-code-equals'])
+  ],
+  [
+    'supabase/migrations/20260927210000_orphan_guild_cleanup_keeps_battle_history.sql',
     new Set(['cluster-code-equals'])
   ],
   // Negative-test fixtures the verifier must reject.
