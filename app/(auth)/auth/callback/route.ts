@@ -140,7 +140,22 @@ async function needsOnboarding(
   }
 }
 
+// Every callback response sets or rotates the session: never let a shared cache keep one.
+const NO_STORE_HEADERS: Record<string, string> = {
+  'Cache-Control': 'private, no-cache, no-store, must-revalidate, max-age=0',
+  Expires: '0',
+  Pragma: 'no-cache'
+}
+
 export async function GET(request: Request) {
+  const response = await handleCallback(request)
+  for (const [key, value] of Object.entries(NO_STORE_HEADERS)) {
+    response.headers.set(key, value)
+  }
+  return response
+}
+
+async function handleCallback(request: Request) {
   let callbackSupabase: SupabaseClient | null = null
   let sessionCreatedByCallback = false
 

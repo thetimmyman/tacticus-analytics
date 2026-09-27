@@ -19,6 +19,7 @@ import {
   type DefaultRoleState,
   type HeraldToggleKey
 } from './herald-notification-model'
+import type { TablesUpdate } from '@tacticus/app-core/database.generated'
 
 const logger = createComponentLogger(
   'guild-management.settings.useHeraldNotificationSettings'
@@ -108,7 +109,12 @@ export function useHeraldNotificationSettings(
     try {
       const { error, count } = await dbClient()
         .from('guild_config')
-        .update({ [HERALD_COLUMN_BY_KEY[key]]: next }, { count: 'exact' })
+        .update(
+          { [HERALD_COLUMN_BY_KEY[key]]: next } as TablesUpdate<'guild_config'>,
+          {
+            count: 'exact'
+          }
+        )
         .eq('guild_code', guildCode)
       if (error) throw error
       if (count !== 1) throw new Error(ZERO_ROWS_MESSAGE)
@@ -139,7 +145,9 @@ export function useHeraldNotificationSettings(
     try {
       const { error, count } = await dbClient()
         .from('guild_config')
-        .update(validation.value, { count: 'exact' })
+        .update(validation.value as TablesUpdate<'guild_config'>, {
+          count: 'exact'
+        })
         .eq('guild_code', guildCode)
       if (error) throw error
       if (count !== 1) throw new Error(ZERO_ROWS_MESSAGE)

@@ -18,6 +18,7 @@ import {
   type GuildWarStatusMember,
   type GuildWarStatusResponse
 } from './guild-war-parser'
+import type { TablesUpdate } from '@tacticus/app-core/database.generated'
 
 type GuildWarBattleInsert =
   Database['public']['Tables']['guild_war_battles']['Insert']
@@ -423,7 +424,7 @@ async function ingestParticipation(
     if (Object.keys(updateData).length > 0) {
       await supabase
         .from('player_mapping')
-        .update(updateData)
+        .update(updateData as TablesUpdate<'player_mapping'>)
         .eq('guild_code', ctx.guildCode)
         .eq('player_id', member.userId)
     }
