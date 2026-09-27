@@ -1,4 +1,15 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  type Mock
+} from 'vitest'
+
+// vitest 5 types a bare vi.fn() as function-or-constructor; these mocks are called.
+type AnyMock = Mock<(...args: any[]) => any>
 import { NextRequest } from 'next/server'
 
 function createGetRequest(cluster?: string): NextRequest {
@@ -41,10 +52,10 @@ function createChainedMock(data: any = null, error: any = null) {
 
 describe('GET /api/cluster/discord-links', () => {
   let GET: (req: NextRequest) => Promise<Response>
-  let mockRequireRole: ReturnType<typeof vi.fn>
-  let mockServiceSupabase: { from: ReturnType<typeof vi.fn> }
-  let mockGuildConfigServiceGetBasic: ReturnType<typeof vi.fn>
-  let mockGuildConfigServiceGetClusterGuilds: ReturnType<typeof vi.fn>
+  let mockRequireRole: AnyMock
+  let mockServiceSupabase: { from: AnyMock }
+  let mockGuildConfigServiceGetBasic: AnyMock
+  let mockGuildConfigServiceGetClusterGuilds: AnyMock
 
   beforeEach(async () => {
     vi.resetModules()
@@ -307,9 +318,9 @@ describe('GET /api/cluster/discord-links', () => {
 
 describe('POST /api/cluster/discord-links', () => {
   let POST: (req: NextRequest) => Promise<Response>
-  let mockRequireRole: ReturnType<typeof vi.fn>
-  let mockServiceSupabase: { from: ReturnType<typeof vi.fn> }
-  let mockGuildConfigServiceGetBasic: ReturnType<typeof vi.fn>
+  let mockRequireRole: AnyMock
+  let mockServiceSupabase: { from: AnyMock }
+  let mockGuildConfigServiceGetBasic: AnyMock
 
   beforeEach(async () => {
     vi.resetModules()
@@ -538,9 +549,9 @@ describe('POST /api/cluster/discord-links', () => {
 
 describe('DELETE /api/cluster/discord-links', () => {
   let DELETE: (req: NextRequest) => Promise<Response>
-  let mockRequireRole: ReturnType<typeof vi.fn>
-  let mockServiceSupabase: { from: ReturnType<typeof vi.fn> }
-  let mockGuildConfigServiceGetBasic: ReturnType<typeof vi.fn>
+  let mockRequireRole: AnyMock
+  let mockServiceSupabase: { from: AnyMock }
+  let mockGuildConfigServiceGetBasic: AnyMock
 
   beforeEach(async () => {
     vi.resetModules()

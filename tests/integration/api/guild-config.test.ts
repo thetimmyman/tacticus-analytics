@@ -1,4 +1,15 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  type Mock
+} from 'vitest'
+
+// vitest 5 types a bare vi.fn() as function-or-constructor; these mocks are called.
+type AnyMock = Mock<(...args: any[]) => any>
 import { NextRequest } from 'next/server'
 
 vi.mock('@/app/lib/auth/server', () => ({
@@ -89,21 +100,21 @@ vi.mock('@/app/lib/errors/AppError', async (importOriginal) => {
 
 describe('Guild Create Config Route', () => {
   let mockSupabase: {
-    from: ReturnType<typeof vi.fn>
-    rpc: ReturnType<typeof vi.fn>
-    functions: { invoke: ReturnType<typeof vi.fn> }
+    from: AnyMock
+    rpc: AnyMock
+    functions: { invoke: AnyMock }
   }
   let mockAuthedSupabase: {
-    auth: { getUser: ReturnType<typeof vi.fn> }
+    auth: { getUser: AnyMock }
   }
-  let createClient: ReturnType<typeof vi.fn>
-  let createServiceClient: ReturnType<typeof vi.fn>
-  let encryptApiKey: ReturnType<typeof vi.fn>
-  let validateApiKeyWithTacticus: ReturnType<typeof vi.fn>
-  let validateGuildCode: ReturnType<typeof vi.fn>
-  let apiSecurityMiddleware: ReturnType<typeof vi.fn>
-  let resolveLokiBuildString: ReturnType<typeof vi.fn>
-  let mockFetch: ReturnType<typeof vi.fn>
+  let createClient: AnyMock
+  let createServiceClient: AnyMock
+  let encryptApiKey: AnyMock
+  let validateApiKeyWithTacticus: AnyMock
+  let validateGuildCode: AnyMock
+  let apiSecurityMiddleware: AnyMock
+  let resolveLokiBuildString: AnyMock
+  let mockFetch: AnyMock
 
   beforeEach(async () => {
     vi.resetModules()
