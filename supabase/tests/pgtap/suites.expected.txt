@@ -5,4 +5,4 @@
 # than quietly re-baseline itself. `suites` is the number of ROSTER lines;
 # `assertions` is the sum of their `# <count>` values.
 suites 59
-assertions 925
+assertions 932

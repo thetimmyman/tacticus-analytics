@@ -1,8 +1,7 @@
 -- target-db: general
--- Recent runs describe history, not now: a scheduler burst can leave 3 consecutive
--- saturated/backlog runs on the books after the live queue has already drained, and
--- the alert kept firing on that stale evidence. saturated/backlog now also require the
--- live queue to still be non-empty; once it drains the verdict is 'drained', which clears.
+-- Recent runs describe history, not now: saturated/backlog also require claimable rows in the
+-- live queue, else the verdict is 'drained'. 'drained' neither fires nor clears, because the
+-- monitor samples just before each scheduler burst, when the queue is at its lowest.
 
 BEGIN;
 
@@ -54,7 +53,10 @@ BEGIN
   ), live AS (
     SELECT
       count(*)::bigint AS depth,
-      COALESCE(EXTRACT(EPOCH FROM (now() - min(q.created_at))), 0)::numeric AS age
+      COALESCE(EXTRACT(EPOCH FROM (now() - min(q.created_at))), 0)::numeric AS age,
+      -- Only rows claim_next_job could take now; deferred and retry rows wait for scheduled_for.
+      count(*) FILTER (WHERE q.scheduled_for IS NULL OR q.scheduled_for <= now())::bigint
+        AS claimable
       FROM public.sync_queue q
      WHERE q.status = 'pending'
        AND q.attempts < q.max_attempts
@@ -83,10 +85,8 @@ BEGIN
        AND EXISTS (SELECT 1 FROM public.sync_drain_runs) THEN 'runs_stale'
       WHEN agg.considered < v_runs THEN
         CASE WHEN agg.considered = 0 THEN 'no_runs' ELSE 'ok' END
-      -- The run history says saturated/backlog, but the live queue is empty right
-      -- now: a burst that produced that history has since drained. Distinct from
-      -- 'ok' so the clearing reason stays visible (the drain did fall behind).
-      WHEN live.depth = 0 AND (agg.sat >= v_runs OR agg.backlog >= v_runs) THEN 'drained'
+      -- Breaching run history with nothing claimable now: the burst it described has drained.
+      WHEN live.claimable = 0 AND (agg.sat >= v_runs OR agg.backlog >= v_runs) THEN 'drained'
       WHEN agg.sat >= v_runs THEN 'saturated'
       WHEN agg.backlog >= v_runs THEN 'backlog'
       ELSE 'ok'
@@ -114,9 +114,8 @@ REVOKE ALL ON FUNCTION public.sync_queue_drain_health(integer, integer, integer)
 GRANT EXECUTE ON FUNCTION public.sync_queue_drain_health(integer, integer, integer)
   TO service_role;
 
--- 'no_runs' neither fires nor clears. 'runs_stale' and 'drained' both clear:
--- the first because the run evidence itself has aged out, the second because the
--- run evidence is current but the live queue it described has since drained.
+-- 'no_runs' and 'drained' neither fire nor clear; 'runs_stale' clears because the run evidence aged out.
+-- A firing alert therefore clears only on 'ok' or 'runs_stale', not on one empty-queue sample.
 
 CREATE OR REPLACE FUNCTION public.check_sync_queue_drain_health(
   p_consecutive_runs integer DEFAULT 3,
@@ -183,19 +182,9 @@ BEGIN
       p_quiet);
     RETURN 0;
 
-  ELSIF h.verdict = 'drained' THEN
-    PERFORM monitoring.notify(
-      alert_key, 'cleared', 'sync_queue drain is behind',
-      format('%s of the last %s runs looked saturated/over-ceiling, but the live '
-             || 'queue is empty now: it has since drained. Runs considered: %s, '
-             || 'saturated %s, over-ceiling %s.',
-             GREATEST(h.saturated_runs, h.backlog_runs), h.runs_considered,
-             h.runs_considered, h.saturated_runs, h.backlog_runs),
-      p_quiet);
-    RETURN 0;
   END IF;
 
-  -- 'no_runs': cannot tell. Neither leg.
+  -- 'no_runs' or 'drained': cannot tell from this sample. Neither leg.
   RETURN 0;
 EXCEPTION WHEN OTHERS THEN
   RAISE WARNING '[check_sync_queue_drain_health] monitor error: %', SQLERRM;
@@ -232,5 +221,7 @@ BEGIN
   END IF;
 END;
 $verify$;
+
+NOTIFY pgrst, 'reload schema';
 
 COMMIT;
