@@ -1,4 +1,4 @@
-import { processTimestamp } from './helpers.ts'
+import { processTimestamp, withoutWriteClock } from './helpers.ts'
 
 export interface Logger {
   info: (ctx: string, msg: string) => void
@@ -155,7 +155,7 @@ export async function upsertDataBatches(
       const batchStart = Date.now()
       const { error, count } = await deps.supabase
         .from(config.table)
-        .upsert(batch, {
+        .upsert(batch.map(withoutWriteClock), {
           onConflict:
             'Guild,Season,userId,encounterId,startedOn,completedOn,damageDealt,damageType',
           defaultToNull: false,
@@ -173,12 +173,14 @@ export async function upsertDataBatches(
         for (const record of batch) {
           try {
             const { error: singleError, count: singleCount } =
-              await deps.supabase.from(config.table).upsert([record], {
-                onConflict:
-                  'Guild,Season,userId,encounterId,startedOn,completedOn,damageDealt,damageType',
-                defaultToNull: false,
-                count: 'exact'
-              })
+              await deps.supabase
+                .from(config.table)
+                .upsert([withoutWriteClock(record)], {
+                  onConflict:
+                    'Guild,Season,userId,encounterId,startedOn,completedOn,damageDealt,damageType',
+                  defaultToNull: false,
+                  count: 'exact'
+                })
 
             if (singleError) {
               errors += 1
