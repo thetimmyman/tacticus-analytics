@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/nextjs'
+import { captureRequestError, withScope } from '@sentry/nextjs'
 import type { Instrumentation } from 'next'
 
 // React Flight aborts the render with this plain Error when the response stream closes early,
@@ -77,8 +77,8 @@ export const onRequestError: Instrumentation.onRequestError = (
   ) {
     return
   }
-  Sentry.withScope((scope) => {
+  withScope((scope) => {
     scope.setTags(requestErrorTags(request, context))
-    Sentry.captureRequestError(error, request, context)
+    captureRequestError(error, request, context)
   })
 }
