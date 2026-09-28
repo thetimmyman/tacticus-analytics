@@ -50,7 +50,7 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-describe('useLiveAttackReconciliation read-only gate (WI-5450)', () => {
+describe('useLiveAttackReconciliation read-only gate', () => {
   it('canEdit=false: never dispatches allocations and never calls autoSave, even after the debounce', () => {
     const actions = buildActions()
     const autoSave = vi.fn(async () => {})

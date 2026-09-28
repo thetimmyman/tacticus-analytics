@@ -86,7 +86,7 @@ describe('Discord chart request context', () => {
     expect(await failure.response.text()).toBe('Unable to determine season')
   })
 
-  it('applies the private, no-store cache policy (PS-21)', () => {
+  it('applies the private, no-store cache policy', () => {
     const response = cacheDiscordChart(new Response('chart'))
     expect(response.headers.get('Cache-Control')).toBe('private, no-store')
   })

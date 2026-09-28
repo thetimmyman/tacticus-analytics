@@ -201,7 +201,7 @@ async function run(
   return runTokenAuditForGuild({ guildCode: 'TEST', forceMode: 'daily' })
 }
 
-describe('runTokenAuditForGuild snapshot write-back (WI-2640 Phase 3 S1)', () => {
+describe('runTokenAuditForGuild snapshot write-back (Phase 3 S1)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -314,7 +314,7 @@ describe('runTokenAuditForGuild snapshot write-back (WI-2640 Phase 3 S1)', () =>
     expect(byPlayer.get('p2')?.rpc_post_snapshot_spends).toBeNull()
   })
 
-  it('daily_spacing skip still refreshes snapshots without inserting audit rows (Codex #963 P1)', async () => {
+  it('daily_spacing skip still refreshes snapshots without inserting audit rows (P1)', async () => {
     // decideAuditMode returns null, but the live fetch and write-back must still run.
     const now = new Date('2026-07-01T12:00:00.000Z')
     const { runTokenAuditForGuild, insertedBatches } = await setup({
@@ -345,7 +345,7 @@ describe('runTokenAuditForGuild snapshot write-back (WI-2640 Phase 3 S1)', () =>
     expect(insertedBatches).toHaveLength(0)
   })
 
-  it('captures the write-back race cutoff BEFORE initiating the live fetch (Codex #963 P2)', async () => {
+  it('captures the write-back race cutoff BEFORE initiating the live fetch (P2)', async () => {
     const { runTokenAuditForGuild } = await setup({})
     const { tacticusAPI } = await import('@/app/lib/api/tacticus-client')
 

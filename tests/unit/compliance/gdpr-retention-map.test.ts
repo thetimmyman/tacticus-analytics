@@ -85,7 +85,7 @@ afterEach(() => {
   vi.resetModules()
 })
 
-describe('GDPR retention map covers every written data type (PS-396)', () => {
+describe('GDPR retention map covers every written data type', () => {
   it('maps every `dataType:` literal in app/ to a defined retention period', async () => {
     const { GDPR_RETENTION_KEY_BY_DATA_TYPE, GDPR_CONFIG } =
       await import('@/app/lib/compliance/gdpr-manager')
@@ -124,7 +124,7 @@ describe('GDPR retention map covers every written data type (PS-396)', () => {
   })
 })
 
-describe('recordDataProcessing stamps retention_until (PS-396)', () => {
+describe('recordDataProcessing stamps retention_until', () => {
   it.each([
     'account_deletion_immediate',
     'complete_export',

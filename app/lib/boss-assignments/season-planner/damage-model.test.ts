@@ -15,7 +15,7 @@ describe('computeMeanDamagePerBattle', () => {
     expect(computeMeanDamagePerBattle([])).toBe(0)
   })
 
-  it('returns the plain unweighted mean (WI-2430 formula)', () => {
+  it('returns the plain unweighted mean', () => {
     expect(
       computeMeanDamagePerBattle([
         { damageDealt: 100 },
@@ -110,7 +110,7 @@ describe('computeRemainingBossSequence difficulty with a real guild average', ()
   })
 })
 
-describe('computeRemainingBossSequence skip + roster-divisor semantics (WI-4500)', () => {
+describe('computeRemainingBossSequence skip + roster-divisor semantics', () => {
   const progressionConfig: ProgressionConfig = {
     firstPassSequence: ['L1', 'L2'],
     loopSequence: ['L1', 'L2'],
@@ -265,7 +265,7 @@ describe('computeRemainingBossSequence skip + roster-divisor semantics (WI-4500)
   })
 })
 
-describe('computeRemainingBossSequence officer-target budgets (WI-4530)', () => {
+describe('computeRemainingBossSequence officer-target budgets', () => {
   const progressionConfig: ProgressionConfig = {
     firstPassSequence: ['L1', 'L2'],
     loopSequence: ['L1', 'L2'],
@@ -498,7 +498,7 @@ describe('computeRosterEncounterDamagePerToken', () => {
     expect(computeMeanDamagePerBattle(records)).toBe(700)
   })
 
-  it('excludes no_signal players instead of default-filling (WI-666)', () => {
+  it('excludes no_signal players instead of default-filling', () => {
     const model = buildDamageModel([record('p1', 'BossA', 1_000)], {
       referenceAt: AT
     })

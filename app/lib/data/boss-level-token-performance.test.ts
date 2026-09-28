@@ -6,7 +6,7 @@ import {
 } from './boss-level-token-performance'
 
 describe('qualifyBossLevelSweeps', () => {
-  it('drops an above-reference sweep that is below the player average (WI-1462)', () => {
+  it('drops an above-reference sweep that is below the player average', () => {
     const result = qualifyBossLevelSweeps({
       nonSweepDamage: 600,
       nonSweepCount: 1,

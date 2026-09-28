@@ -340,7 +340,7 @@ describe('PII exposure closure', () => {
     ).toBe('Application message')
   })
 
-  it('keeps the PS-346 chunk_reload outcome tag, and only its fixed vocabulary', () => {
+  it('keeps the chunk_reload outcome tag, and only its fixed vocabulary', () => {
     // A tag missing from SAFE_TAG_NAMES is dropped silently.
     expect(
       sanitizeSentryEvent({ tags: { chunk_reload: 'attempted' } }).tags

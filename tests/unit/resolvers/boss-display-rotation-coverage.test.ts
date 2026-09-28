@@ -75,7 +75,7 @@ describe('rotation boss display coverage (data-driven)', () => {
     }
   )
 
-  it('regression: the exact PR #452 inputs', () => {
+  it('regression: the exact reported rotation inputs', () => {
     expect(getBossDisplayName('rogaldorn')).toBe('Rogal Dorn')
     expect(prettyBossName('rogaldorn')).toBe('Rogal Dorn')
     expect(getBossDisplayName('magnus')).toBe('Magnus the Red')

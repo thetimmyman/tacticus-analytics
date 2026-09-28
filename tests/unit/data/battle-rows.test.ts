@@ -39,7 +39,7 @@ const canonical = (calls: Call[]) => ({
     (calls[calls.length - 1]?.[2] as { ascending: boolean }).ascending === false
 })
 
-describe('buildBattleRowsQuery (WI-7700 canonical battle-row stack)', () => {
+describe('buildBattleRowsQuery (canonical battle-row stack)', () => {
   it('always applies the battle pair, the Name predicate, and a TERMINAL startedOn DESC order', () => {
     const { client, calls } = makeRecordingClient()
     buildBattleRowsQuery(client, {
@@ -117,7 +117,7 @@ describe('buildBattleRowsQuery (WI-7700 canonical battle-row stack)', () => {
     expect(guilds.calls.some((c) => c[1] === 'cluster_code')).toBe(false)
   })
 
-  it('defaults encounters to main-boss-only (eq 0) per WI-2810', () => {
+  it('defaults encounters to main-boss-only (eq 0) per the contract', () => {
     const { client, calls } = makeRecordingClient()
     buildBattleRowsQuery(client, { select: 'a', scope: { guild: 'G' } })
     expect(

@@ -52,7 +52,7 @@ describe('GET /api/guild/check-status', () => {
     GET = routeModule.GET
   })
 
-  describe('authorization (WI-6050)', () => {
+  describe('authorization', () => {
     it('rejects an unauthenticated caller before touching the service client', async () => {
       const { AuthError } = await import('@/app/lib/auth')
       mockRequireAuthForApi.mockRejectedValue(

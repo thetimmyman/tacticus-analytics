@@ -5,7 +5,7 @@ import {
   computeBombAvailability
 } from '@/app/lib/calculations/bomb-availability'
 
-describe('bomb-availability (WI-2210)', () => {
+describe('bomb-availability', () => {
   it('exposes the bomb economy constants (18h, 1 bomb)', () => {
     expect(MAX_BOMBS).toBe(1)
     expect(BOMB_COOLDOWN_SECONDS).toBe(18 * 60 * 60)

@@ -335,7 +335,7 @@ describe('/api/guild-raid/unified-assignments', () => {
     expect(body.debug).toBeDefined()
   })
 
-  it('threads the WI-4500 skip union + roster divisor into the sequence computation', async () => {
+  it('threads the skip union + roster divisor into the sequence computation', async () => {
     const { POST } = await loadRoute('officer')
 
     const response = await POST(createRequest())
@@ -353,7 +353,7 @@ describe('/api/guild-raid/unified-assignments', () => {
     expect(typeof seqArgs.encounterDamagePerToken).toBe('function')
   })
 
-  it('threads the WI-4530 officer targets into the sequence computation', async () => {
+  it('threads the officer targets into the sequence computation', async () => {
     const { POST } = await loadRoute('officer')
 
     const response = await POST(createRequest())

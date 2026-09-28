@@ -837,7 +837,7 @@ describe('POST /api/guild/create-config', () => {
   })
 
   // The form takes the TAG but guilds are stored under a UUID guild_code, so the collision always fires.
-  describe('attaching an already-registered guild to a cluster (PS-569)', () => {
+  describe('attaching an already-registered guild to a cluster', () => {
     function collisionFixture(existingClusterId: string | null) {
       const guildUpsert = vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
@@ -1614,7 +1614,7 @@ describe('POST /api/guild/create-config', () => {
     })
   })
 
-  describe('role reconciliation (WI-1499)', () => {
+  describe('role reconciliation', () => {
     it('reconciles leader/officer ranks from Tacticus /guild without clobbering names', async () => {
       const roleUpdates: Array<{
         role: string

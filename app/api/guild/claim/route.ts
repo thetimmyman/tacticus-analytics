@@ -99,7 +99,7 @@ export const POST = withErrorHandler(
     if (!hasTargetGuildAuthority) {
       logger.info(
         { userId: user.id, guildCode: normalizedGuildCode },
-        '[claim] Caller lacks target-guild authority; falling back to the PS-593 validated-key cluster-admin path'
+        '[claim] Caller lacks target-guild authority; falling back to the validated-key cluster-admin path'
       )
     }
 
@@ -235,7 +235,7 @@ export const POST = withErrorHandler(
           guildCode: normalizedGuildCode,
           clusterCode: normalizedClusterCode
         },
-        '[claim] PS-593 validated-key cluster-admin consent accepted'
+        '[claim] Validated-key cluster-admin consent accepted'
       )
     }
 

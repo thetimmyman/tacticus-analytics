@@ -22,7 +22,7 @@ describe('boss portrait manifest', () => {
     })
   })
 
-  it('resolves Lion prime lore-name aliases to their portrait slugs (WI-2266)', () => {
+  it('resolves Lion prime lore-name aliases to their portrait slugs', () => {
     // Lore-name slugs need `baraqiel`/`forcas` in KNOWN_SUFFIXES, or prime portraits break.
     const lorePrimes: Array<[string, string]> = [
       ['baraqiel', 'lion_baraqiel'],

@@ -74,7 +74,7 @@ describe('Dashboard redirect pages', () => {
     expect(redirectMock).toHaveBeenCalledWith('/boss-assignments/current')
   })
 
-  it('lets an app-admin bypass the member gate (WI-2730 acceptance)', async () => {
+  it('lets an app-admin bypass the member gate (acceptance)', async () => {
     requireAuthMock.mockResolvedValue({
       profile: { is_app_admin: true },
       user: { id: 'admin-1' }

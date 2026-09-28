@@ -1,5 +1,5 @@
 [Unit]
-# PS-661. This repo describes two `tacticus` Kubernetes objects and an image
+# This repo describes two `tacticus` Kubernetes objects and an image
 # pin (deploy/tacticus.pin.json, deploy/tacticus/edge-runtime.*) and nothing
 # compared them against the cluster. The roll path and the apply path both
 # existed; the "did it actually land, and is it still what we said" half did

@@ -358,7 +358,7 @@ describe('buildBoardSides', () => {
     expect(guild[0]!.playerId).toBe('g1')
   })
 
-  it('strips the zone-capture bonus from a capturing attack (WI-1571)', () => {
+  it('strips the zone-capture bonus from a capturing attack', () => {
     // 9 normal 1600 attacks + a capture (41600) whose ~40k zone bonus belongs to the guild total.
     const rows: WarBattleRosterRow[] = []
     for (let i = 0; i < 9; i += 1) {
@@ -401,7 +401,7 @@ describe('buildBoardSides', () => {
   })
 })
 
-describe('captureScoreCap (WI-1571)', () => {
+describe('captureScoreCap', () => {
   it('detects the per-lineup cap as the lower edge of the capture-bonus gap', () => {
     const normals = Array.from({ length: 20 }, () => 1600)
     const captures = [15_050, 19_800, 41_600]
@@ -431,7 +431,7 @@ describe('captureScoreCap (WI-1571)', () => {
     )
   })
 
-  it('strips the zone-capture bonus from a capturing attack (WI-1571)', () => {
+  it('strips the zone-capture bonus from a capturing attack', () => {
     const rows: WarBattleRosterRow[] = []
     for (let i = 0; i < 9; i += 1) {
       rows.push(
@@ -472,7 +472,7 @@ describe('captureScoreCap (WI-1571)', () => {
   })
 })
 
-describe('captureScoreCap (WI-1571)', () => {
+describe('captureScoreCap', () => {
   it('detects the per-lineup cap as the lower edge of the capture-bonus gap', () => {
     const normals = Array.from({ length: 20 }, () => 1600)
     const captures = [15_050, 19_800, 41_600]

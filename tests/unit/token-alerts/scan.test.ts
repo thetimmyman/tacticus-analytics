@@ -91,7 +91,7 @@ const ZERO_BY_TYPE = {
   burn_prewarn: 0
 } as const
 
-const ZERO_WI4000_COUNTERS = {
+const ZERO_BOMB_ALERT_COUNTERS = {
   quietHoursDeferred: 0,
   quietHoursDropped: 0,
   quietHoursMaxDeferOverrides: 0,
@@ -506,7 +506,7 @@ describe('runUserTokenAlertScan — chunked user_id fan-out', () => {
     }
   })
 
-  it('keeps the WI-4000 columns in EVERY batch of the chunked selects', async () => {
+  it('keeps the bomb-alert columns in EVERY batch of the chunked selects', async () => {
     // Bomb trust columns stay in the batched select; dropping them makes every bomb reading untrusted.
     const harness = install(bigCohortDb())
     sendDmMock.mockResolvedValue(OK_SEND)
@@ -597,7 +597,7 @@ describe('runUserTokenAlertScan — projection fan-out', () => {
       dmBlocked: 0,
       rateLimited: 0,
       errors: 0,
-      ...ZERO_WI4000_COUNTERS
+      ...ZERO_BOMB_ALERT_COUNTERS
     })
     expect(harness.db.rpc).not.toHaveBeenCalled()
     expect(sendDmMock).not.toHaveBeenCalled()
@@ -1263,7 +1263,7 @@ describe('user-token-alert-scan work_queue handler', () => {
       dmBlocked: 0,
       rateLimited: 0,
       errors: 0,
-      ...ZERO_WI4000_COUNTERS
+      ...ZERO_BOMB_ALERT_COUNTERS
     })
   })
 })
@@ -1287,7 +1287,7 @@ function bombReadyRow(userId: string, overrides: Partial<RpcRow> = {}): RpcRow {
   })
 }
 
-describe('WI-4000 — bomb data rides the existing queries (no N+1)', () => {
+describe('bomb data rides the existing queries (no N+1)', () => {
   it('reads the bomb trust columns from the ONE player_mapping select', async () => {
     const harness = install(
       makeDb({
@@ -1339,7 +1339,7 @@ describe('WI-4000 — bomb data rides the existing queries (no N+1)', () => {
   })
 })
 
-describe('WI-4000 — bomb delivery and its own state columns', () => {
+describe('bomb delivery and its own state columns', () => {
   it('sends the bomb copy and stamps the BOMB timestamp column', async () => {
     const harness = install(
       makeDb({
@@ -1391,7 +1391,7 @@ describe('WI-4000 — bomb delivery and its own state columns', () => {
   })
 })
 
-describe('WI-4000 — the bomb trust guard', () => {
+describe('the bomb trust guard', () => {
   const untrustedCases: Array<{
     name: string
     mappingOverride?: Partial<MappingRow>
@@ -1465,7 +1465,7 @@ describe('WI-4000 — the bomb trust guard', () => {
   })
 })
 
-describe('WI-4000 — quiet hours and the freeze/advance contract', () => {
+describe('quiet hours and the freeze/advance contract', () => {
   const NIGHT_ISO = '2026-07-18T02:00:00.000Z'
 
   const quietPrefs = (
@@ -1578,7 +1578,7 @@ describe('WI-4000 — quiet hours and the freeze/advance contract', () => {
   })
 })
 
-describe('WI-4000 — batched upserts stay column-uniform', () => {
+describe('batched upserts stay column-uniform', () => {
   it('sends an IDENTICAL column set for every row of a batch', async () => {
     vi.setSystemTime(new Date('2026-07-18T02:00:00.000Z'))
     const harness = install(
@@ -1627,7 +1627,7 @@ describe('WI-4000 — batched upserts stay column-uniform', () => {
 /** NOW_ISO is 08:00 in America/New_York (EDT), so a 09:00 window is 60m off. */
 const EDT_ZONE = 'America/New_York'
 
-describe('WI-4970 — the reconstructed burn anchor is persisted', () => {
+describe('the reconstructed burn anchor is persisted', () => {
   it('back-dates capped_since to the crossing, not to the tick that saw it', async () => {
     const harness = install(
       makeDb({
@@ -1692,7 +1692,7 @@ describe('WI-4970 — the reconstructed burn anchor is persisted', () => {
   })
 })
 
-describe('WI-4970 — pre-burn and pre-quiet delivery', () => {
+describe('pre-burn and pre-quiet delivery', () => {
   it('sends the burn warning and stamps its OWN column', async () => {
     const harness = install(
       makeDb({

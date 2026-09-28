@@ -180,7 +180,7 @@ describe('Error Handler', () => {
       expect(formatted.displayMessage).toContain('[#Bug Reports]')
     })
 
-    it('keeps the diagnostic breadcrumb for auth codes that wrap backend errors (WI-1930)', () => {
+    it('keeps the diagnostic breadcrumb for auth codes that wrap backend errors', () => {
       for (const code of [
         'PASSWORD_RESET_FAILED',
         'EMAIL_VERIFICATION_FAILED'

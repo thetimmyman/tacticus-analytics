@@ -185,7 +185,7 @@ afterEach(() => {
   vi.resetModules()
 })
 
-describe('redriveDataExport re-runs a failed export (PS-474)', () => {
+describe('redriveDataExport re-runs a failed export', () => {
   it('re-drives a failed row to completed and reports the verdict', async () => {
     const h = createHarness({ status: 'failed' })
     await mockModules(h.client)

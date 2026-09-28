@@ -146,7 +146,7 @@ function upsertCallSites(): CallSite[] {
   return sites
 }
 
-describe('WI-8210 natural-key writer contract', () => {
+describe('natural-key writer contract', () => {
   const sites = upsertCallSites()
 
   it('finds every app-tier upsert of the two war fact tables', () => {

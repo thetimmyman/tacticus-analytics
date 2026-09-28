@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { resolveLokiIdentity } from '@/app/lib/loki/identity'
 
-describe('resolveLokiIdentity (PS-699)', () => {
+describe('resolveLokiIdentity', () => {
   it('env scraper id wins and keeps the stored session when the row has no user_id', () => {
     expect(
       resolveLokiIdentity(

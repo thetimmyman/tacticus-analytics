@@ -3048,18 +3048,6 @@
           "client": "UNKNOWN"
         },
         {
-          "file": "app/lib/webhooks/webhook-helper.ts",
-          "line": 170,
-          "verb": "update",
-          "client": "REQUEST"
-        },
-        {
-          "file": "app/lib/webhooks/webhook-helper.ts",
-          "line": 186,
-          "verb": "insert",
-          "client": "REQUEST"
-        },
-        {
           "file": "supabase/functions/daily-summary/index.ts",
           "line": 384,
           "verb": "update",

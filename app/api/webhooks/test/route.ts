@@ -11,6 +11,10 @@ import { GuildConfigService } from '@/app/lib/services/guild-config-service'
 import { requireGuildOfficerOrClusterLeader } from '@/app/lib/auth/guild-permissions'
 import { isClusterLeaderRole } from '@/app/lib/auth/role-predicates'
 import {
+  WEBHOOK_METADATA_COLUMNS,
+  loadWebhookUrlById
+} from '@/app/lib/webhooks/webhook-url-lookup'
+import {
   DIAGNOSTIC_WEBHOOK_TYPE,
   isProactiveTokenManagementWebhookType,
   normalizeProactiveTokenManagementWebhookType,
@@ -319,7 +323,7 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
     if (webhook_id) {
       const { data, error } = await supabase
         .from('webhook_config')
-        .select('*')
+        .select(WEBHOOK_METADATA_COLUMNS)
         .eq('id', webhook_id)
         .single()
 
@@ -329,18 +333,14 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
         })
       }
 
-      // RLS alone is not the barrier; proactive-token webhooks are checked below.
-      const isProactiveStoredType = isProactiveTokenManagementWebhookType(
-        normalizeProactiveTokenManagementWebhookType(data.webhook_type)
-      )
-      if (!isProactiveStoredType && data.guild_code) {
+      if (data.guild_code) {
         await requireGuildOfficerOrClusterLeader(
           supabase,
           user.id,
           data.guild_code,
           '/api/webhooks/test'
         )
-      } else if (!isProactiveStoredType && data.cluster_id) {
+      } else if (data.cluster_id) {
         const { data: profile } = await supabase
           .from(CURRENT_USER_PLAYER_MAPPING)
           .select('role, guild_code')
@@ -377,10 +377,27 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
             error: 'You can only test webhooks for your own cluster'
           })
         }
+      } else {
+        throw Errors.fromResponse(403, {
+          error: 'Webhook scope is not configured'
+        })
+      }
+
+      if (
+        isProactiveTokenManagementWebhookType(
+          normalizeProactiveTokenManagementWebhookType(data.webhook_type)
+        )
+      ) {
+        await requireProactiveTokenManagementAccess(
+          supabase,
+          user.id,
+          '/api/webhooks/test'
+        )
       }
 
       webhookConfig = {
         ...data,
+        webhook_url: await loadWebhookUrlById(data.id),
         webhook_type: normalizeProactiveTokenManagementWebhookType(
           data.webhook_type
         )
@@ -423,7 +440,10 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
       })
     }
 
-    if (isProactiveTokenManagementWebhookType(webhookConfig.webhook_type)) {
+    if (
+      !webhook_id &&
+      isProactiveTokenManagementWebhookType(webhookConfig.webhook_type)
+    ) {
       await requireProactiveTokenManagementAccess(
         supabase,
         user.id,

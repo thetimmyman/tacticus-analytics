@@ -58,7 +58,7 @@ const accessResult = (profile: {
   profile: { guild_code: 'EOT', cluster_code: null, ...profile }
 })
 
-describe('GET /api/season-forecast/outlook (WI-4510 player scoping)', () => {
+describe('GET /api/season-forecast/outlook (player scoping)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     latestSeason.mockResolvedValue('30')

@@ -124,7 +124,7 @@ const baseBody = {
   target_tokens: 5
 }
 
-describe('PUT /api/boss-assignments/target-tokens — WI-2716 per-season write', () => {
+describe('PUT /api/boss-assignments/target-tokens — per-season write', () => {
   it('stamps the payload with the requested season_number and uses a season-inclusive onConflict', async () => {
     const res = await PUT(putRequest({ ...baseBody, season_number: '102' }))
 
@@ -171,7 +171,7 @@ describe('PUT /api/boss-assignments/target-tokens — WI-2716 per-season write',
   })
 })
 
-describe('GET /api/boss-assignments/target-tokens — WI-2716 gate-2d deterministic per-season read', () => {
+describe('GET /api/boss-assignments/target-tokens — gate-2d deterministic per-season read', () => {
   it("resolves a legacy '' + season pair for one 5-tuple to a single deterministic season row", async () => {
     targetSelectData = [
       {
@@ -219,7 +219,7 @@ describe('GET /api/boss-assignments/target-tokens — WI-2716 gate-2d determinis
   })
 })
 
-describe('DELETE /api/boss-assignments/target-tokens — WI-2716 per-season reset', () => {
+describe('DELETE /api/boss-assignments/target-tokens — per-season reset', () => {
   const baseQuery =
     'boss_name=HiveTyrantKronos&rarity=Legendary&set=3&encounter_id=0'
 

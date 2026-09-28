@@ -96,7 +96,7 @@ describe('mechanicusReportLead', () => {
   })
 })
 
-describe('applyMechanicusVoice guards (WI-1930 sweep)', () => {
+describe('applyMechanicusVoice guards (sweep)', () => {
   it('is idempotent — never double-prefixes an already-themed string', () => {
     const once = applyMechanicusVoice({
       message: 'Boom',

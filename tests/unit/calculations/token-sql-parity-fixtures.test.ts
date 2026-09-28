@@ -7,7 +7,7 @@ import {
   TWELVE_HOURS_IN_SECONDS
 } from '@/app/lib/calculations/token-calculation'
 
-describe('WI-2213 token SQL parity fixtures', () => {
+describe('token SQL parity fixtures', () => {
   it('pins the no-battle season-start fixture mirrored by compute_player_token_burn pgTAP', () => {
     const seasonStart = new Date('2026-01-01T00:00:00Z')
     const evaluatedAt = new Date('2026-01-04T00:00:00Z')

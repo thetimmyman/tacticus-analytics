@@ -809,7 +809,7 @@ describe('role-reconciler', () => {
     ])
   })
 
-  it("WI-2555: when one of a team's multiple stage-role PUTs fails, no player_meta_roles row is written so the next run retries", async () => {
+  it("when one of a team's multiple stage-role PUTs fails, no player_meta_roles row is written so the next run retries", async () => {
     const ROLE_ID_A2 = '900000000000000003'
     const world = defaultWorld()
     world.roleMappings = [

@@ -22,7 +22,7 @@ function stubDatabase(result: {
   } as unknown as Database
 }
 
-describe('PS-21 chart privacy', () => {
+describe('chart privacy', () => {
   it('parses the modes column in every shape PostgREST returns', () => {
     expect(parseExplorePrivacyModes(['hide_all'])).toEqual(['hide_all'])
     expect(parseExplorePrivacyModes('["hide_players"]')).toEqual([

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { validateRedirectPath } from '@/app/lib/auth/redirect'
 
-describe('validateRedirectPath (WI-588)', () => {
+describe('validateRedirectPath', () => {
   describe('accepts legitimate internal paths', () => {
     it('accepts /home', () => {
       expect(validateRedirectPath('/home')).toBe('/home')

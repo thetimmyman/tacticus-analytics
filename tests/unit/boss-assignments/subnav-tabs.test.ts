@@ -4,7 +4,7 @@ import {
   activeBossAssignmentsTab
 } from '@/app/(dashboard)/boss-assignments/_components/BossAssignmentsSubnav'
 
-describe('BossAssignmentsSubnav tab contract (WI-2731)', () => {
+describe('BossAssignmentsSubnav tab contract', () => {
   it('always exposes Assignments / Performance / Targets in order', () => {
     const tabs = buildBossAssignmentsTabs(false)
     expect(tabs.map((t) => t.value)).toEqual([

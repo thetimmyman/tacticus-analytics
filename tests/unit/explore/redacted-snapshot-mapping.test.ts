@@ -98,7 +98,7 @@ const rendered = (guilds: GuildData[]) =>
     }))
   }))
 
-describe('PS-20 explore mapping over the server-redacted shape', () => {
+describe('explore mapping over the server-redacted shape', () => {
   it('["public"] is byte-identical either way', () => {
     const modes = ['public']
     expect(rendered(render([snapshot(modes, HITS_RAW)]))).toEqual(
@@ -255,7 +255,7 @@ describe('PS-20 explore mapping over the server-redacted shape', () => {
     expect(render([snapshot(['hide_all'], HITS_RAW)])).toEqual([])
   })
 
-  it('PS-254: originalTotalDamage is the SERVED total, never the truth', () => {
+  it('originalTotalDamage is the SERVED total, never the truth', () => {
     // originalTotalDamage equals the served total, so no true number reaches the client.
     const fromRedacted = render([
       snapshot(['obfuscate_values'], HITS_RAW, {

@@ -114,7 +114,7 @@ const DELETE_QUERY =
 const RLS_MESSAGE =
   'new row violates row-level security policy for table "boss_target_tokens"'
 
-describe('WI-4880 — target-tokens maps an RLS denial to 403, not 500', () => {
+describe('target-tokens maps an RLS denial to 403, not 500', () => {
   it('PUT: SQLSTATE 42501 becomes a 403 naming the officer/leader requirement', async () => {
     upsertError = { code: '42501', message: RLS_MESSAGE }
 
@@ -171,7 +171,7 @@ describe('WI-4880 — target-tokens maps an RLS denial to 403, not 500', () => {
   })
 })
 
-describe('WI-4880 — target-tokens PUT is notes-preserving', () => {
+describe('target-tokens PUT is notes-preserving', () => {
   it('omits the notes column entirely when the caller sends no notes key', async () => {
     const res = await PUT(putRequest(baseBody))
 

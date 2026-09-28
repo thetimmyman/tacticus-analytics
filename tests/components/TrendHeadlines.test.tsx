@@ -146,7 +146,7 @@ const renderSection = (hasValidCluster = true) =>
     />
   )
 
-describe('HistoricalPerformanceSection trend headlines (WI-2561)', () => {
+describe('HistoricalPerformanceSection trend headlines', () => {
   it('shows the signed per-season slope for a zero-crossing vs-Guild series, never N/A', () => {
     renderSection()
     expect(screen.getByText('Guild Trend:')).toBeInTheDocument()
@@ -208,7 +208,7 @@ const guildTrendsRow = (
   ...overrides
 })
 
-describe('guild-trends chart headlines (WI-2561)', () => {
+describe('guild-trends chart headlines', () => {
   it('GuildPerformanceTrendChart shows the slope for a zero-crossing vs-Cluster series', () => {
     const data = [
       guildTrendsRow('100', { vs_cluster_percent: -5 }),

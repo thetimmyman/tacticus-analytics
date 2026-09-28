@@ -66,7 +66,7 @@ function embedText(response: CommandResponse): string {
   return JSON.stringify(response)
 }
 
-describe('handlePlayerTokensCommand (WI-2640 D4 on-hand rewire)', () => {
+describe('handlePlayerTokensCommand (D4 on-hand rewire)', () => {
   beforeEach(() => {
     // Pin the clock: on any 28th the footer date would match the not.toContain('/28') guard.
     vi.useFakeTimers({ now: new Date('2026-07-15T12:00:00Z') })

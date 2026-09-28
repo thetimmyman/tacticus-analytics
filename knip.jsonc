@@ -8,7 +8,7 @@
   // dependency contract; deeper API-surface reviews can opt into `--exports`.
   "include": ["files", "dependencies", "unlisted", "unresolved", "binaries"],
   // Host tools installed by workstation/devcontainer bootstrap, not npm.
-  // magick (ImageMagick): scripts/assets/generate-pwa-icons.mjs (PS-275).
+  // magick (ImageMagick): scripts/assets/generate-pwa-icons.mjs
   "ignoreBinaries": ["actionlint", "zizmor", "magick"],
   "ignoreDependencies": [
     "pino-pretty",
@@ -21,8 +21,8 @@
   ],
   "ignore": [
     // Deliberate placeholder kept unimported — see eslint.config.mjs:8.
-    "eslint-wi521-exceptions.mjs",
-    // WI-8230 shared guard: app/lib/loki/config-safety.ts re-exports the .cjs
+    "eslint-supabase-factory-exceptions.mjs",
+    // Shared guard: app/lib/loki/config-safety.ts re-exports the .cjs
     // and tsc consumes this .d.cts sidecar, which is never imported by name.
     "scripts/loki/config-safety-signature.d.cts"
   ],

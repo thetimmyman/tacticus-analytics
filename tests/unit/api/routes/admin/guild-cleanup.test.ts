@@ -22,7 +22,7 @@ describe('POST /api/admin/guild-cleanup', () => {
     // Cleanup writes run on the service client; the poisoned session client makes any session access fail loudly.
     mockSessionFrom = vi.fn(() => {
       throw new Error(
-        'guild-cleanup must not touch tables via the RLS-bound session client (WI-3136)'
+        'guild-cleanup must not touch tables via the RLS-bound session client'
       )
     })
     mockCreateClient = vi.fn()
@@ -116,7 +116,7 @@ describe('POST /api/admin/guild-cleanup', () => {
     expect(response.status).toBe(500)
   })
 
-  describe('WI-3136 service-authority regressions', () => {
+  describe('service-authority regressions', () => {
     it('runs delete_guild with SERVICE authority — the RLS-bound session client is never used', async () => {
       mockSupabase.rpc.mockResolvedValue({
         data: {

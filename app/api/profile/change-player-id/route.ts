@@ -65,7 +65,7 @@ function rpcRejection(code: string | null | undefined): NextResponse {
   if (!code || !mapping) {
     logger.error(
       { rpcErrorCode: code ?? null },
-      'WI-6240: unmapped machine code from the transfer corridor'
+      'unmapped machine code from the transfer corridor'
     )
     return NextResponse.json(
       {
@@ -131,7 +131,7 @@ async function auditWitnessRejection(params: {
     if (error) {
       logger.error(
         { userId: params.userId, code: params.code, dbError: error.message },
-        'WI-6240: witness-rejection audit write failed'
+        'witness-rejection audit write failed'
       )
     }
   } catch (auditError) {
@@ -142,7 +142,7 @@ async function auditWitnessRejection(params: {
         err:
           auditError instanceof Error ? auditError.message : String(auditError)
       },
-      'WI-6240: witness-rejection audit write threw'
+      'witness-rejection audit write threw'
     )
   }
 }
@@ -454,7 +454,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
           targetPlayerId: newPlayerId,
           caseOnlyMismatch: true
         },
-        'WI-6240: possession name mismatch differs only by case'
+        'possession name mismatch differs only by case'
       )
     }
     return witnessRejection('POSSESSION_NAME_MISMATCH', {
@@ -499,7 +499,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
   if (typeof mintData !== 'string' || mintData.length === 0) {
     logger.error(
       { userId: user.id },
-      'WI-6240: mint returned no invite id despite a null error'
+      'mint returned no invite id despite a null error'
     )
     return rpcRejection(null)
   }
@@ -513,7 +513,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     // Rejections return success=false as data; a non-null error is a preamble fault.
     logger.error(
       { userId: user.id, code: bindError.code, message: bindError.message },
-      'WI-6240: bind RPC transport error'
+      'bind RPC transport error'
     )
     if (bindError.code === '42501') {
       throw Errors.fromResponse(401, {
@@ -541,7 +541,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         reason: persistResult.reason,
         detail: persistResult.detail
       },
-      'WI-6240: player-ID transfer committed but the API key could not be stored — the user must re-add it in API key settings'
+      'player-ID transfer committed but the API key could not be stored — the user must re-add it in API key settings'
     )
     return NextResponse.json({
       success: true,

@@ -93,7 +93,7 @@ const ARGS = {
   currentBossName: 'BossA'
 }
 
-describe('loadMemberBossPerformance — target cascade (WI-3010)', () => {
+describe('loadMemberBossPerformance — target cascade', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('prefers the playbook clear target over coaching and guild', async () => {

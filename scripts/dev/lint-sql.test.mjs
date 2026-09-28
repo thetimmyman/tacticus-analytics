@@ -20,7 +20,16 @@ function writeAllowlist(root, lines) {
   return allowlistPath
 }
 
-test('PS-114: an allowlisted RLS-without-policy table passes', async () => {
+function writePgrstReloadAllowlist(root, lines) {
+  const allowlistPath = join(root, 'pgrst-allowlist.txt')
+  writeFileSync(
+    allowlistPath,
+    '# fixture pgrst-reload allowlist\n' + lines.join('\n') + '\n'
+  )
+  return allowlistPath
+}
+
+test('an allowlisted RLS-without-policy table passes', async () => {
   const root = fixture()
   try {
     writeFileSync(
@@ -31,9 +40,11 @@ test('PS-114: an allowlisted RLS-without-policy table passes', async () => {
       ].join('\n')
     )
     const allowlistPath = writeAllowlist(root, ['public.function_locks'])
+    const pgrstReloadAllowlistPath = writePgrstReloadAllowlist(root, [])
 
     const result = await lintSql([join(root, 'migrations/*.sql')], {
-      allowlistPath
+      allowlistPath,
+      pgrstReloadAllowlistPath
     })
 
     assert.deepEqual(result.errors, [])
@@ -44,31 +55,33 @@ test('PS-114: an allowlisted RLS-without-policy table passes', async () => {
   }
 })
 
-test('PS-114: a policy-less RLS table not in the allowlist fails, naming the table and the allowlist path', async () => {
+test('a policy-less RLS table not in the allowlist fails, naming the table and the allowlist path', async () => {
   const root = fixture()
   try {
     writeFileSync(
       join(root, 'migrations/001_probe.sql'),
       [
-        'CREATE TABLE public.ps114_probe_secrets (id uuid PRIMARY KEY);',
-        'ALTER TABLE public.ps114_probe_secrets ENABLE ROW LEVEL SECURITY;'
+        'CREATE TABLE public.rls_probe_secrets (id uuid PRIMARY KEY);',
+        'ALTER TABLE public.rls_probe_secrets ENABLE ROW LEVEL SECURITY;'
       ].join('\n')
     )
     const allowlistPath = writeAllowlist(root, [])
+    const pgrstReloadAllowlistPath = writePgrstReloadAllowlist(root, [])
 
     const result = await lintSql([join(root, 'migrations/*.sql')], {
-      allowlistPath
+      allowlistPath,
+      pgrstReloadAllowlistPath
     })
 
     assert.equal(result.errors.length, 1)
-    assert.ok(result.errors[0].includes('public.ps114_probe_secrets'))
+    assert.ok(result.errors[0].includes('public.rls_probe_secrets'))
     assert.ok(result.errors[0].includes(allowlistPath))
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
 })
 
-test('PS-114: a table with a matching CREATE POLICY is never flagged, allowlisted or not', async () => {
+test('a table with a matching CREATE POLICY is never flagged, allowlisted or not', async () => {
   const root = fixture()
   try {
     writeFileSync(
@@ -80,9 +93,11 @@ test('PS-114: a table with a matching CREATE POLICY is never flagged, allowliste
       ].join('\n')
     )
     const allowlistPath = writeAllowlist(root, [])
+    const pgrstReloadAllowlistPath = writePgrstReloadAllowlist(root, [])
 
     const result = await lintSql([join(root, 'migrations/*.sql')], {
-      allowlistPath
+      allowlistPath,
+      pgrstReloadAllowlistPath
     })
 
     assert.deepEqual(result.errors, [])
@@ -92,7 +107,7 @@ test('PS-114: a table with a matching CREATE POLICY is never flagged, allowliste
   }
 })
 
-test('PS-114: a stale allowlist entry (policy since added) produces a prune warning, not an error', async () => {
+test('a stale allowlist entry (policy since added) produces a prune warning, not an error', async () => {
   const root = fixture()
   try {
     writeFileSync(
@@ -104,15 +119,175 @@ test('PS-114: a stale allowlist entry (policy since added) produces a prune warn
       ].join('\n')
     )
     const allowlistPath = writeAllowlist(root, ['public.onboarding_jobs'])
+    const pgrstReloadAllowlistPath = writePgrstReloadAllowlist(root, [])
 
     const result = await lintSql([join(root, 'migrations/*.sql')], {
-      allowlistPath
+      allowlistPath,
+      pgrstReloadAllowlistPath
     })
 
     assert.deepEqual(result.errors, [])
     assert.equal(result.warnings.length, 1)
     assert.ok(result.warnings[0].includes('public.onboarding_jobs'))
     assert.ok(result.warnings[0].includes('prune'))
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('a migration creating a public function with no NOTIFY pgrst fails, naming the file and the allowlist path', async () => {
+  const root = fixture()
+  try {
+    writeFileSync(
+      join(root, 'migrations/001_new_fn.sql'),
+      [
+        'CREATE FUNCTION public.lint_sql_probe_fn() RETURNS void',
+        '    LANGUAGE sql AS $$ SELECT 1; $$;'
+      ].join('\n')
+    )
+    const allowlistPath = writeAllowlist(root, [])
+    const pgrstReloadAllowlistPath = writePgrstReloadAllowlist(root, [])
+
+    const result = await lintSql([join(root, 'migrations/*.sql')], {
+      allowlistPath,
+      pgrstReloadAllowlistPath
+    })
+
+    assert.equal(result.errors.length, 1)
+    assert.ok(result.errors[0].includes('001_new_fn.sql'))
+    assert.ok(result.errors[0].includes(pgrstReloadAllowlistPath))
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('a migration dropping a public function with no NOTIFY pgrst also fails', async () => {
+  const root = fixture()
+  try {
+    writeFileSync(
+      join(root, 'migrations/001_drop_fn.sql'),
+      'DROP FUNCTION IF EXISTS public.lint_sql_probe_fn();'
+    )
+    const allowlistPath = writeAllowlist(root, [])
+    const pgrstReloadAllowlistPath = writePgrstReloadAllowlist(root, [])
+
+    const result = await lintSql([join(root, 'migrations/*.sql')], {
+      allowlistPath,
+      pgrstReloadAllowlistPath
+    })
+
+    assert.equal(result.errors.length, 1)
+    assert.ok(result.errors[0].includes('001_drop_fn.sql'))
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('a migration creating a public function WITH NOTIFY pgrst is never flagged', async () => {
+  const root = fixture()
+  try {
+    writeFileSync(
+      join(root, 'migrations/001_new_fn_ok.sql'),
+      [
+        'BEGIN;',
+        'CREATE FUNCTION public.lint_sql_probe_fn() RETURNS void',
+        '    LANGUAGE sql AS $$ SELECT 1; $$;',
+        'COMMIT;',
+        "NOTIFY pgrst, 'reload schema';"
+      ].join('\n')
+    )
+    const allowlistPath = writeAllowlist(root, [])
+    const pgrstReloadAllowlistPath = writePgrstReloadAllowlist(root, [])
+
+    const result = await lintSql([join(root, 'migrations/*.sql')], {
+      allowlistPath,
+      pgrstReloadAllowlistPath
+    })
+
+    assert.deepEqual(result.errors, [])
+    assert.equal(result.pgrstReloadMissingCount, 0)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('an allowlisted function migration missing NOTIFY pgrst is tolerated', async () => {
+  const root = fixture()
+  try {
+    writeFileSync(
+      join(root, 'migrations/001_grandfathered.sql'),
+      [
+        'CREATE FUNCTION public.lint_sql_probe_fn() RETURNS void',
+        '    LANGUAGE sql AS $$ SELECT 1; $$;'
+      ].join('\n')
+    )
+    const allowlistPath = writeAllowlist(root, [])
+    const pgrstReloadAllowlistPath = writePgrstReloadAllowlist(root, [
+      '001_grandfathered.sql'
+    ])
+
+    const result = await lintSql([join(root, 'migrations/*.sql')], {
+      allowlistPath,
+      pgrstReloadAllowlistPath
+    })
+
+    assert.deepEqual(result.errors, [])
+    assert.equal(result.pgrstReloadMissingCount, 1)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('a stale pgrst-reload allowlist entry (NOTIFY since added) produces a prune warning, not an error', async () => {
+  const root = fixture()
+  try {
+    writeFileSync(
+      join(root, 'migrations/001_now_fixed.sql'),
+      [
+        'CREATE FUNCTION public.lint_sql_probe_fn() RETURNS void',
+        '    LANGUAGE sql AS $$ SELECT 1; $$;',
+        "NOTIFY pgrst, 'reload schema';"
+      ].join('\n')
+    )
+    const allowlistPath = writeAllowlist(root, [])
+    const pgrstReloadAllowlistPath = writePgrstReloadAllowlist(root, [
+      '001_now_fixed.sql'
+    ])
+
+    const result = await lintSql([join(root, 'migrations/*.sql')], {
+      allowlistPath,
+      pgrstReloadAllowlistPath
+    })
+
+    assert.deepEqual(result.errors, [])
+    assert.equal(result.warnings.length, 1)
+    assert.ok(result.warnings[0].includes('001_now_fixed.sql'))
+    assert.ok(result.warnings[0].includes('prune'))
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('the clean-baseline dump is exempt even though it creates functions with no NOTIFY pgrst', async () => {
+  const root = fixture()
+  try {
+    writeFileSync(
+      join(root, 'migrations/20260813000000_clean_baseline.sql'),
+      [
+        'CREATE FUNCTION public.lint_sql_probe_fn() RETURNS void',
+        '    LANGUAGE sql AS $$ SELECT 1; $$;'
+      ].join('\n')
+    )
+    const allowlistPath = writeAllowlist(root, [])
+    const pgrstReloadAllowlistPath = writePgrstReloadAllowlist(root, [])
+
+    const result = await lintSql([join(root, 'migrations/*.sql')], {
+      allowlistPath,
+      pgrstReloadAllowlistPath
+    })
+
+    assert.deepEqual(result.errors, [])
+    assert.equal(result.pgrstReloadMissingCount, 0)
   } finally {
     rmSync(root, { recursive: true, force: true })
   }

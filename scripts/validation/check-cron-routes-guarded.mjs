@@ -709,7 +709,7 @@ function scan() {
 
   if (problems.length > 0) {
     console.error(
-      `FAIL: ${problems.length} protected handler(s) are not guarded by ${GUARD_EXPORT} (PS-257/PS-360)`
+      `FAIL: ${problems.length} protected handler(s) are not guarded by ${GUARD_EXPORT}`
     )
     process.exit(1)
   }

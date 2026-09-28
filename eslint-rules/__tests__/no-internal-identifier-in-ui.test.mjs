@@ -5,7 +5,7 @@ import tsParser from '@typescript-eslint/parser'
 
 import rule from '../no-internal-identifier-in-ui.mjs'
 // Imported, not re-declared, so a carve-out cannot pass here while missing from the real config.
-import { wi825AllowedFiles } from '../wi825-allowed-files.mjs'
+import { internalIdentifierAllowedFiles } from '../internal-identifier-allowed-files.mjs'
 
 RuleTester.describe = describe
 RuleTester.it = it
@@ -21,7 +21,7 @@ const ruleTester = new RuleTester({
   }
 })
 
-const WITH_ALLOWLIST = [{ allowedFiles: wi825AllowedFiles }]
+const WITH_ALLOWLIST = [{ allowedFiles: internalIdentifierAllowedFiles }]
 
 /** Synthetic whole-file carve-out; must still refuse to exempt a tier-2 secret. */
 const SYNTHETIC_WHOLE_FILE_ENTRY = {

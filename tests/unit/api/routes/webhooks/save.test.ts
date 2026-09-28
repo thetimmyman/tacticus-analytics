@@ -5,6 +5,7 @@ vi.mock('@/app/lib/player-mapping-relations', () => ({
 
 let mockCreateClient: ReturnType<typeof vi.fn>
 let mockCreateServiceClient: ReturnType<typeof vi.fn>
+let mockServiceIn: ReturnType<typeof vi.fn>
 let mockGuildConfigGetBasic: ReturnType<typeof vi.fn>
 let mockRequireGuildOfficerOrClusterLeader: ReturnType<typeof vi.fn>
 
@@ -27,6 +28,15 @@ describe('/api/webhooks/save', () => {
 
     mockCreateClient = vi.fn()
     mockCreateServiceClient = vi.fn()
+    mockServiceIn = vi
+      .fn()
+      .mockImplementation(async (_column, ids: string[]) => ({
+        data: ids.map((id) => ({
+          id,
+          webhook_url: 'https://discord.com/api/webhooks/1001/test-token'
+        })),
+        error: null
+      }))
     mockGuildConfigGetBasic = vi.fn().mockResolvedValue(null)
     mockRequireGuildOfficerOrClusterLeader = vi.fn().mockResolvedValue({
       role: 'officer',
@@ -67,6 +77,9 @@ describe('/api/webhooks/save', () => {
       from: vi.fn(),
       rpc: vi.fn()
     }
+    mockServiceSupabase.from.mockReturnValue({
+      select: vi.fn().mockReturnValue({ in: mockServiceIn })
+    })
 
     mockCreateClient.mockResolvedValue(mockSupabase)
     mockCreateServiceClient.mockReturnValue(mockServiceSupabase)
@@ -183,6 +196,12 @@ describe('/api/webhooks/save', () => {
       })
 
       it('allows officer to manage guild webhooks', async () => {
+        const insertSelect = vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
+            data: { id: 'new-webhook', webhook_type: 'leaderboard' },
+            error: null
+          })
+        })
         const mockPlayerMapping = {
           select: vi.fn().mockReturnThis(),
           eq: vi.fn().mockReturnThis(),
@@ -225,12 +244,7 @@ describe('/api/webhooks/save', () => {
                 .fn()
                 .mockResolvedValue({ data: null, error: { code: 'PGRST116' } }),
               insert: vi.fn().mockReturnValue({
-                select: vi.fn().mockReturnValue({
-                  single: vi.fn().mockResolvedValue({
-                    data: { id: 'new-webhook', webhook_type: 'leaderboard' },
-                    error: null
-                  })
-                })
+                select: insertSelect
               }),
               limit: vi.fn().mockResolvedValue({ data: [], error: null })
             }
@@ -254,6 +268,14 @@ describe('/api/webhooks/save', () => {
 
         expect(response.status).toBe(200)
         expect(body.success).toBe(true)
+        expect(body.webhook.webhook_url).toBe(
+          'https://discord.com/api/webhooks/123/abc'
+        )
+        expect(insertSelect).toHaveBeenCalledWith(
+          expect.not.stringContaining('webhook_url')
+        )
+        expect(insertSelect).not.toHaveBeenCalledWith('*')
+        expect(insertSelect).not.toHaveBeenCalledWith()
         expect(mockRequireGuildOfficerOrClusterLeader).toHaveBeenCalledWith(
           mockSupabase,
           'user-123',
@@ -827,6 +849,15 @@ describe('/api/webhooks/save', () => {
         expect(response.status).toBe(200)
         expect(body.success).toBe(true)
         expect(body.webhooks).toHaveLength(2)
+        expect(webhookConfigQuery.select).toHaveBeenCalledWith(
+          expect.not.stringContaining('webhook_url')
+        )
+        expect(webhookConfigQuery.select).not.toHaveBeenCalledWith('*')
+        expect(webhookConfigQuery.select).not.toHaveBeenCalledWith()
+        expect(mockServiceIn).toHaveBeenCalledWith('id', ['1', '2'])
+        expect(body.webhooks[0].webhook_url).toBe(
+          'https://discord.com/api/webhooks/1001/test-token'
+        )
       })
 
       it('returns 403 before reading webhook_config for unauthorized explicit guild scope', async () => {
@@ -886,6 +917,7 @@ describe('/api/webhooks/save', () => {
 
         expect(response.status).toBe(403)
         expect(webhookConfigQuery.select).not.toHaveBeenCalled()
+        expect(mockCreateServiceClient).not.toHaveBeenCalled()
         expect(mockRequireGuildOfficerOrClusterLeader).toHaveBeenCalledWith(
           mockSupabase,
           'user-123',

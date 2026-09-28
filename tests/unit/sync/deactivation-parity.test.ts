@@ -74,7 +74,7 @@ async function runBoth(
   return { app, edge }
 }
 
-describe('markPlayersNotInGuildAsInactive edge<->app parity (WI-1810 drift guard)', () => {
+describe('markPlayersNotInGuildAsInactive edge<->app parity (drift guard)', () => {
   it('deactivates the same set: present-in-roster + recently-active are spared', async () => {
     const { app, edge } = await runBoth(
       ['A', 'B', 'C'],

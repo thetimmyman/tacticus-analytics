@@ -225,7 +225,7 @@ export function BossPerformanceTable({
                 <th className="px-4 py-2 text-right">One-Shots</th>
                 <th
                   className="px-4 py-2 text-right"
-                  title={`Token-equivalent score (WI-646). 1.00 = ${guildLabel.replace('vs ', '')} average; >1 over-, <1 under-performing.`}
+                  title={`Token-equivalent score. 1.00 = ${guildLabel.replace('vs ', '')} average; >1 over-, <1 under-performing.`}
                 >
                   Score
                 </th>
@@ -297,7 +297,7 @@ export function BossPerformanceTable({
                               ? 'text-green-400'
                               : 'text-red-400'
                         }`}
-                        title={`Token-equivalent score (WI-646). 1.00 = ${guildLabel.replace('vs ', '')} average.`}
+                        title={`Token-equivalent score. 1.00 = ${guildLabel.replace('vs ', '')} average.`}
                       >
                         {stats.vsGuildAvg === VS_GUILD_NA
                           ? '—'
