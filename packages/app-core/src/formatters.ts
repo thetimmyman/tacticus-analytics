@@ -3,6 +3,9 @@
  * tier differently on purpose; do not merge them.
  */
 
+// Fixed locale: server-rendered and hydrated text must match in every browser locale.
+const integerFormatter = new Intl.NumberFormat('en-US')
+
 /**
  * >= 999.5T -> Q, >= 999.5B -> T, >= 999.5M -> B, >= 999,500 -> M (all with
  * `decimals` places, default 2); 100,000-999,499 -> ###k; below that, commas.
@@ -20,7 +23,7 @@ export function formatNumber(
   const formatWithSuffix = (value: number, suffix: string): string => {
     const formatted = value.toFixed(decimalsToUse)
     const parts = formatted.split('.')
-    const integerPart = Number(parts[0]).toLocaleString()
+    const integerPart = integerFormatter.format(Number(parts[0]))
     if (decimalsToUse === 0 || parts[1] === undefined) {
       return `${sign}${integerPart}${suffix}`
     }
@@ -49,7 +52,7 @@ export function formatNumber(
   }
 
   const rounded = Math.round(absNum)
-  return `${sign}${rounded.toLocaleString()}`
+  return `${sign}${integerFormatter.format(rounded)}`
 }
 
 export function formatDamage(

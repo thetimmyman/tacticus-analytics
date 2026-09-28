@@ -114,21 +114,145 @@ const HASHED_IDENTIFIER_MARKERS = new Map([
   ]
 ])
 
-// Literal on purpose: no token grammar to hash against.
-const SENSITIVE_MARKERS = [
-  {
-    pattern: /(?:MS-7B50|RTX 2080 Ti|i9-9900K)/iu,
-    label: 'captured hardware fingerprint'
-  },
-  {
-    pattern: /(?:\[EoT\]|《EoT》)/u,
-    label: 'private guild alias'
-  },
-  {
-    pattern: /(?:pi-k3s-8|10\.43\.0\.0\/16|app=patroni,role=primary)/iu,
-    label: 'private deployment topology'
-  }
+// Substring tripwires, hashed so this file does not carry the values. Rows are
+// [sha256 of the value (lower-cased when case-insensitive), length, rolling hash, case-insensitive, label].
+const HASHED_SUBSTRING_MARKERS = [
+  [
+    'df0fbcd8b0451791a755688b4bd859ba949010c0181292377701671beb788683',
+    7,
+    4194115851,
+    true,
+    'captured hardware fingerprint'
+  ],
+  [
+    '5ca1e135b3e46704e05c9cf9decb001b2fdc6a5d5292472116d1d01733b42e74',
+    11,
+    855206725,
+    true,
+    'captured hardware fingerprint'
+  ],
+  [
+    '92c97b384a6a44fdf32f787777048d78209e7ce5102f80e3d700b2f8aa579787',
+    8,
+    3186505484,
+    true,
+    'captured hardware fingerprint'
+  ],
+  [
+    '76a8aa258eafbf1696fddc83444e77deb4febf5df4990b73cb4f45a9fdb9bc98',
+    5,
+    3026415296,
+    false,
+    'private guild alias'
+  ],
+  [
+    '481dc5df488fb60bb17b340c63fddc65f78f1941281af08e77eefeca66caa9ff',
+    5,
+    2403109405,
+    false,
+    'private guild alias'
+  ],
+  [
+    '037716aa92c3bf8fcec7ea4f089e480a0066c08821b8e39b7ded8452f8e2129d',
+    8,
+    967885180,
+    true,
+    'private deployment topology'
+  ],
+  [
+    '32de129ad7c5f63c74aa6879ce6c62b2c28f400197fefb83a3be4c02d1a4ffd2',
+    12,
+    264207176,
+    true,
+    'private deployment topology'
+  ],
+  [
+    '109026d6e7ca7c6eb573ff6175a7a4d6bc18cb1233434c724898e6c664ea6ca0',
+    24,
+    2226129050,
+    true,
+    'private deployment topology'
+  ],
+  [
+    'a9e9a17f3052b580a09dff420aad36b8894cffdd888477c30ef73ac9c848f539',
+    15,
+    637290445,
+    false,
+    'operator home path'
+  ],
+  [
+    'da4461765cf9e2340ced498d40e3c74605aee1dd9f9d5718aae913c16f2cffde',
+    29,
+    835426179,
+    true,
+    'clean-repo substring tripwire sentinel'
+  ],
+  [
+    'f73bce98675a582a9f702800d60973f684dca54b3c3242b30237c097623e4698',
+    15,
+    1173554660,
+    false,
+    'clean-repo case-sensitive tripwire sentinel'
+  ]
 ]
+const SUBSTRING_SENTINEL = 'clean-repo-substring-sentinel'
+const CASE_SENSITIVE_SENTINEL = '[SentinelAlias]'
+const ROLLING_BASE = 257
+
+// One group per (length, case) pair, so each text is rolled once per group.
+const SUBSTRING_GROUPS = (() => {
+  const groups = new Map()
+  for (const [
+    digest,
+    length,
+    rolling,
+    caseInsensitive,
+    label
+  ] of HASHED_SUBSTRING_MARKERS) {
+    const key = `${length}:${caseInsensitive}`
+    if (!groups.has(key)) {
+      let power = 1
+      for (let i = 1; i < length; i += 1)
+        power = Math.imul(power, ROLLING_BASE) >>> 0
+      groups.set(key, { length, caseInsensitive, power, markers: [] })
+    }
+    groups.get(key).markers.push({ digest, rolling, label })
+  }
+  return [...groups.values()]
+})()
+
+/** Rabin-Karp over every window, confirmed by SHA-256: the same substring semantics as a regex. */
+function findHashedSubstrings(content) {
+  const labels = new Set()
+  // Long s (U+017F) is the one character /iu folds onto ASCII that toLowerCase() leaves alone.
+  const lowered = content.toLowerCase().replace(/\u017f/gu, 's')
+  for (const group of SUBSTRING_GROUPS) {
+    const text = group.caseInsensitive ? lowered : content
+    const { length, power, markers } = group
+    if (text.length < length) continue
+    let hash = 0
+    for (let i = 0; i < length; i += 1) {
+      hash = (Math.imul(hash, ROLLING_BASE) + text.charCodeAt(i)) >>> 0
+    }
+    for (let start = 0; ; start += 1) {
+      for (const marker of markers) {
+        if (hash !== marker.rolling || labels.has(marker.label)) continue
+        const window = text.slice(start, start + length)
+        if (
+          createHash('sha256').update(window).digest('hex') === marker.digest
+        ) {
+          labels.add(marker.label)
+        }
+      }
+      const next = start + length
+      if (next >= text.length) break
+      const dropped = Math.imul(text.charCodeAt(start), power)
+      hash =
+        (Math.imul(hash - dropped, ROLLING_BASE) + text.charCodeAt(next)) >>> 0
+    }
+  }
+  return [...labels]
+}
 
 /** Windows slide across each hex run so an embedded identifier still matches. */
 function findHashedIdentifiers(content) {
@@ -190,13 +314,8 @@ function findContentViolations(files) {
     for (const label of findHashedIdentifiers(content)) {
       violations.push(`${file}: ${label}`)
     }
-    for (const { pattern, label } of SENSITIVE_MARKERS) {
-      if (pattern.test(content)) {
-        violations.push(`${file}: ${label}`)
-      }
-    }
-    if (/\/home\/tdefreest(?:\/|\b)/u.test(content)) {
-      violations.push(`${file}: operator home path`)
+    for (const label of findHashedSubstrings(content)) {
+      violations.push(`${file}: ${label}`)
     }
     if (/\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}/u.test(content)) {
       violations.push(`${file}: committed bcrypt verifier`)
@@ -342,12 +461,63 @@ function hashedTripwireControls() {
   }
 }
 
+function hashedSubstringControls() {
+  for (const [digest, length, rolling] of HASHED_SUBSTRING_MARKERS) {
+    if (
+      !/^[0-9a-f]{64}$/u.test(digest) ||
+      !Number.isInteger(length) ||
+      !Number.isInteger(rolling)
+    ) {
+      throw new Error('hashed substring control failed: malformed table row')
+    }
+  }
+  const expectLabel = (name, text, label) => {
+    const hits = findContentViolations({ [name]: text })
+    const want = label ? [`${name}: ${label}`] : []
+    if (JSON.stringify(hits) !== JSON.stringify(want)) {
+      throw new Error(
+        `hashed substring control failed: ${name} produced ${JSON.stringify(hits)}`
+      )
+    }
+  }
+  const insensitive = 'clean-repo substring tripwire sentinel'
+  const sensitive = 'clean-repo case-sensitive tripwire sentinel'
+  expectLabel('whole.txt', SUBSTRING_SENTINEL, insensitive)
+  expectLabel('upper.txt', SUBSTRING_SENTINEL.toUpperCase(), insensitive)
+  expectLabel('embedded.txt', `x${SUBSTRING_SENTINEL}y`, insensitive)
+  expectLabel(
+    'long-s.txt',
+    SUBSTRING_SENTINEL.replace('s', '\u017f'),
+    insensitive
+  )
+  expectLabel(
+    'at-end.txt',
+    `${'a'.repeat(1000)}${SUBSTRING_SENTINEL}`,
+    insensitive
+  )
+  expectLabel('alias.txt', `name: ${CASE_SENSITIVE_SENTINEL} guild`, sensitive)
+  expectLabel('alias-case.txt', CASE_SENSITIVE_SENTINEL.toLowerCase(), null)
+  expectLabel('near-miss.txt', SUBSTRING_SENTINEL.slice(0, -1), null)
+  expectLabel('one-off.txt', SUBSTRING_SENTINEL.replace('-s', '_s'), null)
+
+  // A loose bound: a quadratic scan of 2 MB takes minutes; a busy runner takes seconds.
+  const large = `${'ordinary public text '.repeat(100_000)}${SUBSTRING_SENTINEL}`
+  const startedAt = Date.now()
+  const hits = findHashedSubstrings(large)
+  const elapsedMs = Date.now() - startedAt
+  if (!hits.includes(insensitive) || elapsedMs > 30_000) {
+    throw new Error(
+      `hashed substring control failed: ${large.length}-char text took ${elapsedMs}ms, hits ${JSON.stringify(hits)}`
+    )
+  }
+}
+
 function selfTest() {
   const planted = findContentViolations({
     'tool.py': 'import UnityPy',
     '.github/workflows/check.yml': 'runs-on: self-hosted',
     'auth.yml': '$2y$10$' + 'A'.repeat(53),
-    'notes.md': '/home/tdefreest/secrets',
+    'notes.md': `see /srv/${SUBSTRING_SENTINEL}/notes`,
     'fixture.json': TRIPWIRE_SENTINEL
   })
   if (planted.length !== 5) {
@@ -356,6 +526,7 @@ function selfTest() {
     )
   }
   hashedTripwireControls()
+  hashedSubstringControls()
   const guarded = findContentViolations({
     '.github/workflows/ci.yml':
       '    if: >-\n' +
