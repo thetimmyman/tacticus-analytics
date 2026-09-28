@@ -10,10 +10,10 @@ SELECT plan(10);
 
 INSERT INTO public.guild_config (id, guild_code, display_name, created_at, enabled)
 VALUES
-  (926700, 'TW2670A', 'WI 2670 Omitted Main Kill Guild', now(), true),
-  (926701, 'TW2670B', 'WI 2670 Later Stage Guild', now(), true),
-  (926702, 'TW2670C', 'WI 2670 Control Guild', now(), true),
-  (926703, 'TW2670D', 'WI 2670 Warded Control Guild', now(), true);
+  (926700, 'TW2670A', 'Test Omitted Main Kill Guild', now(), true),
+  (926701, 'TW2670B', 'Test Later Stage Guild', now(), true),
+  (926702, 'TW2670C', 'Test Control Guild', now(), true),
+  (926703, 'TW2670D', 'Test Warded Control Guild', now(), true);
 
 INSERT INTO public."EOT_GR_data" (
   "Guild", "Season", "displayName", "Name", "damageType", "damageDealt",
