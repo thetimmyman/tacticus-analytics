@@ -1,0 +1,54 @@
+# Allowlist for scripts/dev/lint-sql.mjs's PostgREST reload-schema gate.
+#
+# Every migration below creates, replaces, or drops a public.* function but
+# has no `NOTIFY pgrst, 'reload schema'`. Without it, PostgREST's cached
+# schema can keep routing calls to a function that no longer matches (or
+# reject one that's brand new) until the next automatic or manual reload --
+# a live incident traced back to exactly this gap is why the gate exists.
+#
+# These migrations already shipped without it before the gate went from
+# nothing to a hard failure, so fixing the gap here would mean editing an
+# already-applied migration file, which is worse than leaving it. A new
+# migration with the same gap now fails lint-sql instead -- add the
+# NOTIFY line rather than adding to this file.
+#
+# Format: one migration filename per line, `#` starts a comment.
+
+20260814000000_publication_security_boundaries.sql
+20260814180000_wi6790_hash_cluster_leaderboard_account_uuid.sql
+20260814190000_wi6790_cluster_authz_and_guild_config_anon_columns.sql
+20260814200000_drop_dead_process_raw_api_fn_with_hardcoded_player_pii.sql
+20260817000000_close_pii_exposure_boundaries.sql
+20260818220000_global_war_meta_and_external_archive.sql
+20260819030000_bootstrap_first_leader_seat_claim.sql
+20260819234500_harden_finalize_onboarding_profile_guild_derivation.sql
+20260821010000_claim_consume_read_invite_definer.sql
+20260823020000_permit_trusted_guild_code_rename.sql
+20260823164500_defer_attestation_ledger_read_in_move_guard.sql
+20260824200000_record_guild_bootstrap_claim_authority.sql
+20260824210000_harden_progression_and_meta_config.sql
+20260825040000_atomic_user_ban_reconciliation_enqueue.sql
+20260825171500_restore_loop_set_rpc_caller_identity.sql
+20260831030000_wi8210_attempts_event_id_backfill.sql
+20260902010000_cron_secret_delivery_table_general.sql
+20260903120000_retire_competitive_intel_schema.sql
+20260903160000_retire_ta_captured_replay_surface.sql
+20260903200000_guild_member_stats_rpc.sql
+20260908010000_ps387_playbook_anon_guard.sql
+20260908017000_fix_deactivation_shim_infinity_observation.sql
+20260910010000_ps513_roster_write_monitor.sql
+20260919012000_ps669_retain_departed_player_mappings.sql
+20260919121000_ps80_sync_queue_drain_lanes.sql
+20260919210000_ps393_refresh_token_inactivity_sweep.sql
+20260920100000_ps398_wire_quarantine_pii_eraser_cron.sql
+20260925020000_ps203_pgnet_failure_snapshots.sql
+20260925050000_retire_purge_old_seasons.sql
+20260925085000_sync_quiet_tick_markers.sql
+20260925160000_eot_gr_data_preserve_erasure_tombstone.sql
+20260927200000_bootstrap_authority_canonical_guild_code.sql
+20260927201000_sync_drain_run_recency_bound.sql
+20260927210000_orphan_guild_cleanup_keeps_battle_history.sql
+20260927220000_roster_write_sync_health_verdict.sql
+20260928010000_heal_player_hash_battle_names.sql
+20260928020000_votlw_guild_season_first_battle.sql
+20260928040000_gdpr_request_health_monitor.sql

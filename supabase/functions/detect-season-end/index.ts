@@ -5,8 +5,8 @@ import {
   type SupabaseClient
 } from '../_shared/supabase-client.ts'
 import { sendWebhookMessage, EmbedColors } from '../_shared/discord-webhook.ts'
-import { isMeaningfulBattleRow } from '../_shared/damage-classification.ts'
 import { corsOptionsResponse } from '../_shared/response-helpers.ts'
+import { hasSeasonEnded } from './season-end-guard.ts'
 
 type SupabaseDbClient = SupabaseClient
 
@@ -14,16 +14,6 @@ type ClusterRow = {
   id: number
   cluster_code: string
   display_name: string | null
-}
-
-type BattleRow = {
-  displayName: string
-  damageDealt: number | null
-  type: string | null
-  encounterIndex: number | null
-  damageType: string | null
-  remainingHp: number | null
-  maxHp: number | null
 }
 
 type SeasonStats = {
@@ -91,11 +81,11 @@ serve(async (req) => {
         continue
       }
 
-      const seasonEnded = await hasBattlesForSeason(
-        supabase,
-        cluster.cluster_code,
-        incrementSeason(currentSeason)
-      )
+      const seasonId = Number(currentSeason)
+      const endsAt = Number.isFinite(seasonId)
+        ? await fetchSeasonEndsAt(supabase, seasonId)
+        : null
+      const seasonEnded = hasSeasonEnded(Date.now(), endsAt)
 
       if (!seasonEnded) {
         results.push({
@@ -104,6 +94,18 @@ serve(async (req) => {
           status: 'active'
         })
         continue
+      }
+
+      // Claim this (cluster, season) before doing any work. The unique
+      // constraint on (cluster_code, season) means only one concurrent
+      // run's insert can land, so two overlapping runs cannot both post.
+      const claimed = await claimSeasonSummary(
+        supabase,
+        cluster.cluster_code,
+        currentSeason
+      )
+      if (!claimed) {
+        continue // a concurrent (or earlier, still-pending) run already claimed it
       }
 
       try {
@@ -120,6 +122,11 @@ serve(async (req) => {
         )
 
         if (!webhookResult.success) {
+          await releaseSeasonSummaryClaim(
+            supabase,
+            cluster.cluster_code,
+            currentSeason
+          )
           results.push({
             cluster: cluster.cluster_code,
             season: currentSeason,
@@ -129,12 +136,24 @@ serve(async (req) => {
           continue
         }
 
-        await supabase.from('season_summary_tracking').insert({
-          cluster_code: cluster.cluster_code,
-          season: currentSeason,
-          summary_data: stats,
-          sent_at: new Date().toISOString()
-        })
+        const { error: completeError } = await supabase
+          .from('season_summary_tracking')
+          .update({
+            summary_data: stats,
+            sent_at: new Date().toISOString()
+          })
+          .eq('cluster_code', cluster.cluster_code)
+          .eq('season', currentSeason)
+        if (completeError) {
+          // The Discord message is already out; don't undo that by treating
+          // this as a send failure. The claim row is left as-is (unsent) --
+          // within the stale window that still blocks a duplicate send, same
+          // as a concurrent run would.
+          logger.error(
+            `Error marking season summary sent for ${cluster.cluster_code}/${currentSeason}:`,
+            completeError.message
+          )
+        }
 
         results.push({
           cluster: cluster.cluster_code,
@@ -142,6 +161,11 @@ serve(async (req) => {
           status: 'summary_sent'
         })
       } catch (error) {
+        await releaseSeasonSummaryClaim(
+          supabase,
+          cluster.cluster_code,
+          currentSeason
+        )
         const message = getErrorMessage(error)
         results.push({
           cluster: cluster.cluster_code,
@@ -190,11 +214,17 @@ async function hasSeasonSummary(
   clusterCode: string,
   season: string
 ): Promise<boolean> {
+  // Only a genuinely completed row (sent_at set) short-circuits here. An
+  // unsent row is a claim, possibly abandoned by a crashed run; whether it's
+  // still live or stale enough to reclaim is claim_season_summary's call,
+  // not this cheap pre-check's -- treating any row as "done" would leave an
+  // abandoned claim blocking this season forever.
   const { data, error } = await supabase
     .from('season_summary_tracking')
     .select('id')
     .eq('cluster_code', clusterCode)
     .eq('season', season)
+    .not('sent_at', 'is', null)
     .maybeSingle()
 
   if (error && error.code !== 'PGRST116') {
@@ -204,27 +234,55 @@ async function hasSeasonSummary(
   return Boolean(data)
 }
 
-async function hasBattlesForSeason(
+async function fetchSeasonEndsAt(
   supabase: SupabaseDbClient,
-  clusterCode: string,
-  season: string
-): Promise<boolean> {
-  const { count, error } = await supabase
-    .from('EOT_GR_data')
-    .select('Guild', { count: 'exact', head: true })
-    .eq('cluster_code', clusterCode)
-    .eq('Season', season)
+  seasonId: number
+): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('season_calendar')
+    .select('ends_at')
+    .eq('season_id', seasonId)
+    .maybeSingle()
 
   if (error) {
     throw new Error(error.message)
   }
 
-  return (count ?? 0) > 0
+  return data?.ends_at ?? null
 }
 
-function incrementSeason(season: string): string {
-  const numeric = Number(season)
-  return Number.isFinite(numeric) ? String(numeric + 1) : season
+async function claimSeasonSummary(
+  supabase: SupabaseDbClient,
+  clusterCode: string,
+  season: string
+): Promise<boolean> {
+  // A plain insert-then-check-later here would let two overlapping runs
+  // both pass hasSeasonSummary before either claims; claim_season_summary
+  // does the claim and the "is this claim fresh or abandoned" decision in
+  // one statement, using UNIQUE(cluster_code, season) as the arbiter.
+  const { data, error } = await supabase.rpc('claim_season_summary', {
+    p_cluster_code: clusterCode,
+    p_season: season
+  })
+
+  if (error) {
+    throw new Error(error.message)
+  }
+  return data === true
+}
+
+async function releaseSeasonSummaryClaim(
+  supabase: SupabaseDbClient,
+  clusterCode: string,
+  season: string
+): Promise<void> {
+  // Only ever remove our own not-yet-sent claim, never a completed row.
+  await supabase
+    .from('season_summary_tracking')
+    .delete()
+    .eq('cluster_code', clusterCode)
+    .eq('season', season)
+    .is('sent_at', null)
 }
 
 async function generateSeasonSummary(
@@ -232,71 +290,38 @@ async function generateSeasonSummary(
   clusterCode: string,
   season: string
 ): Promise<SeasonStats> {
+  // Aggregated server-side (get_season_summary_stats): a plain select of raw
+  // rows is capped by PostgREST's max_rows and would silently truncate the
+  // totals for any cluster-season above that size.
   const { data, error } = await supabase
-    .from('EOT_GR_data')
-    .select(
-      'displayName, damageDealt, type, encounterIndex, damageType, remainingHp, maxHp'
-    )
-    .eq('cluster_code', clusterCode)
-    .eq('Season', season)
+    .rpc('get_season_summary_stats', {
+      p_cluster_code: clusterCode,
+      p_season: season
+    })
+    .maybeSingle()
 
   if (error) {
     throw new Error(error.message)
   }
 
-  const rows = (data ?? []) as BattleRow[]
-
-  if (rows.length === 0) {
-    return {
-      total_damage: 0,
-      total_battles: 0,
-      active_players: 0,
-      bosses_defeated: 0,
-      avg_damage: 0,
-      top_performer: 'N/A',
-      top_performer_damage: 0
-    }
-  }
-
-  const totalDamage = rows.reduce((sum, row) => sum + (row.damageDealt ?? 0), 0)
-  const uniquePlayers = new Set(rows.map((row) => row.displayName))
-  const uniqueBosses = new Set(
-    rows.map((row) => `${row.type ?? 'Unknown'}_${row.encounterIndex ?? 0}`)
-  )
-
-  const playerDamage = new Map<string, number>()
-  for (const battle of rows) {
-    const current = playerDamage.get(battle.displayName) ?? 0
-    playerDamage.set(battle.displayName, current + (battle.damageDealt ?? 0))
-  }
-
-  let topPerformer = 'N/A'
-  let topDamage = 0
-  for (const [player, damage] of playerDamage.entries()) {
-    if (damage > topDamage) {
-      topDamage = damage
-      topPerformer = player
-    }
-  }
-
-  // Per-battle average matches the web (Battle rows only, no crashes or sweeps); totals stay raw.
-  const meaningfulBattles = rows.filter(isMeaningfulBattleRow)
-  const meaningfulDamage = meaningfulBattles.reduce(
-    (sum, row) => sum + (row.damageDealt ?? 0),
-    0
-  )
+  const stats = data as {
+    total_damage: number | null
+    total_battles: number | null
+    active_players: number | null
+    bosses_defeated: number | null
+    avg_damage: number | null
+    top_performer: string | null
+    top_performer_damage: number | null
+  } | null
 
   return {
-    total_damage: totalDamage,
-    total_battles: rows.length,
-    active_players: uniquePlayers.size,
-    bosses_defeated: uniqueBosses.size,
-    avg_damage:
-      meaningfulBattles.length > 0
-        ? Math.round(meaningfulDamage / meaningfulBattles.length)
-        : 0,
-    top_performer: topPerformer,
-    top_performer_damage: topDamage
+    total_damage: stats?.total_damage ?? 0,
+    total_battles: stats?.total_battles ?? 0,
+    active_players: stats?.active_players ?? 0,
+    bosses_defeated: stats?.bosses_defeated ?? 0,
+    avg_damage: stats?.avg_damage ?? 0,
+    top_performer: stats?.top_performer ?? 'N/A',
+    top_performer_damage: stats?.top_performer_damage ?? 0
   }
 }
 

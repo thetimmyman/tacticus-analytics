@@ -11,6 +11,19 @@ const DEFAULT_ALLOWLIST_PATH = path.join(
   'rls-no-policy.allowlist.txt'
 )
 
+const DEFAULT_PGRST_RELOAD_ALLOWLIST_PATH = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  'pgrst-reload.allowlist.txt'
+)
+
+// The one-time full-schema dump: applied to a database before PostgREST has
+// ever cached anything, so there is no stale cache for it to invalidate.
+const PGRST_RELOAD_EXEMPT_FILENAME = '20260813000000_clean_baseline.sql'
+
+const FUNCTION_DDL_PATTERN =
+  /\b(?:CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION|DROP\s+FUNCTION\s+(?:IF\s+EXISTS\s+)?)\s*(?:public\.)?"?[A-Za-z_][A-Za-z0-9_]*"?\s*\(/gi
+const PGRST_RELOAD_PATTERN = /NOTIFY\s+pgrst/i
+
 function loadAllowlist(allowlistPath = DEFAULT_ALLOWLIST_PATH) {
   const allowlist = new Set()
   if (!existsSync(allowlistPath)) return allowlist
@@ -24,7 +37,10 @@ function loadAllowlist(allowlistPath = DEFAULT_ALLOWLIST_PATH) {
 // Hard gate: an RLS table with no policy must be listed in rls-no-policy.allowlist.txt.
 export async function lintSql(
   patterns,
-  { allowlistPath = DEFAULT_ALLOWLIST_PATH } = {}
+  {
+    allowlistPath = DEFAULT_ALLOWLIST_PATH,
+    pgrstReloadAllowlistPath = DEFAULT_PGRST_RELOAD_ALLOWLIST_PATH
+  } = {}
 ) {
   const errors = []
   const warnings = []
@@ -51,6 +67,8 @@ export async function lintSql(
 
   const allowlist = loadAllowlist(allowlistPath)
   const rlsNoPolicyTables = new Set()
+  const pgrstReloadAllowlist = loadAllowlist(pgrstReloadAllowlistPath)
+  const pgrstReloadMissing = new Set()
 
   for (const file of [...files].sort()) {
     if (!existsSync(file)) {
@@ -111,6 +129,36 @@ export async function lintSql(
         )
       }
     }
+
+    // A migration that creates, replaces or drops a public function but never
+    // reloads PostgREST's schema cache can leave it routing to a function
+    // that no longer matches (or rejecting one that's brand new) until the
+    // next reload -- traced back to a live incident.
+    const basename = path.basename(file)
+    if (
+      basename !== PGRST_RELOAD_EXEMPT_FILENAME &&
+      FUNCTION_DDL_PATTERN.test(code) &&
+      !PGRST_RELOAD_PATTERN.test(code)
+    ) {
+      pgrstReloadMissing.add(basename)
+    }
+    FUNCTION_DDL_PATTERN.lastIndex = 0
+  }
+
+  for (const basename of [...pgrstReloadMissing].sort()) {
+    if (!pgrstReloadAllowlist.has(basename)) {
+      errors.push(
+        `${basename}: creates, replaces or drops a public function with no NOTIFY pgrst, 'reload schema' and not in ${pgrstReloadAllowlistPath}; add the NOTIFY (or allowlist it if this file already shipped without one)`
+      )
+    }
+  }
+
+  for (const basename of [...pgrstReloadAllowlist].sort()) {
+    if (!pgrstReloadMissing.has(basename)) {
+      warnings.push(
+        `${basename} is in ${pgrstReloadAllowlistPath} but no longer matches a function migration missing NOTIFY pgrst -- prune it from the allowlist`
+      )
+    }
   }
 
   for (const table of [...rlsNoPolicyTables].sort()) {
@@ -132,6 +180,7 @@ export async function lintSql(
   return {
     fileCount: files.size,
     rlsNoPolicyCount: rlsNoPolicyTables.size,
+    pgrstReloadMissingCount: pgrstReloadMissing.size,
     errors,
     warnings
   }
@@ -157,7 +206,7 @@ async function main() {
   }
 
   console.log(
-    `lint-sql: checked ${result.fileCount} file(s); ${result.rlsNoPolicyCount} RLS table(s) without a policy (all allowlisted).`
+    `lint-sql: checked ${result.fileCount} file(s); ${result.rlsNoPolicyCount} RLS table(s) without a policy (all allowlisted); ${result.pgrstReloadMissingCount} function migration(s) missing NOTIFY pgrst (all allowlisted).`
   )
 }
 
