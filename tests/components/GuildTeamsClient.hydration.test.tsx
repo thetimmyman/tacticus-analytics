@@ -65,7 +65,7 @@ describe('GuildTeamsClient hydration', () => {
 describe('pickPageTitle', () => {
   it.each([
     [0, 0],
-    [0.5, 2],
+    [0.5, Math.floor(0.5 * PAGE_TITLES.length)],
     [0.9999, PAGE_TITLES.length - 1]
   ])('maps random %s to title index %s', (value, index) => {
     expect(pickPageTitle(() => value)).toBe(PAGE_TITLES[index])
