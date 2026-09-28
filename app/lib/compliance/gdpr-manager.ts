@@ -288,9 +288,13 @@ export class GDPRManager {
 
     try {
       const supabase = this.getServiceClient()
+      // Stamp every start: the stuck check must age this attempt, not the request's queue time.
       await supabase
         .from('gdpr_data_exports')
-        .update({ status: 'processing' })
+        .update({
+          status: 'processing',
+          processing_started_at: new Date().toISOString()
+        })
         .eq('request_id', requestId)
 
       let outcome = await this.attemptDataExport(
@@ -350,8 +354,10 @@ export class GDPRManager {
   }
 
   /**
-   * Only `failed` qualifies: pending/processing may race the same object name, and
-   * re-driving `completed` would revoke the subject's live download URL.
+   * `failed` always qualifies; a `pending`/`processing` row once it is stuck by the
+   * monitor's line. claim_gdpr_export_redrive decides and claims in one UPDATE that
+   * stamps processing_started_at, so a second re-drive of a live attempt is refused.
+   * `completed` never qualifies: re-driving it would revoke the subject's live URL.
    */
   async redriveDataExport(
     requestId: string,
@@ -379,7 +385,24 @@ export class GDPRManager {
 
     if (!row) return { outcome: 'not_found' }
 
-    if (row.status !== 'failed') {
+    const { data: claimed, error: claimError } = await supabase.rpc(
+      'claim_gdpr_export_redrive',
+      { p_request_id: requestId }
+    )
+
+    if (claimError) {
+      logger.error(
+        {
+          event: 'gdpr.export.redrive_claim_failed',
+          requestId,
+          failure: describeWriteFailure(claimError)
+        },
+        'gdpr.export.redrive_claim_failed: could not claim the export row'
+      )
+      throw claimError
+    }
+
+    if (claimed !== true) {
       logger.warn(
         {
           event: 'gdpr.export.redrive_refused',
@@ -387,7 +410,7 @@ export class GDPRManager {
           status: row.status,
           invokedByUserId
         },
-        'gdpr.export.redrive_refused: only a failed export row is re-drivable'
+        'gdpr.export.redrive_refused: only a failed or stuck pending/processing export row is re-drivable'
       )
       return { outcome: 'not_redrivable', status: row.status }
     }

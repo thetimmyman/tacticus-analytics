@@ -2012,6 +2012,7 @@ export type Database = {
           data_package: Json | null
           download_url: string | null
           expires_at: string | null
+          processing_started_at: string | null
           request_id: string
           requested_at: string | null
           status: string
@@ -2023,6 +2024,7 @@ export type Database = {
           data_package?: Json | null
           download_url?: string | null
           expires_at?: string | null
+          processing_started_at?: string | null
           request_id?: string
           requested_at?: string | null
           status?: string
@@ -2034,6 +2036,7 @@ export type Database = {
           data_package?: Json | null
           download_url?: string | null
           expires_at?: string | null
+          processing_started_at?: string | null
           request_id?: string
           requested_at?: string | null
           status?: string
@@ -8698,6 +8701,10 @@ export type Database = {
           needs_update: boolean
           status: string
         }[]
+      }
+      claim_gdpr_export_redrive: {
+        Args: { p_request_id: string; p_stuck_export_minutes?: number }
+        Returns: boolean
       }
       claim_next_job: {
         Args: { p_job_types?: string[]; p_worker_id: string }

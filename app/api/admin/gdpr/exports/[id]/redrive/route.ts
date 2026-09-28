@@ -1,4 +1,4 @@
-/** Audited re-drive of a FAILED Article 15 export, the only recovery path (nothing polls failed rows). */
+/** Audited re-drive of a failed or stuck Article 15 export, the only recovery path (nothing polls these rows). */
 import { NextResponse, type NextRequest } from 'next/server'
 import { withAdminGuards } from '@/app/api/admin/_lib/with-admin-guards'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
@@ -34,10 +34,12 @@ export const POST = withAdminGuards(
       }
 
       if (result.outcome === 'not_redrivable') {
-        // Pending/processing may have a live attempt; completed holds a signed URL the subject can still use.
-        throw Errors.conflict('Only a failed export request can be re-driven', {
-          status: result.status
-        })
+        // A fresh pending/processing row may have a live attempt; completed holds a
+        // signed URL the subject can still use. Only a failed or stuck row qualifies.
+        throw Errors.conflict(
+          'Only a failed or stuck export request can be re-driven',
+          { status: result.status }
+        )
       }
 
       logger.info(
