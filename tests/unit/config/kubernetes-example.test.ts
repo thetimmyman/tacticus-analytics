@@ -77,6 +77,7 @@ describe('Kubernetes example', () => {
           cwd: root,
           env: {
             PATH: process.env.PATH ?? '',
+            NODE_ENV: 'production',
             APP_IDENTITY_RUNTIME: '1',
             TACTICUS_APP_ID: 'tacticus-analytics',
             ...(readYaml('configmap.yaml').data as Record<string, string>),
