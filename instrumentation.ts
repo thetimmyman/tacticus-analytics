@@ -1,6 +1,6 @@
 /** Runs once at server start: undici fetch patching, Sentry, background workers. */
 
-import * as Sentry from '@sentry/nextjs'
+export { onRequestError } from './app/lib/monitoring/request-error'
 
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
@@ -40,5 +40,3 @@ export async function register() {
     await import('./sentry.edge.config')
   }
 }
-
-export const onRequestError = Sentry.captureRequestError
