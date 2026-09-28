@@ -200,7 +200,10 @@ async function run(entries: Row[], pages: Row[][]) {
 describe('raid sync stored keys', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(guildRosterQuery).mockResolvedValue({ data: [], error: null })
+    vi.mocked(guildRosterQuery).mockResolvedValue({
+      data: [],
+      error: null
+    } as never)
     vi.mocked(loadExistingPlayerMappings).mockResolvedValue(new Map())
     vi.mocked(fetchBossMappings).mockResolvedValue({})
     vi.mocked(updateBombTracking).mockResolvedValue(undefined)

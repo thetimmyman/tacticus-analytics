@@ -24,7 +24,9 @@ export class TacticusApiError extends Error {
 export const DEFAULT_DRAIN_LANES = 3
 
 /** Claim lanes per drain run; jobs are I/O bound, and SYNC_DRAIN_LANES=1 restores serial draining. */
-export function resolveDrainLanes(env = process.env): number {
+export function resolveDrainLanes(
+  env: Readonly<Record<string, string | undefined>> = process.env
+): number {
   const value = env.SYNC_DRAIN_LANES
   if (value === undefined || !/^[+-]?\d+$/.test(value.trim())) {
     return DEFAULT_DRAIN_LANES

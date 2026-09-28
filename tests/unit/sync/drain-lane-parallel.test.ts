@@ -51,20 +51,12 @@ describe('parallel drain lanes', () => {
   })
 
   it('resolves configured lane count', () => {
-    expect(resolveDrainLanes({} as NodeJS.ProcessEnv)).toBe(3)
-    expect(
-      resolveDrainLanes({ SYNC_DRAIN_LANES: '5' } as NodeJS.ProcessEnv)
-    ).toBe(5)
-    expect(
-      resolveDrainLanes({ SYNC_DRAIN_LANES: '0' } as NodeJS.ProcessEnv)
-    ).toBe(1)
-    expect(
-      resolveDrainLanes({ SYNC_DRAIN_LANES: '99' } as NodeJS.ProcessEnv)
-    ).toBe(8)
+    expect(resolveDrainLanes({})).toBe(3)
+    expect(resolveDrainLanes({ SYNC_DRAIN_LANES: '5' })).toBe(5)
+    expect(resolveDrainLanes({ SYNC_DRAIN_LANES: '0' })).toBe(1)
+    expect(resolveDrainLanes({ SYNC_DRAIN_LANES: '99' })).toBe(8)
     for (const invalid of ['', 'nope', '2.5', 'Infinity']) {
-      expect(
-        resolveDrainLanes({ SYNC_DRAIN_LANES: invalid } as NodeJS.ProcessEnv)
-      ).toBe(3)
+      expect(resolveDrainLanes({ SYNC_DRAIN_LANES: invalid })).toBe(3)
     }
   })
 
@@ -253,7 +245,7 @@ describe('parallel drain lanes', () => {
 
   it('releases the claim through fail_job when a deferral cannot be written', async () => {
     const rows = [job('a', 'TESTGUILD'), job('b', 'TESTGUILD')]
-    const rpc = vi.fn(async (name: string) =>
+    const rpc = vi.fn(async (name: string, _args?: unknown) =>
       name === 'claim_next_job'
         ? { data: rows.shift() ?? null, error: null }
         : { data: true, error: null }
