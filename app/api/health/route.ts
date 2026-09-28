@@ -16,6 +16,7 @@ import {
   attemptMemoryRecovery,
   sendCriticalMemoryAlert
 } from '@/app/lib/health'
+import { isSelfHostedOrLocalDeployment } from '@/app/lib/health/self-hosted'
 
 export const dynamic = 'force-dynamic'
 
@@ -79,10 +80,7 @@ async function computeHealthSnapshot(
 
   log.debug('Starting health check')
 
-  const isMiniPC =
-    process.env.DEPLOYMENT_ENV === 'minipc' ||
-    process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('localhost') ||
-    process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('192.168.')
+  const isSelfHosted = isSelfHostedOrLocalDeployment()
 
   const memoryMonitor = getMemoryMonitor()
   const memoryStatus = memoryMonitor.checkMemory()
@@ -116,9 +114,9 @@ async function computeHealthSnapshot(
     void attemptMemoryRecovery(memoryStatus, {
       enableCacheClearing: true,
       enableGc: true,
-      enableAutoShutdown: isMiniPC && memoryStatus.status === 'extreme',
+      enableAutoShutdown: isSelfHosted && memoryStatus.status === 'extreme',
       onCriticalAlert: async (status) => {
-        if (isMiniPC) {
+        if (isSelfHosted) {
           await sendCriticalMemoryAlert(status)
         }
       }
@@ -209,7 +207,7 @@ async function computeHealthSnapshot(
     overallStatus = 'degraded'
   }
 
-  if (isMiniPC) {
+  if (isSelfHosted) {
     checks.networkReachability = {
       status: dbCheck.status,
       responseTime: dbCheck.responseTime,
@@ -390,7 +388,7 @@ async function computeHealthSnapshot(
     memory: memoryUsage,
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development',
-    deployment: isMiniPC ? 'minipc' : 'cloud',
+    deployment: isSelfHosted ? 'self-hosted' : 'cloud',
     cronRole: process.env.CRON_ROLE || 'primary',
     responseTime
   }
