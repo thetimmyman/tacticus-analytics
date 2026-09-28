@@ -6,7 +6,7 @@ CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 SET LOCAL timezone TO 'UTC';
 
-SELECT plan(30);
+SELECT plan(31);
 
 SELECT is(
   current_database()::text,
@@ -201,13 +201,14 @@ BEGIN
     ('xefmpppFLAKY',    'Synthetic flaky-sync guild',        true, now() - INTERVAL '2 hours', 'synthetic', NULL,  2, 0, true),
     ('xefmpppFRESHBAD', 'Synthetic freshly-invalid guild',   true, now() - INTERVAL '1 hour',  'synthetic', false, 0, 0, true),
     ('xefmpppEDGE',     'Synthetic in-window invalid guild', true, now() - INTERVAL '6 days',  'synthetic', false, 0, 0, true),
-    ('xefmpppFEWDEAD',  'Synthetic tiny keyless guild',      true, now() - INTERVAL '20 days', NULL,        NULL,  0, 0, false);
+    ('xefmpppFEWDEAD',  'Synthetic tiny keyless guild',      true, now() - INTERVAL '20 days', NULL,        NULL,  0, 0, false),
+    ('xefmpppSYNCNULL', 'Synthetic keyless unset-sync guild', true, now() - INTERVAL '20 days', NULL,        NULL,  0, 0, NULL);
   ALTER TABLE public.player_mapping DISABLE TRIGGER USER;
   INSERT INTO public.player_mapping
     (player_id, display_name, guild_code, is_current, is_active, updated_at)
   SELECT g || '-' || i, 'sync ' || i, g, true, true, now() - INTERVAL '20 days'
     FROM unnest(ARRAY['xefmpppSYNCOFF', 'xefmpppSYNCFAIL', 'xefmpppBADKEY', 'xefmpppKEYOFF',
-                      'xefmpppFLAKY', 'xefmpppFRESHBAD', 'xefmpppEDGE']) AS g,
+                      'xefmpppFLAKY', 'xefmpppFRESHBAD', 'xefmpppEDGE', 'xefmpppSYNCNULL']) AS g,
          generate_series(1, 29) AS i;
   INSERT INTO public.player_mapping
     (player_id, display_name, guild_code, is_current, is_active, updated_at)
@@ -319,6 +320,14 @@ SELECT is(
     WHERE guild_code = 'xefmpppBADKEY'),
   'failing'::text,
   '30. a sync-dead guild with a recorded roster-write failure still reads failing'
+);
+
+-- Batch sync skips a NULL auto_sync_enabled as it skips false, so a keyless guild with it unset is dead.
+SELECT is(
+  (SELECT verdict FROM public.guild_roster_write_health()
+    WHERE guild_code = 'xefmpppSYNCNULL'),
+  'sync_dead'::text,
+  '31. no key, auto sync unset (NULL), no clean sync in the window: sync_dead'
 );
 
 SELECT * FROM finish();
