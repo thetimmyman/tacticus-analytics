@@ -12,6 +12,9 @@ let mockLogDiscordWebhookDelivery: ReturnType<typeof vi.fn>
 let mockLoadGuildTokenStatuses: ReturnType<typeof vi.fn>
 let mockValidateWebhookManagementAccess: ReturnType<typeof vi.fn>
 let mockGuildConfigServiceGetBasic: ReturnType<typeof vi.fn>
+let mockLoadWebhookUrlById: ReturnType<typeof vi.fn>
+const webhookId = '10000000-0000-4000-8000-000000000001'
+const webhookUrl = 'https://discord.com/api/webhooks/1001/test-token'
 
 describe('POST /api/discord-webhooks/cap-notification', () => {
   let POST: (req: NextRequest) => Promise<Response>
@@ -36,6 +39,10 @@ describe('POST /api/discord-webhooks/cap-notification', () => {
     mockGuildConfigServiceGetBasic = vi
       .fn()
       .mockResolvedValue({ display_name: 'Test Guild' })
+    mockLoadWebhookUrlById = vi.fn().mockResolvedValue(webhookUrl)
+    vi.doMock('@/app/lib/webhooks/webhook-url-lookup', () => ({
+      loadWebhookUrlById: mockLoadWebhookUrlById
+    }))
 
     vi.doMock('@/app/lib/auth/server', () => ({
       createClient: mockCreateClient,
@@ -546,7 +553,7 @@ describe('POST /api/discord-webhooks/cap-notification', () => {
             eq: vi.fn().mockReturnThis(),
             single: vi.fn().mockResolvedValue({
               data: {
-                webhook_url: 'https://discord.com/api/webhooks/123/token'
+                id: webhookId
               },
               error: null
             })
@@ -591,6 +598,18 @@ describe('POST /api/discord-webhooks/cap-notification', () => {
       expect(response.status).toBe(200)
       expect(body.data.success).toBe(true)
       expect(body.data.capped_players).toHaveLength(1)
+      expect(mockLoadWebhookUrlById).toHaveBeenCalledExactlyOnceWith(webhookId)
+      expect(mockPostToWebhook).toHaveBeenCalledWith(
+        webhookUrl,
+        expect.anything(),
+        expect.anything()
+      )
+      const webhookQueryIndex = mockSupabase.from.mock.calls.findIndex(
+        ([table]) => table === 'webhook_config'
+      )
+      expect(
+        mockSupabase.from.mock.results[webhookQueryIndex].value.select
+      ).toHaveBeenCalledWith('id')
     })
   })
 
@@ -646,7 +665,7 @@ describe('POST /api/discord-webhooks/cap-notification', () => {
             eq: vi.fn().mockReturnThis(),
             single: vi.fn().mockResolvedValue({
               data: {
-                webhook_url: 'https://discord.com/api/webhooks/123/token'
+                id: webhookId
               },
               error: null
             })
@@ -744,7 +763,7 @@ describe('POST /api/discord-webhooks/cap-notification', () => {
             eq: vi.fn().mockReturnThis(),
             single: vi.fn().mockResolvedValue({
               data: {
-                webhook_url: 'https://discord.com/api/webhooks/123/token'
+                id: webhookId
               },
               error: null
             })
