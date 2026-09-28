@@ -1,4 +1,4 @@
-/** TS <-> SQL goldens mirrored in supabase/tests/pgtap/wi2620_availability_parity.sql; keep in lockstep. */
+/** TS <-> SQL goldens mirrored in supabase/tests/pgtap/availability_parity.sql; keep in lockstep. */
 import { describe, it, expect } from 'vitest'
 import { calculateTokenAvailability } from '@/app/lib/calculations/token-calculation'
 
@@ -22,7 +22,7 @@ function replay(offsetsHours: number[], anchorOffsetHours?: number) {
   }
 }
 
-describe('WI-2620 availability parity goldens (mirror: wi2620_availability_parity.sql)', () => {
+describe('availability parity goldens (mirror: availability_parity.sql)', () => {
   it('A: spend-to-zero keeps the regen anchor (battles -20h, -14h)', () => {
     // init 2 @-20h -> 1; -14h -> 0 (timer stays -20h); pop -8h -> 1; next +4h.
     expect(replay([20, 14])).toEqual({

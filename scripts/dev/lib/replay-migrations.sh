@@ -55,7 +55,7 @@ ALTER TABLE public.guild_config
   ADD COLUMN IF NOT EXISTS last_war_sync_error_details jsonb;
 -- The live ACL on the erasure is postgres/EXECUTE only; the clean baseline
 -- still carries the anon/authenticated/service_role grants live has revoked,
--- and PS-40's own verify block refuses to pass with them present.
+-- and the erasure migration's own verify block refuses to pass with them present.
 REVOKE ALL ON FUNCTION public.revoke_all_player_identity_for_subject(uuid, text, uuid, text)
   FROM anon, authenticated, service_role, PUBLIC;
 SQL
@@ -116,7 +116,7 @@ BEGIN
        AND setting NOT LIKE 'statement_timeout=%';
 
     IF v_before IS DISTINCT FROM v_after THEN
-      RAISE EXCEPTION 'PS-25 replay pre-state changed unrelated authenticator settings';
+      RAISE EXCEPTION 'role-timeout replay pre-state changed unrelated authenticator settings';
     END IF;
     IF EXISTS (
       SELECT 1
@@ -125,7 +125,7 @@ BEGIN
        WHERE r.rolname = 'authenticator'
          AND setting LIKE 'statement_timeout=%'
     ) THEN
-      RAISE EXCEPTION 'PS-25 replay pre-state still has authenticator statement_timeout';
+      RAISE EXCEPTION 'role-timeout replay pre-state still has authenticator statement_timeout';
     END IF;
   END IF;
 END

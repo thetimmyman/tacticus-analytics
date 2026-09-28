@@ -175,8 +175,8 @@ CREATE ROLE supabase_etl_admin NOLOGIN;
 -- analytics_ro is not a Supabase role. It is a hand-made production login
 -- (ledger row 20260802060000 analytics_readonly_role) that no migration in
 -- this tree creates, so without this line every migration guarded on
--- `EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'analytics_ro')` -- PS-397's
--- revoke and PS-472's -- silently does nothing here and the suites that judge
+-- `EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'analytics_ro')` -- the
+-- identifier-leak revoke and the analytics_ro column grants -- silently does nothing here and the suites that judge
 -- them pass vacuously. NOLOGIN because nothing in a throwaway connects as it.
 CREATE ROLE analytics_ro NOLOGIN;
 
@@ -207,7 +207,7 @@ CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 -- transaction. Every assertion after that point is swallowed silently: no
 -- "not ok" is printed, so a bare failed-count check reads it as clean; only
 -- comparing the suite's declared plan(n) against assertions actually
--- produced (done below, per suite) catches it (PS-349).
+-- produced (done below, per suite) catches it.
 --
 -- Granted by extension membership, not "every function in extensions", so
 -- this stays scoped to pgTAP's own helpers and says nothing about pgcrypto
@@ -271,7 +271,7 @@ CREATE TABLE auth.audit_log_entries (
   instance_id uuid, id uuid NOT NULL PRIMARY KEY, payload json,
   created_at timestamptz, ip_address varchar(64) NOT NULL DEFAULT ''
 );
--- PS-393: enough of GoTrue's refresh_tokens shape for
+-- Enough of GoTrue's refresh_tokens shape for
 -- public.revoke_stale_refresh_tokens() to run against -- id/token/user_id/
 -- revoked/created_at/updated_at, the columns the sweep predicate reads and
 -- writes. session_id/parent are omitted; nothing in this repository's
@@ -285,7 +285,7 @@ CREATE TABLE auth.refresh_tokens (
   created_at timestamptz,
   updated_at timestamptz
 );
--- PS-356: pinned to the standard Supabase body (see AUTH SHIM PROVENANCE
+-- Pinned to the standard Supabase body (see AUTH SHIM PROVENANCE
 -- above) -- a COALESCE that tries the flat request.jwt.claim.sub/.role GUC
 -- first and falls back to the request.jwt.claims JSON GUC's sub/role key.
 -- Previously this shim read ONLY the flat claim.sub/claim.role GUC, so any

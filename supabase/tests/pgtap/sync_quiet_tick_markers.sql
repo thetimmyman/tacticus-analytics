@@ -22,7 +22,7 @@ SELECT ok(
 );
 
 INSERT INTO public.guild_config (guild_code, display_name)
-VALUES ('PS320-MARKERS', 'PR 320 marker fixture')
+VALUES ('TP320-MARKERS', 'PR 320 marker fixture')
 ON CONFLICT (guild_code) DO NOTHING;
 
 -- RLS bypassed so the trigger, not a policy, is judged.
@@ -35,13 +35,13 @@ SET LOCAL ROLE pr320_marker_probe;
 SELECT lives_ok(
   $$ UPDATE public.guild_config
         SET updated_at = now()
-      WHERE guild_code = 'PS320-MARKERS' $$,
+      WHERE guild_code = 'TP320-MARKERS' $$,
   'control: the probe can update an unrelated column'
 );
 SELECT throws_ok(
   $$ UPDATE public.guild_config
         SET last_roster_refresh_at = now() + interval '10 years'
-      WHERE guild_code = 'PS320-MARKERS' $$,
+      WHERE guild_code = 'TP320-MARKERS' $$,
   '42501',
   NULL,
   'a non-server role cannot move last_roster_refresh_at'
@@ -49,7 +49,7 @@ SELECT throws_ok(
 SELECT throws_ok(
   $$ UPDATE public.guild_config
         SET last_raid_write_at = now()
-      WHERE guild_code = 'PS320-MARKERS' $$,
+      WHERE guild_code = 'TP320-MARKERS' $$,
   '42501',
   NULL,
   'a non-server role cannot write last_raid_write_at'
@@ -61,12 +61,12 @@ SELECT lives_ok(
   $$ UPDATE public.guild_config
         SET last_roster_refresh_at = '2026-09-25T00:00:00Z',
             last_raid_write_at = '2026-09-25T00:05:00Z'
-      WHERE guild_code = 'PS320-MARKERS' $$,
+      WHERE guild_code = 'TP320-MARKERS' $$,
   'server authority can stamp both markers'
 );
 SELECT is(
   (SELECT last_roster_refresh_at FROM public.guild_config
-    WHERE guild_code = 'PS320-MARKERS'),
+    WHERE guild_code = 'TP320-MARKERS'),
   '2026-09-25T00:00:00Z'::timestamptz,
   'the server stamp persisted'
 );

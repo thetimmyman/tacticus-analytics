@@ -27,7 +27,7 @@ const R2_PATTERN = /\b20\d\d-[01]\d-[0-3]\d\b/u
 
 // Tool directives are machine-read, so they never count or violate.
 const DIRECTIVE_PREFIX =
-  /^(?:eslint-|eslint\b|global\s|@ts-|prettier-ignore|istanbul\b|c8\b|@vitest-environment|<reference\b|webpackChunkName|webpackPrefetch|webpackPreload|shellcheck\b|deno-lint-ignore|deno-fmt-ignore|@deno-types|@jsx|target-db:|ps218_kept_|squawk|yaml-language-server|zizmor\b|@license|@preserve|#region|#endregion|biome-ignore|knip-ignore|@refresh\b)/u
+  /^(?:eslint-|eslint\b|global\s|@ts-|prettier-ignore|istanbul\b|c8\b|@vitest-environment|<reference\b|webpackChunkName|webpackPrefetch|webpackPreload|shellcheck\b|deno-lint-ignore|deno-fmt-ignore|@deno-types|@jsx|target-db:|census_kept_|squawk|yaml-language-server|zizmor\b|@license|@preserve|#region|#endregion|biome-ignore|knip-ignore|@refresh\b)/u
 const DIRECTIVE_ANYWHERE = /(?:trufflehog:ignore|gitleaks:allow)/u
 const LICENCE =
   /(?:SPDX-License-Identifier|\bCopyright\b|\bLicen[cs]ed under\b)/u
@@ -467,7 +467,7 @@ function selfTest() {
   expectRules(
     'sql directives',
     'm.sql',
-    '-- target-db: general\n-- squawk-ignore x\n-- ps218_kept_policy: y\n',
+    '-- target-db: general\n-- squawk-ignore x\n-- census_kept_policy: y\n',
     []
   )
   expectRules('sql line block', 'm.sql', `${lines(7, '-- ')}\nselect 1;\n`, [
