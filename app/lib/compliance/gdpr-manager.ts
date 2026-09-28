@@ -122,21 +122,6 @@ type GdprCleanupCounts = {
 export const GDPR_EXPORT_REDRIVE_PURPOSE_PREFIX =
   'gdpr_export_redrive:invoked_by='
 
-// Matches gdpr_request_health's p_stuck_export_minutes default
-// (supabase/migrations/20260928040000_gdpr_request_health_monitor.sql): a pending/processing
-// row this old is what that monitor already calls stuck, so re-drive uses the same line.
-const STUCK_EXPORT_MINUTES = 60
-
-/** A pending/processing row old enough that no live attempt is plausibly still running it. */
-function isStuckExport(
-  row: Pick<GdprDataExportRow, 'status' | 'requested_at'>
-): boolean {
-  if (row.status !== 'pending' && row.status !== 'processing') return false
-  const openedAt = Date.parse(row.requested_at)
-  if (Number.isNaN(openedAt)) return false
-  return Date.now() - openedAt > STUCK_EXPORT_MINUTES * 60 * 1000
-}
-
 type GdprExportRedriveResult =
   | { outcome: 'not_found' }
   | { outcome: 'not_redrivable'; status: string }
@@ -365,10 +350,10 @@ export class GDPRManager {
   }
 
   /**
-   * `failed` always qualifies. A `pending`/`processing` row qualifies once it is
-   * stuck (isStuckExport): nothing polls these rows, so one this old was orphaned by
-   * a crashed or restarted attempt, not raced by a live one. `completed` never
-   * qualifies: re-driving it would revoke the subject's live download URL.
+   * `failed` always qualifies; a `pending`/`processing` row once it is stuck by the
+   * monitor's line. claim_gdpr_export_redrive decides and claims in one UPDATE that
+   * stamps processing_started_at, so a second re-drive of a live attempt is refused.
+   * `completed` never qualifies: re-driving it would revoke the subject's live URL.
    */
   async redriveDataExport(
     requestId: string,
@@ -396,7 +381,24 @@ export class GDPRManager {
 
     if (!row) return { outcome: 'not_found' }
 
-    if (row.status !== 'failed' && !isStuckExport(row)) {
+    const { data: claimed, error: claimError } = await supabase.rpc(
+      'claim_gdpr_export_redrive',
+      { p_request_id: requestId }
+    )
+
+    if (claimError) {
+      logger.error(
+        {
+          event: 'gdpr.export.redrive_claim_failed',
+          requestId,
+          failure: describeWriteFailure(claimError)
+        },
+        'gdpr.export.redrive_claim_failed: could not claim the export row'
+      )
+      throw claimError
+    }
+
+    if (claimed !== true) {
       logger.warn(
         {
           event: 'gdpr.export.redrive_refused',

@@ -49,7 +49,9 @@ type ExportRow = {
   request_id: string
   user_id: string
   status: string
-  requested_at: string
+  requested_at: string | null
+  created_at: string
+  processing_started_at: string | null
   completed_at: string | null
   download_url: string | null
   expires_at: string | null
@@ -57,7 +59,7 @@ type ExportRow = {
 
 type Upload = { name: string; body: string }
 
-// gdpr-manager.ts's STUCK_EXPORT_MINUTES; kept in sync by the "pins the ..." test below.
+// claim_gdpr_export_redrive's p_stuck_export_minutes default, which gdpr-manager.ts relies on.
 const STUCK_EXPORT_MINUTES = 60
 
 function minutesAgo(minutes: number): string {
@@ -70,7 +72,10 @@ function createHarness(
     missing?: boolean
     staleObject?: boolean
     failUploads?: number
-    requestedAt?: string
+    requestedAt?: string | null
+    createdAt?: string
+    processingStartedAt?: string
+    claimError?: { message: string }
   } = {}
 ) {
   const failUploads = options.failUploads ?? 0
@@ -80,7 +85,12 @@ function createHarness(
         request_id: REQUEST_ID,
         user_id: USER_ID,
         status: options.status ?? 'failed',
-        requested_at: options.requestedAt ?? minutesAgo(5),
+        requested_at:
+          options.requestedAt === undefined
+            ? minutesAgo(5)
+            : options.requestedAt,
+        created_at: options.createdAt ?? minutesAgo(5),
+        processing_started_at: options.processingStartedAt ?? null,
         completed_at: '2026-06-23T00:00:00.000Z',
         download_url: null,
         expires_at: null
@@ -119,6 +129,26 @@ function createHarness(
     })
   }
 
+  // Mirrors the migration's single UPDATE: decide and stamp in one synchronous step.
+  const claims: boolean[] = []
+  const claimRow = (): boolean => {
+    let claimed = false
+    if (row) {
+      const openedAt =
+        row.processing_started_at ?? row.requested_at ?? row.created_at
+      const stuck =
+        (row.status === 'pending' || row.status === 'processing') &&
+        Date.parse(openedAt) < Date.now() - STUCK_EXPORT_MINUTES * 60 * 1000
+      if (row.status === 'failed' || stuck) {
+        row.status = 'processing'
+        row.processing_started_at = new Date().toISOString()
+        claimed = true
+      }
+    }
+    claims.push(claimed)
+    return claimed
+  }
+
   const exportsTable = () => ({
     select: vi.fn(() => ({
       eq: vi.fn(() => ({
@@ -150,7 +180,13 @@ function createHarness(
       }
       throw new Error(`unexpected table ${table}`)
     }),
-    rpc: vi.fn(async () => ({ data: exportBundleFixture(), error: null })),
+    rpc: vi.fn(async (name: string) => {
+      if (name === 'claim_gdpr_export_redrive') {
+        if (options.claimError) return { data: null, error: options.claimError }
+        return { data: claimRow(), error: null }
+      }
+      return { data: exportBundleFixture(), error: null }
+    }),
     storage: { from: vi.fn(() => storageBucket) }
   }
 
@@ -163,6 +199,7 @@ function createHarness(
     uploads,
     removals,
     storageBucket,
+    claims,
     uploadAttempts: () => uploadAttempts
   }
 }
@@ -379,6 +416,68 @@ describe('redriveDataExport re-runs a failed export', () => {
       expect(h.statusUpdates).toEqual([])
     }
   )
+
+  it('falls back to created_at like the monitor: a stuck row with no requested_at is re-drivable', async () => {
+    const h = createHarness({
+      status: 'processing',
+      requestedAt: null,
+      createdAt: minutesAgo(STUCK_EXPORT_MINUTES + 1)
+    })
+    await mockModules(h.client)
+
+    const result = await redrive()
+
+    expect(result).toEqual({ outcome: 'redriven', status: 'completed' })
+    expect(h.claims).toEqual([true])
+  })
+
+  it('refuses a second re-drive while the first is still running, even on an old request', async () => {
+    const h = createHarness({
+      status: 'failed',
+      requestedAt: minutesAgo(STUCK_EXPORT_MINUTES * 24)
+    })
+    await mockModules(h.client)
+
+    const [first, second] = await Promise.all([redrive(), redrive()])
+
+    expect([first.outcome, second.outcome].sort()).toEqual([
+      'not_redrivable',
+      'redriven'
+    ])
+    expect(h.claims).toEqual([true, false])
+    expect(
+      h.auditRows.filter((r) => r.data_type === 'export_redrive')
+    ).toHaveLength(1)
+    expect(h.uploads).toHaveLength(1)
+  })
+
+  it('refuses a re-drive of a processing row a recent re-drive claimed, however old its request', async () => {
+    const h = createHarness({
+      status: 'processing',
+      requestedAt: minutesAgo(STUCK_EXPORT_MINUTES * 24),
+      processingStartedAt: minutesAgo(5)
+    })
+    await mockModules(h.client)
+
+    const result = await redrive()
+
+    expect(result).toEqual({ outcome: 'not_redrivable', status: 'processing' })
+    expect(h.statusUpdates).toEqual([])
+    expect(h.auditRows).toEqual([])
+    expect(h.uploads).toEqual([])
+  })
+
+  it('propagates a claim RPC error without running the export', async () => {
+    const h = createHarness({
+      status: 'failed',
+      claimError: { message: 'claim unavailable' }
+    })
+    await mockModules(h.client)
+
+    await expect(redrive()).rejects.toEqual({ message: 'claim unavailable' })
+    expect(h.auditRows).toEqual([])
+    expect(h.uploads).toEqual([])
+  })
 })
 
 /** Nothing reads exports by status to act on them; a future poller fails here. */
