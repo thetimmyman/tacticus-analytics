@@ -50,8 +50,8 @@ describe('PerformanceChart', () => {
     [0.94, 'bg-orange-400'],
     [0.95, 'bg-yellow-400'],
     [0.99, 'bg-yellow-400'],
-    [1.0, 'bg-[var(--accent)]'],
-    [1.1, 'bg-[var(--accent)]'],
+    [1.0, 'bg-accent-wh40k'],
+    [1.1, 'bg-accent-wh40k'],
     [1.11, 'bg-emerald-400']
   ])(
     'classifies target-weighted score %s with display-aligned color %s',

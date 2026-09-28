@@ -6,7 +6,7 @@ const highlightClasses = [
   'ring-2',
   'ring-red-500',
   'ring-offset-2',
-  'ring-offset-[var(--bg-primary)]'
+  'ring-offset-(--bg-primary)'
 ]
 
 describe('LinkRequiredNudge', () => {

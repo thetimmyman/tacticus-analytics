@@ -83,7 +83,7 @@ describe('Damage Comparison Utilities', () => {
 
   describe('getDamagePercentageColor', () => {
     it('returns tertiary color for null', () => {
-      expect(getDamagePercentageColor(null)).toBe('text-[var(--text-tertiary)]')
+      expect(getDamagePercentageColor(null)).toBe('text-(--text-tertiary)')
     })
 
     it('returns bright green for >= 20%', () => {
