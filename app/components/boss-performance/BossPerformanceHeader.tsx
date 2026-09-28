@@ -7,8 +7,8 @@ import { formatDamage } from '@tacticus/app-core/formatters'
 import { useBossHeaderStats } from '@/app/components/boss-performance/hooks/useBossPerformanceData'
 
 interface BossPerformanceHeaderProps {
-  desktopTitleRef: RefObject<HTMLHeadingElement>
-  mobileTitleRef: RefObject<HTMLHeadingElement>
+  desktopTitleRef: RefObject<HTMLHeadingElement | null>
+  mobileTitleRef: RefObject<HTMLHeadingElement | null>
 }
 
 export function BossPerformanceHeader({

@@ -19,7 +19,7 @@ interface GuildTeamsToolbarProps {
   sortHeroUnitId: string | null
   selectedTeam: RaidTeamDefinition
   heroMappings: Record<string, HeroMappingInfo>
-  heroFilterRef: RefObject<HTMLDivElement>
+  heroFilterRef: RefObject<HTMLDivElement | null>
   heroFilterOpen: boolean
   selectedHeroUnitIds: Set<string> | null
   minStars: number

@@ -15,8 +15,8 @@ interface AvailabilityHeaderProps {
   season: string
   useMentions: boolean
   setUseMentions: Dispatch<SetStateAction<boolean>>
-  copyDropdownRef: RefObject<HTMLDivElement>
-  postDropdownRef: RefObject<HTMLDivElement>
+  copyDropdownRef: RefObject<HTMLDivElement | null>
+  postDropdownRef: RefObject<HTMLDivElement | null>
   loading: boolean
   exporting: boolean
   players: PlayerAvailability[]

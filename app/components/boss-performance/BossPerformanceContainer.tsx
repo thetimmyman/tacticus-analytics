@@ -42,8 +42,8 @@ function BossPerformanceContainer(props: BossPerformanceParams) {
 }
 
 interface BossPerformanceContentProps extends BossPerformanceParams {
-  desktopTitleRef: RefObject<HTMLHeadingElement>
-  mobileTitleRef: RefObject<HTMLHeadingElement>
+  desktopTitleRef: RefObject<HTMLHeadingElement | null>
+  mobileTitleRef: RefObject<HTMLHeadingElement | null>
 }
 
 function BossPerformanceContent({
