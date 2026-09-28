@@ -1,7 +1,7 @@
 -- target-db: general
--- A stale roster on a guild whose sync is not running (API key invalid, auto sync off,
--- or batch sync gave up) reads 'sync_dead', not 'stale': it cannot move until sync
--- does, so the roster alert clears and guild sync health owns the problem.
+-- A stale roster reads 'sync_dead', not 'stale', when every sync lane skips the guild and no
+-- clean sync landed inside the window: nothing could have rewritten it, so the roster alert
+-- clears and the sync staleness monitors own the problem.
 
 BEGIN;
 
@@ -47,6 +47,7 @@ CREATE OR REPLACE FUNCTION public.guild_roster_write_health(
            gc.last_successful_sync                                  AS last_successful_sync,
            gc.api_key_is_valid                                      AS api_key_is_valid,
            gc.auto_sync_enabled                                     AS auto_sync_enabled,
+           (gc.api_key_encrypted IS NOT NULL)                       AS has_api_key,
            COALESCE(gc.consecutive_sync_failures, 0)                AS consecutive_sync_failures,
            COUNT(pm.id) FILTER (WHERE pm.is_current)                AS current_rows,
            COUNT(pm.id) FILTER (
@@ -64,7 +65,8 @@ CREATE OR REPLACE FUNCTION public.guild_roster_write_health(
      WHERE gc.enabled IS TRUE
      GROUP BY gc.guild_code, gc.last_successful_sync,
               gc.consecutive_sync_failures, gc.api_key_is_valid,
-              gc.auto_sync_enabled, sh.last_roster_write_at,
+              gc.auto_sync_enabled, (gc.api_key_encrypted IS NOT NULL),
+              sh.last_roster_write_at,
               sh.roster_write_failures
   )
   SELECT g.guild_code,
@@ -91,19 +93,23 @@ CREATE OR REPLACE FUNCTION public.guild_roster_write_health(
            WHEN g.last_successful_sync IS NULL THEN 'never_synced'
            WHEN g.current_rows < GREATEST(COALESCE(p_min_current_rows, 3), 1)
              THEN 'too_few_rows'
-           -- Only a would-be 'stale' is reclassified, using batch sync's own skip rule
-           -- (invalid key, auto sync not true, 5+ failures): that roster cannot move.
+           -- Only a would-be 'stale' is reclassified. Batch sync skips an invalid key, auto sync
+           -- not true and 5+ failures; the scheduler serves any key not marked invalid.
            WHEN g.rows_written_in_window::numeric / g.current_rows
                   < COALESCE(p_min_fresh_fraction, 0.5) THEN
              CASE
-               WHEN g.api_key_is_valid IS FALSE
-                 OR g.auto_sync_enabled IS NOT TRUE
-                 OR g.consecutive_sync_failures >= 5 THEN 'sync_dead'
+               WHEN g.last_successful_sync < b.window_start
+                AND (g.api_key_is_valid IS FALSE
+                     OR (NOT g.has_api_key
+                         AND (g.auto_sync_enabled IS NOT TRUE
+                              OR g.consecutive_sync_failures >= 5)))
+                 THEN 'sync_dead'
                ELSE 'stale'
              END
            ELSE 'ok'
          END AS verdict
     FROM per_guild g
+    CROSS JOIN bounds b
 $$;
 
 ALTER FUNCTION public.guild_roster_write_health(integer, numeric, integer)
@@ -167,9 +173,10 @@ BEGIN
       PERFORM monitoring.notify(
         alert_key, 'cleared',
         format('Roster write stalled: %s', r.guild_code),
-        format('Roster alert withdrawn for %s: the guild sync itself is not running '
-               || '(API key invalid, auto sync off, or batch sync gave up), '
-               || 'which guild sync health reports.', r.guild_code),
+        format('Roster alert withdrawn for %s: every sync lane skips this guild and no '
+               || 'clean sync landed in the last %s day(s), so the stale roster is a sync '
+               || 'outage, not a roster-write stall.',
+               r.guild_code, GREATEST(COALESCE(p_stale_days, 7), 1)),
         p_quiet);
 
     ELSIF r.verdict = 'ok' THEN

@@ -68,7 +68,7 @@ ps411_alert_staleness_and_renotify.sql # 21
 ps416_guild_war_zones_match_fk.sql # 12
 ps40_erase_residual_player_mapping_identity.sql # 65
 ps472_player_mapping_analytics_ro.sql # 14
-ps513_roster_write_monitor.sql # 27
+ps513_roster_write_monitor.sql # 30
 ps516_guild_war_sync_remnants.sql # 18
 ps669_player_mapping_retention.sql # 18
 ps670_prune_incomplete_registrations.sql # 24
