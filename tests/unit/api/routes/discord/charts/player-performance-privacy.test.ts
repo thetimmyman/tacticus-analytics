@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const SECRET = 'ps21-labels-secret-0123456789abcd'
+const SECRET = 'chart-labels-secret-0123456789abcd'
 const URL_BASE = 'https://example.test/api/discord/charts/player-performance'
 
 const { rendered, getPlayerPerformanceSummaryRPC, loadModes } = vi.hoisted(
@@ -62,7 +62,7 @@ function collectLabels(node: unknown, out: string[] = []): string[] {
   return out
 }
 
-describe('PS-21 player-performance chart labels honour hide_players', () => {
+describe('player-performance chart labels honour hide_players', () => {
   const original = process.env.DISCORD_CHART_URL_SECRET
 
   beforeEach(() => {

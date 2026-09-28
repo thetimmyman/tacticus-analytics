@@ -3,7 +3,7 @@
  * Every entry needs a `reason`; prefer `identifiers` over whole-file carve-outs.
  */
 
-export const wi825AllowedFiles = [
+export const internalIdentifierAllowedFiles = [
   // Legitimate surfaces: the identifier is the subject matter.
   {
     path: 'app/(dashboard)/admin/feature-releases/ActivityAnalytics.tsx',
@@ -15,7 +15,7 @@ export const wi825AllowedFiles = [
     path: 'app/(dashboard)/profile/page.tsx',
     identifiers: ['player_id'],
     reason:
-      'the viewer\'s OWN Tacticus player id under an explicit "Player ID" <dt> on their own profile. WI-825 concerns opaque guild keys; guild_code on this page stays enforced (the guildDisplayLabel fallback at :226 was fixed, not allowlisted).'
+      'the viewer\'s OWN Tacticus player id under an explicit "Player ID" <dt> on their own profile. The rule concerns opaque guild keys; guild_code on this page stays enforced (the guildDisplayLabel fallback at :226 was fixed, not allowlisted).'
   },
   {
     path: 'app/(dashboard)/profile/edit/EditProfilePlayerIdSection.tsx',

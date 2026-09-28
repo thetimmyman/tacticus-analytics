@@ -348,7 +348,7 @@ export const noInternalIdentifierInUi = {
     type: 'problem',
     docs: {
       description:
-        'Disallow rendering internal identifiers (guild_code, player_id, api_key, ...) in user-visible positions (WI-825).',
+        'Disallow rendering internal identifiers (guild_code, player_id, api_key, ...) in user-visible positions.',
       recommended: true,
       url: 'https://github.com/thetimmyman/tacticus-analytics/blob/main/eslint-rules/no-internal-identifier-in-ui.mjs'
     },
@@ -377,15 +377,15 @@ export const noInternalIdentifierInUi = {
     ],
     messages: {
       opaqueGuildIdentifier:
-        '{{name}} is an internal identifier — render it through formatGuildDisplayLabel() from @/app/lib/format/guild instead of raw (WI-825).',
+        '{{name}} is an internal identifier — render it through formatGuildDisplayLabel() from @/app/lib/format/guild instead of raw.',
       opaqueIdentifier:
-        '{{name}} is an internal identifier — render a resolved display label (a *_name column, or a label map with a fallback that cannot yield the key) instead of the raw value (WI-825).',
+        '{{name}} is an internal identifier — render a resolved display label (a *_name column, or a label map with a fallback that cannot yield the key) instead of the raw value.',
       secretIdentifier:
-        '{{name}} is a secret and must never be rendered — mask it (maskSecret()/maskApiKey()) or drop it. A display formatter is not an escape hatch (WI-825).',
+        '{{name}} is a secret and must never be rendered — mask it (maskSecret()/maskApiKey()) or drop it. A display formatter is not an escape hatch.',
       secretPassedToCall:
-        '{{name}} is a secret and is being passed into a call whose result is rendered. Only an approved masker (maskSecret()/maskApiKey()) may touch a secret on its way to the UI (WI-825).',
+        '{{name}} is a secret and is being passed into a call whose result is rendered. Only an approved masker (maskSecret()/maskApiKey()) may touch a secret on its way to the UI.',
       labelMapFallbackLeaksKey:
-        '{{map}}[{{key}}] falls back to {{key}} — when the label map misses, the raw internal key is rendered. Fall back to formatGuildDisplayLabel()/formatGuildCodeFallback() from @/app/lib/format/guild, never to the key itself (WI-825).',
+        '{{map}}[{{key}}] falls back to {{key}} — when the label map misses, the raw internal key is rendered. Fall back to formatGuildDisplayLabel()/formatGuildCodeFallback() from @/app/lib/format/guild, never to the key itself.',
       // Separate message because the fix differs; unfollowable advice gets the rule disabled.
       labelMapFallbackLeaksZoneKey:
         '{{map}}[{{key}}] falls back to {{key}} — on a miss this renders the raw zone id (ComsStation, Bunker2, AntiAirBattery1), which is what shipped to users before app/lib/war/war-naming.ts existed. Call zoneDisplayName()/zoneShortName() from @/app/lib/war/war-naming instead; do not build another zone-name table, and never render guild_war_zones.zone_name.'
@@ -846,7 +846,7 @@ export const noInternalIdentifierInUi = {
   }
 }
 
-const WI825_RULE_ID = 'tacticus/no-internal-identifier-in-ui'
+const INTERNAL_ID_RULE_ID = 'tacticus/no-internal-identifier-in-ui'
 
 /** Separate rule id, so a directive disabling the main rule cannot suppress this report. */
 export const noBlanketIdentifierDisable = {
@@ -854,14 +854,14 @@ export const noBlanketIdentifierDisable = {
     type: 'problem',
     docs: {
       description:
-        'Require WI-825 lint suppressions to be line-scoped and to carry a written reason.',
+        'Require internal-identifier lint suppressions to be line-scoped and to carry a written reason.',
       recommended: true,
       url: 'https://github.com/thetimmyman/tacticus-analytics/blob/main/eslint-rules/no-internal-identifier-in-ui.mjs'
     },
     schema: [],
     messages: {
       fileWideDisable:
-        'A file-wide `eslint-disable` of {{rule}} switches the WI-825 guardrail off for the entire file, secrets included. Use `eslint-disable-next-line ... -- <reason>` at the exact site, or an entry in eslint-rules/wi825-allowed-files.mjs (the one allowlist — do not start a second copy) where the reason is discoverable.',
+        'A file-wide `eslint-disable` of {{rule}} switches the internal-identifier guardrail off for the entire file, secrets included. Use `eslint-disable-next-line ... -- <reason>` at the exact site, or an entry in eslint-rules/internal-identifier-allowed-files.mjs (the one allowlist — do not start a second copy) where the reason is discoverable.',
       missingReason:
         'A suppression of {{rule}} must carry a written reason: `// eslint-disable-next-line {{rule}} -- why this identifier is legitimate here`.',
       unscopedDisable:
@@ -889,17 +889,17 @@ export const noBlanketIdentifierDisable = {
             context.report({
               loc: comment.loc,
               messageId: 'unscopedDisable',
-              data: { rule: WI825_RULE_ID }
+              data: { rule: INTERNAL_ID_RULE_ID }
             })
             continue
           }
-          if (!rules.includes(WI825_RULE_ID)) continue
+          if (!rules.includes(INTERNAL_ID_RULE_ID)) continue
 
           if (fileWide) {
             context.report({
               loc: comment.loc,
               messageId: 'fileWideDisable',
-              data: { rule: WI825_RULE_ID }
+              data: { rule: INTERNAL_ID_RULE_ID }
             })
             continue
           }
@@ -907,7 +907,7 @@ export const noBlanketIdentifierDisable = {
             context.report({
               loc: comment.loc,
               messageId: 'missingReason',
-              data: { rule: WI825_RULE_ID }
+              data: { rule: INTERNAL_ID_RULE_ID }
             })
           }
         }

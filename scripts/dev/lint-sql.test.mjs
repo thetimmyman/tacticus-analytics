@@ -20,7 +20,7 @@ function writeAllowlist(root, lines) {
   return allowlistPath
 }
 
-test('PS-114: an allowlisted RLS-without-policy table passes', async () => {
+test('an allowlisted RLS-without-policy table passes', async () => {
   const root = fixture()
   try {
     writeFileSync(
@@ -44,14 +44,14 @@ test('PS-114: an allowlisted RLS-without-policy table passes', async () => {
   }
 })
 
-test('PS-114: a policy-less RLS table not in the allowlist fails, naming the table and the allowlist path', async () => {
+test('a policy-less RLS table not in the allowlist fails, naming the table and the allowlist path', async () => {
   const root = fixture()
   try {
     writeFileSync(
       join(root, 'migrations/001_probe.sql'),
       [
-        'CREATE TABLE public.ps114_probe_secrets (id uuid PRIMARY KEY);',
-        'ALTER TABLE public.ps114_probe_secrets ENABLE ROW LEVEL SECURITY;'
+        'CREATE TABLE public.rls_probe_secrets (id uuid PRIMARY KEY);',
+        'ALTER TABLE public.rls_probe_secrets ENABLE ROW LEVEL SECURITY;'
       ].join('\n')
     )
     const allowlistPath = writeAllowlist(root, [])
@@ -61,14 +61,14 @@ test('PS-114: a policy-less RLS table not in the allowlist fails, naming the tab
     })
 
     assert.equal(result.errors.length, 1)
-    assert.ok(result.errors[0].includes('public.ps114_probe_secrets'))
+    assert.ok(result.errors[0].includes('public.rls_probe_secrets'))
     assert.ok(result.errors[0].includes(allowlistPath))
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
 })
 
-test('PS-114: a table with a matching CREATE POLICY is never flagged, allowlisted or not', async () => {
+test('a table with a matching CREATE POLICY is never flagged, allowlisted or not', async () => {
   const root = fixture()
   try {
     writeFileSync(
@@ -92,7 +92,7 @@ test('PS-114: a table with a matching CREATE POLICY is never flagged, allowliste
   }
 })
 
-test('PS-114: a stale allowlist entry (policy since added) produces a prune warning, not an error', async () => {
+test('a stale allowlist entry (policy since added) produces a prune warning, not an error', async () => {
   const root = fixture()
   try {
     writeFileSync(

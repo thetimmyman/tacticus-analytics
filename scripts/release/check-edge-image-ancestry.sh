@@ -129,7 +129,7 @@ selftest() {
   empty_tree="$(git hash-object -t tree /dev/null)"
   throwaway="$(GIT_AUTHOR_NAME=selftest GIT_AUTHOR_EMAIL=selftest@invalid \
     GIT_COMMITTER_NAME=selftest GIT_COMMITTER_EMAIL=selftest@invalid \
-    git commit-tree "$empty_tree" -m 'PS-658 selftest throwaway (never merged)')"
+    git commit-tree "$empty_tree" -m 'edge ancestry selftest throwaway (never merged)')"
   expect_fail "non-ancestor commit from a throwaway branch" "${image}:${throwaway}"
 
   expect_fail "bare digest reference (no tag)" \

@@ -622,7 +622,7 @@ function checkHandlerCoverage({ root = process.cwd(), baseline } = {}) {
 
 function formatReport(report) {
   const lines = []
-  lines.push('PS-79 worker handler-coverage gate')
+  lines.push('Worker handler-coverage gate')
   lines.push('')
   lines.push(
     `registration entrypoints: ${report.entrypoints.map((e) => e.module).join(', ') || '(none)'}`

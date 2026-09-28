@@ -71,7 +71,7 @@ function readBaseline() {
 function writeBaseline(entries) {
   const payload = {
     $comment:
-      'Accepted legacy unused exports (issue #63). check-unused-exports-ratchet.mjs ' +
+      'Accepted legacy unused exports. check-unused-exports-ratchet.mjs ' +
       'fails CI on any export not listed here and prunes resolved entries via --update; ' +
       'it never adds. Additions are hand edits reviewed in the PR that makes them.',
     entries: [...entries].sort()

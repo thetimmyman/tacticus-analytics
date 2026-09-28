@@ -25,7 +25,7 @@ const GLYPH_COLOR = '#ffffff'
 mkdirSync(iconsDir, { recursive: true })
 
 // mkdtempSync gives a private 0700 directory, not a symlink-attackable path.
-const scratchDir = mkdtempSync(path.join(tmpdir(), 'ps-275-icons-'))
+const scratchDir = mkdtempSync(path.join(tmpdir(), 'pwa-icons-'))
 const whiteSvgPath = path.join(scratchDir, 'favicon-white.svg')
 const svgText = readFileSync(svgSource, 'utf8').replace(
   /fill="#000000"/g,

@@ -79,6 +79,6 @@ condition = "AND"
 description = "Planted leak-detection markers in API route privacy/auth tests: fixed fake secrets the tests assert never reach a response or log line"
 targetRules = ["generic-api-key"]
 regexes = [
-  '''ps21-[a-z-]+-secret-[0-9a-f]+''',
+  '''chart-[a-z-]+-secret-[0-9a-f]+''',
   '''PLANTED-[A-Z-]+-[0-9a-f]+'''
 ]

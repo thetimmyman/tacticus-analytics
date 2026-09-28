@@ -147,7 +147,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
               ? skipQueryError.message
               : String(skipQueryError)
         },
-        'WI-654 skip query failed'
+        'Officer skip query failed'
       )
       throw Errors.fromResponse(500, {
         error: `Failed to load boss skip flags: ${skipQueryError instanceof Error ? skipQueryError.message : 'unknown error'}`
@@ -404,7 +404,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
           season: targetSeason,
           error: err instanceof Error ? err.message : String(err)
         },
-        'WI-737: stage kill-duration medians unavailable, falling back to scalar token cap'
+        'Stage kill-duration medians unavailable, falling back to scalar token cap'
       )
     }
 
@@ -420,12 +420,12 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
           entriesCount: liveTokens.entriesCount,
           apiCalledAt: liveTokens.apiCalledAt
         },
-        'WI-737 AC3: live token refresh succeeded'
+        'Live token refresh succeeded'
       )
     } else {
       logger.warn(
         { guildCode, source: liveTokens.source },
-        'WI-737 AC3: live token refresh unavailable, falling back to stored sync'
+        'Live token refresh unavailable, falling back to stored sync'
       )
     }
 

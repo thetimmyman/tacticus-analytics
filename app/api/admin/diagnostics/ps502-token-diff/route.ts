@@ -1,5 +1,5 @@
 /** Temporary read-only diagnostic: diffs a guild-season's upstream raid rows (via the writer transform)
- * against landed `EOT_GR_data`. Remove with `app/lib/diagnostics/ps502-token-diff.ts` once answered. */
+ * against landed `EOT_GR_data`. Remove with `app/lib/diagnostics/raid-token-diff.ts` once answered. */
 import { withAdminGuards } from '@/app/api/admin/_lib/with-admin-guards'
 import { NextResponse, type NextRequest } from 'next/server'
 import { decryptApiKey } from '@tacticus/app-core/encryption'
@@ -22,7 +22,7 @@ import {
   toRaidRowKey,
   type RaidRowKey,
   type RawDiscriminators
-} from '@/app/lib/diagnostics/ps502-token-diff'
+} from '@/app/lib/diagnostics/raid-token-diff'
 
 const logger = createComponentLogger('api.admin.diagnostics.ps502-token-diff')
 
@@ -181,7 +181,7 @@ export const GET = withAdminGuards(
                 ? invariantError.message
                 : 'unknown'
           },
-          'PS-502 token diff produced an impossible result'
+          'Raid token diff produced an impossible result'
         )
         fail(ALLOWED_FAILURES.diff_invariant_violated)
       }
@@ -198,7 +198,7 @@ export const GET = withAdminGuards(
           duplicateKeyGroupCount: diff.upstreamDuplicateKeyGroups.length,
           transformRejected
         },
-        'PS-502 token diff complete'
+        'Raid token diff complete'
       )
 
       const unmatchedDiscriminators: RawDiscriminators[] =
@@ -233,7 +233,7 @@ export const GET = withAdminGuards(
           ? error.code
           : ALLOWED_FAILURES.internal_error
       // `code` only, never `err`.
-      logger.warn({ guildCode, season, code }, 'PS-502 token diff failed')
+      logger.warn({ guildCode, season, code }, 'Raid token diff failed')
       return failureResponse(code)
     }
   }

@@ -1,7 +1,7 @@
 // @ts-check
 import nextCoreWebVitals from 'eslint-config-next/core-web-vitals'
 import { plugin as tacticusRules } from './eslint-rules/no-internal-identifier-in-ui.mjs'
-import { wi825AllowedFiles } from './eslint-rules/wi825-allowed-files.mjs'
+import { internalIdentifierAllowedFiles } from './eslint-rules/internal-identifier-allowed-files.mjs'
 
 let storybookConfigs = []
 try {
@@ -56,7 +56,7 @@ const authServerFactoryRestriction = {
   name: '@/app/lib/auth/server',
   importNames: ['createClient', 'createServiceClient'],
   message:
-    "WI-521: import { db, serviceDb } from '@/app/lib/db' instead of the raw factories. See docs/work-items/archive/WI-521-CENTRALIZE-SUPABASE-DATA-ACCESS.md."
+    "Import { db, serviceDb } from '@/app/lib/db' instead of the raw factories."
 }
 
 const writeQueuePath = {
@@ -188,7 +188,7 @@ const appCoreMigrationPaths = [
   {
     name: '@/app/lib/cache/hero-mappings-cache',
     message:
-      'Hero identity lives in the shared catalog: @/app/lib/catalogs (WI-2764 retired the standalone hero-mappings cache).'
+      'Hero identity lives in the shared catalog: @/app/lib/catalogs (the standalone hero-mappings cache is retired).'
   },
   {
     name: '@/app/lib/services/app-cache',
@@ -230,7 +230,7 @@ const serverPaths = [
 const factoryPaths = [...alwaysApplyPaths]
 
 // May import the auth/server factories directly, but not raw @supabase/* constructors.
-const wi521ExceptionPaths = [...alwaysApplyPaths, ...supabaseConstructorPaths]
+const supabaseFactoryExceptionPaths = [...alwaysApplyPaths, ...supabaseConstructorPaths]
 
 const packageBaseRules = {
   '@typescript-eslint/no-explicit-any': 'off',
@@ -319,26 +319,26 @@ const eslintConfig = [
           selector:
             "CallExpression[callee.property.name='rpc'] > TSAsExpression > TSAnyKeyword",
           message:
-            "WI-611: `.rpc('fn' as any)` hides Supabase schema drift. Regenerate database.generated.ts instead (see WI-586)."
+            "`.rpc('fn' as any)` hides Supabase schema drift. Regenerate database.generated.ts instead."
         },
         {
           selector:
             "CallExpression[callee.property.name='rpc'] > TSAsExpression > TSNeverKeyword",
           message:
-            "WI-611: `.rpc('fn' as never)` hides Supabase schema drift. Regenerate database.generated.ts instead (see WI-586)."
+            "`.rpc('fn' as never)` hides Supabase schema drift. Regenerate database.generated.ts instead."
         },
         {
           selector:
             "MemberExpression[property.name='rpc'][object.type='TSAsExpression']",
           message:
-            'WI-611: `(supabase as any).rpc(...)` hides Supabase schema drift. Regenerate database.generated.ts instead (see WI-586).'
+            '`(supabase as any).rpc(...)` hides Supabase schema drift. Regenerate database.generated.ts instead.'
         },
         // `.from('table' as never)`: same hazard as RPC casts.
         {
           selector:
             "CallExpression[callee.property.name='from'] > TSAsExpression > TSNeverKeyword",
           message:
-            "WI-611: `.from('table' as never)` hides Supabase schema drift. Regenerate database.generated.ts instead."
+            "`.from('table' as never)` hides Supabase schema drift. Regenerate database.generated.ts instead."
         }
         // guild_code JSX children are covered by tacticus/no-internal-identifier-in-ui.
       ]
@@ -358,7 +358,7 @@ const eslintConfig = [
               name: '@supabase/supabase-js',
               importNames: ['createClient'],
               message:
-                "Use serviceDb() or db() from '@/app/lib/db' instead of createClient from @supabase/supabase-js. See WI-521 / WI-624."
+                "Use serviceDb() or db() from '@/app/lib/db' instead of createClient from @supabase/supabase-js."
             }
           ]
         }
@@ -437,7 +437,7 @@ const eslintConfig = [
         'error',
         {
           patterns: legacyImportPatterns,
-          paths: wi521ExceptionPaths
+          paths: supabaseFactoryExceptionPaths
         }
       ]
     }
@@ -467,25 +467,25 @@ const eslintConfig = [
           selector:
             "CallExpression[callee.property.name='rpc'] > TSAsExpression > TSAnyKeyword",
           message:
-            "WI-611: `.rpc('fn' as any)` hides Supabase schema drift. Regenerate database.generated.ts instead (see WI-586)."
+            "`.rpc('fn' as any)` hides Supabase schema drift. Regenerate database.generated.ts instead."
         },
         {
           selector:
             "CallExpression[callee.property.name='rpc'] > TSAsExpression > TSNeverKeyword",
           message:
-            "WI-611: `.rpc('fn' as never)` hides Supabase schema drift. Regenerate database.generated.ts instead (see WI-586)."
+            "`.rpc('fn' as never)` hides Supabase schema drift. Regenerate database.generated.ts instead."
         },
         {
           selector:
             "MemberExpression[property.name='rpc'][object.type='TSAsExpression']",
           message:
-            'WI-611: `(supabase as any).rpc(...)` hides Supabase schema drift. Regenerate database.generated.ts instead (see WI-586).'
+            '`(supabase as any).rpc(...)` hides Supabase schema drift. Regenerate database.generated.ts instead.'
         },
         {
           selector:
             "CallExpression[callee.property.name='from'] > TSAsExpression > TSNeverKeyword",
           message:
-            "WI-611: `.from('table' as never)` hides Supabase schema drift. Regenerate database.generated.ts instead."
+            "`.from('table' as never)` hides Supabase schema drift. Regenerate database.generated.ts instead."
         }
       ]
     }
@@ -507,12 +507,12 @@ const eslintConfig = [
           patterns: [
             {
               group: ['@tacticus/app-core', '@tacticus/app-core/*'],
-              message: 'packages/ui-kit must not depend on app-core (WI-520)'
+              message: 'packages/ui-kit must not depend on app-core'
             },
             {
               group: ['@/app/*'],
               message:
-                'packages/ui-kit must remain app-agnostic; domain components stay under app/components/ui (WI-7760)'
+                'packages/ui-kit must remain app-agnostic; domain components stay under app/components/ui'
             }
           ]
         }
@@ -554,7 +554,7 @@ const eslintConfig = [
     rules: {
       'tacticus/no-internal-identifier-in-ui': [
         'error',
-        { allowedFiles: wi825AllowedFiles }
+        { allowedFiles: internalIdentifierAllowedFiles }
       ],
       'tacticus/no-blanket-identifier-disable': 'error'
     }

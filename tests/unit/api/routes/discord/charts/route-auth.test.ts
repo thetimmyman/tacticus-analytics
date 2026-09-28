@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const SECRET = 'ps21-route-secret-0123456789abcdef'
+const SECRET = 'chart-route-secret-0123456789abcdef'
 const BOSS = 'https://example.test/api/discord/charts/boss'
 
 vi.mock('next/og', () => ({
@@ -48,7 +48,7 @@ vi.mock('@/app/api/discord/guild-label', () => ({
 import { GET } from '@/app/api/discord/charts/boss/route'
 import { signChartUrl } from '@/app/api/discord/charts/signed-url'
 
-describe('PS-21 /api/discord/charts/boss auth gate', () => {
+describe('/api/discord/charts/boss auth gate', () => {
   const original = process.env.DISCORD_CHART_URL_SECRET
 
   beforeEach(() => {

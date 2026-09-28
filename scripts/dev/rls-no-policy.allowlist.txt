@@ -1,4 +1,4 @@
-# PS-114: named allowlist for scripts/dev/lint-sql.mjs's RLS-without-policy gate.
+# Named allowlist for scripts/dev/lint-sql.mjs's RLS-without-policy gate.
 #
 # Every table below has ALTER TABLE ... ENABLE ROW LEVEL SECURITY in
 # supabase/migrations/ with no matching CREATE POLICY. That is not
@@ -6,8 +6,8 @@
 # policy at all, so every direct read/write is denied and access only
 # happens through a SECURITY DEFINER function or the service role).
 #
-# These are the tables that were already in that state at the PS-114
-# baseline (2026-09-03), captured before the gate went from a silent
+# These are the tables that were already in that state at the gate's
+# baseline, captured before the gate went from a silent
 # count to a hard failure. Adding a new RLS-enabled, policy-less table
 # now requires a deliberate addition to this file -- lint-sql will
 # otherwise fail naming the table.

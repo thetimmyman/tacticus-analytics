@@ -357,7 +357,7 @@ function findViolations(files) {
           `NULL when either side is NULL, and a later \`IF NOT <var>\` treats that ` +
           `NULL as false, SKIPPING the deny branch rather than failing it. This is ` +
           `not caught by the operator lanes because \`=\` is fail-closed in a ` +
-          `predicate but not in an assignment (PS-381 shipped exactly this). Use ` +
+          `predicate but not in an assignment (this exact shape has shipped before). Use ` +
           `\`x IS NULL OR x IS DISTINCT FROM auth.${match[2]}()\`, or COALESCE the ` +
           `nullable side before comparing`
       )
@@ -392,7 +392,7 @@ function findViolations(files) {
         violations.push(
           `${file}: ${how} without ` +
             `\`REVOKE EXECUTE ON FUNCTION public.${fn}(...) FROM PUBLIC\` in the ` +
-            `same file (POS-SEC-10)`
+            `same file`
         )
       }
     }
@@ -459,7 +459,7 @@ function selfTest() {
   })
   if (assignedEquality.length !== 1) {
     throw new Error(
-      `positive control failed: assigned \`= auth.uid()\` (the PS-381 shape) — expected 1, got ${assignedEquality.length}:\n${assignedEquality.join('\n')}`
+      `positive control failed: assigned \`= auth.uid()\` (the null-skipping shape) — expected 1, got ${assignedEquality.length}:\n${assignedEquality.join('\n')}`
     )
   }
 
@@ -580,8 +580,8 @@ function selfTest() {
   })
   if (fixMigrationShape.length !== 0) {
     throw new Error(
-      'negative control failed: the POS-SEC-10 FIX migration is rejected by the ' +
-        `POS-SEC-10 gate — vulnerable text quoted as data must not be a finding:\n${fixMigrationShape.join('\n')}`
+      'negative control failed: the fix migration is rejected by the ' +
+        `same-file REVOKE gate — vulnerable text quoted as data must not be a finding:\n${fixMigrationShape.join('\n')}`
     )
   }
 
@@ -762,49 +762,49 @@ function selfTest() {
 
   // Scope: covered patterns fail, supported rewrites pass, unsupported constructs stay silent.
 
-  const ps383CoveredUnsafe = findViolations({
-    'supabase/migrations/ps383-a.sql':
+  const scopeCoveredUnsafe = findViolations({
+    'supabase/migrations/scope-a.sql':
       "IF auth.role() <> 'service_role' THEN NULL; END IF;"
   })
-  if (ps383CoveredUnsafe.length !== 1) {
+  if (scopeCoveredUnsafe.length !== 1) {
     throw new Error(
-      'PS-383 regression: a covered unsafe pattern (Lane 1a) stopped being ' +
-        `detected (${ps383CoveredUnsafe.length} finding(s))`
+      'Scope regression: a covered unsafe pattern (Lane 1a) stopped being ' +
+        `detected (${scopeCoveredUnsafe.length} finding(s))`
     )
   }
 
-  const ps383SupportedSafe = findViolations({
-    'supabase/migrations/ps383-b.sql':
+  const scopeSupportedSafe = findViolations({
+    'supabase/migrations/scope-b.sql':
       "IF auth.role() IS DISTINCT FROM 'service_role' THEN NULL; END IF;"
   })
-  if (ps383SupportedSafe.length !== 0) {
+  if (scopeSupportedSafe.length !== 0) {
     throw new Error(
-      'PS-383 regression: a supported null-safe rewrite was flagged ' +
-        `(${ps383SupportedSafe.length} finding(s))`
+      'Scope regression: a supported null-safe rewrite was flagged ' +
+        `(${scopeSupportedSafe.length} finding(s))`
     )
   }
 
-  const ps383UnsupportedLaunderedThroughFunctionCall = findViolations({
-    'supabase/migrations/ps383-c.sql':
+  const scopeUnsupportedLaunderedThroughFunctionCall = findViolations({
+    'supabase/migrations/scope-c.sql':
       'v_is_applicant := is_owner(auth.uid(), v_app_record.applicant_user_id);\n' +
       'IF NOT v_is_applicant THEN RETURN NULL; END IF;'
   })
-  if (ps383UnsupportedLaunderedThroughFunctionCall.length !== 0) {
+  if (scopeUnsupportedLaunderedThroughFunctionCall.length !== 0) {
     throw new Error(
-      'PS-383: a function-call-laundered NULL-skip was unexpectedly detected ' +
-        `(${ps383UnsupportedLaunderedThroughFunctionCall.length} finding(s)) — ` +
+      'Scope: a function-call-laundered NULL-skip was unexpectedly detected ' +
+        `(${scopeUnsupportedLaunderedThroughFunctionCall.length} finding(s)) — ` +
         "if a new lane now covers this, update the header's scope claims " +
         'instead of leaving this assertion stale'
     )
   }
-  const ps383ScanSuccessMessage = formatScanSuccess(1)
+  const scopeScanSuccessMessage = formatScanSuccess(1)
   if (
-    !/out of scope/i.test(ps383ScanSuccessMessage) ||
-    !/multi-hop dataflow/i.test(ps383ScanSuccessMessage)
+    !/out of scope/i.test(scopeScanSuccessMessage) ||
+    !/multi-hop dataflow/i.test(scopeScanSuccessMessage)
   ) {
     throw new Error(
-      'PS-383 regression: the --scan success line no longer names the scope ' +
-        `("${ps383ScanSuccessMessage}") — a green scan must not be misread as ` +
+      'Scope regression: the --scan success line no longer names the scope ' +
+        `("${scopeScanSuccessMessage}") — a green scan must not be misread as ` +
         'covering multi-hop dataflow or TypeScript guards'
     )
   }

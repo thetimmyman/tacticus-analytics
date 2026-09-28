@@ -133,7 +133,7 @@ dist
 !/public/robots.txt
 !/public/sitemap.xml
 # PWA manifest icons generated from public/favicon.svg via
-# scripts/assets/generate-pwa-icons.mjs (PS-275).
+# scripts/assets/generate-pwa-icons.mjs.
 !/public/icons/
 !/public/icons/**
 !/public/images/
@@ -513,7 +513,7 @@ _tmp_*.json
 # Local Cloudflare tunnel snapshots (one-time exports)
 /cf-current.json
 
-# Per-WI ad-hoc log captures (e.g. wi265_lag_*.txt) — never durable artifacts
+# Ad-hoc local log captures — never durable artifacts
 /wi[0-9]*_*.txt
 
 # Local Sentry triage snapshots (one-time exports from sentry CLI)

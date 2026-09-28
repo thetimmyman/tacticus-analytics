@@ -20,7 +20,7 @@
       "source": "Game and community-wiki presentation imagery",
       "rightsStatus": "snowprint-permission-granted",
       "publicationApproved": true,
-      "rightsEvidence": "Written permission from Snowprint Studios (Tacticus publisher) to use its game art, granted to the operator. Evidence is held privately by the operator; see docs/asset-provenance.md (PS-106)."
+      "rightsEvidence": "Written permission from Snowprint Studios (Tacticus publisher) to use its game art, granted to the operator. Evidence is held privately by the operator; see docs/asset-provenance.md."
     },
     {
       "id": "third-party-icons",
@@ -61,7 +61,7 @@
         "public/images/logo-words.png"
       ],
       "trackedAssetCount": 8,
-      "source": "Repository UI and branding assets; public/icons/*.png generated from public/favicon.svg via scripts/assets/generate-pwa-icons.mjs (PS-275)",
+      "source": "Repository UI and branding assets; public/icons/*.png generated from public/favicon.svg via scripts/assets/generate-pwa-icons.mjs",
       "rightsStatus": "operator-owned",
       "publicationApproved": true,
       "rightsEvidence": "The site's own UI and branding; publication approved by the operator for the public release (2026-09-25)."
