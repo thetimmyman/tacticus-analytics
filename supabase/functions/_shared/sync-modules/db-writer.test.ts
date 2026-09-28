@@ -150,3 +150,57 @@ for (const count of [null, 0, -1, 2, Number.NaN]) {
     }
   )
 }
+
+for (const retry of [false, true]) {
+  Deno.test(
+    `upsertDataBatches never sends the battle write clock (retry=${retry})`,
+    async () => {
+      const payloads: Array<Array<Record<string, unknown>>> = []
+      const upsert = (rows: Array<Record<string, unknown>>) => {
+        payloads.push(rows)
+        return Promise.resolve(
+          retry && payloads.length === 1
+            ? { error: { message: 'batch failed' }, count: null }
+            : { error: null, count: rows.length }
+        )
+      }
+      const logger: Logger = {
+        info: () => {},
+        warn: () => {},
+        error: () => {},
+        debug: () => {}
+      }
+      const row = {
+        Guild: 'TEST_GUILD',
+        Season: '81',
+        userId: 'player1',
+        encounterId: 3,
+        startedOn: '2020-01-01T00:00:00.000Z',
+        completedOn: '2020-01-01T00:01:00.000Z',
+        damageDealt: 100,
+        damageType: 'Battle',
+        timestamp: '2020-01-02T00:00:00.000Z'
+      }
+
+      await upsertDataBatches(
+        // deno-lint-ignore no-explicit-any
+        { supabase: { from: () => ({ upsert }) } as any, logger },
+        { table: 'EOT_GR_data', batchSize: 10 },
+        'TEST_GUILD',
+        // deno-lint-ignore no-explicit-any
+        [row] as any,
+        () => true
+      )
+
+      assertEquals(payloads.length, retry ? 2 : 1)
+      for (const payload of payloads) {
+        assertEquals(
+          payload.every((sent) => !('timestamp' in sent)),
+          true
+        )
+        assertEquals(payload[0].damageDealt, 100)
+      }
+      assertEquals(row.timestamp, '2020-01-02T00:00:00.000Z')
+    }
+  )
+}

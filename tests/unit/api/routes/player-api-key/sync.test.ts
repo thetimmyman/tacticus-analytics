@@ -444,6 +444,9 @@ describe('POST /api/player-api-key/sync', () => {
       expect(response.status).toBe(200)
       expect(body.success).toBe(true)
       expect(body.battlesUpdated).toBe(1)
+      expect(Object.keys(upsert.mock.calls[0]?.[0]?.[0] ?? {})).not.toContain(
+        'timestamp'
+      )
       expect(upsert).toHaveBeenCalledWith(
         [
           expect.objectContaining({

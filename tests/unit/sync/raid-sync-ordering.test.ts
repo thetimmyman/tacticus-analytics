@@ -276,6 +276,7 @@ describe('runRaidSync — identity is resolved before the raid rows are written 
     })
     expect(recorder.battleRows).toHaveLength(1)
     expect(recorder.battleRows[0]?.displayName).toBe('NewRealName')
+    expect(recorder.battleRows[0]).not.toHaveProperty('timestamp')
   })
 
   it('keeps an erased subject tombstoned when the same entries are re-ingested', async () => {
@@ -552,6 +553,7 @@ describe('runRaidSync — identity is resolved before the raid rows are written 
     )
 
     expect(recorder.battleRows).toHaveLength(WORKER_CONFIG.batchSize + 1)
+    expect(recorder.battleRows.every((row) => !('timestamp' in row))).toBe(true)
     expect(
       recorder.ops.filter((op) => op === 'EOT_GR_data.upsert')
     ).toHaveLength(2)
