@@ -1,10 +1,8 @@
 -- target-db: general
--- A sibling repo retired these 70 functions live as consumer-free (one sibling in
--- that batch, get_all_boss_hp, is excluded here -- see
--- 20260928080000_recreate_get_all_boss_hp.sql, it has a real caller). This repo's
--- clean baseline still creates all 70, so replaying these migrations against a fresh
--- database does not match production. Every drop is signature-specific and confirmed
--- absent live already, so IF EXISTS makes this a no-op against production.
+-- A sibling repo already dropped these 70 functions live as consumer-free, but this repo's
+-- clean baseline still creates them, so a fresh replay did not match production. Each drop
+-- is signature-specific and already absent live (a no-op there). get_all_boss_hp is left
+-- out: it has a real caller and 20260928080000 restores it.
 
 BEGIN;
 
@@ -168,3 +166,5 @@ END;
 $verify$;
 
 COMMIT;
+
+NOTIFY pgrst, 'reload schema';

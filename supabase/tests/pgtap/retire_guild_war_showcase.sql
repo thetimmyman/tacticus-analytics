@@ -27,10 +27,10 @@ SELECT ok(
     FROM pg_catalog.pg_proc AS function
     JOIN pg_catalog.pg_namespace AS ns ON ns.oid = function.pronamespace
     WHERE ns.nspname = 'public'
-      AND function.proname = 'get_public_stats_cached'
-      AND pg_catalog.pg_get_functiondef(function.oid) ILIKE '%get_public_stats%'
+      AND function.proname = 'check_gdpr_request_health'
+      AND pg_catalog.pg_get_functiondef(function.oid) ILIKE '%gdpr_request_health()%'
   ),
-  '3. positive control: the body-substring search finds a known match (get_public_stats_cached calls get_public_stats)'
+  '3. positive control: the body-substring search finds a known match (check_gdpr_request_health calls gdpr_request_health)'
 );
 
 -- MATERIALIZED keeps pg_get_functiondef() after the prokind filter; it raises on aggregates.

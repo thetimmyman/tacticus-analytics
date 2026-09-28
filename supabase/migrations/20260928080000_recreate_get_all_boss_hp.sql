@@ -1,10 +1,8 @@
 -- target-db: general
--- A sibling repo's dead-function audit dropped this live as consumer-free; it could
--- not see that boss-assignment-solver (an edge function here) still calls it every
--- run, so every call has silently degraded to hp=0 since. The pre-drop baseline text
--- itself never ran under this database's default plpgsql.variable_conflict=error: its
--- OUT columns collide with a same-named CTE column, so a bare restore still throws
--- "ambiguous" on every call. Grant is tightened to service_role, the sole real caller.
+-- boss-assignment-solver (an edge function here) calls this on every run, but a sibling
+-- repo's dead-function audit dropped it live, so every boss token target fell to the minimum.
+-- The baseline text never ran under plpgsql.variable_conflict=error (its OUT columns clash
+-- with a CTE column), hence #variable_conflict use_column. service_role is the only caller.
 
 BEGIN;
 
@@ -82,3 +80,5 @@ END;
 $verify$;
 
 COMMIT;
+
+NOTIFY pgrst, 'reload schema';
