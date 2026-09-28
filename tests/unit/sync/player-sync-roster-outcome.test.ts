@@ -159,7 +159,7 @@ describe('processPlayerSync roster write outcome', () => {
   it('records ok=false and throws when every member fails', async () => {
     stubApi([member('player-a'), member('player-b')])
     const { supabase, rpcCalls } = buildSupabase(
-      new Map([
+      new Map<string, UpsertBehavior>([
         ['player-a', { message: 'err-a' }],
         ['player-b', 'throw']
       ])
