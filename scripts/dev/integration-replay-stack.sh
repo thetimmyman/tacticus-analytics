@@ -17,7 +17,8 @@ EXCLUDED='studio,realtime,edge-runtime,logflare,vector,supavisor,mailpit,postgre
 # prepare_player_account_deletion, so complete erasure cannot run on a replay.
 export GDPR_LIVE_ONLY_GAPS="${GDPR_LIVE_ONLY_GAPS:-prepare_player_account_deletion}"
 
-# Workdir: config.toml copy with two flags flipped, template/function symlinks, empty migrations dir.
+# Workdir: config.toml copy with two flags flipped, template/function copies, empty migrations dir.
+# Copies, not symlinks: the CLI refuses a content_path that resolves outside the workdir.
 WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/integration-replay.XXXXXXXX")"
 
 # Tear down the stack on any exit so a persistent runner is not left with
@@ -41,8 +42,8 @@ mkdir -p "$WORK_DIR/supabase/migrations"
 sed -e '/^\[db\.migrations\]/,/^\[/ s/^enabled = true/enabled = false/' \
     -e '/^\[db\.seed\]/,/^\[/ s/^enabled = true/enabled = false/' \
     supabase/config.toml > "$WORK_DIR/supabase/config.toml"
-ln -s "$REPO_ROOT/supabase/templates" "$WORK_DIR/supabase/templates"
-ln -s "$REPO_ROOT/supabase/functions" "$WORK_DIR/supabase/functions"
+cp -R "$REPO_ROOT/supabase/templates" "$WORK_DIR/supabase/templates"
+cp -R "$REPO_ROOT/supabase/functions" "$WORK_DIR/supabase/functions"
 
 supa() { npx --no-install supabase --workdir "$WORK_DIR" "$@"; }
 
