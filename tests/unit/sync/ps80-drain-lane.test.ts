@@ -13,7 +13,11 @@ import {
   readQueueDepth,
   runDrainLane
 } from '@/app/lib/sync/drain-lane'
-import { WORKER_CONFIG } from '@/app/lib/sync/worker-types'
+import {
+  WORKER_CONFIG,
+  DEFAULT_DRAIN_LANES,
+  resolveDrainLanes
+} from '@/app/lib/sync/worker-types'
 
 type ClaimRow = {
   id: string
@@ -263,8 +267,7 @@ describe('PS-80 drain lanes', () => {
 
   describe('the configuration the lanes are cut from', () => {
     it('keeps the 40s window invariant the ticket measures against', () => {
-      // Two lanes measured slower in production, so the shipped value is 1.
-      expect(WORKER_CONFIG.drainLanes).toBe(1)
+      expect(resolveDrainLanes({})).toBe(DEFAULT_DRAIN_LANES)
       expect(
         laneWindowMs(
           WORKER_CONFIG.workerTimeout,

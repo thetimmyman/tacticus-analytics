@@ -58,7 +58,16 @@ export async function completeSyncJob(
       players_updated: result.playersUpdated,
       ...(result.errors.length > 0 && {
         batch_errors: result.errors.slice(0, 10)
-      })
+      }),
+      ...(result.phaseMs !== undefined && { phase_ms: result.phaseMs }),
+      ...(result.syncPath !== undefined && { sync_path: result.syncPath }),
+      ...(result.snapshotEntries !== undefined && {
+        snapshot_entries: result.snapshotEntries
+      }),
+      ...(result.storedKeys !== undefined && {
+        stored_keys: result.storedKeys
+      }),
+      ...(result.newEntries !== undefined && { new_entries: result.newEntries })
     },
     p_metrics: {
       records_processed: result.recordsProcessed,
@@ -171,7 +180,8 @@ export async function failSyncJob(
     p_error: errorMessage,
     p_progress: {
       records_processed: result.recordsProcessed,
-      players_updated: result.playersUpdated
+      players_updated: result.playersUpdated,
+      ...(result.phaseMs !== undefined && { phase_ms: result.phaseMs })
     }
   })
   if (failError) {

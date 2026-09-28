@@ -125,14 +125,16 @@ function makeSupabase(
             eq: (_column: string, _value: unknown) => builder,
             in: (_column: string, _values: readonly unknown[]) => builder,
             like: (_column: string, _pattern: string) => builder,
+            gte: (_column: string, _value: string) => builder,
+            gt: (_column: string, _value: number) => builder,
             order: (_column: string, _opts?: unknown) => builder,
-            range: (from: number, _to: number) => {
+            limit: (_count: number) => {
               recorder.ops.push('EOT_GR_data.stored_keys')
               return Promise.resolve(
                 recorder.storedKeyError
                   ? { data: null, error: { message: 'boom' } }
                   : {
-                      data: from === 0 ? (recorder.storedKeyRows ?? []) : [],
+                      data: recorder.storedKeyRows ?? [],
                       error: null
                     }
               )
@@ -204,7 +206,6 @@ const CONFIG = {
 } as never
 
 const OPTIONS = {
-  sinceTime: null,
   deleteBeforeUpsert: false,
   strictEntryFilter: false,
   batchedUpsert: false,
@@ -476,7 +477,7 @@ describe('runRaidSync — identity is resolved before the raid rows are written 
       makeSupabase(recorder),
       result,
       'worker-1',
-      { ...OPTIONS, sinceTime: new Date('2026-09-01T00:00:00.000Z') }
+      OPTIONS
     )
 
     expect(recorder.battleRows).toHaveLength(1)
@@ -593,7 +594,7 @@ describe('runRaidSync — identity is resolved before the raid rows are written 
         makeSupabase(recorder),
         result,
         'worker-1',
-        { ...OPTIONS, sinceTime: new Date('2026-09-20T00:00:00.000Z') }
+        OPTIONS
       )
 
       // The whole snapshot is sent (no watermark filter) as insert-or-ignore.
