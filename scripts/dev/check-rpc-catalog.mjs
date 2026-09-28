@@ -31,6 +31,12 @@ const RPC_CALL = /\.rpc\(\s*(['"`])([A-Za-z0-9_]+)\1/g
 const CREATE_FUNCTION =
   /CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+(?:(?:[A-Za-z0-9_]+|"[^"]+")\s*\.\s*)?("?)([A-Za-z0-9_]+)\1\s*\(/gi
 
+// Signature-blind, like CREATE_FUNCTION above: a DROP of one overload clears every
+// overload of that name from the "created" set, even if a sibling overload survives.
+// That is the conservative direction (an undecided RPC is reported, never hidden).
+const DROP_FUNCTION =
+  /DROP\s+FUNCTION\s+(?:IF\s+EXISTS\s+)?(?:(?:[A-Za-z0-9_]+|"[^"]+")\s*\.\s*)?("?)([A-Za-z0-9_]+)\1\s*\(/gi
+
 function walkSourceFiles(dir, out) {
   let entries
   try {
@@ -71,20 +77,44 @@ function collectRpcCallers(root, callerRoots = CALLER_ROOTS) {
   )
 }
 
-function collectCreatedFunctions(root, migrationsDir = MIGRATIONS_DIR) {
+/**
+ * Replays CREATE/DROP FUNCTION in file and statement order, so the result is what
+ * migrations actually leave in place, not just what any of them ever mentioned.
+ * @param {{ name: string, sql: string }[]} orderedFiles
+ * @returns {Set<string>}
+ */
+function computeCreatedFunctions(orderedFiles) {
   const created = new Set()
+  for (const { sql } of orderedFiles) {
+    const events = []
+    for (const match of sql.matchAll(CREATE_FUNCTION)) {
+      events.push({ index: match.index, name: match[2], op: 'create' })
+    }
+    for (const match of sql.matchAll(DROP_FUNCTION)) {
+      events.push({ index: match.index, name: match[2], op: 'drop' })
+    }
+    events.sort((a, b) => a.index - b.index)
+    for (const event of events) {
+      if (event.op === 'create') created.add(event.name)
+      else created.delete(event.name)
+    }
+  }
+  return created
+}
+
+function collectCreatedFunctions(root, migrationsDir = MIGRATIONS_DIR) {
   const dir = path.join(root, migrationsDir)
   let files
   try {
     files = fs.readdirSync(dir).filter((f) => f.endsWith('.sql'))
   } catch {
-    return created
+    return new Set()
   }
-  for (const file of files.sort()) {
-    const sql = fs.readFileSync(path.join(dir, file), 'utf8')
-    for (const match of sql.matchAll(CREATE_FUNCTION)) created.add(match[2])
-  }
-  return created
+  const orderedFiles = files.sort().map((file) => ({
+    name: file,
+    sql: fs.readFileSync(path.join(dir, file), 'utf8')
+  }))
+  return computeCreatedFunctions(orderedFiles)
 }
 
 function readAllowlist(root, allowlistPath = ALLOWLIST_PATH) {
@@ -249,6 +279,56 @@ function selftest() {
     'allowlist entry without a substantive reason is reported',
     r.problems.filter((p) => p.includes('substantive')).length,
     1
+  )
+
+  // A dropped function leaves the created set; a later CREATE restores it.
+  check(
+    'a DROP removes a name the same file created',
+    computeCreatedFunctions([
+      {
+        name: 'a',
+        sql: 'CREATE FUNCTION public.f(x text) RETURNS void AS $$ $$;'
+      }
+    ]).has('f'),
+    true
+  )
+  check(
+    'a later DROP FUNCTION IF EXISTS removes an earlier CREATE',
+    computeCreatedFunctions([
+      {
+        name: 'a',
+        sql: 'CREATE FUNCTION public.f(x text) RETURNS void AS $$ $$;'
+      },
+      { name: 'b', sql: 'DROP FUNCTION IF EXISTS public.f(text);' }
+    ]).has('f'),
+    false
+  )
+  check(
+    'a CREATE after the DROP, in a later file, restores the name',
+    computeCreatedFunctions([
+      {
+        name: 'a',
+        sql: 'CREATE FUNCTION public.f(x text) RETURNS void AS $$ $$;'
+      },
+      { name: 'b', sql: 'DROP FUNCTION IF EXISTS public.f(text);' },
+      {
+        name: 'c',
+        sql: 'CREATE FUNCTION public.f(x text) RETURNS void AS $$ $$;'
+      }
+    ]).has('f'),
+    true
+  )
+  check(
+    'within one file, order matters: DROP then CREATE ends created',
+    computeCreatedFunctions([
+      {
+        name: 'a',
+        sql:
+          'DROP FUNCTION IF EXISTS public.f(text);\n' +
+          'CREATE FUNCTION public.f(x text) RETURNS void AS $$ $$;'
+      }
+    ]).has('f'),
+    true
   )
 
   // A known-good migration-created RPC must be visible to the real extractors.

@@ -46,6 +46,8 @@ drop_stale_member_luck_summary.sql # 3
 eot_gr_data_preserve_erasure_tombstone.sql # 30
 global_war_meta_archive.sql # 17
 gdpr_request_health_monitor.sql # 25
+get_all_boss_hp_restore.sql # 9
+dead_function_retirement_ta_baseline.sql # 3
 port_war_room_shared_teams.sql # 40
 port_war_room_readiness.sql # 27
 pgnet_failure_snapshots.sql # 13
