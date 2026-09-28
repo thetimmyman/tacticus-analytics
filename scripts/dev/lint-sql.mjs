@@ -26,7 +26,7 @@ const PGRST_RELOAD_PATTERN = /NOTIFY\s+pgrst/i
 
 // From this version on, default privileges grant client roles nothing, so a new public table is
 // reachable only through the GRANTs its own migration writes; each must also enable RLS.
-export const EXPLICIT_GRANTS_FROM_VERSION = '20260928210000'
+const EXPLICIT_GRANTS_FROM_VERSION = '20260928210000'
 
 const CREATE_TABLE_PATTERN =
   /\bCREATE\s+(?:UNLOGGED\s+)?TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?((?:"?\w+"?\.)?"?\w+"?)([^;]*)/gi
@@ -38,7 +38,7 @@ function publicTableName(reference) {
   return parts[0].toLowerCase() === 'public' ? parts[1] : null
 }
 
-export function newTableGrantErrors(file, code) {
+function newTableGrantErrors(file, code) {
   const version = path.basename(file).match(/^(\d{14})_/)?.[1]
   if (!version || version <= EXPLICIT_GRANTS_FROM_VERSION) return []
 
