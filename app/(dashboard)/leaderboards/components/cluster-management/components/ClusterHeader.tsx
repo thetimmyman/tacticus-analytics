@@ -40,7 +40,7 @@ export function ClusterHeader({
       <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <div className="card-wh40k p-2 sm:p-4">
           <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-3 text-center sm:text-left">
-            <Users className="w-5 h-5 sm:w-8 sm:h-8 text-[var(--accent)]" />
+            <Users className="w-5 h-5 sm:w-8 sm:h-8 text-(--accent)" />
             <div>
               <p className="text-lg sm:text-2xl font-bold text-primary-wh40k">
                 {guilds.length}
@@ -68,7 +68,7 @@ export function ClusterHeader({
 
         <div className="card-wh40k p-2 sm:p-4">
           <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-3 text-center sm:text-left">
-            <Key className="w-5 h-5 sm:w-8 sm:h-8 text-[var(--primary)]" />
+            <Key className="w-5 h-5 sm:w-8 sm:h-8 text-(--primary)" />
             <div>
               <p className="text-lg sm:text-2xl font-bold text-primary-wh40k">
                 {guilds.filter((g) => g.has_api_key).length}

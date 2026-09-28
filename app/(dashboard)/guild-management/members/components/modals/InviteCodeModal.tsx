@@ -82,13 +82,13 @@ export function InviteCodeModal({ member, onClose }: InviteCodeModalProps) {
 
   return (
     <ModalShell>
-      <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+      <h3 className="text-lg font-semibold text-primary-wh40k">
         Invite Code - <MemberName value={member.display_name} />
       </h3>
       <div className="space-y-4">
         {!generatedCode ? (
           <>
-            <p className="text-sm text-[var(--text-secondary)]">
+            <p className="text-sm text-secondary-wh40k">
               Generate an invite code that{' '}
               <MemberName value={member.display_name} /> can use to claim their
               profile. The code will be valid for 72 hours.
@@ -142,17 +142,13 @@ export function InviteCodeModal({ member, onClose }: InviteCodeModalProps) {
                   readOnly
                   className="font-mono text-xs"
                 />
-                <Button
-                  size="sm"
-                  onClick={handleCopy}
-                  className="flex-shrink-0"
-                >
+                <Button size="sm" onClick={handleCopy} className="shrink-0">
                   {copied ? 'Copied!' : 'Copy'}
                 </Button>
               </div>
             </div>
 
-            <p className="text-xs text-[var(--text-secondary)]">
+            <p className="text-xs text-secondary-wh40k">
               The player will need to create an account (or log in) and then
               enter this code to claim their profile. They will also need to
               provide their Player API key.

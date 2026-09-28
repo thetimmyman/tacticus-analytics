@@ -14,19 +14,15 @@ export default function WarPageHeader({
   return (
     <div>
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="text-3xl font-bold text-[var(--text-primary)]">
-          {title}
-        </h1>
+        <h1 className="text-3xl font-bold text-primary-wh40k">{title}</h1>
         {badgeLabel ? (
-          <Badge className="bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border)]">
+          <Badge className="bg-(--bg-secondary) text-secondary-wh40k border-(--border)">
             {badgeLabel}
           </Badge>
         ) : null}
       </div>
       {description ? (
-        <p className="text-sm text-[var(--text-secondary)] mt-2">
-          {description}
-        </p>
+        <p className="text-sm text-secondary-wh40k mt-2">{description}</p>
       ) : null}
     </div>
   )

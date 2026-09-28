@@ -133,39 +133,39 @@ export function LiveStatsSection({ initialStats }: LiveStatsSectionProps) {
         >
           <div className="text-center" aria-live="polite" aria-atomic="true">
             <p
-              className="text-3xl md:text-4xl font-bold text-[var(--accent)]"
+              className="text-3xl md:text-4xl font-bold text-(--accent)"
               suppressHydrationWarning
             >
               {`${formatNumber(stats.activePlayers)}+`}
             </p>
-            <p className="text-[var(--text-secondary)] mt-1">Active Players</p>
+            <p className="text-secondary-wh40k mt-1">Active Players</p>
           </div>
           <div className="text-center" aria-live="polite" aria-atomic="true">
             <p
-              className="text-3xl md:text-4xl font-bold text-[var(--accent)]"
+              className="text-3xl md:text-4xl font-bold text-(--accent)"
               suppressHydrationWarning
             >
               {`${formatNumber(stats.battlesTracked)}+`}
             </p>
-            <p className="text-[var(--text-secondary)] mt-1">Battles Tracked</p>
+            <p className="text-secondary-wh40k mt-1">Battles Tracked</p>
           </div>
           <div className="text-center" aria-live="polite" aria-atomic="true">
             <p
-              className="text-3xl md:text-4xl font-bold text-[var(--accent)]"
+              className="text-3xl md:text-4xl font-bold text-(--accent)"
               suppressHydrationWarning
             >
               {`${formatNumber(stats.guilds)}+`}
             </p>
-            <p className="text-[var(--text-secondary)] mt-1">Guilds</p>
+            <p className="text-secondary-wh40k mt-1">Guilds</p>
           </div>
           <div className="text-center" aria-live="polite" aria-atomic="true">
             <p
-              className="text-3xl md:text-4xl font-bold text-[var(--accent)]"
+              className="text-3xl md:text-4xl font-bold text-(--accent)"
               suppressHydrationWarning
             >
               {formatNumber(stats.totalDamage)}
             </p>
-            <p className="text-[var(--text-secondary)] mt-1">Total Damage</p>
+            <p className="text-secondary-wh40k mt-1">Total Damage</p>
           </div>
         </div>
       </div>

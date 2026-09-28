@@ -50,22 +50,22 @@ function HeroCardCell({ hero }: { hero: HeroRequirement }) {
         <img
           src={portraitUrl}
           alt={displayName}
-          className="h-8 w-8 rounded-full object-cover border border-[var(--card-border)] flex-shrink-0"
+          className="h-8 w-8 rounded-full object-cover border border-(--card-border) shrink-0"
         />
       ) : (
-        <div className="h-8 w-8 rounded-full bg-[var(--card-bg)] border border-[var(--card-border)] flex items-center justify-center text-[10px] font-bold text-[var(--text-tertiary)] flex-shrink-0">
+        <div className="h-8 w-8 rounded-full bg-(--card-bg) border border-(--card-border) flex items-center justify-center text-[10px] font-bold text-(--text-tertiary) shrink-0">
           {fallbackBadge}
         </div>
       )}
       <div className="flex-1 min-w-0">
         <div
-          className="text-[11px] font-medium text-[var(--text-primary)] truncate"
+          className="text-[11px] font-medium text-primary-wh40k truncate"
           title={displayName}
         >
           {displayName}
         </div>
         {hasStats && (
-          <div className="flex items-center gap-1.5 text-[9px] text-[var(--text-tertiary)] flex-wrap">
+          <div className="flex items-center gap-1.5 text-[9px] text-(--text-tertiary) flex-wrap">
             {hero.min_rank && (
               <span className="font-mono">{abbreviateRank(hero.min_rank)}</span>
             )}
@@ -117,8 +117,8 @@ function RequirementCard({
     <div
       className={`rounded-lg border p-3 space-y-3 transition-colors ${
         isActive
-          ? 'border-[var(--accent)] bg-[color-mix(in_srgb,var(--accent)_5%,transparent)]'
-          : 'border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_30%,transparent)] hover:border-[var(--card-border-hover)]'
+          ? 'border-accent-wh40k bg-[color-mix(in_srgb,var(--accent)_5%,transparent)]'
+          : 'border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_30%,transparent)] hover:border-(--card-border-hover)'
       }`}
     >
       {/* Header: Scope + Team Name + Verified + Edit */}
@@ -126,7 +126,7 @@ function RequirementCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span
-              className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] rounded border ${colorClasses[scopeColor]}`}
+              className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] rounded-sm border ${colorClasses[scopeColor]}`}
             >
               {scopeIcon}
               {scopeLabel}
@@ -138,13 +138,13 @@ function RequirementCard({
                 }
               />
               {requirement.is_verified && (
-                <CheckCircle2 className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-green-500 shrink-0" />
               )}
             </div>
           </div>
           {requirement.overall_notes && (
             <div
-              className="text-[10px] text-[var(--text-tertiary)] italic mt-1.5 line-clamp-2"
+              className="text-[10px] text-(--text-tertiary) italic mt-1.5 line-clamp-2"
               title={requirement.overall_notes}
             >
               {requirement.overall_notes}
@@ -155,7 +155,7 @@ function RequirementCard({
           <button
             type="button"
             onClick={onEdit}
-            className="p-1.5 text-[var(--text-tertiary)] hover:text-[var(--accent)] transition-colors rounded-md hover:bg-[var(--bg-secondary)]"
+            className="p-1.5 text-(--text-tertiary) hover:text-(--accent) transition-colors rounded-md hover:bg-(--bg-secondary)"
             title="Edit requirements"
           >
             <Pencil className="h-3.5 w-3.5" />
@@ -177,7 +177,7 @@ function RequirementCard({
         {/* MOW (if present) */}
         {mow && (
           <div className="pt-1.5 border-t border-card-border/50">
-            <div className="text-[9px] uppercase tracking-wide text-[var(--text-tertiary)] mb-1">
+            <div className="text-[9px] uppercase tracking-wide text-(--text-tertiary) mb-1">
               Machine of War
             </div>
             <HeroCardCell hero={mow} />
@@ -186,7 +186,7 @@ function RequirementCard({
 
         {/* Empty state */}
         {regularHeroes.length === 0 && !mow && (
-          <div className="text-[10px] text-[var(--text-tertiary)] italic text-center py-2">
+          <div className="text-[10px] text-(--text-tertiary) italic text-center py-2">
             No hero requirements defined
           </div>
         )}

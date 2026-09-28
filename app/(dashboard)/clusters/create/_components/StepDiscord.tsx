@@ -14,7 +14,7 @@ export function StepDiscord({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-[var(--text-primary)]">
+        <h2 className="text-xl font-bold text-primary-wh40k">
           Discord Integration
         </h2>
         <label className="flex items-center gap-2 cursor-pointer">
@@ -22,18 +22,16 @@ export function StepDiscord({
             type="checkbox"
             checked={skipDiscord}
             onChange={(e) => setSkipDiscord(e.target.checked)}
-            className="rounded"
+            className="rounded-sm"
           />
-          <span className="text-sm text-[var(--text-secondary)]">
-            Skip this step
-          </span>
+          <span className="text-sm text-secondary-wh40k">Skip this step</span>
         </label>
       </div>
 
       {!skipDiscord && (
         <>
           <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-            <p className="text-sm text-[var(--accent)]">
+            <p className="text-sm text-(--accent)">
               <strong>Optional:</strong> Connect your Discord server for
               notifications and community features.
             </p>
@@ -48,7 +46,7 @@ export function StepDiscord({
               }
               placeholder="e.g., 1234567890123456789"
             />
-            <p className="text-xs text-[var(--text-secondary)] mt-1">
+            <p className="text-xs text-secondary-wh40k mt-1">
               Your Discord server&apos;s ID
             </p>
           </div>
@@ -67,7 +65,7 @@ export function StepDiscord({
                 {errors.discordInviteUrl}
               </p>
             )}
-            <p className="text-xs text-[var(--text-secondary)] mt-1">
+            <p className="text-xs text-secondary-wh40k mt-1">
               Public invite link for new members
             </p>
           </div>
@@ -92,7 +90,7 @@ export function StepDiscord({
                 {errors.discordWebhookUrl}
               </p>
             )}
-            <p className="text-xs text-[var(--text-secondary)] mt-1">
+            <p className="text-xs text-secondary-wh40k mt-1">
               For sending notifications to your Discord channel
             </p>
           </div>

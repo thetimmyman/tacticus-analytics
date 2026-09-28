@@ -49,7 +49,7 @@ export function PlayerLink({
   return (
     <Link
       href={`/player-stats?search=${encodeURIComponent(playerName)}`}
-      className={`hover:underline hover:text-[var(--accent)] transition-colors ${className}`}
+      className={`hover:underline hover:text-(--accent) transition-colors ${className}`}
       title={`View stats for ${friendlyLabel}`}
     >
       {labelledText}

@@ -161,7 +161,7 @@ describe('BossBattleLog', () => {
     fireEvent.click(bossesButton)
 
     await waitFor(() => {
-      expect(bossesButton).toHaveClass('bg-[var(--primary)]')
+      expect(bossesButton).toHaveClass('bg-primary-wh40k')
     })
   })
 
@@ -179,7 +179,7 @@ describe('BossBattleLog', () => {
     fireEvent.click(primesButton)
 
     await waitFor(() => {
-      expect(primesButton).toHaveClass('bg-[var(--accent)]')
+      expect(primesButton).toHaveClass('bg-accent-wh40k')
     })
   })
 

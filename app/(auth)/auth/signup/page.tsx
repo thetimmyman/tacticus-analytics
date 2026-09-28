@@ -19,8 +19,8 @@ export default async function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-[#111] to-[#050505] flex items-center justify-center px-6 py-12">
-      <div className="w-full max-w-md space-y-6 rounded-2xl border border-white/10 bg-white/5 p-8 shadow-xl backdrop-blur">
+    <div className="min-h-screen bg-linear-to-b from-black via-[#111] to-[#050505] flex items-center justify-center px-6 py-12">
+      <div className="w-full max-w-md space-y-6 rounded-2xl border border-white/10 bg-white/5 p-8 shadow-xl backdrop-blur-sm">
         <div className="space-y-2 text-center">
           <h1 className="text-2xl font-semibold text-white">
             Create your account

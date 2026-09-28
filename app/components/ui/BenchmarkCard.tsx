@@ -55,7 +55,7 @@ function getPercentileColor(percentile: number): string {
   if (percentile >= 90) return 'text-yellow-400'
   if (percentile >= 75) return 'text-purple-400'
   if (percentile >= 50) return 'text-blue-400'
-  return 'text-[var(--text-secondary)]'
+  return 'text-secondary-wh40k'
 }
 
 function getPercentileLabel(percentile: number): string {
@@ -79,7 +79,7 @@ export function BenchmarkCard({
     return (
       <div
         className={clsx(
-          'bg-card/50 rounded-lg p-4 text-center text-[var(--text-secondary)]',
+          'bg-card/50 rounded-lg p-4 text-center text-secondary-wh40k',
           className
         )}
       >
@@ -98,21 +98,19 @@ export function BenchmarkCard({
   return (
     <div
       className={clsx(
-        'bg-card/50 rounded-lg border border-[var(--card-border)]',
+        'bg-card/50 rounded-lg border border-(--card-border)',
         compact ? 'p-3' : 'p-4',
         className
       )}
     >
       {showTeamInfo && benchmark.team_composition && (
-        <div className="mb-3 pb-3 border-b border-[var(--card-border)]">
-          <div className="text-sm text-[var(--text-secondary)]">
-            Team Composition
-          </div>
+        <div className="mb-3 pb-3 border-b border-(--card-border)">
+          <div className="text-sm text-secondary-wh40k">Team Composition</div>
           <div className="text-white font-medium">
             {benchmark.team_composition}
           </div>
           {benchmark.meta_team && (
-            <span className="inline-block mt-1 px-2 py-0.5 text-xs rounded bg-purple-500/20 text-purple-400">
+            <span className="inline-block mt-1 px-2 py-0.5 text-xs rounded-sm bg-purple-500/20 text-purple-400">
               {benchmark.meta_team}
             </span>
           )}
@@ -150,7 +148,7 @@ export function BenchmarkCard({
 
       <div className="space-y-2">
         <div className="flex justify-between items-center text-sm">
-          <span className="text-[var(--text-secondary)]">Average</span>
+          <span className="text-secondary-wh40k">Average</span>
           <span className="text-white font-medium">
             {formatNumber(Math.round(benchmark.damage_avg))}
           </span>
@@ -159,35 +157,31 @@ export function BenchmarkCard({
         {isPremium ? (
           <>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-[var(--text-secondary)]">
-                75th Percentile
-              </span>
+              <span className="text-secondary-wh40k">75th Percentile</span>
               <span className="text-blue-400 font-medium">
                 {formatNumber(Math.round(benchmark.damage_p75))}
               </span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-[var(--text-secondary)]">
-                90th Percentile
-              </span>
+              <span className="text-secondary-wh40k">90th Percentile</span>
               <span className="text-purple-400 font-medium">
                 {formatNumber(Math.round(benchmark.damage_p90))}
               </span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-[var(--text-secondary)]">Max Recorded</span>
+              <span className="text-secondary-wh40k">Max Recorded</span>
               <span className="text-yellow-400 font-medium">
                 {formatNumber(benchmark.damage_max)}
               </span>
             </div>
           </>
         ) : (
-          <div className="mt-2 p-2 bg-amber-500/10 border border-amber-500/30 rounded text-amber-400 text-xs text-center">
+          <div className="mt-2 p-2 bg-amber-500/10 border border-amber-500/30 rounded-sm text-amber-400 text-xs text-center">
             Upgrade to Premium to see P75, P90, and Max benchmarks
           </div>
         )}
 
-        <div className="pt-2 mt-2 border-t border-[var(--card-border)] flex justify-between items-center text-xs text-[var(--text-secondary)]">
+        <div className="pt-2 mt-2 border-t border-(--card-border) flex justify-between items-center text-xs text-secondary-wh40k">
           <span>Sample size</span>
           <span>{formatNumber(benchmark.attack_count)} attacks</span>
         </div>

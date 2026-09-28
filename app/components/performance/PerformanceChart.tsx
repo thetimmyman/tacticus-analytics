@@ -42,7 +42,7 @@ function getTargetScoreView(score: number): TargetScoreView {
       displayedScore,
       displayText: '—',
       stateLabel: 'insufficient data',
-      barColor: 'bg-[var(--card-border)]',
+      barColor: 'bg-(--card-border)',
       textColor: 'text-secondary-wh40k'
     }
   }
@@ -53,7 +53,7 @@ function getTargetScoreView(score: number): TargetScoreView {
       displayText: displayedScore.toFixed(2),
       stateLabel: 'well above target',
       barColor: 'bg-emerald-400',
-      textColor: 'text-[var(--accent)]'
+      textColor: 'text-(--accent)'
     }
   }
 
@@ -62,8 +62,8 @@ function getTargetScoreView(score: number): TargetScoreView {
       displayedScore,
       displayText: displayedScore.toFixed(2),
       stateLabel: 'above target',
-      barColor: 'bg-[var(--accent)]',
-      textColor: 'text-[var(--accent)]'
+      barColor: 'bg-accent-wh40k',
+      textColor: 'text-(--accent)'
     }
   }
 
@@ -72,8 +72,8 @@ function getTargetScoreView(score: number): TargetScoreView {
       displayedScore,
       displayText: displayedScore.toFixed(2),
       stateLabel: 'on target',
-      barColor: 'bg-[var(--accent)]',
-      textColor: 'text-[var(--accent)]'
+      barColor: 'bg-accent-wh40k',
+      textColor: 'text-(--accent)'
     }
   }
 
@@ -173,7 +173,7 @@ export function PerformanceChart({
         </h3>
         <button
           onClick={onToggleChartLines}
-          className="flex items-center gap-1 text-xs px-2 py-1 rounded border border-gray-600 hover:border-gray-500 text-gray-400 hover:text-gray-300 transition-colors"
+          className="flex items-center gap-1 text-xs px-2 py-1 rounded-sm border border-gray-600 hover:border-gray-500 text-gray-400 hover:text-gray-300 transition-colors"
           title={showChartLines ? 'Hide lines' : 'Show lines'}
         >
           {showChartLines ? (
@@ -215,7 +215,7 @@ export function PerformanceChart({
       </div>
 
       <div className="flex items-center gap-2 pb-2 border-b border-primary-wh40k mb-2">
-        <div className="w-24 flex-shrink-0">
+        <div className="w-24 shrink-0">
           <span className="text-xs font-medium text-accent-wh40k">Player</span>
         </div>
         <div className="flex-1 text-center">
@@ -223,7 +223,7 @@ export function PerformanceChart({
             Performance Chart
           </span>
         </div>
-        <div className="w-10 flex-shrink-0 text-center">
+        <div className="w-10 shrink-0 text-center">
           <span className="text-xs font-medium text-accent-wh40k">
             {isTargetMode ? 'Score' : '%'}
           </span>
@@ -255,7 +255,7 @@ export function PerformanceChart({
                     : {}
                 }
               >
-                <div className="w-24 flex-shrink-0">
+                <div className="w-24 shrink-0">
                   <span className="text-xs font-medium truncate block text-primary-wh40k">
                     {player.displayName}
                   </span>
@@ -279,7 +279,7 @@ export function PerformanceChart({
                   </div>
                 </div>
 
-                <div className="w-10 flex-shrink-0 text-center">
+                <div className="w-10 shrink-0 text-center">
                   <span
                     className={`text-xs font-mono ${scoreView.textColor} block`}
                   >
@@ -309,7 +309,7 @@ export function PerformanceChart({
                   : {}
               }
             >
-              <div className="w-24 flex-shrink-0">
+              <div className="w-24 shrink-0">
                 <span className="text-xs font-medium truncate block text-primary-wh40k">
                   {player.displayName}
                 </span>
@@ -345,7 +345,7 @@ export function PerformanceChart({
                 </div>
               </div>
 
-              <div className="w-10 flex-shrink-0 text-center">
+              <div className="w-10 shrink-0 text-center">
                 <span
                   className={`text-xs font-mono ${getTextColor(value)} block`}
                 >

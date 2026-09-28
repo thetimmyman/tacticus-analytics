@@ -7,7 +7,7 @@ import { LANGUAGES, TIMEZONES, type StepProps } from '../_lib/cluster-types'
 export function StepBasicInfo({ data, setData, errors = {} }: StepProps) {
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">
+      <h2 className="text-xl font-bold text-primary-wh40k mb-4">
         Basic Information
       </h2>
 
@@ -25,7 +25,7 @@ export function StepBasicInfo({ data, setData, errors = {} }: StepProps) {
           {errors.clusterCode && (
             <p className="text-red-400 text-sm mt-1">{errors.clusterCode}</p>
           )}
-          <p className="text-xs text-[var(--text-secondary)] mt-1">
+          <p className="text-xs text-secondary-wh40k mt-1">
             2-10 uppercase letters/numbers. This will be your cluster&apos;s ID
             and abbreviation.
           </p>
@@ -41,7 +41,7 @@ export function StepBasicInfo({ data, setData, errors = {} }: StepProps) {
           {errors.displayName && (
             <p className="text-red-400 text-sm mt-1">{errors.displayName}</p>
           )}
-          <p className="text-xs text-[var(--text-secondary)] mt-1">
+          <p className="text-xs text-secondary-wh40k mt-1">
             The full name that will be shown in the UI
           </p>
         </div>
@@ -51,7 +51,7 @@ export function StepBasicInfo({ data, setData, errors = {} }: StepProps) {
           <select
             value={data.timezone}
             onChange={(e) => setData({ ...data, timezone: e.target.value })}
-            className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--card-border)] rounded"
+            className="w-full px-3 py-2 bg-(--bg-secondary) border border-(--card-border) rounded-sm"
           >
             {TIMEZONES.map((tz) => (
               <option key={tz} value={tz}>
@@ -68,7 +68,7 @@ export function StepBasicInfo({ data, setData, errors = {} }: StepProps) {
             onChange={(e) =>
               setData({ ...data, primaryLanguage: e.target.value })
             }
-            className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--card-border)] rounded"
+            className="w-full px-3 py-2 bg-(--bg-secondary) border border-(--card-border) rounded-sm"
           >
             {LANGUAGES.map((lang) => (
               <option key={lang.code} value={lang.code}>
@@ -94,7 +94,7 @@ export function StepBasicInfo({ data, setData, errors = {} }: StepProps) {
           value={data.description}
           onChange={(e) => setData({ ...data, description: e.target.value })}
           placeholder="Describe your cluster's mission and values..."
-          className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--card-border)] rounded h-24 resize-none"
+          className="w-full px-3 py-2 bg-(--bg-secondary) border border-(--card-border) rounded-sm h-24 resize-none"
         />
       </div>
     </div>

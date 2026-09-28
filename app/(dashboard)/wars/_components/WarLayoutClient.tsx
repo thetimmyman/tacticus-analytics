@@ -7,7 +7,7 @@ import { Skeleton } from '@tacticus/ui-kit'
 
 function WarHeaderSkeleton() {
   return (
-    <div className="border border-[var(--border)] rounded-lg bg-[var(--bg-primary)] p-6 space-y-4">
+    <div className="border border-(--border) rounded-lg bg-(--bg-primary) p-6 space-y-4">
       <div className="flex items-center justify-between">
         <Skeleton className="h-6 w-48" />
         <Skeleton className="h-6 w-24" />
@@ -57,8 +57,8 @@ export default function WarLayoutClient({
   if (error || !warData) {
     return (
       <div className="px-4 space-y-6">
-        <div className="border border-[var(--border)] rounded-lg bg-[var(--bg-primary)] p-6 text-center">
-          <p className="text-[var(--text-secondary)]">
+        <div className="border border-(--border) rounded-lg bg-(--bg-primary) p-6 text-center">
+          <p className="text-secondary-wh40k">
             Failed to load war data. Please try again.
           </p>
         </div>

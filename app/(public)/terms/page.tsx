@@ -16,27 +16,27 @@ export default async function TermsAndConditions() {
   const authData = await getAuthUser()
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
+    <div className="min-h-screen bg-(--bg-primary) text-primary-wh40k">
       {/* Navigation */}
       <NavigationServer user={authData?.user} profile={authData?.profile} />
 
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-[var(--primary)] mb-8">
+          <h1 className="text-4xl font-bold text-(--primary) mb-8">
             Terms and Conditions
           </h1>
 
           <div className="prose prose-invert max-w-none space-y-6">
-            <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-6">
-              <p className="text-sm text-[var(--text-secondary)] mb-4">
+            <div className="bg-(--card) border border-(--card-border) rounded-lg p-6">
+              <p className="text-sm text-secondary-wh40k mb-4">
                 Last updated: August 6, 2026
               </p>
 
               <section className="space-y-4">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   1. Acceptance of Terms
                 </h2>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-primary-wh40k">
                   <p>
                     By accessing and using Tacticus Analytics (&quot;the
                     Service&quot;), you accept and agree to be bound by the
@@ -46,10 +46,10 @@ export default async function TermsAndConditions() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   2. Description of Service
                 </h2>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-primary-wh40k">
                   <p>
                     Tacticus Analytics provides analytics and tracking services
                     for Warhammer 40,000: Tacticus guild raids. This includes:
@@ -64,10 +64,10 @@ export default async function TermsAndConditions() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   3. User Accounts
                 </h2>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-primary-wh40k">
                   <p>
                     To use certain features of the Service, you must register
                     for an account. You agree to:
@@ -86,10 +86,10 @@ export default async function TermsAndConditions() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   4. API Key Usage
                 </h2>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-primary-wh40k">
                   <p>By providing your Tacticus API keys, you:</p>
                   <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
                     <li>Grant us permission to access your game data</li>
@@ -111,7 +111,7 @@ export default async function TermsAndConditions() {
                       guarantee absolute security
                     </li>
                   </ul>
-                  <p className="mt-4 text-sm text-[var(--text-secondary)]">
+                  <p className="mt-4 text-sm text-secondary-wh40k">
                     Guild member data (in-game names and performance statistics)
                     is derived automatically from your API key. This data
                     consists of in-game pseudonyms and gameplay metrics only—no
@@ -122,10 +122,10 @@ export default async function TermsAndConditions() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   5. Acceptable Use
                 </h2>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-primary-wh40k">
                   <p>You agree not to:</p>
                   <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
                     <li>Use the Service for any unlawful purpose</li>
@@ -142,10 +142,10 @@ export default async function TermsAndConditions() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   6. Cluster Management
                 </h2>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-primary-wh40k">
                   <p>If you create or manage a cluster:</p>
                   <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
                     <li>
@@ -159,10 +159,10 @@ export default async function TermsAndConditions() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   7. Intellectual Property
                 </h2>
-                <div className="text-[var(--text-primary)] space-y-3">
+                <div className="text-primary-wh40k space-y-3">
                   <p>
                     The Service and its original content are protected by
                     copyright and other laws. You agree to respect all
@@ -193,10 +193,10 @@ export default async function TermsAndConditions() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   8. Disclaimer of Warranties
                 </h2>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-primary-wh40k">
                   <p className="font-semibold">
                     THE SERVICE IS PROVIDED &quot;AS IS&quot; WITHOUT WARRANTY
                     OF ANY KIND, EXPRESS OR IMPLIED.
@@ -214,10 +214,10 @@ export default async function TermsAndConditions() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   9. Limitation of Liability
                 </h2>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-primary-wh40k">
                   <p>
                     IN NO EVENT SHALL WE BE LIABLE FOR ANY INDIRECT, INCIDENTAL,
                     SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING OUT OF
@@ -227,10 +227,10 @@ export default async function TermsAndConditions() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   10. Indemnification
                 </h2>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-primary-wh40k">
                   <p>
                     You agree to indemnify and hold harmless the Service
                     operators from any claims arising from your use of the
@@ -241,10 +241,10 @@ export default async function TermsAndConditions() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   11. Termination
                 </h2>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-primary-wh40k">
                   <p>
                     We may terminate or suspend your account at any time for any
                     reason, including breach of these Terms. You may terminate
@@ -254,10 +254,10 @@ export default async function TermsAndConditions() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   12. Changes to Terms
                 </h2>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-primary-wh40k">
                   <p>
                     We reserve the right to modify these terms at any time. We
                     will notify users of any material changes. Your continued
@@ -267,10 +267,10 @@ export default async function TermsAndConditions() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   13. Governing Law
                 </h2>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-primary-wh40k">
                   <p>
                     These Terms shall be governed by the laws of the
                     jurisdiction in which the Service operator resides, without
@@ -280,10 +280,10 @@ export default async function TermsAndConditions() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   14. Contact Information
                 </h2>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-primary-wh40k">
                   <p>
                     For questions about these Terms, please contact us through:
                   </p>
@@ -294,8 +294,8 @@ export default async function TermsAndConditions() {
                 </div>
               </section>
 
-              <section className="space-y-4 mt-8 border-t border-[var(--card-border)] pt-4">
-                <p className="text-sm text-[var(--text-secondary)]">
+              <section className="space-y-4 mt-8 border-t border-(--card-border) pt-4">
+                <p className="text-sm text-secondary-wh40k">
                   This is a fan-made project and is not affiliated with,
                   endorsed by, or associated with Snowprint Studios or Games
                   Workshop.
@@ -307,7 +307,7 @@ export default async function TermsAndConditions() {
           <div className="mt-8 text-center">
             <a
               href="/auth/signup"
-              className="text-[var(--accent)] hover:text-[var(--primary)] underline"
+              className="text-(--accent) hover:text-(--primary) underline"
             >
                Back to Sign Up
             </a>

@@ -207,7 +207,7 @@ export function BanUserDialog({
         </h2>
         <p
           id="ban-user-description"
-          className="mt-2 text-sm text-[var(--text-secondary)]"
+          className="mt-2 text-sm text-secondary-wh40k"
         >
           Block {target.display_name || target.email || 'this user'} from
           signing in and from using an existing session. Select the identifiers
@@ -223,13 +223,13 @@ export function BanUserDialog({
       )}
 
       <fieldset className="space-y-2">
-        <legend className="mb-2 text-sm font-semibold text-[var(--text-primary)]">
+        <legend className="mb-2 text-sm font-semibold text-primary-wh40k">
           Block by identifier
         </legend>
         {availableSubjects.map(([type, value]) => (
           <label
             key={type}
-            className={`flex items-start gap-3 rounded-lg border p-3 ${value ? 'cursor-pointer border-[var(--card-border)] bg-[var(--bg-secondary)]' : 'cursor-not-allowed border-[var(--card-border)] opacity-50'}`}
+            className={`flex items-start gap-3 rounded-lg border p-3 ${value ? 'cursor-pointer border-(--card-border) bg-(--bg-secondary)' : 'cursor-not-allowed border-(--card-border) opacity-50'}`}
           >
             <input
               type="checkbox"
@@ -239,10 +239,10 @@ export function BanUserDialog({
               className="mt-0.5 h-4 w-4"
             />
             <span className="min-w-0">
-              <span className="block text-sm font-medium text-[var(--text-primary)]">
+              <span className="block text-sm font-medium text-primary-wh40k">
                 {SUBJECT_LABELS[type]}
               </span>
-              <span className="block truncate text-xs text-[var(--text-tertiary)]">
+              <span className="block truncate text-xs text-(--text-tertiary)">
                 {value || 'Not linked to this account'}
               </span>
             </span>
@@ -253,7 +253,7 @@ export function BanUserDialog({
       <div>
         <label
           htmlFor="ban-reason"
-          className="mb-1 block text-sm font-medium text-[var(--text-primary)]"
+          className="mb-1 block text-sm font-medium text-primary-wh40k"
         >
           Reason
         </label>
@@ -265,14 +265,14 @@ export function BanUserDialog({
           maxLength={1000}
           rows={3}
           placeholder="Required; visible only to app admins"
-          className="w-full rounded-lg border border-[var(--card-border)] bg-[var(--input-bg)] px-3 py-2 text-sm text-[var(--text-primary)]"
+          className="w-full rounded-lg border border-(--card-border) bg-(--input-bg) px-3 py-2 text-sm text-primary-wh40k"
         />
       </div>
 
       <div>
         <label
           htmlFor="ban-expiry"
-          className="mb-1 block text-sm font-medium text-[var(--text-primary)]"
+          className="mb-1 block text-sm font-medium text-primary-wh40k"
         >
           Expires (optional)
         </label>
@@ -283,7 +283,7 @@ export function BanUserDialog({
           min={formatLocalDateTimeInputValue(new Date(Date.now() + 60_000))}
           onChange={(event) => setExpiresAt(event.target.value)}
           disabled={submitting}
-          className="w-full rounded-lg border border-[var(--card-border)] bg-[var(--input-bg)] px-3 py-2 text-sm text-[var(--text-primary)]"
+          className="w-full rounded-lg border border-(--card-border) bg-(--input-bg) px-3 py-2 text-sm text-primary-wh40k"
         />
       </div>
 
@@ -436,7 +436,7 @@ export function BannedUsersTab({
           <CardTitle className="flex items-center gap-2 text-lg">
             <ShieldOff className="h-5 w-5 text-red-400" />
             Banned Users
-            <span className="text-sm font-normal text-[var(--text-secondary)]">
+            <span className="text-sm font-normal text-secondary-wh40k">
               ({activeCount} active)
             </span>
           </CardTitle>
@@ -464,10 +464,10 @@ export function BannedUsersTab({
 
         {loading ? (
           <div className="flex justify-center py-12">
-            <Loader2 className="h-6 w-6 animate-spin text-[var(--text-tertiary)]" />
+            <Loader2 className="h-6 w-6 animate-spin text-(--text-tertiary)" />
           </div>
         ) : visibleGroups.length === 0 ? (
-          <p className="py-10 text-center text-[var(--text-secondary)]">
+          <p className="py-10 text-center text-secondary-wh40k">
             {showHistory ? 'No bans recorded.' : 'No active bans.'}
           </p>
         ) : (
@@ -475,13 +475,13 @@ export function BannedUsersTab({
             {visibleGroups.map((group) => (
               <div
                 key={group.id}
-                className="rounded-lg border border-[var(--card-border)] bg-[var(--bg-secondary)] p-4"
+                className="rounded-lg border border-(--card-border) bg-(--bg-secondary) p-4"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0 space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
                       <span
-                        className={`rounded px-2 py-0.5 text-xs font-medium ${group.status === 'active' ? 'bg-red-500/15 text-red-400' : group.status === 'expired' ? 'bg-amber-500/15 text-amber-400' : 'bg-green-500/15 text-green-400'}`}
+                        className={`rounded-sm px-2 py-0.5 text-xs font-medium ${group.status === 'active' ? 'bg-red-500/15 text-red-400' : group.status === 'expired' ? 'bg-amber-500/15 text-amber-400' : 'bg-green-500/15 text-green-400'}`}
                       >
                         {group.status === 'active'
                           ? 'Active'
@@ -489,24 +489,24 @@ export function BannedUsersTab({
                             ? 'Expired'
                             : 'Lifted'}
                       </span>
-                      <span className="text-xs text-[var(--text-tertiary)]">
+                      <span className="text-xs text-(--text-tertiary)">
                         Banned {formatDate(group.bannedAt)}
                       </span>
                       {group.expiresAt && (
-                        <span className="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
+                        <span className="flex items-center gap-1 text-xs text-(--text-tertiary)">
                           <Clock className="h-3 w-3" />
                           Expires {formatDate(group.expiresAt)}
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-[var(--text-primary)]">
+                    <p className="text-sm text-primary-wh40k">
                       {group.reason || 'No reason recorded'}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {group.rows.map((row) => (
                         <span
                           key={row.id}
-                          className="max-w-full rounded border border-[var(--card-border)] bg-[var(--input-bg)] px-2 py-1 text-xs text-[var(--text-secondary)]"
+                          className="max-w-full rounded-sm border border-(--card-border) bg-(--input-bg) px-2 py-1 text-xs text-secondary-wh40k"
                         >
                           <span className="font-medium">
                             {SUBJECT_LABELS[row.subject_type]}:

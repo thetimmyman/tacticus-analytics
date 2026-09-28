@@ -187,7 +187,7 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
       case 'disconnected':
         return 'text-red-500'
       default:
-        return 'text-[var(--text-secondary)]'
+        return 'text-secondary-wh40k'
     }
   }
 
@@ -197,7 +197,7 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
       header: 'Guild',
       sortable: false,
       render: (guild) => (
-        <span className="font-bold text-[var(--primary)]">
+        <span className="font-bold text-(--primary)">
           {guildLabels[guild.guild] ??
             formatGuildDisplayLabel(null, guild.guild)}
         </span>
@@ -208,9 +208,7 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
       header: 'Active Players',
       sortable: false,
       render: (guild) => (
-        <span className="text-[var(--text-primary)]">
-          {guild.totalRosterPlayers}
-        </span>
+        <span className="text-primary-wh40k">{guild.totalRosterPlayers}</span>
       )
     },
     {
@@ -218,7 +216,7 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
       header: 'Profiles Claimed',
       sortable: false,
       render: (guild) => (
-        <span className="font-medium text-[var(--text-primary)]">
+        <span className="font-medium text-primary-wh40k">
           {guild.claimedProfiles}/{guild.totalRosterPlayers}
         </span>
       )
@@ -270,7 +268,7 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
       header: 'Guild',
       sortable: false,
       render: (guild) => (
-        <span className="font-bold text-[var(--primary)]">
+        <span className="font-bold text-(--primary)">
           {guildLabels[guild.guild] ??
             formatGuildDisplayLabel(null, guild.guild)}
         </span>
@@ -281,7 +279,7 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
       header: 'Total DMG',
       sortable: false,
       render: (guild) => (
-        <span className="text-[var(--accent-wh40k)]">
+        <span className="text-(--accent-wh40k)">
           {formatNumber(guild.totalDamage)}
         </span>
       )
@@ -291,7 +289,7 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
       header: 'Avg/Player',
       sortable: false,
       render: (guild) => (
-        <span className="text-[var(--text-primary)]">
+        <span className="text-primary-wh40k">
           {formatNumber(guild.avgDamagePerPlayer)}
         </span>
       )
@@ -301,7 +299,7 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
       header: 'Avg Tokens',
       sortable: false,
       render: (guild) => (
-        <span className="text-[var(--text-primary)]">
+        <span className="text-primary-wh40k">
           {guild.avgTokensPerPlayer.toFixed(1)}
         </span>
       )
@@ -311,7 +309,7 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
       header: '# Bombs',
       sortable: false,
       render: (guild) => (
-        <span className="text-[var(--text-primary)]">{guild.bombCount}</span>
+        <span className="text-primary-wh40k">{guild.bombCount}</span>
       )
     },
     {
@@ -319,7 +317,7 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
       header: 'Total Tokens',
       sortable: false,
       render: (guild) => (
-        <span className="text-[var(--text-primary)]">
+        <span className="text-primary-wh40k">
           {formatNumber(guild.totalBattles)}
         </span>
       )
@@ -329,7 +327,7 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
       header: 'Final Loop',
       sortable: false,
       render: (guild) => (
-        <span className="text-[var(--text-primary)]">{guild.finalLoop}</span>
+        <span className="text-primary-wh40k">{guild.finalLoop}</span>
       )
     }
   ]
@@ -338,7 +336,7 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
     return (
       <div className="p-8 text-center">
         <div className="text-red-500 text-lg font-bold mb-2">Access Denied</div>
-        <div className="text-[var(--text-secondary)]">
+        <div className="text-secondary-wh40k">
           You must be a member of a guild to view analytics
         </div>
       </div>
@@ -348,7 +346,7 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
   return (
     <div className="space-y-6">
       <div className="bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] border border-[color-mix(in_srgb,var(--accent)_50%,transparent)] rounded-lg p-4">
-        <p className="text-[var(--accent)] text-sm">
+        <p className="text-(--accent) text-sm">
           {context.accessLevel === 'cluster'
             ? 'Showing analytics for all guilds in your cluster'
             : 'Showing analytics for your guild only'}
@@ -364,9 +362,9 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
       ) : (
         <>
           {/* API Connection Status */}
-          <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg overflow-hidden">
-            <div className="p-4 border-b border-[var(--card-border)]">
-              <h3 className="text-xl font-bold text-[var(--text-primary)]">
+          <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg overflow-hidden">
+            <div className="p-4 border-b border-(--card-border)">
+              <h3 className="text-xl font-bold text-primary-wh40k">
                 Guild Connection Status
               </h3>
             </div>
@@ -385,18 +383,18 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
               {guildMetrics.map((guild) => (
                 <div
                   key={guild.guild}
-                  className="bg-[var(--bg-secondary)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg p-4"
+                  className="bg-(--bg-secondary) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg p-4"
                 >
                   <div className="flex justify-between items-start mb-3">
-                    <h4 className="font-bold text-[var(--primary)] text-lg">
+                    <h4 className="font-bold text-(--primary) text-lg">
                       {guildLabels[guild.guild] ??
                         formatGuildDisplayLabel(null, guild.guild)}
                     </h4>
                     <div className="text-right">
-                      <div className="text-sm text-[var(--text-secondary)]">
+                      <div className="text-sm text-secondary-wh40k">
                         Active Players
                       </div>
-                      <div className="font-bold text-[var(--text-primary)]">
+                      <div className="font-bold text-primary-wh40k">
                         {guild.totalRosterPlayers}
                       </div>
                     </div>
@@ -404,15 +402,15 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
 
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div>
-                      <div className="text-[var(--text-secondary)] text-xs mb-1">
+                      <div className="text-secondary-wh40k text-xs mb-1">
                         Profiles Claimed
                       </div>
-                      <div className="font-medium text-[var(--text-primary)]">
+                      <div className="font-medium text-primary-wh40k">
                         {guild.claimedProfiles}/{guild.totalRosterPlayers}
                       </div>
                     </div>
                     <div>
-                      <div className="text-[var(--text-secondary)] text-xs mb-1">
+                      <div className="text-secondary-wh40k text-xs mb-1">
                         Player API Status
                       </div>
                       <div
@@ -423,7 +421,7 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
                       </div>
                     </div>
                     <div>
-                      <div className="text-[var(--text-secondary)] text-xs mb-1">
+                      <div className="text-secondary-wh40k text-xs mb-1">
                         Guild Leader API
                       </div>
                       <div>
@@ -441,10 +439,10 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
                       </div>
                     </div>
                     <div>
-                      <div className="text-[var(--text-secondary)] text-xs mb-1">
+                      <div className="text-secondary-wh40k text-xs mb-1">
                         Last Update
                       </div>
-                      <div className="text-[var(--text-secondary)] text-xs">
+                      <div className="text-secondary-wh40k text-xs">
                         {guild.lastDataUpdate ? (
                           <ClientDate
                             date={guild.lastDataUpdate}
@@ -462,9 +460,9 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
           </div>
 
           {/* Guild Performance Metrics */}
-          <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg overflow-hidden">
-            <div className="p-4 border-b border-[var(--card-border)]">
-              <h3 className="text-xl font-bold text-[var(--text-primary)]">
+          <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg overflow-hidden">
+            <div className="p-4 border-b border-(--card-border)">
+              <h3 className="text-xl font-bold text-primary-wh40k">
                 Guild Performance Metrics
               </h3>
             </div>
@@ -477,20 +475,20 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
           </div>
 
           {/* Complete Battle Log with Filters */}
-          <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg p-4">
+          <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg p-4">
             <div className="mb-4">
-              <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4">
+              <h3 className="text-lg font-bold text-primary-wh40k mb-4">
                 Complete Battle Log
               </h3>
               <div className="flex flex-wrap gap-4">
                 <div>
-                  <label className="block text-sm text-[var(--text-secondary)] mb-1">
+                  <label className="block text-sm text-secondary-wh40k mb-1">
                     Guild
                   </label>
                   <select
                     value={selectedGuildFilter}
                     onChange={(e) => setSelectedGuildFilter(e.target.value)}
-                    className="px-3 py-1 bg-[var(--card-bg)] text-[var(--text-primary)] border border-[var(--card-border)] rounded"
+                    className="px-3 py-1 bg-(--card-bg) text-primary-wh40k border border-(--card-border) rounded-sm"
                   >
                     <option value="all">All Guilds</option>
                     {guildMetrics.map((g) => (
@@ -502,13 +500,13 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm text-[var(--text-secondary)] mb-1">
+                  <label className="block text-sm text-secondary-wh40k mb-1">
                     Boss
                   </label>
                   <select
                     value={selectedBossFilter}
                     onChange={(e) => setSelectedBossFilter(e.target.value)}
-                    className="px-3 py-1 bg-[var(--card-bg)] text-[var(--text-primary)] border border-[var(--card-border)] rounded"
+                    className="px-3 py-1 bg-(--card-bg) text-primary-wh40k border border-(--card-border) rounded-sm"
                   >
                     <option value="all">All Bosses</option>
                     {availableBosses.map((boss) => (
@@ -524,9 +522,9 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
                       type="checkbox"
                       checked={showBombsOnly}
                       onChange={(e) => setShowBombsOnly(e.target.checked)}
-                      className="rounded"
+                      className="rounded-sm"
                     />
-                    <span className="text-sm text-[var(--text-secondary)]">
+                    <span className="text-sm text-secondary-wh40k">
                       Bombs Only
                     </span>
                   </label>

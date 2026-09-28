@@ -102,12 +102,10 @@ function ErrorState({
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <AlertCircle className="h-12 w-12 text-red-400/80 mb-4" />
-      <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">
+      <h3 className="text-lg font-medium text-primary-wh40k mb-2">
         Failed to load data
       </h3>
-      <p className="text-sm text-[var(--text-secondary)] max-w-md mb-4">
-        {message}
-      </p>
+      <p className="text-sm text-secondary-wh40k max-w-md mb-4">{message}</p>
       <Button onClick={onRetry} variant="outline" className="gap-2">
         <RefreshCw className="h-4 w-4" />
         Retry
@@ -119,8 +117,8 @@ function ErrorState({
 function LoadingState() {
   return (
     <div className="flex flex-col items-center justify-center py-12">
-      <RefreshCw className="h-8 w-8 text-[var(--text-secondary)] animate-spin mb-4" />
-      <p className="text-sm text-[var(--text-secondary)]">Loading data...</p>
+      <RefreshCw className="h-8 w-8 text-secondary-wh40k animate-spin mb-4" />
+      <p className="text-sm text-secondary-wh40k">Loading data...</p>
     </div>
   )
 }
@@ -169,7 +167,7 @@ export default function GuildWarExplorerClient({
   const getResultBadge = (result: string | null) => {
     if (!result) {
       return (
-        <Badge className="bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border)]">
+        <Badge className="bg-(--bg-secondary) text-secondary-wh40k border-(--border)">
           In Progress
         </Badge>
       )
@@ -195,7 +193,7 @@ export default function GuildWarExplorerClient({
         )
       default:
         return (
-          <Badge className="bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border)]">
+          <Badge className="bg-(--bg-secondary) text-secondary-wh40k border-(--border)">
             {result}
           </Badge>
         )
@@ -224,7 +222,7 @@ export default function GuildWarExplorerClient({
         )
       default:
         return (
-          <Badge className="bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border)]">
+          <Badge className="bg-(--bg-secondary) text-secondary-wh40k border-(--border)">
             {status}
           </Badge>
         )
@@ -249,7 +247,7 @@ export default function GuildWarExplorerClient({
       header: 'Guild',
       sortable: false,
       render: (match) => (
-        <span className="text-[var(--text-primary)]">
+        <span className="text-primary-wh40k">
           {formatWarGuildLabel(match.guild_code)}
         </span>
       )
@@ -259,7 +257,7 @@ export default function GuildWarExplorerClient({
       header: 'Opponent',
       sortable: false,
       render: (match) => (
-        <span className="text-[var(--text-primary)]">
+        <span className="text-primary-wh40k">
           {match.opponent_guild_code
             ? formatWarGuildLabel(
                 match.opponent_guild_code,
@@ -276,11 +274,11 @@ export default function GuildWarExplorerClient({
       align: 'center',
       render: (match) => (
         <>
-          <span className="font-medium text-[var(--text-primary)]">
+          <span className="font-medium text-primary-wh40k">
             {match.guild_score ?? '-'}
           </span>
-          <span className="text-[var(--text-tertiary)] mx-1">-</span>
-          <span className="font-medium text-[var(--text-primary)]">
+          <span className="text-(--text-tertiary) mx-1">-</span>
+          <span className="font-medium text-primary-wh40k">
             {match.opponent_score ?? '-'}
           </span>
         </>
@@ -316,7 +314,7 @@ export default function GuildWarExplorerClient({
       render: () => (
         <Link
           href="/wars"
-          className="inline-flex items-center gap-1 text-[var(--accent)] hover:text-[var(--text-primary)] text-xs"
+          className="inline-flex items-center gap-1 text-(--accent) hover:text-primary-wh40k text-xs"
           title="View in War Tracking"
         >
           <ExternalLink className="h-3 w-3" />
@@ -334,14 +332,14 @@ export default function GuildWarExplorerClient({
       className: 'hidden md:table-cell',
       render: (attempt) => (
         <div className="flex items-center gap-2">
-          <span className="font-mono text-[var(--text-primary)]">
+          <span className="font-mono text-primary-wh40k">
             {formatWarGuildLabel(
               attempt.guild_code,
               attempt.attacker_guild_name
             )}
           </span>
           {attempt.is_guild_member === false && (
-            <Badge className="bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border)] text-xs">
+            <Badge className="bg-(--bg-secondary) text-secondary-wh40k border-(--border) text-xs">
               Opponent
             </Badge>
           )}
@@ -354,16 +352,14 @@ export default function GuildWarExplorerClient({
       sortable: false,
       render: (attempt) => (
         <>
-          <div className="text-[var(--text-primary)]">
-            {attempt.player_name}
-          </div>
-          <div className="md:hidden text-[10px] text-[var(--text-secondary)]">
+          <div className="text-primary-wh40k">{attempt.player_name}</div>
+          <div className="md:hidden text-[10px] text-secondary-wh40k">
             {formatWarGuildLabel(
               attempt.guild_code,
               attempt.attacker_guild_name
             )}
             {attempt.is_guild_member === false && (
-              <Badge className="ml-1 bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border)] text-[10px]">
+              <Badge className="ml-1 bg-(--bg-secondary) text-secondary-wh40k border-(--border) text-[10px]">
                 Opponent
               </Badge>
             )}
@@ -393,7 +389,7 @@ export default function GuildWarExplorerClient({
             Loss
           </Badge>
         ) : (
-          <Badge className="bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border)]">
+          <Badge className="bg-(--bg-secondary) text-secondary-wh40k border-(--border)">
             {attempt.attempt_status}
           </Badge>
         )
@@ -404,7 +400,7 @@ export default function GuildWarExplorerClient({
       sortable: false,
       align: 'right',
       render: (attempt) => (
-        <span className="font-medium text-[var(--text-primary)]">
+        <span className="font-medium text-primary-wh40k">
           {formatNumber(attempt.score_earned ?? 0)}
         </span>
       )
@@ -425,7 +421,7 @@ export default function GuildWarExplorerClient({
       sortable: false,
       className: 'hidden md:table-cell',
       render: (zone) => (
-        <span className="font-mono text-[var(--text-primary)]">
+        <span className="font-mono text-primary-wh40k">
           {formatWarGuildLabel(zone.guild_code)}
         </span>
       )
@@ -436,7 +432,7 @@ export default function GuildWarExplorerClient({
       sortable: false,
       align: 'center',
       render: (zone) => (
-        <span className="text-[var(--text-primary)]">{zone.zone_number}</span>
+        <span className="text-primary-wh40k">{zone.zone_number}</span>
       )
     },
     {
@@ -447,10 +443,10 @@ export default function GuildWarExplorerClient({
         const assignedPlayers = zone.assigned_players ?? []
         return (
           <>
-            <Badge className="bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border)]">
+            <Badge className="bg-(--bg-secondary) text-secondary-wh40k border-(--border)">
               {zoneDisplayName(zone.zone_type)}
             </Badge>
-            <div className="mt-1 text-[10px] text-[var(--text-secondary)] lg:hidden">
+            <div className="mt-1 text-[10px] text-secondary-wh40k lg:hidden">
               {assignedPlayers.length > 0
                 ? `${assignedPlayers.length} assigned`
                 : 'No assignments'}
@@ -469,7 +465,7 @@ export default function GuildWarExplorerClient({
           className={
             zone.zone_status === 'completed'
               ? 'bg-green-500/20 text-green-400 border-green-500/30'
-              : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border)]'
+              : 'bg-(--bg-secondary) text-secondary-wh40k border-(--border)'
           }
         >
           {zone.zone_status}
@@ -484,20 +480,20 @@ export default function GuildWarExplorerClient({
       render: (zone) => {
         const assignedPlayers = zone.assigned_players ?? []
         if (assignedPlayers.length === 0) {
-          return <span className="text-[var(--text-secondary)]">-</span>
+          return <span className="text-secondary-wh40k">-</span>
         }
         return (
           <div className="flex flex-wrap gap-1">
             {assignedPlayers.slice(0, 3).map((player) => (
               <Badge
                 key={player}
-                className="bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border)] text-xs"
+                className="bg-(--bg-secondary) text-secondary-wh40k border-(--border) text-xs"
               >
                 {player}
               </Badge>
             ))}
             {assignedPlayers.length > 3 && (
-              <Badge className="bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border)] text-xs">
+              <Badge className="bg-(--bg-secondary) text-secondary-wh40k border-(--border) text-xs">
                 +{assignedPlayers.length - 3}
               </Badge>
             )}
@@ -511,7 +507,7 @@ export default function GuildWarExplorerClient({
       sortable: false,
       align: 'right',
       render: (zone) => (
-        <span className="font-medium text-[var(--text-primary)]">
+        <span className="font-medium text-primary-wh40k">
           {formatNumber(computeZoneTotalScore(zone))}
         </span>
       )
@@ -534,7 +530,7 @@ export default function GuildWarExplorerClient({
 
     return (
       <div className="flex items-center justify-between mt-4 px-2">
-        <span className="text-sm text-[var(--text-secondary)]">
+        <span className="text-sm text-secondary-wh40k">
           {fmtNumber(total)} {total === 1 ? 'result' : 'results'}
         </span>
         <div className="flex items-center gap-2">
@@ -548,7 +544,7 @@ export default function GuildWarExplorerClient({
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
-          <span className="text-sm text-[var(--text-secondary)]">
+          <span className="text-sm text-secondary-wh40k">
             Page {page + 1} of {totalPages || 1}
           </span>
           <Button
@@ -684,23 +680,23 @@ export default function GuildWarExplorerClient({
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+            <h1 className="text-3xl font-bold text-primary-wh40k">
               Guild War Explorer
             </h1>
             {releaseStage && releaseStage !== 'public' && (
-              <Badge className="border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] text-[10px] uppercase tracking-wide">
+              <Badge className="border-(--border) bg-(--bg-secondary) text-secondary-wh40k text-[10px] uppercase tracking-wide">
                 {releaseStage}
               </Badge>
             )}
           </div>
-          <p className="text-[var(--text-secondary)] mt-2">
+          <p className="text-secondary-wh40k mt-2">
             Browse war data across all synced guilds
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Link
             href="/wars"
-            className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1"
+            className="text-sm text-secondary-wh40k hover:text-primary-wh40k flex items-center gap-1"
           >
             <ExternalLink className="h-4 w-4" />
             War Tracking
@@ -709,7 +705,7 @@ export default function GuildWarExplorerClient({
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)]" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--text-tertiary)" />
         <Input
           placeholder="Search by guild code, player name, or opponent..."
           value={searchTerm}
@@ -722,7 +718,7 @@ export default function GuildWarExplorerClient({
             onClick={() => setSearchTerm('')}
             variant="ghost"
             size="sm"
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-secondary-wh40k hover:text-primary-wh40k"
             aria-label="Clear search"
           >
             <span className="text-lg leading-none">×</span>
@@ -757,10 +753,10 @@ export default function GuildWarExplorerClient({
         {activeTab === 'matches' && (
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center justify-between text-lg text-[var(--text-primary)]">
+              <CardTitle className="flex items-center justify-between text-lg text-primary-wh40k">
                 <span>War Results</span>
                 {matchesState.total > 0 && (
-                  <span className="text-xs font-normal text-[var(--text-secondary)]">
+                  <span className="text-xs font-normal text-secondary-wh40k">
                     {fmtNumber(matchesState.total)} total
                   </span>
                 )}
@@ -773,10 +769,10 @@ export default function GuildWarExplorerClient({
         {activeTab === 'activity' && (
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center justify-between text-lg text-[var(--text-primary)]">
+              <CardTitle className="flex items-center justify-between text-lg text-primary-wh40k">
                 <span>Player Activity</span>
                 {attemptsState.total > 0 && (
-                  <span className="text-xs font-normal text-[var(--text-secondary)]">
+                  <span className="text-xs font-normal text-secondary-wh40k">
                     {fmtNumber(attemptsState.total)} total
                   </span>
                 )}
@@ -791,10 +787,10 @@ export default function GuildWarExplorerClient({
         {activeTab === 'zones' && (
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center justify-between text-lg text-[var(--text-primary)]">
+              <CardTitle className="flex items-center justify-between text-lg text-primary-wh40k">
                 <span>Zone Assignments</span>
                 {zonesState.total > 0 && (
-                  <span className="text-xs font-normal text-[var(--text-secondary)]">
+                  <span className="text-xs font-normal text-secondary-wh40k">
                     {fmtNumber(zonesState.total)} total
                   </span>
                 )}

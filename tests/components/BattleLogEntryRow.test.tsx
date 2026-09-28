@@ -74,7 +74,7 @@ describe('BattleLogEntryRow', () => {
   it('applies the neutral treatment when the boss survived', () => {
     const row = renderRow()
 
-    expect(row).toHaveClass('border-[var(--card-border)]')
+    expect(row).toHaveClass('border-(--card-border)')
     expect(row).toHaveClass('bg-slate-800/50')
     expect(row).toHaveClass('hover:border-accent-wh40k')
     expect(row).not.toHaveClass('border-red-600')
@@ -97,7 +97,7 @@ describe('BattleLogEntryRow', () => {
 
     const battleRow = renderRow()
     expect(battleRow.querySelector('.text-right.font-bold')).toHaveClass(
-      'text-[var(--accent)]'
+      'text-(--accent)'
     )
   })
 

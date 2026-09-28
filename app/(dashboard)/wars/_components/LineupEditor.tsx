@@ -223,7 +223,7 @@ export default function LineupEditor({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="text-[var(--text-secondary)]">Loading lineups...</div>
+        <div className="text-secondary-wh40k">Loading lineups...</div>
       </div>
     )
   }
@@ -246,7 +246,7 @@ export default function LineupEditor({
               className={`relative transition-all hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)] cursor-pointer ${
                 isEmpty
                   ? 'border-dashed border-card-border/20'
-                  : 'border-[var(--border)]'
+                  : 'border-(--border)'
               }`}
               onClick={() => openEditor(slotNumber)}
             >
@@ -262,17 +262,17 @@ export default function LineupEditor({
                     >
                       <Icon className="h-4 w-4" />
                     </div>
-                    <span className="text-xs font-medium text-[var(--text-primary)] truncate max-w-[100px]">
+                    <span className="text-xs font-medium text-primary-wh40k truncate max-w-[100px]">
                       {lineup?.lineup_name || `Slot ${slotNumber}`}
                     </span>
                   </div>
-                  <Edit2 className="h-3 w-3 text-[var(--text-secondary)]" />
+                  <Edit2 className="h-3 w-3 text-secondary-wh40k" />
                 </div>
 
                 {isEmpty ? (
                   <div className="text-center py-4">
-                    <Plus className="h-6 w-6 text-[var(--text-tertiary)] mx-auto mb-1" />
-                    <p className="text-[10px] text-[var(--text-tertiary)]">
+                    <Plus className="h-6 w-6 text-(--text-tertiary) mx-auto mb-1" />
+                    <p className="text-[10px] text-(--text-tertiary)">
                       Add Lineup
                     </p>
                   </div>
@@ -288,7 +288,7 @@ export default function LineupEditor({
                             className={`w-8 h-8 rounded-lg overflow-hidden bg-card/40 border-2 ${
                               rosterUnit
                                 ? getRankBorderColor(rosterUnit.rank ?? 0)
-                                : 'border-[var(--border)]'
+                                : 'border-(--border)'
                             }`}
                             title={`${hero?.display_name || heroId}${rosterUnit ? ` - ${getRankName(rosterUnit.rank ?? 0)}` : ''}`}
                           >
@@ -299,7 +299,7 @@ export default function LineupEditor({
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-[8px] text-[var(--text-secondary)]">
+                              <div className="w-full h-full flex items-center justify-center text-[8px] text-secondary-wh40k">
                                 {heroId.slice(0, 2).toUpperCase()}
                               </div>
                             )}
@@ -307,16 +307,16 @@ export default function LineupEditor({
                         )
                       })}
                       {lineup?.heroes.length === 0 && (
-                        <span className="text-[10px] text-[var(--text-tertiary)]">
+                        <span className="text-[10px] text-(--text-tertiary)">
                           No heroes
                         </span>
                       )}
                     </div>
 
                     {lineup?.machine_of_war && (
-                      <div className="flex items-center gap-1 pt-1 border-t border-[var(--border)]">
+                      <div className="flex items-center gap-1 pt-1 border-t border-(--border)">
                         <Cog className="h-3 w-3 text-orange-400" />
-                        <span className="text-[10px] text-[var(--text-secondary)] truncate">
+                        <span className="text-[10px] text-secondary-wh40k truncate">
                           {getHeroById(lineup.machine_of_war)?.display_name ||
                             lineup.machine_of_war}
                         </span>
@@ -324,8 +324,8 @@ export default function LineupEditor({
                     )}
 
                     {lineup?.notes && (
-                      <div className="pt-1 border-t border-[var(--border)]">
-                        <p className="text-[9px] text-[var(--text-tertiary)] line-clamp-2">
+                      <div className="pt-1 border-t border-(--border)">
+                        <p className="text-[9px] text-(--text-tertiary) line-clamp-2">
                           {lineup.notes}
                         </p>
                       </div>
@@ -355,7 +355,7 @@ export default function LineupEditor({
 
           <div className="space-y-4 pt-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[var(--text-primary)]">
+              <label className="text-sm font-medium text-primary-wh40k">
                 Lineup Name
               </label>
               <Input
@@ -372,7 +372,7 @@ export default function LineupEditor({
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-[var(--text-primary)]">
+                <label className="text-sm font-medium text-primary-wh40k">
                   <Users className="h-4 w-4 inline mr-1" />
                   Heroes from Your Roster ({editForm.heroes.length}/5)
                 </label>
@@ -383,9 +383,9 @@ export default function LineupEditor({
                 )}
               </div>
 
-              <div className="flex flex-wrap gap-2 min-h-[56px] p-3 bg-card/20 rounded-lg border border-[var(--border)]">
+              <div className="flex flex-wrap gap-2 min-h-[56px] p-3 bg-card/20 rounded-lg border border-(--border)">
                 {editForm.heroes.length === 0 ? (
-                  <span className="text-sm text-[var(--text-tertiary)]">
+                  <span className="text-sm text-(--text-tertiary)">
                     Tap heroes below to add them
                   </span>
                 ) : (
@@ -404,10 +404,10 @@ export default function LineupEditor({
                       <button
                         key={heroId}
                         onClick={() => toggleHero(heroId)}
-                        className={`flex items-center gap-2 bg-[var(--bg-secondary)] px-2 py-1.5 rounded-lg border-2 transition-all hover:border-red-500/50 ${
+                        className={`flex items-center gap-2 bg-(--bg-secondary) px-2 py-1.5 rounded-lg border-2 transition-all hover:border-red-500/50 ${
                           rosterUnit
                             ? getRankBorderColor(rosterUnit.rank ?? 0)
-                            : 'border-[var(--border)]'
+                            : 'border-(--border)'
                         }`}
                         title={
                           rosterUnit
@@ -421,15 +421,15 @@ export default function LineupEditor({
                           <img
                             src={hero.web_icon_url}
                             alt=""
-                            className="w-7 h-7 rounded object-cover"
+                            className="w-7 h-7 rounded-sm object-cover"
                           />
                         )}
                         <div className="text-left">
-                          <span className="text-xs text-[var(--text-primary)] block">
+                          <span className="text-xs text-primary-wh40k block">
                             {hero?.display_name || heroId}
                           </span>
                           {rosterUnit && (
-                            <span className="text-[10px] text-[var(--text-secondary)] flex items-center gap-1 flex-wrap">
+                            <span className="text-[10px] text-secondary-wh40k flex items-center gap-1 flex-wrap">
                               <span
                                 className={getRankColor(rosterUnit.rank ?? 0)}
                               >
@@ -437,20 +437,20 @@ export default function LineupEditor({
                               </span>
                               {starTier !== null && (
                                 <>
-                                  <span className="text-[var(--text-tertiary)]">
+                                  <span className="text-(--text-tertiary)">
                                     •
                                   </span>
-                                  <span className="text-[var(--text-tertiary)]">
+                                  <span className="text-(--text-tertiary)">
                                     {starTier} stars
                                   </span>
                                 </>
                               )}
                               {abilityLevels && (
                                 <>
-                                  <span className="text-[var(--text-tertiary)]">
+                                  <span className="text-(--text-tertiary)">
                                     •
                                   </span>
-                                  <span className="text-[var(--text-tertiary)]">
+                                  <span className="text-(--text-tertiary)">
                                     Ab {abilityLevels}
                                   </span>
                                 </>
@@ -480,7 +480,7 @@ export default function LineupEditor({
 
               <div className="flex flex-col sm:flex-row gap-2">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-secondary)]" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-secondary-wh40k" />
                   <Input
                     value={heroSearch}
                     onChange={(e) => setHeroSearch(e.target.value)}
@@ -543,7 +543,7 @@ export default function LineupEditor({
                 </div>
               </div>
 
-              <div className="max-h-[250px] overflow-y-auto grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 p-2 bg-card/10 rounded-lg border border-[var(--border)]">
+              <div className="max-h-[250px] overflow-y-auto grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 p-2 bg-card/10 rounded-lg border border-(--border)">
                 {hasRoster
                   ? filteredAndSortedRoster.map((unit) => {
                       const isSelected = editForm.heroes.includes(unit.id)
@@ -562,7 +562,7 @@ export default function LineupEditor({
                           relative p-1 rounded-lg border-2 transition-all flex flex-col items-center
                           ${
                             isSelected
-                              ? `ring-2 ring-[var(--accent)] ${getRankBorderColor(unit.rank ?? 0)}`
+                              ? `ring-2 ring-(--accent) ${getRankBorderColor(unit.rank ?? 0)}`
                               : `${getRankBorderColor(unit.rank ?? 0)} hover:ring-1 hover:ring-[color-mix(in_srgb,var(--accent)_50%,transparent)]`
                           }
                           ${isDisabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
@@ -573,11 +573,11 @@ export default function LineupEditor({
                           } • ${unit.faction}`}
                         >
                           {isSelected && (
-                            <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[var(--accent)] flex items-center justify-center z-10">
+                            <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-accent-wh40k flex items-center justify-center z-10">
                               <Check className="h-2.5 w-2.5 text-white" />
                             </div>
                           )}
-                          <div className="w-10 h-10 rounded overflow-hidden bg-card/40">
+                          <div className="w-10 h-10 rounded-sm overflow-hidden bg-card/40">
                             {unit.heroMapping?.web_icon_url ? (
                               <img
                                 src={unit.heroMapping.web_icon_url}
@@ -585,12 +585,12 @@ export default function LineupEditor({
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-[10px] text-[var(--text-secondary)]">
+                              <div className="w-full h-full flex items-center justify-center text-[10px] text-secondary-wh40k">
                                 {unit.id.slice(0, 2).toUpperCase()}
                               </div>
                             )}
                           </div>
-                          <span className="text-[8px] text-[var(--text-secondary)] truncate w-full text-center mt-0.5">
+                          <span className="text-[8px] text-secondary-wh40k truncate w-full text-center mt-0.5">
                             {unit.name}
                           </span>
                           <div className="flex flex-col items-center gap-0.5">
@@ -598,12 +598,12 @@ export default function LineupEditor({
                               className={`text-[7px] ${getRankColor(unit.rank ?? 0)}`}
                             >
                               {getRankShortName(unit.rank ?? 0)}{' '}
-                              <span className="text-[var(--text-tertiary)]">
+                              <span className="text-(--text-tertiary)">
                                 {starTier} stars
                               </span>
                             </span>
                             {abilityLevels && (
-                              <span className="text-[7px] text-[var(--text-tertiary)]">
+                              <span className="text-[7px] text-(--text-tertiary)">
                                 Ab {abilityLevels}
                               </span>
                             )}
@@ -631,19 +631,19 @@ export default function LineupEditor({
                           relative p-1 rounded-lg border transition-all flex flex-col items-center
                           ${
                             isSelected
-                              ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] border-[var(--accent)] ring-1 ring-[var(--accent)]'
-                              : 'bg-card/20 border-[var(--border)] hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)]'
+                              ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] border-accent-wh40k ring-1 ring-(--accent)'
+                              : 'bg-card/20 border-(--border) hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)]'
                           }
                           ${isDisabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
                         `}
                             title={hero.display_name || hero.unit_id}
                           >
                             {isSelected && (
-                              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[var(--accent)] flex items-center justify-center z-10">
+                              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-accent-wh40k flex items-center justify-center z-10">
                                 <Check className="h-2.5 w-2.5 text-white" />
                               </div>
                             )}
-                            <div className="w-10 h-10 rounded overflow-hidden bg-card/40">
+                            <div className="w-10 h-10 rounded-sm overflow-hidden bg-card/40">
                               {hero.web_icon_url ? (
                                 <img
                                   src={hero.web_icon_url}
@@ -651,19 +651,19 @@ export default function LineupEditor({
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center text-[10px] text-[var(--text-secondary)]">
+                                <div className="w-full h-full flex items-center justify-center text-[10px] text-secondary-wh40k">
                                   {hero.unit_id.slice(0, 2).toUpperCase()}
                                 </div>
                               )}
                             </div>
-                            <span className="text-[8px] text-[var(--text-secondary)] truncate w-full text-center mt-0.5">
+                            <span className="text-[8px] text-secondary-wh40k truncate w-full text-center mt-0.5">
                               {hero.display_name || hero.unit_id}
                             </span>
                           </button>
                         )
                       })}
                 {hasRoster && filteredAndSortedRoster.length === 0 && (
-                  <div className="col-span-full text-center py-4 text-sm text-[var(--text-secondary)]">
+                  <div className="col-span-full text-center py-4 text-sm text-secondary-wh40k">
                     No heroes match your filters
                   </div>
                 )}
@@ -671,7 +671,7 @@ export default function LineupEditor({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[var(--text-primary)]">
+              <label className="text-sm font-medium text-primary-wh40k">
                 <Cog className="h-4 w-4 inline mr-1 text-orange-400" />
                 Machine of War (Optional)
               </label>
@@ -682,16 +682,16 @@ export default function LineupEditor({
                     <img
                       src={getHeroById(editForm.machineOfWar)!.web_icon_url!}
                       alt=""
-                      className="w-8 h-8 rounded object-cover"
+                      className="w-8 h-8 rounded-sm object-cover"
                     />
                   )}
-                  <span className="text-sm text-[var(--text-primary)] flex-1">
+                  <span className="text-sm text-primary-wh40k flex-1">
                     {getHeroById(editForm.machineOfWar)?.display_name ||
                       editForm.machineOfWar}
                   </span>
                   <button
                     onClick={() => setMoW(null)}
-                    className="p-1 hover:bg-red-500/20 rounded"
+                    className="p-1 hover:bg-red-500/20 rounded-sm"
                   >
                     <X className="h-4 w-4 text-red-400" />
                   </button>
@@ -699,7 +699,7 @@ export default function LineupEditor({
               )}
 
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-secondary)]" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-secondary-wh40k" />
                 <Input
                   value={mowSearch}
                   onChange={(e) => setMowSearch(e.target.value)}
@@ -720,7 +720,7 @@ export default function LineupEditor({
                         ${
                           isSelected
                             ? 'bg-orange-500/20 border-orange-500 ring-1 ring-orange-500'
-                            : 'bg-card/20 border-[var(--border)] hover:border-orange-500/50'
+                            : 'bg-card/20 border-(--border) hover:border-orange-500/50'
                         }
                       `}
                       title={mow.display_name || mow.unit_id}
@@ -730,7 +730,7 @@ export default function LineupEditor({
                           <Check className="h-2.5 w-2.5 text-white" />
                         </div>
                       )}
-                      <div className="w-10 h-10 rounded overflow-hidden bg-card/40">
+                      <div className="w-10 h-10 rounded-sm overflow-hidden bg-card/40">
                         {mow.web_icon_url ? (
                           <img
                             src={mow.web_icon_url}
@@ -738,12 +738,12 @@ export default function LineupEditor({
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[10px] text-[var(--text-secondary)]">
+                          <div className="w-full h-full flex items-center justify-center text-[10px] text-secondary-wh40k">
                             {mow.unit_id.slice(0, 2).toUpperCase()}
                           </div>
                         )}
                       </div>
-                      <span className="text-[8px] text-[var(--text-secondary)] truncate w-full text-center mt-0.5">
+                      <span className="text-[8px] text-secondary-wh40k truncate w-full text-center mt-0.5">
                         {mow.display_name || mow.unit_id}
                       </span>
                     </button>
@@ -753,13 +753,11 @@ export default function LineupEditor({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[var(--text-primary)]">
-                <AlertCircle className="h-4 w-4 inline mr-1 text-[var(--accent)]" />
+              <label className="text-sm font-medium text-primary-wh40k">
+                <AlertCircle className="h-4 w-4 inline mr-1 text-(--accent)" />
                 Notes
               </label>
-              <p className="text-xs text-[var(--text-secondary)]">
-                {notesPrompt}
-              </p>
+              <p className="text-xs text-secondary-wh40k">{notesPrompt}</p>
               <Textarea
                 value={editForm.notes}
                 onChange={(e) =>
@@ -770,7 +768,7 @@ export default function LineupEditor({
               />
             </div>
 
-            <div className="flex items-center justify-between pt-4 border-t border-[var(--border)]">
+            <div className="flex items-center justify-between pt-4 border-t border-(--border)">
               {lineupMap.get(editingSlot!) ? (
                 <Button
                   variant="ghost"

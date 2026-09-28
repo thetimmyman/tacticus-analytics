@@ -113,11 +113,11 @@ function AlphaChromeBarContent(props: AlphaChromeBarProps) {
         />
       ) : (
         <AnalyticsIcon
-          className="w-7 h-7 text-[var(--primary)]"
+          className="w-7 h-7 text-(--primary)"
           aria-hidden="true"
         />
       )}
-      <span className="hidden xl:inline text-sm font-bold font-mono tracking-tight text-[var(--primary)]">
+      <span className="hidden xl:inline text-sm font-bold font-mono tracking-tight text-(--primary)">
         Tacticus Analytics
       </span>
     </Link>
@@ -181,7 +181,7 @@ export function AlphaChromeBar(props: AlphaChromeBarProps) {
     <Suspense
       fallback={
         <div
-          className="hidden lg:block border-b border-[var(--card-border)] bg-black/40 backdrop-blur-sm"
+          className="hidden lg:block border-b border-(--card-border) bg-black/40 backdrop-blur-xs"
           aria-hidden="true"
         >
           <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 h-12" />

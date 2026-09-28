@@ -65,7 +65,7 @@ export function HeroTile({
     <button
       type="button"
       onClick={onSelect}
-      className="group block w-full min-w-0 rounded-lg text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+      className="group block w-full min-w-0 rounded-lg text-left focus:outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent)"
       title={tooltip}
       aria-label={`${name} details`}
     >
@@ -77,7 +77,7 @@ export function HeroTile({
         >
           {/* Portrait sits inside the frame bevel. */}
           <div
-            className="absolute overflow-hidden bg-[var(--bg-secondary)]"
+            className="absolute overflow-hidden bg-(--bg-secondary)"
             style={{ inset: `${PORTRAIT_INSET_Y} ${PORTRAIT_INSET_X}` }}
           >
             {artUrl ? (
@@ -91,7 +91,7 @@ export function HeroTile({
                 decoding="async"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-base font-semibold text-[var(--text-secondary)]">
+              <div className="flex h-full w-full items-center justify-center text-base font-semibold text-secondary-wh40k">
                 {name.slice(0, 2)}
               </div>
             )}
@@ -126,7 +126,7 @@ export function HeroTile({
           )}
 
           {/* Level chip, bottom-right — the game's own placement. */}
-          <span className="absolute bottom-[3%] right-[4%] rounded bg-black/75 px-1 text-[10px] font-semibold leading-4 text-white">
+          <span className="absolute bottom-[3%] right-[4%] rounded-sm bg-black/75 px-1 text-[10px] font-semibold leading-4 text-white">
             {xpLevel}
           </span>
 
@@ -144,7 +144,7 @@ export function HeroTile({
           {abilities.slice(0, 2).map((ability, index) => (
             <span
               key={ability.id}
-              className="min-w-0 flex-1 rounded-sm bg-black/60 text-center text-[10px] font-bold leading-4 text-white ring-1 ring-white/20"
+              className="min-w-0 flex-1 rounded-xs bg-black/60 text-center text-[10px] font-bold leading-4 text-white ring-1 ring-white/20"
               title={`${index === 0 ? 'Active' : 'Passive'} ability level`}
             >
               {ability.level}
@@ -153,7 +153,7 @@ export function HeroTile({
         </div>
       )}
 
-      <div className="mt-0.5 truncate text-center text-[11px] leading-tight text-[var(--text-primary)]">
+      <div className="mt-0.5 truncate text-center text-[11px] leading-tight text-primary-wh40k">
         {name}
       </div>
     </button>

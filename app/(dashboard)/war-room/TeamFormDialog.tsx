@@ -203,7 +203,7 @@ export default function TeamFormDialog({
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-3">
               <Label htmlFor="war-room-add-hero">Heroes</Label>
-              <span className="text-xs tabular-nums text-[var(--text-tertiary)]">
+              <span className="text-xs tabular-nums text-(--text-tertiary)">
                 {heroes.length}/{MAX_HEROES}
               </span>
             </div>
@@ -216,9 +216,9 @@ export default function TeamFormDialog({
                   return (
                     <div
                       key={hero.unitId}
-                      className="flex items-center gap-2 rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] p-2"
+                      className="flex items-center gap-2 rounded-md border border-(--card-border) bg-(--bg-secondary) p-2"
                     >
-                      <span className="min-w-0 flex-1 truncate text-sm text-[var(--text-primary)]">
+                      <span className="min-w-0 flex-1 truncate text-sm text-primary-wh40k">
                         {heroName}
                       </span>
                       <RadixSelect
@@ -245,7 +245,7 @@ export default function TeamFormDialog({
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="h-8 w-8 p-0 text-[var(--text-tertiary)] hover:text-red-500"
+                        className="h-8 w-8 p-0 text-(--text-tertiary) hover:text-red-500"
                         onClick={() => removeHero(hero.unitId)}
                         aria-label={`Remove ${heroName}`}
                         title={`Remove ${heroName}`}
@@ -257,7 +257,7 @@ export default function TeamFormDialog({
                 })}
               </div>
             ) : (
-              <div className="rounded-md border border-dashed border-[var(--card-border)] px-4 py-6 text-center text-sm text-[var(--text-tertiary)]">
+              <div className="rounded-md border border-dashed border-(--card-border) px-4 py-6 text-center text-sm text-(--text-tertiary)">
                 No heroes selected
               </div>
             )}

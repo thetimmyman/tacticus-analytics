@@ -105,18 +105,18 @@ export function generateContrastVariables(theme: {
 }
 
 export const contrastClasses = {
-  highContrast: 'text-[var(--text-high-contrast)]',
-  onPrimary: 'text-[var(--text-on-primary)]',
-  onSecondary: 'text-[var(--text-on-secondary)]',
-  onAccent: 'text-[var(--text-on-accent)]',
-  onBackground: 'text-[var(--text-on-bg)]',
+  highContrast: 'text-(--text-high-contrast)',
+  onPrimary: 'text-(--text-on-primary)',
+  onSecondary: 'text-(--text-on-secondary)',
+  onAccent: 'text-(--text-on-accent)',
+  onBackground: 'text-(--text-on-bg)',
 
-  dropdownText: 'text-[var(--text-primary)]',
-  dropdownTextSecondary: 'text-[var(--text-secondary)]',
-  dropdownBg: 'bg-[var(--dropdown-bg-solid)]',
-  dropdownBorder: 'border-[var(--card-border)]',
-  dropdownHover: 'hover:bg-[var(--hover-bg)]',
+  dropdownText: 'text-primary-wh40k',
+  dropdownTextSecondary: 'text-secondary-wh40k',
+  dropdownBg: 'bg-(--dropdown-bg-solid)',
+  dropdownBorder: 'border-(--card-border)',
+  dropdownHover: 'hover:bg-(--hover-bg)',
 
-  btnTextPrimary: 'text-[var(--btn-text-primary)]',
-  btnTextSecondary: 'text-[var(--btn-text-secondary)]'
+  btnTextPrimary: 'text-(--btn-text-primary)',
+  btnTextSecondary: 'text-(--btn-text-secondary)'
 }

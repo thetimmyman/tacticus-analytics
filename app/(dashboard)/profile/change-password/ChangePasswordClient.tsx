@@ -191,7 +191,7 @@ export default function ChangePasswordClient({
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8 text-[var(--text-primary)]">
+      <h1 className="text-3xl font-bold mb-8 text-primary-wh40k">
         Change Password
       </h1>
 
@@ -222,7 +222,7 @@ export default function ChangePasswordClient({
           <div>
             <label
               htmlFor="currentPassword"
-              className="block text-sm font-medium text-[var(--text-secondary)]"
+              className="block text-sm font-medium text-secondary-wh40k"
             >
               Current Password
             </label>
@@ -246,7 +246,7 @@ export default function ChangePasswordClient({
                 type="button"
                 onClick={handleSendResetLink}
                 disabled={resetSending || saving}
-                className="mt-2 text-xs text-[var(--text-secondary)] hover:text-[var(--accent)] underline disabled:opacity-50"
+                className="mt-2 text-xs text-secondary-wh40k hover:text-(--accent) underline disabled:opacity-50"
               >
                 {resetSending
                   ? 'Sending reset link...'
@@ -258,7 +258,7 @@ export default function ChangePasswordClient({
           <div>
             <label
               htmlFor="newPassword"
-              className="block text-sm font-medium text-[var(--text-secondary)]"
+              className="block text-sm font-medium text-secondary-wh40k"
             >
               New Password
             </label>
@@ -272,7 +272,7 @@ export default function ChangePasswordClient({
               disabled={saving}
               minLength={PASSWORD_MIN_LENGTH}
             />
-            <p className="mt-1 text-xs text-[var(--text-secondary)]">
+            <p className="mt-1 text-xs text-secondary-wh40k">
               Must be at least {PASSWORD_MIN_LENGTH} characters, with a
               lowercase letter, an uppercase letter, and a number
             </p>
@@ -281,7 +281,7 @@ export default function ChangePasswordClient({
           <div>
             <label
               htmlFor="confirmPassword"
-              className="block text-sm font-medium text-[var(--text-secondary)]"
+              className="block text-sm font-medium text-secondary-wh40k"
             >
               Confirm New Password
             </label>
@@ -297,7 +297,7 @@ export default function ChangePasswordClient({
           </div>
         </div>
 
-        <div className="pt-4 border-t border-[var(--card-border)]">
+        <div className="pt-4 border-t border-(--card-border)">
           <div className="bg-amber-500/10 border border-amber-500/30 rounded-md p-3 mb-4">
             <p className="text-sm text-yellow-400">
               <strong>Security Note:</strong> After changing your password,

@@ -19,8 +19,8 @@ const RadixTooltipContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={`
-        z-50 overflow-hidden rounded-md border border-[var(--card-border)]
-        bg-[var(--dropdown-bg)] backdrop-blur-sm px-3 py-1.5 text-sm text-[var(--text-primary)]
+        z-50 overflow-hidden rounded-md border border-(--card-border)
+        bg-(--dropdown-bg) backdrop-blur-xs px-3 py-1.5 text-sm text-primary-wh40k
         shadow-md animate-in fade-in-0 zoom-in-95
         data-[state=closed]:animate-out data-[state=closed]:fade-out-0
         data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2

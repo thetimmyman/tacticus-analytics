@@ -21,25 +21,25 @@ const stageConfig: Record<
   }
 > = {
   alpha: {
-    gradient: 'bg-gradient-to-r from-red-500 to-red-600',
+    gradient: 'bg-linear-to-r from-red-500 to-red-600',
     textColor: 'text-white',
     label: 'Alpha',
     icon: Beaker
   },
   beta: {
-    gradient: 'bg-gradient-to-r from-blue-500 to-blue-600',
+    gradient: 'bg-linear-to-r from-blue-500 to-blue-600',
     textColor: 'text-white',
     label: 'Beta',
     icon: Zap
   },
   coming_soon: {
-    gradient: 'bg-gradient-to-r from-gray-500 to-gray-600',
+    gradient: 'bg-linear-to-r from-gray-500 to-gray-600',
     textColor: 'text-white',
     label: 'Planned',
     icon: Clock
   },
   public: {
-    gradient: 'bg-gradient-to-r from-green-500 to-green-600',
+    gradient: 'bg-linear-to-r from-green-500 to-green-600',
     textColor: 'text-white',
     label: 'Public',
     icon: Sparkles
@@ -73,7 +73,7 @@ export function ReleaseStageBadge({
   return (
     <span
       className={`
-      inline-flex items-center rounded-full font-semibold shadow-sm
+      inline-flex items-center rounded-full font-semibold shadow-xs
       ${sizeClasses[size]}
       ${config.gradient}
       ${config.textColor}

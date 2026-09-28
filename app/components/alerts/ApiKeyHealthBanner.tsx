@@ -232,9 +232,7 @@ export function ApiKeyHealthBanner() {
           <h3 className={`font-semibold ${textColor} mb-1`}>
             {alertInfo.title}
           </h3>
-          <p className="text-sm text-[var(--text-primary)] mb-3">
-            {alertInfo.message}
-          </p>
+          <p className="text-sm text-primary-wh40k mb-3">{alertInfo.message}</p>
 
           {updateSuccess && (
             <div className="flex items-center gap-2 text-green-400 text-sm mb-3">
@@ -245,7 +243,7 @@ export function ApiKeyHealthBanner() {
 
           {showKeyInput ? (
             <div className="space-y-3">
-              <div className="bg-yellow-900/30 border border-yellow-600/50 rounded p-2 mb-2">
+              <div className="bg-yellow-900/30 border border-yellow-600/50 rounded-sm p-2 mb-2">
                 <p className="text-yellow-300 text-xs font-medium">
                   This requires a{' '}
                   <strong>Guild &amp; Guild Raid API key</strong> (NOT a Player
@@ -276,7 +274,7 @@ export function ApiKeyHealthBanner() {
                   value={newApiKey}
                   onChange={(e) => setNewApiKey(e.target.value)}
                   placeholder="Paste Guild & Guild Raid Leader API key here"
-                  className="flex-1 px-3 py-2 bg-[var(--card-bg)] border border-[var(--card-border)] rounded text-sm text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  className="flex-1 px-3 py-2 bg-(--card-bg) border border-(--card-border) rounded-sm text-sm text-white placeholder-gray-400 focus:outline-hidden focus:border-blue-500"
                   disabled={updating}
                 />
                 <Button
@@ -359,7 +357,7 @@ export function ApiKeyHealthBanner() {
 
         <button
           onClick={() => setDismissed(true)}
-          className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+          className="text-secondary-wh40k hover:text-primary-wh40k transition-colors"
           title="Dismiss until next page load"
         >
           <X className="w-5 h-5" />

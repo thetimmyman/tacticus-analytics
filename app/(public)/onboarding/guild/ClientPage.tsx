@@ -18,17 +18,17 @@ export default function GuildOnboardingPage() {
   const goToDashboard = () => router.push('/onboarding/dashboard')
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)]">
+    <div className="min-h-screen bg-(--bg-primary)">
       <div className="container mx-auto max-w-4xl px-4 sm:px-6 py-10">
-        <Card className="border border-[var(--card-border)] bg-[var(--card-bg)] shadow-xl">
+        <Card className="border border-(--card-border) bg-(--card-bg) shadow-xl">
           <CardHeader className="text-center space-y-4">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/40">
               <Shield className="h-8 w-8 text-emerald-400" />
             </div>
-            <CardTitle className="text-3xl font-bold text-[var(--text-primary)]">
+            <CardTitle className="text-3xl font-bold text-primary-wh40k">
               Guild onboarding has moved
             </CardTitle>
-            <CardDescription className="text-base text-[var(--text-secondary)]">
+            <CardDescription className="text-base text-secondary-wh40k">
               We now guide every leader through a single onboarding dashboard.
               Create an account or sign in to finish registering your guild.
             </CardDescription>
@@ -50,11 +50,11 @@ export default function GuildOnboardingPage() {
                 Create Account
               </Button>
             </div>
-            <p className="text-sm text-[var(--text-secondary)] text-center">
+            <p className="text-sm text-secondary-wh40k text-center">
               Already have an account?{' '}
               <Link
                 href="/auth/login?redirectTo=/onboarding/dashboard"
-                className="text-[var(--accent)] underline"
+                className="text-(--accent) underline"
               >
                 Sign in to continue
               </Link>

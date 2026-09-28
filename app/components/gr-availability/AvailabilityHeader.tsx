@@ -106,9 +106,9 @@ export const AvailabilityHeader = ({
               <ChevronDown className="h-3 w-3 ml-0.5 sm:ml-1" />
             </Button>
             {showCopyDropdown && (
-              <div className="absolute right-0 mt-1 z-50 min-w-[10rem] rounded-md dropdown-menu p-1">
+              <div className="absolute right-0 mt-1 z-50 min-w-40 rounded-md dropdown-menu p-1">
                 <button
-                  className="w-full text-left px-3 py-2 text-sm rounded hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-[var(--accent)] transition-colors"
+                  className="w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-(--accent) transition-colors"
                   onClick={() => {
                     exportToDiscord(false, 'full')
                     setShowCopyDropdown(false)
@@ -117,7 +117,7 @@ export const AvailabilityHeader = ({
                   Full Details
                 </button>
                 <button
-                  className="w-full text-left px-3 py-2 text-sm rounded hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-[var(--accent)] transition-colors"
+                  className="w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-(--accent) transition-colors"
                   onClick={() => {
                     exportToDiscord(false, 'capped')
                     setShowCopyDropdown(false)
@@ -126,7 +126,7 @@ export const AvailabilityHeader = ({
                   Capped Players (3/3)
                 </button>
                 <button
-                  className="w-full text-left px-3 py-2 text-sm rounded hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-[var(--accent)] transition-colors"
+                  className="w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-(--accent) transition-colors"
                   onClick={() => {
                     exportToDiscord(false, 'bombs')
                     setShowCopyDropdown(false)
@@ -156,9 +156,9 @@ export const AvailabilityHeader = ({
               <ChevronDown className="h-3 w-3 ml-0.5 sm:ml-1" />
             </Button>
             {showPostDropdown && (
-              <div className="absolute right-0 mt-1 z-50 min-w-[10rem] rounded-md dropdown-menu p-1">
+              <div className="absolute right-0 mt-1 z-50 min-w-40 rounded-md dropdown-menu p-1">
                 <button
-                  className="w-full text-left px-3 py-2 text-sm rounded hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-[var(--accent)] transition-colors"
+                  className="w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-(--accent) transition-colors"
                   onClick={() => {
                     exportToDiscord(true, 'full')
                     setShowPostDropdown(false)
@@ -167,7 +167,7 @@ export const AvailabilityHeader = ({
                   Full Details
                 </button>
                 <button
-                  className="w-full text-left px-3 py-2 text-sm rounded hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-[var(--accent)] transition-colors"
+                  className="w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-(--accent) transition-colors"
                   onClick={() => {
                     exportToDiscord(true, 'capped')
                     setShowPostDropdown(false)
@@ -176,7 +176,7 @@ export const AvailabilityHeader = ({
                   Capped Players (3/3)
                 </button>
                 <button
-                  className="w-full text-left px-3 py-2 text-sm rounded hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-[var(--accent)] transition-colors"
+                  className="w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-(--accent) transition-colors"
                   onClick={() => {
                     exportToDiscord(true, 'bombs')
                     setShowPostDropdown(false)

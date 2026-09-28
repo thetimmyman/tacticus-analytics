@@ -66,12 +66,12 @@ export function BossAssignmentModal({
 
   return (
     <ModalShell>
-      <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+      <h3 className="text-lg font-semibold text-primary-wh40k mb-4">
         Boss Assignments - <MemberName value={member.display_name} />
       </h3>
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+          <label className="block text-sm font-medium text-secondary-wh40k mb-2">
             Primary Boss Assignment (2 tokens)
           </label>
           <select
@@ -89,7 +89,7 @@ export function BossAssignmentModal({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+          <label className="block text-sm font-medium text-secondary-wh40k mb-2">
             Secondary Boss Assignment (1 token)
           </label>
           <select
@@ -109,7 +109,7 @@ export function BossAssignmentModal({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+          <label className="block text-sm font-medium text-secondary-wh40k mb-2">
             Assignment Notes
           </label>
           <textarea

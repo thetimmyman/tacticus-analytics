@@ -103,7 +103,7 @@ function PrimeBadge({ target }: { target: PrimeTarget }) {
       ? `↓${target.thresholdHpPct}%`
       : 'Kill'
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-[var(--card-border)] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[var(--text-tertiary)]">
+    <span className="inline-flex items-center gap-1 rounded-full border border-(--card-border) px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-(--text-tertiary)">
       <Icon className="h-3 w-3" aria-hidden />
       {label}
     </span>
@@ -124,16 +124,16 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
 
   return (
     <section
-      className="rounded-xl border border-[var(--card-border)] bg-card/30 overflow-hidden"
+      className="rounded-xl border border-(--card-border) bg-card/30 overflow-hidden"
       data-testid="your-next-move-card"
       aria-label="Your next move"
     >
       <header className="flex items-center justify-between border-b border-[color-mix(in_srgb,var(--card-border)_50%,transparent)] px-4 py-3">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-semibold text-[var(--text-primary)]">
+          <h2 className="text-sm font-semibold text-primary-wh40k">
             Your next move
           </h2>
-          <span className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+          <span className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
             Personal priority
           </span>
         </div>
@@ -146,7 +146,7 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
         </span>
       </header>
 
-      <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-[140px,1fr]">
+      <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-[140px_1fr]">
         {/* Boss column */}
         <div className="flex flex-col items-center text-center sm:border-r sm:border-[color-mix(in_srgb,var(--card-border)_40%,transparent)] sm:pr-4">
           {move.target ? (
@@ -157,25 +157,25 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
                 size="large"
                 className="rounded-2xl border-2 border-[color-mix(in_srgb,var(--accent)_70%,transparent)]"
               />
-              <p className="mt-3 text-sm font-semibold text-[var(--text-primary)]">
+              <p className="mt-3 text-sm font-semibold text-primary-wh40k">
                 {move.target.displayName}
               </p>
-              <p className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+              <p className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
                 {move.target.levelCode}
                 {move.target.encounterId === 0
                   ? ' · Main'
                   : ` · Prime ${move.target.encounterId}`}
               </p>
               <div className="mt-3 w-full">
-                <div className="flex justify-between text-[10px] text-[var(--text-tertiary)]">
+                <div className="flex justify-between text-[10px] text-(--text-tertiary)">
                   <span>HP remaining</span>
-                  <span className="font-semibold text-[var(--text-secondary)]">
+                  <span className="font-semibold text-secondary-wh40k">
                     {Math.round(move.target.hpPercentage)}%
                   </span>
                 </div>
                 <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[color-mix(in_srgb,var(--card-border)_60%,transparent)]">
                   <div
-                    className="h-full rounded-full bg-[var(--accent)]"
+                    className="h-full rounded-full bg-accent-wh40k"
                     style={{
                       width: `${Math.max(0, Math.min(100, move.target.hpPercentage))}%`
                     }}
@@ -184,7 +184,7 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
               </div>
             </>
           ) : (
-            <div className="flex h-full items-center justify-center text-xs text-[var(--text-tertiary)]">
+            <div className="flex h-full items-center justify-center text-xs text-(--text-tertiary)">
               No active boss
             </div>
           )}
@@ -198,10 +198,10 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
           >
             Recommended now
           </p>
-          <h3 className="mt-1 text-xl font-bold leading-tight text-[var(--text-primary)] sm:text-2xl">
+          <h3 className="mt-1 text-xl font-bold leading-tight text-primary-wh40k sm:text-2xl">
             {move.headline}
           </h3>
-          <p className="mt-2 max-w-prose text-sm text-[var(--text-secondary)]">
+          <p className="mt-2 max-w-prose text-sm text-secondary-wh40k">
             {move.detail}
           </p>
 
@@ -210,15 +210,15 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
               {move.primeTargets.map((p) => (
                 <li
                   key={p.encounterId}
-                  className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[var(--text-secondary)]"
+                  className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-secondary-wh40k"
                 >
-                  <span className="font-semibold text-[var(--text-primary)]">
+                  <span className="font-semibold text-primary-wh40k">
                     {p.displayName}
                   </span>
-                  <span className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+                  <span className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
                     Prime {p.encounterId}
                   </span>
-                  <span className="text-[var(--text-tertiary)]" aria-hidden>
+                  <span className="text-(--text-tertiary)" aria-hidden>
                     ·
                   </span>
                   <span>HP {Math.round(p.hpPercentage)}%</span>
@@ -230,13 +230,13 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
 
           {move.economy?.waitFor && (
             <div className="mt-3 inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-0.5 rounded-lg border border-[color-mix(in_srgb,var(--warning)_40%,transparent)] bg-[color-mix(in_srgb,var(--warning)_5%,transparent)] px-3 py-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wide text-[var(--warning)]">
+              <span className="text-[10px] font-bold uppercase tracking-wide text-(--warning)">
                 Wait for
               </span>
-              <span className="text-sm font-semibold text-[var(--text-primary)]">
+              <span className="text-sm font-semibold text-primary-wh40k">
                 {move.economy.waitFor.displayName}
               </span>
-              <span className="text-xs text-[var(--text-secondary)]">
+              <span className="text-xs text-secondary-wh40k">
                 {move.economy.waitFor.levelCode} · +
                 {Math.round(move.economy.waitFor.upliftPct)}% ·{' '}
                 {move.economy.waitFor.etaLabel}
@@ -249,7 +249,7 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
               {checks.map((check) => (
                 <li
                   key={check.code}
-                  className="flex items-center gap-2 text-xs text-[var(--text-secondary)]"
+                  className="flex items-center gap-2 text-xs text-secondary-wh40k"
                 >
                   <span
                     className="inline-block h-1.5 w-1.5 rounded-full"
@@ -266,19 +266,19 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
             {move.primaryAction && (
               <Link
                 href={move.primaryAction.href}
-                className="inline-flex items-center gap-1.5 rounded-md bg-[var(--accent)] px-3.5 py-2 text-sm font-semibold text-[var(--bg-primary)] transition hover:brightness-110"
+                className="inline-flex items-center gap-1.5 rounded-md bg-accent-wh40k px-3.5 py-2 text-sm font-semibold text-(--bg-primary) transition hover:brightness-110"
               >
                 {move.primaryAction.label}
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </Link>
             )}
-            <span className="text-[10px] uppercase tracking-wide text-[var(--text-tertiary)]">
+            <span className="text-[10px] uppercase tracking-wide text-(--text-tertiary)">
               {CONFIDENCE_LABEL[move.confidence]}
             </span>
           </div>
 
           {move.basis.length > 0 && (
-            <p className="mt-3 text-[11px] text-[var(--text-tertiary)]">
+            <p className="mt-3 text-[11px] text-(--text-tertiary)">
               {move.basis.join(' · ')}
             </p>
           )}

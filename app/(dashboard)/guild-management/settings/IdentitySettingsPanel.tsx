@@ -103,11 +103,11 @@ export function IdentitySettingsPanel({
             <Input
               id="displayName"
               value={displayName}
-              className="bg-[var(--bg-secondary)] opacity-60 cursor-not-allowed"
+              className="bg-(--bg-secondary) opacity-60 cursor-not-allowed"
               disabled
               readOnly
             />
-            <p className="text-xs text-[var(--text-tertiary)]">
+            <p className="text-xs text-(--text-tertiary)">
               Game-synced. Use tagline & description to add your own war cry.
             </p>
           </div>
@@ -124,7 +124,7 @@ export function IdentitySettingsPanel({
               className="font-mono bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)]"
               placeholder={loadingTag ? 'Loading...' : 'Not assigned'}
             />
-            <p className="text-xs text-[var(--text-tertiary)]">
+            <p className="text-xs text-(--text-tertiary)">
               Searchable identifier players use to find your guild in Tacticus.
             </p>
           </div>
@@ -164,7 +164,7 @@ export function IdentitySettingsPanel({
               id="description"
               value={description}
               onChange={(event) => onDescriptionChange(event.target.value)}
-              className="w-full rounded-2xl border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] px-4 py-3 text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-2xl border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] px-4 py-3 text-primary-wh40k placeholder:text-(--text-tertiary) focus:outline-hidden focus:ring-2 focus:ring-(--accent) focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Describe your warband, doctrine, and expectations."
               rows={4}
               maxLength={500}

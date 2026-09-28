@@ -34,19 +34,17 @@ export function EditProfilePlayerIdSection({
   playerIdSuccess
 }: EditProfilePlayerIdSectionProps) {
   return (
-    <div className="mt-6 pt-6 border-t border-[var(--card-border)]">
-      <h3 className="text-lg font-medium text-[var(--text-primary)] mb-4">
-        Player ID
-      </h3>
+    <div className="mt-6 pt-6 border-t border-(--card-border)">
+      <h3 className="text-lg font-medium text-primary-wh40k mb-4">Player ID</h3>
 
       <div className="space-y-4">
-        <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-md p-4">
+        <div className="bg-(--card-bg) border border-(--card-border) rounded-md p-4">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm font-medium text-[var(--text-primary)]">
+              <p className="text-sm font-medium text-primary-wh40k">
                 Current Player ID
               </p>
-              <p className="mt-1 text-sm font-mono text-[var(--text-secondary)]">
+              <p className="mt-1 text-sm font-mono text-secondary-wh40k">
                 {initialProfile.player_id || 'Not set'}
               </p>
             </div>

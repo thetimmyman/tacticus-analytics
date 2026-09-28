@@ -117,16 +117,16 @@ export function SectionSubnav({
         onMouseLeave={onPreviewClear}
         data-subnav-emphasis="secondary"
         className={cn(
-          'hidden lg:block border-b border-[var(--card-border)] backdrop-blur-sm bg-black/10',
+          'hidden lg:block border-b border-(--card-border) backdrop-blur-xs bg-black/10',
           className
         )}
       >
         <div className="mx-auto max-w-[1440px] overflow-x-auto px-4 sm:px-6 lg:px-8">
           <ul className="flex items-center gap-2 min-w-max py-1.5">
-            <li className="flex-shrink-0">
+            <li className="shrink-0">
               <Link
                 href={getHrefWithSeason(exitHref, currentSeason)}
-                className="inline-flex items-center gap-2 rounded-full border border-dashed border-[var(--card-border)] px-3.5 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)] hover:border-[color-mix(in_srgb,var(--text-secondary)_60%,transparent)]"
+                className="inline-flex items-center gap-2 rounded-full border border-dashed border-(--card-border) px-3.5 py-1.5 text-xs font-medium text-secondary-wh40k transition-colors hover:text-primary-wh40k hover:border-[color-mix(in_srgb,var(--text-secondary)_60%,transparent)]"
               >
                 <span aria-hidden="true">◂</span>
                 <span>All War Tools</span>
@@ -146,7 +146,7 @@ export function SectionSubnav({
       data-subnav-emphasis="primary"
       className={cn(
         // Hidden below lg like WorkspaceBar; MobileNav covers mobile.
-        'hidden lg:block border-b border-[var(--card-border)] backdrop-blur-sm bg-black/20',
+        'hidden lg:block border-b border-(--card-border) backdrop-blur-xs bg-black/20',
         className
       )}
     >
@@ -166,22 +166,22 @@ export function SectionSubnav({
             const Component = section.external ? 'a' : Link
 
             return (
-              <li key={section.href} className="flex-shrink-0">
+              <li key={section.href} className="shrink-0">
                 <Component
                   {...linkProps}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
                     'inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors',
                     active
-                      ? 'border-[color-mix(in_srgb,var(--accent)_70%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--accent)]'
-                      : 'border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-secondary)] hover:border-[var(--card-border)] hover:bg-[var(--card-bg)] hover:text-[var(--text-primary)]'
+                      ? 'border-[color-mix(in_srgb,var(--accent)_70%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-(--accent)'
+                      : 'border-(--card-border) bg-(--card-bg) text-secondary-wh40k hover:border-(--card-border) hover:bg-(--card-bg) hover:text-primary-wh40k'
                   )}
                 >
                   <span>{section.label}</span>
                   {section.external && (
                     <>
                       <span
-                        className="text-[10px] text-[var(--text-secondary)]"
+                        className="text-[10px] text-secondary-wh40k"
                         aria-hidden="true"
                       >
                         ↗

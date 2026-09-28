@@ -31,7 +31,7 @@ export default async function FAQ() {
   const tacticusSite = `${TACTICUS_API.ORIGIN}/`
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
+    <div className="min-h-screen bg-(--bg-primary) text-primary-wh40k">
       <FAQSchema />
       {/* Navigation */}
       <NavigationServer user={authData?.user} profile={authData?.profile} />
@@ -43,10 +43,10 @@ export default async function FAQ() {
         </div>
 
         <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--primary)] mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-(--primary) mb-2">
             Frequently Asked Questions
           </h1>
-          <p className="text-sm sm:text-base text-[var(--text-secondary)]">
+          <p className="text-sm sm:text-base text-secondary-wh40k">
             Guides for understanding and using the dashboard effectively
           </p>
         </div>
@@ -55,18 +55,18 @@ export default async function FAQ() {
           {/* General Questions */}
           <section
             id="general-questions"
-            className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 sm:p-6 scroll-mt-24"
+            className="bg-(--card) border border-(--card-border) rounded-lg p-4 sm:p-6 scroll-mt-24"
           >
-            <h2 className="text-xl font-bold text-[var(--primary)] mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-(--primary) mb-4 flex items-center gap-2">
               General Questions
             </h2>
 
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h3 className="font-semibold text-primary-wh40k mb-2">
                   What is Tacticus Analytics?
                 </h3>
-                <p className="text-[var(--text-secondary)] text-sm">
+                <p className="text-secondary-wh40k text-sm">
                   Tacticus Analytics tracks Warhammer 40,000: Tacticus guild
                   raid data for clusters and independent guilds. It provides
                   damage metrics, leaderboards, token tracking, and management
@@ -75,10 +75,10 @@ export default async function FAQ() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h3 className="font-semibold text-primary-wh40k mb-2">
                   How do I get access?
                 </h3>
-                <p className="text-[var(--text-secondary)] text-sm">
+                <p className="text-secondary-wh40k text-sm">
                   Access is managed through guild membership. Contact your guild
                   officers or leaders to have your account activated.
                   You&apos;ll need to link your in-game display name to your
@@ -87,10 +87,10 @@ export default async function FAQ() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h3 className="font-semibold text-primary-wh40k mb-2">
                   What are the different access levels?
                 </h3>
-                <p className="text-[var(--text-secondary)] text-sm">
+                <p className="text-secondary-wh40k text-sm">
                   Access is based on your role within the guild: Members have
                   access to basic features and statistics, Officers can manage
                   guild operations and view detailed analytics, and Leaders have
@@ -103,19 +103,19 @@ export default async function FAQ() {
           {/* Boss Leaderboards */}
           <section
             id="token-system"
-            className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 sm:p-6 scroll-mt-24"
+            className="bg-(--card) border border-(--card-border) rounded-lg p-4 sm:p-6 scroll-mt-24"
           >
-            <h2 className="text-xl font-bold text-[var(--primary)] mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-(--primary) mb-4 flex items-center gap-2">
               Boss Leaderboards
             </h2>
 
             <div>
-              <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+              <h3 className="font-semibold text-primary-wh40k mb-2">
                 How do Boss Leaderboards work?
               </h3>
-              <p className="text-[var(--text-secondary)] text-sm mb-3">
+              <p className="text-secondary-wh40k text-sm mb-3">
                 Boss leaderboards show the{' '}
-                <strong className="text-[var(--text-primary)]">
+                <strong className="text-primary-wh40k">
                   highest damage hits
                 </strong>{' '}
                 achieved against each boss, showcasing peak performance
@@ -124,37 +124,35 @@ export default async function FAQ() {
 
               <div className="ml-4 space-y-2 text-sm">
                 <p>
-                  <span className="text-[var(--accent)]">•</span>{' '}
-                  <strong className="text-[var(--text-primary)]">
+                  <span className="text-(--accent)">•</span>{' '}
+                  <strong className="text-primary-wh40k">
                     Records Your Best:
                   </strong>{' '}
                   Each unique team composition shows only your highest damage
                 </p>
                 <p>
-                  <span className="text-[var(--accent)]">•</span>{' '}
-                  <strong className="text-[var(--text-primary)]">
+                  <span className="text-(--accent)">•</span>{' '}
+                  <strong className="text-primary-wh40k">
                     Multiple Bosses:
                   </strong>{' '}
                   Separate leaderboards for each boss at each level (L1-L5,
                   M1-M5)
                 </p>
                 <p>
-                  <span className="text-[var(--accent)]">•</span>{' '}
-                  <strong className="text-[var(--text-primary)]">
-                    Team Display:
-                  </strong>{' '}
+                  <span className="text-(--accent)">•</span>{' '}
+                  <strong className="text-primary-wh40k">Team Display:</strong>{' '}
                   Shows exact heroes + Machine of War with visual icons
                 </p>
                 <p>
-                  <span className="text-[var(--accent)]">•</span>{' '}
-                  <strong className="text-[var(--text-primary)]">
+                  <span className="text-(--accent)">•</span>{' '}
+                  <strong className="text-primary-wh40k">
                     Track Progress:
                   </strong>{' '}
                   See when you achieved each record
                 </p>
               </div>
 
-              <p className="text-xs mt-3 italic text-[var(--text-secondary)]">
+              <p className="text-xs mt-3 italic text-secondary-wh40k">
                 <strong>Tip:</strong> Check the detailed FAQ on Boss
                 Leaderboards page for complete deduplication algorithm
                 explanation.
@@ -165,19 +163,19 @@ export default async function FAQ() {
           {/* Overall Rankings */}
           <section
             id="api-keys-data-sync"
-            className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 sm:p-6 scroll-mt-24"
+            className="bg-(--card) border border-(--card-border) rounded-lg p-4 sm:p-6 scroll-mt-24"
           >
-            <h2 className="text-xl font-bold text-[var(--primary)] mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-(--primary) mb-4 flex items-center gap-2">
               Overall Rankings
             </h2>
 
             <div>
-              <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+              <h3 className="font-semibold text-primary-wh40k mb-2">
                 How do Overall Rankings work?
               </h3>
-              <p className="text-[var(--text-secondary)] text-sm mb-3">
+              <p className="text-secondary-wh40k text-sm mb-3">
                 Overall rankings use the{' '}
-                <strong className="text-[var(--text-primary)]">
+                <strong className="text-primary-wh40k">
                   Performance Efficiency Algorithm
                 </strong>{' '}
                 to calculate skill-adjusted rankings that fairly compare players
@@ -186,29 +184,27 @@ export default async function FAQ() {
 
               <div className="ml-4 space-y-2 text-sm">
                 <p>
-                  <span className="text-[var(--accent)]">•</span>{' '}
-                  <strong className="text-[var(--text-primary)]">
+                  <span className="text-(--accent)">•</span>{' '}
+                  <strong className="text-primary-wh40k">
                     Compare to Average:
                   </strong>{' '}
                   Your damage vs. what everyone else averages on each boss
                 </p>
                 <p>
-                  <span className="text-[var(--accent)]">•</span>{' '}
-                  <strong className="text-[var(--text-primary)]">
+                  <span className="text-(--accent)">•</span>{' '}
+                  <strong className="text-primary-wh40k">
                     Weighted by Activity:
                   </strong>{' '}
                   Bosses you fight more often count more toward your score
                 </p>
                 <p>
-                  <span className="text-[var(--accent)]">•</span>{' '}
-                  <strong className="text-[var(--text-primary)]">
-                    Final Score:
-                  </strong>{' '}
+                  <span className="text-(--accent)">•</span>{' '}
+                  <strong className="text-primary-wh40k">Final Score:</strong>{' '}
                   Shows how much better (+%) or worse (-%) you perform overall
                 </p>
               </div>
 
-              <div className="mt-3 p-2 bg-yellow-500/10 border border-yellow-500/30 rounded text-xs">
+              <div className="mt-3 p-2 bg-yellow-500/10 border border-yellow-500/30 rounded-sm text-xs">
                 <strong className="text-yellow-400">Example:</strong> If cluster
                 average is 2.5M and you average 3.0M:
                 <br />
@@ -216,7 +212,7 @@ export default async function FAQ() {
                 <span className="text-green-400">+20% performance</span>
               </div>
 
-              <p className="text-xs mt-3 italic text-[var(--text-secondary)]">
+              <p className="text-xs mt-3 italic text-secondary-wh40k">
                 <strong>Note:</strong> See the Overall Leaderboard page for
                 complete calculation methodology including historical rankings.
               </p>
@@ -226,24 +222,24 @@ export default async function FAQ() {
           {/* Token System */}
           <section
             id="themes-customization"
-            className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 sm:p-6 scroll-mt-24"
+            className="bg-(--card) border border-(--card-border) rounded-lg p-4 sm:p-6 scroll-mt-24"
           >
-            <h2 className="text-xl font-bold text-[var(--primary)] mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-(--primary) mb-4 flex items-center gap-2">
               Token System
             </h2>
 
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h3 className="font-semibold text-primary-wh40k mb-2">
                   How does Token Tracking work?
                 </h3>
-                <p className="text-[var(--text-secondary)] text-sm mb-3">
+                <p className="text-secondary-wh40k text-sm mb-3">
                   The token system tracks both{' '}
-                  <strong className="text-[var(--text-primary)]">
+                  <strong className="text-primary-wh40k">
                     real-time availability
                   </strong>{' '}
                   and{' '}
-                  <strong className="text-[var(--text-primary)]">
+                  <strong className="text-primary-wh40k">
                     season-wide usage
                   </strong>
                   .
@@ -251,27 +247,27 @@ export default async function FAQ() {
 
                 <div className="ml-4 space-y-1 text-sm">
                   <p>
-                    <span className="text-[var(--accent)]">•</span> Players
-                    start each season with 2 tokens
+                    <span className="text-(--accent)">•</span> Players start
+                    each season with 2 tokens
                   </p>
                   <p>
-                    <span className="text-[var(--accent)]">•</span> Tokens
-                    regenerate 1 every 12 hours (max 3)
+                    <span className="text-(--accent)">•</span> Tokens regenerate
+                    1 every 12 hours (max 3)
                   </p>
                   <p>
-                    <span className="text-[var(--accent)]">•</span> Season cap
-                    is 28 tokens total
+                    <span className="text-(--accent)">•</span> Season cap is 28
+                    tokens total
                   </p>
                   <p>
-                    <span className="text-[var(--accent)]">•</span> Bombs have
-                    an 18-hour cooldown
+                    <span className="text-(--accent)">•</span> Bombs have an
+                    18-hour cooldown
                   </p>
                   <p>
-                    <span className="text-[var(--accent)]">•</span> Warning
-                    status indicates capped tokens (wasting regeneration)
+                    <span className="text-(--accent)">•</span> Warning status
+                    indicates capped tokens (wasting regeneration)
                   </p>
                   <p>
-                    <span className="text-[var(--accent)]">•</span> Key status
+                    <span className="text-(--accent)">•</span> Key status
                     indicates player has uploaded their API key (golden =
                     synced)
                   </p>
@@ -279,32 +275,32 @@ export default async function FAQ() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h3 className="font-semibold text-primary-wh40k mb-2">
                   How do Boss Assignment Tokens work?
                 </h3>
-                <p className="text-[var(--text-secondary)] text-sm mb-3">
+                <p className="text-secondary-wh40k text-sm mb-3">
                   For upcoming season planning, players allocate their 3
                   available tokens across boss assignments:
                 </p>
 
                 <div className="ml-4 space-y-1 text-sm">
                   <p>
-                    <span className="text-[var(--accent)]">•</span>{' '}
-                    <strong className="text-[var(--text-primary)]">
+                    <span className="text-(--accent)">•</span>{' '}
+                    <strong className="text-primary-wh40k">
                       Each player has:
                     </strong>{' '}
                     3 tokens to allocate for the season
                   </p>
                   <p>
-                    <span className="text-[var(--accent)]">•</span>{' '}
-                    <strong className="text-[var(--text-primary)]">
+                    <span className="text-(--accent)">•</span>{' '}
+                    <strong className="text-primary-wh40k">
                       Primary boss assignment:
                     </strong>{' '}
                     Consumes 2 tokens
                   </p>
                   <p>
-                    <span className="text-[var(--accent)]">•</span>{' '}
-                    <strong className="text-[var(--text-primary)]">
+                    <span className="text-(--accent)">•</span>{' '}
+                    <strong className="text-primary-wh40k">
                       Secondary boss assignment:
                     </strong>{' '}
                     Consumes 1 token
@@ -317,25 +313,25 @@ export default async function FAQ() {
           {/* API Keys */}
           <section
             id="meta-analysis"
-            className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 sm:p-6 scroll-mt-24"
+            className="bg-(--card) border border-(--card-border) rounded-lg p-4 sm:p-6 scroll-mt-24"
           >
-            <h2 className="text-xl font-bold text-[var(--primary)] mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-(--primary) mb-4 flex items-center gap-2">
               API Keys & Data Sync
             </h2>
 
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h3 className="font-semibold text-primary-wh40k mb-2">
                   What are API Keys and why do I need one?
                 </h3>
-                <p className="text-[var(--text-secondary)] text-sm mb-3">
+                <p className="text-secondary-wh40k text-sm mb-3">
                   API keys enable real-time data synchronization from the
                   official Tacticus API. Get your personal API key from{' '}
                   <a
                     href={tacticusSite}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[var(--accent)] hover:text-[var(--primary)] underline"
+                    className="text-(--accent) hover:text-(--primary) underline"
                   >
                     {tacticusSite}
                   </a>
@@ -343,32 +339,32 @@ export default async function FAQ() {
 
                 <div className="ml-4 space-y-1 text-sm">
                   <p>
-                    <span className="text-[var(--accent)]">•</span> Enables
-                    real-time token/bomb status tracking
+                    <span className="text-(--accent)">•</span> Enables real-time
+                    token/bomb status tracking
                   </p>
                   <p>
-                    <span className="text-[var(--accent)]">•</span> Provides
-                    accurate availability calculations
+                    <span className="text-(--accent)">•</span> Provides accurate
+                    availability calculations
                   </p>
                   <p>
-                    <span className="text-[var(--accent)]">•</span> Managed
-                    through your dashboard profile
+                    <span className="text-(--accent)">•</span> Managed through
+                    your dashboard profile
                   </p>
                 </div>
               </div>
 
               <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h3 className="font-semibold text-primary-wh40k mb-2">
                   How do I add my Player API key?
                 </h3>
-                <div className="text-[var(--text-secondary)] text-sm space-y-1">
+                <div className="text-secondary-wh40k text-sm space-y-1">
                   <p>
                     1. Go to{' '}
                     <a
                       href={tacticusSite}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[var(--accent)] hover:text-[var(--primary)] underline"
+                      className="text-(--accent) hover:text-(--primary) underline"
                     >
                       {tacticusSite}
                     </a>
@@ -386,10 +382,10 @@ export default async function FAQ() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h3 className="font-semibold text-primary-wh40k mb-2">
                   Do you share my raid information?
                 </h3>
-                <p className="text-[var(--text-secondary)] text-sm">
+                <p className="text-secondary-wh40k text-sm">
                   We do not sell your raid information. Public Explore and
                   leaderboard pages may show obscured guild values. Members of
                   guilds in the same cluster can view this guild&apos;s
@@ -398,10 +394,10 @@ export default async function FAQ() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h3 className="font-semibold text-primary-wh40k mb-2">
                   Are you able to view our raid information?
                 </h3>
-                <p className="text-[var(--text-secondary)] text-sm">
+                <p className="text-secondary-wh40k text-sm">
                   Yes, just like any service that you share your API credentials
                   with we will be able to view your raid information. However,
                   we promise to only use this data at the aggregate level in the
@@ -414,27 +410,27 @@ export default async function FAQ() {
           {/* Themes & Customization */}
           <section
             id="troubleshooting"
-            className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 sm:p-6 scroll-mt-24"
+            className="bg-(--card) border border-(--card-border) rounded-lg p-4 sm:p-6 scroll-mt-24"
           >
-            <h2 className="text-xl font-bold text-[var(--primary)] mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-(--primary) mb-4 flex items-center gap-2">
               Themes & Customization
             </h2>
 
             <div>
-              <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+              <h3 className="font-semibold text-primary-wh40k mb-2">
                 Can I change my dashboard theme?
               </h3>
-              <p className="text-[var(--text-secondary)] text-sm mb-3">
+              <p className="text-secondary-wh40k text-sm mb-3">
                 Yes! The dashboard supports 35+ different themed color schemes
                 including all major Warhammer 40K factions:
               </p>
 
               <div className="text-sm space-y-2">
                 <div>
-                  <h4 className="font-semibold text-[var(--text-primary)] mb-1">
+                  <h4 className="font-semibold text-primary-wh40k mb-1">
                     Available Themes Include:
                   </h4>
-                  <div className="ml-4 text-xs grid grid-cols-2 md:grid-cols-3 gap-1 text-[var(--text-secondary)]">
+                  <div className="ml-4 text-xs grid grid-cols-2 md:grid-cols-3 gap-1 text-secondary-wh40k">
                     <p>• Ultramarines</p>
                     <p>• Blood Angels</p>
                     <p>• Dark Angels</p>
@@ -454,11 +450,11 @@ export default async function FAQ() {
                 </div>
               </div>
 
-              <p className="text-[var(--text-secondary)] text-sm mt-2">
+              <p className="text-secondary-wh40k text-sm mt-2">
                 Access theme settings through your profile page. A theme preview
                 is available to compare all options.
               </p>
-              <p className="text-[var(--text-secondary)] text-sm mt-1">
+              <p className="text-secondary-wh40k text-sm mt-1">
                 Guild leaders can set a default theme for their guild through
                 the guild settings page.
               </p>
@@ -468,19 +464,19 @@ export default async function FAQ() {
           {/* Meta Analysis */}
           <section
             id="votlw"
-            className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 sm:p-6 scroll-mt-24"
+            className="bg-(--card) border border-(--card-border) rounded-lg p-4 sm:p-6 scroll-mt-24"
           >
-            <h2 className="text-xl font-bold text-[var(--primary)] mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-(--primary) mb-4 flex items-center gap-2">
               Meta Analysis
             </h2>
 
             <div>
-              <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+              <h3 className="font-semibold text-primary-wh40k mb-2">
                 What is the Meta Analysis page?
               </h3>
-              <p className="text-[var(--text-secondary)] text-sm mb-3">
+              <p className="text-secondary-wh40k text-sm mb-3">
                 The Meta Analysis page identifies the{' '}
-                <strong className="text-[var(--text-primary)]">
+                <strong className="text-primary-wh40k">
                   most consistent high-performing team compositions
                 </strong>{' '}
                 for each boss by analyzing damage patterns:
@@ -488,22 +484,22 @@ export default async function FAQ() {
 
               <div className="space-y-3 text-sm">
                 <div>
-                  <h4 className="font-semibold text-[var(--text-primary)] mb-2">
+                  <h4 className="font-semibold text-primary-wh40k mb-2">
                     How it Works:
                   </h4>
                   <div className="ml-4 space-y-1">
                     <p>
-                      <span className="text-[var(--accent)]">•</span>{' '}
+                      <span className="text-(--accent)">•</span>{' '}
                       <strong>High Damage Teams:</strong> Shows which team
                       compositions deal the most damage
                     </p>
                     <p>
-                      <span className="text-[var(--accent)]">•</span>{' '}
+                      <span className="text-(--accent)">•</span>{' '}
                       <strong>Consistent Performance:</strong> Prioritizes teams
                       that perform reliably across multiple battles
                     </p>
                     <p>
-                      <span className="text-[var(--accent)]">•</span>{' '}
+                      <span className="text-(--accent)">•</span>{' '}
                       <strong>Stability Ratings:</strong>
                     </p>
                     <div className="ml-6 space-y-1">
@@ -531,27 +527,27 @@ export default async function FAQ() {
                 </div>
 
                 <div>
-                  <h4 className="font-semibold text-[var(--text-primary)] mb-2">
+                  <h4 className="font-semibold text-primary-wh40k mb-2">
                     What You&apos;ll See:
                   </h4>
                   <div className="ml-4 space-y-1">
                     <p>
-                      <span className="text-[var(--accent)]">•</span>{' '}
+                      <span className="text-(--accent)">•</span>{' '}
                       <strong>Team Compositions</strong>: Exact heroes + Machine
                       of War icons
                     </p>
                     <p>
-                      <span className="text-[var(--accent)]">•</span>{' '}
+                      <span className="text-(--accent)">•</span>{' '}
                       <strong>Damage Stats</strong>: Min/Max/Average damage for
                       each team
                     </p>
                     <p>
-                      <span className="text-[var(--accent)]">•</span>{' '}
+                      <span className="text-(--accent)">•</span>{' '}
                       <strong>Usage Count</strong>: How many times each team was
                       used
                     </p>
                     <p>
-                      <span className="text-[var(--accent)]">•</span>{' '}
+                      <span className="text-(--accent)">•</span>{' '}
                       <strong>Player Info</strong>: Who used each composition
                       successfully
                     </p>
@@ -559,26 +555,26 @@ export default async function FAQ() {
                 </div>
 
                 <div>
-                  <h4 className="font-semibold text-[var(--text-primary)] mb-2">
+                  <h4 className="font-semibold text-primary-wh40k mb-2">
                     Filter Options:
                   </h4>
                   <div className="ml-4 space-y-1">
                     <p>
-                      <span className="text-[var(--accent)]">•</span> Choose
-                      specific boss levels
+                      <span className="text-(--accent)">•</span> Choose specific
+                      boss levels
                     </p>
                     <p>
-                      <span className="text-[var(--accent)]">•</span> View your
-                      guild vs. everyone
+                      <span className="text-(--accent)">•</span> View your guild
+                      vs. everyone
                     </p>
                     <p>
-                      <span className="text-[var(--accent)]">•</span> Main
-                      bosses vs. side encounters
+                      <span className="text-(--accent)">•</span> Main bosses vs.
+                      side encounters
                     </p>
                   </div>
                 </div>
 
-                <p className="text-xs mt-3 italic text-[var(--text-secondary)]">
+                <p className="text-xs mt-3 italic text-secondary-wh40k">
                   <strong>Tip:</strong> Teams with high average damage AND high
                   stability are the most reliable choices for consistent
                   performance.
@@ -590,47 +586,45 @@ export default async function FAQ() {
           {/* Troubleshooting */}
           <section
             id="support-contact"
-            className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 sm:p-6 scroll-mt-24"
+            className="bg-(--card) border border-(--card-border) rounded-lg p-4 sm:p-6 scroll-mt-24"
           >
-            <h2 className="text-xl font-bold text-[var(--primary)] mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-(--primary) mb-4 flex items-center gap-2">
               Troubleshooting
             </h2>
 
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h3 className="font-semibold text-primary-wh40k mb-2">
                   Why am I seeing &quot;No data&quot; for some metrics?
                 </h3>
-                <div className="ml-4 space-y-1 text-sm text-[var(--text-secondary)]">
+                <div className="ml-4 space-y-1 text-sm text-secondary-wh40k">
                   <p>
-                    <span className="text-[var(--accent)]">•</span>{' '}
-                    <strong className="text-[var(--text-primary)]">
+                    <span className="text-(--accent)">•</span>{' '}
+                    <strong className="text-primary-wh40k">
                       Performance percentages:
                     </strong>{' '}
                     Requires at least 1 battle against that boss
                   </p>
                   <p>
-                    <span className="text-[var(--accent)]">•</span>{' '}
-                    <strong className="text-[var(--text-primary)]">
+                    <span className="text-(--accent)">•</span>{' '}
+                    <strong className="text-primary-wh40k">
                       Historical data:
                     </strong>{' '}
                     May take time to sync after initial account creation
                   </p>
                   <p>
-                    <span className="text-[var(--accent)]">•</span>{' '}
-                    <strong className="text-[var(--text-primary)]">
-                      API sync:
-                    </strong>{' '}
+                    <span className="text-(--accent)">•</span>{' '}
+                    <strong className="text-primary-wh40k">API sync:</strong>{' '}
                     Add your Player API key for real-time accuracy
                   </p>
                 </div>
               </div>
 
               <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h3 className="font-semibold text-primary-wh40k mb-2">
                   I can&apos;t see certain pages or features
                 </h3>
-                <p className="text-[var(--text-secondary)] text-sm">
+                <p className="text-secondary-wh40k text-sm">
                   Check your role permissions. Some features are restricted to
                   Officers/Leaders only. Contact your guild leadership if you
                   need elevated permissions.
@@ -640,17 +634,17 @@ export default async function FAQ() {
           </section>
 
           {/* VOTLW Awards */}
-          <section className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 sm:p-6">
-            <h2 className="text-xl font-bold text-[var(--primary)] mb-4 flex items-center gap-2">
+          <section className="bg-(--card) border border-(--card-border) rounded-lg p-4 sm:p-6">
+            <h2 className="text-xl font-bold text-(--primary) mb-4 flex items-center gap-2">
               Veteran of the Long War (VOTLW)
             </h2>
 
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h3 className="font-semibold text-primary-wh40k mb-2">
                   What are VOTLW standings?
                 </h3>
-                <p className="text-[var(--text-secondary)] text-sm mb-3">
+                <p className="text-secondary-wh40k text-sm mb-3">
                   Veteran of the Long War (VOTLW) is a point-based season
                   competition that ranks players across multiple categories of
                   achievement.
@@ -658,12 +652,12 @@ export default async function FAQ() {
 
                 <div className="space-y-3 text-sm">
                   <div>
-                    <h4 className="font-semibold text-[var(--text-primary)] mb-2">
+                    <h4 className="font-semibold text-primary-wh40k mb-2">
                       Set Medals (per boss level L1-L5, M1-M5):
                     </h4>
                     <div className="ml-4 space-y-1">
                       <p>
-                        <span className="text-[var(--accent)]">•</span>{' '}
+                        <span className="text-(--accent)">•</span>{' '}
                         <strong className="text-yellow-400">
                           Gold Medal (3 pts)
                         </strong>
@@ -671,14 +665,14 @@ export default async function FAQ() {
                         (requires 2+ battles)
                       </p>
                       <p>
-                        <span className="text-[var(--accent)]">•</span>{' '}
-                        <strong className="text-[var(--text-secondary)]">
+                        <span className="text-(--accent)">•</span>{' '}
+                        <strong className="text-secondary-wh40k">
                           Silver Medal (2 pts)
                         </strong>
                         : Second highest average damage per token
                       </p>
                       <p>
-                        <span className="text-[var(--accent)]">•</span>{' '}
+                        <span className="text-(--accent)">•</span>{' '}
                         <strong className="text-orange-600">
                           Bronze Medal (1 pt)
                         </strong>
@@ -688,57 +682,57 @@ export default async function FAQ() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-[var(--text-primary)] mb-2">
+                    <h4 className="font-semibold text-primary-wh40k mb-2">
                       Most Damage Awards (1 pt each):
                     </h4>
-                    <p className="ml-4 text-[var(--text-secondary)]">
+                    <p className="ml-4 text-secondary-wh40k">
                       Highest total damage dealt to each main boss (regardless
                       of token count)
                     </p>
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-[var(--text-primary)] mb-2">
+                    <h4 className="font-semibold text-primary-wh40k mb-2">
                       Side Boss Winners (2 pts each):
                     </h4>
                     <div className="ml-4 space-y-1">
                       <p>
-                        <span className="text-[var(--accent)]">•</span> Best
-                        average damage per token on Side Boss 1 and Side Boss 2
-                        of each set
+                        <span className="text-(--accent)">•</span> Best average
+                        damage per token on Side Boss 1 and Side Boss 2 of each
+                        set
                       </p>
                       <p>
-                        <span className="text-[var(--accent)]">•</span>{' '}
-                        Tie-breaker: More tokens spent (rewards consistency)
+                        <span className="text-(--accent)">•</span> Tie-breaker:
+                        More tokens spent (rewards consistency)
                       </p>
                     </div>
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-[var(--text-primary)] mb-2">
+                    <h4 className="font-semibold text-primary-wh40k mb-2">
                       Biggest Hit Awards (1 pt each):
                     </h4>
-                    <p className="ml-4 text-[var(--text-secondary)]">
+                    <p className="ml-4 text-secondary-wh40k">
                       Single highest damage value dealt to each main boss in one
                       attack
                     </p>
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-[var(--text-primary)] mb-2">
+                    <h4 className="font-semibold text-primary-wh40k mb-2">
                       Season-Wide Awards:
                     </h4>
                     <div className="ml-4 space-y-1">
                       <p>
-                        <span className="text-[var(--accent)]">•</span>{' '}
+                        <span className="text-(--accent)">•</span>{' '}
                         <strong className="text-red-400">
                           Top Killer (3 pts)
                         </strong>
                         : Most last hits (kills) across all bosses
                       </p>
                       <p>
-                        <span className="text-[var(--accent)]">•</span>{' '}
-                        <strong className="text-[var(--accent)]">
+                        <span className="text-(--accent)">•</span>{' '}
+                        <strong className="text-(--accent)">
                           Best Bomber (0.5 pts)
                         </strong>
                         : Highest single bomb damage in the season
@@ -747,16 +741,16 @@ export default async function FAQ() {
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-[var(--text-primary)] mb-2">
+                    <h4 className="font-semibold text-primary-wh40k mb-2">
                       Final Winner Determination:
                     </h4>
                     <div className="ml-4 space-y-1">
                       <p>
-                        <span className="text-[var(--accent)]">•</span> All
-                        points totaled across all categories
+                        <span className="text-(--accent)">•</span> All points
+                        totaled across all categories
                       </p>
                       <p>
-                        <span className="text-[var(--accent)]">•</span>{' '}
+                        <span className="text-(--accent)">•</span>{' '}
                         <strong>Tie-breaking (in order)</strong>:
                       </p>
                       <div className="ml-8 space-y-1">
@@ -770,7 +764,7 @@ export default async function FAQ() {
                         </p>
                       </div>
                       <p>
-                        <span className="text-[var(--accent)]">•</span> Token
+                        <span className="text-(--accent)">•</span> Token
                         offenders cannot win regardless of point total
                       </p>
                     </div>
@@ -780,7 +774,7 @@ export default async function FAQ() {
                     <h4 className="font-semibold text-red-400 mb-2">
                       Important: Token Offender Exclusion
                     </h4>
-                    <p className="text-[var(--text-secondary)] text-sm">
+                    <p className="text-secondary-wh40k text-sm">
                       Players who are flagged as token offenders (missing 4+
                       tokens from the maximum possible) are automatically
                       excluded from ALL awards. This ensures awards go to active
@@ -793,17 +787,17 @@ export default async function FAQ() {
           </section>
 
           {/* Support */}
-          <section className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-4 sm:p-6">
-            <h2 className="text-xl font-bold text-[var(--primary)] mb-4 flex items-center gap-2">
+          <section className="bg-(--card) border border-(--card-border) rounded-lg p-4 sm:p-6">
+            <h2 className="text-xl font-bold text-(--primary) mb-4 flex items-center gap-2">
               Support & Contact
             </h2>
 
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h3 className="font-semibold text-primary-wh40k mb-2">
                   Do you share my raid information?
                 </h3>
-                <p className="text-[var(--text-secondary)] text-sm">
+                <p className="text-secondary-wh40k text-sm">
                   We do not sell your raid information. Public Explore and
                   leaderboard pages may show obscured guild values. Members of
                   guilds in the same cluster can view this guild&apos;s
@@ -812,10 +806,10 @@ export default async function FAQ() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h3 className="font-semibold text-primary-wh40k mb-2">
                   Are you able to view our raid information?
                 </h3>
-                <p className="text-[var(--text-secondary)] text-sm">
+                <p className="text-secondary-wh40k text-sm">
                   Yes, just like any service that you share your API credentials
                   with we will be able to view your raid information. However,
                   we promise to only use this data at the aggregate level in the
@@ -824,23 +818,23 @@ export default async function FAQ() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h3 className="font-semibold text-primary-wh40k mb-2">
                   How can I support the project?
                 </h3>
-                <p className="text-[var(--text-secondary)] text-sm mb-3">
+                <p className="text-secondary-wh40k text-sm mb-3">
                   Use the referral code{' '}
-                  <span className="font-mono bg-[var(--card)] px-2 py-1 rounded text-[var(--accent)] font-semibold border border-[var(--card-border)]">
+                  <span className="font-mono bg-(--card) px-2 py-1 rounded-sm text-(--accent) font-semibold border border-(--card-border)">
                     TEN-05-BID
                   </span>{' '}
                   in Warhammer 40,000: Tacticus to support the developer!
                 </p>
-                <p className="text-[var(--text-secondary)] text-sm">
+                <p className="text-secondary-wh40k text-sm">
                   You can also{' '}
                   <a
                     href="https://www.buymeacoffee.com/timmyman"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[var(--accent)] hover:underline font-semibold"
+                    className="text-(--accent) hover:underline font-semibold"
                   >
                     buy me a coffee
                   </a>{' '}
@@ -849,10 +843,10 @@ export default async function FAQ() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h3 className="font-semibold text-primary-wh40k mb-2">
                   I found a bug or have a feature request
                 </h3>
-                <p className="text-[var(--text-secondary)] text-sm">
+                <p className="text-secondary-wh40k text-sm">
                   Contact your guild leaders or mention @TimmyMan in guild
                   Discord channels. Include specific details about what you
                   expected vs. what happened.
@@ -862,15 +856,15 @@ export default async function FAQ() {
           </section>
 
           {/* Detailed Calculation FAQs */}
-          <section className="bg-gradient-to-r from-[color-mix(in_srgb,var(--accent)_10%,transparent)] to-[color-mix(in_srgb,var(--primary)_10%,transparent)] border border-[var(--card-border)] rounded-lg p-6">
-            <h2 className="text-xl font-bold text-[var(--primary)] mb-4 flex items-center gap-2">
+          <section className="bg-linear-to-r from-[color-mix(in_srgb,var(--accent)_10%,transparent)] to-[color-mix(in_srgb,var(--primary)_10%,transparent)] border border-(--card-border) rounded-lg p-6">
+            <h2 className="text-xl font-bold text-(--primary) mb-4 flex items-center gap-2">
               Detailed Calculation Guides
             </h2>
 
-            <div className="text-[var(--text-secondary)] text-sm">
+            <div className="text-secondary-wh40k text-sm">
               <p className="mb-3">
                 Each major dashboard page now includes a{' '}
-                <strong className="text-[var(--text-primary)]">
+                <strong className="text-primary-wh40k">
                   &quot;How This Works&quot; FAQ section
                 </strong>
                 with detailed calculation methodologies, algorithms, and
@@ -878,8 +872,8 @@ export default async function FAQ() {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="p-3 bg-[var(--card)] rounded border border-[var(--card-border)]">
-                  <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                <div className="p-3 bg-(--card) rounded-sm border border-(--card-border)">
+                  <h3 className="font-semibold text-primary-wh40k mb-2">
                     Dashboard Pages
                   </h3>
                   <ul className="text-xs space-y-1">
@@ -903,8 +897,8 @@ export default async function FAQ() {
                   </ul>
                 </div>
 
-                <div className="p-3 bg-[var(--card)] rounded border border-[var(--card-border)]">
-                  <h3 className="font-semibold text-[var(--text-primary)] mb-2">
+                <div className="p-3 bg-(--card) rounded-sm border border-(--card-border)">
+                  <h3 className="font-semibold text-primary-wh40k mb-2">
                     Cluster Pages
                   </h3>
                   <ul className="text-xs space-y-1">

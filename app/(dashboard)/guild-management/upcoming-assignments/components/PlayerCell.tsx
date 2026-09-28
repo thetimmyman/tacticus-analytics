@@ -26,7 +26,7 @@ export function PlayerCell({
       <img
         src={avatarUrl}
         alt=""
-        className="h-8 w-8 flex-shrink-0 rounded-full object-cover"
+        className="h-8 w-8 shrink-0 rounded-full object-cover"
         onError={(e) => {
           e.currentTarget.src = getUserAvatar(
             displayName,

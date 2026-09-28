@@ -39,7 +39,7 @@ export function ValidationError({
       className={`bg-red-500/10 border border-red-500/30 rounded-lg p-4 space-y-3 ${className}`}
     >
       <div className="flex items-start gap-3">
-        <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+        <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
         <div className="flex-1 space-y-3">
           <p className="text-red-400 font-medium text-sm">
             <LinkifiedText
@@ -51,11 +51,11 @@ export function ValidationError({
           {suggestion && (
             <div className="space-y-3">
               {/* Suggestion Card */}
-              <div className="bg-[var(--card-bg)] rounded-md p-3 border border-[var(--card-border)]">
-                <h4 className="text-[var(--text-primary)] font-medium text-sm flex items-center gap-2">
+              <div className="bg-(--card-bg) rounded-md p-3 border border-(--card-border)">
+                <h4 className="text-primary-wh40k font-medium text-sm flex items-center gap-2">
                   {suggestion.title}
                 </h4>
-                <p className="text-[var(--text-secondary)] text-sm mt-1 leading-relaxed">
+                <p className="text-secondary-wh40k text-sm mt-1 leading-relaxed">
                   {suggestion.description}
                 </p>
               </div>
@@ -77,8 +77,8 @@ export function ValidationError({
                           transition-all duration-200 group
                           ${
                             action.type === 'primary'
-                              ? 'bg-[var(--accent)] text-[var(--bg-primary)] hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] shadow-md hover:shadow-lg'
-                              : 'bg-[var(--card-bg)] border border-[var(--card-border)] text-[var(--text-primary)] hover:bg-[var(--card-hover)] hover:border-[color-mix(in_srgb,var(--accent)_30%,transparent)]'
+                              ? 'bg-accent-wh40k text-(--bg-primary) hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] shadow-md hover:shadow-lg'
+                              : 'bg-(--card-bg) border border-(--card-border) text-primary-wh40k hover:bg-(--card-hover) hover:border-[color-mix(in_srgb,var(--accent)_30%,transparent)]'
                           }
                         `}
                       >

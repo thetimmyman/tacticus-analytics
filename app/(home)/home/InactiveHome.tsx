@@ -27,8 +27,8 @@ const ACTIONS = [
 
 export default function InactiveHome({ displayName }: InactiveHomeProps) {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 text-[var(--text-primary)] sm:px-6">
-      <div className="rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-6 sm:p-8">
+    <div className="mx-auto max-w-3xl px-4 py-10 text-primary-wh40k sm:px-6">
+      <div className="rounded-xl border border-(--card-border) bg-(--card-bg) p-6 sm:p-8">
         <div className="flex items-start gap-4">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-amber-500/15">
             <AlertTriangle
@@ -41,13 +41,13 @@ export default function InactiveHome({ displayName }: InactiveHomeProps) {
               {displayName ? `${displayName}, your` : 'Your'} account is not on
               a current guild roster
             </h1>
-            <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+            <p className="text-sm leading-relaxed text-secondary-wh40k">
               Analytics stay hidden until your account is linked to a guild that
               is actively syncing. This usually means the guild&apos;s API key
               expired or was invalidated, you left the guild, or your roster
               entry was removed.
             </p>
-            <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+            <p className="text-sm leading-relaxed text-secondary-wh40k">
               Your account itself is intact — relinking restores your history.
               If your guild is still active, ask a leader to refresh its API key
               in guild settings, then link again below.
@@ -64,15 +64,15 @@ export default function InactiveHome({ displayName }: InactiveHomeProps) {
                   href={action.href}
                   className={
                     action.primary
-                      ? 'flex items-center gap-4 rounded-lg border border-[var(--accent)] bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] px-4 py-3 transition-colors hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)]'
-                      : 'flex items-center gap-4 rounded-lg border border-[var(--card-border)] px-4 py-3 transition-colors hover:border-[var(--accent)] hover:bg-[var(--bg-secondary)]'
+                      ? 'flex items-center gap-4 rounded-lg border border-accent-wh40k bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] px-4 py-3 transition-colors hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)]'
+                      : 'flex items-center gap-4 rounded-lg border border-(--card-border) px-4 py-3 transition-colors hover:border-accent-wh40k hover:bg-(--bg-secondary)'
                   }
                 >
                   <Icon
                     className={
                       action.primary
-                        ? 'h-5 w-5 shrink-0 text-[var(--accent)]'
-                        : 'h-5 w-5 shrink-0 text-[var(--text-secondary)]'
+                        ? 'h-5 w-5 shrink-0 text-(--accent)'
+                        : 'h-5 w-5 shrink-0 text-secondary-wh40k'
                     }
                     aria-hidden="true"
                   />
@@ -80,7 +80,7 @@ export default function InactiveHome({ displayName }: InactiveHomeProps) {
                     <span className="block text-sm font-semibold">
                       {action.label}
                     </span>
-                    <span className="block text-xs text-[var(--text-secondary)]">
+                    <span className="block text-xs text-secondary-wh40k">
                       {action.description}
                     </span>
                   </span>
@@ -90,11 +90,11 @@ export default function InactiveHome({ displayName }: InactiveHomeProps) {
           })}
         </ul>
 
-        <p className="mt-6 text-xs text-[var(--text-secondary)]">
+        <p className="mt-6 text-xs text-secondary-wh40k">
           Need a different route?{' '}
           <Link
             href="/onboarding"
-            className="underline underline-offset-2 hover:text-[var(--text-primary)]"
+            className="underline underline-offset-2 hover:text-primary-wh40k"
           >
             See all onboarding options
           </Link>

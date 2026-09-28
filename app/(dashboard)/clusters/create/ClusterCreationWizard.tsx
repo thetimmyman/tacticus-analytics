@@ -327,9 +327,9 @@ export default function ClusterCreationWizard({
               <div
                 className={`
                 flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all
-                ${isActive ? 'border-amber-500 bg-amber-500 text-[var(--bg-primary)]' : ''}
-                ${isCompleted || isSkipped ? 'border-green-500 bg-green-500 text-[var(--text-primary)]' : ''}
-                ${!isActive && !isCompleted && !isSkipped ? 'border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-secondary)]' : ''}
+                ${isActive ? 'border-amber-500 bg-amber-500 text-(--bg-primary)' : ''}
+                ${isCompleted || isSkipped ? 'border-green-500 bg-green-500 text-primary-wh40k' : ''}
+                ${!isActive && !isCompleted && !isSkipped ? 'border-(--card-border) bg-(--card-bg) text-secondary-wh40k' : ''}
               `}
               >
                 {isCompleted || isSkipped ? (
@@ -340,13 +340,13 @@ export default function ClusterCreationWizard({
               </div>
               <div className="flex-1 px-2">
                 <div
-                  className={`text-sm ${isActive ? 'text-yellow-500' : 'text-[var(--text-secondary)]'}`}
+                  className={`text-sm ${isActive ? 'text-yellow-500' : 'text-secondary-wh40k'}`}
                 >
                   {step.title}
                 </div>
               </div>
               {index < STEPS.length - 1 && (
-                <ChevronRight className="w-4 h-4 text-[var(--text-secondary)]" />
+                <ChevronRight className="w-4 h-4 text-secondary-wh40k" />
               )}
             </div>
           )
@@ -354,7 +354,7 @@ export default function ClusterCreationWizard({
       </div>
 
       {/* Step Content */}
-      <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg p-6 min-h-[400px]">
+      <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg p-6 min-h-[400px]">
         {renderStepContent()}
       </div>
 

@@ -57,10 +57,10 @@ export const AvailabilityTable = ({
             className:
               'text-left py-0.5 sm:py-1 px-0.5 sm:px-2 max-w-[90px] sm:max-w-none',
             headerClassName:
-              'text-left py-1 px-0.5 sm:px-2 font-medium text-[9px] sm:text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]',
+              'text-left py-1 px-0.5 sm:px-2 font-medium text-[9px] sm:text-[10px] uppercase tracking-wider text-(--text-tertiary)',
             render: (player) => (
               <div className="flex items-center gap-0.5 sm:gap-2">
-                <span className="font-medium text-[var(--text-primary)] text-[11px] sm:text-sm truncate max-w-[80px] sm:max-w-none">
+                <span className="font-medium text-primary-wh40k text-[11px] sm:text-sm truncate max-w-[80px] sm:max-w-none">
                   <PlayerLink playerName={player.display_name}>
                     {player.display_name}
                   </PlayerLink>
@@ -91,15 +91,15 @@ export const AvailabilityTable = ({
             sortValue: (player) => player.tokens_available,
             className: 'text-center py-0.5 sm:py-1 px-0.5 sm:px-2',
             headerClassName:
-              'text-center py-1 px-0.5 sm:px-2 font-medium text-[9px] sm:text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]',
+              'text-center py-1 px-0.5 sm:px-2 font-medium text-[9px] sm:text-[10px] uppercase tracking-wider text-(--text-tertiary)',
             render: (player) => (
               <div className="flex items-center justify-center gap-0.5">
                 <span
                   className={`font-bold text-[11px] sm:text-sm ${
                     player.tokens_available >= 3
-                      ? 'text-[var(--primary)]'
+                      ? 'text-(--primary)'
                       : player.tokens_available === 0
-                        ? 'text-[var(--accent)]'
+                        ? 'text-(--accent)'
                         : 'text-green-400'
                   }`}
                 >
@@ -123,9 +123,9 @@ export const AvailabilityTable = ({
             sortable: true,
             sortValue: (player) => player.nextTokenDisplay ?? '',
             className:
-              'text-center py-0.5 sm:py-1 px-0.5 sm:px-2 text-[var(--text-tertiary)] text-[10px] sm:text-xs',
+              'text-center py-0.5 sm:py-1 px-0.5 sm:px-2 text-(--text-tertiary) text-[10px] sm:text-xs',
             headerClassName:
-              'text-center py-1 px-0.5 sm:px-2 font-medium text-[9px] sm:text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]',
+              'text-center py-1 px-0.5 sm:px-2 font-medium text-[9px] sm:text-[10px] uppercase tracking-wider text-(--text-tertiary)',
             render: (player) => {
               const display = player.nextTokenDisplay || '--'
               const compactDisplay = display.replace(/\s/g, '').substring(0, 5)
@@ -144,14 +144,14 @@ export const AvailabilityTable = ({
             sortValue: (player) => player.bombs_available,
             className: 'text-center py-0.5 sm:py-1 px-0.5 sm:px-2',
             headerClassName:
-              'text-center py-1 px-0.5 sm:px-2 font-medium text-[9px] sm:text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]',
+              'text-center py-1 px-0.5 sm:px-2 font-medium text-[9px] sm:text-[10px] uppercase tracking-wider text-(--text-tertiary)',
             render: (player) =>
               player.bombs_available > 0 ? (
                 <span className="text-green-400 font-medium text-[11px] sm:text-sm">
                   <Check className="h-3 w-3 sm:h-4 sm:w-4" />
                 </span>
               ) : (
-                <span className="text-[var(--text-tertiary)] text-[11px] sm:text-sm">
+                <span className="text-(--text-tertiary) text-[11px] sm:text-sm">
                   -
                 </span>
               )
@@ -162,9 +162,9 @@ export const AvailabilityTable = ({
             sortable: true,
             sortValue: (player) => player.nextBombDisplay,
             className:
-              'hidden lg:table-cell text-center py-0.5 sm:py-1 px-2 text-[var(--text-tertiary)]',
+              'hidden lg:table-cell text-center py-0.5 sm:py-1 px-2 text-(--text-tertiary)',
             headerClassName:
-              'hidden lg:table-cell text-center py-1 px-2 font-medium text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]',
+              'hidden lg:table-cell text-center py-1 px-2 font-medium text-[10px] uppercase tracking-wider text-(--text-tertiary)',
             render: (player) => player.nextBombDisplay
           },
           {
@@ -172,9 +172,9 @@ export const AvailabilityTable = ({
             header: 'Last Battle',
             sortable: true,
             className:
-              'hidden lg:table-cell text-center py-0.5 sm:py-1 px-2 text-[var(--text-tertiary)]',
+              'hidden lg:table-cell text-center py-0.5 sm:py-1 px-2 text-(--text-tertiary)',
             headerClassName:
-              'hidden lg:table-cell text-center py-1 px-2 font-medium text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]',
+              'hidden lg:table-cell text-center py-1 px-2 font-medium text-[10px] uppercase tracking-wider text-(--text-tertiary)',
             sortValue: (player) => player.last_battle_time || '',
             render: (player) => player.lastBattleDisplay
           },
@@ -185,14 +185,14 @@ export const AvailabilityTable = ({
             sortValue: (player) => player.battles_with_damage,
             className: 'text-center py-0.5 sm:py-1 px-0.5 sm:px-2',
             headerClassName:
-              'text-center py-1 px-0.5 sm:px-2 font-medium text-[9px] sm:text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]',
+              'text-center py-1 px-0.5 sm:px-2 font-medium text-[9px] sm:text-[10px] uppercase tracking-wider text-(--text-tertiary)',
             render: (player) => (
               <span
                 className={`font-medium text-[11px] sm:text-sm ${
                   player.battles_with_damage === 0
-                    ? 'text-[var(--accent)]'
+                    ? 'text-(--accent)'
                     : player.battles_with_damage < 10
-                      ? 'text-[var(--primary)]'
+                      ? 'text-(--primary)'
                       : 'text-green-400'
                 }`}
               >

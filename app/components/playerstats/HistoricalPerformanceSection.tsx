@@ -179,8 +179,8 @@ export function HistoricalPerformanceSection({
 
   return (
     <div className="space-y-4">
-      <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded-lg chart-card p-4 hover:bg-card/90 hover:shadow-md transition-all duration-250">
-        <div className="text-sm font-medium text-[var(--text-secondary)] mb-3 flex items-center gap-2">
+      <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-lg chart-card p-4 hover:bg-card/90 hover:shadow-md transition-all duration-250">
+        <div className="text-sm font-medium text-secondary-wh40k mb-3 flex items-center gap-2">
           Performance Trends (Last 10 Seasons)
           {isLoading && (
             <span className="text-xs animate-pulse">Loading comparison...</span>
@@ -234,18 +234,18 @@ export function HistoricalPerformanceSection({
                 </RadarChart>
               </ResponsiveContainer>
             </div>
-            <div className="bg-[var(--card-bg)] rounded-lg p-3">
+            <div className="bg-(--card-bg) rounded-lg p-3">
               {hasValidCluster && (
                 <div className="flex gap-1 mb-2 md:hidden">
                   <button
                     onClick={() => setMobileViewMode('guild')}
-                    className={`px-2 py-1 text-xs rounded ${mobileViewMode === 'guild' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--card-border)] text-[var(--text-secondary)]'}`}
+                    className={`px-2 py-1 text-xs rounded-sm ${mobileViewMode === 'guild' ? 'bg-primary-wh40k text-white' : 'bg-(--card-border) text-secondary-wh40k'}`}
                   >
                     Guild
                   </button>
                   <button
                     onClick={() => setMobileViewMode('cluster')}
-                    className={`px-2 py-1 text-xs rounded ${mobileViewMode === 'cluster' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--card-border)] text-[var(--text-secondary)]'}`}
+                    className={`px-2 py-1 text-xs rounded-sm ${mobileViewMode === 'cluster' ? 'bg-primary-wh40k text-white' : 'bg-(--card-border) text-secondary-wh40k'}`}
                   >
                     Cluster
                   </button>
@@ -254,44 +254,44 @@ export function HistoricalPerformanceSection({
               <div className="overflow-x-auto">
                 <table className="w-full text-[10px] md:text-xs">
                   <thead>
-                    <tr className="border-b border-[var(--card-border)]">
-                      <th className="text-left py-2 px-1 text-[var(--text-secondary)] font-medium">
+                    <tr className="border-b border-(--card-border)">
+                      <th className="text-left py-2 px-1 text-secondary-wh40k font-medium">
                         Season
                       </th>
                       <th
-                        className={`text-right py-2 px-1 text-[var(--text-secondary)] font-medium ${hasValidCluster && mobileViewMode === 'cluster' ? 'hidden md:table-cell' : ''}`}
+                        className={`text-right py-2 px-1 text-secondary-wh40k font-medium ${hasValidCluster && mobileViewMode === 'cluster' ? 'hidden md:table-cell' : ''}`}
                       >
                         {guildLabel}
                       </th>
                       <th
-                        className={`text-right py-2 px-1 text-[var(--text-secondary)] font-medium ${hasValidCluster && mobileViewMode === 'cluster' ? 'hidden md:table-cell' : ''}`}
+                        className={`text-right py-2 px-1 text-secondary-wh40k font-medium ${hasValidCluster && mobileViewMode === 'cluster' ? 'hidden md:table-cell' : ''}`}
                       >
                         Guild Rank
                       </th>
                       {hasValidCluster && (
                         <th
-                          className={`text-right py-2 px-1 text-[var(--text-secondary)] font-medium ${mobileViewMode === 'guild' ? 'hidden md:table-cell' : ''}`}
+                          className={`text-right py-2 px-1 text-secondary-wh40k font-medium ${mobileViewMode === 'guild' ? 'hidden md:table-cell' : ''}`}
                         >
                           vs Cluster
                         </th>
                       )}
                       {hasValidCluster && (
                         <th
-                          className={`text-right py-2 px-1 text-[var(--text-secondary)] font-medium ${mobileViewMode === 'guild' ? 'hidden md:table-cell' : ''}`}
+                          className={`text-right py-2 px-1 text-secondary-wh40k font-medium ${mobileViewMode === 'guild' ? 'hidden md:table-cell' : ''}`}
                         >
                           Cluster Rank
                         </th>
                       )}
-                      <th className="text-right py-2 px-1 text-[var(--text-secondary)] font-medium">
+                      <th className="text-right py-2 px-1 text-secondary-wh40k font-medium">
                         Tokens
                       </th>
                       <th
-                        className="text-right py-2 px-1 text-[var(--text-secondary)] font-medium"
+                        className="text-right py-2 px-1 text-secondary-wh40k font-medium"
                         title="Average damage per token for the season."
                       >
                         Avg Dmg/Token
                       </th>
-                      <th className="text-right py-2 px-1 text-[var(--text-secondary)] font-medium hidden md:table-cell">
+                      <th className="text-right py-2 px-1 text-secondary-wh40k font-medium hidden md:table-cell">
                         Reliability
                       </th>
                     </tr>
@@ -302,7 +302,7 @@ export function HistoricalPerformanceSection({
                         key={row.season}
                         className="border-b border-card-border/50"
                       >
-                        <td className="py-2 px-1 text-[var(--text-primary)] font-medium">
+                        <td className="py-2 px-1 text-primary-wh40k font-medium">
                           {row.season}
                         </td>
                         <td
@@ -316,7 +316,7 @@ export function HistoricalPerformanceSection({
                           </span>
                         </td>
                         <td
-                          className={`py-2 px-1 text-right text-[var(--text-primary)] ${hasValidCluster && mobileViewMode === 'cluster' ? 'hidden md:table-cell' : ''}`}
+                          className={`py-2 px-1 text-right text-primary-wh40k ${hasValidCluster && mobileViewMode === 'cluster' ? 'hidden md:table-cell' : ''}`}
                         >
                           {row.guildRank && row.guildTotal ? (
                             <>
@@ -345,7 +345,7 @@ export function HistoricalPerformanceSection({
                         )}
                         {hasValidCluster && (
                           <td
-                            className={`py-2 px-1 text-right text-[var(--text-primary)] ${mobileViewMode === 'guild' ? 'hidden md:table-cell' : ''}`}
+                            className={`py-2 px-1 text-right text-primary-wh40k ${mobileViewMode === 'guild' ? 'hidden md:table-cell' : ''}`}
                           >
                             {row.clusterRank && row.clusterTotal ? (
                               <>
@@ -361,13 +361,13 @@ export function HistoricalPerformanceSection({
                             )}
                           </td>
                         )}
-                        <td className="py-2 px-1 text-right text-[var(--text-primary)]">
+                        <td className="py-2 px-1 text-right text-primary-wh40k">
                           {row.tokens}
                         </td>
-                        <td className="py-2 px-1 text-right text-[var(--text-primary)]">
+                        <td className="py-2 px-1 text-right text-primary-wh40k">
                           {formatDamage(row.totalDamage)}
                         </td>
-                        <td className="py-2 px-1 text-right text-[var(--text-primary)] hidden md:table-cell">
+                        <td className="py-2 px-1 text-right text-primary-wh40k hidden md:table-cell">
                           {row.reliability != null &&
                           Number.isFinite(row.reliability)
                             ? row.reliability.toFixed(1)
@@ -384,13 +384,13 @@ export function HistoricalPerformanceSection({
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg chart-card p-4 space-y-3">
+        <div className="bg-(--card-bg) border border-(--card-border) rounded-lg chart-card p-4 space-y-3">
           <div className="flex items-start justify-between">
             <div>
-              <h4 className="text-sm font-semibold text-[var(--text-primary)]">
+              <h4 className="text-sm font-semibold text-primary-wh40k">
                 Performance Trend Analysis
               </h4>
-              <p className="text-xs text-[var(--text-secondary)]">
+              <p className="text-xs text-secondary-wh40k">
                 Token usage with performance trends over time.
               </p>
             </div>
@@ -400,9 +400,7 @@ export function HistoricalPerformanceSection({
                   className="flex items-center gap-1 justify-end"
                   title="Change per season of the vs-Guild regression trendline, in percentage points."
                 >
-                  <span className="text-[var(--text-secondary)]">
-                    Guild Trend:
-                  </span>
+                  <span className="text-secondary-wh40k">Guild Trend:</span>
                   <span
                     className={
                       vsGuildTrend.slope >= 0
@@ -418,9 +416,7 @@ export function HistoricalPerformanceSection({
                     className="flex items-center gap-1 justify-end"
                     title="Change per season of the vs-Cluster regression trendline, in percentage points."
                   >
-                    <span className="text-[var(--text-secondary)]">
-                      Cluster Trend:
-                    </span>
+                    <span className="text-secondary-wh40k">Cluster Trend:</span>
                     <span
                       className={
                         vsClusterTrend.slope >= 0
@@ -535,19 +531,19 @@ export function HistoricalPerformanceSection({
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="text-xs text-[var(--text-secondary)]">
+            <div className="text-xs text-secondary-wh40k">
               Not enough seasonal data to render performance trends.
             </div>
           )}
         </div>
 
-        <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg chart-card p-4 space-y-3">
+        <div className="bg-(--card-bg) border border-(--card-border) rounded-lg chart-card p-4 space-y-3">
           <div className="flex items-start justify-between">
             <div>
-              <h4 className="text-sm font-semibold text-[var(--text-primary)]">
+              <h4 className="text-sm font-semibold text-primary-wh40k">
                 Reliability Trend Analysis
               </h4>
-              <p className="text-xs text-[var(--text-secondary)]">
+              <p className="text-xs text-secondary-wh40k">
                 Consistency score trends over time (higher = more consistent).
               </p>
             </div>
@@ -557,7 +553,7 @@ export function HistoricalPerformanceSection({
                   className="flex items-center gap-1 justify-end"
                   title="Change per season of the reliability regression trendline, in score points."
                 >
-                  <span className="text-[var(--text-secondary)]">Trend:</span>
+                  <span className="text-secondary-wh40k">Trend:</span>
                   <span
                     className={
                       reliabilityTrend.slope >= 0
@@ -621,29 +617,27 @@ export function HistoricalPerformanceSection({
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="text-xs text-[var(--text-secondary)]">
+            <div className="text-xs text-secondary-wh40k">
               Reliability data unavailable for the selected range.
             </div>
           )}
         </div>
       </div>
 
-      <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg chart-card p-4 space-y-3">
+      <div className="bg-(--card-bg) border border-(--card-border) rounded-lg chart-card p-4 space-y-3">
         <div className="flex items-start justify-between">
           <div>
-            <h4 className="text-sm font-semibold text-[var(--text-primary)]">
+            <h4 className="text-sm font-semibold text-primary-wh40k">
               Performance Consistency Analysis
             </h4>
-            <p className="text-xs text-[var(--text-secondary)]">
+            <p className="text-xs text-secondary-wh40k">
               Average damage per token with battle volume by season.
             </p>
           </div>
           {damageTrend && (
             <div className="text-right text-[10px]">
               <div className="flex items-center gap-1 justify-end">
-                <span className="text-[var(--text-secondary)]">
-                  Damage CAGR:
-                </span>
+                <span className="text-secondary-wh40k">Damage CAGR:</span>
                 <span
                   className={
                     damageTrend.cagr !== null && damageTrend.cagr >= 0
@@ -727,13 +721,13 @@ export function HistoricalPerformanceSection({
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="text-xs text-[var(--text-secondary)]">
+          <div className="text-xs text-secondary-wh40k">
             Not enough seasonal data to calculate damage consistency.
           </div>
         )}
       </div>
 
-      <div className="flex items-center justify-end text-xs text-[var(--text-secondary)]">
+      <div className="flex items-center justify-end text-xs text-secondary-wh40k">
         Current Season: S{selectedSeason}
       </div>
     </div>

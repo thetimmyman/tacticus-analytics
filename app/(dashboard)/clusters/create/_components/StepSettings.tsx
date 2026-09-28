@@ -18,7 +18,7 @@ export function StepSettings({ data, setData, errors = {} }: StepProps) {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">
+      <h2 className="text-xl font-bold text-primary-wh40k mb-4">
         Cluster Settings
       </h2>
 
@@ -58,7 +58,7 @@ export function StepSettings({ data, setData, errors = {} }: StepProps) {
             min={1}
             max={30}
           />
-          <p className="text-xs text-[var(--text-secondary)] mt-1">
+          <p className="text-xs text-secondary-wh40k mt-1">
             Tokens before marked as offender
           </p>
         </div>
@@ -78,15 +78,15 @@ export function StepSettings({ data, setData, errors = {} }: StepProps) {
             min={1}
             max={30}
           />
-          <p className="text-xs text-[var(--text-secondary)] mt-1">
+          <p className="text-xs text-secondary-wh40k mt-1">
             Tokens before marked as abuser
           </p>
         </div>
       </div>
 
       {/* Founding Guilds */}
-      <div className="border-t border-[var(--card-border)] pt-4">
-        <h3 className="font-semibold text-[var(--text-primary)] mb-3">
+      <div className="border-t border-(--card-border) pt-4">
+        <h3 className="font-semibold text-primary-wh40k mb-3">
           Founding Guilds (Optional)
         </h3>
 
@@ -151,7 +151,7 @@ export function StepSettings({ data, setData, errors = {} }: StepProps) {
             {data.foundingGuilds.map((guild, index) => (
               <div
                 key={guild.guildCode}
-                className="flex items-center justify-between p-3 bg-[var(--bg-secondary)] hover:bg-card/80 transition-colors duration-200 rounded-lg"
+                className="flex items-center justify-between p-3 bg-(--bg-secondary) hover:bg-card/80 transition-colors duration-200 rounded-lg"
               >
                 <div>
                   <span className="text-sm font-medium">
@@ -160,7 +160,7 @@ export function StepSettings({ data, setData, errors = {} }: StepProps) {
                       display_name: guild.displayName
                     })}
                   </span>
-                  <div className="text-xs text-[var(--text-secondary)] mt-1">
+                  <div className="text-xs text-secondary-wh40k mt-1">
                     {guild.apiKey
                       ? 'API key provided'
                       : `Invite: ${guild.leaderEmail}`}

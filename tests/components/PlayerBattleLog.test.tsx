@@ -165,7 +165,7 @@ describe('PlayerBattleLog', () => {
     fireEvent.click(battlesButton)
 
     await waitFor(() => {
-      expect(battlesButton).toHaveClass('bg-[var(--primary)]')
+      expect(battlesButton).toHaveClass('bg-primary-wh40k')
     })
   })
 

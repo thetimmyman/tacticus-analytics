@@ -118,13 +118,13 @@ export default function ExploreContent(_props: ExploreContentProps) {
       {/* Empty State */}
       {!showSkeletons && sortedGuilds.length === 0 && (
         <div className="text-center py-12">
-          <Trophy className="w-12 h-12 text-[var(--text-tertiary)] mx-auto mb-4" />
-          <p className="text-[var(--text-secondary)]">
+          <Trophy className="w-12 h-12 text-(--text-tertiary) mx-auto mb-4" />
+          <p className="text-secondary-wh40k">
             {loading
               ? 'Loading guild data...'
               : 'No guilds found matching your filters'}
           </p>
-          <p className="text-xs text-[var(--text-tertiary)] mt-2">
+          <p className="text-xs text-(--text-tertiary) mt-2">
             Adjust search, cluster, or rarity filters to broaden the public
             snapshot results.
           </p>

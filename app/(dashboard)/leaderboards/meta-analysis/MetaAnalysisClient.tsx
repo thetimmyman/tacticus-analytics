@@ -44,7 +44,7 @@ function MetaAnalysisClient({ initialSeason }: MetaAnalysisClientProps) {
   if (data.error) {
     return (
       <div className="card-wh40k p-8">
-        <div className="text-[var(--accent)] text-center">{data.error}</div>
+        <div className="text-(--accent) text-center">{data.error}</div>
       </div>
     )
   }

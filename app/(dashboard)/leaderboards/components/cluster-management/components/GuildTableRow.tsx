@@ -45,14 +45,14 @@ export function GuildTableRow({
   const hasMounted = useHasMounted()
   if (isEditing && editedGuild) {
     return (
-      <tr className="border-t border-[var(--card-border)] hover:bg-card/30 hover:bg-[color-mix(in_srgb,var(--bg-secondary)_30%,transparent)] transition-colors duration-150">
+      <tr className="border-t border-(--card-border) hover:bg-card/30 hover:bg-[color-mix(in_srgb,var(--bg-secondary)_30%,transparent)] transition-colors duration-150">
         <td className="px-4 py-3">
           <span className="font-bold text-accent-wh40k">
             {formatGuildTag(guild)}
           </span>
         </td>
         <td className="px-4 py-3">
-          <div className="px-3 py-1 text-sm text-[var(--text-primary)] bg-card/50 hover:bg-card/80 transition-colors duration-200 rounded border border-[var(--card-border)] opacity-60">
+          <div className="px-3 py-1 text-sm text-primary-wh40k bg-card/50 hover:bg-card/80 transition-colors duration-200 rounded-sm border border-(--card-border) opacity-60">
             {editedGuild?.display_name || '-'}
           </div>
         </td>
@@ -76,7 +76,7 @@ export function GuildTableRow({
               variant="ghost"
               onClick={() => onValidateKey(editedGuild.guild_code)}
               disabled={validatingKey === editedGuild?.guild_code}
-              className="text-[var(--accent)] hover:text-blue-300"
+              className="text-(--accent) hover:text-blue-300"
               title="Validate API key"
             >
               {validatingKey === editedGuild?.guild_code ? (
@@ -106,17 +106,17 @@ export function GuildTableRow({
           />
         </td>
         <td className="px-4 py-3">
-          <div className="text-center px-2 py-1 text-sm text-[var(--text-primary)] bg-card/50 hover:bg-card/80 transition-colors duration-200 rounded border border-[var(--card-border)] opacity-60 max-w-[60px] mx-auto">
+          <div className="text-center px-2 py-1 text-sm text-primary-wh40k bg-card/50 hover:bg-card/80 transition-colors duration-200 rounded-sm border border-(--card-border) opacity-60 max-w-[60px] mx-auto">
             {editedGuild?.GR_Ranking || '-'}
           </div>
         </td>
         <td className="px-4 py-3">
-          <div className="text-center px-2 py-1 text-sm text-[var(--text-primary)] bg-card/50 hover:bg-card/80 transition-colors duration-200 rounded border border-[var(--card-border)] opacity-60 max-w-[60px] mx-auto">
+          <div className="text-center px-2 py-1 text-sm text-primary-wh40k bg-card/50 hover:bg-card/80 transition-colors duration-200 rounded-sm border border-(--card-border) opacity-60 max-w-[60px] mx-auto">
             {editedGuild?.GW_Ranking || '-'}
           </div>
         </td>
         <td className="px-4 py-3">
-          <span className="text-xs text-[var(--text-secondary)]">
+          <span className="text-xs text-secondary-wh40k">
             Managed via Webhooks
           </span>
         </td>
@@ -134,7 +134,7 @@ export function GuildTableRow({
               size="sm"
               variant="ghost"
               onClick={onCancelEdit}
-              className="text-[var(--accent)] hover:text-[var(--accent)]"
+              className="text-(--accent) hover:text-(--accent)"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -151,7 +151,7 @@ export function GuildTableRow({
       : '—'
 
   return (
-    <tr className="border-t border-[var(--card-border)] hover:bg-card/30 hover:bg-[color-mix(in_srgb,var(--bg-secondary)_30%,transparent)] transition-colors duration-150">
+    <tr className="border-t border-(--card-border) hover:bg-card/30 hover:bg-[color-mix(in_srgb,var(--bg-secondary)_30%,transparent)] transition-colors duration-150">
       <td className="px-4 py-3">
         <span className="font-bold text-accent-wh40k">
           {formatGuildTag(guild)}
@@ -177,7 +177,7 @@ export function GuildTableRow({
                     ? 'text-green-500 hover:text-green-400'
                     : guild.api_key_is_valid === false
                       ? 'text-red-500 hover:text-red-400'
-                      : 'text-gray-400 hover:text-[var(--accent)]'
+                      : 'text-gray-400 hover:text-(--accent)'
                 }`}
                 title={
                   guild.api_key_is_valid === true
@@ -196,7 +196,7 @@ export function GuildTableRow({
             )}
           </div>
           {guild.api_key_last_validated && (
-            <div className="text-xs text-[var(--text-secondary)] mt-1">
+            <div className="text-xs text-secondary-wh40k mt-1">
               Last checked: {lastValidatedLabel}
             </div>
           )}

@@ -72,9 +72,9 @@ export default function ActivityTable({ rows }: { rows: RecentAttempt[] }) {
       header: 'Attacker',
       sortable: false,
       render: (attempt) => (
-        <div className="font-medium text-[var(--text-primary)]">
+        <div className="font-medium text-primary-wh40k">
           {attempt.attacker.name}
-          <div className="text-xs text-[var(--text-tertiary)]">
+          <div className="text-xs text-(--text-tertiary)">
             {attempt.attacker.guildTag}
           </div>
         </div>
@@ -86,7 +86,7 @@ export default function ActivityTable({ rows }: { rows: RecentAttempt[] }) {
       sortable: false,
       render: (attempt) => (
         // The fallback Skull uses text-current, which the td would dim.
-        <div className="text-[var(--text-primary)]">
+        <div className="text-primary-wh40k">
           <UnitRow units={enrichUnits(attempt.attackerUnits)} size="sm" />
         </div>
       )
@@ -98,7 +98,7 @@ export default function ActivityTable({ rows }: { rows: RecentAttempt[] }) {
       render: (attempt) => (
         <>
           {attempt.defender.name}
-          <div className="text-xs text-[var(--text-tertiary)]">
+          <div className="text-xs text-(--text-tertiary)">
             {attempt.defender.guildTag}
           </div>
         </>
@@ -109,7 +109,7 @@ export default function ActivityTable({ rows }: { rows: RecentAttempt[] }) {
       header: 'Defender Team',
       sortable: false,
       render: (attempt) => (
-        <div className="text-[var(--text-primary)]">
+        <div className="text-primary-wh40k">
           <UnitRow
             units={enrichUnits(attempt.defenderUnits)}
             size="sm"
@@ -155,7 +155,7 @@ export default function ActivityTable({ rows }: { rows: RecentAttempt[] }) {
       render: (attempt) => (
         <div className="flex items-center justify-center gap-2">
           {getScoreBadge(attempt.score, attempt.isPerfect, attempt.isFailed)}
-          <span className="font-mono text-[var(--text-secondary)]">
+          <span className="font-mono text-secondary-wh40k">
             {formatNumber(attempt.score)}
           </span>
         </div>
@@ -173,7 +173,7 @@ export default function ActivityTable({ rows }: { rows: RecentAttempt[] }) {
       header: 'Time',
       sortable: false,
       render: (attempt) => (
-        <span className="text-[var(--text-tertiary)]">
+        <span className="text-(--text-tertiary)">
           {formatAttemptTime(attempt.time, hasMounted)}
         </span>
       )

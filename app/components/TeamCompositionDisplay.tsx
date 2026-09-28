@@ -68,7 +68,7 @@ function TeamCompositionDisplay({
               />
             ) : (
               <div
-                className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded-full flex items-center justify-center text-xs font-bold"
+                className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-full flex items-center justify-center text-xs font-bold"
                 style={{ width: iconSize, height: iconSize }}
                 title={title}
               >
@@ -80,9 +80,7 @@ function TeamCompositionDisplay({
       })}
 
       {/* Display separator if MOW exists */}
-      {mow && (
-        <span className="text-[var(--text-secondary)] mx-2 font-bold">&</span>
-      )}
+      {mow && <span className="text-secondary-wh40k mx-2 font-bold">&</span>}
 
       {/* Display MOW */}
       {mow && (
@@ -102,7 +100,7 @@ function TeamCompositionDisplay({
               />
             ) : (
               <div
-                className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded-full flex items-center justify-center text-xs font-bold"
+                className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-full flex items-center justify-center text-xs font-bold"
                 style={{ width: iconSize, height: iconSize }}
                 title={title}
               >

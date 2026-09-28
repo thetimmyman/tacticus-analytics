@@ -11,9 +11,9 @@ export const metadata = createPageMetadata({
 
 export default function ConfirmEmailPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[var(--bg-from)] via-red-900 to-[var(--bg-to)] flex items-center justify-center">
+    <div className="min-h-screen bg-linear-to-br from-(--bg-from) via-red-900 to-(--bg-to) flex items-center justify-center">
       <div className="max-w-md w-full mx-auto p-6">
-        <div className="bg-black/60 backdrop-blur-sm rounded-lg border border-amber-500/30 p-8 text-center">
+        <div className="bg-black/60 backdrop-blur-xs rounded-lg border border-amber-500/30 p-8 text-center">
           <div className="text-6xl mb-4">📧</div>
           <h2 className="text-2xl font-bold text-yellow-400 mb-4">
             Check Your Email
@@ -46,8 +46,8 @@ export default function ConfirmEmailPage() {
             </p>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-[var(--card-border)]">
-            <p className="text-sm text-[var(--text-secondary)]">
+          <div className="mt-8 pt-6 border-t border-(--card-border)">
+            <p className="text-sm text-secondary-wh40k">
               Already confirmed?{' '}
               <a
                 href="/auth/login"

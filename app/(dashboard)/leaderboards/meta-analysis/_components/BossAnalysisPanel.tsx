@@ -83,7 +83,7 @@ export function BossAnalysisPanel({
           machineOfWarDetails={r.comp.machineOfWarDetails}
           showNames={false}
           iconSize={42}
-          className="font-medium text-[var(--text-secondary)] text-xs max-w-xs"
+          className="font-medium text-secondary-wh40k text-xs max-w-xs"
         />
       )
     },
@@ -100,7 +100,7 @@ export function BossAnalysisPanel({
       sortable: false,
       align: 'center',
       render: (r) => (
-        <span className="text-[var(--accent)] font-mono">
+        <span className="text-(--accent) font-mono">
           {formatDamage(r.comp.minDamage, 1)}
         </span>
       )
@@ -111,7 +111,7 @@ export function BossAnalysisPanel({
       sortable: false,
       align: 'center',
       render: (r) => (
-        <span className="text-[var(--accent)] font-mono font-medium">
+        <span className="text-(--accent) font-mono font-medium">
           {formatDamage(r.comp.avgDamage, 1)}
         </span>
       )
@@ -209,7 +209,7 @@ export function BossAnalysisPanel({
       className="card-wh40k p-3 sm:p-4"
     >
       <div className="flex justify-between items-center mb-4">
-        <h3 className="subheading-wh40k text-[var(--accent)]">
+        <h3 className="subheading-wh40k text-(--accent)">
           {bossLabel}: {getBossDisplayName(analysis.bossName)}
         </h3>
         <div className="flex items-center gap-3">
@@ -226,8 +226,8 @@ export function BossAnalysisPanel({
               }}
               className={`px-3 py-1 text-xs rounded transition-colors ${
                 showBossComparison
-                  ? 'bg-[var(--accent)] hover:bg-[color-mix(in_srgb,var(--accent)_80%,transparent)] text-black'
-                  : 'bg-[var(--card-bg)] hover:bg-[var(--card-bg)] text-[var(--text-primary)]'
+                  ? 'bg-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_80%,transparent)] text-black'
+                  : 'bg-(--card-bg) hover:bg-(--card-bg) text-primary-wh40k'
               }`}
             >
               {showBossComparison
@@ -236,7 +236,7 @@ export function BossAnalysisPanel({
             </button>
           )}
           {analysis.compositions.length > ITEMS_PER_PAGE && (
-            <div className="text-sm text-[var(--text-secondary)]">
+            <div className="text-sm text-secondary-wh40k">
               Total: {analysis.compositions.length} teams
             </div>
           )}
@@ -244,15 +244,15 @@ export function BossAnalysisPanel({
       </div>
 
       {showBossComparison && analysis.compositions.length > 0 && (
-        <div className="bg-card/30 hover:bg-card/80 transition-colors duration-200 rounded-lg p-4 mb-4 border border-[var(--card-border)]">
-          <h4 className="text-sm font-medium text-[var(--accent)] mb-3">
+        <div className="bg-card/30 hover:bg-card/80 transition-colors duration-200 rounded-lg p-4 mb-4 border border-(--card-border)">
+          <h4 className="text-sm font-medium text-(--accent) mb-3">
             Compare Teams for {getBossDisplayName(analysis.bossName)}
           </h4>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
             {[0, 1, 2, 3].map((teamSlot) => (
               <div key={`team-selector-${bossKey}-${teamSlot}`}>
-                <label className="text-xs text-[var(--text-secondary)] block mb-1">
+                <label className="text-xs text-secondary-wh40k block mb-1">
                   Team {teamSlot + 1}
                 </label>
                 <select
@@ -268,7 +268,7 @@ export function BossAnalysisPanel({
                       }
                     }))
                   }}
-                  className="w-full px-2 py-1 text-xs bg-[var(--card-bg)] border border-[var(--card-border)] rounded text-[var(--text-secondary)] focus:border-[var(--accent)] focus:outline-none"
+                  className="w-full px-2 py-1 text-xs bg-(--card-bg) border border-(--card-border) rounded-sm text-secondary-wh40k focus:border-accent-wh40k focus:outline-hidden"
                 >
                   <option value="">Select Team</option>
                   {bossMetaTeams.map((team) => (
@@ -293,17 +293,15 @@ export function BossAnalysisPanel({
       {analysis.loading ? (
         <div className="flex items-center justify-center py-4">
           <Spinner size="md" className="text-cyan-400" />
-          <span className="ml-2 text-[var(--text-secondary)]">
+          <span className="ml-2 text-secondary-wh40k">
             Loading {bossLabel} analysis...
           </span>
         </div>
       ) : analysis.error ? (
-        <div className="text-[var(--accent)] text-center py-4">
-          {analysis.error}
-        </div>
+        <div className="text-(--accent) text-center py-4">{analysis.error}</div>
       ) : analysis.compositions.length === 0 &&
         analysis.source === 'fallback-error' ? (
-        <div className="text-[var(--accent)] text-center py-6">
+        <div className="text-(--accent) text-center py-6">
           <div className="text-sm font-medium mb-1">
             We couldn&apos;t load meta analysis right now. Try again.
           </div>
@@ -311,7 +309,7 @@ export function BossAnalysisPanel({
             <button
               type="button"
               onClick={onRetry}
-              className="mt-2 px-3 py-1.5 text-xs rounded border border-[var(--accent)] text-[var(--accent)] hover:bg-[var(--accent)]/10 transition-colors"
+              className="mt-2 px-3 py-1.5 text-xs rounded-sm border border-accent-wh40k text-(--accent) hover:bg-(--accent)/10 transition-colors"
             >
               Retry
             </button>
@@ -319,13 +317,13 @@ export function BossAnalysisPanel({
         </div>
       ) : analysis.compositions.length === 0 &&
         analysis.source === 'fallback-disabled' ? (
-        <div className="text-[var(--text-secondary)] text-center py-6">
+        <div className="text-secondary-wh40k text-center py-6">
           <div className="text-sm font-medium mb-1">
             Meta analysis is currently disabled
           </div>
         </div>
       ) : analysis.compositions.length === 0 ? (
-        <div className="text-[var(--text-secondary)] text-center py-6">
+        <div className="text-secondary-wh40k text-center py-6">
           <div className="text-sm font-medium mb-1">
             No team compositions found
           </div>
@@ -357,7 +355,7 @@ export function BossAnalysisPanel({
                   className="bg-[color-mix(in_srgb,var(--bg-primary)_50%,transparent)] rounded-lg p-3"
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <div className="text-[var(--text-secondary)] text-sm">
+                    <div className="text-secondary-wh40k text-sm">
                       #{actualRank}
                     </div>
                     <div
@@ -383,32 +381,28 @@ export function BossAnalysisPanel({
                       machineOfWarDetails={comp.machineOfWarDetails}
                       showNames={false}
                       iconSize={36}
-                      className="font-medium text-[var(--text-secondary)] text-xs"
+                      className="font-medium text-secondary-wh40k text-xs"
                     />
                   </div>
 
                   <div className="grid grid-cols-3 gap-2 text-xs">
                     <div className="text-center">
-                      <div className="text-[var(--text-secondary)] mb-1">
-                        Battles
-                      </div>
-                      <div className="text-[var(--text-secondary)] font-medium">
+                      <div className="text-secondary-wh40k mb-1">Battles</div>
+                      <div className="text-secondary-wh40k font-medium">
                         {comp.battlesCount}
                       </div>
                     </div>
                     <div className="text-center">
-                      <div className="text-[var(--text-secondary)] mb-1">
+                      <div className="text-secondary-wh40k mb-1">
                         Avg Damage
                       </div>
-                      <div className="text-[var(--accent)] font-mono font-medium">
+                      <div className="text-(--accent) font-mono font-medium">
                         {formatDamage(comp.avgDamage, 1)}
                       </div>
                     </div>
                     <div className="text-center">
-                      <div className="text-[var(--text-secondary)] mb-1">
-                        CV%
-                      </div>
-                      <div className="text-[var(--text-secondary)] font-mono">
+                      <div className="text-secondary-wh40k mb-1">CV%</div>
+                      <div className="text-secondary-wh40k font-mono">
                         {Number.isFinite(comp.coefficientOfVariation)
                           ? formatPercentage(
                               (comp.coefficientOfVariation ?? 0) / 100,
@@ -419,19 +413,15 @@ export function BossAnalysisPanel({
                     </div>
                   </div>
 
-                  <div className="flex justify-between text-xs mt-2 pt-2 border-t border-[var(--card-border)]">
+                  <div className="flex justify-between text-xs mt-2 pt-2 border-t border-(--card-border)">
                     <div>
-                      <span className="text-[var(--accent)] font-mono">
+                      <span className="text-(--accent) font-mono">
                         {formatDamage(comp.minDamage, 1)}
                       </span>
-                      <span className="text-[var(--text-secondary)] mx-1">
-                        min
-                      </span>
+                      <span className="text-secondary-wh40k mx-1">min</span>
                     </div>
                     <div>
-                      <span className="text-[var(--text-secondary)] mx-1">
-                        max
-                      </span>
+                      <span className="text-secondary-wh40k mx-1">max</span>
                       <span className="text-green-400 font-mono">
                         {formatDamage(comp.maxDamage, 1)}
                       </span>
@@ -447,12 +437,12 @@ export function BossAnalysisPanel({
               <button
                 onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 bg-[var(--card-bg)] hover:bg-[var(--card-bg)] disabled:opacity-50 disabled:cursor-not-allowed text-sm rounded"
+                className="px-3 py-1 bg-(--card-bg) hover:bg-(--card-bg) disabled:opacity-50 disabled:cursor-not-allowed text-sm rounded-sm"
               >
                 Previous
               </button>
 
-              <span className="text-sm text-[var(--text-secondary)]">
+              <span className="text-sm text-secondary-wh40k">
                 Page {currentPage} of {totalPages}
               </span>
 
@@ -461,7 +451,7 @@ export function BossAnalysisPanel({
                   handlePageChange(Math.min(totalPages, currentPage + 1))
                 }
                 disabled={currentPage === totalPages}
-                className="px-3 py-1 bg-[var(--card-bg)] hover:bg-[var(--card-bg)] disabled:opacity-50 disabled:cursor-not-allowed text-sm rounded"
+                className="px-3 py-1 bg-(--card-bg) hover:bg-(--card-bg) disabled:opacity-50 disabled:cursor-not-allowed text-sm rounded-sm"
               >
                 Next
               </button>

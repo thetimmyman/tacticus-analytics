@@ -97,10 +97,10 @@ export function PlayerStatsDisplay({
     playerMapping?.player_id && ['officer', 'leader'].includes(userRole)
 
   return (
-    <Card className="border border-[var(--card-border)] bg-[var(--card-bg)]">
+    <Card className="border border-(--card-border) bg-(--card-bg)">
       <CardHeader className="space-y-1">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <CardTitle className="text-xl font-semibold text-[var(--text-primary)]">
+          <CardTitle className="text-xl font-semibold text-primary-wh40k">
             Performance Insights • Season {selectedSeason}
           </CardTitle>
           {hasQuickLinks && (
@@ -108,7 +108,7 @@ export function PlayerStatsDisplay({
               {showRosterLink && (
                 <Link
                   href={`/roster/${encodeURIComponent(playerMapping.player_id!)}`}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] border border-[color-mix(in_srgb,var(--accent)_30%,transparent)] rounded-md text-[var(--accent)] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] border border-[color-mix(in_srgb,var(--accent)_30%,transparent)] rounded-md text-(--accent) transition-colors"
                 >
                   <Users className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">View</span> Roster
@@ -128,7 +128,7 @@ export function PlayerStatsDisplay({
             </div>
           )}
         </div>
-        <div className="text-sm text-[var(--text-secondary)]">
+        <div className="text-sm text-secondary-wh40k">
           <MemberName value={playerName} /> • {guildName}
           {hasValidCluster &&
             showClusterMetrics &&
@@ -168,12 +168,12 @@ export function PlayerStatsDisplay({
               />
             ) : (
               <div className="space-y-4 animate-pulse">
-                <div className="h-6 w-64 bg-[var(--card-border)] rounded" />
+                <div className="h-6 w-64 bg-(--card-border) rounded-sm" />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  <div className="h-64 bg-[var(--card-border)] rounded-lg" />
-                  <div className="h-64 bg-[var(--card-border)] rounded-lg" />
+                  <div className="h-64 bg-(--card-border) rounded-lg" />
+                  <div className="h-64 bg-(--card-border) rounded-lg" />
                 </div>
-                <div className="h-48 bg-[var(--card-border)] rounded-lg" />
+                <div className="h-48 bg-(--card-border) rounded-lg" />
               </div>
             ))}
           {activeTab === 'raid-teams' && (

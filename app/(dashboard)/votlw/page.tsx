@@ -19,7 +19,7 @@ const VOTLW = dynamic(() => import('@/app/components/votlw/VOTLWContainer'), {
     <div className="flex items-center justify-center min-h-[400px]">
       <div className="text-center">
         <Spinner size="lg" className="mx-auto mb-4 h-12 w-12 text-primary" />
-        <p className="text-[var(--text-secondary)]">Loading VOTLW data...</p>
+        <p className="text-secondary-wh40k">Loading VOTLW data...</p>
       </div>
     </div>
   )

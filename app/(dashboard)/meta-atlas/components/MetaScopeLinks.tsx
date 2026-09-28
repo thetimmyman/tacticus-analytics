@@ -12,11 +12,11 @@ export function MetaScopeLinks({ hasCluster }: MetaScopeLinksProps) {
   if (!hasCluster) return null
 
   return (
-    <p className="mt-1.5 text-xs text-[var(--text-secondary)]">
+    <p className="mt-1.5 text-xs text-secondary-wh40k">
       Related:{' '}
       <Link
         href="/leaderboards/meta-analysis"
-        className="text-[var(--accent)] underline-offset-4 hover:underline"
+        className="text-(--accent) underline-offset-4 hover:underline"
       >
         Global Meta
       </Link>{' '}

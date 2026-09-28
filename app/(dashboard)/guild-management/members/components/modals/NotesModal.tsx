@@ -62,12 +62,12 @@ export function NotesModal({
 
   return (
     <ModalShell>
-      <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+      <h3 className="text-lg font-semibold text-primary-wh40k">
         Edit Notes - <MemberName value={member.display_name} />
       </h3>
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+          <label className="block text-sm font-medium text-secondary-wh40k mb-2">
             Officer Notes (private to leadership)
           </label>
           <textarea
@@ -81,7 +81,7 @@ export function NotesModal({
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+          <label className="block text-sm font-medium text-secondary-wh40k mb-2">
             Player Notes (visible to the member)
           </label>
           <textarea

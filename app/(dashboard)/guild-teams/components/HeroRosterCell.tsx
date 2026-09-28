@@ -17,7 +17,7 @@ export const HeroRosterCell = memo(function HeroRosterCell({
 }: HeroRosterCellProps) {
   if (!data || data.stars == null) {
     return (
-      <div className="flex items-center justify-center h-full min-h-[60px] text-[var(--text-secondary)]">
+      <div className="flex items-center justify-center h-full min-h-[60px] text-secondary-wh40k">
         —
       </div>
     )
@@ -40,14 +40,14 @@ export const HeroRosterCell = memo(function HeroRosterCell({
 
       {/* Level */}
       {data.xp_level != null && (
-        <span className="text-[10px] text-[var(--text-primary)] leading-none">
+        <span className="text-[10px] text-primary-wh40k leading-none">
           L{data.xp_level}
         </span>
       )}
 
       {/* Ability Levels */}
       {hasAbilities && (
-        <span className="text-[10px] text-[var(--text-secondary)] leading-none whitespace-nowrap">
+        <span className="text-[10px] text-secondary-wh40k leading-none whitespace-nowrap">
           A:{data.active_ability_level ?? '?'} P:
           {data.passive_ability_level ?? '?'}
         </span>

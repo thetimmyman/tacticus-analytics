@@ -48,7 +48,7 @@ export function EditProfileCoreFields({
   return (
     <div className="flex items-start space-x-6">
       {/* Avatar Preview */}
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <Image
           src={avatarUrl}
           alt="Profile"
@@ -57,7 +57,7 @@ export function EditProfileCoreFields({
           className="w-24 h-24 rounded-full"
           unoptimized
         />
-        <p className="mt-2 text-xs text-[var(--text-secondary)] text-center">
+        <p className="mt-2 text-xs text-secondary-wh40k text-center">
           Auto-generated
         </p>
       </div>
@@ -67,7 +67,7 @@ export function EditProfileCoreFields({
         <div>
           <label
             htmlFor="displayName"
-            className="block text-sm font-medium text-[var(--text-secondary)]"
+            className="block text-sm font-medium text-secondary-wh40k"
           >
             Display Name (Game Controlled)
           </label>
@@ -75,11 +75,11 @@ export function EditProfileCoreFields({
             id="displayName"
             type="text"
             value={displayName}
-            className="input-wh40k w-full mt-1 bg-[var(--card-bg)] opacity-60 cursor-not-allowed"
+            className="input-wh40k w-full mt-1 bg-(--card-bg) opacity-60 cursor-not-allowed"
             disabled
             readOnly
           />
-          <p className="mt-1 text-xs text-[var(--text-secondary)]">
+          <p className="mt-1 text-xs text-secondary-wh40k">
             Your display name is automatically synchronized from the Tacticus
             game and cannot be edited here.
           </p>
@@ -88,7 +88,7 @@ export function EditProfileCoreFields({
         <div>
           <label
             htmlFor="timezone"
-            className="block text-sm font-medium text-[var(--text-secondary)]"
+            className="block text-sm font-medium text-secondary-wh40k"
           >
             Timezone
           </label>
@@ -132,11 +132,11 @@ export function EditProfileCoreFields({
         <div>
           <label
             htmlFor="discordUsername"
-            className="flex items-center justify-between text-sm font-medium text-[var(--text-secondary)]"
+            className="flex items-center justify-between text-sm font-medium text-secondary-wh40k"
           >
             <span>Discord Username</span>
             {isDiscordUsernameControlled && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-900/30 text-blue-400 border border-blue-500/30">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-blue-900/30 text-blue-400 border border-blue-500/30">
                 <svg
                   className="w-3 h-3 mr-1"
                   viewBox="0 0 24 24"
@@ -163,12 +163,12 @@ export function EditProfileCoreFields({
             readOnly={isDiscordUsernameControlled}
           />
           {isDiscordUsernameControlled && (
-            <p className="mt-1 text-xs text-[var(--text-secondary)]">
+            <p className="mt-1 text-xs text-secondary-wh40k">
               This field is automatically synced from your connected Discord
               account.
               <Link
                 href="/profile"
-                className="text-[var(--accent)] hover:underline ml-1"
+                className="text-(--accent) hover:underline ml-1"
               >
                 Manage Discord connection
               </Link>
@@ -179,7 +179,7 @@ export function EditProfileCoreFields({
         <div>
           <label
             htmlFor="tacticusShareUrl"
-            className="block text-sm font-medium text-[var(--text-secondary)]"
+            className="block text-sm font-medium text-secondary-wh40k"
           >
             Tacticus Share URL
           </label>
@@ -197,7 +197,7 @@ export function EditProfileCoreFields({
         <div>
           <label
             htmlFor="themePreference"
-            className="block text-sm font-medium text-[var(--text-secondary)]"
+            className="block text-sm font-medium text-secondary-wh40k"
           >
             Theme Preference
           </label>
@@ -236,7 +236,7 @@ export function EditProfileCoreFields({
               {/* Loyalist Chapters */}
               <RadixSelectSeparator />
               <RadixSelectGroup>
-                <RadixSelectLabel className="text-xs text-[var(--text-tertiary)] px-2 py-1">
+                <RadixSelectLabel className="text-xs text-(--text-tertiary) px-2 py-1">
                   Loyalist Astartes
                 </RadixSelectLabel>
                 <RadixSelectItem value="UM">Ultramarines</RadixSelectItem>
@@ -257,7 +257,7 @@ export function EditProfileCoreFields({
               {/* Chaos Forces */}
               <RadixSelectSeparator />
               <RadixSelectGroup>
-                <RadixSelectLabel className="text-xs text-[var(--text-tertiary)] px-2 py-1">
+                <RadixSelectLabel className="text-xs text-(--text-tertiary) px-2 py-1">
                   Chaos Forces
                 </RadixSelectLabel>
                 <RadixSelectItem value="IW">Iron Warriors</RadixSelectItem>
@@ -278,7 +278,7 @@ export function EditProfileCoreFields({
               {/* Xenos */}
               <RadixSelectSeparator />
               <RadixSelectGroup>
-                <RadixSelectLabel className="text-xs text-[var(--text-tertiary)] px-2 py-1">
+                <RadixSelectLabel className="text-xs text-(--text-tertiary) px-2 py-1">
                   Xenos
                 </RadixSelectLabel>
                 <RadixSelectItem value="ORKS">Orks</RadixSelectItem>
@@ -290,7 +290,7 @@ export function EditProfileCoreFields({
               {/* Imperial Forces */}
               <RadixSelectSeparator />
               <RadixSelectGroup>
-                <RadixSelectLabel className="text-xs text-[var(--text-tertiary)] px-2 py-1">
+                <RadixSelectLabel className="text-xs text-(--text-tertiary) px-2 py-1">
                   Imperial Forces
                 </RadixSelectLabel>
                 <RadixSelectItem value="SOB">Sisters of Battle</RadixSelectItem>
@@ -302,7 +302,7 @@ export function EditProfileCoreFields({
               </RadixSelectGroup>
             </RadixSelectContent>
           </RadixSelect>
-          <p className="mt-1 text-xs text-[var(--text-secondary)]">
+          <p className="mt-1 text-xs text-secondary-wh40k">
             Choose your preferred theme for the dashboard
           </p>
         </div>

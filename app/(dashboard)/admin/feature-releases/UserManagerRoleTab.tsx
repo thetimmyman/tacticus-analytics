@@ -54,20 +54,20 @@ export function UserManagerRoleTab({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--text-tertiary)" />
           <input
             type="text"
             value={filterQuery}
             onChange={(e) => setFilterQuery(e.target.value)}
             placeholder="Filter by email..."
-            className="w-full pl-9 pr-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-tertiary)] text-sm"
+            className="w-full pl-9 pr-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-primary-wh40k placeholder-(--text-tertiary) text-sm"
           />
         </div>
 
         <div className="space-y-2">
           {activeTab === 'admins' ? (
             filterList(admins).length === 0 ? (
-              <p className="text-[var(--text-secondary)] text-sm py-4 text-center">
+              <p className="text-secondary-wh40k text-sm py-4 text-center">
                 No admins found
               </p>
             ) : (
@@ -78,10 +78,10 @@ export function UserManagerRoleTab({
                     className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/30"
                   >
                     <div className="min-w-0 flex-1">
-                      <span className="text-[var(--text-primary)] text-sm truncate block">
+                      <span className="text-primary-wh40k text-sm truncate block">
                         {admin.display_name || admin.email}
                       </span>
-                      <div className="flex items-center gap-2 text-xs text-[var(--text-tertiary)] flex-wrap">
+                      <div className="flex items-center gap-2 text-xs text-(--text-tertiary) flex-wrap">
                         {admin.cluster_code && (
                           <span>[{admin.cluster_code}]</span>
                         )}
@@ -120,7 +120,7 @@ export function UserManagerRoleTab({
               const tab = ROLE_TABS.find((t) => t.key === activeTab)!
 
               return list.length === 0 ? (
-                <p className="text-[var(--text-secondary)] text-sm py-4 text-center">
+                <p className="text-secondary-wh40k text-sm py-4 text-center">
                   No {tab.label.toLowerCase()} found
                 </p>
               ) : (
@@ -131,10 +131,10 @@ export function UserManagerRoleTab({
                       className={`flex items-center justify-between gap-2 px-3 py-2 rounded-lg ${tab.bg} border ${tab.border}`}
                     >
                       <div className="min-w-0 flex-1">
-                        <span className="text-[var(--text-primary)] text-sm truncate block">
+                        <span className="text-primary-wh40k text-sm truncate block">
                           {user.display_name || user.email}
                         </span>
-                        <div className="flex items-center gap-2 text-xs text-[var(--text-tertiary)] flex-wrap">
+                        <div className="flex items-center gap-2 text-xs text-(--text-tertiary) flex-wrap">
                           {user.cluster_code && (
                             <span>[{user.cluster_code}]</span>
                           )}
@@ -148,7 +148,7 @@ export function UserManagerRoleTab({
                           )}
                         </div>
                         {user.notes && (
-                          <span className="text-xs text-[var(--text-tertiary)] truncate block">
+                          <span className="text-xs text-(--text-tertiary) truncate block">
                             {user.notes}
                           </span>
                         )}

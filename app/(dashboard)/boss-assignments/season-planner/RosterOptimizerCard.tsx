@@ -27,9 +27,9 @@ export default function RosterOptimizerCard({
         header: 'Candidate',
         sortable: false,
         render: (candidate) => (
-          <span className="text-[var(--text-primary)]">
+          <span className="text-primary-wh40k">
             {candidate.candidateDisplayName}
-            <span className="ml-1 text-xs text-[var(--text-secondary)]">
+            <span className="ml-1 text-xs text-secondary-wh40k">
               {guildLabel(candidate.candidateGuildCode)}
             </span>
           </span>
@@ -76,10 +76,10 @@ export default function RosterOptimizerCard({
     ]
 
   return optimizer.length > 0 ? (
-    <div className="rounded-lg border border-[var(--card-border)] bg-card/40 p-4">
+    <div className="rounded-lg border border-(--card-border) bg-card/40 p-4">
       <div className="flex items-center gap-2">
-        <Sparkles className="h-4 w-4 text-[var(--accent)]" />
-        <h4 className="text-sm font-semibold text-[var(--text-primary)]">
+        <Sparkles className="h-4 w-4 text-(--accent)" />
+        <h4 className="text-sm font-semibold text-primary-wh40k">
           Roster optimizer
         </h4>
       </div>
@@ -95,7 +95,7 @@ export default function RosterOptimizerCard({
       </div>
     </div>
   ) : strategyOptimizerRequested ? (
-    <div className="rounded-lg border border-[var(--card-border)] bg-card/40 p-4 text-sm text-[var(--text-secondary)]">
+    <div className="rounded-lg border border-(--card-border) bg-card/40 p-4 text-sm text-secondary-wh40k">
       No positive roster swaps were found for the selected window.
     </div>
   ) : null

@@ -33,7 +33,7 @@ const STAGE_BORDER_COLOR: Record<ReleaseStage, string> = {
 const STAGE_TEXT_COLOR: Record<ReleaseStage, string> = {
   alpha: 'text-red-500',
   beta: 'text-blue-500',
-  coming_soon: 'text-[var(--text-secondary)]',
+  coming_soon: 'text-secondary-wh40k',
   public: 'text-green-500'
 }
 
@@ -127,20 +127,20 @@ export default async function ProductRoadmapPage() {
   })).filter((section) => section.features.length > 0)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[var(--bg-from)] via-[var(--bg-via)] to-[var(--bg-to)]">
+    <div className="min-h-screen bg-linear-to-b from-(--bg-from) via-(--bg-via) to-(--bg-to)">
       <NavigationServer user={authData?.user} profile={authData?.profile} />
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5 pointer-events-none" />
 
         <header className="relative text-center mb-16 space-y-6">
-          <p className="inline-flex items-center gap-2 px-4 py-1 rounded-full text-xs font-semibold tracking-[0.3em] uppercase text-[var(--accent)] bg-[var(--card-bg)] border border-[var(--card-border)]">
+          <p className="inline-flex items-center gap-2 px-4 py-1 rounded-full text-xs font-semibold tracking-[0.3em] uppercase text-(--accent) bg-(--card-bg) border border-(--card-border)">
             <Rocket className="h-3.5 w-3.5" /> Roadmap
           </p>
           <div className="space-y-3">
-            <h1 className="text-4xl md:text-5xl font-bold text-[var(--text-primary)]">
+            <h1 className="text-4xl md:text-5xl font-bold text-primary-wh40k">
               Product Roadmap
             </h1>
-            <p className="text-lg text-[var(--text-secondary)] max-w-3xl mx-auto">
+            <p className="text-lg text-secondary-wh40k max-w-3xl mx-auto">
               Real-time view of feature development across all release stages.
               Statuses update automatically as features progress through alpha,
               beta, and public release.
@@ -149,7 +149,7 @@ export default async function ProductRoadmapPage() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/onboarding"
-              className="inline-flex items-center gap-2 rounded-md bg-[var(--primary)] px-5 py-3 text-lg font-semibold text-black shadow-[0_12px_35px_rgba(0,0,0,0.35)] hover:bg-[color-mix(in_srgb,var(--primary)_90%,transparent)]"
+              className="inline-flex items-center gap-2 rounded-md bg-primary-wh40k px-5 py-3 text-lg font-semibold text-black shadow-[0_12px_35px_rgba(0,0,0,0.35)] hover:bg-[color-mix(in_srgb,var(--primary)_90%,transparent)]"
             >
               Get Started
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -177,15 +177,13 @@ export default async function ProductRoadmapPage() {
           ].map((item) => (
             <div
               key={item.label}
-              className="rounded-2xl border border-[var(--card-border)] bg-card/80 p-6 shadow-lg shadow-black/10"
+              className="rounded-2xl border border-(--card-border) bg-card/80 p-6 shadow-lg shadow-black/10"
             >
-              <item.icon className="h-6 w-6 text-[var(--accent)] mb-4" />
-              <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+              <item.icon className="h-6 w-6 text-(--accent) mb-4" />
+              <h3 className="text-lg font-semibold text-primary-wh40k">
                 {item.label}
               </h3>
-              <p className="text-sm text-[var(--text-secondary)] mt-2">
-                {item.desc}
-              </p>
+              <p className="text-sm text-secondary-wh40k mt-2">{item.desc}</p>
             </div>
           ))}
         </section>
@@ -194,17 +192,17 @@ export default async function ProductRoadmapPage() {
           {groupedFeatures.map((section) => (
             <div
               key={section.id}
-              className="rounded-3xl border border-[var(--card-border)] bg-card/90 p-8 shadow-2xl shadow-black/20"
+              className="rounded-3xl border border-(--card-border) bg-card/90 p-8 shadow-2xl shadow-black/20"
             >
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
                 <div>
-                  <p className="text-sm uppercase tracking-[0.4em] text-[var(--accent)]">
+                  <p className="text-sm uppercase tracking-[0.4em] text-(--accent)">
                     {section.timeframe}
                   </p>
-                  <h2 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)] mt-1">
+                  <h2 className="text-2xl md:text-3xl font-bold text-primary-wh40k mt-1">
                     {section.label}
                   </h2>
-                  <p className="text-[var(--text-secondary)] mt-2 max-w-3xl">
+                  <p className="text-secondary-wh40k mt-2 max-w-3xl">
                     {section.summary}
                   </p>
                 </div>
@@ -222,7 +220,7 @@ export default async function ProductRoadmapPage() {
                     className={`rounded-2xl border p-5 ${STAGE_BORDER_COLOR[feature.release_stage]} ${STAGE_BG_COLOR[feature.release_stage]}`}
                   >
                     <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-xl font-semibold text-[var(--text-primary)]">
+                      <h3 className="text-xl font-semibold text-primary-wh40k">
                         {feature.display_name}
                       </h3>
                       <ReleaseStageBadge
@@ -230,7 +228,7 @@ export default async function ProductRoadmapPage() {
                         size="sm"
                       />
                     </div>
-                    <p className="text-[var(--text-secondary)] text-sm mb-4">
+                    <p className="text-secondary-wh40k text-sm mb-4">
                       {feature.description || 'No description available.'}
                     </p>
                     {feature.route &&
@@ -251,23 +249,23 @@ export default async function ProductRoadmapPage() {
           ))}
         </section>
 
-        <section className="mt-16 rounded-3xl border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] bg-gradient-to-r from-[color-mix(in_srgb,var(--primary)_10%,transparent)] to-[var(--card-bg)] p-8">
+        <section className="mt-16 rounded-3xl border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] bg-linear-to-r from-[color-mix(in_srgb,var(--primary)_10%,transparent)] to-(--card-bg) p-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Heart className="h-5 w-5 text-[var(--primary)]" />
-                <h3 className="text-2xl font-bold text-[var(--text-primary)]">
+                <Heart className="h-5 w-5 text-(--primary)" />
+                <h3 className="text-2xl font-bold text-primary-wh40k">
                   Support Development
                 </h3>
               </div>
-              <p className="text-[var(--text-secondary)] max-w-xl">
+              <p className="text-secondary-wh40k max-w-xl">
                 Tacticus Analytics is 100% free. If you find it useful, you can
                 leave a tip — purely optional.
               </p>
             </div>
             <Link
               href="/support-creator"
-              className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-3 text-lg font-semibold text-black hover:bg-[color-mix(in_srgb,var(--primary)_90%,transparent)] whitespace-nowrap"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary-wh40k px-6 py-3 text-lg font-semibold text-black hover:bg-[color-mix(in_srgb,var(--primary)_90%,transparent)] whitespace-nowrap"
             >
               <Heart className="h-5 w-5" />
               Support Us
@@ -275,11 +273,11 @@ export default async function ProductRoadmapPage() {
           </div>
         </section>
 
-        <section className="mt-10 rounded-3xl border border-[var(--card-border)] bg-card/60 p-8 text-center">
-          <h3 className="text-xl font-bold text-[var(--text-primary)] mb-3">
+        <section className="mt-10 rounded-3xl border border-(--card-border) bg-card/60 p-8 text-center">
+          <h3 className="text-xl font-bold text-primary-wh40k mb-3">
             Have Feature Requests?
           </h3>
-          <p className="text-[var(--text-secondary)]">
+          <p className="text-secondary-wh40k">
             Join our Discord community or reach out via the #app-support channel
             to share feedback and feature ideas.
           </p>

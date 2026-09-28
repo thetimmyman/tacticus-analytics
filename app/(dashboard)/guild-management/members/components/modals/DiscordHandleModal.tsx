@@ -61,12 +61,12 @@ export function DiscordHandleModal({
 
   return (
     <ModalShell>
-      <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+      <h3 className="text-lg font-semibold text-primary-wh40k">
         Set Discord Handle - <MemberName value={member.display_name} />
       </h3>
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+          <label className="block text-sm font-medium text-secondary-wh40k mb-2">
             Discord Username
           </label>
           <Input
@@ -74,7 +74,7 @@ export function DiscordHandleModal({
             onChange={(e) => setDiscordHandle(e.target.value)}
             placeholder="e.g. username or username#1234"
           />
-          <p className="mt-2 text-xs text-[var(--text-tertiary)]">
+          <p className="mt-2 text-xs text-(--text-tertiary)">
             Enter the player&apos;s Discord username. This helps with
             coordination and communication.
           </p>

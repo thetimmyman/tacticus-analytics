@@ -208,9 +208,7 @@ export default function WarRoomClient({ canEdit }: WarRoomClientProps) {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-3xl font-bold text-[var(--text-primary)]">
-              War Room
-            </h1>
+            <h1 className="text-3xl font-bold text-primary-wh40k">War Room</h1>
             {data && isOwnGuild ? (
               <Badge
                 variant="warning"
@@ -221,7 +219,7 @@ export default function WarRoomClient({ canEdit }: WarRoomClientProps) {
               </Badge>
             ) : null}
           </div>
-          <p className="mt-2 text-sm text-[var(--text-secondary)]">
+          <p className="mt-2 text-sm text-secondary-wh40k">
             {isOwnGuild
               ? 'Shared offense and defense lineups with your readiness and current-war hero usage'
               : 'Browsing a cluster guild\u2019s shared offense and defense lineups (read-only)'}
@@ -288,7 +286,7 @@ export default function WarRoomClient({ canEdit }: WarRoomClientProps) {
       ) : null}
 
       {isLoading ? (
-        <Card className="border-[var(--card-border)] bg-[var(--bg-primary)]">
+        <Card className="border-(--card-border) bg-(--bg-primary)">
           <CardContent className="flex justify-center py-16">
             <Spinner label="Loading War Room" />
           </CardContent>
@@ -296,7 +294,7 @@ export default function WarRoomClient({ canEdit }: WarRoomClientProps) {
       ) : null}
 
       {error && !isLoading ? (
-        <Card className="border-[var(--card-border)] bg-[var(--bg-primary)]">
+        <Card className="border-(--card-border) bg-(--bg-primary)">
           <CardContent className="py-8">
             <EmptyState
               title="Failed to load the War Room"

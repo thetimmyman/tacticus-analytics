@@ -59,18 +59,18 @@ export function ClusterOnboardingCard({
   onRequeueGuild
 }: ClusterOnboardingCardProps) {
   return (
-    <Card className="border-card-border/60 bg-[color-mix(in_srgb,var(--bg-primary)_60%,transparent)] backdrop-blur-sm">
+    <Card className="border-card-border/60 bg-[color-mix(in_srgb,var(--bg-primary)_60%,transparent)] backdrop-blur-xs">
       <CardHeader className="space-y-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <Users className="h-5 w-5 text-[var(--accent)]" />
+            <Users className="h-5 w-5 text-(--accent)" />
             Cluster onboarding
           </CardTitle>
           <StatusLabel type={cluster ? 'success' : 'inactive'} size="xs">
             {cluster ? 'Configured' : 'Not started'}
           </StatusLabel>
         </div>
-        <p className="text-sm text-[var(--text-secondary)]">
+        <p className="text-sm text-secondary-wh40k">
           Create or manage a cluster and queue guild sync jobs without leaving
           the dashboard.
         </p>
@@ -80,14 +80,12 @@ export function ClusterOnboardingCard({
           <>
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-sm text-[var(--text-secondary)]">
-                  Cluster code
-                </p>
-                <p className="text-lg font-semibold text-[var(--text-primary)]">
+                <p className="text-sm text-secondary-wh40k">Cluster code</p>
+                <p className="text-lg font-semibold text-primary-wh40k">
                   {cluster.cluster_code}
                 </p>
                 {cluster.description && (
-                  <p className="text-xs text-[var(--text-secondary)] mt-1">
+                  <p className="text-xs text-secondary-wh40k mt-1">
                     {cluster.description}
                   </p>
                 )}
@@ -104,11 +102,11 @@ export function ClusterOnboardingCard({
             </div>
 
             <div className="space-y-3">
-              <h4 className="text-sm font-semibold text-[var(--text-primary)]">
+              <h4 className="text-sm font-semibold text-primary-wh40k">
                 Guilds in this cluster
               </h4>
               {clusterGuilds.length === 0 ? (
-                <p className="text-sm text-[var(--text-secondary)]">
+                <p className="text-sm text-secondary-wh40k">
                   No guilds are linked yet. Add a guild below to queue its
                   initial sync.
                 </p>
@@ -143,7 +141,7 @@ export function ClusterOnboardingCard({
                         className="rounded-lg border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-primary)_40%,transparent)] p-4 space-y-2"
                       >
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                          <p className="text-sm font-semibold text-[var(--text-primary)]">
+                          <p className="text-sm font-semibold text-primary-wh40k">
                             {formatGuildDisplayLabel(
                               {
                                 display_name: guild.display_name,
@@ -160,7 +158,7 @@ export function ClusterOnboardingCard({
                           </StatusLabel>
                         </div>
                         {guild.job && (
-                          <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--text-secondary)]">
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-secondary-wh40k">
                             <span>
                               Attempts {guild.job.attempts}/
                               {guild.job.max_attempts}
@@ -198,7 +196,7 @@ export function ClusterOnboardingCard({
             </div>
 
             <div className="space-y-3">
-              <h4 className="text-sm font-semibold text-[var(--text-primary)]">
+              <h4 className="text-sm font-semibold text-primary-wh40k">
                 Add a guild to this cluster
               </h4>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -248,7 +246,7 @@ export function ClusterOnboardingCard({
                   />
                 </div>
               </div>
-              <p className="text-xs text-[var(--text-secondary)]">
+              <p className="text-xs text-secondary-wh40k">
                 We store leader API keys encrypted and queue an initial sync job
                 automatically.
               </p>
@@ -263,7 +261,7 @@ export function ClusterOnboardingCard({
           </>
         ) : (
           <>
-            <p className="text-sm text-[var(--text-secondary)]">
+            <p className="text-sm text-secondary-wh40k">
               Create a cluster to onboard multiple guilds together and unlock
               shared analytics.
             </p>
@@ -311,7 +309,7 @@ export function ClusterOnboardingCard({
                   }))
                 }
                 rows={3}
-                className="w-full rounded-md border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-primary)_60%,transparent)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
+                className="w-full rounded-md border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-primary)_60%,transparent)] px-3 py-2 text-sm text-primary-wh40k focus:outline-hidden focus:ring-1 focus:ring-(--accent)"
                 placeholder="Share how the cluster operates or who it serves."
               />
             </div>

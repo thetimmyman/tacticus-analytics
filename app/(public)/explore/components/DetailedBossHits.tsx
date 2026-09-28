@@ -46,7 +46,7 @@ export function DetailedBossHits({
 
   return (
     <>
-      <h4 className="text-sm font-semibold text-[var(--text-secondary)] mb-2 flex items-center gap-2">
+      <h4 className="text-sm font-semibold text-secondary-wh40k mb-2 flex items-center gap-2">
         <Sword className="w-4 h-4 text-orange-400" />
         {displayRarities
           .map((rarity) => getRarityDisplayName(rarity))
@@ -71,7 +71,7 @@ export function DetailedBossHits({
 
         return (
           <div key={rarity} className="mb-4">
-            <div className="text-xs font-semibold text-[var(--text-secondary)] mb-2">
+            <div className="text-xs font-semibold text-secondary-wh40k mb-2">
               {rarity} Boss Hits
             </div>
             {Object.entries(bossesBySet)
@@ -133,7 +133,7 @@ export function DetailedBossHits({
 
                     <div className="relative z-10">
                       <div className="flex items-center gap-3 mb-2">
-                        <div className="boss-hit-card__label font-bold text-lg text-[var(--text-primary)]">
+                        <div className="boss-hit-card__label font-bold text-lg text-primary-wh40k">
                           {rarityConfig.prefix}
                           {Number(set) + 1}
                         </div>
@@ -154,16 +154,16 @@ export function DetailedBossHits({
                                       bossName={hit.boss}
                                       size="medium"
                                       variant="icon"
-                                      className="boss-hit-card__portrait flex-shrink-0"
+                                      className="boss-hit-card__portrait shrink-0"
                                     />
                                     <div className="boss-hit-card__meta flex-1 min-w-0">
-                                      <div className="boss-hit-card__boss text-sm font-semibold text-[var(--text-primary)] truncate">
+                                      <div className="boss-hit-card__boss text-sm font-semibold text-primary-wh40k truncate">
                                         {hit.boss}
                                       </div>
-                                      <div className="boss-hit-card__player text-xs text-[var(--text-secondary)] truncate">
+                                      <div className="boss-hit-card__player text-xs text-secondary-wh40k truncate">
                                         {hit.player}
                                       </div>
-                                      <div className="boss-hit-card__damage text-sm font-bold text-[var(--accent)]">
+                                      <div className="boss-hit-card__damage text-sm font-bold text-(--accent)">
                                         {hit.isObfuscated
                                           ? formatDamageWithPrivacy(
                                               hit.damage,
@@ -177,21 +177,21 @@ export function DetailedBossHits({
                                   </div>
                                 ) : (
                                   <div className="boss-hit-card__body flex items-center gap-3 p-3 opacity-50">
-                                    <div className="boss-hit-card__portrait w-12 h-12 rounded-full bg-gray-500/20 flex items-center justify-center flex-shrink-0">
-                                      <span className="text-xs text-[var(--text-secondary)]">
+                                    <div className="boss-hit-card__portrait w-12 h-12 rounded-full bg-gray-500/20 flex items-center justify-center shrink-0">
+                                      <span className="text-xs text-secondary-wh40k">
                                         ?
                                       </span>
                                     </div>
                                     <div className="boss-hit-card__meta flex-1 min-w-0">
-                                      <div className="boss-hit-card__boss text-sm font-semibold text-[var(--text-secondary)] truncate">
+                                      <div className="boss-hit-card__boss text-sm font-semibold text-secondary-wh40k truncate">
                                         {slotIndex === 0
                                           ? 'Main Boss'
                                           : `Side Boss ${slotIndex}`}
                                       </div>
-                                      <div className="boss-hit-card__player text-xs text-[var(--text-secondary)] truncate">
+                                      <div className="boss-hit-card__player text-xs text-secondary-wh40k truncate">
                                         --
                                       </div>
-                                      <div className="boss-hit-card__damage text-sm font-bold text-[var(--text-secondary)]">
+                                      <div className="boss-hit-card__damage text-sm font-bold text-secondary-wh40k">
                                         --
                                       </div>
                                     </div>

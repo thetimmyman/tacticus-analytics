@@ -121,7 +121,7 @@ function TokenUsage({
           <button
             type="button"
             onClick={() => refetch()}
-            className="rounded border border-[var(--card-border)] bg-[var(--card-bg)] px-4 py-2 text-sm font-medium text-[var(--text-primary)] transition hover:bg-[var(--bg-tertiary)]"
+            className="rounded-sm border border-(--card-border) bg-(--card-bg) px-4 py-2 text-sm font-medium text-primary-wh40k transition hover:bg-(--bg-tertiary)"
           >
             Retry sync
           </button>
@@ -136,7 +136,7 @@ function TokenUsage({
     <div className="container-modern py-6 space-y-6">
       {showForecast && (
         <div
-          className="flex w-fit overflow-hidden rounded-lg border border-[var(--card-border)]"
+          className="flex w-fit overflow-hidden rounded-lg border border-(--card-border)"
           role="tablist"
           aria-label="Token view"
         >
@@ -147,8 +147,8 @@ function TokenUsage({
             onClick={() => setView('usage')}
             className={`px-4 py-1.5 text-sm font-medium transition-colors ${
               !forecastView
-                ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-[var(--accent)]'
-                : 'text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]'
+                ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent)'
+                : 'text-secondary-wh40k hover:bg-(--bg-tertiary)'
             }`}
           >
             Usage
@@ -160,8 +160,8 @@ function TokenUsage({
             onClick={() => setView('forecast')}
             className={`px-4 py-1.5 text-sm font-medium transition-colors ${
               forecastView
-                ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-[var(--accent)]'
-                : 'text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]'
+                ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent)'
+                : 'text-secondary-wh40k hover:bg-(--bg-tertiary)'
             }`}
           >
             Forecast
@@ -198,7 +198,7 @@ function TokenUsage({
             showBurned
           />
 
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-4">
+          <div className="bg-gray-800/50 backdrop-blur-xs rounded-lg p-4">
             <RarityFilterControls
               selectedRarities={selectedRarities}
               defaultRarities={DEFAULT_RARITIES}

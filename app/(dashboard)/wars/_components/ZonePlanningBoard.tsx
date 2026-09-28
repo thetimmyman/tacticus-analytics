@@ -61,21 +61,23 @@ export default function ZonePlanningBoard({
   return (
     <div className="flex flex-col-reverse md:flex-row gap-4">
       <div className="flex-1 space-y-3">
-        <div className="flex items-center justify-center flex-wrap gap-2 md:gap-4 text-[10px] md:text-xs text-[var(--text-secondary)]">
+        <div className="flex items-center justify-center flex-wrap gap-2 md:gap-4 text-[10px] md:text-xs text-secondary-wh40k">
           <span className="flex items-center">
-            <span className="w-2 h-2 rounded bg-gray-500/50 mr-1" /> Common
+            <span className="w-2 h-2 rounded-sm bg-gray-500/50 mr-1" /> Common
           </span>
           <span className="flex items-center">
-            <span className="w-2 h-2 rounded bg-green-500/50 mr-1" /> Uncommon
+            <span className="w-2 h-2 rounded-sm bg-green-500/50 mr-1" />{' '}
+            Uncommon
           </span>
           <span className="flex items-center">
-            <span className="w-2 h-2 rounded bg-blue-500/50 mr-1" /> Rare
+            <span className="w-2 h-2 rounded-sm bg-blue-500/50 mr-1" /> Rare
           </span>
           <span className="flex items-center">
-            <span className="w-2 h-2 rounded bg-purple-500/50 mr-1" /> Epic
+            <span className="w-2 h-2 rounded-sm bg-purple-500/50 mr-1" /> Epic
           </span>
           <span className="flex items-center">
-            <span className="w-2 h-2 rounded bg-orange-500/50 mr-1" /> Legendary
+            <span className="w-2 h-2 rounded-sm bg-orange-500/50 mr-1" />{' '}
+            Legendary
           </span>
         </div>
 
@@ -105,10 +107,10 @@ export default function ZonePlanningBoard({
                       onDrop={(e) => handleDrop(e, zone.zoneId)}
                       className={`
                           relative rounded-lg border-2 transition-all
-                          bg-gradient-to-br ${getZoneGradient(zone.baseRarity)}
+                          bg-linear-to-br ${getZoneGradient(zone.baseRarity)}
                           ${
                             isDragOver
-                              ? 'border-[var(--accent)] ring-2 ring-[color-mix(in_srgb,var(--accent)_50%,transparent)] scale-[1.02]'
+                              ? 'border-accent-wh40k ring-2 ring-[color-mix(in_srgb,var(--accent)_50%,transparent)] scale-[1.02]'
                               : isFull
                                 ? 'border-green-500/50'
                                 : 'border-card-border/10'
@@ -119,16 +121,16 @@ export default function ZonePlanningBoard({
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
                             <div
-                              className={`p-1.5 rounded ${getRarityColor(zone.baseRarity)}`}
+                              className={`p-1.5 rounded-sm ${getRarityColor(zone.baseRarity)}`}
                             >
                               {getZoneIcon(zone.visualId)}
                             </div>
                             <div>
                               {/* `zoneId` is the zone type here; never the stored per-sync `zoneName`. */}
-                              <h3 className="font-semibold text-[var(--text-primary)] text-xs leading-tight">
+                              <h3 className="font-semibold text-primary-wh40k text-xs leading-tight">
                                 {zoneDisplayName(zone.zoneId)}
                               </h3>
-                              <p className="text-[10px] text-[var(--text-secondary)]">
+                              <p className="text-[10px] text-secondary-wh40k">
                                 {formatPower(zone.recommendedPower)} rec
                               </p>
                             </div>
@@ -166,7 +168,7 @@ export default function ZonePlanningBoard({
                                           getUserAvatar(player, guildCode, 20)
                                         }
                                         alt=""
-                                        className="w-5 h-5 rounded-full object-cover flex-shrink-0"
+                                        className="w-5 h-5 rounded-full object-cover shrink-0"
                                         onError={(e) => {
                                           e.currentTarget.src = getUserAvatar(
                                             player,
@@ -175,13 +177,13 @@ export default function ZonePlanningBoard({
                                           )
                                         }}
                                       />
-                                      <span className="text-[var(--text-primary)] truncate font-medium text-[11px]">
+                                      <span className="text-primary-wh40k truncate font-medium text-[11px]">
                                         {player}
                                       </span>
                                     </div>
-                                    <div className="flex items-center space-x-1 flex-shrink-0">
+                                    <div className="flex items-center space-x-1 shrink-0">
                                       {level > 0 && (
-                                        <span className="text-[var(--text-secondary)] text-[10px]">
+                                        <span className="text-secondary-wh40k text-[10px]">
                                           Lv.{level}
                                         </span>
                                       )}
@@ -193,7 +195,7 @@ export default function ZonePlanningBoard({
                                               player
                                             )
                                           }
-                                          className="p-0.5 hover:bg-red-500/20 rounded"
+                                          className="p-0.5 hover:bg-red-500/20 rounded-sm"
                                         >
                                           <X className="h-3 w-3 text-red-400" />
                                         </button>
@@ -201,7 +203,7 @@ export default function ZonePlanningBoard({
                                     </div>
                                   </>
                                 ) : (
-                                  <span className="text-[var(--text-secondary)] italic text-[10px]">
+                                  <span className="text-secondary-wh40k italic text-[10px]">
                                     Drop player here
                                   </span>
                                 )}
@@ -212,10 +214,10 @@ export default function ZonePlanningBoard({
 
                         {assignedPlayers.length > 0 && combinedLevel > 0 && (
                           <div className="flex items-center justify-between text-[10px] pt-1 border-t border-card-border/10">
-                            <span className="text-[var(--text-secondary)]">
+                            <span className="text-secondary-wh40k">
                               Avg Level:
                             </span>
-                            <span className="font-bold text-[var(--text-primary)]">
+                            <span className="font-bold text-primary-wh40k">
                               {Math.round(
                                 combinedLevel / assignedPlayers.length
                               )}
@@ -230,11 +232,11 @@ export default function ZonePlanningBoard({
           ))}
       </div>
 
-      <div className="w-full md:w-64 flex-shrink-0">
-        <div className="md:sticky md:top-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)] overflow-hidden">
-          <div className="p-2 md:p-3 border-b border-[var(--border)] bg-[var(--bg-tertiary)]">
+      <div className="w-full md:w-64 shrink-0">
+        <div className="md:sticky md:top-4 bg-(--bg-secondary) rounded-lg border border-(--border) overflow-hidden">
+          <div className="p-2 md:p-3 border-b border-(--border) bg-(--bg-tertiary)">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-[var(--text-primary)] text-xs md:text-sm">
+              <h3 className="font-semibold text-primary-wh40k text-xs md:text-sm">
                 Available Players ({unassignedPlayers.length})
               </h3>
               {signedUpPlayerNames.size > 0 && (
@@ -248,7 +250,7 @@ export default function ZonePlanningBoard({
                   className={`p-1 rounded transition-colors ${
                     showOnlySignedUp
                       ? 'text-green-400 bg-green-500/20'
-                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)]'
+                      : 'text-secondary-wh40k hover:text-primary-wh40k hover:bg-(--bg-primary)'
                   }`}
                 >
                   <UserCheck className="h-3.5 w-3.5" />
@@ -259,7 +261,7 @@ export default function ZonePlanningBoard({
 
           <div className="max-h-[200px] md:max-h-[600px] overflow-y-auto">
             {unassignedPlayers.length === 0 ? (
-              <div className="p-4 text-center text-[var(--text-secondary)] text-sm">
+              <div className="p-4 text-center text-secondary-wh40k text-sm">
                 All players assigned!
               </div>
             ) : (
@@ -277,13 +279,13 @@ export default function ZonePlanningBoard({
                       onDragEnd={handleDragEnd}
                       className={`
                           flex flex-col md:flex-row items-center md:space-x-2 p-1.5 md:p-2 rounded-lg transition-all
-                          ${canManage ? 'cursor-grab active:cursor-grabbing hover:bg-[var(--bg-tertiary)]' : ''}
-                          ${isDragging ? 'opacity-50 ring-2 ring-[var(--accent)]' : ''}
-                          bg-[var(--bg-primary)] border border-[var(--border)]
+                          ${canManage ? 'cursor-grab active:cursor-grabbing hover:bg-(--bg-tertiary)' : ''}
+                          ${isDragging ? 'opacity-50 ring-2 ring-(--accent)' : ''}
+                          bg-(--bg-primary) border border-(--border)
                         `}
                     >
                       {canManage && (
-                        <GripVertical className="h-4 w-4 text-[var(--text-secondary)] flex-shrink-0 hidden md:block" />
+                        <GripVertical className="h-4 w-4 text-secondary-wh40k shrink-0 hidden md:block" />
                       )}
 
                       <div className="relative">
@@ -293,7 +295,7 @@ export default function ZonePlanningBoard({
                             getUserAvatar(member.display_name, guildCode, 40)
                           }
                           alt=""
-                          className="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-[var(--border)]"
+                          className="w-10 h-10 rounded-full object-cover shrink-0 border-2 border-(--border)"
                           onError={(e) => {
                             e.currentTarget.src = getUserAvatar(
                               member.display_name,
@@ -303,18 +305,18 @@ export default function ZonePlanningBoard({
                           }}
                         />
                         {member.player_level && member.player_level > 0 && (
-                          <div className="absolute -bottom-1 -right-1 bg-card/80 text-[var(--text-primary)] text-[8px] font-bold px-1 rounded-full min-w-[16px] text-center border border-[var(--border)]">
+                          <div className="absolute -bottom-1 -right-1 bg-card/80 text-primary-wh40k text-[8px] font-bold px-1 rounded-full min-w-[16px] text-center border border-(--border)">
                             {member.player_level}
                           </div>
                         )}
                       </div>
 
                       <div className="flex-1 min-w-0 text-center md:text-left mt-1 md:mt-0">
-                        <p className="text-[10px] md:text-sm font-medium text-[var(--text-primary)] truncate">
+                        <p className="text-[10px] md:text-sm font-medium text-primary-wh40k truncate">
                           {member.display_name}
                         </p>
                         {member.player_level && member.player_level > 0 && (
-                          <div className="text-[9px] md:text-[10px] text-[var(--text-secondary)]">
+                          <div className="text-[9px] md:text-[10px] text-secondary-wh40k">
                             Level {member.player_level}
                           </div>
                         )}

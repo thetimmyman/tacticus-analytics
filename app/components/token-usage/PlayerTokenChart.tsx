@@ -137,8 +137,8 @@ function PlayerTokenChart({
               : null
             const overlayClass = showOverlay
               ? proj.will_cap
-                ? 'text-[var(--warning)]'
-                : 'text-[var(--text-primary)]'
+                ? 'text-(--warning)'
+                : 'text-primary-wh40k'
               : ''
             const overlayTitle = showOverlay
               ? proj.will_cap
@@ -149,7 +149,7 @@ function PlayerTokenChart({
             return (
               <div
                 key={player.userId}
-                className="flex-shrink-0 text-center"
+                className="shrink-0 text-center"
                 style={{ width: '50px' }}
                 title={overlayTitle}
               >
@@ -162,7 +162,7 @@ function PlayerTokenChart({
                 )}
                 <div className="h-32 sm:h-48 flex flex-col justify-end mb-1">
                   <div
-                    className="w-full rounded-t overflow-hidden relative bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200"
+                    className="w-full rounded-t-sm overflow-hidden relative bg-(--card-bg) hover:bg-card/80 transition-colors duration-200"
                     style={{
                       height: `${barHeightPercent}%`,
                       minHeight: player.totalTokens > 0 ? '12px' : '0'
@@ -192,7 +192,7 @@ function PlayerTokenChart({
                       })}
                     </div>
                     <span
-                      className={`absolute inset-0 flex items-center justify-center text-[var(--text-primary)] font-bold drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] ${barHeightPercent < 20 ? 'text-[8px]' : 'text-[10px] sm:text-xs'}`}
+                      className={`absolute inset-0 flex items-center justify-center text-primary-wh40k font-bold drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] ${barHeightPercent < 20 ? 'text-[8px]' : 'text-[10px] sm:text-xs'}`}
                     >
                       {player.totalTokens}
                     </span>
@@ -200,7 +200,7 @@ function PlayerTokenChart({
                 </div>
                 <div className="text-[10px] sm:text-xs">
                   <div
-                    className="font-medium text-[var(--text-secondary)] truncate"
+                    className="font-medium text-secondary-wh40k truncate"
                     title={player.displayName}
                   >
                     <PlayerLink playerName={player.displayName}>
@@ -209,7 +209,7 @@ function PlayerTokenChart({
                         : player.displayName}
                     </PlayerLink>
                   </div>
-                  <div className="text-[var(--text-secondary)] text-[10px]">
+                  <div className="text-secondary-wh40k text-[10px]">
                     #{index + 1}
                   </div>
                   {player.historicalAvg ? (
@@ -219,7 +219,7 @@ function PlayerTokenChart({
                       placeholder
                     </div>
                   )}
-                  <div className="text-[10px] text-[var(--text-tertiary)] flex flex-col gap-0.5 mt-1">
+                  <div className="text-[10px] text-(--text-tertiary) flex flex-col gap-0.5 mt-1">
                     <span
                       title={
                         player.dataSource === 'live'

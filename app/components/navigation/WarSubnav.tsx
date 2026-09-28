@@ -66,8 +66,8 @@ export function WarSubnav({ mode, className }: WarSubnavProps) {
           // Matches SectionSubnav's accent pill.
           'inline-flex min-h-11 items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors',
           active
-            ? 'border-[color-mix(in_srgb,var(--accent)_70%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--accent)]'
-            : 'border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]'
+            ? 'border-[color-mix(in_srgb,var(--accent)_70%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-(--accent)'
+            : 'border-(--card-border) bg-(--card-bg) text-secondary-wh40k hover:text-primary-wh40k hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]'
         )}
       >
         <Icon className="h-3.5 w-3.5" aria-hidden="true" />
@@ -79,11 +79,11 @@ export function WarSubnav({ mode, className }: WarSubnavProps) {
   return (
     <div
       className={cn(
-        'rounded-xl border border-[var(--card-border)] bg-card/70 p-3',
+        'rounded-xl border border-(--card-border) bg-card/70 p-3',
         className
       )}
     >
-      <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--text-secondary)] font-mono mb-2">
+      <p className="text-[11px] uppercase tracking-[0.16em] text-secondary-wh40k font-mono mb-2">
         Guild War
       </p>
 
@@ -102,7 +102,7 @@ export function WarSubnav({ mode, className }: WarSubnavProps) {
             <button
               className={cn(
                 'inline-flex min-h-11 items-center gap-2 rounded-md px-3 py-2 text-xs font-medium w-full',
-                'bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] text-[var(--bg-primary)]'
+                'bg-linear-to-r from-(--primary) to-(--accent) text-(--bg-primary)'
               )}
             >
               {ActiveIcon && (
@@ -132,14 +132,14 @@ export function WarSubnav({ mode, className }: WarSubnavProps) {
                     className={cn(
                       'flex min-h-11 items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors',
                       active
-                        ? 'bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-[var(--accent)] font-medium'
-                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[color-mix(in_srgb,var(--primary)_5%,transparent)]'
+                        ? 'bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-(--accent) font-medium'
+                        : 'text-secondary-wh40k hover:text-primary-wh40k hover:bg-[color-mix(in_srgb,var(--primary)_5%,transparent)]'
                     )}
                   >
                     <Icon className="h-4 w-4" aria-hidden="true" />
                     <span className="flex-1">{item.label}</span>
                     {active && (
-                      <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-accent-wh40k" />
                     )}
                   </Link>
                 )

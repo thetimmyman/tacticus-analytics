@@ -10,7 +10,7 @@ export default function SelfHostSandboxBanner() {
   }
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[9999] bg-red-600 text-white text-center py-2 px-4 text-sm font-bold shadow-lg">
+    <div className="fixed top-0 left-0 right-0 z-9999 bg-red-600 text-white text-center py-2 px-4 text-sm font-bold shadow-lg">
       <div className="flex items-center justify-center gap-2">
         <AlertTriangle className="h-4 w-4 animate-pulse" />
         <span>SANDBOX MODE - DATA NOT SAVED TO PRODUCTION</span>

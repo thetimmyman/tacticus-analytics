@@ -31,7 +31,7 @@ export const HeroUnitPortrait = memo(function HeroUnitPortrait({
   if (portraitUrl) {
     return (
       <div
-        className={`${sizeClasses[size]} rounded-full bg-center bg-cover overflow-hidden flex-shrink-0 ${className}`.trim()}
+        className={`${sizeClasses[size]} rounded-full bg-center bg-cover overflow-hidden shrink-0 ${className}`.trim()}
         style={{
           backgroundImage: `linear-gradient(135deg, rgba(15, 23, 42, 0.45), rgba(15, 23, 42, 0.1)), url('${portraitUrl}')`
         }}
@@ -46,7 +46,7 @@ export const HeroUnitPortrait = memo(function HeroUnitPortrait({
 
   return (
     <div
-      className={`${sizeClasses[size]} rounded-full border border-[color-mix(in_srgb,var(--accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] flex items-center justify-center text-[10px] uppercase tracking-wide text-[var(--accent)] font-semibold flex-shrink-0 ${className}`.trim()}
+      className={`${sizeClasses[size]} rounded-full border border-[color-mix(in_srgb,var(--accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] flex items-center justify-center text-[10px] uppercase tracking-wide text-(--accent) font-semibold shrink-0 ${className}`.trim()}
       title={displayName}
     >
       {fallbackBadge}

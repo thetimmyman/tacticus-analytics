@@ -35,9 +35,7 @@ export function BossPerformanceSummaryStats({
             <div className="text-red-400 font-bold text-lg">
               {problemBosses}
             </div>
-            <div className="text-xs text-[var(--text-secondary)]">
-              Problem Bosses
-            </div>
+            <div className="text-xs text-secondary-wh40k">Problem Bosses</div>
           </div>
         </Tooltip>
         <Tooltip content={summaryTooltips.performingWell(improvingBosses)}>
@@ -45,9 +43,7 @@ export function BossPerformanceSummaryStats({
             <div className="text-green-400 font-bold text-lg">
               {improvingBosses}
             </div>
-            <div className="text-xs text-[var(--text-secondary)]">
-              Performing Well
-            </div>
+            <div className="text-xs text-secondary-wh40k">Performing Well</div>
           </div>
         </Tooltip>
         <Tooltip content={summaryTooltips.averageTokens(averageTokensPerBoss)}>
@@ -55,9 +51,7 @@ export function BossPerformanceSummaryStats({
             <div className="text-yellow-400 font-bold text-lg">
               {formatNumber(averageTokensPerBoss, 0)}
             </div>
-            <div className="text-xs text-[var(--text-secondary)]">
-              Avg Tokens/Boss
-            </div>
+            <div className="text-xs text-secondary-wh40k">Avg Tokens/Boss</div>
           </div>
         </Tooltip>
         <Tooltip
@@ -70,14 +64,12 @@ export function BossPerformanceSummaryStats({
             <div className="text-blue-400 font-bold text-lg">
               {formatDamage(averageDamagePerHitAcross)}
             </div>
-            <div className="text-xs text-[var(--text-secondary)]">
-              Avg Dmg/Hit
-            </div>
+            <div className="text-xs text-secondary-wh40k">Avg Dmg/Hit</div>
           </div>
         </Tooltip>
 
         {/* Expansion Indicator */}
-        <div className="absolute top-2 right-2 text-[var(--text-secondary)] opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-2 right-2 text-secondary-wh40k opacity-0 group-hover:opacity-100 transition-opacity">
           {isLoopTableOpen ? (
             <ChevronUp className="h-4 w-4" />
           ) : (

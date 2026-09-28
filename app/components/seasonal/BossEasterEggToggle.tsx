@@ -21,7 +21,7 @@ export function BossEasterEggToggle({
         className={`p-2 rounded-lg transition-all ${
           isBossEasterEggEnabled
             ? 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 ring-2 ring-purple-500/50'
-            : 'bg-[var(--card-bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--hover-bg)]'
+            : 'bg-(--card-bg) text-secondary-wh40k hover:text-primary-wh40k hover:bg-(--hover-bg)'
         } ${className}`}
         title={
           isBossEasterEggEnabled
@@ -43,8 +43,8 @@ export function BossEasterEggToggle({
           onClick={toggleBossEasterEgg}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
             isBossEasterEggEnabled
-              ? 'bg-gradient-to-r from-purple-500/20 to-red-500/20 text-purple-300 border border-purple-500/30'
-              : 'bg-[var(--card-bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--card-border)]'
+              ? 'bg-linear-to-r from-purple-500/20 to-red-500/20 text-purple-300 border border-purple-500/30'
+              : 'bg-(--card-bg) text-secondary-wh40k hover:text-primary-wh40k border border-(--card-border)'
           }`}
         >
           {isBossEasterEggEnabled ? (
@@ -69,17 +69,17 @@ export function BossEasterEggToggle({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div
-            className={`p-2 rounded-lg ${isBossEasterEggEnabled ? 'bg-purple-500/20' : 'bg-[var(--card-bg)]'}`}
+            className={`p-2 rounded-lg ${isBossEasterEggEnabled ? 'bg-purple-500/20' : 'bg-(--card-bg)'}`}
           >
             <Skull
-              className={`h-6 w-6 ${isBossEasterEggEnabled ? 'text-purple-400 animate-pulse' : 'text-[var(--text-secondary)]'}`}
+              className={`h-6 w-6 ${isBossEasterEggEnabled ? 'text-purple-400 animate-pulse' : 'text-secondary-wh40k'}`}
             />
           </div>
           <div>
-            <h3 className="font-semibold text-[var(--text-primary)]">
+            <h3 className="font-semibold text-primary-wh40k">
               Boss Easter Eggs
             </h3>
-            <p className="text-xs text-[var(--text-secondary)]">
+            <p className="text-xs text-secondary-wh40k">
               Warp-touched interventions from the bosses
             </p>
           </div>
@@ -88,8 +88,8 @@ export function BossEasterEggToggle({
           onClick={toggleBossEasterEgg}
           className={`relative w-14 h-7 rounded-full transition-all ${
             isBossEasterEggEnabled
-              ? 'bg-gradient-to-r from-purple-500 to-red-500'
-              : 'bg-[var(--card-border)]'
+              ? 'bg-linear-to-r from-purple-500 to-red-500'
+              : 'bg-(--card-border)'
           }`}
         >
           <div
@@ -105,21 +105,21 @@ export function BossEasterEggToggle({
       </div>
 
       {isBossEasterEggEnabled && (
-        <div className="p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--card-border)]">
-          <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+        <div className="p-3 rounded-lg bg-(--bg-tertiary) border border-(--card-border)">
+          <div className="flex items-center gap-2 text-sm text-secondary-wh40k">
             <Sparkles className="h-4 w-4 text-purple-400" />
             <span>
               Active! Bosses may intervene during your analysis sessions...
             </span>
           </div>
-          <p className="text-xs text-[var(--text-tertiary)] italic mt-2">
+          <p className="text-xs text-(--text-tertiary) italic mt-2">
             Each boss has unique themed messages and visual glitch effects.
           </p>
         </div>
       )}
 
       {!isBossEasterEggEnabled && (
-        <div className="flex items-center gap-2 p-3 rounded-lg bg-[var(--bg-tertiary)] text-sm text-[var(--text-secondary)]">
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-(--bg-tertiary) text-sm text-secondary-wh40k">
           <Zap className="h-4 w-4 text-yellow-500" />
           <span>
             Enable to experience random boss interventions with glitch effects!

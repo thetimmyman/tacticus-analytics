@@ -118,13 +118,13 @@ export function PerformanceControls({
           />
         </div>
 
-        <div className="flex items-center justify-between px-3 py-2 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)]">
+        <div className="flex items-center justify-between px-3 py-2 rounded-lg border border-(--card-border) bg-(--card-bg)">
           <label className="flex items-center gap-2 text-sm text-secondary-wh40k">
             <input
               type="checkbox"
               checked={hideInactivePlayers}
               onChange={(event) => onHideInactiveChange(event.target.checked)}
-              className="h-4 w-4 rounded border-[var(--card-border)] bg-[var(--bg-primary)] text-accent-wh40k focus:ring-[var(--accent)]"
+              className="h-4 w-4 rounded-sm border-(--card-border) bg-(--bg-primary) text-accent-wh40k focus:ring-(--accent)"
             />
             <span className="font-medium text-accent-wh40k">
               Hide inactive members
@@ -147,7 +147,7 @@ export function PerformanceControls({
               aria-pressed={performanceMode === 'battle-weighted'}
               className={`px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
                 performanceMode === 'battle-weighted'
-                  ? 'bg-accent-wh40k text-[var(--bg-primary)] border-accent-wh40k'
+                  ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
                   : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
               }`}
               type="button"
@@ -159,7 +159,7 @@ export function PerformanceControls({
               aria-pressed={performanceMode === 'token-weighted'}
               className={`px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
                 performanceMode === 'token-weighted'
-                  ? 'bg-accent-wh40k text-[var(--bg-primary)] border-accent-wh40k'
+                  ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
                   : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
               } ${tokenModeAvailable ? '' : 'opacity-60 cursor-not-allowed'}`}
               type="button"
@@ -172,7 +172,7 @@ export function PerformanceControls({
               aria-pressed={performanceMode === 'target-weighted'}
               className={`px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
                 performanceMode === 'target-weighted'
-                  ? 'bg-accent-wh40k text-[var(--bg-primary)] border-accent-wh40k'
+                  ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
                   : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
               }`}
               type="button"
@@ -194,7 +194,7 @@ export function PerformanceControls({
             </p>
           )}
           {performanceMode === 'token-weighted' && tokenModeAvailable && (
-            <div className="mt-3 space-y-2 rounded-lg border border-[var(--card-border)] bg-card/60 p-3">
+            <div className="mt-3 space-y-2 rounded-lg border border-(--card-border) bg-card/60 p-3">
               <p className="text-xs font-semibold uppercase tracking-wide text-secondary-wh40k">
                 Token Baseline
               </p>
@@ -205,7 +205,7 @@ export function PerformanceControls({
                   aria-pressed={tokenWeightingMode === 'max'}
                   className={`px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
                     tokenWeightingMode === 'max'
-                      ? 'bg-accent-wh40k text-[var(--bg-primary)] border-accent-wh40k'
+                      ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
                       : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
                   }`}
                 >
@@ -217,7 +217,7 @@ export function PerformanceControls({
                   aria-pressed={tokenWeightingMode === 'average'}
                   className={`px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
                     tokenWeightingMode === 'average'
-                      ? 'bg-accent-wh40k text-[var(--bg-primary)] border-accent-wh40k'
+                      ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
                       : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
                   }`}
                 >
@@ -245,7 +245,7 @@ export function PerformanceControls({
               aria-pressed={compareMode === 'guild'}
               className={`px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
                 compareMode === 'guild'
-                  ? 'bg-accent-wh40k text-[var(--bg-primary)] border-accent-wh40k'
+                  ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
                   : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
               }`}
             >
@@ -257,7 +257,7 @@ export function PerformanceControls({
               title={bossOnlyTitle}
               className={`px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
                 compareMode === 'guild-boss'
-                  ? 'bg-accent-wh40k text-[var(--bg-primary)] border-accent-wh40k'
+                  ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
                   : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
               }`}
             >
@@ -270,7 +270,7 @@ export function PerformanceControls({
                   aria-pressed={compareMode === 'cluster'}
                   className={`px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
                     compareMode === 'cluster'
-                      ? 'bg-accent-wh40k text-[var(--bg-primary)] border-accent-wh40k'
+                      ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
                       : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
                   }`}
                 >
@@ -282,7 +282,7 @@ export function PerformanceControls({
                   title={bossOnlyTitle}
                   className={`px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
                     compareMode === 'cluster-boss'
-                      ? 'bg-accent-wh40k text-[var(--bg-primary)] border-accent-wh40k'
+                      ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
                       : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
                   }`}
                 >
@@ -298,7 +298,7 @@ export function PerformanceControls({
           onTargetLoopRangeChange &&
           targetLoopFirst !== undefined &&
           targetLoopLast !== undefined && (
-            <fieldset className="space-y-3 rounded-lg border border-[var(--card-border)] bg-card/60 p-3">
+            <fieldset className="space-y-3 rounded-lg border border-(--card-border) bg-card/60 p-3">
               <legend className="sr-only">Loop Range</legend>
               <div className="flex items-center justify-between gap-3">
                 <p className="text-xs font-semibold uppercase tracking-wide text-secondary-wh40k">
@@ -336,7 +336,7 @@ export function PerformanceControls({
                         targetLoopRange.end
                       )
                     }}
-                    className="h-2 w-full accent-[var(--accent)]"
+                    className="h-2 w-full accent-(--accent)"
                   />
                 </label>
                 <label className="space-y-1 text-xs text-secondary-wh40k">
@@ -366,7 +366,7 @@ export function PerformanceControls({
                         Math.max(nextEnd, targetLoopRange.start)
                       )
                     }}
-                    className="h-2 w-full accent-[var(--accent)]"
+                    className="h-2 w-full accent-(--accent)"
                   />
                 </label>
               </div>
@@ -379,7 +379,7 @@ export function PerformanceControls({
               type="checkbox"
               checked={showBossDetail}
               onChange={(event) => onShowBossDetailChange(event.target.checked)}
-              className="rounded border-primary-wh40k bg-card-bg text-accent-wh40k"
+              className="rounded-sm border-primary-wh40k bg-card-bg text-accent-wh40k"
             />
             <span className="text-sm font-medium text-primary-wh40k">
               Show Boss-by-Boss Detail
@@ -392,7 +392,7 @@ export function PerformanceControls({
               onChange={(event) =>
                 onShowFiveSeasonAverageChange(event.target.checked)
               }
-              className="rounded border-primary-wh40k bg-card-bg text-accent-wh40k"
+              className="rounded-sm border-primary-wh40k bg-card-bg text-accent-wh40k"
             />
             <span className="text-sm font-medium text-primary-wh40k">
               Show 5-Season Averages (Not Including Current)

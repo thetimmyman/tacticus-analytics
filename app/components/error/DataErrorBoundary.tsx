@@ -21,14 +21,14 @@ export function DataErrorBoundary({
   return (
     <ErrorBoundary
       fallback={
-        <div className="p-4 bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded-lg border border-[color-mix(in_srgb,var(--accent)_20%,transparent)]">
+        <div className="p-4 bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-lg border border-[color-mix(in_srgb,var(--accent)_20%,transparent)]">
           <div className="flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-[var(--accent)]" />
+            <AlertCircle className="w-5 h-5 text-(--accent)" />
             <div className="flex-1">
-              <p className="text-[var(--text-primary)] font-medium">
+              <p className="text-primary-wh40k font-medium">
                 {fallbackMessage}
               </p>
-              <p className="text-sm text-[var(--text-secondary)] mt-1">
+              <p className="text-sm text-secondary-wh40k mt-1">
                 There was an issue loading the data. Please try again.
               </p>
             </div>

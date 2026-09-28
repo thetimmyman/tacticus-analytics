@@ -189,11 +189,11 @@ export default function ClusterBossMatrix({ season }: ClusterBossMatrixProps) {
       {/* Loop selector */}
       {!loading && matrices.loops.length > 0 && (
         <div className="flex items-center gap-3">
-          <label className="text-sm text-[var(--text-secondary)]">Loop</label>
+          <label className="text-sm text-secondary-wh40k">Loop</label>
           <select
             value={matrices.selectedLoop ?? ''}
             onChange={(e) => setLoopIndex(Number(e.target.value))}
-            className="px-3 py-1 bg-[var(--card-bg)] text-[var(--text-primary)] border border-[var(--card-border)] rounded"
+            className="px-3 py-1 bg-(--card-bg) text-primary-wh40k border border-(--card-border) rounded-sm"
           >
             {matrices.loops.map((loop) => (
               <option key={loop} value={loop}>
@@ -215,7 +215,7 @@ export default function ClusterBossMatrix({ season }: ClusterBossMatrixProps) {
           {error}
         </div>
       ) : matrices.columns.length === 0 ? (
-        <div className="rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-6 text-sm text-[var(--text-secondary)]">
+        <div className="rounded-lg border border-(--card-border) bg-(--card-bg) p-6 text-sm text-secondary-wh40k">
           No guild-raid data for this season yet.
         </div>
       ) : (
@@ -241,7 +241,7 @@ export default function ClusterBossMatrix({ season }: ClusterBossMatrixProps) {
                 style: shadeStyle(value, range.min, range.max, true),
                 content:
                   value === null ? (
-                    <span className="text-[var(--text-secondary)]">—</span>
+                    <span className="text-secondary-wh40k">—</span>
                   ) : (
                     formatNumber(Math.round(value))
                   )
@@ -273,9 +273,7 @@ export default function ClusterBossMatrix({ season }: ClusterBossMatrixProps) {
               if (value === null) {
                 return {
                   style: {},
-                  content: (
-                    <span className="text-[var(--text-secondary)]">—</span>
-                  )
+                  content: <span className="text-secondary-wh40k">—</span>
                 }
               }
               if (cell?.live) {
@@ -285,7 +283,7 @@ export default function ClusterBossMatrix({ season }: ClusterBossMatrixProps) {
                   content: (
                     <span>
                       {value}
-                      <span className="ml-1 text-xs text-[var(--text-secondary)]">
+                      <span className="ml-1 text-xs text-secondary-wh40k">
                         live
                       </span>
                     </span>
@@ -337,13 +335,13 @@ function MatrixCard({
   renderCell
 }: MatrixCardProps) {
   return (
-    <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg overflow-hidden">
-      <div className="p-3 lg:p-4 border-b border-[var(--card-border)] flex flex-wrap items-start justify-between gap-3">
+    <div className="bg-(--card-bg) border border-(--card-border) rounded-lg overflow-hidden">
+      <div className="p-3 lg:p-4 border-b border-(--card-border) flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h3 className="text-lg lg:text-xl font-bold text-[var(--text-primary)]">
+          <h3 className="text-lg lg:text-xl font-bold text-primary-wh40k">
             {title}
           </h3>
-          <p className="text-xs lg:text-sm text-[var(--text-secondary)] mt-1">
+          <p className="text-xs lg:text-sm text-secondary-wh40k mt-1">
             {subtitleShort ? (
               <>
                 <span className="lg:hidden">{subtitleShort}</span>
@@ -353,33 +351,33 @@ function MatrixCard({
               subtitle
             )}
           </p>
-          <p className="hidden lg:block text-xs italic text-[var(--text-secondary)] mt-1">
+          <p className="hidden lg:block text-xs italic text-secondary-wh40k mt-1">
             {note}
           </p>
         </div>
-        <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+        <label className="flex items-center gap-2 text-sm text-secondary-wh40k">
           <input
             type="checkbox"
             checked={toggle.checked}
             onChange={(e) => toggle.onChange(e.target.checked)}
-            className="rounded"
+            className="rounded-sm"
           />
           {toggle.label}
         </label>
       </div>
       <div className="hidden lg:block overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-[var(--bg-tertiary)]">
+          <thead className="bg-(--bg-tertiary)">
             <tr>
-              <th className="px-3 py-2 text-left font-medium text-[var(--text-secondary)] sticky left-0 bg-[var(--bg-tertiary)]">
+              <th className="px-3 py-2 text-left font-medium text-secondary-wh40k sticky left-0 bg-(--bg-tertiary)">
                 Guild
               </th>
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className="px-3 py-2 text-right font-medium text-[var(--text-secondary)] whitespace-nowrap"
+                  className="px-3 py-2 text-right font-medium text-secondary-wh40k whitespace-nowrap"
                 >
-                  <span className="text-[var(--accent-wh40k)] mr-1">
+                  <span className="text-(--accent-wh40k) mr-1">
                     {col.levelLabel}
                   </span>
                   {col.bossLabel}
@@ -389,8 +387,8 @@ function MatrixCard({
           </thead>
           <tbody>
             {guilds.map((guild) => (
-              <tr key={guild} className="border-t border-[var(--card-border)]">
-                <td className="px-3 py-2 font-bold text-[var(--primary)] sticky left-0 bg-[var(--card-bg)]">
+              <tr key={guild} className="border-t border-(--card-border)">
+                <td className="px-3 py-2 font-bold text-(--primary) sticky left-0 bg-(--card-bg)">
                   {renderGuild(guild)}
                 </td>
                 {columns.map((col) => {
@@ -398,7 +396,7 @@ function MatrixCard({
                   return (
                     <td
                       key={col.key}
-                      className="px-3 py-2 text-right text-[var(--text-primary)] tabular-nums"
+                      className="px-3 py-2 text-right text-primary-wh40k tabular-nums"
                       style={style}
                     >
                       {content}
@@ -418,15 +416,13 @@ function MatrixCard({
           rowKey={(guild) => guild}
           colKey={(col) => col.key}
           renderRowHeader={(guild) => (
-            <span className="font-bold text-[var(--primary)]">
+            <span className="font-bold text-(--primary)">
               {renderGuild(guild)}
             </span>
           )}
           renderColLabel={(col) => (
             <>
-              <span className="text-[var(--accent-wh40k)]">
-                {col.levelLabel}
-              </span>{' '}
+              <span className="text-(--accent-wh40k)">{col.levelLabel}</span>{' '}
               {col.bossLabel}
             </>
           )}

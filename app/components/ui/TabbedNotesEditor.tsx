@@ -50,23 +50,23 @@ export function TabbedNotesEditor({
         if (!disabled) setTab(next as Tab)
       }}
       className={clsx(
-        'w-full min-w-0 max-w-full overflow-hidden rounded-md border border-[var(--card-border)] bg-[var(--card-bg)]',
+        'w-full min-w-0 max-w-full overflow-hidden rounded-md border border-(--card-border) bg-(--card-bg)',
         className
       )}
     >
-      <div className="flex min-w-0 items-center justify-between gap-3 border-b border-[var(--card-border)] bg-[var(--card-bg)] px-2 py-1">
-        <RadixTabsList className="flex min-h-[44px] flex-shrink-0 flex-wrap items-center gap-1 border-0 bg-transparent p-0">
+      <div className="flex min-w-0 items-center justify-between gap-3 border-b border-(--card-border) bg-(--card-bg) px-2 py-1">
+        <RadixTabsList className="flex min-h-[44px] shrink-0 flex-wrap items-center gap-1 border-0 bg-transparent p-0">
           <RadixTabsTrigger
             value="preview"
             disabled={disabled}
-            className="min-h-[44px] min-w-[44px] rounded px-3 py-2 text-xs data-[state=active]:bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] data-[state=active]:text-[var(--accent)]"
+            className="min-h-[44px] min-w-[44px] rounded-sm px-3 py-2 text-xs data-[state=active]:bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] data-[state=active]:text-(--accent)"
           >
             Preview
           </RadixTabsTrigger>
           <RadixTabsTrigger
             value="edit"
             disabled={disabled}
-            className="min-h-[44px] min-w-[44px] rounded px-3 py-2 text-xs data-[state=active]:bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] data-[state=active]:text-[var(--accent)]"
+            className="min-h-[44px] min-w-[44px] rounded-sm px-3 py-2 text-xs data-[state=active]:bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] data-[state=active]:text-(--accent)"
           >
             Edit
           </RadixTabsTrigger>
@@ -82,7 +82,7 @@ export function TabbedNotesEditor({
       <div className="p-3">
         <RadixTabsContent value="preview" className="m-0 focus-visible:ring-0">
           {value.trim() ? (
-            <div className="prose prose-invert prose-sm max-w-none break-words text-[var(--text-primary)] prose-headings:text-[var(--text-primary)] prose-strong:text-[var(--text-primary)] prose-li:my-0.5 prose-a:break-all">
+            <div className="prose prose-invert prose-sm max-w-none wrap-break-word text-primary-wh40k prose-headings:text-primary-wh40k prose-strong:text-primary-wh40k prose-li:my-0.5 prose-a:break-all">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown>
             </div>
           ) : (
@@ -102,7 +102,7 @@ export function TabbedNotesEditor({
             disabled={disabled}
             aria-labelledby={ariaLabelledBy}
             aria-describedby={ariaDescribedBy}
-            className="w-full min-w-0 resize-y rounded-md bg-transparent p-2 font-mono text-sm text-[var(--text-primary)] placeholder-[color-mix(in_srgb,var(--text-secondary)_50%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+            className="w-full min-w-0 resize-y rounded-md bg-transparent p-2 font-mono text-sm text-primary-wh40k placeholder-[color-mix(in_srgb,var(--text-secondary)_50%,transparent)] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent)"
           />
         </RadixTabsContent>
       </div>

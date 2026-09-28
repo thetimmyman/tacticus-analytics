@@ -21,7 +21,7 @@ const MultipleCategoryBadges = memo(function MultipleCategoryBadges({
   ) {
     return (
       <span
-        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getCategoryColor('Other')} ${className}`}
+        className={`inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium ${getCategoryColor('Other')} ${className}`}
       >
         Other
       </span>
@@ -32,7 +32,7 @@ const MultipleCategoryBadges = memo(function MultipleCategoryBadges({
     const category = firstCategory ?? 'Other'
     return (
       <span
-        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getCategoryColor(category)} ${className}`}
+        className={`inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium ${getCategoryColor(category)} ${className}`}
       >
         {category}
       </span>
@@ -44,7 +44,7 @@ const MultipleCategoryBadges = memo(function MultipleCategoryBadges({
       {categories.map((category) => (
         <span
           key={category}
-          className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${getCategoryColor(category)} flex-shrink-0`}
+          className={`inline-flex items-center px-1.5 py-0.5 rounded-sm text-xs font-medium ${getCategoryColor(category)} shrink-0`}
         >
           {category}
         </span>
