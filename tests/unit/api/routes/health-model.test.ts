@@ -43,7 +43,7 @@ describe('public health snapshot', () => {
         memory: { heapUsed: 1, heapTotal: 2, rss: 3, unit: 'MB' },
         uptime: 10,
         environment: 'production',
-        deployment: 'selfhost',
+        deployment: 'self-hosted',
         cronRole: 'primary',
         responseTime: 30
       },

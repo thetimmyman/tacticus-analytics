@@ -37,6 +37,12 @@ npm run test
 npm run security:clean-repo
 ```
 
+## Deploying
+
+`docker/Dockerfile.prod` builds the production web image. A generic Kubernetes
+example for the web tier is in
+[examples/kubernetes/README.md](examples/kubernetes/README.md).
+
 ## Layout
 
 ```text
