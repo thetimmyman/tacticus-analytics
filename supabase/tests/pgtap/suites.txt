@@ -41,6 +41,7 @@ adversarial_progression_and_meta_hardening.sql # 29
 bootstrap_authority_canonical_guild_code.sql # 12
 bootstrap_first_leader_seat_claim.sql # 9
 db_boundary_hardening_clusters_and_profile_claim.sql # 18
+default_privileges_no_client_grants.sql # 13
 discord_bot_invite_atomicity.sql # 8
 drop_stale_member_luck_summary.sql # 3
 eot_gr_data_preserve_erasure_tombstone.sql # 30
