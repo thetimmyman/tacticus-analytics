@@ -336,7 +336,12 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     }
 
     const executionTime = Date.now() - startTime
-    await updateGuildConfigAfterSync(supabase, upperGuildCode, rankings)
+    await updateGuildConfigAfterSync(
+      supabase,
+      upperGuildCode,
+      rankings,
+      lokiMembers.length > 0
+    )
     await updateSyncStatus(supabase, upperGuildCode, 'completed', {
       recordsSynced: upserted,
       memberCount: lokiMembers.length
