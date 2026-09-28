@@ -2,7 +2,18 @@
 -- target-db: general
 -- Once player_mapping holds a real name, alias battle rows take it, on either write order.
 
-SET lock_timeout = '5s';
+BEGIN;
+
+DO $guard$
+BEGIN
+  IF current_database() <> 'postgres' THEN
+    RAISE EXCEPTION 'heal_player_hash_battle_names (20260928010000) is general-database-only. Refusing to apply to %', current_database();
+  END IF;
+END
+$guard$;
+
+-- player_mapping and EOT_GR_data are hot; fail fast rather than queue writers behind a long reader.
+SET LOCAL lock_timeout = '5s';
 
 -- Mirrors the app resolver: aliases, create-config placeholders, raw UUIDs and tombstones are not names.
 CREATE OR REPLACE FUNCTION public.is_placeholder_player_name(p_name text)
@@ -110,4 +121,4 @@ CREATE OR REPLACE TRIGGER trg_eot_gr_data_heal_alias_insert
           AND NEW."displayName" ~* '^(Player#[0-9a-f]{1,12}|Player-[0-9a-f-]{1,12})$')
     EXECUTE FUNCTION public.eot_gr_data_resolve_alias_on_insert();
 
-RESET lock_timeout;
+COMMIT;
