@@ -18,6 +18,7 @@ import {
 import { loadWebhookCallerProfile } from '@/app/api/discord-webhooks/_shared/caller-profile'
 import { getMemberLabelMap } from '@/app/lib/member-labels-server'
 import { resolveMemberLabel } from '@/app/lib/member-labels'
+import { loadWebhookUrlById } from '@/app/lib/webhooks/webhook-url-lookup'
 
 type BossAssignment = {
   tier: string
@@ -169,15 +170,18 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
     if (guild_code) {
       const { data: guildWebhook } = await supabase
         .from('webhook_config')
-        .select('webhook_url')
+        .select('id')
         .eq('guild_code', guild_code)
         .eq('webhook_type', 'boss_assignments')
         .eq('enabled', true)
         .single()
 
-      if (guildWebhook?.webhook_url) {
+      const guildWebhookUrl = guildWebhook?.id
+        ? await loadWebhookUrlById(guildWebhook.id)
+        : null
+      if (guildWebhookUrl) {
         webhooksToSend.push({
-          url: guildWebhook.webhook_url,
+          url: guildWebhookUrl,
           type: 'guild',
           code: guild_code
         })
@@ -194,7 +198,7 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
       if (clusterData) {
         const { data: clusterWebhook } = await supabase
           .from('webhook_config')
-          .select('webhook_url')
+          .select('id')
           .eq('cluster_id', clusterData.id)
           // Guild-scoped rows would post cluster assignments into a guild channel.
           .is('guild_code', null)
@@ -202,9 +206,12 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
           .eq('enabled', true)
           .single()
 
-        if (clusterWebhook?.webhook_url) {
+        const clusterWebhookUrl = clusterWebhook?.id
+          ? await loadWebhookUrlById(clusterWebhook.id)
+          : null
+        if (clusterWebhookUrl) {
           webhooksToSend.push({
-            url: clusterWebhook.webhook_url,
+            url: clusterWebhookUrl,
             type: 'cluster',
             code: cluster_code,
             name: clusterData.display_name,

@@ -8,6 +8,9 @@ let mockCreateClient: ReturnType<typeof vi.fn>
 let mockFormatBossAssignmentEmbed: ReturnType<typeof vi.fn>
 let mockPostToWebhook: ReturnType<typeof vi.fn>
 let mockLogDiscordWebhookDelivery: ReturnType<typeof vi.fn>
+let mockLoadWebhookUrlById: ReturnType<typeof vi.fn>
+const webhookId = '10000000-0000-4000-8000-000000000001'
+const webhookUrl = 'https://discord.com/api/webhooks/1001/test-token'
 
 describe('POST /api/discord-webhooks/boss-assignments', () => {
   let POST: (req: NextRequest) => Promise<Response>
@@ -22,6 +25,10 @@ describe('POST /api/discord-webhooks/boss-assignments', () => {
     mockFormatBossAssignmentEmbed = vi.fn()
     mockPostToWebhook = vi.fn()
     mockLogDiscordWebhookDelivery = vi.fn()
+    mockLoadWebhookUrlById = vi.fn().mockResolvedValue(webhookUrl)
+    vi.doMock('@/app/lib/webhooks/webhook-url-lookup', () => ({
+      loadWebhookUrlById: mockLoadWebhookUrlById
+    }))
 
     vi.doMock('@/app/lib/auth/server', () => ({
       createClient: mockCreateClient
@@ -256,7 +263,7 @@ describe('POST /api/discord-webhooks/boss-assignments', () => {
             eq: vi.fn().mockReturnThis(),
             single: vi.fn().mockResolvedValue({
               data: {
-                webhook_url: 'https://discord.com/api/webhooks/123/token'
+                id: webhookId
               },
               error: null
             }),
@@ -281,6 +288,18 @@ describe('POST /api/discord-webhooks/boss-assignments', () => {
       expect(body.success).toBe(true)
       expect(body.webhooks_sent).toBe(1)
       expect(body.webhooks_failed).toBe(0)
+      expect(mockLoadWebhookUrlById).toHaveBeenCalledExactlyOnceWith(webhookId)
+      expect(mockPostToWebhook).toHaveBeenCalledWith(
+        webhookUrl,
+        expect.anything(),
+        expect.anything()
+      )
+      const webhookQueryIndex = mockSupabase.from.mock.calls.findIndex(
+        ([table]) => table === 'webhook_config'
+      )
+      expect(
+        mockSupabase.from.mock.results[webhookQueryIndex].value.select
+      ).toHaveBeenCalledWith('id')
     })
 
     it('returns 207 for partial success', async () => {
@@ -304,7 +323,7 @@ describe('POST /api/discord-webhooks/boss-assignments', () => {
             eq: vi.fn().mockReturnThis(),
             single: vi.fn().mockResolvedValue({
               data: {
-                webhook_url: 'https://discord.com/api/webhooks/123/token'
+                id: webhookId
               },
               error: null
             })
@@ -358,7 +377,7 @@ describe('POST /api/discord-webhooks/boss-assignments', () => {
             eq: vi.fn().mockReturnThis(),
             single: vi.fn().mockResolvedValue({
               data: {
-                webhook_url: 'https://discord.com/api/webhooks/123/token'
+                id: webhookId
               },
               error: null
             })
@@ -423,7 +442,7 @@ describe('POST /api/discord-webhooks/boss-assignments', () => {
             is: vi.fn().mockReturnThis(),
             single: vi.fn().mockResolvedValue({
               data: {
-                webhook_url: 'https://discord.com/api/webhooks/cluster/token'
+                id: webhookId
               },
               error: null
             }),
@@ -445,6 +464,7 @@ describe('POST /api/discord-webhooks/boss-assignments', () => {
 
       expect(response.status).toBe(200)
       expect(body.success).toBe(true)
+      expect(mockLoadWebhookUrlById).toHaveBeenCalledExactlyOnceWith(webhookId)
     })
   })
 

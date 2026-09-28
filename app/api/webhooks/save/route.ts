@@ -10,6 +10,10 @@ import { GuildConfigService } from '@/app/lib/services/guild-config-service'
 import { requireGuildOfficerOrClusterLeader } from '@/app/lib/auth/guild-permissions'
 import { isClusterLeaderRole } from '@/app/lib/auth/role-predicates'
 import {
+  WEBHOOK_METADATA_COLUMNS,
+  loadWebhookUrlsByIds
+} from '@/app/lib/webhooks/webhook-url-lookup'
+import {
   DIAGNOSTIC_WEBHOOK_TYPE,
   LEGACY_TOKEN_CAP_ALERTS_WEBHOOK_TYPE,
   isProactiveTokenManagementWebhookType,
@@ -252,7 +256,9 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
         })
         .eq('id', existing.id)
 
-      const { data, error } = await updateQuery.select().single()
+      const { data, error } = await updateQuery
+        .select(WEBHOOK_METADATA_COLUMNS)
+        .single()
 
       if (error) {
         logger.error(
@@ -297,7 +303,7 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
           thread_id: normalizedThreadId,
           updated_by: user.id
         })
-        .select()
+        .select(WEBHOOK_METADATA_COLUMNS)
         .single()
       if (error) {
         logger.error(
@@ -397,7 +403,7 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
 
     return NextResponse.json({
       success: true,
-      webhook: result,
+      webhook: { ...result, webhook_url: normalizedUrl },
       message: 'Webhook configuration saved successfully'
     })
   } catch (error) {
@@ -455,7 +461,7 @@ export const GET = withErrorHandler(async (req: NextRequest) => {
 
     let query = supabase
       .from('webhook_config')
-      .select('*')
+      .select(WEBHOOK_METADATA_COLUMNS)
       .order('webhook_type')
 
     if (guild_code) {
@@ -480,8 +486,15 @@ export const GET = withErrorHandler(async (req: NextRequest) => {
       throw error
     }
 
+    const visibleWebhooks = webhooks ?? []
+    const urls = await loadWebhookUrlsByIds(
+      visibleWebhooks.map((row) => row.id)
+    )
     const normalizedWebhooks = normalizeWebhookRows(
-      (webhooks ?? []) as WebhookRow[]
+      visibleWebhooks.map((row) => ({
+        ...row,
+        webhook_url: urls.get(row.id) ?? null
+      })) as WebhookRow[]
     )
 
     logger.info(

@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 let mockCreateClient: ReturnType<typeof vi.fn>
+let mockCreateServiceClient: ReturnType<typeof vi.fn>
+let mockServiceSelect: ReturnType<typeof vi.fn>
+let mockServiceIn: ReturnType<typeof vi.fn>
+let mockGuildConfigGetBasic: ReturnType<typeof vi.fn>
 let mockFetch: ReturnType<typeof vi.fn>
 let mockRequireGuildOfficerOrClusterLeader: ReturnType<typeof vi.fn>
 
@@ -17,6 +21,23 @@ describe('POST /api/webhooks/test', () => {
     delete process.env.DISABLE_DIAGNOSTIC_MESSAGES
 
     mockCreateClient = vi.fn()
+    mockCreateServiceClient = vi.fn()
+    mockServiceIn = vi
+      .fn()
+      .mockImplementation(async (_column, ids: string[]) => ({
+        data: ids.map((id) => ({
+          id,
+          webhook_url: 'https://discord.com/api/webhooks/1001/test-token'
+        })),
+        error: null
+      }))
+    mockServiceSelect = vi.fn().mockReturnValue({ in: mockServiceIn })
+    mockGuildConfigGetBasic = vi
+      .fn()
+      .mockResolvedValue({ display_name: 'Guild' })
+    mockCreateServiceClient.mockReturnValue({
+      from: vi.fn().mockReturnValue({ select: mockServiceSelect })
+    })
     mockFetch = vi.fn()
     mockRequireGuildOfficerOrClusterLeader = vi.fn().mockResolvedValue({
       role: 'officer',
@@ -25,11 +46,15 @@ describe('POST /api/webhooks/test', () => {
     })
 
     vi.doMock('@/app/lib/auth/server', () => ({
-      createClient: mockCreateClient
+      createClient: mockCreateClient,
+      createServiceClient: mockCreateServiceClient
     }))
 
     vi.doMock('@/app/lib/auth/guild-permissions', () => ({
       requireGuildOfficerOrClusterLeader: mockRequireGuildOfficerOrClusterLeader
+    }))
+    vi.doMock('@/app/lib/services/guild-config-service', () => ({
+      GuildConfigService: { getBasic: mockGuildConfigGetBasic }
     }))
 
     vi.stubGlobal('fetch', mockFetch)
@@ -117,11 +142,19 @@ describe('POST /api/webhooks/test', () => {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
         single: vi.fn().mockResolvedValue({
-          data: { id: 'abc', webhook_type: 'leaderboard', webhook_url: null },
+          data: {
+            id: 'abc',
+            webhook_type: 'leaderboard',
+            guild_code: 'GUILD1'
+          },
           error: null
         })
       }
       mockSupabase.from.mockReturnValue(mockQuery)
+      mockServiceIn.mockResolvedValue({
+        data: [{ id: 'abc', webhook_url: null }],
+        error: null
+      })
 
       const request = new Request('http://localhost/api/webhooks/test', {
         method: 'POST',
@@ -642,6 +675,7 @@ describe('POST /api/webhooks/test', () => {
     })
 
     it('fetches webhook config by ID and gets guild display name', async () => {
+      mockGuildConfigGetBasic.mockResolvedValue({ display_name: 'My Guild' })
       const mockWebhookQuery = {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
@@ -702,6 +736,16 @@ describe('POST /api/webhooks/test', () => {
 
       const fetchBody = JSON.parse(mockFetch.mock.calls[0][1].body)
       expect(fetchBody.embeds[0].title).toContain('My Guild')
+      expect(mockWebhookQuery.select).toHaveBeenCalledWith(
+        expect.not.stringContaining('webhook_url')
+      )
+      expect(mockWebhookQuery.select).not.toHaveBeenCalledWith('*')
+      expect(mockWebhookQuery.select).not.toHaveBeenCalledWith()
+      expect(mockServiceIn).toHaveBeenCalledWith('id', ['webhook-1'])
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://discord.com/api/webhooks/1001/test-token',
+        expect.anything()
+      )
       expect(mockRequireGuildOfficerOrClusterLeader).toHaveBeenCalledWith(
         mockSupabase,
         'user-123',
@@ -710,7 +754,13 @@ describe('POST /api/webhooks/test', () => {
       )
     })
 
-    it('test-fires a stored proactive webhook without guild officer authorization', async () => {
+    it('requires guild officer authorization for a stored proactive webhook', async () => {
+      const { Errors } = await import('@/app/lib/errors/AppError')
+      mockRequireGuildOfficerOrClusterLeader.mockRejectedValue(
+        Errors.forbidden('Officer access required', {
+          endpoint: '/api/webhooks/test'
+        })
+      )
       const updateEq = vi.fn().mockResolvedValue({ error: null })
       const mockWebhookQuery = {
         select: vi.fn().mockReturnThis(),
@@ -757,15 +807,17 @@ describe('POST /api/webhooks/test', () => {
       const response = await POST(request)
       const body = await response.json()
 
-      expect(response.status).toBe(200)
-      expect(body.success).toBe(true)
-      expect(mockRequireGuildOfficerOrClusterLeader).not.toHaveBeenCalled()
-      expect(mockSupabase.rpc).toHaveBeenCalledWith('check_feature_access', {
-        p_user_id: 'user-123',
-        p_feature_key: 'proactive_token_management'
-      })
-      expect(mockFetch).toHaveBeenCalled()
-      expect(updateEq).toHaveBeenCalledWith('id', 'proactive-1')
+      expect(response.status).toBe(403)
+      expect(body.error).toBeDefined()
+      expect(mockRequireGuildOfficerOrClusterLeader).toHaveBeenCalledWith(
+        mockSupabase,
+        'user-123',
+        'GUILD1',
+        '/api/webhooks/test'
+      )
+      expect(mockCreateServiceClient).not.toHaveBeenCalled()
+      expect(mockFetch).not.toHaveBeenCalled()
+      expect(updateEq).not.toHaveBeenCalled()
     })
 
     it('rejects test-firing a webhook for a guild the caller does not manage', async () => {
@@ -827,6 +879,34 @@ describe('POST /api/webhooks/test', () => {
         'GUILD2',
         '/api/webhooks/test'
       )
+      expect(mockCreateServiceClient).not.toHaveBeenCalled()
+    })
+
+    it('rejects a stored webhook without a guild or cluster scope', async () => {
+      const mockWebhookQuery = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        single: vi.fn().mockResolvedValue({
+          data: { id: 'unscoped-webhook', webhook_type: 'leaderboard' },
+          error: null
+        })
+      }
+      mockSupabase.from.mockReturnValue(mockWebhookQuery)
+
+      const response = await POST(
+        new Request('http://localhost/api/webhooks/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ webhook_id: 'unscoped-webhook' })
+        })
+      )
+
+      expect(response.status).toBe(403)
+      expect(mockWebhookQuery.select).toHaveBeenCalledWith(
+        expect.not.stringContaining('webhook_url')
+      )
+      expect(mockCreateServiceClient).not.toHaveBeenCalled()
+      expect(mockFetch).not.toHaveBeenCalled()
     })
 
     it('updates last_tested timestamp after successful test', async () => {
@@ -837,7 +917,7 @@ describe('POST /api/webhooks/test', () => {
           data: {
             id: 'webhook-1',
             webhook_type: 'leaderboard',
-            webhook_url: 'https://discord.com/api/webhooks/123/abc'
+            guild_code: 'GUILD1'
           },
           error: null
         })
@@ -857,7 +937,7 @@ describe('POST /api/webhooks/test', () => {
               data: {
                 id: 'webhook-1',
                 webhook_type: 'leaderboard',
-                webhook_url: 'https://discord.com/api/webhooks/123/abc'
+                guild_code: 'GUILD1'
               },
               error: null
             }),
