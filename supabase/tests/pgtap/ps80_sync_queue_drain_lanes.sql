@@ -7,7 +7,7 @@ CREATE EXTENSION IF NOT EXISTS dblink WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 SET LOCAL timezone TO 'UTC';
 
-SELECT plan(20);
+SELECT plan(28);
 
 SELECT is(
   current_database()::text,
@@ -154,6 +154,72 @@ SELECT is(
   '13. the firing transition was recorded on the sync.queue.drain alert key'
 );
 
+-- Runs older than the age bound no longer describe the drain, so the alert above must clear.
+DELETE FROM public.sync_drain_runs;
+INSERT INTO public.sync_drain_runs
+  (ran_at, worker_id, lanes, budget_ms, window_ms, duration_ms, jobs_drained,
+   queue_depth_start, saturated)
+SELECT now() - (30 + g || ' minutes')::interval, 'ps80-old' || g, 2, 45000, 40000,
+       40100, 12, 41, true
+  FROM generate_series(1, 3) AS g;
+
+SELECT is(
+  (SELECT verdict FROM public.sync_queue_drain_health()),
+  'runs_stale'::text,
+  '14. saturated, over-ceiling runs older than the age bound read as "runs_stale", not "saturated"'
+);
+
+SELECT is(
+  public.check_sync_queue_drain_health(3, 20, 10, true),
+  0,
+  '15. runs that have aged out report no firing condition'
+);
+
+SELECT is(
+  (SELECT status FROM monitoring.alert_state WHERE alert_key = 'sync.queue.drain'),
+  'cleared'::text,
+  '16. an alert raised from runs that have since aged out is cleared'
+);
+
+SELECT ok(
+  (SELECT last_body FROM monitoring.alert_state WHERE alert_key = 'sync.queue.drain')
+    ~ 'No drain run recorded in the last 10 min',
+  '17. the cleared body says why: no run inside the age bound'
+);
+
+-- The queue is filled in bursts; a young burst over the ceiling is not a stall.
+INSERT INTO public.guild_config (guild_code, display_name, cluster_code)
+SELECT 'PS80BURST' || g, 'Drain burst fixture', NULL
+  FROM generate_series(1, 25) AS g
+ON CONFLICT (guild_code) DO NOTHING;
+INSERT INTO public.sync_queue
+  (guild_code, job_type, status, priority, scheduled_for, created_at, attempts, max_attempts)
+SELECT 'PS80BURST' || g, 'incremental_sync', 'pending', 5, now(), now(), 0, 3
+  FROM generate_series(1, 25) AS g;
+
+SELECT ok(
+  (SELECT pending_depth FROM public.sync_queue_drain_health(3, 20, 10)) > 20,
+  '18. positive control: the young burst is deeper than the ceiling'
+);
+
+SELECT is(
+  (SELECT verdict FROM public.sync_queue_drain_health(3, 20, 10)),
+  'runs_stale'::text,
+  '19. a young burst over the ceiling does not turn aged-out runs into a firing verdict'
+);
+
+DELETE FROM public.sync_queue WHERE guild_code LIKE 'PS80BURST%';
+DELETE FROM public.guild_config WHERE guild_code LIKE 'PS80BURST%';
+
+UPDATE public.sync_drain_runs SET ran_at = now() - INTERVAL '1 minute'
+ WHERE worker_id = 'ps80-old1';
+
+SELECT is(
+  (SELECT verdict FROM public.sync_queue_drain_health()),
+  'ok'::text,
+  '20. one recent saturated run plus two aged ones is not three consecutive saturated runs'
+);
+
 DELETE FROM public.sync_drain_runs;
 INSERT INTO public.sync_drain_runs
   (ran_at, worker_id, lanes, budget_ms, window_ms, duration_ms, jobs_drained,
@@ -166,19 +232,19 @@ VALUES
 SELECT is(
   (SELECT verdict FROM public.sync_queue_drain_health()),
   'ok'::text,
-  '14. negative control: two saturated runs out of the three the threshold requires is NOT firing'
+  '21. negative control: two saturated runs out of the three the threshold requires is NOT firing'
 );
 
 SELECT is(
   public.check_sync_queue_drain_health(3, 20, 10, true),
   0,
-  '15. the clearing leg: the monitor reports no firing condition once the drain keeps up'
+  '22. the clearing leg: the monitor reports no firing condition once the drain keeps up'
 );
 
 SELECT is(
   (SELECT status FROM monitoring.alert_state WHERE alert_key = 'sync.queue.drain'),
   'cleared'::text,
-  '16. the cleared transition was recorded -- a monitor that cannot clear is a pager nobody can answer'
+  '23. the cleared transition was recorded -- a monitor that cannot clear is a pager nobody can answer'
 );
 
 DELETE FROM public.sync_drain_runs;
@@ -192,7 +258,7 @@ SELECT now() - (g || ' minutes')::interval, 'ps80-b' || g, 2, 45000, 40000,
 SELECT is(
   (SELECT verdict FROM public.sync_queue_drain_health(3, 20, 10)),
   'backlog'::text,
-  '17. three consecutive runs handed more than twice the ceiling read as "backlog"'
+  '24. three consecutive runs handed more than twice the ceiling read as "backlog"'
 );
 
 UPDATE public.sync_drain_runs SET queue_depth_start = NULL;
@@ -200,7 +266,7 @@ UPDATE public.sync_drain_runs SET queue_depth_start = NULL;
 SELECT is(
   (SELECT verdict FROM public.sync_queue_drain_health(3, 20, 10)),
   'ok'::text,
-  '18. negative control: a run whose queue depth was never measured (NULL) does not count toward the backlog leg'
+  '25. negative control: a run whose queue depth was never measured (NULL) does not count toward the backlog leg'
 );
 
 -- The age leg reads sync_queue directly, so it fires even when drain runs stop.
@@ -223,13 +289,21 @@ VALUES ('PS80AGED', 'incremental_sync', 'pending', 5,
 SELECT is(
   (SELECT verdict FROM public.sync_queue_drain_health(3, 20, 10)),
   'stalled'::text,
-  '19. a pending job older than the age bound reads as "stalled" even while every recorded run looks healthy'
+  '26. a pending job older than the age bound reads as "stalled" even while every recorded run looks healthy'
 );
 
 SELECT is(
   public.check_sync_queue_drain_health(3, 20, 10, true),
   1,
-  '20. the age leg fires the same alert key, so a drain that stopped reporting is still paged'
+  '27. the age leg fires the same alert key, so a drain that stopped reporting is still paged'
+);
+
+UPDATE public.sync_drain_runs SET ran_at = ran_at - INTERVAL '1 hour';
+
+SELECT is(
+  (SELECT verdict FROM public.sync_queue_drain_health(3, 20, 10)),
+  'stalled'::text,
+  '28. the age leg still fires when every recorded run has aged out'
 );
 
 SELECT * FROM finish();
