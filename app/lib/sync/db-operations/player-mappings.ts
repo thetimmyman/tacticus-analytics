@@ -15,6 +15,36 @@ import {
 const APP_DEACTIVATION_SOURCE = 'app.player-mappings.mark-absent'
 const FAIL_CLOSED_OBSERVATION = '1970-01-01T00:00:00.000Z'
 
+// record_roster_write_outcome feeds the roster-write failure monitor; a failure to record
+// must never throw or otherwise change what the caller sees, matching worker-jobs/player-sync.ts.
+async function recordRosterWriteOutcome(
+  supabase: StrictSupabaseClient,
+  guildCode: string,
+  ok: boolean,
+  rowsWritten: number,
+  reason: string | null
+): Promise<void> {
+  try {
+    const { error } = await supabase.rpc('record_roster_write_outcome', {
+      p_guild_code: guildCode,
+      p_ok: ok,
+      p_rows_written: rowsWritten,
+      p_reason: reason
+    })
+    if (error) {
+      logger.error(
+        { guildCode, error },
+        'Failed to record roster write outcome'
+      )
+    }
+  } catch (error) {
+    logger.error(
+      { guildCode, error: getErrorMessage(error) },
+      'Failed to record roster write outcome'
+    )
+  }
+}
+
 export async function beginGuildRosterObservation(
   supabase: StrictSupabaseClient
 ): Promise<string> {
@@ -230,6 +260,13 @@ export async function savePlayerMappings(
         { guildCode },
         `Failed to load existing player data: ${existingError.message} — aborting upsert to prevent data loss`
       )
+      await recordRosterWriteOutcome(
+        supabase,
+        guildCode,
+        false,
+        0,
+        existingError.message
+      )
       return
     }
 
@@ -375,6 +412,16 @@ export async function savePlayerMappings(
       }
     })
 
+    // An empty record set is not a roster pass: eligibility guards can filter every member away,
+    // and recording success would clear a real prior failure (matches the edge db-mappings path).
+    if (records.length === 0) {
+      logger.warn(
+        { guildCode },
+        'No eligible player mappings to save; roster write outcome not recorded'
+      )
+      return
+    }
+
     const { error: upsertError } = await supabase
       .from('player_mapping')
       .upsert(records as never, {
@@ -387,16 +434,37 @@ export async function savePlayerMappings(
         { guildCode },
         `Saved ${records.length} player mappings (${currentCount} current, ${transferCount} transfers, source: ${membershipSource})`
       )
+      await recordRosterWriteOutcome(
+        supabase,
+        guildCode,
+        true,
+        records.length,
+        null
+      )
     } else {
       logger.error(
         { guildCode },
         `Failed to save player mappings: ${upsertError.message}`
+      )
+      await recordRosterWriteOutcome(
+        supabase,
+        guildCode,
+        false,
+        0,
+        upsertError.message
       )
     }
   } catch (error: unknown) {
     logger.error(
       { guildCode },
       `Exception saving player mappings: ${getErrorMessage(error)}`
+    )
+    await recordRosterWriteOutcome(
+      supabase,
+      guildCode,
+      false,
+      0,
+      getErrorMessage(error)
     )
   }
 }
