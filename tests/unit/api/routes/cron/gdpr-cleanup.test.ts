@@ -194,7 +194,7 @@ describe('gdprManager.cleanupExpiredData (predicate)', () => {
     expect(exportChain.not).toHaveBeenCalledWith('expires_at', 'is', null)
   })
 
-  it('returns the two DELETE row counts to its caller (PS-396)', async () => {
+  it('returns the two DELETE row counts to its caller', async () => {
     const { gdprManager } = await import('@/app/lib/compliance/gdpr-manager')
     const counts = await gdprManager.cleanupExpiredData()
     expect(counts).toEqual({

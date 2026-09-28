@@ -1,4 +1,4 @@
-// Tests the TS mirror of looping-boss awards; the SQL RPC is canonical (pgtap wi6590_votlw_looping_bosses.sql).
+// Tests the TS mirror of looping-boss awards; the SQL RPC is canonical (pgtap votlw_looping_bosses.sql).
 
 import { describe, it, expect } from 'vitest'
 import {
@@ -67,7 +67,7 @@ const levels = (data: BattleEntry[]): string[] =>
 const allRows = (data: BattleEntry[]): string[] =>
   calculateSetWinners(data, new Set<string>()).map((s) => s.levelString)
 
-describe('VOTLW set winners — only looping bosses award (WI-6590)', () => {
+describe('VOTLW set winners — only looping bosses award', () => {
   it('drops L1-L3 when the season restarts its loop at L4', () => {
     expect(levels(season(3))).toEqual(['L4', 'L5', 'M1', 'M2', 'M3'])
   })

@@ -134,7 +134,7 @@ function describeSample(sample: Sample): string {
   return JSON.stringify(sample)
 }
 
-describe('decision-core differential — generalized vs frozen WI-3990', () => {
+describe('decision-core differential — generalized vs frozen', () => {
   it('agrees with the frozen implementation on 25,000 randomized inputs', () => {
     const rand = mulberry32(0x5eed4000)
     let checked = 0

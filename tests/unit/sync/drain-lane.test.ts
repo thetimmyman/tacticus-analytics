@@ -65,7 +65,7 @@ function fakeClock(steps: number[]) {
   }
 }
 
-describe('PS-80 drain lanes', () => {
+describe('drain lanes', () => {
   beforeEach(() => {
     processJob.mockReset()
     processJob.mockImplementation(async (claimed: { id: string }) => ({

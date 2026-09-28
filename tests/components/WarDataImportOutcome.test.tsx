@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import WarDataImport from '@/app/(dashboard)/wars/_components/WarDataImport'
 
 /** The paste clears only when the response is ok and `success !== false`. */
-describe('WarDataImport outcome handling (PS-413)', () => {
+describe('WarDataImport outcome handling', () => {
   const pastedJson = JSON.stringify({
     wars: [
       {

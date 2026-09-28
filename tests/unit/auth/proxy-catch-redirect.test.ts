@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server'
 
 const mocks = vi.hoisted(() => ({
   resolveProxySupabaseUrls: vi.fn(() => {
-    throw new Error('forced proxy failure for PS-390 control')
+    throw new Error('forced proxy failure for the negative control')
   }),
   logger: {
     error: vi.fn(),
@@ -42,7 +42,7 @@ describe('proxy top-level catch redirects every protected path', () => {
     vi.resetModules()
     vi.clearAllMocks()
     mocks.resolveProxySupabaseUrls.mockImplementation(() => {
-      throw new Error('forced proxy failure for PS-390 control')
+      throw new Error('forced proxy failure for the negative control')
     })
 
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://api.tacticusanalytics.com'

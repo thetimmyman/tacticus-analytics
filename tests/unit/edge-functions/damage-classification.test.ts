@@ -101,7 +101,7 @@ describe('edge damage-classification', () => {
         args: [1_000_000, 1, [1_500_000], 800_000, 1_000_000] as const
       },
       {
-        name: 'sweep below the player own avg is dropped (WI-1462)',
+        name: 'sweep below the player own avg is dropped',
         args: [2_000_000, 2, [900_000], 800_000, 1_000_000] as const
       },
       {

@@ -9,7 +9,7 @@ import { useQueueData } from '@/app/(dashboard)/guild-management/upcoming-assign
 
 afterEach(() => vi.unstubAllGlobals())
 
-describe('useQueueData error handling (WI-1930)', () => {
+describe('useQueueData error handling', () => {
   it('falls back to clean copy on a 502 HTML body — never surfaces raw HTML', async () => {
     vi.stubGlobal(
       'fetch',
@@ -37,7 +37,7 @@ describe('useQueueData error handling (WI-1930)', () => {
     )
   })
 
-  it('posts ONLY mode + season — the legacy excluded_bosses field was removed (WI-4490)', async () => {
+  it('posts ONLY mode + season — the legacy excluded_bosses field was removed', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ success: true })

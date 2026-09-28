@@ -73,7 +73,7 @@ const CALL_SITES = [
 ] as const
 
 describe.each(CALL_SITES)(
-  'WI-1585 canonical guild-permission pin — $route',
+  'canonical guild-permission pin — $route',
   ({ endpoint }) => {
     it('ALLOWS an officer of the target guild', async () => {
       const profile: ProfileRow = {

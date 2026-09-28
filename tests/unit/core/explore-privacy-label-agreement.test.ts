@@ -106,7 +106,7 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-describe('PS-165 anonymous privacy-label agreement', () => {
+describe('anonymous privacy-label agreement', () => {
   it('counts exact SQL string literals, not longer strings containing the label', () => {
     expect(
       countSqlStringLiteralOccurrences(

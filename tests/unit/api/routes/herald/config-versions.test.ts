@@ -89,7 +89,7 @@ const makeDefaultUpdateClient = () => {
   }
 }
 
-describe('GET /api/herald/config-versions (WI-735)', () => {
+describe('GET /api/herald/config-versions', () => {
   beforeEach(() => {
     vi.resetModules()
     mockRequireGuildMember = vi.fn(async () => ({

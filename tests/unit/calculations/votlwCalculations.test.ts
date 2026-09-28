@@ -184,7 +184,7 @@ describe('calculateVOTLWPoints', () => {
     expect([set0.gold, set0.silver, set0.bronze]).not.toContain('Cabol')
   })
 
-  it('re-includes qualifying sweeps in the medal average and battle count (WI-1462)', async () => {
+  it('re-includes qualifying sweeps in the medal average and battle count', async () => {
     const battleEntries = [
       makeEntry({
         displayName: 'Alpha',

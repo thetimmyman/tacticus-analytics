@@ -180,7 +180,7 @@ describe('reduceSeasonOutlook', () => {
   })
 })
 
-describe('reduceSeasonOutlook — officer budget block (WI-4530)', () => {
+describe('reduceSeasonOutlook — officer budget block', () => {
   const OPTS = { guildCode: 'ABCD', seasonNumber: 105, nowMs: NOW }
 
   const seqEntry = (

@@ -844,7 +844,7 @@ describe('Token Service', () => {
     })
   })
 
-  describe('fetchLiveTokenDataForMembers bounded fan-out (WI-4371)', () => {
+  describe('fetchLiveTokenDataForMembers bounded fan-out', () => {
     // Matching the last-sync fields keeps the write-back change-guard cold.
     const unchangedLivePlayer = {
       progress: {
@@ -900,7 +900,7 @@ describe('Token Service', () => {
     })
   })
 
-  describe('writeBackPlayerTokenSnapshot (WI-2640 Phase 3 S1)', () => {
+  describe('writeBackPlayerTokenSnapshot (Phase 3 S1)', () => {
     function makeUpdateChain(error: { message: string } | null = null) {
       const chain: {
         update: ReturnType<typeof vi.fn>

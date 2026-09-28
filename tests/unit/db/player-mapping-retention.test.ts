@@ -41,7 +41,7 @@ const MAPPING_LIVENESS_FUNCTIONS = [
   'cleanup_orphaned_guilds'
 ] as const
 
-describe('PS-669: cleanup jobs retain departed-member mappings', () => {
+describe('cleanup jobs retain departed-member mappings', () => {
   it.each(MAPPING_LIVENESS_FUNCTIONS)(
     '%s no longer gates its player_mapping probe on is_current',
     (name) => {
@@ -131,7 +131,7 @@ describe('PS-669: cleanup jobs retain departed-member mappings', () => {
   })
 })
 
-describe('PS-670: prune_incomplete_player_registrations hardening', () => {
+describe('prune_incomplete_player_registrations hardening', () => {
   it('locks candidates FOR UPDATE SKIP LOCKED and re-checks eligibility in the DELETE', () => {
     const code = stripComments(
       effectiveDefinition('prune_incomplete_player_registrations').body

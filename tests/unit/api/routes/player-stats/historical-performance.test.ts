@@ -63,7 +63,7 @@ describe('GET /api/player-stats/historical-performance', () => {
     GET = routeModule.GET
   })
 
-  describe('authorization (WI-6050)', () => {
+  describe('authorization', () => {
     it('rejects an unauthenticated caller with 401 before validating params', async () => {
       const { AuthError } = await import('@/app/lib/auth')
       mockRequireActiveMembershipForApi.mockRejectedValue(

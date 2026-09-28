@@ -60,7 +60,7 @@ describe('HeroCatalog', () => {
     expect(catalogWithoutRho.getByName('Rho')).toBeNull()
   })
 
-  it('resolves the Rho alias after a display_name rebalance (unit_id anchor, WI-2787)', () => {
+  it('resolves the Rho alias after a display_name rebalance (unit_id anchor)', () => {
     // A balance patch bumps display_name; the alias must resolve via stable unit_id.
     const rebalanced = new HeroCatalog(
       heroes.map((hero) =>
@@ -75,7 +75,7 @@ describe('HeroCatalog', () => {
     )
   })
 
-  it('resolves the Calgar playbook alias to Marneus Calgar (WI-2787)', () => {
+  it('resolves the Calgar playbook alias to Marneus Calgar', () => {
     const withCalgar = new HeroCatalog([
       ...heroes,
       {
@@ -91,7 +91,7 @@ describe('HeroCatalog', () => {
     expect(withCalgar.getByName('calgar')?.unitId).toBe('ultraCalgar')
   })
 
-  it("resolves Z'Kar bidirectionally regardless of which name is the display_name (WI-2787)", () => {
+  it("resolves Z'Kar bidirectionally regardless of which name is the display_name", () => {
     const renamed = new HeroCatalog([
       ...heroes,
       {
@@ -126,7 +126,7 @@ describe('HeroCatalog', () => {
     )
   })
 
-  it('search matches alias sides as well as canonical names (WI-2787)', () => {
+  it('search matches alias sides as well as canonical names', () => {
     const withAliases = new HeroCatalog([
       ...heroes,
       {

@@ -61,7 +61,7 @@ describe('CircuitBreaker', () => {
     )
   })
 
-  it('resets failure count on success — scattered failures never open the breaker (WI-1810)', async () => {
+  it('resets failure count on success — scattered failures never open the breaker', async () => {
     // A success resets the counter, so failures spread across healthy traffic never open the breaker.
     const cb = new CircuitBreaker(2, 30000)
     for (let i = 0; i < 5; i++) {
@@ -73,7 +73,7 @@ describe('CircuitBreaker', () => {
     await expect(cb.execute(() => Promise.resolve('ok'))).resolves.toBe('ok')
   })
 
-  describe('error classification (WI-662)', () => {
+  describe('error classification', () => {
     it('does not count permanent 4xx TacticusApiError — breaker stays CLOSED', async () => {
       const cb = new CircuitBreaker(2, 30000)
       const permanent = () =>

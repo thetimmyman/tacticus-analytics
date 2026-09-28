@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { loopIndexFromTier } from '@/app/lib/calculations/loop-from-tier'
 
-describe('loopIndexFromTier (WI-2212)', () => {
+describe('loopIndexFromTier', () => {
   it('maps sub-4 tiers (and non-finite) to loop 0, tolerantly', () => {
     expect(loopIndexFromTier(0)).toBe(0)
     expect(loopIndexFromTier(3)).toBe(0)

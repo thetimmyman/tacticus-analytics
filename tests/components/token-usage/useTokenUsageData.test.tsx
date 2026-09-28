@@ -285,7 +285,7 @@ describe('useTokenUsageData', () => {
     expect(battleHistoryCall?.[1]?.signal).toBeInstanceOf(AbortSignal)
   })
 
-  it('overlays pace rows onto envelope projections, per row, with envelope fallback (WI-4510)', async () => {
+  it('overlays pace rows onto envelope projections, per row, with envelope fallback', async () => {
     rpcMock.mockImplementation(async (fn: string) => {
       if (fn === 'get_guild_season_forecast') {
         return {

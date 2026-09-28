@@ -3,7 +3,7 @@ import { CircuitBreaker } from '@/supabase/functions/_shared/sync-modules/circui
 
 /** The edge breaker is shared by every guild in an isolate and parses thrown messages. */
 
-describe('edge CircuitBreaker.shouldCount classification (WI-1810)', () => {
+describe('edge CircuitBreaker.shouldCount classification', () => {
   it('excludes permanent 4xx parsed from "API returned <status>"', () => {
     for (const s of [400, 401, 403, 404]) {
       expect(
@@ -44,7 +44,7 @@ describe('edge CircuitBreaker.shouldCount classification (WI-1810)', () => {
   })
 })
 
-describe('edge CircuitBreaker behaviour (WI-1810)', () => {
+describe('edge CircuitBreaker behaviour', () => {
   it('a permanent 4xx never opens the breaker no matter how many times it fires', async () => {
     const cb = new CircuitBreaker(2, 30000)
     const badKey = () =>

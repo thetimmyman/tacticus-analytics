@@ -438,7 +438,7 @@ describe('processJob', () => {
     ])
   })
 
-  it('full_sync with upsert errors calls fail_job (WI-531)', async () => {
+  it('full_sync with upsert errors calls fail_job', async () => {
     const mockEntry = {
       Name: 'p1',
       displayName: 'P1',
@@ -1025,7 +1025,7 @@ describe('processJob', () => {
   })
 
   // One 401/403 must not invalidate the key: the gateway returns 403 for burst throttling too.
-  describe('WI-6450 auth-failure strikes', () => {
+  describe('auth-failure strikes', () => {
     async function runAuth403Job(consecutiveFailures: number) {
       const { TacticusApiError } = await import('@/app/lib/sync/worker-types')
       mockFetchTacticusApi.mockRejectedValue(

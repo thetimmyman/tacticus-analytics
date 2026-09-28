@@ -31,7 +31,7 @@ describe('Token usage utils', () => {
     expect(calculateBurnedTokens(10, -1, 5)).toBe(5)
   })
 
-  it('gives non-capped players fractional regen credit so a mid-cycle player is not over-counted (WI-2145)', () => {
+  it('gives non-capped players fractional regen credit so a mid-cycle player is not over-counted', () => {
     // One token behind, partway through a regen cycle, floors to 0 burned (matching /token-overview).
     const SIX_HOURS = 6 * 60 * 60
     expect(calculateBurnedTokens(12, 1, 10)).toBe(1)

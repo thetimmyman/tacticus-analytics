@@ -173,7 +173,7 @@ function buildRecordingClient(options: { loadFails?: boolean } = {}) {
   return { client, rosterRpc }
 }
 
-describe('PS-513 roster-write outcome counter', () => {
+describe('roster-write outcome counter', () => {
   it('records a FAILURE when the roster write cannot proceed, and does not throw', async () => {
     const { client, rosterRpc } = buildRecordingClient({ loadFails: true })
 

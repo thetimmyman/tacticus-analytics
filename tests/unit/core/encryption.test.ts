@@ -113,7 +113,7 @@ describe('resolveStoredSecret', () => {
   })
 })
 
-describe('decrypt fails closed on bad ciphertext (WI-5700)', () => {
+describe('decrypt fails closed on bad ciphertext', () => {
   const originalKey = process.env.ENCRYPTION_KEY
   const originalPrevious = process.env.ENCRYPTION_KEY_PREVIOUS
 
@@ -152,7 +152,7 @@ describe('decrypt fails closed on bad ciphertext (WI-5700)', () => {
   })
 })
 
-describe('ENCRYPTION_KEY rotation fallback (WI-5700)', () => {
+describe('ENCRYPTION_KEY rotation fallback', () => {
   const originalKey = process.env.ENCRYPTION_KEY
   const originalPrevious = process.env.ENCRYPTION_KEY_PREVIOUS
 
@@ -207,7 +207,7 @@ describe('ENCRYPTION_KEY rotation fallback (WI-5700)', () => {
   })
 })
 
-describe('getEncryptionKey hard-fail (WI-1570)', () => {
+describe('getEncryptionKey hard-fail', () => {
   const originalKey = process.env.ENCRYPTION_KEY
   const originalNodeEnv = process.env.NODE_ENV
 

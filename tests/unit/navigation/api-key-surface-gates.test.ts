@@ -23,7 +23,7 @@ const readSource = (relativePath: string) =>
 const GUILD_CONSOLE_HREF = '/api-keys'
 const PERSONAL_KEY_HREF = '/profile#api-key'
 
-describe('WI-6250: API-key surfaces are gated consistently at member', () => {
+describe('API-key surfaces are gated consistently at member', () => {
   const settings = workspaces.find((workspace) => workspace.id === 'settings')
 
   it('advertises the guild console to every rank (but not onboarding)', () => {

@@ -379,7 +379,7 @@ describe('guild-batch-sync handler', () => {
     expect(patchAttempted).toBe(false)
   })
 
-  it('bulk-refreshes the shared session for scraper-managed (null user_id) guilds (WI-1795)', async () => {
+  it('bulk-refreshes the shared session for scraper-managed (null user_id) guilds', async () => {
     const guilds: GuildRow[] = [
       {
         guild_code: 'SCRAPER1',
@@ -429,7 +429,7 @@ describe('guild-batch-sync handler', () => {
     expect(syncedGuildCodes.length).toBe(0)
   })
 
-  describe('WI-6450 daily healing lane', () => {
+  describe('daily healing lane', () => {
     function flagged(code: string): GuildRow {
       return {
         guild_code: code,

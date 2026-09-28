@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 // A failed single-row retry logs the constraint error and key so row loss is diagnosable.
-describe('upsertDataBatches — single-row retry error logging (PS-532)', () => {
+describe('upsertDataBatches — single-row retry error logging', () => {
   let mockLogger: {
     info: ReturnType<typeof vi.fn>
     warn: ReturnType<typeof vi.fn>

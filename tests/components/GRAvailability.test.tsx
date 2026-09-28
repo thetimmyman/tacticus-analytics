@@ -122,7 +122,7 @@ describe('GRAvailability', () => {
     ).toBeInTheDocument()
   })
 
-  it('shows the curated officer/leader guidance on a 403 AppError envelope (WI-5150 pin)', async () => {
+  it('shows the curated officer/leader guidance on a 403 AppError envelope (pin)', async () => {
     // The fallback ladder relies on the withErrorHandler envelope.
     global.fetch = vi.fn(async (input: RequestInfo) => {
       const url = typeof input === 'string' ? input : input.url
@@ -358,7 +358,7 @@ describe('GRAvailability', () => {
     ).toBe(false)
   })
 
-  it('copies the full-details export to the clipboard from the Copy dropdown (WI-5160 extraction pin)', async () => {
+  it('copies the full-details export to the clipboard from the Copy dropdown (extraction pin)', async () => {
     const fetchMock = vi.fn(async (input: RequestInfo) => {
       const url = typeof input === 'string' ? input : input.url
       if (url.startsWith('/api/guild-tokens?')) {

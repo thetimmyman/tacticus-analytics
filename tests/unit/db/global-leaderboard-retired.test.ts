@@ -25,7 +25,7 @@ const VIEW_COLUMNS = [
 /** Columns the removed reader used; never on the view, so every call errored. */
 const COLUMNS_THE_REMOVED_READER_USED = ['Season', 'encounters'] as const
 
-describe('PS-308: public.global_leaderboard is retired', () => {
+describe('public.global_leaderboard is retired', () => {
   it('the columns the old reader queried are absent from the view (the defect)', () => {
     for (const column of COLUMNS_THE_REMOVED_READER_USED) {
       expect(VIEW_COLUMNS as readonly string[]).not.toContain(column)

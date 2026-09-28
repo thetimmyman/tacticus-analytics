@@ -8,7 +8,7 @@ import {
 } from '@/app/lib/officer-briefing/target-score'
 import type { TokenPerformanceData } from '@/app/lib/boss-assignments/token-performance-types'
 
-describe('WI-2810 target-score thresholds (1.0 = on target)', () => {
+describe('target-score thresholds (1.0 = on target)', () => {
   it('NEEDS_REVIEW_TARGET / RECOGNITION_TARGET match the product-decided values', () => {
     expect(NEEDS_REVIEW_TARGET).toBe(0.9)
     expect(RECOGNITION_TARGET).toBe(1.05)
@@ -111,7 +111,7 @@ describe('extremeTargetBoss — worst/best per-boss target score', () => {
     expect(extremeTargetBoss(undefined, 'best')).toBeNull()
   })
 
-  it('reads encounterId off a prime entry (WI-2810 includePrimes)', () => {
+  it('reads encounterId off a prime entry (includePrimes)', () => {
     const withPrime: TokenPerformanceData[string] = {
       Corrodius_L2: {
         score: 0.5,

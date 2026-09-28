@@ -1,5 +1,5 @@
 {
-  "_comment": "WI-3150 (PTV-21) sanitized HandPlayPersistRequestV1. The client sends the exact accepted PlaybookV1; no trace, result, owner id, or hashes are client supplied.",
+  "_comment": "Sanitized HandPlayPersistRequestV1. The client sends the exact accepted PlaybookV1; no trace, result, owner id, or hashes are client supplied.",
   "schemaVersion": "1",
   "acceptedPlaybook": {
     "schemaVersion": "1",

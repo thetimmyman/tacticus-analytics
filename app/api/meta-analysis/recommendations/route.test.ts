@@ -66,7 +66,7 @@ const row = (
 const request = (query: string) =>
   new NextRequest(`http://localhost/api/meta-analysis/recommendations${query}`)
 
-describe('GET /api/meta-analysis/recommendations (WI-3900 rebuild)', () => {
+describe('GET /api/meta-analysis/recommendations (rebuild)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     dbMock.mockResolvedValue({})

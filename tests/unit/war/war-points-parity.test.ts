@@ -147,7 +147,7 @@ function buildParityCorpus(): { attempts: AttemptRow[]; members: WarMember[] } {
   return { attempts, members }
 }
 
-describe('War Points parity (WI-6270 Wave 2 extraction)', () => {
+describe('War Points parity (Wave 2 extraction)', () => {
   it('covers a real population (positive control)', () => {
     expect(fixture.attempts.length).toBe(400)
     expect(fixture.result.players.some((p) => p.cln > 0)).toBe(true)

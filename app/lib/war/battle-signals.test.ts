@@ -116,7 +116,7 @@ describe('countDefendersAliveAtStart (Bephus-table cleanup axis)', () => {
   })
 })
 
-describe('isNpcDefenderBattle (conjunctive rule, WI-6270)', () => {
+describe('isNpcDefenderBattle (conjunctive rule)', () => {
   const npcLineup = [
     { unitId: 'templNpc1Initiate:1' },
     { unitId: 'templNpc1Initiate:2' }

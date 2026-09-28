@@ -199,7 +199,7 @@ describe('resolveExpectedTokens (5-tier fallback)', () => {
     expect(withoutTarget.expectedTokens).toBe(15) // ceil(14.2)
   })
 
-  it('uses per-boss history when present (rounded up to integer — WI-649)', () => {
+  it('uses per-boss history when present (rounded up to integer)', () => {
     const resolved = resolveExpectedTokens({
       perBossTokens: 8,
       perBossSampleCount: 12,

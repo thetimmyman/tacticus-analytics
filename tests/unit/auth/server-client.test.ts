@@ -78,7 +78,7 @@ describe('Auth Server Client', () => {
       expect(client).toBeDefined()
     })
 
-    it('uses internal URL instead of public URL to avoid DNS issues (WI-241)', async () => {
+    it('uses internal URL instead of public URL to avoid DNS issues', async () => {
       const mockCookieStore = {
         getAll: vi.fn().mockReturnValue([]),
         set: vi.fn()

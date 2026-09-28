@@ -185,7 +185,7 @@ describe('saveEncounterBehaviour', () => {
     expect(put!.body.skip).toBe(false)
   })
 
-  it('suppresses the mirror on an UN-skip with no stored token (WI-4950 F5/C11)', async () => {
+  it('suppresses the mirror on an UN-skip with no stored token (F5/C11)', async () => {
     // No row to clear: a PUT would materialise a placeholder and erase provenance.
     await saveEncounterBehaviour(PRIME, {
       behaviour: 'kill',
@@ -316,7 +316,7 @@ describe('saveEncounterNotes (D7)', () => {
   })
 })
 
-describe('persistSideSettings skip mirror (WI-4950 D6/C11)', () => {
+describe('persistSideSettings skip mirror (D6/C11)', () => {
   const HUB_BOSS: HeraldBossSummary = {
     group_key: 'magnus-m1',
     boss_type: 'Magnus',
@@ -417,7 +417,7 @@ describe('persistSideSettings skip mirror (WI-4950 D6/C11)', () => {
     expect(put.body.target_tokens).toBe(1)
   })
 
-  it('suppresses the mirror on a hub UN-skip with no stored token (WI-4950 F5/C11)', async () => {
+  it('suppresses the mirror on a hub UN-skip with no stored token (F5/C11)', async () => {
     await persistSideSettings(
       HUB_BOSS,
       hubState(hubSide(), hubSide()),

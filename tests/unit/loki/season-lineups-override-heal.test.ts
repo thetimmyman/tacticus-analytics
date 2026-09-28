@@ -93,7 +93,7 @@ const overrideConfig = (): GlobalConfig => ({
   }
 })
 
-describe('WI-8230 thread-A: patchOverlaySeasonsWithOverride', () => {
+describe('thread-A: patchOverlaySeasonsWithOverride', () => {
   it('does nothing when the override is not active', () => {
     const seasons = {
       [HEALED_SEASON]: baseOverlaySeason(HEALED_SEASON, 'StaleBoss')

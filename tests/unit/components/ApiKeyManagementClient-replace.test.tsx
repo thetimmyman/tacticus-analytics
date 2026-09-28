@@ -18,7 +18,7 @@ beforeEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('WI-692 F13 ApiKeyManagementClient — Replace + Verify', () => {
+describe('ApiKeyManagementClient — Replace + Verify', () => {
   it('renders Replace + Verify button distinct from Save', () => {
     render(<ApiKeyManagementClient initialConfig={baseConfig} canRemove />)
     const replace = screen.getByTestId('replace-verify-button')
