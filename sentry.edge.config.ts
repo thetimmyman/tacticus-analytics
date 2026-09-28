@@ -148,10 +148,14 @@ Sentry.init({
 
   tracesSampleRate,
 
-  enableLogs: true,
-
-  // Never attach IPs, cookies, request bodies or other default PII.
-  sendDefaultPii: false,
+  // Keep automatic user and request data out of telemetry.
+  dataCollection: {
+    userInfo: false,
+    cookies: false,
+    httpHeaders: false,
+    httpBodies: [],
+    urlQueryParams: false
+  },
 
   // Structured logs bypass beforeSend, so redact here too and fail closed on errors.
   beforeSendLog(log: Log): Log | null {

@@ -8,7 +8,6 @@ const sentry = vi.hoisted(() => ({
 vi.mock('@sentry/nextjs', () => sentry)
 
 interface SentryInitOptions {
-  enableLogs?: boolean
   beforeSendLog?: (log: Log) => Log | null
 }
 
@@ -50,7 +49,6 @@ describe('Sentry structured-log redaction', () => {
     if (!beforeSendLog) throw new Error('server beforeSendLog is missing')
 
     const sanitized = beforeSendLog(secretLog())
-    expect(options.enableLogs).toBe(true)
     expect(sanitized).not.toBeNull()
     expect(sanitized?.message).not.toContain('person@example.com')
     expect(sanitized?.attributes).toEqual({
@@ -68,7 +66,6 @@ describe('Sentry structured-log redaction', () => {
     if (!beforeSendLog) throw new Error('edge beforeSendLog is missing')
 
     const sanitized = beforeSendLog(secretLog())
-    expect(options.enableLogs).toBe(true)
     expect(sanitized).not.toBeNull()
     expect(sanitized?.message).not.toContain('person@example.com')
     expect(sanitized?.attributes).toEqual({

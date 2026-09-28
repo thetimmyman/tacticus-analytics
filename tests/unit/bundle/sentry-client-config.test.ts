@@ -29,7 +29,9 @@ describe('client Sentry bundle configuration', () => {
     const source = readRootFile('instrumentation-client.ts')
 
     expect(source).toContain("tunnel: '/monitoring'")
-    expect(source).toContain('sendDefaultPii: false')
+    expect(source).toContain('userInfo: false')
+    expect(source).toContain('cookies: false')
+    expect(source).toContain('httpBodies: []')
     expect(source).toContain('NEXT_PUBLIC_GLITCHTIP_DSN')
   })
 

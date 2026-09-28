@@ -17,11 +17,6 @@ const tracesSampleRate = parseSampleRate(
     process.env.SENTRY_TRACES_SAMPLE_RATE,
   0.1
 )
-const profilesSampleRate = parseSampleRate(
-  process.env.NEXT_PUBLIC_SENTRY_PROFILES_SAMPLE_RATE ??
-    process.env.SENTRY_PROFILES_SAMPLE_RATE,
-  0.05
-)
 // auth-js processLock acquire timeout. The SDK swallows its own background
 // refresh timeouts, so one reaching Sentry is a real stalled user-facing call.
 export const isProcessLockTimeout = (name: string, message: string): boolean =>
@@ -48,13 +43,18 @@ init({
   environment: process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV,
   release: process.env.NEXT_PUBLIC_BUILD_SHA,
   tracesSampleRate,
-  profilesSampleRate,
   // Session Replay is deliberately excluded.
   replaysSessionSampleRate: 0,
   replaysOnErrorSampleRate: 0,
 
-  // No auto-attached PII (email, IP, body); attach context explicitly via Sentry.setUser({ id }).
-  sendDefaultPii: false,
+  // Keep automatic user and request data out of browser telemetry.
+  dataCollection: {
+    userInfo: false,
+    cookies: false,
+    httpHeaders: false,
+    httpBodies: [],
+    urlQueryParams: false
+  },
 
   beforeSend(event, hint) {
     const error = hint.originalException
