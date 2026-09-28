@@ -1,9 +1,8 @@
 // Which (guild, season) pairs a scheduled calculate-votlw run should score.
-// No Deno imports, so it runs under vitest like votlw-core.ts. Guilds advance
-// on independent season calendars, so a single global "latest season - 1" can
-// name a season one guild barely started. Score each guild against its OWN
-// latest synced season, once VOTLW_SEASON_END_GRACE_MS has passed since that
-// season's data first arrived, so late-syncing battles have time to land.
+// No Deno imports, so it runs under vitest like votlw-core.ts. A single
+// global "latest season - 1" can name a season one guild barely started, so
+// score each guild against its OWN latest season, once VOTLW_SEASON_END_GRACE_MS
+// has passed (battle-clock time) since that season's newest known battle.
 export const VOTLW_SEASON_END_GRACE_MS = 24 * 60 * 60 * 1000
 
 // How many seasons behind the global max to still fetch data for. A guild
@@ -15,7 +14,7 @@ export const VOTLW_LOOKBACK_SEASONS = 6
 export type GuildSeasonRow = {
   guild: string
   season: number
-  firstSeenMs: number
+  latestBattleMs: number
 }
 
 export type ScorableSeason = {
@@ -23,40 +22,47 @@ export type ScorableSeason = {
   season: number
 }
 
-/** Collapses raw EOT_GR_data rows to one first-synced timestamp per (guild, season). */
+/**
+ * Collapses raw EOT_GR_data rows to the latest in-game battle time per
+ * (guild, season), from completedOn/startedOn — never from the row's own
+ * `timestamp` column, which every sync/backfill pass resets to "now" on
+ * touch (see transforms.ts), so it reflects last-synced, not first-seen.
+ */
 export function buildGuildSeasonRows(
   rows: Array<{
     Guild: string | null
     season_num: number | null
-    timestamp: string | null
+    startedOn: string | null
+    completedOn: string | null
   }>
 ): GuildSeasonRow[] {
-  const firstSeenByKey = new Map<string, GuildSeasonRow>()
+  const latestByKey = new Map<string, GuildSeasonRow>()
   for (const row of rows) {
     if (!row.Guild || row.season_num === null || row.season_num === undefined) {
       continue
     }
-    const seenMs = row.timestamp ? Date.parse(row.timestamp) : NaN
-    if (!Number.isFinite(seenMs)) continue
+    const raw = row.completedOn ?? row.startedOn
+    const battleMs = raw ? Date.parse(raw) : NaN
+    if (!Number.isFinite(battleMs)) continue
     const key = `${row.Guild}|${row.season_num}`
-    const existing = firstSeenByKey.get(key)
-    if (!existing || seenMs < existing.firstSeenMs) {
-      firstSeenByKey.set(key, {
+    const existing = latestByKey.get(key)
+    if (!existing || battleMs > existing.latestBattleMs) {
+      latestByKey.set(key, {
         guild: row.Guild,
         season: row.season_num,
-        firstSeenMs: seenMs
+        latestBattleMs: battleMs
       })
     }
   }
-  return [...firstSeenByKey.values()]
+  return [...latestByKey.values()]
 }
 
 /**
  * Picks each guild's most recently completed season: one whose successor
  * season has data (proof the guild moved on) once the grace window since
- * that successor's first row has elapsed. Re-running with the same inputs
- * (or with more rows added by later syncs) keeps returning the same pair
- * until the guild moves on again, so the caller's upsert naturally
+ * that successor's newest known battle has elapsed. Re-running with the same
+ * inputs (or with more rows added by later syncs) keeps returning the same
+ * pair until the guild moves on again, so the caller's upsert naturally
  * recomputes/overwrites a season's winner as late data lands.
  */
 export function selectScorableSeasons(
@@ -72,7 +78,7 @@ export function selectScorableSeasons(
       byGuild.set(row.guild, seasons)
     }
     const existing = seasons.get(row.season)
-    if (!existing || row.firstSeenMs < existing.firstSeenMs) {
+    if (!existing || row.latestBattleMs > existing.latestBattleMs) {
       seasons.set(row.season, row)
     }
   }
@@ -84,7 +90,7 @@ export function selectScorableSeasons(
     if (!latestRow) continue
     const previousSeason = latestSeason - 1
     if (!seasons.has(previousSeason)) continue // nothing synced for that season at all
-    if (nowMs - latestRow.firstSeenMs < graceMs) continue // still inside the grace window
+    if (nowMs - latestRow.latestBattleMs < graceMs) continue // still inside the grace window
     result.push({ guild, season: previousSeason })
   }
   return result.sort(

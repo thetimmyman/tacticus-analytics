@@ -159,7 +159,7 @@ Deno.serve(async (req) => {
         )
         let rowsQuery = supabase
           .from('EOT_GR_data')
-          .select('Guild, season_num, timestamp')
+          .select('Guild, season_num, startedOn, completedOn')
           .gte('season_num', lookbackFloor)
           .gte('tier', 4)
         if (specificGuild) {
@@ -173,7 +173,8 @@ Deno.serve(async (req) => {
             rows as Array<{
               Guild: string | null
               season_num: number | null
-              timestamp: string | null
+              startedOn: string | null
+              completedOn: string | null
             }>
           )
           targets = selectScorableSeasons(guildSeasonRows, Date.now())
