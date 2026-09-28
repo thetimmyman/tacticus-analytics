@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { afterEach, describe, it, expect, vi } from 'vitest'
 import {
   formatNumber,
   formatDamage,
@@ -9,6 +9,23 @@ import {
 
 describe('Formatters', () => {
   describe('formatNumber', () => {
+    describe('locale-independent grouping', () => {
+      afterEach(() => vi.restoreAllMocks())
+
+      it('keeps integer grouping stable when the runtime default is German', () => {
+        const original = Number.prototype.toLocaleString
+        vi.spyOn(Number.prototype, 'toLocaleString').mockImplementation(
+          function (this: number, locales, options) {
+            return original.call(this, locales ?? 'de-DE', options)
+          }
+        )
+
+        expect(formatNumber(12345)).toBe('12,345')
+        expect(formatNumber(-1234)).toBe('-1,234')
+        expect(formatNumber(1234567000, 2)).toBe('1.23B')
+      })
+    })
+
     describe('null/undefined/NaN handling', () => {
       it('returns "0" for null', () => {
         expect(formatNumber(null)).toBe('0')
