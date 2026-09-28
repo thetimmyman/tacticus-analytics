@@ -22,7 +22,6 @@ import { useHasMounted } from '@/app/lib/hooks/useHasMounted'
 import { useMediaQuery } from '@/app/lib/hooks/useMediaQuery'
 import type { GuildTeamRosterEntry } from './types'
 import {
-  PAGE_TITLES,
   TIER_LABELS,
   TIER_BG,
   TOKEN_CAP,
@@ -42,13 +41,9 @@ import { GuildTeamsDesktopTable } from './GuildTeamsDesktopTable'
 
 export function GuildTeamsClient({
   guildCode,
-  heroMappings
+  heroMappings,
+  pageTitle
 }: GuildTeamsClientProps) {
-  const [pageTitle] = useState(
-    () =>
-      PAGE_TITLES[Math.floor(Math.random() * PAGE_TITLES.length)] ??
-      'Guild Raid Teams'
-  )
   const [selectedTeamId, setSelectedTeamId] = useState(
     RAID_TEAMS[0]?.id ?? 'custom'
   )
