@@ -307,7 +307,7 @@ describe('sync-scheduler work_queue handler', () => {
 
     const result = await syncSchedulerHandler({}, context)
     const validationPath = mockDirectClient.query.mock.calls
-      .map(([path]: [string]) => path)
+      .map((call: unknown[]) => String(call[0]))
       .find((path: string) => path.includes('offset=0&limit=50'))
 
     expect(validationPath).toContain('api_key_encrypted=not.is.null')
@@ -376,12 +376,10 @@ describe('sync-scheduler work_queue handler', () => {
     }
 
     function enqueued(): Array<[string, string]> {
-      return mockDirectClient.rpc.mock.calls.map(
-        ([, args]: [string, Record<string, unknown>]) => [
-          String(args.p_guild_code),
-          String(args.p_job_type)
-        ]
-      )
+      return mockDirectClient.rpc.mock.calls.map((call: unknown[]) => {
+        const args = call[1] as Record<string, unknown>
+        return [String(args.p_guild_code), String(args.p_job_type)]
+      })
     }
 
     it('reads the active realtime_sync rows for the park guard', async () => {
@@ -390,7 +388,7 @@ describe('sync-scheduler work_queue handler', () => {
       await syncSchedulerHandler({}, context)
 
       const activePath = mockDirectClient.query.mock.calls
-        .map(([path]: [string]) => path)
+        .map((call: unknown[]) => String(call[0]))
         .find((path: string) => path.startsWith('sync_queue?'))
       expect(activePath).toContain('job_type=eq.realtime_sync')
       expect(activePath).toContain('status=in.(pending,processing)')
