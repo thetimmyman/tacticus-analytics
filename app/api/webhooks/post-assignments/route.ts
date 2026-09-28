@@ -11,9 +11,10 @@ import {
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { requireGuildOfficerOrClusterLeader } from '@/app/lib/auth/guild-permissions'
 import { postDiscordWebhookWithTimeout } from '@/app/lib/discord/webhook-fetch'
+import { loadWebhookUrlById } from '@/app/lib/webhooks/webhook-url-lookup'
 
 interface WebhookConfig {
-  webhook_url: string | null
+  id: string
   enabled: boolean | null
 }
 
@@ -62,22 +63,24 @@ export const POST = withErrorHandler(async (request: Request) => {
 
     const { data: webhookData, error: webhookError } = await supabase
       .from('webhook_config')
-      .select('webhook_url, enabled')
+      .select('id, enabled')
       .eq('guild_code', guild_code)
       .eq('webhook_type', 'boss_assignments')
       .single<WebhookConfig>()
 
-    if (webhookError || !webhookData?.webhook_url || !webhookData?.enabled) {
+    const webhookUrl =
+      !webhookError && webhookData?.enabled
+        ? await loadWebhookUrlById(webhookData.id)
+        : null
+
+    if (!webhookUrl) {
       throw Errors.fromResponse(404, {
         message:
           'No Discord webhook configured for boss assignments. Please configure it in Guild Settings > Integrations.'
       })
     }
 
-    const discordResponse = await postDiscordAssignment(
-      webhookData.webhook_url,
-      content
-    )
+    const discordResponse = await postDiscordAssignment(webhookUrl, content)
 
     if (!discordResponse.ok) {
       const errorText = await discordResponse.text()

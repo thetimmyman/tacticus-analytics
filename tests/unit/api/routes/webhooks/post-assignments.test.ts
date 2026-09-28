@@ -3,12 +3,20 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 let mockRequireAuth: ReturnType<typeof vi.fn>
 let mockRequireGuildOfficerOrClusterLeader: ReturnType<typeof vi.fn>
 let mockDb: ReturnType<typeof vi.fn>
+let mockServiceDb: ReturnType<typeof vi.fn>
 let mockFetch: ReturnType<typeof vi.fn>
 
 describe('/api/webhooks/post-assignments', () => {
   let POST: (request: Request) => Promise<Response>
   let mockSupabase: {
     from: ReturnType<typeof vi.fn>
+  }
+  let mockServiceSupabase: {
+    from: ReturnType<typeof vi.fn>
+  }
+  let mockServiceQuery: {
+    select: ReturnType<typeof vi.fn>
+    in: ReturnType<typeof vi.fn>
   }
 
   beforeEach(async () => {
@@ -17,6 +25,7 @@ describe('/api/webhooks/post-assignments', () => {
     mockRequireAuth = vi.fn()
     mockRequireGuildOfficerOrClusterLeader = vi.fn()
     mockDb = vi.fn()
+    mockServiceDb = vi.fn()
     mockFetch = vi.fn()
 
     vi.doMock('@/app/lib/auth', async () => {
@@ -30,7 +39,8 @@ describe('/api/webhooks/post-assignments', () => {
     })
 
     vi.doMock('@/app/lib/db', () => ({
-      db: mockDb
+      db: mockDb,
+      serviceDb: mockServiceDb
     }))
 
     vi.doMock('@/app/lib/auth/guild-permissions', () => ({
@@ -42,8 +52,22 @@ describe('/api/webhooks/post-assignments', () => {
     mockSupabase = {
       from: vi.fn()
     }
+    mockServiceQuery = {
+      select: vi.fn().mockReturnThis(),
+      in: vi.fn().mockResolvedValue({
+        data: [
+          {
+            id: '00000000-0000-4000-8000-000000000001',
+            webhook_url: 'https://discord.com/api/webhooks/1001/test-token'
+          }
+        ],
+        error: null
+      })
+    }
+    mockServiceSupabase = { from: vi.fn().mockReturnValue(mockServiceQuery) }
 
     mockDb.mockResolvedValue(mockSupabase)
+    mockServiceDb.mockReturnValue(mockServiceSupabase)
     mockRequireGuildOfficerOrClusterLeader.mockResolvedValue({
       role: 'officer',
       guild_code: 'GUILD1',
@@ -157,6 +181,7 @@ describe('/api/webhooks/post-assignments', () => {
           '/api/webhooks/post-assignments'
         )
         expect(mockSupabase.from).not.toHaveBeenCalled()
+        expect(mockServiceDb).not.toHaveBeenCalled()
         expect(mockFetch).not.toHaveBeenCalled()
       })
 
@@ -190,11 +215,17 @@ describe('/api/webhooks/post-assignments', () => {
       })
 
       it('returns 404 when webhook URL is null', async () => {
+        mockServiceQuery.in.mockResolvedValue({
+          data: [
+            { id: '00000000-0000-4000-8000-000000000001', webhook_url: null }
+          ],
+          error: null
+        })
         mockSupabase.from.mockReturnValue({
           select: vi.fn().mockReturnThis(),
           eq: vi.fn().mockReturnThis(),
           single: vi.fn().mockResolvedValue({
-            data: { webhook_url: null, enabled: true },
+            data: { id: '00000000-0000-4000-8000-000000000001', enabled: true },
             error: null
           })
         })
@@ -222,7 +253,7 @@ describe('/api/webhooks/post-assignments', () => {
           eq: vi.fn().mockReturnThis(),
           single: vi.fn().mockResolvedValue({
             data: {
-              webhook_url: 'https://discord.com/api/webhooks/123/abc',
+              id: '00000000-0000-4000-8000-000000000001',
               enabled: false
             },
             error: null
@@ -253,17 +284,18 @@ describe('/api/webhooks/post-assignments', () => {
       })
 
       it('posts to Discord and returns success', async () => {
-        mockSupabase.from.mockReturnValue({
+        const userQuery = {
           select: vi.fn().mockReturnThis(),
           eq: vi.fn().mockReturnThis(),
           single: vi.fn().mockResolvedValue({
             data: {
-              webhook_url: 'https://discord.com/api/webhooks/123/abc',
+              id: '00000000-0000-4000-8000-000000000001',
               enabled: true
             },
             error: null
           })
-        })
+        }
+        mockSupabase.from.mockReturnValue(userQuery)
 
         mockFetch.mockResolvedValue({
           ok: true
@@ -287,9 +319,15 @@ describe('/api/webhooks/post-assignments', () => {
 
         expect(response.status).toBe(200)
         expect(body.success).toBe(true)
+        expect(userQuery.select).toHaveBeenCalledWith('id, enabled')
+        expect(mockServiceSupabase.from).toHaveBeenCalledWith('webhook_config')
+        expect(mockServiceQuery.select).toHaveBeenCalledWith('id, webhook_url')
+        expect(mockServiceQuery.in).toHaveBeenCalledWith('id', [
+          '00000000-0000-4000-8000-000000000001'
+        ])
 
         expect(mockFetch).toHaveBeenCalledWith(
-          'https://discord.com/api/webhooks/123/abc',
+          'https://discord.com/api/webhooks/1001/test-token',
           expect.objectContaining({
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -304,7 +342,7 @@ describe('/api/webhooks/post-assignments', () => {
           eq: vi.fn().mockReturnThis(),
           single: vi.fn().mockResolvedValue({
             data: {
-              webhook_url: 'https://discord.com/api/webhooks/123/abc',
+              id: '00000000-0000-4000-8000-000000000001',
               enabled: true
             },
             error: null
@@ -343,7 +381,7 @@ describe('/api/webhooks/post-assignments', () => {
           eq: vi.fn().mockReturnThis(),
           single: vi.fn().mockResolvedValue({
             data: {
-              webhook_url: 'https://discord.com/api/webhooks/123/abc',
+              id: '00000000-0000-4000-8000-000000000001',
               enabled: true
             },
             error: null
@@ -388,7 +426,7 @@ describe('/api/webhooks/post-assignments', () => {
             eq: vi.fn().mockReturnThis(),
             single: vi.fn().mockResolvedValue({
               data: {
-                webhook_url: 'https://discord.com/api/webhooks/123/abc',
+                id: '00000000-0000-4000-8000-000000000001',
                 enabled: true
               },
               error: null
@@ -435,7 +473,7 @@ describe('/api/webhooks/post-assignments', () => {
           expect(response.status).toBe(500)
           expect(body.error.message).toContain('Failed to post to Discord')
           expect(mockFetch).toHaveBeenCalledWith(
-            'https://discord.com/api/webhooks/123/abc',
+            'https://discord.com/api/webhooks/1001/test-token',
             expect.objectContaining({
               signal: expect.any(AbortSignal)
             })

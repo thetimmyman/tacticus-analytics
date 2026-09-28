@@ -150,7 +150,6 @@
     "public.get_war_battle_history(text, text)",
     "public.get_war_participation_summary(text, text)",
     "public.get_war_player_stats(text, text)",
-    "public.get_webhook_url(text, text, text)",
     "public.get_write_queue_stats()",
     "public.get_zone_stats(text, integer, integer)",
     "public.handle_guild_sync_request(text, uuid)",
