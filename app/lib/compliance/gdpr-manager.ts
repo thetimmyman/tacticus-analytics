@@ -288,9 +288,13 @@ export class GDPRManager {
 
     try {
       const supabase = this.getServiceClient()
+      // Stamp every start: the stuck check must age this attempt, not the request's queue time.
       await supabase
         .from('gdpr_data_exports')
-        .update({ status: 'processing' })
+        .update({
+          status: 'processing',
+          processing_started_at: new Date().toISOString()
+        })
         .eq('request_id', requestId)
 
       let outcome = await this.attemptDataExport(

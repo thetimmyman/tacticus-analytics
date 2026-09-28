@@ -248,6 +248,20 @@ describe('redriveDataExport re-runs a failed export', () => {
     expect(completed?.expires_at).toBeTruthy()
   })
 
+  it('stamps processing_started_at when an attempt starts, so a long-queued run is not read as stuck', async () => {
+    const h = createHarness({ status: 'failed' })
+    await mockModules(h.client)
+    const before = Date.now()
+
+    await redrive()
+
+    const started = h.statusUpdates.find((u) => u.status === 'processing')
+    expect(started?.processing_started_at).toEqual(expect.any(String))
+    expect(
+      Date.parse(started?.processing_started_at as string)
+    ).toBeGreaterThanOrEqual(before)
+  })
+
   it('records an Article 30 row naming the invoking operator', async () => {
     const h = createHarness({ status: 'failed' })
     await mockModules(h.client)
