@@ -1,4 +1,5 @@
 import { createComponentLogger } from '@/app/lib/logging'
+import { withoutWriteClock } from '@/supabase/functions/_shared/sync-modules/helpers'
 import {
   ERASURE_TOMBSTONE_PREFIX,
   isErasureTombstone,
@@ -440,7 +441,7 @@ async function runRaidSync(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data, error } = await (supabase as any)
           .from('EOT_GR_data')
-          .upsert(batch, {
+          .upsert(batch.map(withoutWriteClock), {
             onConflict: UPSERT_CONFLICT_KEY,
             ignoreDuplicates: skipExistingRows,
             defaultToNull: false,
@@ -474,7 +475,7 @@ async function runRaidSync(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await (supabase as any)
         .from('EOT_GR_data')
-        .upsert(validEntries, {
+        .upsert(validEntries.map(withoutWriteClock), {
           onConflict: UPSERT_CONFLICT_KEY,
           ignoreDuplicates: skipExistingRows,
           defaultToNull: false,

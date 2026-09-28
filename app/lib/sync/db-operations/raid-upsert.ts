@@ -1,4 +1,5 @@
 import type { ProcessedRaidEntry } from '@/app/lib/sync/transformers'
+import { withoutWriteClock } from '@/supabase/functions/_shared/sync-modules/helpers'
 import {
   logger,
   getErrorMessage,
@@ -54,7 +55,7 @@ export async function upsertDataBatches(
     try {
       const { data: upsertedData, error } = await supabase
         .from('EOT_GR_data')
-        .upsert(batch, {
+        .upsert(batch.map(withoutWriteClock), {
           onConflict:
             'Guild,Season,userId,encounterId,startedOn,completedOn,damageDealt,damageType',
           defaultToNull: false
@@ -71,7 +72,7 @@ export async function upsertDataBatches(
           try {
             const { data: singleData, error: singleError } = await supabase
               .from('EOT_GR_data')
-              .upsert([record], {
+              .upsert([withoutWriteClock(record)], {
                 onConflict:
                   'Guild,Season,userId,encounterId,startedOn,completedOn,damageDealt,damageType'
               })

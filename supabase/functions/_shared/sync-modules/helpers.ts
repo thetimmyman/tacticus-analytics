@@ -1,6 +1,15 @@
 export const getErrorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : String(error)
 
+// The database owns the battle write clock so retries preserve first-seen time.
+export const withoutWriteClock = <T extends object>(
+  row: T
+): Omit<T, 'timestamp'> => {
+  const copy = { ...row } as T & { timestamp?: unknown }
+  delete copy.timestamp
+  return copy as Omit<T, 'timestamp'>
+}
+
 export const toStringValue = (value: unknown, fallback = ''): string =>
   typeof value === 'string' ? value : fallback
 
