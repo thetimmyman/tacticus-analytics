@@ -1,5 +1,11 @@
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  copyFileSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  writeFileSync
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -70,6 +76,46 @@ describe('check-test-typecheck-ratchet fails closed on unusable tsc runs', () =>
     )
     expect(result.status).toBe(0)
     expect(result.output).toContain('ratchet OK')
+  })
+
+  it('refuses to count over a node_modules that does not match package-lock.json', () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'ts-ratchet-root-'))
+    tempDirs.push(root)
+    mkdirSync(path.join(root, 'scripts', 'validation'), { recursive: true })
+    mkdirSync(path.join(root, 'node_modules'))
+    const script = path.join(
+      root,
+      'scripts',
+      'validation',
+      path.basename(SCRIPT)
+    )
+    copyFileSync(SCRIPT, script)
+    const lockfile = (version: string) =>
+      JSON.stringify({ packages: { 'node_modules/lib-a': { version } } })
+    writeFileSync(path.join(root, 'package-lock.json'), lockfile('2.0.0'))
+    writeFileSync(
+      path.join(root, 'node_modules', '.package-lock.json'),
+      lockfile('1.9.0')
+    )
+
+    let status = 0
+    let output = ''
+    try {
+      execFileSync(process.execPath, [script, '--check'], {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe']
+      })
+    } catch (error) {
+      const err = error as { status?: number; stdout?: string; stderr?: string }
+      status = err.status ?? -1
+      output = `${err.stdout ?? ''}${err.stderr ?? ''}`
+    }
+    expect(status).toBe(1)
+    expect(output).toContain(
+      'node_modules/lib-a: installed 1.9.0, locked 2.0.0'
+    )
+    expect(output).toContain('npm ci')
+    expect(output).not.toContain('ratchet OK')
   })
 
   it('selftest covers the fail-closed paths', () => {
