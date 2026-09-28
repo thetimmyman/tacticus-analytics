@@ -1,3 +1,10 @@
+import {
+  decodeBase64,
+  OVERRIDE_BYTES_ENV,
+  OVERRIDE_DIR_ENV,
+  OVERRIDE_FILENAME
+} from './loki-config-override-handoff.ts'
+
 const DEFAULT_BUILD_STRING = '1.29.21.1056'
 const BUILD_CACHE_TTL_MS = 10 * 60 * 1000
 const GLOBAL_CONFIG_URL =
@@ -7,10 +14,8 @@ const DEFAULT_SEASON_CYCLE_SECONDS = 14 * 24 * 60 * 60
 const DEFAULT_SEASON_GAP_SECONDS = 24 * 60 * 60
 
 // LOKI CONNECT rejects a stale build string, so read the in-cluster override (like the app tier), then
-// upstream globalConfig, then the default. Every step fails soft.
-const OVERRIDE_DIR_ENV = 'LOKI_CONFIG_OVERRIDE_DIR'
-const OVERRIDE_FILENAME = 'GlobalConfig.json.gz'
-
+// upstream globalConfig, then the default. Every step fails soft. Workers cannot read the mount, so
+// in the edge runtime the override arrives as env bytes from the main service.
 interface BuildCache {
   value: string
   expiresAt: number
@@ -48,21 +53,36 @@ const readOverrideGlobalConfig = async (): Promise<unknown | null> => {
   }
 
   const dir = Deno.env.get(OVERRIDE_DIR_ENV)
-  if (!dir) return null
+  const envPayload = Deno.env.get(OVERRIDE_BYTES_ENV)
+  if (!envPayload && !dir) return null
 
   try {
-    const bytes = await Deno.readFile(`${dir}/${OVERRIDE_FILENAME}`)
+    const source = envPayload ? 'env' : 'dir'
+    const bytes = envPayload
+      ? decodeBase64(envPayload)
+      : await Deno.readFile(`${dir}/${OVERRIDE_FILENAME}`)
     const decompressed = new Blob([bytes])
       .stream()
       .pipeThrough(new DecompressionStream('gzip'))
     const text = await new Response(decompressed).text()
     const parsed = JSON.parse(text) as unknown
+    const configVersion =
+      parsed &&
+      typeof parsed === 'object' &&
+      typeof (parsed as Record<string, unknown>).configVersion === 'string'
+        ? (parsed as Record<string, unknown>).configVersion
+        : null
+    console.info('[loki-build-version] override loaded', {
+      source,
+      configVersion
+    })
     cachedOverride = { value: parsed, expiresAt: now + BUILD_CACHE_TTL_MS }
     return parsed
   } catch (error) {
     // Best-effort source: never throw, fall through to the upstream fetch.
     console.warn('[loki-build-version] override unreadable — using upstream', {
-      overrideDir: dir,
+      overrideDir: dir ?? '',
+      source: envPayload ? 'env' : 'dir',
       error: error instanceof Error ? error.message : String(error)
     })
     return null
