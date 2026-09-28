@@ -67,25 +67,25 @@ export function ProfileTab(props: ProfileTabProps) {
 
   return (
     <div className="space-y-6">
-      <section className="bg-[var(--card-bg)] rounded-lg border border-[var(--card-border)] p-4">
-        <h3 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-4">
+      <section className="bg-(--card-bg) rounded-lg border border-(--card-border) p-4">
+        <h3 className="text-sm font-semibold text-secondary-wh40k uppercase tracking-wider mb-4">
           Player Profile
         </h3>
         {playerMapping ? (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             <InfoBlock label="Display Name">
-              <span className="text-lg font-semibold text-[var(--text-primary)]">
+              <span className="text-lg font-semibold text-primary-wh40k">
                 {playerMapping.display_name}
               </span>
               {playerMapping.discord_username && (
-                <span className="text-sm text-[var(--text-secondary)] block">
+                <span className="text-sm text-secondary-wh40k block">
                   @{playerMapping.discord_username}
                 </span>
               )}
             </InfoBlock>
             <InfoBlock label="Guild">
               <div className="space-y-1">
-                <div className="text-lg font-semibold text-[var(--text-primary)]">
+                <div className="text-lg font-semibold text-primary-wh40k">
                   {guildDisplayName}
                 </div>
               </div>
@@ -106,19 +106,17 @@ export function ProfileTab(props: ProfileTabProps) {
               </div>
             </InfoBlock>
             <InfoBlock label="User Role">
-              <span className="text-[var(--text-primary)]">
-                {String(userRole)}
-              </span>
+              <span className="text-primary-wh40k">{String(userRole)}</span>
             </InfoBlock>
             <InfoBlock label="Last Updated">
-              <span className="text-[var(--text-primary)]">
+              <span className="text-primary-wh40k">
                 {playerMapping.updated_at
                   ? new Date(playerMapping.updated_at).toLocaleDateString()
                   : 'Unknown'}
               </span>
             </InfoBlock>
             <InfoBlock label="Joined">
-              <span className="text-[var(--text-primary)]">
+              <span className="text-primary-wh40k">
                 {playerMapping.created_at
                   ? new Date(playerMapping.created_at).toLocaleDateString()
                   : 'Unknown'}
@@ -126,60 +124,60 @@ export function ProfileTab(props: ProfileTabProps) {
             </InfoBlock>
           </div>
         ) : (
-          <div className="text-sm text-[var(--text-secondary)]">
+          <div className="text-sm text-secondary-wh40k">
             No active player mapping found for this account.
           </div>
         )}
       </section>
 
-      <section className="bg-[var(--card-bg)] rounded-lg border border-[var(--card-border)] p-4">
-        <h3 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-4">
+      <section className="bg-(--card-bg) rounded-lg border border-(--card-border) p-4">
+        <h3 className="text-sm font-semibold text-secondary-wh40k uppercase tracking-wider mb-4">
           Assignments
         </h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <InfoBlock label="Primary Assignment">
             {primaryAssignmentName ? (
-              <div className="text-[var(--text-primary)] space-y-1">
+              <div className="text-primary-wh40k space-y-1">
                 <div className="text-base font-semibold">
                   {primaryAssignmentName}
                 </div>
                 {assignments?.primary && (
-                  <div className="text-xs text-[var(--text-secondary)]">
+                  <div className="text-xs text-secondary-wh40k">
                     Set {assignments.primary.set}, {assignments.primary.rarity}
                   </div>
                 )}
                 {playerMapping?.assignment_notes && (
-                  <div className="text-xs text-[var(--text-secondary)]">
+                  <div className="text-xs text-secondary-wh40k">
                     Notes: {playerMapping.assignment_notes}
                   </div>
                 )}
               </div>
             ) : (
-              <span className="text-[var(--text-secondary)]">Not assigned</span>
+              <span className="text-secondary-wh40k">Not assigned</span>
             )}
           </InfoBlock>
           <InfoBlock label="Secondary Assignment">
             {secondaryAssignmentName ? (
-              <div className="text-[var(--text-primary)] space-y-1">
+              <div className="text-primary-wh40k space-y-1">
                 <div className="text-base font-semibold">
                   {secondaryAssignmentName}
                 </div>
                 {assignments?.secondary && (
-                  <div className="text-xs text-[var(--text-secondary)]">
+                  <div className="text-xs text-secondary-wh40k">
                     Set {assignments.secondary.set},{' '}
                     {assignments.secondary.rarity}
                   </div>
                 )}
               </div>
             ) : (
-              <span className="text-[var(--text-secondary)]">Not assigned</span>
+              <span className="text-secondary-wh40k">Not assigned</span>
             )}
           </InfoBlock>
         </div>
       </section>
 
-      <section className="bg-[var(--card-bg)] rounded-lg border border-[var(--card-border)] p-4">
-        <h3 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-4">
+      <section className="bg-(--card-bg) rounded-lg border border-(--card-border) p-4">
+        <h3 className="text-sm font-semibold text-secondary-wh40k uppercase tracking-wider mb-4">
           Boss Preferences
         </h3>
         <InfoBlock label="Preference Map">
@@ -191,7 +189,7 @@ export function ProfileTab(props: ProfileTabProps) {
                   Preferred
                 </div>
                 {preferredBosses.length > 0 ? (
-                  <ul className="space-y-1 text-sm text-[var(--text-primary)]">
+                  <ul className="space-y-1 text-sm text-primary-wh40k">
                     {preferredBosses.map((bossName) => (
                       <li
                         key={bossName}
@@ -202,16 +200,16 @@ export function ProfileTab(props: ProfileTabProps) {
                     ))}
                   </ul>
                 ) : (
-                  <div className="text-xs text-[var(--text-secondary)]">
+                  <div className="text-xs text-secondary-wh40k">
                     No preferred bosses set.
                   </div>
                 )}
                 {neutralBosses.length > 0 && (
                   <div className="pt-2 border-t border-card-border/60">
-                    <div className="text-xs uppercase tracking-wide text-[var(--text-secondary)] mb-1">
+                    <div className="text-xs uppercase tracking-wide text-secondary-wh40k mb-1">
                       Neutral
                     </div>
-                    <ul className="space-y-1 text-sm text-[var(--text-primary)]">
+                    <ul className="space-y-1 text-sm text-primary-wh40k">
                       {neutralBosses.map((bossName) => (
                         <li key={bossName}>{prefBossLabel(bossName)}</li>
                       ))}
@@ -225,20 +223,20 @@ export function ProfileTab(props: ProfileTabProps) {
                   Avoid
                 </div>
                 {avoidBosses.length > 0 ? (
-                  <ul className="space-y-1 text-sm text-[var(--text-primary)]">
+                  <ul className="space-y-1 text-sm text-primary-wh40k">
                     {avoidBosses.map((bossName) => (
                       <li key={bossName}>{prefBossLabel(bossName)}</li>
                     ))}
                   </ul>
                 ) : (
-                  <div className="text-xs text-[var(--text-secondary)]">
+                  <div className="text-xs text-secondary-wh40k">
                     No avoid bosses set.
                   </div>
                 )}
               </div>
             </div>
           ) : (
-            <span className="text-[var(--text-secondary)]">
+            <span className="text-secondary-wh40k">
               No boss preferences recorded for this player.
             </span>
           )}
@@ -256,10 +254,10 @@ interface InfoBlockProps {
 function InfoBlock({ label, children }: InfoBlockProps) {
   return (
     <div className="space-y-2">
-      <div className="text-xs font-medium uppercase tracking-wide text-[var(--text-secondary)]">
+      <div className="text-xs font-medium uppercase tracking-wide text-secondary-wh40k">
         {label}
       </div>
-      <div className="text-sm leading-relaxed text-[var(--text-primary)]">
+      <div className="text-sm leading-relaxed text-primary-wh40k">
         {children}
       </div>
     </div>

@@ -388,9 +388,9 @@ export default function GuildSettingsClient({
       validationStatus === 'valid' ? (
         <CheckCircle className="w-5 h-5 text-emerald-300" />
       ) : validationStatus === 'invalid' ? (
-        <AlertCircle className="w-5 h-5 text-[var(--accent)]" />
+        <AlertCircle className="w-5 h-5 text-(--accent)" />
       ) : (
-        <Loader2 className="w-5 h-5 text-[var(--primary)] animate-spin" />
+        <Loader2 className="w-5 h-5 text-(--primary) animate-spin" />
       )
 
     const title =
@@ -404,19 +404,17 @@ export default function GuildSettingsClient({
       validationStatus === 'valid'
         ? 'text-emerald-300'
         : validationStatus === 'invalid'
-          ? 'text-[var(--accent)]'
-          : 'text-[var(--primary)]'
+          ? 'text-(--accent)'
+          : 'text-(--primary)'
 
     return (
-      <div className="rounded-2xl border border-card-border/50 bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] p-4 text-sm text-[var(--text-secondary)] space-y-1">
+      <div className="rounded-2xl border border-card-border/50 bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] p-4 text-sm text-secondary-wh40k space-y-1">
         <div className="flex items-center gap-3">
           {icon}
           <p className={cn('font-semibold', titleClass)}>{title}</p>
         </div>
         {validationMessage && (
-          <p className="text-sm text-[var(--text-secondary)]">
-            {validationMessage}
-          </p>
+          <p className="text-sm text-secondary-wh40k">{validationMessage}</p>
         )}
       </div>
     )
@@ -678,14 +676,14 @@ export default function GuildSettingsClient({
 
   return (
     <div className="relative min-h-screen bg-[color-mix(in_srgb,var(--bg-from)_10%,transparent)] pb-16">
-      <div className="relative overflow-hidden rounded-b-[4rem] border border-[color-mix(in_srgb,var(--accent)_10%,transparent)] bg-gradient-to-br from-[#120b18] via-[#1b1025] to-[#100716] shadow-[0_40px_80px_rgba(4,8,20,0.65)]">
+      <div className="relative overflow-hidden rounded-b-[4rem] border border-[color-mix(in_srgb,var(--accent)_10%,transparent)] bg-linear-to-br from-[#120b18] via-[#1b1025] to-[#100716] shadow-[0_40px_80px_rgba(4,8,20,0.65)]">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.08]" />
         <div className="relative mx-auto flex max-w-6xl flex-col gap-8 px-6 pb-12 pt-12 sm:px-10 lg:px-12">
-          <div className="flex flex-col gap-2 text-center text-[var(--text-primary)] sm:text-left">
+          <div className="flex flex-col gap-2 text-center text-primary-wh40k sm:text-left">
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
               Guild Settings
             </h1>
-            <p className="text-sm text-[var(--text-secondary)]">
+            <p className="text-sm text-secondary-wh40k">
               Configure integrations, automation, and identity controls without
               the extra chrome.
             </p>
@@ -696,7 +694,7 @@ export default function GuildSettingsClient({
               <div
                 key={card.title}
                 className={cn(
-                  'flex flex-col gap-2 rounded-2xl border p-4 transition-colors shadow-[0_18px_30px_rgba(4,8,20,0.45)] backdrop-blur',
+                  'flex flex-col gap-2 rounded-2xl border p-4 transition-colors shadow-[0_18px_30px_rgba(4,8,20,0.45)] backdrop-blur-sm',
                   card.tone === 'success' &&
                     'border-emerald-400/40 bg-emerald-500/10',
                   card.tone === 'warning' &&
@@ -708,10 +706,10 @@ export default function GuildSettingsClient({
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] text-[var(--accent)]">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] text-(--accent)">
                       <card.icon className="h-4 w-4" />
                     </span>
-                    <span className="text-sm font-semibold text-[var(--text-primary)]">
+                    <span className="text-sm font-semibold text-primary-wh40k">
                       {card.title}
                     </span>
                   </div>
@@ -729,7 +727,7 @@ export default function GuildSettingsClient({
                     {card.status}
                   </StatusLabel>
                 </div>
-                <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                <p className="text-xs text-secondary-wh40k leading-relaxed">
                   {card.helper}
                 </p>
               </div>
@@ -740,9 +738,9 @@ export default function GuildSettingsClient({
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {error && (
-          <div className="mt-8 rounded-2xl border border-[color-mix(in_srgb,var(--accent)_50%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] p-4 text-sm text-[var(--text-primary)] shadow-[0_10px_25px_rgba(153,27,27,0.25)]">
+          <div className="mt-8 rounded-2xl border border-[color-mix(in_srgb,var(--accent)_50%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] p-4 text-sm text-primary-wh40k shadow-[0_10px_25px_rgba(153,27,27,0.25)]">
             <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-[var(--accent)]" />
+              <AlertCircle className="h-5 w-5 text-(--accent)" />
               <div>
                 <p className="font-semibold">Save failed</p>
                 <LinkifiedText
@@ -756,7 +754,7 @@ export default function GuildSettingsClient({
         )}
 
         {success && (
-          <div className="mt-8 rounded-2xl border border-emerald-400/50 bg-emerald-600/10 p-4 text-sm text-[var(--text-primary)] shadow-[0_10px_25px_rgba(16,185,129,0.25)]">
+          <div className="mt-8 rounded-2xl border border-emerald-400/50 bg-emerald-600/10 p-4 text-sm text-primary-wh40k shadow-[0_10px_25px_rgba(16,185,129,0.25)]">
             <div className="flex items-start gap-3">
               <CheckCircle className="h-5 w-5 text-emerald-300" />
               <div>
@@ -786,8 +784,8 @@ export default function GuildSettingsClient({
                   className={cn(
                     'flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition-colors',
                     isActive
-                      ? 'border border-[color-mix(in_srgb,var(--accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-[var(--accent)]'
-                      : 'border border-transparent text-[var(--text-secondary)] hover:bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] hover:text-[var(--text-primary)]'
+                      ? 'border border-[color-mix(in_srgb,var(--accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-(--accent)'
+                      : 'border border-transparent text-secondary-wh40k hover:bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] hover:text-primary-wh40k'
                   )}
                 >
                   <Icon className="h-4 w-4" />
@@ -931,8 +929,8 @@ export default function GuildSettingsClient({
               <div
                 className={`sticky ${CORNER_STACK_MOBILE_CLEARANCE_CLASS} z-40 sm:bottom-6 ${CORNER_STACK_RIGHT_GUTTER_CLASS}`}
               >
-                <div className="flex flex-col gap-4 rounded-2xl border border-card-border/60 bg-[var(--bg-secondary)] p-4 shadow-[0_25px_50px_rgba(4,8,20,0.55)] backdrop-blur-sm lg:flex-row lg:items-center lg:justify-between">
-                  <div className="text-sm text-[var(--text-secondary)]">
+                <div className="flex flex-col gap-4 rounded-2xl border border-card-border/60 bg-(--bg-secondary) p-4 shadow-[0_25px_50px_rgba(4,8,20,0.55)] backdrop-blur-xs lg:flex-row lg:items-center lg:justify-between">
+                  <div className="text-sm text-secondary-wh40k">
                     Review your changes before deploying. API key updates
                     require validation first.
                   </div>

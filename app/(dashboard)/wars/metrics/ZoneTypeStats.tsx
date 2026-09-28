@@ -44,11 +44,11 @@ export default function ZoneTypeStats() {
     <div className="space-y-4">
       <h2 className="subheading-wh40k text-base sm:text-lg">
         Zone Performance
-        <span className="ml-2 text-xs font-normal text-[var(--text-secondary)]">
+        <span className="ml-2 text-xs font-normal text-secondary-wh40k">
           offense &amp; defense by zone type
         </span>
       </h2>
-      <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+      <Card className="border-(--border) bg-(--bg-primary)">
         <CardContent className="p-4 flex flex-wrap items-center gap-3">
           <Select value={range} onValueChange={setRange}>
             <SelectTrigger className="w-40">
@@ -75,13 +75,13 @@ export default function ZoneTypeStats() {
               <SelectItem value="holdRate">Highest hold rate</SelectItem>
             </SelectContent>
           </Select>
-          <div className="text-xs text-[var(--text-tertiary)] flex items-center">
+          <div className="text-xs text-(--text-tertiary) flex items-center">
             Range: {range === 'all' ? 'All time' : `${range} days`}
           </div>
         </CardContent>
       </Card>
       {isLoading ? (
-        <div className="text-center py-12 text-[var(--text-secondary)]">
+        <div className="text-center py-12 text-secondary-wh40k">
           Loading map stats...
         </div>
       ) : error ? (

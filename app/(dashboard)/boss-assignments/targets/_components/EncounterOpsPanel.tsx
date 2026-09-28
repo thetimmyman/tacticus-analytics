@@ -125,8 +125,8 @@ export function EncounterOpsPanel({
       f.status === 'error'
         ? 'text-red-400'
         : f.note
-          ? 'text-[var(--warning)]'
-          : 'text-[var(--text-tertiary)]'
+          ? 'text-(--warning)'
+          : 'text-(--text-tertiary)'
     const label =
       f.status === 'saving'
         ? 'Saving…'
@@ -148,7 +148,7 @@ export function EncounterOpsPanel({
       }
     >
       {loadFailed && (
-        <div className="rounded-md border border-[color-mix(in_srgb,var(--danger)_45%,transparent)] bg-[var(--danger-bg)] px-3 py-2 text-xs text-[var(--danger)]">
+        <div className="rounded-md border border-[color-mix(in_srgb,var(--danger)_45%,transparent)] bg-(--danger-bg) px-3 py-2 text-xs text-(--danger)">
           Ops settings could not be loaded. Editing is disabled so a failed read
           can&apos;t be saved back as a change.
         </div>
@@ -178,7 +178,7 @@ export function EncounterOpsPanel({
           }}
         />
         {/* Roles are keyed (guild_code, boss_id), so they are not season-scoped. */}
-        <div className="mt-1 text-[10px] text-[var(--text-tertiary)]">
+        <div className="mt-1 text-[10px] text-(--text-tertiary)">
           Ping roles apply to every season, not just S{seasonNumber}.
         </div>
         {statusLine('roles')}
@@ -199,7 +199,7 @@ export function EncounterOpsPanel({
 
       {isPrime && (
         <div>
-          <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+          <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
             Rule
           </div>
           <BehaviourToggle
@@ -221,7 +221,7 @@ export function EncounterOpsPanel({
           />
           {behaviour === 'threshold' && (
             <div className="mt-2">
-              <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+              <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
                 Threshold — HP remaining
               </div>
               <ThresholdPicker
@@ -248,7 +248,7 @@ export function EncounterOpsPanel({
       )}
 
       {!canManage && (
-        <div className="text-[10px] text-[var(--text-tertiary)]">
+        <div className="text-[10px] text-(--text-tertiary)">
           Ops settings are read-only — officers and leaders of this guild can
           edit them.
         </div>

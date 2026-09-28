@@ -171,7 +171,7 @@ export default function RosterClient({
   if (!hasApiKey) {
     return (
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-[var(--text-primary)]">
+        <h1 className="text-3xl font-bold mb-8 text-primary-wh40k">
           My Roster
         </h1>
         <div className="card-wh40k p-8 text-center">
@@ -180,10 +180,10 @@ export default function RosterClient({
               <Key className="h-8 w-8 text-amber-400" />
             </div>
           </div>
-          <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
+          <h2 className="text-xl font-semibold text-primary-wh40k mb-2">
             Player API Key Required
           </h2>
-          <p className="text-[var(--text-secondary)] mb-6 max-w-md mx-auto">
+          <p className="text-secondary-wh40k mb-6 max-w-md mx-auto">
             To view your roster, you need to configure your Player API key in
             your profile settings.
           </p>
@@ -201,12 +201,12 @@ export default function RosterClient({
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-[var(--text-primary)]">
+        <h1 className="text-3xl font-bold mb-8 text-primary-wh40k">
           My Roster
         </h1>
         <div className="card-wh40k p-12 text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[var(--accent)] mx-auto mb-4" />
-          <p className="text-[var(--text-secondary)]">
+          <Loader2 className="h-8 w-8 animate-spin text-(--accent) mx-auto mb-4" />
+          <p className="text-secondary-wh40k">
             Loading roster from Tacticus...
           </p>
         </div>
@@ -217,7 +217,7 @@ export default function RosterClient({
   if (error) {
     return (
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-[var(--text-primary)]">
+        <h1 className="text-3xl font-bold mb-8 text-primary-wh40k">
           My Roster
         </h1>
         <div className="card-wh40k p-8 text-center">
@@ -226,10 +226,10 @@ export default function RosterClient({
               <AlertCircle className="h-8 w-8 text-red-400" />
             </div>
           </div>
-          <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
+          <h2 className="text-xl font-semibold text-primary-wh40k mb-2">
             Failed to Load Roster
           </h2>
-          <p className="text-[var(--text-secondary)] mb-2">{error}</p>
+          <p className="text-secondary-wh40k mb-2">{error}</p>
           {errorCode === 'NO_API_KEY' && (
             <Link href="/profile/edit" className="inline-block mt-4">
               <Button>
@@ -253,10 +253,10 @@ export default function RosterClient({
     <div className="max-w-7xl mx-auto">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 mb-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary-wh40k">
             My Roster
           </h1>
-          <p className="text-sm text-[var(--text-secondary)]">
+          <p className="text-sm text-secondary-wh40k">
             <MemberName value={playerName} />
             &apos;s character collection
           </p>
@@ -265,7 +265,7 @@ export default function RosterClient({
           {guildCode && (
             <Link
               href={`/player-stats?player=${encodeURIComponent(playerName)}&guild=${encodeURIComponent(guildCode)}`}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs sm:text-sm bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] border border-[color-mix(in_srgb,var(--accent)_30%,transparent)] rounded-md text-[var(--accent)] transition-colors"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs sm:text-sm bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] border border-[color-mix(in_srgb,var(--accent)_30%,transparent)] rounded-md text-(--accent) transition-colors"
             >
               <BarChart3 className="h-4 w-4" />
               My Stats
@@ -320,7 +320,7 @@ export default function RosterClient({
                 setUrlInput(tacticusShareUrl)
                 setEditingUrl(true)
               }}
-              className="text-[var(--text-secondary)]"
+              className="text-secondary-wh40k"
               title={tacticusShareUrl ? 'Edit Planner URL' : 'Add Planner URL'}
             >
               <Edit2 className="h-4 w-4" />

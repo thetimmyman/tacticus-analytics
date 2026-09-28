@@ -139,7 +139,7 @@ export default function GRAvailability({
 
   return (
     <div>
-      <Card className="border-[var(--card-border)] bg-[var(--card-bg)]">
+      <Card className="border-(--card-border) bg-(--card-bg)">
         <AvailabilityHeader
           season={season}
           useMentions={useMentions}
@@ -200,14 +200,14 @@ export default function GRAvailability({
           {loading && <Skeleton className="h-16" />}
 
           {!loading && players.length === 0 && (
-            <div className="text-center py-4 text-[var(--primary)] text-xs">
+            <div className="text-center py-4 text-(--primary) text-xs">
               <AlertCircle className="h-3 w-3 inline mr-1" />
               No player data available for this season
             </div>
           )}
 
           {error && !saveStatus.type && (
-            <div className="mb-3 py-2 px-3 rounded-md text-xs font-medium bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--accent)] border border-[color-mix(in_srgb,var(--accent)_20%,transparent)]">
+            <div className="mb-3 py-2 px-3 rounded-md text-xs font-medium bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-(--accent) border border-[color-mix(in_srgb,var(--accent)_20%,transparent)]">
               <div className="flex items-start gap-2">
                 <AlertCircle className="h-3 w-3 mt-0.5 shrink-0" />
                 <LinkifiedText
@@ -245,7 +245,7 @@ export default function GRAvailability({
             />
           )}
 
-          <div className="mt-2 text-[10px] text-[var(--text-tertiary)] text-right">
+          <div className="mt-2 text-[10px] text-(--text-tertiary) text-right">
             {autoRefresh && 'Auto-refresh enabled • Syncing every minute'}
           </div>
         </CardContent>

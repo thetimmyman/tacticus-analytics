@@ -10,10 +10,10 @@ export default function ErrorCodesPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-4">
+        <h1 className="text-3xl font-bold text-primary-wh40k mb-4">
           Error Code Reference
         </h1>
-        <p className="text-[var(--text-secondary)] text-lg">
+        <p className="text-secondary-wh40k text-lg">
           Complete documentation of error codes with troubleshooting steps and
           version tracking.
         </p>

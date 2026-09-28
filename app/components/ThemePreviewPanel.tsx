@@ -246,10 +246,10 @@ function ThemePreviewPanel({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-[var(--text-primary)]">
+          <h2 className="text-2xl font-bold text-primary-wh40k">
             Warhammer 40K Theme Collection
           </h2>
-          <p className="text-[var(--text-secondary)] mt-1">
+          <p className="text-secondary-wh40k mt-1">
             {totalThemes} themes available • {expandedThemesCount} visible •
             {previewTheme
               ? ` Previewing: ${allThemes[previewTheme]?.name}`
@@ -282,7 +282,7 @@ function ThemePreviewPanel({
               </button>
             </div>
             {saveError && (
-              <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded px-3 py-1">
+              <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded-sm px-3 py-1">
                 {saveError}
               </div>
             )}
@@ -296,13 +296,13 @@ function ThemePreviewPanel({
           onClick={() =>
             setExpandedCategories(new Set(categories.map((c) => c.id)))
           }
-          className="text-xs px-2 py-1 rounded bg-[var(--card-bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--card-border)]"
+          className="text-xs px-2 py-1 rounded-sm bg-(--card-bg) text-secondary-wh40k hover:text-primary-wh40k border border-(--card-border)"
         >
           Expand All
         </button>
         <button
           onClick={() => setExpandedCategories(new Set())}
-          className="text-xs px-2 py-1 rounded bg-[var(--card-bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--card-border)]"
+          className="text-xs px-2 py-1 rounded-sm bg-(--card-bg) text-secondary-wh40k hover:text-primary-wh40k border border-(--card-border)"
         >
           Collapse All
         </button>
@@ -319,20 +319,20 @@ function ThemePreviewPanel({
           return (
             <div
               key={category.id}
-              className="border border-[var(--card-border)] rounded-lg overflow-hidden bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200"
+              className="border border-(--card-border) rounded-lg overflow-hidden bg-(--card-bg) hover:bg-card/80 transition-colors duration-200"
             >
               {/* Category Header */}
               <button
                 onClick={() => toggleCategory(category.id)}
-                className="w-full px-4 py-3 flex items-center justify-between hover:bg-[var(--card-hover)] transition-colors"
+                className="w-full px-4 py-3 flex items-center justify-between hover:bg-(--card-hover) transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-[var(--accent)]">{category.icon}</span>
+                  <span className="text-(--accent)">{category.icon}</span>
                   <div className="text-left">
-                    <h3 className="font-semibold text-[var(--text-primary)]">
+                    <h3 className="font-semibold text-primary-wh40k">
                       {category.label}
                     </h3>
-                    <p className="text-xs text-[var(--text-secondary)]">
+                    <p className="text-xs text-secondary-wh40k">
                       {category.description} • {themeCount} themes
                     </p>
                   </div>
@@ -340,16 +340,16 @@ function ThemePreviewPanel({
 
                 <div className="flex items-center gap-2">
                   {isExpanded ? (
-                    <ChevronUp className="w-5 h-5 text-[var(--text-secondary)]" />
+                    <ChevronUp className="w-5 h-5 text-secondary-wh40k" />
                   ) : (
-                    <ChevronDown className="w-5 h-5 text-[var(--text-secondary)]" />
+                    <ChevronDown className="w-5 h-5 text-secondary-wh40k" />
                   )}
                 </div>
               </button>
 
               {/* Theme Grid (Collapsible) */}
               {isExpanded && (
-                <div className="p-4 border-t border-[var(--card-border)]">
+                <div className="p-4 border-t border-(--card-border)">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     {Object.entries(category.themes).map(([code, theme]) => {
                       const isActive = code === currentTheme
@@ -359,7 +359,7 @@ function ThemePreviewPanel({
                         <div
                           key={code}
                           className={`relative group cursor-pointer transition-all duration-300 ${
-                            isActive ? 'ring-2 ring-[var(--accent)]' : ''
+                            isActive ? 'ring-2 ring-(--accent)' : ''
                           } ${isPreviewing ? 'ring-2 ring-blue-400' : ''}`}
                           onClick={() => handleThemeSelect(code)}
                         >
@@ -398,17 +398,17 @@ function ThemePreviewPanel({
                             {/* Color Swatches */}
                             <div className="flex gap-1 mb-2">
                               <div
-                                className="w-6 h-3 rounded border border-white/20"
+                                className="w-6 h-3 rounded-sm border border-white/20"
                                 style={{ backgroundColor: theme.primary }}
                                 title="Primary"
                               />
                               <div
-                                className="w-6 h-3 rounded border border-white/20"
+                                className="w-6 h-3 rounded-sm border border-white/20"
                                 style={{ backgroundColor: theme.secondary }}
                                 title="Secondary"
                               />
                               <div
-                                className="w-6 h-3 rounded border border-white/20"
+                                className="w-6 h-3 rounded-sm border border-white/20"
                                 style={{ backgroundColor: theme.accent }}
                                 title="Accent"
                               />
@@ -444,7 +444,7 @@ function ThemePreviewPanel({
 
                             {/* Hover overlay */}
                             <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                              <span className="text-white font-medium text-xs bg-black/50 px-2 py-0.5 rounded">
+                              <span className="text-white font-medium text-xs bg-black/50 px-2 py-0.5 rounded-sm">
                                 {allowSelection ? 'Select' : 'Preview'}
                               </span>
                             </div>
@@ -461,7 +461,7 @@ function ThemePreviewPanel({
       </div>
 
       {/* Instructions */}
-      <div className="text-center text-sm text-[var(--text-secondary)] space-y-1 pt-4">
+      <div className="text-center text-sm text-secondary-wh40k space-y-1 pt-4">
         <p>
           Click any theme to{' '}
           {allowSelection ? 'select it' : 'preview it instantly'}

@@ -13,26 +13,26 @@ export default function MapsGrid({ maps }: { maps: MapStats[] }) {
         return (
           <Card
             key={map.zoneType}
-            className="border-[var(--border)] bg-[var(--bg-primary)]"
+            className="border-(--border) bg-(--bg-primary)"
           >
             <CardContent className="p-5 space-y-4">
               <div className="flex items-start justify-between">
                 <ZoneImageTooltip zoneType={map.zoneType} side="right">
-                  <div className="text-sm font-semibold text-[var(--text-primary)]">
+                  <div className="text-sm font-semibold text-primary-wh40k">
                     {zoneDisplayName(map.zoneType)}
                   </div>
                 </ZoneImageTooltip>
-                <Badge className="bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border)]">
+                <Badge className="bg-(--bg-secondary) text-secondary-wh40k border-(--border)">
                   Map
                 </Badge>
               </div>
-              <div className="rounded-md border border-[var(--border)] bg-[var(--bg-secondary)] p-4 space-y-2 text-sm">
-                <div className="text-xs font-semibold text-[var(--text-secondary)] uppercase">
+              <div className="rounded-md border border-(--border) bg-(--bg-secondary) p-4 space-y-2 text-sm">
+                <div className="text-xs font-semibold text-secondary-wh40k uppercase">
                   Offense
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Attacks</span>
-                  <span className="font-mono text-[var(--text-primary)]">
+                  <span className="font-mono text-primary-wh40k">
                     {formatNumber(map.offense.attacks)}
                   </span>
                 </div>
@@ -44,18 +44,18 @@ export default function MapsGrid({ maps }: { maps: MapStats[] }) {
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Avg score</span>
-                  <span className="font-mono text-[var(--text-secondary)]">
+                  <span className="font-mono text-secondary-wh40k">
                     {formatNumber(map.offense.avgScore)}
                   </span>
                 </div>
               </div>
-              <div className="rounded-md border border-[var(--border)] bg-[var(--bg-secondary)] p-4 space-y-2 text-sm">
-                <div className="text-xs font-semibold text-[var(--text-secondary)] uppercase">
+              <div className="rounded-md border border-(--border) bg-(--bg-secondary) p-4 space-y-2 text-sm">
+                <div className="text-xs font-semibold text-secondary-wh40k uppercase">
                   Defense
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Defends</span>
-                  <span className="font-mono text-[var(--text-primary)]">
+                  <span className="font-mono text-primary-wh40k">
                     {formatNumber(map.defense.defends)}
                   </span>
                 </div>
@@ -67,7 +67,7 @@ export default function MapsGrid({ maps }: { maps: MapStats[] }) {
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Avg conceded</span>
-                  <span className="font-mono text-[var(--text-secondary)]">
+                  <span className="font-mono text-secondary-wh40k">
                     {formatNumber(map.defense.avgScoreConceded)}
                   </span>
                 </div>

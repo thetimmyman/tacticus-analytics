@@ -11,7 +11,7 @@ export function renderApiKeyIndicator(member: ExtendedMember) {
     case 'valid':
       return (
         <span
-          className="inline-flex items-center text-amber-400 drop-shadow-sm"
+          className="inline-flex items-center text-amber-400 drop-shadow-xs"
           title="Valid Player API Key - Token data available"
         >
           <KeyRound className="h-4 w-4" />
@@ -20,7 +20,7 @@ export function renderApiKeyIndicator(member: ExtendedMember) {
     case 'invalid':
       return (
         <span
-          className="inline-flex items-center text-red-400 drop-shadow-sm"
+          className="inline-flex items-center text-red-400 drop-shadow-xs"
           title="Invalid Player API Key - Token data unavailable, key needs updating"
         >
           <KeyRound className="h-4 w-4" />

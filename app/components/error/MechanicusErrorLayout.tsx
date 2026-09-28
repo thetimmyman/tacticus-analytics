@@ -34,7 +34,7 @@ export function MechanicusErrorLayout({
   children
 }: MechanicusErrorLayoutProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-red-950 to-black flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-black via-red-950 to-black flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-20 left-10 w-64 h-64 bg-red-500 rounded-full filter blur-3xl animate-pulse" />
@@ -77,9 +77,9 @@ export function MechanicusErrorLayout({
         </div>
 
         {/* Error Card */}
-        <div className="bg-black/80 border-2 border-red-500/50 rounded-lg shadow-2xl backdrop-blur-sm">
+        <div className="bg-black/80 border-2 border-red-500/50 rounded-lg shadow-2xl backdrop-blur-xs">
           {/* Card Header with Mechanicus Styling */}
-          <div className="bg-gradient-to-r from-red-900/50 to-amber-900/50 border-b border-red-500/30 p-4 sm:p-6">
+          <div className="bg-linear-to-r from-red-900/50 to-amber-900/50 border-b border-red-500/30 p-4 sm:p-6">
             <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3">
               <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-red-500 animate-pulse" />
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-red-500 uppercase tracking-wide text-center">
@@ -100,7 +100,7 @@ export function MechanicusErrorLayout({
           <div className="p-4 sm:p-6 md:p-8">
             {/* Main Message */}
             <div className="text-center mb-6 sm:mb-8">
-              <p className="text-[var(--text-primary)] text-base sm:text-lg leading-relaxed">
+              <p className="text-primary-wh40k text-base sm:text-lg leading-relaxed">
                 {message}
               </p>
             </div>
@@ -124,7 +124,7 @@ export function MechanicusErrorLayout({
                 <div className="text-amber-400/80 text-xs font-mono mb-2">
                   TECHNICAL AUGURY:
                 </div>
-                <div className="text-[var(--text-secondary)] text-sm font-mono">
+                <div className="text-secondary-wh40k text-sm font-mono">
                   {technicalDetails}
                 </div>
               </div>
@@ -138,7 +138,7 @@ export function MechanicusErrorLayout({
               {showRetryButton && (
                 <button
                   onClick={onRetry}
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-black font-bold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-black font-bold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
                 >
                   <RefreshCcw className="w-5 h-5" />
                   RETRY OPERATION
@@ -148,7 +148,7 @@ export function MechanicusErrorLayout({
               {showHomeButton && (
                 <Link
                   href="/"
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-bold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-bold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
                 >
                   <Home className="w-5 h-5" />
                   RETURN TO FORGE
@@ -168,11 +168,11 @@ export function MechanicusErrorLayout({
 
             {/* Footer Quote */}
             <div className="mt-8 pt-6 border-t border-red-900/30">
-              <p className="text-center text-[var(--text-secondary)] text-xs italic">
+              <p className="text-center text-secondary-wh40k text-xs italic">
                 &quot;The Machine Spirit must be appeased with proper rites and
                 protocols.&quot;
               </p>
-              <p className="text-center text-[var(--text-secondary)] text-xs mt-2">
+              <p className="text-center text-secondary-wh40k text-xs mt-2">
                 - Adeptus Mechanicus Troubleshooting Manual, M41.999
               </p>
             </div>

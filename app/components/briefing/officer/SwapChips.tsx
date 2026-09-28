@@ -42,7 +42,7 @@ export const CLASSIFICATION_META: Record<
 
 export function ConfidenceBadge({ confidence }: { confidence: Confidence }) {
   return (
-    <span className="text-[10px] uppercase tracking-wide text-[var(--text-tertiary)]">
+    <span className="text-[10px] uppercase tracking-wide text-(--text-tertiary)">
       {CONFIDENCE_LABEL[confidence]}
     </span>
   )
@@ -55,10 +55,10 @@ export function SwapChips({ swaps }: { swaps: SwapStep[] }) {
       {swaps.map((s) => (
         <span
           key={`${s.out}->${s.in}`}
-          className="inline-flex items-center gap-1 rounded-full border border-[var(--card-border)] px-2 py-0.5 text-[10px] text-[var(--text-secondary)]"
+          className="inline-flex items-center gap-1 rounded-full border border-(--card-border) px-2 py-0.5 text-[10px] text-secondary-wh40k"
         >
-          <span className="text-[var(--text-tertiary)]">{s.out}</span>
-          <ArrowRight className="h-3 w-3 text-[var(--accent)]" aria-hidden />
+          <span className="text-(--text-tertiary)">{s.out}</span>
+          <ArrowRight className="h-3 w-3 text-(--accent)" aria-hidden />
           <span style={{ color: 'var(--success)' }}>{s.in}</span>
         </span>
       ))}

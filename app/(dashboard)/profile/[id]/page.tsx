@@ -104,7 +104,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               {profile.display_name}
             </CardTitle>
             <span
-              className={`px-2 py-1 rounded text-sm ${roleColor[profile.role as keyof typeof roleColor]} border-0`}
+              className={`px-2 py-1 rounded-sm text-sm ${roleColor[profile.role as keyof typeof roleColor]} border-0`}
             >
               {roleDisplay[profile.role as keyof typeof roleDisplay]}
             </span>

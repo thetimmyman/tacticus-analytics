@@ -42,10 +42,10 @@ export default async function ExplorePage() {
         </div>
 
         <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[var(--text-primary)] mb-3 sm:mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary-wh40k mb-3 sm:mb-4">
             Explore Guilds
           </h1>
-          <p className="text-[var(--text-secondary)] text-base sm:text-lg max-w-2xl mx-auto px-4">
+          <p className="text-secondary-wh40k text-base sm:text-lg max-w-2xl mx-auto px-4">
             Compare public guild raid damage, boss hits, and cluster rankings
             from shared snapshots
           </p>
@@ -54,7 +54,7 @@ export default async function ExplorePage() {
         <Suspense
           fallback={
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+              <Loader2 className="w-8 h-8 animate-spin text-(--primary)" />
             </div>
           }
         >

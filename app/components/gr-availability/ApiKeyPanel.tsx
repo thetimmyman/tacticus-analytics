@@ -81,14 +81,14 @@ export const ApiKeyPanel = ({
               }
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              className={`flex-1 px-2 py-1 text-xs bg-[var(--card-bg)] border rounded text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-all duration-300 ${
+              className={`flex-1 px-2 py-1 text-xs bg-(--card-bg) border rounded text-primary-wh40k placeholder-(--text-secondary) focus:outline-hidden focus:ring-1 focus:ring-(--accent) transition-all duration-300 ${
                 saveStatus.type === 'error'
                   ? 'border-[color-mix(in_srgb,var(--accent)_50%,transparent)] ring-1 ring-[color-mix(in_srgb,var(--accent)_30%,transparent)]'
-                  : 'border-[var(--card-border)]'
+                  : 'border-(--card-border)'
               }`}
               disabled={savingKey || deletingKey}
             />
-            <div className="flex items-center gap-2 sm:flex-shrink-0">
+            <div className="flex items-center gap-2 sm:shrink-0">
               <Button
                 onClick={saveApiKey}
                 disabled={!apiKey.trim() || savingKey || deletingKey}
@@ -115,7 +115,7 @@ export const ApiKeyPanel = ({
                   disabled={deletingKey || savingKey}
                   size="sm"
                   variant="outline"
-                  className="h-7 px-3 hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-[var(--accent)] hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)] flex-1 sm:flex-initial"
+                  className="h-7 px-3 hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-(--accent) hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)] flex-1 sm:flex-initial"
                 >
                   {deletingKey ? (
                     <>
@@ -144,8 +144,8 @@ export const ApiKeyPanel = ({
                       saveStatus.type === 'success'
                         ? 'bg-green-500/15 text-green-400 border border-green-500/25'
                         : saveStatus.type === 'error'
-                          ? 'bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-[var(--accent)] border border-[color-mix(in_srgb,var(--accent)_25%,transparent)]'
-                          : 'bg-[color-mix(in_srgb,var(--primary)_15%,transparent)] text-[var(--accent)] border border-[color-mix(in_srgb,var(--primary)_25%,transparent)]'
+                          ? 'bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-(--accent) border border-[color-mix(in_srgb,var(--accent)_25%,transparent)]'
+                          : 'bg-[color-mix(in_srgb,var(--primary)_15%,transparent)] text-(--accent) border border-[color-mix(in_srgb,var(--primary)_25%,transparent)]'
                     }
                   `}
           >
@@ -174,13 +174,13 @@ export const ApiKeyPanel = ({
         )}
 
         {/* Instructional text below the API key form */}
-        <div className="text-[10px] text-[var(--text-tertiary)]">
+        <div className="text-[10px] text-(--text-tertiary)">
           Add your Player API key for real-time accuracy from{' '}
           <a
             href={TACTICUS_SITE}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[var(--accent)] hover:text-[var(--primary)] underline"
+            className="text-(--accent) hover:text-(--primary) underline"
           >
             {TACTICUS_SITE}
           </a>
@@ -191,7 +191,7 @@ export const ApiKeyPanel = ({
       <div className="mt-3 p-3 bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] hover:bg-card/80 transition-colors duration-200 rounded-lg border border-card-border/20">
         <button
           onClick={() => setShowHowItWorks(!showHowItWorks)}
-          className="w-full flex items-center justify-between text-xs font-medium text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
+          className="w-full flex items-center justify-between text-xs font-medium text-primary-wh40k hover:text-(--accent) transition-colors"
         >
           <span>How Token Tracking Works</span>
           {showHowItWorks ? (
@@ -201,7 +201,7 @@ export const ApiKeyPanel = ({
           )}
         </button>
         {showHowItWorks && (
-          <ul className="text-[10px] text-[var(--text-tertiary)] space-y-0.5 mt-2">
+          <ul className="text-[10px] text-(--text-tertiary) space-y-0.5 mt-2">
             <li>• Players start each season with 2 tokens</li>
             <li>• Tokens regenerate 1 every 12 hours (max 3)</li>
             <li>• Season cap is 28 tokens total</li>

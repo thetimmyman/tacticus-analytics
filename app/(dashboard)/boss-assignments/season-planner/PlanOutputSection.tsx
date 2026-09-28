@@ -89,7 +89,7 @@ export default function PlanOutputSection({
       header: 'Stage',
       sortable: false,
       render: (row) => (
-        <span className="text-[var(--text-primary)]">{row.stageCode}</span>
+        <span className="text-primary-wh40k">{row.stageCode}</span>
       )
     },
     {
@@ -128,9 +128,7 @@ export default function PlanOutputSection({
       header: 'Player',
       sortable: false,
       render: (p) => (
-        <span className="text-[var(--text-primary)]">
-          {labelFor(p.displayName)}
-        </span>
+        <span className="text-primary-wh40k">{labelFor(p.displayName)}</span>
       )
     },
     {
@@ -165,7 +163,7 @@ export default function PlanOutputSection({
       header: 'Player',
       sortable: false,
       render: (session) => (
-        <span className="text-[var(--text-primary)]">
+        <span className="text-primary-wh40k">
           {labelFor(
             (typeof session.playerDisplayName === 'string' &&
             session.playerDisplayName.trim().length > 0
@@ -201,24 +199,24 @@ export default function PlanOutputSection({
   ]
 
   return (
-    <div className="rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-6 space-y-4">
+    <div className="rounded-lg border border-(--card-border) bg-(--card-bg) p-6 space-y-4">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+          <h3 className="text-lg font-semibold text-primary-wh40k">
             Plan Output
           </h3>
-          <p className="text-sm text-[var(--text-secondary)]">
+          <p className="text-sm text-secondary-wh40k">
             Summary metrics + schedule preview across main and prime bosses.
           </p>
         </div>
-        <label className="text-sm text-[var(--text-secondary)]">
+        <label className="text-sm text-secondary-wh40k">
           Window{' '}
           <select
             value={scheduleWindow}
             onChange={(e) =>
               setScheduleWindow(e.target.value as typeof scheduleWindow)
             }
-            className="ml-2 rounded-md border border-[var(--card-border)] bg-[var(--card-bg)] px-2 py-1 text-sm text-[var(--text-primary)]"
+            className="ml-2 rounded-md border border-(--card-border) bg-(--card-bg) px-2 py-1 text-sm text-primary-wh40k"
           >
             <option value="24h">Next 24h</option>
             <option value="48h">Next 48h</option>
@@ -229,20 +227,20 @@ export default function PlanOutputSection({
       </div>
 
       {!displayedPlan && (
-        <div className="text-sm text-[var(--text-secondary)]">
+        <div className="text-sm text-secondary-wh40k">
           Generate a plan or load a saved plan to view output.
         </div>
       )}
 
       {displayedPlan && (
         <>
-          <div className="rounded-lg border border-[var(--card-border)] bg-card/40 p-4 text-sm text-[var(--text-secondary)]">
+          <div className="rounded-lg border border-(--card-border) bg-card/40 p-4 text-sm text-secondary-wh40k">
             <div className="flex flex-wrap gap-6">
               <div>
-                <div className="text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+                <div className="text-xs uppercase tracking-wide text-secondary-wh40k">
                   From
                 </div>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-primary-wh40k">
                   {formatDateTime(
                     displayedPlan.snapshot_at,
                     timeZone,
@@ -251,10 +249,10 @@ export default function PlanOutputSection({
                 </div>
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+                <div className="text-xs uppercase tracking-wide text-secondary-wh40k">
                   To
                 </div>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-primary-wh40k">
                   {formatDateTime(
                     displayedPlan.season_end_at,
                     timeZone,
@@ -263,10 +261,10 @@ export default function PlanOutputSection({
                 </div>
               </div>
               <div>
-                <div className="text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+                <div className="text-xs uppercase tracking-wide text-secondary-wh40k">
                   Tokens (spent/held)
                 </div>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-primary-wh40k">
                   {formatNumber(totalTokens.spent)} /{' '}
                   {formatNumber(totalTokens.held)}
                 </div>
@@ -274,26 +272,26 @@ export default function PlanOutputSection({
               {metrics && (
                 <>
                   <div>
-                    <div className="text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+                    <div className="text-xs uppercase tracking-wide text-secondary-wh40k">
                       Wasted
                     </div>
-                    <div className="text-[var(--text-primary)]">
+                    <div className="text-primary-wh40k">
                       {formatNumber(metrics.wastedTokens)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+                    <div className="text-xs uppercase tracking-wide text-secondary-wh40k">
                       Bosses Defeated
                     </div>
-                    <div className="text-[var(--text-primary)]">
+                    <div className="text-primary-wh40k">
                       {formatNumber(metrics.bossesDefeated)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+                    <div className="text-xs uppercase tracking-wide text-secondary-wh40k">
                       Loop Advances
                     </div>
-                    <div className="text-[var(--text-primary)]">
+                    <div className="text-primary-wh40k">
                       {formatNumber(metrics.loopAdvances)}
                     </div>
                   </div>
@@ -302,13 +300,13 @@ export default function PlanOutputSection({
               {/* Officer budget vs model estimate; only when token targets exist. */}
               {sequenceBudget && (
                 <div>
-                  <div className="text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+                  <div className="text-xs uppercase tracking-wide text-secondary-wh40k">
                     Officer Budget
                   </div>
-                  <div className="text-[var(--text-primary)]">
+                  <div className="text-primary-wh40k">
                     {formatNumber(sequenceBudget.budgetTokens)}
                     {sequenceBudget.varianceTokens !== 0 && (
-                      <span className="ml-1 text-xs text-[var(--text-secondary)]">
+                      <span className="ml-1 text-xs text-secondary-wh40k">
                         · model est{' '}
                         {formatNumber(sequenceBudget.modelEstimateTokens)} (
                         {sequenceBudget.varianceTokens > 0 ? '+' : ''}
@@ -348,16 +346,16 @@ export default function PlanOutputSection({
               hasMounted={hasMounted}
             />
 
-            <div className="rounded-lg border border-[var(--card-border)] bg-card/40 p-4">
+            <div className="rounded-lg border border-(--card-border) bg-card/40 p-4">
               <div className="flex items-center justify-between gap-3">
-                <h4 className="text-sm font-semibold text-[var(--text-primary)]">
+                <h4 className="text-sm font-semibold text-primary-wh40k">
                   Stage timeline ({scheduleWindow})
                 </h4>
                 {scheduleWindow === 'all' &&
                   stageTimelineWindow.length > STAGE_TIMELINE_PAGE_SIZE && (
                     <button
                       onClick={() => setShowFullStageTimeline((prev) => !prev)}
-                      className="text-xs text-[var(--accent)] hover:underline"
+                      className="text-xs text-(--accent) hover:underline"
                     >
                       {showFullStageTimeline
                         ? 'Show less'
@@ -367,7 +365,7 @@ export default function PlanOutputSection({
               </div>
 
               {visibleStageTimeline.length === 0 ? (
-                <div className="mt-3 text-sm text-[var(--text-secondary)]">
+                <div className="mt-3 text-sm text-secondary-wh40k">
                   No stage progress in this window.
                 </div>
               ) : (
@@ -381,7 +379,7 @@ export default function PlanOutputSection({
                     empty={<></>}
                   />
                   {stageTimelineTruncated && (
-                    <div className="mt-2 text-xs text-[var(--text-secondary)]">
+                    <div className="mt-2 text-xs text-secondary-wh40k">
                       Showing {formatNumber(visibleStageTimeline.length)} of{' '}
                       {formatNumber(stageTimelineWindow.length)} stage segments.
                     </div>
@@ -392,8 +390,8 @@ export default function PlanOutputSection({
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="rounded-lg border border-[var(--card-border)] bg-card/40 p-4">
-              <h4 className="text-sm font-semibold text-[var(--text-primary)]">
+            <div className="rounded-lg border border-(--card-border) bg-card/40 p-4">
+              <h4 className="text-sm font-semibold text-primary-wh40k">
                 Per-player totals
               </h4>
               <div className="mt-3">
@@ -406,8 +404,8 @@ export default function PlanOutputSection({
               </div>
             </div>
 
-            <div className="rounded-lg border border-[var(--card-border)] bg-card/40 p-4">
-              <h4 className="text-sm font-semibold text-[var(--text-primary)]">
+            <div className="rounded-lg border border-(--card-border) bg-card/40 p-4">
+              <h4 className="text-sm font-semibold text-primary-wh40k">
                 Sessions ({scheduleWindow})
               </h4>
               <div className="mt-3">
@@ -422,8 +420,8 @@ export default function PlanOutputSection({
           </div>
 
           {IS_DEV && showRaw && (
-            <div className="rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-4">
-              <pre className="text-xs text-[var(--text-secondary)] whitespace-pre-wrap break-words">
+            <div className="rounded-lg border border-(--card-border) bg-(--card-bg) p-4">
+              <pre className="text-xs text-secondary-wh40k whitespace-pre-wrap wrap-break-word">
                 {rawPlanJson}
               </pre>
             </div>

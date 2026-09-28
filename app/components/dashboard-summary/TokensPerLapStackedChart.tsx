@@ -29,7 +29,7 @@ export function TokensPerLapStackedChart({
   return (
     <>
       {/* Combined Tokens per Lap Stacked Bar Chart */}
-      <div className="card-wh40k chart-card p-3 sm:p-4 hover:shadow-xl hover:shadow-[color:color-mix(in_srgb,var(--primary)_20%,transparent)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)] transition-all duration-300">
+      <div className="card-wh40k chart-card p-3 sm:p-4 hover:shadow-xl hover:shadow-[color-mix(in_srgb,var(--primary)_20%,transparent)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)] transition-all duration-300">
         <h3 className="subheading-wh40k mb-4">
           Combined Tokens per Lap (Stacked by Set)
         </h3>
@@ -118,7 +118,7 @@ export function TokensPerLapStackedChart({
             </ResponsiveContainer>
           ) : (
             <div className="flex items-center justify-center h-[400px]">
-              <div className="animate-pulse bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded w-full h-full"></div>
+              <div className="animate-pulse bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-sm w-full h-full"></div>
             </div>
           )}
         </ChartErrorBoundary>

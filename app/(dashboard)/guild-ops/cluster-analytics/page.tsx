@@ -25,8 +25,8 @@ export default async function ClusterAnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="border-b border-[var(--card-border)] pb-4">
-        <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+      <div className="border-b border-(--card-border) pb-4">
+        <h1 className="text-3xl font-bold text-primary-wh40k">
           Cluster Analytics
         </h1>
       </div>

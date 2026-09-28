@@ -68,7 +68,7 @@ export function GuildCard({
                 size="sm"
                 variant="ghost"
                 onClick={onCancelEdit}
-                className="text-[var(--accent)] hover:text-[var(--accent)]"
+                className="text-(--accent) hover:text-(--accent)"
               >
                 <X className="w-4 h-4" />
               </Button>
@@ -110,7 +110,7 @@ export function GuildCard({
                   variant="ghost"
                   onClick={() => onValidateKey(editedGuild.guild_code)}
                   disabled={validatingKey === editedGuild?.guild_code}
-                  className="text-[var(--accent)] hover:text-blue-300"
+                  className="text-(--accent) hover:text-blue-300"
                   title="Validate API key"
                 >
                   {validatingKey === editedGuild?.guild_code ? (
@@ -232,9 +232,9 @@ export function GuildCard({
                     : guild.guild_code
                 )
               }
-              className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] min-h-[36px] w-full justify-start"
+              className="text-secondary-wh40k hover:text-primary-wh40k min-h-[36px] w-full justify-start"
             >
-              <MessageSquare className="w-3 h-3 mr-1 flex-shrink-0" />
+              <MessageSquare className="w-3 h-3 mr-1 shrink-0" />
               Webhooks
             </Button>
           </div>
@@ -254,7 +254,7 @@ export function GuildCard({
           </div>
         </div>
 
-        <div className="pt-2 border-t border-[var(--card-border)] space-y-2">
+        <div className="pt-2 border-t border-(--card-border) space-y-2">
           <div>
             <div className="text-xs text-secondary-wh40k mb-1">
               API Key Status
@@ -264,7 +264,7 @@ export function GuildCard({
                 {status.text}
               </span>
               {guild.api_key_last_validated && (
-                <div className="text-xs text-[var(--text-secondary)] mt-1">
+                <div className="text-xs text-secondary-wh40k mt-1">
                   Checked: {lastValidatedLabel}
                 </div>
               )}
@@ -283,7 +283,7 @@ export function GuildCard({
         </div>
 
         {expandedWebhooks === guild.guild_code && clusterId && (
-          <div className="mt-3 pt-3 border-t border-[var(--card-border)]">
+          <div className="mt-3 pt-3 border-t border-(--card-border)">
             <InlineWebhookManager
               guildCode={guild.guild_code}
               guildName={guild.display_name || guild.guild_code}

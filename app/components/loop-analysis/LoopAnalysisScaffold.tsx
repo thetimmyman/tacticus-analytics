@@ -7,18 +7,17 @@ import { TrendBadge } from '@/app/components/ui/TrendBadge'
 export type LoopTrend = 'improving' | 'declining' | 'stable'
 
 export const LOOP_TABLE_CLASSES = {
-  viewport: 'overflow-x-auto border border-[var(--card-border)] rounded-lg',
-  headerRow:
-    'text-left text-xs uppercase tracking-wide text-[var(--text-secondary)]',
+  viewport: 'overflow-x-auto border border-(--card-border) rounded-lg',
+  headerRow: 'text-left text-xs uppercase tracking-wide text-secondary-wh40k',
   row: 'border-t border-card-border/60 cursor-pointer hover:bg-card/50 transition-colors',
-  disclosureCell: 'px-2 py-2 text-[var(--text-secondary)]',
-  loopCell: 'px-4 py-2 font-medium text-[var(--text-primary)]',
+  disclosureCell: 'px-2 py-2 text-secondary-wh40k',
+  loopCell: 'px-4 py-2 font-medium text-primary-wh40k',
   blueCell: 'px-4 py-2 text-right font-mono text-blue-400',
   yellowCell: 'px-4 py-2 text-right font-mono text-yellow-400',
   detailPanel:
     'bg-card/30 px-4 py-3 animate-in fade-in slide-in-from-top-2 duration-200',
   detailTable: 'w-full text-xs border-collapse',
-  detailHead: 'text-[var(--text-secondary)] uppercase bg-card/50',
+  detailHead: 'text-secondary-wh40k uppercase bg-card/50',
   detailRow:
     'border-b border-card-border/30 hover:bg-[color-mix(in_srgb,var(--card-hover)_50%,transparent)] transition-colors',
   detailBlueCell: 'px-3 py-2 text-right font-mono text-blue-400'
@@ -64,8 +63,8 @@ export function LoopFilterChips({
             aria-pressed={selected}
             className={`rounded-full border px-3 py-1 text-xs transition-colors ${
               selected
-                ? 'border-[var(--primary)] bg-[var(--primary)] text-[var(--bg-primary)]'
-                : 'border-[var(--card-border)] text-[var(--text-secondary)] hover:border-[var(--primary)] hover:text-[var(--primary)]'
+                ? 'border-primary-wh40k bg-primary-wh40k text-(--bg-primary)'
+                : 'border-(--card-border) text-secondary-wh40k hover:border-primary-wh40k hover:text-(--primary)'
             }`}
           >
             {option.label}
@@ -110,7 +109,7 @@ export function LoopExpandableTable({
     <div className="hidden lg:block">
       <div className={LOOP_TABLE_CLASSES.viewport}>
         <table className="min-w-full text-sm">
-          <thead className="bg-[var(--card-bg)]">
+          <thead className="bg-(--card-bg)">
             <tr className={LOOP_TABLE_CLASSES.headerRow}>
               <th className="w-8 px-2 py-2" />
               <th className="px-4 py-2">Loop</th>
@@ -216,10 +215,10 @@ export function LoopMobileGrid({ cards }: { cards: LoopMobileCard[] }) {
       {cards.map((card) => (
         <div
           key={card.key}
-          className="space-y-2 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-3"
+          className="space-y-2 rounded-lg border border-(--card-border) bg-(--card-bg) p-3"
         >
           <div className="flex items-center justify-between">
-            <div className="text-sm font-semibold text-[var(--text-primary)]">
+            <div className="text-sm font-semibold text-primary-wh40k">
               {card.title}
             </div>
             <TrendBadge
@@ -231,7 +230,7 @@ export function LoopMobileGrid({ cards }: { cards: LoopMobileCard[] }) {
           <div className="grid grid-cols-2 gap-2 text-sm">
             {card.metrics.map((metric) => (
               <div key={String(metric.label)}>
-                <div className="text-xs text-[var(--text-secondary)]">
+                <div className="text-xs text-secondary-wh40k">
                   {metric.label}
                 </div>
                 <div className={metric.className}>{metric.value}</div>
@@ -239,9 +238,7 @@ export function LoopMobileGrid({ cards }: { cards: LoopMobileCard[] }) {
             ))}
           </div>
           {card.footer && (
-            <div className="text-xs text-[var(--text-secondary)]">
-              {card.footer}
-            </div>
+            <div className="text-xs text-secondary-wh40k">{card.footer}</div>
           )}
         </div>
       ))}

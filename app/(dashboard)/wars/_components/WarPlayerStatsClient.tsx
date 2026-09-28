@@ -71,7 +71,7 @@ export function buildGuildSummary(
 
 function SummarySkeleton() {
   return (
-    <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+    <Card className="border-(--border) bg-(--bg-primary)">
       <CardHeader className="pb-2">
         <Skeleton className="h-6 w-32" />
       </CardHeader>
@@ -81,7 +81,7 @@ function SummarySkeleton() {
           {SUMMARY_STAT_KEYS.map((key) => (
             <div
               key={key}
-              className="rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] p-4 space-y-1"
+              className="rounded-lg border border-(--border) bg-(--bg-secondary) p-4 space-y-1"
             >
               <Skeleton className="h-3 w-16" />
               <Skeleton className="h-6 w-12" />
@@ -108,7 +108,7 @@ const TABLE_ROW_KEYS = [
 
 function TableSkeleton() {
   return (
-    <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+    <Card className="border-(--border) bg-(--bg-primary)">
       <CardHeader className="pb-2">
         <Skeleton className="h-6 w-40" />
       </CardHeader>
@@ -150,7 +150,7 @@ export default function WarPlayerStatsClient({
     >
       <div className="space-y-6">
         <GuildSummaryCard summary={summary} />
-        <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+        <Card className="border-(--border) bg-(--bg-primary)">
           <CardHeader className="pb-2">
             <CardTitle>{config.cardTitle}</CardTitle>
           </CardHeader>

@@ -55,7 +55,7 @@ export function BattleLogControls<T extends string>({
               key={option.value}
               type="button"
               onClick={() => onChange(option.value)}
-              className={`rounded px-2 py-1 text-xs transition-all ${active ? `${option.activeClassName} font-medium` : 'bg-[var(--card-bg)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]'}`}
+              className={`rounded-sm px-2 py-1 text-xs transition-all ${active ? `${option.activeClassName} font-medium` : 'bg-(--card-bg) text-secondary-wh40k hover:bg-(--bg-tertiary)'}`}
             >
               {option.label}
             </button>
@@ -64,13 +64,13 @@ export function BattleLogControls<T extends string>({
       </div>
 
       <label className="flex items-center gap-2">
-        <span className="whitespace-nowrap text-xs text-[var(--text-secondary)]">
+        <span className="whitespace-nowrap text-xs text-secondary-wh40k">
           Per page:
         </span>
         <select
           value={pageSize}
           onChange={(event) => onPageSizeChange(Number(event.target.value))}
-          className="min-w-[60px] cursor-pointer appearance-none rounded border border-[var(--card-border)] bg-[var(--card-bg)] px-2 py-1 text-xs text-[var(--text-primary)] focus:border-[var(--primary)] focus:outline-none"
+          className="min-w-[60px] cursor-pointer appearance-none rounded-sm border border-(--card-border) bg-(--card-bg) px-2 py-1 text-xs text-primary-wh40k focus:border-primary-wh40k focus:outline-hidden"
           // appearance-none strips the native arrow, so paint one back.
           style={{
             backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
@@ -109,8 +109,8 @@ export function BattleLogPagination({
   const totalPages = Math.ceil(totalCount / pageSize)
 
   return (
-    <div className="flex items-center justify-between mb-3 p-2 bg-card/50 rounded border border-[var(--card-border)] gap-2">
-      <div className="text-xs text-secondary-wh40k flex-shrink-0">
+    <div className="flex items-center justify-between mb-3 p-2 bg-card/50 rounded-sm border border-(--card-border) gap-2">
+      <div className="text-xs text-secondary-wh40k shrink-0">
         {Math.min(page * pageSize + 1, totalCount)}-
         {Math.min((page + 1) * pageSize, totalCount)} of {totalCount}
       </div>
@@ -118,17 +118,17 @@ export function BattleLogPagination({
         <button
           onClick={() => setPage(Math.max(0, page - 1))}
           disabled={page === 0 || loading}
-          className="px-2 py-1 text-xs rounded bg-[var(--card-bg)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="px-2 py-1 text-xs rounded-sm bg-(--card-bg) text-secondary-wh40k hover:bg-(--bg-tertiary) disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           &lsaquo;
         </button>
-        <span className="text-xs text-[var(--text-primary)] px-2">
+        <span className="text-xs text-primary-wh40k px-2">
           {page + 1}/{totalPages}
         </span>
         <button
           onClick={() => setPage(page + 1)}
           disabled={page >= totalPages - 1 || loading}
-          className="px-2 py-1 text-xs rounded bg-[var(--card-bg)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="px-2 py-1 text-xs rounded-sm bg-(--card-bg) text-secondary-wh40k hover:bg-(--bg-tertiary) disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           &rsaquo;
         </button>
@@ -152,12 +152,12 @@ export function HeroTeamIcons({
 }: HeroTeamIconsProps) {
   const imgClass =
     size === 'sm'
-      ? 'inline-block w-auto h-5 md:h-6 lg:h-7 max-w-[1.75rem]'
-      : 'inline-block w-auto h-10 max-w-[2.5rem]'
+      ? 'inline-block w-auto h-5 md:h-6 lg:h-7 max-w-7'
+      : 'inline-block w-auto h-10 max-w-10'
   const fallbackClass =
     size === 'sm'
-      ? 'w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 bg-[var(--card-bg)] rounded flex items-center justify-center text-xs'
-      : 'w-10 h-10 bg-[var(--card-bg)] rounded flex items-center justify-center text-sm'
+      ? 'w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 bg-(--card-bg) rounded-sm flex items-center justify-center text-xs'
+      : 'w-10 h-10 bg-(--card-bg) rounded-sm flex items-center justify-center text-sm'
   const imgSize = size === 'sm' ? 32 : 48
 
   const renderIcon = (unitId: string) => {
@@ -180,11 +180,11 @@ export function HeroTeamIcons({
   return (
     <>
       {heroes.map((heroId) => (
-        <span key={heroId} className="flex-shrink-0">
+        <span key={heroId} className="shrink-0">
           {renderIcon(heroId)}
         </span>
       ))}
-      {machine && <span className="flex-shrink-0">{renderIcon(machine)}</span>}
+      {machine && <span className="shrink-0">{renderIcon(machine)}</span>}
     </>
   )
 }
@@ -224,11 +224,11 @@ export function BattleLogEntryRow({
     clusterPerformancePctMap
   )
   const damageClassName =
-    entry.damageType === 'Bomb' ? 'text-red-400' : 'text-[var(--accent)]'
+    entry.damageType === 'Bomb' ? 'text-red-400' : 'text-(--accent)'
 
   return (
     <div
-      className={`rounded border px-3 py-2 transition-all sm:py-1 ${isKillingBlow(entry) ? 'border-red-600 bg-red-900/30 hover:border-red-500' : 'border-[var(--card-border)] bg-slate-800/50 hover:border-accent-wh40k'}`}
+      className={`rounded-sm border px-3 py-2 transition-all sm:py-1 ${isKillingBlow(entry) ? 'border-red-600 bg-red-900/30 hover:border-red-500' : 'border-(--card-border) bg-slate-800/50 hover:border-accent-wh40k'}`}
     >
       <div
         className={`hidden items-center gap-2 text-sm sm:grid ${desktopGridClassName}`}
@@ -252,7 +252,7 @@ export function BattleLogEntryRow({
               size="sm"
             />
           ) : (
-            <span className="text-xs text-[var(--text-secondary)]">-</span>
+            <span className="text-xs text-secondary-wh40k">-</span>
           )}
         </div>
         <div className={`text-right font-bold ${damageClassName}`}>
@@ -286,7 +286,7 @@ export function BattleLogEntryRow({
 
       <div className="flex flex-col gap-2 sm:hidden">
         <div className="flex items-center justify-between">
-          <span className="flex-shrink-0 text-lg">
+          <span className="shrink-0 text-lg">
             {getDamageTypeIcon(entry.damageType)}
           </span>
           <div className="flex items-center gap-2">
@@ -322,7 +322,7 @@ export function BattleLogEntryRow({
           </div>
         )}
         {hasUnits && (
-          <div className="mt-2 w-full border-t border-[var(--card-border)] pt-2">
+          <div className="mt-2 w-full border-t border-(--card-border) pt-2">
             <div className="flex flex-wrap items-center justify-center gap-2">
               <HeroTeamIcons
                 heroes={heroes}

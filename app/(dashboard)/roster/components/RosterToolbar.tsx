@@ -32,12 +32,12 @@ export function RosterToolbar({
 }: RosterToolbarProps) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-      <span className="text-sm text-[var(--text-secondary)]">
+      <span className="text-sm text-secondary-wh40k">
         {shownCount}
         {shownCount !== totalCount ? ` of ${totalCount}` : ''} characters
       </span>
       <div className="flex items-center gap-2">
-        <ArrowUpDown className="h-4 w-4 text-[var(--text-secondary)]" />
+        <ArrowUpDown className="h-4 w-4 text-secondary-wh40k" />
         <RosterSelect
           value={rf.sortField}
           onChange={(value) => rf.changeSortField(value as SortField)}
@@ -52,7 +52,7 @@ export function RosterToolbar({
         </RosterSelect>
         <button
           onClick={rf.toggleSortDirection}
-          className="inline-flex h-9 w-9 items-center justify-center rounded border border-[var(--card-border)] bg-[var(--bg-secondary)] transition-colors hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-sm border border-(--card-border) bg-(--bg-secondary) transition-colors hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]"
           aria-label={`Sort ${rf.sortDirection === 'asc' ? 'ascending' : 'descending'}`}
         >
           {rf.sortDirection === 'asc' ? (
@@ -61,13 +61,13 @@ export function RosterToolbar({
             <ChevronDown className="h-4 w-4" />
           )}
         </button>
-        <div className="hidden md:flex items-center rounded border border-[var(--card-border)] overflow-hidden">
+        <div className="hidden md:flex items-center rounded-sm border border-(--card-border) overflow-hidden">
           <button
             onClick={() => onViewModeChange('grid')}
             className={`inline-flex h-9 w-9 items-center justify-center transition-colors ${
               viewMode === 'grid'
-                ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] font-semibold text-[var(--accent)]'
-                : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]'
+                ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] font-semibold text-(--accent)'
+                : 'bg-(--bg-secondary) text-secondary-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]'
             }`}
             aria-label="Grid view"
             title="Grid view"
@@ -78,8 +78,8 @@ export function RosterToolbar({
             onClick={() => onViewModeChange('table')}
             className={`inline-flex h-9 w-9 items-center justify-center transition-colors ${
               viewMode === 'table'
-                ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] font-semibold text-[var(--accent)]'
-                : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]'
+                ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] font-semibold text-(--accent)'
+                : 'bg-(--bg-secondary) text-secondary-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]'
             }`}
             aria-label="Table view"
             title="Table view"

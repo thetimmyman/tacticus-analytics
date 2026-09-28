@@ -9,14 +9,14 @@ export function BossLeaderboardsCalculationsFAQ() {
     <div className="space-y-3">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full p-3 bg-[var(--card-bg)] hover:bg-[var(--bg-tertiary)] rounded-lg border border-[var(--card-border)] transition-colors"
+        className="flex items-center justify-between w-full p-3 bg-(--card-bg) hover:bg-(--bg-tertiary) rounded-lg border border-(--card-border) transition-colors"
       >
-        <h3 className="text-lg font-bold text-[var(--primary)]">
+        <h3 className="text-lg font-bold text-(--primary)">
           How Boss Leaderboards Work - Detailed Calculations
         </h3>
         <span className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}>
           <svg
-            className="w-5 h-5 text-[var(--text-secondary)]"
+            className="w-5 h-5 text-secondary-wh40k"
             fill="currentColor"
             viewBox="0 0 20 20"
           >
@@ -30,13 +30,13 @@ export function BossLeaderboardsCalculationsFAQ() {
       </button>
 
       {isOpen && (
-        <div className="space-y-6 p-4 bg-[var(--bg-secondary)] hover:bg-card/80 transition-colors duration-200 rounded-lg border border-[var(--card-border)]">
+        <div className="space-y-6 p-4 bg-(--bg-secondary) hover:bg-card/80 transition-colors duration-200 rounded-lg border border-(--card-border)">
           <div className="bg-red-900/20 border border-red-600/30 rounded-lg p-4">
-            <h4 className="text-[var(--accent)] font-bold mb-3 flex items-center">
+            <h4 className="text-(--accent) font-bold mb-3 flex items-center">
               Boss Leaderboards Overview
             </h4>
-            <div className="text-sm text-[var(--text-secondary)] space-y-2">
-              <p className="text-[var(--text-primary)]">
+            <div className="text-sm text-secondary-wh40k space-y-2">
+              <p className="text-primary-wh40k">
                 Boss Leaderboards highlight{' '}
                 <span className="font-bold">maximum damage potential</span>{' '}
                 against specific boss encounters:
@@ -55,15 +55,11 @@ export function BossLeaderboardsCalculationsFAQ() {
                   record per player/team combination to encourage diversity
                 </p>
                 <p>
-                  <span className="text-[var(--primary)]">
-                    Multi-Boss Tracking:
-                  </span>{' '}
+                  <span className="text-(--primary)">Multi-Boss Tracking:</span>{' '}
                   Separate leaderboards for main bosses and prime encounters
                 </p>
                 <p>
-                  <span className="text-[var(--accent)]">
-                    Historical Context:
-                  </span>{' '}
+                  <span className="text-(--accent)">Historical Context:</span>{' '}
                   Date, loop, and level information for each record
                 </p>
               </div>
@@ -71,16 +67,16 @@ export function BossLeaderboardsCalculationsFAQ() {
           </div>
 
           <div>
-            <h4 className="text-[var(--primary)] font-bold mb-3 flex items-center">
+            <h4 className="text-(--primary) font-bold mb-3 flex items-center">
               Record Deduplication Algorithm
             </h4>
             <div className="space-y-3">
-              <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-                <p className="text-[var(--text-primary)] font-medium mb-2">
+              <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+                <p className="text-primary-wh40k font-medium mb-2">
                   Team Composition Fingerprinting
                 </p>
-                <div className="text-sm text-[var(--text-secondary)] ml-4 space-y-1">
-                  <p className="font-mono bg-purple-900/30 p-2 rounded">
+                <div className="text-sm text-secondary-wh40k ml-4 space-y-1">
+                  <p className="font-mono bg-purple-900/30 p-2 rounded-sm">
                     Team_Key = CONCAT(sorted_hero_ids) + &quot;_&quot; +
                     machine_of_war_id
                     <br />
@@ -93,7 +89,7 @@ export function BossLeaderboardsCalculationsFAQ() {
                   </p>
                   <p className="ml-4">
                     → Same team composition ={' '}
-                    <span className="text-[var(--accent)]">
+                    <span className="text-(--accent)">
                       overwrites previous record
                     </span>
                   </p>
@@ -104,12 +100,12 @@ export function BossLeaderboardsCalculationsFAQ() {
                 </div>
               </div>
 
-              <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-                <p className="text-[var(--text-primary)] font-medium mb-2">
+              <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+                <p className="text-primary-wh40k font-medium mb-2">
                   Maximum Damage Selection
                 </p>
-                <div className="text-sm text-[var(--text-secondary)] ml-4 space-y-1">
-                  <p className="font-mono bg-red-900/30 p-2 rounded">
+                <div className="text-sm text-secondary-wh40k ml-4 space-y-1">
+                  <p className="font-mono bg-red-900/30 p-2 rounded-sm">
                     IF new_damage &gt; existing_record.damage THEN
                     <br />
                     &nbsp;&nbsp;UPDATE record SET damage = new_damage, date =
@@ -129,11 +125,11 @@ export function BossLeaderboardsCalculationsFAQ() {
                 </div>
               </div>
 
-              <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-                <p className="text-[var(--text-primary)] font-medium mb-2">
+              <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+                <p className="text-primary-wh40k font-medium mb-2">
                   Average Damage Calculation
                 </p>
-                <div className="text-sm text-[var(--text-secondary)] ml-4 space-y-1">
+                <div className="text-sm text-secondary-wh40k ml-4 space-y-1">
                   <p>
                     Avg Damage is per player (across all their teams) and uses
                     the same rules as the rest of the app:

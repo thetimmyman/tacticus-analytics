@@ -179,10 +179,10 @@ export default function ApiKeyManagementClient({
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+        <h1 className="text-3xl font-bold text-primary-wh40k">
           API Key Management
         </h1>
-        <p className="mt-2 text-[var(--text-secondary)]">
+        <p className="mt-2 text-secondary-wh40k">
           Manage the API key for{' '}
           {formatGuildDisplayLabel(
             {
@@ -198,7 +198,7 @@ export default function ApiKeyManagementClient({
         {/* Warning Banner */}
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-md p-4">
           <div className="flex">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               <svg
                 className="h-5 w-5 text-yellow-400"
                 viewBox="0 0 20 20"
@@ -215,7 +215,7 @@ export default function ApiKeyManagementClient({
               <h3 className="text-sm font-medium text-yellow-400">
                 Important Security Notice
               </h3>
-              <div className="mt-2 text-sm text-[var(--text-secondary)]">
+              <div className="mt-2 text-sm text-secondary-wh40k">
                 <ul className="list-disc list-inside space-y-1">
                   <li>Keep your API key secure and never share it publicly</li>
                   <li>This key provides access to your guild&apos;s data</li>
@@ -246,7 +246,7 @@ export default function ApiKeyManagementClient({
         <div>
           <label
             htmlFor="apiKey"
-            className="block text-sm font-medium text-[var(--text-secondary)] mb-2"
+            className="block text-sm font-medium text-secondary-wh40k mb-2"
           >
             Guild API Key
           </label>
@@ -263,7 +263,7 @@ export default function ApiKeyManagementClient({
             <button
               type="button"
               onClick={() => setShowApiKey(!showApiKey)}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-secondary-wh40k hover:text-primary-wh40k"
             >
               {showApiKey ? (
                 <EyeSlashIcon className="h-5 w-5" />
@@ -272,20 +272,20 @@ export default function ApiKeyManagementClient({
               )}
             </button>
           </div>
-          <p className="mt-2 text-xs text-[var(--text-secondary)]">
+          <p className="mt-2 text-xs text-secondary-wh40k">
             Get your API key from{' '}
             <a
               href={tacticusSite}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[var(--accent)] hover:text-[var(--primary)] underline"
+              className="text-(--accent) hover:text-(--primary) underline"
             >
               {TACTICUS_API.ORIGIN}
             </a>
           </p>
           {/* Live "Last verified X ago" anchor, recomputed on each render. */}
           <p
-            className="mt-1 text-xs text-[var(--text-tertiary)]"
+            className="mt-1 text-xs text-(--text-tertiary)"
             data-testid="last-verified-display"
           >
             {lastVerifiedDisplay}
@@ -293,9 +293,9 @@ export default function ApiKeyManagementClient({
         </div>
 
         {/* Guild Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-[var(--card-border)]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-(--card-border)">
           <div>
-            <dt className="text-sm font-medium text-[var(--text-secondary)]">
+            <dt className="text-sm font-medium text-secondary-wh40k">
               Guild Status
             </dt>
             <dd className="mt-1">
@@ -307,17 +307,17 @@ export default function ApiKeyManagementClient({
             </dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-[var(--text-secondary)]">
+            <dt className="text-sm font-medium text-secondary-wh40k">
               Last Updated
             </dt>
-            <dd className="mt-1 text-sm text-[var(--text-primary)]">
+            <dd className="mt-1 text-sm text-primary-wh40k">
               {lastUpdatedDisplay}
             </dd>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex flex-wrap justify-end gap-3 pt-4 border-t border-[var(--card-border)]">
+        <div className="flex flex-wrap justify-end gap-3 pt-4 border-t border-(--card-border)">
           {/* Removal is officer+ server-side; hide, don't 403. */}
           {canRemove && (
             <button
@@ -369,12 +369,12 @@ export default function ApiKeyManagementClient({
 
       {/* Help Section */}
       <div className="card-wh40k p-6">
-        <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+        <h2 className="text-lg font-semibold text-primary-wh40k mb-4">
           How to Get Your API Key
         </h2>
-        <ol className="space-y-3 text-sm text-[var(--text-secondary)]">
+        <ol className="space-y-3 text-sm text-secondary-wh40k">
           <li className="flex">
-            <span className="flex-shrink-0 w-6 h-6 bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-[var(--accent)] rounded-full flex items-center justify-center text-xs font-medium mr-3">
+            <span className="shrink-0 w-6 h-6 bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent) rounded-full flex items-center justify-center text-xs font-medium mr-3">
               1
             </span>
             <span>
@@ -383,26 +383,26 @@ export default function ApiKeyManagementClient({
                 href={tacticusSite}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[var(--accent)] hover:text-[var(--primary)] underline"
+                className="text-(--accent) hover:text-(--primary) underline"
               >
                 {TACTICUS_API.ORIGIN}
               </a>
             </span>
           </li>
           <li className="flex">
-            <span className="flex-shrink-0 w-6 h-6 bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-[var(--accent)] rounded-full flex items-center justify-center text-xs font-medium mr-3">
+            <span className="shrink-0 w-6 h-6 bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent) rounded-full flex items-center justify-center text-xs font-medium mr-3">
               2
             </span>
             <span>Sign in with your game account</span>
           </li>
           <li className="flex">
-            <span className="flex-shrink-0 w-6 h-6 bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-[var(--accent)] rounded-full flex items-center justify-center text-xs font-medium mr-3">
+            <span className="shrink-0 w-6 h-6 bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent) rounded-full flex items-center justify-center text-xs font-medium mr-3">
               3
             </span>
             <span>Generate or copy your Guild API Key</span>
           </li>
           <li className="flex">
-            <span className="flex-shrink-0 w-6 h-6 bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-[var(--accent)] rounded-full flex items-center justify-center text-xs font-medium mr-3">
+            <span className="shrink-0 w-6 h-6 bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent) rounded-full flex items-center justify-center text-xs font-medium mr-3">
               4
             </span>
             <span>Paste it in the field above and click Save</span>

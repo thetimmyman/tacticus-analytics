@@ -193,7 +193,7 @@ export function DataTable<Row, Key extends string = string>({
   return (
     <div className={clsx('overflow-x-auto', className)}>
       <table className={clsx('w-full text-sm', tableClassName)}>
-        <thead className="border-b border-[var(--card-border)] bg-[var(--bg-secondary)]">
+        <thead className="border-b border-(--card-border) bg-(--bg-secondary)">
           <tr>
             {columns.map((col) => {
               const isActive = sortKey === col.key
@@ -203,7 +203,7 @@ export function DataTable<Row, Key extends string = string>({
                   key={col.key}
                   scope="col"
                   className={clsx(
-                    'p-0 text-xs font-semibold text-[var(--text-secondary)] select-none',
+                    'p-0 text-xs font-semibold text-secondary-wh40k select-none',
                     alignClass[col.align ?? 'left'],
                     col.headerClassName,
                     col.className
@@ -223,8 +223,8 @@ export function DataTable<Row, Key extends string = string>({
                       type="button"
                       className={clsx(
                         density === 'compact'
-                          ? 'inline-flex min-h-0 w-full items-center gap-0.5 px-0.5 py-1 text-[9px] font-medium uppercase tracking-wider text-[var(--text-tertiary)] transition-colors duration-fast hover:text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--accent)] sm:gap-1 sm:px-2 sm:text-[10px]'
-                          : 'inline-flex min-h-[44px] w-full items-center gap-1 p-3 text-xs font-semibold text-[var(--text-secondary)] transition-colors duration-fast hover:text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--accent)]',
+                          ? 'inline-flex min-h-0 w-full items-center gap-0.5 px-0.5 py-1 text-[9px] font-medium uppercase tracking-wider text-(--text-tertiary) transition-colors duration-fast hover:text-primary-wh40k focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-(--accent) sm:gap-1 sm:px-2 sm:text-[10px]'
+                          : 'inline-flex min-h-[44px] w-full items-center gap-1 p-3 text-xs font-semibold text-secondary-wh40k transition-colors duration-fast hover:text-primary-wh40k focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-(--accent)',
                         justifyClass[col.align ?? 'left']
                       )}
                       onClick={() => onSort(col.key, col.sortable)}
@@ -277,7 +277,7 @@ export function DataTable<Row, Key extends string = string>({
               <tr
                 key={rowKey(row)}
                 className={clsx(
-                  'border-b border-[var(--card-border)] hover:bg-[var(--bg-secondary)] transition-colors duration-fast',
+                  'border-b border-(--card-border) hover:bg-(--bg-secondary) transition-colors duration-fast',
                   onRowClick && 'cursor-pointer',
                   rowClassName?.(row)
                 )}
@@ -287,7 +287,7 @@ export function DataTable<Row, Key extends string = string>({
                   <td
                     key={col.key}
                     className={clsx(
-                      'p-3 text-[var(--text-secondary)]',
+                      'p-3 text-secondary-wh40k',
                       alignClass[col.align ?? 'left'],
                       col.className
                     )}

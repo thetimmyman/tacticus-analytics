@@ -63,7 +63,7 @@ function StageBadge({
   return (
     <button
       onClick={onClick}
-      className={`flex min-w-[11rem] flex-shrink-0 items-center gap-3 rounded-lg border px-4 py-3 text-xs font-medium transition-all ${diffClass} ${
+      className={`flex min-w-44 shrink-0 items-center gap-3 rounded-lg border px-4 py-3 text-xs font-medium transition-all ${diffClass} ${
         stage.isCurrentStage ? 'ring-2 ring-amber-400/60' : ''
       } ${isActive ? 'shadow-lg brightness-110' : 'opacity-60 hover:opacity-90'}`}
     >
@@ -72,7 +72,7 @@ function StageBadge({
         <div className="flex items-center gap-1.5">
           <span className="font-bold">{stage.stageCode}</span>
           {stage.isCurrentStage && (
-            <span className="rounded bg-amber-500/30 px-1 py-px text-[9px] font-semibold leading-tight text-amber-300">
+            <span className="rounded-sm bg-amber-500/30 px-1 py-px text-[9px] font-semibold leading-tight text-amber-300">
               NOW
             </span>
           )}
@@ -233,7 +233,7 @@ function StageDetailCard({
 
   return (
     <div
-      className={`rounded-lg border border-[var(--card-border)] bg-card/40 p-4 ${stage.isCurrentStage ? 'ring-1 ring-amber-400/30' : ''}`}
+      className={`rounded-lg border border-(--card-border) bg-card/40 p-4 ${stage.isCurrentStage ? 'ring-1 ring-amber-400/30' : ''}`}
     >
       <button
         type="button"
@@ -241,14 +241,14 @@ function StageDetailCard({
         className="flex w-full flex-wrap items-start justify-between gap-3 text-left"
       >
         <div className="flex items-start gap-3">
-          <span className="mt-0.5 text-[var(--text-secondary)]">
+          <span className="mt-0.5 text-secondary-wh40k">
             {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
           </span>
           <BossPortrait bossName={stage.mainBoss} size="small" variant="icon" />
           <div>
-            <div className="text-sm font-semibold text-[var(--text-primary)]">
+            <div className="text-sm font-semibold text-primary-wh40k">
               <span
-                className={`mr-2 inline-flex items-center rounded px-1.5 py-0.5 text-xs font-bold ${diffClass}`}
+                className={`mr-2 inline-flex items-center rounded-sm px-1.5 py-0.5 text-xs font-bold ${diffClass}`}
               >
                 {stage.stageCode}
               </span>
@@ -259,12 +259,12 @@ function StageDetailCard({
                   Pending · Current stage
                 </span>
               ) : (
-                <span className="ml-2 rounded-full bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] px-2 py-0.5 text-[10px] font-semibold text-[var(--text-secondary)]">
+                <span className="ml-2 rounded-full bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] px-2 py-0.5 text-[10px] font-semibold text-secondary-wh40k">
                   Upcoming
                 </span>
               )}
             </div>
-            <div className="mt-1 text-xs text-[var(--text-secondary)]">
+            <div className="mt-1 text-xs text-secondary-wh40k">
               Loop {stage.loopIndex} · {assignedTokens} tokens planned ·{' '}
               {assignmentRows.length} players
               {stage.isCurrentStage && ' · these players have NOT attacked yet'}
@@ -346,10 +346,10 @@ export function QueueViewPanel({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center rounded-lg border border-[var(--card-border)] bg-card/40 p-12">
+      <div className="flex items-center justify-center rounded-lg border border-(--card-border) bg-card/40 p-12">
         <div className="text-center">
           <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-          <div className="text-sm text-[var(--text-secondary)]">
+          <div className="text-sm text-secondary-wh40k">
             Loading assignment queue...
           </div>
         </div>
@@ -374,7 +374,7 @@ export function QueueViewPanel({
 
   if (!data) {
     return (
-      <div className="rounded-lg border border-[var(--card-border)] bg-card/40 p-8">
+      <div className="rounded-lg border border-(--card-border) bg-card/40 p-8">
         <EmptyState
           icon={Users}
           title="Queue not loaded yet"
@@ -398,14 +398,14 @@ export function QueueViewPanel({
   // Nothing to plan: explain instead of an empty summary.
   if (sequence.length === 0) {
     return (
-      <div className="rounded-lg border border-[var(--card-border)] bg-card/40 p-8">
+      <div className="rounded-lg border border-(--card-border) bg-card/40 p-8">
         <EmptyState
           icon={Users}
           title="No active raid this season"
           action={
             <button
               onClick={onRefresh}
-              className="inline-flex items-center gap-1.5 rounded-md bg-[var(--card-bg)] px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              className="inline-flex items-center gap-1.5 rounded-md bg-(--card-bg) px-3 py-1.5 text-xs text-secondary-wh40k hover:text-primary-wh40k"
             >
               <RefreshCw className="h-3 w-3" />
               Refresh
@@ -422,13 +422,11 @@ export function QueueViewPanel({
   return (
     <div className="space-y-4">
       {/* Summary bar */}
-      <div className="flex flex-wrap items-center gap-4 rounded-lg border border-[var(--card-border)] bg-card/40 px-4 py-3">
+      <div className="flex flex-wrap items-center gap-4 rounded-lg border border-(--card-border) bg-card/40 px-4 py-3">
         {metrics && (
           <div className="text-xs">
-            <span className="text-[var(--text-secondary)]">
-              Tokens Planned:{' '}
-            </span>
-            <span className="font-semibold text-[var(--text-primary)]">
+            <span className="text-secondary-wh40k">Tokens Planned: </span>
+            <span className="font-semibold text-primary-wh40k">
               {metrics.totalTokensPlanned}
             </span>
           </div>
@@ -441,7 +439,7 @@ export function QueueViewPanel({
         )}
         <button
           onClick={onRefresh}
-          className="ml-auto inline-flex items-center gap-1.5 rounded-md bg-[var(--card-bg)] px-3 py-1 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="ml-auto inline-flex items-center gap-1.5 rounded-md bg-(--card-bg) px-3 py-1 text-xs text-secondary-wh40k hover:text-primary-wh40k"
         >
           <RefreshCw className="h-3 w-3" />
           Refresh
@@ -455,7 +453,7 @@ export function QueueViewPanel({
             {sequence.map((stage, idx) => (
               <div
                 key={`${stage.stageCode}-${stage.loopIndex}`}
-                className="flex flex-shrink-0 items-center gap-3"
+                className="flex shrink-0 items-center gap-3"
               >
                 {idx > 0 && (
                   <span className="text-sm font-medium text-[color-mix(in_srgb,var(--text-secondary)_50%,transparent)]">

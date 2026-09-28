@@ -52,18 +52,18 @@ export function GuildFilterPanel({
   guilds
 }: GuildFilterPanelProps) {
   return (
-    <div className="rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-3 sm:p-4 transition-colors duration-200 hover:bg-card/90 min-h-[280px]">
+    <div className="rounded-lg border border-(--card-border) bg-(--card-bg) p-3 sm:p-4 transition-colors duration-200 hover:bg-card/90 min-h-[280px]">
       {/* Search Bar */}
       <div className="mb-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[var(--text-tertiary)]" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-(--text-tertiary)" />
           <input
             type="text"
             placeholder="Search guilds, clusters, or codes..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             disabled={showSkeletons}
-            className="w-full pl-10 pr-4 py-2 bg-[var(--bg-secondary)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-[var(--primary)] disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full pl-10 pr-4 py-2 bg-(--bg-secondary) border border-(--card-border) rounded-lg text-primary-wh40k placeholder-(--text-tertiary) focus:outline-hidden focus:border-primary-wh40k disabled:opacity-60 disabled:cursor-not-allowed"
           />
         </div>
       </div>
@@ -71,7 +71,7 @@ export function GuildFilterPanel({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {/* Cluster Filter */}
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+          <label className="block text-sm font-medium text-secondary-wh40k mb-2">
             <Filter className="w-4 h-4 inline mr-1" />
             Cluster
           </label>
@@ -79,7 +79,7 @@ export function GuildFilterPanel({
             value={selectedCluster}
             onChange={(e) => onClusterChange(e.target.value)}
             disabled={showSkeletons}
-            className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full px-3 py-2 bg-(--bg-secondary) border border-(--card-border) rounded-lg text-primary-wh40k focus:outline-hidden focus:border-primary-wh40k disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <option value="all">All Clusters</option>
             {clusters.map((cluster) => (
@@ -94,7 +94,7 @@ export function GuildFilterPanel({
 
         {/* Sort By */}
         <div>
-          <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+          <label className="block text-sm font-medium text-secondary-wh40k mb-2">
             <TrendingUp className="w-4 h-4 inline mr-1" />
             Sort By
           </label>
@@ -102,7 +102,7 @@ export function GuildFilterPanel({
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}
             disabled={showSkeletons}
-            className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)] disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full px-3 py-2 bg-(--bg-secondary) border border-(--card-border) rounded-lg text-primary-wh40k focus:outline-hidden focus:border-primary-wh40k disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <option value="ranking">GR Ranking</option>
             <option value="warRank">War Ranking</option>
@@ -142,8 +142,8 @@ export function GuildFilterPanel({
       </div>
 
       {/* Refresh Button and Last Updated */}
-      <div className="mt-4 pt-4 border-t border-[var(--card-border)] flex justify-between items-center mb-4">
-        <div className="text-sm text-[var(--text-tertiary)]">
+      <div className="mt-4 pt-4 border-t border-(--card-border) flex justify-between items-center mb-4">
+        <div className="text-sm text-(--text-tertiary)">
           {lastRefreshed && hasMounted && (
             <>
               Last updated:{' '}
@@ -158,7 +158,7 @@ export function GuildFilterPanel({
         <button
           onClick={onRefresh}
           disabled={refreshing || showSkeletons}
-          className="flex items-center gap-2 px-3 py-1.5 bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] hover:bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] rounded-lg text-[var(--primary)] text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-3 py-1.5 bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] hover:bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] rounded-lg text-(--primary) text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <RefreshCw
             className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`}
@@ -177,27 +177,25 @@ export function GuildFilterPanel({
             'summary-season'
           ].map((id) => (
             <div key={id} className="text-center space-y-2">
-              <div className="mx-auto h-6 w-20 rounded bg-white/5 animate-pulse" />
-              <div className="mx-auto h-3 w-24 rounded bg-white/5 animate-pulse" />
+              <div className="mx-auto h-6 w-20 rounded-sm bg-white/5 animate-pulse" />
+              <div className="mx-auto h-3 w-24 rounded-sm bg-white/5 animate-pulse" />
             </div>
           ))
         ) : (
           <>
             <div className="text-center">
-              <div className="text-xl sm:text-2xl font-bold text-[var(--primary)]">
+              <div className="text-xl sm:text-2xl font-bold text-(--primary)">
                 {filteredGuilds.length}
               </div>
-              <div className="text-xs text-[var(--text-secondary)]">Guilds</div>
+              <div className="text-xs text-secondary-wh40k">Guilds</div>
             </div>
             <div className="text-center">
-              <div className="text-xl sm:text-2xl font-bold text-[var(--accent)]">
+              <div className="text-xl sm:text-2xl font-bold text-(--accent)">
                 {formatNumber(
                   filteredGuilds.reduce((sum, g) => sum + g.active_players, 0)
                 )}
               </div>
-              <div className="text-xs text-[var(--text-secondary)]">
-                Total Players
-              </div>
+              <div className="text-xs text-secondary-wh40k">Total Players</div>
             </div>
             <div className="text-center">
               <div className="text-xl sm:text-2xl font-bold text-green-400">
@@ -205,17 +203,13 @@ export function GuildFilterPanel({
                   filteredGuilds.reduce((sum, g) => sum + g.total_damage, 0)
                 )}
               </div>
-              <div className="text-xs text-[var(--text-secondary)]">
-                Total Damage
-              </div>
+              <div className="text-xs text-secondary-wh40k">Total Damage</div>
             </div>
             <div className="text-center">
               <div className="text-xl sm:text-2xl font-bold text-blue-400">
                 {guilds[0]?.season || '83'}
               </div>
-              <div className="text-xs text-[var(--text-secondary)]">
-                Current Season
-              </div>
+              <div className="text-xs text-secondary-wh40k">Current Season</div>
             </div>
           </>
         )}

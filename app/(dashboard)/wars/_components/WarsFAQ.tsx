@@ -5,12 +5,12 @@ export function WarsFAQ() {
       data-component="wars-faq"
     >
       <summary className="flex items-center justify-between w-full text-left py-2 sm:py-0 min-h-[44px] sm:min-h-0 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-        <h3 className="text-lg sm:text-xl font-bold text-[var(--text-primary)] group-open:text-[var(--primary)] transition-colors pr-2">
+        <h3 className="text-lg sm:text-xl font-bold text-primary-wh40k group-open:text-(--primary) transition-colors pr-2">
           How War Analytics Work
         </h3>
-        <div className="transition-transform duration-200 flex-shrink-0 group-open:rotate-180">
+        <div className="transition-transform duration-200 shrink-0 group-open:rotate-180">
           <svg
-            className="w-6 h-6 sm:w-5 sm:h-5 text-[var(--text-secondary)]"
+            className="w-6 h-6 sm:w-5 sm:h-5 text-secondary-wh40k"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -25,20 +25,18 @@ export function WarsFAQ() {
         </div>
       </summary>
 
-      <div className="space-y-5 sm:space-y-6 pt-4 border-t border-[var(--card-border)]">
+      <div className="space-y-5 sm:space-y-6 pt-4 border-t border-(--card-border)">
         {/* Data Source */}
         <div className="space-y-2">
-          <h4 className="text-base sm:text-lg font-semibold text-[var(--accent)] flex items-center gap-2">
-            <span className="w-2 h-2 bg-[var(--accent)] rounded-full flex-shrink-0" />
+          <h4 className="text-base sm:text-lg font-semibold text-(--accent) flex items-center gap-2">
+            <span className="w-2 h-2 bg-accent-wh40k rounded-full shrink-0" />
             Data Source &amp; Season Filtering
           </h4>
-          <div className="pl-4 space-y-2 text-xs sm:text-sm text-[var(--text-secondary)]">
+          <div className="pl-4 space-y-2 text-xs sm:text-sm text-secondary-wh40k">
             <p>
               All analytics read from{' '}
-              <code className="text-[var(--text-primary)]">
-                guild_war_battles
-              </code>{' '}
-              — one row per attack attempt. Data is scoped to your guild and
+              <code className="text-primary-wh40k">guild_war_battles</code> —
+              one row per attack attempt. Data is scoped to your guild and
               filtered to the last <strong>4 war seasons</strong> by default
               (configurable in some views). Seasons are numbered sequentially;
               each contains 6 wars.
@@ -55,11 +53,11 @@ export function WarsFAQ() {
 
         {/* War Reports */}
         <div className="space-y-2">
-          <h4 className="text-base sm:text-lg font-semibold text-[var(--accent)] flex items-center gap-2">
-            <span className="w-2 h-2 bg-[var(--accent)] rounded-full flex-shrink-0" />
+          <h4 className="text-base sm:text-lg font-semibold text-(--accent) flex items-center gap-2">
+            <span className="w-2 h-2 bg-accent-wh40k rounded-full shrink-0" />
             War Reports (Dashboard)
           </h4>
-          <div className="pl-4 space-y-1 text-xs sm:text-sm text-[var(--text-secondary)]">
+          <div className="pl-4 space-y-1 text-xs sm:text-sm text-secondary-wh40k">
             <p>
               Lists all synced wars for your guild from{' '}
               <code>guild_war_matches</code>. Each row shows the opponent, final
@@ -72,11 +70,11 @@ export function WarsFAQ() {
 
         {/* Maps */}
         <div className="space-y-2">
-          <h4 className="text-base sm:text-lg font-semibold text-[var(--accent)] flex items-center gap-2">
-            <span className="w-2 h-2 bg-[var(--accent)] rounded-full flex-shrink-0" />
+          <h4 className="text-base sm:text-lg font-semibold text-(--accent) flex items-center gap-2">
+            <span className="w-2 h-2 bg-accent-wh40k rounded-full shrink-0" />
             Maps
           </h4>
-          <div className="pl-4 space-y-1 text-xs sm:text-sm text-[var(--text-secondary)]">
+          <div className="pl-4 space-y-1 text-xs sm:text-sm text-secondary-wh40k">
             <p>
               Zone-level win rates and average scores across all historical
               wars, grouped by zone type (e.g., Trenches, Fortress, Sanctuary).
@@ -89,16 +87,14 @@ export function WarsFAQ() {
 
         {/* Offense / Defense Heroes */}
         <div className="space-y-2">
-          <h4 className="text-base sm:text-lg font-semibold text-[var(--accent)] flex items-center gap-2">
-            <span className="w-2 h-2 bg-[var(--accent)] rounded-full flex-shrink-0" />
+          <h4 className="text-base sm:text-lg font-semibold text-(--accent) flex items-center gap-2">
+            <span className="w-2 h-2 bg-accent-wh40k rounded-full shrink-0" />
             Offense &amp; Defense Heroes — Hero Performance
           </h4>
-          <div className="pl-4 space-y-2 text-xs sm:text-sm text-[var(--text-secondary)]">
+          <div className="pl-4 space-y-2 text-xs sm:text-sm text-secondary-wh40k">
             <p>
               Powered by the{' '}
-              <code className="text-[var(--text-primary)]">
-                get_hero_performance
-              </code>{' '}
+              <code className="text-primary-wh40k">get_hero_performance</code>{' '}
               database function. For each hero that appeared in an attack (or
               defense), it calculates:
             </p>
@@ -132,11 +128,11 @@ export function WarsFAQ() {
 
         {/* Lineups */}
         <div className="space-y-2">
-          <h4 className="text-base sm:text-lg font-semibold text-[var(--accent)] flex items-center gap-2">
-            <span className="w-2 h-2 bg-[var(--accent)] rounded-full flex-shrink-0" />
+          <h4 className="text-base sm:text-lg font-semibold text-(--accent) flex items-center gap-2">
+            <span className="w-2 h-2 bg-accent-wh40k rounded-full shrink-0" />
             Lineups
           </h4>
-          <div className="pl-4 space-y-1 text-xs sm:text-sm text-[var(--text-secondary)]">
+          <div className="pl-4 space-y-1 text-xs sm:text-sm text-secondary-wh40k">
             <p>
               Shows the most-used attack (or defense) team compositions from{' '}
               <code>guild_war_lineups</code>. Lineups are identified by a{' '}
@@ -150,14 +146,14 @@ export function WarsFAQ() {
 
         {/* Cores */}
         <div className="space-y-2">
-          <h4 className="text-base sm:text-lg font-semibold text-[var(--accent)] flex items-center gap-2">
-            <span className="w-2 h-2 bg-[var(--accent)] rounded-full flex-shrink-0" />
+          <h4 className="text-base sm:text-lg font-semibold text-(--accent) flex items-center gap-2">
+            <span className="w-2 h-2 bg-accent-wh40k rounded-full shrink-0" />
             Cores — Composition Analysis
           </h4>
-          <div className="pl-4 space-y-2 text-xs sm:text-sm text-[var(--text-secondary)]">
+          <div className="pl-4 space-y-2 text-xs sm:text-sm text-secondary-wh40k">
             <p>
               Powered by the{' '}
-              <code className="text-[var(--text-primary)]">
+              <code className="text-primary-wh40k">
                 get_global_war_core_compositions
               </code>{' '}
               database function. A &quot;core&quot; is exactly three heroes that
@@ -177,7 +173,7 @@ export function WarsFAQ() {
                 contribution
               </li>
             </ul>
-            <p className="text-xs text-[var(--text-tertiary)]">
+            <p className="text-xs text-(--text-tertiary)">
               Rankings are global rather than guild- or cluster-scoped. The
               archived community aggregate contributes to 3-hero cores; other
               exact sizes use tracked first-party battles.
@@ -187,11 +183,11 @@ export function WarsFAQ() {
 
         {/* Team Analysis */}
         <div className="space-y-2">
-          <h4 className="text-base sm:text-lg font-semibold text-[var(--accent)] flex items-center gap-2">
-            <span className="w-2 h-2 bg-[var(--accent)] rounded-full flex-shrink-0" />
+          <h4 className="text-base sm:text-lg font-semibold text-(--accent) flex items-center gap-2">
+            <span className="w-2 h-2 bg-accent-wh40k rounded-full shrink-0" />
             Team Analysis
           </h4>
-          <div className="pl-4 space-y-2 text-xs sm:text-sm text-[var(--text-secondary)]">
+          <div className="pl-4 space-y-2 text-xs sm:text-sm text-secondary-wh40k">
             <p>
               Lets you select up to 5 heroes and look up their historical win
               rate as a lineup against all recorded opponents. Two hero pool
@@ -199,20 +195,15 @@ export function WarsFAQ() {
             </p>
             <ul className="list-disc pl-4 space-y-1">
               <li>
-                <strong className="text-[var(--text-primary)]">
-                  Your Roster
-                </strong>{' '}
-                — heroes from your synced player roster, showing actual
-                rank/star level. Portrait icons are resolved by matching the
-                Loki API <code>hero.id</code> against{' '}
-                <code>hero_mappings.unit_id</code>.
+                <strong className="text-primary-wh40k">Your Roster</strong> —
+                heroes from your synced player roster, showing actual rank/star
+                level. Portrait icons are resolved by matching the Loki API{' '}
+                <code>hero.id</code> against <code>hero_mappings.unit_id</code>.
               </li>
               <li>
-                <strong className="text-[var(--text-primary)]">
-                  Full Catalog
-                </strong>{' '}
-                — all heroes in <code>hero_mappings</code>, regardless of
-                whether you own them. Useful for scouting or planning.
+                <strong className="text-primary-wh40k">Full Catalog</strong> —
+                all heroes in <code>hero_mappings</code>, regardless of whether
+                you own them. Useful for scouting or planning.
               </li>
             </ul>
             <p>
@@ -225,11 +216,11 @@ export function WarsFAQ() {
 
         {/* Icon Resolution */}
         <div className="space-y-2">
-          <h4 className="text-base sm:text-lg font-semibold text-[var(--accent)] flex items-center gap-2">
-            <span className="w-2 h-2 bg-[var(--accent)] rounded-full flex-shrink-0" />
+          <h4 className="text-base sm:text-lg font-semibold text-(--accent) flex items-center gap-2">
+            <span className="w-2 h-2 bg-accent-wh40k rounded-full shrink-0" />
             Hero Icons &amp; Display Names
           </h4>
-          <div className="pl-4 space-y-1 text-xs sm:text-sm text-[var(--text-secondary)]">
+          <div className="pl-4 space-y-1 text-xs sm:text-sm text-secondary-wh40k">
             <p>
               Hero portraits are resolved via the <code>hero_mappings</code>{' '}
               table, which stores Discord CDN icon URLs in{' '}

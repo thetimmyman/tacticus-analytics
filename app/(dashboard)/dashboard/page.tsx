@@ -22,7 +22,7 @@ const DashboardSummary = dynamicImport(
   {
     // Do not block the shell on the largest client bundle.
     loading: () => (
-      <div className="p-6 text-[var(--text-secondary)]">
+      <div className="p-6 text-secondary-wh40k">
         Loading dashboard insights…
       </div>
     )
@@ -107,9 +107,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   return (
     <Suspense
       fallback={
-        <div className="p-6 text-[var(--text-secondary)]">
-          Preparing dashboard…
-        </div>
+        <div className="p-6 text-secondary-wh40k">Preparing dashboard…</div>
       }
     >
       <DashboardSummary

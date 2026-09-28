@@ -89,9 +89,7 @@ function OutcomeIcon({
       />
     )
   }
-  return (
-    <Clock className="h-3.5 w-3.5 text-[var(--text-tertiary)]" aria-hidden />
-  )
+  return <Clock className="h-3.5 w-3.5 text-(--text-tertiary)" aria-hidden />
 }
 
 function TaskRow({
@@ -114,13 +112,13 @@ function TaskRow({
     Boolean(followUp) && followUp?.outcome !== 'insufficient_new_evidence'
 
   return (
-    <li className="space-y-2 rounded-md border border-[var(--card-border)] p-3">
+    <li className="space-y-2 rounded-md border border-(--card-border) p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="text-sm font-semibold text-[var(--text-primary)]">
+          <p className="text-sm font-semibold text-primary-wh40k">
             {task.displayName}
           </p>
-          <p className="text-[11px] text-[var(--text-tertiary)]">
+          <p className="text-[11px] text-(--text-tertiary)">
             {bossLabel} · assigned {relativeAge(task.createdAt)}
           </p>
         </div>
@@ -149,7 +147,7 @@ function TaskRow({
             type="button"
             disabled={busy}
             onClick={() => onAction(task.id, 'dismissed')}
-            className="rounded-md border border-[var(--card-border)] px-2.5 py-1 text-[11px] text-[var(--text-secondary)] transition hover:brightness-110 disabled:opacity-40"
+            className="rounded-md border border-(--card-border) px-2.5 py-1 text-[11px] text-secondary-wh40k transition hover:brightness-110 disabled:opacity-40"
           >
             Dismiss
           </button>
@@ -158,7 +156,7 @@ function TaskRow({
 
       {task.status === 'acknowledged' && (
         <div className="space-y-1.5">
-          <p className="flex items-center gap-1.5 text-[11px] text-[var(--text-secondary)]">
+          <p className="flex items-center gap-1.5 text-[11px] text-secondary-wh40k">
             <OutcomeIcon outcome={followUp?.outcome} />
             {followUp
               ? outcomeLabel(task, followUp)
@@ -193,7 +191,7 @@ function TaskRow({
               type="button"
               disabled={busy}
               onClick={() => onAction(task.id, 'dismissed')}
-              className="rounded-md border border-[var(--card-border)] px-2.5 py-1 text-[11px] text-[var(--text-secondary)] transition hover:brightness-110 disabled:opacity-40"
+              className="rounded-md border border-(--card-border) px-2.5 py-1 text-[11px] text-secondary-wh40k transition hover:brightness-110 disabled:opacity-40"
             >
               Dismiss
             </button>
@@ -239,8 +237,8 @@ export function FollowUpsList({ guildCode, season }: FollowUpsListProps) {
 
   if (isLoading) {
     return (
-      <section className="rounded-xl border border-[var(--card-border)] bg-card/30 p-4">
-        <div className="h-4 w-1/3 animate-pulse rounded bg-[color-mix(in_srgb,var(--card-border)_60%,transparent)]" />
+      <section className="rounded-xl border border-(--card-border) bg-card/30 p-4">
+        <div className="h-4 w-1/3 animate-pulse rounded-sm bg-[color-mix(in_srgb,var(--card-border)_60%,transparent)]" />
       </section>
     )
   }
@@ -250,21 +248,21 @@ export function FollowUpsList({ guildCode, season }: FollowUpsListProps) {
 
   return (
     <section
-      className="rounded-xl border border-[var(--card-border)] bg-card/30 overflow-hidden"
+      className="rounded-xl border border-(--card-border) bg-card/30 overflow-hidden"
       aria-label="Coaching follow-ups"
     >
       <header className="flex items-center gap-2 border-b border-[color-mix(in_srgb,var(--card-border)_50%,transparent)] px-4 py-3">
-        <ListChecks className="h-4 w-4 text-[var(--accent)]" aria-hidden />
-        <h2 className="text-sm font-semibold text-[var(--text-primary)]">
+        <ListChecks className="h-4 w-4 text-(--accent)" aria-hidden />
+        <h2 className="text-sm font-semibold text-primary-wh40k">
           Coaching follow-ups
         </h2>
-        <span className="text-[11px] text-[var(--text-tertiary)]">
+        <span className="text-[11px] text-(--text-tertiary)">
           {data.length}
         </span>
       </header>
       <div className="p-4">
         {data.length === 0 ? (
-          <p className="py-4 text-center text-xs text-[var(--text-tertiary)]">
+          <p className="py-4 text-center text-xs text-(--text-tertiary)">
             No open coaching tasks — assign one from a member&apos;s detail
             panel.
           </p>

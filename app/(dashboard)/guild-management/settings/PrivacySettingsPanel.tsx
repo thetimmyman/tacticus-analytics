@@ -135,20 +135,20 @@ export function PrivacySettingsPanel({
           onClick={() => setIsExpanded(!isExpanded)}
           aria-expanded={isExpanded}
           aria-controls={contentId}
-          className="flex min-h-[44px] w-full items-center gap-3 text-left group rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+          className="flex min-h-[44px] w-full items-center gap-3 text-left group rounded-lg focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent)"
         >
           <div className="flex items-center gap-2">
             {isExpanded ? (
-              <ChevronDown className="w-4 h-4 text-[var(--text-secondary)] transition-transform" />
+              <ChevronDown className="w-4 h-4 text-secondary-wh40k transition-transform" />
             ) : (
-              <ChevronRight className="w-4 h-4 text-[var(--text-secondary)] transition-transform" />
+              <ChevronRight className="w-4 h-4 text-secondary-wh40k transition-transform" />
             )}
             <SectionLabel
               withDivider={false}
               helper={`${explorePrivacyMode.length} setting${
                 explorePrivacyMode.length !== 1 ? 's' : ''
               } active`}
-              className="transition-colors group-hover:text-[var(--accent)]"
+              className="transition-colors group-hover:text-(--accent)"
             >
               Public Explore &amp; Leaderboard Privacy
             </SectionLabel>
@@ -157,7 +157,7 @@ export function PrivacySettingsPanel({
         </button>
 
         {isExpanded && (
-          <p className="text-sm text-[var(--text-secondary)] mt-3 mb-4">
+          <p className="text-sm text-secondary-wh40k mt-3 mb-4">
             Control how your guild data appears on public Explore and
             leaderboard pages. You can select multiple privacy options that will
             be applied together. Changes take effect immediately.
@@ -213,7 +213,7 @@ export function PrivacySettingsPanel({
                 <div
                   key={option.value}
                   className={cn(
-                    'block space-y-4 rounded-lg border-2 p-4 transition-all focus-within:ring-2 focus-within:ring-[var(--accent)] focus-within:ring-offset-2 focus-within:ring-offset-[var(--bg-primary)]',
+                    'block space-y-4 rounded-lg border-2 p-4 transition-all focus-within:ring-2 focus-within:ring-(--accent) focus-within:ring-offset-2 focus-within:ring-offset-(--bg-primary)',
                     disabled && 'opacity-50',
                     isSelected
                       ? option.value === 'public'
@@ -224,8 +224,8 @@ export function PrivacySettingsPanel({
                             ? 'border-red-500 bg-red-500/10'
                             : option.severity === 'medium'
                               ? 'border-yellow-500 bg-yellow-500/10'
-                              : 'border-[var(--primary)] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]'
-                      : 'border-[var(--card-border)] hover:border-[color-mix(in_srgb,var(--primary)_50%,transparent)] hover:bg-card/50'
+                              : 'border-primary-wh40k bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]'
+                      : 'border-(--card-border) hover:border-[color-mix(in_srgb,var(--primary)_50%,transparent)] hover:bg-card/50'
                   )}
                 >
                   <input
@@ -248,7 +248,7 @@ export function PrivacySettingsPanel({
                   >
                     <div
                       className={cn(
-                        'flex-shrink-0 p-2 rounded-lg',
+                        'shrink-0 p-2 rounded-lg',
                         isSelected
                           ? option.value === 'public'
                             ? 'bg-emerald-500/20 text-emerald-500'
@@ -258,8 +258,8 @@ export function PrivacySettingsPanel({
                                 ? 'bg-red-500/20 text-red-500'
                                 : option.severity === 'medium'
                                   ? 'bg-yellow-500/20 text-yellow-500'
-                                  : 'bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] text-[var(--primary)]'
-                          : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]'
+                                  : 'bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] text-(--primary)'
+                          : 'bg-(--bg-secondary) text-secondary-wh40k'
                       )}
                     >
                       {option.icon}
@@ -267,7 +267,7 @@ export function PrivacySettingsPanel({
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-medium text-[var(--text-primary)]">
+                        <h4 className="font-medium text-primary-wh40k">
                           {option.label}
                         </h4>
                         {isSelected && (
@@ -282,17 +282,17 @@ export function PrivacySettingsPanel({
                                     ? 'bg-red-500'
                                     : option.severity === 'medium'
                                       ? 'bg-yellow-500'
-                                      : 'bg-[var(--primary)]'
+                                      : 'bg-primary-wh40k'
                             )}
                           />
                         )}
                       </div>
 
-                      <p className="text-sm text-[var(--text-secondary)] mb-2">
+                      <p className="text-sm text-secondary-wh40k mb-2">
                         {option.description}
                       </p>
 
-                      <div className="text-xs text-[var(--text-tertiary)] font-mono bg-[var(--bg-secondary)] px-2 py-1 rounded">
+                      <div className="text-xs text-(--text-tertiary) font-mono bg-(--bg-secondary) px-2 py-1 rounded-sm">
                         Example: {option.example}
                       </div>
                     </div>
@@ -300,7 +300,7 @@ export function PrivacySettingsPanel({
 
                   {option.value === 'obfuscate_values' && isSelected && (
                     <div className="space-y-2 pl-0 sm:pl-14">
-                      <div className="flex items-center justify-between text-xs text-[var(--text-secondary)]">
+                      <div className="flex items-center justify-between text-xs text-secondary-wh40k">
                         <span>Obfuscation strength</span>
                       </div>
                       <fieldset disabled={disabled} aria-disabled={disabled}>
@@ -315,7 +315,7 @@ export function PrivacySettingsPanel({
                           ariaLabel="Obfuscation percent"
                         />
                       </fieldset>
-                      <div className="flex justify-between text-[10px] uppercase tracking-wide text-[var(--text-tertiary)]">
+                      <div className="flex justify-between text-[10px] uppercase tracking-wide text-(--text-tertiary)">
                         <span>lighter fuzz</span>
                         <span>heavier fuzz</span>
                       </div>
@@ -329,12 +329,12 @@ export function PrivacySettingsPanel({
           <div className="space-y-4">
             <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
               <div className="flex items-start gap-2">
-                <Eye className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                <Eye className="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
                 <div>
                   <h4 className="font-medium text-blue-500 mb-1">
                     Privacy Notice
                   </h4>
-                  <p className="text-sm text-[var(--text-secondary)]">
+                  <p className="text-sm text-secondary-wh40k">
                     These settings change what public Explore and leaderboard
                     pages show. Members of guilds in the same cluster can still
                     view this guild&apos;s per-battle data. Internal guild data,
@@ -359,10 +359,10 @@ export function PrivacySettingsPanel({
               <div className="p-4 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] border border-card-border/50 rounded-lg">
                 <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <h4 className="font-medium text-[var(--text-primary)] mb-1">
+                    <h4 className="font-medium text-primary-wh40k mb-1">
                       Manual Cache Refresh
                     </h4>
-                    <p className="text-sm text-[var(--text-secondary)]">
+                    <p className="text-sm text-secondary-wh40k">
                       Privacy changes are automatically applied, but you can
                       manually refresh the public Explore and leaderboard cache
                       if needed.

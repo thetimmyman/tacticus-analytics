@@ -32,31 +32,31 @@ export default function Footer({ variant = 'default' }: FooterProps) {
             <div className="flex flex-wrap justify-center gap-4 mb-4 text-sm">
               <Link
                 href="/faq"
-                className="text-[var(--text-secondary)] hover:text-white"
+                className="text-secondary-wh40k hover:text-white"
               >
                 FAQ
               </Link>
               <Link
                 href="/acknowledgements"
-                className="text-[var(--text-secondary)] hover:text-white"
+                className="text-secondary-wh40k hover:text-white"
               >
                 Acknowledgements
               </Link>
               <Link
                 href="/privacy"
-                className="text-[var(--text-secondary)] hover:text-white"
+                className="text-secondary-wh40k hover:text-white"
               >
                 Privacy
               </Link>
               <Link
                 href="/terms"
-                className="text-[var(--text-secondary)] hover:text-white"
+                className="text-secondary-wh40k hover:text-white"
               >
                 Terms
               </Link>
               <Link
                 href="/do-not-sell"
-                className="text-[var(--text-secondary)] hover:text-white"
+                className="text-secondary-wh40k hover:text-white"
               >
                 Do Not Sell My Personal Information
               </Link>
@@ -76,7 +76,7 @@ export default function Footer({ variant = 'default' }: FooterProps) {
               {/* Desktop - single line */}
               <p className="hidden sm:block">
                 Support me with referral code{' '}
-                <span className="font-mono bg-card px-2 py-1 rounded text-accent-wh40k font-semibold">
+                <span className="font-mono bg-card px-2 py-1 rounded-sm text-accent-wh40k font-semibold">
                   TEN-05-BID
                 </span>{' '}
                 or{' '}
@@ -104,7 +104,7 @@ export default function Footer({ variant = 'default' }: FooterProps) {
                 <p>Support me by</p>
                 <p>
                   using my referral code{' '}
-                  <span className="font-mono bg-card px-2 py-1 rounded text-accent-wh40k font-semibold">
+                  <span className="font-mono bg-card px-2 py-1 rounded-sm text-accent-wh40k font-semibold">
                     TEN-05-BID
                   </span>
                 </p>

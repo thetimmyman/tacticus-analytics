@@ -45,7 +45,7 @@ export function BossCardDualView({
     <Card
       id={anchorId}
       data-boss-type={bossType}
-      className="bg-[var(--card-bg)] border-[var(--card-border)] overflow-hidden"
+      className="bg-(--card-bg) border-(--card-border) overflow-hidden"
     >
       <CardHeader className="pb-2 pt-3 px-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -66,7 +66,7 @@ export function BossCardDualView({
                 {bossName}
               </CardTitle>
               {summary && (
-                <div className="text-xs text-[var(--text-secondary)] mt-0.5">
+                <div className="text-xs text-secondary-wh40k mt-0.5">
                   {summary}
                 </div>
               )}
@@ -74,14 +74,14 @@ export function BossCardDualView({
           </div>
           {showViewToggle && (
             <div className="flex items-center gap-2">
-              <div className="flex items-center rounded-full border border-[var(--card-border)] bg-card/70 p-1">
+              <div className="flex items-center rounded-full border border-(--card-border) bg-card/70 p-1">
                 <button
                   type="button"
                   onClick={() => onViewModeChange('global')}
                   className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
                     !isPersonal
                       ? 'bg-emerald-500 text-black'
-                      : 'text-[var(--text-secondary)] hover:text-white'
+                      : 'text-secondary-wh40k hover:text-white'
                   }`}
                 >
                   Global Meta
@@ -96,7 +96,7 @@ export function BossCardDualView({
                   className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
                     isPersonal && canPersonalize
                       ? 'bg-emerald-500 text-black'
-                      : 'text-[var(--text-secondary)] hover:text-white'
+                      : 'text-secondary-wh40k hover:text-white'
                   } ${canPersonalize ? '' : 'opacity-50 cursor-not-allowed'}`}
                 >
                   My Potential

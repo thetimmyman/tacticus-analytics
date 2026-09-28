@@ -210,14 +210,14 @@ export function SeasonalBossHub({ data }: SeasonalBossHubProps) {
 
   return (
     <>
-      <section className="space-y-4 border-b border-[var(--card-border)] pb-6">
-        <div className="rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_55%,transparent)] p-4">
+      <section className="space-y-4 border-b border-(--card-border) pb-6">
+        <div className="rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_55%,transparent)] p-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-[var(--text-primary)]">
+              <h2 className="text-2xl font-bold text-primary-wh40k">
                 Season {activeData.seasonNumber}
               </h2>
-              <div className="mt-1 flex flex-wrap gap-2 text-xs text-[var(--text-tertiary)]">
+              <div className="mt-1 flex flex-wrap gap-2 text-xs text-(--text-tertiary)">
                 <span>
                   {totalBosses} {selectedSeasonIsCurrent ? 'current' : 'season'}{' '}
                   bosses
@@ -242,8 +242,8 @@ export function SeasonalBossHub({ data }: SeasonalBossHubProps) {
                       className={clsx(
                         'rounded-md border px-2 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] transition-colors sm:px-3 sm:text-sm sm:tracking-[0.12em]',
                         selectedSeason === option.value
-                          ? 'border-[var(--accent)] bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-[var(--accent)]'
-                          : 'border-transparent bg-transparent text-[var(--text-secondary)] hover:border-[var(--card-border)] hover:text-[var(--text-primary)]',
+                          ? 'border-accent-wh40k bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-(--accent)'
+                          : 'border-transparent bg-transparent text-secondary-wh40k hover:border-(--card-border) hover:text-primary-wh40k',
                         !option.available && 'cursor-not-allowed opacity-35'
                       )}
                     >
@@ -268,8 +268,8 @@ export function SeasonalBossHub({ data }: SeasonalBossHubProps) {
 
         {filteredGroups.length > 0 ? (
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-[340px_minmax(0,1fr)]">
-            <aside className="rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_65%,transparent)] p-2 xl:sticky xl:top-32 xl:max-h-[calc(100vh-9rem)] xl:overflow-auto">
-              <div className="px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
+            <aside className="rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_65%,transparent)] p-2 xl:sticky xl:top-32 xl:max-h-[calc(100vh-9rem)] xl:overflow-auto">
+              <div className="px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-(--text-tertiary)">
                 Encounters
               </div>
               {/* Scrollable strip on mobile; block list with side-encounter detail on desktop. */}
@@ -284,10 +284,10 @@ export function SeasonalBossHub({ data }: SeasonalBossHubProps) {
                       'flex shrink-0 items-center gap-1.5 rounded-md border px-2 py-1.5',
                       selectedCard?.key === card.key
                         ? 'border-[color-mix(in_srgb,var(--accent)_50%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]'
-                        : 'border-transparent bg-[color-mix(in_srgb,var(--bg-tertiary)_50%,transparent)] hover:border-[var(--card-border)]'
+                        : 'border-transparent bg-[color-mix(in_srgb,var(--bg-tertiary)_50%,transparent)] hover:border-(--card-border)'
                     )}
                   >
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-(--text-tertiary)">
                       {card.difficultyCode}
                     </span>
                     <BossPortrait
@@ -309,7 +309,7 @@ export function SeasonalBossHub({ data }: SeasonalBossHubProps) {
                       'group/nav min-w-0 rounded-md border transition-colors',
                       selectedCard?.key === card.key
                         ? 'border-[color-mix(in_srgb,var(--accent)_50%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]'
-                        : 'border-transparent hover:border-[var(--card-border)] hover:bg-[color-mix(in_srgb,var(--bg-tertiary)_50%,transparent)]'
+                        : 'border-transparent hover:border-(--card-border) hover:bg-[color-mix(in_srgb,var(--bg-tertiary)_50%,transparent)]'
                     )}
                   >
                     <button
@@ -324,17 +324,17 @@ export function SeasonalBossHub({ data }: SeasonalBossHubProps) {
                         variant="thumbnail"
                       />
                       <span className="min-w-0">
-                        <span className="block truncate text-sm font-semibold text-[var(--text-primary)]">
+                        <span className="block truncate text-sm font-semibold text-primary-wh40k">
                           {card.bossName}
                         </span>
-                        <span className="block truncate text-[10px] uppercase tracking-wide text-[var(--text-tertiary)]">
+                        <span className="block truncate text-[10px] uppercase tracking-wide text-(--text-tertiary)">
                           {card.difficultyCode} · {card.boardId}
                         </span>
                       </span>
                       {data.canManageHerald ? (
                         <StatusPill card={card} />
                       ) : (
-                        <span className="rounded-md border border-[var(--card-border)] px-2 py-1 text-[10px] font-semibold uppercase text-[var(--text-tertiary)]">
+                        <span className="rounded-md border border-(--card-border) px-2 py-1 text-[10px] font-semibold uppercase text-(--text-tertiary)">
                           {card.difficultyCode}
                         </span>
                       )}
@@ -350,26 +350,26 @@ export function SeasonalBossHub({ data }: SeasonalBossHubProps) {
                                 type="button"
                                 onClick={() => selectEncounter(card, encounter)}
                                 title={`${encounter.bossName} · ${encounter.boardId}${skipped ? ' · Skipped' : ''}`}
-                                className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded px-2 py-1.5 text-left text-xs text-[var(--text-secondary)] hover:bg-black/20 hover:text-[var(--text-primary)]"
+                                className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-sm px-2 py-1.5 text-left text-xs text-secondary-wh40k hover:bg-black/20 hover:text-primary-wh40k"
                               >
                                 <span className="min-w-0">
                                   <span
                                     className={clsx(
-                                      'block break-words font-medium leading-snug',
+                                      'block wrap-break-word font-medium leading-snug',
                                       skipped
-                                        ? 'text-[var(--text-tertiary)] line-through'
-                                        : 'text-[var(--text-secondary)]'
+                                        ? 'text-(--text-tertiary) line-through'
+                                        : 'text-secondary-wh40k'
                                     )}
                                   >
                                     {encounter.bossName}
                                   </span>
-                                  <span className="mt-0.5 block break-all text-[10px] uppercase tracking-wide text-[var(--text-tertiary)]">
+                                  <span className="mt-0.5 block break-all text-[10px] uppercase tracking-wide text-(--text-tertiary)">
                                     {encounter.boardId}
                                   </span>
                                 </span>
                                 {skipped && (
                                   <Ban
-                                    className="h-3.5 w-3.5 shrink-0 text-[var(--text-tertiary)]"
+                                    className="h-3.5 w-3.5 shrink-0 text-(--text-tertiary)"
                                     aria-label="Skipped"
                                   />
                                 )}
@@ -395,14 +395,14 @@ export function SeasonalBossHub({ data }: SeasonalBossHubProps) {
                   onDirtyChange={handleOpsPanelDirtyChange}
                 />
               ) : (
-                <div className="rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_65%,transparent)] p-8 text-center text-sm text-[var(--text-tertiary)]">
+                <div className="rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_65%,transparent)] p-8 text-center text-sm text-(--text-tertiary)">
                   No seasonal encounters available.
                 </div>
               )}
             </div>
           </div>
         ) : (
-          <div className="rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_65%,transparent)] p-8 text-center text-sm text-[var(--text-tertiary)]">
+          <div className="rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_65%,transparent)] p-8 text-center text-sm text-(--text-tertiary)">
             No seasonal encounters available.
           </div>
         )}

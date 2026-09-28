@@ -8,9 +8,7 @@ const logger = createComponentLogger('leaderboards.page')
 
 const ClusterStatsClient = dynamicImport(() => import('./ClusterStatsClient'), {
   loading: () => (
-    <div className="p-6 text-[var(--text-secondary)]">
-      Loading leaderboards...
-    </div>
+    <div className="p-6 text-secondary-wh40k">Loading leaderboards...</div>
   )
 })
 
@@ -64,10 +62,8 @@ export default async function ClusterStatsPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <div className="border-b border-[var(--card-border)] pb-4">
-        <h1 className="text-3xl font-bold text-[var(--text-primary)]">
-          Leaderboards
-        </h1>
+      <div className="border-b border-(--card-border) pb-4">
+        <h1 className="text-3xl font-bold text-primary-wh40k">Leaderboards</h1>
       </div>
 
       <ClusterStatsClient profile={profile} latestSeason={selectedSeason} />

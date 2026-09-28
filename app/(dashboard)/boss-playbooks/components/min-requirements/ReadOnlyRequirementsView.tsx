@@ -25,13 +25,13 @@ export function ReadOnlyRequirementsView({
 }: ReadOnlyRequirementsViewProps) {
   return (
     <div className="card-wh40k p-4 space-y-4">
-      <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
-        <ClipboardList className="h-4 w-4 text-[var(--accent)]" />
+      <div className="flex items-center gap-2 text-sm font-semibold text-primary-wh40k">
+        <ClipboardList className="h-4 w-4 text-(--accent)" />
         Minimum Viable Team Requirements
       </div>
 
       {loading && (
-        <div className="text-xs text-[var(--text-tertiary)]">
+        <div className="text-xs text-(--text-tertiary)">
           Loading requirements...
         </div>
       )}
@@ -42,7 +42,7 @@ export function ReadOnlyRequirementsView({
       )}
 
       {!loading && !error && allDisplayRequirements.length === 0 && (
-        <div className="text-xs text-[var(--text-tertiary)]">
+        <div className="text-xs text-(--text-tertiary)">
           No team requirements defined yet.
         </div>
       )}
@@ -67,7 +67,7 @@ export function ReadOnlyRequirementsView({
           <div className="hidden md:block overflow-x-auto -mx-4 px-4">
             <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
-                <tr className="border-b border-[var(--card-border)] text-[10px] text-[var(--text-tertiary)]">
+                <tr className="border-b border-(--card-border) text-[10px] text-(--text-tertiary)">
                   <th className="py-2 px-2 font-medium">Category</th>
                   <th className="py-2 px-2 font-medium">Meta Team</th>
                   <th className="py-2 px-1 font-medium">Hero 1</th>

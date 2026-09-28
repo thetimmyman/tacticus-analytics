@@ -34,18 +34,18 @@ export function HeroRequirementRow({
   }
 
   return (
-    <div className="grid gap-2 rounded-md border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-3">
+    <div className="grid gap-2 rounded-md border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-3">
       <div className="grid grid-cols-1 gap-2 md:grid-cols-[1.5fr_1fr_1fr]">
-        <label className="text-[11px] text-[var(--text-tertiary)] space-y-1">
+        <label className="text-[11px] text-(--text-tertiary) space-y-1">
           Hero
           <input
             value={value.hero_name}
             onChange={(event) => setField('hero_name', event.target.value)}
-            className="w-full rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 py-1 text-xs text-[var(--text-primary)]"
+            className="w-full rounded-md border border-(--card-border) bg-(--bg-secondary) px-2 py-1 text-xs text-primary-wh40k"
             placeholder="Hero name"
           />
         </label>
-        <label className="text-[11px] text-[var(--text-tertiary)] space-y-1">
+        <label className="text-[11px] text-(--text-tertiary) space-y-1">
           Min Rank
           <select
             value={value.min_rank ?? ''}
@@ -56,7 +56,7 @@ export function HeroRequirementRow({
               setField('min_rank', label)
               setField('min_rank_index', selected?.index ?? null)
             }}
-            className="w-full rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 py-1 text-xs text-[var(--text-primary)]"
+            className="w-full rounded-md border border-(--card-border) bg-(--bg-secondary) px-2 py-1 text-xs text-primary-wh40k"
           >
             <option value="">No minimum</option>
             {rankOptions.map((option) => (
@@ -66,7 +66,7 @@ export function HeroRequirementRow({
             ))}
           </select>
         </label>
-        <label className="text-[11px] text-[var(--text-tertiary)] space-y-1">
+        <label className="text-[11px] text-(--text-tertiary) space-y-1">
           Min Stars
           <input
             type="number"
@@ -76,13 +76,13 @@ export function HeroRequirementRow({
               const parsed = Number(event.target.value)
               setField('min_stars', Number.isFinite(parsed) ? parsed : null)
             }}
-            className="w-full rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 py-1 text-xs text-[var(--text-primary)]"
+            className="w-full rounded-md border border-(--card-border) bg-(--bg-secondary) px-2 py-1 text-xs text-primary-wh40k"
             placeholder="0"
           />
         </label>
       </div>
       <div className="grid grid-cols-1 gap-2 md:grid-cols-4">
-        <label className="text-[11px] text-[var(--text-tertiary)] space-y-1">
+        <label className="text-[11px] text-(--text-tertiary) space-y-1">
           Active Ability
           <input
             type="number"
@@ -95,11 +95,11 @@ export function HeroRequirementRow({
                 Number.isFinite(parsed) ? parsed : null
               )
             }}
-            className="w-full rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 py-1 text-xs text-[var(--text-primary)]"
+            className="w-full rounded-md border border-(--card-border) bg-(--bg-secondary) px-2 py-1 text-xs text-primary-wh40k"
             placeholder="0"
           />
         </label>
-        <label className="text-[11px] text-[var(--text-tertiary)] space-y-1">
+        <label className="text-[11px] text-(--text-tertiary) space-y-1">
           Passive Ability
           <input
             type="number"
@@ -112,11 +112,11 @@ export function HeroRequirementRow({
                 Number.isFinite(parsed) ? parsed : null
               )
             }}
-            className="w-full rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 py-1 text-xs text-[var(--text-primary)]"
+            className="w-full rounded-md border border-(--card-border) bg-(--bg-secondary) px-2 py-1 text-xs text-primary-wh40k"
             placeholder="0"
           />
         </label>
-        <label className="text-[11px] text-[var(--text-tertiary)] space-y-1">
+        <label className="text-[11px] text-(--text-tertiary) space-y-1">
           Mythic (MoW)
           <input
             type="number"
@@ -130,18 +130,18 @@ export function HeroRequirementRow({
                 Number.isFinite(parsed) ? parsed : null
               )
             }}
-            className="w-full rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 py-1 text-xs text-[var(--text-primary)]"
+            className="w-full rounded-md border border-(--card-border) bg-(--bg-secondary) px-2 py-1 text-xs text-primary-wh40k"
             placeholder="0-4"
           />
         </label>
-        <label className="text-[11px] text-[var(--text-tertiary)] space-y-1">
+        <label className="text-[11px] text-(--text-tertiary) space-y-1">
           Min Rarity
           <select
             value={value.min_rarity ?? ''}
             onChange={(event) =>
               setField('min_rarity', event.target.value || null)
             }
-            className="w-full rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 py-1 text-xs text-[var(--text-primary)]"
+            className="w-full rounded-md border border-(--card-border) bg-(--bg-secondary) px-2 py-1 text-xs text-primary-wh40k"
           >
             <option value="">No minimum</option>
             {rarityOptions.map((rarity) => (
@@ -152,12 +152,12 @@ export function HeroRequirementRow({
           </select>
         </label>
       </div>
-      <label className="text-[11px] text-[var(--text-tertiary)] space-y-1">
+      <label className="text-[11px] text-(--text-tertiary) space-y-1">
         Notes
         <input
           value={value.notes ?? ''}
           onChange={(event) => setField('notes', event.target.value || null)}
-          className="w-full rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 py-1 text-xs text-[var(--text-primary)]"
+          className="w-full rounded-md border border-(--card-border) bg-(--bg-secondary) px-2 py-1 text-xs text-primary-wh40k"
           placeholder="Optional notes"
         />
       </label>

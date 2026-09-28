@@ -47,7 +47,7 @@ export function BoxWhiskerPlot({
 
   if (values.length === 0) {
     return (
-      <div className="text-sm text-[var(--text-secondary)]">
+      <div className="text-sm text-secondary-wh40k">
         Not enough data to render a distribution.
       </div>
     )
@@ -140,7 +140,7 @@ export function BoxWhiskerPlot({
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-between text-xs text-[var(--text-secondary)]">
+      <div className="flex justify-between text-xs text-secondary-wh40k">
         <span>Damage distribution</span>
         <span>{formatNumber(sampleSize)} hits</span>
       </div>
@@ -259,33 +259,33 @@ export function BoxWhiskerPlot({
         </svg>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs text-[var(--text-secondary)]">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs text-secondary-wh40k">
         <div>
-          <div className="font-semibold text-[var(--text-primary)]">
+          <div className="font-semibold text-primary-wh40k">
             {formatDamage(min)}
           </div>
           <div>Min</div>
         </div>
         <div>
-          <div className="font-semibold text-[var(--text-primary)]">
+          <div className="font-semibold text-primary-wh40k">
             {formatDamage(q1)}
           </div>
           <div>Q1</div>
         </div>
         <div>
-          <div className="font-semibold text-[var(--text-primary)]">
+          <div className="font-semibold text-primary-wh40k">
             {formatDamage(median)}
           </div>
           <div>Median</div>
         </div>
         <div>
-          <div className="font-semibold text-[var(--text-primary)]">
+          <div className="font-semibold text-primary-wh40k">
             {formatDamage(q3)}
           </div>
           <div>Q3</div>
         </div>
         <div>
-          <div className="font-semibold text-[var(--text-primary)]">
+          <div className="font-semibold text-primary-wh40k">
             {formatDamage(max)}
           </div>
           <div>Max</div>

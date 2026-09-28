@@ -4,7 +4,7 @@ import { CardSkeleton, TableSkeleton } from '@/app/components/ui'
 export default function HomeLoading() {
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 lg:px-8">
-      <div className="h-10 w-full animate-pulse rounded-lg bg-[var(--bg-secondary)]" />
+      <div className="h-10 w-full animate-pulse rounded-lg bg-(--bg-secondary)" />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         <CardSkeleton />
         <CardSkeleton />

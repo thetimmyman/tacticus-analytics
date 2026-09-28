@@ -40,7 +40,7 @@ export default function OverallLeaderboard({
     return (
       <div className="p-8 text-center">
         <div className="text-red-500 text-lg font-bold mb-2">Access Denied</div>
-        <div className="text-[var(--text-secondary)]">
+        <div className="text-secondary-wh40k">
           You must be a member of a guild to view the leaderboard
         </div>
       </div>
@@ -96,7 +96,7 @@ export default function OverallLeaderboard({
         </>
       )}
 
-      <div className="mt-8 bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg p-6">
+      <div className="mt-8 bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg p-6">
         <OverallLeaderboardCalculationsFAQ />
       </div>
     </div>

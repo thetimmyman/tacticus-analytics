@@ -30,7 +30,7 @@ export function BossCard({ boss, milestone }: BossCardProps) {
 
   return (
     <Link href={`/boss-playbooks/${boss.id}`}>
-      <div className="group card-wh40k p-3 hover:border-[var(--accent)] transition-colors cursor-pointer h-full">
+      <div className="group card-wh40k p-3 hover:border-accent-wh40k transition-colors cursor-pointer h-full">
         <div className="flex items-start gap-3">
           <div className="relative shrink-0">
             <BossPortrait
@@ -55,33 +55,33 @@ export function BossCard({ boss, milestone }: BossCardProps) {
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <h3 className="font-semibold text-[var(--text-primary)] truncate leading-tight">
+                <h3 className="font-semibold text-primary-wh40k truncate leading-tight">
                   {boss.name}
                 </h3>
-                <p className="text-xs text-[var(--text-secondary)] truncate">
+                <p className="text-xs text-secondary-wh40k truncate">
                   {boss.faction}
                   {boss.strain && (
-                    <span className="text-[var(--text-tertiary)]">
+                    <span className="text-(--text-tertiary)">
                       {' '}
                       • {boss.strain}
                     </span>
                   )}
                 </p>
               </div>
-              <ChevronRight className="h-4 w-4 text-[var(--text-tertiary)] group-hover:text-[var(--accent)] transition-colors shrink-0" />
+              <ChevronRight className="h-4 w-4 text-(--text-tertiary) group-hover:text-(--accent) transition-colors shrink-0" />
             </div>
 
             <div className="flex flex-wrap items-center gap-1.5 mt-2">
-              <span className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
+              <span className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-sm bg-(--bg-secondary) text-secondary-wh40k">
                 <Clock className="h-3 w-3" />
                 {boss.turnLimit}
               </span>
-              <span className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded bg-red-500/10 text-red-400">
+              <span className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-sm bg-red-500/10 text-red-400">
                 <Ban className="h-3 w-3" />
                 {bannedDisplay}
               </span>
               {boss.primesPlaybook && (
-                <span className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400">
+                <span className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-sm bg-amber-500/10 text-amber-400">
                   <Users className="h-3 w-3" />
                   Primes
                 </span>

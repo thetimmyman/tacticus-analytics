@@ -28,13 +28,13 @@ const VOTLWCalculationsFAQ = lazy(
 
 const Skeleton = ({ height = '400px' }: { height?: string }) => (
   <div
-    className={`animate-pulse bg-[var(--card-bg)] rounded-lg border border-[var(--card-border)]`}
+    className={`animate-pulse bg-(--card-bg) rounded-lg border border-(--card-border)`}
     style={{ height }}
   >
     <div className="flex items-center justify-center h-full">
       <div className="text-center">
         <Spinner size="lg" className="mx-auto mb-4 h-12 w-12 text-primary" />
-        <p className="text-[var(--text-secondary)]">Loading section...</p>
+        <p className="text-secondary-wh40k">Loading section...</p>
       </div>
     </div>
   </div>
@@ -47,15 +47,15 @@ const SeasonStatsSkeleton = () => (
       {[1, 2].map((i) => (
         <div
           key={`skeleton-dealer-${i}`}
-          className="animate-pulse bg-gradient-to-br from-black via-gray-900 to-black rounded-xl p-6 border-2 border-[var(--card-border)]"
+          className="animate-pulse bg-linear-to-br from-black via-gray-900 to-black rounded-xl p-6 border-2 border-(--card-border)"
         >
           <div className="text-center space-y-4">
-            <div className="h-6 bg-[var(--card-bg)] rounded mx-auto w-48"></div>
-            <div className="h-3 bg-[var(--card-bg)] rounded mx-auto w-32"></div>
+            <div className="h-6 bg-(--card-bg) rounded-sm mx-auto w-48"></div>
+            <div className="h-3 bg-(--card-bg) rounded-sm mx-auto w-32"></div>
             <div className="bg-black/60 rounded-lg p-4">
-              <div className="h-12 bg-[var(--card-bg)] rounded mx-auto w-20 mb-2"></div>
-              <div className="h-3 bg-[var(--card-bg)] rounded mx-auto w-24 mb-3"></div>
-              <div className="h-8 bg-[var(--card-bg)] rounded mx-auto w-36"></div>
+              <div className="h-12 bg-(--card-bg) rounded-sm mx-auto w-20 mb-2"></div>
+              <div className="h-3 bg-(--card-bg) rounded-sm mx-auto w-24 mb-3"></div>
+              <div className="h-8 bg-(--card-bg) rounded-sm mx-auto w-36"></div>
             </div>
           </div>
         </div>
@@ -63,21 +63,21 @@ const SeasonStatsSkeleton = () => (
     </div>
 
     {/* Honorable Mentions */}
-    <div className="bg-gradient-to-br from-black via-amber-950/20 to-black rounded-lg border-2 border-amber-900/50 p-6">
+    <div className="bg-linear-to-br from-black via-amber-950/20 to-black rounded-lg border-2 border-amber-900/50 p-6">
       <div className="animate-pulse space-y-4">
-        <div className="h-8 bg-amber-900/30 rounded mx-auto w-48"></div>
+        <div className="h-8 bg-amber-900/30 rounded-sm mx-auto w-48"></div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={`skeleton-mention-${i}`}
-              className="bg-gradient-to-br from-amber-700/20 to-amber-800/20 rounded-lg p-4 border border-amber-800/50"
+              className="bg-linear-to-br from-amber-700/20 to-amber-800/20 rounded-lg p-4 border border-amber-800/50"
             >
               <div className="space-y-3">
-                <div className="h-4 bg-amber-800/50 rounded w-24 ml-auto"></div>
-                <div className="h-5 bg-amber-700/50 rounded w-32"></div>
+                <div className="h-4 bg-amber-800/50 rounded-sm w-24 ml-auto"></div>
+                <div className="h-5 bg-amber-700/50 rounded-sm w-32"></div>
                 <div className="border-t border-amber-900/30 pt-3">
-                  <div className="h-8 bg-amber-700/50 rounded w-16 mb-1"></div>
-                  <div className="h-3 bg-amber-800/50 rounded w-20"></div>
+                  <div className="h-8 bg-amber-700/50 rounded-sm w-16 mb-1"></div>
+                  <div className="h-3 bg-amber-800/50 rounded-sm w-20"></div>
                 </div>
               </div>
             </div>
@@ -89,13 +89,13 @@ const SeasonStatsSkeleton = () => (
 )
 
 const LeaderboardSkeleton = () => (
-  <div className="bg-gradient-to-br from-yellow-950/20 via-black to-yellow-950/20 rounded-lg border-2 border-yellow-700/30 p-6">
+  <div className="bg-linear-to-br from-yellow-950/20 via-black to-yellow-950/20 rounded-lg border-2 border-yellow-700/30 p-6">
     <div className="animate-pulse space-y-4">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <div className="h-8 bg-yellow-700/30 rounded w-48 mb-1"></div>
-          <div className="h-3 bg-yellow-800/30 rounded w-32"></div>
+          <div className="h-8 bg-yellow-700/30 rounded-sm w-48 mb-1"></div>
+          <div className="h-3 bg-yellow-800/30 rounded-sm w-32"></div>
         </div>
         <div className="h-10 bg-yellow-900/30 rounded-lg w-32"></div>
       </div>
@@ -105,17 +105,17 @@ const LeaderboardSkeleton = () => (
         {[1, 2, 3].map((i) => (
           <div
             key={`skeleton-top-${i}`}
-            className="bg-gradient-to-br from-black/80 to-yellow-950/30 rounded-lg border-2 border-yellow-600/50 p-4"
+            className="bg-linear-to-br from-black/80 to-yellow-950/30 rounded-lg border-2 border-yellow-600/50 p-4"
           >
             <div className="flex justify-between items-center mb-2">
-              <div className="h-5 bg-yellow-600/30 rounded w-32 ml-6"></div>
-              <div className="h-6 bg-yellow-600/30 rounded w-20"></div>
+              <div className="h-5 bg-yellow-600/30 rounded-sm w-32 ml-6"></div>
+              <div className="h-6 bg-yellow-600/30 rounded-sm w-20"></div>
             </div>
             <div className="flex gap-3">
               {[1, 2, 3, 4].map((j) => (
                 <div
                   key={j}
-                  className="h-6 bg-yellow-800/30 rounded w-12"
+                  className="h-6 bg-yellow-800/30 rounded-sm w-12"
                 ></div>
               ))}
             </div>
@@ -127,9 +127,9 @@ const LeaderboardSkeleton = () => (
 )
 
 const IndividualAwardsSkeleton = () => (
-  <div className="bg-gradient-to-br from-indigo-950/20 via-black to-purple-950/20 rounded-lg border-2 border-purple-700/30 p-6">
+  <div className="bg-linear-to-br from-indigo-950/20 via-black to-purple-950/20 rounded-lg border-2 border-purple-700/30 p-6">
     <div className="animate-pulse space-y-4">
-      <div className="h-8 bg-purple-700/30 rounded mx-auto w-48"></div>
+      <div className="h-8 bg-purple-700/30 rounded-sm mx-auto w-48"></div>
       <div className="overflow-x-auto">
         <div className="min-w-full">
           {/* Table Header */}
@@ -145,7 +145,7 @@ const IndividualAwardsSkeleton = () => (
               <div
                 key={label}
                 aria-label={label}
-                className="flex-1 h-4 bg-purple-700/30 rounded mx-1"
+                className="flex-1 h-4 bg-purple-700/30 rounded-sm mx-1"
               ></div>
             ))}
           </div>
@@ -158,7 +158,7 @@ const IndividualAwardsSkeleton = () => (
               {[1, 2, 3, 4, 5, 6].map((j) => (
                 <div
                   key={j}
-                  className="flex-1 h-4 bg-purple-800/20 rounded mx-1"
+                  className="flex-1 h-4 bg-purple-800/20 rounded-sm mx-1"
                 ></div>
               ))}
             </div>
@@ -170,21 +170,21 @@ const IndividualAwardsSkeleton = () => (
 )
 
 const BattlefieldHonorsSkeleton = () => (
-  <div className="bg-gradient-to-br from-amber-950/20 via-black to-amber-950/20 rounded-lg border-2 border-amber-700/30 p-6">
+  <div className="bg-linear-to-br from-amber-950/20 via-black to-amber-950/20 rounded-lg border-2 border-amber-700/30 p-6">
     <div className="animate-pulse space-y-4">
-      <div className="h-8 bg-amber-700/30 rounded mx-auto w-48"></div>
+      <div className="h-8 bg-amber-700/30 rounded-sm mx-auto w-48"></div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div
             key={`skeleton-honor-${i}`}
-            className="bg-gradient-to-br from-amber-700/20 to-amber-800/20 rounded-lg p-4 border border-amber-800/50"
+            className="bg-linear-to-br from-amber-700/20 to-amber-800/20 rounded-lg p-4 border border-amber-800/50"
           >
             <div className="space-y-3">
-              <div className="h-4 bg-amber-800/50 rounded w-24 ml-auto"></div>
-              <div className="h-5 bg-amber-700/50 rounded w-32"></div>
+              <div className="h-4 bg-amber-800/50 rounded-sm w-24 ml-auto"></div>
+              <div className="h-5 bg-amber-700/50 rounded-sm w-32"></div>
               <div className="border-t border-amber-900/30 pt-3">
-                <div className="h-8 bg-amber-700/50 rounded w-16 mb-1"></div>
-                <div className="h-3 bg-amber-800/50 rounded w-20"></div>
+                <div className="h-8 bg-amber-700/50 rounded-sm w-16 mb-1"></div>
+                <div className="h-3 bg-amber-800/50 rounded-sm w-20"></div>
               </div>
             </div>
           </div>
@@ -229,7 +229,7 @@ export default function VOTLWContainer({
               size="lg"
               className="mx-auto mb-4 h-12 w-12 text-primary"
             />
-            <p className="text-[var(--text-secondary)]">
+            <p className="text-secondary-wh40k">
               Calculating VOTLW standings...
             </p>
           </div>

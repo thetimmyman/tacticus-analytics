@@ -108,7 +108,7 @@ export default async function UnauthorizedPage({
           <h3 className="text-amber-400 font-bold mb-3 text-center uppercase">
             Clearance Requirements:
           </h3>
-          <ul className="text-[var(--text-secondary)] text-sm space-y-2">
+          <ul className="text-secondary-wh40k text-sm space-y-2">
             <li className="flex items-start gap-2">
               <span className="text-amber-500 mt-1">▸</span>
               <span>
@@ -140,11 +140,11 @@ export default async function UnauthorizedPage({
           <h3 className="text-red-400 font-bold mb-3 text-center uppercase">
             Cluster Sanctum Notice:
           </h3>
-          <p className="text-[var(--text-secondary)] text-sm mb-4">
+          <p className="text-secondary-wh40k text-sm mb-4">
             This sacred data-forge is reserved for guilds bearing the mark of{' '}
             {clusterName}.
           </p>
-          <div className="bg-black/50 border border-amber-900/30 rounded p-4">
+          <div className="bg-black/50 border border-amber-900/30 rounded-sm p-4">
             <p className="text-amber-400/80 text-sm">
               <strong>For Independent Guilds:</strong> Your guild dashboard
               tracks boss damage, token status, and guild activity. Cluster
@@ -160,7 +160,7 @@ export default async function UnauthorizedPage({
         <h3 className="text-red-400 font-bold mb-3 text-center uppercase">
           Access Recovery Protocols:
         </h3>
-        <ol className="text-[var(--text-secondary)] text-sm space-y-2">
+        <ol className="text-secondary-wh40k text-sm space-y-2">
           <li className="flex items-start gap-2">
             <span className="text-red-400 mt-1">01.</span>
             <span>Verify your authentication status is current</span>
@@ -186,7 +186,7 @@ export default async function UnauthorizedPage({
       <div className="flex flex-col sm:flex-row gap-4">
         <Link
           href="/dashboard"
-          className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-black font-bold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+          className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-black font-bold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
         >
           RETURN TO SANCTIONED ZONE
         </Link>

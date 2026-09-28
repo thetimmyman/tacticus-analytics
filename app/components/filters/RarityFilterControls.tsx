@@ -88,7 +88,7 @@ export function RarityFilterControls({
 
   return (
     <div className={`flex flex-wrap items-center gap-2 ${className}`}>
-      <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
+      <span className="text-xs font-semibold uppercase tracking-wide text-(--text-tertiary)">
         {label}
       </span>
       {sortedAvailable.map((rarity) => {
@@ -116,7 +116,7 @@ export function RarityFilterControls({
             <span className="font-semibold">{config.prefix}</span>
             <span className="hidden sm:inline ml-1">{rarity}</span>
             {typeof count === 'number' && (
-              <span className="ml-2 text-[var(--text-tertiary)]">{count}</span>
+              <span className="ml-2 text-(--text-tertiary)">{count}</span>
             )}
           </button>
         )
@@ -133,7 +133,7 @@ export function RarityFilterControls({
           </button>
         )}
       {normalizedSelected.length === 0 && normalizedDefault.length > 0 && (
-        <span className="text-[var(--text-tertiary)] text-xs italic">
+        <span className="text-(--text-tertiary) text-xs italic">
           Showing defaults
         </span>
       )}

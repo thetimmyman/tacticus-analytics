@@ -153,8 +153,8 @@ export function PlayerOverview({
     : capBudget.status === 'season_ended'
       ? {
           label: CAP_STATUS_LABEL.season_ended,
-          tone: 'text-[var(--text-secondary)]',
-          dot: 'bg-[var(--text-secondary)]'
+          tone: 'text-secondary-wh40k',
+          dot: 'bg-(--text-secondary)'
         }
       : capBudget.status === 'at_cap'
         ? {
@@ -176,8 +176,8 @@ export function PlayerOverview({
     : bombBudget.status === 'season_ended'
       ? {
           label: CAP_STATUS_LABEL.season_ended,
-          tone: 'text-[var(--text-secondary)]',
-          dot: 'bg-[var(--text-secondary)]'
+          tone: 'text-secondary-wh40k',
+          dot: 'bg-(--text-secondary)'
         }
       : bombBudget.status === 'at_cap'
         ? {
@@ -199,7 +199,7 @@ export function PlayerOverview({
         ? 'text-red-400'
         : budget.status === 'at_cap' && budget.capBudgetSeconds < 3600
           ? 'text-amber-300'
-          : 'text-[var(--text-primary)]'
+          : 'text-primary-wh40k'
 
   const capBudgetToneClass = burnToneClass(capBudget)
   const bombBudgetToneClass = burnToneClass(bombBudget)
@@ -245,7 +245,7 @@ export function PlayerOverview({
     <div className="space-y-6">
       {/* Performance Summary */}
       <div className="space-y-4">
-        <h3 className="text-sm font-medium text-[var(--text-secondary)] uppercase tracking-wider">
+        <h3 className="text-sm font-medium text-secondary-wh40k uppercase tracking-wider">
           Performance Summary
         </h3>
 
@@ -462,13 +462,13 @@ export function PlayerOverview({
               />
             </div>
             {capBudget && (
-              <p className="mt-3 text-xs text-[var(--text-secondary)]">
-                <span className="text-[var(--text-primary)]">Burn timer</span>{' '}
-                is the total time still affordable at a full bank across the
-                rest of the season — the regeneration clock pauses when you are
-                full, so every minute there pushes future tokens back until one
-                slips past the season deadline. At zero, one is gone and the
-                timer resets to a full interval. Bombs work identically: the 18h
+              <p className="mt-3 text-xs text-secondary-wh40k">
+                <span className="text-primary-wh40k">Burn timer</span> is the
+                total time still affordable at a full bank across the rest of
+                the season — the regeneration clock pauses when you are full, so
+                every minute there pushes future tokens back until one slips
+                past the season deadline. At zero, one is gone and the timer
+                resets to a full interval. Bombs work identically: the 18h
                 cooldown only runs once the bomb is spent, so a bomb sitting in
                 hand is burning the same way 3/3 tokens are.
               </p>
@@ -480,15 +480,15 @@ export function PlayerOverview({
       {/* Cross-Guild Comparison Toggle */}
       {canCompare && (
         <div className="flex items-center gap-3 text-xs">
-          <span className="text-[var(--text-secondary)]">Compare against:</span>
-          <div className="flex items-center gap-0.5 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-0.5">
+          <span className="text-secondary-wh40k">Compare against:</span>
+          <div className="flex items-center gap-0.5 bg-(--card-bg) border border-(--card-border) rounded-lg p-0.5">
             <button
               type="button"
               onClick={() => setCompareToUserGuild(false)}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                 !isCompareToUserGuild
-                  ? 'bg-[var(--primary)] text-white'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                  ? 'bg-primary-wh40k text-white'
+                  : 'text-secondary-wh40k hover:text-primary-wh40k'
               }`}
             >
               {playerGuildLabel || 'Their Guild'}
@@ -498,15 +498,15 @@ export function PlayerOverview({
               onClick={() => setCompareToUserGuild(true)}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                 isCompareToUserGuild
-                  ? 'bg-[var(--primary)] text-white'
-                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                  ? 'bg-primary-wh40k text-white'
+                  : 'text-secondary-wh40k hover:text-primary-wh40k'
               }`}
             >
               {userGuildLabel || 'Your Guild'}
             </button>
           </div>
           {isLoadingUserGuildAverages && (
-            <span className="text-[var(--text-secondary)] animate-pulse">
+            <span className="text-secondary-wh40k animate-pulse">
               Loading averages...
             </span>
           )}
@@ -548,19 +548,17 @@ function StandingTile({
   const hasRank = Boolean(rank && total)
   const deltaClass = positive ? 'text-green-400' : 'text-red-400'
   return (
-    <div className="rounded-lg border border-[var(--card-border)] border-l-2 border-l-[var(--accent)] bg-[var(--card-bg)] px-4 py-3">
+    <div className="rounded-lg border border-(--card-border) border-l-2 border-l-(--accent) bg-(--card-bg) px-4 py-3">
       <div className="flex items-center justify-between gap-2">
-        <div className="text-sm text-[var(--text-secondary)]">{label}</div>
+        <div className="text-sm text-secondary-wh40k">{label}</div>
         {hasRank && (
           <div className={`text-sm font-semibold ${deltaClass}`}>{delta}</div>
         )}
       </div>
       {hasRank ? (
         <div className="mt-1 flex items-baseline gap-2">
-          <span className="text-3xl font-bold text-[var(--accent)]">
-            #{rank}
-          </span>
-          <span className="text-sm text-[var(--text-secondary)]">
+          <span className="text-3xl font-bold text-(--accent)">#{rank}</span>
+          <span className="text-sm text-secondary-wh40k">
             of {total} {scope}
           </span>
         </div>
@@ -593,12 +591,12 @@ function SummaryStat({
 }: SummaryStatProps) {
   return (
     <div>
-      <div className="text-sm text-[var(--text-secondary)]">{label}</div>
+      <div className="text-sm text-secondary-wh40k">{label}</div>
       <div
         className={[
           'text-xl font-bold',
-          accent ? 'text-[var(--accent)]' : 'text-[var(--text-primary)]',
-          emphasis ? 'text-[var(--primary)]' : '',
+          accent ? 'text-(--accent)' : 'text-primary-wh40k',
+          emphasis ? 'text-(--primary)' : '',
           className
         ]
           .filter(Boolean)
@@ -610,7 +608,7 @@ function SummaryStat({
         <div
           className={[
             'text-xs mt-1',
-            captionClassName || 'text-[var(--text-secondary)]'
+            captionClassName || 'text-secondary-wh40k'
           ].join(' ')}
         >
           {caption}

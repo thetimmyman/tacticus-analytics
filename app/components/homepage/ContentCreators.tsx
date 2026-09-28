@@ -29,21 +29,21 @@ type ResourceEntry = {
 
 const LINK_BUTTON_CLASS: Record<LinkType, string> = {
   youtube:
-    'bg-gradient-to-r from-red-600 to-red-500 hover:brightness-110 border-red-500/50',
+    'bg-linear-to-r from-red-600 to-red-500 hover:brightness-110 border-red-500/50',
   tiktok:
-    'bg-gradient-to-r from-[var(--bg-from)] to-[var(--bg-to)] hover:brightness-110 border-[var(--card-border)]',
+    'bg-linear-to-r from-(--bg-from) to-(--bg-to) hover:brightness-110 border-(--card-border)',
   sheets:
-    'bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 border-green-500/50',
+    'bg-linear-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 border-green-500/50',
   sheets2:
-    'bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 border-green-500/50',
+    'bg-linear-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 border-green-500/50',
   website:
-    'bg-gradient-to-r from-[var(--primary)] to-blue-500 hover:from-blue-500 hover:to-blue-400 border-blue-500/50',
+    'bg-linear-to-r from-(--primary) to-blue-500 hover:from-blue-500 hover:to-blue-400 border-blue-500/50',
   github:
-    'bg-gradient-to-r from-[var(--card-bg)] to-[var(--bg-via)] hover:brightness-110 border-[var(--card-border)]',
+    'bg-linear-to-r from-(--card-bg) to-(--bg-via) hover:brightness-110 border-(--card-border)',
   reddit:
-    'bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 border-orange-500/50',
+    'bg-linear-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 border-orange-500/50',
   discord:
-    'bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 border-indigo-500/50'
+    'bg-linear-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 border-indigo-500/50'
 }
 
 const LINK_DEFAULT_LABEL: Record<LinkType, string> = {
@@ -83,7 +83,7 @@ function ResourceLinkButton({ link }: { link: ResourceLink }) {
       href={link.url}
       target="_blank"
       rel="noopener noreferrer"
-      className={`inline-flex items-center justify-center px-4 py-2 ${LINK_BUTTON_CLASS[link.type]} text-[var(--text-primary)] text-sm font-bold rounded-lg transition-all duration-200 border`}
+      className={`inline-flex items-center justify-center px-4 py-2 ${LINK_BUTTON_CLASS[link.type]} text-primary-wh40k text-sm font-bold rounded-lg transition-all duration-200 border`}
     >
       <LinkIcon type={link.type} />
       {link.label ?? LINK_DEFAULT_LABEL[link.type]}
@@ -97,16 +97,16 @@ function ResourceGrid({ entries }: { entries: ResourceEntry[] }) {
       {entries.map((entry) => (
         <div
           key={entry.name}
-          className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 backdrop-blur-sm rounded-lg border border-[var(--card-border)] p-6 hover:border-red-500/50 transition-all duration-200"
+          className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 backdrop-blur-xs rounded-lg border border-(--card-border) p-6 hover:border-red-500/50 transition-all duration-200"
         >
           <div className="text-center">
-            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden bg-gradient-to-br from-red-500 to-red-700 border border-red-500/30">
-              <Film className="h-7 w-7 text-[var(--text-primary)]" />
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden bg-linear-to-br from-red-500 to-red-700 border border-red-500/30">
+              <Film className="h-7 w-7 text-primary-wh40k" />
             </div>
             <h3 className="text-lg font-semibold text-red-400 mb-2 tracking-wide">
               {entry.name}
             </h3>
-            <p className="text-sm text-[var(--text-secondary)] mb-4">
+            <p className="text-sm text-secondary-wh40k mb-4">
               {entry.description}
             </p>
             <div className="flex flex-col space-y-2">
@@ -398,10 +398,10 @@ export function ContentCreators() {
     <div>
       <div className="mb-8">
         <div className="text-center mb-6">
-          <h3 className="text-xl md:text-2xl font-bold text-[var(--text-primary)] mb-2 tracking-wide">
+          <h3 className="text-xl md:text-2xl font-bold text-primary-wh40k mb-2 tracking-wide">
             OFFICIAL RESOURCES
           </h3>
-          <div className="w-24 h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent mx-auto"></div>
+          <div className="w-24 h-0.5 bg-linear-to-r from-transparent via-red-500 to-transparent mx-auto"></div>
         </div>
         <ResourceGrid entries={officialResources} />
       </div>
@@ -411,10 +411,10 @@ export function ContentCreators() {
       {/* Non-Cluster Community Creators */}
       <div className="mt-8">
         <div className="text-center mb-6">
-          <h3 className="text-xl md:text-2xl font-bold text-[var(--text-primary)] mb-2 tracking-wide">
+          <h3 className="text-xl md:text-2xl font-bold text-primary-wh40k mb-2 tracking-wide">
             COMMUNITY TOOLS & RESOURCES
           </h3>
-          <div className="w-24 h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent mx-auto"></div>
+          <div className="w-24 h-0.5 bg-linear-to-r from-transparent via-red-500 to-transparent mx-auto"></div>
         </div>
 
         <ResourceGrid entries={communityCreators} />

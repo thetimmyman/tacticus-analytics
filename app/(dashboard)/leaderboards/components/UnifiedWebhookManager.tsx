@@ -442,7 +442,7 @@ export default function UnifiedWebhookManager({
   ].filter((category) => category.webhooks.length > 0)
   if (loading) {
     return (
-      <div className="p-8 text-center text-[var(--text-secondary)]">
+      <div className="p-8 text-center text-secondary-wh40k">
         <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
         Loading webhook settings...
       </div>
@@ -479,19 +479,19 @@ export default function UnifiedWebhookManager({
           return (
             <div
               key={categoryKey}
-              className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg"
+              className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg"
             >
               <button
                 onClick={() => toggleCategory(categoryKey)}
-                className="w-full p-4 flex items-center justify-between hover:bg-[var(--card-hover)] transition-colors"
+                className="w-full p-4 flex items-center justify-between hover:bg-(--card-hover) transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <Icon className="w-5 h-5 text-[var(--accent)]" />
+                  <Icon className="w-5 h-5 text-(--accent)" />
                   <div className="text-left">
-                    <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                    <h3 className="text-lg font-semibold text-primary-wh40k">
                       {category.title}
                     </h3>
-                    <p className="text-sm text-[var(--text-secondary)]">
+                    <p className="text-sm text-secondary-wh40k">
                       {category.description}
                     </p>
                   </div>
@@ -503,7 +503,7 @@ export default function UnifiedWebhookManager({
                 )}
               </button>
               {isExpanded && (
-                <div className="border-t border-[var(--card-border)] p-4 space-y-4">
+                <div className="border-t border-(--card-border) p-4 space-y-4">
                   {category.webhooks.map((webhook) => {
                     const config =
                       WEBHOOK_TYPES[

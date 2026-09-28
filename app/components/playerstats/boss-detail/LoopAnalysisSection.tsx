@@ -69,10 +69,10 @@ export function LoopAnalysisSection({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+          <h3 className="text-lg font-semibold text-primary-wh40k">
             Loop Analysis
           </h3>
-          <p className="text-xs text-[var(--text-secondary)]">
+          <p className="text-xs text-secondary-wh40k">
             {loopAnalysisView === 'table'
               ? 'Overall performance by loop - click to expand and see per-boss breakdown.'
               : 'Damage trends across loops' +
@@ -81,14 +81,14 @@ export function LoopAnalysisSection({
                   : ' (all bosses)')}
           </p>
         </div>
-        <div className="flex items-center gap-1 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-1">
+        <div className="flex items-center gap-1 bg-(--card-bg) border border-(--card-border) rounded-lg p-1">
           <button
             type="button"
             onClick={() => setLoopAnalysisView('table')}
             className={`p-1.5 rounded transition-colors ${
               loopAnalysisView === 'table'
-                ? 'bg-[var(--primary)] text-[var(--bg-primary)]'
-                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                ? 'bg-primary-wh40k text-(--bg-primary)'
+                : 'text-secondary-wh40k hover:text-primary-wh40k'
             }`}
             title="Table view"
           >
@@ -99,8 +99,8 @@ export function LoopAnalysisSection({
             onClick={() => setLoopAnalysisView('chart')}
             className={`p-1.5 rounded transition-colors ${
               loopAnalysisView === 'chart'
-                ? 'bg-[var(--primary)] text-[var(--bg-primary)]'
-                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                ? 'bg-primary-wh40k text-(--bg-primary)'
+                : 'text-secondary-wh40k hover:text-primary-wh40k'
             }`}
             title="Chart view"
           >
@@ -110,7 +110,7 @@ export function LoopAnalysisSection({
       </div>
 
       {loopAnalysisView === 'chart' ? (
-        <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-4">
+        <div className="bg-(--card-bg) border border-(--card-border) rounded-lg p-4">
           <LoopFilterChips
             selectedKey={selectedLoopBoss ?? '__all__'}
             options={[
@@ -263,7 +263,7 @@ export function LoopAnalysisSection({
                   content: loop.durationMinutes
                     ? formatDuration(loop.durationMinutes * 60)
                     : '-',
-                  className: 'text-[var(--text-secondary)]'
+                  className: 'text-secondary-wh40k'
                 }
               ],
               detailHeaders: [
@@ -313,12 +313,12 @@ export function LoopAnalysisSection({
                 {
                   label: 'Max Hit',
                   value: formatNumber(loop.maxDamage),
-                  className: 'font-mono text-[var(--text-primary)]'
+                  className: 'font-mono text-primary-wh40k'
                 },
                 {
                   label: 'Hits',
                   value: loop.totalHits,
-                  className: 'text-[var(--text-primary)]'
+                  className: 'text-primary-wh40k'
                 }
               ],
               footer: (

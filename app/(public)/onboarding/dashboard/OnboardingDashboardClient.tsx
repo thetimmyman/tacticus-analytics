@@ -199,13 +199,13 @@ export default function OnboardingDashboardClient({
     <div className="space-y-8">
       <header className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-sm uppercase text-[var(--accent)] tracking-wide">
+          <p className="text-sm uppercase text-(--accent) tracking-wide">
             Welcome, {user.displayName || user.email}
           </p>
-          <h1 className="text-3xl font-semibold text-[var(--text-primary)]">
+          <h1 className="text-3xl font-semibold text-primary-wh40k">
             Onboarding Dashboard
           </h1>
-          <p className="text-sm text-[var(--text-secondary)]">
+          <p className="text-sm text-secondary-wh40k">
             Complete the steps below to finish setting up your guild analytics.
           </p>
         </div>
@@ -236,18 +236,18 @@ export default function OnboardingDashboardClient({
       </header>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <Card className="border-card-border/60 bg-[color-mix(in_srgb,var(--bg-primary)_60%,transparent)] backdrop-blur-sm">
+        <Card className="border-card-border/60 bg-[color-mix(in_srgb,var(--bg-primary)_60%,transparent)] backdrop-blur-xs">
           <CardHeader className="space-y-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                <Shield className="h-5 w-5 text-[var(--accent)]" />
+                <Shield className="h-5 w-5 text-(--accent)" />
                 Step 1 - Guild setup
               </CardTitle>
               <StatusLabel type={guildStatus.type} size="xs">
                 {guildStatus.label}
               </StatusLabel>
             </div>
-            <p className="text-sm text-[var(--text-secondary)]">
+            <p className="text-sm text-secondary-wh40k">
               Choose whether you&apos;re joining an existing guild or
               registering a new one.
             </p>
@@ -292,7 +292,7 @@ export default function OnboardingDashboardClient({
               >
                 <div className="space-y-2">
                   <Label htmlFor="existingGuildCode">Guild code</Label>
-                  <p className="text-xs text-[var(--text-secondary)]">
+                  <p className="text-xs text-secondary-wh40k">
                     Enter the guild code shown on your guild&rsquo;s overview
                     screen inside Tacticus.
                   </p>
@@ -324,7 +324,7 @@ export default function OnboardingDashboardClient({
               >
                 <div className="space-y-2">
                   <Label htmlFor="newGuildCode">Guild code</Label>
-                  <p className="text-xs text-[var(--text-secondary)]">
+                  <p className="text-xs text-secondary-wh40k">
                     Pick a unique 2-7 letter identifier players will use when
                     joining onboarding.
                   </p>
@@ -339,7 +339,7 @@ export default function OnboardingDashboardClient({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="newGuildName">Guild name</Label>
-                  <p className="text-xs text-[var(--text-secondary)]">
+                  <p className="text-xs text-secondary-wh40k">
                     This is the display name everyone will see in analytics. You
                     can tweak it later in guild settings.
                   </p>
@@ -352,14 +352,14 @@ export default function OnboardingDashboardClient({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="newGuildApiKey">Guild leader API key</Label>
-                  <ol className="text-xs text-[var(--text-secondary)] list-decimal list-inside space-y-0.5 my-1">
+                  <ol className="text-xs text-secondary-wh40k list-decimal list-inside space-y-0.5 my-1">
                     <li>
                       Go to{' '}
                       <a
                         href="https://api.tacticusgame.com/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[var(--accent)] underline hover:opacity-80"
+                        className="text-(--accent) underline hover:opacity-80"
                       >
                         api.tacticusgame.com
                       </a>
@@ -465,7 +465,7 @@ export default function OnboardingDashboardClient({
           <div className="flex flex-wrap gap-2">
             <a
               href="/dashboard"
-              className="inline-flex items-center justify-center rounded-md bg-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--bg-primary)] hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] transition-colors"
+              className="inline-flex items-center justify-center rounded-md bg-accent-wh40k px-3 py-2 text-sm font-medium text-(--bg-primary) hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] transition-colors"
             >
               Go to analytics dashboard
             </a>

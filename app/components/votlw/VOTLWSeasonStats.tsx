@@ -15,11 +15,11 @@ function VOTLWSeasonStats({ seasonAwards }: VOTLWSeasonStatsProps) {
       {/* Season Elite Awards - Death Dealers */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* TOP KILLER - DEATH INCARNATE */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-black via-red-950/40 to-black rounded-xl p-6 border-2 border-red-600 shadow-[0_0_40px_rgba(220,38,38,0.6)]">
+        <div className="relative overflow-hidden bg-linear-to-br from-black via-red-950/40 to-black rounded-xl p-6 border-2 border-red-600 shadow-[0_0_40px_rgba(220,38,38,0.6)]">
           {/* Blood splatter background */}
           <div className="absolute inset-0 opacity-20">
-            <div className="absolute top-0 left-1/4 w-3 h-full bg-gradient-to-b from-red-600 to-transparent animate-[drip_6s_ease-in-out_infinite]"></div>
-            <div className="absolute top-0 right-1/3 w-2 h-full bg-gradient-to-b from-red-700 to-transparent animate-[drip_8s_ease-in-out_infinite_2s]"></div>
+            <div className="absolute top-0 left-1/4 w-3 h-full bg-linear-to-b from-red-600 to-transparent animate-[drip_6s_ease-in-out_infinite]"></div>
+            <div className="absolute top-0 right-1/3 w-2 h-full bg-linear-to-b from-red-700 to-transparent animate-[drip_8s_ease-in-out_infinite_2s]"></div>
           </div>
 
           {/* Skull watermark */}
@@ -35,7 +35,7 @@ function VOTLWSeasonStats({ seasonAwards }: VOTLWSeasonStatsProps) {
               Top Killer of the Season
             </div>
 
-            <div className="bg-black/60 backdrop-blur rounded-lg p-4 border border-red-800/50">
+            <div className="bg-black/60 backdrop-blur-sm rounded-lg p-4 border border-red-800/50">
               <div className="text-4xl font-black text-red-400 mb-2 animate-pulse">
                 {seasonAwards?.topKiller?.value || 0}
               </div>
@@ -46,7 +46,7 @@ function VOTLWSeasonStats({ seasonAwards }: VOTLWSeasonStatsProps) {
               <div className="text-2xl font-bold">
                 <PlayerLink playerName={seasonAwards?.topKiller?.player || ''}>
                   <span
-                    className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-white to-red-400 animate-[shimmer_3s_linear_infinite]"
+                    className="text-transparent bg-clip-text bg-linear-to-r from-red-400 via-white to-red-400 animate-[shimmer_3s_linear_infinite]"
                     style={{
                       backgroundSize: '200% auto',
                       textShadow: '0 0 20px rgba(220, 38, 38, 0.8)'
@@ -63,12 +63,12 @@ function VOTLWSeasonStats({ seasonAwards }: VOTLWSeasonStatsProps) {
             </div>
 
             {/* Bottom blood effect */}
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent opacity-80 animate-[plasmaFlow_3s_ease-in-out_infinite]"></div>
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-red-600 to-transparent opacity-80 animate-[plasmaFlow_3s_ease-in-out_infinite]"></div>
           </div>
         </div>
 
         {/* BEST BOMBER - DEMOLITION EXPERT */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-black via-orange-950/40 to-black rounded-xl p-6 border-2 border-orange-600 shadow-[0_0_40px_rgba(234,88,12,0.6)]">
+        <div className="relative overflow-hidden bg-linear-to-br from-black via-orange-950/40 to-black rounded-xl p-6 border-2 border-orange-600 shadow-[0_0_40px_rgba(234,88,12,0.6)]">
           {/* Explosion particles background */}
           <div className="absolute inset-0 opacity-30">
             <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-orange-500 rounded-full animate-[float_4s_ease-in-out_infinite]"></div>
@@ -89,7 +89,7 @@ function VOTLWSeasonStats({ seasonAwards }: VOTLWSeasonStatsProps) {
               Maximum Explosive Force
             </div>
 
-            <div className="bg-black/60 backdrop-blur rounded-lg p-4 border border-orange-800/50">
+            <div className="bg-black/60 backdrop-blur-sm rounded-lg p-4 border border-orange-800/50">
               <div className="text-4xl font-black text-orange-400 mb-2 animate-pulse">
                 {formatNumber(seasonAwards?.bestBomber?.value || 0)}
               </div>
@@ -100,7 +100,7 @@ function VOTLWSeasonStats({ seasonAwards }: VOTLWSeasonStatsProps) {
               <div className="text-2xl font-bold">
                 <PlayerLink playerName={seasonAwards?.bestBomber?.player || ''}>
                   <span
-                    className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-yellow-400 to-orange-400 animate-[shimmer_3s_linear_infinite]"
+                    className="text-transparent bg-clip-text bg-linear-to-r from-orange-400 via-yellow-400 to-orange-400 animate-[shimmer_3s_linear_infinite]"
                     style={{
                       backgroundSize: '200% auto',
                       textShadow: '0 0 20px rgba(234, 88, 12, 0.8)'
@@ -117,7 +117,7 @@ function VOTLWSeasonStats({ seasonAwards }: VOTLWSeasonStatsProps) {
             </div>
 
             {/* Bottom explosion effect */}
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-orange-600 to-transparent opacity-80 animate-[plasmaFlow_3s_ease-in-out_infinite]"></div>
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-orange-600 to-transparent opacity-80 animate-[plasmaFlow_3s_ease-in-out_infinite]"></div>
           </div>
         </div>
       </div>

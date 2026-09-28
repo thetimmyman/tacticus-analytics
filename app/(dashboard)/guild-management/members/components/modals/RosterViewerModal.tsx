@@ -80,19 +80,19 @@ export function RosterViewerModal({ member, onClose }: RosterViewerModalProps) {
 
   return (
     <ModalShell>
-      <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+      <h3 className="text-lg font-semibold text-primary-wh40k mb-4">
         Roster - <MemberName value={member.display_name} />
       </h3>
       {loading && (
         <div className="py-8 text-center">
-          <p className="text-[var(--text-secondary)]">Loading roster...</p>
+          <p className="text-secondary-wh40k">Loading roster...</p>
         </div>
       )}
       {error && (
         <div className="py-8 text-center">
           <p className="text-red-400 mb-2">{error}</p>
           {error.includes('API key') && (
-            <p className="text-xs text-[var(--text-tertiary)]">
+            <p className="text-xs text-(--text-tertiary)">
               This player needs to configure their Player API key to view their
               roster.
             </p>
@@ -102,32 +102,32 @@ export function RosterViewerModal({ member, onClose }: RosterViewerModalProps) {
       {rosterData && (
         <div className="space-y-4">
           {rosterData.powerLevel && (
-            <div className="text-sm text-[var(--text-secondary)]">
+            <div className="text-sm text-secondary-wh40k">
               Power Level:{' '}
-              <span className="text-[var(--text-primary)] font-medium">
+              <span className="text-primary-wh40k font-medium">
                 {formatNumber(rosterData.powerLevel)}
               </span>
             </div>
           )}
           <div className="max-h-96 overflow-y-auto">
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-[var(--card-bg)]">
-                <tr className="border-b border-[var(--card-border)]">
-                  <th className="text-left py-2 text-xs text-[var(--text-secondary)]">
+              <thead className="sticky top-0 bg-(--card-bg)">
+                <tr className="border-b border-(--card-border)">
+                  <th className="text-left py-2 text-xs text-secondary-wh40k">
                     Character
                   </th>
-                  <th className="text-center py-2 text-xs text-[var(--text-secondary)]">
+                  <th className="text-center py-2 text-xs text-secondary-wh40k">
                     Rank
                   </th>
-                  <th className="text-center py-2 text-xs text-[var(--text-secondary)]">
+                  <th className="text-center py-2 text-xs text-secondary-wh40k">
                     Level
                   </th>
-                  <th className="text-left py-2 text-xs text-[var(--text-secondary)]">
+                  <th className="text-left py-2 text-xs text-secondary-wh40k">
                     Faction
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--card-border)]">
+              <tbody className="divide-y divide-(--card-border)">
                 {rosterData.units
                   .sort((a, b) => b.rank - a.rank)
                   .slice(0, 50)
@@ -136,18 +136,16 @@ export function RosterViewerModal({ member, onClose }: RosterViewerModalProps) {
                       key={unit.id}
                       className="hover:bg-[color-mix(in_srgb,var(--accent)_5%,transparent)]"
                     >
-                      <td className="py-2 text-[var(--text-primary)]">
-                        {unit.name}
-                      </td>
+                      <td className="py-2 text-primary-wh40k">{unit.name}</td>
                       <td
                         className={`py-2 text-center font-medium ${getRankColor(unit.rank)}`}
                       >
                         {getRankName(unit.rank)}
                       </td>
-                      <td className="py-2 text-center text-[var(--text-secondary)]">
+                      <td className="py-2 text-center text-secondary-wh40k">
                         {unit.xpLevel}
                       </td>
-                      <td className="py-2 text-[var(--text-secondary)] text-xs">
+                      <td className="py-2 text-secondary-wh40k text-xs">
                         {unit.faction}
                       </td>
                     </tr>
@@ -155,7 +153,7 @@ export function RosterViewerModal({ member, onClose }: RosterViewerModalProps) {
               </tbody>
             </table>
             {rosterData.units.length > 50 && (
-              <p className="text-xs text-[var(--text-tertiary)] text-center mt-2">
+              <p className="text-xs text-(--text-tertiary) text-center mt-2">
                 Showing top 50 of {formatNumber(rosterData.units.length)}{' '}
                 characters
               </p>

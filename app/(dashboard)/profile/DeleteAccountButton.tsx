@@ -107,7 +107,7 @@ export default function DeleteAccountButton({ userId }: { userId: string }) {
 
           <div className="my-6 space-y-4">
             {error && (
-              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded text-sm text-red-400">
+              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-sm text-sm text-red-400">
                 <LinkifiedText
                   text={error}
                   linkClassName="text-red-300 hover:text-red-200 underline"
@@ -118,10 +118,10 @@ export default function DeleteAccountButton({ userId }: { userId: string }) {
             {isDeleting && !error ? (
               <div className="p-6 text-center space-y-4">
                 <Spinner size="lg" className="h-12 w-12 text-red-500" />
-                <p className="text-[var(--text-secondary)]">
+                <p className="text-secondary-wh40k">
                   Deleting your account and all associated data...
                 </p>
-                <p className="text-sm text-[var(--text-tertiary)]">
+                <p className="text-sm text-(--text-tertiary)">
                   Please wait, this may take a few moments.
                 </p>
               </div>
@@ -130,7 +130,7 @@ export default function DeleteAccountButton({ userId }: { userId: string }) {
                 <div>
                   <label
                     htmlFor="confirmDelete"
-                    className="block text-sm font-medium text-[var(--text-secondary)] mb-2"
+                    className="block text-sm font-medium text-secondary-wh40k mb-2"
                   >
                     Type{' '}
                     <span className="font-mono font-bold text-red-400">
@@ -152,7 +152,7 @@ export default function DeleteAccountButton({ userId }: { userId: string }) {
                   />
                 </div>
 
-                <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded">
+                <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-sm">
                   <p className="text-xs text-yellow-400">
                     <strong>Warning:</strong> You will lose access to: • All
                     battle history and statistics • Guild membership and

@@ -97,10 +97,7 @@ export function GuildTable({
                 />
                 {expandedWebhooks === guild.guild_code && clusterId && (
                   <tr>
-                    <td
-                      colSpan={9}
-                      className="px-4 py-3 bg-[var(--card-hover)]"
-                    >
+                    <td colSpan={9} className="px-4 py-3 bg-(--card-hover)">
                       <InlineWebhookManager
                         guildCode={guild.guild_code}
                         guildName={guild.display_name || guild.guild_code}

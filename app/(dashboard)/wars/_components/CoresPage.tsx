@@ -58,7 +58,7 @@ export default function CoresPage({ side }: { side: Side }) {
         description="Global 3-hero cores and pair synergies across all tracked wars, with archived community data included for canonical cores."
       />
       <SideTogglePills active={side} basePath="/wars/cores" />
-      <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+      <Card className="border-(--border) bg-(--bg-primary)">
         <CardContent className="p-4 flex flex-wrap gap-3">
           <Select
             value={String(coreSize)}
@@ -112,13 +112,13 @@ export default function CoresPage({ side }: { side: Side }) {
           </Select>
         </CardContent>
       </Card>
-      <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+      <Card className="border-(--border) bg-(--bg-primary)">
         <CardHeader className="pb-2">
           <CardTitle>{config.cardTitle}</CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
           {isLoading ? (
-            <div className="text-center py-12 text-[var(--text-secondary)]">
+            <div className="text-center py-12 text-secondary-wh40k">
               Loading core compositions...
             </div>
           ) : error ? (

@@ -216,9 +216,7 @@ export function ActivityAnalytics() {
       key: 'guild_name',
       header: 'Guild',
       sortValue: (g) => g.guild_name,
-      render: (g) => (
-        <span className="text-[var(--text-primary)]">{g.guild_name}</span>
-      )
+      render: (g) => <span className="text-primary-wh40k">{g.guild_name}</span>
     },
     {
       key: 'active',
@@ -258,7 +256,7 @@ export function ActivityAnalytics() {
   if (loading && !data) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-[var(--accent)]" />
+        <Loader2 className="h-8 w-8 animate-spin text-(--accent)" />
       </div>
     )
   }
@@ -270,7 +268,7 @@ export function ActivityAnalytics() {
           <p className="text-red-400">{error}</p>
           <button
             onClick={fetchData}
-            className="mt-4 px-4 py-2 bg-[var(--accent)] text-white rounded hover:bg-[var(--accent-hover)]"
+            className="mt-4 px-4 py-2 bg-accent-wh40k text-white rounded-sm hover:bg-(--accent-hover)"
           >
             Retry
           </button>
@@ -294,12 +292,12 @@ export function ActivityAnalytics() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Activity className="h-6 w-6 text-[var(--accent)]" />
+          <Activity className="h-6 w-6 text-(--accent)" />
           <div>
-            <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+            <h2 className="text-lg font-semibold text-primary-wh40k">
               User Activity Analytics
             </h2>
-            <p className="text-sm text-[var(--text-secondary)]">
+            <p className="text-sm text-secondary-wh40k">
               Track app engagement across guilds, roles, and clusters
             </p>
           </div>
@@ -311,15 +309,15 @@ export function ActivityAnalytics() {
               flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors
               ${
                 showFilters || hasActiveFilters
-                  ? 'bg-[var(--accent)] text-white'
-                  : 'bg-[var(--card-bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--card-border)]'
+                  ? 'bg-accent-wh40k text-white'
+                  : 'bg-(--card-bg) text-secondary-wh40k hover:text-primary-wh40k border border-(--card-border)'
               }
             `}
           >
             <Filter className="h-4 w-4" />
             Filters
             {hasActiveFilters && (
-              <span className="ml-1 px-1.5 py-0.5 bg-white/20 rounded text-xs">
+              <span className="ml-1 px-1.5 py-0.5 bg-white/20 rounded-sm text-xs">
                 {
                   [
                     selectedGuild,
@@ -336,7 +334,7 @@ export function ActivityAnalytics() {
               void fetchData()
             }}
             disabled={loading}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-[var(--card-bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--card-border)] transition-colors"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-(--card-bg) text-secondary-wh40k hover:text-primary-wh40k border border-(--card-border) transition-colors"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
@@ -349,13 +347,13 @@ export function ActivityAnalytics() {
           <CardContent className="py-4">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
+                <label className="block text-xs font-medium text-secondary-wh40k mb-1.5">
                   Guild
                 </label>
                 <select
                   value={selectedGuild}
                   onChange={(e) => setSelectedGuild(e.target.value)}
-                  className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-sm text-[var(--text-primary)]"
+                  className="w-full px-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-sm text-primary-wh40k"
                 >
                   <option value="">All Guilds</option>
                   {filters.guilds.map((g) => (
@@ -373,13 +371,13 @@ export function ActivityAnalytics() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
+                <label className="block text-xs font-medium text-secondary-wh40k mb-1.5">
                   Cluster
                 </label>
                 <select
                   value={selectedCluster}
                   onChange={(e) => setSelectedCluster(e.target.value)}
-                  className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-sm text-[var(--text-primary)]"
+                  className="w-full px-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-sm text-primary-wh40k"
                 >
                   <option value="">All Clusters</option>
                   {filters.clusters.map((c) => (
@@ -391,13 +389,13 @@ export function ActivityAnalytics() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
+                <label className="block text-xs font-medium text-secondary-wh40k mb-1.5">
                   Role
                 </label>
                 <select
                   value={selectedRole}
                   onChange={(e) => setSelectedRole(e.target.value)}
-                  className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-sm text-[var(--text-primary)]"
+                  className="w-full px-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-sm text-primary-wh40k"
                 >
                   <option value="">All Roles</option>
                   {filters.roles.map((r) => (
@@ -409,13 +407,13 @@ export function ActivityAnalytics() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
+                <label className="block text-xs font-medium text-secondary-wh40k mb-1.5">
                   Time Period
                 </label>
                 <select
                   value={daysBack}
                   onChange={(e) => setDaysBack(parseInt(e.target.value))}
-                  className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-sm text-[var(--text-primary)]"
+                  className="w-full px-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-sm text-primary-wh40k"
                 >
                   {DAYS_OPTIONS.map((d) => (
                     <option key={d} value={d}>
@@ -430,7 +428,7 @@ export function ActivityAnalytics() {
               <div className="mt-3 flex justify-end">
                 <button
                   onClick={clearFilters}
-                  className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  className="text-sm text-secondary-wh40k hover:text-primary-wh40k"
                 >
                   Clear all filters
                 </button>
@@ -448,10 +446,10 @@ export function ActivityAnalytics() {
                 <Users className="h-5 w-5 text-blue-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-[var(--text-primary)]">
+                <p className="text-2xl font-bold text-primary-wh40k">
                   {summary.totalClaimedUsers}
                 </p>
-                <p className="text-xs text-[var(--text-secondary)]">
+                <p className="text-xs text-secondary-wh40k">
                   Total Claimed Users
                 </p>
               </div>
@@ -466,10 +464,10 @@ export function ActivityAnalytics() {
                 <TrendingUp className="h-5 w-5 text-green-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-[var(--text-primary)]">
+                <p className="text-2xl font-bold text-primary-wh40k">
                   {summary.activeCount}
                 </p>
-                <p className="text-xs text-[var(--text-secondary)]">
+                <p className="text-xs text-secondary-wh40k">
                   Active ({summary.daysBack}d)
                 </p>
               </div>
@@ -484,10 +482,10 @@ export function ActivityAnalytics() {
                 <Users className="h-5 w-5 text-red-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-[var(--text-primary)]">
+                <p className="text-2xl font-bold text-primary-wh40k">
                   {summary.inactiveCount}
                 </p>
-                <p className="text-xs text-[var(--text-secondary)]">Inactive</p>
+                <p className="text-xs text-secondary-wh40k">Inactive</p>
               </div>
             </div>
           </CardContent>
@@ -500,12 +498,10 @@ export function ActivityAnalytics() {
                 <BarChart3 className="h-5 w-5 text-purple-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-[var(--text-primary)]">
+                <p className="text-2xl font-bold text-primary-wh40k">
                   {summary.activityRate}%
                 </p>
-                <p className="text-xs text-[var(--text-secondary)]">
-                  Activity Rate
-                </p>
+                <p className="text-xs text-secondary-wh40k">Activity Rate</p>
               </div>
             </div>
           </CardContent>
@@ -760,7 +756,7 @@ export function ActivityAnalytics() {
           <div className="flex items-center justify-between">
             <CardTitle className="text-base">Guild Activity Table</CardTitle>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)]" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--text-tertiary)" />
               <input
                 type="text"
                 placeholder="Search guilds..."
@@ -769,7 +765,7 @@ export function ActivityAnalytics() {
                   setGuildTableSearch(e.target.value)
                   setGuildTablePage(1)
                 }}
-                className="pl-9 pr-3 py-1.5 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-sm text-[var(--text-primary)] w-48"
+                className="pl-9 pr-3 py-1.5 bg-(--input-bg) border border-(--card-border) rounded-lg text-sm text-primary-wh40k w-48"
               />
             </div>
           </div>
@@ -783,15 +779,15 @@ export function ActivityAnalytics() {
             onSortChange={handleGuildTableSortChange}
             externallySorted
             empty={
-              <div className="py-8 text-center text-[var(--text-secondary)]">
+              <div className="py-8 text-center text-secondary-wh40k">
                 No guilds found
               </div>
             }
           />
 
           {totalGuildPages > 1 && (
-            <div className="flex items-center justify-between mt-4 pt-4 border-t border-[var(--card-border)]">
-              <div className="text-sm text-[var(--text-secondary)]">
+            <div className="flex items-center justify-between mt-4 pt-4 border-t border-(--card-border)">
+              <div className="text-sm text-secondary-wh40k">
                 Showing {(guildTablePage - 1) * GUILDS_PER_PAGE + 1}-
                 {Math.min(
                   guildTablePage * GUILDS_PER_PAGE,
@@ -803,11 +799,11 @@ export function ActivityAnalytics() {
                 <button
                   onClick={() => setGuildTablePage((p) => Math.max(1, p - 1))}
                   disabled={guildTablePage === 1}
-                  className="p-1.5 rounded hover:bg-[var(--card-bg-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-1.5 rounded-sm hover:bg-(--card-bg-hover) disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
-                <span className="text-sm text-[var(--text-primary)]">
+                <span className="text-sm text-primary-wh40k">
                   Page {guildTablePage} of {totalGuildPages}
                 </span>
                 <button
@@ -815,7 +811,7 @@ export function ActivityAnalytics() {
                     setGuildTablePage((p) => Math.min(totalGuildPages, p + 1))
                   }
                   disabled={guildTablePage === totalGuildPages}
-                  className="p-1.5 rounded hover:bg-[var(--card-bg-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-1.5 rounded-sm hover:bg-(--card-bg-hover) disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>

@@ -143,11 +143,7 @@ describe('MobileNav', () => {
     const playerLabel = screen.getByTestId('mobile-account-player-label')
     const guildLabel = screen.getByTestId('mobile-account-guild-label')
 
-    expect(trigger).toHaveClass(
-      'min-w-[44px]',
-      'max-w-[14rem]',
-      'overflow-hidden'
-    )
+    expect(trigger).toHaveClass('min-w-[44px]', 'max-w-56', 'overflow-hidden')
     expect(playerLabel).toHaveClass('min-w-0', 'truncate')
     expect(guildLabel).toHaveClass('truncate')
     expect(playerLabel).toHaveTextContent(longPlayer)

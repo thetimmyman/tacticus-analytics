@@ -182,7 +182,7 @@ export default function TeamAnalyzerPage() {
         description="Select 5 heroes to preview matchup performance and zone tendencies."
       />
 
-      <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+      <Card className="border-(--border) bg-(--bg-primary)">
         <CardHeader className="pb-2">
           <CardTitle>Roster Connection</CardTitle>
         </CardHeader>
@@ -192,7 +192,7 @@ export default function TeamAnalyzerPage() {
               className={
                 rosterConnected
                   ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                  : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border)]'
+                  : 'bg-(--bg-secondary) text-secondary-wh40k border-(--border)'
               }
             >
               {rosterConnected ? 'Roster connected' : 'Roster not connected'}
@@ -224,52 +224,50 @@ export default function TeamAnalyzerPage() {
             </Button>
           </div>
           {rosterErrorMessage && (
-            <div className="text-xs text-[var(--text-tertiary)]">
+            <div className="text-xs text-(--text-tertiary)">
               {rosterErrorMessage}
             </div>
           )}
           {rosterStats ? (
             <>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] p-4 space-y-1">
-                  <div className="text-xs text-[var(--text-tertiary)]">
+                <div className="rounded-lg border border-(--border) bg-(--bg-secondary) p-4 space-y-1">
+                  <div className="text-xs text-(--text-tertiary)">
                     Roster size
                   </div>
-                  <div className="text-lg font-semibold text-[var(--text-primary)]">
+                  <div className="text-lg font-semibold text-primary-wh40k">
                     {formatNumber(rosterStats.total)} heroes
                   </div>
                 </div>
-                <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] p-4 space-y-1">
-                  <div className="text-xs text-[var(--text-tertiary)]">
+                <div className="rounded-lg border border-(--border) bg-(--bg-secondary) p-4 space-y-1">
+                  <div className="text-xs text-(--text-tertiary)">
                     Legendary+
                   </div>
-                  <div className="text-lg font-semibold text-[var(--text-primary)]">
+                  <div className="text-lg font-semibold text-primary-wh40k">
                     {formatNumber(rosterStats.legendary)}
                   </div>
                 </div>
-                <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] p-4 space-y-1">
-                  <div className="text-xs text-[var(--text-tertiary)]">
-                    Mythic
-                  </div>
-                  <div className="text-lg font-semibold text-[var(--text-primary)]">
+                <div className="rounded-lg border border-(--border) bg-(--bg-secondary) p-4 space-y-1">
+                  <div className="text-xs text-(--text-tertiary)">Mythic</div>
+                  <div className="text-lg font-semibold text-primary-wh40k">
                     {formatNumber(rosterStats.mythic)}
                   </div>
                 </div>
               </div>
-              <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--text-secondary)]">
+              <div className="flex flex-wrap items-center gap-3 text-sm text-secondary-wh40k">
                 <span>Top heroes</span>
                 <UnitRow units={rosterStats.topUnits} size="sm" />
               </div>
             </>
           ) : (
-            <div className="text-sm text-[var(--text-secondary)]">
+            <div className="text-sm text-secondary-wh40k">
               Connect your roster to personalize the hero pool for analysis.
             </div>
           )}
         </CardContent>
       </Card>
 
-      <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+      <Card className="border-(--border) bg-(--bg-primary)">
         <CardHeader className="pb-2">
           <CardTitle>Selected Team</CardTitle>
         </CardHeader>
@@ -282,24 +280,24 @@ export default function TeamAnalyzerPage() {
               ) : (
                 <div
                   key={slotKey}
-                  className="h-12 w-12 rounded-full border border-dashed border-[var(--border)] text-[var(--text-tertiary)] flex items-center justify-center text-xs"
+                  className="h-12 w-12 rounded-full border border-dashed border-(--border) text-(--text-tertiary) flex items-center justify-center text-xs"
                 >
                   Slot {slotIndex + 1}
                 </div>
               )
             }
           )}
-          <Badge className="bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border)]">
+          <Badge className="bg-(--bg-secondary) text-secondary-wh40k border-(--border)">
             {selectedUnits.length}/{MAX_TEAM_SIZE} selected
           </Badge>
         </CardContent>
       </Card>
 
-      <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+      <Card className="border-(--border) bg-(--bg-primary)">
         <CardHeader className="pb-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <CardTitle>Hero Pool</CardTitle>
-            <Badge className="bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border)]">
+            <Badge className="bg-(--bg-secondary) text-secondary-wh40k border-(--border)">
               {formatNumber(heroPool.length)} heroes
             </Badge>
           </div>
@@ -312,18 +310,18 @@ export default function TeamAnalyzerPage() {
                 key={unit.id}
                 className={`rounded-lg border p-3 text-left transition-colors ${
                   isSelected
-                    ? 'border-[var(--accent)] bg-[var(--bg-secondary)]'
-                    : 'border-[var(--border)] hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)]'
+                    ? 'border-accent-wh40k bg-(--bg-secondary)'
+                    : 'border-(--border) hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)]'
                 }`}
                 onClick={() => toggleUnit(unit.id)}
               >
                 <div className="flex items-center gap-3">
                   <UnitPortrait unit={unit} size="md" />
                   <div className="min-w-0">
-                    <div className="font-semibold text-[var(--text-primary)] truncate">
+                    <div className="font-semibold text-primary-wh40k truncate">
                       {unit.name}
                     </div>
-                    <div className="text-xs text-[var(--text-tertiary)] flex items-center gap-1">
+                    <div className="text-xs text-(--text-tertiary) flex items-center gap-1">
                       <span>
                         {unit.faction ||
                           (useRosterPool && rosterPool.length > 0
@@ -359,12 +357,12 @@ export default function TeamAnalyzerPage() {
                               />
                             )}
                             {rh?.xpLevel != null && (
-                              <span className="text-[var(--text-tertiary)]">
+                              <span className="text-(--text-tertiary)">
                                 Lv.{rh.xpLevel}
                               </span>
                             )}
                             {abilityLevels && abilityLevels.length > 0 && (
-                              <span className="text-[var(--text-tertiary)]">
+                              <span className="text-(--text-tertiary)">
                                 {abilityLevels.join('·')}
                               </span>
                             )}
@@ -379,19 +377,19 @@ export default function TeamAnalyzerPage() {
         </CardContent>
       </Card>
 
-      <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+      <Card className="border-(--border) bg-(--bg-primary)">
         <CardHeader className="pb-2">
           <CardTitle>Analysis Results</CardTitle>
         </CardHeader>
         <CardContent className="pt-4 space-y-5">
           {!isReady && (
-            <div className="text-sm text-[var(--text-secondary)]">
+            <div className="text-sm text-secondary-wh40k">
               Select {MAX_TEAM_SIZE - selectedUnits.length} more heroes to run
               analysis.
             </div>
           )}
           {isReady && teamAnalysisMutation.isPending && (
-            <div className="text-center py-12 text-[var(--text-secondary)]">
+            <div className="text-center py-12 text-secondary-wh40k">
               Analyzing team composition...
             </div>
           )}
@@ -403,34 +401,34 @@ export default function TeamAnalyzerPage() {
           {isReady && !teamAnalysisMutation.isPending && (
             <>
               {teamAnalysisMutation.isIdle && (
-                <div className="text-sm text-[var(--text-secondary)] mb-4">
+                <div className="text-sm text-secondary-wh40k mb-4">
                   Click &quot;Run Analysis&quot; to search for battles using
                   this team.
                 </div>
               )}
               {!teamAnalysisMutation.isIdle && !hasData && (
-                <div className="text-sm text-[var(--text-tertiary)] mb-4">
+                <div className="text-sm text-(--text-tertiary) mb-4">
                   No matching battles found for this exact team composition.
                 </div>
               )}
               {!teamAnalysisMutation.isIdle && hasData && analysisData && (
                 <>
-                  <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] p-4 space-y-2">
+                  <div className="rounded-lg border border-(--border) bg-(--bg-secondary) p-4 space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-[var(--text-secondary)]">Team</span>
+                      <span className="text-secondary-wh40k">Team</span>
                       <UnitRow units={selectedUnits} size="sm" />
                     </div>
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                       <div>
-                        <div className="text-xs text-[var(--text-tertiary)]">
+                        <div className="text-xs text-(--text-tertiary)">
                           Used
                         </div>
-                        <div className="text-lg font-semibold text-[var(--text-primary)]">
+                        <div className="text-lg font-semibold text-primary-wh40k">
                           {formatNumber(analysisData.totalUsed)}
                         </div>
                       </div>
                       <div>
-                        <div className="text-xs text-[var(--text-tertiary)]">
+                        <div className="text-xs text-(--text-tertiary)">
                           Win rate
                         </div>
                         <div className="text-lg font-semibold text-emerald-400">
@@ -438,10 +436,10 @@ export default function TeamAnalyzerPage() {
                         </div>
                       </div>
                       <div>
-                        <div className="text-xs text-[var(--text-tertiary)]">
+                        <div className="text-xs text-(--text-tertiary)">
                           Record
                         </div>
-                        <div className="text-lg font-semibold text-[var(--text-primary)]">
+                        <div className="text-lg font-semibold text-primary-wh40k">
                           {formatNumber(analysisData.wins)}-
                           {formatNumber(analysisData.losses)}
                         </div>
@@ -450,7 +448,7 @@ export default function TeamAnalyzerPage() {
                   </div>
 
                   <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                    <Card className="border-[var(--border)] bg-[var(--bg-secondary)]">
+                    <Card className="border-(--border) bg-(--bg-secondary)">
                       <CardHeader className="pb-2">
                         <CardTitle className="text-sm">Matchups</CardTitle>
                       </CardHeader>
@@ -462,19 +460,19 @@ export default function TeamAnalyzerPage() {
                               className="flex items-center justify-between"
                             >
                               <span>{matchup.defenderTeam}</span>
-                              <span className="font-mono text-[var(--text-secondary)]">
+                              <span className="font-mono text-secondary-wh40k">
                                 {formatPercent(matchup.winRate)}
                               </span>
                             </div>
                           ))
                         ) : (
-                          <div className="text-[var(--text-tertiary)]">
+                          <div className="text-(--text-tertiary)">
                             Not enough data
                           </div>
                         )}
                       </CardContent>
                     </Card>
-                    <Card className="border-[var(--border)] bg-[var(--bg-secondary)]">
+                    <Card className="border-(--border) bg-(--bg-secondary)">
                       <CardHeader className="pb-2">
                         <CardTitle className="text-sm">
                           Zone Breakdown
@@ -489,13 +487,13 @@ export default function TeamAnalyzerPage() {
                             >
                               {/* The only formatting site for the raw `zone_type` (`zoneDisplayName` is not idempotent). */}
                               <span>{zoneDisplayName(zone.zoneType)}</span>
-                              <span className="font-mono text-[var(--text-secondary)]">
+                              <span className="font-mono text-secondary-wh40k">
                                 {formatPercent(zone.winRate)}
                               </span>
                             </div>
                           ))
                         ) : (
-                          <div className="text-[var(--text-tertiary)]">
+                          <div className="text-(--text-tertiary)">
                             Not enough data
                           </div>
                         )}
@@ -503,7 +501,7 @@ export default function TeamAnalyzerPage() {
                     </Card>
                   </div>
 
-                  <Card className="border-[var(--border)] bg-[var(--bg-secondary)]">
+                  <Card className="border-(--border) bg-(--bg-secondary)">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-sm">
                         Debuff Breakdown
@@ -514,16 +512,16 @@ export default function TeamAnalyzerPage() {
                         analysisData.debuffBreakdown.map((buff) => (
                           <div
                             key={buff.debuffLevel}
-                            className="flex items-center justify-between rounded-md border border-[var(--border)] bg-[var(--bg-primary)] p-3"
+                            className="flex items-center justify-between rounded-md border border-(--border) bg-(--bg-primary) p-3"
                           >
                             <span>{buff.debuffLevel}</span>
-                            <span className="font-mono text-[var(--text-secondary)]">
+                            <span className="font-mono text-secondary-wh40k">
                               {formatPercent(buff.winRate)}
                             </span>
                           </div>
                         ))
                       ) : (
-                        <div className="text-[var(--text-tertiary)]">
+                        <div className="text-(--text-tertiary)">
                           Not enough data
                         </div>
                       )}

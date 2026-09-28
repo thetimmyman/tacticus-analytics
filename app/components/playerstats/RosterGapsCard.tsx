@@ -68,11 +68,11 @@ export function RosterGapsCard({ rosterGaps }: RosterGapsCardProps) {
   }
 
   return (
-    <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
+    <Card className="bg-(--card-bg) border-(--card-border)">
       <CardContent className="py-4">
         <div className="flex items-center gap-2 mb-4">
-          <Users className="w-5 h-5 text-[var(--accent)]" />
-          <h3 className="text-sm font-medium text-[var(--text-primary)]">
+          <Users className="w-5 h-5 text-(--accent)" />
+          <h3 className="text-sm font-medium text-primary-wh40k">
             Heroes You're Missing in Meta Teams
           </h3>
         </div>
@@ -84,17 +84,17 @@ export function RosterGapsCard({ rosterGaps }: RosterGapsCardProps) {
             return (
               <div
                 key={gap.hero_name}
-                className="flex items-start gap-3 p-3 rounded-lg bg-[var(--bg-secondary)] hover:bg-[color-mix(in_srgb,var(--bg-secondary)_80%,transparent)] transition-colors"
+                className="flex items-start gap-3 p-3 rounded-lg bg-(--bg-secondary) hover:bg-[color-mix(in_srgb,var(--bg-secondary)_80%,transparent)] transition-colors"
               >
-                <div className="relative flex-shrink-0">
+                <div className="relative shrink-0">
                   {iconUrl ? (
                     <img
                       src={iconUrl}
                       alt={gap.hero_name}
-                      className="w-10 h-10 rounded"
+                      className="w-10 h-10 rounded-sm"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded bg-[var(--card-bg)] flex items-center justify-center text-[var(--text-secondary)] text-sm font-medium">
+                    <div className="w-10 h-10 rounded-sm bg-(--card-bg) flex items-center justify-center text-secondary-wh40k text-sm font-medium">
                       {gap.hero_name.slice(0, 2)}
                     </div>
                   )}
@@ -109,23 +109,23 @@ export function RosterGapsCard({ rosterGaps }: RosterGapsCardProps) {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-[var(--text-primary)] truncate">
+                  <div className="text-sm font-medium text-primary-wh40k truncate">
                     {gap.hero_name}
                   </div>
-                  <div className="text-xs text-[var(--text-secondary)]">
+                  <div className="text-xs text-secondary-wh40k">
                     Used in {gap.appears_in_meta_teams} top teams
                   </div>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {gap.boss_types.slice(0, 3).map((boss) => (
                       <span
                         key={boss}
-                        className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--card-bg)] text-[var(--text-secondary)]"
+                        className="text-[10px] px-1.5 py-0.5 rounded-sm bg-(--card-bg) text-secondary-wh40k"
                       >
                         {getBossDisplayName(boss).slice(0, 8)}
                       </span>
                     ))}
                     {gap.boss_types.length > 3 && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--card-bg)] text-[var(--text-secondary)]">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-sm bg-(--card-bg) text-secondary-wh40k">
                         +{gap.boss_types.length - 3}
                       </span>
                     )}
@@ -134,10 +134,10 @@ export function RosterGapsCard({ rosterGaps }: RosterGapsCardProps) {
 
                 <Link
                   href={`/meta-atlas?hero=${encodeURIComponent(gap.hero_name)}`}
-                  className="flex-shrink-0 p-1 rounded hover:bg-[var(--card-bg)] transition-colors"
+                  className="shrink-0 p-1 rounded-sm hover:bg-(--card-bg) transition-colors"
                   title="View in Meta Atlas"
                 >
-                  <ExternalLink className="w-4 h-4 text-[var(--text-secondary)]" />
+                  <ExternalLink className="w-4 h-4 text-secondary-wh40k" />
                 </Link>
               </div>
             )
@@ -146,14 +146,14 @@ export function RosterGapsCard({ rosterGaps }: RosterGapsCardProps) {
 
         {rosterGaps.length > 6 && (
           <div className="mt-3 text-center">
-            <span className="text-xs text-[var(--text-secondary)]">
+            <span className="text-xs text-secondary-wh40k">
               +{rosterGaps.length - 6} more heroes appear in top meta teams
             </span>
           </div>
         )}
 
-        <div className="mt-4 pt-3 border-t border-[var(--card-border)]">
-          <p className="text-xs text-[var(--text-secondary)]">
+        <div className="mt-4 pt-3 border-t border-(--card-border)">
+          <p className="text-xs text-secondary-wh40k">
             These heroes frequently appear in top-performing teams for bosses
             you've fought, but are not in your roster. If you have a Player API
             key configured, this list is cross-referenced with your actual

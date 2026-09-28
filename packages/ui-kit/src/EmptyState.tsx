@@ -29,21 +29,19 @@ export function EmptyState({
   return (
     <div
       className={clsx(
-        'flex flex-col items-center justify-center text-center text-[var(--text-secondary)]',
+        'flex flex-col items-center justify-center text-center text-secondary-wh40k',
         sizeClass[size],
         className
       )}
     >
       {EmptyIcon && (
         <EmptyIcon
-          className="h-8 w-8 text-[var(--text-tertiary)]"
+          className="h-8 w-8 text-(--text-tertiary)"
           aria-hidden="true"
         />
       )}
       {title && (
-        <p className="text-sm font-medium text-[var(--text-primary)]">
-          {title}
-        </p>
+        <p className="text-sm font-medium text-primary-wh40k">{title}</p>
       )}
       {children && <div className="text-sm">{children}</div>}
       {action && <div className="pt-1">{action}</div>}

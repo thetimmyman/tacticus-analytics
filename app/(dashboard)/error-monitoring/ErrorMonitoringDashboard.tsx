@@ -223,10 +223,8 @@ export function ErrorMonitoringDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <RefreshCw className="w-8 h-8 animate-spin text-[var(--primary)]" />
-        <span className="ml-3 text-[var(--text-secondary)]">
-          Loading error data...
-        </span>
+        <RefreshCw className="w-8 h-8 animate-spin text-(--primary)" />
+        <span className="ml-3 text-secondary-wh40k">Loading error data...</span>
       </div>
     )
   }
@@ -235,13 +233,11 @@ export function ErrorMonitoringDashboard() {
     <div className="space-y-6">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg p-6">
+        <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[var(--text-secondary)] text-sm">
-                Total Errors
-              </p>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">
+              <p className="text-secondary-wh40k text-sm">Total Errors</p>
+              <p className="text-2xl font-bold text-primary-wh40k">
                 {errorStats.total}
               </p>
             </div>
@@ -249,13 +245,11 @@ export function ErrorMonitoringDashboard() {
           </div>
         </div>
 
-        <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg p-6">
+        <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[var(--text-secondary)] text-sm">
-                Total Occurrences
-              </p>
-              <p className="text-2xl font-bold text-[var(--text-primary)]">
+              <p className="text-secondary-wh40k text-sm">Total Occurrences</p>
+              <p className="text-2xl font-bold text-primary-wh40k">
                 {errorStats.totalOccurrences}
               </p>
             </div>
@@ -263,12 +257,10 @@ export function ErrorMonitoringDashboard() {
           </div>
         </div>
 
-        <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg p-6">
+        <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[var(--text-secondary)] text-sm">
-                Critical Errors
-              </p>
+              <p className="text-secondary-wh40k text-sm">Critical Errors</p>
               <p className="text-2xl font-bold text-red-400">
                 {errorStats.bySeverity.critical || 0}
               </p>
@@ -277,33 +269,31 @@ export function ErrorMonitoringDashboard() {
           </div>
         </div>
 
-        <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg p-6">
+        <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[var(--text-secondary)] text-sm">
-                Current Version
-              </p>
-              <p className="text-lg font-bold text-[var(--primary)]">
+              <p className="text-secondary-wh40k text-sm">Current Version</p>
+              <p className="text-lg font-bold text-(--primary)">
                 {versionInfo.version}
               </p>
             </div>
-            <Clock className="w-8 h-8 text-[var(--primary)]" />
+            <Clock className="w-8 h-8 text-(--primary)" />
           </div>
         </div>
       </div>
 
       {/* Filters and Controls */}
-      <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg p-6">
+      <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg p-6">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
           <div className="flex flex-wrap gap-4">
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+              <label className="block text-sm font-medium text-secondary-wh40k mb-2">
                 Time Range
               </label>
               <select
                 value={timeRange}
                 onChange={(e) => setTimeRange(e.target.value)}
-                className="px-3 py-2 bg-[var(--card-bg)] border border-[var(--card-border)] rounded text-[var(--text-primary)]"
+                className="px-3 py-2 bg-(--card-bg) border border-(--card-border) rounded-sm text-primary-wh40k"
               >
                 <option value="1h">Last Hour</option>
                 <option value="24h">Last 24 Hours</option>
@@ -313,13 +303,13 @@ export function ErrorMonitoringDashboard() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+              <label className="block text-sm font-medium text-secondary-wh40k mb-2">
                 Severity
               </label>
               <select
                 value={selectedSeverity}
                 onChange={(e) => setSelectedSeverity(e.target.value)}
-                className="px-3 py-2 bg-[var(--card-bg)] border border-[var(--card-border)] rounded text-[var(--text-primary)]"
+                className="px-3 py-2 bg-(--card-bg) border border-(--card-border) rounded-sm text-primary-wh40k"
               >
                 <option value="all">All Severities</option>
                 <option value="critical">Critical</option>
@@ -330,13 +320,13 @@ export function ErrorMonitoringDashboard() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+              <label className="block text-sm font-medium text-secondary-wh40k mb-2">
                 Version
               </label>
               <select
                 value={selectedVersion}
                 onChange={(e) => setSelectedVersion(e.target.value)}
-                className="px-3 py-2 bg-[var(--card-bg)] border border-[var(--card-border)] rounded text-[var(--text-primary)]"
+                className="px-3 py-2 bg-(--card-bg) border border-(--card-border) rounded-sm text-primary-wh40k"
               >
                 <option value="all">All Versions</option>
                 {Object.keys(errorStats.byVersion).map((version) => (
@@ -362,62 +352,56 @@ export function ErrorMonitoringDashboard() {
       </div>
 
       {/* Top Errors */}
-      <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+      <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-primary-wh40k mb-4">
           Top Error Codes
         </h3>
         <div className="space-y-3">
           {errorStats.topErrors.map(([code, count]) => (
             <div
               key={code}
-              className="flex items-center justify-between p-3 bg-[var(--bg-secondary)] hover:bg-card/80 transition-colors duration-200 rounded"
+              className="flex items-center justify-between p-3 bg-(--bg-secondary) hover:bg-card/80 transition-colors duration-200 rounded-sm"
             >
-              <span className="font-mono text-[var(--text-primary)]">
-                {code}
-              </span>
-              <span className="text-[var(--text-secondary)]">
-                {count} occurrences
-              </span>
+              <span className="font-mono text-primary-wh40k">{code}</span>
+              <span className="text-secondary-wh40k">{count} occurrences</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Error List */}
-      <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg">
-        <div className="p-6 border-b border-[var(--card-border)]">
-          <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+      <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg">
+        <div className="p-6 border-b border-(--card-border)">
+          <h3 className="text-lg font-semibold text-primary-wh40k">
             Recent Errors
           </h3>
-          <p className="text-[var(--text-secondary)] text-sm mt-1">
+          <p className="text-secondary-wh40k text-sm mt-1">
             Showing {filteredErrors.length} error types
           </p>
         </div>
 
-        <div className="divide-y divide-[var(--card-border)]">
+        <div className="divide-y divide-(--card-border)">
           {filteredErrors.slice(0, 20).map((error) => (
             <div key={error.id} className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="font-mono text-[var(--text-primary)] bg-[var(--bg-secondary)] px-2 py-1 rounded text-sm">
+                    <span className="font-mono text-primary-wh40k bg-(--bg-secondary) px-2 py-1 rounded-sm text-sm">
                       {error.code}
                     </span>
                     <span
-                      className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(error.severity)}`}
+                      className={`px-2 py-1 rounded-sm text-xs font-medium ${getSeverityColor(error.severity)}`}
                     >
                       {error.severity.toUpperCase()}
                     </span>
-                    <span className="text-xs text-[var(--text-secondary)] font-mono">
+                    <span className="text-xs text-secondary-wh40k font-mono">
                       v{error.version}
                     </span>
                   </div>
 
-                  <p className="text-[var(--text-secondary)] mb-2">
-                    {error.message}
-                  </p>
+                  <p className="text-secondary-wh40k mb-2">{error.message}</p>
 
-                  <div className="flex items-center gap-4 text-xs text-[var(--text-secondary)]">
+                  <div className="flex items-center gap-4 text-xs text-secondary-wh40k">
                     <span>
                       <ClientDate date={error.timestamp} format="full" />
                     </span>
@@ -431,10 +415,10 @@ export function ErrorMonitoringDashboard() {
                 </div>
 
                 <div className="text-right">
-                  <div className="text-lg font-bold text-[var(--text-primary)]">
+                  <div className="text-lg font-bold text-primary-wh40k">
                     {error.count}
                   </div>
-                  <div className="text-xs text-[var(--text-secondary)]">
+                  <div className="text-xs text-secondary-wh40k">
                     occurrences
                   </div>
                 </div>
@@ -444,8 +428,8 @@ export function ErrorMonitoringDashboard() {
         </div>
 
         {filteredErrors.length > 20 && (
-          <div className="p-6 border-t border-[var(--card-border)] text-center">
-            <p className="text-[var(--text-secondary)]">
+          <div className="p-6 border-t border-(--card-border) text-center">
+            <p className="text-secondary-wh40k">
               Showing 20 of {filteredErrors.length} errors. Export CSV for
               complete data.
             </p>

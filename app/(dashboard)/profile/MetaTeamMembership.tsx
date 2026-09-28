@@ -193,30 +193,30 @@ export function MetaTeamMembership({
 
   return (
     <div className="card-wh40k p-6">
-      <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-2 inline-flex items-center gap-2">
+      <h2 className="text-lg font-semibold text-primary-wh40k mb-2 inline-flex items-center gap-2">
         <Users className="h-5 w-5" />
         Meta team membership
       </h2>
-      <p className="text-sm text-[var(--text-secondary)] mb-4">
+      <p className="text-sm text-secondary-wh40k mb-4">
         Pick the teams you run. Herald notifications will ping your Discord role
         for the bosses these teams are configured for. Roles assigned by your
         guild leader are shown locked — ask them to change those.
       </p>
 
       {loading && (
-        <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+        <div className="flex items-center gap-2 text-sm text-secondary-wh40k">
           <Loader2 className="h-4 w-4 animate-spin" /> Loading…
         </div>
       )}
 
       {error && (
-        <div className="flex items-center gap-2 rounded border border-rose-500/40 bg-rose-500/10 p-2 text-xs text-rose-300 mb-3">
+        <div className="flex items-center gap-2 rounded-sm border border-rose-500/40 bg-rose-500/10 p-2 text-xs text-rose-300 mb-3">
           <AlertCircle className="h-4 w-4" /> {error}
         </div>
       )}
 
       {!loading && teams && teams.length === 0 && (
-        <div className="text-xs italic text-[var(--text-secondary)]">
+        <div className="text-xs italic text-secondary-wh40k">
           No meta teams configured yet for your cluster.
         </div>
       )}
@@ -242,10 +242,10 @@ export function MetaTeamMembership({
                 onClick={() => toggle(team)}
                 disabled={isPending || locked}
                 className={
-                  'rounded border px-3 py-1.5 text-xs transition-colors ' +
+                  'rounded-sm border px-3 py-1.5 text-xs transition-colors ' +
                   (selected
-                    ? 'border-[color-mix(in_srgb,var(--accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-[var(--accent)]'
-                    : 'border-[var(--card-border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:border-[color-mix(in_srgb,var(--accent)_40%,transparent)]') +
+                    ? 'border-[color-mix(in_srgb,var(--accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent)'
+                    : 'border-(--card-border) bg-(--bg-secondary) text-secondary-wh40k hover:border-[color-mix(in_srgb,var(--accent)_40%,transparent)]') +
                   (locked ? ' opacity-70 cursor-not-allowed' : '') +
                   (isPending ? ' opacity-50' : '')
                 }

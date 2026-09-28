@@ -15,7 +15,7 @@ const BossLeaderboards = dynamicImport(
   () => import('@/app/(dashboard)/leaderboards/components/BossLeaderboards'),
   {
     loading: () => (
-      <div className="p-6 text-[var(--text-secondary)]">
+      <div className="p-6 text-secondary-wh40k">
         Loading boss leaderboards...
       </div>
     )
@@ -35,10 +35,10 @@ export default async function BossLeaderboardPage() {
   return (
     <div className="w-full">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+        <h1 className="text-3xl font-bold text-primary-wh40k">
           Boss Leaderboards
         </h1>
-        <p className="text-[var(--text-secondary)] mt-2">
+        <p className="text-secondary-wh40k mt-2">
           View top performers for each boss encounter
         </p>
       </div>

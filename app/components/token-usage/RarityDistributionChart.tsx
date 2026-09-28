@@ -37,12 +37,10 @@ function RarityDistributionChart({ players }: RarityDistributionChartProps) {
         {Object.entries(RARITY_COLORS).map(([rarity, color]) => (
           <div key={rarity} className="flex items-center gap-1">
             <div
-              className="w-3 h-3 rounded"
+              className="w-3 h-3 rounded-sm"
               style={{ backgroundColor: color }}
             />
-            <span className="capitalize text-[var(--text-secondary)]">
-              {rarity}
-            </span>
+            <span className="capitalize text-secondary-wh40k">{rarity}</span>
           </div>
         ))}
       </div>
@@ -79,13 +77,11 @@ function RarityDistributionChart({ players }: RarityDistributionChartProps) {
 
             return (
               <div key={rarity} className="text-center">
-                <div className="text-[var(--text-secondary)] capitalize">
-                  {rarity}
-                </div>
+                <div className="text-secondary-wh40k capitalize">{rarity}</div>
                 <div className="font-bold" style={{ color }}>
                   {formatNumber(count)}
                 </div>
-                <div className="text-[var(--text-secondary)]">
+                <div className="text-secondary-wh40k">
                   {formatPercentage(percentage / 100)}
                 </div>
               </div>

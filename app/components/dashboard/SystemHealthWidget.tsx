@@ -55,7 +55,7 @@ export function SystemHealthWidget({ userRole }: SystemHealthWidgetProps) {
       case 'fail':
         return 'bg-red-500'
       default:
-        return 'bg-[var(--card-bg)]'
+        return 'bg-(--card-bg)'
     }
   }
 
@@ -81,11 +81,11 @@ export function SystemHealthWidget({ userRole }: SystemHealthWidgetProps) {
             className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${getStatusColor(health.status)} animate-pulse`}
           />
           <div>
-            <h3 className="text-xs sm:text-sm font-medium text-[var(--text-primary)]">
+            <h3 className="text-xs sm:text-sm font-medium text-primary-wh40k">
               System Status:{' '}
               {health.status.charAt(0).toUpperCase() + health.status.slice(1)}
             </h3>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-0 sm:space-x-4 mt-1 text-[10px] sm:text-xs text-[var(--text-secondary)]">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-0 sm:space-x-4 mt-1 text-[10px] sm:text-xs text-secondary-wh40k">
               <span className="flex items-center space-x-1">
                 <div
                   className={`w-2 h-2 rounded-full ${getStatusColor(health.checks.database.status)}`}
@@ -109,7 +109,7 @@ export function SystemHealthWidget({ userRole }: SystemHealthWidgetProps) {
         </div>
 
         {userRole === 'leader' && (
-          <span className="text-xs text-[var(--text-secondary)]">
+          <span className="text-xs text-secondary-wh40k">
             {/* Monitoring dashboard removed during cleanup */}
           </span>
         )}

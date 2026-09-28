@@ -13,7 +13,7 @@ export function StepBranding({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-[var(--text-primary)]">
+        <h2 className="text-xl font-bold text-primary-wh40k">
           Branding & Customization
         </h2>
         <label className="flex items-center gap-2 cursor-pointer">
@@ -21,18 +21,16 @@ export function StepBranding({
             type="checkbox"
             checked={skipBranding}
             onChange={(e) => setSkipBranding(e.target.checked)}
-            className="rounded"
+            className="rounded-sm"
           />
-          <span className="text-sm text-[var(--text-secondary)]">
-            Skip this step
-          </span>
+          <span className="text-sm text-secondary-wh40k">Skip this step</span>
         </label>
       </div>
 
       {!skipBranding && (
         <>
           <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-            <p className="text-sm text-[var(--accent)]">
+            <p className="text-sm text-(--accent)">
               <strong>Optional:</strong> Customize your cluster&apos;s visual
               identity. You can always update these later.
             </p>
@@ -48,7 +46,7 @@ export function StepBranding({
                   onChange={(e) =>
                     setData({ ...data, primaryColor: e.target.value })
                   }
-                  className="w-20 h-10 rounded cursor-pointer"
+                  className="w-20 h-10 rounded-sm cursor-pointer"
                 />
                 <Input
                   value={data.primaryColor}
@@ -70,7 +68,7 @@ export function StepBranding({
                   onChange={(e) =>
                     setData({ ...data, secondaryColor: e.target.value })
                   }
-                  className="w-20 h-10 rounded cursor-pointer"
+                  className="w-20 h-10 rounded-sm cursor-pointer"
                 />
                 <Input
                   value={data.secondaryColor}
@@ -92,7 +90,7 @@ export function StepBranding({
                   onChange={(e) =>
                     setData({ ...data, accentColor: e.target.value })
                   }
-                  className="w-20 h-10 rounded cursor-pointer"
+                  className="w-20 h-10 rounded-sm cursor-pointer"
                 />
                 <Input
                   value={data.accentColor}
@@ -113,7 +111,7 @@ export function StepBranding({
               onChange={(e) => setData({ ...data, logoUrl: e.target.value })}
               placeholder="https://example.com/logo.png"
             />
-            <p className="text-xs text-[var(--text-secondary)] mt-1">
+            <p className="text-xs text-secondary-wh40k mt-1">
               URL to your cluster&apos;s logo image
             </p>
           </div>
@@ -125,14 +123,14 @@ export function StepBranding({
               onChange={(e) => setData({ ...data, bannerUrl: e.target.value })}
               placeholder="https://example.com/banner.jpg"
             />
-            <p className="text-xs text-[var(--text-secondary)] mt-1">
+            <p className="text-xs text-secondary-wh40k mt-1">
               URL to your cluster&apos;s banner image
             </p>
           </div>
 
           {/* Preview */}
-          <div className="border border-[var(--card-border)] rounded-lg p-4">
-            <h3 className="text-sm font-semibold text-[var(--text-secondary)] mb-3">
+          <div className="border border-(--card-border) rounded-lg p-4">
+            <h3 className="text-sm font-semibold text-secondary-wh40k mb-3">
               Preview
             </h3>
             <div
@@ -141,11 +139,11 @@ export function StepBranding({
                 background: `linear-gradient(135deg, ${data.primaryColor} 0%, ${data.secondaryColor} 100%)`
               }}
             >
-              <div className="bg-black/50 backdrop-blur p-4 rounded">
+              <div className="bg-black/50 backdrop-blur-sm p-4 rounded-sm">
                 {data.logoUrl && (
                   <img src={data.logoUrl} alt="Logo" className="h-12 mb-2" />
                 )}
-                <h3 className="text-[var(--text-primary)] text-lg font-bold">
+                <h3 className="text-primary-wh40k text-lg font-bold">
                   {data.displayName || 'Cluster Name'}
                 </h3>
                 <p className="text-white/80 text-sm">

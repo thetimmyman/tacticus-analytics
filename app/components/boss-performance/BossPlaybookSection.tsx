@@ -68,26 +68,26 @@ function CollapsibleSection({
   children
 }: CollapsibleSectionProps) {
   return (
-    <div className="border border-[var(--card-border)] rounded-lg overflow-hidden">
+    <div className="border border-(--card-border) rounded-lg overflow-hidden">
       <button
         type="button"
         onClick={onToggle}
-        className="w-full flex items-center justify-between p-3 hover:bg-[var(--bg-secondary)] transition-colors"
+        className="w-full flex items-center justify-between p-3 hover:bg-(--bg-secondary) transition-colors"
       >
         <div className="flex items-center gap-2">
           {icon}
-          <span className="text-sm font-medium text-[var(--text-primary)]">
+          <span className="text-sm font-medium text-primary-wh40k">
             {title}
           </span>
         </div>
         {isOpen ? (
-          <ChevronUp className="h-4 w-4 text-[var(--text-secondary)]" />
+          <ChevronUp className="h-4 w-4 text-secondary-wh40k" />
         ) : (
-          <ChevronDown className="h-4 w-4 text-[var(--text-secondary)]" />
+          <ChevronDown className="h-4 w-4 text-secondary-wh40k" />
         )}
       </button>
       {isOpen && (
-        <div className="border-t border-[var(--card-border)]">{children}</div>
+        <div className="border-t border-(--card-border)">{children}</div>
       )}
     </div>
   )
@@ -177,24 +177,24 @@ export function BossPlaybookSection({
       <button
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-4 hover:bg-[var(--bg-secondary)] transition-colors"
+        className="w-full flex items-center justify-between p-4 hover:bg-(--bg-secondary) transition-colors"
       >
         <div className="flex items-center gap-3">
-          <BookOpen className="h-5 w-5 text-[var(--accent)]" />
-          <span className="font-semibold text-[var(--text-primary)]">
+          <BookOpen className="h-5 w-5 text-(--accent)" />
+          <span className="font-semibold text-primary-wh40k">
             Boss Playbook
           </span>
           {stage !== 'public' && <ReleaseStageBadge stage={stage} size="sm" />}
         </div>
         {isExpanded ? (
-          <ChevronUp className="h-5 w-5 text-[var(--text-secondary)]" />
+          <ChevronUp className="h-5 w-5 text-secondary-wh40k" />
         ) : (
-          <ChevronDown className="h-5 w-5 text-[var(--text-secondary)]" />
+          <ChevronDown className="h-5 w-5 text-secondary-wh40k" />
         )}
       </button>
 
       {isExpanded && (
-        <div className="border-t border-[var(--card-border)]">
+        <div className="border-t border-(--card-border)">
           {loading && (
             <div className="flex items-center justify-center py-8">
               <Spinner size="lg" />
@@ -203,12 +203,12 @@ export function BossPlaybookSection({
 
           {accessDenied && (
             <div className="flex flex-col items-center justify-center py-8 gap-4 px-4">
-              <Lock className="h-12 w-12 text-[var(--text-tertiary)]" />
+              <Lock className="h-12 w-12 text-(--text-tertiary)" />
               <div className="text-center">
-                <h3 className="font-semibold text-[var(--text-primary)] mb-1">
+                <h3 className="font-semibold text-primary-wh40k mb-1">
                   Alpha Access Required
                 </h3>
-                <p className="text-sm text-[var(--text-secondary)] max-w-md">
+                <p className="text-sm text-secondary-wh40k max-w-md">
                   Boss Playbooks are currently in alpha testing. Contact your
                   cluster admin for access.
                 </p>
@@ -217,7 +217,7 @@ export function BossPlaybookSection({
           )}
 
           {error && !accessDenied && (
-            <div className="text-center py-8 text-[var(--text-secondary)] px-4">
+            <div className="text-center py-8 text-secondary-wh40k px-4">
               {error}
             </div>
           )}
@@ -225,7 +225,7 @@ export function BossPlaybookSection({
           {playbookData && boss && (
             <div className="space-y-4 p-4">
               {/* Boss Header with Portrait and Quick Info */}
-              <div className="flex items-start gap-4 pb-4 border-b border-[var(--card-border)]">
+              <div className="flex items-start gap-4 pb-4 border-b border-(--card-border)">
                 <BossPortrait
                   bossName={boss.name}
                   lookupName={boss.id}
@@ -236,13 +236,13 @@ export function BossPlaybookSection({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <h3 className="text-lg font-bold text-[var(--text-primary)] leading-tight">
+                      <h3 className="text-lg font-bold text-primary-wh40k leading-tight">
                         {boss.name}
                       </h3>
-                      <p className="text-sm text-[var(--text-secondary)]">
+                      <p className="text-sm text-secondary-wh40k">
                         {boss.faction}
                         {boss.strain && (
-                          <span className="text-[var(--text-tertiary)]">
+                          <span className="text-(--text-tertiary)">
                             {' '}
                             • {boss.strain}
                           </span>
@@ -252,7 +252,7 @@ export function BossPlaybookSection({
                   </div>
 
                   <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-red-500/15 text-red-400 border border-red-500/25">
+                    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-sm bg-red-500/15 text-red-400 border border-red-500/25">
                       <Ban className="h-3 w-3" />
                       {bannedDisplay} banned
                     </span>
@@ -263,7 +263,7 @@ export function BossPlaybookSection({
               {/* External Links */}
               {(boss.wikiUrl || tacticusTableLinks.length > 0) && (
                 <div className="flex flex-wrap items-center gap-2 px-0 py-2 bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] rounded-lg">
-                  <span className="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide px-2">
+                  <span className="text-xs font-medium text-(--text-tertiary) uppercase tracking-wide px-2">
                     External:
                   </span>
                   {boss.wikiUrl && (
@@ -271,7 +271,7 @@ export function BossPlaybookSection({
                       href={boss.wikiUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-md bg-[var(--bg-primary)] text-[var(--accent)] border border-[var(--card-border)] hover:border-[var(--accent)] hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] transition-colors font-medium"
+                      className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-md bg-(--bg-primary) text-(--accent) border border-(--card-border) hover:border-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] transition-colors font-medium"
                     >
                       <Globe className="h-3.5 w-3.5" />
                       Tacticus Wiki
@@ -284,7 +284,7 @@ export function BossPlaybookSection({
                       href={`${TACTICUS_TABLE_BASE_URL}/${link.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-md bg-[var(--bg-primary)] text-blue-400 border border-[var(--card-border)] hover:border-blue-400 hover:bg-blue-400/10 transition-colors font-medium"
+                      className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-md bg-(--bg-primary) text-blue-400 border border-(--card-border) hover:border-blue-400 hover:bg-blue-400/10 transition-colors font-medium"
                     >
                       <Table2 className="h-3.5 w-3.5" />
                       {link.label}
@@ -301,9 +301,7 @@ export function BossPlaybookSection({
               <div className="space-y-2">
                 <CollapsibleSection
                   title="Minimum Viable Team Requirements"
-                  icon={
-                    <ClipboardList className="h-4 w-4 text-[var(--accent)]" />
-                  }
+                  icon={<ClipboardList className="h-4 w-4 text-(--accent)" />}
                   isOpen={requirementsOpen}
                   onToggle={() => setRequirementsOpen(!requirementsOpen)}
                 >
@@ -315,7 +313,7 @@ export function BossPlaybookSection({
 
                 <CollapsibleSection
                   title="Maps / Boards"
-                  icon={<Map className="h-4 w-4 text-[var(--accent)]" />}
+                  icon={<Map className="h-4 w-4 text-(--accent)" />}
                   isOpen={mapsOpen}
                   onToggle={() => setMapsOpen(!mapsOpen)}
                 >
@@ -324,13 +322,13 @@ export function BossPlaybookSection({
               </div>
 
               {/* Footer with link to full playbook */}
-              <div className="flex items-center justify-between pt-2 border-t border-[var(--card-border)]">
-                <span className="text-xs text-[var(--text-tertiary)]">
+              <div className="flex items-center justify-between pt-2 border-t border-(--card-border)">
+                <span className="text-xs text-(--text-tertiary)">
                   Updated: {playbookData.lastUpdated}
                 </span>
                 <Link
                   href={`/boss-playbooks/${playbookId}`}
-                  className="inline-flex items-center gap-1.5 text-sm text-[var(--accent)] hover:underline"
+                  className="inline-flex items-center gap-1.5 text-sm text-(--accent) hover:underline"
                 >
                   Full Playbook
                   <ExternalLink className="h-3.5 w-3.5" />

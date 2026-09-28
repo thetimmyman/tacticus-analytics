@@ -239,17 +239,17 @@ export function InviteCodeManager() {
         code.code ? (
           <button
             onClick={() => copyCode(code.code!)}
-            className="font-mono text-[var(--text-primary)] hover:text-[var(--primary)] flex items-center gap-1"
+            className="font-mono text-primary-wh40k hover:text-(--primary) flex items-center gap-1"
           >
             {code.code}
             {copiedCode === code.code ? (
               <Check className="h-3 w-3 text-green-400" />
             ) : (
-              <Copy className="h-3 w-3 text-[var(--text-tertiary)]" />
+              <Copy className="h-3 w-3 text-(--text-tertiary)" />
             )}
           </button>
         ) : (
-          <span className="text-xs text-[var(--text-tertiary)]">Redacted</span>
+          <span className="text-xs text-(--text-tertiary)">Redacted</span>
         )
     },
     {
@@ -257,7 +257,7 @@ export function InviteCodeManager() {
       header: 'Player',
       sortable: false,
       render: (code) => (
-        <span className="text-[var(--text-primary)]">{code.display_name}</span>
+        <span className="text-primary-wh40k">{code.display_name}</span>
       )
     },
     {
@@ -276,7 +276,7 @@ export function InviteCodeManager() {
             Revoked
           </span>
         ) : new Date(code.expires_at) < new Date() ? (
-          <span className="flex items-center gap-1 text-[var(--text-tertiary)] text-xs">
+          <span className="flex items-center gap-1 text-(--text-tertiary) text-xs">
             <Clock className="h-3 w-3" />
             Expired
           </span>
@@ -292,7 +292,7 @@ export function InviteCodeManager() {
       header: 'Created',
       sortable: false,
       render: (code) => (
-        <span className="text-xs text-[var(--text-tertiary)]">
+        <span className="text-xs text-(--text-tertiary)">
           {hasMounted ? new Date(code.created_at).toLocaleDateString() : '—'}
         </span>
       )
@@ -318,8 +318,8 @@ export function InviteCodeManager() {
   if (loading) {
     return (
       <div className="animate-pulse space-y-4">
-        <div className="h-12 bg-[var(--bg-secondary)] rounded w-1/3" />
-        <div className="h-[300px] bg-[var(--bg-secondary)] rounded" />
+        <div className="h-12 bg-(--bg-secondary) rounded-sm w-1/3" />
+        <div className="h-[300px] bg-(--bg-secondary) rounded-sm" />
       </div>
     )
   }
@@ -354,37 +354,37 @@ export function InviteCodeManager() {
           <div ref={dropdownRef} className="relative max-w-md">
             <button
               onClick={() => setShowGuildDropdown(!showGuildDropdown)}
-              className="w-full flex items-center justify-between gap-2 px-4 py-3 bg-[var(--dropdown-bg-solid)] border border-[var(--card-border)] rounded-lg text-left"
+              className="w-full flex items-center justify-between gap-2 px-4 py-3 bg-(--dropdown-bg-solid) border border-(--card-border) rounded-lg text-left"
             >
               {selectedGuild ? (
                 <div>
-                  <span className="text-[var(--text-primary)] font-medium">
+                  <span className="text-primary-wh40k font-medium">
                     {selectedGuild.guild_name}
                   </span>
-                  <span className="text-[var(--text-tertiary)] text-sm ml-2">
+                  <span className="text-(--text-tertiary) text-sm ml-2">
                     ({selectedGuild.accounts_count}/{selectedGuild.member_count}{' '}
                     claimed)
                   </span>
                 </div>
               ) : (
-                <span className="text-[var(--text-tertiary)]">
+                <span className="text-(--text-tertiary)">
                   Select a guild...
                 </span>
               )}
-              <ChevronDown className="h-4 w-4 text-[var(--text-tertiary)]" />
+              <ChevronDown className="h-4 w-4 text-(--text-tertiary)" />
             </button>
 
             {showGuildDropdown && (
               <div className="absolute z-50 w-full mt-1 rounded-lg max-h-80 overflow-hidden dropdown-menu">
-                <div className="p-2 border-b border-[var(--card-border)]">
+                <div className="p-2 border-b border-(--card-border)">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)]" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--text-tertiary)" />
                     <input
                       type="text"
                       value={guildFilter}
                       onChange={(e) => setGuildFilter(e.target.value)}
                       placeholder="Search guilds..."
-                      className="w-full pl-9 pr-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded text-sm text-[var(--text-primary)]"
+                      className="w-full pl-9 pr-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-sm text-sm text-primary-wh40k"
                       autoFocus
                     />
                   </div>
@@ -394,11 +394,11 @@ export function InviteCodeManager() {
                     <button
                       key={guild.guild_code}
                       onClick={() => selectGuild(guild)}
-                      className="w-full px-4 py-3 text-left hover:bg-[var(--bg-secondary)] border-b border-[var(--card-border)] last:border-0"
+                      className="w-full px-4 py-3 text-left hover:bg-(--bg-secondary) border-b border-(--card-border) last:border-0"
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className="text-[var(--text-primary)] font-medium">
+                          <span className="text-primary-wh40k font-medium">
                             {formatGuildDisplayLabel(
                               {
                                 display_name: guild.guild_name,
@@ -410,7 +410,7 @@ export function InviteCodeManager() {
                         </div>
                         <div className="text-right">
                           <span
-                            className={`text-sm ${guild.accounts_count === 0 ? 'text-amber-400' : 'text-[var(--text-secondary)]'}`}
+                            className={`text-sm ${guild.accounts_count === 0 ? 'text-amber-400' : 'text-secondary-wh40k'}`}
                           >
                             {guild.accounts_count}/{guild.member_count}
                           </span>
@@ -438,7 +438,7 @@ export function InviteCodeManager() {
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <KeyRound className="h-5 w-5 text-amber-400" />
                   <span className="text-amber-400">Unclaimed Players</span>
-                  <span className="text-sm font-normal text-[var(--text-secondary)]">
+                  <span className="text-sm font-normal text-secondary-wh40k">
                     ({unclaimedMembers.length})
                   </span>
                 </CardTitle>
@@ -456,10 +456,10 @@ export function InviteCodeManager() {
             <CardContent>
               {loadingMembers ? (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-[var(--text-tertiary)]" />
+                  <Loader2 className="h-6 w-6 animate-spin text-(--text-tertiary)" />
                 </div>
               ) : unclaimedMembers.length === 0 ? (
-                <p className="text-center py-8 text-[var(--text-secondary)]">
+                <p className="text-center py-8 text-secondary-wh40k">
                   All players in this guild have claimed their profiles!
                 </p>
               ) : (
@@ -467,15 +467,15 @@ export function InviteCodeManager() {
                   {unclaimedMembers.map((member) => (
                     <div
                       key={member.player_id}
-                      className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-[var(--bg-secondary)] border border-[var(--card-border)]"
+                      className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-(--bg-secondary) border border-(--card-border)"
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-[var(--text-primary)] text-sm font-medium truncate">
+                          <span className="text-primary-wh40k text-sm font-medium truncate">
                             {member.display_name}
                           </span>
                           {member.role && (
-                            <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--bg-tertiary)] text-[var(--text-tertiary)] capitalize">
+                            <span className="text-xs px-1.5 py-0.5 rounded-sm bg-(--bg-tertiary) text-(--text-tertiary) capitalize">
                               {member.role}
                             </span>
                           )}
@@ -488,7 +488,7 @@ export function InviteCodeManager() {
                               onClick={() =>
                                 copyCode(member.active_invite_code!.code)
                               }
-                              className="flex items-center gap-1 px-2 py-1 rounded bg-green-500/10 border border-green-500/30 text-green-400 text-xs hover:bg-green-500/20"
+                              className="flex items-center gap-1 px-2 py-1 rounded-sm bg-green-500/10 border border-green-500/30 text-green-400 text-xs hover:bg-green-500/20"
                             >
                               {copiedCode === member.active_invite_code.code ? (
                                 <Check className="h-3 w-3" />
@@ -497,7 +497,7 @@ export function InviteCodeManager() {
                               )}
                               {member.active_invite_code.code}
                             </button>
-                            <span className="text-xs text-[var(--text-tertiary)]">
+                            <span className="text-xs text-(--text-tertiary)">
                               {formatExpiry(
                                 member.active_invite_code.expires_at
                               )}
@@ -531,14 +531,14 @@ export function InviteCodeManager() {
               <CardTitle className="flex items-center gap-2 text-lg">
                 <UserCheck className="h-5 w-5 text-green-400" />
                 <span className="text-green-400">Claimed Players</span>
-                <span className="text-sm font-normal text-[var(--text-secondary)]">
+                <span className="text-sm font-normal text-secondary-wh40k">
                   ({claimedMembers.length})
                 </span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               {claimedMembers.length === 0 ? (
-                <p className="text-center py-4 text-[var(--text-secondary)]">
+                <p className="text-center py-4 text-secondary-wh40k">
                   No players have claimed their profiles yet.
                 </p>
               ) : (
@@ -549,7 +549,7 @@ export function InviteCodeManager() {
                       className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/30 text-sm"
                     >
                       <UserCheck className="h-3 w-3 text-green-400" />
-                      <span className="text-[var(--text-primary)]">
+                      <span className="text-primary-wh40k">
                         {member.display_name}
                       </span>
                       {member.role && (
@@ -593,14 +593,14 @@ export function InviteCodeManager() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-[var(--text-secondary)]">
+          <p className="text-sm text-secondary-wh40k">
             Use this tool to generate invite codes for guilds that have{' '}
             <strong className="text-amber-400">no existing users</strong>.
             Normally, guild leaders/officers generate codes for their members,
             but if no one has claimed a profile yet, this admin tool provides a
             bootstrap mechanism.
           </p>
-          <div className="mt-3 text-xs text-[var(--text-tertiary)] space-y-1">
+          <div className="mt-3 text-xs text-(--text-tertiary) space-y-1">
             <p>• Codes expire after 7 days by default</p>
             <p>
               • Each code is tied to a specific player and can only be used once

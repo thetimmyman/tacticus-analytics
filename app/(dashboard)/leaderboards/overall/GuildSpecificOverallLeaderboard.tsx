@@ -137,13 +137,13 @@ export default function GuildSpecificOverallLeaderboard({
 
   const getRankChangeIcon = (change: number | null | undefined) => {
     if (!change || change === 0)
-      return <Minus className="w-4 h-4 text-[var(--text-secondary)]" />
+      return <Minus className="w-4 h-4 text-secondary-wh40k" />
     if (change > 0) return <TrendingUp className="w-4 h-4 text-green-400" />
     return <TrendingDown className="w-4 h-4 text-red-400" />
   }
 
   const getRankChangeColor = (change: number | null | undefined) => {
-    if (!change || change === 0) return 'text-[var(--text-secondary)]'
+    if (!change || change === 0) return 'text-secondary-wh40k'
     if (change > 0) return 'text-green-400'
     return 'text-red-400'
   }
@@ -156,7 +156,7 @@ export default function GuildSpecificOverallLeaderboard({
             variant="ghost"
             size="sm"
             onClick={() => window.history.back()}
-            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="text-secondary-wh40k hover:text-primary-wh40k"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
@@ -181,12 +181,12 @@ export default function GuildSpecificOverallLeaderboard({
             variant="ghost"
             size="sm"
             onClick={() => window.history.back()}
-            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="text-secondary-wh40k hover:text-primary-wh40k"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">
+          <h1 className="text-2xl font-bold text-primary-wh40k">
             Guild Overall Leaderboard - Error
           </h1>
         </div>
@@ -213,7 +213,7 @@ export default function GuildSpecificOverallLeaderboard({
       sortable: false,
       render: (r) => (
         <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-[var(--text-primary)]">
+          <span className="text-lg font-bold text-primary-wh40k">
             #{r.player.currentRank || r.index + 1}
           </span>
         </div>
@@ -225,7 +225,7 @@ export default function GuildSpecificOverallLeaderboard({
       sortable: false,
       render: (r) => (
         // DataTable's <td> defaults to text-secondary; PlayerLink needs text-primary.
-        <span className="text-[var(--text-primary)]">
+        <span className="text-primary-wh40k">
           <PlayerLink playerName={r.player.displayName} />
         </span>
       )
@@ -236,7 +236,7 @@ export default function GuildSpecificOverallLeaderboard({
       align: 'center',
       sortable: false,
       render: (r) => (
-        <span className="font-semibold text-[var(--text-primary)]">
+        <span className="font-semibold text-primary-wh40k">
           {formatNumber(r.player.totalDamage)}
         </span>
       )
@@ -247,7 +247,7 @@ export default function GuildSpecificOverallLeaderboard({
       align: 'center',
       sortable: false,
       render: (r) => (
-        <span className="text-[var(--text-primary)]">
+        <span className="text-primary-wh40k">
           {formatNumber(r.player.battleCount)}
         </span>
       )
@@ -258,7 +258,7 @@ export default function GuildSpecificOverallLeaderboard({
       align: 'center',
       sortable: false,
       render: (r) => (
-        <span className="text-[var(--text-primary)]">
+        <span className="text-primary-wh40k">
           {formatNumber(Math.round(r.player.avgDamage))}
         </span>
       )
@@ -284,7 +284,7 @@ export default function GuildSpecificOverallLeaderboard({
                   {formatPercentage(r.player.percentVsCluster / 100)}
                 </StatusLabel>
               ) : (
-                <span className="text-[var(--text-secondary)]">-</span>
+                <span className="text-secondary-wh40k">-</span>
               )
           } satisfies DataTableColumn<OverallLeaderboardRow>
         ]
@@ -295,7 +295,7 @@ export default function GuildSpecificOverallLeaderboard({
       align: 'center',
       sortable: false,
       render: (r) => (
-        <span className="text-[var(--text-primary)]">
+        <span className="text-primary-wh40k">
           {formatNumber(r.player.bombsUsed)}
         </span>
       )
@@ -306,7 +306,7 @@ export default function GuildSpecificOverallLeaderboard({
       align: 'center',
       sortable: false,
       render: (r) => (
-        <span className="text-[var(--text-primary)]">
+        <span className="text-primary-wh40k">
           {formatNumber(r.player.bossesKilled)}
         </span>
       )
@@ -339,17 +339,17 @@ export default function GuildSpecificOverallLeaderboard({
           variant="ghost"
           size="sm"
           onClick={() => window.history.back()}
-          className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="text-secondary-wh40k hover:text-primary-wh40k"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-primary-wh40k flex items-center gap-2">
             <Trophy className="w-6 h-6 text-yellow-400" />
             {guildDisplayName} - Overall Leaderboard
           </h1>
-          <p className="text-[var(--text-secondary)] flex items-center gap-2 mt-1">
+          <p className="text-secondary-wh40k flex items-center gap-2 mt-1">
             <Users className="w-4 h-4" />
             Season {season} • {data.length} Players
           </p>
@@ -357,7 +357,7 @@ export default function GuildSpecificOverallLeaderboard({
       </div>
 
       {/* Leaderboard Table */}
-      <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded-lg border border-[var(--card-border)] overflow-hidden">
+      <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-lg border border-(--card-border) overflow-hidden">
         <DataTable
           rows={rowsForTable}
           columns={columns}
@@ -365,17 +365,17 @@ export default function GuildSpecificOverallLeaderboard({
             `${r.player.displayName}-${r.player.Guild}-${r.player.totalDamage}`
           }
           empty={<></>}
-          tableClassName="[&_th]:!text-[var(--text-primary)]"
+          tableClassName="[&_th]:text-primary-wh40k!"
         />
       </div>
 
       {data.length === 0 && (
         <div className="text-center py-8">
-          <Users className="w-12 h-12 text-[var(--text-secondary)] mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+          <Users className="w-12 h-12 text-secondary-wh40k mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-primary-wh40k mb-2">
             No Data Available
           </h3>
-          <p className="text-[var(--text-secondary)]">
+          <p className="text-secondary-wh40k">
             No battle data found for {guildDisplayName} in season {season}.
           </p>
         </div>

@@ -472,24 +472,24 @@ export default function BossLevelSelector({
                 value={level.code}
                 title={fullTitle}
                 className={`
-                  px-3 py-2 text-sm font-semibold min-h-[2.5rem] relative overflow-hidden transition-all flex items-center justify-center
-                  !bg-transparent hover:!bg-transparent data-[state=active]:!bg-transparent
+                  px-3 py-2 text-sm font-semibold min-h-10 relative overflow-hidden transition-all flex items-center justify-center
+                  bg-transparent! hover:bg-transparent! data-[state=active]:bg-transparent!
                   ${
                     isMythic
                       ? `text-orange-200 hover:text-orange-100
                      border border-transparent
                      hover:border-orange-600/40
-                     data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-[rgba(30,15,10,0.9)] data-[state=active]:!to-[rgba(40,20,15,0.8)]
+                     data-[state=active]:bg-linear-to-br! data-[state=active]:from-[rgba(30,15,10,0.9)]! data-[state=active]:to-[rgba(40,20,15,0.8)]!
                      data-[state=active]:border-2 data-[state=active]:border-orange-500
                      data-[state=active]:shadow-[0_0_20px_rgba(255,140,0,0.5),inset_0_0_12px_rgba(255,195,0,0.2)]
-                     data-[state=active]:!text-orange-100`
+                     data-[state=active]:text-orange-100!`
                       : `text-cyan-200 hover:text-cyan-100
                      border border-transparent
                      hover:border-cyan-600/40
-                     data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-[rgba(20,20,25,0.9)] data-[state=active]:!to-[rgba(30,30,35,0.8)]
+                     data-[state=active]:bg-linear-to-br! data-[state=active]:from-[rgba(20,20,25,0.9)]! data-[state=active]:to-[rgba(30,30,35,0.8)]!
                      data-[state=active]:border-2 data-[state=active]:border-cyan-400
                      data-[state=active]:shadow-[0_0_20px_rgba(196,181,253,0.4),inset_0_0_10px_rgba(255,255,255,0.15)]
-                     data-[state=active]:!text-cyan-100`
+                     data-[state=active]:text-cyan-100!`
                   }
                 `}
               >

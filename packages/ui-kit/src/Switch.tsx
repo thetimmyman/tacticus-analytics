@@ -26,12 +26,12 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
         aria-checked={checked}
         disabled={disabled}
         onClick={handleClick}
-        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)] ${
-          checked ? 'bg-[var(--accent)]' : 'bg-[var(--card-border)]'
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-hidden focus:ring-2 focus:ring-(--accent) focus:ring-offset-2 focus:ring-offset-(--bg-primary) ${
+          checked ? 'bg-accent-wh40k' : 'bg-(--card-border)'
         } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${className}`}
       >
         <span
-          className={`inline-block h-4 w-4 transform rounded-full bg-[var(--card-bg)] transition-transform ${
+          className={`inline-block h-4 w-4 transform rounded-full bg-(--card-bg) transition-transform ${
             checked ? 'translate-x-6' : 'translate-x-1'
           }`}
         />

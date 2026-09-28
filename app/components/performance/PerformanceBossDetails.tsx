@@ -64,7 +64,7 @@ export function PerformanceBossDetails({
           <div className="flex flex-col gap-1">
             <label
               htmlFor="boss-detail-search"
-              className="text-xs font-semibold uppercase tracking-wide text-[var(--text-tertiary)]"
+              className="text-xs font-semibold uppercase tracking-wide text-(--text-tertiary)"
             >
               Quick Filter
             </label>
@@ -81,7 +81,7 @@ export function PerformanceBossDetails({
           <div className="flex flex-col gap-1">
             <label
               htmlFor="boss-detail-type"
-              className="text-xs font-semibold uppercase tracking-wide text-[var(--text-tertiary)]"
+              className="text-xs font-semibold uppercase tracking-wide text-(--text-tertiary)"
             >
               Type
             </label>
@@ -103,7 +103,7 @@ export function PerformanceBossDetails({
           <div className="flex flex-col gap-1">
             <label
               htmlFor="boss-detail-performance"
-              className="text-xs font-semibold uppercase tracking-wide text-[var(--text-tertiary)]"
+              className="text-xs font-semibold uppercase tracking-wide text-(--text-tertiary)"
             >
               Performance
             </label>
@@ -126,7 +126,7 @@ export function PerformanceBossDetails({
           <div className="flex flex-col gap-1">
             <label
               htmlFor="boss-detail-min-battles"
-              className="text-xs font-semibold uppercase tracking-wide text-[var(--text-tertiary)]"
+              className="text-xs font-semibold uppercase tracking-wide text-(--text-tertiary)"
             >
               Minimum Battles
             </label>

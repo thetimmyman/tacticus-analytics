@@ -67,7 +67,7 @@ export function ServiceHealthBanner({
   const isUnavailable = overall === 'unavailable'
   const bannerBg = isUnavailable
     ? 'bg-red-500/90'
-    : 'bg-gradient-to-r from-amber-500 to-orange-500'
+    : 'bg-linear-to-r from-amber-500 to-orange-500'
   const textColor = isUnavailable ? 'text-white' : 'text-black'
 
   const formatServiceList = (services: ServiceName[]): string => {
@@ -81,7 +81,7 @@ export function ServiceHealthBanner({
       <div className="container mx-auto">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+            <AlertTriangle className="h-4 w-4 shrink-0" />
             <span className="min-w-0 flex-1 truncate text-sm font-medium">
               {isUnavailable ? 'Service Disruption' : 'Limited Service'}
               {' – '}
@@ -107,7 +107,7 @@ export function ServiceHealthBanner({
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className={`p-1 rounded hover:bg-black/10 transition-colors ${textColor}`}
+              className={`p-1 rounded-sm hover:bg-black/10 transition-colors ${textColor}`}
               aria-label={isExpanded ? 'Hide details' : 'Show details'}
             >
               {isExpanded ? (
@@ -120,7 +120,7 @@ export function ServiceHealthBanner({
             <button
               onClick={() => refresh()}
               disabled={isLoading}
-              className={`p-1 rounded hover:bg-black/10 transition-colors ${textColor} disabled:opacity-50`}
+              className={`p-1 rounded-sm hover:bg-black/10 transition-colors ${textColor} disabled:opacity-50`}
               aria-label="Refresh status"
             >
               <RefreshCw
@@ -131,7 +131,7 @@ export function ServiceHealthBanner({
             {dismissible && (
               <button
                 onClick={() => setIsDismissed(true)}
-                className={`p-1 rounded hover:bg-black/10 transition-colors ${textColor}`}
+                className={`p-1 rounded-sm hover:bg-black/10 transition-colors ${textColor}`}
                 aria-label="Dismiss banner"
               >
                 <X className="h-4 w-4" />

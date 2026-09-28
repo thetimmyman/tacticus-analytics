@@ -61,42 +61,42 @@ export function PerformanceBurnStats({
       {!isLoading && burnSummary.hasData && (
         <>
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded border border-[var(--card-border)] bg-[var(--card-bg)] p-3">
-              <div className="text-xs uppercase tracking-wide text-[var(--text-tertiary)]">
+            <div className="rounded-sm border border-(--card-border) bg-(--card-bg) p-3">
+              <div className="text-xs uppercase tracking-wide text-(--text-tertiary)">
                 Behind pace
               </div>
-              <div className="text-lg font-semibold text-[var(--text-primary)]">
+              <div className="text-lg font-semibold text-primary-wh40k">
                 {formatNumber(burnSummary.totalBurnedTokens)}
               </div>
             </div>
-            <div className="rounded border border-[var(--card-border)] bg-[var(--card-bg)] p-3">
-              <div className="text-xs uppercase tracking-wide text-[var(--text-tertiary)]">
+            <div className="rounded-sm border border-(--card-border) bg-(--card-bg) p-3">
+              <div className="text-xs uppercase tracking-wide text-(--text-tertiary)">
                 Overcapped
               </div>
-              <div className="text-lg font-semibold text-[var(--text-primary)]">
+              <div className="text-lg font-semibold text-primary-wh40k">
                 {formatNumber(burnSummary.totalOvercappedTokens)}
               </div>
             </div>
-            <div className="rounded border border-[var(--card-border)] bg-[var(--card-bg)] p-3">
-              <div className="text-xs uppercase tracking-wide text-[var(--text-tertiary)]">
+            <div className="rounded-sm border border-(--card-border) bg-(--card-bg) p-3">
+              <div className="text-xs uppercase tracking-wide text-(--text-tertiary)">
                 Players Behind Pace 1+
               </div>
-              <div className="text-lg font-semibold text-[var(--text-primary)]">
+              <div className="text-lg font-semibold text-primary-wh40k">
                 {formatNumber(burnSummary.playersWithBurnedTokens)}
               </div>
             </div>
-            <div className="rounded border border-[var(--card-border)] bg-[var(--card-bg)] p-3">
-              <div className="text-xs uppercase tracking-wide text-[var(--text-tertiary)]">
+            <div className="rounded-sm border border-(--card-border) bg-(--card-bg) p-3">
+              <div className="text-xs uppercase tracking-wide text-(--text-tertiary)">
                 Total Time Over Cap
               </div>
-              <div className="text-lg font-semibold text-[var(--text-primary)]">
+              <div className="text-lg font-semibold text-primary-wh40k">
                 {formatOverCap(burnSummary.totalTimeOverCapSeconds)}
               </div>
             </div>
           </div>
 
           <div className="mt-4">
-            <h4 className="text-sm font-medium text-[var(--text-primary)]">
+            <h4 className="text-sm font-medium text-primary-wh40k">
               Most Impacted Players
             </h4>
             {burnSummary.topBurnedPlayers.length === 0 ? (

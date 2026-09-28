@@ -22,11 +22,11 @@ export default function PublicLayout({
         {/* Skip link: must be the first focusable element */}
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[60] focus:bg-[var(--card-bg)] focus:text-[var(--text-primary)] focus:px-4 focus:py-2 focus:rounded focus:border focus:border-[var(--accent)]"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-60 focus:bg-(--card-bg) focus:text-primary-wh40k focus:px-4 focus:py-2 focus:rounded-sm focus:border focus:border-accent-wh40k"
         >
           Skip to main content
         </a>
-        <main id="main-content" className="flex-grow">
+        <main id="main-content" className="grow">
           {children}
         </main>
         <Footer />

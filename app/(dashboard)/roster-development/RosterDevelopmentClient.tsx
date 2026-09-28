@@ -114,20 +114,18 @@ function StatCard({
   bgClass: string
 }) {
   return (
-    <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
+    <Card className="bg-(--card-bg) border-(--card-border)">
       <CardContent className="p-4 flex items-center gap-3">
         <div className={`p-2 rounded-lg ${bgClass}`}>
           <Icon className={`w-5 h-5 ${iconClass}`} />
         </div>
         <div>
-          <div className="text-sm text-[var(--text-secondary)]">{label}</div>
-          <div className="text-lg font-semibold text-[var(--text-primary)]">
+          <div className="text-sm text-secondary-wh40k">{label}</div>
+          <div className="text-lg font-semibold text-primary-wh40k">
             {value}
           </div>
           {subLabel && (
-            <div className="text-xs text-[var(--text-secondary)]">
-              {subLabel}
-            </div>
+            <div className="text-xs text-secondary-wh40k">{subLabel}</div>
           )}
         </div>
       </CardContent>
@@ -146,8 +144,8 @@ function HeroPriorityGrid({
 }) {
   if (items.length === 0) {
     return (
-      <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
-        <CardContent className="py-6 text-center text-sm text-[var(--text-secondary)]">
+      <Card className="bg-(--card-bg) border-(--card-border)">
+        <CardContent className="py-6 text-center text-sm text-secondary-wh40k">
           {emptyLabel}
         </CardContent>
       </Card>
@@ -161,18 +159,18 @@ function HeroPriorityGrid({
         return (
           <div
             key={item.hero_name}
-            className="flex items-start gap-3 p-3 rounded-lg bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] border border-[var(--card-border)]"
+            className="flex items-start gap-3 p-3 rounded-lg bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] border border-(--card-border)"
           >
-            <div className="relative flex-shrink-0">
+            <div className="relative shrink-0">
               {icon ? (
                 <img
                   src={icon}
                   alt={item.hero_name}
-                  className="w-10 h-10 rounded"
+                  className="w-10 h-10 rounded-sm"
                   loading="lazy"
                 />
               ) : (
-                <div className="w-10 h-10 rounded bg-[var(--card-bg)] flex items-center justify-center text-[var(--text-secondary)] text-xs font-semibold">
+                <div className="w-10 h-10 rounded-sm bg-(--card-bg) flex items-center justify-center text-secondary-wh40k text-xs font-semibold">
                   {item.hero_name.slice(0, 2)}
                 </div>
               )}
@@ -186,26 +184,26 @@ function HeroPriorityGrid({
               )}
             </div>
             <div className="min-w-0">
-              <div className="text-sm font-semibold text-[var(--text-primary)] truncate">
+              <div className="text-sm font-semibold text-primary-wh40k truncate">
                 {item.hero_name}
               </div>
-              <div className="text-xs text-[var(--text-secondary)]">
+              <div className="text-xs text-secondary-wh40k">
                 Appears in {item.appears_in_meta_teams} top teams
               </div>
-              <div className="text-xs text-[var(--text-secondary)]">
+              <div className="text-xs text-secondary-wh40k">
                 Impact: {formatNumber(item.impact)}
               </div>
               <div className="flex flex-wrap gap-1 mt-1">
                 {item.boss_types.slice(0, 3).map((boss) => (
                   <span
                     key={boss}
-                    className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--card-bg)] text-[var(--text-secondary)]"
+                    className="text-[10px] px-1.5 py-0.5 rounded-sm bg-(--card-bg) text-secondary-wh40k"
                   >
                     {getBossDisplayName(boss).slice(0, 10)}
                   </span>
                 ))}
                 {item.boss_types.length > 3 && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--card-bg)] text-[var(--text-secondary)]">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-sm bg-(--card-bg) text-secondary-wh40k">
                     +{item.boss_types.length - 3}
                   </span>
                 )}
@@ -221,7 +219,7 @@ function HeroPriorityGrid({
 function CoverageList({ coverage }: { coverage: BossCoverage[] }) {
   if (coverage.length === 0) {
     return (
-      <div className="text-sm text-[var(--text-secondary)]">
+      <div className="text-sm text-secondary-wh40k">
         No boss coverage data available yet.
       </div>
     )
@@ -232,15 +230,15 @@ function CoverageList({ coverage }: { coverage: BossCoverage[] }) {
       {coverage.map((boss) => (
         <div key={boss.boss_type} className="space-y-1">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-[var(--text-primary)]">
+            <span className="text-primary-wh40k">
               {getBossDisplayName(boss.boss_type)}
             </span>
-            <span className="text-[var(--text-secondary)]">
+            <span className="text-secondary-wh40k">
               {boss.coverage_pct}% ({boss.teams_available}/{boss.teams_analyzed}
               )
             </span>
           </div>
-          <div className="h-2 rounded-full bg-[var(--bg-secondary)]">
+          <div className="h-2 rounded-full bg-(--bg-secondary)">
             <div
               className="h-2 rounded-full bg-emerald-400"
               style={{ width: `${boss.coverage_pct}%` }}
@@ -274,15 +272,15 @@ function DataCoverageCard({
     ? 'text-emerald-400 bg-emerald-400/10'
     : summary.partial_roster
       ? 'text-amber-300 bg-amber-400/10'
-      : 'text-[var(--text-secondary)] bg-[var(--bg-secondary)]'
+      : 'text-secondary-wh40k bg-(--bg-secondary)'
 
   return (
-    <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
+    <Card className="bg-(--card-bg) border-(--card-border)">
       <CardContent className="py-4">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-semibold text-[var(--text-primary)]">
+              <span className="text-sm font-semibold text-primary-wh40k">
                 Data Coverage
               </span>
               <span
@@ -291,22 +289,22 @@ function DataCoverageCard({
                 {statusLabel}
               </span>
             </div>
-            <p className="text-xs text-[var(--text-secondary)] mt-1">
+            <p className="text-xs text-secondary-wh40k mt-1">
               {summary.members_with_roster} of {summary.members_total} members
               have roster data.
             </p>
             <div className="flex flex-wrap gap-2 mt-2 text-xs">
-              <span className="px-2 py-1 rounded bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
+              <span className="px-2 py-1 rounded-sm bg-(--bg-secondary) text-secondary-wh40k">
                 API keys: {summary.members_with_api_key}
               </span>
-              <span className="px-2 py-1 rounded bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
+              <span className="px-2 py-1 rounded-sm bg-(--bg-secondary) text-secondary-wh40k">
                 Coverage: {summary.roster_coverage_pct}%
               </span>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
             {lastUpdated && (
-              <span className="text-xs text-[var(--text-secondary)]">
+              <span className="text-xs text-secondary-wh40k">
                 Updated {hasMounted ? lastUpdated.toLocaleString() : '—'}
               </span>
             )}
@@ -314,7 +312,7 @@ function DataCoverageCard({
               <Link href="/guild-management/members">
                 <Button
                   variant="outline"
-                  className="border-[var(--card-border)] text-[var(--text-primary)]"
+                  className="border-(--card-border) text-primary-wh40k"
                 >
                   Request API Keys
                 </Button>
@@ -384,15 +382,15 @@ function GapAnalysisTab({
       </div>
 
       {!hasMetaData && (
-        <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
-          <CardContent className="py-5 text-sm text-[var(--text-secondary)]">
+        <Card className="bg-(--card-bg) border-(--card-border)">
+          <CardContent className="py-5 text-sm text-secondary-wh40k">
             Meta Atlas benchmarks are unavailable for this season. Gap analysis
             will refresh once new meta data is available.
           </CardContent>
         </Card>
       )}
 
-      <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
+      <Card className="bg-(--card-bg) border-(--card-border)">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg flex items-center gap-2">
             <Target className="w-5 h-5 text-amber-400" />
@@ -408,7 +406,7 @@ function GapAnalysisTab({
         </CardContent>
       </Card>
 
-      <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
+      <Card className="bg-(--card-bg) border-(--card-border)">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg flex items-center gap-2">
             <Shield className="w-5 h-5 text-emerald-400" />
@@ -444,13 +442,13 @@ function DevelopmentTab({
 
   return (
     <div className="space-y-6">
-      <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30">
+      <Card className="bg-linear-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30">
         <CardContent className="py-8 text-center">
           <TrendingUp className="w-12 h-12 text-amber-400 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-white mb-2">
             Development Paths
           </h3>
-          <p className="text-[var(--text-secondary)] max-w-lg mx-auto mb-6">
+          <p className="text-secondary-wh40k max-w-lg mx-auto mb-6">
             Focus upgrades on the heroes you already own that appear most
             frequently in top-performing meta teams.
           </p>
@@ -462,15 +460,15 @@ function DevelopmentTab({
       </Card>
 
       {!hasMetaData && (
-        <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
-          <CardContent className="py-5 text-sm text-[var(--text-secondary)]">
+        <Card className="bg-(--card-bg) border-(--card-border)">
+          <CardContent className="py-5 text-sm text-secondary-wh40k">
             Development priorities will appear once Meta Atlas benchmarks are
             available.
           </CardContent>
         </Card>
       )}
 
-      <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
+      <Card className="bg-(--card-bg) border-(--card-border)">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg flex items-center gap-2">
             <Star className="w-5 h-5 text-amber-400" />
@@ -506,13 +504,13 @@ function CompositionsTab({
 
   return (
     <div className="space-y-6">
-      <Card className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border-cyan-500/30">
+      <Card className="bg-linear-to-br from-cyan-500/10 to-blue-500/10 border-cyan-500/30">
         <CardContent className="py-8 text-center">
           <Shield className="w-12 h-12 text-cyan-400 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-white mb-2">
             Optimal Raid Compositions
           </h3>
-          <p className="text-[var(--text-secondary)] max-w-lg mx-auto mb-6">
+          <p className="text-secondary-wh40k max-w-lg mx-auto mb-6">
             See which meta teams your guild can field today, and which lineups
             are close with one or two roster additions.
           </p>
@@ -524,16 +522,16 @@ function CompositionsTab({
       </Card>
 
       {!hasMetaData && (
-        <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
-          <CardContent className="py-5 text-sm text-[var(--text-secondary)]">
+        <Card className="bg-(--card-bg) border-(--card-border)">
+          <CardContent className="py-5 text-sm text-secondary-wh40k">
             Composition recommendations require Meta Atlas benchmark data.
           </CardContent>
         </Card>
       )}
 
       {hasMetaData && !hasRecommendations && (
-        <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
-          <CardContent className="py-5 text-sm text-[var(--text-secondary)]">
+        <Card className="bg-(--card-bg) border-(--card-border)">
+          <CardContent className="py-5 text-sm text-secondary-wh40k">
             No viable compositions detected yet. Focus on closing the top roster
             gaps.
           </CardContent>
@@ -553,24 +551,24 @@ function CompositionsTab({
           return (
             <Card
               key={boss.boss_type}
-              className="bg-[var(--card-bg)] border-[var(--card-border)]"
+              className="bg-(--card-bg) border-(--card-border)"
             >
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-center justify-between">
-                  <span className="text-[var(--text-primary)]">
+                  <span className="text-primary-wh40k">
                     {getBossDisplayName(boss.boss_type)}
                   </span>
-                  <span className="text-xs px-2 py-1 rounded bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
+                  <span className="text-xs px-2 py-1 rounded-sm bg-(--bg-secondary) text-secondary-wh40k">
                     {boss.coverage_pct}% coverage
                   </span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+                <div className="text-xs uppercase tracking-wide text-secondary-wh40k">
                   {title}
                 </div>
                 {teamsToShow.length === 0 && (
-                  <div className="text-sm text-[var(--text-secondary)]">
+                  <div className="text-sm text-secondary-wh40k">
                     No viable compositions yet. Focus on the missing heroes list
                     for this boss.
                   </div>
@@ -578,18 +576,18 @@ function CompositionsTab({
                 {teamsToShow.map((team) => (
                   <div
                     key={`${boss.boss_type}-${team.composition}`}
-                    className="p-3 rounded-lg bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] border border-[var(--card-border)]"
+                    className="p-3 rounded-lg bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] border border-(--card-border)"
                   >
-                    <div className="text-sm font-semibold text-[var(--text-primary)]">
+                    <div className="text-sm font-semibold text-primary-wh40k">
                       {team.composition}
                     </div>
-                    <div className="text-xs text-[var(--text-secondary)] mt-1">
+                    <div className="text-xs text-secondary-wh40k mt-1">
                       P90 {formatNumber(team.damage_p90)} · Avg{' '}
                       {formatNumber(team.damage_avg)} · {team.attack_count}{' '}
                       attacks
                     </div>
                     {team.rarity_set && (
-                      <div className="mt-1 text-[10px] uppercase tracking-wide text-[var(--text-secondary)]">
+                      <div className="mt-1 text-[10px] uppercase tracking-wide text-secondary-wh40k">
                         {team.rarity_set}
                       </div>
                     )}
@@ -598,7 +596,7 @@ function CompositionsTab({
                         {team.missing_units.map((unit) => (
                           <span
                             key={unit}
-                            className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300"
+                            className="text-[10px] px-1.5 py-0.5 rounded-sm bg-amber-500/20 text-amber-300"
                           >
                             Missing {unit}
                           </span>
@@ -711,7 +709,7 @@ export function RosterDevelopmentClient({
       />
 
       {loading && (
-        <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
+        <Card className="bg-(--card-bg) border-(--card-border)">
           <CardContent className="py-10">
             <div className="flex justify-center">
               <LoadingSpinner message="Analyzing guild roster..." />
@@ -729,20 +727,20 @@ export function RosterDevelopmentClient({
       )}
 
       {!loading && !error && analysis && !hasRosterData && (
-        <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
+        <Card className="bg-(--card-bg) border-(--card-border)">
           <CardContent className="py-8 text-center">
             <AlertTriangle className="w-10 h-10 text-amber-400 mx-auto mb-3" />
-            <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+            <h3 className="text-lg font-semibold text-primary-wh40k mb-2">
               No Roster Data Yet
             </h3>
-            <p className="text-[var(--text-secondary)] max-w-md mx-auto mb-4">
+            <p className="text-secondary-wh40k max-w-md mx-auto mb-4">
               Ask members to link their Player API key to unlock roster
               development insights.
             </p>
             <Link href="/guild-management/members">
               <Button
                 variant="outline"
-                className="border-[var(--card-border)] text-[var(--text-primary)]"
+                className="border-(--card-border) text-primary-wh40k"
               >
                 Request API Keys
               </Button>
@@ -770,22 +768,18 @@ export function RosterDevelopmentClient({
         </div>
       )}
 
-      <Card className="bg-card/50 border-[var(--card-border)]">
+      <Card className="bg-card/50 border-(--card-border)">
         <CardContent className="py-4">
           <div className="flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-amber-400 mt-0.5 shrink-0" />
-            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+            <div className="text-sm text-secondary-wh40k space-y-2">
               <p>
-                <strong className="text-[var(--text-primary)]">
-                  Prerequisites:
-                </strong>{' '}
+                <strong className="text-primary-wh40k">Prerequisites:</strong>{' '}
                 Full roster development features require members to link their
                 player API keys to provide hero roster data.
               </p>
               <p>
-                <strong className="text-[var(--text-primary)]">
-                  Integration:
-                </strong>{' '}
+                <strong className="text-primary-wh40k">Integration:</strong>{' '}
                 This feature integrates with Meta Atlas benchmarks to provide
                 guild-specific recommendations based on aggregated performance
                 data.

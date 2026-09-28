@@ -158,7 +158,7 @@ export default function GuildWarBattlefields({
                   <button
                     type="button"
                     onClick={() => setLightbox(boardId)}
-                    className="group w-full overflow-hidden rounded-lg border border-slate-700 bg-slate-800/50 text-left transition-colors hover:border-amber-500/60 focus:border-amber-500 focus:outline-none"
+                    className="group w-full overflow-hidden rounded-lg border border-slate-700 bg-slate-800/50 text-left transition-colors hover:border-amber-500/60 focus:border-amber-500 focus:outline-hidden"
                     aria-label={`Enlarge board ${boardName}`}
                   >
                     <Image
@@ -221,7 +221,7 @@ export default function GuildWarBattlefields({
               type="button"
               onClick={closeLightbox}
               aria-label="Close"
-              className="absolute -top-2 right-0 -translate-y-full rounded p-1.5 text-slate-300 hover:bg-slate-700 hover:text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="absolute -top-2 right-0 -translate-y-full rounded-sm p-1.5 text-slate-300 hover:bg-slate-700 hover:text-white focus:outline-hidden focus:ring-1 focus:ring-amber-500"
             >
               <X className="h-5 w-5" />
             </button>

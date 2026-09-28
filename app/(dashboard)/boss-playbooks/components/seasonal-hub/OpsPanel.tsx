@@ -443,12 +443,12 @@ export function OpsPanel({
   }
 
   const saveFooter = canManageHerald ? (
-    <div className="flex items-center justify-between gap-3 rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] px-4 py-3 backdrop-blur-md">
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] px-4 py-3 backdrop-blur-md">
       <div
         className={
           state.saveStatus === 'saved-stale'
-            ? 'text-xs text-[var(--warning)]'
-            : 'text-xs text-[var(--text-tertiary)]'
+            ? 'text-xs text-(--warning)'
+            : 'text-xs text-(--text-tertiary)'
         }
       >
         {hasInvalidRoleRows
@@ -470,7 +470,7 @@ export function OpsPanel({
         disabled={
           state.saveStatus === 'saving' || !state.dirty || hasInvalidRoleRows
         }
-        className="inline-flex h-9 items-center gap-2 rounded-md border border-[color-mix(in_srgb,var(--accent)_50%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] px-3 text-sm font-semibold text-[var(--accent)] hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] disabled:cursor-not-allowed disabled:border-[var(--card-border)] disabled:bg-black/10 disabled:text-[color-mix(in_srgb,var(--text-secondary)_40%,transparent)]"
+        className="inline-flex h-9 items-center gap-2 rounded-md border border-[color-mix(in_srgb,var(--accent)_50%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] px-3 text-sm font-semibold text-(--accent) hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] disabled:cursor-not-allowed disabled:border-(--card-border) disabled:bg-black/10 disabled:text-[color-mix(in_srgb,var(--text-secondary)_40%,transparent)]"
       >
         {state.saveStatus === 'saving' ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -493,7 +493,7 @@ export function OpsPanel({
   const canExpandOps = canManageHerald || canManageTargets
 
   const mainSubtitle = (
-    <div className="text-xs uppercase tracking-wide text-[var(--text-tertiary)]">
+    <div className="text-xs uppercase tracking-wide text-(--text-tertiary)">
       {card.boardId}
     </div>
   )
@@ -502,14 +502,14 @@ export function OpsPanel({
     <>
       <Link
         href={card.playbookHref}
-        className="inline-flex h-9 items-center gap-2 rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-3 text-sm font-semibold text-[var(--text-secondary)] hover:border-[color-mix(in_srgb,var(--accent)_60%,transparent)] hover:text-[var(--accent)]"
+        className="inline-flex h-9 items-center gap-2 rounded-md border border-(--card-border) bg-(--bg-secondary) px-3 text-sm font-semibold text-secondary-wh40k hover:border-[color-mix(in_srgb,var(--accent)_60%,transparent)] hover:text-(--accent)"
       >
         Playbook
         <ArrowUpRight className="h-3.5 w-3.5" />
       </Link>
       <Link
         href={`/boss?season=${card.seasonNumber}&level=${card.difficultyCode}`}
-        className="inline-flex h-9 items-center gap-2 rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-3 text-sm font-semibold text-[var(--text-secondary)] hover:border-[color-mix(in_srgb,var(--accent)_60%,transparent)] hover:text-[var(--accent)]"
+        className="inline-flex h-9 items-center gap-2 rounded-md border border-(--card-border) bg-(--bg-secondary) px-3 text-sm font-semibold text-secondary-wh40k hover:border-[color-mix(in_srgb,var(--accent)_60%,transparent)] hover:text-(--accent)"
       >
         <Activity className="h-3.5 w-3.5" />
         Boss Performance
@@ -525,10 +525,10 @@ export function OpsPanel({
     >
       <div className="flex items-center justify-between gap-2">
         <div>
-          <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
             Main encounter
           </div>
-          <div className="text-sm font-semibold text-[var(--text-primary)]">
+          <div className="text-sm font-semibold text-primary-wh40k">
             {card.mainEncounter.bossName}
           </div>
         </div>
@@ -540,7 +540,7 @@ export function OpsPanel({
             canManage={canManageTargets}
           />
         ) : (
-          <span className="rounded-md border border-[var(--card-border)] bg-black/20 px-2 py-1 text-xs font-semibold text-[var(--text-secondary)]">
+          <span className="rounded-md border border-(--card-border) bg-black/20 px-2 py-1 text-xs font-semibold text-secondary-wh40k">
             {targetLabel(card.mainEncounter)}
           </span>
         )}
@@ -569,12 +569,12 @@ export function OpsPanel({
         onCustomLinkChange={(patch) => patchMessage('mainMessage', patch)}
       />
       {card.sideEncounters.length > 0 && (
-        <div className="space-y-2 rounded-md border border-[var(--card-border)] bg-black/15 p-3">
+        <div className="space-y-2 rounded-md border border-(--card-border) bg-black/15 p-3">
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-(--accent)">
               Prime ping mode
             </div>
-            <div className="mt-1 text-xs text-[var(--text-tertiary)]">
+            <div className="mt-1 text-xs text-(--text-tertiary)">
               Combined sends one prime ping. Per-side keeps side pings separate.
             </div>
           </div>
@@ -590,20 +590,20 @@ export function OpsPanel({
           )}
           {state.pingMode === 'combined' && (
             <div className="space-y-1">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
                 Combined prime ping — preview
               </div>
               {combinedPrimeNotesPreview.length > 0 ? (
-                <p className="whitespace-pre-wrap rounded-md border border-[var(--card-border)] bg-black/20 px-3 py-2 text-xs text-[var(--text-secondary)]">
+                <p className="whitespace-pre-wrap rounded-md border border-(--card-border) bg-black/20 px-3 py-2 text-xs text-secondary-wh40k">
                   {combinedPrimeNotesPreview}
                 </p>
               ) : (
-                <p className="rounded-md border border-[var(--card-border)] bg-black/15 px-3 py-2 text-xs italic text-[var(--text-tertiary)]">
+                <p className="rounded-md border border-(--card-border) bg-black/15 px-3 py-2 text-xs italic text-(--text-tertiary)">
                   No prime notes yet. Whatever you write in the Prime 1 and
                   Prime 2 notes below appears here.
                 </p>
               )}
-              <p className="text-[10px] text-[var(--text-tertiary)]">
+              <p className="text-[10px] text-(--text-tertiary)">
                 Built from the Prime 1 and Prime 2 notes below — edit those.
                 Matching notes post once; different ones get side headings.
               </p>
@@ -614,7 +614,7 @@ export function OpsPanel({
       {opsLoadFailed ? (
         <div
           role="alert"
-          className="rounded-md border border-[var(--warning)]/40 bg-[color-mix(in_srgb,var(--warning)_12%,transparent)] px-3 py-2 text-xs text-[var(--warning)]"
+          className="rounded-md border border-(--warning)/40 bg-[color-mix(in_srgb,var(--warning)_12%,transparent)] px-3 py-2 text-xs text-(--warning)"
         >
           Herald settings could not be loaded, so the fields below may be blank
           even where you have things configured. Editing is disabled to stop a
@@ -622,7 +622,7 @@ export function OpsPanel({
         </div>
       ) : (
         !canManageHerald && (
-          <div className="rounded-md border border-[var(--card-border)] bg-black/15 px-3 py-2 text-xs text-[var(--text-tertiary)]">
+          <div className="rounded-md border border-(--card-border) bg-black/15 px-3 py-2 text-xs text-(--text-tertiary)">
             Herald settings are read-only for members.
           </div>
         )
@@ -674,10 +674,10 @@ export function OpsPanel({
             >
               <div className="flex items-center justify-between gap-2">
                 <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
                     Prime {index + 1}
                   </div>
-                  <div className="text-sm font-semibold text-[var(--text-primary)]">
+                  <div className="text-sm font-semibold text-primary-wh40k">
                     {encounter.bossName}
                   </div>
                 </div>
@@ -689,7 +689,7 @@ export function OpsPanel({
                     canManage={canManageTargets}
                   />
                 ) : (
-                  <span className="rounded-md border border-[var(--card-border)] bg-black/20 px-2 py-1 text-xs font-semibold text-[var(--text-secondary)]">
+                  <span className="rounded-md border border-(--card-border) bg-black/20 px-2 py-1 text-xs font-semibold text-secondary-wh40k">
                     {targetLabel(encounter)}
                   </span>
                 )}
@@ -735,7 +735,7 @@ export function OpsPanel({
                 }
               />
               <div className="space-y-1">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
                   Behavior
                 </div>
                 <BehaviourToggle
@@ -746,7 +746,7 @@ export function OpsPanel({
               </div>
               {side.behaviour === 'threshold' && (
                 <div className="space-y-1">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
                     Threshold HP remaining
                   </div>
                   <ThresholdPicker
@@ -759,7 +759,7 @@ export function OpsPanel({
                 </div>
               )}
               {!canManageHerald && (
-                <div className="rounded-md border border-[var(--card-border)] bg-black/15 px-3 py-2 text-xs text-[var(--text-tertiary)]">
+                <div className="rounded-md border border-(--card-border) bg-black/15 px-3 py-2 text-xs text-(--text-tertiary)">
                   Prime ops are read-only for members.
                 </div>
               )}
@@ -773,7 +773,7 @@ export function OpsPanel({
             title={encounter.bossName}
             sectionId={encounterSectionId(card.key, encounter.key)}
             subtitle={
-              <div className="text-xs uppercase tracking-wide text-[var(--text-tertiary)]">
+              <div className="text-xs uppercase tracking-wide text-(--text-tertiary)">
                 {encounter.boardId}
               </div>
             }
@@ -795,7 +795,7 @@ export function OpsPanel({
             }
             canExpandOps={canExpandOps}
           >
-            <span className="rounded-md border border-[var(--card-border)] px-2 py-1 text-[10px] font-semibold uppercase text-[var(--text-tertiary)]">
+            <span className="rounded-md border border-(--card-border) px-2 py-1 text-[10px] font-semibold uppercase text-(--text-tertiary)">
               {targetLabel(encounter)}
             </span>
           </EncounterCommandRow>

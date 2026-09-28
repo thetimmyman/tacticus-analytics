@@ -30,7 +30,7 @@ export function LifetimeStats() {
         {['s1', 's2', 's3', 's4'].map((k) => (
           <div
             key={k}
-            className="h-20 rounded-lg bg-[var(--card-bg)] animate-pulse border border-[var(--card-border)]"
+            className="h-20 rounded-lg bg-(--card-bg) animate-pulse border border-(--card-border)"
           />
         ))}
       </div>
@@ -39,9 +39,7 @@ export function LifetimeStats() {
 
   if (error || !data) {
     return (
-      <p className="text-sm text-[var(--text-secondary)]">
-        No recorded activity yet.
-      </p>
+      <p className="text-sm text-secondary-wh40k">No recorded activity yet.</p>
     )
   }
 
@@ -53,9 +51,7 @@ export function LifetimeStats() {
 
   if (isEmpty) {
     return (
-      <p className="text-sm text-[var(--text-secondary)]">
-        No recorded activity yet.
-      </p>
+      <p className="text-sm text-secondary-wh40k">No recorded activity yet.</p>
     )
   }
 
@@ -92,17 +88,13 @@ export function LifetimeStats() {
       {cards.map((card) => (
         <div
           key={card.label}
-          className="p-4 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)] text-center"
+          className="p-4 rounded-lg bg-(--card-bg) border border-(--card-border) text-center"
         >
-          <p className="text-2xl font-bold text-[var(--text-primary)]">
-            {card.value}
-          </p>
-          <p className="text-xs font-medium text-[var(--text-accent)] mt-1">
+          <p className="text-2xl font-bold text-primary-wh40k">{card.value}</p>
+          <p className="text-xs font-medium text-accent-wh40k mt-1">
             {card.label}
           </p>
-          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-            {card.sub}
-          </p>
+          <p className="text-xs text-secondary-wh40k mt-0.5">{card.sub}</p>
         </div>
       ))}
     </div>

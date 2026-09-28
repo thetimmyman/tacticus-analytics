@@ -85,8 +85,8 @@ function StatTile({
   color: string
 }) {
   return (
-    <div className="rounded-lg border border-[var(--card-border)] px-3 py-2 text-center">
-      <p className="text-[9px] uppercase tracking-wider text-[var(--text-tertiary)]">
+    <div className="rounded-lg border border-(--card-border) px-3 py-2 text-center">
+      <p className="text-[9px] uppercase tracking-wider text-(--text-tertiary)">
         {label}
       </p>
       <p className="text-lg font-bold tabular-nums" style={{ color }}>
@@ -113,10 +113,10 @@ function RaidContextBanner({
 
   return (
     <section
-      className="rounded-xl border border-[var(--card-border)] bg-card/30 p-4"
+      className="rounded-xl border border-(--card-border) bg-card/30 p-4"
       aria-label="Current raid context"
     >
-      <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
+      <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-(--text-tertiary)">
         Current raid context · Season {context.season}
       </p>
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -130,15 +130,13 @@ function RaidContextBanner({
             />
           ) : null}
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-[var(--text-primary)]">
-              {label}
-            </p>
-            <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
+            <p className="text-sm font-semibold text-primary-wh40k">{label}</p>
+            <p className="mt-0.5 text-xs text-secondary-wh40k">
               Member insights below are weighted toward the active encounter,
               available tokens, and the next planned attack window.
             </p>
             {context.activeBossHpPct != null && (
-              <p className="mt-1 text-xs text-[var(--text-tertiary)]">
+              <p className="mt-1 text-xs text-(--text-tertiary)">
                 <span
                   className="font-semibold"
                   style={{ color: 'var(--accent)' }}
@@ -272,7 +270,7 @@ export default function OfficerBriefing({
               : 'Failed to load the officer briefing'}
         </div>
         {isAccess && (
-          <p className="mt-1 text-xs text-[var(--text-tertiary)]">
+          <p className="mt-1 text-xs text-(--text-tertiary)">
             The Officer Command Center is limited to guild officers.
           </p>
         )}

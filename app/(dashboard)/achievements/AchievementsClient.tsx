@@ -217,7 +217,7 @@ function AchievementSkeleton() {
       {Array.from({ length: 12 }, (_, index) => (
         <div
           key={index}
-          className="h-36 rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--card-bg)_70%,transparent)] animate-pulse"
+          className="h-36 rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--card-bg)_70%,transparent)] animate-pulse"
         />
       ))}
     </div>
@@ -232,18 +232,16 @@ interface StatTileProps {
 
 function StatTile({ label, value, icon: Icon }: StatTileProps) {
   return (
-    <div className="rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--card-bg)_80%,transparent)] p-4">
+    <div className="rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--card-bg)_80%,transparent)] p-4">
       <div className="flex items-center gap-3">
         <span className="flex h-9 w-9 items-center justify-center rounded-md border border-[color-mix(in_srgb,var(--accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]">
-          <Icon className="h-4 w-4 text-[var(--accent)]" aria-hidden="true" />
+          <Icon className="h-4 w-4 text-(--accent)" aria-hidden="true" />
         </span>
         <div className="min-w-0">
-          <p className="text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+          <p className="text-xs uppercase tracking-wide text-secondary-wh40k">
             {label}
           </p>
-          <p className="text-xl font-semibold text-[var(--text-primary)]">
-            {value}
-          </p>
+          <p className="text-xl font-semibold text-primary-wh40k">{value}</p>
         </div>
       </div>
     </div>
@@ -392,21 +390,21 @@ export default function AchievementsClient({
 
   return (
     <div className="space-y-6">
-      <div className="overflow-hidden rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)]">
-        <div className="border-b border-[var(--card-border)] bg-black/20 p-5 sm:p-6">
+      <div className="overflow-hidden rounded-lg border border-(--card-border) bg-(--card-bg)">
+        <div className="border-b border-(--card-border) bg-black/20 p-5 sm:p-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
-              <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--text-secondary)]">
-                <span className="inline-flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] px-3 py-1 text-[var(--accent)]">
+              <div className="flex flex-wrap items-center gap-2 text-sm text-secondary-wh40k">
+                <span className="inline-flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] px-3 py-1 text-(--accent)">
                   <Crown className="h-4 w-4" aria-hidden="true" />
                   Command
                 </span>
                 <span>{viewerGuildLabel ?? 'No guild'}</span>
               </div>
-              <h1 className="mt-4 text-3xl font-bold text-[var(--text-primary)]">
+              <h1 className="mt-4 text-3xl font-bold text-primary-wh40k">
                 Achievements
               </h1>
-              <p className="mt-2 text-sm text-[var(--text-secondary)]">
+              <p className="mt-2 text-sm text-secondary-wh40k">
                 {labelFor(
                   data?.targetPlayer?.displayName || selectedPlayer?.displayName
                 ) || 'Commander'}{' '}
@@ -416,14 +414,14 @@ export default function AchievementsClient({
 
             {canSelectPlayers && players.length > 0 && (
               <label className="min-w-0 lg:w-80">
-                <span className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[var(--text-secondary)]">
+                <span className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-secondary-wh40k">
                   <Users className="h-4 w-4" aria-hidden="true" />
                   Player
                 </span>
                 <select
                   value={selectedPlayerId}
                   onChange={(event) => selectPlayer(event.target.value)}
-                  className="w-full rounded-md border border-[var(--card-border)] bg-black/30 px-3 py-2 text-sm text-[var(--text-primary)] outline-none transition-colors focus:border-[var(--accent)]"
+                  className="w-full rounded-md border border-(--card-border) bg-black/30 px-3 py-2 text-sm text-primary-wh40k outline-hidden transition-colors focus:border-accent-wh40k"
                 >
                   {players.map((player) => (
                     <option key={player.playerId} value={player.playerId}>
@@ -474,33 +472,33 @@ export default function AchievementsClient({
               onClick={() => selectCategory(active ? 'all' : item.key)}
               className={`rounded-lg border p-4 text-left transition-colors ${
                 active
-                  ? 'border-[var(--accent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]'
-                  : 'border-[var(--card-border)] bg-[color-mix(in_srgb,var(--card-bg)_70%,transparent)] hover:border-[color-mix(in_srgb,var(--accent)_40%,transparent)]'
+                  ? 'border-accent-wh40k bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]'
+                  : 'border-(--card-border) bg-[color-mix(in_srgb,var(--card-bg)_70%,transparent)] hover:border-[color-mix(in_srgb,var(--accent)_40%,transparent)]'
               }`}
             >
               <div className="flex items-start gap-3">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/5">
                   <Icon
-                    className="h-4 w-4 text-[var(--accent)]"
+                    className="h-4 w-4 text-(--accent)"
                     aria-hidden="true"
                   />
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="font-semibold text-[var(--text-primary)]">
+                    <p className="font-semibold text-primary-wh40k">
                       {item.label}
                     </p>
-                    <span className="text-xs text-[var(--text-secondary)]">
+                    <span className="text-xs text-secondary-wh40k">
                       {item.percent}%
                     </span>
                   </div>
                   <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
                     <div
-                      className="h-full rounded-full bg-[var(--accent)]"
+                      className="h-full rounded-full bg-accent-wh40k"
                       style={{ width: `${item.percent}%` }}
                     />
                   </div>
-                  <p className="mt-2 text-xs text-[var(--text-secondary)]">
+                  <p className="mt-2 text-xs text-secondary-wh40k">
                     {item.unlocked} / {item.total}
                   </p>
                 </div>
@@ -510,18 +508,18 @@ export default function AchievementsClient({
         })}
       </div>
 
-      <div className="rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--card-bg)_80%,transparent)] p-4">
+      <div className="rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--card-bg)_80%,transparent)] p-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="relative flex-1">
             <Search
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]"
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-secondary-wh40k"
               aria-hidden="true"
             />
             <input
               value={search}
               onChange={(event) => updateSearch(event.target.value)}
               placeholder="Search achievements"
-              className="w-full rounded-md border border-[var(--card-border)] bg-black/30 py-2 pl-9 pr-3 text-sm text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--text-secondary)] focus:border-[var(--accent)]"
+              className="w-full rounded-md border border-(--card-border) bg-black/30 py-2 pl-9 pr-3 text-sm text-primary-wh40k outline-hidden transition-colors placeholder:text-secondary-wh40k focus:border-accent-wh40k"
             />
           </div>
 
@@ -534,8 +532,8 @@ export default function AchievementsClient({
                 onClick={() => selectStatus(item)}
                 className={`rounded-md border px-3 py-2 text-sm font-medium capitalize transition-colors ${
                   status === item
-                    ? 'border-[var(--accent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--accent)]'
-                    : 'border-[var(--card-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    ? 'border-accent-wh40k bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-(--accent)'
+                    : 'border-(--card-border) text-secondary-wh40k hover:text-primary-wh40k'
                 }`}
               >
                 {item}
@@ -545,7 +543,7 @@ export default function AchievementsClient({
               <button
                 type="button"
                 onClick={() => selectCategory('all')}
-                className="inline-flex items-center gap-2 rounded-md border border-[var(--card-border)] px-3 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                className="inline-flex items-center gap-2 rounded-md border border-(--card-border) px-3 py-2 text-sm text-secondary-wh40k hover:text-primary-wh40k"
               >
                 <RefreshCw className="h-4 w-4" aria-hidden="true" />
                 Clear
@@ -564,12 +562,12 @@ export default function AchievementsClient({
       )}
 
       {!loading && !error && filteredSeries.length === 0 && (
-        <div className="rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--card-bg)_80%,transparent)] p-8 text-center">
+        <div className="rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--card-bg)_80%,transparent)] p-8 text-center">
           <UserRound
-            className="mx-auto h-8 w-8 text-[var(--text-secondary)]"
+            className="mx-auto h-8 w-8 text-secondary-wh40k"
             aria-hidden="true"
           />
-          <p className="mt-3 font-medium text-[var(--text-primary)]">
+          <p className="mt-3 font-medium text-primary-wh40k">
             No achievements match this view.
           </p>
         </div>
@@ -592,7 +590,7 @@ export default function AchievementsClient({
           <button
             type="button"
             onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
-            className="rounded-md border border-[color-mix(in_srgb,var(--accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] px-4 py-2 text-sm font-medium text-[var(--accent)] transition-colors hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)]"
+            className="rounded-md border border-[color-mix(in_srgb,var(--accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] px-4 py-2 text-sm font-medium text-(--accent) transition-colors hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)]"
           >
             Load more ({filteredSeries.length - visibleCount} remaining)
           </button>
@@ -630,7 +628,7 @@ function SeriesCard({ series, hasMounted }: SeriesCardProps) {
           ? 'border-amber-400/60 bg-amber-500/10'
           : hasProgress
             ? 'border-[color-mix(in_srgb,var(--accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]'
-            : 'border-[var(--card-border)] bg-[color-mix(in_srgb,var(--card-bg)_80%,transparent)]'
+            : 'border-(--card-border) bg-[color-mix(in_srgb,var(--card-bg)_80%,transparent)]'
       } ${
         isJustUnlocked
           ? 'motion-safe:animate-[achievement-glow_3s_ease-in-out_3]'
@@ -658,9 +656,7 @@ function SeriesCard({ series, hasMounted }: SeriesCardProps) {
           ) : (
             createElement(getCategoryIcon(series.category), {
               className: `h-5 w-5 ${
-                hasProgress
-                  ? 'text-[var(--accent)]'
-                  : 'text-[var(--text-secondary)]'
+                hasProgress ? 'text-(--accent)' : 'text-secondary-wh40k'
               }`,
               'aria-hidden': true
             })
@@ -675,7 +671,7 @@ function SeriesCard({ series, hasMounted }: SeriesCardProps) {
             >
               {hasProgress ? `Tier ${tiersUnlocked}` : 'Locked'}
             </span>
-            <span className="text-xs text-[var(--text-secondary)]">
+            <span className="text-xs text-secondary-wh40k">
               {series.categoryLabel}
             </span>
             {isMaxed && (
@@ -689,17 +685,17 @@ function SeriesCard({ series, hasMounted }: SeriesCardProps) {
               </span>
             )}
           </div>
-          <h2 className="mt-2 text-base font-semibold leading-snug text-[var(--text-primary)]">
+          <h2 className="mt-2 text-base font-semibold leading-snug text-primary-wh40k">
             {series.displayName}
           </h2>
-          <p className="mt-1 text-sm leading-5 text-[var(--text-secondary)]">
+          <p className="mt-1 text-sm leading-5 text-secondary-wh40k">
             {series.description}
           </p>
         </div>
       </div>
 
       <div className="mt-4">
-        <div className="mb-1 flex items-center justify-between gap-3 text-xs text-[var(--text-secondary)]">
+        <div className="mb-1 flex items-center justify-between gap-3 text-xs text-secondary-wh40k">
           <span>
             {tiersUnlocked} / {tiersTotal} tiers
           </span>
@@ -719,8 +715,8 @@ function SeriesCard({ series, hasMounted }: SeriesCardProps) {
               isMaxed
                 ? 'bg-amber-400'
                 : hasProgress
-                  ? 'bg-[var(--accent)]'
-                  : 'bg-[var(--text-secondary)]'
+                  ? 'bg-accent-wh40k'
+                  : 'bg-(--text-secondary)'
             }`}
             style={{
               width: `${isMaxed ? 100 : series.progressToNext}%`
@@ -732,16 +728,16 @@ function SeriesCard({ series, hasMounted }: SeriesCardProps) {
       <TierLadder series={series} />
 
       <div className="mt-4 flex items-center justify-between gap-3 text-xs">
-        <span className="text-[var(--text-secondary)]">
+        <span className="text-secondary-wh40k">
           {series.pointsEarned} / {series.pointsAvailable} pts
         </span>
         {hasProgress ? (
-          <span className="inline-flex items-center gap-1 text-[var(--accent)]">
+          <span className="inline-flex items-center gap-1 text-(--accent)">
             <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
             {lastUnlockedAt ? `Last unlock ${lastUnlockedAt}` : 'Unlocked'}
           </span>
         ) : (
-          <span className="text-[var(--text-secondary)]">Locked</span>
+          <span className="text-secondary-wh40k">Locked</span>
         )}
       </div>
 
@@ -749,7 +745,7 @@ function SeriesCard({ series, hasMounted }: SeriesCardProps) {
         <button
           type="button"
           onClick={() => setExpanded((prev) => !prev)}
-          className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-secondary-wh40k hover:text-primary-wh40k"
           aria-expanded={expanded}
         >
           {expanded ? (
@@ -773,16 +769,16 @@ function SeriesCard({ series, hasMounted }: SeriesCardProps) {
               key={tier.key}
               className={`flex items-center justify-between gap-3 rounded-md border px-2 py-1 ${
                 tier.unlocked
-                  ? 'border-[color-mix(in_srgb,var(--accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--text-primary)]'
-                  : 'border-[var(--card-border)] text-[var(--text-secondary)]'
+                  ? 'border-[color-mix(in_srgb,var(--accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-primary-wh40k'
+                  : 'border-(--card-border) text-secondary-wh40k'
               }`}
             >
               <span className="flex min-w-0 items-center gap-2">
                 <span
                   className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border text-[9px] ${
                     tier.unlocked
-                      ? 'border-[color-mix(in_srgb,var(--accent)_60%,transparent)] bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-[var(--accent)]'
-                      : 'border-white/15 text-[var(--text-secondary)]'
+                      ? 'border-[color-mix(in_srgb,var(--accent)_60%,transparent)] bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent)'
+                      : 'border-white/15 text-secondary-wh40k'
                   }`}
                   aria-hidden="true"
                 >
@@ -790,7 +786,7 @@ function SeriesCard({ series, hasMounted }: SeriesCardProps) {
                 </span>
                 <span className="truncate">{tier.displayName}</span>
               </span>
-              <span className="flex items-center gap-2 text-[var(--text-secondary)]">
+              <span className="flex items-center gap-2 text-secondary-wh40k">
                 <span>{formatNumber(tier.threshold ?? 0)}</span>
                 <span
                   className={`rounded-full border px-1.5 py-0 text-[9px] font-bold uppercase tracking-wide ${
@@ -837,7 +833,7 @@ function TierLadder({ series }: TierLadderProps) {
           title={`${tier.displayName} — ${formatNumber(tier.threshold ?? 0)}`}
           className={`h-2 w-2 rounded-full border ${
             tier.unlocked
-              ? 'border-[color-mix(in_srgb,var(--accent)_60%,transparent)] bg-[var(--accent)]'
+              ? 'border-[color-mix(in_srgb,var(--accent)_60%,transparent)] bg-accent-wh40k'
               : 'border-white/15 bg-white/5'
           }`}
           aria-label={`Tier ${index + 1}${tier.unlocked ? ' unlocked' : ''}`}

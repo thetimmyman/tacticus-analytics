@@ -539,10 +539,10 @@ export function usePlayerPerformanceData({
 
   const getBarColor = React.useCallback((value: number) => {
     if (!Number.isFinite(value) || value === 0) {
-      return 'bg-[var(--card-border)]'
+      return 'bg-(--card-border)'
     }
     if (value > 0) {
-      return value >= 20 ? 'bg-emerald-400' : 'bg-[var(--accent)]'
+      return value >= 20 ? 'bg-emerald-400' : 'bg-accent-wh40k'
     }
     return value <= -20 ? 'bg-red-600' : 'bg-red-500/80'
   }, [])
@@ -551,7 +551,7 @@ export function usePlayerPerformanceData({
     if (!Number.isFinite(value) || value === 0) {
       return 'text-secondary-wh40k'
     }
-    return value > 0 ? 'text-[var(--accent)]' : 'text-red-400'
+    return value > 0 ? 'text-(--accent)' : 'text-red-400'
   }, [])
 
   const resetBossDetailFilters = React.useCallback(() => {

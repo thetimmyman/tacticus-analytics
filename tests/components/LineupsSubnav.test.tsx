@@ -59,12 +59,12 @@ describe('LineupsSubnav', () => {
     const nav = screen.getByLabelText('Lineups sections')
     const active = within(nav).getByRole('link', { name: 'Offense Heroes' })
     expect(active).toHaveAttribute('aria-current', 'page')
-    expect(active.className).toContain('text-[var(--accent)]')
+    expect(active.className).toContain('text-(--accent)')
     expect(active.className).toContain('rounded-full')
 
     const inactive = within(nav).getByRole('link', { name: 'Compositions' })
     expect(inactive).not.toHaveAttribute('aria-current')
-    expect(inactive.className).not.toContain('text-[var(--accent)]')
+    expect(inactive.className).not.toContain('text-(--accent)')
   })
 
   it('renders the side toggle inline while Compositions is active', () => {

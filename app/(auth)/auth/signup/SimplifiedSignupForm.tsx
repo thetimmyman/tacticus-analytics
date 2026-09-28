@@ -235,9 +235,9 @@ export default function SimplifiedSignupForm() {
         Create Account
       </Button>
 
-      <p className="text-center text-sm text-[var(--text-secondary)]">
+      <p className="text-center text-sm text-secondary-wh40k">
         Already have an account?{' '}
-        <a href="/auth/login" className="text-[var(--accent)] hover:underline">
+        <a href="/auth/login" className="text-(--accent) hover:underline">
           Sign in
         </a>
       </p>

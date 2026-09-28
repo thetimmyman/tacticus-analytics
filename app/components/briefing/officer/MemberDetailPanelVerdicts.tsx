@@ -35,7 +35,7 @@ function ClassificationBadge({
       >
         {meta.label}
       </span>
-      <span className="text-[10px] uppercase tracking-wide text-[var(--text-tertiary)]">
+      <span className="text-[10px] uppercase tracking-wide text-(--text-tertiary)">
         {CONFIDENCE_LABEL[confidence]}
       </span>
     </span>
@@ -57,9 +57,7 @@ function HeroIconRow({
 
   if (heroes.length === 0 && !mow) {
     return (
-      <span className="text-[11px] italic text-[var(--text-tertiary)]">
-        unknown
-      </span>
+      <span className="text-[11px] italic text-(--text-tertiary)">unknown</span>
     )
   }
 
@@ -74,13 +72,13 @@ function HeroIconRow({
             alt={hero}
             title={hero}
             loading="lazy"
-            className="h-10 w-10 rounded"
+            className="h-10 w-10 rounded-sm"
           />
         ) : (
           <span
             key={`hero-${hero}`}
             title={hero}
-            className="rounded bg-[var(--bg-secondary)] px-1 py-0.5 text-[10px] text-[var(--text-secondary)]"
+            className="rounded-sm bg-(--bg-secondary) px-1 py-0.5 text-[10px] text-secondary-wh40k"
           >
             {hero.slice(0, 3)}
           </span>
@@ -88,9 +86,7 @@ function HeroIconRow({
       })}
       {mow && (
         <>
-          <span className="mx-0.5 text-[10px] text-[var(--text-tertiary)]">
-            +
-          </span>
+          <span className="mx-0.5 text-[10px] text-(--text-tertiary)">+</span>
           {(() => {
             const icon = resolve(mow)
             return icon ? (
@@ -100,13 +96,13 @@ function HeroIconRow({
                 alt={mow}
                 title={`${mow} (MoW)`}
                 loading="lazy"
-                className="h-10 w-10 rounded ring-1 ring-[color-mix(in_srgb,var(--accent)_50%,transparent)]"
+                className="h-10 w-10 rounded-sm ring-1 ring-[color-mix(in_srgb,var(--accent)_50%,transparent)]"
               />
             ) : (
               <span
                 key={`mow-${mow}`}
                 title={`${mow} (MoW)`}
-                className="rounded bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] px-1 py-0.5 text-[10px] text-[var(--accent)]"
+                className="rounded-sm bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] px-1 py-0.5 text-[10px] text-(--accent)"
               >
                 {mow.slice(0, 3)}
               </span>
@@ -156,7 +152,7 @@ function StatBlock({
 }) {
   return (
     <div className="rounded-md border border-[color-mix(in_srgb,var(--card-border)_60%,transparent)] px-3 py-2">
-      <p className="text-[9px] uppercase tracking-wider text-[var(--text-tertiary)]">
+      <p className="text-[9px] uppercase tracking-wider text-(--text-tertiary)">
         {label}
       </p>
       <p
@@ -165,7 +161,7 @@ function StatBlock({
       >
         {value}
       </p>
-      {sub && <p className="text-[10px] text-[var(--text-tertiary)]">{sub}</p>}
+      {sub && <p className="text-[10px] text-(--text-tertiary)">{sub}</p>}
     </div>
   )
 }
@@ -180,11 +176,11 @@ function RecentAttacksChart({ points }: { points: RecentAttackPoint[] }) {
   return (
     <div className="rounded-md border border-[color-mix(in_srgb,var(--card-border)_60%,transparent)] p-3">
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+        <p className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
           Recent attacks vs roster expectation
         </p>
         {expected != null && (
-          <span className="text-[10px] text-[var(--text-tertiary)]">
+          <span className="text-[10px] text-(--text-tertiary)">
             <span
               className="mr-1 inline-block w-4 border-t border-dashed align-middle"
               style={{ borderColor: 'var(--text-tertiary)' }}
@@ -226,14 +222,14 @@ function RecentAttacksChart({ points }: { points: RecentAttackPoint[] }) {
               className="flex h-full flex-1 flex-col items-center justify-end"
             >
               <div
-                className="w-full max-w-[36px] rounded-t"
+                className="w-full max-w-[36px] rounded-t-sm"
                 title={`${formatDamage(p.damage, 0)} · ${p.startedAt.slice(0, 16).replace('T', ' ')}`}
                 style={{
                   height: `${Math.max(3, (p.damage / max) * 100)}%`,
                   backgroundColor: barColor
                 }}
               />
-              <span className="mt-1 text-[9px] uppercase text-[var(--text-tertiary)]">
+              <span className="mt-1 text-[9px] uppercase text-(--text-tertiary)">
                 A{i + 1}
               </span>
             </div>
@@ -268,7 +264,7 @@ export function HeadlineVerdict({
             className="shrink-0"
           />
           <div>
-            <p className="text-[10px] uppercase tracking-widest text-[var(--text-tertiary)]">
+            <p className="text-[10px] uppercase tracking-widest text-(--text-tertiary)">
               {getBossDisplayName(verdict.bossName)}
               {formatEncounterLabel(verdict.encounterId, 'dot')}
               {verdict.rarity ? ` · ${verdict.rarity}` : ''}
@@ -283,10 +279,10 @@ export function HeadlineVerdict({
 
       {/* Why this person surfaced */}
       <div>
-        <p className="mb-1 text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+        <p className="mb-1 text-[10px] uppercase tracking-wider text-(--text-tertiary)">
           Why this person was surfaced
         </p>
-        <p className="text-sm text-[var(--text-secondary)]">
+        <p className="text-sm text-secondary-wh40k">
           {surfacingNarrative(verdict)}
         </p>
       </div>
@@ -316,7 +312,7 @@ export function HeadlineVerdict({
 
       {/* Ready-now upside — explicitly labeled as a population-average estimate. */}
       {upside != null && upside > 0 && !meta.muted && (
-        <p className="text-[11px] text-[var(--text-tertiary)]">
+        <p className="text-[11px] text-(--text-tertiary)">
           Ready-now upside is a population-average estimate, not a guarantee.
         </p>
       )}
@@ -324,12 +320,12 @@ export function HeadlineVerdict({
       {/* Roster-supported context: team used → best fieldable, hero icons. */}
       <div className="space-y-2 rounded-md border border-[color-mix(in_srgb,var(--card-border)_60%,transparent)] p-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+          <p className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
             Roster-supported team context
           </p>
           <span className="flex items-center gap-2">
             {verdict.swaps.length > 0 && (
-              <span className="text-[10px] text-[var(--text-tertiary)]">
+              <span className="text-[10px] text-(--text-tertiary)">
                 {verdict.swaps.length} swap
                 {verdict.swaps.length === 1 ? '' : 's'}
               </span>
@@ -339,7 +335,7 @@ export function HeadlineVerdict({
 
         <div className="flex flex-wrap items-center gap-2">
           <div className="space-y-1">
-            <p className="text-[9px] uppercase tracking-wide text-[var(--text-tertiary)]">
+            <p className="text-[9px] uppercase tracking-wide text-(--text-tertiary)">
               Team used
             </p>
             <HeroIconRow
@@ -348,9 +344,9 @@ export function HeadlineVerdict({
               iconMap={iconMap}
             />
           </div>
-          <ArrowRight className="h-4 w-4 text-[var(--accent)]" aria-hidden />
+          <ArrowRight className="h-4 w-4 text-(--accent)" aria-hidden />
           <div className="space-y-1">
-            <p className="text-[9px] uppercase tracking-wide text-[var(--text-tertiary)]">
+            <p className="text-[9px] uppercase tracking-wide text-(--text-tertiary)">
               Best fieldable context
             </p>
             <HeroIconRow
@@ -363,21 +359,21 @@ export function HeadlineVerdict({
 
         {/* One decimal: with 0, M-band values round to whole millions and understate the gain. */}
         <div className="flex items-center gap-2 text-xs tabular-nums">
-          <span className="text-[var(--text-secondary)]">
+          <span className="text-secondary-wh40k">
             {verdict.actualAvg != null
               ? formatDamage(verdict.actualAvg, 1)
               : '—'}
           </span>
           <ArrowRight
-            className="h-3.5 w-3.5 text-[var(--text-tertiary)]"
+            className="h-3.5 w-3.5 text-(--text-tertiary)"
             aria-hidden
           />
-          <span className="font-semibold text-[var(--text-primary)]">
+          <span className="font-semibold text-primary-wh40k">
             {verdict.expectedForBestFieldable != null
               ? formatDamage(verdict.expectedForBestFieldable, 1)
               : '—'}
           </span>
-          <span className="text-[10px] text-[var(--text-tertiary)]">
+          <span className="text-[10px] text-(--text-tertiary)">
             avg / attack
           </span>
         </div>
@@ -385,7 +381,7 @@ export function HeadlineVerdict({
         <SwapChips swaps={verdict.swaps} />
 
         {(verdict.bestFieldable?.heroes.length ?? 0) > 0 && (
-          <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] text-[var(--text-tertiary)]">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] text-(--text-tertiary)">
             <span>
               Uses {verdict.bestFieldable!.heroes.length} owned character
               {verdict.bestFieldable!.heroes.length === 1 ? '' : 's'} at
@@ -401,7 +397,7 @@ export function HeadlineVerdict({
 
       {/* Recommended officer action — muted for roster_limited / insufficient. */}
       <div className="rounded-md border border-[color-mix(in_srgb,var(--card-border)_60%,transparent)] p-3">
-        <p className="mb-1 text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+        <p className="mb-1 text-[10px] uppercase tracking-wider text-(--text-tertiary)">
           Recommended officer action
         </p>
         <p
@@ -422,11 +418,11 @@ export function CompactVerdictRow({ verdict }: { verdict: MemberBossVerdict }) {
   return (
     <li className="flex items-center justify-between gap-3 py-2">
       <div className="min-w-0">
-        <p className="truncate text-xs font-medium text-[var(--text-primary)]">
+        <p className="truncate text-xs font-medium text-primary-wh40k">
           {getBossDisplayName(verdict.bossName)}
           {verdict.encounterId > 0 ? ` · P${verdict.encounterId}` : ''}
         </p>
-        <p className="truncate text-[10px] text-[var(--text-tertiary)]">
+        <p className="truncate text-[10px] text-(--text-tertiary)">
           {verdict.actualAvg != null ? formatDamage(verdict.actualAvg, 0) : '—'}{' '}
           avg
           {' · '}

@@ -29,13 +29,13 @@ export function OverallLeaderboardMobileCards({
         return (
           <div
             key={player.stableKey}
-            className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg p-3 sm:p-4 space-y-2 sm:space-y-3"
+            className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg p-3 sm:p-4 space-y-2 sm:space-y-3"
           >
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <span
-                    className={`font-bold ${rank && rank <= 3 ? 'text-xl sm:text-2xl' : 'text-[var(--text-secondary)]'}`}
+                    className={`font-bold ${rank && rank <= 3 ? 'text-xl sm:text-2xl' : 'text-secondary-wh40k'}`}
                   >
                     {getRankBadge(rank)}
                   </span>
@@ -47,7 +47,7 @@ export function OverallLeaderboardMobileCards({
                     </PlayerLink>
                   </span>
                 </div>
-                <div className="text-sm text-[var(--text-secondary)]">
+                <div className="text-sm text-secondary-wh40k">
                   {guildLabels[player.Guild] ??
                     formatGuildDisplayLabel(null, player.Guild)}
                 </div>
@@ -70,16 +70,14 @@ export function OverallLeaderboardMobileCards({
                         </span>
                       </>
                     ) : (
-                      <span className="text-[var(--text-secondary)]">-</span>
+                      <span className="text-secondary-wh40k">-</span>
                     )}
                   </div>
                 ) : (
-                  <span className="text-[var(--text-secondary)] text-sm">
-                    NEW
-                  </span>
+                  <span className="text-secondary-wh40k text-sm">NEW</span>
                 )}
                 {player.fiveSeasonAvgRank && (
-                  <div className="text-xs text-[var(--text-secondary)] mt-1">
+                  <div className="text-xs text-secondary-wh40k mt-1">
                     5-Season: #{Math.round(player.fiveSeasonAvgRank)}
                   </div>
                 )}
@@ -88,15 +86,15 @@ export function OverallLeaderboardMobileCards({
 
             <div className="grid grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm">
               <div>
-                <div className="text-[var(--text-secondary)] text-[10px] sm:text-xs">
+                <div className="text-secondary-wh40k text-[10px] sm:text-xs">
                   Total Damage
                 </div>
-                <div className="text-[var(--primary)] font-bold">
+                <div className="text-(--primary) font-bold">
                   {formatNumber(player.totalDamage)}
                 </div>
               </div>
               <div>
-                <div className="text-[var(--text-secondary)] text-[10px] sm:text-xs">
+                <div className="text-secondary-wh40k text-[10px] sm:text-xs">
                   Avg Damage
                 </div>
                 <div className="font-medium">
@@ -104,7 +102,7 @@ export function OverallLeaderboardMobileCards({
                 </div>
               </div>
               <div>
-                <div className="text-[var(--text-secondary)] text-[10px] sm:text-xs">
+                <div className="text-secondary-wh40k text-[10px] sm:text-xs">
                   Score ({scoringBasisLabel})
                 </div>
                 <div
@@ -115,7 +113,7 @@ export function OverallLeaderboardMobileCards({
                       : typeof player.performanceValue === 'number' &&
                           player.performanceValue < 0
                         ? 'text-red-500'
-                        : 'text-[var(--text-secondary)]'
+                        : 'text-secondary-wh40k'
                   }`}
                 >
                   {typeof player.performanceValue === 'number'
@@ -124,7 +122,7 @@ export function OverallLeaderboardMobileCards({
                 </div>
               </div>
               <div>
-                <div className="text-[var(--text-secondary)] text-[10px] sm:text-xs">
+                <div className="text-secondary-wh40k text-[10px] sm:text-xs">
                   Battles / Bombs
                 </div>
                 <div className="font-medium">
@@ -133,7 +131,7 @@ export function OverallLeaderboardMobileCards({
               </div>
             </div>
 
-            <div className="pt-2 border-t border-[var(--card-border)] text-xs sm:text-sm text-[var(--text-secondary)]">
+            <div className="pt-2 border-t border-(--card-border) text-xs sm:text-sm text-secondary-wh40k">
               Kills: {player.allBossesKilled}
             </div>
           </div>

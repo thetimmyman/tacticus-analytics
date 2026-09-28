@@ -57,17 +57,17 @@ export function UserMenu({
       <RadixDropdownMenuTrigger asChild>
         <button className="flex items-center space-x-3 p-2 rounded-lg hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] transition-colors relative">
           <div className="text-right hidden lg:block">
-            <div className="text-sm font-medium text-[var(--text-primary)]">
+            <div className="text-sm font-medium text-primary-wh40k">
               <MemberName
                 value={profile?.display_name || user.email}
                 fallback="User"
               />
             </div>
-            <div className="text-xs text-[var(--text-secondary)]">
+            <div className="text-xs text-secondary-wh40k">
               {guildDisplayLabel}
             </div>
           </div>
-          <div className="w-8 h-8 relative flex-shrink-0">
+          <div className="w-8 h-8 relative shrink-0">
             <Avatar
               displayName={profile?.display_name || user.email || 'User'}
               guildCode={profile?.guild_code || 'DEFAULT'}
@@ -81,7 +81,7 @@ export function UserMenu({
       <RadixDropdownMenuContent
         align="end"
         sideOffset={4}
-        className="w-80 max-h-[85vh] overflow-y-auto bg-[var(--dropdown-bg-solid)] border border-[var(--card-border)]"
+        className="w-80 max-h-[85vh] overflow-y-auto bg-(--dropdown-bg-solid) border border-(--card-border)"
       >
         <AccountMenuHeader
           currentSeason={currentSeason}
@@ -102,7 +102,7 @@ export function UserMenu({
 
               return (
                 <div key={workspace.id}>
-                  <p className="text-xs font-bold text-[var(--text-secondary)] mb-2 px-1 uppercase tracking-wide">
+                  <p className="text-xs font-bold text-secondary-wh40k mb-2 px-1 uppercase tracking-wide">
                     <WorkspaceIcon
                       className="mr-1 inline h-3.5 w-3.5 align-[-2px]"
                       aria-hidden="true"
@@ -127,7 +127,7 @@ export function UserMenu({
             })}
         </div>
 
-        <RadixDropdownMenuSeparator className="bg-[var(--card-border)]" />
+        <RadixDropdownMenuSeparator className="bg-(--card-border)" />
         <AccountMenuLogout onLogout={onLogout} variant="desktop" />
       </RadixDropdownMenuContent>
     </RadixDropdownMenu>

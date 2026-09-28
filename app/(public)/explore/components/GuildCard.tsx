@@ -40,11 +40,11 @@ export function GuildCard({
   return (
     <div className={getGuildCardClasses(guild)}>
       {isPremium && (
-        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-amber-500 to-transparent" />
       )}
       {/* Guild Header */}
       <div
-        className="p-4 cursor-pointer transition-colors duration-200 hover:bg-[var(--card-hover)]"
+        className="p-4 cursor-pointer transition-colors duration-200 hover:bg-(--card-hover)"
         onClick={() => onToggleExpand(guild.guild_code)}
       >
         <div className="flex items-center justify-between">
@@ -62,7 +62,7 @@ export function GuildCard({
                       #{guild.current_gr_ranking}
                     </span>
                   </div>
-                  <span className="text-xs text-[var(--text-tertiary)] mt-1">
+                  <span className="text-xs text-(--text-tertiary) mt-1">
                     Raid
                   </span>
                 </div>
@@ -74,7 +74,7 @@ export function GuildCard({
                       #{guild.current_war_rank || guild.war_rank}
                     </span>
                   </div>
-                  <span className="text-xs text-[var(--text-tertiary)] mt-1">
+                  <span className="text-xs text-(--text-tertiary) mt-1">
                     War
                   </span>
                 </div>
@@ -84,7 +84,7 @@ export function GuildCard({
             {/* Guild Info */}
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-lg font-bold text-[var(--text-primary)]">
+                <h3 className="text-lg font-bold text-primary-wh40k">
                   {guild.guild_name}
                 </h3>
                 {isPremium && (
@@ -94,12 +94,12 @@ export function GuildCard({
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+              <div className="flex items-center gap-2 text-sm text-secondary-wh40k">
                 <span className="font-mono">{formatGuildTag(guild)}</span>
                 {guild.cluster_name && (
                   <>
                     <span>•</span>
-                    <span className="text-[var(--accent)]">
+                    <span className="text-(--accent)">
                       {guild.cluster_name}
                     </span>
                   </>
@@ -115,15 +115,13 @@ export function GuildCard({
               className="text-center hidden sm:block"
               title="Distinct players with recorded raid battles this season"
             >
-              <div className="text-lg font-bold text-[var(--text-primary)]">
+              <div className="text-lg font-bold text-primary-wh40k">
                 {guild.active_players || '--'}
               </div>
-              <div className="text-xs text-[var(--text-secondary)]">
-                Active Players
-              </div>
+              <div className="text-xs text-secondary-wh40k">Active Players</div>
             </div>
             <div className="text-center hidden md:block">
-              <div className="text-lg font-bold text-[var(--text-primary)]">
+              <div className="text-lg font-bold text-primary-wh40k">
                 {guild.total_damage > 0
                   ? guild.isObfuscated
                     ? formatDamageWithPrivacy(
@@ -137,23 +135,19 @@ export function GuildCard({
                     : formatNumber(guild.total_damage)
                   : '--'}
               </div>
-              <div className="text-xs text-[var(--text-secondary)]">
-                Total Damage
-              </div>
+              <div className="text-xs text-secondary-wh40k">Total Damage</div>
             </div>
             <div className="text-center hidden lg:block">
-              <div className="text-lg font-bold text-[var(--text-primary)]">
+              <div className="text-lg font-bold text-primary-wh40k">
                 {guild.veteran_count || 0}
               </div>
-              <div className="text-xs text-[var(--text-secondary)]">
-                Veterans
-              </div>
+              <div className="text-xs text-secondary-wh40k">Veterans</div>
             </div>
             <div>
               {isExpanded ? (
-                <ChevronUp className="w-5 h-5 text-[var(--text-secondary)]" />
+                <ChevronUp className="w-5 h-5 text-secondary-wh40k" />
               ) : (
-                <ChevronDown className="w-5 h-5 text-[var(--text-secondary)]" />
+                <ChevronDown className="w-5 h-5 text-secondary-wh40k" />
               )}
             </div>
           </div>
@@ -162,10 +156,10 @@ export function GuildCard({
 
       {/* Expanded Details */}
       {isExpanded && (
-        <div className="border-t border-[var(--card-border)] p-4 space-y-4">
+        <div className="border-t border-(--card-border) p-4 space-y-4">
           {/* Last Updated */}
           <div className="flex items-center justify-end mb-4">
-            <div className="text-xs text-[var(--text-tertiary)]">
+            <div className="text-xs text-(--text-tertiary)">
               Last updated:{' '}
               {hasMounted &&
                 // eslint-disable-next-line no-restricted-syntax
@@ -177,29 +171,29 @@ export function GuildCard({
           {/* Stats Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div title="Distinct players with recorded raid battles this season">
-              <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-1">
+              <div className="flex items-center gap-2 text-sm text-secondary-wh40k mb-1">
                 <Users className="w-4 h-4" />
                 Active Players
               </div>
-              <div className="text-xl font-bold text-[var(--text-primary)]">
+              <div className="text-xl font-bold text-primary-wh40k">
                 {guild.active_players || '--'}
               </div>
             </div>
             <div>
-              <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-1">
+              <div className="flex items-center gap-2 text-sm text-secondary-wh40k mb-1">
                 <Sword className="w-4 h-4" />
                 Total Battles
               </div>
-              <div className="text-xl font-bold text-[var(--text-primary)]">
+              <div className="text-xl font-bold text-primary-wh40k">
                 {formatNumber(guild.total_battles) || '--'}
               </div>
             </div>
             <div>
-              <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-1">
+              <div className="flex items-center gap-2 text-sm text-secondary-wh40k mb-1">
                 <Target className="w-4 h-4" />
                 Avg Damage
               </div>
-              <div className="text-xl font-bold text-[var(--text-primary)]">
+              <div className="text-xl font-bold text-primary-wh40k">
                 {guild.avg_damage_per_battle > 0
                   ? guild.isObfuscated
                     ? formatDamageWithPrivacy(
@@ -215,11 +209,11 @@ export function GuildCard({
               </div>
             </div>
             <div>
-              <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-1">
+              <div className="flex items-center gap-2 text-sm text-secondary-wh40k mb-1">
                 <Star className="w-4 h-4" />
                 5-Season Veterans
               </div>
-              <div className="text-xl font-bold text-[var(--text-primary)]">
+              <div className="text-xl font-bold text-primary-wh40k">
                 {guild.veteran_count || 0}
               </div>
             </div>
@@ -244,8 +238,8 @@ export function GuildCard({
           {/* VOTLW Champions */}
           {guild.votlw_champions && guild.votlw_champions.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-[var(--text-secondary)] mb-2 flex items-center gap-2">
-                <Crown className="w-4 h-4 text-[var(--primary)]" />
+              <h4 className="text-sm font-semibold text-secondary-wh40k mb-2 flex items-center gap-2">
+                <Crown className="w-4 h-4 text-(--primary)" />
                 Recent VOTLW Champions
               </h4>
               <div className="flex flex-wrap gap-2">
@@ -260,7 +254,7 @@ export function GuildCard({
                       key={`${champ.season}-${champ.player}`}
                       className="px-3 py-1 bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] rounded-full"
                     >
-                      <span className="text-sm text-[var(--primary)]">
+                      <span className="text-sm text-(--primary)">
                         Season {champ.season}: {champ.player}
                       </span>
                     </div>

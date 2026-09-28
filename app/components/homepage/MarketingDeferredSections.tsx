@@ -11,7 +11,7 @@ const FeatureHighlightsWithImages = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="py-16 bg-gradient-to-b from-[var(--bg-from)] via-gray-900 to-[var(--bg-to)]">
+      <div className="py-16 bg-linear-to-b from-(--bg-from) via-gray-900 to-(--bg-to)">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-12 w-64 rounded-xl bg-white/5 animate-pulse mx-auto" />
           <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -60,7 +60,7 @@ const ContentCreators = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="py-16 bg-gradient-to-b from-[var(--bg-from)] to-[var(--bg-via)]">
+      <div className="py-16 bg-linear-to-b from-(--bg-from) to-(--bg-via)">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {['a', 'b', 'c', 'd', 'e', 'f'].map((id) => (
             <div
@@ -81,10 +81,10 @@ export function MarketingDeferredSections() {
       <div className="py-16 bg-[color-mix(in_srgb,var(--bg-from)_50%,transparent)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-[var(--text-primary)] mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-primary-wh40k mb-4">
               Live Global Rankings
             </h2>
-            <p className="text-[var(--text-secondary)] text-lg">
+            <p className="text-secondary-wh40k text-lg">
               Track performance across all clusters and guilds
             </p>
           </div>
@@ -92,7 +92,7 @@ export function MarketingDeferredSections() {
           <div className="text-center mt-8">
             <Link
               href="/explore"
-              className="inline-flex items-center px-6 py-3 bg-[color-mix(in_srgb,var(--text-primary)_10%,transparent)] backdrop-blur border border-[color-mix(in_srgb,var(--text-primary)_20%,transparent)] hover:bg-[color-mix(in_srgb,var(--text-primary)_20%,transparent)] text-[var(--text-primary)] font-semibold rounded-lg transition-all duration-300"
+              className="inline-flex items-center px-6 py-3 bg-[color-mix(in_srgb,var(--text-primary)_10%,transparent)] backdrop-blur-sm border border-[color-mix(in_srgb,var(--text-primary)_20%,transparent)] hover:bg-[color-mix(in_srgb,var(--text-primary)_20%,transparent)] text-primary-wh40k font-semibold rounded-lg transition-all duration-300"
             >
               View All Rankings →
             </Link>

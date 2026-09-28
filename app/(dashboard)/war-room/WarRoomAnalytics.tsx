@@ -91,14 +91,14 @@ export default function WarRoomAnalytics({
                 <img
                   src={portrait.portraitUrl}
                   alt=""
-                  className="h-7 w-7 rounded-full object-cover ring-1 ring-[var(--card-border)]"
+                  className="h-7 w-7 rounded-full object-cover ring-1 ring-(--card-border)"
                 />
               ) : (
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--bg-secondary)] text-[9px] font-bold uppercase text-[var(--text-tertiary)]">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-(--bg-secondary) text-[9px] font-bold uppercase text-(--text-tertiary)">
                   {portrait.fallbackBadge}
                 </span>
               )}
-              <span className="font-medium text-[var(--text-primary)]">
+              <span className="font-medium text-primary-wh40k">
                 {portrait.displayName}
               </span>
               {row.isMow ? <Badge variant="secondary">MoW</Badge> : null}
@@ -134,8 +134,8 @@ export default function WarRoomAnalytics({
   )
 
   return (
-    <Card className="border-[var(--card-border)] bg-[var(--bg-primary)]">
-      <CardHeader className="border-b border-[var(--card-border)] pb-4">
+    <Card className="border-(--card-border) bg-(--bg-primary)">
+      <CardHeader className="border-b border-(--card-border) pb-4">
         <CardTitle className="text-base">Hero usage this war</CardTitle>
       </CardHeader>
       <CardContent className="p-0">

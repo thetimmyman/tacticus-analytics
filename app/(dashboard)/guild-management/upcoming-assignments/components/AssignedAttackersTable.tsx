@@ -41,8 +41,7 @@ const STATUS_BADGE: Record<StatusLevel, { label: string; className: string }> =
     },
     idle: {
       label: 'Idle',
-      className:
-        'bg-[var(--card-bg)] text-[var(--text-secondary)] border-[var(--card-border)]'
+      className: 'bg-(--card-bg) text-secondary-wh40k border-(--card-border)'
     }
   }
 
@@ -69,7 +68,7 @@ export function AssignedAttackersTable({
       {/* Below `md`: four columns, sticky Player, the rest behind a toggle. */}
       <table className="min-w-full text-sm">
         <thead>
-          <tr className="text-left text-xs text-[var(--text-secondary)]">
+          <tr className="text-left text-xs text-secondary-wh40k">
             <th className="sticky left-0 z-20 bg-[rgb(var(--card-bg-rgb))] py-2 pr-4 md:static md:z-auto md:bg-transparent">
               Player
             </th>
@@ -94,8 +93,8 @@ export function AssignedAttackersTable({
         </thead>
         <tbody>
           {rows.length === 0 ? (
-            <tr className="border-t border-[var(--card-border)]">
-              <td className="py-3 text-[var(--text-secondary)]" colSpan={11}>
+            <tr className="border-t border-(--card-border)">
+              <td className="py-3 text-secondary-wh40k" colSpan={11}>
                 {emptyMessage}
               </td>
             </tr>
@@ -137,8 +136,8 @@ export function AssignedAttackersTable({
               ]
               return (
                 <Fragment key={rowKey}>
-                  <tr className="border-t border-[var(--card-border)]">
-                    <td className="sticky left-0 z-10 bg-[rgb(var(--card-bg-rgb))] py-2 pr-4 text-[var(--text-primary)] md:static md:z-auto md:bg-transparent">
+                  <tr className="border-t border-(--card-border)">
+                    <td className="sticky left-0 z-10 bg-[rgb(var(--card-bg-rgb))] py-2 pr-4 text-primary-wh40k md:static md:z-auto md:bg-transparent">
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
@@ -147,7 +146,7 @@ export function AssignedAttackersTable({
                             isRowExpanded ? 'Hide details' : 'Show details'
                           }
                           aria-expanded={isRowExpanded}
-                          className="-ml-1 flex-shrink-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)] md:hidden"
+                          className="-ml-1 shrink-0 text-secondary-wh40k hover:text-primary-wh40k md:hidden"
                         >
                           {isRowExpanded ? (
                             <ChevronDown size={14} />
@@ -163,15 +162,15 @@ export function AssignedAttackersTable({
                         />
                       </div>
                     </td>
-                    <td className="hidden py-2 pr-4 text-[var(--text-secondary)] md:table-cell">
+                    <td className="hidden py-2 pr-4 text-secondary-wh40k md:table-cell">
                       {typeof row.tokensAvailable === 'number'
                         ? formatNumber(row.tokensAvailable)
                         : '-'}
                     </td>
-                    <td className="hidden py-2 pr-4 text-[var(--text-secondary)] md:table-cell">
+                    <td className="hidden py-2 pr-4 text-secondary-wh40k md:table-cell">
                       {row.timeToNextToken || '-'}
                     </td>
-                    <td className="py-2 pr-4 text-[var(--text-secondary)]">
+                    <td className="py-2 pr-4 text-secondary-wh40k">
                       <div className="flex flex-col items-start gap-1">
                         {row.cascadedFromTarget ? (
                           <span
@@ -182,7 +181,7 @@ export function AssignedAttackersTable({
                               {getBossDisplayName(row.cascadedFromTarget)}
                             </span>
                             <span className="text-amber-300">→</span>
-                            <span className="text-[var(--text-primary)]">
+                            <span className="text-primary-wh40k">
                               {getBossDisplayName(row.target)}
                             </span>
                           </span>
@@ -191,26 +190,26 @@ export function AssignedAttackersTable({
                         )}
                       </div>
                     </td>
-                    <td className="hidden py-2 pr-4 text-[var(--text-secondary)] md:table-cell">
+                    <td className="hidden py-2 pr-4 text-secondary-wh40k md:table-cell">
                       {typeof row.avgDamage === 'number'
                         ? formatNumber(row.avgDamage)
                         : '-'}
                     </td>
-                    <td className="hidden py-2 pr-4 text-[var(--text-secondary)] md:table-cell">
+                    <td className="hidden py-2 pr-4 text-secondary-wh40k md:table-cell">
                       {formatNumber(row.actualDamage)}
                     </td>
-                    <td className="hidden py-2 pr-4 text-[var(--text-secondary)] md:table-cell">
+                    <td className="hidden py-2 pr-4 text-secondary-wh40k md:table-cell">
                       {typeof row.estHpRemaining === 'number'
                         ? formatNumber(row.estHpRemaining)
                         : '-'}
                     </td>
-                    <td className="hidden py-2 pr-4 text-[var(--text-secondary)] md:table-cell">
+                    <td className="hidden py-2 pr-4 text-secondary-wh40k md:table-cell">
                       {formatNumber(row.remaining)}
                     </td>
-                    <td className="py-2 pr-4 text-[var(--text-secondary)]">
+                    <td className="py-2 pr-4 text-secondary-wh40k">
                       {formatNumber(row.planned)}
                     </td>
-                    <td className="py-2 pr-4 text-[var(--text-secondary)]">
+                    <td className="py-2 pr-4 text-secondary-wh40k">
                       {formatNumber(row.used)}
                     </td>
                     <td className="py-2 pr-4">
@@ -220,13 +219,13 @@ export function AssignedAttackersTable({
                         return (
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <span
-                              className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-medium ${badge.className}`}
+                              className={`inline-flex items-center rounded-sm border px-1.5 py-0.5 text-[10px] font-medium ${badge.className}`}
                             >
                               {badge.label}
                             </span>
                             {row.unplanned && (
                               <span
-                                className="inline-flex items-center rounded border border-orange-500/40 bg-orange-500/20 px-1.5 py-0.5 text-[10px] font-medium text-orange-300"
+                                className="inline-flex items-center rounded-sm border border-orange-500/40 bg-orange-500/20 px-1.5 py-0.5 text-[10px] font-medium text-orange-300"
                                 title="Attacker landed on this target without being assigned here by the solver."
                               >
                                 unplanned
@@ -243,10 +242,10 @@ export function AssignedAttackersTable({
                         <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
                           {detailFields.map((field) => (
                             <div key={field.label} className="flex flex-col">
-                              <dt className="text-[10px] uppercase tracking-wide text-[var(--text-secondary)]">
+                              <dt className="text-[10px] uppercase tracking-wide text-secondary-wh40k">
                                 {field.label}
                               </dt>
-                              <dd className="text-xs text-[var(--text-primary)]">
+                              <dd className="text-xs text-primary-wh40k">
                                 {field.value}
                               </dd>
                             </div>

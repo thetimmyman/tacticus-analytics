@@ -33,7 +33,7 @@ const columns: DataTableColumn<PlayerStatsRow, SortKey>[] = [
     header: 'Player',
     sortValue: (row) => row.playerName,
     render: (row) => (
-      <div className="flex items-center gap-2 font-medium text-[var(--text-primary)]">
+      <div className="flex items-center gap-2 font-medium text-primary-wh40k">
         <span>{row.playerName}</span>
         {row.badges.isTop && <Star className="h-3 w-3 text-yellow-400" />}
         {row.badges.isNeverBreached && (
@@ -53,7 +53,7 @@ const columns: DataTableColumn<PlayerStatsRow, SortKey>[] = [
     sortValue: (row) =>
       row.assignedZoneType ? zoneDisplayName(row.assignedZoneType) : '',
     render: (row) => (
-      <span className="text-[var(--text-secondary)]">
+      <span className="text-secondary-wh40k">
         {row.assignedZoneType ? zoneDisplayName(row.assignedZoneType) : '-'}
       </span>
     )
@@ -63,7 +63,7 @@ const columns: DataTableColumn<PlayerStatsRow, SortKey>[] = [
     header: 'Attacks',
     sortValue: (row) => row.attacks.total,
     render: (row) => (
-      <span className="text-[var(--text-secondary)]">
+      <span className="text-secondary-wh40k">
         {formatNumber(row.attacks.total)} ({formatPercent(row.attacks.winRate)})
       </span>
     )
@@ -76,7 +76,7 @@ const columns: DataTableColumn<PlayerStatsRow, SortKey>[] = [
       'Official war score including zone-capture bonuses. The capture bonus (up to ~40K per zone) goes to the player who lands the capture.',
     sortValue: (row) => row.attacks.points,
     render: (row) => (
-      <span className="font-mono text-[var(--text-primary)]">
+      <span className="font-mono text-primary-wh40k">
         {formatNumber(row.attacks.points)}
       </span>
     )
@@ -87,7 +87,7 @@ const columns: DataTableColumn<PlayerStatsRow, SortKey>[] = [
     align: 'center',
     sortValue: (row) => row.attacks.perfect,
     render: (row) => (
-      <span className="text-[var(--text-secondary)]">
+      <span className="text-secondary-wh40k">
         {formatNumber(row.attacks.perfect)}
       </span>
     )
@@ -98,7 +98,7 @@ const columns: DataTableColumn<PlayerStatsRow, SortKey>[] = [
     align: 'center',
     sortValue: (row) => row.defenses.total,
     render: (row) => (
-      <span className="text-[var(--text-secondary)]">
+      <span className="text-secondary-wh40k">
         {formatNumber(row.defenses.total)}
       </span>
     )
@@ -109,7 +109,7 @@ const columns: DataTableColumn<PlayerStatsRow, SortKey>[] = [
     align: 'center',
     sortValue: (row) => row.defenses.holds,
     render: (row) => (
-      <span className="text-[var(--text-secondary)]">
+      <span className="text-secondary-wh40k">
         {formatNumber(row.defenses.holds)}
       </span>
     )
@@ -120,7 +120,7 @@ const columns: DataTableColumn<PlayerStatsRow, SortKey>[] = [
     align: 'center',
     sortValue: (row) => row.attacks.failed ?? row.attacks.losses,
     render: (row) => (
-      <span className="text-[var(--text-secondary)]">
+      <span className="text-secondary-wh40k">
         {formatNumber(row.attacks.failed ?? row.attacks.losses)}
       </span>
     )
@@ -131,7 +131,7 @@ const columns: DataTableColumn<PlayerStatsRow, SortKey>[] = [
     align: 'right',
     sortValue: (row) => row.defenses.conceded,
     render: (row) => (
-      <span className="font-mono text-[var(--text-secondary)]">
+      <span className="font-mono text-secondary-wh40k">
         {formatNumber(row.defenses.conceded)}
       </span>
     )

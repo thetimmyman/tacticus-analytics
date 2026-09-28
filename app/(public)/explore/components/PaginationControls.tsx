@@ -22,7 +22,7 @@ export function PaginationControls({
   return (
     <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div className="flex items-center gap-4">
-        <div className="text-sm text-[var(--text-secondary)]">
+        <div className="text-sm text-secondary-wh40k">
           Showing {startIndex + 1}-{Math.min(endIndex, totalItems)} of{' '}
           {totalItems} guilds
         </div>
@@ -36,7 +36,7 @@ export function PaginationControls({
             const newPage = Math.floor(currentFirstItem / newItemsPerPage) + 1
             onPageChange(newPage)
           }}
-          className="px-2 py-1 bg-[var(--card-bg)] border border-[var(--card-border)] rounded text-sm text-[var(--text-primary)]"
+          className="px-2 py-1 bg-(--card-bg) border border-(--card-border) rounded-sm text-sm text-primary-wh40k"
           disabled // Disabled for now since itemsPerPage is not a state variable
         >
           <option value="10">10 per page</option>
@@ -52,8 +52,8 @@ export function PaginationControls({
           disabled={currentPage === 1}
           className={`px-3 py-1 rounded border ${
             currentPage === 1
-              ? 'border-[var(--card-border)] text-[var(--text-tertiary)] cursor-not-allowed'
-              : 'border-[var(--card-border)] text-[var(--text-primary)] hover:bg-[var(--card-bg)]'
+              ? 'border-(--card-border) text-(--text-tertiary) cursor-not-allowed'
+              : 'border-(--card-border) text-primary-wh40k hover:bg-(--card-bg)'
           }`}
         >
           Previous
@@ -65,12 +65,12 @@ export function PaginationControls({
             <>
               <button
                 onClick={() => onPageChange(1)}
-                className="px-3 py-1 rounded border border-[var(--card-border)] text-[var(--text-primary)] hover:bg-[var(--card-bg)]"
+                className="px-3 py-1 rounded-sm border border-(--card-border) text-primary-wh40k hover:bg-(--card-bg)"
               >
                 1
               </button>
               {currentPage > 4 && (
-                <span className="text-[var(--text-tertiary)]">...</span>
+                <span className="text-(--text-tertiary)">...</span>
               )}
             </>
           )}
@@ -87,8 +87,8 @@ export function PaginationControls({
                 onClick={() => onPageChange(page)}
                 className={`px-3 py-1 rounded border ${
                   page === currentPage
-                    ? 'border-[var(--primary)] bg-[var(--primary)] text-white'
-                    : 'border-[var(--card-border)] text-[var(--text-primary)] hover:bg-[var(--card-bg)]'
+                    ? 'border-primary-wh40k bg-primary-wh40k text-white'
+                    : 'border-(--card-border) text-primary-wh40k hover:bg-(--card-bg)'
                 }`}
               >
                 {page}
@@ -99,11 +99,11 @@ export function PaginationControls({
           {currentPage < totalPages - 2 && (
             <>
               {currentPage < totalPages - 3 && (
-                <span className="text-[var(--text-tertiary)]">...</span>
+                <span className="text-(--text-tertiary)">...</span>
               )}
               <button
                 onClick={() => onPageChange(totalPages)}
-                className="px-3 py-1 rounded border border-[var(--card-border)] text-[var(--text-primary)] hover:bg-[var(--card-bg)]"
+                className="px-3 py-1 rounded-sm border border-(--card-border) text-primary-wh40k hover:bg-(--card-bg)"
               >
                 {totalPages}
               </button>
@@ -116,8 +116,8 @@ export function PaginationControls({
           disabled={currentPage === totalPages}
           className={`px-3 py-1 rounded border ${
             currentPage === totalPages
-              ? 'border-[var(--card-border)] text-[var(--text-tertiary)] cursor-not-allowed'
-              : 'border-[var(--card-border)] text-[var(--text-primary)] hover:bg-[var(--card-bg)]'
+              ? 'border-(--card-border) text-(--text-tertiary) cursor-not-allowed'
+              : 'border-(--card-border) text-primary-wh40k hover:bg-(--card-bg)'
           }`}
         >
           Next

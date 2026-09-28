@@ -25,7 +25,7 @@ const RadixDropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={`
-      flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none 
+      flex cursor-default select-none items-center rounded-xs px-2 py-1.5 text-sm outline-hidden 
       focus:bg-[color-mix(in_srgb,var(--accent)_30%,transparent)] data-[state=open]:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)]
       ${inset && 'pl-8'}
       ${className || ''}
@@ -46,8 +46,8 @@ const RadixDropdownMenuSubContent = React.forwardRef<
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={`
-      z-50 min-w-[8rem] overflow-hidden rounded-md border border-[var(--card-border)] 
-      bg-[var(--dropdown-bg-solid)] backdrop-blur-sm p-1 text-[var(--text-primary)] shadow-xl 
+      z-50 min-w-32 overflow-hidden rounded-md border border-(--card-border) 
+      bg-(--dropdown-bg-solid) backdrop-blur-xs p-1 text-primary-wh40k shadow-xl 
       data-[state=open]:animate-in data-[state=closed]:animate-out 
       data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 
       data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 
@@ -70,8 +70,8 @@ const RadixDropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={`
-        z-[9999] min-w-[8rem] overflow-hidden rounded-md border border-[var(--card-border)] 
-        bg-[var(--dropdown-bg-solid)] backdrop-blur-sm p-1 text-[var(--text-primary)] shadow-xl 
+        z-9999 min-w-32 overflow-hidden rounded-md border border-(--card-border) 
+        bg-(--dropdown-bg-solid) backdrop-blur-xs p-1 text-primary-wh40k shadow-xl 
         ${className || ''}
       `}
       style={{ zIndex: 9999 }}
@@ -90,11 +90,11 @@ const RadixDropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={`
-      relative flex cursor-pointer select-none items-center rounded-sm px-3 py-2 text-sm outline-none 
-      transition-colors text-[var(--text-primary)]
-      hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-[var(--accent)]
-      focus:bg-[color-mix(in_srgb,var(--accent)_30%,transparent)] focus:text-[var(--accent)]
-      data-[disabled]:pointer-events-none data-[disabled]:opacity-50
+      relative flex cursor-pointer select-none items-center rounded-xs px-3 py-2 text-sm outline-hidden 
+      transition-colors text-primary-wh40k
+      hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-(--accent)
+      focus:bg-[color-mix(in_srgb,var(--accent)_30%,transparent)] focus:text-(--accent)
+      data-disabled:pointer-events-none data-disabled:opacity-50
       ${inset && 'pl-8'}
       ${className || ''}
     `}
@@ -110,10 +110,10 @@ const RadixDropdownMenuCheckboxItem = React.forwardRef<
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={`
-      relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none 
-      transition-colors focus:bg-[color-mix(in_srgb,var(--accent)_30%,transparent)] focus:text-[var(--text-primary)] 
-      data-[disabled]:pointer-events-none data-[disabled]:opacity-50
-      hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-[var(--text-primary)]
+      relative flex cursor-default select-none items-center rounded-xs py-1.5 pl-8 pr-2 text-sm outline-hidden 
+      transition-colors focus:bg-[color-mix(in_srgb,var(--accent)_30%,transparent)] focus:text-primary-wh40k 
+      data-disabled:pointer-events-none data-disabled:opacity-50
+      hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-primary-wh40k
       ${className || ''}
     `}
     checked={checked}
@@ -137,10 +137,10 @@ const RadixDropdownMenuRadioItem = React.forwardRef<
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={`
-      relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none 
-      transition-colors focus:bg-[color-mix(in_srgb,var(--accent)_30%,transparent)] focus:text-[var(--text-primary)] 
-      data-[disabled]:pointer-events-none data-[disabled]:opacity-50
-      hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-[var(--text-primary)]
+      relative flex cursor-default select-none items-center rounded-xs py-1.5 pl-8 pr-2 text-sm outline-hidden 
+      transition-colors focus:bg-[color-mix(in_srgb,var(--accent)_30%,transparent)] focus:text-primary-wh40k 
+      data-disabled:pointer-events-none data-disabled:opacity-50
+      hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-primary-wh40k
       ${className || ''}
     `}
     {...props}
@@ -165,7 +165,7 @@ const RadixDropdownMenuLabel = React.forwardRef<
   <DropdownMenuPrimitive.Label
     ref={ref}
     className={`
-      px-2 py-1.5 text-sm font-semibold text-[var(--text-secondary)]
+      px-2 py-1.5 text-sm font-semibold text-secondary-wh40k
       ${inset && 'pl-8'}
       ${className || ''}
     `}
@@ -180,7 +180,7 @@ const RadixDropdownMenuSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Separator
     ref={ref}
-    className={`-mx-1 my-1 h-px bg-[var(--card-border)] ${className || ''}`}
+    className={`-mx-1 my-1 h-px bg-(--card-border) ${className || ''}`}
     {...props}
   />
 ))

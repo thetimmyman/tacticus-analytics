@@ -282,13 +282,13 @@ export default function MemberRosterClient({
               Back to Members
             </Button>
           </Link>
-          <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+          <h1 className="text-3xl font-bold text-primary-wh40k">
             Member Roster
           </h1>
         </div>
         <div className="card-wh40k p-12 text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[var(--accent)] mx-auto mb-4" />
-          <p className="text-[var(--text-secondary)]">
+          <Loader2 className="h-8 w-8 animate-spin text-(--accent) mx-auto mb-4" />
+          <p className="text-secondary-wh40k">
             Loading roster from Tacticus...
           </p>
         </div>
@@ -306,7 +306,7 @@ export default function MemberRosterClient({
               Back to Members
             </Button>
           </Link>
-          <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+          <h1 className="text-3xl font-bold text-primary-wh40k">
             {playerName ? `${playerName}'s Roster` : 'Member Roster'}
           </h1>
         </div>
@@ -317,21 +317,21 @@ export default function MemberRosterClient({
               <Key className="h-8 w-8 text-amber-400" />
             </div>
           </div>
-          <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2 text-center">
+          <h2 className="text-xl font-semibold text-primary-wh40k mb-2 text-center">
             Player API Key Not Configured
           </h2>
-          <p className="text-[var(--text-secondary)] mb-6 text-center">
+          <p className="text-secondary-wh40k mb-6 text-center">
             {playerName || 'This player'} has not added their Player API key
             yet. You can add it for them or request they add it.
           </p>
 
           <div className="space-y-6">
-            <div className="card-wh40k p-6 bg-[var(--bg-secondary)]">
-              <h3 className="text-lg font-medium text-[var(--text-primary)] mb-3 flex items-center gap-2">
-                <Key className="h-5 w-5 text-[var(--accent)]" />
+            <div className="card-wh40k p-6 bg-(--bg-secondary)">
+              <h3 className="text-lg font-medium text-primary-wh40k mb-3 flex items-center gap-2">
+                <Key className="h-5 w-5 text-(--accent)" />
                 Add API Key for {playerName || 'Player'}
               </h3>
-              <p className="text-sm text-[var(--text-secondary)] mb-4">
+              <p className="text-sm text-secondary-wh40k mb-4">
                 If you have {playerName || 'the player'}&apos;s API key, you can
                 add it on their behalf.
               </p>
@@ -376,12 +376,12 @@ export default function MemberRosterClient({
             </div>
 
             {hasDiscord && (
-              <div className="card-wh40k p-6 bg-[var(--bg-secondary)]">
-                <h3 className="text-lg font-medium text-[var(--text-primary)] mb-3 flex items-center gap-2">
+              <div className="card-wh40k p-6 bg-(--bg-secondary)">
+                <h3 className="text-lg font-medium text-primary-wh40k mb-3 flex items-center gap-2">
                   <MessageSquare className="h-5 w-5 text-[#5865F2]" />
                   Request via Discord
                 </h3>
-                <p className="text-sm text-[var(--text-secondary)] mb-4">
+                <p className="text-sm text-secondary-wh40k mb-4">
                   {playerName || 'This player'} has Discord linked. Send them a
                   direct message requesting they add their API key.
                 </p>
@@ -420,7 +420,7 @@ export default function MemberRosterClient({
             )}
 
             {!hasDiscord && (
-              <div className="text-sm text-[var(--text-secondary)] text-center p-4 border border-dashed border-[var(--card-border)] rounded-md">
+              <div className="text-sm text-secondary-wh40k text-center p-4 border border-dashed border-(--card-border) rounded-md">
                 <MessageSquare className="h-5 w-5 mx-auto mb-2 opacity-50" />
                 <p>
                   {playerName || 'This player'} has not linked their Discord
@@ -444,7 +444,7 @@ export default function MemberRosterClient({
               Back to Members
             </Button>
           </Link>
-          <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+          <h1 className="text-3xl font-bold text-primary-wh40k">
             {playerName ? `${playerName}'s Roster` : 'Member Roster'}
           </h1>
         </div>
@@ -454,10 +454,10 @@ export default function MemberRosterClient({
               <AlertCircle className="h-8 w-8 text-red-400" />
             </div>
           </div>
-          <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
+          <h2 className="text-xl font-semibold text-primary-wh40k mb-2">
             Failed to Load Roster
           </h2>
-          <p className="text-[var(--text-secondary)] mb-4">{error}</p>
+          <p className="text-secondary-wh40k mb-4">{error}</p>
           <Button
             onClick={() => void fetchRoster({ force: true })}
             className="mt-4"
@@ -481,12 +481,12 @@ export default function MemberRosterClient({
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
+            <h1 className="text-2xl sm:text-3xl font-bold text-primary-wh40k">
               <MemberName value={playerName} />
               &apos;s Roster
             </h1>
             {powerLevel && (
-              <p className="text-sm text-[var(--text-secondary)]">
+              <p className="text-sm text-secondary-wh40k">
                 Power Level: {formatNumber(powerLevel)}
               </p>
             )}
@@ -496,7 +496,7 @@ export default function MemberRosterClient({
           {guildCode && (
             <Link
               href={`/player-stats?player=${encodeURIComponent(playerName)}&guild=${encodeURIComponent(guildCode)}`}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs sm:text-sm bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] border border-[color-mix(in_srgb,var(--accent)_30%,transparent)] rounded-md text-[var(--accent)] transition-colors"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs sm:text-sm bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] border border-[color-mix(in_srgb,var(--accent)_30%,transparent)] rounded-md text-(--accent) transition-colors"
             >
               <BarChart3 className="h-4 w-4" />
               <MemberName value={playerName} />

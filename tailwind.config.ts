@@ -1,23 +1,8 @@
 import type { Config } from 'tailwindcss'
 import typography from '@tailwindcss/typography'
-import containerQueries from '@tailwindcss/container-queries'
 import debugScreens from 'tailwindcss-debug-screens'
 
 const config: Config = {
-  content: [
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
-    './packages/ui-kit/src/**/*.{js,ts,jsx,tsx}'
-  ],
-  // Only used in HTML-string templates, which the JIT scanner may miss.
-  safelist: [
-    'hidden',
-    'block',
-    'md:hidden',
-    'md:block',
-    'space-y-2',
-    'space-y-1',
-    'space-y-0.5'
-  ],
   theme: {
     extend: {
       // Channel-form tokens keep `bg-card/30` opacity; `bg-[var(--card-bg)]/30` silently drops it.
@@ -49,7 +34,6 @@ const config: Config = {
   },
   plugins: [
     typography,
-    containerQueries,
     ...(process.env.NODE_ENV === 'development' ? [debugScreens] : [])
   ]
 }

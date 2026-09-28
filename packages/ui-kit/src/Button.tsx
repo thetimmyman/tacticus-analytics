@@ -27,15 +27,14 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseClasses =
-      'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] disabled:opacity-50 disabled:pointer-events-none'
+      'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent) disabled:opacity-50 disabled:pointer-events-none'
 
     const variantClasses = {
       default:
-        'bg-[var(--accent)] text-[var(--bg-primary)] hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)]',
+        'bg-accent-wh40k text-(--bg-primary) hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)]',
       outline:
-        'border border-[var(--card-border)] bg-transparent text-[var(--text-primary)] hover:bg-[var(--card-bg)]',
-      ghost:
-        'text-[var(--text-primary)] hover:bg-[var(--card-bg)] hover:text-[var(--text-primary)]'
+        'border border-(--card-border) bg-transparent text-primary-wh40k hover:bg-(--card-bg)',
+      ghost: 'text-primary-wh40k hover:bg-(--card-bg) hover:text-primary-wh40k'
     }
 
     const sizeClasses = {

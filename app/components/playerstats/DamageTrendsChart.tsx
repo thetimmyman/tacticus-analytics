@@ -127,19 +127,19 @@ export function DamageTrendsChart({
       case 'declining':
         return <TrendingDown className="w-5 h-5 text-red-400" />
       default:
-        return <Minus className="w-5 h-5 text-[var(--text-secondary)]" />
+        return <Minus className="w-5 h-5 text-secondary-wh40k" />
     }
   }
 
   const getTrendColor = () => {
-    if (!data) return 'text-[var(--text-secondary)]'
+    if (!data) return 'text-secondary-wh40k'
     switch (data.trends.direction) {
       case 'improving':
         return 'text-green-400'
       case 'declining':
         return 'text-red-400'
       default:
-        return 'text-[var(--text-secondary)]'
+        return 'text-secondary-wh40k'
     }
   }
 
@@ -166,13 +166,13 @@ export function DamageTrendsChart({
 
   if (!data || data.seasons.length === 0) {
     return (
-      <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
+      <Card className="bg-(--card-bg) border-(--card-border)">
         <CardContent className="py-8 text-center">
-          <BarChart3 className="w-12 h-12 text-[var(--accent)] mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+          <BarChart3 className="w-12 h-12 text-(--accent) mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-primary-wh40k mb-2">
             No Historical Data
           </h3>
-          <p className="text-[var(--text-secondary)] max-w-md mx-auto">
+          <p className="text-secondary-wh40k max-w-md mx-auto">
             We couldn't find enough historical data to show damage trends.
           </p>
         </CardContent>
@@ -218,20 +218,20 @@ export function DamageTrendsChart({
 
   return (
     <div className="space-y-4">
-      <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-500/30">
+      <Card className="bg-linear-to-r from-blue-500/10 to-purple-500/10 border-blue-500/30">
         <CardContent className="py-3 md:py-4">
           <div className="flex flex-col gap-3 md:gap-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center gap-2 md:gap-3 min-w-0">
                 {getTrendIcon()}
                 <div className="min-w-0">
-                  <h4 className="text-sm md:text-base font-medium text-[var(--text-primary)]">
+                  <h4 className="text-sm md:text-base font-medium text-primary-wh40k">
                     Trend:{' '}
                     <span className={getTrendColor()}>
                       {data.trends.direction}
                     </span>
                   </h4>
-                  <p className="text-xs md:text-sm text-[var(--text-secondary)]">
+                  <p className="text-xs md:text-sm text-secondary-wh40k">
                     {data.trends.change_pct > 0 ? '+' : ''}
                     {data.trends.change_pct}% vs previous
                   </p>
@@ -239,14 +239,14 @@ export function DamageTrendsChart({
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 {data.trends.has_enough_data && (
-                  <div className="px-2 md:px-3 py-1 rounded-lg bg-[var(--card-bg)] border border-[var(--card-border)] whitespace-nowrap">
+                  <div className="px-2 md:px-3 py-1 rounded-lg bg-(--card-bg) border border-(--card-border) whitespace-nowrap">
                     <span
                       className={`text-xs md:text-sm font-semibold ${data.trends.cagr >= 0 ? 'text-green-400' : 'text-red-400'}`}
                     >
                       {data.trends.cagr > 0 ? '+' : ''}
                       {data.trends.cagr}%
                     </span>
-                    <span className="text-[10px] md:text-xs text-[var(--text-secondary)] ml-1">
+                    <span className="text-[10px] md:text-xs text-secondary-wh40k ml-1">
                       CAGR
                     </span>
                   </div>
@@ -256,8 +256,8 @@ export function DamageTrendsChart({
                     onClick={() => setViewMode('summary')}
                     className={`px-2 md:px-3 py-1 text-xs md:text-sm rounded ${
                       viewMode === 'summary'
-                        ? 'bg-[var(--primary)] text-white'
-                        : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]'
+                        ? 'bg-primary-wh40k text-white'
+                        : 'bg-(--bg-secondary) text-secondary-wh40k'
                     }`}
                   >
                     Summary
@@ -266,8 +266,8 @@ export function DamageTrendsChart({
                     onClick={() => setViewMode('bosses')}
                     className={`px-2 md:px-3 py-1 text-xs md:text-sm rounded ${
                       viewMode === 'bosses'
-                        ? 'bg-[var(--primary)] text-white'
-                        : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]'
+                        ? 'bg-primary-wh40k text-white'
+                        : 'bg-(--bg-secondary) text-secondary-wh40k'
                     }`}
                   >
                     By Boss
@@ -280,14 +280,14 @@ export function DamageTrendsChart({
       </Card>
 
       {viewMode === 'summary' && (
-        <Card className="bg-[var(--card-bg)] border-[var(--card-border)] chart-card">
+        <Card className="bg-(--card-bg) border-(--card-border) chart-card">
           <CardContent className="py-3 md:py-4">
             <div className="flex items-center justify-between mb-3 md:mb-4">
-              <h4 className="text-xs md:text-sm font-medium text-[var(--text-secondary)]">
+              <h4 className="text-xs md:text-sm font-medium text-secondary-wh40k">
                 Avg Damage per Attack
               </h4>
               {data.trends.has_enough_data && (
-                <span className="text-[10px] md:text-xs text-[var(--text-secondary)]">
+                <span className="text-[10px] md:text-xs text-secondary-wh40k">
                   R² = {data.trends.regression_r2.toFixed(2)}
                 </span>
               )}
@@ -338,7 +338,7 @@ export function DamageTrendsChart({
             </div>
 
             <div className="mt-4 md:mt-6">
-              <h4 className="text-xs md:text-sm font-medium text-[var(--text-secondary)] mb-3 md:mb-4">
+              <h4 className="text-xs md:text-sm font-medium text-secondary-wh40k mb-3 md:mb-4">
                 Total Damage by Season
               </h4>
               <div className="h-40 md:h-48">
@@ -375,10 +375,10 @@ export function DamageTrendsChart({
       )}
 
       {viewMode === 'bosses' && (
-        <Card className="bg-[var(--card-bg)] border-[var(--card-border)] chart-card">
+        <Card className="bg-(--card-bg) border-(--card-border) chart-card">
           <CardContent className="py-3 md:py-4">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-3 md:mb-4">
-              <h4 className="text-xs md:text-sm font-medium text-[var(--text-secondary)]">
+              <h4 className="text-xs md:text-sm font-medium text-secondary-wh40k">
                 Avg Damage by Boss
               </h4>
               <div className="flex flex-wrap gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1">
@@ -394,10 +394,10 @@ export function DamageTrendsChart({
                       }
                       setSelectedBosses(newSelected)
                     }}
-                    className={`px-1.5 md:px-2 py-0.5 text-[10px] md:text-xs rounded transition-colors flex-shrink-0 ${
+                    className={`px-1.5 md:px-2 py-0.5 text-[10px] md:text-xs rounded transition-colors shrink-0 ${
                       selectedBosses.has(boss)
                         ? 'text-white'
-                        : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]'
+                        : 'bg-(--bg-secondary) text-secondary-wh40k'
                     }`}
                     style={{
                       backgroundColor: selectedBosses.has(boss)
@@ -452,31 +452,31 @@ export function DamageTrendsChart({
         </Card>
       )}
 
-      <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
+      <Card className="bg-(--card-bg) border-(--card-border)">
         <CardContent className="py-3">
-          <h4 className="text-sm font-medium text-[var(--text-secondary)] mb-3">
+          <h4 className="text-sm font-medium text-secondary-wh40k mb-3">
             Season Details
           </h4>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[var(--card-border)]">
-                  <th className="text-left py-2 px-2 text-[var(--text-secondary)]">
+                <tr className="border-b border-(--card-border)">
+                  <th className="text-left py-2 px-2 text-secondary-wh40k">
                     Season
                   </th>
-                  <th className="text-right py-2 px-2 text-[var(--text-secondary)]">
+                  <th className="text-right py-2 px-2 text-secondary-wh40k">
                     Total Damage
                   </th>
-                  <th className="text-right py-2 px-2 text-[var(--text-secondary)]">
+                  <th className="text-right py-2 px-2 text-secondary-wh40k">
                     Attacks
                   </th>
-                  <th className="text-right py-2 px-2 text-[var(--text-secondary)]">
+                  <th className="text-right py-2 px-2 text-secondary-wh40k">
                     Avg/Attack
                   </th>
-                  <th className="text-right py-2 px-2 text-[var(--text-secondary)]">
+                  <th className="text-right py-2 px-2 text-secondary-wh40k">
                     Bosses
                   </th>
-                  <th className="text-left py-2 px-2 text-[var(--text-secondary)]">
+                  <th className="text-left py-2 px-2 text-secondary-wh40k">
                     Best Boss
                   </th>
                 </tr>
@@ -487,22 +487,22 @@ export function DamageTrendsChart({
                     key={season.season}
                     className="border-b border-card-border/50"
                   >
-                    <td className="py-2 px-2 text-[var(--text-primary)] font-medium">
+                    <td className="py-2 px-2 text-primary-wh40k font-medium">
                       S{season.season}
                     </td>
-                    <td className="py-2 px-2 text-right text-[var(--text-primary)]">
+                    <td className="py-2 px-2 text-right text-primary-wh40k">
                       {formatDamage(season.total_damage)}
                     </td>
-                    <td className="py-2 px-2 text-right text-[var(--text-primary)]">
+                    <td className="py-2 px-2 text-right text-primary-wh40k">
                       {season.total_attacks}
                     </td>
-                    <td className="py-2 px-2 text-right text-[var(--accent)]">
+                    <td className="py-2 px-2 text-right text-(--accent)">
                       {formatNumber(season.avg_damage_per_attack)}
                     </td>
-                    <td className="py-2 px-2 text-right text-[var(--text-primary)]">
+                    <td className="py-2 px-2 text-right text-primary-wh40k">
                       {season.bosses_fought}
                     </td>
-                    <td className="py-2 px-2 text-[var(--text-secondary)]">
+                    <td className="py-2 px-2 text-secondary-wh40k">
                       {season.best_boss || '-'}
                     </td>
                   </tr>

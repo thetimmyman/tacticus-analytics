@@ -57,7 +57,7 @@ export function BossPerformanceBossList({
           return (
             <div
               key={`${boss.name}-${boss.level}`}
-              className={`border-l-4 p-3 rounded-r-lg ${getProblemSeverityColor(boss.problemSeverity)} hover:bg-[var(--card-hover)] transition-colors`}
+              className={`border-l-4 p-3 rounded-r-lg ${getProblemSeverityColor(boss.problemSeverity)} hover:bg-(--card-hover) transition-colors`}
             >
               <div
                 className="cursor-pointer"
@@ -67,7 +67,7 @@ export function BossPerformanceBossList({
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="text-[var(--text-secondary)]">
+                    <div className="text-secondary-wh40k">
                       {isExpanded ? (
                         <ChevronUp className="h-4 w-4" />
                       ) : (
@@ -75,10 +75,10 @@ export function BossPerformanceBossList({
                       )}
                     </div>
                     <div>
-                      <div className="font-semibold text-[var(--text-primary)]">
+                      <div className="font-semibold text-primary-wh40k">
                         {boss.level} {boss.name}
                       </div>
-                      <div className="text-xs text-[var(--text-secondary)] flex items-center gap-4">
+                      <div className="text-xs text-secondary-wh40k flex items-center gap-4">
                         <Tooltip content="Total damage dealt to this boss across all encounters this season">
                           <span className="flex items-center gap-1 cursor-help">
                             <Clock className="h-3 w-3" />
@@ -130,10 +130,10 @@ export function BossPerformanceBossList({
                     <Tooltip content={bossMetricTooltips.damagePerHour(boss)}>
                       <div className="hidden sm:flex items-center gap-1 cursor-help">
                         <TrendingUpAlt
-                          className={`h-4 w-4 ${boss.avgDamagePerHour === null ? 'text-[var(--text-secondary)]' : boss.avgDamagePerHour > 1000000 ? 'text-green-400' : boss.avgDamagePerHour > 500000 ? 'text-yellow-400' : 'text-red-400'}`}
+                          className={`h-4 w-4 ${boss.avgDamagePerHour === null ? 'text-secondary-wh40k' : boss.avgDamagePerHour > 1000000 ? 'text-green-400' : boss.avgDamagePerHour > 500000 ? 'text-yellow-400' : 'text-red-400'}`}
                         />
                         <span
-                          className={`font-mono text-xs ${boss.avgDamagePerHour === null ? 'text-[var(--text-secondary)]' : boss.avgDamagePerHour > 1000000 ? 'text-green-400' : boss.avgDamagePerHour > 500000 ? 'text-yellow-400' : 'text-red-400'}`}
+                          className={`font-mono text-xs ${boss.avgDamagePerHour === null ? 'text-secondary-wh40k' : boss.avgDamagePerHour > 1000000 ? 'text-green-400' : boss.avgDamagePerHour > 500000 ? 'text-yellow-400' : 'text-red-400'}`}
                         >
                           {boss.avgDamagePerHour !== null
                             ? `${formatDamage(boss.avgDamagePerHour)}/h`
@@ -175,7 +175,7 @@ export function BossPerformanceBossList({
 
                 {/* Detailed Metrics */}
                 <div className="mt-2 pt-2 border-t border-card-border/30">
-                  <div className="grid grid-cols-2 sm:grid-cols-7 gap-2 text-xs text-[var(--text-secondary)]">
+                  <div className="grid grid-cols-2 sm:grid-cols-7 gap-2 text-xs text-secondary-wh40k">
                     <Tooltip content="Maximum single hit damage vs average damage - shows damage consistency and best performance">
                       <div className="cursor-help">
                         <div>Max Hit: {formatDamage(boss.maxDamage)}</div>
@@ -318,7 +318,7 @@ export function BossPerformanceBossList({
                   onClick={(e) => e.stopPropagation()}
                 >
                   <table className="w-full text-xs text-left border-collapse bg-card/30 rounded-lg">
-                    <thead className="text-[var(--text-secondary)] uppercase bg-card/50">
+                    <thead className="text-secondary-wh40k uppercase bg-card/50">
                       <tr>
                         <th className="px-3 py-2">Loop</th>
                         <th className="px-3 py-2 text-right">Max Hit</th>
@@ -350,7 +350,7 @@ export function BossPerformanceBossList({
                           <td className="px-3 py-2 text-right">
                             {stat.hitCount}
                           </td>
-                          <td className="px-3 py-2 text-right text-[var(--text-secondary)]">
+                          <td className="px-3 py-2 text-right text-secondary-wh40k">
                             {stat.durationMinutes
                               ? formatDuration(stat.durationMinutes * 60)
                               : '-'}

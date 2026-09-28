@@ -39,7 +39,7 @@ export function WinterThemeToggle({
         className={`p-2 rounded-lg transition-all ${
           isWinterThemeActive
             ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 ring-2 ring-blue-500/50'
-            : 'bg-[var(--card-bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--hover-bg)]'
+            : 'bg-(--card-bg) text-secondary-wh40k hover:text-primary-wh40k hover:bg-(--hover-bg)'
         } ${className}`}
         title={
           isWinterThemeActive ? 'Disable Winter Theme' : 'Enable Winter Theme'
@@ -60,8 +60,8 @@ export function WinterThemeToggle({
           onClick={toggleWinterTheme}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
             isWinterThemeActive
-              ? 'bg-gradient-to-r from-blue-500/20 to-green-500/20 text-blue-300 border border-blue-500/30'
-              : 'bg-[var(--card-bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--card-border)]'
+              ? 'bg-linear-to-r from-blue-500/20 to-green-500/20 text-blue-300 border border-blue-500/30'
+              : 'bg-(--card-bg) text-secondary-wh40k hover:text-primary-wh40k border border-(--card-border)'
           }`}
         >
           {isWinterThemeActive ? (
@@ -89,18 +89,18 @@ export function WinterThemeToggle({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div
-            className={`p-2 rounded-lg ${isWinterThemeActive ? 'bg-blue-500/20' : 'bg-[var(--card-bg)]'}`}
+            className={`p-2 rounded-lg ${isWinterThemeActive ? 'bg-blue-500/20' : 'bg-(--card-bg)'}`}
           >
             <Snowflake
-              className={`h-6 w-6 ${isWinterThemeActive ? 'text-blue-400 animate-spin' : 'text-[var(--text-secondary)]'}`}
+              className={`h-6 w-6 ${isWinterThemeActive ? 'text-blue-400 animate-spin' : 'text-secondary-wh40k'}`}
               style={{ animationDuration: '3s' }}
             />
           </div>
           <div>
-            <h3 className="font-semibold text-[var(--text-primary)]">
+            <h3 className="font-semibold text-primary-wh40k">
               Winter Wonderland Theme
             </h3>
-            <p className="text-xs text-[var(--text-secondary)]">
+            <p className="text-xs text-secondary-wh40k">
               Festive decorations and effects
             </p>
           </div>
@@ -109,8 +109,8 @@ export function WinterThemeToggle({
           onClick={toggleWinterTheme}
           className={`relative w-14 h-7 rounded-full transition-all ${
             isWinterThemeActive
-              ? 'bg-gradient-to-r from-blue-500 to-green-500'
-              : 'bg-[var(--card-border)]'
+              ? 'bg-linear-to-r from-blue-500 to-green-500'
+              : 'bg-(--card-border)'
           }`}
         >
           <div
@@ -129,21 +129,19 @@ export function WinterThemeToggle({
         <>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="w-full flex items-center justify-between p-2 rounded-lg bg-[var(--card-bg)] hover:bg-[var(--hover-bg)] transition-colors text-sm"
+            className="w-full flex items-center justify-between p-2 rounded-lg bg-(--card-bg) hover:bg-(--hover-bg) transition-colors text-sm"
           >
-            <span className="text-[var(--text-secondary)]">
-              Customize Effects
-            </span>
+            <span className="text-secondary-wh40k">Customize Effects</span>
             <Sparkles
               className={`h-4 w-4 text-yellow-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
             />
           </button>
 
           {isExpanded && (
-            <div className="mt-3 space-y-3 p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--card-border)]">
+            <div className="mt-3 space-y-3 p-3 rounded-lg bg-(--bg-tertiary) border border-(--card-border)">
               {/* Snow Intensity */}
               <div>
-                <label className="text-xs font-medium text-[var(--text-secondary)] mb-2 block">
+                <label className="text-xs font-medium text-secondary-wh40k mb-2 block">
                   Snow Intensity
                 </label>
                 <div className="flex gap-2">
@@ -154,7 +152,7 @@ export function WinterThemeToggle({
                       className={`flex-1 py-1.5 px-3 rounded text-xs font-medium transition-all ${
                         snowIntensity === intensity
                           ? 'bg-blue-500 text-white'
-                          : 'bg-[var(--card-bg)] text-[var(--text-secondary)] hover:bg-[var(--hover-bg)]'
+                          : 'bg-(--card-bg) text-secondary-wh40k hover:bg-(--hover-bg)'
                       }`}
                     >
                       <span className="inline-flex items-center gap-0.5 align-middle">
@@ -172,14 +170,14 @@ export function WinterThemeToggle({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Lightbulb className="h-4 w-4 text-yellow-300" />
-                  <span className="text-sm text-[var(--text-primary)]">
+                  <span className="text-sm text-primary-wh40k">
                     Christmas Lights
                   </span>
                 </div>
                 <button
                   onClick={() => setShowLights(!showLights)}
                   className={`w-10 h-5 rounded-full transition-all ${
-                    showLights ? 'bg-green-500' : 'bg-[var(--card-border)]'
+                    showLights ? 'bg-green-500' : 'bg-(--card-border)'
                   }`}
                 >
                   <div
@@ -194,17 +192,17 @@ export function WinterThemeToggle({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Eye className="h-4 w-4 text-green-300" />
-                  <span className="text-sm text-[var(--text-primary)]">
+                  <span className="text-sm text-primary-wh40k">
                     Hidden Elves
                   </span>
-                  <span className="text-xs text-[var(--text-tertiary)]">
+                  <span className="text-xs text-(--text-tertiary)">
                     (find them!)
                   </span>
                 </div>
                 <button
                   onClick={() => setShowElves(!showElves)}
                   className={`w-10 h-5 rounded-full transition-all ${
-                    showElves ? 'bg-green-500' : 'bg-[var(--card-border)]'
+                    showElves ? 'bg-green-500' : 'bg-(--card-border)'
                   }`}
                 >
                   <div
@@ -216,7 +214,7 @@ export function WinterThemeToggle({
               </div>
 
               {/* Hint */}
-              <p className="text-xs text-[var(--text-tertiary)] italic pt-2 border-t border-[var(--card-border)] flex items-center gap-2">
+              <p className="text-xs text-(--text-tertiary) italic pt-2 border-t border-(--card-border) flex items-center gap-2">
                 <Sparkles className="h-3 w-3 text-yellow-300" />
                 <span>Tip: Watch for Santa flying across your screen!</span>
               </p>
@@ -226,7 +224,7 @@ export function WinterThemeToggle({
       )}
 
       {!isWinterThemeActive && (
-        <div className="flex items-center gap-2 p-3 rounded-lg bg-[var(--bg-tertiary)] text-sm text-[var(--text-secondary)]">
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-(--bg-tertiary) text-sm text-secondary-wh40k">
           <TreePine className="h-4 w-4 text-green-500" />
           <span>
             Enable to see snow, lights, decorations, and hidden surprises!

@@ -89,14 +89,14 @@ export default function VOTLWGuildSettingsPanel({
     <section className="rounded-2xl border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-6 shadow-[0_18px_30px_rgba(4,8,20,0.35)]">
       <header className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] text-[var(--accent)]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] text-(--accent)">
             <Shield className="h-5 w-5" />
           </span>
           <div>
-            <h3 className="text-lg font-bold text-[var(--text-primary)]">
+            <h3 className="text-lg font-bold text-primary-wh40k">
               VOTLW Award Controls
             </h3>
-            <p className="text-sm text-[var(--text-secondary)]">
+            <p className="text-sm text-secondary-wh40k">
               Officer/Leader controls for how token usage affects medals and
               seasonal awards.
             </p>
@@ -116,7 +116,7 @@ export default function VOTLWGuildSettingsPanel({
           <label className="flex cursor-pointer items-start justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-[var(--text-primary)]">
+                <span className="font-semibold text-primary-wh40k">
                   Apply token offender filtering
                 </span>
                 <StatusLabel
@@ -126,7 +126,7 @@ export default function VOTLWGuildSettingsPanel({
                   {applyFiltering ? 'On' : 'Off'}
                 </StatusLabel>
               </div>
-              <p className="mt-1 text-sm text-[var(--text-secondary)]">
+              <p className="mt-1 text-sm text-secondary-wh40k">
                 When enabled, players who miss the configured number of tokens
                 are excluded from medal math, set winners, and seasonal awards.
                 Offenders are still tracked and shown elsewhere for
@@ -135,7 +135,7 @@ export default function VOTLWGuildSettingsPanel({
             </div>
             <input
               type="checkbox"
-              className="mt-1 h-5 w-5 cursor-pointer accent-[var(--accent)]"
+              className="mt-1 h-5 w-5 cursor-pointer accent-(--accent)"
               checked={applyFiltering}
               disabled={isPending}
               onChange={(e) => setApplyFiltering(e.target.checked)}
@@ -148,11 +148,11 @@ export default function VOTLWGuildSettingsPanel({
           <div className="rounded-xl border border-card-border/50 bg-[color-mix(in_srgb,var(--bg-tertiary)_40%,transparent)] p-4">
             <label
               htmlFor="votlw-offender-threshold"
-              className="block text-sm font-semibold text-[var(--text-primary)]"
+              className="block text-sm font-semibold text-primary-wh40k"
             >
               Offender threshold
             </label>
-            <p className="mb-3 mt-1 text-xs text-[var(--text-secondary)]">
+            <p className="mb-3 mt-1 text-xs text-secondary-wh40k">
               Players missing at least this many tokens are flagged as
               offenders.
             </p>
@@ -172,9 +172,9 @@ export default function VOTLWGuildSettingsPanel({
                     )
                   )
                 }
-                className="w-24 rounded-lg border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none"
+                className="w-24 rounded-lg border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] px-3 py-2 text-sm text-primary-wh40k focus:border-accent-wh40k focus:outline-hidden"
               />
-              <span className="text-xs text-[var(--text-tertiary)]">
+              <span className="text-xs text-(--text-tertiary)">
                 tokens missed
               </span>
             </div>
@@ -183,11 +183,11 @@ export default function VOTLWGuildSettingsPanel({
           <div className="rounded-xl border border-card-border/50 bg-[color-mix(in_srgb,var(--bg-tertiary)_40%,transparent)] p-4">
             <label
               htmlFor="votlw-abuser-threshold"
-              className="block text-sm font-semibold text-[var(--text-primary)]"
+              className="block text-sm font-semibold text-primary-wh40k"
             >
               Abuser threshold
             </label>
-            <p className="mb-3 mt-1 text-xs text-[var(--text-secondary)]">
+            <p className="mb-3 mt-1 text-xs text-secondary-wh40k">
               Stricter cutoff for highlighting players who abuse their token
               budget. Must be ≥ the offender threshold.
             </p>
@@ -207,9 +207,9 @@ export default function VOTLWGuildSettingsPanel({
                     )
                   )
                 }
-                className="w-24 rounded-lg border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] px-3 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--accent)] focus:outline-none"
+                className="w-24 rounded-lg border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] px-3 py-2 text-sm text-primary-wh40k focus:border-accent-wh40k focus:outline-hidden"
               />
-              <span className="text-xs text-[var(--text-tertiary)]">
+              <span className="text-xs text-(--text-tertiary)">
                 tokens missed
               </span>
             </div>
@@ -225,7 +225,7 @@ export default function VOTLWGuildSettingsPanel({
 
         <div className="flex items-center justify-end gap-3">
           {!isDirty && !isPending && (
-            <span className="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
+            <span className="flex items-center gap-1 text-xs text-(--text-tertiary)">
               <CheckCircle className="h-3.5 w-3.5" /> Saved
             </span>
           )}

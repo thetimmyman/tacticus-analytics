@@ -302,8 +302,8 @@ export function MinimumRequirementsEditor({
   return (
     <div className="card-wh40k p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
-          <ClipboardList className="h-4 w-4 text-[var(--accent)]" />
+        <div className="flex items-center gap-2 text-sm font-semibold text-primary-wh40k">
+          <ClipboardList className="h-4 w-4 text-(--accent)" />
           Minimum Viable Team Requirements
         </div>
         {heroRequirements.length > 0 && (
@@ -311,14 +311,14 @@ export function MinimumRequirementsEditor({
             <button
               type="button"
               onClick={() => setViewMode('cards')}
-              className={`px-2 py-1 text-[10px] rounded ${viewMode === 'cards' ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-[var(--accent)]' : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'}`}
+              className={`px-2 py-1 text-[10px] rounded-sm ${viewMode === 'cards' ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent)' : 'text-(--text-tertiary) hover:text-secondary-wh40k'}`}
             >
               Cards
             </button>
             <button
               type="button"
               onClick={() => setViewMode('form')}
-              className={`px-2 py-1 text-[10px] rounded ${viewMode === 'form' ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-[var(--accent)]' : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'}`}
+              className={`px-2 py-1 text-[10px] rounded-sm ${viewMode === 'form' ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent)' : 'text-(--text-tertiary) hover:text-secondary-wh40k'}`}
             >
               Form
             </button>
@@ -327,7 +327,7 @@ export function MinimumRequirementsEditor({
       </div>
 
       {loading && (
-        <div className="text-xs text-[var(--text-tertiary)]">
+        <div className="text-xs text-(--text-tertiary)">
           Loading requirements...
         </div>
       )}
@@ -363,7 +363,7 @@ export function MinimumRequirementsEditor({
           <div className="hidden md:block overflow-x-auto -mx-4 px-4">
             <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
-                <tr className="border-b border-[var(--card-border)] text-[10px] text-[var(--text-tertiary)]">
+                <tr className="border-b border-(--card-border) text-[10px] text-(--text-tertiary)">
                   <th className="py-2 px-2 font-medium">Category</th>
                   <th className="py-2 px-2 font-medium">Meta Team</th>
                   <th className="py-2 px-1 font-medium">Hero 1</th>
@@ -448,11 +448,11 @@ export function MinimumRequirementsEditor({
       )}
 
       {/* Collapsible Setup Section */}
-      <div className="border border-[var(--card-border)] rounded-md">
+      <div className="border border-(--card-border) rounded-md">
         <button
           type="button"
           onClick={() => setIsSetupExpanded(!isSetupExpanded)}
-          className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[color-mix(in_srgb,var(--bg-secondary)_30%,transparent)] transition-colors"
+          className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-secondary-wh40k hover:text-primary-wh40k hover:bg-[color-mix(in_srgb,var(--bg-secondary)_30%,transparent)] transition-colors"
         >
           <span>Setup Team Requirements</span>
           {isSetupExpanded ? (
@@ -463,7 +463,7 @@ export function MinimumRequirementsEditor({
         </button>
 
         {isSetupExpanded && (
-          <div className="px-3 pb-3 space-y-3 border-t border-[var(--card-border)]">
+          <div className="px-3 pb-3 space-y-3 border-t border-(--card-border)">
             {/* Show teams that already have requirements configured - sorted: Guild > Cluster */}
             {(guildRequirements.length > 0 || requirements.length > 0) && (
               <div className="flex flex-wrap gap-1 text-[10px] pt-3">
@@ -472,7 +472,7 @@ export function MinimumRequirementsEditor({
                     key={r.id}
                     type="button"
                     onClick={() => setSelectedMetaTeamId(r.meta_team_id || '')}
-                    className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20"
+                    className="px-1.5 py-0.5 rounded-sm bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20"
                     title="Guild-specific"
                   >
                     {typeof r.team_name === 'string' ? r.team_name : 'Unknown'}
@@ -483,7 +483,7 @@ export function MinimumRequirementsEditor({
                     key={r.id}
                     type="button"
                     onClick={() => setSelectedMetaTeamId(r.meta_team_id || '')}
-                    className="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20"
+                    className="px-1.5 py-0.5 rounded-sm bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20"
                     title="Cluster-wide"
                   >
                     {typeof r.team_name === 'string' ? r.team_name : 'Unknown'}
@@ -492,12 +492,12 @@ export function MinimumRequirementsEditor({
               </div>
             )}
 
-            <label className="text-[11px] text-[var(--text-tertiary)] space-y-1">
+            <label className="text-[11px] text-(--text-tertiary) space-y-1">
               Meta Team
               <select
                 value={selectedMetaTeamId}
                 onChange={(event) => setSelectedMetaTeamId(event.target.value)}
-                className="w-full rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 py-1 text-xs text-[var(--text-primary)]"
+                className="w-full rounded-md border border-(--card-border) bg-(--bg-secondary) px-2 py-1 text-xs text-primary-wh40k"
               >
                 <option value="">Select a meta team</option>
                 {metaTeams.map((team) => {
@@ -521,7 +521,7 @@ export function MinimumRequirementsEditor({
                   <button
                     type="button"
                     onClick={handleAutoFillFromMetaTeam}
-                    className="inline-flex items-center gap-1.5 px-2 py-1 text-[10px] rounded border border-[color-mix(in_srgb,var(--accent)_30%,transparent)] text-[var(--accent)] hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]"
+                    className="inline-flex items-center gap-1.5 px-2 py-1 text-[10px] rounded-sm border border-[color-mix(in_srgb,var(--accent)_30%,transparent)] text-(--accent) hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]"
                   >
                     <Sparkles className="h-3 w-3" />
                     Auto-fill from {selectedMetaTeam?.team_name}
@@ -529,7 +529,7 @@ export function MinimumRequirementsEditor({
                 )}
                 {matchingRaidTeams.length > 0 && (
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] text-[var(--text-tertiary)]">
+                    <span className="text-[10px] text-(--text-tertiary)">
                       Populate from:
                     </span>
                     {matchingRaidTeams.slice(0, 3).map((team, idx) => (
@@ -537,7 +537,7 @@ export function MinimumRequirementsEditor({
                         key={team.team_hash || idx}
                         type="button"
                         onClick={() => handlePopulateFromRaidTeam(team)}
-                        className="inline-flex items-center gap-1 px-2 py-1 text-[10px] rounded border border-[var(--card-border)] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]"
+                        className="inline-flex items-center gap-1 px-2 py-1 text-[10px] rounded-sm border border-(--card-border) text-secondary-wh40k hover:bg-(--bg-secondary) hover:text-primary-wh40k"
                         title={team.team_composition || 'Raid team'}
                       >
                         <Users className="h-3 w-3" />
@@ -555,7 +555,7 @@ export function MinimumRequirementsEditor({
                 {viewMode === 'cards' ? (
                   <div className="space-y-2">
                     {heroRequirements.length === 0 && (
-                      <div className="text-xs text-[var(--text-tertiary)]">
+                      <div className="text-xs text-(--text-tertiary)">
                         Add hero minimums for this team to override roster
                         strength thresholds.
                       </div>
@@ -580,7 +580,7 @@ export function MinimumRequirementsEditor({
                 ) : (
                   <div className="space-y-3">
                     {heroRequirements.length === 0 && (
-                      <div className="text-xs text-[var(--text-tertiary)]">
+                      <div className="text-xs text-(--text-tertiary)">
                         Add hero minimums for this team to override roster
                         strength thresholds.
                       </div>
@@ -605,44 +605,44 @@ export function MinimumRequirementsEditor({
                 <button
                   type="button"
                   onClick={handleAddRow}
-                  className="text-xs text-[var(--accent)] hover:text-[color-mix(in_srgb,var(--accent)_80%,transparent)]"
+                  className="text-xs text-(--accent) hover:text-[color-mix(in_srgb,var(--accent)_80%,transparent)]"
                 >
                   + Add hero requirement
                 </button>
 
-                <hr className="border-[var(--card-border)]" />
+                <hr className="border-(--card-border)" />
 
-                <label className="text-[11px] text-[var(--text-tertiary)] space-y-1">
+                <label className="text-[11px] text-(--text-tertiary) space-y-1">
                   Overall Notes
                   <textarea
                     value={overallNotes}
                     onChange={(event) => setOverallNotes(event.target.value)}
                     rows={2}
-                    className="w-full rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 py-1 text-xs text-[var(--text-primary)] resize-y"
+                    className="w-full rounded-md border border-(--card-border) bg-(--bg-secondary) px-2 py-1 text-xs text-primary-wh40k resize-y"
                     placeholder="Strategy notes, equipment recommendations..."
                   />
                 </label>
 
                 <div className="flex flex-wrap gap-4">
-                  <label className="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
+                  <label className="flex items-center gap-2 text-xs text-(--text-tertiary)">
                     <input
                       type="checkbox"
                       checked={isVerified}
                       onChange={(event) => setIsVerified(event.target.checked)}
-                      className="h-4 w-4 rounded border border-[var(--card-border)]"
+                      className="h-4 w-4 rounded-sm border border-(--card-border)"
                     />
                     Mark as verified
                   </label>
 
                   {userGuildCode && (
-                    <label className="flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
+                    <label className="flex items-center gap-2 text-xs text-(--text-tertiary)">
                       <input
                         type="checkbox"
                         checked={isGuildSpecific}
                         onChange={(event) =>
                           setIsGuildSpecific(event.target.checked)
                         }
-                        className="h-4 w-4 rounded border border-[var(--card-border)]"
+                        className="h-4 w-4 rounded-sm border border-(--card-border)"
                       />
                       <span className="flex items-center gap-1">
                         <BuildingComplex className="h-3 w-3" />
@@ -656,13 +656,13 @@ export function MinimumRequirementsEditor({
                 {(activeGuildRequirement || activeClusterRequirement) && (
                   <div className="flex items-center gap-2 text-[10px]">
                     {activeGuildRequirement && (
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-sm bg-amber-500/10 text-amber-400 border border-amber-500/20">
                         <BuildingComplex className="h-3 w-3" />
                         Guild requirement exists
                       </span>
                     )}
                     {activeClusterRequirement && (
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-sm bg-blue-500/10 text-blue-400 border border-blue-500/20">
                         <Globe className="h-3 w-3" />
                         Cluster requirement exists
                       </span>
@@ -675,7 +675,7 @@ export function MinimumRequirementsEditor({
                     type="button"
                     onClick={handleSave}
                     disabled={!selectedMetaTeamId || isSaving}
-                    className="inline-flex items-center gap-2 rounded-md bg-[var(--accent)] px-3 py-2 text-xs font-semibold text-white hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-md bg-accent-wh40k px-3 py-2 text-xs font-semibold text-white hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] disabled:opacity-50"
                   >
                     <CheckCircle2 className="h-4 w-4" />
                     {isSaving ? 'Saving...' : 'Save Requirements'}
@@ -714,7 +714,7 @@ export function MinimumRequirementsEditor({
                       }
                     }}
                     disabled={!selectedMetaTeamId || isSaving}
-                    className="inline-flex items-center gap-2 rounded-md border border-[var(--card-border)] px-3 py-2 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--card-border-hover)] disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-md border border-(--card-border) px-3 py-2 text-xs text-secondary-wh40k hover:text-primary-wh40k hover:border-(--card-border-hover) disabled:opacity-50"
                   >
                     Discard Changes
                   </button>

@@ -47,7 +47,7 @@ const formatBoardLabel = (board: string) => {
 function BoardCard({ entry }: { entry: BoardEntry }) {
   const label = formatBoardLabel(entry.board)
   return (
-    <div className="rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] overflow-hidden">
+    <div className="rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] overflow-hidden">
       {entry.image_url ? (
         <Image
           src={entry.image_url}
@@ -58,17 +58,13 @@ function BoardCard({ entry }: { entry: BoardEntry }) {
           className="w-full h-auto"
         />
       ) : (
-        <div className="aspect-video bg-[color-mix(in_srgb,var(--bg-tertiary)_60%,transparent)] flex items-center justify-center text-xs text-[var(--text-tertiary)]">
+        <div className="aspect-video bg-[color-mix(in_srgb,var(--bg-tertiary)_60%,transparent)] flex items-center justify-center text-xs text-(--text-tertiary)">
           Map image placeholder
         </div>
       )}
       <div className="p-3 space-y-1">
-        <div className="text-sm font-semibold text-[var(--text-primary)]">
-          {label}
-        </div>
-        <div className="text-[11px] text-[var(--text-tertiary)]">
-          {entry.board}
-        </div>
+        <div className="text-sm font-semibold text-primary-wh40k">{label}</div>
+        <div className="text-[11px] text-(--text-tertiary)">{entry.board}</div>
       </div>
     </div>
   )
@@ -105,15 +101,13 @@ export function MapsBoardsSection({ bossId }: MapsBoardsSectionProps) {
 
   return (
     <div className="card-wh40k p-4 space-y-5">
-      <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
-        <Map className="h-4 w-4 text-[var(--accent)]" />
+      <div className="flex items-center gap-2 text-sm font-semibold text-primary-wh40k">
+        <Map className="h-4 w-4 text-(--accent)" />
         Maps / Boards
       </div>
 
       {loading && (
-        <div className="text-xs text-[var(--text-tertiary)]">
-          Loading maps...
-        </div>
+        <div className="text-xs text-(--text-tertiary)">Loading maps...</div>
       )}
       {error && (
         <div className="text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2">
@@ -122,7 +116,7 @@ export function MapsBoardsSection({ bossId }: MapsBoardsSectionProps) {
       )}
 
       {!loading && !error && !hasBoards && (
-        <div className="text-xs text-[var(--text-tertiary)]">
+        <div className="text-xs text-(--text-tertiary)">
           No maps available yet.
         </div>
       )}
@@ -131,16 +125,16 @@ export function MapsBoardsSection({ bossId }: MapsBoardsSectionProps) {
         <div className="space-y-6">
           {sections.map((section) => (
             <div key={section.key} className="space-y-3">
-              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 border-b border-[var(--card-border)] pb-2">
-                <span className="text-sm font-semibold text-[var(--text-primary)]">
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 border-b border-(--card-border) pb-2">
+                <span className="text-sm font-semibold text-primary-wh40k">
                   {section.title}
                 </span>
                 {section.subtitle && (
-                  <span className="text-xs text-[var(--text-tertiary)]">
+                  <span className="text-xs text-(--text-tertiary)">
                     {section.subtitle}
                   </span>
                 )}
-                <span className="ml-auto text-[11px] text-[var(--text-tertiary)]">
+                <span className="ml-auto text-[11px] text-(--text-tertiary)">
                   {section.boards.length}{' '}
                   {section.boards.length === 1 ? 'board' : 'boards'}
                 </span>

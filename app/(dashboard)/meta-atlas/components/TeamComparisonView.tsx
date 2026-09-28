@@ -34,8 +34,8 @@ function HeroCircle({
     <div
       className={`w-12 h-12 rounded-full border-2 flex items-center justify-center relative overflow-hidden group ${
         isYourTeam
-          ? 'border-emerald-500 bg-[var(--card-bg)]'
-          : 'border-white/20 bg-[var(--card-bg)]'
+          ? 'border-emerald-500 bg-(--card-bg)'
+          : 'border-white/20 bg-(--card-bg)'
       }`}
       title={hero.name}
     >
@@ -51,7 +51,7 @@ function HeroCircle({
         />
       ) : (
         <div
-          className={`w-8 h-8 rounded-full border ${isYourTeam ? 'bg-slate-700 border-white/10' : 'bg-[var(--card-bg)] border-white/5'}`}
+          className={`w-8 h-8 rounded-full border ${isYourTeam ? 'bg-slate-700 border-white/10' : 'bg-(--card-bg) border-white/5'}`}
         />
       )}
     </div>
@@ -104,7 +104,7 @@ export function TeamComparisonView({
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-4">
           <Users className="w-4 h-4 text-emerald-400" />
-          <span className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-widest">
+          <span className="text-xs font-semibold text-secondary-wh40k uppercase tracking-widest">
             {yourTeam?.label || 'Your Team'}
           </span>
         </div>
@@ -121,17 +121,15 @@ export function TeamComparisonView({
                 (slotId) => (
                   <div
                     key={`placeholder-your-${slotId}`}
-                    className="w-12 h-12 rounded-full border-2 border-dashed border-[var(--card-border)] bg-card/50 flex items-center justify-center"
+                    className="w-12 h-12 rounded-full border-2 border-dashed border-(--card-border) bg-card/50 flex items-center justify-center"
                   >
-                    <span className="text-[var(--text-secondary)] text-xs">
-                      ?
-                    </span>
+                    <span className="text-secondary-wh40k text-xs">?</span>
                   </div>
                 )
               )}
         </div>
         {yourTeam?.damage != null && (
-          <div className="mt-2 text-sm text-[var(--text-secondary)]">
+          <div className="mt-2 text-sm text-secondary-wh40k">
             P90:{' '}
             <span className="text-emerald-400 font-semibold">
               {formatNumber(yourTeam.damage)}
@@ -141,13 +139,13 @@ export function TeamComparisonView({
       </div>
 
       <div className="hidden md:flex items-center justify-center px-4">
-        <div className="w-[1px] h-20 bg-gradient-to-b from-transparent via-white/10 to-transparent" />
+        <div className="w-px h-20 bg-linear-to-b from-transparent via-white/10 to-transparent" />
       </div>
 
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-4">
           <Trophy className="w-4 h-4 text-yellow-500" />
-          <span className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-widest">
+          <span className="text-xs font-semibold text-secondary-wh40k uppercase tracking-widest">
             {globalTeam?.label || 'Global #1 Team'}
           </span>
         </div>
@@ -164,17 +162,15 @@ export function TeamComparisonView({
                 (slotId) => (
                   <div
                     key={`placeholder-global-${slotId}`}
-                    className="w-12 h-12 rounded-full border border-dashed border-[var(--card-border)] bg-card/50 flex items-center justify-center"
+                    className="w-12 h-12 rounded-full border border-dashed border-(--card-border) bg-card/50 flex items-center justify-center"
                   >
-                    <span className="text-[var(--text-secondary)] text-xs">
-                      ?
-                    </span>
+                    <span className="text-secondary-wh40k text-xs">?</span>
                   </div>
                 )
               )}
         </div>
         {globalTeam?.damage != null && (
-          <div className="mt-2 text-sm text-[var(--text-secondary)]">
+          <div className="mt-2 text-sm text-secondary-wh40k">
             P90:{' '}
             <span className="text-yellow-400 font-semibold">
               {formatNumber(globalTeam.damage)}
@@ -185,15 +181,13 @@ export function TeamComparisonView({
 
       {showGap && (
         <div className="px-6 py-4 rounded-xl bg-white/5 border border-white/10 flex flex-col justify-center min-w-[120px]">
-          <span className="text-[10px] uppercase text-[var(--text-secondary)] font-bold mb-1">
+          <span className="text-[10px] uppercase text-secondary-wh40k font-bold mb-1">
             Gap
           </span>
           <span className="text-2xl font-bold text-emerald-400">
             +{formatNumber(damageGap)}
           </span>
-          <span className="text-xs text-[var(--text-secondary)]">
-            Potential Gain
-          </span>
+          <span className="text-xs text-secondary-wh40k">Potential Gain</span>
         </div>
       )}
     </div>

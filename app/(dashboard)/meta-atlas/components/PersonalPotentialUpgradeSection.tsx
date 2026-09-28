@@ -85,9 +85,9 @@ export function PersonalPotentialUpgradeSection({
           <span className={resolvedDeltaTone}>Net {resolvedDeltaLabel}</span>
         )}
       </div>
-      <div className="flex flex-wrap items-baseline gap-4 text-[11px] text-[var(--text-primary)]">
+      <div className="flex flex-wrap items-baseline gap-4 text-[11px] text-primary-wh40k">
         <div>
-          <span className="text-[var(--text-secondary)] uppercase tracking-wide text-[9px]">
+          <span className="text-secondary-wh40k uppercase tracking-wide text-[9px]">
             Current P90{' '}
           </span>
           <span className="text-emerald-200 font-semibold">
@@ -97,7 +97,7 @@ export function PersonalPotentialUpgradeSection({
           </span>
         </div>
         <div>
-          <span className="text-[var(--text-secondary)] uppercase tracking-wide text-[9px]">
+          <span className="text-secondary-wh40k uppercase tracking-wide text-[9px]">
             Target P90{' '}
           </span>
           <span className="text-amber-200 font-semibold">
@@ -107,7 +107,7 @@ export function PersonalPotentialUpgradeSection({
           </span>
         </div>
         <div>
-          <span className="text-[var(--text-secondary)] uppercase tracking-wide text-[9px]">
+          <span className="text-secondary-wh40k uppercase tracking-wide text-[9px]">
             Net{' '}
           </span>
           <span className={`font-semibold ${resolvedDeltaTone}`}>
@@ -138,19 +138,19 @@ export function PersonalPotentialUpgradeSection({
       />
       {showTeamFloor && (
         <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-3">
-          <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] uppercase tracking-wide text-[var(--text-secondary)]">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] uppercase tracking-wide text-secondary-wh40k">
             <span>Minimums (P90 floor)</span>
             {teamFloorQuery.isLoading ? (
-              <span className="text-[var(--text-secondary)]">Loading...</span>
+              <span className="text-secondary-wh40k">Loading...</span>
             ) : teamFloor ? (
-              <span className="text-[var(--text-secondary)]">
+              <span className="text-secondary-wh40k">
                 {teamFloor.sample_hits} hits / {teamFloor.sample_players}{' '}
                 players
               </span>
             ) : null}
           </div>
           {teamFloorUnits.length === 0 ? (
-            <div className="mt-3 text-xs text-[var(--text-secondary)]">
+            <div className="mt-3 text-xs text-secondary-wh40k">
               No floor data available yet.
             </div>
           ) : (
@@ -208,8 +208,8 @@ export function PersonalPotentialUpgradeSection({
                     : status === 'invest'
                       ? 'text-rose-200 border-rose-500/40 bg-rose-500/10'
                       : status === 'missing'
-                        ? 'text-[var(--text-primary)] border-slate-500/40 bg-slate-500/10'
-                        : 'text-[var(--text-secondary)] border-[var(--card-border)] bg-card/50'
+                        ? 'text-primary-wh40k border-slate-500/40 bg-slate-500/10'
+                        : 'text-secondary-wh40k border-(--card-border) bg-card/50'
                 const minStarsLabel =
                   minStars != null ? `${minStars} stars` : '-- stars'
                 const minLabel = `${minRankLabel ?? '--'} / ${minStarsLabel}`
@@ -236,21 +236,21 @@ export function PersonalPotentialUpgradeSection({
                           loading="lazy"
                         />
                       ) : (
-                        <span className="text-[10px] text-[var(--text-secondary)] font-semibold">
+                        <span className="text-[10px] text-secondary-wh40k font-semibold">
                           {unit.displayName.slice(0, 2).toUpperCase()}
                         </span>
                       )}
                     </div>
                     <div
-                      className="text-[11px] text-[var(--text-primary)] truncate max-w-[6rem]"
+                      className="text-[11px] text-primary-wh40k truncate max-w-24"
                       title={unit.displayName}
                     >
                       {unit.displayName}
                     </div>
-                    <div className="text-[10px] text-[var(--text-secondary)]">
+                    <div className="text-[10px] text-secondary-wh40k">
                       Min: {minLabel}
                     </div>
-                    <div className="text-[10px] text-[var(--text-secondary)]">
+                    <div className="text-[10px] text-secondary-wh40k">
                       You: {rosterLabel}
                     </div>
                     <span

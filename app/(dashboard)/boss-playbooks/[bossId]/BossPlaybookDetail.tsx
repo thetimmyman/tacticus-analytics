@@ -22,7 +22,7 @@ export function BossPlaybookDetail({
       <div className="flex items-center justify-between">
         <Link
           href="/boss-playbooks"
-          className="inline-flex items-center gap-1.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm text-secondary-wh40k hover:text-primary-wh40k transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           All Playbooks
@@ -30,7 +30,7 @@ export function BossPlaybookDetail({
 
         <Link
           href="/meta-atlas"
-          className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-md bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--accent)] border border-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:border-[color-mix(in_srgb,var(--accent)_40%,transparent)] transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-md bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-(--accent) border border-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:border-[color-mix(in_srgb,var(--accent)_40%,transparent)] transition-colors"
         >
           <Dna className="h-4 w-4" />
           <span className="hidden sm:inline">View Teams in</span> Meta Atlas

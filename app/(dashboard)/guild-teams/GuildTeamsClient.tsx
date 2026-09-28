@@ -409,7 +409,7 @@ export function GuildTeamsClient({
         <tr>
           <td
             colSpan={orderedHeroes.length + 1}
-            className="text-center py-8 text-[var(--text-secondary)]"
+            className="text-center py-8 text-secondary-wh40k"
           >
             No guild members with roster data found.
           </td>
@@ -436,7 +436,7 @@ export function GuildTeamsClient({
           }
           onMouseLeave={tokenInfo ? () => hideTooltip() : undefined}
         >
-          <td className="sticky left-0 z-10 bg-inherit px-3 py-1 text-sm font-medium text-[var(--text-primary)] whitespace-nowrap border-r border-card-border/30">
+          <td className="sticky left-0 z-10 bg-inherit px-3 py-1 text-sm font-medium text-primary-wh40k whitespace-nowrap border-r border-card-border/30">
             <span
               className={
                 tokenInfo
@@ -481,7 +481,7 @@ export function GuildTeamsClient({
   const mobileCards = useMemo(() => {
     if (playerNames.length === 0) {
       return (
-        <div className="rounded-lg border border-card-border/50 bg-card/30 py-8 text-center text-[var(--text-secondary)]">
+        <div className="rounded-lg border border-card-border/50 bg-card/30 py-8 text-center text-secondary-wh40k">
           No guild members with roster data found.
         </div>
       )
@@ -504,11 +504,11 @@ export function GuildTeamsClient({
           className="overflow-hidden rounded-lg border border-card-border/50 bg-card/30"
         >
           <div className="flex items-center justify-between gap-2 border-b border-card-border/30 px-3 py-2">
-            <span className="truncate text-sm font-medium text-[var(--text-primary)]">
+            <span className="truncate text-sm font-medium text-primary-wh40k">
               <MemberName value={playerName} />
             </span>
             {tokenInfo && (
-              <span className="shrink-0 text-[10px] text-[var(--text-secondary)]">
+              <span className="shrink-0 text-[10px] text-secondary-wh40k">
                 {tokens}/{TOKEN_CAP} tokens ·{' '}
                 {bombReady ? (
                   <span className="font-medium text-green-400">bomb ✓</span>
@@ -521,7 +521,7 @@ export function GuildTeamsClient({
           <div className="space-y-2 p-2">
             {herosByTier.map((group) => (
               <div key={group.tier}>
-                <div className="mb-1 text-[9px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+                <div className="mb-1 text-[9px] font-semibold uppercase tracking-wider text-secondary-wh40k">
                   {TIER_LABELS[group.tier]}
                 </div>
                 <div className="grid grid-cols-3 gap-1 min-[420px]:grid-cols-4 sm:grid-cols-5 md:grid-cols-6">
@@ -542,11 +542,11 @@ export function GuildTeamsClient({
                               alt=""
                               width={14}
                               height={14}
-                              className="shrink-0 rounded-sm"
+                              className="shrink-0 rounded-xs"
                               unoptimized
                             />
                           )}
-                          <span className="truncate text-[9px] leading-tight text-[var(--text-secondary)]">
+                          <span className="truncate text-[9px] leading-tight text-secondary-wh40k">
                             {name}
                           </span>
                         </div>
@@ -576,7 +576,7 @@ export function GuildTeamsClient({
         </h1>
         <div className="flex items-center gap-3">
           {!loading && totalMembers > 0 && (
-            <span className="text-sm text-[var(--text-secondary)]">
+            <span className="text-sm text-secondary-wh40k">
               {playerNames.length === totalMembers
                 ? `${totalMembers} members`
                 : `${playerNames.length} / ${totalMembers} members`}
@@ -584,7 +584,7 @@ export function GuildTeamsClient({
           )}
           {!loading && lastSynced && (
             <span
-              className="text-xs text-[var(--text-secondary)]"
+              className="text-xs text-secondary-wh40k"
               title={
                 hasMounted ? new Date(lastSynced).toLocaleString() : undefined
               }
@@ -597,7 +597,7 @@ export function GuildTeamsClient({
             onClick={() => fetchRosterData(selectedTeam, { silent: true })}
             disabled={loading || refreshing}
             title="Refresh roster data"
-            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-[var(--text-secondary)] hover:text-white hover:bg-card/50 disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-secondary-wh40k hover:text-white hover:bg-card/50 disabled:opacity-50"
           >
             <RefreshCw
               className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`}
@@ -616,7 +616,7 @@ export function GuildTeamsClient({
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               selectedTeamId === team.id
                 ? 'bg-indigo-600 text-white'
-                : 'text-[var(--text-secondary)] hover:text-white hover:bg-card/50'
+                : 'text-secondary-wh40k hover:text-white hover:bg-card/50'
             }`}
           >
             {team.name}
@@ -627,7 +627,7 @@ export function GuildTeamsClient({
           className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
             selectedTeamId === 'custom'
               ? 'bg-indigo-600 text-white'
-              : 'text-[var(--text-secondary)] hover:text-white hover:bg-card/50'
+              : 'text-secondary-wh40k hover:text-white hover:bg-card/50'
           }`}
         >
           Custom
@@ -705,7 +705,7 @@ export function GuildTeamsClient({
       )}
 
       {/* Developer credit */}
-      <Card className="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border-purple-500/30">
+      <Card className="bg-linear-to-r from-purple-500/10 to-indigo-500/10 border-purple-500/30">
         <CardContent className="py-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">

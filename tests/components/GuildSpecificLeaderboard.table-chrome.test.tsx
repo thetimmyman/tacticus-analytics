@@ -46,7 +46,7 @@ vi.mock('@/app/components/TeamCompositionDisplay', () => ({
   default: () => <span>Team</span>
 }))
 
-const PRIMARY_HEADER = '[&_th]:!text-[var(--text-primary)]'
+const PRIMARY_HEADER = '[&_th]:text-primary-wh40k!'
 
 describe('guild-specific leaderboard DataTable chrome', () => {
   beforeEach(() => {

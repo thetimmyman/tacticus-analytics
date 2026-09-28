@@ -85,13 +85,11 @@ export default function PlannerInputsSection({
   saveSuccess
 }: PlannerInputsSectionProps) {
   return (
-    <div className="rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-6 space-y-4">
+    <div className="rounded-lg border border-(--card-border) bg-(--card-bg) p-6 space-y-4">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-            Inputs
-          </h3>
-          <p className="text-sm text-[var(--text-secondary)]">
+          <h3 className="text-lg font-semibold text-primary-wh40k">Inputs</h3>
+          <p className="text-sm text-secondary-wh40k">
             Tune the generation settings and create a new plan from the latest
             synced data.
           </p>
@@ -99,7 +97,7 @@ export default function PlannerInputsSection({
         <button
           onClick={() => void loadSnapshot()}
           disabled={snapshotLoading}
-          className="px-3 py-2 rounded-md border border-[var(--card-border)] bg-[var(--card-bg)] text-sm text-[var(--text-primary)] hover:bg-card/80 disabled:opacity-50"
+          className="px-3 py-2 rounded-md border border-(--card-border) bg-(--card-bg) text-sm text-primary-wh40k hover:bg-card/80 disabled:opacity-50"
         >
           {snapshotLoading ? 'Refreshing…' : 'Refresh Snapshot'}
         </button>
@@ -113,33 +111,31 @@ export default function PlannerInputsSection({
 
       {snapshot && (
         <div
-          className="rounded-lg border border-[var(--card-border)] bg-card/40 p-4 text-sm text-[var(--text-secondary)]"
+          className="rounded-lg border border-(--card-border) bg-card/40 p-4 text-sm text-secondary-wh40k"
           // Tests wait on this for a refreshed snapshot; the enabled buttons could race the refresh.
           data-testid="snapshot-panel"
           data-snapshot-at={snapshot.snapshotAt}
         >
           <div className="flex flex-wrap gap-6">
             <div>
-              <div className="text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+              <div className="text-xs uppercase tracking-wide text-secondary-wh40k">
                 Season
               </div>
-              <div className="text-[var(--text-primary)]">
-                {snapshot.season}
-              </div>
+              <div className="text-primary-wh40k">{snapshot.season}</div>
             </div>
             <div>
-              <div className="text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+              <div className="text-xs uppercase tracking-wide text-secondary-wh40k">
                 Stage
               </div>
-              <div className="text-[var(--text-primary)]">
+              <div className="text-primary-wh40k">
                 {snapshot.stageCode} (Loop {snapshot.loopIndex})
               </div>
             </div>
             <div>
-              <div className="text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+              <div className="text-xs uppercase tracking-wide text-secondary-wh40k">
                 Main Boss
               </div>
-              <div className="text-[var(--text-primary)]">
+              <div className="text-primary-wh40k">
                 {getBossDisplayName(snapshot.encounters.main.bossName)} (
                 {formatNumber(snapshot.encounters.main.remainingHp)} /{' '}
                 {formatNumber(snapshot.encounters.main.maxHp)})
@@ -156,11 +152,9 @@ export default function PlannerInputsSection({
 
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <label className="space-y-1">
-          <span className="text-xs text-[var(--text-secondary)]">
-            Boss Rotation
-          </span>
+          <span className="text-xs text-secondary-wh40k">Boss Rotation</span>
           <div className="relative">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)]" />
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--text-tertiary)" />
             <select
               value={selectedSeasonConfig}
               onChange={(e) => {
@@ -172,7 +166,7 @@ export default function PlannerInputsSection({
                   selectedConfig: newConfig
                 })
               }}
-              className="w-full pl-10 pr-3 py-2 rounded-md border border-[var(--card-border)] bg-[var(--card-bg)] text-sm text-[var(--text-primary)] appearance-none cursor-pointer"
+              className="w-full pl-10 pr-3 py-2 rounded-md border border-(--card-border) bg-(--card-bg) text-sm text-primary-wh40k appearance-none cursor-pointer"
             >
               {allSeasons.map((seasonCfg) => (
                 <option key={seasonCfg.id} value={seasonCfg.id}>
@@ -184,7 +178,7 @@ export default function PlannerInputsSection({
           </div>
         </label>
         <label className="space-y-1">
-          <span className="text-xs text-[var(--text-secondary)]">
+          <span className="text-xs text-secondary-wh40k">
             Season (optional)
           </span>
           <input
@@ -215,13 +209,11 @@ export default function PlannerInputsSection({
               }
             }}
             placeholder="latest"
-            className="w-full rounded-md border border-[var(--card-border)] bg-[var(--card-bg)] px-3 py-2 text-sm text-[var(--text-primary)]"
+            className="w-full rounded-md border border-(--card-border) bg-(--card-bg) px-3 py-2 text-sm text-primary-wh40k"
           />
         </label>
         <label className="space-y-1">
-          <span className="text-xs text-[var(--text-secondary)]">
-            Lookback days
-          </span>
+          <span className="text-xs text-secondary-wh40k">Lookback days</span>
           <input
             type="number"
             min={1}
@@ -231,20 +223,18 @@ export default function PlannerInputsSection({
               clearGeneratedPlanState()
               setLookbackDays(parseBoundedIntInput(e.target.value, 30, 1, 180))
             }}
-            className="w-full rounded-md border border-[var(--card-border)] bg-[var(--card-bg)] px-3 py-2 text-sm text-[var(--text-primary)]"
+            className="w-full rounded-md border border-(--card-border) bg-(--card-bg) px-3 py-2 text-sm text-primary-wh40k"
           />
         </label>
         <label className="space-y-1">
-          <span className="text-xs text-[var(--text-secondary)]">
-            Sessions/day
-          </span>
+          <span className="text-xs text-secondary-wh40k">Sessions/day</span>
           <select
             value={sessionsPerDay}
             onChange={(e) => {
               clearGeneratedPlanState()
               setSessionsPerDay(Number(e.target.value))
             }}
-            className="w-full rounded-md border border-[var(--card-border)] bg-[var(--card-bg)] px-3 py-2 text-sm text-[var(--text-primary)]"
+            className="w-full rounded-md border border-(--card-border) bg-(--card-bg) px-3 py-2 text-sm text-primary-wh40k"
           >
             <option value={1}>1</option>
             <option value={2}>2</option>
@@ -252,16 +242,14 @@ export default function PlannerInputsSection({
           </select>
         </label>
         <label className="space-y-1">
-          <span className="text-xs text-[var(--text-secondary)]">
-            Time zone
-          </span>
+          <span className="text-xs text-secondary-wh40k">Time zone</span>
           <select
             value={timeZone}
             onChange={(e) => {
               clearGeneratedPlanState()
               setTimeZone(e.target.value)
             }}
-            className="w-full rounded-md border border-[var(--card-border)] bg-[var(--card-bg)] px-3 py-2 text-sm text-[var(--text-primary)] cursor-pointer"
+            className="w-full rounded-md border border-(--card-border) bg-(--card-bg) px-3 py-2 text-sm text-primary-wh40k cursor-pointer"
           >
             {timeZoneOptions.map((zone) => (
               <option key={zone} value={zone}>
@@ -276,7 +264,7 @@ export default function PlannerInputsSection({
         <button
           onClick={() => void generatePlan()}
           disabled={planLoading || loadingSavedPlanId !== null}
-          className="px-4 py-2 rounded-md bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] text-[var(--accent)] border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] hover:bg-[color-mix(in_srgb,var(--primary)_30%,transparent)] disabled:opacity-50 text-sm font-medium"
+          className="px-4 py-2 rounded-md bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] text-(--accent) border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] hover:bg-[color-mix(in_srgb,var(--primary)_30%,transparent)] disabled:opacity-50 text-sm font-medium"
         >
           {planLoading ? 'Generating…' : 'Generate Plan'}
         </button>
@@ -290,7 +278,7 @@ export default function PlannerInputsSection({
           </button>
         )}
         {IS_DEV && (
-          <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+          <label className="flex items-center gap-2 text-sm text-secondary-wh40k">
             <input
               type="checkbox"
               checked={showRaw}

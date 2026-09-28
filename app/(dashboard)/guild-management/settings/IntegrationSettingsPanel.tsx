@@ -94,7 +94,7 @@ export function IntegrationSettingsPanel({
         icon={Lock}
         tone="warning"
       >
-        <p className="text-sm text-[var(--text-secondary)]">
+        <p className="text-sm text-secondary-wh40k">
           Leaders can transfer authority to captains after setup if needed.
         </p>
       </SettingsSection>
@@ -122,7 +122,7 @@ export function IntegrationSettingsPanel({
               helper={
                 <>
                   Paste the exact value from{' '}
-                  <span className="text-[var(--accent)] font-semibold">
+                  <span className="text-(--accent) font-semibold">
                     {TACTICUS_API.ORIGIN.replace(/^https?:\/\//, '')}
                   </span>
                   . Stored keys are encrypted at rest.
@@ -154,7 +154,7 @@ export function IntegrationSettingsPanel({
                       <button
                         type="button"
                         onClick={onToggleApiKeyVisibility}
-                        className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] disabled:opacity-60"
+                        className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-secondary-wh40k hover:text-primary-wh40k focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent) disabled:opacity-60"
                         aria-label={
                           showApiKey ? 'Hide API key' : 'Show API key'
                         }
@@ -178,7 +178,7 @@ export function IntegrationSettingsPanel({
                 onClick={onValidateApiKey}
                 disabled={saving || validatingApiKey || !apiKey.trim()}
                 variant="outline"
-                className="flex items-center gap-2 rounded-xl border-[color-mix(in_srgb,var(--accent)_60%,transparent)] text-[var(--accent)] hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]"
+                className="flex items-center gap-2 rounded-xl border-[color-mix(in_srgb,var(--accent)_60%,transparent)] text-(--accent) hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]"
               >
                 {validatingApiKey ? (
                   <>
@@ -192,23 +192,23 @@ export function IntegrationSettingsPanel({
                   </>
                 )}
               </Button>
-              <span className="text-xs text-[var(--text-tertiary)]">
+              <span className="text-xs text-(--text-tertiary)">
                 Validation hits the same route the automations use—great for
                 quick smoke tests.
               </span>
             </div>
 
             {validationIndicator && (
-              <div className="rounded-2xl border border-[color-mix(in_srgb,var(--accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] p-4 text-sm text-[var(--text-primary)]">
+              <div className="rounded-2xl border border-[color-mix(in_srgb,var(--accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] p-4 text-sm text-primary-wh40k">
                 {validationIndicator}
               </div>
             )}
           </div>
 
-          <aside className="rounded-2xl border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] p-5 text-sm text-[var(--text-secondary)] space-y-4">
+          <aside className="rounded-2xl border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] p-5 text-sm text-secondary-wh40k space-y-4">
             <SectionLabel withDivider={false}>
               <span className="inline-flex items-center gap-2">
-                <Shield className="w-4 h-4 text-[var(--accent)]" />
+                <Shield className="w-4 h-4 text-(--accent)" />
                 Connection status
               </span>
             </SectionLabel>
@@ -233,12 +233,12 @@ export function IntegrationSettingsPanel({
       >
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
           <div className="space-y-4">
-            <p className="text-sm text-[var(--text-secondary)]">
+            <p className="text-sm text-secondary-wh40k">
               Manual syncs fetch both raid logs and token states. Remember
               there&apos;s a short cooldown to protect the edge function.
             </p>
 
-            <ul className="list-disc list-inside space-y-1 rounded-2xl border border-dashed border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-4 text-xs text-[var(--text-tertiary)]">
+            <ul className="list-disc list-inside space-y-1 rounded-2xl border border-dashed border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-4 text-xs text-(--text-tertiary)">
               <li>Requires a validated API key.</li>
               <li>Sync window typically completes within a minute.</li>
               <li>Check the audit logs after large imports.</li>
@@ -264,17 +264,17 @@ export function IntegrationSettingsPanel({
                 )}
               </Button>
               {syncCooldown && (
-                <span className="text-xs text-[var(--accent)]">
+                <span className="text-xs text-(--accent)">
                   Cooldown active—give it a few seconds.
                 </span>
               )}
             </div>
           </div>
 
-          <aside className="rounded-2xl border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] p-5 text-sm text-[var(--text-secondary)] space-y-3">
+          <aside className="rounded-2xl border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] p-5 text-sm text-secondary-wh40k space-y-3">
             <SectionLabel withDivider={false}>
               <span className="inline-flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-[var(--accent)]" />
+                <AlertCircle className="w-4 h-4 text-(--accent)" />
                 Recent runs
               </span>
             </SectionLabel>
@@ -358,10 +358,10 @@ function HeraldLinkCard() {
           <Swords className="h-5 w-5 text-yellow-400" />
         </div>
         <div>
-          <h3 className="text-base font-semibold text-[var(--text-primary)]">
+          <h3 className="text-base font-semibold text-primary-wh40k">
             Herald Role Pings
           </h3>
-          <p className="text-sm text-[var(--text-secondary)]">
+          <p className="text-sm text-secondary-wh40k">
             Per-boss role pings, threshold notifications, and per-side behaviour
             now live with the seasonal boss playbooks.
           </p>
@@ -369,7 +369,7 @@ function HeraldLinkCard() {
       </div>
       <Link
         href="/boss-playbooks"
-        className="inline-flex min-h-[44px] items-center gap-2 self-start rounded-md border border-teal-400/40 bg-teal-400/15 px-4 py-2 text-sm font-semibold text-teal-300 transition-colors hover:bg-teal-400/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] sm:self-auto"
+        className="inline-flex min-h-[44px] items-center gap-2 self-start rounded-md border border-teal-400/40 bg-teal-400/15 px-4 py-2 text-sm font-semibold text-teal-300 transition-colors hover:bg-teal-400/25 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent) sm:self-auto"
       >
         Open Boss Playbooks
         <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -387,15 +387,13 @@ interface StatusLineProps {
 function StatusLine({ label, value, bold }: StatusLineProps) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <span className="text-xs uppercase tracking-wide text-[var(--text-tertiary)]">
+      <span className="text-xs uppercase tracking-wide text-(--text-tertiary)">
         {label}
       </span>
       <span
         className={cn(
           'text-right text-sm',
-          bold
-            ? 'font-semibold text-[var(--text-primary)]'
-            : 'text-[var(--text-secondary)]'
+          bold ? 'font-semibold text-primary-wh40k' : 'text-secondary-wh40k'
         )}
       >
         {value || '—'}

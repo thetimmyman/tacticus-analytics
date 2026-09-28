@@ -84,7 +84,7 @@ describe('WarSubnav', () => {
       const warReportsLink = within(desktopNav).getByRole('link', {
         name: /War Reports/
       })
-      expect(warReportsLink.className).toContain('text-[var(--accent)]')
+      expect(warReportsLink.className).toContain('text-(--accent)')
       expect(warReportsLink).toHaveClass('min-h-11')
       expect(warReportsLink).toHaveAttribute('aria-current', 'page')
     })
@@ -95,7 +95,7 @@ describe('WarSubnav', () => {
 
       const desktopNav = screen.getByLabelText('Wars navigation')
       const mapsLink = within(desktopNav).getByRole('link', { name: /Maps/ })
-      expect(mapsLink.className).toContain('text-[var(--accent)]')
+      expect(mapsLink.className).toContain('text-(--accent)')
       expect(mapsLink).toHaveAttribute('aria-current', 'page')
     })
 
@@ -107,7 +107,7 @@ describe('WarSubnav', () => {
       const teamLink = within(desktopNav).getByRole('link', {
         name: /Team Analysis/
       })
-      expect(teamLink.className).toContain('text-[var(--accent)]')
+      expect(teamLink.className).toContain('text-(--accent)')
       expect(teamLink).toHaveAttribute('aria-current', 'page')
     })
 
@@ -119,7 +119,7 @@ describe('WarSubnav', () => {
       const lineupsLink = within(desktopNav).getByRole('link', {
         name: /Lineups/
       })
-      expect(lineupsLink.className).toContain('text-[var(--accent)]')
+      expect(lineupsLink.className).toContain('text-(--accent)')
       expect(lineupsLink).toHaveAttribute('aria-current', 'page')
     })
 
@@ -129,7 +129,7 @@ describe('WarSubnav', () => {
 
       const desktopNav = screen.getByLabelText('Wars navigation')
       const coresLink = within(desktopNav).getByRole('link', { name: /Cores/ })
-      expect(coresLink.className).toContain('text-[var(--accent)]')
+      expect(coresLink.className).toContain('text-(--accent)')
       expect(coresLink).toHaveAttribute('aria-current', 'page')
     })
   })
@@ -165,7 +165,7 @@ describe('WarSubnav', () => {
       const overviewLink = within(desktopNav).getByRole('link', {
         name: /Overview/
       })
-      expect(overviewLink.className).toContain('text-[var(--accent)]')
+      expect(overviewLink.className).toContain('text-(--accent)')
       expect(overviewLink).toHaveAttribute('aria-current', 'page')
     })
 
@@ -175,7 +175,7 @@ describe('WarSubnav', () => {
 
       const desktopNav = screen.getByLabelText('Wars navigation')
       const guildLink = within(desktopNav).getByRole('link', { name: /Guild/ })
-      expect(guildLink.className).toContain('text-[var(--accent)]')
+      expect(guildLink.className).toContain('text-(--accent)')
       expect(guildLink).toHaveAttribute('aria-current', 'page')
     })
 
@@ -188,7 +188,7 @@ describe('WarSubnav', () => {
       const boardLink = within(desktopNav).getByRole('link', {
         name: /War Board/
       })
-      expect(boardLink.className).toContain('text-[var(--accent)]')
+      expect(boardLink.className).toContain('text-(--accent)')
       expect(boardLink).toHaveAttribute('aria-current', 'page')
     })
 

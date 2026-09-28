@@ -40,7 +40,7 @@ function BossDistributionChart({
             className="flex items-center space-x-1 sm:space-x-2"
           >
             <div
-              className="w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0"
+              className="w-2 h-2 sm:w-3 sm:h-3 rounded-full shrink-0"
               style={{ backgroundColor: boss.color }}
             />
             <span className="truncate text-xs text-primary-wh40k">

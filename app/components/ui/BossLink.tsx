@@ -48,7 +48,7 @@ export function BossLink({
   return (
     <Link
       href={`/boss?boss=${encodeURIComponent(bossName)}`}
-      className={`hover:underline hover:text-[var(--accent)] transition-colors ${className}`}
+      className={`hover:underline hover:text-(--accent) transition-colors ${className}`}
       title={`View stats for ${displayName}`}
     >
       {content}

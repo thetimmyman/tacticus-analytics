@@ -19,7 +19,7 @@ export function ConfidenceChip({
 
   return (
     <span
-      className={`flex shrink-0 items-center gap-1 text-[10px] tabular-nums text-[var(--text-secondary)] ${className}`}
+      className={`flex shrink-0 items-center gap-1 text-[10px] tabular-nums text-secondary-wh40k ${className}`}
       title={`${attackCount} attacks — ${confidence}`}
     >
       <span

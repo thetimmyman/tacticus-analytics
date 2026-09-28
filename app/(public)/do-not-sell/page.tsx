@@ -19,28 +19,28 @@ export default async function DoNotSellPage() {
   const authData = await getAuthUser()
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
+    <div className="min-h-screen bg-(--bg-primary) text-primary-wh40k">
       {/* Navigation */}
       <NavigationServer user={authData?.user} profile={authData?.profile} />
 
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-[var(--primary)] mb-8">
+          <h1 className="text-4xl font-bold text-(--primary) mb-8">
             Do Not Sell My Personal Information
           </h1>
 
           <div className="prose prose-invert max-w-none space-y-6">
-            <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-6">
-              <p className="text-sm text-[var(--text-secondary)] mb-6">
+            <div className="bg-(--card) border border-(--card-border) rounded-lg p-6">
+              <p className="text-sm text-secondary-wh40k mb-6">
                 Last updated: October 12, 2025
               </p>
 
               <section className="space-y-4">
                 <div className="bg-blue-900/20 border border-blue-500/50 rounded-lg p-4">
-                  <h2 className="text-xl font-semibold text-[var(--accent)] mb-3">
+                  <h2 className="text-xl font-semibold text-(--accent) mb-3">
                     Your California Privacy Rights
                   </h2>
-                  <p className="text-[var(--text-primary)]">
+                  <p className="text-primary-wh40k">
                     Under the California Consumer Privacy Act (CCPA) and other
                     privacy laws, you have the right to opt out of the sale or
                     sharing of your personal information. This page allows you
@@ -50,10 +50,10 @@ export default async function DoNotSellPage() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   What This Means
                 </h2>
-                <div className="text-[var(--text-primary)] space-y-3">
+                <div className="text-primary-wh40k space-y-3">
                   <p>When you opt out, we will:</p>
                   <ul className="list-disc list-inside space-y-1 ml-4">
                     <li>
@@ -80,14 +80,14 @@ export default async function DoNotSellPage() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   Current Status
                 </h2>
                 <div className="bg-green-900/20 border border-green-500/50 rounded-lg p-4">
-                  <p className="text-[var(--text-primary)] font-semibold">
+                  <p className="text-primary-wh40k font-semibold">
                     We don&apos;t sell your data
                   </p>
-                  <p className="text-sm text-[var(--text-secondary)] mt-2">
+                  <p className="text-sm text-secondary-wh40k mt-2">
                     Tacticus Analytics does not sell your personal information.
                     Public Explore and leaderboard pages may show obscured guild
                     values. Members of guilds in the same cluster can view this
@@ -97,10 +97,10 @@ export default async function DoNotSellPage() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   Data Sharing We Do
                 </h2>
-                <div className="text-[var(--text-primary)] space-y-3">
+                <div className="text-primary-wh40k space-y-3">
                   <p>
                     We only share your information in these limited
                     circumstances:
@@ -131,10 +131,10 @@ export default async function DoNotSellPage() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   Third-Party Analytics
                 </h2>
-                <div className="text-[var(--text-primary)] space-y-3">
+                <div className="text-primary-wh40k space-y-3">
                   <p>We use Google Analytics to understand website usage:</p>
                   <ul className="list-disc list-inside space-y-1 ml-4">
                     <li>Data is anonymized and aggregated</li>
@@ -152,7 +152,7 @@ export default async function DoNotSellPage() {
                         href="https://tools.google.com/dlpage/gaoptout"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[var(--accent)] hover:underline"
+                        className="text-(--accent) hover:underline"
                       >
                         Google Analytics Opt-out
                       </a>{' '}
@@ -163,10 +163,10 @@ export default async function DoNotSellPage() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   Making Privacy Requests
                 </h2>
-                <div className="text-[var(--text-primary)] space-y-3">
+                <div className="text-primary-wh40k space-y-3">
                   <p>
                     For privacy-related requests, contact us through Discord or
                     GitHub as listed in our Privacy Policy. We&apos;ll respond
@@ -176,10 +176,10 @@ export default async function DoNotSellPage() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   Additional Information
                 </h2>
-                <div className="text-[var(--text-primary)] space-y-2">
+                <div className="text-primary-wh40k space-y-2">
                   <p>
                     For more information about how we handle your personal
                     information, please see our:
@@ -188,7 +188,7 @@ export default async function DoNotSellPage() {
                     <li>
                       <a
                         href="/privacy"
-                        className="text-[var(--accent)] hover:underline"
+                        className="text-(--accent) hover:underline"
                       >
                         Privacy Policy
                       </a>
@@ -196,7 +196,7 @@ export default async function DoNotSellPage() {
                     <li>
                       <a
                         href="/terms"
-                        className="text-[var(--accent)] hover:underline"
+                        className="text-(--accent) hover:underline"
                       >
                         Terms of Use
                       </a>
@@ -204,7 +204,7 @@ export default async function DoNotSellPage() {
                     <li>
                       <a
                         href="/privacy-rights"
-                        className="text-[var(--accent)] hover:underline"
+                        className="text-(--accent) hover:underline"
                       >
                         Your Privacy Rights (GDPR)
                       </a>
@@ -214,10 +214,10 @@ export default async function DoNotSellPage() {
               </section>
 
               <section className="space-y-4 mt-8">
-                <h2 className="text-2xl font-semibold text-[var(--accent)]">
+                <h2 className="text-2xl font-semibold text-(--accent)">
                   Contact Us
                 </h2>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-primary-wh40k">
                   <p>
                     If you have any questions or concerns about your privacy
                     rights, please contact us:
@@ -240,7 +240,7 @@ export default async function DoNotSellPage() {
           <div className="mt-8 text-center">
             <Link
               href="/"
-              className="text-[var(--accent)] hover:text-[var(--primary)] underline"
+              className="text-(--accent) hover:text-(--primary) underline"
             >
               ← Back to Home
             </Link>

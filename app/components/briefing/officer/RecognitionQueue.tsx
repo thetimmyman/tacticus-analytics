@@ -24,7 +24,7 @@ export function RecognitionQueue({
 
   return (
     <section
-      className="rounded-xl border border-[var(--card-border)] bg-card/30 overflow-hidden"
+      className="rounded-xl border border-(--card-border) bg-card/30 overflow-hidden"
       aria-label="Recognition queue"
     >
       <header className="flex items-center justify-between gap-2 border-b border-[color-mix(in_srgb,var(--card-border)_50%,transparent)] px-4 py-3">
@@ -35,15 +35,15 @@ export function RecognitionQueue({
             aria-hidden
           />
           <div>
-            <h2 className="text-sm font-semibold text-[var(--text-primary)]">
+            <h2 className="text-sm font-semibold text-primary-wh40k">
               Recognition queue
             </h2>
-            <p className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+            <p className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
               Performance vs target score
             </p>
           </div>
         </div>
-        <span className="shrink-0 rounded-full border border-[color-mix(in_srgb,var(--success)_45%,transparent)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+        <span className="shrink-0 rounded-full border border-[color-mix(in_srgb,var(--success)_45%,transparent)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-secondary-wh40k">
           {recognition.length} candidate{recognition.length === 1 ? '' : 's'}
         </span>
       </header>
@@ -64,7 +64,7 @@ export function RecognitionQueue({
                     : undefined
                 }}
               >
-                <span className="truncate text-sm font-medium text-[var(--text-primary)]">
+                <span className="truncate text-sm font-medium text-primary-wh40k">
                   {row.displayName}
                 </span>
                 <span className="shrink-0 flex flex-col items-end">
@@ -78,7 +78,7 @@ export function RecognitionQueue({
                         : null
                     )}
                   </span>
-                  <span className="text-[9px] uppercase tracking-wide text-[var(--text-tertiary)]">
+                  <span className="text-[9px] uppercase tracking-wide text-(--text-tertiary)">
                     vs target
                   </span>
                 </span>

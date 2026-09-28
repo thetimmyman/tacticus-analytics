@@ -43,7 +43,7 @@ export function BossPerformanceLoopTable({
   return (
     <div className="mb-4 overflow-x-auto animate-in fade-in slide-in-from-top-2 duration-300">
       <table className="w-full text-sm text-left border-collapse">
-        <thead className="text-xs text-[var(--text-secondary)] uppercase bg-card/50">
+        <thead className="text-xs text-secondary-wh40k uppercase bg-card/50">
           <tr>
             <th className="px-3 py-2 rounded-tl-lg">Loop</th>
             <th className="px-3 py-2 text-center">Problems</th>
@@ -56,18 +56,18 @@ export function BossPerformanceLoopTable({
           {loopMetrics.map((loop) => (
             <React.Fragment key={`loop-metric-${loop.loopIndex}`}>
               <tr
-                className="border-b border-card-border/30 hover:bg-[var(--card-hover)] transition-colors cursor-pointer group/row"
+                className="border-b border-card-border/30 hover:bg-(--card-hover) transition-colors cursor-pointer group/row"
                 onClick={() =>
                   setExpandedLoopIndex(
                     expandedLoopIndex === loop.loopIndex ? null : loop.loopIndex
                   )
                 }
               >
-                <td className="px-3 py-2 font-medium text-[var(--text-primary)] flex items-center gap-2">
+                <td className="px-3 py-2 font-medium text-primary-wh40k flex items-center gap-2">
                   {expandedLoopIndex === loop.loopIndex ? (
                     <ChevronUp className="h-3 w-3" />
                   ) : (
-                    <ChevronDown className="h-3 w-3 text-[var(--text-secondary)] group-hover/row:text-[var(--text-primary)]" />
+                    <ChevronDown className="h-3 w-3 text-secondary-wh40k group-hover/row:text-primary-wh40k" />
                   )}
                   Loop {loop.loopIndex + 1}
                 </td>
@@ -77,7 +77,7 @@ export function BossPerformanceLoopTable({
                       className={
                         loop.problemCount > 0
                           ? 'text-red-400 font-bold'
-                          : 'text-[var(--text-secondary)]'
+                          : 'text-secondary-wh40k'
                       }
                     >
                       {loop.problemCount}
@@ -127,7 +127,7 @@ export function BossPerformanceLoopTable({
                             {loop.problemBossesList.map((boss) => (
                               <li
                                 key={boss.name}
-                                className="flex justify-between text-xs text-[var(--text-secondary)]"
+                                className="flex justify-between text-xs text-secondary-wh40k"
                               >
                                 <span>{boss.name}</span>
                                 <span className="text-red-400 font-mono">
@@ -137,7 +137,7 @@ export function BossPerformanceLoopTable({
                             ))}
                           </ul>
                         ) : (
-                          <div className="text-xs text-[var(--text-secondary)] italic">
+                          <div className="text-xs text-secondary-wh40k italic">
                             None
                           </div>
                         )}
@@ -153,7 +153,7 @@ export function BossPerformanceLoopTable({
                             {loop.performingWellList.map((boss) => (
                               <li
                                 key={boss.name}
-                                className="flex justify-between text-xs text-[var(--text-secondary)]"
+                                className="flex justify-between text-xs text-secondary-wh40k"
                               >
                                 <span>{boss.name}</span>
                                 <span className="text-green-400 font-mono">
@@ -163,7 +163,7 @@ export function BossPerformanceLoopTable({
                             ))}
                           </ul>
                         ) : (
-                          <div className="text-xs text-[var(--text-secondary)] italic">
+                          <div className="text-xs text-secondary-wh40k italic">
                             None
                           </div>
                         )}

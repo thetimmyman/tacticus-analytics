@@ -37,17 +37,17 @@ export function Breadcrumbs({ items, className = '' }: BreadcrumbsProps) {
               {index === 0 ? (
                 <Link
                   href={item.href}
-                  className="flex items-center text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors"
+                  className="flex items-center text-secondary-wh40k hover:text-(--primary) transition-colors"
                   aria-label="Home"
                 >
                   <Home className="w-4 h-4" />
                 </Link>
               ) : (
                 <>
-                  <ChevronRight className="w-4 h-4 mx-2 text-[var(--text-secondary)]" />
+                  <ChevronRight className="w-4 h-4 mx-2 text-secondary-wh40k" />
                   {isLast ? (
                     <span
-                      className="text-[var(--text-primary)] font-medium"
+                      className="text-primary-wh40k font-medium"
                       aria-current="page"
                     >
                       {item.name}
@@ -55,7 +55,7 @@ export function Breadcrumbs({ items, className = '' }: BreadcrumbsProps) {
                   ) : (
                     <Link
                       href={item.href}
-                      className="text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors"
+                      className="text-secondary-wh40k hover:text-(--primary) transition-colors"
                     >
                       {item.name}
                     </Link>

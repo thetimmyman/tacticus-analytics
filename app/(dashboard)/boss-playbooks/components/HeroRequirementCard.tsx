@@ -49,17 +49,17 @@ function HeroRequirementCard({
               <img
                 src={portraitUrl}
                 alt={displayName}
-                className="h-8 w-8 rounded-full object-cover border border-[var(--card-border)]"
+                className="h-8 w-8 rounded-full object-cover border border-(--card-border)"
               />
             ) : (
-              <div className="h-8 w-8 rounded-full bg-[var(--card-bg)] border border-[var(--card-border)] flex items-center justify-center text-xs font-bold text-[var(--text-tertiary)]">
+              <div className="h-8 w-8 rounded-full bg-(--card-bg) border border-(--card-border) flex items-center justify-center text-xs font-bold text-(--text-tertiary)">
                 {fallbackBadge}
               </div>
             )}
             <input
               value={value.hero_name}
               onChange={(e) => setField('hero_name', e.target.value)}
-              className="w-32 rounded border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 py-1 text-xs text-[var(--text-primary)]"
+              className="w-32 rounded-sm border border-(--card-border) bg-(--bg-secondary) px-2 py-1 text-xs text-primary-wh40k"
               placeholder="Hero name"
             />
           </div>
@@ -67,7 +67,7 @@ function HeroRequirementCard({
             <button
               type="button"
               onClick={() => setIsEditing(false)}
-              className="p-1 text-[var(--accent)] hover:text-[color-mix(in_srgb,var(--accent)_80%,transparent)]"
+              className="p-1 text-(--accent) hover:text-[color-mix(in_srgb,var(--accent)_80%,transparent)]"
               title="Done editing"
             >
               <Check className="h-3.5 w-3.5" />
@@ -84,7 +84,7 @@ function HeroRequirementCard({
         </div>
 
         <div className="grid grid-cols-3 gap-2">
-          <label className="text-[10px] text-[var(--text-tertiary)] space-y-0.5">
+          <label className="text-[10px] text-(--text-tertiary) space-y-0.5">
             <span>Min Rank</span>
             <select
               value={value.min_rank ?? ''}
@@ -98,7 +98,7 @@ function HeroRequirementCard({
                   min_rank_index: selected?.index ?? null
                 })
               }}
-              className="w-full rounded border border-[var(--card-border)] bg-[var(--bg-secondary)] px-1 py-0.5 text-[10px] text-[var(--text-primary)]"
+              className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[10px] text-primary-wh40k"
             >
               <option value="">-</option>
               {rankOptions.map((opt) => (
@@ -109,7 +109,7 @@ function HeroRequirementCard({
             </select>
           </label>
 
-          <label className="text-[10px] text-[var(--text-tertiary)] space-y-0.5">
+          <label className="text-[10px] text-(--text-tertiary) space-y-0.5">
             <span>Stars</span>
             <input
               type="number"
@@ -120,17 +120,17 @@ function HeroRequirementCard({
                 const parsed = Number(e.target.value)
                 setField('min_stars', Number.isFinite(parsed) ? parsed : null)
               }}
-              className="w-full rounded border border-[var(--card-border)] bg-[var(--bg-secondary)] px-1 py-0.5 text-[10px] text-[var(--text-primary)]"
+              className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[10px] text-primary-wh40k"
               placeholder="0"
             />
           </label>
 
-          <label className="text-[10px] text-[var(--text-tertiary)] space-y-0.5">
+          <label className="text-[10px] text-(--text-tertiary) space-y-0.5">
             <span>Rarity</span>
             <select
               value={value.min_rarity ?? ''}
               onChange={(e) => setField('min_rarity', e.target.value || null)}
-              className="w-full rounded border border-[var(--card-border)] bg-[var(--bg-secondary)] px-1 py-0.5 text-[10px] text-[var(--text-primary)]"
+              className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[10px] text-primary-wh40k"
             >
               <option value="">-</option>
               {rarityOptions.map((r) => (
@@ -143,7 +143,7 @@ function HeroRequirementCard({
         </div>
 
         <div className="grid grid-cols-3 gap-2">
-          <label className="text-[10px] text-[var(--text-tertiary)] space-y-0.5">
+          <label className="text-[10px] text-(--text-tertiary) space-y-0.5">
             <span>Active</span>
             <input
               type="number"
@@ -156,12 +156,12 @@ function HeroRequirementCard({
                   Number.isFinite(parsed) ? parsed : null
                 )
               }}
-              className="w-full rounded border border-[var(--card-border)] bg-[var(--bg-secondary)] px-1 py-0.5 text-[10px] text-[var(--text-primary)]"
+              className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[10px] text-primary-wh40k"
               placeholder="55"
             />
           </label>
 
-          <label className="text-[10px] text-[var(--text-tertiary)] space-y-0.5">
+          <label className="text-[10px] text-(--text-tertiary) space-y-0.5">
             <span>Passive</span>
             <input
               type="number"
@@ -174,12 +174,12 @@ function HeroRequirementCard({
                   Number.isFinite(parsed) ? parsed : null
                 )
               }}
-              className="w-full rounded border border-[var(--card-border)] bg-[var(--bg-secondary)] px-1 py-0.5 text-[10px] text-[var(--text-primary)]"
+              className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[10px] text-primary-wh40k"
               placeholder="55"
             />
           </label>
 
-          <label className="text-[10px] text-[var(--text-tertiary)] space-y-0.5">
+          <label className="text-[10px] text-(--text-tertiary) space-y-0.5">
             <span>Mythic</span>
             <input
               type="number"
@@ -193,18 +193,18 @@ function HeroRequirementCard({
                   Number.isFinite(parsed) ? parsed : null
                 )
               }}
-              className="w-full rounded border border-[var(--card-border)] bg-[var(--bg-secondary)] px-1 py-0.5 text-[10px] text-[var(--text-primary)]"
+              className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[10px] text-primary-wh40k"
               placeholder="0-4"
             />
           </label>
         </div>
 
-        <label className="text-[10px] text-[var(--text-tertiary)] space-y-0.5">
+        <label className="text-[10px] text-(--text-tertiary) space-y-0.5">
           <span>Notes</span>
           <input
             value={value.notes ?? ''}
             onChange={(e) => setField('notes', e.target.value || null)}
-            className="w-full rounded border border-[var(--card-border)] bg-[var(--bg-secondary)] px-1 py-0.5 text-[10px] text-[var(--text-primary)]"
+            className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[10px] text-primary-wh40k"
             placeholder="Equipment, strategy notes..."
           />
         </label>
@@ -213,16 +213,16 @@ function HeroRequirementCard({
   }
 
   return (
-    <div className="group relative flex items-center gap-2 rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-2 hover:border-[var(--card-border-hover)] transition-colors">
+    <div className="group relative flex items-center gap-2 rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-2 hover:border-(--card-border-hover) transition-colors">
       {/* Portrait */}
       {portraitUrl ? (
         <img
           src={portraitUrl}
           alt={displayName}
-          className="h-10 w-10 rounded-full object-cover border-2 border-[var(--card-border)] flex-shrink-0"
+          className="h-10 w-10 rounded-full object-cover border-2 border-(--card-border) shrink-0"
         />
       ) : (
-        <div className="h-10 w-10 rounded-full bg-[var(--card-bg)] border-2 border-[var(--card-border)] flex items-center justify-center text-sm font-bold text-[var(--text-tertiary)] flex-shrink-0">
+        <div className="h-10 w-10 rounded-full bg-(--card-bg) border-2 border-(--card-border) flex items-center justify-center text-sm font-bold text-(--text-tertiary) shrink-0">
           {fallbackBadge}
         </div>
       )}
@@ -230,14 +230,14 @@ function HeroRequirementCard({
       {/* Details */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-xs font-semibold text-[var(--text-primary)] truncate">
+          <span className="text-xs font-semibold text-primary-wh40k truncate">
             {displayName}
           </span>
           {value.min_stars != null && value.min_stars > 0 && (
             <StarDisplayFromCount stars={value.min_stars} size="sm" showLabel />
           )}
         </div>
-        <div className="flex items-center gap-2 text-[10px] text-[var(--text-secondary)]">
+        <div className="flex items-center gap-2 text-[10px] text-secondary-wh40k">
           {value.min_rank && (
             <span className="font-mono">{abbreviateRank(value.min_rank)}</span>
           )}
@@ -254,7 +254,7 @@ function HeroRequirementCard({
           )}
         </div>
         {value.notes && (
-          <div className="text-[9px] text-[var(--text-tertiary)] italic truncate mt-0.5">
+          <div className="text-[9px] text-(--text-tertiary) italic truncate mt-0.5">
             {value.notes}
           </div>
         )}
@@ -265,7 +265,7 @@ function HeroRequirementCard({
         <button
           type="button"
           onClick={() => setIsEditing(true)}
-          className="p-1 text-[var(--text-tertiary)] hover:text-[var(--accent)]"
+          className="p-1 text-(--text-tertiary) hover:text-(--accent)"
           title="Edit"
         >
           <Edit2 className="h-3 w-3" />
@@ -273,7 +273,7 @@ function HeroRequirementCard({
         <button
           type="button"
           onClick={onRemove}
-          className="p-1 text-[var(--text-tertiary)] hover:text-red-400"
+          className="p-1 text-(--text-tertiary) hover:text-red-400"
           title="Remove"
         >
           <X className="h-3 w-3" />

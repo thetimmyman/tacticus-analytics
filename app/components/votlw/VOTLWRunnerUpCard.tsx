@@ -13,11 +13,11 @@ function VOTLWRunnerUpCard({ runnerUp }: VOTLWRunnerUpCardProps) {
   if (!runnerUp) return null
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-lg p-6 border border-[var(--card-border)]">
+    <div className="relative overflow-hidden bg-linear-to-br from-gray-800 via-gray-900 to-black rounded-lg p-6 border border-(--card-border)">
       <div className="absolute top-3 right-3 text-5xl opacity-10">🛡️</div>
 
       <div className="relative text-center">
-        <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-3 tracking-wide">
+        <h3 className="text-2xl font-bold text-primary-wh40k mb-3 tracking-wide">
           ⚔️ RUNNER UP ⚔️
         </h3>
 
@@ -32,7 +32,7 @@ function VOTLWRunnerUpCard({ runnerUp }: VOTLWRunnerUpCardProps) {
           </PlayerLink>
         </p>
 
-        <p className="text-xl text-[var(--text-primary)] font-semibold mb-4">
+        <p className="text-xl text-primary-wh40k font-semibold mb-4">
           {runnerUp.totalPoints} total points
         </p>
 
@@ -40,29 +40,29 @@ function VOTLWRunnerUpCard({ runnerUp }: VOTLWRunnerUpCardProps) {
         <div className="bg-black/40 rounded-lg p-3 mb-4">
           <div className="flex flex-wrap justify-center gap-2 text-sm">
             {runnerUp.awards.goldMedals > 0 && (
-              <span className="px-2 py-1 bg-yellow-900/20 rounded">
+              <span className="px-2 py-1 bg-yellow-900/20 rounded-sm">
                 🥇 {runnerUp.awards.goldMedals} Gold
               </span>
             )}
             {runnerUp.awards.silverMedals > 0 && (
-              <span className="px-2 py-1 bg-gray-700/20 rounded">
+              <span className="px-2 py-1 bg-gray-700/20 rounded-sm">
                 🥈 {runnerUp.awards.silverMedals} Silver
               </span>
             )}
             {runnerUp.awards.bronzeMedals > 0 && (
-              <span className="px-2 py-1 bg-orange-900/20 rounded">
+              <span className="px-2 py-1 bg-orange-900/20 rounded-sm">
                 🥉 {runnerUp.awards.bronzeMedals} Bronze
               </span>
             )}
             {runnerUp.awards.mostDamageAwards > 0 && (
-              <span className="px-2 py-1 bg-red-900/20 rounded">
+              <span className="px-2 py-1 bg-red-900/20 rounded-sm">
                 💥 {runnerUp.awards.mostDamageAwards} Most Dmg
               </span>
             )}
             {(runnerUp.awards.sideBoss1Wins || 0) +
               (runnerUp.awards.sideBoss2Wins || 0) >
               0 && (
-              <span className="px-2 py-1 bg-purple-900/20 rounded">
+              <span className="px-2 py-1 bg-purple-900/20 rounded-sm">
                 👹{' '}
                 {(runnerUp.awards.sideBoss1Wins || 0) +
                   (runnerUp.awards.sideBoss2Wins || 0)}{' '}
@@ -70,17 +70,17 @@ function VOTLWRunnerUpCard({ runnerUp }: VOTLWRunnerUpCardProps) {
               </span>
             )}
             {runnerUp.awards.biggestHitAwards > 0 && (
-              <span className="px-2 py-1 bg-blue-900/20 rounded">
+              <span className="px-2 py-1 bg-blue-900/20 rounded-sm">
                 🎯 {runnerUp.awards.biggestHitAwards} Big Hit
               </span>
             )}
             {runnerUp.awards.topKiller && (
-              <span className="text-green-400 px-2 py-1 bg-green-900/20 rounded">
+              <span className="text-green-400 px-2 py-1 bg-green-900/20 rounded-sm">
                 🔪 Top Killer
               </span>
             )}
             {runnerUp.awards.bestBomber && (
-              <span className="text-orange-400 px-2 py-1 bg-orange-900/20 rounded">
+              <span className="text-orange-400 px-2 py-1 bg-orange-900/20 rounded-sm">
                 💣 Best Bomber
               </span>
             )}
@@ -88,15 +88,15 @@ function VOTLWRunnerUpCard({ runnerUp }: VOTLWRunnerUpCardProps) {
         </div>
 
         <div className="flex justify-center gap-6 text-sm">
-          <div className="text-[var(--text-secondary)]">
+          <div className="text-secondary-wh40k">
             <span className="text-xs uppercase">Avg Damage</span>
-            <div className="font-bold text-[var(--text-primary)]">
+            <div className="font-bold text-primary-wh40k">
               {formatNumber(runnerUp.avgDamagePerHit)}
             </div>
           </div>
-          <div className="text-[var(--text-secondary)]">
+          <div className="text-secondary-wh40k">
             <span className="text-xs uppercase">Tokens</span>
-            <div className="font-bold text-[var(--text-primary)]">
+            <div className="font-bold text-primary-wh40k">
               {runnerUp.tokenCount}
             </div>
           </div>

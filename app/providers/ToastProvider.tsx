@@ -34,10 +34,10 @@ function ToastContainer() {
   const containerClass =
     'fixed top-24 sm:top-24 lg:top-20 right-4 left-4 sm:left-auto z-50 space-y-2 pointer-events-none'
   const toastClass =
-    'max-w-sm w-full pointer-events-auto border rounded-lg p-4 shadow-lg backdrop-blur-sm font-mono text-sm animate-in fade-in slide-in-from-right duration-200'
+    'max-w-sm w-full pointer-events-auto border rounded-lg p-4 shadow-lg backdrop-blur-xs font-mono text-sm animate-in fade-in slide-in-from-right duration-200'
   const contentGap = 'gap-3'
-  const titleClass = 'font-semibold text-[var(--text-primary)] mb-1'
-  const descriptionClass = 'text-[var(--text-secondary)] break-words'
+  const titleClass = 'font-semibold text-primary-wh40k mb-1'
+  const descriptionClass = 'text-secondary-wh40k wrap-break-word'
 
   return (
     <div className={containerClass}>
@@ -59,7 +59,7 @@ function ToastContainer() {
             </div>
             <button
               onClick={() => removeToast(toast.id)}
-              className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors flex-shrink-0"
+              className="text-secondary-wh40k hover:text-primary-wh40k transition-colors shrink-0"
               aria-label="Close notification"
             >
               <X className="w-4 h-4" />

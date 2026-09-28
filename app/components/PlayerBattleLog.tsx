@@ -23,17 +23,17 @@ const PLAYER_BATTLE_FILTERS = [
   {
     value: 'all',
     label: 'All',
-    activeClassName: 'bg-accent-wh40k text-[var(--bg-primary)]'
+    activeClassName: 'bg-accent-wh40k text-(--bg-primary)'
   },
   {
     value: 'battles',
     label: '\u2694\uFE0F Battles',
-    activeClassName: 'bg-[var(--primary)] text-black'
+    activeClassName: 'bg-primary-wh40k text-black'
   },
   {
     value: 'bombs',
     label: '\uD83D\uDCA3',
-    activeClassName: 'bg-red-600 text-[var(--text-primary)]'
+    activeClassName: 'bg-red-600 text-primary-wh40k'
   }
 ] as const satisfies readonly {
   value: PlayerBattleType
@@ -148,7 +148,7 @@ export default function PlayerBattleLog({
             placeholder="Search boss names..."
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            className="w-full rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] px-4 py-2 text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:border-[var(--primary)] focus:outline-none"
+            className="w-full rounded-lg border border-(--card-border) bg-(--card-bg) px-4 py-2 text-primary-wh40k placeholder-(--text-secondary) focus:border-primary-wh40k focus:outline-hidden"
           />
         </div>
         <BattleLogControls
@@ -182,11 +182,11 @@ export default function PlayerBattleLog({
             clusterPerformancePctMap={clusterPerformancePctMap}
             clusterCode={clusterCode}
             hasMounted={hasMounted}
-            desktopGridClassName="grid-cols-[32px,60px,160px,160px,1fr,90px,40px,40px,80px,auto]"
+            desktopGridClassName="grid-cols-[32px_60px_160px_160px_1fr_90px_40px_40px_80px_auto]"
             desktopPrimary={
               <div className="truncate">
                 {showAllGuilds && entry.Guild ? (
-                  <span className="font-bold text-[var(--primary)]">
+                  <span className="font-bold text-(--primary)">
                     [{renderGuildTag(entry.Guild)}]
                   </span>
                 ) : (
@@ -196,7 +196,7 @@ export default function PlayerBattleLog({
             }
             desktopSecondary={
               <div className="flex min-w-0 items-center gap-1 overflow-hidden text-secondary-wh40k">
-                <span className="flex-shrink-0">{getBossLevel(entry)}</span>
+                <span className="shrink-0">{getBossLevel(entry)}</span>
                 <BossLink
                   bossName={entry.Name ?? ''}
                   className="min-w-0 truncate text-yellow-400"
@@ -208,7 +208,7 @@ export default function PlayerBattleLog({
             mobileIdentity={
               <div className="flex items-center text-xs">
                 <div className="flex min-w-0 flex-1 items-center gap-1 overflow-hidden text-secondary-wh40k">
-                  <span className="flex-shrink-0">{getBossLevel(entry)}</span>
+                  <span className="shrink-0">{getBossLevel(entry)}</span>
                   <BossLink
                     bossName={entry.Name ?? ''}
                     className="min-w-0 truncate text-yellow-400"
@@ -217,13 +217,13 @@ export default function PlayerBattleLog({
                   </BossLink>
                 </div>
                 {showAllGuilds && (
-                  <div className="flex flex-shrink-0 items-center gap-2">
+                  <div className="flex shrink-0 items-center gap-2">
                     {entry.Guild && (
-                      <span className="font-bold text-[var(--primary)]">
+                      <span className="font-bold text-(--primary)">
                         [{renderGuildTag(entry.Guild)}]
                       </span>
                     )}
-                    <span className="text-[var(--text-primary)]">
+                    <span className="text-primary-wh40k">
                       <PlayerLink playerName={entry.displayName ?? ''}>
                         {entry.displayName}
                       </PlayerLink>

@@ -28,7 +28,7 @@ export default function OperationalStatusPill() {
         <button
           type="button"
           aria-label={`System status: ${styles.label}`}
-          className={`${CORNER_STACK_PILL_SLOT_CLASS} inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[color-mix(in_srgb,var(--card-bg)_95%,transparent)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] shadow-md backdrop-blur-sm ring-1 ${styles.ring} hover:bg-[var(--card-bg)] focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-[var(--bg-primary)]`}
+          className={`${CORNER_STACK_PILL_SLOT_CLASS} inline-flex items-center gap-2 rounded-full border border-(--border) bg-[color-mix(in_srgb,var(--card-bg)_95%,transparent)] px-3 py-1.5 text-xs font-medium text-secondary-wh40k shadow-md backdrop-blur-xs ring-1 ${styles.ring} hover:bg-(--card-bg) focus:outline-hidden focus:ring-2 focus:ring-offset-1 focus:ring-offset-(--bg-primary)`}
         >
           <span
             className={`h-2 w-2 rounded-full ${styles.dot} animate-pulse`}

@@ -9,9 +9,7 @@ const WarReportsOverview = dynamicImport(
   () => import('./_components/WarReportsOverview'),
   {
     loading: () => (
-      <div className="p-6 text-[var(--text-secondary)]">
-        Loading war overview...
-      </div>
+      <div className="p-6 text-secondary-wh40k">Loading war overview...</div>
     )
   }
 )
@@ -20,9 +18,7 @@ const WarsListClient = dynamicImport(
   () => import('./_components/WarsListClient'),
   {
     loading: () => (
-      <div className="p-6 text-[var(--text-secondary)]">
-        Loading war reports...
-      </div>
+      <div className="p-6 text-secondary-wh40k">Loading war reports...</div>
     )
   }
 )
@@ -43,10 +39,8 @@ export default async function WarsIndexPage() {
   if (!profile.guild_code) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <h1 className="text-3xl font-bold text-[var(--text-primary)]">
-          War Reports
-        </h1>
-        <p className="mt-4 text-[var(--text-secondary)]">
+        <h1 className="text-3xl font-bold text-primary-wh40k">War Reports</h1>
+        <p className="mt-4 text-secondary-wh40k">
           Join a guild to see war reports. War data will appear here once your
           guild starts tracking.
         </p>

@@ -161,7 +161,7 @@ export function ValidatedApiKeyInput({
           <button
             type="button"
             onClick={() => setShowKey(!showKey)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-secondary-wh40k hover:text-primary-wh40k"
             disabled={disabled || validating}
           >
             {showKey ? (
@@ -204,11 +204,11 @@ export function ValidatedApiKeyInput({
           }`}
         >
           {validationStatus === 'valid' ? (
-            <CheckCircle className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
+            <CheckCircle className="w-5 h-5 text-green-400 mt-0.5 shrink-0" />
           ) : validationStatus === 'invalid' ? (
-            <AlertCircle className="w-5 h-5 text-[var(--accent)] mt-0.5 flex-shrink-0" />
+            <AlertCircle className="w-5 h-5 text-(--accent) mt-0.5 shrink-0" />
           ) : (
-            <Loader2 className="w-5 h-5 text-[var(--primary)] mt-0.5 animate-spin flex-shrink-0" />
+            <Loader2 className="w-5 h-5 text-(--primary) mt-0.5 animate-spin shrink-0" />
           )}
           <div className="flex-1">
             <p
@@ -216,8 +216,8 @@ export function ValidatedApiKeyInput({
                 validationStatus === 'valid'
                   ? 'text-green-400'
                   : validationStatus === 'invalid'
-                    ? 'text-[var(--accent)]'
-                    : 'text-[var(--primary)]'
+                    ? 'text-(--accent)'
+                    : 'text-(--primary)'
               }`}
             >
               {validationStatus === 'valid'
@@ -247,9 +247,9 @@ export function ValidatedApiKeyInput({
       {showInstructions && !validationStatus && (
         <div className="mt-3 p-3 bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] rounded-lg">
           <div className="flex items-start gap-3">
-            <Info className="w-5 h-5 text-[var(--primary)] mt-0.5 flex-shrink-0" />
+            <Info className="w-5 h-5 text-(--primary) mt-0.5 shrink-0" />
             <div>
-              <p className="text-sm text-[var(--primary)] font-semibold">
+              <p className="text-sm text-(--primary) font-semibold">
                 How to get your API key
               </p>
               <ol className="text-sm text-[color-mix(in_srgb,var(--primary)_80%,transparent)] mt-2 space-y-1 list-decimal list-inside">

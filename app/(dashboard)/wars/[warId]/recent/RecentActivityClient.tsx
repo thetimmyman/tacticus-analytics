@@ -104,13 +104,13 @@ export default function RecentActivityClient({ warId }: { warId: string }) {
   }
 
   return (
-    <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+    <Card className="border-(--border) bg-(--bg-primary)">
       <CardHeader className="pb-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <CardTitle className="text-lg text-[var(--text-primary)] flex items-center gap-3">
+          <CardTitle className="text-lg text-primary-wh40k flex items-center gap-3">
             <span>Recent Activity</span>
             {attempts.length > 0 && (
-              <span className="text-xs font-normal text-[var(--text-secondary)]">
+              <span className="text-xs font-normal text-secondary-wh40k">
                 {attempts.length}
                 {hasNextPage ? '+' : ''} entries
               </span>
@@ -123,8 +123,8 @@ export default function RecentActivityClient({ warId }: { warId: string }) {
                 onClick={() => setFilter(f)}
                 className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   filter === f
-                    ? 'bg-[var(--primary)] text-white'
-                    : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    ? 'bg-primary-wh40k text-white'
+                    : 'bg-(--bg-secondary) text-secondary-wh40k hover:text-primary-wh40k'
                 }`}
               >
                 {FILTER_LABELS[f]}
@@ -133,7 +133,7 @@ export default function RecentActivityClient({ warId }: { warId: string }) {
             <button
               onClick={() => refetch()}
               disabled={isFetching}
-              className="p-1 rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-50"
+              className="p-1 rounded-sm text-secondary-wh40k hover:text-primary-wh40k transition-colors disabled:opacity-50"
               aria-label="Refresh"
             >
               <RefreshCw
@@ -146,10 +146,10 @@ export default function RecentActivityClient({ warId }: { warId: string }) {
       <CardContent>
         {isFetching && attempts.length === 0 ? (
           <div className="flex items-center justify-center py-12">
-            <RefreshCw className="w-6 h-6 animate-spin text-[var(--text-secondary)]" />
+            <RefreshCw className="w-6 h-6 animate-spin text-secondary-wh40k" />
           </div>
         ) : attempts.length === 0 ? (
-          <div className="py-12 text-center text-[var(--text-secondary)]">
+          <div className="py-12 text-center text-secondary-wh40k">
             No activity found for the selected filter.
           </div>
         ) : (
@@ -161,7 +161,7 @@ export default function RecentActivityClient({ warId }: { warId: string }) {
             />
             <ActivityTable rows={filteredAttempts} />
             <div className="mt-4 flex items-center justify-center gap-4">
-              <span className="text-xs text-[var(--text-tertiary)]">
+              <span className="text-xs text-(--text-tertiary)">
                 Showing {filteredAttempts.length}
                 {!isSearchActive &&
                 activityFilters.selectedZone === 'all' &&
@@ -171,12 +171,12 @@ export default function RecentActivityClient({ warId }: { warId: string }) {
                 entries
               </span>
               {hasNextPage && isSearchActive ? (
-                <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1.5">
+                <span className="text-xs text-secondary-wh40k flex items-center gap-1.5">
                   <RefreshCw className="w-3 h-3 animate-spin" />
                   Loading all entries to search…
                 </span>
               ) : hasNextPage && isLoadAllActive ? (
-                <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1.5">
+                <span className="text-xs text-secondary-wh40k flex items-center gap-1.5">
                   <RefreshCw className="w-3 h-3 animate-spin" />
                   Loading all… {attempts.length} loaded
                 </span>

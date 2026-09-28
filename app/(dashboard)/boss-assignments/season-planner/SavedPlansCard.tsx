@@ -35,7 +35,7 @@ export default function SavedPlansCard({
       header: 'Created',
       sortable: false,
       render: (p) => (
-        <span className="text-[var(--text-primary)]">
+        <span className="text-primary-wh40k">
           {formatDateTime(p.created_at, timeZone, hasMounted)}
         </span>
       )
@@ -69,7 +69,7 @@ export default function SavedPlansCard({
         <button
           onClick={() => void loadSavedPlan(p.id)}
           disabled={loadingSavedPlanId !== null}
-          className="text-[var(--accent)] hover:underline"
+          className="text-(--accent) hover:underline"
         >
           {loadingSavedPlanId === p.id
             ? 'Loading...'
@@ -82,13 +82,13 @@ export default function SavedPlansCard({
   ]
 
   return (
-    <div className="rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-6 space-y-4">
+    <div className="rounded-lg border border-(--card-border) bg-(--card-bg) p-6 space-y-4">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+          <h3 className="text-lg font-semibold text-primary-wh40k">
             Saved Plans
           </h3>
-          <p className="text-sm text-[var(--text-secondary)]">
+          <p className="text-sm text-secondary-wh40k">
             Load previous replans for this season configuration.
           </p>
         </div>
@@ -97,7 +97,7 @@ export default function SavedPlansCard({
             snapshotSeasonId && void loadSavedPlans(snapshotSeasonId)
           }
           disabled={savedPlansLoading || !snapshotSeasonId}
-          className="px-3 py-2 rounded-md border border-[var(--card-border)] bg-[var(--card-bg)] text-sm text-[var(--text-primary)] hover:bg-card/80 disabled:opacity-50"
+          className="px-3 py-2 rounded-md border border-(--card-border) bg-(--card-bg) text-sm text-primary-wh40k hover:bg-card/80 disabled:opacity-50"
         >
           {savedPlansLoading ? 'Loading…' : 'Refresh'}
         </button>
@@ -110,9 +110,7 @@ export default function SavedPlansCard({
       )}
 
       {!savedPlansLoading && savedPlans.length === 0 && (
-        <div className="text-sm text-[var(--text-secondary)]">
-          No saved plans yet.
-        </div>
+        <div className="text-sm text-secondary-wh40k">No saved plans yet.</div>
       )}
 
       {savedPlans.length > 0 && (

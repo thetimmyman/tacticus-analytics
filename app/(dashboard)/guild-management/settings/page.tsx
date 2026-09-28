@@ -64,10 +64,10 @@ export default async function GuildSettingsPage() {
                 Configuration Error
               </h2>
               <p className="text-red-300 mb-4">{message}</p>
-              <div className="text-sm text-[var(--text-secondary)]">
+              <div className="text-sm text-secondary-wh40k">
                 <p>
                   Guild:{' '}
-                  <code className="bg-[var(--card-bg)] px-2 py-1 rounded">
+                  <code className="bg-(--card-bg) px-2 py-1 rounded-sm">
                     {formatGuildDisplayLabel(null, profile.guild_code)}
                   </code>
                 </p>
@@ -90,10 +90,10 @@ export default async function GuildSettingsPage() {
               Configuration Error
             </h2>
             <p className="text-red-300 mb-4">{message}</p>
-            <div className="text-sm text-[var(--text-secondary)]">
+            <div className="text-sm text-secondary-wh40k">
               <p>
                 Guild:{' '}
-                <code className="bg-[var(--card-bg)] px-2 py-1 rounded">
+                <code className="bg-(--card-bg) px-2 py-1 rounded-sm">
                   {formatGuildDisplayLabel(null, profile.guild_code)}
                 </code>
               </p>

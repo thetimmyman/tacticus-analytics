@@ -92,8 +92,7 @@ export const SOURCE_LABELS: Record<
     title: 'Global Strength Thresholds',
     short: 'Global Thresholds',
     description: 'Default global thresholds for roster strength.',
-    badgeClass:
-      'bg-gray-500/10 text-[var(--text-primary)] border-card-border/30'
+    badgeClass: 'bg-gray-500/10 text-primary-wh40k border-card-border/30'
   }
 }
 
@@ -114,13 +113,12 @@ export const SOURCE_BADGES: Record<
   playbook_global: {
     label: 'P*',
     title: 'Playbook: Global',
-    className:
-      'bg-slate-500/10 text-[var(--text-primary)] border-card-border/30'
+    className: 'bg-slate-500/10 text-primary-wh40k border-card-border/30'
   },
   global_thresholds: {
     label: 'GT',
     title: 'Global Thresholds',
-    className: 'bg-gray-500/10 text-[var(--text-primary)] border-card-border/30'
+    className: 'bg-gray-500/10 text-primary-wh40k border-card-border/30'
   }
 }
 
@@ -159,16 +157,14 @@ export const STATUS_CONFIG: Record<
   },
   'no-roster': {
     label: 'No Roster',
-    badgeClass:
-      'bg-gray-500/20 text-[var(--text-secondary)] border-card-border/30',
-    className: 'text-[var(--text-secondary)] bg-gray-400/10',
+    badgeClass: 'bg-gray-500/20 text-secondary-wh40k border-card-border/30',
+    className: 'text-secondary-wh40k bg-gray-400/10',
     icon: HelpCircle
   },
   'no-requirements': {
     label: 'No Requirements',
-    badgeClass:
-      'bg-gray-600/20 text-[var(--text-secondary)] border-card-border/30',
-    className: 'text-[var(--text-secondary)] bg-gray-500/10',
+    badgeClass: 'bg-gray-600/20 text-secondary-wh40k border-card-border/30',
+    className: 'text-secondary-wh40k bg-gray-500/10',
     icon: HelpCircle
   }
 }
@@ -223,7 +219,7 @@ export function ScoreDisplay({
   status: MemberStatus
 }) {
   if (score === null) {
-    return <span className="text-[var(--text-secondary)]">-</span>
+    return <span className="text-secondary-wh40k">-</span>
   }
 
   const colorClass =
@@ -235,7 +231,7 @@ export function ScoreDisplay({
           ? 'text-amber-400'
           : status === 'weak'
             ? 'text-red-400'
-            : 'text-[var(--text-secondary)]'
+            : 'text-secondary-wh40k'
 
   return <span className={`font-semibold ${colorClass}`}>{score}%</span>
 }

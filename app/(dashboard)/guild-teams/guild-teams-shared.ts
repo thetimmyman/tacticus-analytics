@@ -61,8 +61,8 @@ export const TIER_COLORS: Record<string, string> = {
 }
 
 export const TIER_BG: Record<string, string> = {
-  core: 'bg-yellow-500/[0.06]',
-  secondary: 'bg-blue-500/[0.06]',
+  core: 'bg-yellow-500/6',
+  secondary: 'bg-blue-500/6',
   tertiary: ''
 }
 

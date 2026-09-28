@@ -90,16 +90,16 @@ export function ReweaveLink({ hasKey, lastVerified }: ReweaveLinkProps) {
       {/* Status line */}
       <div className="flex items-center gap-3 flex-wrap">
         {hasKey ? (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[var(--success-bg)] text-[var(--success)] border border-[var(--success-border)]">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-(--success-bg) text-(--success) border border-(--success-border)">
             Configured
           </span>
         ) : (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[var(--warning-bg)] text-[var(--warning)] border border-[var(--warning-border)]">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-(--warning-bg) text-(--warning) border border-(--warning-border)">
             Not Configured
           </span>
         )}
         {verifiedDisplay && (
-          <span className="text-xs text-[var(--text-secondary)]">
+          <span className="text-xs text-secondary-wh40k">
             {verifiedDisplay}
           </span>
         )}
@@ -125,7 +125,7 @@ export function ReweaveLink({ hasKey, lastVerified }: ReweaveLinkProps) {
                 setError(null)
                 setSuccess(null)
               }}
-              className="px-3 py-1.5 text-sm rounded border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors"
+              className="px-3 py-1.5 text-sm rounded-sm border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors"
             >
               Unlink
             </button>
@@ -136,7 +136,7 @@ export function ReweaveLink({ hasKey, lastVerified }: ReweaveLinkProps) {
       {/* Key input form */}
       {showForm && (
         <div className="space-y-2">
-          <p className="text-xs text-[var(--text-secondary)]">
+          <p className="text-xs text-secondary-wh40k">
             Paste your Tacticus API key below. It will be validated against the
             live API before saving.
           </p>
@@ -146,7 +146,7 @@ export function ReweaveLink({ hasKey, lastVerified }: ReweaveLinkProps) {
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               placeholder="Paste API key..."
-              className="flex-1 px-3 py-1.5 text-sm bg-[var(--input-bg)] border border-[var(--card-border)] rounded text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus:outline-none focus:border-[var(--accent)]"
+              className="flex-1 px-3 py-1.5 text-sm bg-(--input-bg) border border-(--card-border) rounded-sm text-primary-wh40k placeholder:text-secondary-wh40k focus:outline-hidden focus:border-accent-wh40k"
               disabled={saving}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleSave()
@@ -165,7 +165,7 @@ export function ReweaveLink({ hasKey, lastVerified }: ReweaveLinkProps) {
                 setApiKey('')
                 setError(null)
               }}
-              className="px-3 py-1.5 text-sm rounded border border-[var(--card-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              className="px-3 py-1.5 text-sm rounded-sm border border-(--card-border) text-secondary-wh40k hover:text-primary-wh40k transition-colors"
               disabled={saving}
             >
               Cancel
@@ -176,7 +176,7 @@ export function ReweaveLink({ hasKey, lastVerified }: ReweaveLinkProps) {
 
       {/* Unlink confirmation */}
       {confirmUnlink && (
-        <div className="p-3 rounded border border-red-500/30 bg-red-500/5 space-y-2">
+        <div className="p-3 rounded-sm border border-red-500/30 bg-red-500/5 space-y-2">
           <p className="text-sm text-red-300">
             Remove your Tacticus API key? You can re-link it later.
           </p>
@@ -184,13 +184,13 @@ export function ReweaveLink({ hasKey, lastVerified }: ReweaveLinkProps) {
             <button
               onClick={handleUnlink}
               disabled={unlinking}
-              className="px-3 py-1.5 text-sm rounded bg-red-500 text-white hover:bg-red-400 disabled:opacity-50 transition-colors"
+              className="px-3 py-1.5 text-sm rounded-sm bg-red-500 text-white hover:bg-red-400 disabled:opacity-50 transition-colors"
             >
               {unlinking ? 'Removing...' : 'Yes, unlink'}
             </button>
             <button
               onClick={() => setConfirmUnlink(false)}
-              className="px-3 py-1.5 text-sm rounded border border-[var(--card-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              className="px-3 py-1.5 text-sm rounded-sm border border-(--card-border) text-secondary-wh40k hover:text-primary-wh40k transition-colors"
               disabled={unlinking}
             >
               Cancel
@@ -201,7 +201,7 @@ export function ReweaveLink({ hasKey, lastVerified }: ReweaveLinkProps) {
 
       {/* Feedback */}
       {error && <p className="text-sm text-red-400">{error}</p>}
-      {success && <p className="text-sm text-[var(--success)]">{success}</p>}
+      {success && <p className="text-sm text-(--success)">{success}</p>}
     </div>
   )
 }

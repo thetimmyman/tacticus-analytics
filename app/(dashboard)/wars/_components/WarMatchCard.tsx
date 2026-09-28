@@ -34,7 +34,7 @@ function resultBadgeClasses(result: string): string {
     case 'draw':
       return 'bg-amber-500/10 text-amber-400 border-amber-500/20'
     default:
-      return 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]'
+      return 'bg-(--bg-secondary) text-secondary-wh40k'
   }
 }
 
@@ -51,13 +51,13 @@ export function WarMatchCard({ match, isActive }: WarMatchCardProps) {
 
   return (
     <Link href={getHrefWithSeason(`/wars/${match.war_id}`, currentSeason)}>
-      <div className="group card-wh40k p-3 hover:border-[var(--accent)] transition-colors cursor-pointer h-full">
+      <div className="group card-wh40k p-3 hover:border-accent-wh40k transition-colors cursor-pointer h-full">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <h3 className="font-semibold text-[var(--text-primary)] truncate leading-tight">
+            <h3 className="font-semibold text-primary-wh40k truncate leading-tight">
               vs {match.opponent_guild_name || 'Unknown'}
             </h3>
-            <p className="text-sm text-[var(--text-secondary)] mt-0.5 flex items-center gap-1.5">
+            <p className="text-sm text-secondary-wh40k mt-0.5 flex items-center gap-1.5">
               <Swords className="h-3.5 w-3.5 shrink-0" />
               {guildScore} – {opponentScore}
             </p>
@@ -73,22 +73,22 @@ export function WarMatchCard({ match, isActive }: WarMatchCardProps) {
                   match.war_result.slice(1)}
               </Badge>
             ) : null}
-            <ChevronRight className="h-4 w-4 text-[var(--text-tertiary)] group-hover:text-[var(--accent)] transition-colors" />
+            <ChevronRight className="h-4 w-4 text-(--text-tertiary) group-hover:text-(--accent) transition-colors" />
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-1.5 mt-2">
-          <span className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
+          <span className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-sm bg-(--bg-secondary) text-secondary-wh40k">
             <Calendar className="h-3 w-3" />
             {formatDateShort(displayDate)}
           </span>
           {match.war_season != null && (
-            <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
+            <span className="text-xs px-1.5 py-0.5 rounded-sm bg-(--bg-secondary) text-secondary-wh40k">
               S{match.war_season}
             </span>
           )}
           {match.battlefield_level != null && (
-            <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
+            <span className="text-xs px-1.5 py-0.5 rounded-sm bg-(--bg-secondary) text-secondary-wh40k">
               BF{match.battlefield_level}
             </span>
           )}

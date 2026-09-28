@@ -157,14 +157,14 @@ function LapChart({
           key={b.lap}
           className="flex h-full flex-col items-center justify-end"
         >
-          <strong className="mb-1 text-[10px] font-semibold tabular-nums text-[var(--text-secondary)]">
+          <strong className="mb-1 text-[10px] font-semibold tabular-nums text-secondary-wh40k">
             {b.value || ' '}
           </strong>
           <div
             className={`relative w-full max-w-[44px] overflow-hidden rounded-md border ${
               b.kind === 'live'
-                ? 'border-[var(--accent)]'
-                : 'border-[var(--card-border)]'
+                ? 'border-accent-wh40k'
+                : 'border-(--card-border)'
             }`}
             style={{
               height: '84px',
@@ -185,7 +185,7 @@ function LapChart({
               }}
             />
           </div>
-          <span className="mt-1 max-w-full text-center text-[9px] uppercase leading-tight tracking-wide text-[var(--text-tertiary)]">
+          <span className="mt-1 max-w-full text-center text-[9px] uppercase leading-tight tracking-wide text-(--text-tertiary)">
             L{b.lap + 1}
             {tagFor(b.kind) ? ` · ${tagFor(b.kind)}` : ''}
           </span>
@@ -232,22 +232,22 @@ function SeasonOutlookCard({
 
   return (
     <section
-      className="rounded-xl border border-[var(--card-border)] bg-card/30 p-4"
+      className="rounded-xl border border-(--card-border) bg-card/30 p-4"
       aria-label="Season outlook"
       data-testid="season-outlook-card"
     >
       <div className="mb-1 flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
-          <TrendingUp className="h-4 w-4 text-[var(--accent)]" aria-hidden />
+        <h2 className="flex items-center gap-2 text-sm font-semibold text-primary-wh40k">
+          <TrendingUp className="h-4 w-4 text-(--accent)" aria-hidden />
           Season outlook
         </h2>
-        <span className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+        <span className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
           Guild forecast
         </span>
       </div>
 
       {!forecast && !outlook ? (
-        <p className="text-xs text-[var(--text-secondary)]">
+        <p className="text-xs text-secondary-wh40k">
           Season forecast becomes available once the guild has completed laps
           this season.
         </p>
@@ -258,11 +258,11 @@ function SeasonOutlookCard({
             <div className="min-w-0">
               {finish ? (
                 <>
-                  <p className="text-2xl font-bold leading-tight text-[var(--accent)]">
+                  <p className="text-2xl font-bold leading-tight text-(--accent)">
                     Lap {headlineLap}
                     {finishDetailed ? ` · ${finish.bossName}` : ''}
                   </p>
-                  <p className="text-[11px] text-[var(--text-tertiary)]">
+                  <p className="text-[11px] text-(--text-tertiary)">
                     {finishDetailed
                       ? `projected finish · ${finishPct >= 100 ? 'lap cleared' : `+${finishPct}% into lap`}`
                       : 'projected finish · updating'}{' '}
@@ -276,20 +276,20 @@ function SeasonOutlookCard({
                 </>
               ) : (
                 <>
-                  <p className="text-sm font-semibold text-[var(--text-primary)]">
+                  <p className="text-sm font-semibold text-primary-wh40k">
                     Season underway
                   </p>
-                  <p className="text-[11px] text-[var(--text-tertiary)]">
+                  <p className="text-[11px] text-(--text-tertiary)">
                     full forecast builds after the guild completes a lap
                   </p>
                 </>
               )}
             </div>
             <div className="shrink-0 border-l border-[color-mix(in_srgb,var(--card-border)_60%,transparent)] pl-3 text-right">
-              <p className="text-xl font-bold tabular-nums text-[var(--text-primary)]">
+              <p className="text-xl font-bold tabular-nums text-primary-wh40k">
                 {hasMounted ? formatTimeRemaining(secs) : '—'}
               </p>
-              <p className="text-[9px] uppercase tracking-wider text-[var(--text-tertiary)]">
+              <p className="text-[9px] uppercase tracking-wider text-(--text-tertiary)">
                 Time left
               </p>
             </div>
@@ -302,11 +302,11 @@ function SeasonOutlookCard({
             <div className="mt-3">
               <div className="h-2 w-full overflow-hidden rounded-full bg-[rgba(var(--card-bg-rgb),0.6)]">
                 <div
-                  className="h-full rounded-full bg-[var(--accent)]"
+                  className="h-full rounded-full bg-accent-wh40k"
                   style={{ width: `${progress * 100}%` }}
                 />
               </div>
-              <div className="mt-1 flex justify-between text-[10px] text-[var(--text-tertiary)]">
+              <div className="mt-1 flex justify-between text-[10px] text-(--text-tertiary)">
                 <span>Season start</span>
                 <span>{Math.round(progress * 100)}% elapsed</span>
                 <span>End</span>
@@ -317,39 +317,39 @@ function SeasonOutlookCard({
           {/* Season-token economy: used / still spendable / waste. */}
           {outlook && (
             <div className="mt-3 grid grid-cols-3 gap-2">
-              <div className="rounded-lg border border-[color-mix(in_srgb,var(--card-border)_60%,transparent)] bg-[var(--bg-primary)] p-2.5">
-                <p className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+              <div className="rounded-lg border border-[color-mix(in_srgb,var(--card-border)_60%,transparent)] bg-(--bg-primary) p-2.5">
+                <p className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
                   Tokens used
                 </p>
-                <p className="text-lg font-bold text-[var(--text-primary)]">
+                <p className="text-lg font-bold text-primary-wh40k">
                   {formatNumber(
                     Math.min(outlook.tokensUsed, outlook.seasonBudget),
                     0
                   )}
                 </p>
-                <p className="text-[9px] text-[var(--text-tertiary)]">
+                <p className="text-[9px] text-(--text-tertiary)">
                   of {formatNumber(outlook.seasonBudget, 0)} this season
                 </p>
               </div>
-              <div className="rounded-lg border border-[color-mix(in_srgb,var(--card-border)_60%,transparent)] bg-[var(--bg-primary)] p-2.5">
-                <p className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+              <div className="rounded-lg border border-[color-mix(in_srgb,var(--card-border)_60%,transparent)] bg-(--bg-primary) p-2.5">
+                <p className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
                   Tokens left
                 </p>
-                <p className="text-lg font-bold text-[var(--text-primary)]">
+                <p className="text-lg font-bold text-primary-wh40k">
                   {formatNumber(outlook.tokensRemaining, 0)}
                 </p>
-                <p className="text-[9px] text-[var(--text-tertiary)]">
+                <p className="text-[9px] text-(--text-tertiary)">
                   still spendable
                 </p>
               </div>
-              <div className="rounded-lg border border-[color-mix(in_srgb,var(--card-border)_60%,transparent)] bg-[var(--bg-primary)] p-2.5">
-                <p className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+              <div className="rounded-lg border border-[color-mix(in_srgb,var(--card-border)_60%,transparent)] bg-(--bg-primary) p-2.5">
+                <p className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
                   Waste risk
                 </p>
-                <p className="text-lg font-bold text-[var(--text-primary)]">
+                <p className="text-lg font-bold text-primary-wh40k">
                   {formatNumber(outlook.projectedWaste, 0)}
                 </p>
-                <p className="text-[9px] text-[var(--text-tertiary)]">
+                <p className="text-[9px] text-(--text-tertiary)">
                   at current pace
                 </p>
               </div>
@@ -358,13 +358,13 @@ function SeasonOutlookCard({
 
           {/* `budget` exists only when officers set targets inside the projected span. */}
           {outlook?.budget && (
-            <p className="mt-2 text-[11px] text-[var(--text-tertiary)]">
+            <p className="mt-2 text-[11px] text-(--text-tertiary)">
               Plan spends{' '}
-              <span className="font-semibold text-[var(--text-secondary)]">
+              <span className="font-semibold text-secondary-wh40k">
                 {formatNumber(outlook.budget.projectedSpendTokens, 0)}
               </span>{' '}
               vs officer budget{' '}
-              <span className="font-semibold text-[var(--text-secondary)]">
+              <span className="font-semibold text-secondary-wh40k">
                 {formatNumber(outlook.budget.targetBudgetTokens, 0)}
               </span>
               {outlook.budget.projectedSpendVsBudgetTokens !== 0
@@ -374,13 +374,13 @@ function SeasonOutlookCard({
           )}
 
           {capBoundPlayers > 0 && (
-            <p className="mt-3 flex items-center gap-1.5 rounded-md border border-[color-mix(in_srgb,var(--warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--warning)_10%,transparent)] px-2.5 py-1.5 text-[11px] text-[var(--text-secondary)]">
+            <p className="mt-3 flex items-center gap-1.5 rounded-md border border-[color-mix(in_srgb,var(--warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--warning)_10%,transparent)] px-2.5 py-1.5 text-[11px] text-secondary-wh40k">
               <AlertTriangle
-                className="h-3.5 w-3.5 text-[var(--warning)]"
+                className="h-3.5 w-3.5 text-(--warning)"
                 aria-hidden
               />
               <span>
-                <span className="font-semibold text-[var(--text-primary)]">
+                <span className="font-semibold text-primary-wh40k">
                   {capBoundPlayers}
                 </span>{' '}
                 player{capBoundPlayers === 1 ? '' : 's'} may cap tokens before
@@ -392,7 +392,7 @@ function SeasonOutlookCard({
           {isOfficer && guildCode && (
             <Link
               href={`/token-usage?guild=${encodeURIComponent(guildCode)}`}
-              className="mt-3 inline-flex items-center gap-1 text-xs text-[var(--accent)] hover:underline"
+              className="mt-3 inline-flex items-center gap-1 text-xs text-(--accent) hover:underline"
             >
               Open forecast detail
               <ChevronRight className="h-3 w-3" aria-hidden />

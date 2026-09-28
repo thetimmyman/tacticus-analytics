@@ -66,7 +66,7 @@ export function LoopAnalysisSection({
       {dashboardLoopAggregates.length > 0 && (
         <div className="card-wh40k p-3 sm:p-4">
           <h3 className="subheading-wh40k mb-2">Loop Analysis</h3>
-          <p className="text-xs text-[var(--text-secondary)] mb-4">
+          <p className="text-xs text-secondary-wh40k mb-4">
             Guild average damage by loop
             {selectedDashboardBoss
               ? ` for ${resolveLoopBossLabel(selectedDashboardBoss)}`
@@ -211,7 +211,7 @@ export function LoopAnalysisSection({
           <button
             type="button"
             onClick={() => setShowLoopAnalysisTable(!showLoopAnalysisTable)}
-            className="flex items-center gap-2 mt-4 text-sm text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors"
+            className="flex items-center gap-2 mt-4 text-sm text-secondary-wh40k hover:text-(--primary) transition-colors"
           >
             {showLoopAnalysisTable ? (
               <ChevronDown className="h-4 w-4" />

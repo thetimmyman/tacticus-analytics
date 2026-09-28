@@ -90,17 +90,17 @@ export function PeopleToReviewList({
 
   return (
     <section
-      className="rounded-xl border border-[var(--card-border)] bg-card/30 overflow-hidden"
+      className="rounded-xl border border-(--card-border) bg-card/30 overflow-hidden"
       aria-label="People to review"
     >
       <header className="border-b border-[color-mix(in_srgb,var(--card-border)_50%,transparent)] px-4 py-3">
         <div className="flex items-center gap-2">
-          <Users className="h-4 w-4 text-[var(--accent)]" aria-hidden />
-          <h2 className="text-sm font-semibold text-[var(--text-primary)]">
+          <Users className="h-4 w-4 text-(--accent)" aria-hidden />
+          <h2 className="text-sm font-semibold text-primary-wh40k">
             People to review
           </h2>
         </div>
-        <p className="mt-0.5 pl-6 text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+        <p className="mt-0.5 pl-6 text-[10px] uppercase tracking-wider text-(--text-tertiary)">
           Ranked by impact × confidence × urgency
         </p>
       </header>
@@ -118,7 +118,7 @@ export function PeopleToReviewList({
         />
 
         {visible.length === 0 ? (
-          <p className="py-6 text-center text-xs text-[var(--text-tertiary)]">
+          <p className="py-6 text-center text-xs text-(--text-tertiary)">
             Nothing here right now — no members match this filter.
           </p>
         ) : (
@@ -136,11 +136,11 @@ export function PeopleToReviewList({
         )}
       </div>
 
-      <div className="border-t border-[color-mix(in_srgb,var(--card-border)_40%,transparent)] px-4 py-2.5 text-[11px] text-[var(--text-tertiary)]">
+      <div className="border-t border-[color-mix(in_srgb,var(--card-border)_40%,transparent)] px-4 py-2.5 text-[11px] text-(--text-tertiary)">
         Only exceptions are shown. Full roster stays in Guild Ops.{' '}
         <a
           href="/guild-management/members"
-          className="text-[var(--accent)] hover:underline"
+          className="text-(--accent) hover:underline"
         >
           Open all members →
         </a>

@@ -23,12 +23,12 @@ export default function BossAssignmentsError({ error, reset }: ErrorProps) {
     <div className="px-4 py-10">
       <div className="card-wh40k mx-auto max-w-md p-8 text-center">
         <h2 className="subheading-wh40k text-lg">Assignments unavailable</h2>
-        <p className="mt-2 text-sm text-[var(--text-secondary)]">
+        <p className="mt-2 text-sm text-secondary-wh40k">
           The Machine Spirit could not marshal the boss assignments. The fault
           may be transient.
         </p>
         {error.digest && (
-          <p className="mt-3 font-mono text-xs text-[var(--text-tertiary)]">
+          <p className="mt-3 font-mono text-xs text-(--text-tertiary)">
             Error ID: {error.digest}
           </p>
         )}

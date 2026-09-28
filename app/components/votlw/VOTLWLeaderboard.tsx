@@ -54,7 +54,7 @@ function VOTLWLeaderboard({ playerPoints }: VOTLWLeaderboardProps) {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-lg border-2 border-yellow-700/30 bg-gradient-to-br from-yellow-950/20 via-black to-yellow-950/20 p-6">
+    <div className="relative overflow-hidden rounded-lg border-2 border-yellow-700/30 bg-linear-to-br from-yellow-950/20 via-black to-yellow-950/20 p-6">
       {/* Decorative elements */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-0 w-full h-full bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(234,179,8,0.03)_10px,rgba(234,179,8,0.03)_20px)]" />
@@ -69,7 +69,7 @@ function VOTLWLeaderboard({ playerPoints }: VOTLWLeaderboardProps) {
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-4">
           <h3 className="text-2xl font-black uppercase tracking-wider">
             <span
-              className="bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-500 bg-clip-text text-transparent animate-[shimmer_3s_ease-in-out_infinite]"
+              className="bg-linear-to-r from-yellow-500 via-amber-500 to-yellow-500 bg-clip-text text-transparent animate-[shimmer_3s_ease-in-out_infinite]"
               style={{ backgroundSize: '200% auto' }}
             >
               Battle Leaderboard
@@ -113,7 +113,7 @@ function VOTLWLeaderboard({ playerPoints }: VOTLWLeaderboardProps) {
             return (
               <div
                 key={player.displayName}
-                className={`relative p-4 rounded-lg border-2 ${borderColors} ${glowColors} bg-gradient-to-br from-black/80 to-yellow-950/30 hover:scale-[1.02] transition-transform`}
+                className={`relative p-4 rounded-lg border-2 ${borderColors} ${glowColors} bg-linear-to-br from-black/80 to-yellow-950/30 hover:scale-[1.02] transition-transform`}
               >
                 <div className="absolute -top-3 -left-3 text-4xl">{medals}</div>
                 <div className="flex justify-between items-center mb-2">
@@ -122,7 +122,7 @@ function VOTLWLeaderboard({ playerPoints }: VOTLWLeaderboardProps) {
                       {player.displayName}
                     </PlayerLink>
                   </span>
-                  <span className="font-black text-2xl bg-gradient-to-r from-yellow-400 to-amber-400 bg-clip-text text-transparent">
+                  <span className="font-black text-2xl bg-linear-to-r from-yellow-400 to-amber-400 bg-clip-text text-transparent">
                     {player.totalPoints} pts
                   </span>
                 </div>
@@ -130,36 +130,36 @@ function VOTLWLeaderboard({ playerPoints }: VOTLWLeaderboardProps) {
                 <div className="text-xs text-yellow-200/80 space-y-1">
                   <div className="flex flex-wrap gap-3">
                     {player.awards.goldMedals > 0 && (
-                      <span className="bg-yellow-900/30 px-2 py-1 rounded">
+                      <span className="bg-yellow-900/30 px-2 py-1 rounded-sm">
                         🥇 {player.awards.goldMedals}
                       </span>
                     )}
                     {player.awards.silverMedals > 0 && (
-                      <span className="bg-card/30 px-2 py-1 rounded">
+                      <span className="bg-card/30 px-2 py-1 rounded-sm">
                         🥈 {player.awards.silverMedals}
                       </span>
                     )}
                     {player.awards.bronzeMedals > 0 && (
-                      <span className="bg-orange-900/30 px-2 py-1 rounded">
+                      <span className="bg-orange-900/30 px-2 py-1 rounded-sm">
                         🥉 {player.awards.bronzeMedals}
                       </span>
                     )}
                     {player.awards.mostDamageAwards > 0 && (
-                      <span className="bg-red-900/30 px-2 py-1 rounded">
+                      <span className="bg-red-900/30 px-2 py-1 rounded-sm">
                         💥 {player.awards.mostDamageAwards}
                       </span>
                     )}
                     {(player.awards.sideBoss1Wins || 0) +
                       (player.awards.sideBoss2Wins || 0) >
                       0 && (
-                      <span className="bg-purple-900/30 px-2 py-1 rounded">
+                      <span className="bg-purple-900/30 px-2 py-1 rounded-sm">
                         👹{' '}
                         {(player.awards.sideBoss1Wins || 0) +
                           (player.awards.sideBoss2Wins || 0)}
                       </span>
                     )}
                     {player.awards.biggestHitAwards > 0 && (
-                      <span className="bg-blue-900/30 px-2 py-1 rounded">
+                      <span className="bg-blue-900/30 px-2 py-1 rounded-sm">
                         🎯 {player.awards.biggestHitAwards}
                       </span>
                     )}
@@ -213,7 +213,7 @@ function VOTLWLeaderboard({ playerPoints }: VOTLWLeaderboardProps) {
                   setLeaderboardSearch(e.target.value)
                   setScrollTop(0) // Reset scroll position on search
                 }}
-                className="px-4 py-2 bg-yellow-950/30 border border-yellow-700/50 rounded-lg text-yellow-100 placeholder-yellow-600/50 focus:outline-none focus:border-yellow-500 w-full md:w-64"
+                className="px-4 py-2 bg-yellow-950/30 border border-yellow-700/50 rounded-lg text-yellow-100 placeholder-yellow-600/50 focus:outline-hidden focus:border-yellow-500 w-full md:w-64"
               />
 
               {/* Results Info */}
@@ -228,49 +228,49 @@ function VOTLWLeaderboard({ playerPoints }: VOTLWLeaderboardProps) {
                 {/* Fixed Header */}
                 <div className="border-b border-yellow-700/50 bg-black/40 sticky top-0 z-10">
                   <div className="flex min-w-[1200px]">
-                    <div className="flex-shrink-0 w-12 p-2 text-yellow-400 font-medium">
+                    <div className="shrink-0 w-12 p-2 text-yellow-400 font-medium">
                       #
                     </div>
-                    <div className="flex-shrink-0 w-48 p-2 text-yellow-400 font-medium">
+                    <div className="shrink-0 w-48 p-2 text-yellow-400 font-medium">
                       Player
                     </div>
-                    <div className="flex-shrink-0 w-20 p-2 text-center text-yellow-400 font-medium">
+                    <div className="shrink-0 w-20 p-2 text-center text-yellow-400 font-medium">
                       Points
                     </div>
-                    <div className="flex-shrink-0 w-12 p-2 text-center text-yellow-400 font-medium">
+                    <div className="shrink-0 w-12 p-2 text-center text-yellow-400 font-medium">
                       🥇
                     </div>
-                    <div className="flex-shrink-0 w-12 p-2 text-center text-yellow-400 font-medium">
+                    <div className="shrink-0 w-12 p-2 text-center text-yellow-400 font-medium">
                       🥈
                     </div>
-                    <div className="flex-shrink-0 w-12 p-2 text-center text-yellow-400 font-medium">
+                    <div className="shrink-0 w-12 p-2 text-center text-yellow-400 font-medium">
                       🥉
                     </div>
-                    <div className="flex-shrink-0 w-12 p-2 text-center text-yellow-400 font-medium">
+                    <div className="shrink-0 w-12 p-2 text-center text-yellow-400 font-medium">
                       💥
                     </div>
-                    <div className="flex-shrink-0 w-12 p-2 text-center text-yellow-400 font-medium">
+                    <div className="shrink-0 w-12 p-2 text-center text-yellow-400 font-medium">
                       👹
                     </div>
-                    <div className="flex-shrink-0 w-12 p-2 text-center text-yellow-400 font-medium">
+                    <div className="shrink-0 w-12 p-2 text-center text-yellow-400 font-medium">
                       🎯
                     </div>
-                    <div className="flex-shrink-0 w-24 p-2 text-center text-yellow-400 font-medium">
+                    <div className="shrink-0 w-24 p-2 text-center text-yellow-400 font-medium">
                       Avg Dmg
                     </div>
-                    <div className="flex-shrink-0 w-16 p-2 text-center text-yellow-400 font-medium">
+                    <div className="shrink-0 w-16 p-2 text-center text-yellow-400 font-medium">
                       🎫 Tokens
                     </div>
-                    <div className="flex-shrink-0 w-16 p-2 text-center text-yellow-400 font-medium">
+                    <div className="shrink-0 w-16 p-2 text-center text-yellow-400 font-medium">
                       🧹 Sweeps
                     </div>
-                    <div className="flex-shrink-0 w-16 p-2 text-center text-yellow-400 font-medium">
+                    <div className="shrink-0 w-16 p-2 text-center text-yellow-400 font-medium">
                       ⚡ One-Shots
                     </div>
-                    <div className="flex-shrink-0 w-16 p-2 text-center text-yellow-400 font-medium">
+                    <div className="shrink-0 w-16 p-2 text-center text-yellow-400 font-medium">
                       💣 Bombs
                     </div>
-                    <div className="flex-shrink-0 w-16 p-2 text-center text-yellow-400 font-medium">
+                    <div className="shrink-0 w-16 p-2 text-center text-yellow-400 font-medium">
                       ⚠️ Crashes
                     </div>
                   </div>
@@ -301,10 +301,10 @@ function VOTLWLeaderboard({ playerPoints }: VOTLWLeaderboardProps) {
                           className="flex min-w-[1200px] border-b border-yellow-900/20 hover:bg-yellow-950/20 transition-colors"
                           style={{ height: `${ITEM_HEIGHT}px` }}
                         >
-                          <div className="flex-shrink-0 w-12 p-2 font-bold text-yellow-600 flex items-center">
+                          <div className="shrink-0 w-12 p-2 font-bold text-yellow-600 flex items-center">
                             {index + 1}
                           </div>
-                          <div className="flex-shrink-0 w-48 p-2 flex items-center">
+                          <div className="shrink-0 w-48 p-2 flex items-center">
                             <PlayerLink playerName={player.displayName}>
                               <span className="text-yellow-100 hover:text-yellow-300 transition-colors">
                                 {player.displayName}
@@ -321,44 +321,44 @@ function VOTLWLeaderboard({ playerPoints }: VOTLWLeaderboardProps) {
                               </span>
                             )}
                           </div>
-                          <div className="flex-shrink-0 w-20 p-2 text-center font-bold text-yellow-400 flex items-center justify-center">
+                          <div className="shrink-0 w-20 p-2 text-center font-bold text-yellow-400 flex items-center justify-center">
                             {player.totalPoints}
                           </div>
-                          <div className="flex-shrink-0 w-12 p-2 text-center text-yellow-300 flex items-center justify-center">
+                          <div className="shrink-0 w-12 p-2 text-center text-yellow-300 flex items-center justify-center">
                             {player.awards.goldMedals || '-'}
                           </div>
-                          <div className="flex-shrink-0 w-12 p-2 text-center text-[var(--text-primary)] flex items-center justify-center">
+                          <div className="shrink-0 w-12 p-2 text-center text-primary-wh40k flex items-center justify-center">
                             {player.awards.silverMedals || '-'}
                           </div>
-                          <div className="flex-shrink-0 w-12 p-2 text-center text-orange-400 flex items-center justify-center">
+                          <div className="shrink-0 w-12 p-2 text-center text-orange-400 flex items-center justify-center">
                             {player.awards.bronzeMedals || '-'}
                           </div>
-                          <div className="flex-shrink-0 w-12 p-2 text-center text-red-400 flex items-center justify-center">
+                          <div className="shrink-0 w-12 p-2 text-center text-red-400 flex items-center justify-center">
                             {player.awards.mostDamageAwards || '-'}
                           </div>
-                          <div className="flex-shrink-0 w-12 p-2 text-center text-purple-400 flex items-center justify-center">
+                          <div className="shrink-0 w-12 p-2 text-center text-purple-400 flex items-center justify-center">
                             {(player.awards.sideBoss1Wins || 0) +
                               (player.awards.sideBoss2Wins || 0) || '-'}
                           </div>
-                          <div className="flex-shrink-0 w-12 p-2 text-center text-blue-400 flex items-center justify-center">
+                          <div className="shrink-0 w-12 p-2 text-center text-blue-400 flex items-center justify-center">
                             {player.awards.biggestHitAwards || '-'}
                           </div>
-                          <div className="flex-shrink-0 w-24 p-2 text-center text-yellow-200 flex items-center justify-center">
+                          <div className="shrink-0 w-24 p-2 text-center text-yellow-200 flex items-center justify-center">
                             {formatNumber(player.avgDamagePerHit)}
                           </div>
-                          <div className="flex-shrink-0 w-16 p-2 text-center text-yellow-200 flex items-center justify-center">
+                          <div className="shrink-0 w-16 p-2 text-center text-yellow-200 flex items-center justify-center">
                             {formatNumber(player.tokenCount)}
                           </div>
-                          <div className="flex-shrink-0 w-16 p-2 text-center text-yellow-200 flex items-center justify-center">
+                          <div className="shrink-0 w-16 p-2 text-center text-yellow-200 flex items-center justify-center">
                             {formatNumber(player.sweeps)}
                           </div>
-                          <div className="flex-shrink-0 w-16 p-2 text-center text-purple-200 flex items-center justify-center">
+                          <div className="shrink-0 w-16 p-2 text-center text-purple-200 flex items-center justify-center">
                             {formatNumber(player.oneShots)}
                           </div>
-                          <div className="flex-shrink-0 w-16 p-2 text-center text-orange-200 flex items-center justify-center">
+                          <div className="shrink-0 w-16 p-2 text-center text-orange-200 flex items-center justify-center">
                             {formatNumber(player.bombsUsed)}
                           </div>
-                          <div className="flex-shrink-0 w-16 p-2 text-center text-red-200 flex items-center justify-center">
+                          <div className="shrink-0 w-16 p-2 text-center text-red-200 flex items-center justify-center">
                             {formatNumber(player.crashes)}
                           </div>
                         </div>

@@ -10,7 +10,7 @@ function EmailReveal() {
     return (
       <button
         onClick={() => setRevealed(true)}
-        className="text-[var(--accent)] hover:text-[var(--primary)] underline text-sm"
+        className="text-(--accent) hover:text-(--primary) underline text-sm"
       >
         [Click to reveal email address]
       </button>
@@ -18,9 +18,7 @@ function EmailReveal() {
   }
 
   return (
-    <span className="text-[var(--accent)] font-mono text-sm">
-      {CONTACT_EMAIL}
-    </span>
+    <span className="text-(--accent) font-mono text-sm">{CONTACT_EMAIL}</span>
   )
 }
 
@@ -28,21 +26,21 @@ export default function PrivacyPolicyClient() {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-[var(--primary)] mb-8">
+        <h1 className="text-4xl font-bold text-(--primary) mb-8">
           Privacy Policy
         </h1>
 
         <div className="prose prose-invert max-w-none space-y-6">
-          <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-lg p-6">
-            <p className="text-sm text-[var(--text-secondary)] mb-4">
+          <div className="bg-(--card) border border-(--card-border) rounded-lg p-6">
+            <p className="text-sm text-secondary-wh40k mb-4">
               Last updated: September 9, 2026
             </p>
 
             <section className="space-y-4">
-              <h2 className="text-2xl font-semibold text-[var(--accent)]">
+              <h2 className="text-2xl font-semibold text-(--accent)">
                 1. Information We Collect
               </h2>
-              <div className="text-[var(--text-primary)] space-y-2">
+              <div className="text-primary-wh40k space-y-2">
                 <p>
                   We collect information you provide directly to us, including:
                 </p>
@@ -59,7 +57,7 @@ export default function PrivacyPolicyClient() {
                   <li>Discord integration data (webhook URLs, role IDs)</li>
                   <li>Communication preferences and settings</li>
                 </ul>
-                <p className="mt-4 text-sm text-[var(--text-secondary)]">
+                <p className="mt-4 text-sm text-secondary-wh40k">
                   <strong>Note on player names:</strong> Player names displayed
                   in the Service are in-game pseudonyms chosen by users within
                   Warhammer 40,000: Tacticus. We do not collect real names,
@@ -70,10 +68,10 @@ export default function PrivacyPolicyClient() {
             </section>
 
             <section className="space-y-4 mt-8">
-              <h2 className="text-2xl font-semibold text-[var(--accent)]">
+              <h2 className="text-2xl font-semibold text-(--accent)">
                 2. How We Use Your Information
               </h2>
-              <div className="text-[var(--text-primary)] space-y-2">
+              <div className="text-primary-wh40k space-y-2">
                 <p>We use the information we collect to:</p>
                 <ul className="list-disc list-inside space-y-1 ml-4">
                   <li>Provide and maintain our services</li>
@@ -87,10 +85,10 @@ export default function PrivacyPolicyClient() {
             </section>
 
             <section className="space-y-4 mt-8">
-              <h2 className="text-2xl font-semibold text-[var(--accent)]">
+              <h2 className="text-2xl font-semibold text-(--accent)">
                 3. Legal Basis for Processing
               </h2>
-              <div className="text-[var(--text-primary)] space-y-2">
+              <div className="text-primary-wh40k space-y-2">
                 <p>
                   Processing your account and game data (Section 1) is necessary
                   to provide the Service you signed up for &mdash; you supply
@@ -113,10 +111,10 @@ export default function PrivacyPolicyClient() {
             </section>
 
             <section className="space-y-4 mt-8">
-              <h2 className="text-2xl font-semibold text-[var(--accent)]">
+              <h2 className="text-2xl font-semibold text-(--accent)">
                 4. Data Security
               </h2>
-              <div className="text-[var(--text-primary)]">
+              <div className="text-primary-wh40k">
                 <p>
                   We implement appropriate technical and organizational measures
                   to protect your personal information, including:
@@ -131,10 +129,10 @@ export default function PrivacyPolicyClient() {
             </section>
 
             <section className="space-y-4 mt-8">
-              <h2 className="text-2xl font-semibold text-[var(--accent)]">
+              <h2 className="text-2xl font-semibold text-(--accent)">
                 5. Data Sharing
               </h2>
-              <div className="text-[var(--text-primary)]">
+              <div className="text-primary-wh40k">
                 <p>
                   We do not sell, trade, or rent your personal information to
                   third parties. We may share your information only:
@@ -159,10 +157,10 @@ export default function PrivacyPolicyClient() {
             </section>
 
             <section className="space-y-4 mt-8">
-              <h2 className="text-2xl font-semibold text-[var(--accent)]">
+              <h2 className="text-2xl font-semibold text-(--accent)">
                 6. Data Retention
               </h2>
-              <div className="text-[var(--text-primary)]">
+              <div className="text-primary-wh40k">
                 <p>
                   We retain your information for as long as your account is
                   active or as needed to provide services. You may request
@@ -172,10 +170,10 @@ export default function PrivacyPolicyClient() {
             </section>
 
             <section className="space-y-4 mt-8">
-              <h2 className="text-2xl font-semibold text-[var(--accent)]">
+              <h2 className="text-2xl font-semibold text-(--accent)">
                 7. Your Rights
               </h2>
-              <div className="text-[var(--text-primary)]">
+              <div className="text-primary-wh40k">
                 <p>You have the right to:</p>
                 <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
                   <li>Access your personal information</li>
@@ -194,7 +192,7 @@ export default function PrivacyPolicyClient() {
                     <strong>To exercise these rights:</strong> See our{' '}
                     <a
                       href="/privacy-rights"
-                      className="text-[var(--accent)] hover:underline"
+                      className="text-(--accent) hover:underline"
                     >
                       Privacy Rights
                     </a>{' '}
@@ -205,10 +203,10 @@ export default function PrivacyPolicyClient() {
             </section>
 
             <section className="space-y-4 mt-8">
-              <h2 className="text-2xl font-semibold text-[var(--accent)]">
+              <h2 className="text-2xl font-semibold text-(--accent)">
                 8. Cookies
               </h2>
-              <div className="text-[var(--text-primary)]">
+              <div className="text-primary-wh40k">
                 <p>
                   We use essential cookies to maintain your session and
                   preferences. We do not use tracking or advertising cookies.
@@ -217,10 +215,10 @@ export default function PrivacyPolicyClient() {
             </section>
 
             <section className="space-y-4 mt-8">
-              <h2 className="text-2xl font-semibold text-[var(--accent)]">
+              <h2 className="text-2xl font-semibold text-(--accent)">
                 9. Children&apos;s Privacy
               </h2>
-              <div className="text-[var(--text-primary)]">
+              <div className="text-primary-wh40k">
                 <p>
                   Our services are not directed to children under 13. We do not
                   knowingly collect information from children under 13.
@@ -229,10 +227,10 @@ export default function PrivacyPolicyClient() {
             </section>
 
             <section className="space-y-4 mt-8">
-              <h2 className="text-2xl font-semibold text-[var(--accent)]">
+              <h2 className="text-2xl font-semibold text-(--accent)">
                 10. Changes to This Policy
               </h2>
-              <div className="text-[var(--text-primary)]">
+              <div className="text-primary-wh40k">
                 <p>
                   We may update this privacy policy from time to time. We will
                   notify you of any changes by posting the new policy on this
@@ -242,10 +240,10 @@ export default function PrivacyPolicyClient() {
             </section>
 
             <section className="space-y-4 mt-8">
-              <h2 className="text-2xl font-semibold text-[var(--accent)]">
+              <h2 className="text-2xl font-semibold text-(--accent)">
                 11. Contact Us
               </h2>
-              <div className="text-[var(--text-primary)]">
+              <div className="text-primary-wh40k">
                 <p>
                   If you have any questions about this Privacy Policy, please
                   contact us through:

@@ -22,7 +22,7 @@ export function EncounterColumn({
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-[10px] font-semibold text-[var(--text-secondary)] uppercase tracking-wide shrink-0">
+        <span className="text-[10px] font-semibold text-secondary-wh40k uppercase tracking-wide shrink-0">
           {encounterLabel}
         </span>
         {bossData && (
@@ -40,8 +40,8 @@ export function EncounterColumn({
         )}
       </div>
       {!bossData || bossData.recommendations.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center bg-card/50 rounded-lg border border-dashed border-[var(--card-border)] p-4">
-          <span className="text-xs text-[var(--text-secondary)]">No data</span>
+        <div className="flex-1 flex items-center justify-center bg-card/50 rounded-lg border border-dashed border-(--card-border) p-4">
+          <span className="text-xs text-secondary-wh40k">No data</span>
         </div>
       ) : (
         <div className="flex-1 space-y-2">
@@ -55,7 +55,7 @@ export function EncounterColumn({
           ))}
           {bossData.recommendations.length > displayTeams.length && (
             <div className="text-center">
-              <span className="text-xs text-[var(--text-secondary)]">
+              <span className="text-xs text-secondary-wh40k">
                 +{bossData.recommendations.length - displayTeams.length} more
               </span>
             </div>

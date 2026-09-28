@@ -30,14 +30,14 @@ export default function SideTogglePills({
       <div
         role="group"
         aria-label="Composition side"
-        className="inline-flex shrink-0 items-center gap-0.5 rounded-full border border-[var(--card-border)] bg-[var(--card-bg)] p-0.5"
+        className="inline-flex shrink-0 items-center gap-0.5 rounded-full border border-(--card-border) bg-(--card-bg) p-0.5"
       >
         {SIDES.map((side) =>
           side === active ? (
             <span
               key={side}
               aria-current="page"
-              className="inline-flex min-h-11 items-center rounded-full px-3 py-1 text-xs font-medium bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] text-[var(--accent)]"
+              className="inline-flex min-h-11 items-center rounded-full px-3 py-1 text-xs font-medium bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] text-(--accent)"
             >
               {SIDE_LABELS[side]}
             </span>
@@ -45,7 +45,7 @@ export default function SideTogglePills({
             <Link
               key={side}
               href={hrefFor(side)}
-              className="inline-flex min-h-11 items-center rounded-full px-3 py-1 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              className="inline-flex min-h-11 items-center rounded-full px-3 py-1 text-xs font-medium text-secondary-wh40k hover:text-primary-wh40k transition-colors"
             >
               {SIDE_LABELS[side]}
             </Link>
@@ -61,7 +61,7 @@ export default function SideTogglePills({
         side === active ? (
           <span
             key={side}
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] text-[var(--bg-primary)]"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium bg-linear-to-r from-(--primary) to-(--accent) text-(--bg-primary)"
           >
             {SIDE_LABELS[side]}
           </span>
@@ -69,7 +69,7 @@ export default function SideTogglePills({
           <Link
             key={side}
             href={hrefFor(side)}
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium bg-[var(--card-bg)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] transition-colors"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium bg-(--card-bg) text-secondary-wh40k hover:text-primary-wh40k hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] transition-colors"
           >
             {SIDE_LABELS[side]}
           </Link>

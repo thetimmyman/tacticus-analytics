@@ -53,7 +53,7 @@ function EncounterContent({ encounter }: { encounter: SeasonalEncounterData }) {
         <section className="rounded-md border border-[color-mix(in_srgb,var(--accent)_25%,transparent)] bg-[color-mix(in_srgb,var(--accent)_6%,transparent)] p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--accent)">
                 Meta Atlas benchmark
               </div>
               <div className="mt-1 flex flex-wrap items-center gap-2">
@@ -66,7 +66,7 @@ function EncounterContent({ encounter }: { encounter: SeasonalEncounterData }) {
                 <div className="text-sm font-semibold text-emerald-300">
                   {formatDamage(benchmark)}
                 </div>
-                <div className="text-[9px] uppercase tracking-wide text-[var(--text-tertiary)]">
+                <div className="text-[9px] uppercase tracking-wide text-(--text-tertiary)">
                   {team.damageP90 !== null
                     ? 'P90'
                     : team.damageP75 !== null
@@ -125,9 +125,9 @@ export function EncounterCommandRow({
   return (
     <section
       id={sectionId}
-      className="scroll-mt-32 rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_70%,transparent)]"
+      className="scroll-mt-32 rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_70%,transparent)]"
     >
-      <div className="flex items-start justify-between gap-3 border-b border-[var(--card-border)] px-4 py-4">
+      <div className="flex items-start justify-between gap-3 border-b border-(--card-border) px-4 py-4">
         <EncounterTitle
           encounter={encounter}
           title={title}
@@ -141,7 +141,7 @@ export function EncounterCommandRow({
             <button
               type="button"
               onClick={() => setMobileOpsOpen(true)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[color-mix(in_srgb,var(--accent)_50%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--accent)] hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] xl:hidden"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[color-mix(in_srgb,var(--accent)_50%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-(--accent) hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] xl:hidden"
               aria-label={`Open ops settings for ${title}`}
             >
               <Settings2 className="h-4 w-4" />
@@ -159,12 +159,12 @@ export function EncounterCommandRow({
             type="button"
             onClick={() => setMobileOpsOpen(true)}
             aria-label={`Expand ops settings for ${title}`}
-            className="block w-full border-b border-[var(--card-border)] px-4 py-3 text-left xl:hidden"
+            className="block w-full border-b border-(--card-border) px-4 py-3 text-left xl:hidden"
           >
             {mobileSummary}
           </button>
         ) : (
-          <div className="border-b border-[var(--card-border)] px-4 py-3 xl:hidden">
+          <div className="border-b border-(--card-border) px-4 py-3 xl:hidden">
             {mobileSummary}
           </div>
         ))}
@@ -180,7 +180,7 @@ export function EncounterCommandRow({
       </div>
       {ops && mobileOpsOpen && (
         <div
-          className="fixed inset-0 z-[85] flex items-end bg-black/80 backdrop-blur-sm xl:hidden"
+          className="fixed inset-0 z-85 flex items-end bg-black/80 backdrop-blur-xs xl:hidden"
           role="dialog"
           aria-modal="true"
           aria-labelledby={mobileOpsTitleId}
@@ -191,15 +191,15 @@ export function EncounterCommandRow({
             aria-label={`Close ops for ${title}`}
             onClick={() => setMobileOpsOpen(false)}
           />
-          <div className="relative max-h-[88vh] w-full overflow-y-auto rounded-t-lg border border-[var(--card-border)] bg-[#171a1f] shadow-2xl">
-            <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-[var(--card-border)] bg-[#1b1f25] px-4 py-3">
+          <div className="relative max-h-[88vh] w-full overflow-y-auto rounded-t-lg border border-(--card-border) bg-[#171a1f] shadow-2xl">
+            <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-(--card-border) bg-[#1b1f25] px-4 py-3">
               <div>
-                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-(--accent)">
                   Encounter ops
                 </div>
                 <h3
                   id={mobileOpsTitleId}
-                  className="mt-1 text-lg font-semibold text-[var(--text-primary)]"
+                  className="mt-1 text-lg font-semibold text-primary-wh40k"
                 >
                   {title}
                 </h3>
@@ -207,7 +207,7 @@ export function EncounterCommandRow({
               <button
                 type="button"
                 onClick={() => setMobileOpsOpen(false)}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[var(--card-border)] bg-black/20 text-[var(--text-secondary)] hover:border-[color-mix(in_srgb,var(--accent)_60%,transparent)] hover:text-[var(--text-primary)]"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-(--card-border) bg-black/20 text-secondary-wh40k hover:border-[color-mix(in_srgb,var(--accent)_60%,transparent)] hover:text-primary-wh40k"
                 aria-label={`Close ops for ${title}`}
               >
                 <X className="h-4 w-4" />
@@ -283,7 +283,7 @@ export function TargetTokenControl({
 
   return (
     <div className="space-y-1">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
         Target tokens
       </div>
       <div className="flex items-stretch gap-1">
@@ -294,7 +294,7 @@ export function TargetTokenControl({
           }
           disabled={!canManage || status === 'saving' || (valid && parsed <= 1)}
           aria-label={`Decrease target tokens for ${encounter.bossName}`}
-          className="inline-flex h-9 w-8 items-center justify-center rounded-md border border-[var(--card-border)] bg-black/20 text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex h-9 w-8 items-center justify-center rounded-md border border-(--card-border) bg-black/20 text-secondary-wh40k hover:text-primary-wh40k disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Minus className="h-3.5 w-3.5" />
         </button>
@@ -309,7 +309,7 @@ export function TargetTokenControl({
           }}
           disabled={!canManage || status === 'saving'}
           inputMode="decimal"
-          className="h-9 w-20 rounded-md border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-primary)_90%,transparent)] px-2 text-center font-mono text-sm font-semibold text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[color-mix(in_srgb,var(--accent)_60%,transparent)] disabled:opacity-50"
+          className="h-9 w-20 rounded-md border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-primary)_90%,transparent)] px-2 text-center font-mono text-sm font-semibold text-primary-wh40k focus:outline-hidden focus:ring-2 focus:ring-[color-mix(in_srgb,var(--accent)_60%,transparent)] disabled:opacity-50"
           placeholder="--"
           aria-label={`${encounter.bossName} target tokens`}
         />
@@ -320,7 +320,7 @@ export function TargetTokenControl({
           }
           disabled={!canManage || status === 'saving'}
           aria-label={`Increase target tokens for ${encounter.bossName}`}
-          className="inline-flex h-9 w-8 items-center justify-center rounded-md border border-[var(--card-border)] bg-black/20 text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex h-9 w-8 items-center justify-center rounded-md border border-(--card-border) bg-black/20 text-secondary-wh40k hover:text-primary-wh40k disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Plus className="h-3.5 w-3.5" />
         </button>
@@ -329,7 +329,7 @@ export function TargetTokenControl({
           onClick={() => void save()}
           disabled={!canManage || !dirty || status === 'saving'}
           aria-label={`Save target tokens for ${encounter.bossName}`}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[color-mix(in_srgb,var(--accent)_45%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--accent)] hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] disabled:cursor-not-allowed disabled:border-[var(--card-border)] disabled:bg-black/10 disabled:text-[color-mix(in_srgb,var(--text-secondary)_35%,transparent)]"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[color-mix(in_srgb,var(--accent)_45%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-(--accent) hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] disabled:cursor-not-allowed disabled:border-(--card-border) disabled:bg-black/10 disabled:text-[color-mix(in_srgb,var(--text-secondary)_35%,transparent)]"
         >
           {status === 'saving' ? (
             <Loader2 className="h-3.5 w-3.5" />
@@ -363,7 +363,7 @@ export function PingModeToggle({
   ]
 
   return (
-    <div className="grid grid-cols-3 gap-1 rounded-md border border-[var(--card-border)] bg-black/20 p-1">
+    <div className="grid grid-cols-3 gap-1 rounded-md border border-(--card-border) bg-black/20 p-1">
       {options.map((option) => {
         const active = value === option.value
         return (
@@ -374,12 +374,12 @@ export function PingModeToggle({
             onClick={() => onChange(option.value)}
             aria-pressed={active}
             className={clsx(
-              'min-h-[38px] rounded border px-2 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40',
+              'min-h-[38px] rounded-sm border px-2 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40',
               active
                 ? option.value === 'skip_all'
-                  ? 'border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)]'
-                  : 'border-[color-mix(in_srgb,var(--accent)_75%,transparent)] bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-[var(--accent)]'
-                : 'border-transparent text-[var(--text-secondary)] hover:bg-[color-mix(in_srgb,var(--card-bg)_70%,transparent)] hover:text-[var(--text-primary)]'
+                  ? 'border-(--card-border) bg-(--card-bg) text-primary-wh40k'
+                  : 'border-[color-mix(in_srgb,var(--accent)_75%,transparent)] bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-(--accent)'
+                : 'border-transparent text-secondary-wh40k hover:bg-[color-mix(in_srgb,var(--card-bg)_70%,transparent)] hover:text-primary-wh40k'
             )}
           >
             {option.label}
@@ -416,11 +416,11 @@ export function MessageIncludePicker({
       include: next.include
     })
   const inputClass =
-    'h-9 rounded-md border border-[var(--card-border)] bg-black/20 px-2 text-sm text-[var(--text-primary)] placeholder-[color-mix(in_srgb,var(--text-secondary)_50%,transparent)] focus:border-[color-mix(in_srgb,var(--accent)_60%,transparent)] focus:outline-none disabled:opacity-50'
+    'h-9 rounded-md border border-(--card-border) bg-black/20 px-2 text-sm text-primary-wh40k placeholder-[color-mix(in_srgb,var(--text-secondary)_50%,transparent)] focus:border-[color-mix(in_srgb,var(--accent)_60%,transparent)] focus:outline-hidden disabled:opacity-50'
 
   return (
     <div className="space-y-2">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
         Include in Herald message
       </div>
       <div className="flex flex-wrap gap-1.5">
@@ -437,8 +437,8 @@ export function MessageIncludePicker({
               className={clsx(
                 'inline-flex min-h-[32px] items-center gap-1.5 rounded-md border px-2 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-35',
                 active
-                  ? 'border-[color-mix(in_srgb,var(--accent)_70%,transparent)] bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-[var(--accent)]'
-                  : 'border-[var(--card-border)] bg-black/15 text-[var(--text-secondary)] hover:border-[color-mix(in_srgb,var(--accent)_45%,transparent)] hover:text-[var(--text-primary)]'
+                  ? 'border-[color-mix(in_srgb,var(--accent)_70%,transparent)] bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-(--accent)'
+                  : 'border-(--card-border) bg-black/15 text-secondary-wh40k hover:border-[color-mix(in_srgb,var(--accent)_45%,transparent)] hover:text-primary-wh40k'
               )}
             >
               <Icon className="h-3.5 w-3.5" />
@@ -489,7 +489,7 @@ export function MessageIncludePicker({
                   patchCustomLinks(removeCustomLink(settings, link.clientKey))
                 }
                 aria-label={`Remove custom link ${index + 1}`}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[var(--card-border)] bg-black/20 text-[var(--text-secondary)] transition-colors hover:border-red-500/60 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-(--card-border) bg-black/20 text-secondary-wh40k transition-colors hover:border-red-500/60 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -499,7 +499,7 @@ export function MessageIncludePicker({
             type="button"
             disabled={disabled || atCustomLinkCap}
             onClick={() => patchCustomLinks(addCustomLink(settings))}
-            className="inline-flex min-h-[32px] items-center gap-1.5 rounded-md border border-[var(--card-border)] bg-black/15 px-2 text-xs font-semibold text-[var(--text-secondary)] transition-colors hover:border-[color-mix(in_srgb,var(--accent)_45%,transparent)] hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex min-h-[32px] items-center gap-1.5 rounded-md border border-(--card-border) bg-black/15 px-2 text-xs font-semibold text-secondary-wh40k transition-colors hover:border-[color-mix(in_srgb,var(--accent)_45%,transparent)] hover:text-primary-wh40k disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Plus className="h-3.5 w-3.5" />
             {atCustomLinkCap ? `Max ${MAX_CUSTOM_LINKS} links` : 'Add link'}

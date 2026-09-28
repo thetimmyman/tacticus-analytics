@@ -136,7 +136,7 @@ export default function PerformanceLeaderboardClient({
       {/* Leaderboard */}
       <div className="bg-card/50 rounded-lg border border-[color-mix(in_srgb,var(--primary)_20%,transparent)] overflow-hidden">
         <div className="p-4 border-b border-[color-mix(in_srgb,var(--primary)_20%,transparent)]">
-          <h2 className="text-lg font-semibold text-[var(--primary)]">
+          <h2 className="text-lg font-semibold text-(--primary)">
             Token Performance Leaderboard
           </h2>
           <p className="text-xs text-amber-100/60 mt-1">
@@ -149,22 +149,22 @@ export default function PerformanceLeaderboardClient({
         </div>
         <div className="overflow-auto max-h-[70vh]">
           <table className="w-full">
-            <thead className="sticky top-0 bg-[var(--bg-primary)] border-b border-[color-mix(in_srgb,var(--primary)_30%,transparent)]">
+            <thead className="sticky top-0 bg-(--bg-primary) border-b border-[color-mix(in_srgb,var(--primary)_30%,transparent)]">
               <tr>
                 <th
-                  className="px-4 py-3 text-left text-sm font-medium text-amber-100/80 cursor-pointer hover:text-[var(--primary)]"
+                  className="px-4 py-3 text-left text-sm font-medium text-amber-100/80 cursor-pointer hover:text-(--primary)"
                   onClick={() => toggleSort('name')}
                 >
                   Player{sortIndicator('name')}
                 </th>
                 <th
-                  className="px-4 py-3 text-center text-sm font-medium text-amber-100/80 cursor-pointer hover:text-[var(--primary)]"
+                  className="px-4 py-3 text-center text-sm font-medium text-amber-100/80 cursor-pointer hover:text-(--primary)"
                   onClick={() => toggleSort('bosses')}
                 >
                   Bosses{sortIndicator('bosses')}
                 </th>
                 <th
-                  className="px-4 py-3 text-center text-sm font-medium text-amber-100/80 cursor-pointer hover:text-[var(--primary)]"
+                  className="px-4 py-3 text-center text-sm font-medium text-amber-100/80 cursor-pointer hover:text-(--primary)"
                   onClick={() => toggleSort('tokens')}
                 >
                   Tokens{sortIndicator('tokens')}
@@ -173,7 +173,7 @@ export default function PerformanceLeaderboardClient({
                   Expected
                 </th>
                 <th
-                  className="px-4 py-3 text-center text-sm font-medium text-amber-100/80 cursor-pointer hover:text-[var(--primary)]"
+                  className="px-4 py-3 text-center text-sm font-medium text-amber-100/80 cursor-pointer hover:text-(--primary)"
                   onClick={() => toggleSort('score')}
                 >
                   Weighted Score{sortIndicator('score')}

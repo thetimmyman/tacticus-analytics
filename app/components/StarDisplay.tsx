@@ -26,7 +26,7 @@ function getStarDisplayConfig(stars: number): {
   count: number
   color: string
 } {
-  if (stars <= 0) return { count: 0, color: 'text-[var(--text-secondary)]' }
+  if (stars <= 0) return { count: 0, color: 'text-secondary-wh40k' }
 
   if (stars >= 14) {
     return {
@@ -86,7 +86,7 @@ export function StarDisplay({
   if (stars === 0) {
     return (
       <div className={`flex items-center justify-center gap-1 ${className}`}>
-        <span className="text-xs text-[var(--text-secondary)]">-</span>
+        <span className="text-xs text-secondary-wh40k">-</span>
       </div>
     )
   }
@@ -156,9 +156,7 @@ export function StarCount({
   }[tier]
 
   if (stars === 0) {
-    return (
-      <span className={`text-[var(--text-secondary)] ${className}`}>-</span>
-    )
+    return <span className={`text-secondary-wh40k ${className}`}>-</span>
   }
 
   return <span className={`${colorClass} ${className}`}>{stars}</span>
@@ -194,7 +192,7 @@ export function StarDisplayFromCount({
   if (starCount === 0) {
     return (
       <div className={`flex items-center justify-center gap-1 ${className}`}>
-        <span className="text-xs text-[var(--text-secondary)]">-</span>
+        <span className="text-xs text-secondary-wh40k">-</span>
       </div>
     )
   }

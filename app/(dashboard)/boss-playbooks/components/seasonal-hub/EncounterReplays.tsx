@@ -23,7 +23,7 @@ function ReplayRow({ replay }: { replay: SeasonalHubReplay }) {
       <div className="flex min-w-0 flex-1 items-center gap-2">
         {replay.isPinnedByGuild ? (
           <Pin
-            className="h-3.5 w-3.5 shrink-0 text-[var(--accent)]"
+            className="h-3.5 w-3.5 shrink-0 text-(--accent)"
             aria-label="Pinned by your guild"
           />
         ) : replay.isFeatured ? (
@@ -32,9 +32,9 @@ function ReplayRow({ replay }: { replay: SeasonalHubReplay }) {
             aria-label="Featured"
           />
         ) : (
-          <Film className="h-3.5 w-3.5 shrink-0 text-[var(--text-tertiary)]" />
+          <Film className="h-3.5 w-3.5 shrink-0 text-(--text-tertiary)" />
         )}
-        <span className="truncate text-xs font-semibold text-[var(--text-primary)]">
+        <span className="truncate text-xs font-semibold text-primary-wh40k">
           {replay.title}
         </span>
       </div>
@@ -46,7 +46,7 @@ function ReplayRow({ replay }: { replay: SeasonalHubReplay }) {
       )}
       {replay.mediaHref && (
         <Play
-          className="h-3.5 w-3.5 shrink-0 text-[var(--accent)]"
+          className="h-3.5 w-3.5 shrink-0 text-(--accent)"
           aria-label="Has video"
         />
       )}
@@ -55,7 +55,7 @@ function ReplayRow({ replay }: { replay: SeasonalHubReplay }) {
 
   const rowClassName = clsx(
     'flex items-center gap-2 rounded-md border px-2 py-1.5',
-    'border-[var(--card-border)] bg-black/20',
+    'border-(--card-border) bg-black/20',
     'hover:border-[color-mix(in_srgb,var(--accent)_55%,transparent)]'
   )
 
@@ -88,15 +88,15 @@ export function EncounterReplays({
   const hasAny = topReplays.length > 0
 
   return (
-    <section className="rounded-md border border-[var(--card-border)] bg-black/15 p-3">
+    <section className="rounded-md border border-(--card-border) bg-black/15 p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
           Community replays
         </div>
         {availableReplayCount > 0 && (
           <Link
             href={encounterCatalogHref(encounter)}
-            className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--accent)] hover:underline"
+            className="text-[10px] font-semibold uppercase tracking-[0.14em] text-(--accent) hover:underline"
           >
             {availableReplayCount === 1
               ? 'View 1 replay'
@@ -116,7 +116,7 @@ export function EncounterReplays({
           )}
         </div>
       ) : (
-        <p className="mt-2 text-xs italic text-[var(--text-tertiary)]">
+        <p className="mt-2 text-xs italic text-(--text-tertiary)">
           No community replays are available for this encounter yet.
         </p>
       )}

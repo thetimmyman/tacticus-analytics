@@ -161,7 +161,7 @@ export function ModalShell({
         {...labelledProps}
         aria-describedby={descriptionId}
         className={clsx(
-          'card-wh40k w-full max-h-[90vh] overflow-y-auto p-6 space-y-4 relative outline-none',
+          'card-wh40k w-full max-h-[90vh] overflow-y-auto p-6 space-y-4 relative outline-hidden',
           sizeClass[size],
           contentClassName
         )}
@@ -171,7 +171,7 @@ export function ModalShell({
             type="button"
             onClick={onClose}
             aria-label={closeLabel}
-            className="absolute top-3 right-3 inline-flex h-11 w-11 items-center justify-center rounded text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors duration-fast focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+            className="absolute top-3 right-3 inline-flex h-11 w-11 items-center justify-center rounded-sm text-secondary-wh40k hover:text-primary-wh40k hover:bg-(--bg-secondary) transition-colors duration-fast focus:outline-hidden focus:ring-2 focus:ring-(--accent)"
           >
             <span aria-hidden="true" className="text-2xl leading-none">
               ×

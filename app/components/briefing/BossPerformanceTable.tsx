@@ -51,7 +51,7 @@ function SourceChip({ source }: { source: MemberBossPerfRow['targetSource'] }) {
   const isPlaybook = source === 'playbook'
   return (
     <span
-      className="rounded border px-1.5 py-px text-[8.5px] font-bold uppercase tracking-wider"
+      className="rounded-sm border px-1.5 py-px text-[8.5px] font-bold uppercase tracking-wider"
       style={{
         color: isPlaybook ? 'var(--accent)' : 'var(--text-tertiary)',
         borderColor: isPlaybook
@@ -76,13 +76,13 @@ function BossIdentity({ row }: { row: MemberBossPerfRow }) {
         variant="icon"
         size="small"
         showFallback
-        className="shrink-0 rounded-md border border-[var(--card-border)]"
+        className="shrink-0 rounded-md border border-(--card-border)"
       />
       <div className="min-w-0">
-        <div className="truncate font-medium text-[var(--text-primary)] group-hover:underline">
+        <div className="truncate font-medium text-primary-wh40k group-hover:underline">
           {prettyBossName(row.bossName)}
         </div>
-        <div className="text-[10px] uppercase tracking-wide text-[var(--text-tertiary)]">
+        <div className="text-[10px] uppercase tracking-wide text-(--text-tertiary)">
           {row.isCurrentTarget ? 'Current target · ' : ''}
           {formatEncounterLabel(row.encounterId)}
         </div>
@@ -108,15 +108,13 @@ function MetricTile({
 }) {
   return (
     <div className="rounded-lg border border-[color-mix(in_srgb,var(--card-border)_40%,transparent)] bg-card/20 px-2.5 py-1.5">
-      <div className="flex items-center gap-1 text-[9px] uppercase tracking-wider text-[var(--text-tertiary)]">
+      <div className="flex items-center gap-1 text-[9px] uppercase tracking-wider text-(--text-tertiary)">
         <span className="truncate">{label}</span>
         {chip && <span className="shrink-0">{chip}</span>}
       </div>
       <div
         className={`mt-0.5 font-mono tabular-nums ${
-          emphasis
-            ? 'font-semibold text-[var(--text-primary)]'
-            : 'text-[var(--text-secondary)]'
+          emphasis ? 'font-semibold text-primary-wh40k' : 'text-secondary-wh40k'
         }`}
       >
         {value}
@@ -143,7 +141,7 @@ function MarkSwatch({
   if (kind === 'avg') {
     return (
       <span
-        className="inline-block h-2.5 w-3.5 shrink-0 rounded-sm"
+        className="inline-block h-2.5 w-3.5 shrink-0 rounded-xs"
         style={{ backgroundColor: below ? 'var(--warning)' : 'var(--success)' }}
         aria-hidden="true"
       />
@@ -152,7 +150,7 @@ function MarkSwatch({
   if (kind === 'target') {
     return (
       <span
-        className="inline-block h-3.5 w-[3px] shrink-0 rounded-sm"
+        className="inline-block h-3.5 w-[3px] shrink-0 rounded-xs"
         style={{ backgroundColor: 'var(--accent)' }}
         aria-hidden="true"
       />
@@ -191,8 +189,8 @@ function playbookHref(
 // Hover tint and focus ring via properties that do not fight the inline background.
 const ROW_LINK_CHROME =
   'group transition-shadow hover:shadow-[inset_0_0_0_999px_rgba(128,128,128,0.09)] ' +
-  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)] ' +
-  'focus-visible:[outline-offset:-2px]'
+  'focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-(--accent) ' +
+  'focus-visible:-outline-offset-2'
 
 function BulletRow({
   row,
@@ -264,7 +262,7 @@ function BulletRow({
         )}
         {targetPos != null && (
           <div
-            className="absolute -inset-y-0.5 w-[3px] rounded-sm"
+            className="absolute -inset-y-0.5 w-[3px] rounded-xs"
             style={{
               left: `${targetPos}%`,
               transform: 'translateX(-50%)',
@@ -288,10 +286,10 @@ function BulletRow({
               aria-hidden="true"
             />
           )}
-          <span className="w-9 text-left text-[9px] uppercase tracking-wider text-[var(--text-tertiary)]">
+          <span className="w-9 text-left text-[9px] uppercase tracking-wider text-(--text-tertiary)">
             You
           </span>
-          <span className="font-mono tabular-nums text-[14px] font-bold text-[var(--text-primary)]">
+          <span className="font-mono tabular-nums text-[14px] font-bold text-primary-wh40k">
             {dmg(row.yourAvg)}
           </span>
           {row.vsTargetPct != null && (
@@ -305,10 +303,10 @@ function BulletRow({
         </div>
         <div className="flex items-center justify-end gap-1.5">
           <MarkSwatch kind="target" />
-          <span className="w-9 text-left text-[9px] uppercase tracking-wider text-[var(--text-tertiary)]">
+          <span className="w-9 text-left text-[9px] uppercase tracking-wider text-(--text-tertiary)">
             Target
           </span>
-          <span className="font-mono tabular-nums text-[12px] font-semibold text-[var(--accent)]">
+          <span className="font-mono tabular-nums text-[12px] font-semibold text-(--accent)">
             {dmg(row.yourTarget)}
           </span>
           <span className="w-11 text-left">
@@ -317,10 +315,10 @@ function BulletRow({
         </div>
         <div className="flex items-center justify-end gap-1.5">
           <MarkSwatch kind="guild" />
-          <span className="w-9 text-left text-[9px] uppercase tracking-wider text-[var(--text-tertiary)]">
+          <span className="w-9 text-left text-[9px] uppercase tracking-wider text-(--text-tertiary)">
             Guild
           </span>
-          <span className="font-mono tabular-nums text-[12px] text-[var(--text-secondary)]">
+          <span className="font-mono tabular-nums text-[12px] text-secondary-wh40k">
             {dmg(row.guildAvg)}
           </span>
           <span className="w-11" />
@@ -341,16 +339,16 @@ export default function BossPerformanceTable({
 
   return (
     <section
-      className="rounded-xl border border-[var(--card-border)] bg-card/30 overflow-hidden"
+      className="rounded-xl border border-(--card-border) bg-card/30 overflow-hidden"
       aria-label="Boss performance"
       data-testid="boss-performance-table"
     >
       <header className="flex flex-wrap items-center justify-between gap-2 border-b border-[color-mix(in_srgb,var(--card-border)_50%,transparent)] px-4 py-3">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-semibold text-[var(--text-primary)]">
+          <h2 className="text-sm font-semibold text-primary-wh40k">
             Boss performance
           </h2>
-          <span className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+          <span className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
             Damage per token{seasonNumber ? ` · Season ${seasonNumber}` : ''}
           </span>
           {data.overallVsGuildPct != null && (
@@ -367,28 +365,28 @@ export default function BossPerformanceTable({
         </div>
         <Link
           href={getHrefWithSeason('/player-stats', seasonNumber)}
-          className="text-xs text-[var(--accent)] hover:underline"
+          className="text-xs text-(--accent) hover:underline"
         >
           View all performance →
         </Link>
       </header>
 
       {/* Legend for the bar marks (desktop only). */}
-      <div className="hidden flex-wrap items-center gap-4 border-b border-[color-mix(in_srgb,var(--card-border)_30%,transparent)] px-4 py-2 text-[11px] text-[var(--text-secondary)] sm:flex">
+      <div className="hidden flex-wrap items-center gap-4 border-b border-[color-mix(in_srgb,var(--card-border)_30%,transparent)] px-4 py-2 text-[11px] text-secondary-wh40k sm:flex">
         <span className="inline-flex items-center gap-2">
           <span
-            className="inline-block h-2.5 w-5 rounded-sm"
+            className="inline-block h-2.5 w-5 rounded-xs"
             style={{ backgroundColor: 'var(--success)' }}
           />
           Your avg
         </span>
         <span className="inline-flex items-center gap-2">
           <span
-            className="inline-block h-3.5 w-[3px] rounded-sm"
+            className="inline-block h-3.5 w-[3px] rounded-xs"
             style={{ backgroundColor: 'var(--accent)' }}
           />
           Clear target{' '}
-          <span className="text-[var(--text-tertiary)]">
+          <span className="text-(--text-tertiary)">
             (playbook HP ÷ tokens, or coaching)
           </span>
         </span>
@@ -450,9 +448,9 @@ export default function BossPerformanceTable({
       </div>
 
       {currentTarget && (
-        <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[color-mix(in_srgb,var(--card-border)_50%,transparent)] px-4 py-2.5 text-xs text-[var(--text-secondary)]">
+        <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[color-mix(in_srgb,var(--card-border)_50%,transparent)] px-4 py-2.5 text-xs text-secondary-wh40k">
           <span>
-            <span className="font-semibold text-[var(--text-primary)]">
+            <span className="font-semibold text-primary-wh40k">
               Current target: {prettyBossName(currentTarget.bossName)}
             </span>{' '}
             — you are{' '}
@@ -464,7 +462,7 @@ export default function BossPerformanceTable({
           </span>
           <Link
             href={getHrefWithSeason('/boss-playbooks', seasonNumber)}
-            className="text-[var(--accent)] hover:underline"
+            className="text-(--accent) hover:underline"
           >
             All bosses →
           </Link>

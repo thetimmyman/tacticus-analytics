@@ -181,9 +181,7 @@ function TargetCell({
   ) : skipped ? (
     <span className="italic text-amber-100/40">skipped</span>
   ) : storedValue != null ? (
-    <span className="font-semibold text-[var(--text-primary)]">
-      {storedValue}
-    </span>
+    <span className="font-semibold text-primary-wh40k">{storedValue}</span>
   ) : (
     <span className="text-amber-100/30">—</span>
   )
@@ -203,7 +201,7 @@ function TargetCell({
           }
           disabled={mutation.isPending || (valid && parsed <= 1)}
           aria-label={`Decrease target tokens for ${getBossDisplayName(row.display_name)} ${encounterLabel(row.encounter_id)}`}
-          className="inline-flex h-6 w-6 items-center justify-center rounded border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] bg-black/20 text-amber-100/70 hover:text-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex h-6 w-6 items-center justify-center rounded-sm border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] bg-black/20 text-amber-100/70 hover:text-(--primary) disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Minus className="h-3 w-3" />
         </button>
@@ -220,7 +218,7 @@ function TargetCell({
           inputMode="decimal"
           placeholder="—"
           aria-label={`${getBossDisplayName(row.display_name)} target tokens`}
-          className="h-6 w-14 rounded border border-[color-mix(in_srgb,var(--primary)_40%,transparent)] bg-[var(--bg-primary)] px-1 text-center font-mono text-xs font-semibold text-[var(--text-primary)] focus:outline-none focus:border-[color-mix(in_srgb,var(--primary)_70%,transparent)]"
+          className="h-6 w-14 rounded-sm border border-[color-mix(in_srgb,var(--primary)_40%,transparent)] bg-(--bg-primary) px-1 text-center font-mono text-xs font-semibold text-primary-wh40k focus:outline-hidden focus:border-[color-mix(in_srgb,var(--primary)_70%,transparent)]"
         />
         <button
           type="button"
@@ -229,7 +227,7 @@ function TargetCell({
           }
           disabled={mutation.isPending}
           aria-label={`Increase target tokens for ${getBossDisplayName(row.display_name)} ${encounterLabel(row.encounter_id)}`}
-          className="inline-flex h-6 w-6 items-center justify-center rounded border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] bg-black/20 text-amber-100/70 hover:text-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex h-6 w-6 items-center justify-center rounded-sm border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] bg-black/20 text-amber-100/70 hover:text-(--primary) disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Plus className="h-3 w-3" />
         </button>
@@ -238,7 +236,7 @@ function TargetCell({
           onClick={save}
           disabled={!dirty || mutation.isPending}
           aria-label={`Save target tokens for ${getBossDisplayName(row.display_name)} ${encounterLabel(row.encounter_id)}`}
-          className="inline-flex h-6 w-6 items-center justify-center rounded border border-[color-mix(in_srgb,var(--accent)_45%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--accent)] hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] disabled:cursor-not-allowed disabled:border-[color-mix(in_srgb,var(--primary)_20%,transparent)] disabled:bg-black/10 disabled:text-amber-100/30"
+          className="inline-flex h-6 w-6 items-center justify-center rounded-sm border border-[color-mix(in_srgb,var(--accent)_45%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-(--accent) hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] disabled:cursor-not-allowed disabled:border-[color-mix(in_srgb,var(--primary)_20%,transparent)] disabled:bg-black/10 disabled:text-amber-100/30"
         >
           {status === 'saving' ? (
             <Loader2 className="h-3 w-3 animate-spin" />
@@ -382,7 +380,7 @@ export function PerformanceTargetTokensTable({
     <div className="bg-card/50 rounded-lg border border-[color-mix(in_srgb,var(--primary)_20%,transparent)] overflow-hidden">
       <div className="p-4 border-b border-[color-mix(in_srgb,var(--primary)_20%,transparent)] flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-[var(--primary)]">
+          <h2 className="text-lg font-semibold text-(--primary)">
             Target Tokens by Boss
           </h2>
           <p className="text-xs text-amber-100/60 mt-1">
@@ -450,7 +448,7 @@ export function PerformanceTargetTokensTable({
       ) : (
         <div className="overflow-auto max-h-[50vh]">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-[var(--bg-primary)] border-b border-[color-mix(in_srgb,var(--primary)_30%,transparent)]">
+            <thead className="sticky top-0 bg-(--bg-primary) border-b border-[color-mix(in_srgb,var(--primary)_30%,transparent)]">
               <tr>
                 <th className="px-3 py-2 text-left font-medium text-amber-100/80">
                   Boss
@@ -501,9 +499,9 @@ export function PerformanceTargetTokensTable({
                 return (
                   <tr
                     key={`${row.boss_type}__${row.rarity}__${row.set}__${row.encounter_id}`}
-                    className={`group border-t border-[var(--card-border)] hover:bg-[color-mix(in_srgb,var(--bg-secondary)_20%,transparent)] ${rowDim}`}
+                    className={`group border-t border-(--card-border) hover:bg-[color-mix(in_srgb,var(--bg-secondary)_20%,transparent)] ${rowDim}`}
                   >
-                    <td className="px-3 py-2 text-[var(--text-primary)] whitespace-nowrap">
+                    <td className="px-3 py-2 text-primary-wh40k whitespace-nowrap">
                       {getBossDisplayName(row.display_name)}
                     </td>
                     <td className="px-3 py-2 text-center font-mono text-xs text-amber-300">
@@ -538,11 +536,11 @@ export function PerformanceTargetTokensTable({
                     </td>
                     <td className="px-3 py-2 text-center">
                       {noneAvailable ? (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-red-500/20 text-red-300 border border-red-500/40">
+                        <span className="px-2 py-0.5 rounded-sm text-[10px] font-semibold bg-red-500/20 text-red-300 border border-red-500/40">
                           None available
                         </span>
                       ) : skipped ? (
-                        <span className="px-2 py-0.5 rounded text-[10px] bg-gray-500/20 text-gray-300 border border-gray-500/30">
+                        <span className="px-2 py-0.5 rounded-sm text-[10px] bg-gray-500/20 text-gray-300 border border-gray-500/30">
                           Skip
                         </span>
                       ) : row.target ? (
@@ -564,7 +562,7 @@ export function PerformanceTargetTokensTable({
                             : 'Seeded'}
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded text-[10px] text-amber-100/40 border border-amber-100/10">
+                        <span className="px-2 py-0.5 rounded-sm text-[10px] text-amber-100/40 border border-amber-100/10">
                           Unset
                         </span>
                       )}

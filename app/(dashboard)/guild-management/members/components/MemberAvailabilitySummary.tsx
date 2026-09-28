@@ -52,7 +52,7 @@ export function MemberAvailabilitySummary({
       {tokenDataError && (
         <div
           role="alert"
-          className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100"
+          className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-sm border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100"
         >
           <span>
             Token availability is temporarily unavailable. Existing member data
@@ -62,25 +62,21 @@ export function MemberAvailabilitySummary({
             <button
               type="button"
               onClick={onRetryTokenData}
-              className="rounded border border-amber-400/40 px-2 py-1 font-medium text-amber-50 hover:bg-amber-400/10"
+              className="rounded-sm border border-amber-400/40 px-2 py-1 font-medium text-amber-50 hover:bg-amber-400/10"
             >
               Retry
             </button>
           )}
         </div>
       )}
-      <div className="flex flex-wrap gap-4 text-xs text-[var(--text-secondary)]">
+      <div className="flex flex-wrap gap-4 text-xs text-secondary-wh40k">
         <span>
           Tokens Available (Player API):{' '}
-          <span className="font-mono text-[var(--text-primary)]">
-            {tokensSummary}
-          </span>
+          <span className="font-mono text-primary-wh40k">{tokensSummary}</span>
         </span>
         <span>
           Bombs Ready (Player API):{' '}
-          <span className="font-mono text-[var(--text-primary)]">
-            {bombsSummary}
-          </span>
+          <span className="font-mono text-primary-wh40k">{bombsSummary}</span>
         </span>
       </div>
     </div>

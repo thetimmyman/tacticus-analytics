@@ -291,7 +291,5 @@ export function getRankBadge(rank: number | null | undefined): string {
 }
 
 export function getGuildColor(guild: string, userGuild: string): string {
-  return guild === userGuild
-    ? 'text-[var(--primary)]'
-    : 'text-[var(--text-primary)]'
+  return guild === userGuild ? 'text-(--primary)' : 'text-primary-wh40k'
 }

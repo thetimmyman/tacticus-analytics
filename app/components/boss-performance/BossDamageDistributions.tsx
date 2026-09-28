@@ -34,7 +34,7 @@ export function BossDamageDistributions() {
       color: 'var(--accent)',
       minHeight: 140,
       title: (
-        <div className="flex items-center gap-2 text-[var(--accent)]">
+        <div className="flex items-center gap-2 text-(--accent)">
           {bossName && bossName !== 'TempBoss' ? (
             <BossLink
               bossName={bossName}
@@ -49,7 +49,7 @@ export function BossDamageDistributions() {
             <span>Main Boss Damage Distribution</span>
           )}
           {bossName && bossName !== 'TempBoss' && (
-            <span className="text-xs font-normal text-[var(--text-secondary)]">
+            <span className="text-xs font-normal text-secondary-wh40k">
               Damage Distribution
             </span>
           )}
@@ -75,7 +75,7 @@ export function BossDamageDistributions() {
           >
             {distribution.name}
           </BossLink>
-          <span className="text-xs font-normal text-[var(--text-secondary)]">
+          <span className="text-xs font-normal text-secondary-wh40k">
             Damage Distribution
           </span>
         </div>
@@ -152,7 +152,7 @@ export function BossDamageDistributions() {
       )}
 
       {primeDamageDistributions.length > 0 && (
-        <div className="text-xs text-[var(--text-secondary)] text-right pr-1">
+        <div className="text-xs text-secondary-wh40k text-right pr-1">
           Tracking {formatNumber(primeParticipantCount)} prime participants
           across {primeDamageDistributions.length} bosses.
         </div>
@@ -171,11 +171,11 @@ function DistributionSkeletonGrid() {
         >
           <CardHeader className="p-0 pb-3">
             <CardTitle className="subheading-wh40k text-base sm:text-lg">
-              <span className="inline-block h-4 w-48 animate-pulse rounded bg-[color-mix(in_srgb,var(--card-border)_60%,transparent)]" />
+              <span className="inline-block h-4 w-48 animate-pulse rounded-sm bg-[color-mix(in_srgb,var(--card-border)_60%,transparent)]" />
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0 flex-1">
-            <div className="h-48 w-full animate-pulse rounded bg-[color-mix(in_srgb,var(--card-border)_40%,transparent)]" />
+            <div className="h-48 w-full animate-pulse rounded-sm bg-[color-mix(in_srgb,var(--card-border)_40%,transparent)]" />
           </CardContent>
         </Card>
       ))}

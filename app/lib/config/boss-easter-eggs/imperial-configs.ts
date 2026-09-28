@@ -198,7 +198,7 @@ export const dornConfig: BossEasterEggConfig = {
 export const cawlConfig: BossEasterEggConfig = {
   bossName: 'Belisarius Cawl',
   titleOverride: 'ARCHMAGOS CAWL',
-  primaryColor: 'text-[var(--accent)]',
+  primaryColor: 'text-(--accent)',
   secondaryColor: 'text-red-400',
   displayPattern: ['01001111', '01001101', '01001110', '01001001'], // OMNI in binary
   visualEffects: [
@@ -260,7 +260,7 @@ export const cawlConfig: BossEasterEggConfig = {
       message:
         '🤖 Belisarius Cawl is calculating 10,000 ways to improve your strategy',
       icon: Cpu,
-      color: 'text-[var(--accent)]',
+      color: 'text-(--accent)',
       duration: 3000,
       glitchIntensity: 'none'
     },
@@ -301,7 +301,7 @@ export const cawlConfig: BossEasterEggConfig = {
       type: 'ancient_wisdom',
       message: '📖 10,000 years of knowledge judges your tactics insufficient',
       icon: Brain,
-      color: 'text-[var(--accent)]',
+      color: 'text-(--accent)',
       duration: 4000,
       glitchIntensity: 'light'
     },
@@ -318,7 +318,7 @@ export const cawlConfig: BossEasterEggConfig = {
       message:
         "⚙️ The Omnissiah whispers: 'Your methodology lacks divine inspiration'",
       icon: Cpu,
-      color: 'text-[var(--accent)]',
+      color: 'text-(--accent)',
       duration: 5000,
       glitchIntensity: 'light'
     },
@@ -334,7 +334,7 @@ export const cawlConfig: BossEasterEggConfig = {
       type: 'system_alert',
       message: '🔋 ARCHMAGOS INTERFACE: Direct neural link established',
       icon: Brain,
-      color: 'text-[var(--accent)]',
+      color: 'text-(--accent)',
       duration: 5500,
       glitchIntensity: 'heavy'
     },

@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic'
 
 export default function StatusPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900">
+    <div className="min-h-screen bg-linear-to-b from-slate-950 to-slate-900">
       <Suspense
         fallback={
           <div className="flex items-center justify-center min-h-screen">

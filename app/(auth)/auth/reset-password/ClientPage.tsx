@@ -176,9 +176,9 @@ export default function ResetPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--bg-primary)] px-4">
+      <div className="min-h-screen flex items-center justify-center bg-(--bg-primary) px-4">
         <div className="max-w-md w-full">
-          <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg p-8 text-center">
+          <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg p-8 text-center">
             <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
                 className="w-8 h-8 text-green-500"
@@ -194,13 +194,13 @@ export default function ResetPasswordPage() {
                 />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
+            <h2 className="text-2xl font-bold text-primary-wh40k mb-2">
               Password Reset Successful!
             </h2>
-            <p className="text-[var(--text-secondary)] mb-4">
+            <p className="text-secondary-wh40k mb-4">
               Your password has been successfully reset.
             </p>
-            <p className="text-[var(--text-secondary)] text-sm">
+            <p className="text-secondary-wh40k text-sm">
               Redirecting to login page...
             </p>
           </div>
@@ -210,10 +210,10 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--bg-primary)] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-(--bg-primary) px-4">
       <div className="max-w-md w-full">
-        <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg p-8">
-          <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-6 text-center">
+        <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg p-8">
+          <h2 className="text-2xl font-bold text-primary-wh40k mb-6 text-center">
             Reset Your Password
           </h2>
 
@@ -230,7 +230,7 @@ export default function ResetPasswordPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-[var(--text-secondary)] mb-2"
+                className="block text-sm font-medium text-secondary-wh40k mb-2"
               >
                 New Password
               </label>
@@ -239,7 +239,7 @@ export default function ResetPasswordPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-[var(--bg-primary)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+                className="w-full px-4 py-3 bg-(--bg-primary) border border-(--card-border) rounded-lg text-primary-wh40k placeholder-(--text-secondary) focus:outline-hidden focus:ring-2 focus:ring-(--primary) focus:border-transparent"
                 placeholder="Enter your new password"
                 required
                 minLength={PASSWORD_MIN_LENGTH}
@@ -249,7 +249,7 @@ export default function ResetPasswordPage() {
             <div>
               <label
                 htmlFor="confirmPassword"
-                className="block text-sm font-medium text-[var(--text-secondary)] mb-2"
+                className="block text-sm font-medium text-secondary-wh40k mb-2"
               >
                 Confirm New Password
               </label>
@@ -258,7 +258,7 @@ export default function ResetPasswordPage() {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-[var(--bg-primary)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+                className="w-full px-4 py-3 bg-(--bg-primary) border border-(--card-border) rounded-lg text-primary-wh40k placeholder-(--text-secondary) focus:outline-hidden focus:ring-2 focus:ring-(--primary) focus:border-transparent"
                 placeholder="Confirm your new password"
                 required
                 minLength={PASSWORD_MIN_LENGTH}
@@ -268,17 +268,17 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={isLoading || !password || !confirmPassword}
-              className="w-full py-3 px-4 bg-[var(--primary)] hover:bg-[var(--secondary)] disabled:bg-gray-600 disabled:cursor-not-allowed text-black font-semibold rounded-lg transition-colors"
+              className="w-full py-3 px-4 bg-primary-wh40k hover:bg-(--secondary) disabled:bg-gray-600 disabled:cursor-not-allowed text-black font-semibold rounded-lg transition-colors"
             >
               {isLoading ? 'Resetting...' : 'Reset Password'}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-[var(--text-secondary)]">
+          <p className="mt-6 text-center text-sm text-secondary-wh40k">
             Remember your password?{' '}
             <a
               href="/auth/login"
-              className="text-[var(--accent)] hover:text-blue-300"
+              className="text-(--accent) hover:text-blue-300"
             >
               Sign in
             </a>

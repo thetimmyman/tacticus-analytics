@@ -62,7 +62,7 @@ function HeroTile({
     />
   ) : (
     <div
-      className={`${HERO_TILE} shrink-0 rounded-md border border-white/10 bg-gray-700 flex items-center justify-center text-[10px] font-bold text-[var(--text-secondary)]`}
+      className={`${HERO_TILE} shrink-0 rounded-md border border-white/10 bg-gray-700 flex items-center justify-center text-[10px] font-bold text-secondary-wh40k`}
       title={name}
     >
       {name.slice(0, 2)}
@@ -109,7 +109,7 @@ function CompactTeamRow({
           <span className="flex shrink-0 items-center gap-1">
             <span
               aria-hidden="true"
-              className="mx-0.5 text-sm text-[var(--text-secondary)]"
+              className="mx-0.5 text-sm text-secondary-wh40k"
             >
               +
             </span>
@@ -134,7 +134,7 @@ function CompactEncounter({
   if (!topRec) return null
 
   return (
-    <div className="flex min-w-0 flex-col gap-2 rounded-lg border border-[var(--card-border)] bg-black/20 p-2 transition-colors hover:border-white/25">
+    <div className="flex min-w-0 flex-col gap-2 rounded-lg border border-(--card-border) bg-black/20 p-2 transition-colors hover:border-white/25">
       <div className="flex min-w-0 items-center gap-1.5">
         <BossPortrait
           bossName={data.boss_name}
@@ -143,7 +143,7 @@ function CompactEncounter({
           variant="icon"
           className="shrink-0"
         />
-        <span className="shrink-0 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+        <span className="shrink-0 text-[11px] font-semibold uppercase tracking-wider text-secondary-wh40k">
           {label}
         </span>
         <ConfidenceChip attackCount={topRec.attack_count} className="ml-auto" />
@@ -160,7 +160,7 @@ function CompactEncounter({
           </span>
         )}
         <span
-          className="ml-auto shrink-0 text-[11px] tabular-nums text-[var(--text-secondary)]"
+          className="ml-auto shrink-0 text-[11px] tabular-nums text-secondary-wh40k"
           title="90th-percentile damage across recorded attacks"
         >
           P90{' '}
@@ -206,13 +206,13 @@ export function TopTeamsTab({
       {filtersLoading || recsLoading ? (
         <div className="flex flex-col items-center justify-center py-12 gap-3">
           <LoadingSpinner />
-          <span className="text-sm text-[var(--text-secondary)]">
+          <span className="text-sm text-secondary-wh40k">
             Loading meta data...
           </span>
         </div>
       ) : displayBossCount === 0 ? (
-        <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
-          <CardContent className="py-8 text-center text-[var(--text-secondary)]">
+        <Card className="bg-(--card-bg) border-(--card-border)">
+          <CardContent className="py-8 text-center text-secondary-wh40k">
             No bosses match your filter. Try a different search term.
           </CardContent>
         </Card>
@@ -236,10 +236,10 @@ export function TopTeamsTab({
                   key={group.key}
                   id={`boss-${normalizeBossKey(group.bossType) || group.bossType.toLowerCase()}-${group.raritySet.toLowerCase()}`}
                   data-boss-type={group.bossType}
-                  className="min-w-0 overflow-hidden bg-[var(--card-bg)] border-[var(--card-border)] transition-colors hover:border-white/20"
+                  className="min-w-0 overflow-hidden bg-(--card-bg) border-(--card-border) transition-colors hover:border-white/20"
                 >
                   <CardContent className="min-w-0 py-3 px-3">
-                    <div className="mb-2 flex min-w-0 items-center gap-2 border-b border-[var(--card-border)] pb-2">
+                    <div className="mb-2 flex min-w-0 items-center gap-2 border-b border-(--card-border) pb-2">
                       <span
                         className={`shrink-0 px-1.5 py-0.5 text-[10px] rounded-full border font-medium ${getRaritySetBadgeStyle(group.raritySet)}`}
                       >

@@ -42,7 +42,7 @@ const ROSTER_OPTIONS: ReadonlyArray<{ value: RosterScope; label: string }> = [
 const segBtn = (active: boolean): string =>
   `px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
     active
-      ? 'bg-accent-wh40k text-[var(--bg-primary)] border-accent-wh40k'
+      ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
       : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
   }`
 
@@ -157,7 +157,7 @@ export function PlayerSeasonRankingHeatmap({
       <h3 className="subheading-wh40k text-green-400 text-base sm:text-lg mb-1">
         Player Season Ranking — vs Guild Average
       </h3>
-      <p className="text-xs text-[var(--text-secondary)] mb-3">
+      <p className="text-xs text-secondary-wh40k mb-3">
         % vs guild average · Legendary + Mythic · sorted by average
         {targetWindowClamped
           ? ' · target weighting is limited to the last 5 completed seasons'
@@ -222,17 +222,17 @@ export function PlayerSeasonRankingHeatmap({
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-[var(--text-secondary)] py-6 text-center">
+        <p className="text-sm text-secondary-wh40k py-6 text-center">
           Loading player rankings…
         </p>
       ) : rows.length === 0 ? (
-        <p className="text-sm text-[var(--text-secondary)] py-6 text-center">
+        <p className="text-sm text-secondary-wh40k py-6 text-center">
           No player ranking data for this selection.
         </p>
       ) : (
         <table className="min-w-full text-sm border-collapse">
           <thead className="sticky top-0 z-10 bg-card-bg">
-            <tr className="text-left text-xs uppercase tracking-wide text-[var(--text-secondary)] border-b border-[var(--card-border)]">
+            <tr className="text-left text-xs uppercase tracking-wide text-secondary-wh40k border-b border-(--card-border)">
               <th
                 className="sticky left-0 z-20 bg-card-bg px-3 py-2 cursor-pointer select-none"
                 onClick={() => toggleSort({ kind: 'player' })}
@@ -263,7 +263,7 @@ export function PlayerSeasonRankingHeatmap({
                 key={row.playerId}
                 className="border-t border-[color-mix(in_srgb,var(--card-border)_60%,transparent)]"
               >
-                <td className="sticky left-0 z-10 bg-card-bg px-3 py-2 font-medium text-[var(--text-primary)] whitespace-nowrap">
+                <td className="sticky left-0 z-10 bg-card-bg px-3 py-2 font-medium text-primary-wh40k whitespace-nowrap">
                   <MemberName value={row.displayName} />
                 </td>
                 {visibleSeasons.map((season) => {

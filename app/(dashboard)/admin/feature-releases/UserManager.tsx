@@ -341,8 +341,8 @@ export function UserManager() {
   if (loading) {
     return (
       <div className="animate-pulse space-y-4">
-        <div className="h-12 bg-[var(--bg-secondary)] rounded w-1/2" />
-        <div className="h-[400px] bg-[var(--bg-secondary)] rounded" />
+        <div className="h-12 bg-(--bg-secondary) rounded-sm w-1/2" />
+        <div className="h-[400px] bg-(--bg-secondary) rounded-sm" />
       </div>
     )
   }
@@ -371,8 +371,8 @@ export function UserManager() {
           onClick={() => setActiveTab('search')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
             activeTab === 'search'
-              ? 'bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] border-[color-mix(in_srgb,var(--primary)_30%,transparent)] text-[var(--primary)]'
-              : 'bg-[var(--bg-secondary)] border-[var(--card-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              ? 'bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] border-[color-mix(in_srgb,var(--primary)_30%,transparent)] text-(--primary)'
+              : 'bg-(--bg-secondary) border-(--card-border) text-secondary-wh40k hover:text-primary-wh40k'
           }`}
         >
           <UserPlus className="h-4 w-4" />
@@ -386,13 +386,13 @@ export function UserManager() {
             className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
               activeTab === tab.key
                 ? `${tab.bg} ${tab.border} ${tab.color}`
-                : 'bg-[var(--bg-secondary)] border-[var(--card-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                : 'bg-(--bg-secondary) border-(--card-border) text-secondary-wh40k hover:text-primary-wh40k'
             }`}
           >
             {tab.icon}
             <span className="font-medium">{tab.label}</span>
             <span
-              className={`text-xs px-1.5 py-0.5 rounded ${activeTab === tab.key ? 'bg-white/10' : 'bg-[var(--bg-tertiary)]'}`}
+              className={`text-xs px-1.5 py-0.5 rounded-sm ${activeTab === tab.key ? 'bg-white/10' : 'bg-(--bg-tertiary)'}`}
             >
               {tab.key === 'alpha'
                 ? alphaTesters.length
@@ -408,7 +408,7 @@ export function UserManager() {
           className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
             activeTab === 'bans'
               ? 'bg-red-500/10 border-red-500/30 text-red-400'
-              : 'bg-[var(--bg-secondary)] border-[var(--card-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              : 'bg-(--bg-secondary) border-(--card-border) text-secondary-wh40k hover:text-primary-wh40k'
           }`}
         >
           <ShieldOff className="h-4 w-4" />
@@ -420,7 +420,7 @@ export function UserManager() {
           className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
             activeTab === 'invites'
               ? 'bg-blue-500/10 border-blue-500/30 text-blue-400'
-              : 'bg-[var(--bg-secondary)] border-[var(--card-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              : 'bg-(--bg-secondary) border-(--card-border) text-secondary-wh40k hover:text-primary-wh40k'
           }`}
         >
           <KeyRound className="h-4 w-4" />
@@ -518,7 +518,7 @@ export function UserManager() {
                   Alpha Testers
                 </span>
               </div>
-              <p className="text-xs text-[var(--text-secondary)]">
+              <p className="text-xs text-secondary-wh40k">
                 Access to alpha-stage features. Internal team and trusted
                 community members.
               </p>
@@ -530,7 +530,7 @@ export function UserManager() {
                   Beta Testers
                 </span>
               </div>
-              <p className="text-xs text-[var(--text-secondary)]">
+              <p className="text-xs text-secondary-wh40k">
                 Access to beta-stage features. Wider testing group for feature
                 validation.
               </p>
@@ -542,7 +542,7 @@ export function UserManager() {
                   App Admins
                 </span>
               </div>
-              <p className="text-xs text-[var(--text-secondary)]">
+              <p className="text-xs text-secondary-wh40k">
                 Full admin access. Can manage users, features, and content.
               </p>
             </div>

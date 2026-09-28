@@ -298,32 +298,32 @@ export function PlayerActivityChart({
         className="w-full flex items-center justify-between p-4 hover:bg-[color-mix(in_srgb,var(--bg-tertiary)_50%,transparent)] transition-colors"
       >
         <div className="flex items-center gap-3">
-          <Clock className="w-5 h-5 text-[var(--accent-primary)]" />
-          <span className="font-semibold text-[var(--text-primary)]">
+          <Clock className="w-5 h-5 text-(--accent-primary)" />
+          <span className="font-semibold text-primary-wh40k">
             Player Activity by Hour
           </span>
-          <span className="text-xs text-[var(--text-tertiary)] bg-[var(--bg-tertiary)] px-2 py-0.5 rounded">
+          <span className="text-xs text-(--text-tertiary) bg-(--bg-tertiary) px-2 py-0.5 rounded-sm">
             {timezoneLabel}
           </span>
         </div>
         {isExpanded ? (
-          <ChevronUp className="w-5 h-5 text-[var(--text-secondary)]" />
+          <ChevronUp className="w-5 h-5 text-secondary-wh40k" />
         ) : (
-          <ChevronDown className="w-5 h-5 text-[var(--text-secondary)]" />
+          <ChevronDown className="w-5 h-5 text-secondary-wh40k" />
         )}
       </button>
 
       {isExpanded && (
         <div className="p-4 pt-0 space-y-4 animate-in slide-in-from-top-2 duration-200">
-          <div className="flex flex-wrap gap-3 items-center border-t border-[var(--card-border)] pt-4">
-            <Filter className="w-4 h-4 text-[var(--text-tertiary)]" />
+          <div className="flex flex-wrap gap-3 items-center border-t border-(--card-border) pt-4">
+            <Filter className="w-4 h-4 text-(--text-tertiary)" />
 
             <select
               value={selectedPlayers.length === 1 ? selectedPlayers[0] : ''}
               onChange={(e) =>
                 setSelectedPlayers(e.target.value ? [e.target.value] : [])
               }
-              className="bg-[var(--bg-tertiary)] border border-[var(--card-border)] rounded-lg px-3 py-1.5 text-sm text-[var(--text-primary)] min-w-[140px]"
+              className="bg-(--bg-tertiary) border border-(--card-border) rounded-lg px-3 py-1.5 text-sm text-primary-wh40k min-w-[140px]"
             >
               <option value="">All Players</option>
               {members.map((m) => (
@@ -338,7 +338,7 @@ export function PlayerActivityChart({
               onChange={(e) =>
                 setSelectedRoles(e.target.value ? [e.target.value] : [])
               }
-              className="bg-[var(--bg-tertiary)] border border-[var(--card-border)] rounded-lg px-3 py-1.5 text-sm text-[var(--text-primary)] min-w-[120px]"
+              className="bg-(--bg-tertiary) border border-(--card-border) rounded-lg px-3 py-1.5 text-sm text-primary-wh40k min-w-[120px]"
             >
               <option value="">All Roles</option>
               {uniqueRoles.map((role) => (
@@ -351,7 +351,7 @@ export function PlayerActivityChart({
             <select
               value={selectedMetaTeam}
               onChange={(e) => setSelectedMetaTeam(e.target.value)}
-              className="bg-[var(--bg-tertiary)] border border-[var(--card-border)] rounded-lg px-3 py-1.5 text-sm text-[var(--text-primary)] min-w-[140px]"
+              className="bg-(--bg-tertiary) border border-(--card-border) rounded-lg px-3 py-1.5 text-sm text-primary-wh40k min-w-[140px]"
             >
               <option value="">All Teams</option>
               {metaTeams.map((team) => (
@@ -364,7 +364,7 @@ export function PlayerActivityChart({
             <select
               value={selectedBoss}
               onChange={(e) => setSelectedBoss(e.target.value)}
-              className="bg-[var(--bg-tertiary)] border border-[var(--card-border)] rounded-lg px-3 py-1.5 text-sm text-[var(--text-primary)] min-w-[140px]"
+              className="bg-(--bg-tertiary) border border-(--card-border) rounded-lg px-3 py-1.5 text-sm text-primary-wh40k min-w-[140px]"
             >
               <option value="">All Bosses</option>
               {availableBosses.map((boss) => (
@@ -375,12 +375,12 @@ export function PlayerActivityChart({
             </select>
 
             <div className="flex items-center gap-2">
-              <Globe className="w-4 h-4 text-[var(--text-tertiary)]" />
+              <Globe className="w-4 h-4 text-(--text-tertiary)" />
               <select
                 value={selectedTimezone}
                 onChange={(e) => handleTimezoneChange(e.target.value)}
                 disabled={savingTimezone}
-                className="bg-[var(--bg-tertiary)] border border-[var(--card-border)] rounded-lg px-3 py-1.5 text-sm text-[var(--text-primary)] min-w-[180px] disabled:opacity-50"
+                className="bg-(--bg-tertiary) border border-(--card-border) rounded-lg px-3 py-1.5 text-sm text-primary-wh40k min-w-[180px] disabled:opacity-50"
               >
                 {TIMEZONE_OPTIONS.map((tz) => (
                   <option key={tz.value} value={tz.value}>
@@ -389,23 +389,21 @@ export function PlayerActivityChart({
                 ))}
               </select>
               {savingTimezone && (
-                <Loader2 className="w-4 h-4 animate-spin text-[var(--accent-primary)]" />
+                <Loader2 className="w-4 h-4 animate-spin text-(--accent-primary)" />
               )}
             </div>
 
             {availableRarities.length > 0 && (
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs text-[var(--text-tertiary)]">
-                  Rarity:
-                </span>
+                <span className="text-xs text-(--text-tertiary)">Rarity:</span>
                 {availableRarities.map(({ rarity }) => (
                   <button
                     key={rarity}
                     onClick={() => toggleRarity(rarity)}
                     className={`px-2 py-1 text-xs rounded-md border transition-colors ${
                       selectedRarities.includes(rarity)
-                        ? 'bg-[var(--accent-primary)] border-[var(--accent-primary)] text-white'
-                        : 'bg-[var(--bg-tertiary)] border-[var(--card-border)] text-[var(--text-secondary)] hover:border-[var(--accent-primary)]'
+                        ? 'bg-(--accent-primary) border-(--accent-primary) text-white'
+                        : 'bg-(--bg-tertiary) border-(--card-border) text-secondary-wh40k hover:border-(--accent-primary)'
                     }`}
                   >
                     {rarity}
@@ -442,14 +440,14 @@ export function PlayerActivityChart({
 
           {loading ? (
             <div className="flex items-center justify-center h-48">
-              <Loader2 className="w-6 h-6 animate-spin text-[var(--accent-primary)]" />
+              <Loader2 className="w-6 h-6 animate-spin text-(--accent-primary)" />
             </div>
           ) : error ? (
             <div className="flex items-center justify-center h-48 text-red-400 text-sm">
               {error}
             </div>
           ) : adjustedData.every((d) => d.battle_count === 0) ? (
-            <div className="flex items-center justify-center h-48 text-[var(--text-tertiary)] text-sm">
+            <div className="flex items-center justify-center h-48 text-(--text-tertiary) text-sm">
               No battle data found for the selected filters
             </div>
           ) : (
@@ -506,24 +504,24 @@ export function PlayerActivityChart({
             <div className="flex items-center justify-center gap-4 text-xs">
               <div className="flex items-center gap-1.5">
                 <div
-                  className="w-3 h-3 rounded"
+                  className="w-3 h-3 rounded-sm"
                   style={{ backgroundColor: '#F59E0B' }}
                 />
-                <span className="text-[var(--text-secondary)]">
+                <span className="text-secondary-wh40k">
                   High Activity (&ge;50%)
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div
-                  className="w-3 h-3 rounded"
+                  className="w-3 h-3 rounded-sm"
                   style={{ backgroundColor: '#6B7280' }}
                 />
-                <span className="text-[var(--text-secondary)]">
+                <span className="text-secondary-wh40k">
                   Low Activity (&lt;50%)
                 </span>
               </div>
             </div>
-            <p className="text-xs text-[var(--text-tertiary)] text-center">
+            <p className="text-xs text-(--text-tertiary) text-center">
               Shows when guild members use battle tokens. Times displayed in{' '}
               {TIMEZONE_OPTIONS.find((tz) => tz.value === selectedTimezone)
                 ?.label || 'UTC'}

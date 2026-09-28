@@ -26,7 +26,7 @@ export function Spinner({
       role="status"
       aria-label={label}
       className={clsx(
-        'animate-spin text-[var(--accent)]',
+        'animate-spin text-(--accent)',
         sizeClass[size],
         className
       )}

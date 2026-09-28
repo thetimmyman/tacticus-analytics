@@ -122,12 +122,10 @@ export default function MetaTeamTable({
         sortable: false,
         render: ({ team }) => (
           <div className="min-w-40">
-            <div className="font-semibold text-[var(--text-primary)]">
-              {team.name}
-            </div>
+            <div className="font-semibold text-primary-wh40k">{team.name}</div>
             {team.notes ? (
               <div
-                className="mt-0.5 max-w-sm truncate text-xs text-[var(--text-tertiary)]"
+                className="mt-0.5 max-w-sm truncate text-xs text-(--text-tertiary)"
                 title={team.notes}
               >
                 {team.notes}
@@ -143,7 +141,7 @@ export default function MetaTeamTable({
         align: 'right',
         render: ({ team }) =>
           team.priority == null ? (
-            <span className="text-[var(--text-tertiary)]">—</span>
+            <span className="text-(--text-tertiary)">—</span>
           ) : (
             team.priority
           )
@@ -172,7 +170,7 @@ export default function MetaTeamTable({
                 ) : (
                   <span
                     aria-label="No team floor"
-                    className="text-[var(--text-tertiary)]"
+                    className="text-(--text-tertiary)"
                   >
                     —
                   </span>
@@ -230,7 +228,7 @@ export default function MetaTeamTable({
               type="button"
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 text-[var(--text-tertiary)] hover:text-red-500"
+              className="h-8 w-8 p-0 text-(--text-tertiary) hover:text-red-500"
               onClick={() => onDelete(team)}
               aria-label={`Delete ${team.name}`}
               title={`Delete ${team.name}`}
@@ -254,8 +252,8 @@ export default function MetaTeamTable({
   ])
 
   return (
-    <Card className="border-[var(--card-border)] bg-[var(--bg-primary)]">
-      <CardHeader className="border-b border-[var(--card-border)] pb-4">
+    <Card className="border-(--card-border) bg-(--bg-primary)">
+      <CardHeader className="border-b border-(--card-border) pb-4">
         <CardTitle className="text-base">
           Shared teams ({teams.length})
         </CardTitle>

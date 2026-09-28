@@ -103,15 +103,15 @@ export function MobileSheet({
         aria-label={title}
         tabIndex={-1}
         onKeyDown={handleDialogKeyDown}
-        className={`relative w-full max-h-[85vh] bg-[var(--bg-secondary)] border border-[var(--card-border)] rounded-t-2xl xl:max-w-2xl xl:rounded-2xl p-4 overflow-y-auto [&_button]:min-h-[44px] [&_button]:min-w-[44px] [&_input]:min-h-[44px] [&_select]:min-h-[44px] [&_textarea]:min-h-[44px] ${contentClassName}`}
+        className={`relative w-full max-h-[85vh] bg-(--bg-secondary) border border-(--card-border) rounded-t-2xl xl:max-w-2xl xl:rounded-2xl p-4 overflow-y-auto [&_button]:min-h-[44px] [&_button]:min-w-[44px] [&_input]:min-h-[44px] [&_select]:min-h-[44px] [&_textarea]:min-h-[44px] ${contentClassName}`}
       >
         <div className="flex items-center justify-between mb-4">
-          <div className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+          <div className="text-xs font-bold uppercase tracking-wider text-secondary-wh40k">
             {title}
           </div>
           <button
             onClick={onClose}
-            className="min-h-[44px] min-w-[44px] p-2 rounded-full bg-[var(--card-bg)] text-[var(--text-primary)]"
+            className="min-h-[44px] min-w-[44px] p-2 rounded-full bg-(--card-bg) text-primary-wh40k"
             aria-label={`Close ${title.toLowerCase()}`}
           >
             <X size={14} />

@@ -108,8 +108,8 @@ export function UnitPortrait({
 
   const circleClasses = clsx(
     sizeClasses[size],
-    'rounded-full border border-[var(--border)] flex items-center justify-center font-semibold uppercase overflow-hidden relative',
-    isDefeated ? 'opacity-40 grayscale' : 'text-[var(--text-primary)]'
+    'rounded-full border border-(--border) flex items-center justify-center font-semibold uppercase overflow-hidden relative',
+    isDefeated ? 'opacity-40 grayscale' : 'text-primary-wh40k'
   )
 
   const circle = unit.portraitUrl ? (
@@ -125,7 +125,7 @@ export function UnitPortrait({
       aria-label={unit.name}
     >
       {isDefeated && (
-        <Skull className="absolute h-4 w-4 text-[color-mix(in_srgb,var(--text-primary)_80%,transparent)] drop-shadow-sm" />
+        <Skull className="absolute h-4 w-4 text-[color-mix(in_srgb,var(--text-primary)_80%,transparent)] drop-shadow-xs" />
       )}
       <span className="sr-only">{unit.name}</span>
     </div>
@@ -133,7 +133,7 @@ export function UnitPortrait({
     <div
       className={clsx(
         circleClasses,
-        'bg-gradient-to-br from-[color-mix(in_srgb,var(--accent)_20%,transparent)] to-[color-mix(in_srgb,var(--primary)_40%,transparent)]'
+        'bg-linear-to-br from-[color-mix(in_srgb,var(--accent)_20%,transparent)] to-[color-mix(in_srgb,var(--primary)_40%,transparent)]'
       )}
       title={`${unit.name}${tooltipSuffix}`}
     >
@@ -207,25 +207,17 @@ export function StatCard({
   tooltip?: string
 }) {
   return (
-    <Card
-      className="border-[var(--border)] bg-[var(--bg-primary)]"
-      title={tooltip}
-    >
+    <Card className="border-(--border) bg-(--bg-primary)" title={tooltip}>
       <CardContent className="p-5 space-y-2">
-        <div className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
+        <div className="text-xs font-semibold text-secondary-wh40k uppercase tracking-wide">
           {label}
         </div>
         <div
-          className={clsx(
-            'text-2xl font-bold',
-            tone || 'text-[var(--text-primary)]'
-          )}
+          className={clsx('text-2xl font-bold', tone || 'text-primary-wh40k')}
         >
           {value}
         </div>
-        {hint && (
-          <div className="text-xs text-[var(--text-tertiary)]">{hint}</div>
-        )}
+        {hint && <div className="text-xs text-(--text-tertiary)">{hint}</div>}
       </CardContent>
     </Card>
   )
@@ -252,15 +244,15 @@ export function ScoreComparison({
   const rightPercent = 100 - leftPercent
 
   return (
-    <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+    <Card className="border-(--border) bg-(--bg-primary)">
       <CardContent className="p-6 space-y-4">
-        <div className="flex items-center justify-between text-sm text-[var(--text-secondary)]">
+        <div className="flex items-center justify-between text-sm text-secondary-wh40k">
           <span>{leftLabel}</span>
           <span>{rightLabel}</span>
         </div>
-        <div className="h-3 rounded-full bg-[var(--bg-secondary)] overflow-hidden border border-[var(--border)]">
+        <div className="h-3 rounded-full bg-(--bg-secondary) overflow-hidden border border-(--border)">
           <div
-            className="h-full bg-gradient-to-r from-emerald-400/70 to-emerald-500/40"
+            className="h-full bg-linear-to-r from-emerald-400/70 to-emerald-500/40"
             style={{ width: `${leftPercent}%` }}
           />
         </div>
@@ -269,14 +261,14 @@ export function ScoreComparison({
             {hasMounted ? formatNumber(leftScore) : String(leftScore)} (
             {Math.round(leftPercent)}%)
           </span>
-          <span className="font-semibold text-[var(--text-secondary)]">
+          <span className="font-semibold text-secondary-wh40k">
             {hasMounted ? formatNumber(rightScore) : String(rightScore)} (
             {Math.round(rightPercent)}%)
           </span>
         </div>
         {caption && (
           <div
-            className="text-center text-xs text-[var(--text-tertiary)]"
+            className="text-center text-xs text-(--text-tertiary)"
             title={captionTitle}
           >
             {caption}

@@ -58,14 +58,14 @@ export function MemberGapAnalysisScoringSettings({
     : 'No targets available'
 
   return (
-    <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
+    <Card className="bg-(--card-bg) border-(--card-border)">
       <CardHeader className="flex flex-row items-center justify-between gap-4">
         <div className="space-y-1">
           <CardTitle className="flex items-center gap-2 text-lg">
             <SlidersHorizontal className="w-4 h-4" />
             Scoring Settings
           </CardTitle>
-          <p className="text-xs text-[var(--text-secondary)]">
+          <p className="text-xs text-secondary-wh40k">
             Tune how roster development targets are scored.
           </p>
         </div>
@@ -73,7 +73,7 @@ export function MemberGapAnalysisScoringSettings({
           variant="ghost"
           size="sm"
           onClick={() => setSettingsOpen((prev) => !prev)}
-          className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="text-secondary-wh40k hover:text-primary-wh40k"
         >
           {settingsOpen ? 'Hide' : 'Configure'}
         </Button>
@@ -93,31 +93,29 @@ export function MemberGapAnalysisScoringSettings({
 
         {!configLoading && configDraft && configState && (
           <>
-            <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--text-secondary)]">
-              <span className="inline-flex items-center gap-1 rounded-full border border-[var(--card-border)] px-2 py-1">
+            <div className="flex flex-wrap items-center gap-3 text-xs text-secondary-wh40k">
+              <span className="inline-flex items-center gap-1 rounded-full border border-(--card-border) px-2 py-1">
                 Active source:{' '}
-                <span className="text-[var(--text-primary)]">
-                  {activeLabel}
-                </span>
+                <span className="text-primary-wh40k">{activeLabel}</span>
               </span>
               {data?.targets_label && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-[var(--card-border)] px-2 py-1">
+                <span className="inline-flex items-center gap-1 rounded-full border border-(--card-border) px-2 py-1">
                   {data.targets_label}:{' '}
-                  <span className="text-[var(--text-primary)]">
+                  <span className="text-primary-wh40k">
                     {data.targets_analyzed.length}
                   </span>
                 </span>
               )}
-              <span className="inline-flex items-center gap-1 rounded-full border border-[var(--card-border)] px-2 py-1">
+              <span className="inline-flex items-center gap-1 rounded-full border border-(--card-border) px-2 py-1">
                 Tiers: {currentTiers.optimal}/{currentTiers.strong}/
                 {currentTiers.suitable}
               </span>
             </div>
 
             {settingsOpen && (
-              <div className="space-y-5 border-t border-[var(--card-border)] pt-4">
+              <div className="space-y-5 border-t border-(--card-border) pt-4">
                 <div className="space-y-2">
-                  <div className="text-sm font-medium text-[var(--text-primary)]">
+                  <div className="text-sm font-medium text-primary-wh40k">
                     Based on
                   </div>
                   <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
@@ -130,7 +128,7 @@ export function MemberGapAnalysisScoringSettings({
                           className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
                             selected
                               ? 'border-[color-mix(in_srgb,var(--primary)_60%,transparent)] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]'
-                              : 'border-[var(--card-border)] hover:border-[color-mix(in_srgb,var(--primary)_40%,transparent)]'
+                              : 'border-(--card-border) hover:border-[color-mix(in_srgb,var(--primary)_40%,transparent)]'
                           }`}
                         >
                           <input
@@ -153,11 +151,11 @@ export function MemberGapAnalysisScoringSettings({
                               >
                                 {meta.short}
                               </span>
-                              <span className="text-sm font-semibold text-[var(--text-primary)]">
+                              <span className="text-sm font-semibold text-primary-wh40k">
                                 {meta.title}
                               </span>
                             </div>
-                            <p className="text-xs text-[var(--text-secondary)]">
+                            <p className="text-xs text-secondary-wh40k">
                               {meta.description}
                             </p>
                           </div>
@@ -168,7 +166,7 @@ export function MemberGapAnalysisScoringSettings({
                 </div>
 
                 <div className="space-y-2">
-                  <div className="text-sm font-medium text-[var(--text-primary)]">
+                  <div className="text-sm font-medium text-primary-wh40k">
                     Strength target
                   </div>
                   <div className="grid grid-cols-1 gap-2 md:grid-cols-[260px_1fr] items-center">
@@ -180,7 +178,7 @@ export function MemberGapAnalysisScoringSettings({
                           strength_target_rarity_set: event.target.value || null
                         })
                       }
-                      className="w-full rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-3 py-2 text-sm text-[var(--text-primary)]"
+                      className="w-full rounded-md border border-(--card-border) bg-(--bg-secondary) px-3 py-2 text-sm text-primary-wh40k"
                     >
                       <option value="">
                         Default ({configState.default_rarity_set ?? 'Auto'})
@@ -191,7 +189,7 @@ export function MemberGapAnalysisScoringSettings({
                         </option>
                       ))}
                     </select>
-                    <p className="text-xs text-[var(--text-secondary)]">
+                    <p className="text-xs text-secondary-wh40k">
                       Applied whenever global thresholds are used in the
                       fallback chain.
                     </p>
@@ -199,11 +197,11 @@ export function MemberGapAnalysisScoringSettings({
                 </div>
 
                 <div className="space-y-2">
-                  <div className="text-sm font-medium text-[var(--text-primary)]">
+                  <div className="text-sm font-medium text-primary-wh40k">
                     Tier thresholds (percent)
                   </div>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                    <label className="space-y-1 text-xs text-[var(--text-secondary)]">
+                    <label className="space-y-1 text-xs text-secondary-wh40k">
                       Optimal
                       <input
                         type="number"
@@ -219,10 +217,10 @@ export function MemberGapAnalysisScoringSettings({
                             )
                           })
                         }
-                        className="w-full rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 py-1 text-sm text-[var(--text-primary)]"
+                        className="w-full rounded-md border border-(--card-border) bg-(--bg-secondary) px-2 py-1 text-sm text-primary-wh40k"
                       />
                     </label>
-                    <label className="space-y-1 text-xs text-[var(--text-secondary)]">
+                    <label className="space-y-1 text-xs text-secondary-wh40k">
                       Strong
                       <input
                         type="number"
@@ -238,10 +236,10 @@ export function MemberGapAnalysisScoringSettings({
                             )
                           })
                         }
-                        className="w-full rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 py-1 text-sm text-[var(--text-primary)]"
+                        className="w-full rounded-md border border-(--card-border) bg-(--bg-secondary) px-2 py-1 text-sm text-primary-wh40k"
                       />
                     </label>
-                    <label className="space-y-1 text-xs text-[var(--text-secondary)]">
+                    <label className="space-y-1 text-xs text-secondary-wh40k">
                       Suitable
                       <input
                         type="number"
@@ -257,11 +255,11 @@ export function MemberGapAnalysisScoringSettings({
                             )
                           })
                         }
-                        className="w-full rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 py-1 text-sm text-[var(--text-primary)]"
+                        className="w-full rounded-md border border-(--card-border) bg-(--bg-secondary) px-2 py-1 text-sm text-primary-wh40k"
                       />
                     </label>
                   </div>
-                  <p className="text-xs text-[var(--text-secondary)]">
+                  <p className="text-xs text-secondary-wh40k">
                     Weak is anything below the Suitable threshold.
                   </p>
                   {tierInvalid && (
@@ -272,7 +270,7 @@ export function MemberGapAnalysisScoringSettings({
                 </div>
 
                 <div className="space-y-2">
-                  <div className="text-sm font-medium text-[var(--text-primary)]">
+                  <div className="text-sm font-medium text-primary-wh40k">
                     Fallback chain
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -290,7 +288,7 @@ export function MemberGapAnalysisScoringSettings({
                       )
                     })}
                   </div>
-                  <p className="text-xs text-[var(--text-secondary)]">
+                  <p className="text-xs text-secondary-wh40k">
                     The first source with available targets is used
                     automatically.
                   </p>
@@ -303,7 +301,7 @@ export function MemberGapAnalysisScoringSettings({
                 )}
 
                 <div className="flex items-center justify-between">
-                  <div className="text-xs text-[var(--text-secondary)]">
+                  <div className="text-xs text-secondary-wh40k">
                     {configState.can_edit
                       ? 'Changes apply immediately.'
                       : 'Leader access required to edit.'}

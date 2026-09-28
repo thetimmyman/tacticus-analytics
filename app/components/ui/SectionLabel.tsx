@@ -21,16 +21,15 @@ export function SectionLabel({
         // Stacked on narrow screens so long helper text cannot overflow; inline from `sm:`.
         'flex flex-col gap-1',
         'sm:flex-row sm:items-baseline sm:justify-between sm:gap-3',
-        withDivider &&
-          'border-b border-dotted border-[var(--card-border)] pb-1.5',
+        withDivider && 'border-b border-dotted border-(--card-border) pb-1.5',
         className
       )}
     >
-      <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+      <span className="text-xs font-semibold uppercase tracking-[0.18em] text-(--accent)">
         {children}
       </span>
       {helper && (
-        <span className="min-w-0 text-xs text-[var(--text-secondary)] italic sm:text-right">
+        <span className="min-w-0 text-xs text-secondary-wh40k italic sm:text-right">
           {helper}
         </span>
       )}

@@ -66,8 +66,8 @@ export default function MonitorTelemetryStrip() {
   }
 
   return (
-    <div className="border-t border-[var(--border)] bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] px-4 py-2">
-      <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs text-[var(--text-tertiary)]">
+    <div className="border-t border-(--border) bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] px-4 py-2">
+      <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs text-(--text-tertiary)">
         <Kpi
           label="Last Poll"
           value={formatRelative(data.last_poll_at, hasMounted)}
@@ -98,14 +98,14 @@ function Kpi({
 }) {
   return (
     <span className="inline-flex items-center gap-1.5 font-mono">
-      <span className="text-[var(--text-secondary)] uppercase tracking-wider">
+      <span className="text-secondary-wh40k uppercase tracking-wider">
         {label}
       </span>
       <span
         className={
           tone === 'warn'
             ? 'text-amber-400 font-semibold'
-            : 'text-[var(--text-primary)]'
+            : 'text-primary-wh40k'
         }
       >
         {value}

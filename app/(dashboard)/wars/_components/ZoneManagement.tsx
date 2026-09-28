@@ -469,8 +469,8 @@ export default function ZoneManagement({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <RefreshCw className="h-6 w-6 animate-spin text-[var(--text-secondary)]" />
-        <span className="ml-2 text-[var(--text-secondary)]">
+        <RefreshCw className="h-6 w-6 animate-spin text-secondary-wh40k" />
+        <span className="ml-2 text-secondary-wh40k">
           Loading zone configuration...
         </span>
       </div>
@@ -481,11 +481,11 @@ export default function ZoneManagement({
     return (
       <Card>
         <CardContent className="p-12 text-center">
-          <Target className="h-12 w-12 text-[var(--text-secondary)] mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">
+          <Target className="h-12 w-12 text-secondary-wh40k mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-primary-wh40k mb-2">
             Zone Configuration Unavailable
           </h3>
-          <p className="text-[var(--text-secondary)]">
+          <p className="text-secondary-wh40k">
             Unable to load war zone configuration from game data.
           </p>
         </CardContent>
@@ -556,10 +556,10 @@ export default function ZoneManagement({
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg md:text-xl font-bold text-[var(--text-primary)]">
+          <h2 className="text-lg md:text-xl font-bold text-primary-wh40k">
             Zone Defense Setup
           </h2>
-          <p className="text-xs md:text-sm text-[var(--text-secondary)]">
+          <p className="text-xs md:text-sm text-secondary-wh40k">
             {assignedPlayersSet.size}/{eligibleMembers.length} assigned
             {activeWar && (
               <span className="ml-2 text-green-400">
@@ -589,7 +589,7 @@ export default function ZoneManagement({
               variant="outline"
               size="sm"
               onClick={() => setUseLiveLayout((v) => !v)}
-              className={`text-xs ${useLiveLayout ? 'border-[color-mix(in_srgb,var(--accent)_50%,transparent)] text-[var(--accent)]' : ''}`}
+              className={`text-xs ${useLiveLayout ? 'border-[color-mix(in_srgb,var(--accent)_50%,transparent)] text-(--accent)' : ''}`}
               title="Reposition the planning grid to match live zone numbers"
             >
               <GripVertical className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />

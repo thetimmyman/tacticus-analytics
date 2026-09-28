@@ -163,15 +163,11 @@ describe('Contrast Utilities', () => {
 
   describe('contrastClasses', () => {
     it('defines all expected class mappings', () => {
-      expect(contrastClasses.highContrast).toBe(
-        'text-[var(--text-high-contrast)]'
-      )
-      expect(contrastClasses.onPrimary).toBe('text-[var(--text-on-primary)]')
-      expect(contrastClasses.onSecondary).toBe(
-        'text-[var(--text-on-secondary)]'
-      )
-      expect(contrastClasses.onAccent).toBe('text-[var(--text-on-accent)]')
-      expect(contrastClasses.onBackground).toBe('text-[var(--text-on-bg)]')
+      expect(contrastClasses.highContrast).toBe('text-(--text-high-contrast)')
+      expect(contrastClasses.onPrimary).toBe('text-(--text-on-primary)')
+      expect(contrastClasses.onSecondary).toBe('text-(--text-on-secondary)')
+      expect(contrastClasses.onAccent).toBe('text-(--text-on-accent)')
+      expect(contrastClasses.onBackground).toBe('text-(--text-on-bg)')
     })
 
     it('defines dropdown classes', () => {

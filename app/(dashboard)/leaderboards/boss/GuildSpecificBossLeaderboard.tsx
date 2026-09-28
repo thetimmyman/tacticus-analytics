@@ -190,7 +190,7 @@ export default function GuildSpecificBossLeaderboard({
       render: (r) => (
         <div className="flex items-center gap-2">
           {r.index === 0 && <Crown className="w-4 h-4 text-yellow-400" />}
-          <span className="text-lg font-bold text-[var(--text-primary)]">
+          <span className="text-lg font-bold text-primary-wh40k">
             #{r.index + 1}
           </span>
         </div>
@@ -202,7 +202,7 @@ export default function GuildSpecificBossLeaderboard({
       sortable: false,
       render: (r) => (
         // DataTable's <td> defaults to text-secondary; PlayerLink needs text-primary.
-        <span className="text-[var(--text-primary)]">
+        <span className="text-primary-wh40k">
           <PlayerLink playerName={r.entry.displayName} />
         </span>
       )
@@ -213,7 +213,7 @@ export default function GuildSpecificBossLeaderboard({
       align: 'center',
       sortable: false,
       render: (r) => (
-        <span className="font-bold text-[var(--accent)]">
+        <span className="font-bold text-(--accent)">
           {formatNumber(r.entry.maxDamage)}
         </span>
       )
@@ -224,7 +224,7 @@ export default function GuildSpecificBossLeaderboard({
       align: 'center',
       sortable: false,
       render: (r) => (
-        <span className="text-[var(--text-primary)]">
+        <span className="text-primary-wh40k">
           {formatNumber(r.entry.battleCount)}
         </span>
       )
@@ -235,7 +235,7 @@ export default function GuildSpecificBossLeaderboard({
       align: 'center',
       sortable: false,
       render: (r) => (
-        <span className="text-[var(--text-primary)]">
+        <span className="text-primary-wh40k">
           {formatNumber(Math.round(r.entry.avgDamage))}
         </span>
       )
@@ -247,7 +247,7 @@ export default function GuildSpecificBossLeaderboard({
       render: (r) =>
         r.entry.heroDetails ? (
           // Same as the Player column: the fallback badge has no colour of its own.
-          <span className="text-[var(--text-primary)]">
+          <span className="text-primary-wh40k">
             <TeamCompositionDisplay
               heroDetails={r.entry.heroDetails}
               machineOfWarDetails={r.entry.machineOfWarDetails}
@@ -279,7 +279,7 @@ export default function GuildSpecificBossLeaderboard({
             variant="ghost"
             size="sm"
             onClick={() => window.history.back()}
-            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="text-secondary-wh40k hover:text-primary-wh40k"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
@@ -304,12 +304,12 @@ export default function GuildSpecificBossLeaderboard({
             variant="ghost"
             size="sm"
             onClick={() => window.history.back()}
-            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="text-secondary-wh40k hover:text-primary-wh40k"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">
+          <h1 className="text-2xl font-bold text-primary-wh40k">
             Guild Boss Leaderboard - Error
           </h1>
         </div>
@@ -332,17 +332,17 @@ export default function GuildSpecificBossLeaderboard({
           variant="ghost"
           size="sm"
           onClick={() => window.history.back()}
-          className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="text-secondary-wh40k hover:text-primary-wh40k"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-primary-wh40k flex items-center gap-2">
             <Target className="w-6 h-6 text-red-400" />
             {guildDisplayName} - Boss Leaderboards
           </h1>
-          <p className="text-[var(--text-secondary)] flex items-center gap-2 mt-1">
+          <p className="text-secondary-wh40k flex items-center gap-2 mt-1">
             <Users className="w-4 h-4" />
             Season {season} • {Object.keys(groupedData).length} Boss Encounters
           </p>
@@ -356,7 +356,7 @@ export default function GuildSpecificBossLeaderboard({
           onValueChange={setSelectedBoss}
           className="w-full"
         >
-          <RadixTabsList className="bg-[var(--bg-secondary)] p-1 rounded-lg w-full justify-start overflow-x-auto">
+          <RadixTabsList className="bg-(--bg-secondary) p-1 rounded-lg w-full justify-start overflow-x-auto">
             <RadixTabsTrigger value="all" className="whitespace-nowrap">
               All Bosses
             </RadixTabsTrigger>
@@ -392,12 +392,12 @@ export default function GuildSpecificBossLeaderboard({
                       portraitVariant="icon"
                     />
                     {isPrime && <Crown className="w-4 h-4 text-yellow-400" />}
-                    <span className="text-[var(--text-secondary)]">
+                    <span className="text-secondary-wh40k">
                       ({entries.length} entries)
                     </span>
                   </div>
 
-                  <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded-lg border border-[var(--card-border)] overflow-hidden">
+                  <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-lg border border-(--card-border) overflow-hidden">
                     <DataTable
                       rows={entries
                         .slice()
@@ -407,7 +407,7 @@ export default function GuildSpecificBossLeaderboard({
                       rowKey={(r) =>
                         `${r.entry.displayName}-${r.entry.bossName}-${r.entry.encounterIndex}-${r.entry.maxDamage}`
                       }
-                      tableClassName="[&_th]:!text-[var(--text-primary)]"
+                      tableClassName="[&_th]:text-primary-wh40k!"
                     />
                   </div>
                 </div>
@@ -419,11 +419,11 @@ export default function GuildSpecificBossLeaderboard({
 
       {data.length === 0 && (
         <div className="text-center py-8">
-          <Sword className="w-12 h-12 text-[var(--text-secondary)] mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+          <Sword className="w-12 h-12 text-secondary-wh40k mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-primary-wh40k mb-2">
             No Boss Data Available
           </h3>
-          <p className="text-[var(--text-secondary)]">
+          <p className="text-secondary-wh40k">
             No boss battle data found for {guildDisplayName} in season {season}.
           </p>
         </div>

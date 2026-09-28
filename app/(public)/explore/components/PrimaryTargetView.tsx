@@ -19,7 +19,7 @@ export function PrimaryTargetView({ bossHits }: { bossHits: BossHit[] }) {
 
   return (
     <div>
-      <h4 className="text-sm font-semibold text-[var(--text-secondary)] mb-3 flex items-center gap-2">
+      <h4 className="text-sm font-semibold text-secondary-wh40k mb-3 flex items-center gap-2">
         <Target className="w-4 h-4 text-orange-400" />
         Primary Targets
       </h4>
@@ -43,7 +43,7 @@ export function PrimaryTargetView({ bossHits }: { bossHits: BossHit[] }) {
                     bossName={hit.boss}
                     size="small"
                     variant="portrait"
-                    className="flex-shrink-0"
+                    className="shrink-0"
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1 mb-1">
@@ -52,14 +52,14 @@ export function PrimaryTargetView({ bossHits }: { bossHits: BossHit[] }) {
                       </span>
                       <BossLevelBadge level={level} className="text-xs" />
                     </div>
-                    <h4 className="text-sm font-bold text-[var(--text-primary)] truncate">
+                    <h4 className="text-sm font-bold text-primary-wh40k truncate">
                       {hit.boss}
                     </h4>
                     <div className="flex items-center justify-between gap-1 text-xs">
-                      <span className="text-[var(--text-secondary)] truncate">
+                      <span className="text-secondary-wh40k truncate">
                         {hit.player}
                       </span>
-                      <span className="text-[var(--accent)] font-mono">
+                      <span className="text-(--accent) font-mono">
                         {hit.isObfuscated
                           ? formatDamageWithPrivacy(
                               hit.damage,

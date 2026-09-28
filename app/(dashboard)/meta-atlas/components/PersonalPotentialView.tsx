@@ -23,7 +23,7 @@ export function PersonalPotentialView({
 
   if (!data) {
     return (
-      <div className="py-6 text-center text-sm text-[var(--text-secondary)]">
+      <div className="py-6 text-center text-sm text-secondary-wh40k">
         No personalized data available yet.
       </div>
     )

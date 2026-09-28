@@ -57,7 +57,7 @@ export function ChartsRow({
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Token Distribution Pie Chart */}
-        <div className="card-wh40k p-3 sm:p-4 hover:shadow-xl hover:shadow-[color:color-mix(in_srgb,var(--primary)_20%,transparent)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)] transition-all duration-300">
+        <div className="card-wh40k p-3 sm:p-4 hover:shadow-xl hover:shadow-[color-mix(in_srgb,var(--primary)_20%,transparent)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)] transition-all duration-300">
           <h3 className="subheading-wh40k mb-3 sm:mb-4">
             Token Distribution by Boss
           </h3>
@@ -104,7 +104,7 @@ export function ChartsRow({
                   </ResponsiveContainer>
                 ) : (
                   <div className="flex items-center justify-center h-full">
-                    <div className="animate-pulse bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded-full w-48 h-48"></div>
+                    <div className="animate-pulse bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-full w-48 h-48"></div>
                   </div>
                 )}
               </ChartErrorBoundary>
@@ -151,7 +151,7 @@ export function ChartsRow({
               </div>
 
               {/* Total tokens */}
-              <div className="mt-4 pt-4 border-t border-[var(--card-border)]">
+              <div className="mt-4 pt-4 border-t border-(--card-border)">
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-semibold text-secondary-wh40k">
                     Total
@@ -171,7 +171,7 @@ export function ChartsRow({
         </div>
 
         {/* Damage Trend Chart */}
-        <div className="card-wh40k chart-card p-3 sm:p-4 hover:shadow-xl hover:shadow-[color:color-mix(in_srgb,var(--primary)_20%,transparent)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)] transition-all duration-300 overflow-hidden">
+        <div className="card-wh40k chart-card p-3 sm:p-4 hover:shadow-xl hover:shadow-[color-mix(in_srgb,var(--primary)_20%,transparent)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)] transition-all duration-300 overflow-hidden">
           <h3 className="subheading-wh40k">Average Damage per Loop</h3>
           <ChartErrorBoundary chartName="Damage Trend Chart">
             {loadLineChart ? (
@@ -221,7 +221,7 @@ export function ChartsRow({
               </ResponsiveContainer>
             ) : (
               <div className="flex items-center justify-center h-[340px]">
-                <div className="animate-pulse bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded w-full h-full"></div>
+                <div className="animate-pulse bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-sm w-full h-full"></div>
               </div>
             )}
           </ChartErrorBoundary>

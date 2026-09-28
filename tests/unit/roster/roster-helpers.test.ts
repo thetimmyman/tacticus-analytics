@@ -72,13 +72,13 @@ describe('getRankColor', () => {
 describe('getRankBgColor', () => {
   it('maps rank thresholds to background colors', () => {
     expect(getRankBgColor(21)).toBe(
-      'bg-gradient-to-r from-orange-600/30 to-red-500/30 border-orange-500/50'
+      'bg-linear-to-r from-orange-600/30 to-red-500/30 border-orange-500/50'
     )
     expect(getRankBgColor(18)).toBe(
-      'bg-gradient-to-r from-orange-600/30 to-red-500/30 border-orange-500/50'
+      'bg-linear-to-r from-orange-600/30 to-red-500/30 border-orange-500/50'
     )
     expect(getRankBgColor(15)).toBe(
-      'bg-gradient-to-r from-cyan-600/30 to-blue-500/30 border-cyan-500/50'
+      'bg-linear-to-r from-cyan-600/30 to-blue-500/30 border-cyan-500/50'
     )
     expect(getRankBgColor(12)).toBe('bg-yellow-500/20 border-yellow-500/50')
     expect(getRankBgColor(9)).toBe('bg-gray-400/20 border-gray-400/50')
@@ -119,10 +119,10 @@ describe('getRarityColor', () => {
 describe('getRarityBorderColor', () => {
   it('maps rarities to border styles', () => {
     const cases: Array<[UnitRarity, string]> = [
-      ['Mythic', 'border-red-500/60 shadow-red-500/20 shadow-sm'],
-      ['Legendary', 'border-cyan-400/60 shadow-cyan-400/20 shadow-sm'],
-      ['Epic', 'border-yellow-500/60 shadow-yellow-500/20 shadow-sm'],
-      ['Rare', 'border-blue-500/60 shadow-blue-500/20 shadow-sm'],
+      ['Mythic', 'border-red-500/60 shadow-red-500/20 shadow-xs'],
+      ['Legendary', 'border-cyan-400/60 shadow-cyan-400/20 shadow-xs'],
+      ['Epic', 'border-yellow-500/60 shadow-yellow-500/20 shadow-xs'],
+      ['Rare', 'border-blue-500/60 shadow-blue-500/20 shadow-xs'],
       ['Uncommon', 'border-green-500/60'],
       ['Common', 'border-gray-500/40']
     ]

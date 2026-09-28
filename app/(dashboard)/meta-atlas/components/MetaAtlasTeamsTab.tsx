@@ -181,13 +181,13 @@ export function MetaAtlasTeamsTab({
       {filtersLoading || recsLoading ? (
         <div className="flex flex-col items-center justify-center py-12 gap-3">
           <LoadingSpinner />
-          <span className="text-sm text-[var(--text-secondary)]">
+          <span className="text-sm text-secondary-wh40k">
             Loading meta data...
           </span>
         </div>
       ) : displayBossCount === 0 ? (
-        <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
-          <CardContent className="py-8 text-center text-[var(--text-secondary)]">
+        <Card className="bg-(--card-bg) border-(--card-border)">
+          <CardContent className="py-8 text-center text-secondary-wh40k">
             No bosses match your filter. Try a different search term.
           </CardContent>
         </Card>

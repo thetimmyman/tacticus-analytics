@@ -265,9 +265,7 @@ function ClaimPageContent() {
   if (authChecking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-[var(--text-secondary)]">
-          Loading...
-        </div>
+        <div className="animate-pulse text-secondary-wh40k">Loading...</div>
       </div>
     )
   }
@@ -277,14 +275,14 @@ function ClaimPageContent() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="card-wh40k p-8 max-w-md w-full text-center space-y-4">
           <CheckCircle2 className="h-16 w-16 text-emerald-400 mx-auto" />
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">
+          <h1 className="text-2xl font-bold text-primary-wh40k">
             Profile Claimed!
           </h1>
-          <p className="text-[var(--text-secondary)]">
+          <p className="text-secondary-wh40k">
             Welcome{codeInfo?.guild_name ? ` to ${codeInfo.guild_name}` : ''},{' '}
             {playerName || codeInfo?.display_name}!
           </p>
-          <p className="text-sm text-[var(--text-tertiary)]">
+          <p className="text-sm text-(--text-tertiary)">
             Redirecting you to the dashboard...
           </p>
         </div>
@@ -296,10 +294,10 @@ function ClaimPageContent() {
     <div className="min-h-screen py-12 px-4">
       <div className="max-w-lg mx-auto space-y-8">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+          <h1 className="text-3xl font-bold text-primary-wh40k">
             Claim Your Profile
           </h1>
-          <p className="text-[var(--text-secondary)]">
+          <p className="text-secondary-wh40k">
             Use the invite code from your guild officer to claim your player
             profile
           </p>
@@ -308,7 +306,7 @@ function ClaimPageContent() {
         {!currentUser && (
           <div className="card-wh40k p-4 border-amber-500/40 bg-amber-500/10">
             <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm text-amber-200 font-medium">
                   Sign in required
@@ -324,7 +322,7 @@ function ClaimPageContent() {
 
         <div className="card-wh40k p-6 space-y-6">
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
+            <div className="flex items-center gap-2 text-sm font-semibold text-primary-wh40k">
               <div
                 className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${codeInfo?.valid ? 'bg-emerald-500 text-white' : 'bg-blue-500/20 text-blue-300'}`}
               >
@@ -367,15 +365,15 @@ function ClaimPageContent() {
                   <ValidationError id="invite-code-error" message={codeError} />
                 )}
                 {/* Leaders of an unregistered guild land here too. */}
-                <p className="text-xs text-[var(--text-secondary)]">
+                <p className="text-xs text-secondary-wh40k">
                   Don&apos;t have a code? Ask your guild leader or officer to
                   generate one for you.
                 </p>
-                <p className="text-xs text-[var(--text-secondary)]">
+                <p className="text-xs text-secondary-wh40k">
                   Lead the guild yourself, or nobody there has set it up?{' '}
                   <Link
                     href="/onboarding/dashboard"
-                    className="text-[var(--accent)] hover:underline"
+                    className="text-(--accent) hover:underline"
                   >
                     Claim your seat with your API key
                   </Link>{' '}
@@ -416,7 +414,7 @@ function ClaimPageContent() {
 
           {codeInfo?.valid && (
             <div className="space-y-4">
-              <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
+              <div className="flex items-center gap-2 text-sm font-semibold text-primary-wh40k">
                 <div
                   className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${apiKeyValidated ? 'bg-emerald-500 text-white' : 'bg-blue-500/20 text-blue-300'}`}
                 >
@@ -460,7 +458,7 @@ function ClaimPageContent() {
                       message={apiKeyError}
                     />
                   )}
-                  <div className="rounded-lg border border-blue-500/30 bg-blue-500/5 p-3 text-xs text-[var(--text-secondary)]">
+                  <div className="rounded-lg border border-blue-500/30 bg-blue-500/5 p-3 text-xs text-secondary-wh40k">
                     <p className="font-medium text-blue-200 mb-2">
                       How to get your API key:
                     </p>
@@ -519,8 +517,8 @@ function ClaimPageContent() {
           )}
 
           {codeInfo?.valid && apiKeyValidated && (
-            <div className="space-y-4 pt-4 border-t border-[var(--card-border)]">
-              <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
+            <div className="space-y-4 pt-4 border-t border-(--card-border)">
+              <div className="flex items-center gap-2 text-sm font-semibold text-primary-wh40k">
                 <div className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold bg-blue-500/20 text-blue-300">
                   3
                 </div>
@@ -531,13 +529,13 @@ function ClaimPageContent() {
               {claimError && <ValidationError message={claimError} />}
 
               <div className="rounded-lg border border-blue-500/30 bg-blue-500/5 p-4">
-                <p className="text-sm text-[var(--text-secondary)] mb-4">
+                <p className="text-sm text-secondary-wh40k mb-4">
                   You&apos;re about to claim the profile for{' '}
-                  <span className="font-medium text-[var(--text-primary)]">
+                  <span className="font-medium text-primary-wh40k">
                     {codeInfo.display_name}
                   </span>{' '}
                   in guild{' '}
-                  <span className="font-medium text-[var(--text-primary)]">
+                  <span className="font-medium text-primary-wh40k">
                     {formatGuildDisplayLabel(
                       {
                         display_name: codeInfo.guild_name,
@@ -579,7 +577,7 @@ function ClaimPageContent() {
         <div className="text-center">
           <Link
             href="/onboarding"
-            className="text-sm text-[var(--text-secondary)] hover:text-[var(--accent)]"
+            className="text-sm text-secondary-wh40k hover:text-(--accent)"
           >
             ← Back to onboarding options
           </Link>
@@ -594,9 +592,7 @@ export default function ClaimPage() {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-pulse text-[var(--text-secondary)]">
-            Loading...
-          </div>
+          <div className="animate-pulse text-secondary-wh40k">Loading...</div>
         </div>
       }
     >

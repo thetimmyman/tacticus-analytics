@@ -17,7 +17,7 @@ const columns: DataTableColumn<WarPointsRow>[] = [
     sortable: false,
     className: 'whitespace-nowrap',
     render: (row) => (
-      <span className="font-medium text-[var(--text-primary)] whitespace-nowrap">
+      <span className="font-medium text-primary-wh40k whitespace-nowrap">
         <MemberName value={row.player} />
       </span>
     )
@@ -48,7 +48,7 @@ const columns: DataTableColumn<WarPointsRow>[] = [
     align: 'right',
     sortable: false,
     render: (row) => (
-      <span className="font-mono text-[var(--text-primary)]">{row.atk}</span>
+      <span className="font-mono text-primary-wh40k">{row.atk}</span>
     )
   },
   {
@@ -173,7 +173,7 @@ export function WarPointsTable({
                 ? Math.min((row.total / warPoints.chartMax) * 100, 100)
                 : 0
             return (
-              <div className="h-1 rounded-full overflow-hidden bg-[var(--bg-tertiary,rgba(156,163,175,0.1))]">
+              <div className="h-1 rounded-full overflow-hidden bg-(--bg-tertiary,rgba(156,163,175,0.1))">
                 <div
                   className="h-full rounded-full bg-emerald-500/50"
                   style={{ width: `${barWidth}%` }}
@@ -194,17 +194,15 @@ export function WarPointsTable({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="text-xs text-[var(--text-secondary)]">
+        <div className="text-xs text-secondary-wh40k">
           Atk: 7 perfect oneshot · 6 (1 loss) · 5 (2+ losses / cleanup) · 1
           failed &nbsp;·&nbsp; Buf: +2 per active medicae zone (up to +4)
           &nbsp;·&nbsp; Bon: +5 for 9/10, +10 for 10/10 successes per war
           &nbsp;·&nbsp; Pen: −1 per unused token (10/war)
         </div>
-        <div className="text-xs text-[var(--text-secondary)]">
+        <div className="text-xs text-secondary-wh40k">
           Attacks:{' '}
-          <span className="text-[var(--text-primary)]">
-            {warPoints.totalAttempts}
-          </span>
+          <span className="text-primary-wh40k">{warPoints.totalAttempts}</span>
           {deselectedCount > 0 && (
             <span className="ml-2 text-amber-400">
               (filtered: {warsCount - deselectedCount}/{warsCount} wars)
@@ -214,7 +212,7 @@ export function WarPointsTable({
 
         {warPoints.players.length === 0 ? (
           // Outside the table, so no empty 15-column header.
-          <div className="rounded-lg border border-[var(--border)] bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-4 text-sm text-[var(--text-secondary)]">
+          <div className="rounded-lg border border-(--border) bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-4 text-sm text-secondary-wh40k">
             No completed guild attacks yet.
           </div>
         ) : (

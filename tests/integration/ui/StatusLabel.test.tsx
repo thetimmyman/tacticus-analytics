@@ -25,7 +25,7 @@ describe('StatusLabel component integration', () => {
 
     const badge = screen.getByText('Error')
     expect(badge).toBeInTheDocument()
-    expect(badge.querySelector('span')).toHaveClass('bg-[var(--danger)]')
+    expect(badge.querySelector('span')).toHaveClass('bg-(--danger)')
   })
 
   it('supports dot-only rendering while preserving pulse animation', () => {
@@ -36,6 +36,6 @@ describe('StatusLabel component integration', () => {
     const dot = container.querySelector('span')
     expect(dot).not.toBeNull()
     expect(dot).toHaveClass('animate-pulse')
-    expect(dot).toHaveClass('bg-[var(--warning)]')
+    expect(dot).toHaveClass('bg-(--warning)')
   })
 })

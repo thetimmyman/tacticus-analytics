@@ -58,30 +58,28 @@ export function NotesInput({
 
   return (
     <div className="space-y-1">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
         {label}
       </div>
-      <div className="rounded-md border border-[var(--card-border)] bg-black/20">
+      <div className="rounded-md border border-(--card-border) bg-black/20">
         <div className="flex items-start gap-2 p-2">
           <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-[color-mix(in_srgb,var(--accent)_85%,transparent)]" />
           <div className="min-w-0 flex-1">
             <div
               className={clsx(
                 'text-xs leading-5',
-                trimmed
-                  ? 'text-[var(--text-primary)]'
-                  : 'italic text-[var(--text-tertiary)]'
+                trimmed ? 'text-primary-wh40k' : 'italic text-(--text-tertiary)'
               )}
             >
               {trimmed ? (
-                <span className="block max-h-[3.75rem] overflow-hidden whitespace-pre-wrap">
+                <span className="block max-h-15 overflow-hidden whitespace-pre-wrap">
                   {value}
                 </span>
               ) : (
                 'No notes configured.'
               )}
             </div>
-            <div className="mt-1 text-[10px] uppercase tracking-[0.14em] text-[var(--text-tertiary)]">
+            <div className="mt-1 text-[10px] uppercase tracking-[0.14em] text-(--text-tertiary)">
               {trimmed
                 ? `${lineCount} ${lineCount === 1 ? 'line' : 'lines'} / ${value.length} chars`
                 : 'Optional tactics narrative'}
@@ -90,7 +88,7 @@ export function NotesInput({
           <button
             type="button"
             onClick={openEditor}
-            className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 text-xs font-semibold text-[var(--text-secondary)] hover:border-[color-mix(in_srgb,var(--accent)_60%,transparent)] hover:text-[var(--accent)]"
+            className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md border border-(--card-border) bg-(--bg-secondary) px-2 text-xs font-semibold text-secondary-wh40k hover:border-[color-mix(in_srgb,var(--accent)_60%,transparent)] hover:text-(--accent)"
           >
             <PencilLine className="h-3.5 w-3.5" />
             {disabled ? 'View' : trimmed ? 'Edit' : 'Add'}
@@ -103,7 +101,7 @@ export function NotesInput({
         createPortal(
           <div
             // Above the parent sheet (z-[85]).
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm"
+            className="fixed inset-0 z-100 flex items-center justify-center bg-black/85 p-4 backdrop-blur-xs"
             role="dialog"
             aria-modal="true"
             aria-label={`${label} editor`}
@@ -114,20 +112,20 @@ export function NotesInput({
               closeEditor()
             }}
           >
-            <div className="w-full max-w-3xl rounded-lg border border-[var(--card-border)] bg-[#171a1f] shadow-2xl">
-              <div className="flex items-start justify-between gap-3 border-b border-[var(--card-border)] bg-[#1b1f25] px-4 py-3">
+            <div className="w-full max-w-3xl rounded-lg border border-(--card-border) bg-[#171a1f] shadow-2xl">
+              <div className="flex items-start justify-between gap-3 border-b border-(--card-border) bg-[#1b1f25] px-4 py-3">
                 <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-(--accent)">
                     Tactics narrative
                   </div>
-                  <h3 className="mt-1 text-lg font-semibold text-[var(--text-primary)]">
+                  <h3 className="mt-1 text-lg font-semibold text-primary-wh40k">
                     {label}
                   </h3>
                 </div>
                 <button
                   type="button"
                   onClick={closeEditor}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[var(--card-border)] bg-black/20 text-[var(--text-secondary)] hover:border-[color-mix(in_srgb,var(--accent)_60%,transparent)] hover:text-[var(--text-primary)]"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-(--card-border) bg-black/20 text-secondary-wh40k hover:border-[color-mix(in_srgb,var(--accent)_60%,transparent)] hover:text-primary-wh40k"
                   aria-label="Close notes editor"
                 >
                   <X className="h-4 w-4" />
@@ -142,21 +140,21 @@ export function NotesInput({
                   readOnly={disabled || saving}
                   onChange={(event) => setDraft(event.target.value)}
                   placeholder={placeholder}
-                  className="max-h-[70vh] min-h-[50vh] w-full resize-y rounded-md border border-[var(--card-border)] bg-[#0f1115] px-3 py-3 text-sm leading-6 text-[var(--text-primary)] placeholder-[color-mix(in_srgb,var(--text-secondary)_55%,transparent)] focus:border-[color-mix(in_srgb,var(--accent)_70%,transparent)] focus:outline-none read-only:cursor-default"
+                  className="max-h-[70vh] min-h-[50vh] w-full resize-y rounded-md border border-(--card-border) bg-[#0f1115] px-3 py-3 text-sm leading-6 text-primary-wh40k placeholder-[color-mix(in_srgb,var(--text-secondary)_55%,transparent)] focus:border-[color-mix(in_srgb,var(--accent)_70%,transparent)] focus:outline-hidden read-only:cursor-default"
                 />
-                <div className="text-xs text-[var(--text-tertiary)]">
+                <div className="text-xs text-(--text-tertiary)">
                   {draft.trim()
                     ? `${draft.split(/\r\n|\r|\n/).length} lines / ${draft.length} chars`
                     : 'No notes yet.'}
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--card-border)] bg-[#1b1f25] px-4 py-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-(--card-border) bg-[#1b1f25] px-4 py-3">
                 <button
                   type="button"
                   onClick={() => setDraft('')}
                   disabled={disabled || saving}
-                  className="inline-flex h-9 items-center rounded-md border border-[var(--card-border)] bg-black/15 px-3 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex h-9 items-center rounded-md border border-(--card-border) bg-black/15 px-3 text-sm font-semibold text-secondary-wh40k hover:text-primary-wh40k disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Clear
                 </button>
@@ -170,7 +168,7 @@ export function NotesInput({
                     type="button"
                     onClick={closeEditor}
                     disabled={saving}
-                    className="inline-flex h-9 items-center rounded-md border border-[var(--card-border)] bg-black/15 px-3 text-sm font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-40"
+                    className="inline-flex h-9 items-center rounded-md border border-(--card-border) bg-black/15 px-3 text-sm font-semibold text-secondary-wh40k hover:text-primary-wh40k disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {disabled ? 'Close' : 'Cancel'}
                   </button>
@@ -179,7 +177,7 @@ export function NotesInput({
                       type="button"
                       onClick={() => void applyDraft()}
                       disabled={saving}
-                      className="inline-flex h-9 items-center gap-2 rounded-md border border-[color-mix(in_srgb,var(--accent)_60%,transparent)] bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] px-3 text-sm font-semibold text-[var(--accent)] hover:bg-[color-mix(in_srgb,var(--accent)_25%,transparent)] disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex h-9 items-center gap-2 rounded-md border border-[color-mix(in_srgb,var(--accent)_60%,transparent)] bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] px-3 text-sm font-semibold text-(--accent) hover:bg-[color-mix(in_srgb,var(--accent)_25%,transparent)] disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {saving ? (
                         <Loader2 className="h-4 w-4 animate-spin" />

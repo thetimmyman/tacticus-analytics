@@ -111,7 +111,7 @@ export default async function RootLayout({
         <OrganizationStructuredData />
       </head>
       <body
-        className="bg-gradient-to-br from-[var(--bg-from)] via-[var(--bg-via)] to-[var(--bg-to)] min-h-screen"
+        className="bg-linear-to-br from-(--bg-from) via-(--bg-via) to-(--bg-to) min-h-screen"
         suppressHydrationWarning
       >
         <VersionChecker />

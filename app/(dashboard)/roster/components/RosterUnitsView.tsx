@@ -35,7 +35,7 @@ function HeroIcon({
       <img
         src={artUrl}
         alt={name}
-        className={`w-10 h-10 text-xs rounded-lg border-2 flex-shrink-0 object-cover ${borderColor}`}
+        className={`w-10 h-10 text-xs rounded-lg border-2 shrink-0 object-cover ${borderColor}`}
         loading="lazy"
       />
     )
@@ -43,7 +43,7 @@ function HeroIcon({
 
   return (
     <div
-      className={`w-10 h-10 text-xs rounded-lg bg-[var(--bg-secondary)] border-2 flex items-center justify-center text-[var(--text-secondary)] flex-shrink-0 ${borderColor}`}
+      className={`w-10 h-10 text-xs rounded-lg bg-(--bg-secondary) border-2 flex items-center justify-center text-secondary-wh40k shrink-0 ${borderColor}`}
     >
       {name.slice(0, 2)}
     </div>
@@ -84,12 +84,8 @@ export function RosterUnitsView({
             iconUrl={unit.iconUrl}
           />
           <div>
-            <div className="font-medium text-[var(--text-primary)]">
-              {unit.name}
-            </div>
-            <div className="text-xs text-[var(--text-secondary)]">
-              {unit.id}
-            </div>
+            <div className="font-medium text-primary-wh40k">{unit.name}</div>
+            <div className="text-xs text-secondary-wh40k">{unit.id}</div>
           </div>
         </div>
       )
@@ -134,7 +130,7 @@ export function RosterUnitsView({
       align: 'center',
       // DataTable's <td> forces text-secondary; the level cell needs text-primary.
       render: (unit) => (
-        <span className="text-[var(--text-primary)]">{unit.xpLevel}</span>
+        <span className="text-primary-wh40k">{unit.xpLevel}</span>
       )
     },
     {
@@ -223,7 +219,7 @@ export function RosterUnitsView({
       </div>
 
       {totalFilteredCount === 0 && (
-        <div className="card-wh40k p-8 text-center text-[var(--text-secondary)]">
+        <div className="card-wh40k p-8 text-center text-secondary-wh40k">
           <Filter className="h-8 w-8 mx-auto mb-2 opacity-50" />
           <p>No characters match your filters</p>
         </div>

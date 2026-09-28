@@ -43,7 +43,7 @@ export function PersonalPotentialMetaTeamSelect({
 }: PersonalPotentialMetaTeamSelectProps) {
   return (
     <div className="flex flex-wrap items-center justify-center gap-3 text-xs">
-      <span className="text-[10px] uppercase tracking-wide text-[var(--text-secondary)]">
+      <span className="text-[10px] uppercase tracking-wide text-secondary-wh40k">
         Meta Team
       </span>
       <Select

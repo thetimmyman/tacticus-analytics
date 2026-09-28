@@ -11,8 +11,8 @@ interface MetricPanelProps {
 
 function MetricPanel({ title, rows }: MetricPanelProps) {
   return (
-    <div className="rounded-md border border-[var(--border)] bg-[var(--bg-secondary)] p-3 space-y-1">
-      <div className="font-semibold text-[var(--text-secondary)] uppercase">
+    <div className="rounded-md border border-(--border) bg-(--bg-secondary) p-3 space-y-1">
+      <div className="font-semibold text-secondary-wh40k uppercase">
         {title}
       </div>
       {rows.map(({ label, value, tone }) => (
@@ -20,9 +20,7 @@ function MetricPanel({ title, rows }: MetricPanelProps) {
           <span>{label}</span>
           <span
             className={
-              tone
-                ? `font-semibold ${tone}`
-                : 'font-mono text-[var(--text-secondary)]'
+              tone ? `font-semibold ${tone}` : 'font-mono text-secondary-wh40k'
             }
           >
             {value}
@@ -42,12 +40,12 @@ export default function ZoneStatsGrid({ zones }: { zones: ZoneCell[] }) {
         return (
           <div
             key={zone.id}
-            className="rounded-lg border border-[var(--border)] bg-[var(--bg-primary)] p-5 space-y-4 text-xs"
+            className="rounded-lg border border-(--border) bg-(--bg-primary) p-5 space-y-4 text-xs"
           >
             <div className="flex items-start justify-between">
               {/* The zones API ships only a raw zone_type; it becomes a display string here, once. */}
               <ZoneImageTooltip zoneType={zone.zoneType} side="right">
-                <div className="text-sm font-semibold text-[var(--text-primary)]">
+                <div className="text-sm font-semibold text-primary-wh40k">
                   {zoneDisplayName(zone.zoneType)}
                 </div>
               </ZoneImageTooltip>
@@ -58,7 +56,7 @@ export default function ZoneStatsGrid({ zones }: { zones: ZoneCell[] }) {
                 </Badge>
               )}
             </div>
-            <div className="text-xs text-[var(--text-secondary)]">
+            <div className="text-xs text-secondary-wh40k">
               Assigned: {zone.assignedPlayer || 'Unassigned'}
             </div>
             <div className="grid gap-2">

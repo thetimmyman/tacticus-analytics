@@ -40,7 +40,7 @@ export function DeleteConfirmDialog({
           <RadixDialogTitle className="text-red-400">
             Confirm Guild Deletion
           </RadixDialogTitle>
-          <RadixDialogDescription className="text-[var(--text-secondary)]">
+          <RadixDialogDescription className="text-secondary-wh40k">
             This action is PERMANENT and will disable{' '}
             <strong>{guildLabel}</strong> from the entire cluster.
             <br />

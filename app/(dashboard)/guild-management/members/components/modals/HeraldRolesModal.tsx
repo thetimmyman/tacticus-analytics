@@ -32,17 +32,17 @@ export function HeraldRolesModal({
 
   return (
     <ModalShell>
-      <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+      <h3 className="text-lg font-semibold text-primary-wh40k mb-2">
         Herald Roles - <MemberName value={member.display_name} />
       </h3>
-      <p className="text-xs text-[var(--text-secondary)] mb-4">
+      <p className="text-xs text-secondary-wh40k mb-4">
         Assign meta team roles for Herald ping routing. Officer assignments
         appear with the &apos;leader&apos; source badge and take precedence over
         player-set roles.
       </p>
 
       {!member.user_id ? (
-        <p className="text-sm text-[var(--text-secondary)]">
+        <p className="text-sm text-secondary-wh40k">
           This member has no claimed profile yet. Herald roles can only be
           assigned after they claim their profile via invite code.
         </p>

@@ -478,7 +478,7 @@ export function BossPerformanceTrends({
           {['a', 'b', 'c', 'd', 'e', 'f'].map((id) => (
             <div
               key={`boss-trend-skeleton-${id}`}
-              className="h-16 bg-card/50 rounded"
+              className="h-16 bg-card/50 rounded-sm"
             ></div>
           ))}
         </div>
@@ -490,7 +490,7 @@ export function BossPerformanceTrends({
     return (
       <div className={`card-wh40k p-4 ${className}`}>
         <h3 className="subheading-wh40k mb-4">Boss Performance Trends</h3>
-        <div className="text-center py-8 text-[var(--text-secondary)]">
+        <div className="text-center py-8 text-secondary-wh40k">
           No boss performance data available for this season
         </div>
       </div>
@@ -518,14 +518,14 @@ export function BossPerformanceTrends({
 
   return (
     <div
-      className={`card-wh40k p-4 hover:shadow-xl hover:shadow-[color:color-mix(in_srgb,var(--primary)_20%,transparent)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)] transition-all duration-300 ${className}`}
+      className={`card-wh40k p-4 hover:shadow-xl hover:shadow-[color-mix(in_srgb,var(--primary)_20%,transparent)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)] transition-all duration-300 ${className}`}
     >
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
         <div className="flex items-center gap-2">
           <h3 className="subheading-wh40k">
             Boss Performance Analysis
             {(bossFilter || levelFilter) && (
-              <span className="text-sm font-normal text-[var(--accent)] ml-2">
+              <span className="text-sm font-normal text-(--accent) ml-2">
                 {levelFilter && `• ${levelFilter}`}
                 {bossFilter && `• ${bossFilter}`}
               </span>
@@ -534,19 +534,17 @@ export function BossPerformanceTrends({
           <Tooltip
             content={`Real-time analysis of boss performance using current season damage and token data. Shows which bosses are underperforming and need attention.${bossFilter ? ' Currently showing both main boss and prime encounters for the selected boss.' : ''}`}
           >
-            <HelpCircle className="h-4 w-4 text-[var(--text-secondary)] cursor-help" />
+            <HelpCircle className="h-4 w-4 text-secondary-wh40k cursor-help" />
           </Tooltip>
         </div>
         <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 sm:mt-0">
           <div className="flex items-center gap-1 sm:gap-2">
-            <div className="text-xs sm:text-sm text-[var(--text-secondary)]">
-              Show:
-            </div>
+            <div className="text-xs sm:text-sm text-secondary-wh40k">Show:</div>
             <select
               value={targetFilter}
               onChange={(e) => setTargetFilter(e.target.value as TargetFilter)}
               disabled={!!bossFilter}
-              className={`px-2 py-1 text-xs bg-[var(--card-bg)] border border-[var(--card-border)] rounded text-[var(--text-primary)] ${bossFilter ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`px-2 py-1 text-xs bg-(--card-bg) border border-(--card-border) rounded-sm text-primary-wh40k ${bossFilter ? 'opacity-50 cursor-not-allowed' : ''}`}
               title={
                 bossFilter
                   ? 'Target filter disabled when boss filter is active - showing both main boss and primes'
@@ -561,7 +559,7 @@ export function BossPerformanceTrends({
             </select>
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
-            <div className="text-xs sm:text-sm text-[var(--text-secondary)]">
+            <div className="text-xs sm:text-sm text-secondary-wh40k">
               Sort by:
             </div>
             <select
@@ -572,7 +570,7 @@ export function BossPerformanceTrends({
                     'problems' | 'damage' | 'tokens' | 'duration'
                 )
               }
-              className="px-2 py-1 text-xs bg-[var(--card-bg)] border border-[var(--card-border)] rounded text-[var(--text-primary)]"
+              className="px-2 py-1 text-xs bg-(--card-bg) border border-(--card-border) rounded-sm text-primary-wh40k"
             >
               <option value="problems">Performance Issues</option>
               <option value="damage">Damage Efficiency</option>

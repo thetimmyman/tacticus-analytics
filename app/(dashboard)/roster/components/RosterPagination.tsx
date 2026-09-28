@@ -27,7 +27,7 @@ export function RosterPagination({
   return (
     <div className="card-wh40k p-3 sm:p-4 mt-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div className="flex items-center justify-between sm:justify-start gap-2 text-sm text-[var(--text-secondary)]">
+        <div className="flex items-center justify-between sm:justify-start gap-2 text-sm text-secondary-wh40k">
           <span className="whitespace-nowrap">
             {(currentPage - 1) * pageSize + 1}-
             {Math.min(currentPage * pageSize, totalItems)} of {totalItems}
@@ -47,7 +47,7 @@ export function RosterPagination({
           <button
             onClick={() => onPageChange(1)}
             disabled={currentPage === 1}
-            className="p-2 rounded border border-[var(--card-border)] bg-[var(--bg-secondary)] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)] transition-colors"
+            className="p-2 rounded-sm border border-(--card-border) bg-(--bg-secondary) disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)] transition-colors"
             aria-label="First page"
           >
             <ChevronsLeft className="h-4 w-4" />
@@ -55,18 +55,18 @@ export function RosterPagination({
           <button
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
-            className="p-2 rounded border border-[var(--card-border)] bg-[var(--bg-secondary)] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)] transition-colors"
+            className="p-2 rounded-sm border border-(--card-border) bg-(--bg-secondary) disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)] transition-colors"
             aria-label="Previous page"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <span className="px-3 py-1 text-sm text-[var(--text-primary)] min-w-[80px] text-center">
+          <span className="px-3 py-1 text-sm text-primary-wh40k min-w-[80px] text-center">
             {currentPage} / {totalPages}
           </span>
           <button
             onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage === totalPages}
-            className="p-2 rounded border border-[var(--card-border)] bg-[var(--bg-secondary)] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)] transition-colors"
+            className="p-2 rounded-sm border border-(--card-border) bg-(--bg-secondary) disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)] transition-colors"
             aria-label="Next page"
           >
             <ChevronRight className="h-4 w-4" />
@@ -74,7 +74,7 @@ export function RosterPagination({
           <button
             onClick={() => onPageChange(totalPages)}
             disabled={currentPage === totalPages}
-            className="p-2 rounded border border-[var(--card-border)] bg-[var(--bg-secondary)] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)] transition-colors"
+            className="p-2 rounded-sm border border-(--card-border) bg-(--bg-secondary) disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)] transition-colors"
             aria-label="Last page"
           >
             <ChevronsRight className="h-4 w-4" />

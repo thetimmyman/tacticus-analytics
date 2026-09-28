@@ -134,7 +134,7 @@ export default function HeroCard({
             aria-expanded={open}
             aria-describedby={detailId}
             title={`${displayName || unitId} · ${ROLE_LABEL[role]}${used ? ' · used this war' : ''}${notReady ? ' · not ready' : ''}`}
-            className="group block w-full rounded-lg text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+            className="group block w-full rounded-lg text-left focus:outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent)"
           >
             <div className="pt-[7%]">
               <div
@@ -146,7 +146,7 @@ export default function HeroCard({
                 style={{ aspectRatio: TILE_ASPECT_RATIO }}
               >
                 <div
-                  className="absolute overflow-hidden bg-[var(--bg-secondary)]"
+                  className="absolute overflow-hidden bg-(--bg-secondary)"
                   style={{ inset: '3.2% 3.7%' }}
                 >
                   {artUrl ? (
@@ -157,7 +157,7 @@ export default function HeroCard({
                       className={`h-full w-full ${artUrl === portraitUrl ? 'object-contain p-[12%]' : 'object-cover object-top'}`}
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-base font-semibold text-[var(--text-secondary)]">
+                    <div className="flex h-full w-full items-center justify-center text-base font-semibold text-secondary-wh40k">
                       {fallbackBadge}
                     </div>
                   )}
@@ -173,12 +173,12 @@ export default function HeroCard({
                   <img
                     src={rankIcon}
                     alt=""
-                    className="pointer-events-none absolute bottom-[1%] left-[1%] w-[30%] object-contain drop-shadow"
+                    className="pointer-events-none absolute bottom-[1%] left-[1%] w-[30%] object-contain drop-shadow-sm"
                     loading="lazy"
                   />
                 )}
                 {rosterHero?.xpLevel != null && (
-                  <span className="absolute bottom-[3%] right-[4%] rounded bg-black/75 px-1 text-[10px] font-semibold leading-4 text-white">
+                  <span className="absolute bottom-[3%] right-[4%] rounded-sm bg-black/75 px-1 text-[10px] font-semibold leading-4 text-white">
                     {rosterHero.xpLevel}
                   </span>
                 )}
@@ -191,7 +191,7 @@ export default function HeroCard({
                 {used && (
                   <span
                     aria-hidden
-                    className="pointer-events-none absolute inset-x-[-4%] top-1/2 h-0.5 -translate-y-1/2 -rotate-12 rounded bg-[var(--text-primary)]"
+                    className="pointer-events-none absolute inset-x-[-4%] top-1/2 h-0.5 -translate-y-1/2 -rotate-12 rounded-sm bg-(--text-primary)"
                   />
                 )}
                 {used && (
@@ -202,7 +202,7 @@ export default function HeroCard({
                 )}
               </div>
             </div>
-            <span className="mt-0.5 block truncate text-center text-[11px] leading-tight text-[var(--text-primary)]">
+            <span className="mt-0.5 block truncate text-center text-[11px] leading-tight text-primary-wh40k">
               {displayName || unitId}
             </span>
           </button>
@@ -212,7 +212,7 @@ export default function HeroCard({
         </span>
         <span
           className={clsx(
-            'rounded px-1 text-[8px] font-bold uppercase leading-3',
+            'rounded-sm px-1 text-[8px] font-bold uppercase leading-3',
             ROLE_STYLES[role]
           )}
         >
@@ -227,7 +227,7 @@ export default function HeroCard({
             {ROLE_LABEL[role]} · {ownershipText}
           </RadixDialogDescription>
         </RadixDialogHeader>
-        <div className="space-y-1 text-sm text-[var(--text-secondary)]">
+        <div className="space-y-1 text-sm text-secondary-wh40k">
           {rankText && <div>{rankText}</div>}
           {levelText && <div>{levelText}</div>}
           {rosterHero && (

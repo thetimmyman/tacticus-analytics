@@ -82,7 +82,7 @@ const getResultBadge = (result: string | null) => {
       </Badge>
     )
   return (
-    <Badge className="bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border)]">
+    <Badge className="bg-(--bg-secondary) text-secondary-wh40k border-(--border)">
       N/A
     </Badge>
   )
@@ -93,8 +93,8 @@ const summaryToneStyles: Record<SummaryTone, { text: string; border: string }> =
     positive: { text: 'text-green-400', border: 'border-green-500/30' },
     negative: { text: 'text-red-400', border: 'border-red-500/30' },
     neutral: {
-      text: 'text-[var(--text-primary)]',
-      border: 'border-[var(--border)]'
+      text: 'text-primary-wh40k',
+      border: 'border-(--border)'
     },
     info: { text: 'text-cyan-400', border: 'border-cyan-500/30' }
   }
@@ -113,15 +113,13 @@ function SummaryTile({
   const toneStyle = summaryToneStyles[tone]
   return (
     <div className={`stat-card-wh40k p-3 sm:p-4 ${toneStyle.border}`}>
-      <div className="text-[10px] uppercase tracking-wide text-[var(--text-tertiary)]">
+      <div className="text-[10px] uppercase tracking-wide text-(--text-tertiary)">
         {label}
       </div>
       <div className={`text-lg sm:text-xl font-semibold ${toneStyle.text}`}>
         {value}
       </div>
-      {hint && (
-        <div className="text-xs text-[var(--text-secondary)]">{hint}</div>
-      )}
+      {hint && <div className="text-xs text-secondary-wh40k">{hint}</div>}
     </div>
   )
 }
@@ -133,7 +131,7 @@ const topPlayersColumns: DataTableColumn<PlayerAgg>[] = [
     header: 'Player',
     sortable: false,
     render: (row) => (
-      <span className="font-medium text-[var(--text-primary)]">
+      <span className="font-medium text-primary-wh40k">
         <MemberName value={row.player} />
       </span>
     )
@@ -162,7 +160,7 @@ const topPlayersColumns: DataTableColumn<PlayerAgg>[] = [
     sortable: false,
     align: 'right',
     render: (row) => (
-      <span className="font-mono text-[var(--text-primary)]">
+      <span className="font-mono text-primary-wh40k">
         {formatNumber(row.score)}
       </span>
     )
@@ -186,7 +184,7 @@ const warsInRangeColumns: DataTableColumn<WarRow>[] = [
     header: 'Opponent',
     sortable: false,
     render: (war) => (
-      <span className="font-medium text-[var(--text-primary)]">
+      <span className="font-medium text-primary-wh40k">
         {war.opponent_guild_name ?? 'Unknown'}
       </span>
     )
@@ -203,7 +201,7 @@ const warsInRangeColumns: DataTableColumn<WarRow>[] = [
     sortable: false,
     align: 'right',
     render: (war) => (
-      <span className="font-mono text-[var(--text-primary)]">
+      <span className="font-mono text-primary-wh40k">
         {formatNumber(war.guild_score)} - {formatNumber(war.opponent_score)}
       </span>
     )
@@ -295,7 +293,7 @@ export default function WarAnalytics({ guildCode }: WarAnalyticsProps) {
   if (isLoading) {
     return (
       <Card className="card-wh40k">
-        <CardContent className="p-6 text-sm text-[var(--text-secondary)]">
+        <CardContent className="p-6 text-sm text-secondary-wh40k">
           Loading analytics.
         </CardContent>
       </Card>
@@ -321,7 +319,7 @@ export default function WarAnalytics({ guildCode }: WarAnalyticsProps) {
               <BarChart3 className="h-5 w-5 text-cyan-400" />
               <h2 className="heading-wh40k text-xl">Guild War Analytics</h2>
             </div>
-            <p className="text-xs text-[var(--text-secondary)]">
+            <p className="text-xs text-secondary-wh40k">
               Scores use official war scoring (zone-capture bonuses included):
               match scores are game-reported; player scores sum guild
               members&apos; score earned; zone scores cover both guild (offense)
@@ -329,7 +327,7 @@ export default function WarAnalytics({ guildCode }: WarAnalyticsProps) {
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <span className="text-xs uppercase tracking-wide text-[var(--text-tertiary)]">
+            <span className="text-xs uppercase tracking-wide text-(--text-tertiary)">
               Range
             </span>
             <Select
@@ -411,32 +409,32 @@ export default function WarAnalytics({ guildCode }: WarAnalyticsProps) {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-          <div className="rounded-lg border border-[var(--border)] bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-3">
+          <div className="rounded-lg border border-(--border) bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-3">
             <div className="flex items-center justify-between gap-2">
               <div>
-                <p className="text-[10px] uppercase tracking-wide text-[var(--text-tertiary)]">
+                <p className="text-[10px] uppercase tracking-wide text-(--text-tertiary)">
                   Top Scorer
                 </p>
-                <p className="text-sm font-semibold text-[var(--text-primary)]">
+                <p className="text-sm font-semibold text-primary-wh40k">
                   {topScorer ? <MemberName value={topScorer.player} /> : 'N/A'}
                 </p>
               </div>
               <Trophy className="h-5 w-5 text-yellow-400" />
             </div>
-            <div className="mt-2 text-xs text-[var(--text-secondary)]">
+            <div className="mt-2 text-xs text-secondary-wh40k">
               {topScorer
                 ? `${formatNumber(topScorer.score)} score - ${formatPercent(topScorer.winRate)} win rate`
                 : 'No completed attempts yet.'}
             </div>
           </div>
 
-          <div className="rounded-lg border border-[var(--border)] bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-3">
+          <div className="rounded-lg border border-(--border) bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-3">
             <div className="flex items-center justify-between gap-2">
               <div>
-                <p className="text-[10px] uppercase tracking-wide text-[var(--text-tertiary)]">
+                <p className="text-[10px] uppercase tracking-wide text-(--text-tertiary)">
                   Most Active
                 </p>
-                <p className="text-sm font-semibold text-[var(--text-primary)]">
+                <p className="text-sm font-semibold text-primary-wh40k">
                   {mostActive ? (
                     <MemberName value={mostActive.player} />
                   ) : (
@@ -446,20 +444,20 @@ export default function WarAnalytics({ guildCode }: WarAnalyticsProps) {
               </div>
               <Sword className="h-5 w-5 text-green-400" />
             </div>
-            <div className="mt-2 text-xs text-[var(--text-secondary)]">
+            <div className="mt-2 text-xs text-secondary-wh40k">
               {mostActive
                 ? `${formatNumber(mostActive.attempts)} attacks - ${formatNumber(mostActive.wars)} wars`
                 : 'No activity logged yet.'}
             </div>
           </div>
 
-          <div className="rounded-lg border border-[var(--border)] bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-3">
+          <div className="rounded-lg border border-(--border) bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-3">
             <div className="flex items-center justify-between gap-2">
               <div>
-                <p className="text-[10px] uppercase tracking-wide text-[var(--text-tertiary)]">
+                <p className="text-[10px] uppercase tracking-wide text-(--text-tertiary)">
                   Best Win Rate
                 </p>
-                <p className="text-sm font-semibold text-[var(--text-primary)]">
+                <p className="text-sm font-semibold text-primary-wh40k">
                   {bestWinRate ? (
                     <MemberName value={bestWinRate.player} />
                   ) : (
@@ -469,7 +467,7 @@ export default function WarAnalytics({ guildCode }: WarAnalyticsProps) {
               </div>
               <Shield className="h-5 w-5 text-cyan-400" />
             </div>
-            <div className="mt-2 text-xs text-[var(--text-secondary)]">
+            <div className="mt-2 text-xs text-secondary-wh40k">
               {bestWinRate
                 ? `${formatPercent(bestWinRate.winRate)} win rate - ${formatNumber(bestWinRate.attempts)} attacks`
                 : `Need ${MIN_ATTEMPTS_FOR_WIN_RATE}+ attacks for ranking.`}
@@ -478,11 +476,11 @@ export default function WarAnalytics({ guildCode }: WarAnalyticsProps) {
         </div>
 
         <div>
-          <div className="text-[10px] uppercase tracking-wide text-[var(--text-tertiary)]">
+          <div className="text-[10px] uppercase tracking-wide text-(--text-tertiary)">
             Recent Wars
           </div>
           {recentWars.length === 0 ? (
-            <div className="mt-2 text-xs text-[var(--text-secondary)]">
+            <div className="mt-2 text-xs text-secondary-wh40k">
               No completed wars yet.
             </div>
           ) : (
@@ -502,12 +500,12 @@ export default function WarAnalytics({ guildCode }: WarAnalyticsProps) {
                     }
                     className={`flex flex-wrap items-center gap-2 rounded-md border px-3 py-2 text-xs cursor-pointer select-none transition-opacity ${
                       isDeselected
-                        ? 'border-[var(--border)] bg-[color-mix(in_srgb,var(--bg-secondary)_20%,transparent)] opacity-40'
+                        ? 'border-(--border) bg-[color-mix(in_srgb,var(--bg-secondary)_20%,transparent)] opacity-40'
                         : 'border-emerald-500/40 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] opacity-100'
                     }`}
                   >
                     {getResultBadge(war.war_result)}
-                    <span className="text-[var(--text-primary)]">
+                    <span className="text-primary-wh40k">
                       {war.opponent_guild_name ?? 'Unknown'}
                     </span>
                     <span className={`font-mono ${diffClass}`}>
@@ -534,7 +532,7 @@ export default function WarAnalytics({ guildCode }: WarAnalyticsProps) {
 
       {wars.length === 0 ? (
         <Card className="card-wh40k">
-          <CardContent className="p-10 text-center text-[var(--text-secondary)]">
+          <CardContent className="p-10 text-center text-secondary-wh40k">
             No completed wars found for this range.
           </CardContent>
         </Card>
@@ -561,7 +559,7 @@ export default function WarAnalytics({ guildCode }: WarAnalyticsProps) {
             <Card className="card-wh40k overflow-hidden">
               <CardHeader className="pb-2">
                 <CardTitle className="subheading-wh40k text-base sm:text-lg flex items-center gap-2">
-                  <Users className="h-5 w-5 text-[var(--accent)]" />
+                  <Users className="h-5 w-5 text-(--accent)" />
                   Wars In Range
                 </CardTitle>
               </CardHeader>

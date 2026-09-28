@@ -53,10 +53,10 @@ export function ApiKeyModal({ member, onClose }: ApiKeyModalProps) {
 
   return (
     <ModalShell>
-      <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+      <h3 className="text-lg font-semibold text-primary-wh40k">
         Add Player API Key - <MemberName value={member.display_name} />
       </h3>
-      <p className="text-sm text-[var(--text-secondary)]">
+      <p className="text-sm text-secondary-wh40k">
         Important: You must collect this player&apos;s API key directly from
         them. Do not enter your own key.
       </p>
@@ -72,14 +72,14 @@ export function ApiKeyModal({ member, onClose }: ApiKeyModalProps) {
         validationScope="player"
         placeholder="Paste the player API key"
       />
-      <div className="text-xs text-[var(--text-tertiary)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] border border-[color-mix(in_srgb,var(--accent)_40%,transparent)] p-3 rounded space-y-2">
+      <div className="text-xs text-(--text-tertiary) bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] border border-[color-mix(in_srgb,var(--accent)_40%,transparent)] p-3 rounded-sm space-y-2">
         <p>
           Important: Ask the player to go to{' '}
           <a
             href={TACTICUS_SITE}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[var(--accent)] underline"
+            className="text-(--accent) underline"
           >
             {TACTICUS_SITE}
           </a>

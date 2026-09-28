@@ -83,22 +83,20 @@ export default function RosterStrategySection({
   investmentRows
 }: RosterStrategySectionProps) {
   return (
-    <div className="rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-6 space-y-4">
+    <div className="rounded-lg border border-(--card-border) bg-(--card-bg) p-6 space-y-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+          <h3 className="text-lg font-semibold text-primary-wh40k">
             Roster Strategy Planner
           </h3>
-          <p className="text-sm text-[var(--text-secondary)]">
+          <p className="text-sm text-secondary-wh40k">
             Swap simulation, cluster optimization, and hero investment
             priorities for the selected boss rotation.
           </p>
         </div>
         <div className="flex flex-wrap items-end gap-3">
           <label className="space-y-1">
-            <span className="text-xs text-[var(--text-secondary)]">
-              Seasons
-            </span>
+            <span className="text-xs text-secondary-wh40k">Seasons</span>
             <select
               value={strategySeasonCount}
               onChange={(e) => {
@@ -113,7 +111,7 @@ export default function RosterStrategySection({
                   parseBoundedIntInput(e.target.value, 1, 1, 5)
                 )
               }}
-              className="w-28 rounded-md border border-[var(--card-border)] bg-[var(--card-bg)] px-3 py-2 text-sm text-[var(--text-primary)]"
+              className="w-28 rounded-md border border-(--card-border) bg-(--card-bg) px-3 py-2 text-sm text-primary-wh40k"
             >
               <option value={1}>Current</option>
               <option value={2}>Current +1</option>
@@ -131,7 +129,7 @@ export default function RosterStrategySection({
               swapSimulationUnavailable ||
               loadingSavedPlanId !== null
             }
-            className="inline-flex items-center gap-2 rounded-md border border-[var(--card-border)] bg-[var(--card-bg)] px-4 py-2 text-sm font-medium text-[var(--text-primary)] hover:bg-card/80 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-md border border-(--card-border) bg-(--card-bg) px-4 py-2 text-sm font-medium text-primary-wh40k hover:bg-card/80 disabled:opacity-50"
           >
             <ArrowRightLeft className="h-4 w-4" />
             {strategyLoading && !strategyOptimizerRequested
@@ -148,7 +146,7 @@ export default function RosterStrategySection({
               !displayedPlanSnapshotAt ||
               loadingSavedPlanId !== null
             }
-            className="inline-flex items-center gap-2 rounded-md border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] px-4 py-2 text-sm font-medium text-[var(--accent)] hover:bg-[color-mix(in_srgb,var(--primary)_30%,transparent)] disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-md border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] px-4 py-2 text-sm font-medium text-(--accent) hover:bg-[color-mix(in_srgb,var(--primary)_30%,transparent)] disabled:opacity-50"
           >
             <Sparkles className="h-4 w-4" />
             {strategyLoading && strategyOptimizerRequested
@@ -165,20 +163,20 @@ export default function RosterStrategySection({
       )}
 
       {!strategy && !strategyLoading && (
-        <div className="rounded-lg border border-[var(--card-border)] bg-card/40 p-4 text-sm text-[var(--text-secondary)]">
+        <div className="rounded-lg border border-(--card-border) bg-card/40 p-4 text-sm text-secondary-wh40k">
           Load the roster to review same-cluster members and strategy output.
         </div>
       )}
 
       {strategy && (
         <div className="space-y-4">
-          <div className="rounded-lg border border-[var(--card-border)] bg-card/40 p-4">
+          <div className="rounded-lg border border-(--card-border) bg-card/40 p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h4 className="text-sm font-semibold text-[var(--text-primary)]">
+                <h4 className="text-sm font-semibold text-primary-wh40k">
                   Baseline projection
                 </h4>
-                <p className="text-xs text-[var(--text-secondary)]">
+                <p className="text-xs text-secondary-wh40k">
                   {guildLabel(strategy.targetGuildCode)}
                   {strategy.clusterCode ? ` · ${strategy.clusterCode}` : ''}
                   {' · '}
@@ -189,10 +187,10 @@ export default function RosterStrategySection({
                 {compactSummaryMetric(strategy.baseline.aggregate).map(
                   (metric) => (
                     <div key={metric.label}>
-                      <div className="text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+                      <div className="text-xs uppercase tracking-wide text-secondary-wh40k">
                         {metric.label}
                       </div>
-                      <div className="text-sm font-semibold text-[var(--text-primary)]">
+                      <div className="text-sm font-semibold text-primary-wh40k">
                         {metric.value}
                       </div>
                     </div>
@@ -207,16 +205,16 @@ export default function RosterStrategySection({
             )}
           </div>
 
-          <div className="rounded-lg border border-[var(--card-border)] bg-card/40 p-4 space-y-3">
+          <div className="rounded-lg border border-(--card-border) bg-card/40 p-4 space-y-3">
             <div className="flex items-center gap-2">
-              <ArrowRightLeft className="h-4 w-4 text-[var(--accent)]" />
-              <h4 className="text-sm font-semibold text-[var(--text-primary)]">
+              <ArrowRightLeft className="h-4 w-4 text-(--accent)" />
+              <h4 className="text-sm font-semibold text-primary-wh40k">
                 Cluster swap simulator
               </h4>
             </div>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
               <label className="space-y-1">
-                <span className="text-xs text-[var(--text-secondary)]">
+                <span className="text-xs text-secondary-wh40k">
                   Current guild member
                 </span>
                 <select
@@ -226,7 +224,7 @@ export default function RosterStrategySection({
                     clearSwapResult()
                   }}
                   disabled={strategyTargetMembers.length === 0}
-                  className="w-full rounded-md border border-[var(--card-border)] bg-[var(--card-bg)] px-3 py-2 text-sm text-[var(--text-primary)]"
+                  className="w-full rounded-md border border-(--card-border) bg-(--card-bg) px-3 py-2 text-sm text-primary-wh40k"
                 >
                   {strategyTargetMembers.length === 0 && (
                     <option value="">No current guild members</option>
@@ -239,7 +237,7 @@ export default function RosterStrategySection({
                 </select>
               </label>
               <label className="space-y-1">
-                <span className="text-xs text-[var(--text-secondary)]">
+                <span className="text-xs text-secondary-wh40k">
                   Incoming guild
                 </span>
                 <select
@@ -250,7 +248,7 @@ export default function RosterStrategySection({
                     clearSwapResult()
                   }}
                   disabled={strategyIncomingGuildOptions.length === 0}
-                  className="w-full rounded-md border border-[var(--card-border)] bg-[var(--card-bg)] px-3 py-2 text-sm text-[var(--text-primary)]"
+                  className="w-full rounded-md border border-(--card-border) bg-(--card-bg) px-3 py-2 text-sm text-primary-wh40k"
                 >
                   <option value="all">
                     All cluster guilds · {strategyAllIncomingMembers.length}{' '}
@@ -264,7 +262,7 @@ export default function RosterStrategySection({
                 </select>
               </label>
               <label className="space-y-1">
-                <span className="text-xs text-[var(--text-secondary)]">
+                <span className="text-xs text-secondary-wh40k">
                   Incoming cluster member
                 </span>
                 <select
@@ -274,7 +272,7 @@ export default function RosterStrategySection({
                     clearSwapResult()
                   }}
                   disabled={strategyIncomingMembers.length === 0}
-                  className="w-full rounded-md border border-[var(--card-border)] bg-[var(--card-bg)] px-3 py-2 text-sm text-[var(--text-primary)]"
+                  className="w-full rounded-md border border-(--card-border) bg-(--card-bg) px-3 py-2 text-sm text-primary-wh40k"
                 >
                   {strategyIncomingMembers.length === 0 && (
                     <option value="">No incoming cluster members</option>
@@ -309,15 +307,15 @@ export default function RosterStrategySection({
                 ].map((row) => (
                   <div
                     key={row.title}
-                    className="rounded-md border border-[var(--card-border)] bg-[var(--card-bg)] p-3"
+                    className="rounded-md border border-(--card-border) bg-(--card-bg) p-3"
                   >
-                    <div className="text-sm font-medium text-[var(--text-primary)]">
+                    <div className="text-sm font-medium text-primary-wh40k">
                       {row.title}
                     </div>
                     <div className="mt-3 grid grid-cols-2 gap-3">
                       {strategyDeltaMetric(row.delta).map((metric) => (
                         <div key={metric.label}>
-                          <div className="text-[10px] uppercase tracking-wide text-[var(--text-secondary)]">
+                          <div className="text-[10px] uppercase tracking-wide text-secondary-wh40k">
                             {metric.label}
                           </div>
                           <div
@@ -340,7 +338,7 @@ export default function RosterStrategySection({
                 ))}
               </div>
             ) : (
-              <div className="text-sm text-[var(--text-secondary)]">
+              <div className="text-sm text-secondary-wh40k">
                 {strategyTargetMembers.length === 0
                   ? 'No current guild members are available to swap.'
                   : strategyIncomingMembers.length === 0

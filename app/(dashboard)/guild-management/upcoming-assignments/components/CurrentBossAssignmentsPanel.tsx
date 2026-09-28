@@ -58,14 +58,14 @@ export function CurrentBossAssignmentsPanel(props: {
       : null
 
   return (
-    <div className="rounded-lg border border-[var(--card-border)] bg-card/40 p-4">
+    <div className="rounded-lg border border-(--card-border) bg-card/40 p-4">
       <button
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}
         className="flex w-full flex-wrap items-start justify-between gap-3 text-left"
       >
         <div className="flex items-start gap-3">
-          <span className="mt-1 text-[var(--text-secondary)]">
+          <span className="mt-1 text-secondary-wh40k">
             {isExpanded ? (
               <ChevronDown size={16} />
             ) : (
@@ -73,7 +73,7 @@ export function CurrentBossAssignmentsPanel(props: {
             )}
           </span>
           {props.bossName && (
-            <div className="mt-0.5 flex-shrink-0">
+            <div className="mt-0.5 shrink-0">
               <BossPortrait
                 bossName={props.bossName}
                 size="small"
@@ -84,21 +84,21 @@ export function CurrentBossAssignmentsPanel(props: {
           <div>
             {/* Boss name first; tier and loop as compact badges. */}
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-base font-semibold text-[var(--text-primary)]">
+              <span className="text-base font-semibold text-primary-wh40k">
                 {props.bossName
                   ? getBossDisplayName(props.bossName)
                   : 'Current assignment'}
               </span>
-              <span className="inline-flex items-center rounded bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] text-[var(--primary)] px-1.5 py-0.5 text-[11px] font-bold">
+              <span className="inline-flex items-center rounded-sm bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] text-(--primary) px-1.5 py-0.5 text-[11px] font-bold">
                 {props.stageCode}
               </span>
-              <span className="text-[11px] text-[var(--text-secondary)]">
+              <span className="text-[11px] text-secondary-wh40k">
                 Loop {props.loopIndex}
               </span>
             </div>
-            <div className="mt-1 text-xs text-[var(--text-secondary)]">
+            <div className="mt-1 text-xs text-secondary-wh40k">
               <span className="mr-3">
-                <span className="text-[var(--text-primary)] font-medium">
+                <span className="text-primary-wh40k font-medium">
                   {formatNumber(usedTokens)}
                 </span>
                 <span className="opacity-75">
@@ -107,7 +107,7 @@ export function CurrentBossAssignmentsPanel(props: {
                 </span>
               </span>
               <span className="mr-3">
-                <span className="text-[var(--text-primary)] font-medium">
+                <span className="text-primary-wh40k font-medium">
                   {formatNumber(actualDamageTotal)}
                 </span>
                 <span className="opacity-75"> dmg</span>
@@ -124,7 +124,7 @@ export function CurrentBossAssignmentsPanel(props: {
           </div>
         </div>
         {props.snapshotAt && (
-          <div className="text-xs text-[var(--text-secondary)]">
+          <div className="text-xs text-secondary-wh40k">
             Updated <ClientDate date={props.snapshotAt} format="time" />
           </div>
         )}

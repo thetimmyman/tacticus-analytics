@@ -207,7 +207,7 @@ export default function TargetsClient({
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-center gap-2 text-xs">
         <span className="text-amber-100/60">Editing targets for</span>
-        <span className="font-semibold text-[var(--primary)]">
+        <span className="font-semibold text-(--primary)">
           Season {selectedSeason}
         </span>
       </div>
@@ -221,7 +221,7 @@ export default function TargetsClient({
             onClick={seedFromHistory}
             data-testid="targets-mutation-control"
             disabled={isSeeding}
-            className="px-3 py-1.5 text-xs rounded-md border border-[color-mix(in_srgb,var(--primary)_40%,transparent)] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-[var(--primary)] hover:bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] disabled:opacity-50"
+            className="px-3 py-1.5 text-xs rounded-md border border-[color-mix(in_srgb,var(--primary)_40%,transparent)] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-(--primary) hover:bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] disabled:opacity-50"
             title={`Rewrites historical_seed rows for Season ${selectedSeason} from the last full rotations. Primes use tier-cohort averages. Officer-manual rows are preserved.`}
           >
             {isSeeding ? 'Seeding…' : 'Seed from history'}
@@ -272,7 +272,7 @@ export default function TargetsClient({
       {subNav}
       <div className="bg-card/50 rounded-lg border border-[color-mix(in_srgb,var(--primary)_20%,transparent)] overflow-hidden">
         <div className="p-4 border-b border-[color-mix(in_srgb,var(--primary)_20%,transparent)]">
-          <h2 className="text-lg font-semibold text-[var(--primary)]">
+          <h2 className="text-lg font-semibold text-(--primary)">
             Boss Target Tokens
           </h2>
           <p className="text-xs text-amber-100/60 mt-1">
@@ -307,7 +307,7 @@ export default function TargetsClient({
                 onClick={() => setMode(m)}
                 className={`px-3 py-1 text-xs font-medium transition-colors ${
                   mode === m
-                    ? 'bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] text-[var(--primary)]'
+                    ? 'bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] text-(--primary)'
                     : 'bg-transparent text-amber-100/50 hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]'
                 }`}
               >
@@ -341,7 +341,7 @@ export default function TargetsClient({
                   value={nameFilter}
                   onChange={(e) => setNameFilter(e.target.value)}
                   placeholder="Search boss…"
-                  className="px-2 py-1 rounded bg-[var(--bg-primary)] border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] text-[var(--text-primary)] placeholder-amber-100/40 focus:outline-none focus:border-[color-mix(in_srgb,var(--primary)_60%,transparent)] w-36"
+                  className="px-2 py-1 rounded-sm bg-(--bg-primary) border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] text-primary-wh40k placeholder-amber-100/40 focus:outline-hidden focus:border-[color-mix(in_srgb,var(--primary)_60%,transparent)] w-36"
                 />
                 <select
                   value={rarityFilter}
@@ -350,7 +350,7 @@ export default function TargetsClient({
                       e.target.value as 'all' | 'Legendary' | 'Mythic'
                     )
                   }
-                  className="px-2 py-1 rounded bg-[var(--bg-primary)] border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] text-[var(--text-primary)] focus:outline-none focus:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]"
+                  className="px-2 py-1 rounded-sm bg-(--bg-primary) border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] text-primary-wh40k focus:outline-hidden focus:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]"
                 >
                   <option value="all">All rarities</option>
                   <option value="Legendary">Legendary</option>
@@ -361,7 +361,7 @@ export default function TargetsClient({
                   onChange={(e) =>
                     setSourceFilter(e.target.value as typeof sourceFilter)
                   }
-                  className="px-2 py-1 rounded bg-[var(--bg-primary)] border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] text-[var(--text-primary)] focus:outline-none focus:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]"
+                  className="px-2 py-1 rounded-sm bg-(--bg-primary) border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] text-primary-wh40k focus:outline-hidden focus:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]"
                 >
                   <option value="all">All sources</option>
                   <option value="officer_manual">Manual</option>
@@ -407,7 +407,7 @@ export default function TargetsClient({
                         else if (e.key === 'Escape') cancelEdit()
                       }}
                       onBlur={() => saveEdit(row)}
-                      className="h-11 w-20 rounded-md border border-[color-mix(in_srgb,var(--primary)_40%,transparent)] bg-[var(--bg-primary)] px-2 text-right font-mono text-[var(--text-primary)] focus:outline-none"
+                      className="h-11 w-20 rounded-md border border-[color-mix(in_srgb,var(--primary)_40%,transparent)] bg-(--bg-primary) px-2 text-right font-mono text-primary-wh40k focus:outline-hidden"
                       aria-label={`${row.display_name} target tokens`}
                       autoFocus
                     />
@@ -423,41 +423,41 @@ export default function TargetsClient({
               }
             >
               <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-[var(--bg-primary)] border-b border-[color-mix(in_srgb,var(--primary)_30%,transparent)]">
+                <thead className="sticky top-0 bg-(--bg-primary) border-b border-[color-mix(in_srgb,var(--primary)_30%,transparent)]">
                   <tr>
                     <th
                       onClick={() => toggleSort('boss')}
-                      className="px-4 py-3 text-left font-medium text-amber-100/80 cursor-pointer hover:text-[var(--primary)]"
+                      className="px-4 py-3 text-left font-medium text-amber-100/80 cursor-pointer hover:text-(--primary)"
                     >
                       Boss{sortIndicator('boss')}
                     </th>
                     <th
                       onClick={() => toggleSort('tier')}
-                      className="px-4 py-3 text-center font-medium text-amber-100/80 cursor-pointer hover:text-[var(--primary)]"
+                      className="px-4 py-3 text-center font-medium text-amber-100/80 cursor-pointer hover:text-(--primary)"
                     >
                       Tier{sortIndicator('tier')}
                     </th>
                     <th
                       onClick={() => toggleSort('encounter')}
-                      className="px-4 py-3 text-center font-medium text-amber-100/80 cursor-pointer hover:text-[var(--primary)]"
+                      className="px-4 py-3 text-center font-medium text-amber-100/80 cursor-pointer hover:text-(--primary)"
                     >
                       Encounter{sortIndicator('encounter')}
                     </th>
                     <th
                       onClick={() => toggleSort('target')}
-                      className="px-4 py-3 text-right font-medium text-amber-100/80 cursor-pointer hover:text-[var(--primary)]"
+                      className="px-4 py-3 text-right font-medium text-amber-100/80 cursor-pointer hover:text-(--primary)"
                     >
                       Target tokens{sortIndicator('target')}
                     </th>
                     <th
                       onClick={() => toggleSort('source')}
-                      className="px-4 py-3 text-center font-medium text-amber-100/80 cursor-pointer hover:text-[var(--primary)]"
+                      className="px-4 py-3 text-center font-medium text-amber-100/80 cursor-pointer hover:text-(--primary)"
                     >
                       Source{sortIndicator('source')}
                     </th>
                     <th
                       onClick={() => toggleSort('updated')}
-                      className="px-4 py-3 text-left font-medium text-amber-100/80 cursor-pointer hover:text-[var(--primary)]"
+                      className="px-4 py-3 text-left font-medium text-amber-100/80 cursor-pointer hover:text-(--primary)"
                     >
                       Updated{sortIndicator('updated')}
                     </th>
@@ -497,9 +497,9 @@ export default function TargetsClient({
                     return (
                       <tr
                         key={rowKey}
-                        className={`border-t border-[var(--card-border)] hover:bg-[color-mix(in_srgb,var(--bg-secondary)_20%,transparent)] ${rowOpacity}`}
+                        className={`border-t border-(--card-border) hover:bg-[color-mix(in_srgb,var(--bg-secondary)_20%,transparent)] ${rowOpacity}`}
                       >
-                        <td className="px-4 py-2 text-[var(--text-primary)]">
+                        <td className="px-4 py-2 text-primary-wh40k">
                           {row.display_name}
                         </td>
                         <td className="px-4 py-2 text-center font-mono text-xs text-amber-300">
@@ -543,7 +543,7 @@ export default function TargetsClient({
                                       if (e.key === 'Enter') saveEdit(row)
                                       else if (e.key === 'Escape') cancelEdit()
                                     }}
-                                    className="w-20 px-2 py-1 rounded bg-[var(--bg-primary)] border border-[color-mix(in_srgb,var(--primary)_40%,transparent)] text-right text-[var(--text-primary)] focus:outline-none focus:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]"
+                                    className="w-20 px-2 py-1 rounded-sm bg-(--bg-primary) border border-[color-mix(in_srgb,var(--primary)_40%,transparent)] text-right text-primary-wh40k focus:outline-hidden focus:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]"
                                     autoFocus
                                   />
                                 ) : isNoneAvailable ? (
@@ -567,14 +567,14 @@ export default function TargetsClient({
                         <td className="px-4 py-2 text-center">
                           {isNoneAvailable ? (
                             <span
-                              className="px-2 py-0.5 rounded text-[10px] font-semibold bg-red-500/20 text-red-300 border border-red-500/40"
+                              className="px-2 py-0.5 rounded-sm text-[10px] font-semibold bg-red-500/20 text-red-300 border border-red-500/40"
                               title="No historical data at this tier or any tier below. Manual entry recommended."
                             >
                               None available
                             </span>
                           ) : showSkipped ? (
                             <span
-                              className="px-2 py-0.5 rounded text-[10px] bg-gray-500/20 text-gray-300 border border-gray-500/30"
+                              className="px-2 py-0.5 rounded-sm text-[10px] bg-gray-500/20 text-gray-300 border border-gray-500/30"
                               title={
                                 isSkipped
                                   ? undefined
@@ -585,7 +585,7 @@ export default function TargetsClient({
                             </span>
                           ) : isTierFallback ? (
                             <span
-                              className="px-2 py-0.5 rounded text-[10px] font-semibold bg-orange-500/20 text-orange-300 border border-orange-500/40"
+                              className="px-2 py-0.5 rounded-sm text-[10px] font-semibold bg-orange-500/20 text-orange-300 border border-orange-500/40"
                               title={`Derived from ${tierFallbackLabel} (same boss, lower tier). ${row.target?.seeded_from_seasons ?? ''}`}
                             >
                               Fallback: {tierFallbackLabel}
@@ -609,7 +609,7 @@ export default function TargetsClient({
                                 : 'Seeded'}
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 rounded text-[10px] text-amber-100/40 border border-amber-100/10">
+                            <span className="px-2 py-0.5 rounded-sm text-[10px] text-amber-100/40 border border-amber-100/10">
                               Unset
                             </span>
                           )}
@@ -625,7 +625,7 @@ export default function TargetsClient({
                               <button
                                 onClick={() => saveEdit(row)}
                                 data-testid="targets-mutation-control"
-                                className="px-2 py-1 text-xs rounded bg-green-500/20 text-green-300 border border-green-500/30 hover:bg-green-500/30 mr-1"
+                                className="px-2 py-1 text-xs rounded-sm bg-green-500/20 text-green-300 border border-green-500/30 hover:bg-green-500/30 mr-1"
                                 disabled={isSaving}
                               >
                                 Save
@@ -633,7 +633,7 @@ export default function TargetsClient({
                               <button
                                 onClick={cancelEdit}
                                 data-testid="targets-mutation-control"
-                                className="px-2 py-1 text-xs rounded border border-amber-100/20 text-amber-100/60 hover:bg-amber-100/10"
+                                className="px-2 py-1 text-xs rounded-sm border border-amber-100/20 text-amber-100/60 hover:bg-amber-100/10"
                               >
                                 Cancel
                               </button>
@@ -643,7 +643,7 @@ export default function TargetsClient({
                               {canManageHerald && (
                                 <button
                                   onClick={() => setOpsRow(row)}
-                                  className="rounded border border-[color-mix(in_srgb,var(--accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] px-2 py-1 text-[var(--accent)] hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)]"
+                                  className="rounded-sm border border-[color-mix(in_srgb,var(--accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] px-2 py-1 text-(--accent) hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)]"
                                   aria-label={`Open ops settings for ${row.display_name}`}
                                   data-testid="targets-mutation-control"
                                   title="Ping roles, notes, and the kill/threshold/skip rule"
@@ -653,7 +653,7 @@ export default function TargetsClient({
                               )}
                               {row.encounter_id !== 0 && (
                                 <label
-                                  className="flex items-center gap-1 px-2 py-1 text-[11px] rounded border border-amber-100/10 hover:border-amber-100/30 cursor-pointer select-none"
+                                  className="flex items-center gap-1 px-2 py-1 text-[11px] rounded-sm border border-amber-100/10 hover:border-amber-100/30 cursor-pointer select-none"
                                   title={
                                     isSkipped
                                       ? 'Un-skip this prime (treat as expected again)'
@@ -678,7 +678,7 @@ export default function TargetsClient({
                                 className={`px-2 py-1 text-xs rounded border mr-0 ${
                                   isSkipped
                                     ? 'bg-card-bg/20 border-amber-100/10 text-amber-100/30 cursor-not-allowed'
-                                    : 'bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-[var(--primary)] border-[color-mix(in_srgb,var(--primary)_30%,transparent)] hover:bg-[color-mix(in_srgb,var(--primary)_20%,transparent)]'
+                                    : 'bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-(--primary) border-[color-mix(in_srgb,var(--primary)_30%,transparent)] hover:bg-[color-mix(in_srgb,var(--primary)_20%,transparent)]'
                                 }`}
                               >
                                 {hasTarget ? 'Edit' : 'Add'}
@@ -689,7 +689,7 @@ export default function TargetsClient({
                                     onClick={() => resetTarget(row)}
                                     data-testid="targets-mutation-control"
                                     disabled={isResetting}
-                                    className="px-2 py-1 text-xs rounded border border-red-500/30 text-red-300 hover:bg-red-500/10 disabled:opacity-50"
+                                    className="px-2 py-1 text-xs rounded-sm border border-red-500/30 text-red-300 hover:bg-red-500/10 disabled:opacity-50"
                                     title="Remove manual target — falls back to historical average"
                                   >
                                     Reset

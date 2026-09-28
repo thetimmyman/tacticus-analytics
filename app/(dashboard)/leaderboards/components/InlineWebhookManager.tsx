@@ -328,7 +328,7 @@ export default function InlineWebhookManager({
   if (loading) {
     return (
       <div className="py-4 flex justify-center">
-        <Loader2 className="w-5 h-5 animate-spin text-[var(--primary)]" />
+        <Loader2 className="w-5 h-5 animate-spin text-(--primary)" />
       </div>
     )
   }
@@ -336,17 +336,17 @@ export default function InlineWebhookManager({
   return (
     <div className="space-y-2">
       {/* Compact Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-[var(--card-border)]">
+      <div className="flex items-center justify-between pb-2 border-b border-(--card-border)">
         <div className="flex items-center gap-2">
-          <Zap className="w-4 h-4 text-[var(--primary)]" />
-          <span className="text-sm font-medium text-[var(--text-primary)]">
+          <Zap className="w-4 h-4 text-(--primary)" />
+          <span className="text-sm font-medium text-primary-wh40k">
             Discord Webhooks
           </span>
         </div>
         {onClose && (
           <button
             onClick={onClose}
-            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            className="text-secondary-wh40k hover:text-primary-wh40k transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -368,28 +368,28 @@ export default function InlineWebhookManager({
             <div
               key={config.type}
               className={`
-                border border-[var(--card-border)] rounded-lg overflow-hidden
+                border border-(--card-border) rounded-lg overflow-hidden
                 transition-all duration-200
-                ${isExpanded ? 'bg-[var(--card-hover)]' : 'bg-[var(--card-bg)]'}
+                ${isExpanded ? 'bg-(--card-hover)' : 'bg-(--card-bg)'}
               `}
             >
               {/* Webhook Header Row */}
               <div
-                className="flex items-center p-2 cursor-pointer hover:bg-[var(--card-hover)] transition-colors hover:transform hover:translate-y-[-2px] hover:shadow-lg transition-all duration-200"
+                className="flex items-center p-2 cursor-pointer hover:bg-(--card-hover) transition-colors hover:transform hover:translate-y-[-2px] hover:shadow-lg transition-all duration-200"
                 onClick={() =>
                   setExpandedWebhook(isExpanded ? null : config.type)
                 }
               >
                 <div className="flex items-center gap-2 flex-1">
                   <Icon className={`w-4 h-4 ${config.color}`} />
-                  <span className="text-sm font-medium text-[var(--text-primary)]">
+                  <span className="text-sm font-medium text-primary-wh40k">
                     {config.name}
                   </span>
                   {webhook?.enabled && (
                     <StatusLabel type="success">Active</StatusLabel>
                   )}
                   {hasUnsaved && (
-                    <span className="px-1.5 py-0.5 text-xs bg-yellow-500/20 text-yellow-400 rounded">
+                    <span className="px-1.5 py-0.5 text-xs bg-yellow-500/20 text-yellow-400 rounded-sm">
                       Unsaved
                     </span>
                   )}
@@ -412,17 +412,17 @@ export default function InlineWebhookManager({
                   </div>
 
                   {isExpanded ? (
-                    <ChevronUp className="w-4 h-4 text-[var(--text-secondary)]" />
+                    <ChevronUp className="w-4 h-4 text-secondary-wh40k" />
                   ) : (
-                    <ChevronDown className="w-4 h-4 text-[var(--text-secondary)]" />
+                    <ChevronDown className="w-4 h-4 text-secondary-wh40k" />
                   )}
                 </div>
               </div>
 
               {/* Expanded Content */}
               {isExpanded && (
-                <div className="px-3 pb-3 space-y-2 border-t border-[var(--card-border)]">
-                  <p className="text-xs text-[var(--text-secondary)] pt-2">
+                <div className="px-3 pb-3 space-y-2 border-t border-(--card-border)">
+                  <p className="text-xs text-secondary-wh40k pt-2">
                     {config.description}
                   </p>
 
@@ -447,7 +447,7 @@ export default function InlineWebhookManager({
                           [config.type]: !prev[config.type]
                         }))
                       }
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-secondary-wh40k hover:text-primary-wh40k"
                       title={
                         showUrls[config.type]
                           ? 'Hide webhook URL'

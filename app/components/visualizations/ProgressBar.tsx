@@ -15,19 +15,19 @@ interface ProgressBarProps {
 }
 
 const colorClasses = {
-  blue: 'from-[var(--primary)] to-[var(--accent)]',
+  blue: 'from-(--primary) to-(--accent)',
   green: 'from-green-500 to-green-400', // Keep for success states
   red: 'from-red-500 to-red-400', // Keep for error states
-  purple: 'from-[var(--accent)] to-[var(--primary)]',
+  purple: 'from-(--accent) to-(--primary)',
   yellow: 'from-yellow-500 to-yellow-400', // Keep for warning states
-  cyan: 'from-[var(--primary)] to-[var(--accent)]',
-  pink: 'from-[var(--accent)] to-[var(--primary)]'
+  cyan: 'from-(--primary) to-(--accent)',
+  pink: 'from-(--accent) to-(--primary)'
 } as const
 
 const vsClusterColorClass = (percent: number) => {
   if (percent > 0) return 'text-green-400 bg-green-400/20' // Keep for positive
   if (percent < 0) return 'text-red-400 bg-red-400/20' // Keep for negative
-  return 'text-[var(--text-secondary)] bg-[var(--card-border)]'
+  return 'text-secondary-wh40k bg-(--card-border)'
 }
 
 export function ProgressBar({
@@ -48,25 +48,21 @@ export function ProgressBar({
     <div className="space-y-1">
       <div className="flex justify-between items-center">
         <div className="flex flex-col">
-          <span className="text-sm font-medium text-[var(--text-primary)]">
+          <span className="text-sm font-medium text-primary-wh40k">
             {label}
           </span>
           {sublabel && (
-            <span className="text-xs text-[var(--text-secondary)]">
-              {sublabel}
-            </span>
+            <span className="text-xs text-secondary-wh40k">{sublabel}</span>
           )}
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-[var(--accent)]">
-            AVG: {formattedAvg}
-          </span>
-          <span className="text-xs text-[var(--text-secondary)]">
+          <span className="text-xs text-(--accent)">AVG: {formattedAvg}</span>
+          <span className="text-xs text-secondary-wh40k">
             MAX: {formattedMax}
           </span>
           {vsClusterPercent !== undefined && (
             <span
-              className={`text-xs px-1 rounded ${vsClusterColorClass(vsClusterPercent)}`}
+              className={`text-xs px-1 rounded-sm ${vsClusterColorClass(vsClusterPercent)}`}
             >
               vsCluster {vsClusterPercent > 0 ? '+' : ''}
               {Math.round(vsClusterPercent)}%
@@ -74,15 +70,15 @@ export function ProgressBar({
           )}
         </div>
       </div>
-      <div className="w-full bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded-full h-6 overflow-hidden relative">
+      <div className="w-full bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-full h-6 overflow-hidden relative">
         <div
-          className={`h-full bg-gradient-to-r ${colorClasses[color]} transition-all ${
+          className={`h-full bg-linear-to-r ${colorClasses[color]} transition-all ${
             animate ? 'duration-1000 ease-out' : ''
           }`}
           style={{ width: `${Math.min(percentage, 100)}%` }}
         >
           {showPercentage && percentage > 5 && (
-            <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-[var(--text-primary)]">
+            <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-primary-wh40k">
               {Math.round(percentage)}%
             </span>
           )}
@@ -116,10 +112,10 @@ export function StackedProgressBar({
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center">
-        <span className="text-sm font-medium text-[var(--text-secondary)]">
+        <span className="text-sm font-medium text-secondary-wh40k">
           {label}
         </span>
-        <span className="text-xs text-[var(--text-secondary)]">
+        <span className="text-xs text-secondary-wh40k">
           {segments.map((seg, idx) => (
             <span key={idx}>
               <span
@@ -131,30 +127,30 @@ export function StackedProgressBar({
                       : seg.color === 'red'
                         ? 'text-red-400' // Keep for error
                         : seg.color === 'blue'
-                          ? 'text-[var(--primary)]'
+                          ? 'text-(--primary)'
                           : seg.color === 'purple'
-                            ? 'text-[var(--accent)]'
+                            ? 'text-(--accent)'
                             : seg.color === 'pink'
-                              ? 'text-[var(--accent)]'
+                              ? 'text-(--accent)'
                               : seg.color === 'cyan'
-                                ? 'text-[var(--primary)]'
-                                : 'text-[var(--text-secondary)]'
+                                ? 'text-(--primary)'
+                                : 'text-secondary-wh40k'
                 }
               >
                 {seg.label}: {seg.value}
               </span>
               {idx < segments.length - 1 && (
-                <span className="mx-1 text-[var(--text-secondary)]">•</span>
+                <span className="mx-1 text-secondary-wh40k">•</span>
               )}
             </span>
           ))}
-          <span className="mx-1 text-[var(--text-secondary)]">•</span>
-          <span className="text-[var(--primary)]">
+          <span className="mx-1 text-secondary-wh40k">•</span>
+          <span className="text-(--primary)">
             Total: {segments.reduce((sum, seg) => sum + seg.value, 0)}
           </span>
         </span>
       </div>
-      <div className="w-full bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded-full h-8 overflow-hidden relative">
+      <div className="w-full bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-full h-8 overflow-hidden relative">
         {segments.map((segment, idx) => {
           const percentage = total > 0 ? (segment.value / total) * 100 : 0
           const leftPosition = cumulativePercent
@@ -163,7 +159,7 @@ export function StackedProgressBar({
           return (
             <div
               key={idx}
-              className={`h-full bg-gradient-to-r ${colorClasses[segment.color]} transition-all ${
+              className={`h-full bg-linear-to-r ${colorClasses[segment.color]} transition-all ${
                 animate ? 'duration-500' : ''
               } absolute flex items-center justify-center`}
               style={{
@@ -173,7 +169,7 @@ export function StackedProgressBar({
               title={`${segment.label}: ${segment.value}`}
             >
               {showLabels && percentage > 10 && (
-                <span className="text-xs font-semibold text-[var(--text-primary)]">
+                <span className="text-xs font-semibold text-primary-wh40k">
                   {segment.label}: {segment.value}
                 </span>
               )}

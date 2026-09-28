@@ -25,12 +25,12 @@ export function CarouselEditor({
   return (
     <div className="p-4 rounded-lg border border-purple-500/30 bg-purple-500/5 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-[var(--text-primary)]">
+        <h3 className="font-semibold text-primary-wh40k">
           {item?.id ? 'Edit Item' : 'New Carousel Item'}
         </h3>
         <button
           onClick={onCancel}
-          className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="text-secondary-wh40k hover:text-primary-wh40k"
         >
           <X className="h-5 w-5" />
         </button>
@@ -38,7 +38,7 @@ export function CarouselEditor({
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label className="text-xs font-medium text-[var(--text-secondary)]">
+          <label className="text-xs font-medium text-secondary-wh40k">
             Title *
           </label>
           <input
@@ -51,12 +51,12 @@ export function CarouselEditor({
               }))
             }
             placeholder="Item title"
-            className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] text-sm"
+            className="w-full px-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-primary-wh40k text-sm"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-medium text-[var(--text-secondary)]">
+          <label className="text-xs font-medium text-secondary-wh40k">
             Type
           </label>
           <select
@@ -67,7 +67,7 @@ export function CarouselEditor({
                 item_type: e.target.value as CarouselItem['item_type']
               }))
             }
-            className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] text-sm"
+            className="w-full px-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-primary-wh40k text-sm"
           >
             {CAROUSEL_ITEM_TYPES.map((type) => (
               <option key={type.key} value={type.key}>
@@ -78,7 +78,7 @@ export function CarouselEditor({
         </div>
 
         <div className="space-y-2 md:col-span-2">
-          <label className="text-xs font-medium text-[var(--text-secondary)]">
+          <label className="text-xs font-medium text-secondary-wh40k">
             Description
           </label>
           <textarea
@@ -91,13 +91,13 @@ export function CarouselEditor({
             }
             placeholder="Optional description"
             rows={2}
-            className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] text-sm resize-none"
+            className="w-full px-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-primary-wh40k text-sm resize-none"
           />
         </div>
 
         {item?.item_type === 'promo' && (
           <div className="space-y-2">
-            <label className="text-xs font-medium text-[var(--text-secondary)]">
+            <label className="text-xs font-medium text-secondary-wh40k">
               Promo Code
             </label>
             <input
@@ -110,13 +110,13 @@ export function CarouselEditor({
                 }))
               }
               placeholder="PROMO2024"
-              className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] text-sm font-mono"
+              className="w-full px-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-primary-wh40k text-sm font-mono"
             />
           </div>
         )}
 
         <div className="space-y-2">
-          <label className="text-xs font-medium text-[var(--text-secondary)]">
+          <label className="text-xs font-medium text-secondary-wh40k">
             Image URL
           </label>
           <input
@@ -129,12 +129,12 @@ export function CarouselEditor({
               }))
             }
             placeholder="https://..."
-            className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] text-sm"
+            className="w-full px-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-primary-wh40k text-sm"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-medium text-[var(--text-secondary)]">
+          <label className="text-xs font-medium text-secondary-wh40k">
             Link URL
           </label>
           <input
@@ -147,12 +147,12 @@ export function CarouselEditor({
               }))
             }
             placeholder="https://... or /page"
-            className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] text-sm"
+            className="w-full px-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-primary-wh40k text-sm"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-medium text-[var(--text-secondary)]">
+          <label className="text-xs font-medium text-secondary-wh40k">
             Link Text
           </label>
           <input
@@ -165,12 +165,12 @@ export function CarouselEditor({
               }))
             }
             placeholder="Learn More"
-            className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] text-sm"
+            className="w-full px-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-primary-wh40k text-sm"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-medium text-[var(--text-secondary)]">
+          <label className="text-xs font-medium text-secondary-wh40k">
             Priority
           </label>
           <input
@@ -182,12 +182,12 @@ export function CarouselEditor({
                 priority: parseInt(e.target.value) || 0
               }))
             }
-            className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] text-sm"
+            className="w-full px-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-primary-wh40k text-sm"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-medium text-[var(--text-secondary)]">
+          <label className="text-xs font-medium text-secondary-wh40k">
             Display Duration (seconds)
           </label>
           <input
@@ -204,15 +204,15 @@ export function CarouselEditor({
                 )
               }))
             }
-            className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] text-sm"
+            className="w-full px-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-primary-wh40k text-sm"
           />
-          <p className="text-xs text-[var(--text-tertiary)]">
+          <p className="text-xs text-(--text-tertiary)">
             How long to show this item before switching (3-60s)
           </p>
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-medium text-[var(--text-secondary)]">
+          <label className="text-xs font-medium text-secondary-wh40k">
             Background Color
           </label>
           <div className="flex gap-2">
@@ -225,7 +225,7 @@ export function CarouselEditor({
                   background_color: e.target.value
                 }))
               }
-              className="w-10 h-10 rounded cursor-pointer"
+              className="w-10 h-10 rounded-sm cursor-pointer"
             />
             <input
               type="text"
@@ -236,13 +236,13 @@ export function CarouselEditor({
                   background_color: e.target.value
                 }))
               }
-              className="flex-1 px-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] text-sm font-mono"
+              className="flex-1 px-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-primary-wh40k text-sm font-mono"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-medium text-[var(--text-secondary)]">
+          <label className="text-xs font-medium text-secondary-wh40k">
             Text Color
           </label>
           <div className="flex gap-2">
@@ -255,7 +255,7 @@ export function CarouselEditor({
                   text_color: e.target.value
                 }))
               }
-              className="w-10 h-10 rounded cursor-pointer"
+              className="w-10 h-10 rounded-sm cursor-pointer"
             />
             <input
               type="text"
@@ -266,13 +266,13 @@ export function CarouselEditor({
                   text_color: e.target.value
                 }))
               }
-              className="flex-1 px-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] text-sm font-mono"
+              className="flex-1 px-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-primary-wh40k text-sm font-mono"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-medium text-[var(--text-secondary)]">
+          <label className="text-xs font-medium text-secondary-wh40k">
             Accent Color
           </label>
           <div className="flex gap-2">
@@ -285,7 +285,7 @@ export function CarouselEditor({
                   accent_color: e.target.value
                 }))
               }
-              className="w-10 h-10 rounded cursor-pointer"
+              className="w-10 h-10 rounded-sm cursor-pointer"
             />
             <input
               type="text"
@@ -296,13 +296,13 @@ export function CarouselEditor({
                   accent_color: e.target.value
                 }))
               }
-              className="flex-1 px-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] text-sm font-mono"
+              className="flex-1 px-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-primary-wh40k text-sm font-mono"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-medium text-[var(--text-secondary)]">
+          <label className="text-xs font-medium text-secondary-wh40k">
             Starts At (optional)
           </label>
           <input
@@ -316,12 +316,12 @@ export function CarouselEditor({
                   : null
               }))
             }
-            className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] text-sm"
+            className="w-full px-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-primary-wh40k text-sm"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-medium text-[var(--text-secondary)]">
+          <label className="text-xs font-medium text-secondary-wh40k">
             Expires At (optional)
           </label>
           <input
@@ -335,14 +335,14 @@ export function CarouselEditor({
                   : null
               }))
             }
-            className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] text-sm"
+            className="w-full px-3 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-primary-wh40k text-sm"
           />
         </div>
       </div>
 
       {item?.title && (
         <div className="mt-4">
-          <label className="text-xs font-medium text-[var(--text-secondary)] mb-2 block">
+          <label className="text-xs font-medium text-secondary-wh40k mb-2 block">
             Preview
           </label>
           <div
@@ -389,7 +389,7 @@ export function CarouselEditor({
                 )}
                 {item.promo_code && (
                   <div
-                    className="mt-2 inline-block px-3 py-1 rounded font-mono font-bold"
+                    className="mt-2 inline-block px-3 py-1 rounded-sm font-mono font-bold"
                     style={{
                       backgroundColor: item.accent_color || '#e94560',
                       color: '#ffffff'

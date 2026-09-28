@@ -223,7 +223,7 @@ export function BossSearchCombobox({
       <div className="relative">
         <Search
           aria-hidden="true"
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]"
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary-wh40k"
         />
         <input
           ref={inputRef}
@@ -240,7 +240,7 @@ export function BossSearchCombobox({
           aria-expanded={isOpen}
           aria-controls={listboxId}
           aria-activedescendant={activeOptionId}
-          className={`min-h-11 w-full bg-[var(--card-bg)] py-2 pl-9 text-sm text-white placeholder-gray-500 border border-[var(--card-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${searchValue || selectedBoss ? 'pr-24' : 'pr-12'}`}
+          className={`min-h-11 w-full bg-(--card-bg) py-2 pl-9 text-sm text-white placeholder-gray-500 border border-(--card-border) rounded-lg focus:outline-hidden focus:ring-2 focus:ring-purple-500 ${searchValue || selectedBoss ? 'pr-24' : 'pr-12'}`}
         />
         <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center">
           {(searchValue || selectedBoss) && (
@@ -248,10 +248,10 @@ export function BossSearchCombobox({
               type="button"
               onClick={handleClear}
               aria-label="Clear boss search"
-              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded transition-colors hover:bg-gray-700"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-sm transition-colors hover:bg-gray-700"
               title="Clear search"
             >
-              <X className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
+              <X className="w-3.5 h-3.5 text-secondary-wh40k" />
             </button>
           )}
           <button
@@ -260,31 +260,31 @@ export function BossSearchCombobox({
             aria-label={isOpen ? 'Close boss options' : 'Open boss options'}
             aria-expanded={isOpen}
             aria-controls={listboxId}
-            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded transition-colors hover:bg-gray-700"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-sm transition-colors hover:bg-gray-700"
           >
             <ChevronDown
               aria-hidden="true"
-              className={`w-4 h-4 text-[var(--text-secondary)] transition-transform ${isOpen ? 'rotate-180' : ''}`}
+              className={`w-4 h-4 text-secondary-wh40k transition-transform ${isOpen ? 'rotate-180' : ''}`}
             />
           </button>
         </div>
       </div>
 
       {isOpen && (
-        <div className="absolute z-50 mt-1 w-full bg-[var(--dropdown-bg-solid)] border border-[var(--card-border)] rounded-lg shadow-xl max-h-80 overflow-hidden">
+        <div className="absolute z-50 mt-1 w-full bg-(--dropdown-bg-solid) border border-(--card-border) rounded-lg shadow-xl max-h-80 overflow-hidden">
           {/* Toggle for showing all bosses */}
-          <div className="px-3 py-2 border-b border-[var(--card-border)] bg-card/50">
+          <div className="px-3 py-2 border-b border-(--card-border) bg-card/50">
             <label className="flex min-h-11 items-center gap-2 cursor-pointer text-sm">
               <input
                 type="checkbox"
                 checked={showAllBosses}
                 onChange={onToggleShowAll}
-                className="w-4 h-4 rounded border-[var(--card-border)] bg-gray-700 text-purple-500 focus:ring-purple-500 focus:ring-offset-0"
+                className="w-4 h-4 rounded-sm border-(--card-border) bg-gray-700 text-purple-500 focus:ring-purple-500 focus:ring-offset-0"
               />
-              <span className="text-[var(--text-primary)]">
+              <span className="text-primary-wh40k">
                 Show all seasons
                 {currentSeason && (
-                  <span className="text-[var(--text-secondary)] ml-1">
+                  <span className="text-secondary-wh40k ml-1">
                     (current: S{currentSeason})
                   </span>
                 )}
@@ -301,7 +301,7 @@ export function BossSearchCombobox({
             className="overflow-y-auto max-h-60"
           >
             {displayBosses.length === 0 ? (
-              <div className="px-3 py-4 text-center text-[var(--text-secondary)] text-sm">
+              <div className="px-3 py-4 text-center text-secondary-wh40k text-sm">
                 No bosses found matching &quot;{searchValue}&quot;
               </div>
             ) : (
@@ -317,14 +317,14 @@ export function BossSearchCombobox({
                   className={`
                     min-h-11 w-full px-3 py-2 text-left flex items-center justify-between gap-2
                     transition-colors text-sm
-                    ${highlightedIndex === index ? 'bg-purple-500/20' : 'hover:bg-[var(--hover-bg)]'}
+                    ${highlightedIndex === index ? 'bg-purple-500/20' : 'hover:bg-(--hover-bg)'}
                     ${selectedBoss === boss.boss_type ? 'text-purple-300' : 'text-white'}
                   `}
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="truncate">{boss.boss_name}</span>
                     {boss.isCurrentSeason && (
-                      <span className="shrink-0 px-1.5 py-0.5 text-[10px] font-medium bg-green-500/20 text-green-400 rounded">
+                      <span className="shrink-0 px-1.5 py-0.5 text-[10px] font-medium bg-green-500/20 text-green-400 rounded-sm">
                         Current
                       </span>
                     )}
@@ -341,8 +341,8 @@ export function BossSearchCombobox({
           </div>
 
           {/* Footer with count */}
-          <div className="px-3 py-1.5 border-t border-[var(--card-border)] bg-card/50">
-            <span className="text-xs text-[var(--text-secondary)]">
+          <div className="px-3 py-1.5 border-t border-(--card-border) bg-card/50">
+            <span className="text-xs text-secondary-wh40k">
               {displayBosses.length} boss
               {displayBosses.length !== 1 ? 'es' : ''}
               {!showAllBosses && ' in current season'}

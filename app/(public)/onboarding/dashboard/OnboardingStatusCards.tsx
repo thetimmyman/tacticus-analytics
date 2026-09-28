@@ -108,18 +108,18 @@ export function SyncStatusCard({
   onApiKeyChange
 }: SyncStatusCardProps) {
   return (
-    <Card className="border-card-border/60 bg-[color-mix(in_srgb,var(--bg-primary)_60%,transparent)] backdrop-blur-sm">
+    <Card className="border-card-border/60 bg-[color-mix(in_srgb,var(--bg-primary)_60%,transparent)] backdrop-blur-xs">
       <CardHeader className="space-y-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-[var(--accent)]" />
+            <Sparkles className="h-5 w-5 text-(--accent)" />
             Step 2 - Initial data sync
           </CardTitle>
           <StatusLabel type={status.type} size="xs">
             {status.label}
           </StatusLabel>
         </div>
-        <p className="text-sm text-[var(--text-secondary)]">
+        <p className="text-sm text-secondary-wh40k">
           We pull raid data and player mappings using your leader key.
         </p>
       </CardHeader>
@@ -133,9 +133,9 @@ export function SyncStatusCard({
         )}
 
         {job && (
-          <div className="rounded-lg border border-card-border/50 bg-[color-mix(in_srgb,var(--bg-primary)_40%,transparent)] px-4 py-3 text-xs text-[var(--text-secondary)] space-y-2">
+          <div className="rounded-lg border border-card-border/50 bg-[color-mix(in_srgb,var(--bg-primary)_40%,transparent)] px-4 py-3 text-xs text-secondary-wh40k space-y-2">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-[var(--text-primary)]">
+              <p className="text-sm font-medium text-primary-wh40k">
                 Sync job: {latestJobStatus}
               </p>
               <StatusLabel
@@ -151,7 +151,7 @@ export function SyncStatusCard({
                 {JOB_STATUS_LABELS[job.status]}
               </StatusLabel>
             </div>
-            <div className="flex items-center justify-between text-[var(--text-secondary)]">
+            <div className="flex items-center justify-between text-secondary-wh40k">
               <span>
                 Attempts {job.attempts}/{job.max_attempts}
               </span>
@@ -161,7 +161,7 @@ export function SyncStatusCard({
               <p className="text-red-300">Last error: {job.error_message}</p>
             ) : (
               job.status === 'processing' && (
-                <p className="text-[var(--text-secondary)]">
+                <p className="text-secondary-wh40k">
                   We&apos;re importing data in the background. Feel free to
                   navigate elsewhere—progress will continue.
                 </p>
@@ -181,7 +181,7 @@ export function SyncStatusCard({
           </div>
         )}
 
-        <div className="rounded-lg border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-primary)_60%,transparent)] px-4 py-3 text-sm text-[var(--text-primary)]">
+        <div className="rounded-lg border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-primary)_60%,transparent)] px-4 py-3 text-sm text-primary-wh40k">
           <p>
             <span className="font-medium">Records synced:</span>{' '}
             {progress.sync_records_synced}
@@ -190,11 +190,11 @@ export function SyncStatusCard({
             <span className="font-medium">Progress:</span>{' '}
             {progress.sync_progress}%
           </p>
-          <p className="text-xs text-[var(--text-secondary)]">
+          <p className="text-xs text-secondary-wh40k">
             Last sync: {lastSyncRelative ?? 'Not yet recorded'}
           </p>
           {syncMetaStatus && (
-            <p className="text-xs text-[var(--text-secondary)]">
+            <p className="text-xs text-secondary-wh40k">
               Sync status: {syncMetaStatus}
             </p>
           )}
@@ -240,7 +240,7 @@ export function SyncStatusCard({
         </Button>
 
         {syncComplete && mode === 'existing_guild' && (
-          <p className="text-xs text-[var(--text-secondary)]">
+          <p className="text-xs text-secondary-wh40k">
             Your guild data is already synced. You can proceed to profile
             verification.
           </p>
@@ -284,18 +284,18 @@ export function ProfileClaimCard({
   const rosterNotReady = guildComplete && !syncComplete
 
   return (
-    <Card className="border-card-border/60 bg-[color-mix(in_srgb,var(--bg-primary)_60%,transparent)] backdrop-blur-sm">
+    <Card className="border-card-border/60 bg-[color-mix(in_srgb,var(--bg-primary)_60%,transparent)] backdrop-blur-xs">
       <CardHeader className="space-y-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <User className="h-5 w-5 text-[var(--accent)]" />
+            <User className="h-5 w-5 text-(--accent)" />
             Step 3 - Claim your profile
           </CardTitle>
           <StatusLabel type={status.type} size="xs">
             {status.label}
           </StatusLabel>
         </div>
-        <p className="text-sm text-[var(--text-secondary)]">
+        <p className="text-sm text-secondary-wh40k">
           {showSeatBootstrap
             ? 'Link your own roster profile with a Player API key. No invite code is required for the first registrar.'
             : 'Use the single-use invite issued for your exact roster entry. Player IDs and display names are not ownership proof.'}
@@ -312,7 +312,7 @@ export function ProfileClaimCard({
 
         {!profileComplete && (
           <div className="space-y-3">
-            <p className="text-xs text-[var(--text-secondary)]">
+            <p className="text-xs text-secondary-wh40k">
               {claimOptionsUnknown
                 ? 'Checking how you can claim your seat…'
                 : showSeatBootstrap
@@ -327,8 +327,8 @@ export function ProfileClaimCard({
               className={cn(
                 'inline-flex w-full items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors',
                 guildComplete && syncComplete
-                  ? 'bg-[var(--accent)] text-[var(--bg-primary)] hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)]'
-                  : 'pointer-events-none bg-[var(--card-border)] text-[var(--text-secondary)] opacity-60'
+                  ? 'bg-accent-wh40k text-(--bg-primary) hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)]'
+                  : 'pointer-events-none bg-(--card-border) text-secondary-wh40k opacity-60'
               )}
               aria-disabled={!guildComplete || !syncComplete}
             >
@@ -354,13 +354,13 @@ export function ProfileClaimCard({
             <div className="flex flex-wrap gap-2">
               <Link
                 href="/home"
-                className="inline-flex items-center justify-center rounded-md bg-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--bg-primary)] hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] transition-colors"
+                className="inline-flex items-center justify-center rounded-md bg-accent-wh40k px-3 py-2 text-sm font-medium text-(--bg-primary) hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] transition-colors"
               >
                 Open dashboard
               </Link>
               <Link
                 href="/profile"
-                className="inline-flex items-center justify-center rounded-md border border-[var(--card-border)] px-3 py-2 text-sm font-medium text-[var(--text-primary)] hover:bg-[color-mix(in_srgb,var(--card-border)_20%,transparent)] transition-colors"
+                className="inline-flex items-center justify-center rounded-md border border-(--card-border) px-3 py-2 text-sm font-medium text-primary-wh40k hover:bg-[color-mix(in_srgb,var(--card-border)_20%,transparent)] transition-colors"
               >
                 Manage profile
               </Link>

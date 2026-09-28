@@ -163,7 +163,7 @@ export default function NewsBanner({ items }: NewsBannerProps) {
               item.description && item.description.length > 80
             const content = (
               <div
-                className={`flex-[0_0_100%] min-w-0 rounded-xl border ${config.borderClass} bg-gradient-to-r ${config.bgClass} p-4 sm:p-5`}
+                className={`flex-[0_0_100%] min-w-0 rounded-xl border ${config.borderClass} bg-linear-to-r ${config.bgClass} p-4 sm:p-5`}
               >
                 <div className="flex items-start gap-4">
                   <div
@@ -182,7 +182,7 @@ export default function NewsBanner({ items }: NewsBannerProps) {
                     {/* For promo items with a promo code, show the code prominently */}
                     {item.type === 'promo' && item.promoCode ? (
                       <>
-                        <h3 className="text-base sm:text-lg font-semibold text-[var(--text-primary)]">
+                        <h3 className="text-base sm:text-lg font-semibold text-primary-wh40k">
                           {item.title}
                         </h3>
                         <button
@@ -200,21 +200,21 @@ export default function NewsBanner({ items }: NewsBannerProps) {
                         </button>
                       </>
                     ) : (
-                      <h3 className="text-base sm:text-lg font-semibold text-[var(--text-primary)] truncate">
+                      <h3 className="text-base sm:text-lg font-semibold text-primary-wh40k truncate">
                         {item.title}
                       </h3>
                     )}
                     {item.description && (
                       <div className="mt-1">
                         <p
-                          className={`text-sm text-[var(--text-secondary)] ${!isExpanded ? 'line-clamp-2' : ''}`}
+                          className={`text-sm text-secondary-wh40k ${!isExpanded ? 'line-clamp-2' : ''}`}
                         >
                           {item.description}
                         </p>
                         {hasLongDescription && (
                           <button
                             onClick={(e) => toggleExpanded(item.id, e)}
-                            className="mt-1 inline-flex items-center gap-1 text-xs text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
+                            className="mt-1 inline-flex items-center gap-1 text-xs text-(--text-tertiary) hover:text-secondary-wh40k transition-colors"
                           >
                             {isExpanded ? (
                               <>
@@ -235,9 +235,9 @@ export default function NewsBanner({ items }: NewsBannerProps) {
                   {item.href && (
                     <div className="shrink-0 self-center">
                       {item.external ? (
-                        <ExternalLink className="h-5 w-5 text-[var(--text-secondary)]" />
+                        <ExternalLink className="h-5 w-5 text-secondary-wh40k" />
                       ) : (
-                        <ChevronRight className="h-5 w-5 text-[var(--text-secondary)]" />
+                        <ChevronRight className="h-5 w-5 text-secondary-wh40k" />
                       )}
                     </div>
                   )}
@@ -269,21 +269,21 @@ export default function NewsBanner({ items }: NewsBannerProps) {
           <div className="flex items-center gap-2">
             <button
               onClick={scrollPrev}
-              className="p-1.5 rounded-full border border-[var(--card-border)] bg-card/50 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--accent)] transition-colors"
+              className="p-1.5 rounded-full border border-(--card-border) bg-card/50 text-secondary-wh40k hover:text-primary-wh40k hover:border-accent-wh40k transition-colors"
               aria-label="Previous slide"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
             <button
               onClick={scrollNext}
-              className="p-1.5 rounded-full border border-[var(--card-border)] bg-card/50 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--accent)] transition-colors"
+              className="p-1.5 rounded-full border border-(--card-border) bg-card/50 text-secondary-wh40k hover:text-primary-wh40k hover:border-accent-wh40k transition-colors"
               aria-label="Next slide"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
             <button
               onClick={toggleAutoplay}
-              className="p-1.5 rounded-full border border-[var(--card-border)] bg-card/50 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--accent)] transition-colors"
+              className="p-1.5 rounded-full border border-(--card-border) bg-card/50 text-secondary-wh40k hover:text-primary-wh40k hover:border-accent-wh40k transition-colors"
               aria-label={isPaused ? 'Resume autoplay' : 'Pause autoplay'}
             >
               {isPaused ? (
@@ -307,8 +307,8 @@ export default function NewsBanner({ items }: NewsBannerProps) {
                 <span
                   className={`block h-2 rounded-full transition-all ${
                     index === selectedIndex
-                      ? 'w-6 bg-[var(--accent)]'
-                      : 'w-2 bg-[var(--card-border)] hover:bg-[var(--text-secondary)]'
+                      ? 'w-6 bg-accent-wh40k'
+                      : 'w-2 bg-(--card-border) hover:bg-(--text-secondary)'
                   }`}
                 />
               </button>

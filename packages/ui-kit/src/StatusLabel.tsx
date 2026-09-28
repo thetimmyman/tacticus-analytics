@@ -33,39 +33,36 @@ interface StatusLabelProps {
 
 const typeStyles: Record<StatusType, string> = {
   active:
-    'bg-[color-mix(in_srgb,var(--success)_20%,transparent)] text-[var(--success)] border-[color-mix(in_srgb,var(--success)_30%,transparent)]',
-  inactive:
-    'bg-[var(--card-bg)] text-[var(--text-secondary)] border-[var(--card-border)]',
+    'bg-[color-mix(in_srgb,var(--success)_20%,transparent)] text-(--success) border-[color-mix(in_srgb,var(--success)_30%,transparent)]',
+  inactive: 'bg-(--card-bg) text-secondary-wh40k border-(--card-border)',
   pending:
-    'bg-[color-mix(in_srgb,var(--warning)_20%,transparent)] text-[var(--warning)] border-[color-mix(in_srgb,var(--warning)_30%,transparent)]',
+    'bg-[color-mix(in_srgb,var(--warning)_20%,transparent)] text-(--warning) border-[color-mix(in_srgb,var(--warning)_30%,transparent)]',
   approved:
-    'bg-[color-mix(in_srgb,var(--success)_20%,transparent)] text-[var(--success)] border-[color-mix(in_srgb,var(--success)_30%,transparent)]',
+    'bg-[color-mix(in_srgb,var(--success)_20%,transparent)] text-(--success) border-[color-mix(in_srgb,var(--success)_30%,transparent)]',
   rejected:
-    'bg-[color-mix(in_srgb,var(--danger)_20%,transparent)] text-[var(--danger)] border-[color-mix(in_srgb,var(--danger)_30%,transparent)]',
+    'bg-[color-mix(in_srgb,var(--danger)_20%,transparent)] text-(--danger) border-[color-mix(in_srgb,var(--danger)_30%,transparent)]',
 
   online:
-    'bg-[color-mix(in_srgb,var(--success)_20%,transparent)] text-[var(--success)] border-[color-mix(in_srgb,var(--success)_30%,transparent)]',
-  offline:
-    'bg-[var(--card-bg)] text-[var(--text-secondary)] border-[var(--card-border)]',
-  away: 'bg-[color-mix(in_srgb,var(--warning)_20%,transparent)] text-[var(--warning)] border-[color-mix(in_srgb,var(--warning)_30%,transparent)]',
-  busy: 'bg-[color-mix(in_srgb,var(--danger)_20%,transparent)] text-[var(--danger)] border-[color-mix(in_srgb,var(--danger)_30%,transparent)]',
+    'bg-[color-mix(in_srgb,var(--success)_20%,transparent)] text-(--success) border-[color-mix(in_srgb,var(--success)_30%,transparent)]',
+  offline: 'bg-(--card-bg) text-secondary-wh40k border-(--card-border)',
+  away: 'bg-[color-mix(in_srgb,var(--warning)_20%,transparent)] text-(--warning) border-[color-mix(in_srgb,var(--warning)_30%,transparent)]',
+  busy: 'bg-[color-mix(in_srgb,var(--danger)_20%,transparent)] text-(--danger) border-[color-mix(in_srgb,var(--danger)_30%,transparent)]',
 
   success:
-    'bg-[color-mix(in_srgb,var(--success)_20%,transparent)] text-[var(--success)] border-[color-mix(in_srgb,var(--success)_30%,transparent)]',
+    'bg-[color-mix(in_srgb,var(--success)_20%,transparent)] text-(--success) border-[color-mix(in_srgb,var(--success)_30%,transparent)]',
   error:
-    'bg-[color-mix(in_srgb,var(--danger)_20%,transparent)] text-[var(--danger)] border-[color-mix(in_srgb,var(--danger)_30%,transparent)]',
+    'bg-[color-mix(in_srgb,var(--danger)_20%,transparent)] text-(--danger) border-[color-mix(in_srgb,var(--danger)_30%,transparent)]',
   warning:
-    'bg-[color-mix(in_srgb,var(--warning)_20%,transparent)] text-[var(--warning)] border-[color-mix(in_srgb,var(--warning)_30%,transparent)]',
-  info: 'bg-[color-mix(in_srgb,var(--info)_20%,transparent)] text-[var(--info)] border-[color-mix(in_srgb,var(--info)_30%,transparent)]',
+    'bg-[color-mix(in_srgb,var(--warning)_20%,transparent)] text-(--warning) border-[color-mix(in_srgb,var(--warning)_30%,transparent)]',
+  info: 'bg-[color-mix(in_srgb,var(--info)_20%,transparent)] text-(--info) border-[color-mix(in_srgb,var(--info)_30%,transparent)]',
 
-  new: 'bg-[color-mix(in_srgb,var(--info)_20%,transparent)] text-[var(--info)] border-[color-mix(in_srgb,var(--info)_30%,transparent)]',
+  new: 'bg-[color-mix(in_srgb,var(--info)_20%,transparent)] text-(--info) border-[color-mix(in_srgb,var(--info)_30%,transparent)]',
   in_progress:
-    'bg-[color-mix(in_srgb,var(--warning)_20%,transparent)] text-[var(--warning)] border-[color-mix(in_srgb,var(--warning)_30%,transparent)]',
+    'bg-[color-mix(in_srgb,var(--warning)_20%,transparent)] text-(--warning) border-[color-mix(in_srgb,var(--warning)_30%,transparent)]',
   completed:
-    'bg-[color-mix(in_srgb,var(--success)_20%,transparent)] text-[var(--success)] border-[color-mix(in_srgb,var(--success)_30%,transparent)]',
+    'bg-[color-mix(in_srgb,var(--success)_20%,transparent)] text-(--success) border-[color-mix(in_srgb,var(--success)_30%,transparent)]',
 
-  muted:
-    'bg-[var(--card-bg)] text-[var(--text-secondary)] border-[var(--card-border)]'
+  muted: 'bg-(--card-bg) text-secondary-wh40k border-(--card-border)'
 }
 
 const sizeStyles: Record<BadgeSize, string> = {
@@ -115,14 +112,14 @@ interface StatusDotProps {
 }
 
 const dotColors: Record<StatusDotProps['status'], string> = {
-  online: 'bg-[var(--success)]',
-  active: 'bg-[var(--success)]',
-  offline: 'bg-[var(--text-secondary)]',
-  inactive: 'bg-[var(--text-secondary)]',
-  away: 'bg-[var(--warning)]',
-  warning: 'bg-[var(--warning)]',
-  busy: 'bg-[var(--danger)]',
-  error: 'bg-[var(--danger)]'
+  online: 'bg-(--success)',
+  active: 'bg-(--success)',
+  offline: 'bg-(--text-secondary)',
+  inactive: 'bg-(--text-secondary)',
+  away: 'bg-(--warning)',
+  warning: 'bg-(--warning)',
+  busy: 'bg-(--danger)',
+  error: 'bg-(--danger)'
 }
 
 const dotSizes = {

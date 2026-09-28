@@ -60,7 +60,7 @@ export function MobileNav({
   // Reads workspaces.ts like the desktop nav, so every workspace page has a mobile entry.
   return (
     <nav
-      className="lg:hidden bg-black/60 backdrop-blur-sm border-b border-[var(--card-border)] sticky top-0 z-50"
+      className="lg:hidden bg-black/60 backdrop-blur-xs border-b border-(--card-border) sticky top-0 z-50"
       data-app-chrome
     >
       <div className="flex h-12 items-center justify-between gap-2 px-3">
@@ -72,9 +72,9 @@ export function MobileNav({
               className="h-7 w-7 shrink-0"
             />
           ) : (
-            <AnalyticsIcon className="h-7 w-7 shrink-0 text-[var(--primary)]" />
+            <AnalyticsIcon className="h-7 w-7 shrink-0 text-(--primary)" />
           )}
-          <span className="ml-1.5 text-sm font-bold font-mono text-[var(--primary)]">
+          <span className="ml-1.5 text-sm font-bold font-mono text-(--primary)">
             Tacticus Analytics
           </span>
         </Link>
@@ -94,18 +94,18 @@ export function MobileNav({
               <button
                 type="button"
                 aria-label="Open account and navigation menu"
-                className="flex min-h-[44px] min-w-[44px] max-w-[14rem] items-center justify-center gap-1.5 overflow-hidden rounded-lg px-2 py-1 transition-colors hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]"
+                className="flex min-h-[44px] min-w-[44px] max-w-56 items-center justify-center gap-1.5 overflow-hidden rounded-lg px-2 py-1 transition-colors hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]"
               >
                 <div className="hidden min-w-0 max-w-40 text-right sm:block">
                   <div
                     data-testid="mobile-account-player-label"
-                    className="min-w-0 truncate text-[9px] leading-tight text-[var(--text-secondary)]"
+                    className="min-w-0 truncate text-[9px] leading-tight text-secondary-wh40k"
                   >
                     <MemberName value={profile?.display_name} fallback="User" />
                   </div>
                   <div
                     data-testid="mobile-account-guild-label"
-                    className="min-w-0 truncate text-[9px] font-semibold leading-tight text-[var(--primary)]"
+                    className="min-w-0 truncate text-[9px] font-semibold leading-tight text-(--primary)"
                   >
                     {guildDisplayLabel === 'No Guild'
                       ? 'NO GUILD'
@@ -121,7 +121,7 @@ export function MobileNav({
                   />
                 </div>
                 <Menu
-                  className="h-4 w-4 shrink-0 text-[var(--text-secondary)]"
+                  className="h-4 w-4 shrink-0 text-secondary-wh40k"
                   aria-hidden="true"
                 />
               </button>
@@ -130,7 +130,7 @@ export function MobileNav({
             <RadixDropdownMenuContent
               align="end"
               sideOffset={4}
-              className="w-64 max-h-[85vh] overflow-y-auto bg-[var(--dropdown-bg-solid)] border border-[var(--card-border)]"
+              className="w-64 max-h-[85vh] overflow-y-auto bg-(--dropdown-bg-solid) border border-(--card-border)"
             >
               <AccountMenuHeader
                 currentSeason={currentSeason}
@@ -147,7 +147,7 @@ export function MobileNav({
 
                   return (
                     <div key={workspace.id}>
-                      <p className="text-[10px] font-bold text-[var(--text-secondary)] mb-1 px-2 uppercase tracking-wide mt-2">
+                      <p className="text-[10px] font-bold text-secondary-wh40k mb-1 px-2 uppercase tracking-wide mt-2">
                         <WorkspaceIcon
                           className="mr-1 inline h-3 w-3 align-[-2px]"
                           aria-hidden="true"
@@ -173,7 +173,7 @@ export function MobileNav({
                 })}
               </div>
 
-              <RadixDropdownMenuSeparator className="bg-[var(--card-border)]" />
+              <RadixDropdownMenuSeparator className="bg-(--card-border)" />
               <AccountMenuLogout onLogout={onLogout} variant="mobile" />
             </RadixDropdownMenuContent>
           </RadixDropdownMenu>

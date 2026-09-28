@@ -213,11 +213,11 @@ export function MemberGapAnalysisTab() {
   }, [configDraft, loadScoringConfig])
 
   const renderSummary = () => (
-    <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
+    <Card className="bg-(--card-bg) border-(--card-border)">
       <CardHeader className="flex flex-row items-center justify-between gap-4">
         <div className="space-y-1">
           <CardTitle className="text-lg">Member Analysis</CardTitle>
-          <p className="text-xs text-[var(--text-secondary)]">
+          <p className="text-xs text-secondary-wh40k">
             Identify development opportunities and track roster readiness.
           </p>
         </div>
@@ -249,11 +249,9 @@ export function MemberGapAnalysisTab() {
 
         {!loading && summary && (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-3">
-              <div className="text-xs text-[var(--text-secondary)]">
-                Total members
-              </div>
-              <div className="text-2xl font-semibold text-[var(--text-primary)]">
+            <div className="rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-3">
+              <div className="text-xs text-secondary-wh40k">Total members</div>
+              <div className="text-2xl font-semibold text-primary-wh40k">
                 {summary.total}
               </div>
             </div>
@@ -261,28 +259,26 @@ export function MemberGapAnalysisTab() {
               (status) => (
                 <div
                   key={status}
-                  className={`rounded-lg border border-[var(--card-border)] p-3 ${STATUS_CONFIG[status].className}`}
+                  className={`rounded-lg border border-(--card-border) p-3 ${STATUS_CONFIG[status].className}`}
                 >
                   <div className="text-xs">{STATUS_CONFIG[status].label}</div>
-                  <div className="text-2xl font-semibold text-[var(--text-primary)]">
+                  <div className="text-2xl font-semibold text-primary-wh40k">
                     {summary[status as keyof typeof summary] ?? 0}
                   </div>
                 </div>
               )
             )}
-            <div className="rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-3">
-              <div className="text-xs text-[var(--text-secondary)]">
-                No roster
-              </div>
-              <div className="text-2xl font-semibold text-[var(--text-primary)]">
+            <div className="rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-3">
+              <div className="text-xs text-secondary-wh40k">No roster</div>
+              <div className="text-2xl font-semibold text-primary-wh40k">
                 {summary.noRoster}
               </div>
             </div>
-            <div className="rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-3">
-              <div className="text-xs text-[var(--text-secondary)]">
+            <div className="rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-3">
+              <div className="text-xs text-secondary-wh40k">
                 No requirements
               </div>
-              <div className="text-2xl font-semibold text-[var(--text-primary)]">
+              <div className="text-2xl font-semibold text-primary-wh40k">
                 {summary.noRequirements}
               </div>
             </div>
@@ -291,34 +287,34 @@ export function MemberGapAnalysisTab() {
 
         {!loading && data && (
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.2fr_1fr]">
-            <div className="rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_30%,transparent)] p-3">
-              <div className="text-xs text-[var(--text-secondary)] mb-2">
+            <div className="rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_30%,transparent)] p-3">
+              <div className="text-xs text-secondary-wh40k mb-2">
                 Active targets
               </div>
-              <div className="text-sm text-[var(--text-primary)]">
+              <div className="text-sm text-primary-wh40k">
                 {data.targets_label} ({data.targets_analyzed.length})
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
                 {data.targets_analyzed.slice(0, 8).map((target) => (
                   <span
                     key={target.target_id}
-                    className="rounded-full border border-[var(--card-border)] px-2 py-0.5 text-[10px] text-[var(--text-secondary)]"
+                    className="rounded-full border border-(--card-border) px-2 py-0.5 text-[10px] text-secondary-wh40k"
                   >
                     {target.target_name}
                   </span>
                 ))}
                 {data.targets_analyzed.length > 8 && (
-                  <span className="rounded-full border border-[var(--card-border)] px-2 py-0.5 text-[10px] text-[var(--text-secondary)]">
+                  <span className="rounded-full border border-(--card-border) px-2 py-0.5 text-[10px] text-secondary-wh40k">
                     +{data.targets_analyzed.length - 8} more
                   </span>
                 )}
               </div>
             </div>
-            <div className="rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_30%,transparent)] p-3">
-              <div className="text-xs text-[var(--text-secondary)] mb-2">
+            <div className="rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_30%,transparent)] p-3">
+              <div className="text-xs text-secondary-wh40k mb-2">
                 Active source
               </div>
-              <div className="text-sm text-[var(--text-primary)]">
+              <div className="text-sm text-primary-wh40k">
                 {data.active_source
                   ? SOURCE_LABELS[data.active_source].title
                   : 'No targets available'}
@@ -344,7 +340,7 @@ export function MemberGapAnalysisTab() {
     if (loading) return null
     if (!data) {
       return (
-        <div className="py-6 text-center text-sm text-[var(--text-secondary)]">
+        <div className="py-6 text-center text-sm text-secondary-wh40k">
           No member analysis data available.
         </div>
       )
@@ -352,7 +348,7 @@ export function MemberGapAnalysisTab() {
 
     if (filteredMembers.length === 0) {
       return (
-        <div className="py-6 text-center text-sm text-[var(--text-secondary)]">
+        <div className="py-6 text-center text-sm text-secondary-wh40k">
           No members match the current filters.
         </div>
       )
@@ -366,7 +362,7 @@ export function MemberGapAnalysisTab() {
         sortValue: (member) => member.display_name || '',
         render: (member) => (
           <div className="flex flex-col gap-1">
-            <div className="font-semibold text-[var(--text-primary)]">
+            <div className="font-semibold text-primary-wh40k">
               {member.display_name || 'Unknown'}
             </div>
             {member.display_name && (
@@ -400,9 +396,7 @@ export function MemberGapAnalysisTab() {
         header: 'Roster',
         sortValue: (member) => member.roster_count,
         render: (member) => (
-          <span className="text-[var(--text-secondary)]">
-            {member.roster_count}
-          </span>
+          <span className="text-secondary-wh40k">{member.roster_count}</span>
         )
       },
       {
@@ -412,7 +406,7 @@ export function MemberGapAnalysisTab() {
           member.performance_vs_guild_avg ?? Number.POSITIVE_INFINITY,
         render: (member) =>
           member.performance_vs_guild_avg === null ? (
-            <span className="text-[var(--text-secondary)]">-</span>
+            <span className="text-secondary-wh40k">-</span>
           ) : (
             <span
               className={`font-semibold ${getPerformanceColor(member.performance_vs_guild_avg)}`}
@@ -430,9 +424,7 @@ export function MemberGapAnalysisTab() {
             (a, b) => a.score - b.score
           )
           return targetScores.length === 0 ? (
-            <span className="text-xs text-[var(--text-secondary)]">
-              No targets
-            </span>
+            <span className="text-xs text-secondary-wh40k">No targets</span>
           ) : (
             <div className="flex flex-wrap gap-2">
               {targetScores.map((target) => (
@@ -489,33 +481,33 @@ export function MemberGapAnalysisTab() {
         configSaving={configSaving}
         saveConfig={saveConfig}
       />
-      <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
+      <Card className="bg-(--card-bg) border-(--card-border)">
         <CardHeader className="space-y-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle className="text-lg">Member Breakdown</CardTitle>
-            <div className="text-xs text-[var(--text-secondary)]">
+            <div className="text-xs text-secondary-wh40k">
               Showing {filteredMembers.length} of {data?.members.length ?? 0}{' '}
               members
             </div>
           </div>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-[1.2fr_200px_160px] items-end">
-            <label className="space-y-1 text-xs text-[var(--text-secondary)]">
+            <label className="space-y-1 text-xs text-secondary-wh40k">
               Search
               <input
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
-                className="w-full rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-3 py-2 text-sm text-[var(--text-primary)]"
+                className="w-full rounded-md border border-(--card-border) bg-(--bg-secondary) px-3 py-2 text-sm text-primary-wh40k"
                 placeholder="Search member name"
               />
             </label>
-            <label className="space-y-1 text-xs text-[var(--text-secondary)]">
+            <label className="space-y-1 text-xs text-secondary-wh40k">
               Status
               <select
                 value={statusFilter}
                 onChange={(event) =>
                   setStatusFilter(event.target.value as StatusFilter)
                 }
-                className="w-full rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-3 py-2 text-sm text-[var(--text-primary)]"
+                className="w-full rounded-md border border-(--card-border) bg-(--bg-secondary) px-3 py-2 text-sm text-primary-wh40k"
               >
                 <option value="all">All statuses</option>
                 {Object.entries(STATUS_CONFIG).map(([key, value]) => (
@@ -525,7 +517,7 @@ export function MemberGapAnalysisTab() {
                 ))}
               </select>
             </label>
-            <label className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+            <label className="flex items-center gap-2 text-xs text-secondary-wh40k">
               <input
                 type="checkbox"
                 checked={coachMode}

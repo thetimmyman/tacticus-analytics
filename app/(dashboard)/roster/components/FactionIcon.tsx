@@ -1,13 +1,13 @@
 // Text-fallback colours, keyed by camelCase and display names.
 const FACTION_COLORS: Record<string, string> = {
   Ultramarines: 'text-blue-400',
-  BlackLegion: 'text-[var(--text-primary)]',
+  BlackLegion: 'text-primary-wh40k',
   Orks: 'text-green-500',
   AstraMilitarum: 'text-yellow-600',
   Necrons: 'text-emerald-400',
   DeathGuard: 'text-lime-500',
   Sisterhood: 'text-red-400',
-  BlackTemplars: 'text-[var(--text-primary)]',
+  BlackTemplars: 'text-primary-wh40k',
   DarkAngels: 'text-green-600',
   SpaceWolves: 'text-sky-400',
   WorldEaters: 'text-red-600',
@@ -21,11 +21,11 @@ const FACTION_COLORS: Record<string, string> = {
   Genestealers: 'text-purple-400',
   Custodes: 'text-yellow-500',
   EmperorsChildren: 'text-pink-400',
-  'Black Legion': 'text-[var(--text-primary)]',
+  'Black Legion': 'text-primary-wh40k',
   'Astra Militarum': 'text-yellow-600',
   'Death Guard': 'text-lime-500',
   'Adepta Sororitas': 'text-red-400',
-  'Black Templars': 'text-[var(--text-primary)]',
+  'Black Templars': 'text-primary-wh40k',
   'Dark Angels': 'text-green-600',
   'Space Wolves': 'text-sky-400',
   'World Eaters': 'text-red-600',
@@ -63,7 +63,7 @@ export function FactionIcon({
   className = ''
 }: FactionIconProps) {
   const textSize = TEXT_SIZE_MAP[size]
-  const colorClass = FACTION_COLORS[faction] || 'text-[var(--text-secondary)]'
+  const colorClass = FACTION_COLORS[faction] || 'text-secondary-wh40k'
   const abbreviation =
     faction
       .replace(/([a-z])([A-Z])/g, '$1 $2')
@@ -98,5 +98,5 @@ export function getFactionIconUrl(_faction: string): null {
 }
 
 export function getFactionColor(faction: string): string {
-  return FACTION_COLORS[faction] || 'text-[var(--text-secondary)]'
+  return FACTION_COLORS[faction] || 'text-secondary-wh40k'
 }

@@ -22,14 +22,14 @@ export default function LinkRequiredNudge({
       'ring-2',
       'ring-red-500',
       'ring-offset-2',
-      'ring-offset-[var(--bg-primary)]'
+      'ring-offset-(--bg-primary)'
     )
     const timer = setTimeout(() => {
       el.classList.remove(
         'ring-2',
         'ring-red-500',
         'ring-offset-2',
-        'ring-offset-[var(--bg-primary)]'
+        'ring-offset-(--bg-primary)'
       )
     }, 1800)
 

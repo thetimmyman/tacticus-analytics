@@ -36,25 +36,25 @@ const PREFERENCE_OPTIONS = [
     value: 'preferred',
     label: 'Preferred',
     emoji: 'P',
-    color: 'text-[var(--success)]',
-    bgColor: 'bg-[var(--success-bg)]',
-    borderColor: 'border-[var(--success-border)]'
+    color: 'text-(--success)',
+    bgColor: 'bg-(--success-bg)',
+    borderColor: 'border-(--success-border)'
   },
   {
     value: 'neutral',
     label: 'Neutral',
     emoji: 'N',
-    color: 'text-[var(--text-secondary)]',
-    bgColor: 'bg-[var(--card-bg)]',
-    borderColor: 'border-[var(--card-border)]'
+    color: 'text-secondary-wh40k',
+    bgColor: 'bg-(--card-bg)',
+    borderColor: 'border-(--card-border)'
   },
   {
     value: 'avoid',
     label: 'Avoid',
     emoji: 'A',
-    color: 'text-[var(--error)]',
-    bgColor: 'bg-[var(--error-bg)]',
-    borderColor: 'border-[var(--error-border)]'
+    color: 'text-(--error)',
+    bgColor: 'bg-(--error-bg)',
+    borderColor: 'border-(--error-border)'
   }
 ] as const
 
@@ -82,7 +82,7 @@ function PreferenceToggle({
             ${
               value === option.value
                 ? `${option.bgColor} ${option.borderColor} ${option.color} scale-110`
-                : 'bg-black/20 border-[var(--card-border)] hover:border-[var(--text-secondary)] opacity-50 hover:opacity-75'
+                : 'bg-black/20 border-(--card-border) hover:border-(--text-secondary) opacity-50 hover:opacity-75'
             }
           `}
           title={option.label}
@@ -277,14 +277,14 @@ export default function BossFavorites({
     return (
       <div className="card-wh40k p-6">
         <div className="flex items-center space-x-2 mb-4">
-          <div className="w-6 h-6 bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] animate-pulse rounded"></div>
-          <div className="w-32 h-5 bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] animate-pulse rounded"></div>
+          <div className="w-6 h-6 bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] animate-pulse rounded-sm"></div>
+          <div className="w-32 h-5 bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] animate-pulse rounded-sm"></div>
         </div>
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="w-full h-20 bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] animate-pulse rounded"
+              className="w-full h-20 bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] animate-pulse rounded-sm"
             ></div>
           ))}
         </div>
@@ -299,16 +299,14 @@ export default function BossFavorites({
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 sm:mb-6">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] rounded-lg flex items-center justify-center">
-            <span className="text-[var(--bg-primary)] font-bold text-sm">
-              B
-            </span>
+          <div className="w-8 h-8 bg-linear-to-r from-(--primary) to-(--accent) rounded-lg flex items-center justify-center">
+            <span className="text-(--bg-primary) font-bold text-sm">B</span>
           </div>
           <div>
-            <h3 className="text-lg font-bold text-[var(--text-accent)]">
+            <h3 className="text-lg font-bold text-accent-wh40k">
               Boss Preferences
             </h3>
-            <p className="text-sm text-[var(--text-secondary)]">
+            <p className="text-sm text-secondary-wh40k">
               Set your preferences for raid bosses and sub-bosses
             </p>
           </div>
@@ -319,21 +317,17 @@ export default function BossFavorites({
           <div className="flex items-center space-x-2 sm:space-x-3 text-sm">
             <span className="flex items-center space-x-1">
               <span className="text-green-400">Preferred</span>
-              <span className="text-[var(--text-primary)]">
-                {stats.preferred}
-              </span>
+              <span className="text-primary-wh40k">{stats.preferred}</span>
             </span>
             <span className="flex items-center space-x-1">
               <span className="text-red-400">Avoid</span>
-              <span className="text-[var(--text-primary)]">
-                {stats.avoided}
-              </span>
+              <span className="text-primary-wh40k">{stats.avoided}</span>
             </span>
           </div>
 
           <button
             onClick={exportPreferences}
-            className="px-2 py-1 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--card-border)] rounded transition-colors"
+            className="px-2 py-1 text-xs text-secondary-wh40k hover:text-primary-wh40k border border-(--card-border) rounded-sm transition-colors"
             title="Export preferences as JSON"
           >
             <span className="hidden sm:inline">Export</span>
@@ -347,12 +341,12 @@ export default function BossFavorites({
         {bossGroups.map((group) => (
           <div
             key={group.mainBoss}
-            className="border border-[var(--card-border)] rounded-lg p-2 sm:p-3 bg-black/20"
+            className="border border-(--card-border) rounded-lg p-2 sm:p-3 bg-black/20"
           >
             {/* Main Boss Header */}
-            <div className="border-b border-[var(--card-border)] pb-1.5 sm:pb-2 mb-1.5 sm:mb-2">
+            <div className="border-b border-(--card-border) pb-1.5 sm:pb-2 mb-1.5 sm:mb-2">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-[var(--text-primary)] flex items-center space-x-1">
+                <h4 className="text-sm font-semibold text-primary-wh40k flex items-center space-x-1">
                   <span className="text-xs">VS</span>
                   <span className="truncate">
                     <BossLink bossName={group.displayName}>
@@ -383,10 +377,10 @@ export default function BossFavorites({
                 return (
                   <div
                     key={bossId}
-                    className="flex items-center justify-between py-1 px-1 hover:bg-black/30 rounded"
+                    className="flex items-center justify-between py-1 px-1 hover:bg-black/30 rounded-sm"
                   >
-                    <span className="text-[var(--text-secondary)] text-xs flex items-center space-x-1 min-w-0 flex-1 mr-1">
-                      <span className="text-[color-mix(in_srgb,var(--text-primary)_40%,transparent)] flex-shrink-0">
+                    <span className="text-secondary-wh40k text-xs flex items-center space-x-1 min-w-0 flex-1 mr-1">
+                      <span className="text-[color-mix(in_srgb,var(--text-primary)_40%,transparent)] shrink-0">
                         {sideBoss.encounterIndex > 0
                           ? 'Prime'
                           : `E${sideBoss.encounterIndex}`}
@@ -417,26 +411,24 @@ export default function BossFavorites({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 pt-3 sm:pt-4 border-t border-[var(--card-border)]">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 pt-3 sm:pt-4 border-t border-(--card-border)">
         <div className="flex items-center space-x-2 sm:space-x-3">
           <button
             onClick={resetPreferences}
-            className="px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            className="px-4 py-2 text-sm text-secondary-wh40k hover:text-primary-wh40k transition-colors"
             disabled={saving}
           >
             Reset All
           </button>
 
-          <span className="text-xs text-[var(--text-secondary)]">
+          <span className="text-xs text-secondary-wh40k">
             Stored in player_mapping table
           </span>
         </div>
 
         <div className="flex items-center space-x-3">
           {hasChanges && !saveSuccess && (
-            <span className="text-xs text-[var(--text-accent)]">
-              Unsaved changes
-            </span>
+            <span className="text-xs text-accent-wh40k">Unsaved changes</span>
           )}
           {saveSuccess && (
             <span className="text-green-400 text-sm font-medium">
@@ -448,7 +440,7 @@ export default function BossFavorites({
             disabled={!hasChanges || saving}
             className={`px-4 py-2 rounded text-sm font-medium transition-all ${
               hasChanges && !saving
-                ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] text-[var(--bg-primary)] hover:brightness-110'
+                ? 'bg-linear-to-r from-(--primary) to-(--accent) text-(--bg-primary) hover:brightness-110'
                 : 'bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] text-[color-mix(in_srgb,var(--text-primary)_50%,transparent)] cursor-not-allowed'
             }`}
           >
@@ -458,26 +450,24 @@ export default function BossFavorites({
       </div>
 
       {/* Legend */}
-      <div className="mt-4 pt-4 border-t border-[var(--card-border)]">
-        <p className="text-xs text-[var(--text-secondary)] mb-2">
-          Preference Guide:
-        </p>
+      <div className="mt-4 pt-4 border-t border-(--card-border)">
+        <p className="text-xs text-secondary-wh40k mb-2">Preference Guide:</p>
         <div className="flex flex-wrap gap-4 text-xs">
           <span className="flex items-center space-x-1">
             <span className="text-green-400">Preferred</span>
-            <span className="text-[var(--text-secondary)]">
+            <span className="text-secondary-wh40k">
               Preferred - Bosses you enjoy fighting
             </span>
           </span>
           <span className="flex items-center space-x-1">
-            <span className="text-[var(--text-secondary)]">Neutral</span>
-            <span className="text-[var(--text-secondary)]">
+            <span className="text-secondary-wh40k">Neutral</span>
+            <span className="text-secondary-wh40k">
               Neutral - No strong preference
             </span>
           </span>
           <span className="flex items-center space-x-1">
             <span className="text-red-400">Avoid</span>
-            <span className="text-[var(--text-secondary)]">
+            <span className="text-secondary-wh40k">
               Avoid - Bosses you&apos;d rather not fight
             </span>
           </span>

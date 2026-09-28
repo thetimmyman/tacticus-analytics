@@ -23,7 +23,7 @@ const PERFECT_SUMMARY_KEYS = ['perfect-hits', 'zones-cleared'] as const
 
 function SummarySkeleton() {
   return (
-    <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+    <Card className="border-(--border) bg-(--bg-primary)">
       <CardHeader className="pb-2">
         <Skeleton className="h-6 w-48" />
       </CardHeader>
@@ -78,24 +78,22 @@ export default function PerfectHitsClient({ warId }: { warId: string }) {
       }
     >
       <div className="space-y-6">
-        <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+        <Card className="border-(--border) bg-(--bg-primary)">
           <CardHeader className="pb-2">
             <CardTitle>Perfect Hits Summary</CardTitle>
           </CardHeader>
-          <CardContent className="pt-4 flex flex-wrap gap-8 text-sm text-[var(--text-secondary)]">
+          <CardContent className="pt-4 flex flex-wrap gap-8 text-sm text-secondary-wh40k">
             <div>
-              <div className="text-xs text-[var(--text-tertiary)]">
-                Perfect hits
-              </div>
+              <div className="text-xs text-(--text-tertiary)">Perfect hits</div>
               <div className="text-xl font-semibold text-green-400">
                 {formatNumber(filteredAttempts.length)}
               </div>
             </div>
             <div>
-              <div className="text-xs text-[var(--text-tertiary)]">
+              <div className="text-xs text-(--text-tertiary)">
                 Zones cleared
               </div>
-              <div className="text-xl font-semibold text-[var(--text-primary)]">
+              <div className="text-xl font-semibold text-primary-wh40k">
                 {formatNumber(Object.keys(groupedByZone).length)}
               </div>
             </div>
@@ -109,10 +107,7 @@ export default function PerfectHitsClient({ warId }: { warId: string }) {
         />
 
         {Object.entries(groupedByZone).map(([zoneType, attempts]) => (
-          <Card
-            key={zoneType}
-            className="border-[var(--border)] bg-[var(--bg-primary)]"
-          >
+          <Card key={zoneType} className="border-(--border) bg-(--bg-primary)">
             <CardHeader className="pb-2">
               <CardTitle>
                 {zoneDisplayName(zoneType)} ({formatNumber(attempts.length)}{' '}
@@ -126,7 +121,7 @@ export default function PerfectHitsClient({ warId }: { warId: string }) {
         ))}
 
         {filteredAttempts.length === 0 && (
-          <div className="text-center py-12 text-[var(--text-secondary)]">
+          <div className="text-center py-12 text-secondary-wh40k">
             No perfect hits recorded for this war
           </div>
         )}

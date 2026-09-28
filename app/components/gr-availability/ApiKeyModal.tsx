@@ -43,7 +43,7 @@ export const ApiKeyModal = ({
   return (
     <Modal isOpen={showApiModal} onClose={() => setShowApiModal(false)}>
       <div className="p-4 sm:p-6">
-        <h3 className="text-base sm:text-lg font-semibold text-[var(--text-primary)] mb-3 sm:mb-4">
+        <h3 className="text-base sm:text-lg font-semibold text-primary-wh40k mb-3 sm:mb-4">
           API Key Management
         </h3>
 
@@ -51,7 +51,7 @@ export const ApiKeyModal = ({
           <div className="space-y-2">
             <label
               htmlFor="modal-api-key-input"
-              className="text-sm text-[var(--text-secondary)]"
+              className="text-sm text-secondary-wh40k"
             >
               Tacticus API Key
             </label>
@@ -65,10 +65,10 @@ export const ApiKeyModal = ({
               }
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              className={`w-full px-3 py-2 text-sm bg-[var(--bg-secondary)] border rounded-lg text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-300 ${
+              className={`w-full px-3 py-2 text-sm bg-(--bg-secondary) border rounded-lg text-primary-wh40k placeholder-(--text-secondary) focus:outline-hidden focus:ring-2 focus:ring-(--accent) transition-all duration-300 ${
                 saveStatus.type === 'error'
                   ? 'border-[color-mix(in_srgb,var(--accent)_50%,transparent)] ring-1 ring-[color-mix(in_srgb,var(--accent)_30%,transparent)]'
-                  : 'border-[var(--card-border)]'
+                  : 'border-(--card-border)'
               }`}
               disabled={savingKey || deletingKey}
             />
@@ -84,8 +84,8 @@ export const ApiKeyModal = ({
                   saveStatus.type === 'success'
                     ? 'bg-green-500/15 text-green-400 border border-green-500/25'
                     : saveStatus.type === 'error'
-                      ? 'bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-[var(--accent)] border border-[color-mix(in_srgb,var(--accent)_25%,transparent)]'
-                      : 'bg-[color-mix(in_srgb,var(--primary)_15%,transparent)] text-[var(--accent)] border border-[color-mix(in_srgb,var(--primary)_25%,transparent)]'
+                      ? 'bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-(--accent) border border-[color-mix(in_srgb,var(--accent)_25%,transparent)]'
+                      : 'bg-[color-mix(in_srgb,var(--primary)_15%,transparent)] text-(--accent) border border-[color-mix(in_srgb,var(--primary)_25%,transparent)]'
                 }
 	              `}
             >
@@ -124,7 +124,7 @@ export const ApiKeyModal = ({
                 disabled={deletingKey || savingKey}
                 size="md"
                 variant="outline"
-                className="w-full hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-[var(--accent)] hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)]"
+                className="w-full hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] hover:text-(--accent) hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)]"
               >
                 {deletingKey ? (
                   <>
@@ -156,13 +156,13 @@ export const ApiKeyModal = ({
             </div>
           )}
 
-          <div className="text-xs text-[var(--text-secondary)] border-t border-[var(--card-border)] pt-3">
+          <div className="text-xs text-secondary-wh40k border-t border-(--card-border) pt-3">
             Get your API key from{' '}
             <a
               href={TACTICUS_SITE}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[var(--accent)] hover:text-[var(--primary)] underline"
+              className="text-(--accent) hover:text-(--primary) underline"
             >
               {TACTICUS_SITE}
             </a>

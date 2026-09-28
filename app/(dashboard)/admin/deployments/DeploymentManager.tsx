@@ -147,7 +147,7 @@ export function DeploymentManager() {
           <>
             <span className="font-mono text-white">{version.tag}</span>
             {version.isCurrent && (
-              <span className="ml-2 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded">
+              <span className="ml-2 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-sm">
                 CURRENT
               </span>
             )}
@@ -181,7 +181,7 @@ export function DeploymentManager() {
             <button
               onClick={() => handleRollback(version.tag)}
               disabled={actionLoading}
-              className="px-3 py-1 bg-yellow-600/20 hover:bg-yellow-600/40 text-yellow-400 rounded text-sm disabled:opacity-50"
+              className="px-3 py-1 bg-yellow-600/20 hover:bg-yellow-600/40 text-yellow-400 rounded-sm text-sm disabled:opacity-50"
             >
               Rollback
             </button>
@@ -201,7 +201,7 @@ export function DeploymentManager() {
           <h2 className="text-xl font-semibold text-yellow-400 mb-2">
             Not Available
           </h2>
-          <p className="text-[var(--text-secondary)]">
+          <p className="text-secondary-wh40k">
             Deployment management is only available on self-hosted instances.
           </p>
         </div>
@@ -216,7 +216,7 @@ export function DeploymentManager() {
         <div>
           <Link
             href="/admin/feature-releases"
-            className="text-[var(--text-secondary)] hover:text-white flex items-center gap-2 mb-2"
+            className="text-secondary-wh40k hover:text-white flex items-center gap-2 mb-2"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Admin
@@ -225,7 +225,7 @@ export function DeploymentManager() {
             <Server className="h-6 w-6 text-blue-400" />
             Deployment Manager
           </h1>
-          <p className="text-[var(--text-secondary)] mt-1">
+          <p className="text-secondary-wh40k mt-1">
             Manage container versions and perform rollbacks
           </p>
         </div>
@@ -233,7 +233,7 @@ export function DeploymentManager() {
         <button
           onClick={() => fetchVersions()}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 bg-[var(--card-bg)] hover:bg-zinc-700 rounded-lg text-white disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2 bg-(--card-bg) hover:bg-zinc-700 rounded-lg text-white disabled:opacity-50"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -250,31 +250,25 @@ export function DeploymentManager() {
 
       {/* Current Version Card */}
       {data && (
-        <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-6">
+        <div className="bg-(--card-bg) border border-(--card-border) rounded-lg p-6">
           <h2 className="text-lg font-semibold text-white mb-4">
             Current Deployment
           </h2>
           <div className="grid grid-cols-3 gap-6">
             <div>
-              <div className="text-[var(--text-secondary)] text-sm">
-                Version
-              </div>
+              <div className="text-secondary-wh40k text-sm">Version</div>
               <div className="text-2xl font-mono text-green-400">
                 v{data.current.version}
               </div>
             </div>
             <div>
-              <div className="text-[var(--text-secondary)] text-sm">
-                Build Number
-              </div>
+              <div className="text-secondary-wh40k text-sm">Build Number</div>
               <div className="text-2xl font-mono text-white">
                 #{data.current.buildNumber}
               </div>
             </div>
             <div>
-              <div className="text-[var(--text-secondary)] text-sm">
-                Last Updated
-              </div>
+              <div className="text-secondary-wh40k text-sm">Last Updated</div>
               <div className="text-lg text-white">
                 {data.current.lastUpdated}
               </div>
@@ -285,11 +279,11 @@ export function DeploymentManager() {
 
       {/* Service Filter */}
       <div className="flex items-center gap-4">
-        <span className="text-[var(--text-secondary)]">Service:</span>
+        <span className="text-secondary-wh40k">Service:</span>
         <select
           value={selectedService}
           onChange={(e) => setSelectedService(e.target.value)}
-          className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg px-3 py-2 text-white"
+          className="bg-(--card-bg) border border-(--card-border) rounded-lg px-3 py-2 text-white"
         >
           <option value="all">All Services</option>
           <option value="nextjs">NextJS App</option>
@@ -341,7 +335,7 @@ export function DeploymentManager() {
             </span>
           </div>
           {actionResult.output && (
-            <pre className="bg-black/50 rounded p-3 text-xs text-[var(--text-primary)] overflow-x-auto max-h-64">
+            <pre className="bg-black/50 rounded-sm p-3 text-xs text-primary-wh40k overflow-x-auto max-h-64">
               {actionResult.output}
             </pre>
           )}
@@ -354,7 +348,7 @@ export function DeploymentManager() {
       {/* Version Tables */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <RefreshCw className="h-8 w-8 text-[var(--text-secondary)] animate-spin" />
+          <RefreshCw className="h-8 w-8 text-secondary-wh40k animate-spin" />
         </div>
       ) : (
         data?.services && (
@@ -362,14 +356,14 @@ export function DeploymentManager() {
             {data.services.map((service) => (
               <div
                 key={service.service}
-                className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg overflow-hidden"
+                className="bg-(--card-bg) border border-(--card-border) rounded-lg overflow-hidden"
               >
-                <div className="bg-[var(--card-bg)] px-6 py-3 flex items-center justify-between">
+                <div className="bg-(--card-bg) px-6 py-3 flex items-center justify-between">
                   <h3 className="font-semibold text-white flex items-center gap-2">
                     <Terminal className="h-4 w-4 text-blue-400" />
                     {service.service}
                   </h3>
-                  <span className="text-sm text-[var(--text-secondary)]">
+                  <span className="text-sm text-secondary-wh40k">
                     Running:{' '}
                     <span className="text-green-400 font-mono">
                       {service.running}
@@ -378,7 +372,7 @@ export function DeploymentManager() {
                 </div>
 
                 {service.versions.length === 0 ? (
-                  <div className="p-6 text-center text-[var(--text-secondary)]">
+                  <div className="p-6 text-center text-secondary-wh40k">
                     No versioned images found. Deploy using the versioning
                     script to enable rollbacks.
                   </div>
@@ -389,7 +383,7 @@ export function DeploymentManager() {
                     rowKey={(version) => version.tag}
                     rowClassName={(version) =>
                       // !bg: the current-version tint must survive DataTable's row hover.
-                      version.isCurrent ? '!bg-green-500/5' : undefined
+                      version.isCurrent ? 'bg-green-500/5!' : undefined
                     }
                     tableClassName="w-full"
                   />
@@ -401,23 +395,21 @@ export function DeploymentManager() {
       )}
 
       {/* CLI Instructions */}
-      <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-6">
+      <div className="bg-(--card-bg) border border-(--card-border) rounded-lg p-6">
         <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
-          <Terminal className="h-4 w-4 text-[var(--text-secondary)]" />
+          <Terminal className="h-4 w-4 text-secondary-wh40k" />
           CLI Commands (SSH Fallback)
         </h3>
-        <p className="text-[var(--text-secondary)] text-sm mb-4">
+        <p className="text-secondary-wh40k text-sm mb-4">
           If the web UI is unavailable, use these commands via SSH:
         </p>
         <div className="bg-black rounded-lg p-4 font-mono text-sm space-y-2">
-          <div className="text-[var(--text-secondary)]">
-            # Current k3s deploy path
-          </div>
+          <div className="text-secondary-wh40k"># Current k3s deploy path</div>
           <div className="text-green-400">
             ./scripts/deploy/deploy-production-k3s.sh --tag &lt;sha&gt;
             --skip-build
           </div>
-          <div className="text-[var(--text-secondary)] mt-3">
+          <div className="text-secondary-wh40k mt-3">
             # Roll back k3s Next.js workloads
           </div>
           <div className="text-green-400">

@@ -20,8 +20,8 @@ export function CarouselManager() {
       <Card>
         <CardContent className="p-8">
           <div className="animate-pulse space-y-4">
-            <div className="h-6 bg-[var(--bg-secondary)] rounded w-1/3" />
-            <div className="h-32 bg-[var(--bg-secondary)] rounded" />
+            <div className="h-6 bg-(--bg-secondary) rounded-sm w-1/3" />
+            <div className="h-32 bg-(--bg-secondary) rounded-sm" />
           </div>
         </CardContent>
       </Card>

@@ -196,11 +196,11 @@ export default function MyGuildTab({ guildCode }: MyGuildTabProps) {
   if (!hasGuild) {
     return (
       <div className="text-center py-8">
-        <Users className="w-12 h-12 text-[var(--text-secondary)] mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+        <Users className="w-12 h-12 text-secondary-wh40k mx-auto mb-4" />
+        <h3 className="text-lg font-semibold text-primary-wh40k mb-2">
           No Guild Linked
         </h3>
-        <p className="text-[var(--text-secondary)]">
+        <p className="text-secondary-wh40k">
           Join a guild to see your guild&apos;s meta.
         </p>
       </div>
@@ -243,10 +243,10 @@ export default function MyGuildTab({ guildCode }: MyGuildTabProps) {
       {/* Summary line; Meta Atlas owns the <h1>. */}
       <div className="flex items-center gap-2">
         <BarChart3 className="w-5 h-5 text-purple-400" />
-        <span className="text-[var(--text-primary)] font-semibold">
+        <span className="text-primary-wh40k font-semibold">
           {guildDisplayName || 'Your Guild'}
         </span>
-        <span className="text-[var(--text-secondary)] flex items-center gap-2">
+        <span className="text-secondary-wh40k flex items-center gap-2">
           <Users className="w-4 h-4" />
           Season {season} • {data.length} Team Compositions
         </span>
@@ -259,7 +259,7 @@ export default function MyGuildTab({ guildCode }: MyGuildTabProps) {
           onValueChange={setSelectedBoss}
           className="w-full"
         >
-          <RadixTabsList className="bg-[var(--bg-secondary)] p-1 rounded-lg w-full justify-start overflow-x-auto">
+          <RadixTabsList className="bg-(--bg-secondary) p-1 rounded-lg w-full justify-start overflow-x-auto">
             <RadixTabsTrigger value="all" className="whitespace-nowrap">
               All Bosses
             </RadixTabsTrigger>
@@ -289,7 +289,7 @@ export default function MyGuildTab({ guildCode }: MyGuildTabProps) {
                       {getBossDisplayName(bossName)}
                     </BossLink>
                     {isPrime && <Crown className="w-4 h-4 text-yellow-400" />}
-                    <span className="text-[var(--text-secondary)]">
+                    <span className="text-secondary-wh40k">
                       ({entries.length} team variations)
                     </span>
                   </div>
@@ -307,11 +307,11 @@ export default function MyGuildTab({ guildCode }: MyGuildTabProps) {
                         return (
                           <div
                             key={uniqueKey}
-                            className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded-lg border border-[var(--card-border)] p-4 space-y-3"
+                            className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-lg border border-(--card-border) p-4 space-y-3"
                           >
                             {/* Header: rank + category badges */}
                             <div className="flex flex-wrap items-center gap-2">
-                              <span className="text-sm font-medium text-[var(--text-primary)]">
+                              <span className="text-sm font-medium text-primary-wh40k">
                                 #{entryIndex + 1} Team Composition
                               </span>
                               {entry.categories &&
@@ -336,33 +336,33 @@ export default function MyGuildTab({ guildCode }: MyGuildTabProps) {
 
                             {/* Metrics strip fills the card width. */}
                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
-                              <div className="rounded-lg bg-[var(--bg-secondary)] px-3 py-2">
-                                <div className="flex items-center gap-1 text-[11px] uppercase tracking-wide text-[var(--text-secondary)]">
+                              <div className="rounded-lg bg-(--bg-secondary) px-3 py-2">
+                                <div className="flex items-center gap-1 text-[11px] uppercase tracking-wide text-secondary-wh40k">
                                   <Zap className="w-3 h-3 text-yellow-400" />
                                   Avg Damage
                                 </div>
-                                <div className="text-sm font-semibold text-[var(--accent)] tabular-nums">
+                                <div className="text-sm font-semibold text-(--accent) tabular-nums">
                                   {formatNumber(Math.round(entry.avgDamage))}
                                 </div>
                               </div>
-                              <div className="rounded-lg bg-[var(--bg-secondary)] px-3 py-2">
-                                <div className="text-[11px] uppercase tracking-wide text-[var(--text-secondary)]">
+                              <div className="rounded-lg bg-(--bg-secondary) px-3 py-2">
+                                <div className="text-[11px] uppercase tracking-wide text-secondary-wh40k">
                                   Max Damage
                                 </div>
-                                <div className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">
+                                <div className="text-sm font-semibold text-primary-wh40k tabular-nums">
                                   {formatNumber(entry.maxDamage)}
                                 </div>
                               </div>
-                              <div className="rounded-lg bg-[var(--bg-secondary)] px-3 py-2">
-                                <div className="text-[11px] uppercase tracking-wide text-[var(--text-secondary)]">
+                              <div className="rounded-lg bg-(--bg-secondary) px-3 py-2">
+                                <div className="text-[11px] uppercase tracking-wide text-secondary-wh40k">
                                   Battles
                                 </div>
-                                <div className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">
+                                <div className="text-sm font-semibold text-primary-wh40k tabular-nums">
                                   {formatNumber(entry.battleCount)}
                                 </div>
                               </div>
-                              <div className="rounded-lg bg-[var(--bg-secondary)] px-3 py-2">
-                                <div className="flex items-center gap-1 text-[11px] uppercase tracking-wide text-[var(--text-secondary)]">
+                              <div className="rounded-lg bg-(--bg-secondary) px-3 py-2">
+                                <div className="flex items-center gap-1 text-[11px] uppercase tracking-wide text-secondary-wh40k">
                                   <Shield className="w-3 h-3 text-blue-400" />
                                   Win Rate
                                 </div>
@@ -372,8 +372,8 @@ export default function MyGuildTab({ guildCode }: MyGuildTabProps) {
                                   {formatPercentage(entry.winRate / 100)}
                                 </div>
                               </div>
-                              <div className="rounded-lg bg-[var(--bg-secondary)] px-3 py-2">
-                                <div className="text-[11px] uppercase tracking-wide text-[var(--text-secondary)]">
+                              <div className="rounded-lg bg-(--bg-secondary) px-3 py-2">
+                                <div className="text-[11px] uppercase tracking-wide text-secondary-wh40k">
                                   Consistency
                                 </div>
                                 <div
@@ -398,15 +398,15 @@ export default function MyGuildTab({ guildCode }: MyGuildTabProps) {
 
       {data.length === 0 && (
         <div className="text-center py-8">
-          <BarChart3 className="w-12 h-12 text-[var(--text-secondary)] mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+          <BarChart3 className="w-12 h-12 text-secondary-wh40k mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-primary-wh40k mb-2">
             No Meta Analysis Data Available
           </h3>
-          <p className="text-[var(--text-secondary)]">
+          <p className="text-secondary-wh40k">
             Not enough battle data found for {guildDisplayName || 'your guild'}{' '}
             in season {season} to generate meta analysis.
           </p>
-          <p className="text-xs text-[var(--text-secondary)] mt-2">
+          <p className="text-xs text-secondary-wh40k mt-2">
             Meta analysis requires at least 3 battles per team composition.
           </p>
         </div>

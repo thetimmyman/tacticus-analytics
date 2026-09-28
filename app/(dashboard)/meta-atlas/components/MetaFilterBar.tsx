@@ -143,7 +143,7 @@ export function MetaFilterBar({
             onClick={() => setExpanded(!isExpanded)}
             aria-expanded={isExpanded}
             aria-controls="meta-filter-panel"
-            className="flex min-h-11 items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-[var(--card-bg)] text-[var(--text-secondary)] border border-[var(--card-border)] transition-colors hover:text-white"
+            className="flex min-h-11 items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-(--card-bg) text-secondary-wh40k border border-(--card-border) transition-colors hover:text-white"
           >
             <SlidersHorizontal aria-hidden="true" className="h-3.5 w-3.5" />
             Filters
@@ -162,7 +162,7 @@ export function MetaFilterBar({
         {/* Kept mounted so <details> and chip scroll survive collapse. */}
         <div id="meta-filter-panel" className={isExpanded ? '' : 'hidden'}>
           <div className="flex flex-wrap gap-2 mt-4">
-            <span className="text-sm text-[var(--text-secondary)] self-center mr-2">
+            <span className="text-sm text-secondary-wh40k self-center mr-2">
               Rarity/Set:
             </span>
             {raritySets.map((rs) => (
@@ -180,7 +180,7 @@ export function MetaFilterBar({
               <button
                 type="button"
                 onClick={onSelectAllRaritySets}
-                className="min-h-11 px-3 py-1 text-xs rounded-lg bg-[var(--card-bg)] text-[var(--text-secondary)] border border-[var(--card-border)] hover:text-white"
+                className="min-h-11 px-3 py-1 text-xs rounded-lg bg-(--card-bg) text-secondary-wh40k border border-(--card-border) hover:text-white"
               >
                 Select All
               </button>
@@ -189,7 +189,7 @@ export function MetaFilterBar({
               <button
                 type="button"
                 onClick={onClearRaritySets}
-                className="min-h-11 px-3 py-1 text-xs rounded-lg bg-[var(--card-bg)] text-[var(--text-secondary)] border border-[var(--card-border)] hover:text-white"
+                className="min-h-11 px-3 py-1 text-xs rounded-lg bg-(--card-bg) text-secondary-wh40k border border-(--card-border) hover:text-white"
               >
                 Clear
               </button>
@@ -199,7 +199,7 @@ export function MetaFilterBar({
           {metaTeams.length > 0 && (
             <div className="mt-4 space-y-3">
               <div className="flex flex-wrap gap-2">
-                <span className="text-sm text-[var(--text-secondary)] self-center mr-2">
+                <span className="text-sm text-secondary-wh40k self-center mr-2">
                   Meta Teams:
                 </span>
                 {metaTeams.map((team) => (
@@ -217,7 +217,7 @@ export function MetaFilterBar({
                   <button
                     type="button"
                     onClick={onClearMetaTeams}
-                    className="min-h-11 px-3 py-1 text-xs rounded-lg bg-[var(--card-bg)] text-[var(--text-secondary)] border border-[var(--card-border)] hover:text-white"
+                    className="min-h-11 px-3 py-1 text-xs rounded-lg bg-(--card-bg) text-secondary-wh40k border border-(--card-border) hover:text-white"
                   >
                     Clear
                   </button>
@@ -226,7 +226,7 @@ export function MetaFilterBar({
 
               {/* Native <details>: CSS-only, no client state. */}
               <details className="group">
-                <summary className="flex min-h-11 w-fit cursor-pointer items-center gap-1.5 text-xs text-[var(--text-secondary)] transition-colors hover:text-white list-none [&::-webkit-details-marker]:hidden">
+                <summary className="flex min-h-11 w-fit cursor-pointer items-center gap-1.5 text-xs text-secondary-wh40k transition-colors hover:text-white list-none [&::-webkit-details-marker]:hidden">
                   <ChevronDown
                     aria-hidden="true"
                     className="h-3.5 w-3.5 transition-transform group-open:rotate-180"
@@ -234,24 +234,24 @@ export function MetaFilterBar({
                   What do these categories and match types mean?
                 </summary>
 
-                <div className="mt-3 space-y-3 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-3">
+                <div className="mt-3 space-y-3 rounded-lg border border-(--card-border) bg-(--card-bg) p-3">
                   <div className="space-y-2">
                     {META_TEAM_GLOSSARY.map(({ label, description }) => (
                       <div key={label} className="flex items-center gap-3">
                         <span
-                          className={`inline-flex min-w-[92px] flex-shrink-0 items-center justify-center whitespace-nowrap rounded-full border px-2 py-1 text-xs font-medium ${getMetaTeamBadgeClasses(label, false)}`}
+                          className={`inline-flex min-w-[92px] shrink-0 items-center justify-center whitespace-nowrap rounded-full border px-2 py-1 text-xs font-medium ${getMetaTeamBadgeClasses(label, false)}`}
                         >
                           {label}
                         </span>
-                        <span className="text-xs text-[var(--text-secondary)]">
+                        <span className="text-xs text-secondary-wh40k">
                           {description}
                         </span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="space-y-1 border-t border-[var(--card-border)] pt-2 text-xs text-[var(--text-secondary)]">
-                    <p className="font-medium text-[var(--text-primary)]">
+                  <div className="space-y-1 border-t border-(--card-border) pt-2 text-xs text-secondary-wh40k">
+                    <p className="font-medium text-primary-wh40k">
                       Match types
                     </p>
                     <p>
@@ -269,7 +269,7 @@ export function MetaFilterBar({
                   </div>
 
                   {UNDESCRIBED_BADGES.length > 0 && (
-                    <p className="border-t border-[var(--card-border)] pt-2 text-xs text-[var(--text-secondary)]">
+                    <p className="border-t border-(--card-border) pt-2 text-xs text-secondary-wh40k">
                       Additional auto-classified archetype and leader badges:{' '}
                       {UNDESCRIBED_BADGES.join(', ')}.
                     </p>
@@ -281,7 +281,7 @@ export function MetaFilterBar({
         </div>
       </div>
 
-      <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+      <div className="flex items-center gap-2 text-sm text-secondary-wh40k">
         <Target className="w-4 h-4 text-purple-400" />
         <span>
           Showing {displayBossCount} boss{displayBossCount !== 1 ? 'es' : ''}

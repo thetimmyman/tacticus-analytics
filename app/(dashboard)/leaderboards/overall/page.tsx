@@ -15,9 +15,7 @@ const OverallLeaderboard = dynamicImport(
   () => import('@/app/(dashboard)/leaderboards/components/OverallLeaderboard'),
   {
     loading: () => (
-      <div className="p-6 text-[var(--text-secondary)]">
-        Loading leaderboard...
-      </div>
+      <div className="p-6 text-secondary-wh40k">Loading leaderboard...</div>
     )
   }
 )
@@ -35,10 +33,10 @@ export default async function OverallLeaderboardPage() {
   return (
     <div className="w-full">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+        <h1 className="text-3xl font-bold text-primary-wh40k">
           Overall Leaderboard
         </h1>
-        <p className="text-[var(--text-secondary)] mt-2">
+        <p className="text-secondary-wh40k mt-2">
           View player rankings and performance across all battles
         </p>
       </div>

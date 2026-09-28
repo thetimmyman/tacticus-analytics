@@ -124,13 +124,13 @@ export default function RequestMyDataButton() {
 
           <div className="my-6 space-y-4">
             {error && (
-              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded text-sm text-red-400">
+              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-sm text-sm text-red-400">
                 {error}
               </div>
             )}
 
             {status === 'idle' && (
-              <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded text-sm text-blue-200">
+              <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-sm text-sm text-blue-200">
                 Export links are valid for 7 days and can be downloaded
                 privately once generated. Most exports complete within a minute.
               </div>
@@ -139,13 +139,13 @@ export default function RequestMyDataButton() {
             {(status === 'pending' || status === 'processing') && (
               <div className="p-6 text-center space-y-4">
                 <Spinner size="lg" className="h-10 w-10 text-blue-400" />
-                <p className="text-[var(--text-secondary)]">
+                <p className="text-secondary-wh40k">
                   {status === 'pending'
                     ? 'Creating export request…'
                     : 'Generating your data export…'}
                 </p>
                 {requestId && (
-                  <p className="text-xs text-[var(--text-tertiary)]">
+                  <p className="text-xs text-(--text-tertiary)">
                     Request ID: <span className="font-mono">{requestId}</span>
                   </p>
                 )}
@@ -155,15 +155,15 @@ export default function RequestMyDataButton() {
             {status === 'completed' && downloadUrl && !hasMounted && (
               // Skeleton reserves the layout so the dialog does not jump when downloads mount.
               <div className="space-y-3" aria-hidden="true">
-                <div className="h-10 bg-[var(--surface-raised)] rounded animate-pulse" />
-                <div className="h-10 bg-[var(--surface-raised)] rounded animate-pulse" />
-                <div className="h-3 w-2/3 bg-[var(--surface-raised)] rounded animate-pulse" />
+                <div className="h-10 bg-(--surface-raised) rounded-sm animate-pulse" />
+                <div className="h-10 bg-(--surface-raised) rounded-sm animate-pulse" />
+                <div className="h-3 w-2/3 bg-(--surface-raised) rounded-sm animate-pulse" />
               </div>
             )}
 
             {status === 'completed' && downloadUrl && hasMounted && (
               <div className="space-y-3">
-                <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded text-sm text-emerald-300">
+                <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-sm text-sm text-emerald-300">
                   Your data export is ready.
                 </div>
                 <a
@@ -174,7 +174,7 @@ export default function RequestMyDataButton() {
                 >
                   Download JSON
                 </a>
-                <p className="text-xs text-[var(--text-tertiary)]">
+                <p className="text-xs text-(--text-tertiary)">
                   This link is private and expires in 7 days.
                 </p>
               </div>

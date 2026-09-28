@@ -47,7 +47,7 @@ const getStatusBadge = (status: WarInfo['status']) => {
       )
     default:
       return (
-        <Badge className="bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border)]">
+        <Badge className="bg-(--bg-secondary) text-secondary-wh40k border-(--border)">
           Unknown
         </Badge>
       )
@@ -67,8 +67,8 @@ const OUTCOME_CHROME: Record<WarOutcomeTone, { card: string; bar: string }> = {
     bar: 'bg-[color-mix(in_srgb,var(--danger)_75%,transparent)]'
   },
   even: {
-    card: 'border-[var(--border)]',
-    bar: 'bg-[var(--border)]'
+    card: 'border-(--border)',
+    bar: 'bg-(--border)'
   }
 }
 
@@ -100,25 +100,23 @@ export default function WarHeader({ war }: { war: WarInfo }) {
   return (
     <Card
       data-war-outcome={outcome}
-      className={cn('overflow-hidden bg-[var(--bg-primary)]', chrome.card)}
+      className={cn('overflow-hidden bg-(--bg-primary)', chrome.card)}
     >
       <div className={cn('h-1 w-full', chrome.bar)} aria-hidden="true" />
       <CardHeader className="pb-4 space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <Swords className="h-5 w-5 text-[var(--accent)]" />
+            <Swords className="h-5 w-5 text-(--accent)" />
             <div>
-              <div className="text-sm text-[var(--text-secondary)]">
-                Guild War
-              </div>
-              <div className="text-lg font-semibold text-[var(--text-primary)]">
+              <div className="text-sm text-secondary-wh40k">Guild War</div>
+              <div className="text-lg font-semibold text-primary-wh40k">
                 {war.guild.guildName} vs {war.opponent.guildName}
               </div>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {getStatusBadge(war.status)}
-            <Badge className="bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border)]">
+            <Badge className="bg-(--bg-secondary) text-secondary-wh40k border-(--border)">
               Starts{' '}
               {hasMounted
                 ? new Date(war.startTime).toLocaleDateString()
@@ -138,26 +136,24 @@ export default function WarHeader({ war }: { war: WarInfo }) {
             />
             <div>
               {isRealGuildTag(war.guild.guildTag) && (
-                <div className="text-sm text-[var(--text-secondary)]">
+                <div className="text-sm text-secondary-wh40k">
                   {war.guild.guildTag}
                 </div>
               )}
-              <div className="text-xl font-semibold text-[var(--text-primary)]">
+              <div className="text-xl font-semibold text-primary-wh40k">
                 {war.guild.guildName}
               </div>
             </div>
           </div>
           <div className="flex flex-col items-center gap-1">
             <div
-              className="text-2xl font-bold text-[var(--text-primary)] font-mono"
+              className="text-2xl font-bold text-primary-wh40k font-mono"
               title="Game-reported official war total, including zone-capture bonuses (up to ~40K per capture)."
             >
               {formatNumber(war.guild.score)} -{' '}
               {formatNumber(war.opponent.score)}
             </div>
-            <div className="text-xs text-[var(--text-tertiary)]">
-              Official score
-            </div>
+            <div className="text-xs text-(--text-tertiary)">Official score</div>
             <div className="flex items-center gap-2 text-sm">
               {war.result === 'win' && (
                 <span className="text-green-400 flex items-center gap-1">
@@ -172,7 +168,7 @@ export default function WarHeader({ war }: { war: WarInfo }) {
                 </span>
               )}
               {war.result === 'draw' && (
-                <span className="text-[var(--text-secondary)]">Draw</span>
+                <span className="text-secondary-wh40k">Draw</span>
               )}
               {war.result == null && isWinning && (
                 <span className="text-green-400 flex items-center gap-1">
@@ -187,28 +183,24 @@ export default function WarHeader({ war }: { war: WarInfo }) {
                 </span>
               )}
               {canShowLiveDelta && !isWinning && !isLosing && (
-                <span className="text-[var(--text-secondary)]">Tied</span>
+                <span className="text-secondary-wh40k">Tied</span>
               )}
               {war.result == null && war.status === 'scheduled' && (
-                <span className="text-[var(--text-secondary)]">
-                  Not started
-                </span>
+                <span className="text-secondary-wh40k">Not started</span>
               )}
               {war.result == null && war.status === 'cancelled' && (
-                <span className="text-[var(--text-secondary)]">
-                  No active outcome
-                </span>
+                <span className="text-secondary-wh40k">No active outcome</span>
               )}
             </div>
           </div>
           <div className="flex items-center gap-3 sm:justify-end">
             <div className="text-right">
               {isRealGuildTag(war.opponent.guildTag) && (
-                <div className="text-sm text-[var(--text-secondary)]">
+                <div className="text-sm text-secondary-wh40k">
                   {war.opponent.guildTag}
                 </div>
               )}
-              <div className="text-xl font-semibold text-[var(--text-primary)]">
+              <div className="text-xl font-semibold text-primary-wh40k">
                 {war.opponent.guildName}
               </div>
             </div>
@@ -221,7 +213,7 @@ export default function WarHeader({ war }: { war: WarInfo }) {
         </div>
 
         {war.endTime && (
-          <div className="flex flex-wrap gap-3 text-xs text-[var(--text-tertiary)]">
+          <div className="flex flex-wrap gap-3 text-xs text-(--text-tertiary)">
             <span>
               Ends{' '}
               {hasMounted

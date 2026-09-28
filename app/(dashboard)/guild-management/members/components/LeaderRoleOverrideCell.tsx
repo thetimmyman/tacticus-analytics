@@ -92,9 +92,7 @@ export function LeaderRoleOverrideCell({
   }, [rows, teamMap])
 
   if (!targetUserId) {
-    return (
-      <span className="text-xs text-[var(--text-tertiary)]">Unclaimed</span>
-    )
+    return <span className="text-xs text-(--text-tertiary)">Unclaimed</span>
   }
 
   const handleToggle = async (team: MetaTeamOption) => {
@@ -169,7 +167,7 @@ export function LeaderRoleOverrideCell({
     <div className="text-xs space-y-1">
       <div className="flex flex-wrap items-center gap-1">
         {sortedRows.length === 0 ? (
-          <span className="text-[var(--text-secondary)]">None</span>
+          <span className="text-secondary-wh40k">None</span>
         ) : (
           sortedRows.map((r) => {
             const team = teamMap.get(r.meta_team_id)
@@ -180,7 +178,7 @@ export function LeaderRoleOverrideCell({
             return (
               <span
                 key={r.id}
-                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] border ${badge.className}`}
+                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-[10px] border ${badge.className}`}
                 title={`Source: ${r.source}`}
               >
                 <span>{team?.team_name ?? r.meta_team_id.slice(0, 6)}</span>
@@ -195,7 +193,7 @@ export function LeaderRoleOverrideCell({
             <RadixDropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] border border-[var(--card-border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:border-[color-mix(in_srgb,var(--accent)_40%,transparent)] hover:text-[var(--accent)] transition-colors"
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-[10px] border border-(--card-border) bg-(--bg-secondary) text-secondary-wh40k hover:border-[color-mix(in_srgb,var(--accent)_40%,transparent)] hover:text-(--accent) transition-colors"
                 aria-label={`Edit Herald roles for ${targetDisplayName ?? 'member'}`}
               >
                 <Pencil className="h-3 w-3" />
@@ -211,7 +209,7 @@ export function LeaderRoleOverrideCell({
               </RadixDropdownMenuLabel>
               <RadixDropdownMenuSeparator />
               {metaTeamOptions.length === 0 ? (
-                <div className="px-3 py-2 text-xs italic text-[var(--text-secondary)]">
+                <div className="px-3 py-2 text-xs italic text-secondary-wh40k">
                   No meta teams configured.
                 </div>
               ) : (

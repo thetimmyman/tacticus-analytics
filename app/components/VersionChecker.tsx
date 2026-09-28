@@ -160,13 +160,13 @@ export function VersionChecker() {
   }
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[9999] bg-blue-600 text-white px-4 py-2 flex items-center justify-center gap-4 shadow-lg">
+    <div className="fixed top-0 left-0 right-0 z-9999 bg-blue-600 text-white px-4 py-2 flex items-center justify-center gap-4 shadow-lg">
       <span className="text-sm font-medium">
         A refresh is required to apply the latest update.
       </span>
       <button
         onClick={handleRefresh}
-        className="px-3 py-1 bg-white text-blue-600 rounded text-sm font-semibold hover:bg-blue-50 transition-colors"
+        className="px-3 py-1 bg-white text-blue-600 rounded-sm text-sm font-semibold hover:bg-blue-50 transition-colors"
       >
         Refresh Now
       </button>

@@ -28,7 +28,7 @@ function SwapUnitBadge({
   return (
     <div className="relative h-8 w-8" title={unit.name}>
       <div
-        className={`relative h-8 w-8 rounded-full border ${ringClass} bg-[var(--bg-secondary)] overflow-hidden`}
+        className={`relative h-8 w-8 rounded-full border ${ringClass} bg-(--bg-secondary) overflow-hidden`}
       >
         {unit.icon_url ? (
           <img
@@ -38,7 +38,7 @@ function SwapUnitBadge({
             loading="lazy"
           />
         ) : (
-          <span className="flex h-full w-full items-center justify-center text-[10px] text-[var(--text-secondary)] font-semibold">
+          <span className="flex h-full w-full items-center justify-center text-[10px] text-secondary-wh40k font-semibold">
             {unit.name.slice(0, 2).toUpperCase()}
           </span>
         )}
@@ -80,7 +80,7 @@ export function StepDelta({
   const gainLabel = `${roundedGain >= 0 ? '+' : '-'}${formatNumber(Math.abs(roundedGain))}`
   const isLocked = step.is_owned === false
   const badgeClass = isLocked
-    ? 'border-slate-500/40 bg-slate-500/10 text-[var(--text-primary)]'
+    ? 'border-slate-500/40 bg-slate-500/10 text-primary-wh40k'
     : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200'
   const removeUnits = resolveSwapUnits(swapOut, heroMappings)
   const addUnits = resolveSwapUnits(swapIn, heroMappings)
@@ -106,7 +106,7 @@ export function StepDelta({
             </div>
           )}
           {removeUnits.length > 0 && addUnits.length > 0 && (
-            <ArrowRight className="h-3 w-3 text-[var(--text-secondary)]" />
+            <ArrowRight className="h-3 w-3 text-secondary-wh40k" />
           )}
           {addUnits.length > 0 && (
             <div className="flex flex-wrap items-center gap-1">
@@ -153,25 +153,25 @@ export function StepConnector({
     ? 'from-slate-500/10 via-slate-400/70 to-slate-500/10'
     : 'from-emerald-500/10 via-emerald-400/70 to-emerald-500/10'
   const badgeClass = isLocked
-    ? 'border-slate-500/40 bg-slate-500/10 text-[var(--text-primary)]'
+    ? 'border-slate-500/40 bg-slate-500/10 text-primary-wh40k'
     : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200'
   const lineGlow = isLocked
     ? 'shadow-[0_0_12px_rgba(148,163,184,0.25)]'
     : 'shadow-[0_0_12px_rgba(16,185,129,0.25)]'
   const arrowRing = isLocked
-    ? 'border-slate-500/40 text-[var(--text-primary)]'
+    ? 'border-slate-500/40 text-primary-wh40k'
     : 'border-emerald-500/40 text-emerald-300'
   const removeUnits = resolveSwapUnits(swapOut, heroMappings)
   const addUnits = resolveSwapUnits(swapIn, heroMappings)
   const showSwapUnits = removeUnits.length > 0 || addUnits.length > 0
 
   return (
-    <div className="group relative flex flex-col items-center gap-2 min-w-[3.5rem] sm:min-w-[4.5rem]">
+    <div className="group relative flex flex-col items-center gap-2 min-w-14 sm:min-w-18">
       <div
-        className={`relative h-1.5 w-16 rounded-full bg-gradient-to-r sm:h-2 sm:w-20 ${lineClass} ${lineGlow}`}
+        className={`relative h-1.5 w-16 rounded-full bg-linear-to-r sm:h-2 sm:w-20 ${lineClass} ${lineGlow}`}
       >
         <div
-          className={`absolute -top-2 left-1/2 -translate-x-1/2 flex h-6 w-6 items-center justify-center rounded-full border bg-[var(--bg-secondary)] sm:h-7 sm:w-7 ${arrowRing}`}
+          className={`absolute -top-2 left-1/2 -translate-x-1/2 flex h-6 w-6 items-center justify-center rounded-full border bg-(--bg-secondary) sm:h-7 sm:w-7 ${arrowRing}`}
         >
           <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
         </div>
@@ -195,7 +195,7 @@ export function StepConnector({
             </div>
           )}
           {removeUnits.length > 0 && addUnits.length > 0 && (
-            <ArrowRight className="h-3 w-3 text-[var(--text-secondary)]" />
+            <ArrowRight className="h-3 w-3 text-secondary-wh40k" />
           )}
           {addUnits.length > 0 && (
             <div className="flex flex-wrap items-center justify-center gap-1">
@@ -211,9 +211,9 @@ export function StepConnector({
         </div>
       )}
       {(swapOut || swapIn) && (
-        <div className="absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-[var(--bg-secondary)] px-2 py-1 text-[10px] text-[var(--text-primary)] opacity-0 shadow-lg transition-opacity sm:-top-14 group-hover:opacity-100">
+        <div className="absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-(--bg-secondary) px-2 py-1 text-[10px] text-primary-wh40k opacity-0 shadow-lg transition-opacity sm:-top-14 group-hover:opacity-100">
           <span className="text-red-400">{swapOut || 'Unknown'}</span>
-          <ArrowRight className="inline-block h-3 w-3 text-[var(--text-secondary)] mx-1" />
+          <ArrowRight className="inline-block h-3 w-3 text-secondary-wh40k mx-1" />
           <span className="text-emerald-300">{swapIn || 'Unknown'}</span>
         </div>
       )}
@@ -254,7 +254,7 @@ export function MobileSwapConnector({
           ))}
         </div>
       )}
-      <ArrowDown className="h-4 w-4 text-[var(--text-secondary)]" />
+      <ArrowDown className="h-4 w-4 text-secondary-wh40k" />
       {addUnits.length > 0 && (
         <div className="flex flex-wrap items-center justify-center gap-1">
           {addUnits.map((unit) => (

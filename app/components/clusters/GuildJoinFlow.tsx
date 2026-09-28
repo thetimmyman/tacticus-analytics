@@ -198,12 +198,12 @@ export default function GuildJoinFlow({
     <div className="space-y-6">
       <div className="text-center">
         <div className="w-16 h-16 mx-auto bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] rounded-full flex items-center justify-center mb-4">
-          <Hash className="w-8 h-8 text-[var(--primary)]" />
+          <Hash className="w-8 h-8 text-(--primary)" />
         </div>
-        <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
+        <h2 className="text-xl font-bold text-primary-wh40k mb-2">
           Join a Cluster
         </h2>
-        <p className="text-[var(--text-secondary)]">
+        <p className="text-secondary-wh40k">
           Enter your invite code to join an existing cluster
         </p>
       </div>
@@ -246,11 +246,11 @@ export default function GuildJoinFlow({
     <div className="space-y-6">
       {/* Cluster Info Header */}
       <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] rounded-lg p-4">
-        <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-1 flex items-center gap-2">
-          <Star className="w-5 h-5 text-[var(--primary)]" />
+        <h2 className="text-lg font-semibold text-primary-wh40k mb-1 flex items-center gap-2">
+          <Star className="w-5 h-5 text-(--primary)" />
           Joining: {clusterInfo?.display_name}
         </h2>
-        <p className="text-sm text-[var(--text-secondary)]">
+        <p className="text-sm text-secondary-wh40k">
           Cluster Code:{' '}
           <span className="font-mono">{clusterInfo?.cluster_code}</span> • Max
           Guilds: {clusterInfo?.max_guilds}
@@ -258,7 +258,7 @@ export default function GuildJoinFlow({
       </div>
 
       <div>
-        <h3 className="font-semibold text-[var(--text-primary)] mb-4">
+        <h3 className="font-semibold text-primary-wh40k mb-4">
           Guild Information
         </h3>
 
@@ -350,7 +350,7 @@ export default function GuildJoinFlow({
                 }
                 placeholder="For immediate sync setup"
               />
-              <p className="text-xs text-[var(--text-secondary)] mt-1">
+              <p className="text-xs text-secondary-wh40k mt-1">
                 Provide to enable automatic data sync
               </p>
             </div>
@@ -383,7 +383,7 @@ export default function GuildJoinFlow({
                 })
               }
               placeholder="Describe your guild..."
-              className="w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--card-border)] rounded h-20 resize-none"
+              className="w-full px-3 py-2 bg-(--bg-secondary) border border-(--card-border) rounded-sm h-20 resize-none"
               maxLength={500}
             />
           </div>
@@ -450,10 +450,10 @@ export default function GuildJoinFlow({
       </div>
 
       <div>
-        <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
+        <h2 className="text-xl font-bold text-primary-wh40k mb-2">
           Cluster joined
         </h2>
-        <p className="text-[var(--text-secondary)] mb-4">
+        <p className="text-secondary-wh40k mb-4">
           <strong>{guildData.displayName}</strong> has been added to{' '}
           <strong>{clusterInfo?.display_name}</strong>
         </p>
@@ -461,7 +461,7 @@ export default function GuildJoinFlow({
 
       <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
         <h4 className="font-medium text-green-400 mb-2">What&#39;s Next?</h4>
-        <ul className="text-sm text-[var(--text-secondary)] space-y-1">
+        <ul className="text-sm text-secondary-wh40k space-y-1">
           <li>• Access cluster analytics and leaderboards</li>
           <li>• Coordinate with other guild leaders</li>
           <li>• View cross-guild performance metrics</li>
@@ -492,7 +492,7 @@ export default function GuildJoinFlow({
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-6">
+      <div className="bg-(--card-bg) border border-(--card-border) rounded-lg p-6">
         {step === 'validate' && renderValidateStep()}
         {step === 'guild_info' && renderGuildInfoStep()}
         {step === 'success' && renderSuccessStep()}

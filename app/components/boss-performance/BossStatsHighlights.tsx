@@ -21,9 +21,9 @@ export function BossStatsHighlights() {
               key={`top-stat-skeleton-${statType}`}
               className="stat-card-wh40k p-3 sm:p-4 animate-pulse"
             >
-              <div className="h-3 w-24 rounded bg-[color-mix(in_srgb,var(--card-border)_70%,transparent)]" />
-              <div className="mt-2 h-6 w-20 rounded bg-[color-mix(in_srgb,var(--card-border)_70%,transparent)]" />
-              <div className="mt-2 h-3 w-16 rounded bg-[color-mix(in_srgb,var(--card-border)_50%,transparent)]" />
+              <div className="h-3 w-24 rounded-sm bg-[color-mix(in_srgb,var(--card-border)_70%,transparent)]" />
+              <div className="mt-2 h-6 w-20 rounded-sm bg-[color-mix(in_srgb,var(--card-border)_70%,transparent)]" />
+              <div className="mt-2 h-3 w-16 rounded-sm bg-[color-mix(in_srgb,var(--card-border)_50%,transparent)]" />
             </Card>
           )
         )}
@@ -41,7 +41,7 @@ export function BossStatsHighlights() {
 
   if (!hasStats) {
     return (
-      <Card className="card-wh40k p-4 text-sm text-[var(--text-secondary)]">
+      <Card className="card-wh40k p-4 text-sm text-secondary-wh40k">
         No boss performance stats are available for the current filters yet.
       </Card>
     )
@@ -84,7 +84,7 @@ export function BossStatsHighlights() {
             {card.label}
           </div>
           <div
-            className={`stat-value-wh40k text-sm sm:text-lg md:text-xl lg:text-2xl font-bold leading-tight ${card.emphasis ? 'text-[var(--accent)]' : ''}`}
+            className={`stat-value-wh40k text-sm sm:text-lg md:text-xl lg:text-2xl font-bold leading-tight ${card.emphasis ? 'text-(--accent)' : ''}`}
           >
             {card.value}
           </div>

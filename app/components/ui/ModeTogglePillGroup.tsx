@@ -29,10 +29,9 @@ interface ModeTogglePillGroupProps<T extends string> {
 
 const accentClassMap: Record<ModeAccent, string> = {
   accent:
-    'border-[color-mix(in_srgb,var(--accent)_70%,transparent)] text-[var(--accent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]',
-  amber: 'border-[var(--warning)] text-[var(--warning)] bg-[var(--warning-bg)]',
-  neutral:
-    'border-[var(--card-border)] text-[var(--text-primary)] bg-[var(--card-bg)]'
+    'border-[color-mix(in_srgb,var(--accent)_70%,transparent)] text-(--accent) bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]',
+  amber: 'border-(--warning) text-(--warning) bg-(--warning-bg)',
+  neutral: 'border-(--card-border) text-primary-wh40k bg-(--card-bg)'
 }
 
 export function ModeTogglePillGroup<T extends string>({
@@ -94,7 +93,7 @@ export function ModeTogglePillGroup<T extends string>({
       className={clsx(
         'inline-flex max-w-full flex-wrap gap-1',
         appearance === 'grouped'
-          ? 'w-full min-w-0 items-stretch rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] sm:w-auto sm:items-center'
+          ? 'w-full min-w-0 items-stretch rounded-lg border border-(--card-border) bg-(--card-bg) sm:w-auto sm:items-center'
           : 'items-center',
         appearance === 'grouped' && (compact ? 'p-0.5' : 'p-1'),
         className
@@ -125,8 +124,8 @@ export function ModeTogglePillGroup<T extends string>({
               isActive
                 ? accentClassMap[optAccent]
                 : clsx(
-                    'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]',
-                    appearance === 'plain' && 'hover:bg-[var(--card-bg)]'
+                    'border-transparent text-secondary-wh40k hover:text-primary-wh40k',
+                    appearance === 'plain' && 'hover:bg-(--card-bg)'
                   ),
               (disabled || opt.disabled) && 'opacity-40 cursor-not-allowed'
             )}

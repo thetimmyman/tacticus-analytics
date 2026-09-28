@@ -29,15 +29,15 @@ export function ClusterConfigSection({
 }: ClusterConfigSectionProps) {
   return (
     <div className="mt-8 space-y-6">
-      <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-6">
+      <div className="bg-(--card-bg) border border-(--card-border) rounded-lg p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <Sliders className="w-6 h-6 text-[var(--primary)]" />
+            <Sliders className="w-6 h-6 text-(--primary)" />
             <div>
-              <h3 className="text-xl font-bold text-[var(--text-primary)]">
+              <h3 className="text-xl font-bold text-primary-wh40k">
                 Cluster Requirements
               </h3>
-              <p className="text-sm text-[var(--text-secondary)]">
+              <p className="text-sm text-secondary-wh40k">
                 Configure player level requirements and rejection settings
               </p>
             </div>
@@ -46,7 +46,7 @@ export function ClusterConfigSection({
             onClick={() => onExpandedChange(!expanded)}
             variant="ghost"
             size="sm"
-            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            className="text-secondary-wh40k hover:text-primary-wh40k"
           >
             <Settings className="w-4 h-4 mr-2" />
             {expanded ? 'Hide' : 'Configure'}
@@ -54,13 +54,13 @@ export function ClusterConfigSection({
         </div>
 
         {expanded && (
-          <div className="space-y-6 border-t border-[var(--card-border)] pt-4">
+          <div className="space-y-6 border-t border-(--card-border) pt-4">
             <div className="space-y-4">
               <div>
-                <Label className="text-[var(--text-primary)] font-medium">
+                <Label className="text-primary-wh40k font-medium">
                   Minimum Player Level
                 </Label>
-                <p className="text-sm text-[var(--text-secondary)] mt-1">
+                <p className="text-sm text-secondary-wh40k mt-1">
                   Players below this level will be automatically rejected with a
                   customizable message
                 </p>
@@ -85,7 +85,7 @@ export function ClusterConfigSection({
                     }}
                   />
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl font-bold text-[var(--primary)] min-w-[3rem] text-center">
+                    <span className="text-2xl font-bold text-(--primary) min-w-12 text-center">
                       {clusterConfig.minimum_player_level}
                     </span>
                     <Input
@@ -107,7 +107,7 @@ export function ClusterConfigSection({
                   </div>
                 </div>
 
-                <div className="flex justify-between text-xs text-[var(--text-secondary)]">
+                <div className="flex justify-between text-xs text-secondary-wh40k">
                   <span>Level 1 (No requirement)</span>
                   <span>Level 100 (Maximum)</span>
                 </div>
@@ -116,10 +116,10 @@ export function ClusterConfigSection({
 
             <div className="space-y-3">
               <div>
-                <Label className="text-[var(--text-primary)] font-medium">
+                <Label className="text-primary-wh40k font-medium">
                   Rejection Message Template
                 </Label>
-                <p className="text-sm text-[var(--text-secondary)] mt-1">
+                <p className="text-sm text-secondary-wh40k mt-1">
                   Message sent to players who don&apos;t meet the level
                   requirement. Use {'{level}'} as a placeholder for the minimum
                   level.
@@ -134,7 +134,7 @@ export function ClusterConfigSection({
                     rejection_message: e.target.value
                   })
                 }
-                className="w-full h-24 px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] resize-none focus:outline-none focus:ring-2 focus:ring-[color-mix(in_srgb,var(--primary)_50%,transparent)]"
+                className="w-full h-24 px-3 py-2 bg-(--bg-secondary) border border-(--card-border) rounded-lg text-primary-wh40k resize-none focus:outline-hidden focus:ring-2 focus:ring-[color-mix(in_srgb,var(--primary)_50%,transparent)]"
                 placeholder="Enter custom rejection message..."
               />
 
@@ -151,7 +151,7 @@ export function ClusterConfigSection({
               </div>
             </div>
 
-            <div className="pt-4 border-t border-[var(--card-border)]">
+            <div className="pt-4 border-t border-(--card-border)">
               {errorMessage && (
                 <div className="mb-4 p-3 bg-red-900/20 border border-red-600/30 rounded-lg text-red-400 text-sm">
                   {errorMessage}
@@ -167,7 +167,7 @@ export function ClusterConfigSection({
                 <Button
                   onClick={onSave}
                   disabled={savingClusterConfig}
-                  className="bg-[var(--primary)] hover:bg-[color-mix(in_srgb,var(--primary)_90%,transparent)] text-white flex items-center gap-2"
+                  className="bg-primary-wh40k hover:bg-[color-mix(in_srgb,var(--primary)_90%,transparent)] text-white flex items-center gap-2"
                 >
                   <Save className="w-4 h-4" />
                   {savingClusterConfig ? 'Saving...' : 'Save Configuration'}

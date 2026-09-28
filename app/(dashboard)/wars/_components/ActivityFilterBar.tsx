@@ -67,7 +67,7 @@ export default function ActivityFilterBar({
     <div className="flex flex-wrap items-center gap-2 mb-3">
       {/* Player / guild search */}
       <div className="relative flex items-center">
-        <Search className="absolute left-2 w-3.5 h-3.5 text-[var(--text-tertiary)] pointer-events-none" />
+        <Search className="absolute left-2 w-3.5 h-3.5 text-(--text-tertiary) pointer-events-none" />
         <input
           type="text"
           value={filters.playerSearch}
@@ -75,7 +75,7 @@ export default function ActivityFilterBar({
             onChange({ ...filters, playerSearch: e.target.value })
           }
           placeholder="Search player or guild…"
-          className="pl-7 pr-3 py-1 text-xs rounded-md bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-[var(--primary)] w-48"
+          className="pl-7 pr-3 py-1 text-xs rounded-md bg-(--bg-secondary) border border-(--border) text-primary-wh40k placeholder-(--text-tertiary) focus:outline-hidden focus:border-primary-wh40k w-48"
         />
       </div>
 
@@ -86,7 +86,7 @@ export default function ActivityFilterBar({
           onChange={(e) =>
             onChange({ ...filters, selectedZone: e.target.value })
           }
-          className="px-2 py-1 text-xs rounded-md bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--primary)]"
+          className="px-2 py-1 text-xs rounded-md bg-(--bg-secondary) border border-(--border) text-primary-wh40k focus:outline-hidden focus:border-primary-wh40k"
         >
           <option value="all">All zones</option>
           {zoneOptions.map(({ zoneType, label }) => (
@@ -101,7 +101,7 @@ export default function ActivityFilterBar({
       {activeCount > 0 && (
         <button
           onClick={clear}
-          className="flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+          className="flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-(--bg-secondary) border border-(--border) text-secondary-wh40k hover:text-primary-wh40k transition-colors"
         >
           <X className="w-3 h-3" />
           Clear ({activeCount})

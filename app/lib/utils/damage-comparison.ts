@@ -13,7 +13,7 @@ export function formatDamagePercentage(percentage: number | null): string {
 }
 
 export function getDamagePercentageColor(percentage: number | null): string {
-  if (percentage === null) return 'text-[var(--text-tertiary)]'
+  if (percentage === null) return 'text-(--text-tertiary)'
   if (percentage >= 20) return 'text-green-400'
   if (percentage >= 0) return 'text-green-300/80'
   if (percentage >= -20) return 'text-yellow-400'

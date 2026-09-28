@@ -69,7 +69,7 @@ export default function LineupsPage({ side }: { side: Side }) {
     <div className="px-4 py-6 space-y-6">
       {/* The Offense/Defense toggle lives in LineupsSubnav, so this area has one nav rail. */}
       <WarPageHeader title="Top Lineups" description={config.description} />
-      <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+      <Card className="border-(--border) bg-(--bg-primary)">
         <CardContent className="p-4 flex flex-wrap gap-3">
           <Select value={season} onValueChange={setSeason}>
             <SelectTrigger className="w-48" aria-label="Season">
@@ -123,7 +123,7 @@ export default function LineupsPage({ side }: { side: Side }) {
         </CardContent>
       </Card>
       {isLoading ? (
-        <div className="text-center py-12 text-[var(--text-secondary)]">
+        <div className="text-center py-12 text-secondary-wh40k">
           Loading lineup stats...
         </div>
       ) : error ? (
@@ -136,7 +136,7 @@ export default function LineupsPage({ side }: { side: Side }) {
             <LineupCard key={lineup.lineupId} lineup={lineup} />
           ))}
           {sorted.length === 0 && (
-            <div className="col-span-full text-center py-12 text-[var(--text-secondary)]">
+            <div className="col-span-full text-center py-12 text-secondary-wh40k">
               No lineups found matching criteria
             </div>
           )}

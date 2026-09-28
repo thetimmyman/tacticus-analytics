@@ -49,7 +49,7 @@ export function BossLeaderboardResults({
   )
 
   const getGuildColor = (guild: string) =>
-    guild === userGuild ? 'text-[var(--primary)]' : 'text-[var(--text-primary)]'
+    guild === userGuild ? 'text-(--primary)' : 'text-primary-wh40k'
 
   const renderGuild = (guild: string) =>
     guildLabels[guild] ?? formatGuildDisplayLabel(null, guild)
@@ -105,8 +105,8 @@ export function BossLeaderboardResults({
         <span
           className={
             rankBy === 'max'
-              ? 'text-[var(--primary)] font-bold'
-              : 'text-[var(--text-primary)]'
+              ? 'text-(--primary) font-bold'
+              : 'text-primary-wh40k'
           }
         >
           {formatNumber(entry.damageDealt)}
@@ -121,14 +121,14 @@ export function BossLeaderboardResults({
         <div
           className={
             rankBy === 'avg'
-              ? 'text-[var(--primary)] font-bold'
-              : 'text-[var(--text-primary)]'
+              ? 'text-(--primary) font-bold'
+              : 'text-primary-wh40k'
           }
         >
           {entry.avgDamage !== undefined ? (
             <>
               {formatNumber(Math.round(entry.avgDamage))}
-              <div className="text-xs font-normal text-[var(--text-secondary)]">
+              <div className="text-xs font-normal text-secondary-wh40k">
                 {entry.avgBattleCount ?? 0} battles
               </div>
             </>
@@ -209,7 +209,7 @@ export function BossLeaderboardResults({
           ))}
 
       <div className="relative z-10">
-        <div className="p-4 border-b border-[var(--card-border)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="p-4 border-b border-(--card-border) flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <h3
             className={`text-xl font-bold ${
               isMythic ? 'mythic-title' : 'diamond-title'
@@ -225,8 +225,8 @@ export function BossLeaderboardResults({
                   bossName={selectedBoss.Name}
                   className={
                     isMythic
-                      ? 'text-[var(--accent)] hover:text-orange-300'
-                      : 'text-[var(--accent)] hover:text-cyan-300'
+                      ? 'text-(--accent) hover:text-orange-300'
+                      : 'text-(--accent) hover:text-cyan-300'
                   }
                 >
                   {getBossDisplayName(selectedBoss.Name)}
@@ -235,10 +235,8 @@ export function BossLeaderboardResults({
             )}
           </h3>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-[var(--text-secondary)]">
-              Rank by:
-            </span>
-            <div className="flex rounded-lg border border-[var(--card-border)] overflow-hidden">
+            <span className="text-xs text-secondary-wh40k">Rank by:</span>
+            <div className="flex rounded-lg border border-(--card-border) overflow-hidden">
               {(
                 [
                   { value: 'max', label: 'Max Damage' },
@@ -250,8 +248,8 @@ export function BossLeaderboardResults({
                   onClick={() => onRankByChange(option.value)}
                   className={`px-3 py-1.5 text-sm transition-colors ${
                     rankBy === option.value
-                      ? 'bg-[var(--primary)] text-black font-semibold'
-                      : 'bg-[var(--card-bg)] text-[var(--text-primary)] hover:bg-card/80'
+                      ? 'bg-primary-wh40k text-black font-semibold'
+                      : 'bg-(--card-bg) text-primary-wh40k hover:bg-card/80'
                   }`}
                 >
                   {option.label}
@@ -283,12 +281,12 @@ export function BossLeaderboardResults({
               {entries.map((entry, index) => (
                 <div
                   key={`entry-${stableBossPlayerId(entry)}-${entry.damageDealt}-${entry.completedOn}`}
-                  className="bg-[var(--background)] border border-[var(--card-border)] rounded-lg p-3 sm:p-4 space-y-2 sm:space-y-3"
+                  className="bg-(--background) border border-(--card-border) rounded-lg p-3 sm:p-4 space-y-2 sm:space-y-3"
                 >
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-lg font-bold text-[var(--primary)]">
+                        <span className="text-lg font-bold text-(--primary)">
                           #{index + 1}
                         </span>
                         <PlayerLink
@@ -298,19 +296,19 @@ export function BossLeaderboardResults({
                           {entry.displayName}
                         </PlayerLink>
                       </div>
-                      <div className="text-sm text-[var(--text-secondary)]">
+                      <div className="text-sm text-secondary-wh40k">
                         {renderGuild(entry.Guild)}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-[var(--primary)] font-bold text-lg">
+                      <div className="text-(--primary) font-bold text-lg">
                         {formatNumber(
                           rankBy === 'avg'
                             ? Math.round(entry.avgDamage ?? 0)
                             : entry.damageDealt
                         )}
                       </div>
-                      <div className="text-xs text-[var(--text-secondary)]">
+                      <div className="text-xs text-secondary-wh40k">
                         {rankBy === 'avg'
                           ? `${entry.avgBattleCount ?? 0} battles · max ${formatNumber(entry.damageDealt)}`
                           : entry.avgDamage !== undefined
@@ -318,7 +316,7 @@ export function BossLeaderboardResults({
                             : ''}
                       </div>
                       {entry.completedOn && (
-                        <div className="text-xs text-[var(--text-secondary)]">
+                        <div className="text-xs text-secondary-wh40k">
                           <ClientDate date={entry.completedOn} format="date" />
                         </div>
                       )}
@@ -326,8 +324,8 @@ export function BossLeaderboardResults({
                   </div>
 
                   {entry.categories && entry.categories.length > 0 && (
-                    <div className="pt-2 border-t border-[var(--card-border)]">
-                      <div className="text-xs text-[var(--text-secondary)] mb-1">
+                    <div className="pt-2 border-t border-(--card-border)">
+                      <div className="text-xs text-secondary-wh40k mb-1">
                         Meta Team:
                       </div>
                       <MultipleCategoryBadges categories={entry.categories} />
@@ -340,7 +338,7 @@ export function BossLeaderboardResults({
                     variant="mobile"
                   />
 
-                  <div className="flex justify-between text-sm text-[var(--text-secondary)]">
+                  <div className="flex justify-between text-sm text-secondary-wh40k">
                     <span>
                       Level: {getLevelDisplay(entry.set, entry.rarity)}
                     </span>

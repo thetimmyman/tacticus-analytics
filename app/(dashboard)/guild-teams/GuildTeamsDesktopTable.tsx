@@ -41,14 +41,14 @@ export function GuildTeamsDesktopTable({
         {/* Tier header row */}
         <thead>
           <tr className="bg-card/80">
-            <th className="sticky left-0 z-20 bg-[var(--card-bg)] px-3 py-1 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider border-b border-card-border/50 min-w-[140px]">
+            <th className="sticky left-0 z-20 bg-(--card-bg) px-3 py-1 text-left text-xs font-medium text-secondary-wh40k uppercase tracking-wider border-b border-card-border/50 min-w-[140px]">
               Player
             </th>
             {herosByTier.map((group) => (
               <th
                 key={group.tier}
                 colSpan={group.heroes.length}
-                className={`px-2 py-1 text-center text-xs font-semibold uppercase tracking-wider border-b border-l ${TIER_COLORS[group.tier]} text-[var(--text-secondary)]`}
+                className={`px-2 py-1 text-center text-xs font-semibold uppercase tracking-wider border-b border-l ${TIER_COLORS[group.tier]} text-secondary-wh40k`}
               >
                 {TIER_LABELS[group.tier]}
               </th>
@@ -57,7 +57,7 @@ export function GuildTeamsDesktopTable({
 
           {/* Hero header row — click to sort by hero */}
           <tr className="bg-card/60">
-            <th className="sticky left-0 z-20 bg-[var(--card-bg)] px-3 py-2 border-b border-card-border/50" />
+            <th className="sticky left-0 z-20 bg-(--card-bg) px-3 py-2 border-b border-card-border/50" />
             {orderedHeroes.map((hero, idx) => {
               const mapping = heroMappings[hero.unitId]
               const name = mapping?.display_name ?? hero.displayName
@@ -84,16 +84,16 @@ export function GuildTeamsDesktopTable({
                         alt={name}
                         width={28}
                         height={28}
-                        className="rounded-sm object-contain"
+                        className="rounded-xs object-contain"
                         unoptimized
                       />
                     ) : (
-                      <div className="w-7 h-7 bg-[var(--card-bg)] rounded-sm flex items-center justify-center text-[10px] text-[var(--text-secondary)]">
+                      <div className="w-7 h-7 bg-(--card-bg) rounded-xs flex items-center justify-center text-[10px] text-secondary-wh40k">
                         ?
                       </div>
                     )}
                     <span
-                      className="text-[10px] text-[var(--text-secondary)] leading-tight max-w-[75px] truncate"
+                      className="text-[10px] text-secondary-wh40k leading-tight max-w-[75px] truncate"
                       title={`${name} \u2014 click to sort`}
                     >
                       {name}

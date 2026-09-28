@@ -18,7 +18,7 @@ function PrimeBadge({ target }: { target: PrimeTarget }) {
       ? `Threshold ↓${target.thresholdHpPct}%`
       : 'Kill'
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-[var(--card-border)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--text-secondary)]">
+    <span className="inline-flex items-center gap-1 rounded-full border border-(--card-border) px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-secondary-wh40k">
       <Icon className="h-3 w-3" aria-hidden />
       {label}
     </span>
@@ -30,16 +30,16 @@ function PrimeTargetsCard({ targets }: PrimeTargetsCardProps) {
 
   return (
     <section
-      className="rounded-xl border border-[var(--card-border)] bg-card/30 overflow-hidden"
+      className="rounded-xl border border-(--card-border) bg-card/30 overflow-hidden"
       data-testid="prime-targets-card"
       aria-label="Prime targets"
     >
       <header className="flex items-center justify-between border-b border-[color-mix(in_srgb,var(--card-border)_50%,transparent)] px-4 py-3">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-semibold text-[var(--text-primary)]">
+          <h2 className="text-sm font-semibold text-primary-wh40k">
             Prime targets
           </h2>
-          <span className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+          <span className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
             Clear before the main
           </span>
         </div>
@@ -59,24 +59,24 @@ function PrimeTargetsCard({ targets }: PrimeTargetsCardProps) {
             />
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="truncate text-sm font-semibold text-[var(--text-primary)]">
+                <p className="truncate text-sm font-semibold text-primary-wh40k">
                   {target.displayName}
                 </p>
                 <PrimeBadge target={target} />
               </div>
-              <p className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+              <p className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
                 {target.levelCode} · Prime {target.encounterId}
               </p>
               <div className="mt-2">
-                <div className="flex justify-between text-[10px] text-[var(--text-tertiary)]">
+                <div className="flex justify-between text-[10px] text-(--text-tertiary)">
                   <span>HP remaining</span>
-                  <span className="font-semibold text-[var(--text-secondary)]">
+                  <span className="font-semibold text-secondary-wh40k">
                     {Math.round(target.hpPercentage)}%
                   </span>
                 </div>
                 <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[color-mix(in_srgb,var(--card-border)_60%,transparent)]">
                   <div
-                    className="h-full rounded-full bg-[var(--accent)]"
+                    className="h-full rounded-full bg-accent-wh40k"
                     style={{
                       width: `${Math.max(0, Math.min(100, target.hpPercentage))}%`
                     }}

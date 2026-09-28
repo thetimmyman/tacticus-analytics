@@ -197,7 +197,7 @@ describe('PlayerTokenChart — projection sort + overlay', () => {
     )
 
     const overlay = within(container).getByText('3 (+1)')
-    expect(overlay.className).toContain('text-[var(--warning)]')
+    expect(overlay.className).toContain('text-(--warning)')
   })
 
   it('players without a projection sort to the end without crashing', () => {

@@ -96,7 +96,7 @@ export function StickyPlayerHeader({
         data-condensed={condensed || undefined}
         style={chromeOffset === null ? undefined : { top: chromeOffset }}
         className={cn(
-          'sticky top-12 z-40 border-b border-[var(--card-border)] backdrop-blur transition-shadow duration-200 motion-reduce:transition-none lg:top-[88px]',
+          'sticky top-12 z-40 border-b border-(--card-border) backdrop-blur-sm transition-shadow duration-200 motion-reduce:transition-none lg:top-[88px]',
           condensed
             ? 'bg-[color-mix(in_srgb,var(--bg-primary)_88%,transparent)] shadow-lg shadow-black/30'
             : 'bg-[color-mix(in_srgb,var(--bg-primary)_95%,transparent)]'
@@ -112,23 +112,23 @@ export function StickyPlayerHeader({
         >
           <div className="min-w-0">
             {!condensed && (
-              <p className="text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+              <p className="text-xs uppercase tracking-wide text-secondary-wh40k">
                 Selected Player
               </p>
             )}
             <p
               className={cn(
-                'truncate font-semibold text-[var(--text-primary)]',
+                'truncate font-semibold text-primary-wh40k',
                 condensed ? 'text-sm' : 'text-base'
               )}
             >
               <MemberName value={playerName} />
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--text-secondary)] sm:gap-3">
+          <div className="flex flex-wrap items-center gap-2 text-sm text-secondary-wh40k sm:gap-3">
             <span
               className={cn(
-                'rounded-md border border-[var(--card-border)] px-2 py-1 font-mono text-xs uppercase tracking-wide',
+                'rounded-md border border-(--card-border) px-2 py-1 font-mono text-xs uppercase tracking-wide',
                 condensed && 'hidden sm:inline-flex'
               )}
             >
@@ -136,7 +136,7 @@ export function StickyPlayerHeader({
             </span>
             <span
               className={cn(
-                'rounded-md border border-[var(--card-border)] px-2 py-1 font-mono text-xs uppercase tracking-wide',
+                'rounded-md border border-(--card-border) px-2 py-1 font-mono text-xs uppercase tracking-wide',
                 condensed && 'hidden md:inline-flex'
               )}
             >

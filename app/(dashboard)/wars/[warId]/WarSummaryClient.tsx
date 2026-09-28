@@ -30,7 +30,7 @@ function StatsSkeleton() {
       {STAT_SKELETON_KEYS.map((key) => (
         <div
           key={key}
-          className="border border-[var(--border)] rounded-lg bg-[var(--bg-primary)] p-4"
+          className="border border-(--border) rounded-lg bg-(--bg-primary) p-4"
         >
           <Skeleton className="h-4 w-20 mb-2" />
           <Skeleton className="h-8 w-16" />
@@ -60,7 +60,7 @@ export default function WarSummaryClient({ warId }: { warId: string }) {
 
   if (!war || !stats) {
     return (
-      <div className="text-center py-8 text-[var(--text-secondary)]">
+      <div className="text-center py-8 text-secondary-wh40k">
         Failed to load war data
       </div>
     )
@@ -112,7 +112,7 @@ export default function WarSummaryClient({ warId }: { warId: string }) {
         />
       </div>
 
-      <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+      <Card className="border-(--border) bg-(--bg-primary)">
         <CardHeader className="pb-2">
           <CardTitle>Zone Breakdown</CardTitle>
         </CardHeader>
@@ -120,7 +120,7 @@ export default function WarSummaryClient({ warId }: { warId: string }) {
           {zonesLoading ? (
             <Skeleton className="h-16 w-full" />
           ) : zonesError ? (
-            <div className="text-center py-4 text-[var(--text-tertiary)]">
+            <div className="text-center py-4 text-(--text-tertiary)">
               Zone data unavailable
             </div>
           ) : Object.entries(zoneTally).length > 0 ? (
@@ -129,16 +129,16 @@ export default function WarSummaryClient({ warId }: { warId: string }) {
                 key={zoneType}
                 className="flex items-center justify-between text-sm"
               >
-                <div className="font-semibold text-[var(--text-primary)]">
+                <div className="font-semibold text-primary-wh40k">
                   {zoneDisplayName(zoneType)}
                 </div>
-                <div className="font-mono text-[var(--text-secondary)]">
+                <div className="font-mono text-secondary-wh40k">
                   {formatNumber(count)}
                 </div>
               </div>
             ))
           ) : (
-            <div className="text-center py-4 text-[var(--text-tertiary)]">
+            <div className="text-center py-4 text-(--text-tertiary)">
               No zone data available
             </div>
           )}

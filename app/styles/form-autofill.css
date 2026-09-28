@@ -40,28 +40,31 @@ select:autofill {
   color: var(--input-text, #f3f4f6) !important;
 }
 
-/* Ensure consistent text colour for unfilled credential/email inputs even
-   before the autofill rule applies. Keeping the background transparent so
-   the input still picks up theme bg via utility classes. */
-input,
-textarea,
-select {
-  color: var(--input-text, var(--text-primary));
-}
+/* Element defaults sit in the base layer so utility classes on the same element still win. */
+@layer base {
+  /* Ensure consistent text colour for unfilled credential/email inputs even
+     before the autofill rule applies. Keeping the background transparent so
+     the input still picks up theme bg via utility classes. */
+  input,
+  textarea,
+  select {
+    color: var(--input-text, var(--text-primary));
+  }
 
-/* Override any browser default styles */
-input:not([type='checkbox']):not([type='radio']),
-textarea,
-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
+  /* Override any browser default styles */
+  input:not([type='checkbox']):not([type='radio']),
+  textarea,
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
 
-/* Ensure disabled inputs maintain dark theme */
-input:disabled,
-textarea:disabled,
-select:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+  /* Ensure disabled inputs maintain dark theme */
+  input:disabled,
+  textarea:disabled,
+  select:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
 }

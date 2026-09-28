@@ -17,7 +17,7 @@ export default async function PrivacyPolicy() {
   const authData = await getAuthUser()
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
+    <div className="min-h-screen bg-(--bg-primary) text-primary-wh40k">
       {/* Navigation */}
       <NavigationServer user={authData?.user} profile={authData?.profile} />
 

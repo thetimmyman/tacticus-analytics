@@ -40,14 +40,14 @@ function WebhookManagementSection({
   return (
     <div
       id="discord-webhook-management"
-      className="bg-[color-mix(in_srgb,var(--bg-primary)_40%,transparent)] backdrop-blur-sm rounded-lg border border-amber-400/30 p-6"
+      className="bg-[color-mix(in_srgb,var(--bg-primary)_40%,transparent)] backdrop-blur-xs rounded-lg border border-amber-400/30 p-6"
     >
       <div className="mb-4 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold text-[var(--primary)]">
+          <h2 className="text-xl font-bold text-(--primary)">
             Discord Webhook Management
           </h2>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">
+          <p className="text-sm text-secondary-wh40k mt-1">
             Configure all Discord notifications in one place
           </p>
         </div>
@@ -203,8 +203,8 @@ export default function ClusterManagement({
         />
       )}
 
-      <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
+      <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg p-6">
+        <h2 className="text-xl font-semibold text-primary-wh40k mb-4 flex items-center gap-2">
           <Palette className="h-5 w-5" />
           Cluster Identity & Branding
         </h2>
@@ -216,16 +216,16 @@ export default function ClusterManagement({
         ) : (
           <div className="bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] rounded-lg p-4">
             <div className="flex items-start gap-3">
-              <AlertCircle className="w-6 h-6 text-[var(--primary)] mt-0.5 flex-shrink-0" />
+              <AlertCircle className="w-6 h-6 text-(--primary) mt-0.5 shrink-0" />
               <div>
-                <h3 className="text-lg font-semibold text-[var(--primary)] mb-2">
+                <h3 className="text-lg font-semibold text-(--primary) mb-2">
                   Cluster Access Required
                 </h3>
-                <p className="text-[var(--text-secondary)] mb-4">
+                <p className="text-secondary-wh40k mb-4">
                   You need proper cluster access to manage cluster identity and
                   branding. This typically means you need to be:
                 </p>
-                <ul className="list-disc list-inside text-[var(--text-secondary)] text-sm space-y-1 mb-4">
+                <ul className="list-disc list-inside text-secondary-wh40k text-sm space-y-1 mb-4">
                   <li>A Guild Leader in a cluster-enabled guild</li>
                   <li>
                     Assigned to a guild that belongs to a specific cluster
@@ -235,7 +235,7 @@ export default function ClusterManagement({
                     database
                   </li>
                 </ul>
-                <p className="text-[var(--text-secondary)] text-sm">
+                <p className="text-secondary-wh40k text-sm">
                   If you believe you should have cluster access, please contact
                   your system administrator or check your guild configuration.
                 </p>

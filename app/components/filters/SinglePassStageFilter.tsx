@@ -60,7 +60,7 @@ export function SinglePassStageFilter({
 
   return (
     <div className={`flex flex-wrap items-center gap-2 ${className}`}>
-      <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
+      <span className="text-xs font-semibold uppercase tracking-wide text-(--text-tertiary)">
         {label}
       </span>
       <button

@@ -13,9 +13,7 @@ const MetaAtlasClient = dynamicImport(
     })),
   {
     loading: () => (
-      <div className="p-6 text-[var(--text-secondary)]">
-        Loading Meta Atlas...
-      </div>
+      <div className="p-6 text-secondary-wh40k">Loading Meta Atlas...</div>
     )
   }
 )

@@ -173,13 +173,13 @@ export function BriefingCards({
                 {card.label}
               </p>
               {card.sub && (
-                <span className="shrink-0 text-[11px] text-[var(--text-tertiary)]">
+                <span className="shrink-0 text-[11px] text-(--text-tertiary)">
                   {card.sub}
                 </span>
               )}
             </div>
             {card.headline ? (
-              <p className="mt-2 text-sm font-bold text-[var(--text-primary)]">
+              <p className="mt-2 text-sm font-bold text-primary-wh40k">
                 {card.headline}
               </p>
             ) : (
@@ -196,7 +196,7 @@ export function BriefingCards({
                 {card.value}
               </p>
             )}
-            <p className="mt-1 text-[11px] text-[var(--text-tertiary)]">
+            <p className="mt-1 text-[11px] text-(--text-tertiary)">
               {card.blurb}
             </p>
             {card.kpi && (

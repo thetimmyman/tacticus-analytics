@@ -26,19 +26,17 @@ function DialogFrame({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
       <div
-        className={`w-full ${sizeClass} overflow-hidden rounded-3xl border border-card-border/60 bg-[var(--bg-primary)] shadow-[0_30px_60px_rgba(4,8,20,0.65)]`}
+        className={`w-full ${sizeClass} overflow-hidden rounded-3xl border border-card-border/60 bg-(--bg-primary) shadow-[0_30px_60px_rgba(4,8,20,0.65)]`}
       >
         <div className="flex items-center justify-between border-b border-card-border/50 px-6 py-4">
-          <h2 className="text-xl font-semibold text-[var(--text-primary)]">
-            {title}
-          </h2>
+          <h2 className="text-xl font-semibold text-primary-wh40k">{title}</h2>
           <Button
             variant="ghost"
             size="sm"
             onClick={onClose}
             className="rounded-xl px-3"
           >
-            <Shield className="h-5 w-5 text-[var(--text-secondary)]" />
+            <Shield className="h-5 w-5 text-secondary-wh40k" />
             <span className="sr-only">Close</span>
           </Button>
         </div>

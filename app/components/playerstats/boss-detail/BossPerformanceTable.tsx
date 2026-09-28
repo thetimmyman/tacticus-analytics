@@ -62,26 +62,26 @@ export function BossPerformanceTable({
         return (
           <div
             key={name}
-            className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-3 space-y-2"
+            className="bg-(--card-bg) border border-(--card-border) rounded-lg p-3 space-y-2"
           >
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-xs text-[var(--text-secondary)]">
+                <div className="text-xs text-secondary-wh40k">
                   {getBossLevelFromSetAndRarity(
                     stats.set || 0,
                     stats.rarity || 'Legendary'
                   )}
                 </div>
-                <div className="text-sm font-semibold text-[var(--text-primary)]">
+                <div className="text-sm font-semibold text-primary-wh40k">
                   {displayName}
                 </div>
               </div>
               {guildRank !== '--' || clusterRank !== '--' ? (
                 <div className="text-right">
-                  <div className="text-xs text-[var(--text-secondary)] uppercase tracking-wide">
+                  <div className="text-xs text-secondary-wh40k uppercase tracking-wide">
                     Rank
                   </div>
-                  <div className="text-sm font-semibold text-[var(--primary)]">
+                  <div className="text-sm font-semibold text-(--primary)">
                     {clusterRank !== '--' ? clusterRank : guildRank}
                   </div>
                 </div>
@@ -89,45 +89,35 @@ export function BossPerformanceTable({
             </div>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
-                <div className="text-xs text-[var(--text-secondary)]">
-                  Damage
-                </div>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-xs text-secondary-wh40k">Damage</div>
+                <div className="text-primary-wh40k">
                   {formatDamage(stats.damage ?? 0)}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-[var(--text-secondary)]">
-                  Avg Damage
-                </div>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-xs text-secondary-wh40k">Avg Damage</div>
+                <div className="text-primary-wh40k">
                   {formatNumber(stats.avgDamage ?? 0)}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-[var(--text-secondary)]">
-                  Tokens
-                </div>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-xs text-secondary-wh40k">Tokens</div>
+                <div className="text-primary-wh40k">
                   {formatNumber(stats.tokens ?? stats.totalTokens ?? 0)}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-[var(--text-secondary)]">
-                  Sweeps
-                </div>
-                <div className="text-[var(--text-primary)]">
+                <div className="text-xs text-secondary-wh40k">Sweeps</div>
+                <div className="text-primary-wh40k">
                   {formatNumber(stats.sweeps ?? 0)}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-[var(--text-secondary)]">
-                  Score
-                </div>
+                <div className="text-xs text-secondary-wh40k">Score</div>
                 <div
                   className={
                     stats.vsGuildAvg === VS_GUILD_NA
-                      ? 'text-[var(--text-secondary)]'
+                      ? 'text-secondary-wh40k'
                       : (stats.vsGuildAvg ?? 0) >= 0
                         ? 'text-green-400'
                         : 'text-red-400'
@@ -139,13 +129,11 @@ export function BossPerformanceTable({
                 </div>
               </div>
               <div>
-                <div className="text-xs text-[var(--text-secondary)]">
-                  {guildLabel}
-                </div>
+                <div className="text-xs text-secondary-wh40k">{guildLabel}</div>
                 <div
                   className={
                     stats.vsGuildAvg === VS_GUILD_NA
-                      ? 'text-[var(--text-secondary)]'
+                      ? 'text-secondary-wh40k'
                       : stats.vsGuildAvg >= 0
                         ? 'text-green-400'
                         : 'text-red-400'
@@ -157,16 +145,12 @@ export function BossPerformanceTable({
                 </div>
               </div>
               <div>
-                <div className="text-xs text-[var(--text-secondary)]">
-                  Guild Rank
-                </div>
-                <div className="text-[var(--text-primary)]">{guildRank}</div>
+                <div className="text-xs text-secondary-wh40k">Guild Rank</div>
+                <div className="text-primary-wh40k">{guildRank}</div>
               </div>
               {hasValidCluster && (
                 <div>
-                  <div className="text-xs text-[var(--text-secondary)]">
-                    vs Cluster
-                  </div>
+                  <div className="text-xs text-secondary-wh40k">vs Cluster</div>
                   <div
                     className={
                       stats.vsClusterAvg >= 0
@@ -180,19 +164,17 @@ export function BossPerformanceTable({
               )}
               {hasValidCluster && (
                 <div>
-                  <div className="text-xs text-[var(--text-secondary)]">
+                  <div className="text-xs text-secondary-wh40k">
                     Cluster Rank
                   </div>
-                  <div className="text-[var(--text-primary)]">
-                    {clusterRank}
-                  </div>
+                  <div className="text-primary-wh40k">{clusterRank}</div>
                 </div>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-2 text-xs text-[var(--text-secondary)]">
+            <div className="grid grid-cols-2 gap-2 text-xs text-secondary-wh40k">
               <div>
                 One-Shots:{' '}
-                <span className="text-[var(--text-primary)]">
+                <span className="text-primary-wh40k">
                   {formatNumber(stats.oneShots ?? 0)}
                 </span>
               </div>
@@ -207,14 +189,12 @@ export function BossPerformanceTable({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-        {title}
-      </h3>
+      <h3 className="text-lg font-semibold text-primary-wh40k">{title}</h3>
       <div className="hidden lg:block">
-        <div className="overflow-x-auto border border-[var(--card-border)] rounded-lg">
+        <div className="overflow-x-auto border border-(--card-border) rounded-lg">
           <table className="min-w-full text-sm">
-            <thead className="bg-[var(--card-bg)]">
-              <tr className="text-left text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+            <thead className="bg-(--card-bg)">
+              <tr className="text-left text-xs uppercase tracking-wide text-secondary-wh40k">
                 <th className="px-2 py-2 w-8"></th>
                 <th className="px-4 py-2">Boss</th>
                 <th className="px-4 py-2">Level</th>
@@ -261,38 +241,38 @@ export function BossPerformanceTable({
                       className="border-t border-card-border/60 cursor-pointer hover:bg-card/50 transition-colors"
                       onClick={() => toggleBossExpanded(bossKey)}
                     >
-                      <td className="px-2 py-2 text-[var(--text-secondary)]">
+                      <td className="px-2 py-2 text-secondary-wh40k">
                         {isExpanded ? (
                           <ChevronDown className="h-4 w-4" />
                         ) : (
                           <ChevronRight className="h-4 w-4" />
                         )}
                       </td>
-                      <td className="px-4 py-2 text-[var(--text-primary)]">
+                      <td className="px-4 py-2 text-primary-wh40k">
                         {displayName}
                       </td>
-                      <td className="px-4 py-2 text-[var(--text-secondary)]">
+                      <td className="px-4 py-2 text-secondary-wh40k">
                         {level}
                       </td>
-                      <td className="px-4 py-2 text-right text-[var(--text-primary)]">
+                      <td className="px-4 py-2 text-right text-primary-wh40k">
                         {formatDamage(stats.damage ?? 0)}
                       </td>
-                      <td className="px-4 py-2 text-right text-[var(--text-primary)]">
+                      <td className="px-4 py-2 text-right text-primary-wh40k">
                         {formatNumber(stats.avgDamage ?? 0)}
                       </td>
-                      <td className="px-4 py-2 text-right text-[var(--text-primary)]">
+                      <td className="px-4 py-2 text-right text-primary-wh40k">
                         {formatNumber(stats.tokens ?? stats.totalTokens ?? 0)}
                       </td>
-                      <td className="px-4 py-2 text-right text-[var(--text-primary)]">
+                      <td className="px-4 py-2 text-right text-primary-wh40k">
                         {formatNumber(stats.sweeps ?? 0)}
                       </td>
-                      <td className="px-4 py-2 text-right text-[var(--text-primary)]">
+                      <td className="px-4 py-2 text-right text-primary-wh40k">
                         {formatNumber(stats.oneShots ?? 0)}
                       </td>
                       <td
                         className={`px-4 py-2 text-right font-mono ${
                           stats.vsGuildAvg === VS_GUILD_NA
-                            ? 'text-[var(--text-secondary)]'
+                            ? 'text-secondary-wh40k'
                             : (stats.vsGuildAvg ?? 0) >= 0
                               ? 'text-green-400'
                               : 'text-red-400'
@@ -304,13 +284,13 @@ export function BossPerformanceTable({
                           : (1 + (stats.vsGuildAvg ?? 0) / 100).toFixed(2)}
                       </td>
                       <td
-                        className={`px-4 py-2 text-right ${stats.vsGuildAvg === VS_GUILD_NA ? 'text-[var(--text-secondary)]' : stats.vsGuildAvg >= 0 ? 'text-green-400' : 'text-red-400'}`}
+                        className={`px-4 py-2 text-right ${stats.vsGuildAvg === VS_GUILD_NA ? 'text-secondary-wh40k' : stats.vsGuildAvg >= 0 ? 'text-green-400' : 'text-red-400'}`}
                       >
                         {stats.vsGuildAvg === VS_GUILD_NA
                           ? 'N/A'
                           : formatPercentageDiff(stats.vsGuildAvg ?? 0, 0)}
                       </td>
-                      <td className="px-4 py-2 text-right text-[var(--text-primary)]">
+                      <td className="px-4 py-2 text-right text-primary-wh40k">
                         {guildRank}
                       </td>
                       {hasValidCluster && (
@@ -321,7 +301,7 @@ export function BossPerformanceTable({
                         </td>
                       )}
                       {hasValidCluster && (
-                        <td className="px-4 py-2 text-right text-[var(--text-primary)]">
+                        <td className="px-4 py-2 text-right text-primary-wh40k">
                           {clusterRank}
                         </td>
                       )}
@@ -331,7 +311,7 @@ export function BossPerformanceTable({
                         <td colSpan={colSpan} className="p-0">
                           <div className="bg-card/30 px-4 py-3 animate-in fade-in slide-in-from-top-2 duration-200">
                             <table className="w-full text-xs border-collapse">
-                              <thead className="text-[var(--text-secondary)] uppercase bg-card/50">
+                              <thead className="text-secondary-wh40k uppercase bg-card/50">
                                 <tr>
                                   <th className="px-3 py-2 text-left">Loop</th>
                                   <th className="px-3 py-2 text-right">
@@ -399,7 +379,7 @@ export function BossPerformanceTable({
                                           {stat.sweepCount}
                                         </span>
                                       ) : (
-                                        <span className="text-[var(--text-secondary)]">
+                                        <span className="text-secondary-wh40k">
                                           -
                                         </span>
                                       )}
@@ -410,12 +390,12 @@ export function BossPerformanceTable({
                                           {stat.oneShotCount}
                                         </span>
                                       ) : (
-                                        <span className="text-[var(--text-secondary)]">
+                                        <span className="text-secondary-wh40k">
                                           -
                                         </span>
                                       )}
                                     </td>
-                                    <td className="px-3 py-2 text-right text-[var(--text-secondary)]">
+                                    <td className="px-3 py-2 text-right text-secondary-wh40k">
                                       {stat.durationMinutes
                                         ? formatDuration(
                                             stat.durationMinutes * 60
@@ -432,7 +412,7 @@ export function BossPerformanceTable({
                                           (stats.avgDamage ?? 0) <= 0
                                         ) {
                                           return (
-                                            <span className="text-[var(--text-secondary)]">
+                                            <span className="text-secondary-wh40k">
                                               —
                                             </span>
                                           )
@@ -446,7 +426,7 @@ export function BossPerformanceTable({
                                           seasonGuildAvg <= 0
                                         ) {
                                           return (
-                                            <span className="text-[var(--text-secondary)]">
+                                            <span className="text-secondary-wh40k">
                                               —
                                             </span>
                                           )
@@ -455,7 +435,7 @@ export function BossPerformanceTable({
                                           loopAvg / seasonGuildAvg
                                         if (!Number.isFinite(loopScore)) {
                                           return (
-                                            <span className="text-[var(--text-secondary)]">
+                                            <span className="text-secondary-wh40k">
                                               —
                                             </span>
                                           )
@@ -488,7 +468,7 @@ export function BossPerformanceTable({
                     {isExpanded && loopDetails.length === 0 && (
                       <tr key={`${name}-no-details`}>
                         <td colSpan={colSpan} className="p-0">
-                          <div className="bg-card/30 px-4 py-3 text-xs text-[var(--text-secondary)] text-center">
+                          <div className="bg-card/30 px-4 py-3 text-xs text-secondary-wh40k text-center">
                             No loop details available for this boss
                           </div>
                         </td>

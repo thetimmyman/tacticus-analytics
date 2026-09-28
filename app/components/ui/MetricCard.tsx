@@ -4,11 +4,11 @@ import clsx from 'clsx'
 type MetricCardTone = 'default' | 'accent' | 'success' | 'warning' | 'danger'
 
 const toneValueClass: Record<MetricCardTone, string> = {
-  default: 'text-[var(--text-primary)]',
-  accent: 'text-[var(--accent)]',
-  success: 'text-[var(--success)]',
-  warning: 'text-[var(--warning)]',
-  danger: 'text-[var(--danger)]'
+  default: 'text-primary-wh40k',
+  accent: 'text-(--accent)',
+  success: 'text-(--success)',
+  warning: 'text-(--warning)',
+  danger: 'text-(--danger)'
 }
 
 interface MetricCardProps {
@@ -32,11 +32,11 @@ export function MetricCard({
   return (
     <div
       className={clsx(
-        'rounded-md border border-[var(--card-border)] bg-[var(--bg-primary)] p-5 space-y-2',
+        'rounded-md border border-(--card-border) bg-(--bg-primary) p-5 space-y-2',
         className
       )}
     >
-      <div className="text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+      <div className="text-xs font-semibold uppercase tracking-wide text-secondary-wh40k">
         {label}
       </div>
       <div
@@ -47,9 +47,7 @@ export function MetricCard({
       >
         {value}
       </div>
-      {hint && (
-        <div className="text-xs text-[var(--text-tertiary)]">{hint}</div>
-      )}
+      {hint && <div className="text-xs text-(--text-tertiary)">{hint}</div>}
     </div>
   )
 }

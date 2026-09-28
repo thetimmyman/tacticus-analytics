@@ -138,9 +138,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
     <div className="max-w-4xl mx-auto">
       <LinkRequiredNudge active={linkRequired} />
 
-      <h1 className="text-3xl font-bold mb-8 text-[var(--text-primary)]">
-        My Profile
-      </h1>
+      <h1 className="text-3xl font-bold mb-8 text-primary-wh40k">My Profile</h1>
 
       {linkRequired && (
         <div className="mb-6 p-4 border border-red-500/40 rounded-lg bg-red-500/10 text-sm text-red-100">
@@ -161,7 +159,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
       <div className="card-wh40k p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-start sm:space-x-6">
           {/* Avatar */}
-          <div className="flex-shrink-0 mx-auto sm:mx-0 mb-4 sm:mb-0">
+          <div className="shrink-0 mx-auto sm:mx-0 mb-4 sm:mb-0">
             <Image
               src={avatarUrl}
               alt="Profile"
@@ -175,22 +173,22 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           {/* Profile Info */}
           <div className="flex-1 w-full">
             <div className="text-center sm:text-left">
-              <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
+              <h2 className="text-xl sm:text-2xl font-bold text-primary-wh40k">
                 {displayLabel}
               </h2>
 
               <div className="mt-2 flex flex-wrap justify-center sm:justify-start items-center gap-2 sm:gap-4">
                 {/* Role Badge */}
                 <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-[var(--text-primary)] ${getRoleBadgeColor(profile.role)}`}
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-primary-wh40k ${getRoleBadgeColor(profile.role)}`}
                 >
                   {getRoleDisplayName(profile.role)}
                 </span>
 
                 {/* Guild */}
-                <span className="text-sm text-[var(--text-secondary)]">
+                <span className="text-sm text-secondary-wh40k">
                   Guild:{' '}
-                  <span className="font-medium text-[var(--text-accent)]">
+                  <span className="font-medium text-accent-wh40k">
                     {guildDisplayLabel ||
                       formatGuildDisplayLabel(null, guildCode)}
                   </span>
@@ -200,16 +198,16 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               {/* Discord handle binding */}
               <div className="mt-3">
                 {discordUsername ? (
-                  <p className="text-sm text-[var(--text-secondary)]">
+                  <p className="text-sm text-secondary-wh40k">
                     Known on Discord as{' '}
-                    <span className="font-semibold text-[var(--text-primary)]">
+                    <span className="font-semibold text-primary-wh40k">
                       {discordUsername}
                     </span>
                   </p>
                 ) : (
                   <a
                     href="#connected-accounts"
-                    className="inline-flex items-center gap-1.5 text-sm text-[var(--accent)] hover:text-[var(--primary)] transition-colors"
+                    className="inline-flex items-center gap-1.5 text-sm text-(--accent) hover:text-(--primary) transition-colors"
                   >
                     <svg
                       className="w-4 h-4"
@@ -226,40 +224,40 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
             <dl className="mt-6 grid grid-cols-2 gap-x-3 gap-y-4 sm:gap-x-4 sm:gap-y-6">
               <div className="col-span-2 sm:col-span-1">
-                <dt className="text-xs sm:text-sm font-medium text-[var(--text-secondary)]">
+                <dt className="text-xs sm:text-sm font-medium text-secondary-wh40k">
                   Email
                 </dt>
-                <dd className="mt-1 text-xs sm:text-sm text-[var(--text-primary)] break-all">
+                <dd className="mt-1 text-xs sm:text-sm text-primary-wh40k break-all">
                   {user.email}
                 </dd>
               </div>
 
               <div className="col-span-2 sm:col-span-1">
-                <dt className="text-xs sm:text-sm font-medium text-[var(--text-secondary)]">
+                <dt className="text-xs sm:text-sm font-medium text-secondary-wh40k">
                   Display Name
                 </dt>
-                <dd className="mt-1 text-xs sm:text-sm text-[var(--text-primary)]">
+                <dd className="mt-1 text-xs sm:text-sm text-primary-wh40k">
                   {displayLabel}
-                  <span className="ml-2 text-xs text-[var(--text-secondary)]">
+                  <span className="ml-2 text-xs text-secondary-wh40k">
                     (from game)
                   </span>
                 </dd>
               </div>
 
               <div>
-                <dt className="text-xs sm:text-sm font-medium text-[var(--text-secondary)]">
+                <dt className="text-xs sm:text-sm font-medium text-secondary-wh40k">
                   Player ID
                 </dt>
-                <dd className="mt-1 text-xs sm:text-sm text-[var(--text-primary)]">
+                <dd className="mt-1 text-xs sm:text-sm text-primary-wh40k">
                   {profile.player_id || 'Not set'}
                 </dd>
               </div>
 
               <div>
-                <dt className="text-xs sm:text-sm font-medium text-[var(--text-secondary)]">
+                <dt className="text-xs sm:text-sm font-medium text-secondary-wh40k">
                   Member Since
                 </dt>
-                <dd className="mt-1 text-xs sm:text-sm text-[var(--text-primary)]">
+                <dd className="mt-1 text-xs sm:text-sm text-primary-wh40k">
                   {profile.created_at ? (
                     <ClientDate date={profile.created_at} format="date" />
                   ) : (
@@ -269,11 +267,11 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               </div>
 
               <div>
-                <dt className="text-xs sm:text-sm font-medium text-[var(--text-secondary)]">
+                <dt className="text-xs sm:text-sm font-medium text-secondary-wh40k">
                   Status
                 </dt>
                 <dd className="mt-1">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[var(--success-bg)] text-[var(--success)] border border-[var(--success-border)]">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-(--success-bg) text-(--success) border border-(--success-border)">
                     Active
                   </span>
                 </dd>
@@ -281,10 +279,10 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
               {profile.timezone && (
                 <div>
-                  <dt className="text-xs sm:text-sm font-medium text-[var(--text-secondary)]">
+                  <dt className="text-xs sm:text-sm font-medium text-secondary-wh40k">
                     Timezone
                   </dt>
-                  <dd className="mt-1 text-xs sm:text-sm text-[var(--text-primary)]">
+                  <dd className="mt-1 text-xs sm:text-sm text-primary-wh40k">
                     {profile.timezone}
                   </dd>
                 </div>
@@ -292,7 +290,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
               {profile.tacticus_share_url && (
                 <div className="col-span-2 sm:col-span-1">
-                  <dt className="text-xs sm:text-sm font-medium text-[var(--text-secondary)]">
+                  <dt className="text-xs sm:text-sm font-medium text-secondary-wh40k">
                     Tacticus Profile
                   </dt>
                   <dd className="mt-1 text-xs sm:text-sm">
@@ -300,7 +298,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                       href={profile.tacticus_share_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[var(--accent)] hover:text-[var(--primary)] underline"
+                      className="text-(--accent) hover:text-(--primary) underline"
                     >
                       View Profile
                     </a>
@@ -310,10 +308,10 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
               {profile.theme_preference && (
                 <div>
-                  <dt className="text-xs sm:text-sm font-medium text-[var(--text-secondary)]">
+                  <dt className="text-xs sm:text-sm font-medium text-secondary-wh40k">
                     Theme Preference
                   </dt>
-                  <dd className="mt-1 text-xs sm:text-sm text-[var(--text-primary)]">
+                  <dd className="mt-1 text-xs sm:text-sm text-primary-wh40k">
                     {profile.theme_preference === 'guild' && 'Guild Theme'}
                     {profile.theme_preference === 'light' && 'Light Theme'}
                     {profile.theme_preference === 'dark' && 'Dark Theme'}
@@ -328,37 +326,37 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             {(extendedProfile?.primary_team ||
               extendedProfile?.secondary_team ||
               extendedProfile?.tertiary_team) && (
-              <div className="mt-6 pt-6 border-t border-[var(--card-border)]">
-                <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-3">
+              <div className="mt-6 pt-6 border-t border-(--card-border)">
+                <h3 className="text-sm font-medium text-secondary-wh40k mb-3">
                   Meta Team Preferences
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                   {extendedProfile?.primary_team && (
                     <div>
-                      <dt className="text-xs font-medium text-[var(--text-secondary)]">
+                      <dt className="text-xs font-medium text-secondary-wh40k">
                         Primary Team
                       </dt>
-                      <dd className="mt-1 text-xs sm:text-sm text-[var(--text-primary)] font-medium">
+                      <dd className="mt-1 text-xs sm:text-sm text-primary-wh40k font-medium">
                         {extendedProfile.primary_team}
                       </dd>
                     </div>
                   )}
                   {extendedProfile?.secondary_team && (
                     <div>
-                      <dt className="text-xs font-medium text-[var(--text-secondary)]">
+                      <dt className="text-xs font-medium text-secondary-wh40k">
                         Secondary Team
                       </dt>
-                      <dd className="mt-1 text-xs sm:text-sm text-[var(--text-primary)] font-medium">
+                      <dd className="mt-1 text-xs sm:text-sm text-primary-wh40k font-medium">
                         {extendedProfile.secondary_team}
                       </dd>
                     </div>
                   )}
                   {extendedProfile?.tertiary_team && (
                     <div className="col-span-2 sm:col-span-1">
-                      <dt className="text-xs font-medium text-[var(--text-secondary)]">
+                      <dt className="text-xs font-medium text-secondary-wh40k">
                         Tertiary Team
                       </dt>
-                      <dd className="mt-1 text-xs sm:text-sm text-[var(--text-primary)] font-medium">
+                      <dd className="mt-1 text-xs sm:text-sm text-primary-wh40k font-medium">
                         {extendedProfile.tertiary_team}
                       </dd>
                     </div>
@@ -385,7 +383,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
       {/* Lifetime Stats */}
       <div className="mt-8 card-wh40k p-6">
-        <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+        <h2 className="text-lg font-semibold text-primary-wh40k mb-4">
           Lifetime Stats
         </h2>
         <LifetimeStats />
@@ -393,9 +391,9 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
       {/* Mentions Received (last 7 days) */}
       <div className="mt-8 card-wh40k p-6">
-        <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+        <h2 className="text-lg font-semibold text-primary-wh40k mb-4">
           Mentions Received
-          <span className="ml-2 text-xs font-normal text-[var(--text-secondary)]">
+          <span className="ml-2 text-xs font-normal text-secondary-wh40k">
             last 7 days
           </span>
         </h2>
@@ -404,7 +402,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
       {/* API key section. Its id is the "My API Key" nav target; renaming breaks the link. */}
       <div id="api-key" className="mt-8 card-wh40k p-6 scroll-mt-24">
-        <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+        <h2 className="text-lg font-semibold text-primary-wh40k mb-4">
           Tacticus API Key
         </h2>
         <ReweaveLink
@@ -433,10 +431,10 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         <div id="connected-accounts" className="mt-8 card-wh40k p-6">
           <div className="flex items-start justify-between flex-wrap gap-3 mb-4">
             <div>
-              <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+              <h2 className="text-lg font-semibold text-primary-wh40k">
                 Connected Accounts
               </h2>
-              <p className="text-sm text-[var(--text-secondary)]">
+              <p className="text-sm text-secondary-wh40k">
                 Link Discord (required) and optionally Google for faster
                 sign-ins.
               </p>
@@ -507,14 +505,11 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         <h2 className="text-lg font-semibold text-blue-300 mb-4">
           Privacy & Data Rights
         </h2>
-        <p className="text-sm text-[var(--text-secondary)] mb-4">
+        <p className="text-sm text-secondary-wh40k mb-4">
           Under GDPR and other privacy laws, you have the right to request a
           copy of your personal data (Article 15) and to delete your account
           (Article 17). See{' '}
-          <Link
-            href="/privacy-rights"
-            className="text-[var(--accent)] underline"
-          >
+          <Link href="/privacy-rights" className="text-(--accent) underline">
             Your Privacy Rights
           </Link>{' '}
           for details.
@@ -525,7 +520,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
       {/* Danger Zone */}
       <div className="mt-8 card-wh40k p-6 border-red-500/30">
         <h2 className="text-lg font-semibold text-red-400 mb-4">Danger Zone</h2>
-        <p className="text-sm text-[var(--text-secondary)] mb-4">
+        <p className="text-sm text-secondary-wh40k mb-4">
           Once you delete your account, there is no going back. Please be
           certain.
         </p>

@@ -26,7 +26,7 @@ function GridSkeleton() {
       {ZONE_SKELETON_KEYS.map((key) => (
         <div
           key={key}
-          className="rounded-lg border border-[var(--border)] bg-[var(--bg-primary)] p-5 space-y-4"
+          className="rounded-lg border border-(--border) bg-(--bg-primary) p-5 space-y-4"
         >
           <div className="flex items-start justify-between">
             <div className="space-y-1">
@@ -56,7 +56,7 @@ export default function ZoneStatsSection({ warId }: { warId: string }) {
       error={error}
       isLoading={isLoading}
       errorUI={
-        <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+        <Card className="border-(--border) bg-(--bg-primary)">
           <CardHeader className="pb-2">
             <CardTitle>Zone Stats Grid</CardTitle>
           </CardHeader>
@@ -68,7 +68,7 @@ export default function ZoneStatsSection({ warId }: { warId: string }) {
         </Card>
       }
       skeleton={
-        <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+        <Card className="border-(--border) bg-(--bg-primary)">
           <CardHeader className="pb-2">
             <Skeleton className="h-6 w-32" />
           </CardHeader>
@@ -79,7 +79,7 @@ export default function ZoneStatsSection({ warId }: { warId: string }) {
       }
     >
       <div className="space-y-4">
-        <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+        <Card className="border-(--border) bg-(--bg-primary)">
           <CardHeader className="pb-2">
             <CardTitle>Zone Stats Grid</CardTitle>
           </CardHeader>
@@ -87,7 +87,7 @@ export default function ZoneStatsSection({ warId }: { warId: string }) {
             {zones.length > 0 ? (
               <ZoneStatsGrid zones={zones} />
             ) : (
-              <div className="text-center py-8 text-[var(--text-secondary)]">
+              <div className="text-center py-8 text-secondary-wh40k">
                 No zone data available for this war
               </div>
             )}

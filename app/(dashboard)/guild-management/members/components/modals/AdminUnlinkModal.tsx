@@ -77,7 +77,7 @@ export function AdminUnlinkModal({
 
   return (
     <ModalShell>
-      <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+      <h3 className="text-lg font-semibold text-primary-wh40k">
         Unlink Player — <MemberName value={member.display_name} />
       </h3>
 
@@ -120,7 +120,7 @@ export function AdminUnlinkModal({
           <div>
             <label
               htmlFor="unlink-reason"
-              className="block text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide mb-1"
+              className="block text-xs font-medium text-secondary-wh40k uppercase tracking-wide mb-1"
             >
               Reason (required, min {MIN_REASON_LENGTH} chars — written to audit
               log)
@@ -130,11 +130,11 @@ export function AdminUnlinkModal({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={3}
-              className="w-full rounded-md border border-[var(--border)] bg-[var(--bg-secondary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              className="w-full rounded-md border border-(--border) bg-(--bg-secondary) px-3 py-2 text-sm text-primary-wh40k focus:outline-hidden focus:ring-2 focus:ring-(--accent)"
               placeholder="e.g. Player reported leaked API key — clearing stale link so they can re-claim with fresh credentials."
               disabled={loading}
             />
-            <p className="mt-1 text-xs text-[var(--text-tertiary)]">
+            <p className="mt-1 text-xs text-(--text-tertiary)">
               {trimmedReason.length}/{MIN_REASON_LENGTH}+ chars
             </p>
           </div>

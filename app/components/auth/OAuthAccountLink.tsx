@@ -311,18 +311,16 @@ export default function OAuthAccountLink({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between p-4 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg">
+      <div className="flex items-center justify-between p-4 bg-(--card-bg) border border-(--card-border) rounded-lg">
         <div className="flex items-center space-x-3">
-          <div className="flex-shrink-0 text-[var(--text-primary)]">
-            {meta.icon}
-          </div>
+          <div className="shrink-0 text-primary-wh40k">{meta.icon}</div>
           <div>
-            <h3 className="text-sm font-medium text-[var(--text-primary)]">
+            <h3 className="text-sm font-medium text-primary-wh40k">
               {meta.label} Account
             </h3>
             {linked ? (
               <div className="space-y-1">
-                <p className="text-xs text-[var(--text-secondary)]">
+                <p className="text-xs text-secondary-wh40k">
                   Connected
                   {connectedName ? (
                     <>
@@ -345,12 +343,12 @@ export default function OAuthAccountLink({
               </div>
             ) : (
               <div className="space-y-1">
-                <p className="text-xs text-[var(--text-secondary)]">
+                <p className="text-xs text-secondary-wh40k">
                   {meta.description}
                 </p>
                 <div className="flex items-center space-x-1">
                   <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
-                  <span className="text-xs text-[var(--text-secondary)]">
+                  <span className="text-xs text-secondary-wh40k">
                     Not linked
                   </span>
                 </div>
@@ -359,7 +357,7 @@ export default function OAuthAccountLink({
           </div>
         </div>
 
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           {linked ? (
             <button
               type="button"
@@ -397,7 +395,7 @@ export default function OAuthAccountLink({
           <p className="text-amber-200 text-sm font-medium mb-2">
             Confirm {meta.label} Account
           </p>
-          <p className="text-[var(--text-primary)] text-xs mb-3">
+          <p className="text-primary-wh40k text-xs mb-3">
             You&apos;ll be redirected to {meta.label} to authorize. Make sure
             you&apos;re logged into the correct {meta.label} account before
             continuing.
@@ -423,7 +421,7 @@ export default function OAuthAccountLink({
               type="button"
               onClick={() => setShowConfirmation(false)}
               disabled={loading}
-              className="px-3 py-1.5 text-xs font-medium rounded-md transition-colors disabled:opacity-50 bg-gray-700 text-[var(--text-primary)] hover:bg-gray-600"
+              className="px-3 py-1.5 text-xs font-medium rounded-md transition-colors disabled:opacity-50 bg-gray-700 text-primary-wh40k hover:bg-gray-600"
             >
               Cancel
             </button>

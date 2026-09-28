@@ -139,7 +139,7 @@ export function MultiTeamComparison({
 
   if (teamStats.length < 2) {
     return (
-      <div className="text-[var(--text-secondary)] text-center py-4">
+      <div className="text-secondary-wh40k text-center py-4">
         Not enough data available for selected teams
       </div>
     )
@@ -168,7 +168,7 @@ export function MultiTeamComparison({
     !winners.mostConsistent
   ) {
     return (
-      <div className="text-[var(--text-secondary)] text-center py-4">
+      <div className="text-secondary-wh40k text-center py-4">
         Unable to determine team rankings
       </div>
     )
@@ -190,8 +190,8 @@ export function MultiTeamComparison({
               key={stats.teamName}
               className={`rounded-lg p-4 relative ${
                 stats.teamName === recommendedWinner.teamName
-                  ? 'bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] border-2 border-[color-mix(in_srgb,var(--accent)_50%,transparent)] shadow-lg shadow-[color:color-mix(in_srgb,var(--accent)_20%,transparent)]'
-                  : 'bg-card/30 border border-[var(--card-border)]'
+                  ? 'bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] border-2 border-[color-mix(in_srgb,var(--accent)_50%,transparent)] shadow-lg shadow-[color-mix(in_srgb,var(--accent)_20%,transparent)]'
+                  : 'bg-card/30 border border-(--card-border)'
               }`}
             >
               {(stats.teamName === recommendedWinner.teamName ||
@@ -199,7 +199,7 @@ export function MultiTeamComparison({
                 stats.teamName === mostConsistentWinner.teamName) && (
                 <div className="absolute -top-3 left-0 right-0 flex justify-center gap-1 flex-wrap">
                   {stats.teamName === recommendedWinner.teamName && (
-                    <span className="bg-[var(--accent)] text-black text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1 shadow-lg">
+                    <span className="bg-accent-wh40k text-black text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1 shadow-lg">
                       RECOMMENDED
                     </span>
                   )}
@@ -230,74 +230,64 @@ export function MultiTeamComparison({
 
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-[var(--text-secondary)]">
-                    Avg Damage:
-                  </span>
+                  <span className="text-secondary-wh40k">Avg Damage:</span>
                   <span
                     className={`font-mono ${
                       stats.teamName === highestDamageWinner.teamName
-                        ? 'text-[var(--accent)] font-bold'
-                        : 'text-[var(--accent)]'
+                        ? 'text-(--accent) font-bold'
+                        : 'text-(--accent)'
                     }`}
                   >
                     {formatDamage(stats.avgDamage, 1)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--text-secondary)]">
-                    Stability:
-                  </span>
+                  <span className="text-secondary-wh40k">Stability:</span>
                   <span
                     className={`${
                       stats.teamName === mostConsistentWinner.teamName
                         ? 'text-yellow-300 font-bold'
-                        : 'text-[var(--primary)]'
+                        : 'text-(--primary)'
                     }`}
                   >
                     {formatPercentage(stats.avgStability / 100, 0)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--text-secondary)]">CV%:</span>
-                  <span className="text-[var(--text-secondary)] font-mono">
+                  <span className="text-secondary-wh40k">CV%:</span>
+                  <span className="text-secondary-wh40k font-mono">
                     {formatPercentage(stats.coefficientOfVariation / 100)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--text-secondary)]">
-                    Sharpe Ratio:
-                  </span>
+                  <span className="text-secondary-wh40k">Sharpe Ratio:</span>
                   <span
                     className={`${
                       stats.teamName === recommendedWinner.teamName
-                        ? 'text-[var(--accent)] font-bold'
-                        : 'text-[var(--accent)]'
+                        ? 'text-(--accent) font-bold'
+                        : 'text-(--accent)'
                     }`}
                   >
                     {formatNumber(stats.sharpeRatio, 1)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--text-secondary)]">
-                    Total Battles:
-                  </span>
-                  <span className="text-[var(--text-secondary)]">
+                  <span className="text-secondary-wh40k">Total Battles:</span>
+                  <span className="text-secondary-wh40k">
                     {stats.totalBattles}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[var(--text-secondary)]">
-                    Variations:
-                  </span>
-                  <span className="text-[var(--text-secondary)]">
+                  <span className="text-secondary-wh40k">Variations:</span>
+                  <span className="text-secondary-wh40k">
                     {stats.totalCompositions}
                   </span>
                 </div>
               </div>
 
               {stats.bestComposition && (
-                <div className="mt-3 pt-3 border-t border-[var(--card-border)]">
-                  <div className="text-xs text-[var(--text-secondary)] mb-1">
+                <div className="mt-3 pt-3 border-t border-(--card-border)">
+                  <div className="text-xs text-secondary-wh40k mb-1">
                     Top Comp:
                   </div>
                   <TeamCompositionDisplay
@@ -317,12 +307,12 @@ export function MultiTeamComparison({
       </div>
 
       <div className="bg-card/30 hover:bg-card/80 transition-colors duration-200 rounded-lg p-4">
-        <h4 className="text-sm font-medium text-[var(--text-secondary)] mb-2">
+        <h4 className="text-sm font-medium text-secondary-wh40k mb-2">
           Analysis Summary
         </h4>
-        <div className="text-xs text-[var(--text-secondary)] space-y-1">
+        <div className="text-xs text-secondary-wh40k space-y-1">
           <p>
-            <span className="text-[var(--accent)] font-medium">
+            <span className="text-(--accent) font-medium">
               {recommendedWinner.teamName}
             </span>{' '}
             is recommended based on the best balance of damage output (
@@ -332,7 +322,7 @@ export function MultiTeamComparison({
           </p>
           {highestDamageWinner.teamName !== recommendedWinner.teamName && (
             <p>
-              <span className="text-[var(--accent)] font-medium">
+              <span className="text-(--accent) font-medium">
                 {highestDamageWinner.teamName}
               </span>{' '}
               delivers the highest average damage at{' '}
@@ -345,7 +335,7 @@ export function MultiTeamComparison({
           )}
           {mostConsistentWinner.teamName !== recommendedWinner.teamName && (
             <p>
-              <span className="text-[var(--primary)] font-medium">
+              <span className="text-(--primary) font-medium">
                 {mostConsistentWinner.teamName}
               </span>{' '}
               offers the most consistent performance with{' '}

@@ -48,12 +48,11 @@ export function Tooltip({
   }
 
   const arrowClasses = {
-    top: 'top-full left-1/2 transform -translate-x-1/2 border-t-[var(--card-bg)]',
+    top: 'top-full left-1/2 transform -translate-x-1/2 border-t-(--card-bg)',
     bottom:
-      'bottom-full left-1/2 transform -translate-x-1/2 border-b-[var(--card-bg)]',
-    left: 'left-full top-1/2 transform -translate-y-1/2 border-l-[var(--card-bg)]',
-    right:
-      'right-full top-1/2 transform -translate-y-1/2 border-r-[var(--card-bg)]'
+      'bottom-full left-1/2 transform -translate-x-1/2 border-b-(--card-bg)',
+    left: 'left-full top-1/2 transform -translate-y-1/2 border-l-(--card-bg)',
+    right: 'right-full top-1/2 transform -translate-y-1/2 border-r-(--card-bg)'
   }
 
   if (disabled || !content) {
@@ -78,7 +77,7 @@ export function Tooltip({
           aria-live="polite"
         >
           <div
-            className={`bg-card/95 backdrop-blur-sm text-[var(--text-primary)] text-sm rounded-lg px-3 py-2 shadow-xl border border-[var(--card-border)] max-w-xs ${className}`}
+            className={`bg-card/95 backdrop-blur-xs text-primary-wh40k text-sm rounded-lg px-3 py-2 shadow-xl border border-(--card-border) max-w-xs ${className}`}
           >
             {content}
             <div

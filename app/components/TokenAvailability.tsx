@@ -259,13 +259,13 @@ export default function TokenAvailability({
 
   if (!hasPlayerApiKey) {
     return (
-      <Card className="border border-[var(--card-border)] bg-black/30">
-        <div className="flex items-center justify-between border-b border-[var(--card-border)] bg-gradient-to-r from-[color-mix(in_srgb,var(--accent)_10%,transparent)] to-transparent px-4 py-2">
+      <Card className="border border-(--card-border) bg-black/30">
+        <div className="flex items-center justify-between border-b border-(--card-border) bg-linear-to-r from-[color-mix(in_srgb,var(--accent)_10%,transparent)] to-transparent px-4 py-2">
           <div className="flex items-center gap-2">
-            <div className="text-[var(--accent)]">
+            <div className="text-(--accent)">
               <Key className="h-4 w-4" />
             </div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-primary-wh40k">
               Token Availability
             </h3>
           </div>
@@ -291,24 +291,24 @@ export default function TokenAvailability({
 
   if (error) {
     return (
-      <div className="border border-[var(--card-border)] bg-black/30">
-        <div className="flex items-center justify-between border-b border-[var(--card-border)] bg-gradient-to-r from-[color-mix(in_srgb,var(--accent)_10%,transparent)] to-transparent px-4 py-2">
+      <div className="border border-(--card-border) bg-black/30">
+        <div className="flex items-center justify-between border-b border-(--card-border) bg-linear-to-r from-[color-mix(in_srgb,var(--accent)_10%,transparent)] to-transparent px-4 py-2">
           <div className="flex items-center gap-2">
-            <div className="text-[var(--accent)]">
+            <div className="text-(--accent)">
               <AlertCircle className="h-4 w-4" />
             </div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-primary-wh40k">
               Token Availability
             </h3>
           </div>
           {loading && (
-            <div className="h-1.5 w-1.5 animate-spin rounded-full border border-[var(--accent)] border-t-transparent" />
+            <div className="h-1.5 w-1.5 animate-spin rounded-full border border-accent-wh40k border-t-transparent" />
           )}
         </div>
 
         <div className="p-3">
           <div className="flex items-center justify-between gap-4">
-            <div className="text-sm text-[var(--accent)]">
+            <div className="text-sm text-(--accent)">
               <AlertCircle className="mr-2 inline h-4 w-4" />
               {error}
             </div>
@@ -344,17 +344,17 @@ export default function TokenAvailability({
 
   if (tokenItems.length === 0) {
     return (
-      <div className="border border-[var(--card-border)] bg-black/30">
-        <div className="flex items-center justify-between border-b border-[var(--card-border)] bg-gradient-to-r from-[color-mix(in_srgb,var(--accent)_10%,transparent)] to-transparent px-4 py-2">
+      <div className="border border-(--card-border) bg-black/30">
+        <div className="flex items-center justify-between border-b border-(--card-border) bg-linear-to-r from-[color-mix(in_srgb,var(--accent)_10%,transparent)] to-transparent px-4 py-2">
           <div className="flex items-center gap-2">
-            <div className="text-[var(--accent)]">
+            <div className="text-(--accent)">
               <Zap className="h-4 w-4" />
             </div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-primary-wh40k">
               Token Availability
             </h3>
           </div>
-          <div className="h-1.5 w-1.5 animate-spin rounded-full border border-[var(--accent)] border-t-transparent" />
+          <div className="h-1.5 w-1.5 animate-spin rounded-full border border-accent-wh40k border-t-transparent" />
         </div>
 
         <div className="p-3">
@@ -367,14 +367,14 @@ export default function TokenAvailability({
   }
 
   return (
-    <div className="border border-[var(--card-border)] bg-black/30">
+    <div className="border border-(--card-border) bg-black/30">
       {/* Desktop-only header; mobile shows just the compact strip. */}
-      <div className="hidden items-center justify-between border-b border-[var(--card-border)] bg-gradient-to-r from-[color-mix(in_srgb,var(--accent)_10%,transparent)] to-transparent px-3 py-1.5 sm:flex">
+      <div className="hidden items-center justify-between border-b border-(--card-border) bg-linear-to-r from-[color-mix(in_srgb,var(--accent)_10%,transparent)] to-transparent px-3 py-1.5 sm:flex">
         <div className="flex items-center gap-2">
-          <div className="text-[var(--accent)]">
+          <div className="text-(--accent)">
             <Zap className="h-4 w-4" />
           </div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-primary-wh40k">
             Token Availability
           </h3>
         </div>
@@ -392,7 +392,7 @@ export default function TokenAvailability({
             <span className="text-[11px] text-[#666]">Last synced: —</span>
           )}
           {loading && (
-            <div className="h-1.5 w-1.5 animate-spin rounded-full border border-[var(--accent)] border-t-transparent" />
+            <div className="h-1.5 w-1.5 animate-spin rounded-full border border-accent-wh40k border-t-transparent" />
           )}
         </div>
       </div>
@@ -411,7 +411,7 @@ export default function TokenAvailability({
               return (
                 <div
                   key={item.key}
-                  className="flex flex-col items-center gap-0.5 rounded-md border border-[var(--card-border)] bg-black/50 p-1 text-center sm:flex-row sm:items-center sm:gap-2 sm:p-1.5 sm:text-left"
+                  className="flex flex-col items-center gap-0.5 rounded-md border border-(--card-border) bg-black/50 p-1 text-center sm:flex-row sm:items-center sm:gap-2 sm:p-1.5 sm:text-left"
                 >
                   <img
                     src={item.img}
@@ -439,7 +439,7 @@ export default function TokenAvailability({
                         )}
                       </span>
                       {showTimer && (
-                        <span className="hidden font-mono text-[10px] tabular-nums text-[var(--accent)] sm:inline">
+                        <span className="hidden font-mono text-[10px] tabular-nums text-(--accent) sm:inline">
                           {formatTime(remaining ?? 0)}
                         </span>
                       )}

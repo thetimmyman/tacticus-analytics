@@ -19,7 +19,7 @@ const PlayerPerformanceContainer = dynamicImport(
   () => import('@/app/components/performance/PlayerPerformanceContainer'),
   {
     loading: () => (
-      <div className="p-6 text-[var(--text-secondary)]">
+      <div className="p-6 text-secondary-wh40k">
         Loading performance analytics...
       </div>
     )
