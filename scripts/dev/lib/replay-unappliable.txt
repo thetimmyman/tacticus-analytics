@@ -89,3 +89,9 @@ cli-stack:20260831150100_wi8360_revoke_pg_db_role_setting_public_select.sql
 # ACL restatement -- applies cleanly, and pg_proc.prosrc then hashes to the
 # body pin in the header. Measured on 2026-09-21 against a replayed throwaway.
 20260921130000_ps293_late_arrival_window.sql
+
+# relation "storage.objects" does not exist (pgTAP shim lane), or
+# "storage.buckets has no ability-icons bucket; nothing to cap" (CLI stack):
+# the preflight locks and censuses the live bucket's objects before capping it,
+# and neither replay has that bucket.
+20260927230000_ability_icons_bucket_limits.sql
