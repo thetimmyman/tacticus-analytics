@@ -44,6 +44,7 @@ db_boundary_hardening_clusters_and_profile_claim.sql # 18
 discord_bot_invite_atomicity.sql # 8
 drop_stale_member_luck_summary.sql # 3
 eot_gr_data_preserve_erasure_tombstone.sql # 30
+exposed_schema_secret_columns.sql # 5
 global_war_meta_archive.sql # 17
 gdpr_request_health_monitor.sql # 42
 get_all_boss_hp_restore.sql # 9
