@@ -75,9 +75,6 @@ function buildFetch(opts: {
 }) {
   const syncedGuildCodes: string[] = []
   const fn = vi.fn(async (url: string, init?: { body?: string }) => {
-    if (url.includes('/rpc/expire_ended_trials')) {
-      return jsonResponse(0)
-    }
     if (url.includes('guild_config') && init && init.body === undefined) {
     }
     if (url.includes('/rest/v1/guild_config?or=')) {

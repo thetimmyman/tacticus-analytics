@@ -74,35 +74,6 @@ const guildBatchSyncHandler: JobHandler = async (payload, ctx) => {
       )
     }
 
-    try {
-      const trialResp = await directFetch(
-        `${internalUrl}/rest/v1/rpc/expire_ended_trials`,
-        {
-          method: 'POST',
-          headers: {
-            apikey: anonKey,
-            Authorization: `Bearer ${serviceKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({})
-        }
-      )
-      if (trialResp.ok) {
-        const expiredCount = await trialResp.json()
-        if (expiredCount && expiredCount > 0) {
-          logger.info(
-            { jobId: ctx.jobId, expiredCount },
-            'expired trial subscriptions'
-          )
-        }
-      }
-    } catch (trialError) {
-      logger.warn(
-        { jobId: ctx.jobId, err: getErrorMessage(trialError) },
-        'trial expiry failed (non-critical)'
-      )
-    }
-
     let freshLokiSessionId: string | null = null
     try {
       const refreshResult = await refreshSharedLokiSession()
