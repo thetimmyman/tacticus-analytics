@@ -254,6 +254,7 @@ describe('savePlayerMappings guarded authority writes', () => {
       malformedDeactivationProof?: boolean
       existingError?: { message: string }
       upsertError?: { message: string }
+      outcomeFailure?: 'error' | 'throw'
     } = {}
   ) {
     const upsertedRecords: Array<Record<string, unknown>> = []
@@ -316,7 +317,16 @@ describe('savePlayerMappings guarded authority writes', () => {
       rpc: vi.fn((name: string, args: Record<string, unknown>) => {
         if (name === 'record_roster_write_outcome') {
           outcomeCalls.push(args)
-          return Promise.resolve({ data: null, error: null })
+          if (options.outcomeFailure === 'throw') {
+            throw new Error('rpc transport down')
+          }
+          return Promise.resolve({
+            data: null,
+            error:
+              options.outcomeFailure === 'error'
+                ? { message: 'rpc rejected' }
+                : null
+          })
         }
         deactivationCalls.push(args)
         const ids = args.p_player_ids as string[]
@@ -607,4 +617,88 @@ describe('savePlayerMappings guarded authority writes', () => {
       }
     ])
   })
+
+  it('records nothing when every incoming member is filtered out, so a prior failure is not cleared', async () => {
+    const existingRows = [
+      {
+        player_id: 'P2',
+        protected: true,
+        guild_code: 'GUILD01',
+        is_current: true,
+        cluster_code: null,
+        cluster_id: null
+      }
+    ]
+    const { supabase, upsertedRecords, outcomeCalls } =
+      buildSaveMockSupabase(existingRows)
+
+    await savePlayerMappings(
+      supabase,
+      'GUILD01',
+      [{ userId: 'P2', displayName: 'Protected', role: 'member' }],
+      null,
+      null
+    )
+
+    expect(upsertedRecords).toEqual([])
+    expect(outcomeCalls).toEqual([])
+  })
+
+  it('records a failed roster write outcome when the save throws', async () => {
+    const existingRows = [
+      {
+        player_id: 'P5',
+        protected: false,
+        guild_code: 'GUILD01',
+        is_current: true,
+        cluster_code: null,
+        cluster_id: null
+      }
+    ]
+    const { supabase, upsertedRecords, outcomeCalls } = buildSaveMockSupabase(
+      existingRows,
+      { malformedDeactivationProof: true }
+    )
+
+    await savePlayerMappings(
+      supabase,
+      'GUILD01',
+      [{ userId: 'P6', displayName: 'Current', role: 'member' }],
+      null,
+      null
+    )
+
+    expect(upsertedRecords).toEqual([])
+    expect(outcomeCalls).toEqual([
+      {
+        p_guild_code: 'GUILD01',
+        p_ok: false,
+        p_rows_written: 0,
+        p_reason: expect.stringMatching(/\S/)
+      }
+    ])
+  })
+
+  it.each(['error', 'throw'] as const)(
+    'still resolves when recording the outcome fails (%s)',
+    async (outcomeFailure) => {
+      const { supabase, upsertedRecords, outcomeCalls } = buildSaveMockSupabase(
+        [],
+        { outcomeFailure }
+      )
+
+      await expect(
+        savePlayerMappings(
+          supabase,
+          'GUILD01',
+          [{ userId: 'P12', displayName: 'Twelve', role: 'member' }],
+          null,
+          null
+        )
+      ).resolves.toBeUndefined()
+
+      expect(upsertedRecords).toHaveLength(1)
+      expect(outcomeCalls).toHaveLength(1)
+    }
+  )
 })

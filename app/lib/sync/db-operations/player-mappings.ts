@@ -412,6 +412,16 @@ export async function savePlayerMappings(
       }
     })
 
+    // An empty record set is not a roster pass: eligibility guards can filter every member away,
+    // and recording success would clear a real prior failure (matches the edge db-mappings path).
+    if (records.length === 0) {
+      logger.warn(
+        { guildCode },
+        'No eligible player mappings to save; roster write outcome not recorded'
+      )
+      return
+    }
+
     const { error: upsertError } = await supabase
       .from('player_mapping')
       .upsert(records as never, {
