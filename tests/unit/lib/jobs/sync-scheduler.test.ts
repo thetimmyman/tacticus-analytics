@@ -477,19 +477,25 @@ describe('sync-scheduler work_queue handler', () => {
       expect(result).toMatchObject({ incrementalDeferred: 0 })
     })
 
-    it('fails open and schedules as before when the active-job read fails', async () => {
-      mockQueries({ data: null, error: 'HTTP 503: unavailable' })
+    it.each([
+      ['an error', { data: null, error: 'HTTP 503: unavailable' }],
+      ['a non-array body', { data: { message: 'unexpected' }, error: null }]
+    ])(
+      'fails open and schedules as before when the active-job read returns %s',
+      async (_label, response) => {
+        mockQueries(response)
 
-      const result = await syncSchedulerHandler({}, context)
+        const result = await syncSchedulerHandler({}, context)
 
-      expect(enqueued()).toEqual([
-        ['QUEUED', 'incremental_sync'],
-        ['IDLE', 'incremental_sync'],
-        ['DUE_REALTIME', 'realtime_sync']
-      ])
-      expect(result).toMatchObject({ incrementalDeferred: 0 })
-      expect(mockCaptureSentryException).not.toHaveBeenCalled()
-    })
+        expect(enqueued()).toEqual([
+          ['QUEUED', 'incremental_sync'],
+          ['IDLE', 'incremental_sync'],
+          ['DUE_REALTIME', 'realtime_sync']
+        ])
+        expect(result).toMatchObject({ incrementalDeferred: 0 })
+        expect(mockCaptureSentryException).not.toHaveBeenCalled()
+      }
+    )
   })
 
   it('registers the canonical work_queue job type', async () => {

@@ -39,7 +39,7 @@ interface ActiveRealtimeJobRow {
 const ACTIVE_REALTIME_JOBS_PATH =
   'sync_queue?select=guild_code,status,attempts,max_attempts&job_type=eq.realtime_sync&status=in.(pending,processing)'
 
-/** Guilds whose realtime_sync is still claimable; empty on a read failure, so scheduling fails open. */
+/** Guilds with a realtime_sync running or still due to run; empty on a read failure, so scheduling fails open. */
 async function loadGuildsWithActiveRealtime(
   db: ReturnType<typeof createDirectClient>,
   jobId: number
@@ -57,14 +57,14 @@ async function loadGuildsWithActiveRealtime(
   }
   for (const row of data) {
     if (!row.guild_code) continue
-    // Mirrors claim_next_job: a pending row at max_attempts is never claimed.
-    const claimable =
+    // A pending row at max_attempts is never claimed, so it must not defer anything.
+    const active =
       row.status === 'processing' ||
       (row.status === 'pending' &&
         typeof row.attempts === 'number' &&
         typeof row.max_attempts === 'number' &&
         row.attempts < row.max_attempts)
-    if (claimable) guilds.add(row.guild_code)
+    if (active) guilds.add(row.guild_code)
   }
   return guilds
 }
