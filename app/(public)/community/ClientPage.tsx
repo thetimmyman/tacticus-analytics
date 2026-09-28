@@ -11,11 +11,9 @@ export default function CommunityRedirect() {
   }, [router])
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
+    <div className="min-h-screen bg-(--bg-primary) flex items-center justify-center">
       <div className="text-center">
-        <p className="text-[var(--text-secondary)]">
-          Redirecting to Community...
-        </p>
+        <p className="text-secondary-wh40k">Redirecting to Community...</p>
       </div>
     </div>
   )

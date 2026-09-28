@@ -126,7 +126,7 @@ export default function BossLeaderboards({
         userGuild={userGuild}
       />
 
-      <div className="mt-6 sm:mt-8 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-4 sm:p-6">
+      <div className="mt-6 sm:mt-8 bg-(--card-bg) border border-(--card-border) rounded-lg p-4 sm:p-6">
         <BossLeaderboardsCalculationsFAQ />
       </div>
     </div>

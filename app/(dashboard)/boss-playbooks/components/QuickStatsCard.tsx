@@ -51,7 +51,7 @@ export function QuickStatsCard({ boss }: QuickStatsCardProps) {
 
   return (
     <div className="card-wh40k overflow-hidden">
-      <div className="flex items-start gap-4 p-4 border-b border-[var(--card-border)]">
+      <div className="flex items-start gap-4 p-4 border-b border-(--card-border)">
         <BossPortrait
           bossName={boss.name}
           lookupName={boss.id}
@@ -62,13 +62,13 @@ export function QuickStatsCard({ boss }: QuickStatsCardProps) {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <h2 className="text-xl font-bold text-[var(--text-primary)] leading-tight">
+              <h2 className="text-xl font-bold text-primary-wh40k leading-tight">
                 {boss.name}
               </h2>
-              <p className="text-sm text-[var(--text-secondary)]">
+              <p className="text-sm text-secondary-wh40k">
                 {boss.faction}
                 {boss.strain && (
-                  <span className="text-[var(--text-tertiary)]">
+                  <span className="text-(--text-tertiary)">
                     {' '}
                     • {boss.strain}
                   </span>
@@ -78,7 +78,7 @@ export function QuickStatsCard({ boss }: QuickStatsCardProps) {
           </div>
 
           <div className="flex flex-wrap items-center gap-1.5 mt-2">
-            <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-red-500/15 text-red-400 border border-red-500/25">
+            <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-sm bg-red-500/15 text-red-400 border border-red-500/25">
               <Ban className="h-3 w-3" />
               {bannedDisplay} banned
             </span>
@@ -87,8 +87,8 @@ export function QuickStatsCard({ boss }: QuickStatsCardProps) {
       </div>
 
       {(boss.wikiUrl || tacticusTableLinks.length > 0) && (
-        <div className="flex flex-wrap items-center gap-2 px-4 py-3 bg-[var(--bg-secondary)]">
-          <span className="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide">
+        <div className="flex flex-wrap items-center gap-2 px-4 py-3 bg-(--bg-secondary)">
+          <span className="text-xs font-medium text-(--text-tertiary) uppercase tracking-wide">
             External:
           </span>
           {boss.wikiUrl && (
@@ -96,7 +96,7 @@ export function QuickStatsCard({ boss }: QuickStatsCardProps) {
               href={boss.wikiUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-md bg-[var(--bg-primary)] text-[var(--accent)] border border-[var(--card-border)] hover:border-[var(--accent)] hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] transition-colors font-medium"
+              className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-md bg-(--bg-primary) text-(--accent) border border-(--card-border) hover:border-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] transition-colors font-medium"
             >
               <Globe className="h-3.5 w-3.5" />
               Tacticus Wiki
@@ -109,7 +109,7 @@ export function QuickStatsCard({ boss }: QuickStatsCardProps) {
               href={`${TACTICUS_TABLE_BASE_URL}/${link.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-md bg-[var(--bg-primary)] text-blue-400 border border-[var(--card-border)] hover:border-blue-400 hover:bg-blue-400/10 transition-colors font-medium"
+              className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-md bg-(--bg-primary) text-blue-400 border border-(--card-border) hover:border-blue-400 hover:bg-blue-400/10 transition-colors font-medium"
             >
               <Table2 className="h-3.5 w-3.5" />
               {link.label}

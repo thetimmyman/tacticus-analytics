@@ -92,8 +92,8 @@ describe('DeploymentManager version table', () => {
       expect(screen.getAllByText('abcd1234').length).toBeGreaterThan(1)
     )
 
-    expect(rowFor('abcd1234')).toHaveClass('!bg-green-500/5')
-    expect(rowFor('deadbeef')).not.toHaveClass('!bg-green-500/5')
+    expect(rowFor('abcd1234')).toHaveClass('bg-green-500/5!')
+    expect(rowFor('deadbeef')).not.toHaveClass('bg-green-500/5!')
   })
 
   it('keeps the no-images notice instead of rendering an empty table', async () => {

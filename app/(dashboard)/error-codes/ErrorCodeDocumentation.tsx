@@ -324,28 +324,28 @@ export function ErrorCodeDocumentation() {
   return (
     <div className="space-y-6">
       {/* Header Info */}
-      <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg p-6">
+      <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-[var(--text-primary)]">
+          <h2 className="text-xl font-bold text-primary-wh40k">
             Error Code System
           </h2>
-          <div className="text-sm text-[var(--text-secondary)]">
+          <div className="text-sm text-secondary-wh40k">
             Version:{' '}
-            <span className="font-mono text-[var(--primary)]">
+            <span className="font-mono text-(--primary)">
               {versionInfo.version}
             </span>
           </div>
         </div>
-        <p className="text-[var(--text-secondary)] mb-4">
+        <p className="text-secondary-wh40k mb-4">
           All errors in the application include a unique error code and version
           number for precise debugging. Use this reference to understand error
           meanings and find troubleshooting steps.
         </p>
-        <div className="bg-[var(--bg-secondary)] hover:bg-card/80 transition-colors duration-200 rounded-lg p-4 font-mono text-sm">
-          <div className="text-[var(--text-secondary)] mb-2">
+        <div className="bg-(--bg-secondary) hover:bg-card/80 transition-colors duration-200 rounded-lg p-4 font-mono text-sm">
+          <div className="text-secondary-wh40k mb-2">
             Example Error Response:
           </div>
-          <pre className="text-[var(--text-primary)]">{`{
+          <pre className="text-primary-wh40k">{`{
   "success": false,
   "error": {
     "code": "UNAUTHORIZED",
@@ -362,11 +362,11 @@ export function ErrorCodeDocumentation() {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg p-6">
+      <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg p-6">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-secondary-wh40k" />
               <Input
                 type="text"
                 placeholder="Search error codes, descriptions, or troubleshooting steps..."
@@ -380,7 +380,7 @@ export function ErrorCodeDocumentation() {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-4 py-2 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)]"
+              className="w-full px-4 py-2 bg-(--card-bg) border border-(--card-border) rounded-lg text-primary-wh40k"
             >
               {categories.map((cat) => (
                 <option key={cat.value} value={cat.value}>
@@ -391,7 +391,7 @@ export function ErrorCodeDocumentation() {
           </div>
         </div>
 
-        <div className="mt-4 flex items-center gap-4 text-sm text-[var(--text-secondary)]">
+        <div className="mt-4 flex items-center gap-4 text-sm text-secondary-wh40k">
           <span>
             Found {filteredErrors.length} error code
             {filteredErrors.length !== 1 ? 's' : ''}
@@ -399,7 +399,7 @@ export function ErrorCodeDocumentation() {
           {searchTerm && (
             <button
               onClick={() => setSearchTerm('')}
-              className="text-[var(--primary)] hover:underline"
+              className="text-(--primary) hover:underline"
             >
               Clear search
             </button>
@@ -419,7 +419,7 @@ export function ErrorCodeDocumentation() {
                 {getCategoryIcon(error.category)}
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-bold text-[var(--text-primary)] font-mono">
+                    <h3 className="text-lg font-bold text-primary-wh40k font-mono">
                       {error.code}
                     </h3>
                     <Button
@@ -435,7 +435,7 @@ export function ErrorCodeDocumentation() {
                       )}
                     </Button>
                   </div>
-                  <p className="text-[var(--text-secondary)] text-sm">
+                  <p className="text-secondary-wh40k text-sm">
                     {error.category.charAt(0).toUpperCase() +
                       error.category.slice(1)}{' '}
                     Error • HTTP {error.httpStatus}
@@ -455,28 +455,26 @@ export function ErrorCodeDocumentation() {
 
             <div className="space-y-4">
               <div>
-                <h4 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h4 className="font-semibold text-primary-wh40k mb-2">
                   Description
                 </h4>
-                <p className="text-[var(--text-secondary)]">
-                  {error.description}
-                </p>
+                <p className="text-secondary-wh40k">{error.description}</p>
               </div>
 
               <div>
-                <h4 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h4 className="font-semibold text-primary-wh40k mb-2">
                   User Message
                 </h4>
-                <p className="text-[var(--text-secondary)] italic">
+                <p className="text-secondary-wh40k italic">
                   &quot;{error.userMessage}&quot;
                 </p>
               </div>
 
               <div>
-                <h4 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h4 className="font-semibold text-primary-wh40k mb-2">
                   Common Causes
                 </h4>
-                <ul className="list-disc list-inside text-[var(--text-secondary)] space-y-1">
+                <ul className="list-disc list-inside text-secondary-wh40k space-y-1">
                   {error.commonCauses.map((cause) => (
                     <li key={cause}>{cause}</li>
                   ))}
@@ -484,10 +482,10 @@ export function ErrorCodeDocumentation() {
               </div>
 
               <div>
-                <h4 className="font-semibold text-[var(--text-primary)] mb-2">
+                <h4 className="font-semibold text-primary-wh40k mb-2">
                   Troubleshooting Steps
                 </h4>
-                <ol className="list-decimal list-inside text-[var(--text-secondary)] space-y-1">
+                <ol className="list-decimal list-inside text-secondary-wh40k space-y-1">
                   {error.troubleshooting.map((step) => (
                     <li key={step}>{step}</li>
                   ))}
@@ -500,11 +498,11 @@ export function ErrorCodeDocumentation() {
 
       {filteredErrors.length === 0 && (
         <div className="text-center py-12">
-          <Search className="w-12 h-12 text-[var(--text-secondary)] mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+          <Search className="w-12 h-12 text-secondary-wh40k mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-primary-wh40k mb-2">
             No error codes found
           </h3>
-          <p className="text-[var(--text-secondary)]">
+          <p className="text-secondary-wh40k">
             Try adjusting your search terms or category filter
           </p>
         </div>

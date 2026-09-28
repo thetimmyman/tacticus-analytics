@@ -32,14 +32,14 @@ export function GuildPatterns({ patterns }: { patterns: GuildPattern[] }) {
 
   return (
     <section
-      className="rounded-xl border border-[var(--card-border)] bg-card/30 overflow-hidden"
+      className="rounded-xl border border-(--card-border) bg-card/30 overflow-hidden"
       aria-label="Guild patterns"
     >
       <header className="flex flex-wrap items-baseline gap-2 border-b border-[color-mix(in_srgb,var(--card-border)_50%,transparent)] px-4 py-3">
-        <h2 className="text-sm font-semibold text-[var(--text-primary)]">
+        <h2 className="text-sm font-semibold text-primary-wh40k">
           Guild patterns
         </h2>
-        <p className="text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+        <p className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
           Signals worth acting on once, not member by member
         </p>
       </header>
@@ -50,7 +50,7 @@ export function GuildPatterns({ patterns }: { patterns: GuildPattern[] }) {
           return (
             <div
               key={p.kind}
-              className="rounded-lg border border-[color-mix(in_srgb,var(--card-border)_60%,transparent)] bg-[var(--bg-primary)] p-3"
+              className="rounded-lg border border-[color-mix(in_srgb,var(--card-border)_60%,transparent)] bg-(--bg-primary) p-3"
             >
               <p
                 className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider"
@@ -59,10 +59,10 @@ export function GuildPatterns({ patterns }: { patterns: GuildPattern[] }) {
                 {meta.icon}
                 {meta.label}
               </p>
-              <p className="mt-1.5 text-sm font-bold text-[var(--text-primary)]">
+              <p className="mt-1.5 text-sm font-bold text-primary-wh40k">
                 {p.title}
               </p>
-              <p className="mt-1 text-[11px] text-[var(--text-secondary)]">
+              <p className="mt-1 text-[11px] text-secondary-wh40k">
                 {p.detail}
               </p>
               {p.href && p.ctaLabel && (

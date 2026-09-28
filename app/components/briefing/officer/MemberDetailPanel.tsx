@@ -313,8 +313,8 @@ export function MemberDetailPanel({
 
   if (!displayName) {
     return (
-      <section className="rounded-xl border border-[var(--card-border)] bg-card/30 p-6 text-center">
-        <p className="text-xs text-[var(--text-tertiary)]">
+      <section className="rounded-xl border border-(--card-border) bg-card/30 p-6 text-center">
+        <p className="text-xs text-(--text-tertiary)">
           Select a member to see the roster-aware breakdown.
         </p>
       </section>
@@ -323,11 +323,11 @@ export function MemberDetailPanel({
 
   if (!current) {
     return (
-      <section className="rounded-xl border border-[var(--card-border)] bg-card/30 p-4 space-y-3">
-        <div className="h-4 w-1/3 animate-pulse rounded bg-[color-mix(in_srgb,var(--card-border)_60%,transparent)]" />
-        <div className="h-6 w-1/2 animate-pulse rounded bg-[color-mix(in_srgb,var(--card-border)_60%,transparent)]" />
-        <div className="h-20 w-full animate-pulse rounded bg-[color-mix(in_srgb,var(--card-border)_40%,transparent)]" />
-        <div className="h-12 w-full animate-pulse rounded bg-[color-mix(in_srgb,var(--card-border)_40%,transparent)]" />
+      <section className="rounded-xl border border-(--card-border) bg-card/30 p-4 space-y-3">
+        <div className="h-4 w-1/3 animate-pulse rounded-sm bg-[color-mix(in_srgb,var(--card-border)_60%,transparent)]" />
+        <div className="h-6 w-1/2 animate-pulse rounded-sm bg-[color-mix(in_srgb,var(--card-border)_60%,transparent)]" />
+        <div className="h-20 w-full animate-pulse rounded-sm bg-[color-mix(in_srgb,var(--card-border)_40%,transparent)]" />
+        <div className="h-12 w-full animate-pulse rounded-sm bg-[color-mix(in_srgb,var(--card-border)_40%,transparent)]" />
       </section>
     )
   }
@@ -365,13 +365,13 @@ export function MemberDetailPanel({
 
   return (
     <section
-      className="rounded-xl border border-[var(--card-border)] bg-card/30 overflow-hidden"
+      className="rounded-xl border border-(--card-border) bg-card/30 overflow-hidden"
       aria-label={`Member detail for ${data.displayName}`}
     >
       <header className="flex flex-wrap items-center justify-between gap-2 border-b border-[color-mix(in_srgb,var(--card-border)_50%,transparent)] px-4 py-3">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-sm font-semibold text-[var(--text-primary)]">
+            <h2 className="text-sm font-semibold text-primary-wh40k">
               {data.displayName}
             </h2>
             {rowContext?.targetScore != null && (
@@ -403,7 +403,7 @@ export function MemberDetailPanel({
               tokens
             ].filter(Boolean)
             return parts.length > 0 ? (
-              <p className="text-[10px] text-[var(--text-tertiary)]">
+              <p className="text-[10px] text-(--text-tertiary)">
                 {parts.join(' · ')}
               </p>
             ) : null
@@ -412,7 +412,7 @@ export function MemberDetailPanel({
         <div className="flex max-w-full flex-wrap items-center justify-end gap-2">
           <a
             href={rosterUrl}
-            className="inline-flex min-w-0 items-center gap-1.5 rounded-md border border-[var(--card-border)] px-2.5 py-1 text-left text-[11px] font-semibold leading-tight text-[var(--text-secondary)] transition hover:brightness-110"
+            className="inline-flex min-w-0 items-center gap-1.5 rounded-md border border-(--card-border) px-2.5 py-1 text-left text-[11px] font-semibold leading-tight text-secondary-wh40k transition hover:brightness-110"
           >
             <ExternalLink className="h-3.5 w-3.5" aria-hidden />
             Open roster
@@ -465,7 +465,7 @@ export function MemberDetailPanel({
                   )
                 }
                 disabled={reviewState === 'loading' || reviewState === 'done'}
-                className="inline-flex min-w-0 items-center gap-1.5 rounded-md border border-[var(--card-border)] px-2.5 py-1 text-left text-[11px] font-semibold leading-tight transition hover:brightness-110 disabled:opacity-60"
+                className="inline-flex min-w-0 items-center gap-1.5 rounded-md border border-(--card-border) px-2.5 py-1 text-left text-[11px] font-semibold leading-tight transition hover:brightness-110 disabled:opacity-60"
                 style={{
                   color:
                     reviewState === 'done'
@@ -491,7 +491,7 @@ export function MemberDetailPanel({
               setNoteOpen(true)
             }}
             disabled={!data.coachingNote}
-            className="inline-flex min-w-0 items-center gap-1.5 rounded-md border border-[var(--card-border)] px-2.5 py-1 text-left text-[11px] font-semibold leading-tight text-[var(--text-secondary)] transition hover:brightness-110 disabled:opacity-40"
+            className="inline-flex min-w-0 items-center gap-1.5 rounded-md border border-(--card-border) px-2.5 py-1 text-left text-[11px] font-semibold leading-tight text-secondary-wh40k transition hover:brightness-110 disabled:opacity-40"
           >
             <Copy className="h-3.5 w-3.5" aria-hidden />
             Copy coaching note
@@ -511,23 +511,23 @@ export function MemberDetailPanel({
             aria-modal="true"
             aria-label={`Coaching note for ${data.displayName}`}
             ref={noteDialogRef}
-            className="w-full max-w-lg rounded-xl border border-[var(--card-border)] bg-[var(--bg-primary)] p-4 shadow-xl"
+            className="w-full max-w-lg rounded-xl border border-(--card-border) bg-(--bg-primary) p-4 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-2 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+              <h3 className="text-sm font-semibold text-primary-wh40k">
                 Coaching note for {data.displayName}
               </h3>
               <button
                 type="button"
                 aria-label="Close"
                 onClick={() => setNoteOpen(false)}
-                className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
+                className="text-(--text-tertiary) hover:text-primary-wh40k"
               >
                 ×
               </button>
             </div>
-            <p className="mb-1 text-[10px] uppercase tracking-wider text-[var(--text-tertiary)]">
+            <p className="mb-1 text-[10px] uppercase tracking-wider text-(--text-tertiary)">
               Suggested message
             </p>
             <textarea
@@ -535,13 +535,13 @@ export function MemberDetailPanel({
               value={noteDraft}
               onChange={(e) => setNoteDraft(e.target.value)}
               rows={6}
-              className="w-full rounded-md border border-[var(--card-border)] bg-card/30 p-2 text-xs text-[var(--text-primary)]"
+              className="w-full rounded-md border border-(--card-border) bg-card/30 p-2 text-xs text-primary-wh40k"
             />
             <div className="mt-3 flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setNoteOpen(false)}
-                className="rounded-md border border-[var(--card-border)] px-3 py-1.5 text-[11px] font-semibold text-[var(--text-secondary)]"
+                className="rounded-md border border-(--card-border) px-3 py-1.5 text-[11px] font-semibold text-secondary-wh40k"
               >
                 Close
               </button>
@@ -577,7 +577,7 @@ export function MemberDetailPanel({
         )}
 
         {rosterStale && (
-          <p className="text-[11px] text-[var(--text-tertiary)]">
+          <p className="text-[11px] text-(--text-tertiary)">
             Roster data may be stale
             {data.rosterSyncedAt
               ? ` (last synced ${new Date(data.rosterSyncedAt).toLocaleDateString()})`
@@ -593,14 +593,14 @@ export function MemberDetailPanel({
             recentAttacks={data.recentAttacks ?? []}
           />
         ) : (
-          <p className="text-xs text-[var(--text-tertiary)]">
+          <p className="text-xs text-(--text-tertiary)">
             No verdict available for this member yet.
           </p>
         )}
 
         {others.length > 0 && (
           <div>
-            <p className="mb-1 text-[10px] uppercase tracking-widest text-[var(--text-tertiary)]">
+            <p className="mb-1 text-[10px] uppercase tracking-widest text-(--text-tertiary)">
               Other bosses
             </p>
             <ul className="divide-y divide-[color-mix(in_srgb,var(--card-border)_40%,transparent)]">
@@ -615,7 +615,7 @@ export function MemberDetailPanel({
         )}
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[color-mix(in_srgb,var(--card-border)_40%,transparent)] px-4 py-2 text-[10px] text-[var(--text-tertiary)]">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[color-mix(in_srgb,var(--card-border)_40%,transparent)] px-4 py-2 text-[10px] text-(--text-tertiary)">
         <span>
           Model compares boss, difficulty, upgrades, and roster-feasible teams.
         </span>

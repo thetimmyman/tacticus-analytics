@@ -49,7 +49,7 @@ export function ClusterSettingsPanel({
         icon={Users}
         tone="warning"
       >
-        <p className="text-sm text-[var(--text-secondary)]">
+        <p className="text-sm text-secondary-wh40k">
           Members can view cluster benefits once leadership has provisioned a
           cluster.
         </p>
@@ -116,8 +116,8 @@ export function ClusterSettingsPanel({
     >
       {loadingClusterInfo ? (
         <div className="flex items-center justify-center py-10">
-          <Loader2 className="h-6 w-6 animate-spin text-[var(--accent)]" />
-          <span className="ml-3 text-sm text-[var(--text-secondary)]">
+          <Loader2 className="h-6 w-6 animate-spin text-(--accent)" />
+          <span className="ml-3 text-sm text-secondary-wh40k">
             Contacting cluster archives…
           </span>
         </div>
@@ -137,7 +137,7 @@ export function ClusterSettingsPanel({
           {clusterInfo.description && (
             <div className="space-y-2">
               <Label>Description</Label>
-              <div className="rounded-2xl border border-card-border/40 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] px-4 py-3 text-sm text-[var(--text-secondary)]">
+              <div className="rounded-2xl border border-card-border/40 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] px-4 py-3 text-sm text-secondary-wh40k">
                 {clusterInfo.description}
               </div>
             </div>
@@ -166,8 +166,8 @@ export function ClusterSettingsPanel({
           </div>
         </div>
       ) : (
-        <div className="flex items-center gap-3 rounded-2xl border border-[color-mix(in_srgb,var(--accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] p-4 text-sm text-[var(--text-primary)]">
-          <AlertCircle className="h-5 w-5 text-[var(--accent)]" />
+        <div className="flex items-center gap-3 rounded-2xl border border-[color-mix(in_srgb,var(--accent)_40%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] p-4 text-sm text-primary-wh40k">
+          <AlertCircle className="h-5 w-5 text-(--accent)" />
           Unable to load cluster details—refresh to retry or verify permissions.
         </div>
       )}
@@ -185,9 +185,9 @@ function ClusterHighlight({
   description: string
 }) {
   return (
-    <div className="rounded-2xl border border-card-border/40 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-4 text-sm text-[var(--text-secondary)] shadow-[0_12px_24px_rgba(4,8,20,0.4)]">
-      <Icon className="mx-auto mb-3 h-8 w-8 text-[var(--accent)]" />
-      <h3 className="text-center text-[var(--text-primary)] font-semibold mb-1">
+    <div className="rounded-2xl border border-card-border/40 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-4 text-sm text-secondary-wh40k shadow-[0_12px_24px_rgba(4,8,20,0.4)]">
+      <Icon className="mx-auto mb-3 h-8 w-8 text-(--accent)" />
+      <h3 className="text-center text-primary-wh40k font-semibold mb-1">
         {title}
       </h3>
       <p className="text-center">{description}</p>
@@ -209,7 +209,7 @@ function ClusterInfoField({
       <Label>{label}</Label>
       <div
         className={cn(
-          'rounded-2xl border border-card-border/50 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] px-4 py-3 text-sm text-[var(--text-primary)]',
+          'rounded-2xl border border-card-border/50 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] px-4 py-3 text-sm text-primary-wh40k',
           mono && 'font-mono tracking-widest'
         )}
       >

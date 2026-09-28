@@ -74,7 +74,7 @@ export function AddGuildForm({
               <span className="ml-1">Check</span>
             </Button>
           </div>
-          <p className="text-xs text-[var(--text-secondary)] mt-1">
+          <p className="text-xs text-secondary-wh40k mt-1">
             Enter a guild code and click Check to see if it already exists
           </p>
         </div>
@@ -84,7 +84,7 @@ export function AddGuildForm({
           <div className="flex items-end">
             <div className="text-sm">
               <Label>Existing Guild</Label>
-              <p className="text-[var(--text-primary)] font-semibold mt-1">
+              <p className="text-primary-wh40k font-semibold mt-1">
                 {formatGuildDisplayLabel(
                   {
                     display_name: claimGuildInfo.display_name,
@@ -167,7 +167,7 @@ export function AddGuildForm({
             required
           />
           {claimMode && (
-            <p className="text-xs text-[var(--text-secondary)] mt-1">
+            <p className="text-xs text-secondary-wh40k mt-1">
               The API key must belong to a member of this guild. This validates
               your authorization to claim it.
             </p>

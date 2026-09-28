@@ -94,7 +94,7 @@ export function CustomTeamBuilder({
 
   return (
     <div className="bg-card/40 rounded-lg p-3">
-      <div className="text-xs text-[var(--text-secondary)] uppercase tracking-wider mb-2">
+      <div className="text-xs text-secondary-wh40k uppercase tracking-wider mb-2">
         Build Your Team
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -105,7 +105,7 @@ export function CustomTeamBuilder({
               key={tier}
               className={`rounded-lg border ${TIER_BORDER[tier]} bg-card/30 p-2`}
             >
-              <div className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
+              <div className="text-xs font-semibold text-secondary-wh40k uppercase tracking-wider mb-2">
                 {TIER_LABELS[tier]}
               </div>
 
@@ -116,7 +116,7 @@ export function CustomTeamBuilder({
                   return (
                     <div
                       key={hero.unitId}
-                      className="flex items-center gap-1 bg-card/60 rounded px-1.5 py-0.5 text-xs text-[var(--text-primary)]"
+                      className="flex items-center gap-1 bg-card/60 rounded-sm px-1.5 py-0.5 text-xs text-primary-wh40k"
                     >
                       {mapping?.web_icon_url && (
                         <Image
@@ -124,7 +124,7 @@ export function CustomTeamBuilder({
                           alt=""
                           width={16}
                           height={16}
-                          className="rounded-sm"
+                          className="rounded-xs"
                           unoptimized
                         />
                       )}
@@ -133,7 +133,7 @@ export function CustomTeamBuilder({
                       </span>
                       <button
                         onClick={() => removeHero(hero.unitId)}
-                        className="text-[var(--text-secondary)] hover:text-red-400 transition-colors"
+                        className="text-secondary-wh40k hover:text-red-400 transition-colors"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -159,23 +159,23 @@ export function CustomTeamBuilder({
                 </button>
 
                 {openTier === tier && (
-                  <div className="absolute top-full left-0 mt-1 z-50 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg shadow-xl w-56 max-h-[280px] flex flex-col">
-                    <div className="p-1.5 border-b border-[var(--card-border)]">
-                      <div className="flex items-center gap-1.5 bg-[var(--card-bg)] rounded px-2 py-1">
-                        <Search className="w-3 h-3 text-[var(--text-secondary)]" />
+                  <div className="absolute top-full left-0 mt-1 z-50 bg-(--card-bg) border border-(--card-border) rounded-lg shadow-xl w-56 max-h-[280px] flex flex-col">
+                    <div className="p-1.5 border-b border-(--card-border)">
+                      <div className="flex items-center gap-1.5 bg-(--card-bg) rounded-sm px-2 py-1">
+                        <Search className="w-3 h-3 text-secondary-wh40k" />
                         <input
                           type="text"
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           placeholder="Search heroes..."
-                          className="bg-transparent text-xs text-[var(--text-primary)] placeholder-gray-500 focus:outline-none w-full"
+                          className="bg-transparent text-xs text-primary-wh40k placeholder-gray-500 focus:outline-hidden w-full"
                           autoFocus
                         />
                       </div>
                     </div>
                     <div className="overflow-y-auto flex-1">
                       {availableHeroes.length === 0 && (
-                        <div className="px-2 py-3 text-xs text-[var(--text-secondary)] text-center">
+                        <div className="px-2 py-3 text-xs text-secondary-wh40k text-center">
                           No heroes available
                         </div>
                       )}
@@ -191,15 +191,15 @@ export function CustomTeamBuilder({
                               alt=""
                               width={18}
                               height={18}
-                              className="rounded-sm"
+                              className="rounded-xs"
                               unoptimized
                             />
                           )}
-                          <span className="text-xs text-[var(--text-primary)] truncate">
+                          <span className="text-xs text-primary-wh40k truncate">
                             {mapping.display_name ?? mapping.unit_id}
                           </span>
                           {mapping.category && (
-                            <span className="text-[10px] text-[var(--text-secondary)] ml-auto">
+                            <span className="text-[10px] text-secondary-wh40k ml-auto">
                               {mapping.category}
                             </span>
                           )}

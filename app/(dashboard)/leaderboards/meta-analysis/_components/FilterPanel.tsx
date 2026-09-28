@@ -46,16 +46,16 @@ export function FilterPanel({
       {scope === 'global' && (
         <p
           data-testid="meta-analysis-scope-notice"
-          className="text-sm text-[var(--text-secondary)]"
+          className="text-sm text-secondary-wh40k"
         >
-          <span className="font-semibold text-[var(--text-primary)]">
+          <span className="font-semibold text-primary-wh40k">
             {META_ANALYSIS_GLOBAL_SCOPE_NOTICE}
           </span>{' '}
           — {META_ANALYSIS_GLOBAL_SCOPE_DETAIL}. For your own guild&apos;s
           compositions, see{' '}
           <Link
             href={META_ANALYSIS_MY_GUILD_HREF}
-            className="text-[var(--accent)] underline-offset-4 hover:underline"
+            className="text-(--accent) underline-offset-4 hover:underline"
           >
             {META_ANALYSIS_MY_GUILD_LINK_LABEL}
           </Link>
@@ -64,7 +64,7 @@ export function FilterPanel({
       )}
 
       <div className="flex flex-wrap gap-4 items-center">
-        <div className="flex-grow">
+        <div className="grow">
           <RarityFilterControls
             selectedRarities={selectedRarities}
             onRarityChange={setSelectedRarities}
@@ -83,7 +83,7 @@ export function FilterPanel({
         <select
           value={levelFilter}
           onChange={(e) => setLevelFilter(e.target.value)}
-          className="px-3 py-2 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          className="px-3 py-2 bg-(--card-bg) border border-(--card-border) rounded-lg text-primary-wh40k focus:outline-hidden focus:ring-2 focus:ring-cyan-500"
         >
           <option value="all">All Boss Levels</option>
           {availableLevels.map((level) => (
@@ -95,12 +95,12 @@ export function FilterPanel({
 
         <div className="flex flex-wrap gap-2 min-h-[32px]">
           {recommendedLoading ? (
-            <span className="text-sm text-[var(--text-secondary)] self-center">
+            <span className="text-sm text-secondary-wh40k self-center">
               Loading meta teams...
             </span>
           ) : availableMetaTeams.length > 0 ? (
             <>
-              <span className="text-sm text-[var(--text-secondary)] self-center">
+              <span className="text-sm text-secondary-wh40k self-center">
                 Meta Teams:
               </span>
               {availableMetaTeams.map((team) => (
@@ -125,14 +125,14 @@ export function FilterPanel({
               {selectedMetaTeams.size > 0 && (
                 <button
                   onClick={() => setSelectedMetaTeams(new Set())}
-                  className="px-3 py-1 text-xs rounded-lg bg-[var(--card-bg)] text-[var(--text-secondary)] border border-[var(--card-border)] hover:bg-[var(--card-bg)]"
+                  className="px-3 py-1 text-xs rounded-lg bg-(--card-bg) text-secondary-wh40k border border-(--card-border) hover:bg-(--card-bg)"
                 >
                   Clear All
                 </button>
               )}
             </>
           ) : (
-            <span className="text-sm text-[var(--text-secondary)] self-center">
+            <span className="text-sm text-secondary-wh40k self-center">
               No meta teams available
             </span>
           )}
@@ -141,7 +141,7 @@ export function FilterPanel({
         <div className="flex items-end">
           <button
             onClick={onRefresh}
-            className="px-4 py-2 bg-[var(--accent)] hover:bg-[color-mix(in_srgb,var(--accent)_80%,transparent)] text-black rounded-lg transition-colors"
+            className="px-4 py-2 bg-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_80%,transparent)] text-black rounded-lg transition-colors"
           >
             Refresh Analysis
           </button>

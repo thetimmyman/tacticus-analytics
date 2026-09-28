@@ -217,7 +217,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="min-h-[400px] flex items-center justify-center p-6">
-          <div className="max-w-md w-full bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded-lg border border-red-500/20 p-6 text-center">
+          <div className="max-w-md w-full bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-lg border border-red-500/20 p-6 text-center">
             {/* Error Icon */}
             <div className="flex justify-center mb-4">
               <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center">
@@ -226,12 +226,12 @@ export class ErrorBoundary extends Component<Props, State> {
             </div>
 
             {/* Error Title */}
-            <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
+            <h2 className="text-xl font-semibold text-primary-wh40k mb-2">
               ++ Cogitator fault ++ The Machine Spirit faltered.
             </h2>
 
             {/* Error Description */}
-            <p className="text-[var(--text-secondary)] mb-4">
+            <p className="text-secondary-wh40k mb-4">
               {error
                 ? this.getErrorDescription(error)
                 : 'An unexpected error occurred.'}
@@ -239,7 +239,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
             {/* Error ID for support */}
             {errorId && (
-              <p className="text-xs text-[var(--text-secondary)] mb-4 font-mono">
+              <p className="text-xs text-secondary-wh40k mb-4 font-mono">
                 Error ID: {errorId}
               </p>
             )}
@@ -280,21 +280,21 @@ export class ErrorBoundary extends Component<Props, State> {
             {/* Development Details */}
             {showDetails && error && (
               <details className="mt-4 text-left">
-                <summary className="cursor-pointer text-sm text-[var(--text-secondary)] hover:text-[var(--text-secondary)] flex items-center gap-2">
+                <summary className="cursor-pointer text-sm text-secondary-wh40k hover:text-secondary-wh40k flex items-center gap-2">
                   <Bug className="w-4 h-4" />
                   Technical Details
                 </summary>
-                <div className="mt-2 p-3 bg-[var(--bg-primary)] rounded border text-xs">
+                <div className="mt-2 p-3 bg-(--bg-primary) rounded-sm border text-xs">
                   <div className="mb-2">
                     <strong className="text-red-400">Error:</strong>
-                    <pre className="text-[var(--text-secondary)] whitespace-pre-wrap mt-1">
+                    <pre className="text-secondary-wh40k whitespace-pre-wrap mt-1">
                       {error.message}
                     </pre>
                   </div>
                   {error.stack && (
                     <div>
                       <strong className="text-red-400">Stack:</strong>
-                      <pre className="text-[var(--text-secondary)] whitespace-pre-wrap mt-1 text-xs">
+                      <pre className="text-secondary-wh40k whitespace-pre-wrap mt-1 text-xs">
                         {error.stack}
                       </pre>
                     </div>
@@ -304,7 +304,7 @@ export class ErrorBoundary extends Component<Props, State> {
             )}
 
             {/* Support Message */}
-            <p className="text-xs text-[var(--text-secondary)] mt-4">
+            <p className="text-xs text-secondary-wh40k mt-4">
               If the fault persists, transmit the Error ID above to the
               Tech-Priests.
             </p>

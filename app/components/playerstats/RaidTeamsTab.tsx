@@ -111,7 +111,7 @@ export function RaidTeamsTab({ playerName, guildCode }: RaidTeamsTabProps) {
 
   if (rosterData.length === 0) {
     return (
-      <div className="text-center py-12 text-[var(--text-secondary)]">
+      <div className="text-center py-12 text-secondary-wh40k">
         No roster data synced for this player yet.
       </div>
     )
@@ -122,19 +122,19 @@ export function RaidTeamsTab({ playerName, guildCode }: RaidTeamsTabProps) {
       {rankedTeams.map(({ team, totalScore }, idx) => (
         <div
           key={team.id}
-          className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg overflow-hidden"
+          className="bg-(--card-bg) border border-(--card-border) rounded-lg overflow-hidden"
         >
           {/* Team header */}
-          <div className="flex items-center justify-between px-4 py-2.5 border-b border-[var(--card-border)] bg-card/30">
+          <div className="flex items-center justify-between px-4 py-2.5 border-b border-(--card-border) bg-card/30">
             <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-[var(--text-secondary)] tabular-nums w-5">
+              <span className="text-sm font-medium text-secondary-wh40k tabular-nums w-5">
                 #{idx + 1}
               </span>
-              <span className="text-sm font-semibold text-[var(--text-primary)]">
+              <span className="text-sm font-semibold text-primary-wh40k">
                 {team.name}
               </span>
             </div>
-            <span className="text-sm font-medium text-[var(--accent)] tabular-nums">
+            <span className="text-sm font-medium text-(--accent) tabular-nums">
               {hasMounted ? totalScore.toLocaleString() : String(totalScore)}
             </span>
           </div>
@@ -157,17 +157,17 @@ export function RaidTeamsTab({ playerName, guildCode }: RaidTeamsTabProps) {
                           alt=""
                           width={24}
                           height={24}
-                          className="rounded-sm"
+                          className="rounded-xs"
                           unoptimized
                         />
                       ) : (
-                        <div className="w-6 h-6 rounded-sm bg-gray-700" />
+                        <div className="w-6 h-6 rounded-xs bg-gray-700" />
                       )}
                       <span
                         className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ${TIER_DOT[hero.tier]}`}
                       />
                     </div>
-                    <span className="text-[9px] text-[var(--text-secondary)] leading-tight text-center truncate w-full px-0.5">
+                    <span className="text-[9px] text-secondary-wh40k leading-tight text-center truncate w-full px-0.5">
                       {hero.displayName}
                     </span>
                   </div>

@@ -24,10 +24,8 @@ export default async function GuildMetricsPage() {
   if (!profile.guild_code) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <h1 className="text-3xl font-bold text-[var(--text-primary)]">
-          Guild Metrics
-        </h1>
-        <p className="mt-4 text-[var(--text-secondary)]">
+        <h1 className="text-3xl font-bold text-primary-wh40k">Guild Metrics</h1>
+        <p className="mt-4 text-secondary-wh40k">
           Join a guild to see war participation and performance metrics.
         </p>
       </div>

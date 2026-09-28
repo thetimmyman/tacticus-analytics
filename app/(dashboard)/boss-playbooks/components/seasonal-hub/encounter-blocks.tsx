@@ -55,7 +55,7 @@ export function MiniTeam({
           key={unit}
           unitName={unit}
           className={
-            compact ? '!h-6 !w-6 ring-1 ring-[var(--bg-secondary)]' : undefined
+            compact ? 'h-6! w-6! ring-1 ring-(--bg-secondary)' : undefined
           }
         />
       ))}
@@ -76,7 +76,7 @@ export function EncounterMedia({
   encounter: SeasonalEncounterData
 }) {
   return (
-    <div className="relative aspect-square w-full min-h-[156px] overflow-hidden rounded-md border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-tertiary)_45%,transparent)]">
+    <div className="relative aspect-square w-full min-h-[156px] overflow-hidden rounded-md border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-tertiary)_45%,transparent)]">
       {encounter.mapImageUrl ? (
         <Image
           src={encounter.mapImageUrl}
@@ -86,7 +86,7 @@ export function EncounterMedia({
           className="object-contain"
         />
       ) : (
-        <div className="flex h-full min-h-[156px] flex-col items-center justify-center gap-1 text-[var(--text-tertiary)]">
+        <div className="flex h-full min-h-[156px] flex-col items-center justify-center gap-1 text-(--text-tertiary)">
           <MapIcon className="h-5 w-5" />
           <span className="text-xs">{encounter.boardId}</span>
         </div>
@@ -104,7 +104,7 @@ export function SmallEncounterMap({
   encounter: SeasonalEncounterData
 }) {
   return (
-    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-tertiary)_45%,transparent)] sm:h-20 sm:w-20 xl:hidden">
+    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-tertiary)_45%,transparent)] sm:h-20 sm:w-20 xl:hidden">
       {encounter.mapImageUrl ? (
         <Image
           src={encounter.mapImageUrl}
@@ -114,7 +114,7 @@ export function SmallEncounterMap({
           className="object-cover"
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center text-[var(--text-tertiary)]">
+        <div className="flex h-full w-full items-center justify-center text-(--text-tertiary)">
           <MapIcon className="h-5 w-5" />
         </div>
       )}
@@ -136,7 +136,7 @@ export function EncounterTitle({
   children?: ReactNode
 }) {
   const portrait = (
-    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-tertiary)_45%,transparent)]">
+    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-tertiary)_45%,transparent)]">
       <BossPortrait
         bossName={encounter.bossName}
         lookupName={encounter.portraitLookupName}
@@ -148,7 +148,7 @@ export function EncounterTitle({
     </div>
   )
   const heading = (
-    <h3 className="truncate text-xl font-semibold text-[var(--text-primary)]">
+    <h3 className="truncate text-xl font-semibold text-primary-wh40k">
       {title}
     </h3>
   )
@@ -168,7 +168,7 @@ export function EncounterTitle({
       <div className="min-w-0">
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           {href ? (
-            <Link href={href} className="min-w-0 hover:text-[var(--accent)]">
+            <Link href={href} className="min-w-0 hover:text-(--accent)">
               {heading}
             </Link>
           ) : (
@@ -206,11 +206,11 @@ export function MetricsStrip({
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-[var(--card-border)] bg-black/20 px-3 py-2">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+    <div className="rounded-md border border-(--card-border) bg-black/20 px-3 py-2">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
         {label}
       </div>
-      <div className="mt-1 truncate font-semibold text-[var(--text-primary)]">
+      <div className="mt-1 truncate font-semibold text-primary-wh40k">
         {value}
       </div>
     </div>
@@ -223,8 +223,8 @@ function LoopTokenMetric({
   metrics: SeasonalHubBattleMetrics | null
 }) {
   return (
-    <div className="rounded-md border border-[var(--card-border)] bg-black/20 px-3 py-2">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+    <div className="rounded-md border border-(--card-border) bg-black/20 px-3 py-2">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
         Loop tokens
       </div>
       {metrics && metrics.tokensByLoop.length > 0 ? (
@@ -232,14 +232,14 @@ function LoopTokenMetric({
           {metrics.tokensByLoop.slice(0, 5).map((loop) => (
             <span
               key={loop.loopIndex}
-              className="rounded border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-primary)_60%,transparent)] px-1.5 py-0.5 font-mono text-[11px] font-semibold text-[var(--text-primary)]"
+              className="rounded-sm border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-primary)_60%,transparent)] px-1.5 py-0.5 font-mono text-[11px] font-semibold text-primary-wh40k"
             >
               L{loop.loopIndex}: {loop.tokens}
             </span>
           ))}
         </div>
       ) : (
-        <div className="mt-1 font-semibold text-[var(--text-primary)]">
+        <div className="mt-1 font-semibold text-primary-wh40k">
           No loop history
         </div>
       )}
@@ -250,7 +250,7 @@ function LoopTokenMetric({
 export function MetaTeamBadge({ team }: { team: SeasonalHubMetaAtlasTeam }) {
   if (!team.metaTeam) return null
   return (
-    <span className="inline-flex max-w-full items-center rounded border border-[color-mix(in_srgb,var(--accent)_35%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--accent)]">
+    <span className="inline-flex max-w-full items-center rounded-sm border border-[color-mix(in_srgb,var(--accent)_35%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] px-1.5 py-0.5 text-[10px] font-semibold text-(--accent)">
       <span className="truncate">{team.metaTeam}</span>
     </span>
   )
@@ -269,7 +269,7 @@ function OpsIndicatorBadge({
   return (
     <span
       title={`${label}: ${value}`}
-      className="inline-flex items-center gap-1 rounded-md border border-[var(--card-border)] bg-black/20 px-2 py-1 text-xs font-semibold text-[var(--text-secondary)]"
+      className="inline-flex items-center gap-1 rounded-md border border-(--card-border) bg-black/20 px-2 py-1 text-xs font-semibold text-secondary-wh40k"
     >
       <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
       {value}

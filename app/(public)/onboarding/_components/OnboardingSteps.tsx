@@ -38,13 +38,13 @@ export function OnboardingSteps({
               <span
                 aria-hidden="true"
                 className={clsx(
-                  'flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-[0.65rem] font-bold transition-colors',
-                  isComplete && 'bg-[var(--success)] text-[var(--bg-primary)]',
+                  'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[0.65rem] font-bold transition-colors',
+                  isComplete && 'bg-(--success) text-(--bg-primary)',
                   isCurrent &&
-                    'bg-[var(--accent)] text-[var(--bg-primary)] ring-2 ring-[color-mix(in_srgb,var(--accent)_40%,transparent)]',
+                    'bg-accent-wh40k text-(--bg-primary) ring-2 ring-[color-mix(in_srgb,var(--accent)_40%,transparent)]',
                   !isComplete &&
                     !isCurrent &&
-                    'border border-[var(--card-border)] text-[var(--text-secondary)]'
+                    'border border-(--card-border) text-secondary-wh40k'
                 )}
               >
                 {isComplete ? (
@@ -58,9 +58,7 @@ export function OnboardingSteps({
                 className={clsx(
                   'text-xs font-semibold uppercase tracking-[0.14em]',
                   isCurrent ? 'inline' : 'hidden sm:inline',
-                  isCurrent
-                    ? 'text-[var(--text-primary)]'
-                    : 'text-[var(--text-secondary)]'
+                  isCurrent ? 'text-primary-wh40k' : 'text-secondary-wh40k'
                 )}
               >
                 {step}
@@ -71,7 +69,7 @@ export function OnboardingSteps({
                 aria-hidden="true"
                 className={clsx(
                   'h-px flex-1',
-                  isComplete ? 'bg-[var(--success)]' : 'bg-[var(--card-border)]'
+                  isComplete ? 'bg-(--success)' : 'bg-(--card-border)'
                 )}
               />
             )}

@@ -18,14 +18,14 @@ export function ChartErrorBoundary({
   return (
     <ErrorBoundary
       fallback={
-        <div className="flex flex-col items-center justify-center p-8 bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded-lg border border-[color-mix(in_srgb,var(--accent)_20%,transparent)] min-h-[300px]">
+        <div className="flex flex-col items-center justify-center p-8 bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-lg border border-[color-mix(in_srgb,var(--accent)_20%,transparent)] min-h-[300px]">
           <div className="flex items-center justify-center w-12 h-12 bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] rounded-full mb-4">
-            <BarChart3 className="w-6 h-6 text-[var(--accent)]" />
+            <BarChart3 className="w-6 h-6 text-(--accent)" />
           </div>
-          <h3 className="text-[var(--text-primary)] font-medium mb-2">
+          <h3 className="text-primary-wh40k font-medium mb-2">
             {chartName} Unavailable
           </h3>
-          <p className="text-sm text-[var(--text-secondary)] text-center max-w-sm">
+          <p className="text-sm text-secondary-wh40k text-center max-w-sm">
             Unable to render the chart. The data may be incomplete or
             unavailable.
           </p>

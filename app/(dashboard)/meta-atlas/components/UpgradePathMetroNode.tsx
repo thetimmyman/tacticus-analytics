@@ -73,18 +73,18 @@ const toneStyles: Record<
   step: {
     card: 'border-white/10 bg-white/5',
     label: 'text-slate-100',
-    kicker: 'text-[var(--text-secondary)]',
-    icon: 'text-[var(--text-primary)]',
+    kicker: 'text-secondary-wh40k',
+    icon: 'text-primary-wh40k',
     iconRing:
       'border-white/10 bg-[color-mix(in_srgb,var(--bg-secondary)_70%,transparent)]',
     glow: 'bg-slate-500/10'
   },
   locked: {
     card: 'border-card-border/70 bg-[color-mix(in_srgb,var(--bg-secondary)_70%,transparent)]',
-    label: 'text-[var(--text-secondary)]',
-    kicker: 'text-[var(--text-secondary)]',
-    icon: 'text-[var(--text-secondary)]',
-    iconRing: 'border-[var(--card-border)] bg-[var(--bg-secondary)]',
+    label: 'text-secondary-wh40k',
+    kicker: 'text-secondary-wh40k',
+    icon: 'text-secondary-wh40k',
+    iconRing: 'border-(--card-border) bg-(--bg-secondary)',
     glow: 'bg-card/20'
   }
 }
@@ -113,7 +113,7 @@ const strengthBadgeStyles: Record<
   },
   Locked: {
     label: 'Locked',
-    className: 'border-slate-500/40 bg-slate-500/10 text-[var(--text-primary)]'
+    className: 'border-slate-500/40 bg-slate-500/10 text-primary-wh40k'
   },
   Invalid: {
     label: 'Invalid',
@@ -121,8 +121,7 @@ const strengthBadgeStyles: Record<
   },
   Unknown: {
     label: 'Unknown',
-    className:
-      'border-[var(--card-border)] bg-card/50 text-[var(--text-secondary)]'
+    className: 'border-(--card-border) bg-card/50 text-secondary-wh40k'
   }
 }
 
@@ -166,7 +165,7 @@ export function MetroNode({
   const showHeroes = resolvedPortraitMode !== 'hidden'
   const availabilityClass =
     availabilityTone === 'locked'
-      ? 'border-slate-500/40 bg-slate-500/10 text-[var(--text-primary)]'
+      ? 'border-slate-500/40 bg-slate-500/10 text-primary-wh40k'
       : availabilityTone === 'invest'
         ? 'border-rose-500/40 bg-rose-500/10 text-rose-200'
         : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200'
@@ -201,12 +200,12 @@ export function MetroNode({
         : 'text-[7px] sm:text-[8px]'
   const labelClass = `uppercase tracking-wide ${style.kicker} ${
     compact
-      ? 'text-[9px] sm:text-[10px] truncate max-w-[5rem]'
+      ? 'text-[9px] sm:text-[10px] truncate max-w-20'
       : 'text-[10px] sm:text-[11px]'
   }`
   const damageClass = `${style.label} font-semibold ${
     compact
-      ? 'text-sm sm:text-base truncate max-w-[5rem] mx-auto'
+      ? 'text-sm sm:text-base truncate max-w-20 mx-auto'
       : 'text-lg sm:text-xl'
   }`
 
@@ -220,7 +219,7 @@ export function MetroNode({
         />
       )}
       <div
-        className={`relative z-10 flex w-full flex-col items-center gap-2 rounded-2xl border ${compact ? 'px-3 py-3' : 'px-4 py-4 sm:px-5 sm:py-5'} backdrop-blur sm:gap-3 ${style.card}`}
+        className={`relative z-10 flex w-full flex-col items-center gap-2 rounded-2xl border ${compact ? 'px-3 py-3' : 'px-4 py-4 sm:px-5 sm:py-5'} backdrop-blur-sm sm:gap-3 ${style.card}`}
       >
         {activeBadgeLabel && showDetails && (
           <span className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2 py-0.5 text-[9px] font-semibold text-emerald-200">
@@ -256,7 +255,7 @@ export function MetroNode({
                     <div
                       className={`rounded-full border overflow-hidden flex items-center justify-center ${heroSizeClass} ${
                         locked
-                          ? 'border-[var(--card-border)] bg-[var(--bg-secondary)]'
+                          ? 'border-(--card-border) bg-(--bg-secondary)'
                           : investmentKeys.has(normalizeHeroKey(hero.name))
                             ? 'border-rose-400/70 bg-rose-500/10'
                             : 'border-white/20 bg-card/70'
@@ -275,7 +274,7 @@ export function MetroNode({
                           loading="lazy"
                         />
                       ) : (
-                        <span className="text-[8px] text-[var(--text-secondary)] font-semibold sm:text-[9px]">
+                        <span className="text-[8px] text-secondary-wh40k font-semibold sm:text-[9px]">
                           {hero.name.slice(0, 2).toUpperCase()}
                         </span>
                       )}
@@ -294,7 +293,7 @@ export function MetroNode({
             </div>
           ) : showDetails && composition ? (
             <div
-              className={`mt-2 text-[10px] ${locked ? 'text-[var(--text-secondary)]' : 'text-[var(--text-primary)]'} truncate max-w-[11rem] sm:text-[11px] sm:max-w-[12rem]`}
+              className={`mt-2 text-[10px] ${locked ? 'text-secondary-wh40k' : 'text-primary-wh40k'} truncate max-w-44 sm:text-[11px] sm:max-w-48`}
               title={composition}
             >
               {composition}
@@ -357,7 +356,7 @@ export function _MobileTeamNode({
 
   return (
     <div className="rounded-xl border border-white/10 bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] px-3 py-3">
-      <div className="flex items-center justify-between text-[10px] uppercase tracking-wide text-[var(--text-secondary)]">
+      <div className="flex items-center justify-between text-[10px] uppercase tracking-wide text-secondary-wh40k">
         <span>{label}</span>
         <span className="text-emerald-200">
           {damage != null ? formatNumber(Math.round(damage)) : '--'}
@@ -390,7 +389,7 @@ export function _MobileTeamNode({
                       loading="lazy"
                     />
                   ) : (
-                    <span className="text-[8px] text-[var(--text-secondary)] font-semibold">
+                    <span className="text-[8px] text-secondary-wh40k font-semibold">
                       {unit.displayName.slice(0, 2).toUpperCase()}
                     </span>
                   )}
@@ -408,7 +407,7 @@ export function _MobileTeamNode({
           })}
         </div>
       ) : (
-        <div className="mt-2 text-[10px] text-[var(--text-secondary)]">
+        <div className="mt-2 text-[10px] text-secondary-wh40k">
           No team data available.
         </div>
       )}

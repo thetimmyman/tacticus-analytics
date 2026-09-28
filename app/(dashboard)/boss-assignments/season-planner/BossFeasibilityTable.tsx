@@ -35,7 +35,7 @@ function PrimesCell({ entry }: { entry: BossStageEntry }) {
     <>
       {activeCount > 0 ? `+${activeCount}` : '—'}
       {skippedCount > 0 && (
-        <span className="ml-1 text-[10px] uppercase tracking-wide text-[var(--text-tertiary)]">
+        <span className="ml-1 text-[10px] uppercase tracking-wide text-(--text-tertiary)">
           {skippedCount} Skipped
         </span>
       )}
@@ -56,21 +56,21 @@ const stageKey = (entry: BossStageEntry) =>
 const renderStageCell = (entry: BossStageEntry) => (
   <>
     {entry.stageCode}
-    <span className="text-[var(--text-tertiary)]"> L{entry.loopIndex}</span>
+    <span className="text-(--text-tertiary)"> L{entry.loopIndex}</span>
     {entry.isCurrentStage && (
-      <span className="ml-1 text-[10px] text-[var(--accent)]">now</span>
+      <span className="ml-1 text-[10px] text-(--accent)">now</span>
     )}
   </>
 )
 
 const renderBossCell = (entry: BossStageEntry) => (
-  <span className="text-[var(--text-primary)]">
+  <span className="text-primary-wh40k">
     {getBossDisplayName(entry.encounters.main.bossName)}
   </span>
 )
 
 const renderHpCell = (entry: BossStageEntry) => (
-  <span className="text-[var(--text-primary)]">
+  <span className="text-primary-wh40k">
     {formatNumber(entry.encounters.main.remainingHp)} /{' '}
     {formatNumber(entry.encounters.main.maxHp)}
   </span>
@@ -133,7 +133,7 @@ function buildFeasibilityColumns(
       header: hasOfficerTargets ? 'Budget' : 'Est. tokens',
       sortable: false,
       render: ({ entry }) => (
-        <span className="text-[var(--text-primary)]">
+        <span className="text-primary-wh40k">
           {!hasOfficerTargets ? (
             formatNumber(entry.estimatedTokensNeeded)
           ) : stageHasOfficerTarget(entry) ? (
@@ -141,7 +141,7 @@ function buildFeasibilityColumns(
               Target {formatNumber(stageBudgetTokens(entry))}
               {typeof entry.budgetVarianceTokens === 'number' &&
                 entry.budgetVarianceTokens !== 0 && (
-                  <span className="ml-1 text-xs text-[var(--text-secondary)]">
+                  <span className="ml-1 text-xs text-secondary-wh40k">
                     · est {formatNumber(entry.estimatedTokensNeeded)} (
                     {entry.budgetVarianceTokens > 0 ? '+' : ''}
                     {formatNumber(entry.budgetVarianceTokens)})
@@ -159,7 +159,7 @@ function buildFeasibilityColumns(
       header: 'Cumulative',
       sortable: false,
       render: ({ cumulative }) => (
-        <span className="font-semibold text-[var(--accent)]">
+        <span className="font-semibold text-(--accent)">
           {formatNumber(cumulative)}
         </span>
       )
@@ -190,8 +190,8 @@ function BossFeasibilityTable({
 
   if (!hasDamageSignal) {
     return (
-      <div className="rounded-lg border border-[var(--card-border)] bg-card/40 p-4">
-        <h4 className="text-sm font-semibold text-[var(--text-primary)]">
+      <div className="rounded-lg border border-(--card-border) bg-card/40 p-4">
+        <h4 className="text-sm font-semibold text-primary-wh40k">
           Remaining boss feasibility
         </h4>
         <div className="mt-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
@@ -206,7 +206,7 @@ function BossFeasibilityTable({
           rowKey={stageKey}
           rowClassName={(entry) =>
             entry.isCurrentStage
-              ? '!bg-[color-mix(in_srgb,var(--accent)_5%,transparent)]'
+              ? 'bg-[color-mix(in_srgb,var(--accent)_5%,transparent)]!'
               : undefined
           }
           className="mt-3"
@@ -230,11 +230,11 @@ function BossFeasibilityTable({
   }))
 
   return (
-    <div className="rounded-lg border border-[var(--card-border)] bg-card/40 p-4">
-      <h4 className="text-sm font-semibold text-[var(--text-primary)]">
+    <div className="rounded-lg border border-(--card-border) bg-card/40 p-4">
+      <h4 className="text-sm font-semibold text-primary-wh40k">
         Remaining boss feasibility
       </h4>
-      <p className="mt-1 text-xs text-[var(--text-secondary)]">
+      <p className="mt-1 text-xs text-secondary-wh40k">
         {hasOfficerTargets
           ? 'Budgeted tokens per remaining stage (officer targets where set, model estimates otherwise), and the running total to reach it.'
           : 'Estimated tokens to clear each remaining stage, and the running total to reach it.'}
@@ -244,7 +244,7 @@ function BossFeasibilityTable({
               {' '}
               With ~{formatNumber(tokensSpendable ?? 0)} spendable tokens by
               season end, projected to reach{' '}
-              <span className="font-semibold text-[var(--text-primary)]">
+              <span className="font-semibold text-primary-wh40k">
                 {getBossDisplayName(reachableEntry.encounters.main.bossName)} (L
                 {reachableEntry.loopIndex})
               </span>
@@ -265,7 +265,7 @@ function BossFeasibilityTable({
         rowClassName={({ entry, outOfReach }) =>
           [
             entry.isCurrentStage
-              ? '!bg-[color-mix(in_srgb,var(--accent)_5%,transparent)]'
+              ? 'bg-[color-mix(in_srgb,var(--accent)_5%,transparent)]!'
               : '',
             outOfReach ? 'opacity-40' : ''
           ]

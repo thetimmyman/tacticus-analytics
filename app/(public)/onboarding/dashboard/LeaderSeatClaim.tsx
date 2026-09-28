@@ -138,27 +138,27 @@ export function LeaderSeatClaim({
   }
 
   return (
-    <div className="space-y-3 rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--accent)_6%,transparent)] p-4">
+    <div className="space-y-3 rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--accent)_6%,transparent)] p-4">
       <div className="flex items-start gap-2">
-        <KeyRound className="mt-0.5 h-4 w-4 shrink-0 text-[var(--accent)]" />
+        <KeyRound className="mt-0.5 h-4 w-4 shrink-0 text-(--accent)" />
         <div className="space-y-1">
-          <p className="text-sm font-medium text-[var(--text-primary)]">
+          <p className="text-sm font-medium text-primary-wh40k">
             Link your player profile
           </p>
-          <p className="text-xs text-[var(--text-secondary)]">
+          <p className="text-xs text-secondary-wh40k">
             Paste an API key with <strong>Player</strong> read access.
             We&apos;ll match your player name against the roster already synced
             for {guildName || 'this guild'}. No invite code is needed for the
             first registrar.
           </p>
-          <ol className="text-xs text-[var(--text-secondary)] list-decimal list-inside space-y-0.5 my-1">
+          <ol className="text-xs text-secondary-wh40k list-decimal list-inside space-y-0.5 my-1">
             <li>
               Go to{' '}
               <a
                 href="https://api.tacticusgame.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[var(--accent)] underline hover:opacity-80"
+                className="text-(--accent) underline hover:opacity-80"
               >
                 api.tacticusgame.com
               </a>

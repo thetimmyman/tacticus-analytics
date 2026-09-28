@@ -52,13 +52,13 @@ export function MatrixMobileCards<Row, Col>({
   return (
     <div className="lg:hidden space-y-2.5">
       {sort && (
-        <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+        <div className="flex items-center gap-2 text-xs text-secondary-wh40k">
           <label htmlFor="matrix-mobile-sort">Sort</label>
           <select
             id="matrix-mobile-sort"
             value={sort.value ?? ''}
             onChange={(e) => sort.onChange(e.target.value || null)}
-            className="min-w-0 flex-1 max-w-[220px] rounded border border-[var(--card-border)] bg-[var(--card-bg)] px-2 py-1.5 text-xs text-[var(--text-primary)]"
+            className="min-w-0 flex-1 max-w-[220px] rounded-sm border border-(--card-border) bg-(--card-bg) px-2 py-1.5 text-xs text-primary-wh40k"
           >
             <option value="">Default</option>
             {sort.options.map((o) => (
@@ -71,7 +71,7 @@ export function MatrixMobileCards<Row, Col>({
             type="button"
             onClick={sort.onToggleDir}
             disabled={sort.value === null}
-            className="rounded border border-[var(--card-border)] bg-[var(--card-bg)] px-2.5 py-1.5 disabled:opacity-40"
+            className="rounded-sm border border-(--card-border) bg-(--card-bg) px-2.5 py-1.5 disabled:opacity-40"
             title={sort.dir === 'asc' ? 'Ascending' : 'Descending'}
           >
             {sort.dir === 'asc' ? '↑' : '↓'}
@@ -81,15 +81,15 @@ export function MatrixMobileCards<Row, Col>({
       {rows.map((row) => (
         <div
           key={rowKey(row)}
-          className={`overflow-hidden rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] ${
+          className={`overflow-hidden rounded-lg border border-(--card-border) bg-(--card-bg) ${
             rowClassName?.(row) ?? ''
           }`}
         >
-          <div className="border-b border-[var(--card-border)] px-3 py-1.5 text-sm font-medium text-[var(--text-primary)]">
+          <div className="border-b border-(--card-border) px-3 py-1.5 text-sm font-medium text-primary-wh40k">
             {renderRowHeader(row)}
           </div>
           <div
-            className="grid gap-px bg-[var(--card-border)]"
+            className="grid gap-px bg-(--card-border)"
             style={{
               gridTemplateColumns: `repeat(auto-fill, minmax(${tileMinWidth}px, 1fr))`
             }}
@@ -98,17 +98,17 @@ export function MatrixMobileCards<Row, Col>({
               const cell = renderCell(row, col)
               return (
                 // Solid base so heatmap rgba composites over the card, not the divider colour.
-                <div key={colKey(col)} className="bg-[var(--card-bg)]">
+                <div key={colKey(col)} className="bg-(--card-bg)">
                   <div
                     className={`flex h-full min-h-[44px] flex-col items-center justify-center gap-0.5 px-1 py-1 text-center ${
                       cell.className ?? ''
                     }`}
                     style={cell.style}
                   >
-                    <div className="max-w-full truncate text-[9px] font-medium leading-tight text-[var(--text-secondary)]">
+                    <div className="max-w-full truncate text-[9px] font-medium leading-tight text-secondary-wh40k">
                       {renderColLabel(col)}
                     </div>
-                    <div className="text-xs text-[var(--text-primary)]">
+                    <div className="text-xs text-primary-wh40k">
                       {cell.content}
                     </div>
                   </div>

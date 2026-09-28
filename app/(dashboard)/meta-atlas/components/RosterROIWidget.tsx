@@ -63,14 +63,14 @@ export function RosterROIWidget({
   message
 }: RosterROIWidgetProps) {
   return (
-    <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
+    <Card className="bg-(--card-bg) border-(--card-border)">
       <CardContent className="py-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-widest text-[var(--text-secondary)]">
+            <div className="text-xs font-semibold uppercase tracking-widest text-secondary-wh40k">
               High Value Investments
             </div>
-            <div className="text-sm text-[var(--text-secondary)]">
+            <div className="text-sm text-secondary-wh40k">
               Focus on these investments for the biggest upgrade paths.
             </div>
           </div>
@@ -90,7 +90,7 @@ export function RosterROIWidget({
         )}
 
         {!rosterError && !hasRoster && (
-          <div className="py-4 text-sm text-[var(--text-secondary)]">
+          <div className="py-4 text-sm text-secondary-wh40k">
             Connect your roster to see personalized investments.
           </div>
         )}
@@ -112,7 +112,7 @@ export function RosterROIWidget({
           !isLoading &&
           entries.length === 0 &&
           !message && (
-            <div className="py-4 text-sm text-[var(--text-secondary)]">
+            <div className="py-4 text-sm text-secondary-wh40k">
               {message || 'No high value investments found yet.'}
             </div>
           )}
@@ -128,7 +128,7 @@ export function RosterROIWidget({
               return (
                 <div
                   key={entry.hero_name}
-                  className="flex-shrink-0 w-52 p-3 rounded-lg bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 hover:border-white/20 transition-all cursor-pointer"
+                  className="shrink-0 w-52 p-3 rounded-lg bg-linear-to-br from-white/5 to-white/2 border border-white/10 hover:border-white/20 transition-all cursor-pointer"
                   onClick={() => {
                     if (entry.bosses[0] && onSelectBoss) {
                       onSelectBoss(entry.bosses[0])
@@ -136,17 +136,17 @@ export function RosterROIWidget({
                   }}
                 >
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-lg bg-[var(--card-bg)] flex items-center justify-center border border-white/5 shrink-0">
+                    <div className="w-10 h-10 rounded-lg bg-(--card-bg) flex items-center justify-center border border-white/5 shrink-0">
                       {mapping?.web_icon_url ? (
                         <img
                           src={mapping.web_icon_url}
                           alt={displayName}
                           title={displayName}
-                          className="w-8 h-8 rounded"
+                          className="w-8 h-8 rounded-sm"
                           loading="lazy"
                         />
                       ) : (
-                        <Users className="w-5 h-5 text-[var(--text-secondary)]" />
+                        <Users className="w-5 h-5 text-secondary-wh40k" />
                       )}
                     </div>
                     <div className="min-w-0">
@@ -154,18 +154,18 @@ export function RosterROIWidget({
                         {displayName}
                       </h3>
                       <span
-                        className={`inline-block px-1.5 py-0.5 rounded text-[9px] uppercase font-bold border ${badge.className}`}
+                        className={`inline-block px-1.5 py-0.5 rounded-sm text-[9px] uppercase font-bold border ${badge.className}`}
                       >
                         {badge.label}
                       </span>
                     </div>
                   </div>
-                  <p className="text-xs text-[var(--text-secondary)]">
+                  <p className="text-xs text-secondary-wh40k">
                     {actionLabel} · {entry.unlock_count} upgrade
                     {entry.unlock_count !== 1 ? 's' : ''}
                   </p>
                   {statusLabel && (
-                    <p className="text-[9px] uppercase text-[var(--text-secondary)] mt-0.5">
+                    <p className="text-[9px] uppercase text-secondary-wh40k mt-0.5">
                       {statusLabel}
                     </p>
                   )}

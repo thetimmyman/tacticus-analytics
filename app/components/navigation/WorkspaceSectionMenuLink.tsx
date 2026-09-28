@@ -53,7 +53,7 @@ export const WorkspaceSectionMenuLink = forwardRef<
         rel="noopener noreferrer"
         aria-label={`${section.label} (opens in a new tab)`}
         className={mergeClass(
-          `${baseClass} ${spacingClass} hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] bg-[var(--card-bg)]`
+          `${baseClass} ${spacingClass} hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] bg-(--card-bg)`
         )}
       >
         {isDiscord && (
@@ -65,7 +65,7 @@ export const WorkspaceSectionMenuLink = forwardRef<
         )}
         <span className={labelClass}>{section.label}</span>
         <span
-          className="ml-auto text-[10px] text-[var(--text-secondary)]"
+          className="ml-auto text-[10px] text-secondary-wh40k"
           aria-hidden="true"
         >
           ↗
@@ -76,11 +76,11 @@ export const WorkspaceSectionMenuLink = forwardRef<
 
   const stateClass = isActive
     ? isAdminLink
-      ? 'bg-gradient-to-r from-red-500 to-red-600 text-white'
-      : 'bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] text-[var(--bg-primary)]'
+      ? 'bg-linear-to-r from-red-500 to-red-600 text-white'
+      : 'bg-linear-to-r from-(--primary) to-(--accent) text-(--bg-primary)'
     : isAdminLink
-      ? 'hover:bg-red-500/10 bg-[var(--card-bg)] border border-red-500/30'
-      : 'hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] bg-[var(--card-bg)]'
+      ? 'hover:bg-red-500/10 bg-(--card-bg) border border-red-500/30'
+      : 'hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] bg-(--card-bg)'
 
   return (
     <Link

@@ -54,11 +54,11 @@ const HOUR_OPTIONS = Array.from({ length: 24 }, (_, hour) => hour)
 function PanelHeading() {
   return (
     <>
-      <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-1 flex items-center gap-2">
-        <Bell className="w-5 h-5 text-[var(--accent)]" />
+      <h2 className="text-lg font-semibold text-primary-wh40k mb-1 flex items-center gap-2">
+        <Bell className="w-5 h-5 text-(--accent)" />
         Token Alert DMs
       </h2>
-      <p className="text-sm text-[var(--text-secondary)] mb-4">
+      <p className="text-sm text-secondary-wh40k mb-4">
         Get a Discord DM when your raid tokens are full, about to cap, about to
         burn, or every time you gain one — and optionally when a raid bomb is
         ready.
@@ -139,7 +139,7 @@ export function TokenAlertSettings() {
           <span>Link your Discord account to enable token alert DMs.</span>
           <a
             href="#connected-accounts"
-            className="inline-flex px-3 py-1.5 text-xs font-semibold rounded-md bg-amber-500/20 text-amber-100 hover:bg-amber-500/30 transition-colors flex-shrink-0"
+            className="inline-flex px-3 py-1.5 text-xs font-semibold rounded-md bg-amber-500/20 text-amber-100 hover:bg-amber-500/30 transition-colors shrink-0"
           >
             Link Discord
           </a>
@@ -172,12 +172,12 @@ export function TokenAlertSettings() {
 
         <div className="flex items-start justify-between gap-4 rounded-lg border border-card-border/40 bg-[color-mix(in_srgb,var(--bg-primary)_40%,transparent)] px-3 py-2.5">
           <div className="flex items-start gap-3 min-w-0">
-            <Clock className="w-4 h-4 mt-0.5 text-[var(--text-secondary)] flex-shrink-0" />
+            <Clock className="w-4 h-4 mt-0.5 text-secondary-wh40k shrink-0" />
             <div className="min-w-0 space-y-1.5">
-              <p className="text-sm font-medium text-[var(--text-primary)]">
+              <p className="text-sm font-medium text-primary-wh40k">
                 Repeat reminders while still full
               </p>
-              <p className="text-xs text-[var(--text-secondary)]">
+              <p className="text-xs text-secondary-wh40k">
                 Re-send the full-token reminder if you remain capped.
               </p>
               {fullRepeatEnabled && (
@@ -198,7 +198,7 @@ export function TokenAlertSettings() {
                       }))
                     }
                     disabled={disableToggles || !draft.alert_on_full}
-                    className="block w-full max-w-[220px] rounded-md border border-card-border/60 bg-[var(--bg-secondary)] px-2 py-1.5 text-sm text-[var(--text-primary)] disabled:opacity-50"
+                    className="block w-full max-w-[220px] rounded-md border border-card-border/60 bg-(--bg-secondary) px-2 py-1.5 text-sm text-primary-wh40k disabled:opacity-50"
                   >
                     {FULL_REPEAT_HOUR_OPTIONS.map((hours) => (
                       <option key={hours} value={hours}>
@@ -210,7 +210,7 @@ export function TokenAlertSettings() {
               )}
             </div>
           </div>
-          <label className="flex items-center gap-2 flex-shrink-0 cursor-pointer">
+          <label className="flex items-center gap-2 shrink-0 cursor-pointer">
             <span className="sr-only">Repeat reminders while still full</span>
             <Switch
               checked={fullRepeatEnabled}
@@ -229,11 +229,11 @@ export function TokenAlertSettings() {
 
         <div className="flex items-start justify-between gap-4 rounded-lg border border-card-border/40 bg-[color-mix(in_srgb,var(--bg-primary)_40%,transparent)] px-3 py-2.5">
           <div className="flex items-start gap-3 min-w-0">
-            <Clock className="w-4 h-4 mt-0.5 text-[var(--text-secondary)] flex-shrink-0" />
+            <Clock className="w-4 h-4 mt-0.5 text-secondary-wh40k shrink-0" />
             <div className="min-w-0 space-y-1.5">
               <label
                 htmlFor="token-alert-minutes"
-                className="text-sm font-medium text-[var(--text-primary)] block"
+                className="text-sm font-medium text-primary-wh40k block"
               >
                 Alert {formatMinutesLabel(draft.alert_before_full_minutes)}{' '}
                 before capping
@@ -248,7 +248,7 @@ export function TokenAlertSettings() {
                   }))
                 }
                 disabled={disableToggles}
-                className="block w-full max-w-[220px] rounded-md border border-card-border/60 bg-[var(--bg-secondary)] px-2 py-1.5 text-sm text-[var(--text-primary)] disabled:opacity-50"
+                className="block w-full max-w-[220px] rounded-md border border-card-border/60 bg-(--bg-secondary) px-2 py-1.5 text-sm text-primary-wh40k disabled:opacity-50"
               >
                 {MINUTE_OPTIONS.map((minutes) => (
                   <option key={minutes} value={minutes}>
@@ -259,7 +259,7 @@ export function TokenAlertSettings() {
             </div>
           </div>
           {/* Native <label>: the shared Switch drops aria-label. */}
-          <label className="flex items-center gap-2 flex-shrink-0 cursor-pointer">
+          <label className="flex items-center gap-2 shrink-0 cursor-pointer">
             <span className="sr-only">Alert before capping</span>
             <Switch
               checked={draft.alert_before_full}
@@ -274,16 +274,16 @@ export function TokenAlertSettings() {
         {/* Separate control: capping is not a loss, burning is (12h after the cap). */}
         <div className="flex items-start justify-between gap-4 rounded-lg border border-card-border/40 bg-[color-mix(in_srgb,var(--bg-primary)_40%,transparent)] px-3 py-2.5">
           <div className="flex items-start gap-3 min-w-0">
-            <Flame className="w-4 h-4 mt-0.5 text-[var(--text-secondary)] flex-shrink-0" />
+            <Flame className="w-4 h-4 mt-0.5 text-secondary-wh40k shrink-0" />
             <div className="min-w-0 space-y-1.5">
               <label
                 htmlFor="token-alert-burn-minutes"
-                className="text-sm font-medium text-[var(--text-primary)] block"
+                className="text-sm font-medium text-primary-wh40k block"
               >
                 Alert {formatMinutesLabel(draft.alert_before_burn_minutes)}{' '}
                 before burning a token
               </label>
-              <p className="text-xs text-[var(--text-secondary)]">
+              <p className="text-xs text-secondary-wh40k">
                 Once you&apos;re capped you lose a token every 12 hours. This
                 warns you while you can still spend it.
               </p>
@@ -297,7 +297,7 @@ export function TokenAlertSettings() {
                   }))
                 }
                 disabled={disableToggles || !draft.alert_before_burn}
-                className="block w-full max-w-[220px] rounded-md border border-card-border/60 bg-[var(--bg-secondary)] px-2 py-1.5 text-sm text-[var(--text-primary)] disabled:opacity-50"
+                className="block w-full max-w-[220px] rounded-md border border-card-border/60 bg-(--bg-secondary) px-2 py-1.5 text-sm text-primary-wh40k disabled:opacity-50"
               >
                 {BURN_MINUTE_OPTIONS.map((minutes) => (
                   <option key={minutes} value={minutes}>
@@ -307,7 +307,7 @@ export function TokenAlertSettings() {
               </select>
             </div>
           </div>
-          <label className="flex items-center gap-2 flex-shrink-0 cursor-pointer">
+          <label className="flex items-center gap-2 shrink-0 cursor-pointer">
             <span className="sr-only">Alert before burning a token</span>
             <Switch
               checked={draft.alert_before_burn}
@@ -333,12 +333,12 @@ export function TokenAlertSettings() {
       <div className="mt-3 rounded-lg border border-card-border/40 bg-[color-mix(in_srgb,var(--bg-primary)_40%,transparent)]">
         <label className="flex items-center justify-between gap-4 px-3 py-2.5 cursor-pointer">
           <span className="flex items-center gap-2.5 min-w-0">
-            <Bomb className="w-4 h-4 text-[var(--text-secondary)] flex-shrink-0" />
+            <Bomb className="w-4 h-4 text-secondary-wh40k shrink-0" />
             <span className="min-w-0">
-              <span className="text-sm font-medium text-[var(--text-primary)] block">
+              <span className="text-sm font-medium text-primary-wh40k block">
                 Also alert me about bombs
               </span>
-              <span className="text-xs text-[var(--text-secondary)] block">
+              <span className="text-xs text-secondary-wh40k block">
                 Raid bombs recharge every 18 hours
               </span>
             </span>
@@ -353,7 +353,7 @@ export function TokenAlertSettings() {
         {showBombDetails && (
           <div className="border-t border-card-border/40 px-3 py-3 space-y-2">
             <label className="flex items-center justify-between gap-4 cursor-pointer">
-              <span className="text-sm text-[var(--text-primary)]">
+              <span className="text-sm text-primary-wh40k">
                 When a bomb is ready
               </span>
               <Switch
@@ -369,7 +369,7 @@ export function TokenAlertSettings() {
               <div className="min-w-0 space-y-1.5">
                 <label
                   htmlFor="bomb-alert-minutes"
-                  className="text-sm text-[var(--text-primary)] block"
+                  className="text-sm text-primary-wh40k block"
                 >
                   {formatMinutesLabel(draft.alert_before_bomb_ready_minutes)}{' '}
                   before it&apos;s ready
@@ -384,7 +384,7 @@ export function TokenAlertSettings() {
                     }))
                   }
                   disabled={disableToggles || !draft.alert_before_bomb_ready}
-                  className="block w-full max-w-[220px] rounded-md border border-card-border/60 bg-[var(--bg-secondary)] px-2 py-1.5 text-sm text-[var(--text-primary)] disabled:opacity-50"
+                  className="block w-full max-w-[220px] rounded-md border border-card-border/60 bg-(--bg-secondary) px-2 py-1.5 text-sm text-primary-wh40k disabled:opacity-50"
                 >
                   {BOMB_MINUTE_OPTIONS.map((minutes) => (
                     <option key={minutes} value={minutes}>
@@ -393,7 +393,7 @@ export function TokenAlertSettings() {
                   ))}
                 </select>
               </div>
-              <label className="flex items-center gap-2 flex-shrink-0 cursor-pointer">
+              <label className="flex items-center gap-2 shrink-0 cursor-pointer">
                 <span className="sr-only">Alert before the bomb is ready</span>
                 <Switch
                   checked={draft.alert_before_bomb_ready}
@@ -412,12 +412,12 @@ export function TokenAlertSettings() {
       <div className="mt-3 rounded-lg border border-card-border/40 bg-[color-mix(in_srgb,var(--bg-primary)_40%,transparent)]">
         <label className="flex items-center justify-between gap-4 px-3 py-2.5 cursor-pointer">
           <span className="flex items-center gap-2.5 min-w-0">
-            <Moon className="w-4 h-4 text-[var(--text-secondary)] flex-shrink-0" />
+            <Moon className="w-4 h-4 text-secondary-wh40k shrink-0" />
             <span className="min-w-0">
-              <span className="text-sm font-medium text-[var(--text-primary)] block">
+              <span className="text-sm font-medium text-primary-wh40k block">
                 Quiet hours
               </span>
-              <span className="text-xs text-[var(--text-secondary)] block">
+              <span className="text-xs text-secondary-wh40k block">
                 Hold DMs overnight and deliver them in the morning
               </span>
             </span>
@@ -452,9 +452,9 @@ export function TokenAlertSettings() {
               />
             </div>
 
-            <p className="text-xs text-[var(--text-secondary)]">
+            <p className="text-xs text-secondary-wh40k">
               Times are in{' '}
-              <span className="text-[var(--text-primary)]">
+              <span className="text-primary-wh40k">
                 {draft.quiet_hours_timezone ?? 'your local timezone'}
               </span>
               . Token and bomb reminders wait until the window ends;
@@ -466,13 +466,13 @@ export function TokenAlertSettings() {
               <div className="min-w-0 space-y-1.5">
                 <label
                   htmlFor="pre-quiet-minutes"
-                  className="text-sm text-[var(--text-primary)] block"
+                  className="text-sm text-primary-wh40k block"
                 >
                   Warn me{' '}
                   {formatMinutesLabel(draft.alert_before_quiet_hours_minutes)}{' '}
                   before quiet hours start
                 </label>
-                <p className="text-xs text-[var(--text-secondary)]">
+                <p className="text-xs text-secondary-wh40k">
                   Only if you&apos;re capped or will cap overnight — so you can
                   spend a token before the DMs go quiet.
                 </p>
@@ -486,7 +486,7 @@ export function TokenAlertSettings() {
                     }))
                   }
                   disabled={disableToggles || !draft.alert_before_quiet_hours}
-                  className="block w-full max-w-[220px] rounded-md border border-card-border/60 bg-[var(--bg-secondary)] px-2 py-1.5 text-sm text-[var(--text-primary)] disabled:opacity-50"
+                  className="block w-full max-w-[220px] rounded-md border border-card-border/60 bg-(--bg-secondary) px-2 py-1.5 text-sm text-primary-wh40k disabled:opacity-50"
                 >
                   {PRE_QUIET_MINUTE_OPTIONS.map((minutes) => (
                     <option key={minutes} value={minutes}>
@@ -495,7 +495,7 @@ export function TokenAlertSettings() {
                   ))}
                 </select>
               </div>
-              <label className="flex items-center gap-2 flex-shrink-0 cursor-pointer">
+              <label className="flex items-center gap-2 shrink-0 cursor-pointer">
                 {/* Distinct accessible name from the parent switch. */}
                 <span className="sr-only">
                   Warn me before the quiet window starts
@@ -520,7 +520,7 @@ export function TokenAlertSettings() {
 
             {quietHoursInvalid && (
               <p className="text-xs text-amber-300 flex items-center gap-1.5">
-                <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                 Pick two different times — a window that starts and ends at the
                 same hour is not a quiet period.
               </p>
@@ -546,17 +546,17 @@ export function TokenAlertSettings() {
         </Button>
         {error && (
           <span className="text-sm text-red-400 flex items-center gap-1">
-            <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
+            <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
             {error}
           </span>
         )}
         {success && !error && (
-          <span className="text-sm text-[var(--success)]">{success}</span>
+          <span className="text-sm text-(--success)">{success}</span>
         )}
         {needsLink && (
           <a
             href="#connected-accounts"
-            className="inline-flex px-3 py-1.5 text-xs font-semibold rounded-md bg-[var(--accent)] text-[var(--bg-primary)] hover:opacity-90 transition-colors"
+            className="inline-flex px-3 py-1.5 text-xs font-semibold rounded-md bg-accent-wh40k text-(--bg-primary) hover:opacity-90 transition-colors"
           >
             Link Discord
           </a>
@@ -579,7 +579,7 @@ function HourSelect({ id, label, value, onChange, disabled }: HourSelectProps) {
     <div className="min-w-0 flex-1 space-y-1.5">
       <label
         htmlFor={id}
-        className="text-xs font-medium text-[var(--text-secondary)] block"
+        className="text-xs font-medium text-secondary-wh40k block"
       >
         {label}
       </label>
@@ -588,7 +588,7 @@ function HourSelect({ id, label, value, onChange, disabled }: HourSelectProps) {
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         disabled={disabled}
-        className="block w-full rounded-md border border-card-border/60 bg-[var(--bg-secondary)] px-2 py-1.5 text-sm text-[var(--text-primary)] disabled:opacity-50"
+        className="block w-full rounded-md border border-card-border/60 bg-(--bg-secondary) px-2 py-1.5 text-sm text-primary-wh40k disabled:opacity-50"
       >
         {HOUR_OPTIONS.map((hour) => (
           <option key={hour} value={hour}>
@@ -617,7 +617,7 @@ function TimeZoneMismatchNotice({
       type="button"
       onClick={() => onUse(detected)}
       disabled={disabled}
-      className="text-xs font-medium text-[var(--accent)] hover:underline disabled:opacity-50"
+      className="text-xs font-medium text-(--accent) hover:underline disabled:opacity-50"
     >
       Use this device&apos;s timezone ({detected})
     </button>
@@ -640,9 +640,7 @@ function ToggleRow({
   // Native <label>: the shared Switch drops aria-label.
   return (
     <label className="flex items-center justify-between gap-4 rounded-lg border border-card-border/40 bg-[color-mix(in_srgb,var(--bg-primary)_40%,transparent)] px-3 py-2.5 cursor-pointer">
-      <span className="text-sm font-medium text-[var(--text-primary)]">
-        {label}
-      </span>
+      <span className="text-sm font-medium text-primary-wh40k">{label}</span>
       <Switch
         checked={checked}
         onCheckedChange={onCheckedChange}

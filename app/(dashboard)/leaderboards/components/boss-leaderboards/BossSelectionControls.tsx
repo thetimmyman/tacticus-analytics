@@ -47,13 +47,13 @@ export function BossSelectionControls({
 
   return (
     <>
-      <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-3 sm:p-4 space-y-3 sm:space-y-4">
+      <div className="bg-(--card-bg) border border-(--card-border) rounded-lg p-3 sm:p-4 space-y-3 sm:space-y-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 sm:gap-4">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)]">
+            <h2 className="text-xl sm:text-2xl font-bold text-primary-wh40k">
               Boss Leaderboards
             </h2>
-            <p className="text-xs sm:text-sm text-[var(--text-secondary)] mt-1">
+            <p className="text-xs sm:text-sm text-secondary-wh40k mt-1">
               {contextLabel} | Season: {season} | Bosses Found: {bossCount}
             </p>
           </div>
@@ -61,8 +61,8 @@ export function BossSelectionControls({
       </div>
 
       {availableRarities.length > 0 && (
-        <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-3 sm:p-4 space-y-2 sm:space-y-3">
-          <h3 className="text-xs sm:text-sm font-medium text-[var(--text-secondary)]">
+        <div className="bg-(--card-bg) border border-(--card-border) rounded-lg p-3 sm:p-4 space-y-2 sm:space-y-3">
+          <h3 className="text-xs sm:text-sm font-medium text-secondary-wh40k">
             Filters
           </h3>
           <RarityFilterControls
@@ -79,7 +79,7 @@ export function BossSelectionControls({
 
       {levels.length > 0 && activeLevel && (
         <div className="space-y-4">
-          <h3 className="text-sm font-medium text-[var(--text-secondary)]">
+          <h3 className="text-sm font-medium text-secondary-wh40k">
             Select Boss Level:
           </h3>
           <RadixTabs
@@ -97,24 +97,24 @@ export function BossSelectionControls({
                     key={level}
                     value={level}
                     className={`
-                      px-3 py-2 text-sm font-semibold min-h-[2.75rem] relative overflow-hidden transition-all
-                      !bg-transparent hover:!bg-transparent data-[state=active]:!bg-transparent
+                      px-3 py-2 text-sm font-semibold min-h-11 relative overflow-hidden transition-all
+                      bg-transparent! hover:bg-transparent! data-[state=active]:bg-transparent!
                       ${
                         isMythic
                           ? `text-orange-200 hover:text-orange-100
                          border border-transparent
                          hover:border-orange-600/40
-                         data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-[rgba(30,15,10,0.9)] data-[state=active]:!to-[rgba(40,20,15,0.8)]
+                         data-[state=active]:bg-linear-to-br! data-[state=active]:from-[rgba(30,15,10,0.9)]! data-[state=active]:to-[rgba(40,20,15,0.8)]!
                          data-[state=active]:border-2 data-[state=active]:border-orange-500
                          data-[state=active]:shadow-[0_0_20px_rgba(255,140,0,0.5),inset_0_0_12px_rgba(255,195,0,0.2)]
-                         data-[state=active]:!text-orange-100`
+                         data-[state=active]:text-orange-100!`
                           : `text-cyan-200 hover:text-cyan-100
                          border border-transparent
                          hover:border-cyan-600/40
-                         data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-[rgba(20,20,25,0.9)] data-[state=active]:!to-[rgba(30,30,35,0.8)]
+                         data-[state=active]:bg-linear-to-br! data-[state=active]:from-[rgba(20,20,25,0.9)]! data-[state=active]:to-[rgba(30,30,35,0.8)]!
                          data-[state=active]:border-2 data-[state=active]:border-cyan-400
                          data-[state=active]:shadow-[0_0_20px_rgba(196,181,253,0.4),inset_0_0_10px_rgba(255,255,255,0.15)]
-                         data-[state=active]:!text-cyan-100`
+                         data-[state=active]:text-cyan-100!`
                       }
                     `}
                   >
@@ -131,7 +131,7 @@ export function BossSelectionControls({
 
       {activeLevel && activeBosses.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-[var(--text-secondary)]">
+          <h3 className="text-sm font-medium text-secondary-wh40k">
             Select Boss:
           </h3>
           <div className="flex flex-wrap gap-2">
@@ -150,8 +150,8 @@ export function BossSelectionControls({
                     onClick={() => onBossSelect(bossId)}
                     className={`px-4 py-2 rounded-lg border transition-colors ${
                       selectedBossId === bossId
-                        ? 'bg-[var(--primary)] text-black border-[var(--primary)] font-semibold'
-                        : 'bg-[var(--card-bg)] border-[var(--card-border)] text-[var(--text-primary)] hover:bg-card/80'
+                        ? 'bg-primary-wh40k text-black border-primary-wh40k font-semibold'
+                        : 'bg-(--card-bg) border-(--card-border) text-primary-wh40k hover:bg-card/80'
                     }`}
                   >
                     <span className="flex items-center gap-2">

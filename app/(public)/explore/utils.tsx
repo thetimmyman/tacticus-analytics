@@ -24,9 +24,9 @@ export function getGuildCardClasses(guild: GuildData): string {
   const isPremium = guild.is_premium === true
 
   if (isPremium) {
-    return 'rounded-lg border-2 border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-[var(--card-bg)] to-yellow-500/5 overflow-hidden shadow-lg shadow-amber-500/10 transition-all duration-300 hover:border-amber-500/50 hover:shadow-xl hover:shadow-amber-500/20 relative guild-card-premium'
+    return 'rounded-lg border-2 border-amber-500/30 bg-linear-to-br from-amber-500/5 via-(--card-bg) to-yellow-500/5 overflow-hidden shadow-lg shadow-amber-500/10 transition-all duration-300 hover:border-amber-500/50 hover:shadow-xl hover:shadow-amber-500/20 relative guild-card-premium'
   }
-  return 'rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] overflow-hidden shadow-sm transition-all duration-200 hover:border-[color-mix(in_srgb,var(--primary)_30%,transparent)] hover:shadow-lg'
+  return 'rounded-lg border border-(--card-border) bg-(--card-bg) overflow-hidden shadow-xs transition-all duration-200 hover:border-[color-mix(in_srgb,var(--primary)_30%,transparent)] hover:shadow-lg'
 }
 
 export const generateParticles = (rarity: string, count: number = 30) => {

@@ -63,13 +63,13 @@ export function WorkspaceBar({
       aria-label="Workspaces"
       className={cn(
         // AlphaChromeBar owns sticky positioning so both rows pin together.
-        'hidden lg:block border-b border-[var(--card-border)] bg-black/40 backdrop-blur-sm',
+        'hidden lg:block border-b border-(--card-border) bg-black/40 backdrop-blur-xs',
         className
       )}
     >
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3 py-2">
-          {leading && <div className="flex-shrink-0">{leading}</div>}
+          {leading && <div className="shrink-0">{leading}</div>}
           <ul className="flex items-center gap-1 overflow-x-auto flex-1 min-w-0">
             {workspaces.map((ws) => {
               const visibleSections = getVisibleWorkspaceSections(ws, {
@@ -95,7 +95,7 @@ export function WorkspaceBar({
               )
 
               return (
-                <li key={ws.id} className="flex-shrink-0">
+                <li key={ws.id} className="shrink-0">
                   <Link
                     href={href}
                     aria-current={isActive ? 'page' : undefined}
@@ -106,8 +106,8 @@ export function WorkspaceBar({
                     className={cn(
                       'inline-flex items-center gap-2 rounded-md border px-3 py-1.5 font-mono text-xs font-semibold uppercase tracking-[0.16em] transition-colors',
                       isActive
-                        ? 'border-[color-mix(in_srgb,var(--accent)_70%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--accent)]'
-                        : 'border-transparent text-[var(--text-secondary)] hover:border-[var(--card-border)] hover:bg-[var(--card-bg)] hover:text-[var(--text-primary)]'
+                        ? 'border-[color-mix(in_srgb,var(--accent)_70%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-(--accent)'
+                        : 'border-transparent text-secondary-wh40k hover:border-(--card-border) hover:bg-(--card-bg) hover:text-primary-wh40k'
                     )}
                   >
                     <span>{ws.label}</span>
@@ -117,9 +117,7 @@ export function WorkspaceBar({
             })}
           </ul>
           {trailing && (
-            <div className="flex-shrink-0 flex items-center gap-2">
-              {trailing}
-            </div>
+            <div className="shrink-0 flex items-center gap-2">{trailing}</div>
           )}
         </div>
       </div>

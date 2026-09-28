@@ -64,7 +64,7 @@ function LoopPlayerDetails({
     return (
       <tr>
         <td colSpan={5} className="px-4 py-2">
-          <div className="text-xs text-[var(--text-secondary)] animate-pulse">
+          <div className="text-xs text-secondary-wh40k animate-pulse">
             Loading player data...
           </div>
         </td>
@@ -76,7 +76,7 @@ function LoopPlayerDetails({
     return (
       <tr>
         <td colSpan={5} className="px-4 py-2">
-          <div className="text-xs text-[var(--text-secondary)]">
+          <div className="text-xs text-secondary-wh40k">
             No player data available
           </div>
         </td>
@@ -89,7 +89,7 @@ function LoopPlayerDetails({
       <td colSpan={5} className="p-0">
         <div className="bg-card/30 px-4 py-3 animate-in fade-in slide-in-from-top-2 duration-200">
           <table className="w-full text-xs border-collapse">
-            <thead className="text-[var(--text-secondary)] uppercase bg-card/50">
+            <thead className="text-secondary-wh40k uppercase bg-card/50">
               <tr>
                 <th className="px-3 py-2 text-left">Player</th>
                 <th className="px-3 py-2 text-right">Avg Damage</th>
@@ -104,7 +104,7 @@ function LoopPlayerDetails({
                   key={player.displayName}
                   className="border-b border-card-border/30 hover:bg-[color-mix(in_srgb,var(--card-hover)_50%,transparent)] transition-colors"
                 >
-                  <td className="px-3 py-2 font-medium text-[var(--text-primary)]">
+                  <td className="px-3 py-2 font-medium text-primary-wh40k">
                     {player.displayName}
                   </td>
                   <td className="px-3 py-2 text-right font-mono text-blue-400">
@@ -227,10 +227,10 @@ export function BossLapTrendCard() {
     <>
       {/* Desktop Table */}
       <div className="hidden lg:block">
-        <div className="overflow-x-auto border border-[var(--card-border)] rounded-lg">
+        <div className="overflow-x-auto border border-(--card-border) rounded-lg">
           <table className="min-w-full text-sm">
-            <thead className="bg-[var(--card-bg)]">
-              <tr className="text-left text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+            <thead className="bg-(--card-bg)">
+              <tr className="text-left text-xs uppercase tracking-wide text-secondary-wh40k">
                 <th className="px-2 py-2 w-8"></th>
                 <th className="px-4 py-2">Loop</th>
                 <th className="px-4 py-2 text-right">Avg Damage</th>
@@ -248,14 +248,14 @@ export function BossLapTrendCard() {
                       className="border-t border-card-border/60 cursor-pointer hover:bg-card/50 transition-colors"
                       onClick={() => toggleLoop(loop.lap)}
                     >
-                      <td className="px-2 py-2 text-[var(--text-secondary)]">
+                      <td className="px-2 py-2 text-secondary-wh40k">
                         {isExpanded ? (
                           <ChevronDown className="h-4 w-4" />
                         ) : (
                           <ChevronRight className="h-4 w-4" />
                         )}
                       </td>
-                      <td className="px-4 py-2 font-medium text-[var(--text-primary)]">
+                      <td className="px-4 py-2 font-medium text-primary-wh40k">
                         Loop {loop.lap}
                       </td>
                       <td className="px-4 py-2 text-right font-mono text-blue-400">
@@ -288,7 +288,7 @@ export function BossLapTrendCard() {
             </tbody>
           </table>
         </div>
-        <p className="mt-2 text-xs text-[var(--text-secondary)]">
+        <p className="mt-2 text-xs text-secondary-wh40k">
           Click on a loop to see player breakdowns
         </p>
       </div>
@@ -297,10 +297,10 @@ export function BossLapTrendCard() {
         {loopAggregates.map((loop) => (
           <div
             key={`loop-card-${loop.lap}`}
-            className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-3 space-y-2"
+            className="bg-(--card-bg) border border-(--card-border) rounded-lg p-3 space-y-2"
           >
             <div className="flex items-center justify-between">
-              <div className="text-sm font-semibold text-[var(--text-primary)]">
+              <div className="text-sm font-semibold text-primary-wh40k">
                 Loop {loop.lap}
               </div>
               <TrendBadge
@@ -311,17 +311,13 @@ export function BossLapTrendCard() {
             </div>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
-                <div className="text-xs text-[var(--text-secondary)]">
-                  Avg Damage
-                </div>
+                <div className="text-xs text-secondary-wh40k">Avg Damage</div>
                 <div className="text-blue-400 font-mono">
                   {formatDamage(loop.avgDamage)}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-[var(--text-secondary)]">
-                  Tokens
-                </div>
+                <div className="text-xs text-secondary-wh40k">Tokens</div>
                 <div className="text-yellow-400 font-mono">
                   {formatNumber(loop.tokenCount)}
                 </div>
@@ -367,14 +363,14 @@ export function BossLapTrendCard() {
             AVG Damage per Loop
           </CardTitle>
           {lapTrends.length > 0 && (
-            <div className="flex items-center gap-1 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-1">
+            <div className="flex items-center gap-1 bg-(--card-bg) border border-(--card-border) rounded-lg p-1">
               <button
                 type="button"
                 onClick={() => setViewMode('chart')}
                 className={`p-1.5 rounded transition-colors ${
                   viewMode === 'chart'
-                    ? 'bg-[var(--primary)] text-[var(--bg-primary)]'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    ? 'bg-primary-wh40k text-(--bg-primary)'
+                    : 'text-secondary-wh40k hover:text-primary-wh40k'
                 }`}
                 title="Chart view"
               >
@@ -385,8 +381,8 @@ export function BossLapTrendCard() {
                 onClick={() => setViewMode('table')}
                 className={`p-1.5 rounded transition-colors ${
                   viewMode === 'table'
-                    ? 'bg-[var(--primary)] text-[var(--bg-primary)]'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    ? 'bg-primary-wh40k text-(--bg-primary)'
+                    : 'text-secondary-wh40k hover:text-primary-wh40k'
                 }`}
                 title="Table view"
               >

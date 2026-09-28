@@ -12,13 +12,13 @@ export default function LineupCard({
   const winTone = getRateTone(lineup.winRate)
 
   return (
-    <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+    <Card className="border-(--border) bg-(--bg-primary)">
       <CardContent className={compact ? 'p-4 space-y-3' : 'p-5 space-y-4'}>
         <UnitRow units={lineup.units} size={compact ? 'sm' : 'md'} />
         <div className="flex items-center justify-between text-sm">
-          <div className="text-[var(--text-secondary)]">
+          <div className="text-secondary-wh40k">
             Uses{' '}
-            <span className="font-semibold text-[var(--text-primary)]">
+            <span className="font-semibold text-primary-wh40k">
               {formatNumber(lineup.uses)}
             </span>
           </div>
@@ -26,7 +26,7 @@ export default function LineupCard({
             Win {formatPercent(lineup.winRate)}
           </Badge>
         </div>
-        <div className="text-xs text-[var(--text-tertiary)]">
+        <div className="text-xs text-(--text-tertiary)">
           {formatNumber(lineup.wins)} wins, {formatNumber(lineup.losses)} losses
         </div>
       </CardContent>

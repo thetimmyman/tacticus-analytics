@@ -105,7 +105,7 @@ export function TargetsAccordion({
         return (
           <article
             key={group.key}
-            className="overflow-hidden rounded-lg border border-[var(--card-border)] bg-card/40"
+            className="overflow-hidden rounded-lg border border-(--card-border) bg-card/40"
           >
             <button
               type="button"
@@ -122,32 +122,32 @@ export function TargetsAccordion({
                 lazy
               />
               <span className="min-w-0 flex-1">
-                <span className="block truncate font-semibold text-[var(--text-primary)]">
+                <span className="block truncate font-semibold text-primary-wh40k">
                   {group.displayName}
                 </span>
-                <span className="mt-0.5 block text-2xs text-[var(--text-secondary)]">
+                <span className="mt-0.5 block text-2xs text-secondary-wh40k">
                   {levelLabel(group.rarity, group.set)} · {counted.length}/
                   {group.rows.length} set
                 </span>
               </span>
               <span className="shrink-0 text-right">
-                <span className="block font-mono text-sm font-semibold text-[var(--primary)]">
+                <span className="block font-mono text-sm font-semibold text-(--primary)">
                   {total > 0 ? total : '—'}
                 </span>
-                <span className="block text-2xs text-[var(--text-tertiary)]">
+                <span className="block text-2xs text-(--text-tertiary)">
                   tokens
                 </span>
               </span>
               <ChevronDown
                 className={clsx(
-                  'h-4 w-4 shrink-0 text-[var(--text-secondary)] transition-transform',
+                  'h-4 w-4 shrink-0 text-secondary-wh40k transition-transform',
                   isOpen && 'rotate-180'
                 )}
               />
             </button>
 
             {isOpen && (
-              <div className="border-t border-[var(--card-border)]">
+              <div className="border-t border-(--card-border)">
                 {group.rows.map((row) => {
                   const rowKey = keyFor(row)
                   const seed = deriveSeedState(row.target)
@@ -158,19 +158,19 @@ export function TargetsAccordion({
                     <div
                       key={rowKey}
                       className={clsx(
-                        'flex min-h-[52px] items-center gap-2 border-b border-[var(--card-border)] px-3 py-2 last:border-b-0',
+                        'flex min-h-[52px] items-center gap-2 border-b border-(--card-border) px-3 py-2 last:border-b-0',
                         (showSkipped || seed.isNoneAvailable) && 'opacity-50'
                       )}
                     >
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm text-[var(--text-primary)]">
+                        <span className="block truncate text-sm text-primary-wh40k">
                           {row.display_name}
                         </span>
                         <span
                           className={clsx(
                             'block text-2xs',
                             row.encounter_id === 0
-                              ? 'text-[var(--text-secondary)]'
+                              ? 'text-secondary-wh40k'
                               : 'text-purple-300'
                           )}
                         >
@@ -189,7 +189,7 @@ export function TargetsAccordion({
                           type="button"
                           onClick={() => onEdit(row)}
                           disabled={!canEdit || seed.isSkipped}
-                          className="min-h-[44px] min-w-[56px] rounded-md border border-[var(--card-border)] bg-black/20 px-2 text-right font-mono text-sm font-semibold text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-40"
+                          className="min-h-[44px] min-w-[56px] rounded-md border border-(--card-border) bg-black/20 px-2 text-right font-mono text-sm font-semibold text-primary-wh40k disabled:cursor-not-allowed disabled:opacity-40"
                           aria-label={`Edit target tokens for ${row.display_name}`}
                         >
                           {seed.isNoneAvailable || showSkipped
@@ -216,7 +216,7 @@ export function TargetsAccordion({
                         <button
                           type="button"
                           onClick={() => onOpenOps(row)}
-                          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-[color-mix(in_srgb,var(--accent)_45%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--accent)]"
+                          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-[color-mix(in_srgb,var(--accent)_45%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-(--accent)"
                           aria-label={`Open ops settings for ${row.display_name}`}
                           data-testid="targets-mutation-control"
                         >

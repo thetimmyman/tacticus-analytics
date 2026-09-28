@@ -74,17 +74,15 @@ export function MetaTeamsModal({
 
   return (
     <ModalShell>
-      <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+      <h3 className="text-lg font-semibold text-primary-wh40k mb-4">
         Meta Team Preferences - <MemberName value={member.display_name} />
       </h3>
       {metaTeamsLoading ? (
-        <p className="text-sm text-[var(--text-secondary)]">
-          Loading meta teams...
-        </p>
+        <p className="text-sm text-secondary-wh40k">Loading meta teams...</p>
       ) : (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+            <label className="block text-sm font-medium text-secondary-wh40k mb-2">
               Primary Team
             </label>
             <select
@@ -103,7 +101,7 @@ export function MetaTeamsModal({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+            <label className="block text-sm font-medium text-secondary-wh40k mb-2">
               Secondary Team
             </label>
             <select
@@ -122,7 +120,7 @@ export function MetaTeamsModal({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+            <label className="block text-sm font-medium text-secondary-wh40k mb-2">
               Tertiary Team
             </label>
             <select

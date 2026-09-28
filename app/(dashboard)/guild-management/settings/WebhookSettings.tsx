@@ -113,8 +113,8 @@ const WEBHOOK_TYPES: Array<{
 
 const feedbackStyles: Record<FeedbackTone, string> = {
   success: 'text-green-400',
-  error: 'text-[var(--accent)]',
-  info: 'text-[var(--text-secondary)]'
+  error: 'text-(--accent)',
+  info: 'text-secondary-wh40k'
 }
 
 /** Message and hint from the AppError envelope or legacy flat shapes; null when unusable. */
@@ -460,24 +460,23 @@ export function WebhookSettings({
 
   if (loading) {
     return (
-      <div className="flex items-center gap-3 py-10 text-sm text-[var(--text-secondary)]">
-        <Loader2 className="h-5 w-5 animate-spin text-[var(--primary)]" />
+      <div className="flex items-center gap-3 py-10 text-sm text-secondary-wh40k">
+        <Loader2 className="h-5 w-5 animate-spin text-(--primary)" />
         Loading webhook configuration…
       </div>
     )
   }
 
   const containerChrome =
-    className ??
-    'rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-6'
+    className ?? 'rounded-lg border border-(--card-border) bg-(--card-bg) p-6'
 
   return (
     <div className={cn('space-y-4', containerChrome)}>
       <header className="space-y-2">
-        <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+        <h2 className="text-lg font-semibold text-primary-wh40k">
           Discord webhooks
         </h2>
-        <p className="text-sm text-[var(--text-secondary)]">
+        <p className="text-sm text-secondary-wh40k">
           Configure which Discord channels receive automated updates for{' '}
           {guildName}.
         </p>
@@ -493,11 +492,11 @@ export function WebhookSettings({
             <section key={entry.type} className="space-y-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <div className="flex items-center gap-2 text-[var(--text-primary)]">
-                    <Icon className="h-4 w-4 text-[var(--accent)]" />
+                  <div className="flex items-center gap-2 text-primary-wh40k">
+                    <Icon className="h-4 w-4 text-(--accent)" />
                     <h3 className="font-medium">{entry.name}</h3>
                   </div>
-                  <p className="mt-1 text-xs text-[var(--text-secondary)]">
+                  <p className="mt-1 text-xs text-secondary-wh40k">
                     {entry.description}
                   </p>
                 </div>
@@ -512,7 +511,7 @@ export function WebhookSettings({
 
               <div className="space-y-3">
                 {!webhook?.enabled && (
-                  <p className="text-xs text-[var(--text-secondary)] italic">
+                  <p className="text-xs text-secondary-wh40k italic">
                     This integration is currently disabled. Enable the toggle
                     and save to start posting.
                   </p>
@@ -590,9 +589,9 @@ export function WebhookSettings({
                 )}
 
                 {entry.type === 'leaderboard' && webhook?.enabled && (
-                  <div className="rounded bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] p-3 space-y-2">
+                  <div className="rounded-sm bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] p-3 space-y-2">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="text-xs text-[var(--text-secondary)]">
+                      <p className="text-xs text-secondary-wh40k">
                         Need an immediate leaderboard refresh? Trigger an
                         on-demand update.
                       </p>

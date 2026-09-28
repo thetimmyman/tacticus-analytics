@@ -42,8 +42,8 @@ function BossPerformanceContainer(props: BossPerformanceParams) {
 }
 
 interface BossPerformanceContentProps extends BossPerformanceParams {
-  desktopTitleRef: RefObject<HTMLHeadingElement>
-  mobileTitleRef: RefObject<HTMLHeadingElement>
+  desktopTitleRef: RefObject<HTMLHeadingElement | null>
+  mobileTitleRef: RefObject<HTMLHeadingElement | null>
 }
 
 function BossPerformanceContent({
@@ -91,7 +91,7 @@ function BossPerformanceContent({
               <button
                 type="button"
                 onClick={() => window.location.reload()}
-                className="rounded border border-[var(--card-border)] bg-[var(--card-bg)] px-4 py-2 text-sm font-medium text-[var(--text-primary)] transition hover:bg-[var(--bg-tertiary)]"
+                className="rounded-sm border border-(--card-border) bg-(--card-bg) px-4 py-2 text-sm font-medium text-primary-wh40k transition hover:bg-(--bg-tertiary)"
               >
                 Retry fetch
               </button>

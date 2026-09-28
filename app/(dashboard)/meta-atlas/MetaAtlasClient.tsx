@@ -303,7 +303,7 @@ export function MetaAtlasClient({
                 <ReleaseStageBadge stage={releaseStage} size="md" />
               )}
             </h1>
-            <p className="text-[var(--text-secondary)] mt-1">
+            <p className="text-secondary-wh40k mt-1">
               Best-performing team compositions based on aggregated data across
               all guilds
             </p>
@@ -313,10 +313,10 @@ export function MetaAtlasClient({
 
           {availableSeasons.length > 0 && (
             <div className="flex items-center gap-2 shrink-0">
-              <Calendar className="w-4 h-4 text-[var(--text-secondary)]" />
+              <Calendar className="w-4 h-4 text-secondary-wh40k" />
               <label
                 htmlFor="meta-season-select"
-                className="text-sm text-[var(--text-secondary)]"
+                className="text-sm text-secondary-wh40k"
               >
                 Season:
               </label>
@@ -324,7 +324,7 @@ export function MetaAtlasClient({
                 id="meta-season-select"
                 value={currentSeason}
                 onChange={(e) => setSelectedSeason(e.target.value)}
-                className="min-h-11 px-3 py-1.5 rounded bg-[var(--card-bg)] border border-[var(--card-border)] text-white text-sm focus:border-purple-500 focus:outline-none cursor-pointer"
+                className="min-h-11 px-3 py-1.5 rounded-sm bg-(--card-bg) border border-(--card-border) text-white text-sm focus:border-purple-500 focus:outline-hidden cursor-pointer"
               >
                 {availableSeasons.map((season) => (
                   <option key={season} value={season}>
@@ -345,7 +345,7 @@ export function MetaAtlasClient({
       />
 
       {/* Promo above the explainer so content closes the page. */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2 rounded-lg border border-purple-500/30 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 px-4 py-2.5 text-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 rounded-lg border border-purple-500/30 bg-linear-to-r from-purple-500/10 to-indigo-500/10 px-4 py-2.5 text-sm">
         <div className="flex items-center gap-2 min-w-0">
           <Crown className="w-4 h-4 text-purple-400 shrink-0" />
           <span className="text-purple-200 font-medium">
@@ -361,46 +361,38 @@ export function MetaAtlasClient({
         </span>
       </div>
 
-      <Card className="bg-card/50 border-[var(--card-border)]">
+      <Card className="bg-card/50 border-(--card-border)">
         <CardContent className="py-4">
           <div className="flex items-start gap-3">
             <Users className="w-5 h-5 text-blue-400 mt-0.5 shrink-0" />
-            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+            <div className="text-sm text-secondary-wh40k space-y-2">
               <p>
-                <strong className="text-[var(--text-primary)]">
-                  How it works:
-                </strong>{' '}
+                <strong className="text-primary-wh40k">How it works:</strong>{' '}
                 Meta Atlas aggregates anonymized battle data from all guilds to
                 identify the highest-performing team compositions.
               </p>
               <p>
-                <strong className="text-[var(--text-primary)]">
-                  P90 damage
-                </strong>{' '}
-                means 90% of attacks with this team deal less damage — this is
-                the damage top performers achieve.
+                <strong className="text-primary-wh40k">P90 damage</strong> means
+                90% of attacks with this team deal less damage — this is the
+                damage top performers achieve.
               </p>
               <div className="flex flex-wrap items-center gap-4 pt-1">
-                <span className="text-[var(--text-secondary)] text-xs">
+                <span className="text-secondary-wh40k text-xs">
                   Sample size:
                 </span>
                 <span className="flex items-center gap-1.5 text-xs">
                   <span className="w-2 h-2 rounded-full bg-green-400" />
-                  <span className="text-[var(--text-secondary)]">
+                  <span className="text-secondary-wh40k">
                     100+ attacks (high)
                   </span>
                 </span>
                 <span className="flex items-center gap-1.5 text-xs">
                   <span className="w-2 h-2 rounded-full bg-yellow-400" />
-                  <span className="text-[var(--text-secondary)]">
-                    30-99 (medium)
-                  </span>
+                  <span className="text-secondary-wh40k">30-99 (medium)</span>
                 </span>
                 <span className="flex items-center gap-1.5 text-xs">
                   <span className="w-2 h-2 rounded-full bg-orange-400" />
-                  <span className="text-[var(--text-secondary)]">
-                    &lt;30 (low)
-                  </span>
+                  <span className="text-secondary-wh40k">&lt;30 (low)</span>
                 </span>
               </div>
             </div>

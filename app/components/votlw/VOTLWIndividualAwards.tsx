@@ -32,7 +32,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
     })
 
   return (
-    <div className="relative overflow-hidden rounded-lg border-2 border-purple-700/30 bg-gradient-to-br from-purple-950/20 via-black to-purple-950/20 p-6">
+    <div className="relative overflow-hidden rounded-lg border-2 border-purple-700/30 bg-linear-to-br from-purple-950/20 via-black to-purple-950/20 p-6">
       {/* Decorative elements */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-0 w-full h-full bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(147,51,234,0.03)_10px,rgba(147,51,234,0.03)_20px)]" />
@@ -48,7 +48,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
       <div className="relative z-10">
         <h3 className="text-2xl font-black mb-4 uppercase tracking-wider">
           <span
-            className="bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 bg-clip-text text-transparent animate-[shimmer_3s_ease-in-out_infinite]"
+            className="bg-linear-to-r from-purple-500 via-pink-500 to-purple-500 bg-clip-text text-transparent animate-[shimmer_3s_ease-in-out_infinite]"
             style={{ backgroundSize: '200% auto' }}
           >
             Champion Stats
@@ -143,7 +143,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                               </div>
                             </>
                           ) : (
-                            <div className="text-xs text-[var(--text-secondary)]">
+                            <div className="text-xs text-secondary-wh40k">
                               -
                             </div>
                           )}
@@ -155,7 +155,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                             <>
                               <div className="text-xs font-semibold truncate">
                                 <PlayerLink playerName={set.silver}>
-                                  <span className="text-[var(--text-primary)] hover:text-white">
+                                  <span className="text-primary-wh40k hover:text-white">
                                     {set.silver}
                                   </span>
                                 </PlayerLink>
@@ -167,7 +167,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                               </div>
                             </>
                           ) : (
-                            <div className="text-xs text-[var(--text-secondary)]">
+                            <div className="text-xs text-secondary-wh40k">
                               -
                             </div>
                           )}
@@ -191,7 +191,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                               </div>
                             </>
                           ) : (
-                            <div className="text-xs text-[var(--text-secondary)]">
+                            <div className="text-xs text-secondary-wh40k">
                               -
                             </div>
                           )}
@@ -215,7 +215,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                               </div>
                             </>
                           ) : (
-                            <div className="text-xs text-[var(--text-secondary)]">
+                            <div className="text-xs text-secondary-wh40k">
                               -
                             </div>
                           )}
@@ -239,7 +239,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                               </div>
                             </>
                           ) : (
-                            <div className="text-xs text-[var(--text-secondary)]">
+                            <div className="text-xs text-secondary-wh40k">
                               -
                             </div>
                           )}
@@ -263,7 +263,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                               </div>
                             </>
                           ) : (
-                            <div className="text-xs text-[var(--text-secondary)]">
+                            <div className="text-xs text-secondary-wh40k">
                               -
                             </div>
                           )}
@@ -287,7 +287,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                               </div>
                             </>
                           ) : (
-                            <div className="text-xs text-[var(--text-secondary)]">
+                            <div className="text-xs text-secondary-wh40k">
                               -
                             </div>
                           )}
@@ -313,8 +313,8 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                   <div
                     className={`text-lg font-bold mb-3 ${
                       set.rarity === 'Mythic'
-                        ? 'text-[var(--accent)]'
-                        : 'text-[var(--accent)]'
+                        ? 'text-(--accent)'
+                        : 'text-(--accent)'
                     }`}
                   >
                     {set.levelString} - {getBossDisplayName(set.bossName)}
@@ -323,7 +323,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                   {/* Medal Winners */}
                   <div className="space-y-3 mb-4">
                     {set.gold && (
-                      <div className="flex items-center justify-between p-2 bg-yellow-900/20 rounded">
+                      <div className="flex items-center justify-between p-2 bg-yellow-900/20 rounded-sm">
                         <div className="flex items-center gap-2">
                           <span className="text-xl">🥇</span>
                           <div>
@@ -340,14 +340,14 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                             </div>
                           </div>
                         </div>
-                        <div className="text-sm font-bold text-[var(--primary)]">
+                        <div className="text-sm font-bold text-(--primary)">
                           Gold
                         </div>
                       </div>
                     )}
 
                     {set.silver && (
-                      <div className="flex items-center justify-between p-2 bg-card/30 hover:bg-card/80 transition-colors duration-200 rounded">
+                      <div className="flex items-center justify-between p-2 bg-card/30 hover:bg-card/80 transition-colors duration-200 rounded-sm">
                         <div className="flex items-center gap-2">
                           <span className="text-xl">🥈</span>
                           <div>
@@ -364,14 +364,14 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                             </div>
                           </div>
                         </div>
-                        <div className="text-sm font-bold text-[var(--text-secondary)]">
+                        <div className="text-sm font-bold text-secondary-wh40k">
                           Silver
                         </div>
                       </div>
                     )}
 
                     {set.bronze && (
-                      <div className="flex items-center justify-between p-2 bg-orange-900/20 rounded">
+                      <div className="flex items-center justify-between p-2 bg-orange-900/20 rounded-sm">
                         <div className="flex items-center gap-2">
                           <span className="text-xl">🥉</span>
                           <div>
@@ -398,7 +398,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                   {/* Other Awards Grid */}
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     {set.mostDamage && (
-                      <div className="p-2 bg-card/30 hover:bg-card/80 transition-colors duration-200 rounded">
+                      <div className="p-2 bg-card/30 hover:bg-card/80 transition-colors duration-200 rounded-sm">
                         <div className="flex items-center gap-1 text-xs text-text-muted mb-1">
                           <span>💥</span> Most Damage
                         </div>
@@ -416,7 +416,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                     )}
 
                     {set.biggestHit && (
-                      <div className="p-2 bg-card/30 hover:bg-card/80 transition-colors duration-200 rounded">
+                      <div className="p-2 bg-card/30 hover:bg-card/80 transition-colors duration-200 rounded-sm">
                         <div className="flex items-center gap-1 text-xs text-text-muted mb-1">
                           <span>🎯</span> Biggest Hit
                         </div>
@@ -434,7 +434,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                     )}
 
                     {set.sideBoss1 && (
-                      <div className="p-2 bg-card/30 hover:bg-card/80 transition-colors duration-200 rounded">
+                      <div className="p-2 bg-card/30 hover:bg-card/80 transition-colors duration-200 rounded-sm">
                         <div className="flex items-center gap-1 text-xs text-text-muted mb-1">
                           <span>👹</span> Side Boss 1
                         </div>
@@ -452,7 +452,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                     )}
 
                     {set.sideBoss2 && (
-                      <div className="p-2 bg-card/30 hover:bg-card/80 transition-colors duration-200 rounded">
+                      <div className="p-2 bg-card/30 hover:bg-card/80 transition-colors duration-200 rounded-sm">
                         <div className="flex items-center gap-1 text-xs text-text-muted mb-1">
                           <span>👹</span> Side Boss 2
                         </div>

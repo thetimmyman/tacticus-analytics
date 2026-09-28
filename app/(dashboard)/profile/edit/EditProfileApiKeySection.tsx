@@ -32,11 +32,11 @@ export function EditProfileApiKeySection({
   tacticusSite
 }: EditProfileApiKeySectionProps) {
   return (
-    <div className="mt-6 pt-6 border-t border-[var(--card-border)]">
-      <h3 className="text-lg font-medium text-[var(--text-primary)] mb-4">
+    <div className="mt-6 pt-6 border-t border-(--card-border)">
+      <h3 className="text-lg font-medium text-primary-wh40k mb-4">
         Tacticus Player API Key
       </h3>
-      <p className="text-sm text-[var(--text-secondary)] mb-4">
+      <p className="text-sm text-secondary-wh40k mb-4">
         Required to enable accurate tracking of your guild raid token
         availability
       </p>
@@ -44,13 +44,13 @@ export function EditProfileApiKeySection({
       <div className="space-y-4">
         {/* Current Status */}
         {hasExistingApiKey && (
-          <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-md p-4">
+          <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-md p-4">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm font-medium text-[var(--text-primary)]">
+                <p className="text-sm font-medium text-primary-wh40k">
                   API Key Status
                 </p>
-                <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                <p className="mt-1 text-sm text-secondary-wh40k">
                   {apiKeyIsValid ? (
                     <StatusLabel type="success">Valid</StatusLabel>
                   ) : (
@@ -58,7 +58,7 @@ export function EditProfileApiKeySection({
                   )}
                 </p>
                 {apiKeyLastVerified && (
-                  <p className="mt-1 text-xs text-[var(--text-secondary)]">
+                  <p className="mt-1 text-xs text-secondary-wh40k">
                     Last verified:{' '}
                     <ClientDate date={apiKeyLastVerified} format="full" />
                   </p>
@@ -81,7 +81,7 @@ export function EditProfileApiKeySection({
           <div>
             <label
               htmlFor="apiKey"
-              className="block text-sm font-medium text-[var(--text-secondary)]"
+              className="block text-sm font-medium text-secondary-wh40k"
             >
               Enter your Tacticus API Key
             </label>
@@ -125,18 +125,18 @@ export function EditProfileApiKeySection({
         )}
 
         {/* Help Text */}
-        <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-md p-3">
-          <p className="text-xs text-[var(--text-secondary)]">
+        <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-md p-3">
+          <p className="text-xs text-secondary-wh40k">
             <strong>How to get your API key:</strong>
           </p>
-          <ol className="mt-2 text-xs text-[var(--text-secondary)] list-decimal list-inside space-y-1">
+          <ol className="mt-2 text-xs text-secondary-wh40k list-decimal list-inside space-y-1">
             <li>
               Go to{' '}
               <a
                 href={tacticusSite}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[var(--accent)] hover:text-[var(--primary)] underline"
+                className="text-(--accent) hover:text-(--primary) underline"
               >
                 {TACTICUS_API.ORIGIN}
               </a>

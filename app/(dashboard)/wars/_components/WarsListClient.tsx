@@ -78,21 +78,19 @@ export default function WarsListClient({ guildCode }: WarsListClientProps) {
     return (
       <div className="px-4 py-6 space-y-8">
         <div>
-          <h1 className="text-3xl font-bold text-[var(--text-primary)]">
-            War Reports
-          </h1>
-          <p className="text-sm text-[var(--text-secondary)] mt-2">
+          <h1 className="text-3xl font-bold text-primary-wh40k">War Reports</h1>
+          <p className="text-sm text-secondary-wh40k mt-2">
             Loading your guild&apos;s war history...
           </p>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="card-wh40k p-3 h-24 animate-pulse">
-              <div className="h-4 w-2/3 rounded bg-[var(--bg-secondary)]" />
-              <div className="h-3 w-1/3 rounded bg-[var(--bg-secondary)] mt-2" />
+              <div className="h-4 w-2/3 rounded-sm bg-(--bg-secondary)" />
+              <div className="h-3 w-1/3 rounded-sm bg-(--bg-secondary) mt-2" />
               <div className="flex gap-1.5 mt-3">
-                <div className="h-5 w-16 rounded bg-[var(--bg-secondary)]" />
-                <div className="h-5 w-8 rounded bg-[var(--bg-secondary)]" />
+                <div className="h-5 w-16 rounded-sm bg-(--bg-secondary)" />
+                <div className="h-5 w-8 rounded-sm bg-(--bg-secondary)" />
               </div>
             </div>
           ))}
@@ -104,16 +102,12 @@ export default function WarsListClient({ guildCode }: WarsListClientProps) {
   if (error) {
     return (
       <div className="px-4 py-6 space-y-4">
-        <h1 className="text-3xl font-bold text-[var(--text-primary)]">
-          War Reports
-        </h1>
+        <h1 className="text-3xl font-bold text-primary-wh40k">War Reports</h1>
         <div className="card-wh40k p-6 text-center">
-          <p className="text-[var(--text-secondary)]">
-            Failed to load war data.
-          </p>
+          <p className="text-secondary-wh40k">Failed to load war data.</p>
           <button
             onClick={() => refetch()}
-            className="mt-3 px-4 py-2 text-sm rounded bg-[var(--accent)] text-white hover:opacity-90 transition-opacity"
+            className="mt-3 px-4 py-2 text-sm rounded-sm bg-accent-wh40k text-white hover:opacity-90 transition-opacity"
           >
             Try again
           </button>
@@ -131,17 +125,15 @@ export default function WarsListClient({ guildCode }: WarsListClientProps) {
   return (
     <div className="px-4 py-6 space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-[var(--text-primary)]">
-          War Reports
-        </h1>
-        <p className="text-sm text-[var(--text-secondary)] mt-2">
+        <h1 className="text-3xl font-bold text-primary-wh40k">War Reports</h1>
+        <p className="text-sm text-secondary-wh40k mt-2">
           Your guild&apos;s war history and performance analytics.
         </p>
       </div>
 
       {hasNoWars ? (
         <div className="card-wh40k p-6 text-center">
-          <p className="text-[var(--text-secondary)]">
+          <p className="text-secondary-wh40k">
             No wars recorded yet. Wars will appear here once your guild starts
             tracking war data.
           </p>
@@ -150,7 +142,7 @@ export default function WarsListClient({ guildCode }: WarsListClientProps) {
         <>
           {activeWars.length > 0 && (
             <section>
-              <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-3">
+              <h2 className="text-xl font-semibold text-primary-wh40k mb-3">
                 Active Wars
               </h2>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -163,7 +155,7 @@ export default function WarsListClient({ guildCode }: WarsListClientProps) {
 
           {completedWars.length > 0 && (
             <section>
-              <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-3">
+              <h2 className="text-xl font-semibold text-primary-wh40k mb-3">
                 Recent Wars
               </h2>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

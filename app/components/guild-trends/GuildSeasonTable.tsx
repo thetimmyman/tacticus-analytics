@@ -23,7 +23,7 @@ export function GuildSeasonTable({ data, hasCluster }: GuildSeasonTableProps) {
       </h3>
       <table className="min-w-full text-sm">
         <thead>
-          <tr className="text-left text-xs uppercase tracking-wide text-[var(--text-secondary)] border-b border-[var(--card-border)]">
+          <tr className="text-left text-xs uppercase tracking-wide text-secondary-wh40k border-b border-(--card-border)">
             <th className="px-3 py-2">Season</th>
             {hasCluster && <th className="px-3 py-2 text-right">vs Cluster</th>}
             {hasCluster && (
@@ -55,7 +55,7 @@ export function GuildSeasonTable({ data, hasCluster }: GuildSeasonTableProps) {
                 key={row.season}
                 className="border-t border-card-border/60 hover:bg-card/50"
               >
-                <td className="px-3 py-2 font-medium text-[var(--text-primary)]">
+                <td className="px-3 py-2 font-medium text-primary-wh40k">
                   S{row.season}
                 </td>
                 {hasCluster && (
@@ -66,7 +66,7 @@ export function GuildSeasonTable({ data, hasCluster }: GuildSeasonTableProps) {
                   </td>
                 )}
                 {hasCluster && (
-                  <td className="px-3 py-2 text-right text-[var(--text-primary)]">
+                  <td className="px-3 py-2 text-right text-primary-wh40k">
                     {row.guild_rank_in_cluster != null &&
                     row.total_guilds_in_cluster != null
                       ? `#${row.guild_rank_in_cluster}/${row.total_guilds_in_cluster}`
@@ -76,18 +76,18 @@ export function GuildSeasonTable({ data, hasCluster }: GuildSeasonTableProps) {
                 <td className="px-3 py-2 text-right font-mono text-blue-400">
                   {formatDamage(row.total_damage)}
                 </td>
-                <td className="px-3 py-2 text-right text-[var(--text-primary)]">
+                <td className="px-3 py-2 text-right text-primary-wh40k">
                   {row.active_players}
                 </td>
                 <td className="px-3 py-2 text-right font-mono text-yellow-400">
                   {formatNumber(row.total_battles)}
                 </td>
-                <td className="px-3 py-2 text-right text-[var(--text-primary)]">
+                <td className="px-3 py-2 text-right text-primary-wh40k">
                   {row.participation_rate != null
                     ? formatPercentage(row.participation_rate / 100)
                     : 'N/A'}
                 </td>
-                <td className="px-3 py-2 text-right font-mono text-[var(--text-primary)]">
+                <td className="px-3 py-2 text-right font-mono text-primary-wh40k">
                   {row.avg_damage_per_token != null
                     ? formatDamage(row.avg_damage_per_token)
                     : 'N/A'}
@@ -102,7 +102,7 @@ export function GuildSeasonTable({ data, hasCluster }: GuildSeasonTableProps) {
           })}
         </tbody>
       </table>
-      <p className="mt-2 text-xs text-[var(--text-secondary)]">
+      <p className="mt-2 text-xs text-secondary-wh40k">
         * Participation rate is based on current roster size and may differ from
         actual membership during older seasons.
       </p>

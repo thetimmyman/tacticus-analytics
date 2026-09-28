@@ -36,7 +36,7 @@ function ReplayTeam({ units }: { units: string[] }) {
   return (
     <div className="flex flex-wrap items-center gap-1">
       {display.slice(0, 6).map((unit) => (
-        <HeroUnitPortrait key={unit} unitName={unit} className="!h-7 !w-7" />
+        <HeroUnitPortrait key={unit} unitName={unit} className="h-7! w-7!" />
       ))}
     </div>
   )
@@ -45,9 +45,9 @@ function ReplayTeam({ units }: { units: string[] }) {
 function ReplayCard({ replay }: { replay: CommunityReplay }) {
   const damage = formatDamage(replay.damage)
   return (
-    <article className="relative flex flex-col gap-3 rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_70%,transparent)] p-3 hover:border-[color-mix(in_srgb,var(--accent)_55%,transparent)]">
+    <article className="relative flex flex-col gap-3 rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_70%,transparent)] p-3 hover:border-[color-mix(in_srgb,var(--accent)_55%,transparent)]">
       <div className="flex items-start gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-tertiary)_45%,transparent)]">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-tertiary)_45%,transparent)]">
           <BossPortrait
             bossName={replay.bossName}
             lookupName={replay.bossId ?? replay.bossName}
@@ -64,11 +64,11 @@ function ReplayCard({ replay }: { replay: CommunityReplay }) {
                 aria-label="Featured"
               />
             )}
-            <h3 className="truncate text-sm font-semibold text-[var(--text-primary)]">
+            <h3 className="truncate text-sm font-semibold text-primary-wh40k">
               {replay.title}
             </h3>
           </div>
-          <p className="truncate text-xs text-[var(--text-tertiary)]">
+          <p className="truncate text-xs text-(--text-tertiary)">
             {replay.bossName}
             {replay.raritySet ? ` · ${replay.raritySet}` : ''}
             {replay.season ? ` · S${replay.season}` : ''}
@@ -87,7 +87,7 @@ function ReplayCard({ replay }: { replay: CommunityReplay }) {
       <div className="mt-auto flex flex-wrap items-center gap-2">
         <Link
           href={replay.href}
-          className="relative z-10 inline-flex h-8 items-center gap-1.5 rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2.5 text-xs font-semibold text-[var(--text-secondary)] hover:border-[color-mix(in_srgb,var(--accent)_60%,transparent)] hover:text-[var(--accent)]"
+          className="relative z-10 inline-flex h-8 items-center gap-1.5 rounded-md border border-(--card-border) bg-(--bg-secondary) px-2.5 text-xs font-semibold text-secondary-wh40k hover:border-[color-mix(in_srgb,var(--accent)_60%,transparent)] hover:text-(--accent)"
         >
           <Film className="h-3.5 w-3.5" />
           Playbook
@@ -97,20 +97,20 @@ function ReplayCard({ replay }: { replay: CommunityReplay }) {
             href={replay.videoUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[color-mix(in_srgb,var(--accent)_45%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] px-2.5 text-xs font-semibold text-[var(--accent)] after:absolute after:inset-0 after:content-[''] hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)]"
+            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[color-mix(in_srgb,var(--accent)_45%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] px-2.5 text-xs font-semibold text-(--accent) after:absolute after:inset-0 after:content-[''] hover:bg-[color-mix(in_srgb,var(--accent)_20%,transparent)]"
           >
             <Play className="h-3.5 w-3.5" />
             Watch
           </a>
         )}
         {replay.encounterRole && (
-          <span className="rounded border border-[var(--card-border)] bg-black/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--text-tertiary)]">
+          <span className="rounded-sm border border-(--card-border) bg-black/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-(--text-tertiary)">
             {replay.encounterRole}
           </span>
         )}
         {replay.visibility && replay.visibility !== 'public' && (
           <span
-            className="inline-flex items-center gap-1 rounded border border-sky-300/40 bg-sky-300/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-200"
+            className="inline-flex items-center gap-1 rounded-sm border border-sky-300/40 bg-sky-300/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-200"
             title={`Visible to your ${replay.visibility}`}
           >
             <Pin className="h-3 w-3" />
@@ -171,18 +171,16 @@ export function ReplayCatalogClient({
 
   return (
     <div className="mx-auto max-w-[1600px] space-y-5 px-4 py-6">
-      <header className="space-y-2 border-b border-[var(--card-border)] pb-4">
+      <header className="space-y-2 border-b border-(--card-border) pb-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
-            Replays
-          </h1>
-          <span className="text-sm text-[var(--text-tertiary)]">
+          <h1 className="text-2xl font-semibold text-primary-wh40k">Replays</h1>
+          <span className="text-sm text-(--text-tertiary)">
             {result.loadFailed
               ? 'Catalogue unavailable'
               : `${formatNumber(result.total)} replay${result.total === 1 ? '' : 's'}`}
           </span>
         </div>
-        <p className="max-w-3xl text-sm text-[var(--text-secondary)]">
+        <p className="max-w-3xl text-sm text-secondary-wh40k">
           Community YouTube replays. These are the same replays shown on the
           boss playbooks, browsable in one place.
         </p>
@@ -191,11 +189,11 @@ export function ReplayCatalogClient({
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[260px_1fr]">
         <aside className="space-y-4">
           <label className="block">
-            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
               Search
             </span>
             <div className="relative">
-              <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--text-tertiary)]" />
+              <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-(--text-tertiary)" />
               <input
                 key={filters.search ?? ''}
                 type="search"
@@ -205,7 +203,7 @@ export function ReplayCatalogClient({
                   if (event.key !== 'Enter') return
                   setParam({ q: event.currentTarget.value.trim() || null })
                 }}
-                className="h-9 w-full rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] pl-7 pr-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
+                className="h-9 w-full rounded-md border border-(--card-border) bg-(--bg-secondary) pl-7 pr-2 text-sm text-primary-wh40k placeholder:text-(--text-tertiary)"
               />
             </div>
           </label>
@@ -267,7 +265,7 @@ export function ReplayCatalogClient({
             <button
               type="button"
               onClick={() => router.push(pathname)}
-              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2.5 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--accent)]"
+              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-(--card-border) bg-(--bg-secondary) px-2.5 text-xs font-semibold text-secondary-wh40k hover:text-(--accent)"
             >
               <X className="h-3.5 w-3.5" />
               Clear {activeFilterCount} filter
@@ -279,13 +277,13 @@ export function ReplayCatalogClient({
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
                 Sort
               </span>
               <select
                 value={sort}
                 onChange={(event) => setParam({ sort: event.target.value })}
-                className="h-8 rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 text-xs font-semibold text-[var(--text-primary)]"
+                className="h-8 rounded-md border border-(--card-border) bg-(--bg-secondary) px-2 text-xs font-semibold text-primary-wh40k"
               >
                 {Object.entries(CATALOG_SORTS).map(([value, config]) => (
                   <option key={value} value={value}>
@@ -295,20 +293,20 @@ export function ReplayCatalogClient({
               </select>
             </div>
             {isPending && (
-              <Loader2 className="h-4 w-4 animate-spin text-[var(--accent)]" />
+              <Loader2 className="h-4 w-4 animate-spin text-(--accent)" />
             )}
           </div>
 
           {result.loadFailed ? (
             <div
               role="alert"
-              className="rounded-lg border border-[var(--warning)]/40 bg-[color-mix(in_srgb,var(--warning)_12%,transparent)] px-4 py-3 text-sm text-[var(--warning)]"
+              className="rounded-lg border border-(--warning)/40 bg-[color-mix(in_srgb,var(--warning)_12%,transparent)] px-4 py-3 text-sm text-(--warning)"
             >
               The replay catalogue could not be loaded. This is a read error,
               not an empty catalogue — reload the page to try again.
             </div>
           ) : result.replays.length === 0 ? (
-            <p className="rounded-lg border border-[var(--card-border)] bg-black/15 px-4 py-6 text-center text-sm text-[var(--text-tertiary)]">
+            <p className="rounded-lg border border-(--card-border) bg-black/15 px-4 py-6 text-center text-sm text-(--text-tertiary)">
               No replays match these filters.
             </p>
           ) : (
@@ -329,15 +327,15 @@ export function ReplayCatalogClient({
                 disabled={result.page <= 1}
                 onClick={() => setParam({ page: String(result.page - 1) })}
                 className={clsx(
-                  'h-8 rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-3 text-xs font-semibold',
+                  'h-8 rounded-md border border-(--card-border) bg-(--bg-secondary) px-3 text-xs font-semibold',
                   result.page <= 1
-                    ? 'cursor-not-allowed text-[var(--text-tertiary)] opacity-50'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--accent)]'
+                    ? 'cursor-not-allowed text-(--text-tertiary) opacity-50'
+                    : 'text-secondary-wh40k hover:text-(--accent)'
                 )}
               >
                 Previous
               </button>
-              <span className="text-xs text-[var(--text-tertiary)]">
+              <span className="text-xs text-(--text-tertiary)">
                 Page {result.page} of {totalPages}
               </span>
               <button
@@ -345,10 +343,10 @@ export function ReplayCatalogClient({
                 disabled={result.page >= totalPages}
                 onClick={() => setParam({ page: String(result.page + 1) })}
                 className={clsx(
-                  'h-8 rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-3 text-xs font-semibold',
+                  'h-8 rounded-md border border-(--card-border) bg-(--bg-secondary) px-3 text-xs font-semibold',
                   result.page >= totalPages
-                    ? 'cursor-not-allowed text-[var(--text-tertiary)] opacity-50'
-                    : 'text-[var(--text-secondary)] hover:text-[var(--accent)]'
+                    ? 'cursor-not-allowed text-(--text-tertiary) opacity-50'
+                    : 'text-secondary-wh40k hover:text-(--accent)'
                 )}
               >
                 Next
@@ -375,13 +373,13 @@ function FacetSelect({
   if (options.length === 0) return null
   return (
     <label className="block">
-      <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+      <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
         {label}
       </span>
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-9 w-full rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 text-sm text-[var(--text-primary)]"
+        className="h-9 w-full rounded-md border border-(--card-border) bg-(--bg-secondary) px-2 text-sm text-primary-wh40k"
       >
         <option value="">All</option>
         {options.map((option) => (
@@ -404,12 +402,12 @@ function Toggle({
   onChange: (checked: boolean) => void
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2 text-xs font-semibold text-[var(--text-secondary)]">
+    <label className="flex cursor-pointer items-center gap-2 text-xs font-semibold text-secondary-wh40k">
       <input
         type="checkbox"
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
-        className="h-3.5 w-3.5 accent-[var(--accent)]"
+        className="h-3.5 w-3.5 accent-(--accent)"
       />
       {label}
     </label>

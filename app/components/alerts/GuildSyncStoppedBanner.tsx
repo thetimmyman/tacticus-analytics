@@ -111,26 +111,26 @@ export function GuildSyncStoppedBanner({
     <div
       role="alert"
       aria-label="Guild data sync stopped"
-      className="mb-6 rounded-lg border border-[var(--danger)] bg-[color-mix(in_srgb,var(--danger)_12%,transparent)] px-4 py-3"
+      className="mb-6 rounded-lg border border-(--danger) bg-[color-mix(in_srgb,var(--danger)_12%,transparent)] px-4 py-3"
     >
       <div className="flex items-start gap-4">
-        <div className="flex-1 text-sm text-[var(--text-primary)]">
+        <div className="flex-1 text-sm text-primary-wh40k">
           <h2 className="font-semibold">{heading}</h2>
-          <p className="mt-1 text-[var(--text-secondary)]">{body}</p>
-          <p className="mt-1 text-[var(--text-secondary)]">
+          <p className="mt-1 text-secondary-wh40k">{body}</p>
+          <p className="mt-1 text-secondary-wh40k">
             Raid stats and tokens on this site will not update until this is
             fixed.
           </p>
           <p className="mt-2">
             <Link
               href="/api-keys"
-              className="font-semibold text-[var(--accent)] underline"
+              className="font-semibold text-(--accent) underline"
             >
               {ctaText}
             </Link>
           </p>
           {incident.viewerIsLeadership ? (
-            <p className="mt-2 text-[var(--text-secondary)]">
+            <p className="mt-2 text-secondary-wh40k">
               Leaders and officers: you can also review the key in{' '}
               <Link
                 href="/guild-management/settings?tab=integrations"
@@ -145,7 +145,7 @@ export function GuildSyncStoppedBanner({
         <button
           type="button"
           onClick={onDismiss}
-          className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="text-secondary-wh40k hover:text-primary-wh40k"
           aria-label="Dismiss for this session"
         >
           Dismiss

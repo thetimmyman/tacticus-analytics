@@ -94,36 +94,34 @@ interface MemberActivityTooltipProps {
 function MemberActivityTooltipContent({ member }: MemberActivityTooltipProps) {
   return (
     <div className="space-y-1.5 min-w-[180px]">
-      <div className="text-xs font-medium text-[var(--text-primary)] border-b border-[var(--card-border)] pb-1 mb-1.5">
+      <div className="text-xs font-medium text-primary-wh40k border-b border-(--card-border) pb-1 mb-1.5">
         Player Info
       </div>
       {member.player_level != null && (
         <div className="flex justify-between text-xs">
-          <span className="text-[var(--text-secondary)]">Level:</span>
+          <span className="text-secondary-wh40k">Level:</span>
           <span className="text-amber-300 font-medium">
             {member.player_level}
           </span>
         </div>
       )}
-      <div className="border-t border-[var(--card-border)] pt-1.5 mt-1 space-y-1.5">
-        <div className="text-xs font-medium text-[var(--text-secondary)]">
-          Activity
-        </div>
+      <div className="border-t border-(--card-border) pt-1.5 mt-1 space-y-1.5">
+        <div className="text-xs font-medium text-secondary-wh40k">Activity</div>
         <div className="flex justify-between text-xs">
-          <span className="text-[var(--text-secondary)]">Last Login:</span>
-          <span className="text-[var(--text-primary)]">
+          <span className="text-secondary-wh40k">Last Login:</span>
+          <span className="text-primary-wh40k">
             {formatRelativeTime(member.last_login_at)}
           </span>
         </div>
         <div className="flex justify-between text-xs">
-          <span className="text-[var(--text-secondary)]">Last Battle:</span>
-          <span className="text-[var(--text-primary)]">
+          <span className="text-secondary-wh40k">Last Battle:</span>
+          <span className="text-primary-wh40k">
             {formatRelativeTime(member.last_battle_time)}
           </span>
         </div>
         <div className="flex justify-between text-xs">
-          <span className="text-[var(--text-secondary)]">Last Bomb:</span>
-          <span className="text-[var(--text-primary)]">
+          <span className="text-secondary-wh40k">Last Bomb:</span>
+          <span className="text-primary-wh40k">
             {formatRelativeTime(member.last_bomb_time)}
           </span>
         </div>
@@ -172,7 +170,7 @@ export function MemberListTable({
         <RadixTooltip>
           <RadixTooltipTrigger asChild>
             <div className="flex items-center gap-3 cursor-default">
-              <div className="relative flex-shrink-0">
+              <div className="relative shrink-0">
                 <img
                   src={getAvatarUrl(member)}
                   alt=""
@@ -195,7 +193,7 @@ export function MemberListTable({
                 <div className="text-sm font-medium flex items-center gap-2">
                   <Link
                     href={`/player-stats?player=${encodeURIComponent(member.display_name || '')}&guild=${encodeURIComponent(member.guild_code || '')}`}
-                    className="text-[var(--text-primary)] hover:text-[var(--accent)] hover:underline transition-colors"
+                    className="text-primary-wh40k hover:text-(--accent) hover:underline transition-colors"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <MemberName
@@ -207,15 +205,15 @@ export function MemberListTable({
                 </div>
                 <div className="flex items-center gap-2 text-xs">
                   <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-[var(--bg-primary)] ${getRoleBadgeColor((member.role as UserRole) || 'member')}`}
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-(--bg-primary) ${getRoleBadgeColor((member.role as UserRole) || 'member')}`}
                   >
                     {getRoleDisplayName((member.role as UserRole) || 'member')}
                   </span>
                   <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded text-[var(--text-secondary)] border ${
+                    className={`inline-flex items-center px-2 py-0.5 rounded text-secondary-wh40k border ${
                       member.user_id
                         ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
-                        : 'border-card-border/40 bg-gray-500/10 text-[var(--text-primary)]'
+                        : 'border-card-border/40 bg-gray-500/10 text-primary-wh40k'
                     }`}
                   >
                     {member.user_id ? 'Claimed' : 'Unclaimed'}
@@ -256,14 +254,14 @@ export function MemberListTable({
                       )
                     }
                     return (
-                      <div className="text-[var(--text-secondary)] flex flex-col gap-0.5">
+                      <div className="text-secondary-wh40k flex flex-col gap-0.5">
                         <span>No availability data</span>
                         <span>{getAvailabilityMissingReason(member)}</span>
                       </div>
                     )
                   }
                   return (
-                    <span className="font-mono text-[var(--text-primary)]">
+                    <span className="font-mono text-primary-wh40k">
                       {usage.available ?? 0}
                       {usage.max !== null ? ` / ${usage.max}` : ''} available
                     </span>
@@ -277,7 +275,7 @@ export function MemberListTable({
                       className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${
                         bombStatus.available
                           ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
-                          : 'bg-card/40 text-[var(--text-secondary)] border-card-border/40'
+                          : 'bg-card/40 text-secondary-wh40k border-card-border/40'
                       }`}
                     >
                       {bombStatus.available ? 'Bomb Ready' : 'Bomb Used'}
@@ -303,16 +301,16 @@ export function MemberListTable({
                         className="inline-flex items-center text-xs"
                       >
                         {/* DataTable's <td> forces text-secondary; set primary explicitly. */}
-                        <span className="text-[var(--text-primary)]">
+                        <span className="text-primary-wh40k">
                           {getPreferenceIcon(pref.preference)}
                         </span>
-                        <span className="ml-1 text-[var(--text-secondary)]">
+                        <span className="ml-1 text-secondary-wh40k">
                           {BOSS_DISPLAY_NAMES[pref.boss] || pref.boss}
                         </span>
                       </span>
                     ))
                   ) : (
-                    <span className="text-xs text-[var(--text-secondary)]">
+                    <span className="text-xs text-secondary-wh40k">
                       No preferences
                     </span>
                   )}
@@ -330,7 +328,7 @@ export function MemberListTable({
                 {member.primary_team && (
                   <div className="flex items-center">
                     <span className="text-emerald-400 mr-1">1°</span>
-                    <span className="text-[var(--text-primary)]">
+                    <span className="text-primary-wh40k">
                       {metaTeams.find(
                         (t) => t.team_name === member.primary_team
                       )?.display_name || member.primary_team}
@@ -340,7 +338,7 @@ export function MemberListTable({
                 {member.secondary_team && (
                   <div className="flex items-center">
                     <span className="text-blue-400 mr-1">2°</span>
-                    <span className="text-[var(--text-secondary)]">
+                    <span className="text-secondary-wh40k">
                       {metaTeams.find(
                         (t) => t.team_name === member.secondary_team
                       )?.display_name || member.secondary_team}
@@ -350,7 +348,7 @@ export function MemberListTable({
                 {member.tertiary_team && (
                   <div className="flex items-center">
                     <span className="text-orange-400 mr-1">3°</span>
-                    <span className="text-[var(--text-secondary)]">
+                    <span className="text-secondary-wh40k">
                       {metaTeams.find(
                         (t) => t.team_name === member.tertiary_team
                       )?.display_name || member.tertiary_team}
@@ -360,9 +358,7 @@ export function MemberListTable({
                 {!member.primary_team &&
                   !member.secondary_team &&
                   !member.tertiary_team && (
-                    <span className="text-[var(--text-secondary)]">
-                      No preferences
-                    </span>
+                    <span className="text-secondary-wh40k">No preferences</span>
                   )}
               </div>
             )
@@ -389,12 +385,12 @@ export function MemberListTable({
                         className="flex justify-between gap-2"
                       >
                         <span
-                          className="text-[var(--text-secondary)] truncate max-w-[100px]"
+                          className="text-secondary-wh40k truncate max-w-[100px]"
                           title={perf.display_key}
                         >
                           {perf.display_key}
                         </span>
-                        <div className="flex space-x-2 flex-shrink-0">
+                        <div className="flex space-x-2 shrink-0">
                           <span
                             className={getPerformanceColor(
                               perf.player_vs_guild_avg
@@ -405,9 +401,7 @@ export function MemberListTable({
                           </span>
                           {hasCluster && (
                             <>
-                              <span className="text-[var(--text-secondary)]">
-                                /
-                              </span>
+                              <span className="text-secondary-wh40k">/</span>
                               <span
                                 className={getPerformanceColor(
                                   perf.player_vs_cluster_avg
@@ -424,9 +418,7 @@ export function MemberListTable({
                       </div>
                     ))}
                   {memberPerformance.length === 0 && (
-                    <span className="text-[var(--text-secondary)]">
-                      No data
-                    </span>
+                    <span className="text-secondary-wh40k">No data</span>
                   )}
                 </div>
               )
@@ -438,7 +430,7 @@ export function MemberListTable({
       key: 'notes',
       header: 'Officer Notes',
       render: (member) => (
-        <p className="text-sm text-[var(--text-secondary)] max-w-xs truncate">
+        <p className="text-sm text-secondary-wh40k max-w-xs truncate">
           {member.officer_notes || '-'}
         </p>
       )
@@ -466,9 +458,7 @@ export function MemberListTable({
             Invite
           </Button>
         ) : (
-          <span className="text-xs text-[var(--text-tertiary)]">
-            No edit access
-          </span>
+          <span className="text-xs text-(--text-tertiary)">No edit access</span>
         )
       }
     }
@@ -487,7 +477,7 @@ export function MemberListTable({
           }}
           externallySorted
           empty={
-            <div className="px-6 py-10 text-center text-sm text-[var(--text-secondary)]">
+            <div className="px-6 py-10 text-center text-sm text-secondary-wh40k">
               No members match your current filters.
             </div>
           }

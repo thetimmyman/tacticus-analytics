@@ -70,7 +70,7 @@ export function Tabs({
   return (
     <div className={className}>
       {/* Tab Navigation */}
-      <div className="border-b border-[var(--card-border)] overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+      <div className="border-b border-(--card-border) overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
         <nav
           className="-mb-px flex space-x-1 min-w-max"
           aria-label="Tabs"
@@ -92,11 +92,11 @@ export function Tabs({
               onKeyDown={(event) => handleKeyDown(event, index)}
               className={`
                 min-h-11 px-2.5 md:px-4 py-2 text-xs md:text-sm font-medium transition-colors duration-200
-                border-b-2 whitespace-nowrap flex-shrink-0
+                border-b-2 whitespace-nowrap shrink-0
                 ${
                   activeTab === tab.id
-                    ? 'border-[var(--accent)] text-[var(--accent)]'
-                    : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--text-secondary)]'
+                    ? 'border-accent-wh40k text-(--accent)'
+                    : 'border-transparent text-secondary-wh40k hover:text-primary-wh40k hover:border-(--text-secondary)'
                 }
               `}
             >

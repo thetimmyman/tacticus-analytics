@@ -184,12 +184,12 @@ export function PersonalPotentialContent({
       : null
   const resolvedDeltaTone =
     resolvedDelta == null
-      ? 'text-[var(--text-primary)]'
+      ? 'text-primary-wh40k'
       : resolvedDelta > 0
         ? 'text-emerald-200'
         : resolvedDelta < 0
           ? 'text-rose-200'
-          : 'text-[var(--text-primary)]'
+          : 'text-primary-wh40k'
 
   const yourTeamHeroes = parseTeamComposition(currentTeam, heroMappings)
   const targetTeamHeroes = parseTeamComposition(
@@ -441,7 +441,7 @@ export function PersonalPotentialContent({
     <div className="space-y-3">
       {showToggle && (
         <div className="flex items-center justify-center">
-          <div className="inline-flex items-center rounded-full border border-[var(--card-border)] bg-card/70 p-1">
+          <div className="inline-flex items-center rounded-full border border-(--card-border) bg-card/70 p-1">
             <button
               type="button"
               onClick={() => {
@@ -453,8 +453,8 @@ export function PersonalPotentialContent({
                 resolvedSourceMode === 'history'
                   ? 'bg-blue-500 text-white'
                   : !hasHistoryData
-                    ? 'text-[var(--text-secondary)] cursor-not-allowed'
-                    : 'text-[var(--text-secondary)] hover:text-white'
+                    ? 'text-secondary-wh40k cursor-not-allowed'
+                    : 'text-secondary-wh40k hover:text-white'
               }`}
             >
               <RotateCcwClock className="w-3 h-3" />
@@ -469,7 +469,7 @@ export function PersonalPotentialContent({
               className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors flex items-center gap-1.5 ${
                 resolvedSourceMode === 'roster'
                   ? 'bg-purple-500 text-white'
-                  : 'text-[var(--text-secondary)] hover:text-white'
+                  : 'text-secondary-wh40k hover:text-white'
               }`}
             >
               <Package className="w-3 h-3" />
@@ -478,7 +478,7 @@ export function PersonalPotentialContent({
           </div>
           {historyEqualsRoster && hasHistoryData && (
             <div
-              className="ml-2 flex items-center gap-1 text-[10px] text-[var(--text-secondary)]"
+              className="ml-2 flex items-center gap-1 text-[10px] text-secondary-wh40k"
               title="Your battle history team matches your best roster team"
             >
               <Equal className="w-3 h-3" />
@@ -504,7 +504,7 @@ export function PersonalPotentialContent({
       )}
 
       {!hasHistoryData && hasRoster && (
-        <div className="text-center text-xs text-[var(--text-secondary)]">
+        <div className="text-center text-xs text-secondary-wh40k">
           No battle history for this boss. Showing roster-based analysis.
         </div>
       )}
@@ -553,7 +553,7 @@ export function PersonalPotentialContent({
         )}
 
       {historyUnavailable && (
-        <div className="p-3 rounded-lg bg-card/70 border border-[var(--card-border)] text-xs text-[var(--text-primary)]">
+        <div className="p-3 rounded-lg bg-card/70 border border-(--card-border) text-xs text-primary-wh40k">
           No battle history team found for this boss/rarity. Switch to{' '}
           <strong>My Roster</strong> to see deployable paths.
         </div>
@@ -568,7 +568,7 @@ export function PersonalPotentialContent({
             <h3 className="text-sm font-semibold text-white mb-1">
               Connect Your Roster
             </h3>
-            <p className="text-xs text-[var(--text-secondary)] max-w-sm mb-3">
+            <p className="text-xs text-secondary-wh40k max-w-sm mb-3">
               Add your Player API key to load your roster and compute the best
               team you can field.
             </p>
@@ -584,7 +584,7 @@ export function PersonalPotentialContent({
       )}
 
       {rosterUnavailable && (
-        <div className="p-3 rounded-lg bg-card/70 border border-[var(--card-border)] text-xs text-[var(--text-primary)]">
+        <div className="p-3 rounded-lg bg-card/70 border border-(--card-border) text-xs text-primary-wh40k">
           {selectedMetaTeam && !selectedMetaTeam.is_buildable ? (
             <>
               No buildable team found for{' '}

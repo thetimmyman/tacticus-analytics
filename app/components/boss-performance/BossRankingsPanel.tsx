@@ -48,7 +48,7 @@ export function BossRankingsPanel() {
 
   if (!loading && !hasPlayers) {
     return (
-      <Card className="card-wh40k p-4 text-sm text-[var(--text-secondary)]">
+      <Card className="card-wh40k p-4 text-sm text-secondary-wh40k">
         No player damage data is available for these filters yet.
       </Card>
     )
@@ -66,13 +66,13 @@ export function BossRankingsPanel() {
         totalPages={totalPages}
         renderMetrics={(player) => (
           <>
-            <span className="text-[var(--text-secondary)]">
+            <span className="text-secondary-wh40k">
               {player.tokenCount} tok
             </span>
-            <span className="font-mono text-[var(--accent)]">
+            <span className="font-mono text-(--accent)">
               Avg: {formatDamage(player.avgDamage)}
             </span>
-            <span className="font-mono text-[var(--text-secondary)]">
+            <span className="font-mono text-secondary-wh40k">
               Max: {formatDamage(player.maxHit)}
             </span>
           </>
@@ -94,7 +94,7 @@ export function BossRankingsPanel() {
         totalPages={totalPages}
         renderMetrics={(player) => (
           <>
-            <span className="text-[var(--text-secondary)]">
+            <span className="text-secondary-wh40k">
               {player.tokenCount} tok
             </span>
             <span className="font-mono text-green-400">
@@ -122,7 +122,7 @@ function RankingsSkeleton() {
         >
           <CardHeader className="p-3 sm:p-4 pb-2">
             <CardTitle className="subheading-wh40k text-base sm:text-lg animate-pulse">
-              <span className="inline-block h-4 w-40 rounded bg-[color-mix(in_srgb,var(--card-border)_60%,transparent)]" />
+              <span className="inline-block h-4 w-40 rounded-sm bg-[color-mix(in_srgb,var(--card-border)_60%,transparent)]" />
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0">
@@ -132,10 +132,10 @@ function RankingsSkeleton() {
                   key={`ranking-skeleton-${cardType}-${rowId}`}
                   className="flex items-center gap-3 animate-pulse"
                 >
-                  <span className="h-3 w-4 rounded bg-[color-mix(in_srgb,var(--card-border)_60%,transparent)]" />
+                  <span className="h-3 w-4 rounded-sm bg-[color-mix(in_srgb,var(--card-border)_60%,transparent)]" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-3 w-32 rounded bg-[color-mix(in_srgb,var(--card-border)_60%,transparent)]" />
-                    <div className="h-2 rounded bg-[color-mix(in_srgb,var(--card-border)_40%,transparent)]" />
+                    <div className="h-3 w-32 rounded-sm bg-[color-mix(in_srgb,var(--card-border)_60%,transparent)]" />
+                    <div className="h-2 rounded-sm bg-[color-mix(in_srgb,var(--card-border)_40%,transparent)]" />
                   </div>
                 </div>
               ))}
@@ -194,7 +194,7 @@ function RankingCard({
         </CardTitle>
       </CardHeader>
       <CardContent className="p-3 sm:p-4 pt-0">
-        <div className="space-y-2 max-h-64 overflow-y-auto pr-2 sm:pr-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-[var(--card-bg)] [&::-webkit-scrollbar-thumb]:bg-slate-600 [&::-webkit-scrollbar-thumb]:rounded-full">
+        <div className="space-y-2 max-h-64 overflow-y-auto pr-2 sm:pr-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-(--card-bg) [&::-webkit-scrollbar-thumb]:bg-slate-600 [&::-webkit-scrollbar-thumb]:rounded-full">
           {playersToShow.map((player, index) => {
             const actualRank = startIndex + index + 1
             const barWidth = getBarWidth(player, playersToShow)
@@ -204,24 +204,24 @@ function RankingCard({
                 key={`${player.displayName}-${sortKey}`}
                 className="flex items-start gap-2"
               >
-                <span className="text-[10px] sm:text-xs text-[var(--text-secondary)] w-4 sm:w-6 mt-0.5">
+                <span className="text-[10px] sm:text-xs text-secondary-wh40k w-4 sm:w-6 mt-0.5">
                   #{actualRank}
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-center mb-1 gap-2">
-                    <span className="text-xs font-medium text-[var(--text-secondary)] truncate flex-shrink">
+                    <span className="text-xs font-medium text-secondary-wh40k truncate shrink">
                       {player.displayName}
                     </span>
-                    <div className="flex items-center gap-2 text-[9px] sm:text-[10px] flex-shrink-0">
+                    <div className="flex items-center gap-2 text-[9px] sm:text-[10px] shrink-0">
                       {renderMetrics(player)}
                     </div>
                   </div>
-                  <div className="w-full bg-[var(--card-bg)] rounded-full h-1.5 sm:h-2 overflow-hidden">
+                  <div className="w-full bg-(--card-bg) rounded-full h-1.5 sm:h-2 overflow-hidden">
                     <div
                       className={`h-full transition-all duration-500 ${
                         sortKey === 'avgDamage'
-                          ? 'bg-gradient-to-r from-[var(--primary)] to-blue-400'
-                          : 'bg-gradient-to-r from-green-500 to-green-400'
+                          ? 'bg-linear-to-r from-(--primary) to-blue-400'
+                          : 'bg-linear-to-r from-green-500 to-green-400'
                       }`}
                       style={{ width: `${barWidth}%` }}
                     />
@@ -232,22 +232,22 @@ function RankingCard({
           })}
         </div>
       </CardContent>
-      <CardFooter className="flex items-center justify-between border-t border-[var(--card-border)] gap-2">
-        <span className="text-xs text-[var(--text-secondary)]">
+      <CardFooter className="flex items-center justify-between border-t border-(--card-border) gap-2">
+        <span className="text-xs text-secondary-wh40k">
           {safePage + 1}/{totalPages}
         </span>
         <div className="flex items-center gap-1">
           <button
             onClick={handlePrev}
             disabled={safePage === 0}
-            className="px-2 py-1 text-xs bg-[var(--card-bg)] hover:bg-[var(--bg-tertiary)] disabled:bg-[var(--card-bg)] disabled:text-[color-mix(in_srgb,var(--text-secondary)_50%,transparent)] rounded transition-colors"
+            className="px-2 py-1 text-xs bg-(--card-bg) hover:bg-(--bg-tertiary) disabled:bg-(--card-bg) disabled:text-[color-mix(in_srgb,var(--text-secondary)_50%,transparent)] rounded-sm transition-colors"
           >
             &lt;
           </button>
           <button
             onClick={handleNext}
             disabled={safePage >= totalPages - 1}
-            className="px-2 py-1 text-xs bg-[var(--card-bg)] hover:bg-[var(--bg-tertiary)] disabled:bg-[var(--card-bg)] disabled:text-[color-mix(in_srgb,var(--text-secondary)_50%,transparent)] rounded transition-colors"
+            className="px-2 py-1 text-xs bg-(--card-bg) hover:bg-(--bg-tertiary) disabled:bg-(--card-bg) disabled:text-[color-mix(in_srgb,var(--text-secondary)_50%,transparent)] rounded-sm transition-colors"
           >
             &gt;
           </button>

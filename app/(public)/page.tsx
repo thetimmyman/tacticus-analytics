@@ -46,25 +46,25 @@ export default async function HomePage() {
       <NavigationServer user={authData?.user} profile={authData?.profile} />
 
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-b from-[var(--bg-from)] via-[var(--bg-via)] to-[var(--bg-to)]">
+      <div className="relative overflow-hidden bg-linear-to-b from-(--bg-from) via-(--bg-via) to-(--bg-to)">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--accent)] to-transparent"></div>
+        <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-(--accent) to-transparent"></div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center">
             {/* Animated Logo */}
             <div className="relative mb-8">
               <div className="absolute inset-0 rounded-full bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] blur-3xl"></div>
-              <div className="relative w-32 h-32 mx-auto bg-gradient-to-br from-[var(--accent)] to-[var(--primary)] rounded-full flex items-center justify-center border-2 border-[color-mix(in_srgb,var(--accent)_50%,transparent)] shadow-2xl animate-pulse">
-                <AnalyticsIcon className="w-20 h-20 text-[var(--bg-from)]" />
+              <div className="relative w-32 h-32 mx-auto bg-linear-to-br from-(--accent) to-(--primary) rounded-full flex items-center justify-center border-2 border-[color-mix(in_srgb,var(--accent)_50%,transparent)] shadow-2xl animate-pulse">
+                <AnalyticsIcon className="w-20 h-20 text-(--bg-from)" />
               </div>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-black mb-4 bg-gradient-to-r from-[var(--text-primary)] via-[var(--accent)] to-[var(--text-primary)] bg-clip-text text-transparent tracking-tight">
+            <h1 className="text-5xl md:text-7xl font-black mb-4 bg-linear-to-r from-(--text-primary) via-(--accent) to-(--text-primary) bg-clip-text text-transparent tracking-tight">
               Tacticus Analytics
             </h1>
 
-            <p className="text-xl md:text-2xl text-[var(--text-secondary)] mb-8 font-light max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl text-secondary-wh40k mb-8 font-light max-w-3xl mx-auto">
               Guild raid dashboards for Warhammer 40,000: Tacticus officers:
               live API sync, boss performance, token availability, and cluster
               rankings in one place
@@ -80,7 +80,7 @@ export default async function HomePage() {
               ].map((feature) => (
                 <span
                   key={feature}
-                  className="px-3 py-1 bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] border border-[color-mix(in_srgb,var(--accent)_30%,transparent)] rounded-full text-sm text-[var(--accent)]"
+                  className="px-3 py-1 bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] border border-[color-mix(in_srgb,var(--accent)_30%,transparent)] rounded-full text-sm text-(--accent)"
                 >
                   {feature}
                 </span>

@@ -21,31 +21,31 @@ const SECTIONS: FaqSection[] = [
         </p>
         <ul className="list-disc space-y-1 pl-5">
           <li>
-            <span className="font-semibold text-[var(--text-primary)]">
+            <span className="font-semibold text-primary-wh40k">
               Average Damage Rankings:
             </span>{' '}
             Player efficiency per token spent.
           </li>
           <li>
-            <span className="font-semibold text-[var(--text-primary)]">
+            <span className="font-semibold text-primary-wh40k">
               Total Damage Rankings:
             </span>{' '}
             Overall contribution across the season.
           </li>
           <li>
-            <span className="font-semibold text-[var(--text-primary)]">
+            <span className="font-semibold text-primary-wh40k">
               Prime Boss Performance:
             </span>{' '}
             Identifies specialists on side bosses.
           </li>
           <li>
-            <span className="font-semibold text-[var(--text-primary)]">
+            <span className="font-semibold text-primary-wh40k">
               Loop Trend Analysis:
             </span>{' '}
             Flags degradation or improvements across raid loops.
           </li>
           <li>
-            <span className="font-semibold text-[var(--text-primary)]">
+            <span className="font-semibold text-primary-wh40k">
               Statistical Tracking:
             </span>{' '}
             Surfaces max hits, efficiency ratios, and participation rates.
@@ -59,24 +59,24 @@ const SECTIONS: FaqSection[] = [
     content: (
       <div className="space-y-3">
         <div>
-          <h5 className="text-[var(--text-primary)] font-semibold">
+          <h5 className="text-primary-wh40k font-semibold">
             Step 1: Average Damage Calculation
           </h5>
-          <div className="mt-1 rounded bg-card/60 p-3 font-mono text-xs">
+          <div className="mt-1 rounded-sm bg-card/60 p-3 font-mono text-xs">
             Player_Avg_Damage = Σ(non_sweep_damage) ÷ COUNT(non_sweep_tokens)
           </div>
           <p className="mt-2">
             Example: Hits of 45M, 52M, 48M ⇒ (45 + 52 + 48) ÷ 3 ={' '}
-            <span className="font-semibold text-[var(--primary)]">48.33M</span>{' '}
-            per token.
+            <span className="font-semibold text-(--primary)">48.33M</span> per
+            token.
           </p>
-          <p className="text-xs text-[var(--text-secondary)]">
+          <p className="text-xs text-secondary-wh40k">
             Finishing blows (remainingHp = 0) are excluded for main bosses so
             clean-up hits do not inflate averages.
           </p>
         </div>
         <div>
-          <h5 className="text-[var(--text-primary)] font-semibold">
+          <h5 className="text-primary-wh40k font-semibold">
             Step 2: Data Filtering Rules
           </h5>
           <ul className="mt-1 list-disc space-y-1 pl-5">
@@ -100,7 +100,7 @@ const SECTIONS: FaqSection[] = [
           </ul>
         </div>
         <div>
-          <h5 className="text-[var(--text-primary)] font-semibold">
+          <h5 className="text-primary-wh40k font-semibold">
             Step 3: Ranking &amp; Visualization
           </h5>
           <ul className="mt-1 list-disc space-y-1 pl-5">
@@ -120,10 +120,10 @@ const SECTIONS: FaqSection[] = [
     content: (
       <div className="space-y-3">
         <div>
-          <h5 className="text-[var(--text-primary)] font-semibold">
+          <h5 className="text-primary-wh40k font-semibold">
             Cumulative Contribution Algorithm
           </h5>
-          <div className="mt-1 rounded bg-card/60 p-3 font-mono text-xs">
+          <div className="mt-1 rounded-sm bg-card/60 p-3 font-mono text-xs">
             Total_Damage = Σ(all_battle_damage_to_main_boss)
           </div>
           <p className="mt-2">
@@ -132,10 +132,10 @@ const SECTIONS: FaqSection[] = [
           </p>
         </div>
         <div>
-          <h5 className="text-[var(--text-primary)] font-semibold">
+          <h5 className="text-primary-wh40k font-semibold">
             Progress Bar Calculation
           </h5>
-          <div className="mt-1 rounded bg-card/60 p-3 font-mono text-xs">
+          <div className="mt-1 rounded-sm bg-card/60 p-3 font-mono text-xs">
             Bar_Width = (player_total_damage ÷ max_total_damage) × 100%
           </div>
           <p className="mt-2">
@@ -151,10 +151,10 @@ const SECTIONS: FaqSection[] = [
     content: (
       <div className="space-y-3">
         <div>
-          <h5 className="text-[var(--text-primary)] font-semibold">
+          <h5 className="text-primary-wh40k font-semibold">
             Loop-by-Loop Performance Tracking
           </h5>
-          <div className="mt-1 rounded bg-card/60 p-3 font-mono text-xs">
+          <div className="mt-1 rounded-sm bg-card/60 p-3 font-mono text-xs">
             Loop_N_Avg = Σ(non_sweep_damage_in_loop_N) ÷
             COUNT(non_sweep_tokens_in_loop_N)
             <br />
@@ -187,10 +187,10 @@ const SECTIONS: FaqSection[] = [
     content: (
       <div className="space-y-3">
         <div>
-          <h5 className="text-[var(--text-primary)] font-semibold">
+          <h5 className="text-primary-wh40k font-semibold">
             Individual Side Boss Tracking
           </h5>
-          <div className="mt-1 rounded bg-card/60 p-3 font-mono text-xs">
+          <div className="mt-1 rounded-sm bg-card/60 p-3 font-mono text-xs">
             Prime_Avg = Σ(damage_to_specific_prime) ÷
             COUNT(tokens_to_specific_prime)
             <br />
@@ -219,10 +219,10 @@ const SECTIONS: FaqSection[] = [
     content: (
       <div className="space-y-3">
         <div>
-          <h5 className="text-[var(--text-primary)] font-semibold">
+          <h5 className="text-primary-wh40k font-semibold">
             Summary Statistics Algorithm
           </h5>
-          <div className="mt-1 rounded bg-card/60 p-3 font-mono text-xs">
+          <div className="mt-1 rounded-sm bg-card/60 p-3 font-mono text-xs">
             Top_Total_Damage = MAX(player_total_damage)
             <br />
             Biggest_Hit = MAX(single_battle_damage)
@@ -233,7 +233,7 @@ const SECTIONS: FaqSection[] = [
           </div>
         </div>
         <div>
-          <h5 className="text-[var(--text-primary)] font-semibold">
+          <h5 className="text-primary-wh40k font-semibold">
             Token Counting Rules
           </h5>
           <ul className="mt-1 list-disc space-y-1 pl-5">
@@ -267,9 +267,9 @@ export function BossPerformanceCalculationsFAQ() {
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex w-full items-center justify-between rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] px-3 py-2 text-left transition-colors hover:bg-[var(--bg-tertiary)]"
+        className="flex w-full items-center justify-between rounded-lg border border-(--card-border) bg-(--card-bg) px-3 py-2 text-left transition-colors hover:bg-(--bg-tertiary)"
       >
-        <h3 className="text-lg font-semibold text-[var(--primary)]">
+        <h3 className="text-lg font-semibold text-(--primary)">
           How boss performance calculations work
         </h3>
         <span
@@ -277,7 +277,7 @@ export function BossPerformanceCalculationsFAQ() {
           className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}
         >
           <svg
-            className="h-5 w-5 text-[var(--text-secondary)]"
+            className="h-5 w-5 text-secondary-wh40k"
             fill="currentColor"
             viewBox="0 0 20 20"
           >
@@ -291,18 +291,18 @@ export function BossPerformanceCalculationsFAQ() {
       </button>
 
       {isOpen && (
-        <div className="space-y-6 rounded-lg border border-[var(--card-border)] bg-[var(--bg-secondary)] p-4">
+        <div className="space-y-6 rounded-lg border border-(--card-border) bg-(--bg-secondary) p-4">
           {SECTIONS.map((section) => (
             <article
               key={section.title}
-              className="space-y-3 rounded-md border border-[var(--card-border)] bg-[var(--card-bg)] p-3"
+              className="space-y-3 rounded-md border border-(--card-border) bg-(--card-bg) p-3"
             >
               <div className="flex items-center gap-2">
-                <h4 className="text-base font-semibold text-[var(--primary)]">
+                <h4 className="text-base font-semibold text-(--primary)">
                   {section.title}
                 </h4>
               </div>
-              <div className="space-y-2 text-sm text-[var(--text-secondary)]">
+              <div className="space-y-2 text-sm text-secondary-wh40k">
                 {section.content}
               </div>
             </article>

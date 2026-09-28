@@ -95,15 +95,15 @@ export function GlobalLeaderboard() {
   }
 
   return (
-    <div className="bg-[color-mix(in_srgb,var(--bg-primary)_50%,transparent)] rounded-lg border border-[var(--card-border)] overflow-hidden">
+    <div className="bg-[color-mix(in_srgb,var(--bg-primary)_50%,transparent)] rounded-lg border border-(--card-border) overflow-hidden">
       {/* Metric Selector */}
-      <div className="p-4 border-b border-[var(--card-border)] flex flex-wrap gap-2">
+      <div className="p-4 border-b border-(--card-border) flex flex-wrap gap-2">
         <button
           onClick={() => setSelectedMetric('total')}
           className={`px-3 sm:px-4 py-2 rounded-lg font-semibold transition-all text-sm sm:text-base ${
             selectedMetric === 'total'
-              ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-[var(--accent)] border border-[color-mix(in_srgb,var(--accent)_50%,transparent)]'
-              : 'bg-card/50 text-[var(--text-secondary)] border border-[var(--card-border)] hover:border-[var(--card-border)]'
+              ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent) border border-[color-mix(in_srgb,var(--accent)_50%,transparent)]'
+              : 'bg-card/50 text-secondary-wh40k border border-(--card-border) hover:border-(--card-border)'
           }`}
         >
           Total
@@ -112,8 +112,8 @@ export function GlobalLeaderboard() {
           onClick={() => setSelectedMetric('average')}
           className={`px-3 sm:px-4 py-2 rounded-lg font-semibold transition-all text-sm sm:text-base ${
             selectedMetric === 'average'
-              ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-[var(--accent)] border border-[color-mix(in_srgb,var(--accent)_50%,transparent)]'
-              : 'bg-card/50 text-[var(--text-secondary)] border border-[var(--card-border)] hover:border-[var(--card-border)]'
+              ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent) border border-[color-mix(in_srgb,var(--accent)_50%,transparent)]'
+              : 'bg-card/50 text-secondary-wh40k border border-(--card-border) hover:border-(--card-border)'
           }`}
         >
           Average
@@ -122,8 +122,8 @@ export function GlobalLeaderboard() {
           onClick={() => setSelectedMetric('weighted')}
           className={`px-3 sm:px-4 py-2 rounded-lg font-semibold transition-all text-sm sm:text-base ${
             selectedMetric === 'weighted'
-              ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-[var(--accent)] border border-[color-mix(in_srgb,var(--accent)_50%,transparent)]'
-              : 'bg-card/50 text-[var(--text-secondary)] border border-[var(--card-border)] hover:border-[var(--card-border)]'
+              ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent) border border-[color-mix(in_srgb,var(--accent)_50%,transparent)]'
+              : 'bg-card/50 text-secondary-wh40k border border-(--card-border) hover:border-(--card-border)'
           }`}
         >
           Score
@@ -142,21 +142,21 @@ export function GlobalLeaderboard() {
                 <div
                   className={`text-xl sm:text-2xl font-bold ${
                     entry.rank === 1
-                      ? 'text-[var(--primary)]'
+                      ? 'text-(--primary)'
                       : entry.rank === 2
-                        ? 'text-[var(--text-secondary)]'
+                        ? 'text-secondary-wh40k'
                         : entry.rank === 3
-                          ? 'text-[var(--accent)]'
-                          : 'text-[var(--text-secondary)]'
+                          ? 'text-(--accent)'
+                          : 'text-secondary-wh40k'
                   }`}
                 >
                   #{entry.rank}
                 </div>
                 <div>
-                  <div className="font-semibold text-[var(--text-primary)]">
+                  <div className="font-semibold text-primary-wh40k">
                     {entry.display_name}
                   </div>
-                  <div className="text-xs text-[var(--text-secondary)]">
+                  <div className="text-xs text-secondary-wh40k">
                     {formatGuildDisplayLabel({
                       display_name: entry.guild_display_name
                     })}{' '}
@@ -169,43 +169,37 @@ export function GlobalLeaderboard() {
             <div className="grid grid-cols-3 gap-2 mt-3 text-center">
               <div>
                 <div
-                  className={`font-semibold text-sm ${selectedMetric === 'total' ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}
+                  className={`font-semibold text-sm ${selectedMetric === 'total' ? 'text-(--accent)' : 'text-secondary-wh40k'}`}
                 >
                   {formatLeaderboardDamage(
                     entry.total_damage,
                     entry.is_obfuscated
                   )}
                 </div>
-                <div className="text-xs text-[var(--text-secondary)]">
-                  Total
-                </div>
+                <div className="text-xs text-secondary-wh40k">Total</div>
               </div>
               <div>
                 <div
-                  className={`font-semibold text-sm ${selectedMetric === 'average' ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}
+                  className={`font-semibold text-sm ${selectedMetric === 'average' ? 'text-(--accent)' : 'text-secondary-wh40k'}`}
                 >
                   {formatLeaderboardDamage(
                     entry.avg_damage,
                     entry.is_obfuscated
                   )}
                 </div>
-                <div className="text-xs text-[var(--text-secondary)]">
-                  Average
-                </div>
+                <div className="text-xs text-secondary-wh40k">Average</div>
               </div>
               <div>
-                <div className="font-semibold text-sm text-[var(--text-secondary)]">
+                <div className="font-semibold text-sm text-secondary-wh40k">
                   {entry.battle_count}
                 </div>
-                <div className="text-xs text-[var(--text-secondary)]">
-                  Battles
-                </div>
+                <div className="text-xs text-secondary-wh40k">Battles</div>
               </div>
             </div>
 
             {selectedMetric === 'weighted' && (
               <div className="mt-2 text-center">
-                <div className="font-semibold text-[var(--accent)]">
+                <div className="font-semibold text-(--accent)">
                   Score: {entry.performance_score?.toFixed(1)}
                 </div>
               </div>
@@ -218,30 +212,30 @@ export function GlobalLeaderboard() {
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-[var(--card-border)] hover:bg-[color-mix(in_srgb,var(--bg-secondary)_30%,transparent)] transition-colors duration-150">
-              <th className="text-left p-4 text-[var(--text-secondary)] font-semibold">
+            <tr className="border-b border-(--card-border) hover:bg-[color-mix(in_srgb,var(--bg-secondary)_30%,transparent)] transition-colors duration-150">
+              <th className="text-left p-4 text-secondary-wh40k font-semibold">
                 Rank
               </th>
-              <th className="text-left p-4 text-[var(--text-secondary)] font-semibold">
+              <th className="text-left p-4 text-secondary-wh40k font-semibold">
                 Player
               </th>
-              <th className="text-left p-4 text-[var(--text-secondary)] font-semibold">
+              <th className="text-left p-4 text-secondary-wh40k font-semibold">
                 Guild
               </th>
-              <th className="text-left p-4 text-[var(--text-secondary)] font-semibold">
+              <th className="text-left p-4 text-secondary-wh40k font-semibold">
                 Cluster
               </th>
-              <th className="text-right p-4 text-[var(--text-secondary)] font-semibold">
+              <th className="text-right p-4 text-secondary-wh40k font-semibold">
                 Total Damage
               </th>
-              <th className="text-right p-4 text-[var(--text-secondary)] font-semibold">
+              <th className="text-right p-4 text-secondary-wh40k font-semibold">
                 Avg Damage
               </th>
-              <th className="text-right p-4 text-[var(--text-secondary)] font-semibold">
+              <th className="text-right p-4 text-secondary-wh40k font-semibold">
                 Battles
               </th>
               {selectedMetric === 'weighted' && (
-                <th className="text-right p-4 text-[var(--text-secondary)] font-semibold">
+                <th className="text-right p-4 text-secondary-wh40k font-semibold">
                   Score
                 </th>
               )}
@@ -258,25 +252,25 @@ export function GlobalLeaderboard() {
                   <div
                     className={`font-bold ${
                       entry.rank === 1
-                        ? 'text-[var(--primary)]'
+                        ? 'text-(--primary)'
                         : entry.rank === 2
-                          ? 'text-[var(--text-secondary)]'
+                          ? 'text-secondary-wh40k'
                           : entry.rank === 3
-                            ? 'text-[var(--accent)]'
-                            : 'text-[var(--text-secondary)]'
+                            ? 'text-(--accent)'
+                            : 'text-secondary-wh40k'
                     }`}
                   >
                     #{entry.rank}
                   </div>
                 </td>
                 <td className="p-4">
-                  <div className="font-semibold text-[var(--text-primary)]">
+                  <div className="font-semibold text-primary-wh40k">
                     {entry.display_name}
                   </div>
                 </td>
                 <td className="p-4">
                   <div className="text-sm">
-                    <div className="text-[var(--text-secondary)]">
+                    <div className="text-secondary-wh40k">
                       {formatGuildDisplayLabel({
                         display_name: entry.guild_display_name
                       })}
@@ -284,13 +278,13 @@ export function GlobalLeaderboard() {
                   </div>
                 </td>
                 <td className="p-4">
-                  <div className="text-sm text-[var(--text-secondary)]">
+                  <div className="text-sm text-secondary-wh40k">
                     {entry.cluster_display_name}
                   </div>
                 </td>
                 <td className="p-4 text-right">
                   <div
-                    className={`font-semibold ${selectedMetric === 'total' ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}
+                    className={`font-semibold ${selectedMetric === 'total' ? 'text-(--accent)' : 'text-secondary-wh40k'}`}
                   >
                     {formatLeaderboardDamage(
                       entry.total_damage,
@@ -300,7 +294,7 @@ export function GlobalLeaderboard() {
                 </td>
                 <td className="p-4 text-right">
                   <div
-                    className={`font-semibold ${selectedMetric === 'average' ? 'text-[var(--accent)]' : 'text-[var(--text-secondary)]'}`}
+                    className={`font-semibold ${selectedMetric === 'average' ? 'text-(--accent)' : 'text-secondary-wh40k'}`}
                   >
                     {formatLeaderboardDamage(
                       entry.avg_damage,
@@ -309,13 +303,13 @@ export function GlobalLeaderboard() {
                   </div>
                 </td>
                 <td className="p-4 text-right">
-                  <div className="text-[var(--text-secondary)]">
+                  <div className="text-secondary-wh40k">
                     {entry.battle_count}
                   </div>
                 </td>
                 {selectedMetric === 'weighted' && (
                   <td className="p-4 text-right">
-                    <div className="font-semibold text-[var(--accent)]">
+                    <div className="font-semibold text-(--accent)">
                       {entry.performance_score?.toFixed(1)}
                     </div>
                   </td>
@@ -327,7 +321,7 @@ export function GlobalLeaderboard() {
       </div>
 
       {entries.length === 0 && (
-        <div className="p-4 sm:p-6 md:p-8 text-center text-[var(--text-secondary)]">
+        <div className="p-4 sm:p-6 md:p-8 text-center text-secondary-wh40k">
           No leaderboard data available yet
         </div>
       )}

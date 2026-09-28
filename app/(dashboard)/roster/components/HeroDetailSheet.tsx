@@ -50,7 +50,7 @@ export function HeroDetailSheet({ unit, onClose }: HeroDetailSheetProps) {
       <div className="card-wh40k relative w-full rounded-b-none rounded-t-xl p-4 sm:w-96 sm:rounded-lg">
         <button
           onClick={onClose}
-          className="absolute right-3 top-3 rounded p-1 text-[var(--text-secondary)] hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:text-[var(--text-primary)]"
+          className="absolute right-3 top-3 rounded-sm p-1 text-secondary-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] hover:text-primary-wh40k"
           aria-label="Close"
         >
           <X className="h-5 w-5" />
@@ -59,11 +59,11 @@ export function HeroDetailSheet({ unit, onClose }: HeroDetailSheetProps) {
           {/* Framed art; falls back to the bordered icon when no portrait exists. */}
           {portraitUrl ? (
             <div
-              className="relative w-24 flex-shrink-0"
+              className="relative w-24 shrink-0"
               style={{ aspectRatio: TILE_ASPECT_RATIO }}
             >
               <div
-                className="absolute overflow-hidden bg-[var(--bg-secondary)]"
+                className="absolute overflow-hidden bg-(--bg-secondary)"
                 style={{ inset: '3.2% 3.7%' }}
               >
                 <img
@@ -81,7 +81,7 @@ export function HeroDetailSheet({ unit, onClose }: HeroDetailSheetProps) {
             </div>
           ) : (
             <div
-              className={`relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg border-2 bg-[var(--bg-secondary)] ${getRarityBorderColor(unit.rarity)}`}
+              className={`relative h-24 w-24 shrink-0 overflow-hidden rounded-lg border-2 bg-(--bg-secondary) ${getRarityBorderColor(unit.rarity)}`}
             >
               {unit.iconUrl ? (
                 <img
@@ -90,14 +90,14 @@ export function HeroDetailSheet({ unit, onClose }: HeroDetailSheetProps) {
                   className="absolute inset-0 h-full w-full object-cover"
                 />
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center text-xl font-semibold text-[var(--text-secondary)]">
+                <div className="absolute inset-0 flex items-center justify-center text-xl font-semibold text-secondary-wh40k">
                   {unit.name.slice(0, 2)}
                 </div>
               )}
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <div className="truncate pr-6 text-lg font-semibold text-[var(--text-primary)]">
+            <div className="truncate pr-6 text-lg font-semibold text-primary-wh40k">
               {unit.name}
             </div>
             <div className="mt-1 flex items-center gap-2">
@@ -112,13 +112,11 @@ export function HeroDetailSheet({ unit, onClose }: HeroDetailSheetProps) {
         <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
           <div className="flex items-center gap-2">
             <RankIcon rank={unit.rank} size="sm" />
-            <span className="text-[var(--text-primary)]">
-              {getRankName(unit.rank)}
-            </span>
+            <span className="text-primary-wh40k">{getRankName(unit.rank)}</span>
           </div>
           <div>
-            <span className="text-[var(--text-secondary)]">Level </span>
-            <span className="text-[var(--text-primary)]">{unit.xpLevel}</span>
+            <span className="text-secondary-wh40k">Level </span>
+            <span className="text-primary-wh40k">{unit.xpLevel}</span>
           </div>
           <div>
             <span className={`font-medium ${unit.rarityColor}`}>
@@ -126,15 +124,15 @@ export function HeroDetailSheet({ unit, onClose }: HeroDetailSheetProps) {
             </span>
           </div>
           <div>
-            <span className="text-[var(--text-secondary)]">Shards </span>
-            <span className="text-[var(--text-primary)]">{unit.shards}</span>
+            <span className="text-secondary-wh40k">Shards </span>
+            <span className="text-primary-wh40k">{unit.shards}</span>
             {unit.mythicShards ? (
               <span className="ml-1 text-red-400">+{unit.mythicShards}</span>
             ) : null}
           </div>
           <div className="col-span-2">
-            <span className="text-[var(--text-secondary)]">Abilities </span>
-            <span className="text-[var(--text-primary)]">
+            <span className="text-secondary-wh40k">Abilities </span>
+            <span className="text-primary-wh40k">
               {(unit.abilities ?? []).map((a) => a.level).join(' / ') || '—'}
             </span>
           </div>

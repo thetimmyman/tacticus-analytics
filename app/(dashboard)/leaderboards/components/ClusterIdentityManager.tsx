@@ -150,18 +150,18 @@ export default function ClusterIdentityManager({
           <h3 className="text-lg font-semibold text-yellow-500 mb-2">
             Cluster Identity Setup Required
           </h3>
-          <p className="text-[var(--text-secondary)] mb-4">
+          <p className="text-secondary-wh40k mb-4">
             The cluster identity system requires database setup. Please run the
             following SQL migration in your Supabase dashboard:
           </p>
-          <div className="bg-[var(--bg-secondary)] hover:bg-card/80 transition-colors duration-200 p-3 rounded font-mono text-sm">
+          <div className="bg-(--bg-secondary) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm font-mono text-sm">
             20250902_cluster_identity_minimal.sql
           </div>
-          <p className="text-[var(--text-secondary)] mt-4 text-sm">
+          <p className="text-secondary-wh40k mt-4 text-sm">
             This will create the necessary tables and initial data for cluster
             identity management, including:
           </p>
-          <ul className="list-disc list-inside text-[var(--text-secondary)] text-sm mt-2 space-y-1">
+          <ul className="list-disc list-inside text-secondary-wh40k text-sm mt-2 space-y-1">
             <li>Cluster branding and customization</li>
             <li>Social media and Discord links</li>
             <li>Public-facing cluster information</li>
@@ -176,10 +176,10 @@ export default function ClusterIdentityManager({
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-[var(--text-primary)]">
+          <h2 className="text-2xl font-bold text-primary-wh40k">
             {identity.display_name} Identity
           </h2>
-          <p className="text-[var(--text-secondary)]">
+          <p className="text-secondary-wh40k">
             Manage your cluster&apos;s public identity and branding
           </p>
         </div>
@@ -216,9 +216,7 @@ export default function ClusterIdentityManager({
                 }
               />
             ) : (
-              <p className="text-[var(--text-primary)]">
-                {identity.display_name}
-              </p>
+              <p className="text-primary-wh40k">{identity.display_name}</p>
             )}
           </div>
 
@@ -236,9 +234,7 @@ export default function ClusterIdentityManager({
                 maxLength={20}
               />
             ) : (
-              <p className="text-[var(--text-primary)]">
-                {identity.short_name}
-              </p>
+              <p className="text-primary-wh40k">{identity.short_name}</p>
             )}
           </div>
 
@@ -256,7 +252,7 @@ export default function ClusterIdentityManager({
                 placeholder="Your cluster's motto or tagline"
               />
             ) : (
-              <p className="text-[var(--text-primary)]">
+              <p className="text-primary-wh40k">
                 {identity.tagline || 'No tagline set'}
               </p>
             )}
@@ -266,7 +262,7 @@ export default function ClusterIdentityManager({
             <Label>Description</Label>
             {isEditing ? (
               <textarea
-                className="w-full p-2 bg-[var(--card-bg)] border border-[var(--card-border)] rounded"
+                className="w-full p-2 bg-(--card-bg) border border-(--card-border) rounded-sm"
                 value={editedIdentity?.description || ''}
                 onChange={(e) =>
                   setEditedIdentity({
@@ -278,7 +274,7 @@ export default function ClusterIdentityManager({
                 placeholder="Describe your cluster..."
               />
             ) : (
-              <p className="text-[var(--text-primary)] whitespace-pre-wrap">
+              <p className="text-primary-wh40k whitespace-pre-wrap">
                 {identity.description || 'No description set'}
               </p>
             )}
@@ -306,13 +302,13 @@ export default function ClusterIdentityManager({
                 placeholder="https://discord.gg/..."
               />
             ) : (
-              <p className="text-[var(--text-primary)]">
+              <p className="text-primary-wh40k">
                 {identity.discord_invite_url ? (
                   <a
                     href={identity.discord_invite_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[var(--accent)] hover:underline"
+                    className="text-(--accent) hover:underline"
                   >
                     {identity.discord_invite_url}
                   </a>
@@ -337,13 +333,13 @@ export default function ClusterIdentityManager({
                 placeholder="https://..."
               />
             ) : (
-              <p className="text-[var(--text-primary)]">
+              <p className="text-primary-wh40k">
                 {identity.website_url ? (
                   <a
                     href={identity.website_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[var(--accent)] hover:underline"
+                    className="text-(--accent) hover:underline"
                   >
                     {identity.website_url}
                   </a>
@@ -368,7 +364,7 @@ export default function ClusterIdentityManager({
                 placeholder="UTC"
               />
             ) : (
-              <p className="text-[var(--text-primary)]">{identity.time_zone}</p>
+              <p className="text-primary-wh40k">{identity.time_zone}</p>
             )}
           </div>
         </div>

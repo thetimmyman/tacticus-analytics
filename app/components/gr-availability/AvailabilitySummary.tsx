@@ -38,7 +38,7 @@ export const AvailabilitySummary = ({
               ${
                 exportStatus.type === 'success'
                   ? 'bg-green-500/15 text-green-400 border border-green-500/25'
-                  : 'bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-[var(--accent)] border border-[color-mix(in_srgb,var(--accent)_25%,transparent)]'
+                  : 'bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-(--accent) border border-[color-mix(in_srgb,var(--accent)_25%,transparent)]'
               }
 	            `}
         >
@@ -59,10 +59,10 @@ export const AvailabilitySummary = ({
                 syncStatus.type === 'success'
                   ? 'bg-green-500/15 text-green-400 border border-green-500/25'
                   : syncStatus.type === 'error'
-                    ? 'bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-[var(--accent)] border border-[color-mix(in_srgb,var(--accent)_25%,transparent)]'
+                    ? 'bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-(--accent) border border-[color-mix(in_srgb,var(--accent)_25%,transparent)]'
                     : syncStatus.type === 'warning'
                       ? 'bg-amber-500/15 text-amber-200 border border-amber-500/25'
-                      : 'bg-[color-mix(in_srgb,var(--primary)_15%,transparent)] text-[var(--accent)] border border-[color-mix(in_srgb,var(--primary)_25%,transparent)]'
+                      : 'bg-[color-mix(in_srgb,var(--primary)_15%,transparent)] text-(--accent) border border-[color-mix(in_srgb,var(--primary)_25%,transparent)]'
               }
 	            `}
         >
@@ -74,39 +74,39 @@ export const AvailabilitySummary = ({
       )}
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 sm:gap-2 mb-3">
         <div>
-          <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider font-medium">
+          <p className="text-[10px] text-(--text-tertiary) uppercase tracking-wider font-medium">
             Players
           </p>
-          <p className="text-base sm:text-lg font-bold text-[var(--text-primary)]">
+          <p className="text-base sm:text-lg font-bold text-primary-wh40k">
             {players.length}
           </p>
         </div>
         <div>
-          <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider font-medium">
+          <p className="text-[10px] text-(--text-tertiary) uppercase tracking-wider font-medium">
             Tokens
           </p>
-          <p className="text-base sm:text-lg font-bold text-[var(--success)]">
+          <p className="text-base sm:text-lg font-bold text-(--success)">
             {totalTokensAvailable}
           </p>
         </div>
         <div>
-          <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider">
+          <p className="text-[10px] text-(--text-tertiary) uppercase tracking-wider">
             Bombs
           </p>
-          <p className="text-base sm:text-lg font-bold text-[var(--accent)]">
+          <p className="text-base sm:text-lg font-bold text-(--accent)">
             {totalBombsAvailable}
           </p>
         </div>
         <div className="hidden sm:block">
-          <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider">
+          <p className="text-[10px] text-(--text-tertiary) uppercase tracking-wider">
             Capped
           </p>
-          <p className="text-base sm:text-lg font-bold text-[var(--accent)]">
+          <p className="text-base sm:text-lg font-bold text-(--accent)">
             {cappedPlayers}
           </p>
         </div>
         <div className="hidden sm:block">
-          <p className="text-[10px] text-[var(--text-tertiary)] uppercase tracking-wider">
+          <p className="text-[10px] text-(--text-tertiary) uppercase tracking-wider">
             API Keys
           </p>
           <p className="text-base sm:text-lg font-bold text-emerald-400">

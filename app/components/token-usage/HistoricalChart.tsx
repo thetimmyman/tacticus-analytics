@@ -49,16 +49,16 @@ function HistoricalChart({ players }: HistoricalChartProps) {
             return (
               <div
                 key={player.userId}
-                className="flex-shrink-0 text-center"
+                className="shrink-0 text-center"
                 style={{ width: '50px' }}
               >
                 <div className="h-32 sm:h-48 flex flex-col justify-end mb-1">
                   <div
-                    className="w-full bg-gradient-to-t from-green-500 to-green-400 rounded-t transition-all duration-1000 ease-out flex flex-col justify-end items-center"
+                    className="w-full bg-linear-to-t from-green-500 to-green-400 rounded-t-sm transition-all duration-1000 ease-out flex flex-col justify-end items-center"
                     style={{ height: `${barHeight}%` }}
                   >
                     <span
-                      className={`text-[var(--text-primary)] font-bold ${barHeight < 15 ? 'text-[8px]' : 'text-[10px] sm:text-xs'}`}
+                      className={`text-primary-wh40k font-bold ${barHeight < 15 ? 'text-[8px]' : 'text-[10px] sm:text-xs'}`}
                     >
                       {player.historicalAvg
                         ? formatNumber(player.historicalAvg, 1)
@@ -68,14 +68,14 @@ function HistoricalChart({ players }: HistoricalChartProps) {
                 </div>
                 <div className="text-[10px] sm:text-xs">
                   <div
-                    className="font-medium text-[var(--text-secondary)] truncate"
+                    className="font-medium text-secondary-wh40k truncate"
                     title={player.displayName}
                   >
                     {player.displayName.length > 6
                       ? player.displayName.substring(0, 6) + '..'
                       : player.displayName}
                   </div>
-                  <div className="text-[var(--text-secondary)] text-[9px] sm:text-[10px]">
+                  <div className="text-secondary-wh40k text-[9px] sm:text-[10px]">
                     Now: {player.totalTokens}
                     {currentVsHistorical !== 0 && (
                       <span className="ml-0.5">

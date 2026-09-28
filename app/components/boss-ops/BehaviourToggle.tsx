@@ -24,7 +24,7 @@ export function BehaviourToggle({
     { value: 'skip', label: 'Skip', Icon: Ban }
   ]
   return (
-    <div className="grid grid-cols-3 gap-1 rounded-md border border-[var(--card-border)] bg-black/20 p-1">
+    <div className="grid grid-cols-3 gap-1 rounded-md border border-(--card-border) bg-black/20 p-1">
       {options.map(({ value: optionValue, label, Icon }) => {
         const active = value === optionValue
         return (
@@ -34,14 +34,14 @@ export function BehaviourToggle({
             disabled={disabled}
             onClick={() => onChange(optionValue)}
             className={clsx(
-              'inline-flex min-h-[34px] items-center justify-center gap-1 rounded border px-2 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40',
+              'inline-flex min-h-[34px] items-center justify-center gap-1 rounded-sm border px-2 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40',
               active
                 ? optionValue === 'skip'
-                  ? 'border-[var(--card-border)] bg-[var(--card-bg)] text-[var(--text-primary)]'
+                  ? 'border-(--card-border) bg-(--card-bg) text-primary-wh40k'
                   : optionValue === 'threshold'
-                    ? 'border-[color-mix(in_srgb,var(--warning)_80%,transparent)] bg-[var(--warning-bg)] text-[var(--warning)]'
-                    : 'border-[color-mix(in_srgb,var(--accent)_75%,transparent)] bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-[var(--accent)]'
-                : 'border-transparent text-[var(--text-secondary)] hover:bg-[color-mix(in_srgb,var(--card-bg)_70%,transparent)] hover:text-[var(--text-primary)]'
+                    ? 'border-[color-mix(in_srgb,var(--warning)_80%,transparent)] bg-(--warning-bg) text-(--warning)'
+                    : 'border-[color-mix(in_srgb,var(--accent)_75%,transparent)] bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-(--accent)'
+                : 'border-transparent text-secondary-wh40k hover:bg-[color-mix(in_srgb,var(--card-bg)_70%,transparent)] hover:text-primary-wh40k'
             )}
           >
             <Icon className="h-3.5 w-3.5" />

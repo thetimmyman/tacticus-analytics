@@ -110,9 +110,7 @@ export default function WarStrategy({ guildCode, userRole }: WarStrategyProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-[var(--text-secondary)]">
-          Loading strategy settings...
-        </div>
+        <div className="text-secondary-wh40k">Loading strategy settings...</div>
       </div>
     )
   }
@@ -156,7 +154,7 @@ export default function WarStrategy({ guildCode, userRole }: WarStrategyProps) {
                   }
                   disabled={!canManage}
                 />
-                <label className="text-sm text-[var(--text-primary)]">
+                <label className="text-sm text-primary-wh40k">
                   Auto-pick battlefield level
                 </label>
               </div>
@@ -172,17 +170,17 @@ export default function WarStrategy({ guildCode, userRole }: WarStrategyProps) {
                   }
                   disabled={!canManage}
                 />
-                <label className="text-sm text-[var(--text-primary)]">
+                <label className="text-sm text-primary-wh40k">
                   Enable war notifications
                 </label>
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[var(--text-primary)]">
+              <label className="text-sm font-medium text-primary-wh40k">
                 Preferred Battlefield Level
               </label>
-              <p className="text-xs text-[var(--text-secondary)] mb-2">
+              <p className="text-xs text-secondary-wh40k mb-2">
                 This setting is used as the default for Zone Planning
               </p>
               <RadixSelect
@@ -209,7 +207,7 @@ export default function WarStrategy({ guildCode, userRole }: WarStrategyProps) {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[var(--text-primary)]">
+              <label className="text-sm font-medium text-primary-wh40k">
                 Strategy Notes
               </label>
               <Textarea
@@ -246,7 +244,7 @@ export default function WarStrategy({ guildCode, userRole }: WarStrategyProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-[var(--text-secondary)] mb-4">
+          <p className="text-sm text-secondary-wh40k mb-4">
             Create defensive lineups from your roster. These are your personal
             pre-made teams for zone defense.
           </p>
@@ -266,7 +264,7 @@ export default function WarStrategy({ guildCode, userRole }: WarStrategyProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-[var(--text-secondary)] mb-4">
+          <p className="text-sm text-secondary-wh40k mb-4">
             Create offensive lineups from your roster. Use the notes to record
             what teams this lineup counters and what to avoid.
           </p>

@@ -28,7 +28,7 @@ const playerActivityColumns: DataTableColumn<PlayerActivity>[] = [
     header: 'Player',
     sortable: false,
     render: (row) => (
-      <span className="font-medium text-[var(--text-primary)]">
+      <span className="font-medium text-primary-wh40k">
         <MemberName value={row.player} />
       </span>
     )
@@ -157,16 +157,14 @@ export function WarActivityPanel({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex flex-wrap gap-3 text-xs text-[var(--text-secondary)]">
+        <div className="flex flex-wrap gap-3 text-xs text-secondary-wh40k">
           <span>
             Avg participation:{' '}
-            <span className="text-[var(--text-primary)]">
-              {avgParticipationLabel}
-            </span>
+            <span className="text-primary-wh40k">{avgParticipationLabel}</span>
           </span>
           <span>
             Inactive below 50 percent:{' '}
-            <span className="text-[var(--text-primary)]">
+            <span className="text-primary-wh40k">
               {formatNumber(inactiveCount)}
             </span>
           </span>
@@ -183,9 +181,9 @@ export function WarActivityPanel({
               {highlyInactive.slice(0, 9).map((player) => (
                 <div
                   key={player.playerId}
-                  className="flex items-center justify-between text-sm bg-card/20 rounded px-2 py-1"
+                  className="flex items-center justify-between text-sm bg-card/20 rounded-sm px-2 py-1"
                 >
-                  <span className="text-[var(--text-primary)] truncate">
+                  <span className="text-primary-wh40k truncate">
                     <MemberName value={player.player} />
                   </span>
                   <span className="text-red-400 text-xs ml-2">
@@ -194,7 +192,7 @@ export function WarActivityPanel({
                 </div>
               ))}
               {highlyInactive.length > 9 && (
-                <div className="text-xs text-[var(--text-secondary)] col-span-full">
+                <div className="text-xs text-secondary-wh40k col-span-full">
                   +{highlyInactive.length - 9} more
                 </div>
               )}
@@ -208,7 +206,7 @@ export function WarActivityPanel({
           rowKey={(row) => row.playerId}
           empty={<></>}
         />
-        <div className="text-xs text-[var(--text-tertiary)]">
+        <div className="text-xs text-(--text-tertiary)">
           Sorted by participation rate (lowest first). Based on {warsCount} wars
           in selected range.
         </div>

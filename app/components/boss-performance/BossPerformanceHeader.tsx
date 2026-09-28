@@ -7,8 +7,8 @@ import { formatDamage } from '@tacticus/app-core/formatters'
 import { useBossHeaderStats } from '@/app/components/boss-performance/hooks/useBossPerformanceData'
 
 interface BossPerformanceHeaderProps {
-  desktopTitleRef: RefObject<HTMLHeadingElement>
-  mobileTitleRef: RefObject<HTMLHeadingElement>
+  desktopTitleRef: RefObject<HTMLHeadingElement | null>
+  mobileTitleRef: RefObject<HTMLHeadingElement | null>
 }
 
 export function BossPerformanceHeader({
@@ -17,7 +17,7 @@ export function BossPerformanceHeader({
 }: BossPerformanceHeaderProps) {
   const { bossName, bossSlug, level, averageDamage } = useBossHeaderStats()
   return (
-    <div className="sticky top-24 lg:top-[88px] z-10 bg-[color-mix(in_srgb,var(--bg-primary)_95%,transparent)] backdrop-blur-sm border-b border-[var(--card-border)]">
+    <div className="sticky top-24 lg:top-[88px] z-10 bg-[color-mix(in_srgb,var(--bg-primary)_95%,transparent)] backdrop-blur-xs border-b border-(--card-border)">
       <Card className="bg-transparent border-0 shadow-none">
         <CardContent className="p-4 space-y-4">
           <div className="hidden md:flex items-center justify-between">

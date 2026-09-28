@@ -31,14 +31,14 @@ export function GuildActionsMenu({
           variant="ghost"
           className={
             mobile
-              ? 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] min-w-[44px] min-h-[44px] p-2 ml-2 flex-shrink-0'
-              : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] group relative min-w-[36px] min-h-[36px]'
+              ? 'text-secondary-wh40k hover:text-primary-wh40k min-w-[44px] min-h-[44px] p-2 ml-2 shrink-0'
+              : 'text-secondary-wh40k hover:text-primary-wh40k group relative min-w-[36px] min-h-[36px]'
           }
           aria-label="Guild actions menu"
         >
           <MoreVertical className={mobile ? 'w-5 h-5' : 'w-4 h-4'} />
           {!mobile && (
-            <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+            <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-(--bg-primary) text-primary-wh40k text-xs px-2 py-1 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
               Actions
             </span>
           )}
@@ -47,14 +47,14 @@ export function GuildActionsMenu({
       <RadixDropdownMenuContent align="end" className="w-52 z-50">
         <RadixDropdownMenuItem
           onClick={onEdit}
-          className="flex items-center gap-2 cursor-pointer p-3 hover:bg-[var(--bg-secondary)]"
+          className="flex items-center gap-2 cursor-pointer p-3 hover:bg-(--bg-secondary)"
         >
           <Settings className="w-4 h-4" />
           Edit Configuration
         </RadixDropdownMenuItem>
         <RadixDropdownMenuItem
           onClick={onToggleWebhooks}
-          className="flex items-center gap-2 cursor-pointer p-3 hover:bg-[var(--bg-secondary)]"
+          className="flex items-center gap-2 cursor-pointer p-3 hover:bg-(--bg-secondary)"
         >
           <MessageSquare className="w-4 h-4" />
           {isWebhooksExpanded ? 'Hide' : 'Manage'} Webhooks

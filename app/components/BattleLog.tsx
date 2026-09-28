@@ -200,7 +200,7 @@ export default function BattleLog({
         getUserAvatar(entry.displayName || 'Unknown', selectedGuild, 24)
       }
       alt=""
-      className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+      className="w-6 h-6 rounded-full object-cover shrink-0"
       onError={(e) => {
         e.currentTarget.src = getUserAvatar(
           entry.displayName || 'Unknown',
@@ -213,10 +213,10 @@ export default function BattleLog({
 
   const renderBossName = (entry: BattleLogEntry) => (
     <>
-      <span className="flex-shrink-0">{getBossLevel(entry)}</span>
+      <span className="shrink-0">{getBossLevel(entry)}</span>
       <BossLink
         bossName={entry.Name ?? ''}
-        className="text-[var(--primary)] truncate min-w-0"
+        className="text-(--primary) truncate min-w-0"
       >
         <span className="truncate">{entry.Name}</span>
       </BossLink>
@@ -289,7 +289,7 @@ export default function BattleLog({
           placeholder="Search player or boss name..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:border-[var(--primary)] focus:outline-none"
+          className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base bg-(--card-bg) border border-(--card-border) rounded-lg text-primary-wh40k placeholder-(--text-secondary) focus:border-primary-wh40k focus:outline-hidden"
         />
       </div>
 
@@ -300,7 +300,7 @@ export default function BattleLog({
           onChange={(e) =>
             setDamageFilter(e.target.value as typeof damageFilter)
           }
-          className="px-2 sm:px-3 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg text-xs sm:text-sm text-[var(--text-primary)] focus:border-[var(--primary)] focus:outline-none"
+          className="px-2 sm:px-3 py-1.5 sm:py-2 bg-(--card-bg) border border-(--card-border) rounded-lg text-xs sm:text-sm text-primary-wh40k focus:border-primary-wh40k focus:outline-hidden"
         >
           <option value="all">All Damage</option>
           <option value="high">High (10M+)</option>
@@ -308,14 +308,14 @@ export default function BattleLog({
           <option value="low">Low (&lt;5M)</option>
         </select>
 
-        <label className="flex items-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg cursor-pointer hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]">
+        <label className="flex items-center space-x-1.5 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-(--card-bg) border border-(--card-border) rounded-lg cursor-pointer hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]">
           <input
             type="checkbox"
             checked={killingBlowsOnly}
             onChange={(e) => setKillingBlowsOnly(e.target.checked)}
-            className="rounded"
+            className="rounded-sm"
           />
-          <span className="text-xs sm:text-sm text-[var(--text-primary)]">
+          <span className="text-xs sm:text-sm text-primary-wh40k">
             Killing Blows Only
           </span>
         </label>
@@ -323,7 +323,7 @@ export default function BattleLog({
         <select
           value={pageSize}
           onChange={(e) => setPageSize(Number(e.target.value))}
-          className="px-2 sm:px-3 py-1.5 sm:py-2 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg text-xs sm:text-sm text-[var(--text-primary)] focus:border-[var(--primary)] focus:outline-none"
+          className="px-2 sm:px-3 py-1.5 sm:py-2 bg-(--card-bg) border border-(--card-border) rounded-lg text-xs sm:text-sm text-primary-wh40k focus:border-primary-wh40k focus:outline-hidden"
         >
           <option value="15">15 per page</option>
           <option value="25">25 per page</option>
@@ -344,17 +344,17 @@ export default function BattleLog({
           }
           const active = showType === t
           const activeColors: Record<string, string> = {
-            all: 'bg-accent-wh40k text-[var(--bg-primary)]',
-            bosses: 'bg-[var(--primary)] text-black',
-            prime1: 'bg-[var(--accent)] text-black',
-            prime2: 'bg-[var(--accent)] text-black',
-            bombs: 'bg-[var(--accent)] text-black'
+            all: 'bg-accent-wh40k text-(--bg-primary)',
+            bosses: 'bg-primary-wh40k text-black',
+            prime1: 'bg-accent-wh40k text-black',
+            prime2: 'bg-accent-wh40k text-black',
+            bombs: 'bg-accent-wh40k text-black'
           }
           return (
             <button
               key={t}
               onClick={() => setShowType(t)}
-              className={`px-3 py-2 rounded-lg transition-all text-sm sm:text-base ${active ? `${activeColors[t]} font-bold cursor-default` : 'bg-[var(--card-bg)] text-[var(--text-secondary)] hover:bg-[var(--card-bg)]'}`}
+              className={`px-3 py-2 rounded-lg transition-all text-sm sm:text-base ${active ? `${activeColors[t]} font-bold cursor-default` : 'bg-(--card-bg) text-secondary-wh40k hover:bg-(--card-bg)'}`}
             >
               {labels[t]}
             </button>
@@ -377,7 +377,7 @@ export default function BattleLog({
               .slice(0, Math.min(pageSize, 6))
               .split('')
               .map((k) => (
-                <div key={k} className="h-8 bg-[var(--card-bg)] rounded" />
+                <div key={k} className="h-8 bg-(--card-bg) rounded-sm" />
               ))}
           </div>
           <p className="mt-4 text-center text-secondary-wh40k">
@@ -394,7 +394,7 @@ export default function BattleLog({
             <div
               key={`${group.loopIndex}-${group.set}-${group.rarity}-${group.encounterId}`}
             >
-              <div className="sticky top-0 z-10 bg-[color-mix(in_srgb,var(--bg-primary)_95%,transparent)] backdrop-blur-sm px-3 py-2 mb-2 rounded-lg border border-[var(--card-border)]">
+              <div className="sticky top-0 z-10 bg-[color-mix(in_srgb,var(--bg-primary)_95%,transparent)] backdrop-blur-xs px-3 py-2 mb-2 rounded-lg border border-(--card-border)">
                 <h4 className="text-sm font-bold text-primary-wh40k">
                   {normalizeRarity(group.rarity)
                     ? getRarityPrefix(normalizeRarity(group.rarity)!)
@@ -420,7 +420,7 @@ export default function BattleLog({
                       clusterPerformancePctMap={clusterPerformancePctMap}
                       clusterCode={clusterCode}
                       hasMounted={hasMounted}
-                      desktopGridClassName="grid-cols-[32px,120px,180px,120px,1fr,90px,40px,40px,80px,auto]"
+                      desktopGridClassName="grid-cols-[32px_120px_180px_120px_1fr_90px_40px_40px_80px_auto]"
                       desktopPrimary={
                         <div className="flex items-center gap-2 truncate">
                           {renderPlayerAvatar(entry)}

@@ -74,7 +74,7 @@ function CapWasteBanner({
         <button
           type="button"
           onClick={handleDismiss}
-          className="text-xs text-[var(--text-secondary)] underline hover:text-[var(--text-primary)]"
+          className="text-xs text-secondary-wh40k underline hover:text-primary-wh40k"
         >
           Dismiss for this session
         </button>

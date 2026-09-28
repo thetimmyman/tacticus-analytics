@@ -16,10 +16,8 @@ const columns: DataTableColumn<UnitPerformance, SortKey>[] = [
       <div className="flex items-center gap-3">
         <UnitRow units={[row.unit]} size="sm" />
         <div>
-          <div className="font-medium text-[var(--text-primary)]">
-            {row.unit.name}
-          </div>
-          <div className="text-xs text-[var(--text-tertiary)]">
+          <div className="font-medium text-primary-wh40k">{row.unit.name}</div>
+          <div className="text-xs text-(--text-tertiary)">
             {row.unit.faction}
           </div>
         </div>
@@ -69,7 +67,7 @@ export default function PerformanceTable({
       rowKey={(row) => row.unit.id}
       defaultSort={{ key: 'winRate', direction: 'desc' }}
       empty={
-        <div className="p-8 text-center text-sm text-[var(--text-secondary)]">
+        <div className="p-8 text-center text-sm text-secondary-wh40k">
           No data available for the selected period.
         </div>
       }

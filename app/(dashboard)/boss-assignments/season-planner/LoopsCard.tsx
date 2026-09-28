@@ -27,7 +27,7 @@ export default function LoopsCard({
       header: 'Loop',
       sortable: false,
       render: (row) => (
-        <span className="text-[var(--text-primary)]">{row.loopIndex}</span>
+        <span className="text-primary-wh40k">{row.loopIndex}</span>
       )
     },
     {
@@ -63,12 +63,12 @@ export default function LoopsCard({
   ]
 
   return (
-    <div className="rounded-lg border border-[var(--card-border)] bg-card/40 p-4">
-      <h4 className="text-sm font-semibold text-[var(--text-primary)]">
+    <div className="rounded-lg border border-(--card-border) bg-card/40 p-4">
+      <h4 className="text-sm font-semibold text-primary-wh40k">
         Loops ({scheduleWindow})
       </h4>
       {loopTimelineWindow.length === 0 ? (
-        <div className="mt-3 text-sm text-[var(--text-secondary)]">
+        <div className="mt-3 text-sm text-secondary-wh40k">
           No loop progress in this window.
         </div>
       ) : (

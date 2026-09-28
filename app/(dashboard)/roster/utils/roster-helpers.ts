@@ -96,9 +96,9 @@ export const getRankColor = (rank: number): string => {
 
 export const getRankBgColor = (rank: number): string => {
   if (rank >= 18)
-    return 'bg-gradient-to-r from-orange-600/30 to-red-500/30 border-orange-500/50' // Adamantium
+    return 'bg-linear-to-r from-orange-600/30 to-red-500/30 border-orange-500/50' // Adamantium
   if (rank >= 15)
-    return 'bg-gradient-to-r from-cyan-600/30 to-blue-500/30 border-cyan-500/50' // Diamond
+    return 'bg-linear-to-r from-cyan-600/30 to-blue-500/30 border-cyan-500/50' // Diamond
   if (rank >= 12) return 'bg-yellow-500/20 border-yellow-500/50' // Gold
   if (rank >= 9) return 'bg-gray-400/20 border-gray-400/50' // Silver
   if (rank >= 6) return 'bg-orange-500/20 border-orange-500/50' // Bronze
@@ -137,13 +137,13 @@ export const getRarityColor = (rarity: UnitRarity): string => {
 export const getRarityBorderColor = (rarity: UnitRarity): string => {
   switch (rarity) {
     case 'Mythic':
-      return 'border-red-500/60 shadow-red-500/20 shadow-sm'
+      return 'border-red-500/60 shadow-red-500/20 shadow-xs'
     case 'Legendary':
-      return 'border-cyan-400/60 shadow-cyan-400/20 shadow-sm'
+      return 'border-cyan-400/60 shadow-cyan-400/20 shadow-xs'
     case 'Epic':
-      return 'border-yellow-500/60 shadow-yellow-500/20 shadow-sm'
+      return 'border-yellow-500/60 shadow-yellow-500/20 shadow-xs'
     case 'Rare':
-      return 'border-blue-500/60 shadow-blue-500/20 shadow-sm'
+      return 'border-blue-500/60 shadow-blue-500/20 shadow-xs'
     case 'Uncommon':
       return 'border-green-500/60'
     default:

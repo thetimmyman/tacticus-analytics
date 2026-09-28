@@ -91,7 +91,7 @@ export function BossPreferencesModal({
 
   return (
     <ModalShell>
-      <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+      <h3 className="text-lg font-semibold text-primary-wh40k mb-4">
         Boss Preferences - <MemberName value={member.display_name} />
       </h3>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -100,7 +100,7 @@ export function BossPreferencesModal({
             key={key}
             className="rounded-lg border border-card-border/60 p-3"
           >
-            <div className="text-sm font-medium text-[var(--text-primary)] mb-2">
+            <div className="text-sm font-medium text-primary-wh40k mb-2">
               {label}
             </div>
             <div className="flex gap-2">
@@ -111,8 +111,8 @@ export function BossPreferencesModal({
                   className={`flex-1 rounded border px-2 py-1 text-xs ${
                     draft[key] === option.value ||
                     (!draft[key] && option.value === 'neutral')
-                      ? 'border-[var(--accent)] text-[var(--accent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]'
-                      : 'border-[var(--card-border)] text-[var(--text-secondary)] hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)]'
+                      ? 'border-accent-wh40k text-(--accent) bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]'
+                      : 'border-(--card-border) text-secondary-wh40k hover:border-[color-mix(in_srgb,var(--accent)_50%,transparent)]'
                   }`}
                 >
                   {option.label}

@@ -248,13 +248,13 @@ export default function BriefingPage({
             <h1 className="sr-only">
               Officer intelligence{guildName ? ` — ${guildName}` : ''}
             </h1>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--accent)]">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-(--accent)">
               Command / Officer briefing
             </p>
-            <p className="mt-1 text-lg font-bold text-[var(--text-primary)]">
+            <p className="mt-1 text-lg font-bold text-primary-wh40k">
               Officer intelligence
             </p>
-            <p className="mt-0.5 max-w-2xl text-sm text-[var(--text-secondary)]">
+            <p className="mt-0.5 max-w-2xl text-sm text-secondary-wh40k">
               Roster-aware coaching, team optimization, and recognition—ranked
               by what will matter next.
             </p>
@@ -265,12 +265,12 @@ export default function BriefingPage({
             <h1 className="sr-only">
               Daily briefing{guildName ? ` — ${guildName}` : ''}
             </h1>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--accent)]">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-(--accent)">
               Command / Daily briefing
             </p>
-            <p className="mt-1 text-sm text-[var(--text-secondary)]">
+            <p className="mt-1 text-sm text-secondary-wh40k">
               {guildName ? `${guildName} · ` : ''}
-              <span className="font-semibold text-[var(--text-primary)]">
+              <span className="font-semibold text-primary-wh40k">
                 {playerName}
               </span>
               {rankLabel ? ` · ${rankLabel}` : ''}
@@ -280,7 +280,7 @@ export default function BriefingPage({
         <div className="flex items-center gap-3">
           {canSeeOfficerView && (
             <div
-              className="flex rounded-lg border border-[var(--card-border)] bg-[var(--bg-primary)] p-1"
+              className="flex rounded-lg border border-(--card-border) bg-(--bg-primary) p-1"
               role="tablist"
               aria-label="Briefing view"
             >
@@ -291,8 +291,8 @@ export default function BriefingPage({
                 onClick={() => setView('member')}
                 className={`rounded-md px-3 py-1.5 text-xs font-semibold ${
                   !officerView
-                    ? 'bg-card/60 text-[var(--text-primary)]'
-                    : 'text-[var(--text-secondary)]'
+                    ? 'bg-card/60 text-primary-wh40k'
+                    : 'text-secondary-wh40k'
                 }`}
               >
                 My briefing
@@ -304,8 +304,8 @@ export default function BriefingPage({
                 onClick={() => setView('officer')}
                 className={`rounded-md px-3 py-1.5 text-xs font-semibold ${
                   officerView
-                    ? 'bg-card/60 text-[var(--text-primary)]'
-                    : 'text-[var(--text-secondary)]'
+                    ? 'bg-card/60 text-primary-wh40k'
+                    : 'text-secondary-wh40k'
                 }`}
               >
                 Officer view
@@ -313,9 +313,9 @@ export default function BriefingPage({
             </div>
           )}
           {seasonEnds && (
-            <div className="rounded-lg border border-[var(--card-border)] bg-[var(--bg-primary)] px-3 py-2 text-xs text-[var(--text-secondary)]">
+            <div className="rounded-lg border border-(--card-border) bg-(--bg-primary) px-3 py-2 text-xs text-secondary-wh40k">
               Season ends{' '}
-              <span className="font-semibold text-[var(--text-primary)]">
+              <span className="font-semibold text-primary-wh40k">
                 {seasonEnds}
               </span>
             </div>
@@ -354,7 +354,7 @@ export default function BriefingPage({
           )}
 
           {/* minmax(0,1fr): WebKit sizes an auto track to the LapChart's max-content and overflows. */}
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.9fr,1fr]">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.9fr_1fr]">
             <YourNextMoveCard move={move} />
             <SeasonOutlookCard
               forecast={forecast}

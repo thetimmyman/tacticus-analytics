@@ -42,7 +42,7 @@ export function usePlayerStatsController(
   } = options
 
   const supabase = useMemo(() => dbClient(), [])
-  const supabaseRef = useRef<SupabaseClient>()
+  const supabaseRef = useRef<SupabaseClient | undefined>(undefined)
   if (!supabaseRef.current) {
     supabaseRef.current = supabase
   }

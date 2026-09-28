@@ -37,24 +37,24 @@ export function OverallLeaderboardControls({
   return (
     <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[auto_1fr_auto] lg:items-center lg:gap-6">
       <div className="flex flex-col gap-1">
-        <h3 className="text-xl font-bold text-[var(--text-primary)]">
+        <h3 className="text-xl font-bold text-primary-wh40k">
           Top Players -{' '}
           {context.accessLevel === 'cluster'
             ? `${context.clusterCode} Cluster`
             : `${context.guildLabel || contextGuildLabel} Guild`}{' '}
           - Season {season}
         </h3>
-        <div className="text-sm text-[var(--text-secondary)]">
+        <div className="text-sm text-secondary-wh40k">
           Showing {totalPlayers} players
         </div>
       </div>
 
       <div className="flex flex-col items-center gap-2 lg:px-4">
         <div className="flex flex-col items-center leading-tight">
-          <span className="text-[var(--text-secondary)] text-xs uppercase tracking-wide">
+          <span className="text-secondary-wh40k text-xs uppercase tracking-wide">
             Scoring Basis
           </span>
-          <span className="text-sm font-semibold text-[var(--text-primary)]">
+          <span className="text-sm font-semibold text-primary-wh40k">
             {scoring.label}
           </span>
         </div>
@@ -64,16 +64,16 @@ export function OverallLeaderboardControls({
             onClick={() => onScoringModeChange('battle')}
             className={`px-3 py-1.5 rounded-md border text-xs sm:text-sm font-semibold transition-all ${
               !scoring.isTokenModeActive
-                ? 'bg-[var(--primary)] text-[var(--bg-primary)] border-[var(--primary)] shadow-md'
-                : 'bg-[var(--card-bg)] border-[var(--card-border)] text-[var(--text-primary)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]'
+                ? 'bg-primary-wh40k text-(--bg-primary) border-primary-wh40k shadow-md'
+                : 'bg-(--card-bg) border-(--card-border) text-primary-wh40k hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]'
             }`}
           >
             Battle Weighted
             <span
               className={`ml-1.5 rounded px-1 text-[10px] font-medium uppercase tracking-wide ${
                 !scoring.isTokenModeActive
-                  ? 'bg-black/15 text-[var(--bg-primary)]'
-                  : 'bg-[color-mix(in_srgb,var(--primary)_15%,transparent)] text-[var(--text-secondary)]'
+                  ? 'bg-black/15 text-(--bg-primary)'
+                  : 'bg-[color-mix(in_srgb,var(--primary)_15%,transparent)] text-secondary-wh40k'
               }`}
             >
               Default
@@ -85,9 +85,9 @@ export function OverallLeaderboardControls({
             disabled={!scoring.tokenMaxAvailable}
             className={`px-3 py-1.5 rounded-md border text-xs sm:text-sm font-semibold transition-all ${
               scoring.isTokenModeActive && scoring.tokenWeightingMode === 'max'
-                ? 'bg-[var(--primary)] text-[var(--bg-primary)] border-[var(--primary)] shadow-md'
-                : 'bg-[var(--card-bg)] border-[var(--card-border)] text-[var(--text-primary)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]'
-            } ${!scoring.tokenMaxAvailable ? 'opacity-50 cursor-not-allowed hover:border-[var(--card-border)]' : ''}`}
+                ? 'bg-primary-wh40k text-(--bg-primary) border-primary-wh40k shadow-md'
+                : 'bg-(--card-bg) border-(--card-border) text-primary-wh40k hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]'
+            } ${!scoring.tokenMaxAvailable ? 'opacity-50 cursor-not-allowed hover:border-(--card-border)' : ''}`}
           >
             Token Weighted (Max)
           </button>
@@ -98,15 +98,15 @@ export function OverallLeaderboardControls({
             className={`px-3 py-1.5 rounded-md border text-xs sm:text-sm font-semibold transition-all ${
               scoring.isTokenModeActive &&
               scoring.tokenWeightingMode === 'average'
-                ? 'bg-[var(--primary)] text-[var(--bg-primary)] border-[var(--primary)] shadow-md'
-                : 'bg-[var(--card-bg)] border-[var(--card-border)] text-[var(--text-primary)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]'
-            } ${!scoring.tokenAverageAvailable ? 'opacity-50 cursor-not-allowed hover:border-[var(--card-border)]' : ''}`}
+                ? 'bg-primary-wh40k text-(--bg-primary) border-primary-wh40k shadow-md'
+                : 'bg-(--card-bg) border-(--card-border) text-primary-wh40k hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]'
+            } ${!scoring.tokenAverageAvailable ? 'opacity-50 cursor-not-allowed hover:border-(--card-border)' : ''}`}
           >
             Token Weighted (Avg)
           </button>
         </div>
         <p
-          className={`text-xs text-center ${scoring.hasAnyTokenMode ? 'text-[var(--text-secondary)]' : 'text-red-400'}`}
+          className={`text-xs text-center ${scoring.hasAnyTokenMode ? 'text-secondary-wh40k' : 'text-red-400'}`}
         >
           {scoring.statusMessage}
         </p>
@@ -120,12 +120,12 @@ export function OverallLeaderboardControls({
             value={searchTerm}
             onChange={onSearchChange}
             delay={300}
-            className="w-full sm:w-48 lg:w-56 px-3 py-1.5 bg-[var(--card-bg)] border border-[var(--card-border)] rounded text-[var(--text-primary)] placeholder-[var(--text-secondary)] text-sm"
+            className="w-full sm:w-48 lg:w-56 px-3 py-1.5 bg-(--card-bg) border border-(--card-border) rounded-sm text-primary-wh40k placeholder-(--text-secondary) text-sm"
           />
           <select
             value={selectedGuild}
             onChange={(event) => onGuildChange(event.target.value)}
-            className="w-full sm:w-40 lg:w-44 px-3 py-1.5 bg-[var(--card-bg)] border border-[var(--card-border)] rounded text-[var(--text-primary)] text-sm"
+            className="w-full sm:w-40 lg:w-44 px-3 py-1.5 bg-(--card-bg) border border-(--card-border) rounded-sm text-primary-wh40k text-sm"
           >
             <option value="all">All Guilds</option>
             {uniqueGuilds.map((guild) => (

@@ -63,25 +63,25 @@ export function TrendingTeamCard({ trend, type }: TrendingTeamCardProps) {
       </div>
       <div className="grid grid-cols-2 gap-1.5 sm:gap-2 text-[10px] sm:text-xs">
         <div>
-          <div className="text-[var(--text-secondary)]">P90 Damage</div>
+          <div className="text-secondary-wh40k">P90 Damage</div>
           <div className="text-white font-medium">
             {formatNumber(trend.current_avg_p90)}
           </div>
         </div>
         <div>
-          <div className="text-[var(--text-secondary)]">Usage</div>
+          <div className="text-secondary-wh40k">Usage</div>
           <div className="text-white font-medium">
             {formatNumber(trend.current_usage)} attacks
           </div>
         </div>
         <div>
-          <div className="text-[var(--text-secondary)]">Previous P90</div>
-          <div className="text-[var(--text-secondary)]">
+          <div className="text-secondary-wh40k">Previous P90</div>
+          <div className="text-secondary-wh40k">
             {formatNumber(trend.previous_avg_p90)}
           </div>
         </div>
         <div>
-          <div className="text-[var(--text-secondary)]">Usage Change</div>
+          <div className="text-secondary-wh40k">Usage Change</div>
           <div
             className={
               trend.usage_delta >= 0 ? 'text-green-400' : 'text-red-400'
@@ -113,7 +113,7 @@ export function OffMetaGemCard({ gem, rank }: OffMetaGemCardProps) {
             <div className="font-semibold text-white text-xs sm:text-sm">
               {gem.meta_team || 'Custom Team'}
             </div>
-            <div className="text-[10px] sm:text-xs text-[var(--text-secondary)]">
+            <div className="text-[10px] sm:text-xs text-secondary-wh40k">
               {getBossDisplayName(gem.boss_type)}
             </div>
           </div>
@@ -123,24 +123,24 @@ export function OffMetaGemCard({ gem, rank }: OffMetaGemCardProps) {
         </span>
       </div>
       <div
-        className="text-[10px] sm:text-xs text-[var(--text-secondary)] mb-2 truncate"
+        className="text-[10px] sm:text-xs text-secondary-wh40k mb-2 truncate"
         title={gem.team_composition}
       >
         {gem.team_composition}
       </div>
       <div className="grid grid-cols-3 gap-1.5 sm:gap-2 text-[10px] sm:text-xs">
         <div>
-          <div className="text-[var(--text-secondary)]">P90</div>
+          <div className="text-secondary-wh40k">P90</div>
           <div className="text-purple-400 font-medium">
             {formatNumber(gem.damage_p90)}
           </div>
         </div>
         <div>
-          <div className="text-[var(--text-secondary)]">Attacks</div>
+          <div className="text-secondary-wh40k">Attacks</div>
           <div className="text-white">{gem.attack_count}</div>
         </div>
         <div>
-          <div className="text-[var(--text-secondary)]">Efficiency</div>
+          <div className="text-secondary-wh40k">Efficiency</div>
           <div className="text-amber-400">
             {formatNumber(gem.efficiency_score)}
           </div>
@@ -209,7 +209,7 @@ export function TrendingTeamsGrid({
           <h3 className="text-sm sm:text-md font-semibold text-amber-400 flex items-center gap-2 mb-2 sm:mb-3">
             <Star className="w-3 h-3 sm:w-4 sm:h-4" />
             Off-Meta Gems
-            <span className="text-[10px] sm:text-xs text-[var(--text-secondary)] font-normal">
+            <span className="text-[10px] sm:text-xs text-secondary-wh40k font-normal">
               (high damage, low usage)
             </span>
           </h3>
@@ -222,7 +222,7 @@ export function TrendingTeamsGrid({
       )}
 
       {risingStars.length === 0 && fallingOff.length === 0 && (
-        <div className="text-center py-8 text-[var(--text-secondary)]">
+        <div className="text-center py-8 text-secondary-wh40k">
           Not enough data to show meta trends between these seasons.
         </div>
       )}

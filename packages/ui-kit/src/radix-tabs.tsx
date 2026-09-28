@@ -12,9 +12,9 @@ const RadixTabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={`
-      inline-flex min-h-[2.25rem] md:min-h-[2.5rem] items-center justify-center rounded-md
-      bg-[var(--card-bg)] p-1 text-[var(--text-secondary)]
-      border border-[var(--card-border)]
+      inline-flex min-h-9 md:min-h-10 items-center justify-center rounded-md
+      bg-(--card-bg) p-1 text-secondary-wh40k
+      border border-(--card-border)
       ${className || ''}
     `}
     {...props}
@@ -29,15 +29,15 @@ const RadixTabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={`
-      inline-flex items-center justify-center whitespace-nowrap rounded-sm
+      inline-flex items-center justify-center whitespace-nowrap rounded-xs
       px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm font-medium ring-offset-background
-      transition-all focus-visible:outline-none focus-visible:ring-2
-      focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2
+      transition-all focus-visible:outline-hidden focus-visible:ring-2
+      focus-visible:ring-(--accent) focus-visible:ring-offset-2
       disabled:pointer-events-none disabled:opacity-50
-      data-[state=active]:bg-[var(--accent)]
-      data-[state=active]:text-[var(--accent-foreground)]
-      data-[state=active]:shadow-sm
-      hover:bg-[var(--hover-bg)] hover:text-[var(--text-primary)]
+      data-[state=active]:bg-accent-wh40k
+      data-[state=active]:text-(--accent-foreground)
+      data-[state=active]:shadow-xs
+      hover:bg-(--hover-bg) hover:text-primary-wh40k
       ${className || ''}
     `}
     {...props}
@@ -52,8 +52,8 @@ const RadixTabsContent = React.forwardRef<
   <TabsPrimitive.Content
     ref={ref}
     className={`
-      mt-2 ring-offset-background focus-visible:outline-none 
-      focus-visible:ring-2 focus-visible:ring-[var(--accent)] 
+      mt-2 ring-offset-background focus-visible:outline-hidden 
+      focus-visible:ring-2 focus-visible:ring-(--accent) 
       focus-visible:ring-offset-2
       ${className || ''}
     `}

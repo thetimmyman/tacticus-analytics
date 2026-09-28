@@ -39,7 +39,7 @@ export function CarouselItemList({
   return (
     <>
       {items.length === 0 ? (
-        <div className="text-center py-8 text-[var(--text-secondary)]">
+        <div className="text-center py-8 text-secondary-wh40k">
           <ImageIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
           <p>No carousel items yet</p>
           <p className="text-sm">
@@ -62,14 +62,14 @@ export function CarouselItemList({
                           p-3 rounded-lg border transition-all
                           ${
                             item.is_active && !isExpired && !isPending
-                              ? 'bg-[var(--bg-secondary)] border-[var(--card-border)]'
+                              ? 'bg-(--bg-secondary) border-(--card-border)'
                               : 'bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] border-card-border/50 opacity-60'
                           }
                         `}
               >
                 <div className="flex items-start gap-3">
                   <div
-                    className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+                    className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0"
                     style={{ backgroundColor: item.background_color }}
                   >
                     {item.image_url ? (
@@ -96,49 +96,49 @@ export function CarouselItemList({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span
-                        className={`text-xs px-2 py-0.5 rounded ${typeConfig.bg} ${typeConfig.color}`}
+                        className={`text-xs px-2 py-0.5 rounded-sm ${typeConfig.bg} ${typeConfig.color}`}
                       >
                         {typeConfig.label}
                       </span>
                       {!item.is_active && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-gray-500/20 text-gray-400">
+                        <span className="text-xs px-2 py-0.5 rounded-sm bg-gray-500/20 text-gray-400">
                           Inactive
                         </span>
                       )}
                       {isExpired && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-400">
+                        <span className="text-xs px-2 py-0.5 rounded-sm bg-red-500/20 text-red-400">
                           Expired
                         </span>
                       )}
                       {isPending && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400">
+                        <span className="text-xs px-2 py-0.5 rounded-sm bg-yellow-500/20 text-yellow-400">
                           Scheduled
                         </span>
                       )}
-                      <span className="text-xs text-[var(--text-tertiary)]">
+                      <span className="text-xs text-(--text-tertiary)">
                         Priority: {item.priority}
                       </span>
                     </div>
 
-                    <h4 className="font-semibold text-[var(--text-primary)] mt-1">
+                    <h4 className="font-semibold text-primary-wh40k mt-1">
                       {item.title}
                     </h4>
 
                     {item.description && (
-                      <p className="text-sm text-[var(--text-secondary)] line-clamp-1 mt-0.5">
+                      <p className="text-sm text-secondary-wh40k line-clamp-1 mt-0.5">
                         {item.description}
                       </p>
                     )}
 
-                    <div className="flex items-center gap-3 mt-2 text-xs text-[var(--text-tertiary)] flex-wrap">
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-purple-500/10 text-purple-400">
+                    <div className="flex items-center gap-3 mt-2 text-xs text-(--text-tertiary) flex-wrap">
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-sm bg-purple-500/10 text-purple-400">
                         <Timer className="h-3 w-3" />
                         {item.display_duration_seconds || 8}s display
                       </span>
                       {item.promo_code && (
                         <button
                           onClick={() => void onCopyPromo(item.promo_code!)}
-                          className="flex items-center gap-1 px-2 py-0.5 rounded bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-colors"
+                          className="flex items-center gap-1 px-2 py-0.5 rounded-sm bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-colors"
                         >
                           <Copy className="h-3 w-3" />
                           <span className="font-mono">{item.promo_code}</span>
@@ -152,7 +152,7 @@ export function CarouselItemList({
                           href={item.link_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-1 hover:text-[var(--text-secondary)] transition-colors"
+                          className="flex items-center gap-1 hover:text-secondary-wh40k transition-colors"
                         >
                           <ExternalLink className="h-3 w-3" />
                           {item.link_text}
@@ -181,17 +181,17 @@ export function CarouselItemList({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1 flex-shrink-0">
+                  <div className="flex items-center gap-1 shrink-0">
                     <button
                       onClick={() => onUpdatePriority(item, 1)}
-                      className="p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] transition-colors"
+                      className="p-1.5 rounded-sm hover:bg-(--bg-tertiary) text-secondary-wh40k transition-colors"
                       title="Increase priority"
                     >
                       <ChevronUp className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => onUpdatePriority(item, -1)}
-                      className="p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)] transition-colors"
+                      className="p-1.5 rounded-sm hover:bg-(--bg-tertiary) text-secondary-wh40k transition-colors"
                       title="Decrease priority"
                     >
                       <ChevronDown className="h-4 w-4" />
@@ -213,14 +213,14 @@ export function CarouselItemList({
                     </button>
                     <button
                       onClick={() => onEdit(item)}
-                      className="p-1.5 rounded hover:bg-blue-500/20 text-blue-400 transition-colors"
+                      className="p-1.5 rounded-sm hover:bg-blue-500/20 text-blue-400 transition-colors"
                       title="Edit"
                     >
                       <Edit2 className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => onDelete(item.id)}
-                      className="p-1.5 rounded hover:bg-red-500/20 text-red-400 transition-colors"
+                      className="p-1.5 rounded-sm hover:bg-red-500/20 text-red-400 transition-colors"
                       title="Delete"
                     >
                       <Trash className="h-4 w-4" />

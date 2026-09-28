@@ -30,18 +30,18 @@ interface Options {
 
 function getGuildApiKeyStatus(guild: Guild) {
   if (!guild.has_api_key) {
-    return { text: 'Not set', color: 'text-[var(--text-secondary)]' }
+    return { text: 'Not set', color: 'text-secondary-wh40k' }
   }
   if (guild.guild_code === 'TEST') {
-    return { text: 'Test Key', color: 'text-[var(--accent)]' }
+    return { text: 'Test Key', color: 'text-(--accent)' }
   }
   if (guild.api_key_is_valid === true) {
     return { text: 'Valid', color: 'text-green-400' }
   }
   if (guild.api_key_is_valid === false) {
-    return { text: 'Invalid', color: 'text-[var(--accent)]' }
+    return { text: 'Invalid', color: 'text-(--accent)' }
   }
-  return { text: '? Unverified', color: 'text-[var(--primary)]' }
+  return { text: '? Unverified', color: 'text-(--primary)' }
 }
 
 export function useGuildEditingActions({

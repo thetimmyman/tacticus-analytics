@@ -29,18 +29,18 @@ export default function BattlefieldSelectorPanel({
   averagePlayerLevel
 }: BattlefieldSelectorPanelProps) {
   return (
-    <div className="relative overflow-hidden rounded-xl border border-[var(--card-border)] bg-gradient-to-br from-[var(--bg-secondary)] to-[var(--bg-primary)]">
+    <div className="relative overflow-hidden rounded-xl border border-(--card-border) bg-linear-to-br from-(--bg-secondary) to-(--bg-primary)">
       <div className="absolute inset-0 bg-[url('/images/noise.png')] opacity-5 pointer-events-none" />
       <div className="relative p-4">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-red-500/20 to-orange-500/20 border border-red-500/30">
+          <div className="p-2 rounded-lg bg-linear-to-br from-red-500/20 to-orange-500/20 border border-red-500/30">
             <Swords className="h-5 w-5 text-red-400" />
           </div>
           <div>
-            <h3 className="font-bold text-[var(--text-primary)] tracking-wide">
+            <h3 className="font-bold text-primary-wh40k tracking-wide">
               Battlefield Selection
             </h3>
-            <p className="text-xs text-[var(--text-secondary)]">
+            <p className="text-xs text-secondary-wh40k">
               Choose your combat tier to adjust zone defense requirements
             </p>
           </div>
@@ -62,31 +62,31 @@ export default function BattlefieldSelectorPanel({
                   base: 'text-green-300',
                   border: 'border-green-400',
                   glow: 'shadow-[0_0_20px_rgba(74,222,128,0.5)]',
-                  bg: 'bg-gradient-to-br from-green-900/80 to-green-950/90'
+                  bg: 'bg-linear-to-br from-green-900/80 to-green-950/90'
                 },
                 2: {
                   base: 'text-blue-300',
                   border: 'border-blue-400',
                   glow: 'shadow-[0_0_20px_rgba(96,165,250,0.5)]',
-                  bg: 'bg-gradient-to-br from-blue-900/80 to-blue-950/90'
+                  bg: 'bg-linear-to-br from-blue-900/80 to-blue-950/90'
                 },
                 3: {
                   base: 'text-purple-300',
                   border: 'border-purple-400',
                   glow: 'shadow-[0_0_20px_rgba(192,132,252,0.5)]',
-                  bg: 'bg-gradient-to-br from-purple-900/80 to-purple-950/90'
+                  bg: 'bg-linear-to-br from-purple-900/80 to-purple-950/90'
                 },
                 4: {
                   base: 'text-orange-300',
                   border: 'border-orange-400',
                   glow: 'shadow-[0_0_20px_rgba(251,146,60,0.5)]',
-                  bg: 'bg-gradient-to-br from-orange-900/80 to-orange-950/90'
+                  bg: 'bg-linear-to-br from-orange-900/80 to-orange-950/90'
                 },
                 5: {
                   base: 'text-red-300',
                   border: 'border-red-400',
                   glow: 'shadow-[0_0_20px_rgba(248,113,113,0.5)]',
-                  bg: 'bg-gradient-to-br from-red-900/80 to-red-950/90'
+                  bg: 'bg-linear-to-br from-red-900/80 to-red-950/90'
                 }
               }
               const colors = difficultyColors[level]
@@ -97,7 +97,7 @@ export default function BattlefieldSelectorPanel({
                   value={String(level)}
                   title={BATTLEFIELD_LABELS[level]}
                   className={`
-                      relative px-1.5 md:px-4 py-2 md:py-3 text-xs md:text-sm font-bold min-h-[2.5rem] md:min-h-[3rem] overflow-hidden transition-all duration-300
+                      relative px-1.5 md:px-4 py-2 md:py-3 text-xs md:text-sm font-bold min-h-10 md:min-h-12 overflow-hidden transition-all duration-300
                       rounded-lg border-2
                       ${colors.base}
                       ${
@@ -136,8 +136,8 @@ export default function BattlefieldSelectorPanel({
 
         <div className="mt-3 md:mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center gap-2 text-[10px] md:text-xs">
-            <Info className="h-3 w-3 md:h-4 md:w-4 text-[var(--text-secondary)] shrink-0" />
-            <span className="text-[var(--text-secondary)]">
+            <Info className="h-3 w-3 md:h-4 md:w-4 text-secondary-wh40k shrink-0" />
+            <span className="text-secondary-wh40k">
               {BATTLEFIELD_MULTIPLIERS[battlefieldLevel]}x multiplier
             </span>
           </div>

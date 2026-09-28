@@ -21,9 +21,7 @@ export default function InvestmentPrioritiesCard({
       header: 'Member',
       sortable: false,
       render: (item) => (
-        <span className="text-[var(--text-primary)]">
-          {labelFor(item.displayName)}
-        </span>
+        <span className="text-primary-wh40k">{labelFor(item.displayName)}</span>
       )
     },
     {
@@ -53,10 +51,10 @@ export default function InvestmentPrioritiesCard({
   ]
 
   return investments.length > 0 ? (
-    <div className="rounded-lg border border-[var(--card-border)] bg-card/40 p-4">
+    <div className="rounded-lg border border-(--card-border) bg-card/40 p-4">
       <div className="flex items-center gap-2">
-        <Hammer className="h-4 w-4 text-[var(--accent)]" />
-        <h4 className="text-sm font-semibold text-[var(--text-primary)]">
+        <Hammer className="h-4 w-4 text-(--accent)" />
+        <h4 className="text-sm font-semibold text-primary-wh40k">
           Investment priorities
         </h4>
       </div>
@@ -72,7 +70,7 @@ export default function InvestmentPrioritiesCard({
       </div>
     </div>
   ) : (
-    <div className="rounded-lg border border-[var(--card-border)] bg-card/40 p-4 text-sm text-[var(--text-secondary)]">
+    <div className="rounded-lg border border-(--card-border) bg-card/40 p-4 text-sm text-secondary-wh40k">
       No urgent owned-hero investment priorities were found for the selected
       window.
     </div>

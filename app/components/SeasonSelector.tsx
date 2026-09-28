@@ -128,8 +128,8 @@ export default function SeasonSelector({
     ? 'sr-only'
     : 'text-sm font-medium text-accent-wh40k'
   const selectorClassName = compact
-    ? 'h-7 px-2 pr-6 rounded bg-card-bg border border-primary-wh40k text-primary-wh40k text-sm font-semibold tabular-nums shrink-0 min-w-[5.5rem] focus:border-accent-wh40k focus:outline-none'
-    : 'px-3 py-1.5 rounded bg-card-bg border border-primary-wh40k text-primary-wh40k text-sm focus:border-accent-wh40k focus:outline-none'
+    ? 'h-7 px-2 pr-6 rounded-sm bg-card-bg border border-primary-wh40k text-primary-wh40k text-sm font-semibold tabular-nums shrink-0 min-w-22 focus:border-accent-wh40k focus:outline-hidden'
+    : 'px-3 py-1.5 rounded-sm bg-card-bg border border-primary-wh40k text-primary-wh40k text-sm focus:border-accent-wh40k focus:outline-hidden'
   const selectorStyle = undefined
 
   if (loading) {
@@ -137,7 +137,7 @@ export default function SeasonSelector({
       <div className={containerClassName}>
         <label className={labelClassName}>Season:</label>
         <div
-          className={`${compact ? 'w-16' : 'w-24'} h-8 bg-card-bg animate-pulse rounded`}
+          className={`${compact ? 'w-16' : 'w-24'} h-8 bg-card-bg animate-pulse rounded-sm`}
         ></div>
       </div>
     )

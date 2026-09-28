@@ -11,27 +11,27 @@ const toneClass: Record<
 > = {
   info: {
     wrap: 'border-[color-mix(in_srgb,var(--info)_40%,transparent)] bg-[color-mix(in_srgb,var(--info)_10%,transparent)]',
-    icon: 'text-[var(--info)]',
-    title: 'text-[var(--text-primary)]',
-    body: 'text-[var(--text-secondary)]'
+    icon: 'text-(--info)',
+    title: 'text-primary-wh40k',
+    body: 'text-secondary-wh40k'
   },
   warning: {
     wrap: 'border-[color-mix(in_srgb,var(--warning)_40%,transparent)] bg-[color-mix(in_srgb,var(--warning)_10%,transparent)]',
-    icon: 'text-[var(--warning)]',
-    title: 'text-[var(--text-primary)]',
-    body: 'text-[var(--text-secondary)]'
+    icon: 'text-(--warning)',
+    title: 'text-primary-wh40k',
+    body: 'text-secondary-wh40k'
   },
   success: {
     wrap: 'border-[color-mix(in_srgb,var(--success)_40%,transparent)] bg-[color-mix(in_srgb,var(--success)_10%,transparent)]',
-    icon: 'text-[var(--success)]',
-    title: 'text-[var(--text-primary)]',
-    body: 'text-[var(--text-secondary)]'
+    icon: 'text-(--success)',
+    title: 'text-primary-wh40k',
+    body: 'text-secondary-wh40k'
   },
   danger: {
     wrap: 'border-[color-mix(in_srgb,var(--danger)_40%,transparent)] bg-[color-mix(in_srgb,var(--danger)_10%,transparent)]',
-    icon: 'text-[var(--danger)]',
-    title: 'text-[var(--text-primary)]',
-    body: 'text-[var(--text-secondary)]'
+    icon: 'text-(--danger)',
+    title: 'text-primary-wh40k',
+    body: 'text-secondary-wh40k'
   }
 }
 
@@ -75,7 +75,7 @@ export function InlineAlert({
     >
       <div className="flex items-start gap-2">
         <ToneIcon
-          className={clsx('h-4 w-4 flex-shrink-0 mt-0.5', tones.icon)}
+          className={clsx('h-4 w-4 shrink-0 mt-0.5', tones.icon)}
           aria-hidden="true"
         />
         <div className="flex-1 space-y-1">

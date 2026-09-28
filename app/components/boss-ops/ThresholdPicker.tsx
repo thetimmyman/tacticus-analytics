@@ -24,8 +24,8 @@ export function ThresholdPicker({
           className={clsx(
             'rounded-md border px-2 py-1 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-40',
             value === choice
-              ? 'border-[color-mix(in_srgb,var(--warning)_80%,transparent)] bg-[var(--warning-bg)] text-[var(--warning)]'
-              : 'border-[var(--card-border)] bg-black/15 text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              ? 'border-[color-mix(in_srgb,var(--warning)_80%,transparent)] bg-(--warning-bg) text-(--warning)'
+              : 'border-(--card-border) bg-black/15 text-secondary-wh40k hover:text-primary-wh40k'
           )}
         >
           {choice}%

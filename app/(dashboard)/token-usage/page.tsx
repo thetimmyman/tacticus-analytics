@@ -15,9 +15,7 @@ export const metadata = createPageMetadata({
 
 const TokenUsage = dynamicImport(() => import('@/app/components/TokenUsage'), {
   loading: () => (
-    <div className="p-6 text-[var(--text-secondary)]">
-      Loading token usage data...
-    </div>
+    <div className="p-6 text-secondary-wh40k">Loading token usage data...</div>
   )
 })
 

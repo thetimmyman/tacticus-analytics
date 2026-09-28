@@ -348,7 +348,7 @@ export default function PerformanceHeatmapClient({
     <div className="bg-card/50 rounded-lg border border-[color-mix(in_srgb,var(--primary)_20%,transparent)] overflow-hidden">
       <div className="p-4 border-b border-[color-mix(in_srgb,var(--primary)_20%,transparent)] flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-[var(--primary)]">
+          <h2 className="text-lg font-semibold text-(--primary)">
             Summary by Boss
           </h2>
           <p className="text-xs text-amber-100/60 mt-1">
@@ -386,7 +386,7 @@ export default function PerformanceHeatmapClient({
             value={playerFilter}
             onChange={(e) => setPlayerFilter(e.target.value)}
             placeholder="Filter player…"
-            className="px-2 py-1 rounded bg-[var(--bg-primary)] border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] text-[var(--text-primary)] placeholder-amber-100/40 focus:outline-none focus:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]"
+            className="px-2 py-1 rounded-sm bg-(--bg-primary) border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] text-primary-wh40k placeholder-amber-100/40 focus:outline-hidden focus:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]"
           />
           <label className="flex items-center gap-1 text-amber-100/70">
             Min tokens:
@@ -397,7 +397,7 @@ export default function PerformanceHeatmapClient({
               onChange={(e) =>
                 setMinTokens(Math.max(0, Number(e.target.value) || 0))
               }
-              className="w-14 px-2 py-1 rounded bg-[var(--bg-primary)] border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] text-[var(--text-primary)] focus:outline-none focus:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]"
+              className="w-14 px-2 py-1 rounded-sm bg-(--bg-primary) border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] text-primary-wh40k focus:outline-hidden focus:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]"
             />
           </label>
           <span className="text-amber-100/50">
@@ -407,13 +407,13 @@ export default function PerformanceHeatmapClient({
       </div>
       <div className="overflow-auto max-h-[75vh]">
         <table className="w-full text-xs border-collapse">
-          <thead className="sticky top-0 z-10 bg-[var(--bg-primary)]">
+          <thead className="sticky top-0 z-10 bg-(--bg-primary)">
             <tr className="border-b border-[color-mix(in_srgb,var(--primary)_30%,transparent)]">
               {hasPerLoop && (
-                <th className="sticky left-0 z-20 bg-[var(--bg-primary)] px-1 py-2 w-6"></th>
+                <th className="sticky left-0 z-20 bg-(--bg-primary) px-1 py-2 w-6"></th>
               )}
               <th
-                className={`sticky ${hasPerLoop ? 'left-6' : 'left-0'} z-20 bg-[var(--bg-primary)] px-3 py-2 text-left font-medium text-amber-100/80 whitespace-nowrap cursor-pointer hover:text-[var(--primary)]`}
+                className={`sticky ${hasPerLoop ? 'left-6' : 'left-0'} z-20 bg-(--bg-primary) px-3 py-2 text-left font-medium text-amber-100/80 whitespace-nowrap cursor-pointer hover:text-(--primary)`}
                 onClick={() => handleSort({ kind: 'player' })}
               >
                 Player{sortIndicator({ kind: 'player' })}
@@ -431,7 +431,7 @@ export default function PerformanceHeatmapClient({
                 return (
                   <th
                     key={boss}
-                    className="px-1 pt-2 pb-1 text-center align-bottom font-medium text-amber-100/80 border-l border-[color-mix(in_srgb,var(--primary)_20%,transparent)] cursor-pointer hover:text-[var(--primary)]"
+                    className="px-1 pt-2 pb-1 text-center align-bottom font-medium text-amber-100/80 border-l border-[color-mix(in_srgb,var(--primary)_20%,transparent)] cursor-pointer hover:text-(--primary)"
                     onClick={() => handleSort({ kind: 'bossScore', boss })}
                     title={`${splitCamelCase(parsed.name)} — click to sort by this boss's score`}
                   >
@@ -461,26 +461,26 @@ export default function PerformanceHeatmapClient({
                 )
               })}
               <th
-                className="px-3 py-2 text-right font-medium text-amber-100/80 border-l border-[color-mix(in_srgb,var(--primary)_20%,transparent)] whitespace-nowrap cursor-pointer hover:text-[var(--primary)]"
+                className="px-3 py-2 text-right font-medium text-amber-100/80 border-l border-[color-mix(in_srgb,var(--primary)_20%,transparent)] whitespace-nowrap cursor-pointer hover:text-(--primary)"
                 onClick={() => handleSort({ kind: 'tokens' })}
               >
                 Tokens{sortIndicator({ kind: 'tokens' })}
               </th>
               <th
-                className="px-3 py-2 text-right font-medium text-amber-100/80 whitespace-nowrap cursor-pointer hover:text-[var(--primary)]"
+                className="px-3 py-2 text-right font-medium text-amber-100/80 whitespace-nowrap cursor-pointer hover:text-(--primary)"
                 onClick={() => handleSort({ kind: 'bosses' })}
               >
                 Bosses{sortIndicator({ kind: 'bosses' })}
               </th>
               <th
-                className="px-3 py-2 text-right font-medium text-amber-100/80 whitespace-nowrap cursor-pointer hover:text-[var(--primary)]"
+                className="px-3 py-2 text-right font-medium text-amber-100/80 whitespace-nowrap cursor-pointer hover:text-(--primary)"
                 onClick={() => handleSort({ kind: 'avgScore' })}
               >
                 Avg Score{sortIndicator({ kind: 'avgScore' })}
               </th>
               {hasPerLoop && (
                 <th
-                  className="px-3 py-2 text-right font-medium text-amber-100/80 whitespace-nowrap cursor-pointer hover:text-[var(--primary)]"
+                  className="px-3 py-2 text-right font-medium text-amber-100/80 whitespace-nowrap cursor-pointer hover:text-(--primary)"
                   onClick={() => handleSort({ kind: 'rankDelta' })}
                   title="Rank change from the previous loop to the latest loop, ranked across the full guild (not affected by the player/min-tokens filter). Green ▲ = improved."
                 >
@@ -490,10 +490,10 @@ export default function PerformanceHeatmapClient({
             </tr>
             <tr className="border-b border-[color-mix(in_srgb,var(--primary)_30%,transparent)] text-[10px] text-amber-100/50">
               {hasPerLoop && (
-                <th className="sticky left-0 z-20 bg-[var(--bg-primary)] px-1 py-1 w-6"></th>
+                <th className="sticky left-0 z-20 bg-(--bg-primary) px-1 py-1 w-6"></th>
               )}
               <th
-                className={`sticky ${hasPerLoop ? 'left-6' : 'left-0'} z-20 bg-[var(--bg-primary)] px-3 py-1`}
+                className={`sticky ${hasPerLoop ? 'left-6' : 'left-0'} z-20 bg-(--bg-primary) px-3 py-1`}
               ></th>
               {bossList.map((boss) => (
                 <th
@@ -504,7 +504,7 @@ export default function PerformanceHeatmapClient({
                     type="button"
                     title="Sort by this boss's score"
                     aria-label="Sort by this boss's score"
-                    className="cursor-pointer hover:text-[var(--primary)]"
+                    className="cursor-pointer hover:text-(--primary)"
                     onClick={() => handleSort({ kind: 'bossScore', boss })}
                   >
                     S{sortIndicator({ kind: 'bossScore', boss })}
@@ -514,7 +514,7 @@ export default function PerformanceHeatmapClient({
                     type="button"
                     title="Sort by this boss's loss"
                     aria-label="Sort by this boss's loss"
-                    className="cursor-pointer hover:text-[var(--primary)]"
+                    className="cursor-pointer hover:text-(--primary)"
                     onClick={() => handleSort({ kind: 'bossLoss', boss })}
                   >
                     L{sortIndicator({ kind: 'bossLoss', boss })}
@@ -540,9 +540,9 @@ export default function PerformanceHeatmapClient({
                 playerLoopAgg.size > 0
               return (
                 <Fragment key={playerKey}>
-                  <tr className="border-t border-[var(--card-border)]">
+                  <tr className="border-t border-(--card-border)">
                     {hasPerLoop && (
-                      <td className="sticky left-0 z-10 bg-[var(--bg-primary)] px-1 py-1 text-center w-6">
+                      <td className="sticky left-0 z-10 bg-(--bg-primary) px-1 py-1 text-center w-6">
                         {hasLoopData ? (
                           <button
                             type="button"
@@ -553,7 +553,7 @@ export default function PerformanceHeatmapClient({
                                 ? 'Collapse per-loop view'
                                 : 'Expand per-loop view'
                             }
-                            className="text-amber-100/60 hover:text-[var(--primary)] font-mono text-xs leading-none"
+                            className="text-amber-100/60 hover:text-(--primary) font-mono text-xs leading-none"
                           >
                             {isExpanded ? '▾' : '▸'}
                           </button>
@@ -561,7 +561,7 @@ export default function PerformanceHeatmapClient({
                       </td>
                     )}
                     <td
-                      className={`sticky ${hasPerLoop ? 'left-6' : 'left-0'} z-10 bg-[var(--bg-primary)] px-3 py-1 font-medium text-[var(--text-primary)] whitespace-nowrap`}
+                      className={`sticky ${hasPerLoop ? 'left-6' : 'left-0'} z-10 bg-(--bg-primary) px-3 py-1 font-medium text-primary-wh40k whitespace-nowrap`}
                     >
                       {player.playerName}
                     </td>
@@ -595,10 +595,10 @@ export default function PerformanceHeatmapClient({
                         </td>
                       )
                     })}
-                    <td className="px-3 py-1 text-right text-[var(--text-secondary)] border-l border-[color-mix(in_srgb,var(--primary)_20%,transparent)] font-mono">
+                    <td className="px-3 py-1 text-right text-secondary-wh40k border-l border-[color-mix(in_srgb,var(--primary)_20%,transparent)] font-mono">
                       {player.tokensSpent}
                     </td>
-                    <td className="px-3 py-1 text-right text-[var(--text-secondary)] font-mono">
+                    <td className="px-3 py-1 text-right text-secondary-wh40k font-mono">
                       {player.bossCount}
                     </td>
                     <td
@@ -700,10 +700,10 @@ export default function PerformanceHeatmapClient({
                               </td>
                             )
                           })}
-                          <td className="px-3 py-1 text-right text-[var(--text-secondary)] border-l border-[color-mix(in_srgb,var(--primary)_20%,transparent)] font-mono">
+                          <td className="px-3 py-1 text-right text-secondary-wh40k border-l border-[color-mix(in_srgb,var(--primary)_20%,transparent)] font-mono">
                             {loopAgg.tokensSpent}
                           </td>
-                          <td className="px-3 py-1 text-right text-[var(--text-secondary)] font-mono">
+                          <td className="px-3 py-1 text-right text-secondary-wh40k font-mono">
                             {loopAgg.bossCount}
                           </td>
                           <td

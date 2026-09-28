@@ -37,7 +37,7 @@ describe('DataTable rowClassName', () => {
     expect(selected).toHaveClass('border-l-2')
     expect(selected).toHaveClass('border-l-blue-500')
     expect(selected).toHaveClass('border-b')
-    expect(selected).toHaveClass('hover:bg-[var(--bg-secondary)]')
+    expect(selected).toHaveClass('hover:bg-(--bg-secondary)')
 
     const unselected = rowByName('Alpha')
     expect(unselected).not.toHaveClass('bg-blue-900/30')

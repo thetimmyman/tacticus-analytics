@@ -19,7 +19,7 @@ import { BossEasterEggVisualEffectsPartTwo } from '@/app/components/ui/BossEaste
 interface BossEasterEggProps {
   children: ReactNode
   bossName?: string
-  triggerRefs?: RefObject<HTMLElement>[]
+  triggerRefs?: RefObject<HTMLElement | null>[]
 }
 
 export function BossEasterEgg({

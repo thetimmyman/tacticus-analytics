@@ -5,9 +5,9 @@ export const getStabilityColor = (rank: StabilityRank): string => {
     case 'High':
       return 'text-green-400'
     case 'Medium':
-      return 'text-[var(--primary)]'
+      return 'text-(--primary)'
     case 'Low':
-      return 'text-[var(--accent)]'
+      return 'text-(--accent)'
   }
 }
 

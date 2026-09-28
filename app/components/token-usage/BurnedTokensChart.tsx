@@ -45,18 +45,18 @@ function BurnedTokensChart({ players }: BurnedTokensChartProps) {
             return (
               <div
                 key={player.userId}
-                className="flex-shrink-0 text-center"
+                className="shrink-0 text-center"
                 style={{ width: '50px' }}
               >
                 <div className="h-28 sm:h-36 flex flex-col justify-end mb-1">
                   <div
-                    className="w-full rounded-t overflow-hidden relative bg-[var(--card-bg)] border border-[var(--card-border)]"
+                    className="w-full rounded-t-sm overflow-hidden relative bg-(--card-bg) border border-(--card-border)"
                     style={{
                       height: `${barHeightPercent}%`,
                       minHeight: burned > 0 ? '12px' : '0'
                     }}
                   >
-                    <div className="absolute inset-0 flex items-center justify-center text-[var(--text-primary)] font-bold text-[10px] sm:text-xs">
+                    <div className="absolute inset-0 flex items-center justify-center text-primary-wh40k font-bold text-[10px] sm:text-xs">
                       {formatNumber(burned)}
                     </div>
                     <div
@@ -67,7 +67,7 @@ function BurnedTokensChart({ players }: BurnedTokensChartProps) {
                 </div>
                 <div className="text-[10px] sm:text-xs">
                   <div
-                    className="font-medium text-[var(--text-secondary)] truncate"
+                    className="font-medium text-secondary-wh40k truncate"
                     title={player.displayName}
                   >
                     <PlayerLink playerName={player.displayName}>
@@ -76,7 +76,7 @@ function BurnedTokensChart({ players }: BurnedTokensChartProps) {
                         : player.displayName}
                     </PlayerLink>
                   </div>
-                  <div className="text-[var(--text-tertiary)] text-[10px]">
+                  <div className="text-(--text-tertiary) text-[10px]">
                     #{index + 1}
                   </div>
                 </div>

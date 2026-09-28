@@ -37,7 +37,7 @@ export function RosterSelect({
       </select>
       <ChevronDown
         aria-hidden="true"
-        className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]"
+        className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-secondary-wh40k"
       />
     </div>
   )
@@ -76,7 +76,7 @@ export function RosterFilterBar({ rf }: { rf: RosterFiltersApi }) {
       <div className="flex flex-col gap-2">
         <div className="flex gap-2">
           <div className="relative min-w-0 flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-secondary-wh40k" />
             <input
               type="text"
               placeholder="Search characters..."
@@ -93,14 +93,14 @@ export function RosterFilterBar({ rf }: { rf: RosterFiltersApi }) {
             aria-controls="roster-filter-panel"
             className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded border px-2.5 text-sm transition-colors sm:hidden ${
               activeCount > 0
-                ? 'border-[color-mix(in_srgb,var(--accent)_50%,transparent)] text-[var(--accent)]'
-                : 'border-[var(--card-border)] text-[var(--text-secondary)]'
-            } bg-[var(--bg-secondary)]`}
+                ? 'border-[color-mix(in_srgb,var(--accent)_50%,transparent)] text-(--accent)'
+                : 'border-(--card-border) text-secondary-wh40k'
+            } bg-(--bg-secondary)`}
           >
             <SlidersHorizontal className="h-4 w-4" />
             Filters
             {activeCount > 0 && (
-              <span className="rounded-full bg-[var(--accent)] px-1.5 text-[10px] font-bold leading-4 text-[var(--bg-primary)]">
+              <span className="rounded-full bg-accent-wh40k px-1.5 text-[10px] font-bold leading-4 text-(--bg-primary)">
                 {activeCount}
               </span>
             )}
@@ -168,7 +168,7 @@ export function RosterFilterBar({ rf }: { rf: RosterFiltersApi }) {
               ))}
             </RosterSelect>
             <div className="col-span-2 flex items-center gap-1 sm:col-span-1">
-              <span className="whitespace-nowrap text-xs text-[var(--text-secondary)]">
+              <span className="whitespace-nowrap text-xs text-secondary-wh40k">
                 Abilities:
               </span>
               <input
@@ -181,7 +181,7 @@ export function RosterFilterBar({ rf }: { rf: RosterFiltersApi }) {
                 onChange={(event) => rf.setAbilityMinFilter(event.target.value)}
                 className="input-wh40k h-9 w-16 py-0 text-center"
               />
-              <span className="text-[var(--text-secondary)]">-</span>
+              <span className="text-secondary-wh40k">-</span>
               <input
                 type="number"
                 min="1"
@@ -196,7 +196,7 @@ export function RosterFilterBar({ rf }: { rf: RosterFiltersApi }) {
                 <button
                   type="button"
                   onClick={clearAll}
-                  className="ml-auto inline-flex h-9 items-center gap-1 rounded border border-red-500/50 px-2 text-xs font-medium text-red-400 transition-colors hover:bg-red-500/10 sm:hidden"
+                  className="ml-auto inline-flex h-9 items-center gap-1 rounded-sm border border-red-500/50 px-2 text-xs font-medium text-red-400 transition-colors hover:bg-red-500/10 sm:hidden"
                 >
                   <X className="h-3.5 w-3.5" />
                   Clear
@@ -206,7 +206,7 @@ export function RosterFilterBar({ rf }: { rf: RosterFiltersApi }) {
           </div>
           {!rf.metaTeamsLoading && rf.metaTeams.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="whitespace-nowrap text-xs text-[var(--text-secondary)]">
+              <span className="whitespace-nowrap text-xs text-secondary-wh40k">
                 Meta Teams:
               </span>
               <div className="flex flex-wrap gap-1.5 sm:gap-2">
@@ -237,11 +237,11 @@ export function RosterFilterBar({ rf }: { rf: RosterFiltersApi }) {
                       Clear
                     </button>
                     {rf.metaHeroesLoading ? (
-                      <span className="text-xs text-[var(--text-secondary)]">
+                      <span className="text-xs text-secondary-wh40k">
                         Loading...
                       </span>
                     ) : (
-                      <span className="text-xs text-[var(--text-secondary)]">
+                      <span className="text-xs text-secondary-wh40k">
                         ({rf.teamCount} teams, {rf.expandedHeroNames.size}{' '}
                         heroes)
                       </span>

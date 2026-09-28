@@ -21,14 +21,14 @@ function VOTLWCalculationsFAQ({
     <div className="space-y-3">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full p-3 bg-[var(--card-bg)] hover:bg-[var(--bg-tertiary)] rounded-lg border border-[var(--card-border)] transition-colors"
+        className="flex items-center justify-between w-full p-3 bg-(--card-bg) hover:bg-(--bg-tertiary) rounded-lg border border-(--card-border) transition-colors"
       >
-        <h3 className="text-lg font-bold text-[var(--primary)]">
+        <h3 className="text-lg font-bold text-(--primary)">
           📊 How VOTLW Works - Detailed Calculations
         </h3>
         <span className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}>
           <svg
-            className="w-5 h-5 text-[var(--text-secondary)]"
+            className="w-5 h-5 text-secondary-wh40k"
             fill="currentColor"
             viewBox="0 0 20 20"
           >
@@ -42,8 +42,8 @@ function VOTLWCalculationsFAQ({
       </button>
 
       {isOpen && (
-        <div className="space-y-6 p-4 bg-[var(--bg-secondary)] hover:bg-card/80 transition-colors duration-200 rounded-lg border border-[var(--card-border)]">
-          <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-4 space-y-3">
+        <div className="space-y-6 p-4 bg-(--bg-secondary) hover:bg-card/80 transition-colors duration-200 rounded-lg border border-(--card-border)">
+          <div className="bg-(--card-bg) border border-(--card-border) rounded-lg p-4 space-y-3">
             <div className="flex flex-wrap gap-3">
               <StatusLabel
                 type={tokenFilteringEnabled ? 'success' : 'warning'}
@@ -60,7 +60,7 @@ function VOTLWCalculationsFAQ({
                 {strictTokenModeEnabled ? 'Enforced' : 'Relaxed'}
               </StatusLabel>
             </div>
-            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+            <p className="text-sm text-secondary-wh40k leading-relaxed">
               {tokenFilteringEnabled
                 ? strictTokenModeEnabled
                   ? 'Players who miss ' +
@@ -69,11 +69,11 @@ function VOTLWCalculationsFAQ({
                   : 'We still calculate and display token offenders for auditing, but they remain eligible for medals so data stays transparent.'
                 : 'All members are considered for medals and awards regardless of token usage, which can help during backfills or onboarding seasons.'}
             </p>
-            <p className="text-xs text-[var(--text-tertiary)]">
+            <p className="text-xs text-(--text-tertiary)">
               Token offender filtering is controlled per-guild by officers and
               leaders in the VOTLW Award Controls panel below. Strict token
               awards are still controlled via{' '}
-              <code className="font-mono text-[var(--accent)]">
+              <code className="font-mono text-(--accent)">
                 NEXT_PUBLIC_VOTLW_STRICT_TOKENS
               </code>
               .
@@ -82,12 +82,12 @@ function VOTLWCalculationsFAQ({
 
           {/* Point System Overview */}
           <div className="bg-yellow-900/20 border border-yellow-600/30 rounded-lg p-4">
-            <h4 className="text-[var(--accent)] font-bold mb-3 flex items-center">
+            <h4 className="text-(--accent) font-bold mb-3 flex items-center">
               <span className="mr-2">🏆</span>
               VOTLW Point System Overview
             </h4>
-            <div className="text-sm text-[var(--text-secondary)] space-y-2">
-              <p className="text-[var(--text-primary)]">
+            <div className="text-sm text-secondary-wh40k space-y-2">
+              <p className="text-primary-wh40k">
                 The <span className="font-bold">Veteran of the Long War</span>{' '}
                 is determined by totaling points across all categories:
               </p>
@@ -130,22 +130,22 @@ function VOTLWCalculationsFAQ({
 
           {/* Which bosses carry awards */}
           <div>
-            <h4 className="text-[var(--primary)] font-bold mb-3 flex items-center">
+            <h4 className="text-(--primary) font-bold mb-3 flex items-center">
               <span className="mr-2">🔁</span>
               Which Bosses Carry Awards
             </h4>
-            <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-              <div className="text-sm text-[var(--text-secondary)] space-y-1">
+            <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+              <div className="text-sm text-secondary-wh40k space-y-1">
                 <p>
                   • Awards cover the bosses the season{' '}
-                  <span className="text-[var(--accent)]">loops</span> — the ones
-                  the raid replays after the first pass
+                  <span className="text-(--accent)">loops</span> — the ones the
+                  raid replays after the first pass
                 </p>
                 <p>
                   • From Season 107 the loop restarts at{' '}
-                  <span className="text-[var(--primary)]">L4</span>, so L1–L3
-                  are played once and carry no medals, most damage, side bosses
-                  or biggest hit
+                  <span className="text-(--primary)">L4</span>, so L1–L3 are
+                  played once and carry no medals, most damage, side bosses or
+                  biggest hit
                 </p>
                 <p>
                   • Earlier seasons looped from L1 and keep every award — past
@@ -162,17 +162,17 @@ function VOTLWCalculationsFAQ({
 
           {/* Medal Calculation Details */}
           <div>
-            <h4 className="text-[var(--primary)] font-bold mb-3 flex items-center">
+            <h4 className="text-(--primary) font-bold mb-3 flex items-center">
               <span className="mr-2">🥇</span>
               Medal Calculations (Gold/Silver/Bronze)
             </h4>
             <div className="space-y-3">
-              <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-                <p className="text-[var(--text-primary)] font-medium mb-2">
+              <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+                <p className="text-primary-wh40k font-medium mb-2">
                   Step 1: Average Damage Per Token
                 </p>
-                <div className="text-sm text-[var(--text-secondary)] ml-4 space-y-1">
-                  <p className="font-mono bg-yellow-900/30 p-2 rounded">
+                <div className="text-sm text-secondary-wh40k ml-4 space-y-1">
+                  <p className="font-mono bg-yellow-900/30 p-2 rounded-sm">
                     Player Average = (Total Damage to Boss) ÷ (Number of Tokens
                     Used)
                   </p>
@@ -182,27 +182,24 @@ function VOTLWCalculationsFAQ({
                   </p>
                   <p className="ml-4">
                     → Average = 150M ÷ 3 ={' '}
-                    <span className="text-[var(--accent)]">50M per token</span>
+                    <span className="text-(--accent)">50M per token</span>
                   </p>
                 </div>
               </div>
 
-              <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-                <p className="text-[var(--text-primary)] font-medium mb-2">
+              <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+                <p className="text-primary-wh40k font-medium mb-2">
                   Step 2: Qualification Requirements
                 </p>
-                <div className="text-sm text-[var(--text-secondary)] ml-4 space-y-1">
+                <div className="text-sm text-secondary-wh40k ml-4 space-y-1">
                   <p>
-                    •{' '}
-                    <span className="text-[var(--accent)]">
-                      Minimum 2 battles
-                    </span>{' '}
+                    • <span className="text-(--accent)">Minimum 2 battles</span>{' '}
                     per boss to qualify for medals
                   </p>
                   {tokenFilteringEnabled && (
                     <p>
                       •{' '}
-                      <span className="text-[var(--accent)]">
+                      <span className="text-(--accent)">
                         Token offenders automatically excluded
                       </span>{' '}
                       (missing {offenderThreshold}+ tokens)
@@ -210,32 +207,30 @@ function VOTLWCalculationsFAQ({
                   )}
                   <p>
                     • Only{' '}
-                    <span className="text-[var(--primary)]">
-                      main boss battles
-                    </span>{' '}
+                    <span className="text-(--primary)">main boss battles</span>{' '}
                     count (encounterId = 0)
                   </p>
                 </div>
               </div>
 
-              <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-                <p className="text-[var(--text-primary)] font-medium mb-2">
+              <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+                <p className="text-primary-wh40k font-medium mb-2">
                   Which battles count toward your average?
                 </p>
-                <div className="text-sm text-[var(--text-secondary)] ml-4 space-y-1">
+                <div className="text-sm text-secondary-wh40k ml-4 space-y-1">
                   <p>
-                    • <span className="text-[var(--accent)]">Sweeps</span>{' '}
-                    (finishing blows on an already-damaged boss) are excluded —
-                    unless the sweep&apos;s damage beats BOTH your own average
-                    and the guild average for that boss, in which case it counts
-                    fully (battle and damage).
+                    • <span className="text-(--accent)">Sweeps</span> (finishing
+                    blows on an already-damaged boss) are excluded — unless the
+                    sweep&apos;s damage beats BOTH your own average and the
+                    guild average for that boss, in which case it counts fully
+                    (battle and damage).
                   </p>
                   <p>
-                    • <span className="text-[var(--accent)]">One-shots</span>{' '}
+                    • <span className="text-(--accent)">One-shots</span>{' '}
                     (killing the boss from full HP) always count.
                   </p>
                   <p>
-                    • <span className="text-[var(--accent)]">Crashes</span> (0
+                    • <span className="text-(--accent)">Crashes</span> (0
                     damage) never count.
                   </p>
                   <p className="text-yellow-400 text-xs">
@@ -246,21 +241,17 @@ function VOTLWCalculationsFAQ({
                 </div>
               </div>
 
-              <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-                <p className="text-[var(--text-primary)] font-medium mb-2">
+              <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+                <p className="text-primary-wh40k font-medium mb-2">
                   Step 3: Tie-Breaking System
                 </p>
-                <div className="text-sm text-[var(--text-secondary)] ml-4 space-y-1">
+                <div className="text-sm text-secondary-wh40k ml-4 space-y-1">
                   <p>
-                    <span className="text-[var(--accent)]">
-                      1st Tie-Breaker:
-                    </span>{' '}
+                    <span className="text-(--accent)">1st Tie-Breaker:</span>{' '}
                     More tokens spent (shows consistency)
                   </p>
                   <p>
-                    <span className="text-[var(--accent)]">
-                      2nd Tie-Breaker:
-                    </span>{' '}
+                    <span className="text-(--accent)">2nd Tie-Breaker:</span>{' '}
                     Earlier first token (shows proactiveness)
                   </p>
                   <p className="text-yellow-400 text-xs">
@@ -274,17 +265,17 @@ function VOTLWCalculationsFAQ({
 
           {/* Side Boss Calculations */}
           <div>
-            <h4 className="text-[var(--primary)] font-bold mb-3 flex items-center">
+            <h4 className="text-(--primary) font-bold mb-3 flex items-center">
               <span className="mr-2">👹</span>
               Side Boss Winner Algorithm
             </h4>
             <div className="space-y-3">
-              <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-                <p className="text-[var(--text-primary)] font-medium mb-2">
+              <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+                <p className="text-primary-wh40k font-medium mb-2">
                   Prime Boss Performance Formula
                 </p>
-                <div className="text-sm text-[var(--text-secondary)] ml-4 space-y-1">
-                  <p className="font-mono bg-purple-900/30 p-2 rounded">
+                <div className="text-sm text-secondary-wh40k ml-4 space-y-1">
+                  <p className="font-mono bg-purple-900/30 p-2 rounded-sm">
                     Side Boss Score = Σ(damage_per_token) for encounter_1 or
                     encounter_2
                   </p>
@@ -294,7 +285,7 @@ function VOTLWCalculationsFAQ({
                   </p>
                   <p className="ml-4">
                     → Player hits: 35M, 40M, 30M = 105M ÷ 3 ={' '}
-                    <span className="text-[var(--accent)]">35M average</span>
+                    <span className="text-(--accent)">35M average</span>
                   </p>
                   <p className="text-purple-400 text-xs">
                     Separate awards for Side Boss 1 and Side Boss 2 of each
@@ -302,7 +293,7 @@ function VOTLWCalculationsFAQ({
                   </p>
                   <p>
                     •{' '}
-                    <span className="text-[var(--accent)]">
+                    <span className="text-(--accent)">
                       Minimum 2 counted battles
                     </span>{' '}
                     per side boss to win (same rule as main-boss medals) — if
@@ -321,17 +312,17 @@ function VOTLWCalculationsFAQ({
 
           {/* Season Awards */}
           <div>
-            <h4 className="text-[var(--primary)] font-bold mb-3 flex items-center">
+            <h4 className="text-(--primary) font-bold mb-3 flex items-center">
               <span className="mr-2">🌟</span>
               Season-Wide Award Calculations
             </h4>
             <div className="space-y-3">
-              <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-                <p className="text-[var(--text-primary)] font-medium mb-2">
+              <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+                <p className="text-primary-wh40k font-medium mb-2">
                   Top Killer Algorithm
                 </p>
-                <div className="text-sm text-[var(--text-secondary)] ml-4 space-y-1">
-                  <p className="font-mono bg-red-900/30 p-2 rounded">
+                <div className="text-sm text-secondary-wh40k ml-4 space-y-1">
+                  <p className="font-mono bg-red-900/30 p-2 rounded-sm">
                     Kills = COUNT(battles WHERE remainingHp = 0 AND damageType =
                     &apos;Battle&apos;)
                   </p>
@@ -350,18 +341,18 @@ function VOTLWCalculationsFAQ({
                 </div>
               </div>
 
-              <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-                <p className="text-[var(--text-primary)] font-medium mb-2">
+              <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+                <p className="text-primary-wh40k font-medium mb-2">
                   Best Bomber Calculation
                 </p>
-                <div className="text-sm text-[var(--text-secondary)] ml-4 space-y-1">
-                  <p className="font-mono bg-orange-900/30 p-2 rounded">
+                <div className="text-sm text-secondary-wh40k ml-4 space-y-1">
+                  <p className="font-mono bg-orange-900/30 p-2 rounded-sm">
                     Best Bomb = MAX(damageDealt WHERE damageType =
                     &apos;Bomb&apos;)
                   </p>
                   <p>
                     Simply the{' '}
-                    <span className="text-[var(--accent)]">
+                    <span className="text-(--accent)">
                       highest single bomb damage
                     </span>{' '}
                     in the season
@@ -373,23 +364,23 @@ function VOTLWCalculationsFAQ({
 
           {/* Battlefield Honors */}
           <div>
-            <h4 className="text-[var(--primary)] font-bold mb-3 flex items-center">
+            <h4 className="text-(--primary) font-bold mb-3 flex items-center">
               <span className="mr-2">🎖️</span>
               Battlefield Honors Breakdown
             </h4>
             <div className="space-y-3">
-              <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-                <p className="text-[var(--text-primary)] font-medium mb-2">
+              <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+                <p className="text-primary-wh40k font-medium mb-2">
                   Melta Malfunction (Worst Bomb)
                 </p>
-                <div className="text-sm text-[var(--text-secondary)] ml-4 space-y-1">
-                  <p className="font-mono bg-amber-900/30 p-2 rounded">
+                <div className="text-sm text-secondary-wh40k ml-4 space-y-1">
+                  <p className="font-mono bg-amber-900/30 p-2 rounded-sm">
                     Worst Bomb = MIN(damageDealt WHERE damageType =
                     &apos;Bomb&apos; AND damageDealt &gt; 0)
                   </p>
                   <p>
                     Picks the{' '}
-                    <span className="text-[var(--accent)]">
+                    <span className="text-(--accent)">
                       smallest non-zero bomb
                     </span>{' '}
                     of the season{' '}
@@ -400,17 +391,17 @@ function VOTLWCalculationsFAQ({
                 </div>
               </div>
 
-              <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-                <p className="text-[var(--text-primary)] font-medium mb-2">
+              <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+                <p className="text-primary-wh40k font-medium mb-2">
                   So Close... (Almost Had Him)
                 </p>
-                <div className="text-sm text-[var(--text-secondary)] ml-4 space-y-1">
-                  <p className="font-mono bg-indigo-900/30 p-2 rounded">
+                <div className="text-sm text-secondary-wh40k ml-4 space-y-1">
+                  <p className="font-mono bg-indigo-900/30 p-2 rounded-sm">
                     Closest Miss = MIN(remainingHp WHERE remainingHp &gt; 0)
                   </p>
                   <p>
                     Looks across every battle that{' '}
-                    <span className="text-[var(--accent)]">
+                    <span className="text-(--accent)">
                       failed to finish the boss
                     </span>
                     {tokenFilteringEnabled ? ', skips offenders,' : ','} and
@@ -419,18 +410,18 @@ function VOTLWCalculationsFAQ({
                 </div>
               </div>
 
-              <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-                <p className="text-[var(--text-primary)] font-medium mb-2">
+              <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+                <p className="text-primary-wh40k font-medium mb-2">
                   Rising Star (Most Improved)
                 </p>
-                <div className="text-sm text-[var(--text-secondary)] ml-4 space-y-1">
-                  <p className="font-mono bg-emerald-900/30 p-2 rounded">
+                <div className="text-sm text-secondary-wh40k ml-4 space-y-1">
+                  <p className="font-mono bg-emerald-900/30 p-2 rounded-sm">
                     Improvement % = ((current_avg - previous_avg) ÷
                     previous_avg) × 100
                   </p>
                   <p>
                     Compares each player&apos;s{' '}
-                    <span className="text-[var(--accent)]">
+                    <span className="text-(--accent)">
                       battle damage per token vs the prior season
                     </span>{' '}
                     (same guild & cluster) and rewards the largest positive
@@ -439,17 +430,17 @@ function VOTLWCalculationsFAQ({
                 </div>
               </div>
 
-              <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-                <p className="text-[var(--text-primary)] font-medium mb-2">
+              <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+                <p className="text-primary-wh40k font-medium mb-2">
                   Lightning Strike (First Token)
                 </p>
-                <div className="text-sm text-[var(--text-secondary)] ml-4 space-y-1">
-                  <p className="font-mono bg-cyan-900/30 p-2 rounded">
+                <div className="text-sm text-secondary-wh40k ml-4 space-y-1">
+                  <p className="font-mono bg-cyan-900/30 p-2 rounded-sm">
                     Earliest Token = MIN(startedOn OR completedOn)
                   </p>
                   <p>
                     Finds the{' '}
-                    <span className="text-[var(--accent)]">
+                    <span className="text-(--accent)">
                       first recorded battle timestamp
                     </span>{' '}
                     of the season (battle or bomb) to salute the fastest
@@ -458,35 +449,33 @@ function VOTLWCalculationsFAQ({
                 </div>
               </div>
 
-              <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-                <p className="text-[var(--text-primary)] font-medium mb-2">
+              <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+                <p className="text-primary-wh40k font-medium mb-2">
                   Iron Resolve (Last Token)
                 </p>
-                <div className="text-sm text-[var(--text-secondary)] ml-4 space-y-1">
-                  <p className="font-mono bg-fuchsia-900/30 p-2 rounded">
+                <div className="text-sm text-secondary-wh40k ml-4 space-y-1">
+                  <p className="font-mono bg-fuchsia-900/30 p-2 rounded-sm">
                     Latest Token = MAX(startedOn OR completedOn)
                   </p>
                   <p>
                     Rewards the player who{' '}
-                    <span className="text-[var(--accent)]">
-                      closed the campaign
-                    </span>{' '}
+                    <span className="text-(--accent)">closed the campaign</span>{' '}
                     with the season&apos;s final recorded battle timestamp.
                   </p>
                 </div>
               </div>
 
-              <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-                <p className="text-[var(--text-primary)] font-medium mb-2">
+              <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+                <p className="text-primary-wh40k font-medium mb-2">
                   Machine Spirit (Token Efficiency)
                 </p>
-                <div className="text-sm text-[var(--text-secondary)] ml-4 space-y-1">
-                  <p className="font-mono bg-yellow-900/30 p-2 rounded">
+                <div className="text-sm text-secondary-wh40k ml-4 space-y-1">
+                  <p className="font-mono bg-yellow-900/30 p-2 rounded-sm">
                     Damage per Token = ROUND(total_damage ÷ total_tokens)
                   </p>
                   <p>
                     Aggregates each player&apos;s{' '}
-                    <span className="text-[var(--accent)]">
+                    <span className="text-(--accent)">
                       season damage output
                     </span>
                     , divides by tokens spent
@@ -502,17 +491,17 @@ function VOTLWCalculationsFAQ({
 
           {/* Final Winner Determination */}
           <div>
-            <h4 className="text-[var(--primary)] font-bold mb-3 flex items-center">
+            <h4 className="text-(--primary) font-bold mb-3 flex items-center">
               <span className="mr-2">🏆</span>
               VOTLW Winner Final Algorithm
             </h4>
             <div className="space-y-3">
-              <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-                <p className="text-[var(--text-primary)] font-medium mb-2">
+              <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+                <p className="text-primary-wh40k font-medium mb-2">
                   Points Aggregation
                 </p>
-                <div className="text-sm text-[var(--text-secondary)] ml-4 space-y-1">
-                  <p className="font-mono bg-green-900/30 p-2 rounded">
+                <div className="text-sm text-secondary-wh40k ml-4 space-y-1">
+                  <p className="font-mono bg-green-900/30 p-2 rounded-sm">
                     total_points = Σ(gold_medals × 3) + Σ(silver_medals × 2) +
                     Σ(bronze_medals × 1)
                     <br />
@@ -525,22 +514,22 @@ function VOTLWCalculationsFAQ({
                 </div>
               </div>
 
-              <div className="bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 p-3 rounded border border-[var(--card-border)]">
-                <p className="text-[var(--text-primary)] font-medium mb-2">
+              <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 p-3 rounded-sm border border-(--card-border)">
+                <p className="text-primary-wh40k font-medium mb-2">
                   Tie-Breaking Priority
                 </p>
-                <div className="text-sm text-[var(--text-secondary)] ml-4 space-y-1">
+                <div className="text-sm text-secondary-wh40k ml-4 space-y-1">
                   <p>
-                    <span className="text-[var(--accent)]">1st:</span> Total
-                    points (higher wins)
+                    <span className="text-(--accent)">1st:</span> Total points
+                    (higher wins)
                   </p>
                   <p>
-                    <span className="text-[var(--accent)]">2nd:</span> Total
-                    tokens spent (more wins - shows participation)
+                    <span className="text-(--accent)">2nd:</span> Total tokens
+                    spent (more wins - shows participation)
                   </p>
                   <p>
-                    <span className="text-[var(--accent)]">3rd:</span> First
-                    token timestamp (earlier wins - shows proactiveness)
+                    <span className="text-(--accent)">3rd:</span> First token
+                    timestamp (earlier wins - shows proactiveness)
                   </p>
                 </div>
               </div>

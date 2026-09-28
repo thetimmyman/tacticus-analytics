@@ -25,27 +25,27 @@ const BOSS_BATTLE_FILTERS = [
   {
     value: 'all',
     label: 'All',
-    activeClassName: 'bg-accent-wh40k text-[var(--bg-primary)]'
+    activeClassName: 'bg-accent-wh40k text-(--bg-primary)'
   },
   {
     value: 'battles',
     label: '\u2694\uFE0F Battles',
-    activeClassName: 'bg-[var(--primary)] text-black'
+    activeClassName: 'bg-primary-wh40k text-black'
   },
   {
     value: 'bosses',
     label: 'Bosses',
-    activeClassName: 'bg-[var(--primary)] text-black'
+    activeClassName: 'bg-primary-wh40k text-black'
   },
   {
     value: 'primes',
     label: 'Primes',
-    activeClassName: 'bg-[var(--accent)] text-black'
+    activeClassName: 'bg-accent-wh40k text-black'
   },
   {
     value: 'bombs',
     label: '\uD83D\uDCA3',
-    activeClassName: 'bg-red-600 text-[var(--text-primary)]'
+    activeClassName: 'bg-red-600 text-primary-wh40k'
   }
 ] as const satisfies readonly {
   value: BossBattleType
@@ -99,12 +99,12 @@ function renderBossLink(entry: BattleLogEntry, portrait: boolean) {
   const isPrime = (entry.encounterId ?? 0) > 0
   const label = entry.Name || (isPrime ? `Prime #${entry.encounterId}` : 'Boss')
   if (!entry.Name && !isPrime) {
-    return <span className="text-[var(--text-secondary)]">Boss</span>
+    return <span className="text-secondary-wh40k">Boss</span>
   }
   return (
     <BossLink
       bossName={label}
-      className={isPrime ? 'text-[var(--accent)]' : 'text-[var(--primary)]'}
+      className={isPrime ? 'text-(--accent)' : 'text-(--primary)'}
       showPortrait={portrait}
       portraitSize="small"
       portraitVariant="icon"
@@ -212,7 +212,7 @@ export default function BossBattleLog({
             const loopEntries = entriesByLoop[loop] ?? []
             return (
               <section key={loop} className="space-y-2">
-                <h4 className="sticky top-0 z-10 bg-[var(--bg-primary)] py-2 text-sm font-bold text-accent-wh40k">
+                <h4 className="sticky top-0 z-10 bg-(--bg-primary) py-2 text-sm font-bold text-accent-wh40k">
                   {loopEntries.length} entries
                 </h4>
                 {loopEntries.map((entry) => (
@@ -224,7 +224,7 @@ export default function BossBattleLog({
                     clusterPerformancePctMap={clusterPerformancePctMap}
                     clusterCode={clusterCode}
                     hasMounted={hasMounted}
-                    desktopGridClassName="grid-cols-[32px,110px,140px,130px,1fr,90px,40px,40px,80px,auto]"
+                    desktopGridClassName="grid-cols-[32px_110px_140px_130px_1fr_90px_40px_40px_80px_auto]"
                     desktopPrimary={
                       <div className="truncate">
                         <span className="font-medium text-primary-wh40k">
@@ -249,9 +249,7 @@ export default function BossBattleLog({
                           </PlayerLink>
                         </span>
                         <div className="flex items-center gap-1">
-                          <span className="text-[var(--text-secondary)]">
-                            vs
-                          </span>
+                          <span className="text-secondary-wh40k">vs</span>
                           {renderBossLink(entry, false)}
                         </div>
                       </div>
