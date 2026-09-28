@@ -1,5 +1,11 @@
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  copyFileSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  writeFileSync
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -28,6 +34,41 @@ function runCheck(contents: string): { status: number; output: string } {
       [SCRIPT, '--check', '--from', file],
       { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }
     )
+    return { status: 0, output }
+  } catch (error) {
+    const err = error as { status?: number; stdout?: string; stderr?: string }
+    return {
+      status: err.status ?? -1,
+      output: `${err.stdout ?? ''}${err.stderr ?? ''}`
+    }
+  }
+}
+
+/** Runs a copy of the script in a temp root holding only the two lockfiles (null = no hidden lockfile). */
+function runInstallCheck(
+  lockedVersion: string,
+  installedVersion: string | null
+): { status: number; output: string } {
+  const root = mkdtempSync(path.join(tmpdir(), 'ts-ratchet-root-'))
+  tempDirs.push(root)
+  mkdirSync(path.join(root, 'scripts', 'validation'), { recursive: true })
+  mkdirSync(path.join(root, 'node_modules'))
+  const script = path.join(root, 'scripts', 'validation', path.basename(SCRIPT))
+  copyFileSync(SCRIPT, script)
+  const lockfile = (version: string) =>
+    JSON.stringify({ packages: { 'node_modules/lib-a': { version } } })
+  writeFileSync(path.join(root, 'package-lock.json'), lockfile(lockedVersion))
+  if (installedVersion !== null) {
+    writeFileSync(
+      path.join(root, 'node_modules', '.package-lock.json'),
+      lockfile(installedVersion)
+    )
+  }
+  try {
+    const output = execFileSync(process.execPath, [script, '--check'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe']
+    })
     return { status: 0, output }
   } catch (error) {
     const err = error as { status?: number; stdout?: string; stderr?: string }
@@ -70,6 +111,23 @@ describe('check-test-typecheck-ratchet fails closed on unusable tsc runs', () =>
     )
     expect(result.status).toBe(0)
     expect(result.output).toContain('ratchet OK')
+  })
+
+  it('refuses to count over a node_modules that does not match package-lock.json', () => {
+    const result = runInstallCheck('2.0.0', '1.9.0')
+    expect(result.status).toBe(1)
+    expect(result.output).toContain(
+      'node_modules/lib-a: installed 1.9.0, locked 2.0.0'
+    )
+    expect(result.output).toContain('npm ci')
+    expect(result.output).not.toContain('ratchet OK')
+  })
+
+  it('refuses to count when the install has no hidden lockfile to verify', () => {
+    const result = runInstallCheck('2.0.0', null)
+    expect(result.status).toBe(1)
+    expect(result.output).toContain('.package-lock.json is missing')
+    expect(result.output).not.toContain('ratchet OK')
   })
 
   it('selftest covers the fail-closed paths', () => {
