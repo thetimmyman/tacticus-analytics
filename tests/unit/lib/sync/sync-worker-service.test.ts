@@ -386,6 +386,58 @@ describe('processJob', () => {
     expect(rpc.calls['complete_job']).toBeDefined()
   })
 
+  it('player_sync whose only roster upsert fails records the failure and calls fail_job', async () => {
+    mockFetchTacticusApi.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () =>
+        Promise.resolve({
+          members: [{ userId: 'player-a', displayName: 'TestPlayerA' }]
+        })
+    })
+
+    const rpc = buildRpcMock({
+      fail_job: () => Promise.resolve({ data: true, error: null }),
+      complete_job: () => Promise.resolve({ data: true, error: null })
+    })
+    const supabase = {
+      rpc: vi.fn(rpc.impl),
+      from: vi.fn(
+        buildFromMock({
+          guild_config: { singleData: mockGuildConfig },
+          player_mapping: {
+            upsertError: { message: 'permission denied for table' }
+          }
+        })
+      ),
+      functions: {
+        invoke: vi.fn().mockResolvedValue({ data: null, error: null })
+      }
+    } as any
+
+    const job: SyncJob = {
+      id: 'j1',
+      guild_code: 'GUILD01',
+      job_type: 'player_sync'
+    }
+    const result = await processJob(job, supabase, 'w-1')
+
+    expect(result.success).toBe(false)
+    expect(result.playersUpdated).toBe(0)
+    expect(result.upsertFailures).toBe(1)
+    expect(rpc.calls['complete_job']).toBeUndefined()
+    expect(rpc.calls['fail_job']![0]!['p_error']).toContain(
+      'Player upsert failed for all 1 member(s)'
+    )
+    expect(rpc.calls['record_roster_write_outcome']).toEqual([
+      expect.objectContaining({
+        p_guild_code: 'GUILD01',
+        p_ok: false,
+        p_rows_written: 0
+      })
+    ])
+  })
+
   it('full_sync with upsert errors calls fail_job', async () => {
     const mockEntry = {
       Name: 'p1',
