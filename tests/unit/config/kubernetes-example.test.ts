@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -39,7 +40,11 @@ describe('Kubernetes example', () => {
     }
   })
 
-  it('uses only documentation IPv4 addresses and example URL hosts', () => {
+  it('uses only documentation IPv4 addresses and hosts the app may use', () => {
+    const identity = JSON.parse(
+      readFileSync(path.join(root, '.app-identity.json'), 'utf8')
+    ) as { siteHosts: string[]; apiHosts: string[] }
+    const identityHosts = new Set([...identity.siteHosts, ...identity.apiHosts])
     const contents = readdirSync(exampleDirectory).map((name) => ({
       name,
       content: readExample(name)
@@ -57,15 +62,56 @@ describe('Kubernetes example', () => {
       for (const match of content.matchAll(/https?:\/\/([^\s/'"`]+)/gu)) {
         const host = new URL(match[0]).hostname.toLowerCase()
         expect(
-          host === 'example.com' ||
-            host.endsWith('.example.com') ||
-            host === 'example.invalid' ||
-            host.endsWith('.example.invalid') ||
-            host === 'localhost',
+          identityHosts.has(host) || host === 'localhost',
           `${name}: ${host}`
         ).toBe(true)
       }
     }
+  })
+
+  it('passes the identity check the container runs before next start', () => {
+    const verifier = path.join(root, 'scripts/dev/verify-app-identity.mjs')
+    const run = (overrides: Record<string, string>) => {
+      try {
+        execFileSync(process.execPath, [verifier], {
+          cwd: root,
+          env: {
+            PATH: process.env.PATH ?? '',
+            APP_IDENTITY_RUNTIME: '1',
+            TACTICUS_APP_ID: 'tacticus-analytics',
+            ...(readYaml('configmap.yaml').data as Record<string, string>),
+            ...overrides
+          },
+          stdio: 'pipe'
+        })
+        return 0
+      } catch (error) {
+        return (error as { status?: number }).status ?? 1
+      }
+    }
+    expect(run({})).toBe(0)
+    expect(run({ NEXT_PUBLIC_SITE_URL: 'https://app.example.com' })).not.toBe(0)
+  })
+
+  it('builds with the identity hosts the Dockerfile verifier accepts', () => {
+    const readme = readExample('README.md')
+    const buildArgs = Object.fromEntries(
+      [...readme.matchAll(/--build-arg\s+([A-Z_]+)=(\S+)/gu)].map((m) => [
+        m[1],
+        m[2]
+      ])
+    )
+    expect(Object.keys(buildArgs)).toEqual(
+      expect.arrayContaining([
+        'NEXT_PUBLIC_SUPABASE_URL',
+        'NEXT_PUBLIC_SITE_URL'
+      ])
+    )
+    const configMap = readYaml('configmap.yaml').data as Record<string, string>
+    expect(buildArgs.NEXT_PUBLIC_SUPABASE_URL).toBe(
+      configMap.NEXT_PUBLIC_SUPABASE_URL
+    )
+    expect(buildArgs.NEXT_PUBLIC_SITE_URL).toBe(configMap.NEXT_PUBLIC_SITE_URL)
   })
 
   it('maps probes to existing routes and uses the Docker exposed port', () => {
