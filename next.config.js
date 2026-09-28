@@ -255,7 +255,7 @@ installChunk(require("./chunks/" + __webpack_require__.u(chunkId)));
 
 module.exports = nextConfig;
 
-const { withSentryConfig } = require("@sentry/nextjs");
+const { withSentryConfig } = require("@sentry/nextjs/config");
 
 module.exports = withSentryConfig(module.exports, {
   org: process.env.SENTRY_ORG,
