@@ -716,6 +716,28 @@ describe('DB Operations Module', () => {
       expect(updateData.GW_Ranking).toBeUndefined()
     })
 
+    it('does not stamp last_roster_refresh_at without a confirmed roster read', async () => {
+      const mockUpdate = vi.fn().mockReturnValue({
+        eq: vi.fn().mockResolvedValue({ error: null })
+      })
+      const mockSupabase = {
+        from: vi.fn().mockReturnValue({
+          update: mockUpdate
+        })
+      }
+
+      const { updateGuildConfigAfterSync } =
+        await import('@/app/lib/sync/db-operations')
+      await updateGuildConfigAfterSync(mockSupabase as never, 'TEST', {
+        guildRaid: null,
+        guildWar: null
+      })
+
+      expect(mockUpdate.mock.calls[0][0]).not.toHaveProperty(
+        'last_roster_refresh_at'
+      )
+    })
+
     it('stamps last_roster_refresh_at for the roster onboarding just read', async () => {
       const mockUpdate = vi.fn().mockReturnValue({
         eq: vi.fn().mockResolvedValue({ error: null })
@@ -729,10 +751,12 @@ describe('DB Operations Module', () => {
 
       const { updateGuildConfigAfterSync } =
         await import('@/app/lib/sync/db-operations')
-      await updateGuildConfigAfterSync(mockSupabase as never, 'TEST', {
-        guildRaid: null,
-        guildWar: null
-      })
+      await updateGuildConfigAfterSync(
+        mockSupabase as never,
+        'TEST',
+        { guildRaid: null, guildWar: null },
+        true
+      )
 
       const stamp = Date.parse(
         mockUpdate.mock.calls[0][0].last_roster_refresh_at

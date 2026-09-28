@@ -42,13 +42,10 @@ export async function updateSyncStatus(
 export async function updateGuildConfigAfterSync(
   supabase: StrictSupabaseClient,
   guildCode: string,
-  rankings: { guildRaid: number | null; guildWar: number | null }
+  rankings: { guildRaid: number | null; guildWar: number | null },
+  rosterRead = false
 ): Promise<void> {
-  const now = new Date().toISOString()
   const updateData: Partial<GuildConfigRow> = {
-    // Onboarding only reaches here after a successful LOKI roster read; the sync
-    // worker's roster throttle keys off this stamp.
-    last_roster_refresh_at: now,
     enabled: true,
     onboarding_completed: true,
     onboarding_completed_at: new Date().toISOString(),
@@ -58,6 +55,12 @@ export async function updateGuildConfigAfterSync(
     auto_sync_enabled: true,
     consecutive_sync_failures: 0,
     updated_at: new Date().toISOString()
+  }
+
+  // Only a confirmed roster read may start the worker's roster throttle window;
+  // a failed LOKI fetch resolves to an empty roster and must not.
+  if (rosterRead) {
+    updateData.last_roster_refresh_at = new Date().toISOString()
   }
 
   if (rankings.guildRaid !== null && rankings.guildRaid > 0) {
