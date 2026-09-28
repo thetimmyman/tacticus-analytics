@@ -3,7 +3,7 @@ BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 
-SELECT plan(10);
+SELECT plan(12);
 
 SELECT is(
   (
@@ -65,7 +65,8 @@ SELECT throws_ok(
 INSERT INTO auth.users (id) VALUES
   ('00000000-0000-0000-0000-00000000b001'),
   ('00000000-0000-0000-0000-00000000b002'),
-  ('00000000-0000-0000-0000-00000000b003');
+  ('00000000-0000-0000-0000-00000000b003'),
+  ('00000000-0000-0000-0000-00000000b004');
 
 INSERT INTO public.guild_config (guild_code, display_name, enabled) VALUES
   ('aaaa0001-0000-4000-8000-0000000000a1', 'Bootstrap UUID Guild', true),
@@ -92,6 +93,17 @@ SELECT lives_ok(
        'verified_registration'
      ) $$,
   'a tag guild passed in lower case still resolves'
+);
+
+-- The onboarding route upper-cases the code it was given, so a UUID guild arrives upper-cased.
+SELECT lives_ok(
+  $$ SELECT public.record_guild_bootstrap_claim_authority(
+       '00000000-0000-0000-0000-00000000b004'::uuid,
+       'AAAA0001-0000-4000-8000-0000000000A1',
+       1,
+       'verified_registration'
+     ) $$,
+  'an upper-cased UUID guild code resolves to the stored lower-case guild'
 );
 
 SELECT throws_ok(
@@ -130,6 +142,18 @@ SELECT is(
   ),
   'TESTA',
   'the receipt stores the canonical upper-case tag code'
+);
+
+SELECT is(
+  (
+    SELECT guild_code
+    FROM public.player_claim_audit
+    WHERE user_id = '00000000-0000-0000-0000-00000000b004'
+      AND source_path = 'onboarding/guild-registration/bootstrap-authority'
+      AND outcome = 'success'
+  ),
+  'aaaa0001-0000-4000-8000-0000000000a1',
+  'an upper-cased UUID input still records the stored lower-case code'
 );
 
 SELECT * FROM finish();
