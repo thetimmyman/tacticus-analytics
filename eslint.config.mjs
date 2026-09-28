@@ -230,7 +230,10 @@ const serverPaths = [
 const factoryPaths = [...alwaysApplyPaths]
 
 // May import the auth/server factories directly, but not raw @supabase/* constructors.
-const supabaseFactoryExceptionPaths = [...alwaysApplyPaths, ...supabaseConstructorPaths]
+const supabaseFactoryExceptionPaths = [
+  ...alwaysApplyPaths,
+  ...supabaseConstructorPaths
+]
 
 const packageBaseRules = {
   '@typescript-eslint/no-explicit-any': 'off',
