@@ -87,15 +87,26 @@ function findUnusableRunReasons({ output, status, spawnError }) {
   return reasons
 }
 
-/** Installed packages whose version differs from package-lock.json; both args are lockfile `packages` maps. */
+/**
+ * Differences between package-lock.json and the install (both lockfile `packages` maps).
+ * Only optional packages may be locked but absent: npm skips other platforms' builds.
+ */
 function findInstallDrift(lockPackages, installedPackages) {
   const drift = []
   for (const [key, installed] of Object.entries(installedPackages)) {
     const locked = lockPackages[key]
-    if (locked && locked.version !== installed.version) {
+    if (!locked) {
+      drift.push(`${key}: installed ${installed.version}, not in the lockfile`)
+    } else if (locked.version !== installed.version) {
       drift.push(
         `${key}: installed ${installed.version}, locked ${locked.version}`
       )
+    }
+  }
+  for (const [key, locked] of Object.entries(lockPackages)) {
+    if (key === '' || installedPackages[key]) continue
+    if (!locked.optional && !locked.devOptional) {
+      drift.push(`${key}: locked ${locked.version}, not installed`)
     }
   }
   return drift
@@ -105,7 +116,11 @@ function findInstallDrift(lockPackages, installedPackages) {
 // run over it must not be read as the repo's number (or copied into the baseline).
 function readInstallDrift() {
   const hiddenLock = path.join(ROOT, 'node_modules', '.package-lock.json')
-  if (!fs.existsSync(hiddenLock)) return []
+  if (!fs.existsSync(hiddenLock)) {
+    return [
+      'node_modules/.package-lock.json is missing, so the install cannot be verified'
+    ]
+  }
   const read = (file) =>
     JSON.parse(fs.readFileSync(file, 'utf8')).packages ?? {}
   return findInstallDrift(
@@ -256,11 +271,15 @@ function selfTest() {
     throw new Error('selftest: a matching install was reported as drifted')
   }
   const stale = findInstallDrift(locked, {
-    ...matching,
     'node_modules/lib-a': { version: '1.9.0' },
     'node_modules/lib-extraneous': { version: '0.1.0' }
   })
-  if (stale.length !== 1 || !stale[0].startsWith('node_modules/lib-a:')) {
+  const expected = [
+    'node_modules/lib-a: installed 1.9.0, locked 2.0.0',
+    'node_modules/lib-extraneous: installed 0.1.0, not in the lockfile',
+    'node_modules/lib-b: locked 1.0.0, not installed'
+  ]
+  if (stale.join('\n') !== expected.join('\n')) {
     throw new Error(
       `selftest: stale install not detected: ${stale.join(' | ')}`
     )
@@ -288,10 +307,12 @@ function main() {
     const drift = readInstallDrift()
     if (drift.length > 0) {
       console.error(
-        `test typecheck ratchet FAILED: node_modules does not match package-lock.json ` +
-          `(${drift.length} package(s)), so the error count is not trustworthy. Run \`npm ci\`.`
+        'test typecheck ratchet FAILED: node_modules does not match package-lock.json, ' +
+          'so the error count is not trustworthy. Run `npm ci`.'
       )
       for (const line of drift.slice(0, 10)) console.error(`  - ${line}`)
+      if (drift.length > 10)
+        console.error(`  ... and ${drift.length - 10} more`)
       process.exit(1)
     }
   }
