@@ -38,9 +38,9 @@ import {
 import {
   acquirePipelineAExecutionLock,
   getPipelineAExecutionLockConfig,
-  releasePipelineAExecutionLock,
-  type PipelineAExecutionLockConfig
+  releasePipelineAExecutionLock
 } from '../execution-locks'
+import { deferSyncJob } from '../sync-job-defer'
 import {
   WORKER_CONFIG,
   UPSERT_CONFLICT_KEY,
@@ -81,11 +81,18 @@ function battleKey(row: Record<string, unknown>): string {
 async function loadStoredBattleKeys(
   supabase: ServiceSupabaseClient,
   guildCode: string,
-  season: string
+  season: string,
+  minCompletedOnMs: number | null
 ): Promise<Set<string> | null> {
   const keys = new Set<string>()
   try {
-    return await readStoredBattleKeys(supabase, guildCode, season, keys)
+    return await readStoredBattleKeys(
+      supabase,
+      guildCode,
+      season,
+      minCompletedOnMs,
+      keys
+    )
   } catch (error) {
     logger.warn(
       { guildCode, error: String(error) },
@@ -99,17 +106,29 @@ async function readStoredBattleKeys(
   supabase: ServiceSupabaseClient,
   guildCode: string,
   season: string,
+  minCompletedOnMs: number | null,
   keys: Set<string>
 ): Promise<Set<string> | null> {
-  for (let from = 0; ; from += STORED_KEY_PAGE) {
+  let lastId: number | null = null
+  for (;;) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    let query = (supabase as any)
       .from('EOT_GR_data')
-      .select(UPSERT_CONFLICT_KEY)
+      .select(`id,${UPSERT_CONFLICT_KEY}`)
       .eq('Guild', guildCode)
       .eq('Season', season)
+    // Matching natural keys have completedOn at least the snapshot minimum;
+    // the margin absorbs timestamp precision drift.
+    if (minCompletedOnMs !== null) {
+      query = query.gte(
+        'completedOn',
+        new Date(minCompletedOnMs - 60 * 60 * 1000).toISOString()
+      )
+    }
+    if (lastId !== null) query = query.gt('id', lastId)
+    const { data, error } = await query
       .order('id', { ascending: true })
-      .range(from, from + STORED_KEY_PAGE - 1)
+      .limit(STORED_KEY_PAGE)
     if (error || !Array.isArray(data)) {
       logger.warn(
         { guildCode },
@@ -119,23 +138,11 @@ async function readStoredBattleKeys(
     }
     for (const row of data) keys.add(battleKey(row))
     if (data.length < STORED_KEY_PAGE) return keys
+    const pageLastId: unknown = data[data.length - 1]?.id
+    // Keyset paging needs a numeric id; anything else falls back to the full snapshot.
+    if (typeof pageLastId !== 'number') return null
+    lastId = pageLastId
   }
-}
-
-// Raid ingest does not filter by this: upstream can publish a battle after its
-// event time, so every run replays the season snapshot.
-export async function getLastSyncTime(
-  guildCode: string,
-  supabase: ServiceSupabaseClient
-): Promise<Date> {
-  const { data } = await supabase
-    .from('guild_config')
-    .select('last_successful_sync')
-    .eq('guild_code', guildCode)
-    .single()
-  return data?.last_successful_sync
-    ? new Date(data.last_successful_sync)
-    : new Date(Date.now() - 24 * 60 * 60 * 1000)
 }
 
 export async function runRaidSyncWithOptionalExecutionLock(
@@ -163,7 +170,11 @@ export async function runRaidSyncWithOptionalExecutionLock(
   )
 
   if (!lock) {
-    await deferJobForExecutionLock(job, supabase, workerId, lockConfig)
+    await deferSyncJob(job, supabase, workerId, {
+      delayMs: 60_000,
+      reason: 'execution_lock_unavailable',
+      progress: { lock_table: lockConfig.table }
+    })
     result.errors.push('execution_lock_unavailable')
     return true
   }
@@ -176,67 +187,19 @@ export async function runRaidSyncWithOptionalExecutionLock(
   }
 }
 
-async function deferJobForExecutionLock(
-  job: SyncJob,
-  supabase: ServiceSupabaseClient,
-  workerId: string,
-  lockConfig: PipelineAExecutionLockConfig
-): Promise<void> {
-  const deferredAt = new Date()
-  const scheduledFor = new Date(deferredAt.getTime() + 60 * 1000)
-  const { data: queueRow, error: attemptsError } = await supabase
-    .from('sync_queue')
-    .select('attempts')
-    .eq('id', job.id)
-    .eq('worker_id', workerId)
-    .single()
-
-  if (attemptsError) {
-    logger.warn(
-      {
-        guildCode: job.guild_code,
-        jobId: job.id,
-        error: attemptsError.message
-      },
-      `[Worker ${workerId}] Could not read attempts before lock deferral`
-    )
+async function timePhase<T>(
+  result: WorkerResult,
+  phase: string,
+  run: () => Promise<T> | T
+): Promise<T> {
+  const started = Date.now()
+  try {
+    return await run()
+  } finally {
+    result.phaseMs ??= {}
+    result.phaseMs[phase] =
+      (result.phaseMs[phase] ?? 0) + Math.max(0, Date.now() - started)
   }
-
-  const attempts =
-    typeof queueRow?.attempts === 'number'
-      ? Math.max(0, queueRow.attempts - 1)
-      : undefined
-
-  const { error } = await supabase
-    .from('sync_queue')
-    .update({
-      status: 'pending',
-      worker_id: null,
-      started_at: null,
-      scheduled_for: scheduledFor.toISOString(),
-      updated_at: deferredAt.toISOString(),
-      progress: {
-        deferred: true,
-        reason: 'execution_lock_unavailable',
-        lock_table: lockConfig.table,
-        deferred_by: workerId,
-        deferred_at: deferredAt.toISOString()
-      },
-      ...(attempts !== undefined && { attempts })
-    })
-    .eq('id', job.id)
-    .eq('worker_id', workerId)
-
-  if (error) {
-    throw new Error(
-      `Failed to defer job for execution lock: ${error.message ?? 'Unknown error'}`
-    )
-  }
-
-  logger.info(
-    { guildCode: job.guild_code, jobId: job.id, scheduledFor },
-    `[Worker ${workerId}] Deferred job ${job.id} because another raid sync holds the execution lock`
-  )
 }
 
 async function runRaidSync(
@@ -247,8 +210,14 @@ async function runRaidSync(
   result: WorkerResult,
   options: RaidSyncOptions
 ) {
-  const response = await fetchTacticusApi('/guildRaid', apiKey, job.guild_code)
-  const data = (await response.json()) as GuildRaidApiResponse
+  const data = await timePhase(result, 'fetch', async () => {
+    const response = await fetchTacticusApi(
+      '/guildRaid',
+      apiKey,
+      job.guild_code
+    )
+    return (await response.json()) as GuildRaidApiResponse
+  })
 
   const upstreamEntries = extractEntries(data)
   if (!Array.isArray(data.entries) && !Array.isArray(data.body?.entries)) {
@@ -280,6 +249,8 @@ async function runRaidSync(
   }
 
   if (rawEntries.length === 0) {
+    result.snapshotEntries = 0
+    result.newEntries = 0
     result.raidDataLanded = ingestComplete
     logger.info(
       { guildCode: job.guild_code },
@@ -288,6 +259,10 @@ async function runRaidSync(
     if (!ingestComplete) {
       throw new Error('Raid sync could not validate every source entry')
     }
+    result.syncPath = 'empty'
+    await timePhase(result, 'quiet_maintenance', () =>
+      runQuietTickMaintenance(job.guild_code, config, supabase)
+    )
     return
   }
 
@@ -306,11 +281,17 @@ async function runRaidSync(
     )
     throw new Error('Raid ingest incomplete: all entries failed sanitization')
   }
+  result.snapshotEntries = entries.length
 
-  const [playerNameMap, bossMappings] = await Promise.all([
-    loadExistingPlayerMappings(supabase, job.guild_code),
-    fetchBossMappings(supabase)
-  ])
+  const [playerNameMap, bossMappings] = await timePhase(
+    result,
+    'mappings',
+    () =>
+      Promise.all([
+        loadExistingPlayerMappings(supabase, job.guild_code),
+        fetchBossMappings(supabase)
+      ])
+  )
 
   const clusterCode = cleanNullString(config.cluster_code)
   const clusterId = cleanNullString(config.cluster_id)
@@ -319,14 +300,10 @@ async function runRaidSync(
   let writeEntries = entries
   let allStored = false
   if (!options.deleteBeforeUpsert && entries.length > 0) {
-    const stored = await loadStoredBattleKeys(
-      supabase,
-      job.guild_code,
-      String(currentSeason)
-    )
-    if (stored) {
-      writeEntries = entries.filter((entry) => {
-        const row = processRaidEntry(
+    const keyedEntries = await timePhase(result, 'diff', () =>
+      entries.map((entry) => ({
+        entry,
+        row: processRaidEntry(
           entry,
           job.guild_code,
           String(currentSeason),
@@ -335,21 +312,49 @@ async function runRaidSync(
           clusterCode,
           clusterId
         )
-        // Keep untransformable entries so completeness checks report them.
-        return !row || !stored.has(battleKey(row))
-      })
+      }))
+    )
+    const completedOnTimes = keyedEntries.map(({ row }) =>
+      row ? Date.parse(String(row.completedOn ?? '')) : NaN
+    )
+    const minCompletedOnMs = completedOnTimes.every(Number.isFinite)
+      ? completedOnTimes.reduce(
+          (minimum, completedOn) => Math.min(minimum, completedOn),
+          Infinity
+        )
+      : null
+    const stored = await timePhase(result, 'key_read', () =>
+      loadStoredBattleKeys(
+        supabase,
+        job.guild_code,
+        String(currentSeason),
+        minCompletedOnMs
+      )
+    )
+    if (stored) {
+      result.storedKeys = stored.size
+      writeEntries = await timePhase(result, 'diff', () =>
+        keyedEntries
+          .filter(({ row }) => !row || !stored.has(battleKey(row)))
+          .map(({ entry }) => entry)
+      )
       allStored = writeEntries.length === 0
     }
   }
+  result.newEntries = writeEntries.length
 
   // Quiet guild: skip identity, bombs, hooks and Herald (they make realtime sync
   // several times slower); runQuietTickMaintenance covers what cannot wait.
   if (allStored && ingestComplete) {
+    result.syncPath = 'quiet'
     result.raidDataLanded = true
     logger.info({ guildCode: job.guild_code }, 'No new battles to sync')
-    await runQuietTickMaintenance(job.guild_code, config, supabase)
+    await timePhase(result, 'quiet_maintenance', () =>
+      runQuietTickMaintenance(job.guild_code, config, supabase)
+    )
     return
   }
+  result.syncPath = 'write'
 
   // Resolve identity BEFORE writing raid rows, or string-keyed joins break until
   // the next full sync. Tombstones only fill gaps and their ids are excluded from
@@ -361,40 +366,42 @@ async function runRaidSync(
         .filter((userId) => userId.length > 0)
     )
   )
-  const erasure = await loadErasureTombstones(
-    supabase,
-    job.guild_code,
-    String(currentSeason),
-    windowPlayerIds
-  )
-  for (const [playerId, tombstone] of erasure.tombstones) {
-    if (!playerNameMap.has(playerId)) playerNameMap.set(playerId, tombstone)
-    const lowered = playerId.toLowerCase()
-    if (!playerNameMap.has(lowered)) playerNameMap.set(lowered, tombstone)
-  }
-  // Fail closed: unknown erasure status gets the synthesized alias.
-  for (const playerId of erasure.withheld) {
-    if (playerNameMap.has(playerId)) continue
-    const alias = synthesizePlayerAlias(playerId)
-    playerNameMap.set(playerId, alias)
-    playerNameMap.set(playerId.toLowerCase(), alias)
-  }
-  const erasedPlayerIds = new Set<string>([
-    ...erasure.tombstones.keys(),
-    ...erasure.withheld
-  ])
+  await timePhase(result, 'identity', async () => {
+    const erasure = await loadErasureTombstones(
+      supabase,
+      job.guild_code,
+      String(currentSeason),
+      windowPlayerIds
+    )
+    for (const [playerId, tombstone] of erasure.tombstones) {
+      if (!playerNameMap.has(playerId)) playerNameMap.set(playerId, tombstone)
+      const lowered = playerId.toLowerCase()
+      if (!playerNameMap.has(lowered)) playerNameMap.set(lowered, tombstone)
+    }
+    // Fail closed: unknown erasure status gets the synthesized alias.
+    for (const playerId of erasure.withheld) {
+      if (playerNameMap.has(playerId)) continue
+      const alias = synthesizePlayerAlias(playerId)
+      playerNameMap.set(playerId, alias)
+      playerNameMap.set(playerId.toLowerCase(), alias)
+    }
+    const erasedPlayerIds = new Set<string>([
+      ...erasure.tombstones.keys(),
+      ...erasure.withheld
+    ])
 
-  const resolvedNames = await updatePlayerMappings(
-    job.guild_code,
-    entries,
-    supabase,
-    result,
-    erasedPlayerIds
-  )
-  for (const [playerId, displayName] of resolvedNames) {
-    playerNameMap.set(playerId, displayName)
-    playerNameMap.set(playerId.toLowerCase(), displayName)
-  }
+    const resolvedNames = await updatePlayerMappings(
+      job.guild_code,
+      entries,
+      supabase,
+      result,
+      erasedPlayerIds
+    )
+    for (const [playerId, displayName] of resolvedNames) {
+      playerNameMap.set(playerId, displayName)
+      playerNameMap.set(playerId.toLowerCase(), displayName)
+    }
+  })
 
   const validEntries = filterProcessedData(
     writeEntries.map((entry) =>
@@ -422,17 +429,52 @@ async function runRaidSync(
   // Only full_sync rewrites existing rows; others insert-or-ignore (an index probe, not a rewrite).
   const skipExistingRows = !options.deleteBeforeUpsert
 
-  if (validEntries.length === 0) {
-  } else if (
-    options.batchedUpsert ||
-    validEntries.length > WORKER_CONFIG.batchSize
-  ) {
-    for (let i = 0; i < validEntries.length; i += WORKER_CONFIG.batchSize) {
-      const batch = validEntries.slice(i, i + WORKER_CONFIG.batchSize)
+  await timePhase(result, 'upsert', async () => {
+    if (validEntries.length === 0) {
+    } else if (
+      options.batchedUpsert ||
+      validEntries.length > WORKER_CONFIG.batchSize
+    ) {
+      for (let i = 0; i < validEntries.length; i += WORKER_CONFIG.batchSize) {
+        const batch = validEntries.slice(i, i + WORKER_CONFIG.batchSize)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data, error } = await (supabase as any)
+          .from('EOT_GR_data')
+          .upsert(batch, {
+            onConflict: UPSERT_CONFLICT_KEY,
+            ignoreDuplicates: skipExistingRows,
+            defaultToNull: false,
+            count: 'exact'
+          })
+          .select('id')
+        if (error) {
+          result.errors.push(
+            `Batch upsert failed (batch ${Math.floor(i / WORKER_CONFIG.batchSize) + 1}): ${error.message}`
+          )
+          result.upsertFailures++
+          ingestComplete = false
+        } else {
+          const acknowledged = Array.isArray(data) ? data.length : 0
+          result.recordsProcessed += acknowledged
+          collectWrittenIds(writtenIds, data)
+          if (
+            skipExistingRows
+              ? acknowledged > batch.length
+              : acknowledged !== batch.length
+          ) {
+            result.errors.push(
+              `Batch upsert acknowledged ${acknowledged}/${batch.length} records`
+            )
+            result.upsertFailures++
+            ingestComplete = false
+          }
+        }
+      }
+    } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await (supabase as any)
         .from('EOT_GR_data')
-        .upsert(batch, {
+        .upsert(validEntries, {
           onConflict: UPSERT_CONFLICT_KEY,
           ignoreDuplicates: skipExistingRows,
           defaultToNull: false,
@@ -440,9 +482,7 @@ async function runRaidSync(
         })
         .select('id')
       if (error) {
-        result.errors.push(
-          `Batch upsert failed (batch ${Math.floor(i / WORKER_CONFIG.batchSize) + 1}): ${error.message}`
-        )
+        result.errors.push(`Upsert failed: ${error.message}`)
         result.upsertFailures++
         ingestComplete = false
       } else {
@@ -451,49 +491,18 @@ async function runRaidSync(
         collectWrittenIds(writtenIds, data)
         if (
           skipExistingRows
-            ? acknowledged > batch.length
-            : acknowledged !== batch.length
+            ? acknowledged > validEntries.length
+            : acknowledged !== validEntries.length
         ) {
           result.errors.push(
-            `Batch upsert acknowledged ${acknowledged}/${batch.length} records`
+            `Upsert acknowledged ${acknowledged}/${validEntries.length} records`
           )
           result.upsertFailures++
           ingestComplete = false
         }
       }
     }
-  } else {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
-      .from('EOT_GR_data')
-      .upsert(validEntries, {
-        onConflict: UPSERT_CONFLICT_KEY,
-        ignoreDuplicates: skipExistingRows,
-        defaultToNull: false,
-        count: 'exact'
-      })
-      .select('id')
-    if (error) {
-      result.errors.push(`Upsert failed: ${error.message}`)
-      result.upsertFailures++
-      ingestComplete = false
-    } else {
-      const acknowledged = Array.isArray(data) ? data.length : 0
-      result.recordsProcessed += acknowledged
-      collectWrittenIds(writtenIds, data)
-      if (
-        skipExistingRows
-          ? acknowledged > validEntries.length
-          : acknowledged !== validEntries.length
-      ) {
-        result.errors.push(
-          `Upsert acknowledged ${acknowledged}/${validEntries.length} records`
-        )
-        result.upsertFailures++
-        ingestComplete = false
-      }
-    }
-  }
+  })
 
   // No reconcile-delete or derived hooks unless every entry transformed and every row was acknowledged.
   if (
@@ -514,12 +523,14 @@ async function runRaidSync(
     result.upsertFailures === 0 &&
     writtenIds.length > 0
   ) {
-    await reconcileSeasonDelete(
-      supabase,
-      job.guild_code,
-      String(currentSeason),
-      writtenIds,
-      result
+    await timePhase(result, 'reconcile', () =>
+      reconcileSeasonDelete(
+        supabase,
+        job.guild_code,
+        String(currentSeason),
+        writtenIds,
+        result
+      )
     )
   }
 
@@ -533,26 +544,29 @@ async function runRaidSync(
     await stampRaidWrite(supabase, job.guild_code)
   }
 
-  await updateBombTracking(
-    supabase,
-    entries,
-    job.guild_code,
-    playerNameMap,
-    clusterCode,
-    clusterId
+  await timePhase(result, 'bombs', () =>
+    updateBombTracking(
+      supabase,
+      entries,
+      job.guild_code,
+      playerNameMap,
+      clusterCode,
+      clusterId
+    )
   )
 
-  await runPostSyncHooks(
-    job.guild_code,
-    String(currentSeason),
-    config,
-    supabase
+  await timePhase(result, 'hooks', () =>
+    runPostSyncHooks(job.guild_code, String(currentSeason), config, supabase)
   )
 
-  await runHeraldSafely(supabase, job.guild_code)
+  await timePhase(result, 'herald', () =>
+    runHeraldSafely(supabase, job.guild_code)
+  )
 
   if (options.runCoverageCheck) {
-    await checkSeasonCoverage(job.guild_code, currentSeason, supabase)
+    await timePhase(result, 'coverage', () =>
+      checkSeasonCoverage(job.guild_code, currentSeason, supabase)
+    )
   }
 }
 

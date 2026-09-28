@@ -2,6 +2,7 @@
 // its own worker_id: complete_job()/fail_job() match on (job_id, worker_id).
 import { createComponentLogger } from '@/app/lib/logging'
 import { processJob } from './sync-worker-service'
+import { deferSyncJob } from './sync-job-defer'
 import { callRpc, parseSyncJob } from './worker-utils'
 import type {
   ServiceSupabaseClient,
@@ -12,12 +13,23 @@ import type {
 const logger = createComponentLogger('api.sync.worker.drain')
 
 type DrainLaneStop = 'queue_empty' | 'budget_exhausted' | 'claim_error'
+export type DrainLaneRole = 'any' | 'background_first'
+
+const backgroundJobTypes = [
+  'full_sync',
+  'incremental_sync',
+  'validation_sync',
+  'player_sync'
+] as const
+const guildsInFlight = new Set<string>()
 
 export interface DrainLaneOutcome {
   laneIndex: number
   laneWorkerId: string
+  role: DrainLaneRole
   results: WorkerResult[]
   jobsDrained: number
+  jobsDeferred: number
   wallMs: number
   stoppedReason: DrainLaneStop
 }
@@ -31,6 +43,7 @@ export interface DrainLaneOptions {
   supabase: ServiceSupabaseClient
   laneIndex: number
   laneWorkerId: string
+  role?: DrainLaneRole
   startTime: number
   /** Per-lane budget in ms (WORKER_CONFIG.workerTimeout). */
   budgetMs: number
@@ -55,6 +68,7 @@ export async function runDrainLane(
     supabase,
     laneIndex,
     laneWorkerId: workerIdForLane,
+    role = 'any',
     startTime,
     budgetMs,
     tailReserveMs
@@ -63,14 +77,40 @@ export async function runDrainLane(
 
   const window = laneWindowMs(budgetMs, tailReserveMs)
   const results: WorkerResult[] = []
+  let jobsDeferred = 0
   let stoppedReason: DrainLaneStop = 'budget_exhausted'
 
   while (now() - startTime < window) {
-    const { data: claimedJob, error: claimError } =
-      await callRpc<SyncQueueClaimRow>(supabase, 'claim_next_job', {
-        p_worker_id: workerIdForLane,
-        p_job_types: undefined
-      })
+    let claimedJob: SyncQueueClaimRow | null = null
+    let claimError: { message?: string | null } | null = null
+    try {
+      const claim = await callRpc<SyncQueueClaimRow>(
+        supabase,
+        'claim_next_job',
+        {
+          p_worker_id: workerIdForLane,
+          p_job_types:
+            role === 'background_first' ? [...backgroundJobTypes] : undefined
+        }
+      )
+      claimedJob = claim.data
+      claimError = claim.error
+      if (
+        role === 'background_first' &&
+        !claimError &&
+        !parseSyncJob(claimedJob)
+      ) {
+        const fallback = await callRpc<SyncQueueClaimRow>(
+          supabase,
+          'claim_next_job',
+          { p_worker_id: workerIdForLane, p_job_types: undefined }
+        )
+        claimedJob = fallback.data
+        claimError = fallback.error
+      }
+    } catch (error) {
+      claimError = { message: String(error) }
+    }
 
     if (claimError) {
       logger.error(
@@ -87,24 +127,55 @@ export async function runDrainLane(
       break
     }
 
-    logger.info(
-      {
-        laneIndex,
-        workerId: workerIdForLane,
-        jobId: typedJob.id,
-        guildCode: typedJob.guild_code
-      },
-      'Worker processing sync job'
-    )
+    if (guildsInFlight.has(typedJob.guild_code)) {
+      try {
+        await deferSyncJob(typedJob, supabase, workerIdForLane, {
+          delayMs: 30_000,
+          reason: 'guild_in_flight'
+        })
+        jobsDeferred += 1
+      } catch (error) {
+        logger.error(
+          { err: error, laneIndex, jobId: typedJob.id },
+          'Failed to defer sync job'
+        )
+        stoppedReason = 'claim_error'
+        break
+      }
+      continue
+    }
 
-    results.push(await processJob(typedJob, supabase, workerIdForLane))
+    guildsInFlight.add(typedJob.guild_code)
+    try {
+      logger.info(
+        {
+          laneIndex,
+          workerId: workerIdForLane,
+          jobId: typedJob.id,
+          guildCode: typedJob.guild_code
+        },
+        'Worker processing sync job'
+      )
+      results.push(await processJob(typedJob, supabase, workerIdForLane))
+    } catch (error) {
+      logger.error(
+        { err: error, laneIndex, jobId: typedJob.id },
+        'Drain lane failed to process job'
+      )
+      stoppedReason = 'claim_error'
+      break
+    } finally {
+      guildsInFlight.delete(typedJob.guild_code)
+    }
   }
 
   return {
     laneIndex,
     laneWorkerId: workerIdForLane,
+    role,
     results,
     jobsDrained: results.length,
+    jobsDeferred,
     wallMs: now() - startTime,
     stoppedReason
   }

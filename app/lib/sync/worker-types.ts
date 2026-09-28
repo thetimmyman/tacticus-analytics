@@ -21,6 +21,19 @@ export class TacticusApiError extends Error {
   }
 }
 
+export const DEFAULT_DRAIN_LANES = 3
+
+/** Claim lanes per drain run; jobs are I/O bound, and SYNC_DRAIN_LANES=1 restores serial draining. */
+export function resolveDrainLanes(env = process.env): number {
+  const value = env.SYNC_DRAIN_LANES
+  if (value === undefined || !/^[+-]?\d+$/.test(value.trim())) {
+    return DEFAULT_DRAIN_LANES
+  }
+  const parsed = Number(value)
+  if (!Number.isSafeInteger(parsed)) return DEFAULT_DRAIN_LANES
+  return Math.min(8, Math.max(1, parsed))
+}
+
 // Invariants: workerTimeout < CronJob activeDeadlineSeconds, and
 // workerTimeout > apiTimeout + retryDelay * 2^(maxRetries-1).
 export const WORKER_CONFIG = {
@@ -30,9 +43,6 @@ export const WORKER_CONFIG = {
   retryDelay: 1000,
   maxRetries: 2,
   maxConcurrentWorkers: 5,
-
-  // Claim lanes per drain; held at 1 because extra lanes contended downstream and lowered throughput.
-  drainLanes: 1,
 
   laneTailReserveMs: 5000
 }
@@ -49,6 +59,11 @@ export interface WorkerResult {
   /** Rows written or feed empty (false when sanitization dropped everything); gates last_successful_sync. */
   raidDataLanded?: boolean
   duration: number
+  phaseMs?: Record<string, number>
+  syncPath?: 'empty' | 'quiet' | 'write'
+  snapshotEntries?: number
+  storedKeys?: number
+  newEntries?: number
 }
 
 export type SyncJobType =
@@ -94,7 +109,6 @@ export interface BattleValidationRow {
 }
 
 export interface RaidSyncOptions {
-  sinceTime: Date | null
   deleteBeforeUpsert: boolean
   /** Full sync only: add Guild/Season guards to the Name/displayName filter */
   strictEntryFilter: boolean

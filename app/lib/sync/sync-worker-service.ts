@@ -10,7 +10,6 @@ import {
   failSyncJob
 } from './sync-job-lifecycle'
 import {
-  getLastSyncTime,
   processPlayerSync,
   processValidationSync,
   runRaidSyncWithOptionalExecutionLock
@@ -79,7 +78,6 @@ export async function processJob(
             result,
             workerId,
             {
-              sinceTime: null,
               deleteBeforeUpsert: true,
               strictEntryFilter: true,
               batchedUpsert: true,
@@ -90,7 +88,6 @@ export async function processJob(
 
         // Frequent syncs tolerate partial batch failures; the next cycle catches up.
         case 'incremental_sync': {
-          const sinceTime = await getLastSyncTime(job.guild_code, supabase)
           deferredForExecutionLock = await runRaidSyncWithOptionalExecutionLock(
             job,
             guildConfig,
@@ -99,7 +96,6 @@ export async function processJob(
             result,
             workerId,
             {
-              sinceTime,
               deleteBeforeUpsert: false,
               strictEntryFilter: false,
               batchedUpsert: true,
@@ -118,7 +114,6 @@ export async function processJob(
             result,
             workerId,
             {
-              sinceTime: new Date(Date.now() - 5 * 60 * 1000),
               deleteBeforeUpsert: false,
               strictEntryFilter: false,
               batchedUpsert: false,
