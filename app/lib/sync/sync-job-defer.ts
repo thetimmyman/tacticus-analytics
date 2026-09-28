@@ -24,21 +24,14 @@ export async function deferSyncJob(
     .eq('worker_id', workerId)
     .single()
 
-  if (attemptsError) {
-    logger.warn(
-      {
-        guildCode: job.guild_code,
-        jobId: job.id,
-        error: attemptsError.message
-      },
-      `[Worker ${workerId}] Could not read attempts before deferral`
+  // Deferral must hand back the claim's attempt; without a readable count the
+  // job would park pending at max_attempts, so let fail_job's retry path own it.
+  if (attemptsError || typeof queueRow?.attempts !== 'number') {
+    throw new Error(
+      `Could not read attempts before deferral: ${attemptsError?.message ?? 'no attempts value'}`
     )
   }
-
-  const attempts =
-    typeof queueRow?.attempts === 'number'
-      ? Math.max(0, queueRow.attempts - 1)
-      : undefined
+  const attempts = Math.max(0, queueRow.attempts - 1)
 
   const { error } = await supabase
     .from('sync_queue')
@@ -55,7 +48,7 @@ export async function deferSyncJob(
         deferred_by: workerId,
         deferred_at: deferredAt.toISOString()
       },
-      ...(attempts !== undefined && { attempts })
+      attempts
     })
     .eq('id', job.id)
     .eq('worker_id', workerId)

@@ -281,4 +281,41 @@ describe('parallel drain lanes', () => {
       'claim_error'
     )
   })
+
+  it('does not defer when the claimed attempt count cannot be read', async () => {
+    const rows = [job('a', 'TESTGUILD'), job('b', 'TESTGUILD')]
+    const rpc = vi.fn(async (name: string, _args?: unknown) =>
+      name === 'claim_next_job'
+        ? { data: rows.shift() ?? null, error: null }
+        : { data: true, error: null }
+    )
+    const update = vi.fn()
+    const client = {
+      rpc,
+      from: vi.fn(() => ({
+        select: () => ({
+          eq: () => ({
+            eq: () => ({
+              single: async () => ({
+                data: null,
+                error: { message: 'read refused' }
+              })
+            })
+          })
+        }),
+        update
+      }))
+    }
+    processJob.mockImplementation(async (claimed: { id: string }) => {
+      await new Promise((resolve) => setTimeout(resolve, 30))
+      return outcome(claimed.id)
+    })
+
+    await Promise.all([lane(client, 0), lane(client, 1)])
+
+    expect(update).not.toHaveBeenCalled()
+    const failCalls = rpc.mock.calls.filter(([name]) => name === 'fail_job')
+    expect(failCalls).toHaveLength(1)
+    expect(failCalls[0][1]).toMatchObject({ p_job_id: 'b' })
+  })
 })
