@@ -23,6 +23,7 @@ export interface PlayerTokenInfo {
 export interface GuildTeamsClientProps {
   guildCode: string
   heroMappings: Record<string, HeroMappingInfo>
+  pageTitle: string
 }
 
 export type SortField = 'name' | 'team_score' | 'hero'
@@ -72,6 +73,13 @@ export const PAGE_TITLES = [
   'Tani\u2019s Super Duper Meta List Tracker',
   'Tani\u2019s Guild Raid Teams'
 ]
+
+// Picked once on the server and passed down: a client-side pick differs between SSR and hydration.
+export function pickPageTitle(random: () => number = Math.random): string {
+  return (
+    PAGE_TITLES[Math.floor(random() * PAGE_TITLES.length)] ?? 'Guild Raid Teams'
+  )
+}
 
 /** Core heroes count full, secondary half, tertiary a third. */
 export const TIER_WEIGHTS: Record<string, number> = {
