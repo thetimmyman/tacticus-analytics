@@ -48,48 +48,48 @@ global_war_meta_archive.sql # 17
 gdpr_request_health_monitor.sql # 25
 port_war_room_shared_teams.sql # 40
 port_war_room_readiness.sql # 27
-ps203_pgnet_failure_snapshots.sql # 13
-ps218_authenticated_write_grants.sql # 11
-ps256_anon_definer_maintenance_revokes.sql # 7
-ps25_role_statement_and_idle_timeouts.sql # 14
-ps278_guild_latest_raid_index.sql # 8
-ps308_global_leaderboard_retired.sql # 5
-ps317_has_active_users_session_gate.sql # 10
-ps329_serial_sequences_not_behind.sql # 2
-ps365_application_insert_policy.sql # 18
-ps378_retire_guild_war_showcase.sql # 7
-ps377_invite_code_info_shape.sql # 14
-ps387_playbook_anon_guard.sql # 10
-ps422_pgnet_outcome_ledger.sql # 25
-ps393_refresh_token_inactivity_sweep.sql # 17
-ps397_identifier_leaks.sql # 12
-ps398_quarantine_pii_eraser_cron.sql # 12
-ps399_cluster_applications_api_key_columns.sql # 10
-ps411_alert_staleness_and_renotify.sql # 21
-ps416_guild_war_zones_match_fk.sql # 12
-ps40_erase_residual_player_mapping_identity.sql # 65
-ps472_player_mapping_analytics_ro.sql # 14
-ps513_roster_write_monitor.sql # 31
-ps516_guild_war_sync_remnants.sql # 18
-ps669_player_mapping_retention.sql # 18
+pgnet_failure_snapshots.sql # 13
+authenticated_write_grants.sql # 11
+anon_definer_maintenance_revokes.sql # 7
+role_statement_and_idle_timeouts.sql # 14
+guild_latest_raid_index.sql # 8
+global_leaderboard_retired.sql # 5
+has_active_users_session_gate.sql # 10
+serial_sequences_not_behind.sql # 2
+application_insert_policy.sql # 18
+retire_guild_war_showcase.sql # 7
+invite_code_info_shape.sql # 14
+playbook_anon_guard.sql # 10
+pgnet_outcome_ledger.sql # 25
+refresh_token_inactivity_sweep.sql # 17
+identifier_leaks.sql # 12
+quarantine_pii_eraser_cron.sql # 12
+cluster_applications_api_key_columns.sql # 10
+alert_staleness_and_renotify.sql # 21
+guild_war_zones_match_fk.sql # 12
+erase_residual_player_mapping_identity.sql # 65
+player_mapping_analytics_ro.sql # 14
+roster_write_monitor.sql # 31
+guild_war_sync_remnants.sql # 18
+player_mapping_retention.sql # 18
 player_hash_name_heal.sql # 14
-ps670_prune_incomplete_registrations.sql # 24
-ps670_subject_erasure_player_ids.sql # 39
-ps721_guild_sync_status_view_policy.sql # 18
-ps80_sync_queue_drain_lanes.sql # 28
+prune_incomplete_registrations.sql # 24
+subject_erasure_player_ids.sql # 39
+guild_sync_status_view_policy.sql # 18
+sync_queue_drain_lanes.sql # 28
 publication_security_boundaries.sql # 6
 sync_quiet_tick_markers.sql # 8
 user_ban_reconciliation_enqueue.sql # 8
 votlw_set_winners_golden.sql # 26
-wi2213_token_burn_parity.sql # 5
-wi2590_boss_status_stage_anchor.sql # 6
-wi2620_availability_parity.sql # 23
-wi2650_boss_status_lifecycle.sql # 4
-wi2670_boss_status_omitted_kill.sql # 10
-wi4031_repeating_full_token_reminders.sql # 10
-wi4970_pre_quiet_and_burn_alerts.sql # 16
-wi6590_votlw_looping_bosses.sql # 6
-wi7920_public_snapshot_meta_team.sql # 18
+token_burn_parity.sql # 5
+boss_status_stage_anchor.sql # 6
+availability_parity.sql # 23
+boss_status_lifecycle.sql # 4
+boss_status_omitted_kill.sql # 10
+repeating_full_token_reminders.sql # 10
+pre_quiet_and_burn_alerts.sql # 16
+votlw_looping_bosses.sql # 6
+public_snapshot_meta_team.sql # 18
 webhook_config_url_must_be_discord_webhook.sql # 10
 webhook_config_url_officer_only.sql # 24
 season_summary_claim_atomicity.sql # 6
@@ -104,44 +104,44 @@ season_summary_stats_rpc.sql # 8
 # onboarding_guild_membership_reconciliation.sql # SHORT -- pgTAP is installed WITH SCHEMA extensions and this suite does not qualify or set search_path for it
 # pii_exposure_boundaries.sql # SHORT -- pgTAP is installed WITH SCHEMA extensions and this suite does not qualify or set search_path for it
 # pm_rls_recursion_repair_general.sql # RED -- fails on replay at: A7: _pm_caller_is_competitive_reader is plpgsql STABLE SECURITY DEFINER, search_path=public,pg_temp
-# ps200_estimator_freshness_guard.sql # RED -- fails on replay at: run_token_invariant_monitor() exists with the zero-argument signature pg_cron calls
-# ps253_can_upload_guild_images_gate.sql # SHORT -- pgTAP is installed WITH SCHEMA extensions and this suite does not qualify or set search_path for it
-# ps254_explore_obfuscation_percent.sql # RED -- fails on replay at: (0) positive control: the read returned rows, so the digest is not of nothing
-# ps258_numeric_season_ordering.sql # ALL-SKIP -- every assertion skips: the suite is gated on ledger version 20260903120000, one of the 17 this lane cannot apply
-# ps263_auth_users_fk_actions.sql # RED -- fails on replay at: leg A: all 18 constraints exist, carry the intended delete action and are validated
-# ps277_auth_audit_log_retention.sql # NO-PLAN -- pgTAP is installed WITH SCHEMA extensions and this suite does not qualify or set search_path for it
-# ps285_anon_definer_oracles.sql # SHORT -- live-only function public.get_application_with_messages(uuid) is absent from this tree
-# ps291_guild_total_carriers.sql # ALL-SKIP -- every assertion skips: gated on ledger versions 20260904100000 and 20260904140000, which this lane cannot apply
-# ps293_late_arrival_window.sql # RED -- fails on replay at: run_token_invariant_monitor() exists with the zero-argument signature pg_cron calls -- the migration this suite judges is one the throwaway cannot apply (public.token_estimator_rate_breaches is live-only), and token_audit_snapshots has no replay_tokens_delta column here
-# ps328_identity_predicate_parity.sql # PART-SKIP -- 7 of 15 skip: public.prepare_player_account_deletion is live-only and no migration here defines it
-# ps381_null_applicant_read_guard.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
+# estimator_freshness_guard.sql # RED -- fails on replay at: run_token_invariant_monitor() exists with the zero-argument signature pg_cron calls
+# can_upload_guild_images_gate.sql # SHORT -- pgTAP is installed WITH SCHEMA extensions and this suite does not qualify or set search_path for it
+# explore_obfuscation_percent.sql # RED -- fails on replay at: (0) positive control: the read returned rows, so the digest is not of nothing
+# numeric_season_ordering.sql # ALL-SKIP -- every assertion skips: the suite is gated on ledger version 20260903120000, one of the 17 this lane cannot apply
+# auth_users_fk_actions.sql # RED -- fails on replay at: leg A: all 18 constraints exist, carry the intended delete action and are validated
+# auth_audit_log_retention.sql # NO-PLAN -- pgTAP is installed WITH SCHEMA extensions and this suite does not qualify or set search_path for it
+# anon_definer_oracles.sql # SHORT -- live-only function public.get_application_with_messages(uuid) is absent from this tree
+# guild_total_carriers.sql # ALL-SKIP -- every assertion skips: gated on ledger versions 20260904100000 and 20260904140000, which this lane cannot apply
+# late_arrival_window.sql # RED -- fails on replay at: run_token_invariant_monitor() exists with the zero-argument signature pg_cron calls -- the migration this suite judges is one the throwaway cannot apply (public.token_estimator_rate_breaches is live-only), and token_audit_snapshots has no replay_tokens_delta column here
+# identity_predicate_parity.sql # PART-SKIP -- 7 of 15 skip: public.prepare_player_account_deletion is live-only and no migration here defines it
+# null_applicant_read_guard.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
 # rls_guild_config.sql # SHORT -- the ownership-attestation trigger refuses the fixture rows this suite inserts
 # rpc_cluster_access.sql # SHORT -- the ownership-attestation trigger refuses the fixture rows this suite inserts
 # season_boss_lineup_107_109.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
 # user_ban_and_review_boundaries.sql # SHORT -- pgTAP is installed WITH SCHEMA extensions and this suite does not qualify or set search_path for it
-# wi2554_guild_context_stale_defaults.sql # RED -- fails on replay at: valid user default resolves with source=user
-# wi2570_token_state_live_projection.sql # RED -- fails on replay at: anon cannot execute project_token_snapshot (default PUBLIC EXECUTE revoked)
-# wi2620_token_accrual_invariant.sql # SHORT -- fixture rows violate a foreign key the throwaway seeds empty
-# wi2640_token_audit_snapshots.sql # RED -- fails on replay at: anon cannot SELECT
-# wi2660_guild_bombs_available.sql # SHORT -- the ownership-attestation trigger refuses the fixture rows this suite inserts
-# wi2761_boss_name_resolution.sql # RED -- fails on replay at: helper resolves season 104 position 1 to the real seeded name (Riptide)
-# wi3136_membership_authority_guard.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
-# wi3138_bind_invite_claim_rpc_to_caller.sql # RED -- fails on replay at: anon cannot execute invite claims
-# wi3139_caller_bound_boundaries.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
-# wi3790_token_state_cross_cluster_idor.sql # SHORT -- fixture inserts into a non-auto-updatable view
-# wi3990_user_token_alerts.sql # RED -- fails on replay at: authenticated cannot UPDATE state (cannot clear their own DM block)
-# wi4000_bomb_alerts_quiet_hours.sql # RED -- fails on replay at: authenticated still cannot UPDATE state (cannot forge bomb alert stamps)
-# wi4270_duplicate_display_labels_scope.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
-# wi4352_command_center_rpc_authority.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
-# wi4450_sensitive_rpc_boundaries.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
-# wi4450_team_roster_boundary.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
-# wi4450_token_usage_rpc_boundary.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
-# wi4660_anon_boundary.sql # RED -- fails on replay at: WI-4700: authenticated is read-only; service_role retains writes
-# wi4880_season_sub_boss_atomic_merge.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
-# wi4950_cluster_leader_season_writes.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
-# wi5620_pm_policy_indirection.sql # SHORT -- the ownership-attestation trigger refuses the fixture rows this suite inserts
-# wi6080_view_write_boundary.sql # RED -- fails on replay at: no auto-updatable view is writable by anon or authenticated
-# wi6270_war_defense_stats.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
-# wi6470_capture_truth_war_rpcs.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
-# wi6530_capture_truth_tail.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
-# wi7290_storage_object_authorization.sql # ALL-SKIP -- every assertion skips: gated on ledger version 20260901220000, which this lane cannot apply 
+# guild_context_stale_defaults.sql # RED -- fails on replay at: valid user default resolves with source=user
+# token_state_live_projection.sql # RED -- fails on replay at: anon cannot execute project_token_snapshot (default PUBLIC EXECUTE revoked)
+# token_accrual_invariant.sql # SHORT -- fixture rows violate a foreign key the throwaway seeds empty
+# token_audit_snapshots.sql # RED -- fails on replay at: anon cannot SELECT
+# guild_bombs_available.sql # SHORT -- the ownership-attestation trigger refuses the fixture rows this suite inserts
+# boss_name_resolution.sql # RED -- fails on replay at: helper resolves season 104 position 1 to the real seeded name (Riptide)
+# membership_authority_guard.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
+# bind_invite_claim_rpc_to_caller.sql # RED -- fails on replay at: anon cannot execute invite claims
+# caller_bound_boundaries.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
+# token_state_cross_cluster_idor.sql # SHORT -- fixture inserts into a non-auto-updatable view
+# user_token_alerts.sql # RED -- fails on replay at: authenticated cannot UPDATE state (cannot clear their own DM block)
+# bomb_alerts_quiet_hours.sql # RED -- fails on replay at: authenticated still cannot UPDATE state (cannot forge bomb alert stamps)
+# duplicate_display_labels_scope.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
+# command_center_rpc_authority.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
+# sensitive_rpc_boundaries.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
+# team_roster_boundary.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
+# token_usage_rpc_boundary.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
+# anon_boundary.sql # RED -- fails on replay at: authenticated is read-only; service_role retains writes
+# season_sub_boss_atomic_merge.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
+# cluster_leader_season_writes.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
+# pm_policy_indirection.sql # SHORT -- the ownership-attestation trigger refuses the fixture rows this suite inserts
+# view_write_boundary.sql # RED -- fails on replay at: no auto-updatable view is writable by anon or authenticated
+# war_defense_stats.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
+# capture_truth_war_rpcs.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
+# capture_truth_tail.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
+# storage_object_authorization.sql # ALL-SKIP -- every assertion skips: gated on ledger version 20260901220000, which this lane cannot apply 

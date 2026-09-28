@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Gate for ps218-authenticated-write-census.json (authenticated write grants and
+ * Gate for authenticated-write-census.json (authenticated write grants and
  * their revoke/keep decisions) against callers, migration and pgTAP. Usage: --selftest | --scan | --writers
  */
 
@@ -12,14 +12,14 @@ import { fileURLToPath } from 'node:url'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = path.resolve(HERE, '..', '..')
-const CENSUS_PATH = path.join(HERE, 'ps218-authenticated-write-census.json')
+const CENSUS_PATH = path.join(HERE, 'authenticated-write-census.json')
 const MIGRATION_PATH = path.join(
   REPO_ROOT,
   'supabase/migrations/20260925080000_ps218_revoke_authenticated_write_grants.sql'
 )
 const PGTAP_PATH = path.join(
   REPO_ROOT,
-  'supabase/tests/pgtap/ps218_authenticated_write_grants.sql'
+  'supabase/tests/pgtap/authenticated_write_grants.sql'
 )
 
 // `db()` is the cookie-bound (authenticated) client and `serviceDb()` the
@@ -210,7 +210,7 @@ function classify(rel, text, lines, lineIndex, recv, castTainted = new Set()) {
   return 'UNKNOWN'
 }
 
-/** The suite's ps218_swept array and the `-- ps218_kept_policy` / `-- ps218_kept_undecided` arrays. */
+/** The suite's census_swept array and the `-- census_kept_policy` / `-- census_kept_undecided` arrays. */
 function pgtapLists(sql) {
   const out = {}
   const grab = (key, re) => {
@@ -221,13 +221,13 @@ function pgtapLists(sql) {
     )
   }
   grab(
-    'ps218_swept',
-    /INSERT INTO ps218_swept \(relname\) SELECT unnest\(ARRAY\[([\s\S]*?)\]::text\[\]\)/
+    'census_swept',
+    /INSERT INTO census_swept \(relname\) SELECT unnest\(ARRAY\[([\s\S]*?)\]::text\[\]\)/
   )
-  grab('ps218_kept_policy', /-- ps218_kept_policy\n([\s\S]*?)\]::text\[\]/)
+  grab('census_kept_policy', /-- census_kept_policy\n([\s\S]*?)\]::text\[\]/)
   grab(
-    'ps218_kept_undecided',
-    /-- ps218_kept_undecided\n([\s\S]*?)\]::text\[\]/
+    'census_kept_undecided',
+    /-- census_kept_undecided\n([\s\S]*?)\]::text\[\]/
   )
   return out
 }
@@ -340,11 +340,11 @@ function scan() {
     )
     for (const h of live) {
       errors.push(
-        `${table} was swept by PS-218 (authenticated holds no INSERT/UPDATE/DELETE on it) but ` +
+        `${table} was swept by the authenticated-write revoke (authenticated holds no INSERT/UPDATE/DELETE on it) but ` +
           `${h.file}:${h.line} now writes it (.${h.verb}) on a client this scan cannot prove is ` +
           `service-role (${h.client}). That write will fail with "permission denied", not silently ` +
           `affect zero rows. Move it to serviceDb(), or re-judge the table and update ` +
-          `scripts/security/ps218-authenticated-write-census.json and the PS-218 migration together.`
+          `scripts/security/authenticated-write-census.json and the revoke migration together.`
       )
     }
   }
@@ -357,7 +357,7 @@ function scan() {
       errors.push(
         `${table} is recorded as 'keep-undecided' -- its grant was left alone only because a ` +
           `committed write site could not be proved service-role -- but no such site exists any ` +
-          `more. Re-judge it: either sweep it (move it to 'revoke' and add it to the PS-218 ` +
+          `more. Re-judge it: either sweep it (move it to 'revoke' and add it to the revoke ` +
           `migration and pgTAP suite) or record why it stays.`
       )
     }
@@ -377,13 +377,13 @@ function scan() {
     for (const t of revoke) {
       if (!named.has(t))
         errors.push(
-          `${t} is 'revoke' in the census but the PS-218 migration does not name it`
+          `${t} is 'revoke' in the census but the revoke migration does not name it`
         )
     }
     for (const t of named) {
       if (!revoke.includes(t))
         errors.push(
-          `the PS-218 migration names ${t}, which the census does not mark 'revoke'`
+          `the revoke migration names ${t}, which the census does not mark 'revoke'`
         )
     }
   }
@@ -396,44 +396,44 @@ function scan() {
   } else {
     const lists = pgtapLists(pgtap)
     const expected = {
-      ps218_swept: revoke,
-      ps218_kept_policy: keepPolicy,
-      ps218_kept_undecided: keepUndecided
+      census_swept: revoke,
+      census_kept_policy: keepPolicy,
+      census_kept_undecided: keepUndecided
     }
     for (const [list, want] of Object.entries(expected)) {
       const got = lists[list]
       if (!got) {
-        errors.push(`the PS-218 pgTAP suite has no ${list} list`)
+        errors.push(`the authenticated-write pgTAP suite has no ${list} list`)
         continue
       }
       for (const t of want)
         if (!got.has(t))
           errors.push(
-            `${t} is in the census set for ${list} but the PS-218 pgTAP suite does not list it there`
+            `${t} is in the census set for ${list} but the authenticated-write pgTAP suite does not list it there`
           )
       for (const t of got)
         if (!want.includes(t))
           errors.push(
-            `the PS-218 pgTAP suite lists ${t} in ${list}, which the census does not`
+            `the authenticated-write pgTAP suite lists ${t} in ${list}, which the census does not`
           )
     }
   }
 
   if (errors.length > 0) {
-    console.error('PS-218 authenticated-write census: FAIL')
+    console.error('authenticated-write census: FAIL')
     for (const e of errors) console.error(`  - ${e}`)
     process.exit(1)
   }
 
   console.log(
-    `PS-218 authenticated-write census: OK -- ${revoke.length} swept, ` +
+    `authenticated-write census: OK -- ${revoke.length} swept, ` +
       `${keepUndecided.length} left undecided, ${keepPolicy.length} policy-governed ` +
       `(${revoke.length + keepUndecided.length + keepPolicy.length} tables carried the grant at ` +
       `migration head ${census.acl_snapshot.migration_head}).`
   )
   console.log(
     '  this lane judges the source tree only; the ACL half is judged by ' +
-      'supabase/tests/pgtap/ps218_authenticated_write_grants.sql against a replayed schema, ' +
+      'supabase/tests/pgtap/authenticated_write_grants.sql against a replayed schema, ' +
       'and neither lane can see production ACLs.'
   )
 }
@@ -442,13 +442,13 @@ const FIXTURES = [
   {
     name: 'service-role write is attributed to service_role',
     rel: 'app/lib/x.ts',
-    src: `const supabase = serviceDb()\nawait supabase.from('ps218_fixture_table').insert({ a: 1 })\n`,
+    src: `const supabase = serviceDb()\nawait supabase.from('census_fixture_table').insert({ a: 1 })\n`,
     expect: (h) => h.length === 1 && h[0].client === 'SERVICE'
   },
   {
     name: 'request-client write is attributed to authenticated',
     rel: 'app/lib/x.ts',
-    src: `const supabase = await db()\nawait supabase.from('ps218_fixture_table').upsert({ a: 1 })\n`,
+    src: `const supabase = await db()\nawait supabase.from('census_fixture_table').upsert({ a: 1 })\n`,
     expect: (h) => h.length === 1 && h[0].client === 'REQUEST'
   },
   {
@@ -456,44 +456,44 @@ const FIXTURES = [
     rel: 'app/lib/x.ts',
     src:
       `const supabase = await db()\nawait supabase.from('a').select()\n` +
-      `const supabase2 = serviceDb()\nawait supabase2.from('ps218_fixture_table').delete()\n`,
+      `const supabase2 = serviceDb()\nawait supabase2.from('census_fixture_table').delete()\n`,
     expect: (h) => h.length === 1 && h[0].client === 'SERVICE'
   },
   {
     name: 'an injected client of unknown provenance stays UNKNOWN',
     rel: 'app/lib/x.ts',
-    src: `export async function f(supabase: TypedSupabaseClient) {\n  await supabase.from('ps218_fixture_table').update({ a: 1 })\n}\n`,
+    src: `export async function f(supabase: TypedSupabaseClient) {\n  await supabase.from('census_fixture_table').update({ a: 1 })\n}\n`,
     expect: (h) => h.length === 1 && h[0].client === 'UNKNOWN'
   },
   {
     name: 'a ServiceSupabaseClient parameter is service-role',
     rel: 'app/lib/x.ts',
-    src: `export async function f(supabase: ServiceSupabaseClient) {\n  await supabase.from('ps218_fixture_table').update({ a: 1 })\n}\n`,
+    src: `export async function f(supabase: ServiceSupabaseClient) {\n  await supabase.from('census_fixture_table').update({ a: 1 })\n}\n`,
     expect: (h) => h.length === 1 && h[0].client === 'SERVICE(param-type)'
   },
   {
     name: 'an edge function write is service-role',
     rel: 'supabase/functions/f/index.ts',
-    src: `await supabase.from('ps218_fixture_table').insert({ a: 1 })\n`,
+    src: `await supabase.from('census_fixture_table').insert({ a: 1 })\n`,
     expect: (h) => h.length === 1 && h[0].client === 'SERVICE(edge)'
   },
   {
     name: 'a read is not a write',
     rel: 'app/lib/x.ts',
-    src: `const supabase = await db()\nawait supabase.from('ps218_fixture_table').select('*')\n`,
+    src: `const supabase = await db()\nawait supabase.from('census_fixture_table').select('*')\n`,
     expect: (h) => h.length === 0
   },
   {
     name: 'a write split across lines is still found',
     rel: 'app/lib/x.ts',
-    src: `const supabase = await db()\nawait supabase\n  .from('ps218_fixture_table')\n  .insert({ a: 1 })\n`,
+    src: `const supabase = await db()\nawait supabase\n  .from('census_fixture_table')\n  .insert({ a: 1 })\n`,
     expect: (h) => h.length === 1 && h[0].client === 'REQUEST'
   },
   {
-    name: 'a write through a stored query builder is found (PR #322 review)',
+    name: 'a write through a stored query builder is found',
     rel: 'app/lib/x.ts',
     src:
-      `const supabase = await db()\nconst tbl = supabase.from('ps218_fixture_table')\n` +
+      `const supabase = await db()\nconst tbl = supabase.from('census_fixture_table')\n` +
       `const { data } = await tbl.select('id')\n\n\n\n\n\n\n\n` +
       `await tbl\n  .update({ a: 1 })\n  .eq('id', 1)\n`,
     expect: (h) =>
@@ -506,17 +506,17 @@ const FIXTURES = [
     name: 'a query-builder alias stops at its re-binding',
     rel: 'app/lib/x.ts',
     src:
-      `const supabase = await db()\nconst tbl = supabase.from('ps218_fixture_table')\n` +
+      `const supabase = await db()\nconst tbl = supabase.from('census_fixture_table')\n` +
       `await tbl.select('id')\n}\nfunction g() {\nconst tbl = other.from('unrelated')\nawait tbl.delete()\n`,
     expect: (h) =>
-      h.every((x) => x.table !== 'ps218_fixture_table') &&
+      h.every((x) => x.table !== 'census_fixture_table') &&
       h.some((x) => x.table === 'unrelated' && x.verb === 'delete')
   },
   {
-    name: 'a ServiceSupabaseClient parameter in a cast-tainted module is UNKNOWN (PR #322 review)',
+    name: 'a ServiceSupabaseClient parameter in a cast-tainted module is UNKNOWN',
     rel: 'app/lib/x.ts',
     ctx: { castTainted: new Set(['app/lib/x.ts']) },
-    src: `export async function f(supabase: ServiceSupabaseClient) {\n  await supabase.from('ps218_fixture_table').insert({ a: 1 })\n}\n`,
+    src: `export async function f(supabase: ServiceSupabaseClient) {\n  await supabase.from('census_fixture_table').insert({ a: 1 })\n}\n`,
     expect: (h) => h.length === 1 && h[0].client === 'UNKNOWN(param-type-cast)'
   }
 ]
@@ -574,14 +574,14 @@ function selftest() {
   {
     // Prove the parser tells the three lists apart and reads each completely.
     const lists = pgtapLists(
-      `INSERT INTO ps218_swept (relname) SELECT unnest(ARRAY[\n    'a',\n    'b'\n  ]::text[]);\n` +
-        `SELECT relname, 'keep-policy-governed' FROM unnest(ARRAY[ -- ps218_kept_policy\n    'c'\n  ]::text[]) AS relname;\n` +
-        `SELECT relname, 'keep-undecided' FROM unnest(ARRAY[ -- ps218_kept_undecided\n    'd',\n    'e'\n  ]::text[]) AS relname;\n`
+      `INSERT INTO census_swept (relname) SELECT unnest(ARRAY[\n    'a',\n    'b'\n  ]::text[]);\n` +
+        `SELECT relname, 'keep-policy-governed' FROM unnest(ARRAY[ -- census_kept_policy\n    'c'\n  ]::text[]) AS relname;\n` +
+        `SELECT relname, 'keep-undecided' FROM unnest(ARRAY[ -- census_kept_undecided\n    'd',\n    'e'\n  ]::text[]) AS relname;\n`
     )
     const ok =
-      [...lists.ps218_swept].join() === 'a,b' &&
-      [...lists.ps218_kept_policy].join() === 'c' &&
-      [...lists.ps218_kept_undecided].join() === 'd,e'
+      [...lists.census_swept].join() === 'a,b' &&
+      [...lists.census_kept_policy].join() === 'c' &&
+      [...lists.census_kept_undecided].join() === 'd,e'
     if (ok) console.log('  ok   the pgTAP suite lists are parsed apart')
     else {
       failed += 1
@@ -621,10 +621,10 @@ function selftest() {
   }
 
   if (failed > 0) {
-    console.error(`PS-218 census selftest: FAIL (${failed})`)
+    console.error(`authenticated-write census selftest: FAIL (${failed})`)
     process.exit(1)
   }
-  console.log('PS-218 census selftest: OK')
+  console.log('authenticated-write census selftest: OK')
 }
 
 const mode = process.argv[2]
