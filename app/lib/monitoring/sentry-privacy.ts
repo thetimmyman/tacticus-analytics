@@ -74,6 +74,7 @@ const SAFE_TAG_NAMES = new Set([
   'source',
   'feature',
   'job_type',
+  'handler',
   'runtime',
   'environment'
 ])

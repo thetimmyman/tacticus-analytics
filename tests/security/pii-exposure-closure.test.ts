@@ -381,6 +381,25 @@ describe('PII exposure closure', () => {
     ).toEqual({ operation: 'GET:api.players._' })
   })
 
+  // Background job handlers (sync-scheduler, guild-sync, roster-backfill,
+  // ...) tag captureSentryException with `handler: '<name>'` so a failure is
+  // triageable by which job broke. `handler` names are fixed, code-defined
+  // strings, never request/user data, so they belong in SAFE_TAG_NAMES
+  // alongside `component`/`feature` rather than being dropped silently.
+  it('keeps the job-handler name tag that background job failures are triaged by', () => {
+    expect(
+      sanitizeSentryEvent({
+        tags: { handler: 'sync-scheduler', jobId: '42' }
+      }).tags
+    ).toEqual({ handler: 'sync-scheduler' })
+
+    expect(
+      sanitizeSentryEvent({
+        tags: { handler: 'roster-backfill/Alice' }
+      }).tags
+    ).toEqual({})
+  })
+
   it('never trusts an attacker-controlled value merely because it is a correlation field', () => {
     const email = 'victim@example.com'
     const event = sanitizeSentryEvent({
