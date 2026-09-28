@@ -24,6 +24,55 @@ const FUNCTION_DDL_PATTERN =
   /\b(?:CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION|DROP\s+FUNCTION\s+(?:IF\s+EXISTS\s+)?)\s*(?:public\.)?"?[A-Za-z_][A-Za-z0-9_]*"?\s*\(/gi
 const PGRST_RELOAD_PATTERN = /NOTIFY\s+pgrst/i
 
+// From this version on, default privileges grant client roles nothing, so a new public table is
+// reachable only through the GRANTs its own migration writes; each must also enable RLS.
+export const EXPLICIT_GRANTS_FROM_VERSION = '20260928210000'
+
+const CREATE_TABLE_PATTERN =
+  /\bCREATE\s+(?:UNLOGGED\s+)?TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?((?:"?\w+"?\.)?"?\w+"?)([^;]*)/gi
+const GRANT_ON_PATTERN = /\bGRANT\s[^;]*?\bON\s+(?:TABLE\s+)?([^;]*?)\s+TO\s/gi
+
+function publicTableName(reference) {
+  const parts = reference.replaceAll('"', '').split('.')
+  if (parts.length === 1) return parts[0]
+  return parts[0].toLowerCase() === 'public' ? parts[1] : null
+}
+
+export function newTableGrantErrors(file, code) {
+  const version = path.basename(file).match(/^(\d{14})_/)?.[1]
+  if (!version || version <= EXPLICIT_GRANTS_FROM_VERSION) return []
+
+  const granted = new Set()
+  for (const match of code.matchAll(GRANT_ON_PATTERN)) {
+    for (const reference of match[1].split(',')) {
+      const name = publicTableName(reference.trim().split(/\s+/)[0])
+      if (name) granted.add(name.toLowerCase())
+    }
+  }
+
+  const errors = []
+  for (const match of code.matchAll(CREATE_TABLE_PATTERN)) {
+    if (/^\s*PARTITION\s+OF\b/i.test(match[2])) continue
+    const table = publicTableName(match[1])
+    if (!table) continue
+    const rls = new RegExp(
+      `ALTER\\s+TABLE\\s+(?:IF\\s+EXISTS\\s+)?(?:ONLY\\s+)?(?:"?public"?\\.)?"?${table}"?\\s+ENABLE\\s+ROW\\s+LEVEL\\s+SECURITY`,
+      'i'
+    )
+    if (!granted.has(table.toLowerCase())) {
+      errors.push(
+        `${file}: public.${table} is created without an explicit GRANT in the same migration; default privileges grant client roles nothing, so GRANT each role that reads or writes it (a service-only table grants service_role)`
+      )
+    }
+    if (!rls.test(code)) {
+      errors.push(
+        `${file}: public.${table} is created without ALTER TABLE ... ENABLE ROW LEVEL SECURITY in the same migration`
+      )
+    }
+  }
+  return errors
+}
+
 function loadAllowlist(allowlistPath = DEFAULT_ALLOWLIST_PATH) {
   const allowlist = new Set()
   if (!existsSync(allowlistPath)) return allowlist
@@ -134,6 +183,8 @@ export async function lintSql(
     // reloads PostgREST's schema cache can leave it routing to a function
     // that no longer matches (or rejecting one that's brand new) until the
     // next reload -- traced back to a live incident.
+    errors.push(...newTableGrantErrors(file, code))
+
     const basename = path.basename(file)
     if (
       basename !== PGRST_RELOAD_EXEMPT_FILENAME &&

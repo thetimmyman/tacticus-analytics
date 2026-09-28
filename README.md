@@ -53,6 +53,19 @@ supabase/            migrations, tests, and edge functions
 tests/               application tests
 ```
 
+## Database migrations
+
+New tables, sequences and functions in `public` grant `anon`, `authenticated`
+and `analytics_ro` nothing by default; only `service_role` inherits access. A
+migration that creates a table must, in the same file, enable row level
+security and `GRANT` each role that reads or writes it (column lists where
+only some columns are client-safe). A new function needs its own
+`GRANT EXECUTE`, and a new serial sequence written by a client role needs
+`GRANT USAGE`. `analytics_ro` exists only in production, so grant it inside
+`IF to_regrole('analytics_ro') IS NOT NULL`. `npm run lint:sql` enforces the
+table rule, and the `default_privileges_no_client_grants` pgTAP suite pins the
+defaults.
+
 ## Contributing
 
 Pull requests from forks are not merged directly: the CI gates run only for
