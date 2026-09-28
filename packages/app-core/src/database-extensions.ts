@@ -147,6 +147,7 @@ export interface GdprDataExportRow {
   download_url: string | null
   expires_at: string | null
   created_at: string
+  processing_started_at?: string | null
 }
 
 export interface GdprDeletionRequestRow {
