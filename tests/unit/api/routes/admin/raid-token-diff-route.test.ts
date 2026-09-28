@@ -92,13 +92,13 @@ function makeSupabase() {
 }
 
 async function loadRoute() {
-  return (await import('@/app/api/admin/diagnostics/xfafcpl-token-diff/route'))
+  return (await import('@/app/api/admin/diagnostics/ps502-token-diff/route'))
     .GET as (request: NextRequest) => Promise<Response>
 }
 
 const makeRequest = (query = `guild=${GUILD}&season=${SEASON}`) =>
   new NextRequest(
-    `http://localhost/api/admin/diagnostics/xfafcpl-token-diff?${query}`
+    `http://localhost/api/admin/diagnostics/ps502-token-diff?${query}`
   )
 
 const loggedText = () =>
@@ -116,7 +116,7 @@ const loggedText = () =>
     )
     .join('\n')
 
-describe('GET /api/admin/diagnostics/xfafcpl-token-diff', () => {
+describe('GET /api/admin/diagnostics/ps502-token-diff', () => {
   beforeEach(async () => {
     vi.resetModules()
     logCalls = []
@@ -298,7 +298,7 @@ describe('GET /api/admin/diagnostics/xfafcpl-token-diff', () => {
     assertNoMarkers(loggedText(), 'logs on the upstream-null path')
   })
 
-  it('xhjlnok fix: returns diff_invariant_violated (not a 200) when the diff is arithmetically impossible', async () => {
+  it('returns diff_invariant_violated (not a 200) when the diff is arithmetically impossible', async () => {
     landedResult = {
       data: [
         {

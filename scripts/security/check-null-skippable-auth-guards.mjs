@@ -357,7 +357,7 @@ function findViolations(files) {
           `NULL when either side is NULL, and a later \`IF NOT <var>\` treats that ` +
           `NULL as false, SKIPPING the deny branch rather than failing it. This is ` +
           `not caught by the operator lanes because \`=\` is fail-closed in a ` +
-          `predicate but not in an assignment (xdcibij shipped exactly this). Use ` +
+          `predicate but not in an assignment (this exact shape has shipped before). Use ` +
           `\`x IS NULL OR x IS DISTINCT FROM auth.${match[2]}()\`, or COALESCE the ` +
           `nullable side before comparing`
       )
@@ -392,7 +392,7 @@ function findViolations(files) {
         violations.push(
           `${file}: ${how} without ` +
             `\`REVOKE EXECUTE ON FUNCTION public.${fn}(...) FROM PUBLIC\` in the ` +
-            `same file (xfmhocn)`
+            `same file`
         )
       }
     }
@@ -459,7 +459,7 @@ function selfTest() {
   })
   if (assignedEquality.length !== 1) {
     throw new Error(
-      `positive control failed: assigned \`= auth.uid()\` (the xdcibij shape) — expected 1, got ${assignedEquality.length}:\n${assignedEquality.join('\n')}`
+      `positive control failed: assigned \`= auth.uid()\` (the null-skipping shape) — expected 1, got ${assignedEquality.length}:\n${assignedEquality.join('\n')}`
     )
   }
 
@@ -580,8 +580,8 @@ function selfTest() {
   })
   if (fixMigrationShape.length !== 0) {
     throw new Error(
-      'negative control failed: the xfmhocn FIX migration is rejected by the ' +
-        `xfmhocn gate — vulnerable text quoted as data must not be a finding:\n${fixMigrationShape.join('\n')}`
+      'negative control failed: the fix migration is rejected by the ' +
+        `same-file REVOKE gate — vulnerable text quoted as data must not be a finding:\n${fixMigrationShape.join('\n')}`
     )
   }
 
@@ -762,49 +762,49 @@ function selfTest() {
 
   // Scope: covered patterns fail, supported rewrites pass, unsupported constructs stay silent.
 
-  const xioocjbCoveredUnsafe = findViolations({
-    'supabase/migrations/xioocjb-a.sql':
+  const scopeCoveredUnsafe = findViolations({
+    'supabase/migrations/scope-a.sql':
       "IF auth.role() <> 'service_role' THEN NULL; END IF;"
   })
-  if (xioocjbCoveredUnsafe.length !== 1) {
+  if (scopeCoveredUnsafe.length !== 1) {
     throw new Error(
-      'xihioeo regression: a covered unsafe pattern (Lane 1a) stopped being ' +
-        `detected (${xioocjbCoveredUnsafe.length} finding(s))`
+      'Scope regression: a covered unsafe pattern (Lane 1a) stopped being ' +
+        `detected (${scopeCoveredUnsafe.length} finding(s))`
     )
   }
 
-  const xioocjbSupportedSafe = findViolations({
-    'supabase/migrations/xioocjb-b.sql':
+  const scopeSupportedSafe = findViolations({
+    'supabase/migrations/scope-b.sql':
       "IF auth.role() IS DISTINCT FROM 'service_role' THEN NULL; END IF;"
   })
-  if (xioocjbSupportedSafe.length !== 0) {
+  if (scopeSupportedSafe.length !== 0) {
     throw new Error(
-      'xihioeo regression: a supported null-safe rewrite was flagged ' +
-        `(${xioocjbSupportedSafe.length} finding(s))`
+      'Scope regression: a supported null-safe rewrite was flagged ' +
+        `(${scopeSupportedSafe.length} finding(s))`
     )
   }
 
-  const xioocjbUnsupportedLaunderedThroughFunctionCall = findViolations({
-    'supabase/migrations/xioocjb-c.sql':
+  const scopeUnsupportedLaunderedThroughFunctionCall = findViolations({
+    'supabase/migrations/scope-c.sql':
       'v_is_applicant := is_owner(auth.uid(), v_app_record.applicant_user_id);\n' +
       'IF NOT v_is_applicant THEN RETURN NULL; END IF;'
   })
-  if (xioocjbUnsupportedLaunderedThroughFunctionCall.length !== 0) {
+  if (scopeUnsupportedLaunderedThroughFunctionCall.length !== 0) {
     throw new Error(
-      'xihioeo: a function-call-laundered NULL-skip was unexpectedly detected ' +
-        `(${xioocjbUnsupportedLaunderedThroughFunctionCall.length} finding(s)) — ` +
+      'Scope: a function-call-laundered NULL-skip was unexpectedly detected ' +
+        `(${scopeUnsupportedLaunderedThroughFunctionCall.length} finding(s)) — ` +
         "if a new lane now covers this, update the header's scope claims " +
         'instead of leaving this assertion stale'
     )
   }
-  const xioocjbScanSuccessMessage = formatScanSuccess(1)
+  const scopeScanSuccessMessage = formatScanSuccess(1)
   if (
-    !/out of scope/i.test(xioocjbScanSuccessMessage) ||
-    !/multi-hop dataflow/i.test(xioocjbScanSuccessMessage)
+    !/out of scope/i.test(scopeScanSuccessMessage) ||
+    !/multi-hop dataflow/i.test(scopeScanSuccessMessage)
   ) {
     throw new Error(
-      'xihioeo regression: the --scan success line no longer names the scope ' +
-        `("${xioocjbScanSuccessMessage}") — a green scan must not be misread as ` +
+      'Scope regression: the --scan success line no longer names the scope ' +
+        `("${scopeScanSuccessMessage}") — a green scan must not be misread as ` +
         'covering multi-hop dataflow or TypeScript guards'
     )
   }

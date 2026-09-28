@@ -165,7 +165,7 @@ test('rejects an empty migrations directory', () => {
   }
 })
 
-test('xidfeio: a post-cutoff version ending in "00" passes', () => {
+test('a post-cutoff version ending in "00" passes', () => {
   const root = fixtureDir()
   try {
     const migrationsDir = join(root, 'supabase/migrations')
@@ -182,7 +182,7 @@ test('xidfeio: a post-cutoff version ending in "00" passes', () => {
   }
 })
 
-test('xidfeio: a post-cutoff version ending in "30" fails', () => {
+test('a post-cutoff version ending in "30" fails', () => {
   const root = fixtureDir()
   try {
     const migrationsDir = join(root, 'supabase/migrations')
@@ -206,7 +206,7 @@ test('xidfeio: a post-cutoff version ending in "30" fails', () => {
   }
 })
 
-test('xidfeio: a pre-cutoff version ending in "30" is ignored (existing files untouched)', () => {
+test('a pre-cutoff version ending in "30" is ignored (existing files untouched)', () => {
   const root = fixtureDir()
   try {
     const migrationsDir = join(root, 'supabase/migrations')
@@ -223,7 +223,7 @@ test('xidfeio: a pre-cutoff version ending in "30" is ignored (existing files un
   }
 })
 
-test('xidfeio: the cutoff constant matches the migration authoring doc', () => {
+test('the cutoff constant matches the migration authoring doc', () => {
   assert.equal(VERSION_SUFFIX_CUTOFF, '20260920000000')
 })
 

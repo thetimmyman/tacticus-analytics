@@ -35,7 +35,7 @@ export async function assertClientSession(): Promise<void> {
         sessionAccessToken = null
         throw new Error(
           'AUTH_PENDING: Supabase session not hydrated yet — retrying. ' +
-            'Guild analytics are not anonymously readable (xnigene).'
+            'Guild analytics are not anonymously readable.'
         )
       }
       sessionAccessToken = data.session.access_token

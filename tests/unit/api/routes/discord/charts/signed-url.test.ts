@@ -27,7 +27,7 @@ function verify(url: string, options: Record<string, unknown> = {}) {
   })
 }
 
-describe('xadmmhe signed chart URLs', () => {
+describe('signed chart URLs', () => {
   const originalSecret = process.env.DISCORD_CHART_URL_SECRET
 
   beforeEach(() => {

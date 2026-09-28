@@ -48,7 +48,7 @@ vi.mock('@/app/api/discord/guild-label', () => ({
 import { GET } from '@/app/api/discord/charts/boss/route'
 import { signChartUrl } from '@/app/api/discord/charts/signed-url'
 
-describe('xadmmhe /api/discord/charts/boss auth gate', () => {
+describe('/api/discord/charts/boss auth gate', () => {
   const original = process.env.DISCORD_CHART_URL_SECRET
 
   beforeEach(() => {

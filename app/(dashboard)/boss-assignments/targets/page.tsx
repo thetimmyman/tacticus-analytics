@@ -19,7 +19,7 @@ export const revalidate = 0
 
 export const metadata = {
   title: 'Boss Target Tokens | Tacticus Analytics',
-  description: 'Officer-editable normative target tokens per boss (xeomokb)'
+  description: 'Officer-editable normative target tokens per boss'
 }
 
 interface PageProps {

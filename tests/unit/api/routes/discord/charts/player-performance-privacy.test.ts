@@ -62,7 +62,7 @@ function collectLabels(node: unknown, out: string[] = []): string[] {
   return out
 }
 
-describe('xadmmhe player-performance chart labels honour hide_players', () => {
+describe('player-performance chart labels honour hide_players', () => {
   const original = process.env.DISCORD_CHART_URL_SECRET
 
   beforeEach(() => {
