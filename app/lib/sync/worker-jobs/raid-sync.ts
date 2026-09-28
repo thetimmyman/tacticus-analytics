@@ -300,7 +300,7 @@ async function runRaidSync(
   let writeEntries = entries
   let allStored = false
   if (!options.deleteBeforeUpsert && entries.length > 0) {
-    const keyedEntries = await timePhase(result, 'diff', () =>
+    const keyedEntries = await timePhase(result, 'transform', () =>
       entries.map((entry) => ({
         entry,
         row: processRaidEntry(
@@ -338,10 +338,10 @@ async function runRaidSync(
           .filter(({ row }) => !row || !stored.has(battleKey(row)))
           .map(({ entry }) => entry)
       )
+      result.newEntries = writeEntries.length
       allStored = writeEntries.length === 0
     }
   }
-  result.newEntries = writeEntries.length
 
   // Quiet guild: skip identity, bombs, hooks and Herald (they make realtime sync
   // several times slower); runQuietTickMaintenance covers what cannot wait.

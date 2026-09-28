@@ -250,4 +250,43 @@ describe('parallel drain lanes', () => {
       )
     ).toBe(true)
   })
+
+  it('releases the claim through fail_job when a deferral cannot be written', async () => {
+    const rows = [job('a', 'TESTGUILD'), job('b', 'TESTGUILD')]
+    const rpc = vi.fn(async (name: string) =>
+      name === 'claim_next_job'
+        ? { data: rows.shift() ?? null, error: null }
+        : { data: true, error: null }
+    )
+    const client = {
+      rpc,
+      from: vi.fn(() => ({
+        select: () => ({
+          eq: () => ({
+            eq: () => ({
+              single: async () => ({ data: { attempts: 1 }, error: null })
+            })
+          })
+        }),
+        update: () => ({
+          eq: () => ({
+            eq: () => Promise.resolve({ error: { message: 'write refused' } })
+          })
+        })
+      }))
+    }
+    processJob.mockImplementation(async (claimed: { id: string }) => {
+      await new Promise((resolve) => setTimeout(resolve, 30))
+      return outcome(claimed.id)
+    })
+
+    const results = await Promise.all([lane(client, 0), lane(client, 1)])
+
+    const failCalls = rpc.mock.calls.filter(([name]) => name === 'fail_job')
+    expect(failCalls).toHaveLength(1)
+    expect(failCalls[0][1]).toMatchObject({ p_job_id: 'b' })
+    expect(results.map((result) => result.stoppedReason)).toContain(
+      'claim_error'
+    )
+  })
 })

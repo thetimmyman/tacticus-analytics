@@ -13,7 +13,7 @@ import type {
 const logger = createComponentLogger('api.sync.worker.drain')
 
 type DrainLaneStop = 'queue_empty' | 'budget_exhausted' | 'claim_error'
-export type DrainLaneRole = 'any' | 'background_first'
+type DrainLaneRole = 'any' | 'background_first'
 
 // Background claim tiers, tried in order before an unfiltered claim; rare heavy
 // jobs come first so a steady incremental stream cannot outrank a due full_sync.
@@ -132,6 +132,13 @@ export async function runDrainLane(
           { err: error, laneIndex, jobId: typedJob.id },
           'Failed to defer sync job'
         )
+        // Release through fail_job's retry backoff rather than strand the claim until the stuck-job reset.
+        await callRpc<boolean>(supabase, 'fail_job', {
+          p_job_id: typedJob.id,
+          p_worker_id: workerIdForLane,
+          p_error: 'guild_in_flight deferral failed',
+          p_progress: {}
+        }).catch(() => undefined)
         stoppedReason = 'claim_error'
         break
       }
