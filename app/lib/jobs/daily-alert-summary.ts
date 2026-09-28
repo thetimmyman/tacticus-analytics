@@ -35,6 +35,7 @@ async function collectSyncHealthAlerts(): Promise<void> {
       .select(
         'guild_code, display_name, consecutive_sync_failures, auto_sync_enabled, last_successful_sync'
       )
+      .eq('enabled', true)
       .gte('consecutive_sync_failures', 3)
       .order('consecutive_sync_failures', { ascending: false })
       .limit(50)
@@ -66,6 +67,7 @@ async function collectSyncHealthAlerts(): Promise<void> {
       .select(
         'guild_code, display_name, last_successful_sync, auto_sync_enabled'
       )
+      .eq('enabled', true)
       .eq('auto_sync_enabled', true)
       // `NULL < ts` is NULL, so a bare .lt() would drop never-synced guilds.
       .or(
@@ -95,6 +97,7 @@ async function collectSyncHealthAlerts(): Promise<void> {
     const { data: disabledGuilds, error: disabledError } = await supabase
       .from('guild_config')
       .select('guild_code, display_name, consecutive_sync_failures')
+      .eq('enabled', true)
       .eq('auto_sync_enabled', false)
       .gte('consecutive_sync_failures', 3)
       .order('consecutive_sync_failures', { ascending: false })
@@ -120,6 +123,7 @@ async function collectSyncHealthAlerts(): Promise<void> {
     const { data: invalidKeyGuilds, error: invalidKeyError } = await supabase
       .from('guild_config')
       .select('guild_code, display_name, api_key_is_valid')
+      .eq('enabled', true)
       .eq('api_key_is_valid', false)
       .limit(20)
 

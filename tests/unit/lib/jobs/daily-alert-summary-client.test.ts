@@ -15,15 +15,22 @@ type QueryResult = {
  * `result`. The builder methods the job chains are all accepted.
  */
 function clientReturning(result: (select: string) => QueryResult) {
+  const queries: { select: string; eq: [string, unknown][] }[] = []
   const from = vi.fn((_table: string) => {
     let selected = ''
+    const query = { select: '', eq: [] as [string, unknown][] }
+    queries.push(query)
     const builder = {
       select: (columns: string) => {
         selected = columns
+        query.select = columns
         return builder
       },
       gte: () => builder,
-      eq: () => builder,
+      eq: (column: string, value: unknown) => {
+        query.eq.push([column, value])
+        return builder
+      },
       or: () => builder,
       order: () => builder,
       limit: () => Promise.resolve(result(selected)),
@@ -32,7 +39,7 @@ function clientReturning(result: (select: string) => QueryResult) {
     }
     return builder
   })
-  return { from }
+  return { from, queries }
 }
 
 const ANON_DENIED: QueryResult = {
@@ -133,6 +140,11 @@ describe('daily alert summary job reads guild_config with the service client', (
 
     expect(cookieClient.from).not.toHaveBeenCalled()
     expect(serviceClient.from).toHaveBeenCalledWith('guild_config')
+    // The service client bypasses RLS, so each read must exclude disabled guilds itself.
+    expect(serviceClient.queries).toHaveLength(4)
+    for (const query of serviceClient.queries) {
+      expect(query.eq).toContainEqual(['enabled', true])
+    }
     expect(addSyncAlert).toHaveBeenCalledWith(
       'Guild Sync Failures',
       expect.stringContaining('6 consecutive sync failures'),
