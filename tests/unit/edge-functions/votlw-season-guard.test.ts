@@ -4,7 +4,7 @@ import {
   buildGuildSeasonRows,
   selectScorableSeasons,
   type GuildSeasonRow
-} from '../../../supabase/functions/calculate-votlw/season-guard.ts'
+} from '../../../supabase/functions/calculate-votlw/season-guard'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const NOW = Date.parse('2026-07-15T00:00:00Z')
