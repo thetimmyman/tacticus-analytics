@@ -70,9 +70,11 @@ export function isUrlHostInCidrs(
 export function isLoopbackSupabaseUrl(url: string | undefined): boolean {
   const host = hostOf(url)
   if (!host) return false
-  // URL.hostname keeps the brackets around an IPv6 literal.
-  const bare = host.replace(/^\[|\]$/gu, '')
-  return bare === 'localhost' || bare === '127.0.0.1' || bare === '::1'
+  // URL.hostname keeps the brackets around an IPv6 literal and a trailing root dot.
+  const bare = host.replace(/^\[|\]$/gu, '').replace(/\.$/u, '')
+  if (bare === 'localhost' || bare === '::1') return true
+  const address = ipv4ToInt(bare)
+  return address !== null && Math.floor(address / 2 ** 24) === 127
 }
 
 // Each variable is named statically: Next.js inlines only static NEXT_PUBLIC_*

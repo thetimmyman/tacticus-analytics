@@ -115,11 +115,15 @@ describe('isLoopbackSupabaseUrl', () => {
     expect(isLoopbackSupabaseUrl('http://localhost:54321')).toBe(true)
     expect(isLoopbackSupabaseUrl('http://127.0.0.1:54321')).toBe(true)
     expect(isLoopbackSupabaseUrl('http://[::1]:54321')).toBe(true)
+    expect(isLoopbackSupabaseUrl('http://127.0.0.2:54321')).toBe(true)
+    expect(isLoopbackSupabaseUrl('http://localhost.:54321')).toBe(true)
   })
 
   it('does not treat a hostname merely containing "localhost" as loopback', () => {
     expect(isLoopbackSupabaseUrl('https://localhost.example.com')).toBe(false)
     expect(isLoopbackSupabaseUrl('https://api.example.com')).toBe(false)
+    expect(isLoopbackSupabaseUrl('http://128.0.0.1:54321')).toBe(false)
+    expect(isLoopbackSupabaseUrl('http://126.255.255.255:54321')).toBe(false)
     expect(isLoopbackSupabaseUrl(undefined)).toBe(false)
   })
 })

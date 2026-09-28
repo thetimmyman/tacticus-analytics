@@ -65,4 +65,4 @@ kubectl port-forward service/tacticus-analytics-web 8080:80
 
 - **Probes** use `/api/health/process`. It reports only that the Node process is serving and needs no credentials.
 - **`/api/health`** is public too and always returns HTTP 200. Without the `HEALTH_CHECK_SECRET` bearer it returns a sanitized snapshot, and with the bearer it returns the full one. It is not a kubelet probe.
-- **`DEPLOYMENT_ENV`** is left unset. `DEPLOYMENT_ENV=self-hosted` turns on probes for nginx, a tunnel and backups that this example does not create.
+- **`DEPLOYMENT_ENV`** is left unset. `DEPLOYMENT_ENV=self-hosted` turns on Docker, disk, nginx, tunnel and PostgREST probes and the extreme-memory auto-shutdown, which assume infrastructure this example does not create.
