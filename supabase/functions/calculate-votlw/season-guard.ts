@@ -97,3 +97,68 @@ export function selectScorableSeasons(
     (a, b) => a.guild.localeCompare(b.guild) || a.season - b.season
   )
 }
+
+export type ManualSeasonResult = { season: string } | { error: string } | null
+
+/**
+ * Validates a manually-supplied `season` body field. Returns null when none
+ * was supplied (caller falls back to the guild-only or scheduled path), an
+ * `error` when one was supplied but is not usable, or the trimmed value
+ * unchanged otherwise — callers pass this same string on to guild discovery,
+ * both award RPCs, and the upsert, rather than parseInt-then-toString it
+ * (which turns a non-numeric or empty value into a silently wrong "NaN" row).
+ */
+export function normalizeManualSeason(raw: unknown): ManualSeasonResult {
+  if (raw === null || raw === undefined) return null
+  if (typeof raw !== 'string') {
+    return { error: `season must be a string, got ${typeof raw}` }
+  }
+  const trimmed = raw.trim()
+  if (!/^\d+$/.test(trimmed)) {
+    return {
+      error: `season must match ^\\d+$ after trimming, got ${JSON.stringify(raw)}`
+    }
+  }
+  if (Number(trimmed) === 0) {
+    return { error: 'season 0 is not valid' }
+  }
+  return { season: trimmed }
+}
+
+/**
+ * A manual call naming only a guild (calculate_votlw_for_season(NULL, guild))
+ * scores that guild's own previous season directly, from its own latest
+ * season — no grace window, since an explicit manual call already knows what
+ * it wants scored. latestSeasonForGuild is get_latest_season_for_guild's
+ * result (MAX(season_num)::text, or null with no data for the guild).
+ */
+export function computeManualGuildTarget(
+  guild: string,
+  latestSeasonForGuild: string | null
+): ScorableSeason | null {
+  if (!latestSeasonForGuild) return null
+  const latest = Number(latestSeasonForGuild)
+  if (!Number.isFinite(latest)) return null
+  const previous = latest - 1
+  if (previous < 1) return null
+  return { guild, season: previous }
+}
+
+/**
+ * Which seasons a calculate-votlw run actually wrote a winner row for. The
+ * caller uses this only to decide whether ANY downstream refresh is needed
+ * (non-empty), not to refresh per season — see index.ts for why. Non-numeric
+ * season strings (should not happen; defensive) are dropped rather than
+ * thrown.
+ */
+export function seasonsWithWrittenWinners(
+  results: Array<{ season: string; written: boolean }>
+): number[] {
+  const seasons = new Set<number>()
+  for (const result of results) {
+    if (!result.written) continue
+    const seasonNum = Number(result.season)
+    if (Number.isFinite(seasonNum)) seasons.add(seasonNum)
+  }
+  return [...seasons].sort((a, b) => a - b)
+}

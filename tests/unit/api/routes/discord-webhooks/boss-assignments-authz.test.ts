@@ -9,6 +9,9 @@ let mockDb: ReturnType<typeof vi.fn>
 let mockFormatBossAssignmentEmbed: ReturnType<typeof vi.fn>
 let mockPostToWebhook: ReturnType<typeof vi.fn>
 let mockLogDiscordWebhookDelivery: ReturnType<typeof vi.fn>
+let mockLoadWebhookUrlById: ReturnType<typeof vi.fn>
+const webhookId = '10000000-0000-4000-8000-000000000001'
+const webhookUrl = 'https://discord.com/api/webhooks/1001/test-token'
 
 const makeQuery = (result: { data: unknown; error: unknown }) => {
   const builder: Record<string, unknown> = {}
@@ -35,6 +38,10 @@ describe('POST /api/discord-webhooks/boss-assignments — leader cross-guild aut
     mockFormatBossAssignmentEmbed = vi.fn().mockReturnValue({ embeds: [] })
     mockPostToWebhook = vi.fn().mockResolvedValue({ ok: true })
     mockLogDiscordWebhookDelivery = vi.fn()
+    mockLoadWebhookUrlById = vi.fn().mockResolvedValue(webhookUrl)
+    vi.doMock('@/app/lib/webhooks/webhook-url-lookup', () => ({
+      loadWebhookUrlById: mockLoadWebhookUrlById
+    }))
 
     vi.doMock('@/app/lib/db', () => ({ db: mockDb }))
     vi.doMock('@/app/lib/discord/formatters', () => ({
@@ -188,7 +195,7 @@ describe('POST /api/discord-webhooks/boss-assignments — leader cross-guild aut
       }
       if (table === 'webhook_config') {
         return makeQuery({
-          data: { webhook_url: 'https://discord.com/api/webhooks/1/tok' },
+          data: { id: webhookId },
           error: null
         })
       }
@@ -210,6 +217,27 @@ describe('POST /api/discord-webhooks/boss-assignments — leader cross-guild aut
     expect(body.webhooks_sent).toBe(2)
     expect(body.webhooks_failed).toBe(0)
     expect(mockPostToWebhook).toHaveBeenCalledTimes(2)
+    expect(mockLoadWebhookUrlById).toHaveBeenCalledTimes(2)
+    expect(mockLoadWebhookUrlById).toHaveBeenCalledWith(webhookId)
+    expect(mockPostToWebhook).toHaveBeenCalledWith(
+      webhookUrl,
+      expect.anything(),
+      expect.anything()
+    )
+    const webhookQueries = mockSupabase.from.mock.calls.flatMap(
+      ([table], index) =>
+        table === 'webhook_config'
+          ? [mockSupabase.from.mock.results[index].value]
+          : []
+    )
+    expect(
+      webhookQueries.filter((query) => query.select.mock.calls.length)
+    ).toHaveLength(2)
+    for (const query of webhookQueries) {
+      if (query.select.mock.calls.length > 0) {
+        expect(query.select).toHaveBeenCalledWith('id')
+      }
+    }
     const postedGuildCodes = mockPostToWebhook.mock.calls.map(
       (call) => (call[2] as { guildCode?: string })?.guildCode
     )

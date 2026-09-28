@@ -18,6 +18,7 @@ import { loadGuildTokenStatuses } from '@/app/api/guild-tokens/token-service'
 import { getMemberLabelMap } from '@/app/lib/member-labels-server'
 import { resolveMemberLabel } from '@/app/lib/member-labels'
 import { assertUnbannedAuthUser } from '@/app/lib/api/session-user'
+import { loadWebhookUrlById } from '@/app/lib/webhooks/webhook-url-lookup'
 
 type CapNotificationPayload = {
   guild_code?: string
@@ -186,12 +187,15 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     }
     const { data: webhookConfig } = await supabase
       .from('webhook_config')
-      .select('webhook_url')
+      .select('id')
       .eq('guild_code', targetGuild)
       .eq('webhook_type', 'token_cap_notification')
       .eq('enabled', true)
       .single()
-    if (!webhookConfig?.webhook_url) {
+    const webhookUrl = webhookConfig?.id
+      ? await loadWebhookUrlById(webhookConfig.id)
+      : null
+    if (!webhookUrl) {
       throw Errors.webhookNotConfigured(targetGuild, 'token_cap_notification')
     }
 
@@ -210,7 +214,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     )
 
     const postResult = await postToWebhook(
-      webhookConfig.webhook_url,
+      webhookUrl,
       { ...payload, username: 'Token Cap Alert' },
       {
         guildCode: targetGuild,
