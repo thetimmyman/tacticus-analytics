@@ -83,6 +83,14 @@ const syncSchedulerHandler: JobHandler = async (_payload, ctx) => {
   try {
     const db = createDirectClient()
 
+    // Realtime and incremental syncs replay the same season snapshot, so an
+    // incremental queued behind a guild's pending realtime (lower priority) only waits and ages the queue.
+    // Read before the guilds: a realtime that completes in between then still defers, never double-queues.
+    const guildsWithActiveRealtime = await loadGuildsWithActiveRealtime(
+      db,
+      ctx.jobId
+    )
+
     const guildSelect =
       'guild_code,enabled,last_successful_sync,guild_sync_status!inner(last_sync,status,full_sync_at),sync_health(health_status,consecutive_failures,data_freshness_hours,last_failed_sync)'
     const guildPath = `guild_config?select=${guildSelect}&enabled=eq.true&api_key_encrypted=not.is.null&api_key_is_valid=not.is.false`
@@ -104,13 +112,6 @@ const syncSchedulerHandler: JobHandler = async (_payload, ctx) => {
     }
     let validationIncomplete = false
     let incrementalDeferred = 0
-
-    // Realtime and incremental syncs replay the same season snapshot, so an
-    // incremental queued behind a guild's pending realtime (lower priority) only waits and ages the queue.
-    const guildsWithActiveRealtime = await loadGuildsWithActiveRealtime(
-      db,
-      ctx.jobId
-    )
 
     const now = new Date()
 

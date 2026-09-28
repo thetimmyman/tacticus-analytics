@@ -394,6 +394,24 @@ describe('sync-scheduler work_queue handler', () => {
       expect(activePath).toContain('status=in.(pending,processing)')
     })
 
+    it('reads active realtime rows before the guilds so a realtime finishing in between cannot double-queue', async () => {
+      mockQueries({ data: [], error: null })
+
+      await syncSchedulerHandler({}, context)
+
+      const paths = mockDirectClient.query.mock.calls.map((call: unknown[]) =>
+        String(call[0])
+      )
+      const activeIndex = paths.findIndex((path: string) =>
+        path.startsWith('sync_queue?')
+      )
+      const guildIndex = paths.findIndex((path: string) =>
+        path.startsWith('guild_config?select=guild_code,enabled')
+      )
+      expect(activeIndex).toBeGreaterThanOrEqual(0)
+      expect(guildIndex).toBeGreaterThan(activeIndex)
+    })
+
     it('does not queue an incremental sync while the guild has a claimable realtime sync', async () => {
       mockQueries({
         data: [
