@@ -166,7 +166,7 @@ export async function refreshGuildRoster(
 }
 
 /** Writing ticks refresh the roster and rankings at most this often per guild. */
-export const WRITE_TICK_ROSTER_REFRESH_MS = 15 * 60 * 1000
+const WRITE_TICK_ROSTER_REFRESH_MS = 15 * 60 * 1000
 
 // A future stamp (clock skew, bad write) must not suppress refreshes indefinitely.
 function rosterRefreshedWithin(
