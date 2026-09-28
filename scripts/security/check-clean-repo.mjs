@@ -224,7 +224,8 @@ const SUBSTRING_GROUPS = (() => {
 /** Rabin-Karp over every window, confirmed by SHA-256: the same substring semantics as a regex. */
 function findHashedSubstrings(content) {
   const labels = new Set()
-  const lowered = content.toLowerCase()
+  // Long s (U+017F) is the one character /iu folds onto ASCII that toLowerCase() leaves alone.
+  const lowered = content.toLowerCase().replace(/\u017f/gu, 's')
   for (const group of SUBSTRING_GROUPS) {
     const text = group.caseInsensitive ? lowered : content
     const { length, power, markers } = group
@@ -484,6 +485,11 @@ function hashedSubstringControls() {
   expectLabel('whole.txt', SUBSTRING_SENTINEL, insensitive)
   expectLabel('upper.txt', SUBSTRING_SENTINEL.toUpperCase(), insensitive)
   expectLabel('embedded.txt', `x${SUBSTRING_SENTINEL}y`, insensitive)
+  expectLabel(
+    'long-s.txt',
+    SUBSTRING_SENTINEL.replace('s', '\u017f'),
+    insensitive
+  )
   expectLabel(
     'at-end.txt',
     `${'a'.repeat(1000)}${SUBSTRING_SENTINEL}`,
