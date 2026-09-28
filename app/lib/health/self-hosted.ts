@@ -26,9 +26,10 @@ function ipv4ToInt(address: string): number | null {
 
 /** An unparseable CIDR matches nothing: a typo must never widen the match. */
 export function isIpv4InCidr(address: string, cidr: string): boolean {
-  const parts = cidr.trim().split('/')
-  if (parts.length !== 2) return false
-  const [network, prefixText] = parts
+  const [network, prefixText, ...rest] = cidr.trim().split('/')
+  if (network === undefined || prefixText === undefined || rest.length > 0) {
+    return false
+  }
   if (!/^\d{1,2}$/u.test(prefixText)) return false
   const prefix = Number(prefixText)
   if (prefix > 32) return false
