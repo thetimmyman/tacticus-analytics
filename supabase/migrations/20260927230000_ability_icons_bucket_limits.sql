@@ -15,8 +15,8 @@ $guard$;
 SET LOCAL lock_timeout = '5s';
 SET LOCAL statement_timeout = '30s';
 
--- Serialise the preflight with concurrent uploads (which hold ROW EXCLUSIVE on
--- storage.objects) until the cap commits, so nothing slips past the census.
+-- Block object inserts until the cap commits. An upload Storage validated before
+-- the cap can still insert afterwards, so re-run the census once this is applied.
 DO $preflight$
 DECLARE
   v_violations bigint;
