@@ -27,9 +27,9 @@ const PATTERNS = [
   },
   {
     kind: 'slug',
-    re: /(?<![A-Za-z0-9])(?:ps|wi|eot|tmos)[-_]?\d{2,}(?!\d)/gu
+    re: /(?<![A-Za-z0-9])(?:ps|wi|eot|tmos)[-_ ]?\d{2,}(?!\d)/gu
   },
-  { kind: 'slug', re: /(?<![A-Za-z0-9])(?:PS|WI)_?\d{2,}(?!\d)/gu }
+  { kind: 'slug', re: /(?<![A-Za-z0-9])(?:PS|WI)[_ ]?\d{2,}(?!\d)/gu }
 ]
 const TOKEN_CHAR = /[A-Za-z0-9_-]/u
 
@@ -295,6 +295,12 @@ function selfTest() {
   expectKinds('env slug', `process.env.${'WI'}6060_BACKEND`, [
     `slug:${'WI'}6060_BACKEND`
   ])
+  expectKinds('space-separated slug', `'${'WI'} 2670 Control Guild'`, [
+    `slug:${'WI'} 2670`
+  ])
+  expectKinds('lower space slug', `-- see ${'wi'} 2670 notes`, [
+    `slug:${'wi'} 2670`
+  ])
   expectKinds('pr ref', `see ${'PR'} #42 and ${'issue'} #7, ${'codex'} #3`, [
     `ref:${'PR'} #42`,
     `ref:${'issue'} #7`,
@@ -302,7 +308,7 @@ function selfTest() {
   ])
   expectKinds(
     'look-alikes are not hits',
-    'ISO-8601 SHA-256 HTTPS-443 DATA-12 ps1 ups123 #42 PR# sec30 pos10 ta12 eot_gr_data',
+    'ISO-8601 SHA-256 HTTPS-443 DATA-12 ps1 ups123 #42 PR# sec30 pos10 ta12 eot_gr_data PS 5 APS 12',
     []
   )
 
