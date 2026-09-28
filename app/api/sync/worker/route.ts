@@ -11,7 +11,11 @@ import {
   runDrainLane
 } from '@/app/lib/sync/drain-lane'
 import { requireCronAuthorization, callRpc } from '@/app/lib/sync/worker-utils'
-import { WORKER_CONFIG, type WorkerResult } from '@/app/lib/sync/worker-types'
+import {
+  WORKER_CONFIG,
+  resolveDrainLanes,
+  type WorkerResult
+} from '@/app/lib/sync/worker-types'
 import { generateId } from '@/app/lib/utils/id-generation'
 
 /** Drains sync_queue across lanes; claim_next_job() uses FOR UPDATE SKIP LOCKED, so lanes never share a job. */
@@ -24,7 +28,7 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
   try {
     const supabase = serviceDb()
 
-    const lanes = Math.max(1, WORKER_CONFIG.drainLanes)
+    const lanes = resolveDrainLanes()
     const budgetMs = WORKER_CONFIG.workerTimeout
     const tailReserveMs = WORKER_CONFIG.laneTailReserveMs
     const windowMs = laneWindowMs(budgetMs, tailReserveMs)
@@ -36,6 +40,8 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
         runDrainLane({
           supabase,
           laneIndex,
+          role:
+            lanes >= 2 && laneIndex === lanes - 1 ? 'background_first' : 'any',
           laneWorkerId: laneWorkerId(workerId, laneIndex),
           startTime,
           budgetMs,
@@ -72,7 +78,9 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
     const perLane = outcomes.map((outcome) => ({
       lane: outcome.laneIndex,
       workerId: outcome.laneWorkerId,
+      role: outcome.role,
       jobsDrained: outcome.jobsDrained,
+      jobsDeferred: outcome.jobsDeferred,
       wallMs: outcome.wallMs,
       stoppedReason: outcome.stoppedReason
     }))

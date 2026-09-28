@@ -156,4 +156,36 @@ describe('completeSyncJob — success clock', () => {
 
     expect((r as unknown as { success: boolean }).success).toBe(true)
   })
+
+  it('forwards phase timings and sync path while preserving record count', async () => {
+    const db = dbDouble()
+    await completeSyncJob(
+      job('full_sync'),
+      db.client as never,
+      'w1',
+      result({
+        recordsProcessed: 4,
+        phaseMs: { fetch: 12, diff: 3 },
+        syncPath: 'write',
+        snapshotEntries: 7,
+        storedKeys: 3,
+        newEntries: 4
+      })
+    )
+
+    expect(callRpc).toHaveBeenCalledWith(
+      expect.anything(),
+      'complete_job',
+      expect.objectContaining({
+        p_progress: expect.objectContaining({
+          records_processed: 4,
+          phase_ms: { fetch: 12, diff: 3 },
+          sync_path: 'write',
+          snapshot_entries: 7,
+          stored_keys: 3,
+          new_entries: 4
+        })
+      })
+    )
+  })
 })
