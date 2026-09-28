@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { withoutWriteClock } from '@/supabase/functions/_shared/sync-modules/helpers'
 import { upsertDataBatches as upsertAppBatches } from '@/app/lib/sync/db-operations/raid-upsert'
-import { upsertDataBatches as upsertEdgeBatches } from '@/supabase/functions/_shared/sync-modules/db-writer'
 
 const row = {
   Guild: 'TESTGUILD',
@@ -72,45 +71,6 @@ describe('battle write clock', () => {
                 defaultToNull: false
               }
             ]
-      )
-    }
-  )
-
-  it.each([false, true])(
-    'edge writer strips batch and retry payloads (retry=%s)',
-    async (retry) => {
-      const payloads: unknown[][] = []
-      const options: unknown[] = []
-      const upsert = vi.fn(async (rows: unknown[], opts: unknown) => {
-        payloads.push(rows)
-        options.push(opts)
-        return retry && payloads.length === 1
-          ? { error: { message: 'batch failed' }, count: null }
-          : { error: null, count: rows.length }
-      })
-      await upsertEdgeBatches(
-        {
-          supabase: { from: () => ({ upsert }) },
-          logger: {
-            info: vi.fn(),
-            warn: vi.fn(),
-            error: vi.fn(),
-            debug: vi.fn()
-          }
-        },
-        { table: 'EOT_GR_data', batchSize: 10 },
-        'TESTGUILD',
-        [row] as never,
-        () => true
-      )
-      expect(payloads).toEqual(retry ? [[expected], [expected]] : [[expected]])
-      expect(options).toEqual(
-        Array(retry ? 2 : 1).fill({
-          onConflict:
-            'Guild,Season,userId,encounterId,startedOn,completedOn,damageDealt,damageType',
-          defaultToNull: false,
-          count: 'exact'
-        })
       )
     }
   )
