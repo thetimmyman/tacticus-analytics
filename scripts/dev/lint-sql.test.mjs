@@ -329,7 +329,10 @@ test('a new public table with no GRANT fails, even with RLS on', async () => {
     '-- GRANT SELECT ON public.lint_probe TO authenticated;'
   ])
   assert.equal(result.errors.length, 1)
-  assert.match(result.errors[0], /public\.lint_probe is created without an explicit GRANT/)
+  assert.match(
+    result.errors[0],
+    /public\.lint_probe is created without an explicit GRANT/
+  )
 })
 
 test('a new public table with a GRANT but RLS off fails', async () => {
@@ -338,7 +341,10 @@ test('a new public table with a GRANT but RLS off fails', async () => {
     'GRANT SELECT ON lint_probe TO authenticated;'
   ])
   assert.equal(result.errors.length, 1)
-  assert.match(result.errors[0], /public\.lint_probe .*ENABLE ROW LEVEL SECURITY/)
+  assert.match(
+    result.errors[0],
+    /public\.lint_probe .*ENABLE ROW LEVEL SECURITY/
+  )
 })
 
 test('new-table grant rule ignores other schemas, temp tables, partitions and older migrations', async () => {
@@ -347,7 +353,10 @@ test('new-table grant rule ignores other schemas, temp tables, partitions and ol
     'CREATE TEMP TABLE lint_scratch (id uuid);',
     'CREATE TABLE public.lint_probe_2099 PARTITION OF public.lint_parent FOR VALUES IN (1);'
   ]
-  const newer = await lintNewTableMigration('20990101000000_other_schemas.sql', ignored)
+  const newer = await lintNewTableMigration(
+    '20990101000000_other_schemas.sql',
+    ignored
+  )
   assert.deepEqual(newer.errors, [])
 
   const older = await lintNewTableMigration('20260101000000_legacy.sql', [
