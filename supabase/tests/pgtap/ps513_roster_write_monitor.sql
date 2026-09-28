@@ -6,7 +6,7 @@ CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 SET LOCAL timezone TO 'UTC';
 
-SELECT plan(17);
+SELECT plan(30);
 
 SELECT is(
   current_database()::text,
@@ -185,6 +185,140 @@ SELECT ok(
             AND last_roster_write_at > now() - INTERVAL '1 minute'
      FROM public.sync_health WHERE guild_code = 'PS513DEAD'),
   '17. a successful pass resets the counter, stamps last_roster_write_at and records the rows it wrote'
+);
+
+-- sync_dead needs both: every sync lane skips the guild AND no clean sync landed in the window.
+DO $syncdead$
+BEGIN
+  INSERT INTO public.guild_config
+    (guild_code, display_name, enabled, last_successful_sync, api_key_encrypted,
+     api_key_is_valid, consecutive_sync_failures, consecutive_loki_failures, auto_sync_enabled)
+  VALUES
+    ('PS513SYNCOFF',  'Synthetic keyless sync-off guild',  true, now() - INTERVAL '20 days', NULL,        NULL,  0, 0, false),
+    ('PS513SYNCFAIL', 'Synthetic keyless gave-up guild',   true, now() - INTERVAL '20 days', NULL,        NULL,  5, 0, true),
+    ('PS513BADKEY',   'Synthetic invalid-key guild',       true, now() - INTERVAL '20 days', 'synthetic', false, 0, 0, true),
+    ('PS513KEYOFF',   'Synthetic scheduler-served guild',  true, now() - INTERVAL '20 days', 'synthetic', NULL,  0, 0, false),
+    ('PS513FLAKY',    'Synthetic flaky-sync guild',        true, now() - INTERVAL '2 hours', 'synthetic', NULL,  2, 0, true),
+    ('PS513FRESHBAD', 'Synthetic freshly-invalid guild',   true, now() - INTERVAL '1 hour',  'synthetic', false, 0, 0, true),
+    ('PS513EDGE',     'Synthetic in-window invalid guild', true, now() - INTERVAL '6 days',  'synthetic', false, 0, 0, true),
+    ('PS513FEWDEAD',  'Synthetic tiny keyless guild',      true, now() - INTERVAL '20 days', NULL,        NULL,  0, 0, false);
+  ALTER TABLE public.player_mapping DISABLE TRIGGER USER;
+  INSERT INTO public.player_mapping
+    (player_id, display_name, guild_code, is_current, is_active, updated_at)
+  SELECT g || '-' || i, 'sync ' || i, g, true, true, now() - INTERVAL '20 days'
+    FROM unnest(ARRAY['PS513SYNCOFF', 'PS513SYNCFAIL', 'PS513BADKEY', 'PS513KEYOFF',
+                      'PS513FLAKY', 'PS513FRESHBAD', 'PS513EDGE']) AS g,
+         generate_series(1, 29) AS i;
+  INSERT INTO public.player_mapping
+    (player_id, display_name, guild_code, is_current, is_active, updated_at)
+  SELECT 'PS513FEWDEAD-' || i, 'few ' || i, 'PS513FEWDEAD', true, true, now() - INTERVAL '20 days'
+    FROM generate_series(1, 2) AS i;
+  ALTER TABLE public.player_mapping ENABLE TRIGGER USER;
+  -- Each sync-dead guild starts out firing, so clearing is a real transition.
+  PERFORM monitoring.notify('roster.write.' || g, 'firing',
+    'Roster write stalled: ' || g, 'synthetic prior alert', true)
+    FROM unnest(ARRAY['PS513SYNCOFF', 'PS513SYNCFAIL', 'PS513BADKEY']) AS g;
+END
+$syncdead$;
+
+SELECT is(
+  (SELECT verdict FROM public.guild_roster_write_health()
+    WHERE guild_code = 'PS513SYNCOFF'),
+  'sync_dead'::text,
+  '18. no key, auto sync off, no clean sync in the window: sync_dead, not stale'
+);
+
+SELECT is(
+  (SELECT verdict FROM public.guild_roster_write_health()
+    WHERE guild_code = 'PS513SYNCFAIL'),
+  'sync_dead'::text,
+  '19. no key, batch sync gave up at 5 failures, no clean sync in the window: sync_dead'
+);
+
+SELECT is(
+  (SELECT verdict FROM public.guild_roster_write_health()
+    WHERE guild_code = 'PS513BADKEY'),
+  'sync_dead'::text,
+  '20. API key marked invalid, no clean sync in the window: sync_dead'
+);
+
+SELECT is(
+  (SELECT verdict FROM public.guild_roster_write_health()
+    WHERE guild_code = 'PS513KEYOFF'),
+  'stale'::text,
+  '21. auto sync off but a usable key: the scheduler still serves it, so stale'
+);
+
+SELECT is(
+  (SELECT verdict FROM public.guild_roster_write_health()
+    WHERE guild_code = 'PS513FLAKY'),
+  'stale'::text,
+  '22. NEGATIVE CONTROL: failures below the give-up count and a sync 2 hours ago keep stale'
+);
+
+SELECT is(
+  (SELECT verdict FROM public.guild_roster_write_health()
+    WHERE guild_code = 'PS513FRESHBAD'),
+  'stale'::text,
+  '23. key marked invalid but a clean sync landed an hour ago: the clock outranks the flag'
+);
+
+SELECT is(
+  (SELECT verdict FROM public.guild_roster_write_health()
+    WHERE guild_code = 'PS513EDGE'),
+  'stale'::text,
+  '24. key marked invalid, last clean sync 6 days ago is inside the 7-day window: stale'
+);
+
+SELECT is(
+  (SELECT verdict FROM public.guild_roster_write_health()
+    WHERE guild_code = 'PS513FEWDEAD'),
+  'too_few_rows'::text,
+  '25. a sync-dead guild with too few rows stays too_few_rows: cannot tell is not cleared'
+);
+
+SELECT is(
+  public.check_guild_roster_write_health(7, 0.5, 3, true),
+  (SELECT count(*)::integer FROM public.guild_roster_write_health(7, 0.5, 3)
+    WHERE verdict IN ('failing', 'stale')),
+  '26. the monitor counts exactly the failing and stale guilds as firing, not sync_dead'
+);
+
+SELECT is(
+  (SELECT count(*)::integer FROM monitoring.alert_state
+    WHERE alert_key IN ('roster.write.PS513SYNCOFF', 'roster.write.PS513SYNCFAIL',
+                        'roster.write.PS513BADKEY')
+      AND status = 'cleared'),
+  3,
+  '27. the monitor clears the firing roster alert of every sync_dead guild'
+);
+
+SELECT is(
+  (SELECT count(*)::integer FROM monitoring.alert_state
+    WHERE alert_key IN ('roster.write.PS513KEYOFF', 'roster.write.PS513FLAKY',
+                        'roster.write.PS513FRESHBAD', 'roster.write.PS513EDGE')
+      AND status = 'firing'),
+  4,
+  '28. the same run still fires for every stale guild a lane still serves or recently synced'
+);
+
+SELECT ok(
+  (SELECT last_body FROM monitoring.alert_state
+    WHERE alert_key = 'roster.write.PS513SYNCOFF')
+    LIKE '%every sync lane skips this guild and no clean sync landed in the last 7 day(s)%',
+  '29. the clearing message names the sync outage and the window'
+);
+
+-- A recorded roster-write error outranks a dead sync: the writer itself threw.
+DO $rec$ BEGIN
+  PERFORM public.record_roster_write_outcome('PS513BADKEY', false, NULL, 'upsert threw');
+END $rec$;
+
+SELECT is(
+  (SELECT verdict FROM public.guild_roster_write_health()
+    WHERE guild_code = 'PS513BADKEY'),
+  'failing'::text,
+  '30. a sync-dead guild with a recorded roster-write failure still reads failing'
 );
 
 SELECT * FROM finish();
