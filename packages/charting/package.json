@@ -12,7 +12,7 @@
     "./tooltip": "./src/tooltip/index.ts"
   },
   "peerDependencies": {
-    "react": "^18.0.0",
+    "react": "^19.0.0",
     "recharts": "^3.0.0"
   }
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type JSX } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { dbClient } from '@/app/lib/db/client'
 import { createComponentLogger } from '@/app/lib/logging/client'

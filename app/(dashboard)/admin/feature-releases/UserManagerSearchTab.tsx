@@ -41,7 +41,7 @@ interface UserManagerSearchTabProps {
   setFilterHasAccount: Dispatch<SetStateAction<'all' | 'yes' | 'no'>>
   showGuildDropdown: boolean
   setShowGuildDropdown: Dispatch<SetStateAction<boolean>>
-  guildDropdownRef: RefObject<HTMLDivElement>
+  guildDropdownRef: RefObject<HTMLDivElement | null>
   guilds: Guild[]
   selectGuild: (guildCode: string) => void
   selectedGuild: Guild | undefined

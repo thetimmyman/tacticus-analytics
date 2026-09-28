@@ -55,7 +55,7 @@ VirtualScrollWrapper.displayName = 'VirtualScrollWrapper'
 export const DebouncedInput = memo(
   ({ value, onChange, delay = 300, ...props }: DebouncedInputProps) => {
     const [localValue, setLocalValue] = React.useState(value)
-    const timeoutRef = React.useRef<NodeJS.Timeout>()
+    const timeoutRef = React.useRef<NodeJS.Timeout | undefined>(undefined)
 
     React.useEffect(() => {
       setLocalValue(value)

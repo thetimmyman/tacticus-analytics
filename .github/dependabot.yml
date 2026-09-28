@@ -34,5 +34,5 @@ updates:
       - dependency-name: 'postcss' # overrides: next > postcss 8.5.25 (exact)
       - dependency-name: 'esbuild' # overrides: tsx > esbuild 0.25.12 (exact)
       - dependency-name: 'linkify-it' # overrides: linkify-it 5.0.2 (exact)
-      - dependency-name: '@types/react' # overrides: recharts > @types/react ^18
+      - dependency-name: '@types/react' # overrides: recharts > @types/react ^19.3.0
       - dependency-name: 'sharp' # overrides: sharp ^0.35.3
