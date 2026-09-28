@@ -2,7 +2,10 @@ import { describe, it, expect } from 'vitest'
 import {
   VOTLW_SEASON_END_GRACE_MS,
   buildGuildSeasonRows,
+  computeManualGuildTarget,
+  normalizeManualSeason,
   selectScorableSeasons,
+  seasonsWithWrittenWinners,
   type GuildSeasonRow
 } from '../../../supabase/functions/calculate-votlw/season-guard'
 
@@ -218,6 +221,89 @@ describe('votlw season-guard', () => {
         { guild_code: 'GuildA', season: 104, first_battle: 'not-a-date' }
       ])
       expect(rows).toEqual([])
+    })
+  })
+
+  describe('normalizeManualSeason', () => {
+    it('returns null when no season was supplied', () => {
+      expect(normalizeManualSeason(null)).toBeNull()
+      expect(normalizeManualSeason(undefined)).toBeNull()
+    })
+
+    it('accepts a plain digit string, trimmed', () => {
+      expect(normalizeManualSeason('104')).toEqual({ season: '104' })
+      expect(normalizeManualSeason('  104  ')).toEqual({ season: '104' })
+    })
+
+    it('passes the string through unchanged rather than round-tripping through a number', () => {
+      // A round trip through parseInt/toString would silently reshape this
+      // (or turn a bad value into "NaN"); the canonical string must survive
+      // unchanged so it matches EOT_GR_data."Season" exactly.
+      expect(normalizeManualSeason('007')).toEqual({ season: '007' })
+    })
+
+    it('rejects a non-string season', () => {
+      const result = normalizeManualSeason(104)
+      expect(result && 'error' in result).toBe(true)
+    })
+
+    it('rejects empty or whitespace-only input', () => {
+      expect(
+        normalizeManualSeason('') && 'error' in normalizeManualSeason('')!
+      ).toBe(true)
+      expect(
+        normalizeManualSeason('   ') && 'error' in normalizeManualSeason('   ')!
+      ).toBe(true)
+    })
+
+    it('rejects non-digit input', () => {
+      const result = normalizeManualSeason('abc')
+      expect(result && 'error' in result).toBe(true)
+    })
+
+    it('rejects season 0', () => {
+      expect(
+        normalizeManualSeason('0') && 'error' in normalizeManualSeason('0')!
+      ).toBe(true)
+      expect(
+        normalizeManualSeason('00') && 'error' in normalizeManualSeason('00')!
+      ).toBe(true)
+    })
+  })
+
+  describe('computeManualGuildTarget', () => {
+    it("targets the guild's previous season directly, no grace window", () => {
+      expect(computeManualGuildTarget('GuildA', '105')).toEqual({
+        guild: 'GuildA',
+        season: 104
+      })
+    })
+
+    it('returns null when the guild has no data', () => {
+      expect(computeManualGuildTarget('GuildA', null)).toBeNull()
+    })
+
+    it('returns null when the guild has no season before season 1', () => {
+      expect(computeManualGuildTarget('GuildA', '1')).toBeNull()
+    })
+  })
+
+  describe('seasonsWithWrittenWinners', () => {
+    it('collects the unique seasons that actually got a winner row written', () => {
+      expect(
+        seasonsWithWrittenWinners([
+          { season: '104', written: true },
+          { season: '104', written: true },
+          { season: '105', written: false },
+          { season: '106', written: true }
+        ])
+      ).toEqual([104, 106])
+    })
+
+    it('returns an empty array when nothing was written', () => {
+      expect(
+        seasonsWithWrittenWinners([{ season: '104', written: false }])
+      ).toEqual([])
     })
   })
 })

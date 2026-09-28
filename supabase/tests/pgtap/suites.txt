@@ -92,6 +92,8 @@ wi6590_votlw_looping_bosses.sql # 6
 wi7920_public_snapshot_meta_team.sql # 18
 webhook_config_url_must_be_discord_webhook.sql # 10
 webhook_config_url_officer_only.sql # 24
+season_summary_claim_atomicity.sql # 6
+season_summary_stats_rpc.sql # 8
 
 # === DARK ===
 # cluster_rankings_refresh_throttle.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
