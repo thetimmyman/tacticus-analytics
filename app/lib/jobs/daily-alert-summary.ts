@@ -6,7 +6,7 @@ import {
   addSyncAlert,
   addApiKeyAlert
 } from '@tacticus/app-core/daily-alert-summary'
-import { db } from '@/app/lib/db'
+import { serviceDb } from '@/app/lib/db'
 import { runAllHealthChecks } from '@/app/lib/health'
 import { sendApiKeyIncidentNotifications } from '@/app/lib/services/api-key-incident-notifications'
 import { rethrowIfAppError } from '@/app/lib/errors/AppError'
@@ -17,11 +17,20 @@ import { formatGuildDisplayLabel } from '@/app/lib/format/guild'
 
 const logger = createComponentLogger('lib.jobs.daily-alert-summary')
 
+// A failed read would otherwise just drop its alerts from the summary.
+function logQueryError(query: string, error: { message: string } | null): void {
+  if (error) {
+    logger.warn({ query, err: error.message }, 'Sync health alert query failed')
+  }
+}
+
+// This runs in workers-hooks with no user session: a cookie-scoped client is
+// anon there, and anon cannot read these guild_config columns.
 async function collectSyncHealthAlerts(): Promise<void> {
   try {
-    const supabase = await db()
+    const supabase = serviceDb()
 
-    const { data: failedGuilds } = await supabase
+    const { data: failedGuilds, error: failedError } = await supabase
       .from('guild_config')
       .select(
         'guild_code, display_name, consecutive_sync_failures, auto_sync_enabled, last_successful_sync'
@@ -30,6 +39,7 @@ async function collectSyncHealthAlerts(): Promise<void> {
       .order('consecutive_sync_failures', { ascending: false })
       .limit(50)
 
+    logQueryError('failed-guilds', failedError)
     if (failedGuilds) {
       for (const guild of failedGuilds) {
         const failureCount = guild.consecutive_sync_failures ?? 0
@@ -51,7 +61,7 @@ async function collectSyncHealthAlerts(): Promise<void> {
     const staleThreshold = new Date()
     staleThreshold.setHours(staleThreshold.getHours() - 24)
 
-    const { data: staleGuilds } = await supabase
+    const { data: staleGuilds, error: staleError } = await supabase
       .from('guild_config')
       .select(
         'guild_code, display_name, last_successful_sync, auto_sync_enabled'
@@ -63,6 +73,7 @@ async function collectSyncHealthAlerts(): Promise<void> {
       )
       .limit(20)
 
+    logQueryError('stale-guilds', staleError)
     if (staleGuilds) {
       for (const guild of staleGuilds) {
         const lastSync = guild.last_successful_sync
@@ -81,7 +92,7 @@ async function collectSyncHealthAlerts(): Promise<void> {
       }
     }
 
-    const { data: disabledGuilds } = await supabase
+    const { data: disabledGuilds, error: disabledError } = await supabase
       .from('guild_config')
       .select('guild_code, display_name, consecutive_sync_failures')
       .eq('auto_sync_enabled', false)
@@ -89,6 +100,7 @@ async function collectSyncHealthAlerts(): Promise<void> {
       .order('consecutive_sync_failures', { ascending: false })
       .limit(50)
 
+    logQueryError('auto-sync-disabled', disabledError)
     if (disabledGuilds) {
       for (const guild of disabledGuilds) {
         const failureCount = guild.consecutive_sync_failures ?? 0
@@ -105,12 +117,13 @@ async function collectSyncHealthAlerts(): Promise<void> {
       }
     }
 
-    const { data: invalidKeyGuilds } = await supabase
+    const { data: invalidKeyGuilds, error: invalidKeyError } = await supabase
       .from('guild_config')
       .select('guild_code, display_name, api_key_is_valid')
       .eq('api_key_is_valid', false)
       .limit(20)
 
+    logQueryError('invalid-api-keys', invalidKeyError)
     if (invalidKeyGuilds) {
       for (const guild of invalidKeyGuilds) {
         const guildLabel = formatGuildDisplayLabel(guild)

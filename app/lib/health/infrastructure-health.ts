@@ -2,7 +2,6 @@ import {
   addDatabaseAlert,
   addInfrastructureAlert
 } from '@tacticus/app-core/daily-alert-summary'
-import { db } from '@/app/lib/db'
 import { serviceDb } from '@/app/lib/db'
 import { isSelfHostedDeployment } from './self-hosted'
 interface MemoryThresholds {
@@ -294,7 +293,9 @@ export async function checkDatabaseHealth(
   const startTime = Date.now()
 
   try {
-    const supabase = await db()
+    // Both callers (the daily summary job and the secret-gated health routes)
+    // have no user session, so a cookie-scoped client would be anon.
+    const supabase = serviceDb()
 
     const { error } = await supabase
       .from('guild_config')
