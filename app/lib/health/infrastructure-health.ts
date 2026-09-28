@@ -4,6 +4,7 @@ import {
 } from '@tacticus/app-core/daily-alert-summary'
 import { db } from '@/app/lib/db'
 import { serviceDb } from '@/app/lib/db'
+import { isSelfHostedDeployment } from './self-hosted'
 interface MemoryThresholds {
   warningMB: number
   criticalMB: number
@@ -32,13 +33,6 @@ const DEFAULT_MEMORY_THRESHOLDS: MemoryThresholds = {
 }
 
 const HEALTHCHECK_TIMEOUT_MS = 5000
-
-function isSelfHostedDeployment(): boolean {
-  return (
-    process.env.DEPLOYMENT_ENV === 'minipc' ||
-    process.env.SELF_HOSTED === 'true'
-  )
-}
 
 async function fetchWithTimeout(
   url: string,

@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tacticus-analytics-config
+data:
+  NEXT_PUBLIC_SUPABASE_URL: https://project.example.com
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: replace-with-build-time-anon-key
+  NEXT_PUBLIC_SITE_URL: https://app.example.com
+  SUPABASE_URL: https://project.example.com
