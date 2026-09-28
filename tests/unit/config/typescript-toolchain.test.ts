@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { execFileSync } from 'node:child_process'
-import { readFileSync, realpathSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -44,10 +44,15 @@ function satisfies(version: string, range: string): boolean {
 
 describe('TypeScript side-by-side toolchain', () => {
   it('runs the native TypeScript 7 compiler as tsc', () => {
-    const binary = realpathSync(path.join(root, 'node_modules/.bin/tsc'))
-    const manifest = JSON.parse(
-      readFileSync(path.join(binary, '..', '..', 'package.json'), 'utf8')
-    ) as { name: string; version: string }
+    const manifestPath = requireFromRoot.resolve(
+      '@typescript/native/package.json'
+    )
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
+      name: string
+      version: string
+      bin: { tsc: string }
+    }
+    const binary = path.resolve(path.dirname(manifestPath), manifest.bin.tsc)
 
     expect(manifest.name, 'tsc must come from the typescript package').toBe(
       'typescript'
@@ -56,9 +61,11 @@ describe('TypeScript side-by-side toolchain', () => {
       parts(manifest.version)[0],
       'the typecheck scripts need TypeScript 7 behind tsc'
     ).toBeGreaterThanOrEqual(7)
-    expect(execFileSync(binary, ['--version'], { encoding: 'utf8' })).toMatch(
-      /^Version 7\./u
-    )
+    expect(
+      execFileSync(process.execPath, [binary, '--version'], {
+        encoding: 'utf8'
+      })
+    ).toMatch(/^Version 7\./u)
   })
 
   it('keeps the TypeScript 6 compiler API for next build, eslint and repo scripts', () => {
