@@ -28,6 +28,47 @@ interface SyncHealthRow {
   last_failed_sync?: string | null
 }
 
+interface ActiveRealtimeJobRow {
+  guild_code: string | null
+  status: string | null
+  attempts: number | null
+  max_attempts: number | null
+}
+
+// At most one active row per guild (unique_active_job), so this read stays small.
+const ACTIVE_REALTIME_JOBS_PATH =
+  'sync_queue?select=guild_code,status,attempts,max_attempts&job_type=eq.realtime_sync&status=in.(pending,processing)'
+
+/** Guilds whose realtime_sync is still claimable; empty on a read failure, so scheduling fails open. */
+async function loadGuildsWithActiveRealtime(
+  db: ReturnType<typeof createDirectClient>,
+  jobId: number
+): Promise<Set<string>> {
+  const { data, error } = await db.query<ActiveRealtimeJobRow[]>(
+    ACTIVE_REALTIME_JOBS_PATH
+  )
+  const guilds = new Set<string>()
+  if (error || !Array.isArray(data)) {
+    logger.warn(
+      { jobId, err: error },
+      'could not read active realtime jobs; incremental syncs are not deferred this run'
+    )
+    return guilds
+  }
+  for (const row of data) {
+    if (!row.guild_code) continue
+    // Mirrors claim_next_job: a pending row at max_attempts is never claimed.
+    const claimable =
+      row.status === 'processing' ||
+      (row.status === 'pending' &&
+        typeof row.attempts === 'number' &&
+        typeof row.max_attempts === 'number' &&
+        row.attempts < row.max_attempts)
+    if (claimable) guilds.add(row.guild_code)
+  }
+  return guilds
+}
+
 interface GuildRow {
   guild_code: string
   enabled: boolean
@@ -62,6 +103,14 @@ const syncSchedulerHandler: JobHandler = async (_payload, ctx) => {
       total: 0
     }
     let validationIncomplete = false
+    let incrementalDeferred = 0
+
+    // Realtime and incremental syncs replay the same season snapshot, so an
+    // incremental queued behind a guild's pending realtime (lower priority) only waits and ages the queue.
+    const guildsWithActiveRealtime = await loadGuildsWithActiveRealtime(
+      db,
+      ctx.jobId
+    )
 
     const now = new Date()
 
@@ -132,6 +181,10 @@ const syncSchedulerHandler: JobHandler = async (_payload, ctx) => {
         jobType = 'realtime_sync'
         priority = 3
       } else if (minutesSinceSync >= 15) {
+        if (guildsWithActiveRealtime.has(guild.guild_code)) {
+          incrementalDeferred++
+          continue
+        }
         jobType = 'incremental_sync'
         priority = 5
       }
@@ -242,6 +295,7 @@ const syncSchedulerHandler: JobHandler = async (_payload, ctx) => {
         guildsChecked: guilds.length,
         scheduled: results.total,
         breakdown: results,
+        incrementalDeferred,
         validationIncomplete,
         durationMs: totalDuration
       },
@@ -254,6 +308,7 @@ const syncSchedulerHandler: JobHandler = async (_payload, ctx) => {
       guildsChecked: guilds.length,
       scheduled: results.total,
       breakdown: results,
+      incrementalDeferred,
       validationIncomplete,
       durationMs: totalDuration
     }

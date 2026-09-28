@@ -306,7 +306,9 @@ describe('sync-scheduler work_queue handler', () => {
     mockDirectClient.rpc.mockResolvedValue({ data: 'job-id', error: null })
 
     const result = await syncSchedulerHandler({}, context)
-    const validationPath = mockDirectClient.query.mock.calls[1]?.[0]
+    const validationPath = mockDirectClient.query.mock.calls
+      .map(([path]: [string]) => path)
+      .find((path: string) => path.includes('offset=0&limit=50'))
 
     expect(validationPath).toContain('api_key_encrypted=not.is.null')
     expect(validationPath).toContain('api_key_is_valid=not.is.false')
@@ -337,6 +339,156 @@ describe('sync-scheduler work_queue handler', () => {
         validation_sync: 2,
         total: 2
       })
+    })
+  })
+
+  describe('incremental syncs behind a pending realtime sync', () => {
+    function mockQueries(activeRealtime: unknown) {
+      mockDirectClient.query.mockImplementation(async (path: string) => {
+        if (path.startsWith('sync_queue?')) return activeRealtime
+        return {
+          data: [
+            guildRow({
+              code: 'QUEUED',
+              lastSyncMinutesAgo: 30,
+              fullSyncHoursAgo: 1
+            }),
+            guildRow({
+              code: 'IDLE',
+              lastSyncMinutesAgo: 30,
+              fullSyncHoursAgo: 1
+            }),
+            guildRow({
+              code: 'DUE_REALTIME',
+              lastSyncMinutesAgo: 10,
+              fullSyncHoursAgo: 1
+            })
+          ],
+          error: null
+        }
+      })
+      mockDirectClient.rpc.mockImplementation(
+        async (_fn: string, args: Record<string, unknown>) => ({
+          data: `job-${args.p_guild_code}`,
+          error: null
+        })
+      )
+    }
+
+    function enqueued(): Array<[string, string]> {
+      return mockDirectClient.rpc.mock.calls.map(
+        ([, args]: [string, Record<string, unknown>]) => [
+          String(args.p_guild_code),
+          String(args.p_job_type)
+        ]
+      )
+    }
+
+    it('reads the active realtime_sync rows for the park guard', async () => {
+      mockQueries({ data: [], error: null })
+
+      await syncSchedulerHandler({}, context)
+
+      const activePath = mockDirectClient.query.mock.calls
+        .map(([path]: [string]) => path)
+        .find((path: string) => path.startsWith('sync_queue?'))
+      expect(activePath).toContain('job_type=eq.realtime_sync')
+      expect(activePath).toContain('status=in.(pending,processing)')
+    })
+
+    it('does not queue an incremental sync while the guild has a claimable realtime sync', async () => {
+      mockQueries({
+        data: [
+          {
+            guild_code: 'QUEUED',
+            status: 'pending',
+            attempts: 0,
+            max_attempts: 3
+          },
+          {
+            guild_code: 'DUE_REALTIME',
+            status: 'processing',
+            attempts: 1,
+            max_attempts: 3
+          }
+        ],
+        error: null
+      })
+
+      const result = await syncSchedulerHandler({}, context)
+
+      expect(enqueued()).toEqual([
+        ['IDLE', 'incremental_sync'],
+        ['DUE_REALTIME', 'realtime_sync']
+      ])
+      expect(result).toMatchObject({
+        incrementalDeferred: 1,
+        breakdown: expect.objectContaining({
+          incremental_sync: 1,
+          realtime_sync: 1
+        })
+      })
+    })
+
+    it('treats a processing realtime sync as active', async () => {
+      mockQueries({
+        data: [
+          {
+            guild_code: 'QUEUED',
+            status: 'processing',
+            attempts: 3,
+            max_attempts: 3
+          }
+        ],
+        error: null
+      })
+
+      await syncSchedulerHandler({}, context)
+
+      expect(enqueued()).not.toContainEqual(['QUEUED', 'incremental_sync'])
+    })
+
+    it('still queues an incremental sync when the pending realtime row can never be claimed', async () => {
+      mockQueries({
+        data: [
+          {
+            guild_code: 'QUEUED',
+            status: 'pending',
+            attempts: 3,
+            max_attempts: 3
+          },
+          {
+            guild_code: 'IDLE',
+            status: 'pending',
+            attempts: 0,
+            max_attempts: null
+          }
+        ],
+        error: null
+      })
+
+      const result = await syncSchedulerHandler({}, context)
+
+      expect(enqueued()).toEqual([
+        ['QUEUED', 'incremental_sync'],
+        ['IDLE', 'incremental_sync'],
+        ['DUE_REALTIME', 'realtime_sync']
+      ])
+      expect(result).toMatchObject({ incrementalDeferred: 0 })
+    })
+
+    it('fails open and schedules as before when the active-job read fails', async () => {
+      mockQueries({ data: null, error: 'HTTP 503: unavailable' })
+
+      const result = await syncSchedulerHandler({}, context)
+
+      expect(enqueued()).toEqual([
+        ['QUEUED', 'incremental_sync'],
+        ['IDLE', 'incremental_sync'],
+        ['DUE_REALTIME', 'realtime_sync']
+      ])
+      expect(result).toMatchObject({ incrementalDeferred: 0 })
+      expect(mockCaptureSentryException).not.toHaveBeenCalled()
     })
   })
 
