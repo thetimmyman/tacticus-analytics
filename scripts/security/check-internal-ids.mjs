@@ -19,7 +19,12 @@ const PREFIXES = 'PS|WI|SEC|TMOS|TA|ADV|POS|EOT'
 const PATTERNS = [
   {
     kind: 'key',
-    re: new RegExp(`\\b(?:${PREFIXES})-(?:[A-Z]{1,3}-)?\\d+\\b`, 'gu')
+    // Suffixes and underscore prefixes must not hide a key; a letter or digit
+    // just before the prefix means another word (HTTPS-443).
+    re: new RegExp(
+      `(?<![A-Za-z0-9])(?:${PREFIXES})-(?:[A-Z]{1,3}-)?\\d+(?!\\d)`,
+      'giu'
+    )
   },
   {
     kind: 'ref',
@@ -282,6 +287,15 @@ function selfTest() {
     `key:${key('TA-A', '023')}`
   ])
   expectKinds('key inside a word', `pre-${wi} engine`, [`key:pre-${wi}`])
+  expectKinds('lettered suffix', `${ps}a`, [`key:${ps}a`])
+  expectKinds('underscore suffix', `${ps}_fix`, [`key:${ps}_fix`])
+  expectKinds('env suffix', `${wi}_BACKEND`, [`key:${wi}_BACKEND`])
+  expectKinds('underscore prefix', `FIX_${ps}`, [`key:FIX_${ps}`])
+  expectKinds(
+    'mixed and lower case',
+    ['Ps', 'sec', 'ta', 'adv', 'pos'].map((p) => key(p, 12)).join(' '),
+    ['Ps', 'sec', 'ta', 'adv', 'pos'].map((p) => `key:${key(p, 12)}`)
+  )
   expectKinds('lower slug', `CREATE TEMP TABLE ${'ps'}12_probe (id int);`, [
     `slug:${'ps'}12_probe`
   ])
