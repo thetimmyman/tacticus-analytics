@@ -70,8 +70,9 @@
     "security:anon-definer-census": "node scripts/security/anon-definer-census.mjs --census",
     "security:public-snapshot-scope": "node scripts/security/check-public-snapshot-scope.mjs --selftest && node scripts/security/check-public-snapshot-scope.mjs --scan",
     "security:gitleaks": "bash scripts/security/check-gitleaks.sh --selftest && bash scripts/security/check-gitleaks.sh --scan",
-    "security:clean-repo": "node scripts/security/check-clean-repo.mjs --selftest && node scripts/security/check-clean-repo.mjs --scan && npm run security:asset-inventory && npm run security:public-snapshot-scope && npm run security:public-client-secret-intake && npm run security:null-skippable-auth-guards && npm run security:anon-definer-ratchet && tsx scripts/security/check-secrets.ts --selftest && npm run security:check && npm run security:docker-config-isolation && npm run security:image-cve-scan && npm run security:cron-routes-guarded && npm run security:gitleaks && npm run security:admin-route-guards && npm run security:authenticated-write-census && npm run security:comment-hygiene",
+    "security:clean-repo": "node scripts/security/check-clean-repo.mjs --selftest && node scripts/security/check-clean-repo.mjs --scan && npm run security:asset-inventory && npm run security:public-snapshot-scope && npm run security:public-client-secret-intake && npm run security:null-skippable-auth-guards && npm run security:anon-definer-ratchet && tsx scripts/security/check-secrets.ts --selftest && npm run security:check && npm run security:docker-config-isolation && npm run security:image-cve-scan && npm run security:cron-routes-guarded && npm run security:gitleaks && npm run security:admin-route-guards && npm run security:authenticated-write-census && npm run security:comment-hygiene && npm run security:internal-ids",
     "security:comment-hygiene": "node scripts/security/check-comment-hygiene.mjs --selftest && node scripts/security/check-comment-hygiene.mjs --scan",
+    "security:internal-ids": "node scripts/security/check-internal-ids.mjs --selftest && node scripts/security/check-internal-ids.mjs --scan",
     "security:real-identities": "node scripts/security/check-real-identities.mjs --selftest && node scripts/security/check-real-identities.mjs --scan",
     "security:admin-route-guards": "node scripts/security/check-admin-route-guards.mjs --selftest && node scripts/security/check-admin-route-guards.mjs --scan",
     "security:authenticated-write-census": "node scripts/security/check-authenticated-write-census.mjs --selftest && node scripts/security/check-authenticated-write-census.mjs --scan",
@@ -107,7 +108,8 @@
       "node scripts/security/check-comment-hygiene.mjs --files"
     ],
     "*": [
-      "node scripts/security/check-real-identities.mjs --optional --files"
+      "node scripts/security/check-real-identities.mjs --optional --files",
+      "node scripts/security/check-internal-ids.mjs --files"
     ]
   },
   "overrides": {

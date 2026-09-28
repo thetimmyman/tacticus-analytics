@@ -9,8 +9,8 @@ RUNNER="$REPO_ROOT/scripts/dev/pgtap-throwaway.sh"
 CONTROL_DIR="$REPO_ROOT/scripts/dev/pgtap-controls"
 ROSTER="$REPO_ROOT/supabase/tests/pgtap/suites.txt"
 ANCHOR="$REPO_ROOT/supabase/tests/pgtap/suites.expected.txt"
-PS399_GUARD_CHECK="$REPO_ROOT/scripts/dev/check-ps399-idempotency-guards.sh"
-PS399_MIGRATION="$REPO_ROOT/supabase/migrations/20260908012000_ps399_drop_cluster_applications_plaintext_api_key_columns.sql"
+GUARD_CHECK="$REPO_ROOT/scripts/dev/check-api-key-column-drop-guards.sh"
+GUARD_MIGRATION="$REPO_ROOT/supabase/migrations/20260908012000_ps399_drop_cluster_applications_plaintext_api_key_columns.sql"
 
 WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/pgtap-controls.XXXXXXXX")"
 # shellcheck disable=SC2329  # invoked by the EXIT trap on the next line but one
@@ -85,17 +85,17 @@ fi
 tail -14 "$WORK_DIR/c12.log"
 
 if grep -Eq '^[[:space:]]*ok[[:space:]]+control-storage-prefixes-fixture\.sql[[:space:]]+plan=9[[:space:]]+produced=9[[:space:]]+executed=9[[:space:]]+skipped=0[[:space:]]+failed=0$' "$WORK_DIR/c12.log"; then
-  report 6 "Storage prefixes replay fixture" "PS-392 must apply and all nine assertions must pass" 0 yes
+  report 6 "Storage prefixes replay fixture" "the storage prefixes grants migration must apply and all nine assertions must pass" 0 yes
 else
-  report 6 "Storage prefixes replay fixture" "PS-392 must apply and all nine assertions must pass" 1 no
+  report 6 "Storage prefixes replay fixture" "the storage prefixes grants migration must apply and all nine assertions must pass" 1 no
   grep -A14 -B2 'control-storage-prefixes-fixture.sql' "$WORK_DIR/c12.log" >&2 || true
 fi
 
 echo
-echo "== negative control 5: the PS-399 idempotency guard check must catch a removed guard =="
+echo "== negative control 5: the API-key column drop idempotency guard check must catch a removed guard =="
 
 # 5a: the unmodified migration must pass, or 5b could catch it for the wrong reason.
-"$PS399_GUARD_CHECK" "$PS399_MIGRATION" > "$WORK_DIR/c5-positive.log" 2>&1
+"$GUARD_CHECK" "$GUARD_MIGRATION" > "$WORK_DIR/c5-positive.log" 2>&1
 rc_positive=$?
 if [ "$rc_positive" -eq 0 ]; then
   echo "control 5 (real migration): exercised -- the guard check must pass on the unmodified file, exited $rc_positive. OK"
@@ -108,11 +108,11 @@ fi
 
 mkdir -p "$WORK_DIR/c5"
 sed 's/DROP COLUMN IF EXISTS guild_leader_api_key/DROP COLUMN guild_leader_api_key/' \
-  "$PS399_MIGRATION" > "$WORK_DIR/c5/mutated.sql"
-"$PS399_GUARD_CHECK" "$WORK_DIR/c5/mutated.sql" > "$WORK_DIR/c5-negative.log" 2>&1
+  "$GUARD_MIGRATION" > "$WORK_DIR/c5/mutated.sql"
+"$GUARD_CHECK" "$WORK_DIR/c5/mutated.sql" > "$WORK_DIR/c5-negative.log" 2>&1
 rc_negative=$?
 [ "$rc_negative" -ne 0 ] && ok=yes || ok=no
-report 5 "PS-399 migration with one IF EXISTS removed" "the guard check must exit non-zero" "$rc_negative" "$ok"
+report 5 "API-key column drop migration with one IF EXISTS removed" "the guard check must exit non-zero" "$rc_negative" "$ok"
 if grep -q 'missing guard: DROP COLUMN IF EXISTS guild_leader_api_key' "$WORK_DIR/c5-negative.log"; then
   echo "control 5: the guard check named the guard it removed"
 else
@@ -123,7 +123,7 @@ sed -n '1,20p' "$WORK_DIR/c5-negative.log"
 
 echo
 if [ "$failures" -eq 0 ]; then
-  echo "pgtap-controls: PASS — 6 controls exercised (failing assertion, early stop, roster line deleted, anchor mismatched, PS-399 idempotency guard removed, Storage prefixes fixture); the gate's judgement is wired"
+  echo "pgtap-controls: PASS — 6 controls exercised (failing assertion, early stop, roster line deleted, anchor mismatched, API-key column drop idempotency guard removed, Storage prefixes fixture); the gate's judgement is wired"
   exit 0
 fi
 echo "pgtap-controls: FAIL — $failures control(s) did not produce the failure they exist to produce; the roster run below cannot be trusted" >&2

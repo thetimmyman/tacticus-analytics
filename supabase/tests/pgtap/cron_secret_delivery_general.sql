@@ -190,7 +190,7 @@ SELECT is(
 SELECT ok(
   (SELECT prosrc ~ 'guild-war-sync' AND prosrc ~ 'supabase-kong\.tacticus\.svc\.cluster\.local'
      FROM pg_proc WHERE oid = 'public.call_edge_function(text, jsonb)'::regprocedure),
-  'E3: call_edge_function keeps the LIVE body basis — WI-2530 guild-war-sync route and the in-cluster gateway FQDN fallback (the drifted 20260813 baseline had neither)'
+  'E3: call_edge_function keeps the LIVE body basis — the guild-war-sync route and the in-cluster gateway FQDN fallback (the drifted 20260813 baseline had neither)'
 );
 
 SELECT is(

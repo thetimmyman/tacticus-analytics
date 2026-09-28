@@ -1,0 +1,187 @@
+{
+  "frozenMigrations": {
+    "through": "20260926010000",
+    "why": "Migrations up to the public re-cut are applied history: their bodies are what production runs and later migrations and pgTAP suites compare against, so they are never edited."
+  },
+  "entries": [
+    {
+      "file": "scripts/security/check-comment-hygiene.mjs",
+      "why": "Selftest fixtures for the comment guard's ticket-reference rule; they must look like real keys to prove the rule bites."
+    },
+    {
+      "token": "PR #2010",
+      "files": [
+        "supabase/migrations/20260927210000_orphan_guild_cleanup_keeps_battle_history.sql"
+      ],
+      "why": "Applied migration; the function body is copied from the frozen definition and must stay byte-identical to what production runs."
+    },
+    {
+      "token": "PR #2012",
+      "files": [
+        "supabase/migrations/20260927210000_orphan_guild_cleanup_keeps_battle_history.sql"
+      ],
+      "why": "Applied migration; the function body is copied from the frozen definition and must stay byte-identical to what production runs."
+    },
+    {
+      "token": "WI-2640",
+      "files": [
+        "supabase/snippets/20260902010000_rollback_live_prosrc_capture.sql"
+      ],
+      "why": "Rollback snippet holds function source captured verbatim from production; editing it would restore a different body."
+    },
+    {
+      "token": "WI-6160",
+      "files": [
+        "supabase/snippets/20260902010000_rollback_live_prosrc_capture.sql"
+      ],
+      "why": "Rollback snippet holds function source captured verbatim from production; editing it would restore a different body."
+    },
+    {
+      "token": "PS-218",
+      "files": [
+        "scripts/security/authenticated-write-policy-precondition.test.sh"
+      ],
+      "why": "Matches the NOTICE text the applied revoke migration emits; the test asserts that exact output."
+    },
+    {
+      "token": "ps218_swept",
+      "files": [
+        "scripts/security/authenticated-write-policy-precondition.test.sh"
+      ],
+      "why": "Temp table name inside the applied revoke migration; the test parses the migration's own table list through it."
+    },
+    {
+      "token": "PS-200",
+      "files": [
+        "supabase/tests/pgtap/estimator_freshness_guard.sql",
+        "supabase/tests/pgtap/late_arrival_window.sql"
+      ],
+      "why": "Part of the monitor body text the live estimator function emits; the suites assert that exact string."
+    },
+    {
+      "token": "ps254",
+      "files": ["supabase/tests/pgtap/explore_obfuscation_percent.sql"],
+      "why": "Hash salt literal shared with the live obfuscation function; the suite must reproduce the same digest."
+    },
+    {
+      "token": "wi3136_cluster_leaders_update",
+      "why": "Live RLS policy name on public.clusters, created by the baseline migration."
+    },
+    {
+      "token": "wi3136_cluster_leaders_insert",
+      "why": "Live RLS policy name on public.clusters, created by the baseline migration."
+    },
+    {
+      "token": "wi3136_cluster_creators_delete",
+      "why": "Live RLS policy name on public.clusters, created by the baseline migration."
+    },
+    {
+      "token": "wi6208_revoke_player_identity_on_auth_user_delete",
+      "files": ["supabase/tests/pgtap/"],
+      "why": "Live trigger name on auth.users; the suite checks the trigger by this name."
+    },
+    {
+      "token": "wi3139_cluster_scoped_reader_boundaries",
+      "files": ["supabase/tests/pgtap/"],
+      "why": "Migration name recorded in the production ledger for a pre-baseline migration; the suite's ledger check must match it exactly."
+    },
+    {
+      "token": "wi3139_refresh_snapshot_boundary",
+      "files": ["supabase/tests/pgtap/"],
+      "why": "Migration name recorded in the production ledger for a pre-baseline migration; the suite's ledger check must match it exactly."
+    },
+    {
+      "token": "wi3139_service_and_identity_boundaries",
+      "files": ["supabase/tests/pgtap/"],
+      "why": "Migration name recorded in the production ledger for a pre-baseline migration; the suite's ledger check must match it exactly."
+    },
+    {
+      "token": "wi4450_sensitive_rpc_boundaries",
+      "files": ["supabase/tests/pgtap/"],
+      "why": "Migration name recorded in the production ledger for a pre-baseline migration; the suite's ledger check must match it exactly."
+    },
+    {
+      "token": "wi4450_team_roster_boundary",
+      "files": ["supabase/tests/pgtap/"],
+      "why": "Migration name recorded in the production ledger for a pre-baseline migration; the suite's ledger check must match it exactly."
+    },
+    {
+      "token": "wi4450_token_usage_rpc_boundary",
+      "files": ["supabase/tests/pgtap/"],
+      "why": "Migration name recorded in the production ledger for a pre-baseline migration; the suite's ledger check must match it exactly."
+    },
+    {
+      "token": "wi4880_atomic_season_sub_boss_merge",
+      "files": ["supabase/tests/pgtap/"],
+      "why": "Migration name recorded in the production ledger for a pre-baseline migration; the suite's ledger check must match it exactly."
+    },
+    {
+      "token": "wi4950_backfill_blank_sub_boss_notes",
+      "files": ["supabase/tests/pgtap/"],
+      "why": "Migration name recorded in the production ledger for a pre-baseline migration; the suite's ledger check must match it exactly."
+    },
+    {
+      "token": "wi4950_cluster_leader_season_writes",
+      "files": ["supabase/tests/pgtap/"],
+      "why": "Migration name recorded in the production ledger for a pre-baseline migration; the suite's ledger check must match it exactly."
+    },
+    {
+      "token": "wi4950_manage_season_assignments_merge",
+      "files": ["supabase/tests/pgtap/"],
+      "why": "Migration name recorded in the production ledger for a pre-baseline migration; the suite's ledger check must match it exactly."
+    },
+    {
+      "token": "wi6270_war_defense_stats_and_board_id",
+      "files": ["supabase/tests/pgtap/"],
+      "why": "Migration name recorded in the production ledger for a pre-baseline migration; the suite's ledger check must match it exactly."
+    },
+    {
+      "token": "wi6470_capture_truth_zone_hero_core",
+      "files": ["supabase/tests/pgtap/"],
+      "why": "Migration name recorded in the production ledger for a pre-baseline migration; the suite's ledger check must match it exactly."
+    },
+    {
+      "token": "wi6530_capture_truth_tail_and_hero_kills",
+      "files": ["supabase/tests/pgtap/"],
+      "why": "Migration name recorded in the production ledger for a pre-baseline migration; the suite's ledger check must match it exactly."
+    },
+    {
+      "token": "wi737_solver",
+      "why": "Forecast basis value the live season-forecast function writes and the app reads back; renaming it would break stored rows."
+    },
+    {
+      "token": "WI6060_SEASON_DATA_BACKEND",
+      "why": "Deployment env var that rolls the season-data cache back; renaming it would silently drop an operator's setting."
+    },
+    {
+      "token": "WI6060_ENHANCED_DATA_BACKEND",
+      "why": "Deployment env var that rolls the enhanced-data cache back; renaming it would silently drop an operator's setting."
+    },
+    {
+      "token": "wi4000",
+      "files": [
+        "app/components/token-usage/hooks/useTokenAlertNudge.ts",
+        "tests/components/TokenAlertNudge.test.tsx"
+      ],
+      "why": "Browser-storage key prefix for a dismissed nudge; renaming it would re-show the nudge to everyone who dismissed it."
+    },
+    {
+      "token": "wi4000-token-alert-nudge",
+      "files": ["app/components/token-usage/token-alert-nudge-content.ts"],
+      "why": "Announcement id persisted with each viewer's dismissal; renaming it would re-show the announcement."
+    },
+    {
+      "token": "wi767",
+      "files": ["app/components/token-usage/CapWasteBanner.tsx"],
+      "why": "Browser-storage key prefix for a dismissed banner; renaming it would re-show the banner to everyone who dismissed it."
+    },
+    {
+      "token": "ps502-token-diff",
+      "files": [
+        "app/api/admin/diagnostics/ps502-token-diff/",
+        "tests/unit/api/routes/admin/raid-token-diff-route.test.ts"
+      ],
+      "why": "Admin diagnostics route URL and its logger name; renaming the directory moves the endpoint."
+    }
+  ]
+}
