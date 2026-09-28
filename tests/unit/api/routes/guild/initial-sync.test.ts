@@ -564,6 +564,36 @@ describe('POST /api/guild/initial-sync', () => {
         'completed',
         expect.objectContaining({ recordsSynced: 1 })
       )
+      expect(mockUpdateGuildConfigAfterSync).toHaveBeenCalledWith(
+        expect.anything(),
+        'TEST',
+        { guildRaid: 5, guildWar: 10 },
+        true
+      )
+    })
+
+    it('does not report a roster read when LOKI returned no members', async () => {
+      mockFetchGuildMembersViaLoki.mockResolvedValue({
+        members: [],
+        authFailed: false
+      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/initial-sync',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'test', api_key: 'valid-key' })
+        }
+      )
+
+      await POST(request)
+
+      expect(mockUpdateGuildConfigAfterSync).toHaveBeenCalledWith(
+        expect.anything(),
+        'TEST',
+        expect.anything(),
+        false
+      )
     })
   })
 })
