@@ -13,6 +13,12 @@ import {
   calculateSeasonAwards,
   calculatePlayerPoints
 } from './votlw-core.ts'
+import {
+  type ScorableSeason,
+  VOTLW_LOOKBACK_SEASONS,
+  buildGuildSeasonRows,
+  selectScorableSeasons
+} from './season-guard.ts'
 
 // Untyped on purpose: the edge image has only supabase/functions, so an
 // app-core type import fails at boot (scripts/dev/check-edge-imports.mjs).
@@ -111,25 +117,14 @@ Deno.serve(async (req) => {
       `Loaded ${playerNameMap.size / 2} player name mappings`
     )
 
-    let seasonsToProcess: string[] = []
+    let targets: ScorableSeason[] = []
     if (specificSeason) {
-      seasonsToProcess = [specificSeason]
-    } else {
-      // Previous season. "Season" is TEXT, so use the numeric RPC, not MAX.
-      const { data: maxSeasonData } = await supabase.rpc('get_latest_season')
-      if (maxSeasonData) {
-        const currentSeason = parseInt(maxSeasonData, 10)
-        const previousSeason = (currentSeason - 1).toString()
-        seasonsToProcess = [previousSeason]
-      }
-    }
-    const results = []
-    for (const season of seasonsToProcess) {
-      // No rarity filter: Mythic-only participation counts.
+      // Manual/explicit invocation (e.g. a one-off correction re-run): honor
+      // exactly what was asked for, no ended/grace guard.
       let guildsQuery = supabase
         .from('EOT_GR_data')
         .select('Guild')
-        .eq('Season', season)
+        .eq('Season', specificSeason)
         .gte('tier', 4)
       if (specificGuild) {
         guildsQuery = guildsQuery.eq('Guild', specificGuild)
@@ -137,33 +132,81 @@ Deno.serve(async (req) => {
       const { data: guilds, error } = await guildsQuery
       if (error || !guilds) {
         logger.error(`Error fetching guilds:`, error?.message)
-        continue
+      } else {
+        const uniqueGuilds = [
+          ...new Set((guilds as Array<{ Guild: string }>).map((g) => g.Guild))
+        ]
+        const seasonNum = parseInt(specificSeason, 10)
+        targets = uniqueGuilds.map((guild) => ({ guild, season: seasonNum }))
       }
-      const uniqueGuilds = [
-        ...new Set((guilds as Array<{ Guild: string }>).map((g) => g.Guild))
-      ]
-      for (const guild of uniqueGuilds) {
-        try {
-          const winner = await calculateVOTLW(
-            supabase,
-            guild,
-            season,
-            playerNameMap
+    } else {
+      // Scheduled run: score a guild's season only once that guild's OWN data
+      // shows it ended, with a grace window for late-syncing battles. Never
+      // derive "which season ended" from a single global max season number:
+      // guilds/clusters advance on independent calendars, so one guild racing
+      // ahead used to make every other guild's still-open season look past
+      // and get scored from a sliver of its data.
+      const { data: maxSeasonData } = await supabase.rpc('get_latest_season')
+      const globalLatestSeason = maxSeasonData
+        ? parseInt(maxSeasonData, 10)
+        : null
+      if (globalLatestSeason !== null) {
+        // One extra season below the lookback window so a guild sitting
+        // right at its edge still has its own previous-season row fetched.
+        const lookbackFloor = Math.max(
+          1,
+          globalLatestSeason - VOTLW_LOOKBACK_SEASONS - 1
+        )
+        // Aggregated server-side (one row per guild/season): a plain select
+        // of raw battle rows hits PostgREST's row cap long before covering a
+        // whole season's guilds and silently truncates.
+        const { data: rows, error } = await supabase.rpc(
+          'get_votlw_guild_season_first_battle',
+          { p_min_season: lookbackFloor }
+        )
+        if (error || !rows) {
+          logger.error(`Error fetching guild season windows:`, error?.message)
+        } else {
+          let guildSeasonRows = buildGuildSeasonRows(
+            rows as Array<{
+              guild_code: string | null
+              season: number | null
+              first_battle: string | null
+            }>
           )
-          results.push({
-            guild,
-            season,
-            winner: winner?.player || 'None',
-            points: winner?.totalPoints || 0
-          })
-        } catch (error) {
-          logger.error(`Failed to calculate for ${guild}:`, error)
-          results.push({
-            guild,
-            season,
-            error: error instanceof Error ? error.message : String(error)
-          })
+          if (specificGuild) {
+            guildSeasonRows = guildSeasonRows.filter(
+              (row) => row.guild === specificGuild
+            )
+          }
+          targets = selectScorableSeasons(guildSeasonRows, Date.now())
         }
+      }
+    }
+
+    const results = []
+    for (const { guild, season: seasonNum } of targets) {
+      const season = seasonNum.toString()
+      try {
+        const winner = await calculateVOTLW(
+          supabase,
+          guild,
+          season,
+          playerNameMap
+        )
+        results.push({
+          guild,
+          season,
+          winner: winner?.player || 'None',
+          points: winner?.totalPoints || 0
+        })
+      } catch (error) {
+        logger.error(`Failed to calculate for ${guild}:`, error)
+        results.push({
+          guild,
+          season,
+          error: error instanceof Error ? error.message : String(error)
+        })
       }
     }
     return jsonResponse(
