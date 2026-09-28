@@ -38,6 +38,7 @@
 
 # === ROSTER ===
 adversarial_progression_and_meta_hardening.sql # 29
+bootstrap_authority_canonical_guild_code.sql # 10
 bootstrap_first_leader_seat_claim.sql # 9
 db_boundary_hardening_clusters_and_profile_claim.sql # 18
 discord_bot_invite_atomicity.sql # 8
