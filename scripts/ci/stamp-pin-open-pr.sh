@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Open the stamp-pin PR after its branch is pushed. gh's "not permitted" refusal
-# (matched by exact text) is expected and prints the compare URL; other failures fail.
+# Open (or reuse) the stamp-pin PR and queue it to squash-merge once the required checks pass.
+# GH_TOKEN must be the pin-stamp App token: a GITHUB_TOKEN PR runs no checks, so it could never merge.
 # Usage: BRANCH=... PR_TITLE=... PR_BODY=... [BASE=main] stamp-pin-open-pr.sh (needs GH_TOKEN, GITHUB_REPOSITORY)
 set -euo pipefail
 
@@ -10,41 +10,30 @@ set -euo pipefail
 : "${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is required}"
 BASE="${BASE:-main}"
 
-REFUSAL_TEXT="GitHub Actions is not permitted to create or approve pull requests"
-
-COMPARE_URL="https://github.com/${GITHUB_REPOSITORY}/compare/${BASE}...${BRANCH}?expand=1"
+pr_url="$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$BRANCH" --base "$BASE" --state open --json url --jq '.[0].url // empty')"
+if [[ -z "$pr_url" ]]; then
+  pr_url="$(gh pr create --repo "$GITHUB_REPOSITORY" \
+    --title "$PR_TITLE" \
+    --body "$PR_BODY" \
+    --base "$BASE" \
+    --head "$BRANCH")"
+fi
+echo "PR: $pr_url"
 
 set +e
-pr_output="$(gh pr create \
-  --title "$PR_TITLE" \
-  --body "$PR_BODY" \
-  --base "$BASE" \
-  --head "$BRANCH" 2>&1)"
-pr_status=$?
+merge_output="$(gh pr merge "$pr_url" --repo "$GITHUB_REPOSITORY" --auto --squash 2>&1)"
+merge_status=$?
 set -e
-
-if [[ $pr_status -eq 0 ]]; then
-  echo "$pr_output"
-  exit 0
+if [[ $merge_status -ne 0 ]]; then
+  echo "::error::Could not queue auto-merge for $pr_url; the pin will not reach $BASE on its own. Check that the repository allows auto-merge and that the pin-stamp App may write contents and pull requests."
+  echo "$merge_output" >&2
+  exit "$merge_status"
 fi
+echo "Auto-merge (squash) queued: $pr_url merges once the required checks pass."
 
-if [[ "$pr_output" == *"$REFUSAL_TEXT"* ]]; then
-  echo "::notice::gh pr create was refused (${REFUSAL_TEXT}) -- branch ${BRANCH} was pushed but has no PR. A lane must open it."
-  echo "Branch: ${BRANCH}"
-  echo "Compare: ${COMPARE_URL}"
-  echo "A lane must open the PR from the compare link above (or enable the repository setting that lets Actions open pull requests)."
-  if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
-    {
-      echo "### Edge runtime pin stamped, PR not opened"
-      echo "GitHub Actions is not permitted to create or approve pull requests in this repository, so \`gh pr create\` was refused."
-      echo "Branch: \`${BRANCH}\`"
-      echo "Compare: ${COMPARE_URL}"
-      echo "A lane must open the PR from the compare link above (or enable the repository setting that lets Actions open pull requests)."
-    } >> "$GITHUB_STEP_SUMMARY"
-  fi
-  exit 0
+if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+  {
+    echo "### Edge runtime pin stamped"
+    echo "PR: $pr_url (auto-merge queued; merges once the required checks pass)"
+  } >> "$GITHUB_STEP_SUMMARY"
 fi
-
-echo "::error::gh pr create failed for a reason other than the known 'Actions may not open pull requests' refusal."
-echo "$pr_output" >&2
-exit "$pr_status"

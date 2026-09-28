@@ -1,7 +1,7 @@
 name: Build Edge Runtime Image
 
-# Builds supabase/functions into an edge-runtime image and pushes it to GHCR; stamp-pin opens
-# the pin PR. No `pull_request` trigger: self-hosted runners never build fork code.
+# Builds supabase/functions into an edge-runtime image and pushes it to GHCR; stamp-pin opens the
+# pin PR and queues it to auto-merge. No `pull_request` trigger: self-hosted runners never build fork code.
 
 on:
   push:
@@ -201,26 +201,35 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   # Binds the pushed digest to its source tree in deploy/tacticus.pin.json. Push-to-main only:
-  # a dispatch build must never become the live pin. Opens a PR because main is protected.
+  # a dispatch build must never become the live pin. main is protected, so a PR carries it.
   stamp-pin:
     if: github.event_name == 'push'
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
     needs: [prep, merge-manifest]
     runs-on: [self-hosted, amd64-builder]
     timeout-minutes: 5
     steps:
-      # GITHUB_TOKEN may not open PRs; STAMP_PIN_TOKEN (a repo-scoped PAT) is used when set.
+      # Actions may not open PRs, and a GITHUB_TOKEN PR would run no required checks.
+      # The pin-stamp App's token does both, so the pin PR can auto-merge.
+      - name: Mint pin-stamp App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.PIN_STAMP_APP_CLIENT_ID }}
+          private-key: ${{ secrets.PIN_STAMP_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: true
-          token: ${{ secrets.STAMP_PIN_TOKEN || github.token }}
-      - name: Stamp deploy/tacticus.pin.json and open a PR
+          token: ${{ steps.app-token.outputs.token }}
+      - name: Stamp deploy/tacticus.pin.json and queue its PR to merge
         env:
           TAG: ${{ needs.prep.outputs.tag }}
           DIGEST: ${{ needs.merge-manifest.outputs.digest }}
-          GH_TOKEN: ${{ secrets.STAMP_PIN_TOKEN || github.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
         run: |
           set -euo pipefail
           receipt="$(scripts/edge-runtime-receipt.sh HEAD)"
@@ -241,14 +250,15 @@ jobs:
             exit 0
           fi
           branch="ci/stamp-tacticus-pin-${TAG}"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          bot_id="$(gh api "/users/${APP_SLUG}%5Bbot%5D" --jq .id)"
+          git config user.name "${APP_SLUG}[bot]"
+          git config user.email "${bot_id}+${APP_SLUG}[bot]@users.noreply.github.com"
           git checkout -b "$branch"
           git add deploy/tacticus.pin.json
-          git commit -m "chore(PS-539): stamp tacticus pin at ${TAG}"
-          git push origin "$branch"
-          # The branch is pushed, so the helper treats gh's PR-creation refusal as success.
+          git commit -m "chore(deploy): stamp tacticus edge pin at ${TAG}"
+          # Force: a re-run for the same tag rewrites its own bot branch instead of failing.
+          git push --force origin "$branch"
           BRANCH="$branch" \
-          PR_TITLE="chore(PS-539): stamp tacticus pin at ${TAG}" \
+          PR_TITLE="chore(deploy): stamp tacticus edge pin at ${TAG}" \
           PR_BODY="Automated pin stamp for namespace \`tacticus\` from this build. commit=${commit} functions_tree=${functions_tree} dockerfile_blob=${dockerfile_blob} digest=${DIGEST}." \
             scripts/ci/stamp-pin-open-pr.sh
