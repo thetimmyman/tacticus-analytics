@@ -1,8 +1,9 @@
--- calculate-votlw's scheduled run needs one row per (guild, season) with the
--- season's earliest battle time, to gate scoring on a grace window. A plain
--- PostgREST select of raw EOT_GR_data rows hits config.toml's max_rows (10000)
--- long before covering every guild across a season, silently truncating.
--- Aggregating server-side keeps the response near guild-count size.
+-- One row per (guild, season) with its earliest battle, aggregated
+-- server-side so calculate-votlw's scheduled run avoids config.toml's
+-- max_rows (10000) truncating a plain per-row select. No tier filter: this
+-- only detects a guild moved into a season, which tier >= 4 would miss for a
+-- guild that later drops below Legendary/Mythic; the caller still requires
+-- actual tier >= 4 data for the season it scores.
 CREATE FUNCTION public.get_votlw_guild_season_first_battle(p_min_season integer)
     RETURNS TABLE(guild_code text, season integer, first_battle timestamptz)
     LANGUAGE sql STABLE PARALLEL SAFE
@@ -10,8 +11,7 @@ CREATE FUNCTION public.get_votlw_guild_season_first_battle(p_min_season integer)
     AS $$
   SELECT "Guild", season_num, MIN(COALESCE("completedOn", "startedOn"))
   FROM public."EOT_GR_data"
-  WHERE tier >= 4
-    AND season_num >= p_min_season
+  WHERE season_num >= p_min_season
     AND "Guild" NOT IN ('TEST', 'EOT', 'TBD')
   GROUP BY "Guild", season_num;
 $$;
