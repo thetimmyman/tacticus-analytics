@@ -50,7 +50,7 @@ const NOPROJ = {
   last_sync_at: null
 }
 
-describe('GET /api/guild-teams/tokens — WI-3660 projection', () => {
+describe('GET /api/guild-teams/tokens — projection', () => {
   let GET: (request: Request) => Promise<Response>
   let mockServiceDb: ReturnType<typeof vi.fn>
   let mockRequireAccess: ReturnType<typeof vi.fn>

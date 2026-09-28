@@ -23,7 +23,7 @@ vi.mock('@/app/lib/logging/client', () => ({
   })
 }))
 
-describe('useGuildData snapshot refresh boundary (WI-3139)', () => {
+describe('useGuildData snapshot refresh boundary', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     fromMock.mockImplementation((table: string) => {

@@ -69,7 +69,7 @@ describe('displayFinishLap', () => {
       displayFinishLap(lp({ current_lap: 4, projected_finish_lap: 9 }))
     ).toBe(9)
   })
-  it('WI-4480: every surface renders the 0-based value as +1 ("lap N")', () => {
+  it('every surface renders the 0-based value as +1 ("lap N")', () => {
     // The SeasonFeasibilityCard bug was rendering the 0-based lap bare.
     expect(
       displayFinishLap(lp({ current_lap: 5, projected_finish_lap: 6 })) + 1

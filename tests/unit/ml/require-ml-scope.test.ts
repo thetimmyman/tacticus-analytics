@@ -59,7 +59,7 @@ describe('requireMlScope', () => {
     ).resolves.toBeUndefined()
   })
 
-  it('compares a post-WI-825 UUID guild_code case-insensitively', async () => {
+  it('compares a UUID guild_code case-insensitively', async () => {
     const uuid = '3f2a1b4c-5d6e-4f70-8a9b-0c1d2e3f4a5b'
     const uuidMember = { ...member, guild_code: uuid }
     await expect(

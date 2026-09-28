@@ -107,7 +107,7 @@ const row = (
   ...overrides
 })
 
-describe('PS-669 worker roster retention', () => {
+describe('worker roster retention', () => {
   it('roster {A,B} against DB {A,B,C}: C is deactivated, never deleted, and its name is not overwritten', async () => {
     const { client, upserted, rpcCalls, deletes } = buildClient({
       currentRosterRows: ['A', 'B', 'C'],

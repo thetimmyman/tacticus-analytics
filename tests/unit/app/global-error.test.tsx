@@ -18,7 +18,7 @@ vi.mock('@/app/lib/client/chunk-reload', () => ({
 
 const reset = vi.fn()
 
-describe('GlobalError (PS-346 chunk-reload wiring)', () => {
+describe('GlobalError (chunk-reload wiring)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })

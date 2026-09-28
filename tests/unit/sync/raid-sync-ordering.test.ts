@@ -212,7 +212,7 @@ const OPTIONS = {
   runCoverageCheck: false
 }
 
-describe('runRaidSync — identity is resolved before the raid rows are written (PS-659)', () => {
+describe('runRaidSync — identity is resolved before the raid rows are written', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     fetchBossMappings.mockResolvedValue({})
@@ -892,7 +892,7 @@ describe('runRaidSync — identity is resolved before the raid rows are written 
   })
 })
 
-describe('quiet-tick maintenance (PR #320 review)', () => {
+describe('quiet-tick maintenance', () => {
   const NOW = Date.parse('2026-09-25T12:00:00Z')
   const iso = (msAgo: number) => new Date(NOW - msAgo).toISOString()
   const supabase = {} as ServiceSupabaseClient

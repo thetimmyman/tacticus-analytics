@@ -164,7 +164,7 @@ describe('ResourceSpec — hysteresis derivation', () => {
     expect(prewarnRealertMsFor(EIGHTEEN_HOURS_IN_SECONDS)).toBe(9 * HOUR_MS)
   })
 
-  it('reproduces the WI-3990 token constants exactly', () => {
+  it('reproduces the token constants exactly', () => {
     expect(FULL_REALERT_MS).toBe(11 * HOUR_MS)
     expect(PREWARN_REALERT_MS).toBe(6 * HOUR_MS)
   })
@@ -758,7 +758,7 @@ describe('precedence — pre_quiet > burn_prewarn > full > prewarn > gained > bo
     ])
   })
 
-  it('gives the WI-4970 schedule kinds NO resource baseline', () => {
+  it('gives the schedule kinds NO resource baseline', () => {
     // 'token' here would let a delivered pre_quiet advance past a crossing a same-tick `full` lost.
     expect(ALERT_RESOURCE.pre_quiet).toBe('none')
     expect(ALERT_RESOURCE.burn_prewarn).toBe('none')

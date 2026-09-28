@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { normalizeTacticusGuildRole } from '@tacticus/app-core/role-utils'
 
-describe('normalizeTacticusGuildRole (WI-2212)', () => {
+describe('normalizeTacticusGuildRole', () => {
   it('maps leader variants (incl. co-leader) to leader', () => {
     for (const r of [
       'LEADER',

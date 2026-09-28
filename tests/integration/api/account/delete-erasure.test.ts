@@ -318,7 +318,7 @@ const request = () =>
 
 const deletionRequests = (db: FakeDb) => rows(db, 'gdpr_deletion_requests')
 
-describe('PS-39 self-serve account deletion reaches gdpr_erasure', () => {
+describe('self-serve account deletion reaches gdpr_erasure', () => {
   beforeEach(() => {
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://test.supabase.co')
     vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY', 'service-role-key')
@@ -457,7 +457,7 @@ const controlCounts = (db: FakeDb): Record<string, number> => ({
   ).length
 })
 
-describe('PS-197 route and cron erase the same tables', () => {
+describe('route and cron erase the same tables', () => {
   beforeEach(() => {
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://test.supabase.co')
     vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY', 'service-role-key')
@@ -540,7 +540,7 @@ describe('PS-197 route and cron erase the same tables', () => {
 })
 
 /** Two players can share a display name. */
-describe('PS-288 erasure is keyed on player id, not display name', () => {
+describe('erasure is keyed on player id, not display name', () => {
   beforeEach(() => {
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://test.supabase.co')
     vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY', 'service-role-key')
@@ -577,7 +577,7 @@ describe('PS-288 erasure is keyed on player id, not display name', () => {
     expect(namesakeRow?.displayName).toBe(SUBJECT_NAME)
   })
 
-  describe('PS-670 departed members', () => {
+  describe('departed members', () => {
     const DEPARTED_PLAYER_ID = 'player-departed'
 
     // deactivate_player_mappings() nulled user_id; only the attestation ledger links it.

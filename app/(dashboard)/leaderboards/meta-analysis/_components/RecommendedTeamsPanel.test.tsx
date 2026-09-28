@@ -164,7 +164,7 @@ describe('RecommendedTeamsPanel — desktop table', () => {
   })
 })
 
-describe('RecommendedTeamsPanel — PS-408 fallback-error state', () => {
+describe('RecommendedTeamsPanel — fallback-error state', () => {
   // Both routes return 200 empty on no-data and on failure; the panel tells them apart via `source`.
 
   it('renders the empty state when source is meta-atlas-rpc (genuinely no data)', () => {

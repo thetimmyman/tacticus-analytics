@@ -72,7 +72,7 @@ const buildSupabase = ({
 }
 
 describe('season config write helpers', () => {
-  describe('mergeSeasonConfigSubBossPatch — atomic RPC path (WI-4880)', () => {
+  describe('mergeSeasonConfigSubBossPatch — atomic RPC path', () => {
     it('uses merge_season_boss_sub_bosses when the client can rpc, and never reads the table', async () => {
       const rpc = vi.fn().mockResolvedValue({ data: {}, error: null })
       const from = vi.fn()
@@ -178,7 +178,7 @@ describe('season config write helpers', () => {
   })
 
   // A stored "" would shadow the fallback note in a `??` read.
-  it("coerces '' and whitespace-only notes to null (WI-4950 C4)", () => {
+  it("coerces '' and whitespace-only notes to null (C4)", () => {
     expect(normalizeSeasonConfigNoteField('')).toBeNull()
     expect(normalizeSeasonConfigNoteField('   ')).toBeNull()
     expect(normalizeSeasonConfigNoteField('\n\t ')).toBeNull()
@@ -259,7 +259,7 @@ describe('season config write helpers', () => {
     expect(insertSpy.mock.calls[0][0]).not.toHaveProperty('kill_threshold_pct')
   })
 
-  describe('RLS denial mapping (WI-4950)', () => {
+  describe('RLS denial mapping', () => {
     it('maps an RPC-path 42501 to a 403-shaped forbidden error', async () => {
       const rpc = vi.fn().mockResolvedValue({
         data: null,

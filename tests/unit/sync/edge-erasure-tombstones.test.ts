@@ -40,7 +40,7 @@ const TABLES = {
   dataTable: 'EOT_GR_data'
 }
 
-describe('loadErasureTombstones (edge tier, PS-659)', () => {
+describe('loadErasureTombstones (edge tier)', () => {
   it('finds a tombstone on a mapping row the current-roster read cannot see', async () => {
     const { client } = makeClient({
       mappingRows: [

@@ -44,7 +44,7 @@ describe('LinkifiedText', () => {
     expect(container).toHaveTextContent('Do not click)')
   })
 
-  it('preserves newlines via whitespace-pre-line so the diagnostic second line is not collapsed (WI-1910)', () => {
+  it('preserves newlines via whitespace-pre-line so the diagnostic second line is not collapsed', () => {
     const { container } = render(
       <LinkifiedText
         text={'Could not connect.\n\nDATABASE_CONNECTION_FAILED'}

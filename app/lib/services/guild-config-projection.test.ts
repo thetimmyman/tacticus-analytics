@@ -50,7 +50,7 @@ beforeEach(() => {
 describe('GuildConfigService projections', () => {
   it('getFull names no credential column', async () => {
     const { client, selects } = capturingClient()
-    await GuildConfigService.getFull(client, 'WI5730A')
+    await GuildConfigService.getFull(client, 'TG5730A')
 
     expect(selects).toHaveLength(1)
     const columns = columnsOf(selects[0])
@@ -64,7 +64,7 @@ describe('GuildConfigService projections', () => {
 
   it('getFullWithSecrets names every credential column', async () => {
     const { client, selects } = capturingClient()
-    await GuildConfigService.getFullWithSecrets(client, 'WI5730B')
+    await GuildConfigService.getFullWithSecrets(client, 'TG5730B')
 
     expect(selects).toHaveLength(1)
     const columns = columnsOf(selects[0])
@@ -77,11 +77,11 @@ describe('GuildConfigService projections', () => {
   it('getFullWithSecrets does not populate the cache getFull reads', async () => {
     // getFull's cache has no privilege dimension; a cached secret row would leak.
     const { client } = capturingClient()
-    await GuildConfigService.getFullWithSecrets(client, 'WI5730C')
+    await GuildConfigService.getFullWithSecrets(client, 'TG5730C')
     expect(getOrFetch).not.toHaveBeenCalled()
 
     const second = capturingClient()
-    await GuildConfigService.getFull(second.client, 'WI5730C')
+    await GuildConfigService.getFull(second.client, 'TG5730C')
     expect(getOrFetch).toHaveBeenCalledTimes(1)
   })
 })

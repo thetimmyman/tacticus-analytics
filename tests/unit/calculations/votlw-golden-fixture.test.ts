@@ -31,7 +31,7 @@ const toEntry = (r: FixtureRow): BattleEntry => ({
   completedOn: new Date(base + r.minute * 60_000 + 30_000).toISOString()
 })
 
-describe('VOTLW golden fixture (SQL↔TS parity, WI-2560)', () => {
+describe('VOTLW golden fixture (SQL↔TS parity)', () => {
   it('client calculation reproduces every expected award of the golden season', async () => {
     const { setWinners } = await calculateVOTLWPoints(
       fixture.rows.map(toEntry),

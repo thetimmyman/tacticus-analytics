@@ -4,7 +4,7 @@ import { describe, it, expect } from 'vitest'
 import { computeLiveBombRangeEncounters } from '@/app/lib/briefing/herald-bomb-range'
 import { BOMB_COOLDOWN_SECONDS } from '@/app/lib/calculations/bomb-availability'
 
-describe('computeLiveBombRangeEncounters (WI-2660 — authoritative live signal)', () => {
+describe('computeLiveBombRangeEncounters (authoritative live signal)', () => {
   // In range when ceil(remainingHp / dmg) <= floor(bombsAvailable × threshold).
   const DMG = 13_720 // guild level 43 worst_case floor
 
@@ -63,7 +63,7 @@ describe('computeLiveBombRangeEncounters (WI-2660 — authoritative live signal)
   })
 })
 
-describe('WI-2660 bomb-cooldown parity pin', () => {
+describe('bomb-cooldown parity pin', () => {
   it('the SQL RPC and bomb-availability.ts agree on the 18h cooldown (64800s)', () => {
     expect(BOMB_COOLDOWN_SECONDS).toBe(64_800)
     const migration = readFileSync(

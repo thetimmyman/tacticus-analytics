@@ -41,7 +41,7 @@ vi.mock(
 
 import { useGuildActions } from '@/app/(dashboard)/leaderboards/components/cluster-management/hooks/useGuildActions'
 
-describe('useGuildActions.handleAddGuild — no browser guild_config write (WI-3136)', () => {
+describe('useGuildActions.handleAddGuild — no browser guild_config write', () => {
   let supabaseFrom: ReturnType<typeof vi.fn>
   let guildConfigUpdate: ReturnType<typeof vi.fn>
   let fetchMock: ReturnType<typeof vi.fn>

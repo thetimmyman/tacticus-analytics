@@ -192,7 +192,7 @@ describe("decideAlerts — 'full'", () => {
   })
 })
 
-describe("decideAlerts — repeating 'full' reminders (WI-4031)", () => {
+describe("decideAlerts — repeating 'full' reminders", () => {
   it('repeats while still full once the configured cadence elapses', () => {
     expect(
       decide({

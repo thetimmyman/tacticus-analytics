@@ -246,7 +246,7 @@ const autosaveFromPlanner = async () => {
   return bossRow!.sub_bosses
 }
 
-describe('cross-surface notes survival (WI-4950 D10)', () => {
+describe('cross-surface notes survival (D10)', () => {
   it('a targets note survives a hub save of an unrelated field and a planner autosave', async () => {
     await saveNoteFromTargets()
     expect(row.sub_bosses.side1_notes).toBe(NOTE)

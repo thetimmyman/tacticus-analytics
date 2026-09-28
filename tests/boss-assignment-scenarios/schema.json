@@ -176,8 +176,7 @@
           "items": { "$ref": "#/definitions/assertion" }
         },
         "createdAt": { "type": "string", "format": "date-time" },
-        "version": { "type": "string" },
-        "relatedWorkItems": { "type": "array", "items": { "type": "string" } }
+        "version": { "type": "string" }
       },
       "required": [
         "id",

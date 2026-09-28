@@ -198,7 +198,7 @@ describe('errorHandler', () => {
       })
     })
 
-    it('preserves curated message AND functional metadata on >=500 [WI-1930]', () => {
+    it('preserves curated message AND functional metadata on >=500', () => {
       // Metadata carries functional client data that must survive a 500.
       const error = Errors.database('Database operation failed', {
         requiresNewKey: true

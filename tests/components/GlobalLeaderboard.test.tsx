@@ -24,7 +24,7 @@ function renderLeaderboard() {
   )
 }
 
-describe('GlobalLeaderboard (WI-4660 anon boundary)', () => {
+describe('GlobalLeaderboard (anon boundary)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     rpcSpy.mockResolvedValue({

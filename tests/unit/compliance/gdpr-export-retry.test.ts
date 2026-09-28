@@ -186,7 +186,7 @@ afterEach(() => {
   vi.resetModules()
 })
 
-describe('Article 15 export retries once then fails terminally (PS-396)', () => {
+describe('Article 15 export retries once then fails terminally', () => {
   it('first attempt fails, second succeeds: completed, one object, no alert', async () => {
     const h = createHarness({ failUploads: 1 })
     await mockModules(h.client)
@@ -243,7 +243,7 @@ describe('Article 15 export retries once then fails terminally (PS-396)', () => 
   })
 })
 
-describe('Article 15 export payload is a reviewed projection (PS-396)', () => {
+describe('Article 15 export payload is a reviewed projection', () => {
   const CREDENTIAL_FIELDS = [
     'encrypted_password',
     'confirmation_token',

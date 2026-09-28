@@ -63,7 +63,7 @@ describe('processRaidEntry validation', () => {
   })
 
   // Raw raid entries carry `username`, not `displayName`.
-  it('uses the raid payload username when the player has no mapping (PS-659)', () => {
+  it('uses the raid payload username when the player has no mapping', () => {
     const res = processRaidEntry(
       {
         userId: 'newUser',
@@ -99,7 +99,7 @@ describe('processRaidEntry validation', () => {
     expect(res?.displayName).toBe('User Name')
   })
 
-  it('never promotes an upstream Player# alias in username to a resolved name (PS-659)', () => {
+  it('never promotes an upstream Player# alias in username to a resolved name', () => {
     // Player#XXXXXX is an upstream privacy alias: a fallback, never stored as a real name.
     const res = processRaidEntry(
       {

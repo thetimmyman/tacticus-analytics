@@ -278,7 +278,7 @@ describe('guild-sync handler', () => {
     )
   })
 
-  it('caps the fan-out at 25 guilds, stalest first (WI-4372)', async () => {
+  it('caps the fan-out at 25 guilds, stalest first', async () => {
     // Fed freshest-first to prove the handler sorts before applying the 25-guild cap.
     const guilds: BetaGuild[] = Array.from({ length: 30 }, (_, i) => ({
       guild_code: `B${String(i + 1).padStart(2, '0')}`,

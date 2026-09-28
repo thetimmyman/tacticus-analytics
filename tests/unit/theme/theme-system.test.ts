@@ -25,7 +25,7 @@ describe('applyThemeToCSS semantic tokens', () => {
     document.documentElement.removeAttribute('style')
   })
 
-  it('writes the WI-747 default semantic tokens', () => {
+  it('writes the default semantic tokens', () => {
     applyThemeToCSS(baseTheme)
 
     const style = document.documentElement.style

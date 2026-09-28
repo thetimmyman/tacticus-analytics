@@ -76,7 +76,7 @@ describe('computeBossPlayerAggregates', () => {
     expect(sweepMax.get('u-alice')?.maxDamage).toBe(450)
   })
 
-  it('re-includes qualifying sweeps that clear GREATEST(player avg, reference avg) (WI-1462)', () => {
+  it('re-includes qualifying sweeps that clear GREATEST(player avg, reference avg)', () => {
     const aggregates = computeBossPlayerAggregates([
       row({ damageDealt: 400 }),
       row({ displayName: 'Bob', userId: 'u-bob', damageDealt: 200 }),
@@ -88,7 +88,7 @@ describe('computeBossPlayerAggregates', () => {
     expect(alice?.battleCount).toBe(2)
   })
 
-  it('does not include an above-reference sweep that is below the player own avg (WI-1462)', () => {
+  it('does not include an above-reference sweep that is below the player own avg', () => {
     const aggregates = computeBossPlayerAggregates([
       row({ damageDealt: 600 }),
       row({ displayName: 'Bob', userId: 'u-bob', damageDealt: 100 }),

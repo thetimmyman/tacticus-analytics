@@ -121,7 +121,7 @@ const configureWarAccess = (active: boolean) => {
   return { events, membershipFilters }
 }
 
-describe('war service-role RPC boundary (WI-4450)', () => {
+describe('war service-role RPC boundary', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     serviceRpc.mockResolvedValue({ data: [], error: null })

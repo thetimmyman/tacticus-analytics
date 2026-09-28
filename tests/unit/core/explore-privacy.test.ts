@@ -53,7 +53,7 @@ describe('explore-privacy', () => {
     )
   })
 
-  it('PS-254: obfuscate_values labels but does not transform the numbers', () => {
+  it('obfuscate_values labels but does not transform the numbers', () => {
     // Amounts arrive already perturbed by the view, so the client must be the identity.
     const filtered = applyPrivacyFilter(
       { ...baseGuild(), explore_obfuscation_percent: 10 },
@@ -79,7 +79,7 @@ describe('explore-privacy', () => {
     })
   })
 
-  it('PS-254: a larger percent still does not move the served number', () => {
+  it('a larger percent still does not move the served number', () => {
     const at10 = applyPrivacyFilter(
       { ...baseGuild(), explore_obfuscation_percent: 10 },
       ['obfuscate_values']
@@ -95,7 +95,7 @@ describe('explore-privacy', () => {
     expect(at30?.obfuscationPercent).toBe(30)
   })
 
-  it('PS-254: an absent percent is not replaced with a default', () => {
+  it('an absent percent is not replaced with a default', () => {
     // The view withholds percent; the client must not invent DEFAULT_OBFUSCATION_PERCENT.
     const served = baseGuild()
     delete (served as Record<string, unknown>).explore_obfuscation_percent
@@ -110,7 +110,7 @@ describe('explore-privacy', () => {
     expect(filtered?.total_damage).toBe(baseGuild().total_damage)
   })
 
-  it('PS-254: without a percent the figure is approximate, not a range', () => {
+  it('without a percent the figure is approximate, not a range', () => {
     expect(formatDamageWithPrivacy(100000, 'obfuscate_values', 100000)).toBe(
       '~100000'
     )
@@ -123,7 +123,7 @@ describe('explore-privacy', () => {
     expect(formatDamageWithPrivacy(100000, 'public')).toBe('100000')
   })
 
-  it('PS-254: the client module carries no obfuscation arithmetic', () => {
+  it('the client module carries no obfuscation arithmetic', () => {
     // The flat 25000 increment lives only in public.explore_obfuscate_amount().
     const source = readFileSync(
       resolve(__dirname, '../../../packages/app-core/src/explore-privacy.ts'),

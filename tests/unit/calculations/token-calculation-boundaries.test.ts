@@ -42,7 +42,7 @@ describe('calculateTokenAvailability boundaries', () => {
     expect(result.tokenStatus.refreshTime).toBe(nowSeconds)
   })
 
-  it('never re-anchors refreshTime on spends — regen runs continuously below cap (WI-2620 SQL parity)', () => {
+  it('never re-anchors refreshTime on spends — regen runs continuously below cap (SQL parity)', () => {
     // Regen anchors on dropping below cap and ignores later spends, matching the SQL replay.
     const battles = [
       {

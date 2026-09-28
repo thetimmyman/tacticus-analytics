@@ -15,7 +15,7 @@ const cfg = (over: Record<string, unknown> = {}) => {
   }
 }
 
-describe('WI-8230 safe-contents-roll guard', () => {
+describe('safe-contents-roll guard', () => {
   it('roster-only / version-only changes are safe', () => {
     const a = cfg()
     const b = cfg({

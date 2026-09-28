@@ -94,7 +94,7 @@ describe('POST /api/discord-webhooks/event-notification', () => {
     )
   }
 
-  describe('authentication (WI-1604)', () => {
+  describe('authentication', () => {
     it('returns 401 when the cron secret is set but no auth header is sent', async () => {
       const response = await POST(
         createRequest({ type: 'new_member', data: {} }, '')

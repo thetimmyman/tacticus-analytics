@@ -4,7 +4,7 @@ import {
   resolvePodIdentity
 } from '@/app/lib/jobs/worker-identity'
 
-describe('resolvePodIdentity — PS-415', () => {
+describe('resolvePodIdentity', () => {
   it('prefers POD_NAME (downward API) when present', () => {
     const identity = resolvePodIdentity({
       podName: 'workers-batch-7f8c9d-abc12',
@@ -91,7 +91,7 @@ describe('resolvePodIdentity — PS-415', () => {
   })
 })
 
-describe('buildWorkerId — PS-415', () => {
+describe('buildWorkerId', () => {
   it('appends a short uuid suffix to the resolved identity', () => {
     const workerId = buildWorkerId({
       podName: 'pod-abc',

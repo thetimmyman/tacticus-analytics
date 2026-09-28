@@ -31,7 +31,7 @@ function player(overrides: {
   }
 }
 
-describe('buildGuildSummary (WI-6270)', () => {
+describe('buildGuildSummary', () => {
   it('weights rates by attempt counts, not a mean of per-player rates', () => {
     // Weighted gives 8/10 and 1/4; a per-player mean would give 40 and 12.5.
     const rows = [

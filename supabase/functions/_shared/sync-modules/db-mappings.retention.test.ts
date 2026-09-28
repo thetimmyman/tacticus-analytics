@@ -103,7 +103,7 @@ const row = (player_id: string, overrides: Row = {}): Row => ({
 const config = { playerMappingTable: 'player_mapping', dataTable: 'raid_data' }
 
 Deno.test(
-  'PS-669 edge: a departed member is deactivated, not deleted',
+  'edge savePlayerMappings: a departed member is deactivated, not deleted',
   async () => {
     const { deps, upserted, rpcCalls, deletes } = buildDeps({
       currentRosterRows: ['A', 'B', 'C'],
@@ -136,7 +136,7 @@ Deno.test(
 )
 
 Deno.test(
-  'PS-669 edge: a rejoining member flips is_current back to true',
+  'edge savePlayerMappings: a rejoining member flips is_current back to true',
   async () => {
     const { deps, upserted, rpcCalls } = buildDeps({
       currentRosterRows: ['A', 'B'],

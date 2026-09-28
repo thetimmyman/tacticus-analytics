@@ -272,7 +272,7 @@ describe('GET /api/tokens', () => {
       expect(body.data.tokens.guildRaid.current).toBe(2)
     })
 
-    it('PS-392: does not decrypt, call the live Tacticus API, or write to player_mapping', async () => {
+    it('does not decrypt, call the live Tacticus API, or write to player_mapping', async () => {
       // GET is read-only even with a decryptable key; live fetch + persist is POST's job.
       const mockUpdate = vi.fn()
       mockServiceClient.from.mockReturnValue({

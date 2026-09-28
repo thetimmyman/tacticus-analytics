@@ -33,7 +33,7 @@ const INPUT = {
   seasonNumber: '103'
 }
 
-describe('saveTargetToken skip handling (WI-4950 D5)', () => {
+describe('saveTargetToken skip handling (D5)', () => {
   it('OMITS skip from the body when the caller did not decide it', async () => {
     await saveTargetToken(INPUT)
     const put = calls[0]!
@@ -66,7 +66,7 @@ describe('saveTargetToken skip handling (WI-4950 D5)', () => {
   })
 })
 
-describe('saveTargetToken error passthrough (WI-4950 review F4)', () => {
+describe('saveTargetToken error passthrough (review F4)', () => {
   const respondWith = (status: number, body: string) => {
     vi.stubGlobal(
       'fetch',

@@ -139,14 +139,14 @@ describe('Dashboard war pages', () => {
     )
   })
 
-  it('redirects the legacy per-war maps page to the board (WI-6330)', async () => {
+  it('redirects the legacy per-war maps page to the board', async () => {
     await expect(
       WarMapsPage({ params: Promise.resolve({ warId: 'war-3' }) })
     ).rejects.toThrow('NEXT_REDIRECT:/wars/war-3/board')
     expect(redirectSpy).toHaveBeenCalledWith('/wars/war-3/board')
   })
 
-  it('redirects the legacy per-war zones page to the board (WI-6330)', async () => {
+  it('redirects the legacy per-war zones page to the board', async () => {
     await expect(
       ZonesPage({ params: Promise.resolve({ warId: 'war-4' }) })
     ).rejects.toThrow('NEXT_REDIRECT:/wars/war-4/board')

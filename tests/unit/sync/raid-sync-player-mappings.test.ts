@@ -81,7 +81,7 @@ function entry(userId: string, username?: string): RawRaidEntry {
   ) as RawRaidEntry
 }
 
-describe('updatePlayerMappings (PS-659)', () => {
+describe('updatePlayerMappings', () => {
   it('writes player_mapping from entry.username when the payload carries a real name', async () => {
     const capture = makeCapture()
     const supabase = makeSupabase(capture)

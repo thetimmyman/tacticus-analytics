@@ -18,7 +18,7 @@ vi.mock('../../../version.json', () => ({ default: { version: '1.0.0-test' } }))
 import { createEnhancedError } from '@tacticus/app-core/error-handler'
 import { legacyConsoleLogger as logger } from '@tacticus/app-core/logger'
 
-describe('createEnhancedError client-console PII redaction (WI-1930)', () => {
+describe('createEnhancedError client-console PII redaction', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('does not emit userId / sessionId / guildCode / clusterCode to the console', () => {

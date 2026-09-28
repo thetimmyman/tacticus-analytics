@@ -54,7 +54,7 @@ describe('GET /api/members/boss-performance', () => {
     GET = routeModule.GET
   })
 
-  describe('authorization (WI-6050)', () => {
+  describe('authorization', () => {
     it('rejects a guild the caller is not a current member of', async () => {
       const request = new Request(
         'http://localhost/api/members/boss-performance?guild=OTHERGLD&season=45'
@@ -79,7 +79,7 @@ describe('GET /api/members/boss-performance', () => {
       expect(mockSupabase.rpc).toHaveBeenCalled()
     })
 
-    it('accepts a post-WI-825 UUID guild_code regardless of case', async () => {
+    it('accepts a UUID guild_code regardless of case', async () => {
       // guild_code is a lowercase UUID; normalizeGuildIdentifier is the canonical comparison.
       const uuid = '3f2a1b4c-5d6e-4f70-8a9b-0c1d2e3f4a5b'
       mockSupabase.rpc.mockResolvedValue({ data: [], error: null })

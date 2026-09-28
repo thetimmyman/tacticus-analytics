@@ -7,7 +7,7 @@ import {
   computePerPlayer
 } from '@/app/lib/season-forecast/forecast-math'
 
-describe('WI-1840 forecast token contract', () => {
+describe('forecast token contract', () => {
   it('names current, future, current-lap, and inclusive capacity quantities', () => {
     const contract = computeForecastTokenContract({
       tokensAvailableNow: 34,
@@ -65,7 +65,7 @@ describe('WI-1840 forecast token contract', () => {
   })
 })
 
-describe('WI-766 forecast math — computeLapProjection', () => {
+describe('forecast math — computeLapProjection', () => {
   it('worked scenario: Lap 6 + 47%', () => {
     const result = computeLapProjection({
       tokensCapacity: 160,
@@ -111,7 +111,7 @@ describe('WI-766 forecast math — computeLapProjection', () => {
     expect(result!.projectedFinishPct).toBeCloseTo(0.4, 2)
   })
 
-  it('basis flips to wi737_solver when WI-737 has medians for current loop', () => {
+  it('basis flips to wi737_solver when the solver has stage medians for the current loop', () => {
     const result = computeLapProjection({
       tokensCapacity: 160,
       tokensIntoCurrentLap: 24,
@@ -144,7 +144,7 @@ describe('WI-766 forecast math — computeLapProjection', () => {
   })
 })
 
-describe('WI-766 forecast math — computePerPlayer', () => {
+describe('forecast math — computePerPlayer', () => {
   const SECONDS_60H = 60 * 60 * 60
   const SECONDS_12H = 12 * 60 * 60
 

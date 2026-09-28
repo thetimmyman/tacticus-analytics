@@ -114,7 +114,7 @@ async function runExecutor(rows: Row[], presentUsers: string[]) {
   return { ...harness, audit }
 }
 
-describe('gdpr executor closes records for already-absent subjects (PS-190)', () => {
+describe('gdpr executor closes records for already-absent subjects', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })

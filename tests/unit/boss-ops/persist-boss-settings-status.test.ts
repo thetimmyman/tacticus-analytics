@@ -99,7 +99,7 @@ async function runSave(): Promise<{
   return { statuses, resetDirty }
 }
 
-describe('persistBossSettings allSettled classification (WI-4950 review F1)', () => {
+describe('persistBossSettings allSettled classification (review F1)', () => {
   it("reports 'saved' and resets dirty when every write lands", async () => {
     const { statuses, resetDirty } = await runSave()
     expect(statuses).toEqual(['saving', 'saved'])

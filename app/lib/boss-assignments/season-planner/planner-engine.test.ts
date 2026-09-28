@@ -24,7 +24,7 @@ function collectActions(
 }
 
 describe('planSeason — main-only regression guard', () => {
-  it('matches the pre-WI-2734 engine on this main-only fixture (which does not straddle the cap boundary)', () => {
+  it('matches the engine before the cap-boundary change on this main-only fixture (which does not straddle the cap boundary)', () => {
     const plan = runFixturePlan(false)
 
     // Main-only baseline; drift means prime allocation leaked in.
@@ -289,7 +289,7 @@ describe('planSeason — cap-boundary eager advance (intended divergence)', () =
   })
 })
 
-describe('planSeason — officer-skipped prime from the sequence seam (WI-4500)', () => {
+describe('planSeason — officer-skipped prime from the sequence seam', () => {
   const PROGRESSION: ProgressionConfig = {
     firstPassSequence: ['L1', 'L2'],
     loopSequence: ['L1', 'L2'],
