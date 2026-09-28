@@ -7,3 +7,4 @@ data:
   NEXT_PUBLIC_SUPABASE_ANON_KEY: replace-with-build-time-anon-key
   NEXT_PUBLIC_SITE_URL: https://www.tacticusanalytics.com
   SUPABASE_URL: https://api.tacticusanalytics.com
+  LOKI_SCRAPER_USER_ID: replace-with-the-loki-user-id

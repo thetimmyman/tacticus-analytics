@@ -79,6 +79,8 @@ describe('isIpv4InCidr', () => {
     expect(isIpv4InCidr('203.0.113.9', '10.0.0.0/ ')).toBe(false)
     expect(isIpv4InCidr('203.0.113.9', '10.0.0.0/8/1')).toBe(false)
     expect(isIpv4InCidr('203.0.113.9', '10.0.0.0/-0')).toBe(false)
+    expect(isIpv4InCidr('203.0.113.9', 'garbage/0')).toBe(false)
+    expect(isIpv4InCidr('not-an-ip', '0.0.0.0/0')).toBe(false)
     expect(isIpv4InCidr('10.0.0.999', '10.0.0.0/8')).toBe(false)
     expect(isIpv4InCidr('not-an-ip', '10.0.0.0/8')).toBe(false)
     expect(isIpv4InCidr('10.0.1', '10.0.0.0/8')).toBe(false)

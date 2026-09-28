@@ -38,14 +38,15 @@ kubectl create secret generic tacticus-analytics-runtime \
   --from-literal=SUPABASE_SERVICE_ROLE_KEY=your-service-role-key \
   --from-literal=ENCRYPTION_KEY="$(openssl rand -hex 32)" \
   --from-literal=CRON_SECRET="$(openssl rand -hex 32)" \
-  --from-literal=HEALTH_CHECK_SECRET="$(openssl rand -hex 32)"
+  --from-literal=HEALTH_CHECK_SECRET="$(openssl rand -hex 32)" \
+  --from-literal=LOKI_SCRAPER_CLIENT_SECRET=your-loki-client-secret
 ```
 
 Alternatively, use `--from-env-file` with a git-ignored file containing those values.
 
 `secret.example.yaml` shows the shape only. `kustomization.yaml` deliberately leaves it out, so `kubectl apply -k` never overwrites the real Secret with placeholders.
 
-Set the anon key in `configmap.yaml`. The `NEXT_PUBLIC_*` values there affect only server-side reads; the browser bundle uses the values baked in at build time, so keep both in step.
+Set the anon key and `LOKI_SCRAPER_USER_ID` in `configmap.yaml`. The Loki user id and client secret are required for guild onboarding (`/api/guild/create-config` refuses without them). The `NEXT_PUBLIC_*` values there affect only server-side reads; the browser bundle uses the values baked in at build time, so keep both in step.
 
 ## Apply
 

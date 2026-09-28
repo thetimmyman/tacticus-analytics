@@ -182,6 +182,28 @@ describe('Kubernetes example', () => {
     }
   })
 
+  it('supplies every variable the image smoke test starts the container with', () => {
+    const workflow = readFileSync(
+      path.join(root, '.github/workflows/build-clean-image.yml'),
+      'utf8'
+    )
+    const dockerRun = /docker run -d([\s\S]*?)"\$IMAGE:\$TAG"/u.exec(
+      workflow
+    )?.[1]
+    expect(dockerRun).toBeDefined()
+    const smokeKeys = [
+      ...(dockerRun ?? '').matchAll(/-e\s+([A-Z][A-Z0-9_]*)/gu)
+    ].map((match) => match[1])
+    expect(smokeKeys.length).toBeGreaterThan(0)
+    const provided = new Set([
+      ...Object.keys(readYaml('configmap.yaml').data),
+      ...Object.keys(readYaml('secret.example.yaml').stringData)
+    ])
+    for (const key of smokeKeys) {
+      expect(provided.has(key as string), key).toBe(true)
+    }
+  })
+
   it('connects the Service selector and named target port to the Deployment', () => {
     const deployment = readYaml('deployment.yaml')
     const service = readYaml('service.yaml')
