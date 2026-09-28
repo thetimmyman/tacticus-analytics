@@ -7,7 +7,7 @@ CREATE EXTENSION IF NOT EXISTS dblink WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 SET LOCAL timezone TO 'UTC';
 
-SELECT plan(28);
+SELECT plan(39);
 
 SELECT is(
   current_database()::text,
@@ -136,10 +136,19 @@ SELECT now() - (g || ' minutes')::interval, 'tp80-w' || g, 2, 45000, 40000,
        40100, 12, 3, true
   FROM generate_series(1, 3) AS g;
 
+-- A live backlog still sitting in the queue, so "saturated" reflects the queue NOW,
+-- not only its history.
+INSERT INTO public.guild_config (guild_code, display_name, cluster_code)
+VALUES ('TP80SATLIVE', 'Test live-backlog fixture', NULL)
+ON CONFLICT (guild_code) DO NOTHING;
+INSERT INTO public.sync_queue
+  (guild_code, job_type, status, priority, scheduled_for, created_at, attempts, max_attempts)
+VALUES ('TP80SATLIVE', 'incremental_sync', 'pending', 5, now(), now(), 0, 3);
+
 SELECT is(
   (SELECT verdict FROM public.sync_queue_drain_health()),
   'saturated'::text,
-  '11. three consecutive runs that used their whole window read as "saturated"'
+  '11. three consecutive runs that used their whole window, with a live backlog, read as "saturated"'
 );
 
 SELECT is(
@@ -153,6 +162,82 @@ SELECT is(
   'firing'::text,
   '13. the firing transition was recorded on the sync.queue.drain alert key'
 );
+
+-- The same saturated runs after the burst drained: one empty-queue sample neither fires nor clears.
+DELETE FROM public.sync_queue WHERE guild_code = 'TP80SATLIVE';
+DELETE FROM public.guild_config WHERE guild_code = 'TP80SATLIVE';
+
+SELECT is(
+  (SELECT verdict FROM public.sync_queue_drain_health()),
+  'drained'::text,
+  '13a. once the live queue empties, three saturated runs read as "drained", not "saturated"'
+);
+
+SELECT is(
+  public.check_sync_queue_drain_health(3, 20, 10, true),
+  0,
+  '13b. the monitor reports no firing condition once the queue the saturated runs described has drained'
+);
+
+SELECT is(
+  (SELECT status FROM monitoring.alert_state WHERE alert_key = 'sync.queue.drain'),
+  'firing'::text,
+  '13c. "drained" does not clear an alert that is already firing'
+);
+
+INSERT INTO public.sync_drain_runs
+  (ran_at, worker_id, lanes, budget_ms, window_ms, duration_ms, jobs_drained,
+   queue_depth_start, saturated)
+VALUES (now() - INTERVAL '10 seconds', 'tp80-w0', 2, 45000, 40000, 9000, 4, 3, false);
+
+SELECT is(
+  public.check_sync_queue_drain_health(3, 20, 10, true),
+  0,
+  '13d. a newer run that kept up makes the verdict "ok"'
+);
+
+SELECT is(
+  (SELECT status FROM monitoring.alert_state WHERE alert_key = 'sync.queue.drain'),
+  'cleared'::text,
+  '13e. the next "ok" verdict clears the alert "drained" left firing'
+);
+
+DELETE FROM public.sync_drain_runs WHERE worker_id = 'tp80-w0';
+
+SELECT is(
+  (SELECT verdict FROM public.sync_queue_drain_health()),
+  'drained'::text,
+  '13f. without that run, the saturated history over an empty queue reads "drained" again'
+);
+
+SELECT is(
+  public.check_sync_queue_drain_health(3, 20, 10, true),
+  0,
+  '13g. "drained" reports no firing condition'
+);
+
+SELECT is(
+  (SELECT status FROM monitoring.alert_state WHERE alert_key = 'sync.queue.drain'),
+  'cleared'::text,
+  '13h. "drained" does not open an alert that is not firing'
+);
+
+-- Re-fire so the aged-out clearing below starts from a firing alert.
+INSERT INTO public.guild_config (guild_code, display_name, cluster_code)
+VALUES ('TP80SATLIVE', 'Test live-backlog fixture', NULL)
+ON CONFLICT (guild_code) DO NOTHING;
+INSERT INTO public.sync_queue
+  (guild_code, job_type, status, priority, scheduled_for, created_at, attempts, max_attempts)
+VALUES ('TP80SATLIVE', 'incremental_sync', 'pending', 5, now(), now(), 0, 3);
+
+SELECT is(
+  public.check_sync_queue_drain_health(3, 20, 10, true),
+  1,
+  '13i. a live backlog under the same saturated runs fires again'
+);
+
+DELETE FROM public.sync_queue WHERE guild_code = 'TP80SATLIVE';
+DELETE FROM public.guild_config WHERE guild_code = 'TP80SATLIVE';
 
 -- Runs older than the age bound no longer describe the drain, so the alert above must clear.
 DELETE FROM public.sync_drain_runs;
@@ -255,11 +340,43 @@ SELECT now() - (g || ' minutes')::interval, 'tp80-b' || g, 2, 45000, 40000,
        9000, 4, 41, false
   FROM generate_series(1, 3) AS g;
 
+INSERT INTO public.guild_config (guild_code, display_name, cluster_code)
+VALUES ('TP80BACKLIVE', 'Test live-backlog fixture', NULL)
+ON CONFLICT (guild_code) DO NOTHING;
+INSERT INTO public.sync_queue
+  (guild_code, job_type, status, priority, scheduled_for, created_at, attempts, max_attempts)
+VALUES ('TP80BACKLIVE', 'incremental_sync', 'pending', 5, now(), now(), 0, 3);
+
 SELECT is(
   (SELECT verdict FROM public.sync_queue_drain_health(3, 20, 10)),
   'backlog'::text,
-  '24. three consecutive runs handed more than twice the ceiling read as "backlog"'
+  '24. three consecutive runs handed more than twice the ceiling, with a live backlog, read as "backlog"'
 );
+
+DELETE FROM public.sync_queue WHERE guild_code = 'TP80BACKLIVE';
+DELETE FROM public.guild_config WHERE guild_code = 'TP80BACKLIVE';
+
+SELECT is(
+  (SELECT verdict FROM public.sync_queue_drain_health(3, 20, 10)),
+  'drained'::text,
+  '24a. the same over-ceiling run history reads as "drained", not "backlog", once the live queue empties'
+);
+
+INSERT INTO public.guild_config (guild_code, display_name, cluster_code)
+VALUES ('TP80BACKLIVE', 'Test live-backlog fixture', NULL)
+ON CONFLICT (guild_code) DO NOTHING;
+INSERT INTO public.sync_queue
+  (guild_code, job_type, status, priority, scheduled_for, created_at, attempts, max_attempts)
+VALUES ('TP80BACKLIVE', 'incremental_sync', 'pending', 5, now() + INTERVAL '1 hour', now(), 0, 3);
+
+SELECT is(
+  (SELECT verdict FROM public.sync_queue_drain_health(3, 20, 10)),
+  'drained'::text,
+  '24b. a deferred row scheduled in the future is not claimable, so it does not keep "backlog" alive'
+);
+
+DELETE FROM public.sync_queue WHERE guild_code = 'TP80BACKLIVE';
+DELETE FROM public.guild_config WHERE guild_code = 'TP80BACKLIVE';
 
 UPDATE public.sync_drain_runs SET queue_depth_start = NULL;
 
