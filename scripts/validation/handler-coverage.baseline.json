@@ -1,5 +1,5 @@
 {
-  "$schema_note": "PS-79 / TA-A-023. The operator's record of which job_types the work_queue actually carries. scripts/validation/check-handler-coverage.mjs FAILS the worker image roll when any job_type listed here has no registered handler in the image.",
+  "$schema_note": "The operator's record of which job_types the work_queue actually carries. scripts/validation/check-handler-coverage.mjs FAILS the worker image roll when any job_type listed here has no registered handler in the image.",
   "why_this_file_exists": "Most work_queue traffic is enqueued by pg_cron jobs created live with cron.schedule_in_database; their command bodies are not tracked in this repository at all (see supabase/migrations/20260904030000_ps22_retire_guc_secret_channel_general.sql). The checker can therefore only discover two producers statically (one SQL INSERT in a migration, one TypeScript insert in the onboarding route). Everything else has to be recorded here, from the live queue, or the gate is near-vacuous.",
   "refresh": {
     "last_refreshed_from_database": null,

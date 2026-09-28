@@ -409,7 +409,7 @@ export const POST = withErrorHandler(
               guildId: apiKeyValidation.guildInfo.guildId,
               clusterId: resolvedClusterId
             },
-            '[create-config] Attaching already-registered guild to cluster (PS-569)'
+            '[create-config] Attaching already-registered guild to cluster'
           )
           normalizedGuildCode = collisionRow.guild_code
           isClaimingByGuildId = true

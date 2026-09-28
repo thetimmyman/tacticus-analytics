@@ -9,7 +9,7 @@ on:
     inputs:
       expect_sha:
         description: >-
-          PS-406 test-only: check this short sha instead of resolving
+          Test-only: check this short sha instead of resolving
           origin/main's HEAD (e.g. "deadbeef", which has no image). When set,
           the 30-minute grace window is skipped — this is an explicit,
           deliberate probe, not the real staleness check.
@@ -43,7 +43,7 @@ jobs:
       - name: Verify gh CLI is present
         run: |
           if ! command -v gh >/dev/null 2>&1; then
-            echo "::error title=Check misconfigured::gh CLI is not installed on this runner; PS-406 image-presence check cannot run."
+            echo "::error title=Check misconfigured::gh CLI is not installed on this runner; the image-presence check cannot run."
             exit 1
           fi
       - name: Resolve target sha and HEAD age
@@ -148,7 +148,7 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail
-          body_file="$RUNNER_TEMP/ps406-image-missing-body.md"
+          body_file="$RUNNER_TEMP/image-missing-body.md"
           recent_file="$RUNNER_TEMP/recent-non-success.json"
           {
             echo "\`main\`'s HEAD (\`$SHA\`) has no published image in \`$IMAGE\`."

@@ -93,7 +93,7 @@ cmd_selftest() {
   local akia_prefix='AKIA'
   local akia_body='QWERTYUIOPASDFGH'
   {
-    echo '# PS-404 selftest fixture: synthetic, not a real credential.'
+    echo '# gitleaks selftest fixture: synthetic, not a real credential.'
     printf 'aws_access_key_id = "%s%s"\n' "$akia_prefix" "$akia_body"
   } >"${dirty}/planted-fixture.env"
   local dirty_rc=0
@@ -115,7 +115,7 @@ cmd_selftest() {
   mkdir -p "$clean"
   cp "$CONFIG" "${clean}/.gitleaks.toml"
   cat >"${clean}/README.md" <<'EOF'
-# PS-404 selftest fixture
+# gitleaks selftest fixture
 
 This directory intentionally contains no secrets.
 EOF

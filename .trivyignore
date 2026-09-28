@@ -1,4 +1,4 @@
-# Trivy CVE allowlist (PS-50)
+# Trivy CVE allowlist
 #
 # Applies to the container image scans in
 # .github/workflows/build-clean-image.yml and

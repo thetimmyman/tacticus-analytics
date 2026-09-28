@@ -22,7 +22,7 @@ interface LapProjectionOverlayProps {
 }
 
 const BASIS_LABEL: Record<SeasonForecastLapProjection['basis'], string> = {
-  wi737_solver: 'WI-737 solver',
+  wi737_solver: 'Kill-time solver',
   last_n_laps: 'Last N laps avg',
   manual: 'Manual'
 }

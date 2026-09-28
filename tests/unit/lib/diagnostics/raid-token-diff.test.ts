@@ -10,7 +10,7 @@ import {
   toRaidRowKey,
   type RaidRowKey,
   type TokenDiffResult
-} from '@/app/lib/diagnostics/ps502-token-diff'
+} from '@/app/lib/diagnostics/raid-token-diff'
 
 const row = (over: Partial<RaidRowKey> = {}): RaidRowKey => ({
   Guild: 'G1',
@@ -24,7 +24,7 @@ const row = (over: Partial<RaidRowKey> = {}): RaidRowKey => ({
   ...over
 })
 
-describe('PS-502 diff core', () => {
+describe('raid token diff core', () => {
   it('reports nothing when every upstream row landed', () => {
     const rows = [row(), row({ userId: 'user-b' })]
     const result = diffRaidRows(
@@ -155,7 +155,7 @@ describe('PS-502 diff core', () => {
     ])
   })
 
-  it('PS-502 fix: a PostgREST-shaped row (+00:00) and a transform-shaped row (.000Z) for the same instant key alike', () => {
+  it('a PostgREST-shaped row (+00:00) and a transform-shaped row (.000Z) for the same instant key alike', () => {
     // PostgREST returns `+00:00` but the writer `Z`, so raw string keys would mis-report landed rows.
     const upstream = toRaidRowKey({
       Guild: 'G1',
@@ -236,7 +236,7 @@ describe('PS-502 diff core', () => {
       expect(() => assertDiffInvariants(okResult())).not.toThrow()
     })
 
-    it('PS-502 fix: raises when unmatchedUpstreamRows.length exceeds upstreamRowCount', () => {
+    it('raises when unmatchedUpstreamRows.length exceeds upstreamRowCount', () => {
       const impossible: TokenDiffResult = {
         ...okResult(),
         upstreamRowCount: 1,
@@ -251,7 +251,7 @@ describe('PS-502 diff core', () => {
       )
     })
 
-    it('PS-502 fix: raises on the exact signature that produced this ticket — 100% unmatched with rows landed', () => {
+    it('raises on the all-unmatched-with-rows-landed signature (a matching bug, not a clean 200)', () => {
       // All upstream unmatched with landedRowCount > 0 is a matching bug, not a clean 200.
       const ticketSignature: TokenDiffResult = {
         upstreamRowCount: 3,

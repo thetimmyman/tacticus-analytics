@@ -1,5 +1,5 @@
 {
-  "$comment": "PS-256 ratchet baseline. scripts/security/anon-definer-census.mjs --check replays supabase/migrations and fails CI on any anon-executable SECURITY DEFINER function in public that is not listed here, and on any entry listed here that is no longer one (stale entries must be pruned so the baseline can only shrink). `intentionallyPublic` entries are reviewed corridors a logged-out page really calls and each carries the call site that justifies it. `legacy` is the accepted, UNREVIEWED inheritance of the clean baseline: it is a to-do list, not an approval. Nothing is ever added by a tool -- both lists are hand edits reviewed in the PR that makes them. Target is zero legacy entries. See docs/design/anon-definer-ratchet.md.",
+  "$comment": "Ratchet baseline. scripts/security/anon-definer-census.mjs --check replays supabase/migrations and fails CI on any anon-executable SECURITY DEFINER function in public that is not listed here, and on any entry listed here that is no longer one (stale entries must be pruned so the baseline can only shrink). `intentionallyPublic` entries are reviewed corridors a logged-out page really calls and each carries the call site that justifies it. `legacy` is the accepted, UNREVIEWED inheritance of the clean baseline: it is a to-do list, not an approval. Nothing is ever added by a tool -- both lists are hand edits reviewed in the PR that makes them. Target is zero legacy entries. See docs/design/anon-definer-ratchet.md.",
   "legacyCutoff": "20260919120000",
   "intentionallyPublic": [
     {
@@ -8,7 +8,7 @@
     },
     {
       "signature": "public.get_public_global_leaderboard(integer)",
-      "reason": "app/components/homepage/GlobalLeaderboard.tsx calls supabase.rpc('get_public_global_leaderboard') from a 'use client' homepage component with no session. It is the privacy-aware replacement for the retired public.global_leaderboard view (WI-4660) and projects no guild UUID; revoking anon EXECUTE would blank the homepage leaderboard."
+      "reason": "app/components/homepage/GlobalLeaderboard.tsx calls supabase.rpc('get_public_global_leaderboard') from a 'use client' homepage component with no session. It is the privacy-aware replacement for the retired public.global_leaderboard view and projects no guild UUID; revoking anon EXECUTE would blank the homepage leaderboard."
     }
   ],
   "legacy": [

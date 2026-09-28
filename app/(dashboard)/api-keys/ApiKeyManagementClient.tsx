@@ -109,7 +109,7 @@ export default function ApiKeyManagementClient({
       setSuccess(true)
       setTimeout(() => setSuccess(false), 3000)
     } catch (err) {
-      logger.error({ err }, 'WI-692 F13: replace-api-key failed')
+      logger.error({ err }, 'replace-api-key failed')
       setError(err instanceof Error ? err.message : 'Replace + Verify failed')
     } finally {
       setReplacing(false)

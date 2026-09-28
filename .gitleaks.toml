@@ -79,6 +79,14 @@ condition = "AND"
 description = "Planted leak-detection markers in API route privacy/auth tests: fixed fake secrets the tests assert never reach a response or log line"
 targetRules = ["generic-api-key"]
 regexes = [
-  '''ps21-[a-z-]+-secret-[0-9a-f]+''',
   '''PLANTED-[A-Z-]+-[0-9a-f]+'''
 ]
+
+[[allowlists]]
+description = "Fixed fake chart-signing secrets in the discord chart route tests. Scoped with condition = \"AND\" to those test files, so a real chart secret anywhere else is still reported."
+targetRules = ["generic-api-key"]
+paths = ['''(^|/)tests/unit/api/routes/discord/charts/[a-z-]+\.test\.ts$''']
+regexes = [
+  '''chart-[a-z-]+-secret-[0-9a-f]+'''
+]
+condition = "AND"

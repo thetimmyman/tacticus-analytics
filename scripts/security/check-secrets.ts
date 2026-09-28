@@ -304,9 +304,9 @@ function buildSyntheticJwt(claims: Record<string, unknown>): string {
     JSON.stringify({ alg: 'HS256', typ: 'JWT' })
   ).toString('base64url')
   const payload = Buffer.from(JSON.stringify(claims)).toString('base64url')
-  const signature = Buffer.from(
-    'ps403-selftest-signature-not-a-real-key'
-  ).toString('base64url')
+  const signature = Buffer.from('selftest-signature-not-a-real-key').toString(
+    'base64url'
+  )
   return `${header}.${payload}.${signature}`
 }
 
@@ -342,11 +342,11 @@ const SYNTHETIC_SUPABASE_SECRET_KEY =
 
 const SYNTHETIC_SERVICE_ROLE_JWT = buildSyntheticJwt({
   role: 'service_role',
-  iss: 'ps403-selftest'
+  iss: 'secret-scan-selftest'
 })
 const SYNTHETIC_ANON_JWT = buildSyntheticJwt({
   role: 'anon',
-  iss: 'ps403-selftest'
+  iss: 'secret-scan-selftest'
 })
 const SYNTHETIC_DEMO_SERVICE_ROLE_JWT = buildSyntheticJwt({
   role: 'service_role',
@@ -376,7 +376,7 @@ const PATTERN_FIXTURES: Record<string, string> = {
   'Supabase secret key': SYNTHETIC_SUPABASE_SECRET_KEY
 }
 
-const SELFTEST_FIXTURE_PATH = 'ps403-selftest-fixture.txt'
+const SELFTEST_FIXTURE_PATH = 'secret-scan-selftest-fixture.txt'
 
 function assert(condition: boolean, message: string): void {
   if (!condition) throw new Error(`self-test failed: ${message}`)

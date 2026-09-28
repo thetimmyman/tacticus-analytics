@@ -8,7 +8,7 @@ import {
   verifyChartSignature
 } from '@/app/api/discord/charts/signed-url'
 
-const SECRET = 'ps21-test-secret-0123456789abcdef'
+const SECRET = 'chart-test-secret-0123456789abcdef'
 const BASE = 'https://example.test/api/discord/charts/boss'
 
 const NOW_MS = 1_760_000_000_000
@@ -27,7 +27,7 @@ function verify(url: string, options: Record<string, unknown> = {}) {
   })
 }
 
-describe('PS-21 signed chart URLs', () => {
+describe('signed chart URLs', () => {
   const originalSecret = process.env.DISCORD_CHART_URL_SECRET
 
   beforeEach(() => {

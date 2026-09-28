@@ -90,7 +90,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     if (!targetGuild.guild_id) {
       logger.error(
         { targetGuild: guildCode },
-        'WI-692 F13: guild_config.guild_id missing — cannot verify key ownership'
+        'guild_config.guild_id missing — cannot verify key ownership'
       )
       throw Errors.fromResponse(400, {
         error: 'Guild identity not linked',
@@ -107,7 +107,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
           apiKeyGuildId: validation.guildInfo.guildId,
           apiKeyGuildName: validation.guildInfo.guildName
         },
-        'WI-692 F13: API key guild mismatch — replace rejected'
+        'API key guild mismatch — replace rejected'
       )
       throw Errors.fromResponse(400, {
         error: 'API key belongs to a different guild',
@@ -122,7 +122,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     } catch (encryptError) {
       logger.error(
         { err: encryptError },
-        'WI-692 F13: failed to encrypt replacement API key'
+        'failed to encrypt replacement API key'
       )
       throw Errors.fromResponse(500, {
         error: 'Failed to encrypt API key',
@@ -157,7 +157,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
           guildCode,
           userId: user.id
         },
-        'WI-692 F13: replace-api-key DB update failed'
+        'replace-api-key DB update failed'
       )
       throw Errors.fromResponse(500, {
         error: 'Failed to persist replacement key',
@@ -166,10 +166,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       })
     }
 
-    logger.info(
-      { guildCode, userId: user.id },
-      'WI-692 F13: API key replaced and verified'
-    )
+    logger.info({ guildCode, userId: user.id }, 'API key replaced and verified')
 
     return NextResponse.json({
       success: true,
@@ -182,10 +179,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     })
   } catch (error) {
     rethrowIfAppError(error)
-    logger.error(
-      { err: error },
-      'WI-692 F13: unexpected error in replace-api-key'
-    )
+    logger.error({ err: error }, 'unexpected error in replace-api-key')
     throw Errors.fromResponse(500, {
       error: 'Unexpected error during key replacement',
       code: 'INTERNAL_ERROR'

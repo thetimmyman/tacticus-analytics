@@ -21,7 +21,7 @@ if ! gh label list --repo "$GITHUB_REPOSITORY" --search "$label" --json name -q 
     | grep -qx "$label"; then
   gh label create "$label" --repo "$GITHUB_REPOSITORY" \
     --color B60205 \
-    --description "Automated CI failure alert (PS-406)" \
+    --description "Automated CI failure alert" \
     || true # a racing concurrent run may have created it first
 fi
 

@@ -79,7 +79,7 @@
   --portrait-width-medium: 4rem;
 
   /* Status / semantic universal tokens — kept stable across guild themes.
-     Per-theme overrides via theme.semanticOverrides (see WI-747).
+     Per-theme overrides via theme.semanticOverrides.
      `--danger` value bumped from #f87171 → #ff6b6b for better contrast on
      coloured cardBgs (round-3 readability sweep, 40+ themes affected). */
   --warning: #fbbf24;
@@ -124,7 +124,7 @@
   background-color: #0f172a;
 }
 
-/* Accessibility — honor prefers-reduced-motion globally (WI-747).
+/* Accessibility — honor prefers-reduced-motion globally.
    Use 0.01ms instead of 0 so transitionend / animationend events still fire
    for any code listening on them; visually identical to instant. Skeleton
    placeholder visibility is preserved — its job is "loading" signal, not
@@ -688,7 +688,7 @@ a {
   }
 
   /* Achievement celebration — subtle amber halo pulse, deliberately lower-intensity
-     than VOTLW's glow above (WI-5040 Task J). It is applied only during the bounded
+     than VOTLW's glow above. It is applied only during the bounded
      recent-unlock state and runs a finite number of times, so alpha stays low and a
      dense card grid never becomes a persistent strobe wall. */
   @keyframes achievement-glow {

@@ -298,7 +298,7 @@ describe('GET /api/admin/diagnostics/ps502-token-diff', () => {
     assertNoMarkers(loggedText(), 'logs on the upstream-null path')
   })
 
-  it('PS-502 fix: returns diff_invariant_violated (not a 200) when the diff is arithmetically impossible', async () => {
+  it('returns diff_invariant_violated (not a 200) when the diff is arithmetically impossible', async () => {
     landedResult = {
       data: [
         {
