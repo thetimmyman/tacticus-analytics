@@ -45,6 +45,7 @@ discord_bot_invite_atomicity.sql # 8
 drop_stale_member_luck_summary.sql # 3
 eot_gr_data_preserve_erasure_tombstone.sql # 30
 global_war_meta_archive.sql # 17
+gdpr_request_health_monitor.sql # 25
 port_war_room_shared_teams.sql # 40
 port_war_room_readiness.sql # 27
 pgnet_failure_snapshots.sql # 13
