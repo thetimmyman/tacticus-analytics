@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Cog, HardDrive, Zap, Activity } from 'lucide-react'
 import {
   MechanicusGear,
@@ -80,16 +80,17 @@ function getRandomSacredMessage(): string {
   )
 }
 
+const DEFAULT_PROTOCOL = EXTENDED_PROTOCOLS[0] ?? {
+  primary: FALLBACK_MESSAGE,
+  secondary: 'Stand by for machine spirit communion...',
+  binary:
+    '01001111 01101101 01101110 01101001 01110011 01110011 01101001 01100001 01101000'
+}
+
 function getRandomExtendedProtocol() {
   return (
-    EXTENDED_PROTOCOLS[
-      Math.floor(Math.random() * EXTENDED_PROTOCOLS.length)
-    ] ?? {
-      primary: FALLBACK_MESSAGE,
-      secondary: 'Stand by for machine spirit communion...',
-      binary:
-        '01001111 01101101 01101110 01101001 01110011 01110011 01101001 01100001 01101000'
-    }
+    EXTENDED_PROTOCOLS[Math.floor(Math.random() * EXTENDED_PROTOCOLS.length)] ??
+    DEFAULT_PROTOCOL
   )
 }
 
@@ -109,13 +110,15 @@ export function LoadingSpinner({
   const [currentMessage, setCurrentMessage] = useState(
     message || '⚡ AWAKENING THE BLESSED COGITATOR'
   )
-  const protocol = useMemo(
-    () =>
-      variant === 'sacred'
-        ? getRandomExtendedProtocol()
-        : (EXTENDED_PROTOCOLS[0] ?? getRandomExtendedProtocol()),
-    [variant]
-  )
+  // The server and the hydrating client must render the same text, so the
+  // random sacred protocol is chosen only after mount.
+  const [protocol, setProtocol] = useState(DEFAULT_PROTOCOL)
+
+  useEffect(() => {
+    setProtocol(
+      variant === 'sacred' ? getRandomExtendedProtocol() : DEFAULT_PROTOCOL
+    )
+  }, [variant])
 
   useEffect(() => {
     if (message) return

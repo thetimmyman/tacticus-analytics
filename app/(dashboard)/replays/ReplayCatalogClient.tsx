@@ -8,6 +8,7 @@ import clsx from 'clsx'
 import { HeroUnitPortrait } from '@/app/components/ui/HeroUnitPortrait'
 import { BossPortrait } from '@/app/components/ui/BossPortrait'
 import { useHeroCatalog } from '@/app/lib/catalogs/heroes'
+import { formatNumber } from '@/app/lib/utils/number-format'
 import { sortTeamUnitNamesForDisplay } from '@/app/lib/team-display-order'
 import {
   CATALOG_SORTS,
@@ -178,7 +179,7 @@ export function ReplayCatalogClient({
           <span className="text-sm text-[var(--text-tertiary)]">
             {result.loadFailed
               ? 'Catalogue unavailable'
-              : `${result.total.toLocaleString()} replay${result.total === 1 ? '' : 's'}`}
+              : `${formatNumber(result.total)} replay${result.total === 1 ? '' : 's'}`}
           </span>
         </div>
         <p className="max-w-3xl text-sm text-[var(--text-secondary)]">
