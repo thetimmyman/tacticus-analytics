@@ -157,26 +157,28 @@ Deno.serve(async (req) => {
           1,
           globalLatestSeason - VOTLW_LOOKBACK_SEASONS - 1
         )
-        let rowsQuery = supabase
-          .from('EOT_GR_data')
-          .select('Guild, season_num, startedOn, completedOn')
-          .gte('season_num', lookbackFloor)
-          .gte('tier', 4)
-        if (specificGuild) {
-          rowsQuery = rowsQuery.eq('Guild', specificGuild)
-        }
-        const { data: rows, error } = await rowsQuery
+        // Aggregated server-side (one row per guild/season): a plain select
+        // of raw battle rows hits PostgREST's row cap long before covering a
+        // whole season's guilds and silently truncates.
+        const { data: rows, error } = await supabase.rpc(
+          'get_votlw_guild_season_first_battle',
+          { p_min_season: lookbackFloor }
+        )
         if (error || !rows) {
           logger.error(`Error fetching guild season windows:`, error?.message)
         } else {
-          const guildSeasonRows = buildGuildSeasonRows(
+          let guildSeasonRows = buildGuildSeasonRows(
             rows as Array<{
-              Guild: string | null
-              season_num: number | null
-              startedOn: string | null
-              completedOn: string | null
+              guild_code: string | null
+              season: number | null
+              first_battle: string | null
             }>
           )
+          if (specificGuild) {
+            guildSeasonRows = guildSeasonRows.filter(
+              (row) => row.guild === specificGuild
+            )
+          }
           targets = selectScorableSeasons(guildSeasonRows, Date.now())
         }
       }
