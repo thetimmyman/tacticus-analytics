@@ -49,6 +49,7 @@ type ExportRow = {
   request_id: string
   user_id: string
   status: string
+  requested_at: string
   completed_at: string | null
   download_url: string | null
   expires_at: string | null
@@ -56,12 +57,20 @@ type ExportRow = {
 
 type Upload = { name: string; body: string }
 
+// gdpr-manager.ts's STUCK_EXPORT_MINUTES; kept in sync by the "pins the ..." test below.
+const STUCK_EXPORT_MINUTES = 60
+
+function minutesAgo(minutes: number): string {
+  return new Date(Date.now() - minutes * 60 * 1000).toISOString()
+}
+
 function createHarness(
   options: {
     status?: string
     missing?: boolean
     staleObject?: boolean
     failUploads?: number
+    requestedAt?: string
   } = {}
 ) {
   const failUploads = options.failUploads ?? 0
@@ -71,6 +80,7 @@ function createHarness(
         request_id: REQUEST_ID,
         user_id: USER_ID,
         status: options.status ?? 'failed',
+        requested_at: options.requestedAt ?? minutesAgo(5),
         completed_at: '2026-06-23T00:00:00.000Z',
         download_url: null,
         expires_at: null
@@ -300,10 +310,10 @@ describe('redriveDataExport re-runs a failed export', () => {
     expect(h.uploads).toEqual([])
   })
 
-  it.each(['pending', 'processing', 'completed'])(
-    'refuses a %s row: no transition, no audit row, no export',
+  it.each(['pending', 'processing'])(
+    'refuses a fresh %s row (still within a live attempt): no transition, no audit row, no export',
     async (status) => {
-      const h = createHarness({ status })
+      const h = createHarness({ status, requestedAt: minutesAgo(5) })
       await mockModules(h.client)
 
       const result = await redrive()
@@ -313,6 +323,60 @@ describe('redriveDataExport re-runs a failed export', () => {
       expect(h.auditRows).toEqual([])
       expect(h.uploads).toEqual([])
       expect(h.row?.status).toBe(status)
+    }
+  )
+
+  it('refuses a completed row regardless of age: it holds a signed URL the subject can still use', async () => {
+    const h = createHarness({
+      status: 'completed',
+      requestedAt: minutesAgo(STUCK_EXPORT_MINUTES + 1)
+    })
+    await mockModules(h.client)
+
+    const result = await redrive()
+
+    expect(result).toEqual({ outcome: 'not_redrivable', status: 'completed' })
+    expect(h.statusUpdates).toEqual([])
+    expect(h.auditRows).toEqual([])
+    expect(h.uploads).toEqual([])
+  })
+
+  it.each(['pending', 'processing'])(
+    'gives a stuck %s row a re-drive path: one minute past the stuck threshold runs the export',
+    async (status) => {
+      const h = createHarness({
+        status,
+        requestedAt: minutesAgo(STUCK_EXPORT_MINUTES + 1)
+      })
+      await mockModules(h.client)
+
+      const result = await redrive()
+
+      expect(result).toEqual({ outcome: 'redriven', status: 'completed' })
+      expect(statuses(h.statusUpdates)).toEqual(['processing', 'completed'])
+      expect(
+        h.auditRows.filter((r) => r.data_type === 'export_redrive')
+      ).toHaveLength(1)
+    }
+  )
+
+  it.each(['pending', 'processing'])(
+    'pins the stuck threshold on a %s row: five seconds under it is not yet stuck',
+    async (status) => {
+      // A few seconds under the threshold, not exactly at it: exact-boundary timing
+      // is at the mercy of how long the test itself takes to reach the check.
+      const h = createHarness({
+        status,
+        requestedAt: new Date(
+          Date.now() - (STUCK_EXPORT_MINUTES * 60 * 1000 - 5000)
+        ).toISOString()
+      })
+      await mockModules(h.client)
+
+      const result = await redrive()
+
+      expect(result).toEqual({ outcome: 'not_redrivable', status })
+      expect(h.statusUpdates).toEqual([])
     }
   )
 })

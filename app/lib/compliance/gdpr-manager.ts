@@ -122,6 +122,21 @@ type GdprCleanupCounts = {
 export const GDPR_EXPORT_REDRIVE_PURPOSE_PREFIX =
   'gdpr_export_redrive:invoked_by='
 
+// Matches gdpr_request_health's p_stuck_export_minutes default
+// (supabase/migrations/20260928040000_gdpr_request_health_monitor.sql): a pending/processing
+// row this old is what that monitor already calls stuck, so re-drive uses the same line.
+const STUCK_EXPORT_MINUTES = 60
+
+/** A pending/processing row old enough that no live attempt is plausibly still running it. */
+function isStuckExport(
+  row: Pick<GdprDataExportRow, 'status' | 'requested_at'>
+): boolean {
+  if (row.status !== 'pending' && row.status !== 'processing') return false
+  const openedAt = Date.parse(row.requested_at)
+  if (Number.isNaN(openedAt)) return false
+  return Date.now() - openedAt > STUCK_EXPORT_MINUTES * 60 * 1000
+}
+
 type GdprExportRedriveResult =
   | { outcome: 'not_found' }
   | { outcome: 'not_redrivable'; status: string }
@@ -350,8 +365,10 @@ export class GDPRManager {
   }
 
   /**
-   * Only `failed` qualifies: pending/processing may race the same object name, and
-   * re-driving `completed` would revoke the subject's live download URL.
+   * `failed` always qualifies. A `pending`/`processing` row qualifies once it is
+   * stuck (isStuckExport): nothing polls these rows, so one this old was orphaned by
+   * a crashed or restarted attempt, not raced by a live one. `completed` never
+   * qualifies: re-driving it would revoke the subject's live download URL.
    */
   async redriveDataExport(
     requestId: string,
@@ -379,7 +396,7 @@ export class GDPRManager {
 
     if (!row) return { outcome: 'not_found' }
 
-    if (row.status !== 'failed') {
+    if (row.status !== 'failed' && !isStuckExport(row)) {
       logger.warn(
         {
           event: 'gdpr.export.redrive_refused',
@@ -387,7 +404,7 @@ export class GDPRManager {
           status: row.status,
           invokedByUserId
         },
-        'gdpr.export.redrive_refused: only a failed export row is re-drivable'
+        'gdpr.export.redrive_refused: only a failed or stuck pending/processing export row is re-drivable'
       )
       return { outcome: 'not_redrivable', status: row.status }
     }

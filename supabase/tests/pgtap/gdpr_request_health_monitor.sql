@@ -4,7 +4,7 @@ CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 SET LOCAL timezone TO 'UTC';
 
-SELECT plan(25);
+SELECT plan(28);
 
 -- The verdict is global, so requests already open in this database are closed first;
 -- the surrounding transaction rolls that back.
@@ -90,5 +90,26 @@ SELECT is((SELECT pronargdefaults = pronargs FROM pg_proc WHERE oid = 'public.ch
   '23. the scheduled check is callable with no arguments');
 SELECT is((SELECT monitoring.alert_channel('gdpr.requests')), 'ta'::text,
   '24. GDPR alerts route to the TA channel');
+
+-- Pin the default deletion grace window (24h) so a change to it fails this test rather
+-- than silently shifting Article 12(3) enforcement.
+INSERT INTO public.gdpr_deletion_requests(request_id, user_id, request_type, requested_at, scheduled_for, status) VALUES
+  ('00000000-0000-4000-8000-0000000000d1', '00000000-0000-4000-8000-0000000000a2', 'complete',
+   now() - interval '2 days', now() - interval '23 hours 55 minutes', 'scheduled');
+
+SELECT is((SELECT overdue_deletions FROM public.gdpr_request_health()), 0,
+  '25. pins the deletion grace window: 5 minutes under 24 hours past scheduled_for is not yet overdue');
+
+UPDATE public.gdpr_deletion_requests SET scheduled_for = now() - interval '24 hours 5 minutes'
+ WHERE request_id = '00000000-0000-4000-8000-0000000000d1';
+
+SELECT is((SELECT overdue_deletions FROM public.gdpr_request_health()), 1,
+  '26. pins the deletion grace window: 5 minutes over 24 hours past scheduled_for is overdue');
+
+UPDATE public.gdpr_deletion_requests SET status = 'completed'
+ WHERE request_id = '00000000-0000-4000-8000-0000000000d1';
+
+SELECT is((SELECT verdict FROM public.gdpr_request_health()), 'ok'::text,
+  '27. resolving the boundary row returns the monitor to ok');
 
 ROLLBACK;
