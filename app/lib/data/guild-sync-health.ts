@@ -48,7 +48,9 @@ export function classifyGuildSyncState(
     row.auto_sync_enabled !== true || isStale(row, now, hours * HOUR_MS)
   if (!dead) return null
 
-  if (row.api_key_is_valid === null) return 'no_key'
-  if (row.auto_sync_enabled !== true) return 'auto_sync_off'
+  // Key removal clears validity and turns auto-sync off together; NULL alone is an unvalidated stored key.
+  if (row.auto_sync_enabled !== true) {
+    return row.api_key_is_valid === null ? 'no_key' : 'auto_sync_off'
+  }
   return 'stale'
 }

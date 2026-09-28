@@ -88,6 +88,8 @@ describe('GuildSyncStoppedBanner', () => {
     const alert = screen.getByRole('alert')
     expect(alert).toHaveTextContent('First Company: guild data is out of date')
     expect(alert).toHaveTextContent('No new data has synced since 2030-01-08')
+    expect(alert).toHaveTextContent('Saving the key again')
+    expect(alert).toHaveTextContent('the problem is not your key')
     expect(
       screen.getByRole('link', { name: 'Check the API key' })
     ).toHaveAttribute('href', '/api-keys')
@@ -146,9 +148,20 @@ describe('GuildSyncStoppedBanner', () => {
     fireEvent.click(screen.getByRole('button', { name: /dismiss/i }))
     expect(screen.queryByRole('alert')).toBeNull()
 
+    rerender(<GuildSyncStoppedBanner incident={{ ...incident() }} />)
+    expect(screen.queryByRole('alert')).toBeNull()
+  })
+
+  it('shows the same incident id again after the guild recovered in between', () => {
+    const { rerender } = render(
+      <GuildSyncStoppedBanner incident={incident()} />
+    )
+    fireEvent.click(screen.getByRole('button', { name: /dismiss/i }))
+    expect(screen.queryByRole('alert')).toBeNull()
+
     rerender(<GuildSyncStoppedBanner incident={null} />)
     rerender(<GuildSyncStoppedBanner incident={incident()} />)
-    expect(screen.queryByRole('alert')).toBeNull()
+    expect(screen.getByRole('alert')).toBeInTheDocument()
   })
 
   it('returns for a different incident id even inside the same session', () => {

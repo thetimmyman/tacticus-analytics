@@ -24,6 +24,20 @@ function readDismissed(incidentId: string): boolean {
   }
 }
 
+// No incident means the guild recovered; a later incident with the same id must show again.
+function clearDismissals(): void {
+  try {
+    const storage = globalThis.sessionStorage
+    if (!storage) return
+    for (let i = storage.length - 1; i >= 0; i--) {
+      const key = storage.key(i)
+      if (key?.startsWith(DISMISS_KEY_PREFIX)) storage.removeItem(key)
+    }
+  } catch {
+    // Storage failures only mean an old dismissal may linger.
+  }
+}
+
 function formatDate(value: string | null): string | null {
   if (!value) return null
   const parsed = new Date(value)
@@ -44,6 +58,7 @@ export function GuildSyncStoppedBanner({
   const [dismissed, setDismissed] = useState(false)
 
   useEffect(() => {
+    if (!incidentId) clearDismissals()
     setDismissed(incidentId ? readDismissed(incidentId) : false)
   }, [incidentId])
 
@@ -84,8 +99,8 @@ export function GuildSyncStoppedBanner({
       break
     case 'stale':
       body = date
-        ? `No new data has synced since ${date}, although the API key is still marked valid. Re-adding a working key on the API Keys page restarts sync.`
-        : `No data has synced yet, although the API key is still marked valid. Re-adding a working key on the API Keys page restarts sync.`
+        ? `No new data has synced since ${date}, although the API key is still marked valid. Saving the key again on the API Keys page re-checks it and starts a sync right away; if data still does not update after that, the problem is not your key.`
+        : `No data has synced yet, although the API key is still marked valid. Saving the key again on the API Keys page re-checks it and starts a sync right away; if data still does not update after that, the problem is not your key.`
       break
   }
 

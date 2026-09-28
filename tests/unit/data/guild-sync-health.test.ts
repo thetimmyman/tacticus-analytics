@@ -54,12 +54,17 @@ const cases: Array<{
     expected: null
   },
   {
-    name: 'null key plus auto-sync on and a 30h-old sync reports no_key',
+    name: 'unvalidated key (null) plus auto-sync on and a 30h-old sync reports stale, not no_key',
     input: row({
       api_key_is_valid: null,
       auto_sync_enabled: true,
       last_successful_sync: '2030-01-09T06:00:00.000Z'
     }),
+    expected: 'stale'
+  },
+  {
+    name: 'null key plus auto-sync null reports no_key',
+    input: row({ api_key_is_valid: null, auto_sync_enabled: null }),
     expected: 'no_key'
   },
   {
