@@ -8,7 +8,7 @@ SELECT plan(3);
 -- A member holds a bomb when their latest Bomb entry is >= 18h old or absent. Max 1/member.
 
 INSERT INTO public.guild_config (id, guild_code, display_name, created_at, enabled)
-VALUES (926600, 'TW2660A', 'WI 2660 Bombs Guild', now(), true);
+VALUES (926600, 'TW2660A', 'Test Bombs Guild', now(), true);
 
 -- Signup triggers are disabled; their side effects are irrelevant here.
 ALTER TABLE auth.users DISABLE TRIGGER USER;

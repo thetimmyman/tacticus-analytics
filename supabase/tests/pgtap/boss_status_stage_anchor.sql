@@ -10,8 +10,8 @@ SELECT plan(6);
 
 INSERT INTO public.guild_config (id, guild_code, display_name, created_at, enabled)
 VALUES
-  (925900, 'TW2590A', 'WI 2590 Orphan Guild', now(), true),
-  (925901, 'TW2590B', 'WI 2590 Mid-Stage Guild', now(), true);
+  (925900, 'TW2590A', 'Test Orphan Guild', now(), true),
+  (925901, 'TW2590B', 'Test Mid-Stage Guild', now(), true);
 
 -- Guild A: prime slots re-anchor to set 1 while the main row stays the dead M1 main.
 INSERT INTO public."EOT_GR_data" (

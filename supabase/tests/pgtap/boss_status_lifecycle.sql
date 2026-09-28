@@ -8,7 +8,7 @@ SELECT plan(4);
 -- Defeat derives from remaining HP: "completedOn" is the battle-end time, not a kill marker.
 
 INSERT INTO public.guild_config (id, guild_code, display_name, created_at, enabled)
-VALUES (926100, 'TW2650A', 'WI 2610 Lifecycle Guild', now(), true);
+VALUES (926100, 'TW2650A', 'Test Lifecycle Guild', now(), true);
 
 INSERT INTO public."EOT_GR_data" (
   "Guild", "Season", "displayName", "Name", "damageType", "damageDealt",
