@@ -6,15 +6,15 @@ import {
 } from 'https://deno.land/std@0.168.0/testing/asserts.ts'
 
 const OVERRIDE_ENV = 'LOKI_CONFIG_OVERRIDE_DIR'
+const OVERRIDE_BYTES_ENV = 'LOKI_CONFIG_OVERRIDE_GZ_BASE64'
 const OVERRIDE_FILENAME = 'GlobalConfig.json.gz'
 
-// Values taken from the live ConfigMap.
-const OVERRIDE_BUILD = '1.42.159'
-const UPSTREAM_BUILD = '1.41.100'
+const OVERRIDE_BUILD = '9.99.1'
+const UPSTREAM_BUILD = '9.98.1'
 const STALE_DEFAULT = '1.29.21.1056'
 
 const globalConfigFixture = (build: string) => ({
-  configVersion: 'f0da16793078dd4d92d2874abda27d26',
+  configVersion: 'a1b2c3d4e5f607182930aabbccddeeff',
   extractedAt: '2026-09-16T10:10:06.415Z',
   general: {
     minRecommendedAppVersions: {
@@ -67,11 +67,14 @@ interface Harness {
 const harness = async (opts: {
   /** null means no override at all. */
   overrideBytes: Uint8Array | null
+  overrideEnvPayload?: string
   upstream: 'ok' | '404'
 }): Promise<Harness> => {
   const realFetch = globalThis.fetch
   const realWarn = console.warn
+  const realInfo = console.info
   const previousDir = Deno.env.get(OVERRIDE_ENV)
+  const previousPayload = Deno.env.get(OVERRIDE_BYTES_ENV)
 
   if (opts.overrideBytes) {
     const dir = await Deno.makeTempDir()
@@ -79,6 +82,11 @@ const harness = async (opts: {
     Deno.env.set(OVERRIDE_ENV, dir)
   } else {
     Deno.env.delete(OVERRIDE_ENV)
+  }
+  if (opts.overrideEnvPayload !== undefined) {
+    Deno.env.set(OVERRIDE_BYTES_ENV, opts.overrideEnvPayload)
+  } else {
+    Deno.env.delete(OVERRIDE_BYTES_ENV)
   }
 
   const fetchCalls: string[] = []
@@ -99,6 +107,7 @@ const harness = async (opts: {
   console.warn = (...args: unknown[]) => {
     warnings.push(args)
   }
+  console.info = () => {}
 
   return {
     mod: await freshModule(),
@@ -107,8 +116,11 @@ const harness = async (opts: {
     restore: () => {
       globalThis.fetch = realFetch
       console.warn = realWarn
+      console.info = realInfo
       if (previousDir === undefined) Deno.env.delete(OVERRIDE_ENV)
       else Deno.env.set(OVERRIDE_ENV, previousDir)
+      if (previousPayload === undefined) Deno.env.delete(OVERRIDE_BYTES_ENV)
+      else Deno.env.set(OVERRIDE_BYTES_ENV, previousPayload)
     }
   }
 }
@@ -217,6 +229,57 @@ Deno.test(
       assert(
         typeof context?.error === 'string',
         'warning context must carry the error MESSAGE, not the Error object'
+      )
+    } finally {
+      h.restore()
+    }
+  }
+)
+
+Deno.test(
+  'override handed over by the main service in an env var is used when the mount is unreadable',
+  async () => {
+    const gzip = await gzipJson(globalConfigFixture(OVERRIDE_BUILD))
+    let binary = ''
+    for (let i = 0; i < gzip.length; i += 0x8000) {
+      binary += String.fromCharCode(...gzip.subarray(i, i + 0x8000))
+    }
+    const h = await harness({
+      overrideBytes: null,
+      overrideEnvPayload: btoa(binary),
+      upstream: 'ok'
+    })
+    const missingDir = await Deno.makeTempDir()
+    Deno.env.set(OVERRIDE_ENV, `${missingDir}/missing`)
+    try {
+      assertEquals(await h.mod.getRecommendedLokiBuildString(), OVERRIDE_BUILD)
+      assertEquals(h.fetchCalls, [])
+      assertEquals(
+        (await h.mod.getLokiSeasonTimingConstants()).source,
+        'loki-globalconfig'
+      )
+      assertEquals(h.fetchCalls, [])
+    } finally {
+      h.restore()
+    }
+  }
+)
+
+Deno.test(
+  'corrupt env override falls through to upstream with a warning',
+  async () => {
+    const h = await harness({
+      overrideBytes: null,
+      overrideEnvPayload: btoa('not gzip'),
+      upstream: 'ok'
+    })
+    try {
+      assertEquals(await h.mod.getRecommendedLokiBuildString(), UPSTREAM_BUILD)
+      assertEquals(h.fetchCalls.length, 1)
+      assert(
+        h.warnings.some((args) =>
+          String(args[0]).includes('override unreadable')
+        )
       )
     } finally {
       h.restore()
