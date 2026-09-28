@@ -78,7 +78,7 @@ player_hash_name_heal.sql # 14
 prune_incomplete_registrations.sql # 24
 subject_erasure_player_ids.sql # 39
 guild_sync_status_view_policy.sql # 18
-sync_queue_drain_lanes.sql # 28
+sync_queue_drain_lanes.sql # 32
 publication_security_boundaries.sql # 6
 sync_quiet_tick_markers.sql # 8
 user_ban_reconciliation_enqueue.sql # 8
