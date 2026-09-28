@@ -206,7 +206,7 @@ describe('aggregateSeasonPerformance', () => {
     })
 
     // Sweeps qualify only above GREATEST(player's own non-sweep avg, reference avg).
-    it('excludes a sweep above guild avg but below the player own avg (WI-1462)', () => {
+    it('excludes a sweep above guild avg but below the player own avg', () => {
       const sweepRow = makeRow({
         damageDealt: 90000,
         remainingHp: 0,

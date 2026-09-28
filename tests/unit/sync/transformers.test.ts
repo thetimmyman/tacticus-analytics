@@ -230,7 +230,7 @@ describe('detectSeason', () => {
     expect(detectSeason({}, entries)).toBe('108')
   })
 
-  it('returns null when no season is found — no calendar-math fabrication (WI-1810)', () => {
+  it('returns null when no season is found — no calendar-math fabrication', () => {
     // No invented season; the caller falls back to get_latest_season.
     expect(detectSeason(null, [])).toBeNull()
     expect(detectSeason({}, [])).toBeNull()
@@ -537,7 +537,7 @@ describe('processRaidEntry', () => {
   })
 
   // A raw entry's name is `username`; an unmapped user must not become Player#XXXXXX.
-  it('uses the raid payload username when the player has no mapping (PS-659)', () => {
+  it('uses the raid payload username when the player has no mapping', () => {
     const entry: RawRaidEntry = {
       userId: 'newPlayer1',
       username: 'RealUpstreamName',
@@ -579,7 +579,7 @@ describe('processRaidEntry', () => {
     expect(result.displayName).toBe('TestPlayer')
   })
 
-  it('never promotes an upstream Player# alias in username to a resolved name (PS-659)', () => {
+  it('never promotes an upstream Player# alias in username to a resolved name', () => {
     // Upstream's Player#XXXXXX privacy alias is never stored as a resolved name.
     const entry: RawRaidEntry = {
       userId: 'aliasPlayer1',

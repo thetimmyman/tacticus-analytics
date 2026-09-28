@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { formatEncounterLabel } from '@/app/lib/format/encounter-label'
 
-describe('formatEncounterLabel (WI-2211)', () => {
+describe('formatEncounterLabel', () => {
   it('plain style', () => {
     expect(formatEncounterLabel(0)).toBe('Main')
     expect(formatEncounterLabel(1)).toBe('Prime 1')

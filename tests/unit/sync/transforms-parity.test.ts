@@ -31,7 +31,7 @@ function runBoth(entry: Record<string, unknown>) {
   return { app, edge }
 }
 
-describe('processRaidEntry edge<->app parity (WI-1810 drift guard)', () => {
+describe('processRaidEntry edge<->app parity (drift guard)', () => {
   it('both DROP an entry with a missing encounterIndex (no phantom main-boss row)', () => {
     const { app, edge } = runBoth({ userId: 'user123', type: 'Szarekh' })
     expect(app).toBeNull()
@@ -98,7 +98,7 @@ describe('processRaidEntry edge<->app parity (WI-1810 drift guard)', () => {
     expect(edge!.Season).toBe('103')
   })
 
-  it('both use the payload username identically, and both keep a Player# alias fallback-safe (PS-659)', () => {
+  it('both use the payload username identically, and both keep a Player# alias fallback-safe', () => {
     const real = runBoth({
       userId: 'newUser',
       username: 'RealUpstreamName',

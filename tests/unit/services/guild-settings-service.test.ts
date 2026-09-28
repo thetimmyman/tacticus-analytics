@@ -238,7 +238,7 @@ describe('guild-settings-service', () => {
     expect(loggerErrorMock).toHaveBeenCalled()
   })
 
-  it('does NOT touch public_guild_snapshots when the service client is unavailable (PS-125)', async () => {
+  it('does NOT touch public_guild_snapshots when the service client is unavailable', async () => {
     // No request-client fallback: anon/authenticated hold no privileges on the snapshot table or RPC.
     createServiceClientMock.mockImplementation(() => {
       throw new Error('missing service key')
@@ -338,7 +338,7 @@ describe('guild-settings-service', () => {
     expect(rpcMock).toHaveBeenCalledWith('refresh_public_guild_snapshots')
   })
 
-  it('snapshot sync does NOT refresh on a 42501 from the service client (PS-125)', async () => {
+  it('snapshot sync does NOT refresh on a 42501 from the service client', async () => {
     // On the service client 42501 is a misconfiguration, not "zero rows".
     const { rpcMock } = await runSnapshotSync({
       data: null,
@@ -441,7 +441,7 @@ describe('guild-settings-service', () => {
     expect(loggerErrorMock).toHaveBeenCalled()
   })
 
-  it('createDefaultGuildSettings recovers a missing row via SERVICE authority (WI-3136)', async () => {
+  it('createDefaultGuildSettings recovers a missing row via SERVICE authority', async () => {
     const insertChain = {
       insert: vi.fn().mockReturnThis(),
       select: vi.fn().mockReturnThis(),

@@ -9,7 +9,7 @@ const normalizeMetaTeam = (metaTeam?: unknown, heroDetails?: string) =>
     }
   ])[0]?.metaTeam
 
-describe('normalizeTopBossHits metaTeam snapshot contract (WI-7920)', () => {
+describe('normalizeTopBossHits metaTeam snapshot contract', () => {
   it.each([
     ['current canonical label', 'Admech', 'Admech'],
     ['future nonblank label', 'Future Formation', 'Future Formation'],

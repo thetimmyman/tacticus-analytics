@@ -90,7 +90,7 @@ beforeEach(() => {
   bossRows.length = 0
 })
 
-describe('loadSinceLastVisit — bootstrap catch-22 (WI-1840 Part D)', () => {
+describe('loadSinceLastVisit — bootstrap catch-22 (Part D)', () => {
   it('seeds the baseline on the first visit so the SECOND visit can produce deltas', async () => {
     expect(state.briefingRow).toBeNull()
     const first = await loadSinceLastVisit({

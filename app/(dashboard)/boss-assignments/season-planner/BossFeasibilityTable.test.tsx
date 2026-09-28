@@ -101,7 +101,7 @@ describe('BossFeasibilityTable — skipped primes', () => {
 })
 
 // Officer targets become the source-labelled BUDGET column, and the cumulative runs on it.
-describe('BossFeasibilityTable — officer-target budgets (WI-4530)', () => {
+describe('BossFeasibilityTable — officer-target budgets', () => {
   function targetedStage(
     stageCode: string,
     estimated: number,
@@ -193,7 +193,7 @@ describe('BossFeasibilityTable — officer-target budgets (WI-4530)', () => {
   })
 })
 
-describe('BossFeasibilityTable — DataTable migration (WI-5050)', () => {
+describe('BossFeasibilityTable — DataTable migration', () => {
   const headers = (container: HTMLElement) =>
     within(container)
       .getAllByRole('columnheader')

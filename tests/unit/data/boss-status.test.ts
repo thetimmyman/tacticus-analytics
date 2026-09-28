@@ -31,7 +31,7 @@ const primeRow = (
   ...overrides
 })
 
-describe('deriveLifecycleAndWarded (WI-693 F16/F17)', () => {
+describe('deriveLifecycleAndWarded (F16/F17)', () => {
   it('returns empty array for empty input', () => {
     expect(deriveLifecycleAndWarded([])).toEqual([])
   })
@@ -65,7 +65,7 @@ describe('deriveLifecycleAndWarded (WI-693 F16/F17)', () => {
     expect(decorated[0].warded).toBe(false)
   })
 
-  it('a set completed_on does NOT mean defeated — only remaining HP does (WI-2650)', () => {
+  it('a set completed_on does NOT mean defeated — only remaining HP does', () => {
     // "completedOn" is the battle-end time on every row, never a kill marker.
     const rows = [
       mainRow({ completed_on: '2026-05-15T00:00:00Z', remaining_hp: 500_000 })
@@ -121,7 +121,7 @@ describe('deriveLifecycleAndWarded (WI-693 F16/F17)', () => {
 })
 
 // The API sometimes omits the kill hit; mirrors the SQL rule in the boss-status migration.
-describe('deriveLifecycleAndWarded (WI-2670 omitted-kill inference)', () => {
+describe('deriveLifecycleAndWarded (omitted-kill inference)', () => {
   it('rule (b): main with omitted kill reads defeated once a later loop is engaged', () => {
     const rows = [
       mainRow({ loop_index: 0, completed_on: '2026-05-15T00:00:00Z' }),

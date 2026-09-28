@@ -6,7 +6,7 @@ import {
   isPrimeEncounter
 } from '@/app/lib/config'
 
-describe('config rarity/encounter helpers (WI-2212)', () => {
+describe('config rarity/encounter helpers', () => {
   it('RARITY_RANK is strictly descending so all six rarities tie-break', () => {
     const order = ['Mythic', 'Legendary', 'Epic', 'Rare', 'Uncommon', 'Common']
     const ranks = order.map((r) => RARITY_RANK[r])

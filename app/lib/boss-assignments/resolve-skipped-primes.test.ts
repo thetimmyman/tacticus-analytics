@@ -44,7 +44,7 @@ const opsRow = (
   sub_bosses: subBosses
 })
 
-describe('resolveSkippedPrimesFromRows — WI-2716 union', () => {
+describe('resolveSkippedPrimesFromRows — union', () => {
   it('resolves a boss_target_tokens officer skip alone', () => {
     const skipped = resolveSkippedPrimesFromRows({
       season: SEASON,
@@ -95,7 +95,7 @@ describe('resolveSkippedPrimesFromRows — WI-2716 union', () => {
     expect(skipped.size).toBe(0)
   })
 
-  it("the seeder's no-data sentinel is not an officer skip (WI-666)", () => {
+  it("the seeder's no-data sentinel is not an officer skip", () => {
     const skipped = resolveSkippedPrimesFromRows({
       season: SEASON,
       targetTokenRows: [

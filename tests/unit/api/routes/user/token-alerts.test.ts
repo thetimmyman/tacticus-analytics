@@ -611,7 +611,7 @@ describe('/api/user/token-alerts', () => {
     })
   })
 
-  describe('PUT — WI-4000 bomb prefs', () => {
+  describe('PUT — bomb prefs', () => {
     beforeEach(() => {
       setUser(AUTHED_USER)
       configureFrom({
@@ -691,7 +691,7 @@ describe('/api/user/token-alerts', () => {
     })
   })
 
-  describe('PUT — WI-4000 quiet hours', () => {
+  describe('PUT — quiet hours', () => {
     beforeEach(() => {
       setUser(AUTHED_USER)
       configureFrom({
@@ -892,7 +892,7 @@ describe('/api/user/token-alerts', () => {
       )
     })
 
-    it('preserves an omitted repeat cadence from a pre-WI-4031 client', async () => {
+    it('preserves an omitted repeat cadence from a legacy client', async () => {
       const storedWithRepeat = {
         ...STORED,
         alert_on_full: true,
@@ -1241,7 +1241,7 @@ describe('/api/user/token-alerts', () => {
     })
   })
 
-  describe('WI-4970 — pre-quiet and pre-burn validation', () => {
+  describe('pre-quiet and pre-burn validation', () => {
     beforeEach(() => {
       setUser(AUTHED_USER)
       configureFrom({

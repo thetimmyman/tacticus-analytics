@@ -131,7 +131,7 @@ describe('buildLapBars', () => {
     expect(live.value).toBe('3')
   })
 
-  it('WI-1950: keeps the finish bar + pct when the projection is >4 laps ahead', () => {
+  it('keeps the finish bar + pct when the projection is >4 laps ahead', () => {
     const bars = buildLapBars(
       lp({
         current_lap: 1,
@@ -148,7 +148,7 @@ describe('buildLapBars', () => {
     expect(bars[bars.length - 1]!.kind).toBe('finish')
   })
 
-  it('WI-1950: caps intermediate projected bars but still shows the finish', () => {
+  it('caps intermediate projected bars but still shows the finish', () => {
     const bars = buildLapBars(
       lp({
         current_lap: 0,

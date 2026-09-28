@@ -96,7 +96,7 @@ const makeRequest = (path: string, body: unknown) =>
     body: JSON.stringify(body)
   })
 
-describe('WI-4880 — season-config writes bust the aggregator read cache', () => {
+describe('season-config writes bust the aggregator read cache', () => {
   let routes: Awaited<ReturnType<typeof loadRoutes>>
 
   beforeEach(async () => {
@@ -233,7 +233,7 @@ describe('WI-4880 — season-config writes bust the aggregator read cache', () =
   })
 })
 
-describe('WI-4880 — season-config cache key has ONE definition', () => {
+describe('season-config cache key has ONE definition', () => {
   it('the aggregator read and the writers build the key from the same helper', async () => {
     vi.resetModules()
     const { seasonConfigCacheKey, SEASON_CONFIG_TTL_SECONDS } =

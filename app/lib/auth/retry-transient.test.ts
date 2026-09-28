@@ -40,7 +40,7 @@ describe('isTransientAuthError', () => {
     )
   })
 
-  it('treats the auth-js processLock acquire timeout as transient (WI-5990)', () => {
+  it('treats the auth-js processLock acquire timeout as transient', () => {
     expect(
       isTransientAuthError(
         new Error(

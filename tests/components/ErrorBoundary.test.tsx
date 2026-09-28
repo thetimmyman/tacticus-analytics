@@ -96,7 +96,7 @@ describe('ErrorBoundary', () => {
     expect(captureSentryException).toHaveBeenCalled()
   })
 
-  it('captures the ORIGINAL Error instance exactly once per catch (WI-5990)', () => {
+  it('captures the ORIGINAL Error instance exactly once per catch', () => {
     // Production NODE_ENV, or the once-assertion is vacuous.
     vi.stubEnv('NODE_ENV', 'production')
     const original = new Error('original instance')
@@ -115,7 +115,7 @@ describe('ErrorBoundary', () => {
     expect(context?.tags).not.toHaveProperty('chunk_reload')
   })
 
-  it('[PS-346] delegates first-occurrence chunk errors to the shared guard and reloads once, without its own Sentry capture', () => {
+  it('delegates first-occurrence chunk errors to the shared guard and reloads once, without its own Sentry capture', () => {
     vi.stubEnv('NEXT_PUBLIC_BUILD_SHA', 'eb-build-1')
     const chunkError = new Error('Loading chunk 123 failed')
     chunkError.name = 'ChunkLoadError'
@@ -131,7 +131,7 @@ describe('ErrorBoundary', () => {
     expect(captureSentryException).not.toHaveBeenCalled()
   })
 
-  it('[PS-346] does not reload again, and tags chunk_reload: suppressed, when the shared guard already recovered this build via a window-level reload', () => {
+  it('does not reload again, and tags chunk_reload: suppressed, when the shared guard already recovered this build via a window-level reload', () => {
     vi.stubEnv('NEXT_PUBLIC_BUILD_SHA', 'eb-build-2')
 
     const firstOccurrence = new Error('Loading chunk 9 failed')

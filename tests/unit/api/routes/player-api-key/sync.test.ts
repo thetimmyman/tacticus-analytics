@@ -461,7 +461,7 @@ describe('POST /api/player-api-key/sync', () => {
       )
     })
 
-    it('WI-4700: refuses an entry whose userId belongs to another player', async () => {
+    it('refuses an entry whose userId belongs to another player', async () => {
       // A player's key returns the WHOLE GUILD's entries; matching on display name would write a same-named
       // guildmate's rows under the caller. Match on userId.
       const upsert = vi.fn().mockResolvedValue({ error: null })

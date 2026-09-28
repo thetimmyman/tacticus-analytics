@@ -67,7 +67,7 @@ describe('Get Latest Season Module', () => {
   })
 
   describe('getLatestSeason (cached)', () => {
-    it('should call RPC through the service-role client (WI-4660)', async () => {
+    it('should call RPC through the service-role client', async () => {
       const mockSupabase = {
         rpc: vi.fn().mockResolvedValue({ data: '86', error: null })
       }

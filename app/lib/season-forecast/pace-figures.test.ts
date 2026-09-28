@@ -94,7 +94,7 @@ const envelopeRow = (
   ...over
 })
 
-describe('selectCapRiskEntries (WI-4510)', () => {
+describe('selectCapRiskEntries', () => {
   it('selects the at-risk pace rows, rounded for display', () => {
     const selection = selectCapRiskEntries({
       paceRows: [
@@ -150,7 +150,7 @@ describe('selectCapRiskEntries (WI-4510)', () => {
   })
 })
 
-describe('mergePlayerProjection (WI-4510)', () => {
+describe('mergePlayerProjection', () => {
   it('overlays pace projections while keeping envelope live facts', () => {
     const merged = mergePlayerProjection(envelopeRow(), paceRow())
     expect(merged).toEqual({

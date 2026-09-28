@@ -101,21 +101,21 @@ SELECT hasnt_function(
   'public',
   'get_cluster_guilds',
   ARRAY[]::text[],
-  'get_cluster_guilds() was dropped (WI-4550)'
+  'get_cluster_guilds() was dropped'
 );
 
 SELECT hasnt_function(
   'public',
   'get_cluster_guilds',
   ARRAY['character varying'],
-  'get_cluster_guilds(varchar) was dropped (WI-4550)'
+  'get_cluster_guilds(varchar) was dropped'
 );
 
 SELECT hasnt_function(
   'public',
   'get_cluster_guilds_by_code',
   ARRAY['text'],
-  'get_cluster_guilds_by_code(text) was dropped (WI-4550)'
+  'get_cluster_guilds_by_code(text) was dropped'
 );
 
 SELECT finish();

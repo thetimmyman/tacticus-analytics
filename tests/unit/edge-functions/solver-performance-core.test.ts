@@ -49,7 +49,7 @@ describe('solver performance-core aggregation', () => {
     expect(playerAvg.get('Bravo')?.get(BOSS)).toBe(3_000_000)
   })
 
-  it('folds qualifying sweeps into the player average (WI-1462 gate)', () => {
+  it('folds qualifying sweeps into the player average (gate)', () => {
     const { playerAvg } = aggregatePerformanceRows([
       rowFor('Alpha', 1_000_000),
       sweepFor('Alpha', 1_500_000)

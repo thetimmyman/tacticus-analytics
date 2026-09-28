@@ -84,8 +84,8 @@ describeRls('RLS integration checks', () => {
   let mappingB: AttestedMapping | undefined
 
   const createUserSession = async (label: string) => {
-    const email = `wi136_${label}_${Date.now()}@example.com`
-    const password = `Wi136_${label}_${Math.random().toString(36).slice(2)}!`
+    const email = `rls_${label}_${Date.now()}@example.com`
+    const password = `Rls_${label}_${Math.random().toString(36).slice(2)}!`
 
     const { data: createData, error: createError } =
       await adminClient.auth.admin.createUser({
@@ -132,7 +132,7 @@ describeRls('RLS integration checks', () => {
     userBId = userBSession.userId
 
     const suffix = randomSuffix()
-    systemConfigKey = `wi136_config_${suffix}`
+    systemConfigKey = `rls_config_${suffix}`
     guildCodeA = `W1A${suffix}`
     guildCodeB = `W1B${suffix}`
     playerIdA = `player_${suffix}_A`
@@ -143,7 +143,7 @@ describeRls('RLS integration checks', () => {
       .upsert(
         {
           key: systemConfigKey,
-          value: 'wi136-test'
+          value: 'rls-test'
         },
         { onConflict: 'key' }
       )
@@ -156,12 +156,12 @@ describeRls('RLS integration checks', () => {
         [
           {
             guild_code: guildCodeA,
-            display_name: `WI136 Guild ${suffix}A`,
+            display_name: `Rls Guild ${suffix}A`,
             enabled: true
           },
           {
             guild_code: guildCodeB,
-            display_name: `WI136 Guild ${suffix}B`,
+            display_name: `Rls Guild ${suffix}B`,
             enabled: true
           }
         ],
@@ -172,14 +172,14 @@ describeRls('RLS integration checks', () => {
 
     mappingA = await seedAttestedPlayerMapping(adminClient, {
       playerId: playerIdA,
-      displayName: `WI136 Player ${suffix}A`,
+      displayName: `Rls Player ${suffix}A`,
       guildCode: guildCodeA,
       userId: userAId,
       extra: { is_active: true }
     })
     mappingB = await seedAttestedPlayerMapping(adminClient, {
       playerId: playerIdB,
-      displayName: `WI136 Player ${suffix}B`,
+      displayName: `Rls Player ${suffix}B`,
       guildCode: guildCodeB,
       userId: userBId,
       extra: { is_active: true }
@@ -280,13 +280,13 @@ describeRls('RLS integration checks', () => {
 
   it('rejects inserts with invalid foreign keys', async () => {
     const invalidUserId = '00000000-0000-0000-0000-000000000000'
-    const playerId = `wi136_invalid_${randomSuffix()}`
+    const playerId = `rls_invalid_${randomSuffix()}`
 
     const { data: mapping, error: mappingError } = await adminClient
       .from('player_mapping')
       .insert({
         player_id: playerId,
-        display_name: 'WI136 Invalid User',
+        display_name: 'Rls Invalid User',
         guild_code: guildCodeA,
         is_current: true
       })

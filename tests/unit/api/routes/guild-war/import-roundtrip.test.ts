@@ -6,7 +6,7 @@ import { AuthError } from '@/app/lib/auth'
 
 let mockGetAuthUser: ReturnType<typeof vi.fn>
 
-describe('POST /api/guild-war/import — round trip (PS-41)', () => {
+describe('POST /api/guild-war/import — round trip', () => {
   let POST: (request: NextRequest) => Promise<Response>
 
   let attemptsStore: Map<string, Record<string, unknown>>

@@ -150,7 +150,7 @@ describe('runPostSyncHooks', () => {
   })
 })
 
-describe('runPostSyncHooks — LOKI deactivation guard (BUG-2, WI-1795)', () => {
+describe('runPostSyncHooks — LOKI deactivation guard', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.stubEnv('LOKI_SCRAPER_CLIENT_SECRET', 'server-loki-secret')
@@ -300,7 +300,7 @@ describe('runPostSyncHooks — LOKI deactivation guard (BUG-2, WI-1795)', () => 
   })
 })
 
-describe('runPostSyncHooks — D1 scraper-cohort credential gate (WI-1795)', () => {
+describe('runPostSyncHooks — D1 scraper-cohort credential gate', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -595,7 +595,7 @@ describe('runPostSyncHooks — writing-tick roster throttle', () => {
   })
 })
 
-describe('runPostSyncHooks — LOKI roster disambiguation (WI-499)', () => {
+describe('runPostSyncHooks — LOKI roster disambiguation', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.stubEnv('LOKI_SCRAPER_CLIENT_SECRET', 'server-loki-secret')

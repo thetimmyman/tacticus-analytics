@@ -29,7 +29,7 @@ const writeOverride = (obj: object, opts?: { corrupt?: boolean }) =>
   )
 
 beforeEach(() => {
-  root = mkdtempSync(path.join(tmpdir(), 'wi8230-'))
+  root = mkdtempSync(path.join(tmpdir(), 'lokicfg-'))
   dataDir = path.join(root, 'data')
   overrideDir = path.join(root, 'override')
   mkdirSync(dataDir)
@@ -38,7 +38,7 @@ beforeEach(() => {
 
 afterEach(() => rmSync(root, { recursive: true, force: true }))
 
-describe('WI-8230 effective GlobalConfig resolution', () => {
+describe('effective GlobalConfig resolution', () => {
   it('no override dir configured => baked, byte-identical behavior', () => {
     writeBaked()
     const r = resolveEffectiveGlobalConfig({ dataDir, overrideDir: undefined })

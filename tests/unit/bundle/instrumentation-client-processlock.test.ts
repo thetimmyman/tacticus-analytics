@@ -16,7 +16,7 @@ import {
 const LOCK_TIMEOUT_MESSAGE =
   'Acquiring process lock with name "lock:tacticus-auth-token" timed out'
 
-describe('isProcessLockTimeout (WI-5990)', () => {
+describe('isProcessLockTimeout', () => {
   it.each([
     ['Error', LOCK_TIMEOUT_MESSAGE, true],
     ['ProcessLockAcquireTimeoutError', '', true],
@@ -30,7 +30,7 @@ describe('isProcessLockTimeout (WI-5990)', () => {
   })
 })
 
-describe('isProcessLockTimeoutEvent (WI-5990)', () => {
+describe('isProcessLockTimeoutEvent', () => {
   const lockValue = { type: 'Error', value: LOCK_TIMEOUT_MESSAGE }
 
   it('matches when the only exception value is the lock timeout', () => {

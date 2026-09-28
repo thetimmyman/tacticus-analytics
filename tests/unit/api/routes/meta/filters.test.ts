@@ -123,7 +123,7 @@ describe('GET /api/meta/filters', () => {
       ])
     })
 
-    it('resolves an unmapped reworked boss_type to its curated name (WI-1820)', async () => {
+    it('resolves an unmapped reworked boss_type to its curated name', async () => {
       // The fallback path must not split 'BelisariusRW' into 'Belisarius RW'.
       mockSupabase.rpc.mockImplementation((funcName: string) => {
         const data: Record<string, Array<{ [key: string]: string }>> = {

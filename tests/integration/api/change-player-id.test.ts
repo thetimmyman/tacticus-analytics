@@ -321,7 +321,7 @@ function witnessInserts(captures: {
   return captures.claimAudit.flatMap((record) => record.inserts)
 }
 
-describe('POST /api/profile/change-player-id (WI-6240 Phase 2)', () => {
+describe('POST /api/profile/change-player-id (Phase 2)', () => {
   it('happy path: verifies possession, mints, binds via the session client, persists the key', async () => {
     const { POST, mocks } = await loadRoute()
     const response = await POST(makeRequest(defaultBody()))
@@ -940,7 +940,7 @@ describe('POST /api/profile/change-player-id (WI-6240 Phase 2)', () => {
   })
 })
 
-describe('WI-6240 machine-code map exhaustiveness (M1)', () => {
+describe('machine-code map exhaustiveness (M1)', () => {
   it('every code literal in the clean-baseline account-transfer RPC has a map entry', () => {
     const migrationPath = join(
       process.cwd(),

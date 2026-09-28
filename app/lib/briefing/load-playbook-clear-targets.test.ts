@@ -229,7 +229,7 @@ describe('loadPlaybookClearTargets', () => {
     expect(t!.targetTokens).toBe(10)
   })
 
-  it('falls back to the prime DISPLAY-name key for pre-WI-834 legacy rows (slug rows keep precedence)', async () => {
+  it('falls back to the prime DISPLAY-name key for legacy display-name rows (slug rows keep precedence)', async () => {
     const out = await loadPlaybookClearTargets(
       fakeSupabase({
         boss_target_tokens: [

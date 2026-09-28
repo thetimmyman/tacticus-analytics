@@ -656,7 +656,7 @@ describe('POST /api/guild-war/import', () => {
       expect(body.message).toContain('skipped')
     })
 
-    it('PS-478: keeps raw row-level database diagnostics out of the partial-200 body', async () => {
+    it('keeps raw row-level database diagnostics out of the partial-200 body', async () => {
       mockExistingMatches([{ war_id: 'war-existing', war_status: 'active' }])
       tableChains.guild_war_participation = makeTableChain([
         {

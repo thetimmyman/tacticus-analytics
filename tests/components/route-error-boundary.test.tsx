@@ -11,7 +11,7 @@ vi.mock('@/app/lib/monitoring/sentry', () => ({ captureSentryException }))
 
 import RouteError from '@/app/error'
 
-describe('app/error.tsx route boundary (WI-1930)', () => {
+describe('app/error.tsx route boundary', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('reports the error to Sentry and shows the digest as an Error ID', async () => {

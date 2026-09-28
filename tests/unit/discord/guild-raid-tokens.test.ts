@@ -56,7 +56,7 @@ describe('computeTokensFromGuildRaid', () => {
     expect(status[0]?.bombCooldown).toBe('17h 30m')
   })
 
-  it('matches the canonical token engine for a player who battles while at 0 tokens (WI-2210 parity)', () => {
+  it('matches the canonical token engine for a player who battles while at 0 tokens (parity)', () => {
     // The Discord fast path must agree with calculateTokenAvailability (the web path).
     const t1 = epochMs('2026-05-03T17:00:00.000Z')
     const t2 = epochMs('2026-05-03T17:10:00.000Z')

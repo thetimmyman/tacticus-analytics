@@ -603,7 +603,7 @@ describe('filterRoleIdsForBoss', () => {
     expect(result).toEqual([])
   })
 
-  describe('WI-672 per-stage rarity_set fallback', () => {
+  describe('per-stage rarity_set fallback', () => {
     it('uses the catch-all (rarity_set IS NULL) row when no per-stage row exists', () => {
       const result = __testing.filterRoleIdsForBoss(
         [
@@ -1050,7 +1050,7 @@ describe('postHeraldEvent', () => {
   })
 })
 
-describe('postHeraldAvailabilityEvent — WI-2555 snapshot-claim rollback', () => {
+describe('postHeraldAvailabilityEvent — snapshot-claim rollback', () => {
   const availabilityTransition: AvailabilityTransition = {
     boss_id: 'Ghazghkull_E0',
     boss_type: 'Ghazghkull',
@@ -1184,7 +1184,7 @@ describe('postHeraldAvailabilityEvent — WI-2555 snapshot-claim rollback', () =
   })
 })
 
-describe('postHeraldBombRangeEvent — WI-2555 dedup-claim rollback', () => {
+describe('postHeraldBombRangeEvent — dedup-claim rollback', () => {
   const bombTransition: BombRangeTransition = {
     boss_id: 'Ghazghkull_E0',
     boss_type: 'Ghazghkull',
@@ -1999,7 +1999,7 @@ describe('formatBombRangeEmbed — under-threshold advisory', () => {
   })
 })
 
-describe('runHeraldForSync — WI-713 bomb range', () => {
+describe('runHeraldForSync — bomb range', () => {
   const makeBombRangeSupabaseMock = (
     opts: {
       bombAlertEnabled?: boolean

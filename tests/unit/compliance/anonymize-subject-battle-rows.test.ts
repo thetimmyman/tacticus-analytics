@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { anonymizeSubjectBattleRows } from '@/app/lib/compliance/anonymize-subject-battle-rows'
 
-describe('anonymizeSubjectBattleRows (PS-670)', () => {
+describe('anonymizeSubjectBattleRows', () => {
   const client = (result: { data: unknown; error: unknown }) => ({
     rpc: vi.fn(async () => result)
   })

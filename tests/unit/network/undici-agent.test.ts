@@ -44,7 +44,7 @@ describe('getSharedFetch', () => {
   })
 })
 
-describe('httpFetch body framing (PS-292)', () => {
+describe('httpFetch body framing', () => {
   it('sets Content-Length on a DELETE body so it is not parsed as the next request on a keep-alive connection', async () => {
     const requestLines: string[] = []
     const contentLengths: (string | undefined)[] = []

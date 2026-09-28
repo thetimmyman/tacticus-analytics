@@ -624,7 +624,7 @@ describe('POST /api/clusters/create', () => {
       expect(response.status).toBe(400)
     })
 
-    it('returns 400 when foundingGuilds exceeds the WI-4371 cap', async () => {
+    it('returns 400 when foundingGuilds exceeds the cap', async () => {
       const response = await POST(
         makeRequest({
           clusterCode: 'TEST',

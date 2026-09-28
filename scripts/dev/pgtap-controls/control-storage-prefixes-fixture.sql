@@ -9,7 +9,7 @@ SELECT ok(
     WHERE version = '20260919180000'
       AND name = 'ps392_storage_prefixes_grants'
   ),
-  'PS-392 applies against the replayed Storage prefixes pre-state'
+  'the storage prefixes grants migration applies against the replayed Storage prefixes pre-state'
 );
 
 SELECT ok(to_regclass('storage.prefixes') IS NOT NULL, 'storage.prefixes exists');
@@ -62,7 +62,7 @@ SELECT ok(
   has_table_privilege('authenticated', 'storage.prefixes', 'SELECT')
     AND NOT has_table_privilege('authenticated', 'storage.prefixes', 'INSERT')
     AND NOT has_table_privilege('authenticated', 'storage.prefixes', 'DELETE'),
-  'authenticated retains SELECT only among PS-392 targeted privileges'
+  'authenticated retains SELECT only among the migration''s targeted privileges'
 );
 
 SELECT ok(
