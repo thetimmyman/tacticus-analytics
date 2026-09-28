@@ -98,15 +98,15 @@ function WarCountdownTimer({
 
   if (!phaseInfo) {
     return (
-      <Card className="border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_20%,transparent)]">
+      <Card className="border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_20%,transparent)]">
         <CardContent className="p-4">
           <div className="flex items-center gap-3">
-            <Clock className="h-5 w-5 text-[var(--text-secondary)]" />
+            <Clock className="h-5 w-5 text-secondary-wh40k" />
             <div>
-              <span className="text-sm font-medium text-[var(--text-secondary)]">
+              <span className="text-sm font-medium text-secondary-wh40k">
                 War timer unavailable
               </span>
-              <span className="text-xs text-[var(--text-tertiary)] block">
+              <span className="text-xs text-(--text-tertiary) block">
                 Waiting for war schedule data.
               </span>
             </div>
@@ -142,15 +142,15 @@ function WarCountdownTimer({
 
   if (isBetweenSeasons && hasNoActiveWarData) {
     return (
-      <Card className="border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_20%,transparent)]">
+      <Card className="border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_20%,transparent)]">
         <CardContent className="p-4">
           <div className="flex items-center gap-3">
-            <Clock className="h-5 w-5 text-[var(--text-secondary)]" />
+            <Clock className="h-5 w-5 text-secondary-wh40k" />
             <div>
-              <span className="text-sm font-medium text-[var(--text-secondary)]">
+              <span className="text-sm font-medium text-secondary-wh40k">
                 Between Seasons
               </span>
-              <span className="text-xs text-[var(--text-tertiary)] block">
+              <span className="text-xs text-(--text-tertiary) block">
                 No active war. Next season schedule TBD.
               </span>
             </div>
@@ -174,23 +174,23 @@ function WarCountdownTimer({
             {isWarActive ? (
               <Sword className="h-5 w-5 text-green-400 animate-pulse" />
             ) : (
-              <Clock className="h-5 w-5 text-[var(--accent)]" />
+              <Clock className="h-5 w-5 text-(--accent)" />
             )}
             <div>
               <span
-                className={`text-sm font-medium ${isWarActive ? 'text-green-400' : 'text-[var(--text-secondary)]'}`}
+                className={`text-sm font-medium ${isWarActive ? 'text-green-400' : 'text-secondary-wh40k'}`}
               >
                 {isWarActive
                   ? `${warLabel} In Progress!`
                   : phaseInfo.nextEventLabel}
               </span>
-              <span className="text-xs text-[var(--text-tertiary)] block">
+              <span className="text-xs text-(--text-tertiary) block">
                 {seasonLabel} - {phaseLabel}
               </span>
-              <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-wide text-[var(--text-tertiary)]">
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-wide text-(--text-tertiary)">
                 <span>Source: {phaseInfo.sourceLabel}</span>
                 {phaseInfo.isEstimated && (
-                  <Badge className="border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] text-[10px] uppercase tracking-wide">
+                  <Badge className="border-(--border) bg-(--bg-secondary) text-secondary-wh40k text-[10px] uppercase tracking-wide">
                     Estimated
                   </Badge>
                 )}
@@ -198,49 +198,49 @@ function WarCountdownTimer({
             </div>
           </div>
           {phaseInfo.isEstimated ? (
-            <div className="text-right text-xs text-[var(--text-secondary)] max-w-[160px]">
+            <div className="text-right text-xs text-secondary-wh40k max-w-[160px]">
               Schedule is estimated from past wars. Sync to get live war status.
             </div>
           ) : (
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="text-center">
-                <span className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] font-mono">
+                <span className="text-xl sm:text-2xl font-bold text-primary-wh40k font-mono">
                   {timeLeft.days}
                 </span>
-                <span className="text-[10px] sm:text-xs text-[var(--text-secondary)] block">
+                <span className="text-[10px] sm:text-xs text-secondary-wh40k block">
                   Days
                 </span>
               </div>
-              <span className="text-xl sm:text-2xl font-bold text-[var(--text-tertiary)]">
+              <span className="text-xl sm:text-2xl font-bold text-(--text-tertiary)">
                 :
               </span>
               <div className="text-center">
-                <span className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] font-mono">
+                <span className="text-xl sm:text-2xl font-bold text-primary-wh40k font-mono">
                   {String(timeLeft.hours).padStart(2, '0')}
                 </span>
-                <span className="text-[10px] sm:text-xs text-[var(--text-secondary)] block">
+                <span className="text-[10px] sm:text-xs text-secondary-wh40k block">
                   Hours
                 </span>
               </div>
-              <span className="text-xl sm:text-2xl font-bold text-[var(--text-tertiary)]">
+              <span className="text-xl sm:text-2xl font-bold text-(--text-tertiary)">
                 :
               </span>
               <div className="text-center">
-                <span className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] font-mono">
+                <span className="text-xl sm:text-2xl font-bold text-primary-wh40k font-mono">
                   {String(timeLeft.minutes).padStart(2, '0')}
                 </span>
-                <span className="text-[10px] sm:text-xs text-[var(--text-secondary)] block">
+                <span className="text-[10px] sm:text-xs text-secondary-wh40k block">
                   Mins
                 </span>
               </div>
-              <span className="text-xl sm:text-2xl font-bold text-[var(--text-tertiary)]">
+              <span className="text-xl sm:text-2xl font-bold text-(--text-tertiary)">
                 :
               </span>
               <div className="text-center">
-                <span className="text-xl sm:text-2xl font-bold text-[var(--accent)] font-mono">
+                <span className="text-xl sm:text-2xl font-bold text-(--accent) font-mono">
                   {String(timeLeft.seconds).padStart(2, '0')}
                 </span>
-                <span className="text-[10px] sm:text-xs text-[var(--text-secondary)] block">
+                <span className="text-[10px] sm:text-xs text-secondary-wh40k block">
                   Secs
                 </span>
               </div>
@@ -277,7 +277,7 @@ export default function WarReportsOverview({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-[var(--text-secondary)]">Loading war data...</div>
+        <div className="text-secondary-wh40k">Loading war data...</div>
       </div>
     )
   }
@@ -304,12 +304,12 @@ export default function WarReportsOverview({
         <Card>
           <CardContent className="p-3 md:p-6">
             <div className="flex items-center space-x-2">
-              <Trophy className="h-4 w-4 md:h-5 md:w-5 text-[var(--accent)] shrink-0" />
+              <Trophy className="h-4 w-4 md:h-5 md:w-5 text-(--accent) shrink-0" />
               <div className="min-w-0">
-                <p className="text-xs md:text-sm text-[var(--text-secondary)] truncate">
+                <p className="text-xs md:text-sm text-secondary-wh40k truncate">
                   Win Rate
                 </p>
-                <p className="text-lg md:text-2xl font-bold text-[var(--text-primary)]">
+                <p className="text-lg md:text-2xl font-bold text-primary-wh40k">
                   {Math.round(warStats?.win_rate ?? 0)}%
                 </p>
               </div>
@@ -320,12 +320,12 @@ export default function WarReportsOverview({
         <Card>
           <CardContent className="p-3 md:p-6">
             <div className="flex items-center space-x-2">
-              <Sword className="h-4 w-4 md:h-5 md:w-5 text-[var(--accent)] shrink-0" />
+              <Sword className="h-4 w-4 md:h-5 md:w-5 text-(--accent) shrink-0" />
               <div className="min-w-0">
-                <p className="text-xs md:text-sm text-[var(--text-secondary)] truncate">
+                <p className="text-xs md:text-sm text-secondary-wh40k truncate">
                   Total Wars
                 </p>
-                <p className="text-lg md:text-2xl font-bold text-[var(--text-primary)]">
+                <p className="text-lg md:text-2xl font-bold text-primary-wh40k">
                   {warStats?.total_wars || 0}
                 </p>
               </div>
@@ -336,12 +336,12 @@ export default function WarReportsOverview({
         <Card>
           <CardContent className="p-3 md:p-6">
             <div className="flex items-center space-x-2">
-              <Target className="h-4 w-4 md:h-5 md:w-5 text-[var(--accent)] shrink-0" />
+              <Target className="h-4 w-4 md:h-5 md:w-5 text-(--accent) shrink-0" />
               <div className="min-w-0">
-                <p className="text-xs md:text-sm text-[var(--text-secondary)] truncate">
+                <p className="text-xs md:text-sm text-secondary-wh40k truncate">
                   Active Wars
                 </p>
-                <p className="text-lg md:text-2xl font-bold text-[var(--text-primary)]">
+                <p className="text-lg md:text-2xl font-bold text-primary-wh40k">
                   {displayMatches.length}
                 </p>
               </div>
@@ -357,13 +357,13 @@ export default function WarReportsOverview({
               ) : warStats?.streak_type === 'loss' ? (
                 <TrendingDown className="h-4 w-4 md:h-5 md:w-5 text-red-400 shrink-0" />
               ) : (
-                <BarChart3 className="h-4 w-4 md:h-5 md:w-5 text-[var(--accent)] shrink-0" />
+                <BarChart3 className="h-4 w-4 md:h-5 md:w-5 text-(--accent) shrink-0" />
               )}
               <div className="min-w-0">
-                <p className="text-xs md:text-sm text-[var(--text-secondary)] truncate">
+                <p className="text-xs md:text-sm text-secondary-wh40k truncate">
                   Streak
                 </p>
-                <p className="text-lg md:text-2xl font-bold text-[var(--text-primary)]">
+                <p className="text-lg md:text-2xl font-bold text-primary-wh40k">
                   {warStats?.current_streak || 0}
                   {warStats?.streak_type && (
                     <span
@@ -385,9 +385,9 @@ export default function WarReportsOverview({
         <Card>
           <CardContent className="p-3 md:p-6">
             <div className="flex items-center space-x-2">
-              <BarChart3 className="h-4 w-4 md:h-5 md:w-5 text-[var(--accent)] shrink-0" />
+              <BarChart3 className="h-4 w-4 md:h-5 md:w-5 text-(--accent) shrink-0" />
               <div className="min-w-0">
-                <p className="text-xs md:text-sm text-[var(--text-secondary)] truncate">
+                <p className="text-xs md:text-sm text-secondary-wh40k truncate">
                   Avg Diff
                 </p>
                 <p
@@ -396,7 +396,7 @@ export default function WarReportsOverview({
                       ? 'text-green-400'
                       : avgScoreDiff < 0
                         ? 'text-red-400'
-                        : 'text-[var(--text-primary)]'
+                        : 'text-primary-wh40k'
                   }`}
                 >
                   {avgScoreDiff > 0 ? '+' : ''}
@@ -410,12 +410,12 @@ export default function WarReportsOverview({
         <Card>
           <CardContent className="p-3 md:p-6">
             <div className="flex items-center space-x-2">
-              <Trophy className="h-4 w-4 md:h-5 md:w-5 text-[var(--accent)] shrink-0" />
+              <Trophy className="h-4 w-4 md:h-5 md:w-5 text-(--accent) shrink-0" />
               <div className="min-w-0">
-                <p className="text-xs md:text-sm text-[var(--text-secondary)] truncate">
+                <p className="text-xs md:text-sm text-secondary-wh40k truncate">
                   Form
                 </p>
-                <p className="text-sm md:text-lg font-bold text-[var(--text-primary)] font-mono">
+                <p className="text-sm md:text-lg font-bold text-primary-wh40k font-mono">
                   {warStats?.recent_form || 'N/A'}
                 </p>
               </div>

@@ -12,14 +12,14 @@ function TokenUsageCalculationsFAQ() {
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center justify-between w-full text-left group py-2 sm:py-0 min-h-[44px] sm:min-h-0"
         >
-          <h3 className="text-lg sm:text-xl font-bold text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors pr-2">
+          <h3 className="text-lg sm:text-xl font-bold text-primary-wh40k group-hover:text-(--primary) transition-colors pr-2">
             How Token Usage Calculations Work
           </h3>
           <div
-            className={`transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`}
+            className={`transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180' : ''}`}
           >
             <svg
-              className="w-6 h-6 sm:w-5 sm:h-5 text-[var(--text-secondary)]"
+              className="w-6 h-6 sm:w-5 sm:h-5 text-secondary-wh40k"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -35,7 +35,7 @@ function TokenUsageCalculationsFAQ() {
         </button>
 
         {isOpen && (
-          <div className="space-y-4 sm:space-y-6 pt-4 border-t border-[var(--card-border)]">
+          <div className="space-y-4 sm:space-y-6 pt-4 border-t border-(--card-border)">
             <FAQSection
               title="Summary Statistics - Calculation Methods"
               items={[
@@ -408,17 +408,15 @@ interface FAQSectionProps {
 function FAQSection({ title, items }: FAQSectionProps) {
   return (
     <div className="space-y-2 sm:space-y-3">
-      <h4 className="text-base sm:text-lg font-semibold text-[var(--accent)] flex items-center">
-        <span className="w-2 h-2 bg-[var(--accent)] rounded-full mr-2 flex-shrink-0"></span>
+      <h4 className="text-base sm:text-lg font-semibold text-(--accent) flex items-center">
+        <span className="w-2 h-2 bg-accent-wh40k rounded-full mr-2 shrink-0"></span>
         {title}
       </h4>
-      <div className="pl-2 sm:pl-4 space-y-2 text-xs sm:text-sm text-[var(--text-secondary)]">
+      <div className="pl-2 sm:pl-4 space-y-2 text-xs sm:text-sm text-secondary-wh40k">
         {items.map((item) => (
           <div key={item.label}>
             <div className="leading-relaxed">
-              <strong className="text-[var(--text-primary)]">
-                {item.label}
-              </strong>{' '}
+              <strong className="text-primary-wh40k">{item.label}</strong>{' '}
               {item.description}
             </div>
             <div className="pl-4 space-y-1 text-xs">

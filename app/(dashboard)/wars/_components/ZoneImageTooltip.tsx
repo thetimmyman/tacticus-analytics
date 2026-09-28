@@ -40,12 +40,10 @@ export default function ZoneImageTooltip({
             alt={`${displayName} battlefield ground texture`}
             width={160}
             height={160}
-            className="rounded border border-[var(--border)] object-cover"
+            className="rounded-sm border border-(--border) object-cover"
             unoptimized
           />
-          <span className="text-xs text-[var(--text-secondary)]">
-            {displayName}
-          </span>
+          <span className="text-xs text-secondary-wh40k">{displayName}</span>
         </div>
       </RadixTooltipContent>
     </RadixTooltip>

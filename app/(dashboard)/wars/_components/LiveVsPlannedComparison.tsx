@@ -106,11 +106,11 @@ export default function LiveVsPlannedComparison({
     return (
       <Card>
         <CardContent className="p-4 sm:p-8 text-center">
-          <Target className="h-8 w-8 sm:h-12 sm:w-12 text-[var(--text-secondary)] mx-auto mb-3 sm:mb-4" />
-          <h3 className="text-base sm:text-lg font-medium text-[var(--text-primary)] mb-2">
+          <Target className="h-8 w-8 sm:h-12 sm:w-12 text-secondary-wh40k mx-auto mb-3 sm:mb-4" />
+          <h3 className="text-base sm:text-lg font-medium text-primary-wh40k mb-2">
             No Live Zone Data
           </h3>
-          <p className="text-[var(--text-secondary)] text-xs sm:text-sm">
+          <p className="text-secondary-wh40k text-xs sm:text-sm">
             Sync from the game to see live zone assignments and compare with
             your plan.
           </p>
@@ -186,13 +186,13 @@ export default function LiveVsPlannedComparison({
                 .map((diff) => (
                   <div
                     key={diff.zoneId}
-                    className="p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border)]"
+                    className="p-3 rounded-lg bg-(--bg-tertiary) border border-(--border)"
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         {getStatusIcon(diff.status)}
                         {/* Derived from the type; the stored `zoneName` follows the writing sync's convention. */}
-                        <span className="font-medium text-[var(--text-primary)]">
+                        <span className="font-medium text-primary-wh40k">
                           {zoneDisplayName(diff.zoneType)}
                         </span>
                       </div>
@@ -218,7 +218,7 @@ export default function LiveVsPlannedComparison({
 
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <p className="text-xs text-[var(--text-secondary)] mb-1 flex items-center gap-1">
+                        <p className="text-xs text-secondary-wh40k mb-1 flex items-center gap-1">
                           <span className="w-2 h-2 rounded-full bg-blue-400"></span>
                           Live (In Game)
                         </p>
@@ -230,7 +230,7 @@ export default function LiveVsPlannedComparison({
                                 className={`px-2 py-1 rounded text-xs ${
                                   diff.addedToLive.includes(player)
                                     ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                                    : 'bg-[var(--bg-secondary)] text-[var(--text-primary)]'
+                                    : 'bg-(--bg-secondary) text-primary-wh40k'
                                 }`}
                               >
                                 {diff.addedToLive.includes(player) && (
@@ -240,7 +240,7 @@ export default function LiveVsPlannedComparison({
                               </div>
                             ))
                           ) : (
-                            <span className="text-[var(--text-tertiary)] italic">
+                            <span className="text-(--text-tertiary) italic">
                               Empty
                             </span>
                           )}
@@ -248,7 +248,7 @@ export default function LiveVsPlannedComparison({
                       </div>
 
                       <div>
-                        <p className="text-xs text-[var(--text-secondary)] mb-1 flex items-center gap-1">
+                        <p className="text-xs text-secondary-wh40k mb-1 flex items-center gap-1">
                           <span className="w-2 h-2 rounded-full bg-purple-400"></span>
                           Planned
                         </p>
@@ -260,7 +260,7 @@ export default function LiveVsPlannedComparison({
                                 className={`px-2 py-1 rounded text-xs ${
                                   diff.removedFromLive.includes(player)
                                     ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                                    : 'bg-[var(--bg-secondary)] text-[var(--text-primary)]'
+                                    : 'bg-(--bg-secondary) text-primary-wh40k'
                                 }`}
                               >
                                 {diff.removedFromLive.includes(player) && (
@@ -270,7 +270,7 @@ export default function LiveVsPlannedComparison({
                               </div>
                             ))
                           ) : (
-                            <span className="text-[var(--text-tertiary)] italic">
+                            <span className="text-(--text-tertiary) italic">
                               Not planned
                             </span>
                           )}

@@ -138,7 +138,7 @@ export function PersonalBenchmarksSection({
 
   return (
     <div className="space-y-6">
-      <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
+      <Card className="bg-(--card-bg) border-(--card-border)">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Gauge className="w-5 h-5 text-purple-400" />
@@ -153,7 +153,7 @@ export function PersonalBenchmarksSection({
               onChange={(e) => setPlayerName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && searchGaps()}
               placeholder="Enter your player name..."
-              className="flex-1 px-4 py-2 bg-[var(--input-bg)] border border-[var(--card-border)] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="flex-1 px-4 py-2 bg-(--input-bg) border border-(--card-border) rounded-lg text-white placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-purple-500"
             />
             <Button
               onClick={() => searchGaps()}
@@ -163,7 +163,7 @@ export function PersonalBenchmarksSection({
               {loading ? <LoadingSpinner /> : 'Analyze'}
             </Button>
           </div>
-          <p className="text-xs text-[var(--text-secondary)]">
+          <p className="text-xs text-secondary-wh40k">
             We&apos;ll compare your team performances against meta averages to
             identify areas for improvement.
           </p>
@@ -196,8 +196,8 @@ export function PersonalBenchmarksSection({
       )}
 
       {searched && !loading && gaps.length === 0 && (
-        <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
-          <CardContent className="py-8 text-center text-[var(--text-secondary)]">
+        <Card className="bg-(--card-bg) border-(--card-border)">
+          <CardContent className="py-8 text-center text-secondary-wh40k">
             {summary?.teams_analyzed === 0
               ? 'No battle data found for this player in the current season.'
               : 'Great job! No significant performance gaps found.'}

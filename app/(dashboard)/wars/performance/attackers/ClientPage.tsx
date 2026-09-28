@@ -14,13 +14,13 @@ export default function AttackerPerformancePage() {
         title="Offense Heroes"
         description="Per-unit offense hero success rates."
       />
-      <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+      <Card className="border-(--border) bg-(--bg-primary)">
         <CardHeader className="pb-2">
           <CardTitle>Top Offense Heroes</CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
           {isLoading ? (
-            <div className="text-center py-12 text-[var(--text-secondary)]">
+            <div className="text-center py-12 text-secondary-wh40k">
               Loading hero performance...
             </div>
           ) : error ? (

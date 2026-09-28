@@ -234,7 +234,7 @@ export function LoadingSpinner({
             />
           </div>
 
-          <p className="text-xs text-[var(--text-secondary)] font-mono">
+          <p className="text-xs text-secondary-wh40k font-mono">
             {protocol.binary}
           </p>
         </div>
@@ -304,16 +304,14 @@ export function LoadingSpinner({
         </div>
 
         {/* Terminal output with enhanced Mechanicus styling */}
-        <div className="w-full max-w-md bg-black/70 border border-green-900/50 rounded p-3 font-mono text-xs relative overflow-hidden">
+        <div className="w-full max-w-md bg-black/70 border border-green-900/50 rounded-sm p-3 font-mono text-xs relative overflow-hidden">
           {/* Sacred border decoration */}
-          <div className="absolute inset-0 border border-red-900/20 rounded pointer-events-none" />
+          <div className="absolute inset-0 border border-red-900/20 rounded-sm pointer-events-none" />
 
           <p className="text-green-400">&gt; MECHANICUS PROTOCOL v.M40.000</p>
           <p className="text-amber-400">&gt; {currentMessage}</p>
           <div className="flex items-center space-x-2">
-            <span className="text-[var(--text-secondary)]">
-              &gt; Binary stream:
-            </span>
+            <span className="text-secondary-wh40k">&gt; Binary stream:</span>
             <BinaryStream
               width={120}
               height={12}
@@ -419,7 +417,7 @@ export function LoadingSpinner({
               />
             </div>
           )}
-          <p className="text-xs text-[var(--text-secondary)] mt-2 opacity-70 font-mono tracking-wide">
+          <p className="text-xs text-secondary-wh40k mt-2 opacity-70 font-mono tracking-wide">
             ++ PRAISE THE OMNISSIAH ++
           </p>
         </div>
@@ -430,7 +428,7 @@ export function LoadingSpinner({
 
 export function PageLoading({ message }: { message?: string }) {
   return (
-    <div className="min-h-[400px] flex items-center justify-center bg-gradient-to-br from-gray-900/50 via-red-900/20 to-gray-900/50 border border-red-900/30 rounded-lg">
+    <div className="min-h-[400px] flex items-center justify-center bg-linear-to-br from-gray-900/50 via-red-900/20 to-gray-900/50 border border-red-900/30 rounded-lg">
       <LoadingSpinner
         size="lg"
         message={message || '🔧 Initializing sacred systems...'}
@@ -479,7 +477,7 @@ export function LoadingOverlay({
   return (
     <div className="relative">
       <div className="opacity-30 pointer-events-none">{children}</div>
-      <div className="absolute inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm border border-red-900/30 rounded">
+      <div className="absolute inset-0 flex items-center justify-center bg-black/70 backdrop-blur-xs border border-red-900/30 rounded-sm">
         <LoadingSpinner message={message} variant="protocol" size="lg" />
       </div>
     </div>
@@ -496,7 +494,7 @@ export function Skeleton({
   return (
     <div
       className={`
-        bg-gradient-to-r from-red-900/20 via-gray-800/30 to-amber-900/20 rounded
+        bg-linear-to-r from-red-900/20 via-gray-800/30 to-amber-900/20 rounded
         border border-red-900/30
         ${animate ? 'animate-pulse' : ''}
         ${className}
@@ -579,13 +577,13 @@ export function ProgressBar({
       )}
       <div className="h-3 bg-gray-900 rounded-full overflow-hidden border border-red-900/50 relative">
         <div
-          className="h-full bg-gradient-to-r from-red-600 via-amber-500 to-yellow-400 transition-all duration-300 ease-out relative"
+          className="h-full bg-linear-to-r from-red-600 via-amber-500 to-yellow-400 transition-all duration-300 ease-out relative"
           style={{ width: `${clampedProgress}%` }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
+          <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent animate-pulse" />
         </div>
         <div className="absolute inset-y-0 left-2 flex items-center">
-          <span className="text-xs font-mono text-[var(--text-secondary)]">
+          <span className="text-xs font-mono text-secondary-wh40k">
             01001000
           </span>
         </div>
@@ -627,7 +625,7 @@ export function MechanicusEmptyState({
         {title}
       </h3>
       {description && (
-        <p className="text-sm text-[var(--text-secondary)] mb-4 max-w-sm">
+        <p className="text-sm text-secondary-wh40k mb-4 max-w-sm">
           {description}
         </p>
       )}

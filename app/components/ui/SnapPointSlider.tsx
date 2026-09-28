@@ -23,16 +23,16 @@ interface SnapPointSliderProps {
 
 const accentByVariant = {
   amber: {
-    fill: 'from-[var(--accent)] to-[var(--warning)]',
+    fill: 'from-(--accent) to-(--warning)',
     dotActive:
-      'bg-[var(--warning)] ring-[color-mix(in_srgb,var(--warning)_40%,transparent)]',
-    readout: 'text-[var(--warning)]'
+      'bg-(--warning) ring-[color-mix(in_srgb,var(--warning)_40%,transparent)]',
+    readout: 'text-(--warning)'
   },
   accent: {
-    fill: 'from-[color-mix(in_srgb,var(--accent)_60%,transparent)] to-[var(--accent)]',
+    fill: 'from-[color-mix(in_srgb,var(--accent)_60%,transparent)] to-(--accent)',
     dotActive:
-      'bg-[var(--accent)] ring-[color-mix(in_srgb,var(--accent)_40%,transparent)]',
-    readout: 'text-[var(--accent)]'
+      'bg-accent-wh40k ring-[color-mix(in_srgb,var(--accent)_40%,transparent)]',
+    readout: 'text-(--accent)'
   }
 }
 
@@ -110,16 +110,16 @@ export function SnapPointSlider({
         onKeyDown={handleKeyDown}
         onPointerDown={handlePointerDown}
         className={clsx(
-          'relative min-h-[44px] flex-1 min-w-0 cursor-pointer touch-manipulation py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]',
+          'relative min-h-[44px] flex-1 min-w-0 cursor-pointer touch-manipulation py-5 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent) focus-visible:ring-offset-2 focus-visible:ring-offset-(--bg-primary)',
           disabled && 'cursor-not-allowed opacity-50'
         )}
       >
         {/* Track background */}
-        <div className="relative h-1 rounded-full bg-[var(--card-border)]">
+        <div className="relative h-1 rounded-full bg-(--card-border)">
           {/* Filled portion with gradient */}
           <div
             className={clsx(
-              'absolute inset-y-0 left-0 rounded-full bg-gradient-to-r',
+              'absolute inset-y-0 left-0 rounded-full bg-linear-to-r',
               styles.fill
             )}
             style={{ width: `${fillPercent}%` }}
@@ -146,7 +146,7 @@ export function SnapPointSlider({
                     isActive
                       ? clsx('h-4 w-4 ring-4', styles.dotActive)
                       : isPassed
-                        ? 'h-2.5 w-2.5 bg-[var(--accent)]'
+                        ? 'h-2.5 w-2.5 bg-accent-wh40k'
                         : 'h-2.5 w-2.5 bg-[color-mix(in_srgb,var(--text-secondary)_50%,transparent)]'
                   )}
                 />
@@ -176,7 +176,7 @@ export function SnapPointSlider({
       {/* Value readout */}
       <span
         className={clsx(
-          'flex-shrink-0 whitespace-nowrap font-mono text-sm font-bold tabular-nums sm:text-lg',
+          'shrink-0 whitespace-nowrap font-mono text-sm font-bold tabular-nums sm:text-lg',
           styles.readout
         )}
       >

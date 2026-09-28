@@ -144,21 +144,21 @@ export default function AnnouncementSlot({
             const inner = (
               <div className="flex items-center gap-3 px-4 py-2.5 sm:px-5">
                 <span
-                  className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[var(--accent)]"
+                  className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-(--accent)"
                   style={{ backgroundColor: accentMix(14) }}
                 >
                   {iconFor(item.type)}
                 </span>
 
                 <div className="min-w-0 flex-1">
-                  <p className="text-2xs font-bold uppercase tracking-wider text-[var(--accent)]">
+                  <p className="text-2xs font-bold uppercase tracking-wider text-(--accent)">
                     {LABEL[item.type]}
                   </p>
-                  <p className="truncate text-sm font-semibold text-[var(--text-primary)]">
+                  <p className="truncate text-sm font-semibold text-primary-wh40k">
                     {item.title}
                   </p>
                   {item.description && !item.promoCode && (
-                    <p className="truncate text-xs text-[var(--text-secondary)]">
+                    <p className="truncate text-xs text-secondary-wh40k">
                       {item.description}
                     </p>
                   )}
@@ -167,18 +167,18 @@ export default function AnnouncementSlot({
                       type="button"
                       onClick={(e) => copyCode(item.promoCode!, e)}
                       tabIndex={isActive ? 0 : -1}
-                      className="mt-1 inline-flex max-w-full items-center gap-1.5 rounded-md border border-dashed px-2 py-0.5 font-mono text-xs text-[var(--text-primary)] transition-colors duration-fast hover:bg-[var(--bg-primary)]"
+                      className="mt-1 inline-flex max-w-full items-center gap-1.5 rounded-md border border-dashed px-2 py-0.5 font-mono text-xs text-primary-wh40k transition-colors duration-fast hover:bg-(--bg-primary)"
                       style={{ borderColor: accentMix(50) }}
                     >
                       <span className="truncate">{item.promoCode}</span>
                       {copiedCode === item.promoCode ? (
                         <Check
-                          className="h-3.5 w-3.5 shrink-0 text-[var(--success)]"
+                          className="h-3.5 w-3.5 shrink-0 text-(--success)"
                           aria-hidden
                         />
                       ) : (
                         <Copy
-                          className="h-3.5 w-3.5 shrink-0 text-[var(--text-tertiary)]"
+                          className="h-3.5 w-3.5 shrink-0 text-(--text-tertiary)"
                           aria-hidden
                         />
                       )}
@@ -188,7 +188,7 @@ export default function AnnouncementSlot({
 
                 {item.href && (
                   <span
-                    className="shrink-0 text-[var(--text-tertiary)] transition-colors duration-fast group-hover:text-[var(--accent)]"
+                    className="shrink-0 text-(--text-tertiary) transition-colors duration-fast group-hover:text-(--accent)"
                     aria-hidden
                   >
                     {item.external ? (
@@ -205,7 +205,7 @@ export default function AnnouncementSlot({
                     onClick={(e) => dismissItem(item.id, e)}
                     tabIndex={isActive ? 0 : -1}
                     aria-label={`Dismiss: ${item.title}`}
-                    className="shrink-0 rounded-md p-1 text-[var(--text-tertiary)] transition-colors duration-fast hover:bg-[var(--bg-primary)] hover:text-[var(--text-primary)]"
+                    className="shrink-0 rounded-md p-1 text-(--text-tertiary) transition-colors duration-fast hover:bg-(--bg-primary) hover:text-primary-wh40k"
                   >
                     <X className="h-3.5 w-3.5" aria-hidden />
                   </button>
@@ -250,7 +250,7 @@ export default function AnnouncementSlot({
             type="button"
             onClick={scrollPrev}
             aria-label="Previous announcement"
-            className="hidden h-6 w-6 items-center justify-center rounded-full text-[var(--text-tertiary)] transition-colors duration-fast hover:text-[var(--text-primary)] sm:flex"
+            className="hidden h-6 w-6 items-center justify-center rounded-full text-(--text-tertiary) transition-colors duration-fast hover:text-primary-wh40k sm:flex"
           >
             <ChevronLeft className="h-3.5 w-3.5" aria-hidden />
           </button>
@@ -279,7 +279,7 @@ export default function AnnouncementSlot({
             type="button"
             onClick={scrollNext}
             aria-label="Next announcement"
-            className="hidden h-6 w-6 items-center justify-center rounded-full text-[var(--text-tertiary)] transition-colors duration-fast hover:text-[var(--text-primary)] sm:flex"
+            className="hidden h-6 w-6 items-center justify-center rounded-full text-(--text-tertiary) transition-colors duration-fast hover:text-primary-wh40k sm:flex"
           >
             <ChevronRight className="h-3.5 w-3.5" aria-hidden />
           </button>

@@ -46,7 +46,7 @@ export function BestTeamsTab(props: BestTeamsTabProps) {
     `flex min-h-11 items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full transition-colors ${
       density === mode
         ? 'bg-emerald-500 text-black'
-        : 'text-[var(--text-secondary)] hover:text-white'
+        : 'text-secondary-wh40k hover:text-white'
     }`
 
   return (
@@ -55,7 +55,7 @@ export function BestTeamsTab(props: BestTeamsTabProps) {
         <div
           role="group"
           aria-label="Team detail level"
-          className="flex items-center rounded-full border border-[var(--card-border)] bg-card/70 p-1"
+          className="flex items-center rounded-full border border-(--card-border) bg-card/70 p-1"
         >
           <button
             type="button"

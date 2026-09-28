@@ -13,12 +13,12 @@ function VOTLWWinnerCard({ veteran }: VOTLWWinnerCardProps) {
   if (!veteran) return null
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-red-950 via-gray-900 to-black rounded-xl p-8 border-2 border-red-800 shadow-[0_0_50px_rgba(220,38,38,0.5)]">
+    <div className="relative overflow-hidden bg-linear-to-br from-red-950 via-gray-900 to-black rounded-xl p-8 border-2 border-red-800 shadow-[0_0_50px_rgba(220,38,38,0.5)]">
       {/* Animated background effects */}
       <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-0 left-1/4 w-2 h-full bg-gradient-to-b from-red-600 to-transparent animate-[drip_8s_ease-in-out_infinite]"></div>
-        <div className="absolute top-0 right-1/3 w-1 h-full bg-gradient-to-b from-red-700 to-transparent animate-[drip_10s_ease-in-out_infinite_2s]"></div>
-        <div className="absolute top-0 left-2/3 w-1 h-full bg-gradient-to-b from-red-800 to-transparent animate-[drip_12s_ease-in-out_infinite_4s]"></div>
+        <div className="absolute top-0 left-1/4 w-2 h-full bg-linear-to-b from-red-600 to-transparent animate-[drip_8s_ease-in-out_infinite]"></div>
+        <div className="absolute top-0 right-1/3 w-1 h-full bg-linear-to-b from-red-700 to-transparent animate-[drip_10s_ease-in-out_infinite_2s]"></div>
+        <div className="absolute top-0 left-2/3 w-1 h-full bg-linear-to-b from-red-800 to-transparent animate-[drip_12s_ease-in-out_infinite_4s]"></div>
       </div>
 
       {/* War imagery watermarks */}
@@ -43,7 +43,7 @@ function VOTLWWinnerCard({ veteran }: VOTLWWinnerCardProps) {
         <p className="text-4xl font-black mt-4 mb-3">
           <PlayerLink playerName={veteran.displayName}>
             <span
-              className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-yellow-500 to-red-400 animate-[shimmer_3s_linear_infinite]"
+              className="text-transparent bg-clip-text bg-linear-to-r from-red-400 via-yellow-500 to-red-400 animate-[shimmer_3s_linear_infinite]"
               style={{
                 textShadow:
                   '0 0 20px rgba(220, 38, 38, 0.8), 0 0 40px rgba(234, 179, 8, 0.6), 0 0 60px rgba(220, 38, 38, 0.4)',
@@ -61,7 +61,7 @@ function VOTLWWinnerCard({ veteran }: VOTLWWinnerCardProps) {
         </div>
 
         {/* Complete Awards Summary */}
-        <div className="bg-black/60 backdrop-blur rounded-lg p-4 mb-4 border border-red-800/50">
+        <div className="bg-black/60 backdrop-blur-sm rounded-lg p-4 mb-4 border border-red-800/50">
           <h4 className="text-sm font-bold text-red-400 mb-3 uppercase tracking-wider">
             Battle Honors
           </h4>
@@ -160,7 +160,7 @@ function VOTLWWinnerCard({ veteran }: VOTLWWinnerCardProps) {
         </div>
 
         {/* Epic bottom effect */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-80 animate-[plasmaFlow_3s_ease-in-out_infinite]"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-red-500 to-transparent opacity-80 animate-[plasmaFlow_3s_ease-in-out_infinite]"></div>
       </div>
     </div>
   )

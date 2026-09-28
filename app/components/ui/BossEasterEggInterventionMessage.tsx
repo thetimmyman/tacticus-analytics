@@ -44,7 +44,7 @@ export function BossEasterEggInterventionMessage({
   return (
     <div className="fixed z-50 top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md sm:w-auto">
       <div
-        className={`bg-black/95 border-2 rounded-lg p-4 shadow-2xl backdrop-blur-sm animate-pulse
+        className={`bg-black/95 border-2 rounded-lg p-4 shadow-2xl backdrop-blur-xs animate-pulse
             ${theme.border} ${theme.bg}`}
       >
         <div className="flex items-center space-x-3">

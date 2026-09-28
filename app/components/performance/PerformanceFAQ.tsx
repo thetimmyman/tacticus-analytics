@@ -5,12 +5,12 @@ export function PerformanceFAQ() {
       data-component="performance-faq"
     >
       <summary className="flex items-center justify-between w-full text-left py-2 sm:py-0 min-h-[44px] sm:min-h-0 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-        <h3 className="text-lg sm:text-xl font-bold text-[var(--text-primary)] group-open:text-[var(--primary)] transition-colors pr-2">
+        <h3 className="text-lg sm:text-xl font-bold text-primary-wh40k group-open:text-(--primary) transition-colors pr-2">
           How Performance Calculations Work
         </h3>
-        <div className="transition-transform duration-200 flex-shrink-0 group-open:rotate-180">
+        <div className="transition-transform duration-200 shrink-0 group-open:rotate-180">
           <svg
-            className="w-6 h-6 sm:w-5 sm:h-5 text-[var(--text-secondary)]"
+            className="w-6 h-6 sm:w-5 sm:h-5 text-secondary-wh40k"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -25,15 +25,15 @@ export function PerformanceFAQ() {
         </div>
       </summary>
 
-      <div className="space-y-4 sm:space-y-6 pt-4 border-t border-[var(--card-border)]">
+      <div className="space-y-4 sm:space-y-6 pt-4 border-t border-(--card-border)">
         <div className="space-y-2 sm:space-y-3">
-          <h4 className="text-base sm:text-lg font-semibold text-[var(--accent)] flex items-center">
-            <span className="w-2 h-2 bg-[var(--accent)] rounded-full mr-2 flex-shrink-0"></span>
+          <h4 className="text-base sm:text-lg font-semibold text-(--accent) flex items-center">
+            <span className="w-2 h-2 bg-accent-wh40k rounded-full mr-2 shrink-0"></span>
             Weighted Performance Chart - Calculation Method
           </h4>
-          <div className="pl-2 sm:pl-4 space-y-2 text-xs sm:text-sm text-[var(--text-secondary)]">
+          <div className="pl-2 sm:pl-4 space-y-2 text-xs sm:text-sm text-secondary-wh40k">
             <p className="text-xs text-secondary-wh40k">
-              <strong className="text-[var(--text-primary)]">
+              <strong className="text-primary-wh40k">
                 Final token-weighted formula:
               </strong>
               <span className="block mt-1">
@@ -43,30 +43,30 @@ export function PerformanceFAQ() {
                 </code>
               </span>
             </p>
-            <p className="text-[var(--text-secondary)]">
+            <p className="text-secondary-wh40k">
               <strong>Token baseline:</strong> choose between the seasonal max
               tokens possible (including burned tokens) or the seasonal average
               tokens spent. The baseline is guild-scoped when comparing to guild
               averages, and cluster-scoped when comparing to cluster averages.
             </p>
-            <ul className="list-disc pl-4 space-y-1 text-xs text-[var(--text-secondary)]">
+            <ul className="list-disc pl-4 space-y-1 text-xs text-secondary-wh40k">
               <li>Guild max tokens possible</li>
               <li>Cluster max tokens possible</li>
               <li>Guild average tokens spent</li>
               <li>Cluster average tokens spent</li>
             </ul>
-            <p className="text-[var(--text-secondary)] text-xs">
+            <p className="text-secondary-wh40k text-xs">
               Ratios above 1 are clamped to avoid inflating token-weighted
               scores.
             </p>
           </div>
-          <h4 className="text-base sm:text-lg font-semibold text-[var(--accent)] flex items-center">
-            <span className="w-2 h-2 bg-[var(--accent)] rounded-full mr-2 flex-shrink-0"></span>
+          <h4 className="text-base sm:text-lg font-semibold text-(--accent) flex items-center">
+            <span className="w-2 h-2 bg-accent-wh40k rounded-full mr-2 shrink-0"></span>
             Battle-Weighted Calculation Steps
           </h4>
-          <div className="pl-2 sm:pl-4 space-y-2 text-xs sm:text-sm text-[var(--text-secondary)]">
+          <div className="pl-2 sm:pl-4 space-y-2 text-xs sm:text-sm text-secondary-wh40k">
             <div className="leading-relaxed">
-              <strong className="text-[var(--text-primary)]">
+              <strong className="text-primary-wh40k">
                 Token-Weighted Algorithm:
               </strong>{' '}
               Multi-step weighted average calculation:
@@ -109,11 +109,11 @@ export function PerformanceFAQ() {
         </div>
 
         <div className="space-y-2 sm:space-y-3">
-          <h4 className="text-base sm:text-lg font-semibold text-[var(--accent)] flex items-center">
-            <span className="w-2 h-2 bg-[var(--accent)] rounded-full mr-2 flex-shrink-0"></span>
+          <h4 className="text-base sm:text-lg font-semibold text-(--accent) flex items-center">
+            <span className="w-2 h-2 bg-accent-wh40k rounded-full mr-2 shrink-0"></span>
             Chart Interpretation &amp; Thresholds
           </h4>
-          <div className="pl-2 sm:pl-4 text-xs sm:text-sm text-[var(--text-secondary)] space-y-2">
+          <div className="pl-2 sm:pl-4 text-xs sm:text-sm text-secondary-wh40k space-y-2">
             <p className="leading-relaxed">
               Values represent weighted performance vs selected comparison.
               Positive percentages mean the player is outperforming the
@@ -121,38 +121,38 @@ export function PerformanceFAQ() {
             </p>
             <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-3 bg-green-500 rounded"></div>
-                <span className="text-[var(--text-secondary)] leading-relaxed">
+                <div className="w-4 h-3 bg-green-500 rounded-sm"></div>
+                <span className="text-secondary-wh40k leading-relaxed">
                   +30% and above (Exceptional)
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-3 bg-green-400 rounded"></div>
-                <span className="text-[var(--text-secondary)] leading-relaxed">
+                <div className="w-4 h-3 bg-green-400 rounded-sm"></div>
+                <span className="text-secondary-wh40k leading-relaxed">
                   +20% to +29% (Great)
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-3 bg-yellow-400 rounded"></div>
-                <span className="text-[var(--text-secondary)] leading-relaxed">
+                <div className="w-4 h-3 bg-yellow-400 rounded-sm"></div>
+                <span className="text-secondary-wh40k leading-relaxed">
                   +5% to +19% (Solid)
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-3 bg-purple-400 rounded"></div>
-                <span className="text-[var(--text-secondary)] leading-relaxed">
+                <div className="w-4 h-3 bg-purple-400 rounded-sm"></div>
+                <span className="text-secondary-wh40k leading-relaxed">
                   0% to +4% (Meets Baseline)
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-3 bg-orange-400 rounded"></div>
-                <span className="text-[var(--text-secondary)] leading-relaxed">
+                <div className="w-4 h-3 bg-orange-400 rounded-sm"></div>
+                <span className="text-secondary-wh40k leading-relaxed">
                   -1% to -15% (Needs Work)
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-3 bg-red-500 rounded"></div>
-                <span className="text-[var(--text-secondary)] leading-relaxed">
+                <div className="w-4 h-3 bg-red-500 rounded-sm"></div>
+                <span className="text-secondary-wh40k leading-relaxed">
                   Below -15% (Critical)
                 </span>
               </div>
@@ -161,11 +161,11 @@ export function PerformanceFAQ() {
         </div>
 
         <div className="space-y-2 sm:space-y-3">
-          <h4 className="text-base sm:text-lg font-semibold text-[var(--accent)] flex items-center">
-            <span className="w-2 h-2 bg-[var(--accent)] rounded-full mr-2 flex-shrink-0"></span>
+          <h4 className="text-base sm:text-lg font-semibold text-(--accent) flex items-center">
+            <span className="w-2 h-2 bg-accent-wh40k rounded-full mr-2 shrink-0"></span>
             Token-Weighted Mode Details
           </h4>
-          <div className="pl-2 sm:pl-4 text-xs sm:text-sm text-[var(--text-secondary)] space-y-2">
+          <div className="pl-2 sm:pl-4 text-xs sm:text-sm text-secondary-wh40k space-y-2">
             <p>
               Token weighting adjusts performance based on relative token spend
               to highlight efficiency.
@@ -190,11 +190,11 @@ export function PerformanceFAQ() {
         </div>
 
         <div className="space-y-2 sm:space-y-3">
-          <h4 className="text-base sm:text-lg font-semibold text-[var(--accent)] flex items-center">
-            <span className="w-2 h-2 bg-[var(--accent)] rounded-full mr-2 flex-shrink-0"></span>
+          <h4 className="text-base sm:text-lg font-semibold text-(--accent) flex items-center">
+            <span className="w-2 h-2 bg-accent-wh40k rounded-full mr-2 shrink-0"></span>
             Rarity &amp; Filtering Notes
           </h4>
-          <div className="pl-2 sm:pl-4 text-xs sm:text-sm text-[var(--text-secondary)] space-y-2">
+          <div className="pl-2 sm:pl-4 text-xs sm:text-sm text-secondary-wh40k space-y-2">
             <p>
               Only Legendary/Mythic battles are included by default. Use the
               rarity filter to add additional tiers.
@@ -204,11 +204,11 @@ export function PerformanceFAQ() {
         </div>
 
         <div className="space-y-2 sm:space-y-3">
-          <h4 className="text-base sm:text-lg font-semibold text-[var(--accent)] flex items-center">
-            <span className="w-2 h-2 bg-[var(--accent)] rounded-full mr-2 flex-shrink-0"></span>
+          <h4 className="text-base sm:text-lg font-semibold text-(--accent) flex items-center">
+            <span className="w-2 h-2 bg-accent-wh40k rounded-full mr-2 shrink-0"></span>
             Bar Chart Visualization
           </h4>
-          <div className="pl-2 sm:pl-4 text-xs sm:text-sm text-[var(--text-secondary)] space-y-2">
+          <div className="pl-2 sm:pl-4 text-xs sm:text-sm text-secondary-wh40k space-y-2">
             <p>
               Bars extend horizontally from the centre line. Positive
               performance pushes to the right, negative to the left.
@@ -235,11 +235,11 @@ export function PerformanceFAQ() {
         </div>
 
         <div className="space-y-2 sm:space-y-3">
-          <h4 className="text-base sm:text-lg font-semibold text-[var(--accent)] flex items-center">
-            <span className="w-2 h-2 bg-[var(--accent)] rounded-full mr-2 flex-shrink-0"></span>
+          <h4 className="text-base sm:text-lg font-semibold text-(--accent) flex items-center">
+            <span className="w-2 h-2 bg-accent-wh40k rounded-full mr-2 shrink-0"></span>
             Boss-by-Boss Detail Table
           </h4>
-          <div className="pl-2 sm:pl-4 text-xs sm:text-sm text-[var(--text-secondary)] space-y-2">
+          <div className="pl-2 sm:pl-4 text-xs sm:text-sm text-secondary-wh40k space-y-2">
             <p>
               The optional table breaks out individual boss performance when the
               toggle is enabled.
@@ -266,11 +266,11 @@ export function PerformanceFAQ() {
         </div>
 
         <div className="space-y-2 sm:space-y-3">
-          <h4 className="text-base sm:text-lg font-semibold text-[var(--accent)] flex items-center">
-            <span className="w-2 h-2 bg-[var(--accent)] rounded-full mr-2 flex-shrink-0"></span>
+          <h4 className="text-base sm:text-lg font-semibold text-(--accent) flex items-center">
+            <span className="w-2 h-2 bg-accent-wh40k rounded-full mr-2 shrink-0"></span>
             Guild vs Cluster Radar Charts
           </h4>
-          <div className="pl-2 sm:pl-4 text-xs sm:text-sm text-[var(--text-secondary)] space-y-2">
+          <div className="pl-2 sm:pl-4 text-xs sm:text-sm text-secondary-wh40k space-y-2">
             <p>
               Available to cluster-enabled users, showing how the guild stacks
               up boss by boss.
@@ -297,11 +297,11 @@ export function PerformanceFAQ() {
         </div>
 
         <div className="space-y-2 sm:space-y-3">
-          <h4 className="text-base sm:text-lg font-semibold text-[var(--accent)] flex items-center">
-            <span className="w-2 h-2 bg-[var(--accent)] rounded-full mr-2 flex-shrink-0"></span>
+          <h4 className="text-base sm:text-lg font-semibold text-(--accent) flex items-center">
+            <span className="w-2 h-2 bg-accent-wh40k rounded-full mr-2 shrink-0"></span>
             Performance Summary Widgets
           </h4>
-          <div className="pl-2 sm:pl-4 text-xs sm:text-sm text-[var(--text-secondary)] space-y-2">
+          <div className="pl-2 sm:pl-4 text-xs sm:text-sm text-secondary-wh40k space-y-2">
             <p>Quick stats to highlight distribution and top performers.</p>
             <ul className="list-disc pl-4 space-y-1 text-xs">
               <li>

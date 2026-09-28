@@ -95,7 +95,7 @@ export const signedDecimal = (value: number): string =>
 export const deltaClass = (value: number): string => {
   if (value > 0) return 'text-green-300'
   if (value < 0) return 'text-red-300'
-  return 'text-[var(--text-secondary)]'
+  return 'text-secondary-wh40k'
 }
 
 export const compareStrategyMembers = (

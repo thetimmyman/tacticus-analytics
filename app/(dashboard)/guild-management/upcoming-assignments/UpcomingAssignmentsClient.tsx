@@ -336,11 +336,11 @@ function UpcomingAssignmentsClient({
             guildCode={guildCode}
           />
         ) : currentBossStatusQuery.isLoading ? (
-          <div className="flex items-center justify-center rounded-lg border border-[var(--card-border)] bg-card/40 p-8">
+          <div className="flex items-center justify-center rounded-lg border border-(--card-border) bg-card/40 p-8">
             <Spinner size="md" label="Loading live boss" />
           </div>
         ) : (
-          <div className="rounded-lg border border-[var(--card-border)] bg-card/40 p-8">
+          <div className="rounded-lg border border-(--card-border) bg-card/40 p-8">
             <EmptyState
               icon={Radio}
               title="Waiting for this season's live boss"

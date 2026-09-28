@@ -38,12 +38,12 @@ export function BossLeaderboardTeam({
             title={mapping.display_name || heroId}
             width={size}
             height={size}
-            className="rounded"
+            className="rounded-sm"
           />
         ) : (
           <span
             key={heroKey}
-            className="text-xs text-[var(--text-secondary)]"
+            className="text-xs text-secondary-wh40k"
             title={heroId}
           >
             {heroId}
@@ -52,7 +52,7 @@ export function BossLeaderboardTeam({
       })}
       {mow && (
         <>
-          <span className="mx-1 text-[var(--text-secondary)]">|</span>
+          <span className="mx-1 text-secondary-wh40k">|</span>
           {mowMapping?.web_icon_url ? (
             <img
               src={mowMapping.web_icon_url}
@@ -60,14 +60,14 @@ export function BossLeaderboardTeam({
               title={mowMapping.display_name || mow}
               width={size}
               height={size}
-              className="rounded border border-[var(--primary)]"
+              className="rounded-sm border border-primary-wh40k"
             />
           ) : variant === 'mobile' ? (
-            <span className="text-xs text-[var(--text-secondary)]" title={mow}>
+            <span className="text-xs text-secondary-wh40k" title={mow}>
               {mow}
             </span>
           ) : (
-            <span className="text-xs text-[var(--text-secondary)]">MoW</span>
+            <span className="text-xs text-secondary-wh40k">MoW</span>
           )}
         </>
       )}
@@ -77,10 +77,8 @@ export function BossLeaderboardTeam({
   if (variant === 'desktop') return team
 
   return (
-    <div className="pt-2 border-t border-[var(--card-border)]">
-      <div className="text-xs text-[var(--text-secondary)] mb-1">
-        Team Composition:
-      </div>
+    <div className="pt-2 border-t border-(--card-border)">
+      <div className="text-xs text-secondary-wh40k mb-1">Team Composition:</div>
       {team}
     </div>
   )

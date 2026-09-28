@@ -32,7 +32,7 @@ const BossPerformanceContainer = dynamicImport(
   () => import('@/app/components/boss-performance/BossPerformanceContainer'),
   {
     loading: () => (
-      <div className="rounded-md border border-card-border/60 bg-[var(--card-bg)] p-4 text-[var(--text-secondary)]">
+      <div className="rounded-md border border-card-border/60 bg-(--card-bg) p-4 text-secondary-wh40k">
         Loading boss performance…
       </div>
     )
@@ -53,7 +53,7 @@ export default async function BossPerformancePage({ searchParams }: PageProps) {
   if (!selectedSeason) {
     return (
       <div className="px-4 py-6">
-        <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+        <h1 className="text-3xl font-bold text-primary-wh40k">
           Boss Performance
         </h1>
         <EmptyState title="Season data unavailable" className="mt-6">
@@ -80,7 +80,7 @@ export default async function BossPerformancePage({ searchParams }: PageProps) {
     <div className="px-4 py-6">
       <div className="space-y-6">
         {/* Boss Performance Title */}
-        <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+        <h1 className="text-3xl font-bold text-primary-wh40k">
           Boss Performance
         </h1>
 

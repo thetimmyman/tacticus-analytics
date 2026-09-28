@@ -35,7 +35,7 @@ export function FormRow({
       ? children({ labelId, helperId, describedBy: helperId })
       : children
   const labelClassName =
-    'text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[var(--text-secondary)]'
+    'text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-secondary-wh40k'
 
   return (
     <div
@@ -70,7 +70,7 @@ export function FormRow({
         aria-describedby={htmlFor ? undefined : helperId}
       >
         <div className="min-w-0 flex-1">{renderedChildren}</div>
-        {trailing && <div className="flex-shrink-0">{trailing}</div>}
+        {trailing && <div className="shrink-0">{trailing}</div>}
       </div>
     </div>
   )

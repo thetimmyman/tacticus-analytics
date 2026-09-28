@@ -11,9 +11,7 @@ const GuildWarExplorerClient = dynamicImport(
   () => import('./GuildWarExplorerClient'),
   {
     loading: () => (
-      <div className="p-6 text-[var(--text-secondary)]">
-        Loading war explorer...
-      </div>
+      <div className="p-6 text-secondary-wh40k">Loading war explorer...</div>
     )
   }
 )

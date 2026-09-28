@@ -59,25 +59,25 @@ export function AdminDashboard() {
       <div>
         <Link
           href="/home"
-          className="inline-flex items-center gap-1.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4"
+          className="inline-flex items-center gap-1.5 text-sm text-secondary-wh40k hover:text-primary-wh40k mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Home
         </Link>
         <div className="flex items-center gap-3">
-          <Settings className="h-8 w-8 text-[var(--accent)]" />
+          <Settings className="h-8 w-8 text-(--accent)" />
           <div>
-            <h1 className="text-2xl font-bold text-[var(--text-primary)]">
+            <h1 className="text-2xl font-bold text-primary-wh40k">
               Admin Dashboard
             </h1>
-            <p className="text-[var(--text-secondary)]">
+            <p className="text-secondary-wh40k">
               Manage users, features, and content
             </p>
           </div>
         </div>
       </div>
 
-      <div className="border-b border-[var(--card-border)]">
+      <div className="border-b border-(--card-border)">
         <nav className="flex gap-1 -mb-px overflow-x-auto">
           {TABS.map((tab) => (
             <button
@@ -87,8 +87,8 @@ export function AdminDashboard() {
                 flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap
                 ${
                   activeTab === tab.key
-                    ? 'border-[var(--accent)] text-[var(--accent)]'
-                    : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--card-border)]'
+                    ? 'border-accent-wh40k text-(--accent)'
+                    : 'border-transparent text-secondary-wh40k hover:text-primary-wh40k hover:border-(--card-border)'
                 }
               `}
             >

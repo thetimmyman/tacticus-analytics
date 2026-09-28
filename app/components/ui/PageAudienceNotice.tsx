@@ -23,26 +23,26 @@ export function PageAudienceNotice({
 
   return (
     <div
-      className={`rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] px-3 py-2 ${className}`}
+      className={`rounded-lg border border-(--card-border) bg-(--card-bg) px-3 py-2 ${className}`}
       data-testid="page-audience-notice"
     >
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs">
-        <span className="inline-flex items-center gap-1.5 rounded-md bg-[color-mix(in_srgb,var(--danger)_18%,transparent)] px-2 py-1 font-semibold uppercase tracking-wide text-[var(--danger)]">
+        <span className="inline-flex items-center gap-1.5 rounded-md bg-[color-mix(in_srgb,var(--danger)_18%,transparent)] px-2 py-1 font-semibold uppercase tracking-wide text-(--danger)">
           <Lock className="h-3 w-3" aria-hidden="true" />
           {label}
         </span>
-        <span className="text-[var(--text-secondary)]">visible to</span>
+        <span className="text-secondary-wh40k">visible to</span>
         {audience.map((who) => (
           <span
             key={who}
-            className="rounded-md border border-[var(--card-border)] px-2 py-1 text-[var(--text-primary)]"
+            className="rounded-md border border-(--card-border) px-2 py-1 text-primary-wh40k"
           >
             {who}
           </span>
         ))}
       </div>
       {footnote && (
-        <p className="mt-1.5 text-[11px] leading-snug text-[var(--text-secondary)]">
+        <p className="mt-1.5 text-[11px] leading-snug text-secondary-wh40k">
           {footnote}
         </p>
       )}

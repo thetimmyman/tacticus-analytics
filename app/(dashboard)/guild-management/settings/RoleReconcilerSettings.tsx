@@ -208,7 +208,7 @@ export function RoleReconcilerSettings({
     return (
       <div
         className={cn(
-          'flex items-center gap-2 text-sm text-[var(--text-tertiary)]',
+          'flex items-center gap-2 text-sm text-(--text-tertiary)',
           className
         )}
       >
@@ -221,12 +221,12 @@ export function RoleReconcilerSettings({
   return (
     <div className={cn('space-y-5', className)}>
       <div className="flex items-start gap-3">
-        <UserCheck className="w-5 h-5 mt-0.5 text-[var(--accent)] shrink-0" />
+        <UserCheck className="w-5 h-5 mt-0.5 text-(--accent) shrink-0" />
         <div className="space-y-1">
-          <h3 className="text-base font-semibold text-[var(--text-primary)]">
+          <h3 className="text-base font-semibold text-primary-wh40k">
             Auto-assign meta-team roles
           </h3>
-          <p className="text-xs text-[var(--text-tertiary)]">
+          <p className="text-xs text-(--text-tertiary)">
             Picks each member&apos;s top 2 meta-teams by roster strength and
             assigns the Discord role only if they&apos;ve actually played that
             team — at least <strong>5 tokens across the last 3 seasons</strong>.
@@ -239,17 +239,17 @@ export function RoleReconcilerSettings({
 
       <div className="flex items-center justify-between gap-4 rounded-2xl border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-4">
         <div>
-          <Label className="font-semibold text-[var(--text-primary)]">
+          <Label className="font-semibold text-primary-wh40k">
             Enable auto role assignment
           </Label>
-          <p className="text-xs text-[var(--text-tertiary)] mt-1">
+          <p className="text-xs text-(--text-tertiary) mt-1">
             When on, roles re-sync after each guild data refresh and after a new
             Discord link.
           </p>
         </div>
         <div className="flex items-center gap-3">
           {savingToggle && (
-            <Loader2 className="w-4 h-4 animate-spin text-[var(--text-tertiary)]" />
+            <Loader2 className="w-4 h-4 animate-spin text-(--text-tertiary)" />
           )}
           <Switch
             checked={state.autoRoleAssignEnabled}
@@ -266,10 +266,10 @@ export function RoleReconcilerSettings({
         )}
       >
         <div>
-          <Label className="font-semibold text-[var(--text-primary)]">
+          <Label className="font-semibold text-primary-wh40k">
             Qualification tier
           </Label>
-          <p className="text-xs text-[var(--text-tertiary)] mt-1">
+          <p className="text-xs text-(--text-tertiary) mt-1">
             Capability floor for ranking. Only meta-teams above this match%
             compete for the top-2 slots — engagement (≥5 tokens, last 3 seasons)
             is then required for the role to actually assign.
@@ -298,10 +298,10 @@ export function RoleReconcilerSettings({
                 className="mt-0.5"
               />
               <div className="flex-1">
-                <div className="text-sm font-semibold text-[var(--text-primary)]">
+                <div className="text-sm font-semibold text-primary-wh40k">
                   {TIER_LABELS[tier].title}
                 </div>
-                <div className="text-xs text-[var(--text-tertiary)] mt-0.5">
+                <div className="text-xs text-(--text-tertiary) mt-0.5">
                   {TIER_LABELS[tier].helper}
                 </div>
               </div>
@@ -316,7 +316,7 @@ export function RoleReconcilerSettings({
           onClick={handleResync}
           disabled={!canManage || reconciling}
           variant="outline"
-          className="flex items-center gap-2 rounded-xl border-[color-mix(in_srgb,var(--accent)_60%,transparent)] text-[var(--accent)] hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]"
+          className="flex items-center gap-2 rounded-xl border-[color-mix(in_srgb,var(--accent)_60%,transparent)] text-(--accent) hover:bg-[color-mix(in_srgb,var(--accent)_10%,transparent)]"
         >
           {reconciling ? (
             <>
@@ -330,14 +330,14 @@ export function RoleReconcilerSettings({
             </>
           )}
         </Button>
-        <span className="text-xs text-[var(--text-tertiary)]">
+        <span className="text-xs text-(--text-tertiary)">
           Officer override — runs the reconciler even when the toggle is off.
         </span>
       </div>
 
       {lastResult && (
-        <div className="rounded-2xl border border-card-border/40 bg-[color-mix(in_srgb,var(--bg-secondary)_30%,transparent)] p-4 text-xs text-[var(--text-secondary)]">
-          <div className="font-semibold text-[var(--text-primary)] mb-2">
+        <div className="rounded-2xl border border-card-border/40 bg-[color-mix(in_srgb,var(--bg-secondary)_30%,transparent)] p-4 text-xs text-secondary-wh40k">
+          <div className="font-semibold text-primary-wh40k mb-2">
             Last resync result
           </div>
           <dl className="grid grid-cols-2 gap-x-4 gap-y-1">
@@ -378,8 +378,8 @@ interface SummaryLineProps {
 function SummaryLine({ label, value }: SummaryLineProps) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="text-[var(--text-tertiary)]">{label}</span>
-      <span className="font-mono text-[var(--text-primary)]">{value}</span>
+      <span className="text-(--text-tertiary)">{label}</span>
+      <span className="font-mono text-primary-wh40k">{value}</span>
     </div>
   )
 }

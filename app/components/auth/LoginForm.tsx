@@ -311,10 +311,10 @@ export default function LoginForm({
       <div className="w-full max-w-md mx-auto space-y-8">
         {/* Header */}
         <div className="text-center">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)] mb-2">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-primary-wh40k mb-2">
             Welcome Back
           </h2>
-          <p className="text-sm sm:text-base text-[var(--text-secondary)]">
+          <p className="text-sm sm:text-base text-secondary-wh40k">
             Sign in to access the Command Deck
           </p>
         </div>
@@ -382,13 +382,13 @@ export default function LoginForm({
                 id="remember-me"
                 checked={rememberMe}
                 onCheckedChange={setRememberMe}
-                className="data-[state=checked]:bg-[var(--primary)]"
+                className="data-[state=checked]:bg-primary-wh40k"
               />
               <RadixTooltip>
                 <RadixTooltipTrigger asChild>
                   <label
                     htmlFor="remember-me"
-                    className="text-sm text-[var(--text-secondary)] cursor-pointer hover:text-[var(--text-primary)] transition-colors"
+                    className="text-sm text-secondary-wh40k cursor-pointer hover:text-primary-wh40k transition-colors"
                   >
                     Remember me
                   </label>
@@ -401,7 +401,7 @@ export default function LoginForm({
             <div className="text-sm">
               <Link
                 href="/auth/forgot-password"
-                className="font-medium text-[var(--accent)] hover:brightness-110 underline"
+                className="font-medium text-(--accent) hover:brightness-110 underline"
               >
                 Forgot password?
               </Link>
@@ -428,10 +428,10 @@ export default function LoginForm({
               <div className="pt-4">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-[var(--card-border)]" />
+                    <div className="w-full border-t border-(--card-border)" />
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-[var(--bg-primary)] text-[var(--text-secondary)]">
+                    <span className="px-2 bg-(--bg-primary) text-secondary-wh40k">
                       Or continue with
                     </span>
                   </div>
@@ -529,30 +529,30 @@ export default function LoginForm({
           )}
 
           {/* Signup Link */}
-          <div className="text-center pt-6 border-t border-[var(--card-border)]">
-            <p className="text-sm text-[var(--text-secondary)] pt-6">
+          <div className="text-center pt-6 border-t border-(--card-border)">
+            <p className="text-sm text-secondary-wh40k pt-6">
               New to the cluster?{' '}
               <Link
                 href="/auth/signup"
-                className="text-[var(--accent)] hover:brightness-110 font-medium underline"
+                className="text-(--accent) hover:brightness-110 font-medium underline"
               >
                 Create an account
               </Link>
             </p>
 
             {/* Privacy Policy and Terms Links */}
-            <p className="text-xs text-[var(--text-secondary)] mt-4">
+            <p className="text-xs text-secondary-wh40k mt-4">
               By signing in, you agree to our{' '}
               <Link
                 href="/terms"
-                className="text-[var(--accent)] hover:brightness-110 underline"
+                className="text-(--accent) hover:brightness-110 underline"
               >
                 Terms
               </Link>{' '}
               and{' '}
               <Link
                 href="/privacy"
-                className="text-[var(--accent)] hover:brightness-110 underline"
+                className="text-(--accent) hover:brightness-110 underline"
               >
                 Privacy Policy
               </Link>

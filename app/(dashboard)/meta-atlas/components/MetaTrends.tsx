@@ -86,7 +86,7 @@ function TrendsComparisonChart({ trends }: { trends: MetaTrend[] }) {
   }
 
   return (
-    <Card className="bg-[var(--card-bg)] border-[var(--card-border)] chart-card w-full">
+    <Card className="bg-(--card-bg) border-(--card-border) chart-card w-full">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm flex items-center gap-2">
           <BarChart3 className="w-4 h-4 text-purple-400" />
@@ -189,7 +189,7 @@ export function MetaTrends({
 
   if (!trends || trends.error) {
     return (
-      <Card className="bg-[var(--card-bg)] border-[var(--card-border)]">
+      <Card className="bg-(--card-bg) border-(--card-border)">
         <CardContent className="py-8 text-center text-gray-400">
           Unable to load meta trends. Try again later.
         </CardContent>

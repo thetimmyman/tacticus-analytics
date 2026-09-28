@@ -59,12 +59,10 @@ export function RaidConfigPanel() {
   if (loading) {
     return (
       <div className="p-6">
-        <h1 className="mb-4 text-xl font-bold text-[var(--text-primary)]">
+        <h1 className="mb-4 text-xl font-bold text-primary-wh40k">
           Guild Raid Progression Overrides
         </h1>
-        <div className="text-sm text-[var(--text-secondary)]">
-          Fetching config...
-        </div>
+        <div className="text-sm text-secondary-wh40k">Fetching config...</div>
       </div>
     )
   }
@@ -72,10 +70,10 @@ export function RaidConfigPanel() {
   if (error) {
     return (
       <div className="p-6">
-        <h1 className="mb-4 text-xl font-bold text-[var(--text-primary)]">
+        <h1 className="mb-4 text-xl font-bold text-primary-wh40k">
           Guild Raid Progression Overrides
         </h1>
-        <div className="rounded bg-red-500/10 p-3 text-sm text-red-400">
+        <div className="rounded-sm bg-red-500/10 p-3 text-sm text-red-400">
           {error}
         </div>
         <button
@@ -93,21 +91,21 @@ export function RaidConfigPanel() {
 
   return (
     <div className="p-6">
-      <h1 className="mb-2 text-xl font-bold text-[var(--text-primary)]">
+      <h1 className="mb-2 text-xl font-bold text-primary-wh40k">
         Guild Raid Progression Overrides
       </h1>
-      <p className="mb-6 text-sm text-[var(--text-secondary)]">
+      <p className="mb-6 text-sm text-secondary-wh40k">
         Manage deliberate guild-specific escape hatches. Seasons without an
         override use the progression policy captured from the game config.
       </p>
 
       <section>
-        <h2 className="mb-3 text-lg font-semibold text-[var(--text-primary)]">
+        <h2 className="mb-3 text-lg font-semibold text-primary-wh40k">
           Guild Overrides
         </h2>
         <div className="space-y-3">
           {guildConfigs.length === 0 && (
-            <div className="text-sm text-[var(--text-secondary)]">
+            <div className="text-sm text-secondary-wh40k">
               No guild-specific overrides configured.
             </div>
           )}
@@ -137,25 +135,25 @@ function ConfigCard(props: {
       className={`rounded-lg border p-4 ${
         config.is_active
           ? 'border-green-500/30 bg-green-500/5'
-          : 'border-[var(--border-primary)] bg-[var(--bg-secondary)]'
+          : 'border-(--border-primary) bg-(--bg-secondary)'
       }`}
     >
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-[var(--text-primary)]">
+            <span className="text-sm font-medium text-primary-wh40k">
               {config.game_version ?? 'Unknown'} — {config.scope}
             </span>
             {config.is_active && (
-              <span className="rounded bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-400">
+              <span className="rounded-sm bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-400">
                 ACTIVE
               </span>
             )}
           </div>
-          <div className="mt-1 text-xs text-[var(--text-secondary)]">
+          <div className="mt-1 text-xs text-secondary-wh40k">
             First pass: {config.first_pass_sequence.join(' \u2192 ')}
           </div>
-          <div className="text-xs text-[var(--text-secondary)]">
+          <div className="text-xs text-secondary-wh40k">
             Loop: {config.loop_sequence.join(' \u2192 ')} (starts at{' '}
             {config.loop_start_stage})
           </div>

@@ -72,7 +72,7 @@ export const WEBHOOK_TYPES = {
     label: 'Prime Leaderboards',
     description: 'Prime boss performance rankings',
     icon: Zap,
-    color: 'text-[var(--accent)]',
+    color: 'text-(--accent)',
     category: 'leaderboards',
     details: {
       trigger: 'Automatic scheduled update',
@@ -86,7 +86,7 @@ export const WEBHOOK_TYPES = {
     label: 'New Member Joined',
     description: 'Welcome notifications for new guild members',
     icon: UserPlus,
-    color: 'text-[var(--accent)]',
+    color: 'text-(--accent)',
     category: 'events',
     details: {
       trigger: 'When "Existing Members" signup form is submitted',
@@ -100,7 +100,7 @@ export const WEBHOOK_TYPES = {
     label: 'Season Summary',
     description: 'End-of-season totals and highlights',
     icon: FileText,
-    color: 'text-[var(--accent)]',
+    color: 'text-(--accent)',
     category: 'events',
     details: {
       trigger: 'Automatic detection when new season starts',

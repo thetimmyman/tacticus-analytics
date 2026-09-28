@@ -29,7 +29,7 @@ export function BossLevelsSection({
 }: BossLevelsSectionProps) {
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-bold text-[var(--text-primary)]">
+      <h2 className="text-xl font-bold text-primary-wh40k">
         Detailed Team Rankings by Boss
       </h2>
 

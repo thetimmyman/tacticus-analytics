@@ -57,10 +57,10 @@ function FooterRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-3 px-4 py-2 text-sm">
-      <span className="uppercase tracking-wide text-[11px] font-semibold text-[var(--text-secondary)]">
+      <span className="uppercase tracking-wide text-[11px] font-semibold text-secondary-wh40k">
         {label}
       </span>
-      <span className="font-mono text-[var(--text-primary)]">{children}</span>
+      <span className="font-mono text-primary-wh40k">{children}</span>
     </div>
   )
 }
@@ -78,7 +78,7 @@ const boardColumns: DataTableColumn<WarBoardPlayerRow, WarBoardSortKey>[] = [
     className: 'w-12',
     sortable: false,
     render: (row) => (
-      <span className="font-mono text-[var(--text-tertiary)]">{row.rank}</span>
+      <span className="font-mono text-(--text-tertiary)">{row.rank}</span>
     )
   },
   {
@@ -86,9 +86,7 @@ const boardColumns: DataTableColumn<WarBoardPlayerRow, WarBoardSortKey>[] = [
     header: 'Player',
     sortable: false,
     render: (row) => (
-      <span className="font-medium text-[var(--text-primary)]">
-        {row.playerName}
-      </span>
+      <span className="font-medium text-primary-wh40k">{row.playerName}</span>
     )
   },
   {
@@ -99,9 +97,7 @@ const boardColumns: DataTableColumn<WarBoardPlayerRow, WarBoardSortKey>[] = [
     render: (row) => (
       <>
         {row.attacks.total}
-        <span className="text-[var(--text-tertiary)]">
-          /{TOKENS_PER_PLAYER}
-        </span>
+        <span className="text-(--text-tertiary)">/{TOKENS_PER_PLAYER}</span>
       </>
     )
   },
@@ -113,7 +109,7 @@ const boardColumns: DataTableColumn<WarBoardPlayerRow, WarBoardSortKey>[] = [
       "Contribution score: zone-capture bonuses excluded so numbers reflect fight contribution. The same player's official score can be much higher.",
     sortable: false,
     render: (row) => (
-      <span className="font-mono text-[var(--text-primary)]">
+      <span className="font-mono text-primary-wh40k">
         {fmtInt(row.attacks.points)}
       </span>
     )
@@ -144,7 +140,7 @@ function WarBoardColumn({
   const totals = useMemo(() => computeTotals(players), [players])
 
   return (
-    <Card className={clsx('bg-[var(--bg-primary)]', accent.border)}>
+    <Card className={clsx('bg-(--bg-primary)', accent.border)}>
       <CardHeader className={clsx('rounded-t-xl', accent.headerBg)}>
         <div className="flex items-center justify-between gap-2">
           <span className={clsx('text-lg font-bold truncate', accent.text)}>
@@ -155,7 +151,7 @@ function WarBoardColumn({
       </CardHeader>
       <CardContent className="p-0">
         {ranked.length === 0 ? (
-          <div className="px-4 py-10 text-center text-sm text-[var(--text-tertiary)]">
+          <div className="px-4 py-10 text-center text-sm text-(--text-tertiary)">
             No player data available for this guild yet.
           </div>
         ) : (
@@ -166,7 +162,7 @@ function WarBoardColumn({
           />
         )}
 
-        <div className={clsx('divide-y divide-[var(--border)]', accent.bar)}>
+        <div className={clsx('divide-y divide-(--border)', accent.bar)}>
           <FooterRow label="Total all players">
             {totals.totalTokens} tokens · {fmtInt(totals.totalScore)}
           </FooterRow>
@@ -204,14 +200,14 @@ function bannerForOutcome(
         tone: 'text-yellow-400'
       }
     case 'draw':
-      return { text: 'War drawn', tone: 'text-[var(--text-primary)]' }
+      return { text: 'War drawn', tone: 'text-primary-wh40k' }
     case 'pending':
     default:
       if (war.status === 'in_progress') {
         if (war.guild.score === war.opponent.score) {
           return {
             text: 'War in progress — level',
-            tone: 'text-[var(--accent)]'
+            tone: 'text-(--accent)'
           }
         }
         const leader =
@@ -220,12 +216,12 @@ function bannerForOutcome(
             : war.opponent.guildName
         return {
           text: `War in progress — ${leader} leading`,
-          tone: 'text-[var(--accent)]'
+          tone: 'text-(--accent)'
         }
       }
       return {
         text: `${war.guild.guildName} vs ${war.opponent.guildName}`,
-        tone: 'text-[var(--text-primary)]'
+        tone: 'text-primary-wh40k'
       }
   }
 }
@@ -275,12 +271,12 @@ export default function BoardClient({ warId }: { warId: string }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-col items-center gap-0.5 text-center">
-        <span className="text-[11px] uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
+        <span className="text-[11px] uppercase tracking-[0.2em] text-(--text-tertiary)">
           Devastator&apos;s War Board
         </span>
         <p className={clsx('text-lg font-bold', banner.tone)}>{banner.text}</p>
         <p
-          className="text-xs text-[var(--text-tertiary)]"
+          className="text-xs text-(--text-tertiary)"
           title="Contribution scoring reflects fight contribution only: zone-capture bonuses are excluded. The same player's official score on the guild and opponent stats pages can be much higher."
         >
           Contribution scores (zone-capture bonuses excluded)

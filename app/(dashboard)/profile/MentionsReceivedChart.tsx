@@ -42,13 +42,13 @@ export function MentionsReceivedChart() {
 
   if (loading) {
     return (
-      <div className="h-48 rounded-lg bg-[var(--card-bg)] animate-pulse border border-[var(--card-border)]" />
+      <div className="h-48 rounded-lg bg-(--card-bg) animate-pulse border border-(--card-border)" />
     )
   }
 
   if (error) {
     return (
-      <p className="text-sm text-[var(--text-secondary)]">
+      <p className="text-sm text-secondary-wh40k">
         Unable to load mention data.
       </p>
     )
@@ -56,7 +56,7 @@ export function MentionsReceivedChart() {
 
   if (data.length === 0 || data.every((d) => d.count === 0)) {
     return (
-      <p className="text-sm text-[var(--text-secondary)]">
+      <p className="text-sm text-secondary-wh40k">
         No notifications received in the last 7 days.
       </p>
     )

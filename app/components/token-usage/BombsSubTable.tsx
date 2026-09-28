@@ -19,29 +19,29 @@ function BombsSubTable({ forecast }: BombsSubTableProps) {
 
   return (
     <div
-      className="rounded-md border border-[var(--card-border)] bg-[var(--bg-primary)] p-3 space-y-2"
+      className="rounded-md border border-(--card-border) bg-(--bg-primary) p-3 space-y-2"
       data-testid="bombs-sub-table"
       aria-label="Bomb pool summary"
     >
-      <div className="text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+      <div className="text-xs font-semibold uppercase tracking-wide text-secondary-wh40k">
         Bomb pool · separate from tokens
       </div>
       <dl className="grid grid-cols-3 gap-2 text-sm">
         <div>
-          <dt className="text-xs text-[var(--text-tertiary)]">Ready now</dt>
-          <dd className="font-semibold text-[var(--text-primary)]">
+          <dt className="text-xs text-(--text-tertiary)">Ready now</dt>
+          <dd className="font-semibold text-primary-wh40k">
             {formatNumber(bombs.available_now, 0)}
           </dd>
         </div>
         <div>
-          <dt className="text-xs text-[var(--text-tertiary)]">Yet to regen</dt>
-          <dd className="font-semibold text-[var(--text-primary)]">
+          <dt className="text-xs text-(--text-tertiary)">Yet to regen</dt>
+          <dd className="font-semibold text-primary-wh40k">
             {formatNumber(bombs.yet_to_regen, 0)}
           </dd>
         </div>
         <div>
-          <dt className="text-xs text-[var(--text-tertiary)]">By season end</dt>
-          <dd className="font-semibold text-[var(--accent)]">
+          <dt className="text-xs text-(--text-tertiary)">By season end</dt>
+          <dd className="font-semibold text-(--accent)">
             {formatNumber(bombs.capacity, 0)}
           </dd>
         </div>

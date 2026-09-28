@@ -146,7 +146,7 @@ export function MemberActionsDropdown({
                 onAction('adminUnlink')
               }}
               disabled={isUnclaimed}
-              className={`${size === 'sm' ? 'text-xs' : ''} ${isUnclaimed ? 'text-[var(--text-tertiary)]' : 'text-amber-400'}`}
+              className={`${size === 'sm' ? 'text-xs' : ''} ${isUnclaimed ? 'text-(--text-tertiary)' : 'text-amber-400'}`}
               title={
                 isUnclaimed
                   ? 'Already unclaimed — nothing to unlink'

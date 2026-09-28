@@ -163,7 +163,7 @@ function PlayerPerformanceClient({
                   resetBossDetailFilters()
                 }
               }}
-              className="rounded border border-[var(--card-border)] bg-[var(--card-bg)] px-4 py-2 text-sm font-medium text-[var(--text-primary)] transition hover:bg-[var(--bg-tertiary)]"
+              className="rounded-sm border border-(--card-border) bg-(--card-bg) px-4 py-2 text-sm font-medium text-primary-wh40k transition hover:bg-(--bg-tertiary)"
             >
               {allHiddenByFilter ? 'Show inactive members' : 'Reset filters'}
             </button>

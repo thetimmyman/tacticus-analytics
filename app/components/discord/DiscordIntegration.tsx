@@ -315,7 +315,7 @@ export function DiscordIntegration({
         <Card>
           <CardContent className="p-6 text-center">
             <AlertCircle className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
-            <p className="text-[var(--text-secondary)]">
+            <p className="text-secondary-wh40k">
               Discord integration is only available to guild officers and
               leaders.
             </p>
@@ -373,37 +373,37 @@ export function DiscordIntegration({
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Current Status */}
-          <div className="p-4 bg-[var(--bg-secondary)] rounded-lg">
+          <div className="p-4 bg-(--bg-secondary) rounded-lg">
             <div className="flex items-start gap-3">
               <div className="text-[#5865F2] mt-1">
                 <MessageSquare className="h-6 w-6" />
               </div>
               <div className="flex-1">
-                <h4 className="font-medium text-[var(--text-primary)] mb-1">
+                <h4 className="font-medium text-primary-wh40k mb-1">
                   Discord Bot Commands
                 </h4>
                 {activeMappings.length > 0 ? (
-                  <p className="text-[var(--text-secondary)] text-sm mb-2">
+                  <p className="text-secondary-wh40k text-sm mb-2">
                     Your guild is connected to {activeMappings.length} Discord
                     server{activeMappings.length !== 1 ? 's' : ''}. Members can
                     now use bot commands like{' '}
-                    <code className="bg-[var(--bg-primary)] px-1 rounded">
+                    <code className="bg-(--bg-primary) px-1 rounded-sm">
                       /tokens
                     </code>{' '}
                     and{' '}
-                    <code className="bg-[var(--bg-primary)] px-1 rounded">
+                    <code className="bg-(--bg-primary) px-1 rounded-sm">
                       /help
                     </code>
                     .
                   </p>
                 ) : (
-                  <p className="text-[var(--text-secondary)] text-sm mb-2">
+                  <p className="text-secondary-wh40k text-sm mb-2">
                     Connect your Discord server to enable bot commands for guild
                     members. The bot provides real-time token tracking, raid
                     status, and more.
                   </p>
                 )}
-                <div className="flex items-center gap-4 text-xs text-[var(--text-tertiary)]">
+                <div className="flex items-center gap-4 text-xs text-(--text-tertiary)">
                   <span>&bull; Real-time token &amp; bomb status</span>
                   <span>&bull; Raid progress updates</span>
                   <span>&bull; Player performance stats</span>
@@ -417,13 +417,13 @@ export function DiscordIntegration({
               {/* Setup Instructions */}
               <div className="p-4 bg-blue-500/5 border border-blue-500/10 rounded-lg space-y-4">
                 <div>
-                  <h4 className="font-medium text-[var(--text-primary)] mb-3 flex items-center gap-2">
+                  <h4 className="font-medium text-primary-wh40k mb-3 flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-blue-500" />
                     Quick Setup Guide
                   </h4>
-                  <ol className="text-sm text-[var(--text-secondary)] space-y-3 pl-4">
+                  <ol className="text-sm text-secondary-wh40k space-y-3 pl-4">
                     <li className="flex items-start gap-2">
-                      <span className="flex-shrink-0 w-5 h-5 bg-blue-100 text-blue-600 rounded-full text-xs font-semibold flex items-center justify-center mt-0.5">
+                      <span className="shrink-0 w-5 h-5 bg-blue-100 text-blue-600 rounded-full text-xs font-semibold flex items-center justify-center mt-0.5">
                         1
                       </span>
                       <span>
@@ -433,7 +433,7 @@ export function DiscordIntegration({
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="flex-shrink-0 w-5 h-5 bg-blue-100 text-blue-600 rounded-full text-xs font-semibold flex items-center justify-center mt-0.5">
+                      <span className="shrink-0 w-5 h-5 bg-blue-100 text-blue-600 rounded-full text-xs font-semibold flex items-center justify-center mt-0.5">
                         2
                       </span>
                       <span>
@@ -445,7 +445,7 @@ export function DiscordIntegration({
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="flex-shrink-0 w-5 h-5 bg-blue-100 text-blue-600 rounded-full text-xs font-semibold flex items-center justify-center mt-0.5">
+                      <span className="shrink-0 w-5 h-5 bg-blue-100 text-blue-600 rounded-full text-xs font-semibold flex items-center justify-center mt-0.5">
                         3
                       </span>
                       <span>
@@ -455,12 +455,12 @@ export function DiscordIntegration({
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="flex-shrink-0 w-5 h-5 bg-blue-100 text-blue-600 rounded-full text-xs font-semibold flex items-center justify-center mt-0.5">
+                      <span className="shrink-0 w-5 h-5 bg-blue-100 text-blue-600 rounded-full text-xs font-semibold flex items-center justify-center mt-0.5">
                         4
                       </span>
                       <span>
                         In your Discord server, type{' '}
-                        <code className="bg-[var(--bg-primary)] px-1 rounded">
+                        <code className="bg-(--bg-primary) px-1 rounded-sm">
                           /link
                         </code>{' '}
                         and paste the invite code (use{' '}
@@ -469,16 +469,16 @@ export function DiscordIntegration({
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="flex-shrink-0 w-5 h-5 bg-green-100 text-green-600 rounded-full flex items-center justify-center mt-0.5">
+                      <span className="shrink-0 w-5 h-5 bg-green-100 text-green-600 rounded-full flex items-center justify-center mt-0.5">
                         <CheckCircle2 className="w-3 h-3" />
                       </span>
                       <span>
                         Once linked, try commands like{' '}
-                        <code className="bg-[var(--bg-primary)] px-1 rounded">
+                        <code className="bg-(--bg-primary) px-1 rounded-sm">
                           /tokens
                         </code>{' '}
                         or{' '}
-                        <code className="bg-[var(--bg-primary)] px-1 rounded">
+                        <code className="bg-(--bg-primary) px-1 rounded-sm">
                           /help
                         </code>
                         . Create another invite if you need to link an
@@ -487,12 +487,12 @@ export function DiscordIntegration({
                     </li>
                   </ol>
                 </div>
-                <div className="rounded-lg bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] border border-card-border/50 p-3 text-xs text-[var(--text-secondary)]">
-                  <p className="font-semibold text-[var(--text-primary)] mb-2">
+                <div className="rounded-lg bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] border border-card-border/50 p-3 text-xs text-secondary-wh40k">
+                  <p className="font-semibold text-primary-wh40k mb-2">
                     Manual bot invite URL template
                   </p>
                   <div className="overflow-x-auto">
-                    <code className="whitespace-nowrap bg-[color-mix(in_srgb,var(--bg-primary)_80%,transparent)] px-2 py-1 rounded">
+                    <code className="whitespace-nowrap bg-[color-mix(in_srgb,var(--bg-primary)_80%,transparent)] px-2 py-1 rounded-sm">
                       {botInviteTemplate}
                     </code>
                   </div>
@@ -513,9 +513,9 @@ export function DiscordIntegration({
           )}
 
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-[var(--text-primary)]">
+            <div className="flex items-center gap-2 text-primary-wh40k">
               <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)]">
-                <MessageSquare className="w-4 h-4 text-[var(--accent)]" />
+                <MessageSquare className="w-4 h-4 text-(--accent)" />
               </span>
               <h4 className="font-medium">Slash Command Reference</h4>
             </div>
@@ -523,15 +523,15 @@ export function DiscordIntegration({
               {BOT_COMMANDS.map((entry) => (
                 <div key={entry.command} className="space-y-1">
                   <div className="flex flex-wrap items-center gap-3">
-                    <code className="bg-[color-mix(in_srgb,var(--bg-secondary)_70%,transparent)] px-2 py-1 rounded text-[var(--text-primary)] font-mono text-sm">
+                    <code className="bg-[color-mix(in_srgb,var(--bg-secondary)_70%,transparent)] px-2 py-1 rounded-sm text-primary-wh40k font-mono text-sm">
                       {entry.command}
                     </code>
-                    <span className="text-[var(--text-secondary)]">
+                    <span className="text-secondary-wh40k">
                       {entry.description}
                     </span>
                   </div>
                   {entry.hint && (
-                    <p className="text-xs text-[var(--text-tertiary)]">
+                    <p className="text-xs text-(--text-tertiary)">
                       {entry.hint}
                     </p>
                   )}
@@ -542,12 +542,12 @@ export function DiscordIntegration({
           {/* Permission Info */}
           <div className="p-3 bg-amber-500/5 border border-amber-500/10 rounded-lg">
             <div className="flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+              <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
               <div className="text-sm">
                 <div className="font-medium text-amber-700 dark:text-amber-400 mb-1">
                   Bot Access Permissions
                 </div>
-                <div className="text-[var(--text-secondary)] space-y-1">
+                <div className="text-secondary-wh40k space-y-1">
                   <div>
                     <strong>Officers:</strong> Access to {guildDisplayLabel}{' '}
                     guild data only
@@ -558,7 +558,7 @@ export function DiscordIntegration({
                       cluster data
                     </div>
                   )}
-                  <div className="text-xs text-[var(--text-tertiary)] mt-2">
+                  <div className="text-xs text-(--text-tertiary) mt-2">
                     Bot commands are secure - users can only access data
                     they&#39;re authorized for
                   </div>
@@ -574,10 +574,10 @@ export function DiscordIntegration({
         <CardContent className="pt-6 space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h3 className="text-sm font-semibold text-[var(--text-primary)] uppercase tracking-wide leading-tight">
+              <h3 className="text-sm font-semibold text-primary-wh40k uppercase tracking-wide leading-tight">
                 Discord Invite Codes
               </h3>
-              <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">
+              <p className="text-xs text-secondary-wh40k mt-1 leading-relaxed">
                 Generate a Discord invite code to link the Tacticus Analytics
                 Discord Bot to your server.
               </p>
@@ -599,13 +599,13 @@ export function DiscordIntegration({
 
           {loading ? (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] py-8">
-              <RefreshCw className="w-6 h-6 animate-spin mb-2 text-[var(--text-secondary)]" />
-              <p className="text-sm text-[var(--text-secondary)]">
+              <RefreshCw className="w-6 h-6 animate-spin mb-2 text-secondary-wh40k" />
+              <p className="text-sm text-secondary-wh40k">
                 Loading invite codes...
               </p>
             </div>
           ) : invites.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-6 text-sm text-[var(--text-secondary)]">
+            <div className="rounded-lg border border-dashed border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-6 text-sm text-secondary-wh40k">
               No active invite codes right now.
             </div>
           ) : (
@@ -617,12 +617,12 @@ export function DiscordIntegration({
                 >
                   <div className="flex-1">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <code className="text-sm font-mono bg-[color-mix(in_srgb,var(--bg-primary)_80%,transparent)] px-2 py-1 rounded">
+                      <code className="text-sm font-mono bg-[color-mix(in_srgb,var(--bg-primary)_80%,transparent)] px-2 py-1 rounded-sm">
                         {invite.invite_code}
                       </code>
                       <span
                         className={cn(
-                          'px-2 py-1 rounded text-xs font-medium',
+                          'px-2 py-1 rounded-sm text-xs font-medium',
                           invite.is_active
                             ? 'bg-green-100 text-green-800'
                             : 'bg-gray-100 text-gray-800'
@@ -631,12 +631,12 @@ export function DiscordIntegration({
                         {invite.is_active ? 'Active' : 'Inactive'}
                       </span>
                       {invite.current_uses >= invite.max_uses && (
-                        <span className="px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800">
+                        <span className="px-2 py-1 rounded-sm text-xs font-medium bg-red-100 text-red-800">
                           Used
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-[var(--text-secondary)]">
+                    <div className="text-xs text-secondary-wh40k">
                       Created:{' '}
                       {hasMounted
                         ? new Date(invite.created_at).toLocaleDateString()
@@ -717,18 +717,18 @@ export function DiscordIntegration({
               {activeMappings.map((mapping) => (
                 <div
                   key={mapping.discord_guild_id}
-                  className="flex items-center justify-between p-3 bg-[var(--bg-secondary)] rounded-lg"
+                  className="flex items-center justify-between p-3 bg-(--bg-secondary) rounded-lg"
                 >
                   <div>
                     <div className="font-medium">Discord Server</div>
-                    <div className="text-xs text-[var(--text-secondary)]">
+                    <div className="text-xs text-secondary-wh40k">
                       Connected:{' '}
                       {hasMounted
                         ? new Date(mapping.linked_at).toLocaleDateString()
                         : '—'}
                     </div>
                   </div>
-                  <span className="px-2 py-1 rounded text-xs bg-green-100 text-green-800">
+                  <span className="px-2 py-1 rounded-sm text-xs bg-green-100 text-green-800">
                     Connected
                   </span>
                 </div>

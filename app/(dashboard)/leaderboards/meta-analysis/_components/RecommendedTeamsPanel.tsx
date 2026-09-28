@@ -25,7 +25,7 @@ const recommendedTeamColumns: DataTableColumn<RecommendedTeam>[] = [
     sortable: false,
     // font-mono on the span: col.className also hits the <th>.
     render: (team) => (
-      <span className="font-mono text-[var(--accent)]">
+      <span className="font-mono text-(--accent)">
         {team.levelString} {getBossDisplayName(team.bossName)}
       </span>
     )
@@ -52,7 +52,7 @@ const recommendedTeamColumns: DataTableColumn<RecommendedTeam>[] = [
         machineOfWarDetails={team.composition.machineOfWarDetails}
         showNames={false}
         iconSize={48}
-        className="font-medium text-[var(--text-secondary)]"
+        className="font-medium text-secondary-wh40k"
       />
     )
   },
@@ -69,7 +69,7 @@ const recommendedTeamColumns: DataTableColumn<RecommendedTeam>[] = [
     align: 'center',
     sortable: false,
     render: (team) => (
-      <span className="text-[var(--accent)] font-mono">
+      <span className="text-(--accent) font-mono">
         {formatDamage(team.composition.avgDamage, 1)}
       </span>
     )
@@ -88,7 +88,7 @@ const recommendedTeamColumns: DataTableColumn<RecommendedTeam>[] = [
         >
           {team.composition.stabilityRank}
         </span>
-        <span className="ml-1 text-[var(--text-secondary)]">
+        <span className="ml-1 text-secondary-wh40k">
           ({Math.round(team.composition.stabilityScore)}%)
         </span>
       </div>
@@ -130,27 +130,27 @@ const renderRecommendedTeamSkeletonCell = (
 ) => {
   switch (columnKey) {
     case 'boss':
-      return <div className="h-4 w-24 rounded bg-card/70" />
+      return <div className="h-4 w-24 rounded-sm bg-card/70" />
     case 'category':
-      return <div className="h-6 w-20 rounded bg-card/70" />
+      return <div className="h-6 w-20 rounded-sm bg-card/70" />
     case 'composition':
       return (
         <div className="flex gap-1">
           {SKELETON_HERO_IDS.map((heroId) => (
             <div
               key={`${rowId}-${heroId}`}
-              className="h-8 w-8 rounded bg-card/70"
+              className="h-8 w-8 rounded-sm bg-card/70"
             />
           ))}
         </div>
       )
     case 'avgDamage':
     case 'stability':
-      return <div className="mx-auto h-4 w-16 rounded bg-card/70" />
+      return <div className="mx-auto h-4 w-16 rounded-sm bg-card/70" />
     case 'battles':
-      return <div className="mx-auto h-4 w-12 rounded bg-card/70" />
+      return <div className="mx-auto h-4 w-12 rounded-sm bg-card/70" />
     default:
-      return <div className="mx-auto h-4 w-8 rounded bg-card/70" />
+      return <div className="mx-auto h-4 w-8 rounded-sm bg-card/70" />
   }
 }
 
@@ -195,14 +195,14 @@ export function RecommendedTeamsPanel({
 
   return (
     <div className="card-wh40k p-3 sm:p-4">
-      <h2 className="subheading-wh40k text-[var(--accent)] mb-4">
+      <h2 className="subheading-wh40k text-(--accent) mb-4">
         Recommended Teams
       </h2>
 
       {recommendedLoading ? (
         <RecommendedTeamsSkeleton />
       ) : recommendedTeams.length === 0 && source === 'fallback-error' ? (
-        <div className="text-[var(--accent)] text-center py-8">
+        <div className="text-(--accent) text-center py-8">
           <div className="text-lg font-medium mb-2">
             We couldn&apos;t load meta analysis right now. Try again.
           </div>
@@ -210,14 +210,14 @@ export function RecommendedTeamsPanel({
             <button
               type="button"
               onClick={onRetry}
-              className="mt-2 px-4 py-2 text-sm rounded border border-[var(--accent)] text-[var(--accent)] hover:bg-[var(--accent)]/10 transition-colors"
+              className="mt-2 px-4 py-2 text-sm rounded-sm border border-accent-wh40k text-(--accent) hover:bg-(--accent)/10 transition-colors"
             >
               Retry
             </button>
           )}
         </div>
       ) : recommendedTeams.length === 0 && source === 'fallback-disabled' ? (
-        <div className="text-[var(--text-secondary)] text-center py-8">
+        <div className="text-secondary-wh40k text-center py-8">
           <div className="text-lg font-medium mb-2">
             Meta analysis is currently disabled
           </div>
@@ -226,7 +226,7 @@ export function RecommendedTeamsPanel({
           </div>
         </div>
       ) : recommendedTeams.length === 0 ? (
-        <div className="text-[var(--text-secondary)] text-center py-8">
+        <div className="text-secondary-wh40k text-center py-8">
           <div className="text-lg font-medium mb-2">
             No recommended teams found
           </div>
@@ -322,7 +322,7 @@ export function RecommendedTeamsPanel({
                     </div>
 
                     <div className="mb-4">
-                      <div className="text-xs text-[var(--text-secondary)] uppercase tracking-wider mb-2">
+                      <div className="text-xs text-secondary-wh40k uppercase tracking-wider mb-2">
                         Team Composition
                       </div>
                       <TeamCompositionDisplay
@@ -332,24 +332,24 @@ export function RecommendedTeamsPanel({
                         }
                         showNames={false}
                         iconSize={64}
-                        className="font-medium text-[var(--text-secondary)]"
+                        className="font-medium text-secondary-wh40k"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-[color-mix(in_srgb,var(--bg-primary)_20%,transparent)] rounded-lg p-3">
-                        <div className="text-xs text-[var(--text-secondary)] mb-1">
+                        <div className="text-xs text-secondary-wh40k mb-1">
                           Avg Damage
                         </div>
                         <div
-                          className={`text-lg font-bold ${isMythic ? 'text-[var(--accent)]' : 'text-[var(--accent)]'}`}
+                          className={`text-lg font-bold ${isMythic ? 'text-(--accent)' : 'text-(--accent)'}`}
                         >
                           {formatDamage(team.composition.avgDamage, 1)}
                         </div>
                       </div>
 
                       <div className="bg-[color-mix(in_srgb,var(--bg-primary)_20%,transparent)] rounded-lg p-3">
-                        <div className="text-xs text-[var(--text-secondary)] mb-1">
+                        <div className="text-xs text-secondary-wh40k mb-1">
                           Stability
                         </div>
                         <div
@@ -360,26 +360,26 @@ export function RecommendedTeamsPanel({
                           >
                             {team.composition.stabilityRank}
                           </span>
-                          <span className="ml-1 text-[var(--text-secondary)]">
+                          <span className="ml-1 text-secondary-wh40k">
                             ({Math.round(team.composition.stabilityScore)}%)
                           </span>
                         </div>
                       </div>
 
                       <div className="bg-[color-mix(in_srgb,var(--bg-primary)_20%,transparent)] rounded-lg p-3">
-                        <div className="text-xs text-[var(--text-secondary)] mb-1">
+                        <div className="text-xs text-secondary-wh40k mb-1">
                           Uses
                         </div>
-                        <div className="text-[var(--text-secondary)] font-medium">
+                        <div className="text-secondary-wh40k font-medium">
                           {team.composition.battlesCount} battles
                         </div>
                       </div>
 
                       <div className="bg-[color-mix(in_srgb,var(--bg-primary)_20%,transparent)] rounded-lg p-3">
-                        <div className="text-xs text-[var(--text-secondary)] mb-1">
+                        <div className="text-xs text-secondary-wh40k mb-1">
                           Adoption
                         </div>
-                        <div className="text-[var(--text-secondary)] font-medium">
+                        <div className="text-secondary-wh40k font-medium">
                           {team.composition.playerCount} players •{' '}
                           {team.composition.guildCount} guilds
                         </div>
@@ -399,19 +399,19 @@ export function RecommendedTeamsPanel({
 function RecommendedTeamsSkeleton() {
   return (
     <div className="relative">
-      <div className="absolute inset-0 flex items-center justify-center z-10 bg-[color-mix(in_srgb,var(--bg-primary)_30%,transparent)] backdrop-blur-sm">
+      <div className="absolute inset-0 flex items-center justify-center z-10 bg-[color-mix(in_srgb,var(--bg-primary)_30%,transparent)] backdrop-blur-xs">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
-            <div className="w-16 h-16 border-4 border-[var(--card-border)] rounded-full"></div>
+            <div className="w-16 h-16 border-4 border-(--card-border) rounded-full"></div>
             <Spinner
               size="lg"
               className="absolute left-0 top-0 h-16 w-16 text-cyan-400"
             />
           </div>
-          <div className="text-[var(--accent)] text-base font-medium animate-pulse">
+          <div className="text-(--accent) text-base font-medium animate-pulse">
             Analyzing Recommended Teams...
           </div>
-          <div className="text-[var(--text-secondary)] text-sm text-center max-w-xs">
+          <div className="text-secondary-wh40k text-sm text-center max-w-xs">
             Finding the best team compositions across all bosses
           </div>
         </div>
@@ -433,21 +433,21 @@ function RecommendedTeamsSkeleton() {
             className="animate-pulse bg-[color-mix(in_srgb,var(--bg-primary)_50%,transparent)] rounded-lg p-4"
           >
             <div className="flex justify-between mb-3">
-              <div className="h-5 bg-card/70 hover:bg-card/80 transition-colors duration-200 rounded w-24"></div>
-              <div className="h-5 bg-card/70 hover:bg-card/80 transition-colors duration-200 rounded w-16"></div>
+              <div className="h-5 bg-card/70 hover:bg-card/80 transition-colors duration-200 rounded-sm w-24"></div>
+              <div className="h-5 bg-card/70 hover:bg-card/80 transition-colors duration-200 rounded-sm w-16"></div>
             </div>
             <div className="flex gap-1 mb-3">
               {SKELETON_HERO_IDS.map((heroId) => (
                 <div
                   key={`${mobileId}-${heroId}`}
-                  className="h-12 w-12 bg-card/70 hover:bg-card/80 transition-colors duration-200 rounded"
+                  className="h-12 w-12 bg-card/70 hover:bg-card/80 transition-colors duration-200 rounded-sm"
                 ></div>
               ))}
             </div>
             <div className="grid grid-cols-3 gap-2">
-              <div className="h-4 bg-card/70 hover:bg-card/80 transition-colors duration-200 rounded"></div>
-              <div className="h-4 bg-card/70 hover:bg-card/80 transition-colors duration-200 rounded"></div>
-              <div className="h-4 bg-card/70 hover:bg-card/80 transition-colors duration-200 rounded"></div>
+              <div className="h-4 bg-card/70 hover:bg-card/80 transition-colors duration-200 rounded-sm"></div>
+              <div className="h-4 bg-card/70 hover:bg-card/80 transition-colors duration-200 rounded-sm"></div>
+              <div className="h-4 bg-card/70 hover:bg-card/80 transition-colors duration-200 rounded-sm"></div>
             </div>
           </div>
         ))}

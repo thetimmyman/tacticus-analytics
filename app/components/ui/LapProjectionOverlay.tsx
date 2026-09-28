@@ -31,9 +31,9 @@ const CONFIDENCE_TONE: Record<
   SeasonForecastLapProjection['confidence'],
   string
 > = {
-  low: 'text-[var(--warning)]',
-  medium: 'text-[var(--text-secondary)]',
-  high: 'text-[var(--success)]'
+  low: 'text-(--warning)',
+  medium: 'text-secondary-wh40k',
+  high: 'text-(--success)'
 }
 
 export function LapProjectionOverlay({
@@ -79,11 +79,11 @@ export function LapProjectionOverlay({
     label: string
     value: React.ReactNode
   }) => (
-    <div className="rounded-md border border-[var(--card-border)] bg-[var(--bg-primary)] p-4 space-y-1">
-      <div className="text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+    <div className="rounded-md border border-(--card-border) bg-(--bg-primary) p-4 space-y-1">
+      <div className="text-xs font-semibold uppercase tracking-wide text-secondary-wh40k">
         {label}
       </div>
-      <div className="text-base text-[var(--text-primary)]">{value}</div>
+      <div className="text-base text-primary-wh40k">{value}</div>
     </div>
   )
 
@@ -109,10 +109,10 @@ export function LapProjectionOverlay({
           label="Projected basis"
           value={
             <span className="inline-flex items-center gap-2">
-              <span className="rounded-full border border-[var(--card-border)] px-2 py-0.5 text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+              <span className="rounded-full border border-(--card-border) px-2 py-0.5 text-xs uppercase tracking-wide text-secondary-wh40k">
                 {basisLabel}
               </span>
-              <span className="text-xs text-[var(--text-tertiary)]">
+              <span className="text-xs text-(--text-tertiary)">
                 read-only · v1
               </span>
             </span>
@@ -125,7 +125,7 @@ export function LapProjectionOverlay({
         <Cell
           label="Projected finish"
           value={
-            <span className="text-[var(--accent)] font-semibold">
+            <span className="text-(--accent) font-semibold">
               Lap {finishLapDisplay}{' '}
               {finishStale ? '· updating' : finishPctLabel}
             </span>

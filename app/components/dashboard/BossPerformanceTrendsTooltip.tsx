@@ -36,7 +36,7 @@ export function Tooltip({
 
   const tooltipElement = isVisible ? (
     <div
-      className="fixed z-[9999] w-64 p-3 text-xs bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg shadow-2xl text-white pointer-events-none whitespace-pre-line"
+      className="fixed z-9999 w-64 p-3 text-xs bg-(--card-bg) border border-(--card-border) rounded-lg shadow-2xl text-white pointer-events-none whitespace-pre-line"
       style={{
         left: position.x,
         top: position.y
@@ -44,7 +44,7 @@ export function Tooltip({
     >
       {content}
       <div
-        className="absolute w-2 h-2 bg-[var(--card-bg)] border-l border-b border-[var(--card-border)] transform rotate-45"
+        className="absolute w-2 h-2 bg-(--card-bg) border-l border-b border-(--card-border) transform rotate-45"
         style={{
           top: '40px',
           left: '-4px'

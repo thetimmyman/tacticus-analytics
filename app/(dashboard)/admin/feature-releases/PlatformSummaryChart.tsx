@@ -124,7 +124,7 @@ export function PlatformSummaryChart() {
             Production Database Summary
           </CardTitle>
           {cachedAt && (
-            <span className="text-xs text-[var(--text-tertiary)]">
+            <span className="text-xs text-(--text-tertiary)">
               as of {formatTimestamp(cachedAt)}
             </span>
           )}
@@ -133,7 +133,7 @@ export function PlatformSummaryChart() {
       <CardContent>
         {loading ? (
           <div className="flex items-center justify-center h-[340px]">
-            <Loader2 className="h-6 w-6 animate-spin text-[var(--accent)]" />
+            <Loader2 className="h-6 w-6 animate-spin text-(--accent)" />
           </div>
         ) : error ? (
           <p className="py-8 text-center text-sm text-red-400">{error}</p>
@@ -194,7 +194,7 @@ export function PlatformSummaryChart() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <p className="mt-2 text-xs text-[var(--text-tertiary)]">
+            <p className="mt-2 text-xs text-(--text-tertiary)">
               Log scale — bar lengths span orders of magnitude. Distinct counts
               are computed over the full battle-records table; values cache for
               5 minutes.

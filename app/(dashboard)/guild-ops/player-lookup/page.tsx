@@ -12,9 +12,7 @@ const PlayerStatsPage = dynamicImport(
     })),
   {
     loading: () => (
-      <div className="p-6 text-[var(--text-secondary)]">
-        Loading player lookup...
-      </div>
+      <div className="p-6 text-secondary-wh40k">Loading player lookup...</div>
     )
   }
 )

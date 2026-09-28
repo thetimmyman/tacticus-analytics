@@ -12,14 +12,14 @@ export default async function RosterDevelopmentLayout({
     <div className="space-y-6">
       <div>
         <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+          <h1 className="text-3xl font-bold text-primary-wh40k">
             Roster Development
           </h1>
           {stage && stage !== 'public' && (
             <ReleaseStageBadge stage={stage} size="md" />
           )}
         </div>
-        <p className="text-[var(--text-secondary)] mt-2">
+        <p className="text-secondary-wh40k mt-2">
           Data-driven roster gap analysis and player development paths
         </p>
       </div>

@@ -86,7 +86,7 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-[var(--text-primary)]"
+            className="block text-sm font-medium text-primary-wh40k"
           >
             {label}
           </label>
@@ -104,12 +104,12 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
             }
             className={`
             w-full px-4 py-3
-            bg-[var(--input-bg)] rounded-lg
-            text-[var(--input-text)] placeholder:text-[var(--text-secondary)]
-            focus:outline-none focus:ring-2 focus:ring-[var(--success)] focus:border-[var(--success)]
-            disabled:bg-[var(--card-bg)] disabled:opacity-50 disabled:cursor-not-allowed
+            bg-(--input-bg) rounded-lg
+            text-(--input-text) placeholder:text-secondary-wh40k
+            focus:outline-hidden focus:ring-2 focus:ring-(--success) focus:border-(--success)
+            disabled:bg-(--card-bg) disabled:opacity-50 disabled:cursor-not-allowed
             transition-all duration-base
-            ${hasError ? 'border-2 border-[var(--danger)] bg-[color-mix(in_srgb,var(--danger)_15%,transparent)]' : 'border-2 border-[var(--input-border)]'}
+            ${hasError ? 'border-2 border-(--danger) bg-[color-mix(in_srgb,var(--danger)_15%,transparent)]' : 'border-2 border-(--input-border)'}
             ${className}
           `}
             onChange={handleChange}
@@ -123,7 +123,7 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
               onClick={() => setShowPassword(!showPassword)}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
               aria-pressed={showPassword}
-              className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex h-11 w-11 items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--accent)] rounded"
+              className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex h-11 w-11 items-center justify-center text-secondary-wh40k hover:text-primary-wh40k transition-colors focus:outline-hidden focus:ring-2 focus:ring-(--accent) rounded-sm"
             >
               {showPassword ? (
                 <EyeOff size={18} aria-hidden="true" />
@@ -142,12 +142,12 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
               type="button"
               onClick={handleCopy}
               aria-label={copied ? 'Copied to clipboard' : 'Copy to clipboard'}
-              className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex h-11 w-11 items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--accent)] rounded"
+              className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex h-11 w-11 items-center justify-center text-secondary-wh40k hover:text-primary-wh40k transition-colors focus:outline-hidden focus:ring-2 focus:ring-(--accent) rounded-sm"
             >
               {copied ? (
                 <Check
                   size={18}
-                  className="text-[var(--success)]"
+                  className="text-(--success)"
                   aria-hidden="true"
                 />
               ) : (
@@ -166,9 +166,9 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
             id={errorId}
             role="alert"
             aria-live="polite"
-            className="mt-2 p-2 bg-[color-mix(in_srgb,var(--danger)_20%,transparent)] border border-[var(--danger)] rounded"
+            className="mt-2 p-2 bg-[color-mix(in_srgb,var(--danger)_20%,transparent)] border border-(--danger) rounded-sm"
           >
-            <p className="text-sm text-[var(--danger)] font-medium">
+            <p className="text-sm text-(--danger) font-medium">
               {errorMessage}
             </p>
           </div>
@@ -176,14 +176,14 @@ export const FormField = React.forwardRef<HTMLInputElement, FormFieldProps>(
 
         {/* Success message */}
         {validationSucceeded && (
-          <p id={successId} className="text-sm text-[var(--success)]">
+          <p id={successId} className="text-sm text-(--success)">
             {validationState?.message}
           </p>
         )}
 
         {/* Hint message */}
         {hint && !hasError && (
-          <p id={hintId} className="text-sm text-[var(--text-secondary)]">
+          <p id={hintId} className="text-sm text-secondary-wh40k">
             {hint}
           </p>
         )}

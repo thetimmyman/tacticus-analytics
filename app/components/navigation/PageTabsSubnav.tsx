@@ -38,7 +38,7 @@ export function PageTabsSubnav({
   return (
     <div
       className={cn(
-        'border-b border-[var(--card-border)] overflow-x-auto scrollbar-hide',
+        'border-b border-(--card-border) overflow-x-auto scrollbar-hide',
         '-mx-4 px-4 md:mx-0 md:px-0',
         className
       )}
@@ -52,10 +52,10 @@ export function PageTabsSubnav({
           const active = tab.value === value
           const baseCls = cn(
             'min-h-[44px] px-2.5 md:px-4 py-2 text-xs md:text-sm font-medium transition-colors duration-200',
-            'border-b-2 whitespace-nowrap flex-shrink-0 inline-flex items-center gap-2',
+            'border-b-2 whitespace-nowrap shrink-0 inline-flex items-center gap-2',
             active
-              ? 'border-[var(--accent)] text-[var(--accent)]'
-              : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--text-secondary)]',
+              ? 'border-accent-wh40k text-(--accent)'
+              : 'border-transparent text-secondary-wh40k hover:text-primary-wh40k hover:border-(--text-secondary)',
             tab.disabled && 'opacity-40 pointer-events-none'
           )
 
@@ -70,10 +70,10 @@ export function PageTabsSubnav({
               {tab.badge && (
                 <span
                   className={cn(
-                    'ml-1 inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-bold leading-none uppercase tracking-wider',
+                    'ml-1 inline-flex items-center rounded-sm px-1.5 py-0.5 text-[9px] font-bold leading-none uppercase tracking-wider',
                     active
-                      ? 'bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-[var(--accent)]'
-                      : 'bg-[var(--card-bg)] text-[var(--text-secondary)]'
+                      ? 'bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-(--accent)'
+                      : 'bg-(--card-bg) text-secondary-wh40k'
                   )}
                 >
                   {tab.badge}

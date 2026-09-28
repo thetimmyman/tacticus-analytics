@@ -10,10 +10,10 @@ export default function GuildManagementLayoutClient({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">
+        <h1 className="text-3xl font-bold text-primary-wh40k mb-2">
           Guild Management
         </h1>
-        <p className="text-[var(--text-secondary)]">
+        <p className="text-secondary-wh40k">
           Manage your guild members and settings
         </p>
       </div>

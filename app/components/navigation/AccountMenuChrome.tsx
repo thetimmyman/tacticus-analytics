@@ -45,7 +45,7 @@ export function AccountMenuHeader({
         aria-hidden="true"
       />
       <span
-        className={`${isMobile ? 'text-[8px]' : 'text-[9px]'} text-[var(--text-secondary)]`}
+        className={`${isMobile ? 'text-[8px]' : 'text-[9px]'} text-secondary-wh40k`}
       >
         Profile
       </span>
@@ -53,7 +53,7 @@ export function AccountMenuHeader({
   )
 
   return (
-    <div className="border-b border-[var(--card-border)] bg-gradient-to-r from-[color-mix(in_srgb,var(--primary)_10%,transparent)] to-[color-mix(in_srgb,var(--accent)_10%,transparent)] p-3">
+    <div className="border-b border-(--card-border) bg-linear-to-r from-[color-mix(in_srgb,var(--primary)_10%,transparent)] to-[color-mix(in_srgb,var(--accent)_10%,transparent)] p-3">
       <div className="flex items-center justify-between">
         <div
           className={`flex items-center ${isMobile ? 'space-x-2' : 'space-x-3'}`}
@@ -68,18 +68,18 @@ export function AccountMenuHeader({
           </div>
           <div>
             <p
-              className={`font-semibold text-[var(--text-primary)] ${isMobile ? 'text-xs' : 'text-sm'}`}
+              className={`font-semibold text-primary-wh40k ${isMobile ? 'text-xs' : 'text-sm'}`}
             >
               <MemberName value={profile?.display_name || user.email} />
             </p>
             <p
-              className={`${isMobile ? 'text-[10px]' : 'text-xs'} text-[var(--text-secondary)]`}
+              className={`${isMobile ? 'text-[10px]' : 'text-xs'} text-secondary-wh40k`}
             >
               {guildDisplayLabel} •{' '}
               {inactiveNavigation ? (
                 'INACTIVE'
               ) : !isMobile && effectiveRole !== profile?.role ? (
-                <span className="text-[var(--accent)]">
+                <span className="text-(--accent)">
                   {effectiveRole?.toUpperCase()} (temp)
                 </span>
               ) : (

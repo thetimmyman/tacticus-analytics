@@ -155,7 +155,7 @@ export function MemberReviewRow({
     >
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          <p className="truncate text-sm font-semibold text-[var(--text-primary)]">
+          <p className="truncate text-sm font-semibold text-primary-wh40k">
             {row.displayName}
           </p>
           {badge && (
@@ -167,7 +167,7 @@ export function MemberReviewRow({
             </span>
           )}
         </div>
-        <p className="truncate text-[11px] text-[var(--text-tertiary)]">
+        <p className="truncate text-[11px] text-(--text-tertiary)">
           {metric.hint ?? '—'}
           {upside != null && (
             <>
@@ -195,10 +195,7 @@ export function MemberReviewRow({
           {metric.icon}
           {metric.text}
         </span>
-        <ChevronRight
-          className="h-4 w-4 text-[var(--text-tertiary)]"
-          aria-hidden
-        />
+        <ChevronRight className="h-4 w-4 text-(--text-tertiary)" aria-hidden />
       </div>
     </button>
   )

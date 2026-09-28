@@ -14,13 +14,13 @@ export default function DefenderPerformancePage() {
         title="Defense Heroes"
         description="Per-unit defense hero hold rates and survival stats."
       />
-      <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+      <Card className="border-(--border) bg-(--bg-primary)">
         <CardHeader className="pb-2">
           <CardTitle>Top Defense Heroes</CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
           {isLoading ? (
-            <div className="text-center py-12 text-[var(--text-secondary)]">
+            <div className="text-center py-12 text-secondary-wh40k">
               Loading hero performance...
             </div>
           ) : error ? (

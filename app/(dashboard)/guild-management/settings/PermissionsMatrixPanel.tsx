@@ -113,7 +113,7 @@ export function PermissionsMatrixPanel() {
     >
       <div className="hidden md:block overflow-hidden rounded-3xl border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] shadow-[0_20px_40px_rgba(4,8,20,0.45)]">
         <table className="w-full min-w-[640px] divide-y divide-[color-mix(in_srgb,var(--card-border)_60%,transparent)] text-sm">
-          <thead className="bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] uppercase tracking-wide text-xs text-[var(--text-tertiary)]">
+          <thead className="bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] uppercase tracking-wide text-xs text-(--text-tertiary)">
             <tr>
               <th className="px-6 py-4 text-left">Feature</th>
               <th className="px-6 py-4 text-center">Member</th>
@@ -127,7 +127,7 @@ export function PermissionsMatrixPanel() {
                 <tr className="bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)]">
                   <td
                     colSpan={4}
-                    className="px-6 py-2 text-xs font-semibold text-[var(--text-secondary)] uppercase"
+                    className="px-6 py-2 text-xs font-semibold text-secondary-wh40k uppercase"
                   >
                     {section.category}
                   </td>
@@ -137,7 +137,7 @@ export function PermissionsMatrixPanel() {
                     key={item.page}
                     className="hover:bg-[color-mix(in_srgb,var(--bg-secondary)_30%,transparent)] transition-colors"
                   >
-                    <td className="px-6 py-3 text-[var(--text-primary)]">
+                    <td className="px-6 py-3 text-primary-wh40k">
                       {item.page}
                     </td>
                     <td className="px-6 py-3 text-center">
@@ -160,7 +160,7 @@ export function PermissionsMatrixPanel() {
       <div className="md:hidden space-y-6">
         {PERMISSIONS_MATRIX.map((section) => (
           <div key={section.category} className="space-y-3">
-            <h4 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide px-2">
+            <h4 className="text-sm font-semibold text-secondary-wh40k uppercase tracking-wide px-2">
               {section.category}
             </h4>
             <div className="space-y-3">
@@ -169,7 +169,7 @@ export function PermissionsMatrixPanel() {
                   key={item.page}
                   className="rounded-2xl border border-card-border/60 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-4 shadow-[0_10px_20px_rgba(4,8,20,0.25)]"
                 >
-                  <h5 className="font-medium text-[var(--text-primary)] mb-3">
+                  <h5 className="font-medium text-primary-wh40k mb-3">
                     {item.page}
                   </h5>
                   <div className="grid grid-cols-3 gap-3">
@@ -181,7 +181,7 @@ export function PermissionsMatrixPanel() {
                       ] as const
                     ).map(([role, allowed]) => (
                       <div key={role} className="text-center">
-                        <div className="text-xs text-[var(--text-tertiary)] uppercase tracking-wide mb-2">
+                        <div className="text-xs text-(--text-tertiary) uppercase tracking-wide mb-2">
                           {role}
                         </div>
                         <PermissionStatus allowed={allowed} />
@@ -195,9 +195,9 @@ export function PermissionsMatrixPanel() {
         ))}
       </div>
 
-      <div className="rounded-2xl border border-card-border/50 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-5 text-sm text-[var(--text-secondary)]">
-        <h3 className="flex items-center gap-2 text-[var(--text-primary)] font-semibold">
-          <Info className="h-4 w-4 text-[var(--accent)]" />
+      <div className="rounded-2xl border border-card-border/50 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-5 text-sm text-secondary-wh40k">
+        <h3 className="flex items-center gap-2 text-primary-wh40k font-semibold">
+          <Info className="h-4 w-4 text-(--accent)" />
           Additional notes
         </h3>
         <ul className="mt-3 list-disc list-inside space-y-2">

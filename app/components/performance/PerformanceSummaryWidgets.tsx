@@ -88,16 +88,16 @@ export function PerformanceSummaryWidgets({
           <div>Qualified Players: {playerSummaries.length}</div>
           {performanceMode === 'token-weighted' && tokenModeActive && (
             <>
-              <div className="text-[var(--text-tertiary)]">
+              <div className="text-(--text-tertiary)">
                 Baseline: {baselineLabel}.
               </div>
               {tokenModeUsesApproximation ? (
-                <div className="text-[var(--text-tertiary)]">
+                <div className="text-(--text-tertiary)">
                   Token weighting currently uses participation share until
                   season token stats land.
                 </div>
               ) : (
-                <div className="text-[var(--text-tertiary)]">
+                <div className="text-(--text-tertiary)">
                   Token weighting reflects reported token spend with live token
                   stats.
                 </div>
@@ -105,7 +105,7 @@ export function PerformanceSummaryWidgets({
             </>
           )}
           {performanceMode === 'token-weighted' && !tokenModeActive && (
-            <div className="text-[var(--warning-text)]">
+            <div className="text-(--warning-text)">
               Token stats unavailable &mdash; showing battle-weighted results.
             </div>
           )}

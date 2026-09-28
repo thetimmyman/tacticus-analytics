@@ -410,7 +410,7 @@ export default function MemberManagement({
       />
 
       <div className="card-wh40k p-4">
-        <p className="text-sm text-[var(--text-secondary)]">
+        <p className="text-sm text-secondary-wh40k">
           {userRole === 'leader'
             ? 'Roles are synced automatically from the official API. Leaders can manage token assignments and officer notes here.'
             : 'Roles are synced automatically from the official API. Officers can manage token assignments and officer notes, but any role mismatches must be resolved via the guild API integration.'}

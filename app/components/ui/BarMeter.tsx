@@ -6,11 +6,11 @@ import clsx from 'clsx'
 export type BarMeterTone = 'accent' | 'success' | 'warning' | 'danger' | 'info'
 
 const toneFillClass: Record<BarMeterTone, string> = {
-  accent: 'bg-[var(--accent)]',
-  success: 'bg-[var(--success)]',
-  warning: 'bg-[var(--warning)]',
-  danger: 'bg-[var(--danger)]',
-  info: 'bg-[var(--info)]'
+  accent: 'bg-accent-wh40k',
+  success: 'bg-(--success)',
+  warning: 'bg-(--warning)',
+  danger: 'bg-(--danger)',
+  info: 'bg-(--info)'
 }
 
 interface BarMeterProps {
@@ -54,14 +54,11 @@ export function BarMeter({
       {(label || meta) && (
         <div className="flex items-center justify-between text-xs">
           {label && (
-            <span
-              id={labelId}
-              className="font-medium text-[var(--text-primary)]"
-            >
+            <span id={labelId} className="font-medium text-primary-wh40k">
               {label}
             </span>
           )}
-          {meta && <span className="text-[var(--text-secondary)]">{meta}</span>}
+          {meta && <span className="text-secondary-wh40k">{meta}</span>}
         </div>
       )}
       <div
@@ -76,7 +73,7 @@ export function BarMeter({
             : undefined
         }
         className={clsx(
-          'w-full overflow-hidden rounded-full border border-[var(--card-border)] bg-[var(--bg-secondary)] relative',
+          'w-full overflow-hidden rounded-full border border-(--card-border) bg-(--bg-secondary) relative',
           sizeClass[size]
         )}
       >
@@ -89,7 +86,7 @@ export function BarMeter({
           style={{ width: `${clamped}%` }}
         />
         {showPercentage && size === 'lg' && clamped > 5 && (
-          <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-[var(--text-primary)]">
+          <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-primary-wh40k">
             {rounded}%
           </span>
         )}

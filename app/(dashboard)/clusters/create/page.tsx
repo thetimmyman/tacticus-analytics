@@ -16,11 +16,11 @@ export default async function CreateClusterPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="border-b border-[var(--card-border)] pb-4">
-        <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+      <div className="border-b border-(--card-border) pb-4">
+        <h1 className="text-3xl font-bold text-primary-wh40k">
           Create New Cluster
         </h1>
-        <p className="text-[var(--text-secondary)] mt-2">
+        <p className="text-secondary-wh40k mt-2">
           Set up a new guild cluster with custom branding and configuration
         </p>
       </div>

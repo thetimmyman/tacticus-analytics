@@ -46,7 +46,7 @@ export function LinkifiedText({
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className={linkClassName || 'text-[var(--primary)] hover:underline'}
+          className={linkClassName || 'text-(--primary) hover:underline'}
         >
           {linkText || url}
         </a>

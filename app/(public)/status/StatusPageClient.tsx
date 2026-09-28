@@ -49,7 +49,7 @@ const StatusIcon = ({ status }: { status: 'pass' | 'fail' | 'unknown' }) => {
     case 'fail':
       return <XCircle className="h-5 w-5 text-red-400" />
     default:
-      return <AlertCircle className="h-5 w-5 text-[var(--text-secondary)]" />
+      return <AlertCircle className="h-5 w-5 text-secondary-wh40k" />
   }
 }
 
@@ -66,20 +66,18 @@ const ServiceCard = ({
   responseTime?: number
   details?: string
 }) => (
-  <div className="bg-card/50 border border-[var(--card-border)] rounded-lg p-4">
+  <div className="bg-card/50 border border-(--card-border) rounded-lg p-4">
     <div className="flex items-center justify-between mb-2">
       <div className="flex items-center gap-2">
-        <Icon className="h-5 w-5 text-[var(--text-secondary)]" />
-        <span className="font-medium text-[var(--text-primary)]">{name}</span>
+        <Icon className="h-5 w-5 text-secondary-wh40k" />
+        <span className="font-medium text-primary-wh40k">{name}</span>
       </div>
       <StatusIcon status={status} />
     </div>
     <div className="flex items-center justify-between text-sm">
-      <span className="text-[var(--text-secondary)]">
-        {details || 'No details'}
-      </span>
+      <span className="text-secondary-wh40k">{details || 'No details'}</span>
       {responseTime !== undefined && (
-        <span className="text-[var(--text-secondary)]">{responseTime}ms</span>
+        <span className="text-secondary-wh40k">{responseTime}ms</span>
       )}
     </div>
   </div>
@@ -189,27 +187,27 @@ export default function StatusPageClient() {
     <div className="max-w-4xl mx-auto px-4 py-8 sm:py-12">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">
+        <h1 className="text-3xl font-bold text-primary-wh40k mb-2">
           Service Status
         </h1>
-        <p className="text-[var(--text-secondary)]">
+        <p className="text-secondary-wh40k">
           Real-time status of Tacticus Analytics services
         </p>
       </div>
 
       {/* Overall Status */}
-      <div className="bg-card/50 border border-[var(--card-border)] rounded-xl p-6 mb-6">
+      <div className="bg-card/50 border border-(--card-border) rounded-xl p-6 mb-6">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div
               className={`w-4 h-4 rounded-full ${getOverallStatusColor()} animate-pulse`}
             />
             <div>
-              <h2 className="text-xl font-semibold text-[var(--text-primary)]">
+              <h2 className="text-xl font-semibold text-primary-wh40k">
                 {getOverallStatusText()}
               </h2>
               {lastUpdated && hasMounted && (
-                <p className="text-sm text-[var(--text-secondary)] flex items-center gap-1">
+                <p className="text-sm text-secondary-wh40k flex items-center gap-1">
                   <Clock className="h-3 w-3" />
                   Updated{' '}
                   {
@@ -219,7 +217,7 @@ export default function StatusPageClient() {
                 </p>
               )}
               {lastUpdated && !hasMounted && (
-                <p className="text-sm text-[var(--text-secondary)] flex items-center gap-1">
+                <p className="text-sm text-secondary-wh40k flex items-center gap-1">
                   <Clock className="h-3 w-3" />
                   Updated —
                 </p>
@@ -229,7 +227,7 @@ export default function StatusPageClient() {
           <button
             onClick={fetchHealth}
             disabled={loading}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--card-bg)] hover:bg-slate-600 text-[var(--text-primary)] text-sm font-medium transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-(--card-bg) hover:bg-slate-600 text-primary-wh40k text-sm font-medium transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
@@ -239,7 +237,7 @@ export default function StatusPageClient() {
 
       {/* Service Checks */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-primary-wh40k mb-4 flex items-center gap-2">
           <Activity className="h-5 w-5" />
           Service Health
         </h3>
@@ -284,34 +282,34 @@ export default function StatusPageClient() {
       {/* System Info */}
       {health && (
         <div className="bg-card/30 border border-card-border/50 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-[var(--text-primary)] mb-3 flex items-center gap-2">
+          <h3 className="text-sm font-medium text-primary-wh40k mb-3 flex items-center gap-2">
             <Server className="h-4 w-4" />
             System Information
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
             <div>
-              <p className="text-[var(--text-secondary)]">Uptime</p>
-              <p className="text-[var(--text-primary)] font-medium">
+              <p className="text-secondary-wh40k">Uptime</p>
+              <p className="text-primary-wh40k font-medium">
                 {health.uptime ? formatUptime(health.uptime) : 'N/A'}
               </p>
             </div>
             <div>
-              <p className="text-[var(--text-secondary)]">Memory</p>
-              <p className="text-[var(--text-primary)] font-medium">
+              <p className="text-secondary-wh40k">Memory</p>
+              <p className="text-primary-wh40k font-medium">
                 {health.memory
                   ? `${health.memory.heapUsed}/${health.memory.heapTotal} MB`
                   : 'N/A'}
               </p>
             </div>
             <div>
-              <p className="text-[var(--text-secondary)]">Response</p>
-              <p className="text-[var(--text-primary)] font-medium">
+              <p className="text-secondary-wh40k">Response</p>
+              <p className="text-primary-wh40k font-medium">
                 {health.responseTime ? `${health.responseTime}ms` : 'N/A'}
               </p>
             </div>
             <div>
-              <p className="text-[var(--text-secondary)]">Environment</p>
-              <p className="text-[var(--text-primary)] font-medium">
+              <p className="text-secondary-wh40k">Environment</p>
+              <p className="text-primary-wh40k font-medium">
                 {health.environment || 'N/A'}
               </p>
             </div>

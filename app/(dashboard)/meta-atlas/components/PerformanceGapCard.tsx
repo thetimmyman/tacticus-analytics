@@ -112,7 +112,7 @@ export function PerformanceGapCard({
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           {rank && (
-            <div className="w-6 h-6 rounded-full bg-[var(--card-bg)] flex items-center justify-center text-xs font-bold text-white">
+            <div className="w-6 h-6 rounded-full bg-(--card-bg) flex items-center justify-center text-xs font-bold text-white">
               {rank}
             </div>
           )}
@@ -120,9 +120,7 @@ export function PerformanceGapCard({
             <div className="font-semibold text-white">
               {getBossDisplayName(gap.boss_type)}
             </div>
-            <div className="text-xs text-[var(--text-secondary)]">
-              {gap.rarity}
-            </div>
+            <div className="text-xs text-secondary-wh40k">{gap.rarity}</div>
           </div>
         </div>
         <div className={clsx('text-sm font-semibold', severity.color)}>
@@ -132,7 +130,7 @@ export function PerformanceGapCard({
 
       {showTeamDetails && (
         <div
-          className="text-xs text-[var(--text-secondary)] mb-3 truncate"
+          className="text-xs text-secondary-wh40k mb-3 truncate"
           title={gap.team_composition}
         >
           {gap.team_composition}
@@ -141,7 +139,7 @@ export function PerformanceGapCard({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-[var(--text-secondary)] flex items-center gap-1">
+          <span className="text-secondary-wh40k flex items-center gap-1">
             <Target className="w-3 h-3" />
             Your Average
           </span>
@@ -150,7 +148,7 @@ export function PerformanceGapCard({
           </span>
         </div>
         <div className="flex items-center justify-between text-sm">
-          <span className="text-[var(--text-secondary)] flex items-center gap-1">
+          <span className="text-secondary-wh40k flex items-center gap-1">
             <TrendingUp className="w-3 h-3" />
             Meta Average
           </span>
@@ -159,7 +157,7 @@ export function PerformanceGapCard({
           </span>
         </div>
         <div className="flex items-center justify-between text-sm">
-          <span className="text-[var(--text-secondary)] flex items-center gap-1">
+          <span className="text-secondary-wh40k flex items-center gap-1">
             <Zap className="w-3 h-3" />
             Meta P90
           </span>
@@ -175,21 +173,17 @@ export function PerformanceGapCard({
             className={clsx('w-4 h-4 mt-0.5 shrink-0', severity.color)}
           />
           <div className="text-xs">
-            <span className="text-[var(--text-secondary)]">
+            <span className="text-secondary-wh40k">
               Improvement potential:{' '}
             </span>
             <span className={severity.color}>
               +{formatNumber(gap.improvement_potential)}
             </span>
-            <span className="text-[var(--text-secondary)] ml-1">
-              to reach average
-            </span>
+            <span className="text-secondary-wh40k ml-1">to reach average</span>
             {damageToP90 > 0 && (
               <>
                 <br />
-                <span className="text-[var(--text-secondary)]">
-                  To reach P90:{' '}
-                </span>
+                <span className="text-secondary-wh40k">To reach P90: </span>
                 <span className="text-purple-400">
                   +{formatNumber(damageToP90)}
                 </span>
@@ -199,7 +193,7 @@ export function PerformanceGapCard({
         </div>
       </div>
 
-      <div className="mt-2 text-xs text-[var(--text-secondary)] text-right">
+      <div className="mt-2 text-xs text-secondary-wh40k text-right">
         Based on {gap.attack_count} attack{gap.attack_count !== 1 ? 's' : ''}
       </div>
     </div>
@@ -246,7 +240,7 @@ const tierConfig: Record<
   },
   average: {
     label: 'Average',
-    color: 'text-[var(--text-primary)]',
+    color: 'text-primary-wh40k',
     bg: 'bg-gray-500/20 border-gray-500/40',
     icon: Target
   },
@@ -342,7 +336,7 @@ function TierDistributionBar({
           return (
             <div key={seg.key} className="flex items-center gap-1">
               <div className={clsx('w-2 h-2 rounded-full', seg.color)} />
-              <span className="text-[var(--text-secondary)]">{label}:</span>
+              <span className="text-secondary-wh40k">{label}:</span>
               <span className="text-white">{seg.count}</span>
             </div>
           )
@@ -364,16 +358,14 @@ function TopPerformerCard({
     <div className={clsx('rounded-lg border p-3', config.bg)}>
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-full bg-[var(--card-bg)] flex items-center justify-center text-xs font-bold text-white">
+          <div className="w-5 h-5 rounded-full bg-(--card-bg) flex items-center justify-center text-xs font-bold text-white">
             {rank}
           </div>
           <div>
             <div className="font-medium text-white text-sm">
               {getBossDisplayName(team.boss_type)}
             </div>
-            <div className="text-xs text-[var(--text-secondary)]">
-              {team.rarity}
-            </div>
+            <div className="text-xs text-secondary-wh40k">{team.rarity}</div>
           </div>
         </div>
         <div className={clsx('text-sm font-semibold', config.color)}>
@@ -381,13 +373,13 @@ function TopPerformerCard({
         </div>
       </div>
       <div
-        className="text-xs text-[var(--text-secondary)] truncate"
+        className="text-xs text-secondary-wh40k truncate"
         title={team.team_composition}
       >
         {team.team_composition}
       </div>
       <div className="mt-2 flex items-center justify-between text-xs">
-        <span className="text-[var(--text-secondary)]">
+        <span className="text-secondary-wh40k">
           Your avg: {formatNumber(team.player_avg_damage)}
         </span>
         <span
@@ -411,12 +403,10 @@ function WatchListCard({ team }: { team: TeamPerformance }) {
         <span className="font-medium text-white text-sm">
           {getBossDisplayName(team.boss_type)}
         </span>
-        <span className="text-xs text-[var(--text-secondary)]">
-          ({team.rarity})
-        </span>
+        <span className="text-xs text-secondary-wh40k">({team.rarity})</span>
       </div>
       <div
-        className="text-xs text-[var(--text-secondary)] truncate mb-2"
+        className="text-xs text-secondary-wh40k truncate mb-2"
         title={team.team_composition}
       >
         {team.team_composition}
@@ -472,14 +462,14 @@ export function PerformanceGapSummary({
                 ? `${significantGaps} significant gap${significantGaps !== 1 ? 's' : ''} found`
                 : 'Performing well!'}
             </div>
-            <div className="text-sm text-[var(--text-secondary)]">
+            <div className="text-sm text-secondary-wh40k">
               {hasSignificantGaps
                 ? `Total improvement potential: +${formatNumber(totalImprovementPotential)} damage`
                 : `${playerName} is performing within expected ranges`}
             </div>
             {(teamsAnalyzed !== undefined ||
               teamsNoMetaMatch !== undefined) && (
-              <div className="text-xs text-[var(--text-secondary)] mt-2">
+              <div className="text-xs text-secondary-wh40k mt-2">
                 {teamsAnalyzed !== undefined && (
                   <span>Teams found: {teamsAnalyzed}</span>
                 )}
@@ -531,7 +521,7 @@ export function PerformanceGapSummary({
                 </span>
                 <TierBadge tier={tier} percentile={overallPercentile} />
               </div>
-              <div className="text-sm text-[var(--text-secondary)]">
+              <div className="text-sm text-secondary-wh40k">
                 {teamsWithMetaData} team{teamsWithMetaData !== 1 ? 's' : ''}{' '}
                 analyzed against meta data
                 {hasSignificantGaps && (
@@ -545,9 +535,9 @@ export function PerformanceGapSummary({
           </div>
           <button className="p-2 hover:bg-white/5 rounded-lg transition-colors">
             {showDetails ? (
-              <ChevronUp className="w-5 h-5 text-[var(--text-secondary)]" />
+              <ChevronUp className="w-5 h-5 text-secondary-wh40k" />
             ) : (
-              <ChevronDown className="w-5 h-5 text-[var(--text-secondary)]" />
+              <ChevronDown className="w-5 h-5 text-secondary-wh40k" />
             )}
           </button>
         </div>
@@ -590,7 +580,7 @@ export function PerformanceGapSummary({
               <h4 className="text-sm font-medium text-white mb-2 flex items-center gap-2">
                 <Eye className="w-4 h-4 text-orange-400" />
                 Watch List
-                <span className="text-xs text-[var(--text-secondary)] font-normal">
+                <span className="text-xs text-secondary-wh40k font-normal">
                   Teams approaching gap threshold
                 </span>
               </h4>
@@ -612,7 +602,7 @@ export function PerformanceGapSummary({
                 <span className="text-white">
                   +{formatNumber(totalImprovementPotential)} potential damage
                 </span>
-                <span className="text-[var(--text-secondary)]">
+                <span className="text-secondary-wh40k">
                   {' '}
                   from addressing {significantGaps} gap
                   {significantGaps !== 1 ? 's' : ''}

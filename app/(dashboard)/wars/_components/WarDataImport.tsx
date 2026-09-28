@@ -446,7 +446,7 @@ export default function WarDataImport({
                   Only guild <strong>leaders</strong> and{' '}
                   <strong>officers</strong> can import war data. Your current
                   role is{' '}
-                  <code className="bg-blue-500/20 px-1 rounded">
+                  <code className="bg-blue-500/20 px-1 rounded-sm">
                     {userRole}
                   </code>
                   .
@@ -490,16 +490,16 @@ export default function WarDataImport({
             <div className="text-sm text-blue-400/90">
               <p>
                 Paste the raw in-game war JSON (the LOKI{' '}
-                <code className="bg-blue-500/20 px-1 rounded">
+                <code className="bg-blue-500/20 px-1 rounded-sm">
                   GET_GUILD_WAR_ACTIVITY_LOGS
                 </code>{' '}
                 and/or{' '}
-                <code className="bg-blue-500/20 px-1 rounded">
+                <code className="bg-blue-500/20 px-1 rounded-sm">
                   GET_GUILD_WAR_STATUS
                 </code>{' '}
                 response), or the app&apos;s own export, or upload a{' '}
-                <code className="bg-blue-500/20 px-1 rounded">.json</code> file.
-                Full battle data needs the activity-logs response;
+                <code className="bg-blue-500/20 px-1 rounded-sm">.json</code>{' '}
+                file. Full battle data needs the activity-logs response;
                 opt-ins/attempts need the status response. Existing records with
                 the same war ID are updated.
               </p>
@@ -535,7 +535,7 @@ export default function WarDataImport({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           className={`relative rounded-lg transition-colors ${
-            isDragOver ? 'ring-2 ring-[var(--accent)]' : ''
+            isDragOver ? 'ring-2 ring-(--accent)' : ''
           }`}
         >
           <textarea
@@ -557,14 +557,14 @@ export default function WarDataImport({
   ]
 }`}
             className={`w-full px-3 py-2 bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] border rounded-lg
-              text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]
-              focus:outline-none focus:ring-2 focus:ring-[color-mix(in_srgb,var(--accent)_50%,transparent)] focus:border-[var(--accent)]
+              text-primary-wh40k placeholder:text-(--text-tertiary)
+              focus:outline-hidden focus:ring-2 focus:ring-[color-mix(in_srgb,var(--accent)_50%,transparent)] focus:border-accent-wh40k
               transition-colors resize-y font-mono text-sm
-              ${parseError ? 'border-red-400 focus:border-red-400 focus:ring-red-400/50' : 'border-[var(--card-border)]'}`}
+              ${parseError ? 'border-red-400 focus:border-red-400 focus:ring-red-400/50' : 'border-(--card-border)'}`}
           />
           {isDragOver && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[color-mix(in_srgb,var(--bg-primary)_80%,transparent)] rounded-lg border-2 border-dashed border-[var(--accent)]">
-              <div className="flex items-center gap-2 text-[var(--accent)]">
+            <div className="absolute inset-0 flex items-center justify-center bg-[color-mix(in_srgb,var(--bg-primary)_80%,transparent)] rounded-lg border-2 border-dashed border-accent-wh40k">
+              <div className="flex items-center gap-2 text-(--accent)">
                 <FileJson className="h-6 w-6" />
                 <span className="font-medium">Drop .json file here</span>
               </div>
@@ -603,42 +603,42 @@ export default function WarDataImport({
 
         {/* Preview summary */}
         {preview && (
-          <div className="p-4 rounded-lg bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] border border-[var(--card-border)]">
-            <p className="text-sm font-medium text-[var(--text-primary)] mb-3">
+          <div className="p-4 rounded-lg bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] border border-(--card-border)">
+            <p className="text-sm font-medium text-primary-wh40k mb-3">
               Import Preview
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="flex items-center gap-2">
-                <Swords className="h-4 w-4 text-[var(--text-secondary)]" />
-                <span className="text-sm text-[var(--text-secondary)]">
-                  <span className="font-medium text-[var(--text-primary)]">
+                <Swords className="h-4 w-4 text-secondary-wh40k" />
+                <span className="text-sm text-secondary-wh40k">
+                  <span className="font-medium text-primary-wh40k">
                     {preview.wars}
                   </span>{' '}
                   war{preview.wars !== 1 ? 's' : ''}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Map className="h-4 w-4 text-[var(--text-secondary)]" />
-                <span className="text-sm text-[var(--text-secondary)]">
-                  <span className="font-medium text-[var(--text-primary)]">
+                <Map className="h-4 w-4 text-secondary-wh40k" />
+                <span className="text-sm text-secondary-wh40k">
+                  <span className="font-medium text-primary-wh40k">
                     {preview.zones}
                   </span>{' '}
                   zone{preview.zones !== 1 ? 's' : ''}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Target className="h-4 w-4 text-[var(--text-secondary)]" />
-                <span className="text-sm text-[var(--text-secondary)]">
-                  <span className="font-medium text-[var(--text-primary)]">
+                <Target className="h-4 w-4 text-secondary-wh40k" />
+                <span className="text-sm text-secondary-wh40k">
+                  <span className="font-medium text-primary-wh40k">
                     {preview.attempts}
                   </span>{' '}
                   attempt{preview.attempts !== 1 ? 's' : ''}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-[var(--text-secondary)]" />
-                <span className="text-sm text-[var(--text-secondary)]">
-                  <span className="font-medium text-[var(--text-primary)]">
+                <Users className="h-4 w-4 text-secondary-wh40k" />
+                <span className="text-sm text-secondary-wh40k">
+                  <span className="font-medium text-primary-wh40k">
                     {preview.participation}
                   </span>{' '}
                   player{preview.participation !== 1 ? 's' : ''}
@@ -650,20 +650,20 @@ export default function WarDataImport({
 
         {/* Raw in-game JSON preview */}
         {rawPreview && (
-          <div className="p-4 rounded-lg bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] border border-[var(--card-border)]">
-            <p className="text-sm font-medium text-[var(--text-primary)] mb-2">
+          <div className="p-4 rounded-lg bg-[color-mix(in_srgb,var(--bg-secondary)_50%,transparent)] border border-(--card-border)">
+            <p className="text-sm font-medium text-primary-wh40k mb-2">
               Raw in-game war data detected
             </p>
-            <div className="space-y-1 text-sm text-[var(--text-secondary)]">
+            <div className="space-y-1 text-sm text-secondary-wh40k">
               <div className="flex items-center gap-2">
                 <Swords className="h-4 w-4" />
                 <span>
-                  <span className="font-medium text-[var(--text-primary)]">
+                  <span className="font-medium text-primary-wh40k">
                     {rawPreview.warResponses}
                   </span>{' '}
                   battle/zone response{rawPreview.warResponses !== 1 ? 's' : ''}
                   {rawPreview.warResponses === 0 && (
-                    <span className="text-[var(--text-tertiary)]">
+                    <span className="text-(--text-tertiary)">
                       {' '}
                       — paste GET_GUILD_WAR_ACTIVITY_LOGS for battles
                     </span>
@@ -673,13 +673,13 @@ export default function WarDataImport({
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 <span>
-                  <span className="font-medium text-[var(--text-primary)]">
+                  <span className="font-medium text-primary-wh40k">
                     {rawPreview.statusResponses}
                   </span>{' '}
                   roster/status response
                   {rawPreview.statusResponses !== 1 ? 's' : ''}
                   {rawPreview.statusResponses === 0 && (
-                    <span className="text-[var(--text-tertiary)]">
+                    <span className="text-(--text-tertiary)">
                       {' '}
                       — paste GET_GUILD_WAR_STATUS for opt-ins/attempts
                     </span>
@@ -689,12 +689,12 @@ export default function WarDataImport({
             </div>
             {/* Overrides for backfills the calendar cannot label. */}
             <div className="mt-3 flex flex-wrap items-end gap-4">
-              <label className="text-xs text-[var(--text-secondary)]">
+              <label className="text-xs text-secondary-wh40k">
                 <span className="block mb-1">Season</span>
                 <select
                   value={seasonOverride}
                   onChange={(e) => setSeasonOverride(e.target.value)}
-                  className="rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 py-1 text-sm text-[var(--text-primary)]"
+                  className="rounded-md border border-(--card-border) bg-(--bg-secondary) px-2 py-1 text-sm text-primary-wh40k"
                 >
                   <option value="auto">Auto-detect</option>
                   {SEASON_OPTIONS.map((s) => (
@@ -704,12 +704,12 @@ export default function WarDataImport({
                   ))}
                 </select>
               </label>
-              <label className="text-xs text-[var(--text-secondary)]">
+              <label className="text-xs text-secondary-wh40k">
                 <span className="block mb-1">War (battle)</span>
                 <select
                   value={warNumberOverride}
                   onChange={(e) => setWarNumberOverride(e.target.value)}
-                  className="rounded-md border border-[var(--card-border)] bg-[var(--bg-secondary)] px-2 py-1 text-sm text-[var(--text-primary)]"
+                  className="rounded-md border border-(--card-border) bg-(--bg-secondary) px-2 py-1 text-sm text-primary-wh40k"
                 >
                   <option value="auto">Auto-detect</option>
                   {[1, 2, 3, 4, 5, 6].map((n) => (
@@ -719,13 +719,13 @@ export default function WarDataImport({
                   ))}
                 </select>
               </label>
-              <p className="text-xs text-[var(--text-tertiary)] max-w-xs">
+              <p className="text-xs text-(--text-tertiary) max-w-xs">
                 Auto-detect reads the season and war number from the war&apos;s
                 start date. Override only if the data predates season{' '}
                 {MIN_LABELED_SEASON}.
               </p>
             </div>
-            <p className="mt-2 text-xs text-[var(--text-tertiary)]">
+            <p className="mt-2 text-xs text-(--text-tertiary)">
               Parsed and ingested on import, identical to an automatic sync.
             </p>
           </div>

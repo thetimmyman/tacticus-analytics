@@ -26,32 +26,32 @@ function TokenAlertNudgeCard() {
   return (
     <section
       aria-labelledby="token-alert-nudge-title"
-      className="rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4 sm:p-5"
+      className="rounded-xl border border-(--card-border) bg-(--card-bg) p-4 sm:p-5"
     >
       <div className="flex items-start gap-3 sm:gap-4">
         <span
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-[var(--accent)]"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-(--accent)"
           style={{ backgroundColor: accentMix(14) }}
         >
           <BellRing className="h-5 w-5" aria-hidden />
         </span>
 
         <div className="min-w-0 flex-1">
-          <p className="text-2xs font-bold uppercase tracking-wider text-[var(--accent)]">
+          <p className="text-2xs font-bold uppercase tracking-wider text-(--accent)">
             New feature
           </p>
           <h2
             id="token-alert-nudge-title"
-            className="mt-0.5 text-base font-semibold text-[var(--text-primary)]"
+            className="mt-0.5 text-base font-semibold text-primary-wh40k"
           >
             {TOKEN_ALERT_NUDGE_TITLE}
           </h2>
-          <p className="mt-1 text-sm text-[var(--text-secondary)]">
+          <p className="mt-1 text-sm text-secondary-wh40k">
             Get a Discord DM when your raid tokens are full, a set number of
             minutes before they cap, or every time you gain one.
           </p>
           {!linked && (
-            <p className="mt-1 text-xs text-[var(--text-tertiary)]">
+            <p className="mt-1 text-xs text-(--text-tertiary)">
               Token alerts need a linked Discord account.
             </p>
           )}
@@ -60,7 +60,7 @@ function TokenAlertNudgeCard() {
           <div className="mt-3 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4">
             <Link
               href={tokenAlertNudgeHref(linked)}
-              className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm font-semibold text-[var(--accent)] transition-colors duration-fast"
+              className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm font-semibold text-(--accent) transition-colors duration-fast"
               style={{
                 borderColor: accentMix(35),
                 backgroundColor: accentMix(10)
@@ -73,7 +73,7 @@ function TokenAlertNudgeCard() {
             <button
               type="button"
               onClick={dismiss}
-              className="text-xs text-[var(--text-secondary)] underline hover:text-[var(--text-primary)]"
+              className="text-xs text-secondary-wh40k underline hover:text-primary-wh40k"
             >
               Dismiss
             </button>

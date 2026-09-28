@@ -15,17 +15,15 @@ export function OpsCard({
   status?: ReactNode
 }) {
   return (
-    <div className="rounded-lg border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--bg-secondary)_75%,transparent)] p-4">
+    <div className="rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_75%,transparent)] p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
-            <Settings2 className="h-4 w-4 text-[var(--accent)]" />
+          <div className="flex items-center gap-2 text-sm font-semibold text-primary-wh40k">
+            <Settings2 className="h-4 w-4 text-(--accent)" />
             {title}
           </div>
           {description && (
-            <p className="mt-1 text-xs text-[var(--text-tertiary)]">
-              {description}
-            </p>
+            <p className="mt-1 text-xs text-(--text-tertiary)">{description}</p>
           )}
         </div>
         {status}

@@ -220,7 +220,7 @@ export function BossDetailSection({
 
   if (bossEntries.length === 0 && primeEntries.length === 0) {
     return (
-      <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg p-4 text-sm text-[var(--text-secondary)]">
+      <div className="bg-(--card-bg) border border-(--card-border) rounded-lg p-4 text-sm text-secondary-wh40k">
         No boss performance data recorded for this player in the selected
         season.
       </div>
@@ -292,11 +292,11 @@ export function BossDetailSection({
       )}
 
       {radarData.length > 0 && (
-        <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg chart-card p-4">
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+        <div className="bg-(--card-bg) border border-(--card-border) rounded-lg chart-card p-4">
+          <h3 className="text-lg font-semibold text-primary-wh40k mb-2">
             Boss & Prime Performance Radar
           </h3>
-          <p className="text-xs text-[var(--text-secondary)] mb-4">
+          <p className="text-xs text-secondary-wh40k mb-4">
             Comparing {playerName || 'player'} against guild
             {hasValidCluster ? ' and cluster' : ''} averages across all assigned
             targets.

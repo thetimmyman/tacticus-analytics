@@ -74,7 +74,7 @@ export const META_TEAM_BADGES: Record<
   },
   Locked: {
     label: 'Locked',
-    className: 'border-slate-500/40 bg-slate-500/10 text-[var(--text-primary)]'
+    className: 'border-slate-500/40 bg-slate-500/10 text-primary-wh40k'
   },
   Owned: {
     label: 'Owned',
@@ -86,8 +86,7 @@ export const META_TEAM_BADGES: Record<
   },
   Unknown: {
     label: 'Unknown',
-    className:
-      'border-[var(--card-border)] bg-card/50 text-[var(--text-secondary)]'
+    className: 'border-(--card-border) bg-card/50 text-secondary-wh40k'
   }
 }
 
@@ -114,8 +113,7 @@ export const META_TEAM_AVAILABILITY_BADGES: Record<
   },
   unknown: {
     label: 'Unknown',
-    className:
-      'border-[var(--card-border)] bg-card/50 text-[var(--text-secondary)]'
+    className: 'border-(--card-border) bg-card/50 text-secondary-wh40k'
   }
 }
 
@@ -156,8 +154,8 @@ export const META_TEAM_LABEL_STYLES: Record<
     selected: 'bg-amber-500/40 text-amber-200 border-amber-400'
   },
   'Double Howl': {
-    base: 'bg-slate-500/20 text-[var(--text-primary)] border-slate-500/30',
-    selected: 'bg-slate-500/40 text-[var(--text-primary)] border-slate-300'
+    base: 'bg-slate-500/20 text-primary-wh40k border-slate-500/30',
+    selected: 'bg-slate-500/40 text-primary-wh40k border-slate-300'
   }
 }
 
@@ -166,8 +164,8 @@ export const resolveMetaTeamLabelClass = (
   isSelected: boolean
 ) => {
   const fallback = isSelected
-    ? 'bg-gray-400/40 text-[var(--text-primary)] border-gray-300'
-    : 'bg-gray-400/20 text-[var(--text-primary)] border-gray-500/30'
+    ? 'bg-gray-400/40 text-primary-wh40k border-gray-300'
+    : 'bg-gray-400/20 text-primary-wh40k border-gray-500/30'
   if (!team) return fallback
   const palette = META_TEAM_LABEL_STYLES[team]
   if (!palette) return fallback
@@ -286,18 +284,18 @@ export const parseTeamUnits = (
 
 export const resolveRankBadgeClass = (rank: number | null) => {
   if (!rank || rank <= 0) {
-    return 'border-[var(--card-border)] bg-card/60 text-[var(--text-primary)]'
+    return 'border-(--card-border) bg-card/60 text-primary-wh40k'
   }
   if (rank === 1) {
     return 'border-amber-400/60 bg-amber-500/15 text-amber-200'
   }
   if (rank === 2) {
-    return 'border-slate-300/60 bg-slate-400/15 text-[var(--text-primary)]'
+    return 'border-slate-300/60 bg-slate-400/15 text-primary-wh40k'
   }
   if (rank === 3) {
     return 'border-orange-400/60 bg-orange-500/15 text-orange-200'
   }
-  return 'border-[var(--card-border)] bg-card/60 text-[var(--text-primary)]'
+  return 'border-(--card-border) bg-card/60 text-primary-wh40k'
 }
 
 export const resolveRosterStars = (entry: RosterInputEntry | null) => {

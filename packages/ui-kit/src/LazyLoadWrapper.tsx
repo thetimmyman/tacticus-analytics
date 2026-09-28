@@ -47,12 +47,12 @@ export function preloadComponent<TProps>(
 
 export const ChartSkeleton = () => (
   <div className="animate-pulse">
-    <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded" />
+    <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-sm" />
   </div>
 )
 
 export const CardSkeleton = () => (
   <div className="animate-pulse">
-    <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
+    <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded-sm" />
   </div>
 )

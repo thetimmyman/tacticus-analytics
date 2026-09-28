@@ -36,26 +36,21 @@ export function TeamCard({
       return 'from-yellow-500/30 to-yellow-600/10 border-yellow-500/50'
     if (r === 2) return 'from-gray-400/20 to-gray-500/10 border-gray-400/40'
     if (r === 3) return 'from-amber-600/20 to-amber-700/10 border-amber-600/40'
-    return 'from-[var(--card-bg)] to-[var(--card-bg)] border-[var(--card-border)]'
+    return 'from-(--card-bg) to-(--card-bg) border-(--card-border)'
   }
 
   const getRankIcon = (r: number) => {
     if (r === 1) return <Crown className="w-5 h-5 text-yellow-400" />
-    if (r === 2)
-      return <Trophy className="w-4 h-4 text-[var(--text-secondary)]" />
+    if (r === 2) return <Trophy className="w-4 h-4 text-secondary-wh40k" />
     if (r === 3) return <Trophy className="w-4 h-4 text-amber-600" />
-    return (
-      <span className="text-sm text-[var(--text-secondary)] font-mono">
-        #{r}
-      </span>
-    )
+    return <span className="text-sm text-secondary-wh40k font-mono">#{r}</span>
   }
 
   return (
     <div
       className={`
       relative overflow-hidden rounded-lg border px-3 py-2
-      bg-gradient-to-br ${getRankStyle(rank)}
+      bg-linear-to-br ${getRankStyle(rank)}
       hover:shadow-lg transition-all duration-300
     `}
     >
@@ -78,7 +73,7 @@ export function TeamCard({
                   />
                 ) : (
                   <div
-                    className="w-7 h-7 rounded-md bg-gray-700 flex items-center justify-center text-[9px] font-bold text-[var(--text-secondary)]"
+                    className="w-7 h-7 rounded-md bg-gray-700 flex items-center justify-center text-[9px] font-bold text-secondary-wh40k"
                     title={hero}
                   >
                     {hero.slice(0, 2)}
@@ -89,7 +84,7 @@ export function TeamCard({
           })}
           {mow && (
             <>
-              <span className="text-[var(--text-secondary)] text-xs">+</span>
+              <span className="text-secondary-wh40k text-xs">+</span>
               {(() => {
                 const mapping = resolveHeroMapping(mow, heroMappings)
                 const displayName = mapping?.display_name || mow
@@ -103,7 +98,7 @@ export function TeamCard({
                   />
                 ) : (
                   <div
-                    className="w-7 h-7 rounded-md bg-gray-700 flex items-center justify-center text-[9px] font-bold text-[var(--text-secondary)]"
+                    className="w-7 h-7 rounded-md bg-gray-700 flex items-center justify-center text-[9px] font-bold text-secondary-wh40k"
                     title={mow}
                   >
                     {mow.slice(0, 2)}
@@ -123,25 +118,25 @@ export function TeamCard({
 
       <div className="flex items-baseline gap-3 text-xs">
         <div>
-          <span className="text-[var(--text-secondary)]">P90 </span>
+          <span className="text-secondary-wh40k">P90 </span>
           <span className="font-bold text-white">
             {formatNumber(Math.round(rec.damage_p90))}
           </span>
         </div>
         <div>
-          <span className="text-[var(--text-secondary)]">Avg </span>
-          <span className="text-[var(--text-primary)]">
+          <span className="text-secondary-wh40k">Avg </span>
+          <span className="text-primary-wh40k">
             {formatNumber(Math.round(rec.damage_avg))}
           </span>
         </div>
         <div>
-          <span className="text-[var(--text-secondary)]">P75 </span>
+          <span className="text-secondary-wh40k">P75 </span>
           <span className="text-blue-400">
             {formatNumber(Math.round(rec.damage_p75))}
           </span>
         </div>
         <div>
-          <span className="text-[var(--text-secondary)]">Max </span>
+          <span className="text-secondary-wh40k">Max </span>
           <span className="text-yellow-400">
             {formatNumber(rec.damage_max)}
           </span>

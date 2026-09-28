@@ -30,10 +30,7 @@ function SummarySkeleton() {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {SUMMARY_SKELETON_KEYS.map((key) => (
-        <Card
-          key={key}
-          className="border-[var(--border)] bg-[var(--bg-primary)]"
-        >
+        <Card key={key} className="border-(--border) bg-(--bg-primary)">
           <CardContent className="p-5 space-y-1">
             <Skeleton className="h-3 w-20" />
             <Skeleton className="h-8 w-16" />
@@ -61,10 +58,7 @@ function HistogramSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
       {HISTOGRAM_SKELETON_KEYS.map((cardKey) => (
-        <Card
-          key={cardKey}
-          className="border-[var(--border)] bg-[var(--bg-primary)]"
-        >
+        <Card key={cardKey} className="border-(--border) bg-(--bg-primary)">
           <CardHeader className="pb-2">
             <Skeleton className="h-6 w-32" />
           </CardHeader>
@@ -89,16 +83,14 @@ const renderHistogram = (
     <div className="space-y-2">
       {entries.map(([label, count]) => (
         <div key={label} className="flex items-center gap-3 text-sm">
-          <div className={`${labelWidth} text-[var(--text-secondary)]`}>
-            {label}
-          </div>
-          <div className="flex-1 h-2 rounded-full bg-[var(--bg-secondary)] overflow-hidden">
+          <div className={`${labelWidth} text-secondary-wh40k`}>{label}</div>
+          <div className="flex-1 h-2 rounded-full bg-(--bg-secondary) overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-red-500/50 to-red-400/30"
+              className="h-full bg-linear-to-r from-red-500/50 to-red-400/30"
               style={{ width: `${(count / max) * 100}%` }}
             />
           </div>
-          <div className="w-10 text-right font-mono text-[var(--text-secondary)]">
+          <div className="w-10 text-right font-mono text-secondary-wh40k">
             {count}
           </div>
         </div>
@@ -165,9 +157,9 @@ export default function FailedAttemptsClient({ warId }: { warId: string }) {
     >
       <div className="space-y-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+          <Card className="border-(--border) bg-(--bg-primary)">
             <CardContent className="p-5 space-y-1">
-              <div className="text-xs text-[var(--text-tertiary)]">
+              <div className="text-xs text-(--text-tertiary)">
                 Failed attempts
               </div>
               <div className="text-2xl font-semibold text-red-400">
@@ -175,32 +167,30 @@ export default function FailedAttemptsClient({ warId }: { warId: string }) {
               </div>
             </CardContent>
           </Card>
-          <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+          <Card className="border-(--border) bg-(--bg-primary)">
             <CardContent className="p-5 space-y-1">
-              <div className="text-xs text-[var(--text-tertiary)]">
+              <div className="text-xs text-(--text-tertiary)">
                 Max kills in failed
               </div>
-              <div className="text-2xl font-semibold text-[var(--text-primary)]">
+              <div className="text-2xl font-semibold text-primary-wh40k">
                 {formatNumber(maxKills)}
               </div>
             </CardContent>
           </Card>
-          <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+          <Card className="border-(--border) bg-(--bg-primary)">
             <CardContent className="p-5 space-y-1">
-              <div className="text-xs text-[var(--text-tertiary)]">
-                Missed score
-              </div>
-              <div className="text-2xl font-semibold text-[var(--text-primary)]">
+              <div className="text-xs text-(--text-tertiary)">Missed score</div>
+              <div className="text-2xl font-semibold text-primary-wh40k">
                 {formatNumber(missedScore)}
               </div>
             </CardContent>
           </Card>
-          <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+          <Card className="border-(--border) bg-(--bg-primary)">
             <CardContent className="p-5 space-y-1">
-              <div className="text-xs text-[var(--text-tertiary)]">
+              <div className="text-xs text-(--text-tertiary)">
                 Buff tiers affected
               </div>
-              <div className="text-2xl font-semibold text-[var(--text-primary)]">
+              <div className="text-2xl font-semibold text-primary-wh40k">
                 {formatNumber(Object.keys(buffBreakdown).length)}
               </div>
             </CardContent>
@@ -214,7 +204,7 @@ export default function FailedAttemptsClient({ warId }: { warId: string }) {
         />
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+          <Card className="border-(--border) bg-(--bg-primary)">
             <CardHeader className="pb-2">
               <CardTitle>Kill Histogram</CardTitle>
             </CardHeader>
@@ -224,7 +214,7 @@ export default function FailedAttemptsClient({ warId }: { warId: string }) {
               )}
             </CardContent>
           </Card>
-          <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+          <Card className="border-(--border) bg-(--bg-primary)">
             <CardHeader className="pb-2">
               <CardTitle>Buff Breakdown</CardTitle>
             </CardHeader>
@@ -234,7 +224,7 @@ export default function FailedAttemptsClient({ warId }: { warId: string }) {
               )}
             </CardContent>
           </Card>
-          <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+          <Card className="border-(--border) bg-(--bg-primary)">
             <CardHeader className="pb-2">
               <CardTitle>Zone Tally</CardTitle>
             </CardHeader>
@@ -250,7 +240,7 @@ export default function FailedAttemptsClient({ warId }: { warId: string }) {
           </Card>
         </div>
 
-        <Card className="border-[var(--border)] bg-[var(--bg-primary)]">
+        <Card className="border-(--border) bg-(--bg-primary)">
           <CardHeader className="pb-2">
             <CardTitle>Failed Attempts</CardTitle>
           </CardHeader>

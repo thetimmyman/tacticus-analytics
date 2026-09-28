@@ -23,7 +23,7 @@ function BattleLogSkeleton() {
             key={`log-skeleton-${id}`}
             className="flex items-start gap-3 sm:gap-4 p-2 sm:p-3 bg-slate-800/50 rounded-lg"
           >
-            <Skeleton className="h-12 w-12 rounded" />
+            <Skeleton className="h-12 w-12 rounded-sm" />
             <div className="flex-1 space-y-2">
               <Skeleton className="h-4 w-3/4" />
               <Skeleton className="h-3 w-1/2" />

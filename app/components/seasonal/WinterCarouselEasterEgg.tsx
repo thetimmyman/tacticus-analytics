@@ -76,7 +76,7 @@ export function WinterCarouselEasterEgg({
           ${
             isWinterThemeActive
               ? 'bg-blue-500/20 text-blue-400'
-              : 'bg-transparent text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
+              : 'bg-transparent text-(--text-tertiary) hover:text-secondary-wh40k'
           }
           ${isAnimating ? 'animate-bounce' : ''}
         `}
@@ -103,9 +103,7 @@ export function WinterCarouselEasterEgg({
                 <div
                   key={`progress-${dotId}`}
                   className={`w-1 h-1 rounded-full transition-all ${
-                    dotIndex < clickCount
-                      ? 'bg-blue-400'
-                      : 'bg-[var(--card-border)]'
+                    dotIndex < clickCount ? 'bg-blue-400' : 'bg-(--card-border)'
                   }`}
                 />
               ))}
@@ -126,7 +124,7 @@ export function WinterCarouselEasterEgg({
 
       {/* Activation celebration */}
       {showActivation && (
-        <div className="fixed inset-0 z-[10000] pointer-events-none flex items-center justify-center">
+        <div className="fixed inset-0 z-10000 pointer-events-none flex items-center justify-center">
           <div className="relative">
             {/* Burst animation */}
             <div className="absolute inset-0 flex items-center justify-center">
@@ -153,7 +151,7 @@ export function WinterCarouselEasterEgg({
             </div>
 
             {/* Main message */}
-            <div className="bg-gradient-to-r from-blue-900/95 to-green-900/95 p-8 rounded-2xl shadow-2xl border-2 border-yellow-400/50 animate-pulse">
+            <div className="bg-linear-to-r from-blue-900/95 to-green-900/95 p-8 rounded-2xl shadow-2xl border-2 border-yellow-400/50 animate-pulse">
               <div className="flex flex-col items-center gap-4">
                 <div className="flex items-center gap-3 text-4xl">
                   <span
@@ -210,8 +208,8 @@ export function WinterCarouselItem() {
         rounded-xl border p-4 sm:p-5 transition-all
         ${
           isWinterThemeActive
-            ? 'border-blue-500/60 bg-gradient-to-r from-blue-500/30 via-green-500/20 to-blue-500/30'
-            : 'border-blue-500/40 bg-gradient-to-r from-blue-500/20 via-blue-600/10 to-blue-500/20 hover:border-blue-400/60'
+            ? 'border-blue-500/60 bg-linear-to-r from-blue-500/30 via-green-500/20 to-blue-500/30'
+            : 'border-blue-500/40 bg-linear-to-r from-blue-500/20 via-blue-600/10 to-blue-500/20 hover:border-blue-400/60'
         }
       `}
       >
@@ -233,17 +231,17 @@ export function WinterCarouselItem() {
                 {isWinterThemeActive ? 'Active' : 'Seasonal'}
               </span>
               {isWinterThemeActive && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-500/20 text-green-400">
+                <span className="text-[10px] px-1.5 py-0.5 rounded-sm bg-green-500/20 text-green-400">
                   ON
                 </span>
               )}
             </div>
-            <h3 className="text-base sm:text-lg font-semibold text-[var(--text-primary)]">
+            <h3 className="text-base sm:text-lg font-semibold text-primary-wh40k">
               {isWinterThemeActive
                 ? 'Winter Wonderland Active!'
                 : 'Winter Wonderland Theme'}
             </h3>
-            <p className="text-sm text-[var(--text-secondary)] mt-1">
+            <p className="text-sm text-secondary-wh40k mt-1">
               {isWinterThemeActive
                 ? 'Click to disable festive decorations'
                 : 'Click to enable snow, lights, and holiday surprises!'}

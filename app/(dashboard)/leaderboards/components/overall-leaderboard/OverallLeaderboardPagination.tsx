@@ -39,7 +39,7 @@ export function OverallLeaderboardPagination({
             setCurrentPage((previous) => Math.max(1, previous - 1))
           }
           disabled={currentPage === 1}
-          className="px-3 py-2 bg-[var(--card-bg)] border border-[var(--card-border)] rounded text-[var(--text-primary)] disabled:opacity-50"
+          className="px-3 py-2 bg-(--card-bg) border border-(--card-border) rounded-sm text-primary-wh40k disabled:opacity-50"
         >
           ←
         </button>
@@ -51,20 +51,20 @@ export function OverallLeaderboardPagination({
               onClick={() => setCurrentPage(pageNumber)}
               className={`px-3 py-2 rounded text-sm ${
                 currentPage === pageNumber
-                  ? 'bg-[var(--primary)] text-[var(--bg-primary)] font-bold'
-                  : 'bg-[var(--card-bg)] border border-[var(--card-border)] text-[var(--text-primary)]'
+                  ? 'bg-primary-wh40k text-(--bg-primary) font-bold'
+                  : 'bg-(--card-bg) border border-(--card-border) text-primary-wh40k'
               }`}
             >
               {pageNumber}
             </button>
           ))}
           {currentPage < totalPages - 1 && totalPages > 3 && (
-            <span className="text-[var(--text-secondary)] px-2">...</span>
+            <span className="text-secondary-wh40k px-2">...</span>
           )}
           {currentPage < totalPages - 1 && totalPages > 3 && (
             <button
               onClick={() => setCurrentPage(totalPages)}
-              className="px-3 py-2 bg-[var(--card-bg)] border border-[var(--card-border)] rounded text-[var(--text-primary)] text-sm"
+              className="px-3 py-2 bg-(--card-bg) border border-(--card-border) rounded-sm text-primary-wh40k text-sm"
             >
               {totalPages}
             </button>
@@ -76,7 +76,7 @@ export function OverallLeaderboardPagination({
             setCurrentPage((previous) => Math.min(totalPages, previous + 1))
           }
           disabled={currentPage === totalPages}
-          className="px-3 py-2 bg-[var(--card-bg)] border border-[var(--card-border)] rounded text-[var(--text-primary)] disabled:opacity-50"
+          className="px-3 py-2 bg-(--card-bg) border border-(--card-border) rounded-sm text-primary-wh40k disabled:opacity-50"
         >
           →
         </button>
@@ -86,7 +86,7 @@ export function OverallLeaderboardPagination({
         <button
           onClick={() => setCurrentPage(1)}
           disabled={currentPage === 1}
-          className="px-3 py-1 bg-[var(--card-bg)] border border-[var(--card-border)] rounded text-[var(--text-primary)] disabled:opacity-50"
+          className="px-3 py-1 bg-(--card-bg) border border-(--card-border) rounded-sm text-primary-wh40k disabled:opacity-50"
         >
           First
         </button>
@@ -95,7 +95,7 @@ export function OverallLeaderboardPagination({
             setCurrentPage((previous) => Math.max(1, previous - 1))
           }
           disabled={currentPage === 1}
-          className="px-3 py-1 bg-[var(--card-bg)] border border-[var(--card-border)] rounded text-[var(--text-primary)] disabled:opacity-50"
+          className="px-3 py-1 bg-(--card-bg) border border-(--card-border) rounded-sm text-primary-wh40k disabled:opacity-50"
         >
           Previous
         </button>
@@ -107,8 +107,8 @@ export function OverallLeaderboardPagination({
               onClick={() => setCurrentPage(pageNumber)}
               className={`px-3 py-1 rounded ${
                 currentPage === pageNumber
-                  ? 'bg-[var(--primary)] text-[var(--bg-primary)] font-bold'
-                  : 'bg-[var(--card-bg)] border border-[var(--card-border)] text-[var(--text-primary)]'
+                  ? 'bg-primary-wh40k text-(--bg-primary) font-bold'
+                  : 'bg-(--card-bg) border border-(--card-border) text-primary-wh40k'
               }`}
             >
               {pageNumber}
@@ -121,20 +121,20 @@ export function OverallLeaderboardPagination({
             setCurrentPage((previous) => Math.min(totalPages, previous + 1))
           }
           disabled={currentPage === totalPages}
-          className="px-3 py-1 bg-[var(--card-bg)] border border-[var(--card-border)] rounded text-[var(--text-primary)] disabled:opacity-50"
+          className="px-3 py-1 bg-(--card-bg) border border-(--card-border) rounded-sm text-primary-wh40k disabled:opacity-50"
         >
           Next
         </button>
         <button
           onClick={() => setCurrentPage(totalPages)}
           disabled={currentPage === totalPages}
-          className="px-3 py-1 bg-[var(--card-bg)] border border-[var(--card-border)] rounded text-[var(--text-primary)] disabled:opacity-50"
+          className="px-3 py-1 bg-(--card-bg) border border-(--card-border) rounded-sm text-primary-wh40k disabled:opacity-50"
         >
           Last
         </button>
       </div>
 
-      <div className="sm:hidden text-center text-sm text-[var(--text-secondary)] mt-2">
+      <div className="sm:hidden text-center text-sm text-secondary-wh40k mt-2">
         Page {currentPage} of {totalPages}
       </div>
     </div>

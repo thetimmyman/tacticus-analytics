@@ -19,7 +19,7 @@ const RadixDialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={`
-      fixed inset-0 z-50 bg-[var(--modal-overlay-bg)] backdrop-blur-sm 
+      fixed inset-0 z-50 bg-(--modal-overlay-bg) backdrop-blur-xs 
       data-[state=open]:animate-in data-[state=closed]:animate-out 
       data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0
       ${className || ''}
@@ -39,7 +39,7 @@ const RadixDialogContent = React.forwardRef<
       ref={ref}
       className={`
         fixed inset-0 m-auto z-50 grid w-full max-w-lg h-fit gap-4 
-        border border-[var(--card-border)] bg-[var(--dropdown-bg-solid)] backdrop-blur-sm p-6 shadow-lg duration-200 
+        border border-(--card-border) bg-(--dropdown-bg-solid) backdrop-blur-xs p-6 shadow-lg duration-200 
         data-[state=open]:animate-in data-[state=closed]:animate-out 
         data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 
         data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 
@@ -49,7 +49,7 @@ const RadixDialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-[var(--hover-bg)] data-[state=open]:text-[var(--text-secondary)]">
+      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-(--accent) focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-(--hover-bg) data-[state=open]:text-secondary-wh40k">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
@@ -86,7 +86,7 @@ const RadixDialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={`text-lg font-semibold leading-none tracking-tight text-[var(--text-primary)] ${className || ''}`}
+    className={`text-lg font-semibold leading-none tracking-tight text-primary-wh40k ${className || ''}`}
     {...props}
   />
 ))
@@ -98,7 +98,7 @@ const RadixDialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={`text-sm text-[var(--text-secondary)] ${className || ''}`}
+    className={`text-sm text-secondary-wh40k ${className || ''}`}
     {...props}
   />
 ))

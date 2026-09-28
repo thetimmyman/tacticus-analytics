@@ -99,18 +99,18 @@ export function PlayerRankingPanel({ warCount }: { warCount: number }) {
       <CardHeader className="pb-2">
         <CardTitle className="subheading-wh40k text-base sm:text-lg">
           Performance Leaderboard{' '}
-          <span className="text-xs text-[var(--text-secondary)] font-normal">
+          <span className="text-xs text-secondary-wh40k font-normal">
             (bephus-v1)
           </span>
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         {isLoading ? (
-          <div className="p-6 text-center text-[var(--text-secondary)]">
+          <div className="p-6 text-center text-secondary-wh40k">
             Loading rankings…
           </div>
         ) : error || !data ? (
-          <div className="p-6 text-center text-[var(--text-secondary)]">
+          <div className="p-6 text-center text-secondary-wh40k">
             Rankings unavailable.
           </div>
         ) : (
@@ -120,13 +120,13 @@ export function PlayerRankingPanel({ warCount }: { warCount: number }) {
               columns={columns}
               rowKey={(row) => row.playerId}
               empty={
-                <div className="p-6 text-center text-[var(--text-secondary)]">
+                <div className="p-6 text-center text-secondary-wh40k">
                   No scored battles in the selected wars.
                 </div>
               }
             />
             {Object.values(data.excludedBattles).some((n) => n > 0) && (
-              <div className="p-3 text-xs text-[var(--text-secondary)] border-t border-[var(--border)]">
+              <div className="p-3 text-xs text-secondary-wh40k border-t border-(--border)">
                 {Object.values(data.excludedBattles).reduce((a, b) => a + b, 0)}{' '}
                 battle(s) not scored:{' '}
                 {Object.entries(data.excludedBattles)
@@ -136,7 +136,7 @@ export function PlayerRankingPanel({ warCount }: { warCount: number }) {
               </div>
             )}
             {data.excludedWars.length > 0 && (
-              <div className="p-3 text-xs text-[var(--text-secondary)] border-t border-[var(--border)]">
+              <div className="p-3 text-xs text-secondary-wh40k border-t border-(--border)">
                 {data.excludedWars.length} war
                 {data.excludedWars.length === 1 ? '' : 's'} excluded:
                 <ul className="list-disc ml-5 mt-1">

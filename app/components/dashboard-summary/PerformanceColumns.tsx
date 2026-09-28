@@ -39,7 +39,7 @@ export function PerformanceColumns({
       {/* Three Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Boss Performance */}
-        <div className="card-wh40k chart-card p-3 sm:p-4 hover:shadow-xl hover:shadow-[color:color-mix(in_srgb,var(--primary)_20%,transparent)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)] transition-all duration-300">
+        <div className="card-wh40k chart-card p-3 sm:p-4 hover:shadow-xl hover:shadow-[color-mix(in_srgb,var(--primary)_20%,transparent)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)] transition-all duration-300">
           <h3 className="subheading-wh40k">AVG vs MAX Damage to Bosses</h3>
           <div className="space-y-3">
             {!loadPieChart || !bossPerformanceData ? (
@@ -52,8 +52,8 @@ export function PerformanceColumns({
                   'boss-skel-5'
                 ].map((id) => (
                   <div key={id} className="animate-pulse">
-                    <div className="h-4 bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded mb-2"></div>
-                    <div className="h-6 bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded"></div>
+                    <div className="h-4 bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-sm mb-2"></div>
+                    <div className="h-6 bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-sm"></div>
                   </div>
                 ))}
               </div>
@@ -80,7 +80,7 @@ export function PerformanceColumns({
         </div>
 
         {/* Prime Performance */}
-        <div className="card-wh40k p-3 sm:p-4 hover:shadow-xl hover:shadow-[color:color-mix(in_srgb,var(--primary)_20%,transparent)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)] transition-all duration-300">
+        <div className="card-wh40k p-3 sm:p-4 hover:shadow-xl hover:shadow-[color-mix(in_srgb,var(--primary)_20%,transparent)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)] transition-all duration-300">
           <h3 className="subheading-wh40k text-green-400">
             AVG vs MAX Damage to Primes
           </h3>
@@ -94,8 +94,8 @@ export function PerformanceColumns({
                   'prime-skel-4'
                 ].map((id) => (
                   <div key={id} className="animate-pulse">
-                    <div className="h-4 bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded mb-2"></div>
-                    <div className="h-6 bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded"></div>
+                    <div className="h-4 bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-sm mb-2"></div>
+                    <div className="h-6 bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-sm"></div>
                   </div>
                 ))}
               </div>
@@ -122,20 +122,20 @@ export function PerformanceColumns({
         </div>
 
         {/* Tokens Per Lap */}
-        <div className="card-wh40k p-3 sm:p-4 hover:shadow-xl hover:shadow-[color:color-mix(in_srgb,var(--primary)_20%,transparent)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)] transition-all duration-300">
+        <div className="card-wh40k p-3 sm:p-4 hover:shadow-xl hover:shadow-[color-mix(in_srgb,var(--primary)_20%,transparent)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)] transition-all duration-300">
           <h3 className="subheading-wh40k text-yellow-400">Tokens Per Lap</h3>
-          <div className="mb-3 sm:mb-4 p-2 sm:p-3 bg-slate-800/50 rounded-lg border border-[var(--card-border)]">
+          <div className="mb-3 sm:mb-4 p-2 sm:p-3 bg-slate-800/50 rounded-lg border border-(--card-border)">
             <div className="text-center text-xs sm:text-sm flex items-center justify-center gap-2 sm:gap-3">
-              <span className="text-[var(--accent)] font-semibold">
+              <span className="text-(--accent) font-semibold">
                 Bosses:{' '}
                 {loopTokenData.reduce((sum, l) => sum + l.bossTokens, 0)}
               </span>
-              <span className="text-[var(--text-secondary)]">•</span>
-              <span className="text-[var(--accent)] font-semibold">
+              <span className="text-secondary-wh40k">•</span>
+              <span className="text-(--accent) font-semibold">
                 Primes:{' '}
                 {loopTokenData.reduce((sum, l) => sum + l.primeTokens, 0)}
               </span>
-              <span className="text-[var(--text-secondary)]">•</span>
+              <span className="text-secondary-wh40k">•</span>
               <span className="text-yellow-400 font-semibold">
                 Total:{' '}
                 {loopTokenData.reduce((sum, l) => sum + l.totalTokens, 0)}

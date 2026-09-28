@@ -354,7 +354,7 @@ export default function EditProfileClient({
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8 text-[var(--text-primary)]">
+      <h1 className="text-3xl font-bold mb-8 text-primary-wh40k">
         Edit Profile
       </h1>
 
@@ -428,7 +428,7 @@ export default function EditProfileClient({
 
         {/* Meta Team Preferences with Radix Select */}
         <div className="mt-6">
-          <h3 className="text-lg font-medium text-[var(--text-primary)] mb-4">
+          <h3 className="text-lg font-medium text-primary-wh40k mb-4">
             Meta Team Preferences
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -437,7 +437,7 @@ export default function EditProfileClient({
                 <RadixTooltipTrigger asChild>
                   <label
                     htmlFor="primaryTeam"
-                    className="block text-sm font-medium text-[var(--text-secondary)] mb-1"
+                    className="block text-sm font-medium text-secondary-wh40k mb-1"
                   >
                     Primary Team
                   </label>
@@ -475,7 +475,7 @@ export default function EditProfileClient({
                 <RadixTooltipTrigger asChild>
                   <label
                     htmlFor="secondaryTeam"
-                    className="block text-sm font-medium text-[var(--text-secondary)] mb-1"
+                    className="block text-sm font-medium text-secondary-wh40k mb-1"
                   >
                     Secondary Team
                   </label>
@@ -511,7 +511,7 @@ export default function EditProfileClient({
                 <RadixTooltipTrigger asChild>
                   <label
                     htmlFor="tertiaryTeam"
-                    className="block text-sm font-medium text-[var(--text-secondary)] mb-1"
+                    className="block text-sm font-medium text-secondary-wh40k mb-1"
                   >
                     Tertiary Team
                   </label>
@@ -542,14 +542,14 @@ export default function EditProfileClient({
               </RadixSelect>
             </div>
           </div>
-          <p className="mt-2 text-xs text-[var(--text-secondary)]">
+          <p className="mt-2 text-xs text-secondary-wh40k">
             Select your preferred meta teams in order of preference. Each team
             can only be selected once.
           </p>
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end space-x-3 pt-4 border-t border-[var(--card-border)]">
+        <div className="flex justify-end space-x-3 pt-4 border-t border-(--card-border)">
           <button
             type="button"
             onClick={() => router.push('/profile')}

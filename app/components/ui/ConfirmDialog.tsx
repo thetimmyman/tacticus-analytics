@@ -24,17 +24,17 @@ interface ConfirmDialogProps {
 
 const toneConfirmClass: Record<ConfirmDialogTone, string> = {
   default:
-    'bg-[var(--accent)] text-black hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)]',
+    'bg-accent-wh40k text-black hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)]',
   warning:
-    'border border-[color-mix(in_srgb,var(--warning)_60%,transparent)] bg-[color-mix(in_srgb,var(--warning)_80%,transparent)] text-[var(--bg-primary)] hover:bg-[var(--warning)]',
+    'border border-[color-mix(in_srgb,var(--warning)_60%,transparent)] bg-[color-mix(in_srgb,var(--warning)_80%,transparent)] text-(--bg-primary) hover:bg-(--warning)',
   danger:
-    'border border-[color-mix(in_srgb,var(--danger)_60%,transparent)] bg-[color-mix(in_srgb,var(--danger)_80%,transparent)] text-white hover:bg-[var(--danger)]'
+    'border border-[color-mix(in_srgb,var(--danger)_60%,transparent)] bg-[color-mix(in_srgb,var(--danger)_80%,transparent)] text-white hover:bg-(--danger)'
 }
 
 const toneTitleClass: Record<ConfirmDialogTone, string> = {
-  default: 'text-[var(--text-primary)]',
-  warning: 'text-[var(--warning)]',
-  danger: 'text-[var(--danger)]'
+  default: 'text-primary-wh40k',
+  warning: 'text-(--warning)',
+  danger: 'text-(--danger)'
 }
 
 export function ConfirmDialog({
@@ -72,7 +72,7 @@ export function ConfirmDialog({
       {description && (
         <div
           id={descriptionId}
-          className="text-sm text-[var(--text-secondary)] leading-relaxed"
+          className="text-sm text-secondary-wh40k leading-relaxed"
         >
           {description}
         </div>
@@ -83,7 +83,7 @@ export function ConfirmDialog({
           type="button"
           onClick={onCancel}
           disabled={busy}
-          className="min-h-[44px] w-full px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-base disabled:opacity-50 sm:w-auto"
+          className="min-h-[44px] w-full px-4 py-2 text-sm text-secondary-wh40k hover:text-primary-wh40k transition-colors duration-base disabled:opacity-50 sm:w-auto"
         >
           {cancelLabel}
         </button>

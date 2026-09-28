@@ -35,12 +35,12 @@ export function OverallLeaderboardDesktopTable({
     {
       key: 'rank',
       header: 'Rank',
-      className: 'w-[4rem]',
+      className: 'w-16',
       render: (player) => {
         const rank = player.scoreRank ?? player.currentRank
         return (
           <span
-            className={`font-bold ${rank && rank <= 3 ? 'text-2xl text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
+            className={`font-bold ${rank && rank <= 3 ? 'text-2xl text-primary-wh40k' : 'text-secondary-wh40k'}`}
           >
             {getRankBadge(rank)}
           </span>
@@ -50,7 +50,7 @@ export function OverallLeaderboardDesktopTable({
     {
       key: 'rankChange',
       header: '+/- Prior',
-      className: 'w-[5.25rem]',
+      className: 'w-21',
       render: (player) =>
         player.rankChange !== undefined ? (
           <div className="flex items-center gap-1">
@@ -69,30 +69,30 @@ export function OverallLeaderboardDesktopTable({
                 </span>
               </>
             ) : (
-              <span className="text-[var(--text-secondary)]">-</span>
+              <span className="text-secondary-wh40k">-</span>
             )}
           </div>
         ) : (
-          <span className="text-[var(--text-secondary)] text-sm">NEW</span>
+          <span className="text-secondary-wh40k text-sm">NEW</span>
         )
     },
     {
       key: 'fiveSeasonAvg',
       header: '5-Season Avg',
-      className: 'w-[7.25rem]',
+      className: 'w-29',
       render: (player) =>
         player.fiveSeasonAvgRank ? (
           <span className="font-medium">
             #{Math.round(player.fiveSeasonAvgRank)}
           </span>
         ) : (
-          <span className="text-[var(--text-secondary)]">-</span>
+          <span className="text-secondary-wh40k">-</span>
         )
     },
     {
       key: 'name',
       header: 'Player',
-      className: 'w-[8.75rem]',
+      className: 'w-35',
       render: (player) => (
         <span
           className={`font-medium ${getGuildColor(player.Guild, userGuild)}`}
@@ -106,16 +106,16 @@ export function OverallLeaderboardDesktopTable({
     {
       key: 'guild',
       header: 'Guild',
-      className: 'w-[11.25rem] whitespace-nowrap',
+      className: 'w-45 whitespace-nowrap',
       render: (player) =>
         guildLabels[player.Guild] ?? formatGuildDisplayLabel(null, player.Guild)
     },
     {
       key: 'totalDamage',
       header: 'Total Damage',
-      className: 'w-[7.5rem]',
+      className: 'w-30',
       render: (player) => (
-        <span className="text-[var(--primary)] font-bold">
+        <span className="text-(--primary) font-bold">
           {formatNumber(player.totalDamage)}
         </span>
       )
@@ -123,20 +123,20 @@ export function OverallLeaderboardDesktopTable({
     {
       key: 'battles',
       header: 'Battles',
-      className: 'w-[5.25rem]',
+      className: 'w-21',
       render: (player) => player.allBattleCount
     },
     {
       key: 'avgDamage',
       header: 'Avg Damage',
-      className: 'w-[7rem]',
+      className: 'w-28',
       render: (player) => formatNumber(player.avgDamage)
     },
     {
       key: 'percentVsCluster',
       header: scoringBasisTableLabel,
       headerTitle: scoringBasisLabel,
-      className: 'w-[8.5rem] whitespace-nowrap',
+      className: 'w-34 whitespace-nowrap',
       render: (player) => (
         <span
           className={`font-medium ${
@@ -146,7 +146,7 @@ export function OverallLeaderboardDesktopTable({
               : typeof player.performanceValue === 'number' &&
                   player.performanceValue < 0
                 ? 'text-red-500'
-                : 'text-[var(--text-secondary)]'
+                : 'text-secondary-wh40k'
           }`}
         >
           {typeof player.performanceValue === 'number'
@@ -158,23 +158,21 @@ export function OverallLeaderboardDesktopTable({
     {
       key: 'bombs',
       header: 'Bombs',
-      className: 'w-[4.75rem]',
+      className: 'w-19',
       render: (player) => player.bombsUsed
     },
     {
       key: 'kills',
       header: 'Kills',
-      className: 'w-[4rem]',
+      className: 'w-16',
       render: (player) => (
-        <span className="text-[var(--accent-wh40k)]">
-          {player.allBossesKilled}
-        </span>
+        <span className="text-(--accent-wh40k)">{player.allBossesKilled}</span>
       )
     }
   ]
 
   return (
-    <div className="hidden lg:block bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 border border-[var(--card-border)] rounded-lg overflow-hidden">
+    <div className="hidden lg:block bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg overflow-hidden">
       <DataTable
         rows={rows}
         columns={columns}

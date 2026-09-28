@@ -64,7 +64,7 @@ export function GuildTeamsToolbar({
     <div className="flex flex-wrap items-center gap-3 bg-card/40 rounded-lg px-3 py-2 text-sm">
       {/* Sort */}
       <div className="flex items-center gap-2">
-        <span className="text-[var(--text-secondary)] text-xs uppercase tracking-wider">
+        <span className="text-secondary-wh40k text-xs uppercase tracking-wider">
           Sort
         </span>
         <button
@@ -72,7 +72,7 @@ export function GuildTeamsToolbar({
           className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
             sortField === 'name'
               ? 'bg-indigo-600 text-white'
-              : 'text-[var(--text-secondary)] hover:text-white hover:bg-card/50'
+              : 'text-secondary-wh40k hover:text-white hover:bg-card/50'
           }`}
         >
           Name
@@ -82,13 +82,13 @@ export function GuildTeamsToolbar({
           className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
             sortField === 'team_score'
               ? 'bg-indigo-600 text-white'
-              : 'text-[var(--text-secondary)] hover:text-white hover:bg-card/50'
+              : 'text-secondary-wh40k hover:text-white hover:bg-card/50'
           }`}
         >
           Team Score
         </button>
         {sortField === 'hero' && sortHeroUnitId && (
-          <span className="px-2 py-1 rounded text-xs font-medium bg-indigo-600 text-white">
+          <span className="px-2 py-1 rounded-sm text-xs font-medium bg-indigo-600 text-white">
             {heroMappings[sortHeroUnitId]?.display_name ?? sortHeroUnitId}
           </span>
         )}
@@ -96,14 +96,14 @@ export function GuildTeamsToolbar({
           onClick={() =>
             setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'))
           }
-          className="px-2 py-1 rounded text-xs text-[var(--text-secondary)] hover:text-white hover:bg-card/50 transition-colors"
+          className="px-2 py-1 rounded-sm text-xs text-secondary-wh40k hover:text-white hover:bg-card/50 transition-colors"
           title={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
         >
           {sortDirection === 'asc' ? '\u2191' : '\u2193'}
         </button>
       </div>
 
-      <div className="w-px h-5 bg-[var(--card-bg)]" />
+      <div className="w-px h-5 bg-(--card-bg)" />
 
       {/* Filter: Hero multi-select */}
       {selectedTeam.heroes.length > 0 && (
@@ -113,7 +113,7 @@ export function GuildTeamsToolbar({
             className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors ${
               selectedHeroUnitIds !== null
                 ? 'bg-indigo-600 text-white'
-                : 'text-[var(--text-secondary)] hover:text-white hover:bg-card/50'
+                : 'text-secondary-wh40k hover:text-white hover:bg-card/50'
             }`}
           >
             Heroes
@@ -125,8 +125,8 @@ export function GuildTeamsToolbar({
             <ChevronDown className="w-3 h-3" />
           </button>
           {heroFilterOpen && (
-            <div className="absolute top-full left-0 mt-1 z-50 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg shadow-xl min-w-[200px] max-h-[320px] overflow-y-auto">
-              <div className="flex items-center justify-between px-2 py-1.5 border-b border-[var(--card-border)]">
+            <div className="absolute top-full left-0 mt-1 z-50 bg-(--card-bg) border border-(--card-border) rounded-lg shadow-xl min-w-[200px] max-h-[320px] overflow-y-auto">
+              <div className="flex items-center justify-between px-2 py-1.5 border-b border-(--card-border)">
                 <button
                   onClick={() => {
                     setSelectedHeroUnitIds(null)
@@ -137,7 +137,7 @@ export function GuildTeamsToolbar({
                 </button>
                 <button
                   onClick={() => setHeroFilterOpen(false)}
-                  className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  className="text-secondary-wh40k hover:text-primary-wh40k"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -149,7 +149,7 @@ export function GuildTeamsToolbar({
                 if (tierHeroes.length === 0) return null
                 return (
                   <div key={tier}>
-                    <div className="px-2 py-1 text-[10px] text-[var(--text-secondary)] uppercase tracking-wider bg-card/50">
+                    <div className="px-2 py-1 text-[10px] text-secondary-wh40k uppercase tracking-wider bg-card/50">
                       {TIER_LABELS[tier]}
                     </div>
                     {tierHeroes.map((hero) => {
@@ -167,7 +167,7 @@ export function GuildTeamsToolbar({
                             className={`w-4 h-4 rounded border flex items-center justify-center ${
                               isSelected
                                 ? 'bg-indigo-600 border-indigo-500'
-                                : 'border-[var(--card-border)]'
+                                : 'border-(--card-border)'
                             }`}
                           >
                             {isSelected && (
@@ -180,11 +180,11 @@ export function GuildTeamsToolbar({
                               alt=""
                               width={18}
                               height={18}
-                              className="rounded-sm"
+                              className="rounded-xs"
                               unoptimized
                             />
                           )}
-                          <span className="text-xs text-[var(--text-primary)] truncate">
+                          <span className="text-xs text-primary-wh40k truncate">
                             {mapping?.display_name ?? hero.displayName}
                           </span>
                         </button>
@@ -200,13 +200,13 @@ export function GuildTeamsToolbar({
 
       {/* Filter: Min Stars */}
       <div className="flex items-center gap-1.5">
-        <span className="text-[var(--text-secondary)] text-xs uppercase tracking-wider">
+        <span className="text-secondary-wh40k text-xs uppercase tracking-wider">
           Stars
         </span>
         <select
           value={minStars}
           onChange={(e) => setMinStars(Number(e.target.value))}
-          className="bg-[var(--card-bg)] text-[var(--text-primary)] text-xs rounded px-1.5 py-1 border border-[var(--card-border)] focus:border-indigo-500 focus:outline-none"
+          className="bg-(--card-bg) text-primary-wh40k text-xs rounded-sm px-1.5 py-1 border border-(--card-border) focus:border-indigo-500 focus:outline-hidden"
         >
           {MIN_STARS_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
@@ -218,13 +218,13 @@ export function GuildTeamsToolbar({
 
       {/* Filter: Min Rank */}
       <div className="flex items-center gap-1.5">
-        <span className="text-[var(--text-secondary)] text-xs uppercase tracking-wider">
+        <span className="text-secondary-wh40k text-xs uppercase tracking-wider">
           Rank
         </span>
         <select
           value={minRank}
           onChange={(e) => setMinRank(Number(e.target.value))}
-          className="bg-[var(--card-bg)] text-[var(--text-primary)] text-xs rounded px-1.5 py-1 border border-[var(--card-border)] focus:border-indigo-500 focus:outline-none"
+          className="bg-(--card-bg) text-primary-wh40k text-xs rounded-sm px-1.5 py-1 border border-(--card-border) focus:border-indigo-500 focus:outline-hidden"
         >
           {MIN_RANK_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
@@ -236,13 +236,13 @@ export function GuildTeamsToolbar({
 
       {/* Filter: Role */}
       <div className="flex items-center gap-1.5">
-        <span className="text-[var(--text-secondary)] text-xs uppercase tracking-wider">
+        <span className="text-secondary-wh40k text-xs uppercase tracking-wider">
           Role
         </span>
         <select
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
-          className="bg-[var(--card-bg)] text-[var(--text-primary)] text-xs rounded px-1.5 py-1 border border-[var(--card-border)] focus:border-indigo-500 focus:outline-none"
+          className="bg-(--card-bg) text-primary-wh40k text-xs rounded-sm px-1.5 py-1 border border-(--card-border) focus:border-indigo-500 focus:outline-hidden"
         >
           <option value="all">All</option>
           <option value="leader">Leader</option>
@@ -251,7 +251,7 @@ export function GuildTeamsToolbar({
         </select>
       </div>
 
-      <div className="w-px h-5 bg-[var(--card-bg)]" />
+      <div className="w-px h-5 bg-(--card-bg)" />
 
       {/* Search */}
       <div className="flex items-center gap-1.5">
@@ -260,7 +260,7 @@ export function GuildTeamsToolbar({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search player..."
-          className="bg-[var(--card-bg)] text-[var(--text-primary)] text-xs rounded px-2 py-1 border border-[var(--card-border)] focus:border-indigo-500 focus:outline-none w-32 placeholder-gray-500"
+          className="bg-(--card-bg) text-primary-wh40k text-xs rounded-sm px-2 py-1 border border-(--card-border) focus:border-indigo-500 focus:outline-hidden w-32 placeholder-gray-500"
         />
       </div>
     </div>

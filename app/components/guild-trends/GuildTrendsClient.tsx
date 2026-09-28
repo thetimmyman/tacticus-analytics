@@ -69,7 +69,7 @@ export function GuildTrendsClient({
         <h1 className="heading-wh40k text-2xl mb-4">
           Guild Performance Trends
         </h1>
-        <p className="text-[var(--text-secondary)]">
+        <p className="text-secondary-wh40k">
           You must be a member of a guild to view guild trends.
         </p>
       </div>
@@ -81,10 +81,10 @@ export function GuildTrendsClient({
       <div className="p-6 space-y-4">
         <h1 className="heading-wh40k text-2xl">Guild Performance Trends</h1>
         <div className="animate-pulse space-y-4">
-          <div className="h-64 bg-[var(--card-bg)] rounded-lg" />
+          <div className="h-64 bg-(--card-bg) rounded-lg" />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="h-80 bg-[var(--card-bg)] rounded-lg" />
-            <div className="h-80 bg-[var(--card-bg)] rounded-lg" />
+            <div className="h-80 bg-(--card-bg) rounded-lg" />
+            <div className="h-80 bg-(--card-bg) rounded-lg" />
           </div>
         </div>
       </div>
@@ -97,7 +97,7 @@ export function GuildTrendsClient({
         <h1 className="heading-wh40k text-2xl mb-4">
           Guild Performance Trends
         </h1>
-        <p className="text-[var(--text-secondary)]">
+        <p className="text-secondary-wh40k">
           No trend data available. Guild performance data will appear here once
           battle data is recorded across multiple seasons.
         </p>

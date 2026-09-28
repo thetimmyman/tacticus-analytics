@@ -83,12 +83,12 @@ function SeasonFeasibilityCard({
 
   return (
     <div
-      className="rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-4 space-y-4"
+      className="rounded-lg border border-(--card-border) bg-(--card-bg) p-4 space-y-4"
       aria-label="Season token feasibility"
       data-testid="season-feasibility-card"
     >
       <div className="flex items-center justify-between gap-3">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-secondary-wh40k">
           Spendable tokens by end of season
         </h3>
         {tone && (
@@ -102,33 +102,33 @@ function SeasonFeasibilityCard({
 
       <dl className="grid grid-cols-3 gap-3 text-sm">
         <div>
-          <dt className="text-xs text-[var(--text-tertiary)]">In bank now</dt>
-          <dd className="text-lg font-bold text-[var(--text-primary)]">
+          <dt className="text-xs text-(--text-tertiary)">In bank now</dt>
+          <dd className="text-lg font-bold text-primary-wh40k">
             {formatNumber(tokens.available_now, 0)}
           </dd>
         </div>
         <div>
-          <dt className="text-xs text-[var(--text-tertiary)]">
+          <dt className="text-xs text-(--text-tertiary)">
             {seasonEnded
               ? 'Would regen'
               : `New before end${countdown ? ` (${countdown})` : ''}`}
           </dt>
-          <dd className="text-lg font-bold text-[var(--text-primary)]">
+          <dd className="text-lg font-bold text-primary-wh40k">
             +{formatNumber(tokens.yet_to_regen, 0)}
           </dd>
         </div>
         <div>
-          <dt className="text-xs text-[var(--text-tertiary)]">
+          <dt className="text-xs text-(--text-tertiary)">
             {figures.source === 'pace'
               ? 'Spendable at current pace'
               : 'Total possible'}
           </dt>
-          <dd className="text-lg font-bold text-[var(--accent)]">
+          <dd className="text-lg font-bold text-(--accent)">
             {formatNumber(figures.spendableByEnd, 0)}
           </dd>
           {/* Pace is cap-limited and can undercut the bank, so col1 + col2 need not equal col3. */}
           {figures.source === 'pace' && (
-            <div className="text-[10px] leading-tight text-[var(--text-tertiary)]">
+            <div className="text-[10px] leading-tight text-(--text-tertiary)">
               cap-limited — not bank + new
             </div>
           )}
@@ -145,33 +145,33 @@ function SeasonFeasibilityCard({
         </p>
       )}
 
-      <div className="border-t border-[var(--card-border)] pt-3">
+      <div className="border-t border-(--card-border) pt-3">
         {lap && finishLapDisplay !== null && finishPct !== null ? (
-          <p className="text-sm text-[var(--text-secondary)]">
+          <p className="text-sm text-secondary-wh40k">
             Projected to reach{' '}
-            <span className="font-semibold text-[var(--text-primary)]">
+            <span className="font-semibold text-primary-wh40k">
               lap {finishLapDisplay}
             </span>{' '}
             at{' '}
-            <span className="font-semibold text-[var(--text-primary)]">
+            <span className="font-semibold text-primary-wh40k">
               {finishPct}%
             </span>{' '}
             with these tokens
-            <span className="text-[var(--text-tertiary)]">
+            <span className="text-(--text-tertiary)">
               {' '}
               · {lap.confidence} confidence
             </span>
             . For the full per-boss plan, open the{' '}
             <a
               href="/boss-assignments/season-planner"
-              className="text-[var(--accent)] hover:underline"
+              className="text-(--accent) hover:underline"
             >
               season planner
             </a>
             .
           </p>
         ) : (
-          <p className="text-sm text-[var(--text-tertiary)]">
+          <p className="text-sm text-(--text-tertiary)">
             The rotation projection builds after the guild completes a lap this
             season.
           </p>

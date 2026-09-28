@@ -18,12 +18,12 @@ const RadixSelectTrigger = React.forwardRef<
     ref={ref}
     className={`
       flex h-10 w-full items-center justify-between rounded-md 
-      border border-[var(--card-border)] bg-[var(--card-bg)] backdrop-blur-sm 
-      px-3 py-2 text-sm text-[var(--text-primary)]
-      placeholder:text-[var(--text-secondary)]
-      focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:ring-opacity-30
+      border border-(--card-border) bg-(--card-bg) backdrop-blur-xs 
+      px-3 py-2 text-sm text-primary-wh40k
+      placeholder:text-secondary-wh40k
+      focus:outline-hidden focus:ring-2 focus:ring-(--accent) focus:ring-opacity-30
       disabled:cursor-not-allowed disabled:opacity-50
-      hover:border-[var(--accent)] transition-colors
+      hover:border-accent-wh40k transition-colors
       ${className || ''}
     `}
     {...props}
@@ -80,10 +80,10 @@ const RadixSelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={`
-        relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md 
-        border border-[var(--card-border)] 
-        bg-[var(--dropdown-bg-solid)] backdrop-blur-sm 
-        text-[var(--text-primary)] shadow-xl 
+        relative z-50 max-h-96 min-w-32 overflow-hidden rounded-md 
+        border border-(--card-border) 
+        bg-(--dropdown-bg-solid) backdrop-blur-xs 
+        text-primary-wh40k shadow-xl 
         data-[state=open]:animate-in data-[state=closed]:animate-out 
         data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 
         data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 
@@ -104,7 +104,7 @@ const RadixSelectContent = React.forwardRef<
           p-1
           ${
             position === 'popper' &&
-            'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]'
+            'h-(--radix-select-trigger-height) w-full min-w-(--radix-select-trigger-width)'
           }
         `}
       >
@@ -122,7 +122,7 @@ const RadixSelectLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Label
     ref={ref}
-    className={`py-1.5 pl-8 pr-2 text-sm font-semibold text-[var(--text-secondary)] ${className || ''}`}
+    className={`py-1.5 pl-8 pr-2 text-sm font-semibold text-secondary-wh40k ${className || ''}`}
     {...props}
   />
 ))
@@ -136,11 +136,11 @@ const RadixSelectItem = React.forwardRef<
     ref={ref}
     className={`
       relative flex w-full cursor-default select-none items-center 
-      rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none 
-      text-[var(--text-primary)]
-      focus:bg-[var(--hover-bg)] focus:text-[var(--text-primary)]
-      data-[disabled]:pointer-events-none data-[disabled]:opacity-50
-      hover:bg-[var(--hover-bg)] hover:text-[var(--text-primary)]
+      rounded-xs py-1.5 pl-8 pr-2 text-sm outline-hidden 
+      text-primary-wh40k
+      focus:bg-(--hover-bg) focus:text-primary-wh40k
+      data-disabled:pointer-events-none data-disabled:opacity-50
+      hover:bg-(--hover-bg) hover:text-primary-wh40k
       transition-colors
       ${className || ''}
     `}
@@ -163,7 +163,7 @@ const RadixSelectSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Separator
     ref={ref}
-    className={`-mx-1 my-1 h-px bg-[var(--card-border)] ${className || ''}`}
+    className={`-mx-1 my-1 h-px bg-(--card-border) ${className || ''}`}
     {...props}
   />
 ))

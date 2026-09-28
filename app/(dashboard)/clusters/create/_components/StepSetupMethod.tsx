@@ -12,7 +12,7 @@ import type { StepProps } from '../_lib/cluster-types'
 export function StepSetupMethod({ data, setData }: StepProps) {
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">
+      <h2 className="text-xl font-bold text-primary-wh40k mb-4">
         Guild Setup Method
       </h2>
 
@@ -28,8 +28,8 @@ export function StepSetupMethod({ data, setData }: StepProps) {
             <div
               className={`border rounded-lg p-4 cursor-pointer transition-colors ${
                 data.setupMethod === 'direct'
-                  ? 'border-[var(--primary)] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]'
-                  : 'border-[var(--card-border)] hover:border-[color-mix(in_srgb,var(--primary)_50%,transparent)]'
+                  ? 'border-primary-wh40k bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]'
+                  : 'border-(--card-border) hover:border-[color-mix(in_srgb,var(--primary)_50%,transparent)]'
               }`}
               onClick={() =>
                 setData({
@@ -43,8 +43,8 @@ export function StepSetupMethod({ data, setData }: StepProps) {
                 <div
                   className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${
                     data.setupMethod === 'direct'
-                      ? 'border-[var(--primary)] bg-[var(--primary)]'
-                      : 'border-[var(--text-tertiary)]'
+                      ? 'border-primary-wh40k bg-primary-wh40k'
+                      : 'border-(--text-tertiary)'
                   }`}
                 >
                   {data.setupMethod === 'direct' && (
@@ -52,22 +52,22 @@ export function StepSetupMethod({ data, setData }: StepProps) {
                   )}
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-[var(--text-primary)] mb-1 flex items-center gap-2">
+                  <h3 className="font-semibold text-primary-wh40k mb-1 flex items-center gap-2">
                     <Users className="w-4 h-4" />
                     Set Up Guilds Directly
                   </h3>
-                  <p className="text-sm text-[var(--text-secondary)] mb-3">
+                  <p className="text-sm text-secondary-wh40k mb-3">
                     Add guild information (API keys, names, leader emails) on
                     behalf of other guild leaders
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded">
+                    <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-sm">
                       Immediate Setup
                     </span>
-                    <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded">
+                    <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-sm">
                       No Manual Steps
                     </span>
-                    <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded">
+                    <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded-sm">
                       Full Control
                     </span>
                   </div>
@@ -79,8 +79,8 @@ export function StepSetupMethod({ data, setData }: StepProps) {
             <div
               className={`border rounded-lg p-4 cursor-pointer transition-colors ${
                 data.setupMethod === 'invite_code'
-                  ? 'border-[var(--primary)] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]'
-                  : 'border-[var(--card-border)] hover:border-[color-mix(in_srgb,var(--primary)_50%,transparent)]'
+                  ? 'border-primary-wh40k bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]'
+                  : 'border-(--card-border) hover:border-[color-mix(in_srgb,var(--primary)_50%,transparent)]'
               }`}
               onClick={() =>
                 setData({
@@ -94,8 +94,8 @@ export function StepSetupMethod({ data, setData }: StepProps) {
                 <div
                   className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${
                     data.setupMethod === 'invite_code'
-                      ? 'border-[var(--primary)] bg-[var(--primary)]'
-                      : 'border-[var(--text-tertiary)]'
+                      ? 'border-primary-wh40k bg-primary-wh40k'
+                      : 'border-(--text-tertiary)'
                   }`}
                 >
                   {data.setupMethod === 'invite_code' && (
@@ -103,22 +103,22 @@ export function StepSetupMethod({ data, setData }: StepProps) {
                   )}
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-[var(--text-primary)] mb-1 flex items-center gap-2">
+                  <h3 className="font-semibold text-primary-wh40k mb-1 flex items-center gap-2">
                     <Hash className="w-4 h-4" />
                     Generate Invite Code
                   </h3>
-                  <p className="text-sm text-[var(--text-secondary)] mb-3">
+                  <p className="text-sm text-secondary-wh40k mb-3">
                     Create an invite code that guild leaders can use to join
                     your cluster at their own pace
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded">
+                    <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-sm">
                       Multi-Use
                     </span>
-                    <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded">
+                    <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-sm">
                       No Expiration
                     </span>
-                    <span className="px-2 py-1 bg-orange-500/20 text-orange-400 text-xs rounded">
+                    <span className="px-2 py-1 bg-orange-500/20 text-orange-400 text-xs rounded-sm">
                       Self-Service
                     </span>
                   </div>
@@ -132,12 +132,12 @@ export function StepSetupMethod({ data, setData }: StepProps) {
         {data.setupMethod === 'invite_code' && (
           <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
             <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-orange-400 mt-0.5 flex-shrink-0" />
+              <AlertCircle className="w-5 h-5 text-orange-400 mt-0.5 shrink-0" />
               <div>
                 <h4 className="font-medium text-orange-400 mb-1">
                   Security Notice
                 </h4>
-                <p className="text-sm text-[var(--text-secondary)]">
+                <p className="text-sm text-secondary-wh40k">
                   <strong>Multi-use invite codes</strong> can be used by anyone
                   who has them. Share them only with trusted guild leaders. You
                   can regenerate or disable the invite code anytime from your
@@ -152,19 +152,17 @@ export function StepSetupMethod({ data, setData }: StepProps) {
         {data.setupMethod === 'direct' && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-[var(--text-primary)]">
+              <h3 className="font-semibold text-primary-wh40k">
                 Founding Guilds
               </h3>
-              <p className="text-sm text-[var(--text-secondary)]">
+              <p className="text-sm text-secondary-wh40k">
                 Your guild will be added automatically
               </p>
             </div>
 
             {/* Guild Addition Form */}
-            <div className="border border-[var(--card-border)] rounded-lg p-4 bg-[var(--card-bg)]">
-              <h4 className="font-medium text-[var(--text-primary)] mb-3">
-                Add Guild
-              </h4>
+            <div className="border border-(--card-border) rounded-lg p-4 bg-(--card-bg)">
+              <h4 className="font-medium text-primary-wh40k mb-3">Add Guild</h4>
               <GuildAddForm data={data} setData={setData} />
             </div>
 
@@ -174,7 +172,7 @@ export function StepSetupMethod({ data, setData }: StepProps) {
                 {data.foundingGuilds.map((guild, index) => (
                   <div
                     key={guild.guildCode}
-                    className="flex items-center justify-between p-3 bg-[var(--bg-secondary)] rounded-lg"
+                    className="flex items-center justify-between p-3 bg-(--bg-secondary) rounded-lg"
                   >
                     <div>
                       <span className="font-medium">

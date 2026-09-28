@@ -14,13 +14,13 @@ function TokenAvailabilityErrorFallback({
 }: TokenAvailabilityErrorFallbackProps) {
   const router = useRouter()
   return (
-    <div className="border border-[var(--card-border)] bg-black/30">
-      <div className="flex items-center justify-between border-b border-[var(--card-border)] bg-gradient-to-r from-[color-mix(in_srgb,var(--accent)_10%,transparent)] to-transparent px-4 py-2">
+    <div className="border border-(--card-border) bg-black/30">
+      <div className="flex items-center justify-between border-b border-(--card-border) bg-linear-to-r from-[color-mix(in_srgb,var(--accent)_10%,transparent)] to-transparent px-4 py-2">
         <div className="flex items-center gap-2">
-          <div className="text-[var(--accent)]">
+          <div className="text-(--accent)">
             <AlertCircle className="h-4 w-4" />
           </div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-primary-wh40k">
             Token Availability - Error
           </h3>
         </div>

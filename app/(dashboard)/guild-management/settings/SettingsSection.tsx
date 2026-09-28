@@ -44,7 +44,7 @@ export function SettingsSection({
     <section
       id={id}
       className={cn(
-        'rounded-3xl border backdrop-blur-md bg-gradient-to-br shadow-[0_18px_40px_rgba(4,8,20,0.45)] overflow-hidden',
+        'rounded-3xl border backdrop-blur-md bg-linear-to-br shadow-[0_18px_40px_rgba(4,8,20,0.45)] overflow-hidden',
         toneDecorations[tone],
         className
       )}
@@ -56,29 +56,29 @@ export function SettingsSection({
               className={cn(
                 'flex h-12 w-12 items-center justify-center rounded-2xl border bg-[color-mix(in_srgb,var(--bg-primary)_60%,transparent)] shadow-inner',
                 tone === 'accent' &&
-                  'border-[color-mix(in_srgb,var(--accent)_60%,transparent)] text-[var(--accent)]',
+                  'border-[color-mix(in_srgb,var(--accent)_60%,transparent)] text-(--accent)',
                 tone === 'warning' && 'border-amber-400/60 text-amber-300',
                 tone === 'success' && 'border-emerald-400/60 text-emerald-300',
                 tone === 'danger' && 'border-red-500/60 text-red-300',
                 tone === 'default' &&
-                  'border-card-border/70 text-[var(--text-secondary)]'
+                  'border-card-border/70 text-secondary-wh40k'
               )}
             >
               <Icon className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-[var(--text-primary)]">
+              <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-primary-wh40k">
                 {title}
               </h2>
               {description && (
-                <p className="mt-2 text-sm md:text-base text-[var(--text-secondary)] leading-relaxed">
+                <p className="mt-2 text-sm md:text-base text-secondary-wh40k leading-relaxed">
                   {description}
                 </p>
               )}
             </div>
           </div>
           {headerActions && (
-            <div className="flex items-center gap-3 text-sm text-[var(--text-secondary)]">
+            <div className="flex items-center gap-3 text-sm text-secondary-wh40k">
               {headerActions}
             </div>
           )}

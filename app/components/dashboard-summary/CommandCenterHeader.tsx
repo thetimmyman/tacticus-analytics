@@ -25,9 +25,9 @@ export function CommandCenterHeader({
   return (
     <>
       {/* Command Center Header with Season Selector */}
-      <div className="card-wh40k p-3 sm:p-4 glow-primary relative hover:shadow-xl hover:shadow-[color:color-mix(in_srgb,var(--primary)_20%,transparent)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)] transition-all duration-300">
+      <div className="card-wh40k p-3 sm:p-4 glow-primary relative hover:shadow-xl hover:shadow-[color-mix(in_srgb,var(--primary)_20%,transparent)] hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)] transition-all duration-300">
         <Shield
-          className="heraldry-display hidden h-12 w-12 text-[var(--accent)] sm:block"
+          className="heraldry-display hidden h-12 w-12 text-(--accent) sm:block"
           aria-hidden="true"
         />
         <div className="flex flex-col gap-3">
@@ -53,7 +53,7 @@ export function CommandCenterHeader({
                 defaultRarities={['Legendary', 'Mythic']}
                 onChange={setSelectedRarities}
                 compact={true}
-                className="flex-shrink-0"
+                className="shrink-0"
               />
             </div>
           </div>

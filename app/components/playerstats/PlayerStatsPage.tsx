@@ -298,7 +298,7 @@ export function PlayerStatsPage({
                           key={player}
                           type="button"
                           onClick={() => handlePlayerSelect(player)}
-                          className={`w-full px-4 py-2 text-left text-sm hover:bg-[var(--card-hover)] text-[var(--text-primary)] font-medium transition-colors ${
+                          className={`w-full px-4 py-2 text-left text-sm hover:bg-(--card-hover) text-primary-wh40k font-medium transition-colors ${
                             index === 0 ? 'rounded-t-lg' : ''
                           } ${
                             index === Math.min(filteredPlayers.length, 10) - 1
@@ -311,7 +311,7 @@ export function PlayerStatsPage({
                         </button>
                       ))}
                       {filteredPlayers.length === 0 && (
-                        <div className="px-4 py-2 text-sm text-[var(--text-secondary)]">
+                        <div className="px-4 py-2 text-sm text-secondary-wh40k">
                           No players found
                         </div>
                       )}
@@ -323,7 +323,7 @@ export function PlayerStatsPage({
                     aria-label="Select player"
                     value={selectedPlayer}
                     onChange={(event) => handlePlayerSelect(event.target.value)}
-                    className="min-w-[200px] px-3 py-2 border border-[var(--card-border)] rounded-md bg-[var(--card-bg)] text-[var(--text-primary)]"
+                    className="min-w-[200px] px-3 py-2 border border-(--card-border) rounded-md bg-(--card-bg) text-primary-wh40k"
                     disabled={availablePlayers.length === 0}
                   >
                     <option value="">Select a player</option>
@@ -395,7 +395,7 @@ export function PlayerStatsPage({
 
         {isLoading && playerStats && (
           <Card>
-            <CardContent className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+            <CardContent className="flex items-center gap-2 text-sm text-secondary-wh40k">
               <LoadingSpinner size="sm" />
               <span>Refreshing player data…</span>
             </CardContent>
@@ -484,11 +484,11 @@ function HowThisWorksSection() {
         onClick={() => setIsOpen((prev) => !prev)}
         className="flex w-full items-center justify-between text-left"
       >
-        <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+        <h3 className="text-lg font-semibold text-primary-wh40k">
           How This Works
         </h3>
         <svg
-          className={`h-5 w-5 text-[var(--text-secondary)] transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`h-5 w-5 text-secondary-wh40k transition-transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -502,9 +502,9 @@ function HowThisWorksSection() {
         </svg>
       </button>
       {isOpen && (
-        <div className="space-y-4 text-sm text-[var(--text-secondary)]">
+        <div className="space-y-4 text-sm text-secondary-wh40k">
           <div>
-            <h4 className="text-base font-semibold text-[var(--accent)]">
+            <h4 className="text-base font-semibold text-(--accent)">
               Overview Statistics
             </h4>
             <ul className="list-disc space-y-1 pl-5">
@@ -523,7 +523,7 @@ function HowThisWorksSection() {
             </ul>
           </div>
           <div>
-            <h4 className="text-base font-semibold text-[var(--accent)]">
+            <h4 className="text-base font-semibold text-(--accent)">
               Historical Trends
             </h4>
             <ul className="list-disc space-y-1 pl-5">
@@ -542,7 +542,7 @@ function HowThisWorksSection() {
             </ul>
           </div>
           <div>
-            <h4 className="text-base font-semibold text-[var(--accent)]">
+            <h4 className="text-base font-semibold text-(--accent)">
               Assignments
             </h4>
             <ul className="list-disc space-y-1 pl-5">

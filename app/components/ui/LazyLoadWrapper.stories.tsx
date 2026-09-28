@@ -16,7 +16,7 @@ export default meta
 
 const LazyHello = lazyLoad(async () => ({
   default: () => (
-    <div className="p-4 rounded bg-[var(--card-bg)]">Hello, lazy world!</div>
+    <div className="p-4 rounded-sm bg-(--card-bg)">Hello, lazy world!</div>
   )
 }))
 
@@ -38,9 +38,7 @@ export const PreloadExample: StoryObj = {
   render: () => {
     const { Component } = preloadComponent(async () => ({
       default: () => (
-        <div className="p-4 rounded bg-[var(--card-bg)]">
-          Preloaded component
-        </div>
+        <div className="p-4 rounded-sm bg-(--card-bg)">Preloaded component</div>
       )
     }))
     return <Component />

@@ -101,14 +101,14 @@ function SummaryStats({
             <div className="stat-label-wh40k text-xs flex items-center gap-1">
               Behind pace
               <span
-                className="text-[var(--text-tertiary)] cursor-help"
+                className="text-(--text-tertiary) cursor-help"
                 title="Tokens behind the guild's most active member — a participation proxy, not physical waste. Measured against the guild leader; matches the Discord /token-overview bot (+/- 1 uncertainty)."
               >
                 ⓘ
               </span>
             </div>
             {avgRegenSeconds !== null && (
-              <div className="text-[10px] text-[var(--text-tertiary)] mt-1">
+              <div className="text-[10px] text-(--text-tertiary) mt-1">
                 Avg regen: {formatShortDuration(avgRegenSeconds)}
               </div>
             )}
@@ -122,7 +122,7 @@ function SummaryStats({
             <div className="stat-label-wh40k text-xs flex items-center gap-1">
               Overcapped
               <span
-                className="text-[var(--text-tertiary)] cursor-help"
+                className="text-(--text-tertiary) cursor-help"
                 title="Tokens physically wasted by sitting at the 3/3 cap through a full 12h regen cycle. Unrecoverable."
               >
                 ⓘ
@@ -133,17 +133,15 @@ function SummaryStats({
       </div>
 
       {showBurned && (
-        <p className="text-[10px] sm:text-xs italic text-[var(--text-tertiary)]">
+        <p className="text-[10px] sm:text-xs italic text-(--text-tertiary)">
           Behind pace = tokens behind the guild&apos;s most active member
           (participation proxy). Overcapped = tokens physically wasted at the
           3/3 cap (unrecoverable).
         </p>
       )}
 
-      <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--text-secondary)] bg-card/50 rounded-lg px-3 py-2 border border-card-border/30">
-        <span className="font-medium text-[var(--text-primary)]">
-          Data Sources:
-        </span>
+      <div className="flex flex-wrap items-center gap-3 text-xs text-secondary-wh40k bg-card/50 rounded-lg px-3 py-2 border border-card-border/30">
+        <span className="font-medium text-primary-wh40k">Data Sources:</span>
         {dataSourceStats.liveCount > 0 && (
           <span className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-green-500" />
@@ -162,7 +160,7 @@ function SummaryStats({
             {dataSourceStats.defaultCount} Default
           </span>
         )}
-        <span className="text-[var(--text-tertiary)] ml-auto">
+        <span className="text-(--text-tertiary) ml-auto">
           {cappedCount} capped (3/3)
         </span>
       </div>

@@ -136,14 +136,14 @@ export function GlobalThresholdsManager() {
       case 'Weak':
         return 'text-red-400 bg-red-500/10 border-red-500/20'
       default:
-        return 'text-[var(--text-secondary)] bg-gray-500/10 border-gray-500/20'
+        return 'text-secondary-wh40k bg-gray-500/10 border-gray-500/20'
     }
   }
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
       case 'Common':
-        return 'text-[var(--text-primary)]'
+        return 'text-primary-wh40k'
       case 'Uncommon':
         return 'text-green-400'
       case 'Rare':
@@ -155,7 +155,7 @@ export function GlobalThresholdsManager() {
       case 'Mythic':
         return 'text-red-400'
       default:
-        return 'text-[var(--text-secondary)]'
+        return 'text-secondary-wh40k'
     }
   }
 
@@ -164,10 +164,10 @@ export function GlobalThresholdsManager() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Gauge className="h-5 w-5 text-[var(--accent)]" />
+            <Gauge className="h-5 w-5 text-(--accent)" />
             Global Strength Thresholds
           </CardTitle>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">
+          <p className="text-sm text-secondary-wh40k mt-1">
             Fallback thresholds used when no guild or cluster playbook
             requirements exist. These define minimum hero strength levels for
             boss assignments.
@@ -196,8 +196,8 @@ export function GlobalThresholdsManager() {
                   onClick={() => setSelectedRarity(rarity)}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     selectedRarity === rarity
-                      ? `${getRarityColor(rarity)} bg-[var(--card-bg)] border border-current`
-                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--card-bg)]'
+                      ? `${getRarityColor(rarity)} bg-(--card-bg) border border-current`
+                      : 'text-secondary-wh40k hover:text-primary-wh40k hover:bg-(--card-bg)'
                   }`}
                 >
                   {rarity}
@@ -220,29 +220,29 @@ export function GlobalThresholdsManager() {
 
           {loading ? (
             <div className="flex justify-center py-8">
-              <RefreshCw className="h-6 w-6 animate-spin text-[var(--text-secondary)]" />
+              <RefreshCw className="h-6 w-6 animate-spin text-secondary-wh40k" />
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-[var(--card-border)]">
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[var(--text-secondary)]">
+                  <tr className="border-b border-(--card-border)">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-secondary-wh40k">
                       Strength Level
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[var(--text-secondary)]">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-secondary-wh40k">
                       Min Rank
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[var(--text-secondary)]">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-secondary-wh40k">
                       Active Ability
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[var(--text-secondary)]">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-secondary-wh40k">
                       Passive Ability
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[var(--text-secondary)]">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-secondary-wh40k">
                       Notes
                     </th>
-                    <th className="text-right py-3 px-4 text-sm font-medium text-[var(--text-secondary)]">
+                    <th className="text-right py-3 px-4 text-sm font-medium text-secondary-wh40k">
                       Actions
                     </th>
                   </tr>
@@ -262,14 +262,14 @@ export function GlobalThresholdsManager() {
                         >
                           <td className="py-3 px-4">
                             <span
-                              className={`px-2 py-1 rounded border text-xs font-medium ${getLevelColor(level)}`}
+                              className={`px-2 py-1 rounded-sm border text-xs font-medium ${getLevelColor(level)}`}
                             >
                               {level}
                             </span>
                           </td>
                           <td
                             colSpan={5}
-                            className="py-3 px-4 text-sm text-[var(--text-secondary)]"
+                            className="py-3 px-4 text-sm text-secondary-wh40k"
                           >
                             Not configured
                           </td>
@@ -284,7 +284,7 @@ export function GlobalThresholdsManager() {
                       >
                         <td className="py-3 px-4">
                           <span
-                            className={`px-2 py-1 rounded border text-xs font-medium ${getLevelColor(level)}`}
+                            className={`px-2 py-1 rounded-sm border text-xs font-medium ${getLevelColor(level)}`}
                           >
                             {level}
                           </span>
@@ -299,7 +299,7 @@ export function GlobalThresholdsManager() {
                               onChange={(e) =>
                                 handleRankChange(parseInt(e.target.value))
                               }
-                              className="px-2 py-1 rounded border border-[var(--card-border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm"
+                              className="px-2 py-1 rounded-sm border border-(--card-border) bg-(--bg-primary) text-primary-wh40k text-sm"
                             >
                               {RANKS.map((rank) => (
                                 <option key={rank.index} value={rank.index}>
@@ -308,7 +308,7 @@ export function GlobalThresholdsManager() {
                               ))}
                             </select>
                           ) : (
-                            <span className="text-sm text-[var(--text-primary)]">
+                            <span className="text-sm text-primary-wh40k">
                               {threshold.min_rank}
                             </span>
                           )}
@@ -328,11 +328,11 @@ export function GlobalThresholdsManager() {
                                     : null
                                 })
                               }
-                              className="w-16 px-2 py-1 rounded border border-[var(--card-border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm"
+                              className="w-16 px-2 py-1 rounded-sm border border-(--card-border) bg-(--bg-primary) text-primary-wh40k text-sm"
                               placeholder="-"
                             />
                           ) : (
-                            <span className="text-sm text-[var(--text-primary)]">
+                            <span className="text-sm text-primary-wh40k">
                               {threshold.min_ability_active ?? '-'}
                             </span>
                           )}
@@ -352,11 +352,11 @@ export function GlobalThresholdsManager() {
                                     : null
                                 })
                               }
-                              className="w-16 px-2 py-1 rounded border border-[var(--card-border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm"
+                              className="w-16 px-2 py-1 rounded-sm border border-(--card-border) bg-(--bg-primary) text-primary-wh40k text-sm"
                               placeholder="-"
                             />
                           ) : (
-                            <span className="text-sm text-[var(--text-primary)]">
+                            <span className="text-sm text-primary-wh40k">
                               {threshold.min_ability_passive ?? '-'}
                             </span>
                           )}
@@ -372,11 +372,11 @@ export function GlobalThresholdsManager() {
                                   notes: e.target.value || null
                                 })
                               }
-                              className="w-full px-2 py-1 rounded border border-[var(--card-border)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm"
+                              className="w-full px-2 py-1 rounded-sm border border-(--card-border) bg-(--bg-primary) text-primary-wh40k text-sm"
                               placeholder="Optional notes..."
                             />
                           ) : (
-                            <span className="text-sm text-[var(--text-secondary)]">
+                            <span className="text-sm text-secondary-wh40k">
                               {threshold.notes || '-'}
                             </span>
                           )}

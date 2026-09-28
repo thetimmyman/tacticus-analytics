@@ -139,14 +139,14 @@ export function FeatureHighlightsWithImages() {
     currentFeature.images[activeImage] || currentFeature.primaryImage
 
   return (
-    <div className="py-16 bg-gradient-to-b from-[var(--bg-from)] via-gray-900 to-[var(--bg-to)]">
+    <div className="py-16 bg-linear-to-b from-(--bg-from) via-gray-900 to-(--bg-to)">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-[var(--text-primary)] mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-primary-wh40k mb-4">
             Guild Raid Tools in Production
           </h2>
-          <p className="text-xl text-[var(--text-secondary)] max-w-3xl mx-auto">
+          <p className="text-xl text-secondary-wh40k max-w-3xl mx-auto">
             Live API sync, token availability, boss damage, Discord webhooks,
             and cluster views for active guilds
           </p>
@@ -165,7 +165,7 @@ export function FeatureHighlightsWithImages() {
                 }}
                 className={`cursor-pointer rounded-lg p-4 transition-all ${
                   activeFeature === featureIndex
-                    ? 'bg-gradient-to-r from-red-900/30 to-transparent border-l-4 border-red-500'
+                    ? 'bg-linear-to-r from-red-900/30 to-transparent border-l-4 border-red-500'
                     : 'hover:bg-white/5'
                 }`}
               >
@@ -174,7 +174,7 @@ export function FeatureHighlightsWithImages() {
                     className={`p-2 rounded-lg ${
                       activeFeature === featureIndex
                         ? 'bg-red-500/20 text-red-500'
-                        : 'bg-[var(--card-bg)] text-[var(--text-secondary)]'
+                        : 'bg-(--card-bg) text-secondary-wh40k'
                     }`}
                   >
                     {feature.icon}
@@ -183,8 +183,8 @@ export function FeatureHighlightsWithImages() {
                     <h3
                       className={`font-bold mb-1 ${
                         activeFeature === featureIndex
-                          ? 'text-[var(--text-primary)]'
-                          : 'text-[var(--text-secondary)]'
+                          ? 'text-primary-wh40k'
+                          : 'text-secondary-wh40k'
                       }`}
                     >
                       {feature.title}
@@ -192,8 +192,8 @@ export function FeatureHighlightsWithImages() {
                     <p
                       className={`text-sm mb-2 ${
                         activeFeature === featureIndex
-                          ? 'text-[var(--text-secondary)]'
-                          : 'text-[var(--text-secondary)]'
+                          ? 'text-secondary-wh40k'
+                          : 'text-secondary-wh40k'
                       }`}
                     >
                       {feature.description}
@@ -203,7 +203,7 @@ export function FeatureHighlightsWithImages() {
                         {feature.details.map((detail) => (
                           <li
                             key={detail}
-                            className="flex items-center gap-2 text-sm text-[var(--text-secondary)]"
+                            className="flex items-center gap-2 text-sm text-secondary-wh40k"
                           >
                             <ChevronRight className="w-3 h-3 text-red-500" />
                             {detail}
@@ -219,17 +219,17 @@ export function FeatureHighlightsWithImages() {
 
           {/* Right: Image Display */}
           <div className="sticky top-4">
-            <div className="relative aspect-video bg-[var(--card-bg)] hover:bg-card/80 transition-colors duration-200 rounded-lg overflow-hidden shadow-2xl border border-[var(--card-border)]">
+            <div className="relative aspect-video bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-lg overflow-hidden shadow-2xl border border-(--card-border)">
               {displayImage.startsWith('/screenshots/') ? (
-                <div className="w-full h-full bg-gradient-to-br from-[var(--bg-from)] to-[var(--bg-to)] flex items-center justify-center p-8">
+                <div className="w-full h-full bg-linear-to-br from-(--bg-from) to-(--bg-to) flex items-center justify-center p-8">
                   <div className="text-center">
                     <div className="text-6xl mb-4 flex justify-center text-red-500/50">
                       {currentFeature.icon}
                     </div>
-                    <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">
+                    <h3 className="text-xl font-bold text-primary-wh40k mb-2">
                       {currentFeature.title}
                     </h3>
-                    <p className="text-[var(--text-secondary)] text-sm max-w-sm mx-auto mb-4">
+                    <p className="text-secondary-wh40k text-sm max-w-sm mx-auto mb-4">
                       {currentFeature.description}
                     </p>
                     <div className="flex flex-wrap gap-2 justify-center">
@@ -267,12 +267,12 @@ export function FeatureHighlightsWithImages() {
                     className={`relative h-16 flex-1 rounded overflow-hidden border-2 transition-all ${
                       activeImage === imgIndex
                         ? 'border-red-500'
-                        : 'border-[var(--card-border)] opacity-60 hover:opacity-100'
+                        : 'border-(--card-border) opacity-60 hover:opacity-100'
                     }`}
                   >
                     {img.startsWith('/screenshots/') ? (
-                      <div className="w-full h-full bg-gradient-to-br from-[var(--bg-from)] to-[var(--bg-to)] flex items-center justify-center">
-                        <span className="text-xs text-[var(--text-secondary)]">
+                      <div className="w-full h-full bg-linear-to-br from-(--bg-from) to-(--bg-to) flex items-center justify-center">
+                        <span className="text-xs text-secondary-wh40k">
                           Preview {imgIndex + 1}
                         </span>
                       </div>
@@ -297,19 +297,19 @@ export function FeatureHighlightsWithImages() {
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="bg-[var(--card-bg)] rounded-lg border border-[var(--card-border)] overflow-hidden"
+              className="bg-(--card-bg) rounded-lg border border-(--card-border) overflow-hidden"
             >
               {/* Header with Icon - No screenshots on mobile */}
-              <div className="bg-gradient-to-r from-[var(--bg-from)] to-[var(--bg-to)] p-3 sm:p-4">
+              <div className="bg-linear-to-r from-(--bg-from) to-(--bg-to) p-3 sm:p-4">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <div className="p-2 sm:p-3 rounded-lg bg-red-500/20 text-red-500">
                     {feature.icon}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-[var(--text-primary)] text-base sm:text-lg">
+                    <h3 className="font-bold text-primary-wh40k text-base sm:text-lg">
                       {feature.title}
                     </h3>
-                    <p className="text-[var(--text-secondary)] text-xs sm:text-sm mt-0.5 sm:mt-1 line-clamp-2">
+                    <p className="text-secondary-wh40k text-xs sm:text-sm mt-0.5 sm:mt-1 line-clamp-2">
                       {feature.description}
                     </p>
                   </div>
@@ -321,10 +321,8 @@ export function FeatureHighlightsWithImages() {
                 <ul className="space-y-2">
                   {feature.details.map((detail) => (
                     <li key={detail} className="flex items-start gap-2 text-sm">
-                      <ChevronRight className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-[var(--text-secondary)]">
-                        {detail}
-                      </span>
+                      <ChevronRight className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
+                      <span className="text-secondary-wh40k">{detail}</span>
                     </li>
                   ))}
                 </ul>

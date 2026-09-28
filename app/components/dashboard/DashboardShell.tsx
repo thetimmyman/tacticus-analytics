@@ -27,10 +27,10 @@ export default function DashboardShell({
       <DashboardThemeWrapper profile={profile}>
         <RadixTooltipProvider>
           <ActivityTracker />
-          <div className="min-h-screen bg-gradient-to-br from-[var(--bg-from)] via-[var(--bg-via)] to-[var(--bg-to)]">
+          <div className="min-h-screen bg-linear-to-br from-(--bg-from) via-(--bg-via) to-(--bg-to)">
             <a
               href="#main-content"
-              className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[60] focus:bg-[var(--card-bg)] focus:text-[var(--text-primary)] focus:px-4 focus:py-2 focus:rounded focus:border focus:border-[var(--accent)]"
+              className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-60 focus:bg-(--card-bg) focus:text-primary-wh40k focus:px-4 focus:py-2 focus:rounded-sm focus:border focus:border-accent-wh40k"
             >
               Skip to main content
             </a>

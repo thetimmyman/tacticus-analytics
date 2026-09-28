@@ -75,9 +75,9 @@ export default function WebhookCard({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <ConfigIcon className={`w-4 h-4 ${config.color}`} />
-          <Label className="text-[var(--text-primary)]">{config.label}</Label>
+          <Label className="text-primary-wh40k">{config.label}</Label>
           {hasUnsaved && (
-            <span className="px-1.5 py-0.5 text-xs bg-yellow-500/20 text-yellow-400 rounded">
+            <span className="px-1.5 py-0.5 text-xs bg-yellow-500/20 text-yellow-400 rounded-sm">
               Unsaved
             </span>
           )}
@@ -116,7 +116,7 @@ export default function WebhookCard({
                     [webhook.webhook_type]: !prev[webhook.webhook_type]
                   }))
                 }
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-secondary-wh40k hover:text-primary-wh40k"
                 title={
                   showUrls[webhook.webhook_type]
                     ? 'Hide webhook URL'
@@ -141,7 +141,7 @@ export default function WebhookCard({
               if (v.ok) return null
               return (
                 <div className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-200">
-                  <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-400" />
+                  <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-amber-400" />
                   <div className="space-y-1">
                     <div className="font-medium">{v.message}</div>
                     {'hint' in v && <div className="opacity-90">{v.hint}</div>}
@@ -231,7 +231,7 @@ export default function WebhookCard({
             'prime_leaderboard'
           ].includes(webhook.webhook_type) && (
             <div className="flex items-center gap-2">
-              <Hash className="w-4 h-4 text-[var(--text-tertiary)] shrink-0" />
+              <Hash className="w-4 h-4 text-(--text-tertiary) shrink-0" />
               <Input
                 type="text"
                 value={webhook.thread_id || ''}
@@ -251,7 +251,7 @@ export default function WebhookCard({
             'prime_leaderboard'
           ].includes(webhook.webhook_type) &&
             webhook.thread_id && (
-              <p className="text-xs text-[var(--text-tertiary)]">
+              <p className="text-xs text-(--text-tertiary)">
                 Messages will be posted to forum thread {webhook.thread_id}
               </p>
             )}
@@ -261,7 +261,7 @@ export default function WebhookCard({
               <button
                 type="button"
                 onClick={() => toggleDetails(webhook.webhook_type)}
-                className="flex items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                className="flex items-center gap-1 text-xs text-secondary-wh40k hover:text-primary-wh40k transition-colors"
               >
                 {expandedDetails[webhook.webhook_type] ? (
                   <ChevronDown className="w-3 h-3" />
@@ -273,34 +273,34 @@ export default function WebhookCard({
               {expandedDetails[webhook.webhook_type] && (
                 <div className="mt-2 p-3 bg-card/30 rounded-lg space-y-2 text-xs">
                   <div>
-                    <span className="text-[var(--text-tertiary)] font-semibold">
+                    <span className="text-(--text-tertiary) font-semibold">
                       Trigger:
                     </span>
-                    <span className="text-[var(--text-secondary)] ml-1">
+                    <span className="text-secondary-wh40k ml-1">
                       {config.details.trigger}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[var(--text-tertiary)] font-semibold">
+                    <span className="text-(--text-tertiary) font-semibold">
                       Frequency:
                     </span>
-                    <span className="text-[var(--text-secondary)] ml-1">
+                    <span className="text-secondary-wh40k ml-1">
                       {config.details.frequency}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[var(--text-tertiary)] font-semibold">
+                    <span className="text-(--text-tertiary) font-semibold">
                       Action:
                     </span>
-                    <span className="text-[var(--text-secondary)] ml-1">
+                    <span className="text-secondary-wh40k ml-1">
                       {config.details.action}
                     </span>
                   </div>
-                  <div className="mt-3 p-2 bg-card/30 rounded border border-[var(--card-border)]">
-                    <span className="text-[var(--text-tertiary)] font-semibold block mb-1">
+                  <div className="mt-3 p-2 bg-card/30 rounded-sm border border-(--card-border)">
+                    <span className="text-(--text-tertiary) font-semibold block mb-1">
                       Example Output:
                     </span>
-                    <pre className="text-[var(--text-secondary)] whitespace-pre-wrap font-mono text-[10px]">
+                    <pre className="text-secondary-wh40k whitespace-pre-wrap font-mono text-[10px]">
                       {config.details.example}
                     </pre>
                   </div>
@@ -309,7 +309,7 @@ export default function WebhookCard({
             </div>
           )}
           {webhook.last_tested && (
-            <p className="text-xs text-[var(--text-tertiary)]">
+            <p className="text-xs text-(--text-tertiary)">
               Last tested:{' '}
               <ClientDate date={webhook.last_tested} format="full" />
             </p>
@@ -339,7 +339,7 @@ export default function WebhookCard({
             )}
           </Button>
           {!webhook.enabled && (
-            <span className="text-xs text-[var(--text-secondary)]">
+            <span className="text-xs text-secondary-wh40k">
               Click Save to confirm disabling.
             </span>
           )}
