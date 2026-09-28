@@ -292,3 +292,75 @@ test('the clean-baseline dump is exempt even though it creates functions with no
     rmSync(root, { recursive: true, force: true })
   }
 })
+
+async function lintNewTableMigration(name, lines) {
+  const root = fixture()
+  try {
+    writeFileSync(join(root, 'migrations', name), lines.join('\n'))
+    return await lintSql([join(root, 'migrations/*.sql')], {
+      allowlistPath: writeAllowlist(root, []),
+      pgrstReloadAllowlistPath: writePgrstReloadAllowlist(root, [])
+    })
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+}
+
+const POLICY_LINE =
+  'CREATE POLICY probe_read ON public.lint_probe FOR SELECT TO authenticated USING (true);'
+
+test('a new public table with RLS and an explicit GRANT passes', async () => {
+  const result = await lintNewTableMigration('20990101000000_new_table.sql', [
+    'CREATE TABLE IF NOT EXISTS public.lint_probe (id uuid PRIMARY KEY, note text);',
+    'ALTER TABLE public.lint_probe ENABLE ROW LEVEL SECURITY;',
+    POLICY_LINE,
+    'REVOKE ALL ON TABLE public.lint_probe FROM PUBLIC, anon, authenticated;',
+    'GRANT SELECT (id, note) ON public.lint_probe TO authenticated;',
+    'GRANT ALL ON TABLE public.lint_probe TO service_role;'
+  ])
+  assert.deepEqual(result.errors, [])
+})
+
+test('a new public table with no GRANT fails, even with RLS on', async () => {
+  const result = await lintNewTableMigration('20990101000000_new_table.sql', [
+    'CREATE TABLE public.lint_probe (id uuid PRIMARY KEY);',
+    'ALTER TABLE public.lint_probe ENABLE ROW LEVEL SECURITY;',
+    POLICY_LINE,
+    '-- GRANT SELECT ON public.lint_probe TO authenticated;'
+  ])
+  assert.equal(result.errors.length, 1)
+  assert.match(
+    result.errors[0],
+    /public\.lint_probe is created without an explicit GRANT/
+  )
+})
+
+test('a new public table with a GRANT but RLS off fails', async () => {
+  const result = await lintNewTableMigration('20990101000000_new_table.sql', [
+    'CREATE TABLE lint_probe (id uuid PRIMARY KEY);',
+    'GRANT SELECT ON lint_probe TO authenticated;'
+  ])
+  assert.equal(result.errors.length, 1)
+  assert.match(
+    result.errors[0],
+    /public\.lint_probe .*ENABLE ROW LEVEL SECURITY/
+  )
+})
+
+test('new-table grant rule ignores other schemas, temp tables, partitions and older migrations', async () => {
+  const ignored = [
+    'CREATE TABLE internal.lint_probe (id uuid PRIMARY KEY);',
+    'CREATE TEMP TABLE lint_scratch (id uuid);',
+    'CREATE TABLE public.lint_probe_2099 PARTITION OF public.lint_parent FOR VALUES IN (1);'
+  ]
+  const newer = await lintNewTableMigration(
+    '20990101000000_other_schemas.sql',
+    ignored
+  )
+  assert.deepEqual(newer.errors, [])
+
+  const older = await lintNewTableMigration('20260101000000_legacy.sql', [
+    'CREATE TABLE public.lint_probe (id uuid PRIMARY KEY);'
+  ])
+  assert.deepEqual(older.errors, [])
+})

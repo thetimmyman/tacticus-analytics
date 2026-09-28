@@ -6,8 +6,8 @@ SET search_path TO extensions, public, pg_catalog;
 SELECT plan(5);
 
 -- Schemas PostgREST serves; must equal [api].schemas in supabase/config.toml (a unit test pins it).
--- A table there with RLS off is readable row-for-row by any client role holding SELECT, and new
--- tables inherit client SELECT through default privileges, so an ad-hoc copy is exposed at once.
+-- A table there with RLS off is readable row-for-row by any client role holding SELECT, so any
+-- explicit client grant on such a table must come with RLS on.
 CREATE TEMP VIEW exposed_rls_off_tables AS
 SELECT n.nspname AS schema_name, c.relname AS relation_name
 FROM pg_class c
@@ -48,7 +48,8 @@ SELECT ok(
   'the allowlisted player_with_cluster column is still a constant NULL'
 );
 
--- Canary: a table shaped like an ad-hoc credential backup must trip both checks.
+-- Canary: a table shaped like an ad-hoc credential backup must trip both checks. SELECT is granted
+-- explicitly because new public tables carry no client grants by default.
 CREATE TABLE public.zz_census_canary (owner_ref text, client_secret text);
 GRANT SELECT ON public.zz_census_canary TO authenticated;
 
