@@ -3,6 +3,7 @@ import { db } from '@/app/lib/db'
 import { createPageMetadata } from '@/app/lib/metadata'
 
 import { GuildTeamsClient } from './GuildTeamsClient'
+import { pickPageTitle } from './guild-teams-shared'
 
 export const metadata = createPageMetadata({
   title: 'Guild Meta Tracker',
@@ -39,6 +40,7 @@ export default async function GuildTeamsPage() {
       <GuildTeamsClient
         guildCode={profile.guild_code!}
         heroMappings={heroMappings}
+        pageTitle={pickPageTitle()}
       />
     </div>
   )
