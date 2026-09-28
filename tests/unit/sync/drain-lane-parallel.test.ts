@@ -92,7 +92,7 @@ describe('parallel drain lanes', () => {
     ).toBe(3)
   })
 
-  it('tries background types first on the last lane then falls back', async () => {
+  it('tries background tiers first on the last lane then falls back', async () => {
     const calls: Array<{ worker: string; types: unknown }> = []
     const jobs = [job('a'), job('b'), job('c')]
     const rpc = vi.fn(
@@ -123,13 +123,55 @@ describe('parallel drain lanes', () => {
         .every((call) => call.types === undefined)
     ).toBe(true)
     const lastLane = calls.filter((call) => call.worker === 'worker-l2')
-    expect(lastLane[0].types).toEqual([
-      'full_sync',
-      'incremental_sync',
-      'validation_sync',
-      'player_sync'
+    expect(lastLane.slice(0, 3).map((call) => call.types)).toEqual([
+      ['validation_sync', 'full_sync', 'player_sync'],
+      ['incremental_sync'],
+      undefined
     ])
-    expect(lastLane[1].types).toBeUndefined()
+  })
+
+  it('claims a due full_sync ahead of a steady incremental stream', async () => {
+    let fullSyncPending = true
+    const claimedTypes: string[] = []
+    let next = 0
+    const rpc = vi.fn(async (_fn: string, args: { p_job_types?: string[] }) => {
+      const types = args.p_job_types
+      // Mirrors claim_next_job: always-due incremental work (priority 5) outranks full_sync (7).
+      if (!types || types.includes('incremental_sync')) {
+        next += 1
+        return { data: job(`inc${next}`), error: null }
+      }
+      if (fullSyncPending && types.includes('full_sync')) {
+        fullSyncPending = false
+        return {
+          data: { ...job('full', 'TESTGUILDFULL'), job_type: 'full_sync' },
+          error: null
+        }
+      }
+      return { data: null, error: null }
+    })
+    processJob.mockImplementation(
+      async (claimed: { id: string; job_type: string }) => {
+        claimedTypes.push(claimed.job_type)
+        return outcome(claimed.id)
+      }
+    )
+    let clock = 0
+    await runDrainLane({
+      supabase: { rpc } as never,
+      laneIndex: 2,
+      laneWorkerId: 'worker-l2',
+      role: 'background_first',
+      startTime: 0,
+      budgetMs: 5,
+      tailReserveMs: 0,
+      now: () => clock++
+    })
+
+    expect(claimedTypes[0]).toBe('full_sync')
+    expect(
+      claimedTypes.slice(1).every((type) => type === 'incremental_sync')
+    ).toBe(true)
   })
 
   it('defers a claimed job for an in-flight guild and continues draining', async () => {

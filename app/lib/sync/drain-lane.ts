@@ -15,12 +15,12 @@ const logger = createComponentLogger('api.sync.worker.drain')
 type DrainLaneStop = 'queue_empty' | 'budget_exhausted' | 'claim_error'
 export type DrainLaneRole = 'any' | 'background_first'
 
-const backgroundJobTypes = [
-  'full_sync',
-  'incremental_sync',
-  'validation_sync',
-  'player_sync'
-] as const
+// Background claim tiers, tried in order before an unfiltered claim; rare heavy
+// jobs come first so a steady incremental stream cannot outrank a due full_sync.
+const backgroundClaimTiers: ReadonlyArray<readonly string[]> = [
+  ['validation_sync', 'full_sync', 'player_sync'],
+  ['incremental_sync']
+]
 const guildsInFlight = new Set<string>()
 
 export interface DrainLaneOutcome {
@@ -84,29 +84,22 @@ export async function runDrainLane(
     let claimedJob: SyncQueueClaimRow | null = null
     let claimError: { message?: string | null } | null = null
     try {
-      const claim = await callRpc<SyncQueueClaimRow>(
-        supabase,
-        'claim_next_job',
-        {
-          p_worker_id: workerIdForLane,
-          p_job_types:
-            role === 'background_first' ? [...backgroundJobTypes] : undefined
-        }
-      )
-      claimedJob = claim.data
-      claimError = claim.error
-      if (
-        role === 'background_first' &&
-        !claimError &&
-        !parseSyncJob(claimedJob)
-      ) {
-        const fallback = await callRpc<SyncQueueClaimRow>(
+      const tiers: ReadonlyArray<readonly string[] | undefined> =
+        role === 'background_first'
+          ? [...backgroundClaimTiers, undefined]
+          : [undefined]
+      for (const jobTypes of tiers) {
+        const claim = await callRpc<SyncQueueClaimRow>(
           supabase,
           'claim_next_job',
-          { p_worker_id: workerIdForLane, p_job_types: undefined }
+          {
+            p_worker_id: workerIdForLane,
+            p_job_types: jobTypes ? [...jobTypes] : undefined
+          }
         )
-        claimedJob = fallback.data
-        claimError = fallback.error
+        claimedJob = claim.data
+        claimError = claim.error
+        if (claimError || parseSyncJob(claimedJob)) break
       }
     } catch (error) {
       claimError = { message: String(error) }
