@@ -3,6 +3,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { corsHeaders } from '../_shared/cors-headers.ts'
+import { overrideHandoffEnv } from '../_shared/loki-config-override-handoff.ts'
 import {
   jsonResponse,
   corsOptionsResponse
@@ -96,7 +97,10 @@ serve(async (req: Request) => {
       cpuTimeHardLimitMs,
       noModuleCache,
       importMapPath,
-      envVars: Object.entries(Deno.env.toObject())
+      envVars: [
+        ...Object.entries(Deno.env.toObject()),
+        ...(await overrideHandoffEnv())
+      ]
     })
 
     const response = await worker.fetch(req)
