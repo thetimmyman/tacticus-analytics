@@ -165,6 +165,21 @@ export async function refreshGuildRoster(
   }
 }
 
+/** Writing ticks refresh the roster and rankings at most this often per guild. */
+export const WRITE_TICK_ROSTER_REFRESH_MS = 15 * 60 * 1000
+
+// A future stamp (clock skew, bad write) must not suppress refreshes indefinitely.
+function rosterRefreshedWithin(
+  config: GuildConfig,
+  windowMs: number,
+  now: number
+): boolean {
+  const last = Date.parse(config.last_roster_refresh_at ?? '')
+  if (!Number.isFinite(last)) return false
+  const age = now - last
+  return age >= 0 && age < windowMs
+}
+
 /** Failures are logged and never fail the sync job. */
 export async function runPostSyncHooks(
   guildCode: string,
@@ -210,7 +225,21 @@ export async function runPostSyncHooks(
     )
   })
 
-  const loki = await refreshGuildRoster(guildCode, config, supabase)
+  // The LOKI roster call dominates a writing tick; an active guild writes most ticks.
+  const rosterFresh = rosterRefreshedWithin(
+    config,
+    WRITE_TICK_ROSTER_REFRESH_MS,
+    Date.now()
+  )
+  const loki = rosterFresh
+    ? null
+    : await refreshGuildRoster(guildCode, config, supabase)
+  if (rosterFresh) {
+    logger.debug(
+      { guildCode },
+      'Roster refreshed recently; skipping LOKI roster and rankings this tick'
+    )
+  }
   if (loki) {
     if (loki.authFailed) {
       logger.info(

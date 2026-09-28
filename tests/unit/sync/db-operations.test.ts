@@ -715,6 +715,31 @@ describe('DB Operations Module', () => {
       expect(updateData.GR_Ranking).toBeUndefined()
       expect(updateData.GW_Ranking).toBeUndefined()
     })
+
+    it('stamps last_roster_refresh_at for the roster onboarding just read', async () => {
+      const mockUpdate = vi.fn().mockReturnValue({
+        eq: vi.fn().mockResolvedValue({ error: null })
+      })
+      const mockSupabase = {
+        from: vi.fn().mockReturnValue({
+          update: mockUpdate
+        })
+      }
+      const before = Date.now()
+
+      const { updateGuildConfigAfterSync } =
+        await import('@/app/lib/sync/db-operations')
+      await updateGuildConfigAfterSync(mockSupabase as never, 'TEST', {
+        guildRaid: null,
+        guildWar: null
+      })
+
+      const stamp = Date.parse(
+        mockUpdate.mock.calls[0][0].last_roster_refresh_at
+      )
+      expect(stamp).toBeGreaterThanOrEqual(before)
+      expect(stamp).toBeLessThanOrEqual(Date.now())
+    })
   })
 
   describe('loadExistingPlayerMappings', () => {

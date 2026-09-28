@@ -44,7 +44,11 @@ export async function updateGuildConfigAfterSync(
   guildCode: string,
   rankings: { guildRaid: number | null; guildWar: number | null }
 ): Promise<void> {
+  const now = new Date().toISOString()
   const updateData: Partial<GuildConfigRow> = {
+    // Onboarding only reaches here after a successful LOKI roster read; the sync
+    // worker's roster throttle keys off this stamp.
+    last_roster_refresh_at: now,
     enabled: true,
     onboarding_completed: true,
     onboarding_completed_at: new Date().toISOString(),
