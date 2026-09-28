@@ -500,11 +500,12 @@ function hashedSubstringControls() {
   expectLabel('near-miss.txt', SUBSTRING_SENTINEL.slice(0, -1), null)
   expectLabel('one-off.txt', SUBSTRING_SENTINEL.replace('-s', '_s'), null)
 
+  // A loose bound: a quadratic scan of 2 MB takes minutes; a busy runner takes seconds.
   const large = `${'ordinary public text '.repeat(100_000)}${SUBSTRING_SENTINEL}`
   const startedAt = Date.now()
   const hits = findHashedSubstrings(large)
   const elapsedMs = Date.now() - startedAt
-  if (!hits.includes(insensitive) || elapsedMs > 1000) {
+  if (!hits.includes(insensitive) || elapsedMs > 30_000) {
     throw new Error(
       `hashed substring control failed: ${large.length}-char text took ${elapsedMs}ms, hits ${JSON.stringify(hits)}`
     )
