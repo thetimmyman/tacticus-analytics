@@ -60,9 +60,9 @@ const CENSUS_ROOTS = [
 ]
 const CENSUS_STANDALONE_FILES = ['proxy.ts', 'next.config.js']
 
-const THIS_FILE = 'tests/unit/api/xioljhp-auth-proxy-retired.test.ts'
+const THIS_FILE = 'tests/unit/api/auth-proxy-retired.test.ts'
 
-describe('xgfofkn: /api/auth-proxy is retired', () => {
+describe('/api/auth-proxy is retired', () => {
   it('the route directory no longer exists', () => {
     expect(existsSync(path.join(repoRoot, 'app/api/auth-proxy'))).toBe(false)
   })

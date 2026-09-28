@@ -30,7 +30,7 @@ vi.mock('@/app/lib/resilience', () => ({
 
 import { withWriteQueue, writeQueue } from '@/app/lib/db/write-queue'
 
-describe('xebnodf P1A generic RPC queue closure', () => {
+describe('P1A generic RPC queue closure', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })

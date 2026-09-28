@@ -258,7 +258,7 @@ describe('LoginForm', () => {
     expect(screen.getByText('Privacy Policy')).toBeInTheDocument()
   })
 
-  describe('xbocpjj timeout and error-visibility regression coverage', () => {
+  describe('timeout and error-visibility regression coverage', () => {
     const TEST_TIMEOUT_MS = 1000
 
     it('re-enables the submit button and shows a timeout error when the sign-in request never resolves', async () => {

@@ -100,7 +100,7 @@ function createServiceClientHarness(
   }
 }
 
-describe('POST /api/account/delete closes its Article 17 record (xjofkem)', () => {
+describe('POST /api/account/delete closes its Article 17 record', () => {
   let POST: (req: NextRequest) => Promise<Response>
   let harness: ReturnType<typeof createServiceClientHarness>
 

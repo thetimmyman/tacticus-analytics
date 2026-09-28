@@ -112,7 +112,7 @@ function renderTable(
   )
 }
 
-describe('PerformanceTargetTokensTable — xceeefj season-aware read + write', () => {
+describe('PerformanceTargetTokensTable — season-aware read + write', () => {
   it('scopes the target-tokens GET to the current rotation season', async () => {
     renderTable()
 

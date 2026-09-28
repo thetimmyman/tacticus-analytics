@@ -239,7 +239,7 @@ afterEach(() => {
   vi.resetModules()
 })
 
-describe('POST /api/account/delete survives one failed ledger close (xjkgfoi)', () => {
+describe('POST /api/account/delete survives one failed ledger close', () => {
   it('retries the completion write once and closes the record', async () => {
     vi.resetModules()
     const harness = createHarness({ failCompletions: 1, failureMode: 'throw' })
@@ -309,7 +309,7 @@ describe('POST /api/account/delete survives one failed ledger close (xjkgfoi)', 
   })
 })
 
-describe('gdpr-cleanup executor survives one failed ledger close (xjkgfoi)', () => {
+describe('gdpr-cleanup executor survives one failed ledger close', () => {
   async function runExecutor(options: {
     failCompletions: number
     failureMode: 'throw' | 'return'

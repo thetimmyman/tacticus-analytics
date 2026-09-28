@@ -68,7 +68,7 @@ describe('bombsNeededForKill', () => {
     expect(bombsNeededForKill(-100, 42, 'worst_case')).toBe(0)
   })
 
-  it('uses default level/mode when omitted (preserves pre-xdeliia behavior)', () => {
+  it('uses default level/mode when omitted (preserves legacy behavior)', () => {
     expect(bombsNeededForKill(52_440)).toBe(4)
     expect(bombsNeededForKill(52_441)).toBe(5)
   })
@@ -117,7 +117,7 @@ describe('isBombCalculationMode', () => {
 })
 
 describe('module defaults', () => {
-  it('default mode is worst_case (xacgdjf compatibility)', () => {
+  it('default mode is worst_case (compatibility)', () => {
     expect(DEFAULT_BOMB_CALCULATION_MODE).toBe('worst_case')
   })
 })

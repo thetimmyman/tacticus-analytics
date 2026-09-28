@@ -438,7 +438,7 @@ describe('deriveNextMove — bomb range', () => {
     expect(m.detail).toMatch(/Spend a token/)
   })
 
-  it('bomb branches surface the auditable math in the basis line (xmlfipo)', () => {
+  it('bomb branches surface the auditable math in the basis line', () => {
     const m = deriveNextMove(
       base({
         primeTargets: [{ ...bombablePrime, remainingHp: 45_000 }],

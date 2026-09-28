@@ -13,7 +13,7 @@ function createRequest(cluster?: string): NextRequest {
   return new NextRequest(url, { method: 'GET' })
 }
 
-describe('GET /api/cluster/guilds — cluster scoping (xbclgck)', () => {
+describe('GET /api/cluster/guilds — cluster scoping', () => {
   let GET: (req: NextRequest) => Promise<Response>
   let mockRequireRoleForApi: ReturnType<typeof vi.fn>
   let mockOrder: ReturnType<typeof vi.fn>

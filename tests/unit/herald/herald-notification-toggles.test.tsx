@@ -97,7 +97,7 @@ afterEach(() => {
   cleanup()
 })
 
-describe('HeraldNotificationToggles (xblhkdn / xbclgck column whitelist)', () => {
+describe('HeraldNotificationToggles (column whitelist)', () => {
   it('loads guild_config without naming the withheld bomb_alert_webhook_url column', async () => {
     await renderPanel()
 
@@ -126,7 +126,7 @@ describe('HeraldNotificationToggles (xblhkdn / xbclgck column whitelist)', () =>
     expect(mocks.toast.success).toHaveBeenCalled()
   })
 
-  it('fails closed when the settings load errors: banner shown, saves disabled (xblhkdn F1)', async () => {
+  it('fails closed when the settings load errors: banner shown, saves disabled (F1)', async () => {
     mocks.loadError = { message: 'permission denied for table guild_config' }
     render(
       <HeraldNotificationToggles guildCode="TESTGUILD" canManage className="" />
@@ -158,7 +158,7 @@ describe('HeraldNotificationToggles (xblhkdn / xbclgck column whitelist)', () =>
     expect(mocks.updates.length).toBe(0)
   })
 
-  it('treats a zero-row update as a failure, not a success (xblhkdn F2)', async () => {
+  it('treats a zero-row update as a failure, not a success (F2)', async () => {
     const user = userEvent.setup()
     await renderPanel()
     mocks.updateCount = 0

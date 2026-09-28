@@ -72,7 +72,7 @@ function dbDouble() {
   }
 }
 
-describe('xecfamk guild_config reads from the health surface', () => {
+describe('guild_config reads from the health surface', () => {
   beforeEach(() => {
     vi.resetModules()
     vi.clearAllMocks()

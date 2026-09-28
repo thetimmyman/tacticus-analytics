@@ -206,7 +206,7 @@ const playerTokens: Record<string, number> = {
   p_silent: 20
 }
 
-describe('orchestrateMultiStage — invariants locked by xpmggei review', () => {
+describe('orchestrateMultiStage — invariants locked by the multi-stage review', () => {
   it('solves primes (priorityRank=0) before main (priorityRank=1) within a stage', () => {
     const result = orchestrateMultiStage({
       players: classifiedPlayers,
@@ -299,7 +299,7 @@ describe('orchestrateMultiStage — invariants locked by xpmggei review', () => 
     expect(mainAttackers.size).toBeGreaterThanOrEqual(3)
   })
 
-  it('projects per-encounter HP from assignments (xpmggei Issue 3)', () => {
+  it('projects per-encounter HP from assignments (Issue 3)', () => {
     const result = orchestrateMultiStage({
       players: classifiedPlayers,
       playerTokens,
@@ -320,7 +320,7 @@ describe('orchestrateMultiStage — invariants locked by xpmggei review', () => 
   })
 })
 
-describe('orchestrateMultiStage — xpkkoeg time-phased token cap', () => {
+describe('orchestrateMultiStage — time-phased token cap', () => {
   // A generous season budget so only the physical cap binds.
   const twoStageSequence: BossStageEntry[] = [
     {
@@ -429,7 +429,7 @@ describe('orchestrateMultiStage — xpkkoeg time-phased token cap', () => {
   })
 })
 
-describe('orchestrateMultiStage — xchnami officer-target allocation caps', () => {
+describe('orchestrateMultiStage — officer-target allocation caps', () => {
   // The solver's ceiling is max(requiredTokens, minTokens), so both are clamped.
   const withBudget = (
     budgets: Partial<

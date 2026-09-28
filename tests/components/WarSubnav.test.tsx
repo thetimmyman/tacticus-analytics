@@ -205,7 +205,7 @@ describe('WarSubnav', () => {
   })
 
   describe('breadcrumbs', () => {
-    it('renders no wars-specific breadcrumb trail (removed per operator feedback on xecajfk)', () => {
+    it('renders no wars-specific breadcrumb trail (removed per operator feedback)', () => {
       setNavigationContext('/wars/maps', '5')
       render(<WarSubnav mode={{ kind: 'global' }} />)
 

@@ -4,7 +4,7 @@ import { settledMapWithConcurrency } from '@/app/lib/utils/bounded-fanout'
 
 const tick = () => new Promise<void>((resolve) => setTimeout(resolve, 0))
 
-describe('settledMapWithConcurrency (xiblmie)', () => {
+describe('settledMapWithConcurrency', () => {
   it('never exceeds the concurrency ceiling', async () => {
     let inFlight = 0
     let peak = 0

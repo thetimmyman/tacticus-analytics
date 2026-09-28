@@ -186,7 +186,7 @@ function lastCursorWrite(): unknown {
   return mutateCalls.at(-1)?.body.last_tracked_season
 }
 
-describe('season-transition-monitor: fail-closed retry/cursor (xhjlnok)', () => {
+describe('season-transition-monitor: fail-closed retry/cursor', () => {
   beforeEach(() => {
     vi.resetModules()
     seasonTiming = { current: CURRENT_SEASON, ended: [ENDED_SEASON] }

@@ -218,7 +218,7 @@ describe('POST /api/sync/worker', () => {
     }
   })
 
-  describe('batch upsert failure handling (xdeende)', () => {
+  describe('batch upsert failure handling', () => {
     const mockJob = {
       id: 'job-1',
       guild_code: 'GUILD01',

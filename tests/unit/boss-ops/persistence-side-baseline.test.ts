@@ -61,7 +61,7 @@ afterEach(() => vi.unstubAllGlobals())
 const skipWrites = () =>
   calls.filter((c) => c.url.includes('skip-prime')).map((c) => c.body.sub_index)
 
-describe('persistSideSettings baseline (xbhcahe D6)', () => {
+describe('persistSideSettings baseline (D6)', () => {
   it('writes NEITHER prime when both match what was hydrated', async () => {
     await persistSideSettings(
       BOSS,
@@ -191,7 +191,7 @@ describe('persistSideSettings baseline (xbhcahe D6)', () => {
 })
 
 /** `skip_all` compares effective behaviour, not the raw mode. */
-describe('persistSideSettings skip_all transitions (xcdakae review F2)', () => {
+describe('persistSideSettings skip_all transitions (review F2)', () => {
   const tokenPuts = () =>
     calls.filter((c) => c.url.includes('target-tokens')).map((c) => c.body)
 
@@ -273,7 +273,7 @@ describe('persistSideSettings skip_all transitions (xcdakae review F2)', () => {
   })
 })
 
-describe('persistSideSettings notes/ping gating (xcdakae D2)', () => {
+describe('persistSideSettings notes/ping gating (D2)', () => {
   const notesModeCalls = () => calls.filter((c) => c.url.includes('notes-mode'))
 
   const NOTES_BASELINE = {

@@ -26,7 +26,7 @@ describe('GET /api/health/telemetry', () => {
     })
   })
 
-  it('rejects an unauthenticated caller (xhgmfjm)', async () => {
+  it('rejects an unauthenticated caller', async () => {
     const { AuthError } = await import('@/app/lib/auth')
     requireAuthForApiMock.mockRejectedValue(
       new AuthError('Authentication required', 'UNAUTHENTICATED')

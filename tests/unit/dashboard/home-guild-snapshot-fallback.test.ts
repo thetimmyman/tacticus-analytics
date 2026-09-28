@@ -27,7 +27,7 @@ const makeClient = (data: unknown, error: unknown = null) => {
   }
 }
 
-describe('fetchHomeGuildSnapshot (xokimab)', () => {
+describe('fetchHomeGuildSnapshot', () => {
   it('service path reads the base table and keeps the true damage columns', async () => {
     const full = {
       ...ROW,

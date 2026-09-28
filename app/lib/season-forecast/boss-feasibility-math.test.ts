@@ -60,7 +60,7 @@ describe('buildCumulativeFeasibility', () => {
     expect(rows.map((r) => r.entry.stageCode)).toEqual(['A', 'B', 'C'])
   })
 
-  it('runs the cumulative on the BUDGET when budget fields exist (xchnami)', () => {
+  it('runs the cumulative on the BUDGET when budget fields exist', () => {
     const rows = buildCumulativeFeasibility([
       budgetStage('A', 26, 20, { targeted: true, variance: 6 }),
       budgetStage('B', 3, 3),
@@ -171,7 +171,7 @@ describe('lapFeasibilityTone', () => {
   })
 })
 
-describe('stageBudgetTokens / stageHasOfficerTarget (xchnami)', () => {
+describe('stageBudgetTokens / stageHasOfficerTarget', () => {
   it('falls back to the model estimate for entries without budget fields', () => {
     const legacy = stage('A', 0, 7)
     expect(stageBudgetTokens(legacy)).toBe(7)
@@ -189,7 +189,7 @@ describe('stageBudgetTokens / stageHasOfficerTarget (xchnami)', () => {
   })
 })
 
-describe('summarizeSequenceBudget (xchnami)', () => {
+describe('summarizeSequenceBudget', () => {
   it('returns null when no stage carries an officer target (target-less no-op)', () => {
     expect(summarizeSequenceBudget([])).toBeNull()
     expect(

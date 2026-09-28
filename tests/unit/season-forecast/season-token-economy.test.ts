@@ -93,7 +93,7 @@ describe('computeSeasonTokenAggregates', () => {
   })
 })
 
-describe('computeSeasonTokenAggregates per-player emission (xfgledm)', () => {
+describe('computeSeasonTokenAggregates per-player emission', () => {
   const ARGS = {
     regenToEnd: 20,
     daysRemaining: 10,

@@ -54,7 +54,7 @@ function wrapper({ children }: { children: React.ReactNode }) {
   )
 }
 
-describe('MyGuildTab RPC key-casing (xdmcfjk Phase 1b)', () => {
+describe('MyGuildTab RPC key-casing (Phase 1b)', () => {
   beforeEach(() => {
     rpcMock.mockResolvedValue({ data: [LOWERCASE_RPC_ROW], error: null })
   })

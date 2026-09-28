@@ -45,7 +45,7 @@ function client() {
   }
 }
 
-describe('eraseAllUserData departed members (xfmpcfn)', () => {
+describe('eraseAllUserData departed members', () => {
   beforeEach(() => {
     mocks.anonymizeSubjectBattleRows.mockReset()
     mocks.anonymizeSubjectBattleRows.mockResolvedValue(3)

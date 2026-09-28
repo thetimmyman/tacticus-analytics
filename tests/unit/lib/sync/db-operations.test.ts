@@ -98,7 +98,7 @@ function buildMockSupabase(
   }
 }
 
-describe('markPlayersNotInGuildAsInactive (BUG-2 recent-activity guard, xedjhfi)', () => {
+describe('markPlayersNotInGuildAsInactive (recent-activity guard)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -175,7 +175,7 @@ describe('markPlayersNotInGuildAsInactive (BUG-2 recent-activity guard, xedjhfi)
   })
 })
 
-describe('markPlayersNotInGuildAsInactive (D3 all-members circuit breaker, xedjhfi)', () => {
+describe('markPlayersNotInGuildAsInactive (D3 all-members circuit breaker)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })

@@ -86,7 +86,7 @@ function supabaseMock(mappings: MappingRowFixture[]) {
   } as never
 }
 
-describe('fetchGuildTokensFast — xadpkmc D2 key-holder live overlay', () => {
+describe('fetchGuildTokensFast — D2 key-holder live overlay', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.loadGuildTokenStatuses.mockResolvedValue({ players: [], debug: {} })
@@ -183,7 +183,7 @@ describe('fetchGuildTokensFast — xadpkmc D2 key-holder live overlay', () => {
     expect(mocks.loadGuildTokenStatuses).not.toHaveBeenCalled()
   })
 
-  it('xpgkaok: uses the snapshot projection (not the replay estimate) when the live fan-out misses a key-holder', async () => {
+  it('uses the snapshot projection (not the replay estimate) when the live fan-out misses a key-holder', async () => {
     const mappings = [
       {
         player_id: 'KEYED',
@@ -236,7 +236,7 @@ describe('fetchGuildTokensFast — xadpkmc D2 key-holder live overlay', () => {
     expect(keyed?.tokenCooldown).toBeTruthy()
   })
 
-  it('xpgkaok: keeps the replay estimate as a last resort when the projection has no row for the missed key-holder', async () => {
+  it('keeps the replay estimate as a last resort when the projection has no row for the missed key-holder', async () => {
     const mappings = [
       {
         player_id: 'KEYED',

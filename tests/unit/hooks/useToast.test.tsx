@@ -15,7 +15,7 @@ function setup() {
 const last = (r: ReturnType<typeof setup>['result']) =>
   r.current.ctx.toasts[r.current.ctx.toasts.length - 1]
 
-describe('useToast Mechanicus theming (xbbbkod)', () => {
+describe('useToast Mechanicus theming', () => {
   it('themes an error toast description, preserving the literal message', () => {
     const { result } = setup()
     act(() =>

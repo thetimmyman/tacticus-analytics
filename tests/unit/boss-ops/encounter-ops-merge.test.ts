@@ -87,7 +87,7 @@ describe('resolveEncounterOps', () => {
       ).toBeNull()
     })
 
-    it('xoalibd: an explicitly cleared (null) season note stays cleared — no fallback to the Herald snapshot', () => {
+    it('an explicitly cleared (null) season note stays cleared — no fallback to the Herald snapshot', () => {
       expect(
         resolveEncounterOps({
           encounterId: 0,
@@ -104,7 +104,7 @@ describe('resolveEncounterOps', () => {
       ).toBeNull()
     })
 
-    it('xoalibd: clearing one encounter does not clear a sibling encounter', () => {
+    it('clearing one encounter does not clear a sibling encounter', () => {
       const ops = seasonOps({ side1Notes: null })
       expect(
         resolveEncounterOps({

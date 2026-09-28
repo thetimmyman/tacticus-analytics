@@ -26,7 +26,7 @@ function activeProfileSelectColumns(): string[] {
   return [...body.matchAll(/'([a-z0-9_]+)'/g)].map((m) => m[1])
 }
 
-describe('resolveProfile column whitelist (xbmelai)', () => {
+describe('resolveProfile column whitelist', () => {
   it('never selects * from player_mapping', () => {
     expect(AUTH_TS).not.toMatch(/\.select\('\*'\)/)
   })
@@ -65,7 +65,7 @@ describe('resolveProfile column whitelist (xbmelai)', () => {
   })
 })
 
-describe('consumers do not read withheld columns off the profile (xbmelai)', () => {
+describe('consumers do not read withheld columns off the profile', () => {
   // These read the encrypted key for badges; the whitelist omits it, silently pinning users low.
   const CONSUMERS = [
     'app/lib/dashboard/home-summary-rpc.ts',

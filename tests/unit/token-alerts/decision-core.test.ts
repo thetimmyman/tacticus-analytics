@@ -192,7 +192,7 @@ describe("decideAlerts — 'full'", () => {
   })
 })
 
-describe("decideAlerts — repeating 'full' reminders (xalbibg)", () => {
+describe("decideAlerts — repeating 'full' reminders", () => {
   it('repeats while still full once the configured cadence elapses', () => {
     expect(
       decide({

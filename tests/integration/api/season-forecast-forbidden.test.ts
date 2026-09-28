@@ -75,7 +75,7 @@ function makeSupabase(
   } as unknown as TypedSupabaseClient
 }
 
-describe('xgecdod fetchSeasonForecast — access / RLS surface', () => {
+describe('fetchSeasonForecast — access / RLS surface', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })

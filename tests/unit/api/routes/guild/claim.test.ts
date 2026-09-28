@@ -254,7 +254,7 @@ describe('POST /api/guild/claim', () => {
   })
 
   // Covered in both directions so deleting the gate cannot pass.
-  describe('xnaekge validated-key cluster-admin consent', () => {
+  describe('validated-key cluster-admin consent', () => {
     const clusterAdminNotGuildOfficer = () =>
       mockResolveVerifiedPlayers.mockResolvedValue([
         verifiedPlayer({ guildCode: 'VAE1', role: 'member' })

@@ -24,7 +24,7 @@ const buildServiceClient = (rows: RecentLogRow[]) => {
   }
 }
 
-describe('POST /api/herald/trigger-notification (xjlgmia F19)', () => {
+describe('POST /api/herald/trigger-notification', () => {
   let POST: (request: Request) => Promise<Response>
 
   const validBody = {

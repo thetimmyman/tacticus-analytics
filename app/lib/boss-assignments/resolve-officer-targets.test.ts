@@ -36,7 +36,7 @@ const row = (
   ...overrides
 })
 
-describe('resolveOfficerTargetsFromRows (xchnami)', () => {
+describe('resolveOfficerTargetsFromRows', () => {
   it('resolves a target per stage + encounter, mains included', () => {
     const targets = resolveOfficerTargetsFromRows({
       season: SEASON,
@@ -129,7 +129,7 @@ describe('resolveOfficerTargetsFromRows (xchnami)', () => {
   })
 })
 
-describe('loadPlanTargetSignalsForSeason (xchnami combined loader)', () => {
+describe('loadPlanTargetSignalsForSeason (combined loader)', () => {
   type StoreResult = {
     data: readonly unknown[] | null
     error: { message: string } | null

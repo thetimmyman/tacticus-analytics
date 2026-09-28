@@ -24,7 +24,7 @@ function renderLeaderboard() {
   )
 }
 
-describe('GlobalLeaderboard (xnigene anon boundary)', () => {
+describe('GlobalLeaderboard (anon boundary)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     rpcSpy.mockResolvedValue({

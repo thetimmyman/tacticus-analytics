@@ -84,7 +84,7 @@ function legCRegion(body: string): string {
   return body.slice(open, close)
 }
 
-describe('xbdaknk monitor body pin', () => {
+describe('monitor body pin', () => {
   const sql = readFileSync(MIGRATION, 'utf8')
 
   it('declares the General database as its target and hard-guards the apply', () => {
@@ -123,7 +123,7 @@ describe('xbdaknk monitor body pin', () => {
   })
 })
 
-describe('xcmifbg monitor body pin (the body the databases run)', () => {
+describe('monitor body pin (the body the databases run)', () => {
   const sql = readFileSync(ACTIVE_MIGRATION, 'utf8')
 
   it('declares the General database as its target and hard-guards the apply', () => {
@@ -132,7 +132,7 @@ describe('xcmifbg monitor body pin (the body the databases run)', () => {
     expect(sql).toContain('RAISE EXCEPTION')
   })
 
-  it("carries this repository's xidfeio version allocation (:00 seconds)", () => {
+  it("carries this repository's version allocation (:00 seconds)", () => {
     const version = ACTIVE_MIGRATION.split('/').pop()!.slice(0, 14)
     expect(version > '20260920000000').toBe(true)
     expect(version.endsWith('00')).toBe(true)
@@ -150,14 +150,14 @@ describe('xcmifbg monitor body pin (the body the databases run)', () => {
     expect(extractPins(sql)[0]).toBe(EXPECTED_ACTIVE_BODY_SHA256)
   })
 
-  it('supersedes xbdaknk: a different body, and the old pin is not reused', () => {
+  it('supersedes the earlier pin: a different body, and the old pin is not reused', () => {
     expect(EXPECTED_ACTIVE_BODY_SHA256).not.toBe(EXPECTED_BODY_SHA256)
     expect(sha256Hex(extractBody(sql))).not.toBe(
       sha256Hex(extractBody(readFileSync(MIGRATION, 'utf8')))
     )
   })
 
-  it('differs from the xbdaknk body only inside leg (c)', () => {
+  it('differs from the superseded body only inside leg (c)', () => {
     const oldBody = extractBody(readFileSync(MIGRATION, 'utf8'))
     const newBody = extractBody(sql)
 

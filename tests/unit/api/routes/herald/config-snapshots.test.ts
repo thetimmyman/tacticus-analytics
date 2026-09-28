@@ -73,7 +73,7 @@ const makeClient = (row = versionRow) => {
   }
 }
 
-describe('Herald config snapshot readers (xfofkoj)', () => {
+describe('Herald config snapshot readers', () => {
   beforeEach(() => {
     vi.resetModules()
     mockRequireGuildMember = vi.fn(async () => ({

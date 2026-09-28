@@ -262,7 +262,7 @@ describe('TargetsClient', () => {
     expect(screen.getAllByText(/Fallback: L3/).length).toBeGreaterThan(0)
   })
 
-  it('saveEdit keeps sending an explicit skip:false (xcdakae C10 / xaoglmi)', async () => {
+  it('saveEdit keeps sending an explicit skip:false (C10)', async () => {
     // Committing a real target clears skip (product decision).
     renderClient()
     await findGroupHeader()
@@ -284,7 +284,7 @@ describe('TargetsClient', () => {
     expect(put.url).toContain('guild_code=TESTGUILD')
   })
 
-  it('surfaces a failed save inline instead of dying silently (xcdakae D9)', async () => {
+  it('surfaces a failed save inline instead of dying silently (D9)', async () => {
     mockFetch([targetRow({})], { failPut: true })
     renderClient()
     await findGroupHeader()

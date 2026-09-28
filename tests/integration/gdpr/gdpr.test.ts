@@ -143,7 +143,7 @@ async function pollExportStatus(
   )
 }
 
-describeGdpr('xkegcfi — GDPR export + scheduled deletion', () => {
+describeGdpr('GDPR export + scheduled deletion', () => {
   let adminClient: SupabaseClient
   let userId: string
   let userEmail: string
@@ -158,15 +158,15 @@ describeGdpr('xkegcfi — GDPR export + scheduled deletion', () => {
     })
 
     const suffix = randomSuffix()
-    userEmail = `xgbjfhe_${suffix}@example.com`
-    testGuildCode = `xgbjfhe${suffix.slice(0, 3)}`
-    testPlayerId = `xgbjfhe_player_${suffix}`
-    testDisplayName = `xgbjfhePlayer_${suffix}`
+    userEmail = `gdpr_${suffix}@example.com`
+    testGuildCode = `GD738${suffix.slice(0, 3)}`
+    testPlayerId = `gdpr_player_${suffix}`
+    testDisplayName = `GdprPlayer_${suffix}`
 
     const { data: created, error: createErr } =
       await adminClient.auth.admin.createUser({
         email: userEmail,
-        password: `Wi738_${suffix}_${Math.random().toString(36).slice(2)}!`,
+        password: `Gdpr_${suffix}_${Math.random().toString(36).slice(2)}!`,
         email_confirm: true
       })
     if (createErr || !created.user) {
@@ -179,7 +179,7 @@ describeGdpr('xkegcfi — GDPR export + scheduled deletion', () => {
     const { error: gcErr } = await adminClient.from('guild_config').upsert(
       {
         guild_code: testGuildCode,
-        display_name: `xgbjfhe Guild ${suffix}`,
+        display_name: `Gdpr Guild ${suffix}`,
         enabled: true
       },
       { onConflict: 'guild_code' }

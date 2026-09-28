@@ -109,7 +109,7 @@ function writeBaseline(jobTypes: string[]): void {
 }
 
 beforeEach(() => {
-  fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'xfiekca-coverage-'))
+  fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'handler-coverage-'))
 })
 
 afterEach(() => {

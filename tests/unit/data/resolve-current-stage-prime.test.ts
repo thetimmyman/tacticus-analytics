@@ -62,7 +62,7 @@ const emptyHp = {
   byBossName: {}
 } as never
 
-describe('resolveCurrentStagePrimeOverview (xafbdcb Tier 2)', () => {
+describe('resolveCurrentStagePrimeOverview (Tier 2)', () => {
   it('fills an unfought current-stage prime at full HP, name from rotation, HP keyed on the main', () => {
     const overview = resolveCurrentStagePrimeOverview({
       stageCode: 'L4',

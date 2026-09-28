@@ -42,7 +42,7 @@ describe('workspace visibility', () => {
     })
   })
 
-  it('resolves /boss-assignments to the Guild Ops workspace (xohiemg relocation)', () => {
+  it('resolves /boss-assignments to the Guild Ops workspace (relocation)', () => {
     expect(resolveActiveWorkspace('/boss-assignments').id).toBe('guild-ops')
     expect(resolveActiveWorkspace('/boss-assignments/current').id).toBe(
       'guild-ops'

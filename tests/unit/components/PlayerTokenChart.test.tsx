@@ -46,7 +46,7 @@ function makeProjection(
   }
 }
 
-describe('xjimmef PlayerTokenChart — projection sort + overlay', () => {
+describe('PlayerTokenChart — projection sort + overlay', () => {
   it('hides projectedBySeasonEnd option when showForecast is false', () => {
     render(
       <PlayerTokenChart

@@ -116,7 +116,7 @@ describe('countDefendersAliveAtStart (Pilotcd8877-table cleanup axis)', () => {
   })
 })
 
-describe('isNpcDefenderBattle (conjunctive rule, xijdcaa)', () => {
+describe('isNpcDefenderBattle (conjunctive rule)', () => {
   const npcLineup = [
     { unitId: 'templNpc1Initiate:1' },
     { unitId: 'templNpc1Initiate:2' }

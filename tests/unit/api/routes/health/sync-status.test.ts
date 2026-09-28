@@ -387,7 +387,7 @@ describe('GET /api/health/sync-status', () => {
     })
   })
 
-  describe('anonymous disclosure tier (xhhnndn)', () => {
+  describe('anonymous disclosure tier', () => {
     const seedDegradedWithNamedGuilds = () => {
       mockRunSyncHealthChecks.mockResolvedValue({
         totalActiveGuilds: 261,

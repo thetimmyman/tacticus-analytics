@@ -287,7 +287,7 @@ describe('/api/onboarding/claim/consume', () => {
       'expired',
       invite({ expires_at: new Date(Date.now() - 1000).toISOString() })
     ],
-    ['a xmlnhil transfer proof', invite({ code: 'PP6240-ABC' })]
+    ['a transfer proof', invite({ code: 'PP6240-ABC' })]
   ])('answers one opaque INVALID_CODE for a %s code', async (_label, row) => {
     arrange({ inviteRow: row as never })
 

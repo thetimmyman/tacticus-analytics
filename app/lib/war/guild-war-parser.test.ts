@@ -139,7 +139,7 @@ describe('pure helpers', () => {
     })
   })
 
-  it('computeSeasonAndWarNumberFromStart maps war starts onto the global calendar (xaljhgi)', () => {
+  it('computeSeasonAndWarNumberFromStart maps war starts onto the global calendar', () => {
     // Anchor: season 25 war 1 starts at the timestamp below, as the game UI shows.
     expect(
       computeSeasonAndWarNumberFromStart(Date.parse('2026-07-08T09:00:00Z'))
@@ -171,7 +171,7 @@ describe('pure helpers', () => {
   })
 
   /** The anchor must never come from `last_successful_gw_season` (a per-guild ratchet). */
-  it('pins the season calendar to the IN-GAME numbers (xijdcaa)', () => {
+  it('pins the season calendar to the IN-GAME numbers', () => {
     const inGame = (iso: string) =>
       computeSeasonAndWarNumberFromStart(Date.parse(iso)).season
 
@@ -396,7 +396,7 @@ describe('convertRawWarPayload', () => {
     expect(theirs?.attempts[0]?.isGuildMember).toBe(false)
   })
 
-  it('legacy path: marks an old war completed even when previousWar is false (xioinpf)', async () => {
+  it('legacy path: marks an old war completed even when previousWar is false', async () => {
     const payload: LokiGuildWarResponse = {
       eventResults: [
         {
