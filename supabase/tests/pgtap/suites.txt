@@ -38,6 +38,7 @@
 
 # === ROSTER ===
 adversarial_progression_and_meta_hardening.sql # 29
+bootstrap_authority_canonical_guild_code.sql # 12
 bootstrap_first_leader_seat_claim.sql # 9
 db_boundary_hardening_clusters_and_profile_claim.sql # 18
 discord_bot_invite_atomicity.sql # 8
@@ -73,7 +74,7 @@ ps669_player_mapping_retention.sql # 18
 ps670_prune_incomplete_registrations.sql # 24
 ps670_subject_erasure_player_ids.sql # 39
 ps721_guild_sync_status_view_policy.sql # 18
-ps80_sync_queue_drain_lanes.sql # 20
+ps80_sync_queue_drain_lanes.sql # 28
 publication_security_boundaries.sql # 6
 sync_quiet_tick_markers.sql # 8
 user_ban_reconciliation_enqueue.sql # 8

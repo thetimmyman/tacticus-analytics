@@ -4,5 +4,5 @@
 # roster without editing this file makes the runner refuse to start rather
 # than quietly re-baseline itself. `suites` is the number of ROSTER lines;
 # `assertions` is the sum of their `# <count>` values.
-suites 51
-assertions 798
+suites 52
+assertions 818

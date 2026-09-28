@@ -7,13 +7,13 @@ const {
   dashboardThemeWrapperSpy,
   navigationServerSpy,
   dbMock,
-  revokedKeyIncidentMock
+  guildSyncIncidentMock
 } = vi.hoisted(() => ({
   requireAuthMock: vi.fn(),
   dashboardThemeWrapperSpy: vi.fn(),
   navigationServerSpy: vi.fn(),
   dbMock: vi.fn(),
-  revokedKeyIncidentMock: vi.fn()
+  guildSyncIncidentMock: vi.fn()
 }))
 
 vi.mock('@/app/lib/auth', () => ({
@@ -24,8 +24,8 @@ vi.mock('@/app/lib/db', () => ({
   db: dbMock
 }))
 
-vi.mock('@/app/lib/data/revoked-key-incident', () => ({
-  getOpenRevokedKeyIncidentForUser: revokedKeyIncidentMock
+vi.mock('@/app/lib/data/guild-sync-incident', () => ({
+  getOpenGuildSyncIncidentForUser: guildSyncIncidentMock
 }))
 
 vi.mock('@/app/(dashboard)/DashboardThemeWrapper', () => ({
@@ -81,8 +81,8 @@ describe('DashboardLayout', () => {
     navigationServerSpy.mockReset()
     dbMock.mockReset()
     dbMock.mockResolvedValue({})
-    revokedKeyIncidentMock.mockReset()
-    revokedKeyIncidentMock.mockResolvedValue(null)
+    guildSyncIncidentMock.mockReset()
+    guildSyncIncidentMock.mockResolvedValue(null)
   })
 
   it('renders the dashboard shell with auth context', async () => {
@@ -110,19 +110,19 @@ describe('DashboardLayout', () => {
     expect(screen.getByTestId('navigation-server')).toBeInTheDocument()
     expect(screen.getByTestId('footer')).toBeInTheDocument()
   })
-  it('renders the revoked-key banner when the guild has an open incident (PS-223)', async () => {
+  it('renders the guild sync banner when the guild has an open incident', async () => {
     requireAuthMock.mockResolvedValue({
       user: { id: 'user-123', email: 'test@example.com' },
       profile: { id: 'profile-1', display_name: 'Tester', guild_code: 'GUILD1' }
     })
-    revokedKeyIncidentMock.mockResolvedValue({
-      incidentId: 'GUILD1:2026-09-01T10:00:00.000Z',
+    guildSyncIncidentMock.mockResolvedValue({
+      incidentId: 'GUILD1:invalid_key:2030-01-08T12:00:00.000Z',
+      reason: 'invalid_key',
       guildCode: 'GUILD1',
       guildDisplayName: 'First Company',
       keyOwnerDisplayName: 'Sergeant Key Holder',
-      openedAt: '2026-09-01T10:00:00.000Z',
-      viewerIsLeadership: false,
-      hasDiscordContactChannel: false
+      lastSuccessfulSyncAt: '2030-01-08T12:00:00.000Z',
+      viewerIsLeadership: false
     })
 
     const result = await DashboardLayout({
@@ -130,14 +130,14 @@ describe('DashboardLayout', () => {
     })
     render(result)
 
-    expect(revokedKeyIncidentMock).toHaveBeenCalledWith(
+    expect(guildSyncIncidentMock).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({ guild_code: 'GUILD1' })
     )
     expect(screen.getByRole('alert')).toHaveTextContent('First Company')
   })
 
-  it('renders no banner when there is no open incident (PS-223)', async () => {
+  it('renders no banner when there is no open incident', async () => {
     requireAuthMock.mockResolvedValue({
       user: { id: 'user-123', email: 'test@example.com' },
       profile: { id: 'profile-1', display_name: 'Tester', guild_code: 'GUILD1' }

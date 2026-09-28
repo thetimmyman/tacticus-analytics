@@ -449,6 +449,152 @@ describe('runPostSyncHooks — D1 scraper-cohort credential gate (WI-1795)', () 
   })
 })
 
+describe('runPostSyncHooks — writing-tick roster throttle', () => {
+  const NOW = Date.parse('2026-03-01T12:00:00.000Z')
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.useFakeTimers()
+    vi.setSystemTime(NOW)
+    vi.stubEnv('LOKI_SCRAPER_USER_ID', 'env-scraper-uid')
+    vi.stubEnv('LOKI_SCRAPER_CLIENT_SECRET', 'env-scraper-secret')
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.unstubAllEnvs()
+  })
+
+  function configRefreshed(minutesAgo: number | null): GuildConfig {
+    return {
+      guild_code: 'THROTTLE1',
+      cluster_code: 'C1',
+      cluster_id: 'cl-1',
+      guild_id: 'g-throttle',
+      user_id: null,
+      session_id: null,
+      client_secret: null,
+      last_roster_refresh_at:
+        minutesAgo === null
+          ? null
+          : new Date(NOW - minutesAgo * 60 * 1000).toISOString()
+    } as unknown as GuildConfig
+  }
+
+  function buildStampCapturingSupabase() {
+    const guildConfigUpdates: Record<string, unknown>[] = []
+    const chain: Record<string, unknown> = {
+      select: () => chain,
+      eq: () => chain,
+      gte: () => chain,
+      order: () => chain,
+      or: () => chain,
+      in: () => Promise.resolve({ data: [], error: null }),
+      update: () => ({
+        in: () => Promise.resolve({ data: null, error: null }),
+        eq: () => Promise.resolve({ data: null, error: null })
+      }),
+      upsert: () => Promise.resolve({ data: null, error: null }),
+      delete: () => chain,
+      then: (resolve: (v: unknown) => unknown) =>
+        Promise.resolve({ data: [], error: null }).then(resolve)
+    }
+    const supabase = {
+      rpc: vi.fn(() => Promise.resolve({ data: null, error: null })),
+      functions: {
+        invoke: vi.fn().mockResolvedValue({ data: null, error: null })
+      },
+      from: vi.fn((table: string) => {
+        if (table !== 'guild_config') return chain
+        return {
+          ...chain,
+          update: (payload: Record<string, unknown>) => {
+            guildConfigUpdates.push(payload)
+            return { eq: () => Promise.resolve({ data: null, error: null }) }
+          }
+        }
+      })
+    } as any
+    return { supabase, guildConfigUpdates }
+  }
+
+  it('skips the LOKI roster and rankings calls when the roster was refreshed minutes ago', async () => {
+    const { fetchGuildMembersViaLoki, fetchGuildRankings } =
+      await import('@/app/lib/sync/api-operations')
+    const { supabase } = buildStampCapturingSupabase()
+
+    await runPostSyncHooks('THROTTLE1', '5', configRefreshed(5), supabase)
+
+    expect(fetchGuildMembersViaLoki).not.toHaveBeenCalled()
+    expect(fetchGuildRankings).not.toHaveBeenCalled()
+    // The rest of the writing-tick pipeline still runs.
+    expect(supabase.rpc).toHaveBeenCalledWith(
+      'update_token_burn_state_for_guild',
+      expect.objectContaining({ p_guild_code: 'THROTTLE1', p_season: '5' })
+    )
+    expect(supabase.rpc).toHaveBeenCalledWith('refresh_cluster_rankings')
+  })
+
+  it.each([
+    ['never refreshed', null],
+    ['refreshed exactly at the window edge', 15],
+    ['refreshed outside the window', 16],
+    ['stamped in the future', -60]
+  ])(
+    'refreshes the roster and rankings when %s',
+    async (_label, minutesAgo) => {
+      const { fetchGuildMembersViaLoki, fetchGuildRankings } =
+        await import('@/app/lib/sync/api-operations')
+      vi.mocked(fetchGuildMembersViaLoki).mockResolvedValueOnce({
+        members: [],
+        authFailed: false
+      } as any)
+      const { supabase } = buildStampCapturingSupabase()
+
+      await runPostSyncHooks(
+        'THROTTLE1',
+        '5',
+        configRefreshed(minutesAgo),
+        supabase
+      )
+
+      expect(fetchGuildMembersViaLoki).toHaveBeenCalledTimes(1)
+      expect(fetchGuildRankings).toHaveBeenCalledTimes(1)
+    }
+  )
+
+  it('stamps last_roster_refresh_at after a refresh, so the next writing tick can skip it', async () => {
+    const { fetchGuildMembersViaLoki } =
+      await import('@/app/lib/sync/api-operations')
+    vi.mocked(fetchGuildMembersViaLoki).mockResolvedValueOnce({
+      members: [],
+      authFailed: false
+    } as any)
+    const { supabase, guildConfigUpdates } = buildStampCapturingSupabase()
+
+    await runPostSyncHooks('THROTTLE1', '5', configRefreshed(30), supabase)
+
+    expect(guildConfigUpdates).toContainEqual({
+      last_roster_refresh_at: new Date(NOW).toISOString()
+    })
+  })
+
+  it('stamps last_roster_refresh_at even when the LOKI call fails', async () => {
+    const { fetchGuildMembersViaLoki } =
+      await import('@/app/lib/sync/api-operations')
+    vi.mocked(fetchGuildMembersViaLoki).mockRejectedValueOnce(
+      new Error('LOKI unavailable')
+    )
+    const { supabase, guildConfigUpdates } = buildStampCapturingSupabase()
+
+    await runPostSyncHooks('THROTTLE1', '5', configRefreshed(null), supabase)
+
+    expect(guildConfigUpdates).toContainEqual({
+      last_roster_refresh_at: new Date(NOW).toISOString()
+    })
+  })
+})
+
 describe('runPostSyncHooks — LOKI roster disambiguation (WI-499)', () => {
   beforeEach(() => {
     vi.clearAllMocks()

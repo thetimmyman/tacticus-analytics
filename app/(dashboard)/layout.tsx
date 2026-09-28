@@ -1,8 +1,8 @@
 import { requireAuth } from '@/app/lib/auth'
 import { db } from '@/app/lib/db'
 import DashboardShell from '@/app/components/dashboard/DashboardShell'
-import { RevokedKeyBanner } from '@/app/components/alerts/RevokedKeyBanner'
-import { getOpenRevokedKeyIncidentForUser } from '@/app/lib/data/revoked-key-incident'
+import { GuildSyncStoppedBanner } from '@/app/components/alerts/GuildSyncStoppedBanner'
+import { getOpenGuildSyncIncidentForUser } from '@/app/lib/data/guild-sync-incident'
 import { createPageMetadata } from '@/app/lib/metadata'
 
 // All dashboard pages require auth.
@@ -22,14 +22,14 @@ export default async function DashboardLayout({
   const { user, profile } = await requireAuth()
 
   // Session client so RLS scopes the row; in the layout so the banner shows on every page.
-  const revokedKeyIncident = await getOpenRevokedKeyIncidentForUser(
+  const guildSyncIncident = await getOpenGuildSyncIncidentForUser(
     await db(),
     profile
   )
 
   return (
     <DashboardShell user={user} profile={profile}>
-      <RevokedKeyBanner incident={revokedKeyIncident} />
+      <GuildSyncStoppedBanner incident={guildSyncIncident} />
       {children}
     </DashboardShell>
   )

@@ -247,6 +247,8 @@ describe('POST /api/guild/replace-api-key', () => {
     expect(writtenPayload.api_key_encrypted).toBe('the-encrypted-blob')
     expect(writtenPayload.api_key_is_valid).toBe(true)
     expect(writtenPayload.api_key_last_validated).toBe(body.verified_at)
+    expect(writtenPayload.auto_sync_enabled).toBe(true)
+    expect(writtenPayload.consecutive_sync_failures).toBe(0)
   })
 
   // The write bypasses RLS, so this check alone enforces guild ownership (any own-guild rank, as stale
