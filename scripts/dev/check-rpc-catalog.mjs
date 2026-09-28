@@ -110,12 +110,10 @@ function collectCreatedFunctions(root, migrationsDir = MIGRATIONS_DIR) {
   } catch {
     return new Set()
   }
-  const orderedFiles = files
-    .sort()
-    .map((file) => ({
-      name: file,
-      sql: fs.readFileSync(path.join(dir, file), 'utf8')
-    }))
+  const orderedFiles = files.sort().map((file) => ({
+    name: file,
+    sql: fs.readFileSync(path.join(dir, file), 'utf8')
+  }))
   return computeCreatedFunctions(orderedFiles)
 }
 
@@ -287,14 +285,20 @@ function selftest() {
   check(
     'a DROP removes a name the same file created',
     computeCreatedFunctions([
-      { name: 'a', sql: 'CREATE FUNCTION public.f(x text) RETURNS void AS $$ $$;' }
+      {
+        name: 'a',
+        sql: 'CREATE FUNCTION public.f(x text) RETURNS void AS $$ $$;'
+      }
     ]).has('f'),
     true
   )
   check(
     'a later DROP FUNCTION IF EXISTS removes an earlier CREATE',
     computeCreatedFunctions([
-      { name: 'a', sql: 'CREATE FUNCTION public.f(x text) RETURNS void AS $$ $$;' },
+      {
+        name: 'a',
+        sql: 'CREATE FUNCTION public.f(x text) RETURNS void AS $$ $$;'
+      },
       { name: 'b', sql: 'DROP FUNCTION IF EXISTS public.f(text);' }
     ]).has('f'),
     false
@@ -302,9 +306,15 @@ function selftest() {
   check(
     'a CREATE after the DROP, in a later file, restores the name',
     computeCreatedFunctions([
-      { name: 'a', sql: 'CREATE FUNCTION public.f(x text) RETURNS void AS $$ $$;' },
+      {
+        name: 'a',
+        sql: 'CREATE FUNCTION public.f(x text) RETURNS void AS $$ $$;'
+      },
       { name: 'b', sql: 'DROP FUNCTION IF EXISTS public.f(text);' },
-      { name: 'c', sql: 'CREATE FUNCTION public.f(x text) RETURNS void AS $$ $$;' }
+      {
+        name: 'c',
+        sql: 'CREATE FUNCTION public.f(x text) RETURNS void AS $$ $$;'
+      }
     ]).has('f'),
     true
   )
