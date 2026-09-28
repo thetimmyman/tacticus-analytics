@@ -27,7 +27,7 @@ BEGIN
     RAISE EXCEPTION 'storage.buckets has no ability-icons bucket; nothing to cap';
   END IF;
 
-  -- CASE is ordered, unlike OR across sibling predicates: a non-numeric size is
+  -- CASE is ordered, unlike OR across sibling predicates: a non-numeric or overlong size is
   -- reported as a violation instead of aborting the bigint cast.
   SELECT count(*)
     INTO v_violations
@@ -37,7 +37,7 @@ BEGIN
        metadata->>'mimetype' IS DISTINCT FROM 'image/png'
        OR CASE
             WHEN metadata->>'size' IS NULL THEN TRUE
-            WHEN metadata->>'size' !~ '^[0-9]+$' THEN TRUE
+            WHEN metadata->>'size' !~ '^[0-9]{1,18}$' THEN TRUE
             ELSE (metadata->>'size')::bigint > 5242880
           END
      );
