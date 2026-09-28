@@ -9,6 +9,7 @@ import {
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { parse } from 'yaml'
 
 // The pin PR must reach main without a human, so it is opened as the pin-stamp App and
 // queued to auto-merge; any gh failure fails the step instead of leaving an orphan branch.
@@ -164,6 +165,75 @@ describe('build-edge-runtime-image.yml stamp-pin job', () => {
     expect(stampJob).not.toContain('github.token')
     expect(stampJob).not.toContain('secrets.GITHUB_TOKEN')
     expect(stampJob).not.toContain('STAMP_PIN_TOKEN')
+  })
+
+  type Step = {
+    id?: string
+    name?: string
+    if?: string
+    uses?: string
+    run?: string
+  }
+  const steps: Step[] = parse(workflow).jobs['stamp-pin'].steps
+
+  // Runs the gate's shell with the values the expressions would resolve to.
+  function runGate(clientId: string, hasKey: string) {
+    const gate = steps.find((step) => step.id === 'app-config')
+    const dir = mkdtempSync(join(tmpdir(), 'stamp-pin-gate-'))
+    try {
+      const output = join(dir, 'output')
+      const summary = join(dir, 'summary.md')
+      writeFileSync(output, '')
+      writeFileSync(summary, '')
+      const stdout = execFileSync('bash', ['-c', gate?.run ?? 'exit 9'], {
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          CLIENT_ID: clientId,
+          HAS_KEY: hasKey,
+          TAG: 'abc12345',
+          DIGEST: 'sha256:0000',
+          GITHUB_SHA: 'f'.repeat(40),
+          GITHUB_OUTPUT: output,
+          GITHUB_STEP_SUMMARY: summary
+        }
+      })
+      return { stdout, output: read(output), summary: read(summary) }
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  }
+
+  it('skips the stamp with a warning, not a failure, until the App is configured', () => {
+    const gate = steps.find((step) => step.id === 'app-config')
+    expect(gate?.run).toBeDefined()
+    expect(stampJob).toContain(
+      "HAS_KEY: ${{ secrets.PIN_STAMP_APP_PRIVATE_KEY != '' }}"
+    )
+    for (const [clientId, hasKey] of [
+      ['', 'false'],
+      ['Iv1.example', 'false'],
+      ['', 'true']
+    ]) {
+      const result = runGate(clientId, hasKey)
+      expect(result.output).toContain('ready=false')
+      expect(result.stdout).toContain('::warning::')
+      expect(result.stdout).toContain('PIN_STAMP_APP_CLIENT_ID')
+      expect(result.stdout).toContain('PIN_STAMP_APP_PRIVATE_KEY')
+      expect(result.summary).toContain('abc12345')
+      expect(result.summary).toContain('sha256:0000')
+    }
+    const configured = runGate('Iv1.example', 'true')
+    expect(configured.output).toContain('ready=true')
+    expect(configured.stdout).not.toContain('::warning::')
+  })
+
+  it('gates every step after the check on the App being configured', () => {
+    const gateIndex = steps.findIndex((step) => step.id === 'app-config')
+    expect(gateIndex).toBe(0)
+    for (const step of steps.slice(gateIndex + 1)) {
+      expect(step.if).toBe("steps.app-config.outputs.ready == 'true'")
+    }
   })
 
   it('keeps the job GITHUB_TOKEN read-only', () => {
