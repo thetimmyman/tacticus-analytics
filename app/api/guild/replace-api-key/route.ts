@@ -135,6 +135,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     }
 
     // `prevent_guild_config_authority_rewrite` rejects this write from any other role.
+    // A verified key must also restart sync: the batch lane skips auto-sync-off and failure-capped guilds.
     const verifiedAt = new Date().toISOString()
     const { error: updateError } = await serviceDb()
       .from('guild_config')
@@ -142,6 +143,8 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         api_key_encrypted: encryptedApiKey,
         api_key_is_valid: true,
         api_key_last_validated: verifiedAt,
+        auto_sync_enabled: true,
+        consecutive_sync_failures: 0,
         updated_at: verifiedAt
       })
       .eq('guild_code', targetGuild.guild_code)
