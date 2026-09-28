@@ -252,10 +252,13 @@ describe('savePlayerMappings guarded authority writes', () => {
     options: {
       currentRows?: Array<Record<string, unknown>>
       malformedDeactivationProof?: boolean
+      existingError?: { message: string }
+      upsertError?: { message: string }
     } = {}
   ) {
     const upsertedRecords: Array<Record<string, unknown>> = []
     const deactivationCalls: Array<Record<string, unknown>> = []
+    const outcomeCalls: Array<Record<string, unknown>> = []
 
     const activityChain = {
       select: () => activityChain,
@@ -265,7 +268,12 @@ describe('savePlayerMappings guarded authority writes', () => {
     }
 
     const existingSelectInChain = {
-      in: () => Promise.resolve({ data: existingRows, error: null })
+      in: () =>
+        Promise.resolve(
+          options.existingError
+            ? { data: null, error: options.existingError }
+            : { data: existingRows, error: null }
+        )
     }
 
     const resetSelectChain = {
@@ -297,12 +305,19 @@ describe('savePlayerMappings guarded authority writes', () => {
               : resetSelectChain
           },
           upsert: (records: Array<Record<string, unknown>>) => {
+            if (options.upsertError) {
+              return Promise.resolve({ data: null, error: options.upsertError })
+            }
             upsertedRecords.push(...records)
             return Promise.resolve({ data: null, error: null })
           }
         }
       }),
-      rpc: vi.fn((_name: string, args: Record<string, unknown>) => {
+      rpc: vi.fn((name: string, args: Record<string, unknown>) => {
+        if (name === 'record_roster_write_outcome') {
+          outcomeCalls.push(args)
+          return Promise.resolve({ data: null, error: null })
+        }
         deactivationCalls.push(args)
         const ids = args.p_player_ids as string[]
         return Promise.resolve({
@@ -328,7 +343,8 @@ describe('savePlayerMappings guarded authority writes', () => {
     return {
       supabase: supabase as unknown as Parameters<typeof savePlayerMappings>[0],
       upsertedRecords,
-      deactivationCalls
+      deactivationCalls,
+      outcomeCalls
     }
   }
 
@@ -516,5 +532,79 @@ describe('savePlayerMappings guarded authority writes', () => {
     )
 
     expect(upsertedRecords).toEqual([])
+  })
+
+  it('records a successful roster write outcome with the upserted row count', async () => {
+    const { supabase, outcomeCalls } = buildSaveMockSupabase([])
+
+    await savePlayerMappings(
+      supabase,
+      'GUILD01',
+      [
+        { userId: 'P8', displayName: 'One', role: 'member' },
+        { userId: 'P9', displayName: 'Two', role: 'member' }
+      ],
+      null,
+      null
+    )
+
+    expect(outcomeCalls).toEqual([
+      {
+        p_guild_code: 'GUILD01',
+        p_ok: true,
+        p_rows_written: 2,
+        p_reason: null
+      }
+    ])
+  })
+
+  it('records a failed roster write outcome instead of swallowing the upsert error', async () => {
+    const { supabase, outcomeCalls, upsertedRecords } = buildSaveMockSupabase(
+      [],
+      { upsertError: { message: 'upsert exploded' } }
+    )
+
+    await savePlayerMappings(
+      supabase,
+      'GUILD01',
+      [{ userId: 'P10', displayName: 'Ten', role: 'member' }],
+      null,
+      null
+    )
+
+    expect(upsertedRecords).toEqual([])
+    expect(outcomeCalls).toEqual([
+      {
+        p_guild_code: 'GUILD01',
+        p_ok: false,
+        p_rows_written: 0,
+        p_reason: 'upsert exploded'
+      }
+    ])
+  })
+
+  it('records a failed roster write outcome when the existing-mappings read fails, instead of a silent abort', async () => {
+    const { supabase, outcomeCalls, upsertedRecords } = buildSaveMockSupabase(
+      [],
+      { existingError: { message: 'connection reset' } }
+    )
+
+    await savePlayerMappings(
+      supabase,
+      'GUILD01',
+      [{ userId: 'P11', displayName: 'Eleven', role: 'member' }],
+      null,
+      null
+    )
+
+    expect(upsertedRecords).toEqual([])
+    expect(outcomeCalls).toEqual([
+      {
+        p_guild_code: 'GUILD01',
+        p_ok: false,
+        p_rows_written: 0,
+        p_reason: 'connection reset'
+      }
+    ])
   })
 })
