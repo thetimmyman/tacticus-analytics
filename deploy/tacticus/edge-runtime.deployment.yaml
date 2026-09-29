@@ -29,13 +29,6 @@ spec:
                     operator: In
                     values:
                       - arm64
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/hostname
-                    operator: NotIn
-                    values:
-                      - desktop-wsl
       imagePullSecrets:
         - name: ghcr-pull-secret
       # Fail-soft: an unreadable override falls through to upstream, never a crashloop.
