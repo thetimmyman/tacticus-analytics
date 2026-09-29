@@ -1,4 +1,0 @@
-{
-  "$comment": "Explicit exceptions for scripts/dev/check-standby-runner-labels.mjs. Every entry admits one job whose runs-on label set is allowed to subset minipc-runner's labels (self-hosted, linux, x64, cheap, x64-heavy, minipc) despite it being a documented standby (docs/ci/runners.md#minipc-runner-standby). Empty on purpose: the standby decision keeps the runner unreachable and explicitly forbids adding a workflow that targets it just to prove it works. Add an entry here only for a deliberate, reviewed decision to route a real job at minipc-runner (e.g. after the operator picks 'give it a purpose').",
-  "entries": []
-}

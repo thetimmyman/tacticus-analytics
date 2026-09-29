@@ -237,7 +237,6 @@ jobs:
       contents: read
       packages: write
     needs: [prep, build-amd64, build-arm64]
-    # Kept off `x64-heavy`, which a standby runner also carries.
     runs-on: [self-hosted, amd64-builder]
     timeout-minutes: 15
     steps:
