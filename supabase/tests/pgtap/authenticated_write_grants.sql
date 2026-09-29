@@ -197,10 +197,12 @@ SELECT is(
   'authenticated holds no INSERT/UPDATE/DELETE on any swept table'
 );
 
+-- discord_message_tracking stores webhook URLs (bearer credentials), so its client SELECT is revoked too.
 SELECT is(
   (SELECT coalesce(string_agg(s.relname, ', ' ORDER BY s.relname), '')
      FROM census_swept s
-    WHERE NOT has_table_privilege('authenticated', 'public.' || quote_ident(s.relname), 'SELECT')),
+    WHERE s.relname <> 'discord_message_tracking'
+      AND NOT has_table_privilege('authenticated', 'public.' || quote_ident(s.relname), 'SELECT')),
   '',
   'every swept table still grants authenticated SELECT'
 );
