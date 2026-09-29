@@ -382,7 +382,7 @@ jobs:
             echo "- build-arm64: \`$BUILD_ARM64\`"
             echo "- merge-manifest: \`$MERGE_MANIFEST\`"
             echo
-            echo "Until this is resolved, \`main\` keeps serving whatever tag last built successfully — check with the main-image-present.yml schedule whether HEAD actually has a published image."
+            echo "Until this is resolved, \`main\` keeps serving whatever tag last built successfully."
           } > "$body_file"
           echo "body_file=$body_file" >> "$GITHUB_OUTPUT"
       - name: Open or update tracking issue
