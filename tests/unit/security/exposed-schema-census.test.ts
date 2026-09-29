@@ -31,7 +31,11 @@ function secretPatterns(sql: string): string[] {
 }
 
 function allowlist(sql: string): string[] {
-  return [...sql.matchAll(/<> \(('[^)]*')\)/g)].map((m) => m[1])
+  return [
+    ...sql.matchAll(
+      /AND NOT \(\((n\.nspname[^\n]*)\n\s*(AND CASE [^\n]*? END\))/g
+    )
+  ].map((m) => `${m[1]} ${m[2]}`)
 }
 
 describe('exposed-schema credential census', () => {
@@ -50,6 +54,7 @@ describe('exposed-schema credential census', () => {
   it('uses one credential-column pattern and one allowlist in both copies', () => {
     expect(secretPatterns(suite)).toHaveLength(1)
     expect(secretPatterns(census)).toEqual(secretPatterns(suite))
+    expect(allowlist(suite)).toHaveLength(1)
     expect(allowlist(census)).toEqual(allowlist(suite))
   })
 
@@ -61,7 +66,10 @@ describe('exposed-schema credential census', () => {
       'api_key_encrypted',
       'tacticus_api_key_encrypted',
       'refresh_token',
-      'password'
+      'password',
+      'webhook_url',
+      'discord_webhook_url',
+      'bomb_alert_webhook_url'
     ]) {
       expect(pattern.test(name), name).toBe(true)
     }
@@ -69,7 +77,10 @@ describe('exposed-schema credential census', () => {
       'api_key_is_valid',
       'client_secret_uploaded_at',
       'primary_assignment_tokens',
-      'next_token_seconds'
+      'next_token_seconds',
+      'discord_webhook_enabled',
+      'webhook_url_hash',
+      'webhook_type'
     ]) {
       expect(pattern.test(name), name).toBe(false)
     }

@@ -45,7 +45,7 @@ default_privileges_no_client_grants.sql # 13
 discord_bot_invite_atomicity.sql # 8
 drop_stale_member_luck_summary.sql # 3
 eot_gr_data_preserve_erasure_tombstone.sql # 30
-exposed_schema_secret_columns.sql # 5
+exposed_schema_secret_columns.sql # 8
 global_war_meta_archive.sql # 17
 gdpr_request_health_monitor.sql # 42
 get_all_boss_hp_restore.sql # 9
