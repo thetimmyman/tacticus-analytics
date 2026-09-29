@@ -219,15 +219,9 @@ const WORD_BOUNDARY_MARKERS = new Set([
   'cluster-member-table'
 ])
 
-const SOURCE_MARKER_GROUPS = (() => {
+function buildMarkerGroups(rows) {
   const groups = new Map()
-  for (const [
-    digest,
-    length,
-    rolling,
-    caseInsensitive,
-    label
-  ] of FORBIDDEN_SOURCE_MARKERS) {
+  for (const [digest, length, rolling, caseInsensitive, label] of rows) {
     const key = `${length}:${caseInsensitive}`
     if (!groups.has(key)) {
       let power = 1
@@ -238,23 +232,38 @@ const SOURCE_MARKER_GROUPS = (() => {
     groups.get(key).markers.push({ digest, rolling, label })
   }
   return [...groups.values()]
-})()
+}
 
-function findHashedSourceMarkers(content) {
+function rollingHash(value) {
+  let hash = 0
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (Math.imul(hash, ROLLING_BASE) + value.charCodeAt(i)) >>> 0
+  }
+  return hash
+}
+
+// Builds a marker row from plaintext; only the self-test calls it, with synthetic values.
+function markerRow(value, label) {
+  const lowered = value.toLowerCase()
+  return [sha256(lowered), lowered.length, rollingHash(lowered), true, label]
+}
+
+function sha256(value) {
+  return createHash('sha256').update(value).digest('hex')
+}
+
+const PRODUCTION_MARKERS = {
+  groups: buildMarkerGroups(FORBIDDEN_SOURCE_MARKERS),
+  contextDigest: CONTEXT_VALUE_DIGEST
+}
+
+function findHashedSourceMarkers(content, groups) {
   const hits = new Set()
   const lowered = content.toLowerCase().replace(/\u017f/gu, 's')
-  for (const {
-    length,
-    power,
-    caseInsensitive,
-    markers
-  } of SOURCE_MARKER_GROUPS) {
+  for (const { length, power, caseInsensitive, markers } of groups) {
     const value = caseInsensitive ? lowered : content
     if (value.length < length) continue
-    let hash = 0
-    for (let i = 0; i < length; i += 1) {
-      hash = (Math.imul(hash, ROLLING_BASE) + value.charCodeAt(i)) >>> 0
-    }
+    let hash = rollingHash(value.slice(0, length))
     for (let start = 0; ; start += 1) {
       for (const { digest, rolling, label } of markers) {
         if (hash !== rolling || hits.has(label)) continue
@@ -265,11 +274,7 @@ function findHashedSourceMarkers(content) {
           )
             continue
         }
-        if (
-          createHash('sha256')
-            .update(value.slice(start, start + length))
-            .digest('hex') === digest
-        )
+        if (sha256(value.slice(start, start + length)) === digest)
           hits.add(label)
       }
       const next = start + length
@@ -286,26 +291,23 @@ function findHashedSourceMarkers(content) {
   return hits
 }
 
-function hasContextValue(text) {
+function hasContextValue(text, contextDigest) {
   for (const [, value] of text.matchAll(/['"]([^'"]+)['"]/gu)) {
-    if (
-      createHash('sha256').update(value.toLowerCase()).digest('hex') ===
-      CONTEXT_VALUE_DIGEST
-    )
-      return true
+    if (sha256(value.toLowerCase()) === contextDigest) return true
   }
   return false
 }
 
-function findContextMarkers(content) {
+function findContextMarkers(content, contextDigest) {
   const labels = new Set()
   for (const match of content.matchAll(
     /cluster_code\s*=\s*['"][^'"]+['"]/giu
   )) {
-    if (hasContextValue(match[0])) labels.add('cluster-code-equals')
+    if (hasContextValue(match[0], contextDigest))
+      labels.add('cluster-code-equals')
   }
   for (const match of content.matchAll(/cluster_code\s+IN\s*\([^)]*/giu)) {
-    if (hasContextValue(match[0])) labels.add('cluster-code-in')
+    if (hasContextValue(match[0], contextDigest)) labels.add('cluster-code-in')
   }
   return labels
 }
@@ -369,12 +371,12 @@ function isApprovedSourceMarker(file, name) {
   return APPROVED_SOURCE_MARKER_PATHS.get(key)?.has(name) ?? false
 }
 
-function findForbiddenSourceMarkers(files) {
+function findForbiddenSourceMarkers(files, markers = PRODUCTION_MARKERS) {
   const violations = []
   for (const [file, content] of Object.entries(files)) {
     for (const name of [
-      ...findHashedSourceMarkers(content),
-      ...findContextMarkers(content)
+      ...findHashedSourceMarkers(content, markers.groups),
+      ...findContextMarkers(content, markers.contextDigest)
     ]) {
       if (isApprovedSourceMarker(file, name)) continue
       violations.push(`${file}: ${name}`)
@@ -426,66 +428,59 @@ function selfTest() {
   ) {
     throw new Error('negative control failed: retained paths were rejected')
   }
-  const privateValue = String.fromCharCode(
-    105,
-    115,
-    95,
-    101,
-    111,
-    116,
-    95,
-    99,
-    108,
-    117,
-    115,
-    116,
-    101,
-    114,
-    95,
-    97,
-    100,
-    109,
-    105,
-    110
+  const privateValue = 'synthetic_private_predicate'
+  const contextValue = 'ZQX'
+  const projectValue = 'synthetic-project'
+  const markers = {
+    groups: buildMarkerGroups([
+      markerRow(privateValue, 'cluster-admin-predicate'),
+      markerRow(projectValue, 'private-project-name')
+    ]),
+    contextDigest: sha256(contextValue.toLowerCase())
+  }
+  for (const [digest, length, rolling, , label] of FORBIDDEN_SOURCE_MARKERS) {
+    if (
+      !/^[0-9a-f]{64}$/.test(digest) ||
+      !(length > 0) ||
+      rolling !== rolling >>> 0 ||
+      !label
+    ) {
+      throw new Error(`selftest failed: malformed marker row ${label}`)
+    }
+  }
+  const plantedSource = findForbiddenSourceMarkers(
+    {
+      'app/example.ts': `const privileged = cluster_code = '${contextValue}'`,
+      'supabase/example.sql': `select ${privateValue}()`
+    },
+    markers
   )
-  const contextValue = String.fromCharCode(69, 79, 84)
-  const projectValue = String.fromCharCode(
-    101,
-    121,
-    101,
-    95,
-    111,
-    102,
-    45,
-    116,
-    101,
-    114,
-    114,
-    111,
-    114
-  )
-  const plantedSource = findForbiddenSourceMarkers({
-    'app/example.ts': `const privileged = cluster_code = '${contextValue}'`,
-    'supabase/example.sql': `select ${privateValue}()`
-  })
   if (plantedSource.length !== 2) throw new Error('positive control failed')
   if (
-    findForbiddenSourceMarkers({ 'app/example.ts': projectValue }).length !== 1
+    findForbiddenSourceMarkers({ 'app/example.ts': projectValue }, markers)
+      .length !== 1
   ) {
     throw new Error('project marker control failed')
   }
   if (
-    findForbiddenSourceMarkers({
-      'app/example.ts': `cluster_code IN ('other', '${contextValue}')`
-    }).length !== 1
+    findForbiddenSourceMarkers(
+      {
+        'app/example.ts': `cluster_code IN ('other', '${contextValue}')`
+      },
+      markers
+    ).length !== 1
   ) {
     throw new Error('context marker control failed')
   }
   if (
-    findForbiddenSourceMarkers({
-      'packages/app-core/src/api-constants.ts': `BATTLE_DATA: '${contextValue}_GR_data'`,
-      'app/lib/auth/config.ts': "name: 'tacticus-auth'"
-    }).length !== 0
+    findForbiddenSourceMarkers(
+      {
+        'packages/app-core/src/api-constants.ts': `BATTLE_DATA: '${contextValue}_GR_data'`,
+        'app/lib/auth/config.ts': "name: 'tacticus-auth'",
+        'app/lib/other.ts': `my_${privateValue}_v2()`
+      },
+      markers
+    ).length !== 0
   )
     throw new Error('negative control failed')
   const summary = formatScanSummary(4417, 2907)
