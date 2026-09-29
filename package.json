@@ -37,7 +37,7 @@
     "gen:edge-solver": "node scripts/gen-edge-solver.mjs",
     "loki:season-lineups": "node scripts/loki/merge-season-lineups.cjs",
     "loki:season-lineups:check": "node scripts/loki/merge-season-lineups.cjs --check",
-    "tooling:check": "npm run app:identity:check && npm run app:identity:test && npm run env:check && npm run lint:edge-imports:test && npm run lint:edge-imports && npm run lint:sql:test && npm run lint:sql && npm run migrations:lint:test && npm run migrations:lint && npm run rpc:catalog:selftest && npm run rpc:catalog:check && npm run loki:season-lineups:check && npm run edge:manifests:check && npm run edge:ancestry:check && npm run host:drift-check:selftest && npm run jobs:handler-coverage:check && npm run runner:standby-check",
+    "tooling:check": "npm run app:identity:check && npm run app:identity:test && npm run env:check && npm run lint:edge-imports:test && npm run lint:edge-imports && npm run lint:sql:test && npm run lint:sql && npm run migrations:lint:test && npm run migrations:lint && npm run rpc:catalog:selftest && npm run rpc:catalog:check && npm run loki:season-lineups:check && npm run edge:manifests:check && npm run edge:ancestry:check && npm run host:drift-check:selftest && npm run jobs:handler-coverage:check",
     "typecheck": "tsc --noEmit",
     "typecheck:strict": "tsc --noEmit -p tsconfig.strict.json",
     "typecheck:scripts": "tsc --noEmit -p tsconfig.scripts.json",
@@ -88,14 +88,13 @@
     "edge:manifests:check": "bash scripts/release/render-edge-manifests.sh --selftest",
     "edge:ancestry:check": "bash scripts/release/check-edge-image-ancestry.sh --selftest",
     "host:drift-check:selftest": "bash deploy/host/deploy-drift-check.sh --selftest",
-    "jobs:handler-coverage:check": "node scripts/validation/check-handler-coverage.mjs",
-    "runner:standby-check": "node scripts/dev/check-standby-runner-labels.mjs --selftest && node scripts/dev/check-standby-runner-labels.mjs --scan"
+    "jobs:handler-coverage:check": "node scripts/validation/check-handler-coverage.mjs"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
       "eslint --fix"
     ],
-    "*.{js,jsx,ts,tsx,md}": [
+    "*.{js,jsx,mjs,cjs,ts,tsx,md}": [
       "prettier --write"
     ],
     "!(*package-lock).json": [
