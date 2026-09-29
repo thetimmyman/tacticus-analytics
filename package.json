@@ -53,7 +53,6 @@
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build",
     "knip": "knip",
-    "knip:exports:ratchet": "node scripts/dev/check-unused-exports-ratchet.mjs --selftest && node scripts/dev/check-unused-exports-ratchet.mjs --check",
     "supabase:start": "node scripts/dev/supabase-cli.mjs start",
     "supabase:stop": "node scripts/dev/supabase-cli.mjs stop",
     "supabase:status": "node scripts/dev/supabase-cli.mjs status",

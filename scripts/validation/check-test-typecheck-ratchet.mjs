@@ -148,9 +148,7 @@ function readBaseline() {
 function writeBaseline(maxErrors) {
   const payload = {
     $comment:
-      'Ceiling on tsc -p tsconfig.tests.json errors. ' +
-      'check-test-typecheck-ratchet.mjs fails CI if the count rises above this; ' +
-      '--update lowers it (never raises it — that is a hand edit reviewed in the PR that makes it).',
+      'Advisory ceiling on test type errors; --update lowers it, while increases need review.',
     maxErrors
   }
   fs.mkdirSync(path.dirname(BASELINE_PATH), { recursive: true })
