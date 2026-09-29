@@ -9,6 +9,7 @@ on:
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
+      - 'deploy/tacticus.pin.json'
   workflow_dispatch:
     inputs:
       tag:
