@@ -18,6 +18,7 @@ import {
   formatDamage,
   formatPercentage
 } from '@tacticus/app-core/formatters'
+import { asNumericTooltipFormatter } from '@tacticus/charting/tooltip'
 import {
   getRarityPrefix,
   normalizeRarity
@@ -203,11 +204,11 @@ export function ChartsRow({
                   />
                   <Tooltip
                     contentStyle={tooltipStyles}
-                    labelFormatter={(value: string | number) => `Loop ${value}`}
-                    formatter={(value: number | undefined) => [
+                    labelFormatter={(value) => `Loop ${String(value)}`}
+                    formatter={asNumericTooltipFormatter((value) => [
                       value == null ? '—' : formatDamage(value, 2),
                       ''
-                    ]}
+                    ])}
                   />
                   <Legend
                     verticalAlign="bottom"

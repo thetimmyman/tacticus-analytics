@@ -19,7 +19,10 @@ import {
   TableSkeleton
 } from '@tacticus/ui-kit/loading'
 import { formatDamage, formatNumber } from '@tacticus/app-core/formatters'
-import { getTooltipStyles } from '@tacticus/charting/tooltip'
+import {
+  getTooltipStyles,
+  asNumericTooltipFormatter
+} from '@tacticus/charting/tooltip'
 import { BarChart3, Table2, ChevronDown, ChevronRight } from 'lucide-react'
 import { useBossLapTrends } from '@/app/components/boss-performance/hooks/useBossPerformanceData'
 import { TrendBadge } from '@/app/components/ui/TrendBadge'
@@ -194,14 +197,14 @@ export function BossLapTrendCard() {
         />
         <Tooltip
           contentStyle={tooltipStyles}
-          formatter={(value: number | undefined, name?: string) => [
+          formatter={asNumericTooltipFormatter((value, name) => [
             value == null
               ? '—'
               : name === 'Avg Damage'
                 ? `${formatDamage(value)}`
                 : formatNumber(value),
             name === 'Avg Damage' ? 'Avg Damage' : 'Token Count'
-          ]}
+          ])}
         />
         <Legend />
         <Bar

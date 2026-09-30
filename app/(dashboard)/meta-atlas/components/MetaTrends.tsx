@@ -1,6 +1,9 @@
 'use client'
 
-import { DEFAULT_RECHARTS_TOOLTIP_PROPS } from '@tacticus/charting/tooltip'
+import {
+  DEFAULT_RECHARTS_TOOLTIP_PROPS,
+  asNumericTooltipFormatter
+} from '@tacticus/charting/tooltip'
 import { DEFAULT_AXIS_STYLES } from '@tacticus/charting/styles'
 import { useState, useEffect, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@tacticus/ui-kit'
@@ -123,10 +126,10 @@ function TrendsComparisonChart({ trends }: { trends: MetaTrend[] }) {
                 tickLine={false}
               />
               <Tooltip
-                formatter={(value: number | undefined, name?: string) => [
+                formatter={asNumericTooltipFormatter((value, name) => [
                   value == null ? '—' : formatNumber(value),
                   name === 'current' ? 'Current Season' : 'Previous Season'
-                ]}
+                ])}
                 labelFormatter={(label) =>
                   chartData.find((d) => d.name === label)?.name || label
                 }

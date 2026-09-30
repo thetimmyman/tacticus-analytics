@@ -68,7 +68,7 @@ export function GuildPerformanceTrendChart({
           : name === 'Tokens Used'
             ? String(value)
             : formatPercentageDiff(value, 1),
-        name
+        name ?? ''
       ]}
     />
   )

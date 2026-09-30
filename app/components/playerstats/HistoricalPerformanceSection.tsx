@@ -1,6 +1,9 @@
 'use client'
 
-import { DEFAULT_RECHARTS_TOOLTIP_PROPS } from '@tacticus/charting/tooltip'
+import {
+  DEFAULT_RECHARTS_TOOLTIP_PROPS,
+  asNumericTooltipFormatter
+} from '@tacticus/charting/tooltip'
 import { DEFAULT_AXIS_STYLES } from '@tacticus/charting/styles'
 
 import { useState, type ComponentType } from 'react'
@@ -226,10 +229,10 @@ export function HistoricalPerformanceSection({
                   />
                   <Tooltip
                     contentStyle={DEFAULT_RECHARTS_TOOLTIP_PROPS.contentStyle}
-                    formatter={(value: number | undefined, name?: string) => {
-                      if (value == null) return ['N/A', name]
-                      return [formatPercentage(value / 100), name]
-                    }}
+                    formatter={asNumericTooltipFormatter((value, name) => {
+                      if (value == null) return ['N/A', name ?? '']
+                      return [formatPercentage(value / 100), name ?? '']
+                    })}
                   />
                 </RadarChart>
               </ResponsiveContainer>
@@ -453,8 +456,8 @@ export function HistoricalPerformanceSection({
                     tick={DEFAULT_AXIS_STYLES.tick}
                   />
                   <Tooltip
-                    formatter={(value: number | undefined, name?: string) => {
-                      if (value == null) return ['—', name]
+                    formatter={asNumericTooltipFormatter((value, name) => {
+                      if (value == null) return ['—', name ?? '']
                       if (name === guildLabel) {
                         return [formatPercentage(value / 100), guildLabel]
                       }
@@ -467,8 +470,8 @@ export function HistoricalPerformanceSection({
                       if (name === 'Avg Damage/Token') {
                         return [formatDamage(value), 'Avg Damage/Token']
                       }
-                      return [value, name]
-                    }}
+                      return [value, name ?? '']
+                    })}
                     contentStyle={DEFAULT_RECHARTS_TOOLTIP_PROPS.contentStyle}
                   />
                   <Legend wrapperStyle={{ fontSize: '12px' }} />
@@ -582,13 +585,10 @@ export function HistoricalPerformanceSection({
                     tickFormatter={(value: number) => `${value}`}
                   />
                   <Tooltip
-                    formatter={(
-                      value: number | undefined,
-                      name?: string
-                    ): [string, string] => [
+                    formatter={asNumericTooltipFormatter((value, name) => [
                       value == null ? '—' : `${value.toFixed(1)}`,
                       name || 'Reliability Score'
-                    ]}
+                    ])}
                     contentStyle={DEFAULT_RECHARTS_TOOLTIP_PROPS.contentStyle}
                   />
                   <Legend wrapperStyle={{ fontSize: '12px' }} />
@@ -673,16 +673,16 @@ export function HistoricalPerformanceSection({
                   tick={DEFAULT_AXIS_STYLES.tick}
                 />
                 <Tooltip
-                  formatter={(value: number | undefined, name?: string) => {
-                    if (value == null) return ['—', name]
+                  formatter={asNumericTooltipFormatter((value, name) => {
+                    if (value == null) return ['—', name ?? '']
                     if (name === 'Avg Damage/Token') {
                       return [formatDamage(value), 'Avg Damage/Token']
                     }
                     if (name === 'Tokens Used') {
                       return [formatNumber(value), 'Tokens Used']
                     }
-                    return [value, name]
-                  }}
+                    return [value, name ?? '']
+                  })}
                   contentStyle={DEFAULT_RECHARTS_TOOLTIP_PROPS.contentStyle}
                 />
                 <Legend wrapperStyle={{ fontSize: '12px' }} />

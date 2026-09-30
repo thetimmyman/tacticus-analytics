@@ -4,7 +4,10 @@ import { DEFAULT_AXIS_STYLES } from '@tacticus/charting/styles'
 import type { GuildVsClusterBossRow } from '@/app/lib/calculations/experimental/guild-vs-cluster'
 import { getBossDisplayName } from '@/app/lib/resolvers/boss-identity'
 import { formatPercentageDiff } from '@tacticus/app-core/formatters'
-import { getTooltipStyles } from '@tacticus/charting/tooltip'
+import {
+  getTooltipStyles,
+  asNumericTooltipFormatter
+} from '@tacticus/charting/tooltip'
 import { getBossLevelFromSetAndRarity } from '@/app/lib/catalogs/rarity-set'
 import {
   RadarChart,
@@ -112,17 +115,17 @@ export function GuildVsClusterRadar({
           <Legend wrapperStyle={{ color: '#cbd5e1' }} />
           <Tooltip
             contentStyle={tooltipStyles}
-            formatter={(value: number | undefined, name?: string) => {
+            formatter={asNumericTooltipFormatter((value, name) => {
               if (name === 'Guild Performance') {
                 return [
                   value == null
                     ? '—'
                     : `${formatPercentageDiff(value, 0)} vs Cluster`,
-                  name
+                  name ?? ''
                 ]
               }
-              return ['Baseline (0%)', name]
-            }}
+              return ['Baseline (0%)', name ?? '']
+            })}
           />
         </RadarChart>
       </ResponsiveContainer>

@@ -1,6 +1,9 @@
 'use client'
 
-import { DEFAULT_RECHARTS_TOOLTIP_PROPS } from '@tacticus/charting/tooltip'
+import {
+  DEFAULT_RECHARTS_TOOLTIP_PROPS,
+  asNumericTooltipFormatter
+} from '@tacticus/charting/tooltip'
 import {
   XAxis,
   YAxis,
@@ -52,11 +55,11 @@ export function TokensPerLapStackedChart({
                 />
                 <Tooltip
                   contentStyle={DEFAULT_RECHARTS_TOOLTIP_PROPS.contentStyle}
-                  labelFormatter={(value: string | number) => `Lap ${value}`}
-                  formatter={(value: number | undefined) => [
+                  labelFormatter={(value) => `Lap ${String(value)}`}
+                  formatter={asNumericTooltipFormatter((value) => [
                     value == null ? '—' : formatNumber(value, 0),
                     ''
-                  ]}
+                  ])}
                 />
                 <Legend />
 

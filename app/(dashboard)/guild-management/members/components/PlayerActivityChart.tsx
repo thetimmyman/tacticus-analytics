@@ -1,6 +1,9 @@
 'use client'
 
-import { DEFAULT_RECHARTS_TOOLTIP_PROPS } from '@tacticus/charting/tooltip'
+import {
+  DEFAULT_RECHARTS_TOOLTIP_PROPS,
+  asNumericTooltipFormatter
+} from '@tacticus/charting/tooltip'
 import { DEFAULT_AXIS_STYLES } from '@tacticus/charting/styles'
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import {
@@ -477,12 +480,12 @@ export function PlayerActivityChart({
                   <Tooltip
                     contentStyle={DEFAULT_RECHARTS_TOOLTIP_PROPS.contentStyle}
                     wrapperStyle={{ opacity: 1 }}
-                    formatter={(value: number | undefined, name?: string) => {
+                    formatter={asNumericTooltipFormatter((value, name) => {
                       if (value == null) return ['—', name ?? '']
                       if (name === 'percentage')
                         return [`${value}%`, 'Activity']
                       return [value, name ?? '']
-                    }}
+                    })}
                     labelFormatter={(hour) =>
                       `${formatHour(hour as number)} ${timezoneLabel}`
                     }

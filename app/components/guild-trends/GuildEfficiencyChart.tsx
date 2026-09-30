@@ -40,7 +40,7 @@ export function GuildEfficiencyChart({ data }: GuildEfficiencyChartProps) {
       }}
       tooltipFormatter={(value, name) => [
         value == null ? '—' : formatDamage(value),
-        name === 'trendline' ? 'Trend' : name
+        name === 'trendline' ? 'Trend' : (name ?? '')
       ]}
     />
   )

@@ -1,6 +1,9 @@
 'use client'
 
-import { DEFAULT_RECHARTS_TOOLTIP_PROPS } from '@tacticus/charting/tooltip'
+import {
+  DEFAULT_RECHARTS_TOOLTIP_PROPS,
+  asNumericTooltipFormatter
+} from '@tacticus/charting/tooltip'
 import { DEFAULT_AXIS_STYLES } from '@tacticus/charting/styles'
 
 import type { Dispatch, SetStateAction } from 'react'
@@ -185,7 +188,7 @@ export function LoopAnalysisSection({
               />
               <Tooltip
                 contentStyle={DEFAULT_RECHARTS_TOOLTIP_PROPS.contentStyle}
-                formatter={(value: number | undefined, name?: string) => [
+                formatter={asNumericTooltipFormatter((value, name) => [
                   value == null
                     ? '—'
                     : name === 'tokens'
@@ -196,7 +199,7 @@ export function LoopAnalysisSection({
                     : name === 'playerAvg'
                       ? 'Your Avg Damage'
                       : 'Guild Avg Damage'
-                ]}
+                ])}
               />
               <Legend />
               <Bar

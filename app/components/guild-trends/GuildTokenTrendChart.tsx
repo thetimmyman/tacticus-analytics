@@ -40,7 +40,7 @@ export function GuildTokenTrendChart({ data }: GuildTokenTrendChartProps) {
           : name === 'Participation Rate'
             ? formatPercentage(value / 100)
             : formatNumber(value),
-        name
+        name ?? ''
       ]}
     />
   )
