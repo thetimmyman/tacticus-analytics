@@ -1,6 +1,9 @@
 'use client'
 
-import { DEFAULT_RECHARTS_TOOLTIP_PROPS } from '@tacticus/charting/tooltip'
+import {
+  DEFAULT_RECHARTS_TOOLTIP_PROPS,
+  asNumericTooltipFormatter
+} from '@tacticus/charting/tooltip'
 import { DEFAULT_AXIS_STYLES } from '@tacticus/charting/styles'
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@tacticus/ui-kit'
@@ -537,7 +540,7 @@ export function ActivityAnalytics() {
                   <YAxis tick={DEFAULT_AXIS_STYLES.tick} />
                   <Tooltip
                     contentStyle={DEFAULT_RECHARTS_TOOLTIP_PROPS.contentStyle}
-                    labelFormatter={(value) => formatDateLabel(value)}
+                    labelFormatter={(value) => formatDateLabel(String(value))}
                   />
                   <Line
                     type="monotone"
@@ -580,10 +583,10 @@ export function ActivityAnalytics() {
                   />
                   <Tooltip
                     contentStyle={DEFAULT_RECHARTS_TOOLTIP_PROPS.contentStyle}
-                    formatter={(value: number | undefined, name?: string) => [
+                    formatter={asNumericTooltipFormatter((value, name) => [
                       value ?? '—',
                       name === 'active' ? 'Active' : 'Total'
-                    ]}
+                    ])}
                   />
                   <Legend />
                   <Bar
@@ -629,14 +632,14 @@ export function ActivityAnalytics() {
                 <YAxis tick={DEFAULT_AXIS_STYLES.tick} />
                 <Tooltip
                   contentStyle={DEFAULT_RECHARTS_TOOLTIP_PROPS.contentStyle}
-                  formatter={(value: number | undefined, name?: string) => [
+                  formatter={asNumericTooltipFormatter((value, name) => [
                     value ?? '—',
                     name === 'active'
                       ? 'Active'
                       : name === 'rate'
                         ? 'Rate %'
                         : 'Total'
-                  ]}
+                  ])}
                 />
                 <Legend />
                 <Bar
@@ -726,10 +729,10 @@ export function ActivityAnalytics() {
                   />
                   <Tooltip
                     contentStyle={DEFAULT_RECHARTS_TOOLTIP_PROPS.contentStyle}
-                    formatter={(value: number | undefined, name?: string) => [
+                    formatter={asNumericTooltipFormatter((value, name) => [
                       value ?? '—',
                       name === 'count' ? 'Page Views' : 'Unique Users'
-                    ]}
+                    ])}
                   />
                   <Legend />
                   <Bar

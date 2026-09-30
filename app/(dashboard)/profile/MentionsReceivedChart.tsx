@@ -1,6 +1,9 @@
 'use client'
 
-import { DEFAULT_RECHARTS_TOOLTIP_PROPS } from '@tacticus/charting/tooltip'
+import {
+  DEFAULT_RECHARTS_TOOLTIP_PROPS,
+  asNumericTooltipFormatter
+} from '@tacticus/charting/tooltip'
 import { DEFAULT_AXIS_STYLES } from '@tacticus/charting/styles'
 import { useEffect, useState } from 'react'
 import {
@@ -79,10 +82,10 @@ export function MentionsReceivedChart() {
           />
           <Tooltip
             contentStyle={DEFAULT_RECHARTS_TOOLTIP_PROPS.contentStyle}
-            formatter={(value: number | undefined) => [
+            formatter={asNumericTooltipFormatter((value) => [
               value == null ? '—' : `${value} mention${value !== 1 ? 's' : ''}`,
               'Count'
-            ]}
+            ])}
           />
           <Bar dataKey="count" radius={[0, 4, 4, 0]}>
             {data.map((entry) => (

@@ -25,7 +25,8 @@ vi.mock('@tacticus/ui-kit', () => ({
 
 vi.mock('@tacticus/charting/tooltip', () => ({
   getTooltipStyles: () => ({ contentStyle: {} }),
-  DEFAULT_RECHARTS_TOOLTIP_PROPS: { contentStyle: {} }
+  DEFAULT_RECHARTS_TOOLTIP_PROPS: { contentStyle: {} },
+  asNumericTooltipFormatter: (fn: (v: unknown, n?: unknown) => unknown) => fn
 }))
 
 vi.mock('@tacticus/app-core/formatters', () => ({

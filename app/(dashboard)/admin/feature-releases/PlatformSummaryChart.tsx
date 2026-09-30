@@ -1,6 +1,9 @@
 'use client'
 
-import { DEFAULT_RECHARTS_TOOLTIP_PROPS } from '@tacticus/charting/tooltip'
+import {
+  DEFAULT_RECHARTS_TOOLTIP_PROPS,
+  asNumericTooltipFormatter
+} from '@tacticus/charting/tooltip'
 import { DEFAULT_AXIS_STYLES } from '@tacticus/charting/styles'
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@tacticus/ui-kit'
@@ -168,10 +171,10 @@ export function PlatformSummaryChart() {
                   <Tooltip
                     cursor={{ fill: 'rgba(255,255,255,0.04)' }}
                     contentStyle={DEFAULT_RECHARTS_TOOLTIP_PROPS.contentStyle}
-                    formatter={(value: number | undefined) => [
+                    formatter={asNumericTooltipFormatter((value) => [
                       fmt(Number(value ?? 0)),
                       'Count'
-                    ]}
+                    ])}
                   />
                   <Bar
                     dataKey="value"

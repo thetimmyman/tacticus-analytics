@@ -160,7 +160,7 @@
     "react-dom": "^19.3.0",
     "react-is": "^19.3.0",
     "react-markdown": "^10.1.0",
-    "recharts": "^3.6.0",
+    "recharts": "^3.10.1",
     "remark-gfm": "^4.0.1",
     "resend": "6.29.0",
     "sharp": "^0.35.3",
