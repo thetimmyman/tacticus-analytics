@@ -3,7 +3,10 @@
 import { DEFAULT_AXIS_STYLES } from '@tacticus/charting/styles'
 import { useMemo } from 'react'
 import type { GuildTrendsRow } from '@/app/lib/hooks/queries'
-import { getTooltipStyles } from '@tacticus/charting/tooltip'
+import {
+  getTooltipStyles,
+  asNumericTooltipFormatter
+} from '@tacticus/charting/tooltip'
 import {
   generateTrendlineData,
   formatCAGR,
@@ -87,7 +90,7 @@ export interface TrendChartCardProps {
   tooltipFormatter: (
     value: number | undefined,
     name?: string
-  ) => [string, string | undefined]
+  ) => [string | number, string]
 }
 
 function renderLine(spec: LineSpec) {
@@ -196,8 +199,8 @@ export function TrendChartCard({
             )}
             <Tooltip
               contentStyle={tooltipStyles}
-              formatter={tooltipFormatter}
-              labelFormatter={(s: string) => `Season ${s}`}
+              formatter={asNumericTooltipFormatter(tooltipFormatter)}
+              labelFormatter={(s) => `Season ${String(s)}`}
             />
             <Legend />
             {zeroReferenceLine && (

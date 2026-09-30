@@ -1,6 +1,9 @@
 'use client'
 
-import { DEFAULT_RECHARTS_TOOLTIP_PROPS } from '@tacticus/charting/tooltip'
+import {
+  DEFAULT_RECHARTS_TOOLTIP_PROPS,
+  asNumericTooltipFormatter
+} from '@tacticus/charting/tooltip'
 import { DEFAULT_AXIS_STYLES } from '@tacticus/charting/styles'
 import { useState, useEffect, type ComponentType } from 'react'
 import { Card, CardContent } from '@tacticus/ui-kit'
@@ -305,10 +308,10 @@ export function DamageTrendsChart({
                     tickFormatter={(v: number) => formatNumber(v)}
                   />
                   <Tooltip
-                    formatter={(value: number | undefined, name?: string) => [
+                    formatter={asNumericTooltipFormatter((value, name) => [
                       value == null ? '—' : formatNumber(value),
                       name === 'trendline' ? 'Trendline' : 'Avg Damage'
-                    ]}
+                    ])}
                     contentStyle={DEFAULT_RECHARTS_TOOLTIP_PROPS.contentStyle}
                   />
                   <Legend />
@@ -354,10 +357,10 @@ export function DamageTrendsChart({
                       tickFormatter={(v: number) => formatDamage(v, 0)}
                     />
                     <Tooltip
-                      formatter={(value: number | undefined) => [
+                      formatter={asNumericTooltipFormatter((value) => [
                         value == null ? '—' : formatDamage(value),
                         'Total Damage'
-                      ]}
+                      ])}
                       contentStyle={DEFAULT_RECHARTS_TOOLTIP_PROPS.contentStyle}
                     />
                     <Bar
@@ -423,10 +426,10 @@ export function DamageTrendsChart({
                     tickFormatter={(v: number) => formatNumber(v)}
                   />
                   <Tooltip
-                    formatter={(value: number | undefined, name?: string) => [
+                    formatter={asNumericTooltipFormatter((value, name) => [
                       value == null ? 'N/A' : formatNumber(value),
-                      name
-                    ]}
+                      name ?? ''
+                    ])}
                     contentStyle={DEFAULT_RECHARTS_TOOLTIP_PROPS.contentStyle}
                   />
                   <Legend />

@@ -1,6 +1,7 @@
 'use client'
 
 import { DEFAULT_AXIS_STYLES } from '@tacticus/charting/styles'
+import { asNumericTooltipFormatter } from '@tacticus/charting/tooltip'
 import type { Dispatch, SetStateAction } from 'react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import {
@@ -154,7 +155,7 @@ export function LoopAnalysisSection({
                 />
                 <Tooltip
                   contentStyle={tooltipStyles}
-                  formatter={(value: number | undefined, name?: string) => [
+                  formatter={asNumericTooltipFormatter((value, name) => [
                     value == null
                       ? '—'
                       : name === 'tokens'
@@ -167,7 +168,7 @@ export function LoopAnalysisSection({
                         : showPrimesOnly
                           ? 'Avg per Prime'
                           : 'Avg per Boss'
-                  ]}
+                  ])}
                 />
                 <Legend />
                 <Bar

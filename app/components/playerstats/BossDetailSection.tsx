@@ -1,6 +1,9 @@
 'use client'
 
-import { DEFAULT_RECHARTS_TOOLTIP_PROPS } from '@tacticus/charting/tooltip'
+import {
+  DEFAULT_RECHARTS_TOOLTIP_PROPS,
+  asNumericTooltipFormatter
+} from '@tacticus/charting/tooltip'
 import { DEFAULT_AXIS_STYLES } from '@tacticus/charting/styles'
 
 import { useState } from 'react'
@@ -341,18 +344,18 @@ export function BossDetailSection({
               />
               <Legend wrapperStyle={{ fontSize: 12 }} />
               <Tooltip
-                formatter={(value: number | undefined, name?: string) => {
+                formatter={asNumericTooltipFormatter((value, name) => {
                   if (name === guildLabel || name === 'vs Cluster Avg') {
                     return [
                       value == null ? '—' : `${Math.round(value - 50)}% vs avg`,
-                      name
+                      name ?? ''
                     ]
                   }
                   if (name === 'Baseline (Avg)') {
-                    return ['Baseline (50%)', name]
+                    return ['Baseline (50%)', name ?? '']
                   }
-                  return [value ?? '—', name]
-                }}
+                  return [value ?? '—', name ?? '']
+                })}
                 contentStyle={DEFAULT_RECHARTS_TOOLTIP_PROPS.contentStyle}
               />
             </RadarChart>

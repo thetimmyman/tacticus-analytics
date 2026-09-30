@@ -40,7 +40,7 @@ export function GuildDamageTrendChart({ data }: GuildDamageTrendChartProps) {
           : name === 'Active Players'
             ? String(value)
             : formatDamage(value),
-        name
+        name ?? ''
       ]}
     />
   )
