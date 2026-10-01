@@ -67,7 +67,7 @@ describe('scoreBattle — exact against the stakeholder table', () => {
 
   it('cleanup rows (fewer defenders alive at start)', () => {
     expect(mult(win({ defender_units_json: defenders(4, 1) }))).toBe(2.75) // 2M, 4 alive, 0 lost
-    expect(mult(win({ defender_units_json: defenders(2, 3) }))).toBe(2.25) // 2M, 2 alive, 0 lost — Bephus's example
+    expect(mult(win({ defender_units_json: defenders(2, 3) }))).toBe(2.25) // 2M, 2 alive, 0 lost — Zarnak's example
     expect(
       mult(
         win({

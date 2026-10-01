@@ -15,6 +15,10 @@ BEGIN
 END;
 $guard$;
 
+-- Creators this lane actually altered; a creator skipped below (the migrator lacks
+-- membership) must not be judged by the verify step that follows.
+CREATE TEMP TABLE revoke_defaults_processed_creators (creator text) ON COMMIT DROP;
+
 DO $revoke_defaults$
 DECLARE
   v_creator text;
@@ -35,6 +39,8 @@ BEGIN
       RAISE NOTICE 'skipping default privileges for %: current_user % is not a member', v_creator, current_user;
       CONTINUE;
     END IF;
+
+    INSERT INTO revoke_defaults_processed_creators VALUES (v_creator);
 
     -- Built-in function defaults grant EXECUTE to PUBLIC; per-schema rules cannot subtract that.
     EXECUTE format(
@@ -70,7 +76,7 @@ BEGIN
     FROM pg_default_acl d
     LEFT JOIN pg_namespace n ON n.oid = d.defaclnamespace
     CROSS JOIN LATERAL aclexplode(d.defaclacl) a
-   WHERE pg_get_userbyid(d.defaclrole) IN ('postgres', 'supabase_admin')
+   WHERE pg_get_userbyid(d.defaclrole) IN (SELECT creator FROM revoke_defaults_processed_creators)
      AND (n.nspname IN ('public', 'graphql_public') OR d.defaclnamespace = 0)
      AND (a.grantee = 0
           OR pg_get_userbyid(a.grantee) IN ('anon', 'authenticated', 'analytics_ro'));
