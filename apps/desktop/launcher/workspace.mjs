@@ -136,11 +136,7 @@ export function workspaceSetup(services, assets) {
       }
       await writeFile(
         ownerPath,
-        JSON.stringify({
-          id: account.id,
-          email,
-          kind: 'synthetic-preview-workspace'
-        }),
+        JSON.stringify({ kind: 'synthetic-preview-workspace' }),
         { flag: 'wx', mode: 0o600 }
       )
       respond(res, 201, { email })
