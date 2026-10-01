@@ -234,10 +234,9 @@ describe('selectGuildWarSnapshot', () => {
     expect(result.warUuid).toBe('soon-war')
   })
 
-  // SUSPECTED BUG, unresolved pending a product decision (see PR description):
-  // with previousWar=true and no ended candidate, the fallback can return the
-  // still-active (or upcoming) war instead of signaling "no previous war".
-  it.skip('does not return a currently-active war when previousWar is true and none have ended', () => {
+  // Regression test for a confirmed bug: previousWar=true must never return
+  // a war that is still active (or upcoming) just because none has ended.
+  it('does not return a currently-active war when previousWar is true and none have ended', () => {
     const nowMs = 10_000
     const active = makeCandidate({
       warUuid: 'active-war',
@@ -250,7 +249,28 @@ describe('selectGuildWarSnapshot', () => {
       endsOn: undefined
     })
 
-    const result = selectGuildWarSnapshot([active, unresolved], true, nowMs)
-    expect(result.warUuid).not.toBe('active-war')
+    expect(() =>
+      selectGuildWarSnapshot([active, unresolved], true, nowMs)
+    ).toThrow()
+  })
+
+  it('throws when previousWar is true and every candidate is still active or upcoming', () => {
+    const nowMs = 10_000
+    const active = makeCandidate({
+      warUuid: 'active-war',
+      startsOn: nowMs - 1000,
+      endsOn: nowMs + 1000
+    })
+    const upcoming = makeCandidate({
+      warUuid: 'upcoming-war',
+      startsOn: nowMs + 5000,
+      endsOn: nowMs + 9000
+    })
+
+    expect(() =>
+      selectGuildWarSnapshot([active, upcoming], true, nowMs)
+    ).toThrow(
+      'No completed guild-war snapshot candidate is available for previousWar'
+    )
   })
 })
