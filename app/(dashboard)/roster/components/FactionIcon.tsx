@@ -92,11 +92,3 @@ export function FactionIcon({
     </span>
   )
 }
-
-export function getFactionIconUrl(_faction: string): null {
-  return null
-}
-
-export function getFactionColor(faction: string): string {
-  return FACTION_COLORS[faction] || 'text-secondary-wh40k'
-}

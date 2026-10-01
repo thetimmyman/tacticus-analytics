@@ -127,15 +127,6 @@ export function getStageSequence(
   return loopIndex === 0 ? config.firstPassSequence : config.loopSequence
 }
 
-export function isLoopWrapStage(
-  config: ProgressionConfig,
-  stageCode: string,
-  loopIndex: number
-): boolean {
-  const sequence = getStageSequence(config, loopIndex)
-  return stageCode === sequence[sequence.length - 1]
-}
-
 export function nextStage(
   config: ProgressionConfig,
   stageCode: string,

@@ -38,7 +38,7 @@ interface GuildWarMapIndex {
 const index = rawIndex as unknown as GuildWarMapIndex
 
 export const guildWarSourceBuildId = index.sourceBuildId
-export const guildWarBoardsMissingArt = index.boardsMissingArt
+
 export const guildWarSeasonIds = Object.keys(index.seasons).sort()
 
 export function getGuildWarSeason(seasonId: string): GuildWarSeason | null {

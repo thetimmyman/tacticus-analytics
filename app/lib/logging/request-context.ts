@@ -1,11 +1,9 @@
 import { NextRequest } from 'next/server'
 import {
-  captureMessage,
   setTag as setSentryTag,
   setContext as setSentryContext
 } from '@sentry/nextjs'
 import {
-  logger,
   createRequestLogger,
   generateRequestId,
   logApiCall,
@@ -101,32 +99,5 @@ export function withRequestContext<T extends Response>(handler: ApiHandler<T>) {
 
       throw error
     }
-  }
-}
-
-export function withApiMiddleware<T extends Response>(handler: ApiHandler<T>) {
-  return async (
-    req: NextRequest,
-    routeContext?: { params: Promise<Record<string, string>> }
-  ): Promise<Response> => {
-    const { withErrorHandler } =
-      await import('@/app/lib/middleware/errorHandler')
-    return withErrorHandler(withRequestContext(handler))(req, routeContext)
-  }
-}
-
-export function logWarningToSentry(
-  message: string,
-  context: Record<string, unknown>,
-  requestId?: string
-): void {
-  try {
-    if (requestId) {
-      setSentryTag('request_id', requestId)
-    }
-    setSentryContext('warning_context', context)
-    captureMessage(message, 'warning')
-  } catch {
-    logger.warn({ ...context, requestId }, `Sentry warning failed: ${message}`)
   }
 }

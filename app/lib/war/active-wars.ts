@@ -26,10 +26,3 @@ export function buildActiveWarVisibilityFilter(
   const startCutoff = getActiveWarNullEndCutoffIso(nowMs)
   return `war_end_date.gt.${endCutoff},and(war_end_date.is.null,war_start_date.gt.${startCutoff})`
 }
-
-export function hasKnownWarOpponentName(
-  opponentGuildName: string | null | undefined
-): boolean {
-  const normalized = opponentGuildName?.trim()
-  return Boolean(normalized && normalized !== 'Unknown Opponent')
-}

@@ -252,15 +252,6 @@ export const getGuildMemberRoleSnapshot = async (
   }
 }
 
-export const getGuildMember = async (
-  guildId: string,
-  userId: string,
-  options?: { nowMs?: number }
-): Promise<DiscordGuildMemberRoleSnapshot | null> => {
-  const result = await getGuildMemberRoleSnapshot(guildId, userId, options)
-  return result.ok ? result.body : null
-}
-
 export const getGuild = async (
   guildId: string,
   options?: { nowMs?: number }
@@ -279,30 +270,6 @@ export const getGuild = async (
     ok: result.ok,
     status: result.status,
     body: result.ok ? (result.body as DiscordGuildSummary) : null
-  }
-}
-
-export const getGuildRoles = async (
-  guildId: string,
-  options?: { nowMs?: number }
-): Promise<DiscordRestReadResult<DiscordRole[]>> => {
-  if (!/^\d{17,20}$/.test(guildId)) {
-    return { ok: false, status: 0, body: null }
-  }
-
-  const result = await callDiscord(`/guilds/${guildId}/roles`, {
-    method: 'GET',
-    bucketKey: `roles_get:${guildId}`,
-    nowMs: options?.nowMs
-  })
-
-  return {
-    ok: result.ok,
-    status: result.status,
-    body:
-      result.ok && Array.isArray(result.body)
-        ? (result.body as DiscordRole[])
-        : null
   }
 }
 

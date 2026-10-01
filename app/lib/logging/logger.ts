@@ -169,48 +169,6 @@ export function logApiCall(
   )
 }
 
-export function logDbOperation(
-  log: PinoLogger,
-  operation: string,
-  table: string,
-  durationMs: number,
-  context?: Record<string, unknown>
-): void {
-  log.debug(
-    {
-      operation,
-      table,
-      durationMs,
-      category: 'database',
-      ...context
-    },
-    `DB ${operation} on ${table} - ${durationMs}ms`
-  )
-}
-
-export function logExternalCall(
-  log: PinoLogger,
-  service: string,
-  operation: string,
-  success: boolean,
-  durationMs: number,
-  context?: Record<string, unknown>
-): void {
-  const level = success ? 'info' : 'warn'
-
-  log[level](
-    {
-      service,
-      operation,
-      success,
-      durationMs,
-      category: 'external',
-      ...context
-    },
-    `External call to ${service}:${operation} ${success ? 'succeeded' : 'failed'} - ${durationMs}ms`
-  )
-}
-
 export function logError(
   log: PinoLogger,
   error: unknown,
@@ -233,30 +191,6 @@ export function logError(
       },
       message
     )
-  }
-}
-
-export function createPerformanceLogger(log: PinoLogger, operation: string) {
-  const startTime = Date.now()
-
-  return {
-    success: (context?: Record<string, unknown>) => {
-      const durationMs = Date.now() - startTime
-      log.info(
-        { operation, durationMs, status: 'success', ...context },
-        `${operation} completed - ${durationMs}ms`
-      )
-    },
-    failure: (error: unknown, context?: Record<string, unknown>) => {
-      const durationMs = Date.now() - startTime
-      logError(log, error, `${operation} failed - ${durationMs}ms`, {
-        operation,
-        durationMs,
-        status: 'failure',
-        ...context
-      })
-    },
-    duration: () => Date.now() - startTime
   }
 }
 

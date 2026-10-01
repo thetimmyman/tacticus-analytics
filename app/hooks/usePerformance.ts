@@ -156,38 +156,3 @@ export function useMemoryMonitor(componentName: string, threshold = 50) {
     }
   }, [componentName, threshold])
 }
-
-export function reportWebVitals(metric: {
-  id: string
-  name: string
-  value: number
-  label: string
-}) {
-  if (process.env.NODE_ENV === 'development') {
-    logger.info(
-      `[Web Vitals] ${metric.name}: ${metric.value.toFixed(2)} ${metric.label}`
-    )
-  }
-
-  if (process.env.NODE_ENV === 'production') {
-    interface WindowWithGtag extends Window {
-      gtag?: (
-        command: string,
-        eventName: string,
-        parameters: Record<string, unknown>
-      ) => void
-    }
-
-    const windowWithGtag = window as WindowWithGtag
-    if (typeof window !== 'undefined' && windowWithGtag.gtag) {
-      windowWithGtag.gtag('event', metric.name, {
-        value: Math.round(
-          metric.name === 'CLS' ? metric.value * 1000 : metric.value
-        ),
-        metric_id: metric.id,
-        metric_value: metric.value,
-        metric_label: metric.label
-      })
-    }
-  }
-}

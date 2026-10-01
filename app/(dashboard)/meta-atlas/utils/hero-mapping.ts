@@ -31,14 +31,3 @@ export const resolveHeroMapping = (
     direct
   )
 }
-
-export const getHeroDisplayName = (
-  value: string,
-  heroMappings: Map<string, HeroMapping>
-): string => resolveHeroMapping(value, heroMappings)?.display_name || value
-
-export const getHeroIconUrl = (
-  value: string,
-  heroMappings: Map<string, HeroMapping>
-): string | null =>
-  resolveHeroMapping(value, heroMappings)?.web_icon_url || null

@@ -185,7 +185,3 @@ export function findVerifiedDiscordForMapping(
   )
   return matches.length === 1 ? matches[0]! : null
 }
-
-export function isDiscordSnowflake(value: Json | undefined): value is string {
-  return typeof value === 'string' && DISCORD_SNOWFLAKE.test(value)
-}

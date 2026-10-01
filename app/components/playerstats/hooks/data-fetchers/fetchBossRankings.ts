@@ -19,10 +19,6 @@ import { applyQualifyingSweepException } from '@/app/lib/calculations/utils/swee
 
 let bossRankingsRpcAvailable = true
 
-export function resetBossRankingsRpcFlag() {
-  bossRankingsRpcAvailable = true
-}
-
 export interface FetchBossRankingsParams {
   supabase: SupabaseClient
   playerName: string

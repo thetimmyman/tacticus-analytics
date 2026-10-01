@@ -76,6 +76,3 @@ export function useMetaTeams(enabled = true) {
 }
 
 // Also badge-only entries (is_meta=false): leader-hero replay tags, not archetypes.
-export function useAllMetaTeams(enabled = true) {
-  return useMetaTeamsQuery(true, enabled)
-}

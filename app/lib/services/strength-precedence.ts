@@ -167,55 +167,6 @@ export async function fetchGlobalThresholds(
   return result as GlobalThreshold[]
 }
 
-export async function lookupStrengthRequirements(
-  supabase: SupabaseClient,
-  options: {
-    bossId: string
-    metaTeamId?: string | null
-    guildCode?: string | null
-    clusterCode?: string | null
-    rarity?: string | null
-  }
-): Promise<StrengthLookupResult> {
-  const { bossId, metaTeamId, guildCode, clusterCode, rarity } = options
-
-  const playbook = await fetchPlaybookRequirements(
-    supabase,
-    bossId,
-    metaTeamId ?? null,
-    guildCode ?? null,
-    clusterCode ?? null
-  )
-
-  if (playbook) {
-    return {
-      source: 'playbook',
-      tier: playbook.tier,
-      requirements: playbook,
-      globalThresholds: null
-    }
-  }
-
-  if (rarity) {
-    const thresholds = await fetchGlobalThresholds(supabase, rarity)
-    if (thresholds.length > 0) {
-      return {
-        source: 'global',
-        tier: null,
-        requirements: null,
-        globalThresholds: thresholds
-      }
-    }
-  }
-
-  return {
-    source: 'none',
-    tier: null,
-    requirements: null,
-    globalThresholds: null
-  }
-}
-
 export function evaluateHeroAgainstThreshold(
   heroRank: number | null,
   heroActiveAbility: number | null,
@@ -244,32 +195,6 @@ export function evaluateHeroAgainstThreshold(
   }
 
   return true
-}
-
-export function getStrengthLevelFromThresholds(
-  heroRank: number | null,
-  heroActiveAbility: number | null,
-  heroPassiveAbility: number | null,
-  thresholds: GlobalThreshold[]
-): string {
-  const orderedLevels = ['Optimal', 'Strong', 'Suitable', 'Weak']
-
-  for (const level of orderedLevels) {
-    const threshold = thresholds.find((t) => t.strength_level === level)
-    if (
-      threshold &&
-      evaluateHeroAgainstThreshold(
-        heroRank,
-        heroActiveAbility,
-        heroPassiveAbility,
-        threshold
-      )
-    ) {
-      return level
-    }
-  }
-
-  return 'Invalid'
 }
 
 export function evaluateHeroAgainstPlaybook(
@@ -376,32 +301,4 @@ export function scoreRosterAgainstPlaybook(
   const percentage = total > 0 ? Math.round((passing / total) * 100) : 0
 
   return { score, maxScore, percentage, passing, failing, missing, details }
-}
-
-export function invalidatePlaybookCache(
-  bossId?: string,
-  guildCode?: string,
-  clusterCode?: string
-): number {
-  if (bossId) {
-    return apiCache.invalidate(`strength:playbook:${bossId}:`)
-  }
-  if (guildCode) {
-    return apiCache.invalidate(
-      new RegExp(`strength:playbook:[^:]+:[^:]+:${guildCode}:`)
-    )
-  }
-  if (clusterCode) {
-    return apiCache.invalidate(
-      new RegExp(`strength:playbook:[^:]+:[^:]+:[^:]+:${clusterCode}`)
-    )
-  }
-  return apiCache.invalidate('strength:playbook:')
-}
-
-export function invalidateGlobalThresholdCache(rarity?: string): number {
-  if (rarity) {
-    return apiCache.invalidate(`strength:global:${rarity.toLowerCase()}`)
-  }
-  return apiCache.invalidate('strength:global:')
 }

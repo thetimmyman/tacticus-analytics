@@ -515,26 +515,3 @@ export async function persistSideSettings(
     }
   }
 }
-
-export async function requestMetaAtlasSeed(
-  guildCode: string,
-  preview: boolean
-): Promise<SeedResponse> {
-  const response = await fetch(
-    '/api/herald/role-mappings/seed-from-meta-atlas',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        guild_code: guildCode,
-        preview,
-        auto_update: true
-      })
-    }
-  )
-  const payload = (await response.json().catch(() => ({}))) as SeedResponse
-  if (!response.ok) {
-    throw new Error(payload.error || payload.details || 'Seed request failed')
-  }
-  return payload
-}

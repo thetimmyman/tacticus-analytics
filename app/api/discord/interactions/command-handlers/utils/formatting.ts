@@ -2,7 +2,6 @@ import type { APIEmbedField } from 'discord-api-types/v10'
 import { MAX_TOKENS } from '@/app/lib/calculations/token-calculation'
 
 const DISCORD_FIELD_VALUE_LIMIT = 1024
-const DISCORD_MAX_FIELDS = 25
 
 function formatTokenFraction(remaining: number, capacity: number): string {
   if (capacity <= 0) {
@@ -200,30 +199,6 @@ export function chunkLinesIntoFields(
 
   flush()
   return fields
-}
-
-export function assembleEmbedFields(
-  overviewField: APIEmbedField,
-  dataFields: APIEmbedField[],
-  truncatedLabel: string
-): APIEmbedField[] {
-  if (dataFields.length === 0) {
-    return [overviewField]
-  }
-
-  const maxWithoutSummary = DISCORD_MAX_FIELDS - 1
-  if (dataFields.length <= maxWithoutSummary) {
-    return [overviewField, ...dataFields]
-  }
-
-  const maxWithSummary = DISCORD_MAX_FIELDS - 2
-  const truncatedCount = dataFields.length - maxWithSummary
-  const summaryField: APIEmbedField = {
-    name: truncatedLabel,
-    value: `+${truncatedCount} additional group${truncatedCount === 1 ? '' : 's'} not shown due to Discord limits.`
-  }
-
-  return [overviewField, ...dataFields.slice(0, maxWithSummary), summaryField]
 }
 
 import {
