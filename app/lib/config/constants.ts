@@ -40,3 +40,14 @@ export const SITE_CONFIG = {
     return this.URL.replace(/\n|\r/g, '')
   }
 } as const
+
+// Kept despite no in-repo importer: these two flags are the only source
+// reference satisfying env:check's "documented env vars must be used
+// somewhere" contract for NEXT_PUBLIC_ENABLE_ANALYTICS /
+// NEXT_PUBLIC_ENABLE_ERROR_REPORTING. Removing this export fails
+// `npm run env:check` (and therefore `npm run tooling:check` in CI).
+export const FEATURES = {
+  ENABLE_ANALYTICS: process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true',
+  ENABLE_ERROR_REPORTING:
+    process.env.NEXT_PUBLIC_ENABLE_ERROR_REPORTING === 'true'
+} as const
