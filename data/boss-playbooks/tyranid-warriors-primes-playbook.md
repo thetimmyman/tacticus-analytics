@@ -1,7 +1,5 @@
 # Tyranid Warrior Primes - Technical Reference
 
-> **Data Source**: See individual boss `probabilities.md` files for decompiled AI weights.
-
 ## Overview
 
 All Tyranid bosses (Hive Tyrants and Tervigons) share the same prime type: **Tyranid Warriors**. Each hive fleet strain (Kronos, Gorgon, Leviathan) has its own variant, but they share core mechanics.
