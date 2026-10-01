@@ -269,28 +269,6 @@ export function clearCache(pattern?: string) {
   logger.info(`Cleared ${cleared} cache entries matching pattern: ${pattern}`)
 }
 
-export function getCacheStats() {
-  const stats = {
-    size: apiCache.size,
-    entries: [] as Array<{
-      key: string
-      age: number
-      size: number
-    }>
-  }
-
-  const now = Date.now()
-  for (const [key, entry] of apiCache.entries()) {
-    stats.entries.push({
-      key,
-      age: Math.floor((now - entry.timestamp) / 1000),
-      size: entry.body.length
-    })
-  }
-
-  return stats
-}
-
 if (typeof window === 'undefined') {
   setInterval(
     () => {

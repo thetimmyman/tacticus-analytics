@@ -1,7 +1,5 @@
 import { isMainBossEncounter } from '@/app/lib/config'
 
-export const MAIN_ENCOUNTER_ID = 0
-
 export type EncounterLabelStyle = 'plain' | 'parens' | 'dot' | 'short'
 
 export function formatEncounterLabel(

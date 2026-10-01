@@ -172,12 +172,6 @@ export const DEFERRED_COMMANDS: ReadonlySet<string> = new Set(
   COMMAND_MANIFEST.filter((entry) => entry.deferred).map((entry) => entry.name)
 )
 
-export const PUBLIC_OPTION_COMMANDS: ReadonlySet<string> = new Set(
-  COMMAND_MANIFEST.filter((entry) => entry.publicOption).map(
-    (entry) => entry.name
-  )
-)
-
 export const PUBLIC_OPTION_DEFAULTS: ReadonlyMap<string, boolean> = new Map(
   COMMAND_MANIFEST.filter((entry) => entry.publicOption).map((entry) => [
     entry.name,
@@ -187,12 +181,6 @@ export const PUBLIC_OPTION_DEFAULTS: ReadonlyMap<string, boolean> = new Map(
 
 export const OFFICER_ONLY_COMMANDS: ReadonlySet<string> = new Set(
   COMMAND_MANIFEST.filter((entry) => entry.gating === 'officer').map(
-    (entry) => entry.name
-  )
-)
-
-export const HANDLER_AUTHORIZED_COMMANDS: ReadonlySet<string> = new Set(
-  COMMAND_MANIFEST.filter((entry) => entry.gating === 'handler').map(
     (entry) => entry.name
   )
 )

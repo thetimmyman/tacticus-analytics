@@ -417,30 +417,6 @@ export type AwardsEmbedOptions = {
   title?: string
 }
 
-export const formatAwardsEmbed = (
-  awards: AwardEntry[],
-  options: AwardsEmbedOptions = {}
-): DiscordWebhookPayload => {
-  const fields = awards.slice(0, 10).map((award) => ({
-    name: `${award.icon ? `${award.icon} ` : ''}${award.title}`,
-    value: award.value || award.description || 'Details pending',
-    inline: false
-  }))
-
-  return {
-    embeds: [
-      buildEmbed({
-        title:
-          options.title ||
-          `🏅 Awards${options.season ? ` - Season ${options.season}` : ''}`,
-        description: 'Celebrating standout performances across the guilds.',
-        color: EMBED_COLORS.premium,
-        fields
-      })
-    ]
-  }
-}
-
 export type OverallLeaderboardEntry = {
   display_name: string
   total_damage: number
