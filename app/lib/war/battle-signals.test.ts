@@ -78,7 +78,7 @@ describe('inferAttackerUnitsLost', () => {
   })
 })
 
-describe('countDefendersAliveAtStart (Pilotcd8877-table cleanup axis)', () => {
+describe('countDefendersAliveAtStart (Zarnak-table cleanup axis)', () => {
   it('counts defenders with positive before-HP', () => {
     const row = {
       defender_units_json: [
