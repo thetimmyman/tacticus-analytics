@@ -1,5 +1,13 @@
 -- Local proof authority. Each installation has its own database and signing keys.
 -- Read models retain canonical shapes; consumer writes go through the coordinator.
+-- Completion commits with the preview import, never before it. Only the local
+-- owner can inspect or change this coordinator ledger.
+CREATE TABLE public.desktop_preview_setup (
+  singleton boolean PRIMARY KEY DEFAULT true CHECK (singleton),
+  subject_user_id uuid NOT NULL REFERENCES auth.users(id)
+);
+ALTER TABLE public.desktop_preview_setup ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.desktop_preview_setup FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."EOT_GR_data" ADD PRIMARY KEY (id);
 ALTER TABLE public.player_mapping ADD PRIMARY KEY (id);
 CREATE UNIQUE INDEX desktop_current_subject ON public.player_mapping (user_id) WHERE is_current AND user_id IS NOT NULL;

@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import {
   syntheticRaidFixture,
@@ -8,16 +8,12 @@ import {
 const email = 'desktop@localhost.invalid'
 export function workspaceSetup(services, assets) {
   let busy = false
-  const ownerPath = join(services.state, 'workspace-owner.json')
-  const initialized = async () => {
-    try {
-      await readFile(ownerPath)
-      return true
-    } catch (error) {
-      if (error.code !== 'ENOENT') throw error
-      return false
-    }
-  }
+  const initialized = async () =>
+    (
+      await services.psql(
+        'SELECT EXISTS (SELECT 1 FROM public.desktop_preview_setup);'
+      )
+    ).trim() === 't'
   const respond = (res, status, body) => {
     res.writeHead(status, {
       'content-type': 'application/json',
@@ -99,8 +95,20 @@ export function workspaceSetup(services, assets) {
         })
         return true
       }
+      const existing = JSON.parse(
+        (
+          await services.psql(`SELECT json_build_object(
+        'account', EXISTS (SELECT 1 FROM auth.users WHERE email='desktop@localhost.invalid'),
+        'occupied', EXISTS (SELECT 1 FROM public.player_mapping) OR EXISTS (SELECT 1 FROM public.guild_config) OR EXISTS (SELECT 1 FROM public."EOT_GR_data")
+      );`)
+        ).trim()
+      )
+      if (existing.occupied)
+        throw new Error(
+          'Incomplete workspace has unexpected data; refusing replacement'
+        )
       const response = await fetch(
-        `http://127.0.0.1:${services.ports.auth}/admin/users`,
+        `http://127.0.0.1:${services.ports.auth}/${existing.account ? 'token?grant_type=password' : 'admin/users'}`,
         {
           method: 'POST',
           headers: {
@@ -115,29 +123,21 @@ export function workspaceSetup(services, assets) {
           signal: AbortSignal.timeout(10000)
         }
       )
-      if (!response.ok) throw new Error('Local account creation failed')
-      const account = await response.json()
-      try {
-        await importSyntheticRaid(services, syntheticRaidFixture(account.id))
-      } catch (error) {
-        // Compensate a failed local fixture transaction; never leave a usable
-        // half-created account. This endpoint touches only this installation.
-        const rollback = await fetch(
-          `http://127.0.0.1:${services.ports.auth}/admin/users/${account.id}`,
-          {
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${services.token.service}` },
-            signal: AbortSignal.timeout(10000)
-          }
-        )
-        if (!rollback.ok)
-          throw new Error('Account rollback failed; setup requires recovery')
-        throw error
+      if (!response.ok) {
+        if (existing.account) {
+          respond(res, 401, {
+            error:
+              'Use the original workspace password to resume interrupted setup.'
+          })
+          return true
+        }
+        throw new Error('Local account creation failed')
       }
-      await writeFile(
-        ownerPath,
-        JSON.stringify({ kind: 'synthetic-preview-workspace' }),
-        { flag: 'wx', mode: 0o600 }
+      const account = await response.json()
+      await importSyntheticRaid(
+        services,
+        syntheticRaidFixture(existing.account ? account.user.id : account.id),
+        { recordSetup: true }
       )
       respond(res, 201, { email })
       return true

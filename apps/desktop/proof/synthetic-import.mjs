@@ -45,7 +45,11 @@ export function syntheticRaidFixture(subject) {
   }
 }
 const sqlString = (value) => `'${String(value).replaceAll("'", "''")}'`
-export async function importSyntheticRaid(services, fixture) {
+export async function importSyntheticRaid(
+  services,
+  fixture,
+  { recordSetup = false } = {}
+) {
   if (
     fixture.format !== 'synthetic-local-raid-v1' ||
     JSON.stringify(fixture).length > 65536 ||
@@ -87,5 +91,6 @@ export async function importSyntheticRaid(services, fixture) {
     VALUES(${sqlString(fixture.attestation)},1,'synthetic-player-a',${sqlString(fixture.subject)},'operator_quarantine_restore','2000-01-01T00:00:00Z','2000-01-01T00:00:00Z');
     UPDATE public.player_mapping SET ownership_attestation_id=${sqlString(fixture.attestation)} WHERE id=1;
     INSERT INTO public."EOT_GR_data" (${columns}) SELECT ${columns} FROM jsonb_populate_recordset(NULL::public."EOT_GR_data",${sqlString(JSON.stringify(fixture.rows))}::jsonb);
+    ${recordSetup ? `INSERT INTO public.desktop_preview_setup(singleton,subject_user_id) VALUES(true,${sqlString(fixture.subject)});` : ''}
     COMMIT;`)
 }

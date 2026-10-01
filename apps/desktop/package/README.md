@@ -4,6 +4,9 @@ The preview creates an installation-local account and synthetic sample workspace
 through a graphical first-run form. It then signs in through the existing
 application API and opens the existing player-performance page. Real raid imports,
 password recovery, full feature parity and release approval remain outstanding.
+Interrupted setup can resume with the original password. Completion is recorded
+in the same database transaction as the synthetic import; retries preserve the
+existing native account and never replace data or import the sample twice.
 The repository's proprietary license is unchanged.
 
 `stage-linux.mjs` accepts a private JSON configuration with absolute paths for
