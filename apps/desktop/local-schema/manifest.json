@@ -1,0 +1,254 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Disposable synthetic historical-performance proof; not complete application schema",
+  "sourceCommit": "5d41a8776f3e216c04dae14d1bfa09fd48ca730a",
+  "objects": [
+    {
+      "kind": "TYPE",
+      "name": "app_role",
+      "canonicalStatementSha256": "fa03a73b2309ac9e7d053aa9bb1db6a62183d11cace978ce9a1cd3d5801a2820",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "clusters",
+      "canonicalStatementSha256": "bff8a71e1f38cf9f63744c7bd339604e0a005db120ba22f6280a4f6cd911358d",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "guild_themes",
+      "canonicalStatementSha256": "5af9cce90092deddd84bbd27d9ed024a75d7ac34a01b9e318ba1359e4eb5ab48",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "feature_releases",
+      "canonicalStatementSha256": "e4c3739d0cba1286858f6d62e29bf3aacb53f7b0811049eea9a56e8fbd5bbacb",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "feature_access_grants",
+      "canonicalStatementSha256": "a78e1647ff80fcd0957fd9f88774510c298b6247266b78c1da36815b1f2d3406",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "EOT_GR_data",
+      "canonicalStatementSha256": "fe536f09570e7498ab507715f9c6592a5215c84f4742178c0dbc7a140e947f15",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "guild_config",
+      "canonicalStatementSha256": "cab88b6248cc68430933645d15a71a4b8008bcccfe9318ed7ac0c9d82113baf4",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "player_mapping",
+      "canonicalStatementSha256": "9f58c53b15c1c4a54ccb43f0200201b4a20e0a8ae4c331b4f92a0e274bd7ac9f",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "player_identity_attestations",
+      "canonicalStatementSha256": "fb3c4f5897163a810655cf60457bd9d1b04ab7d6a71bfc2fd1f7517d03442070",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "player_identity_attestation_revocations",
+      "canonicalStatementSha256": "2fdf48fcea213812c9008f837e7bea5bb41141de983aec0960f5fa7b7b191291",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "player_identity_subject_authority_blocks",
+      "canonicalStatementSha256": "8b3fc290cc9c32bf390fbd85bf3347fe58b0228899ed894eea1aa76f20e1d3ed",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "user_bans",
+      "canonicalStatementSha256": "bfb742b225c02fd84447ecb0857d625ebe2e730c15b969a53efe0f4035af91db",
+      "sourceFileSha256": "e92d92283e455a42922a1adc618dd56db7c380795e8e1066476c9dc46687eec6"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "qualifying_sweep_count",
+      "canonicalStatementSha256": "5fa4e014afcc547232474f41d5b2d8e672dad363cf6aef2ceb81658d81cc553c",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "qualifying_sweep_sum",
+      "canonicalStatementSha256": "4d5269f6b47b475c4033d1315f6cc696f7bd0079f517c9fcd61aecd30f483340",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "calc_boss_performance_pct",
+      "canonicalStatementSha256": "e762fd88f1029bb79a20b613fe327325b01c7e59ac98a892e271b738b77b80ff",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "calc_effective_battle_count",
+      "canonicalStatementSha256": "f85299e7c2523043e606c3698244d22453bc273fe6efff70d2b1b6fcc16c85e0",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "_pm_caller_cluster_guild_codes",
+      "canonicalStatementSha256": "d9e10797357d70afab9cba31f3405ee77db57703ea3970cb6bfd40d456c417bc",
+      "sourceFileSha256": "39adb4302cc9b2c485506064ea9a1f267e89e57f2ab8df9e72cabe6c53602d21"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "_pm_caller_guild_codes",
+      "canonicalStatementSha256": "5b2ca39105f84077d9867b1989b1fedfd51bf2073f7fc71f953b33b3120f5961",
+      "sourceFileSha256": "39adb4302cc9b2c485506064ea9a1f267e89e57f2ab8df9e72cabe6c53602d21"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "_pm_caller_is_app_admin",
+      "canonicalStatementSha256": "ea06a1956dee28a239374600f3f468a7d68faf5363c14a0c6854ee078937324d",
+      "sourceFileSha256": "39adb4302cc9b2c485506064ea9a1f267e89e57f2ab8df9e72cabe6c53602d21"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "resolve_verified_players",
+      "canonicalStatementSha256": "fce0b452fb27136e34d6e30b74eeed085c737c4bf6a9817d2fb03d4a68b9deda",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_guild_boss_averages_batch",
+      "canonicalStatementSha256": "1a33c92fbb20f68397c67e44b30bedaaf8e56ed3f2e96cde1df6d582500e6856",
+      "sourceFileSha256": "f89d101f66975523a53164f48107b03a246c5aa17b51b604a21be5780035aca3"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_guild_player_scores_batch",
+      "canonicalStatementSha256": "6d96c449c3fe5eecb71dcf3cacf64e8f00200121385d13ef503046e176b3cd80",
+      "sourceFileSha256": "f89d101f66975523a53164f48107b03a246c5aa17b51b604a21be5780035aca3"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "calculate_player_reliability",
+      "canonicalStatementSha256": "be2321496a78d31ec939d3f8f6d02aee9d41a151ccbb4dcddcbe879798707aec",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_player_performance_in_cluster",
+      "canonicalStatementSha256": "8c6c8dc95ff8828318bfab5f00fc6fa687d6957dd53b1f636904a50fd2a7fc75",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_latest_season",
+      "canonicalStatementSha256": "93e2aac92e917232cf62b4669d50d338a2f14a63fdbff386b9f34ce6f5917e3c",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "compute_player_token_burn",
+      "canonicalStatementSha256": "a2da2a5fc5b0d39d6d63b7ae6cb63a07d6a554064ac9797c9e741dc877812fbb",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "compute_player_tokens_available",
+      "canonicalStatementSha256": "a2684c73b2a03928c56d5ff797268239acac95df7f70675f7fb2a01a43bd17e2",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_distinct_seasons_for_guild",
+      "canonicalStatementSha256": "cb332f14ce8e2852693d7077dec05836f4eaf44912c8ebcd4741fc2c464664c4",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_guild_vs_cluster_boss_performance",
+      "canonicalStatementSha256": "b0e7c51d8bf8c0a0c2d11ea2cdce7b3c69a34d90806f63e40ae55df2d84430f9",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "check_feature_access",
+      "canonicalStatementSha256": "65f5fb5a86f656844c68df6972db0b76d211440602f63528ad56afc49bd875ef",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_duplicate_display_labels",
+      "canonicalStatementSha256": "90ce344f83c699a07ebaa44d0cb79817f674fd4c63e6fa254906564eac6e324f",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_player_performance_summary",
+      "canonicalStatementSha256": "de284187af83a13699159a198331e1ad4103bd2269d5c9db411d01958097f863",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_player_prime_performance",
+      "canonicalStatementSha256": "190445e37192ac477c9987acfb4cf5f4906a9cfb66da45919cf506388acc5e95",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_season_token_stats",
+      "canonicalStatementSha256": "4cce2ee3f90d49a4cf6aee20cfb1d2658bf8cfcebf57e6890388da861111a384",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_token_usage_for_guild",
+      "canonicalStatementSha256": "bcd270b388ef1995255134b3b32210693c4c88b14efa2baa467195ec4351fea3",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_user_access_levels",
+      "canonicalStatementSha256": "610e67c9f69ac605f80780665f7866a55cea496e625f8ed6cfe09649c02102ab",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "VIEW",
+      "name": "current_user_player_mapping",
+      "canonicalStatementSha256": "455eb103d8bb22668e2866f88cea37b3a8185b5d4250c5cca9d4b564e29c97d4",
+      "sourceFileSha256": "95a8c12737d277183a663fb80482a0134d4623ee67f35a9585c825f4910b6c02"
+    },
+    {
+      "kind": "VIEW",
+      "name": "player_with_cluster",
+      "canonicalStatementSha256": "26327d7f30156f319da3a3af7924ca5968a84939f7f8b789606947fa44fc06a3",
+      "sourceFileSha256": "95a8c12737d277183a663fb80482a0134d4623ee67f35a9585c825f4910b6c02"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_player_boss_performance:guild_code_param text, season_param text)",
+      "canonicalStatementSha256": "f8578ece452fbf24cdc853acdc9d25ccdda616a68eefd5bed5939b784a30830a",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_player_boss_performance:p_guild_code text, p_season text, p_display_name text, p_rarities text[] DEFAULT ARRAY['Legendary'::text, 'Mythic'::text])",
+      "canonicalStatementSha256": "bd1f7d3afd3f7c731cdfb716a96a91c5a68390309e846356968fcebfe900bc2f",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_player_boss_performance:p_guild_code text, p_season text, p_player_name text, p_boss_name text DEFAULT NULL::text, p_rarity text DEFAULT 'Legendary'::text)",
+      "canonicalStatementSha256": "51df5ed1d12a088847c0a8dffd7f04764d32aa8f963e661422d33da790658e9d",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    }
+  ],
+  "excluded": "Hosted triggers, schedulers, operational SQL, captured data and blanket grants are deliberately excluded. Local bootstrap supplies constraints, RLS and ownership separately. Cluster aggregate must use a scoped invoker view rather than an unscoped materialized-view grant."
+}

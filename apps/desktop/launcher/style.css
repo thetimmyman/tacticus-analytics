@@ -1,0 +1,67 @@
+:root {
+  color-scheme: dark;
+  font-family: system-ui, sans-serif;
+  background: #0d1420;
+  color: #e4edf7;
+}
+body {
+  margin: 0;
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+}
+main {
+  width: min(480px, 85vw);
+  padding: 36px;
+  border: 1px solid #304159;
+  border-radius: 16px;
+  background: #192536;
+}
+h1 {
+  font-size: 28px;
+  line-height: 1.25;
+}
+p {
+  line-height: 1.6;
+  color: #b8c8da;
+}
+.eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: #8bc0ff;
+}
+form {
+  display: grid;
+  gap: 14px;
+  margin-top: 28px;
+}
+input[type='password'] {
+  padding: 12px;
+  font: inherit;
+  border: 1px solid #6087ba;
+  border-radius: 6px;
+  background: #0d1420;
+  color: inherit;
+}
+button {
+  padding: 14px;
+  font: inherit;
+  font-weight: 600;
+  border: 0;
+  border-radius: 6px;
+  background: #8bc0ff;
+  color: #0d1420;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.6;
+}
+.footnote {
+  font-size: 12px;
+}
+#status {
+  margin: 0;
+}
+label {
+  font-size: 14px;
+}

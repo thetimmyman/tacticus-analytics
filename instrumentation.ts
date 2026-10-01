@@ -1,3 +1,5 @@
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
+
 /** Runs once at server start: undici fetch patching, Sentry, background workers. */
 
 export { onRequestError } from './app/lib/monitoring/request-error'
@@ -22,11 +24,14 @@ export async function register() {
       console.warn('[instrumentation] Error patching globalThis.fetch:', error)
     }
 
-    await import('./sentry.server.config')
+    if (getRuntimeProfile() === 'hosted') {
+      await import('./sentry.server.config')
+    }
 
     // Ban-repair verify worker in every production server process; work_queue's
     // atomic claim keeps pods safe and a local guard prevents overlapping ticks.
     if (
+      getRuntimeProfile() === 'hosted' &&
       process.env.NODE_ENV === 'production' &&
       process.env.NEXT_PHASE !== 'phase-production-build'
     ) {
@@ -37,6 +42,8 @@ export async function register() {
   }
 
   if (process.env.NEXT_RUNTIME === 'edge') {
-    await import('./sentry.edge.config')
+    if (getRuntimeProfile() === 'hosted') {
+      await import('./sentry.edge.config')
+    }
   }
 }

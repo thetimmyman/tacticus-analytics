@@ -1,11 +1,12 @@
-import { createServer, type Server } from 'node:http'
+import { randomBytes } from 'node:crypto'
+import { createServer, type Server, type RequestListener } from 'node:http'
 import { AddressInfo } from 'node:net'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { getSharedFetch } from '@/app/lib/network/undici-agent'
 
 let server: Server | null = null
 
-const listen = async (handler: Parameters<typeof createServer>[0]) => {
+const listen = async (handler: RequestListener) => {
   server = createServer(handler)
   await new Promise<void>((resolve) => {
     server?.listen(0, '127.0.0.1', resolve)
@@ -15,6 +16,7 @@ const listen = async (handler: Parameters<typeof createServer>[0]) => {
 }
 
 afterEach(async () => {
+  vi.unstubAllEnvs()
   if (!server) return
   await new Promise<void>((resolve, reject) => {
     server?.close((error) => {
@@ -103,5 +105,38 @@ describe('httpFetch body framing', () => {
     expect(deleteBody.path).toBe('/users/123')
     expect(secondBody.seenRequestNumber).toBe(2)
     expect(secondBody.path).toBe('/health')
+  })
+})
+
+describe('desktop fetch authority', () => {
+  it('adds main-process authority only to its configured local service', async () => {
+    let requests = 0
+    const transportKey = randomBytes(32).toString('hex')
+    const endpoint = await listen((request, response) => {
+      requests += 1
+      expect(request.headers['x-desktop-transport']).toBe(transportKey)
+      response.end('local')
+    })
+    vi.stubEnv('NEXT_PUBLIC_RUNTIME_PROFILE', 'desktop')
+    vi.stubEnv('SUPABASE_URL', `${endpoint}/supabase`)
+    vi.stubEnv('DESKTOP_TRANSPORT_KEY', transportKey)
+    expect(
+      await (await getSharedFetch()(`${endpoint}/supabase/rest/v1/`)).text()
+    ).toBe('local')
+    await expect(getSharedFetch()('https://remote.invalid/')).rejects.toThrow(
+      'non-local service'
+    )
+    expect(requests).toBe(1)
+  })
+  it('refuses local requests without main-process authority', async () => {
+    const endpoint = await listen((_request, response) =>
+      response.end('must not reach')
+    )
+    vi.stubEnv('NEXT_PUBLIC_RUNTIME_PROFILE', 'desktop')
+    vi.stubEnv('SUPABASE_URL', `${endpoint}/supabase`)
+    vi.stubEnv('DESKTOP_TRANSPORT_KEY', '')
+    await expect(
+      getSharedFetch()(`${endpoint}/supabase/rest/v1/`)
+    ).rejects.toThrow('transport key is required')
   })
 })
