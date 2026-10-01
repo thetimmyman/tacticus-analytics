@@ -549,8 +549,6 @@ const CONFIG_BY_ID = new Map(
   SEASON_CONFIGS.map((config) => [config.id, config])
 )
 
-export const CANONICAL_SEQUENCE = SEASON_CONFIGS.map((config) => config.id)
-
 const DEFAULT_CONFIG: SeasonConfig = SEASON_CONFIGS[0] ?? {
   id: 'unknown',
   bosses: [],
@@ -592,15 +590,6 @@ export const matchSeasonConfig = (
     config: bestMatch ?? DEFAULT_CONFIG,
     matches: Math.max(bestScore, 0)
   }
-}
-
-export const getNextSeasonConfig = (currentId: string): SeasonConfig => {
-  const index = SEASON_CONFIGS.findIndex((config) => config.id === currentId)
-  if (index === -1) {
-    return DEFAULT_CONFIG
-  }
-  const nextIndex = (index + 1) % SEASON_CONFIGS.length
-  return SEASON_CONFIGS[nextIndex] ?? DEFAULT_CONFIG
 }
 
 export const getSeasonConfigById = (configId: string): SeasonConfig => {

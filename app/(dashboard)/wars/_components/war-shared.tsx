@@ -2,7 +2,7 @@
 
 import clsx from 'clsx'
 import { Skull } from 'lucide-react'
-import { Badge, Card, CardContent } from '@tacticus/ui-kit'
+import { Card, CardContent } from '@tacticus/ui-kit'
 import type { Unit } from '../_types'
 import { useHasMounted } from '@/app/lib/hooks/useHasMounted'
 
@@ -276,30 +276,5 @@ export function ScoreComparison({
         )}
       </CardContent>
     </Card>
-  )
-}
-
-export function RateBadge({
-  label,
-  value,
-  high = 70,
-  low = 50
-}: {
-  label: string
-  value: number
-  high?: number
-  low?: number
-}) {
-  const tone = getRateTone(value, high, low)
-  const border =
-    value >= high
-      ? 'border-green-500/40'
-      : value < low
-        ? 'border-red-500/40'
-        : 'border-yellow-500/40'
-  return (
-    <Badge className={clsx('bg-transparent', border, tone)}>
-      {label}: {formatPercent(value)}
-    </Badge>
   )
 }

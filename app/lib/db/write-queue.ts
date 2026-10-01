@@ -5,7 +5,6 @@ import type { Json } from '@tacticus/app-core/database.generated'
 import { serviceDb } from '@/app/lib/db'
 import { createComponentLogger } from '@/app/lib/logging'
 import { circuitRegistry } from '@/app/lib/resilience'
-import type { CircuitState } from '@/app/lib/resilience'
 
 const logger = createComponentLogger('write-queue')
 
@@ -309,19 +308,6 @@ class WriteQueueManager {
 }
 
 export const writeQueue = new WriteQueueManager()
-
-export function createWriteQueueCallback() {
-  return async (
-    circuitName: string,
-    previousState: CircuitState,
-    newState: CircuitState
-  ) => {
-    if (previousState === 'HALF_OPEN' && newState === 'CLOSED') {
-      logger.info({ circuitName }, 'Circuit closed, processing queued writes')
-      await writeQueue.processQueue(circuitName)
-    }
-  }
-}
 
 /** Rethrows only if queueing fails. */
 export async function withWriteQueue<T>(

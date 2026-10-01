@@ -104,7 +104,3 @@ export const fetchDiscordMessageBody = async (
     return null
   }
 }
-
-export const __clearCustomMessageCache = () => {
-  cache.clear()
-}

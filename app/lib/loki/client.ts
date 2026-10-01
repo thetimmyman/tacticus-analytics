@@ -606,9 +606,3 @@ export const createLokiClient = (
   credentials: LokiCredentials,
   options?: LokiClientOptions
 ): LokiClient => new LokiClient(credentials, options)
-
-export const GAME_CONFIG_VERSIONS = {
-  CONNECT: DEFAULT_CONNECT_GAME_CONFIG,
-  VIEW_GUILD: DEFAULT_VIEW_GUILD_GAME_CONFIG,
-  LEADERBOARD: DEFAULT_LEADERBOARD_GAME_CONFIG
-} as const

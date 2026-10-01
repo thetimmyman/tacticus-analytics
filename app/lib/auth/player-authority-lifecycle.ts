@@ -420,17 +420,6 @@ export function setPlayerAppAdminBulk(
   })
 }
 
-export function revokePlayerMappingOwnership(
-  supabase: TypedSupabaseClient,
-  mappingId: number,
-  reason: string
-): PromiseLike<RpcResult> {
-  return writeRpc(supabase, 'revoke_player_mapping_ownership', {
-    p_mapping_id: mappingId,
-    p_reason: reason
-  })
-}
-
 export function createPlayerInviteCode(
   supabase: TypedSupabaseClient,
   mappingId: number,
