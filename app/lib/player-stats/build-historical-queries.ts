@@ -68,7 +68,7 @@ export async function executeBulkQueries(
       supabase
         .from('EOT_GR_data')
         .select(
-          'Season, displayName, Name, damageDealt, remainingHp, maxHp, Guild, set, tier, rarity, encounterId, userId'
+          'Season, displayName, Name, damageDealt, remainingHp, maxHp, Guild, set, tier, rarity, encounterId, userId, damageType'
         )
     )
       .in('Guild', guildCodes)
