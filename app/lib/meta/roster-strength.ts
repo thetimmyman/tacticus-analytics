@@ -1,10 +1,6 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '@tacticus/app-core/types'
 import { getRankIndexFromName } from '@/app/lib/tacticus/ranks'
 import type { RosterHeroInput, RosterInputEntry } from './roster-input'
 import { normalizeIdentifier } from '@/app/lib/utils/normalize'
-
-type RosterSupabaseClient = SupabaseClient<Database>
 
 export type OwnershipState = 'missing' | 'owned' | 'unknown'
 export type StrengthState =
@@ -635,37 +631,6 @@ export const fetchStrengthThresholds = async (options: {
   season: string | null
 }): Promise<StrengthThresholds> => {
   return resolveThresholds(options.raritySet)
-}
-
-export const fetchPlaybookStrengthThresholds = async (
-  supabase: RosterSupabaseClient,
-  bossId: string,
-  teamId: string
-): Promise<PlaybookStrengthOverrides | null> => {
-  const { data, error } = await supabase
-    .from('boss_playbook_team_requirements')
-    .select('boss_id, difficulty, meta_team_id, hero_requirements')
-    .eq('boss_id', bossId)
-    .eq('meta_team_id', teamId)
-    .order('updated_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
-  if (error || !data?.hero_requirements) return null
-
-  const map = new Map<string, HeroRequirement>()
-  for (const req of data.hero_requirements as HeroRequirement[]) {
-    if (!req?.hero_name) continue
-    map.set(normalizeToken(req.hero_name), req)
-  }
-
-  return {
-    boss_id: data.boss_id,
-    team_id: data.meta_team_id,
-    difficulty: data.difficulty ?? null,
-    heroes: map,
-    source: 'playbook'
-  }
 }
 
 const evaluateStrengthStateBase = (

@@ -7,10 +7,6 @@ export const TIME_UNITS = {
   WEEK: 7 * 24 * 60 * 60 * 1000
 } as const
 
-export const FIVE_MINUTES_MS = 5 * TIME_UNITS.MINUTE
-export const FIFTEEN_MINUTES_MS = 15 * TIME_UNITS.MINUTE
-export const ONE_HOUR_MS = TIME_UNITS.HOUR
-
 export const LIVE_STATS_CACHE_TTL = {
   INSTANT: 0,
   VERY_SHORT: 30 * TIME_UNITS.SECOND,
@@ -36,70 +32,3 @@ export const LIVE_STATS_CACHE_TTL = {
   DEBUG_DATA: TIME_UNITS.MINUTE,
   STATIC_DATA: TIME_UNITS.DAY // hero mappings, etc.
 } as const
-
-export const UI_DELAYS = {
-  DEBOUNCE_INSTANT: 0,
-  DEBOUNCE_FAST: 150,
-  DEBOUNCE_DEFAULT: 300,
-  DEBOUNCE_MEDIUM: 500,
-  DEBOUNCE_SLOW: 1000,
-
-  ANIMATION_INSTANT: 0,
-  ANIMATION_FAST: 100,
-  ANIMATION_DEFAULT: 200,
-  ANIMATION_MEDIUM: 300,
-  ANIMATION_SLOW: 500,
-  ANIMATION_VERY_SLOW: 700,
-  ANIMATION_EXTRA_SLOW: 900,
-
-  TOAST_SHORT: 3000,
-  TOAST_DEFAULT: 5000,
-  TOAST_LONG: 7000,
-  TOAST_PERSISTENT: 0, // Never auto-dismiss
-
-  POLL_FAST: 3000,
-  POLL_DEFAULT: 5000,
-  POLL_SLOW: 10000,
-  POLL_VERY_SLOW: 60000
-} as const
-
-export const TOKEN_TIMINGS = {
-  REGENERATION_HOURS: 12,
-  REGENERATION_MS: 12 * TIME_UNITS.HOUR,
-  BOMB_COOLDOWN_HOURS: 18,
-  BOMB_COOLDOWN_MS: 18 * TIME_UNITS.HOUR,
-  MAX_ACCUMULATION_DAYS: 1.5,
-  MAX_ACCUMULATION_MS: 1.5 * TIME_UNITS.DAY
-} as const
-
-export const AUTH_TIMINGS = {
-  SESSION_MAX_AGE: 7 * TIME_UNITS.DAY,
-  REFRESH_THRESHOLD: TIME_UNITS.HOUR, // Refresh if < 1 hour left
-  VERIFICATION_EXPIRY: 24 * TIME_UNITS.HOUR, // Email verification
-  RESET_TOKEN_EXPIRY: TIME_UNITS.HOUR // Password reset
-} as const
-
-export const NETWORK_TIMINGS = {
-  TIMEOUT_SHORT: 5000,
-  TIMEOUT_DEFAULT: 30000,
-  TIMEOUT_LONG: 60000,
-  RETRY_DELAY_BASE: 1000,
-  RETRY_DELAY_MAX: 10000,
-  RATE_LIMIT_WINDOW: TIME_UNITS.MINUTE
-} as const
-
-export function msToSeconds(ms: number): number {
-  return Math.floor(ms / TIME_UNITS.SECOND)
-}
-
-export function secondsToMs(seconds: number): number {
-  return seconds * TIME_UNITS.SECOND
-}
-
-export function hoursToMs(hours: number): number {
-  return hours * TIME_UNITS.HOUR
-}
-
-export function daysToMs(days: number): number {
-  return days * TIME_UNITS.DAY
-}

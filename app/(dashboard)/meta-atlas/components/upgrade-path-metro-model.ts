@@ -1,5 +1,4 @@
 import type { StrengthState } from '@/app/lib/meta/roster-strength'
-import type { UpgradeStep } from '@/app/lib/meta/types'
 import {
   normalizeHeroKey,
   resolveHeroMapping,
@@ -129,29 +128,4 @@ export const resolveSwapUnits = (
         icon_url: mapping?.web_icon_url || null
       }
     })
-}
-
-const buildSwapKeySet = (value: string | null | undefined): Set<string> => {
-  const keys = new Set<string>()
-  splitSwapUnits(value).forEach((entry) => {
-    const normalized = normalizeHeroKey(entry)
-    if (!normalized || normalized === 'openslot') return
-    keys.add(normalized)
-  })
-  return keys
-}
-
-export const _resolveSwapKeys = (step: UpgradeStep) => {
-  const rawSwapOut = (step.swap_out || step.swapped_out || '').trim()
-  const rawSwapIn = (step.swap_in || step.swapped_in || '').trim()
-  const inferred =
-    !rawSwapOut || !rawSwapIn
-      ? inferSwapUnits(step.from_team, step.to_team)
-      : { swapOut: [] as string[], swapIn: [] as string[] }
-  const swapOut = rawSwapOut || inferred.swapOut.join(', ')
-  const swapIn = rawSwapIn || inferred.swapIn.join(', ')
-  return {
-    swapOutKeys: buildSwapKeySet(swapOut),
-    swapInKeys: buildSwapKeySet(swapIn)
-  }
 }

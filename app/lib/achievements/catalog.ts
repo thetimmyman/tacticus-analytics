@@ -802,12 +802,6 @@ export const ACHIEVEMENT_CATALOG: AchievementDefinition[] = [
 
 export const ADDITIONAL_ACHIEVEMENT_COUNT = GENERATED_ACHIEVEMENTS.length
 
-export function getAchievementDef(
-  key: string
-): AchievementDefinition | undefined {
-  return ACHIEVEMENT_CATALOG.find((a) => a.key === key)
-}
-
 export function getAchievementMetricValue(
   stats: AchievementStats,
   metric: AchievementMetric

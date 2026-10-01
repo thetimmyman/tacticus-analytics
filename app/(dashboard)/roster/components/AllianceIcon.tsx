@@ -52,11 +52,3 @@ export function AllianceIcon({
     </span>
   )
 }
-
-export function getAllianceIconUrl(_alliance: string): null {
-  return null
-}
-
-export function getAllianceColor(alliance: string): string {
-  return ALLIANCE_COLORS[alliance] || 'text-gray-400'
-}

@@ -121,31 +121,7 @@ export const sortBossesByRarity = (bosses: Boss[]): Boss[] =>
     return a.name.localeCompare(b.name)
   })
 
-export const groupBossesByRarity = (
-  bosses: Boss[]
-): Map<BossRarity, Boss[]> => {
-  const sorted = sortBossesByRarity(bosses)
-  const groups = new Map<BossRarity, Boss[]>()
-
-  for (const rarity of RARITY_ORDER) {
-    const matching = sorted.filter((b) => inferBossRarity(b) === rarity)
-    if (matching.length > 0) {
-      groups.set(rarity, matching)
-    }
-  }
-
-  return groups
-}
-
 /** en-US grouped integers; deliberately not number-format.ts#formatNumber (which rounds). */
 export function formatNumber(value: number): string {
   return new Intl.NumberFormat('en-US').format(value)
-}
-
-/** Numeric-aware descending ('12' before '9'); reverse lexicographic otherwise. */
-export function sortSeasonDesc(a: string, b: string): number {
-  const numA = Number(a)
-  const numB = Number(b)
-  if (Number.isFinite(numA) && Number.isFinite(numB)) return numB - numA
-  return b.localeCompare(a)
 }
