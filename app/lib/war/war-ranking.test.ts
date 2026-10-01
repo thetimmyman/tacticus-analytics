@@ -3,7 +3,7 @@ import {
   buildPlayerRanking,
   scoreBattle,
   type RankingBattleRow
-} from './bephus-ranking'
+} from './war-ranking'
 
 const defenders = (alive: number, dead: number) => [
   ...Array.from({ length: alive }, () => ({
