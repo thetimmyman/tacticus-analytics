@@ -6,11 +6,11 @@ import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { isFeatureEnabled } from '@/app/lib/utils/feature-flags'
 import {
-  BEPHUS_FORMULA_VERSION,
+  WAR_RANKING_FORMULA_VERSION,
   buildPlayerRanking,
   type RankingBattleRow,
   type WarExclusion
-} from '@/app/lib/war/bephus-ranking'
+} from '@/app/lib/war/war-ranking'
 import {
   crossCheckZoneEvents,
   type ZoneEventRow
@@ -23,7 +23,7 @@ const MAX_WAR_COUNT = 50
 const DEFAULT_WAR_COUNT = 6
 
 /**
- * War leaderboard (formula bephus-v1). The guild comes from the caller's active
+ * War leaderboard (formula war-ranking-v1). The guild comes from the caller's active
  * membership, never the body; serviceDb is reached only after that check.
  */
 export const POST = withErrorHandler(async (request: NextRequest) => {
@@ -47,9 +47,12 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         : {}
     const formulaVersion = body['formulaVersion']
     const warCountRaw = body['warCount']
-    if (formulaVersion != null && formulaVersion !== BEPHUS_FORMULA_VERSION) {
+    if (
+      formulaVersion != null &&
+      formulaVersion !== WAR_RANKING_FORMULA_VERSION
+    ) {
       throw Errors.fromResponse(400, {
-        error: `Unknown formulaVersion; supported: ${BEPHUS_FORMULA_VERSION}`
+        error: `Unknown formulaVersion; supported: ${WAR_RANKING_FORMULA_VERSION}`
       })
     }
     const warCount = Math.min(
@@ -83,7 +86,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       .filter((id): id is string => typeof id === 'string' && id.length > 0)
     if (warIds.length === 0) {
       return NextResponse.json({
-        formulaVersion: BEPHUS_FORMULA_VERSION,
+        formulaVersion: WAR_RANKING_FORMULA_VERSION,
         wars: [],
         players: [],
         excludedWars: [],
