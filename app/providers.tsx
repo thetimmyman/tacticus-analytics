@@ -1,5 +1,7 @@
 'use client'
 
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
+
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useState, useEffect } from 'react'
@@ -22,7 +24,7 @@ function AuthenticatedSyncStatusPanel() {
   const { userId } = useClusterContext()
 
   // The freshness endpoint needs a membership, so anonymous pages never mount the poller.
-  return userId ? <SyncStatusPanel /> : null
+  return userId && getRuntimeProfile() === 'hosted' ? <SyncStatusPanel /> : null
 }
 
 /** React Query configuration tuned to reduce database egress. */

@@ -1,4 +1,10 @@
+import {
+  getRuntimeProfile,
+  requireDesktopServiceUrl
+} from '@tacticus/app-core/runtime-profile'
+
 export interface ProxySupabaseUrlEnv {
+  NEXT_PUBLIC_RUNTIME_PROFILE?: string
   NEXT_PUBLIC_SUPABASE_URL?: string
   SUPABASE_URL?: string
 }
@@ -34,9 +40,13 @@ function resolveBrowserOrigins(publicSupabaseUrl: string): {
 export function resolveProxySupabaseUrls(
   env: ProxySupabaseUrlEnv = process.env as ProxySupabaseUrlEnv
 ): ProxySupabaseUrls {
-  const publicSupabaseUrl =
-    env.NEXT_PUBLIC_SUPABASE_URL || DEFAULT_PUBLIC_SUPABASE_URL
-  const authSupabaseUrl = env.SUPABASE_URL || publicSupabaseUrl
+  const desktop = getRuntimeProfile(env) === 'desktop'
+  const publicSupabaseUrl = desktop
+    ? requireDesktopServiceUrl(env.NEXT_PUBLIC_SUPABASE_URL)
+    : env.NEXT_PUBLIC_SUPABASE_URL || DEFAULT_PUBLIC_SUPABASE_URL
+  const authSupabaseUrl = desktop
+    ? requireDesktopServiceUrl(env.SUPABASE_URL)
+    : env.SUPABASE_URL || publicSupabaseUrl
   const { httpSupabaseOrigin, wsSupabaseOrigin } =
     resolveBrowserOrigins(publicSupabaseUrl)
 
