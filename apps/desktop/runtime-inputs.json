@@ -52,5 +52,15 @@
     "End-user launcher and installer",
     "Equivalent-service Tauri measurement",
     "Fresh-install identity transfer and key rotation"
-  ]
+  ],
+  "portablePostgresqlCandidate": {
+    "version": "18.6",
+    "sourceSha256": "555610c24d53e4316da5b7d3fc25c279d96856d5e0e23ee308c328c5fa881d9f",
+    "builder": "ubuntu:22.04@sha256:b8b6ee6aa931ecd9d0d952abc34dc0e5f7c6a30c6bb71b079fe399fde0329c02",
+    "recipe": "apps/desktop/package/Dockerfile.postgres",
+    "serverLibraries": ["libc.so.6", "libm.so.6", "ld-linux-x86-64.so.2"],
+    "highestObservedGlibcSymbol": "GLIBC_2.34",
+    "featureScope": "Current synthetic local journey; optional hosted extensions, ICU and compression are not enabled",
+    "verification": "Source digest verified against official PostgreSQL SHA-256; graphical first-launch and restart exercised offline with checkout and host developer executables hidden"
+  }
 }

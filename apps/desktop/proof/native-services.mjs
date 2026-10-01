@@ -46,7 +46,12 @@ async function run(file, args, options) {
   })
   return stdout
 }
-export async function nativeServices({ state, binaries, schemaDirectory }) {
+export async function nativeServices({
+  state,
+  binaries,
+  schemaDirectory,
+  libraryPath
+}) {
   state = resolve(state)
   await mkdir(state, { recursive: true, mode: 0o700 })
   const info = await lstat(state)
@@ -138,6 +143,7 @@ export async function nativeServices({ state, binaries, schemaDirectory }) {
     const pgEnv = {
       PATH: process.env.PATH,
       LANG: 'C.UTF-8',
+      ...(libraryPath ? { LD_LIBRARY_PATH: libraryPath } : {}),
       PGPASSWORD: credentials.owner
     }
     const psql = async (sql) => {

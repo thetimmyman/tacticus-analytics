@@ -1,11 +1,16 @@
 import { createServer, request as httpRequest } from 'node:http'
 import { timingSafeEqual } from 'node:crypto'
 
-export async function loopbackGateway({ services, transportKey, appPort }) {
+export async function loopbackGateway({
+  services,
+  transportKey,
+  appPort,
+  handleLocalRequest
+}) {
   if (!/^[a-f0-9]{64}$/.test(transportKey))
     throw new Error('Invalid transport key')
   let origin
-  const server = createServer((req, res) => {
+  const server = createServer(async (req, res) => {
     const supplied = req.headers['x-desktop-transport']
     const authorized =
       typeof supplied === 'string' &&
@@ -28,6 +33,18 @@ export async function loopbackGateway({ services, transportKey, appPort }) {
       res.writeHead(400)
       res.end()
       return
+    }
+    if (handleLocalRequest) {
+      try {
+        if (await handleLocalRequest(req, res, url)) return
+      } catch {
+        if (!res.headersSent)
+          res.writeHead(500, { 'content-type': 'application/json' })
+        res.end(
+          '{"error":"Local workspace setup failed. Your existing data was preserved."}'
+        )
+        return
+      }
     }
     let path = url.pathname + url.search,
       port = appPort
