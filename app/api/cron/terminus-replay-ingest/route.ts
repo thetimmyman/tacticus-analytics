@@ -41,6 +41,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
   const summary = await ingestExternalReplays(serviceDb(), candidates, {
     apply: true,
     publishClean: true,
+    // Terminus Maximus replays are community data and public by design (operator ruling 2026-09-04); changing this would change the audience for community data.
     visibility: 'public'
   })
 
