@@ -1,11 +1,11 @@
 -- Rollback capture of the four secret readers' live General bodies before the
 -- cron-secret delivery rewrite; re-run each CREATE OR REPLACE, never after the GUCs are retired.
-=== SIGNATURES ===
-call_edge_function(text,jsonb)
-get_cron_secret()
-get_service_role_key()
-monitoring.notify(text,text,text,text,boolean)
-=== DEFS ===
+-- === SIGNATURES ===
+-- call_edge_function(text,jsonb)
+-- get_cron_secret()
+-- get_service_role_key()
+-- monitoring.notify(text,text,text,text,boolean)
+-- === DEFS ===
 CREATE OR REPLACE FUNCTION public.call_edge_function(function_name text, payload jsonb DEFAULT '{}'::jsonb)
  RETURNS jsonb
  LANGUAGE plpgsql
@@ -135,7 +135,7 @@ EXCEPTION WHEN OTHERS THEN
   RAISE WARNING 'call_edge_function failed for %: %', function_name, SQLERRM;
   RETURN jsonb_build_object('error', SQLERRM, 'function', function_name);
 END;
-$function$
+$function$;
 
 ---FUNCTION-BOUNDARY---
 CREATE OR REPLACE FUNCTION public.get_cron_secret()
@@ -156,7 +156,7 @@ BEGIN
 
   RETURN secret;
 END;
-$function$
+$function$;
 
 ---FUNCTION-BOUNDARY---
 CREATE OR REPLACE FUNCTION public.get_service_role_key()
@@ -168,7 +168,7 @@ BEGIN
   -- For now, return a placeholder that needs to be updated
   RETURN current_setting('app.settings.service_role_key', true);
 END;
-$function$
+$function$;
 
 ---FUNCTION-BOUNDARY---
 CREATE OR REPLACE FUNCTION monitoring.notify(p_alert_key text, p_status text, p_title text, p_body text DEFAULT NULL::text, p_quiet boolean DEFAULT false)
@@ -273,6 +273,6 @@ EXCEPTION WHEN OTHERS THEN
     p_alert_key, p_status, SQLERRM;
   RETURN false;
 END;
-$function$
+$function$;
 
 ---FUNCTION-BOUNDARY---
