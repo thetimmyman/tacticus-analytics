@@ -113,7 +113,7 @@ end;
 $function$;
 
 COMMENT ON FUNCTION public.queue_token_burn_notifications(text, text, timestamptz) IS
-  'Queues WI-079 burn_warning and burn_occurred events using token_burn_state + per-channel preferences. Per-player processing order is pinned (order by player_id) to prevent an advisory-lock deadlock between overlapping concurrent runs.';
+  'Queues burn_warning and burn_occurred events using token_burn_state + per-channel preferences. Per-player processing order is pinned (order by player_id) to prevent an advisory-lock deadlock between overlapping concurrent runs.';
 
 -- Verify: the fix landed and the signature/grants are unchanged.
 DO $verify$
