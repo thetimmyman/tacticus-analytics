@@ -334,13 +334,3 @@ export function useServiceHealth(): ServiceHealthContextValue {
   }
   return context
 }
-
-export function useServiceStatus(service: ServiceName): ServiceStatus {
-  const health = useServiceHealth()
-  return health.getServiceStatus(service)
-}
-
-export function useIsServiceAvailable(service: ServiceName): boolean {
-  const health = useServiceHealth()
-  return health.isServiceAvailable(service)
-}

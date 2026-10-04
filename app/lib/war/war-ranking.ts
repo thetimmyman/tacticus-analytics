@@ -1,4 +1,4 @@
-// bephus-v1: win vs players = 2.50 + 0.25×medicae − 0.25×(5 − aliveAtStart) − 0.05×unitsLost;
+// war-ranking-v1: win vs players = 2.50 + 0.25×medicae − 0.25×(5 − aliveAtStart) − 0.05×unitsLost;
 // loss 1.00; NPC hit 1.25. Kill-share deliberately dominates efficiency.
 
 import {
@@ -10,7 +10,7 @@ import {
 } from './battle-signals'
 import { attemptPlayerId, type ChronologyRow } from './zone-chronology'
 
-export const BEPHUS_FORMULA_VERSION = 'bephus-v1'
+export const WAR_RANKING_FORMULA_VERSION = 'war-ranking-v1'
 
 export type RankingBattleRow = ChronologyRow & {
   score_earned?: number | null
@@ -102,7 +102,7 @@ export type WarExclusion = {
 }
 
 export type PlayerRankingResult = {
-  formulaVersion: typeof BEPHUS_FORMULA_VERSION
+  formulaVersion: typeof WAR_RANKING_FORMULA_VERSION
   players: PlayerRankingRow[]
   excludedWars: WarExclusion[]
   excludedBattles: Record<BattleScoreExclusionReason, number>
@@ -204,7 +204,7 @@ export function buildPlayerRanking(
     )
 
   return {
-    formulaVersion: BEPHUS_FORMULA_VERSION,
+    formulaVersion: WAR_RANKING_FORMULA_VERSION,
     players,
     excludedWars,
     excludedBattles,

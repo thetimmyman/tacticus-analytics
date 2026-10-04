@@ -8,8 +8,7 @@ import type {
   HeroInfo,
   MetroTone,
   PortraitMode,
-  StepInvestmentUnit,
-  TeamUnitInfo
+  StepInvestmentUnit
 } from './upgrade-path-metro-model'
 
 export type MetroNodeProps = {
@@ -313,104 +312,6 @@ export function MetroNode({
           </span>
         )}
       </div>
-    </div>
-  )
-}
-
-type MobileTeamNodeProps = {
-  label: string
-  damage: number | null
-  units: TeamUnitInfo[]
-  unitStates?: Map<string, StrengthState> | null
-  swapKeys?: Set<string> | null
-  swapTone?: 'remove' | 'add' | null
-}
-
-const hasUnitKeyMatch = (unit: TeamUnitInfo, keys: Set<string>): boolean => {
-  const candidates = [unit.unitId, unit.displayName]
-  return candidates.some((value) => {
-    if (!value) return false
-    const key = normalizeHeroKey(value)
-    return key ? keys.has(key) : false
-  })
-}
-
-export function _MobileTeamNode({
-  label,
-  damage,
-  units,
-  unitStates,
-  swapKeys,
-  swapTone
-}: MobileTeamNodeProps) {
-  const resolveUnitState = (unit: TeamUnitInfo): StrengthState | null => {
-    if (!unitStates) return null
-    const key = normalizeHeroKey(unit.unitId || unit.displayName)
-    if (!key) return 'Invalid'
-    return unitStates.get(key) ?? 'Invalid'
-  }
-  const swapClass =
-    swapTone === 'remove'
-      ? 'border-rose-400/70 bg-rose-500/10'
-      : 'border-emerald-400/70 bg-emerald-500/10'
-
-  return (
-    <div className="rounded-xl border border-white/10 bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)] px-3 py-3">
-      <div className="flex items-center justify-between text-[10px] uppercase tracking-wide text-secondary-wh40k">
-        <span>{label}</span>
-        <span className="text-emerald-200">
-          {damage != null ? formatNumber(Math.round(damage)) : '--'}
-        </span>
-      </div>
-      {units.length > 0 ? (
-        <div className="mt-2 grid grid-cols-6 gap-1.5">
-          {units.map((unit) => {
-            const unitState = resolveUnitState(unit)
-            const badge = resolveStrengthBadge(unitState)
-            const isSwap = swapKeys ? hasUnitKeyMatch(unit, swapKeys) : false
-            const borderClass = isSwap
-              ? swapClass
-              : 'border-white/20 bg-card/70'
-
-            return (
-              <div
-                key={`mobile-unit-${unit.unitId || unit.displayName}`}
-                className="flex flex-col items-center gap-1"
-              >
-                <div
-                  className={`h-7 w-7 rounded-full border overflow-hidden flex items-center justify-center ${borderClass}`}
-                  title={unit.displayName}
-                >
-                  {unit.iconUrl ? (
-                    <img
-                      src={unit.iconUrl}
-                      alt={unit.displayName}
-                      className="h-full w-full object-cover"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <span className="text-[8px] text-secondary-wh40k font-semibold">
-                      {unit.displayName.slice(0, 2).toUpperCase()}
-                    </span>
-                  )}
-                </div>
-                {badge && (
-                  <span
-                    className={`inline-flex items-center justify-center rounded-full border px-1 py-0.5 text-[7px] font-semibold leading-none whitespace-nowrap ${badge.className}`}
-                    title={badge.label}
-                  >
-                    {badge.label}
-                  </span>
-                )}
-              </div>
-            )
-          })}
-        </div>
-      ) : (
-        <div className="mt-2 text-[10px] text-secondary-wh40k">
-          No team data available.
-        </div>
-      )}
     </div>
   )
 }

@@ -289,7 +289,3 @@ export function getMemoryMonitor(): MemoryMonitor {
   }
   return globalMonitor
 }
-
-export function checkMemoryStatus(): MemoryStatus {
-  return getMemoryMonitor().checkMemory()
-}

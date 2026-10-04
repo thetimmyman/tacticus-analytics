@@ -2,9 +2,9 @@
 -- Run this first; for a full withdrawal then drop both check_staleness overloads,
 -- stale_alerts(), alert_expectation and alert_state's two new columns.
 
-=== SIGNATURES ===
-monitoring.notify(text,text,text,text,boolean)
-=== DEFS ===
+-- === SIGNATURES ===
+-- monitoring.notify(text,text,text,text,boolean)
+-- === DEFS ===
 CREATE OR REPLACE FUNCTION monitoring.notify(p_alert_key text, p_status text, p_title text, p_body text DEFAULT NULL::text, p_quiet boolean DEFAULT false) RETURNS boolean
     LANGUAGE plpgsql SECURITY DEFINER
     SET search_path TO 'public'

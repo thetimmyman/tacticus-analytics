@@ -11,7 +11,7 @@ import type {
   PlayerRankingResult,
   PlayerRankingRow,
   WarExclusion
-} from '@/app/lib/war/bephus-ranking'
+} from '@/app/lib/war/war-ranking'
 
 type RankingResponse = PlayerRankingResult & {
   zoneEventPopulation: number
@@ -86,7 +86,7 @@ export function PlayerRankingPanel({ warCount }: { warCount: number }) {
       const res = await fetch('/api/wars/analytics/player-ranking', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ formulaVersion: 'bephus-v1', warCount })
+        body: JSON.stringify({ formulaVersion: 'war-ranking-v1', warCount })
       })
       if (!res.ok) throw new Error(`player-ranking failed: ${res.status}`)
       return res.json()
@@ -100,7 +100,7 @@ export function PlayerRankingPanel({ warCount }: { warCount: number }) {
         <CardTitle className="subheading-wh40k text-base sm:text-lg">
           Performance Leaderboard{' '}
           <span className="text-xs text-secondary-wh40k font-normal">
-            (bephus-v1)
+            (war-ranking-v1)
           </span>
         </CardTitle>
       </CardHeader>

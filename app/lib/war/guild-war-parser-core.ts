@@ -714,7 +714,15 @@ export function selectGuildWarSnapshot(
 
   if (previousWar) {
     const past = withEnds.filter((candidate) => candidate.endsOn < nowMs)
-    return [...past].sort((a, b) => b.endsOn - a.endsOn)[0] ?? bestAnyByEnds()
+    if (past.length === 0) {
+      // No candidate has actually ended, so there is no previous war to
+      // report. Throw rather than fall back to the best `endsOn`, which
+      // could silently hand back the still-active (or an upcoming) war.
+      throw new Error(
+        'No completed guild-war snapshot candidate is available for previousWar'
+      )
+    }
+    return [...past].sort((a, b) => b.endsOn - a.endsOn)[0]!
   }
 
   const active = withEnds.filter(

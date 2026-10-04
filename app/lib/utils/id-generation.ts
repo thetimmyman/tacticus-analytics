@@ -12,14 +12,3 @@ export function generateId(
   const stamp = Date.now()
   return prefix ? `${prefix}-${stamp}-${random}` : `${stamp}-${random}`
 }
-
-/** Only when an external contract requires a UUID v4; otherwise prefer generateId(). */
-export function generateUUID(): string {
-  if (
-    typeof crypto === 'undefined' ||
-    typeof crypto.randomUUID !== 'function'
-  ) {
-    throw new Error('crypto.randomUUID() is not available in this runtime')
-  }
-  return crypto.randomUUID()
-}

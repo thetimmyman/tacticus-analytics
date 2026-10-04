@@ -60,7 +60,7 @@ const postRanking = async (body?: object | null) => {
     new NextRequest('http://localhost/api/wars/analytics/player-ranking', {
       method: 'POST',
       body: JSON.stringify(
-        body === undefined ? { formulaVersion: 'bephus-v1' } : body
+        body === undefined ? { formulaVersion: 'war-ranking-v1' } : body
       )
     })
   )
@@ -189,7 +189,7 @@ describe('POST /api/wars/analytics/player-ranking', () => {
     )
 
     const response = await postRanking({
-      formulaVersion: 'bephus-v1',
+      formulaVersion: 'war-ranking-v1',
       guildCode: 'EVIL',
       guild_code: 'EVIL'
     })
@@ -258,7 +258,7 @@ describe('POST /api/wars/analytics/player-ranking', () => {
     const response = await postRanking()
     expect(response.status).toBe(200)
     const body = await response.json()
-    expect(body.formulaVersion).toBe('bephus-v1')
+    expect(body.formulaVersion).toBe('war-ranking-v1')
     expect(body.players).toHaveLength(1)
     expect(body.players[0].totalMultiplier).toBe(3.0)
     expect(body.players[0].excluded).toBe(1)

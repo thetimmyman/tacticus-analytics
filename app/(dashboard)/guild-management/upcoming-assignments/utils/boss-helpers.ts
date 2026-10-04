@@ -19,20 +19,6 @@ export const parseBossPreferences = (raw: unknown): Record<string, string> => {
   return {}
 }
 
-/** Progression order: L1 before L2 ... M2, then loop. */
-export const BOSS_PROGRESSION_ORDER = [
-  'L1',
-  'L2',
-  'L3',
-  'L4',
-  'L5',
-  'M1',
-  'M2',
-  'M3',
-  'M4',
-  'M5'
-] as const
-
 /** Display order: highest first (UI lists and Discord). */
 export const BOSS_DISPLAY_ORDER = [
   'M5',
