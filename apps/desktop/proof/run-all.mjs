@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { stat, readFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 
 /**
  * Entry point for `npm run desktop:proof`. Runs gates (a) and (d)'s
@@ -54,7 +54,7 @@ if (!configPath) {
   results.push({ gate: 'b-offline-journey', exitCode: 'skipped' })
   results.push({ gate: 'c-checkpoint-recovery', exitCode: 'skipped' })
 } else {
-  await stat(configPath)
+  const nativeConfig = JSON.parse(await readFile(configPath, 'utf8'))
   console.log('\n== Gate (b): offline /player-performance journey ==')
   run('b-offline-journey', 'apps/desktop/proof/offline-journey.mjs', [
     configPath
@@ -69,7 +69,6 @@ if (!configPath) {
   run('c-lifecycle', 'apps/desktop/proof/lifecycle-journey.mjs', [configPath])
   console.log('\n== Forced coordinator death / native restart ==')
   run('c-hard-kill', 'apps/desktop/proof/hard-kill-journey.mjs', [configPath])
-  const nativeConfig = JSON.parse(await readFile(configPath, 'utf8'))
   if (nativeConfig.runtimeGuard) {
     console.log('\n== Forced supervisor death / kernel lease recovery ==')
     run('c-owner-death', 'apps/desktop/proof/owner-death-journey.mjs', [

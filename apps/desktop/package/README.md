@@ -11,9 +11,16 @@ The repository's proprietary license is unchanged.
 
 `stage-linux.mjs` accepts a private JSON configuration with absolute paths for
 `output`, `application`, `postgres`, `node`, `electron`, `auth`, `postgrest`
-and `runtimeGuard`. Build the guard on the target Linux toolchain with
+and `runtimeGuard`, plus `nodeLicense`, `authLicense` and `postgrestLicense`.
+Supply the complete Node distribution LICENSE and the pinned upstream Auth and
+PostgREST LICENSE files. Staging also requires PostgreSQL COPYRIGHT and Electron's
+LICENSE and LICENSES.chromium.html, and includes them all under `notices/` in the
+hashed file inventory. Application dependency and game-asset redistribution review
+remains separate. Build the guard on the target Linux toolchain with
 `node apps/desktop/package/build-runtime-guard.mjs /absolute/private/runtime-guard`.
-The consumer needs no compiler. The guard owns an inherited kernel file lock and
+`Dockerfile.runtime-guard` builds it with the same pinned Ubuntu 22.04 base as
+PostgreSQL; use `apps/desktop/package` as its build context and export the package
+stage. The consumer needs no compiler. The guard owns an inherited kernel file lock and
 sets parent-death signals before starting each managed process. A managed stale
 lock can be recovered only after acquiring that same exclusive kernel lease;
 unknown legacy locks remain fail-closed. Real power-loss testing remains open.
@@ -48,3 +55,7 @@ to pause renderer JavaScript through real token expiry and verify renewed cookie
 canonical API calculations and guild RLS after resume. This uses the same staged
 launcher and browser profile; normal launch retains a one-hour user session.
 This is a debugger pause/resume control, not actual machine suspend testing.
+An optional `wake.pauseEvidence` absolute private path records the acknowledged
+pause without credentials so an external disposable-VM controller can perform
+guest OS suspend. That controller must separately capture actual OS/QEMU suspend
+and wake events; the marker alone does not establish machine suspend.

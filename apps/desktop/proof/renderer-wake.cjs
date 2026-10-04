@@ -23,7 +23,12 @@ async function cookieSession(browserSession, origin) {
 }
 
 exports.proveRendererWake = async (window, browserSession, config) => {
-  const origin = new URL(config.url).origin
+  const url = new URL(config.url)
+  assert.equal(url.protocol, 'http:')
+  assert.equal(url.hostname, '127.0.0.1')
+  const port = Number(url.port)
+  assert.ok(Number.isInteger(port) && port > 0 && port <= 65535)
+  const origin = `http://127.0.0.1:${port}`
   const before = await cookieSession(browserSession, origin)
   assert.ok(
     before.expires_at * 1000 <= Date.now() + 20000,
@@ -61,6 +66,15 @@ exports.proveRendererWake = async (window, browserSession, config) => {
         throw new Error('Renderer pause was not acknowledged')
       })
     ])
+    // Private automation may suspend a disposable guest after this acknowledgement.
+    // The marker contains no session credentials; actual OS events are recorded
+    // separately by the guest controller, not inferred from renderer inactivity.
+    if (config.wake.pauseEvidence)
+      require('node:fs').writeFileSync(
+        config.wake.pauseEvidence,
+        JSON.stringify({ phase: 'renderer-paused', at: Date.now() }),
+        { mode: 0o600 }
+      )
     // Native PostgREST grants 30 seconds of clock skew after JWT expiry.
     await delay(Math.max(0, before.expires_at * 1000 + 32000 - Date.now()))
     const expired = await fetch(

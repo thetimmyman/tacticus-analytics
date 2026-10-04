@@ -12,7 +12,10 @@ for (const name of [
   'electron',
   'auth',
   'postgrest',
-  'runtimeGuard'
+  'runtimeGuard',
+  'nodeLicense',
+  'authLicense',
+  'postgrestLicense'
 ])
   if (!isAbsolute(config[name] || ''))
     throw new Error(`Absolute ${name} path required`)
@@ -36,6 +39,19 @@ await copy(join(config.auth, 'auth'), 'auth/auth')
 await copy(join(config.auth, 'migrations'), 'auth/migrations')
 await mkdir(join(config.output, 'postgrest'))
 await copy(config.postgrest, 'postgrest/postgrest')
+await mkdir(join(config.output, 'notices'))
+for (const [from, name] of [
+  [config.nodeLicense, 'node-LICENSE'],
+  [config.authLicense, 'supabase-auth-LICENSE'],
+  [config.postgrestLicense, 'postgrest-LICENSE'],
+  [join(config.postgres, 'COPYRIGHT'), 'postgresql-COPYRIGHT'],
+  [join(config.electron, 'LICENSE'), 'electron-LICENSE'],
+  [join(config.electron, 'LICENSES.chromium.html'), 'LICENSES.chromium.html']
+]) {
+  if (!(await stat(from)).isFile() || !(await readFile(from)).length)
+    throw new Error('A bundled component notice is missing or empty')
+  await copy(from, join('notices', name))
+}
 for (const path of [
   'apps/desktop/launcher',
   'apps/desktop/local-schema',

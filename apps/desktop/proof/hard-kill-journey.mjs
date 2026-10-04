@@ -55,7 +55,9 @@ try {
     'Independent service owner must finish cleanup and release lock'
   )
   const cleanupMs = performance.now() - started
-  for (const port of [ready.ports.auth, ready.ports.rest]) {
+  for (const value of [ready.ports.auth, ready.ports.rest]) {
+    const port = Number(value)
+    assert.ok(Number.isInteger(port) && port > 0 && port <= 65535)
     await assert.rejects(
       fetch(`http://127.0.0.1:${port}/`, { signal: AbortSignal.timeout(1000) })
     )

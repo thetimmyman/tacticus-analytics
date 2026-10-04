@@ -144,6 +144,9 @@ try {
     {
       PATH: join(root, 'bin'),
       LANG: 'C.UTF-8',
+      HOME: homedir(),
+      XDG_CACHE_HOME: join(state, 'cache'),
+      DBUS_SESSION_BUS_ADDRESS: process.env.DBUS_SESSION_BUS_ADDRESS,
       XDG_RUNTIME_DIR: process.env.XDG_RUNTIME_DIR,
       WAYLAND_DISPLAY: process.env.WAYLAND_DISPLAY
     },
