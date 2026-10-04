@@ -4,25 +4,11 @@ import type { TypedSupabaseClient } from '@tacticus/app-core/types'
 import type { ConfigDiff } from './global-config-diff'
 
 // Persisted dedup for the LOKI GlobalConfig drift-review Discord post
-// (app/api/cron/refresh-global-config/route.ts).
-//
-// The route never writes GlobalConfig — it alerts until a human reviews and
-// applies the change — so `loki-globalconfig-refresh-cronjob.yaml` (daily)
-// and the EOT self-heal's ALERT_FIRST path both call it again every tick
-// while that review is pending, and prior to this each tick re-posted the
-// full diff to Discord. Nothing recorded "we already told you about this
-// exact transition". This table is that record: one singleton row holding
-// the fingerprint of the last transition actually posted, so a repeat call
-// for the SAME unreviewed drift is a no-op (logged, not posted) until the
-// transition itself changes (a new LOKI version, or the content diff
-// changes under an unchanged version pair).
-//
-// The fingerprint is derived from (oldVersion, newVersion, diff lines) only.
-// It deliberately excludes any timestamp — `extractedAt` used to be one of
-// the diff lines and, being `new Date().toISOString()` on every fetch, made
-// every run's fingerprint unique and defeated any dedup keyed on it (see
-// global-config-diff.ts). Do not fold a timestamp or other always-changing
-// field back into this input.
+// (app/api/cron/refresh-global-config/route.ts). The daily refresh job and
+// other automated callers re-check this every tick while a transition is
+// unreviewed, which previously reposted the same diff to Discord each
+// time. Fingerprint excludes any timestamp so re-checks of the same
+// transition produce the same key and are skipped as a no-op.
 
 const STATE_TABLE = 'loki_globalconfig_alert_state'
 
