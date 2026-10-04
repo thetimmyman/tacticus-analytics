@@ -1,8 +1,8 @@
 -- Rollback capture of monitoring.notify()'s live body immediately before the
--- persistence-gate migration (2026-10-04, copied verbatim from
--- tmos-sentinel/alert-routing/backup/notify.postgres.live-20261004.sql rather
--- than re-deriving it, same discipline as the existing rollback captures in
--- this directory). Run this first; for a full withdrawal then also:
+-- persistence-gate migration, copied verbatim from the live definition
+-- captured immediately before applying rather than re-deriving it, same
+-- discipline as the existing rollback captures in this directory. Run this
+-- first; for a full withdrawal then also:
 --   DROP FUNCTION IF EXISTS monitoring.alert_policy_for(TEXT);
 --   DROP TABLE IF EXISTS monitoring.alert_policy;
 --   ALTER TABLE monitoring.alert_state DROP COLUMN IF EXISTS consecutive_count;

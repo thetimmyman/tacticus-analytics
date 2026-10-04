@@ -96,6 +96,7 @@ INSERT INTO monitoring.alert_policy (key_pattern, min_consecutive, min_firing_du
   ('roster.write.%',      1, NULL,                  'Daily (guild-roster-write-monitor, one key per guild, see 20260910010000_ps513_roster_write_monitor.sql). A once-a-day monitor must post on its first report.', 'alert-persistence-gate'),
   ('deploy-drift.host.%', 1, NULL,                  'Daily (deploy/host/systemd/tacticus-deploy-drift-check.timer, OnCalendar=*-*-* 09:20:00, per monitoring.alert_expectation). A once-a-day monitor must post on its first report.', 'alert-persistence-gate'),
   ('tokens.%',            1, NULL,                  'Daily (the token-invariant-monitor pg_cron job, see 20260904080000_ps200_estimator_freshness_guard.sql). A once-a-day monitor must post on its first report.', 'alert-persistence-gate'),
+  ('sync.queue.drain',    1, NULL,                  'check_sync_queue_drain_health() (20261004150000_sync_drain_sustained_window.sql) already requires a sustained breach -- at least 8 samples in a 20-minute lookback with >= 60% breaching, or one stalled sample past the age bound -- before it calls notify() with firing at all. Gating it again here would double that latency for no benefit.', 'alert-persistence-gate'),
   ('tp411.%',             1, NULL,                  'Pre-existing pgtap test fixture key (not a production alert) — pinned to immediate-post so the existing reminder-decay/quiet-caller tests stay unaffected by this gate.', 'alert-persistence-gate')
 ON CONFLICT (key_pattern) DO UPDATE
    SET min_consecutive = EXCLUDED.min_consecutive,
@@ -449,13 +450,13 @@ BEGIN
 
   SELECT * INTO v_rec FROM monitoring.alert_policy_for('totally-unmatched-alert-key');
   IF v_rec.matched_pattern IS DISTINCT FROM '%' OR v_rec.min_consecutive IS DISTINCT FROM 2 THEN
-    RAISE EXCEPTION 'verify: an unmatched key does not resolve to the generic % policy (got %, %)',
+    RAISE EXCEPTION 'verify: an unmatched key does not resolve to the generic default policy (got %, %)',
       v_rec.matched_pattern, v_rec.min_consecutive;
   END IF;
 
   SELECT * INTO v_rec FROM monitoring.alert_policy_for('tp411.anything');
   IF v_rec.matched_pattern IS DISTINCT FROM 'tp411.%' OR v_rec.min_consecutive IS DISTINCT FROM 1 THEN
-    RAISE EXCEPTION 'verify: tp411.% does not resolve to immediate-post (got %, %)',
+    RAISE EXCEPTION 'verify: the tp411 fixture pattern does not resolve to immediate-post (got %, %)',
       v_rec.matched_pattern, v_rec.min_consecutive;
   END IF;
 
