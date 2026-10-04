@@ -3,6 +3,9 @@
  * enforced by API checks and RLS.
  */
 
+import { timingSafeEqual } from 'node:crypto'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
+
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { getCurrentUser } from '@/app/lib/auth'
@@ -295,6 +298,22 @@ function isFrameworkStaticPath(pathname: string): boolean {
 }
 
 export default async function proxy(request: NextRequest) {
+  if (getRuntimeProfile() === 'desktop') {
+    const expected = process.env.DESKTOP_TRANSPORT_KEY
+    const supplied = request.headers.get('x-desktop-transport')
+    if (
+      !expected ||
+      !/^[a-f0-9]{64}$/.test(expected) ||
+      !supplied ||
+      supplied.length !== expected.length ||
+      !timingSafeEqual(Buffer.from(supplied), Buffer.from(expected))
+    ) {
+      return NextResponse.json(
+        { error: 'Local transport denied' },
+        { status: 403 }
+      )
+    }
+  }
   const rawPathname = request.nextUrl.pathname
   const isResetRoute = rawPathname.startsWith('/auth/reset-session')
   const isAuthCallback = rawPathname.startsWith('/auth/callback')

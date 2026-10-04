@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tacticus Analytics preview</title>
+    <link rel="stylesheet" href="/desktop/style.css" />
+    <script src="/desktop/setup.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">TACTICUS ANALYTICS · LOCAL PREVIEW</p>
+      <h1>Open your local workspace</h1>
+      <p>
+        This preview runs on your computer. It uses synthetic raid data; real
+        raid import is still being developed.
+      </p>
+      <form data-mode="SETUP_MODE">
+        <label for="password">Workspace password</label
+        ><input
+          id="password"
+          name="password"
+          type="password"
+          minlength="12"
+          maxlength="128"
+          autocomplete="current-password"
+          required
+        /><label id="sample-label"
+          ><input id="sample" type="checkbox" /> Create a workspace with
+          synthetic sample data</label
+        ><button type="submit">Open workspace</button>
+        <p role="status" id="status"></p>
+      </form>
+      <p class="footnote">
+        No hosted account or email service is required. Keep your password safe;
+        retry interrupted setup with the same password. Password recovery is not
+        yet included in this preview.
+      </p>
+    </main>
+  </body>
+</html>

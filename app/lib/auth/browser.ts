@@ -10,10 +10,15 @@ import {
 import { authConfig } from './config'
 
 // Build-time defaults; real env vars replace them at runtime.
+const desktop = process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop'
 const SUPABASE_URL =
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://api.tacticusanalytics.com'
-const SUPABASE_ANON_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key'
+  desktop && typeof window !== 'undefined'
+    ? `${window.location.origin}/supabase`
+    : process.env.NEXT_PUBLIC_SUPABASE_URL ||
+      'https://api.tacticusanalytics.com'
+const SUPABASE_ANON_KEY = desktop
+  ? 'desktop-public'
+  : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key'
 
 // Singleton: multiple instances cause token refresh storms.
 let browserClientInstance: SupabaseClient<Database> | null = null
