@@ -1,47 +1,11 @@
 -- target-db: general
---
--- sync.queue.drain fired ~27 times over 9 days, mostly on brief self-draining
--- bursts: live data (2026-10-04) shows the "saturated"/"over-ceiling" condition
--- recurring many times a DAY (not only on a single nightly batch), each burst
--- lasting a few minutes before the queue drains on its own. The existing
--- "top 3 recent runs" gate (sync_queue_drain_health, unchanged here) correctly
--- tells "is something backed up right now" from "is it keeping up", but it
--- does not distinguish a multi-minute burst from a condition that keeps
--- reproducing itself run after run -- the "sustained vs burst" distinction
--- this migration adds.
---
--- This migration does not touch sync_queue_drain_health()'s verdict logic (all
--- 39 existing pgtap assertions on verdict strings keep passing unmodified).
--- It only changes check_sync_queue_drain_health(): when the verdict is
--- 'saturated' or 'backlog', it now also asks "has this been going on for a
--- while", by sampling a WIDER window of recorded sync_drain_runs and checking
--- what fraction of them breached.
---
--- IMPORTANT design note (found by reading monitoring.notify()'s actual state
--- machine, not just assuming it): notify() only posts to Discord, and only
--- sets last_notified_at, on a real status TRANSITION (or on a reminder for an
--- alert that has ALREADY posted at least once). If a burst were recorded as
--- 'firing' with p_quiet=true, the alert_key would sit at status='firing' with
--- last_notified_at=NULL forever -- a LATER run that proves the same pattern
--- IS sustained would see prev_status='firing' == p_status='firing' (no
--- transition) and, since prev_notified is still NULL, skip the post
--- entirely. That is a worse bug than the noise this migration fixes: a
--- genuinely sustained condition would never page. So an unsustained burst is instead
--- treated exactly like the existing 'ok' leg -- notify('cleared', ...,
--- p_quiet) -- which is always safe (a cleared->cleared call never posts) and
--- correctly resolves a previously-loud alert if the pattern has subsided.
--- Only once the breach is the dominant pattern across the wider window does
--- it take the 'firing' path and transition/page loud. The raw per-run detail
--- a digest might want is already in sync_drain_runs directly; alert_state no
--- longer needs to carry a quiet "firing" row for it.
---
--- 'stalled' (the oldest pending row actually exceeding the age bound) is
--- untouched and always loud on a single sample: that leg already behaves
--- correctly (it fired exactly once in 9 days, on a real stall), and the
--- sustained gate must never delay a real stuck-job page.
---
--- Never alert at 0 pending: unchanged, already fixed by the 'drained' verdict
--- in 20260928150000.
+
+-- sync.queue.drain fired repeatedly on brief self-draining bursts recurring
+-- many times a day, not one nightly window; the existing recent-runs gate
+-- cannot tell a burst from a recurring pattern. check_sync_queue_drain_health()
+-- now requires a saturated/backlog breach to be sustained over a wider
+-- lookback before paging; an unsustained burst clears instead of recording a
+-- quiet firing row, since notify() can never later escalate firing->firing.
 
 BEGIN;
 
