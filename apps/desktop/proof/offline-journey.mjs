@@ -1,18 +1,15 @@
 import { spawnSync, execSync } from 'node:child_process'
 import { readFile, writeFile } from 'node:fs/promises'
+import { realpathSync } from 'node:fs'
 import { isAbsolute } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 /**
- * Gate (b) proof: runs the existing native-journey.mts harness (native
- * services + staged standalone Next.js + /player-performance assertions)
- * inside `unshare -rn`, so "offline" is kernel-enforced, not just
- * harness-enforced. Usage: offline-journey.mjs <absolute config.json>.
- * See apps/desktop/proof-readme.md for the config.json shape.
+ * Gate (b) proof: runs native-journey.mts inside a kernel-enforced offline
+ * network namespace. Usage: offline-journey.mjs <absolute config.json>; see
+ * apps/desktop/proof-readme.md for the config.json shape. See
+ * buildOfflineUnshareArgs below for why a single `unshare -rn` is not enough.
  */
-
-const configPath = process.argv[2]
-if (!configPath || !isAbsolute(configPath))
-  throw new Error('Usage: offline-journey.mjs <absolute config.json path>')
 
 function hasUnshare() {
   try {
@@ -23,7 +20,46 @@ function hasUnshare() {
   }
 }
 
+function shellQuote(part) {
+  return `'${String(part).replaceAll("'", "'\\''")}'`
+}
+
+/**
+ * `unshare -rn` (root-mapped) is the only way to create an unprivileged
+ * netns on a host without `/etc/subuid` delegation, but initdb/postgres
+ * refuse to run as uid 0. So: bring up the netns's down-by-default loopback
+ * as root, then nest an unprivileged userns mapping the real uid/gid back
+ * onto that root identity, keeping the netns, before exec'ing the harness.
+ * The single-identity --map-user/--map-group forms need no newuidmap helper.
+ */
+export function buildOfflineUnshareArgs({ uid, gid, journeyPath, configPath }) {
+  if (!Number.isInteger(uid) || uid < 0)
+    throw new Error('uid must be a non-negative integer')
+  if (!Number.isInteger(gid) || gid < 0)
+    throw new Error('gid must be a non-negative integer')
+  const innerCommand = [
+    'exec',
+    'unshare',
+    `--map-user=${uid}`,
+    `--map-group=${gid}`,
+    '--',
+    'node',
+    '--conditions=react-server',
+    '--import',
+    'tsx',
+    journeyPath,
+    configPath
+  ]
+    .map(shellQuote)
+    .join(' ')
+  const command = `ip link set lo up && ${innerCommand}`
+  return ['-rn', '--', 'sh', '-c', command]
+}
+
 async function main() {
+  const configPath = process.argv[2]
+  if (!configPath || !isAbsolute(configPath))
+    throw new Error('Usage: offline-journey.mjs <absolute config.json path>')
   if (!hasUnshare()) {
     const report = {
       gate: 'offline-player-performance',
@@ -46,25 +82,20 @@ async function main() {
     process.exitCode = 1
     return
   }
-  const result = spawnSync(
-    'unshare',
-    [
-      '-rn',
-      '--',
-      'node',
-      '--conditions=react-server',
-      '--import',
-      'tsx',
-      new URL('./native-journey.mts', import.meta.url).pathname,
-      configPath
-    ],
-    { stdio: 'inherit' }
-  )
+  const journeyPath = new URL('./native-journey.mts', import.meta.url).pathname
+  const unshareArgs = buildOfflineUnshareArgs({
+    uid: process.getuid(),
+    gid: process.getgid(),
+    journeyPath,
+    configPath
+  })
+  const result = spawnSync('unshare', unshareArgs, { stdio: 'inherit' })
   const report = {
     gate: 'offline-player-performance',
     status: result.status === 0 ? 'passed' : 'failed',
     command:
-      'unshare -rn -- node --conditions=react-server --import tsx apps/desktop/proof/native-journey.mts <config.json>',
+      "unshare -rn -- sh -c 'ip link set lo up && exec unshare --map-user=<uid> --map-group=<gid> -- " +
+      "node --conditions=react-server --import tsx apps/desktop/proof/native-journey.mts <config.json>'",
     exitCode: result.status
   }
   if (config.evidence)
@@ -77,4 +108,16 @@ async function main() {
   if (result.status !== 0) process.exitCode = 1
 }
 
-await main()
+function isDirectRun() {
+  if (!process.argv[1]) return false
+  try {
+    return (
+      realpathSync(fileURLToPath(import.meta.url)) ===
+      realpathSync(process.argv[1])
+    )
+  } catch {
+    return false
+  }
+}
+
+if (isDirectRun()) await main()

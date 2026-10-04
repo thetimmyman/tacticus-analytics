@@ -33,6 +33,13 @@ run('d-component-manifest-selftest', '--test', [
   'apps/desktop/package/component-manifest.test.mjs'
 ])
 
+console.log(
+  '\n== Gate (b): offline-journey unshare argv self-test ==\n(command-shape logic proof only; see below for the real-binary offline journey)'
+)
+run('b-offline-journey-selftest', '--test', [
+  'apps/desktop/proof/offline-journey.test.mjs'
+])
+
 const configPath = process.env.DESKTOP_PROOF_CONFIG
 if (!configPath) {
   console.log(
