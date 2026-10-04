@@ -1,4 +1,5 @@
 const { app, BrowserWindow, session } = require('electron')
+const { join } = require('node:path')
 const { readFileSync, writeFileSync } = require('node:fs')
 const config = JSON.parse(readFileSync(process.argv[2], 'utf8'))
 const endpoint = new URL(config.url)
@@ -11,6 +12,7 @@ if (
   throw new Error('Invalid local shell configuration')
 app.enableSandbox()
 app.disableHardwareAcceleration()
+if (config.state) app.setPath('userData', join(config.state, 'browser'))
 const failures = [],
   blocked = [],
   consoleErrors = []
@@ -80,6 +82,13 @@ app
     ])
     console.log('renderer: load complete')
     await new Promise((accept) => setTimeout(accept, 12000))
+    let wake
+    if (config.wake)
+      wake = await require('./renderer-wake.cjs').proveRendererWake(
+        window,
+        session.defaultSession,
+        config
+      )
     console.log('renderer: read DOM')
     const renderer = await window.webContents.executeJavaScript(
       `({ text: document.body.innerText, nodeAccess: typeof require !== 'undefined' || typeof process !== 'undefined', title: document.title })`
@@ -95,6 +104,7 @@ app
       JSON.stringify(
         {
           renderer,
+          wake,
           failures,
           blocked,
           consoleErrors,

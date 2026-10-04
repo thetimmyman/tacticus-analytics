@@ -253,12 +253,23 @@ try {
       unprotectedInternalPort: 403
     }
     if (config.application.electron) {
+      if (config.rendererWake) {
+        // Earlier HTTP assertions may refresh short-lived sessions. Seed the
+        // browser with a current login rather than an unconsumed response cookie.
+        const current = await ssr.auth.signInWithPassword({
+          email: account.email,
+          password: account.password
+        })
+        assert.equal(current.error, null)
+      }
       const rendererConfig = join(services.state, 'renderer-config.json')
       await writeFile(
         rendererConfig,
         JSON.stringify({
           url: `${gateway.origin}/player-performance?guild=SYN001&season=9999`,
           transportKey,
+          state: services.state,
+          wake: config.rendererWake ? { expected: result } : undefined,
           cookies,
           screenshot: config.application.screenshot,
           evidence: config.application.rendererEvidence
@@ -285,6 +296,7 @@ try {
       const observed = JSON.parse(
         await readFile(config.application.rendererEvidence, 'utf8')
       )
+      if (config.rendererWake) assert.equal(observed.wake?.status, 'passed')
       assert.equal(observed.renderer.nodeAccess, false)
       assert.ok(observed.renderer.text.includes('SyntheticPlayer-A'))
       assert.ok(observed.renderer.text.includes('+58%'))

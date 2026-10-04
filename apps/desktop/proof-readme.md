@@ -135,3 +135,22 @@ recorded approximately 603 MiB summed RSS for the native services and Next.js,
 plus 658 MiB summed Electron working sets. These are a single development-machine
 observation, include shared pages more than once, and exclude the verification
 harness; they are not idle memory or cross-platform benchmark results.
+
+## Renderer pause and session expiry
+
+Set `rendererWake: true` and `userSessionLifetimeSeconds: 20` in a private
+proof configuration with an Electron application. The browser receives a current
+login and a separate profile under its private state directory.
+`renderer-wake.cjs` uses the Chromium debugger's acknowledged pause/resume to stop
+JavaScript while real time advances beyond native JWT expiry and PostgREST's
+clock-skew allowance. A timer probe confirms the pause. The expired token must
+return 401; after resume the same page must call the canonical authenticated API
+without another sign-in, match its expected calculations, renew its cookie
+session and retain guild RLS. No fake clock or mocked Auth backend is used.
+
+Native Auth explicitly enables refresh-token rotation with the
+[recommended ten-second reuse interval](https://supabase.com/docs/guides/auth/sessions),
+so simultaneous browser/server refreshes do not invalidate the session. The
+proof-only `refreshTokenReuseIntervalSeconds` accepts 0–10 seconds for a bounded
+negative control; the normal launcher uses 10. JavaScript pause/resume is not
+actual OS suspend/resume, and remains scoped to this selected analytics page.

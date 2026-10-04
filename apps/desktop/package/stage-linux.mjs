@@ -50,7 +50,8 @@ for (const file of [
   'service-owner.mjs',
   'service-client.mjs',
   'loopback-gateway.mjs',
-  'synthetic-import.mjs'
+  'synthetic-import.mjs',
+  'renderer-wake.cjs'
 ])
   await copy(
     join(source, 'apps/desktop/proof', file),

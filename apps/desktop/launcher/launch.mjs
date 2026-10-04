@@ -19,9 +19,14 @@ const state = resolve(
   option('--state') ||
     join(homedir(), '.local/share/tacticus-analytics-preview')
 )
+const verifyPath = option('--verify')
+const verify = verifyPath
+  ? JSON.parse(await readFile(verifyPath, 'utf8'))
+  : undefined
 const services = await nativeServices({
   state,
   runtimeGuard: join(root, 'bin/runtime-guard'),
+  userSessionLifetimeSeconds: verify?.userSessionLifetimeSeconds ?? 3600,
   libraryPath: join(root, 'postgres/lib'),
   schemaDirectory: join(root, 'apps/desktop/local-schema'),
   binaries: {
@@ -83,10 +88,6 @@ try {
     await delay(100)
   }
   if (!ready) throw new Error('Local application health did not become ready')
-  const verifyPath = option('--verify')
-  const verify = verifyPath
-    ? JSON.parse(await readFile(verifyPath, 'utf8'))
-    : undefined
   if (verify) {
     assert.equal((await fetch(`${gateway.origin}/desktop/setup`)).status, 403)
     const authorized = { 'x-desktop-transport': transportKey }

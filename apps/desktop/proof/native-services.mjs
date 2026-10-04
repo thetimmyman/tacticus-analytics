@@ -54,6 +54,7 @@ export async function ownedNativeServices({
   libraryPath,
   tokenLifetimeSeconds = 86400,
   runtimeGuard,
+  refreshTokenReuseIntervalSeconds = 10,
   userSessionLifetimeSeconds = 3600
 }) {
   if (
@@ -68,6 +69,12 @@ export async function ownedNativeServices({
     userSessionLifetimeSeconds > 86400
   )
     throw new Error('Invalid local user session lifetime')
+  if (
+    !Number.isInteger(refreshTokenReuseIntervalSeconds) ||
+    refreshTokenReuseIntervalSeconds < 0 ||
+    refreshTokenReuseIntervalSeconds > 10
+  )
+    throw new Error('Invalid local refresh-token reuse interval')
   state = resolve(state)
   await mkdir(state, { recursive: true, mode: 0o700 })
   const info = await lstat(state)
@@ -369,6 +376,10 @@ export async function ownedNativeServices({
       GOTRUE_JWT_EXP: String(userSessionLifetimeSeconds),
       GOTRUE_JWT_DEFAULT_GROUP_NAME: 'authenticated',
       GOTRUE_JWT_ADMIN_ROLES: 'service_role',
+      GOTRUE_SECURITY_REFRESH_TOKEN_ROTATION_ENABLED: 'true',
+      GOTRUE_SECURITY_REFRESH_TOKEN_REUSE_INTERVAL: String(
+        refreshTokenReuseIntervalSeconds
+      ),
       GOTRUE_DISABLE_SIGNUP: 'true',
       GOTRUE_EXTERNAL_EMAIL_ENABLED: 'true',
       GOTRUE_EXTERNAL_PHONE_ENABLED: 'false',

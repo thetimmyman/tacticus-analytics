@@ -41,3 +41,10 @@ until target-system installation and bundled-component notices are reviewed.
 Verification mode uses a private `--verify` JSON file containing a throwaway
 password, screenshot path and evidence path; it drives the same first-run form
 and real application login route. It is not a separate mock backend.
+
+The private verification configuration can also set
+`userSessionLifetimeSeconds: 20` and `wake: { expected: <synthetic API result> }`
+to pause renderer JavaScript through real token expiry and verify renewed cookies,
+canonical API calculations and guild RLS after resume. This uses the same staged
+launcher and browser profile; normal launch retains a one-hour user session.
+This is a debugger pause/resume control, not actual machine suspend testing.
