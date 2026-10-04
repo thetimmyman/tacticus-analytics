@@ -406,7 +406,11 @@ const eslintConfig = [
   },
   {
     // Operational entrypoints and scripts may create ad hoc clients.
-    files: ['proxy.ts', 'apps/desktop/proof/native-journey.mts'],
+    files: [
+      'proxy.ts',
+      'apps/desktop/proof/native-journey.mts',
+      'apps/desktop/proof/session-journey.mjs'
+    ],
     rules: {
       'no-restricted-imports': [
         'error',

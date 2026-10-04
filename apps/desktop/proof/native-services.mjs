@@ -52,7 +52,8 @@ export async function nativeServices({
   binaries,
   schemaDirectory,
   libraryPath,
-  tokenLifetimeSeconds = 86400
+  tokenLifetimeSeconds = 86400,
+  userSessionLifetimeSeconds = 3600
 }) {
   if (
     !Number.isInteger(tokenLifetimeSeconds) ||
@@ -60,6 +61,12 @@ export async function nativeServices({
     tokenLifetimeSeconds > 86400
   )
     throw new Error('Invalid local token lifetime')
+  if (
+    !Number.isInteger(userSessionLifetimeSeconds) ||
+    userSessionLifetimeSeconds < 1 ||
+    userSessionLifetimeSeconds > 86400
+  )
+    throw new Error('Invalid local user session lifetime')
   state = resolve(state)
   await mkdir(state, { recursive: true, mode: 0o700 })
   const info = await lstat(state)
@@ -315,6 +322,7 @@ export async function nativeServices({
       DB_NAMESPACE: 'auth',
       GOTRUE_JWT_SECRET: credentials.jwt,
       GOTRUE_JWT_AUD: 'authenticated',
+      GOTRUE_JWT_EXP: String(userSessionLifetimeSeconds),
       GOTRUE_JWT_DEFAULT_GROUP_NAME: 'authenticated',
       GOTRUE_JWT_ADMIN_ROLES: 'service_role',
       GOTRUE_DISABLE_SIGNUP: 'true',

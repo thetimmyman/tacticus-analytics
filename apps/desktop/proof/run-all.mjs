@@ -58,6 +58,10 @@ if (!configPath) {
   run('c-setup-recovery', 'apps/desktop/proof/setup-recovery.mjs', [configPath])
   console.log('\n== Runtime token expiry and active-session shutdown ==')
   run('c-lifecycle', 'apps/desktop/proof/lifecycle-journey.mjs', [configPath])
+  console.log('\n== Native user-session expiry / restart renewal ==')
+  run('c-session-renewal', 'apps/desktop/proof/session-journey.mjs', [
+    configPath
+  ])
 }
 
 console.log('\n== Summary ==')
