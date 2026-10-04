@@ -28,6 +28,7 @@ public.external_war_meta_quarantine
 public.external_war_meta_snapshots
 public.function_locks
 public.global_strength_thresholds
+public.loki_globalconfig_alert_state
 public.meta_atlas_dag_edges
 public.onboarding_jobs
 public.pgnet_watchdog_state
