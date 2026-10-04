@@ -13,7 +13,7 @@
 -- and last_seen_at/last_title/last_body liveness bookkeeping are unchanged;
 -- the verify block below checks notify() still calls webhook_for and
 -- is_tracked. Rollback captures notify()'s pre-change body in
--- supabase/snippets/20261004200000_rollback_alert_persistence_policy.sql.
+-- supabase/snippets/20261004230000_rollback_alert_persistence_policy.sql.
 
 -- Codex review (4179293969, ported from identical EOT #3923 defects, plus a
 -- wider own-callers audit): adds quiet_firing (the silent-reset exclusion),
@@ -557,7 +557,7 @@ $verify$;
 -- against the already-live-patched database is a safe no-op that still
 -- records the version.
 INSERT INTO supabase_migrations.schema_migrations (version, name)
-VALUES ('20261004200000', 'alert_persistence_policy')
+VALUES ('20261004230000', 'alert_persistence_policy')
 ON CONFLICT (version) DO NOTHING;
 
 NOTIFY pgrst, 'reload schema';
