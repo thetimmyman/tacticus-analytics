@@ -45,6 +45,8 @@ for (const path of [
 await mkdir(join(config.output, 'apps/desktop/proof'))
 for (const file of [
   'native-services.mjs',
+  'service-owner.mjs',
+  'service-client.mjs',
   'loopback-gateway.mjs',
   'synthetic-import.mjs'
 ])

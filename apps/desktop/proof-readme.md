@@ -86,9 +86,19 @@ JWTs and the application SSR cookie client: it waits beyond PostgREST's
 checks rejection of the expired token, renews the cookie session, and repeats
 renewal after a native service restart without entering the password again.
 Renewed sessions retain guild RLS and cannot call service-only authority RPCs.
-This proves the native refresh path, not renderer sleep/wake or password recovery. Uncatchable coordinator death
-still leaves activation fail-closed on the existing lock; automatic stale-lock
-recovery is not established by these graceful-shutdown tests.
+This proves the native refresh path, not renderer sleep/wake or password recovery.
+
+The coordinator now delegates native process ownership to `service-owner.mjs`
+through a private Node IPC pipe. The owner retains the workspace lock and direct
+child handles. If the coordinator dies, IPC disconnect triggers cleanup before
+releasing the lock; a concurrent launch is refused during that cleanup.
+`hard-kill-journey.mjs` kills the coordinator with SIGKILL during an open SQL
+transaction, checks that native endpoints close, then restarts and verifies
+committed data survives while uncommitted data rolls back. Unknown or legacy
+locks remain untouched. Simultaneous death of the owner and coordinator, host
+power loss, and automatic recovery of existing stale locks remain unproven.
+The additional owner uses the bundled Node executable; packaging includes both
+owner and client modules.
 
 The real historical-performance API and hydrated player-performance page use
 native Auth/PostgREST/PostgreSQL and a persisted eight-row synthetic fixture.

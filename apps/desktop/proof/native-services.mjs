@@ -47,7 +47,7 @@ async function run(file, args, options, observe) {
   })
   return stdout
 }
-export async function nativeServices({
+export async function ownedNativeServices({
   state,
   binaries,
   schemaDirectory,
@@ -117,7 +117,8 @@ export async function nativeServices({
     stopping = true
     stopPromise = (async () => {
       for (const child of [...children].reverse().concat([...utilities])) {
-        if (child.exitCode !== null || child.signalCode !== null) continue
+        if (!child.pid || child.exitCode !== null || child.signalCode !== null)
+          continue
         const exited = new Promise((accept) => child.once('exit', accept))
         // PostgreSQL fast shutdown cancels open sessions and checkpoints WAL.
         // SIGTERM requests smart shutdown and can wait indefinitely on clients.
@@ -212,7 +213,10 @@ export async function nativeServices({
       })
       child.stdout.pipe(log)
       child.stderr.pipe(log)
-      child.once('error', () => {})
+      child.once('error', () => {
+        fault = new Error('A local service failed to start')
+        void stop()
+      })
       children.push(child)
       child.once('exit', (code, signal) => {
         if (!stopping && (!ephemeral || code !== 0 || signal)) {
@@ -400,3 +404,5 @@ export async function nativeServices({
     throw error
   }
 }
+
+export { nativeServices } from './service-client.mjs'
