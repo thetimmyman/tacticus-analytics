@@ -5,7 +5,7 @@ CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 SET LOCAL timezone TO 'UTC';
 
-SELECT plan(25);
+SELECT plan(31);
 
 SELECT is(
   current_database()::text,
@@ -230,6 +230,70 @@ SELECT throws_ok(
   '25. a reaper failure is re-raised, so pg_cron records the run as failed instead of a silent success'
 );
 ALTER TABLE net._http_response RENAME COLUMN status_code_tp422_broken TO status_code;
+
+-- A reused request id may leave its earlier response row in pg_net. After the
+-- ledger emit timestamp moves, only a response created at or after that emit
+-- can settle the new pending attempt.
+INSERT INTO monitoring.pgnet_request_ledger (request_id, function_name, url, called_at)
+VALUES
+  (880101, 'outcome-correlation-old-success', 'https://example.invalid/old-success', now() - INTERVAL '1 minute'),
+  (880102, 'outcome-correlation-old-failure', 'https://example.invalid/old-failure', now() - INTERVAL '1 minute'),
+  (880103, 'outcome-correlation-fresh-failure', 'https://example.invalid/fresh-failure', now() - INTERVAL '2 minutes'),
+  (880104, 'outcome-correlation-equal-timestamp', 'https://example.invalid/equal-timestamp', now()),
+  (880105, 'outcome-correlation-aged-old-response', 'https://example.invalid/aged-old-response', now() - INTERVAL '3 hours');
+
+INSERT INTO net._http_response (id, status_code, timed_out, error_msg, content, created)
+VALUES
+  (880101, 200, false, NULL, 'old success', now() - INTERVAL '30 seconds'),
+  (880102, 404, false, NULL, 'old failure', now() - INTERVAL '30 seconds'),
+  (880103, 404, false, NULL, 'fresh failure', now() - INTERVAL '1 minute'),
+  (880104, 404, false, NULL, 'equal timestamp', now()),
+  (880105, 500, false, NULL, 'older than the re-emission', now() - INTERVAL '4 hours');
+
+UPDATE monitoring.pgnet_request_ledger
+   SET called_at = now()
+ WHERE request_id IN (880101, 880102);
+
+SELECT is(
+  monitoring.reap_pgnet_outcomes(),
+  3,
+  'only the fresh failure, equal-timestamp response, and aged give-up are touched'
+);
+
+SELECT is(
+  (SELECT outcome || '|' || coalesce(status_code::text, 'null') || '|' || coalesce(error_msg, 'null') || '|' || coalesce(timed_out::text, 'null') || '|' || coalesce(settled_at::text, 'null')
+     FROM monitoring.pgnet_request_ledger WHERE request_id = 880101),
+  'pending|null|null|null|null'::text,
+  'a retained old 200 response cannot settle a reused request id'
+);
+
+SELECT is(
+  (SELECT outcome || '|' || coalesce(status_code::text, 'null') || '|' || coalesce(error_msg, 'null') || '|' || coalesce(timed_out::text, 'null') || '|' || coalesce(settled_at::text, 'null')
+     FROM monitoring.pgnet_request_ledger WHERE request_id = 880102),
+  'pending|null|null|null|null'::text,
+  'a retained old 404 response cannot fail a reused request id'
+);
+
+SELECT is(
+  (SELECT outcome || '|' || status_code::text
+     FROM monitoring.pgnet_request_ledger WHERE request_id = 880103),
+  'failed|404'::text,
+  'a fresh 404 response settles the current emission as failed'
+);
+
+SELECT is(
+  (SELECT outcome || '|' || status_code::text
+     FROM monitoring.pgnet_request_ledger WHERE request_id = 880104),
+  'failed|404'::text,
+  'a response with created exactly equal to called_at is eligible'
+);
+
+SELECT is(
+  (SELECT outcome || '|' || coalesce(status_code::text, 'null') || '|' || coalesce(error_msg, 'null') || '|' || coalesce(timed_out::text, 'null')
+     FROM monitoring.pgnet_request_ledger WHERE request_id = 880105),
+  'unknown|null|null|null'::text,
+  'an aged emission with only a pre-emission response gives up without borrowing its status'
+);
 
 SELECT * FROM finish();
 ROLLBACK;
