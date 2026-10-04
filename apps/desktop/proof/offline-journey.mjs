@@ -1,6 +1,8 @@
 import { spawnSync, execSync } from 'node:child_process'
 import { readFile, writeFile } from 'node:fs/promises'
+import { realpathSync } from 'node:fs'
 import { isAbsolute } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 /**
  * Gate (b) proof: runs native-journey.mts inside a kernel-enforced offline
@@ -28,6 +30,7 @@ function shellQuote(part) {
  * refuse to run as uid 0. So: bring up the netns's down-by-default loopback
  * as root, then nest an unprivileged userns mapping the real uid/gid back
  * onto that root identity, keeping the netns, before exec'ing the harness.
+ * The single-identity --map-user/--map-group forms need no newuidmap helper.
  */
 export function buildOfflineUnshareArgs({ uid, gid, journeyPath, configPath }) {
   if (!Number.isInteger(uid) || uid < 0)
@@ -37,10 +40,8 @@ export function buildOfflineUnshareArgs({ uid, gid, journeyPath, configPath }) {
   const innerCommand = [
     'exec',
     'unshare',
-    '--map-users',
-    `${uid}:0:1`,
-    '--map-groups',
-    `${gid}:0:1`,
+    `--map-user=${uid}`,
+    `--map-group=${gid}`,
     '--',
     'node',
     '--conditions=react-server',
@@ -93,7 +94,7 @@ async function main() {
     gate: 'offline-player-performance',
     status: result.status === 0 ? 'passed' : 'failed',
     command:
-      "unshare -rn -- sh -c 'ip link set lo up && exec unshare --map-users <uid>:0:1 --map-groups <gid>:0:1 -- " +
+      "unshare -rn -- sh -c 'ip link set lo up && exec unshare --map-user=<uid> --map-group=<gid> -- " +
       "node --conditions=react-server --import tsx apps/desktop/proof/native-journey.mts <config.json>'",
     exitCode: result.status
   }
@@ -107,4 +108,16 @@ async function main() {
   if (result.status !== 0) process.exitCode = 1
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) await main()
+function isDirectRun() {
+  if (!process.argv[1]) return false
+  try {
+    return (
+      realpathSync(fileURLToPath(import.meta.url)) ===
+      realpathSync(process.argv[1])
+    )
+  } catch {
+    return false
+  }
+}
+
+if (isDirectRun()) await main()

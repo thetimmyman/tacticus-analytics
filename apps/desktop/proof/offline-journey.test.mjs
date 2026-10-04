@@ -17,23 +17,23 @@ test('buildOfflineUnshareArgs creates the offline netns and restores the real ui
   assert.equal(args[3], '-c')
   const command = args[4]
   assert.match(command, /^ip link set lo up && 'exec' 'unshare' /)
-  assert.match(command, /'--map-users' '1000:0:1'/)
-  assert.match(command, /'--map-groups' '1000:0:1'/)
+  assert.match(command, /'--map-user=1000'/)
+  assert.match(command, /'--map-group=1000'/)
   assert.match(
     command,
     /'node' '--conditions=react-server' '--import' 'tsx' '\/abs\/native-journey\.mts' '\/abs\/config\.json'$/
   )
 })
 
-test('buildOfflineUnshareArgs maps a different uid/gid pair through to --map-users/--map-groups', () => {
+test('buildOfflineUnshareArgs maps a different uid/gid pair through to --map-user/--map-group', () => {
   const [, , , , command] = buildOfflineUnshareArgs({
     uid: 501,
     gid: 20,
     journeyPath: '/abs/native-journey.mts',
     configPath: '/abs/config.json'
   })
-  assert.match(command, /'--map-users' '501:0:1'/)
-  assert.match(command, /'--map-groups' '20:0:1'/)
+  assert.match(command, /'--map-user=501'/)
+  assert.match(command, /'--map-group=20'/)
 })
 
 test('buildOfflineUnshareArgs single-quotes a config path containing a single quote', () => {
