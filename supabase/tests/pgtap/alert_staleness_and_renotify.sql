@@ -5,7 +5,7 @@ CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 SET LOCAL timezone TO 'UTC';
 
-SELECT plan(21);
+SELECT plan(31);
 
 SELECT is(
   current_database()::text,
@@ -158,7 +158,7 @@ INSERT INTO monitoring.alert_state
 VALUES
   ('tp411.firing.old', 'firing', now() - INTERVAL '3 days',
    now() - INTERVAL '5 minutes', 'still broken', 'body',
-   now() - INTERVAL '90 minutes', 0),
+   now() - INTERVAL '7 hours', 0),
   ('tp411.firing.fresh', 'firing', now() - INTERVAL '3 days',
    now() - INTERVAL '5 minutes', 'still broken', 'body',
    now() - INTERVAL '10 minutes', 0),
@@ -172,7 +172,7 @@ SELECT 'reminder-1', monitoring.notify('tp411.firing.old', 'firing', 'still brok
 SELECT is(
   (SELECT ret FROM public.tp411_ret WHERE label = 'reminder-1'),
   true,
-  '14. an unchanged firing alert last posted 90 minutes ago re-notifies (first reminder is due at 1h)'
+  '14. an unchanged firing alert last posted 7 hours ago re-notifies (first reminder is due at 6h)'
 );
 
 SELECT is(
@@ -188,7 +188,7 @@ SELECT 'reminder-2', monitoring.notify('tp411.firing.old', 'firing', 'still brok
 SELECT is(
   (SELECT ret FROM public.tp411_ret WHERE label = 'reminder-2'),
   false,
-  '16. a second immediate call does not re-notify (renotify_count 1 -> next due at 6h)'
+  '16. a second immediate call does not re-notify (renotify_count 1 -> next due at 24h)'
 );
 
 SELECT is(
@@ -257,6 +257,112 @@ SELECT ok(
   AND (SELECT last_notified_at FROM monitoring.alert_state WHERE alert_key = 'tp411.firing.old')
       >= now(),
   '21. a transition resets the reminder counter and restamps the clock'
+);
+
+-- ---------------------------------------------------------------------------
+-- Persistence-before-first-post gate (separate prefix from the
+-- tp411.% fixtures above, which are pinned to immediate-post by seed row so
+-- the assertions above keep testing reminder decay / quiet-caller / cleared-
+-- never-reminds exactly as before this gate existed).
+-- ---------------------------------------------------------------------------
+DELETE FROM monitoring.alert_state WHERE alert_key LIKE 'tp1179.%';
+DELETE FROM public.tp411_posts;
+
+-- tp1179.blip has no policy row of its own, so it falls to the generic '%'
+-- default: 2 consecutive reports OR 10 minutes continuously firing.
+INSERT INTO public.tp411_ret
+SELECT 'gate-blip-1', monitoring.notify('tp1179.blip', 'firing', 'first sight', 'body');
+
+SELECT is(
+  (SELECT ret FROM public.tp411_ret WHERE label = 'gate-blip-1'),
+  false,
+  '22. a brand-new key''s first firing report is held by the default 2-consecutive gate'
+);
+
+SELECT is(
+  (SELECT consecutive_count FROM monitoring.alert_state WHERE alert_key = 'tp1179.blip'),
+  1,
+  '23. the held report still advances consecutive_count so the gate can later open'
+);
+
+INSERT INTO public.tp411_ret
+SELECT 'gate-blip-2', monitoring.notify('tp1179.blip', 'firing', 'still there', 'body');
+
+SELECT is(
+  (SELECT ret FROM public.tp411_ret WHERE label = 'gate-blip-2'),
+  true,
+  '24. the second consecutive report meets min_consecutive and the gate opens'
+);
+
+SELECT is(
+  (SELECT count(*)::integer FROM public.tp411_posts
+    WHERE payload #>> '{embeds,0,title}' = '🔴 still there'),
+  1,
+  '25. the gate-opening post reads as a fresh alert (title "still there"), not a STILL FIRING reminder — nobody was told about this key before'
+);
+
+-- A single blip that never clears the gate has nothing to resolve.
+INSERT INTO public.tp411_ret
+SELECT 'gate-blip-only-1', monitoring.notify('tp1179.blip-only', 'firing', 'one blip', 'body');
+INSERT INTO public.tp411_ret
+SELECT 'gate-blip-only-cleared', monitoring.notify('tp1179.blip-only', 'cleared', 'one blip', 'body');
+
+SELECT ok(
+  (SELECT ret FROM public.tp411_ret WHERE label = 'gate-blip-only-1') = false
+  AND (SELECT ret FROM public.tp411_ret WHERE label = 'gate-blip-only-cleared') = false
+  AND (SELECT status FROM monitoring.alert_state WHERE alert_key = 'tp1179.blip-only') = 'cleared'
+  AND (SELECT renotify_count FROM monitoring.alert_state WHERE alert_key = 'tp1179.blip-only') = 0
+  AND (SELECT consecutive_count FROM monitoring.alert_state WHERE alert_key = 'tp1179.blip-only') = 0
+  AND (SELECT count(*)::integer FROM public.tp411_posts
+        WHERE payload #>> '{embeds,0,footer,text}' = 'alert_key: tp1179.blip-only') = 0,
+  '26. silent reset: a single blip that clears before the gate opens is silently reset, not posted as RESOLVED'
+);
+
+-- tp1179.probe.blind matches the generic %.blind pattern (3 consecutive).
+INSERT INTO public.tp411_ret
+SELECT 'gate-blind-1', monitoring.notify('tp1179.probe.blind', 'firing', 'could not check', 'body');
+INSERT INTO public.tp411_ret
+SELECT 'gate-blind-2', monitoring.notify('tp1179.probe.blind', 'firing', 'could not check', 'body');
+
+SELECT ok(
+  (SELECT ret FROM public.tp411_ret WHERE label = 'gate-blind-1') = false
+  AND (SELECT ret FROM public.tp411_ret WHERE label = 'gate-blind-2') = false,
+  '27. a %.blind key is held through its first two consecutive reports'
+);
+
+INSERT INTO public.tp411_ret
+SELECT 'gate-blind-3', monitoring.notify('tp1179.probe.blind', 'firing', 'could not check', 'body');
+
+SELECT is(
+  (SELECT ret FROM public.tp411_ret WHERE label = 'gate-blind-3'),
+  true,
+  '28. the third consecutive report opens the %.blind gate'
+);
+
+-- The cheap per-call override posts on the very first report, signature unchanged.
+SELECT set_config('app.settings.alert_force_immediate', 'true', true);
+INSERT INTO public.tp411_ret
+SELECT 'gate-force', monitoring.notify('tp1179.forced', 'firing', 'paged anyway', 'body');
+SELECT set_config('app.settings.alert_force_immediate', '', true);
+
+SELECT is(
+  (SELECT ret FROM public.tp411_ret WHERE label = 'gate-force'),
+  true,
+  '29. app.settings.alert_force_immediate posts on the first report, bypassing the gate'
+);
+
+-- alert_policy_for(): longest-match-wins resolution, read-only.
+SELECT ok(
+  (SELECT matched_pattern FROM monitoring.alert_policy_for('tp411.anything')) = 'tp411.%'
+  AND (SELECT min_consecutive FROM monitoring.alert_policy_for('tp411.anything')) = 1,
+  '30. tp411.% resolves to the pgtap fixture''s immediate-post override, not the generic default'
+);
+
+SELECT ok(
+  (SELECT matched_pattern FROM monitoring.alert_policy_for('totally-unmatched-alert-key')) = '%'
+  AND (SELECT min_consecutive FROM monitoring.alert_policy_for('totally-unmatched-alert-key')) = 2
+  AND (SELECT min_firing_duration FROM monitoring.alert_policy_for('totally-unmatched-alert-key')) = INTERVAL '10 minutes',
+  '31. an arbitrary unmatched key falls back to the generic 2-consecutive/10-minute default'
 );
 
 SELECT * FROM finish();
