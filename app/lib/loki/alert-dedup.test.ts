@@ -7,10 +7,9 @@ import {
 import type { ConfigDiff } from './global-config-diff'
 import type { TypedSupabaseClient } from '@tacticus/app-core/types'
 
-function diffOf(overrides: Partial<ConfigDiff> = {}): Pick<
-  ConfigDiff,
-  'oldVersion' | 'newVersion' | 'lines'
-> {
+function diffOf(
+  overrides: Partial<ConfigDiff> = {}
+): Pick<ConfigDiff, 'oldVersion' | 'newVersion' | 'lines'> {
   return {
     oldVersion: 'a30dbdb2',
     newVersion: 'a90d9ece',

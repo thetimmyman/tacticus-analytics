@@ -58,7 +58,9 @@ type AlertStateTableClient = {
   ) => Promise<{ error: { message: string } | null }>
 }
 
-export function fingerprintDiff(diff: Pick<ConfigDiff, 'oldVersion' | 'newVersion' | 'lines'>): string {
+export function fingerprintDiff(
+  diff: Pick<ConfigDiff, 'oldVersion' | 'newVersion' | 'lines'>
+): string {
   return createHash('sha1')
     .update(`${diff.oldVersion}|${diff.newVersion}|${diff.lines.join('\n')}`)
     .digest('hex')
