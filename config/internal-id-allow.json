@@ -23,6 +23,16 @@
       "why": "Applied migration; the function body is copied from the frozen definition and must stay byte-identical to what production runs."
     },
     {
+      "token": "WI-3990",
+      "files": ["supabase/migrations/20261004193000_token_burn_lock_order.sql"],
+      "why": "CREATE OR REPLACE body is copied from the live definition with one added ORDER BY; the pre-existing comment is left untouched rather than rewritten out of scope."
+    },
+    {
+      "token": "WI-079",
+      "files": ["supabase/migrations/20261004193000_token_burn_lock_order.sql"],
+      "why": "CREATE OR REPLACE body is copied from the live definition with one added ORDER BY; the pre-existing in-body comment is left untouched rather than rewritten out of scope. The new COMMENT ON FUNCTION text is this migration's own wording and does not repeat the token."
+    },
+    {
       "token": "WI-2640",
       "files": [
         "supabase/snippets/20260902010000_rollback_live_prosrc_capture.sql"
