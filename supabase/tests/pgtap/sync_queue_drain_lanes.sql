@@ -7,7 +7,7 @@ CREATE EXTENSION IF NOT EXISTS dblink WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 SET LOCAL timezone TO 'UTC';
 
-SELECT plan(39);
+SELECT plan(49);
 
 SELECT is(
   current_database()::text,
@@ -422,6 +422,174 @@ SELECT is(
   'stalled'::text,
   '28. the age leg still fires when every recorded run has aged out'
 );
+
+-- 29-37: sustained-vs-burst gate on check_sync_queue_drain_health().
+-- sync_queue_drain_health()'s verdict logic is untouched above this point; everything
+-- from here on exercises the gate added in 20261004150000. It only applies to the
+-- 'saturated'/'backlog' legs -- every assertion above passed p_quiet=true explicitly,
+-- so none of it depended on this gate, and 'stalled' never goes through it either.
+
+-- Test 26-28 left a 30-minute-old TP80AGED row claimable in sync_queue;
+-- sync_queue_drain_health() reads the live queue directly, so without this
+-- cleanup it would keep reading "stalled" here regardless of run history.
+DELETE FROM public.sync_queue WHERE guild_code = 'TP80AGED';
+DELETE FROM public.guild_config WHERE guild_code = 'TP80AGED';
+
+-- Every test above called with p_quiet=true, which never reaches
+-- monitoring.notify()'s delivery branch. From here on, p_quiet=false is
+-- exercised deliberately, so (same stub pattern as
+-- alert_staleness_and_renotify.sql) net.http_post needs a stand-in and the
+-- monitoring_webhook_url secret needs a value, or notify() correctly refuses
+-- to record a transition it could not actually deliver.
+DROP EXTENSION IF EXISTS pg_net;
+
+DO $stub$
+BEGIN
+  IF to_regnamespace('net') IS NULL THEN
+    CREATE SCHEMA net;
+  END IF;
+END
+$stub$;
+
+CREATE OR REPLACE FUNCTION net.http_post(
+  url text, headers jsonb DEFAULT '{}'::jsonb, body jsonb DEFAULT '{}'::jsonb)
+RETURNS bigint LANGUAGE plpgsql AS $stub$
+BEGIN
+  RETURN 1;
+END
+$stub$;
+
+INSERT INTO internal.cron_secrets (name, value)
+VALUES ('monitoring_webhook_url', 'https://tp80gate.invalid/webhook')
+ON CONFLICT (name) DO UPDATE SET value = EXCLUDED.value;
+
+-- Harness reset: put the alert_key on a known, clean baseline so the
+-- transition behaviour below is deterministic. monitoring.notify() itself
+-- (the fire/clear/reminder state machine) has its own test suite; this just
+-- seeds the row it owns.
+UPDATE monitoring.alert_state
+   SET status = 'cleared', since = now(), last_notified_at = NULL, renotify_count = 0
+ WHERE alert_key = 'sync.queue.drain';
+
+-- A live backlog in the queue, same as test 11's TP80SATLIVE fixture: the
+-- verdict reflects the queue NOW as well as the run history, so without a
+-- claimable row here the history alone would read "drained", not "saturated".
+INSERT INTO public.guild_config (guild_code, display_name, cluster_code)
+VALUES ('TP80GATELIVE', 'Test sustained-gate live-backlog fixture', NULL)
+ON CONFLICT (guild_code) DO NOTHING;
+INSERT INTO public.sync_queue
+  (guild_code, job_type, status, priority, scheduled_for, created_at, attempts, max_attempts)
+VALUES ('TP80GATELIVE', 'incremental_sync', 'pending', 5, now(), now(), 0, 3);
+
+-- A short burst: three consecutive saturated runs (enough to read "saturated"),
+-- but too few total samples in the wider lookback window to call it sustained.
+DELETE FROM public.sync_drain_runs;
+INSERT INTO public.sync_drain_runs
+  (ran_at, worker_id, lanes, budget_ms, window_ms, duration_ms, jobs_drained,
+   queue_depth_start, saturated)
+SELECT now() - (g || ' minutes')::interval, 'tp80-burst' || g, 2, 45000, 40000,
+       40100, 12, 41, true
+  FROM generate_series(1, 3) AS g;
+
+SELECT is(
+  (SELECT verdict FROM public.sync_queue_drain_health(3, 20, 10)),
+  'saturated'::text,
+  '29. positive control: three consecutive saturated runs still read "saturated"'
+);
+
+SELECT is(
+  public.check_sync_queue_drain_health(3, 20, 10, false),
+  0,
+  '30. a short saturated burst (3 samples, below the 8-sample floor) returns 0 -- not a firing condition'
+);
+
+SELECT is(
+  (SELECT status FROM monitoring.alert_state WHERE alert_key = 'sync.queue.drain'),
+  'cleared'::text,
+  '31. the alert_key stays cleared -- a burst alone never opens the alert'
+);
+
+SELECT is(
+  (SELECT last_notified_at FROM monitoring.alert_state WHERE alert_key = 'sync.queue.drain'),
+  NULL::timestamptz,
+  '32. and nothing is posted to Discord for it (last_notified_at stays NULL)'
+);
+
+SELECT ok(
+  (SELECT last_body FROM monitoring.alert_state WHERE alert_key = 'sync.queue.drain')
+    ~ 'below the sustained bar',
+  '33. the recorded detail still explains the burst, for anyone querying alert_state or sync_drain_runs directly'
+);
+
+-- Now widen the window: the same breach pattern repeated across 10 samples,
+-- all breaching, over the lookback -- the "keeps reproducing every run" case
+-- the sustained gate exists to let through.
+DELETE FROM public.sync_drain_runs;
+INSERT INTO public.sync_drain_runs
+  (ran_at, worker_id, lanes, budget_ms, window_ms, duration_ms, jobs_drained,
+   queue_depth_start, saturated)
+SELECT now() - (g || ' minutes')::interval, 'tp80-sustain' || g, 2, 45000, 40000,
+       40100, 12, 41, true
+  FROM generate_series(1, 10) AS g;
+
+SELECT is(
+  public.check_sync_queue_drain_health(3, 20, 10, false),
+  1,
+  '34. ten consecutive saturated runs across the lookback window now returns 1 -- a real transition'
+);
+
+SELECT is(
+  (SELECT status FROM monitoring.alert_state WHERE alert_key = 'sync.queue.drain'),
+  'firing'::text,
+  '35. ...and the alert_key actually opens'
+);
+
+SELECT is(
+  (SELECT last_notified_at FROM monitoring.alert_state WHERE alert_key = 'sync.queue.drain') IS NOT NULL,
+  true,
+  '36. ...and is posted to Discord (last_notified_at is set) -- a cleared-to-firing transition always posts'
+);
+
+DELETE FROM public.sync_queue WHERE guild_code = 'TP80GATELIVE';
+DELETE FROM public.guild_config WHERE guild_code = 'TP80GATELIVE';
+
+-- The 'stalled' leg (oldest pending row over the age bound) bypasses the sustained
+-- gate entirely and must still page on a single sample. Reset to a clean baseline
+-- first so this is a genuine new transition, not a reminder riding on test 34's post.
+UPDATE monitoring.alert_state
+   SET status = 'cleared', since = now(), last_notified_at = NULL, renotify_count = 0
+ WHERE alert_key = 'sync.queue.drain';
+
+DELETE FROM public.sync_drain_runs;
+INSERT INTO public.sync_drain_runs
+  (ran_at, worker_id, lanes, budget_ms, window_ms, duration_ms, jobs_drained,
+   queue_depth_start, saturated)
+SELECT now() - (g || ' minutes')::interval, 'tp80-stall' || g, 2, 45000, 40000,
+       9000, 4, 1, false
+  FROM generate_series(1, 3) AS g;
+
+INSERT INTO public.guild_config (guild_code, display_name, cluster_code)
+VALUES ('TP80STALLQ', 'Test stall quiet-bypass fixture', NULL)
+ON CONFLICT (guild_code) DO NOTHING;
+INSERT INTO public.sync_queue
+  (guild_code, job_type, status, priority, scheduled_for, created_at, attempts, max_attempts)
+VALUES ('TP80STALLQ', 'incremental_sync', 'pending', 5,
+        now() - INTERVAL '30 minutes', now() - INTERVAL '30 minutes', 0, 3);
+
+SELECT is(
+  public.check_sync_queue_drain_health(3, 20, 10, false),
+  1,
+  '37. a single stalled sample still fires loud on its first occurrence -- the sustained gate does not apply to the age leg'
+);
+
+SELECT is(
+  (SELECT last_notified_at FROM monitoring.alert_state WHERE alert_key = 'sync.queue.drain') IS NOT NULL,
+  true,
+  '38. the stalled alert was actually posted (a cleared-to-firing transition), not just marked'
+);
+
+DELETE FROM public.sync_queue WHERE guild_code = 'TP80STALLQ';
+DELETE FROM public.guild_config WHERE guild_code = 'TP80STALLQ';
 
 SELECT * FROM finish();
 ROLLBACK;
