@@ -15,6 +15,13 @@
 -- is_tracked. Rollback captures notify()'s pre-change body in
 -- supabase/snippets/20261004200000_rollback_alert_persistence_policy.sql.
 
+-- Codex review (4179293969, ported from identical EOT #3923 defects, plus a
+-- wider own-callers audit): adds quiet_firing (the silent-reset exclusion),
+-- an advisory lock against the concurrent-first-sighting race, a
+-- record-before-webhook fix in the fresh-firing branch, three new
+-- immediate-post seed rows (gdpr.requests, pgnet.http_errors, pgnet.bridge),
+-- and a self-managed, idempotent ledger-row insert near the bottom.
+
 BEGIN;
 
 DO $guard$
@@ -85,6 +92,16 @@ ALTER TABLE monitoring.alert_state
 COMMENT ON COLUMN monitoring.alert_state.consecutive_count IS
   'Consecutive ''firing'' reports seen for the current episode, toward monitoring.alert_policy_for()''s min_consecutive gate. Reset to 0 on every transition (a new episode starts a new count).';
 
+ALTER TABLE monitoring.alert_state
+  ADD COLUMN IF NOT EXISTS quiet_firing BOOLEAN NOT NULL DEFAULT false;
+COMMENT ON COLUMN monitoring.alert_state.quiet_firing IS
+  'Codex review (EOT #3923, 4179180511; ported identically to TA #103, 4179293969).
+True when the firing transition behind the current episode was itself p_quiet=true
+(a caller that posts its own Discord embed and only asks notify() to record the
+transition), as opposed to a non-quiet report the persistence gate held back. The
+silent-reset rule below must tell these apart: both leave last_notified_at NULL,
+but only the gate-held case means nobody was ever told.';
+
 -- ---------------------------------------------------------------------------
 -- 2. Seed policy rows (cited against this repo's actual schedules)
 -- ---------------------------------------------------------------------------
@@ -97,7 +114,10 @@ INSERT INTO monitoring.alert_policy (key_pattern, min_consecutive, min_firing_du
   ('deploy-drift.host.%', 1, NULL,                  'Daily (deploy/host/systemd/tacticus-deploy-drift-check.timer, OnCalendar=*-*-* 09:20:00, per monitoring.alert_expectation). A once-a-day monitor must post on its first report.', 'alert-persistence-gate'),
   ('tokens.%',            1, NULL,                  'Daily (the token-invariant-monitor pg_cron job, see 20260904080000_ps200_estimator_freshness_guard.sql). A once-a-day monitor must post on its first report.', 'alert-persistence-gate'),
   ('sync.queue.drain',    1, NULL,                  'check_sync_queue_drain_health() (20261004150000_sync_drain_sustained_window.sql) already requires a sustained breach -- at least 8 samples in a 20-minute lookback with >= 60% breaching, or one stalled sample past the age bound -- before it calls notify() with firing at all. Gating it again here would double that latency for no benefit.', 'alert-persistence-gate'),
-  ('tp411.%',             1, NULL,                  'Pre-existing pgtap test fixture key (not a production alert) — pinned to immediate-post so the existing reminder-decay/quiet-caller tests stay unaffected by this gate.', 'alert-persistence-gate')
+  ('tp411.%',             1, NULL,                  'Pre-existing pgtap test fixture key (not a production alert) — pinned to immediate-post so the existing reminder-decay/quiet-caller tests stay unaffected by this gate.', 'alert-persistence-gate'),
+  ('gdpr.requests',       1, NULL,                   'Hourly (20260928040000_gdpr_request_health_monitor.sql). Only the stuck/overdue axes already debounce upstream; the failed-request axis does not, so gating here on top would add up to 2 hours of silence on a compliance-relevant failure.', 'alert-persistence-gate (codex-review audit)'),
+  ('pgnet.http_errors',   1, NULL,                   'Codex review (EOT #3923, 4179341658) named this family; it turns out not to run on the Eye database at all (General-only per cron-classification.md) -- redirected here, where 20260925020000_ps203_pgnet_failure_snapshots.sql runs it on a 30-minute cadence with no upstream debounce of its own.', 'alert-persistence-gate (codex-review audit)'),
+  ('pgnet.bridge',        1, NULL,                   'Same 30-minute cadence cron as pgnet.http_errors (20260925020000_ps203_pgnet_failure_snapshots.sql). A 4-hour sustained-outage upstream debounce already exists before this key fires at all, so a second consecutive-report gate here would stack latency on top of latency for no benefit.', 'alert-persistence-gate (codex-review audit)')
 ON CONFLICT (key_pattern) DO UPDATE
    SET min_consecutive = EXCLUDED.min_consecutive,
        min_firing_duration = EXCLUDED.min_firing_duration,
@@ -135,10 +155,20 @@ DECLARE
   v_force           boolean;
   v_new_consecutive INTEGER;
   v_posted          boolean;
+  prev_quiet_firing boolean;
 BEGIN
   IF p_status NOT IN ('firing', 'cleared') THEN
     RAISE EXCEPTION 'monitoring.notify: status must be firing|cleared, got %', p_status;
   END IF;
+
+  -- Codex review (EOT #3923, 4179341653 / TA #103, 4179293969, fixed
+  -- identically): two concurrent first sightings of a brand-new key both
+  -- found no row to lock via the FOR UPDATE below and both computed
+  -- consecutive_count = 1, so the ON CONFLICT of the second caller overwrote
+  -- rather than accumulated. Serialize the whole function per alert_key so
+  -- the second caller's SELECT always observes the first caller's committed
+  -- write.
+  PERFORM pg_advisory_xact_lock(hashtext('monitoring.notify'), hashtext(p_alert_key));
 
   -- ops-autopilot: tracked in Plane -> record state, never post, never remind, report not-delivered.
   IF monitoring.is_tracked(p_alert_key) THEN
@@ -153,8 +183,8 @@ BEGIN
 
   -- Per-key lock: without it two concurrent reporters can both observe the old
   -- status and both post the same transition.
-  SELECT s.status, s.since, s.last_notified_at, s.renotify_count, s.consecutive_count
-    INTO prev_status, prev_since, prev_notified, prev_count, prev_consecutive
+  SELECT s.status, s.since, s.last_notified_at, s.renotify_count, s.consecutive_count, s.quiet_firing
+    INTO prev_status, prev_since, prev_notified, prev_count, prev_consecutive, prev_quiet_firing
     FROM monitoring.alert_state s
    WHERE s.alert_key = p_alert_key
      FOR UPDATE;
@@ -177,7 +207,7 @@ BEGIN
                   AND now() - prev_since >= v_min_duration)) THEN
         UPDATE monitoring.alert_state
            SET last_seen_at = now(), last_title = p_title, last_body = p_body,
-               consecutive_count = v_new_consecutive
+               consecutive_count = v_new_consecutive, quiet_firing = false
          WHERE alert_key = p_alert_key;
         RETURN false;
       END IF;
@@ -186,7 +216,7 @@ BEGIN
       IF webhook_url IS NULL OR webhook_url = '' THEN
         UPDATE monitoring.alert_state
            SET last_seen_at = now(), last_title = p_title, last_body = p_body,
-               consecutive_count = v_new_consecutive
+               consecutive_count = v_new_consecutive, quiet_firing = false
          WHERE alert_key = p_alert_key;
         RAISE WARNING '[monitoring.notify] % -> firing NOT recorded: no monitoring_webhook_url configured (will retry next run)',
           p_alert_key;
@@ -216,7 +246,7 @@ BEGIN
       UPDATE monitoring.alert_state
          SET last_seen_at = now(), last_title = p_title, last_body = p_body,
              last_notified_at = now(), renotify_count = 0,
-             consecutive_count = v_new_consecutive
+             consecutive_count = v_new_consecutive, quiet_firing = false
        WHERE alert_key = p_alert_key;
       RETURN true;
     END IF;
@@ -302,11 +332,20 @@ BEGIN
   -- of announcing a RESOLVED nobody ever saw fire. Plane-tracked keys are
   -- exempt: they never post by design and must keep recording every
   -- transition.
-  IF p_status = 'cleared' AND prev_notified IS NULL AND NOT v_tracked THEN
+  --
+  -- Codex review (EOT #3923, 4179180511; ported identically to TA #103,
+  -- 4179293969): this must only reset an episode the GATE actually held
+  -- back. A quiet-originated episode (p_quiet=true on the firing report) also
+  -- leaves last_notified_at NULL, but for a different reason: nobody was told
+  -- BY NOTIFY(), not nobody was told at all. Excluding it here lets the
+  -- caller's own subsequent non-quiet clear still post its RESOLVED.
+  IF p_status = 'cleared' AND prev_notified IS NULL AND NOT v_tracked
+     AND NOT COALESCE(prev_quiet_firing, false) THEN
     UPDATE monitoring.alert_state
        SET status = 'cleared', since = now(), last_seen_at = now(),
            last_title = p_title, last_body = p_body,
-           last_notified_at = NULL, renotify_count = 0, consecutive_count = 0
+           last_notified_at = NULL, renotify_count = 0, consecutive_count = 0,
+           quiet_firing = false
      WHERE alert_key = p_alert_key;
     RETURN false;
   END IF;
@@ -318,56 +357,61 @@ BEGIN
     v_new_consecutive := 1;
     v_posted := false;
 
+    -- Codex review (EOT #3923, 4179180515; ported identically to TA #103,
+    -- 4179293969): evaluate the policy and persist the report BEFORE
+    -- touching the webhook. The old order resolved the webhook first and
+    -- returned immediately (without recording anything) if it was missing,
+    -- which silently dropped report #1 of an episode out of the persistence
+    -- count entirely. A missing webhook can only ever skip the Discord post,
+    -- the same as every other "no webhook" branch in this function already
+    -- does -- it must never skip recording the report.
     IF NOT p_quiet THEN
-      webhook_url := monitoring.webhook_for(p_alert_key);
-      IF webhook_url IS NULL OR webhook_url = '' THEN
-        -- Deliberately does NOT write state: leaving it untouched is what lets
-        -- the next run retry instead of silently swallowing the transition.
-        RAISE WARNING '[monitoring.notify] % -> % NOT recorded: no monitoring_webhook_url configured (will retry next run)',
-          p_alert_key, p_status;
-        RETURN false;
-      END IF;
-
       SELECT pf.min_consecutive, pf.min_firing_duration
         INTO v_min_consecutive, v_min_duration
         FROM monitoring.alert_policy_for(p_alert_key) pf;
 
       IF v_force OR v_new_consecutive >= COALESCE(v_min_consecutive, 2) THEN
-        payload := jsonb_build_object(
-          'embeds', jsonb_build_array(jsonb_build_object(
-            'title', '🔴 ' || p_title,
-            'description', LEFT(COALESCE(p_body, ''), 1900),
-            'color', 15548997,
-            'footer', jsonb_build_object('text', 'alert_key: ' || p_alert_key),
-            'timestamp', now()::text
-          )));
+        webhook_url := monitoring.webhook_for(p_alert_key);
+        IF webhook_url IS NULL OR webhook_url = '' THEN
+          RAISE WARNING '[monitoring.notify] % -> firing NOT posted: no monitoring_webhook_url configured (recorded; will retry as a reminder next run)',
+            p_alert_key;
+        ELSE
+          payload := jsonb_build_object(
+            'embeds', jsonb_build_array(jsonb_build_object(
+              'title', '🔴 ' || p_title,
+              'description', LEFT(COALESCE(p_body, ''), 1900),
+              'color', 15548997,
+              'footer', jsonb_build_object('text', 'alert_key: ' || p_alert_key),
+              'timestamp', now()::text
+            )));
 
-        BEGIN
-          PERFORM net.http_post(url := webhook_url,
-                                headers := '{"Content-Type": "application/json"}'::jsonb,
-                                body := payload);
-        EXCEPTION WHEN undefined_function THEN
-          -- Legacy pg_net exposes a TEXT body — same fallback call_edge_function() carries.
-          PERFORM net.http_post(url := webhook_url,
-                                headers := '{"Content-Type": "application/json"}'::jsonb,
-                                body := payload::text);
-        END;
-        v_posted := true;
+          BEGIN
+            PERFORM net.http_post(url := webhook_url,
+                                  headers := '{"Content-Type": "application/json"}'::jsonb,
+                                  body := payload);
+          EXCEPTION WHEN undefined_function THEN
+            -- Legacy pg_net exposes a TEXT body — same fallback call_edge_function() carries.
+            PERFORM net.http_post(url := webhook_url,
+                                  headers := '{"Content-Type": "application/json"}'::jsonb,
+                                  body := payload::text);
+          END;
+          v_posted := true;
+        END IF;
       END IF;
       -- else: policy not yet met on report #1 — fall through and record the
-      -- episode (webhook existence already confirmed, so it's safe to track)
-      -- without posting.
+      -- episode without posting.
     END IF;
 
     INSERT INTO monitoring.alert_state (alert_key, status, since, last_seen_at, last_title, last_body,
-                                        last_notified_at, renotify_count, consecutive_count)
+                                        last_notified_at, renotify_count, consecutive_count, quiet_firing)
     VALUES (p_alert_key, 'firing', now(), now(), p_title, p_body,
-            CASE WHEN v_posted THEN now() ELSE NULL END, 0, v_new_consecutive)
+            CASE WHEN v_posted THEN now() ELSE NULL END, 0, v_new_consecutive, p_quiet)
     ON CONFLICT (alert_key) DO UPDATE
        SET status = 'firing', since = now(), last_seen_at = now(),
            last_title = EXCLUDED.last_title, last_body = EXCLUDED.last_body,
            last_notified_at = CASE WHEN v_posted THEN now() ELSE NULL END,
-           renotify_count = 0, consecutive_count = v_new_consecutive;
+           renotify_count = 0, consecutive_count = v_new_consecutive,
+           quiet_firing = p_quiet;
     RETURN CASE WHEN p_quiet THEN NOT v_tracked ELSE v_posted END;
   END IF;
 
@@ -412,14 +456,14 @@ BEGIN
   -- A transition resets the reminder clock. In quiet mode nothing was
   -- delivered, so last_notified_at is left NULL rather than claiming a post.
   INSERT INTO monitoring.alert_state (alert_key, status, since, last_seen_at, last_title, last_body,
-                                      last_notified_at, renotify_count, consecutive_count)
+                                      last_notified_at, renotify_count, consecutive_count, quiet_firing)
   VALUES (p_alert_key, p_status, now(), now(), p_title, p_body,
-          CASE WHEN p_quiet THEN NULL ELSE now() END, 0, 0)
+          CASE WHEN p_quiet THEN NULL ELSE now() END, 0, 0, false)
   ON CONFLICT (alert_key) DO UPDATE
      SET status = EXCLUDED.status, since = now(), last_seen_at = now(),
          last_title = EXCLUDED.last_title, last_body = EXCLUDED.last_body,
          last_notified_at = CASE WHEN p_quiet THEN NULL ELSE now() END,
-         renotify_count = 0, consecutive_count = 0;
+         renotify_count = 0, consecutive_count = 0, quiet_firing = false;
   RETURN NOT v_tracked;  -- true = delivered; a tracked transition is recorded, not posted
 EXCEPTION WHEN OTHERS THEN
   -- A notifier must never take down its caller. State is deliberately left
@@ -446,6 +490,13 @@ BEGIN
      WHERE table_schema = 'monitoring' AND table_name = 'alert_state'
        AND column_name = 'consecutive_count') THEN
     RAISE EXCEPTION 'verify: alert_state is missing consecutive_count';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+     WHERE table_schema = 'monitoring' AND table_name = 'alert_state'
+       AND column_name = 'quiet_firing') THEN
+    RAISE EXCEPTION 'verify: alert_state is missing quiet_firing (codex review fix)';
   END IF;
 
   SELECT * INTO v_rec FROM monitoring.alert_policy_for('totally-unmatched-alert-key');
@@ -478,8 +529,37 @@ BEGIN
     RAISE EXCEPTION 'verify: monitoring.notify() lost the Plane-tracking / quiet contract';
   END IF;
 
-  RAISE NOTICE 'verify OK: policy rows seeded, notify() carries the persistence gate, decay is 6h/24h';
+  IF v_src !~ 'pg_advisory_xact_lock' THEN
+    RAISE EXCEPTION 'verify: monitoring.notify() lost the per-key advisory lock (codex review fix)';
+  END IF;
+
+  SELECT * INTO v_rec FROM monitoring.alert_policy_for('gdpr.requests');
+  IF v_rec.matched_pattern IS DISTINCT FROM 'gdpr.requests' OR v_rec.min_consecutive IS DISTINCT FROM 1 THEN
+    RAISE EXCEPTION 'verify: gdpr.requests did not resolve to immediate-post (got %)', v_rec;
+  END IF;
+
+  SELECT * INTO v_rec FROM monitoring.alert_policy_for('pgnet.http_errors');
+  IF v_rec.matched_pattern IS DISTINCT FROM 'pgnet.http_errors' OR v_rec.min_consecutive IS DISTINCT FROM 1 THEN
+    RAISE EXCEPTION 'verify: pgnet.http_errors did not resolve to immediate-post (got %)', v_rec;
+  END IF;
+
+  SELECT * INTO v_rec FROM monitoring.alert_policy_for('pgnet.bridge');
+  IF v_rec.matched_pattern IS DISTINCT FROM 'pgnet.bridge' OR v_rec.min_consecutive IS DISTINCT FROM 1 THEN
+    RAISE EXCEPTION 'verify: pgnet.bridge did not resolve to immediate-post (got %)', v_rec;
+  END IF;
+
+  RAISE NOTICE 'verify OK: policy rows seeded, notify() carries the persistence gate and advisory lock, decay is 6h/24h';
 END;
 $verify$;
+
+-- Roll-gate audit: self-manage the ledger row (precedent:
+-- 20260921130000_ps293_late_arrival_window.sql) so a post-merge re-apply
+-- against the already-live-patched database is a safe no-op that still
+-- records the version.
+INSERT INTO supabase_migrations.schema_migrations (version, name)
+VALUES ('20261004200000', 'alert_persistence_policy')
+ON CONFLICT (version) DO NOTHING;
+
+NOTIFY pgrst, 'reload schema';
 
 COMMIT;

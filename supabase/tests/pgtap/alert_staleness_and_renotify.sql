@@ -5,7 +5,7 @@ CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 SET LOCAL timezone TO 'UTC';
 
-SELECT plan(31);
+SELECT plan(40);
 
 SELECT is(
   current_database()::text,
@@ -363,6 +363,90 @@ SELECT ok(
   AND (SELECT min_consecutive FROM monitoring.alert_policy_for('totally-unmatched-alert-key')) = 2
   AND (SELECT min_firing_duration FROM monitoring.alert_policy_for('totally-unmatched-alert-key')) = INTERVAL '10 minutes',
   '31. an arbitrary unmatched key falls back to the generic 2-consecutive/10-minute default'
+);
+
+-- ---------------------------------------------------------------------------
+-- Codex review (ported from EOT #3923 to TA #103, 4179293969 and the wider
+-- own-callers audit): regression coverage for the four defects fixed on top
+-- of the persistence gate above.
+-- ---------------------------------------------------------------------------
+
+-- 4179293969 (same family as EOT 4179180511): the silent-reset rule must not
+-- swallow a legitimate RESOLVED for an episode whose firing report was
+-- itself quiet.
+INSERT INTO public.tp411_ret
+SELECT 'quiet-origin-firing', monitoring.notify('tp1179.quiet-origin', 'firing', 'quiet origin', 'body', true);
+
+SELECT is(
+  (SELECT ret FROM public.tp411_ret WHERE label = 'quiet-origin-firing'),
+  true,
+  '32. a quiet-originated firing report returns true (not v_tracked) even though notify() itself posted nothing'
+);
+
+SELECT ok(
+  (SELECT quiet_firing FROM monitoring.alert_state WHERE alert_key = 'tp1179.quiet-origin') = true
+  AND (SELECT last_notified_at FROM monitoring.alert_state WHERE alert_key = 'tp1179.quiet-origin') IS NULL,
+  '33. the episode is recorded as quiet-originated and notify() never posted for it'
+);
+
+INSERT INTO public.tp411_ret
+SELECT 'quiet-origin-cleared', monitoring.notify('tp1179.quiet-origin', 'cleared', 'quiet origin', 'body');
+
+SELECT is(
+  (SELECT ret FROM public.tp411_ret WHERE label = 'quiet-origin-cleared'),
+  true,
+  '34. the non-quiet clear of a quiet-originated episode posts RESOLVED instead of being silently reset'
+);
+
+SELECT is(
+  (SELECT count(*)::integer FROM public.tp411_posts
+    WHERE payload #>> '{embeds,0,footer,text}' = 'alert_key: tp1179.quiet-origin'),
+  1,
+  '35. exactly one RESOLVED post reached the stub for the quiet-originated episode'
+);
+
+-- EOT 4179180515: evaluating the webhook before recording the report dropped
+-- report #1 of an episode out of the persistence count entirely when the
+-- webhook was missing. A missing webhook must only skip the Discord post.
+DELETE FROM internal.cron_secrets WHERE name = 'monitoring_webhook_url';
+SELECT set_config('app.settings.alert_force_immediate', 'true', true);
+INSERT INTO public.tp411_ret
+SELECT 'no-webhook-record', monitoring.notify('tp1179.no-webhook-record', 'firing', 'no webhook', 'body');
+SELECT set_config('app.settings.alert_force_immediate', '', true);
+INSERT INTO internal.cron_secrets (name, value)
+VALUES ('monitoring_webhook_url', 'https://tp411.invalid/webhook')
+ON CONFLICT (name) DO UPDATE SET value = EXCLUDED.value;
+
+SELECT is(
+  (SELECT ret FROM public.tp411_ret WHERE label = 'no-webhook-record'),
+  false,
+  '36. with no webhook configured the forced report is not posted (returns false)'
+);
+
+SELECT ok(
+  (SELECT consecutive_count FROM monitoring.alert_state WHERE alert_key = 'tp1179.no-webhook-record') = 1
+  AND (SELECT status FROM monitoring.alert_state WHERE alert_key = 'tp1179.no-webhook-record') = 'firing',
+  '37. ...but report #1 is still recorded (consecutive_count=1, status=firing), not silently dropped'
+);
+
+-- The three new seed rows this audit added all resolve to immediate-post
+-- (read-only -- these are real production key families, not fixtures).
+SELECT is(
+  (SELECT min_consecutive FROM monitoring.alert_policy_for('gdpr.requests')),
+  1,
+  '38. gdpr.requests (hourly) resolves to immediate-post'
+);
+
+SELECT is(
+  (SELECT min_consecutive FROM monitoring.alert_policy_for('pgnet.http_errors')),
+  1,
+  '39. pgnet.http_errors (30-minute cadence, no upstream debounce) resolves to immediate-post'
+);
+
+SELECT is(
+  (SELECT min_consecutive FROM monitoring.alert_policy_for('pgnet.bridge')),
+  1,
+  '40. pgnet.bridge (30-minute cadence, no upstream debounce) resolves to immediate-post'
 );
 
 SELECT * FROM finish();
