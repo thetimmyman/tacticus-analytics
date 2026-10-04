@@ -10,7 +10,13 @@ existing native account and never replace data or import the sample twice.
 The repository's proprietary license is unchanged.
 
 `stage-linux.mjs` accepts a private JSON configuration with absolute paths for
-`output`, `application`, `postgres`, `node`, `electron`, `auth` and `postgrest`.
+`output`, `application`, `postgres`, `node`, `electron`, `auth`, `postgrest`
+and `runtimeGuard`. Build the guard on the target Linux toolchain with
+`node apps/desktop/package/build-runtime-guard.mjs /absolute/private/runtime-guard`.
+The consumer needs no compiler. The guard owns an inherited kernel file lock and
+sets parent-death signals before starting each managed process. A managed stale
+lock can be recovered only after acquiring that same exclusive kernel lease;
+unknown legacy locks remain fail-closed. Real power-loss testing remains open.
 `application` is the staged desktop standalone build, `postgres` is a relocatable
 PostgreSQL installation, `node` and `postgrest` are executable files, and the
 remaining runtime inputs are directories. Output must be new. The resulting
@@ -35,3 +41,10 @@ until target-system installation and bundled-component notices are reviewed.
 Verification mode uses a private `--verify` JSON file containing a throwaway
 password, screenshot path and evidence path; it drives the same first-run form
 and real application login route. It is not a separate mock backend.
+
+The private verification configuration can also set
+`userSessionLifetimeSeconds: 20` and `wake: { expected: <synthetic API result> }`
+to pause renderer JavaScript through real token expiry and verify renewed cookies,
+canonical API calculations and guild RLS after resume. This uses the same staged
+launcher and browser profile; normal launch retains a one-hour user session.
+This is a debugger pause/resume control, not actual machine suspend testing.

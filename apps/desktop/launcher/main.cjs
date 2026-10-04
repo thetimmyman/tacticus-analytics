@@ -80,11 +80,19 @@ app
           throw new Error(error)
       }
       await new Promise((accept) => setTimeout(accept, 10000))
+      const wake = config.verify.wake
+        ? await require('../proof/renderer-wake.cjs').proveRendererWake(
+            window,
+            session.defaultSession,
+            { ...config, wake: config.verify.wake }
+          )
+        : undefined
       const observed = await window.webContents.executeJavaScript(
         `({text:document.body.innerText,nodeAccess:typeof require!=='undefined'||typeof process!=='undefined'})`
       )
       const evidence = {
         observed,
+        wake,
         failures,
         blocked,
         sandbox: true,

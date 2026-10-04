@@ -53,7 +53,7 @@ try {
     403
   )
   await assert.rejects(nativeServices(config), /EEXIST/)
-  const admin = client(services.token.service)
+  const admin = client(services.serviceCredential)
   let account
   try {
     account = JSON.parse(
@@ -178,7 +178,7 @@ try {
         NEXT_PUBLIC_SUPABASE_URL: `${gateway.origin}/supabase`,
         SUPABASE_URL: `${gateway.origin}/supabase`,
         NEXT_PUBLIC_SUPABASE_ANON_KEY: 'desktop-public',
-        SUPABASE_SERVICE_ROLE_KEY: services.token.service,
+        SUPABASE_SERVICE_ROLE_KEY: services.serviceCredential,
         DESKTOP_TRANSPORT_KEY: transportKey
       },
       config.application.directory
@@ -242,7 +242,8 @@ try {
     assert.equal(page.status, 200)
     assert.ok(html.includes('Player Performance'))
     assert.ok(
-      !html.includes(transportKey) && !html.includes(services.token.service),
+      !html.includes(transportKey) &&
+        !html.includes(services.serviceCredential),
       'No privileged secret in renderer HTML'
     )
     evidence.application = {
@@ -252,12 +253,23 @@ try {
       unprotectedInternalPort: 403
     }
     if (config.application.electron) {
+      if (config.rendererWake) {
+        // Earlier HTTP assertions may refresh short-lived sessions. Seed the
+        // browser with a current login rather than an unconsumed response cookie.
+        const current = await ssr.auth.signInWithPassword({
+          email: account.email,
+          password: account.password
+        })
+        assert.equal(current.error, null)
+      }
       const rendererConfig = join(services.state, 'renderer-config.json')
       await writeFile(
         rendererConfig,
         JSON.stringify({
           url: `${gateway.origin}/player-performance?guild=SYN001&season=9999`,
           transportKey,
+          state: services.state,
+          wake: config.rendererWake ? { expected: result } : undefined,
           cookies,
           screenshot: config.application.screenshot,
           evidence: config.application.rendererEvidence
@@ -284,6 +296,7 @@ try {
       const observed = JSON.parse(
         await readFile(config.application.rendererEvidence, 'utf8')
       )
+      if (config.rendererWake) assert.equal(observed.wake?.status, 'passed')
       assert.equal(observed.renderer.nodeAccess, false)
       assert.ok(observed.renderer.text.includes('SyntheticPlayer-A'))
       assert.ok(observed.renderer.text.includes('+58%'))
