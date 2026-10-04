@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { stat } from 'node:fs/promises'
+import { stat, readFile } from 'node:fs/promises'
 
 /**
  * Entry point for `npm run desktop:proof`. Runs gates (a) and (d)'s
@@ -31,7 +31,8 @@ console.log(
   '\n== Gate (d): component-manifest generator/verifier self-test ==\n(logic proof only; see below for the real-binary verification path)'
 )
 run('d-component-manifest-selftest', '--test', [
-  'apps/desktop/package/component-manifest.test.mjs'
+  'apps/desktop/package/component-manifest.test.mjs',
+  'apps/desktop/package/runtime-guard.test.mjs'
 ])
 
 const configPath = process.env.DESKTOP_PROOF_CONFIG
@@ -61,6 +62,16 @@ if (!configPath) {
   run('c-lifecycle', 'apps/desktop/proof/lifecycle-journey.mjs', [configPath])
   console.log('\n== Forced coordinator death / native restart ==')
   run('c-hard-kill', 'apps/desktop/proof/hard-kill-journey.mjs', [configPath])
+  const nativeConfig = JSON.parse(await readFile(configPath, 'utf8'))
+  if (nativeConfig.runtimeGuard) {
+    console.log('\n== Forced supervisor death / kernel lease recovery ==')
+    run('c-owner-death', 'apps/desktop/proof/owner-death-journey.mjs', [
+      configPath
+    ])
+  } else {
+    console.log('Kernel lease recovery SKIPPED: runtimeGuard is not supplied')
+    results.push({ gate: 'c-owner-death', exitCode: 'skipped' })
+  }
   console.log('\n== Native user-session expiry / restart renewal ==')
   run('c-session-renewal', 'apps/desktop/proof/session-journey.mjs', [
     configPath

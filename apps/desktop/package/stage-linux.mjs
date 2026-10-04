@@ -11,7 +11,8 @@ for (const name of [
   'node',
   'electron',
   'auth',
-  'postgrest'
+  'postgrest',
+  'runtimeGuard'
 ])
   if (!isAbsolute(config[name] || ''))
     throw new Error(`Absolute ${name} path required`)
@@ -28,6 +29,7 @@ await copy(config.application, 'application')
 await copy(config.postgres, 'postgres')
 await mkdir(join(config.output, 'bin'))
 await copy(config.node, 'bin/node')
+await copy(config.runtimeGuard, 'bin/runtime-guard')
 await copy(config.electron, 'electron')
 await mkdir(join(config.output, 'auth'))
 await copy(join(config.auth, 'auth'), 'auth/auth')

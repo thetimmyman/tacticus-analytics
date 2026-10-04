@@ -10,7 +10,13 @@ existing native account and never replace data or import the sample twice.
 The repository's proprietary license is unchanged.
 
 `stage-linux.mjs` accepts a private JSON configuration with absolute paths for
-`output`, `application`, `postgres`, `node`, `electron`, `auth` and `postgrest`.
+`output`, `application`, `postgres`, `node`, `electron`, `auth`, `postgrest`
+and `runtimeGuard`. Build the guard on the target Linux toolchain with
+`node apps/desktop/package/build-runtime-guard.mjs /absolute/private/runtime-guard`.
+The consumer needs no compiler. The guard owns an inherited kernel file lock and
+sets parent-death signals before starting each managed process. A managed stale
+lock can be recovered only after acquiring that same exclusive kernel lease;
+unknown legacy locks remain fail-closed. Real power-loss testing remains open.
 `application` is the staged desktop standalone build, `postgres` is a relocatable
 PostgreSQL installation, `node` and `postgrest` are executable files, and the
 remaining runtime inputs are directories. Output must be new. The resulting

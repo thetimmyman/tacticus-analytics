@@ -26,7 +26,7 @@ async function freePort() {
 async function run(file, args, options, observe) {
   const child = spawn(file, args, {
     ...options,
-    stdio: ['ignore', 'pipe', 'pipe']
+    stdio: options?.stdio || ['ignore', 'pipe', 'pipe']
   })
   observe?.(child)
   let stdout = '',
@@ -53,6 +53,7 @@ export async function ownedNativeServices({
   schemaDirectory,
   libraryPath,
   tokenLifetimeSeconds = 86400,
+  runtimeGuard,
   userSessionLifetimeSeconds = 3600
 }) {
   if (
@@ -82,7 +83,44 @@ export async function ownedNativeServices({
     .update(await readFile(join(schemaDirectory, 'canonical-objects.sql')))
     .update(await readFile(join(schemaDirectory, 'authority.sql')))
     .digest('hex')
-  await writeFile(lockPath, String(process.pid), { flag: 'wx', mode: 0o600 })
+  let lockRecord = String(process.pid)
+  if (runtimeGuard) {
+    if (process.env.DESKTOP_KERNEL_LEASE !== '4')
+      throw new Error('Kernel lease required')
+    const lease = await stat(join(state, 'runtime.lease'))
+    const descriptor = await stat('/proc/self/fd/4')
+    if (lease.ino !== descriptor.ino || lease.dev !== descriptor.dev)
+      throw new Error('Kernel lease mismatch')
+    lockRecord = JSON.stringify({
+      format: 'desktop-kernel-lease-v1',
+      ino: lease.ino,
+      dev: lease.dev
+    })
+    try {
+      const old = await readFile(lockPath, 'utf8')
+      // The helper holds the same kernel lease exclusively. Unknown locks are
+      // never interpreted as process identities or removed by this path.
+      if (old !== lockRecord)
+        throw Object.assign(new Error('EEXIST: Unknown workspace lock'), {
+          code: 'EEXIST'
+        })
+      await (await import('node:fs/promises')).unlink(lockPath)
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error
+    }
+  }
+  await writeFile(lockPath, lockRecord, { flag: 'wx', mode: 0o600 })
+  const guarded = (file, args, options) =>
+    runtimeGuard
+      ? {
+          file: runtimeGuard,
+          args: ['--child', String(process.pid), file, ...args],
+          options: {
+            ...options,
+            stdio: ['ignore', 'pipe', 'pipe', 'ignore', 4]
+          }
+        }
+      : { file, args, options }
   let needsSchema = true
   try {
     if ((await readFile(join(state, 'schema-version'), 'utf8')) !== schemaHash)
@@ -107,7 +145,8 @@ export async function ownedNativeServices({
   let fault
   const managedRun = (file, args, options) => {
     if (stopping) throw new Error('Local services are stopping')
-    return run(file, args, options, (child) => {
+    const command = guarded(file, args, options)
+    return run(command.file, command.args, command.options, (child) => {
       utilities.add(child)
       child.once('close', () => utilities.delete(child))
     })
@@ -206,11 +245,12 @@ export async function ownedNativeServices({
         mode: 0o600,
         flags: 'a'
       })
-      const child = spawn(file, args, {
+      const command = guarded(file, args, {
         cwd,
         env,
         stdio: ['ignore', 'pipe', 'pipe']
       })
+      const child = spawn(command.file, command.args, command.options)
       child.stdout.pipe(log)
       child.stderr.pipe(log)
       child.once('error', () => {

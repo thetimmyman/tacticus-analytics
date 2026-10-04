@@ -21,6 +21,7 @@ const state = resolve(
 )
 const services = await nativeServices({
   state,
+  runtimeGuard: join(root, 'bin/runtime-guard'),
   libraryPath: join(root, 'postgres/lib'),
   schemaDirectory: join(root, 'apps/desktop/local-schema'),
   binaries: {

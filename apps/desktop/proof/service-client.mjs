@@ -1,19 +1,26 @@
 import { fork } from 'node:child_process'
 import { EventEmitter } from 'node:events'
-import { readFile } from 'node:fs/promises'
+import { readFile, mkdir } from 'node:fs/promises'
+import { resolve } from 'node:path'
 import { join } from 'node:path'
 import { signedToken } from './native-services.mjs'
 
 export async function nativeServices(config) {
+  if (config.runtimeGuard)
+    await mkdir(resolve(config.state), { recursive: true, mode: 0o700 })
   const owner = fork(new URL('./service-owner.mjs', import.meta.url), [], {
     // Use the bundled Node executable without inheriting proof-only tsx hooks.
-    execArgv: [],
+    execPath: config.runtimeGuard || process.execPath,
+    execArgv: config.runtimeGuard
+      ? ['--owner', resolve(config.state), process.execPath]
+      : [],
     stdio: ['ignore', 'ignore', 'ignore', 'ipc']
   })
   const children = []
   const pending = new Map()
   let nextRequest = 0
   let fault
+  let readyComplete = false
   let stopping = false
   let stopPromise
   let readyResolve, readyReject
@@ -21,12 +28,17 @@ export async function nativeServices(config) {
     readyResolve = accept
     readyReject = reject
   })
-  const exited = new Promise((accept) => owner.once('exit', accept))
+  const exited = new Promise((accept) => {
+    owner.once('exit', accept)
+    owner.once('error', () => {
+      if (!owner.pid) accept()
+    })
+  })
   const send = (message) => {
     if (!owner.connected)
       throw new Error('Local service supervisor disconnected')
     owner.send(message, (error) => {
-      if (error) fail(error)
+      if (error && (readyComplete || error.code !== 'EPIPE')) fail(error)
     })
   }
   const handle = (id, pid) => {
@@ -51,15 +63,24 @@ export async function nativeServices(config) {
     for (const { reject } of pending.values()) reject(error)
     pending.clear()
   }
-  owner.on('error', fail)
-  owner.on('exit', () => {
-    fail(new Error('Local service supervisor stopped'))
+  owner.on('error', (error) => {
+    if (readyComplete || error.code !== 'EPIPE') fail(error)
+  })
+  owner.on('exit', (code) => {
+    fail(
+      code === 73
+        ? Object.assign(new Error('EEXIST: Workspace already in use'), {
+            code: 'EEXIST'
+          })
+        : new Error('Local service supervisor stopped')
+    )
     process.removeListener('SIGINT', onInterrupt)
     process.removeListener('SIGTERM', onInterrupt)
   })
   owner.on('message', (message) => {
     const { type, id } = message
     if (type === 'ready') {
+      readyComplete = true
       message.children.forEach(({ pid }, index) => handle(index, pid))
       readyResolve(message)
     } else if (type === 'startup-error') {
@@ -120,6 +141,7 @@ export async function nativeServices(config) {
       state: metadata.state,
       ports: metadata.ports,
       fresh: metadata.fresh,
+      supervisor: owner,
       serviceCredential: metadata.serviceCredential,
       children,
       token: {

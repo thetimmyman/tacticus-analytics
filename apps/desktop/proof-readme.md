@@ -95,8 +95,15 @@ releasing the lock; a concurrent launch is refused during that cleanup.
 `hard-kill-journey.mjs` kills the coordinator with SIGKILL during an open SQL
 transaction, checks that native endpoints close, then restarts and verifies
 committed data survives while uncommitted data rolls back. Unknown or legacy
-locks remain untouched. Simultaneous death of the owner and coordinator, host
-power loss, and automatic recovery of existing stale locks remain unproven.
+locks remain untouched. With the optional Linux `runtimeGuard` binary supplied,
+the owner holds a kernel file lock inherited by its native services. The guard
+sets SIGKILL parent-death signals before exec, rechecking the parent to close
+the setup race. `owner-death-journey.mjs` kills both supervisor and coordinator,
+checks the services inherited the lease, then restarts without deleting the
+managed journal. PostgreSQL crash recovery preserves committed rows and rolls
+back interrupted SQL. The journal is reconciled only after acquiring the same
+exclusive kernel lease. Unknown legacy locks and actual host power loss remain
+separate acceptance cases. Without `runtimeGuard`, this gate reports skipped.
 The additional owner uses the bundled Node executable; packaging includes both
 owner and client modules.
 
