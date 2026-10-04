@@ -16,23 +16,33 @@ BEGIN
 END
 $guard$;
 
--- Preflight: pin the exact signature and current source so a drifted
--- definition (e.g. an out-of-band hotfix) fails loudly instead of being
--- silently overwritten.
+-- Preflight: accept either the pre-fix shape or this migration's own body
+-- (an out-of-band hotfix of the same code, so re-applying is a no-op). The
+-- body is compared as md5 of prosrc with `--` comments stripped and
+-- whitespace collapsed, so comment wording may differ but code may not.
+-- Anything else is drift and fails loudly instead of being overwritten.
 DO $preflight$
 DECLARE
+  -- Normalized md5 of the $function$ body below; update it with the body.
+  c_fixed_body_md5 constant text := 'ec251326dc2eb2217fc27339d0b249a4';
   v_src text;
+  v_body_md5 text;
 BEGIN
   IF to_regprocedure('public.queue_token_burn_notifications(text,text,timestamptz)') IS NULL THEN
     RAISE EXCEPTION 'preflight: public.queue_token_burn_notifications(text,text,timestamptz) does not exist';
   END IF;
 
-  SELECT pg_get_functiondef('public.queue_token_burn_notifications(text,text,timestamptz)'::regprocedure)
-    INTO v_src;
+  SELECT pg_get_functiondef(p.oid),
+         md5(btrim(regexp_replace(regexp_replace(p.prosrc, '--[^\n]*', '', 'g'), '\s+', ' ', 'g')))
+    INTO v_src, v_body_md5
+    FROM pg_proc p
+   WHERE p.oid = 'public.queue_token_burn_notifications(text,text,timestamptz)'::regprocedure;
 
-  IF v_src NOT LIKE '%cross join lateral public.record_token_burn_state(%'
+  IF v_body_md5 = c_fixed_body_md5 THEN
+    RAISE NOTICE 'preflight: queue_token_burn_notifications() already carries this fix; re-applying it is a no-op';
+  ELSIF v_src NOT LIKE '%cross join lateral public.record_token_burn_state(%'
      OR v_src LIKE '%order by player_id%' THEN
-    RAISE EXCEPTION 'preflight: queue_token_burn_notifications() source does not match the expected pre-fix shape (already patched, or drifted) -- read it before re-applying';
+    RAISE EXCEPTION 'preflight: queue_token_burn_notifications() source is neither the expected pre-fix shape nor this fix (drifted) -- read it before re-applying';
   END IF;
 END
 $preflight$;
@@ -125,6 +135,14 @@ BEGIN
 
   IF v_src NOT LIKE '%order by player_id%' THEN
     RAISE EXCEPTION 'verify: queue_token_burn_notifications() does not contain the expected ORDER BY after CREATE OR REPLACE';
+  END IF;
+
+  -- Keeps the preflight's pinned hash honest: it must describe this body.
+  IF (SELECT md5(btrim(regexp_replace(regexp_replace(p.prosrc, '--[^\n]*', '', 'g'), '\s+', ' ', 'g')))
+        FROM pg_proc p
+       WHERE p.oid = 'public.queue_token_burn_notifications(text,text,timestamptz)'::regprocedure)
+     <> 'ec251326dc2eb2217fc27339d0b249a4' THEN
+    RAISE EXCEPTION 'verify: the installed body does not match the preflight''s pinned normalized md5 -- update c_fixed_body_md5';
   END IF;
 
   IF NOT EXISTS (
