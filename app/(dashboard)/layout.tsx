@@ -1,3 +1,5 @@
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
+
 import { requireAuth } from '@/app/lib/auth'
 import { db } from '@/app/lib/db'
 import DashboardShell from '@/app/components/dashboard/DashboardShell'
@@ -22,10 +24,10 @@ export default async function DashboardLayout({
   const { user, profile } = await requireAuth()
 
   // Session client so RLS scopes the row; in the layout so the banner shows on every page.
-  const guildSyncIncident = await getOpenGuildSyncIncidentForUser(
-    await db(),
-    profile
-  )
+  const guildSyncIncident =
+    getRuntimeProfile() === 'hosted'
+      ? await getOpenGuildSyncIncidentForUser(await db(), profile)
+      : null
 
   return (
     <DashboardShell user={user} profile={profile}>

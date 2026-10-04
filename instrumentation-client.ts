@@ -33,6 +33,7 @@ export function isProcessLockTimeoutEvent(event: {
 }
 
 const sentryEnabled =
+  process.env.NEXT_PUBLIC_RUNTIME_PROFILE !== 'desktop' &&
   Boolean(dsn) &&
   (process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV) === 'production'
 init({

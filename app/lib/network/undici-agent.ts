@@ -1,3 +1,8 @@
+import {
+  getRuntimeProfile,
+  requireDesktopServiceUrl
+} from '@tacticus/app-core/runtime-profile'
+
 // fetch over node:http/https: Next's undici pool degrades in long-running containers and
 // undici.fetch hangs under Sentry/OTel. Modules are require()d for edge builds.
 
@@ -31,6 +36,16 @@ function httpFetch(
         }
       }
 
+      const desktop = getRuntimeProfile() === 'desktop'
+      if (desktop) {
+        const service = new URL(
+          requireDesktopServiceUrl(process.env.SUPABASE_URL)
+        )
+        if (url.origin !== service.origin) {
+          throw new Error('Desktop fetch rejected a non-local service')
+        }
+      }
+
       const isHttps = url.protocol === 'https:'
       const mod = isHttps ? https : http
 
@@ -54,6 +69,14 @@ function httpFetch(
         } else {
           Object.assign(headers, init.headers)
         }
+      }
+
+      if (desktop) {
+        const key = process.env.DESKTOP_TRANSPORT_KEY
+        if (!key || !/^[a-f0-9]{64}$/.test(key)) {
+          throw new Error('Desktop transport key is required')
+        }
+        headers['x-desktop-transport'] = key
       }
 
       const bodyStr = init?.body != null ? String(init.body) : ''

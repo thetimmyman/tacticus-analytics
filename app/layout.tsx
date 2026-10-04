@@ -1,3 +1,5 @@
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
+
 import './globals.css'
 import './styles/form-autofill.css'
 import './styles/particle-effects.css'
@@ -21,7 +23,8 @@ import {
 } from '@tacticus/app-core/supabase-env'
 import { APP_ORIGINS, TACTICUS_API } from '@tacticus/app-core/app-config'
 
-const hasSupabase = hasSupabaseCredentials()
+const desktop = getRuntimeProfile() === 'desktop'
+const hasSupabase = !desktop && hasSupabaseCredentials()
 const supabaseOrigin: string | undefined = hasSupabase
   ? `https://${getSupabaseHost()}`
   : undefined
@@ -103,9 +106,9 @@ export default async function RootLayout({
         />
         <meta name="theme-color" content="#dc2626" />
         {hasSupabase && <link rel="preconnect" href={supabaseOrigin} />}
-        <link rel="preconnect" href={tacticusOrigin} />
+        {!desktop && <link rel="preconnect" href={tacticusOrigin} />}
         {hasSupabase && <link rel="dns-prefetch" href={supabaseOrigin} />}
-        <link rel="dns-prefetch" href={tacticusOrigin} />
+        {!desktop && <link rel="dns-prefetch" href={tacticusOrigin} />}
         <ThemeScript nonce={nonce} />
         <StructuredData />
         <OrganizationStructuredData />

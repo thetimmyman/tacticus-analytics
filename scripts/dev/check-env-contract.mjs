@@ -57,6 +57,10 @@ const runtimeProvided = new Set([
   'DOCKER_HOST',
   'HOSTNAME',
   'NEXT_BUILD_ID',
+  // Inherited OS executable search path and desktop display session, not app settings.
+  'PATH',
+  'WAYLAND_DISPLAY',
+  'XDG_RUNTIME_DIR',
   // Downward-API pod identity (like HOSTNAME), not app config.
   'POD_NAME',
   'NEXT_PHASE',

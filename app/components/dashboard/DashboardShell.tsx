@@ -1,3 +1,4 @@
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 import type { PlayerMapping } from '@tacticus/app-core/types'
 import type { AppUser } from '@/app/types'
 import Footer from '@/app/components/Footer'
@@ -22,6 +23,7 @@ export default function DashboardShell({
   profile = null,
   hideAnalytics = false
 }: DashboardShellProps) {
+  const hosted = getRuntimeProfile() === 'hosted'
   return (
     <ErrorBoundary>
       <DashboardThemeWrapper profile={profile}>
@@ -45,9 +47,9 @@ export default function DashboardShell({
             >
               <ErrorBoundary>{children}</ErrorBoundary>
             </main>
-            <MonitorTelemetryStrip />
+            {hosted && <MonitorTelemetryStrip />}
             <Footer />
-            <OperationalStatusPill />
+            {hosted && <OperationalStatusPill />}
           </div>
         </RadixTooltipProvider>
       </DashboardThemeWrapper>

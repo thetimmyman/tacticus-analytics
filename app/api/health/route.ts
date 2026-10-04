@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server'
-import { writeQueue } from '@/app/lib/db'
+import { writeQueue, serviceDb } from '@/app/lib/db'
+import {
+  getRuntimeProfile,
+  requireDesktopServiceUrl
+} from '@tacticus/app-core/runtime-profile'
+import { getSharedFetch } from '@/app/lib/network/undici-agent'
 import {
   withRequestContext,
   type ApiRequestContext
@@ -73,6 +78,68 @@ function isAuthorizedHealthReader(req: Request): boolean {
 async function computeHealthSnapshot(
   log: ApiRequestContext['log']
 ): Promise<HealthSnapshot> {
+  if (getRuntimeProfile() === 'desktop') {
+    const start = Date.now()
+    const client = serviceDb()
+    const serviceUrl = requireDesktopServiceUrl(process.env.SUPABASE_URL)
+    const [database, calculations, auth] = await Promise.allSettled([
+      client.rpc('get_latest_season'),
+      client.rpc('qualifying_sweep_sum', {
+        sweep_damages: [100],
+        threshold: 50
+      }),
+      getSharedFetch()(`${serviceUrl}/auth/v1/health`, {
+        signal: AbortSignal.timeout(4000)
+      })
+    ])
+    const checks: Record<string, CheckResult> = {
+      database: {
+        details: {
+          provider: 'native-postgresql',
+          probe: 'canonical-season-rpc'
+        },
+        status:
+          database.status === 'fulfilled' && !database.value.error
+            ? 'pass'
+            : 'fail'
+      },
+      calculations: {
+        details: { probe: 'canonical-sweep-rpc' },
+        status:
+          calculations.status === 'fulfilled' &&
+          !calculations.value.error &&
+          Number(calculations.value.data) === 100
+            ? 'pass'
+            : 'fail'
+      },
+      auth: {
+        details: {
+          provider: 'native-supabase-auth',
+          probe: 'local-auth-health'
+        },
+        status: auth.status === 'fulfilled' && auth.value.ok ? 'pass' : 'fail'
+      }
+    }
+    const memory = process.memoryUsage()
+    return {
+      status: Object.values(checks).every((check) => check.status === 'pass')
+        ? 'healthy'
+        : 'unhealthy',
+      timestamp: new Date().toISOString(),
+      checks,
+      memory: {
+        heapUsed: memory.heapUsed,
+        heapTotal: memory.heapTotal,
+        rss: memory.rss,
+        unit: 'bytes'
+      },
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'development',
+      deployment: 'desktop',
+      cronRole: 'disabled',
+      responseTime: Date.now() - start
+    }
+  }
   const timestamp = new Date().toISOString()
   const checks: Record<string, CheckResult> = {}
   let overallStatus = 'healthy'
