@@ -17,6 +17,11 @@ import {
   readEffectiveGlobalConfig
 } from '@/app/lib/loki/global-config-refresh'
 import { isSafeContentsRoll } from '@/app/lib/loki/config-safety'
+import { serviceDb } from '@/app/lib/db'
+import {
+  isDuplicateGlobalConfigAlert,
+  recordGlobalConfigAlert
+} from '@/app/lib/loki/alert-dedup'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -98,9 +103,29 @@ async function handle(
   )
   const content = formatDiscordContent(diff)
 
+  // Nothing here WRITES the config — this route alerts until a human reviews
+  // and applies the change — so a daily CronJob re-checking the same
+  // unreviewed drift calls this again every tick. Without this check that
+  // reposted the identical diff to Discord on every tick (`force` explicitly
+  // asks for a repost, so it bypasses the check).
+  let duplicate = false
+  let fingerprint = ''
+  const supabase = serviceDb()
+  if (!force) {
+    ;({ duplicate, fingerprint } = await isDuplicateGlobalConfigAlert(
+      supabase,
+      diff
+    ))
+  }
+
   const webhookUrl = process.env.MONITORING_WEBHOOK_URL
   let notified = false
-  if (isDiscordWebhookUrl(webhookUrl)) {
+  if (duplicate) {
+    log.info(
+      { oldVersion: diff.oldVersion, newVersion: diff.newVersion },
+      'LOKI GlobalConfig drift already alerted for this exact transition — skipping duplicate Discord post'
+    )
+  } else if (isDiscordWebhookUrl(webhookUrl)) {
     const result = await postDiscordWebhook(webhookUrl, content)
     notified = result.ok
     if (!notified)
@@ -114,12 +139,17 @@ async function handle(
     )
   }
 
+  if (!force && !duplicate) {
+    await recordGlobalConfigAlert(supabase, diff, fingerprint)
+  }
+
   log.info(
     {
       oldVersion: diff.oldVersion,
       newVersion: diff.newVersion,
       changeCount: diff.lines.length,
       notified,
+      duplicate,
       forced: force && !changed
     },
     'LOKI GlobalConfig drift detected'

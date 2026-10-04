@@ -4657,6 +4657,30 @@ export type Database = {
           },
         ]
       }
+      loki_globalconfig_alert_state: {
+        Row: {
+          alerted_at: string
+          content_fingerprint: string
+          id: boolean
+          new_version: string | null
+          old_version: string | null
+        }
+        Insert: {
+          alerted_at?: string
+          content_fingerprint: string
+          id?: boolean
+          new_version?: string | null
+          old_version?: string | null
+        }
+        Update: {
+          alerted_at?: string
+          content_fingerprint?: string
+          id?: boolean
+          new_version?: string | null
+          old_version?: string | null
+        }
+        Relationships: []
+      }
       maps: {
         Row: {
           boss_mapping_id: number | null
