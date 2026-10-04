@@ -146,7 +146,7 @@ describe('recordGlobalConfigAlert', () => {
     await recordGlobalConfigAlert(fakeSupabase(table), diff, fingerprint)
 
     expect(upsert).toHaveBeenCalledTimes(1)
-    const [row, options] = upsert.mock.calls[0]
+    const [row, options] = upsert.mock.calls[0]!
     expect(row).toMatchObject({
       id: true,
       old_version: diff.oldVersion,
