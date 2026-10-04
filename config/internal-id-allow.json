@@ -40,6 +40,13 @@
       "why": "Rollback snippet holds function source captured verbatim from production; editing it would restore a different body."
     },
     {
+      "token": "PS-411",
+      "files": [
+        "supabase/snippets/20261004230000_rollback_alert_persistence_policy.sql"
+      ],
+      "why": "Rollback snippet holds function source captured verbatim from production; editing it would restore a different body."
+    },
+    {
       "token": "WI-6160",
       "files": [
         "supabase/snippets/20260902010000_rollback_live_prosrc_capture.sql"
