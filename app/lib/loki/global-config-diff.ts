@@ -71,11 +71,10 @@ export function diffGlobalConfig(
   const newVersion = newCfg.configVersion ?? '(none)'
   const lines: string[] = []
 
-  if (oldCfg.extractedAt !== newCfg.extractedAt) {
-    lines.push(
-      `extractedAt: ${oldCfg.extractedAt ?? '(none)'} → ${newCfg.extractedAt ?? '(none)'}`
-    )
-  }
+  // extractedAt is `new Date().toISOString()` on every fetch, so it differs
+  // EVEN WHEN NOTHING ELSE CHANGED, making every repeat check of the same
+  // unreviewed drift look like fresh evidence to a content-keyed dedup (and
+  // to a human skimming the embed). Carries no actionable signal — drop it.
 
   const oldGdto = oldCfg.guildBoss?.guildBossSeasonDataConfigsGDTO ?? {}
   const newGdto = newCfg.guildBoss?.guildBossSeasonDataConfigsGDTO ?? {}
