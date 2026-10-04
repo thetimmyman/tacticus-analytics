@@ -48,9 +48,10 @@ for (const [from, name] of [
   [join(config.electron, 'LICENSE'), 'electron-LICENSE'],
   [join(config.electron, 'LICENSES.chromium.html'), 'LICENSES.chromium.html']
 ]) {
-  if (!(await stat(from)).isFile() || !(await readFile(from)).length)
+  const notice = await readFile(from)
+  if (!notice.length)
     throw new Error('A bundled component notice is missing or empty')
-  await copy(from, join('notices', name))
+  await writeFile(join(config.output, 'notices', name), notice, { mode: 0o600 })
 }
 for (const path of [
   'apps/desktop/launcher',

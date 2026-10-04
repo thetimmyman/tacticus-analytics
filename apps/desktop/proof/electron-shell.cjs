@@ -42,6 +42,7 @@ app
       if (details.statusCode >= 400)
         failures.push({
           path: new URL(details.url).pathname,
+          query: new URL(details.url).search,
           status: details.statusCode
         })
     })

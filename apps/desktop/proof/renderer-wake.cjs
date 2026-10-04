@@ -39,7 +39,6 @@ exports.proveRendererWake = async (window, browserSession, config) => {
     'Token must still be valid before the renderer pauses'
   )
   const headers = {
-    'x-desktop-transport': config.transportKey,
     Authorization: `Bearer ${before.access_token}`
   }
   await window.webContents.executeJavaScript(
@@ -77,7 +76,9 @@ exports.proveRendererWake = async (window, browserSession, config) => {
       )
     // Native PostgREST grants 30 seconds of clock skew after JWT expiry.
     await delay(Math.max(0, before.expires_at * 1000 + 32000 - Date.now()))
-    const expired = await fetch(
+    // The configured Electron session adds the private transport header in its
+    // main-process request hook, keeping it out of this verification request.
+    const expired = await browserSession.fetch(
       `${origin}/supabase/rest/v1/EOT_GR_data?select=id`,
       { headers }
     )
@@ -120,7 +121,7 @@ exports.proveRendererWake = async (window, browserSession, config) => {
   }
   assert.notEqual(renewed.access_token, before.access_token)
   assert.ok(renewed.expires_at * 1000 > Date.now())
-  const rls = await fetch(
+  const rls = await browserSession.fetch(
     `${origin}/supabase/rest/v1/EOT_GR_data?select=id,Guild`,
     {
       headers: { ...headers, Authorization: `Bearer ${renewed.access_token}` }

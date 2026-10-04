@@ -39,6 +39,7 @@ app
       if (details.statusCode >= 400)
         failures.push({
           path: new URL(details.url).pathname,
+          query: new URL(details.url).search,
           status: details.statusCode
         })
     })
@@ -120,7 +121,13 @@ app
         blocked.length ||
         failures.some(
           (failure) =>
-            !(failure.path === '/api/guild-tokens' && failure.status === 403)
+            !(failure.path === '/api/guild-tokens' && failure.status === 403) &&
+            !(
+              wake?.status === 'passed' &&
+              failure.path === '/supabase/rest/v1/EOT_GR_data' &&
+              failure.query === '?select=id' &&
+              failure.status === 401
+            )
         )
       )
         throw new Error('Unexpected packaged renderer request failure')
