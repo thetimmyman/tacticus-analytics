@@ -4661,6 +4661,7 @@ export type Database = {
         Row: {
           alerted_at: string
           content_fingerprint: string
+          delivered_at: string | null
           id: boolean
           new_version: string | null
           old_version: string | null
@@ -4668,6 +4669,7 @@ export type Database = {
         Insert: {
           alerted_at?: string
           content_fingerprint: string
+          delivered_at?: string | null
           id?: boolean
           new_version?: string | null
           old_version?: string | null
@@ -4675,6 +4677,7 @@ export type Database = {
         Update: {
           alerted_at?: string
           content_fingerprint?: string
+          delivered_at?: string | null
           id?: boolean
           new_version?: string | null
           old_version?: string | null

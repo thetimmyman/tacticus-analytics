@@ -1,8 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
 import {
+  CLAIM_STALE_MS,
+  claimGlobalConfigAlert,
+  clearGlobalConfigAlertState,
   fingerprintDiff,
-  isDuplicateGlobalConfigAlert,
-  recordGlobalConfigAlert
+  markGlobalConfigAlertDelivered,
+  releaseGlobalConfigAlert
 } from './alert-dedup'
 import type { ConfigDiff } from './global-config-diff'
 import type { TypedSupabaseClient } from '@tacticus/app-core/types'
@@ -18,10 +21,61 @@ function diffOf(
   }
 }
 
-/** Builds a fake Supabase client whose `.from(table)` returns the given table stub. */
-function fakeSupabase(table: unknown): TypedSupabaseClient {
-  return { from: vi.fn(() => table) } as unknown as TypedSupabaseClient
+type Call = [method: string, args: unknown[]]
+type QueryResult = {
+  data?: unknown
+  error?: { message: string } | null
+  throws?: boolean
 }
+
+/**
+ * Fake Supabase client. Each `.from()` starts one query whose builder calls
+ * are recorded in `queries`; awaiting it resolves to the next queued result.
+ */
+function fakeDb(results: QueryResult[]) {
+  const queries: Call[][] = []
+  const from = vi.fn(() => {
+    const calls: Call[] = []
+    queries.push(calls)
+    const result = results.shift() ?? {}
+    const builder: Record<string, unknown> = {}
+    for (const method of [
+      'upsert',
+      'update',
+      'select',
+      'eq',
+      'neq',
+      'or',
+      'is'
+    ]) {
+      builder[method] = (...args: unknown[]) => {
+        calls.push([method, args])
+        return builder
+      }
+    }
+    builder.then = (
+      resolve: (value: unknown) => unknown,
+      reject: (reason: unknown) => unknown
+    ) =>
+      (result.throws
+        ? Promise.reject(new Error('network down'))
+        : Promise.resolve({
+            data: result.data ?? null,
+            error: result.error ?? null
+          })
+      ).then(resolve, reject)
+    return builder
+  })
+  return { db: { from } as unknown as TypedSupabaseClient, queries }
+}
+
+function argsOf(calls: Call[] | undefined, method: string): unknown[] {
+  const call = calls?.find(([m]) => m === method)
+  if (!call) throw new Error(`no ${method}() call`)
+  return call[1]
+}
+
+const NOW = new Date('2026-01-15T12:00:00.000Z')
 
 describe('fingerprintDiff', () => {
   it('is stable for the same transition and content', () => {
@@ -50,119 +104,121 @@ describe('fingerprintDiff', () => {
   })
 })
 
-describe('isDuplicateGlobalConfigAlert', () => {
-  it('returns duplicate=true when the stored fingerprint matches', async () => {
-    const diff = diffOf()
-    const fingerprint = fingerprintDiff(diff)
-    const table = {
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          maybeSingle: vi.fn().mockResolvedValue({
-            data: {
-              id: true,
-              old_version: diff.oldVersion,
-              new_version: diff.newVersion,
-              content_fingerprint: fingerprint,
-              alerted_at: '2026-10-04T00:00:00.000Z'
-            },
-            error: null
-          })
-        })
-      })
-    }
+describe('claimGlobalConfigAlert', () => {
+  it('claims the first transition ever with an insert that ignores conflicts', async () => {
+    const { db, queries } = fakeDb([{ data: [{ id: true }] }])
+    const result = await claimGlobalConfigAlert(db, diffOf(), NOW)
 
-    const result = await isDuplicateGlobalConfigAlert(fakeSupabase(table), diff)
-    expect(result.duplicate).toBe(true)
-    expect(result.fingerprint).toBe(fingerprint)
+    expect(result).toEqual({
+      claimed: true,
+      fingerprint: fingerprintDiff(diffOf())
+    })
+    expect(queries).toHaveLength(1)
+    const [row, options] = argsOf(queries[0], 'upsert')
+    expect(row).toMatchObject({
+      id: true,
+      content_fingerprint: result.fingerprint,
+      alerted_at: NOW.toISOString(),
+      delivered_at: null
+    })
+    expect(options).toEqual({ onConflict: 'id', ignoreDuplicates: true })
   })
 
-  it('returns duplicate=false when no row is stored yet', async () => {
-    const table = {
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null })
-        })
-      })
-    }
+  it('takes over the row when it holds a different transition or a stale undelivered claim', async () => {
+    const { db, queries } = fakeDb([{ data: [] }, { data: [{ id: true }] }])
+    const result = await claimGlobalConfigAlert(db, diffOf(), NOW)
 
-    const result = await isDuplicateGlobalConfigAlert(
-      fakeSupabase(table),
-      diffOf()
-    )
-    expect(result.duplicate).toBe(false)
+    expect(result.claimed).toBe(true)
+    expect(queries).toHaveLength(2)
+    const staleBefore = new Date(NOW.getTime() - CLAIM_STALE_MS).toISOString()
+    expect(argsOf(queries[1], 'or')).toEqual([
+      `content_fingerprint.neq.${result.fingerprint},and(delivered_at.is.null,alerted_at.lt."${staleBefore}")`
+    ])
+    expect(argsOf(queries[1], 'update')[0]).toMatchObject({
+      content_fingerprint: result.fingerprint,
+      delivered_at: null
+    })
   })
 
-  it('returns duplicate=false when the stored fingerprint differs (new drift)', async () => {
-    const table = {
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          maybeSingle: vi.fn().mockResolvedValue({
-            data: {
-              id: true,
-              old_version: 'old',
-              new_version: 'old2',
-              content_fingerprint: 'stale-fingerprint',
-              alerted_at: '2026-10-03T00:00:00.000Z'
-            },
-            error: null
-          })
-        })
-      })
-    }
-
-    const result = await isDuplicateGlobalConfigAlert(
-      fakeSupabase(table),
-      diffOf()
-    )
-    expect(result.duplicate).toBe(false)
+  it('skips when the same transition is already delivered or being posted', async () => {
+    const { db } = fakeDb([{ data: [] }, { data: [] }])
+    const result = await claimGlobalConfigAlert(db, diffOf(), NOW)
+    expect(result.claimed).toBe(false)
   })
 
-  it('fails open (duplicate=false) when the read errors', async () => {
-    const table = {
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          maybeSingle: vi
-            .fn()
-            .mockResolvedValue({ data: null, error: { message: 'boom' } })
-        })
-      })
+  it('degrades to claimed (post anyway) when the state is unavailable', async () => {
+    const cases: QueryResult[][] = [
+      [{ error: { message: 'relation does not exist' } }],
+      [{ data: [] }, { error: { message: 'permission denied' } }],
+      [{ throws: true }]
+    ]
+    for (const results of cases) {
+      const { db } = fakeDb(results)
+      expect((await claimGlobalConfigAlert(db, diffOf(), NOW)).claimed).toBe(
+        true
+      )
     }
-
-    const result = await isDuplicateGlobalConfigAlert(
-      fakeSupabase(table),
-      diffOf()
+    expect((await claimGlobalConfigAlert(null, diffOf(), NOW)).claimed).toBe(
+      true
     )
-    expect(result.duplicate).toBe(false)
   })
 })
 
-describe('recordGlobalConfigAlert', () => {
-  it('upserts the singleton row keyed on id', async () => {
-    const upsert = vi.fn().mockResolvedValue({ error: null })
-    const table = { upsert }
-    const diff = diffOf()
-    const fingerprint = fingerprintDiff(diff)
+describe('markGlobalConfigAlertDelivered', () => {
+  it('stamps delivered_at only on the row this caller claimed', async () => {
+    const { db, queries } = fakeDb([{}])
+    await markGlobalConfigAlertDelivered(db, 'fp-1', NOW)
 
-    await recordGlobalConfigAlert(fakeSupabase(table), diff, fingerprint)
-
-    expect(upsert).toHaveBeenCalledTimes(1)
-    const [row, options] = upsert.mock.calls[0]!
-    expect(row).toMatchObject({
-      id: true,
-      old_version: diff.oldVersion,
-      new_version: diff.newVersion,
-      content_fingerprint: fingerprint
-    })
-    expect(options).toEqual({ onConflict: 'id' })
+    expect(argsOf(queries[0], 'update')).toEqual([
+      { delivered_at: NOW.toISOString() }
+    ])
+    expect(queries[0]).toContainEqual(['eq', ['content_fingerprint', 'fp-1']])
   })
 
-  it('never throws when the write fails (best-effort)', async () => {
-    const table = {
-      upsert: vi.fn().mockRejectedValue(new Error('write failed'))
-    }
-
+  it('never throws', async () => {
+    const { db } = fakeDb([{ throws: true }])
     await expect(
-      recordGlobalConfigAlert(fakeSupabase(table), diffOf(), 'fp')
+      markGlobalConfigAlertDelivered(db, 'fp-1')
     ).resolves.toBeUndefined()
+    await expect(
+      markGlobalConfigAlertDelivered(null, 'fp-1')
+    ).resolves.toBeUndefined()
+  })
+})
+
+describe('releaseGlobalConfigAlert', () => {
+  it('gives back only an undelivered claim on this transition', async () => {
+    const { db, queries } = fakeDb([{}])
+    await releaseGlobalConfigAlert(db, 'fp-1')
+
+    expect(argsOf(queries[0], 'update')).toEqual([
+      { content_fingerprint: '', delivered_at: null }
+    ])
+    expect(queries[0]).toContainEqual(['eq', ['content_fingerprint', 'fp-1']])
+    expect(queries[0]).toContainEqual(['is', ['delivered_at', null]])
+  })
+
+  it('never throws', async () => {
+    const { db } = fakeDb([{ throws: true }])
+    await expect(releaseGlobalConfigAlert(db, 'fp-1')).resolves.toBeUndefined()
+  })
+})
+
+describe('clearGlobalConfigAlertState', () => {
+  it('forgets the last transition so a recurrence alerts again', async () => {
+    const { db, queries } = fakeDb([{}])
+    await clearGlobalConfigAlertState(db)
+
+    expect(argsOf(queries[0], 'update')[0]).toMatchObject({
+      content_fingerprint: '',
+      delivered_at: null
+    })
+    expect(queries[0]).toContainEqual(['neq', ['content_fingerprint', '']])
+  })
+
+  it('never throws and is a no-op without a client', async () => {
+    const { db } = fakeDb([{ throws: true }])
+    await expect(clearGlobalConfigAlertState(db)).resolves.toBeUndefined()
+    await expect(clearGlobalConfigAlertState(null)).resolves.toBeUndefined()
   })
 })

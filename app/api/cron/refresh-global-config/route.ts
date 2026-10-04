@@ -19,14 +19,26 @@ import {
 import { isSafeContentsRoll } from '@/app/lib/loki/config-safety'
 import { serviceDb } from '@/app/lib/db'
 import {
-  isDuplicateGlobalConfigAlert,
-  recordGlobalConfigAlert
+  claimGlobalConfigAlert,
+  clearGlobalConfigAlertState,
+  markGlobalConfigAlertDelivered,
+  releaseGlobalConfigAlert
 } from '@/app/lib/loki/alert-dedup'
+import type { TypedSupabaseClient } from '@tacticus/app-core/types'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 const log = logger.child({ component: 'loki-globalconfig-refresh' })
+
+/** Dedup bookkeeping must never block the alert itself: no client means "post". */
+function dedupDb(): TypedSupabaseClient | null {
+  try {
+    return serviceDb()
+  } catch {
+    return null
+  }
+}
 
 /** Drift detection: posts a diff, never writes config. Epoch/rotation changes stay manual. */
 async function handle(
@@ -56,6 +68,8 @@ async function handle(
 
   if (!changed && !force) {
     log.info({ version: latestHash }, 'LOKI GlobalConfig up to date — no-op')
+    // The drift (if any) is resolved, so a later recurrence is a new incident.
+    await clearGlobalConfigAlertState(dedupDb())
     return NextResponse.json({
       changed: false,
       configVersion: latestHash,
@@ -107,16 +121,15 @@ async function handle(
   // and applies the change — so a daily CronJob re-checking the same
   // unreviewed drift calls this again every tick. Without this check that
   // reposted the identical diff to Discord on every tick (`force` explicitly
-  // asks for a repost, so it bypasses the check).
-  let duplicate = false
+  // asks for a repost, so it bypasses the check). Claiming before the post
+  // makes overlapping callers (cron + self-heal) post at most once.
+  let claimed = false
   let fingerprint = ''
-  const supabase = serviceDb()
+  const supabase = force ? null : dedupDb()
   if (!force) {
-    ;({ duplicate, fingerprint } = await isDuplicateGlobalConfigAlert(
-      supabase,
-      diff
-    ))
+    ;({ claimed, fingerprint } = await claimGlobalConfigAlert(supabase, diff))
   }
+  const duplicate = !force && !claimed
 
   const webhookUrl = process.env.MONITORING_WEBHOOK_URL
   let notified = false
@@ -139,8 +152,11 @@ async function handle(
     )
   }
 
-  if (!force && !duplicate) {
-    await recordGlobalConfigAlert(supabase, diff, fingerprint)
+  // Only a post Discord accepted counts as alerted; otherwise give the
+  // claim back so the next check retries instead of staying silent.
+  if (claimed) {
+    if (notified) await markGlobalConfigAlertDelivered(supabase, fingerprint)
+    else await releaseGlobalConfigAlert(supabase, fingerprint)
   }
 
   log.info(

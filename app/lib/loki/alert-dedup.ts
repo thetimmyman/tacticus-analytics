@@ -3,47 +3,21 @@ import { createHash } from 'node:crypto'
 import type { TypedSupabaseClient } from '@tacticus/app-core/types'
 import type { ConfigDiff } from './global-config-diff'
 
-// Persisted dedup for the LOKI GlobalConfig drift-review Discord post
-// (app/api/cron/refresh-global-config/route.ts). The daily refresh job and
-// other automated callers re-check this every tick while a transition is
-// unreviewed, which previously reposted the same diff to Discord each
-// time. Fingerprint excludes any timestamp so re-checks of the same
-// transition produce the same key and are skipped as a no-op.
+// Persisted dedup for the LOKI GlobalConfig drift-review Discord post. A
+// check claims a transition before posting (overlapping callers post once),
+// marks it delivered when Discord accepts it, releases it when the post
+// fails (the next check retries), and clears it once the config is up to
+// date (a recurrence alerts again). An undelivered claim goes stale after
+// CLAIM_STALE_MS. Helpers never throw; unreadable state means "post".
 
 const STATE_TABLE = 'loki_globalconfig_alert_state'
 
-type AlertStateRow = {
-  id: boolean
-  old_version: string | null
-  new_version: string | null
-  content_fingerprint: string
-  alerted_at: string
-}
+export const CLAIM_STALE_MS = 15 * 60 * 1000
 
-type AlertStateTableClient = {
-  select: (columns: string) => {
-    eq: (
-      column: string,
-      value: boolean
-    ) => {
-      maybeSingle: () => Promise<{
-        data: AlertStateRow | null
-        error: { message: string } | null
-      }>
-    }
-  }
-  upsert: (
-    row: {
-      id: boolean
-      old_version: string
-      new_version: string
-      content_fingerprint: string
-      alerted_at: string
-    },
-    options: { onConflict: string }
-  ) => Promise<{ error: { message: string } | null }>
-}
+/** Fingerprint value meaning "no transition on record". */
+const NO_ALERT = ''
 
+/** Excludes timestamps, so every re-check of one transition shares a key. */
 export function fingerprintDiff(
   diff: Pick<ConfigDiff, 'oldVersion' | 'newVersion' | 'lines'>
 ): string {
@@ -53,46 +27,111 @@ export function fingerprintDiff(
 }
 
 /**
- * Returns true when this EXACT transition (version pair + diff content) was
- * the last one posted to Discord — i.e. the caller should skip posting again.
- * Never throws: a read failure degrades to "not a duplicate" (alert, don't
- * silently drop a possibly-new drift because bookkeeping is unavailable).
+ * Atomically claims the right to post this EXACT transition (version pair +
+ * diff content). `claimed: false` means another check already posted it, or
+ * is posting it right now, so the caller should skip. A null client (state
+ * unavailable) or any database error degrades to `claimed: true`.
  */
-export async function isDuplicateGlobalConfigAlert(
-  supabase: TypedSupabaseClient,
-  diff: Pick<ConfigDiff, 'oldVersion' | 'newVersion' | 'lines'>
-): Promise<{ duplicate: boolean; fingerprint: string }> {
+export async function claimGlobalConfigAlert(
+  supabase: TypedSupabaseClient | null,
+  diff: Pick<ConfigDiff, 'oldVersion' | 'newVersion' | 'lines'>,
+  now: Date = new Date()
+): Promise<{ claimed: boolean; fingerprint: string }> {
   const fingerprint = fingerprintDiff(diff)
-  const table = supabase.from(STATE_TABLE) as unknown as AlertStateTableClient
-  const { data, error } = await table
-    .select('id, old_version, new_version, content_fingerprint, alerted_at')
-    .eq('id', true)
-    .maybeSingle()
+  if (!supabase) return { claimed: true, fingerprint }
 
-  if (error) {
-    return { duplicate: false, fingerprint }
+  const claim = {
+    old_version: diff.oldVersion,
+    new_version: diff.newVersion,
+    content_fingerprint: fingerprint,
+    alerted_at: now.toISOString(),
+    delivered_at: null
   }
 
-  return { duplicate: data?.content_fingerprint === fingerprint, fingerprint }
+  try {
+    // First alert ever: INSERT ... ON CONFLICT DO NOTHING RETURNING id.
+    const inserted = await supabase
+      .from(STATE_TABLE)
+      .upsert(
+        { id: true, ...claim },
+        { onConflict: 'id', ignoreDuplicates: true }
+      )
+      .select('id')
+    if (inserted.error) return { claimed: true, fingerprint }
+    if ((inserted.data?.length ?? 0) > 0) return { claimed: true, fingerprint }
+
+    // The row exists. Take it only when it holds a different transition, or
+    // an undelivered claim gone stale. Postgres re-checks this WHERE against
+    // the committed row when two updates race, so only one caller matches.
+    const staleBefore = new Date(now.getTime() - CLAIM_STALE_MS).toISOString()
+    const updated = await supabase
+      .from(STATE_TABLE)
+      .update(claim)
+      .eq('id', true)
+      .or(
+        `content_fingerprint.neq.${fingerprint},and(delivered_at.is.null,alerted_at.lt."${staleBefore}")`
+      )
+      .select('id')
+    if (updated.error) return { claimed: true, fingerprint }
+    return { claimed: (updated.data?.length ?? 0) > 0, fingerprint }
+  } catch {
+    return { claimed: true, fingerprint }
+  }
 }
 
-/** Best-effort: a failed write means one extra repost later, never a lost alert. */
-export async function recordGlobalConfigAlert(
-  supabase: TypedSupabaseClient,
-  diff: Pick<ConfigDiff, 'oldVersion' | 'newVersion'>,
+/** Discord accepted the post: later checks of this transition skip it. */
+export async function markGlobalConfigAlertDelivered(
+  supabase: TypedSupabaseClient | null,
+  fingerprint: string,
+  now: Date = new Date()
+): Promise<void> {
+  if (!supabase) return
+  try {
+    await supabase
+      .from(STATE_TABLE)
+      .update({ delivered_at: now.toISOString() })
+      .eq('id', true)
+      .eq('content_fingerprint', fingerprint)
+  } catch {
+    // Undelivered claims go stale, so a lost write costs one repost later.
+  }
+}
+
+/** The post failed or had nowhere to go: give the claim back so the next check retries. */
+export async function releaseGlobalConfigAlert(
+  supabase: TypedSupabaseClient | null,
   fingerprint: string
 ): Promise<void> {
-  const table = supabase.from(STATE_TABLE) as unknown as AlertStateTableClient
-  await table
-    .upsert(
-      {
-        id: true,
-        old_version: diff.oldVersion,
-        new_version: diff.newVersion,
-        content_fingerprint: fingerprint,
-        alerted_at: new Date().toISOString()
-      },
-      { onConflict: 'id' }
-    )
-    .catch(() => undefined)
+  if (!supabase) return
+  try {
+    await supabase
+      .from(STATE_TABLE)
+      .update({ content_fingerprint: NO_ALERT, delivered_at: null })
+      .eq('id', true)
+      .eq('content_fingerprint', fingerprint)
+      .is('delivered_at', null)
+  } catch {
+    // The claim goes stale after CLAIM_STALE_MS and is retried then.
+  }
+}
+
+/** The config is up to date: forget the last transition so a recurrence alerts again. */
+export async function clearGlobalConfigAlertState(
+  supabase: TypedSupabaseClient | null
+): Promise<void> {
+  if (!supabase) return
+  try {
+    await supabase
+      .from(STATE_TABLE)
+      .update({
+        content_fingerprint: NO_ALERT,
+        old_version: null,
+        new_version: null,
+        delivered_at: null
+      })
+      .eq('id', true)
+      .neq('content_fingerprint', NO_ALERT)
+  } catch {
+    // Best-effort: a stale fingerprint only matters if the same drift recurs.
+  }
 }
