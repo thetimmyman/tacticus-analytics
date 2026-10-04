@@ -1,0 +1,64 @@
+import { spawnSync } from 'node:child_process'
+import { stat } from 'node:fs/promises'
+
+/**
+ * Entry point for `npm run desktop:proof`. Runs gates (a) and (d)'s
+ * self-test for real (no native binaries needed); runs (b)/(c) only when
+ * DESKTOP_PROOF_CONFIG points at a real config.json, else reports skipped
+ * with the reason rather than fabricating a pass.
+ */
+
+const results = []
+
+function run(label, file, args) {
+  const result = spawnSync('node', [file, ...args], {
+    stdio: 'inherit',
+    cwd: new URL('../../..', import.meta.url).pathname
+  })
+  results.push({ gate: label, exitCode: result.status })
+  return result.status === 0
+}
+
+console.log(
+  '\n== Gate (a): loopback gateway origin/auth/bind-loopback proof =='
+)
+run('a-loopback-gateway', '--test', [
+  'apps/desktop/proof/loopback-gateway.test.mjs'
+])
+
+console.log(
+  '\n== Gate (d): component-manifest generator/verifier self-test ==\n(logic proof only; see below for the real-binary verification path)'
+)
+run('d-component-manifest-selftest', '--test', [
+  'apps/desktop/package/component-manifest.test.mjs'
+])
+
+const configPath = process.env.DESKTOP_PROOF_CONFIG
+if (!configPath) {
+  console.log(
+    '\n== Gate (b) offline journey and Gate (c) checkpoint/recovery: SKIPPED ==\n' +
+      'DESKTOP_PROOF_CONFIG is not set to an absolute config.json path (see\n' +
+      'apps/desktop/proof-readme.md). These require real, downloaded\n' +
+      'PostgreSQL/Supabase Auth/PostgREST binaries and a staged standalone\n' +
+      'Next.js build, which are not present in this environment.'
+  )
+  results.push({ gate: 'b-offline-journey', exitCode: 'skipped' })
+  results.push({ gate: 'c-checkpoint-recovery', exitCode: 'skipped' })
+} else {
+  await stat(configPath)
+  console.log('\n== Gate (b): offline /player-performance journey ==')
+  run('b-offline-journey', 'apps/desktop/proof/offline-journey.mjs', [
+    configPath
+  ])
+  console.log('\n== Gate (c): checkpoint / restart recovery ==')
+  run('c-checkpoint-recovery', 'apps/desktop/proof/checkpoint-journey.mjs', [
+    configPath
+  ])
+  console.log('\n== Gate (c): setup interruption / resume recovery ==')
+  run('c-setup-recovery', 'apps/desktop/proof/setup-recovery.mjs', [configPath])
+}
+
+console.log('\n== Summary ==')
+console.log(JSON.stringify(results, null, 2))
+if (results.some((r) => typeof r.exitCode === 'number' && r.exitCode !== 0))
+  process.exitCode = 1

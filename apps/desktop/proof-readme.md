@@ -17,6 +17,30 @@ Linux exercise uses verified upstream Auth/PostgREST releases and an extracted
 signed PostgreSQL package. Its shared libraries still need portability packaging.
 No platform or redistribution approval follows from a successful local run.
 
+## Checked-in proof scripts
+
+`npm run desktop:proof` (`apps/desktop/proof/run-all.mjs`) runs the checked-in,
+reproducible proof for each PR gate and reports pass/fail/skipped per gate:
+
+- Gate (a) loopback gateway Origin/transport/bind enforcement —
+  `apps/desktop/proof/loopback-gateway.test.mjs`. Needs no native binaries;
+  always runs.
+- Gate (b) offline `/player-performance` journey —
+  `apps/desktop/proof/offline-journey.mjs`, which runs `native-journey.mts`
+  inside `unshare -rn` (a loopback-only Linux network namespace). Needs the
+  real native binaries and a staged standalone build (`DESKTOP_PROOF_CONFIG`
+  env var); otherwise reports skipped with the reason.
+- Gate (c) restart/checkpoint recovery —
+  `apps/desktop/proof/checkpoint-journey.mjs` and
+  `apps/desktop/proof/setup-recovery.mjs`. Same binary/config requirement as
+  gate (b).
+- Gate (d) bundled-component manifest —
+  `apps/desktop/package/component-manifest.mjs` (generator/verifier) with
+  `apps/desktop/package/component-manifest.test.mjs` as a binary-free
+  self-test of the generator/verifier logic, plus
+  `apps/desktop/package/expected-component-manifest.json` as the committed
+  pin to verify a real staged bundle against.
+
 ## Run the experiment
 
 Build the application with `NEXT_PUBLIC_RUNTIME_PROFILE=desktop` and
