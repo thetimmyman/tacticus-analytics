@@ -60,7 +60,7 @@ try {
       NEXT_PUBLIC_SUPABASE_URL: `${gateway.origin}/supabase`,
       SUPABASE_URL: `${gateway.origin}/supabase`,
       NEXT_PUBLIC_SUPABASE_ANON_KEY: 'desktop-public',
-      SUPABASE_SERVICE_ROLE_KEY: services.token.service,
+      SUPABASE_SERVICE_ROLE_KEY: services.serviceCredential,
       DESKTOP_TRANSPORT_KEY: transportKey
     },
     join(root, 'application')

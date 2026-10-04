@@ -53,7 +53,7 @@ try {
     403
   )
   await assert.rejects(nativeServices(config), /EEXIST/)
-  const admin = client(services.token.service)
+  const admin = client(services.serviceCredential)
   let account
   try {
     account = JSON.parse(
@@ -178,7 +178,7 @@ try {
         NEXT_PUBLIC_SUPABASE_URL: `${gateway.origin}/supabase`,
         SUPABASE_URL: `${gateway.origin}/supabase`,
         NEXT_PUBLIC_SUPABASE_ANON_KEY: 'desktop-public',
-        SUPABASE_SERVICE_ROLE_KEY: services.token.service,
+        SUPABASE_SERVICE_ROLE_KEY: services.serviceCredential,
         DESKTOP_TRANSPORT_KEY: transportKey
       },
       config.application.directory
@@ -242,7 +242,8 @@ try {
     assert.equal(page.status, 200)
     assert.ok(html.includes('Player Performance'))
     assert.ok(
-      !html.includes(transportKey) && !html.includes(services.token.service),
+      !html.includes(transportKey) &&
+        !html.includes(services.serviceCredential),
       'No privileged secret in renderer HTML'
     )
     evidence.application = {

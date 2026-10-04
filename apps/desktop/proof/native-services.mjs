@@ -7,10 +7,10 @@ import { resolve, join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 
 const secret = () => randomBytes(32).toString('hex')
-export function signedToken(key, role) {
+export function signedToken(key, role, lifetimeSeconds = 86400) {
   const encode = (value) =>
     Buffer.from(JSON.stringify(value)).toString('base64url')
-  const body = `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode({ role, iss: 'desktop', iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + 86400 })}`
+  const body = `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode({ role, iss: 'desktop', iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + lifetimeSeconds })}`
   return `${body}.${createHmac('sha256', key).update(body).digest('base64url')}`
 }
 async function freePort() {
@@ -50,8 +50,15 @@ export async function nativeServices({
   state,
   binaries,
   schemaDirectory,
-  libraryPath
+  libraryPath,
+  tokenLifetimeSeconds = 86400
 }) {
+  if (
+    !Number.isInteger(tokenLifetimeSeconds) ||
+    tokenLifetimeSeconds < 1 ||
+    tokenLifetimeSeconds > 86400
+  )
+    throw new Error('Invalid local token lifetime')
   state = resolve(state)
   await mkdir(state, { recursive: true, mode: 0o700 })
   const info = await lstat(state)
@@ -84,21 +91,21 @@ export async function nativeServices({
   const onInterrupt = () => {
     void stop().finally(() => process.exit(130))
   }
-  process.once('SIGINT', onInterrupt)
-  process.once('SIGTERM', onInterrupt)
+  process.on('SIGINT', onInterrupt)
+  process.on('SIGTERM', onInterrupt)
   let stopping = false
   let stopPromise
   let fault
   const stop = () => {
     if (stopPromise) return stopPromise
     stopping = true
-    process.removeListener('SIGINT', onInterrupt)
-    process.removeListener('SIGTERM', onInterrupt)
     stopPromise = (async () => {
       for (const child of [...children].reverse()) {
         if (child.exitCode !== null || child.signalCode !== null) continue
         const exited = new Promise((accept) => child.once('exit', accept))
-        child.kill('SIGTERM')
+        // PostgreSQL fast shutdown cancels open sessions and checkpoints WAL.
+        // SIGTERM requests smart shutdown and can wait indefinitely on clients.
+        child.kill(child === children[0] ? 'SIGINT' : 'SIGTERM')
         await Promise.race([exited, delay(5000, undefined, { ref: false })])
         if (child.exitCode === null && child.signalCode === null) {
           child.kill('SIGKILL')
@@ -106,6 +113,8 @@ export async function nativeServices({
         }
       }
       await unlink(lockPath).catch(() => {})
+      process.removeListener('SIGINT', onInterrupt)
+      process.removeListener('SIGTERM', onInterrupt)
     })()
     return stopPromise
   }
@@ -245,9 +254,20 @@ export async function nativeServices({
     }
     await ready(() => psql('SELECT 1;'), pg, 'PostgreSQL')
     const token = {
-      anon: signedToken(credentials.jwt, 'anon'),
-      service: signedToken(credentials.jwt, 'service_role')
+      get anon() {
+        return signedToken(credentials.jwt, 'anon', tokenLifetimeSeconds)
+      },
+      get service() {
+        return signedToken(
+          credentials.jwt,
+          'service_role',
+          tokenLifetimeSeconds
+        )
+      }
     }
+    // Private server clients exchange this stable credential at the guarded
+    // gateway. Native JWTs are minted per use and never retained until expiry.
+    const serviceCredential = secret()
     if (
       (
         await psql(
@@ -347,6 +367,7 @@ export async function nativeServices({
       state,
       ports,
       token,
+      serviceCredential,
       psql,
       launch,
       children,

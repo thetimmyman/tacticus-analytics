@@ -56,6 +56,8 @@ if (!configPath) {
   ])
   console.log('\n== Gate (c): setup interruption / resume recovery ==')
   run('c-setup-recovery', 'apps/desktop/proof/setup-recovery.mjs', [configPath])
+  console.log('\n== Runtime token expiry and active-session shutdown ==')
+  run('c-lifecycle', 'apps/desktop/proof/lifecycle-journey.mjs', [configPath])
 }
 
 console.log('\n== Summary ==')

@@ -40,6 +40,19 @@ async function withGateway(t, run) {
   await run({ gateway, transportKey })
 }
 
+test('non-hex transport headers are denied without stopping the gateway', async (t) => {
+  await withGateway(t, async ({ gateway, transportKey }) => {
+    const malformed = await fetch(gateway.origin, {
+      headers: { 'x-desktop-transport': 'é'.repeat(64) }
+    })
+    assert.equal(malformed.status, 403)
+    const healthy = await fetch(gateway.origin, {
+      headers: { 'x-desktop-transport': transportKey }
+    })
+    assert.equal(healthy.status, 200)
+  })
+})
+
 test('loopback gateway binds only to 127.0.0.1, not 0.0.0.0 or ::', async (t) => {
   await withGateway(t, async ({ gateway }) => {
     const url = new URL(gateway.origin)

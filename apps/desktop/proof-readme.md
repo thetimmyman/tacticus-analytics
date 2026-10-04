@@ -68,6 +68,22 @@ This separation leaves an end-user launcher and installation test outstanding.
 
 ## Observed scope
 
+The offline wrapper brings loopback up before entering a nested, non-root user
+namespace. PostgreSQL fast shutdown cancels active clients and checkpoints rather
+than waiting for smart shutdown until the kill timeout. Signal handlers remain
+installed during cleanup so a second termination request cannot interrupt it.
+`lifecycle-journey.mjs` uses real native Auth/PostgREST with one-second coordinator
+JWTs: expired JWTs are rejected, guarded requests receive freshly signed tokens,
+and anonymous callers cannot obtain service authority. It also checks active-SQL
+shutdown and repeated coordinator termination followed by persisted restart.
+
+The server receives a per-process private credential that the guarded gateway
+exchanges for a current service JWT. Neither that credential nor the signing key
+is exposed to the renderer. Native user session expiry and password recovery are
+separate from these coordinator-token controls. Uncatchable coordinator death
+still leaves activation fail-closed on the existing lock; automatic stale-lock
+recovery is not established by these graceful-shutdown tests.
+
 The real historical-performance API and hydrated player-performance page use
 native Auth/PostgREST/PostgreSQL and a persisted eight-row synthetic fixture.
 Expected scores are +58.33% versus guild and +26.67% versus cluster, with four
