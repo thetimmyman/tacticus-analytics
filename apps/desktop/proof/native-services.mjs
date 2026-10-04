@@ -23,11 +23,12 @@ async function freePort() {
   await new Promise((accept) => server.close(accept))
   return port
 }
-async function run(file, args, options) {
+async function run(file, args, options, observe) {
   const child = spawn(file, args, {
     ...options,
     stdio: ['ignore', 'pipe', 'pipe']
   })
+  observe?.(child)
   let stdout = '',
     stderr = ''
   child.stdout.on('data', (v) => {
@@ -87,6 +88,7 @@ export async function nativeServices({
     }
   }
   const children = []
+  const utilities = new Set()
   const { unlink } = await import('node:fs/promises')
   const onInterrupt = () => {
     void stop().finally(() => process.exit(130))
@@ -96,11 +98,18 @@ export async function nativeServices({
   let stopping = false
   let stopPromise
   let fault
+  const managedRun = (file, args, options) => {
+    if (stopping) throw new Error('Local services are stopping')
+    return run(file, args, options, (child) => {
+      utilities.add(child)
+      child.once('close', () => utilities.delete(child))
+    })
+  }
   const stop = () => {
     if (stopPromise) return stopPromise
     stopping = true
     stopPromise = (async () => {
-      for (const child of [...children].reverse()) {
+      for (const child of [...children].reverse().concat([...utilities])) {
         if (child.exitCode !== null || child.signalCode !== null) continue
         const exited = new Promise((accept) => child.once('exit', accept))
         // PostgreSQL fast shutdown cancels open sessions and checkpoints WAL.
@@ -159,7 +168,7 @@ export async function nativeServices({
       const path = join(state, `command-${randomUUID()}.sql`)
       await writeFile(path, sql, { mode: 0o600 })
       try {
-        return await run(
+        return await managedRun(
           binaries.psql,
           [
             '-X',
@@ -184,6 +193,7 @@ export async function nativeServices({
       }
     }
     const launch = (file, args, env, cwd = state, ephemeral = false) => {
+      if (stopping) throw new Error('Local services are stopping')
       const log = createWriteStream(join(state, `${children.length}.log`), {
         mode: 0o600,
         flags: 'a'
@@ -213,7 +223,7 @@ export async function nativeServices({
       if (error.code !== 'ENOENT') throw error
       const pass = join(state, 'owner-password')
       await writeFile(pass, credentials.owner, { mode: 0o600 })
-      await run(
+      await managedRun(
         binaries.initdb,
         [
           '-D',
@@ -313,7 +323,7 @@ export async function nativeServices({
       GOTRUE_MAILER_AUTOCONFIRM: 'true',
       GOTRUE_LOG_LEVEL: 'warn'
     }
-    await run(binaries.auth, ['migrate'], {
+    await managedRun(binaries.auth, ['migrate'], {
       env: authEnv,
       cwd: binaries.authCwd
     })
