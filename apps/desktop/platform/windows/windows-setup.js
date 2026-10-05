@@ -9,15 +9,34 @@ async function refresh(value) {
 }
 for (const [id, operation] of [
   ['connect', 'connect-official'],
-  ['skip', 'skip-optional']
+  ['skip', 'skip-optional'],
+  ['guild', 'connect-official'],
+  ['raid', 'connect-official'],
+  ['reuse', 'connect-official'],
+  ['disconnect', 'disconnect/player'],
+  ['export', 'export-personal'],
+  ['import', 'import-personal']
 ]) {
   document.querySelector(`#${id}`).addEventListener('click', async () => {
     status.textContent = 'Opening secure native input…'
     try {
-      const response = await fetch(`/desktop/${operation}`, { method: 'POST' })
+      const body =
+        id === 'guild'
+          ? { requested: ['Guild'] }
+          : id === 'raid'
+            ? { requested: ['Guild', 'Guild Raid'] }
+            : id === 'reuse'
+              ? { reuse: true }
+              : {}
+      const response = await fetch(`/desktop/${operation}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body)
+      })
       const value = await response.json()
       if (!response.ok) throw new Error(value.error)
-      await refresh(value)
+      if (value.exported) status.textContent = `Exported ${value.filename}`
+      else await refresh(value)
     } catch (error) {
       status.textContent = error.message
     }

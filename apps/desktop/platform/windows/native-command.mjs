@@ -10,16 +10,19 @@ const allowed = new Set([
   'read-official',
   'remove-official',
   'service-material',
-  'confirm-player'
+  'confirm-player',
+  'export-personal',
+  'import-personal'
 ])
 // Supervisor-only pipe. Keys never cross this interface; official reads return bounded responses.
-export async function nativeCommand(args) {
+export async function nativeCommand(args, input) {
   if (!allowed.has(args[0]) || args.length > 3)
     throw new Error('Unsupported native operation')
   const child = spawn(resolve(executable), args, {
     windowsHide: true,
-    stdio: ['ignore', 'pipe', 'pipe']
+    stdio: [input ? 'pipe' : 'ignore', 'pipe', 'pipe']
   })
+  if (input) child.stdin.end(input)
   const chunks = []
   let size = 0
   child.stdout.on('data', (chunk) => {

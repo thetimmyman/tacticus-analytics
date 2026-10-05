@@ -28,6 +28,7 @@ jobs:
           $out = Join-Path $env:RUNNER_TEMP 'native-host'
           dotnet publish apps/desktop/platform/windows/native/WindowsHost.csproj -c Release -r win-x64 --self-contained true -p:DebugType=None -p:DebugSymbols=false -o $out
           if ($LASTEXITCODE -ne 0) { throw 'Native host compilation failed' }
+          $env:TACTICUS_BUILD_SHA = git rev-parse HEAD
           & "$out/TacticusDesktop.exe" native-proof "$env:RUNNER_TEMP/native-evidence.json"
           if ($LASTEXITCODE -ne 0) { throw 'Native Windows adversarial proof failed' }
           Get-Content "$env:RUNNER_TEMP/native-evidence.json"

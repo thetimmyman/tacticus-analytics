@@ -20,6 +20,8 @@ Local PostgreSQL/Auth/REST service material is stored in a distinct Credential M
 
 Development builds require Node 22, .NET SDK 10.0.401 and Go 1.27.0. They are build inputs, not end-user prerequisites. The published native host includes the .NET runtime in a single executable. Runtime staging bundles Node 22.23.2, Electron 44.5.1, PostgreSQL 18.6, PostgREST 16.4 and Auth 2.197.0. Archive digests and the exact Auth source commit are pinned in `build-runtime.ps1`; Auth has no upstream Windows release binary and must successfully build from that source. Go module verification runs before compiling it.
 
+The unmodified Auth release fails Windows compilation because its HTTP listener unconditionally calls Unix `SO_REUSEPORT`. The small owned `auth-windows.patch` adapts only that source copy to Windows `SO_EXCLUSIVEADDRUSE`, retaining the service and migrations and avoiding Windows address reuse. The derived version is labeled `2.197.0+windows.1`; it is not an upstream Windows release. [Microsoft socket options](https://learn.microsoft.com/en-us/windows/win32/winsock/using-so-reuseaddr-and-so-exclusiveaddruse) explain the exclusive binding choice.
+
 ```powershell
 npm ci --no-audit --no-fund
 npm run build

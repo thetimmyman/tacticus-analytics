@@ -6,6 +6,7 @@ namespace Desktop.Windows;
 
 internal static class Program
 {
+    [STAThread]
     public static async Task<int> Main(string[] args)
     {
         try
@@ -45,6 +46,14 @@ internal static class Program
                 case "remove-official" when args.Length == 2: Vault.RemoveOfficial(args[1]); return 0;
                 case "service-material" when args.Length == 2:
                     Console.WriteLine(Vault.ServiceMaterial(args[1])); return 0;
+                case "export-personal" when args.Length == 1:
+                {
+                    var buffer = new char[4 * 1024 * 1024 + 1]; int size = 0, count;
+                    while (size < buffer.Length && (count = Console.In.Read(buffer, size, buffer.Length - size)) != 0) size += count;
+                    if (size == buffer.Length) throw new InvalidOperationException("Projection size limit");
+                    Console.WriteLine(LocalFiles.Export(new string(buffer, 0, size))); return 0;
+                }
+                case "import-personal" when args.Length == 1: Console.WriteLine(LocalFiles.Import()); return 0;
                 case "native-proof" when args.Length == 2: await NativeProof.Run(args[1]); return 0;
                 case "proof-descendant" when args.Length == 2:
                 {
@@ -141,6 +150,9 @@ internal static class NativeProof
             if (!bad || Bundle.Active(install, false) != first) throw new InvalidOperationException("Failed update changed activation");
             assertions.Add("staged-update-substitution-rejection-and-rollback");
             File.WriteAllText(evidencePath, JsonSerializer.Serialize(new { schemaVersion = 1, platform = "win-x64", os = Environment.OSVersion.VersionString,
+                sourceSha = Environment.GetEnvironmentVariable("TACTICUS_BUILD_SHA"),
+                artifactSha256 = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Environment.ProcessPath!))).ToLowerInvariant(),
+                artifactBytes = new FileInfo(Environment.ProcessPath!).Length,
                 runtime = Environment.Version.ToString(), native = true, candidateOnly = true, consumerStandardUser = false,
                 elapsedMs = timer.ElapsedMilliseconds, assertions }, new JsonSerializerOptions { WriteIndented = true }));
         }

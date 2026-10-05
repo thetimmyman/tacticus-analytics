@@ -18,7 +18,10 @@ export function windowsOnboarding(stateRoot, command = nativeCommand) {
       },
       write(value) {
         const temporary = `${path}.${randomUUID()}.tmp`
-        writeFileSync(temporary, JSON.stringify(value), { flag: 'wx' })
+        writeFileSync(temporary, JSON.stringify(value), {
+          flag: 'wx',
+          flush: true
+        })
         renameSync(temporary, path)
       }
     },

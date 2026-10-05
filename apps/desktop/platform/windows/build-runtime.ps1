@@ -25,12 +25,17 @@ $auth = Join-Path $work 'auth'
 New-Item -ItemType Directory -Path $auth | Out-Null
 Push-Location $authSource
 try {
+  # The reviewed Windows-only source adaptation requests exclusive binding, never Windows SO_REUSEADDR.
+  git apply --check (Join-Path $PSScriptRoot 'auth-windows.patch')
+  if ($LASTEXITCODE -ne 0) { throw 'Pinned Auth socket adaptation no longer applies' }
+  git apply (Join-Path $PSScriptRoot 'auth-windows.patch')
+  if ($LASTEXITCODE -ne 0) { throw 'Auth socket adaptation failed' }
   $env:CGO_ENABLED = '0'; $env:GOOS = 'windows'; $env:GOARCH = 'amd64'
   go mod download
   if ($LASTEXITCODE -ne 0) { throw 'Auth dependency download failed' }
   go mod verify
   if ($LASTEXITCODE -ne 0) { throw 'Auth dependency verification failed' }
-  go build -trimpath -buildvcs=false -ldflags '-X github.com/supabase/auth/internal/utilities.Version=v2.197.0' -o (Join-Path $auth 'auth.exe') .
+  go build -trimpath -buildvcs=false -ldflags '-X github.com/supabase/auth/internal/utilities.Version=v2.197.0+windows.1' -o (Join-Path $auth 'auth.exe') .
   if ($LASTEXITCODE -ne 0) { throw 'Pinned Auth source does not build natively for Windows' }
   Copy-Item -Recurse 'migrations' $auth
   Copy-Item 'LICENSE' $auth

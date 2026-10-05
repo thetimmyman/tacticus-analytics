@@ -97,6 +97,7 @@ internal static class Vault
             RejectEcho(body, secret, bytes);
             using var json = JsonDocument.Parse(body);
             if (json.RootElement.ValueKind != JsonValueKind.Object) throw new InvalidOperationException("Official response unavailable");
+            RejectJsonEcho(json.RootElement, secret, bytes);
             return body;
         }
         finally { CryptographicOperations.ZeroMemory(bytes); }
@@ -106,6 +107,17 @@ internal static class Vault
         foreach (var value in new[] { secret, Convert.ToBase64String(bytes), Convert.ToHexString(bytes),
                      Convert.ToHexString(bytes).ToLowerInvariant(), Uri.EscapeDataString(secret) })
             if (body.Contains(value, StringComparison.Ordinal)) throw new InvalidOperationException("Unsafe official response");
+    }
+    private static void RejectJsonEcho(JsonElement element, string secret, byte[] bytes)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.String: RejectEcho(element.GetString() ?? "", secret, bytes); break;
+            case JsonValueKind.Array:
+                foreach (var item in element.EnumerateArray()) RejectJsonEcho(item, secret, bytes); break;
+            case JsonValueKind.Object:
+                foreach (var property in element.EnumerateObject()) { RejectEcho(property.Name, secret, bytes); RejectJsonEcho(property.Value, secret, bytes); } break;
+        }
     }
     public static string ServiceMaterial(string state)
     {

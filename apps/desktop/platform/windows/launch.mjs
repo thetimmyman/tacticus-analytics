@@ -14,10 +14,10 @@ const root = resolve(here, '../../../..')
 const args = process.argv.slice(2)
 const option = (name) =>
   args.includes(name) ? args[args.indexOf(name) + 1] : undefined
-const state = resolve(
-  option('--state') ||
-    join(process.env.LOCALAPPDATA, 'TacticusDesktopPreview', 'workspace')
-)
+const stateArgument = option('--state')
+if (!stateArgument)
+  throw new Error('Native workspace owner must supply its protected state path')
+const state = resolve(stateArgument)
 const services = await nativeServices({
   state,
   schemaDirectory: join(root, 'apps/desktop/local-schema'),
