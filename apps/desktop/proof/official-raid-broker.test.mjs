@@ -2,6 +2,7 @@ import { test } from 'node:test'
 import { strict as assert } from 'node:assert'
 import { randomUUID } from 'node:crypto'
 import { OfficialRaidBroker } from '../launcher/official-raid-broker.mjs'
+import { syntheticRosterUnit } from './synthetic-roster.mjs'
 
 const denied = {
   code: 'EBROKER',
@@ -68,7 +69,7 @@ const fixture = () => {
     assert.equal(options.headers['X-API-KEY'], secret)
     let response = url.endsWith('/player')
       ? {
-          player: { details: { name: 'Synthetic Player' } },
+          player: state.player ?? { details: { name: 'Synthetic Player' } },
           metaData: {
             scopes: ['Player', 'Guild', 'Guild Raid'],
             apiKeyExpiresOn: state.expiry
@@ -88,6 +89,56 @@ const fixture = () => {
   })
   return { state, broker, secret, row }
 }
+test('own roster is projected through fixed player/guild reads without saved payload or ownership claim', async () => {
+  const f = fixture()
+  f.state.player = {
+    details: { name: 'Synthetic Roster', powerLevel: 1000 },
+    units: [syntheticRosterUnit()],
+    inventory: { unused: true },
+    userId: 'synthetic-unverified'
+  }
+  await f.broker.connect(f.secret)
+  const result = await f.broker.currentRoster()
+  assert.equal(result.units[0].xpLevel, 40)
+  assert.equal(result.guildCode, 'SYN001')
+  assert(!JSON.stringify(result).includes(f.secret))
+  assert(!JSON.stringify(result).includes('synthetic-unverified'))
+  assert(
+    f.state.calls.every(
+      (call) => call.url.endsWith('/player') || call.url.endsWith('/guild')
+    )
+  )
+  assert(!('roster' in f.broker.savedConnection()))
+  const reads = f.state.reads
+  await assert.rejects(
+    f.broker.currentRoster('https://example.invalid'),
+    denied
+  )
+  assert.equal(f.state.reads, reads)
+  f.state.grant = null
+  await assert.rejects(f.broker.currentRoster(), denied)
+  assert.equal(f.state.reads, reads)
+  assert.equal(f.state.records.size, 0)
+})
+test('roster shape and secret echoes are refused without returning partial data', async () => {
+  for (const echoed of [false, true]) {
+    const f = fixture()
+    f.state.player = {
+      details: { name: 'Synthetic Roster', powerLevel: 1000 },
+      units: [syntheticRosterUnit()]
+    }
+    await f.broker.connect(f.secret)
+    if (echoed) f.state.player.inventory = { arbitrary: f.secret }
+    else
+      f.state.player.units.push({
+        ...syntheticRosterUnit(),
+        id: 'syntheticSecond',
+        xpLevel: 51
+      })
+    await assert.rejects(f.broker.currentRoster(), denied)
+    assert.equal(f.state.records.size, 1)
+  }
+})
 test('refusal and malformed keys cause no discovery, upstream or vault access', async () => {
   const f = fixture()
   f.state.grant = null

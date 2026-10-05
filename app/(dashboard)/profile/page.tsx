@@ -242,7 +242,9 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 <dd className="mt-1 text-xs sm:text-sm text-primary-wh40k">
                   {displayLabel}
                   <span className="ml-2 text-xs text-secondary-wh40k">
-                    (from game)
+                    {process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop'
+                      ? '(local label)'
+                      : '(from game)'}
                   </span>
                 </dd>
               </div>

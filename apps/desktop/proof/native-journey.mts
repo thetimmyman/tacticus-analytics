@@ -450,7 +450,7 @@ try {
             ?.title.includes('Access Denied')
         )
         assert.ok(page('/roster').includes('Native game connection'))
-        assert.ok(page('/roster').includes('Roster sync'))
+        assert.ok(page('/roster').includes('No saved roster yet'))
       }
       assert.deepEqual(
         observed.failures.filter(

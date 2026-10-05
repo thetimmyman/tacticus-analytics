@@ -21,8 +21,14 @@ export default async function RosterPage() {
   if (getRuntimeProfile() === 'desktop')
     return (
       <div>
-        <h1 className="text-3xl font-bold mb-8">My Roster</h1>
         <DesktopCredentialGuide />
+        <RosterClient
+          hasApiKey={true}
+          desktopMode={true}
+          playerName={profile.display_name || 'Commander'}
+          guildCode={profile.guild_code || undefined}
+          tacticusShareUrl={profile.tacticus_share_url || undefined}
+        />
       </div>
     )
 

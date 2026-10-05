@@ -9,8 +9,9 @@ export function DesktopCredentialGuide() {
         key.
       </p>
       <p className="mt-2 text-secondary-wh40k">
-        This preview supports manual current-raid sync. Roster sync and upstream
-        player ownership verification are still pending.
+        This preview supports manual current-raid and roster sync. Saved rosters
+        remain available offline after restart or key removal. Your local player
+        identity remains unverified.
       </p>
     </div>
   )

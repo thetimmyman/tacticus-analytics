@@ -31,6 +31,7 @@ run('a-loopback-gateway', '--test', [
   'apps/desktop/proof/job-scheduler.test.mjs',
   'apps/desktop/proof/credential-vault.test.mjs',
   'apps/desktop/proof/official-raid-broker.test.mjs',
+  'apps/desktop/proof/roster-validation.test.mjs',
   'apps/desktop/proof/saved-game-connection.test.mjs',
   'apps/desktop/proof/native-secret.test.mjs',
   'apps/desktop/proof/game-connection.test.mjs',
@@ -109,6 +110,10 @@ if (!configPath) {
   if (nativeConfig.application?.node && nativeConfig.application?.directory) {
     console.log('\n== Compiled local snapshot job / crash claim recovery ==')
     run('c-local-jobs', 'apps/desktop/proof/jobs-journey.mjs', [configPath])
+    console.log(
+      '\n== Native own roster / scoped cache / atomic replacement / restart =='
+    )
+    run('c-local-roster', 'apps/desktop/proof/roster-journey.mjs', [configPath])
     console.log('\n== Native local file import / atomic retries / restart ==')
     run('c-local-file-import', 'apps/desktop/proof/import-journey.mjs', [
       configPath

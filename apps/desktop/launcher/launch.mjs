@@ -91,6 +91,40 @@ try {
     transportKey,
     handleLocalRequest: workspaceSetup(services, here, {
       brokerToken,
+      normalizeRoster: async (contents, subject) => {
+        const response = await fetch(
+          `http://127.0.0.1:${applicationPort}/api/desktop/normalize-roster`,
+          {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json',
+              Authorization: `Bearer ${cronSecret}`,
+              'x-desktop-transport': transportKey
+            },
+            body: JSON.stringify({ contents, subject }),
+            signal: AbortSignal.timeout(20000)
+          }
+        )
+        if (!response.ok) throw new Error('Roster normalization failed')
+        const reader = response.body?.getReader()
+        if (!reader) throw new Error('Invalid roster result')
+        const chunks = []
+        let bytes = 0
+        try {
+          for (;;) {
+            const part = await reader.read()
+            if (part.done) break
+            bytes += part.value.byteLength
+            if (bytes > 4 * 1024 * 1024)
+              throw new Error('Invalid roster result')
+            chunks.push(part.value)
+          }
+        } finally {
+          await reader.cancel().catch(() => {})
+          reader.releaseLock()
+        }
+        return JSON.parse(Buffer.concat(chunks).toString('utf8'))
+      },
       normalize: async (contents, context) => {
         const response = await fetch(
           `http://127.0.0.1:${applicationPort}/api/desktop/normalize-raid-file`,

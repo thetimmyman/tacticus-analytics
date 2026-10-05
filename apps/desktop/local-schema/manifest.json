@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 6,
+  "schemaVersion": 7,
   "purpose": "Selected native desktop analytics, local snapshot jobs and local file imports; not the complete application schema",
   "sourceCommit": "5d41a8776f3e216c04dae14d1bfa09fd48ca730a",
   "objects": [
@@ -416,6 +416,18 @@
       "name": "player_meta_roles_set_updated_at",
       "canonicalStatementSha256": "2cbff332b3cebd7025c6de33878640355007a71e3cc4c76483c16d25dab1aeae",
       "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "player_roster",
+      "canonicalStatementSha256": "5bd7ac92cad47a47b2acfb3dd2a2a47976ef5507191f57e968b0dd44b3a15556",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "SEQUENCE",
+      "name": "player_roster_id_seq",
+      "canonicalStatementSha256": "d11ad54ca5a06095f9f42432c75c3d5ed7c734d35a00d20dc22ee17b985e5a39",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
     }
   ],
   "excluded": "Hosted triggers, schedulers, operational SQL, captured data and blanket grants are deliberately excluded. Local bootstrap supplies constraints, RLS and ownership separately. Cluster aggregate must use a scoped invoker view rather than an unscoped materialized-view grant.",
@@ -428,6 +440,7 @@
     "Local workspace recovery stores a digest only; code provisioning requires the current password and reset targets only the installation account.",
     "Empty file workspaces admit desktop_local_claim attestations without an upstream invitation. These represent local labels only, with automatic game sync disabled; they cannot establish upstream account ownership.",
     "A dedicated non-login non-bypass importer commits only the setup subject's guild and matching cluster, reads only raid conflict-key columns, and stores owner-scoped receipts. Caller roles cannot invoke the import primitive or inspect receipts.",
-    "Meta-team memberships retain canonical rows and timestamps, scoped reads, own self declarations and same-guild leader overrides; local clients cannot write automated reconciler records."
+    "Meta-team memberships retain canonical rows and timestamps, scoped reads, own self declarations and same-guild leader overrides; local clients cannot write automated reconciler records.",
+    "An own-key roster snapshot remains an explicit unverified local claim. A dedicated non-login non-bypass writer atomically commits its bounded cache, canonical mapped rows and local power; renderer roles cannot write cached payloads or invoke the primitive."
   ]
 }

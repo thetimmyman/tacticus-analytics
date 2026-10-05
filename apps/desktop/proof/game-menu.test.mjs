@@ -11,6 +11,7 @@ import {
 import { mkdtemp, readFile, readdir, stat, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { syntheticRosterUnit } from './synthetic-roster.mjs'
 const menuFactory = createRequire(import.meta.url)('../launcher/game-menu.cjs')
 const roots = []
 test('native menus refuse foreign, credentialed or non-setup coordinator destinations', async () => {
@@ -168,13 +169,20 @@ async function fixture(action) {
         f.imported = JSON.parse(body.contents)
         return Response.json({ entries: 1, inserted: 1, repeated: false })
       }
+      if (url.endsWith('/import-roster')) {
+        f.roster = JSON.parse(body.contents)
+        return Response.json({ units: 1, mapped: 1, unmapped: 0 })
+      }
       throw new Error('Unexpected local operation')
     }
     assert.equal(options.headers['X-API-KEY'], secret)
     if (f.expired) return Response.json({}, { status: 403 })
     if (url.endsWith('/player'))
       return Response.json({
-        player: { details: { name: 'Synthetic Player' } },
+        player: {
+          details: { name: 'Synthetic Player', powerLevel: 12345 },
+          units: [syntheticRosterUnit()]
+        },
         metaData: {
           scopes: ['Player', 'Guild', 'Guild Raid'],
           apiKeyExpiresOn: Math.floor(Date.now() / 1000) + 3600
@@ -228,6 +236,7 @@ async function fixture(action) {
     )
     for (const item of values) items.set(item.id, item)
     f.connect = () => items.get('game-connect').click()
+    f.rosterSync = () => items.get('game-roster').click()
     f.sync = () => items.get('game-sync').click()
     f.disconnect = () => items.get('game-disconnect').click()
     f.app = app
@@ -323,4 +332,21 @@ test('upstream invalidation removes the saved key and cannot forward another imp
     await assert.rejects(stat(join(f.state, 'official-raid-connection.json')), {
       code: 'ENOENT'
     })
+  }))
+
+test('explicit native roster action projects own units without sending root credentials to the local coordinator', async () =>
+  fixture(async (f) => {
+    await f.connect()
+    await f.rosterSync()
+    assert.equal(f.roster.format, 'ta-official-roster-v1')
+    assert.equal(f.roster.guildCode, 'SYN001')
+    assert.equal(f.roster.units[0].xpLevel, 40)
+    assert.equal(f.roster.powerLevel, 12345)
+    assert(
+      !JSON.stringify(
+        f.calls.filter((c) => c.url.startsWith('http:'))
+      ).includes(f.secret)
+    )
+    assert(!JSON.stringify(f.messages).includes(f.secret))
+    await f.disconnect()
   }))

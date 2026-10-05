@@ -32,7 +32,8 @@ async function captureCorePages(window, origin) {
   assert.ok(page('/boss').text.includes('AVERAGE DAMAGE\n100'))
   assert.ok(page('/token-usage').title.includes('Access Denied'))
   assert.ok(page('/roster').text.includes('Native game connection'))
-  assert.ok(page('/roster').text.includes('Roster sync'))
+  assert.ok(page('/roster').text.includes('No saved roster yet'))
+  assert.ok(page('/roster').text.includes('Sync my roster'))
   for (const path of [
     '/api-keys',
     '/profile#api-key',

@@ -3,6 +3,7 @@
   "protectedFiles": [
     "app/api/desktop/jobs/route.ts",
     "app/api/desktop/normalize-raid-file/route.ts",
+    "app/api/desktop/normalize-roster/route.ts",
     "app/api/discord-webhooks/event-notification/route.ts",
     "app/api/sync/worker/route.ts",
     "app/api/worker/batch/route.ts",

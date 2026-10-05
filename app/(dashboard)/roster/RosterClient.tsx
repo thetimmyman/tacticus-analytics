@@ -32,6 +32,7 @@ import { RosterUnitsView } from './components/RosterUnitsView'
 import { MemberName } from '@/app/components/ui/MemberName'
 
 interface RosterClientProps {
+  desktopMode?: boolean
   hasApiKey: boolean
   playerName: string
   guildCode?: string
@@ -49,6 +50,7 @@ function safeExternalHttpUrl(value: string | undefined): string {
 }
 
 export default function RosterClient({
+  desktopMode = false,
   hasApiKey,
   playerName,
   guildCode,
@@ -59,6 +61,8 @@ export default function RosterClient({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [errorCode, setErrorCode] = useState<string | null>(null)
+  const [noCache, setNoCache] = useState(false)
+  const [cachedAt, setCachedAt] = useState<string | null>(null)
 
   const heroMappings = useHeroMappings()
   const rf = useRosterFilters(units, heroMappings)
@@ -94,6 +98,13 @@ export default function RosterClient({
         setErrorCode(data.code || null)
         return
       }
+      setNoCache(desktopMode && data.cachePresent === false)
+      setCachedAt(
+        typeof data.cachedAt === 'string' &&
+          Number.isFinite(Date.parse(data.cachedAt))
+          ? data.cachedAt
+          : null
+      )
 
       const mergedUnits = mergeRosterUnits(
         Array.isArray(data.units) ? data.units : [],
@@ -108,12 +119,12 @@ export default function RosterClient({
   }
 
   useEffect(() => {
-    if (hasApiKey) {
+    if (hasApiKey || desktopMode) {
       fetchRoster()
     } else {
       setLoading(false)
     }
-  }, [hasApiKey])
+  }, [hasApiKey, desktopMode])
 
   const handleSaveUrl = async () => {
     if (!userId) return
@@ -168,7 +179,7 @@ export default function RosterClient({
     )
   }, [rf.filteredAndSortedUnits, currentPage, pageSize, heroMappings])
 
-  if (!hasApiKey) {
+  if (!hasApiKey && !desktopMode) {
     return (
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-8 text-primary-wh40k">
@@ -214,6 +225,20 @@ export default function RosterClient({
     )
   }
 
+  if (desktopMode && noCache && !loading && !error)
+    return (
+      <div className="card-wh40k p-6 mt-6">
+        <h1 className="text-3xl font-bold mb-4">My Roster</h1>
+        <p>
+          No saved roster yet. Use File → Game connection → Sync my roster, then
+          refresh this page.
+        </p>
+        <Button onClick={fetchRoster} className="mt-4">
+          Refresh cached roster
+        </Button>
+      </div>
+    )
+
   if (error) {
     return (
       <div className="max-w-4xl mx-auto">
@@ -230,7 +255,7 @@ export default function RosterClient({
             Failed to Load Roster
           </h2>
           <p className="text-secondary-wh40k mb-2">{error}</p>
-          {errorCode === 'NO_API_KEY' && (
+          {!desktopMode && errorCode === 'NO_API_KEY' && (
             <Link href="/profile/edit" className="inline-block mt-4">
               <Button>
                 <Key className="h-4 w-4 mr-2" />
@@ -238,7 +263,7 @@ export default function RosterClient({
               </Button>
             </Link>
           )}
-          {errorCode !== 'NO_API_KEY' && (
+          {(desktopMode || errorCode !== 'NO_API_KEY') && (
             <Button onClick={fetchRoster} className="mt-4">
               <RefreshCw className="h-4 w-4 mr-2" />
               Try Again
@@ -256,6 +281,18 @@ export default function RosterClient({
           <h1 className="text-2xl sm:text-3xl font-bold text-primary-wh40k">
             My Roster
           </h1>
+          {desktopMode && cachedAt && (
+            <p className="text-sm text-secondary-wh40k">
+              Saved for offline use:{' '}
+              <time dateTime={cachedAt}>
+                {new Date(cachedAt)
+                  .toISOString()
+                  .replace('T', ' ')
+                  .replace('.000Z', ' UTC')}
+              </time>
+              . Local player identity remains unverified.
+            </p>
+          )}
           <p className="text-sm text-secondary-wh40k">
             <MemberName value={playerName} />
             &apos;s character collection
@@ -328,7 +365,7 @@ export default function RosterClient({
           )}
           <Button onClick={fetchRoster} variant="outline" size="sm">
             <RefreshCw className="h-4 w-4 mr-1.5" />
-            Refresh
+            {desktopMode ? 'Refresh cached roster' : 'Refresh'}
           </Button>
         </div>
       </div>

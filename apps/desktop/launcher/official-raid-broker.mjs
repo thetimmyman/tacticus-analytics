@@ -1,4 +1,5 @@
 import { parseRaidFile, RAID_FILE_MAX_BYTES } from './raid-file-validation.mjs'
+import { projectOfficialRoster } from './roster-validation.mjs'
 
 const upstream = 'https://api.tacticusgame.com'
 const failure = () =>
@@ -135,7 +136,7 @@ export class OfficialRaidBroker {
       this.#requests.delete(controller)
     }
   }
-  async #binding(secret, binding, generation) {
+  async #binding(secret, binding, generation, includeRoster = false) {
     const player = await this.#read(
       '/api/v1/player',
       secret,
@@ -188,7 +189,11 @@ export class OfficialRaidBroker {
     if (binding.guildId !== undefined && guild.guildId !== binding.guildId)
       throw revoked()
     this.#check(checked, generation)
-    return { ...checked, guildId: guild.guildId }
+    return {
+      ...checked,
+      guildId: guild.guildId,
+      ...(includeRoster ? { roster: projectOfficialRoster(player.player) } : {})
+    }
   }
   async connect(secret, ...arguments_) {
     if (arguments_.length || this.#busy || this.#active) throw failure()
@@ -329,6 +334,40 @@ export class OfficialRaidBroker {
             this.#check(checked, generation)
             this.#active = { ...checked, handle: binding.handle }
             return { contents }
+          } catch (error) {
+            shouldRevoke = error.revoke === true
+            throw error
+          }
+        }
+      )
+    } catch (error) {
+      if (shouldRevoke || error.revoke === true) await this.disconnect()
+      throw failure()
+    } finally {
+      this.#busy = false
+    }
+  }
+  async currentRoster(...arguments_) {
+    if (arguments_.length || this.#busy || !this.#active) throw failure()
+    this.#busy = true
+    const binding = this.#active,
+      generation = this.#generation
+    let shouldRevoke = false
+    try {
+      this.#check(binding, generation)
+      return await this.#vault.withCredential(
+        binding.handle,
+        async (secret) => {
+          try {
+            const { roster, ...checked } = await this.#binding(
+              secret,
+              binding,
+              generation,
+              true
+            )
+            this.#check(checked, generation)
+            this.#active = { ...checked, handle: binding.handle }
+            return { ...roster, guildCode: checked.guildCode }
           } catch (error) {
             shouldRevoke = error.revoke === true
             throw error

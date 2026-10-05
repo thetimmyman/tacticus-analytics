@@ -37,7 +37,8 @@ module.exports = async function gameMenu(window, config, dependencies = {}) {
   const operations = new Set([
     '/desktop/broker-context',
     '/desktop/broker-status',
-    '/desktop/import'
+    '/desktop/import',
+    '/desktop/import-roster'
   ])
   // An ephemeral main-only partition carries local capabilities. Its requests
   // have no renderer cookies and cannot reach another origin or operation.
@@ -125,9 +126,11 @@ module.exports = async function gameMenu(window, config, dependencies = {}) {
     const connected = broker.status().connected
     const connect = menu?.getMenuItemById('game-connect'),
       sync = menu?.getMenuItemById('game-sync'),
+      roster = menu?.getMenuItemById('game-roster'),
       disconnect = menu?.getMenuItemById('game-disconnect')
     if (connect) connect.enabled = !pending && !connected
     if (sync) sync.enabled = !pending && connected
+    if (roster) roster.enabled = !pending && connected
     if (disconnect) disconnect.enabled = true
   }
   const context = async () => {
@@ -168,7 +171,7 @@ module.exports = async function gameMenu(window, config, dependencies = {}) {
             type: 'error',
             buttons: ['Close'],
             message:
-              'The game operation could not complete. Check your workspace password, guild tag, key scopes and secure OS storage. Existing raid data was preserved.'
+              'The game operation could not complete. Check your workspace password, guild tag, key scopes and secure OS storage. Existing local data was preserved.'
           })
       } finally {
         if (!closing) await publish().catch(() => {})
@@ -219,7 +222,7 @@ module.exports = async function gameMenu(window, config, dependencies = {}) {
         type: 'info',
         buttons: ['Close'],
         message:
-          'Official API connected for this guild. Use File → Game connection → Sync current raids. Players without a local name use a pseudonymous label; this connection does not verify ownership of your local player ID.'
+          'Official API connected for this guild. Use File → Game connection to sync current raids or your roster. Players without a local name use a pseudonymous label; this connection does not verify ownership of your local player ID.'
       })
     })
   const sync = () =>
@@ -281,6 +284,53 @@ module.exports = async function gameMenu(window, config, dependencies = {}) {
         confirmed.password = ''
       }
     })
+  const syncRoster = () =>
+    run(async () => {
+      const choice = await dialog.showMessageBox(window, {
+        type: 'question',
+        title: 'Save my roster locally',
+        message:
+          'Save the roster from your own API key in this workspace. The API does not provide your player UID, so this remains an unverified local claim. The cached roster remains available offline after restart or key removal.',
+        buttons: ['Cancel', 'Save my roster'],
+        defaultId: 0,
+        cancelId: 0
+      })
+      if (choice.response !== 1 || controller.signal.aborted) return
+      const confirmed = await context()
+      try {
+        if (
+          !grant ||
+          confirmed.context.installation !== grant.installation ||
+          confirmed.context.guildCode !== grant.guildCode
+        ) {
+          await broker.disconnect()
+          throw new Error('Workspace changed')
+        }
+        const roster = await broker.currentRoster()
+        const result = await request('/desktop/import-roster', {
+          password: confirmed.password,
+          contents: JSON.stringify({
+            format: 'ta-official-roster-v1',
+            ...roster
+          })
+        })
+        if (
+          ![result.units, result.mapped, result.unmapped].every(
+            (value) => Number.isInteger(value) && value >= 0 && value <= 1152
+          ) ||
+          result.units !== result.mapped + result.unmapped
+        )
+          throw new Error('Invalid roster result')
+        await saveGameConnection(config.state, broker.savedConnection())
+        await dialog.showMessageBox(window, {
+          type: 'info',
+          buttons: ['Close'],
+          message: `Saved ${result.units} roster units for offline use. ${result.mapped} units match the local catalogue; ${result.unmapped} remain visible in the cached roster without a catalogue mapping. Refresh My Roster to view them.`
+        })
+      } finally {
+        confirmed.password = ''
+      }
+    })
   const disconnect = async () => {
     controller?.abort()
     grant = null
@@ -325,6 +375,12 @@ module.exports = async function gameMenu(window, config, dependencies = {}) {
       label: 'Sync current raids…',
       enabled: false,
       click: sync
+    },
+    {
+      id: 'game-roster',
+      label: 'Sync my roster…',
+      enabled: false,
+      click: syncRoster
     },
     {
       id: 'game-disconnect',

@@ -331,3 +331,30 @@ It runs when `desktop:proof` receives a compiled application configuration. Its
 backend evidence is separate from OS file selection and renderer acceptance. All
 fixtures are synthetic. Supported file import does not establish automatic game
 integration, compatibility with other export formats or complete feature parity.
+
+## Manual own-roster sync and offline cache
+
+After connecting an official key, File → Game connection → Sync my roster asks
+for explicit permission and the current workspace password. The main-process
+broker reads only its fixed official player/guild endpoints and projects the
+published roster fields. Inventory, progress, upstream user identifiers, arbitrary
+metadata and root credentials do not enter the local cache. Validation checks the
+complete roster before canonical normalization or database writes.
+
+The scoped transaction updates the user's canonical `player_roster`, current
+player power and owner-readable `desktop_roster_snapshots` together. Repeating a
+sync retains mapped row IDs; replacement removes obsolete mapped units. Units
+without a catalogue mapping remain visible in the raw allowlisted cache. The
+Roster screen reads that cache locally, including after restart or key removal.
+Missing optional display metadata uses an explicit unknown label. The cache
+retains the unverified local identity provenance: official API player data does
+not establish ownership of the workspace's claimed player ID.
+
+`roster-journey.mjs` exercises the compiled normalizer, native Auth/PostgREST and
+PostgreSQL transaction. It checks native capability/password/guild refusal,
+malformed later rows, forged mappings, foreign subjects, write denial for renderer
+and service roles, scoped reads, stable IDs, replacement and persisted restart.
+It also checks the authenticated cache API with no hosted key. These synthetic
+backend checks remain separate from installed GUI, OS-vault, live-account and
+cross-platform acceptance. Sync is manual; this preview does not discover a game
+client, automatically retrieve credentials or claim complete feature parity.

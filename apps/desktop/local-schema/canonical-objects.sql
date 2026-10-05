@@ -4527,3 +4527,35 @@ BEGIN
   RETURN NEW;
 END;
 $$;
+
+CREATE TABLE public.player_roster (
+    id bigint NOT NULL,
+    user_id uuid,
+    hero_mapping_id integer,
+    rank_name text NOT NULL,
+    stars integer DEFAULT 0,
+    crit_item_id text,
+    crit_item_level integer,
+    booster_item_id text,
+    booster_item_level integer,
+    defensive_item_id text,
+    defensive_item_level integer,
+    synced_at timestamp with time zone DEFAULT now(),
+    rarity text,
+    xp integer,
+    xp_level integer,
+    progression_index integer,
+    shards integer,
+    mythic_shards integer,
+    active_ability_level integer,
+    passive_ability_level integer,
+    upgrades integer[],
+    player_mapping_id integer
+);
+
+CREATE SEQUENCE public.player_roster_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;

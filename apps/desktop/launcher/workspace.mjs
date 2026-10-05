@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { workspaceRecovery } from './recovery.mjs'
 import { workspaceRaidImport } from './raid-import.mjs'
 import { workspaceGameConnection } from './game-connection.mjs'
+import { workspaceRosterImport } from './roster-import.mjs'
 import { localIdentity, createLocalWorkspace } from './local-workspace.mjs'
 import {
   syntheticRaidFixture,
@@ -13,6 +14,7 @@ const email = 'desktop@localhost.invalid'
 export function workspaceSetup(services, assets, options = {}) {
   const raidImport = workspaceRaidImport(services, options)
   const gameConnection = workspaceGameConnection(services, options)
+  const rosterImport = workspaceRosterImport(services, options)
   const recovery = workspaceRecovery(services)
   let busy = false
   const initialized = async () =>
@@ -31,6 +33,7 @@ export function workspaceSetup(services, assets, options = {}) {
   return async (req, res, url) => {
     if (await gameConnection(req, res, url)) return true
     if (await recovery(req, res, url)) return true
+    if (await rosterImport(req, res, url)) return true
     if (await raidImport(req, res, url)) return true
     if (req.method === 'GET' && url.pathname === '/desktop/workspace-info') {
       const info = JSON.parse(
