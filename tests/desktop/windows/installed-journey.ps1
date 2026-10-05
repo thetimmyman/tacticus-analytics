@@ -1,7 +1,13 @@
 param([Parameter(Mandatory=$true)][string]$Bundle, [Parameter(Mandatory=$true)][string]$Evidence)
 $ErrorActionPreference = 'Stop'
-$install = Join-Path $env:RUNNER_TEMP 'installed Tacticus ü'
-$workspace = Join-Path $env:RUNNER_TEMP 'retained workspace ü'
+# The hosted scratch volume may disable filesystem short aliases. Exercise the
+# same per-user volume as ordinary installation without changing volume policy.
+# Native ownership still verifies the PostgreSQL alias and protects both roots.
+$qualificationProfile = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::LocalApplicationData)
+if ([string]::IsNullOrWhiteSpace($qualificationProfile)) { throw 'Current-user application directory unavailable' }
+$qualification = Join-Path $qualificationProfile ('Tacticus qualification ' + [guid]::NewGuid().ToString('N'))
+$install = Join-Path $qualification 'installed Tacticus ü'
+$workspace = Join-Path $qualification 'retained workspace ü'
 $verify = Join-Path $env:RUNNER_TEMP 'window-verification.json'
 $timer = [System.Diagnostics.Stopwatch]::StartNew()
 & "$Bundle/TacticusDesktop.exe" install-candidate $Bundle $install
@@ -13,13 +19,14 @@ $manifestDigest = (Get-FileHash "$installed/bundle-manifest.json" -Algorithm SHA
 # Keep a source/content-bound incomplete receipt if an actual runtime step fails.
 @{ schemaVersion = 1; sourceSha = $manifest.sourceSha; manifestSha256 = $manifestDigest;
    platform = 'win-x64'; artifactKind = 'installed-candidate'; candidateOnly = $true; standardConsumerUser = $false;
-   nativeInstalledArtifact = $true; completed = $false; os = [System.Environment]::OSVersion.VersionString;
+   nativeInstalledArtifact = $true; qualificationLocation = 'current-user-application-directory';
+   postgresFilesystemAlias = 'not-yet-verified'; completed = $false; os = [System.Environment]::OSVersion.VersionString;
    packageFiles = $manifest.files.Count; packageBytes = ($manifest.files | Measure-Object -Property size -Sum).Sum;
    officialApiKeysUsed = $false; featureParityClaim = $false; actualJourney = 'not completed' } |
   ConvertTo-Json -Depth 8 | Set-Content -Encoding utf8 $Evidence
 Get-Content $Evidence
 $journeys = @()
-$migrationWorkspace = Join-Path $env:RUNNER_TEMP 'former password workspace ü'
+$migrationWorkspace = Join-Path $qualification 'former password workspace ü'
 for ($iteration = 0; $iteration -lt 4; $iteration++) {
   $activeWorkspace = if ($iteration -lt 2) { $workspace } else { $migrationWorkspace }
   $scenario = @('fresh automatic setup','offline reopen','former password owner migration','migrated offline reopen')[$iteration]
@@ -40,7 +47,8 @@ if ($LASTEXITCODE -ne 0) { throw 'Installed database recovery qualification fail
 $recovery = Get-Content $recoveryPath | ConvertFrom-Json
 @{ schemaVersion = 1; sourceSha = $manifest.sourceSha; manifestSha256 = $manifestDigest;
    platform = 'win-x64'; artifactKind = 'installed-candidate'; candidateOnly = $true; standardConsumerUser = $false; nativeInstalledArtifact = $true;
-   completed = $true; os = [System.Environment]::OSVersion.VersionString;
+   completed = $true; qualificationLocation = 'current-user-application-directory';
+   postgresFilesystemAlias = 'verified-by-native-owner'; os = [System.Environment]::OSVersion.VersionString;
    packageFiles = $manifest.files.Count; packageBytes = ($manifest.files | Measure-Object -Property size -Sum).Sum; elapsedMs = $timer.ElapsedMilliseconds;
    journeys = $journeys; recovery = $recovery; officialApiKeysUsed = $false; featureParityClaim = $false; syntheticDemo = $true;
    remainingGates = @('owner-approved signing and release trust', 'standard-user consumer Windows install', 'full accepted feature inventory', 'official onboarding projection integration', 'migrated real API vault bindings', 'Unicode PostgreSQL on volumes without short aliases', 'rights and full notices review') } |
