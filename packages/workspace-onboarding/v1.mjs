@@ -51,6 +51,19 @@ function projectPlayer(response) {
   }
 }
 
+function rejectHistoricalCredentials(value) {
+  if (!value || typeof value !== 'object') return
+  for (const [key, nested] of Object.entries(value)) {
+    if (
+      /^(apiKey|api_key|credential|secret|sessionToken|authorization|headers|cookie)$/i.test(
+        key
+      )
+    )
+      throw new Error('Historical credentials require secure native migration')
+    rejectHistoricalCredentials(nested)
+  }
+}
+
 // Device supervisor only: vault owns native input and never returns a key to the renderer.
 export class WorkspaceOnboardingV1 {
   constructor({ vault, state, upstream, now = () => Date.now() }) {
@@ -234,6 +247,7 @@ export class WorkspaceOnboardingV1 {
     return this.view()
   }
   migrateHistorical(profile) {
+    rejectHistoricalCredentials(profile)
     if (this.state.read().personal)
       throw new Error('Workspace already initialized')
     this.state.write({

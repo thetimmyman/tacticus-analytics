@@ -179,3 +179,15 @@ test('Raid-only separate key has no independent guild binding and remains explic
   assert.equal(view.status, 'player-required')
   assert.equal(view.capabilities['Guild Raid'], 'guild-binding-unavailable')
 })
+
+test('historical imports reject nested credential fields without writing or deleting original data', () => {
+  const f = fixture()
+  assert.throws(
+    () =>
+      f.service.migrateHistorical({
+        personal: { roster: [{ apiKey: f.canary }] }
+      }),
+    /secure native migration/
+  )
+  assert.deepEqual(f.stored(), {})
+})
