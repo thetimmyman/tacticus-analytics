@@ -250,7 +250,11 @@ const packageBaseRules = {
 
 /** @type {import('eslint').Linter.Config[]} */
 const eslintConfig = [
-  ...nextCoreWebVitals,
+  ...nextCoreWebVitals.map((config) =>
+    config.name === 'next/typescript'
+      ? { ...config, files: [...(config.files || []), '**/*.mts', '**/*.cts'] }
+      : config
+  ),
   {
     plugins: {
       ...nextCoreWebVitals[0].plugins,
