@@ -46,6 +46,14 @@ try {
 $application = Join-Path $work 'application'
 node apps/desktop/proof/stage-standalone.mjs $application
 if ($LASTEXITCODE -ne 0) { throw 'Standalone application staging failed' }
+# Next's file tracing includes the Sharp .node module but omits its adjacent DLLs.
+# Preserve the full exact npm-ci package, including both libvips DLLs and licenses.
+$sharpSource = Join-Path $sourceRoot 'node_modules/@img/sharp-win32-x64'
+$sharpDestination = Join-Path $application 'node_modules/@img/sharp-win32-x64'
+if (-not (Test-Path -LiteralPath (Join-Path $sharpSource 'lib/libvips-42.dll')) -or
+    -not (Test-Path -LiteralPath (Join-Path $sharpSource 'lib/libvips-cpp-8.18.6.dll'))) { throw 'Locked Windows Sharp dependency payload unavailable' }
+New-Item -ItemType Directory -Path $sharpDestination -Force | Out-Null
+Copy-Item -Path (Join-Path $sharpSource '*') -Destination $sharpDestination -Recurse -Force
 $native = Join-Path $work 'native'
 dotnet publish apps/desktop/platform/windows/native/WindowsHost.csproj -c Release -r win-x64 --self-contained true -p:DebugType=None -p:DebugSymbols=false -p:ContinuousIntegrationBuild=true -o $native
 if ($LASTEXITCODE -ne 0) { throw 'Native host publish failed' }
