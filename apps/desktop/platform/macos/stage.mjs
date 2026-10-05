@@ -88,7 +88,11 @@ export async function stage(config) {
   await mkdir(join(contents, 'MacOS'), { recursive: true })
   await mkdir(runtime, { recursive: true })
   const copy = (from, to) =>
-    cp(from, join(runtime, to), { recursive: true, dereference: false })
+    cp(from, join(runtime, to), {
+      recursive: true,
+      dereference: false,
+      verbatimSymlinks: true
+    })
   await copy(config.application, 'application')
   await copy(config.postgres, 'postgres')
   await mkdir(join(runtime, 'bin'))

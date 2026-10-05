@@ -1,6 +1,14 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdir, mkdtemp, writeFile, symlink, rm } from 'node:fs/promises'
+import {
+  mkdir,
+  mkdtemp,
+  writeFile,
+  symlink,
+  rm,
+  cp,
+  readlink
+} from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import {
@@ -41,6 +49,51 @@ test('package cannot stage a guessed platform or missing source identity', async
     stage({ output: '/synthetic', architecture: 'arm64', sourceCommit: '' }),
     /Explicit source/
   )
+})
+
+test('staging and installation retain contained framework links after source removal', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'mac framework ü '))
+  try {
+    const inputs = join(root, 'inputs')
+    await mkdir(inputs)
+    const config = {
+      output: join(root, 'candidate.app'),
+      architecture: 'arm64',
+      sourceCommit: 'a'.repeat(40)
+    }
+    for (const key of ['application', 'postgres', 'electron', 'auth']) {
+      config[key] = join(inputs, key)
+      await mkdir(config[key])
+    }
+    for (const key of ['node', 'postgrest', 'guard', 'vault']) {
+      config[key] = join(inputs, key)
+      await writeFile(config[key], 'synthetic executable')
+    }
+    const versions = join(config.electron, 'Framework/Versions')
+    await mkdir(join(versions, 'A'), { recursive: true })
+    await writeFile(join(versions, 'A/binary'), 'synthetic framework')
+    await symlink('A', join(versions, 'Current'))
+    await stage(config)
+    const installed = join(root, 'installed.app')
+    await cp(config.output, installed, {
+      recursive: true,
+      verbatimSymlinks: true
+    })
+    await rm(inputs, { recursive: true })
+    await rm(config.output, { recursive: true })
+    assert.equal(
+      await readlink(
+        join(
+          installed,
+          'Contents/Resources/runtime/electron/Framework/Versions/Current'
+        )
+      ),
+      'A'
+    )
+    assert.ok((await inventory(installed)).some((entry) => entry.link === 'A'))
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
 })
 
 test('private projected state survives a new reader; unsafe replacements refuse activation', async () => {

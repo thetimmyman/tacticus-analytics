@@ -60,7 +60,8 @@ execFileSync(
 )
 try {
   await cp(join(mount, 'Tacticus Analytics Preview.app'), installed, {
-    recursive: true
+    recursive: true,
+    verbatimSymlinks: true
   })
 } finally {
   execFileSync('/usr/bin/hdiutil', ['detach', mount], { stdio: 'pipe' })

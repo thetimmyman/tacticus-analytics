@@ -138,7 +138,13 @@ test(
       )
       assert.equal(initialRead.response.value, value)
       command(['lock-keychain', keychain])
-      assert.equal((await invoke('read')).response.status, 'vault-locked')
+      const lockedRead = await invoke('read')
+      assert.equal(lockedRead.code, 1)
+      assert.equal(
+        lockedRead.response.status,
+        'vault-locked',
+        JSON.stringify(lockedRead.response)
+      )
       command(['unlock-keychain', '-p', password, keychain])
       assert.equal((await invoke('remove')).code, 0)
       assert.equal((await invoke('read')).response.status, 'credential-missing')

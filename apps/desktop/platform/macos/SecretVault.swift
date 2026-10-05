@@ -35,12 +35,14 @@ var query: [String: Any] = [
 query[kSecUseAuthenticationUI as String] = kSecUseAuthenticationUIFail
 let arguments = ProcessInfo.processInfo.arguments
 var fixtureAccess: SecAccess?
+var fixtureKeychain: SecKeychain?
 if arguments.contains("--synthetic-test"), let index = arguments.firstIndex(of: "--synthetic-keychain"), index + 1 < arguments.count {
     // Legacy test Keychain calls must not leave a hidden authorization dialog.
     // This setting applies to this fixture helper process, not the OS session.
     SecKeychainSetUserInteractionAllowed(false)
     var keychain: SecKeychain?
     guard SecKeychainOpen(arguments[index + 1], &keychain) == errSecSuccess, let keychain else { finish("vault-unavailable") }
+    fixtureKeychain = keychain
     query[kSecUseKeychain as String] = keychain
     query[kSecMatchSearchList as String] = [keychain]
     var trusted: SecTrustedApplication?
@@ -108,7 +110,17 @@ case "read":
     let status = SecItemCopyMatching(query as CFDictionary, &result)
     guard status == errSecSuccess, let bytes = result as? Data,
           let value = String(data: bytes, encoding: .utf8) else {
-        let state = status == errSecItemNotFound ? "credential-missing" : status == errSecInteractionNotAllowed ? "vault-locked" : "vault-unavailable"
+        // Classic fixture Keychains can report a different denial code from
+        // the production data protection Keychain. Classify that denial only
+        // after the native status confirms the fixture is actually locked.
+        var fixtureLocked = false
+        if let fixtureKeychain {
+            var nativeStatus: SecKeychainStatus = 0
+            if SecKeychainGetStatus(fixtureKeychain, &nativeStatus) == errSecSuccess {
+                fixtureLocked = nativeStatus & kSecUnlockStateStatus == 0
+            }
+        }
+        let state = fixtureLocked || status == errSecInteractionNotAllowed ? "vault-locked" : status == errSecItemNotFound ? "credential-missing" : "vault-unavailable"
         finish(state, errorCode: status)
     }
     finish("ok", value)
