@@ -7,6 +7,7 @@ import { randomUUID } from 'node:crypto'
 import { workspaceGate } from './session-gate.mjs'
 import { holdCredentialSurface } from './credential-surface.mjs'
 import { personalExport } from './export.mjs'
+import { personalImport } from './import.mjs'
 
 export function windowsSetup(services, assets, launcherAssets, session) {
   const ownerFile = join(services.state, 'workspace-owner.json')
@@ -37,6 +38,11 @@ export function windowsSetup(services, assets, launcherAssets, session) {
     native: nativeCommand,
     gate,
     view: () => onboarding.view()
+  })
+  const importPersonal = personalImport({
+    native: nativeCommand,
+    gate,
+    onboarding
   })
   let confirming = false
   return async (req, res, url) => {
@@ -218,9 +224,7 @@ export function windowsSetup(services, assets, launcherAssets, session) {
     }
     if (req.method === 'POST' && url.pathname === '/desktop/import-personal') {
       try {
-        const imported = await nativeCommand(['import-personal'])
-        gate.assertCurrent()
-        onboarding.migrateHistorical(imported)
+        await importPersonal()
         json(200, onboarding.view())
       } catch (error) {
         if (error.code === 'ESESSION') throw error

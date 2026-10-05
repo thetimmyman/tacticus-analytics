@@ -15,13 +15,20 @@ const endpoints = Object.freeze({
 function projectPlayer(response) {
   const player = response.player,
     metadata = response.metaData
+  if (!metadata?.scopes?.includes('Player'))
+    throw new Error('Player response unavailable')
+  return projectCachedPlayer({ player, updatedOn: metadata.lastUpdatedOn })
+}
+
+// Pure offline projection. This does not establish a live scope or identity.
+export function projectCachedPlayer({ player, updatedOn }) {
   if (
     !player ||
-    !metadata ||
     !Array.isArray(player.units) ||
-    !metadata.scopes?.includes('Player') ||
     typeof player.details?.name !== 'string' ||
-    !Number.isSafeInteger(metadata.lastUpdatedOn)
+    !Number.isSafeInteger(updatedOn) ||
+    updatedOn < 0 ||
+    !Number.isSafeInteger(updatedOn * 1000)
   )
     throw new Error('Player response unavailable')
   const apiData = projectAPI(player, playerSchema.definitions.Player)
@@ -50,7 +57,7 @@ function projectPlayer(response) {
       guildRaidTokens: token(player.progress?.guildRaid?.tokens),
       bombTokens: token(player.progress?.guildRaid?.bombTokens)
     },
-    upstreamUpdatedAt: metadata.lastUpdatedOn * 1000,
+    upstreamUpdatedAt: updatedOn * 1000,
     apiData
   }
 }

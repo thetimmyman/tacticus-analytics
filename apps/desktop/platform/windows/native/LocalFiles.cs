@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Security.AccessControl;
 using System.Security.Principal;
+using Microsoft.Win32.SafeHandles;
 
 namespace Desktop.Windows;
 
@@ -20,7 +21,7 @@ internal static class LocalFiles
     internal static JsonDocument Validate(string value)
     {
         if (Encoding.UTF8.GetByteCount(value) > 4 * 1024 * 1024) throw new InvalidOperationException("Projection size limit");
-        var json = JsonDocument.Parse(value);
+        var json = JsonDocument.Parse(value, new JsonDocumentOptions { MaxDepth = 24 });
         try
         {
             if (json.RootElement.ValueKind != JsonValueKind.Object) throw new InvalidOperationException("Projection unavailable");
@@ -37,13 +38,14 @@ internal static class LocalFiles
         if (element.ValueKind != JsonValueKind.Object) return;
         foreach (var property in element.EnumerateObject())
         {
-            var key = property.Name.Replace("_", "").ToLowerInvariant();
-            if (new[] { "apikey", "credential", "secret", "sessiontoken", "authorization", "headers", "cookie", "vaultreferences" }.Contains(key))
+            var key = property.Name.Replace("_", "").Replace("-", "").ToLowerInvariant();
+            if (new[] { "apikey", "credential", "secret", "sessiontoken", "authorization", "headers", "cookie", "vaultreferences", "transportkey", "password", "proto", "constructor", "prototype" }.Contains(key))
                 throw new InvalidOperationException("Credential-bearing imports and exports are unsupported");
             Walk(property.Value);
         }
     }
     public static string ChooseExport() => JsonSerializer.Serialize(new { destination = Choose(true) });
+    public static string ChooseImport() => JsonSerializer.Serialize(new { source = Choose(false) });
     private static void RequireSession(long expiresAt)
     {
         if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() >= expiresAt) throw new LocalSessionExpired();
@@ -76,15 +78,44 @@ internal static class LocalFiles
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
         return JsonSerializer.Serialize(new { exported = true, filename = Path.GetFileName(path) });
     }
-    public static string Import()
+    public static string Import(string source, long expiresAt)
     {
-        var path = Choose(false);
-        using var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        RequireSession(expiresAt);
+        var path = Path.GetFullPath(source);
+        ProtectedState.RejectReparseParents(path);
+        // Refuse final reparse points/devices and lock this exact regular file
+        // against replacement/writers while reading at most limit+1 bytes.
+        using var handle = CreateFileW(path, 0x80000000, 1, IntPtr.Zero, 3, 0x00200000 | 0x08000000, IntPtr.Zero);
+        if (handle.IsInvalid || GetFileType(handle) != 1 || !GetFileInformationByHandle(handle, out var info) ||
+            (info.Attributes & (0x400 | 0x10)) != 0)
+            throw new InvalidOperationException("Unsupported import file");
+        ProtectedState.RejectReparseParents(path);
+        using var file = new FileStream(handle, FileAccess.Read);
         if (file.Length > 4 * 1024 * 1024) throw new InvalidOperationException("Projection size limit");
-        using var reader = new StreamReader(file, Encoding.UTF8);
-        using var json = Validate(reader.ReadToEnd());
-        return json.RootElement.GetRawText();
+        var bytes = new byte[4 * 1024 * 1024 + 1];
+        try
+        {
+            int size = 0, count;
+            while (size < bytes.Length && (count = file.Read(bytes, size, bytes.Length - size)) != 0) size += count;
+            if (size == bytes.Length) throw new InvalidOperationException("Projection size limit");
+            RequireSession(expiresAt);
+            var offset = size >= 3 && bytes[0] == 0xef && bytes[1] == 0xbb && bytes[2] == 0xbf ? 3 : 0;
+            using var json = Validate(new UTF8Encoding(false, true).GetString(bytes, offset, size - offset));
+            RequireSession(expiresAt);
+            return json.RootElement.GetRawText();
+        }
+        finally { System.Security.Cryptography.CryptographicOperations.ZeroMemory(bytes); }
     }
+    [StructLayout(LayoutKind.Sequential)] private struct FileInformation
+    {
+        public uint Attributes;
+        public System.Runtime.InteropServices.ComTypes.FILETIME Creation, Access, Write;
+        public uint Volume, SizeHigh, SizeLow, Links, IndexHigh, IndexLow;
+    }
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern SafeFileHandle CreateFileW(string path, uint access, uint share, IntPtr attributes, uint disposition, uint flags, IntPtr template);
+    [DllImport("kernel32.dll", SetLastError = true)] private static extern uint GetFileType(SafeFileHandle handle);
+    [DllImport("kernel32.dll", SetLastError = true)] private static extern bool GetFileInformationByHandle(SafeFileHandle handle, out FileInformation info);
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)] private struct OpenFileName
     {
         public int Size; public IntPtr Owner, Instance; public string? Filter, CustomFilter;

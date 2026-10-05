@@ -13,7 +13,8 @@ const allowed = new Set([
   'confirm-player',
   'choose-export',
   'export-personal',
-  'import-personal'
+  'choose-import',
+  'read-import'
 ])
 // Supervisor-only pipe. Keys never cross this interface; official reads return bounded responses.
 export async function nativeCommand(args, input) {

@@ -117,6 +117,7 @@ export async function stage(config) {
     'session-gate.mjs',
     'credential-surface.mjs',
     'export.mjs',
+    'import.mjs',
     'setup.mjs',
     'setup.html',
     'windows-setup.js',

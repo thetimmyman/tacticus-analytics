@@ -62,7 +62,9 @@ internal static class Program
                     if (size == buffer.Length) throw new InvalidOperationException("Projection size limit");
                     Console.WriteLine(LocalFiles.Export(new string(buffer, 0, size), args[1], expiresAt)); return 0;
                 }
-                case "import-personal" when args.Length == 1: Console.WriteLine(LocalFiles.Import()); return 0;
+                case "choose-import" when args.Length == 1: Console.WriteLine(LocalFiles.ChooseImport()); return 0;
+                case "read-import" when args.Length == 3 && long.TryParse(args[2], out var importExpiry):
+                    Console.WriteLine(LocalFiles.Import(args[1], importExpiry)); return 0;
                 case "native-proof" when args.Length == 2: await NativeProof.Run(args[1]); return 0;
                 case "proof-descendant" when args.Length == 2:
                 {
@@ -171,6 +173,24 @@ internal static class NativeProof
             if (File.ReadAllText(projection).IndexOf("cached", StringComparison.Ordinal) < 0 || !new FileInfo(projection).GetAccessControl().AreAccessRulesProtected)
                 throw new InvalidOperationException("Protected export failed");
             assertions.Add("expired-export-refused-and-atomic-protected-projection");
+            try { LocalFiles.Import(Path.Combine(testRoot, "unopened.json"), 0); throw new InvalidOperationException("Expired import opened source"); }
+            catch (LocalSessionExpired) { }
+            if (!LocalFiles.Import(projection, DateTimeOffset.UtcNow.AddMinutes(1).ToUnixTimeMilliseconds()).Contains("cached"))
+                throw new InvalidOperationException("Native same-handle import failed");
+            File.WriteAllText(projection, "{\"status\":\"cached\"}", new UTF8Encoding(true));
+            if (!LocalFiles.Import(projection, DateTimeOffset.UtcNow.AddMinutes(1).ToUnixTimeMilliseconds()).Contains("cached"))
+                throw new InvalidOperationException("UTF8 BOM native import failed");
+            File.WriteAllText(projection, "{\"personal\":{\"api-key\":\"synthetic\"}}");
+            var unsafeImport = false;
+            try { LocalFiles.Import(projection, DateTimeOffset.UtcNow.AddMinutes(1).ToUnixTimeMilliseconds()); }
+            catch (InvalidOperationException) { unsafeImport = true; }
+            if (!unsafeImport) throw new InvalidOperationException("Credential-bearing native import accepted");
+            File.WriteAllText(projection, new string('x', 4 * 1024 * 1024 + 1));
+            var oversizedImport = false;
+            try { LocalFiles.Import(projection, DateTimeOffset.UtcNow.AddMinutes(1).ToUnixTimeMilliseconds()); }
+            catch (InvalidOperationException) { oversizedImport = true; }
+            if (!oversizedImport) throw new InvalidOperationException("Oversized native import accepted");
+            assertions.Add("expired-import-refused-and-bounded-same-handle-credential-free-read");
             var candidate = Path.Combine(testRoot, "source"); Directory.CreateDirectory(candidate);
             File.WriteAllText(Path.Combine(candidate, "item.txt"), "synthetic retained content");
             var digest = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Path.Combine(candidate, "item.txt")))).ToLowerInvariant();

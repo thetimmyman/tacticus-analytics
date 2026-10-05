@@ -12,6 +12,11 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { inventory } from '../../../apps/desktop/platform/windows/stage.mjs'
 import { windowsOnboarding } from '../../../apps/desktop/platform/windows/onboarding.mjs'
+import {
+  personalImport,
+  cachedPersonal
+} from '../../../apps/desktop/platform/windows/import.mjs'
+import { projectCachedPlayer } from '../../../packages/workspace-onboarding/v1.mjs'
 
 const player = {
   player: {
@@ -275,3 +280,125 @@ test('authenticated journal recovery deletes only unused targets and preserves a
     )
     assert.ok(!JSON.stringify(reopened.view()).includes(committed))
   }))
+
+test('native historical import retains its choice through one unlock without opening first and cannot create live capabilities', () =>
+  workspace(async (root) => {
+    let authorized = true,
+      choices = 0,
+      reads = 0
+    const assertCurrent = () => {
+      if (!authorized)
+        throw Object.assign(new Error('Unlock required'), { code: 'ESESSION' })
+    }
+    const personal = projectCachedPlayer({
+      player: player.player,
+      updatedOn: player.metaData.lastUpdatedOn
+    })
+    const onboarding = windowsOnboarding(root, () => {}, assertCurrent)
+    const operation = personalImport({
+      gate: { assertCurrent, expiresAt: () => 1234567890000 },
+      onboarding,
+      native: async (args) => {
+        if (args[0] === 'choose-import') {
+          choices++
+          authorized = false
+          return { source: 'C:\\synthetic choice\\personal ü.json' }
+        }
+        reads++
+        assert.deepEqual(args, [
+          'read-import',
+          'C:\\synthetic choice\\personal ü.json',
+          '1234567890000'
+        ])
+        return {
+          personal,
+          freshness: {
+            syncedAt: personal.upstreamUpdatedAt,
+            offlineReadable: true
+          },
+          capabilities: { Player: 'active', Guild: 'active' }
+        }
+      }
+    })
+    await assert.rejects(operation(), { code: 'ESESSION' })
+    assert.equal(reads, 0)
+    authorized = true
+    const imported = await operation()
+    assert.equal(choices, 1)
+    assert.equal(reads, 1)
+    assert.equal(imported.status, 'historical-offline')
+    assert.deepEqual(imported.capabilities, { Player: 'reconnect-required' })
+    assert.deepEqual(imported.personal, personal)
+    assert.ok(!JSON.stringify(imported).includes('synthetic choice'))
+    await assert.rejects(operation(), /empty personal workspace/)
+    assert.equal(choices, 1)
+  }))
+
+test('cached historical import revalidates the entire Player snapshot and timestamp rather than trusting claimed summary fields', () => {
+  const personal = projectCachedPlayer({
+    player: player.player,
+    updatedOn: player.metaData.lastUpdatedOn
+  })
+  const input = {
+    personal,
+    freshness: { syncedAt: personal.upstreamUpdatedAt, offlineReadable: true }
+  }
+  assert.deepEqual(cachedPersonal(input), personal)
+  for (const mutate of [
+    (value) => {
+      value.personal.roster[0].rank = 999
+    },
+    (value) => {
+      delete value.personal.apiData.inventory
+    },
+    (value) => {
+      value.personal.apiData.password = 'synthetic'
+    },
+    (value) => {
+      value.freshness.syncedAt++
+    },
+    (value) => {
+      value.personal.upstreamUpdatedAt = Number.MAX_SAFE_INTEGER
+    }
+  ]) {
+    const changed = structuredClone(input)
+    mutate(changed)
+    assert.throws(() => cachedPersonal(changed))
+  }
+})
+
+test('expiry during native import prevents every state write and a retained vault reference refuses the chooser', async () => {
+  let authorized = true,
+    writes = 0,
+    choices = 0
+  const original = {}
+  const assertCurrent = () => {
+    if (!authorized)
+      throw Object.assign(new Error('Unlock required'), { code: 'ESESSION' })
+  }
+  const operation = personalImport({
+    gate: { assertCurrent, expiresAt: () => 1234567890000 },
+    onboarding: {
+      state: { read: () => original },
+      migrateHistorical: () => {
+        writes++
+        return {}
+      }
+    },
+    native: async (args) => {
+      if (args[0] === 'choose-import') {
+        choices++
+        return { source: 'C:\\synthetic.json' }
+      }
+      authorized = false
+      return {}
+    }
+  })
+  await assert.rejects(operation(), { code: 'ESESSION' })
+  assert.equal(writes, 0)
+  authorized = true
+  original.vaultReferences = { Player: 'synthetic-opaque-reference' }
+  await assert.rejects(operation(), /empty personal workspace/)
+  assert.equal(choices, 1)
+  assert.equal(writes, 0)
+})
