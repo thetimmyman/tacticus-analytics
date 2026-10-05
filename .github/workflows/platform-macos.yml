@@ -87,4 +87,11 @@ jobs:
           clang -Wall -Wextra -Werror apps/desktop/platform/macos/owner-guard.c -o "$RUNNER_TEMP/mac-native/owner-guard"
           swiftc apps/desktop/platform/macos/SecretVault.swift -o "$RUNNER_TEMP/mac-native/secret-vault"
       - name: Install unsigned image and exercise actual packaged offline runtime
-        run: node apps/desktop/platform/macos/qualification.mjs "$RUNNER_TEMP/mac-inputs" "$RUNNER_TEMP/mac-application" "$RUNNER_TEMP/mac-native"
+        run: node apps/desktop/platform/macos/qualification.mjs "$RUNNER_TEMP/mac-inputs" "$RUNNER_TEMP/mac-application" "$RUNNER_TEMP/mac-native" "$RUNNER_TEMP/mac-evidence"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: macos-synthetic-${{ matrix.os }}
+          path: ${{ runner.temp }}/mac-evidence/
+          if-no-files-found: warn
+          retention-days: 7

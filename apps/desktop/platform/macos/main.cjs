@@ -2,6 +2,10 @@ const { app, BrowserWindow, session, Menu, dialog } = require('electron')
 const { readFileSync, writeFileSync } = require('node:fs')
 const { join } = require('node:path')
 const { randomBytes } = require('node:crypto')
+const {
+  createNativeActions,
+  exportCachedPersonal
+} = require('./native-actions.cjs')
 const config = JSON.parse(readFileSync(process.argv[2], 'utf8'))
 const origin = new URL(config.url).origin
 if (
@@ -12,6 +16,8 @@ if (
 app.enableSandbox()
 app.disableHardwareAcceleration()
 app.setPath('userData', join(config.state, 'browser'))
+let verifyStage = 'window-startup',
+  verificationWindow
 app
   .whenReady()
   .then(async () => {
@@ -56,6 +62,7 @@ app
         offscreen: Boolean(config.verify)
       }
     })
+    if (config.verify) verificationWindow = window
     const capabilities = ['Player', 'Guild', 'Guild Raid']
     const { currentWorkspaceToken } =
       await import('../../launcher/workspace-session.mjs')
@@ -106,12 +113,20 @@ app
         )
       })
     }
-    let retry,
-      busy = false
-    const nativeAction = async (operation, scope, path) => {
-      if (busy) return
-      busy = true
-      try {
+    const nativeActions = createNativeActions({
+      perform: async (operation, scope, path) => {
+        if (operation === 'export') {
+          await exportCachedPersonal({
+            path,
+            requestSession: () => nativeRequest('session', 'Player'),
+            writeDestination: writeFileSync
+          })
+          await dialog.showMessageBox(window, {
+            message: 'Cached personal data exported',
+            detail: 'Official API access remains in the native vault.'
+          })
+          return
+        }
         const view = await nativeRequest(operation, scope, path)
         if (operation !== 'session') {
           await dialog.showMessageBox(window, {
@@ -135,33 +150,42 @@ app
             window.reload()
         }
         return view
-      } catch (error) {
-        if (error.code === 'ESESSION') {
-          retry = { operation, scope, path }
-          await dialog.showMessageBox(window, {
-            message: 'Unlock your local workspace to continue.'
-          })
-          await window.loadURL(origin + '/desktop/setup')
-        } else if (error.code !== 'ECANCELLED')
+      },
+      unlock: async () => {
+        await dialog.showMessageBox(window, {
+          message: 'Unlock your local workspace to continue.'
+        })
+        await window.loadURL(origin + '/desktop/setup')
+      },
+      failed: async (error, operation) => {
+        if (error.code === 'ECANCELLED') return
+        if (operation === 'export') {
           await dialog.showMessageBox(window, {
             type: 'error',
-            message:
-              error.code === 'EVAULTLOCKED'
-                ? 'Unlock your native Keychain to continue.'
-                : error.code === 'EVAULT'
-                  ? 'Secure Keychain access is unavailable.'
-                  : operation === 'import'
-                    ? 'Cached data import did not finish'
-                    : 'Official access could not finish',
+            message: 'Export did not finish',
             detail:
-              operation === 'import'
-                ? 'Choose a supported personal-data export in an empty personal workspace. Existing data and the original file are preserved.'
-                : 'Cached data is retained. Check native vault availability and official access, then retry.'
+              'Your existing file and workspace data were preserved. Select a new destination and try again.'
           })
-      } finally {
-        busy = false
+          return
+        }
+        await dialog.showMessageBox(window, {
+          type: 'error',
+          message:
+            error.code === 'EVAULTLOCKED'
+              ? 'Unlock your native Keychain to continue.'
+              : error.code === 'EVAULT'
+                ? 'Secure Keychain access is unavailable.'
+                : operation === 'import'
+                  ? 'Cached data import did not finish'
+                  : 'Official access could not finish',
+          detail:
+            operation === 'import'
+              ? 'Choose a supported personal-data export in an empty personal workspace. Existing data and the original file are preserved.'
+              : 'Cached data is retained. Check native vault availability and official access, then retry.'
+        })
       }
-    }
+    })
+    const nativeAction = nativeActions.run
     Menu.setApplicationMenu(
       Menu.buildFromTemplate([
         { role: 'appMenu' },
@@ -206,41 +230,7 @@ app
                   filters: [{ name: 'JSON data', extensions: ['json'] }]
                 })
                 if (selected.canceled || !selected.filePath) return
-                try {
-                  const { personal } = await nativeRequest('session', 'Player')
-                  if (!personal) throw new Error('Personal data unavailable')
-                  writeFileSync(
-                    selected.filePath,
-                    JSON.stringify(
-                      {
-                        schemaVersion: 'macos-personal-export/v1',
-                        personal,
-                        freshness: {
-                          syncedAt: personal.upstreamUpdatedAt,
-                          offlineReadable: true
-                        }
-                      },
-                      null,
-                      2
-                    ),
-                    { mode: 0o600, flag: 'wx' }
-                  )
-                  await dialog.showMessageBox(window, {
-                    message: 'Cached personal data exported',
-                    detail: 'Official API access remains in the native vault.'
-                  })
-                } catch (error) {
-                  if (error.code === 'ESESSION') {
-                    await nativeAction('session', 'Player')
-                    return
-                  }
-                  await dialog.showMessageBox(window, {
-                    type: 'error',
-                    message: 'Export did not finish',
-                    detail:
-                      'Your existing file and workspace data were preserved. Select a new destination and try again.'
-                  })
-                }
+                await nativeAction('export', 'Player', selected.filePath)
               }
             }
           ]
@@ -254,6 +244,7 @@ app
     window.webContents.on('will-navigate', (event, url) => {
       if (new URL(url).origin !== origin) event.preventDefault()
     })
+    verifyStage = 'workspace-page'
     await window.loadURL(config.url)
     if (!config.verify) {
       window.webContents.on('did-finish-load', async () => {
@@ -261,12 +252,7 @@ app
           !window.webContents.getURL().startsWith(origin + '/desktop/personal')
         )
           return
-        if (retry) {
-          const action = retry
-          retry = null
-          await nativeAction(action.operation, action.scope, action.path)
-          return
-        }
+        if (await nativeActions.resume()) return
         try {
           const view = await nativeRequest('session', 'Player')
           if (!view.personal) await nativeAction('connect', 'Player')
@@ -277,6 +263,7 @@ app
       })
     }
     if (config.verify) {
+      verifyStage = 'workspace-setup'
       if (config.verify.setupScreenshot)
         writeFileSync(
           config.verify.setupScreenshot,
@@ -295,10 +282,13 @@ app
         if (error && /failed|Invalid|Check|already|Use a/.test(error))
           throw new Error(error)
       }
+      verifyStage = 'workspace-navigation'
       await new Promise((accept) => setTimeout(accept, 10000))
+      verifyStage = 'native-session'
       const nativeSession = await nativeRequest('session', 'Player')
       if (nativeSession.cloudContribution !== 'separate-consent-required')
         throw new Error('Native owner session was not verified')
+      verifyStage = 'renderer-observation'
       const observed = await window.webContents.executeJavaScript(
         `({text:document.body.innerText,nodeAccess:typeof require!=='undefined'||typeof process!=='undefined'})`
       )
@@ -319,6 +309,7 @@ app
         (await window.webContents.capturePage()).toPNG(),
         { mode: 0o600 }
       )
+      verifyStage = 'renderer-scores'
       if (
         observed.nodeAccess ||
         !observed.text.includes('+58%') ||
@@ -328,6 +319,7 @@ app
         throw new Error(
           'Packaged graphical journey did not render expected scores'
         )
+      verifyStage = 'renderer-network'
       if (
         blocked.length ||
         failures.some(
@@ -340,7 +332,33 @@ app
       app.quit()
     }
   })
-  .catch((error) => {
+  .catch(async (error) => {
+    if (config.verify) {
+      const diagnostic = {
+        synthetic: true,
+        stage: verifyStage,
+        code: ['ESESSION', 'EVAULT', 'EVAULTLOCKED', 'EACCESS'].includes(
+          error.code
+        )
+          ? error.code
+          : 'EVERIFY'
+      }
+      console.log('TA-MAC-VERIFY-FAILURE:' + JSON.stringify(diagnostic))
+      writeFileSync(
+        config.verify.evidence + '.failure.json',
+        JSON.stringify(diagnostic),
+        { mode: 0o600 }
+      )
+      if (verificationWindow && !verificationWindow.isDestroyed()) {
+        try {
+          writeFileSync(
+            config.verify.screenshot,
+            (await verificationWindow.webContents.capturePage()).toPNG(),
+            { mode: 0o600 }
+          )
+        } catch {}
+      }
+    }
     console.error(error.message)
     app.exit(1)
   })

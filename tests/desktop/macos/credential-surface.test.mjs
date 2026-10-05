@@ -19,7 +19,13 @@ test('legacy forms and key handlers stay behind native input even after Player a
     '/api/members/request-api-key',
     '/api/profile/change-player-id',
     '/api/admin/player-api-key',
-    '/%70rofile/edit'
+    '/%70rofile/edit',
+    '/PROFILE/edit',
+    '/profile%2fedit',
+    '/profile%5cedit',
+    '/%2570rofile/edit',
+    '/profile%ZZedit',
+    '/supabase/rest/v1/player_api_keys'
   ])
     assert.equal(
       rendererCredentialSurface(new URL(path, 'http://localhost')),

@@ -1,16 +1,20 @@
 import { execFileSync, spawn } from 'node:child_process'
 import { mkdtemp, mkdir, readFile, writeFile, cp } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
-import { join, resolve } from 'node:path'
+import { join, resolve, isAbsolute } from 'node:path'
 import { tmpdir } from 'node:os'
 import { stage, inventory } from './stage.mjs'
 import { records } from './evidence.mjs'
 
 const inputs = resolve(process.argv[2]),
   application = resolve(process.argv[3]),
-  native = resolve(process.argv[4])
+  native = resolve(process.argv[4]),
+  output = process.argv[5]
 if (process.platform !== 'darwin')
   throw new Error('Actual native macOS required')
+if (!isAbsolute(output ?? ''))
+  throw new Error('Absolute synthetic evidence output required')
+await mkdir(output, { recursive: false, mode: 0o700 })
 const working = await mkdtemp(join(tmpdir(), 'ta mac package ü '))
 const startedAt = new Date().toISOString()
 const imageRoot = join(working, 'image'),
@@ -47,6 +51,22 @@ execFileSync(
 const digest = createHash('sha256')
   .update(await readFile(dmg))
   .digest('hex')
+await cp(dmg, join(output, 'candidate.dmg'))
+await cp(
+  join(app, 'Contents/Resources/package-inventory.json'),
+  join(output, 'package-inventory.json')
+)
+await writeFile(
+  join(output, 'artifact.json'),
+  JSON.stringify({
+    sourceCommit: process.env.MAC_SOURCE_SHA,
+    artifactSha256: digest,
+    architecture: process.arch,
+    classification: 'vm',
+    qualification: 'unqualified-until-evidence-passes'
+  }),
+  { mode: 0o600 }
+)
 const mount = join(working, 'mount'),
   installed = join(
     working,
@@ -117,9 +137,26 @@ async function run(arguments_) {
     clearTimeout(deadline)
   }
 }
-await run([])
-await run(['--storage-check', join(working, 'storage-first.json')])
-await run(['--storage-check', join(working, 'storage-second.json')])
+try {
+  await run([])
+  await run(['--storage-check', join(working, 'storage-first.json')])
+  await run(['--storage-check', join(working, 'storage-second.json')])
+} catch (error) {
+  for (const name of [
+    'renderer.json',
+    'renderer.png',
+    'renderer.json.failure.json',
+    'storage-first.json',
+    'storage-second.json'
+  ]) {
+    try {
+      await cp(join(working, name), join(output, name))
+    } catch (copyError) {
+      if (copyError.code !== 'ENOENT') throw copyError
+    }
+  }
+  throw error
+}
 const first = JSON.parse(await readFile(join(working, 'storage-first.json'))),
   second = JSON.parse(await readFile(join(working, 'storage-second.json')))
 if (first.counter !== 1 || second.counter !== 2)
@@ -171,6 +208,17 @@ await writeFile(
 )
 for (const record of evidence)
   console.log('TA-PLATFORM-EVIDENCE:' + JSON.stringify(record))
+// Retain only the inventoried candidate and selected synthetic attachments;
+// workspace credentials, browser storage and vault state are never uploaded.
+for (const name of [
+  'platform-evidence.json',
+  ...attachments.map((attachment) => attachment.name)
+])
+  await cp(join(working, name), join(output, name))
+await cp(
+  join(installed, 'Contents/Resources/package-inventory.json'),
+  join(output, 'package-inventory.json')
+)
 console.log(
   JSON.stringify({
     schemaVersion: 1,

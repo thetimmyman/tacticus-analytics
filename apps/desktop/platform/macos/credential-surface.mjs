@@ -4,7 +4,11 @@
 export function rendererCredentialSurface(url) {
   let path
   try {
-    path = decodeURIComponent(url.pathname).replace(/\/+$/u, '')
+    path = decodeURIComponent(url.pathname)
+      .replaceAll('\\', '/')
+      .replace(/\/+$/u, '')
+      .toLowerCase()
+    if (/%[a-f0-9]{2}/i.test(path)) return true
   } catch {
     return true
   }
@@ -23,6 +27,7 @@ export function rendererCredentialSurface(url) {
       '/api/profile',
       '/api/guild-settings'
     ].some((prefix) => path === prefix || path.startsWith(prefix + '/')) ||
-    (path.startsWith('/api/') && /api[-_]?key/i.test(path))
+    ((path.startsWith('/api/') || path.startsWith('/supabase/rest/v1/')) &&
+      /api[-_]?key/i.test(path))
   )
 }

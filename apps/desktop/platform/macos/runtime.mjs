@@ -278,6 +278,49 @@ try {
       true,
       true
     )
+    if (verify) {
+      let diagnostic = ''
+      window.stdout.on('data', (chunk) => {
+        diagnostic = (diagnostic + chunk.toString('utf8')).slice(-4096)
+        for (const line of diagnostic.split('\n')) {
+          if (!line.startsWith('TA-MAC-VERIFY-FAILURE:')) continue
+          try {
+            const value = JSON.parse(
+              line.slice('TA-MAC-VERIFY-FAILURE:'.length)
+            )
+            if (
+              value.synthetic === true &&
+              [
+                'window-startup',
+                'workspace-page',
+                'workspace-setup',
+                'workspace-navigation',
+                'native-session',
+                'renderer-observation',
+                'renderer-scores',
+                'renderer-network'
+              ].includes(value.stage) &&
+              [
+                'ESESSION',
+                'EVAULT',
+                'EVAULTLOCKED',
+                'EACCESS',
+                'EVERIFY'
+              ].includes(value.code)
+            )
+              console.log(
+                'TA-MAC-VERIFY-FAILURE:' +
+                  JSON.stringify({
+                    synthetic: true,
+                    stage: value.stage,
+                    code: value.code
+                  })
+              )
+          } catch {}
+        }
+        diagnostic = diagnostic.slice(diagnostic.lastIndexOf('\n') + 1)
+      })
+    }
     let actionQueue = Promise.resolve()
     window.on('message', (action) => {
       if (
