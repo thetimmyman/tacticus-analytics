@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 4,
-  "purpose": "Selected native desktop analytics, core catalogue reads and local snapshot jobs; not the complete application schema",
+  "schemaVersion": 5,
+  "purpose": "Selected native desktop analytics, local snapshot jobs and local file imports; not the complete application schema",
   "sourceCommit": "5d41a8776f3e216c04dae14d1bfa09fd48ca730a",
   "objects": [
     {
@@ -413,6 +413,8 @@
     "Authenticated snapshot reads follow local guild membership",
     "No hosted schedulers, triggers, game credentials or captured state",
     "Selected core analytic definers use the non-login, non-bypass read owner. Catalogue tables allow authenticated reads only, with no public caller writes. Comprehensive player statistics remain service-only behind the canonical application authorization path.",
-    "Local workspace recovery stores a digest only; code provisioning requires the current password and reset targets only the installation account."
+    "Local workspace recovery stores a digest only; code provisioning requires the current password and reset targets only the installation account.",
+    "Empty file workspaces admit desktop_local_claim attestations without an upstream invitation. These represent local labels only, with automatic game sync disabled; they cannot establish upstream account ownership.",
+    "A dedicated non-login non-bypass importer commits only the setup subject's guild and matching cluster, reads only raid conflict-key columns, and stores owner-scoped receipts. Caller roles cannot invoke the import primitive or inspect receipts."
   ]
 }

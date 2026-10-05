@@ -79,7 +79,7 @@ try {
   process.removeListener('SIGINT', cancelStartup)
   process.removeListener('SIGTERM', cancelStartup)
 }
-let gateway, scheduler, maintenance
+let gateway, scheduler, maintenance, applicationPort
 const maintenanceNonce = randomBytes(32).toString('hex')
 const maintenanceRequest = join(state, `maintenance-${maintenanceNonce}.json`)
 try {
@@ -88,12 +88,38 @@ try {
   gateway = await loopbackGateway({
     services,
     transportKey,
-    handleLocalRequest: workspaceSetup(services, here)
+    handleLocalRequest: workspaceSetup(services, here, {
+      normalize: async (contents, context) => {
+        const response = await fetch(
+          `http://127.0.0.1:${applicationPort}/api/desktop/normalize-raid-file`,
+          {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json',
+              Authorization: `Bearer ${cronSecret}`,
+              'x-desktop-transport': transportKey
+            },
+            body: JSON.stringify({ contents, context }),
+            signal: AbortSignal.timeout(20000)
+          }
+        )
+        if (!response.ok) throw new Error('Invalid raid file')
+        const result = await response.json()
+        if (
+          !Array.isArray(result.rows) ||
+          result.rows.length < 1 ||
+          result.rows.length > 10000
+        )
+          throw new Error('Invalid raid file')
+        return result.rows
+      }
+    })
   })
   const listener = createServer()
   await new Promise((accept) => listener.listen(0, '127.0.0.1', accept))
   const port = listener.address().port
   await new Promise((accept) => listener.close(accept))
+  applicationPort = port
   gateway.setAppPort(port)
   const application = services.launch(
     join(root, 'bin/node'),

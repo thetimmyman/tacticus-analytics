@@ -1,13 +1,16 @@
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { workspaceRecovery } from './recovery.mjs'
+import { workspaceRaidImport } from './raid-import.mjs'
+import { localIdentity, createLocalWorkspace } from './local-workspace.mjs'
 import {
   syntheticRaidFixture,
   importSyntheticRaid
 } from '../proof/synthetic-import.mjs'
 
 const email = 'desktop@localhost.invalid'
-export function workspaceSetup(services, assets) {
+export function workspaceSetup(services, assets, options = {}) {
+  const raidImport = workspaceRaidImport(services, options)
   const recovery = workspaceRecovery(services)
   let busy = false
   const initialized = async () =>
@@ -25,17 +28,36 @@ export function workspaceSetup(services, assets) {
   }
   return async (req, res, url) => {
     if (await recovery(req, res, url)) return true
+    if (await raidImport(req, res, url)) return true
+    if (req.method === 'GET' && url.pathname === '/desktop/workspace-info') {
+      const info = JSON.parse(
+        (
+          await services.psql(
+            `SELECT coalesce((SELECT json_build_object('guildCode',s.guild_code,'identityMode',s.identity_mode,'season',(SELECT max(e.season_num) FROM public."EOT_GR_data" e WHERE e."Guild"=s.guild_code)) FROM public.desktop_preview_setup s WHERE s.singleton),'null'::json);`
+          )
+        ).trim()
+      )
+      respond(res, 200, info)
+      return true
+    }
     if (!url.pathname.startsWith('/desktop/')) return false
     if (
       req.method === 'GET' &&
-      ['/desktop/setup', '/desktop/setup.js', '/desktop/style.css'].includes(
-        url.pathname
-      )
+      [
+        '/desktop/setup',
+        '/desktop/setup.js',
+        '/desktop/style.css',
+        '/desktop/import',
+        '/desktop/import.js',
+        '/desktop/raid-file-validation.mjs'
+      ].includes(url.pathname)
     ) {
       const file =
         url.pathname === '/desktop/setup'
           ? 'setup.html'
-          : url.pathname.slice('/desktop/'.length)
+          : url.pathname === '/desktop/import'
+            ? 'import.html'
+            : url.pathname.slice('/desktop/'.length)
       let content = await readFile(join(assets, file), 'utf8')
       if (file === 'setup.html')
         content = content.replaceAll(
@@ -43,11 +65,12 @@ export function workspaceSetup(services, assets) {
           (await initialized()) ? 'unlock' : 'create'
         )
       res.writeHead(200, {
-        'content-type': file.endsWith('.js')
-          ? 'text/javascript'
-          : file.endsWith('.css')
-            ? 'text/css'
-            : 'text/html',
+        'content-type':
+          file.endsWith('.js') || file.endsWith('.mjs')
+            ? 'text/javascript'
+            : file.endsWith('.css')
+              ? 'text/css'
+              : 'text/html',
         'cache-control': 'no-store',
         'content-security-policy':
           "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'"
@@ -87,16 +110,28 @@ export function workspaceSetup(services, assets) {
       if (
         !input ||
         typeof input !== 'object' ||
+        Object.keys(input).some(
+          (key) => !['password', 'sample', 'identity'].includes(key)
+        ) ||
         typeof input.password !== 'string' ||
         input.password.length < 12 ||
         input.password.length > 128 ||
-        input.sample !== true
+        (input.sample !== true && input.sample !== false)
       ) {
         respond(res, 400, {
           error:
-            'Use a password of 12–128 characters and confirm the synthetic sample.'
+            'Use a password of 12–128 characters and choose a workspace type.'
         })
         return true
+      }
+      let identity
+      if (input.sample === false) {
+        try {
+          identity = localIdentity(input.identity)
+        } catch (error) {
+          respond(res, 400, { error: error.message })
+          return true
+        }
       }
       const existing = JSON.parse(
         (
@@ -137,11 +172,12 @@ export function workspaceSetup(services, assets) {
         throw new Error('Local account creation failed')
       }
       const account = await response.json()
-      await importSyntheticRaid(
-        services,
-        syntheticRaidFixture(existing.account ? account.user.id : account.id),
-        { recordSetup: true }
-      )
+      const subject = existing.account ? account.user.id : account.id
+      if (input.sample === true)
+        await importSyntheticRaid(services, syntheticRaidFixture(subject), {
+          recordSetup: true
+        })
+      else await createLocalWorkspace(services, subject, identity)
       respond(res, 201, { email })
       return true
     } finally {

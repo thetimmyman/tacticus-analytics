@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Import local raid data</title>
+    <link rel="stylesheet" href="/desktop/style.css" />
+    <script type="module" src="/desktop/import.js"></script>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">TACTICUS ANALYTICS · LOCAL DATA</p>
+      <h1>Import a raid file</h1>
+      <p>
+        Choose a ta-raid-file-v1 JSON file for this workspace's guild. Data
+        stays on this computer. Import adds new raid records and preserves
+        existing records; repeating a file does not duplicate them. Imported
+        identities are local labels, not verified game accounts.
+      </p>
+      <form>
+        <label for="raid-file">Raid JSON file (up to 8 MiB)</label>
+        <input
+          id="raid-file"
+          type="file"
+          accept=".json,application/json"
+          required
+        />
+        <label for="import-password">Current workspace password</label>
+        <input
+          id="import-password"
+          type="password"
+          minlength="12"
+          maxlength="128"
+          autocomplete="current-password"
+          required
+        />
+        <button type="submit">Import locally</button>
+        <p id="import-status" role="status"></p>
+      </form>
+      <p><a id="analytics" hidden>Open analytics</a></p>
+      <p><a href="/desktop/setup">Back to workspace</a></p>
+      <details>
+        <summary>Supported file format</summary>
+        <p>
+          The versioned file contains format, guildCode, numeric season and an
+          entries array. Each entry includes userId, type, encounterIndex,
+          damageType (Battle or Bomb), damageDealt, remainingHp, maxHp, rarity,
+          tier, set, and explicit startedOn/completedOn or timestamp values.
+          Optional display names and supported unit metadata are preserved.
+          Other export formats and nested equipment or ability metadata are
+          refused. No partial import occurs if any entry fails validation.
+        </p>
+        <p>
+          This importer does not connect to the game or validate membership.
+          Only import data you are entitled to keep. Never select a credentials
+          file; unknown fields are rejected.
+        </p>
+      </details>
+    </main>
+  </body>
+</html>

@@ -78,6 +78,12 @@ module.exports = function maintenanceMenu(window, config) {
         label: 'File',
         submenu: [
           {
+            id: 'workspace-import',
+            label: 'Import raid file…',
+            click: () =>
+              window.loadURL(new URL('/desktop/import', config.url).href)
+          },
+          {
             id: 'workspace-backup',
             label: 'Back up workspace…',
             click: () => request('backup')

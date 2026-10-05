@@ -100,6 +100,10 @@ if (!configPath) {
   if (nativeConfig.application?.node && nativeConfig.application?.directory) {
     console.log('\n== Compiled local snapshot job / crash claim recovery ==')
     run('c-local-jobs', 'apps/desktop/proof/jobs-journey.mjs', [configPath])
+    console.log('\n== Native local file import / atomic retries / restart ==')
+    run('c-local-file-import', 'apps/desktop/proof/import-journey.mjs', [
+      configPath
+    ])
   } else {
     console.log(
       'Local job recovery SKIPPED: compiled application is not supplied'

@@ -77,3 +77,15 @@ summary {
   font-family: monospace;
   user-select: all;
 }
+
+#local-identity {
+  display: grid;
+  gap: 14px;
+}
+#local-identity[hidden],
+a[hidden] {
+  display: none;
+}
+a {
+  color: #8bc0ff;
+}

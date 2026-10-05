@@ -249,3 +249,35 @@ keyring. The basic provider created no record; libsecret encrypted a synthetic
 credential, decrypted it after a fresh Electron process and keyring session, denied
 use after withdrawal, and removed the record. This does not establish game-broker
 integration, OS lock-screen behavior, KDE support or other platform support.
+
+## Local raid-file import
+
+First-run setup can create an empty local workspace instead of synthetic sample
+data. Its guild and player labels have explicit `desktop_local_claim` provenance;
+they establish authority only inside that installation. Automatic game sync is
+disabled for this mode. They do not establish ownership of an upstream account.
+
+The native File menu opens a versioned `ta-raid-file-v1` JSON importer. It accepts
+at most 8 MiB and 10,000 entries for the workspace's guild. The shared validator
+checks the entire file before the renderer submits it or the coordinator forwards
+it to the fixed internal normalization endpoint. Unknown fields, missing event
+times, invalid dates, unsafe numeric values and unsupported nested equipment or
+ability metadata are refused. The importer does not acquire game credentials,
+discover clients, accept arbitrary destinations or connect to upstream services.
+
+After confirming the current workspace password, the coordinator derives identity,
+guild, cluster and name mappings from its local database. The protected application
+endpoint runs the canonical raid transformer. A separate non-login, non-bypass
+database role validates all normalized rows and commits records together with an
+owner-scoped import receipt. Whole-second event keys prevent duplicate records
+across retries and differently encoded files. Import never updates existing records.
+The import role can read only the conflict-key columns of the raid table; anonymous,
+authenticated and service roles cannot inspect receipts or call the import function.
+
+`import-journey.mjs` uses actual native services and a compiled standalone application
+to check empty setup, rejected passwords/origins/guilds, atomic refusal of a bad
+later record, unrelated-subject refusal, duplicate retries and persisted restart.
+It runs when `desktop:proof` receives a compiled application configuration. Its
+backend evidence is separate from OS file selection and renderer acceptance. All
+fixtures are synthetic. Supported file import does not establish automatic game
+integration, compatibility with other export formats or complete feature parity.

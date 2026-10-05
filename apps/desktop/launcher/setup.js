@@ -1,6 +1,12 @@
 const form = document.querySelector('form')
 let creating = form.dataset.mode === 'create'
 if (!creating) document.querySelector('#sample-label').hidden = true
+const identityFields = document.querySelector('#local-identity')
+const identityVisibility = () => {
+  identityFields.hidden = !creating || document.querySelector('#sample').checked
+}
+document.querySelector('#sample').addEventListener('change', identityVisibility)
+identityVisibility()
 document.querySelector('#recovery').hidden = creating
 document.querySelector('h1').textContent = creating
   ? 'Create a local preview workspace'
@@ -21,7 +27,15 @@ form.addEventListener('submit', async (event) => {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           password,
-          sample: document.querySelector('#sample').checked
+          sample: document.querySelector('#sample').checked,
+          identity: document.querySelector('#sample').checked
+            ? undefined
+            : {
+                guildCode: document.querySelector('#guild-code').value,
+                guildName: document.querySelector('#guild-name').value,
+                playerId: document.querySelector('#player-id').value,
+                displayName: document.querySelector('#display-name').value
+              }
         })
       })
       if (!setup.ok)
@@ -42,7 +56,15 @@ form.addEventListener('submit', async (event) => {
     if (!login.ok)
       throw new Error('Sign-in failed. Check your workspace password.')
     document.querySelector('#password').value = ''
-    window.location.assign('/player-performance?guild=SYN001&season=9999')
+    const infoResponse = await fetch('/desktop/workspace-info')
+    if (!infoResponse.ok)
+      throw new Error('Workspace information is unavailable. Try again.')
+    const info = await infoResponse.json()
+    window.location.assign(
+      Number.isInteger(info?.season)
+        ? `/player-performance?guild=${encodeURIComponent(info.guildCode)}&season=${info.season}`
+        : '/desktop/import'
+    )
   } catch (error) {
     status.textContent = error.message
     button.disabled = false
