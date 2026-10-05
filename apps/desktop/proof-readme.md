@@ -381,4 +381,12 @@ unrelated updates fail for a legacy link; clearing a legacy value repairs it.
 Credentialed authorities, controls, unsafe protocols and oversized links are
 refused. `planner-link-journey.mjs` checks actual native Auth/PostgREST writes,
 foreign-user filters, protected columns, invalid values, clearing and restart.
-It does not establish external-browser navigation or complete profile parity.
+The native shell offers a default-cancel confirmation before handing a bounded,
+credential-free HTTP(S) link to the OS browser. External popups remain denied
+inside the app, external navigation is prevented, and redirects never trigger
+browser handoff. Only the current local window can request confirmation; closing
+or leaving that window cancels a pending request. No renderer cookies, broker
+capabilities or game credentials are forwarded. Linux uses the OS default browser
+through `xdg-utils`, with detached execution, closed input/output descriptors
+and a filtered OS desktop environment so browser lifetime cannot hold the
+workspace open. This does not establish complete profile or platform parity.

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, session } = require('electron')
+const { app, BrowserWindow, session, dialog, shell } = require('electron')
 const { readFileSync, writeFileSync } = require('node:fs')
 const { join } = require('node:path')
 const { randomBytes } = require('node:crypto')
@@ -57,9 +57,15 @@ app
         offscreen: Boolean(config.verify)
       }
     })
-    window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
-    window.webContents.on('will-navigate', (event, url) => {
-      if (new URL(url).origin !== origin) event.preventDefault()
+    require('./external-links.cjs').installExternalLinks(window, origin, {
+      dialog,
+      shell: {
+        openExternal: (url) =>
+          require('./system-browser.cjs').openSystemBrowser(url, {
+            electronShell: shell
+          })
+      },
+      enabled: !config.verify
     })
     await window.loadURL(config.url)
     const gameItems = config.verify

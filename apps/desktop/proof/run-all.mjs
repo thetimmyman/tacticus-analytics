@@ -37,6 +37,8 @@ run('a-loopback-gateway', '--test', [
   'apps/desktop/proof/native-secret.test.mjs',
   'apps/desktop/proof/game-connection.test.mjs',
   'apps/desktop/proof/game-menu.test.mjs',
+  'apps/desktop/proof/external-links.test.mjs',
+  'apps/desktop/proof/system-browser.test.mjs',
   'apps/desktop/proof/launcher-options.test.mjs'
 ])
 
@@ -93,6 +95,14 @@ if (!configPath) {
   console.log('\n== Forced coordinator death / native restart ==')
   run('c-hard-kill', 'apps/desktop/proof/hard-kill-journey.mjs', [configPath])
   if (nativeConfig.runtimeGuard) {
+    console.log(
+      '\n== External browser descriptor closure / native lease reacquisition =='
+    )
+    run(
+      'c-browser-lifetime',
+      'apps/desktop/proof/browser-lifetime-journey.mjs',
+      [configPath]
+    )
     console.log('\n== Owned descriptor closure / immediate native restart ==')
     run('c-shutdown-close', 'apps/desktop/proof/shutdown-close-journey.mjs', [
       configPath
