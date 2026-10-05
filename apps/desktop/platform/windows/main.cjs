@@ -16,6 +16,8 @@ app
   .then(async () => {
     const { currentWorkspaceToken } =
       await import('../../launcher/workspace-session.mjs')
+    const { rendererCredentialSurface } =
+      await import('./credential-surface.mjs')
     process.on('message', async (message) => {
       if (
         !message ||
@@ -147,6 +149,10 @@ app
             !(
               failure.path === '/desktop/official-state' &&
               failure.status === 401
+            ) &&
+            !(
+              failure.status === 501 &&
+              rendererCredentialSurface(new URL(failure.path, origin))
             )
         )
       )

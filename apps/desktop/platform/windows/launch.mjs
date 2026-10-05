@@ -107,6 +107,15 @@ try {
   if (verify) {
     assert.equal((await fetch(`${gateway.origin}/desktop/setup`)).status, 403)
     const authorized = { 'x-desktop-transport': transportKey }
+    for (const path of [
+      '/profile/edit',
+      '/api/player-api-key',
+      '/api/validate-api-key',
+      '/api/player/test-api-key'
+    ]) {
+      const held = await fetch(gateway.origin + path, { headers: authorized })
+      assert.equal(held.status, 501)
+    }
     assert.equal(
       (
         await fetch(`${gateway.origin}/desktop/setup`, {

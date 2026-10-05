@@ -5,6 +5,7 @@ import { windowsOnboarding } from './onboarding.mjs'
 import { nativeCommand } from './native-command.mjs'
 import { randomUUID } from 'node:crypto'
 import { workspaceGate } from './session-gate.mjs'
+import { holdCredentialSurface } from './credential-surface.mjs'
 
 export function windowsSetup(services, assets, launcherAssets, session) {
   const ownerFile = join(services.state, 'workspace-owner.json')
@@ -33,6 +34,7 @@ export function windowsSetup(services, assets, launcherAssets, session) {
   const synthetic = workspaceSetup(services, launcherAssets)
   let confirming = false
   return async (req, res, url) => {
+    if (holdCredentialSurface(req, res, url)) return true
     const json = (code, value) => {
       res.writeHead(code, {
         'content-type': 'application/json',

@@ -115,6 +115,7 @@ export async function stage(config) {
     'native-command.mjs',
     'onboarding.mjs',
     'session-gate.mjs',
+    'credential-surface.mjs',
     'setup.mjs',
     'setup.html',
     'windows-setup.js',

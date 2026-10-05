@@ -209,3 +209,69 @@ test('interrupted local holding-account creation resumes only after original-pas
     await rm(root, { recursive: true, force: true })
   }
 })
+
+test('legacy key forms and handlers cannot bypass native input after activation or through encoded paths', async () => {
+  const { rendererCredentialSurface, holdCredentialSurface } =
+    await import('../../../apps/desktop/platform/windows/credential-surface.mjs')
+  for (const path of [
+    '/api-keys',
+    '/profile/edit',
+    '/profile',
+    '/onboarding/claim',
+    '/token-usage',
+    '/roster/SyntheticMember',
+    '/guild-management/settings',
+    '/guild-management/members',
+    '/api/player-api-key',
+    '/api/validate-api-key',
+    '/api/player/test-api-key',
+    '/api/onboarding/guild/start',
+    '/api/members/request-api-key',
+    '/api/profile/change-player-id',
+    '/api/admin/player-api-key',
+    '/%70rofile/edit',
+    '/PROFILE/edit',
+    '/profile%5cedit',
+    '/%2570rofile/edit',
+    '/supabase/rest/v1/player_api_keys'
+  ])
+    assert.equal(
+      rendererCredentialSurface(new URL(path, 'http://localhost')),
+      true,
+      path
+    )
+  for (const path of [
+    '/desktop/setup',
+    '/desktop/official-state',
+    '/api/auth/login',
+    '/supabase/auth/v1/token',
+    '/api/health',
+    '/player-performance',
+    '/api/player/roster',
+    '/_next/static/app.js'
+  ])
+    assert.equal(
+      rendererCredentialSurface(new URL(path, 'http://localhost')),
+      false,
+      path
+    )
+  let status, body
+  const res = {
+    writeHead(code) {
+      status = code
+    },
+    end(text) {
+      body = text
+    }
+  }
+  assert.equal(
+    holdCredentialSurface(
+      { method: 'POST' },
+      res,
+      new URL('http://localhost/api/player-api-key')
+    ),
+    true
+  )
+  assert.equal(status, 501)
+  assert.ok(JSON.parse(body).error.includes('native'))
+})
