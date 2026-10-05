@@ -333,8 +333,9 @@ export async function ownedNativeServices({
       ['-D', pgData, '-h', '127.0.0.1', '-p', String(ports.db), '-k', ''],
       pgEnv
     )
-    const ready = async (probe, child, label) => {
-      for (let i = 0; i < 100; i++) {
+    const ready = async (probe, child, label, timeoutMs = 30000) => {
+      const deadline = performance.now() + timeoutMs
+      while (performance.now() < deadline) {
         if (child.exitCode !== null || child.signalCode !== null)
           throw new Error(
             `${label} exited before readiness; inspect private service log`
@@ -348,7 +349,8 @@ export async function ownedNativeServices({
       }
       throw new Error(`${label} readiness timed out`)
     }
-    await ready(() => psql('SELECT 1;'), pg, 'PostgreSQL')
+    // Crash recovery must finish before SQL, Auth migrations or application work.
+    await ready(() => psql('SELECT 1;'), pg, 'PostgreSQL', 90000)
     if (!needsSchema)
       await completeSchema({ state, schemaDirectory, plan: schemaPlan, psql })
     const token = {
@@ -423,7 +425,9 @@ export async function ownedNativeServices({
     const auth = launch(binaries.auth, ['serve'], authEnv, binaries.authCwd)
     await ready(
       async () => {
-        const r = await fetch(`http://127.0.0.1:${ports.auth}/health`)
+        const r = await fetch(`http://127.0.0.1:${ports.auth}/health`, {
+          signal: AbortSignal.timeout(2000)
+        })
         if (!r.ok) throw Error('Auth not ready')
       },
       auth,
@@ -457,7 +461,8 @@ export async function ownedNativeServices({
     await ready(
       async () => {
         const r = await fetch(`http://127.0.0.1:${ports.rest}/`, {
-          headers: { Authorization: `Bearer ${token.service}` }
+          headers: { Authorization: `Bearer ${token.service}` },
+          signal: AbortSignal.timeout(2000)
         })
         if (!r.ok) throw Error('PostgREST not ready')
       },
