@@ -18,7 +18,7 @@ args = parser.parse_args()
 if not args.output.is_absolute() or len(args.sha) != 40 or any(c not in "0123456789abcdef" for c in args.sha):
     raise SystemExit("An absolute disposable output directory and full source SHA are required")
 args.output.mkdir(parents=True, exist_ok=False)
-started = datetime.now(timezone.utc).isoformat()
+started = datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
 def run(command, *, timeout=1200, log=None):
     if log:
@@ -86,7 +86,7 @@ try:
     digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
     # The fixed fixture identifies the synthetic demo only, not live Player verification.
     fixture = (ROOT / "apps/mobile/ios/Resources/synthetic-demo.json").read_bytes()
-    completed = datetime.now(timezone.utc).isoformat()
+    completed = datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
     evidence = {
         "schemaVersion": "platform-evidence/v1", "evidenceKind": "product-acceptance", "runId": "ios-simulator-synthetic-v1",
         "build": {"sha": args.sha, "artifact": {"sha256": digest, "format": "simulator-app-zip"}},
