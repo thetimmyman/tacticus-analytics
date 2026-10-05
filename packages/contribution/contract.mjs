@@ -160,7 +160,8 @@ export function envelope(value) {
       reject()
     return structuredClone(row)
   })
-  if (Buffer.byteLength(JSON.stringify(value)) > 65536) reject()
+  if (new TextEncoder().encode(JSON.stringify(value)).byteLength > 65536)
+    reject()
   return { ...structuredClone(value), rows }
 }
 export function allowed(policy, upload) {
