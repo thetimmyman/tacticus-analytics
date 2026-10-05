@@ -215,6 +215,40 @@ private final class SyntheticOfficialSource: OfficialSource {
         XCTAssertTrue(vault.values.isEmpty)
         XCTAssertLessThanOrEqual(source.requested.count, 1)
     }
+    func testPlayerAndGuildReferenceChangesInvalidateOptionalAccessAndRetainHistory() async throws {
+        let vault = SyntheticVault(); let all = try SyntheticOfficialSource.fixtures()
+        let source = SyntheticOfficialSource(responses: all)
+        let supervisor = ConnectionSupervisor(store: store, vault: vault, source: source)
+        try await supervisor.connect(credential: "synthetic-original-value") { _, _ in true }
+        try store.add(.demo)
+        let history = try store.read().raids
+        let original = try XCTUnwrap(store.capabilities().first(where: { $0.scope == .player })?.reference)
+        source.responses = [.player: try XCTUnwrap(all[.player])]
+        try await supervisor.connect(credential: "synthetic-replacement-value") { _, _ in true }
+        XCTAssertNil(try store.capabilities().first(where: { $0.scope == .guild })?.reference)
+        XCTAssertNil(try store.capabilities().first(where: { $0.scope == .raid })?.reference)
+        XCTAssertNil(vault.values[original])
+        XCTAssertEqual(try store.read().raids, history)
+        source.responses = all
+        try await supervisor.connect(credential: "synthetic-optional-original", requestPlayer: false) { _, _ in false }
+        let oldRaid = try XCTUnwrap(store.capabilities().first(where: { $0.scope == .raid })?.reference)
+        source.responses = [.guild: try XCTUnwrap(all[.guild])]
+        try await supervisor.connect(credential: "synthetic-guild-replacement", requestPlayer: false) { _, _ in false }
+        XCTAssertNil(try store.capabilities().first(where: { $0.scope == .raid })?.reference)
+        XCTAssertNil(vault.values[oldRaid])
+        source.responses = all
+        try await supervisor.connect(credential: "synthetic-optional-combined", requestPlayer: false) { _, _ in false }
+        try supervisor.disconnect(.guild)
+        XCTAssertNil(try store.capabilities().first(where: { $0.scope == .raid })?.reference)
+        XCTAssertNil(try store.capabilities().first(where: { $0.scope == .guild })?.guild)
+        source.responses = try SyntheticOfficialSource.fixtures(guild: "new-synthetic-guild")
+        try await supervisor.connect(credential: "synthetic-new-guild", requestPlayer: false) { _, _ in false }
+        XCTAssertEqual(try store.capabilities().first(where: { $0.scope == .guild })?.guild, "new-synthetic-guild")
+        try supervisor.disconnect(.player)
+        XCTAssertTrue(try store.capabilities().allSatisfy { $0.reference == nil })
+        XCTAssertTrue(vault.values.isEmpty)
+        XCTAssertEqual(try store.read().raids, history)
+    }
 }
 
 private extension RaidRow {

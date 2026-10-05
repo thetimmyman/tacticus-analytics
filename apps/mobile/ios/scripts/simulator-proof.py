@@ -62,7 +62,7 @@ try:
         print("Running native tests on " + family + " Simulator", flush=True)
         run(["xcodebuild", *project, "-destination", f"platform=iOS Simulator,id={udid}", "-parallel-testing-enabled", "NO", "-maximum-concurrent-test-simulator-destinations", "1", "test"], log=args.output / (family + "-diagnostic.log"))
         diagnostics = (args.output / (family + "-diagnostic.log")).read_text(errors="replace").splitlines()
-        for name in ["testOfflineSQLiteCalculationAndReopen", "testActualSQLiteFullRollbackRetainsPreviousDocument", "testRealSimulatorKeychainCRUDAndCanaryGuard", "testAllThreeSyntheticScopesReuseOneReferenceAndRealShapeProjection", "testInstalledSyntheticOfflineWriteAndProcessRelaunch", "testFreshPersonalWorkspaceRequiresPlayerAndSecureInput"]:
+        for name in ["testOfflineSQLiteCalculationAndReopen", "testActualSQLiteFullRollbackRetainsPreviousDocument", "testRealSimulatorKeychainCRUDAndCanaryGuard", "testAllThreeSyntheticScopesReuseOneReferenceAndRealShapeProjection", "testPlayerAndGuildReferenceChangesInvalidateOptionalAccessAndRetainHistory", "testInstalledSyntheticOfflineWriteAndProcessRelaunch", "testFreshPersonalWorkspaceRequiresPlayerAndSecureInput"]:
             if not any(name in line and "passed" in line.lower() for line in diagnostics):
                 raise RuntimeError("Required native test did not report a pass: " + name)
         elapsed = round(time.monotonic() - began, 3)

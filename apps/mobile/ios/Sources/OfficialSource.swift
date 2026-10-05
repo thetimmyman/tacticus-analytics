@@ -71,6 +71,7 @@ final class DeviceOfficialSource: OfficialSource {
         var projectedPlayer: PlayerSnapshot?
         var guild: String?
         var keyExpired = false
+        var playerReferenceChanged = false
         func read(_ scope: OfficialScope) async throws -> [String: Any] {
             try Task.checkCancellation()
             guard !keyExpired else { throw WorkspaceError.scope }
@@ -106,6 +107,7 @@ final class DeviceOfficialSource: OfficialSource {
                     guard let candidate = try WorkspaceDocument.decode(data).player,
                           await confirm(candidate.displayName, oldDocument.player?.displayName) else { throw WorkspaceError.cancelled }
                     projectedPlayer = candidate
+                    playerReferenceChanged = previous.first(where: { $0.scope == .player })?.reference != reference
                     document.player = candidate; document.mode = "personal"
                     updated.append(CapabilityState(scope: .player, reference: reference, status: "verified-scope", guild: nil))
                 } catch {
@@ -116,12 +118,12 @@ final class DeviceOfficialSource: OfficialSource {
             do {
                 let value = try await read(.guild)
                 guard let identifier = (value["guild"] as? [String: Any])?["guildId"] as? String, !identifier.isEmpty, identifier.count <= 100 else { throw WorkspaceError.scope }
-                if let expected = previous.first(where: { $0.scope == .guild })?.guild, expected != identifier { throw WorkspaceError.scope }
+                if !playerReferenceChanged, let expected = previous.first(where: { $0.scope == .guild })?.guild, expected != identifier { throw WorkspaceError.scope }
                 guild = identifier
                 updated.append(CapabilityState(scope: .guild, reference: reference, status: "verified-scope", guild: identifier))
             } catch {
-                let prior = previous.first(where: { $0.scope == .guild })
-                updated.append(CapabilityState(scope: .guild, reference: prior?.reference, status: "unavailable-or-wrong-guild", guild: prior?.guild))
+                let prior = playerReferenceChanged ? nil : previous.first(where: { $0.scope == .guild })
+                updated.append(CapabilityState(scope: .guild, reference: prior?.reference, status: playerReferenceChanged ? "player-changed-reverification-required" : "unavailable-or-wrong-guild", guild: prior?.guild))
             }
             if let guild {
                 do {
@@ -149,10 +151,12 @@ final class DeviceOfficialSource: OfficialSource {
     }
     func disconnect(_ scope: OfficialScope) throws {
         let previous = try store.capabilities()
-        let current = previous.first(where: { $0.scope == scope })
         try store.transaction {
-            try store.setCapability(CapabilityState(scope: scope, reference: nil, status: "disconnected-offline-readable", guild: current?.guild))
-            if scope == .guild { try store.setCapability(CapabilityState(scope: .raid, reference: nil, status: "guild-binding-unavailable", guild: nil)) }
+            try store.setCapability(CapabilityState(scope: scope, reference: nil, status: "disconnected-offline-readable", guild: nil))
+            if scope == .player {
+                try store.setCapability(CapabilityState(scope: .guild, reference: nil, status: "player-required", guild: nil))
+            }
+            if scope == .guild || scope == .player { try store.setCapability(CapabilityState(scope: .raid, reference: nil, status: "guild-binding-unavailable", guild: nil)) }
         }
         let retained = Set(try store.capabilities().compactMap(\.reference))
         for reference in Set(previous.compactMap(\.reference)) where !retained.contains(reference) { try vault.remove(reference) }
