@@ -28,7 +28,8 @@ run('a-loopback-gateway', '--test', [
   'apps/desktop/proof/schema-lifecycle.test.mjs',
   'apps/desktop/proof/safe-files.test.mjs',
   'apps/desktop/proof/workspace-selection.test.mjs',
-  'apps/desktop/proof/job-scheduler.test.mjs'
+  'apps/desktop/proof/job-scheduler.test.mjs',
+  'apps/desktop/proof/credential-vault.test.mjs'
 ])
 
 console.log(

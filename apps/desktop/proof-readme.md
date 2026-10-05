@@ -172,8 +172,9 @@ version and snapshot-job version have pinned upgrade
 paths. The migration preserves the existing local
 identity and data; it does not replace the database or import hosted state.
 Checkpoints stay in the private workspace `backups` directory. Restoration must use
-a separate workspace so it cannot discard writes made after an upgrade. Automatic
-checkpoint pruning and graphical restoration are not implemented.
+a separate workspace so it cannot discard writes made after an upgrade. The native workspace menu exports a stopped workspace and restores it into a new
+private directory. Restoring never overwrites an existing workspace. Automatic
+checkpoint pruning is not implemented.
 
 `schema-interruption-journey.mjs` uses the synthetic native fixture to cancel a
 migration before commit and deny the final marker write after commit. Both retry
@@ -221,3 +222,30 @@ Forwarded host, port and protocol come from the protected gateway, so valid loca
 Server Actions retain their browser-facing origin. These journeys cover the
 selected eight-row fixture. Reference catalogues remain empty, raid-team tabs and
 other feature interactions are not covered, and this is not complete feature parity.
+
+The credential vault is a trusted Electron-main primitive, with no renderer IPC,
+HTTP endpoint, client discovery or game requests. A future broker must provide
+explicit account-scoped consent and fixed operations with bounded result schemas.
+The primitive checks consent before querying OS storage and again around credential
+use. It rejects unavailable encryption and Linux `basic_text`, and admits only
+recognized GNOME or KDE secure providers. Only GNOME libsecret has native proof;
+KDE backend names are admitted but their native behavior is not yet validated.
+The descriptor-based filesystem adapter currently supports Linux only; Windows
+and macOS refuse use until their own adapters are tested.
+
+Records have opaque random handles and private directory/file permissions.
+Permission withdrawal denies use; deletion does not require decryption or renewed
+consent. A locked provider retains the encrypted record for a later retry. This
+adapter does not erase JavaScript strings from memory or isolate credentials from
+other software running as the same OS user. Keep its directory outside workspace
+exports; the workspace transfer format includes only database, workspace signing
+credentials and the schema marker.
+
+`credential-vault.test.mjs` uses synthetic AES-GCM fixtures to check consent,
+insecure-provider refusal, tampering, permissions, bounded reads, withdrawal,
+redacted errors and cleanup. Separate native proof used pinned Electron 44.5.1,
+GNOME Keyring and libsecret inside an offline Linux VM with an isolated synthetic
+keyring. The basic provider created no record; libsecret encrypted a synthetic
+credential, decrypted it after a fresh Electron process and keyring session, denied
+use after withdrawal, and removed the record. This does not establish game-broker
+integration, OS lock-screen behavior, KDE support or other platform support.
