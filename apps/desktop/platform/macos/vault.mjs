@@ -1,7 +1,10 @@
 import { spawn } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
 
-export function nativeVault(helper, { run } = {}) {
+export function nativeVault(
+  helper,
+  { run, pending, authorize = () => {} } = {}
+) {
   const lifetime = new AbortController()
   run ??= (file, request) =>
     invoke(
@@ -11,12 +14,25 @@ export function nativeVault(helper, { run } = {}) {
     )
   async function call(operation, handle, extra = {}) {
     const result = await run(helper, { operation, handle, ...extra })
-    if (result.status !== 'ok') throw new Error('Native vault unavailable')
+    if (result.status !== 'ok')
+      throw Object.assign(new Error('Native vault unavailable'), {
+        code:
+          result.status === 'vault-locked'
+            ? 'EVAULTLOCKED'
+            : result.status === 'cancelled'
+              ? 'ECANCELLED'
+              : 'EVAULT'
+      })
     return result
   }
   return {
     async promptAndStoreOfficialRead({ requestedCapabilities }) {
+      authorize()
       const handle = randomUUID()
+      if (pending)
+        pending.write({
+          handles: [...new Set([...(pending.read().handles ?? []), handle])]
+        })
       try {
         await call('prompt-store', handle, {
           label: `Requested access: ${requestedCapabilities.join(', ')}. Player access is mandatory for a new workspace. Cloud contribution uses separate consent.`
@@ -28,6 +44,7 @@ export function nativeVault(helper, { run } = {}) {
       return handle
     },
     async withOfficialRead(handle, action) {
+      authorize()
       const result = await call('read', handle)
       try {
         if (typeof result.value !== 'string' || !result.value)
@@ -39,8 +56,33 @@ export function nativeVault(helper, { run } = {}) {
     },
     async remove(handle) {
       await call('remove', handle)
+      if (pending)
+        pending.write({
+          handles: (pending.read().handles ?? []).filter(
+            (value) => value !== handle
+          )
+        })
+    },
+    commit(handles) {
+      if (pending)
+        pending.write({
+          handles: (pending.read().handles ?? []).filter(
+            (value) => !handles.includes(value)
+          )
+        })
+    },
+    async recover(handles) {
+      authorize()
+      for (const handle of pending?.read().handles ?? []) {
+        if (handles.includes(handle)) continue
+        if (!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(handle))
+          throw new Error('Invalid pending vault metadata')
+        await this.remove(handle)
+      }
+      this.commit(handles)
     },
     async confirmPlayer({ displayName }) {
+      authorize()
       try {
         await call('confirm-player', 'confirmation', { label: displayName })
         return true
@@ -70,10 +112,22 @@ async function invoke(helper, request, signal) {
     })
     child.once('error', () => reject(new Error('Native vault unavailable')))
     child.once('close', (code) => {
-      if (code !== 0 || bytes > 16384)
+      if (![0, 1].includes(code) || bytes > 16384)
         return reject(new Error('Native vault unavailable'))
       try {
-        accept(JSON.parse(Buffer.concat(chunks).toString('utf8')))
+        const value = JSON.parse(Buffer.concat(chunks).toString('utf8'))
+        if (
+          ![
+            'ok',
+            'cancelled',
+            'invalid-request',
+            'vault-unavailable',
+            'vault-locked',
+            'credential-missing'
+          ].includes(value.status)
+        )
+          throw new Error('Invalid native response')
+        accept(value)
       } catch {
         reject(new Error('Native vault unavailable'))
       } finally {

@@ -47,3 +47,43 @@ test('refusal and unavailable Keychain cannot fall back to plaintext', async () 
     )
   }
 })
+
+test('interrupted native setup retains only opaque pending references and recovery cannot delete committed access', async () => {
+  let saved = {},
+    unlocked = true
+  const removed = [],
+    pending = {
+      read: () => structuredClone(saved),
+      write: (value) => {
+        saved = structuredClone(value)
+      }
+    }
+  const first = nativeVault('/native/helper', {
+    pending,
+    authorize: () => {
+      if (!unlocked)
+        throw Object.assign(new Error('Unlock'), { code: 'ESESSION' })
+    },
+    run: async (_file, request) => {
+      if (request.operation === 'remove') removed.push(request.handle)
+      return { status: 'ok' }
+    }
+  })
+  const committed = await first.promptAndStoreOfficialRead({
+    requestedCapabilities: ['Player']
+  })
+  const interrupted = await first.promptAndStoreOfficialRead({
+    requestedCapabilities: ['Guild']
+  })
+  assert.deepEqual(saved.handles, [committed, interrupted])
+  unlocked = false
+  await assert.rejects(
+    first.withOfficialRead(committed, () => assert.fail()),
+    (error) => error.code === 'ESESSION'
+  )
+  unlocked = true
+  await first.recover([committed])
+  assert.deepEqual(removed, [interrupted])
+  assert.deepEqual(saved.handles, [])
+  assert.equal(JSON.stringify(saved).includes('SYNTHETIC-CANARY'), false)
+})

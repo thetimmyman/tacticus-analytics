@@ -107,7 +107,10 @@ case "read":
     var result: CFTypeRef?
     let status = SecItemCopyMatching(query as CFDictionary, &result)
     guard status == errSecSuccess, let bytes = result as? Data,
-          let value = String(data: bytes, encoding: .utf8) else { finish("vault-unavailable", errorCode: status) }
+          let value = String(data: bytes, encoding: .utf8) else {
+        let state = status == errSecItemNotFound ? "credential-missing" : status == errSecInteractionNotAllowed ? "vault-locked" : "vault-unavailable"
+        finish(state, errorCode: status)
+    }
     finish("ok", value)
 case "remove":
     let status = SecItemDelete(query as CFDictionary)

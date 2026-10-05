@@ -4,7 +4,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createServer } from 'node:net'
 import { setTimeout as delay } from 'node:timers/promises'
-import { nativeServices } from '../../proof/native-services.mjs'
+import { nativeServices } from './services.mjs'
 import { loopbackGateway } from '../../proof/loopback-gateway.mjs'
 import { workspaceSetup } from '../../launcher/workspace.mjs'
 import {
@@ -14,6 +14,9 @@ import {
 import { privateState } from './state.mjs'
 import { nativeVault } from './vault.mjs'
 import { qualifyRecovery } from './recovery.mjs'
+import { personalWorkspace } from './workspace.mjs'
+import { localSessionGate } from './session.mjs'
+import { currentWorkspaceToken } from '../../launcher/workspace-session.mjs'
 
 process.umask(0o077)
 if (process.platform !== 'darwin' || !process.env.TA_MAC_GUARD_LOCK)
@@ -38,11 +41,29 @@ const verify = option('--verify')
   : null
 if (verify && verify.synthetic !== true)
   throw new Error('Synthetic developer verification required')
-const vault = nativeVault(join(root, 'bin/secret-vault'))
+let activeSession
+const vault = nativeVault(join(root, 'bin/secret-vault'), {
+  pending: privateState(join(state, 'vault-pending.json')),
+  authorize: () => {
+    if (!activeSession)
+      throw Object.assign(new Error('Unlock required'), { code: 'ESESSION' })
+    activeSession.assert()
+  }
+})
 const lifetime = new AbortController()
+const savedPersonal = privateState(join(state, 'personal.json'))
 const onboarding = new WorkspaceOnboardingV1({
   vault,
-  state: privateState(join(state, 'personal.json')),
+  state: {
+    read: savedPersonal.read,
+    write: (value) => {
+      if (!activeSession)
+        throw Object.assign(new Error('Unlock required'), { code: 'ESESSION' })
+      activeSession.assert()
+      savedPersonal.write(value)
+      vault.commit(Object.values(value.vaultReferences ?? {}))
+    }
+  },
   upstream: new DeviceOfficialSourceV1({
     fetchImpl: (url, options) =>
       fetch(url, {
@@ -51,10 +72,6 @@ const onboarding = new WorkspaceOnboardingV1({
       })
   })
 })
-if (!verify && !onboarding.view().personal) {
-  await onboarding.connect({ confirmPlayer: vault.confirmPlayer })
-  await onboarding.skipOptional()
-}
 // The kernel lock is held by the native owner, so an interrupted prior session
 // cannot own this workspace. The proof supervisor's persistent marker is stale.
 await unlink(join(state, 'running.lock')).catch((error) => {
@@ -71,6 +88,10 @@ const services = await nativeServices({
     authCwd: join(root, 'auth'),
     postgrest: join(root, 'postgrest/postgrest')
   }
+})
+const gate = localSessionGate({
+  services,
+  signingKey: privateState(join(state, 'credentials.json')).read().jwt
 })
 let gateway
 try {
@@ -130,12 +151,33 @@ try {
     )
   } else {
     const transportKey = randomBytes(32).toString('hex')
-    const setup = workspaceSetup(services, join(root, 'apps/desktop/launcher'))
+    const setup = verify
+      ? workspaceSetup(services, join(root, 'apps/desktop/launcher'))
+      : personalWorkspace(services, here)
     gateway = await loopbackGateway({
       services,
       transportKey,
       handleLocalRequest: async (req, res, url) => {
         if (url.pathname === '/api/desktop/personal' && req.method === 'GET') {
+          try {
+            const cookies = String(req.headers.cookie ?? '')
+              .split(';')
+              .map((part) => {
+                const separator = part.indexOf('=')
+                return {
+                  name: part.slice(0, separator).trim(),
+                  value: part.slice(separator + 1).trim()
+                }
+              })
+            await gate.authorize(currentWorkspaceToken(cookies))
+          } catch {
+            res.writeHead(401, {
+              'content-type': 'application/json',
+              'cache-control': 'no-store'
+            })
+            res.end('{"error":"Unlock your local workspace"}')
+            return true
+          }
           res.writeHead(200, {
             'content-type': 'application/json',
             'cache-control': 'no-store'
@@ -154,13 +196,18 @@ try {
           return true
         }
         if (
-          url.pathname === '/desktop/setup' &&
-          req.method === 'POST' &&
           !verify &&
-          !onboarding.view().personal
+          !onboarding.view().personal &&
+          !url.pathname.startsWith('/desktop/') &&
+          !url.pathname.startsWith('/api/auth/') &&
+          !url.pathname.startsWith('/supabase/auth/v1/') &&
+          url.pathname !== '/api/health'
         ) {
-          res.writeHead(409)
-          res.end('Player access required')
+          res.writeHead(409, {
+            'content-type': 'application/json',
+            'cache-control': 'no-store'
+          })
+          res.end('{"error":"Player access is required for personal content"}')
           return true
         }
         return setup(req, res, url)
@@ -229,39 +276,31 @@ try {
         TMPDIR: process.env.TMPDIR
       },
       state,
+      true,
       true
     )
-    let actionBuffer = '',
-      actionQueue = Promise.resolve()
-    window.stdout.on('data', (chunk) => {
-      actionBuffer += chunk.toString('utf8')
-      if (actionBuffer.length > 16384) {
-        actionBuffer = ''
+    let actionQueue = Promise.resolve()
+    window.on('message', (action) => {
+      if (
+        !action ||
+        JSON.stringify(action).length > 20000 ||
+        Object.keys(action).sort().join(',') !==
+          'operation,requestId,scope,token' ||
+        !/^[a-f0-9]{32}$/.test(action.requestId ?? '') ||
+        !['connect', 'disconnect', 'session'].includes(action.operation) ||
+        !['Player', 'Guild', 'Guild Raid'].includes(action.scope)
+      )
         return
-      }
-      let end
-      while ((end = actionBuffer.indexOf('\n')) !== -1) {
-        const line = actionBuffer.slice(0, end)
-        actionBuffer = actionBuffer.slice(end + 1)
-        if (!line.startsWith('TA-MAC-ACTION:')) continue
-        let action
-        try {
-          action = JSON.parse(line.slice('TA-MAC-ACTION:'.length))
-        } catch {
-          continue
-        }
-        if (
-          !action ||
-          Object.keys(action).sort().join(',') !== 'operation,scope' ||
-          !['connect', 'disconnect'].includes(action.operation) ||
-          !['Player', 'Guild', 'Guild Raid'].includes(action.scope)
-        )
-          continue
-        actionQueue = actionQueue
-          .then(async () => {
+      actionQueue = actionQueue
+        .then(async () => {
+          try {
+            activeSession = await gate.authorize(action.token)
+            await vault.recover(
+              Object.values(onboarding.state.read().vaultReferences ?? {})
+            )
             if (action.operation === 'disconnect')
               await onboarding.disconnect(action.scope)
-            else
+            else if (action.operation === 'connect')
               await onboarding.connect({
                 requested:
                   action.scope === 'Player'
@@ -270,9 +309,40 @@ try {
                 confirmPlayer: vault.confirmPlayer,
                 expectedGuildId: onboarding.state.read().guildId
               })
-          })
-          .catch(() => {})
-      }
+            activeSession.assert()
+            window.send({
+              requestId: action.requestId,
+              status: 'ok',
+              view: onboarding.view()
+            })
+          } catch (error) {
+            let code = [
+              'ESESSION',
+              'EVAULTLOCKED',
+              'EVAULT',
+              'EEXPIRED',
+              'EUPSTREAM',
+              'ECANCELLED'
+            ].includes(error.code)
+              ? error.code
+              : 'EACCESS'
+            try {
+              activeSession?.assert()
+            } catch {
+              code = 'ESESSION'
+            }
+            if (window.connected)
+              window.send({
+                requestId: action.requestId,
+                status: 'unavailable',
+                code
+              })
+          } finally {
+            action.token = ''
+            activeSession = null
+          }
+        })
+        .catch(() => {})
     })
     const code = await new Promise((accept, reject) => {
       window.once('exit', accept)

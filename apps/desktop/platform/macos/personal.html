@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Personal workspace</title>
+  </head>
+  <body>
+    <main>
+      <h1 id="name">Personal workspace</h1>
+      <p id="status" role="status" aria-live="polite">Reading local data…</p>
+      <p id="freshness"></p>
+      <h2>Access</h2>
+      <ul id="capabilities"></ul>
+      <p>
+        Use the native Official access menu to add or replace access. Guild
+        features remain on hold until their verified access is available. Cloud
+        contribution requires separate consent and remains off.
+      </p>
+      <h2>Raid resources</h2>
+      <p id="resources"></p>
+      <h2>Roster</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Unit</th>
+            <th>Rank</th>
+            <th>XP level</th>
+          </tr>
+        </thead>
+        <tbody id="roster"></tbody>
+      </table>
+      <h2>Official Player data</h2>
+      <div id="snapshot"></div>
+      <p id="limitation"></p>
+    </main>
+    <script src="/desktop/personal.js"></script>
+  </body>
+</html>

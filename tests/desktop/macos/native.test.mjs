@@ -138,10 +138,10 @@ test(
       )
       assert.equal(initialRead.response.value, value)
       command(['lock-keychain', keychain])
-      assert.equal((await invoke('read')).response.status, 'vault-unavailable')
+      assert.equal((await invoke('read')).response.status, 'vault-locked')
       command(['unlock-keychain', '-p', password, keychain])
       assert.equal((await invoke('remove')).code, 0)
-      assert.equal((await invoke('read')).response.status, 'vault-unavailable')
+      assert.equal((await invoke('read')).response.status, 'credential-missing')
       assert.ok(!(await readFile(keychain)).includes(Buffer.from(value)))
     } finally {
       try {

@@ -65,6 +65,7 @@ jobs:
         run: node apps/desktop/platform/macos/build-inputs.mjs "$RUNNER_TEMP/mac-inputs"
       - name: Build desktop application with local origins
         env:
+          STANDALONE_BUILD: 'true'
           NEXT_PUBLIC_RUNTIME_PROFILE: desktop
           NEXT_TELEMETRY_DISABLED: '1'
           NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:9/supabase

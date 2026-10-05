@@ -49,6 +49,19 @@ full personal projection into every existing application route is unfinished.
 The mandatory Player guard and separate-key native menu adapter are included;
 real access remains blocked without the required helper provisioning.
 
+Ordinary setup creates a local Auth account in a Player-required holding state.
+After one workspace unlock, the native menu obtains the current owner-session
+cookie and passes it through an inherited privileged IPC pipe. Auth verifies its
+signature, expiry and local owner; native HMAC/expiry checks also run before
+credential access and final state commits. Passwords and session tokens are not
+written to native action logs or cached in a workspace file. Renderer content
+has no native command bridge. Missing or expired sessions return to one unlock.
+The personal view can inspect the complete allowed official Player snapshot,
+including inventory, equipment and progress, with bounded lazy pagination.
+Historical native data remains distinct from API ownership verification.
+Interrupted setup records only opaque pending references; after authorized
+unlock, recovery removes unused native items and retains committed references.
+
 Native menus provide separate scope connection/revocation and cached personal
 export through a graphical file chooser. Closing the window cancels pending
 native input and official requests. Imports, full workspace recovery controls,
@@ -61,3 +74,8 @@ supported OS matrix, actual Mac testing, owner-provided signing and notarization
 Never disable Gatekeeper or OS protection
 to qualify this candidate. Removing an app bundle must retain workspace data and
 Keychain references unless the owner explicitly requests deletion.
+
+Relocated developer Mach-O files receive a local ad-hoc loader seal. This creates
+no signing identity and supplies no trusted consumer signature or notarization.
+Qualification emits all thirteen `platform-evidence/v1` scenarios, leaving
+unmeasured consumer acceptance blocked even when selected database checks pass.
