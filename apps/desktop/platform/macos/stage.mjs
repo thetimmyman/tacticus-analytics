@@ -137,7 +137,9 @@ export async function stage(config) {
         '-verify_arch',
         config.architecture === 'arm64' ? 'arm64' : 'x86_64'
       ])
-      const libraries = execFileSync('/usr/bin/otool', ['-L', file], {
+      // Electron helper names contain parentheses. Disable otool's archive
+      // member filename syntax so the exact bundled executable is inspected.
+      const libraries = execFileSync('/usr/bin/otool', ['-m', '-L', file], {
         encoding: 'utf8'
       })
         .split('\n')
