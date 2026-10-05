@@ -284,3 +284,32 @@ test('API rejection and local import failure have distinct messages and save no 
       assert.equal(f.loads, 0)
     }, failure)
 })
+
+test('Guild rejection using a saved Player key reports upstream access and preserves the saved grant', async () =>
+  fixture(
+    async (f) => {
+      const navigate = (scope) =>
+        f.webContents.emit(
+          'will-navigate',
+          { preventDefault() {} },
+          `http://127.0.0.1:54321/desktop/connect-${scope}`
+        )
+      navigate('player')
+      for (let i = 0; i < 200 && f.loads === 0; i++) await delay(5)
+      assert.equal(f.loads, 1)
+      const before = await loadScopedConnections(f.state)
+      navigate('guild')
+      for (
+        let i = 0;
+        i < 200 && !f.messages.some((m) => m.type === 'error');
+        i++
+      )
+        await delay(5)
+      const error = f.messages.find((m) => m.type === 'error')
+      assert.match(error.message, /Tacticus rejected/)
+      assert.doesNotMatch(error.message, /keyring|OS storage/)
+      assert.deepEqual(f.prompts, ['player-api-key'])
+      assert.deepEqual(await loadScopedConnections(f.state), before)
+    },
+    { path: '/api/v1/guild', status: 403 }
+  ))
