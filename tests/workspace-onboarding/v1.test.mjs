@@ -120,6 +120,26 @@ function fixture(scopes = ['Player']) {
 }
 const confirmPlayer = async () => true
 
+test('native setup errors retain only an allowlisted category and never native error text', async () => {
+  const service = new WorkspaceOnboardingV1({
+    vault: {
+      promptAndStoreOfficialRead: async () => {
+        throw Object.assign(
+          new Error('Synthetic raw diagnostic must not escape'),
+          { code: 'EVAULTLOCKED' }
+        )
+      }
+    },
+    state: { read: () => ({}), write: () => assert.fail('Must not write') },
+    upstream: { get: () => assert.fail('Must not read') }
+  })
+  await assert.rejects(
+    service.connect({ requested: ['Player'], confirmPlayer }),
+    (error) =>
+      error.code === 'EVAULTLOCKED' && !error.message.includes('raw diagnostic')
+  )
+})
+
 test('complete allowed Player inventory/progress is projected while unknown credential fields are excluded', async () => {
   const f = fixture()
   const view = await f.service.connect({ requested: ['Player'], confirmPlayer })

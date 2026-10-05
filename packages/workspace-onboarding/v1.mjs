@@ -355,14 +355,28 @@ export class WorkspaceOnboardingV1 {
           await this.vault.remove(oldHandle)
       }
       return this.view()
-    } catch {
+    } catch (error) {
       if (
         handle &&
         !Object.values(previous.vaultReferences ?? {}).includes(handle)
       )
         await this.vault.remove(handle)
-      throw new Error(
-        'Secure onboarding could not finish; retained data is available offline'
+      throw Object.assign(
+        new Error(
+          'Secure onboarding could not finish; retained data is available offline'
+        ),
+        {
+          code: [
+            'EVAULTLOCKED',
+            'EVAULT',
+            'EEXPIRED',
+            'EUPSTREAM',
+            'ESESSION',
+            'ECANCELLED'
+          ].includes(error.code)
+            ? error.code
+            : 'EACCESS'
+        }
       )
     } finally {
       this.busy = false
