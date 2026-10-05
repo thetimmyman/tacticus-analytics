@@ -37,9 +37,15 @@ for name, sources, kind in [
     extension = "app" if kind == "application" else "xctest"
     product = add(name + "-product", "PBXFileReference", explicitFileType="wrapper.application" if kind == "application" else "wrapper.cfbundle", path=f"{name}.{extension}", sourceTree="BUILT_PRODUCTS_DIR")
     products.append(product)
+    resources = []
+    if kind == "application":
+        source = "Resources/synthetic-demo.json"
+        ref = add(source, "PBXFileReference", lastKnownFileType="text.json", path=source, sourceTree="SOURCE_ROOT")
+        references.append(ref)
+        resources.append(add("build-" + source, "PBXBuildFile", fileRef=ref))
     phases = [add(name + "-sources", "PBXSourcesBuildPhase", buildActionMask=2147483647, files=builds, runOnlyForDeploymentPostprocessing=0),
               add(name + "-frameworks", "PBXFrameworksBuildPhase", buildActionMask=2147483647, files=[], runOnlyForDeploymentPostprocessing=0),
-              add(name + "-resources", "PBXResourcesBuildPhase", buildActionMask=2147483647, files=[], runOnlyForDeploymentPostprocessing=0)]
+              add(name + "-resources", "PBXResourcesBuildPhase", buildActionMask=2147483647, files=resources, runOnlyForDeploymentPostprocessing=0)]
     configs = []
     for mode in ["Debug", "Release"]:
         settings = {"PRODUCT_NAME": name, "PRODUCT_BUNDLE_IDENTIFIER": "com.tacticusanalytics.mobile.ios" + ("." + name if kind != "application" else ""),

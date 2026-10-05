@@ -50,6 +50,7 @@ try:
     derived = args.output / "derived"
     project = ["-project", "apps/mobile/ios/TacticusIOS.xcodeproj", "-scheme", "TacticusIOS", "-derivedDataPath", str(derived)]
     for family, device in selected:
+        print("Preparing disposable " + family + " Simulator", flush=True)
         # A new disposable Simulator is isolated from any pre-existing runner state.
         types = json.loads(run(["xcrun", "simctl", "list", "devicetypes", "-j"]))["devicetypes"]
         device_type = next(item["identifier"] for item in types if item["name"] == device["name"])
@@ -58,9 +59,15 @@ try:
         run(["xcrun", "simctl", "boot", udid])
         run(["xcrun", "simctl", "bootstatus", udid, "-b"], timeout=240)
         began = time.monotonic()
+        print("Running native tests on " + family + " Simulator", flush=True)
         run(["xcodebuild", *project, "-destination", f"platform=iOS Simulator,id={udid}", "-parallel-testing-enabled", "NO", "-maximum-concurrent-test-simulator-destinations", "1", "test"], log=args.output / (family + "-diagnostic.log"))
+        diagnostics = (args.output / (family + "-diagnostic.log")).read_text(errors="replace").splitlines()
+        for name in ["testOfflineSQLiteCalculationAndReopen", "testActualSQLiteFullRollbackRetainsPreviousDocument", "testRealSimulatorKeychainCRUDAndCanaryGuard", "testAllThreeSyntheticScopesReuseOneReferenceAndRealShapeProjection", "testInstalledSyntheticOfflineWriteAndProcessRelaunch", "testFreshPersonalWorkspaceRequiresPlayerAndSecureInput"]:
+            if not any(name in line and "passed" in line.lower() for line in diagnostics):
+                raise RuntimeError("Required native test did not report a pass: " + name)
         elapsed = round(time.monotonic() - began, 3)
         measurements.append({"family": family, "classification": "simulator", "testBuildSeconds": elapsed, "tests": "native SQLite/Keychain and synthetic onboarding doubles; installed UI offline row save/process relaunch"})
+        print(family + " Simulator native tests passed in " + str(elapsed) + " seconds", flush=True)
         run(["xcrun", "simctl", "shutdown", udid])
     began = time.monotonic()
     run(["xcodebuild", *project, "-configuration", "Release", "-destination", "generic/platform=iOS Simulator", "build"], log=args.output / "release-diagnostic.log")
@@ -70,7 +77,7 @@ try:
     run(["ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", str(app), str(artifact)])
     digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
     # The fixed fixture identifies the synthetic demo only, not live Player verification.
-    fixture = (ROOT / "apps/mobile/ios/mobile-domain-v1.json").read_bytes()
+    fixture = (ROOT / "apps/mobile/ios/Resources/synthetic-demo.json").read_bytes()
     completed = datetime.now(timezone.utc).isoformat()
     evidence = {
         "schemaVersion": "platform-evidence/v1", "evidenceKind": "product-acceptance", "runId": "ios-simulator-synthetic-v1",

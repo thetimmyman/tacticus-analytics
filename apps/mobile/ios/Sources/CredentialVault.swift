@@ -34,14 +34,33 @@ final class CredentialVault: OfficialCredentialVault {
         let status = SecItemDelete(query(reference) as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else { throw WorkspaceError.credential }
     }
+    func removeOrphans(keeping references: Set<String>) throws {
+        let owned: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service, kSecAttrSynchronizable as String: false,
+            kSecReturnAttributes as String: true, kSecMatchLimit as String: kSecMatchLimitAll]
+        var value: CFTypeRef?
+        let status = SecItemCopyMatching(owned as CFDictionary, &value)
+        if status == errSecItemNotFound { return }
+        guard status == errSecSuccess, let items = value as? [[String: Any]] else { throw WorkspaceError.credential }
+        for item in items {
+            guard let reference = item[kSecAttrAccount as String] as? String else { throw WorkspaceError.credential }
+            if !references.contains(reference) { try remove(reference) }
+        }
+    }
 }
 
 enum SecretGuard {
     static func check(_ data: Data, credential: String) throws {
         let text = String(decoding: data, as: UTF8.self)
         let bytes = Data(credential.utf8)
-        var variants = [credential, bytes.base64EncodedString(), bytes.map { String(format: "%02x", $0) }.joined(),
+        let base64 = bytes.base64EncodedString()
+        let escaped = String(decoding: try JSONSerialization.data(withJSONObject: [credential]), as: UTF8.self)
+        var variants = [credential, String(escaped.dropFirst(2).dropLast(2)), base64,
+                        base64.replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: ""),
+                        bytes.map { String(format: "%02x", $0) }.joined(), bytes.map { String(format: "%02X", $0) }.joined(),
                         bytes.map { String(format: "%%%02X", $0) }.joined(),
+                        bytes.map { String(format: "%%%02x", $0) }.joined(),
+                        credential.unicodeScalars.map { String(format: "\\u%04x", $0.value) }.joined(),
                         credential.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? credential]
         variants += variants.map { Data($0.utf8).base64EncodedString() }
         guard !variants.contains(where: { !$0.isEmpty && text.contains($0) }) else { throw WorkspaceError.credential }

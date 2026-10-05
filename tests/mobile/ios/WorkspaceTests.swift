@@ -36,6 +36,8 @@ private final class SyntheticOfficialSource: OfficialSource {
     }
     override func tearDownWithError() throws { store?.close(); store = nil; try FileManager.default.removeItem(at: directory) }
     func testOfflineSQLiteCalculationAndReopen() throws {
+        let fixture = try XCTUnwrap(Bundle.main.url(forResource: "synthetic-demo", withExtension: "json"))
+        XCTAssertEqual(try WorkspaceDocument.decode(Data(contentsOf: fixture)), .demo)
         XCTAssertThrowsError(try store.add(.demo))
         try store.write(.demo)
         XCTAssertEqual(try store.read().totalDamage, 2000)
@@ -45,9 +47,15 @@ private final class SyntheticOfficialSource: OfficialSource {
         store.close(); try store.open()
         XCTAssertEqual(try store.read().totalDamage, 2100)
         XCTAssertEqual(try store.read().damagePerToken, 525)
+        XCTAssertEqual(try store.url.resourceValues(forKeys: [.isExcludedFromBackupKey]).isExcludedFromBackup, true)
+    }
+    func testPhysicalCompleteFileProtection() throws {
+        #if targetEnvironment(simulator)
+        throw XCTSkip("Simulator cannot qualify physical file protection; owner-provisioned device test required")
+        #else
         let attributes = try FileManager.default.attributesOfItem(atPath: store.url.path)
         XCTAssertEqual(attributes[.protectionKey] as? FileProtectionType, .complete)
-        XCTAssertEqual(try store.url.resourceValues(forKeys: [.isExcludedFromBackupKey]).isExcludedFromBackup, true)
+        #endif
     }
     func testStrictScopedImportAndExportDoNotActivateOrCarrySecrets() throws {
         let vault = SyntheticVault(); let ref = try vault.save("synthetic-vault-canary-value")
@@ -111,6 +119,9 @@ private final class SyntheticOfficialSource: OfficialSource {
         let ref = try vault.save(value); defer { try? vault.remove(ref) }
         let actual = try await vault.withOfficialRead(ref) { Data($0.utf8) }
         XCTAssertEqual(actual, Data(value.utf8))
+        let orphan = try vault.save("synthetic-orphan-value")
+        try vault.removeOrphans(keeping: [ref])
+        do { _ = try await vault.withOfficialRead(orphan) { Data($0.utf8) }; XCTFail("Orphan credential readable") } catch {}
         for encoded in [value, Data(value.utf8).base64EncodedString(), Data(value.utf8).map { String(format: "%02x", $0) }.joined()] {
             XCTAssertThrowsError(try SecretGuard.check(Data(encoded.utf8), credential: value))
         }
@@ -168,6 +179,25 @@ private final class SyntheticOfficialSource: OfficialSource {
         do { try await supervisor.connect(credential: "synthetic-echo-canary-value") { _, _ in true }; XCTFail("Credential echo persisted") } catch {}
         XCTAssertNil(try store.read().player)
         XCTAssertFalse(String(decoding: try store.exportDocument(), as: UTF8.self).contains("synthetic-echo-canary-value"))
+    }
+    func testDisplayMismatchRefusalAndConfirmedReplacementPreserveHistory() async throws {
+        let vault = SyntheticVault(); let source = SyntheticOfficialSource(responses: try SyntheticOfficialSource.fixtures())
+        let supervisor = ConnectionSupervisor(store: store, vault: vault, source: source)
+        try await supervisor.connect(credential: "synthetic-original-value") { _, _ in true }
+        try store.add(.demo)
+        let original = try store.read()
+        source.responses = try SyntheticOfficialSource.fixtures(name: "Different Example")
+        var observedPrevious: String?
+        do {
+            try await supervisor.connect(credential: "synthetic-mismatch-value") { _, previous in observedPrevious = previous; return false }
+            XCTFail("Refused replacement activated")
+        } catch {}
+        XCTAssertEqual(observedPrevious, "Example Player")
+        XCTAssertEqual(try store.read(), original)
+        try await supervisor.connect(credential: "synthetic-confirmed-value") { _, _ in true }
+        XCTAssertEqual(try store.read().player?.displayName, "Different Example")
+        XCTAssertEqual(try store.read().raids, original.raids)
+        XCTAssertEqual(vault.values.count, 1)
     }
 }
 

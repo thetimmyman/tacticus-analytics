@@ -129,6 +129,7 @@ import UniformTypeIdentifiers
                 if demo { if (try store.read()).player == nil { try store.write(.demo) } }
                 supervisor = ConnectionSupervisor(store: store, vault: vault, source: DeviceOfficialSource())
             }
+            if !demo, let store { try vault.removeOrphans(keeping: Set(try store.capabilities().compactMap(\.reference))) }
             veil.isHidden = true; render()
         } catch { veil.isHidden = true; label("Workspace could not be opened. Your existing file has been retained.") }
     }

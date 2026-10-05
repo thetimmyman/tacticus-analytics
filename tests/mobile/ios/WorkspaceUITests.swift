@@ -7,6 +7,7 @@ final class WorkspaceUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["workspace-mode"].waitForExistence(timeout: 15))
         XCTAssertTrue(app.staticTexts["workspace-mode"].label.contains("SYNTHETIC DEMO"))
         let before = app.staticTexts["analytics"].label
+        XCTAssertEqual(before, "Damage 2000 · Tokens 3 · Damage/token 666")
         app.buttons["add-raid"].tap()
         for (id, text) in [("raid-player", "Example Player"), ("raid-boss", "Example Boss"), ("raid-damage", "100"), ("raid-tokens", "1")] {
             let field = app.textFields[id]; field.tap(); field.typeText(text)
@@ -14,6 +15,7 @@ final class WorkspaceUITests: XCTestCase {
         app.buttons["Save local row"].tap()
         XCTAssertTrue(app.staticTexts["workspace-status"].label.contains("Local row saved"))
         let saved = app.staticTexts["analytics"].label
+        XCTAssertEqual(saved, "Damage 2100 · Tokens 4 · Damage/token 525")
         XCTAssertNotEqual(before, saved)
         app.terminate(); app.launch()
         XCTAssertTrue(app.staticTexts["analytics"].waitForExistence(timeout: 15))
