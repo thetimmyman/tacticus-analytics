@@ -121,6 +121,7 @@ export class CredentialVault {
     }
   }
   async withCredential(handle, operation) {
+    let secret
     try {
       this.#ready()
       if (!validHandle(handle) || typeof operation !== 'function')
@@ -137,7 +138,7 @@ export class CredentialVault {
         })
       )
       this.#authorized()
-      const secret = this.#storage.decryptString(encrypted)
+      secret = this.#storage.decryptString(encrypted)
       if (
         typeof secret !== 'string' ||
         !secret.length ||
@@ -145,16 +146,41 @@ export class CredentialVault {
       )
         throw unavailable()
       this.#authorized()
-      const result = await operation(secret)
-      this.#authorized()
-      // Even an accidental echo from a trusted operation must not return the
-      // root value through this primitive. Broker result schemas remain required.
-      if (JSON.stringify(result)?.includes(secret)) throw unavailable()
-      return result
     } catch {
       throw unavailable()
     }
+    try {
+      let result
+      try {
+        result = await operation(secret)
+      } catch (error) {
+        this.#authorized()
+        const codes = new Set([
+          'EUPSTREAMAUTH',
+          'EUPSTREAMRATE',
+          'EUPSTREAMSERVICE',
+          'EUPSTREAMDATA',
+          'ENETWORK',
+          'EROSTER',
+          'EGUILDMISMATCH'
+        ])
+        throw Object.assign(
+          new Error('The credential operation could not complete.'),
+          { code: codes.has(error?.code) ? error.code : 'EOPERATION' }
+        )
+      }
+      try {
+        this.#authorized()
+        if (JSON.stringify(result)?.includes(secret)) throw unavailable()
+        return result
+      } catch {
+        throw unavailable()
+      }
+    } finally {
+      secret = ''
+    }
   }
+
   async forget(handle) {
     if (!validHandle(handle)) throw unavailable()
     try {

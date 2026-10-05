@@ -7,9 +7,10 @@ export function DesktopCredentialGuide() {
         <a href="/desktop/connect" className="underline">
           API access and sync
         </a>{' '}
-        to connect your Player key in a secure native dialog. Add Guild and
-        Guild Raid access to unlock guild features. Unlock your workspace once;
-        adding or syncing keys uses that session.
+        to sync saved access, replace a key or add access in a secure native
+        dialog. Player access enables your roster; Guild and Guild Raid access
+        unlock guild features. Unlock your workspace once; adding or syncing
+        keys uses that session.
       </p>
       <p className="mt-2 text-secondary-wh40k">
         This preview supports manual current-raid and roster sync. Saved rosters

@@ -32,6 +32,15 @@ test('bundled catalogue projects static metadata and deterministic IDs with quot
     assert.equal(first[0].category, 'Hero')
     assert(first[0].id >= 1000000 && first[0].id <= 2147483647)
     assert(!JSON.stringify(first).includes('ignored-reference-extra'))
+    await mkdir(join(root, 'portraits'))
+    await writeFile(
+      join(root, 'portraits', 'syntheticHero.webp'),
+      'synthetic-image'
+    )
+    await symlink(
+      join(root, 'portraits', 'syntheticHero.webp'),
+      join(root, 'portraits', 'linkedHero.webp')
+    )
     let sql
     const result = await initializeReferenceHeroes(
       {
@@ -39,7 +48,8 @@ test('bundled catalogue projects static metadata and deterministic IDs with quot
           sql = value
         }
       },
-      root
+      root,
+      join(root, 'portraits')
     )
     assert.deepEqual(result, {
       entries: 1,
@@ -48,6 +58,8 @@ test('bundled catalogue projects static metadata and deterministic IDs with quot
     assert(sql.startsWith('BEGIN;'))
     assert(sql.endsWith('COMMIT;'))
     assert(sql.includes("Synthetic Hero''s Label"))
+    assert(sql.includes("'/images/portraits/syntheticHero.webp'"))
+    assert(sql.includes('web_icon_url=COALESCE'))
     assert(!sql.includes('DELETE'))
     assert(sql.includes('WHERE public.hero_mappings.id=EXCLUDED.id'))
   } finally {

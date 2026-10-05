@@ -1,5 +1,4 @@
 import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
-import { DesktopCredentialGuide } from '@/app/components/navigation/DesktopCredentialGuide'
 import { requireAuth } from '@/app/lib/auth'
 import { db } from '@/app/lib/db'
 import { createPageMetadata } from '@/app/lib/metadata'
@@ -21,7 +20,6 @@ export default async function RosterPage() {
   if (getRuntimeProfile() === 'desktop')
     return (
       <div>
-        <DesktopCredentialGuide />
         <RosterClient
           hasApiKey={true}
           desktopMode={true}

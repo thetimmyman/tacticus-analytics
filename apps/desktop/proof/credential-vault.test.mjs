@@ -212,3 +212,21 @@ test('a locked provider refuses decryption while retaining the encrypted record 
     { matched: true }
   )
 })
+
+test('upstream operation errors retain safe categories without becoming keyring failures or exposing credentials', async () => {
+  const f = await fixture(),
+    handle = await f.vault.save(f.secret)
+  for (const code of ['EUPSTREAMAUTH', 'EGUILDMISMATCH', 'ENETWORK', 'unknown'])
+    await assert.rejects(
+      f.vault.withCredential(handle, () => {
+        throw Object.assign(new Error(f.secret), { code })
+      }),
+      (error) =>
+        error.code === (code === 'unknown' ? 'EOPERATION' : code) &&
+        !error.message.includes(f.secret)
+    )
+  assert.deepEqual(
+    await f.vault.withCredential(handle, () => ({ retry: true })),
+    { retry: true }
+  )
+})

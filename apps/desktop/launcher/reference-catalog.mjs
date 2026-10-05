@@ -74,20 +74,34 @@ export async function readReferenceHeroes(directory) {
   )
 }
 
-export async function initializeReferenceHeroes(services, directory) {
+export async function initializeReferenceHeroes(
+  services,
+  directory,
+  portraitDirectory
+) {
   const heroes = await readReferenceHeroes(directory)
+  const portraits = new Set()
+  if (portraitDirectory) {
+    await withEntry(portraitDirectory, async (_handle, info, anchor) => {
+      if (!info.isDirectory()) throw new Error('Invalid portrait directory')
+      for (const entry of await readdir(anchor, { withFileTypes: true })) {
+        if (entry.isFile() && /^[A-Za-z0-9_-]+\.webp$/.test(entry.name))
+          portraits.add(entry.name.slice(0, -5))
+      }
+    })
+  }
   const values = heroes
     .map(
       (h) =>
-        `(${h.id},${quote(h.unitId)},${quote(h.name)},${quote(h.longName)},${quote(h.engineId)},${quote(h.faction)},${quote(h.alliance)},${quote(h.category)})`
+        `(${h.id},${quote(h.unitId)},${quote(h.name)},${quote(h.longName)},${quote(h.engineId)},${quote(h.faction)},${quote(h.alliance)},${quote(h.category)},${portraits.has(h.unitId) ? quote(`/images/portraits/${h.unitId}.webp`) : 'NULL'})`
     )
     .join(',')
   // Never delete reference rows or replace their IDs: saved rosters refer to them.
   // An unexpected ID collision rolls back the entire reference refresh.
   await services.psql(`BEGIN;
-    INSERT INTO public.hero_mappings(id,unit_id,display_name,long_name,game_id,faction_id,alliance_id,category)
+    INSERT INTO public.hero_mappings(id,unit_id,display_name,long_name,game_id,faction_id,alliance_id,category,web_icon_url)
     VALUES ${values}
-    ON CONFLICT(unit_id) DO UPDATE SET display_name=EXCLUDED.display_name,long_name=EXCLUDED.long_name,game_id=EXCLUDED.game_id,faction_id=EXCLUDED.faction_id,alliance_id=EXCLUDED.alliance_id,category=EXCLUDED.category
+    ON CONFLICT(unit_id) DO UPDATE SET display_name=EXCLUDED.display_name,long_name=EXCLUDED.long_name,game_id=EXCLUDED.game_id,faction_id=EXCLUDED.faction_id,alliance_id=EXCLUDED.alliance_id,category=EXCLUDED.category,web_icon_url=COALESCE(EXCLUDED.web_icon_url,public.hero_mappings.web_icon_url)
     WHERE public.hero_mappings.id=EXCLUDED.id;
     COMMIT;`)
   return { entries: heroes.length, source: 'bundled-reference-definitions' }

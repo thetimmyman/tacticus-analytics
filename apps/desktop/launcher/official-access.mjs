@@ -204,11 +204,11 @@ export async function verifyOfficialAccess(
   const guild = value.guild
   if (
     !object(guild) ||
-    guild.guildTag !== guildCode ||
     typeof guild.guildId !== 'string' ||
     !/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(guild.guildId)
   )
     throw unavailable()
+  if (guild.guildTag !== guildCode) throw unavailable('EGUILDMISMATCH')
   const result = { guildId: guild.guildId, guildCode }
   if (scope === 'Guild Raid') {
     // Guild access on the raid credential independently binds its current guild.

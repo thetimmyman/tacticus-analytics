@@ -90,7 +90,8 @@ try {
   try {
     await initializeReferenceHeroes(
       services,
-      join(root, 'application/data/game-data')
+      join(root, 'application/data/game-data'),
+      join(root, 'application/public/images/portraits')
     )
   } catch {
     // Missing optional reference data must not prevent reading existing data.
