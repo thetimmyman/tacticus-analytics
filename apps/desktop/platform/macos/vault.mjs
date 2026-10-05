@@ -1,7 +1,14 @@
 import { spawn } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
 
-export function nativeVault(helper, { run = invoke } = {}) {
+export function nativeVault(helper, { run } = {}) {
+  const lifetime = new AbortController()
+  run ??= (file, request) =>
+    invoke(
+      file,
+      request,
+      request.operation === 'remove' ? undefined : lifetime.signal
+    )
   async function call(operation, handle, extra = {}) {
     const result = await run(helper, { operation, handle, ...extra })
     if (result.status !== 'ok') throw new Error('Native vault unavailable')
@@ -10,9 +17,14 @@ export function nativeVault(helper, { run = invoke } = {}) {
   return {
     async promptAndStoreOfficialRead({ requestedCapabilities }) {
       const handle = randomUUID()
-      await call('prompt-store', handle, {
-        label: `Requested access: ${requestedCapabilities.join(', ')}. Player access is mandatory for a new workspace. Cloud contribution uses separate consent.`
-      })
+      try {
+        await call('prompt-store', handle, {
+          label: `Requested access: ${requestedCapabilities.join(', ')}. Player access is mandatory for a new workspace. Cloud contribution uses separate consent.`
+        })
+      } catch (error) {
+        await call('remove', handle).catch(() => {})
+        throw error
+      }
       return handle
     },
     async withOfficialRead(handle, action) {
@@ -35,15 +47,19 @@ export function nativeVault(helper, { run = invoke } = {}) {
       } catch {
         return false
       }
+    },
+    close() {
+      lifetime.abort()
     }
   }
 }
 
-async function invoke(helper, request) {
+async function invoke(helper, request, signal) {
   return new Promise((accept, reject) => {
     const child = spawn(helper, [], {
       stdio: ['pipe', 'pipe', 'ignore'],
-      env: { PATH: '/usr/bin:/bin' }
+      env: { PATH: '/usr/bin:/bin' },
+      ...(signal ? { signal } : { timeout: 5000 })
     })
     const chunks = []
     let bytes = 0

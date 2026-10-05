@@ -120,7 +120,16 @@ test(
       command(['create-keychain', '-p', password, keychain])
       command(['unlock-keychain', '-p', password, keychain])
       assert.equal((await invoke('store-fixture')).code, 0)
-      assert.equal((await invoke('read')).response.value, value)
+      const initialRead = await invoke('read')
+      assert.equal(
+        initialRead.code,
+        0,
+        JSON.stringify({
+          status: initialRead.response.status,
+          errorCode: initialRead.response.errorCode
+        })
+      )
+      assert.equal(initialRead.response.value, value)
       command(['lock-keychain', keychain])
       assert.equal((await invoke('read')).response.status, 'vault-unavailable')
       command(['unlock-keychain', '-p', password, keychain])

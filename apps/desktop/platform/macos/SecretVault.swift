@@ -9,9 +9,10 @@ struct Request: Decodable {
     let value: String?
 }
 
-func finish(_ status: String, _ value: String? = nil) -> Never {
+func finish(_ status: String, _ value: String? = nil, errorCode: OSStatus? = nil) -> Never {
     var response = ["status": status]
     if let value { response["value"] = value }
+    if ProcessInfo.processInfo.arguments.contains("--synthetic-test"), let errorCode { response["errorCode"] = String(errorCode) }
     let bytes = try! JSONSerialization.data(withJSONObject: response)
     FileHandle.standardOutput.write(bytes)
     exit(status == "ok" ? 0 : 1)
@@ -37,6 +38,11 @@ if arguments.contains("--synthetic-test"), let index = arguments.firstIndex(of: 
     var keychain: SecKeychain?
     guard SecKeychainOpen(arguments[index + 1], &keychain) == errSecSuccess, let keychain else { finish("vault-unavailable") }
     query[kSecUseKeychain as String] = keychain
+    query[kSecMatchSearchList as String] = [keychain]
+} else {
+    // Production uses the data protection Keychain. Missing owner-provided
+    // signing/provisioning access must fail closed, never use a file fallback.
+    query[kSecUseDataProtectionKeychain as String] = true
 }
 
 func store(_ value: String) {
@@ -44,10 +50,11 @@ func store(_ value: String) {
     let bytes = Data(value.utf8)
     var add = query
     add.removeValue(forKey: kSecUseAuthenticationUI as String)
+    add.removeValue(forKey: kSecMatchSearchList as String)
     add[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
     add[kSecValueData as String] = bytes
     let result = SecItemAdd(add as CFDictionary, nil)
-    if result != errSecSuccess { finish("vault-unavailable") }
+    if result != errSecSuccess { finish("vault-unavailable", errorCode: result) }
     finish("ok")
 }
 
@@ -90,7 +97,7 @@ case "read":
     var result: CFTypeRef?
     let status = SecItemCopyMatching(query as CFDictionary, &result)
     guard status == errSecSuccess, let bytes = result as? Data,
-          let value = String(data: bytes, encoding: .utf8) else { finish("vault-unavailable") }
+          let value = String(data: bytes, encoding: .utf8) else { finish("vault-unavailable", errorCode: status) }
     finish("ok", value)
 case "remove":
     let status = SecItemDelete(query as CFDictionary)

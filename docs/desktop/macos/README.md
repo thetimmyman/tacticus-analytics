@@ -12,7 +12,11 @@ owned session; watcher failure is detected by the owner. These services must not
 daemonize or escape their owned session. Simultaneous termination of both
 supervision processes requires recovery qualification.
 
-`SecretVault.swift` uses native secure input and device-local Keychain items.
+`SecretVault.swift` uses native secure input and the data protection Keychain.
+Consumer access requires the owner's signed, provisioned helper; the unsigned
+candidate refuses access when these entitlements are unavailable. The isolated
+test alone uses an explicitly selected disposable file-based Keychain. This is
+an adapter test, not proof of the signed consumer vault boundary.
 Reads refuse interaction when the vault is unavailable; no plaintext fallback
 exists. The native supervisor receives secrets only through a bounded private
 pipe. Renderer-facing adapters receive opaque handles and projected status.
@@ -31,9 +35,29 @@ sources with `clang` and `swiftc`, then supply `MAC_GUARD` and `MAC_VAULT` absol
 paths to run the native tests. These are developer build instructions; a promoted
 consumer package must bundle every runtime and require no developer tools.
 
-Release gates remain: full local feature inventory, native onboarding integration,
-real package install/restart/recovery, dependency notices and redistribution
-review, compatible verified updates, supported OS matrix, actual Mac testing,
-owner-provided signing and notarization. Never disable Gatekeeper or OS protection
+`build-inputs.mjs` pins and verifies source/archive bytes for the target native
+Node, PostgreSQL, Auth, PostgREST and Electron versions. Intel Auth builds from
+the pinned source using its required Go toolchain. `stage.mjs` produces an app
+bundle, checks architecture and external Mach-O dependencies, rejects mutable
+state and escaping links, and inventories package bytes. `qualification.mjs`
+mounts a generated DMG, copies the app into a path with spaces and Unicode, and
+runs the installed binaries under a loopback-only network sandbox. It exercises
+the selected synthetic renderer calculation, persisted writes, whole database
+dump/restore into a disposable database, and failed migration rollback.
+The developer workspace setup retains the baseline synthetic analytics journey;
+full personal projection into every existing application route is unfinished.
+The mandatory Player guard and separate-key native menu adapter are included;
+real access remains blocked without the required helper provisioning.
+
+Native menus provide separate scope connection/revocation and cached personal
+export through a graphical file chooser. Closing the window cancels pending
+native input and official requests. Imports, full workspace recovery controls,
+compatible verified updates and the accepted feature matrix remain unfinished.
+
+Release gates remain: full local feature inventory, native onboarding projection
+and application integration, successful package install/restart/recovery,
+dependency notices and redistribution review, compatible verified updates,
+supported OS matrix, actual Mac testing, owner-provided signing and notarization.
+Never disable Gatekeeper or OS protection
 to qualify this candidate. Removing an app bundle must retain workspace data and
 Keychain references unless the owner explicitly requests deletion.
