@@ -10,7 +10,7 @@
     "supabase-kong.tacticus.svc",
     "supabase-kong.tacticus.svc.cluster.local"
   ],
-  "localHosts": ["localhost", "127.0.0.1"],
+  "localHosts": ["localhost", "127.0.0.1", "host.docker.internal"],
   "imageRepository": "ghcr.io/thetimmyman/tacticus-analytics-web",
   "kubernetesNamespace": "tacticus",
   "kubernetesDeployment": "tacticus-clean-web-v2",

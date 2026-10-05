@@ -19,7 +19,7 @@ function fixture() {
       siteHosts: ['tacticusanalytics.com'],
       apiHosts: ['api.tacticusanalytics.com'],
       internalApiHosts: ['supabase-kong'],
-      localHosts: ['localhost'],
+      localHosts: ['localhost', '127.0.0.1', 'host.docker.internal'],
       requiredPaths: ['app/(public)/explore/page.tsx'],
       forbiddenPaths: ['k8s/legacy-stack']
     })
@@ -133,6 +133,46 @@ test('accepts the in-namespace server endpoint', () => {
       env: { SUPABASE_URL: 'http://supabase-kong:8000' }
     })
     assert.deepEqual(result.errors, [])
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('accepts separate browser and Compose server URLs for one local Supabase host', () => {
+  const root = fixture()
+  try {
+    const result = verifyAppIdentity({
+      root,
+      origin: 'https://github.com/thetimmyman/tacticus-analytics.git',
+      env: {
+        NEXT_PUBLIC_SITE_URL: 'http://localhost:3000',
+        NEXT_PUBLIC_SUPABASE_URL: 'http://localhost:54321',
+        SUPABASE_URL: 'http://host.docker.internal:54321'
+      }
+    })
+    assert.deepEqual(result.errors, [])
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('still rejects arbitrary hosts when Compose local host is allowed', () => {
+  const root = fixture()
+  try {
+    const result = verifyAppIdentity({
+      root,
+      origin: 'https://github.com/thetimmyman/tacticus-analytics.git',
+      env: {
+        NEXT_PUBLIC_SITE_URL: 'http://localhost:3000',
+        NEXT_PUBLIC_SUPABASE_URL: 'http://localhost:54321',
+        SUPABASE_URL: 'https://supabase.example.invalid'
+      }
+    })
+    assert.ok(
+      result.errors.includes(
+        'SUPABASE_URL uses forbidden host supabase.example.invalid'
+      )
+    )
   } finally {
     rmSync(root, { recursive: true, force: true })
   }

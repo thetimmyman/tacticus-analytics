@@ -20,17 +20,12 @@ env:
     --max-old-space-size=4096
     --network-family-autoselection-attempt-timeout=3000
 
-# Branch protection requires the `governance-baseline` and `fork-pr-block` contexts.
-# Public-repo PRs and all fork PRs run on ubuntu-latest (public-pr-runners.test.ts):
-# a public PR on a self-hosted runner is a remote-code-execution path.
+# Branch protection requires both rollups. All PR code and checks run on standard hosted runners.
 
 jobs:
   checks:
     name: checks
-    if: >-
-      github.event_name != 'pull_request' ||
-      github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ${{ (github.event_name == 'pull_request' && (!github.event.repository.private || github.event.pull_request.head.repo.full_name != github.repository)) && 'ubuntu-latest' || fromJSON('["self-hosted","amd64-builder"]') }}
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -100,10 +95,7 @@ jobs:
 
   tests:
     name: tests
-    if: >-
-      github.event_name != 'pull_request' ||
-      github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ${{ (github.event_name == 'pull_request' && (!github.event.repository.private || github.event.pull_request.head.repo.full_name != github.repository)) && 'ubuntu-latest' || fromJSON('["self-hosted","amd64-builder"]') }}
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -121,10 +113,7 @@ jobs:
 
   build:
     name: build
-    if: >-
-      github.event_name != 'pull_request' ||
-      github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ${{ (github.event_name == 'pull_request' && (!github.event.repository.private || github.event.pull_request.head.repo.full_name != github.repository)) && 'ubuntu-latest' || fromJSON('["self-hosted","amd64-builder"]') }}
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -149,13 +138,11 @@ jobs:
   governance-baseline:
     name: governance-baseline
     needs: [checks, tests, build]
-    if: >-
-      ${{ always() && (github.event_name != 'pull_request' ||
-      github.event.pull_request.head.repo.full_name == github.repository) }}
-    runs-on: ${{ (github.event_name == 'pull_request' && (!github.event.repository.private || github.event.pull_request.head.repo.full_name != github.repository)) && 'ubuntu-latest' || fromJSON('["self-hosted","amd64-builder"]') }}
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - name: Assert every gate succeeded
+      - name: Assert every gate succeeded for every pull request source
         env:
           GATE_RESULTS: ${{ toJSON(needs.*.result) }}
         run: |
@@ -169,35 +156,24 @@ jobs:
           esac
           echo "All gates green."
 
-  # Fork-PR merge block, since skipped gates count as passing. Unguarded, and runs no
-  # repository code, so an untrusted PR has nothing to execute.
+  # Keep the legacy required context as a gate-result rollup; forks are tested too.
   fork-pr-block:
     name: fork-pr-block
-    # Always hosted; if hosted minutes run out the job fails to start, which still blocks merge.
-    runs-on: ${{ (github.event_name == 'pull_request' && (!github.event.repository.private || github.event.pull_request.head.repo.full_name != github.repository)) && 'ubuntu-latest' || fromJSON('["self-hosted","amd64-builder"]') }}
+    needs: [checks, tests, build]
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - name: Refuse a pull request opened from a fork
-        if: >-
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.head.repo.full_name != github.repository
+      - name: Assert every gate succeeded for every pull request source
         env:
-          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          GATE_RESULTS: ${{ toJSON(needs.*.result) }}
         run: |
           set -euo pipefail
-          echo "::error title=Fork PR cannot merge::CI for this repository runs on the operator's self-hosted runners, which must never execute code from a fork. The gates above are skipped for this PR, so nothing has actually been verified."
-          printf '%s\n' \
-            "This pull request comes from a fork: ${HEAD_REPO}" \
-            "" \
-            "The self-hosted gates were SKIPPED, not passed. Nothing in this PR" \
-            "has been built, linted, type-checked, or tested by CI." \
-            "" \
-            "Remedy (maintainer): re-create this change as a branch in this" \
-            "repository once you have read the diff, and open the PR from there." \
-            "" \
-            "  git fetch <contributor-remote> <their-branch>" \
-            "  git checkout -b review/<topic> FETCH_HEAD" \
-            "  git push origin review/<topic>" \
-            "" \
-            "The full gate set then runs on the fleet and this check passes."
-          exit 1
+          echo "gate results: ${GATE_RESULTS}"
+          case "${GATE_RESULTS}" in
+            *failure* | *cancelled* | *skipped*)
+              echo "::error title=Required gate failed::at least one gate did not succeed (${GATE_RESULTS})"
+              exit 1
+              ;;
+          esac
+          echo "All required gates green."

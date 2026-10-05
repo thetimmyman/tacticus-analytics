@@ -20,13 +20,8 @@ concurrency:
 jobs:
   analyze:
     name: CodeQL JavaScript and TypeScript
-    # Fork PRs never run self-hosted; `fork-pr-block` in governance-baseline.yml is the merge block.
-    if: >-
-      github.event_name != 'pull_request' ||
-      github.event.pull_request.head.repo.full_name == github.repository
-    # Public repo: hosted, uploading to code scanning; private and scheduled runs use the fleet.
-    # Pinned by tests/unit/config/public-pr-runners.test.ts.
-    runs-on: ${{ ((github.event.repository && !github.event.repository.private) || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository)) && 'ubuntu-latest' || fromJSON('["self-hosted","amd64-builder"]') }}
+    # Public source analysis always uses a standard hosted runner.
+    runs-on: ubuntu-24.04
     permissions:
       actions: read
       contents: read

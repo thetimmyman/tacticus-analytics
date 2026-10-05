@@ -33,12 +33,8 @@ concurrency:
 jobs:
   pgtap-general:
     name: pgtap-general
-    # Fork PRs never run on the self-hosted fleet; `fork-pr-block` is the merge block.
-    if: >-
-      github.event_name != 'pull_request' ||
-      github.event.pull_request.head.repo.full_name == github.repository
-    # amd64 only: the arm64 pgTAP path is untested.
-    runs-on: ${{ (github.event_name == 'pull_request' && (!github.event.repository.private || github.event.pull_request.head.repo.full_name != github.repository)) && 'ubuntu-latest' || fromJSON('["self-hosted","amd64-builder"]') }}
+    # The pgTAP harness runs inside its own Docker throwaway database.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     # Per-run names: the harness `docker rm -f`s its container, so a fixed name races other jobs.
     env:

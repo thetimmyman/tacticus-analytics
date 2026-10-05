@@ -1,6 +1,1 @@
-# Custom capability labels advertised by the self-hosted runners.
-self-hosted-runner:
-  labels:
-    - amd64-builder
-    - cheap
-    - x64-heavy
+# actionlint defaults are sufficient for GitHub-hosted public workflows.

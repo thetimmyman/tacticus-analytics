@@ -198,6 +198,7 @@ dist
 .env.*
 !.env.example
 !.env.local.example
+!.env.compose.example
 .env*.local
 .env.production.local
 .env.upstash
