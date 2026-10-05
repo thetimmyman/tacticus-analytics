@@ -364,16 +364,19 @@ for suite in "$@"; do
 
   # Captured, never piped: with `psql | grep -q`, psql takes SIGPIPE, pipefail
   # reports 141, and a failing suite could exit 0.
+  # stdout and stderr go to separate files: docker exec relays them on separate
+  # streams, so a NOTICE/WARNING written to the same file can land in the middle
+  # of a TAP line and hide that assertion from the counts below.
   docker exec -i "$CONTAINER" psql -tA -U postgres -d postgres \
     -v pgtap_live_functions="$LIVE_FUNCTIONS_LOADED" \
-    -f "$CONTAINER_DIR/suite.sql" > "$WORK_DIR/tap.out" 2>&1
+    -f "$CONTAINER_DIR/suite.sql" > "$WORK_DIR/tap.out" 2> "$WORK_DIR/tap.err"
   psql_status=$?
 
   grep -E '^(ok|not ok|1\.\.|#)' "$WORK_DIR/tap.out"
 
   if [ "$psql_status" -ne 0 ]; then
     echo "  psql exited $psql_status" >&2
-    sed -n '1,20p' "$WORK_DIR/tap.out" >&2
+    sed -n '1,20p' "$WORK_DIR/tap.err" "$WORK_DIR/tap.out" >&2
     status=1
   fi
 
@@ -390,12 +393,12 @@ for suite in "$@"; do
   produced="$(grep -c -E '^(ok|not ok) ' "$WORK_DIR/tap.out")"
   if [ -z "$planned" ]; then
     echo "  no TAP plan was printed -- the suite did not run" >&2
-    sed -n '1,20p' "$WORK_DIR/tap.out" >&2
+    sed -n '1,20p' "$WORK_DIR/tap.err" "$WORK_DIR/tap.out" >&2
     status=1
   elif [ "$planned" != "$produced" ]; then
     echo "  the suite planned $planned assertion(s) and produced $produced;" >&2
     echo "  it stopped early. First error:" >&2
-    grep -m1 'ERROR:' "$WORK_DIR/tap.out" >&2
+    { grep -m1 'ERROR:' "$WORK_DIR/tap.err" || grep -m1 'ERROR:' "$WORK_DIR/tap.out"; } >&2
     status=1
     short=1
   fi
