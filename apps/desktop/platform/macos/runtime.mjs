@@ -19,6 +19,7 @@ import { localSessionGate } from './session.mjs'
 import { currentWorkspaceToken } from '../../launcher/workspace-session.mjs'
 import { importCachedPersonal } from './personal-backup.mjs'
 import { rendererCredentialSurface } from './credential-surface.mjs'
+import { windowDiagnostics } from './window-diagnostics.mjs'
 
 process.umask(0o077)
 if (process.platform !== 'darwin' || !process.env.TA_MAC_GUARD_LOCK)
@@ -278,7 +279,9 @@ try {
       true,
       true
     )
+    const nativeDiagnostic = windowDiagnostics()
     if (verify) {
+      window.stderr.on('data', nativeDiagnostic.observe)
       let diagnostic = ''
       window.stdout.on('data', (chunk) => {
         diagnostic = (diagnostic + chunk.toString('utf8')).slice(-4096)
@@ -400,11 +403,26 @@ try {
         })
         .catch(() => {})
     })
-    const code = await new Promise((accept, reject) => {
-      window.once('exit', accept)
+    const result = await new Promise((accept, reject) => {
+      window.once('exit', (code, signal) => accept({ code, signal }))
       window.once('error', reject)
     })
-    if (code !== 0)
+    if (verify) {
+      const diagnostic = nativeDiagnostic.exit(result.code, result.signal)
+      if (services.fault)
+        diagnostic.serviceFault = {
+          component: services.fault.component,
+          exitCode: services.fault.exitCode,
+          signal: services.fault.signal
+        }
+      await writeFile(
+        verify.evidence + '.native.json',
+        JSON.stringify(diagnostic),
+        { mode: 0o600 }
+      )
+      console.log('TA-MAC-WINDOW-EXIT:' + JSON.stringify(diagnostic))
+    }
+    if (result.code !== 0)
       throw new Error(
         'Local application window failed; retained data was preserved'
       )

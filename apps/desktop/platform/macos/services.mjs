@@ -3,7 +3,7 @@ import { createHmac, createHash, randomBytes, randomUUID } from 'node:crypto'
 import { createServer } from 'node:net'
 import { mkdir, readFile, writeFile, stat, lstat } from 'node:fs/promises'
 import { createWriteStream } from 'node:fs'
-import { resolve, join } from 'node:path'
+import { resolve, join, basename } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 
 const secret = () => randomBytes(32).toString('hex')
@@ -200,6 +200,17 @@ export async function nativeServices({
       child.once('exit', (code, signal) => {
         if (!stopping && (!ephemeral || code !== 0 || signal)) {
           fault = new Error('A proof-owned service failed')
+          fault.component = [
+            'postgres',
+            'auth',
+            'postgrest',
+            'node',
+            'Electron'
+          ].includes(basename(file))
+            ? basename(file)
+            : 'native-service'
+          fault.exitCode = Number.isSafeInteger(code) ? code : null
+          fault.signal = /^SIG[A-Z]+$/.test(signal ?? '') ? signal : null
           void stop()
         }
       })

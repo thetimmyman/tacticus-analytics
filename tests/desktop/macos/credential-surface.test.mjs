@@ -25,7 +25,28 @@ test('legacy forms and key handlers stay behind native input even after Player a
     '/profile%5cedit',
     '/%2570rofile/edit',
     '/profile%ZZedit',
-    '/supabase/rest/v1/player_api_keys'
+    '/supabase/rest/v1/player_api_keys',
+    '/clusters/create',
+    '/api/clusters/create',
+    '/api/clusters/join',
+    '/api/guild/claim',
+    '/api/guild/create-config',
+    '/api/guild/initial-sync',
+    '/api/guild/trigger-sync',
+    '/api/guild-tokens/sync',
+    '/api/guild-tokens?live=true',
+    '/api/guild-teams/backfill',
+    '/api/player/roster',
+    '/api/members/roster',
+    '/api/tokens',
+    '/api/roster-development/analysis',
+    '/api/roster-development/member-gaps',
+    '/api/meta/player-recommendations',
+    '/api/members/token-usage',
+    '/api/guild-teams/tokens',
+    '/api/guild-raid/unified-assignments',
+    '/api/discord-webhooks/cap-notification',
+    '/api/admin/diagnostics'
   ])
     assert.equal(
       rendererCredentialSurface(new URL(path, 'http://localhost')),
@@ -43,7 +64,9 @@ test('personal data, normal Auth unlock and selected local analytics remain avai
     '/supabase/auth/v1/token',
     '/api/health',
     '/player-performance',
-    '/api/player/roster',
+    '/api/guild-tokens',
+    '/api/guild-tokens?live=false',
+    '/api/player/achievements',
     '/_next/static/app.js'
   ])
     assert.equal(

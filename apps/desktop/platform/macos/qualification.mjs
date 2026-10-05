@@ -146,6 +146,7 @@ try {
     'renderer.json',
     'renderer.png',
     'renderer.json.failure.json',
+    'renderer.json.native.json',
     'storage-first.json',
     'storage-second.json'
   ]) {

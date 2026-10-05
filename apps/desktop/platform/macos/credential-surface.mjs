@@ -13,6 +13,7 @@ export function rendererCredentialSurface(url) {
     return true
   }
   return (
+    (path === '/api/guild-tokens' && url.searchParams.get('live') === 'true') ||
     [
       '/api-keys',
       '/profile',
@@ -23,9 +24,29 @@ export function rendererCredentialSurface(url) {
       '/guild-management/members',
       '/guild-settings',
       '/guild-ops/cluster-management',
+      '/clusters/create',
       '/api/onboarding',
       '/api/profile',
-      '/api/guild-settings'
+      '/api/guild-settings',
+      '/api/clusters/create',
+      '/api/clusters/join',
+      '/api/guild/claim',
+      '/api/guild/create-config',
+      '/api/guild/initial-sync',
+      '/api/guild/trigger-sync',
+      '/api/guild-tokens/sync',
+      '/api/guild-teams/backfill',
+      '/api/player/roster',
+      '/api/members/roster',
+      '/api/tokens',
+      '/api/roster-development/analysis',
+      '/api/roster-development/member-gaps',
+      '/api/meta/player-recommendations',
+      '/api/members/token-usage',
+      '/api/guild-teams/tokens',
+      '/api/guild-raid/unified-assignments',
+      '/api/discord-webhooks/cap-notification',
+      '/api/admin/diagnostics'
     ].some((prefix) => path === prefix || path.startsWith(prefix + '/')) ||
     ((path.startsWith('/api/') || path.startsWith('/supabase/rest/v1/')) &&
       /api[-_]?key/i.test(path))
