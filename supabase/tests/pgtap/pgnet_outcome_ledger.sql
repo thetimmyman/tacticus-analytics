@@ -5,7 +5,7 @@ CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 SET LOCAL timezone TO 'UTC';
 
-SELECT plan(31);
+SELECT plan(35);
 
 SELECT is(
   current_database()::text,
@@ -293,6 +293,55 @@ SELECT is(
      FROM monitoring.pgnet_request_ledger WHERE request_id = 880105),
   'unknown|null|null|null'::text,
   'an aged emission with only a pre-emission response gives up without borrowing its status'
+);
+
+-- called_at is the reaper's emission cutoff, so writers stamp wall-clock time,
+-- never the transaction-start now() that an older response can postdate.
+SELECT is(
+  (SELECT column_default FROM information_schema.columns
+    WHERE table_schema = 'monitoring' AND table_name = 'pgnet_request_ledger'
+      AND column_name = 'called_at')::text,
+  'clock_timestamp()'::text,
+  'the ledger stamps called_at with wall-clock time by default'
+);
+
+DO $wall$
+BEGIN
+  PERFORM pg_sleep(0.01);
+  PERFORM monitoring.record_pgnet_request(880201, 'outcome-correlation-wall-clock', 'https://example.invalid/wall-clock');
+END
+$wall$;
+
+SELECT ok(
+  (SELECT called_at > now() FROM monitoring.pgnet_request_ledger WHERE request_id = 880201),
+  'record_pgnet_request() stamps a new emission after transaction start'
+);
+
+-- Reused id inside one long transaction: the retained response was created
+-- after the transaction began but before the re-emission.
+INSERT INTO monitoring.pgnet_request_ledger (request_id, function_name, url, called_at)
+VALUES (880202, 'outcome-correlation-long-txn', 'https://example.invalid/long-txn', now() - INTERVAL '1 minute');
+INSERT INTO net._http_response (id, status_code, timed_out, error_msg, content, created)
+VALUES (880202, 200, false, NULL, 'response to the earlier emission', now());
+DO $long_txn$
+BEGIN
+  PERFORM pg_sleep(0.01);
+  PERFORM monitoring.record_pgnet_request(880202, 'outcome-correlation-long-txn', 'https://example.invalid/long-txn');
+  PERFORM monitoring.reap_pgnet_outcomes();
+END
+$long_txn$;
+
+SELECT is(
+  (SELECT outcome || '|' || coalesce(status_code::text, 'null')
+     FROM monitoring.pgnet_request_ledger WHERE request_id = 880202),
+  'pending|null'::text,
+  'a response created after transaction start but before the re-emission cannot settle it'
+);
+
+SELECT ok(
+  (SELECT prosrc !~ 'called_at\s*=\s*now\(\)' AND prosrc ~ 'called_at\s*=\s*clock_timestamp\(\)'
+     FROM pg_proc WHERE oid = 'public.call_edge_function(text,jsonb)'::regprocedure),
+  'call_edge_function() re-stamps a reused request id with wall-clock time'
 );
 
 SELECT * FROM finish();

@@ -64,7 +64,7 @@ application_insert_policy.sql # 18
 retire_guild_war_showcase.sql # 7
 invite_code_info_shape.sql # 14
 playbook_anon_guard.sql # 10
-pgnet_outcome_ledger.sql # 31
+pgnet_outcome_ledger.sql # 35
 refresh_token_inactivity_sweep.sql # 17
 identifier_leaks.sql # 12
 quarantine_pii_eraser_cron.sql # 12
