@@ -35,9 +35,9 @@ def run(command, *, timeout=1200, log=None):
 measurements = []
 created = []
 try:
-    run(["python3", "apps/mobile/ios/scripts/generate-project.py"])
-    xcode = run(["xcodebuild", "-version"]).strip()
-    devices = json.loads(run(["xcrun", "simctl", "list", "devices", "available", "-j"]))["devices"]
+    run(["python3", "apps/mobile/ios/scripts/generate-project.py"], timeout=60)
+    xcode = run(["xcodebuild", "-version"], timeout=60).strip()
+    devices = json.loads(run(["xcrun", "simctl", "list", "devices", "available", "-j"], timeout=120))["devices"]
     runtimes = [(runtime, values) for runtime, values in devices.items() if ".iOS-" in runtime and values]
     if not runtimes:
         raise RuntimeError("No available iOS Simulator runtime")
@@ -53,11 +53,13 @@ try:
     for family, device in selected:
         print("Preparing disposable " + family + " Simulator", flush=True)
         # A new disposable Simulator is isolated from any pre-existing runner state.
-        types = json.loads(run(["xcrun", "simctl", "list", "devicetypes", "-j"]))["devicetypes"]
+        types = json.loads(run(["xcrun", "simctl", "list", "devicetypes", "-j"], timeout=120))["devicetypes"]
         device_type = next(item["identifier"] for item in types if item["name"] == device["name"])
-        udid = run(["xcrun", "simctl", "create", "Synthetic workspace proof", device_type, runtime]).strip()
+        print("Creating disposable " + family + " Simulator", flush=True)
+        udid = run(["xcrun", "simctl", "create", "Synthetic workspace proof", device_type, runtime], timeout=120).strip()
         created.append(udid)
-        run(["xcrun", "simctl", "boot", udid])
+        print("Booting disposable " + family + " Simulator", flush=True)
+        run(["xcrun", "simctl", "boot", udid], timeout=120)
         run(["xcrun", "simctl", "bootstatus", udid, "-b"], timeout=600)
         began = time.monotonic()
         print("Running native tests on " + family + " Simulator", flush=True)
@@ -76,7 +78,7 @@ try:
         elapsed = round(time.monotonic() - began, 3)
         measurements.append({"family": family, "classification": "simulator", "testBuildSeconds": elapsed, "caseSeconds": case_seconds, "tests": "native SQLite/Keychain and synthetic onboarding doubles; installed UI offline row save/process relaunch", "timingScope": "XCTest case elapsed time includes setup/assertions, not isolated throughput or physical performance"})
         print(family + " Simulator native tests passed in " + str(elapsed) + " seconds", flush=True)
-        run(["xcrun", "simctl", "shutdown", udid])
+        run(["xcrun", "simctl", "shutdown", udid], timeout=120)
     began = time.monotonic()
     run(["xcodebuild", *project, "-configuration", "Release", "-destination", "generic/platform=iOS Simulator", "build"], log=args.output / "release-diagnostic.log")
     # Bind acceptance to the Debug app actually installed by XCTest, not a later build.
@@ -107,5 +109,8 @@ try:
     print(json.dumps(report))
 finally:
     for udid in created:
-        subprocess.run(["xcrun", "simctl", "shutdown", udid], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        subprocess.run(["xcrun", "simctl", "delete", udid], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        for operation in ["shutdown", "delete"]:
+            try:
+                subprocess.run(["xcrun", "simctl", operation, udid], timeout=30, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            except subprocess.TimeoutExpired:
+                print("Owned Simulator cleanup timed out", flush=True)
