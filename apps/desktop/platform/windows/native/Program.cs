@@ -189,6 +189,10 @@ internal static class NativeProof
                 runtime = Environment.Version.ToString(), native = true, candidateOnly = true, consumerStandardUser = false,
                 elapsedMs = timer.ElapsedMilliseconds, assertions }, new JsonSerializerOptions { WriteIndented = true }));
         }
+        catch (Exception error) when (error is not InvalidOperationException)
+        {
+            throw new InvalidOperationException($"Native proof phase {assertions.Count} failed ({error.GetType().Name}, HRESULT 0x{error.HResult:x8})");
+        }
         finally { Directory.Delete(testRoot, true); }
     }
     private static async Task WaitFile(string path)

@@ -55,15 +55,16 @@ internal static class LocalFiles
         var path = Path.GetFullPath(destination);
         ProtectedState.RejectReparseParents(path);
         var temporary = Path.Combine(Path.GetDirectoryName(path)!, ".tacticus-projection-" + Guid.NewGuid().ToString("N") + ".tmp");
+        var sid = WindowsIdentity.GetCurrent().User ?? throw new InvalidOperationException("User unavailable");
+        var acl = new FileSecurity(); acl.SetOwner(sid); acl.SetAccessRuleProtection(true, false);
+        foreach (var identity in new[] { sid, new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null) })
+            acl.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, AccessControlType.Allow));
         try
         {
-            using (var file = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            // Apply the ACL at creation. A write-only FileStream handle cannot change its own DACL.
+            using (var file = new FileInfo(temporary).Create(FileMode.CreateNew, FileSystemRights.Write,
+                FileShare.None, 4096, FileOptions.None, acl))
             {
-                var sid = WindowsIdentity.GetCurrent().User ?? throw new InvalidOperationException("User unavailable");
-                var acl = new FileSecurity(); acl.SetOwner(sid); acl.SetAccessRuleProtection(true, false);
-                foreach (var identity in new[] { sid, new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null) })
-                    acl.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, AccessControlType.Allow));
-                file.SetAccessControl(acl);
                 var bytes = JsonSerializer.SerializeToUtf8Bytes(json.RootElement, new JsonSerializerOptions { WriteIndented = true });
                 RequireSession(expiresAt);
                 file.Write(bytes); file.Flush(true);
