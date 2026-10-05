@@ -15,6 +15,7 @@ import {
 } from '@tacticus/ui-kit/radix-select'
 
 interface EditProfileCoreFieldsProps {
+  desktopMode?: boolean
   avatarUrl: string
   displayName: string
   saving: boolean
@@ -31,6 +32,7 @@ interface EditProfileCoreFieldsProps {
 }
 
 export function EditProfileCoreFields({
+  desktopMode = false,
   avatarUrl,
   displayName,
   saving,
@@ -69,7 +71,9 @@ export function EditProfileCoreFields({
             htmlFor="displayName"
             className="block text-sm font-medium text-secondary-wh40k"
           >
-            Display Name (Game Controlled)
+            {desktopMode
+              ? 'Display Name (Local Label)'
+              : 'Display Name (Game Controlled)'}
           </label>
           <input
             id="displayName"
@@ -80,8 +84,9 @@ export function EditProfileCoreFields({
             readOnly
           />
           <p className="mt-1 text-xs text-secondary-wh40k">
-            Your display name is automatically synchronized from the Tacticus
-            game and cannot be edited here.
+            {desktopMode
+              ? 'This workspace label does not verify ownership of a game account.'
+              : 'Your display name is automatically synchronized from the Tacticus game and cannot be edited here.'}
           </p>
         </div>
 
@@ -101,6 +106,9 @@ export function EditProfileCoreFields({
               <RadixSelectValue placeholder="Select timezone..." />
             </RadixSelectTrigger>
             <RadixSelectContent>
+              <RadixSelectItem value="UTC">
+                Coordinated Universal Time (UTC)
+              </RadixSelectItem>
               <RadixSelectItem value="America/New_York">
                 Eastern Time (ET)
               </RadixSelectItem>
@@ -134,7 +142,11 @@ export function EditProfileCoreFields({
             htmlFor="discordUsername"
             className="flex items-center justify-between text-sm font-medium text-secondary-wh40k"
           >
-            <span>Discord Username</span>
+            <span>
+              {desktopMode
+                ? 'Discord Display Alias (Optional)'
+                : 'Discord Username'}
+            </span>
             {isDiscordUsernameControlled && (
               <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-blue-900/30 text-blue-400 border border-blue-500/30">
                 <svg
@@ -162,6 +174,12 @@ export function EditProfileCoreFields({
             disabled={saving || isDiscordUsernameControlled}
             readOnly={isDiscordUsernameControlled}
           />
+          {desktopMode && (
+            <p className="mt-1 text-xs text-secondary-wh40k">
+              A local display preference; no Discord account is linked or
+              verified.
+            </p>
+          )}
           {isDiscordUsernameControlled && (
             <p className="mt-1 text-xs text-secondary-wh40k">
               This field is automatically synced from your connected Discord

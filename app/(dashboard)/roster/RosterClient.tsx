@@ -30,6 +30,7 @@ import { RosterPagination } from './components/RosterPagination'
 import { RosterToolbar } from './components/RosterToolbar'
 import { RosterUnitsView } from './components/RosterUnitsView'
 import { MemberName } from '@/app/components/ui/MemberName'
+import { safeExternalHttpUrl } from '@/app/lib/validation/auth'
 
 interface RosterClientProps {
   desktopMode?: boolean
@@ -37,21 +38,6 @@ interface RosterClientProps {
   playerName: string
   guildCode?: string
   tacticusShareUrl?: string
-}
-
-function safeExternalHttpUrl(value: string | undefined): string {
-  if (!value || value.length > 2048 || /[\u0000-\u001f\u007f]/.test(value))
-    return ''
-  try {
-    const url = new URL(value)
-    return !url.username &&
-      !url.password &&
-      (url.protocol === 'https:' || url.protocol === 'http:')
-      ? url.href
-      : ''
-  } catch {
-    return ''
-  }
 }
 
 export default function RosterClient({

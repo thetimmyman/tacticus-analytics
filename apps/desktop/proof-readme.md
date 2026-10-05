@@ -406,3 +406,17 @@ write retains existing unlocks and records a retry; restoring authority complete
 that retry. Native restart and disappearance of current inputs preserve earlier
 unlocks. This does not provide guild-war ingestion, module installation or complete
 job/feature parity.
+
+Local profile preferences use column-scoped writes through the current-subject
+projection. Timezones come from PostgreSQL's timezone catalogue; display aliases,
+theme codes and preferred team names are bounded or checked against local reference
+data. The eight canonical meta archetypes initialize without player or guild data.
+Verified identities, account roles and game credentials remain unwritable. Legacy
+preferences can be repaired without preventing unrelated activity updates.
+
+The desktop form supports clearing optional values and shares the roster's safe
+HTTP(S) link validation. Its labels distinguish local claims from game and Discord
+account ownership. `preferences-journey.mjs` verifies actual native Auth/PostgREST
+writes, foreign and protected-column refusals, invalid-value rollback, clearing,
+legacy repair and restart. Installed form acceptance and full profile parity remain
+separate requirements.

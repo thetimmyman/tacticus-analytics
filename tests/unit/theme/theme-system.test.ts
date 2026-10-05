@@ -1,5 +1,9 @@
-import { beforeEach, describe, expect, it } from 'vitest'
-import { applyThemeToCSS, type GuildTheme } from '@/app/lib/theme-system'
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
+import {
+  applyThemeToCSS,
+  getAvailableThemes,
+  type GuildTheme
+} from '@/app/lib/theme-system'
 
 const baseTheme: GuildTheme = {
   name: 'Test Theme',
@@ -19,6 +23,26 @@ const baseTheme: GuildTheme = {
     accent: '#999999'
   }
 }
+
+describe('local guild theme default', () => {
+  afterEach(() => vi.unstubAllEnvs())
+
+  it('allows the default for a synthetic desktop guild without a bundled preset', () => {
+    vi.stubEnv('NEXT_PUBLIC_RUNTIME_PROFILE', 'desktop')
+    expect(
+      getAvailableThemes({ role: 'member', guild_code: 'SYN-LOCAL' })
+    ).toContainEqual(expect.objectContaining({ code: 'guild' }))
+  })
+
+  it('preserves hosted availability for a guild without a bundled preset', () => {
+    vi.stubEnv('NEXT_PUBLIC_RUNTIME_PROFILE', 'hosted')
+    expect(
+      getAvailableThemes({ role: 'member', guild_code: 'SYN-LOCAL' }).some(
+        (theme) => theme.code === 'guild'
+      )
+    ).toBe(false)
+  })
+})
 
 describe('applyThemeToCSS semantic tokens', () => {
   beforeEach(() => {

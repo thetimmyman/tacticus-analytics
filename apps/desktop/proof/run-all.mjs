@@ -154,6 +154,10 @@ if (!configPath) {
   run('c-planner-link', 'apps/desktop/proof/planner-link-journey.mjs', [
     configPath
   ])
+  console.log('\n== Native local profile preferences / scope / restart ==')
+  run('c-profile-preferences', 'apps/desktop/proof/preferences-journey.mjs', [
+    configPath
+  ])
   console.log('\n== Native user-session expiry / restart renewal ==')
   run('c-session-renewal', 'apps/desktop/proof/session-journey.mjs', [
     configPath
