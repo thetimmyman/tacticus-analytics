@@ -2,6 +2,5 @@
 self-hosted-runner:
   labels:
     - amd64-builder
-    - arm64-builder
     - cheap
     - x64-heavy

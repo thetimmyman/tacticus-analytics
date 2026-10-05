@@ -21,14 +21,14 @@ spec:
     spec:
       affinity:
         nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              preference:
-                matchExpressions:
+          # The image is published for amd64 only.
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
                   - key: kubernetes.io/arch
                     operator: In
                     values:
-                      - arm64
+                      - amd64
       imagePullSecrets:
         - name: ghcr-pull-secret
       # Fail-soft: an unreadable override falls through to upstream, never a crashloop.
