@@ -69,7 +69,7 @@ refresh_token_inactivity_sweep.sql # 17
 identifier_leaks.sql # 12
 quarantine_pii_eraser_cron.sql # 12
 cluster_applications_api_key_columns.sql # 10
-alert_staleness_and_renotify.sql # 21
+alert_staleness_and_renotify.sql # 40
 guild_war_zones_match_fk.sql # 12
 erase_residual_player_mapping_identity.sql # 65
 player_mapping_analytics_ro.sql # 14
@@ -80,7 +80,7 @@ player_hash_name_heal.sql # 14
 prune_incomplete_registrations.sql # 24
 subject_erasure_player_ids.sql # 39
 guild_sync_status_view_policy.sql # 18
-sync_queue_drain_lanes.sql # 39
+sync_queue_drain_lanes.sql # 49
 publication_security_boundaries.sql # 6
 sync_quiet_tick_markers.sql # 8
 user_ban_reconciliation_enqueue.sql # 8
