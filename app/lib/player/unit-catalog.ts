@@ -5,10 +5,17 @@ import { createComponentLogger } from '@/app/lib/logging'
 
 const logger = createComponentLogger('player.unit-catalog')
 
+export type UnitDisplayMetadata = {
+  name?: string
+  faction?: string
+  grandAlliance?: string
+}
+
 export interface UnitCatalog {
   heroes: Set<string>
   mows: Set<string>
   aliases?: Map<string, string>
+  display?: Map<string, UnitDisplayMetadata>
 }
 
 let cachedCatalog: UnitCatalog | null = null
@@ -36,6 +43,7 @@ const addAlias = (
 const loadHeroDetails = async (heroesDir: string) => {
   const heroIds = new Set<string>()
   const mowIds = new Set<string>()
+  const display = new Map<string, UnitDisplayMetadata>()
   const aliases = new Map<string, string>()
   try {
     const entries = await fs.readdir(heroesDir)
@@ -49,10 +57,23 @@ const loadHeroDetails = async (heroesDir: string) => {
             gameId?: string
             name?: string
             longName?: string
+            factionId?: string
+            allianceId?: string
             traits?: unknown
           }
           if (!parsed?.id) return
           const id = String(parsed.id)
+          const metadata: UnitDisplayMetadata = {}
+          if (typeof parsed.name === 'string' && parsed.name.trim())
+            metadata.name = parsed.name.trim()
+          if (typeof parsed.factionId === 'string' && parsed.factionId.trim())
+            metadata.faction = parsed.factionId.trim()
+          if (
+            typeof parsed.allianceId === 'string' &&
+            ['Imperial', 'Chaos', 'Xenos'].includes(parsed.allianceId)
+          )
+            metadata.grandAlliance = parsed.allianceId
+          display.set(id, metadata)
           const isMow =
             Array.isArray(parsed.traits) &&
             parsed.traits.includes('MachineOfWar')
@@ -79,7 +100,7 @@ const loadHeroDetails = async (heroesDir: string) => {
       'heroes/ directory unreadable; skipping per-hero union'
     )
   }
-  return { heroIds, mowIds, aliases }
+  return { heroIds, mowIds, aliases, display }
 }
 
 type CatalogEntry = {
@@ -196,7 +217,12 @@ export const getUnitCatalog = async (repoPath: string) => {
     const mergedMowIds = new Set<string>(mows.ids)
     heroDetails.mowIds.forEach((id) => mergedMowIds.add(id))
     mergedMowIds.forEach((id) => mergedHeroIds.delete(id))
-    cachedCatalog = { heroes: mergedHeroIds, mows: mergedMowIds, aliases }
+    cachedCatalog = {
+      heroes: mergedHeroIds,
+      mows: mergedMowIds,
+      aliases,
+      display: heroDetails.display
+    }
     if (mergedHeroIds.size === 0 || mergedMowIds.size === 0) {
       // Empty sets make every unit 'unknown'. Log basenames only: absolute paths leak container layout.
       logger.error(

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { createServerClient } from '@supabase/ssr'
 import { randomBytes, randomUUID } from 'node:crypto'
-import { readFile, writeFile } from 'node:fs/promises'
+import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { createServer } from 'node:net'
 import { setTimeout as delay } from 'node:timers/promises'
@@ -9,6 +9,7 @@ import { nativeServices } from './native-services.mjs'
 import { loopbackGateway } from './loopback-gateway.mjs'
 import { workspaceSetup } from '../launcher/workspace.mjs'
 import { syntheticRosterUnit } from './synthetic-roster.mjs'
+import { initializeReferenceHeroes } from '../launcher/reference-catalog.mjs'
 
 const config = JSON.parse(await readFile(process.argv[2], 'utf8'))
 assert(config.application, 'Compiled application required')
@@ -161,8 +162,53 @@ try {
   assert.equal(empty.status, 200, await empty.clone().text())
   assert.equal((await empty.json()).cachePresent, false)
 
-  await services.psql(
-    "INSERT INTO public.hero_mappings(id,unit_id,display_name) VALUES (901,'syntheticHero','Synthetic Hero'),(902,'syntheticSecond','Synthetic Second');"
+  const reference = join(state, 'synthetic-reference')
+  await mkdir(join(reference, 'heroes'), { recursive: true, mode: 0o700 })
+  for (const unitId of ['syntheticHero', 'syntheticSecond'])
+    await writeFile(
+      join(reference, 'heroes', unitId + '.json'),
+      JSON.stringify({
+        gameId: unitId,
+        id: unitId + '-engine',
+        name: 'Synthetic Reference Hero',
+        factionId: 'SyntheticFaction',
+        allianceId: 'Imperial',
+        traits: []
+      }),
+      { mode: 0o600 }
+    )
+  assert.equal(
+    (await initializeReferenceHeroes(services, reference)).entries,
+    2
+  )
+  const catalogueBefore = (
+    await services.psql(
+      'SELECT json_agg(h ORDER BY id) FROM public.hero_mappings h;'
+    )
+  ).trim()
+  await initializeReferenceHeroes(services, reference)
+  assert.equal(
+    (
+      await services.psql(
+        'SELECT json_agg(h ORDER BY id) FROM public.hero_mappings h;'
+      )
+    ).trim(),
+    catalogueBefore
+  )
+  await writeFile(join(reference, 'heroes', 'z-invalid.json'), '{}', {
+    mode: 0o600
+  })
+  await assert.rejects(initializeReferenceHeroes(services, reference))
+  assert.equal(
+    (
+      await services.psql(
+        'SELECT json_agg(h ORDER BY id) FROM public.hero_mappings h;'
+      )
+    ).trim(),
+    catalogueBefore
+  )
+  evidence.checks.push(
+    'bundled static reference metadata initializes canonical mapping rows with stable IDs; repeated refresh retains IDs and malformed later definitions make no writes'
   )
   const snapshot = {
     format: 'ta-official-roster-v1',
@@ -248,6 +294,11 @@ try {
       )
     ).trim()
   )
+  const retainedId = (
+    await services.psql(
+      "SELECT r.id FROM public.player_roster r JOIN public.hero_mappings h ON h.id=r.hero_mapping_id WHERE h.unit_id='syntheticHero';"
+    )
+  ).trim()
   assert.equal(rows.length, 2)
   assert.equal(rows[0].user_id, subject)
   assert.equal(rows[0].xp, 1000)
@@ -362,7 +413,7 @@ try {
   )
   assert.equal(
     (await services.psql('SELECT id FROM public.player_roster;')).trim(),
-    String(rows[0].id)
+    retainedId
   )
   expected = await fingerprint()
   evidence.checks.push(

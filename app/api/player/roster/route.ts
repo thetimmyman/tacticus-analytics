@@ -49,7 +49,8 @@ const enrichUnit = (unit: any, catalog: UnitCatalog) => {
   const rawId = typeof unit?.id === 'string' ? unit.id : String(unit?.id ?? '')
   const engineId = resolveEngineUnitId(rawId, catalog)
   const category = classifyUnitId(engineId, catalog)
-  return { ...unit, engineId, category }
+  const display = engineId ? catalog.display?.get(engineId) : undefined
+  return { ...display, ...unit, engineId, category }
 }
 
 const mergeMowLists = (lists: Array<Array<any>>) => {

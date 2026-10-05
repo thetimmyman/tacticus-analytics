@@ -358,3 +358,13 @@ It also checks the authenticated cache API with no hosted key. These synthetic
 backend checks remain separate from installed GUI, OS-vault, live-account and
 cross-platform acceptance. Sync is manual; this preview does not discover a game
 client, automatically retrieve credentials or claim complete feature parity.
+
+The native launcher initializes `hero_mappings` from the package's static hero
+reference definitions before serving the application. Canonical API unit IDs and
+engine aliases get deterministic local database IDs. A refresh validates all
+files first, commits in one transaction, preserves existing reference IDs and
+never deletes reference rows. Invalid optional reference files leave the existing
+catalogue intact and do not prevent reading an existing workspace. The roster
+read path can fill omitted display labels from packaged definitions; unknown
+units still use explicit fallback labels. This is local reference metadata, not
+captured player data or a complete reference/schema parity claim.

@@ -32,6 +32,7 @@ run('a-loopback-gateway', '--test', [
   'apps/desktop/proof/credential-vault.test.mjs',
   'apps/desktop/proof/official-raid-broker.test.mjs',
   'apps/desktop/proof/roster-validation.test.mjs',
+  'apps/desktop/proof/reference-catalog.test.mjs',
   'apps/desktop/proof/saved-game-connection.test.mjs',
   'apps/desktop/proof/native-secret.test.mjs',
   'apps/desktop/proof/game-connection.test.mjs',

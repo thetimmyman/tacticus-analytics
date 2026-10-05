@@ -3,6 +3,7 @@ import { localJobScheduler } from './job-scheduler.mjs'
 import { electronDisplay } from './display.mjs'
 import { launcherOptions } from './options.mjs'
 import { bundledServices } from './runtime.mjs'
+import { initializeReferenceHeroes } from './reference-catalog.mjs'
 import { maintenanceCLI, guardedTransfer } from './maintenance.mjs'
 import { selectedWorkspace, selectWorkspace } from './workspace-selection.mjs'
 import { startupMessage } from './startup-message.mjs'
@@ -83,6 +84,17 @@ let gateway, scheduler, maintenance, applicationPort
 const maintenanceNonce = randomBytes(32).toString('hex')
 const maintenanceRequest = join(state, `maintenance-${maintenanceNonce}.json`)
 try {
+  try {
+    await initializeReferenceHeroes(
+      services,
+      join(root, 'application/data/game-data')
+    )
+  } catch {
+    // Missing optional reference data must not prevent reading existing data.
+    console.warn(
+      'Bundled reference catalogue could not refresh; existing catalogue retained.'
+    )
+  }
   const transportKey = randomBytes(32).toString('hex')
   const cronSecret = randomBytes(32).toString('hex')
   const brokerToken = randomBytes(32).toString('hex')
