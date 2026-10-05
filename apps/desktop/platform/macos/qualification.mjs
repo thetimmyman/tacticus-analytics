@@ -3,6 +3,7 @@ import { mkdtemp, mkdir, readFile, writeFile, cp } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import { join, resolve, isAbsolute } from 'node:path'
 import { tmpdir } from 'node:os'
+import { lookup } from 'node:dns/promises'
 import { stage, inventory } from './stage.mjs'
 import { records } from './evidence.mjs'
 
@@ -100,7 +101,52 @@ await writeFile(verify, JSON.stringify(config), { mode: 0o600 })
 // The sandbox applies to the full installed descendant tree. This policy is a
 // qualification tool, not a request to weaken any consumer OS protection.
 const policy =
-  '(version 1)(allow default)(deny network*)(allow network-inbound (local ip "localhost:*"))(allow network-outbound (remote ip "localhost:*"))'
+  '(version 1)(allow default)(deny network*)(allow network* (local unix-socket))(allow network* (remote unix-socket))(allow network-inbound (local ip "localhost:*"))(allow network-outbound (remote ip "localhost:*"))'
+// Resolve a public target before sandboxing, then exercise the installed Node
+// under the identical descendant policy. Neither target nor raw errors enter
+// the synthetic receipt. Success requires an actual OS permission refusal.
+const target = await lookup('example.com', { family: 4 })
+let networkReceipt
+try {
+  networkReceipt = execFileSync(
+    '/usr/bin/sandbox-exec',
+    [
+      '-p',
+      policy,
+      join(runtime, 'bin/node'),
+      join(runtime, 'apps/desktop/platform/macos/network-isolation.mjs'),
+      target.address
+    ],
+    {
+      env: { PATH: '/usr/bin:/bin', TMPDIR: process.env.TMPDIR },
+      encoding: 'utf8',
+      timeout: 15000
+    }
+  )
+} catch {
+  await writeFile(
+    join(output, 'network-policy.json'),
+    JSON.stringify({ synthetic: true, result: 'not-established' }),
+    { mode: 0o600 }
+  )
+  throw new Error('Installed local IPC and external TCP policy proof failed')
+}
+const networkResult = JSON.parse(networkReceipt)
+if (
+  networkResult.synthetic !== true ||
+  networkResult.localUnixIPC !== true ||
+  networkResult.nonLoopbackTCPDenied !== true
+)
+  throw new Error('Installed network policy qualification failed')
+await writeFile(
+  join(working, 'network-policy.json'),
+  JSON.stringify(networkResult),
+  { mode: 0o600 }
+)
+await cp(
+  join(working, 'network-policy.json'),
+  join(output, 'network-policy.json')
+)
 async function run(arguments_) {
   const child = spawn(
     '/usr/bin/sandbox-exec',
@@ -165,6 +211,7 @@ if (first.counter !== 1 || second.counter !== 2)
 const files = await inventory(installed)
 const attachments = []
 for (const [name, mediaType] of [
+  ['network-policy.json', 'application/json'],
   ['renderer.json', 'application/json'],
   ['renderer.png', 'image/png'],
   ['storage-first.json', 'application/json'],

@@ -41,7 +41,12 @@ the pinned source using its required Go toolchain. `stage.mjs` produces an app
 bundle, checks architecture and external Mach-O dependencies, rejects mutable
 state and escaping links, and inventories package bytes. `qualification.mjs`
 mounts a generated DMG, copies the app into a path with spaces and Unicode, and
-runs the installed binaries under a loopback-only network sandbox. It exercises
+runs the installed binaries under a network sandbox allowing loopback and local
+Unix IPC. Before launch, the installed Node must exchange a synthetic Unix
+socket message and receive an OS permission refusal for direct external TCP.
+The receipt records only fixed results; a timeout never counts as denial.
+Electron's renderer sandbox remains enabled. This qualification policy does
+not establish the consumer's full opt-in network boundary. It exercises
 the selected synthetic renderer calculation, persisted writes, whole database
 dump/restore into a disposable database, and failed migration rollback.
 The developer workspace setup retains the baseline synthetic analytics journey;

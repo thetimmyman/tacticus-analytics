@@ -34,7 +34,7 @@ export function records(context) {
     'clean-install':
       'Copied the developer app from a mounted read-only DMG into a fresh Unicode path.',
     'offline-core':
-      'Selected real renderer calculations ran under a loopback-only process sandbox.',
+      'Selected real renderer calculations ran under a process sandbox allowing loopback and local Unix IPC with external TCP refusal measured.',
     'restart-persistence':
       'Two cold installed launches retained eight fixture rows and incremented the stored counter from one to two.',
     'backup-restore':
