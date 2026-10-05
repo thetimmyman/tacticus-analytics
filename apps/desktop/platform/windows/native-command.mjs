@@ -39,7 +39,9 @@ export async function nativeCommand(args, input) {
   if (!allowed.has(args[0]) || args.length > 3)
     throw new Error('Unsupported native operation')
   const child = spawn(resolve(executable), args, {
-    windowsHide: true,
+    // Keep the owner's console connection. CREATE_NO_WINDOW fails DLL
+    // initialization for reduced-token descendants; streams remain private pipes.
+    windowsHide: false,
     stdio: [input ? 'pipe' : 'ignore', 'pipe', 'pipe']
   })
   if (input) child.stdin.end(input)

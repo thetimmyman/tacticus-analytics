@@ -29,7 +29,8 @@ async function freePort() {
 }
 async function run(file, args, options) {
   const child = spawn(file, args, {
-    windowsHide: true,
+    // Attach to the existing owner console instead of CREATE_NO_WINDOW.
+    windowsHide: false,
     ...options,
     stdio: ['ignore', 'pipe', 'pipe']
   })
@@ -321,7 +322,7 @@ export async function nativeServices({
           'pipe',
           ...(ipc ? ['ipc'] : [])
         ],
-        windowsHide: true
+        windowsHide: false
       })
       // Classify only a bounded in-memory prefix; upstream bodies never enter diagnostics.
       if (input) child.stdin.end(input)
