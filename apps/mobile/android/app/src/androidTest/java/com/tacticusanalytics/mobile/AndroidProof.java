@@ -1,0 +1,412 @@
+package com.tacticusanalytics.mobile;
+
+import android.app.Instrumentation;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.SystemClock;
+import android.view.WindowManager;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+/**
+ * Installed Android checks use synthetic input and never establish physical release qualification.
+ */
+public final class AndroidProof extends Instrumentation {
+  private String phase;
+  private int checks;
+  @Override
+  public void onCreate(Bundle arguments) {
+    super.onCreate(arguments);
+    phase = arguments == null ? "all" : arguments.getString("phase", "all");
+    start();
+  }
+  private void check(boolean condition, String message) throws Exception {
+    if (!condition)
+      throw new Exception(message);
+    checks++;
+  }
+  interface Rejected {
+    void run() throws Exception;
+  }
+  private void rejects(Rejected operation, String message) throws Exception {
+    boolean rejected = false;
+    try {
+      operation.run();
+    } catch (Exception expected) {
+      rejected = true;
+    }
+    check(rejected, message);
+  }
+  private JSONObject player(String name, boolean combined, boolean expired) throws Exception {
+    JSONArray scopes = new JSONArray().put("Player");
+    if (combined)
+      scopes.put("Guild").put("Guild Raid");
+    JSONObject metadata = new JSONObject().put("scopes", scopes).put("lastUpdatedOn", 1);
+    if (expired)
+      metadata.put("apiKeyExpiresOn", 1);
+    return new JSONObject()
+        .put("metaData", metadata)
+        .put("player",
+            new JSONObject()
+                .put("details", new JSONObject().put("name", name).put("powerLevel", 1))
+                .put("units",
+                    new JSONArray().put(new JSONObject()
+                            .put("id", "synthetic-unit")
+                            .put("name", "Synthetic unit")
+                            .put("rank", 1)
+                            .put("xpLevel", 2)))
+                .put("inventory",
+                    new JSONObject().put("items", new JSONArray()).put("shards", new JSONArray()))
+                .put("progress",
+                    new JSONObject().put("guildRaid",
+                        new JSONObject()
+                            .put("tokens",
+                                new JSONObject()
+                                    .put("current", 2)
+                                    .put("max", 3)
+                                    .put("regenDelayInSeconds", 43200))
+                            .put("bombTokens",
+                                new JSONObject()
+                                    .put("current", 1)
+                                    .put("max", 3)
+                                    .put("regenDelayInSeconds", 43200)))));
+  }
+  private OfficialSource source(String name, boolean combined, boolean expired, String guild) {
+    return (scope, key) -> {
+      if (scope.equals("Player"))
+        return player(name, combined, expired);
+      if (scope.equals("Guild"))
+        return new JSONObject().put("guild",
+            new JSONObject()
+                .put("guildId", guild)
+                .put("name", "Synthetic guild")
+                .put("members", new JSONArray()));
+      if (scope.equals("Guild Raid"))
+        return new JSONObject().put("entries",
+            new JSONArray().put(
+                new JSONObject().put("damageDealt", 400).put("damageType", "Battle")));
+      throw new Exception("Unknown scope");
+    };
+  }
+  @Override
+  public void onStart() {
+    Bundle result = new Bundle();
+    long started = SystemClock.elapsedRealtime();
+    try (WorkspaceStore store = new WorkspaceStore(getTargetContext())) {
+      if (phase.equals("reopen")) {
+        check(store.read(true).getString("status").equals("synthetic-demo"),
+            "Restart lost demo data");
+        check(store.totalDamage(true) == 300, "Restart calculation changed");
+        check(store.read(false).has("personal"), "Restart lost personal data");
+        check(store.totalDamage(false) == 400, "Restart lost raid data");
+        final String orphan = getTargetContext()
+                                  .getSharedPreferences("synthetic-test-probe", 0)
+                                  .getString("unfinishedHandle", "");
+        rejects(()
+                    -> new Vault(getTargetContext()).withCredential(orphan, value -> value),
+            "Process-death setup retained orphan");
+        check(store.reference("Player") == null, "Disconnect reference returned after restart");
+        check(!store.enqueueContribution(store.consentGeneration(), new JSONObject()),
+            "Restart enabled contribution");
+      } else {
+        store.write(Demo.document(), true);
+        check(store.totalDamage(true) == 300, "Offline analytics failed");
+        check(!store.read(false).has("personal"), "Demo activated normal workspace");
+        JSONObject exported = MobileDocument.export(store.read(true));
+        check(exported.getString("schemaVersion").equals("mobile-workspace/v1"), "Export version");
+        JSONObject calculated = PortableAnalytics.calculate(exported);
+        check(calculated.getLong("totalDamage") == 300 && calculated.getLong("totalTokens") == 2
+                && calculated.getLong("damagePerToken") == 150,
+            "Portable integer analytics");
+        store.write(MobileDocument.importDocument(exported), true);
+        check(store.totalDamage(true) == 300, "Portable roundtrip lost damage");
+        rejects(()
+                    -> MobileDocument.importDocument(
+                        new JSONObject(exported.toString()).put("apiKey", "synthetic-canary")),
+            "Import accepted secret field");
+        rejects(()
+                    -> MobileDocument.importDocument(
+                        new JSONObject(exported.toString()).put("player", 7)),
+            "Import accepted invalid Player type");
+        JSONObject invalidResource = new JSONObject(exported.toString());
+        invalidResource.getJSONObject("player").getJSONObject("resources").put("bombTokens", false);
+        rejects(()
+                    -> MobileDocument.importDocument(invalidResource),
+            "Import accepted invalid resource type");
+        rejects(()
+                    -> MobileDocument.importDocument(new JSONObject(exported.toString())
+                            .put("schemaVersion", "mobile-workspace/v2")),
+            "Foreign schema accepted");
+        rejects(
+            () -> store.write(Demo.document(), false), "Synthetic workspace entered personal slot");
+        rejects(()
+                    -> store.write(
+                        new JSONObject().put("schemaVersion", 1).put("status", "active"), false),
+            "Player bypass");
+        rejects(() -> StrictJson.parse(new byte[] {(byte) 0xc3, 0x28}), "Malformed UTF-8 accepted");
+        rejects(
+            () -> StrictJson.parse("[[[[[[[[[[[[[0]]]]]]]]]]]]]"), "Deep parser input accepted");
+        JSONObject backup = NativeBackup.export(store.read(true));
+        check(NativeBackup.importDocument(backup).getJSONObject("personal").has("progress"),
+            "Full backup lost progress");
+        rejects(()
+                    -> NativeBackup.importDocument(
+                        new JSONObject(backup.toString()).put("sha256", "invalid")),
+            "Corrupt backup accepted");
+        check(store.totalDamage(true) == 300, "Rejected import changed data");
+        JSONObject changed = Demo.document();
+        changed.getJSONObject("raid").getJSONArray("entries").getJSONObject(0).put(
+            "damageDealt", 150);
+        store.write(changed, true);
+        store.restorePrevious(true, new Vault(getTargetContext()));
+        check(store.totalDamage(true) == 300, "Checkpoint recovery failed");
+        Vault vault = new Vault(getTargetContext());
+        String canary = "synthetic-official-canary-v1", handle = vault.store(canary);
+        check(vault.withCredential(handle, value -> value.equals(canary)), "Keystore roundtrip");
+        java.io.File encrypted =
+            new java.io.File(getTargetContext().getNoBackupFilesDir(), "official-vault/" + handle);
+        byte[] blob = Files.readAllBytes(encrypted.toPath());
+        check(!new String(blob, StandardCharsets.UTF_8).contains(canary), "Plaintext vault");
+        blob[blob.length - 1] ^= 1;
+        Files.write(encrypted.toPath(), blob);
+        final String corruptHandle = handle;
+        rejects(()
+                    -> vault.withCredential(corruptHandle, value -> value),
+            "Authenticated encryption tamper accepted");
+        vault.remove(handle);
+        handle = vault.store(canary);
+        final String refused = handle;
+        rejects(()
+                    -> new Onboarding(
+                        vault, store, source("Synthetic Player", false, false, "synthetic-guild"))
+                        .connect(refused, true, false, false, name -> false),
+            "Refused account activated");
+        rejects(()
+                    -> vault.withCredential(refused, value -> value),
+            "Refused setup retained credential");
+        handle = vault.store(canary);
+        final String expired = handle;
+        rejects(()
+                    -> new Onboarding(
+                        vault, store, source("Synthetic Player", false, true, "synthetic-guild"))
+                        .connect(expired, true, false, false, name -> true),
+            "Expired access activated");
+        handle = vault.store(canary);
+        new Onboarding(vault, store, source("Synthetic Player", false, false, "synthetic-guild"))
+            .connect(handle, true, true, true, name -> name.equals("Synthetic Player"));
+        check(store.read(false).has("personal"), "Player-only setup");
+        check(store.read(false)
+                  .getJSONObject("capabilities")
+                  .getString("Guild")
+                  .equals("optional-not-connected"),
+            "Optional unlocked without scope");
+        check(store.read(false)
+                  .getJSONObject("personal")
+                  .getJSONObject("progress")
+                  .getJSONObject("guildRaid")
+                  .has("bombTokens"),
+            "Actual bomb-token path lost");
+        String previous = handle;
+        handle = vault.store(canary);
+        new Onboarding(vault, store, source("Synthetic Player", true, false, "synthetic-guild"))
+            .connect(handle, true, true, true, name -> true);
+        check(store.reference("Player").equals(handle) && store.reference("Guild").equals(handle)
+                && store.reference("Guild Raid").equals(handle),
+            "Combined scopes split credential");
+        check(store.totalDamage(false) == 400, "Bound raid failed");
+        check(!store.read(false).getJSONObject("raid").has("guildId"),
+            "Invented Raid guild identity");
+        final String replaced = previous;
+        rejects(()
+                    -> vault.withCredential(replaced, value -> value),
+            "Replacement retained unreferenced credential");
+        previous = handle;
+        handle = vault.store(canary);
+        new Onboarding(vault, store, source("Synthetic Player", true, false, "synthetic-guild"))
+            .connect(handle, false, true, false, name -> true);
+        check(store.reference("Player").equals(previous) && store.reference("Guild").equals(handle),
+            "Separate Guild replaced Player");
+        check(store.reference("Guild Raid") == null && store.totalDamage(false) == 400,
+            "Guild replacement retained live Raid or lost historical data");
+        String playerReplacement = vault.store(canary);
+        new Onboarding(vault, store, source("Synthetic Player", false, false, "synthetic-guild"))
+            .connect(playerReplacement, true, false, false, name -> true);
+        check(store.reference("Guild") == null && store.reference("Guild Raid") == null
+                && store.totalDamage(false) == 400,
+            "Player replacement retained optional live access or lost history");
+        final String staleBackground = previous;
+        rejects(()
+                    -> new Onboarding(
+                        vault, store, source("Synthetic Player", true, false, "synthetic-guild"))
+                        .connectExisting(staleBackground, true, true, true, name -> true),
+            "Background refresh resurrected replaced Player key");
+        String freshCombined = vault.store(canary);
+        new Onboarding(vault, store, source("Synthetic Player", true, false, "synthetic-guild"))
+            .connect(freshCombined, true, true, true, name -> true);
+        check(store.disconnectScope("Guild", vault) && store.reference("Guild") == null
+                && store.reference("Guild Raid") == null
+                && store.reference("Player").equals(freshCombined)
+                && store.totalDamage(false) == 400,
+            "Guild disconnect failed to cascade live Raid while retaining Player/history");
+        String raidHandle = vault.store(canary);
+        new Onboarding(
+            vault, store, source("Synthetic Player", true, false, "different-synthetic-guild"))
+            .connect(raidHandle, false, true, true, name -> true);
+        check(store.read(false)
+                  .getJSONObject("capabilities")
+                  .getString("Guild")
+                  .equals("wrong-guild"),
+            "Wrong Guild mixed data");
+        check(store.totalDamage(false) == 400, "Wrong Guild changed raid data");
+        final String mismatch = vault.store(canary);
+        rejects(()
+                    -> new Onboarding(vault, store,
+                        source("Different Synthetic Player", true, false, "synthetic-guild"))
+                        .connect(mismatch, true, true, true, name -> true),
+            "Different Player mixed data");
+        final String offline = vault.store(canary);
+        rejects(() -> new Onboarding(vault, store, (scope, key) -> {
+          throw new Exception("Offline");
+        }).connect(offline, true, false, false, name -> true), "Offline refresh activated");
+        check(store.totalDamage(false) == 400, "Offline refresh lost retained data");
+        for (String variant : new String[] {canary,
+                 android.util.Base64.encodeToString(
+                     canary.getBytes(StandardCharsets.UTF_8), android.util.Base64.NO_WRAP)}) {
+          final String unsafe = vault.store(canary);
+          rejects(
+              ()
+                  -> new Onboarding(vault, store,
+                      (scope, key)
+                          -> player("Synthetic Player", false, false).put("unexpected", variant))
+                      .connect(unsafe, true, false, false, name -> true),
+              "Reflected credential entered data");
+        }
+        check(!MobileDocument.export(store.read(false)).toString().contains(canary),
+            "Portable export egress");
+        check(!NativeBackup.export(store.read(false)).toString().contains(canary), "Backup egress");
+        for (java.io.File file :
+            getTargetContext().getDatabasePath("workspaces-v1.db").getParentFile().listFiles())
+          if (file.isFile())
+            check(!new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8)
+                      .contains(canary),
+                "Database credential egress");
+        check(!store.scheduledRefreshEnabled(), "Scheduling default enabled");
+        ScheduledRefresh.enable(getTargetContext(), store);
+        android.app.job.JobInfo job = getTargetContext()
+                                          .getSystemService(android.app.job.JobScheduler.class)
+                                          .getPendingJob(ScheduledRefresh.JOB_ID);
+        check(job != null && job.isRequireCharging() && job.isRequireDeviceIdle()
+                && job.getNetworkType() == android.app.job.JobInfo.NETWORK_TYPE_UNMETERED
+                && job.getIntervalMillis() == 6 * 60 * 60 * 1000L,
+            "Scheduled constraints missing");
+        ScheduledRefresh.disable(getTargetContext(), store);
+        check(getTargetContext()
+                        .getSystemService(android.app.job.JobScheduler.class)
+                        .getPendingJob(ScheduledRefresh.JOB_ID)
+                    == null
+                && !store.scheduledRefreshEnabled(),
+            "Scheduling disable failed");
+        final String raced = vault.store(canary);
+        rejects(()
+                    -> new Onboarding(
+                        vault, store, source("Synthetic Player", true, false, "synthetic-guild"))
+                        .connect(raced, true, true, true,
+                            name -> {
+                              store.invalidateConnection();
+                              return true;
+                            }),
+            "Cancelled setup committed after generation changed");
+        long generation = store.consentGeneration();
+        check(!store.enqueueContribution(generation, new JSONObject()),
+            "Default contribution enabled");
+        store.getWritableDatabase().execSQL(
+            "INSERT INTO contribution_queue(generation,document) VALUES(?,?)",
+            new Object[] {generation, "{}"});
+        store.revokeContribution();
+        check(store.consentGeneration() > generation, "Revocation generation unchanged");
+        check(!store.enqueueContribution(generation, new JSONObject()),
+            "Revoked generation accepted");
+        try (android.database.Cursor count = store.getReadableDatabase().rawQuery(
+                 "SELECT COUNT(*) FROM contribution_queue", null)) {
+          count.moveToFirst();
+          check(count.getInt(0) == 0, "Revocation retained queue");
+        }
+        check(store.disconnect(vault), "Secure disconnect cleanup failed");
+        check(store.reference("Player") == null && store.reference("Guild") == null
+                && store.reference("Guild Raid") == null,
+            "Disconnect left references");
+        check(store.totalDamage(false) == 400, "Disconnect lost offline data");
+        final String disconnected = previous;
+        rejects(() -> vault.withCredential(disconnected, value -> value), "Disconnect allowed key");
+        JSONObject full = NativeBackup.importDocument(NativeBackup.export(store.read(false)));
+        check(full.getString("status").equals("historical-offline")
+                && full.getJSONObject("capabilities")
+                    .getString("Player")
+                    .equals("reconnect-required"),
+            "Backup imported verification");
+        check((getTargetContext().getApplicationInfo().flags
+                  & android.content.pm.ApplicationInfo.FLAG_ALLOW_BACKUP)
+                == 0,
+            "OS backup enabled");
+        android.content.pm.PackageInfo packaged =
+            getTargetContext().getPackageManager().getPackageInfo(
+                getTargetContext().getPackageName(),
+                android.content.pm.PackageManager.GET_PERMISSIONS
+                    | android.content.pm.PackageManager.GET_SERVICES);
+        check(packaged.requestedPermissions.length == 2
+                && new java.util.HashSet<>(java.util.Arrays.asList(packaged.requestedPermissions))
+                    .equals(new java.util.HashSet<>(java.util.Arrays.asList(
+                        "android.permission.INTERNET", "android.permission.ACCESS_NETWORK_STATE"))),
+            "Broad package permission");
+        check(packaged.services.length == 1
+                && packaged.services[0].permission.equals("android.permission.BIND_JOB_SERVICE"),
+            "Unprotected service boundary");
+        android.app.Activity activity =
+            startActivitySync(new Intent(getTargetContext(), MainActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        check((activity.getWindow().getAttributes().flags & WindowManager.LayoutParams.FLAG_SECURE)
+                != 0,
+            "Secure screen missing");
+        runOnMainSync(activity::finish);
+        try (WorkspaceStore probe =
+                 new WorkspaceStore(getTargetContext(), "synthetic-schema-probe.db")) {
+          probe.write(Demo.document(), true);
+          probe.getWritableDatabase().setVersion(2);
+        }
+        rejects(() -> {
+          try (WorkspaceStore probe =
+                   new WorkspaceStore(getTargetContext(), "synthetic-schema-probe.db")) {
+            probe.getReadableDatabase();
+          }
+        }, "Unsupported schema downgrade accepted");
+        try (android.database.sqlite.SQLiteDatabase raw =
+                 android.database.sqlite.SQLiteDatabase.openDatabase(
+                     getTargetContext().getDatabasePath("synthetic-schema-probe.db").getPath(),
+                     null, android.database.sqlite.SQLiteDatabase.OPEN_READONLY);
+            android.database.Cursor row =
+                raw.rawQuery("SELECT document FROM workspace WHERE id='demo'", null)) {
+          row.moveToFirst();
+          check(StrictJson.parse(row.getString(0)).getString("status").equals("synthetic-demo"),
+              "Schema refusal modified data");
+        }
+        getTargetContext()
+            .getSharedPreferences("synthetic-test-probe", 0)
+            .edit()
+            .putString("unfinishedHandle", vault.store(canary))
+            .commit();
+        store.write(Demo.document(), true);
+      }
+      result.putString("stream",
+          "PASS phase=" + phase + " checks=" + checks
+              + " elapsedMs=" + (SystemClock.elapsedRealtime() - started)
+              + "; synthetic installed Android checks, release qualification pending\n");
+      finish(-1, result);
+    } catch (Exception failure) {
+      result.putString("stream",
+          "FAIL " + failure.getClass().getSimpleName() + ": " + failure.getMessage() + "\n");
+      finish(0, result);
+    }
+  }
+}

@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+set -euo pipefail
+: "${ANDROID_HOME:?Set ANDROID_HOME}"
+APP_ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+SERIAL=${1:?Pass the selected emulator serial}
+ADB="$ANDROID_HOME/platform-tools/adb"
+[[ "$SERIAL" =~ ^emulator-[0-9]+$ ]] || { printf 'This resettable synthetic runner is emulator-only\n' >&2; exit 1; }
+[[ "$($ADB -s "$SERIAL" shell getprop ro.kernel.qemu | tr -d '\r')" == 1 ]] || { printf 'Refusing synthetic reset on a physical device\n' >&2; exit 1; }
+[[ "$(git -C "$APP_ROOT" rev-list --max-parents=0 HEAD)" == 225aa3f138a93a005e460b0b04a0d4df530030c3 ]] || { printf 'Public source ancestry required\n' >&2; exit 1; }
+REPORT="$APP_ROOT/app/build/reports/installed-proof"
+STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+mkdir -p "$REPORT"
+APK="$APP_ROOT/app/build/outputs/apk/debug/app-debug.apk"
+TEST_APK="$APP_ROOT/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+"$ADB" -s "$SERIAL" install -r "$APK" > /dev/null
+"$ADB" -s "$SERIAL" install -r "$TEST_APK" > /dev/null
+"$ADB" -s "$SERIAL" shell pm clear com.tacticusanalytics.mobile.preview > /dev/null
+"$ADB" -s "$SERIAL" shell cmd connectivity airplane-mode enable > /dev/null 2>&1 || true
+if [[ "$("$ADB" -s "$SERIAL" shell settings get global airplane_mode_on | tr -d '\r')" != 1 ]]; then
+  "$ADB" -s "$SERIAL" shell settings put global airplane_mode_on 1
+  "$ADB" -s "$SERIAL" shell svc wifi disable
+  "$ADB" -s "$SERIAL" shell svc data disable
+fi
+"$ADB" -s "$SERIAL" logcat -c > /dev/null 2>&1 || printf 'Device log clear unavailable; final log read remains required\n' >&2
+"$ADB" -s "$SERIAL" shell am instrument -w -e phase all com.tacticusanalytics.mobile.preview.test/com.tacticusanalytics.mobile.AndroidProof > "$REPORT/all.txt"
+rg -q '^PASS phase=all ' "$REPORT/all.txt"
+"$ADB" -s "$SERIAL" shell am force-stop com.tacticusanalytics.mobile.preview
+"$ADB" -s "$SERIAL" shell am start -W -n com.tacticusanalytics.mobile.preview/com.tacticusanalytics.mobile.MainActivity > "$REPORT/relaunch.txt"
+rg -q '^Status: ok' "$REPORT/relaunch.txt"
+"$ADB" -s "$SERIAL" shell am force-stop com.tacticusanalytics.mobile.preview
+"$ADB" -s "$SERIAL" shell am instrument -w -e phase reopen com.tacticusanalytics.mobile.preview.test/com.tacticusanalytics.mobile.AndroidProof > "$REPORT/reopen.txt"
+rg -q '^PASS phase=reopen ' "$REPORT/reopen.txt"
+rawlog=$(mktemp)
+trap 'rm -f "$rawlog"' EXIT
+"$ADB" -s "$SERIAL" logcat -d > "$rawlog"
+if rg -q 'synthetic-official-canary-v1|c3ludGhldGljLW9mZmljaWFsLWNhbmFyeS12MQ==' "$rawlog"; then printf 'Credential canary leaked into device logs\n' >&2; exit 1; fi
+APK_SHA=$(sha256sum "$APK" | cut -d ' ' -f 1)
+SOURCE_SHA=$(git -C "$APP_ROOT" rev-parse HEAD)
+SOURCE_DIRTY=false
+if [[ -n "$(git -C "$APP_ROOT" status --porcelain -- .)" ]]; then SOURCE_DIRTY=true;fi
+API=$("$ADB" -s "$SERIAL" shell getprop ro.build.version.sdk | tr -d '\r')
+ABI=$("$ADB" -s "$SERIAL" shell getprop ro.product.cpu.abi | tr -d '\r')
+AIRPLANE=$("$ADB" -s "$SERIAL" shell settings get global airplane_mode_on | tr -d '\r')
+[[ "$AIRPLANE" == 1 ]] || { printf 'Airplane mode not enabled\n' >&2; exit 1; }
+FIXTURE_SHA=$(sha256sum "$TEST_APK" | cut -d ' ' -f 1)
+COMPLETED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+export APK_SHA SOURCE_SHA SOURCE_DIRTY FIXTURE_SHA STARTED_AT COMPLETED_AT API ABI REPORT
+python3 - <<'PY'
+import os,json,re,pathlib,subprocess
+report=pathlib.Path(os.environ['REPORT'])
+launch=report.joinpath('relaunch.txt').read_text()
+data={'schemaVersion':'android-emulator-observation/v1','sourceCommit':os.environ['SOURCE_SHA'],'artifactSha256':os.environ['APK_SHA'],'sourceDirty':os.environ['SOURCE_DIRTY']=='true','api':int(os.environ['API']),'abi':os.environ['ABI'],'deviceKind':'emulator','airplaneMode':True,'releaseQualified':False,'checksPassed':True,'credentialCanaryInLogs':False,'coldActivityTotalMs':int(re.search(r'TotalTime: (\d+)',launch).group(1))}
+report.joinpath('measurement.json').write_text(json.dumps(data,indent=2)+'\n')
+sdk=pathlib.Path(os.environ['ANDROID_HOME'])
+java_text=subprocess.run(['java','-version'],capture_output=True,text=True,check=True).stderr
+emulator_text=subprocess.run([str(sdk/'emulator/emulator'),'-version'],capture_output=True,text=True,check=True).stdout
+adb_text=subprocess.run([str(sdk/'platform-tools/adb'),'version'],capture_output=True,text=True,check=True).stdout
+versions={'gradle':'8.13','androidGradlePlugin':'8.9.3','javaCompiler':re.search(r'version "([^" ]+)"',java_text).group(1),'emulator':re.search(r'Android emulator version ([0-9.]+)',emulator_text).group(1),'adb':re.search(r'Version ([0-9.]+)',adb_text).group(1)}
+for scenario,file in [('offline-core','all.txt'),('restart-persistence','reopen.txt')]:
+    captures=[]
+    for capture in ['all.txt','reopen.txt','relaunch.txt']:
+        captures.append({'name':capture,'sha256':__import__('hashlib').sha256(report.joinpath(capture).read_bytes()).hexdigest(),'mediaType':'text/plain','redacted':True})
+    actual=report.joinpath(file).read_text().strip()
+    evidence={'schemaVersion':'platform-evidence/v1','evidenceKind':'harness-self-test' if data['sourceDirty'] else 'product-acceptance','runId':__import__('uuid').uuid4().hex,'build':{'sha':data['sourceCommit'],'artifact':{'sha256':data['artifactSha256'],'format':'apk'}},'environment':{'os':'android','osVersion':'API '+os.environ['API'],'arch':os.environ['ABI'],'classification':'emulator','runtimeVersions':versions,'installation':'clean-install' if scenario=='offline-core' else 'existing-install'},'fixture':{'id':'android-instrumentation-synthetic/v1','sha256':os.environ['FIXTURE_SHA']},'scenario':{'id':scenario,'expected':'Installed native offline behavior and persistence using synthetic inputs'},'startedAt':os.environ['STARTED_AT'],'completedAt':os.environ['COMPLETED_AT'],'outcome':{'status':'pass','actual':actual,'blockers':['Physical owner-signed phone/tablet release qualification pending','Full accepted application parity pending','Real authorized upstream checks and live contribution integration pending']},'assertions':[{'id':'installed-'+scenario,'status':'pass','expected':'Native installed synthetic suite passes','actual':actual}],'attachments':captures}
+    report.joinpath(scenario+'-evidence.json').write_text(json.dumps(evidence,indent=2)+'\n')
+print(json.dumps(data))
+PY
+cat "$REPORT/all.txt" "$REPORT/reopen.txt"
