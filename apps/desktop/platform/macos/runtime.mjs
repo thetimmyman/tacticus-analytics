@@ -19,6 +19,7 @@ import { currentWorkspaceToken } from '../../launcher/workspace-session.mjs'
 import { importCachedPersonal } from './personal-backup.mjs'
 import { rendererCredentialSurface } from './credential-surface.mjs'
 import { windowDiagnostics } from './window-diagnostics.mjs'
+import requestDiagnostics from './request-diagnostics.cjs'
 import { workspaceDeviceSession } from './device-session.mjs'
 import {
   qualifyDeviceSession,
@@ -380,11 +381,7 @@ try {
             )
               console.log(
                 'TA-MAC-VERIFY-FAILURE:' +
-                  JSON.stringify({
-                    synthetic: true,
-                    stage: value.stage,
-                    code: value.code
-                  })
+                  JSON.stringify(requestDiagnostics.sanitizeFailure(value))
               )
           } catch {}
         }

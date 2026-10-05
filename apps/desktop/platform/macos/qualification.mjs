@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os'
 import { lookup } from 'node:dns/promises'
 import { stage, inventory } from './stage.mjs'
 import { records } from './evidence.mjs'
+import requestDiagnostics from './request-diagnostics.cjs'
 
 const inputs = resolve(process.argv[2]),
   application = resolve(process.argv[3]),
@@ -356,6 +357,11 @@ try {
             ].includes(failure.code)
           )
             probe.failure.code = failure.code
+          const bounded = requestDiagnostics.sanitizeFailure(failure)
+          if (bounded.cause) {
+            probe.failure.cause = bounded.cause
+            probe.failure.network = bounded.network
+          }
         } catch {}
         try {
           const failure = JSON.parse(

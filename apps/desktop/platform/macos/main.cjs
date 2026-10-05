@@ -2,6 +2,7 @@ const { app, BrowserWindow, session, Menu, dialog } = require('electron')
 const { readFileSync, writeFileSync } = require('node:fs')
 const { join } = require('node:path')
 const { randomBytes } = require('node:crypto')
+const { requestLabel, sanitizeFailure } = require('./request-diagnostics.cjs')
 const {
   createNativeActions,
   exportCachedPersonal
@@ -19,6 +20,7 @@ app.enableSandbox()
 app.disableHardwareAcceleration()
 app.setPath('userData', join(config.state, 'browser'))
 let verifyStage = 'window-startup',
+  verifyNetwork,
   verificationWindow
 app
   .whenReady()
@@ -26,7 +28,7 @@ app
     session.defaultSession.setPermissionRequestHandler(
       (_contents, _permission, callback) => callback(false)
     )
-    const activeRequests = new Set()
+    const activeRequests = new Map()
     const failures = [],
       blocked = []
     session.defaultSession.webRequest.onBeforeRequest((details, callback) => {
@@ -36,7 +38,11 @@ app
         url.protocol === 'data:' ||
         url.protocol === 'blob:'
       if (!allowed) blocked.push(url.origin + url.pathname)
-      if (config.verify && url.origin === origin) activeRequests.add(details.id)
+      if (config.verify && url.origin === origin)
+        activeRequests.set(
+          details.id,
+          requestLabel(url.pathname, details.resourceType)
+        )
       callback({ cancel: !allowed })
     })
     session.defaultSession.webRequest.onBeforeSendHeaders(
@@ -51,6 +57,7 @@ app
       if (details.statusCode >= 400)
         failures.push({
           path: new URL(details.url).pathname,
+          ...requestLabel(new URL(details.url).pathname, details.resourceType),
           status: details.statusCode
         })
     })
@@ -61,7 +68,11 @@ app
         details.error !== 'net::ERR_ABORTED' &&
         new URL(details.url).origin === origin
       )
-        failures.push({ path: new URL(details.url).pathname, status: 0 })
+        failures.push({
+          path: new URL(details.url).pathname,
+          ...requestLabel(new URL(details.url).pathname, details.resourceType),
+          status: 0
+        })
     })
     const window = new BrowserWindow({
       show: !config.verify,
@@ -332,8 +343,17 @@ app
       verifyStage = 'renderer-network'
       for (let attempt = 0; attempt < 100 && activeRequests.size; attempt++)
         await new Promise((accept) => setTimeout(accept, 100))
-      if (activeRequests.size)
-        throw new Error('Packaged renderer requests did not finish')
+      if (activeRequests.size) {
+        verifyNetwork = {
+          pending: [...activeRequests.values()],
+          failed: failures,
+          blocked: blocked.length
+        }
+        throw Object.assign(
+          new Error('Packaged renderer requests did not finish'),
+          { cause: 'requests-pending' }
+        )
+      }
       verifyStage = 'renderer-observation'
       const observed = await window.webContents.executeJavaScript(
         `({text:document.body.innerText,nodeAccess:typeof require!=='undefined'||typeof process!=='undefined'})`
@@ -378,23 +398,29 @@ app
               ['/api/guild-tokens', '/desktop/open'].includes(failure.path)
             )
         )
-      )
-        throw new Error('Unexpected packaged renderer request failure')
+      ) {
+        verifyNetwork = {
+          pending: [...activeRequests.values()],
+          failed: failures,
+          blocked: blocked.length
+        }
+        throw Object.assign(
+          new Error('Unexpected packaged renderer request failure'),
+          { cause: 'request-failed' }
+        )
+      }
       window.destroy()
       app.quit()
     }
   })
   .catch(async (error) => {
     if (config.verify) {
-      const diagnostic = {
-        synthetic: true,
+      const diagnostic = sanitizeFailure({
         stage: verifyStage,
-        code: ['ESESSION', 'EVAULT', 'EVAULTLOCKED', 'EACCESS'].includes(
-          error.code
-        )
-          ? error.code
-          : 'EVERIFY'
-      }
+        code: error.code,
+        cause: error.cause,
+        network: verifyNetwork
+      })
       console.log('TA-MAC-VERIFY-FAILURE:' + JSON.stringify(diagnostic))
       writeFileSync(
         config.verify.evidence + '.failure.json',
