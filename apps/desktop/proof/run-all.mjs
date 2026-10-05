@@ -46,6 +46,7 @@ console.log(
 run('d-component-manifest-selftest', '--test', [
   'apps/desktop/package/component-manifest.test.mjs',
   'apps/desktop/package/application-notices.test.mjs',
+  'apps/desktop/package/build-profile.test.mjs',
   'apps/desktop/package/runtime-guard.test.mjs'
 ])
 

@@ -2,6 +2,7 @@ import { cp, mkdir, readFile, writeFile, stat, readdir } from 'node:fs/promises'
 import { resolve, join, dirname, isAbsolute } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
+import { verifyDesktopBuild } from './build-profile.mjs'
 const source = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const config = JSON.parse(await readFile(process.argv[2], 'utf8'))
 for (const name of [
@@ -19,6 +20,16 @@ for (const name of [
 ])
   if (!isAbsolute(config[name] || ''))
     throw new Error(`Absolute ${name} path required`)
+verifyDesktopBuild(
+  JSON.parse(
+    await readFile(join(config.application, 'desktop-build.json'), 'utf8')
+  ),
+  await readFile(
+    join(config.application, '.next/required-server-files.json'),
+    'utf8'
+  ),
+  await readFile(join(config.application, '.next/BUILD_ID'), 'utf8')
+)
 try {
   await stat(config.output)
   throw new Error('Package output already exists')
