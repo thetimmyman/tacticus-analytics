@@ -225,20 +225,17 @@ export class AddonHost {
       const bundle = bundleSchema.parse(input)
       const { manifest, signature } = bundle.envelope
       const key = this.policy.trustedKeys.get(signature.keyId)
+      const signatureBytes = Buffer.from(signature.value, 'base64')
       if (
         !key ||
+        signatureBytes.toString('base64') !== signature.value ||
         key.asymmetricKeyType !== 'ed25519' ||
         this.policy.revokedKeyIds.has(signature.keyId) ||
         !this.policy.approvedReviews.has(manifest.source.reviewSha256) ||
         !this.policy.approvedRightsReceipts.has(
           manifest.source.rightsReceiptSha256
         ) ||
-        !verify(
-          null,
-          Buffer.from(canonicalJson(manifest)),
-          key,
-          Buffer.from(signature.value, 'base64')
-        )
+        !verify(null, Buffer.from(canonicalJson(manifest)), key, signatureBytes)
       )
         throw new AddonError('untrusted-package')
       const compat = manifest.compatibility

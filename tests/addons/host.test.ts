@@ -93,7 +93,25 @@ for (const platform of [
 test('rejects unsigned, unknown-key, revoked, substituted, unreviewed and unapproved-rights packages', (t) => {
   const { host, policy, bundle } = setup(t)
   const valid = bundle('guild-war')
+  const alphabet =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+  const last = valid.envelope.signature.value.length - 3
+  const noncanonicalSignature =
+    valid.envelope.signature.value.slice(0, last) +
+    alphabet[alphabet.indexOf(valid.envelope.signature.value[last]) + 1] +
+    '=='
+  assert.deepEqual(
+    Buffer.from(noncanonicalSignature, 'base64'),
+    Buffer.from(valid.envelope.signature.value, 'base64')
+  )
   const invalid = [
+    {
+      ...valid,
+      envelope: {
+        ...valid.envelope,
+        signature: { ...valid.envelope.signature, value: noncanonicalSignature }
+      }
+    },
     { ...valid, envelope: { manifest: valid.envelope.manifest } },
     {
       ...valid,

@@ -16,6 +16,7 @@ const nodeOptions = {
   format: 'esm',
   target: 'node22',
   platform: 'node',
+  preserveSymlinks: true,
   sourcemap: false
 }
 await build({
@@ -34,6 +35,7 @@ await build({
   format: 'esm',
   target: 'es2022',
   platform: 'browser',
+  preserveSymlinks: true,
   sourcemap: false,
   external: ['react', 'react/jsx-runtime'],
   entryPoints: ['apps/addons/AddonManager.tsx'],
