@@ -4,13 +4,12 @@ import {
   lstat,
   stat,
   mkdir,
-  cp,
   unlink,
-  open,
-  chmod
+  open
 } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { copyRegularTree } from './safe-files.mjs'
 import {
   inventory,
   checkpoint,
@@ -48,16 +47,6 @@ async function absent(path) {
     throw error
   }
   throw new Error('Workspace must be stopped and free of pending operations')
-}
-async function privateTree(path) {
-  const entry = await lstat(path)
-  if (entry.isSymbolicLink())
-    throw new Error('Linked backup data is unsupported')
-  if (entry.isDirectory()) {
-    await chmod(path, 0o700)
-    for (const name of await readdir(path)) await privateTree(join(path, name))
-  } else if (entry.isFile()) await chmod(path, 0o600)
-  else throw new Error('Unsupported backup data')
 }
 export async function validateBackup(source) {
   await privateDirectory(source)
@@ -119,12 +108,7 @@ export async function exportWorkspace(state, destination) {
     JSON.stringify({ format: 'desktop-backup-pending-v1' })
   )
   for (const input of inputs)
-    await cp(join(source, input), join(destination, input), {
-      recursive: true,
-      errorOnExist: true,
-      force: false
-    })
-  await privateTree(destination)
+    await copyRegularTree(join(source, input), join(destination, input))
   await syncTree(destination)
   await writeAtomic(
     join(destination, 'checkpoint.json'),
@@ -158,12 +142,7 @@ export async function restoreWorkspace(state, source) {
     })
   )
   for (const input of inputs)
-    await cp(join(source, input), join(state, input), {
-      recursive: true,
-      errorOnExist: true,
-      force: false
-    })
-  for (const input of inputs) await privateTree(join(state, input))
+    await copyRegularTree(join(source, input), join(state, input))
   const files = []
   for (const file of await inventory(state))
     if (file.path !== 'runtime.lease' && file.path !== 'restore.pending.json')

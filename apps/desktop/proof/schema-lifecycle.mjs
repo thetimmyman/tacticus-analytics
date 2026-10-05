@@ -1,7 +1,6 @@
 import {
   readFile,
   mkdir,
-  cp,
   rename,
   open,
   readdir,
@@ -9,9 +8,9 @@ import {
   statfs,
   unlink
 } from 'node:fs/promises'
-import { createReadStream } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { createHash, randomUUID } from 'node:crypto'
+import { withEntry, copyRegularTree } from './safe-files.mjs'
 
 const hashPattern = /^[a-f0-9]{64}$/
 const pendingFormat = 'desktop-schema-transition-v1'
@@ -41,93 +40,83 @@ export async function writeAtomic(path, value) {
   }
 }
 export async function inventory(root, prefix = '') {
-  if (!prefix) {
-    const directory = await lstat(root)
-    if (!directory.isDirectory() || directory.isSymbolicLink())
+  async function walk(directory, prefix) {
+    const result = []
+    const anchor = `/proc/self/fd/${directory.fd}`
+    for (const name of (await readdir(anchor)).sort()) {
+      const relative = join(prefix, name)
+      await withEntry(join(anchor, name), async (file, info) => {
+        if (info.isDirectory()) result.push(...(await walk(file, relative)))
+        else {
+          const hash = createHash('sha256')
+          let bytes = 0
+          for await (const block of file.createReadStream({
+            autoClose: false
+          })) {
+            hash.update(block)
+            bytes += block.length
+          }
+          result.push({ path: relative, bytes, sha256: hash.digest('hex') })
+        }
+      })
+    }
+    return result
+  }
+  return withEntry(root, async (directory, metadata) => {
+    if (!metadata.isDirectory())
       throw new Error('Checkpoint root must be a real directory')
-  }
-  const result = []
-  for (const name of (await readdir(join(root, prefix))).sort()) {
-    const relative = join(prefix, name)
-    const metadata = await lstat(join(root, relative))
-    if (metadata.isSymbolicLink())
-      throw new Error('Checkpoint cannot include linked data')
-    if (metadata.isDirectory())
-      result.push(...(await inventory(root, relative)))
-    else if (metadata.isFile()) {
-      const hash = createHash('sha256')
-      let bytes = 0
-      for await (const block of createReadStream(join(root, relative))) {
-        hash.update(block)
-        bytes += block.length
-      }
-      result.push({ path: relative, bytes, sha256: hash.digest('hex') })
-    } else throw new Error('Checkpoint contains unsupported data')
-  }
-  return result
+    return walk(directory, prefix)
+  })
 }
 export async function syncTree(root) {
-  for (const name of await readdir(root)) {
-    const path = join(root, name)
-    const metadata = await lstat(path)
-    if (metadata.isDirectory()) await syncTree(path)
-    else if (metadata.isFile()) {
-      const file = await open(path, 'r')
-      try {
-        await file.sync()
-      } finally {
-        await file.close()
-      }
-    } else throw new Error('Checkpoint contains unsupported data')
-  }
-  const dir = await open(root, 'r')
-  try {
-    await dir.sync()
-  } finally {
-    await dir.close()
-  }
+  await withEntry(root, async (file, metadata, anchor) => {
+    if (metadata.isDirectory())
+      for (const name of await readdir(anchor))
+        await syncTree(join(anchor, name))
+    await file.sync()
+  })
 }
 export async function checkpoint(state, source) {
   const id = randomUUID()
   const parent = join(state, 'backups')
   await mkdir(parent, { recursive: true, mode: 0o700 })
-  const folder = await lstat(parent)
-  if (!folder.isDirectory() || folder.isSymbolicLink() || folder.mode & 0o077)
-    throw new Error('Checkpoint directory must be private')
-  const inputs = ['pgdata', 'credentials.json', 'schema-version']
-  const database = await inventory(join(state, 'pgdata'))
-  const estimate = database.reduce(
-    (total, file) => total + BigInt(file.bytes),
-    0n
-  )
-  const space = await statfs(state, { bigint: true })
-  if (space.bavail * space.bsize < estimate + 16n * 1024n * 1024n)
-    throw Object.assign(new Error('Insufficient space for schema checkpoint'), {
-      code: 'ENOSPC'
-    })
-  const destination = join(parent, `${id}.pending`)
-  await mkdir(destination, { mode: 0o700 })
-  for (const input of inputs)
-    await cp(join(state, input), join(destination, input), {
-      recursive: true,
-      force: false,
-      errorOnExist: true
-    })
-  const files = await inventory(destination)
-  await syncTree(destination)
-  await writeAtomic(
-    join(destination, 'checkpoint.json'),
-    JSON.stringify({ format: 'desktop-stopped-checkpoint-v1', source, files })
-  )
-  await rename(destination, join(parent, id))
-  const dir = await open(parent, 'r')
-  try {
-    await dir.sync()
-  } finally {
-    await dir.close()
-  }
-  return id
+  return withEntry(parent, async (parentFile, folder, anchor) => {
+    if (
+      !folder.isDirectory() ||
+      folder.mode & 0o077 ||
+      folder.uid !== process.getuid()
+    )
+      throw new Error('Checkpoint directory must be private')
+    const inputs = ['pgdata', 'credentials.json', 'schema-version']
+    const database = await inventory(join(state, 'pgdata'))
+    const estimate = database.reduce(
+      (total, file) => total + BigInt(file.bytes),
+      0n
+    )
+    const space = await statfs(state, { bigint: true })
+    if (space.bavail * space.bsize < estimate + 16n * 1024n * 1024n)
+      throw Object.assign(
+        new Error('Insufficient space for schema checkpoint'),
+        {
+          code: 'ENOSPC'
+        }
+      )
+    const destination = join(anchor, `${id}.pending`)
+    await mkdir(destination, { mode: 0o700 })
+    for (const input of inputs)
+      await copyRegularTree(join(state, input), join(destination, input))
+    const files = await inventory(destination)
+    await syncTree(destination)
+    await writeAtomic(
+      join(destination, 'checkpoint.json'),
+      JSON.stringify({ format: 'desktop-stopped-checkpoint-v1', source, files })
+    )
+    await rename(destination, join(anchor, id))
+    await parentFile.sync()
+    return id
+  })
 }
+
 export async function prepareSchema({
   state,
   schemaDirectory,

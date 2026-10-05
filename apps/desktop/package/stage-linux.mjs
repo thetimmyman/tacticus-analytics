@@ -67,6 +67,7 @@ for (const file of [
   'service-owner.mjs',
   'service-client.mjs',
   'schema-lifecycle.mjs',
+  'safe-files.mjs',
   'workspace-transfer.mjs',
   'loopback-gateway.mjs',
   'synthetic-import.mjs',

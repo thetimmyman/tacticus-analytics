@@ -70,7 +70,7 @@ test('checkpoint rejects a linked database root before copying external data', a
   await mkdir(outside, { mode: 0o700 })
   await writeFile(join(outside, 'foreign-data'), 'private', { mode: 0o600 })
   await symlink(outside, join(f.state, 'pgdata'))
-  await assert.rejects(checkpoint(f.state, source), /real directory/)
+  await assert.rejects(checkpoint(f.state, source), /linked|real directory/i)
   assert.equal(await readFile(join(outside, 'foreign-data'), 'utf8'), 'private')
 })
 test('unknown legacy state stays unchanged and produces no checkpoint', async () => {

@@ -26,6 +26,7 @@ run('a-loopback-gateway', '--test', [
   'apps/desktop/proof/loopback-gateway.test.mjs',
   'apps/desktop/proof/service-client.test.mjs',
   'apps/desktop/proof/schema-lifecycle.test.mjs',
+  'apps/desktop/proof/safe-files.test.mjs',
   'apps/desktop/proof/workspace-selection.test.mjs',
   'apps/desktop/proof/job-scheduler.test.mjs'
 ])
