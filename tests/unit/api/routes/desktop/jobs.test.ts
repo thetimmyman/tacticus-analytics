@@ -4,12 +4,16 @@ import { NextRequest } from 'next/server'
 const mocks = vi.hoisted(() => ({
   tick: vi.fn(),
   register: vi.fn(),
+  registerAchievements: vi.fn(),
   handler: vi.fn()
 }))
 vi.mock('@/app/lib/jobs/worker-tick', () => ({ runWorkerTick: mocks.tick }))
 vi.mock('@/app/lib/jobs/dispatcher', () => ({ getJobHandler: mocks.handler }))
 vi.mock('@/app/lib/jobs/refresh-explore-snapshots', () => ({
   registerRefreshExploreSnapshotsHandler: mocks.register
+}))
+vi.mock('@/app/lib/jobs/refresh-local-achievements', () => ({
+  registerLocalAchievementsHandler: mocks.registerAchievements
 }))
 import { POST } from '@/app/api/desktop/jobs/route'
 let secret: string
@@ -38,6 +42,7 @@ describe('desktop worker boundary', () => {
     vi.stubEnv('NEXT_PUBLIC_RUNTIME_PROFILE', 'hosted')
     expect((await POST(request(`Bearer ${secret}`))).status).toBe(404)
     expect(mocks.register).not.toHaveBeenCalled()
+    expect(mocks.registerAchievements).not.toHaveBeenCalled()
     expect(mocks.tick).not.toHaveBeenCalled()
   })
   it.each([undefined, 'Bearer invalid', 'Bearer é'])(
@@ -45,6 +50,7 @@ describe('desktop worker boundary', () => {
     async (header) => {
       expect((await POST(request(header))).status).toBe(401)
       expect(mocks.register).not.toHaveBeenCalled()
+      expect(mocks.registerAchievements).not.toHaveBeenCalled()
       expect(mocks.tick).not.toHaveBeenCalled()
     }
   )
@@ -52,6 +58,7 @@ describe('desktop worker boundary', () => {
     const req = request(`Bearer ${secret}`)
     const response = await POST(req)
     expect(response.status).toBe(200)
+    expect(mocks.registerAchievements).toHaveBeenCalledOnce()
     expect(mocks.tick).toHaveBeenCalledWith({
       classes: ['hook'],
       deadlineMs: 15000,
