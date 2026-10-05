@@ -65,6 +65,10 @@ jobs:
         with:
           go-version: '1.27.0'
           cache: false
+      - name: Validate application-local Microsoft runtime publisher
+        shell: pwsh
+        run: |
+          $null = & ./apps/desktop/platform/windows/crt-runtime.ps1
       - name: Install exact application dependencies
         run: npm ci --no-audit --no-fund
       - name: Portable adapter tests and complete application build
