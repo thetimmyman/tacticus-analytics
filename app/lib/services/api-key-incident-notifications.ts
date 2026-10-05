@@ -80,6 +80,7 @@ export type ApiKeyIncident = {
 
 export type ApiKeyIncidentNotificationResult = {
   lookbackDays: number
+  noRecipientEscalationDays: number
   scannedGuilds: number
   incidentGuilds: number
   resolvedGuilds: number
@@ -87,6 +88,8 @@ export type ApiKeyIncidentNotificationResult = {
   emailsSent: number
   skippedNoRecipients: number
   skippedAlreadyNotified: number
+  staleInvalidKeyIncidentsWithoutRecipients: number
+  oldestStaleInvalidKeyIncidentDays: number | null
   errors: string[]
 }
 
@@ -104,6 +107,10 @@ const LOOKBACK_DAYS = Number.parseInt(
 )
 const MAX_GUILDS_TO_SCAN = Number.parseInt(
   process.env.API_KEY_ISSUE_NOTIFICATION_MAX_GUILDS ?? '150',
+  10
+)
+const NO_RECIPIENT_ESCALATION_DAYS = Number.parseInt(
+  process.env.API_KEY_ISSUE_NO_RECIPIENT_ESCALATION_DAYS ?? '7',
   10
 )
 
@@ -156,6 +163,16 @@ function getMaxGuildsToScan(): number {
     return 150
   }
   return MAX_GUILDS_TO_SCAN
+}
+
+function getNoRecipientEscalationDays(): number {
+  if (
+    !Number.isFinite(NO_RECIPIENT_ESCALATION_DAYS) ||
+    NO_RECIPIENT_ESCALATION_DAYS <= 0
+  ) {
+    return 7
+  }
+  return NO_RECIPIENT_ESCALATION_DAYS
 }
 
 function getIssueTitle(incidentType: IncidentType): string {
@@ -473,8 +490,10 @@ export async function sendApiKeyIncidentNotifications(
   const now = new Date()
   const nowIso = now.toISOString()
   const lookbackDays = getLookbackDays()
+  const noRecipientEscalationDays = getNoRecipientEscalationDays()
   const result: ApiKeyIncidentNotificationResult = {
     lookbackDays,
+    noRecipientEscalationDays,
     scannedGuilds: 0,
     incidentGuilds: 0,
     resolvedGuilds: 0,
@@ -482,6 +501,8 @@ export async function sendApiKeyIncidentNotifications(
     emailsSent: 0,
     skippedNoRecipients: 0,
     skippedAlreadyNotified: 0,
+    staleInvalidKeyIncidentsWithoutRecipients: 0,
+    oldestStaleInvalidKeyIncidentDays: null,
     errors: []
   }
 
@@ -616,6 +637,28 @@ export async function sendApiKeyIncidentNotifications(
     if (recipients.length === 0) {
       result.skippedNoRecipients++
 
+      const incidentStartedAtMs = parseTimestamp(incidentStartedAt)?.getTime()
+      const incidentAgeMs =
+        incidentStartedAtMs !== undefined &&
+        incidentStartedAtMs <= now.getTime()
+          ? now.getTime() - incidentStartedAtMs
+          : null
+      const escalationAgeMs = noRecipientEscalationDays * 24 * 60 * 60 * 1000
+      if (
+        incident.type === 'invalid_api_key' &&
+        incidentAgeMs !== null &&
+        incidentAgeMs > escalationAgeMs
+      ) {
+        const incidentAgeDays = Math.floor(
+          incidentAgeMs / (24 * 60 * 60 * 1000)
+        )
+        result.staleInvalidKeyIncidentsWithoutRecipients++
+        result.oldestStaleInvalidKeyIncidentDays = Math.max(
+          result.oldestStaleInvalidKeyIncidentDays ?? 0,
+          incidentAgeDays
+        )
+      }
+
       await upsertIncidentState(supabase, {
         guild_code: guild.guild_code,
         incident_type: incident.type,
@@ -670,6 +713,18 @@ export async function sendApiKeyIncidentNotifications(
         sendErrors.length > 0 ? sendErrors.join(' | ').slice(0, 1000) : null,
       resolved_at: null
     })
+  }
+
+  if (result.staleInvalidKeyIncidentsWithoutRecipients > 0) {
+    logger.warn(
+      {
+        source,
+        escalationDays: result.noRecipientEscalationDays,
+        incidentCount: result.staleInvalidKeyIncidentsWithoutRecipients,
+        oldestIncidentDays: result.oldestStaleInvalidKeyIncidentDays
+      },
+      '[api-key-notifications] Invalid API key incidents remain open without eligible recipients'
+    )
   }
 
   logger.info(
