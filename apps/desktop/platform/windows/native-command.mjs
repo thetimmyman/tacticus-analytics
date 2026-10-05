@@ -22,13 +22,16 @@ export function nativeFailureDiagnostic(output, code) {
   const osStatus = /Native OS operation failed; status (\d{1,10})\./.exec(
     prefix
   )
-  const category = osStatus
-    ? `native-os-status-${osStatus[1]}`
-    : /Failed to (?:create CoreCLR|load (?:the dll|System\.Private\.CoreLib))/.test(
-          prefix
-        )
-      ? 'native-runtime-load-refused'
-      : 'native-operation-refused'
+  const category =
+    code === 3221225794 || code === -1073741502
+      ? 'native-dll-initialization-failed-0xc0000142'
+      : osStatus
+        ? `native-os-status-${osStatus[1]}`
+        : /Failed to (?:create CoreCLR|load (?:the dll|System\.Private\.CoreLib))/.test(
+              prefix
+            )
+          ? 'native-runtime-load-refused'
+          : 'native-operation-refused'
   return `${category}; ${status}; sensitive output suppressed`
 }
 // Supervisor-only pipe. Keys never cross this interface; official reads return bounded responses.

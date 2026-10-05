@@ -69,6 +69,8 @@ internal static class Program
                 case "native-proof" when args.Length == 2: await NativeProof.Run(args[1]); return 0;
                 case "proof-service-material" when args.Length == 2:
                     Vault.ProofServiceMaterial(); File.WriteAllText(args[1], "true"); return 0;
+                case "proof-desktop" when args.Length == 2:
+                    File.WriteAllText(args[1], OwnerDesktop.Current()); return 0;
                 case "proof-token" when args.Length == 2:
                 {
                     using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
@@ -134,6 +136,16 @@ internal static class NativeProof
             }
             File.Delete(tokenRecord);
             assertions.Add("same-user-nonadministrative-child-token");
+            var desktopRecord = Path.Combine(testRoot, "owner-desktop.txt");
+            using (var job = new JobOwner())
+            using (var child = job.Start(Environment.ProcessPath!, new[] { "proof-desktop", desktopRecord }, testRoot, removeAdministrativeAccess: true))
+            {
+                var status = child.Wait();
+                if (status != 0 || !File.Exists(desktopRecord) || File.ReadAllText(desktopRecord) != OwnerDesktop.Current())
+                    throw new InvalidOperationException($"Nonadministrative owner desktop proof failed; exit {status}");
+            }
+            File.Delete(desktopRecord);
+            assertions.Add("same-user-nonadministrative-owner-desktop-without-policy-change");
             var vaultRecord = Path.Combine(testRoot, "service-material-proof.json");
             using (var job = new JobOwner())
             using (var child = job.Start(Environment.ProcessPath!, new[] { "proof-service-material", vaultRecord }, testRoot, removeAdministrativeAccess: true))
@@ -252,7 +264,9 @@ internal static class NativeProof
         }
         catch (Exception error) when (error is not InvalidOperationException)
         {
-            throw new InvalidOperationException($"Native proof phase {assertions.Count} failed ({error.GetType().Name}, HRESULT 0x{error.HResult:x8})");
+            var status = error is System.ComponentModel.Win32Exception nativeError ? $"Win32 status {nativeError.NativeErrorCode}" :
+                $"{error.GetType().Name}, HRESULT 0x{error.HResult:x8}";
+            throw new InvalidOperationException($"Native proof phase {assertions.Count} failed ({status})");
         }
         finally { Directory.Delete(testRoot, true); }
     }

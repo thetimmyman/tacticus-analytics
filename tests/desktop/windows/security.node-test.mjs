@@ -24,6 +24,10 @@ import { nativeFailureDiagnostic } from '../../../apps/desktop/platform/windows/
 
 test('native helper failures retain only numeric status and fixed bounded categories', () => {
   assert.equal(
+    nativeFailureDiagnostic('synthetic-private-body', 3221225794),
+    'native-dll-initialization-failed-0xc0000142; exit-3221225794; sensitive output suppressed'
+  )
+  assert.equal(
     nativeFailureDiagnostic(
       'Failed to create CoreCLR synthetic-private-body',
       3221225781

@@ -22,6 +22,7 @@ internal sealed class JobOwner : IDisposable
         var startup = new Startup { Size = (uint)Marshal.SizeOf<Startup>() };
         var command = new StringBuilder(Quote(executable) + " " + string.Join(" ", arguments.Select(Quote)));
         using var reduced = removeAdministrativeAccess ? AdministrativeToken.ReduceCurrent() : null;
+        if (reduced is not null) startup.Desktop = OwnerDesktop.Current();
         ProcessInfo process;
         var started = reduced is null
             ? CreateProcessW(executable, command, IntPtr.Zero, IntPtr.Zero, false,
@@ -105,7 +106,7 @@ internal sealed class OwnedProcess(SafeFileHandle handle, int id) : IDisposable
     {
         if (WaitForSingleObject(handle, uint.MaxValue) != 0) throw new Win32Exception();
         if (!GetExitCodeProcess(handle, out var code)) throw new Win32Exception();
-        return checked((int)code);
+        return unchecked((int)code);
     }
     public void Dispose() => handle.Dispose();
     [DllImport("kernel32.dll", SetLastError = true)] private static extern uint WaitForSingleObject(SafeFileHandle handle, uint milliseconds);
