@@ -178,10 +178,11 @@ async function boundedResponse(response, max) {
 }
 export async function checkForUpdate(
   configuration,
-  { fetch: request = globalThis.fetch, signal, clock = Date.now } = {}
+  { fetch: request, signal, clock = Date.now } = {}
 ) {
   const config = updateConfiguration(configuration)
   if (!config.manifestURL) return { configured: false, update: null }
+  if (typeof request !== 'function') throw invalid()
   let response
   try {
     response = await request(config.manifestURL, {
@@ -224,10 +225,11 @@ export async function downloadUpdate(
   configuration,
   update,
   path,
-  { fetch: request = globalThis.fetch, signal } = {}
+  { fetch: request, signal } = {}
 ) {
   const config = updateConfiguration(configuration)
   if (
+    typeof request !== 'function' ||
     !isAbsolute(path) ||
     basename(path).length > 200 ||
     /[\u0000-\u001f\u007f]/.test(basename(path)) ||
