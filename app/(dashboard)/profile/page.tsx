@@ -381,12 +381,14 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           <Link href="/profile/edit" className="btn-wh40k inline-block">
             Edit Profile
           </Link>
-          <Link
-            href="/profile/change-password"
-            className="btn-wh40k inline-block"
-          >
-            Change Password
-          </Link>
+          {!desktopMode && (
+            <Link
+              href="/profile/change-password"
+              className="btn-wh40k inline-block"
+            >
+              Change Password
+            </Link>
+          )}
         </div>
       </div>
 

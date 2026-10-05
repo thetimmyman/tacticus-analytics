@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { workspaceRecovery } from './recovery.mjs'
+import { randomBytes } from 'node:crypto'
+import { workspaceDeviceSession } from './device-session.mjs'
 import { workspaceRaidImport } from './raid-import.mjs'
 import { workspaceGameConnection } from './game-connection.mjs'
 import { workspaceRosterImport } from './roster-import.mjs'
@@ -16,7 +17,7 @@ export function workspaceSetup(services, assets, options = {}) {
   const raidImport = workspaceRaidImport(services, options)
   const gameConnection = workspaceGameConnection(services, options)
   const rosterImport = workspaceRosterImport(services, options)
-  const recovery = workspaceRecovery(services)
+  const deviceSession = workspaceDeviceSession(services, options)
   let busy = false
   const initialized = async () =>
     (
@@ -33,7 +34,7 @@ export function workspaceSetup(services, assets, options = {}) {
   }
   return async (req, res, url) => {
     if (await gameConnection(req, res, url)) return true
-    if (await recovery(req, res, url)) return true
+    if (await deviceSession(req, res, url)) return true
     if (await rosterImport(req, res, url)) return true
     if (await raidImport(req, res, url)) return true
     if (req.method === 'GET' && url.pathname === '/desktop/onboarding-status') {
@@ -167,14 +168,14 @@ export function workspaceSetup(services, assets, options = {}) {
         Object.keys(input).some(
           (key) => !['password', 'sample', 'identity'].includes(key)
         ) ||
-        typeof input.password !== 'string' ||
-        input.password.length < 12 ||
-        input.password.length > 128 ||
+        (input.password !== undefined &&
+          (typeof input.password !== 'string' ||
+            input.password.length < 12 ||
+            input.password.length > 128)) ||
         (input.sample !== true && input.sample !== false)
       ) {
         respond(res, 400, {
-          error:
-            'Use a password of 12–128 characters and choose a workspace type.'
+          error: 'Choose a workspace type and valid local labels.'
         })
         return true
       }
@@ -191,6 +192,7 @@ export function workspaceSetup(services, assets, options = {}) {
         (
           await services.psql(`SELECT json_build_object(
         'account', EXISTS (SELECT 1 FROM auth.users WHERE email='desktop@localhost.invalid'),
+        'subject', (SELECT id FROM auth.users WHERE email='desktop@localhost.invalid'),
         'occupied', EXISTS (SELECT 1 FROM public.player_mapping) OR EXISTS (SELECT 1 FROM public.guild_config) OR EXISTS (SELECT 1 FROM public."EOT_GR_data")
       );`)
         ).trim()
@@ -199,6 +201,25 @@ export function workspaceSetup(services, assets, options = {}) {
         throw new Error(
           'Incomplete workspace has unexpected data; refusing replacement'
         )
+      const credential = input.password ?? randomBytes(48).toString('base64url')
+      if (existing.account && input.password === undefined) {
+        if (!/^[a-f0-9-]{36}$/.test(existing.subject))
+          throw new Error('Invalid interrupted local account')
+        const resumed = await fetch(
+          `http://127.0.0.1:${services.ports.auth}/admin/users/${existing.subject}`,
+          {
+            method: 'PUT',
+            headers: {
+              'content-type': 'application/json',
+              authorization: `Bearer ${services.token.service}`
+            },
+            body: JSON.stringify({ password: credential }),
+            redirect: 'error',
+            signal: AbortSignal.timeout(10000)
+          }
+        )
+        if (!resumed.ok) throw new Error('Interrupted setup could not resume')
+      }
       const response = await fetch(
         `http://127.0.0.1:${services.ports.auth}/${existing.account ? 'token?grant_type=password' : 'admin/users'}`,
         {
@@ -209,7 +230,7 @@ export function workspaceSetup(services, assets, options = {}) {
           },
           body: JSON.stringify({
             email,
-            password: input.password,
+            password: credential,
             email_confirm: true
           }),
           signal: AbortSignal.timeout(10000)

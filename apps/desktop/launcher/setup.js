@@ -7,10 +7,9 @@ const identityVisibility = () => {
 }
 document.querySelector('#sample').addEventListener('change', identityVisibility)
 identityVisibility()
-document.querySelector('#recovery').hidden = creating
 document.querySelector('h1').textContent = creating
   ? 'Create a local preview workspace'
-  : 'Unlock your local workspace'
+  : 'Open your local workspace'
 form.addEventListener('submit', async (event) => {
   event.preventDefault()
   const button = form.querySelector('button')
@@ -20,13 +19,11 @@ form.addEventListener('submit', async (event) => {
     ? 'Creating your local workspace…'
     : 'Signing in…'
   try {
-    const password = document.querySelector('#password').value
     if (creating) {
       const setup = await fetch('/desktop/setup', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          password,
           sample: document.querySelector('#sample').checked,
           identity: document.querySelector('#sample').checked
             ? undefined
@@ -43,82 +40,9 @@ form.addEventListener('submit', async (event) => {
       form.dataset.mode = 'unlock'
       creating = false
     }
-    const login = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify({
-        email: 'desktop@localhost.invalid',
-        password,
-        rememberMe: true
-      })
-    })
-    if (!login.ok)
-      throw new Error('Sign-in failed. Check your workspace password.')
-    document.querySelector('#password').value = ''
-    const infoResponse = await fetch('/desktop/workspace-info')
-    if (!infoResponse.ok)
-      throw new Error('Workspace information is unavailable. Try again.')
-    const info = await infoResponse.json()
-    window.location.assign(
-      document.querySelector('#sample').checked ||
-        info?.identityMode === 'sample'
-        ? Number.isInteger(info?.season)
-          ? `/player-performance?guild=${encodeURIComponent(info.guildCode)}&season=${info.season}`
-          : '/desktop/import'
-        : '/desktop/connect'
-    )
+    window.location.assign('/desktop/setup')
   } catch (error) {
     status.textContent = error.message
     button.disabled = false
   }
 })
-
-for (const [id, endpoint] of [
-  ['recovery-save', '/desktop/recovery-code'],
-  ['recovery-reset', '/desktop/reset-password']
-]) {
-  const recoveryForm = document.getElementById(id)
-  recoveryForm.addEventListener('submit', async (event) => {
-    event.preventDefault()
-    const button = recoveryForm.querySelector('button')
-    const status = document.getElementById(`${id}-status`)
-    button.disabled = true
-    status.textContent = 'Working…'
-    try {
-      const saving = id === 'recovery-save'
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(
-          saving
-            ? {
-                password: document.getElementById('recovery-password').value
-              }
-            : {
-                password: document.getElementById('new-password').value,
-                code: document.getElementById('recovery-code').value.trim()
-              }
-        )
-      })
-      const result = await response.json()
-      if (!response.ok)
-        throw new Error(result.error || 'Recovery failed. Please try again.')
-      if (saving) {
-        document.getElementById('saved-code').textContent = result.code
-        document.getElementById('recovery-password').value = ''
-        status.textContent =
-          'Save this code privately before closing this page. It replaces any previous code.'
-      } else {
-        document.getElementById('new-password').value = ''
-        document.getElementById('recovery-code').value = ''
-        status.textContent =
-          'Password changed. Sign in above using your new password.'
-      }
-    } catch (error) {
-      status.textContent = error.message
-    } finally {
-      button.disabled = false
-    }
-  })
-}

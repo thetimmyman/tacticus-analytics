@@ -1,5 +1,6 @@
 import {
   nativeSessionRequest,
+  browserWorkspaceToken,
   workspaceAuthorized
 } from './workspace-session.mjs'
 import { createHash } from 'node:crypto'
@@ -50,6 +51,7 @@ export function workspaceRaidImport(services, { normalize, brokerToken }) {
           (key) => !['password', 'contents'].includes(key)
         ) ||
         (!nativeSessionRequest(req, brokerToken) &&
+          !browserWorkspaceToken(req) &&
           (typeof input.password !== 'string' ||
             input.password.length < 12 ||
             input.password.length > 128)) ||
@@ -57,8 +59,7 @@ export function workspaceRaidImport(services, { normalize, brokerToken }) {
         Buffer.byteLength(input.contents) > 8 * 1024 * 1024
       ) {
         reply(res, 400, {
-          error:
-            'Choose a supported raid file and confirm your workspace password.'
+          error: 'Choose a supported raid file in your local workspace.'
         })
         return true
       }
@@ -89,7 +90,9 @@ export function workspaceRaidImport(services, { normalize, brokerToken }) {
           brokerToken
         ))
       ) {
-        reply(res, 401, { error: 'Unlock your workspace to continue.' })
+        reply(res, 401, {
+          error: 'Reopen the app to restore your local session.'
+        })
         return true
       }
       const rows = await normalize(input.contents, {

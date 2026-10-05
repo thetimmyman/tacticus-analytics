@@ -119,6 +119,43 @@ const request = (path, body, extra = {}) =>
     signal: AbortSignal.timeout(25000)
   })
 async function login() {
+  if (config.deviceSession) {
+    assert.equal(
+      (await request('/desktop/open', {})).status,
+      403,
+      'Renderer transport cannot mint owner sessions'
+    )
+    assert.equal(
+      (
+        await request(
+          '/desktop/open',
+          {},
+          { 'x-desktop-broker': randomBytes(32).toString('hex') }
+        )
+      ).status,
+      403
+    )
+    const response = await request(
+      '/desktop/open',
+      {},
+      { 'x-desktop-broker': broker }
+    )
+    assert.equal(response.status, 200)
+    const result = await response.json()
+    assert.equal(result.destination, '/desktop/connect')
+    if (config.legacyPasswordWorkspace) {
+      const old = await request('/supabase/auth/v1/token?grant_type=password', {
+        email: 'desktop@localhost.invalid',
+        password
+      })
+      assert.equal(
+        old.status,
+        400,
+        'Old user password no longer controls the local account'
+      )
+    }
+    return result.session
+  }
   const response = await request(
     '/supabase/auth/v1/token?grant_type=password',
     { email: 'desktop@localhost.invalid', password }
@@ -255,7 +292,10 @@ try {
   assert.equal(
     (
       await request('/desktop/setup', {
-        password,
+        password:
+          config.deviceSession && !config.legacyPasswordWorkspace
+            ? undefined
+            : password,
         sample: false,
         identity: {
           guildCode: 'SYN01',
@@ -289,6 +329,16 @@ try {
   const session = await login()
   currentToken = session.access_token
   const subject = session.user.id
+  if (config.deviceSession) {
+    const setup = await (await request('/desktop/setup')).text()
+    const importing = await (await request('/desktop/import')).text()
+    assert(!setup.includes('type="password"'))
+    assert(!importing.includes('type="password"'))
+    assert.equal((await request('/desktop/recovery-code', {})).status, 404)
+    checks.push(
+      'fresh or legacy workspace opens without a user password; renderer and forged native capabilities cannot mint sessions; password forms and recovery endpoints are absent'
+    )
+  }
   const initial = await status()
   assert.equal(initial.playerReady, false)
   assert.equal(initial.guildReady, false)

@@ -72,7 +72,8 @@ app
       },
       enabled: !config.verify
     })
-    await window.loadURL(config.url)
+    const device = require('./device-session.cjs')(window, config)
+    if (!(await device.open())) await window.loadURL(config.url)
     const gameItems = config.verify
       ? []
       : [
@@ -91,46 +92,18 @@ app
           (await window.webContents.capturePage()).toPNG(),
           { mode: 0o600 }
         )
-      if (config.verify.recovery === true) {
-        const anotherPassword = randomBytes(24).toString('hex')
-        const waitFor = async (expression) => {
-          for (let i = 0; i < 150; i++) {
-            if (await window.webContents.executeJavaScript(expression)) return
-            await new Promise((accept) => setTimeout(accept, 100))
-          }
-          throw new Error('Workspace recovery form did not complete')
-        }
+      if (window.webContents.getURL().includes('/desktop/setup')) {
         await window.webContents.executeJavaScript(
-          `if(document.querySelector('#recovery').hidden) throw new Error('Recovery requires an existing workspace'); document.querySelector('#recovery-password').value=${JSON.stringify(config.verify.password)}; document.querySelector('#recovery-save').requestSubmit();`
+          `if(document.querySelector('input[type="password"]')) throw new Error('Unexpected workspace password'); document.querySelector('#sample').checked=true; document.querySelector('form').requestSubmit();`
         )
-        await waitFor(
-          `document.querySelector('#saved-code').textContent.length === 64`
-        )
-        for (const password of [anotherPassword, config.verify.password]) {
-          await new Promise((accept) => setTimeout(accept, 3200))
-          await window.webContents.executeJavaScript(
-            `document.querySelector('#recovery-reset-status').textContent=''; document.querySelector('#recovery-code').value=document.querySelector('#saved-code').textContent; document.querySelector('#new-password').value=${JSON.stringify(password)}; document.querySelector('#recovery-reset').requestSubmit();`
-          )
-          await waitFor(
-            `document.querySelector('#recovery-reset-status').textContent.includes('Password changed')`
-          )
+        for (let i = 0; i < 250; i++) {
+          await new Promise((accept) => setTimeout(accept, 100))
+          if (!window.webContents.getURL().includes('/desktop/setup')) break
         }
-        await window.webContents.executeJavaScript(
-          `document.querySelector('#saved-code').textContent=''`
-        )
       }
-      await window.webContents.executeJavaScript(
-        `document.querySelector('#password').value=${JSON.stringify(config.verify.password)}; document.querySelector('#sample').checked=true; document.querySelector('form').requestSubmit();`
+      await window.loadURL(
+        origin + '/player-performance?guild=SYN001&season=9999'
       )
-      for (let i = 0; i < 250; i++) {
-        await new Promise((accept) => setTimeout(accept, 100))
-        if (window.webContents.getURL().includes('/player-performance')) break
-        const error = await window.webContents.executeJavaScript(
-          `document.querySelector('#status')?.textContent`
-        )
-        if (error && /failed|Invalid|Check|already|Use a/.test(error))
-          throw new Error(error)
-      }
       await new Promise((accept) => setTimeout(accept, 10000))
       const wake = config.verify.wake
         ? await require('../proof/renderer-wake.cjs').proveRendererWake(
@@ -153,7 +126,7 @@ app
       const evidence = {
         observed,
         corePages,
-        recovery: config.verify.recovery === true,
+        deviceSession: true,
         wake,
         failures,
         blocked,

@@ -20,7 +20,7 @@ const state = join(
 const services = await nativeServices({ ...config, state })
 const key = randomBytes(32).toString('hex'),
   cron = randomBytes(32).toString('hex'),
-  password = randomBytes(24).toString('hex')
+  broker = randomBytes(32).toString('hex')
 const listener = createServer()
 await new Promise((accept) => listener.listen(0, '127.0.0.1', accept))
 const port = listener.address().port
@@ -32,6 +32,7 @@ const gateway = await loopbackGateway({
     services,
     new URL('../launcher', import.meta.url).pathname,
     {
+      brokerToken: broker,
       normalize: async (contents, context) => {
         const response = await fetch(
           `http://127.0.0.1:${port}/api/desktop/normalize-raid-file`,
@@ -57,6 +58,7 @@ const gateway = await loopbackGateway({
   )
 })
 gateway.setAppPort(port)
+let cookie
 const request = (path, body, extra = {}) =>
   fetch(gateway.origin + path, {
     method: body === undefined ? 'GET' : 'POST',
@@ -64,6 +66,7 @@ const request = (path, body, extra = {}) =>
       'x-desktop-transport': key,
       origin: gateway.origin,
       'content-type': 'application/json',
+      ...(cookie ? { cookie } : {}),
       ...extra
     },
     body: body === undefined ? undefined : JSON.stringify(body)
@@ -112,7 +115,6 @@ try {
   assert.equal(
     (
       await request('/desktop/setup', {
-        password,
         sample: false,
         identity: {
           guildCode: 'SYN-LOCAL',
@@ -123,6 +125,22 @@ try {
       })
     ).status,
     201
+  )
+  assert.equal((await request('/desktop/open', {})).status, 403)
+  const opened = await request(
+    '/desktop/open',
+    {},
+    { 'x-desktop-broker': broker }
+  )
+  assert.equal(opened.status, 200)
+  const grant = (await opened.json()).session
+  cookie =
+    'tacticus-auth-token=base64-' +
+    Buffer.from(JSON.stringify(grant)).toString('base64url')
+  assert(
+    !(await (await request('/desktop/import')).text()).includes(
+      'type="password"'
+    )
   )
   const record = JSON.parse(
     (
@@ -182,23 +200,27 @@ try {
     return request('/desktop/import', body, extra)
   }
   assert.equal(
-    (await attempt({ password: randomBytes(24).toString('hex'), contents }))
-      .status,
+    (
+      await attempt(
+        { contents },
+        {
+          cookie:
+            'tacticus-auth-token=base64-' +
+            Buffer.from(
+              JSON.stringify({ access_token: 'synthetic.invalid.signature' })
+            ).toString('base64url')
+        }
+      )
+    ).status,
     401
   )
   assert.equal(
-    (
-      await attempt(
-        { password, contents },
-        { origin: 'https://example.invalid' }
-      )
-    ).status,
+    (await attempt({ contents }, { origin: 'https://example.invalid' })).status,
     403
   )
   assert.equal(
     (
       await attempt({
-        password,
         contents: JSON.stringify({ ...file, guildCode: 'SYN-OTHER' })
       })
     ).status,
@@ -207,7 +229,6 @@ try {
   assert.equal(
     (
       await attempt({
-        password,
         contents: JSON.stringify({
           ...file,
           entries: [row, { ...row, startedOn: 'invalid' }]
@@ -227,7 +248,7 @@ try {
     '0'
   )
   evidence.checks.push(
-    'wrong password, foreign origin, unrelated guild and malformed later entry make no raid or receipt writes'
+    'forged session, foreign origin, unrelated guild and malformed later entry make no raid or receipt writes'
   )
   const normalizedResponse = await request(
     '/api/desktop/normalize-raid-file',
@@ -281,14 +302,14 @@ try {
   evidence.checks.push(
     'database rejects a malformed later row and an unrelated subject atomically; import role cannot read raid payload columns; local setup disables automatic game sync'
   )
-  const imported = await attempt({ password, contents })
+  const imported = await attempt({ contents })
   assert.equal(imported.status, 200, await imported.clone().text())
   assert.deepEqual(await imported.json(), {
     entries: 1,
     inserted: 1,
     repeated: false
   })
-  const again = await attempt({ password, contents })
+  const again = await attempt({ contents })
   assert.equal(again.status, 200)
   assert.deepEqual(await again.json(), {
     entries: 1,
@@ -296,7 +317,6 @@ try {
     repeated: true
   })
   const differentlyEncoded = await attempt({
-    password,
     contents: JSON.stringify(file, null, 2)
   })
   assert.equal(differentlyEncoded.status, 200)
@@ -308,7 +328,7 @@ try {
   const largestFile =
     contents + '\n'.repeat(8 * 1024 * 1024 - Buffer.byteLength(contents))
   assert.equal(Buffer.byteLength(largestFile), 8 * 1024 * 1024)
-  const largestImport = await attempt({ password, contents: largestFile })
+  const largestImport = await attempt({ contents: largestFile })
   assert.equal(largestImport.status, 200, await largestImport.clone().text())
   assert.deepEqual(await largestImport.json(), {
     entries: 1,

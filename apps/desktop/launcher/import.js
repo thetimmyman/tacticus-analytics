@@ -27,7 +27,6 @@ form.addEventListener('submit', async (event) => {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        password: document.querySelector('#import-password').value,
         contents
       })
     })
@@ -36,7 +35,6 @@ form.addEventListener('submit', async (event) => {
       throw new Error(
         result.error || 'Import failed. Existing data was preserved.'
       )
-    document.querySelector('#import-password').value = ''
     document.querySelector('#raid-file').value = ''
     status.textContent = `Imported ${result.inserted} new records from ${result.entries} entries${result.repeated ? ' (file already imported)' : ''}.`
     await analyticsLink()

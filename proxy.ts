@@ -338,6 +338,16 @@ export default async function proxy(request: NextRequest) {
         { status: 409, headers: { 'cache-control': 'no-store' } }
       )
     }
+    if (
+      [
+        '/auth/login',
+        '/auth/signup',
+        '/auth/forgot-password',
+        '/auth/reset-password',
+        '/login'
+      ].includes(path)
+    )
+      return NextResponse.redirect(new URL('/desktop/setup', request.url))
     if (path === '/onboarding' || path.startsWith('/onboarding/'))
       return NextResponse.redirect(
         new URL('/desktop/connection-help', request.url)
