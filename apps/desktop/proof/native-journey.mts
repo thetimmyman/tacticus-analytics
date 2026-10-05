@@ -104,7 +104,8 @@ try {
   assert.equal(login.error, null)
   assert.equal(login.data.user?.id, account.id)
   await proveMetaRoleBoundaries(services, account.id)
-  evidence.metaRoleBoundaries = 'Self declarations and timestamps, same-guild leader overrides, foreign membership isolation, forged setter and automated-write refusal; synthetic transactions rolled back'
+  evidence.metaRoleBoundaries =
+    'Self declarations and timestamps, same-guild leader overrides, foreign membership isolation, forged setter and automated-write refusal; synthetic transactions rolled back'
   const raw = await user.from('EOT_GR_data').select('id, Guild').order('id')
   assert.equal(raw.error, null)
   assert.equal(raw.data?.length, 7)
