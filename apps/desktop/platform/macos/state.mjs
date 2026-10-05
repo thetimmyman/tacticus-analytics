@@ -37,6 +37,7 @@ export function privateState(path) {
       const bytes = JSON.stringify(value)
       if (Buffer.byteLength(bytes) > 4 * 1024 * 1024)
         throw new Error('Workspace state limit')
+      const next = JSON.parse(bytes)
       const temporary = `${path}.${randomUUID()}.new`
       let descriptor
       try {
@@ -53,6 +54,10 @@ export function privateState(path) {
         closeSync(descriptor)
         descriptor = undefined
         renameSync(temporary, path)
+        // Rename is the visibility point. If directory durability later fails,
+        // readers must protect references in the replacement rather than treat
+        // the old memory snapshot as proof that its new handle is unused.
+        current = next
         const directory = openSync(
           dirname(path),
           constants.O_RDONLY | constants.O_DIRECTORY
@@ -62,7 +67,6 @@ export function privateState(path) {
         } finally {
           closeSync(directory)
         }
-        current = structuredClone(value)
       } finally {
         if (descriptor !== undefined) closeSync(descriptor)
         try {

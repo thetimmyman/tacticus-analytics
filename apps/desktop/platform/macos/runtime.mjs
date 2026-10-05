@@ -73,7 +73,12 @@ const onboarding = new WorkspaceOnboardingV1({
         })
       activeSession.assert()
       savedPersonal.write(value)
-      vault.commit(Object.values(value.vaultReferences ?? {}))
+      // Committed personal references are authoritative. Pending metadata is
+      // repaired on the next authorized action; its failure cannot roll back
+      // a credential that the retained personal snapshot now references.
+      try {
+        vault.commit(Object.values(value.vaultReferences ?? {}))
+      } catch {}
     }
   },
   upstream: new DeviceOfficialSourceV1({

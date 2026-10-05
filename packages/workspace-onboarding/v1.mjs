@@ -368,8 +368,18 @@ export class WorkspaceOnboardingV1 {
       }
       return this.view()
     } catch (error) {
+      // A write or later metadata cleanup can fail after the new references
+      // became visible. Roll back only when current state proves the new
+      // handle unreferenced; an unreadable/uncertain outcome retains access.
+      let unreferenced = false
+      try {
+        unreferenced = !Object.values(
+          this.state.read().vaultReferences ?? {}
+        ).includes(handle)
+      } catch {}
       if (
         handle &&
+        unreferenced &&
         !Object.values(previous.vaultReferences ?? {}).includes(handle)
       )
         await this.vault.remove(handle)
