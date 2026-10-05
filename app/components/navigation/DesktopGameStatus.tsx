@@ -12,7 +12,7 @@ export function DesktopGameStatus() {
       if (busy) return
       busy = true
       try {
-        const response = await fetch('/desktop/connection-status', {
+        const response = await fetch('/desktop/onboarding-status', {
           cache: 'no-store',
           signal: controller.signal
         })
@@ -23,8 +23,8 @@ export function DesktopGameStatus() {
             Boolean(
               value &&
               typeof value === 'object' &&
-              'connected' in value &&
-              value.connected === true
+              'playerReady' in value &&
+              value.playerReady === true
             )
           )
       } catch {
@@ -50,9 +50,10 @@ export function DesktopGameStatus() {
   }, [])
   return (
     <span className="ml-2" role="status">
-      {connected
-        ? 'Official API connected. Sync from File → Game connection.'
-        : 'Connect your own official API key from File → Game connection.'}
+      {connected ? 'Player access configured.' : 'Connect your Player API key.'}{' '}
+      <a href="/desktop/connect" className="underline">
+        Manage API access and sync
+      </a>
     </span>
   )
 }

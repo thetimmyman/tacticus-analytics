@@ -38,6 +38,7 @@ run('a-loopback-gateway', '--test', [
   'apps/desktop/proof/official-access.test.mjs',
   'apps/desktop/proof/scoped-connections.test.mjs',
   'apps/desktop/proof/onboarding-menu.test.mjs',
+  'apps/desktop/proof/workspace-session.test.mjs',
   'apps/desktop/proof/updates.test.mjs',
   'apps/desktop/proof/game-connection.test.mjs',
   'apps/desktop/proof/game-menu.test.mjs',

@@ -2,46 +2,7 @@ import { createPublicKey, verify, createHash, randomBytes } from 'node:crypto'
 import { open, link, unlink, lstat } from 'node:fs/promises'
 import { constants } from 'node:fs'
 import { dirname, basename, isAbsolute, join } from 'node:path'
-import { request as httpsRequest } from 'node:https'
-import { request as httpRequest } from 'node:http'
-import { Readable } from 'node:stream'
 import { withEntry } from '../proof/safe-files.mjs'
-
-// The large package stream uses the native HTTP parser and backpressure.
-// No cookies, redirects or renderer session are attached to this transport.
-export function nativeUpdateRequest(address, options) {
-  return new Promise((resolve, reject) => {
-    const url = new URL(address)
-    if (!['https:', 'http:'].includes(url.protocol)) return reject(invalid())
-    const request = (url.protocol === 'https:' ? httpsRequest : httpRequest)(
-      // The inventoried package feed or signature-verified update URL is intentional configuration, not uploaded file contents.
-      // codeql[js/file-access-to-http]
-      url,
-      {
-        method: 'GET',
-        headers: options.headers,
-        signal: options.signal,
-        agent: false
-      },
-      (response) => {
-        const headers = new Headers()
-        for (const [name, value] of Object.entries(response.headers)) {
-          if (value != null)
-            headers.set(name, Array.isArray(value) ? value.join(', ') : value)
-        }
-        resolve({
-          ok: response.statusCode >= 200 && response.statusCode < 300,
-          redirected: false,
-          url: address,
-          headers,
-          body: Readable.toWeb(response)
-        })
-      }
-    )
-    request.once('error', reject)
-    request.end()
-  })
-}
 
 const invalid = () =>
   new Error(
@@ -217,7 +178,7 @@ async function boundedResponse(response, max) {
 }
 export async function checkForUpdate(
   configuration,
-  { fetch: request = nativeUpdateRequest, signal, clock = Date.now } = {}
+  { fetch: request = globalThis.fetch, signal, clock = Date.now } = {}
 ) {
   const config = updateConfiguration(configuration)
   if (!config.manifestURL) return { configured: false, update: null }
@@ -263,7 +224,7 @@ export async function downloadUpdate(
   configuration,
   update,
   path,
-  { fetch: request = nativeUpdateRequest, signal } = {}
+  { fetch: request = globalThis.fetch, signal } = {}
 ) {
   const config = updateConfiguration(configuration)
   if (

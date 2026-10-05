@@ -1,4 +1,8 @@
 import { timingSafeEqual } from 'node:crypto'
+import {
+  nativeSessionRequest,
+  workspaceAuthorized
+} from './workspace-session.mjs'
 
 const respond = (res, status, body) => {
   res.writeHead(status, {
@@ -79,9 +83,10 @@ export function workspaceGameConnection(
       if (contextRequest) {
         if (
           Object.keys(input).some((key) => key !== 'password') ||
-          typeof input.password !== 'string' ||
-          input.password.length < 12 ||
-          input.password.length > 128
+          (!nativeSessionRequest(req, brokerToken) &&
+            (typeof input.password !== 'string' ||
+              input.password.length < 12 ||
+              input.password.length > 128))
         )
           throw new Error('Invalid input')
         const expected = await record()
@@ -92,23 +97,16 @@ export function workspaceGameConnection(
           })
           return true
         }
-        const login = await fetch(
-          `http://127.0.0.1:${services.ports.auth}/token?grant_type=password`,
-          {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({
-              email: 'desktop@localhost.invalid',
-              password: input.password
-            }),
-            signal: AbortSignal.timeout(10000)
-          }
-        )
         if (
-          !login.ok ||
-          (await login.json()).user?.id !== expected.installation
+          !(await workspaceAuthorized(
+            services,
+            req,
+            input,
+            expected.installation,
+            brokerToken
+          ))
         ) {
-          respond(res, 401, { error: 'Check your current workspace password.' })
+          respond(res, 401, { error: 'Unlock your workspace to continue.' })
           return true
         }
         respond(res, 200, {

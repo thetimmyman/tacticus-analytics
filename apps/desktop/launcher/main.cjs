@@ -9,6 +9,11 @@ if (
   !/^[a-f0-9]{64}$/.test(config.transportKey)
 )
   throw new Error('Invalid local desktop configuration')
+if (
+  process.platform === 'linux' &&
+  !app.commandLine.hasSwitch('password-store')
+)
+  app.commandLine.appendSwitch('password-store', 'gnome-libsecret')
 app.enableSandbox()
 app.disableHardwareAcceleration()
 app.setPath('userData', join(config.state, 'browser'))
@@ -70,12 +75,10 @@ app
     await window.loadURL(config.url)
     const gameItems = config.verify
       ? []
-      : await require('./game-menu.cjs')(window, config)
-    if (!config.verify)
-      gameItems.unshift(
-        await require('./onboarding-menu.cjs')(window, config),
-        await require('./update-menu.cjs')(window, config)
-      )
+      : [
+          await require('./onboarding-menu.cjs')(window, config),
+          await require('./update-menu.cjs')(window, config)
+        ]
     const maintenance = require('./maintenance-menu.cjs')(
       window,
       config,

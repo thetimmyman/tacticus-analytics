@@ -1,3 +1,7 @@
+import {
+  nativeSessionRequest,
+  workspaceAuthorized
+} from './workspace-session.mjs'
 import { createHash } from 'node:crypto'
 import { parseRaidFile } from './raid-file-validation.mjs'
 
@@ -9,7 +13,7 @@ const reply = (res, status, value) => {
   })
   res.end(JSON.stringify(value))
 }
-export function workspaceRaidImport(services, { normalize }) {
+export function workspaceRaidImport(services, { normalize, brokerToken }) {
   let busy = false,
     nextAttempt = 0
   return async (req, res, url) => {
@@ -45,9 +49,10 @@ export function workspaceRaidImport(services, { normalize }) {
         Object.keys(input).some(
           (key) => !['password', 'contents'].includes(key)
         ) ||
-        typeof input.password !== 'string' ||
-        input.password.length < 12 ||
-        input.password.length > 128 ||
+        (!nativeSessionRequest(req, brokerToken) &&
+          (typeof input.password !== 'string' ||
+            input.password.length < 12 ||
+            input.password.length > 128)) ||
         typeof input.contents !== 'string' ||
         Buffer.byteLength(input.contents) > 8 * 1024 * 1024
       ) {
@@ -75,20 +80,16 @@ export function workspaceRaidImport(services, { normalize }) {
         })
         return true
       }
-      const login = await fetch(
-        `http://127.0.0.1:${services.ports.auth}/token?grant_type=password`,
-        {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({
-            email: 'desktop@localhost.invalid',
-            password: input.password
-          }),
-          signal: AbortSignal.timeout(10000)
-        }
-      )
-      if (!login.ok || (await login.json()).user?.id !== record.subject) {
-        reply(res, 401, { error: 'Check your current workspace password.' })
+      if (
+        !(await workspaceAuthorized(
+          services,
+          req,
+          input,
+          record.subject,
+          brokerToken
+        ))
+      ) {
+        reply(res, 401, { error: 'Unlock your workspace to continue.' })
         return true
       }
       const rows = await normalize(input.contents, {

@@ -1,3 +1,7 @@
+import {
+  nativeSessionRequest,
+  workspaceAuthorized
+} from './workspace-session.mjs'
 import { timingSafeEqual } from 'node:crypto'
 import { parseRosterSnapshot } from './roster-validation.mjs'
 import { projectPlayerResources } from './official-access.mjs'
@@ -67,9 +71,10 @@ export function workspaceRosterImport(
               ...(playerAccess ? ['resources'] : [])
             ].includes(key)
         ) ||
-        typeof input.password !== 'string' ||
-        input.password.length < 12 ||
-        input.password.length > 128
+        (!nativeSessionRequest(req, brokerToken) &&
+          (typeof input.password !== 'string' ||
+            input.password.length < 12 ||
+            input.password.length > 128))
       )
         throw new Error('Invalid input')
       const snapshot = parseRosterSnapshot(input.contents)
@@ -94,20 +99,16 @@ export function workspaceRosterImport(
         })
         return true
       }
-      const login = await fetch(
-        `http://127.0.0.1:${services.ports.auth}/token?grant_type=password`,
-        {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({
-            email: 'desktop@localhost.invalid',
-            password: input.password
-          }),
-          signal: AbortSignal.timeout(10000)
-        }
-      )
-      if (!login.ok || (await login.json()).user?.id !== record.subject) {
-        reply(res, 401, { error: 'Check your current workspace password.' })
+      if (
+        !(await workspaceAuthorized(
+          services,
+          req,
+          input,
+          record.subject,
+          brokerToken
+        ))
+      ) {
+        reply(res, 401, { error: 'Unlock your workspace to continue.' })
         return true
       }
       const normalized = await normalizeRoster(

@@ -132,8 +132,25 @@ const checks = [],
   calls = []
 const app = new EventEmitter(),
   webContents = new EventEmitter()
-let loads = 0,
+let currentToken,
+  loads = 0,
   errors = 0
+webContents.session = {
+  cookies: {
+    async get() {
+      return [
+        {
+          name: 'tacticus-auth-token',
+          value:
+            'base64-' +
+            Buffer.from(
+              JSON.stringify({ access_token: currentToken })
+            ).toString('base64url')
+        }
+      ]
+    }
+  }
+}
 webContents.getURL = () => gateway.origin + '/desktop/connect'
 const window = {
   webContents,
@@ -166,7 +183,14 @@ const fixtureResponse = (value) =>
   })
 const official = async (url, options) => {
   if (!url.startsWith('https://api.tacticusgame.com/'))
-    return fetch(url, options)
+    return fetch(url, {
+      ...options,
+      headers: {
+        ...options.headers,
+        'x-desktop-broker': broker,
+        'x-desktop-transport': key
+      }
+    })
   calls.push(url)
   assert.equal(options.headers['X-API-KEY'], officialKey)
   if (url.endsWith('/player'))
@@ -224,8 +248,9 @@ try {
     ).status,
     201
   )
-  const session = await login(),
-    subject = session.user.id
+  const session = await login()
+  currentToken = session.access_token
+  const subject = session.user.id
   const initial = await status()
   assert.equal(initial.playerReady, false)
   assert.equal(initial.guildReady, false)
@@ -251,8 +276,10 @@ try {
           }
         }
       },
-      nativeSecretPrompt: async (kind) =>
-        kind === 'workspace-password' ? password : officialKey,
+      nativeSecretPrompt: async (kind) => {
+        assert.notEqual(kind, 'workspace-password')
+        return officialKey
+      },
       fetch: official
     }
   )
@@ -260,6 +287,20 @@ try {
     (await request('/desktop/import-player', { password, contents: '{}' }))
       .status,
     403
+  )
+  assert.equal(
+    (
+      await request(
+        '/desktop/broker-context',
+        {},
+        {
+          'x-desktop-broker': broker,
+          authorization: 'Bearer invalid.invalid.invalid'
+        }
+      )
+    ).status,
+    401,
+    'Auth rejects an invalid session before credential access'
   )
   await action('/desktop/connect-player')
   const personal = await status()
@@ -292,7 +333,7 @@ try {
   )
   await stop()
   await start()
-  await login()
+  currentToken = (await login()).access_token
   const restarted = await status()
   assert.equal(restarted.playerReady, true)
   assert.equal(restarted.guildReady, true)

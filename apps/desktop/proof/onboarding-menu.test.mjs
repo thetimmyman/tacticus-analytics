@@ -20,7 +20,6 @@ const factory = createRequire(import.meta.url)(
 async function fixture(run) {
   const state = await mkdtemp(join(tmpdir(), 'native-onboard-')),
     key = randomUUID(),
-    password = randomBytes(16).toString('hex'),
     installation = randomUUID(),
     cipher = randomBytes(32)
   const calls = [],
@@ -31,6 +30,27 @@ async function fixture(run) {
   let loads = 0,
     queries = 0,
     choice = 1
+  let unlocked = true
+  webContents.session = {
+    cookies: {
+      async get() {
+        return unlocked
+          ? [
+              {
+                name: 'tacticus-auth-token',
+                value:
+                  'base64-' +
+                  Buffer.from(
+                    JSON.stringify({
+                      access_token: 'synthetic.payload.signature'
+                    })
+                  ).toString('base64url')
+              }
+            ]
+          : []
+      }
+    }
+  }
   webContents.getURL = () => 'http://127.0.0.1:54321/desktop/connect'
   const window = {
     webContents,
@@ -87,7 +107,11 @@ async function fixture(run) {
       })
     if (url.endsWith('/import-player')) {
       const body = JSON.parse(options.body)
-      assert.equal(body.password, password)
+      assert.equal(body.password, undefined)
+      assert.equal(
+        options.headers.authorization,
+        'Bearer synthetic.payload.signature'
+      )
       assert.equal(body.resources.bombs.current, 2)
       assert(!options.body.includes(key))
       return response({ units: 1, mapped: 1, unmapped: 0 })
@@ -108,7 +132,7 @@ async function fixture(run) {
       },
       nativeSecretPrompt: async (kind) => {
         prompts.push(kind)
-        return kind === 'workspace-password' ? password : key
+        return key
       },
       fetch
     })
@@ -123,6 +147,9 @@ async function fixture(run) {
       },
       get queries() {
         return queries
+      },
+      set unlocked(value) {
+        unlocked = value
       },
       set choice(value) {
         choice = value
@@ -147,7 +174,7 @@ test('actual native Player setup uses secure prompts, fetches only Player and sa
     for (let i = 0; i < 200 && f.loads === 0; i++) await delay(5)
     assert.equal(prevented, true)
     assert.equal(f.loads, 1)
-    assert.deepEqual(f.prompts, ['workspace-password', 'player-api-key'])
+    assert.deepEqual(f.prompts, ['player-api-key'])
     assert.deepEqual(f.calls, [
       'http://127.0.0.1:54321/desktop/broker-context',
       'https://api.tacticusgame.com/api/v1/player',
@@ -157,9 +184,9 @@ test('actual native Player setup uses secure prompts, fetches only Player and sa
     assert.deepEqual(Object.keys(saved.roles), ['Player'])
     assert.match(saved.roles.Player.handle, /^[a-f0-9]{32}$/)
   }))
-test('refusing native connection consent causes no credential prompt, vault access or network request', async () =>
+test('a locked workspace causes no credential prompt, vault access or network request', async () =>
   fixture(async (f) => {
-    f.choice = 0
+    f.unlocked = false
     f.webContents.emit(
       'will-navigate',
       { preventDefault() {} },
@@ -215,9 +242,5 @@ test('removing saved API keys authenticates the workspace, revokes the vault han
       f.calls.filter((url) => url.endsWith('/import-player')).length,
       imports
     )
-    assert.deepEqual(f.prompts, [
-      'workspace-password',
-      'player-api-key',
-      'workspace-password'
-    ])
+    assert.deepEqual(f.prompts, ['player-api-key'])
   }))

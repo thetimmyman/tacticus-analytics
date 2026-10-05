@@ -1,5 +1,5 @@
 const { join } = require('node:path')
-const { createHash } = require('node:crypto')
+const { randomBytes, createHash } = require('node:crypto')
 
 module.exports = async function onboardingMenu(
   window,
@@ -8,6 +8,7 @@ module.exports = async function onboardingMenu(
 ) {
   const { app, dialog, safeStorage } =
     dependencies.electron ?? require('electron')
+  const { currentWorkspaceToken } = await import('./workspace-session.mjs')
   const { CredentialVault } = await import('./credential-vault.mjs')
   const { verifyOfficialAccess } = await import('./official-access.mjs')
   const { loadScopedConnections, saveScopedConnections } =
@@ -15,7 +16,8 @@ module.exports = async function onboardingMenu(
   const prompt =
     dependencies.nativeSecretPrompt ??
     (await import('./native-secret.mjs')).nativeSecretPrompt
-  const request = dependencies.fetch ?? globalThis.fetch
+  const request =
+    dependencies.officialFetch ?? dependencies.fetch ?? globalThis.fetch
   const origin = new URL(config.url).origin
   if (
     !/^http:\/\/127\.0\.0\.1:\d+$/.test(origin) ||
@@ -24,6 +26,44 @@ module.exports = async function onboardingMenu(
     )
   )
     throw new Error('Invalid native onboarding destination')
+  const operations = new Set([
+    '/desktop/broker-context',
+    '/desktop/import-player',
+    '/desktop/import'
+  ])
+  const coordinator = dependencies.fetch
+    ? null
+    : require('electron').session.fromPartition(
+        'native-api-' + randomBytes(16).toString('hex')
+      )
+  const allowed = (address) => {
+    const value = new URL(address)
+    return (
+      value.origin === origin &&
+      !value.username &&
+      !value.password &&
+      !value.search &&
+      !value.hash &&
+      operations.has(value.pathname)
+    )
+  }
+  coordinator?.webRequest.onBeforeRequest((details, callback) =>
+    callback({ cancel: !allowed(details.url) })
+  )
+  coordinator?.webRequest.onBeforeSendHeaders((details, callback) =>
+    callback(
+      allowed(details.url)
+        ? {
+            requestHeaders: {
+              ...details.requestHeaders,
+              'x-desktop-transport': config.transportKey,
+              'x-desktop-broker': config.brokerToken
+            }
+          }
+        : { cancel: true }
+    )
+  )
+  let sessionToken = ''
   let grant = null,
     pending,
     controller,
@@ -42,14 +82,14 @@ module.exports = async function onboardingMenu(
       ].includes(path)
     )
       throw new Error('Unsupported local operation')
-    const response = await request(origin + path, {
+    const response = await (
+      dependencies.fetch ?? coordinator.fetch.bind(coordinator)
+    )(origin + path, {
       method: 'POST',
-      // Per-launch capabilities authorize only the validated local coordinator and three fixed operations.
-      // codeql[js/file-access-to-http]
       headers: {
         'content-type': 'application/json',
-        'x-desktop-transport': config.transportKey,
-        'x-desktop-broker': config.brokerToken,
+        authorization: `Bearer ${sessionToken}`,
+
         origin
       },
       body: JSON.stringify(body),
@@ -61,7 +101,14 @@ module.exports = async function onboardingMenu(
       response.redirected ||
       (response.url && response.url !== origin + path)
     )
-      throw new Error('Local workspace operation failed')
+      throw Object.assign(new Error('Local workspace operation failed'), {
+        code:
+          response.status === 401
+            ? 'ESESSION'
+            : response.status === 429
+              ? 'ERETRY'
+              : 'ELOCAL'
+      })
     const reader = response.body?.getReader()
     if (!reader) throw new Error('Invalid local result')
     let bytes = 0
@@ -89,29 +136,25 @@ module.exports = async function onboardingMenu(
       return
     controller = new AbortController()
     pending = (async () => {
-      let password = '',
-        handle,
+      let handle,
         newHandle = false
       try {
-        const consent = await dialog.showMessageBox(window, {
-          type: 'question',
-          title:
-            scope === 'Disconnect'
-              ? 'Remove saved API keys'
-              : `Connect ${scope} API access`,
-          message:
-            scope === 'Disconnect'
-              ? 'Remove all saved official API keys from this device? Your workspace and previously synced data remain available offline. You can connect keys again later.'
-              : `Use your official ${scope} API key for read-only requests to Snowprint. The key stays in this device's secure OS vault and is excluded from workspace backups and exports. This does not enable cloud contribution. Guild Raid access also needs Guild scope to verify the selected guild.`,
-          buttons: ['Cancel', 'Continue'],
-          defaultId: 0,
-          cancelId: 0
-        })
-        if (consent.response !== 1 || controller.signal.aborted) return
-        password = await prompt('workspace-password', {
-          signal: controller.signal
-        })
-        const context = await local('/desktop/broker-context', { password })
+        if (scope === 'Disconnect') {
+          const consent = await dialog.showMessageBox(window, {
+            type: 'question',
+            title: 'Remove saved API keys',
+            message:
+              'Remove all saved API keys from this device? Your cached data is retained.',
+            buttons: ['Cancel', 'Remove keys'],
+            defaultId: 0,
+            cancelId: 0
+          })
+          if (consent.response !== 1 || controller.signal.aborted) return
+        }
+        sessionToken = currentWorkspaceToken(
+          await window.webContents.session.cookies.get({ url: origin })
+        )
+        const context = await local('/desktop/broker-context', {})
         if (
           !context ||
           typeof context.installation !== 'string' ||
@@ -201,7 +244,6 @@ module.exports = async function onboardingMenu(
         controller.signal.throwIfAborted()
         if (scope === 'Player') {
           await local('/desktop/import-player', {
-            password,
             contents: JSON.stringify({
               format: 'ta-official-roster-v1',
               guildCode: context.guildCode,
@@ -233,7 +275,6 @@ module.exports = async function onboardingMenu(
                   .slice(0, 16)
           }))
           await local('/desktop/import', {
-            password,
             contents: JSON.stringify(file)
           })
         }
@@ -267,11 +308,17 @@ module.exports = async function onboardingMenu(
           await dialog.showMessageBox(window, {
             type: 'error',
             message:
-              'API setup could not complete. Check your workspace password, key scopes, selected guild and secure OS storage. Existing local data was preserved.',
+              error.code === 'EVAULT'
+                ? 'Your OS keyring is unavailable or locked. Unlock the system keyring and try again. Your key was not saved.'
+                : error.code === 'ESESSION'
+                  ? 'Your workspace session has expired. Unlock the workspace once, then try again.'
+                  : error.code === 'ERETRY'
+                    ? 'Please wait a few seconds, then try again.'
+                    : 'The API key could not be verified. Check its Player/Guild scopes, the selected guild and your internet connection. Existing local data was preserved.',
             buttons: ['Close']
           })
       } finally {
-        password = ''
+        sessionToken = ''
         grant = null
         controller = undefined
         pending = undefined
@@ -298,6 +345,9 @@ module.exports = async function onboardingMenu(
     )
       return
     connect(actions.get(url.pathname))
+  })
+  window.webContents.on('did-navigate', (_event, address) => {
+    if (address !== origin + '/desktop/connect') controller?.abort()
   })
   app.on('before-quit', (event) => {
     if (closing) return

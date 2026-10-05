@@ -1,8 +1,9 @@
+const { randomUUID } = require('node:crypto')
 const { readFile } = require('node:fs/promises')
 const { join } = require('node:path')
 
 module.exports = async function updateMenu(window, config, dependencies = {}) {
-  const { dialog, app } = dependencies.electron ?? require('electron')
+  const { dialog, app, session } = dependencies.electron ?? require('electron')
   const { checkForUpdate, downloadUpdate, updateConfiguration } =
     await import('./updates.mjs')
   let configuration
@@ -15,6 +16,16 @@ module.exports = async function updateMenu(window, config, dependencies = {}) {
   } catch {
     configuration = null
   }
+  let artifactURL = null
+  const coordinator = dependencies.fetch
+    ? null
+    : session.fromPartition('native-updates-' + randomUUID())
+  const allowed = (address) =>
+    address === configuration?.manifestURL || address === artifactURL
+  coordinator?.webRequest.onBeforeRequest((details, callback) =>
+    callback({ cancel: !allowed(details.url) })
+  )
+  const request = dependencies.fetch ?? coordinator.fetch.bind(coordinator)
   let pending,
     controller,
     closing = false
@@ -33,7 +44,7 @@ module.exports = async function updateMenu(window, config, dependencies = {}) {
           return
         }
         const result = await checkForUpdate(configuration, {
-          fetch: dependencies.fetch,
+          fetch: request,
           signal: controller.signal
         })
         if (!result.update) {
@@ -45,6 +56,7 @@ module.exports = async function updateMenu(window, config, dependencies = {}) {
           return
         }
         const update = result.update
+        artifactURL = update.url
         const choice = await dialog.showMessageBox(window, {
           type: 'question',
           title: 'Verified preview update available',
@@ -65,7 +77,7 @@ module.exports = async function updateMenu(window, config, dependencies = {}) {
         )
           return
         await downloadUpdate(configuration, update, selected.filePath, {
-          fetch: dependencies.fetch,
+          fetch: request,
           signal: controller.signal
         })
         if (!closing)
@@ -83,6 +95,7 @@ module.exports = async function updateMenu(window, config, dependencies = {}) {
             buttons: ['Close']
           })
       } finally {
+        artifactURL = null
         pending = undefined
         controller = undefined
       }

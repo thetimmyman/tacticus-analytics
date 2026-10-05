@@ -1,9 +1,19 @@
 # Private Linux preview packaging
 
 The preview creates an installation-local account and synthetic sample workspace
-through a graphical first-run form. It then signs in through the existing
-application API and opens the existing player-performance page. Real raid imports,
-full feature parity and release approval remain outstanding.
+through a graphical first-run form. A personal workspace opens API setup: Player
+access is required, while Guild and Guild Raid access unlock guild content.
+A sample workspace opens synthetic player performance. Full feature parity and
+release approval remain outstanding.
+
+API setup uses the current authenticated workspace session. Unlock once; adding
+or syncing keys does not request the workspace password again. Auth verifies
+the session and workspace owner before credential access or imports. Expired
+sessions require another unlock. Linux explicitly selects Secret Service via
+Electron’s `gnome-libsecret` backend; a running, unlocked OS keyring is required.
+A locked or unavailable keyring fails with a specific message and never stores
+plaintext keys. API keys are entered through native dialogs and encrypted in
+the device vault. File → API access and updates opens setup and the updater.
 Interrupted setup can resume with the original password. Completion is recorded
 in the same database transaction as the synthetic import; retries preserve the
 existing native account and never replace data or import the sample twice.
