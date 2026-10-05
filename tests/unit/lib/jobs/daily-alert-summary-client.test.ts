@@ -14,13 +14,21 @@ type QueryResult = {
  * A PostgREST-shaped client whose every guild_config read resolves to
  * `result`. The builder methods the job chains are all accepted.
  */
-function clientReturning(result: (select: string) => QueryResult) {
+function clientReturning(
+  result: (select: string) => QueryResult,
+  checkpointFails = false
+) {
   const queries: { select: string; eq: [string, unknown][] }[] = []
+  const updates: Record<string, unknown>[] = []
   const from = vi.fn((_table: string) => {
     let selected = ''
     const query = { select: '', eq: [] as [string, unknown][] }
     queries.push(query)
     const builder = {
+      update: (value: Record<string, unknown>) => {
+        updates.push(value)
+        return builder
+      },
       select: (columns: string) => {
         selected = columns
         query.select = columns
@@ -34,12 +42,18 @@ function clientReturning(result: (select: string) => QueryResult) {
       or: () => builder,
       order: () => builder,
       limit: () => Promise.resolve(result(selected)),
+      single: () =>
+        Promise.resolve(
+          checkpointFails
+            ? { data: null, error: { message: 'synthetic write failure' } }
+            : { data: { id: 3 }, error: null }
+        ),
       then: (resolve: (value: QueryResult) => unknown) =>
         Promise.resolve(result(selected)).then(resolve)
     }
     return builder
   })
-  return { from, queries }
+  return { from, queries, updates }
 }
 
 const ANON_DENIED: QueryResult = {
@@ -51,6 +65,9 @@ const addSyncAlert = vi.fn()
 const addApiKeyAlert = vi.fn()
 const addDatabaseAlert = vi.fn()
 const warn = vi.fn()
+const sendOpsAlert = vi.fn()
+const sendIncidentNotifications = vi.fn()
+const sendDailySummary = vi.fn()
 
 function rowsFor(select: string): QueryResult {
   if (select.includes('api_key_is_valid')) {
@@ -88,6 +105,13 @@ async function loadHandler(dbModule: Record<string, unknown>) {
   addApiKeyAlert.mockReset()
   addDatabaseAlert.mockReset()
   warn.mockReset()
+  sendOpsAlert.mockReset().mockResolvedValue({ status: 'not-needed' })
+  sendIncidentNotifications.mockReset().mockResolvedValue({
+    noRecipientEscalationDays: 7,
+    staleInvalidKeyIncidentsWithoutRecipients: 0,
+    oldestStaleInvalidKeyIncidentDays: null
+  })
+  sendDailySummary.mockReset()
   const registered: Handler[] = []
   vi.doMock('@/app/lib/jobs/dispatcher', () => ({
     registerJobHandler: (_type: string, handler: Handler) => {
@@ -106,7 +130,10 @@ async function loadHandler(dbModule: Record<string, unknown>) {
     runAllHealthChecks: vi.fn(async () => ({ summary: {} }))
   }))
   vi.doMock('@/app/lib/services/api-key-incident-notifications', () => ({
-    sendApiKeyIncidentNotifications: vi.fn(async () => ({}))
+    sendApiKeyIncidentNotifications: sendIncidentNotifications
+  }))
+  vi.doMock('@/app/lib/services/api-key-incident-ops', () => ({
+    sendApiKeyIncidentOpsAlert: sendOpsAlert
   }))
   vi.doMock('@tacticus/app-core/daily-alert-summary', () => ({
     addSyncAlert,
@@ -114,7 +141,7 @@ async function loadHandler(dbModule: Record<string, unknown>) {
     addDatabaseAlert,
     addInfrastructureAlert: vi.fn(),
     getAlertSummary: () => ({ alerts: [], stats: {} }),
-    sendDailySummary: vi.fn()
+    sendDailySummary
   }))
   vi.doMock('@/app/lib/db', () => dbModule)
   const mod = await import('@/app/lib/jobs/daily-alert-summary')
@@ -178,6 +205,104 @@ describe('daily alert summary job reads guild_config with the service client', (
       }),
       'Sync health alert query failed'
     )
+  })
+
+  it('delivers the stale rollup even when the daily email accumulator is empty', async () => {
+    const client = clientReturning(() => ({ data: [], error: null }))
+    const handler = await loadHandler({
+      serviceDb: vi.fn(() => client)
+    })
+    const rollup = {
+      noRecipientEscalationDays: 7,
+      staleInvalidKeyIncidentsWithoutRecipients: 1,
+      oldestStaleInvalidKeyIncidentDays: 9
+    }
+    sendIncidentNotifications.mockResolvedValue(rollup)
+    sendOpsAlert.mockResolvedValue({
+      status: 'delivered',
+      messageId: 'synthetic-message'
+    })
+
+    const result = await handler(
+      {},
+      { jobId: 3, workerId: 'test-worker', attempts: 1 }
+    )
+
+    expect(sendOpsAlert).toHaveBeenCalledWith(rollup)
+    expect(result).toMatchObject({
+      apiKeyIncidentOps: { status: 'delivered', messageId: 'synthetic-message' }
+    })
+    expect(sendDailySummary).not.toHaveBeenCalled()
+    expect(client.updates).toEqual([
+      {
+        payload: {
+          apiKeyIncidentOps: {
+            status: 'delivered',
+            messageId: 'synthetic-message'
+          }
+        }
+      }
+    ])
+    expect(client.queries.at(-1)?.eq).toEqual([
+      ['id', 3],
+      ['claimed_by', 'test-worker'],
+      ['status', 'processing']
+    ])
+  })
+
+  it('reuses the saved operations message on a retry after queue settlement failed', async () => {
+    const handler = await loadHandler({
+      serviceDb: vi.fn(() => clientReturning(() => ({ data: [], error: null })))
+    })
+    const saved = { status: 'delivered', messageId: 'synthetic-message' }
+    const result = await handler(
+      { apiKeyIncidentOps: saved },
+      { jobId: 3, workerId: 'test-worker', attempts: 2 }
+    )
+    expect(sendOpsAlert).not.toHaveBeenCalled()
+    expect(result).toMatchObject({ apiKeyIncidentOps: saved })
+  })
+
+  it('fails the queue job if the saved-message checkpoint cannot be persisted', async () => {
+    const handler = await loadHandler({
+      serviceDb: vi.fn(() =>
+        clientReturning(() => ({ data: [], error: null }), true)
+      )
+    })
+    sendOpsAlert.mockResolvedValue({
+      status: 'delivered',
+      messageId: 'synthetic-message'
+    })
+    await expect(
+      handler({}, { jobId: 3, workerId: 'test-worker', attempts: 1 })
+    ).rejects.toThrow('operations checkpoint failed')
+  })
+
+  it('does not acknowledge an incomplete incident sweep', async () => {
+    const handler = await loadHandler({
+      serviceDb: vi.fn(() => clientReturning(() => ({ data: [], error: null })))
+    })
+    sendIncidentNotifications.mockRejectedValue(
+      new Error('API key incident state sweep failed')
+    )
+    await expect(
+      handler({}, { jobId: 3, workerId: 'test-worker', attempts: 1 })
+    ).rejects.toThrow('state sweep failed')
+    expect(sendOpsAlert).not.toHaveBeenCalled()
+  })
+
+  it('rejects a failed operations delivery so the work queue can retry', async () => {
+    const handler = await loadHandler({
+      serviceDb: vi.fn(() => clientReturning(() => ({ data: [], error: null })))
+    })
+    sendOpsAlert.mockRejectedValue(
+      new Error('API key incident operations delivery failed')
+    )
+
+    await expect(
+      handler({}, { jobId: 4, workerId: 'test-worker', attempts: 1 })
+    ).rejects.toThrow('operations delivery failed')
+    expect(sendDailySummary).not.toHaveBeenCalled()
   })
 })
 
