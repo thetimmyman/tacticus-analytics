@@ -16,7 +16,40 @@ import { windowsOnboarding } from '../../../apps/desktop/platform/windows/onboar
 const player = {
   player: {
     details: { name: 'Synthetic Player', powerLevel: 12 },
-    units: [{ id: 'synthetic-unit', rank: 2 }]
+    units: [
+      {
+        id: 'synthetic-unit',
+        rank: 2,
+        xp: 0,
+        xpLevel: 1,
+        progressionIndex: 0,
+        abilities: [],
+        items: [],
+        upgrades: [],
+        shards: 0,
+        mythicShards: 0
+      }
+    ],
+    inventory: {
+      items: [],
+      upgrades: [],
+      shards: [],
+      mythicShards: [],
+      xpBooks: [],
+      abilityBadges: {},
+      components: [],
+      forgeBadges: [],
+      orbs: {},
+      resetStones: 0
+    },
+    progress: {
+      campaigns: [],
+      legendaryEvents: [],
+      guildRaid: {
+        tokens: { current: 2, max: 3, regenDelayInSeconds: 0 },
+        bombTokens: { current: 1, max: 2, regenDelayInSeconds: 0 }
+      }
+    }
   },
   metaData: { scopes: ['Player'], lastUpdatedOn: 1000 }
 }
@@ -34,7 +67,7 @@ test('actual shared guard receives opaque native references and Player-only acce
     const handle = 'a'.repeat(32)
     const guard = windowsOnboarding(root, async (args) => {
       operations.push(args)
-      if (args[0] === 'prompt-official') return { handle }
+      if (args[0] === 'prompt-official') return { handle: args[1] ?? handle }
       if (args[0] === 'read-official' && args[2] === 'Player')
         return structuredClone(player)
       throw new Error('Optional access absent')
@@ -48,7 +81,11 @@ test('actual shared guard receives opaque native references and Player-only acce
         (args) => !args.includes('synthetic-secret-never-in-node')
       )
     )
-    assert.ok(!JSON.stringify(view).includes(handle))
+    assert.ok(
+      !JSON.stringify(view).includes(
+        operations.find((args) => args[0] === 'prompt-official')[1]
+      )
+    )
     assert.ok(!JSON.stringify(view).includes('vaultReferences'))
     const reopened = windowsOnboarding(root, () => {
       throw new Error('Offline')
@@ -61,7 +98,8 @@ test('no Player and native vault failure cannot activate a new personal workspac
   workspace(async (root) => {
     const removed = []
     const guard = windowsOnboarding(root, async (args) => {
-      if (args[0] === 'prompt-official') return { handle: 'b'.repeat(32) }
+      if (args[0] === 'prompt-official')
+        return { handle: args[1] ?? 'b'.repeat(32) }
       if (args[0] === 'remove-official') {
         removed.push(args[1])
         return null
@@ -86,7 +124,7 @@ test('combined scopes use one native prompt, then wrong guild refuses raid bindi
     const guard = windowsOnboarding(root, async (args) => {
       if (args[0] === 'prompt-official') {
         prompts++
-        return { handle: 'c'.repeat(32) }
+        return { handle: args[1] ?? 'c'.repeat(32) }
       }
       if (args[2] === 'Player')
         return {
@@ -99,7 +137,7 @@ test('combined scopes use one native prompt, then wrong guild refuses raid bindi
       if (args[2] === 'Guild') return { guild: { guildId: 'synthetic-guild' } }
       if (args[2] === 'Guild Raid') {
         raidReads++
-        return { season: 1 }
+        return { season: 1, seasonConfigId: 'SyntheticSeason', entries: [] }
       }
       return null
     })
@@ -119,7 +157,7 @@ test('replacement failure retains synced data and disconnect revokes only unused
     const removed = []
     const guard = windowsOnboarding(root, async (args) => {
       if (args[0] === 'prompt-official')
-        return { handle: (++prompt).toString().padStart(32, '0') }
+        return { handle: args[1] ?? (++prompt).toString().padStart(32, '0') }
       if (args[0] === 'remove-official') {
         removed.push(args[1])
         return null
@@ -164,4 +202,50 @@ test('inventory hashes real bytes and rejects mutable state and reparse package 
       process.platform === 'win32' ? 'junction' : 'dir'
     )
     await assert.rejects(inventory(root), /links unsupported/)
+  }))
+
+test('authenticated journal recovery deletes only unused targets and preserves a committed reference after interrupted journal cleanup', () =>
+  workspace(async (root) => {
+    const removed = []
+    const command = async (args) => {
+      if (args[0] === 'prompt-official') return { handle: args[1] }
+      if (args[0] === 'read-official' && args[2] === 'Player') return player
+      if (args[0] === 'remove-official') {
+        removed.push(args[1])
+        return null
+      }
+      throw new Error('Optional scope unavailable')
+    }
+    const first = windowsOnboarding(root, command)
+    await first.connect({
+      requested: ['Player'],
+      confirmPlayer: async () => true
+    })
+    const committed = first.state.read().vaultReferences.Player
+    const unused = 'f'.repeat(32)
+    await writeFile(
+      join(root, 'official-pending.json'),
+      JSON.stringify([committed, unused])
+    )
+    let authorized = false
+    const reopened = windowsOnboarding(root, command, () => {
+      if (!authorized)
+        throw Object.assign(new Error('Unlock local workspace'), {
+          code: 'ESESSION'
+        })
+    })
+    await assert.rejects(
+      reopened.recoverPending(),
+      (error) => error.code === 'ESESSION'
+    )
+    assert.equal(removed.length, 0)
+    authorized = true
+    await reopened.recoverPending()
+    assert.deepEqual(removed, [unused])
+    assert.equal(reopened.state.read().vaultReferences.Player, committed)
+    assert.deepEqual(
+      JSON.parse(await readFile(join(root, 'official-pending.json'), 'utf8')),
+      []
+    )
+    assert.ok(!JSON.stringify(reopened.view()).includes(committed))
   }))

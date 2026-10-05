@@ -90,15 +90,24 @@ export function windowsSetup(services, assets, launcherAssets, session) {
             'Use a local workspace password of 12–128 characters.'
           )
         if (!(await readOwner())) {
+          // Interrupted account creation can be resumed only by authenticating its original local password.
+          const exists =
+            (
+              await services.psql(
+                "SELECT EXISTS (SELECT 1 FROM auth.users WHERE email='desktop@localhost.invalid');"
+              )
+            ).trim() === 't'
           const response = await fetch(
-            `http://127.0.0.1:${services.ports.auth}/admin/users`,
+            `http://127.0.0.1:${services.ports.auth}/${exists ? 'token?grant_type=password' : 'admin/users'}`,
             {
               method: 'POST',
               redirect: 'error',
               signal: AbortSignal.timeout(10000),
               headers: {
                 'content-type': 'application/json',
-                authorization: `Bearer ${services.token.service}`
+                ...(exists
+                  ? {}
+                  : { authorization: `Bearer ${services.token.service}` })
               },
               body: JSON.stringify({
                 email: 'desktop@localhost.invalid',
@@ -109,13 +118,14 @@ export function windowsSetup(services, assets, launcherAssets, session) {
           )
           if (!response.ok)
             throw new Error('Local workspace creation is unavailable.')
-          const account = await response.json()
-          if (!/^[a-f0-9-]{36}$/.test(account.id))
+          const result = await response.json()
+          const subject = exists ? result.user?.id : result.id
+          if (!/^[a-f0-9-]{36}$/.test(subject))
             throw new Error('Local account binding is unavailable.')
           const temporary = `${ownerFile}.${randomUUID()}.tmp`
           await writeFile(
             temporary,
-            JSON.stringify({ subject: account.id, kind: 'personal-holding' }),
+            JSON.stringify({ subject, kind: 'personal-holding' }),
             { flag: 'wx', flush: true }
           )
           await rename(temporary, ownerFile)
@@ -141,9 +151,18 @@ export function windowsSetup(services, assets, launcherAssets, session) {
       ].includes(url.pathname) ||
       url.pathname.startsWith('/desktop/disconnect/')
     if (protectedOperation) {
+      if (confirming) {
+        json(409, { error: 'Setup is already running' })
+        return true
+      }
+      confirming = true
       try {
-        return await gate.run(() => official(req, res, url, json))
+        return await gate.run(async () => {
+          await onboarding.recoverPending()
+          return official(req, res, url, json)
+        })
       } catch (error) {
+        if (res.headersSent) return true
         json(error.code === 'ESESSION' ? 401 : 503, {
           error:
             error.code === 'ESESSION'
@@ -152,6 +171,8 @@ export function windowsSetup(services, assets, launcherAssets, session) {
           code: error.code === 'ESESSION' ? 'ESESSION' : 'EAUTH'
         })
         return true
+      } finally {
+        confirming = false
       }
     }
     // Demo is an explicit synthetic route, separate from the personal experience.
@@ -159,7 +180,8 @@ export function windowsSetup(services, assets, launcherAssets, session) {
       try {
         await readFile(ownerFile)
         json(409, {
-          error: 'A personal workspace exists. Use its local unlock.'
+          error: 'A personal workspace exists. Use its local unlock.',
+          code: 'EPERSONAL'
         })
         return true
       } catch (error) {
@@ -205,11 +227,6 @@ export function windowsSetup(services, assets, launcherAssets, session) {
       return true
     }
     if (req.method === 'POST' && url.pathname === '/desktop/connect-official') {
-      if (confirming) {
-        json(409, { error: 'Setup is already running' })
-        return true
-      }
-      confirming = true
       try {
         const chunks = []
         let size = 0
@@ -256,14 +273,12 @@ export function windowsSetup(services, assets, launcherAssets, session) {
         if (error.code === 'ESESSION') throw error
         json(503, {
           error:
-            error.code === 'EKEYRING'
+            error.code === 'EVAULTLOCKED'
               ? 'Windows secure input or vault is unavailable. Unlock the Windows vault and retry.'
               : error.code === 'EUPSTREAM'
                 ? 'Official access is invalid or expired. Replace the official key or retry later.'
                 : 'Official access is unavailable. Retained data can be read offline after local unlock.'
         })
-      } finally {
-        confirming = false
       }
       return true
     }

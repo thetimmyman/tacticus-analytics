@@ -42,8 +42,8 @@ internal static class Program
                             metric = "Windows Job Object peak committed memory; not RSS" }));
                     return code;
                 }
-                case "prompt-official" when args.Length == 1:
-                    Console.WriteLine(JsonSerializer.Serialize(new { handle = Vault.PromptOfficial() })); return 0;
+                case "prompt-official" when args.Length is 1 or 2:
+                    Console.WriteLine(JsonSerializer.Serialize(new { handle = Vault.PromptOfficial(args.Length == 2 ? args[1] : null) })); return 0;
                 case "read-official" when args.Length == 3:
                     Console.WriteLine(await Vault.ReadOfficial(args[1], args[2])); return 0;
                 case "confirm-player" when args.Length == 2 && args[1].Length is > 0 and <= 100:

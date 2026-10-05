@@ -52,8 +52,11 @@ if ($LASTEXITCODE -ne 0) { throw 'Native host publish failed' }
 $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
 $vs = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
 if (-not $vs) { throw 'Licensed build-tool redistributable payload unavailable' }
-$redist = Get-ChildItem -LiteralPath (Join-Path $vs 'VC/Redist/MSVC') -Directory | Sort-Object Name -Descending | Select-Object -First 1
-$crt = Get-ChildItem -LiteralPath (Join-Path $redist.FullName 'x64') -Directory | Where-Object { $_.Name -match '^Microsoft\.VC\d+\.CRT$' } | Select-Object -First 1
+# Modern installations also have marker directories such as v145 without an x64 payload.
+# Search only the bounded installed Redist subtree for actual x64 CRT directories.
+$crt = Get-ChildItem -LiteralPath (Join-Path $vs 'VC/Redist/MSVC') -Directory -Recurse -Depth 3 |
+  Where-Object { $_.Name -match '^Microsoft\.VC\d+\.CRT$' -and $_.Parent.Name -eq 'x64' } |
+  Sort-Object FullName -Descending | Select-Object -First 1
 if (-not $crt) { throw 'Application-local Microsoft CRT payload unavailable' }
 foreach ($dll in (Get-ChildItem -LiteralPath $crt.FullName -Filter '*.dll')) {
   $signature = Get-AuthenticodeSignature -LiteralPath $dll.FullName

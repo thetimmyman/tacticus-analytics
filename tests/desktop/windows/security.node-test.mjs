@@ -138,3 +138,74 @@ test('current native session is checked by local Auth before vault access, and e
     await new Promise((accept) => server.close(accept))
   }
 })
+
+test('interrupted local holding-account creation resumes only after original-password Auth succeeds', async () => {
+  const { windowsSetup } =
+    await import('../../../apps/desktop/platform/windows/setup.mjs')
+  let accepted = false,
+    authCalls = 0
+  const auth = createServer(async (req, res) => {
+    authCalls++
+    assert.equal(req.url, '/token?grant_type=password')
+    assert.equal(req.headers.authorization, undefined)
+    let input = ''
+    for await (const chunk of req) input += chunk
+    assert.equal(JSON.parse(input).email, 'desktop@localhost.invalid')
+    res.statusCode = accepted ? 200 : 401
+    res.setHeader('content-type', 'application/json')
+    res.end(
+      JSON.stringify(
+        accepted ? { user: { id: subject } } : { error: 'synthetic rejection' }
+      )
+    )
+  })
+  await new Promise((accept) => auth.listen(0, '127.0.0.1', accept))
+  const root = await mkdtemp(join(tmpdir(), 'Windows interrupted account ü '))
+  const handler = windowsSetup(
+    {
+      state: root,
+      ports: { auth: auth.address().port },
+      token: { service: 'synthetic-unused-service' },
+      psql: async (sql) => (sql.includes('auth.users') ? 't' : '')
+    },
+    root,
+    root,
+    {}
+  )
+  const server = createServer((req, res) => {
+    void handler(req, res, new URL(req.url, 'http://127.0.0.1')).catch(() => {
+      res.statusCode = 500
+      res.end()
+    })
+  })
+  await new Promise((accept) => server.listen(0, '127.0.0.1', accept))
+  try {
+    const request = () =>
+      fetch(
+        `http://127.0.0.1:${server.address().port}/desktop/workspace-access`,
+        {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ password: 'synthetic-original-password' })
+        }
+      )
+    assert.equal((await request()).status, 409)
+    const { existsSync } = await import('node:fs')
+    assert.equal(existsSync(join(root, 'workspace-owner.json')), false)
+    accepted = true
+    assert.equal((await request()).status, 200)
+    const { readFile } = await import('node:fs/promises')
+    const owner = JSON.parse(
+      await readFile(join(root, 'workspace-owner.json'), 'utf8')
+    )
+    assert.equal(owner.subject, subject)
+    assert.equal(owner.kind, 'personal-holding')
+    assert.equal(JSON.stringify(owner).includes('password'), false)
+    assert.equal((await request()).status, 200)
+    assert.equal(authCalls, 2)
+  } finally {
+    await new Promise((accept) => server.close(accept))
+    await new Promise((accept) => auth.close(accept))
+    await rm(root, { recursive: true, force: true })
+  }
+})

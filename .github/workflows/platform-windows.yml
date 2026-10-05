@@ -82,6 +82,9 @@ jobs:
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: windows-application-evidence
-          path: ${{ runner.temp }}/application-evidence.json
+          path: |
+            ${{ runner.temp }}/application-evidence.json
+            ${{ runner.temp }}/renderer-*.png
+            ${{ runner.temp }}/renderer-*.json
           if-no-files-found: error
           retention-days: 7

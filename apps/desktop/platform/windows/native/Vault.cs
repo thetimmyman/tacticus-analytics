@@ -18,9 +18,9 @@ internal static class Vault
         if (!Guid.TryParseExact(handle, "N", out _)) throw new InvalidOperationException("Invalid credential reference");
         return Prefix + handle;
     }
-    public static string PromptOfficial()
+    public static string PromptOfficial(string? pendingHandle = null)
     {
-        var handle = Guid.NewGuid().ToString("N");
+        var handle = pendingHandle ?? Guid.NewGuid().ToString("N");
         var target = Handle(handle);
         var info = new UiInfo { Size = Marshal.SizeOf<UiInfo>(), Caption = "Connect official Tacticus API",
             Message = "Enter an official API key in the password field. Player is required; Guild and Guild Raid are optional. This consents to official reads on this device only. Cloud contribution needs separate consent. Never enter a game-client secret." };

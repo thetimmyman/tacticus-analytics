@@ -19,7 +19,7 @@ for ($iteration = 0; $iteration -lt 2; $iteration++) {
   if ($LASTEXITCODE -ne 0) { throw 'Installed complete application journey failed' }
   $result = Get-Content $renderer | ConvertFrom-Json
   if ($result.observed.nodeAccess -or -not $result.observed.text.Contains('+58%')) { throw 'Renderer result incorrect' }
-  $journeys += @{ iteration = $iteration; elapsedMs = $runTimer.ElapsedMilliseconds; nativeMeasurement = (Get-Content $measurementPath | ConvertFrom-Json); sandbox = $result.sandbox; nodeAccess = $result.observed.nodeAccess }
+  $journeys += @{ iteration = $iteration; elapsedMs = $runTimer.ElapsedMilliseconds; nativeMeasurement = (Get-Content $measurementPath | ConvertFrom-Json); screenshotSha256 = (Get-FileHash (Join-Path $env:RUNNER_TEMP "renderer-$iteration.png") -Algorithm SHA256).Hash.ToLowerInvariant(); workspaceSessionReuse = $result.workspaceSessionReuse; sandbox = $result.sandbox; nodeAccess = $result.observed.nodeAccess }
 }
 $manifest = Get-Content "$installed/bundle-manifest.json" | ConvertFrom-Json
 $recoveryPath = Join-Path $env:RUNNER_TEMP 'recovery-evidence.json'

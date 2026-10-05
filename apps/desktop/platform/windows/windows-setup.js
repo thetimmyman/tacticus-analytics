@@ -89,7 +89,7 @@ document.querySelector('#demo').addEventListener('submit', async (event) => {
     })
   })
   const value = await response.json()
-  if (!response.ok && response.status !== 409) {
+  if (!response.ok && (response.status !== 409 || value.code === 'EPERSONAL')) {
     status.textContent = value.error
     return
   }

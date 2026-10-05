@@ -26,7 +26,7 @@ export async function inventory(root) {
       if (item.isDirectory()) await visit(path)
       else if (item.isFile()) {
         if (
-          /(^|\/)\.env(?:\.|$)|credentials\.json|onboarding\.json|window-config\.json|pgdata\//.test(
+          /(^|\/)\.env(?:\.|$)|credentials\.json|onboarding\.json|official-pending\.json|workspace-owner\.json|window-config\.json|pgdata\//.test(
             path
           )
         )
@@ -101,6 +101,7 @@ export async function stage(config) {
     'apps/desktop/launcher',
     'apps/desktop/local-schema',
     'packages/workspace-onboarding/v1.mjs',
+    'packages/workspace-onboarding/player-schema.json',
     'LICENSE',
     'THIRD_PARTY_NOTICES.md'
   ])

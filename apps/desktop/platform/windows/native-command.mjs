@@ -44,7 +44,9 @@ export async function nativeCommand(args, input) {
             ? 'Official access is invalid, expired or unavailable.'
             : 'Native secure operation unavailable'
       ),
-      { code: code === 2 ? 'EKEYRING' : code === 3 ? 'EUPSTREAM' : 'ENATIVE' }
+      {
+        code: code === 2 ? 'EVAULTLOCKED' : code === 3 ? 'EUPSTREAM' : 'ENATIVE'
+      }
     )
   const body = Buffer.concat(chunks).toString('utf8').trim()
   return body ? JSON.parse(body) : null
