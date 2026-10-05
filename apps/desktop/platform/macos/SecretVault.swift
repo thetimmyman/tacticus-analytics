@@ -34,11 +34,20 @@ var query: [String: Any] = [
 // Reads do not open an authentication prompt behind the user's current action.
 query[kSecUseAuthenticationUI as String] = kSecUseAuthenticationUIFail
 let arguments = ProcessInfo.processInfo.arguments
+var fixtureAccess: SecAccess?
 if arguments.contains("--synthetic-test"), let index = arguments.firstIndex(of: "--synthetic-keychain"), index + 1 < arguments.count {
+    // Legacy test Keychain calls must not leave a hidden authorization dialog.
+    // This setting applies to this fixture helper process, not the OS session.
+    SecKeychainSetUserInteractionAllowed(false)
     var keychain: SecKeychain?
     guard SecKeychainOpen(arguments[index + 1], &keychain) == errSecSuccess, let keychain else { finish("vault-unavailable") }
     query[kSecUseKeychain as String] = keychain
     query[kSecMatchSearchList as String] = [keychain]
+    var trusted: SecTrustedApplication?
+    guard SecTrustedApplicationCreateFromPath(arguments[0], &trusted) == errSecSuccess,
+          let trusted,
+          SecAccessCreate("Synthetic fixture only" as CFString, [trusted] as CFArray, &fixtureAccess) == errSecSuccess
+    else { finish("vault-unavailable") }
 } else {
     // Production uses the data protection Keychain. Missing owner-provided
     // signing/provisioning access must fail closed, never use a file fallback.
@@ -52,6 +61,7 @@ func store(_ value: String) {
     add.removeValue(forKey: kSecUseAuthenticationUI as String)
     add.removeValue(forKey: kSecMatchSearchList as String)
     add[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+    if let fixtureAccess { add[kSecAttrAccess as String] = fixtureAccess }
     add[kSecValueData as String] = bytes
     let result = SecItemAdd(add as CFDictionary, nil)
     if result != errSecSuccess { finish("vault-unavailable", errorCode: result) }

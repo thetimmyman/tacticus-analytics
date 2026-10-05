@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto'
 import { join, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
 import { stage, inventory } from './stage.mjs'
+import { records } from './evidence.mjs'
 
 const inputs = resolve(process.argv[2]),
   application = resolve(process.argv[3]),
@@ -11,6 +12,7 @@ const inputs = resolve(process.argv[2]),
 if (process.platform !== 'darwin')
   throw new Error('Actual native macOS required')
 const working = await mkdtemp(join(tmpdir(), 'ta mac package ü '))
+const startedAt = new Date().toISOString()
 const imageRoot = join(working, 'image'),
   app = join(imageRoot, 'Tacticus Analytics Preview.app')
 await mkdir(imageRoot)
@@ -122,6 +124,52 @@ const first = JSON.parse(await readFile(join(working, 'storage-first.json'))),
 if (first.counter !== 1 || second.counter !== 2)
   throw new Error('Restart did not retain installed writes')
 const files = await inventory(installed)
+const attachments = []
+for (const [name, mediaType] of [
+  ['renderer.json', 'application/json'],
+  ['renderer.png', 'image/png'],
+  ['storage-first.json', 'application/json'],
+  ['storage-second.json', 'application/json']
+]) {
+  attachments.push({
+    name,
+    mediaType,
+    redacted: true,
+    sha256: createHash('sha256')
+      .update(await readFile(join(working, name)))
+      .digest('hex')
+  })
+}
+const evidence = records({
+  sha: process.env.MAC_SOURCE_SHA,
+  artifactSha256: digest,
+  osVersion: execFileSync('/usr/bin/sw_vers', ['-productVersion'], {
+    encoding: 'utf8'
+  }).trim(),
+  arch: process.arch,
+  runtimeVersions: {
+    node: '22.23.3',
+    electron: '44.5.1',
+    postgres: '18.6',
+    auth: '2.197.0',
+    postgrest: '16.4'
+  },
+  fixtureSha256: createHash('sha256')
+    .update(
+      await readFile(join(runtime, 'apps/desktop/proof/synthetic-import.mjs'))
+    )
+    .digest('hex'),
+  startedAt,
+  completedAt: new Date().toISOString(),
+  attachments
+})
+await writeFile(
+  join(working, 'platform-evidence.json'),
+  JSON.stringify(evidence, null, 2),
+  { mode: 0o600 }
+)
+for (const record of evidence)
+  console.log('TA-PLATFORM-EVIDENCE:' + JSON.stringify(record))
 console.log(
   JSON.stringify({
     schemaVersion: 1,

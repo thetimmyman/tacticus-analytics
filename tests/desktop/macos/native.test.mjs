@@ -103,7 +103,7 @@ test(
     const handle = `synthetic-${process.pid}`,
       value = 'SYNTHETIC-CANARY-KEYCHAIN-ACCESS'
     const command = (args) =>
-      execFileSync('/usr/bin/security', args, { stdio: 'pipe' })
+      execFileSync('/usr/bin/security', args, { stdio: 'pipe', timeout: 15000 })
     const invoke = async (operation) => {
       const child = spawn(
         helper,
@@ -111,9 +111,16 @@ test(
         { stdio: ['pipe', 'pipe', 'ignore'] }
       )
       const chunks = []
+      const deadline = setTimeout(() => child.kill('SIGKILL'), 15000)
       child.stdout.on('data', (chunk) => chunks.push(chunk))
       child.stdin.end(JSON.stringify({ operation, handle, value }))
       const code = await new Promise((accept) => child.once('close', accept))
+      clearTimeout(deadline)
+      assert.notEqual(
+        code,
+        null,
+        `Native Keychain ${operation} exceeded deadline`
+      )
       return { code, response: JSON.parse(Buffer.concat(chunks)) }
     }
     try {

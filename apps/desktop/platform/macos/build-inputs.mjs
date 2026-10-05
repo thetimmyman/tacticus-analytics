@@ -71,7 +71,6 @@ execFileSync(
     '--without-readline',
     '--without-zlib',
     '--without-icu',
-    '--without-ssl',
     '--disable-rpath'
   ],
   { cwd: postgresSource, stdio: 'inherit' }

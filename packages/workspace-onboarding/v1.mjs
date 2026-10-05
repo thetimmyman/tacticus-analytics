@@ -177,6 +177,7 @@ export class WorkspaceOnboardingV1 {
           REQUESTED_CAPABILITIES.includes(scope)
         ) ?? [])
       ])
+      if (scopes.has('Guild Raid')) scopes.add('Guild')
       if (scopes.has('Guild') || scopes.has('Guild Raid'))
         guild = await fetchScope('Guild')
       if (
@@ -196,6 +197,26 @@ export class WorkspaceOnboardingV1 {
       current.version = 1
       current.capabilities ??= {}
       current.vaultReferences ??= {}
+      const invalidate = (scope, status) => {
+        delete current.vaultReferences[scope]
+        current.capabilities[scope] = status
+      }
+      if (
+        player &&
+        previous.personal &&
+        previous.vaultReferences?.Player !== handle
+      ) {
+        invalidate('Guild', 'account-changed-offline-readable')
+        invalidate('Guild Raid', 'account-changed-offline-readable')
+        delete current.guildId
+      }
+      if (
+        scopes.has('Guild') &&
+        (!guild ||
+          guild.guild.guildId !== previous.guildId ||
+          previous.vaultReferences?.Guild !== handle)
+      )
+        invalidate('Guild Raid', 'guild-binding-unavailable')
       if (player) {
         current.personal = player
         current.status = 'active'
@@ -211,7 +232,11 @@ export class WorkspaceOnboardingV1 {
         } else if (scope === 'Guild Raid' && raid) {
           current.capabilities['Guild Raid'] = 'verified-scope'
           current.vaultReferences['Guild Raid'] = handle
-          current.raid = { season: raid.season, syncedAt: this.now() }
+          current.raid = {
+            season: raid.season,
+            guildId: guild.guild.guildId,
+            syncedAt: this.now()
+          }
         } else current.capabilities[scope] = statuses[scope] ?? 'unavailable'
       }
       this.state.write(current)
@@ -261,17 +286,20 @@ export class WorkspaceOnboardingV1 {
   async disconnect(scope) {
     if (!REQUESTED_CAPABILITIES.includes(scope))
       throw new Error('Unsupported capability')
-    const current = structuredClone(this.state.read()),
-      handle = current.vaultReferences?.[scope]
+    const previous = this.state.read(),
+      current = structuredClone(previous)
     delete current.vaultReferences?.[scope]
     current.capabilities ??= {}
     current.capabilities[scope] = 'disconnected-offline-readable'
+    if (scope === 'Guild') {
+      delete current.guildId
+      delete current.vaultReferences?.['Guild Raid']
+      current.capabilities['Guild Raid'] = 'guild-binding-unavailable'
+    }
     this.state.write(current)
-    if (
-      handle &&
-      !Object.values(current.vaultReferences ?? {}).includes(handle)
-    )
-      await this.vault.remove(handle)
+    for (const handle of new Set(Object.values(previous.vaultReferences ?? {})))
+      if (!Object.values(current.vaultReferences ?? {}).includes(handle))
+        await this.vault.remove(handle)
     return this.view()
   }
 }

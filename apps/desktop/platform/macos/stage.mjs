@@ -4,7 +4,6 @@ import {
   readFile,
   writeFile,
   readdir,
-  lstat,
   realpath,
   readlink,
   open
@@ -20,10 +19,10 @@ export async function inventory(directory) {
   const files = []
   const root = await realpath(directory)
   async function walk(path = '') {
-    for (const name of (await readdir(join(root, path))).sort()) {
-      const part = join(path, name),
-        full = join(root, part),
-        info = await lstat(full)
+    const entries = await readdir(join(root, path), { withFileTypes: true })
+    for (const info of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+      const part = join(path, info.name),
+        full = join(root, part)
       if (
         /(^|\/)(?:\.env(?:\..*)?|AGENTS\.md|CLAUDE\.md|credentials\.json|workspace-owner\.json|pgdata|\.git|\.claude)(?:\/|$)/u.test(
           part
@@ -31,7 +30,18 @@ export async function inventory(directory) {
       )
         throw new Error('Mutable or private material in package')
       if (info.isDirectory()) await walk(part)
-      else if (info.isFile()) {
+      else if (info.isSymbolicLink()) {
+        const target = await realpath(full)
+        if (
+          relative(root, target).startsWith('..') ||
+          isAbsolute(relative(root, target))
+        )
+          throw new Error('External package symlink')
+        files.push({
+          path: part.split(sep).join('/'),
+          link: await readlink(full)
+        })
+      } else {
         const file = await open(full, constants.O_RDONLY | constants.O_NOFOLLOW)
         try {
           if (!(await file.stat()).isFile())
@@ -45,18 +55,7 @@ export async function inventory(directory) {
         } finally {
           await file.close()
         }
-      } else if (info.isSymbolicLink()) {
-        const target = await realpath(full)
-        if (
-          relative(root, target).startsWith('..') ||
-          isAbsolute(relative(root, target))
-        )
-          throw new Error('External package symlink')
-        files.push({
-          path: part.split(sep).join('/'),
-          link: await readlink(full)
-        })
-      } else throw new Error('Unsupported package entry')
+      }
     }
   }
   await walk()
@@ -104,6 +103,7 @@ export async function stage(config) {
     'apps/desktop/proof',
     'apps/desktop/local-schema',
     'apps/desktop/platform/macos',
+    'apps/platform-lab/contracts',
     'packages/workspace-onboarding',
     'LICENSE',
     'THIRD_PARTY_NOTICES.md'
@@ -140,6 +140,7 @@ export async function stage(config) {
         .slice(1)
         .map((line) => line.trim().split(' (')[0])
         .filter(Boolean)
+      let relocated = false
       for (const library of libraries) {
         if (library.startsWith(config.postgres + '/lib/')) {
           const replacement = relative(
@@ -156,6 +157,7 @@ export async function stage(config) {
             `@loader_path/${replacement}`,
             file
           ])
+          relocated = true
         } else if (
           !library.startsWith('/usr/lib/') &&
           !library.startsWith('/System/Library/') &&
@@ -163,6 +165,17 @@ export async function stage(config) {
         ) {
           throw new Error('Undeclared external Mach-O dependency')
         }
+      }
+      if (relocated) {
+        if (file.endsWith('.dylib'))
+          execFileSync('/usr/bin/install_name_tool', [
+            '-id',
+            `@rpath/${part.path.split('/').at(-1)}`,
+            file
+          ])
+        // A local ad-hoc loader seal preserves arm64 Mach-O integrity after
+        // relocation. It creates no signing identity or trusted release signature.
+        execFileSync('/usr/bin/codesign', ['--force', '--sign', '-', file])
       }
     }
   }

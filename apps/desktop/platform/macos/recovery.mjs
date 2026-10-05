@@ -43,6 +43,7 @@ export async function qualifyRecovery({ services, postgres, state }) {
       '-d',
       'postgres',
       '--format=custom',
+      '--compress=none',
       '--no-owner',
       '--file',
       backup

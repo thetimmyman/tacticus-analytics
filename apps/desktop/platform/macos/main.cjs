@@ -92,22 +92,21 @@ app
                 })
                 if (selected.canceled || !selected.filePath) return
                 try {
-                  const response = await fetch(
-                    `${origin}/api/desktop/personal`,
-                    {
-                      headers: { 'x-desktop-transport': config.transportKey },
-                      redirect: 'error'
-                    }
-                  )
-                  if (!response.ok) throw new Error('Personal data unavailable')
-                  const view = await response.json()
+                  const { privateState } = await import('./state.mjs')
+                  const { personal } = privateState(
+                    join(config.state, 'personal.json')
+                  ).read()
+                  if (!personal) throw new Error('Personal data unavailable')
                   writeFileSync(
                     selected.filePath,
                     JSON.stringify(
                       {
                         schemaVersion: 'macos-personal-export/v1',
-                        personal: view.personal,
-                        freshness: view.freshness
+                        personal,
+                        freshness: {
+                          syncedAt: personal.upstreamUpdatedAt,
+                          offlineReadable: true
+                        }
                       },
                       null,
                       2
