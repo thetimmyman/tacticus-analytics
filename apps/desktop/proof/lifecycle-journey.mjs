@@ -81,7 +81,10 @@ try {
   const started = performance.now()
   await services.stop()
   const stopMs = performance.now() - started
-  assert.ok(stopMs < 4000, 'Shutdown must not hit the forced-kill timeout')
+  assert.ok(
+    services.children.every((child) => child.signalCode !== 'SIGKILL'),
+    'Shutdown must not forcibly kill a managed service'
+  )
   assert.equal(postgres.exitCode, 0)
   assert.equal(postgres.signalCode, null)
   assert.equal(await sleeping, true)
