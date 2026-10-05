@@ -13,6 +13,30 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 const menuFactory = createRequire(import.meta.url)('../launcher/game-menu.cjs')
 const roots = []
+test('native menus refuse foreign, credentialed or non-setup coordinator destinations', async () => {
+  for (const url of [
+    'https://127.0.0.1:54321/desktop/setup',
+    'http://foreign.invalid:54321/desktop/setup',
+    'http://127.0.0.1/desktop/setup',
+    'http://synthetic-user@127.0.0.1:54321/desktop/setup',
+    'http://127.0.0.1:54321/desktop/setup?destination=foreign.invalid',
+    'http://127.0.0.1:54321/desktop/setup#changed',
+    'http://127.0.0.1:54321/other'
+  ])
+    await assert.rejects(
+      menuFactory(
+        {},
+        { url },
+        {
+          electron: {},
+          nativeSecretPrompt: () => {
+            throw new Error('Unexpected prompt')
+          }
+        }
+      ),
+      /Invalid local desktop destination/
+    )
+})
 after(async () => {
   for (const path of roots) await rm(path, { recursive: true, force: true })
 })

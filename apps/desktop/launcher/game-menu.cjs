@@ -12,7 +12,22 @@ module.exports = async function gameMenu(window, config, dependencies = {}) {
   const { loadGameConnection, saveGameConnection, forgetGameConnection } =
     await import('./saved-game-connection.mjs')
   const { parseRaidFile } = await import('./raid-file-validation.mjs')
-  const origin = new URL(config.url).origin
+  const endpoint = new URL(config.url)
+  const port = Number(endpoint.port)
+  if (
+    endpoint.protocol !== 'http:' ||
+    endpoint.hostname !== '127.0.0.1' ||
+    endpoint.username ||
+    endpoint.password ||
+    endpoint.pathname !== '/desktop/setup' ||
+    endpoint.search ||
+    endpoint.hash ||
+    !Number.isInteger(port) ||
+    port < 1 ||
+    port > 65535
+  )
+    throw new Error('Invalid local desktop destination')
+  const origin = `http://127.0.0.1:${port}`
   let grant = null,
     pending,
     controller,
