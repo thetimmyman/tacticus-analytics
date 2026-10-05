@@ -1,4 +1,5 @@
 import Foundation
+import CoreFoundation
 
 protocol OfficialSource {
     func read(_ scope: OfficialScope, credential: String) async throws -> Data
@@ -67,14 +68,21 @@ final class DeviceOfficialSource: OfficialSource {
         var updated: [CapabilityState] = []
         var projectedPlayer: PlayerSnapshot?
         var guild: String?
+        var keyExpired = false
         func read(_ scope: OfficialScope) async throws -> [String: Any] {
+            guard !keyExpired else { throw WorkspaceError.scope }
             let data = try await vault.withOfficialRead(reference) { secret in
                 let raw = try await self.source.read(scope, credential: secret)
                 guard let value = try JSONSerialization.jsonObject(with: raw) as? [String: Any] else { throw WorkspaceError.scope }
-                guard let metadata = value["metaData"] as? [String: Any],
-                      (metadata["scopes"] as? [String])?.contains(scope.rawValue) == true,
-                      let expiry = metadata["apiKeyExpiresOn"] as? NSNumber,
-                      expiry.doubleValue.isFinite, expiry.doubleValue > Date().timeIntervalSince1970 else { throw WorkspaceError.scope }
+                if let metadata = value["metaData"] as? [String: Any] {
+                    if let scopes = metadata["scopes"] {
+                        guard (scopes as? [String])?.contains(scope.rawValue) == true else { throw WorkspaceError.scope }
+                    } else if scope == .player { throw WorkspaceError.scope }
+                    if let expiryValue = metadata["apiKeyExpiresOn"] {
+                        guard let expiry = expiryValue as? NSNumber, CFGetTypeID(expiry) != CFBooleanGetTypeID(), expiry.doubleValue.isFinite else { throw WorkspaceError.scope }
+                        if expiry.doubleValue <= Date().timeIntervalSince1970 { keyExpired = true; throw WorkspaceError.scope }
+                    } else if scope == .player { throw WorkspaceError.scope }
+                } else if scope == .player || value["metaData"] != nil { throw WorkspaceError.scope }
                 let projection: [String: Any]
                 if scope == .player { projection = try Self.projectPlayer(value) }
                 else if scope == .guild { projection = ["guildId": (value["guild"] as? [String: Any])?["guildId"] ?? NSNull()] }
@@ -115,7 +123,9 @@ final class DeviceOfficialSource: OfficialSource {
             if let guild {
                 do {
                     let value = try await read(.raid)
-                    guard value["season"] is NSNumber else { throw WorkspaceError.scope }
+                    guard let season = value["season"] as? NSNumber, CFGetTypeID(season) != CFBooleanGetTypeID(),
+                          season.doubleValue >= 0, season.doubleValue.rounded() == season.doubleValue,
+                          let entries = value["entries"] as? [Any], entries.count <= 10_000 else { throw WorkspaceError.scope }
                     updated.append(CapabilityState(scope: .raid, reference: reference, status: "verified-scope", guild: guild))
                 } catch { updated.append(CapabilityState(scope: .raid, reference: nil, status: "unavailable", guild: nil)) }
             } else { updated.append(CapabilityState(scope: .raid, reference: nil, status: "guild-binding-unavailable", guild: nil)) }

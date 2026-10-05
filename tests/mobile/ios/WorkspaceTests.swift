@@ -22,7 +22,8 @@ private final class SyntheticOfficialSource: OfficialSource {
         let metadata: [String: Any] = ["scopes": ["Player", "Guild", "Guild Raid"], "lastUpdatedOn": Int64(Date().timeIntervalSince1970 - 60), "apiKeyExpiresOn": expiry]
         let player: [String: Any] = ["metaData": metadata, "player": ["details": ["name": name], "units": [["id": "synthetic-unit", "name": "Example Unit", "rank": 3, "xpLevel": 10]],
             "progress": ["guildRaid": ["tokens": ["current": 4, "max": 6, "nextTokenInSeconds": 120], "bombTokens": ["current": 2, "max": 3]]]]]
-        let responses: [OfficialScope: [String: Any]] = [.player: player, .guild: ["metaData": metadata, "guild": ["guildId": guild]], .raid: ["metaData": metadata, "season": 1, "entries": []]]
+        // Player metadata is not invented on Guild/Raid endpoints. Raid has no guild/event identity.
+        let responses: [OfficialScope: [String: Any]] = [.player: player, .guild: ["guild": ["guildId": guild]], .raid: ["season": 1, "seasonConfigId": "synthetic-season", "entries": []]]
         return try responses.mapValues { try JSONSerialization.data(withJSONObject: $0) }
     }
 }
