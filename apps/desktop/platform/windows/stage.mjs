@@ -94,7 +94,8 @@ export async function stage(config) {
     'setup.html',
     'windows-setup.js',
     'windows-style.css',
-    'main.cjs'
+    'main.cjs',
+    'recovery.mjs'
   ])
     await copy(
       join(source, 'apps/desktop/platform/windows', path),

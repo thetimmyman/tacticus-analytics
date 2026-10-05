@@ -21,10 +21,14 @@ for ($iteration = 0; $iteration -lt 2; $iteration++) {
   $journeys += @{ iteration = $iteration; elapsedMs = $runTimer.ElapsedMilliseconds; sandbox = $result.sandbox; nodeAccess = $result.observed.nodeAccess }
 }
 $manifest = Get-Content "$installed/bundle-manifest.json" | ConvertFrom-Json
+$recoveryPath = Join-Path $env:RUNNER_TEMP 'recovery-evidence.json'
+& "$installed/TacticusDesktop.exe" run-candidate $installed $workspace --recovery $recoveryPath
+if ($LASTEXITCODE -ne 0) { throw 'Installed database recovery qualification failed' }
+$recovery = Get-Content $recoveryPath | ConvertFrom-Json
 @{ schemaVersion = 1; sourceSha = $manifest.sourceSha; manifestSha256 = (Get-FileHash "$installed/bundle-manifest.json" -Algorithm SHA256).Hash.ToLowerInvariant();
    platform = 'win-x64'; artifactKind = 'installed-candidate'; candidateOnly = $true; standardConsumerUser = $false; nativeInstalledArtifact = $true;
    packageFiles = $manifest.files.Count; packageBytes = ($manifest.files | Measure-Object -Property size -Sum).Sum; elapsedMs = $timer.ElapsedMilliseconds;
-   journeys = $journeys; officialApiKeysUsed = $false; featureParityClaim = $false; syntheticDemo = $true;
+   journeys = $journeys; recovery = $recovery; officialApiKeysUsed = $false; featureParityClaim = $false; syntheticDemo = $true;
    remainingGates = @('owner-approved signing and release trust', 'standard-user consumer Windows install', 'full accepted feature inventory', 'official onboarding projection integration', 'rights and full notices review') } |
   ConvertTo-Json -Depth 8 | Set-Content -Encoding utf8 $Evidence
 Get-Content $Evidence

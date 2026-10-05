@@ -8,6 +8,7 @@ import { nativeServices } from './services.mjs'
 import { loopbackGateway } from '../../proof/loopback-gateway.mjs'
 import { windowsSetup } from './setup.mjs'
 import { strict as assert } from 'node:assert'
+import { recoveryJourney } from './recovery.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const root = resolve(here, '../../../..')
@@ -18,18 +19,28 @@ const stateArgument = option('--state')
 if (!stateArgument)
   throw new Error('Native workspace owner must supply its protected state path')
 const state = resolve(stateArgument)
-const services = await nativeServices({
+const serviceConfig = {
   state,
   schemaDirectory: join(root, 'apps/desktop/local-schema'),
   binaries: {
     initdb: join(root, 'postgres/bin/initdb.exe'),
     postgres: join(root, 'postgres/bin/postgres.exe'),
     psql: join(root, 'postgres/bin/psql.exe'),
+    pgctl: join(root, 'postgres/bin/pg_ctl.exe'),
     auth: join(root, 'auth/auth.exe'),
     authCwd: join(root, 'auth'),
     postgrest: join(root, 'postgrest/postgrest.exe')
   }
-})
+}
+const services = await nativeServices(serviceConfig)
+if (option('--recovery')) {
+  try {
+    await recoveryJourney(services, serviceConfig, option('--recovery'))
+  } finally {
+    await services.stop()
+  }
+  process.exit(0)
+}
 let gateway
 try {
   const transportKey = randomBytes(32).toString('hex')

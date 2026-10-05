@@ -71,10 +71,10 @@ internal static class Program
                 default: throw new InvalidOperationException("Unsupported native operation");
             }
         }
-        catch (Exception)
+        catch (Exception error)
         {
             // Failure text is deliberately bounded: upstream bodies, command lines and credentials are never logged.
-            Console.Error.WriteLine("Native operation failed. Check secure input/store availability, package integrity, workspace ownership and supported platform.");
+            Console.Error.WriteLine(error is InvalidOperationException ? error.Message : "Native operation failed. Check secure input/store availability, package integrity, workspace ownership and supported platform.");
             return 1;
         }
     }
@@ -107,6 +107,11 @@ internal static class NativeProof
             await RequireDead(record); assertions.Add("force-owner-death-kills-descendants");
             using (var state = new ProtectedState(Path.Combine(testRoot, "workspace ü")))
             {
+                var acl = System.IO.FileSystemAclExtensions.GetAccessControl(new DirectoryInfo(state.Root));
+                var sid = System.Security.Principal.WindowsIdentity.GetCurrent().User!;
+                if (!acl.AreAccessRulesProtected || acl.GetAccessRules(true, true, typeof(System.Security.Principal.SecurityIdentifier))
+                    .Cast<System.Security.AccessControl.FileSystemAccessRule>().Any(rule => rule.IdentityReference != sid && rule.IdentityReference.Value != "S-1-5-18"))
+                    throw new InvalidOperationException("Unexpected workspace ACL");
                 var rejected = false;
                 try { using var duplicate = new ProtectedState(state.Root); } catch (InvalidOperationException) { rejected = true; }
                 if (!rejected) throw new InvalidOperationException("Concurrent workspace accepted");
@@ -126,6 +131,11 @@ internal static class NativeProof
                     try { Vault.RejectEcho(echo, Encoding.UTF8.GetString(canary), canary); } catch (InvalidOperationException) { rejected = true; }
                     if (!rejected) throw new InvalidOperationException("Echo accepted");
                 }
+                var escaped = string.Concat(Encoding.UTF8.GetString(canary).Select(ch => "\\u" + ((int)ch).ToString("x4")));
+                using var jsonEcho = JsonDocument.Parse("{\"player\":{\"name\":\"" + escaped + "\"}}");
+                var escapedRejected = false;
+                try { Vault.RejectJsonEcho(jsonEcho.RootElement, Encoding.UTF8.GetString(canary), canary); } catch (InvalidOperationException) { escapedRejected = true; }
+                if (!escapedRejected) throw new InvalidOperationException("JSON escaped echo accepted");
             }
             finally { Vault.Remove(target); System.Security.Cryptography.CryptographicOperations.ZeroMemory(canary); }
             try { Vault.Read(target); throw new InvalidOperationException("Deleted entry readable"); }
@@ -138,6 +148,13 @@ internal static class NativeProof
                 if (!rejected) throw new InvalidOperationException("Unsafe path accepted");
             }
             assertions.Add("windows-traversal-device-name-and-stream-rejection");
+            foreach (var value in new[] { "{\"personal\":{\"api_key\":\"synthetic\"}}", "{\"vaultReferences\":{}}", "{\"unexpected\":true}" })
+            {
+                var rejected = false;
+                try { using var parsed = LocalFiles.Validate(value); } catch (InvalidOperationException) { rejected = true; }
+                if (!rejected) throw new InvalidOperationException("Unsafe projection accepted");
+            }
+            assertions.Add("credential-fields-and-unknown-projection-fields-rejected");
             var candidate = Path.Combine(testRoot, "source"); Directory.CreateDirectory(candidate);
             File.WriteAllText(Path.Combine(candidate, "item.txt"), "synthetic retained content");
             var digest = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Path.Combine(candidate, "item.txt")))).ToLowerInvariant();

@@ -82,6 +82,8 @@ export async function nativeServices({
   let stopping = false
   let stopPromise
   let fault
+  let pgProcess
+  const pgData = join(state, 'pgdata')
   const stop = () => {
     if (stopPromise) return stopPromise
     stopping = true
@@ -91,6 +93,16 @@ export async function nativeServices({
       for (const child of [...children].reverse()) {
         if (child.exitCode !== null || child.signalCode !== null) continue
         const exited = new Promise((accept) => child.once('exit', accept))
+        if (child === pgProcess && binaries.pgctl) {
+          try {
+            await run(
+              binaries.pgctl,
+              ['stop', '-D', pgData, '-m', 'fast', '-w', '-t', '5'],
+              { env: process.env }
+            )
+          } catch {}
+          if (child.exitCode !== null || child.signalCode !== null) continue
+        }
         child.kill('SIGTERM')
         await Promise.race([exited, delay(5000, undefined, { ref: false })])
         if (child.exitCode === null && child.signalCode === null) {
@@ -170,7 +182,6 @@ export async function nativeServices({
       })
       return child
     }
-    const pgData = join(state, 'pgdata')
     let fresh = false
     try {
       await stat(join(pgData, 'PG_VERSION'))
@@ -202,6 +213,7 @@ export async function nativeServices({
       ['-D', pgData, '-h', '127.0.0.1', '-p', String(ports.db), '-k', ''],
       pgEnv
     )
+    pgProcess = pg
     const ready = async (probe, child, label) => {
       for (let i = 0; i < 100; i++) {
         if (child.exitCode !== null || child.signalCode !== null)

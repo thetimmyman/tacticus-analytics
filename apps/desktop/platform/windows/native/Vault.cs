@@ -105,10 +105,11 @@ internal static class Vault
     internal static void RejectEcho(string body, string secret, byte[] bytes)
     {
         foreach (var value in new[] { secret, Convert.ToBase64String(bytes), Convert.ToHexString(bytes),
-                     Convert.ToHexString(bytes).ToLowerInvariant(), Uri.EscapeDataString(secret) })
+                     Convert.ToHexString(bytes).ToLowerInvariant(), Uri.EscapeDataString(secret),
+                     Convert.ToBase64String(bytes).TrimEnd('=').Replace('+', '-').Replace('/', '_') })
             if (body.Contains(value, StringComparison.Ordinal)) throw new InvalidOperationException("Unsafe official response");
     }
-    private static void RejectJsonEcho(JsonElement element, string secret, byte[] bytes)
+    internal static void RejectJsonEcho(JsonElement element, string secret, byte[] bytes)
     {
         switch (element.ValueKind)
         {
