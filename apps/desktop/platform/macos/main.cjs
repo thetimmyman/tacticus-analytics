@@ -2,7 +2,11 @@ const { app, BrowserWindow, session, Menu, dialog } = require('electron')
 const { readFileSync, writeFileSync } = require('node:fs')
 const { join } = require('node:path')
 const { randomBytes } = require('node:crypto')
-const { requestLabel, sanitizeFailure } = require('./request-diagnostics.cjs')
+const {
+  requestLabel,
+  sanitizeFailure,
+  rendererReceipt
+} = require('./request-diagnostics.cjs')
 const {
   createNativeActions,
   exportCachedPersonal
@@ -359,9 +363,12 @@ app
         `({text:document.body.innerText,nodeAccess:typeof require!=='undefined'||typeof process!=='undefined'})`
       )
       const evidence = {
-        observed,
-        failures,
-        blocked,
+        ...rendererReceipt({
+          observed,
+          pending: [...activeRequests.values()],
+          failed: failures,
+          blocked: blocked.length
+        }),
         sandbox: true,
         contextIsolation: true,
         nodeIntegration: false,

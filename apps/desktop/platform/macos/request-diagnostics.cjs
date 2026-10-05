@@ -90,4 +90,24 @@ function sanitizeFailure(input) {
   return value
 }
 
-module.exports = { requestLabel, sanitizeFailure }
+function rendererReceipt({ observed, pending, failed, blocked }) {
+  return {
+    observed: {
+      nodeAccess: observed?.nodeAccess !== false,
+      positiveScore:
+        typeof observed?.text === 'string' && observed.text.includes('+58%'),
+      negativeScore:
+        typeof observed?.text === 'string' && observed.text.includes('-50%'),
+      serviceDisruption:
+        typeof observed?.text !== 'string' ||
+        observed.text.includes('Service Disruption')
+    },
+    network: sanitizeFailure({
+      stage: 'renderer-network',
+      cause: 'request-failed',
+      network: { pending, failed, blocked }
+    }).network
+  }
+}
+
+module.exports = { requestLabel, sanitizeFailure, rendererReceipt }

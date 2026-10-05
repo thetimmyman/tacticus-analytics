@@ -73,3 +73,24 @@ test('untrusted diagnostic frames cannot copy paths, messages, cookies or arbitr
     false
   )
 })
+
+test('renderer attachment projects calculation flags without document text or request paths', () => {
+  const canary = 'SYNTHETIC-SECRET-CANARY'
+  const value = diagnostics.rendererReceipt({
+    observed: { text: '+58% -50% ' + canary, nodeAccess: false },
+    failed: [{ path: '/private/' + canary, status: 500 }],
+    blocked: 1
+  })
+  assert.equal(JSON.stringify(value).includes(canary), false)
+  assert.deepEqual(value.observed, {
+    nodeAccess: false,
+    positiveScore: true,
+    negativeScore: true,
+    serviceDisruption: false
+  })
+  assert.deepEqual(value.network.failed, [
+    { endpoint: 'other-local', resource: 'other', status: 500 }
+  ])
+  assert.equal(diagnostics.rendererReceipt({}).observed.nodeAccess, true)
+  assert.equal(diagnostics.rendererReceipt({}).observed.serviceDisruption, true)
+})

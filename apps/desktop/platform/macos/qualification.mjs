@@ -218,7 +218,6 @@ try {
   for (const name of [
     'device-session.json',
     'renderer.json',
-    'renderer.png',
     'renderer.json.failure.json',
     'renderer.json.native.json',
     'storage-first.json',
@@ -295,6 +294,9 @@ try {
             renderer.signedOutRecovery !== true ||
             renderer.rendererBootstrapRefused !== true ||
             renderer.observed?.nodeAccess !== false ||
+            renderer.observed?.positiveScore !== true ||
+            renderer.observed?.negativeScore !== true ||
+            renderer.observed?.serviceDisruption !== false ||
             device.sourceCommit !== process.env.MAC_SOURCE_SHA ||
             device.artifactSha256 !== digest ||
             device.localDataPreserved !== true ||
