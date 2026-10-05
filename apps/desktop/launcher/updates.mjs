@@ -14,6 +14,8 @@ export function nativeUpdateRequest(address, options) {
     const url = new URL(address)
     if (!['https:', 'http:'].includes(url.protocol)) return reject(invalid())
     const request = (url.protocol === 'https:' ? httpsRequest : httpRequest)(
+      // The inventoried package feed or signature-verified update URL is intentional configuration, not uploaded file contents.
+      // codeql[js/file-access-to-http]
       url,
       {
         method: 'GET',

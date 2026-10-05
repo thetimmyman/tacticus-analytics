@@ -44,6 +44,8 @@ module.exports = async function onboardingMenu(
       throw new Error('Unsupported local operation')
     const response = await request(origin + path, {
       method: 'POST',
+      // Per-launch capabilities authorize only the validated local coordinator and three fixed operations.
+      // codeql[js/file-access-to-http]
       headers: {
         'content-type': 'application/json',
         'x-desktop-transport': config.transportKey,
