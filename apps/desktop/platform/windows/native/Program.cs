@@ -110,7 +110,7 @@ internal static class NativeProof
                 var acl = System.IO.FileSystemAclExtensions.GetAccessControl(new DirectoryInfo(state.Root));
                 var sid = System.Security.Principal.WindowsIdentity.GetCurrent().User!;
                 if (!acl.AreAccessRulesProtected || acl.GetAccessRules(true, true, typeof(System.Security.Principal.SecurityIdentifier))
-                    .Cast<System.Security.AccessControl.FileSystemAccessRule>().Any(rule => rule.IdentityReference != sid && rule.IdentityReference.Value != "S-1-5-18"))
+                    .Cast<System.Security.AccessControl.FileSystemAccessRule>().Any(rule => rule.IdentityReference.Value != sid.Value && rule.IdentityReference.Value != "S-1-5-18"))
                     throw new InvalidOperationException("Unexpected workspace ACL");
                 var rejected = false;
                 try { using var duplicate = new ProtectedState(state.Root); } catch (InvalidOperationException) { rejected = true; }

@@ -26,9 +26,12 @@ New-Item -ItemType Directory -Path $auth | Out-Null
 Push-Location $authSource
 try {
   # The reviewed Windows-only source adaptation requests exclusive binding, never Windows SO_REUSEADDR.
-  git apply --check (Join-Path $PSScriptRoot 'auth-windows.patch')
+  # Checkout may use CRLF while the verified upstream archive uses LF.
+  $patch = Join-Path $work 'auth-windows.patch'
+  [System.IO.File]::WriteAllText($patch, [System.IO.File]::ReadAllText((Join-Path $PSScriptRoot 'auth-windows.patch')).Replace("`r`n", "`n"), [System.Text.UTF8Encoding]::new($false))
+  git apply --check $patch
   if ($LASTEXITCODE -ne 0) { throw 'Pinned Auth socket adaptation no longer applies' }
-  git apply (Join-Path $PSScriptRoot 'auth-windows.patch')
+  git apply $patch
   if ($LASTEXITCODE -ne 0) { throw 'Auth socket adaptation failed' }
   $env:CGO_ENABLED = '0'; $env:GOOS = 'windows'; $env:GOARCH = 'amd64'
   go mod download
