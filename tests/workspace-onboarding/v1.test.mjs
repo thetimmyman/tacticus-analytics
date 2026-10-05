@@ -2,6 +2,33 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { WorkspaceOnboardingV1 } from '../../packages/workspace-onboarding/v1.mjs'
 
+function syntheticPlayer(units = []) {
+  return {
+    details: { name: 'Synthetic Player', powerLevel: 10 },
+    units,
+    inventory: {
+      items: [],
+      upgrades: [],
+      shards: [],
+      mythicShards: [],
+      xpBooks: [],
+      abilityBadges: {},
+      components: [],
+      forgeBadges: [],
+      orbs: {},
+      resetStones: 1
+    },
+    progress: {
+      campaigns: [],
+      legendaryEvents: [],
+      guildRaid: {
+        tokens: { current: 2, max: 3, regenDelayInSeconds: 0 },
+        bombTokens: { current: 1, max: 2, regenDelayInSeconds: 0 }
+      }
+    }
+  }
+}
+
 function fixture(scopes = ['Player']) {
   let stored = {},
     prompts = 0,
@@ -28,16 +55,27 @@ function fixture(scopes = ['Player']) {
         throw new Error('synthetic unavailable')
       if (scope === 'Player')
         return {
-          player: {
-            details: { name: 'Synthetic Player', powerLevel: 10 },
-            units: [{ id: 'SyntheticUnit', rank: 1, apiKey: canary }],
-            progress: {
-              guildRaid: {
-                tokens: { current: 2, max: 3 },
-                bombTokens: { current: 1, max: 2 }
-              }
-            }
-          },
+          player:
+            mode === 'missing-inventory'
+              ? {
+                  details: { name: 'Synthetic Player', powerLevel: 10 },
+                  units: []
+                }
+              : syntheticPlayer([
+                  {
+                    id: 'SyntheticUnit',
+                    rank: 1,
+                    xp: 0,
+                    xpLevel: 1,
+                    progressionIndex: 0,
+                    abilities: [],
+                    items: [],
+                    upgrades: [],
+                    shards: 0,
+                    mythicShards: 0,
+                    apiKey: canary
+                  }
+                ]),
           metaData: {
             scopes,
             lastUpdatedOn: 1767225600,
@@ -53,7 +91,9 @@ function fixture(scopes = ['Player']) {
                 : 'synthetic-guild'
           }
         }
-      return { season: 1, entries: [] }
+      return mode === 'malformed-raid'
+        ? { season: 1 }
+        : { season: 1, seasonConfigId: 'SyntheticSeason', entries: [] }
     }
   }
   const service = new WorkspaceOnboardingV1({
@@ -79,6 +119,31 @@ function fixture(scopes = ['Player']) {
   }
 }
 const confirmPlayer = async () => true
+
+test('complete allowed Player inventory/progress is projected while unknown credential fields are excluded', async () => {
+  const f = fixture()
+  const view = await f.service.connect({ requested: ['Player'], confirmPlayer })
+  assert.equal(view.personal.apiData.inventory.resetStones, 1)
+  assert.equal(view.personal.apiData.units[0].xp, 0)
+  assert.equal(view.personal.apiData.units[0].apiKey, undefined)
+  assert.equal(JSON.stringify(view).includes(f.canary), false)
+  const invalid = fixture()
+  invalid.mode('missing-inventory')
+  assert.equal(
+    (await invalid.service.connect({ requested: ['Player'], confirmPlayer }))
+      .status,
+    'player-required'
+  )
+})
+
+test('a successful malformed Raid payload cannot claim a verified scope', async () => {
+  const f = fixture(['Player', 'Guild', 'Guild Raid'])
+  f.mode('malformed-raid')
+  const view = await f.service.connect({ requested: ['Player'], confirmPlayer })
+  assert.equal(view.capabilities.Guild, 'verified-scope')
+  assert.equal(view.capabilities['Guild Raid'], 'unavailable')
+  assert.equal(f.stored().raid, undefined)
+})
 
 test('Player-only setup activates approved roster/resources and optional skip; no key in state/view', async () => {
   const f = fixture(),
@@ -216,14 +281,14 @@ function replacementFixture() {
         const combined = key === 'SyntheticSecret-combined'
         if (scope === 'Player')
           return {
-            player: { details: { name: 'Synthetic Replacement' }, units: [] },
+            player: syntheticPlayer(),
             metaData: {
               scopes: combined ? ['Player', 'Guild', 'Guild Raid'] : ['Player'],
               lastUpdatedOn: 1767225600
             }
           }
         if (scope === 'Guild') return { guild: { guildId } }
-        return { season: 1, entries: [] }
+        return { season: 1, seasonConfigId: 'SyntheticSeason', entries: [] }
       }
     }
   })

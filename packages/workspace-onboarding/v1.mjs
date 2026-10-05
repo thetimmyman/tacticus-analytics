@@ -1,3 +1,5 @@
+import playerSchema from './player-schema.json' with { type: 'json' }
+
 export const ONBOARDING_VERSION = 1
 export const REQUESTED_CAPABILITIES = Object.freeze([
   'Player',
@@ -22,6 +24,7 @@ function projectPlayer(response) {
     !Number.isSafeInteger(metadata.lastUpdatedOn)
   )
     throw new Error('Player response unavailable')
+  const apiData = projectAPI(player, playerSchema.definitions.Player)
   const token = (input) =>
     input &&
     ['current', 'max', 'nextTokenInSeconds', 'regenDelayInSeconds'].every(
@@ -47,8 +50,102 @@ function projectPlayer(response) {
       guildRaidTokens: token(player.progress?.guildRaid?.tokens),
       bombTokens: token(player.progress?.guildRaid?.bombTokens)
     },
-    upstreamUpdatedAt: metadata.lastUpdatedOn * 1000
+    upstreamUpdatedAt: metadata.lastUpdatedOn * 1000,
+    apiData
   }
+}
+
+function projectAPI(value, schema, depth = 0) {
+  if (depth > 16) throw new Error('Player response depth limit')
+  if (schema.$ref)
+    return projectAPI(value, playerSchema.definitions[schema.$ref], depth + 1)
+  if (schema.type === 'array') {
+    if (!Array.isArray(value) || value.length > 10000)
+      throw new Error('Player array unavailable')
+    return value.map((entry) => projectAPI(entry, schema.items, depth + 1))
+  }
+  if (schema.type === 'object') {
+    if (
+      !value ||
+      typeof value !== 'object' ||
+      Array.isArray(value) ||
+      (schema.required ?? []).some((key) => !Object.hasOwn(value, key))
+    )
+      throw new Error('Player object unavailable')
+    const entries = []
+    for (const [key, entry] of Object.entries(value)) {
+      if (
+        /^(?:__proto__|constructor|prototype|apiKey|api_key|credential|secret|authorization|headers|cookie|sessionToken)$/i.test(
+          key
+        )
+      )
+        continue
+      const rule = schema.properties?.[key] ?? schema.additionalProperties
+      if (!rule) continue
+      if (key.length > 100) throw new Error('Player field limit')
+      entries.push([key, projectAPI(entry, rule, depth + 1)])
+    }
+    return Object.fromEntries(entries)
+  }
+  if (schema.type === 'string') {
+    if (
+      typeof value !== 'string' ||
+      value.length > 1000 ||
+      /[\u0000-\u001f\u007f]/.test(value) ||
+      (schema.enum && !schema.enum.includes(value))
+    )
+      throw new Error('Player string unavailable')
+    return value
+  }
+  if (schema.type === 'integer' || schema.type === 'number') {
+    if (
+      typeof value !== 'number' ||
+      !Number.isFinite(value) ||
+      (schema.type === 'integer' && !Number.isSafeInteger(value)) ||
+      (schema.minimum !== undefined && value < schema.minimum) ||
+      (schema.maximum !== undefined && value > schema.maximum)
+    )
+      throw new Error('Player number unavailable')
+    return value
+  }
+  if (schema.type === 'boolean' && typeof value === 'boolean') return value
+  throw new Error('Unsupported Player projection')
+}
+
+function validateScope(response, scope, now) {
+  if (!response || typeof response !== 'object' || Array.isArray(response))
+    throw new Error('Official response unavailable')
+  const metadata = response.metaData
+  if (scope === 'Player' && !metadata)
+    throw new Error('Player metadata unavailable')
+  if (metadata) {
+    if (!Array.isArray(metadata.scopes) || !metadata.scopes.includes(scope))
+      throw new Error('Official scope unavailable')
+    if (
+      metadata.apiKeyExpiresOn !== undefined &&
+      (!Number.isSafeInteger(metadata.apiKeyExpiresOn) ||
+        metadata.apiKeyExpiresOn * 1000 <= now)
+    )
+      throw Object.assign(new Error('Official access expired'), {
+        code: 'EEXPIRED'
+      })
+  }
+  if (
+    scope === 'Guild' &&
+    (typeof response.guild?.guildId !== 'string' ||
+      !response.guild.guildId.length ||
+      response.guild.guildId.length > 128)
+  )
+    throw new Error('Guild identity unavailable')
+  if (
+    scope === 'Guild Raid' &&
+    (!Number.isSafeInteger(response.season) ||
+      typeof response.seasonConfigId !== 'string' ||
+      !response.seasonConfigId.length ||
+      response.seasonConfigId.length > 128 ||
+      !Array.isArray(response.entries))
+  )
+    throw new Error('Raid response unavailable')
 }
 
 function rejectHistoricalCredentials(value) {
@@ -87,7 +184,7 @@ export class WorkspaceOnboardingV1 {
       cloudContribution: 'separate-consent-required',
       playerIdentity: 'display-name-only',
       limitation:
-        'Personal inventory beyond roster and raid resources requires a reviewed projection adapter.'
+        'The official Player snapshot is available for native inspection; application routes still need qualified personal-data adapters.'
     }
   }
   async connect({
@@ -120,6 +217,7 @@ export class WorkspaceOnboardingV1 {
             handle,
             async (credential) => {
               const response = await this.upstream.get(scope, credential)
+              validateScope(response, scope, this.now())
               const projected =
                 scope === 'Player'
                   ? projectPlayer(response)
@@ -140,8 +238,13 @@ export class WorkspaceOnboardingV1 {
           )
           statuses[scope] = 'verified-scope'
           return value
-        } catch {
-          statuses[scope] = 'unavailable'
+        } catch (error) {
+          statuses[scope] =
+            error.code === 'EEXPIRED'
+              ? 'expired-offline-readable'
+              : error.code === 'EVAULTLOCKED'
+                ? 'vault-locked-offline-readable'
+                : 'unavailable'
           return null
         }
       }
