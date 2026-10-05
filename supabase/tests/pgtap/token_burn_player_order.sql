@@ -2,7 +2,7 @@ BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 
-SELECT plan(6);
+SELECT plan(9);
 
 SELECT ok(
   to_regprocedure('public.queue_token_burn_notifications(text,text,timestamp with time zone)') IS NOT NULL,
@@ -62,6 +62,26 @@ SELECT is(
   ),
   'TABLE(guild_code text, season text, queued_discord integer, queued_in_app integer, queued_total integer)',
   'the function return contract is unchanged'
+);
+
+SELECT is(
+  (SELECT p.procost::numeric FROM pg_proc AS p
+   WHERE p.oid = 'public.queue_token_burn_notifications(text,text,timestamp with time zone)'::regprocedure),
+  100::numeric,
+  'the function keeps its expected planner cost'
+);
+
+SELECT is(
+  (SELECT p.prorows::numeric FROM pg_proc AS p
+   WHERE p.oid = 'public.queue_token_burn_notifications(text,text,timestamp with time zone)'::regprocedure),
+  1000::numeric,
+  'the function keeps its expected planner row estimate'
+);
+
+SELECT ok(
+  (SELECT p.prosupport = 0 FROM pg_proc AS p
+   WHERE p.oid = 'public.queue_token_burn_notifications(text,text,timestamp with time zone)'::regprocedure),
+  'the function has no planner support function'
 );
 
 SELECT * FROM finish();

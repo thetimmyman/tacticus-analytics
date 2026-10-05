@@ -60,6 +60,7 @@ BEGIN
        WHERE p.oid = v_function_oid AND l.lanname = 'plpgsql'
          AND p.provolatile = 'v' AND p.proparallel = 'u'
          AND NOT p.proisstrict AND NOT p.proleakproof
+         AND p.procost = 100 AND p.prorows = 1000 AND p.prosupport = 0
          AND pg_get_function_arguments(p.oid) =
            'p_guild_code text DEFAULT NULL::text, p_season text DEFAULT NULL::text, p_now timestamp with time zone DEFAULT now()'
      )
@@ -149,6 +150,7 @@ BEGIN
       AND p.proacl IS NOT DISTINCT FROM v_acl
       AND obj_description(p.oid, 'pg_proc') IS NOT DISTINCT FROM v_comment
       AND pg_get_function_result(p.oid) IS NOT DISTINCT FROM v_result
+      AND p.procost = 100 AND p.prorows = 1000 AND p.prosupport = 0
       AND (
         (v_source_sha256 = '0d49cffafd7dcdcda8482f20cdf0908ba6c56743d46d6e20d1c34ba78bd01336'
           AND encode(extensions.digest(convert_to(p.prosrc, 'UTF8'), 'sha256'), 'hex')
