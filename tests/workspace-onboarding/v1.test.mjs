@@ -1,6 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { WorkspaceOnboardingV1 } from '../../packages/workspace-onboarding/v1.mjs'
+import {
+  WorkspaceOnboardingV1,
+  projectCachedPlayer
+} from '../../packages/workspace-onboarding/v1.mjs'
 
 function syntheticPlayer(units = []) {
   return {
@@ -119,6 +122,28 @@ function fixture(scopes = ['Player']) {
   }
 }
 const confirmPlayer = async () => true
+
+test('offline projection validates the entire cached schema without granting capabilities', () => {
+  const personal = projectCachedPlayer({
+    player: syntheticPlayer(),
+    updatedOn: 1767225600
+  })
+  assert.equal(personal.apiData.inventory.resetStones, 1)
+  assert.equal(personal.capabilities, undefined)
+  assert.equal(personal.upstreamUpdatedAt, 1767225600000)
+  assert.throws(() =>
+    projectCachedPlayer({
+      player: { details: { name: 'Synthetic Player' }, units: [] },
+      updatedOn: 1767225600
+    })
+  )
+  assert.throws(() =>
+    projectCachedPlayer({
+      player: syntheticPlayer(),
+      updatedOn: Number.MAX_SAFE_INTEGER
+    })
+  )
+})
 
 test('native setup errors retain only an allowlisted category and never native error text', async () => {
   const service = new WorkspaceOnboardingV1({

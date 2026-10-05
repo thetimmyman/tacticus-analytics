@@ -70,3 +70,15 @@ Release requires protected service custody/enrollment review, publisher terms,
 live authorized protocol evidence, authenticated transport, native adapters,
 packaged offline/restart/recovery and egress tests. No production key collection
 or deployment is enabled by this candidate.
+
+The separate workspace onboarding library requires a confirmed Player response
+before new personal content activates. Its bounded field-only schema projects
+roster, inventory, equipment, resources and progress, excluding unknown credential
+fields. Replacing Player access invalidates prior optional live bindings; Guild
+changes invalidate Raid access while retaining labeled historical data. Native
+adapters supply owner-session authorization and OS vault protection. Redacted
+error categories distinguish expired access, locked vaults and workspace unlock.
+`projectCachedPlayer` supplies the same pure projection for an offline import; it
+does not grant verified capabilities or establish account ownership. Installed
+native integration and the complete application-route adapters remain release
+gates.
