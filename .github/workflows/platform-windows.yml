@@ -23,6 +23,10 @@ jobs:
       - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
         with:
           dotnet-version: 10.0.401
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22.23.2
+          package-manager-cache: false
       - name: Build self contained host and exercise native ownership, vault and activation
         shell: pwsh
         run: |
@@ -33,10 +37,14 @@ jobs:
           & "$out/TacticusDesktop.exe" native-proof "$env:RUNNER_TEMP/native-evidence.json"
           if ($LASTEXITCODE -ne 0) { throw 'Native Windows adversarial proof failed' }
           Get-Content "$env:RUNNER_TEMP/native-evidence.json"
+          & "$out/TacticusDesktop.exe" probe-node-helpers (Get-Command node).Source "$env:GITHUB_WORKSPACE/tests/desktop/windows/native-helper-probe.mjs" "$env:RUNNER_TEMP/helper-evidence.json"
+          if ($LASTEXITCODE -ne 0) { throw 'Supplementary native helper diagnostic failed' }
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: windows-native-evidence
-          path: ${{ runner.temp }}/native-evidence.json
+          path: |
+            ${{ runner.temp }}/native-evidence.json
+            ${{ runner.temp }}/helper-evidence.json
           if-no-files-found: error
           retention-days: 7
   application:

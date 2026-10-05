@@ -67,6 +67,8 @@ internal static class Program
                 case "read-import" when args.Length == 3 && long.TryParse(args[2], out var importExpiry):
                     Console.WriteLine(LocalFiles.Import(args[1], importExpiry)); return 0;
                 case "native-proof" when args.Length == 2: await NativeProof.Run(args[1]); return 0;
+                case "probe-node-helpers" when args.Length == 4:
+                    NodeHelperProof.Run(args[1], args[2], args[3]); Console.WriteLine(File.ReadAllText(args[3])); return 0;
                 case "proof-service-material" when args.Length == 2:
                     Vault.ProofServiceMaterial(); File.WriteAllText(args[1], "true"); return 0;
                 case "proof-desktop" when args.Length == 2:
