@@ -10,6 +10,7 @@ on:
       - 'scripts/dev/pgtap-throwaway.sh'
       - 'scripts/dev/pgtap-negative-controls.sh'
       - 'scripts/dev/pgtap-controls/**'
+      - 'scripts/dev/catalog-owner-controls.sh'
       - '.github/workflows/pgtap-gate.yml'
   push:
     branches: [main]
@@ -18,6 +19,7 @@ on:
       - 'scripts/dev/pgtap-throwaway.sh'
       - 'scripts/dev/pgtap-negative-controls.sh'
       - 'scripts/dev/pgtap-controls/**'
+      - 'scripts/dev/catalog-owner-controls.sh'
       - '.github/workflows/pgtap-gate.yml'
   schedule:
     - cron: '41 6 * * *'
@@ -33,12 +35,8 @@ concurrency:
 jobs:
   pgtap-general:
     name: pgtap-general
-    # Fork PRs never run on the self-hosted fleet; `fork-pr-block` is the merge block.
-    if: >-
-      github.event_name != 'pull_request' ||
-      github.event.pull_request.head.repo.full_name == github.repository
-    # amd64 only: the arm64 pgTAP path is untested.
-    runs-on: ${{ (github.event_name == 'pull_request' && (!github.event.repository.private || github.event.pull_request.head.repo.full_name != github.repository)) && 'ubuntu-latest' || fromJSON('["self-hosted","amd64-builder"]') }}
+    # The pgTAP harness runs inside its own Docker throwaway database.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     # Per-run names: the harness `docker rm -f`s its container, so a fixed name races other jobs.
     env:
@@ -54,6 +52,8 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
+      - name: Prepare cached image for offline catalog owner controls
+        run: docker pull postgres:16-alpine
       # Reclaim pgtap-* orphans older than 2h (past the job timeout, so never a live run's).
       - name: Reclaim stale pgTAP containers from interrupted runs
         run: |
@@ -67,5 +67,7 @@ jobs:
           done
       - name: Negative controls (must fail before the roster is trusted)
         run: npm run test:pgtap:controls
+      - name: Catalog owner compatibility controls
+        run: npm run test:catalog-owner
       - name: Roster run
         run: npm run test:pgtap

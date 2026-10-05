@@ -26,6 +26,42 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 Never commit `.env.local`, service-role keys, client secrets, or user exports.
 
+### Run the web app with Docker Compose
+
+The optional local Compose file runs only the Next.js web app and Redis. It
+does not start Supabase or provide database credentials. Install Docker with
+the Compose plugin. If you use the repository's local Supabase CLI stack,
+install Node 22 and npm 10.9.7 on the host as well.
+
+Start or connect to a Supabase instance first, then copy the local environment
+template and replace both key placeholders with that instance's actual keys:
+
+```bash
+cp .env.compose.example .env.local
+# Edit .env.local; never commit it.
+```
+
+For the repository's local Supabase CLI instance, `npm run supabase:start` and
+`npm run supabase:status` run on the host. Use the reported anon and service
+role keys in `.env.local`. A remote development Supabase instance also works
+when its URL and keys are reachable from both the browser and Docker host.
+
+Launch and stop the web-plus-Redis services with:
+
+```bash
+docker compose -f docker-compose.local.yml up
+docker compose -f docker-compose.local.yml down
+```
+
+Compose installs from the lockfile into the named `node_modules` volume before
+starting Next.js, and retains Redis data in a separate named volume. Browser
+traffic uses `NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321`; server-side
+traffic uses `SUPABASE_URL=http://host.docker.internal:54321`, mapped to the
+host gateway for Linux Compose. Keep these URLs pointed at the same Supabase
+instance. Replace the template keys before using authentication or data routes;
+placeholder keys and an unreachable Supabase instance do not make the app
+functional. Open <http://localhost:3000> in the host browser.
+
 ## Common commands
 
 ```bash
