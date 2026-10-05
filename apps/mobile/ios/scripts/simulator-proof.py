@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 import platform
+import re
 import subprocess
 import time
 
@@ -62,11 +63,18 @@ try:
         print("Running native tests on " + family + " Simulator", flush=True)
         run(["xcodebuild", *project, "-destination", f"platform=iOS Simulator,id={udid}", "-parallel-testing-enabled", "NO", "-maximum-concurrent-test-simulator-destinations", "1", "test"], log=args.output / (family + "-diagnostic.log"))
         diagnostics = (args.output / (family + "-diagnostic.log")).read_text(errors="replace").splitlines()
-        for name in ["testOfflineSQLiteCalculationAndReopen", "testActualSQLiteFullRollbackRetainsPreviousDocument", "testRealSimulatorKeychainCRUDAndCanaryGuard", "testAllThreeSyntheticScopesReuseOneReferenceAndRealShapeProjection", "testPlayerAndGuildReferenceChangesInvalidateOptionalAccessAndRetainHistory", "testInstalledSyntheticOfflineWriteAndProcessRelaunch", "testFreshPersonalWorkspaceRequiresPlayerAndSecureInput"]:
+        required = ["testOfflineSQLiteCalculationAndReopen", "testActualSQLiteFullRollbackRetainsPreviousDocument", "testRealSimulatorKeychainCRUDAndCanaryGuard", "testAllThreeSyntheticScopesReuseOneReferenceAndRealShapeProjection", "testPlayerAndGuildReferenceChangesInvalidateOptionalAccessAndRetainHistory", "testInstalledSyntheticOfflineWriteAndProcessRelaunch", "testFreshPersonalWorkspaceRequiresPlayerAndSecureInput"]
+        case_seconds = {}
+        for name in required:
             if not any(name in line and "passed" in line.lower() for line in diagnostics):
                 raise RuntimeError("Required native test did not report a pass: " + name)
+            for line in diagnostics:
+                if name in line and "passed" in line.lower():
+                    duration = re.search(r"\(([0-9.]+) seconds\)", line)
+                    if duration:
+                        case_seconds[name] = float(duration[1])
         elapsed = round(time.monotonic() - began, 3)
-        measurements.append({"family": family, "classification": "simulator", "testBuildSeconds": elapsed, "tests": "native SQLite/Keychain and synthetic onboarding doubles; installed UI offline row save/process relaunch"})
+        measurements.append({"family": family, "classification": "simulator", "testBuildSeconds": elapsed, "caseSeconds": case_seconds, "tests": "native SQLite/Keychain and synthetic onboarding doubles; installed UI offline row save/process relaunch", "timingScope": "XCTest case elapsed time includes setup/assertions, not isolated throughput or physical performance"})
         print(family + " Simulator native tests passed in " + str(elapsed) + " seconds", flush=True)
         run(["xcrun", "simctl", "shutdown", udid])
     began = time.monotonic()
