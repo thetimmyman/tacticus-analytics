@@ -74,6 +74,8 @@ export const releaseSchema = z.strictObject({
     moduleApi: z.number().int().positive()
   }),
   qualification: z.strictObject({
+    evidenceSchema: z.literal('platform-evidence/v1'),
+    sourceCommit: z.string().regex(/^[a-f0-9]{40}$/),
     status: z.enum(['qualified', 'pending', 'failed']),
     artifactSha256: digest,
     evidenceUrl: evidence,
