@@ -26,6 +26,7 @@ import UniformTypeIdentifiers
     private let vault = CredentialVault()
     private var task: Task<Void, Never>?
     private var temporaryExport: URL?
+    private weak var secureField: UITextField?
     private var status = "Connect Player to start personal content. Existing local history remains readable offline."
     private var offline = true
     private var demo = false
@@ -64,7 +65,7 @@ import UniformTypeIdentifiers
         let row = UIStackView(); row.axis = .horizontal; row.spacing = 12
         let label = UILabel(); label.text = text; label.numberOfLines = 0; label.font = .preferredFont(forTextStyle: .body); label.adjustsFontForContentSizeCategory = true
         let control = UISwitch(); control.isOn = on; control.accessibilityLabel = text; control.accessibilityIdentifier = id
-        control.addAction(UIAction { _ in action(control.isOn) }, for: .valueChanged)
+        control.addAction(UIAction { [weak control] _ in if let control { action(control.isOn) } }, for: .valueChanged)
         row.addArrangedSubview(label); row.addArrangedSubview(control); content.addArrangedSubview(row)
     }
     private func render() {
@@ -119,6 +120,7 @@ import UniformTypeIdentifiers
         return true
     }
     func suspend() {
+        secureField?.text = nil; secureField = nil
         task?.cancel(); task = nil
         finishConfirmation(false)
         dismiss(animated: false); veil.isHidden = false
@@ -141,10 +143,10 @@ import UniformTypeIdentifiers
     private func enterCredential(requestPlayer: Bool) {
         guard !offline else { status = "Disable offline reading to request official scopes."; render(); return }
         let prompt = UIAlertController(title: "Official API key", message: "Read scopes are requested only from the fixed official API. Player confirmation is mandatory for personal content.", preferredStyle: .alert)
-        prompt.addTextField { field in field.isSecureTextEntry = true; field.textContentType = .password; field.autocapitalizationType = .none; field.autocorrectionType = .no; field.accessibilityIdentifier = "secure-official-key" }
-        prompt.addAction(UIAlertAction(title: "Skip", style: .cancel) { _ in prompt.textFields?.first?.text = nil })
-        prompt.addAction(UIAlertAction(title: "Request scopes", style: .default) { [weak self] _ in
-            let credential = prompt.textFields?.first?.text ?? ""; prompt.textFields?.first?.text = nil
+        prompt.addTextField { [weak self] field in self?.secureField = field; field.isSecureTextEntry = true; field.textContentType = .password; field.autocapitalizationType = .none; field.autocorrectionType = .no; field.accessibilityIdentifier = "secure-official-key" }
+        prompt.addAction(UIAlertAction(title: "Skip", style: .cancel) { [weak prompt] _ in prompt?.textFields?.first?.text = nil })
+        prompt.addAction(UIAlertAction(title: "Request scopes", style: .default) { [weak self, weak prompt] _ in
+            let credential = prompt?.textFields?.first?.text ?? ""; prompt?.textFields?.first?.text = nil
             self?.connect(credential: credential, requestPlayer: requestPlayer)
         }); present(prompt, animated: true)
     }
@@ -184,8 +186,8 @@ import UniformTypeIdentifiers
             prompt.addTextField { $0.placeholder = placeholder; $0.accessibilityIdentifier = id; if id == "raid-damage" || id == "raid-tokens" { $0.keyboardType = .numberPad } }
         }
         prompt.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        prompt.addAction(UIAlertAction(title: "Save local row", style: .default) { [weak self] _ in
-            guard let self, let fields = prompt.textFields, fields.count == 4,
+        prompt.addAction(UIAlertAction(title: "Save local row", style: .default) { [weak self, weak prompt] _ in
+            guard let self, let fields = prompt?.textFields, fields.count == 4,
                   let damage = Int64(fields[2].text ?? ""), let tokens = Int64(fields[3].text ?? "") else { return }
             do { try store.add(RaidRow(player: fields[0].text ?? "", boss: fields[1].text ?? "", damage: damage, tokens: tokens, observedAt: Int64(Date().timeIntervalSince1970 * 1000))); self.status = "Local row saved." }
             catch { self.status = "Row rejected. Existing data retained." }; self.render()
