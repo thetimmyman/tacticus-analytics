@@ -27,13 +27,34 @@ export function buildOfflineCommand({ runtimeRoot, state, verify, uid, gid }) {
     `ip link set lo up && exec ${['unshare', `--map-user=${uid}`, `--map-group=${gid}`, '--', 'sh', '-c', inner].map(quote).join(' ')}`
   ]
 }
-export function createAdapter({ runtimeRoot }) {
+export function createAdapter({ runtimeRoot, displayEnvironment = {} }) {
   if (
     process.platform !== 'linux' ||
     typeof runtimeRoot !== 'string' ||
     resolve(runtimeRoot) !== runtimeRoot
   )
     throw new Error('Explicit installed Linux runtime directory required')
+  const displayKeys = [
+    'WAYLAND_DISPLAY',
+    'XDG_RUNTIME_DIR',
+    'DISPLAY',
+    'XAUTHORITY',
+    'DBUS_SESSION_BUS_ADDRESS',
+    'XDG_CURRENT_DESKTOP'
+  ]
+  if (
+    !displayEnvironment ||
+    typeof displayEnvironment !== 'object' ||
+    Array.isArray(displayEnvironment) ||
+    Object.entries(displayEnvironment).some(
+      ([key, value]) =>
+        !displayKeys.includes(key) ||
+        typeof value !== 'string' ||
+        !value.length ||
+        value.length > 1024
+    )
+  )
+    throw new Error('Explicit bounded graphical display configuration required')
   return {
     schemaVersion: 'platform-adapter/v1',
     supportedScenarios: [
@@ -51,7 +72,7 @@ export function createAdapter({ runtimeRoot }) {
           assertions: [],
           captures: []
         }
-      if (!process.env.WAYLAND_DISPLAY && !process.env.DISPLAY)
+      if (!displayEnvironment.WAYLAND_DISPLAY && !displayEnvironment.DISPLAY)
         return {
           status: 'blocked',
           actual: 'No graphical desktop session is available.',
@@ -96,7 +117,7 @@ export function createAdapter({ runtimeRoot }) {
             uid: process.getuid(),
             gid: process.getgid()
           }),
-          { timeoutMs: 120000 }
+          { timeoutMs: 120000, env: { ...process.env, ...displayEnvironment } }
         )
         await writeFile(
           join(workspace, 'captures', `${id}-process-private.log`),

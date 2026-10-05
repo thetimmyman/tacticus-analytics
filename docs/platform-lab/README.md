@@ -38,12 +38,18 @@ const plan = {
   scenarios: ['offline-core', 'restart-persistence', 'backup-restore'],
   adapter: {
     modulePath: '/absolute/checkout/apps/platform-lab/linux-installed.mjs',
-    options: { runtimeRoot: '/absolute/installed/application' }
+    options: {
+      runtimeRoot: '/absolute/installed/application',
+      displayEnvironment: {
+        WAYLAND_DISPLAY: '<authorized-session-socket>',
+        XDG_RUNTIME_DIR: '/absolute/private/session-runtime'
+      }
+    }
   }
 }
 ```
 
-Build identity must come from reviewed build provenance. The lab computes the supplied artifact digest; the platform owner must independently establish that the installed files correspond to that artifact. The Linux adapter operates a caller-supplied existing installation through its supported `--state` and `--verify` entry points. It requires a graphical session, util-linux `unshare` and `ip`; kernel isolation checks that only loopback interfaces exist before launch. The installed preview's bundled runtime executes the application. Developer tools are required by this harness and do not establish an ordinary-user clean-install pass.
+Build identity must come from reviewed build provenance. The lab computes the supplied artifact digest; the platform owner must independently establish that the installed files correspond to that artifact. The Linux adapter operates a caller-supplied existing installation through its supported `--state` and `--verify` entry points. It requires an explicitly configured graphical session, util-linux `unshare` and `ip`; kernel isolation checks that only loopback interfaces exist before launch. Private `displayEnvironment` options accept only display/session fields: `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DISPLAY`, `XAUTHORITY`, `DBUS_SESSION_BUS_ADDRESS` and `XDG_CURRENT_DESKTOP`. These host session inputs are not application configuration. The installed preview's bundled runtime executes the application. Developer tools are required by this harness and do not establish an ordinary-user clean-install pass.
 
 The Linux regression covers the preview's selected synthetic calculation slice, ordinary restart and stopped-state backup/restore. It does not establish full feature parity, new onboarding capability verification, signing, bad-update recovery, token expiry, suspend, real-device mobile behavior or secret-integration egress. A passing record's `actual` states this scope. Unsupported scenarios produce blocked records and a nonzero CLI exit. No scenario is silently skipped.
 

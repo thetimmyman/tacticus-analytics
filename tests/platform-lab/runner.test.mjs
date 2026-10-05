@@ -13,7 +13,10 @@ import { tmpdir } from 'node:os'
 import { generateFixture, sha256 } from '../../apps/platform-lab/fixtures.mjs'
 import { runPlan } from '../../apps/platform-lab/runner.mjs'
 import { runOwnedProcess } from '../../apps/platform-lab/process.mjs'
-import { buildOfflineCommand } from '../../apps/platform-lab/linux-installed.mjs'
+import {
+  buildOfflineCommand,
+  createAdapter
+} from '../../apps/platform-lab/linux-installed.mjs'
 
 async function setup() {
   const root = await realpath(
@@ -157,6 +160,34 @@ test('owned child output and elapsed time are bounded', async () => {
   assert.equal(output.exceeded, true)
   assert.ok(output.output.length <= 100)
 })
+test(
+  'Linux adapter accepts only explicit bounded display session options',
+  { skip: process.platform !== 'linux' },
+  () => {
+    assert.throws(() =>
+      createAdapter({
+        runtimeRoot: '/synthetic',
+        displayEnvironment: { PATH: '/synthetic' }
+      })
+    )
+    assert.throws(() =>
+      createAdapter({
+        runtimeRoot: '/synthetic',
+        displayEnvironment: { DISPLAY: 'x'.repeat(1025) }
+      })
+    )
+    assert.equal(
+      createAdapter({
+        runtimeRoot: '/synthetic',
+        displayEnvironment: {
+          WAYLAND_DISPLAY: 'synthetic-wayland',
+          XDG_RUNTIME_DIR: '/synthetic/session'
+        }
+      }).schemaVersion,
+      'platform-adapter/v1'
+    )
+  }
+)
 test('Linux namespace command quotes paths and preserves non-root application identity', () => {
   const args = buildOfflineCommand({
     runtimeRoot: "/synthetic/runtime'with-space",
