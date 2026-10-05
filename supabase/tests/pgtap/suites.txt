@@ -64,12 +64,12 @@ application_insert_policy.sql # 18
 retire_guild_war_showcase.sql # 7
 invite_code_info_shape.sql # 14
 playbook_anon_guard.sql # 10
-pgnet_outcome_ledger.sql # 25
+pgnet_outcome_ledger.sql # 35
 refresh_token_inactivity_sweep.sql # 17
 identifier_leaks.sql # 12
 quarantine_pii_eraser_cron.sql # 12
 cluster_applications_api_key_columns.sql # 10
-alert_staleness_and_renotify.sql # 21
+alert_staleness_and_renotify.sql # 40
 guild_war_zones_match_fk.sql # 12
 erase_residual_player_mapping_identity.sql # 65
 player_mapping_analytics_ro.sql # 14
@@ -98,6 +98,8 @@ webhook_config_url_must_be_discord_webhook.sql # 10
 webhook_config_url_officer_only.sql # 24
 season_summary_claim_atomicity.sql # 6
 season_summary_stats_rpc.sql # 8
+
+token_burn_player_order.sql # 9
 
 # === DARK ===
 # cluster_rankings_refresh_throttle.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
