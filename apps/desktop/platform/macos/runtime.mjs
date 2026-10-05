@@ -20,7 +20,10 @@ import { importCachedPersonal } from './personal-backup.mjs'
 import { rendererCredentialSurface } from './credential-surface.mjs'
 import { windowDiagnostics } from './window-diagnostics.mjs'
 import { workspaceDeviceSession } from './device-session.mjs'
-import { qualifyDeviceSession } from './device-proof.mjs'
+import {
+  qualifyDeviceSession,
+  syntheticWorkspaceDigest
+} from './device-proof.mjs'
 
 process.umask(0o077)
 if (process.platform !== 'darwin' || !process.env.TA_MAC_GUARD_LOCK)
@@ -490,6 +493,19 @@ try {
       throw new Error(
         'Local application window failed; retained data was preserved'
       )
+    if (verify) {
+      await actionQueue
+      const deviceProof = JSON.parse(
+        await readFile(verify.deviceEvidence, 'utf8')
+      )
+      deviceProof.postJourneyDataDigest = await syntheticWorkspaceDigest(
+        services,
+        onboarding
+      )
+      await writeFile(verify.deviceEvidence, JSON.stringify(deviceProof), {
+        mode: 0o600
+      })
+    }
   }
 } finally {
   lifetime.abort()

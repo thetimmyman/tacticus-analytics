@@ -13,6 +13,12 @@ export function windowDiagnostics() {
       /sandbox_init|InitializeSandbox|SeatbeltExec|sandbox initialization|Failed to initialize sandbox\.|Failed to create seatbelt sandbox server\.|SandboxSerializer: Failed to (?:apply compiled policy|initialize sandbox with source mode policy)|sandbox_apply:/i,
       'sandbox-initialization'
     ],
+    [
+      /SandboxSerializer: Failed to (?:apply compiled policy|initialize sandbox with source mode policy)|sandbox_apply:/i,
+      'sandbox-policy-apply'
+    ],
+    [/Sandbox setup failed\./i, 'sandbox-policy-setup'],
+    [/Failed to compile sandbox policy:/i, 'sandbox-policy-compile'],
     [/GPU process isn't usable|GPU process exited/i, 'gpu-process'],
     [/Native coordinator channel unavailable/i, 'native-ipc'],
     [/ERR_CONNECTION|ERR_FAILED|Failed to load URL/i, 'loopback-load'],

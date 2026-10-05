@@ -4,6 +4,21 @@ import {
   importSyntheticRaid
 } from '../../proof/synthetic-import.mjs'
 
+export async function syntheticWorkspaceDigest(services, personal) {
+  return createHash('sha256')
+    .update(
+      await services.psql(`SELECT jsonb_build_object(
+      'subject',(SELECT subject_user_id FROM public.desktop_preview_setup WHERE singleton),
+      'rows',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text),'[]'::jsonb) FROM public."EOT_GR_data" t),
+      'mapping',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text),'[]'::jsonb) FROM public.player_mapping t),
+      'guilds',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text),'[]'::jsonb) FROM public.guild_config t),
+      'attestations',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text),'[]'::jsonb) FROM public.player_identity_attestations t)
+    );`)
+    )
+    .update(JSON.stringify(personal.state.read()))
+    .digest('hex')
+}
+
 // This runs only in the disposable installed qualification workspace, against
 // bundled PostgreSQL and Auth. It grants no live official API capability.
 export async function qualifyDeviceSession({
@@ -50,21 +65,7 @@ export async function qualifyDeviceSession({
     throw new Error('Synthetic owner was not initialized')
   if (!initialized)
     await importSyntheticRaid(services, syntheticRaidFixture(subject))
-  const snapshot = async () =>
-    createHash('sha256')
-      .update(
-        await services.psql(
-          `SELECT jsonb_build_object(
-            'subject',(SELECT subject_user_id FROM public.desktop_preview_setup WHERE singleton),
-            'rows',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text),'[]'::jsonb) FROM public."EOT_GR_data" t),
-            'mapping',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text),'[]'::jsonb) FROM public.player_mapping t),
-            'guilds',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text),'[]'::jsonb) FROM public.guild_config t),
-            'attestations',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text),'[]'::jsonb) FROM public.player_identity_attestations t)
-          );`
-        )
-      )
-      .update(JSON.stringify(personal.state.read()))
-      .digest('hex')
+  const snapshot = () => syntheticWorkspaceDigest(services, personal)
   const before = await snapshot()
   // A renderer possesses the ordinary transport header, never the bootstrap
   // capability. Neither an absent transport nor renderer-only access can open.
@@ -122,10 +123,11 @@ export async function qualifyDeviceSession({
     freshPasswordFreeHolding: !initialized,
     formerPasswordOwnerPreserved: !initialized,
     nativeAutomaticSession: true,
-    rendererBootstrapRefused: true,
+    transportOnlyBootstrapRefused: true,
     externalBootstrapRefused: true,
     forgedSessionRefused: true,
     localDataPreserved: true,
+    syntheticDataDigest: before,
     keychainBindings: 'unqualified-owner-provisioning-required'
   }
 }

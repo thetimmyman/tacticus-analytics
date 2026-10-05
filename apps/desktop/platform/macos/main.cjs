@@ -26,6 +26,7 @@ app
     session.defaultSession.setPermissionRequestHandler(
       (_contents, _permission, callback) => callback(false)
     )
+    const activeRequests = new Set()
     const failures = [],
       blocked = []
     session.defaultSession.webRequest.onBeforeRequest((details, callback) => {
@@ -35,6 +36,7 @@ app
         url.protocol === 'data:' ||
         url.protocol === 'blob:'
       if (!allowed) blocked.push(url.origin + url.pathname)
+      if (config.verify && url.origin === origin) activeRequests.add(details.id)
       callback({ cancel: !allowed })
     })
     session.defaultSession.webRequest.onBeforeSendHeaders(
@@ -45,11 +47,21 @@ app
       }
     )
     session.defaultSession.webRequest.onCompleted((details) => {
+      activeRequests.delete(details.id)
       if (details.statusCode >= 400)
         failures.push({
           path: new URL(details.url).pathname,
           status: details.statusCode
         })
+    })
+    session.defaultSession.webRequest.onErrorOccurred((details) => {
+      activeRequests.delete(details.id)
+      if (
+        config.verify &&
+        details.error !== 'net::ERR_ABORTED' &&
+        new URL(details.url).origin === origin
+      )
+        failures.push({ path: new URL(details.url).pathname, status: 0 })
     })
     const window = new BrowserWindow({
       show: !config.verify,
@@ -287,6 +299,12 @@ app
     if (!(await device.open())) await window.loadURL(config.url)
     if (config.verify) {
       verifyStage = 'workspace-setup'
+      const rendererBootstrapRefused =
+        await window.webContents.executeJavaScript(
+          `fetch('/desktop/open', {method:'POST'}).then(response => response.status === 403)`
+        )
+      if (rendererBootstrapRefused !== true)
+        throw new Error('Renderer session bootstrap was not refused')
       await nativeRequest('session', 'Player')
       for (const cookie of await window.webContents.session.cookies.get({
         url: origin
@@ -311,6 +329,11 @@ app
       const nativeSession = await nativeRequest('session', 'Player')
       if (nativeSession.cloudContribution !== 'separate-consent-required')
         throw new Error('Native owner session was not verified')
+      verifyStage = 'renderer-network'
+      for (let attempt = 0; attempt < 100 && activeRequests.size; attempt++)
+        await new Promise((accept) => setTimeout(accept, 100))
+      if (activeRequests.size)
+        throw new Error('Packaged renderer requests did not finish')
       verifyStage = 'renderer-observation'
       const observed = await window.webContents.executeJavaScript(
         `({text:document.body.innerText,nodeAccess:typeof require!=='undefined'||typeof process!=='undefined'})`
@@ -324,7 +347,8 @@ app
         nodeIntegration: false,
         nativeSessionVerified: true,
         deviceSession: true,
-        signedOutRecovery: true
+        signedOutRecovery: true,
+        rendererBootstrapRefused: true
       }
       writeFileSync(config.verify.evidence, JSON.stringify(evidence, null, 2), {
         mode: 0o600
@@ -349,7 +373,10 @@ app
         blocked.length ||
         failures.some(
           (failure) =>
-            !(failure.path === '/api/guild-tokens' && failure.status === 403)
+            !(
+              failure.status === 403 &&
+              ['/api/guild-tokens', '/desktop/open'].includes(failure.path)
+            )
         )
       )
         throw new Error('Unexpected packaged renderer request failure')

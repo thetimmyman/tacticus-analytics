@@ -161,19 +161,25 @@ await cp(
   join(working, 'network-policy.json'),
   join(output, 'network-policy.json')
 )
-async function run(arguments_) {
+async function run(
+  arguments_,
+  {
+    outsideQualificationPolicy = false,
+    stateDirectory = state,
+    verifyFile = verify
+  } = {}
+) {
+  const executable = join(installed, 'Contents/MacOS/TacticusAnalytics')
   const child = spawn(
-    '/usr/bin/sandbox-exec',
+    outsideQualificationPolicy ? executable : '/usr/bin/sandbox-exec',
     [
-      '-p',
-      policy,
-      join(installed, 'Contents/MacOS/TacticusAnalytics'),
+      ...(outsideQualificationPolicy ? [] : ['-p', policy, executable]),
       '--run',
-      join(state, 'owner.lock'),
+      join(stateDirectory, 'owner.lock'),
       join(runtime, 'bin/node'),
       join(runtime, 'apps/desktop/platform/macos/runtime.mjs'),
       '--verify',
-      verify,
+      verifyFile,
       ...arguments_
     ],
     {
@@ -185,20 +191,26 @@ async function run(arguments_) {
       stdio: 'inherit'
     }
   )
-  const deadline = setTimeout(() => child.kill('SIGTERM'), 180000)
+  let timedOut = false
+  const deadline = setTimeout(() => {
+    timedOut = true
+    child.kill('SIGTERM')
+  }, 180000)
   try {
     const code = await new Promise((accept, reject) => {
       child.once('error', reject)
       child.once('exit', accept)
     })
-    if (code !== 0)
+    if (code !== 0 || timedOut)
       throw new Error('Installed developer package journey failed')
   } finally {
     clearTimeout(deadline)
   }
 }
+let failedPhase = 'graphical'
 try {
   await run([])
+  failedPhase = 'storage'
   await run(['--storage-check', join(working, 'storage-first.json')])
   await run(['--storage-check', join(working, 'storage-second.json')])
 } catch (error) {
@@ -216,6 +228,170 @@ try {
     } catch (copyError) {
       if (copyError.code !== 'ENOENT') throw copyError
     }
+  }
+  // Diagnose ordinary runtime compatibility separately. The mandatory network
+  // isolation failure above remains the final outcome. Never emit platform
+  // acceptance from this probe or change Electron's own sandbox settings.
+  let nativeFailure
+  try {
+    nativeFailure = JSON.parse(
+      await readFile(join(working, 'renderer.json.native.json'))
+    )
+  } catch {}
+  try {
+    if (
+      failedPhase === 'graphical' &&
+      nativeFailure?.synthetic === true &&
+      Array.isArray(nativeFailure.categories) &&
+      nativeFailure.categories.includes('sandbox-initialization') &&
+      ((Number.isSafeInteger(nativeFailure.exitCode) &&
+        nativeFailure.exitCode !== 0) ||
+        /^SIG[A-Z]+$/.test(nativeFailure.signal ?? ''))
+    ) {
+      const probe = {
+        synthetic: true,
+        sourceCommit: process.env.MAC_SOURCE_SHA,
+        artifactSha256: digest,
+        kind: 'ordinary-runtime-compatibility-probe',
+        mandatoryOfflineQualification: 'failed',
+        networkIsolation: 'not-established',
+        consumerKeychainBindings: 'unqualified',
+        result: 'failed',
+        runs: []
+      }
+      const probeState = join(working, 'compatibility-workspace')
+      await mkdir(probeState, { mode: 0o700 })
+      let activeProbeConfig
+      try {
+        for (let index = 1; index <= 2; index++) {
+          const prefix = 'compatibility-' + index
+          const probeConfig = {
+            ...config,
+            deviceEvidence: join(working, prefix + '-device.json'),
+            evidence: join(working, prefix + '-renderer.json'),
+            screenshot: join(working, prefix + '.png')
+          }
+          activeProbeConfig = probeConfig
+          const probeVerify = join(working, prefix + '-verify.json')
+          await writeFile(probeVerify, JSON.stringify(probeConfig), {
+            mode: 0o600
+          })
+          await run([], {
+            outsideQualificationPolicy: true,
+            stateDirectory: probeState,
+            verifyFile: probeVerify
+          })
+          // Process success is required because renderer output is captured
+          // before the final calculation and request assertions.
+          const renderer = JSON.parse(await readFile(probeConfig.evidence))
+          const device = JSON.parse(await readFile(probeConfig.deviceEvidence))
+          if (
+            renderer.sandbox !== true ||
+            renderer.contextIsolation !== true ||
+            renderer.nodeIntegration !== false ||
+            renderer.nativeSessionVerified !== true ||
+            renderer.deviceSession !== true ||
+            renderer.signedOutRecovery !== true ||
+            renderer.rendererBootstrapRefused !== true ||
+            renderer.observed?.nodeAccess !== false ||
+            device.sourceCommit !== process.env.MAC_SOURCE_SHA ||
+            device.artifactSha256 !== digest ||
+            device.localDataPreserved !== true ||
+            !/^[a-f0-9]{64}$/.test(device.syntheticDataDigest ?? '') ||
+            !/^[a-f0-9]{64}$/.test(device.postJourneyDataDigest ?? '')
+          )
+            throw new Error('Compatibility probe assertions failed')
+          probe.runs.push({
+            launch: index,
+            guardedJourney: 'passed',
+            electronSandbox: true,
+            contextIsolation: true,
+            nodeIntegration: false,
+            nativeOwnerSession: true,
+            signedOutRecovery: true,
+            actualRendererBootstrapRefused: true,
+            beforeJourneyDataDigest: device.syntheticDataDigest,
+            afterJourneyDataDigest: device.postJourneyDataDigest
+          })
+          await cp(probeConfig.screenshot, join(output, prefix + '.png'))
+        }
+        if (
+          probe.runs[0].afterJourneyDataDigest !==
+          probe.runs[1].beforeJourneyDataDigest
+        )
+          throw new Error(
+            'Compatibility restart did not preserve synthetic data'
+          )
+        probe.result = 'passed'
+        probe.syntheticRestartDataPreserved = true
+      } catch {
+        // Keep only a fixed failure classification. Raw renderer content, URLs,
+        // credentials, workspace files and environment never enter this receipt.
+        probe.result = 'failed'
+        probe.failure = { stage: 'unknown', code: 'EVERIFY', categories: [] }
+        try {
+          const failure = JSON.parse(
+            await readFile(activeProbeConfig.evidence + '.failure.json')
+          )
+          if (
+            [
+              'window-startup',
+              'workspace-page',
+              'workspace-setup',
+              'workspace-navigation',
+              'native-session',
+              'renderer-observation',
+              'renderer-scores',
+              'renderer-network'
+            ].includes(failure.stage)
+          )
+            probe.failure.stage = failure.stage
+          if (
+            [
+              'ESESSION',
+              'EVAULT',
+              'EVAULTLOCKED',
+              'EACCESS',
+              'EVERIFY'
+            ].includes(failure.code)
+          )
+            probe.failure.code = failure.code
+        } catch {}
+        try {
+          const failure = JSON.parse(
+            await readFile(activeProbeConfig.evidence + '.native.json')
+          )
+          const allowed = [
+            'code-signature',
+            'dynamic-loader',
+            'window-server',
+            'module-loading',
+            'os-permission',
+            'sandbox-initialization',
+            'sandbox-policy-apply',
+            'sandbox-policy-setup',
+            'sandbox-policy-compile',
+            'gpu-process',
+            'native-ipc',
+            'loopback-load',
+            'node-environment'
+          ]
+          if (Array.isArray(failure.categories))
+            probe.failure.categories = [
+              ...new Set(
+                failure.categories.filter((value) => allowed.includes(value))
+              )
+            ].sort()
+        } catch {}
+      }
+      await writeFile(
+        join(output, 'compatibility-probe.json'),
+        JSON.stringify(probe),
+        { mode: 0o600 }
+      )
+    }
+  } catch {
+    // Supplemental evidence failures never replace the mandatory outcome.
   }
   throw error
 }

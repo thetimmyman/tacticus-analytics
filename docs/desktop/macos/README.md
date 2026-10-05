@@ -60,6 +60,13 @@ cached personal state, and refuses renderer-only and forged-session access.
 This receipt is bound to the source commit and DMG digest. Actual Electron
 bootstrap, signed-out recovery, restart and preserved consumer Keychain bindings
 remain separate qualification requirements.
+If the mandatory isolated journey records a native sandbox initialization
+failure, a separate compatibility probe runs the same installed payload in one
+fresh synthetic workspace across two ordinary launches. Electron's own sandbox
+remains enabled. The probe checks actual renderer bootstrap refusal, native
+owner sessions, signed-out recovery and unchanged synthetic data. Its fixed
+receipt declares network isolation unestablished; it never emits platform
+acceptance and the mandatory isolated journey remains failed.
 
 Ordinary setup creates a local Auth account in a Player-required holding state.
 The workspace opens automatically under the current OS account, without an app
