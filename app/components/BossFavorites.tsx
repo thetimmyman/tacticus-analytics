@@ -442,7 +442,9 @@ export default function BossFavorites({
           </button>
 
           <span className="text-xs text-secondary-wh40k">
-            Stored in player_mapping table
+            {desktopMode
+              ? 'Saved in this workspace'
+              : 'Saved with your profile'}
           </span>
         </div>
 

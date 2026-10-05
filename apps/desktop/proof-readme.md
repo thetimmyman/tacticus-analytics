@@ -420,3 +420,17 @@ account ownership. `preferences-journey.mjs` verifies actual native Auth/PostgRE
 writes, foreign and protected-column refusals, invalid-value rollback, clearing,
 legacy repair and restart. Installed form acceptance and full profile parity remain
 separate requirements.
+
+Local boss preferences use the same current-subject projection. Only the choice
+object is writable; the database assigns the update timestamp when choices change.
+Values are bounded and validated against the local boss catalogue. Neutral choices
+are represented by absent keys; an empty object clears all choices. Legacy values
+permit unrelated updates and can be replaced without changing account authority.
+
+The launcher reads packaged season encounters and boss definitions before serving
+the application. Reference refresh preserves existing mapping IDs and never deletes
+rows. Invalid files, duplicate encounters or identifier collisions refuse before
+partial catalogue changes. Existing data remains readable if an optional refresh
+fails. `boss-preferences-journey.mjs` verifies native catalogue initialization,
+scoped writes, protected timestamps, rejected values, clearing, legacy repair and
+restart. Installed form acceptance and full application parity remain separate.
