@@ -154,3 +154,44 @@ test('loopback gateway rejects a transport key that is not 64 hex characters', a
     /Invalid transport key/
   )
 })
+
+test('non-ASCII equal-length transport headers refuse without terminating the HTTP listener', async (t) => {
+  await withGateway(t, async ({ gateway, transportKey }) => {
+    const rejected = await fetch(gateway.origin, {
+      headers: { 'x-desktop-transport': 'é'.repeat(64) }
+    })
+    assert.equal(rejected.status, 403)
+    const valid = await fetch(gateway.origin, {
+      headers: { 'x-desktop-transport': transportKey }
+    })
+    assert.equal(valid.status, 200)
+    assert.equal(await valid.text(), 'ok')
+  })
+})
+
+test('invalid absolute request targets refuse without terminating the HTTP listener', async (t) => {
+  await withGateway(t, async ({ gateway, transportKey }) => {
+    const { request } = await import('node:http')
+    const status = await new Promise((accept, reject) => {
+      const req = request(
+        {
+          host: '127.0.0.1',
+          port: new URL(gateway.origin).port,
+          path: 'http://[invalid',
+          headers: { 'x-desktop-transport': transportKey }
+        },
+        (res) => {
+          res.resume()
+          accept(res.statusCode)
+        }
+      )
+      req.on('error', reject)
+      req.end()
+    })
+    assert.equal(status, 400)
+    const valid = await fetch(gateway.origin, {
+      headers: { 'x-desktop-transport': transportKey }
+    })
+    assert.equal(valid.status, 200)
+  })
+})

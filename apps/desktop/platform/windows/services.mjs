@@ -74,6 +74,14 @@ export function serviceFailureCode(text) {
       return `postgres-child-status-0x${status.toString(16).padStart(8, '0')}`
   }
   for (const [pattern, code] of [
+    [
+      /administrative permissions.*not\s+permitted/is,
+      'administrative-token-refused'
+    ],
+    [
+      /could not bind|Address already in use|could not create any TCP\/IP sockets/i,
+      'loopback-bind-refused'
+    ],
     [/permission denied|access is denied/i, 'permission-refused'],
     [/invalid locale|locale.*not supported/i, 'locale-unavailable'],
     [
@@ -129,6 +137,23 @@ export function serviceFailureCode(text) {
   ])
     if (pattern.test(text)) return code
   return 'unclassified-service-failure'
+}
+export function serviceStartupDiagnostic(child) {
+  let output = Buffer.alloc(0)
+  const collect = (chunk) => {
+    const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
+    if (output.length < 8192)
+      output = Buffer.concat([output, bytes.subarray(0, 8192 - output.length)])
+  }
+  child.stdout.on('data', collect)
+  child.stderr.on('data', collect)
+  return () => {
+    const category = serviceFailureCode(output.toString('utf8'))
+    const status = Number.isSafeInteger(child.exitCode)
+      ? `exit-${child.exitCode}`
+      : 'exit-unavailable'
+    return `${category}; ${status}; sensitive output suppressed`
+  }
 }
 export function bootstrapPhase(text) {
   if (/performing post-bootstrap initialization/.test(text))
@@ -188,6 +213,7 @@ export async function nativeServices({
     }
   }
   const children = []
+  const diagnostics = new WeakMap()
   const { unlink } = await import('node:fs/promises')
   const onInterrupt = () => {
     void stop().finally(() => process.exit(130))
@@ -297,15 +323,15 @@ export async function nativeServices({
         ],
         windowsHide: true
       })
-      // Service bodies may contain local secrets/data: drain without writing them to diagnostics.
+      // Classify only a bounded in-memory prefix; upstream bodies never enter diagnostics.
       if (input) child.stdin.end(input)
-      child.stdout.resume()
-      child.stderr.resume()
+      const diagnostic = serviceStartupDiagnostic(child)
+      diagnostics.set(child, diagnostic)
       child.once('error', () => {})
       children.push(child)
       child.once('exit', (code, signal) => {
         if (!stopping && (!ephemeral || code !== 0 || signal)) {
-          fault = new Error('A proof-owned service failed')
+          fault = new Error('A proof-owned service failed; ' + diagnostic())
           void stop()
         }
       })
@@ -350,7 +376,7 @@ export async function nativeServices({
       for (let i = 0; i < 100; i++) {
         if (child.exitCode !== null || child.signalCode !== null)
           throw new Error(
-            `${label} exited before readiness; inspect private service log`
+            `${label} exited before readiness; ${diagnostics.get(child)()}`
           )
         try {
           await probe()

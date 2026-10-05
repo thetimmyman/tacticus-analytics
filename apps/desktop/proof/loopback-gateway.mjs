@@ -14,7 +14,7 @@ export async function loopbackGateway({
     const supplied = req.headers['x-desktop-transport']
     const authorized =
       typeof supplied === 'string' &&
-      supplied.length === transportKey.length &&
+      /^[a-f0-9]{64}$/.test(supplied) &&
       timingSafeEqual(Buffer.from(supplied), Buffer.from(transportKey))
     if (
       !authorized ||
@@ -28,7 +28,14 @@ export async function loopbackGateway({
       res.end('{"error":"Local transport denied"}')
       return
     }
-    const url = new URL(req.url, origin)
+    let url
+    try {
+      url = new URL(req.url, origin)
+    } catch {
+      res.writeHead(400)
+      res.end()
+      return
+    }
     if (url.origin !== origin || req.url.startsWith('//')) {
       res.writeHead(400)
       res.end()

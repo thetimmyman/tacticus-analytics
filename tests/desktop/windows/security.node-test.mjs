@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createServer } from 'node:http'
 import { createHmac } from 'node:crypto'
+import { PassThrough } from 'node:stream'
 import {
   peImports,
   auditDependencies
@@ -13,6 +14,7 @@ import {
 import {
   validOwnerSession,
   serviceFailureCode,
+  serviceStartupDiagnostic,
   bootstrapPhase
 } from '../../../apps/desktop/platform/windows/services.mjs'
 import { workspaceGate } from '../../../apps/desktop/platform/windows/session-gate.mjs'
@@ -61,6 +63,35 @@ test('bootstrap status diagnostics retain numeric loader failures without exposi
   assert.equal(
     bootstrapPhase('synthetic-private-body'),
     'bootstrap-phase-unavailable'
+  )
+})
+
+test('startup streams emit only fixed categories and numeric status from a bounded prefix', () => {
+  const child = {
+    stdout: new PassThrough(),
+    stderr: new PassThrough(),
+    exitCode: 1
+  }
+  const diagnostic = serviceStartupDiagnostic(child)
+  child.stderr.write(
+    'synthetic-private-body: Execution of PostgreSQL by a user with administrative permissions is not\npermitted.\n'
+  )
+  assert.equal(
+    diagnostic(),
+    'administrative-token-refused; exit-1; sensitive output suppressed'
+  )
+  assert.equal(diagnostic().includes('synthetic-private-body'), false)
+  const bounded = {
+    stdout: new PassThrough(),
+    stderr: new PassThrough(),
+    exitCode: 3221225781
+  }
+  const later = serviceStartupDiagnostic(bounded)
+  bounded.stdout.write('x'.repeat(8192))
+  bounded.stderr.write('permission denied synthetic-private-body')
+  assert.equal(
+    later(),
+    'unclassified-service-failure; exit-3221225781; sensitive output suppressed'
   )
 })
 

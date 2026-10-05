@@ -22,14 +22,15 @@ $manifestDigest = (Get-FileHash "$installed/bundle-manifest.json" -Algorithm SHA
    nativeInstalledArtifact = $true; qualificationLocation = 'current-user-application-directory';
    postgresFilesystemAlias = 'not-yet-verified'; completed = $false; os = [System.Environment]::OSVersion.VersionString;
    packageFiles = $manifest.files.Count; packageBytes = ($manifest.files | Measure-Object -Property size -Sum).Sum;
-   officialApiKeysUsed = $false; featureParityClaim = $false; actualJourney = 'not completed' } |
+   officialApiKeysUsed = $false; featureParityClaim = $false; wholeProcessOfflineQualified = $false;
+   networkBoundary = 'Electron-renderer-session-only'; actualJourney = 'not completed' } |
   ConvertTo-Json -Depth 8 | Set-Content -Encoding utf8 $Evidence
 Get-Content $Evidence
 $journeys = @()
 $migrationWorkspace = Join-Path $qualification 'former password workspace ü'
 for ($iteration = 0; $iteration -lt 4; $iteration++) {
   $activeWorkspace = if ($iteration -lt 2) { $workspace } else { $migrationWorkspace }
-  $scenario = @('fresh automatic setup','offline reopen','former password owner migration','migrated offline reopen')[$iteration]
+  $scenario = @('fresh automatic setup','local cached reopen','former password owner migration','migrated local cached reopen')[$iteration]
   $renderer = Join-Path $env:RUNNER_TEMP "renderer-$iteration.json"
   @{ seedFormerPasswordFixture = ($iteration -eq 2); evidence = $renderer; screenshot = (Join-Path $env:RUNNER_TEMP "renderer-$iteration.png") } |
     ConvertTo-Json | Set-Content -Encoding utf8 $verify
@@ -51,6 +52,7 @@ $recovery = Get-Content $recoveryPath | ConvertFrom-Json
    postgresFilesystemAlias = 'verified-by-native-owner'; os = [System.Environment]::OSVersion.VersionString;
    packageFiles = $manifest.files.Count; packageBytes = ($manifest.files | Measure-Object -Property size -Sum).Sum; elapsedMs = $timer.ElapsedMilliseconds;
    journeys = $journeys; recovery = $recovery; officialApiKeysUsed = $false; featureParityClaim = $false; syntheticDemo = $true;
-   remainingGates = @('owner-approved signing and release trust', 'standard-user consumer Windows install', 'full accepted feature inventory', 'official onboarding projection integration', 'migrated real API vault bindings', 'Unicode PostgreSQL on volumes without short aliases', 'rights and full notices review') } |
+   wholeProcessOfflineQualified = $false; networkBoundary = 'Electron-renderer-session-only';
+   remainingGates = @('owner-approved signing and release trust', 'standard-user consumer Windows install', 'full accepted feature inventory', 'official onboarding projection integration', 'migrated real API vault bindings', 'Unicode PostgreSQL on volumes without short aliases', 'whole-process external network denial', 'rights and full notices review') } |
   ConvertTo-Json -Depth 8 | Set-Content -Encoding utf8 $Evidence
 Get-Content $Evidence
