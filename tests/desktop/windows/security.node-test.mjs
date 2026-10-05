@@ -276,6 +276,21 @@ test('legacy key forms and handlers cannot bypass native input after activation 
     '/api/members/request-api-key',
     '/api/profile/change-player-id',
     '/api/admin/player-api-key',
+    '/api/clusters/create',
+    '/api/clusters/join',
+    '/api/guild/claim',
+    '/api/guild/create-config',
+    '/api/guild/initial-sync',
+    '/api/guild/trigger-sync',
+    '/api/guild-tokens/sync',
+    '/api/guild-teams/backfill',
+    '/api/player/roster',
+    '/api/player/achievements',
+    '/api/members/roster',
+    '/api/tokens',
+    '/api/roster-development/analysis',
+    '/api/roster-development/member-gaps',
+    '/api/meta/player-recommendations',
     '/%70rofile/edit',
     '/PROFILE/edit',
     '/profile%5cedit',
@@ -294,7 +309,7 @@ test('legacy key forms and handlers cannot bypass native input after activation 
     '/supabase/auth/v1/token',
     '/api/health',
     '/player-performance',
-    '/api/player/roster',
+    '/api/guild-tokens',
     '/_next/static/app.js'
   ])
     assert.equal(
@@ -321,4 +336,20 @@ test('legacy key forms and handlers cannot bypass native input after activation 
   )
   assert.equal(status, 501)
   assert.ok(JSON.parse(body).error.includes('native'))
+  for (const path of [
+    '/api/clusters/create',
+    '/api/clusters/join',
+    '/api/guild/create-config',
+    '/api/guild/initial-sync'
+  ]) {
+    assert.equal(
+      holdCredentialSurface(
+        { method: 'POST' },
+        res,
+        new URL(path, 'http://localhost')
+      ),
+      true
+    )
+    assert.equal(status, 501)
+  }
 })

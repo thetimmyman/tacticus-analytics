@@ -23,7 +23,22 @@ export function rendererCredentialSurface(url) {
       '/guild-ops/cluster-management',
       '/api/onboarding',
       '/api/profile',
-      '/api/guild-settings'
+      '/api/guild-settings',
+      '/api/clusters/create',
+      '/api/clusters/join',
+      '/api/guild/claim',
+      '/api/guild/create-config',
+      '/api/guild/initial-sync',
+      '/api/guild/trigger-sync',
+      '/api/guild-tokens/sync',
+      '/api/guild-teams/backfill',
+      '/api/player/roster',
+      '/api/player/achievements',
+      '/api/members/roster',
+      '/api/tokens',
+      '/api/roster-development/analysis',
+      '/api/roster-development/member-gaps',
+      '/api/meta/player-recommendations'
     ].some((prefix) => path === prefix || path.startsWith(prefix + '/')) ||
     ((path.startsWith('/api/') || path.startsWith('/supabase/rest/v1/')) &&
       /api[-_]?key/i.test(path))
