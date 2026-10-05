@@ -145,6 +145,16 @@ try {
   )
   let session = await login()
   subject = session.user.id
+  const alerts = await request('/api/user/token-alerts', undefined, { cookie })
+  assert.equal(alerts.status, 200)
+  assert.equal((await alerts.json()).available, false)
+  const alertWrite = await fetch(gateway.origin + '/api/user/token-alerts', {
+    method: 'PUT',
+    headers: { cookie, 'x-desktop-transport': key, origin: gateway.origin },
+    body: 'invalid body must not be parsed',
+    signal: AbortSignal.timeout(10000)
+  })
+  assert.equal(alertWrite.status, 409)
   const foreign = randomUUID()
   await services.psql(`
     INSERT INTO auth.users(id,aud,role,email) VALUES(${quote(foreign)},'authenticated','authenticated','synthetic-foreign@example.invalid');

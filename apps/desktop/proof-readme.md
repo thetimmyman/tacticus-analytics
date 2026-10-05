@@ -455,3 +455,8 @@ battles, credential filtering, a real RPC privilege failure, compiled applicatio
 death during a locked export RPC, retry after restart, attachment delivery,
 expiry and size refusal. Installed save-dialog acceptance and full application
 parity remain separate requirements.
+
+Exporting canonical token-alert preference/state rows does not configure alert
+delivery. Desktop token-alert reads report that delivery is not configured, and
+writes refuse after authentication and before parsing their body. Local or
+connected-provider notification delivery remains an open application capability.
