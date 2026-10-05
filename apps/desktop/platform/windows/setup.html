@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Tacticus Desktop setup</title>
+    <link rel="stylesheet" href="/desktop/windows-style.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Set up your local workspace</h1>
+      <p>
+        Connect an official API key with Player access. Guild and Guild Raid
+        access can be added later or granted by the same key. No hosted account
+        is needed.
+      </p>
+      <p>
+        The next step opens Windows secure input. Official keys stay in the
+        Windows vault. Cloud contribution requires separate consent.
+      </p>
+      <button id="connect">Connect official API</button
+      ><button id="skip">Skip optional access</button>
+      <p id="status" role="status"></p>
+      <section>
+        <h2>Personal data</h2>
+        <pre id="personal">
+Player access is required for a new personal workspace.</pre>
+        <p>
+          Validated roster and raid resources appear here. Applying this
+          projection throughout the application remains an integration gate.
+        </p>
+      </section>
+      <section>
+        <h2>Try a synthetic demo</h2>
+        <p>
+          This sample contains invented battles and does not represent your
+          account.
+        </p>
+        <form id="demo">
+          <label
+            >Local demo password
+            <input
+              id="password"
+              type="password"
+              minlength="12"
+              maxlength="128"
+              autocomplete="new-password"
+              required /></label
+          ><label
+            ><input id="sample" type="checkbox" required /> I understand that
+            this is synthetic sample data.</label
+          ><button>Open synthetic demo</button>
+        </form>
+      </section>
+    </main>
+    <script src="/desktop/windows-setup.js"></script>
+  </body>
+</html>
