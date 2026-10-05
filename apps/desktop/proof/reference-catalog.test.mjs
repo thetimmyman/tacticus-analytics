@@ -79,3 +79,88 @@ test('malformed later definitions, duplicate units and linked entries refuse bef
     await rm(root, { recursive: true, force: true })
   }
 })
+
+test('boss catalogue validates every packaged encounter before a preserving transaction', async () => {
+  const { readReferenceBosses, initializeReferenceBosses } =
+    await import('../launcher/reference-catalog.mjs')
+  const root = await mkdtemp(join(tmpdir(), 'desktop-boss-reference-'))
+  try {
+    const raid = join(root, 'guild-raid'),
+      bosses = join(raid, 'bosses')
+    await mkdir(bosses, { recursive: true })
+    const season = {
+      seasons: [
+        {
+          sets: [
+            {
+              encounters: [
+                {
+                  bossType: 'SyntheticBoss',
+                  encounterIndex: 0,
+                  unitId: 'SyntheticBossUnit:24'
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+    await writeFile(join(raid, 'seasons.json'), JSON.stringify(season))
+    await writeFile(
+      join(bosses, 'SyntheticBossUnit.json'),
+      JSON.stringify({
+        gameId: 'SyntheticBossUnit',
+        name: "Synthetic Boss's Name",
+        ignored: 'ignored-reference-extra'
+      })
+    )
+    const entries = await readReferenceBosses(root)
+    assert.equal(entries.length, 1)
+    assert.equal(entries[0].unitId, 'SyntheticBossUnit')
+    assert(!JSON.stringify(entries).includes('ignored-reference-extra'))
+    assert.deepEqual(await readReferenceBosses(root), entries)
+    let sql
+    await initializeReferenceBosses(
+      {
+        psql: async (value) => {
+          sql = value
+        }
+      },
+      root
+    )
+    assert(sql.startsWith('BEGIN;'))
+    assert(sql.endsWith('COMMIT;'))
+    assert(sql.includes("Synthetic Boss''s Name"))
+    assert(sql.includes('Reference catalogue collision'))
+    assert(!sql.includes('DELETE'))
+    assert(!sql.includes('SET id='))
+    let calls = 0
+    const service = { psql: async () => calls++ }
+    for (const change of [
+      { bossType: '../bad', encounterIndex: 0, unitId: 'SyntheticBossUnit' },
+      {
+        bossType: 'SyntheticBoss',
+        encounterIndex: 3,
+        unitId: 'SyntheticBossUnit'
+      },
+      { bossType: 'SyntheticBoss', encounterIndex: 0, unitId: 'UnknownUnit' }
+    ]) {
+      await writeFile(
+        join(raid, 'seasons.json'),
+        JSON.stringify({ seasons: [{ sets: [{ encounters: [change] }] }] })
+      )
+      await assert.rejects(initializeReferenceBosses(service, root))
+      assert.equal(calls, 0)
+    }
+    await writeFile(join(raid, 'seasons.json'), JSON.stringify(season))
+    await rm(join(bosses, 'SyntheticBossUnit.json'))
+    await symlink(
+      join(raid, 'seasons.json'),
+      join(bosses, 'SyntheticBossUnit.json')
+    )
+    await assert.rejects(initializeReferenceBosses(service, root))
+    assert.equal(calls, 0)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})

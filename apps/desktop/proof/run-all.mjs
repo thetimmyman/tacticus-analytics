@@ -158,6 +158,12 @@ if (!configPath) {
   run('c-profile-preferences', 'apps/desktop/proof/preferences-journey.mjs', [
     configPath
   ])
+  console.log(
+    '\n== Native owner boss preferences / packaged catalogue / restart =='
+  )
+  run('c-boss-preferences', 'apps/desktop/proof/boss-preferences-journey.mjs', [
+    configPath
+  ])
   console.log('\n== Native user-session expiry / restart renewal ==')
   run('c-session-renewal', 'apps/desktop/proof/session-journey.mjs', [
     configPath

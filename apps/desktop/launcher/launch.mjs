@@ -3,7 +3,10 @@ import { localJobScheduler } from './job-scheduler.mjs'
 import { electronDisplay } from './display.mjs'
 import { launcherOptions } from './options.mjs'
 import { bundledServices } from './runtime.mjs'
-import { initializeReferenceHeroes } from './reference-catalog.mjs'
+import {
+  initializeReferenceHeroes,
+  initializeReferenceBosses
+} from './reference-catalog.mjs'
 import { maintenanceCLI, guardedTransfer } from './maintenance.mjs'
 import { selectedWorkspace, selectWorkspace } from './workspace-selection.mjs'
 import { startupMessage } from './startup-message.mjs'
@@ -93,6 +96,16 @@ try {
     // Missing optional reference data must not prevent reading existing data.
     console.warn(
       'Bundled reference catalogue could not refresh; existing catalogue retained.'
+    )
+  }
+  try {
+    await initializeReferenceBosses(
+      services,
+      join(root, 'application/data/game-data')
+    )
+  } catch {
+    console.warn(
+      'Bundled boss catalogue could not refresh; existing catalogue retained.'
     )
   }
   const transportKey = randomBytes(32).toString('hex')
