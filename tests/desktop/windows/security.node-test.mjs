@@ -242,6 +242,7 @@ test('legacy key forms and handlers cannot bypass native input after activation 
   for (const path of [
     '/api/auth/login',
     '/api/auth/logout',
+    '/api/auth/signout',
     '/auth/change-password',
     '/auth/reset-password',
     '/api-keys',

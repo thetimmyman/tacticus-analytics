@@ -15,6 +15,7 @@ export function rendererCredentialSurface(url) {
     [
       '/api/auth/login',
       '/api/auth/logout',
+      '/api/auth/signout',
       '/api/auth/change-password',
       '/api/auth/reset-password',
       '/auth/change-password',
