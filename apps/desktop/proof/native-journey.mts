@@ -10,6 +10,7 @@ import { createClient } from '@supabase/supabase-js'
 import { nativeServices } from './native-services.mjs'
 import { electronDisplay } from '../launcher/display.mjs'
 import { loopbackGateway } from './loopback-gateway.mjs'
+import { workspaceGameConnection } from '../launcher/game-connection.mjs'
 import {
   syntheticRaidFixture,
   importSyntheticRaid
@@ -21,7 +22,13 @@ const startedAt = performance.now()
 const services = await nativeServices(config)
 const nativeReadyMs = performance.now() - startedAt
 const transportKey = randomBytes(32).toString('hex')
-const gateway = await loopbackGateway({ services, transportKey })
+const gateway = await loopbackGateway({
+  services,
+  transportKey,
+  handleLocalRequest: workspaceGameConnection(services, {
+    brokerToken: randomBytes(32).toString('hex')
+  })
+})
 const request: typeof fetch = (url, init) =>
   fetch(url, {
     ...init,

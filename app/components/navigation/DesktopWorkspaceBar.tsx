@@ -1,3 +1,5 @@
+import { DesktopGameStatus } from './DesktopGameStatus'
+
 export function DesktopWorkspaceBar() {
   return (
     <aside
@@ -9,9 +11,7 @@ export function DesktopWorkspaceBar() {
           <strong className="text-(--text-primary)">
             Local desktop preview
           </strong>
-          <span className="ml-2">
-            Game connection is unavailable in this preview.
-          </span>
+          <DesktopGameStatus />
         </p>
         <nav aria-label="Local workspace actions" className="flex gap-4">
           <a href="/desktop/import" className="text-(--primary) underline">

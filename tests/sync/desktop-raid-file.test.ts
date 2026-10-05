@@ -27,7 +27,7 @@ const entry = {
   rarity: 'Legendary',
   startedOn: '2000-01-01T00:00:00.123Z',
   completedOn: '2000-01-01T00:00:10.987Z',
-  heroDetails: [{ unitId: 'synthetic-hero', rank: 1, level: 10 }]
+  heroDetails: [{ unitId: 'synthetic-hero', rank: 1, level: 10, power: 5700 }]
 }
 const file = () => ({
   format: 'ta-raid-file-v1',
@@ -120,7 +120,9 @@ describe('local raid file boundary', () => {
       { tier: 1.5 },
       { remainingHp: 1001 },
       { completedOn: '1999-01-01T00:00:00Z' },
-      { heroDetails: [{ unitId: 'synthetic', unknown: 'value' }] }
+      { heroDetails: [{ unitId: 'synthetic', unknown: 'value' }] },
+      { heroDetails: [{ unitId: 'synthetic', power: -1 }] },
+      { heroDetails: [{ unitId: 'synthetic', power: Number.MAX_SAFE_INTEGER }] }
     ]) {
       const data = file()
       Object.assign(data.entries[0], patch)

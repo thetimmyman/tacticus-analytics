@@ -167,7 +167,8 @@ try {
     tier: 5,
     set: 1,
     startedOn: '2000-01-01T00:00:00.123Z',
-    completedOn: '2000-01-01T00:00:10.987Z'
+    completedOn: '2000-01-01T00:00:10.987Z',
+    heroDetails: [{ unitId: 'synthetic-hero', power: 5700 }]
   }
   const file = {
     format: 'ta-raid-file-v1',
@@ -320,6 +321,17 @@ try {
         `SELECT json_build_object('count',count(*),'name',min("displayName"),'started',min("startedOn"),'damage',sum("damageDealt")) FROM public."EOT_GR_data";`
       )
     ).trim()
+  )
+  assert.equal(
+    (
+      await services.psql(
+        `SELECT ("heroDetails"::jsonb->0->>'power')::integer FROM public."EOT_GR_data";`
+      )
+    ).trim(),
+    '5700'
+  )
+  evidence.checks.push(
+    'official API hero power survives canonical normalization, SQL persistence and size-boundary transport'
   )
   assert.equal(observed.count, 1)
   assert.equal(observed.name, 'Synthetic Local Alias')

@@ -224,8 +224,8 @@ selected eight-row fixture. Reference catalogues remain empty, raid-team tabs an
 other feature interactions are not covered, and this is not complete feature parity.
 
 The credential vault is a trusted Electron-main primitive, with no renderer IPC,
-HTTP endpoint, client discovery or game requests. A future broker must provide
-explicit account-scoped consent and fixed operations with bounded result schemas.
+HTTP endpoint, client discovery or game requests. The native official-raid broker
+supplies explicit account-scoped consent and fixed operations with bounded results.
 The primitive checks consent before querying OS storage and again around credential
 use. It rejects unavailable encryption and Linux `basic_text`, and admits only
 recognized GNOME or KDE secure providers. Only GNOME libsecret has native proof;
@@ -249,6 +249,40 @@ keyring. The basic provider created no record; libsecret encrypted a synthetic
 credential, decrypted it after a fresh Electron process and keyring session, denied
 use after withdrawal, and removed the record. This does not establish game-broker
 integration, OS lock-screen behavior, KDE support or other platform support.
+
+## Manual official API connection
+
+For a local-file workspace, File → Game connection can connect the user's own
+official API key after a native permission dialog and current workspace password.
+The masked native entry sends the key only to trusted Electron main. Secure OS
+storage must be available before key entry. Refusal leaves offline analytics usable.
+Normal close retains ciphertext; restart requires renewed consent and password
+confirmation before reading the saved key. Disconnect removes the key without
+decrypting it. Connection metadata and ciphertext are excluded from workspace exports.
+
+The broker uses only HTTPS GET `/api/v1/player`, `/api/v1/guild` and
+`/api/v1/guildRaid` on `api.tacticusgame.com`, with `X-API-KEY` authentication.
+It follows the [official API contract](https://api.tacticusgame.com/swagger-ui/index.html)
+and [official API documentation](https://github.com/SnowprintStudios/tacticus-api).
+Redirects, foreign destinations, non-JSON responses, excessive bodies and credential
+echoes are refused. Expiry and the selected guild ID are rechecked before manual
+sync. It exposes no arbitrary URL, signing operation or root-key renderer bridge.
+The Player response does not verify ownership of the local player ID. Unmapped
+raid players get stable pseudonymous labels; existing local mappings retain their
+explicit local-claim provenance. Manual sync uses the transactional raid importer.
+
+| Capability                                                                               | Current evidence                                                                                                   |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Fixed operations, expiry, guild switching, cancellation and result bounds                | Synthetic broker and native-menu behavior tests                                                                    |
+| HTTPS certificate verification, encrypted storage and secret refusal                     | Actual Electron and GNOME Keyring with an isolated synthetic TLS counterpart; an untrusted certificate is rejected |
+| Consent, key entry, sync, normal restart, saved-key resume, deduplication and disconnect | Normal Linux GUI prototype with synthetic TLS and GNOME Keyring; no renderer verification hooks                    |
+| Live official account, automatic game-client acquisition, historical season requests     | Not validated or implemented by this preview                                                                       |
+| OS lock-screen, KDE native provider, Windows and macOS adapters                          | Outstanding                                                                                                        |
+
+The GUI prototype's private fixture supplies a test certificate trust root inside
+an offline network namespace. That fixture is not packaged or enabled by production
+code. These checks establish synthetic integration, not live-account acceptance or
+complete desktop feature parity. Linux secret entry requires Zenity and libsecret.
 
 ## Local raid-file import
 

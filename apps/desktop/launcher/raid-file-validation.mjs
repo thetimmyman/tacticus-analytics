@@ -22,6 +22,7 @@ const fields = new Set([
 ])
 const unitFields = new Set([
   'unitId',
+  'power',
   'rank',
   'rarity',
   'level',
@@ -101,7 +102,7 @@ function unit(value) {
     // Nested equipment/ability contracts need their own reviewed format.
     // Refuse them rather than retaining untyped fields or silently dropping data.
     if (key === 'equipment' || key === 'abilities') throw invalid()
-    integer(item, 100000)
+    integer(item, key === 'power' ? 1_000_000_000_000 : 100000)
   }
 }
 export function parseRaidFile(contents) {

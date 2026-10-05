@@ -3,7 +3,7 @@ const { join } = require('node:path')
 const { writeFileSync } = require('node:fs')
 const { randomUUID } = require('node:crypto')
 
-module.exports = function maintenanceMenu(window, config) {
+module.exports = function maintenanceMenu(window, config, gameItems = []) {
   let busy = false
   const request = async (operation, scripted) => {
     if (busy) return
@@ -83,6 +83,9 @@ module.exports = function maintenanceMenu(window, config) {
             click: () =>
               window.loadURL(new URL('/desktop/import', config.url).href)
           },
+          ...(gameItems.length
+            ? [{ label: 'Game connection', submenu: gameItems }]
+            : []),
           {
             id: 'workspace-backup',
             label: 'Back up workspace…',

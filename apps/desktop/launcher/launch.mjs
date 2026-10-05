@@ -85,10 +85,12 @@ const maintenanceRequest = join(state, `maintenance-${maintenanceNonce}.json`)
 try {
   const transportKey = randomBytes(32).toString('hex')
   const cronSecret = randomBytes(32).toString('hex')
+  const brokerToken = randomBytes(32).toString('hex')
   gateway = await loopbackGateway({
     services,
     transportKey,
     handleLocalRequest: workspaceSetup(services, here, {
+      brokerToken,
       normalize: async (contents, context) => {
         const response = await fetch(
           `http://127.0.0.1:${applicationPort}/api/desktop/normalize-raid-file`,
@@ -215,6 +217,7 @@ try {
     JSON.stringify({
       url: `${gateway.origin}/desktop/setup`,
       transportKey,
+      brokerToken,
       state: services.state,
       maintenanceNonce,
       maintenanceRequest,
@@ -230,6 +233,9 @@ try {
       LANG: 'C.UTF-8',
       HOME: homedir(),
       XDG_CACHE_HOME: join(state, 'cache'),
+      XDG_CURRENT_DESKTOP: process.env.XDG_CURRENT_DESKTOP,
+      XDG_CONFIG_HOME: process.env.XDG_CONFIG_HOME,
+      XDG_DATA_HOME: process.env.XDG_DATA_HOME,
       DBUS_SESSION_BUS_ADDRESS: process.env.DBUS_SESSION_BUS_ADDRESS,
       ...display.environment
     },

@@ -62,7 +62,14 @@ app
       if (new URL(url).origin !== origin) event.preventDefault()
     })
     await window.loadURL(config.url)
-    const maintenance = require('./maintenance-menu.cjs')(window, config)
+    const gameItems = config.verify
+      ? []
+      : await require('./game-menu.cjs')(window, config)
+    const maintenance = require('./maintenance-menu.cjs')(
+      window,
+      config,
+      gameItems
+    )
     if (config.verify) {
       if (config.verify.setupScreenshot)
         writeFileSync(

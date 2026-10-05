@@ -53,6 +53,13 @@ export class CredentialVault {
     )
       throw unavailable()
   }
+  ensureReady() {
+    try {
+      this.#ready()
+    } catch {
+      throw unavailable()
+    }
+  }
   async #folder(create, action) {
     if (create) await mkdir(this.#directory, { recursive: true, mode: 0o700 })
     return withEntry(this.#directory, async (directory, metadata, anchor) => {

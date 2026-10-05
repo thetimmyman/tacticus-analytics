@@ -79,6 +79,7 @@ const denied = {
 test('consent precedes OS provider access and all storage creation', async () => {
   const f = await fixture()
   f.state.consent = false
+  assert.throws(() => f.vault.ensureReady(), denied)
   await assert.rejects(f.vault.save(f.secret), denied)
   assert.equal(f.state.queries, 0)
   await assert.rejects(stat(f.directory), { code: 'ENOENT' })
