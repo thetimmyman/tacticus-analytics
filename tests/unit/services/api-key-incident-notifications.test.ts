@@ -24,6 +24,7 @@ import {
 
 type TestGuild = {
   guild_code: string
+  enabled: boolean
   display_name: string
   api_key_is_valid: boolean
   consecutive_sync_failures: number
@@ -48,7 +49,8 @@ const TEST_NOW = new Date('2026-10-05T12:00:00.000Z')
 
 function makeNotificationClient(
   guildRows: TestGuild[],
-  stateRows: TestIncidentState[]
+  stateRows: TestIncidentState[],
+  failingTable?: string
 ) {
   const upserts: Array<Record<string, unknown>> = []
   const client = {
@@ -57,12 +59,20 @@ function makeNotificationClient(
       builder.select = vi.fn(() => builder)
       builder.eq = vi.fn(() => builder)
       builder.not = vi.fn(() => builder)
-      builder.in = vi.fn(async () => ({
+      builder.order = vi.fn(() => builder)
+      builder.in = vi.fn(async (_column: string, codes: string[]) => ({
         data:
-          table === 'guild_api_incident_notification_state' ? stateRows : [],
-        error: null
+          table === 'guild_api_incident_notification_state'
+            ? stateRows.filter((row) => codes.includes(row.guild_code))
+            : [],
+        error:
+          table === failingTable ? { message: 'synthetic read failure' } : null
       }))
-      builder.limit = vi.fn(async () => ({ data: guildRows, error: null }))
+      builder.range = vi.fn(async (start: number, end: number) => ({
+        data: guildRows.slice(start, end + 1),
+        error:
+          table === failingTable ? { message: 'synthetic read failure' } : null
+      }))
       builder.maybeSingle = vi.fn(async () => ({ data: null, error: null }))
       builder.upsert = vi.fn(async (row: Record<string, unknown>) => {
         upserts.push(row)
@@ -96,6 +106,7 @@ function incidentState(
 function invalidKeyGuild(): TestGuild {
   return {
     guild_code: 'synthetic-guild',
+    enabled: true,
     display_name: 'Synthetic guild',
     api_key_is_valid: false,
     consecutive_sync_failures: 5,
@@ -177,6 +188,98 @@ describe('api-key incident no-recipient operations rollup', () => {
     expect(result.staleInvalidKeyIncidentsWithoutRecipients).toBe(0)
     expect(result.oldestStaleInvalidKeyIncidentDays).toBeNull()
     expect(mocks.loggerWarn).not.toHaveBeenCalled()
+  })
+
+  it('still detects stale incidents when player email delivery is unavailable', async () => {
+    vi.stubEnv('RESEND_API_KEY', '')
+    const { result } = await runNoRecipientSweep(
+      [invalidKeyGuild()],
+      [incidentState()]
+    )
+
+    expect(result.errors).toContain('RESEND_API_KEY is not configured')
+    expect(result.staleInvalidKeyIncidentsWithoutRecipients).toBe(1)
+    expect(result.oldestStaleInvalidKeyIncidentDays).toBe(9)
+  })
+
+  it('keeps an invalid-key incident open after sync activity leaves the email lookback', async () => {
+    const startedAt = new Date(
+      TEST_NOW.getTime() - 30 * 24 * 60 * 60 * 1000
+    ).toISOString()
+    const { result, upserts } = await runNoRecipientSweep(
+      [{ ...invalidKeyGuild(), last_sync_attempt: startedAt }],
+      [incidentState({ incident_started_at: startedAt })]
+    )
+
+    expect(result.resolvedGuilds).toBe(0)
+    expect(result.staleInvalidKeyIncidentsWithoutRecipients).toBe(1)
+    expect(result.oldestStaleInvalidKeyIncidentDays).toBe(30)
+    expect(upserts.at(-1)).toMatchObject({
+      incident_type: 'invalid_api_key',
+      resolved_at: null
+    })
+  })
+
+  it('does not start a new incident for a dormant guild outside the lookback', async () => {
+    const { result, upserts } = await runNoRecipientSweep(
+      [{ ...invalidKeyGuild(), last_sync_attempt: '2026-08-01T00:00:00Z' }],
+      []
+    )
+    expect(result.incidentGuilds).toBe(0)
+    expect(upserts).toEqual([])
+  })
+
+  it('resets disabled incidents so re-enabling does not reuse prior age or notification', async () => {
+    const { result, upserts } = await runNoRecipientSweep(
+      [{ ...invalidKeyGuild(), enabled: false }],
+      [incidentState({ notified_at: '2026-09-01T00:00:00Z' })]
+    )
+    expect(result.incidentGuilds).toBe(0)
+    expect(result.resolvedGuilds).toBe(1)
+    const reset = upserts[0] as TestIncidentState
+    expect(reset).toMatchObject({
+      incident_type: null,
+      incident_started_at: null,
+      notified_at: null,
+      resolved_at: TEST_NOW.toISOString()
+    })
+    const reenabled = await runNoRecipientSweep([invalidKeyGuild()], [reset])
+    expect(reenabled.result.skippedAlreadyNotified).toBe(0)
+    expect(reenabled.result.staleInvalidKeyIncidentsWithoutRecipients).toBe(0)
+    expect(reenabled.upserts.at(-1)?.incident_started_at).toBe(
+      TEST_NOW.toISOString()
+    )
+  })
+
+  it('finds a stale incident beyond the first guild page', async () => {
+    const healthy = Array.from({ length: 150 }, (_, i) => ({
+      ...invalidKeyGuild(),
+      guild_code: `synthetic-${i}`,
+      api_key_is_valid: true,
+      consecutive_sync_failures: 0
+    }))
+    const { result } = await runNoRecipientSweep(
+      [...healthy, invalidKeyGuild()],
+      [incidentState()]
+    )
+    expect(result.scannedGuilds).toBe(151)
+    expect(result.staleInvalidKeyIncidentsWithoutRecipients).toBe(1)
+  })
+
+  it.each([
+    'guild_config',
+    'guild_api_incident_notification_state',
+    'player_mapping'
+  ])('rejects an incomplete sweep when %s cannot be read', async (table) => {
+    const { client } = makeNotificationClient(
+      [invalidKeyGuild()],
+      [incidentState()],
+      table
+    )
+    mocks.serviceDb.mockReturnValue(client)
+    await expect(sendApiKeyIncidentNotifications()).rejects.toThrow(
+      /sweep failed|recipient lookup failed/
+    )
   })
 
   it('does not treat an invalid incident timestamp as stale', async () => {

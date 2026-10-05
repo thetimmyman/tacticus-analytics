@@ -16,6 +16,7 @@ import type { TypedSupabaseClient } from '@tacticus/app-core/types'
 type GuildConfigRow = Pick<
   Database['public']['Tables']['guild_config']['Row'],
   | 'guild_code'
+  | 'enabled'
   | 'display_name'
   | 'api_key_is_valid'
   | 'consecutive_sync_failures'
@@ -162,7 +163,7 @@ function getMaxGuildsToScan(): number {
   if (!Number.isFinite(MAX_GUILDS_TO_SCAN) || MAX_GUILDS_TO_SCAN <= 0) {
     return 150
   }
-  return MAX_GUILDS_TO_SCAN
+  return Math.min(MAX_GUILDS_TO_SCAN, 1000)
 }
 
 function getNoRecipientEscalationDays(): number {
@@ -345,6 +346,7 @@ async function resolveRecipientEmails(
       },
       '[api-key-notifications] Failed querying leader/officer mappings'
     )
+    throw new Error('API key incident recipient lookup failed')
   }
 
   const leadershipUserIds = Array.from(
@@ -373,6 +375,7 @@ async function resolveRecipientEmails(
         },
         '[api-key-notifications] Failed querying leadership emails'
       )
+      throw new Error('API key incident recipient lookup failed')
     } else {
       for (const row of emailRows ?? []) {
         if (!row.email) continue
@@ -401,6 +404,7 @@ async function resolveRecipientEmails(
         },
         '[api-key-notifications] Failed querying fallback guild owner email'
       )
+      throw new Error('API key incident recipient lookup failed')
     } else if (fallbackRow?.email) {
       recipients.push({
         email: fallbackRow.email,
@@ -509,78 +513,88 @@ export async function sendApiKeyIncidentNotifications(
   if (!process.env.RESEND_API_KEY) {
     result.errors.push('RESEND_API_KEY is not configured')
     logger.warn(
-      '[api-key-notifications] Skipping incident notifications because RESEND_API_KEY is not configured'
+      '[api-key-notifications] Email delivery is unavailable because RESEND_API_KEY is not configured'
     )
-    return result
   }
 
   const supabase = serviceDb()
 
-  const { data: guildRows, error: guildError } = await supabase
-    .from('guild_config')
-    .select(
-      'guild_code, display_name, api_key_is_valid, consecutive_sync_failures, last_successful_sync, last_sync_attempt, user_id'
-    )
-    .limit(getMaxGuildsToScan())
+  const guilds: GuildConfigRow[] = []
+  // The configured bound limits each query, not coverage of the daily sweep.
+  const pageSize = getMaxGuildsToScan()
+  for (let offset = 0; ; offset += pageSize) {
+    const { data: guildRows, error: guildError } = await supabase
+      .from('guild_config')
+      .select(
+        'guild_code, enabled, display_name, api_key_is_valid, consecutive_sync_failures, last_successful_sync, last_sync_attempt, user_id'
+      )
+      .order('guild_code')
+      .range(offset, offset + pageSize - 1)
 
-  if (guildError) {
-    const message = `Failed querying guild API health rows: ${guildError.message}`
-    result.errors.push(message)
-    logger.error(
-      { source, error: guildError.message },
-      '[api-key-notifications] Guild query failed'
-    )
-    return result
+    if (guildError) {
+      logger.error(
+        { source, error: guildError.message },
+        '[api-key-notifications] Guild query failed'
+      )
+      throw new Error('API key incident guild sweep failed')
+    }
+    const page = (guildRows ?? []) as GuildConfigRow[]
+    guilds.push(...page)
+    if (page.length < pageSize) break
   }
-
-  const guilds = (guildRows ?? []) as GuildConfigRow[]
   result.scannedGuilds = guilds.length
 
   if (guilds.length === 0) {
     return result
   }
 
-  const incidentGuildEntries = guilds
-    .map((guild) => ({ guild, incident: classifyApiIncident(guild) }))
-    .filter(
-      (entry): entry is { guild: GuildConfigRow; incident: ApiKeyIncident } =>
-        entry.incident !== null &&
-        isRecentlyActiveGuild(entry.guild, now, lookbackDays)
-    )
-
-  result.incidentGuilds = incidentGuildEntries.length
-
-  const incidentByGuildCode = new Map(
-    incidentGuildEntries.map((entry) => [entry.guild.guild_code, entry])
-  )
-
   const incidentStateTable = supabase.from(
     INCIDENT_STATE_TABLE
   ) as unknown as IncidentStateTableClient
-  const { data: stateRows, error: stateError } = await incidentStateTable
-    .select(
-      'guild_code, incident_type, incident_started_at, incident_last_seen_at, notified_at, notified_recipients, notified_recipient_count, last_notification_error, resolved_at'
-    )
-    .in(
-      'guild_code',
-      guilds.map((g) => g.guild_code)
-    )
-
-  if (stateError) {
-    const message = `Failed querying incident state rows: ${stateError.message}`
-    result.errors.push(message)
-    logger.error(
-      { source, error: stateError.message },
-      '[api-key-notifications] State query failed'
-    )
-    return result
+  const states: IncidentStateRow[] = []
+  for (let offset = 0; offset < guilds.length; offset += pageSize) {
+    const { data: stateRows, error: stateError } = await incidentStateTable
+      .select(
+        'guild_code, incident_type, incident_started_at, incident_last_seen_at, notified_at, notified_recipients, notified_recipient_count, last_notification_error, resolved_at'
+      )
+      .in(
+        'guild_code',
+        guilds.slice(offset, offset + pageSize).map((g) => g.guild_code)
+      )
+    if (stateError) {
+      logger.error(
+        { source, error: stateError.message },
+        '[api-key-notifications] State query failed'
+      )
+      throw new Error('API key incident state sweep failed')
+    }
+    states.push(...(stateRows ?? []))
   }
 
   const stateByGuildCode = new Map<string, IncidentStateRow>(
-    ((stateRows ?? []) as IncidentStateRow[]).map((row) => [
-      row.guild_code,
-      row
-    ])
+    states.map((row) => [row.guild_code, row])
+  )
+
+  const incidentGuildEntries = guilds
+    .filter((guild) => guild.enabled === true)
+    .map((guild) => ({ guild, incident: classifyApiIncident(guild) }))
+    .filter(
+      (entry): entry is { guild: GuildConfigRow; incident: ApiKeyIncident } => {
+        if (!entry.incident) return false
+        const existing = stateByGuildCode.get(entry.guild.guild_code)
+        const continuingInvalidKey =
+          entry.incident.type === 'invalid_api_key' &&
+          existing?.incident_type === 'invalid_api_key' &&
+          existing.resolved_at === null
+        return (
+          continuingInvalidKey ||
+          isRecentlyActiveGuild(entry.guild, now, lookbackDays)
+        )
+      }
+    )
+  result.incidentGuilds = incidentGuildEntries.length
+  const incidentByGuildCode = new Map(
+    incidentGuildEntries.map((entry) => [entry.guild.guild_code, entry])
   )
 
   for (const row of stateByGuildCode.values()) {
