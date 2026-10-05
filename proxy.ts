@@ -408,10 +408,6 @@ export default async function proxy(request: NextRequest) {
     const requestHeaders = new Headers(request.headers)
     requestHeaders.set('x-nonce', nonce)
 
-    const response = NextResponse.next({
-      request: { headers: requestHeaders }
-    })
-
     const isDevelopment = process.env.NODE_ENV === 'development'
     const proxySupabaseUrls = resolveProxySupabaseUrls()
     const tacticusOrigin = new URL(API_URLS.TACTICUS.BASE).origin
@@ -428,6 +424,11 @@ export default async function proxy(request: NextRequest) {
       ? `default-src 'self'; script-src 'self' 'nonce-${nonce}' 'unsafe-eval' blob:; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; media-src 'self'; connect-src ${connectSrcValues}; frame-src 'self'; frame-ancestors 'none';`
       : `default-src 'self'; script-src 'self' 'nonce-${nonce}' blob:; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; media-src 'self'; connect-src ${connectSrcValues}; frame-src 'self'; frame-ancestors 'none';`
 
+    // Next reads the request CSP to nonce its generated scripts.
+    requestHeaders.set('Content-Security-Policy', cspHeader)
+    const response = NextResponse.next({
+      request: { headers: requestHeaders }
+    })
     response.headers.set('Content-Security-Policy', cspHeader)
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
