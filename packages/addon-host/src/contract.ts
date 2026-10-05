@@ -8,7 +8,10 @@ export const LIMITS = Object.freeze({
   resultBytes: 262_144
 })
 const digest = z.string().regex(/^[a-f0-9]{64}$/)
-const version = z.string().regex(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/)
+const version = z
+  .string()
+  .max(32)
+  .regex(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/)
 const token = z.string().regex(/^[a-z0-9][a-z0-9-]{0,63}$/)
 export const addonId = z.enum(['guild-war', 'replays'])
 export const platform = z.enum(['linux', 'macos', 'windows', 'android', 'ios'])
