@@ -8,7 +8,7 @@ import {
 import { createServer } from 'node:net'
 import { mkdir, readFile, writeFile, stat } from 'node:fs/promises'
 import { nativeCommand } from './native-command.mjs'
-import { resolve, join } from 'node:path'
+import { resolve, join, basename } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 
 export function signedToken(key, role) {
@@ -34,10 +34,14 @@ async function run(file, args, options) {
     stdio: ['ignore', 'pipe', 'pipe']
   })
   let stdout = ''
+  let failureText = ''
   child.stdout.on('data', (v) => {
     stdout += v
   })
-  child.stderr.resume()
+  child.stderr.on('data', (value) => {
+    if (failureText.length < 65536)
+      failureText += value.toString().slice(0, 65536 - failureText.length)
+  })
   await new Promise((accept, reject) => {
     child.once('error', reject)
     child.once('exit', (code) =>
@@ -45,12 +49,51 @@ async function run(file, args, options) {
         ? accept()
         : reject(
             new Error(
-              `Owned service exited ${code}; sensitive output suppressed`
+              `${['initdb.exe', 'psql.exe', 'auth.exe', 'pg_ctl.exe'].includes(basename(file)) ? basename(file) : 'Owned service'} exited ${code}; ${serviceFailureCode(failureText + stdout)}; sensitive output suppressed`
             )
           )
     )
   })
   return stdout
+}
+export function serviceFailureCode(text) {
+  for (const [pattern, code] of [
+    [/permission denied|access is denied/i, 'permission-refused'],
+    [/invalid locale|locale.*not supported/i, 'locale-unavailable'],
+    [
+      /could not (?:open|read|access).*file|No such file or directory/i,
+      'required-file-unavailable'
+    ],
+    [/could not execute|could not start process/i, 'child-launch-failed'],
+    [
+      /could not find.*postgres|does not match.*version/i,
+      'postgres-executable-mismatch'
+    ],
+    [
+      /could not load library|specified module could not be found/i,
+      'dynamic-library-unavailable'
+    ],
+    [
+      /SQLSTATE 42501|must be owner|insufficient_privilege/i,
+      'database-authority-refused'
+    ],
+    [
+      /SQLSTATE 42P01|relation .* does not exist/i,
+      'database-schema-unavailable'
+    ],
+    [
+      /SQLSTATE 42883|function .* does not exist/i,
+      'database-function-unavailable'
+    ],
+    [/SQLSTATE 42710|already exists/i, 'database-object-conflict'],
+    [
+      /SQLSTATE 28P01|password authentication failed/i,
+      'database-authentication-refused'
+    ],
+    [/bootstrap.*failed|child process exited/i, 'postgres-bootstrap-failed']
+  ])
+    if (pattern.test(text)) return code
+  return 'unclassified-service-failure'
 }
 export function validOwnerSession(value, subject, key) {
   try {
