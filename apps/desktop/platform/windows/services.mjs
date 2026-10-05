@@ -57,6 +57,16 @@ async function run(file, args, options) {
   return stdout
 }
 export function serviceFailureCode(text) {
+  // PostgreSQL's Windows bootstrap can report an NTSTATUS without a diagnostic
+  // body. Preserve only the numeric status, never paths, SQL or server output.
+  const childStatus = /child process exited with exit code (\d{1,10})\b/i.exec(
+    text
+  )
+  if (childStatus) {
+    const status = Number(childStatus[1])
+    if (status > 1 && status <= 0xffffffff)
+      return `postgres-child-status-0x${status.toString(16).padStart(8, '0')}`
+  }
   for (const [pattern, code] of [
     [/permission denied|access is denied/i, 'permission-refused'],
     [/invalid locale|locale.*not supported/i, 'locale-unavailable'],
@@ -74,6 +84,23 @@ export function serviceFailureCode(text) {
       'dynamic-library-unavailable'
     ],
     [
+      /could not create restricted token|could not re-execute with restricted token/i,
+      'restricted-token-unavailable'
+    ],
+    [
+      /could not create shared memory|could not map shared memory/i,
+      'shared-memory-unavailable'
+    ],
+    [
+      /not enough memory|out of memory|insufficient system resources/i,
+      'system-memory-unavailable'
+    ],
+    [
+      /could not generate (?:random|strong)|could not initialize.*random/i,
+      'random-source-unavailable'
+    ],
+    [/syntax error|invalid byte sequence/i, 'bootstrap-input-invalid'],
+    [
       /SQLSTATE 42501|must be owner|insufficient_privilege/i,
       'database-authority-refused'
     ],
@@ -90,6 +117,7 @@ export function serviceFailureCode(text) {
       /SQLSTATE 28P01|password authentication failed/i,
       'database-authentication-refused'
     ],
+    [/child process exited.*exit code 1/i, 'postgres-child-exit-1'],
     [/bootstrap.*failed|child process exited/i, 'postgres-bootstrap-failed']
   ])
     if (pattern.test(text)) return code
@@ -275,23 +303,26 @@ export async function nativeServices({
       if (error.code !== 'ENOENT') throw error
       const pass = join(state, 'owner-password')
       await writeFile(pass, credentials.owner, { mode: 0o600 })
-      await run(
-        binaries.initdb,
-        [
-          '-D',
-          pgData,
-          '-U',
-          'desktop_owner',
-          '--pwfile',
-          pass,
-          '--auth-local=scram-sha-256',
-          '--auth-host=scram-sha-256',
-          '--encoding=UTF8',
-          '--locale=C'
-        ],
-        { env: pgEnv }
-      )
-      await unlink(pass)
+      try {
+        await run(
+          binaries.initdb,
+          [
+            '-D',
+            pgData,
+            '-U',
+            'desktop_owner',
+            '--pwfile',
+            pass,
+            '--auth-local=scram-sha-256',
+            '--auth-host=scram-sha-256',
+            '--encoding=UTF8',
+            '--locale=C'
+          ],
+          { env: pgEnv }
+        )
+      } finally {
+        await unlink(pass)
+      }
       fresh = true
     }
     const pg = launch(

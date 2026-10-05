@@ -9,10 +9,38 @@ import {
   peImports,
   auditDependencies
 } from '../../../apps/desktop/platform/windows/pe-dependencies.mjs'
-import { validOwnerSession } from '../../../apps/desktop/platform/windows/services.mjs'
+import {
+  validOwnerSession,
+  serviceFailureCode
+} from '../../../apps/desktop/platform/windows/services.mjs'
 import { workspaceGate } from '../../../apps/desktop/platform/windows/session-gate.mjs'
 import { windowsOnboarding } from '../../../apps/desktop/platform/windows/onboarding.mjs'
 import { personalExport } from '../../../apps/desktop/platform/windows/export.mjs'
+
+test('bootstrap status diagnostics retain numeric loader failures without exposing service output', () => {
+  assert.equal(
+    serviceFailureCode(
+      'synthetic-private-path: child process exited with exit code 3221225781'
+    ),
+    'postgres-child-status-0xc0000135'
+  )
+  assert.equal(
+    serviceFailureCode('child process exited with exit code 3221225794'),
+    'postgres-child-status-0xc0000142'
+  )
+  assert.equal(
+    serviceFailureCode('child process exited with exit code 1'),
+    'postgres-child-exit-1'
+  )
+  assert.equal(
+    serviceFailureCode('could not create restricted token: error code 5'),
+    'restricted-token-unavailable'
+  )
+  assert.equal(
+    serviceFailureCode('synthetic-private-body'),
+    'unclassified-service-failure'
+  )
+})
 
 test('expired native file choice resumes only its trusted destination after unlock without writing beforehand', async () => {
   let authorized = true,
