@@ -73,7 +73,7 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Portable adapter tests and complete application build
         run: |
-          node --test tests/desktop/windows/*.node-test.mjs apps/desktop/proof/workspace-session.test.mjs
+          node --test tests/desktop/windows/*.node-test.mjs apps/desktop/proof/workspace-session.test.mjs apps/desktop/proof/loopback-gateway.test.mjs
           if ($LASTEXITCODE -ne 0) { throw 'Adapter tests failed' }
           npm run build
           if ($LASTEXITCODE -ne 0) { throw 'Complete application build failed' }

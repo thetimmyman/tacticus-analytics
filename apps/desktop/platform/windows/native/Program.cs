@@ -34,7 +34,7 @@ internal static class Program
                     var postgresHome = RuntimePaths.AsciiDirectory(Path.Combine(root, "postgres"));
                     var command = new[] { script, "--state", state.Root, "--postgres-home", postgresHome }.Concat(args.Skip(3));
                     var timer = Stopwatch.StartNew();
-                    using var process = job.Start(Path.Combine(root, "bin", "node.exe"), command, root);
+                    using var process = job.Start(Path.Combine(root, "bin", "node.exe"), command, root, removeAdministrativeAccess: true);
                     var code = process.Wait();
                     var measurement = Array.IndexOf(args, "--measurement");
                     if (measurement >= 0 && measurement + 1 < args.Length)
@@ -67,6 +67,14 @@ internal static class Program
                 case "read-import" when args.Length == 3 && long.TryParse(args[2], out var importExpiry):
                     Console.WriteLine(LocalFiles.Import(args[1], importExpiry)); return 0;
                 case "native-proof" when args.Length == 2: await NativeProof.Run(args[1]); return 0;
+                case "proof-token" when args.Length == 2:
+                {
+                    using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
+                    File.WriteAllText(args[1], JsonSerializer.Serialize(new { subject = identity.User?.Value,
+                        administrative = new System.Security.Principal.WindowsPrincipal(identity).IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator),
+                        powerUser = new System.Security.Principal.WindowsPrincipal(identity).IsInRole(System.Security.Principal.WindowsBuiltInRole.PowerUser) }));
+                    return 0;
+                }
                 case "proof-descendant" when args.Length == 2:
                 {
                     var child = Process.Start(new ProcessStartInfo(Environment.ProcessPath!, "proof-leaf") { UseShellExecute = false })!;
@@ -77,7 +85,7 @@ internal static class Program
                 case "proof-owner" when args.Length == 2:
                 {
                     using var job = new JobOwner();
-                    using var child = job.Start(Environment.ProcessPath!, new[] { "proof-descendant", args[1] }, AppContext.BaseDirectory);
+                    using var child = job.Start(Environment.ProcessPath!, new[] { "proof-descendant", args[1] }, AppContext.BaseDirectory, removeAdministrativeAccess: true);
                     child.Wait(); return 0;
                 }
                 default: throw new InvalidOperationException("Unsupported native operation");
@@ -86,7 +94,9 @@ internal static class Program
         catch (Exception error)
         {
             // Failure text is deliberately bounded: upstream bodies, command lines and credentials are never logged.
-            Console.Error.WriteLine(error is InvalidOperationException ? error.Message : "Native operation failed. Check secure input/store availability, package integrity, workspace ownership and supported platform.");
+            Console.Error.WriteLine(error is InvalidOperationException ? error.Message :
+                error is System.ComponentModel.Win32Exception nativeError ? $"Native OS operation failed; status {nativeError.NativeErrorCode}." :
+                "Native operation failed. Check secure input/store availability, package integrity, workspace ownership and supported platform.");
             return error is SecureStoreUnavailable ? 2 : error is OfficialAccessUnavailable ? 3 : error is LocalSessionExpired ? 4 : 1;
         }
     }
@@ -109,10 +119,23 @@ internal static class NativeProof
             if (alias.Any(ch => ch > 127) || File.ReadAllText(Path.Combine(alias, "alias-proof.txt")) != "synthetic alias target")
                 throw new InvalidOperationException("Native ASCII alias target verification failed");
             assertions.Add("native-ascii-alias-preserves-unicode-directory-target");
+            var tokenRecord = Path.Combine(testRoot, "token.json");
+            using (var job = new JobOwner())
+            using (var child = job.Start(Environment.ProcessPath!, new[] { "proof-token", tokenRecord }, testRoot, removeAdministrativeAccess: true))
+            {
+                if (child.Wait() != 0) throw new InvalidOperationException("Nonadministrative child token proof failed");
+                using var token = JsonDocument.Parse(File.ReadAllText(tokenRecord));
+                using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
+                if (token.RootElement.GetProperty("administrative").GetBoolean() || token.RootElement.GetProperty("powerUser").GetBoolean() ||
+                    token.RootElement.GetProperty("subject").GetString() != identity.User?.Value)
+                    throw new InvalidOperationException("Child did not retain the current user without administrative access");
+            }
+            File.Delete(tokenRecord);
+            assertions.Add("same-user-nonadministrative-child-token");
             var record = Path.Combine(testRoot, "tree.json");
             using (var job = new JobOwner())
             {
-                using var child = job.Start(Environment.ProcessPath!, new[] { "proof-descendant", record }, testRoot);
+                using var child = job.Start(Environment.ProcessPath!, new[] { "proof-descendant", record }, testRoot, removeAdministrativeAccess: true);
                 await WaitFile(record);
             }
             await RequireDead(record); assertions.Add("job-close-kills-descendants");

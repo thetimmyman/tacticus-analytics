@@ -17,12 +17,18 @@ internal sealed class JobOwner : IDisposable
         if (!SetInformationJobObject(job, 9, ref limits, (uint)Marshal.SizeOf<ExtendedLimit>()))
         { job.Dispose(); throw new Win32Exception(); }
     }
-    public OwnedProcess Start(string executable, IEnumerable<string> arguments, string workingDirectory)
+    public OwnedProcess Start(string executable, IEnumerable<string> arguments, string workingDirectory, bool removeAdministrativeAccess = false)
     {
         var startup = new Startup { Size = (uint)Marshal.SizeOf<Startup>() };
         var command = new StringBuilder(Quote(executable) + " " + string.Join(" ", arguments.Select(Quote)));
-        if (!CreateProcessW(executable, command, IntPtr.Zero, IntPtr.Zero, false,
-                0x4 | 0x400, IntPtr.Zero, workingDirectory, ref startup, out var process))
+        using var reduced = removeAdministrativeAccess ? AdministrativeToken.ReduceCurrent() : null;
+        ProcessInfo process;
+        var started = reduced is null
+            ? CreateProcessW(executable, command, IntPtr.Zero, IntPtr.Zero, false,
+                0x4 | 0x400, IntPtr.Zero, workingDirectory, ref startup, out process)
+            : CreateProcessAsUserW(reduced, executable, command, IntPtr.Zero, IntPtr.Zero, false,
+                0x4 | 0x400, IntPtr.Zero, workingDirectory, ref startup, out process);
+        if (!started)
             throw new Win32Exception();
         using var thread = new SafeFileHandle(process.Thread, true);
         var handle = new SafeFileHandle(process.Process, true);
@@ -83,6 +89,10 @@ internal sealed class JobOwner : IDisposable
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern bool CreateProcessW(string application, StringBuilder command, IntPtr processAttributes,
         IntPtr threadAttributes, bool inheritHandles, uint flags, IntPtr environment, string cwd, ref Startup startup, out ProcessInfo info);
+    [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern bool CreateProcessAsUserW(SafeAccessTokenHandle token, string application, StringBuilder command,
+        IntPtr processAttributes, IntPtr threadAttributes, bool inheritHandles, uint flags, IntPtr environment,
+        string cwd, ref Startup startup, out ProcessInfo info);
     [DllImport("kernel32.dll", SetLastError = true)] private static extern bool AssignProcessToJobObject(SafeFileHandle job, SafeFileHandle process);
     [DllImport("kernel32.dll", SetLastError = true)] private static extern uint ResumeThread(SafeFileHandle thread);
     [DllImport("kernel32.dll", SetLastError = true)] private static extern bool TerminateProcess(SafeFileHandle process, uint code);
