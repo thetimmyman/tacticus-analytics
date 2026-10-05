@@ -51,6 +51,9 @@ const addSyncAlert = vi.fn()
 const addApiKeyAlert = vi.fn()
 const addDatabaseAlert = vi.fn()
 const warn = vi.fn()
+const sendOpsAlert = vi.fn()
+const sendIncidentNotifications = vi.fn()
+const sendDailySummary = vi.fn()
 
 function rowsFor(select: string): QueryResult {
   if (select.includes('api_key_is_valid')) {
@@ -88,6 +91,13 @@ async function loadHandler(dbModule: Record<string, unknown>) {
   addApiKeyAlert.mockReset()
   addDatabaseAlert.mockReset()
   warn.mockReset()
+  sendOpsAlert.mockReset().mockResolvedValue({ status: 'not-needed' })
+  sendIncidentNotifications.mockReset().mockResolvedValue({
+    noRecipientEscalationDays: 7,
+    staleInvalidKeyIncidentsWithoutRecipients: 0,
+    oldestStaleInvalidKeyIncidentDays: null
+  })
+  sendDailySummary.mockReset()
   const registered: Handler[] = []
   vi.doMock('@/app/lib/jobs/dispatcher', () => ({
     registerJobHandler: (_type: string, handler: Handler) => {
@@ -106,7 +116,10 @@ async function loadHandler(dbModule: Record<string, unknown>) {
     runAllHealthChecks: vi.fn(async () => ({ summary: {} }))
   }))
   vi.doMock('@/app/lib/services/api-key-incident-notifications', () => ({
-    sendApiKeyIncidentNotifications: vi.fn(async () => ({}))
+    sendApiKeyIncidentNotifications: sendIncidentNotifications
+  }))
+  vi.doMock('@/app/lib/services/api-key-incident-ops', () => ({
+    sendApiKeyIncidentOpsAlert: sendOpsAlert
   }))
   vi.doMock('@tacticus/app-core/daily-alert-summary', () => ({
     addSyncAlert,
@@ -114,7 +127,7 @@ async function loadHandler(dbModule: Record<string, unknown>) {
     addDatabaseAlert,
     addInfrastructureAlert: vi.fn(),
     getAlertSummary: () => ({ alerts: [], stats: {} }),
-    sendDailySummary: vi.fn()
+    sendDailySummary
   }))
   vi.doMock('@/app/lib/db', () => dbModule)
   const mod = await import('@/app/lib/jobs/daily-alert-summary')
@@ -178,6 +191,47 @@ describe('daily alert summary job reads guild_config with the service client', (
       }),
       'Sync health alert query failed'
     )
+  })
+
+  it('delivers the stale rollup even when the daily email accumulator is empty', async () => {
+    const handler = await loadHandler({
+      serviceDb: vi.fn(() => clientReturning(() => ({ data: [], error: null })))
+    })
+    const rollup = {
+      noRecipientEscalationDays: 7,
+      staleInvalidKeyIncidentsWithoutRecipients: 1,
+      oldestStaleInvalidKeyIncidentDays: 9
+    }
+    sendIncidentNotifications.mockResolvedValue(rollup)
+    sendOpsAlert.mockResolvedValue({
+      status: 'delivered',
+      messageId: 'synthetic-message'
+    })
+
+    const result = await handler(
+      {},
+      { jobId: 3, workerId: 'test-worker', attempts: 1 }
+    )
+
+    expect(sendOpsAlert).toHaveBeenCalledWith(rollup)
+    expect(result).toMatchObject({
+      apiKeyIncidentOps: { status: 'delivered', messageId: 'synthetic-message' }
+    })
+    expect(sendDailySummary).not.toHaveBeenCalled()
+  })
+
+  it('rejects a failed operations delivery so the work queue can retry', async () => {
+    const handler = await loadHandler({
+      serviceDb: vi.fn(() => clientReturning(() => ({ data: [], error: null })))
+    })
+    sendOpsAlert.mockRejectedValue(
+      new Error('API key incident operations delivery failed')
+    )
+
+    await expect(
+      handler({}, { jobId: 4, workerId: 'test-worker', attempts: 1 })
+    ).rejects.toThrow('operations delivery failed')
+    expect(sendDailySummary).not.toHaveBeenCalled()
   })
 })
 

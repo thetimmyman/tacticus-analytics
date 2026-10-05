@@ -179,6 +179,36 @@ describe('api-key incident no-recipient operations rollup', () => {
     expect(mocks.loggerWarn).not.toHaveBeenCalled()
   })
 
+  it('still detects stale incidents when player email delivery is unavailable', async () => {
+    vi.stubEnv('RESEND_API_KEY', '')
+    const { result } = await runNoRecipientSweep(
+      [invalidKeyGuild()],
+      [incidentState()]
+    )
+
+    expect(result.errors).toContain('RESEND_API_KEY is not configured')
+    expect(result.staleInvalidKeyIncidentsWithoutRecipients).toBe(1)
+    expect(result.oldestStaleInvalidKeyIncidentDays).toBe(9)
+  })
+
+  it('keeps an invalid-key incident open after sync activity leaves the email lookback', async () => {
+    const startedAt = new Date(
+      TEST_NOW.getTime() - 30 * 24 * 60 * 60 * 1000
+    ).toISOString()
+    const { result, upserts } = await runNoRecipientSweep(
+      [{ ...invalidKeyGuild(), last_sync_attempt: startedAt }],
+      [incidentState({ incident_started_at: startedAt })]
+    )
+
+    expect(result.resolvedGuilds).toBe(0)
+    expect(result.staleInvalidKeyIncidentsWithoutRecipients).toBe(1)
+    expect(result.oldestStaleInvalidKeyIncidentDays).toBe(30)
+    expect(upserts.at(-1)).toMatchObject({
+      incident_type: 'invalid_api_key',
+      resolved_at: null
+    })
+  })
+
   it('does not treat an invalid incident timestamp as stale', async () => {
     const { result } = await runNoRecipientSweep(
       [invalidKeyGuild()],

@@ -509,9 +509,8 @@ export async function sendApiKeyIncidentNotifications(
   if (!process.env.RESEND_API_KEY) {
     result.errors.push('RESEND_API_KEY is not configured')
     logger.warn(
-      '[api-key-notifications] Skipping incident notifications because RESEND_API_KEY is not configured'
+      '[api-key-notifications] Email delivery is unavailable because RESEND_API_KEY is not configured'
     )
-    return result
   }
 
   const supabase = serviceDb()
@@ -521,6 +520,7 @@ export async function sendApiKeyIncidentNotifications(
     .select(
       'guild_code, display_name, api_key_is_valid, consecutive_sync_failures, last_successful_sync, last_sync_attempt, user_id'
     )
+    .eq('enabled', true)
     .limit(getMaxGuildsToScan())
 
   if (guildError) {
@@ -545,7 +545,8 @@ export async function sendApiKeyIncidentNotifications(
     .filter(
       (entry): entry is { guild: GuildConfigRow; incident: ApiKeyIncident } =>
         entry.incident !== null &&
-        isRecentlyActiveGuild(entry.guild, now, lookbackDays)
+        (entry.incident.type === 'invalid_api_key' ||
+          isRecentlyActiveGuild(entry.guild, now, lookbackDays))
     )
 
   result.incidentGuilds = incidentGuildEntries.length

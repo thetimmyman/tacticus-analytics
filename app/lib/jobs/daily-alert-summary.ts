@@ -9,6 +9,7 @@ import {
 import { serviceDb } from '@/app/lib/db'
 import { runAllHealthChecks } from '@/app/lib/health'
 import { sendApiKeyIncidentNotifications } from '@/app/lib/services/api-key-incident-notifications'
+import { sendApiKeyIncidentOpsAlert } from '@/app/lib/services/api-key-incident-ops'
 import { rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { createComponentLogger } from '@/app/lib/logging'
 import { registerJobHandler } from './dispatcher'
@@ -155,6 +156,9 @@ const dailyAlertSummaryHandler: JobHandler = async (_payload, ctx) => {
   const apiKeyIncidentNotifications = await sendApiKeyIncidentNotifications({
     source: 'work-queue-daily-alert-summary'
   })
+  const apiKeyIncidentOps = await sendApiKeyIncidentOpsAlert(
+    apiKeyIncidentNotifications
+  )
 
   const { alerts, stats } = getAlertSummary()
 
@@ -164,7 +168,8 @@ const dailyAlertSummaryHandler: JobHandler = async (_payload, ctx) => {
       status: 'no-alerts',
       alertCount: 0,
       healthSummary: healthResults.summary,
-      apiKeyIncidentNotifications
+      apiKeyIncidentNotifications,
+      apiKeyIncidentOps
     }
   }
 
@@ -176,6 +181,7 @@ const dailyAlertSummaryHandler: JobHandler = async (_payload, ctx) => {
     stats,
     healthSummary: healthResults.summary,
     apiKeyIncidentNotifications,
+    apiKeyIncidentOps,
     error: result.error
   }
 }
