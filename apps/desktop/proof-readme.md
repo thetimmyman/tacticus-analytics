@@ -156,6 +156,15 @@ negative control; the normal launcher uses 10. JavaScript pause/resume is not
 actual OS suspend/resume, and remains scoped to this selected analytics page.
 
 The schema lifecycle holds the native workspace lease before inspecting versions.
+Owned shutdown waits for child descriptor closure before returning. The native
+`shutdown-close-journey.mjs` control deliberately lets a synthetic descendant
+retain output pipes and the kernel lease after its parent exits, then requires
+immediate restart to preserve the eight synthetic raid rows.
+
+The selected profile schema includes canonical meta-team membership rows and
+timestamp handling. Synthetic native transactions exercise self declarations,
+same-guild leader overrides, foreign-guild read isolation, and refusal of forged
+setters, anonymous access and automated-source writes.
 A known, pinned upgrade first creates a private checkpoint of the stopped database,
 credentials and version marker. A pending marker prevents an older application
 from opening the workspace, including the interval between database commit and

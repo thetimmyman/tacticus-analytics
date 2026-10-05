@@ -40,7 +40,7 @@ async function run(file, args, options, observe) {
   })
   await new Promise((accept, reject) => {
     child.once('error', reject)
-    child.once('exit', (code) =>
+    child.once('close', (code) =>
       code === 0
         ? accept()
         : reject(new Error(`${file} exited ${code}: ${stderr.slice(-1200)}`))
@@ -143,6 +143,10 @@ export async function ownedNativeServices({
   const needsSchema = schemaPlan.kind === 'bootstrap'
   const children = []
   const utilities = new Set()
+  const closures = new WeakMap()
+  const observeClose = (child) => {
+    closures.set(child, new Promise((accept) => child.once('close', accept)))
+  }
   const { unlink } = await import('node:fs/promises')
   const onInterrupt = () => {
     void stop().finally(() => process.exit(130))
@@ -156,6 +160,7 @@ export async function ownedNativeServices({
     if (stopping) throw new Error('Local services are stopping')
     const command = guarded(file, args, options)
     return run(command.file, command.args, command.options, (child) => {
+      observeClose(child)
       utilities.add(child)
       child.once('close', () => utilities.delete(child))
     })
@@ -165,17 +170,22 @@ export async function ownedNativeServices({
     stopping = true
     stopPromise = (async () => {
       for (const child of [...children].reverse().concat([...utilities])) {
-        if (!child.pid || child.exitCode !== null || child.signalCode !== null)
+        if (!child.pid) continue
+        const closed = closures.get(child)
+        if (child.exitCode !== null || child.signalCode !== null) {
+          await closed
           continue
-        const exited = new Promise((accept) => child.once('exit', accept))
+        }
         // PostgreSQL fast shutdown cancels open sessions and checkpoints WAL.
         // SIGTERM requests smart shutdown and can wait indefinitely on clients.
         child.kill(child === children[0] ? 'SIGINT' : 'SIGTERM')
-        await Promise.race([exited, delay(5000, undefined, { ref: false })])
+        await Promise.race([closed, delay(5000, undefined, { ref: false })])
         if (child.exitCode === null && child.signalCode === null) {
           child.kill('SIGKILL')
-          await exited
         }
+        // Descendant-held pipes and inherited lease descriptors can outlive the
+        // exit event. Complete shutdown only after the owned child closes.
+        await closed
       }
       await unlink(lockPath).catch(() => {})
       process.removeListener('SIGINT', onInterrupt)
@@ -270,6 +280,7 @@ export async function ownedNativeServices({
         stdio: ['ignore', 'pipe', 'pipe']
       })
       const child = spawn(command.file, command.args, command.options)
+      observeClose(child)
       child.stdout.pipe(log)
       child.stderr.pipe(log)
       child.once('error', () => {

@@ -33,7 +33,12 @@ async function captureCorePages(window, origin) {
   assert.ok(page('/token-usage').title.includes('Access Denied'))
   assert.ok(page('/roster').text.includes('Native game connection'))
   assert.ok(page('/roster').text.includes('Roster sync'))
-  for (const path of ['/api-keys', '/profile/edit', '/onboarding/dashboard']) {
+  for (const path of [
+    '/api-keys',
+    '/profile#api-key',
+    '/profile/edit',
+    '/onboarding/dashboard'
+  ]) {
     await window.loadURL(origin + path)
     await new Promise((accept) => setTimeout(accept, 2000))
     const guide = await window.webContents.executeJavaScript(
@@ -41,6 +46,8 @@ async function captureCorePages(window, origin) {
     )
     assert.ok(guide.text.includes('Native game connection'))
     assert.equal(guide.keyInputs, 0)
+    assert.ok(!guide.text.includes('Link API Key'))
+    assert.ok(!guide.text.includes('Reweave API Key'))
   }
   return pages
 }

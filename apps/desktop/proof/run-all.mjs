@@ -90,6 +90,10 @@ if (!configPath) {
   console.log('\n== Forced coordinator death / native restart ==')
   run('c-hard-kill', 'apps/desktop/proof/hard-kill-journey.mjs', [configPath])
   if (nativeConfig.runtimeGuard) {
+    console.log('\n== Owned descriptor closure / immediate native restart ==')
+    run('c-shutdown-close', 'apps/desktop/proof/shutdown-close-journey.mjs', [
+      configPath
+    ])
     console.log('\n== Forced supervisor death / kernel lease recovery ==')
     run('c-owner-death', 'apps/desktop/proof/owner-death-journey.mjs', [
       configPath

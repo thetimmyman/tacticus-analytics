@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 5,
+  "schemaVersion": 6,
   "purpose": "Selected native desktop analytics, local snapshot jobs and local file imports; not the complete application schema",
   "sourceCommit": "5d41a8776f3e216c04dae14d1bfa09fd48ca730a",
   "objects": [
@@ -404,6 +404,18 @@
       "name": "resolve_boss_name",
       "canonicalStatementSha256": "0d4ce2414111d1fa2db1628bc00f433b8c521ec9c1c49e6c0db7fe5dcefc692d",
       "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "player_meta_roles",
+      "canonicalStatementSha256": "69c021245e10d625b7d352db3f58be235e3e17983f6f6016d5919e5d47f796b3",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "player_meta_roles_set_updated_at",
+      "canonicalStatementSha256": "2cbff332b3cebd7025c6de33878640355007a71e3cc4c76483c16d25dab1aeae",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
     }
   ],
   "excluded": "Hosted triggers, schedulers, operational SQL, captured data and blanket grants are deliberately excluded. Local bootstrap supplies constraints, RLS and ownership separately. Cluster aggregate must use a scoped invoker view rather than an unscoped materialized-view grant.",
@@ -415,6 +427,7 @@
     "Selected core analytic definers use the non-login, non-bypass read owner. Catalogue tables allow authenticated reads only, with no public caller writes. Comprehensive player statistics remain service-only behind the canonical application authorization path.",
     "Local workspace recovery stores a digest only; code provisioning requires the current password and reset targets only the installation account.",
     "Empty file workspaces admit desktop_local_claim attestations without an upstream invitation. These represent local labels only, with automatic game sync disabled; they cannot establish upstream account ownership.",
-    "A dedicated non-login non-bypass importer commits only the setup subject's guild and matching cluster, reads only raid conflict-key columns, and stores owner-scoped receipts. Caller roles cannot invoke the import primitive or inspect receipts."
+    "A dedicated non-login non-bypass importer commits only the setup subject's guild and matching cluster, reads only raid conflict-key columns, and stores owner-scoped receipts. Caller roles cannot invoke the import primitive or inspect receipts.",
+    "Meta-team memberships retain canonical rows and timestamps, scoped reads, own self declarations and same-guild leader overrides; local clients cannot write automated reconciler records."
   ]
 }

@@ -1,32 +1,38 @@
 [
   {
     "from": "2748cd79f5035152b1ec405c2dca6a8570cfd552a717c6c2a5cc7fd3a65def40",
-    "to": "6378c9a688ea5604f6fd596de36ece5364668f0ec35c9cea8fc524cbd61897e2",
+    "to": "3307460f840a3d37ebd654dbd938aa72cb7de6841731f2ebca23b9eb43f9b3fa",
     "file": "001-local-snapshot-jobs.sql",
-    "sha256": "a7187703a00e9a75a0645b6a6c77ab8584938cb857c4eb8a98838e0feae37f85"
+    "sha256": "5bb6a989828dca7fe87740a57011eb38e2efc9ced89ef409f4e0dd0060f1a840"
   },
   {
     "from": "571a4d823a6b9434dc34b9f11823c3537a88d84c085559aaa7657f1cd6d971e9",
-    "to": "6378c9a688ea5604f6fd596de36ece5364668f0ec35c9cea8fc524cbd61897e2",
+    "to": "3307460f840a3d37ebd654dbd938aa72cb7de6841731f2ebca23b9eb43f9b3fa",
     "file": "001-local-snapshot-jobs.sql",
-    "sha256": "a7187703a00e9a75a0645b6a6c77ab8584938cb857c4eb8a98838e0feae37f85"
+    "sha256": "5bb6a989828dca7fe87740a57011eb38e2efc9ced89ef409f4e0dd0060f1a840"
   },
   {
     "from": "be68a20152b6068feea19d0db5b88177ee46040459c005e20ef4ec1713446cb4",
-    "to": "6378c9a688ea5604f6fd596de36ece5364668f0ec35c9cea8fc524cbd61897e2",
+    "to": "3307460f840a3d37ebd654dbd938aa72cb7de6841731f2ebca23b9eb43f9b3fa",
     "file": "002-core-analytics.sql",
-    "sha256": "64fae924e2825ef9b7e2c97eb73723beafe4ae5c51d02c2f416ff8ab88eaf571"
+    "sha256": "41404b43e608a84b60118f697c073a71153f6d1cfe9b072ba59719567bca8d4f"
   },
   {
     "from": "c80808116ba03f182aea1242f808c4b6299c8b12549372ee564db029085e1ca3",
-    "to": "6378c9a688ea5604f6fd596de36ece5364668f0ec35c9cea8fc524cbd61897e2",
+    "to": "3307460f840a3d37ebd654dbd938aa72cb7de6841731f2ebca23b9eb43f9b3fa",
     "file": "003-workspace-recovery.sql",
-    "sha256": "234cc664adbb44e65737d6358d9944efa41eff2f9f3eaaede232609394cde442"
+    "sha256": "7aff22c7a2c9644f75c3f4f5a2189fb6281b675a28ebd69adb9d281c4cebba13"
   },
   {
     "from": "b3f278812e9423592e9a9e4c87c61ddb15ec7bc00bf79a14a40846801a49616f",
     "file": "004-local-file-import.sql",
-    "to": "6378c9a688ea5604f6fd596de36ece5364668f0ec35c9cea8fc524cbd61897e2",
-    "sha256": "f303894842c76bc9886c9f58be614b4799bbe2842b78f532bb22ee228e4b85ea"
+    "to": "3307460f840a3d37ebd654dbd938aa72cb7de6841731f2ebca23b9eb43f9b3fa",
+    "sha256": "b13619d8433eb61129a476d1ccc041623e4ed54e9f4c1dee3fb45feb5eae87b8"
+  },
+  {
+    "from": "6378c9a688ea5604f6fd596de36ece5364668f0ec35c9cea8fc524cbd61897e2",
+    "to": "3307460f840a3d37ebd654dbd938aa72cb7de6841731f2ebca23b9eb43f9b3fa",
+    "file": "005-profile-meta-roles.sql",
+    "sha256": "08cedb8f02ec66e792d25bc52513c3fd6f1e266745fdf744ea6a238368559fc0"
   }
 ]

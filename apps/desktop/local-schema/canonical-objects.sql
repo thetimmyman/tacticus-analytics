@@ -4506,3 +4506,24 @@ CREATE FUNCTION public.resolve_boss_name(p_name text) RETURNS text
     p_name
   );
 $$;
+
+CREATE TABLE public.player_meta_roles (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id uuid NOT NULL,
+    meta_team_id uuid NOT NULL,
+    source text NOT NULL,
+    set_by uuid,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT player_meta_roles_source_check CHECK ((source = ANY (ARRAY['auto'::text, 'self'::text, 'manual'::text, 'leader_override'::text])))
+);
+
+CREATE FUNCTION public.player_meta_roles_set_updated_at() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO 'public'
+    AS $$
+BEGIN
+  NEW.updated_at := now();
+  RETURN NEW;
+END;
+$$;

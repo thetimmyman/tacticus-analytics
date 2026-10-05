@@ -30,6 +30,7 @@ import { LifetimeStats } from './LifetimeStats'
 import { MentionsReceivedChart } from './MentionsReceivedChart'
 import { formatGuildDisplayLabel } from '@/app/lib/format/guild'
 import { createPageMetadata } from '@/app/lib/metadata'
+import { DesktopCredentialGuide } from '@/app/components/navigation/DesktopCredentialGuide'
 
 export const metadata = createPageMetadata({
   title: 'Profile',
@@ -57,7 +58,9 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const supabase = await db()
   const { user, profile } = await requireAuth(supabase)
   const { data: onboardingState, error: onboardingStateError } =
-    await supabase.rpc('get_my_onboarding_state')
+    process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop'
+      ? { data: null, error: null }
+      : await supabase.rpc('get_my_onboarding_state')
   const hasApiKey =
     !onboardingStateError && onboardingState?.[0]?.api_key_configured === true
 
@@ -402,13 +405,19 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
       {/* API key section. Its id is the "My API Key" nav target; renaming breaks the link. */}
       <div id="api-key" className="mt-8 card-wh40k p-6 scroll-mt-24">
-        <h2 className="text-lg font-semibold text-primary-wh40k mb-4">
-          Tacticus API Key
-        </h2>
-        <ReweaveLink
-          hasKey={hasApiKey}
-          lastVerified={profile.api_key_last_verified ?? null}
-        />
+        {process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop' ? (
+          <DesktopCredentialGuide />
+        ) : (
+          <>
+            <h2 className="text-lg font-semibold text-primary-wh40k mb-4">
+              Tacticus API Key
+            </h2>
+            <ReweaveLink
+              hasKey={hasApiKey}
+              lastVerified={profile.api_key_last_verified ?? null}
+            />
+          </>
+        )}
       </div>
 
       {/* Theme Preview */}
