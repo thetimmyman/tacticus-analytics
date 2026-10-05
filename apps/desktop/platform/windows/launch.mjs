@@ -164,7 +164,8 @@ try {
     {
       ...process.env,
       PATH: join(root, 'bin') + ';' + process.env.PATH,
-      LANG: 'C.UTF-8'
+      LANG: 'C',
+      LC_ALL: 'C'
     },
     state,
     true,

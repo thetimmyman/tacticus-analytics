@@ -11,7 +11,8 @@ import {
 } from '../../../apps/desktop/platform/windows/pe-dependencies.mjs'
 import {
   validOwnerSession,
-  serviceFailureCode
+  serviceFailureCode,
+  bootstrapPhase
 } from '../../../apps/desktop/platform/windows/services.mjs'
 import { workspaceGate } from '../../../apps/desktop/platform/windows/session-gate.mjs'
 import { windowsOnboarding } from '../../../apps/desktop/platform/windows/onboarding.mjs'
@@ -39,6 +40,26 @@ test('bootstrap status diagnostics retain numeric loader failures without exposi
   assert.equal(
     serviceFailureCode('synthetic-private-body'),
     'unclassified-service-failure'
+  )
+  assert.equal(
+    serviceFailureCode(
+      'ERROR: invalid byte sequence for encoding "UTF8": 0xfc\nsynthetic-private-body'
+    ),
+    'postgres-input-utf8-0xfc'
+  )
+  assert.equal(
+    serviceFailureCode('ERROR: syntax error'),
+    'bootstrap-syntax-error'
+  )
+  assert.equal(
+    bootstrapPhase(
+      'running bootstrap script ... ok\nperforming post-bootstrap initialization ...'
+    ),
+    'post-bootstrap'
+  )
+  assert.equal(
+    bootstrapPhase('synthetic-private-body'),
+    'bootstrap-phase-unavailable'
   )
 })
 

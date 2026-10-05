@@ -49,7 +49,7 @@ async function run(file, args, options) {
         ? accept()
         : reject(
             new Error(
-              `${['initdb.exe', 'psql.exe', 'auth.exe', 'pg_ctl.exe'].includes(basename(file)) ? basename(file) : 'Owned service'} exited ${code}; ${serviceFailureCode(failureText + stdout)}; sensitive output suppressed`
+              `${['initdb.exe', 'psql.exe', 'auth.exe', 'pg_ctl.exe'].includes(basename(file)) ? basename(file) : 'Owned service'} exited ${code}; ${serviceFailureCode(failureText + stdout)}${basename(file) === 'initdb.exe' ? '; ' + bootstrapPhase(stdout) : ''}; sensitive output suppressed`
             )
           )
     )
@@ -57,6 +57,12 @@ async function run(file, args, options) {
   return stdout
 }
 export function serviceFailureCode(text) {
+  const encoding =
+    /invalid byte sequence for encoding "UTF8": ((?:0x[0-9a-f]{2}(?:\s|$)){1,4})/i.exec(
+      text
+    )
+  if (encoding)
+    return `postgres-input-utf8-${encoding[1].trim().replace(/\s+/g, '-')}`
   // PostgreSQL's Windows bootstrap can report an NTSTATUS without a diagnostic
   // body. Preserve only the numeric status, never paths, SQL or server output.
   const childStatus = /child process exited with exit code (\d{1,10})\b/i.exec(
@@ -99,7 +105,8 @@ export function serviceFailureCode(text) {
       /could not generate (?:random|strong)|could not initialize.*random/i,
       'random-source-unavailable'
     ],
-    [/syntax error|invalid byte sequence/i, 'bootstrap-input-invalid'],
+    [/syntax error/i, 'bootstrap-syntax-error'],
+    [/invalid byte sequence/i, 'bootstrap-encoding-invalid'],
     [
       /SQLSTATE 42501|must be owner|insufficient_privilege/i,
       'database-authority-refused'
@@ -122,6 +129,13 @@ export function serviceFailureCode(text) {
   ])
     if (pattern.test(text)) return code
   return 'unclassified-service-failure'
+}
+export function bootstrapPhase(text) {
+  if (/performing post-bootstrap initialization/.test(text))
+    return 'post-bootstrap'
+  if (/running bootstrap script/.test(text)) return 'bootstrap-script'
+  if (/creating configuration files/.test(text)) return 'configuration'
+  return 'bootstrap-phase-unavailable'
 }
 export function validOwnerSession(value, subject, key) {
   try {
@@ -230,7 +244,8 @@ export async function nativeServices({
     const pgEnv = {
       ...process.env,
       PATH: process.env.PATH,
-      LANG: 'C.UTF-8',
+      LANG: 'C',
+      LC_ALL: 'C',
       ...(libraryPath ? { LD_LIBRARY_PATH: libraryPath } : {}),
       PGPASSWORD: credentials.owner
     }
@@ -378,7 +393,8 @@ export async function nativeServices({
     const authEnv = {
       ...process.env,
       PATH: process.env.PATH,
-      LANG: 'C.UTF-8',
+      LANG: 'C',
+      LC_ALL: 'C',
       GOTRUE_API_HOST: '127.0.0.1',
       PORT: String(ports.auth),
       API_EXTERNAL_URL: `http://127.0.0.1:${ports.auth}`,
