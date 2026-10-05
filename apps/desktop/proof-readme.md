@@ -460,3 +460,31 @@ Exporting canonical token-alert preference/state rows does not configure alert
 delivery. Desktop token-alert reads report that delivery is not configured, and
 writes refuse after authentication and before parsing their body. Local or
 connected-provider notification delivery remains an open application capability.
+
+### Scoped API onboarding and manual update downloads
+
+Local workspace creation continues into `/desktop/connect`. Player access is
+required for personal roster and available raid-token/bomb counters. Guild and
+Guild Raid are optional additions; both must resolve to the selected guild before
+the guild experience opens. Raid access uses a key with Guild scope as well to
+bind the upstream response to that guild. Native dialogs collect keys and the
+workspace password; raw keys never enter renderer forms. Each sync revalidates
+its required upstream scope. Saved counters describe the upstream snapshot, not
+an offline live countdown. Removing device credentials retains cached data.
+
+`onboarding-journey.mjs` exercises native Auth, PostgreSQL, PostgREST, compiled
+roster normalization, holding states and restart with synthetic upstream/dialog/
+encryption adapters. The focused onboarding tests cover native refusal, fixed
+navigation, opaque vault handles and removal; these do not substitute for
+platform acceptance with real native input and OS vault services.
+
+The Linux preview's File menu offers **Check for application updates**. Packaging
+includes an inventoried `updates.json` with a pinned Ed25519 public key and feed
+configuration. The default preview has no feed. An operator-configured feed must
+use HTTPS; plaintext loopback is accepted only by an explicitly configured
+private preview fixture. Manifests bind channel, platform, package format,
+monotonic sequence, expiry, byte count and SHA-256. Downloads refuse redirects,
+credentialed URLs, overwrite attempts and invalid signatures or hashes, and
+publish only verified bytes. Installation uses the OS package manager after the
+app closes; this does not implement automatic installation or restart. Public
+release signing and feed promotion require their separate release acceptance.

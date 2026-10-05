@@ -71,6 +71,11 @@ app
     const gameItems = config.verify
       ? []
       : await require('./game-menu.cjs')(window, config)
+    if (!config.verify)
+      gameItems.unshift(
+        await require('./onboarding-menu.cjs')(window, config),
+        await require('./update-menu.cjs')(window, config)
+      )
     const maintenance = require('./maintenance-menu.cjs')(
       window,
       config,

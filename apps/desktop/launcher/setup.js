@@ -61,9 +61,12 @@ form.addEventListener('submit', async (event) => {
       throw new Error('Workspace information is unavailable. Try again.')
     const info = await infoResponse.json()
     window.location.assign(
-      Number.isInteger(info?.season)
-        ? `/player-performance?guild=${encodeURIComponent(info.guildCode)}&season=${info.season}`
-        : '/desktop/import'
+      document.querySelector('#sample').checked ||
+        info?.identityMode === 'sample'
+        ? Number.isInteger(info?.season)
+          ? `/player-performance?guild=${encodeURIComponent(info.guildCode)}&season=${info.season}`
+          : '/desktop/import'
+        : '/desktop/connect'
     )
   } catch (error) {
     status.textContent = error.message

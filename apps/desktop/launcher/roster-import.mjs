@@ -1,5 +1,6 @@
 import { timingSafeEqual } from 'node:crypto'
 import { parseRosterSnapshot } from './roster-validation.mjs'
+import { projectPlayerResources } from './official-access.mjs'
 
 const quote = (value) => `'${String(value).replaceAll("'", "''")}'`
 const reply = (res, status, value) => {
@@ -16,7 +17,13 @@ export function workspaceRosterImport(
   let busy = false,
     nextAttempt = 0
   return async (req, res, url) => {
-    if (url.pathname !== '/desktop/import-roster') return false
+    if (
+      !['/desktop/import-roster', '/desktop/import-player'].includes(
+        url.pathname
+      )
+    )
+      return false
+    const playerAccess = url.pathname === '/desktop/import-player'
     const supplied = req.headers['x-desktop-broker']
     if (
       req.method !== 'POST' ||
@@ -53,7 +60,12 @@ export function workspaceRosterImport(
         typeof input !== 'object' ||
         Array.isArray(input) ||
         Object.keys(input).some(
-          (key) => !['password', 'contents'].includes(key)
+          (key) =>
+            ![
+              'password',
+              'contents',
+              ...(playerAccess ? ['resources'] : [])
+            ].includes(key)
         ) ||
         typeof input.password !== 'string' ||
         input.password.length < 12 ||
@@ -61,6 +73,9 @@ export function workspaceRosterImport(
       )
         throw new Error('Invalid input')
       const snapshot = parseRosterSnapshot(input.contents)
+      const resources = playerAccess
+        ? projectPlayerResources(input.resources)
+        : null
       const record = JSON.parse(
         (
           await services.psql(
@@ -105,6 +120,7 @@ export function workspaceRosterImport(
         await services.psql(`BEGIN;
         SELECT set_config('request.jwt.claims',${quote(JSON.stringify({ sub: record.subject, role: 'authenticated' }))},true);
         SELECT 'desktop-roster-result:'||public.desktop_save_roster(${quote(JSON.stringify(snapshot))}::jsonb,${quote(JSON.stringify(normalized.rows))}::jsonb)::text;
+        ${resources ? `UPDATE public.player_mapping SET last_sync_tokens=${resources.tokens?.current ?? 'NULL'},last_sync_bombs=${resources.bombs?.current ?? 'NULL'},next_token_seconds=${resources.tokens?.nextTokenInSeconds ?? 'NULL'},next_bomb_seconds=${resources.bombs?.nextTokenInSeconds ?? 'NULL'},last_sync_at=${resources.upstreamUpdatedAt == null ? 'NULL' : `to_timestamp(${resources.upstreamUpdatedAt / 1000}) AT TIME ZONE 'UTC'`},api_key_last_verified=statement_timestamp(),api_key_is_valid=true WHERE user_id=${quote(record.subject)} AND is_current AND guild_code=${quote(record.guildCode)};` : ''}
         COMMIT;`)
       )
         .split('\n')

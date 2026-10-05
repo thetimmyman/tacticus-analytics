@@ -35,6 +35,10 @@ run('a-loopback-gateway', '--test', [
   'apps/desktop/proof/reference-catalog.test.mjs',
   'apps/desktop/proof/saved-game-connection.test.mjs',
   'apps/desktop/proof/native-secret.test.mjs',
+  'apps/desktop/proof/official-access.test.mjs',
+  'apps/desktop/proof/scoped-connections.test.mjs',
+  'apps/desktop/proof/onboarding-menu.test.mjs',
+  'apps/desktop/proof/updates.test.mjs',
   'apps/desktop/proof/game-connection.test.mjs',
   'apps/desktop/proof/game-menu.test.mjs',
   'apps/desktop/proof/external-links.test.mjs',
@@ -120,6 +124,12 @@ if (!configPath) {
     configPath
   ])
   if (nativeConfig.application?.node && nativeConfig.application?.directory) {
+    run('c-scoped-onboarding', 'apps/desktop/proof/onboarding-journey.mjs', [
+      configPath
+    ])
+    run('c-password-change', 'apps/desktop/proof/password-change-journey.mjs', [
+      configPath
+    ])
     console.log('\n== Compiled local snapshot job / crash claim recovery ==')
     run('c-local-jobs', 'apps/desktop/proof/jobs-journey.mjs', [configPath])
     console.log(

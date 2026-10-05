@@ -5,6 +5,7 @@ import { workspaceRaidImport } from './raid-import.mjs'
 import { workspaceGameConnection } from './game-connection.mjs'
 import { workspaceRosterImport } from './roster-import.mjs'
 import { localIdentity, createLocalWorkspace } from './local-workspace.mjs'
+import { loadScopedConnections } from './scoped-connections.mjs'
 import {
   syntheticRaidFixture,
   importSyntheticRaid
@@ -35,6 +36,47 @@ export function workspaceSetup(services, assets, options = {}) {
     if (await recovery(req, res, url)) return true
     if (await rosterImport(req, res, url)) return true
     if (await raidImport(req, res, url)) return true
+    if (req.method === 'GET' && url.pathname === '/desktop/onboarding-status') {
+      const owner = JSON.parse(
+        (
+          await services.psql(
+            `SELECT coalesce((SELECT json_build_object('installation',s.subject_user_id,'guildCode',s.guild_code,'demo',s.identity_mode='sample','playerReady',p.api_key_last_verified IS NOT NULL,'tokens',p.last_sync_tokens,'bombs',p.last_sync_bombs,'updatedAt',p.last_sync_at AT TIME ZONE 'UTC','verifiedAt',p.api_key_last_verified,'season',(SELECT max(e.season_num) FROM public."EOT_GR_data" e WHERE e."Guild"=s.guild_code)) FROM public.desktop_preview_setup s JOIN public.player_mapping p ON p.user_id=s.subject_user_id AND p.is_current AND p.guild_code=s.guild_code WHERE s.singleton),'null'::json);`
+          )
+        ).trim()
+      )
+      let saved
+      try {
+        saved = await loadScopedConnections(services.state)
+      } catch {
+        saved = null
+      }
+      const bound =
+        saved &&
+        owner &&
+        saved.installation === owner.installation &&
+        saved.guildCode === owner.guildCode
+      const roles = Object.fromEntries(
+        ['Player', 'Guild', 'Guild Raid'].map((scope) => {
+          const role = bound ? saved.roles[scope] : null
+          return [
+            scope,
+            {
+              saved: Boolean(role),
+              verifiedAt: role?.verifiedAt ?? null,
+              expired: role?.expiresAt != null && role.expiresAt <= Date.now()
+            }
+          ]
+        })
+      )
+      const guildReady =
+        bound &&
+        Boolean(saved.roles.Guild && saved.roles['Guild Raid']) &&
+        saved.roles.Guild.guildId === saved.roles['Guild Raid'].guildId
+      // Cached data remains readable offline; saved access must be rechecked for sync.
+      const { installation: _installation, ...visible } = owner ?? {}
+      respond(res, 200, { ...visible, roles, guildReady: Boolean(guildReady) })
+      return true
+    }
     if (req.method === 'GET' && url.pathname === '/desktop/workspace-info') {
       const info = JSON.parse(
         (
@@ -46,12 +88,16 @@ export function workspaceSetup(services, assets, options = {}) {
       respond(res, 200, info)
       return true
     }
+    if (req.method === 'GET' && url.pathname === '/desktop/connection-help')
+      return false
     if (!url.pathname.startsWith('/desktop/')) return false
     if (
       req.method === 'GET' &&
       [
         '/desktop/setup',
         '/desktop/setup.js',
+        '/desktop/connect',
+        '/desktop/connect.js',
         '/desktop/style.css',
         '/desktop/import',
         '/desktop/import.js',
@@ -61,9 +107,11 @@ export function workspaceSetup(services, assets, options = {}) {
       const file =
         url.pathname === '/desktop/setup'
           ? 'setup.html'
-          : url.pathname === '/desktop/import'
-            ? 'import.html'
-            : url.pathname.slice('/desktop/'.length)
+          : url.pathname === '/desktop/connect'
+            ? 'connect.html'
+            : url.pathname === '/desktop/import'
+              ? 'import.html'
+              : url.pathname.slice('/desktop/'.length)
       let content = await readFile(join(assets, file), 'utf8')
       if (file === 'setup.html')
         content = content.replaceAll(

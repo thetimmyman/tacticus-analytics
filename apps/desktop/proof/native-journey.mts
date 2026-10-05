@@ -10,7 +10,7 @@ import { createClient } from '@supabase/supabase-js'
 import { nativeServices } from './native-services.mjs'
 import { electronDisplay } from '../launcher/display.mjs'
 import { loopbackGateway } from './loopback-gateway.mjs'
-import { workspaceGameConnection } from '../launcher/game-connection.mjs'
+import { workspaceSetup } from '../launcher/workspace.mjs'
 import { proveMetaRoleBoundaries } from './meta-role-boundaries.mjs'
 import {
   syntheticRaidFixture,
@@ -26,9 +26,13 @@ const transportKey = randomBytes(32).toString('hex')
 const gateway = await loopbackGateway({
   services,
   transportKey,
-  handleLocalRequest: workspaceGameConnection(services, {
-    brokerToken: randomBytes(32).toString('hex')
-  })
+  handleLocalRequest: workspaceSetup(
+    services,
+    new URL('../launcher', import.meta.url).pathname,
+    {
+      brokerToken: randomBytes(32).toString('hex')
+    }
+  )
 })
 const request: typeof fetch = (url, init) =>
   fetch(url, {
@@ -96,6 +100,9 @@ try {
     )
     await importSyntheticRaid(services, fixture)
   }
+  await services.psql(
+    `INSERT INTO public.desktop_preview_setup(singleton,subject_user_id,identity_mode,guild_code) VALUES(true,'${account.id}','sample','SYN001') ON CONFLICT(singleton) DO NOTHING;`
+  )
   const user = client('desktop-public')
   const login = await user.auth.signInWithPassword({
     email: account.email,

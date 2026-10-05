@@ -10,6 +10,21 @@ const prompts = {
     title: 'Connect official Tacticus API',
     text: 'Enter your own official Tacticus API key. The key is kept in the OS-backed vault.',
     bytes: 64
+  },
+  'player-api-key': {
+    title: 'Player API access (required)',
+    text: 'Enter your official Tacticus key with Player scope. It stays in secure OS storage on this device.',
+    bytes: 64
+  },
+  'guild-api-key': {
+    title: 'Guild API access (optional)',
+    text: 'Enter an official key with Guild scope for the workspace guild. You can reuse a multi-scope key.',
+    bytes: 64
+  },
+  'guild-raid-api-key': {
+    title: 'Guild Raid API access (optional)',
+    text: 'Enter an official key with Guild and Guild Raid scopes. Guild scope binds raid access to the correct guild. You can reuse a multi-scope key.',
+    bytes: 64
   }
 }
 const failure = (code = 'ENATIVEDIALOG') =>

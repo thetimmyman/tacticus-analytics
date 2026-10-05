@@ -3,6 +3,7 @@ import { resolve, join, dirname, isAbsolute } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
 import { verifyDesktopBuild } from './build-profile.mjs'
+import { updateConfiguration } from '../launcher/updates.mjs'
 const source = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const config = JSON.parse(await readFile(process.argv[2], 'utf8'))
 for (const name of [
@@ -50,6 +51,21 @@ await copy(join(config.auth, 'auth'), 'auth/auth')
 await copy(join(config.auth, 'migrations'), 'auth/migrations')
 await mkdir(join(config.output, 'postgrest'))
 await copy(config.postgrest, 'postgrest/postgrest')
+if (config.updateConfig && !isAbsolute(config.updateConfig))
+  throw new Error('Absolute update configuration path required')
+const updateConfig = updateConfiguration(
+  JSON.parse(
+    await readFile(
+      config.updateConfig ?? join(source, 'apps/desktop/package/updates.json'),
+      'utf8'
+    )
+  )
+)
+await writeFile(
+  join(config.output, 'updates.json'),
+  JSON.stringify(updateConfig, null, 2) + '\n',
+  { mode: 0o600 }
+)
 await mkdir(join(config.output, 'notices'))
 for (const [from, name] of [
   [config.nodeLicense, 'node-LICENSE'],

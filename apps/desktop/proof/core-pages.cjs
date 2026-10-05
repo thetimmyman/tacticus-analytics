@@ -45,7 +45,10 @@ async function captureCorePages(window, origin) {
     const guide = await window.webContents.executeJavaScript(
       `({text:document.body.innerText, keyInputs:document.querySelectorAll('input[id*="api-key"],input[placeholder*="API key"],input[placeholder*="api key"]').length})`
     )
-    assert.ok(guide.text.includes('Native game connection'))
+    assert.ok(
+      guide.text.includes('Native game connection'),
+      `Credential guide missing on ${path}`
+    )
     assert.equal(guide.keyInputs, 0)
     assert.ok(!guide.text.includes('Link API Key'))
     assert.ok(!guide.text.includes('Reweave API Key'))
