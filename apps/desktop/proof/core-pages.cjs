@@ -31,7 +31,17 @@ async function captureCorePages(window, origin) {
   assert.ok(page('/player-stats').text.includes('Tokens Used\n4'))
   assert.ok(page('/boss').text.includes('AVERAGE DAMAGE\n100'))
   assert.ok(page('/token-usage').title.includes('Access Denied'))
-  assert.ok(page('/roster').text.includes('Configure API Key'))
+  assert.ok(page('/roster').text.includes('Native game connection'))
+  assert.ok(page('/roster').text.includes('Roster sync'))
+  for (const path of ['/api-keys', '/profile/edit', '/onboarding/dashboard']) {
+    await window.loadURL(origin + path)
+    await new Promise((accept) => setTimeout(accept, 2000))
+    const guide = await window.webContents.executeJavaScript(
+      `({text:document.body.innerText, keyInputs:document.querySelectorAll('input[id*="api-key"],input[placeholder*="API key"],input[placeholder*="api key"]').length})`
+    )
+    assert.ok(guide.text.includes('Native game connection'))
+    assert.equal(guide.keyInputs, 0)
+  }
   return pages
 }
 

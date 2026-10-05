@@ -92,6 +92,45 @@ async function fixture(action) {
   const electron = {
     app,
     safeStorage: storage,
+    session: {
+      fromPartition(name) {
+        assert.match(name, /^native-game-[a-f0-9]{32}$/)
+        const hooks = {}
+        f.coordinator = {
+          webRequest: {
+            onBeforeRequest(callback) {
+              hooks.request = callback
+            },
+            onBeforeSendHeaders(callback) {
+              hooks.headers = callback
+            }
+          },
+          async fetch(url, options) {
+            const before = await new Promise((resolve) =>
+              hooks.request({ url }, resolve)
+            )
+            if (before.cancel) throw new Error('Request blocked')
+            const headers = await new Promise((resolve) =>
+              hooks.headers({ url, requestHeaders: options.headers }, resolve)
+            )
+            if (headers.cancel) throw new Error('Request blocked')
+            assert.match(
+              headers.requestHeaders['x-desktop-transport'],
+              /^[a-f0-9]{64}$/
+            )
+            assert.match(
+              headers.requestHeaders['x-desktop-broker'],
+              /^[a-f0-9]{64}$/
+            )
+            return globalThis.fetch(url, {
+              ...options,
+              headers: headers.requestHeaders
+            })
+          }
+        }
+        return f.coordinator
+      }
+    },
     Menu: {
       getApplicationMenu: () => ({ getMenuItemById: (id) => items.get(id) })
     },
@@ -205,6 +244,21 @@ test('refusing native permission leaves credentials, OS provider and upstream un
     assert.equal(f.prompts.length, 0)
     assert(f.calls.every((c) => c.url.endsWith('/broker-status')))
     assert.equal((await readdir(f.state)).length, 0)
+  }))
+test('the main-only coordinator partition refuses foreign origins, query input and unlisted local operations', async () =>
+  fixture(async (f) => {
+    for (const url of [
+      'https://foreign.invalid/desktop/import',
+      'http://127.0.0.1:54322/desktop/import',
+      'http://127.0.0.1:54321/desktop/import?changed=1',
+      'http://127.0.0.1:54321/api/player-api-key'
+    ])
+      await assert.rejects(
+        f.coordinator.fetch(url, { headers: {} }),
+        /Request blocked/
+      )
+    assert.deepEqual(f.calls, [])
+    assert.equal(f.queries, 0)
   }))
 test('cancelled key entry quietly preserves offline use and creates no encrypted credential', async () =>
   fixture(async (f) => {

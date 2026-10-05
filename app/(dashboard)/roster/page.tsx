@@ -1,3 +1,5 @@
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
+import { DesktopCredentialGuide } from '@/app/components/navigation/DesktopCredentialGuide'
 import { requireAuth } from '@/app/lib/auth'
 import { db } from '@/app/lib/db'
 import { createPageMetadata } from '@/app/lib/metadata'
@@ -15,6 +17,14 @@ export const metadata = createPageMetadata({
 export default async function RosterPage() {
   const supabase = await db()
   const { profile } = await requireAuth(supabase)
+
+  if (getRuntimeProfile() === 'desktop')
+    return (
+      <div>
+        <h1 className="text-3xl font-bold mb-8">My Roster</h1>
+        <DesktopCredentialGuide />
+      </div>
+    )
 
   // The projection excludes key ciphertext; presence comes from an auth.uid()-scoped boolean RPC.
   const { data: onboardingState, error: onboardingStateError } =

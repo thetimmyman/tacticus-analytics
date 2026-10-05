@@ -256,6 +256,13 @@ For a local-file workspace, File → Game connection can connect the user's own
 official API key after a native permission dialog and current workspace password.
 The masked native entry sends the key only to trusted Electron main. Secure OS
 storage must be available before key entry. Refusal leaves offline analytics usable.
+Coordinator requests use an ephemeral main-only Electron network partition. It
+admits only the three fixed loopback operations and injects per-launch transport
+capabilities there; it shares no renderer cookies. Hosted key-management, profile
+proof-key and shared key-input forms show native-menu guidance in desktop mode.
+Hosted credential endpoints refuse desktop requests before reading their bodies,
+and hosted onboarding redirects to the local connection guide. Hosted behavior
+remains unchanged. Roster synchronization is still pending in this preview.
 Normal close retains ciphertext; restart requires renewed consent and password
 confirmation before reading the saved key. Disconnect removes the key without
 decrypting it. Connection metadata and ciphertext are excluded from workspace exports.

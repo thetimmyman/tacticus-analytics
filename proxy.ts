@@ -313,6 +313,35 @@ export default async function proxy(request: NextRequest) {
         { status: 403 }
       )
     }
+    // Hosted credential forms must never receive a root game key in desktop mode.
+    let path: string
+    try {
+      path = decodeURIComponent(request.nextUrl.pathname).replace(/\/+$/, '')
+    } catch {
+      return NextResponse.json({ error: 'Invalid local path' }, { status: 400 })
+    }
+    if (
+      path.startsWith('/api/onboarding/') ||
+      path === '/api/onboarding' ||
+      path === '/api/profile/change-player-id' ||
+      /^\/api\/(?:admin\/)?(?:player-api-key|validate-api-key)(?:\/|$)/.test(
+        path
+      ) ||
+      /^\/api\/(?:guild|player|members)\/(?:test|validate|update|replace|request)-api-key(?:\/|$)/.test(
+        path
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error: 'Use File → Game connection for native credential operations.'
+        },
+        { status: 409, headers: { 'cache-control': 'no-store' } }
+      )
+    }
+    if (path === '/onboarding' || path.startsWith('/onboarding/'))
+      return NextResponse.redirect(
+        new URL('/desktop/connection-help', request.url)
+      )
   }
   const rawPathname = request.nextUrl.pathname
   const isResetRoute = rawPathname.startsWith('/auth/reset-session')

@@ -285,6 +285,35 @@ try {
       await delay(100)
     }
     assert.ok(up, 'Standalone application readiness')
+    for (const path of [
+      '/api/player-api-key',
+      '/api/player-api-key/sync',
+      '/api/guild/update-api-key',
+      '/api/guild/replace-api-key',
+      '/api/guild/validate-api-key',
+      '/api/player/test-api-key',
+      '/api/admin/player-api-key',
+      '/api/onboarding/validate-player-key',
+      '/api/profile/change-player-id'
+    ]) {
+      const denied = await request(gateway.origin + path, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ apiKey: 'synthetic-forbidden-renderer-key' })
+      })
+      assert.equal(
+        denied.status,
+        409,
+        'Hosted credential operation refused before application authentication or body processing'
+      )
+      assert.equal(
+        (await denied.json()).error,
+        'Use File → Game connection for native credential operations.'
+      )
+    }
+    ;(evidence.checks as string[]).push(
+      'hosted credential endpoints refuse renderer key operations in desktop mode'
+    )
     const cookies: Array<{ name: string; value: string }> = []
     const ssr = createServerClient(
       `${gateway.origin}/supabase`,
@@ -416,7 +445,8 @@ try {
             )
             ?.title.includes('Access Denied')
         )
-        assert.ok(page('/roster').includes('Configure API Key'))
+        assert.ok(page('/roster').includes('Native game connection'))
+        assert.ok(page('/roster').includes('Roster sync'))
       }
       assert.deepEqual(
         observed.failures.filter(

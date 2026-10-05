@@ -1,8 +1,8 @@
-const { createHash } = require('node:crypto')
+const { createHash, randomBytes } = require('node:crypto')
 const { join } = require('node:path')
 
 module.exports = async function gameMenu(window, config, dependencies = {}) {
-  const { app, dialog, Menu, safeStorage } =
+  const { app, dialog, Menu, safeStorage, session } =
     dependencies.electron ?? require('electron')
   const { CredentialVault } = await import('./credential-vault.mjs')
   const { OfficialRaidBroker } = await import('./official-raid-broker.mjs')
@@ -28,6 +28,46 @@ module.exports = async function gameMenu(window, config, dependencies = {}) {
   )
     throw new Error('Invalid local desktop destination')
   const origin = `http://127.0.0.1:${port}`
+  if (
+    ![config.transportKey, config.brokerToken].every(
+      (value) => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value)
+    )
+  )
+    throw new Error('Invalid local desktop authorization')
+  const operations = new Set([
+    '/desktop/broker-context',
+    '/desktop/broker-status',
+    '/desktop/import'
+  ])
+  // An ephemeral main-only partition carries local capabilities. Its requests
+  // have no renderer cookies and cannot reach another origin or operation.
+  const coordinator = session.fromPartition(
+    'native-game-' + randomBytes(16).toString('hex')
+  )
+  const allowed = (address) => {
+    const value = new URL(address)
+    return (
+      value.origin === origin &&
+      !value.username &&
+      !value.password &&
+      !value.search &&
+      !value.hash &&
+      operations.has(value.pathname)
+    )
+  }
+  coordinator.webRequest.onBeforeRequest((details, callback) => {
+    callback({ cancel: !allowed(details.url) })
+  })
+  coordinator.webRequest.onBeforeSendHeaders((details, callback) => {
+    if (!allowed(details.url)) return callback({ cancel: true })
+    callback({
+      requestHeaders: {
+        ...details.requestHeaders,
+        'x-desktop-transport': config.transportKey,
+        'x-desktop-broker': config.brokerToken
+      }
+    })
+  })
   let grant = null,
     pending,
     controller,
@@ -39,21 +79,12 @@ module.exports = async function gameMenu(window, config, dependencies = {}) {
   })
   const broker = new OfficialRaidBroker({ vault, consent: () => grant })
   const request = async (path, body) => {
-    if (
-      ![
-        '/desktop/broker-context',
-        '/desktop/broker-status',
-        '/desktop/import'
-      ].includes(path)
-    )
-      throw new Error('Unsupported operation')
-    const response = await fetch(origin + path, {
+    if (!operations.has(path)) throw new Error('Unsupported operation')
+    const response = await coordinator.fetch(origin + path, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        origin,
-        'x-desktop-transport': config.transportKey,
-        'x-desktop-broker': config.brokerToken
+        origin
       },
       body: JSON.stringify(body),
       redirect: 'error',
