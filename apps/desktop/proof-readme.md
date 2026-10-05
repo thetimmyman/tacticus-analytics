@@ -368,3 +368,15 @@ catalogue intact and do not prevent reading an existing workspace. The roster
 read path can fill omitted display labels from packaged definitions; unknown
 units still use explicit fallback labels. This is local reference metadata, not
 captured player data or a complete reference/schema parity claim.
+
+## Local planner links
+
+The Roster form saves a bounded HTTP(S) planner link through the canonical
+`current_user_player_mapping` owner projection. Authenticated callers can update
+only that link and the existing activity timestamp. Identity, role and credential
+fields stay protected. A local trigger validates link writes without making
+unrelated updates fail for a legacy link; clearing a legacy value repairs it.
+Credentialed authorities, controls, unsafe protocols and oversized links are
+refused. `planner-link-journey.mjs` checks actual native Auth/PostgREST writes,
+foreign-user filters, protected columns, invalid values, clearing and restart.
+It does not establish external-browser navigation or complete profile parity.

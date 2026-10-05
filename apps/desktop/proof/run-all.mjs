@@ -131,6 +131,12 @@ if (!configPath) {
     'apps/desktop/proof/schema-interruption-journey.mjs',
     [configPath]
   )
+  console.log(
+    '\n== Native owner-only planner link / rejected writes / restart =='
+  )
+  run('c-planner-link', 'apps/desktop/proof/planner-link-journey.mjs', [
+    configPath
+  ])
   console.log('\n== Native user-session expiry / restart renewal ==')
   run('c-session-renewal', 'apps/desktop/proof/session-journey.mjs', [
     configPath

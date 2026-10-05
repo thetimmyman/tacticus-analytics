@@ -40,10 +40,15 @@ interface RosterClientProps {
 }
 
 function safeExternalHttpUrl(value: string | undefined): string {
-  if (!value) return ''
+  if (!value || value.length > 2048 || /[\u0000-\u001f\u007f]/.test(value))
+    return ''
   try {
     const url = new URL(value)
-    return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : ''
+    return !url.username &&
+      !url.password &&
+      (url.protocol === 'https:' || url.protocol === 'http:')
+      ? url.href
+      : ''
   } catch {
     return ''
   }
@@ -81,6 +86,7 @@ export default function RosterClient({
   const [editingUrl, setEditingUrl] = useState(false)
   const [urlInput, setUrlInput] = useState(initialShareUrl || '')
   const [savingUrl, setSavingUrl] = useState(false)
+  const [urlError, setUrlError] = useState<string | null>(null)
 
   const fetchRoster = async () => {
     setLoading(true)
@@ -131,10 +137,13 @@ export default function RosterClient({
 
     const safeUrl = safeExternalHttpUrl(urlInput)
     if (urlInput && !safeUrl) {
-      setError('Planner URL must be a valid HTTP or HTTPS URL')
+      setUrlError(
+        'Planner URL must be an HTTP or HTTPS URL without credentials.'
+      )
       return
     }
 
+    setUrlError(null)
     setSavingUrl(true)
     try {
       const supabase = dbClient()
@@ -150,6 +159,9 @@ export default function RosterClient({
       setEditingUrl(false)
     } catch (err) {
       console.error('Failed to save URL:', err)
+      setUrlError(
+        'Planner URL could not be saved. Your previous link was kept.'
+      )
     } finally {
       setSavingUrl(false)
     }
@@ -320,34 +332,53 @@ export default function RosterClient({
             </a>
           )}
           {editingUrl ? (
-            <div className="flex items-center gap-2">
-              <input
-                type="url"
-                value={urlInput}
-                onChange={(e) => setUrlInput(e.target.value)}
-                placeholder="https://tacticusplanner.com/..."
-                className="input-wh40k text-sm w-56"
-                disabled={savingUrl}
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSaveUrl}
-                disabled={savingUrl}
-              >
-                <Check className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setEditingUrl(false)
-                  setUrlInput(tacticusShareUrl)
-                }}
-                disabled={savingUrl}
-              >
-                <X className="h-4 w-4" />
-              </Button>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="url"
+                  value={urlInput}
+                  onChange={(e) => {
+                    setUrlInput(e.target.value)
+                    setUrlError(null)
+                  }}
+                  maxLength={2048}
+                  aria-label="Planner URL"
+                  aria-invalid={Boolean(urlError)}
+                  aria-describedby={urlError ? 'planner-url-error' : undefined}
+                  placeholder="https://tacticusplanner.com/..."
+                  className="input-wh40k text-sm w-56"
+                  disabled={savingUrl}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSaveUrl}
+                  disabled={savingUrl}
+                >
+                  <Check className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setEditingUrl(false)
+                    setUrlError(null)
+                    setUrlInput(tacticusShareUrl)
+                  }}
+                  disabled={savingUrl}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              {urlError && (
+                <p
+                  id="planner-url-error"
+                  role="alert"
+                  className="text-sm text-red-400"
+                >
+                  {urlError}
+                </p>
+              )}
             </div>
           ) : (
             <Button
@@ -355,6 +386,7 @@ export default function RosterClient({
               size="sm"
               onClick={() => {
                 setUrlInput(tacticusShareUrl)
+                setUrlError(null)
                 setEditingUrl(true)
               }}
               className="text-secondary-wh40k"

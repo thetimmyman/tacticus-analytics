@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 7,
+  "schemaVersion": 8,
   "purpose": "Selected native desktop analytics, local snapshot jobs and local file imports; not the complete application schema",
   "sourceCommit": "5d41a8776f3e216c04dae14d1bfa09fd48ca730a",
   "objects": [
@@ -441,6 +441,7 @@
     "Empty file workspaces admit desktop_local_claim attestations without an upstream invitation. These represent local labels only, with automatic game sync disabled; they cannot establish upstream account ownership.",
     "A dedicated non-login non-bypass importer commits only the setup subject's guild and matching cluster, reads only raid conflict-key columns, and stores owner-scoped receipts. Caller roles cannot invoke the import primitive or inspect receipts.",
     "Meta-team memberships retain canonical rows and timestamps, scoped reads, own self declarations and same-guild leader overrides; local clients cannot write automated reconciler records.",
-    "An own-key roster snapshot remains an explicit unverified local claim. A dedicated non-login non-bypass writer atomically commits its bounded cache, canonical mapped rows and local power; renderer roles cannot write cached payloads or invoke the primitive."
+    "An own-key roster snapshot remains an explicit unverified local claim. A dedicated non-login non-bypass writer atomically commits its bounded cache, canonical mapped rows and local power; renderer roles cannot write cached payloads or invoke the primitive.",
+    "Authenticated local planner-link writes use the canonical owner-only projection and a bounded HTTP(S) write validator; role, identity and credential columns stay read-only. Historical links and unrelated profile updates are retained while future link writes are checked."
   ]
 }
