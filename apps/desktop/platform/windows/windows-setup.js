@@ -1,4 +1,5 @@
 const status = document.querySelector('#status')
+let resumeExport
 async function refresh(value) {
   if (value.code === 'ESESSION') {
     status.textContent = value.error
@@ -23,7 +24,7 @@ for (const [id, operation] of [
   ['export', 'export-personal'],
   ['import', 'import-personal']
 ]) {
-  document.querySelector(`#${id}`).addEventListener('click', async () => {
+  const perform = async () => {
     status.textContent = 'Opening secure native input…'
     try {
       const body =
@@ -40,13 +41,19 @@ for (const [id, operation] of [
         body: JSON.stringify(body)
       })
       const value = await response.json()
-      if (!response.ok) throw new Error(value.error)
-      if (value.exported) status.textContent = `Exported ${value.filename}`
-      else await refresh(value)
+      if (!response.ok) {
+        if (id === 'export' && value.code === 'ESESSION') resumeExport = perform
+        throw new Error(value.error)
+      }
+      if (value.exported) {
+        resumeExport = undefined
+        status.textContent = `Exported ${value.filename}`
+      } else await refresh(value)
     } catch (error) {
       status.textContent = error.message
     }
-  })
+  }
+  document.querySelector(`#${id}`).addEventListener('click', perform)
 }
 document.querySelector('#unlock').addEventListener('submit', async (event) => {
   event.preventDefault()
@@ -71,7 +78,11 @@ document.querySelector('#unlock').addEventListener('submit', async (event) => {
     })
     if (!login.ok)
       throw new Error('Local unlock failed. Check your workspace password.')
+    field.value = ''
     await refresh(await (await fetch('/desktop/official-state')).json())
+    const resume = resumeExport
+    resumeExport = undefined
+    if (resume) await resume()
   } catch (error) {
     status.textContent = error.message
   } finally {

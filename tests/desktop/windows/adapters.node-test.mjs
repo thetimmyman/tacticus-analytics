@@ -185,6 +185,32 @@ test('replacement failure retains synced data and disconnect revokes only unused
     )
     assert.ok(!stored.includes('apiKey'))
   }))
+test('expired or locked Player refresh preserves both actionable capability status and cached data', () =>
+  workspace(async (root) => {
+    let code
+    const guard = windowsOnboarding(root, async (args) => {
+      if (args[0] === 'prompt-official') return { handle: args[1] }
+      if (args[0] === 'remove-official') return null
+      if (code) throw Object.assign(new Error('Safe native status'), { code })
+      return player
+    })
+    await guard.connect({
+      requested: ['Player'],
+      confirmPlayer: async () => true
+    })
+    const retained = guard.view().personal
+    const reuseHandle = guard.state.read().vaultReferences.Player
+    for (const [failure, status] of [
+      ['EEXPIRED', 'expired-offline-readable'],
+      ['EVAULTLOCKED', 'vault-locked-offline-readable']
+    ]) {
+      code = failure
+      const view = await guard.connect({ requested: ['Player'], reuseHandle })
+      assert.equal(view.capabilities.Player, status)
+      assert.deepEqual(view.personal, retained)
+      assert.equal(view.freshness.offlineReadable, true)
+    }
+  }))
 test('inventory hashes real bytes and rejects mutable state and reparse package entries', () =>
   workspace(async (root) => {
     await mkdir(join(root, 'spaces ü'))

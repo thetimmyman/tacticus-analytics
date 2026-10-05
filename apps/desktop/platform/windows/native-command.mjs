@@ -11,6 +11,7 @@ const allowed = new Set([
   'remove-official',
   'service-material',
   'confirm-player',
+  'choose-export',
   'export-personal',
   'import-personal'
 ])
@@ -38,14 +39,23 @@ export async function nativeCommand(args, input) {
   if (code !== 0 || size > 4 * 1024 * 1024)
     throw Object.assign(
       new Error(
-        code === 2
-          ? 'Windows secure input or vault is unavailable.'
-          : code === 3
-            ? 'Official access is invalid, expired or unavailable.'
-            : 'Native secure operation unavailable'
+        code === 4
+          ? 'Unlock your local workspace to continue.'
+          : code === 2
+            ? 'Windows secure input or vault is unavailable.'
+            : code === 3
+              ? 'Official access is invalid, expired or unavailable.'
+              : 'Native secure operation unavailable'
       ),
       {
-        code: code === 2 ? 'EVAULTLOCKED' : code === 3 ? 'EUPSTREAM' : 'ENATIVE'
+        code:
+          code === 4
+            ? 'ESESSION'
+            : code === 2
+              ? 'EVAULTLOCKED'
+              : code === 3
+                ? 'EUPSTREAM'
+                : 'ENATIVE'
       }
     )
   const body = Buffer.concat(chunks).toString('utf8').trim()

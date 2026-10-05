@@ -12,6 +12,53 @@ import {
 import { validOwnerSession } from '../../../apps/desktop/platform/windows/services.mjs'
 import { workspaceGate } from '../../../apps/desktop/platform/windows/session-gate.mjs'
 import { windowsOnboarding } from '../../../apps/desktop/platform/windows/onboarding.mjs'
+import { personalExport } from '../../../apps/desktop/platform/windows/export.mjs'
+
+test('expired native file choice resumes only its trusted destination after unlock without writing beforehand', async () => {
+  let authorized = true,
+    choices = 0,
+    writes = 0
+  const assertCurrent = () => {
+    if (!authorized)
+      throw Object.assign(new Error('Unlock required'), { code: 'ESESSION' })
+  }
+  const operation = personalExport({
+    gate: {
+      assertCurrent,
+      expiresAt: () => {
+        assertCurrent()
+        return 1234567890000
+      }
+    },
+    view: () => {
+      assertCurrent()
+      return { status: 'cached' }
+    },
+    native: async (args, input) => {
+      if (args[0] === 'choose-export') {
+        choices++
+        authorized = false
+        return { destination: 'C:\\synthetic chosen folder\\personal ü.json' }
+      }
+      writes++
+      assert.deepEqual(args, [
+        'export-personal',
+        'C:\\synthetic chosen folder\\personal ü.json',
+        '1234567890000'
+      ])
+      assert.deepEqual(JSON.parse(input), { status: 'cached' })
+      return { exported: true, filename: 'personal ü.json' }
+    }
+  })
+  await assert.rejects(operation(), { code: 'ESESSION' })
+  assert.equal(writes, 0)
+  await assert.rejects(operation(), { code: 'ESESSION' })
+  assert.equal(choices, 1)
+  authorized = true
+  assert.equal((await operation()).exported, true)
+  assert.equal(choices, 1)
+  assert.equal(writes, 1)
+})
 
 function pe(dll) {
   const bytes = Buffer.alloc(1024)

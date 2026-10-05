@@ -55,6 +55,14 @@ export function workspaceGate({ services, brokerToken, currentToken, owner }) {
   }
   return {
     assertCurrent,
+    expiresAt() {
+      assertCurrent()
+      return (
+        JSON.parse(
+          Buffer.from(context.getStore().token.split('.')[1], 'base64url')
+        ).exp * 1000
+      )
+    },
     async run(operation) {
       const subject = await owner()
       if (!subject) throw expired()

@@ -327,7 +327,12 @@ export class WorkspaceOnboardingV1 {
       } else if (!current.personal) current.status = 'player-required'
       for (const scope of scopes) {
         if (scope === 'Player' && !player && previous.personal)
-          current.capabilities.Player = 'refresh-unavailable-offline-readable'
+          current.capabilities.Player = [
+            'expired-offline-readable',
+            'vault-locked-offline-readable'
+          ].includes(statuses.Player)
+            ? statuses.Player
+            : 'refresh-unavailable-offline-readable'
         else if (scope === 'Guild' && guild) {
           current.capabilities.Guild = 'verified-scope'
           current.guildId = guild.guild.guildId

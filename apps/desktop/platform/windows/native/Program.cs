@@ -53,12 +53,14 @@ internal static class Program
                 case "remove-official" when args.Length == 2: Vault.RemoveOfficial(args[1]); return 0;
                 case "service-material" when args.Length == 2:
                     Console.WriteLine(Vault.ServiceMaterial(args[1])); return 0;
-                case "export-personal" when args.Length == 1:
+                case "choose-export" when args.Length == 1:
+                    Console.WriteLine(LocalFiles.ChooseExport()); return 0;
+                case "export-personal" when args.Length == 3 && long.TryParse(args[2], out var expiresAt):
                 {
                     var buffer = new char[4 * 1024 * 1024 + 1]; int size = 0, count;
                     while (size < buffer.Length && (count = Console.In.Read(buffer, size, buffer.Length - size)) != 0) size += count;
                     if (size == buffer.Length) throw new InvalidOperationException("Projection size limit");
-                    Console.WriteLine(LocalFiles.Export(new string(buffer, 0, size))); return 0;
+                    Console.WriteLine(LocalFiles.Export(new string(buffer, 0, size), args[1], expiresAt)); return 0;
                 }
                 case "import-personal" when args.Length == 1: Console.WriteLine(LocalFiles.Import()); return 0;
                 case "native-proof" when args.Length == 2: await NativeProof.Run(args[1]); return 0;
@@ -82,7 +84,7 @@ internal static class Program
         {
             // Failure text is deliberately bounded: upstream bodies, command lines and credentials are never logged.
             Console.Error.WriteLine(error is InvalidOperationException ? error.Message : "Native operation failed. Check secure input/store availability, package integrity, workspace ownership and supported platform.");
-            return error is SecureStoreUnavailable ? 2 : error is OfficialAccessUnavailable ? 3 : 1;
+            return error is SecureStoreUnavailable ? 2 : error is OfficialAccessUnavailable ? 3 : error is LocalSessionExpired ? 4 : 1;
         }
     }
     [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
@@ -162,6 +164,13 @@ internal static class NativeProof
                 if (!rejected) throw new InvalidOperationException("Unsafe projection accepted");
             }
             assertions.Add("credential-fields-and-unknown-projection-fields-rejected");
+            var projection = Path.Combine(testRoot, "projection ü.json");
+            try { LocalFiles.Export("{}", projection, 0); throw new InvalidOperationException("Expired export accepted"); }
+            catch (LocalSessionExpired) { if (File.Exists(projection)) throw new InvalidOperationException("Expired export wrote destination"); }
+            LocalFiles.Export("{\"status\":\"cached\"}", projection, DateTimeOffset.UtcNow.AddMinutes(1).ToUnixTimeMilliseconds());
+            if (File.ReadAllText(projection).IndexOf("cached", StringComparison.Ordinal) < 0 || !new FileInfo(projection).GetAccessControl().AreAccessRulesProtected)
+                throw new InvalidOperationException("Protected export failed");
+            assertions.Add("expired-export-refused-and-atomic-protected-projection");
             var candidate = Path.Combine(testRoot, "source"); Directory.CreateDirectory(candidate);
             File.WriteAllText(Path.Combine(candidate, "item.txt"), "synthetic retained content");
             var digest = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Path.Combine(candidate, "item.txt")))).ToLowerInvariant();

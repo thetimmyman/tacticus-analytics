@@ -43,20 +43,36 @@ internal static class LocalFiles
             Walk(property.Value);
         }
     }
-    public static string Export(string value)
+    public static string ChooseExport() => JsonSerializer.Serialize(new { destination = Choose(true) });
+    private static void RequireSession(long expiresAt)
     {
+        if (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() >= expiresAt) throw new LocalSessionExpired();
+    }
+    public static string Export(string value, string destination, long expiresAt)
+    {
+        RequireSession(expiresAt);
         using var json = Validate(value);
-        var path = Choose(true);
-        using (var file = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
+        var path = Path.GetFullPath(destination);
+        ProtectedState.RejectReparseParents(path);
+        var temporary = Path.Combine(Path.GetDirectoryName(path)!, ".tacticus-projection-" + Guid.NewGuid().ToString("N") + ".tmp");
+        try
         {
-            var sid = WindowsIdentity.GetCurrent().User ?? throw new InvalidOperationException("User unavailable");
-            var acl = new FileSecurity(); acl.SetOwner(sid); acl.SetAccessRuleProtection(true, false);
-            foreach (var identity in new[] { sid, new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null) })
-                acl.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, AccessControlType.Allow));
-            file.SetAccessControl(acl);
-            var bytes = JsonSerializer.SerializeToUtf8Bytes(json.RootElement, new JsonSerializerOptions { WriteIndented = true });
-            file.Write(bytes); file.Flush(true);
+            using (var file = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                var sid = WindowsIdentity.GetCurrent().User ?? throw new InvalidOperationException("User unavailable");
+                var acl = new FileSecurity(); acl.SetOwner(sid); acl.SetAccessRuleProtection(true, false);
+                foreach (var identity in new[] { sid, new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null) })
+                    acl.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, AccessControlType.Allow));
+                file.SetAccessControl(acl);
+                var bytes = JsonSerializer.SerializeToUtf8Bytes(json.RootElement, new JsonSerializerOptions { WriteIndented = true });
+                RequireSession(expiresAt);
+                file.Write(bytes); file.Flush(true);
+            }
+            RequireSession(expiresAt);
+            ProtectedState.RejectReparseParents(path);
+            File.Move(temporary, path, true);
         }
+        finally { if (File.Exists(temporary)) File.Delete(temporary); }
         return JsonSerializer.Serialize(new { exported = true, filename = Path.GetFileName(path) });
     }
     public static string Import()
@@ -78,4 +94,9 @@ internal static class LocalFiles
     }
     [DllImport("comdlg32.dll", CharSet = CharSet.Unicode)] private static extern bool GetOpenFileNameW(ref OpenFileName info);
     [DllImport("comdlg32.dll", CharSet = CharSet.Unicode)] private static extern bool GetSaveFileNameW(ref OpenFileName info);
+}
+
+internal sealed class LocalSessionExpired : InvalidOperationException
+{
+    public LocalSessionExpired() : base("Unlock your local workspace to continue.") { }
 }
