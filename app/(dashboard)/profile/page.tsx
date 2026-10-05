@@ -521,13 +521,26 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           Privacy & Data Rights
         </h2>
         <p className="text-sm text-secondary-wh40k mb-4">
-          Under GDPR and other privacy laws, you have the right to request a
-          copy of your personal data (Article 15) and to delete your account
-          (Article 17). See{' '}
-          <Link href="/privacy-rights" className="text-(--accent) underline">
-            Your Privacy Rights
-          </Link>{' '}
-          for details.
+          {desktopMode ? (
+            <>
+              Export data stored in this workspace. Local display aliases and
+              game identity claims remain unverified. Your export excludes
+              credentials.
+            </>
+          ) : (
+            <>
+              Under GDPR and other privacy laws, you have the right to request a
+              copy of your personal data (Article 15) and to delete your account
+              (Article 17). See{' '}
+              <Link
+                href="/privacy-rights"
+                className="text-(--accent) underline"
+              >
+                Your Privacy Rights
+              </Link>{' '}
+              for details.
+            </>
+          )}
         </p>
         <RequestMyDataButton />
       </div>

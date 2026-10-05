@@ -4907,3 +4907,167 @@ CREATE SEQUENCE public.player_achievements_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
+CREATE TABLE public.gdpr_data_exports (
+    request_id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id uuid NOT NULL,
+    requested_at timestamp with time zone DEFAULT now(),
+    completed_at timestamp with time zone,
+    status text DEFAULT 'pending'::text NOT NULL,
+    data_package jsonb,
+    download_url text,
+    expires_at timestamp with time zone,
+    created_at timestamp with time zone DEFAULT now(),
+    CONSTRAINT gdpr_data_exports_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'processing'::text, 'completed'::text, 'failed'::text])))
+);
+
+CREATE TABLE public.gdpr_processing_log (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id uuid NOT NULL,
+    data_type text NOT NULL,
+    processing_purpose text NOT NULL,
+    legal_basis text NOT NULL,
+    "timestamp" timestamp with time zone DEFAULT now(),
+    retention_until timestamp with time zone,
+    consent_given boolean,
+    created_at timestamp with time zone DEFAULT now(),
+    CONSTRAINT gdpr_processing_log_legal_basis_check CHECK ((legal_basis = ANY (ARRAY['consent'::text, 'contract'::text, 'legal_obligation'::text, 'vital_interests'::text, 'public_task'::text, 'legitimate_interest'::text])))
+);
+
+CREATE TABLE public.user_token_alert_prefs (
+    user_id uuid NOT NULL,
+    alert_on_full boolean DEFAULT false NOT NULL,
+    alert_before_full boolean DEFAULT false NOT NULL,
+    alert_before_full_minutes integer DEFAULT 120 NOT NULL,
+    alert_on_token_gained boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    alert_on_bomb_ready boolean DEFAULT false NOT NULL,
+    alert_before_bomb_ready boolean DEFAULT false NOT NULL,
+    alert_before_bomb_ready_minutes integer DEFAULT 120 NOT NULL,
+    quiet_hours_start smallint,
+    quiet_hours_end smallint,
+    quiet_hours_timezone text,
+    alert_on_full_repeat_hours integer,
+    alert_before_quiet_hours boolean DEFAULT false NOT NULL,
+    alert_before_quiet_hours_minutes integer DEFAULT 30 NOT NULL,
+    alert_before_burn boolean DEFAULT false NOT NULL,
+    alert_before_burn_minutes integer DEFAULT 30 NOT NULL,
+    CONSTRAINT user_token_alert_prefs_bomb_minutes_range CHECK (((alert_before_bomb_ready_minutes >= 15) AND (alert_before_bomb_ready_minutes <= 960))),
+    CONSTRAINT user_token_alert_prefs_burn_minutes_range CHECK (((alert_before_burn_minutes >= 15) AND (alert_before_burn_minutes <= 360))),
+    CONSTRAINT user_token_alert_prefs_full_repeat_hours_range CHECK (((alert_on_full_repeat_hours IS NULL) OR ((alert_on_full_repeat_hours >= 11) AND (alert_on_full_repeat_hours <= 168)))),
+    CONSTRAINT user_token_alert_prefs_full_repeat_requires_full CHECK ((alert_on_full OR (alert_on_full_repeat_hours IS NULL))),
+    CONSTRAINT user_token_alert_prefs_minutes_range CHECK (((alert_before_full_minutes >= 15) AND (alert_before_full_minutes <= 720))),
+    CONSTRAINT user_token_alert_prefs_pre_quiet_minutes_range CHECK (((alert_before_quiet_hours_minutes >= 15) AND (alert_before_quiet_hours_minutes <= 180))),
+    CONSTRAINT user_token_alert_prefs_pre_quiet_requires_quiet_hours CHECK (((NOT alert_before_quiet_hours) OR (quiet_hours_start IS NOT NULL))),
+    CONSTRAINT user_token_alert_prefs_quiet_end_range CHECK (((quiet_hours_end >= 0) AND (quiet_hours_end <= 23))),
+    CONSTRAINT user_token_alert_prefs_quiet_hours_complete CHECK ((num_nonnulls(quiet_hours_start, quiet_hours_end, quiet_hours_timezone) = ANY (ARRAY[0, 3]))),
+    CONSTRAINT user_token_alert_prefs_quiet_start_range CHECK (((quiet_hours_start >= 0) AND (quiet_hours_start <= 23))),
+    CONSTRAINT user_token_alert_prefs_quiet_tz_length CHECK (((quiet_hours_timezone IS NULL) OR ((length(quiet_hours_timezone) >= 1) AND (length(quiet_hours_timezone) <= 64))))
+);
+
+CREATE TABLE public.user_token_alert_state (
+    user_id uuid NOT NULL,
+    last_tokens integer,
+    last_time_to_full_seconds integer,
+    last_scan_at timestamp with time zone,
+    last_full_alert_at timestamp with time zone,
+    last_prewarn_alert_at timestamp with time zone,
+    last_gain_alert_at timestamp with time zone,
+    consecutive_dm_failures integer DEFAULT 0 NOT NULL,
+    dm_blocked_at timestamp with time zone,
+    dm_channel_id text,
+    dm_channel_recipient_id text,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    last_bombs integer,
+    last_time_to_bomb_seconds integer,
+    last_bomb_ready_alert_at timestamp with time zone,
+    last_bomb_prewarn_alert_at timestamp with time zone,
+    quiet_hours_deferred_since timestamp with time zone,
+    capped_since timestamp with time zone,
+    last_pre_quiet_alert_at timestamp with time zone,
+    last_burn_prewarn_alert_at timestamp with time zone
+);
+
+CREATE FUNCTION public.get_user_data_for_export(p_user_id uuid) RETURNS jsonb
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public', 'auth', 'pg_temp'
+    AS $$
+DECLARE
+    result JSONB;
+    user_data JSONB;
+    player_data JSONB;
+    battle_data JSONB;
+    processing_data JSONB;
+    alert_prefs_data JSONB;
+    alert_state_data JSONB;
+    caller_uid UUID;
+BEGIN
+    caller_uid := auth.uid();
+
+    IF caller_uid IS NULL AND current_setting('role', true) <> 'service_role' THEN
+        RAISE EXCEPTION 'Not authenticated' USING ERRCODE = '42501';
+    END IF;
+
+    IF caller_uid IS NOT NULL AND caller_uid <> p_user_id THEN
+        RAISE EXCEPTION 'Forbidden: can only export your own data'
+            USING ERRCODE = '42501';
+    END IF;
+
+    SELECT to_jsonb(auth.users.*) INTO user_data
+    FROM auth.users
+    WHERE id = p_user_id;
+
+    SELECT jsonb_agg(to_jsonb(pm.*)) INTO player_data
+    FROM player_mapping pm
+    WHERE pm.user_id = p_user_id;
+
+    SELECT jsonb_agg(battle_subset.*)
+    INTO battle_data
+    FROM (
+        SELECT gr.*
+        FROM "EOT_GR_data" gr
+        JOIN player_mapping pm ON gr."displayName" = pm.display_name
+        WHERE pm.user_id = p_user_id
+        ORDER BY COALESCE(gr."completedOn", gr."timestamp") DESC
+        LIMIT 1000
+    ) battle_subset;
+
+    SELECT jsonb_agg(processing_subset.*)
+    INTO processing_data
+    FROM (
+        SELECT gpl.*
+        FROM gdpr_processing_log gpl
+        WHERE gpl.user_id = p_user_id
+        ORDER BY gpl.timestamp DESC
+        LIMIT 100
+    ) processing_subset;
+
+    SELECT to_jsonb(utap.*) INTO alert_prefs_data
+    FROM user_token_alert_prefs utap
+    WHERE utap.user_id = p_user_id;
+
+    SELECT to_jsonb(utas.*) INTO alert_state_data
+    FROM user_token_alert_state utas
+    WHERE utas.user_id = p_user_id;
+
+    result := jsonb_build_object(
+        'export_generated_at', NOW(),
+        'user_id', p_user_id,
+        'data', jsonb_build_object(
+            'profile', COALESCE(user_data, '{}'),
+            'player_mappings', COALESCE(player_data, '[]'),
+            'battle_data', COALESCE(battle_data, '[]'),
+            'processing_history', COALESCE(processing_data, '[]'),
+            'token_alert_preferences', COALESCE(alert_prefs_data, '{}'),
+            'token_alert_state', COALESCE(alert_state_data, '{}')
+        ),
+        'data_summary', jsonb_build_object(
+            'total_battles', COALESCE(jsonb_array_length(battle_data), 0),
+            'total_players', COALESCE(jsonb_array_length(player_data), 0),
+            'data_retention_info', 'Battle data: indefinite, Processing logs: 7 years'
+        )
+    );
+
+    RETURN result;
+END;
+$$;

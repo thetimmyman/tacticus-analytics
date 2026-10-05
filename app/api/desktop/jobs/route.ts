@@ -7,6 +7,8 @@ import { registerRefreshExploreSnapshotsHandler } from '@/app/lib/jobs/refresh-e
 import { getJobHandler } from '@/app/lib/jobs/dispatcher'
 import { registerLocalAchievementsHandler } from '@/app/lib/jobs/refresh-local-achievements'
 
+import { registerLocalProfileExportHandler } from '@/app/lib/jobs/export-local-profile-data'
+
 export const POST = withErrorHandler(async (request: NextRequest) => {
   requireCronSecret(request)
   if (getRuntimeProfile() !== 'desktop')
@@ -15,6 +17,8 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     registerRefreshExploreSnapshotsHandler()
   if (!getJobHandler('refresh-local-achievements'))
     registerLocalAchievementsHandler()
+  if (!getJobHandler('export-local-profile-data'))
+    registerLocalProfileExportHandler()
   const result = await runWorkerTick({
     classes: ['hook'],
     deadlineMs: 15000,

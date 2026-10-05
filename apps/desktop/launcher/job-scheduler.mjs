@@ -36,7 +36,7 @@ export function localJobScheduler({
     timeout.unref()
     active = (async () => {
       await services.psql(
-        "SET lock_timeout='3s'; SET statement_timeout='5s'; INSERT INTO public.work_queue(job_type,job_class,payload,dedupe_key) VALUES('refresh-explore-snapshots','hook','{}','desktop-snapshot-refresh'),('refresh-local-achievements','hook','{}','desktop-achievement-refresh') ON CONFLICT(dedupe_key) WHERE status IN ('pending','processing') DO NOTHING;"
+        "SET lock_timeout='3s'; SET statement_timeout='5s'; INSERT INTO public.work_queue(job_type,job_class,payload,dedupe_key) VALUES('refresh-explore-snapshots','hook','{}','desktop-snapshot-refresh'),('refresh-local-achievements','hook','{}','desktop-achievement-refresh'),('export-local-profile-data','hook','{}','desktop-profile-export') ON CONFLICT(dedupe_key) WHERE status IN ('pending','processing') DO NOTHING;"
       )
       operation.signal.throwIfAborted()
       const response = await fetch(`${url.origin}/api/desktop/jobs`, {

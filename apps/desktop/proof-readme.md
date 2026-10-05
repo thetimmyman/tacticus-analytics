@@ -434,3 +434,24 @@ partial catalogue changes. Existing data remains readable if an optional refresh
 fails. `boss-preferences-journey.mjs` verifies native catalogue initialization,
 scoped writes, protected timestamps, rejected values, clearing, legacy repair and
 restart. Installed form acceptance and full application parity remain separate.
+
+Local profile exports use canonical request rows, a durable local worker, and an
+authenticated attachment download. The worker binds the coordinator's local
+subject; request and job payloads cannot choose another account or destination.
+The restricted export reader has no login or RLS bypass. Its Auth projection
+contains only the account identifier, email, creation time and last sign-in time.
+Player mappings exclude game credentials. Battles match stable player and guild
+identifiers rather than display aliases, and the export retains the canonical
+1,000-battle limit. Local roster, achievements, preferences and memberships are
+included with an explicit unverified-identity marker.
+
+Requests and processing state survive restart. Reopening the export dialog
+recovers its latest unexpired request, and closing the dialog does not discard
+work. Downloads require the same authenticated local workspace and expire after
+seven days. Collections over 8 MiB fail without publishing a package; transient
+database failures use the existing durable worker retry policy.
+`data-export-journey.mjs` exercises actual native permissions, equal-alias foreign
+battles, credential filtering, a real RPC privilege failure, compiled application
+death during a locked export RPC, retry after restart, attachment delivery,
+expiry and size refusal. Installed save-dialog acceptance and full application
+parity remain separate requirements.

@@ -125,6 +125,9 @@ if (!configPath) {
     console.log(
       '\n== Native achievements / owner scope / durable retry / restart =='
     )
+    run('c-local-data-export', 'apps/desktop/proof/data-export-journey.mjs', [
+      configPath
+    ])
     run('c-local-achievements', 'apps/desktop/proof/achievements-journey.mjs', [
       configPath
     ])

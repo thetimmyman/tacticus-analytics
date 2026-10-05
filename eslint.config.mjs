@@ -415,6 +415,7 @@ const eslintConfig = [
       'apps/desktop/proof/native-journey.mts',
       'apps/desktop/proof/roster-journey.mjs',
       'apps/desktop/proof/achievements-journey.mjs',
+      'apps/desktop/proof/data-export-journey.mjs',
       'apps/desktop/proof/session-journey.mjs',
       'apps/desktop/proof/jobs-journey.mjs'
     ],

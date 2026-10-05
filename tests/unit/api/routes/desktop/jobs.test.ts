@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   tick: vi.fn(),
   register: vi.fn(),
   registerAchievements: vi.fn(),
+  registerExports: vi.fn(),
   handler: vi.fn()
 }))
 vi.mock('@/app/lib/jobs/worker-tick', () => ({ runWorkerTick: mocks.tick }))
@@ -14,6 +15,9 @@ vi.mock('@/app/lib/jobs/refresh-explore-snapshots', () => ({
 }))
 vi.mock('@/app/lib/jobs/refresh-local-achievements', () => ({
   registerLocalAchievementsHandler: mocks.registerAchievements
+}))
+vi.mock('@/app/lib/jobs/export-local-profile-data', () => ({
+  registerLocalProfileExportHandler: mocks.registerExports
 }))
 import { POST } from '@/app/api/desktop/jobs/route'
 let secret: string
@@ -43,6 +47,7 @@ describe('desktop worker boundary', () => {
     expect((await POST(request(`Bearer ${secret}`))).status).toBe(404)
     expect(mocks.register).not.toHaveBeenCalled()
     expect(mocks.registerAchievements).not.toHaveBeenCalled()
+    expect(mocks.registerExports).not.toHaveBeenCalled()
     expect(mocks.tick).not.toHaveBeenCalled()
   })
   it.each([undefined, 'Bearer invalid', 'Bearer é'])(
@@ -51,6 +56,7 @@ describe('desktop worker boundary', () => {
       expect((await POST(request(header))).status).toBe(401)
       expect(mocks.register).not.toHaveBeenCalled()
       expect(mocks.registerAchievements).not.toHaveBeenCalled()
+      expect(mocks.registerExports).not.toHaveBeenCalled()
       expect(mocks.tick).not.toHaveBeenCalled()
     }
   )
@@ -59,6 +65,7 @@ describe('desktop worker boundary', () => {
     const response = await POST(req)
     expect(response.status).toBe(200)
     expect(mocks.registerAchievements).toHaveBeenCalledOnce()
+    expect(mocks.registerExports).toHaveBeenCalledOnce()
     expect(mocks.tick).toHaveBeenCalledWith({
       classes: ['hook'],
       deadlineMs: 15000,

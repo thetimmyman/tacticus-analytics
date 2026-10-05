@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 11,
+  "schemaVersion": 12,
   "purpose": "Selected native desktop analytics, local snapshot jobs and local file imports; not the complete application schema",
   "sourceCommit": "5d41a8776f3e216c04dae14d1bfa09fd48ca730a",
   "objects": [
@@ -457,6 +457,36 @@
       "kind": "SEQUENCE",
       "name": "player_achievements_id_seq",
       "canonicalStatementSha256": "40afc3b51b33a1ba86da6341e00787b1cb543e691699857019716b93396a0f7b",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "gdpr_data_exports",
+      "canonicalStatementSha256": "b3336b4a61a281861964d06375883bd637aedb2b2bcfed1074761f4d50b106c3",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "gdpr_processing_log",
+      "canonicalStatementSha256": "c9ab405b8dd3846112e743a1f30568e4a92eab4f90836420c7088cdb3791b606",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "user_token_alert_prefs",
+      "canonicalStatementSha256": "c363383475c088edbacb5313812833bed602aa80e474b5088d80379bb229e621",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "user_token_alert_state",
+      "canonicalStatementSha256": "1df17649916f24a0ae8ea0948144370d54eb7959b6efb15885faf6b60ff83da8",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_user_data_for_export",
+      "canonicalStatementSha256": "1df10c381c617d250e40e926cbda1432c738d16f028af5db1d5671708a830069",
       "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
     }
   ],
