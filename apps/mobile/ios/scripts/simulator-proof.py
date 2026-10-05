@@ -58,7 +58,7 @@ try:
         udid = run(["xcrun", "simctl", "create", "Synthetic workspace proof", device_type, runtime]).strip()
         created.append(udid)
         run(["xcrun", "simctl", "boot", udid])
-        run(["xcrun", "simctl", "bootstatus", udid, "-b"], timeout=240)
+        run(["xcrun", "simctl", "bootstatus", udid, "-b"], timeout=600)
         began = time.monotonic()
         print("Running native tests on " + family + " Simulator", flush=True)
         run(["xcodebuild", *project, "-destination", f"platform=iOS Simulator,id={udid}", "-parallel-testing-enabled", "NO", "-maximum-concurrent-test-simulator-destinations", "1", "test"], log=args.output / (family + "-diagnostic.log"))
