@@ -330,36 +330,36 @@ describe('build-clean-image.yml Actions policy compatibility', () => {
     )
   })
 
-  it('runs both architecture scans through the helper against the pushed digest', () => {
+  it('runs the amd64 scan through the helper against the pushed digest', () => {
     const helperCalls = [
       ...workflow.matchAll(
         /^\s*run:\s+scripts\/ci\/trivy-scan-image\.sh\s+"\$IMAGE_REF"\s*$/gmu
       )
     ]
-    expect(helperCalls).toHaveLength(2)
+    expect(helperCalls).toHaveLength(1)
 
     const digestRefs = [
       ...workflow.matchAll(
         /\$\{\{ env\.IMAGE \}\}@\$\{\{ steps\.build\.outputs\.digest \}\}/gmu
       )
     ]
-    expect(digestRefs).toHaveLength(2)
+    expect(digestRefs).toHaveLength(1)
   })
 
-  it('resolves both edge arch tags to digests before using the same helper', () => {
+  it('resolves the edge amd64 tag to a digest before using the same helper', () => {
     const archJobs = edgeWorkflow.split('\n  merge-manifest:')[0]
     expect([
       ...archJobs.matchAll(
         /scripts\/ci\/retry-imagetools-inspect\.sh "\$tagged_ref"/gmu
       )
-    ]).toHaveLength(2)
+    ]).toHaveLength(1)
     expect([
       ...archJobs.matchAll(
         /scripts\/ci\/trivy-scan-image\.sh "\$IMAGE@\$digest"/gmu
       )
-    ]).toHaveLength(2)
+    ]).toHaveLength(1)
     expect([
       ...archJobs.matchAll(/\^sha256:\[0-9a-f\]\{64\}\$/gmu)
-    ]).toHaveLength(2)
+    ]).toHaveLength(1)
   })
 })
