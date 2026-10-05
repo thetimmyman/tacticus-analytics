@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
+STAGE=environment
+stage(){ STAGE=$1; printf 'Native installed stage: %s\n' "$STAGE"; }
+report_failure(){ printf 'Installed emulator stage %s failed (code %s)\n' "$STAGE" "$1" >&2; }
+trap 'report_failure "$?"' ERR
 : "${ANDROID_HOME:?Set ANDROID_HOME}"
 command -v rg > /dev/null || { printf 'Install ripgrep before running the native checks\n' >&2; exit 1; }
 APP_ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -13,12 +17,16 @@ STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 mkdir -p "$REPORT"
 APK="$APP_ROOT/app/build/outputs/apk/debug/app-debug.apk"
 TEST_APK="$APP_ROOT/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+stage install-main-apk
 "$ADB" -s "$SERIAL" install -r "$APK" > /dev/null
+stage install-test-apk
 "$ADB" -s "$SERIAL" install -r "$TEST_APK" > /dev/null
 # The fixed PIN belongs only to this resettable synthetic emulator, never an owner identity.
+stage synthetic-secure-lock
 pin_reply=$("$ADB" -s "$SERIAL" shell locksettings set-pin 2468 2>&1)
 if [[ "$pin_reply" != "Pin set to "* ]]; then
-  pin_reply=$("$ADB" -s "$SERIAL" shell locksettings set-pin --old 2468 2468 2>&1)
+  stage synthetic-secure-lock
+pin_reply=$("$ADB" -s "$SERIAL" shell locksettings set-pin --old 2468 2468 2>&1)
 fi
 [[ "$pin_reply" == "Pin set to "* ]] || { printf 'Synthetic emulator secure lock setup unavailable\n' >&2; exit 1; }
 unset pin_reply
@@ -28,6 +36,7 @@ unset pin_reply
 "$ADB" -s "$SERIAL" shell input text 2468
 "$ADB" -s "$SERIAL" shell input keyevent KEYCODE_ENTER
 sleep 1
+stage reset-synthetic-workspace
 "$ADB" -s "$SERIAL" shell pm clear com.tacticusanalytics.mobile.preview > /dev/null
 "$ADB" -s "$SERIAL" shell cmd connectivity airplane-mode enable > /dev/null 2>&1 || true
 if [[ "$("$ADB" -s "$SERIAL" shell settings get global airplane_mode_on | tr -d '\r')" != 1 ]]; then
@@ -36,23 +45,29 @@ if [[ "$("$ADB" -s "$SERIAL" shell settings get global airplane_mode_on | tr -d 
   "$ADB" -s "$SERIAL" shell svc data disable
 fi
 "$ADB" -s "$SERIAL" logcat -c > /dev/null 2>&1 || printf 'Device log clear unavailable; final log read remains required\n' >&2
+stage installed-functional-assertions
 "$ADB" -s "$SERIAL" shell am instrument -w -e phase all com.tacticusanalytics.mobile.preview.test/com.tacticusanalytics.mobile.AndroidProof > "$REPORT/all.txt"
-rg -q '^PASS phase=all ' "$REPORT/all.txt"
+rg -q '^PASS phase=all ' "$REPORT/all.txt" || { cat "$REPORT/all.txt"; exit 1; }
 "$ADB" -s "$SERIAL" shell am force-stop com.tacticusanalytics.mobile.preview
+stage cold-native-activity
 "$ADB" -s "$SERIAL" shell am start -W -n com.tacticusanalytics.mobile.preview/com.tacticusanalytics.mobile.MainActivity > "$REPORT/relaunch.txt"
 rg -q '^Status: ok' "$REPORT/relaunch.txt"
 "$ADB" -s "$SERIAL" shell am force-stop com.tacticusanalytics.mobile.preview
+stage restart-assertions
 "$ADB" -s "$SERIAL" shell am instrument -w -e phase reopen com.tacticusanalytics.mobile.preview.test/com.tacticusanalytics.mobile.AndroidProof > "$REPORT/reopen.txt"
-rg -q '^PASS phase=reopen ' "$REPORT/reopen.txt"
+rg -q '^PASS phase=reopen ' "$REPORT/reopen.txt" || { cat "$REPORT/reopen.txt"; exit 1; }
 "$ADB" -s "$SERIAL" shell settings put secure lock_screen_lock_after_timeout 0
 "$ADB" -s "$SERIAL" shell input keyevent KEYCODE_SLEEP
 sleep 2
+stage locked-access-assertions
 "$ADB" -s "$SERIAL" shell am instrument -w -e phase locked com.tacticusanalytics.mobile.preview.test/com.tacticusanalytics.mobile.AndroidProof > "$REPORT/locked.txt"
-rg -q '^PASS phase=locked ' "$REPORT/locked.txt"
+rg -q '^PASS phase=locked ' "$REPORT/locked.txt" || { cat "$REPORT/locked.txt"; exit 1; }
+stage credential-log-canary
 rawlog=$(mktemp)
 trap 'rm -f "$rawlog"' EXIT
 "$ADB" -s "$SERIAL" logcat -d > "$rawlog"
 if rg -q 'synthetic-official-canary-v1|c3ludGhldGljLW9mZmljaWFsLWNhbmFyeS12MQ==' "$rawlog"; then printf 'Credential canary leaked into device logs\n' >&2; exit 1; fi
+stage source-artifact-evidence
 APK_SHA=$(sha256sum "$APK" | cut -d ' ' -f 1)
 SOURCE_SHA=$(git -C "$APP_ROOT" rev-parse HEAD)
 SOURCE_DIRTY=false
