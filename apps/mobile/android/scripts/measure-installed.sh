@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 : "${ANDROID_HOME:?Set ANDROID_HOME}"
+command -v rg > /dev/null || { printf 'Install ripgrep before running the native checks\n' >&2; exit 1; }
 APP_ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 SERIAL=${1:?Pass the selected emulator serial}
 ADB="$ANDROID_HOME/platform-tools/adb"
@@ -15,9 +16,12 @@ TEST_APK="$APP_ROOT/app/build/outputs/apk/androidTest/debug/app-debug-androidTes
 "$ADB" -s "$SERIAL" install -r "$APK" > /dev/null
 "$ADB" -s "$SERIAL" install -r "$TEST_APK" > /dev/null
 # The fixed PIN belongs only to this resettable synthetic emulator, never an owner identity.
-if ! "$ADB" -s "$SERIAL" shell locksettings set-pin 2468 > /dev/null 2>&1; then
-  "$ADB" -s "$SERIAL" shell locksettings verify --old 2468 > /dev/null
+pin_reply=$("$ADB" -s "$SERIAL" shell locksettings set-pin 2468 2>&1)
+if [[ "$pin_reply" != "Pin set to "* ]]; then
+  pin_reply=$("$ADB" -s "$SERIAL" shell locksettings set-pin --old 2468 2468 2>&1)
 fi
+[[ "$pin_reply" == "Pin set to "* ]] || { printf 'Synthetic emulator secure lock setup unavailable\n' >&2; exit 1; }
+unset pin_reply
 "$ADB" -s "$SERIAL" shell input keyevent KEYCODE_WAKEUP
 "$ADB" -s "$SERIAL" shell wm dismiss-keyguard > /dev/null 2>&1 || true
 "$ADB" -s "$SERIAL" shell input swipe 160 500 160 100 100
