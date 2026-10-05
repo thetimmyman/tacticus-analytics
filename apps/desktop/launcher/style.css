@@ -35,7 +35,8 @@ form {
   gap: 14px;
   margin-top: 28px;
 }
-input[type='password'] {
+input[type='password'],
+input[type='text'] {
   padding: 12px;
   font: inherit;
   border: 1px solid #6087ba;
@@ -64,4 +65,15 @@ button:disabled {
 }
 label {
   font-size: 14px;
+}
+details {
+  margin-top: 20px;
+}
+summary {
+  cursor: pointer;
+}
+#saved-code {
+  overflow-wrap: anywhere;
+  font-family: monospace;
+  user-select: all;
 }

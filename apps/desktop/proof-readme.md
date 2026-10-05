@@ -154,3 +154,70 @@ so simultaneous browser/server refreshes do not invalidate the session. The
 proof-only `refreshTokenReuseIntervalSeconds` accepts 0–10 seconds for a bounded
 negative control; the normal launcher uses 10. JavaScript pause/resume is not
 actual OS suspend/resume, and remains scoped to this selected analytics page.
+
+The schema lifecycle holds the native workspace lease before inspecting versions.
+A known, pinned upgrade first creates a private checkpoint of the stopped database,
+credentials and version marker. A pending marker prevents an older application
+from opening the workspace, including the interval between database commit and
+filesystem marker replacement. Migration SQL and its owner-only receipt commit in
+one transaction. On retry, the target receipt completes the marker without applying
+SQL twice. Unknown source versions, different database majors, changed migration
+pins and damaged checkpoints refuse activation.
+
+The supported upgrade gives the canonical feature-access RPC owner read
+access to the public feature catalogue and adds the selected local snapshot queue.
+It also adds selected Dashboard, Guild Trends, Boss Performance and Player Stats
+RPCs and read-only catalogue tables. The original bootstrap, feature-catalogue
+version and snapshot-job version have pinned upgrade
+paths. The migration preserves the existing local
+identity and data; it does not replace the database or import hosted state.
+Checkpoints stay in the private workspace `backups` directory. Restoration must use
+a separate workspace so it cannot discard writes made after an upgrade. Automatic
+checkpoint pruning and graphical restoration are not implemented.
+
+`schema-interruption-journey.mjs` uses the synthetic native fixture to cancel a
+migration before commit and deny the final marker write after commit. Both retry
+paths preserve the fixture and commit the migration row exactly once. These controls
+require real native binaries; unit controls alone do not establish native recovery.
+Physical disk corruption and database-WAL disk exhaustion remain separate tests.
+
+The low-space native control uses `schema-space-journey.mjs <config.json>
+<private-tmpfs-directory>`. Run it inside an isolated user/mount/network namespace
+with a private tmpfs of at most 256 MiB. It refuses any other filesystem, reserves
+space until only 8 MiB remains, verifies checkpoint refusal before mutations, frees
+the reservation, and reopens the original eight-row synthetic fixture. Supply a
+stopped synthetic source workspace; do not use personal data for proof commands.
+
+The launcher runs local snapshot maintenance once after startup and every sixty
+seconds while open. Only `refresh-explore-snapshots` jobs are admitted to the local
+queue. Its canonical handler and queue RPCs run through the protected local API;
+the per-launch scheduler credential is never sent to the renderer. Overlapping
+ticks are prevented, and shutdown cancels and drains the current tick. The worker
+reaps claims older than six hundred seconds before retrying. Other hosted job types
+are not enabled by this proof.
+
+`jobs-journey.mjs` requires the compiled desktop application and real native
+services. It holds a database lock during the canonical snapshot handler, kills
+the managed application, restarts the stack and verifies the durable claim. It
+advances only that synthetic claim's timestamp to exercise the actual expiry
+policy, then checks a successful second attempt, the expected snapshots and normal
+caller permissions. This does not establish physical ten-minute suspend recovery
+or parity for every background job. `optional-worker-journey.mjs` separately checks
+that a failed optional managed worker leaves the local database available, while a
+failed mandatory Auth service shuts down the stack.
+
+Set `corePages: true` in the private native proof configuration to exercise six
+additional pages in the real sandboxed renderer. The synthetic checks assert
+Dashboard damage 625, guild trend damage 400 and cluster rank 1/2, Player Stats
+damage 525 with four tokens, and Boss Performance average damage 100. Normal
+member access still denies officer-only Token Usage; Roster retains its empty
+state without a configured integration. RPC checks reject unrelated guilds,
+anonymous execution and catalogue writes. Comprehensive player statistics stay
+service-only behind the existing application authorization checks.
+
+Desktop initials use an embedded image and allow stored avatar assets only under
+the local `/images/` path. The renderer does not need an external initials service.
+Forwarded host, port and protocol come from the protected gateway, so valid local
+Server Actions retain their browser-facing origin. These journeys cover the
+selected eight-row fixture. Reference catalogues remain empty, raid-team tabs and
+other feature interactions are not covered, and this is not complete feature parity.

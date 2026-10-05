@@ -66,9 +66,12 @@ for (const file of [
   'native-services.mjs',
   'service-owner.mjs',
   'service-client.mjs',
+  'schema-lifecycle.mjs',
+  'workspace-transfer.mjs',
   'loopback-gateway.mjs',
   'synthetic-import.mjs',
-  'renderer-wake.cjs'
+  'renderer-wake.cjs',
+  'core-pages.cjs'
 ])
   await copy(
     join(source, 'apps/desktop/proof', file),

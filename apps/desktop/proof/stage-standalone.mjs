@@ -1,6 +1,7 @@
 import { cp, mkdir, stat } from 'node:fs/promises'
 import { dirname, resolve, isAbsolute, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { stageApplicationNotices } from '../package/application-notices.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const destination = process.argv[2]
@@ -26,4 +27,14 @@ await cp(join(root, 'public'), join(destination, 'public'), {
   recursive: true,
   dereference: true
 })
+const notices = await stageApplicationNotices({
+  application: destination,
+  sourceModules: join(root, 'node_modules')
+})
+console.log(
+  JSON.stringify({
+    applicationPackages: notices.packages.length,
+    packagesRequiringNoticeReview: notices.packagesRequiringReview
+  })
+)
 console.log('Standalone application staged with local assets')

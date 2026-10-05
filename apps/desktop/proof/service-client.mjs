@@ -5,7 +5,8 @@ import { resolve } from 'node:path'
 import { join } from 'node:path'
 import { signedToken } from './native-services.mjs'
 
-export async function nativeServices(config) {
+export async function nativeServices(config, { signal } = {}) {
+  signal?.throwIfAborted()
   if (config.runtimeGuard)
     await mkdir(resolve(config.state), { recursive: true, mode: 0o700 })
   const owner = fork(new URL('./service-owner.mjs', import.meta.url), [], {
@@ -34,6 +35,13 @@ export async function nativeServices(config) {
       if (!owner.pid) accept()
     })
   })
+  const onAbort = () => {
+    const error = Object.assign(new Error('Local service startup cancelled'), {
+      name: 'AbortError'
+    })
+    fail(error)
+    owner.kill('SIGTERM')
+  }
   const send = (message) => {
     if (!owner.connected)
       throw new Error('Local service supervisor disconnected')
@@ -74,6 +82,7 @@ export async function nativeServices(config) {
           })
         : new Error('Local service supervisor stopped')
     )
+    signal?.removeEventListener('abort', onAbort)
     process.removeListener('SIGINT', onInterrupt)
     process.removeListener('SIGTERM', onInterrupt)
   })
@@ -101,7 +110,8 @@ export async function nativeServices(config) {
         child.emit('exit', message.code, message.signal)
       }
     } else if (type === 'child-error') {
-      fault = new Error('Local process failed to start')
+      if (message.fault !== false)
+        fault = new Error('Local process failed to start')
       children[id]?.emit('error', new Error('Local process failed to start'))
     }
   })
@@ -129,11 +139,18 @@ export async function nativeServices(config) {
     void stop().finally(() => process.exit(130))
   }
   try {
-    send({ config })
+    signal?.addEventListener('abort', onAbort, { once: true })
+    if (signal?.aborted) onAbort()
+    else send({ config })
     const metadata = await ready
     const { jwt } = JSON.parse(
       await readFile(join(metadata.state, 'credentials.json'), 'utf8')
     )
+    if (signal?.aborted)
+      throw Object.assign(new Error('Local service startup cancelled'), {
+        name: 'AbortError'
+      })
+    signal?.removeEventListener('abort', onAbort)
     const lifetime = config.tokenLifetimeSeconds ?? 86400
     process.on('SIGINT', onInterrupt)
     process.on('SIGTERM', onInterrupt)

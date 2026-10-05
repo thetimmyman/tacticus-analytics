@@ -1,3 +1,4 @@
+import { prepareSchema, completeSchema } from './schema-lifecycle.mjs'
 import { spawn } from 'node:child_process'
 import { createHmac, createHash, randomBytes, randomUUID } from 'node:crypto'
 import { createServer } from 'node:net'
@@ -128,17 +129,18 @@ export async function ownedNativeServices({
           }
         }
       : { file, args, options }
-  let needsSchema = true
+  let schemaPlan
   try {
-    if ((await readFile(join(state, 'schema-version'), 'utf8')) !== schemaHash)
-      throw new Error('Incompatible local schema; activation refused')
-    needsSchema = false
+    schemaPlan = await prepareSchema({
+      state,
+      schemaDirectory,
+      target: schemaHash
+    })
   } catch (error) {
-    if (error.code !== 'ENOENT') {
-      await (await import('node:fs/promises')).unlink(lockPath)
-      throw error
-    }
+    await (await import('node:fs/promises')).unlink(lockPath)
+    throw error
   }
+  const needsSchema = schemaPlan.kind === 'bootstrap'
   const children = []
   const utilities = new Set()
   const { unlink } = await import('node:fs/promises')
@@ -216,6 +218,7 @@ export async function ownedNativeServices({
       PATH: process.env.PATH,
       LANG: 'C.UTF-8',
       ...(libraryPath ? { LD_LIBRARY_PATH: libraryPath } : {}),
+      PGCONNECT_TIMEOUT: '3',
       PGPASSWORD: credentials.owner
     }
     const psql = async (sql) => {
@@ -246,8 +249,17 @@ export async function ownedNativeServices({
         await unlink(path).catch(() => {})
       }
     }
-    const launch = (file, args, env, cwd = state, ephemeral = false) => {
+    const launch = (
+      file,
+      args,
+      env,
+      cwd = state,
+      ephemeral = false,
+      policy = 'critical'
+    ) => {
       if (stopping) throw new Error('Local services are stopping')
+      if (!['critical', 'optional'].includes(policy))
+        throw new Error('Unknown child failure policy')
       const log = createWriteStream(join(state, `${children.length}.log`), {
         mode: 0o600,
         flags: 'a'
@@ -261,12 +273,17 @@ export async function ownedNativeServices({
       child.stdout.pipe(log)
       child.stderr.pipe(log)
       child.once('error', () => {
+        if (policy === 'optional') return
         fault = new Error('A local service failed to start')
         void stop()
       })
       children.push(child)
       child.once('exit', (code, signal) => {
-        if (!stopping && (!ephemeral || code !== 0 || signal)) {
+        if (
+          !stopping &&
+          policy === 'critical' &&
+          (!ephemeral || code !== 0 || signal)
+        ) {
           fault = new Error('A proof-owned service failed')
           void stop()
         }
@@ -321,6 +338,8 @@ export async function ownedNativeServices({
       throw new Error(`${label} readiness timed out`)
     }
     await ready(() => psql('SELECT 1;'), pg, 'PostgreSQL')
+    if (!needsSchema)
+      await completeSchema({ state, schemaDirectory, plan: schemaPlan, psql })
     const token = {
       get anon() {
         return signedToken(credentials.jwt, 'anon', tokenLifetimeSeconds)
@@ -399,23 +418,21 @@ export async function ownedNativeServices({
       auth,
       'Auth'
     )
-    if (needsSchema) {
-      // The native Auth release supplies its own versioned schema migrations.
-      await psql(
-        'BEGIN;\n' +
+    if (needsSchema)
+      await completeSchema({
+        state,
+        schemaDirectory,
+        plan: schemaPlan,
+        psql,
+        bootstrapSql:
           (await readFile(
             join(schemaDirectory, 'canonical-objects.sql'),
             'utf8'
           )) +
           '\n' +
-          (await readFile(join(schemaDirectory, 'authority.sql'), 'utf8')) +
-          '\nCOMMIT;'
-      )
-      await writeFile(join(state, 'schema-version'), schemaHash, {
-        mode: 0o600,
-        flag: 'wx'
+          (await readFile(join(schemaDirectory, 'authority.sql'), 'utf8'))
       })
-    }
+
     const rest = launch(binaries.postgrest, [], {
       PATH: process.env.PATH,
       PGRST_DB_URI: `postgres://authenticator:${credentials.rest}@127.0.0.1:${ports.db}/postgres`,

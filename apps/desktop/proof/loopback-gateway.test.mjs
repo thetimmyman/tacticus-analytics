@@ -167,3 +167,41 @@ test('loopback gateway rejects a transport key that is not 64 hex characters', a
     /Invalid transport key/
   )
 })
+test('valid action origins use the gateway host and cannot spoof forwarding headers', async (t) => {
+  const upstream = createServer((req, res) => {
+    res.setHeader('content-type', 'application/json')
+    res.end(JSON.stringify(req.headers))
+  })
+  await new Promise((resolve) => upstream.listen(0, '127.0.0.1', resolve))
+  const transportKey = randomBytes(32).toString('hex')
+  const gateway = await loopbackGateway({
+    services: { ports: {}, token: { anon: 'anon-token' } },
+    transportKey,
+    appPort: upstream.address().port
+  })
+  t.after(async () => {
+    await gateway.stop()
+    await new Promise((resolve) => upstream.close(resolve))
+  })
+  const response = await fetch(gateway.origin, {
+    method: 'POST',
+    headers: {
+      'x-desktop-transport': transportKey,
+      origin: gateway.origin,
+      'x-forwarded-host': 'foreign.invalid',
+      'x-forwarded-port': '443',
+      'x-forwarded-proto': 'https',
+      forwarded: 'host=foreign.invalid;proto=https'
+    },
+    body: 'synthetic-action'
+  })
+  assert.equal(response.status, 200)
+  const observed = await response.json()
+  const endpoint = new URL(gateway.origin)
+  assert.equal(observed['x-forwarded-host'], endpoint.host)
+  assert.equal(observed['x-forwarded-port'], endpoint.port)
+  assert.equal(observed['x-forwarded-proto'], 'http')
+  assert.equal(observed.origin, gateway.origin)
+  assert.equal(observed.forwarded, undefined)
+  assert.equal(observed.host, `127.0.0.1:${upstream.address().port}`)
+})

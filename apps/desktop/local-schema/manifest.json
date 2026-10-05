@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 1,
-  "purpose": "Disposable synthetic historical-performance proof; not complete application schema",
+  "schemaVersion": 4,
+  "purpose": "Selected native desktop analytics, core catalogue reads and local snapshot jobs; not the complete application schema",
   "sourceCommit": "5d41a8776f3e216c04dae14d1bfa09fd48ca730a",
   "objects": [
     {
@@ -248,7 +248,171 @@
       "name": "get_player_boss_performance:p_guild_code text, p_season text, p_player_name text, p_boss_name text DEFAULT NULL::text, p_rarity text DEFAULT 'Legendary'::text)",
       "canonicalStatementSha256": "51df5ed1d12a088847c0a8dffd7f04764d32aa8f963e661422d33da790658e9d",
       "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "work_queue",
+      "canonicalStatementSha256": "632c4976185e78ec06f36e54d22af9106c0407c86c150225e1c2220e5e954110",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "public_guild_snapshots",
+      "canonicalStatementSha256": "f3cabe9850e24d8e3610a2b3e32bfd3e5716eb799adc8801ce10a126b02c6f24",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "votlw_winners",
+      "canonicalStatementSha256": "3f93207c13421eef18d7830843f120566baaa1c567a390cfa82bfed452ef464a",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "claim_next_work_job",
+      "canonicalStatementSha256": "9ce9e7a81b7f20e9969f3a2ac15a1b3caccd8e6b75a14f7b0cc4634dac49bfd9",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "complete_work_job",
+      "canonicalStatementSha256": "7e61fc19bc079d75f8d04853628f1f59a6d13adef4f2b47e17241c069be4d876",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "fail_work_job",
+      "canonicalStatementSha256": "f6059390744ca89a19b7c71365e0ad4571cddd10514bfabba22aeda10affc54f",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "reap_stuck_work_jobs",
+      "canonicalStatementSha256": "63f63978086a7c5ddb5786a05d8a1b359ef03a83df0ad0753d11bb10b5105828",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "manual_refresh_guild_snapshots",
+      "canonicalStatementSha256": "120c2098a7c7566f8f2fc5fab1d4840ae89e95a2f95a444d3931ef15c8c206fd",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "refresh_public_guild_snapshots",
+      "canonicalStatementSha256": "6b7621eb7db05e6a85b2c747e12f0d0c2268381ad8b02fc2baa1ef56824b29fa",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "meta_teams",
+      "canonicalStatementSha256": "8c6e8024f804f6b1798662d7bd93b0e9f2b5197f6f542c3731a5dc7731a322f0",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "player_avatar_frames",
+      "canonicalStatementSha256": "04f300ae925d88594da94187cd5196ad41a2c00d285e514fc79d77133b4cabfe",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "hero_mappings",
+      "canonicalStatementSha256": "a65286defcce14556848c99e7d71443c49d363d6f9432cfa8d658d16e5a2bab7",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_boss_difficulty_analysis",
+      "canonicalStatementSha256": "fa792184a5453a574ac571c9cc048670f456d0d6adaf5261fcf4661e90c19adc",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_damage_by_boss_loop",
+      "canonicalStatementSha256": "5fe455f62863cf82e2f0565daec6ae5ea4d899b1e0548b4b5dab4fc8593480b1",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_token_usage_by_loop",
+      "canonicalStatementSha256": "e778765c43aa5745199f7fc937f16ad32a284f10db799ece03f9309ec77b9250",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_guild_vs_cluster_prime_performance",
+      "canonicalStatementSha256": "0434fc657db94f4bee31fcc084a6594d1fda88f32e037f4c5bf57ce92e483f92",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_token_usage_by_loop_and_set",
+      "canonicalStatementSha256": "6fe5c587be636b9e3b0fd1319dc123f3beb14558995dcb6892035c54d773e040",
+      "sourceFileSha256": "1bc3bd12f7a8e8aeda53bd306fa4924d309a97eab17b0443bab89b01f8afefbb"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_guild_trends_batch",
+      "canonicalStatementSha256": "822a58cd0b48bdfc8503a5b0ccc2fb4927d45667784afb5e5006c20ec3a6dfc6",
+      "sourceFileSha256": "f89d101f66975523a53164f48107b03a246c5aa17b51b604a21be5780035aca3"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_boss_performance_overview",
+      "canonicalStatementSha256": "721a3d976f3b62af8441a9d755d5cf221891edb0250a3f81e8a3787f0e23f4cc",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "boss_mapping",
+      "canonicalStatementSha256": "02c29679289e81c8a33196157b98026f35a89e76fb45987a965eff3890dfaaf9",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "_pm_caller_mapping_rows",
+      "canonicalStatementSha256": "14c6b485724e563692dcba62858124662a1b8fc0543fad164fb5dac7341c46bd",
+      "sourceFileSha256": "39adb4302cc9b2c485506064ea9a1f267e89e57f2ab8df9e72cabe6c53602d21"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_player_stats_comprehensive",
+      "canonicalStatementSha256": "8ef14210d52c52750aba82fea1011c7d8cd519c3cfc5aa55707c108f4fbd694c",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_player_boss_rankings",
+      "canonicalStatementSha256": "fd024f8d9740e1c86d016b135ee79dfb1d4f96ced077431fddd9e7f7a7197f44",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_player_damage_by_boss_loop",
+      "canonicalStatementSha256": "c0c53c77834abd6282fbbe0f50f64a0d93d51de8f795713fde4a17a20346e610",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "boss_name_aliases",
+      "canonicalStatementSha256": "a4b7cb30232959c1e25df5bbbc41986871c23f13fde352fa722adbc0a657d640",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "resolve_boss_name",
+      "canonicalStatementSha256": "0d4ce2414111d1fa2db1628bc00f433b8c521ec9c1c49e6c0db7fe5dcefc692d",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
     }
   ],
-  "excluded": "Hosted triggers, schedulers, operational SQL, captured data and blanket grants are deliberately excluded. Local bootstrap supplies constraints, RLS and ownership separately. Cluster aggregate must use a scoped invoker view rather than an unscoped materialized-view grant."
+  "excluded": "Hosted triggers, schedulers, operational SQL, captured data and blanket grants are deliberately excluded. Local bootstrap supplies constraints, RLS and ownership separately. Cluster aggregate must use a scoped invoker view rather than an unscoped materialized-view grant.",
+  "localDifferences": [
+    "Local queue admits only the proven snapshot refresh job",
+    "Snapshot refresh uses a dedicated non-login non-bypass role",
+    "Authenticated snapshot reads follow local guild membership",
+    "No hosted schedulers, triggers, game credentials or captured state",
+    "Selected core analytic definers use the non-login, non-bypass read owner. Catalogue tables allow authenticated reads only, with no public caller writes. Comprehensive player statistics remain service-only behind the canonical application authorization path.",
+    "Local workspace recovery stores a digest only; code provisioning requires the current password and reset targets only the installation account."
+  ]
 }

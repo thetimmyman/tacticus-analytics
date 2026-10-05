@@ -1,6 +1,7 @@
 const { app, BrowserWindow, session } = require('electron')
 const { readFileSync, writeFileSync } = require('node:fs')
 const { join } = require('node:path')
+const { randomBytes } = require('node:crypto')
 const config = JSON.parse(readFileSync(process.argv[2], 'utf8'))
 const origin = new URL(config.url).origin
 if (
@@ -61,6 +62,7 @@ app
       if (new URL(url).origin !== origin) event.preventDefault()
     })
     await window.loadURL(config.url)
+    const maintenance = require('./maintenance-menu.cjs')(window, config)
     if (config.verify) {
       if (config.verify.setupScreenshot)
         writeFileSync(
@@ -68,6 +70,34 @@ app
           (await window.webContents.capturePage()).toPNG(),
           { mode: 0o600 }
         )
+      if (config.verify.recovery === true) {
+        const anotherPassword = randomBytes(24).toString('hex')
+        const waitFor = async (expression) => {
+          for (let i = 0; i < 150; i++) {
+            if (await window.webContents.executeJavaScript(expression)) return
+            await new Promise((accept) => setTimeout(accept, 100))
+          }
+          throw new Error('Workspace recovery form did not complete')
+        }
+        await window.webContents.executeJavaScript(
+          `if(document.querySelector('#recovery').hidden) throw new Error('Recovery requires an existing workspace'); document.querySelector('#recovery-password').value=${JSON.stringify(config.verify.password)}; document.querySelector('#recovery-save').requestSubmit();`
+        )
+        await waitFor(
+          `document.querySelector('#saved-code').textContent.length === 64`
+        )
+        for (const password of [anotherPassword, config.verify.password]) {
+          await new Promise((accept) => setTimeout(accept, 3200))
+          await window.webContents.executeJavaScript(
+            `document.querySelector('#recovery-reset-status').textContent=''; document.querySelector('#recovery-code').value=document.querySelector('#saved-code').textContent; document.querySelector('#new-password').value=${JSON.stringify(password)}; document.querySelector('#recovery-reset').requestSubmit();`
+          )
+          await waitFor(
+            `document.querySelector('#recovery-reset-status').textContent.includes('Password changed')`
+          )
+        }
+        await window.webContents.executeJavaScript(
+          `document.querySelector('#saved-code').textContent=''`
+        )
+      }
       await window.webContents.executeJavaScript(
         `document.querySelector('#password').value=${JSON.stringify(config.verify.password)}; document.querySelector('#sample').checked=true; document.querySelector('form').requestSubmit();`
       )
@@ -91,8 +121,18 @@ app
       const observed = await window.webContents.executeJavaScript(
         `({text:document.body.innerText,nodeAccess:typeof require!=='undefined'||typeof process!=='undefined'})`
       )
+      const screenshot = (await window.webContents.capturePage()).toPNG()
+      const corePages =
+        config.verify.corePages === true
+          ? await require('../proof/core-pages.cjs').captureCorePages(
+              window,
+              origin
+            )
+          : []
       const evidence = {
         observed,
+        corePages,
+        recovery: config.verify.recovery === true,
         wake,
         failures,
         blocked,
@@ -103,11 +143,7 @@ app
       writeFileSync(config.verify.evidence, JSON.stringify(evidence, null, 2), {
         mode: 0o600
       })
-      writeFileSync(
-        config.verify.screenshot,
-        (await window.webContents.capturePage()).toPNG(),
-        { mode: 0o600 }
-      )
+      writeFileSync(config.verify.screenshot, screenshot, { mode: 0o600 })
       if (
         observed.nodeAccess ||
         !observed.text.includes('+58%') ||
@@ -131,6 +167,11 @@ app
         )
       )
         throw new Error('Unexpected packaged renderer request failure')
+      if (config.verify.maintenance)
+        return maintenance(
+          config.verify.maintenance.operation,
+          config.verify.maintenance
+        )
       window.destroy()
       app.quit()
     }

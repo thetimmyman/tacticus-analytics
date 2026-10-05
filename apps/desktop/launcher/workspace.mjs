@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { workspaceRecovery } from './recovery.mjs'
 import {
   syntheticRaidFixture,
   importSyntheticRaid
@@ -7,6 +8,7 @@ import {
 
 const email = 'desktop@localhost.invalid'
 export function workspaceSetup(services, assets) {
+  const recovery = workspaceRecovery(services)
   let busy = false
   const initialized = async () =>
     (
@@ -22,6 +24,7 @@ export function workspaceSetup(services, assets) {
     res.end(JSON.stringify(body))
   }
   return async (req, res, url) => {
+    if (await recovery(req, res, url)) return true
     if (!url.pathname.startsWith('/desktop/')) return false
     if (
       req.method === 'GET' &&

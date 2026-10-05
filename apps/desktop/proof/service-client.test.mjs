@@ -38,3 +38,23 @@ test('failed owner initialization releases only its acquired lock', async () => 
     await rm(state, { recursive: true, force: true })
   }
 })
+
+test('cancelled startup never creates a workspace or starts an owner', async () => {
+  const state = await mkdtemp(join(tmpdir(), 'desktop-aborted-startup-'))
+  try {
+    const controller = new AbortController()
+    controller.abort()
+    await assert.rejects(
+      nativeServices(
+        { state: join(state, 'workspace') },
+        { signal: controller.signal }
+      ),
+      { name: 'AbortError' }
+    )
+    await assert.rejects(readFile(join(state, 'workspace/running.lock')), {
+      code: 'ENOENT'
+    })
+  } finally {
+    await rm(state, { recursive: true, force: true })
+  }
+})

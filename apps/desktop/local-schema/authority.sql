@@ -4,7 +4,8 @@
 -- owner can inspect or change this coordinator ledger.
 CREATE TABLE public.desktop_preview_setup (
   singleton boolean PRIMARY KEY DEFAULT true CHECK (singleton),
-  subject_user_id uuid NOT NULL REFERENCES auth.users(id)
+  subject_user_id uuid NOT NULL REFERENCES auth.users(id),
+  recovery_code_hash text CHECK (recovery_code_hash ~ '^[a-f0-9]{64}$')
 );
 ALTER TABLE public.desktop_preview_setup ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.desktop_preview_setup FORCE ROW LEVEL SECURITY;
@@ -97,3 +98,71 @@ BEGIN
  END LOOP;
 END;
 $selected_rpc$;
+
+GRANT SELECT ON public.feature_releases TO authenticated,desktop_rpc_reader;
+ALTER TABLE public.work_queue ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.public_guild_snapshots ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.votlw_winners ENABLE ROW LEVEL SECURITY;
+GRANT SELECT,INSERT,UPDATE,DELETE ON public.work_queue TO service_role;
+GRANT USAGE,SELECT ON SEQUENCE public.work_queue_id_seq TO service_role;
+GRANT SELECT ON public.public_guild_snapshots TO authenticated,service_role;
+CREATE POLICY desktop_snapshot_read ON public.public_guild_snapshots FOR SELECT TO authenticated USING (guild_code IN (SELECT public._pm_caller_guild_codes()));
+REVOKE ALL ON FUNCTION public.claim_next_work_job(text,text[]),public.complete_work_job(bigint,text,jsonb),public.fail_work_job(bigint,text,text,integer),public.reap_stuck_work_jobs(integer),public.manual_refresh_guild_snapshots(),public.refresh_public_guild_snapshots() FROM PUBLIC,anon,authenticated,desktop_rpc_reader;
+GRANT EXECUTE ON FUNCTION public.claim_next_work_job(text,text[]),public.complete_work_job(bigint,text,jsonb),public.fail_work_job(bigint,text,text,integer),public.reap_stuck_work_jobs(integer),public.manual_refresh_guild_snapshots() TO service_role;
+
+CREATE ROLE desktop_snapshot_owner NOLOGIN NOBYPASSRLS;
+GRANT USAGE ON SCHEMA public TO desktop_snapshot_owner;
+GRANT SELECT ON public."EOT_GR_data",public.guild_config,public.clusters,public.votlw_winners,public.public_guild_snapshots TO desktop_snapshot_owner;
+GRANT INSERT,TRUNCATE ON public.public_guild_snapshots TO desktop_snapshot_owner;
+CREATE POLICY desktop_snapshot_raid_read ON public."EOT_GR_data" FOR SELECT TO desktop_snapshot_owner USING(true);
+CREATE POLICY desktop_snapshot_guild_read ON public.guild_config FOR SELECT TO desktop_snapshot_owner USING(true);
+CREATE POLICY desktop_snapshot_cluster_read ON public.clusters FOR SELECT TO desktop_snapshot_owner USING(true);
+CREATE POLICY desktop_snapshot_winner_read ON public.votlw_winners FOR SELECT TO desktop_snapshot_owner USING(true);
+CREATE POLICY desktop_snapshot_owner_read ON public.public_guild_snapshots FOR SELECT TO desktop_snapshot_owner USING(true);
+CREATE POLICY desktop_snapshot_owner_write ON public.public_guild_snapshots FOR INSERT TO desktop_snapshot_owner WITH CHECK(true);
+GRANT EXECUTE ON FUNCTION public.refresh_public_guild_snapshots() TO service_role;
+ALTER FUNCTION public.refresh_public_guild_snapshots() OWNER TO desktop_snapshot_owner;
+
+ALTER TABLE public.meta_teams ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.meta_teams FORCE ROW LEVEL SECURITY;
+ALTER TABLE public.hero_mappings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.hero_mappings FORCE ROW LEVEL SECURITY;
+ALTER TABLE public.player_avatar_frames ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.player_avatar_frames FORCE ROW LEVEL SECURITY;
+ALTER TABLE public.boss_mapping ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.boss_mapping FORCE ROW LEVEL SECURITY;
+CREATE POLICY desktop_meta_catalog_read ON public.meta_teams FOR SELECT TO authenticated,desktop_rpc_reader USING(true);
+CREATE POLICY desktop_hero_catalog_read ON public.hero_mappings FOR SELECT TO authenticated,desktop_rpc_reader USING(true);
+CREATE POLICY desktop_avatar_catalog_read ON public.player_avatar_frames FOR SELECT TO authenticated,desktop_rpc_reader USING(true);
+CREATE POLICY desktop_boss_catalog_read ON public.boss_mapping FOR SELECT TO authenticated,desktop_rpc_reader USING(true);
+GRANT SELECT ON public.meta_teams,public.hero_mappings,public.player_avatar_frames,public.boss_mapping TO authenticated,desktop_rpc_reader,service_role;
+GRANT SELECT(avatar_unit_id) ON public.player_mapping TO authenticated;
+DO $core_rpc$
+DECLARE fn regprocedure;
+BEGIN
+ FOR fn IN SELECT p.oid::regprocedure FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+ WHERE n.nspname='public' AND p.proname IN ('_pm_caller_mapping_rows','get_boss_difficulty_analysis','get_damage_by_boss_loop','get_token_usage_by_loop','get_guild_vs_cluster_prime_performance','get_token_usage_by_loop_and_set','get_guild_trends_batch','get_boss_performance_overview') LOOP
+  EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC,anon,authenticated',fn);
+  EXECUTE format('ALTER FUNCTION %s OWNER TO desktop_rpc_reader',fn);
+  EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO authenticated,service_role,desktop_rpc_reader',fn);
+ END LOOP;
+END;
+$core_rpc$;
+
+REVOKE ALL ON FUNCTION public.get_player_stats_comprehensive(text,text,text) FROM PUBLIC,anon,authenticated,desktop_rpc_reader;
+GRANT EXECUTE ON FUNCTION public.get_player_stats_comprehensive(text,text,text) TO service_role;
+
+REVOKE ALL ON FUNCTION public.get_player_damage_by_boss_loop(text,text,text),public.get_player_boss_rankings(text,text,text,text) FROM PUBLIC,anon,authenticated;
+ALTER FUNCTION public.get_player_damage_by_boss_loop(text,text,text) OWNER TO desktop_rpc_reader;
+ALTER FUNCTION public.get_player_boss_rankings(text,text,text,text) OWNER TO desktop_rpc_reader;
+GRANT EXECUTE ON FUNCTION public.get_player_damage_by_boss_loop(text,text,text),public.get_player_boss_rankings(text,text,text,text) TO authenticated,desktop_rpc_reader,service_role;
+
+ALTER TABLE public.boss_name_aliases ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.boss_name_aliases FORCE ROW LEVEL SECURITY;
+CREATE POLICY desktop_boss_alias_read ON public.boss_name_aliases FOR SELECT TO authenticated,desktop_rpc_reader USING(true);
+GRANT SELECT ON public.boss_name_aliases TO authenticated,desktop_rpc_reader,service_role;
+REVOKE ALL ON FUNCTION public.resolve_boss_name(text) FROM PUBLIC,anon,authenticated;
+ALTER FUNCTION public.resolve_boss_name(text) OWNER TO desktop_rpc_reader;
+GRANT EXECUTE ON FUNCTION public.resolve_boss_name(text) TO authenticated,desktop_rpc_reader,service_role;
+
+REVOKE ALL ON public.desktop_preview_setup FROM PUBLIC,anon,authenticated,service_role,desktop_rpc_reader;

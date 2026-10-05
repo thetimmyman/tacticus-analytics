@@ -1,6 +1,7 @@
 {
   "$comment": "Route files that MUST stay protected by requireCronSecret but are not discoverable from their path (no `cron` segment). The gate discovers them via their guard import; this manifest is the backstop so that deleting BOTH the import and the call -- which would silently remove the file from the import-based population -- fails as 'expected protected handler missing guard' instead of passing vacuously. Add a file here whenever a non-cron machine route adopts the cron secret.",
   "protectedFiles": [
+    "app/api/desktop/jobs/route.ts",
     "app/api/discord-webhooks/event-notification/route.ts",
     "app/api/sync/worker/route.ts",
     "app/api/worker/batch/route.ts",

@@ -31,10 +31,66 @@
         ><button type="submit">Open workspace</button>
         <p role="status" id="status"></p>
       </form>
+      <section id="recovery" hidden>
+        <details>
+          <summary>Save a recovery code</summary>
+          <p>
+            Enter your current password to create a recovery code. Save the code
+            somewhere private outside this workspace. Anyone with this code can
+            reset your workspace password. Creating a new code replaces the old
+            one.
+          </p>
+          <form id="recovery-save">
+            <label for="recovery-password">Current workspace password</label>
+            <input
+              id="recovery-password"
+              type="password"
+              minlength="12"
+              maxlength="128"
+              autocomplete="current-password"
+              required
+            />
+            <button type="submit">Create recovery code</button>
+            <p role="status" id="recovery-save-status"></p>
+            <output id="saved-code"></output>
+          </form>
+        </details>
+        <details>
+          <summary>Forgot your password?</summary>
+          <p>
+            Use your saved recovery code to set a new password. Your analytics
+            data stays in place. Without a saved code or password, this form
+            cannot unlock your workspace.
+          </p>
+          <form id="recovery-reset">
+            <label for="recovery-code">Saved recovery code</label>
+            <input
+              id="recovery-code"
+              type="text"
+              minlength="64"
+              maxlength="64"
+              autocomplete="off"
+              spellcheck="false"
+              required
+            />
+            <label for="new-password">New workspace password</label>
+            <input
+              id="new-password"
+              type="password"
+              minlength="12"
+              maxlength="128"
+              autocomplete="new-password"
+              required
+            />
+            <button type="submit">Reset workspace password</button>
+            <p role="status" id="recovery-reset-status"></p>
+          </form>
+        </details>
+      </section>
       <p class="footnote">
         No hosted account or email service is required. Keep your password safe;
-        retry interrupted setup with the same password. Password recovery is not
-        yet included in this preview.
+        retry interrupted setup with the same password. Password recovery is
+        available offline after you save a recovery code.
       </p>
     </main>
   </body>

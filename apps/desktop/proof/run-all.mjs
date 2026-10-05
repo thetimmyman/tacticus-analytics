@@ -24,7 +24,10 @@ console.log(
 )
 run('a-loopback-gateway', '--test', [
   'apps/desktop/proof/loopback-gateway.test.mjs',
-  'apps/desktop/proof/service-client.test.mjs'
+  'apps/desktop/proof/service-client.test.mjs',
+  'apps/desktop/proof/schema-lifecycle.test.mjs',
+  'apps/desktop/proof/workspace-selection.test.mjs',
+  'apps/desktop/proof/job-scheduler.test.mjs'
 ])
 
 console.log(
@@ -32,6 +35,7 @@ console.log(
 )
 run('d-component-manifest-selftest', '--test', [
   'apps/desktop/package/component-manifest.test.mjs',
+  'apps/desktop/package/application-notices.test.mjs',
   'apps/desktop/package/runtime-guard.test.mjs'
 ])
 
@@ -65,6 +69,14 @@ if (!configPath) {
   ])
   console.log('\n== Gate (c): setup interruption / resume recovery ==')
   run('c-setup-recovery', 'apps/desktop/proof/setup-recovery.mjs', [configPath])
+  console.log('\n== Gate (c): native workspace password recovery ==')
+  run('c-password-recovery', 'apps/desktop/proof/recovery-journey.mjs', [
+    configPath
+  ])
+  console.log('\n== Gate (c): verified stopped-workspace export / restore ==')
+  run('c-workspace-transfer', 'apps/desktop/proof/transfer-journey.mjs', [
+    configPath
+  ])
   console.log('\n== Runtime token expiry and active-session shutdown ==')
   run('c-lifecycle', 'apps/desktop/proof/lifecycle-journey.mjs', [configPath])
   console.log('\n== Forced coordinator death / native restart ==')
@@ -78,6 +90,25 @@ if (!configPath) {
     console.log('Kernel lease recovery SKIPPED: runtimeGuard is not supplied')
     results.push({ gate: 'c-owner-death', exitCode: 'skipped' })
   }
+  console.log('\n== Optional worker failure / critical dependency shutdown ==')
+  run('c-optional-worker', 'apps/desktop/proof/optional-worker-journey.mjs', [
+    configPath
+  ])
+  if (nativeConfig.application?.node && nativeConfig.application?.directory) {
+    console.log('\n== Compiled local snapshot job / crash claim recovery ==')
+    run('c-local-jobs', 'apps/desktop/proof/jobs-journey.mjs', [configPath])
+  } else {
+    console.log(
+      'Local job recovery SKIPPED: compiled application is not supplied'
+    )
+    results.push({ gate: 'c-local-jobs', exitCode: 'skipped' })
+  }
+  console.log('\n== Native schema migration interruption / receipt recovery ==')
+  run(
+    'c-schema-interruption',
+    'apps/desktop/proof/schema-interruption-journey.mjs',
+    [configPath]
+  )
   console.log('\n== Native user-session expiry / restart renewal ==')
   run('c-session-renewal', 'apps/desktop/proof/session-journey.mjs', [
     configPath

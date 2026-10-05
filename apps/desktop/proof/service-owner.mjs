@@ -17,7 +17,9 @@ const observe = (child, id) => {
       fault: Boolean(services?.fault)
     })
   )
-  child.once('error', () => send({ type: 'child-error', id }))
+  child.once('error', () =>
+    send({ type: 'child-error', id, fault: Boolean(services?.fault) })
+  )
 }
 process.on('disconnect', () => {
   disconnected = true
@@ -52,7 +54,7 @@ process.once('message', async ({ config }) => {
         // SQL/logs may contain installation credentials. Keep errors generic.
         if (type === 'psql' || type === 'stop')
           send({ type: 'result', id, error: 'Local service operation failed' })
-        else send({ type: 'child-error', id })
+        else send({ type: 'child-error', id, fault: true })
       }
     })
     send({
@@ -66,7 +68,11 @@ process.once('message', async ({ config }) => {
   } catch (error) {
     send({
       type: 'startup-error',
-      code: error.code,
+      code: /Incompatible local schema|Schema checkpoint|Schema receipt/.test(
+        error.message
+      )
+        ? 'ESCHEMA'
+        : error.code,
       error:
         error.code === 'EEXIST'
           ? 'EEXIST: Workspace already in use'

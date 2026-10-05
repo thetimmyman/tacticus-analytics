@@ -100,11 +100,19 @@ app
       (await window.webContents.capturePage()).toPNG(),
       { mode: 0o600 }
     )
+    const corePages =
+      config.corePages === true
+        ? await require('./core-pages.cjs').captureCorePages(
+            window,
+            endpoint.origin
+          )
+        : []
     writeFileSync(
       config.evidence,
       JSON.stringify(
         {
           renderer,
+          corePages,
           wake,
           failures,
           blocked,
