@@ -769,5 +769,40 @@ describe('POST /api/guild/update-api-key', () => {
       expect(body.success).toBe(true)
       expect(body.details.syncTriggered).toBe(false)
     })
+
+    it('calls the sync function through the internal URL, not the public browser URL', async () => {
+      // Docker Compose splits these on purpose (see .env.compose.example): the
+      // browser reaches Supabase at NEXT_PUBLIC_SUPABASE_URL, but this route
+      // runs server-side inside the container and must use SUPABASE_URL to
+      // reach the same Supabase stack through the Docker host gateway.
+      vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'http://localhost:54321')
+      vi.stubEnv('SUPABASE_URL', 'http://host.docker.internal:54321')
+      vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY', 'test-service-key')
+      mockGuildUpdateQueries()
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({ success: true })
+      })
+
+      const request = new Request('http://localhost/api/guild/update-api-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          guild_code: 'TEST',
+          api_key: 'valid-key',
+          api_owner: 'New Owner'
+        })
+      })
+
+      const response = await POST(request)
+      const body = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body.details.syncTriggered).toBe(true)
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://host.docker.internal:54321/functions/v1/sync-modular-workflow',
+        expect.anything()
+      )
+    })
   })
 })
