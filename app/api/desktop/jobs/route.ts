@@ -5,6 +5,7 @@ import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { runWorkerTick } from '@/app/lib/jobs/worker-tick'
 import { registerRefreshExploreSnapshotsHandler } from '@/app/lib/jobs/refresh-explore-snapshots'
 import { getJobHandler } from '@/app/lib/jobs/dispatcher'
+import { registerLocalAchievementsHandler } from '@/app/lib/jobs/refresh-local-achievements'
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
   requireCronSecret(request)
@@ -12,6 +13,8 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   if (!getJobHandler('refresh-explore-snapshots'))
     registerRefreshExploreSnapshotsHandler()
+  if (!getJobHandler('refresh-local-achievements'))
+    registerLocalAchievementsHandler()
   const result = await runWorkerTick({
     classes: ['hook'],
     deadlineMs: 15000,

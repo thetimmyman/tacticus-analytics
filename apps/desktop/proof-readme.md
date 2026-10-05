@@ -200,8 +200,8 @@ space until only 8 MiB remains, verifies checkpoint refusal before mutations, fr
 the reservation, and reopens the original eight-row synthetic fixture. Supply a
 stopped synthetic source workspace; do not use personal data for proof commands.
 
-The launcher runs local snapshot maintenance once after startup and every sixty
-seconds while open. Only `refresh-explore-snapshots` jobs are admitted to the local
+The launcher runs local snapshot and owner achievement maintenance once after startup and every sixty
+seconds while open. Only `refresh-explore-snapshots` and `refresh-local-achievements` jobs are admitted to the local
 queue. Its canonical handler and queue RPCs run through the protected local API;
 the per-launch scheduler credential is never sent to the renderer. Overlapping
 ticks are prevented, and shutdown cancels and drains the current tick. The worker
@@ -390,3 +390,19 @@ capabilities or game credentials are forwarded. Linux uses the OS default browse
 through `xdg-utils`, with detached execution, closed input/output descriptors
 and a filtered OS desktop environment so browser lifetime cannot hold the
 workspace open. This does not establish complete profile or platform parity.
+
+The selected achievement closure includes canonical guild-war attempt inputs,
+first-unlock records and raid award calculation. The desktop job reads its subject
+from coordinator-owned workspace metadata; its payload cannot choose a user.
+Strict evaluation propagates missing dependencies and failed writes to the durable
+queue. Repeated evaluation preserves the first unlock time and value. Normal
+callers can read their own unlocks but cannot insert or alter them; award calculation
+uses a dedicated non-login, non-bypass role scoped to the installation subject.
+
+`achievements-journey.mjs` exercises the compiled evaluator and job with native
+Auth/PostgREST/SQL. Synthetic raid, roster and war inputs produce canonical metrics
+and awards. Foreign-subject and forged-write controls refuse. A denied persistence
+write retains existing unlocks and records a retry; restoring authority completes
+that retry. Native restart and disappearance of current inputs preserve earlier
+unlocks. This does not provide guild-war ingestion, module installation or complete
+job/feature parity.

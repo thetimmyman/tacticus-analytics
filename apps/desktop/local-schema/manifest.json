@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 8,
+  "schemaVersion": 9,
   "purpose": "Selected native desktop analytics, local snapshot jobs and local file imports; not the complete application schema",
   "sourceCommit": "5d41a8776f3e216c04dae14d1bfa09fd48ca730a",
   "objects": [
@@ -428,11 +428,41 @@
       "name": "player_roster_id_seq",
       "canonicalStatementSha256": "d11ad54ca5a06095f9f42432c75c3d5ed7c734d35a00d20dc22ee17b985e5a39",
       "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_votlw_set_winners",
+      "canonicalStatementSha256": "b3154a7c084d002d628081e39546956a1d8e68e4d006eacee609f2775e10490c",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "guild_war_player_attempts",
+      "canonicalStatementSha256": "9db238eb0b8136110fae39aea1ce3b976844c70a8dc8620efa262118eb37b405",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "guild_war_zones",
+      "canonicalStatementSha256": "a97001c6f1435f9fe9850f20875711bf6714a9cc592cc7ce8300f897325c9d75",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "player_achievements",
+      "canonicalStatementSha256": "19cb90a695618ed5dc65bb33cefa0ff2b2f35cee782af3368652da7f4ffaa01e",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "SEQUENCE",
+      "name": "player_achievements_id_seq",
+      "canonicalStatementSha256": "40afc3b51b33a1ba86da6341e00787b1cb543e691699857019716b93396a0f7b",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
     }
   ],
   "excluded": "Hosted triggers, schedulers, operational SQL, captured data and blanket grants are deliberately excluded. Local bootstrap supplies constraints, RLS and ownership separately. Cluster aggregate must use a scoped invoker view rather than an unscoped materialized-view grant.",
   "localDifferences": [
-    "Local queue admits only the proven snapshot refresh job",
+    "Local queue admits snapshot refresh and installation-owner achievement evaluation only",
     "Snapshot refresh uses a dedicated non-login non-bypass role",
     "Authenticated snapshot reads follow local guild membership",
     "No hosted schedulers, triggers, game credentials or captured state",
@@ -442,6 +472,7 @@
     "A dedicated non-login non-bypass importer commits only the setup subject's guild and matching cluster, reads only raid conflict-key columns, and stores owner-scoped receipts. Caller roles cannot invoke the import primitive or inspect receipts.",
     "Meta-team memberships retain canonical rows and timestamps, scoped reads, own self declarations and same-guild leader overrides; local clients cannot write automated reconciler records.",
     "An own-key roster snapshot remains an explicit unverified local claim. A dedicated non-login non-bypass writer atomically commits its bounded cache, canonical mapped rows and local power; renderer roles cannot write cached payloads or invoke the primitive.",
-    "Authenticated local planner-link writes use the canonical owner-only projection and a bounded HTTP(S) write validator; role, identity and credential columns stay read-only. Historical links and unrelated profile updates are retained while future link writes are checked."
+    "Authenticated local planner-link writes use the canonical owner-only projection and a bounded HTTP(S) write validator; role, identity and credential columns stay read-only. Historical links and unrelated profile updates are retained while future link writes are checked.",
+    "Canonical achievement inputs include guild-war attempts and computed raid awards. Owner-readable first-unlock rows are written by a strict durable local job; award calculation uses a non-login non-bypass reader scoped to the requesting installation. Guild-war input writes and module acquisition remain outside this selected closure."
   ]
 }

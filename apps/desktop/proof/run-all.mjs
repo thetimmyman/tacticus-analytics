@@ -123,6 +123,12 @@ if (!configPath) {
     console.log('\n== Compiled local snapshot job / crash claim recovery ==')
     run('c-local-jobs', 'apps/desktop/proof/jobs-journey.mjs', [configPath])
     console.log(
+      '\n== Native achievements / owner scope / durable retry / restart =='
+    )
+    run('c-local-achievements', 'apps/desktop/proof/achievements-journey.mjs', [
+      configPath
+    ])
+    console.log(
       '\n== Native own roster / scoped cache / atomic replacement / restart =='
     )
     run('c-local-roster', 'apps/desktop/proof/roster-journey.mjs', [configPath])

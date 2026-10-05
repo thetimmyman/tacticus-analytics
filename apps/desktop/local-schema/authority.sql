@@ -386,3 +386,43 @@ REVOKE ALL ON FUNCTION public.desktop_validate_planner_link() FROM PUBLIC,anon,a
 CREATE TRIGGER desktop_planner_link_write BEFORE UPDATE OF tacticus_share_url ON public.player_mapping
  FOR EACH ROW EXECUTE FUNCTION public.desktop_validate_planner_link();
 GRANT UPDATE (tacticus_share_url) ON public.current_user_player_mapping TO authenticated;
+
+-- Scoped local achievement persistence and evaluation.
+
+ALTER SEQUENCE public.player_achievements_id_seq OWNED BY public.player_achievements.id;
+ALTER TABLE public.player_achievements ALTER COLUMN id SET DEFAULT nextval('public.player_achievements_id_seq'::regclass);
+ALTER TABLE public.player_achievements ADD PRIMARY KEY (id);
+ALTER TABLE public.player_achievements ADD UNIQUE(user_id,achievement_key);
+ALTER TABLE public.player_achievements ADD FOREIGN KEY(user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.guild_war_zones ADD PRIMARY KEY(id);
+ALTER TABLE public.guild_war_player_attempts ADD PRIMARY KEY(id);
+ALTER TABLE public.guild_war_player_attempts ADD FOREIGN KEY(zone_id) REFERENCES public.guild_war_zones(id) ON DELETE CASCADE;
+ALTER TABLE public.guild_war_zones ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.guild_war_zones FORCE ROW LEVEL SECURITY;
+ALTER TABLE public.guild_war_player_attempts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.guild_war_player_attempts FORCE ROW LEVEL SECURITY;
+ALTER TABLE public.player_achievements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.player_achievements FORCE ROW LEVEL SECURITY;
+REVOKE ALL ON public.guild_war_zones,public.guild_war_player_attempts,public.player_achievements FROM PUBLIC,anon,authenticated,service_role,desktop_rpc_reader;
+REVOKE ALL ON SEQUENCE public.player_achievements_id_seq FROM PUBLIC,anon,authenticated,service_role;
+GRANT SELECT ON public.guild_war_zones,public.guild_war_player_attempts,public.player_achievements TO authenticated,service_role;
+GRANT INSERT ON public.player_achievements TO service_role;
+GRANT USAGE ON SEQUENCE public.player_achievements_id_seq TO service_role;
+CREATE POLICY desktop_achievement_self_read ON public.player_achievements FOR SELECT TO authenticated USING(user_id=auth.uid());
+CREATE POLICY desktop_war_zone_read ON public.guild_war_zones FOR SELECT TO authenticated USING(guild_code IN(SELECT public._pm_caller_guild_codes()));
+CREATE POLICY desktop_war_attempt_read ON public.guild_war_player_attempts FOR SELECT TO authenticated USING(guild_code IN(SELECT public._pm_caller_guild_codes()));
+GRANT SELECT(subject_user_id,guild_code,singleton) ON public.desktop_preview_setup TO service_role;
+CREATE ROLE desktop_achievement_reader NOLOGIN NOSUPERUSER NOBYPASSRLS;
+GRANT USAGE ON SCHEMA public,auth TO desktop_achievement_reader;
+GRANT EXECUTE ON FUNCTION auth.uid(),auth.jwt() TO desktop_achievement_reader;
+GRANT SELECT(subject_user_id,guild_code,singleton) ON public.desktop_preview_setup TO desktop_achievement_reader;
+CREATE POLICY desktop_achievement_context ON public.desktop_preview_setup FOR SELECT TO desktop_achievement_reader USING(singleton AND (subject_user_id=auth.uid() OR auth.jwt()->>'role'='service_role'));
+GRANT SELECT ON public."EOT_GR_data" TO desktop_achievement_reader;
+CREATE POLICY desktop_achievement_raid_read ON public."EOT_GR_data" FOR SELECT TO desktop_achievement_reader USING("Guild" IN(SELECT guild_code FROM public.desktop_preview_setup WHERE singleton));
+ALTER FUNCTION public.get_votlw_set_winners(text,text,text) OWNER TO desktop_achievement_reader;
+REVOKE ALL ON FUNCTION public.get_votlw_set_winners(text,text,text) FROM PUBLIC,anon,authenticated,service_role,desktop_rpc_reader;
+GRANT EXECUTE ON FUNCTION public.get_votlw_set_winners(text,text,text) TO authenticated,service_role;
+ALTER TABLE public.work_queue DROP CONSTRAINT desktop_local_job_type;
+ALTER TABLE public.work_queue ADD CONSTRAINT desktop_local_job_type CHECK(job_type IN ('refresh-explore-snapshots','refresh-local-achievements'));
+
+GRANT EXECUTE ON FUNCTION public.qualifying_sweep_sum(numeric[],numeric),public.qualifying_sweep_count(numeric[],numeric) TO desktop_achievement_reader;

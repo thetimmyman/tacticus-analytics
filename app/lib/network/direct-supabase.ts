@@ -32,12 +32,14 @@ export function createDirectClient() {
 
   return {
     async query<T = unknown>(
-      path: string
+      path: string,
+      options: { signal?: AbortSignal } = {}
     ): Promise<{ data: T | null; error: string | null }> {
       try {
         const resp = await fetch(`${config.baseUrl}/rest/v1/${path}`, {
           method: 'GET',
-          headers
+          headers,
+          signal: options.signal
         })
         if (!resp.ok) {
           const errText = await resp.text()

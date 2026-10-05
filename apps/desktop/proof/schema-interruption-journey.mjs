@@ -112,7 +112,8 @@ async function run(mode) {
       let out = ''
       child.stdout.on('data', (bytes) => (out += bytes))
       child.once('error', reject)
-      child.once('exit', (code) =>
+      child.stdin.once('error', reject)
+      child.once('close', (code) =>
         code === 0
           ? resolve(out.trim())
           : reject(new Error('Control SQL failed'))
