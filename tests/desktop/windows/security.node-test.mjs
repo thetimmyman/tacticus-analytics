@@ -20,6 +20,31 @@ import {
 import { workspaceGate } from '../../../apps/desktop/platform/windows/session-gate.mjs'
 import { windowsOnboarding } from '../../../apps/desktop/platform/windows/onboarding.mjs'
 import { personalExport } from '../../../apps/desktop/platform/windows/export.mjs'
+import { nativeFailureDiagnostic } from '../../../apps/desktop/platform/windows/native-command.mjs'
+
+test('native helper failures retain only numeric status and fixed bounded categories', () => {
+  assert.equal(
+    nativeFailureDiagnostic(
+      'Failed to create CoreCLR synthetic-private-body',
+      3221225781
+    ),
+    'native-runtime-load-refused; exit-3221225781; sensitive output suppressed'
+  )
+  assert.equal(
+    nativeFailureDiagnostic(
+      'Native OS operation failed; status 1314. synthetic-private-body',
+      1
+    ),
+    'native-os-status-1314; exit-1; sensitive output suppressed'
+  )
+  assert.equal(
+    nativeFailureDiagnostic(
+      'x'.repeat(8192) + 'Native OS operation failed; status 5.',
+      1
+    ),
+    'native-operation-refused; exit-1; sensitive output suppressed'
+  )
+})
 
 test('bootstrap status diagnostics retain numeric loader failures without exposing service output', () => {
   assert.equal(

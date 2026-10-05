@@ -67,6 +67,8 @@ internal static class Program
                 case "read-import" when args.Length == 3 && long.TryParse(args[2], out var importExpiry):
                     Console.WriteLine(LocalFiles.Import(args[1], importExpiry)); return 0;
                 case "native-proof" when args.Length == 2: await NativeProof.Run(args[1]); return 0;
+                case "proof-service-material" when args.Length == 2:
+                    Vault.ProofServiceMaterial(); File.WriteAllText(args[1], "true"); return 0;
                 case "proof-token" when args.Length == 2:
                 {
                     using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
@@ -132,6 +134,16 @@ internal static class NativeProof
             }
             File.Delete(tokenRecord);
             assertions.Add("same-user-nonadministrative-child-token");
+            var vaultRecord = Path.Combine(testRoot, "service-material-proof.json");
+            using (var job = new JobOwner())
+            using (var child = job.Start(Environment.ProcessPath!, new[] { "proof-service-material", vaultRecord }, testRoot, removeAdministrativeAccess: true))
+            {
+                var status = child.Wait();
+                if (status != 0 || !File.Exists(vaultRecord) || File.ReadAllText(vaultRecord) != "true")
+                    throw new InvalidOperationException($"Nonadministrative service material proof failed; exit {status}");
+            }
+            File.Delete(vaultRecord);
+            assertions.Add("same-user-nonadministrative-vault-service-material-and-reopen");
             var record = Path.Combine(testRoot, "tree.json");
             using (var job = new JobOwner())
             {

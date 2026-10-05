@@ -123,10 +123,28 @@ internal static class Vault
                 foreach (var property in element.EnumerateObject()) { RejectEcho(property.Name, secret, bytes); RejectJsonEcho(property.Value, secret, bytes); } break;
         }
     }
-    public static string ServiceMaterial(string state)
+    private static string ServiceTarget(string state)
     {
         var digest = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(Path.GetFullPath(state).ToUpperInvariant())));
-        var target = "TacticusDesktop/LocalServices/v1/" + digest;
+        return "TacticusDesktop/LocalServices/v1/" + digest;
+    }
+    internal static void ProofServiceMaterial()
+    {
+        var state = Path.Combine(Path.GetTempPath(), "Tacticus synthetic service material ü " + Guid.NewGuid().ToString("N"));
+        try
+        {
+            var first = ServiceMaterial(state);
+            using var parsed = JsonDocument.Parse(first);
+            if (new[] { "owner", "auth", "rest", "jwt" }.Any(key =>
+                parsed.RootElement.GetProperty(key).GetString() is not { Length: 64 } value || value.Any(ch => !char.IsAsciiHexDigit(ch))))
+                throw new InvalidOperationException("Native service material proof failed");
+            if (first != ServiceMaterial(state)) throw new InvalidOperationException("Native service material changed on reopen");
+        }
+        finally { Remove(ServiceTarget(state)); }
+    }
+    public static string ServiceMaterial(string state)
+    {
+        var target = ServiceTarget(state);
         byte[] bytes;
         try { bytes = Read(target); }
         catch (InvalidOperationException)

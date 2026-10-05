@@ -16,6 +16,21 @@ const allowed = new Set([
   'choose-import',
   'read-import'
 ])
+export function nativeFailureDiagnostic(output, code) {
+  const prefix = output.slice(0, 8192)
+  const status = Number.isInteger(code) ? `exit-${code}` : 'exit-unavailable'
+  const osStatus = /Native OS operation failed; status (\d{1,10})\./.exec(
+    prefix
+  )
+  const category = osStatus
+    ? `native-os-status-${osStatus[1]}`
+    : /Failed to (?:create CoreCLR|load (?:the dll|System\.Private\.CoreLib))/.test(
+          prefix
+        )
+      ? 'native-runtime-load-refused'
+      : 'native-operation-refused'
+  return `${category}; ${status}; sensitive output suppressed`
+}
 // Supervisor-only pipe. Keys never cross this interface; official reads return bounded responses.
 export async function nativeCommand(args, input) {
   if (!allowed.has(args[0]) || args.length > 3)
@@ -32,10 +47,16 @@ export async function nativeCommand(args, input) {
     if (size > 4 * 1024 * 1024) child.kill()
     else chunks.push(chunk)
   })
-  child.stderr.resume()
+  const diagnostics = []
+  let diagnosticSize = 0
+  child.stderr.on('data', (chunk) => {
+    const prefix = chunk.subarray(0, Math.max(0, 8192 - diagnosticSize))
+    diagnosticSize += prefix.length
+    if (prefix.length) diagnostics.push(prefix)
+  })
   const code = await new Promise((accept, reject) => {
     child.once('error', reject)
-    child.once('exit', accept)
+    child.once('close', accept)
   })
   if (code !== 0 || size > 4 * 1024 * 1024)
     throw Object.assign(
@@ -46,7 +67,7 @@ export async function nativeCommand(args, input) {
             ? 'Windows secure input or vault is unavailable.'
             : code === 3
               ? 'Official access is invalid, expired or unavailable.'
-              : 'Native secure operation unavailable'
+              : `Native secure operation unavailable; ${nativeFailureDiagnostic(Buffer.concat(diagnostics).toString('utf8'), code)}`
       ),
       {
         code:
