@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 import Image from 'next/image'
 import { requireAuth } from '@/app/lib/auth'
 import { labelForMember } from '@/app/lib/member-labels-server'
@@ -53,6 +54,7 @@ interface ProfilePageProps {
 }
 
 export default async function ProfilePage({ searchParams }: ProfilePageProps) {
+  const desktopMode = getRuntimeProfile() === 'desktop'
   const resolvedSearchParams = searchParams ? await searchParams : undefined
   const supabase = await db()
   const { user, profile } = await requireAuth(supabase)
@@ -372,12 +374,14 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           <Link href="/profile/edit" className="btn-wh40k inline-block">
             Edit Profile
           </Link>
-          <Link
-            href="/profile/change-password"
-            className="btn-wh40k inline-block"
-          >
-            Change Password
-          </Link>
+          {!desktopMode && (
+            <Link
+              href="/profile/change-password"
+              className="btn-wh40k inline-block"
+            >
+              Change Password
+            </Link>
+          )}
         </div>
       </div>
 

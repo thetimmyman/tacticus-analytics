@@ -33,6 +33,48 @@ describe('proxy production script nonce', () => {
   })
 
   it.each([
+    '/auth/login',
+    '/auth/signup',
+    '/auth/forgot-password',
+    '/auth/reset-password',
+    '/login'
+  ])('restores desktop sessions without a password page (%s)', async (path) => {
+    vi.stubEnv('NEXT_PUBLIC_RUNTIME_PROFILE', 'desktop')
+    const { default: proxy } = await import('@/proxy')
+    const response = await proxy(
+      new NextRequest('https://example.test' + path, {
+        headers: { 'x-desktop-transport': 'a'.repeat(64) }
+      })
+    )
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toBe(
+      'https://example.test/desktop/setup'
+    )
+    expect(mocks.getCurrentUser).not.toHaveBeenCalled()
+  })
+
+  it('checks desktop transport before automatic session recovery', async () => {
+    vi.stubEnv('NEXT_PUBLIC_RUNTIME_PROFILE', 'desktop')
+    const { default: proxy } = await import('@/proxy')
+    const response = await proxy(
+      new NextRequest('https://example.test/auth/login')
+    )
+    expect(response.status).toBe(403)
+    expect(response.headers.get('location')).toBeNull()
+  })
+
+  it('keeps hosted login available', async () => {
+    vi.stubEnv('NEXT_PUBLIC_RUNTIME_PROFILE', 'hosted')
+    const { default: proxy } = await import('@/proxy')
+    const response = await proxy(
+      new NextRequest('https://example.test/auth/login')
+    )
+    expect(response.status).toBe(200)
+    expect(response.headers.get('x-middleware-next')).toBe('1')
+    expect(response.headers.get('location')).toBeNull()
+  })
+
+  it.each([
     ['hosted', false],
     ['hosted', true],
     ['desktop', false],
@@ -58,7 +100,7 @@ describe('proxy production script nonce', () => {
           "script-src 'unsafe-inline' 'nonce-caller-supplied-nonce'"
         )
       }
-      const request = new NextRequest('https://example.test/auth/login', {
+      const request = new NextRequest('https://example.test/auth/error', {
         headers
       })
       const { default: proxy } = await import('@/proxy')
