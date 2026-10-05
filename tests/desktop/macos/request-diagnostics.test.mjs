@@ -43,7 +43,8 @@ test('untrusted diagnostic frames cannot copy paths, messages, cookies or arbitr
     resource: canary,
     status: canary,
     path: '/' + canary,
-    cookie: canary
+    cookie: canary,
+    phase: canary
   }
   const input = {
     stage: 'renderer-network',
@@ -71,6 +72,29 @@ test('untrusted diagnostic frames cannot copy paths, messages, cookies or arbitr
       diagnostics.requestLabel('/private/' + canary, canary)
     ).includes(canary),
     false
+  )
+})
+
+test('request start phases and known local readers survive projection without copying arbitrary paths', () => {
+  const label = diagnostics.requestLabel(
+    '/supabase/rest/v1/player_with_cluster',
+    'xhr',
+    'signed-out-check'
+  )
+  assert.deepEqual(label, {
+    endpoint: 'cluster-profile',
+    resource: 'xhr',
+    phase: 'signed-out-check'
+  })
+  const value = diagnostics.sanitizeFailure({
+    stage: 'renderer-network',
+    cause: 'request-failed',
+    network: { failed: [{ ...label, status: 401 }] }
+  })
+  assert.deepEqual(value.network.failed, [{ ...label, status: 401 }])
+  assert.deepEqual(
+    diagnostics.requestLabel('/unknown', 'xhr', 'SYNTHETIC-SECRET-CANARY'),
+    { endpoint: 'other-local', resource: 'xhr' }
   )
 })
 

@@ -33,6 +33,7 @@ app
       (_contents, _permission, callback) => callback(false)
     )
     const activeRequests = new Map()
+    let requestPhase = 'initial-open'
     const failures = [],
       blocked = []
     session.defaultSession.webRequest.onBeforeRequest((details, callback) => {
@@ -45,7 +46,7 @@ app
       if (config.verify && url.origin === origin)
         activeRequests.set(
           details.id,
-          requestLabel(url.pathname, details.resourceType)
+          requestLabel(url.pathname, details.resourceType, requestPhase)
         )
       callback({ cancel: !allowed })
     })
@@ -57,15 +58,22 @@ app
       }
     )
     session.defaultSession.webRequest.onCompleted((details) => {
+      const label = activeRequests.get(details.id)
       activeRequests.delete(details.id)
       if (details.statusCode >= 400)
         failures.push({
           path: new URL(details.url).pathname,
-          ...requestLabel(new URL(details.url).pathname, details.resourceType),
+          ...(label ??
+            requestLabel(
+              new URL(details.url).pathname,
+              details.resourceType,
+              requestPhase
+            )),
           status: details.statusCode
         })
     })
     session.defaultSession.webRequest.onErrorOccurred((details) => {
+      const label = activeRequests.get(details.id)
       activeRequests.delete(details.id)
       if (
         config.verify &&
@@ -74,7 +82,12 @@ app
       )
         failures.push({
           path: new URL(details.url).pathname,
-          ...requestLabel(new URL(details.url).pathname, details.resourceType),
+          ...(label ??
+            requestLabel(
+              new URL(details.url).pathname,
+              details.resourceType,
+              requestPhase
+            )),
           status: 0
         })
     })
@@ -131,7 +144,9 @@ app
             operation,
             scope,
             token,
-            ...(operation === 'import' ? { path } : {})
+            ...(['import', 'recover-personal'].includes(operation)
+              ? { path }
+              : {})
           },
           (error) => {
             if (error) {
@@ -161,18 +176,22 @@ app
         if (operation !== 'session') {
           await dialog.showMessageBox(window, {
             message:
-              operation === 'import'
-                ? 'Cached personal data restored'
-                : 'Official access updated',
+              view.recovery?.status === 'commit-uncertain'
+                ? 'Retained data needs a durability check.'
+                : ['import', 'recover-personal'].includes(operation)
+                  ? 'Cached personal data restored'
+                  : 'Official access updated',
             detail:
-              operation === 'import'
-                ? 'Historical data is available offline. Connect Player access to refresh it. Cloud contribution remains separate.'
-                : capabilities
-                    .map(
-                      (item) =>
-                        `${item}: ${view.capabilities[item] ?? 'not connected'}`
-                    )
-                    .join('\n')
+              view.recovery?.status === 'commit-uncertain'
+                ? 'Existing data and official access are preserved. Reopen the app to reconcile the interrupted save.'
+                : ['import', 'recover-personal'].includes(operation)
+                  ? 'Historical data is available offline. Connect Player access to refresh it. Cloud contribution remains separate.'
+                  : capabilities
+                      .map(
+                        (item) =>
+                          `${item}: ${view.capabilities[item] ?? 'not connected'}`
+                      )
+                      .join('\n')
           })
           if (
             window.webContents.getURL().startsWith(origin + '/desktop/personal')
@@ -192,6 +211,24 @@ app
           })
           return
         }
+        if (error.code === 'ERECOVERY') {
+          await dialog.showMessageBox(window, {
+            type: 'error',
+            message: 'Retained personal data needs recovery.',
+            detail:
+              'Use Workspace → Recover retained personal data. Existing data and official access are preserved.'
+          })
+          return
+        }
+        if (error.code === 'ECOMMITUNCERTAIN') {
+          await dialog.showMessageBox(window, {
+            type: 'error',
+            message: 'Retained data needs a durability check.',
+            detail:
+              'Existing data and official access are preserved. Reopen the app to reconcile the interrupted save.'
+          })
+          return
+        }
         if (operation === 'export') {
           await dialog.showMessageBox(window, {
             type: 'error',
@@ -208,17 +245,17 @@ app
               ? 'Unlock your native Keychain to continue.'
               : error.code === 'EVAULT'
                 ? 'Secure Keychain access is unavailable.'
-                : operation === 'import'
+                : ['import', 'recover-personal'].includes(operation)
                   ? 'Cached data import did not finish'
                   : 'Official access could not finish',
-          detail:
-            operation === 'import'
-              ? 'Choose a supported personal-data export in an empty personal workspace. Existing data and the original file are preserved.'
-              : 'Cached data is retained. Check native vault availability and official access, then retry.'
+          detail: ['import', 'recover-personal'].includes(operation)
+            ? 'Choose a supported personal-data export. Import requires an empty workspace; recovery requires damaged retained data. Existing data and the original file are preserved.'
+            : 'Cached data is retained. Check native vault availability and official access, then retry.'
         })
       }
     })
     const nativeAction = nativeActions.run
+    let choosingRestore = false
     Menu.setApplicationMenu(
       Menu.buildFromTemplate([
         { role: 'appMenu' },
@@ -239,6 +276,57 @@ app
         {
           label: 'Workspace',
           submenu: [
+            {
+              label: 'Recover retained personal data…',
+              click: async () => {
+                if (choosingRestore) return
+                choosingRestore = true
+                try {
+                  const view = await nativeAction('session', 'Player')
+                  if (!view) return
+                  if (view.status !== 'recovery-required') {
+                    await dialog.showMessageBox(window, {
+                      message: 'Retained personal data is readable.',
+                      detail: 'Recovery only replaces damaged personal data.'
+                    })
+                    return
+                  }
+                  const checkpoint = view.recovery.checkpointAvailable
+                  const buttons = checkpoint
+                    ? ['Restore cached checkpoint', 'Choose export', 'Cancel']
+                    : ['Choose export', 'Cancel']
+                  const choice = await dialog.showMessageBox(window, {
+                    type: 'warning',
+                    message: 'Restore cached personal data',
+                    detail:
+                      'The damaged original and official access are preserved. Restored history remains offline; each live scope requires reconnecting through native verification.',
+                    buttons,
+                    defaultId: buttons.length - 1,
+                    cancelId: buttons.length - 1
+                  })
+                  if (choice.response === buttons.length - 1) return
+                  if (checkpoint && choice.response === 0) {
+                    await nativeAction('recover-personal', 'Player', '')
+                    return
+                  }
+                  const selected = await dialog.showOpenDialog(window, {
+                    title: 'Choose a cached personal-data export',
+                    properties: ['openFile'],
+                    filters: [
+                      { name: 'Personal data export', extensions: ['json'] }
+                    ]
+                  })
+                  if (!selected.canceled && selected.filePaths.length === 1)
+                    await nativeAction(
+                      'recover-personal',
+                      'Player',
+                      selected.filePaths[0]
+                    )
+                } finally {
+                  choosingRestore = false
+                }
+              }
+            },
             {
               label: 'Import cached personal data…',
               click: async () => {
@@ -288,7 +376,8 @@ app
         if (recovering) return
         try {
           const view = await nativeRequest('session', 'Player')
-          if (!view.personal) await nativeAction('connect', 'Player')
+          if (!view.personal && view.recovery?.status === 'ready')
+            await nativeAction('connect', 'Player')
         } catch (error) {
           if (error.code === 'ESESSION') {
             recovering = true
@@ -314,6 +403,7 @@ app
     if (!(await device.open())) await window.loadURL(config.url)
     if (config.verify) {
       verifyStage = 'workspace-setup'
+      requestPhase = 'renderer-refusal'
       const rendererBootstrapRefused =
         await window.webContents.executeJavaScript(
           `fetch('/desktop/open', {method:'POST'}).then(response => response.status === 403)`
@@ -321,6 +411,7 @@ app
       if (rendererBootstrapRefused !== true)
         throw new Error('Renderer session bootstrap was not refused')
       await nativeRequest('session', 'Player')
+      requestPhase = 'signed-out-check'
       for (const cookie of await window.webContents.session.cookies.get({
         url: origin
       }))
@@ -332,10 +423,14 @@ app
       } catch (error) {
         signedOutRefused = error.code === 'ESESSION'
       }
-      if (!signedOutRefused || !(await device.open()))
+      if (!signedOutRefused)
+        throw new Error('Automatic signed-out recovery failed')
+      requestPhase = 'recovered-open'
+      if (!(await device.open()))
         throw new Error('Automatic signed-out recovery failed')
       await nativeRequest('session', 'Player')
       verifyStage = 'workspace-navigation'
+      requestPhase = 'scores-view'
       await window.loadURL(
         origin + '/player-performance?guild=SYN001&season=9999'
       )

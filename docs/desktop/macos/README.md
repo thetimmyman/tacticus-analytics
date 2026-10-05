@@ -30,7 +30,8 @@ installed-product acceptance. The isolated synthetic test Keychain is disposable
 and creates no signing identity. Native prompt accessibility, user refusal,
 sleep/wake and locked-session behavior require interactive Mac qualification.
 
-Run `node --test tests/desktop/macos/*.test.mjs`. On macOS, compile the native
+Install the locked test dependencies with `npm ci --ignore-scripts`, then run
+`node --test tests/desktop/macos/*.test.mjs`. On macOS, compile the native
 sources with `clang` and `swiftc`, then supply `MAC_GUARD` and `MAC_VAULT` absolute
 paths to run the native tests. These are developer build instructions; a promoted
 consumer package must bundle every runtime and require no developer tools.
@@ -67,7 +68,7 @@ remains enabled. The probe checks actual renderer bootstrap refusal, native
 owner sessions, signed-out recovery and unchanged synthetic data. Its fixed
 receipt declares network isolation unestablished; it never emits platform
 acceptance and the mandatory isolated journey remains failed.
-Renderer diagnostics use fixed endpoint/resource labels and bounded numeric
+Renderer diagnostics use fixed endpoint/resource/request-start-phase labels and bounded numeric
 statuses. JSON receipts contain calculation flags rather than document text or
 request paths; failed screenshots are withheld. Intentional refusal assertions
 remain separate from unexpected renderer failures.
@@ -100,7 +101,8 @@ holding response before rendering. Their features remain in the required invento
 they require native adapters before desktop availability can be advertised.
 Historical native data remains distinct from API ownership verification.
 Interrupted setup records only opaque pending references; after authorized
-session recovery, unused native items are removed and committed references retained.
+session recovery, proved-unused native items are removed and committed references retained.
+Damaged or uncertain personal state pauses this cleanup.
 
 Native menus provide separate scope connection/revocation and cached personal
 export/import through graphical file choosers. Import accepts only this candidate's
@@ -109,7 +111,30 @@ unsafe files and inconsistent projections, rechecks the owner session after read
 the source untouched and grants no verified live capabilities. Imported data is
 labeled historical and reconnect-required. It does not migrate arbitrary legacy
 database formats or restore the complete analytics database.
-Closing the window cancels pending native input and official requests. Full workspace recovery controls,
+
+Safely opened, owner-private personal JSON with malformed data or an unsupported
+projection opens a recovery holding view under the existing local Auth owner.
+Unsafe links, modes, ownership, devices, oversized files and damaged private
+recovery metadata refuse activation. Recovery creates no replacement owner and
+does not replace valid personal data. The Workspace menu can restore a validated
+private checkpoint or selected personal export. The native supervisor rechecks
+owner authorization and file generation, durably retains the damaged original,
+and replaces only the personal projection. Incident retention is bounded to
+three files and 12 MiB; quota refusal preserves the original.
+Restored data has no live vault references and all scopes require reconnecting.
+Known prior handles stay in private retention metadata; unknown references keep
+automatic credential cleanup paused across restart. Neither this metadata nor
+retained originals appear in the renderer or public export. A disconnect still
+removes the live capability while saved credentials remain protected.
+Normal personal writes use a protected commit journal and matching checkpoint.
+After a visible rename, durability or checkpoint failure preserves the new
+snapshot and reports an uncertain commit. A fresh authorized action reconciles
+the actual primary and checkpoint before allowing cleanup; it never treats an
+unreadable cache as an empty set of key references. Disposable-file interruption,
+restart and native-controller tests are implementation evidence, not consumer
+Keychain or full installed recovery qualification.
+
+Closing the window cancels pending native input and official requests. Full workspace recovery,
 compatible verified updates and the accepted feature matrix remain unfinished.
 
 Release gates remain: full local feature inventory, native onboarding projection

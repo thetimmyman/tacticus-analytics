@@ -6,17 +6,15 @@ import { createServer } from 'node:net'
 import { setTimeout as delay } from 'node:timers/promises'
 import { nativeServices } from './services.mjs'
 import { loopbackGateway } from '../../proof/loopback-gateway.mjs'
-import {
-  WorkspaceOnboardingV1,
-  DeviceOfficialSourceV1
-} from '../../../../packages/workspace-onboarding/v1.mjs'
+import { DeviceOfficialSourceV1 } from '../../../../packages/workspace-onboarding/v1.mjs'
 import { privateState } from './state.mjs'
+import { createPersonalStore } from './personal-store.mjs'
+import { createPersonalController } from './personal-controller.mjs'
 import { nativeVault } from './vault.mjs'
 import { qualifyRecovery } from './recovery.mjs'
 import { personalWorkspace } from './workspace.mjs'
 import { localSessionGate } from './session.mjs'
 import { currentWorkspaceToken } from '../../launcher/workspace-session.mjs'
-import { importCachedPersonal } from './personal-backup.mjs'
 import { rendererCredentialSurface } from './credential-surface.mjs'
 import { windowDiagnostics } from './window-diagnostics.mjs'
 import requestDiagnostics from './request-diagnostics.cjs'
@@ -61,25 +59,16 @@ const vault = nativeVault(join(root, 'bin/secret-vault'), {
   }
 })
 const lifetime = new AbortController()
-const savedPersonal = privateState(join(state, 'personal.json'))
-const onboarding = new WorkspaceOnboardingV1({
+const savedPersonal = createPersonalStore(state)
+const controller = createPersonalController({
+  store: savedPersonal,
   vault,
-  state: {
-    read: savedPersonal.read,
-    write: (value) => {
-      if (!activeSession)
-        throw Object.assign(new Error('Local session unavailable'), {
-          code: 'ESESSION'
-        })
-      activeSession.assert()
-      savedPersonal.write(value)
-      // Committed personal references are authoritative. Pending metadata is
-      // repaired on the next authorized action; its failure cannot roll back
-      // a credential that the retained personal snapshot now references.
-      try {
-        vault.commit(Object.values(value.vaultReferences ?? {}))
-      } catch {}
-    }
+  assertOwner: () => {
+    if (!activeSession)
+      throw Object.assign(new Error('Local session unavailable'), {
+        code: 'ESESSION'
+      })
+    activeSession.assert()
   },
   upstream: new DeviceOfficialSourceV1({
     fetchImpl: (url, options) =>
@@ -89,6 +78,7 @@ const onboarding = new WorkspaceOnboardingV1({
       })
   })
 })
+const onboarding = controller.onboarding
 // The kernel lock is held by the native owner, so an interrupted prior session
 // cannot own this workspace. The proof supervisor's persistent marker is stale.
 await unlink(join(state, 'running.lock')).catch((error) => {
@@ -180,6 +170,18 @@ try {
       handleLocalRequest: async (req, res, url) => {
         if (await device(req, res, url)) return true
         if (
+          savedPersonal.mode() === 'recovery-required' &&
+          url.pathname === '/desktop/setup' &&
+          req.method === 'POST'
+        ) {
+          res.writeHead(409, {
+            'content-type': 'application/json',
+            'cache-control': 'no-store'
+          })
+          res.end('{"error":"Retained personal data requires native recovery"}')
+          return true
+        }
+        if (
           [
             '/auth/login',
             '/auth/signup',
@@ -238,7 +240,7 @@ try {
             'content-type': 'application/json',
             'cache-control': 'no-store'
           })
-          res.end(JSON.stringify(onboarding.view()))
+          res.end(JSON.stringify(controller.view()))
           return true
         }
         // Existing renderer key-writing surfaces remain disabled until their native
@@ -250,7 +252,7 @@ try {
         }
         if (
           !verify &&
-          !onboarding.view().personal &&
+          !controller.view().personal &&
           !url.pathname.startsWith('/desktop/') &&
           !url.pathname.startsWith('/api/auth/') &&
           !url.pathname.startsWith('/supabase/auth/v1/') &&
@@ -399,14 +401,18 @@ try {
         !action ||
         JSON.stringify(action).length > 20000 ||
         Object.keys(action).sort().join(',') !==
-          (action.operation === 'import'
+          (['import', 'recover-personal'].includes(action.operation)
             ? 'operation,path,requestId,scope,token'
             : 'operation,requestId,scope,token') ||
         !/^[a-f0-9]{32}$/.test(action.requestId ?? '') ||
-        !['connect', 'disconnect', 'session', 'import'].includes(
-          action.operation
-        ) ||
-        (action.operation === 'import' &&
+        ![
+          'connect',
+          'disconnect',
+          'session',
+          'import',
+          'recover-personal'
+        ].includes(action.operation) ||
+        (['import', 'recover-personal'].includes(action.operation) &&
           (action.scope !== 'Player' ||
             typeof action.path !== 'string' ||
             action.path.length > 4096)) ||
@@ -417,35 +423,18 @@ try {
         .then(async () => {
           try {
             activeSession = await gate.authorize(action.token)
-            await vault.recover(
-              Object.values(onboarding.state.read().vaultReferences ?? {})
-            )
-            if (action.operation === 'disconnect')
-              await onboarding.disconnect(action.scope)
-            else if (action.operation === 'import')
-              await importCachedPersonal({
-                path: action.path,
-                onboarding,
-                authorize: activeSession.assert
-              })
-            else if (action.operation === 'connect')
-              await onboarding.connect({
-                requested:
-                  action.scope === 'Player'
-                    ? ['Player', 'Guild', 'Guild Raid']
-                    : [action.scope],
-                confirmPlayer: vault.confirmPlayer,
-                expectedGuildId: onboarding.state.read().guildId
-              })
+            const view = await controller.run(action)
             activeSession.assert()
             window.send({
               requestId: action.requestId,
               status: 'ok',
-              view: onboarding.view()
+              view
             })
           } catch (error) {
             let code = [
               'ESESSION',
+              'ERECOVERY',
+              'ECOMMITUNCERTAIN',
               'EVAULTLOCKED',
               'EVAULT',
               'EEXPIRED',

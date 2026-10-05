@@ -73,9 +73,12 @@ async function refresh() {
       )
     const view = await response.json()
     if (version !== refreshVersion) return
-    document.querySelector('#status').textContent = view.personal
-      ? 'Reading cached personal data. Updates require valid official access.'
-      : 'Player access is required. Use the native Official access menu to connect.'
+    document.querySelector('#status').textContent =
+      view.status === 'recovery-required'
+        ? 'Retained personal data needs recovery. Use the native Workspace menu. Existing data and official access are preserved.'
+        : view.personal
+          ? 'Reading cached personal data. Updates require valid official access.'
+          : 'Player access is required. Use the native Official access menu to connect.'
     document.querySelector('#name').textContent =
       view.personal?.displayName ?? 'Personal workspace'
     document.querySelector('#freshness').textContent = view.freshness?.syncedAt

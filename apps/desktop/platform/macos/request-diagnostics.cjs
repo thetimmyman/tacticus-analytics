@@ -10,6 +10,13 @@ const stages = [
 ]
 const codes = ['ESESSION', 'EVAULT', 'EVAULTLOCKED', 'EACCESS', 'EVERIFY']
 const causes = ['requests-pending', 'request-failed']
+const phases = [
+  'initial-open',
+  'renderer-refusal',
+  'signed-out-check',
+  'recovered-open',
+  'scores-view'
+]
 const resources = [
   'mainFrame',
   'subFrame',
@@ -29,6 +36,9 @@ const endpoints = {
   '/desktop/open': 'device-bootstrap',
   '/desktop/personal': 'personal-page',
   '/player-performance': 'scores-page',
+  '/profile': 'profile-page',
+  '/api-keys': 'official-access-page',
+  '/onboarding': 'legacy-onboarding-page',
   '/api/guild-tokens': 'guild-tokens',
   '/api/desktop/personal': 'personal-cache',
   '/api/player-api-key': 'player-access-status',
@@ -37,6 +47,12 @@ const endpoints = {
   '/supabase/auth/v1/token': 'auth-token',
   '/supabase/rest/v1/player_mapping': 'player-mapping',
   '/supabase/rest/v1/guild_config': 'guild-config',
+  '/supabase/rest/v1/player_with_cluster': 'cluster-profile',
+  '/supabase/rest/v1/rpc/get_token_usage_for_guild': 'token-usage-read',
+  '/supabase/rest/v1/rpc/get_season_token_stats': 'token-stats-read',
+  '/api/performance/five-season-averages': 'performance-averages',
+  '/api/upcoming/token-performance': 'target-performance',
+  '/api/health': 'health',
   '/api/user/activity': 'activity',
   '/api/version': 'version',
   '/favicon.ico': 'favicon'
@@ -48,12 +64,13 @@ const endpointNames = [
 ]
 
 // Diagnostic labels never include a URL, query, body, ID, error or cookie.
-function requestLabel(path, resource) {
+function requestLabel(path, resource, phase) {
   return {
     endpoint:
       endpoints[path] ??
       (path.startsWith('/_next/static/') ? 'static-asset' : 'other-local'),
-    resource: resources.includes(resource) ? resource : 'other'
+    resource: resources.includes(resource) ? resource : 'other',
+    ...(phases.includes(phase) ? { phase } : {})
   }
 }
 
@@ -76,6 +93,7 @@ function sanitizeFailure(input) {
         ? entry.endpoint
         : 'other-local',
       resource: resources.includes(entry?.resource) ? entry.resource : 'other',
+      ...(phases.includes(entry?.phase) ? { phase: entry.phase } : {}),
       ...(name === 'failed'
         ? {
             status:
