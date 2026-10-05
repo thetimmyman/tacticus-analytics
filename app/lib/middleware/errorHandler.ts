@@ -90,10 +90,14 @@ function sentryErrorTags(
 }
 
 export function withErrorHandler(
-  handler: (req: NextRequest, ...args: any[]) => Promise<Response>
+  handler: (req: NextRequest, ...args: any[]) => Promise<Response>,
+  options: { maxJsonBodyBytes?: () => number } = {}
 ) {
   return async (req: NextRequest, ...args: any[]): Promise<Response> => {
-    const bodyLimitResponse = enforceJsonBodyLimit(req)
+    const bodyLimitResponse = enforceJsonBodyLimit(
+      req,
+      options.maxJsonBodyBytes?.()
+    )
     if (bodyLimitResponse) {
       return applyRateLimitHeaders(bodyLimitResponse, req)
     }

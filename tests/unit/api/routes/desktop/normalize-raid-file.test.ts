@@ -59,6 +59,37 @@ describe('desktop internal normalization boundary', () => {
     })
     expect(await response.json()).toEqual({ rows: [{ damageDealt: 250 }] })
   })
+  it('accepts the escaped size of a maximum file only in the desktop profile', async () => {
+    const makeRequest = (authorization?: string) => {
+      const req = request(payload(), authorization)
+      req.headers.set('content-length', String(17 * 1024 * 1024))
+      return req
+    }
+    expect((await POST(makeRequest(`Bearer ${secret}`))).status).toBe(200)
+    mocks.normalize.mockClear()
+    expect((await POST(makeRequest())).status).toBe(401)
+    expect(mocks.normalize).not.toHaveBeenCalled()
+    vi.stubEnv('NEXT_PUBLIC_RUNTIME_PROFILE', 'hosted')
+    expect((await POST(makeRequest(`Bearer ${secret}`))).status).toBe(413)
+  })
+  it('rejects an oversized transport before normalization', async () => {
+    const req = request(payload(), `Bearer ${secret}`)
+    req.headers.set('content-length', String(24 * 1024 * 1024))
+    expect((await POST(req)).status).toBe(413)
+    expect(mocks.normalize).not.toHaveBeenCalled()
+  })
+  it('caps streamed requests even without a content-length header', async () => {
+    const req = new NextRequest(
+      'http://127.0.0.1:1234/api/desktop/normalize-raid-file',
+      {
+        method: 'POST',
+        headers: { authorization: `Bearer ${secret}` },
+        body: new Uint8Array(24 * 1024 * 1024 + 1)
+      }
+    )
+    expect((await POST(req)).status).toBe(400)
+    expect(mocks.normalize).not.toHaveBeenCalled()
+  })
   it('rejects arbitrary operation, destination or identity overrides without echoing input', async () => {
     const sentinel = randomBytes(32).toString('hex')
     for (const body of [

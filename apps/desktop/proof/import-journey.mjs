@@ -304,6 +304,16 @@ try {
     inserted: 0,
     repeated: false
   })
+  const largestFile =
+    contents + '\n'.repeat(8 * 1024 * 1024 - Buffer.byteLength(contents))
+  assert.equal(Buffer.byteLength(largestFile), 8 * 1024 * 1024)
+  const largestImport = await attempt({ password, contents: largestFile })
+  assert.equal(largestImport.status, 200, await largestImport.clone().text())
+  assert.deepEqual(await largestImport.json(), {
+    entries: 1,
+    inserted: 0,
+    repeated: false
+  })
   const observed = JSON.parse(
     (
       await services.psql(
@@ -318,7 +328,7 @@ try {
   const receiptCount = (
     await services.psql('SELECT count(*) FROM public.desktop_raid_imports;')
   ).trim()
-  assert.equal(receiptCount, '2')
+  assert.equal(receiptCount, '3')
   for (const role of ['anon', 'authenticated', 'service_role']) {
     await assert.rejects(
       services.psql(
@@ -337,6 +347,9 @@ try {
   evidence.checks.push(
     'anonymous, authenticated and service roles cannot inspect receipts or execute the import primitive'
   )
+  evidence.checks.push(
+    'an exactly 8 MiB valid file survives JSON transport and actual Next.js proxy/body handling'
+  )
 } finally {
   await gateway.stop()
   await services.stop()
@@ -351,7 +364,7 @@ try {
     (
       await reopened.psql('SELECT count(*) FROM public.desktop_raid_imports;')
     ).trim(),
-    '2'
+    '3'
   )
   evidence.checks.push('native restart preserves imported data and receipts')
 } finally {
