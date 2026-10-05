@@ -18,6 +18,7 @@ import { personalWorkspace } from './workspace.mjs'
 import { localSessionGate } from './session.mjs'
 import { currentWorkspaceToken } from '../../launcher/workspace-session.mjs'
 import { importCachedPersonal } from './personal-backup.mjs'
+import { rendererCredentialSurface } from './credential-surface.mjs'
 
 process.umask(0o077)
 if (process.platform !== 'darwin' || !process.env.TA_MAC_GUARD_LOCK)
@@ -188,10 +189,7 @@ try {
         }
         // Existing renderer key-writing surfaces remain disabled until their native
         // capability adapter is integrated. API credentials only enter native input.
-        if (
-          url.pathname.startsWith('/api/api-keys') ||
-          url.pathname.startsWith('/api/validation/api-key')
-        ) {
+        if (rendererCredentialSurface(url)) {
           res.writeHead(403, { 'content-type': 'application/json' })
           res.end('{"error":"Use native official access"}')
           return true

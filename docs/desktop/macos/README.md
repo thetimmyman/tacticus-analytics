@@ -58,6 +58,9 @@ written to native action logs or cached in a workspace file. Renderer content
 has no native command bridge. Missing or expired sessions return to one unlock.
 The personal view can inspect the complete allowed official Player snapshot,
 including inventory, equipment and progress, with bounded lazy pagination.
+Legacy hosted pages containing API-key forms and their key handlers return a
+holding response before rendering. Their features remain in the required inventory;
+they require native adapters before desktop availability can be advertised.
 Historical native data remains distinct from API ownership verification.
 Interrupted setup records only opaque pending references; after authorized
 unlock, recovery removes unused native items and retains committed references.
