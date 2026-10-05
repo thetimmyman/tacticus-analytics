@@ -191,3 +191,103 @@ test('historical imports reject nested credential fields without writing or dele
   )
   assert.deepEqual(f.stored(), {})
 })
+
+function replacementFixture() {
+  let stored = {},
+    next = 'combined',
+    guildId = 'SyntheticGuildA'
+  const removed = []
+  const service = new WorkspaceOnboardingV1({
+    now: () => 1767225601000,
+    state: {
+      read: () => structuredClone(stored),
+      write: (value) => {
+        stored = structuredClone(value)
+      }
+    },
+    vault: {
+      promptAndStoreOfficialRead: async () => next,
+      withOfficialRead: async (handle, action) =>
+        action(`SyntheticSecret-${handle}`),
+      remove: async (handle) => removed.push(handle)
+    },
+    upstream: {
+      get: async (scope, key) => {
+        const combined = key === 'SyntheticSecret-combined'
+        if (scope === 'Player')
+          return {
+            player: { details: { name: 'Synthetic Replacement' }, units: [] },
+            metaData: {
+              scopes: combined ? ['Player', 'Guild', 'Guild Raid'] : ['Player'],
+              lastUpdatedOn: 1767225600
+            }
+          }
+        if (scope === 'Guild') return { guild: { guildId } }
+        return { season: 1, entries: [] }
+      }
+    }
+  })
+  return {
+    service,
+    stored: () => stored,
+    removed,
+    next: (value) => {
+      next = value
+    },
+    guild: (value) => {
+      guildId = value
+    }
+  }
+}
+
+test('Player reference replacement invalidates optional live access while retaining labeled raid history', async () => {
+  const f = replacementFixture()
+  await f.service.connect({ requested: ['Player'], confirmPlayer })
+  const raid = structuredClone(f.stored().raid)
+  f.next('player-only')
+  await f.service.connect({ requested: ['Player'], confirmPlayer })
+  assert.deepEqual(f.stored().vaultReferences, { Player: 'player-only' })
+  assert.equal(
+    f.stored().capabilities.Guild,
+    'account-changed-offline-readable'
+  )
+  assert.equal(
+    f.stored().capabilities['Guild Raid'],
+    'account-changed-offline-readable'
+  )
+  assert.equal(f.stored().guildId, undefined)
+  assert.deepEqual(f.stored().raid, raid)
+  assert.equal(raid.guildId, 'SyntheticGuildA')
+  assert.deepEqual(f.removed, ['combined'])
+})
+
+test('Guild replacement invalidates old Raid binding and disconnect removes each unused separate reference', async () => {
+  const f = replacementFixture()
+  await f.service.connect({ requested: ['Player'], confirmPlayer })
+  f.next('guild-only')
+  f.guild('SyntheticGuildB')
+  await f.service.connect({ requested: ['Guild'] })
+  assert.equal(f.stored().guildId, 'SyntheticGuildB')
+  assert.equal(f.stored().vaultReferences['Guild Raid'], undefined)
+  assert.equal(
+    f.stored().capabilities['Guild Raid'],
+    'guild-binding-unavailable'
+  )
+  assert.equal(f.stored().raid.guildId, 'SyntheticGuildA')
+  f.next('raid-and-guild')
+  await f.service.connect({ requested: ['Guild Raid'] })
+  assert.equal(f.stored().raid.guildId, 'SyntheticGuildB')
+  assert.equal(f.stored().vaultReferences.Guild, 'raid-and-guild')
+  await f.service.disconnect('Guild')
+  assert.equal(f.stored().vaultReferences['Guild Raid'], undefined)
+  assert.equal(f.stored().guildId, undefined)
+  assert.equal(
+    f.stored().capabilities['Guild Raid'],
+    'guild-binding-unavailable'
+  )
+  assert.ok(f.stored().raid)
+  assert.ok(f.service.view().personal)
+  assert.deepEqual(f.removed, ['guild-only', 'raid-and-guild'])
+  await f.service.disconnect('Guild Raid')
+  assert.deepEqual(f.removed, ['guild-only', 'raid-and-guild'])
+})
