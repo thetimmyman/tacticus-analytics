@@ -67,6 +67,10 @@ remains enabled. The probe checks actual renderer bootstrap refusal, native
 owner sessions, signed-out recovery and unchanged synthetic data. Its fixed
 receipt declares network isolation unestablished; it never emits platform
 acceptance and the mandatory isolated journey remains failed.
+Renderer diagnostics use fixed endpoint/resource labels and bounded numeric
+statuses. JSON receipts contain calculation flags rather than document text or
+request paths; failed screenshots are withheld. Intentional refusal assertions
+remain separate from unexpected renderer failures.
 
 Ordinary setup creates a local Auth account in a Player-required holding state.
 The workspace opens automatically under the current OS account, without an app
@@ -83,6 +87,14 @@ has no native command bridge. Missing or expired sessions trigger one automatic
 main-process recovery; persistent failure preserves data and asks to reopen.
 The personal view can inspect the complete allowed official Player snapshot,
 including inventory, equipment and progress, with bounded lazy pagination.
+It also offers cached roster search, alliance filters, rank/XP/progression sorting,
+unit abilities and equipped items, inventory filtering and campaign summaries.
+Feature lists render 25 entries per page. Quantity totals use exact integer sums;
+token timers remain labeled snapshot values while offline. These owner-only views
+perform no official fetches or browser storage writes and retain the complete
+snapshot inspector. They do not implement legacy member/development routes or
+the full accepted feature matrix. Synthetic DOM and cache-reopen tests are
+separate from installed Electron qualification.
 Legacy hosted pages containing API-key forms and their key handlers return a
 holding response before rendering. Their features remain in the required inventory;
 they require native adapters before desktop availability can be advertised.

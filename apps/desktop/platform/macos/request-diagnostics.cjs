@@ -30,6 +30,13 @@ const endpoints = {
   '/desktop/personal': 'personal-page',
   '/player-performance': 'scores-page',
   '/api/guild-tokens': 'guild-tokens',
+  '/api/desktop/personal': 'personal-cache',
+  '/api/player-api-key': 'player-access-status',
+  '/api/player-api-key/sync': 'player-access-sync',
+  '/supabase/auth/v1/user': 'auth-user',
+  '/supabase/auth/v1/token': 'auth-token',
+  '/supabase/rest/v1/player_mapping': 'player-mapping',
+  '/supabase/rest/v1/guild_config': 'guild-config',
   '/api/user/activity': 'activity',
   '/api/version': 'version',
   '/favicon.ico': 'favicon'

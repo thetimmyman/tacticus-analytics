@@ -68,7 +68,8 @@ export function personalWorkspace(services, assets) {
       '/desktop/setup': 'setup.html',
       '/desktop/setup.js': 'setup.js',
       '/desktop/personal': 'personal.html',
-      '/desktop/personal.js': 'personal.js'
+      '/desktop/personal.js': 'personal.js',
+      '/desktop/cached-player-features.mjs': 'cached-player-features.mjs'
     }
     if (req.method === 'GET' && Object.hasOwn(files, url.pathname)) {
       let content = await readFile(join(assets, files[url.pathname]), 'utf8')
@@ -85,7 +86,7 @@ export function personalWorkspace(services, assets) {
         )
       }
       res.writeHead(200, {
-        'content-type': url.pathname.endsWith('.js')
+        'content-type': /\.(?:mjs|js)$/.test(url.pathname)
           ? 'text/javascript'
           : 'text/html',
         'cache-control': 'no-store',

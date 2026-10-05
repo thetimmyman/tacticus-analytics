@@ -1,3 +1,8 @@
+import { mountCachedPlayerFeatures } from '/desktop/cached-player-features.mjs'
+
+const features = mountCachedPlayerFeatures(document)
+let refreshVersion = 0
+
 function inspect(value, label) {
   const item = document.createElement('details'),
     title = document.createElement('summary')
@@ -51,11 +56,13 @@ function inspect(value, label) {
 }
 
 async function refresh() {
+  const version = ++refreshVersion
   try {
     const response = await fetch('/api/desktop/personal', {
       credentials: 'same-origin',
       cache: 'no-store'
     })
+    if (version !== refreshVersion) return
     if (response.status === 401) {
       window.location.assign('/desktop/setup')
       return
@@ -65,6 +72,7 @@ async function refresh() {
         'Local data is unavailable. Reopen the workspace to retry.'
       )
     const view = await response.json()
+    if (version !== refreshVersion) return
     document.querySelector('#status').textContent = view.personal
       ? 'Reading cached personal data. Updates require valid official access.'
       : 'Player access is required. Use the native Official access menu to connect.'
@@ -80,28 +88,16 @@ async function refresh() {
       item.textContent = `${scope}: ${view.capabilities[scope] ?? 'not connected'}`
       capabilities.append(item)
     }
-    const resources = view.personal?.resources
-    document.querySelector('#resources').textContent = resources
-      ? `Raid tokens: ${resources.guildRaidTokens?.current ?? 'unavailable'}; bomb tokens: ${resources.bombTokens?.current ?? 'unavailable'}`
-      : 'Waiting for Player data.'
-    const roster = document.querySelector('#roster')
-    roster.replaceChildren()
-    for (const unit of view.personal?.roster ?? []) {
-      const row = document.createElement('tr')
-      for (const value of [unit.name ?? unit.id, unit.rank, unit.xpLevel]) {
-        const cell = document.createElement('td')
-        cell.textContent = String(value ?? '—')
-        row.append(cell)
-      }
-      roster.append(row)
-    }
+    features.update(view.personal?.apiData)
     const snapshot = document.querySelector('#snapshot')
     snapshot.replaceChildren()
     for (const [key, value] of Object.entries(view.personal?.apiData ?? {}))
       snapshot.append(inspect(value, key))
     document.querySelector('#limitation').textContent = view.limitation
-  } catch (error) {
-    document.querySelector('#status').textContent = error.message
+  } catch {
+    if (version !== refreshVersion) return
+    document.querySelector('#status').textContent =
+      'Local data is unavailable. Reopen the workspace to retry.'
   }
 }
 void refresh()

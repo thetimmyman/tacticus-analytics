@@ -1,6 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
+import { mkdtemp, writeFile, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import {
   createPersonalWorkspace,
   personalWorkspace
@@ -8,6 +11,55 @@ import {
 
 const owner = '00000000-0000-4000-8000-000000000001'
 const other = '00000000-0000-4000-8000-000000000002'
+
+test('cached feature module is served as JavaScript with local-only CSP and no arbitrary file access', async (t) => {
+  const assets = await mkdtemp(join(tmpdir(), 'synthetic personal assets ü '))
+  t.after(() => rm(assets, { recursive: true, force: true }))
+  const code = 'export const cachedOnly = true;'
+  await writeFile(join(assets, 'cached-player-features.mjs'), code)
+  await writeFile(
+    join(assets, 'synthetic-private.json'),
+    'SYNTHETIC-PRIVATE-CANARY'
+  )
+  const handler = personalWorkspace(
+    { psql: async () => assert.fail('Static modules require no SQL') },
+    assets
+  )
+  const server = createServer(async (req, res) => {
+    if (!(await handler(req, res, new URL(req.url, 'http://127.0.0.1')))) {
+      res.writeHead(404)
+      res.end()
+    }
+  })
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
+  t.after(
+    () =>
+      new Promise((resolve) => {
+        server.close(resolve)
+        server.closeAllConnections()
+      })
+  )
+  const origin = 'http://127.0.0.1:' + server.address().port
+  const response = await fetch(origin + '/desktop/cached-player-features.mjs')
+  assert.equal(response.status, 200)
+  assert.equal(response.headers.get('content-type'), 'text/javascript')
+  assert.match(
+    response.headers.get('content-security-policy'),
+    /script-src 'self'/
+  )
+  assert.equal(await response.text(), code)
+  for (const path of [
+    '/desktop/synthetic-private.json',
+    '/desktop/%2e%2e/synthetic-private.json'
+  ]) {
+    const denied = await fetch(origin + path)
+    assert.equal(denied.status, 404)
+    assert.equal(
+      (await denied.text()).includes('SYNTHETIC-PRIVATE-CANARY'),
+      false
+    )
+  }
+})
 async function fixture(t) {
   const calls = []
   const state = {
