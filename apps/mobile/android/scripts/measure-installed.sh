@@ -17,6 +17,15 @@ STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 mkdir -p "$REPORT"
 APK="$APP_ROOT/app/build/outputs/apk/debug/app-debug.apk"
 TEST_APK="$APP_ROOT/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+stage reset-synthetic-preview-installation
+for package in com.tacticusanalytics.mobile.preview.test com.tacticusanalytics.mobile.preview; do
+  installed_packages=$("$ADB" -s "$SERIAL" shell pm list packages "$package" | tr -d '\r')
+  if printf '%s\n' "$installed_packages" | rg --fixed-strings --line-regexp --quiet "package:$package"; then
+    uninstall_reply=$("$ADB" -s "$SERIAL" uninstall "$package" | tr -d '\r')
+    [[ "$uninstall_reply" == Success* ]] || { printf 'Synthetic preview uninstall failed\n' >&2; exit 1; }
+  fi
+done
+unset installed_packages uninstall_reply
 stage install-main-apk
 "$ADB" -s "$SERIAL" install -r "$APK" > /dev/null
 stage install-test-apk
@@ -36,8 +45,6 @@ unset pin_reply
 "$ADB" -s "$SERIAL" shell input text 2468
 "$ADB" -s "$SERIAL" shell input keyevent KEYCODE_ENTER
 sleep 1
-stage reset-synthetic-workspace
-"$ADB" -s "$SERIAL" shell pm clear com.tacticusanalytics.mobile.preview > /dev/null
 "$ADB" -s "$SERIAL" shell cmd connectivity airplane-mode enable > /dev/null 2>&1 || true
 if [[ "$("$ADB" -s "$SERIAL" shell settings get global airplane_mode_on | tr -d '\r')" != 1 ]]; then
   "$ADB" -s "$SERIAL" shell settings put global airplane_mode_on 1
@@ -87,9 +94,9 @@ data={'schemaVersion':'android-emulator-observation/v1','sourceCommit':os.enviro
 report.joinpath('measurement.json').write_text(json.dumps(data,indent=2)+'\n')
 sdk=pathlib.Path(os.environ['ANDROID_HOME'])
 java_text=subprocess.run(['java','-version'],capture_output=True,text=True,check=True).stderr
-emulator_text=subprocess.run([str(sdk/'emulator/emulator'),'-version'],capture_output=True,text=True,check=True).stdout
+emulator_properties=sdk.joinpath('emulator/source.properties').read_text()
 adb_text=subprocess.run([str(sdk/'platform-tools/adb'),'version'],capture_output=True,text=True,check=True).stdout
-versions={'gradle':'8.13','androidGradlePlugin':'8.9.3','javaCompiler':re.search(r'version "([^" ]+)"',java_text).group(1),'emulator':re.search(r'Android emulator version ([0-9.]+)',emulator_text).group(1),'adb':re.search(r'Version ([0-9.]+)',adb_text).group(1)}
+versions={'gradle':'8.13','androidGradlePlugin':'8.9.3','javaCompiler':re.search(r'version "([^" ]+)"',java_text).group(1),'emulatorSdkPackage':re.search(r'^Pkg.Revision\s*=\s*([0-9.]+)',emulator_properties,re.M).group(1),'adb':re.search(r'Version ([0-9.]+)',adb_text).group(1)}
 for scenario,file in [('offline-core','all.txt'),('restart-persistence','reopen.txt'),('credential-isolation','locked.txt')]:
     captures=[]
     for capture in ['all.txt','reopen.txt','relaunch.txt','locked.txt']:

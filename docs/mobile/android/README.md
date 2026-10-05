@@ -29,3 +29,5 @@ Cloud contribution remains off and unavailable pending the independent authority
 The secret-free PR workflow is `platform-android.yml`. Owner signing is a separate manual-only `platform-android-release.yml`, restricted to main and a protected environment with existing owner inputs. Credential and document operations require a secure device screen lock and the current unlocked OS session; background refresh pauses when locked. No workspace password is collected.
 
 The installed-check scripts require ripgrep, Python 3 and KVM. Hosted PR jobs install ripgrep explicitly. Secure-lock setup checks the emulator command result and the installed native guard; an unavailable GateKeeper service is a failed environment check, never synthetic authorization.
+
+Synthetic installation resets use verified preview-package uninstall/reinstall, avoiding a failing Android 8 `pm clear` shell operation. Runtime evidence reads the emulator revision from the installed SDK package metadata (`emulatorSdkPackage`); version collection needs no graphical desktop. Actual packaged native checks and source/artifact digests remain required.
