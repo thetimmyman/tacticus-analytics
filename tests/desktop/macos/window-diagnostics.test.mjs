@@ -21,3 +21,19 @@ test('native startup diagnostics retain only bounded classifications, never chil
     signal: null
   })
 })
+
+test('Chromium sandbox failure literals produce a fixed classification without copying messages', () => {
+  for (const literal of [
+    'Failed to initialize sandbox.',
+    'Failed to create seatbelt sandbox server.',
+    'SandboxSerializer: Failed to apply compiled policy',
+    'SandboxSerializer: Failed to initialize sandbox with source mode policy',
+    'sandbox_apply:'
+  ]) {
+    const observer = windowDiagnostics()
+    observer.observe('SYNTHETIC-SECRET ' + literal + ' /synthetic/private/path')
+    const result = observer.exit(null, 'SIGTRAP')
+    assert.ok(result.categories.includes('sandbox-initialization'))
+    assert.equal(JSON.stringify(result).includes('SYNTHETIC-SECRET'), false)
+  }
+})

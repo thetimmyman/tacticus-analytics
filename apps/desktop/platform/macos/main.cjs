@@ -10,7 +10,9 @@ const config = JSON.parse(readFileSync(process.argv[2], 'utf8'))
 const origin = new URL(config.url).origin
 if (
   !/^http:\/\/127\.0\.0\.1:\d+$/.test(origin) ||
-  !/^[a-f0-9]{64}$/.test(config.transportKey)
+  ![config.transportKey, config.brokerToken].every((value) =>
+    /^[a-f0-9]{64}$/.test(value)
+  )
 )
   throw new Error('Invalid local desktop configuration')
 app.enableSandbox()
@@ -63,6 +65,7 @@ app
       }
     })
     if (config.verify) verificationWindow = window
+    const device = require('./device-session.cjs')(window, config)
     const capabilities = ['Player', 'Guild', 'Guild Raid']
     const { currentWorkspaceToken } =
       await import('../../launcher/workspace-session.mjs')
@@ -151,14 +154,17 @@ app
         }
         return view
       },
-      unlock: async () => {
-        await dialog.showMessageBox(window, {
-          message: 'Unlock your local workspace to continue.'
-        })
-        await window.loadURL(origin + '/desktop/setup')
-      },
+      recover: () => device.open(),
       failed: async (error, operation) => {
         if (error.code === 'ECANCELLED') return
+        if (error.code === 'ESESSION') {
+          await dialog.showMessageBox(window, {
+            type: 'error',
+            message: 'The local workspace could not open.',
+            detail: 'Existing data was preserved. Reopen the app to retry.'
+          })
+          return
+        }
         if (operation === 'export') {
           await dialog.showMessageBox(window, {
             type: 'error',
@@ -245,44 +251,61 @@ app
       if (new URL(url).origin !== origin) event.preventDefault()
     })
     verifyStage = 'workspace-page'
-    await window.loadURL(config.url)
     if (!config.verify) {
+      let recovering = false
       window.webContents.on('did-finish-load', async () => {
         if (
           !window.webContents.getURL().startsWith(origin + '/desktop/personal')
         )
           return
-        if (await nativeActions.resume()) return
+        if (recovering) return
         try {
           const view = await nativeRequest('session', 'Player')
           if (!view.personal) await nativeAction('connect', 'Player')
         } catch (error) {
-          if (error.code === 'ESESSION')
-            await window.loadURL(origin + '/desktop/setup')
+          if (error.code === 'ESESSION') {
+            recovering = true
+            try {
+              await device.open()
+            } catch {
+              if (!window.isDestroyed())
+                void dialog
+                  .showMessageBox(window, {
+                    type: 'error',
+                    message: 'The local workspace could not open.',
+                    detail:
+                      'Existing data was preserved. Reopen the app to retry.'
+                  })
+                  .catch(() => {})
+            } finally {
+              recovering = false
+            }
+          }
         }
       })
     }
+    if (!(await device.open())) await window.loadURL(config.url)
     if (config.verify) {
       verifyStage = 'workspace-setup'
-      if (config.verify.setupScreenshot)
-        writeFileSync(
-          config.verify.setupScreenshot,
-          (await window.webContents.capturePage()).toPNG(),
-          { mode: 0o600 }
-        )
-      await window.webContents.executeJavaScript(
-        `document.querySelector('#password').value=${JSON.stringify(config.verify.password)}; document.querySelector('#sample').checked=true; document.querySelector('form').requestSubmit();`
-      )
-      for (let i = 0; i < 250; i++) {
-        await new Promise((accept) => setTimeout(accept, 100))
-        if (window.webContents.getURL().includes('/player-performance')) break
-        const error = await window.webContents.executeJavaScript(
-          `document.querySelector('#status')?.textContent`
-        )
-        if (error && /failed|Invalid|Check|already|Use a/.test(error))
-          throw new Error(error)
+      await nativeRequest('session', 'Player')
+      for (const cookie of await window.webContents.session.cookies.get({
+        url: origin
+      }))
+        if (/^tacticus-auth-token(?:\.\d+)?$/.test(cookie.name))
+          await window.webContents.session.cookies.remove(origin, cookie.name)
+      let signedOutRefused = false
+      try {
+        await nativeRequest('session', 'Player')
+      } catch (error) {
+        signedOutRefused = error.code === 'ESESSION'
       }
+      if (!signedOutRefused || !(await device.open()))
+        throw new Error('Automatic signed-out recovery failed')
+      await nativeRequest('session', 'Player')
       verifyStage = 'workspace-navigation'
+      await window.loadURL(
+        origin + '/player-performance?guild=SYN001&season=9999'
+      )
       await new Promise((accept) => setTimeout(accept, 10000))
       verifyStage = 'native-session'
       const nativeSession = await nativeRequest('session', 'Player')
@@ -299,7 +322,9 @@ app
         sandbox: true,
         contextIsolation: true,
         nodeIntegration: false,
-        nativeSessionVerified: true
+        nativeSessionVerified: true,
+        deviceSession: true,
+        signedOutRecovery: true
       }
       writeFileSync(config.verify.evidence, JSON.stringify(evidence, null, 2), {
         mode: 0o600

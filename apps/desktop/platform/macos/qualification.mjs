@@ -93,7 +93,9 @@ await mkdir(state, { mode: 0o700 })
 const verify = join(working, 'verify.json')
 const config = {
   synthetic: true,
-  password: 'Synthetic local password 27!',
+  sourceCommit: process.env.MAC_SOURCE_SHA,
+  artifactSha256: digest,
+  deviceEvidence: join(working, 'device-session.json'),
   evidence: join(working, 'renderer.json'),
   screenshot: join(working, 'renderer.png')
 }
@@ -105,9 +107,19 @@ const policy =
 // Resolve a public target before sandboxing, then exercise the installed Node
 // under the identical descendant policy. Neither target nor raw errors enter
 // the synthetic receipt. Success requires an actual OS permission refusal.
-const target = await lookup('example.com', { family: 4 })
 let networkReceipt
+let dnsDeadline
 try {
+  const target = await Promise.race([
+    lookup('example.com', { family: 4 }),
+    new Promise((_accept, reject) => {
+      dnsDeadline = setTimeout(
+        () => reject(new Error('Qualification DNS timed out')),
+        5000
+      )
+    })
+  ])
+  clearTimeout(dnsDeadline)
   networkReceipt = execFileSync(
     '/usr/bin/sandbox-exec',
     [
@@ -130,6 +142,8 @@ try {
     { mode: 0o600 }
   )
   throw new Error('Installed local IPC and external TCP policy proof failed')
+} finally {
+  clearTimeout(dnsDeadline)
 }
 const networkResult = JSON.parse(networkReceipt)
 if (
@@ -189,6 +203,7 @@ try {
   await run(['--storage-check', join(working, 'storage-second.json')])
 } catch (error) {
   for (const name of [
+    'device-session.json',
     'renderer.json',
     'renderer.png',
     'renderer.json.failure.json',
@@ -211,6 +226,7 @@ if (first.counter !== 1 || second.counter !== 2)
 const files = await inventory(installed)
 const attachments = []
 for (const [name, mediaType] of [
+  ['device-session.json', 'application/json'],
   ['network-policy.json', 'application/json'],
   ['renderer.json', 'application/json'],
   ['renderer.png', 'image/png'],

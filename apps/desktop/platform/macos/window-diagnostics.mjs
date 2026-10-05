@@ -9,6 +9,11 @@ export function windowDiagnostics() {
     [/WindowServer|CGSConnection|_RegisterApplication/i, 'window-server'],
     [/Cannot find module|MODULE_NOT_FOUND/i, 'module-loading'],
     [/sandbox.*(?:denied|failed)|Operation not permitted/i, 'os-permission'],
+    [
+      /sandbox_init|InitializeSandbox|SeatbeltExec|sandbox initialization|Failed to initialize sandbox\.|Failed to create seatbelt sandbox server\.|SandboxSerializer: Failed to (?:apply compiled policy|initialize sandbox with source mode policy)|sandbox_apply:/i,
+      'sandbox-initialization'
+    ],
+    [/GPU process isn't usable|GPU process exited/i, 'gpu-process'],
     [/Native coordinator channel unavailable/i, 'native-ipc'],
     [/ERR_CONNECTION|ERR_FAILED|Failed to load URL/i, 'loopback-load'],
     [/NODE_CHANNEL_FD|NODE_OPTIONS/i, 'node-environment']

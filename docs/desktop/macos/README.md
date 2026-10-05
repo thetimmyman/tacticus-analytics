@@ -53,14 +53,27 @@ The developer workspace setup retains the baseline synthetic analytics journey;
 full personal projection into every existing application route is unfinished.
 The mandatory Player guard and separate-key native menu adapter are included;
 real access remains blocked without the required helper provisioning.
+Before Electron launch, the installed qualification verifies password-free
+holding setup and former-password owner migration against the bundled Auth
+service. It compares all synthetic raid, mapping, guild and attestation rows plus
+cached personal state, and refuses renderer-only and forged-session access.
+This receipt is bound to the source commit and DMG digest. Actual Electron
+bootstrap, signed-out recovery, restart and preserved consumer Keychain bindings
+remain separate qualification requirements.
 
 Ordinary setup creates a local Auth account in a Player-required holding state.
-After one workspace unlock, the native menu obtains the current owner-session
+The workspace opens automatically under the current OS account, without an app
+password, password change, recovery-code or logout flow. An ephemeral main-only
+capability opens only the fixed local session endpoint. It preserves the ledger
+owner and existing data, rotates a transient in-memory Auth credential and
+installs a signed, expiring Auth session. The bootstrap capability never enters
+renderer requests or cookies. The native menu obtains the current owner-session
 cookie and passes it through an inherited privileged IPC pipe. Auth verifies its
 signature, expiry and local owner; native HMAC/expiry checks also run before
 credential access and final state commits. Passwords and session tokens are not
 written to native action logs or cached in a workspace file. Renderer content
-has no native command bridge. Missing or expired sessions return to one unlock.
+has no native command bridge. Missing or expired sessions trigger one automatic
+main-process recovery; persistent failure preserves data and asks to reopen.
 The personal view can inspect the complete allowed official Player snapshot,
 including inventory, equipment and progress, with bounded lazy pagination.
 Legacy hosted pages containing API-key forms and their key handlers return a
@@ -68,12 +81,12 @@ holding response before rendering. Their features remain in the required invento
 they require native adapters before desktop availability can be advertised.
 Historical native data remains distinct from API ownership verification.
 Interrupted setup records only opaque pending references; after authorized
-unlock, recovery removes unused native items and retains committed references.
+session recovery, unused native items are removed and committed references retained.
 
 Native menus provide separate scope connection/revocation and cached personal
 export/import through graphical file choosers. Import accepts only this candidate's
 complete Player export in an empty personal workspace. It rejects credentials,
-unsafe files and inconsistent projections, rechecks unlock after reading, leaves
+unsafe files and inconsistent projections, rechecks the owner session after reading, leaves
 the source untouched and grants no verified live capabilities. Imported data is
 labeled historical and reconnect-required. It does not migrate arbitrary legacy
 database formats or restore the complete analytics database.

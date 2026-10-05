@@ -6,7 +6,6 @@ import { createServer } from 'node:net'
 import { setTimeout as delay } from 'node:timers/promises'
 import { nativeServices } from './services.mjs'
 import { loopbackGateway } from '../../proof/loopback-gateway.mjs'
-import { workspaceSetup } from '../../launcher/workspace.mjs'
 import {
   WorkspaceOnboardingV1,
   DeviceOfficialSourceV1
@@ -20,6 +19,8 @@ import { currentWorkspaceToken } from '../../launcher/workspace-session.mjs'
 import { importCachedPersonal } from './personal-backup.mjs'
 import { rendererCredentialSurface } from './credential-surface.mjs'
 import { windowDiagnostics } from './window-diagnostics.mjs'
+import { workspaceDeviceSession } from './device-session.mjs'
+import { qualifyDeviceSession } from './device-proof.mjs'
 
 process.umask(0o077)
 if (process.platform !== 'darwin' || !process.env.TA_MAC_GUARD_LOCK)
@@ -49,7 +50,9 @@ const vault = nativeVault(join(root, 'bin/secret-vault'), {
   pending: privateState(join(state, 'vault-pending.json')),
   authorize: () => {
     if (!activeSession)
-      throw Object.assign(new Error('Unlock required'), { code: 'ESESSION' })
+      throw Object.assign(new Error('Local session unavailable'), {
+        code: 'ESESSION'
+      })
     activeSession.assert()
   }
 })
@@ -61,7 +64,9 @@ const onboarding = new WorkspaceOnboardingV1({
     read: savedPersonal.read,
     write: (value) => {
       if (!activeSession)
-        throw Object.assign(new Error('Unlock required'), { code: 'ESESSION' })
+        throw Object.assign(new Error('Local session unavailable'), {
+          code: 'ESESSION'
+        })
       activeSession.assert()
       savedPersonal.write(value)
       vault.commit(Object.values(value.vaultReferences ?? {}))
@@ -153,14 +158,53 @@ try {
       { mode: 0o600 }
     )
   } else {
-    const transportKey = randomBytes(32).toString('hex')
-    const setup = verify
-      ? workspaceSetup(services, join(root, 'apps/desktop/launcher'))
-      : personalWorkspace(services, here)
+    const transportKey = randomBytes(32).toString('hex'),
+      brokerToken = randomBytes(32).toString('hex')
+    const setup = personalWorkspace(services, here)
+    const device = workspaceDeviceSession(services, {
+      brokerToken,
+      synthetic: Boolean(verify)
+    })
     gateway = await loopbackGateway({
       services,
       transportKey,
       handleLocalRequest: async (req, res, url) => {
+        if (await device(req, res, url)) return true
+        if (
+          [
+            '/auth/login',
+            '/auth/signup',
+            '/auth/forgot-password',
+            '/auth/reset-password',
+            '/login'
+          ].includes(url.pathname)
+        ) {
+          res.writeHead(303, {
+            location: '/desktop/setup',
+            'cache-control': 'no-store'
+          })
+          res.end()
+          return true
+        }
+        if (
+          [
+            '/api/auth/login',
+            '/api/auth/logout',
+            '/api/auth/signup',
+            '/api/auth/change-password',
+            '/api/auth/forgot-password',
+            '/api/auth/reset-password'
+          ].includes(url.pathname)
+        ) {
+          res.writeHead(403, {
+            'content-type': 'application/json',
+            'cache-control': 'no-store'
+          })
+          res.end(
+            '{"error":"Local workspace access uses the current OS account"}'
+          )
+          return true
+        }
         if (url.pathname === '/api/desktop/personal' && req.method === 'GET') {
           try {
             const cookies = String(req.headers.cookie ?? '')
@@ -178,7 +222,7 @@ try {
               'content-type': 'application/json',
               'cache-control': 'no-store'
             })
-            res.end('{"error":"Unlock your local workspace"}')
+            res.end('{"error":"Reopen the app to restore your local session"}')
             return true
           }
           res.writeHead(200, {
@@ -255,12 +299,32 @@ try {
       await delay(100)
     }
     if (!ready) throw new Error('Local services did not become ready')
+    if (verify) {
+      const deviceProof = await qualifyDeviceSession({
+        services,
+        gateway,
+        transportKey,
+        brokerToken,
+        gate,
+        personal: onboarding
+      })
+      await writeFile(
+        verify.deviceEvidence,
+        JSON.stringify({
+          ...deviceProof,
+          sourceCommit: verify.sourceCommit,
+          artifactSha256: verify.artifactSha256
+        }),
+        { mode: 0o600 }
+      )
+    }
     const config = join(state, 'window-config.json')
     await writeFile(
       config,
       JSON.stringify({
         url: `${gateway.origin}/desktop/setup`,
         transportKey,
+        brokerToken,
         state,
         verify
       }),

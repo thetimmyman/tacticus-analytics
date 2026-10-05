@@ -2,7 +2,7 @@ import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
 import { workspaceAuthorized } from '../../launcher/workspace-session.mjs'
 
 const sessionError = () =>
-  Object.assign(new Error('Unlock your local workspace to continue.'), {
+  Object.assign(new Error('Reopen the app to restore your local session.'), {
     code: 'ESESSION'
   })
 
