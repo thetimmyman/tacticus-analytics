@@ -6,28 +6,23 @@ access is required, while Guild and Guild Raid access unlock guild content.
 A sample workspace opens synthetic player performance. Full feature parity and
 release approval remain outstanding.
 
-API setup uses the current authenticated workspace session. Unlock once; adding
-or syncing keys does not request the workspace password again. Auth verifies
-the session and workspace owner before credential access or imports. Expired
-sessions require another unlock. Linux explicitly selects Secret Service via
-Electron’s `gnome-libsecret` backend; a running, unlocked OS keyring is required.
-A locked or unavailable keyring fails with a specific message and never stores
-plaintext keys. API keys are entered through native dialogs and encrypted in
-the device vault. File → API access and updates opens setup and the updater.
-Interrupted setup can resume with the original password. Completion is recorded
-in the same database transaction as the synthetic import; retries preserve the
-existing native account and never replace data or import the sample twice.
-An existing workspace's unlock screen offers offline password recovery. Creating
-a recovery code requires the current password; save the displayed code privately
-outside the workspace. Only its SHA-256 digest is stored in the owner-only setup
-ledger, which is included in database checkpoints. Reset accepts that code and a
-new password for the installation account only. It preserves analytics data and
-invalidates Auth refresh sessions; already issued access tokens retain their
-normal bounded lifetime. Recovery attempts are serialized and throttled for the
-running launcher. A code remains reusable after reset so interrupted responses
-can be retried; explicitly creating another code invalidates the previous one.
-There is no email recovery or automatic unlock without the password or saved
-code. Existing workspaces opt in after a recoverable schema upgrade.
+Local workspaces open automatically under the logged-in OS account, including
+existing workspaces created with a user password. Electron main obtains a signed,
+expiring owner session through a separate per-launch capability. This capability
+never enters renderer requests or cookies; local Auth still verifies ownership
+before credential access or imports. There is no user-facing app password,
+password-change, recovery-code or logout flow. Expired browser sessions reopen
+automatically. Interrupted first-run setup preserves the installation account.
+
+API setup and file import reuse that session. Linux explicitly selects Secret
+Service via Electron's `gnome-libsecret` backend. Game keys require secure OS
+storage; locked or unavailable storage refuses saving and never uses plaintext.
+Keys enter native dialogs and stay encrypted in the device vault. File → API
+access and updates opens scoped setup and the updater. Creating or reopening a
+workspace does not require game access; personal content requires Player access,
+and guild content requires matched Guild and Guild Raid access. Cached data
+remains readable offline.
+
 The native File menu offers backup and restore. Backup closes the application,
 stops its services and acquires the workspace kernel lease before exporting a
 stopped PostgreSQL checkpoint into a new private directory. Restore verifies its
@@ -35,9 +30,9 @@ file inventory and creates a separate workspace; it never replaces the current
 database. A pending restore blocks startup, and a corrupt or incomplete backup
 is rejected. After the restored database opens successfully with the pinned
 services, normal launches select that copy. Explicit `--state` still selects a
-specific workspace. Restore recovers account state, including passwords and saved
-recovery codes, from the time of the backup. Keep backups private. Browser cache,
-diagnostic logs and future game-credential vault storage are outside this backup.
+specific workspace. Restore recovers the account and data from the time of the backup; the native
+app then opens that local account automatically. Keep backups private. Browser cache,
+diagnostic logs and game-credential vault storage are outside this backup.
 The launcher also accepts `--backup /new/backup-directory` or
 `--restore /saved/backup-directory --state /new/workspace-directory` without a GUI.
 These are same-installation physical database transfers, not PostgreSQL major

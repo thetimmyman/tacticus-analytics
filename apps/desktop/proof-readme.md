@@ -88,7 +88,7 @@ JWTs and the application SSR cookie client: it waits beyond PostgREST's
 checks rejection of the expired token, renews the cookie session, and repeats
 renewal after a native service restart without entering the password again.
 Renewed sessions retain guild RLS and cannot call service-only authority RPCs.
-This proves the native refresh path, not renderer sleep/wake or password recovery.
+This proves the native refresh path, not renderer sleep/wake.
 
 The coordinator now delegates native process ownership to `service-owner.mjs`
 through a private Node IPC pipe. The owner retains the workspace lock and direct
@@ -263,8 +263,8 @@ integration, OS lock-screen behavior, KDE support or other platform support.
 
 ## Manual official API connection
 
-For a local-file workspace, File → Game connection can connect the user's own
-official API key after a native permission dialog and current workspace password.
+For a local-file workspace, File → API access and updates connects the user's own
+official API key after native consent using the automatically opened owner session.
 The masked native entry sends the key only to trusted Electron main. Secure OS
 storage must be available before key entry. Refusal leaves offline analytics usable.
 Coordinator requests use an ephemeral main-only Electron network partition. It
@@ -274,7 +274,7 @@ proof-key and shared key-input forms show native-menu guidance in desktop mode.
 Hosted credential endpoints refuse desktop requests before reading their bodies,
 and hosted onboarding redirects to the local connection guide. Hosted behavior
 remains unchanged. Roster synchronization is still pending in this preview.
-Normal close retains ciphertext; restart requires renewed consent and password
+Normal close retains ciphertext; restart requires renewed consent and a verified owner session
 confirmation before reading the saved key. Disconnect removes the key without
 decrypting it. Connection metadata and ciphertext are excluded from workspace exports.
 
@@ -317,7 +317,7 @@ times, invalid dates, unsafe numeric values and unsupported nested equipment or
 ability metadata are refused. The importer does not acquire game credentials,
 discover clients, accept arbitrary destinations or connect to upstream services.
 
-After confirming the current workspace password, the coordinator derives identity,
+After verifying the current owner session, the coordinator derives identity,
 guild, cluster and name mappings from its local database. The protected application
 endpoint runs the canonical raid transformer. A separate non-login, non-bypass
 database role validates all normalized rows and commits records together with an
@@ -327,7 +327,7 @@ The import role can read only the conflict-key columns of the raid table; anonym
 authenticated and service roles cannot inspect receipts or call the import function.
 
 `import-journey.mjs` uses actual native services and a compiled standalone application
-to check empty setup, rejected passwords/origins/guilds, atomic refusal of a bad
+to check empty setup, rejected sessions/origins/guilds, atomic refusal of a bad
 later record, unrelated-subject refusal, duplicate retries and persisted restart.
 It runs when `desktop:proof` receives a compiled application configuration. Its
 backend evidence is separate from OS file selection and renderer acceptance. All
@@ -337,7 +337,7 @@ integration, compatibility with other export formats or complete feature parity.
 ## Manual own-roster sync and offline cache
 
 After connecting an official key, File → Game connection → Sync my roster asks
-for explicit permission and the current workspace password. The main-process
+for explicit permission and verifies the current owner session. The main-process
 broker reads only its fixed official player/guild endpoints and projects the
 published roster fields. Inventory, progress, upstream user identifiers, arbitrary
 metadata and root credentials do not enter the local cache. Validation checks the
@@ -353,7 +353,7 @@ retains the unverified local identity provenance: official API player data does
 not establish ownership of the workspace's claimed player ID.
 
 `roster-journey.mjs` exercises the compiled normalizer, native Auth/PostgREST and
-PostgreSQL transaction. It checks native capability/password/guild refusal,
+PostgreSQL transaction. It checks native capability/session/guild refusal,
 malformed later rows, forged mappings, foreign subjects, write denial for renderer
 and service roles, scoped reads, stable IDs, replacement and persisted restart.
 It also checks the authenticated cache API with no hosted key. These synthetic
@@ -467,8 +467,7 @@ Local workspace creation continues into `/desktop/connect`. Player access is
 required for personal roster and available raid-token/bomb counters. Guild and
 Guild Raid are optional additions; both must resolve to the selected guild before
 the guild experience opens. Raid access uses a key with Guild scope as well to
-bind the upstream response to that guild. Native dialogs collect keys and the
-workspace password; raw keys never enter renderer forms. Each sync revalidates
+bind the upstream response to that guild. Native dialogs collect game keys; the workspace opens automatically and raw keys never enter renderer forms. Each sync revalidates
 its required upstream scope. Saved counters describe the upstream snapshot, not
 an offline live countdown. Removing device credentials retains cached data.
 
@@ -488,3 +487,30 @@ credentialed URLs, overwrite attempts and invalid signatures or hashes, and
 publish only verified bytes. Installation uses the OS package manager after the
 app closes; this does not implement automatic installation or restart. Public
 release signing and feed promotion require their separate release acceptance.
+
+### Automatic device-local workspace sessions
+
+`device-session.mjs` admits only the main-process bootstrap capability. It derives
+the existing local owner from the setup ledger and local Auth account, replaces
+that account's internal credential with a temporary random value, and obtains an
+expiring signed session. No user password or random credential is returned to the
+renderer. Electron main installs bounded Auth cookie chunks, while its isolated
+bootstrap transport admits only the exact fixed loopback endpoint. The renderer
+and an external browser cannot mint a session with the transport capability alone.
+
+Workspace creation and file import have no password field. Desktop profile
+password-change and logout controls are absent; recovery-code endpoints are not
+served. Auth UI redirects restore the local session automatically. Existing owner
+identity, analytics and device game-key bindings remain in place. Game credentials
+still require the platform's secure vault.
+
+Run `onboarding-journey.mjs` with `deviceSession: true` for password-free fresh
+setup and restart. Add `legacyPasswordWorkspace: true` to qualify migration from
+an existing password-protected synthetic workspace. Real native Auth verifies the
+new session and refuses the old user password. The journey retains scoped API,
+roster, counter and restart assertions and rejects renderer/forged bootstrap
+requests. `import-journey.mjs` qualifies cookie-authenticated file import, forged
+sessions, origin/guild refusal, atomicity, deduplication, exact byte boundaries and
+restart. Focused device-session tests cover capability validation, cookie chunking
+and fixed bootstrap transport. Historical password/recovery journeys describe the
+superseded flow and do not qualify the current desktop UI.
