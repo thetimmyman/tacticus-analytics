@@ -14,13 +14,21 @@ type QueryResult = {
  * A PostgREST-shaped client whose every guild_config read resolves to
  * `result`. The builder methods the job chains are all accepted.
  */
-function clientReturning(result: (select: string) => QueryResult) {
+function clientReturning(
+  result: (select: string) => QueryResult,
+  checkpointFails = false
+) {
   const queries: { select: string; eq: [string, unknown][] }[] = []
+  const updates: Record<string, unknown>[] = []
   const from = vi.fn((_table: string) => {
     let selected = ''
     const query = { select: '', eq: [] as [string, unknown][] }
     queries.push(query)
     const builder = {
+      update: (value: Record<string, unknown>) => {
+        updates.push(value)
+        return builder
+      },
       select: (columns: string) => {
         selected = columns
         query.select = columns
@@ -34,12 +42,18 @@ function clientReturning(result: (select: string) => QueryResult) {
       or: () => builder,
       order: () => builder,
       limit: () => Promise.resolve(result(selected)),
+      single: () =>
+        Promise.resolve(
+          checkpointFails
+            ? { data: null, error: { message: 'synthetic write failure' } }
+            : { data: { id: 3 }, error: null }
+        ),
       then: (resolve: (value: QueryResult) => unknown) =>
         Promise.resolve(result(selected)).then(resolve)
     }
     return builder
   })
-  return { from, queries }
+  return { from, queries, updates }
 }
 
 const ANON_DENIED: QueryResult = {
@@ -194,8 +208,9 @@ describe('daily alert summary job reads guild_config with the service client', (
   })
 
   it('delivers the stale rollup even when the daily email accumulator is empty', async () => {
+    const client = clientReturning(() => ({ data: [], error: null }))
     const handler = await loadHandler({
-      serviceDb: vi.fn(() => clientReturning(() => ({ data: [], error: null })))
+      serviceDb: vi.fn(() => client)
     })
     const rollup = {
       noRecipientEscalationDays: 7,
@@ -218,6 +233,62 @@ describe('daily alert summary job reads guild_config with the service client', (
       apiKeyIncidentOps: { status: 'delivered', messageId: 'synthetic-message' }
     })
     expect(sendDailySummary).not.toHaveBeenCalled()
+    expect(client.updates).toEqual([
+      {
+        payload: {
+          apiKeyIncidentOps: {
+            status: 'delivered',
+            messageId: 'synthetic-message'
+          }
+        }
+      }
+    ])
+    expect(client.queries.at(-1)?.eq).toEqual([
+      ['id', 3],
+      ['claimed_by', 'test-worker'],
+      ['status', 'processing']
+    ])
+  })
+
+  it('reuses the saved operations message on a retry after queue settlement failed', async () => {
+    const handler = await loadHandler({
+      serviceDb: vi.fn(() => clientReturning(() => ({ data: [], error: null })))
+    })
+    const saved = { status: 'delivered', messageId: 'synthetic-message' }
+    const result = await handler(
+      { apiKeyIncidentOps: saved },
+      { jobId: 3, workerId: 'test-worker', attempts: 2 }
+    )
+    expect(sendOpsAlert).not.toHaveBeenCalled()
+    expect(result).toMatchObject({ apiKeyIncidentOps: saved })
+  })
+
+  it('fails the queue job if the saved-message checkpoint cannot be persisted', async () => {
+    const handler = await loadHandler({
+      serviceDb: vi.fn(() =>
+        clientReturning(() => ({ data: [], error: null }), true)
+      )
+    })
+    sendOpsAlert.mockResolvedValue({
+      status: 'delivered',
+      messageId: 'synthetic-message'
+    })
+    await expect(
+      handler({}, { jobId: 3, workerId: 'test-worker', attempts: 1 })
+    ).rejects.toThrow('operations checkpoint failed')
+  })
+
+  it('does not acknowledge an incomplete incident sweep', async () => {
+    const handler = await loadHandler({
+      serviceDb: vi.fn(() => clientReturning(() => ({ data: [], error: null })))
+    })
+    sendIncidentNotifications.mockRejectedValue(
+      new Error('API key incident state sweep failed')
+    )
+    await expect(
+      handler({}, { jobId: 3, workerId: 'test-worker', attempts: 1 })
+    ).rejects.toThrow('state sweep failed')
+    expect(sendOpsAlert).not.toHaveBeenCalled()
   })
 
   it('rejects a failed operations delivery so the work queue can retry', async () => {

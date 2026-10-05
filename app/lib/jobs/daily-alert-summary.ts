@@ -1,4 +1,4 @@
-// pg_cron enqueues with `dedupe_key='alert-summary:<yyyy-mm-dd>'`, so at most one is sent per day.
+// pg_cron enqueues with `dedupe_key='alert-summary:<yyyy-mm-dd>'`.
 
 import {
   sendDailySummary,
@@ -14,6 +14,7 @@ import { rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { createComponentLogger } from '@/app/lib/logging'
 import { registerJobHandler } from './dispatcher'
 import type { JobHandler } from './types'
+import type { Json } from '@tacticus/app-core/database.generated'
 import { formatGuildDisplayLabel } from '@/app/lib/format/guild'
 
 const logger = createComponentLogger('lib.jobs.daily-alert-summary')
@@ -149,16 +150,55 @@ async function collectSyncHealthAlerts(): Promise<void> {
   }
 }
 
-const dailyAlertSummaryHandler: JobHandler = async (_payload, ctx) => {
+function savedOperationsDelivery(payload: Record<string, unknown>) {
+  const saved = payload.apiKeyIncidentOps
+  if (
+    saved &&
+    typeof saved === 'object' &&
+    'status' in saved &&
+    saved.status === 'delivered' &&
+    'messageId' in saved &&
+    typeof saved.messageId === 'string' &&
+    saved.messageId.length > 0
+  ) {
+    return { status: 'delivered' as const, messageId: saved.messageId }
+  }
+  return null
+}
+
+const dailyAlertSummaryHandler: JobHandler = async (payload, ctx) => {
   const healthResults = await runAllHealthChecks({ emitAlerts: true })
   await collectSyncHealthAlerts()
 
   const apiKeyIncidentNotifications = await sendApiKeyIncidentNotifications({
     source: 'work-queue-daily-alert-summary'
   })
-  const apiKeyIncidentOps = await sendApiKeyIncidentOpsAlert(
-    apiKeyIncidentNotifications
-  )
+  let apiKeyIncidentOps: Awaited<
+    ReturnType<typeof sendApiKeyIncidentOpsAlert>
+  > | null = savedOperationsDelivery(payload)
+  if (!apiKeyIncidentOps) {
+    const delivery = await sendApiKeyIncidentOpsAlert(
+      apiKeyIncidentNotifications
+    )
+    if (delivery.status === 'delivered') {
+      // Save before the email summary and final queue settlement. A later retry
+      // receives this payload and reuses the confirmed Discord message.
+      const { data, error } = await serviceDb()
+        .from('work_queue')
+        .update({
+          payload: { ...payload, apiKeyIncidentOps: delivery } as Json
+        })
+        .eq('id', ctx.jobId)
+        .eq('claimed_by', ctx.workerId)
+        .eq('status', 'processing')
+        .select('id')
+        .single()
+      if (error || !data) {
+        throw new Error('API key incident operations checkpoint failed')
+      }
+    }
+    apiKeyIncidentOps = delivery
+  }
 
   const { alerts, stats } = getAlertSummary()
 
