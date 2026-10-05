@@ -162,3 +162,13 @@ test('upstream refusal, throttling, server failure and transport failure are dis
     (error) => error.code === 'ENETWORK' && !error.message.includes(key)
   )
 })
+
+test('successful Player responses do not require optional scope metadata', () => {
+  for (const metadata of [undefined, {}, { lastUpdatedOn: 1800000000 }]) {
+    const value = profile()
+    value.metaData = metadata
+    const result = projectPlayerAccess(value)
+    assert.deepEqual(result.scopes, ['Player'])
+    assert.equal(result.roster.units.length, 1)
+  }
+})

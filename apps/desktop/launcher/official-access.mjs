@@ -145,22 +145,29 @@ export function projectPlayerAccess(value, clock = Date.now) {
   if (
     !object(value) ||
     !object(value.player) ||
-    !object(value.metaData) ||
-    !Array.isArray(value.metaData.scopes) ||
-    value.metaData.scopes.length > 32 ||
-    !value.metaData.scopes.includes('Player')
+    (value.metaData != null && !object(value.metaData))
   )
     throw unavailable()
-  const scopes = value.metaData.scopes.filter((scope) =>
+  const metadata = value.metaData ?? {}
+  // A successful authenticated Player endpoint establishes Player access.
+  // Scope metadata is optional; explicit contradictory scopes still refuse.
+  if (
+    metadata.scopes != null &&
+    (!Array.isArray(metadata.scopes) ||
+      metadata.scopes.length > 32 ||
+      !metadata.scopes.includes('Player'))
+  )
+    throw unavailable()
+  const scopes = (metadata.scopes ?? ['Player']).filter((scope) =>
     ['Player', 'Guild', 'Guild Raid'].includes(scope)
   )
   let expiresAt = null
-  if (value.metaData.apiKeyExpiresOn != null) {
+  if (metadata.apiKeyExpiresOn != null) {
     expiresAt =
-      number(value.metaData.apiKeyExpiresOn, Date.UTC(2100, 0, 1) / 1000) * 1000
+      number(metadata.apiKeyExpiresOn, Date.UTC(2100, 0, 1) / 1000) * 1000
     if (expiresAt <= clock()) throw unavailable()
   }
-  const updated = value.metaData.lastUpdatedOn
+  const updated = metadata.lastUpdatedOn
   if (updated != null) number(updated, Date.UTC(2100, 0, 1) / 1000)
   const progress = value.player.progress
   if (progress != null && !object(progress)) throw unavailable()
