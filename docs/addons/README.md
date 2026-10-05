@@ -7,7 +7,7 @@ This implementation provides a signed first-party data-package host, native comm
 Use the repository's locked dependencies and Node 22.23.x. Choose an absolute output directory outside the checkout:
 
 ```sh
-node --import tsx --test tests/addons/*.test.ts tests/addons/*.test.tsx
+node --import tsx --test tests/addons/*.node-test.ts tests/addons/*.node-test.tsx
 npx tsc -p packages/addon-host/tsconfig.json
 npx eslint packages/addon-host/src apps/addons
 node apps/addons/build.mjs /absolute/output/addons
