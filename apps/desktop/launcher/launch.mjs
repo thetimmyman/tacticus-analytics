@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process'
 import { localJobScheduler } from './job-scheduler.mjs'
 import { electronDisplay } from './display.mjs'
+import { launcherOptions } from './options.mjs'
 import { bundledServices } from './runtime.mjs'
 import { maintenanceCLI, guardedTransfer } from './maintenance.mjs'
 import { selectedWorkspace, selectWorkspace } from './workspace-selection.mjs'
@@ -20,8 +21,8 @@ import { strict as assert } from 'node:assert'
 const here = dirname(fileURLToPath(import.meta.url))
 const root = resolve(here, '../../..')
 const args = process.argv.slice(2)
-const option = (name) =>
-  args.includes(name) ? args[args.indexOf(name) + 1] : undefined
+const options = launcherOptions(args)
+const option = (name) => options.get(name)
 const defaultState = join(homedir(), '.local/share/tacticus-analytics-preview')
 const state = resolve(
   option('--state') || (await selectedWorkspace(defaultState))
