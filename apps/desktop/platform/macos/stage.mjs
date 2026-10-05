@@ -23,6 +23,16 @@ import { fileURLToPath } from 'node:url'
 import { execFileSync } from 'node:child_process'
 
 const source = resolve(dirname(fileURLToPath(import.meta.url)), '../../../..')
+export async function containedLibrary(runtime, library) {
+  // macOS exposes /var through /private/var. Compare both canonical paths so
+  // a contained dependency stays valid through the OS alias and escaping links
+  // still fail before install_name_tool modifies the executable.
+  const root = await realpath(runtime),
+    target = await realpath(library)
+  const part = relative(root, target)
+  if (part.startsWith('..') || isAbsolute(part))
+    throw new Error('External relocated library target')
+}
 export async function inventory(directory) {
   const files = []
   const root = await realpath(directory)
@@ -175,12 +185,7 @@ export async function stage(config) {
           bundled = join(runtime, 'postgres/lib/libpq.5.dylib')
         }
         if (bundled) {
-          const target = await realpath(bundled)
-          if (
-            relative(runtime, target).startsWith('..') ||
-            isAbsolute(relative(runtime, target))
-          )
-            throw new Error('External relocated library target')
+          await containedLibrary(runtime, bundled)
           const replacement = relative(dirname(file), bundled)
           execFileSync('/usr/bin/install_name_tool', [
             '-change',

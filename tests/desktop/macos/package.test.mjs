@@ -13,9 +13,31 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import {
   inventory,
-  stage
+  stage,
+  containedLibrary
 } from '../../../apps/desktop/platform/macos/stage.mjs'
 import { privateState } from '../../../apps/desktop/platform/macos/state.mjs'
+
+test('relocated dependencies compare canonical roots and reject an escaping library', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'mac library alias '))
+  try {
+    const runtime = join(root, 'runtime'),
+      alias = join(root, 'alias')
+    await mkdir(runtime)
+    await writeFile(join(runtime, 'libpq.dylib'), 'synthetic')
+    await symlink(runtime, alias)
+    await containedLibrary(alias, join(runtime, 'libpq.dylib'))
+    await containedLibrary(runtime, join(alias, 'libpq.dylib'))
+    await writeFile(join(root, 'external.dylib'), 'synthetic')
+    await symlink('../external.dylib', join(runtime, 'escape.dylib'))
+    await assert.rejects(
+      containedLibrary(alias, join(alias, 'escape.dylib')),
+      /External relocated/
+    )
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
 
 test('package inventory rejects mutable state and escaping symlinks', async () => {
   const root = await mkdtemp(join(tmpdir(), 'mac package '))
