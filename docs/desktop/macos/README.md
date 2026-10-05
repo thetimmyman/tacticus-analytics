@@ -63,8 +63,13 @@ Interrupted setup records only opaque pending references; after authorized
 unlock, recovery removes unused native items and retains committed references.
 
 Native menus provide separate scope connection/revocation and cached personal
-export through a graphical file chooser. Closing the window cancels pending
-native input and official requests. Imports, full workspace recovery controls,
+export/import through graphical file choosers. Import accepts only this candidate's
+complete Player export in an empty personal workspace. It rejects credentials,
+unsafe files and inconsistent projections, rechecks unlock after reading, leaves
+the source untouched and grants no verified live capabilities. Imported data is
+labeled historical and reconnect-required. It does not migrate arbitrary legacy
+database formats or restore the complete analytics database.
+Closing the window cancels pending native input and official requests. Full workspace recovery controls,
 compatible verified updates and the accepted feature matrix remain unfinished.
 
 Release gates remain: full local feature inventory, native onboarding projection

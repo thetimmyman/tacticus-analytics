@@ -73,7 +73,7 @@ app
           })
         )
     })
-    const nativeRequest = async (operation, scope) => {
+    const nativeRequest = async (operation, scope, path) => {
       const token = currentWorkspaceToken(
         await window.webContents.session.cookies.get({ url: origin })
       )
@@ -88,31 +88,46 @@ app
         pending.set(requestId, { accept, reject, deadline })
         // The inherited native-only IPC pipe is never attached to renderer IPC,
         // stdout, logs or an export. Workspace passwords are never retained here.
-        process.send({ requestId, operation, scope, token }, (error) => {
-          if (error) {
-            clearTimeout(deadline)
-            pending.delete(requestId)
-            reject(new Error('Native channel closed'))
+        process.send(
+          {
+            requestId,
+            operation,
+            scope,
+            token,
+            ...(operation === 'import' ? { path } : {})
+          },
+          (error) => {
+            if (error) {
+              clearTimeout(deadline)
+              pending.delete(requestId)
+              reject(new Error('Native channel closed'))
+            }
           }
-        })
+        )
       })
     }
     let retry,
       busy = false
-    const nativeAction = async (operation, scope) => {
+    const nativeAction = async (operation, scope, path) => {
       if (busy) return
       busy = true
       try {
-        const view = await nativeRequest(operation, scope)
+        const view = await nativeRequest(operation, scope, path)
         if (operation !== 'session') {
           await dialog.showMessageBox(window, {
-            message: 'Official access updated',
-            detail: capabilities
-              .map(
-                (item) =>
-                  `${item}: ${view.capabilities[item] ?? 'not connected'}`
-              )
-              .join('\n')
+            message:
+              operation === 'import'
+                ? 'Cached personal data restored'
+                : 'Official access updated',
+            detail:
+              operation === 'import'
+                ? 'Historical data is available offline. Connect Player access to refresh it. Cloud contribution remains separate.'
+                : capabilities
+                    .map(
+                      (item) =>
+                        `${item}: ${view.capabilities[item] ?? 'not connected'}`
+                    )
+                    .join('\n')
           })
           if (
             window.webContents.getURL().startsWith(origin + '/desktop/personal')
@@ -122,7 +137,7 @@ app
         return view
       } catch (error) {
         if (error.code === 'ESESSION') {
-          retry = { operation, scope }
+          retry = { operation, scope, path }
           await dialog.showMessageBox(window, {
             message: 'Unlock your local workspace to continue.'
           })
@@ -135,9 +150,13 @@ app
                 ? 'Unlock your native Keychain to continue.'
                 : error.code === 'EVAULT'
                   ? 'Secure Keychain access is unavailable.'
-                  : 'Official access could not finish',
+                  : operation === 'import'
+                    ? 'Cached data import did not finish'
+                    : 'Official access could not finish',
             detail:
-              'Cached data is retained. Check native vault availability and official access, then retry.'
+              operation === 'import'
+                ? 'Choose a supported personal-data export in an empty personal workspace. Existing data and the original file are preserved.'
+                : 'Cached data is retained. Check native vault availability and official access, then retry.'
           })
       } finally {
         busy = false
@@ -163,6 +182,21 @@ app
         {
           label: 'Workspace',
           submenu: [
+            {
+              label: 'Import cached personal data…',
+              click: async () => {
+                const selected = await dialog.showOpenDialog(window, {
+                  title:
+                    'Import cached personal data into an empty personal workspace',
+                  properties: ['openFile'],
+                  filters: [
+                    { name: 'Personal data export', extensions: ['json'] }
+                  ]
+                })
+                if (!selected.canceled && selected.filePaths.length === 1)
+                  await nativeAction('import', 'Player', selected.filePaths[0])
+              }
+            },
             {
               label: 'Export cached personal data…',
               click: async () => {
@@ -230,7 +264,7 @@ app
         if (retry) {
           const action = retry
           retry = null
-          await nativeAction(action.operation, action.scope)
+          await nativeAction(action.operation, action.scope, action.path)
           return
         }
         try {

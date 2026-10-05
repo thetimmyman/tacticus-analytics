@@ -133,9 +133,9 @@ export async function stage(config) {
       )
         continue
       execFileSync('/usr/bin/lipo', [
+        file,
         '-verify_arch',
-        config.architecture === 'arm64' ? 'arm64' : 'x86_64',
-        file
+        config.architecture === 'arm64' ? 'arm64' : 'x86_64'
       ])
       const libraries = execFileSync('/usr/bin/otool', ['-L', file], {
         encoding: 'utf8'

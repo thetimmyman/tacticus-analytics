@@ -17,6 +17,7 @@ import { qualifyRecovery } from './recovery.mjs'
 import { personalWorkspace } from './workspace.mjs'
 import { localSessionGate } from './session.mjs'
 import { currentWorkspaceToken } from '../../launcher/workspace-session.mjs'
+import { importCachedPersonal } from './personal-backup.mjs'
 
 process.umask(0o077)
 if (process.platform !== 'darwin' || !process.env.TA_MAC_GUARD_LOCK)
@@ -285,9 +286,17 @@ try {
         !action ||
         JSON.stringify(action).length > 20000 ||
         Object.keys(action).sort().join(',') !==
-          'operation,requestId,scope,token' ||
+          (action.operation === 'import'
+            ? 'operation,path,requestId,scope,token'
+            : 'operation,requestId,scope,token') ||
         !/^[a-f0-9]{32}$/.test(action.requestId ?? '') ||
-        !['connect', 'disconnect', 'session'].includes(action.operation) ||
+        !['connect', 'disconnect', 'session', 'import'].includes(
+          action.operation
+        ) ||
+        (action.operation === 'import' &&
+          (action.scope !== 'Player' ||
+            typeof action.path !== 'string' ||
+            action.path.length > 4096)) ||
         !['Player', 'Guild', 'Guild Raid'].includes(action.scope)
       )
         return
@@ -300,6 +309,12 @@ try {
             )
             if (action.operation === 'disconnect')
               await onboarding.disconnect(action.scope)
+            else if (action.operation === 'import')
+              await importCachedPersonal({
+                path: action.path,
+                onboarding,
+                authorize: activeSession.assert
+              })
             else if (action.operation === 'connect')
               await onboarding.connect({
                 requested:
