@@ -10,7 +10,15 @@ import {
 } from 'node:fs/promises'
 import { constants } from 'node:fs'
 import { createHash } from 'node:crypto'
-import { join, resolve, relative, isAbsolute, dirname, sep } from 'node:path'
+import {
+  join,
+  resolve,
+  relative,
+  isAbsolute,
+  dirname,
+  sep,
+  basename
+} from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execFileSync } from 'node:child_process'
 
@@ -148,15 +156,32 @@ export async function stage(config) {
         .filter(Boolean)
       let relocated = false
       for (const library of libraries) {
+        let bundled
         if (library.startsWith(config.postgres + '/lib/')) {
-          const replacement = relative(
-            dirname(file),
-            join(
-              runtime,
-              'postgres/lib',
-              library.slice((config.postgres + '/lib/').length)
-            )
+          bundled = join(
+            runtime,
+            'postgres/lib',
+            library.slice((config.postgres + '/lib/').length)
           )
+        } else if (
+          file === join(runtime, 'postgrest/postgrest') &&
+          [
+            '/opt/homebrew/opt/libpq/lib/libpq.5.dylib',
+            '/usr/local/opt/libpq/lib/libpq.5.dylib'
+          ].includes(library)
+        ) {
+          // The pinned official PostgREST archives name the stable libpq.5 ABI
+          // at a builder prefix. Use the owned, inventoried PostgreSQL library.
+          bundled = join(runtime, 'postgres/lib/libpq.5.dylib')
+        }
+        if (bundled) {
+          const target = await realpath(bundled)
+          if (
+            relative(runtime, target).startsWith('..') ||
+            isAbsolute(relative(runtime, target))
+          )
+            throw new Error('External relocated library target')
+          const replacement = relative(dirname(file), bundled)
           execFileSync('/usr/bin/install_name_tool', [
             '-change',
             library,
@@ -169,7 +194,9 @@ export async function stage(config) {
           !library.startsWith('/System/Library/') &&
           !library.startsWith('@')
         ) {
-          throw new Error('Undeclared external Mach-O dependency')
+          throw new Error(
+            `Undeclared external Mach-O dependency: ${part.path} -> ${basename(library)}`
+          )
         }
       }
       if (relocated) {
