@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import { syncBuiltinESMExports } from 'node:module'
 import test from 'node:test'
 import {
   mkdtempSync,
@@ -317,6 +319,39 @@ test('storage rejects symlinks, traversal digests and retained transaction locks
   writeFileSync(join(root, 'transaction.lock'), 'interrupted-owner')
   assert.throws(() => host.stage(bundle('guild-war')), /transaction-busy/)
   assert.deepEqual(host.list(), [])
+})
+
+test('package path replacement after open cannot change the checked bytes', (t) => {
+  const { host, root, bundle } = setup(t),
+    input = bundle('guild-war')
+  const staged = host.stage(input),
+    target = join(root, 'packages', `${staged.digest}.json`)
+  const victim = join(root, 'unrelated-target.txt')
+  writeFileSync(victim, 'synthetic-forbidden-canary')
+  const realFstat = fs.fstatSync
+  let replaced = false
+  const spy = t.mock.method(fs, 'fstatSync', (fd: number) => {
+    const stat = realFstat(fd)
+    if (!replaced) {
+      replaced = true
+      fs.renameSync(target, `${target}.original`)
+      symlinkSync(victim, target)
+    }
+    return stat
+  })
+  syncBuiltinESMExports()
+  try {
+    assert.equal(host.stage(input).digest, staged.digest)
+    assert.equal(replaced, true)
+    assert.throws(
+      () => host.activate(staged.digest, staged.manifest.capabilities),
+      /invalid-package/
+    )
+    assert.equal(readFileSync(victim, 'utf8'), 'synthetic-forbidden-canary')
+  } finally {
+    spy.mock.restore()
+    syncBuiltinESMExports()
+  }
 })
 
 test('synthetic secret canaries in nested/encoded fields never enter errors, state, exports or diagnostics', (t) => {

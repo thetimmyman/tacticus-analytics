@@ -1,12 +1,14 @@
 import { createHash, randomBytes, verify, type KeyObject } from 'node:crypto'
 import {
   closeSync,
+  constants,
   existsSync,
+  fstatSync,
   fsyncSync,
   lstatSync,
   mkdirSync,
   openSync,
-  readFileSync,
+  readSync,
   renameSync,
   rmSync,
   writeFileSync
@@ -20,8 +22,7 @@ import {
   signedManifestSchema,
   type AddonId,
   type AddonManifest,
-  type Platform,
-  type SignedManifest
+  type Platform
 } from './contract'
 import { normalizedImport, parseOfflineImport } from './offline'
 
@@ -116,10 +117,17 @@ export function sha256(value: string | Uint8Array): string {
   return createHash('sha256').update(value).digest('hex')
 }
 function compareVersion(a: string, b: string): number {
-  const first = a.split('.').map(BigInt),
-    second = b.split('.').map(BigInt)
-  for (let i = 0; i < 3; i++)
-    if (first[i] !== second[i]) return first[i] < second[i] ? -1 : 1
+  function parts(value: string) {
+    const split = value.split('.'),
+      [major, minor, patch] = split
+    if (split.length !== 3 || !major || !minor || !patch)
+      throw new AddonError('incompatible-package')
+    return { major: BigInt(major), minor: BigInt(minor), patch: BigInt(patch) }
+  }
+  const first = parts(a),
+    second = parts(b)
+  for (const part of ['major', 'minor', 'patch'] as const)
+    if (first[part] !== second[part]) return first[part] < second[part] ? -1 : 1
   return 0
 }
 function directory(path: string) {
@@ -129,10 +137,29 @@ function directory(path: string) {
     throw new AddonError('recoverable-storage')
 }
 function readBounded(path: string, maxBytes: number): Buffer {
-  const stat = lstatSync(path)
-  if (!stat.isFile() || stat.isSymbolicLink() || stat.size > maxBytes)
-    throw new AddonError('recoverable-storage')
-  return readFileSync(path)
+  // Open with symlink refusal, then inspect/read only this descriptor. Nonblocking
+  // open also prevents an unexpected FIFO from hanging before the file-type check.
+  const fd = openSync(
+    path,
+    constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK
+  )
+  try {
+    const stat = fstatSync(fd)
+    if (!stat.isFile() || stat.size > maxBytes)
+      throw new AddonError('recoverable-storage')
+    const bytes = Buffer.alloc(stat.size + 1)
+    let offset = 0
+    while (offset < bytes.length) {
+      const count = readSync(fd, bytes, offset, bytes.length - offset, offset)
+      if (count === 0) break
+      offset += count
+    }
+    if (offset !== stat.size || offset > maxBytes)
+      throw new AddonError('recoverable-storage')
+    return bytes.subarray(0, offset)
+  } finally {
+    closeSync(fd)
+  }
 }
 function syncDirectory(path: string) {
   if (process.platform === 'win32') return

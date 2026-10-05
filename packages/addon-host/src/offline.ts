@@ -134,13 +134,14 @@ export function summarizeWar(input: WarSummary) {
     points: 0
   }))
   for (const entry of input.battles) {
-    players[entry.attackerSlot - 1].battles += 1
-    players[entry.attackerSlot - 1].victories += Number(
-      entry.outcome === 'victory'
-    )
-    players[entry.attackerSlot - 1].points += entry.points
-    zones[entry.zone - 1].battles += 1
-    zones[entry.zone - 1].points += entry.points
+    const player = players[entry.attackerSlot - 1],
+      zone = zones[entry.zone - 1]
+    if (!player || !zone) throw new ImportError()
+    player.battles += 1
+    player.victories += Number(entry.outcome === 'victory')
+    player.points += entry.points
+    zone.battles += 1
+    zone.points += entry.points
   }
   return {
     provenance: 'locally-supplied-unverified' as const,
