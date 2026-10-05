@@ -41,7 +41,17 @@ export async function getDownloadsState(
     previewToken === undefined
       ? (await headers()).get('x-downloads-preview-token')
       : previewToken
-  const policy = downloadsPolicy(process.env, requestToken)
+  const policy = downloadsPolicy(
+    {
+      DOWNLOADS_ENABLED: process.env.DOWNLOADS_ENABLED,
+      DOWNLOADS_PREVIEW_ENABLED: process.env.DOWNLOADS_PREVIEW_ENABLED,
+      DOWNLOADS_PREVIEW_TOKEN: process.env.DOWNLOADS_PREVIEW_TOKEN,
+      DOWNLOADS_READY_PLATFORMS: process.env.DOWNLOADS_READY_PLATFORMS,
+      DOWNLOADS_REVOKED_RELEASE_IDS: process.env.DOWNLOADS_REVOKED_RELEASE_IDS,
+      DOWNLOADS_MIN_GENERATED_AT: process.env.DOWNLOADS_MIN_GENERATED_AT
+    },
+    requestToken
+  )
   if (!policy.enabled) return { status: 'disabled', channels: [], releases: [] }
   try {
     const path = process.env.DOWNLOADS_MANIFEST_PATH
