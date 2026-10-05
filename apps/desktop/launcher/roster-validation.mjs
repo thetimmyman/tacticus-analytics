@@ -1,6 +1,9 @@
 export const ROSTER_MAX_BYTES = 4 * 1024 * 1024
 const invalid = () =>
-  new Error('Unsupported roster data. Existing roster was preserved.')
+  Object.assign(
+    new Error('Unsupported roster data. Existing roster was preserved.'),
+    { code: 'EROSTER' }
+  )
 const object = (value) => {
   if (!value || typeof value !== 'object' || Array.isArray(value))
     throw invalid()
@@ -33,12 +36,15 @@ const list = (value, max, project, key) => {
     throw invalid()
   return result
 }
+// Validate storage bounds, not obsolete game-level caps. The upstream game can
+// increase levels independently of this application.
+const LEVEL_MAX = 32767
 const item = (value) => {
   const data = object(value)
   if (!['Slot1', 'Slot2', 'Slot3'].includes(data.slotId)) throw invalid()
   const result = {
     id: id(data.id),
-    level: integer(data.level, 1, 11),
+    level: integer(data.level, 1, LEVEL_MAX),
     slotId: data.slotId
   }
   if (data.name !== undefined) result.name = text(data.name)
@@ -57,18 +63,18 @@ const unit = (value) => {
   const data = object(value)
   const result = {
     id: id(data.id),
-    progressionIndex: integer(data.progressionIndex, 0, 15),
-    rank: integer(data.rank, 0, 17),
+    progressionIndex: integer(data.progressionIndex, 0, 19),
+    rank: integer(data.rank, 0, 23),
     xp: integer(data.xp, 0, 2147483647),
-    xpLevel: integer(data.xpLevel, 1, 50),
+    xpLevel: integer(data.xpLevel, 1, LEVEL_MAX),
     shards: integer(data.shards, 0, 2147483647),
     mythicShards: integer(data.mythicShards, 0, 2147483647),
     abilities: list(
       data.abilities,
-      2,
+      3,
       (ability) => {
         const a = object(ability)
-        return { id: id(a.id), level: integer(a.level, 0, 50) }
+        return { id: id(a.id), level: integer(a.level, 0, LEVEL_MAX) }
       },
       'id'
     ),

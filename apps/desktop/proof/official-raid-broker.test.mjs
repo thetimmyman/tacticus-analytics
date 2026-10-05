@@ -133,7 +133,7 @@ test('roster shape and secret echoes are refused without returning partial data'
       f.state.player.units.push({
         ...syntheticRosterUnit(),
         id: 'syntheticSecond',
-        xpLevel: 51
+        xpLevel: 32768
       })
     await assert.rejects(f.broker.currentRoster(), denied)
     assert.equal(f.state.records.size, 1)

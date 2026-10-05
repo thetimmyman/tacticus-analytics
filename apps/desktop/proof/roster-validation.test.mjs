@@ -32,7 +32,7 @@ test('malformed later unit refuses the complete projection', () => {
   input.units.push({
     ...syntheticRosterUnit(),
     id: 'syntheticSecond',
-    rank: 18
+    rank: 24
   })
   assert.throws(
     () => projectOfficialRoster(input),
@@ -42,24 +42,24 @@ test('malformed later unit refuses the complete projection', () => {
 
 test('numeric contract bounds, types, array sizes and duplicate keys are enforced', () => {
   for (const patch of [
-    { progressionIndex: 16 },
+    { progressionIndex: 20 },
     { progressionIndex: -1 },
     { rank: '15' },
     { xp: 2147483648 },
     { xp: -1 },
     { xpLevel: 0 },
-    { xpLevel: 51 },
+    { xpLevel: 32768 },
     { shards: 0.5 },
     { mythicShards: -1 },
     { id: 'https://example.invalid' },
-    { abilities: [{ id: 'syntheticActive', level: 51 }] },
+    { abilities: [{ id: 'syntheticActive', level: 32768 }] },
     {
       abilities: [
         { id: 'same', level: 1 },
         { id: 'same', level: 2 }
       ]
     },
-    { items: [{ id: 'syntheticItem', slotId: 'Slot1', level: 12 }] },
+    { items: [{ id: 'syntheticItem', slotId: 'Slot1', level: 32768 }] },
     { items: [{ id: 'syntheticItem', slotId: 'Slot4', level: 1 }] },
     {
       items: [
@@ -116,4 +116,27 @@ test('empty rosters are valid; ambiguous machine lists and invalid details are r
   assert.throws(() =>
     projectOfficialRoster({ ...player(), details: { name: '', powerLevel: 1 } })
   )
+})
+
+test('Mythic progression, later ranks and levels, and a third machine ability survive snapshot projection', () => {
+  const input = player()
+  Object.assign(input.units[0], { progressionIndex: 19, rank: 23, xpLevel: 55 })
+  input.units[0].abilities[0].level = 55
+  input.units[0].items[0].level = 12
+  input.machinesOfWar = [
+    {
+      ...syntheticRosterUnit(),
+      id: 'syntheticMow',
+      abilities: [
+        { id: 'syntheticActive', level: 55 },
+        { id: 'syntheticPassive', level: 50 },
+        { id: 'syntheticThird', level: 1 }
+      ]
+    }
+  ]
+  const projected = projectOfficialRoster(input)
+  assert.equal(projected.units[0].progressionIndex, 19)
+  assert.equal(projected.units[0].rank, 23)
+  assert.equal(projected.units[0].xpLevel, 55)
+  assert.equal(projected.machinesOfWar[0].abilities.length, 3)
 })

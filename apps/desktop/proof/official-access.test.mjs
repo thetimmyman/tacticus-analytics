@@ -139,3 +139,26 @@ test('hostile resource values fail validation and extra upstream fields are excl
   q.player.unrelated = { secret: 'synthetic-secret' }
   assert(!JSON.stringify(projectPlayerAccess(q)).includes('synthetic-secret'))
 })
+
+test('upstream refusal, throttling, server failure and transport failure are distinguished without echoing response data', async () => {
+  const key = randomUUID()
+  for (const [status, code] of [
+    [403, 'EUPSTREAMAUTH'],
+    [429, 'EUPSTREAMRATE'],
+    [503, 'EUPSTREAMSERVICE']
+  ])
+    await assert.rejects(
+      readOfficialAccess('/api/v1/player', key, {
+        fetch: async () => new Response(key, { status })
+      }),
+      (error) => error.code === code && !error.message.includes(key)
+    )
+  await assert.rejects(
+    readOfficialAccess('/api/v1/player', key, {
+      fetch: async () => {
+        throw new Error(key)
+      }
+    }),
+    (error) => error.code === 'ENETWORK' && !error.message.includes(key)
+  )
+})

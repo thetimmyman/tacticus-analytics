@@ -5,9 +5,12 @@ const upstream = 'https://api.tacticusgame.com'
 const paths = new Set(['/api/v1/player', '/api/v1/guild', '/api/v1/guildRaid'])
 const object = (value) =>
   value && typeof value === 'object' && !Array.isArray(value)
-const unavailable = () =>
-  new Error(
-    'API access could not be verified. Check the key, its scopes and your connection.'
+const unavailable = (code = 'EUPSTREAMDATA') =>
+  Object.assign(
+    new Error(
+      'API access could not be verified. Check the key, its scopes and your connection.'
+    ),
+    { code }
   )
 const number = (value, max) => {
   if (!Number.isSafeInteger(value) || value < 0 || value > max)
@@ -58,7 +61,7 @@ export async function readOfficialAccess(
     typeof key !== 'string' ||
     !/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(key)
   )
-    throw unavailable()
+    throw unavailable('EKEYFORMAT')
   const timeout = AbortSignal.timeout(20000)
   let response
   try {
@@ -70,6 +73,10 @@ export async function readOfficialAccess(
       cache: 'no-store',
       signal: signal ? AbortSignal.any([signal, timeout]) : timeout
     })
+    if (response.status === 401 || response.status === 403)
+      throw unavailable('EUPSTREAMAUTH')
+    if (response.status === 429) throw unavailable('EUPSTREAMRATE')
+    if (response.status >= 500) throw unavailable('EUPSTREAMSERVICE')
     if (
       !response.ok ||
       response.redirected ||
@@ -115,8 +122,19 @@ export async function readOfficialAccess(
     const result = JSON.parse(text)
     if (!object(result)) throw unavailable()
     return result
-  } catch {
-    throw unavailable()
+  } catch (error) {
+    if (
+      [
+        'EUPSTREAMDATA',
+        'EUPSTREAMAUTH',
+        'EUPSTREAMRATE',
+        'EUPSTREAMSERVICE'
+      ].includes(error.code)
+    )
+      throw error
+    throw unavailable(
+      error instanceof SyntaxError ? 'EUPSTREAMDATA' : 'ENETWORK'
+    )
   } finally {
     if (response?.body && !response.body.locked)
       await response.body.cancel().catch(() => {})

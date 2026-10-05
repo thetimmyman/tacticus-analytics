@@ -26,11 +26,19 @@ const state = join(
 const password = randomBytes(24).toString('hex')
 const quote = (value) => `'${String(value).replaceAll("'", "''")}'`
 let services, gateway, key, cron, broker
+let starts = 0
 const factory = createRequire(import.meta.url)(
   '../launcher/onboarding-menu.cjs'
 )
 async function start() {
-  services = await nativeServices({ ...config, state })
+  services = await nativeServices({
+    ...config,
+    state,
+    schemaDirectory:
+      starts++ === 0 && config.sourceSchemaDirectory
+        ? config.sourceSchemaDirectory
+        : config.schemaDirectory
+  })
   key = randomBytes(32).toString('hex')
   cron = randomBytes(32).toString('hex')
   broker = randomBytes(32).toString('hex')
@@ -197,7 +205,18 @@ const official = async (url, options) => {
     return fixtureResponse({
       player: {
         details: { name: 'Synthetic Player', powerLevel: 12345 },
-        units: [syntheticRosterUnit()],
+        units: [
+          {
+            ...syntheticRosterUnit(),
+            progressionIndex: 19,
+            rank: 23,
+            xpLevel: 55,
+            abilities: [
+              ...syntheticRosterUnit().abilities,
+              { id: 'syntheticThird', level: 55 }
+            ]
+          }
+        ],
         progress: {
           guildRaid: {
             tokens: { current: 2, max: 3, regenDelayInSeconds: 43200 },
@@ -247,6 +266,25 @@ try {
       })
     ).status,
     201
+  )
+  if (config.sourceSchemaDirectory) {
+    const before = await services.psql(
+      'SELECT md5((SELECT json_agg(t)::text FROM public.desktop_preview_setup t));'
+    )
+    await stop()
+    await start()
+    assert.equal(
+      await services.psql(
+        'SELECT md5((SELECT json_agg(t)::text FROM public.desktop_preview_setup t));'
+      ),
+      before
+    )
+    checks.push(
+      'existing native workspace upgrades to the Mythic roster schema without changing setup records'
+    )
+  }
+  await services.psql(
+    "INSERT INTO public.hero_mappings(id,unit_id,display_name) VALUES(1000001,'syntheticHero','Synthetic Reference Hero');"
   )
   const session = await login()
   currentToken = session.access_token
@@ -304,6 +342,16 @@ try {
   )
   await action('/desktop/connect-player')
   const personal = await status()
+  assert.equal(
+    (
+      await services.psql('SELECT progression_index FROM public.player_roster;')
+    ).trim(),
+    '19'
+  )
+  assert.equal(
+    (await services.psql('SELECT xp_level FROM public.player_roster;')).trim(),
+    '55'
+  )
   assert.equal(personal.playerReady, true)
   assert.equal(personal.guildReady, false)
   assert.equal(personal.tokens, 2)

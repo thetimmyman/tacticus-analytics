@@ -216,8 +216,24 @@ try {
     playerName: '<img src=x onerror=alert(1)>',
     powerLevel: 12345,
     units: [
-      syntheticRosterUnit(),
-      { ...syntheticRosterUnit(), id: 'syntheticSecond' }
+      {
+        ...syntheticRosterUnit(),
+        progressionIndex: 19,
+        rank: 23,
+        xpLevel: 55,
+        abilities: [
+          { id: 'syntheticActive', level: 55 },
+          { id: 'syntheticPassive', level: 30 }
+        ]
+      },
+      {
+        ...syntheticRosterUnit(),
+        id: 'syntheticSecond',
+        abilities: [
+          ...syntheticRosterUnit().abilities,
+          { id: 'syntheticThird', level: 1 }
+        ]
+      }
     ],
     machinesOfWar: []
   }
@@ -263,7 +279,7 @@ try {
         password,
         contents: JSON.stringify({
           ...snapshot,
-          units: [snapshot.units[0], { ...snapshot.units[1], xpLevel: 99 }]
+          units: [snapshot.units[0], { ...snapshot.units[1], xpLevel: 32768 }]
         })
       })
     ).status,
@@ -301,10 +317,13 @@ try {
   ).trim()
   assert.equal(rows.length, 2)
   assert.equal(rows[0].user_id, subject)
+  assert.equal(rows[0].stars, 19)
+  assert.equal(rows[0].progression_index, 19)
+  assert.equal(rows[0].rank_name, 'Mythic III')
   assert.equal(rows[0].xp, 1000)
-  assert.equal(rows[0].xp_level, 40)
+  assert.equal(rows[0].xp_level, 55)
   assert.equal(rows[0].shards, 100)
-  assert.equal(rows[0].active_ability_level, 35)
+  assert.equal(rows[0].active_ability_level, 55)
   assert.equal(rows[0].passive_ability_level, 30)
   assert.deepEqual(rows[0].upgrades, [0, 4])
   assert.equal(rows[0].player_mapping_id, null)
@@ -323,7 +342,7 @@ try {
   assert.equal(savedBody.source, 'official-own-key-local-claim')
   assert.equal(savedBody.playerName, snapshot.playerName)
   assert.equal(savedBody.units.length, 2)
-  assert.equal(savedBody.units[0].xpLevel, 40)
+  assert.equal(savedBody.units[0].xpLevel, 55)
   assert(Number.isFinite(Date.parse(savedBody.cachedAt)))
   evidence.checks.push(
     'actual authenticated roster API reads an empty or saved local cache without a hosted key or upstream game request'
@@ -357,7 +376,7 @@ try {
       `BEGIN; SELECT set_config('request.jwt.claims',${quote(JSON.stringify({ sub: who }))},true); SELECT public.desktop_save_roster(${quote(contents)}::jsonb,${quote(JSON.stringify(values))}::jsonb); COMMIT;`
     )
   await assert.rejects(
-    save(subject, [normalized[0], { ...normalized[1], xp_level: 99 }])
+    save(subject, [normalized[0], { ...normalized[1], xp_level: 32768 }])
   )
   await assert.rejects(save(randomUUID(), normalized))
   await assert.rejects(

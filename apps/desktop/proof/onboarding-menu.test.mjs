@@ -17,7 +17,7 @@ import { loadScopedConnections } from '../launcher/scoped-connections.mjs'
 const factory = createRequire(import.meta.url)(
   '../launcher/onboarding-menu.cjs'
 )
-async function fixture(run) {
+async function fixture(run, failure = null) {
   const state = await mkdtemp(join(tmpdir(), 'native-onboard-')),
     key = randomUUID(),
     installation = randomUUID(),
@@ -90,6 +90,11 @@ async function fixture(run) {
     })
   const fetch = async (url, options) => {
     calls.push(url)
+    if (failure && url.endsWith(failure.path))
+      return new Response('{}', {
+        status: failure.status,
+        headers: { 'content-type': 'application/json' }
+      })
     if (url.endsWith('/broker-context'))
       return response({ installation, guildCode: 'SYN01' })
     if (url === 'https://api.tacticusgame.com/api/v1/player')
@@ -155,6 +160,10 @@ async function fixture(run) {
         choice = value
       }
     })
+    assert(
+      !JSON.stringify(messages).includes(key),
+      'No key appears in error dialogs'
+    )
   } finally {
     await rm(state, { recursive: true, force: true })
   }
@@ -244,3 +253,34 @@ test('removing saved API keys authenticates the workspace, revokes the vault han
     )
     assert.deepEqual(f.prompts, ['player-api-key'])
   }))
+
+test('API rejection and local import failure have distinct messages and save no connection grant', async () => {
+  for (const failure of [
+    { path: '/api/v1/player', status: 403, expected: /Tacticus rejected/ },
+    { path: '/api/v1/player', status: 429, expected: /Tacticus is limiting/ },
+    {
+      path: '/import-player',
+      status: 400,
+      expected: /API access was verified, but saving/
+    }
+  ])
+    await fixture(async (f) => {
+      f.webContents.emit(
+        'will-navigate',
+        { preventDefault() {} },
+        'http://127.0.0.1:54321/desktop/connect-player'
+      )
+      for (
+        let i = 0;
+        i < 200 && !f.messages.some((m) => m.type === 'error');
+        i++
+      )
+        await delay(5)
+      assert.match(
+        f.messages.find((m) => m.type === 'error').message,
+        failure.expected
+      )
+      assert.equal(await loadScopedConnections(f.state), null)
+      assert.equal(f.loads, 0)
+    }, failure)
+})

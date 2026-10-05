@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 12,
+  "schemaVersion": 13,
   "purpose": "Selected native desktop analytics, local snapshot jobs and local file imports; not the complete application schema",
   "sourceCommit": "5d41a8776f3e216c04dae14d1bfa09fd48ca730a",
   "objects": [
