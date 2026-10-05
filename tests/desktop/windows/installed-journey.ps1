@@ -14,11 +14,12 @@ for ($iteration = 0; $iteration -lt 2; $iteration++) {
   @{ password = 'synthetic-local-password'; evidence = $renderer; screenshot = (Join-Path $env:RUNNER_TEMP "renderer-$iteration.png") } |
     ConvertTo-Json | Set-Content -Encoding utf8 $verify
   $runTimer = [System.Diagnostics.Stopwatch]::StartNew()
-  & "$installed/TacticusDesktop.exe" run-candidate $installed $workspace --verify $verify
+  $measurementPath = Join-Path $env:RUNNER_TEMP "measurement-$iteration.json"
+  & "$installed/TacticusDesktop.exe" run-candidate $installed $workspace --verify $verify --measurement $measurementPath
   if ($LASTEXITCODE -ne 0) { throw 'Installed complete application journey failed' }
   $result = Get-Content $renderer | ConvertFrom-Json
   if ($result.observed.nodeAccess -or -not $result.observed.text.Contains('+58%')) { throw 'Renderer result incorrect' }
-  $journeys += @{ iteration = $iteration; elapsedMs = $runTimer.ElapsedMilliseconds; sandbox = $result.sandbox; nodeAccess = $result.observed.nodeAccess }
+  $journeys += @{ iteration = $iteration; elapsedMs = $runTimer.ElapsedMilliseconds; nativeMeasurement = (Get-Content $measurementPath | ConvertFrom-Json); sandbox = $result.sandbox; nodeAccess = $result.observed.nodeAccess }
 }
 $manifest = Get-Content "$installed/bundle-manifest.json" | ConvertFrom-Json
 $recoveryPath = Join-Path $env:RUNNER_TEMP 'recovery-evidence.json'

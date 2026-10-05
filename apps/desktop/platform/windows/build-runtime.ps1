@@ -49,9 +49,19 @@ if ($LASTEXITCODE -ne 0) { throw 'Standalone application staging failed' }
 $native = Join-Path $work 'native'
 dotnet publish apps/desktop/platform/windows/native/WindowsHost.csproj -c Release -r win-x64 --self-contained true -p:DebugType=None -p:DebugSymbols=false -p:ContinuousIntegrationBuild=true -o $native
 if ($LASTEXITCODE -ne 0) { throw 'Native host publish failed' }
+$vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
+$vs = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+if (-not $vs) { throw 'Licensed build-tool redistributable payload unavailable' }
+$redist = Get-ChildItem -LiteralPath (Join-Path $vs 'VC/Redist/MSVC') -Directory | Sort-Object Name -Descending | Select-Object -First 1
+$crt = Get-ChildItem -LiteralPath (Join-Path $redist.FullName 'x64') -Directory | Where-Object { $_.Name -match '^Microsoft\.VC\d+\.CRT$' } | Select-Object -First 1
+if (-not $crt) { throw 'Application-local Microsoft CRT payload unavailable' }
+foreach ($dll in (Get-ChildItem -LiteralPath $crt.FullName -Filter '*.dll')) {
+  $signature = Get-AuthenticodeSignature -LiteralPath $dll.FullName
+  if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch 'CN=Microsoft Corporation,') { throw 'Microsoft CRT publisher validation failed' }
+}
 $config = @{
   output = $Output; application = $application; postgres = (Join-Path $pg 'pgsql'); node = (Join-Path $node 'node-v22.23.2-win-x64/node.exe')
-  electron = $electron; auth = $auth; postgrest = (Join-Path $rest 'postgrest.exe'); native = $native; sourceSha = (git rev-parse HEAD)
+  electron = $electron; auth = $auth; postgrest = (Join-Path $rest 'postgrest.exe'); native = $native; vcRuntime = $crt.FullName; sourceSha = (git rev-parse HEAD)
 }
 $configPath = Join-Path $work 'stage-config.json'
 $config | ConvertTo-Json | Set-Content -Encoding utf8 $configPath

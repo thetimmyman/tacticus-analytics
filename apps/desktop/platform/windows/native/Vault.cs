@@ -7,6 +7,9 @@ using System.Text.Json;
 
 namespace Desktop.Windows;
 
+internal sealed class SecureStoreUnavailable(string message) : InvalidOperationException(message);
+internal sealed class OfficialAccessUnavailable(string message) : InvalidOperationException(message);
+
 internal static class Vault
 {
     private const string Prefix = "TacticusDesktop/OfficialRead/v1/";
@@ -30,7 +33,7 @@ internal static class Vault
             var save = false;
             var result = CredUIPromptForCredentialsW(ref info, target, IntPtr.Zero, 0, user, 514,
                 password, 1024, ref save, 0x40000 | 0x80 | 0x2 | 0x100000);
-            if (result != 0) throw new InvalidOperationException("Native secure input cancelled or unavailable");
+            if (result != 0) throw new SecureStoreUnavailable("Native secure input cancelled or unavailable");
             var value = Marshal.PtrToStringUni(password) ?? "";
             if (value.Length is < 8 or > 512 || value.Any(char.IsControl)) throw new InvalidOperationException("Official credential unavailable");
             var bytes = Encoding.UTF8.GetBytes(value);
@@ -48,13 +51,13 @@ internal static class Vault
             Marshal.Copy(bytes, 0, pointer, bytes.Length);
             var credential = new Credential { Type = 1, Target = target, BlobSize = (uint)bytes.Length,
                 Blob = pointer, Persist = 2, User = "device-local" };
-            if (!CredWriteW(ref credential, 0)) throw new InvalidOperationException("Windows vault unavailable; no plaintext fallback");
+            if (!CredWriteW(ref credential, 0)) throw new SecureStoreUnavailable("Windows vault unavailable; no plaintext fallback");
         }
         finally { Marshal.Copy(new byte[bytes.Length], 0, pointer, bytes.Length); Marshal.FreeHGlobal(pointer); }
     }
     internal static byte[] Read(string target)
     {
-        if (!CredReadW(target, 1, 0, out var pointer)) throw new InvalidOperationException("Windows vault locked, disconnected or unavailable");
+        if (!CredReadW(target, 1, 0, out var pointer)) throw new SecureStoreUnavailable("Windows vault locked, disconnected or unavailable");
         try
         {
             var credential = Marshal.PtrToStructure<Credential>(pointer);
@@ -68,7 +71,7 @@ internal static class Vault
     internal static void Remove(string target)
     {
         if (!CredDeleteW(target, 1, 0) && Marshal.GetLastWin32Error() != 1168)
-            throw new InvalidOperationException("Windows vault removal unavailable");
+            throw new SecureStoreUnavailable("Windows vault removal unavailable");
     }
     public static async Task<string> ReadOfficial(string handle, string scope)
     {
@@ -83,20 +86,20 @@ internal static class Vault
             using var request = new HttpRequestMessage(HttpMethod.Get, "https://api.tacticusgame.com/api/v1/" + path);
             request.Headers.Add("X-API-KEY", secret); request.Headers.Add("Accept", "application/json");
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-            if (!response.IsSuccessStatusCode) throw new InvalidOperationException("Official access expired, revoked or unavailable");
+            if (!response.IsSuccessStatusCode) throw new OfficialAccessUnavailable("Official access expired, revoked or unavailable");
             using var stream = await response.Content.ReadAsStreamAsync();
             using var output = new MemoryStream();
             var buffer = new byte[8192];
             int count;
             while ((count = await stream.ReadAsync(buffer)) != 0)
             {
-                if (output.Length + count > 4 * 1024 * 1024) throw new InvalidOperationException("Official response limit");
+                if (output.Length + count > 4 * 1024 * 1024) throw new OfficialAccessUnavailable("Official response limit");
                 output.Write(buffer, 0, count);
             }
             var body = Encoding.UTF8.GetString(output.ToArray());
             RejectEcho(body, secret, bytes);
             using var json = JsonDocument.Parse(body);
-            if (json.RootElement.ValueKind != JsonValueKind.Object) throw new InvalidOperationException("Official response unavailable");
+            if (json.RootElement.ValueKind != JsonValueKind.Object) throw new OfficialAccessUnavailable("Official response unavailable");
             RejectJsonEcho(json.RootElement, secret, bytes);
             return body;
         }
@@ -107,7 +110,7 @@ internal static class Vault
         foreach (var value in new[] { secret, Convert.ToBase64String(bytes), Convert.ToHexString(bytes),
                      Convert.ToHexString(bytes).ToLowerInvariant(), Uri.EscapeDataString(secret),
                      Convert.ToBase64String(bytes).TrimEnd('=').Replace('+', '-').Replace('/', '_') })
-            if (body.Contains(value, StringComparison.Ordinal)) throw new InvalidOperationException("Unsafe official response");
+            if (body.Contains(value, StringComparison.Ordinal)) throw new OfficialAccessUnavailable("Unsafe official response");
     }
     internal static void RejectJsonEcho(JsonElement element, string secret, byte[] bytes)
     {

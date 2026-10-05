@@ -32,8 +32,15 @@ internal static class Program
                     using var job = new JobOwner();
                     var script = Path.Combine(root, "apps", "desktop", "platform", "windows", "launch.mjs");
                     var command = new[] { script, "--state", state.Root }.Concat(args.Skip(3));
+                    var timer = Stopwatch.StartNew();
                     using var process = job.Start(Path.Combine(root, "bin", "node.exe"), command, root);
-                    return process.Wait();
+                    var code = process.Wait();
+                    var measurement = Array.IndexOf(args, "--measurement");
+                    if (measurement >= 0 && measurement + 1 < args.Length)
+                        File.WriteAllText(args[measurement + 1], JsonSerializer.Serialize(new { sourceSha = Bundle.Load(root).SourceSha,
+                            elapsedMs = timer.ElapsedMilliseconds, peakJobCommittedBytes = job.PeakCommittedBytes() is var peak && peak > 0 ? (long?)peak : null, exitCode = code,
+                            metric = "Windows Job Object peak committed memory; not RSS" }));
+                    return code;
                 }
                 case "prompt-official" when args.Length == 1:
                     Console.WriteLine(JsonSerializer.Serialize(new { handle = Vault.PromptOfficial() })); return 0;
@@ -75,7 +82,7 @@ internal static class Program
         {
             // Failure text is deliberately bounded: upstream bodies, command lines and credentials are never logged.
             Console.Error.WriteLine(error is InvalidOperationException ? error.Message : "Native operation failed. Check secure input/store availability, package integrity, workspace ownership and supported platform.");
-            return 1;
+            return error is SecureStoreUnavailable ? 2 : error is OfficialAccessUnavailable ? 3 : 1;
         }
     }
     [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]

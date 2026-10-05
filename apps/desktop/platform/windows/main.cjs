@@ -14,6 +14,29 @@ app.setPath('userData', join(config.state, 'browser'))
 app
   .whenReady()
   .then(async () => {
+    const { currentWorkspaceToken } =
+      await import('../../launcher/workspace-session.mjs')
+    process.on('message', async (message) => {
+      if (
+        !message ||
+        message.operation !== 'workspace-session' ||
+        typeof message.nonce !== 'string' ||
+        !/^[a-f0-9-]{36}$/.test(message.nonce)
+      )
+        return
+      let token = null
+      try {
+        token = currentWorkspaceToken(
+          await session.defaultSession.cookies.get({ url: origin })
+        )
+      } catch {}
+      if (process.connected)
+        process.send({
+          operation: 'workspace-session',
+          nonce: message.nonce,
+          token
+        })
+    })
     session.defaultSession.setPermissionRequestHandler(
       (_contents, _permission, callback) => callback(false)
     )
@@ -68,7 +91,7 @@ app
           { mode: 0o600 }
         )
       await window.webContents.executeJavaScript(
-        `document.querySelector('#password').value=${JSON.stringify(config.verify.password)}; document.querySelector('#sample').checked=true; document.querySelector('form').requestSubmit();`
+        `document.querySelector('#password').value=${JSON.stringify(config.verify.password)}; document.querySelector('#sample').checked=true; document.querySelector('#demo').requestSubmit();`
       )
       for (let i = 0; i < 250; i++) {
         await new Promise((accept) => setTimeout(accept, 100))
@@ -83,7 +106,15 @@ app
       const observed = await window.webContents.executeJavaScript(
         `({text:document.body.innerText,nodeAccess:typeof require!=='undefined'||typeof process!=='undefined'})`
       )
+      const sessionStatus = await window.webContents.executeJavaScript(
+        `(async()=>{const response=await fetch('/desktop/official-state');return response.status})()`
+      )
+      if (sessionStatus !== 200)
+        throw new Error(
+          'Native coordinator could not reuse the authenticated workspace session'
+        )
       const evidence = {
+        workspaceSessionReuse: true,
         observed,
         failures,
         blocked,
@@ -112,7 +143,11 @@ app
         blocked.length ||
         failures.some(
           (failure) =>
-            !(failure.path === '/api/guild-tokens' && failure.status === 403)
+            !(failure.path === '/api/guild-tokens' && failure.status === 403) &&
+            !(
+              failure.path === '/desktop/official-state' &&
+              failure.status === 401
+            )
         )
       )
         throw new Error('Unexpected packaged renderer request failure')

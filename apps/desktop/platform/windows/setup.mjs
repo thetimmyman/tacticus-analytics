@@ -1,11 +1,35 @@
-import { readFile } from 'node:fs/promises'
+import { readFile, writeFile, rename } from 'node:fs/promises'
 import { join } from 'node:path'
 import { workspaceSetup } from '../../launcher/workspace.mjs'
 import { windowsOnboarding } from './onboarding.mjs'
 import { nativeCommand } from './native-command.mjs'
+import { randomUUID } from 'node:crypto'
+import { workspaceGate } from './session-gate.mjs'
 
-export function windowsSetup(services, assets, launcherAssets) {
-  const onboarding = windowsOnboarding(services.state)
+export function windowsSetup(services, assets, launcherAssets, session) {
+  const ownerFile = join(services.state, 'workspace-owner.json')
+  const readOwner = async () => {
+    try {
+      const subject = JSON.parse(await readFile(ownerFile, 'utf8')).subject
+      if (!/^[a-f0-9-]{36}$/.test(subject))
+        throw new Error('Local owner binding is unavailable')
+      return subject
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error
+    }
+    const subject = (
+      await services.psql(
+        'SELECT subject_user_id FROM public.desktop_preview_setup LIMIT 1;'
+      )
+    ).trim()
+    return /^[a-f0-9-]{36}$/.test(subject) ? subject : null
+  }
+  const gate = workspaceGate({ services, ...session, owner: readOwner })
+  const onboarding = windowsOnboarding(
+    services.state,
+    nativeCommand,
+    gate.assertCurrent
+  )
   const synthetic = workspaceSetup(services, launcherAssets)
   let confirming = false
   return async (req, res, url) => {
@@ -40,20 +64,126 @@ export function windowsSetup(services, assets, launcherAssets) {
       res.end(await readFile(join(assets, url.pathname.split('/').at(-1))))
       return true
     }
+    if (req.method === 'POST' && url.pathname === '/desktop/workspace-access') {
+      if (confirming) {
+        json(409, { error: 'Setup is already running' })
+        return true
+      }
+      confirming = true
+      try {
+        const chunks = []
+        let size = 0
+        for await (const chunk of req) {
+          size += chunk.length
+          if (size > 2048) throw new Error('Request limit')
+          chunks.push(chunk)
+        }
+        const input = JSON.parse(Buffer.concat(chunks).toString('utf8'))
+        if (
+          !input ||
+          Object.keys(input).some((key) => key !== 'password') ||
+          typeof input.password !== 'string' ||
+          input.password.length < 12 ||
+          input.password.length > 128
+        )
+          throw new Error(
+            'Use a local workspace password of 12–128 characters.'
+          )
+        if (!(await readOwner())) {
+          const response = await fetch(
+            `http://127.0.0.1:${services.ports.auth}/admin/users`,
+            {
+              method: 'POST',
+              redirect: 'error',
+              signal: AbortSignal.timeout(10000),
+              headers: {
+                'content-type': 'application/json',
+                authorization: `Bearer ${services.token.service}`
+              },
+              body: JSON.stringify({
+                email: 'desktop@localhost.invalid',
+                password: input.password,
+                email_confirm: true
+              })
+            }
+          )
+          if (!response.ok)
+            throw new Error('Local workspace creation is unavailable.')
+          const account = await response.json()
+          if (!/^[a-f0-9-]{36}$/.test(account.id))
+            throw new Error('Local account binding is unavailable.')
+          const temporary = `${ownerFile}.${randomUUID()}.tmp`
+          await writeFile(
+            temporary,
+            JSON.stringify({ subject: account.id, kind: 'personal-holding' }),
+            { flag: 'wx', flush: true }
+          )
+          await rename(temporary, ownerFile)
+        }
+        json(200, { email: 'desktop@localhost.invalid', playerRequired: true })
+      } catch {
+        json(409, {
+          error:
+            'Local workspace access is unavailable. Use your existing local password or retry creation.'
+        })
+      } finally {
+        confirming = false
+      }
+      return true
+    }
+    const protectedOperation =
+      url.pathname === '/desktop/official-state' ||
+      [
+        '/desktop/export-personal',
+        '/desktop/import-personal',
+        '/desktop/connect-official',
+        '/desktop/skip-optional'
+      ].includes(url.pathname) ||
+      url.pathname.startsWith('/desktop/disconnect/')
+    if (protectedOperation) {
+      try {
+        return await gate.run(() => official(req, res, url, json))
+      } catch (error) {
+        json(error.code === 'ESESSION' ? 401 : 503, {
+          error:
+            error.code === 'ESESSION'
+              ? error.message
+              : 'Local authorization service is unavailable.',
+          code: error.code === 'ESESSION' ? 'ESESSION' : 'EAUTH'
+        })
+        return true
+      }
+    }
+    // Demo is an explicit synthetic route, separate from the personal experience.
+    if (url.pathname === '/desktop/demo-setup') {
+      try {
+        await readFile(ownerFile)
+        json(409, {
+          error: 'A personal workspace exists. Use its local unlock.'
+        })
+        return true
+      } catch (error) {
+        if (error.code !== 'ENOENT') throw error
+      }
+      return synthetic(req, res, new URL('/desktop/setup', url))
+    }
+    return synthetic(req, res, url)
+  }
+  async function official(req, res, url, json) {
     if (req.method === 'GET' && url.pathname === '/desktop/official-state') {
       json(200, onboarding.view())
       return true
     }
     if (req.method === 'POST' && url.pathname === '/desktop/export-personal') {
       try {
-        json(
-          200,
-          await nativeCommand(
-            ['export-personal'],
-            JSON.stringify(onboarding.view())
-          )
+        const exported = await nativeCommand(
+          ['export-personal'],
+          JSON.stringify(onboarding.view())
         )
-      } catch {
+        gate.assertCurrent()
+        json(200, exported)
+      } catch (error) {
+        if (error.code === 'ESESSION') throw error
         json(503, {
           error: 'Native file choice or protected export is unavailable.'
         })
@@ -62,7 +192,9 @@ export function windowsSetup(services, assets, launcherAssets) {
     }
     if (req.method === 'POST' && url.pathname === '/desktop/import-personal') {
       try {
-        onboarding.migrateHistorical(await nativeCommand(['import-personal']))
+        const imported = await nativeCommand(['import-personal'])
+        gate.assertCurrent()
+        onboarding.migrateHistorical(imported)
         json(200, onboarding.view())
       } catch {
         json(409, {
@@ -120,10 +252,15 @@ export function windowsSetup(services, assets, launcherAssets) {
             (await nativeCommand(['confirm-player', displayName])).confirmed
         })
         json(200, view)
-      } catch {
+      } catch (error) {
+        if (error.code === 'ESESSION') throw error
         json(503, {
           error:
-            'Secure official access unavailable. Retained data can be read offline.'
+            error.code === 'EKEYRING'
+              ? 'Windows secure input or vault is unavailable. Unlock the Windows vault and retry.'
+              : error.code === 'EUPSTREAM'
+                ? 'Official access is invalid or expired. Replace the official key or retry later.'
+                : 'Official access is unavailable. Retained data can be read offline after local unlock.'
         })
       } finally {
         confirming = false
@@ -158,10 +295,7 @@ export function windowsSetup(services, assets, launcherAssets) {
       }
       return true
     }
-    // Demo is an explicit synthetic route, separate from the personal experience.
-    if (url.pathname === '/desktop/demo-setup') {
-      return synthetic(req, res, new URL('/desktop/setup', url))
-    }
-    return synthetic(req, res, url)
+    json(405, { error: 'Unsupported operation' })
+    return true
   }
 }

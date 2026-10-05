@@ -1,5 +1,11 @@
 const status = document.querySelector('#status')
 async function refresh(value) {
+  if (value.code === 'ESESSION') {
+    status.textContent = value.error
+    return
+  }
+  if (!value.capabilities)
+    throw new Error(value.error ?? 'Local state is unavailable.')
   document.querySelector('#personal').textContent = JSON.stringify(
     value.personal ?? 'Player access required',
     null,
@@ -42,6 +48,36 @@ for (const [id, operation] of [
     }
   })
 }
+document.querySelector('#unlock').addEventListener('submit', async (event) => {
+  event.preventDefault()
+  const field = document.querySelector('#workspace-password')
+  try {
+    const response = await fetch('/desktop/workspace-access', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ password: field.value })
+    })
+    const value = await response.json()
+    if (!response.ok) throw new Error(value.error)
+    const login = await fetch('/api/auth/login', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        email: value.email,
+        password: field.value,
+        rememberMe: true
+      })
+    })
+    if (!login.ok)
+      throw new Error('Local unlock failed. Check your workspace password.')
+    await refresh(await (await fetch('/desktop/official-state')).json())
+  } catch (error) {
+    status.textContent = error.message
+  } finally {
+    field.value = ''
+  }
+})
 document.querySelector('#demo').addEventListener('submit', async (event) => {
   event.preventDefault()
   const response = await fetch('/desktop/demo-setup', {

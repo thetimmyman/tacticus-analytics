@@ -36,7 +36,16 @@ export async function nativeCommand(args, input) {
     child.once('exit', accept)
   })
   if (code !== 0 || size > 4 * 1024 * 1024)
-    throw new Error('Native secure operation unavailable')
+    throw Object.assign(
+      new Error(
+        code === 2
+          ? 'Windows secure input or vault is unavailable.'
+          : code === 3
+            ? 'Official access is invalid, expired or unavailable.'
+            : 'Native secure operation unavailable'
+      ),
+      { code: code === 2 ? 'EKEYRING' : code === 3 ? 'EUPSTREAM' : 'ENATIVE' }
+    )
   const body = Buffer.concat(chunks).toString('utf8').trim()
   return body ? JSON.parse(body) : null
 }

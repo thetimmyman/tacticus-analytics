@@ -1,5 +1,10 @@
 import { spawn } from 'node:child_process'
-import { createHmac, createHash, randomUUID } from 'node:crypto'
+import {
+  createHmac,
+  createHash,
+  randomUUID,
+  timingSafeEqual
+} from 'node:crypto'
 import { createServer } from 'node:net'
 import { mkdir, readFile, writeFile, stat } from 'node:fs/promises'
 import { nativeCommand } from './native-command.mjs'
@@ -47,6 +52,31 @@ async function run(file, args, options) {
   })
   return stdout
 }
+export function validOwnerSession(value, subject, key) {
+  try {
+    if (typeof value !== 'string' || value.length > 16384) return false
+    const [header, payload, signature, extra] = value.split('.')
+    if (extra || !header || !payload || !signature) return false
+    const metadata = JSON.parse(Buffer.from(header, 'base64url'))
+    const claims = JSON.parse(Buffer.from(payload, 'base64url'))
+    const expected = createHmac('sha256', key)
+      .update(`${header}.${payload}`)
+      .digest()
+    const supplied = Buffer.from(signature, 'base64url')
+    return (
+      metadata.alg === 'HS256' &&
+      supplied.length === expected.length &&
+      timingSafeEqual(supplied, expected) &&
+      claims.sub === subject &&
+      claims.role === 'authenticated' &&
+      Number.isFinite(claims.exp) &&
+      claims.exp > Math.floor(Date.now() / 1000)
+    )
+  } catch {
+    return false
+  }
+}
+
 export async function nativeServices({
   state,
   binaries,
@@ -161,11 +191,24 @@ export async function nativeServices({
         await unlink(path).catch(() => {})
       }
     }
-    const launch = (file, args, env, cwd = state, ephemeral = false, input) => {
+    const launch = (
+      file,
+      args,
+      env,
+      cwd = state,
+      ephemeral = false,
+      input,
+      ipc = false
+    ) => {
       const child = spawn(file, args, {
         cwd,
         env: { ...process.env, ...env },
-        stdio: [input ? 'pipe' : 'ignore', 'pipe', 'pipe'],
+        stdio: [
+          input ? 'pipe' : 'ignore',
+          'pipe',
+          'pipe',
+          ...(ipc ? ['ipc'] : [])
+        ],
         windowsHide: true
       })
       // Service bodies may contain local secrets/data: drain without writing them to diagnostics.
@@ -335,6 +378,8 @@ export async function nativeServices({
       state,
       ports,
       token,
+      validOwnerSession: (value, subject) =>
+        validOwnerSession(value, subject, credentials.jwt),
       psql,
       launch,
       children,

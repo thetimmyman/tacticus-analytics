@@ -18,6 +18,23 @@
         The next step opens Windows secure input. Official keys stay in the
         Windows vault. Cloud contribution requires separate consent.
       </p>
+      <form id="unlock">
+        <label
+          >Local workspace password
+          <input
+            id="workspace-password"
+            type="password"
+            minlength="12"
+            maxlength="128"
+            autocomplete="current-password"
+            required
+        /></label>
+        <button>Create or unlock local workspace</button>
+      </form>
+      <p>
+        Unlock once for API setup and sync. Your workspace password is separate
+        from your official API key.
+      </p>
       <button id="connect">Connect official API</button>
       <button id="guild">Add Guild access</button
       ><button id="raid">Add Guild Raid access</button>
@@ -32,8 +49,8 @@
         <pre id="personal">
 Player access is required for a new personal workspace.</pre>
         <p>
-          Validated roster and raid resources appear here. Applying this
-          projection throughout the application remains an integration gate.
+          Your validated roster and available official resources appear here.
+          Previously synced data remains readable offline after local unlock.
         </p>
       </section>
       <section>

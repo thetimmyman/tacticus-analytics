@@ -7,6 +7,7 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { nativeServices } from './services.mjs'
 import { loopbackGateway } from '../../proof/loopback-gateway.mjs'
 import { windowsSetup } from './setup.mjs'
+import { currentSessionChannel } from './session-gate.mjs'
 import { strict as assert } from 'node:assert'
 import { recoveryJourney } from './recovery.mjs'
 
@@ -44,13 +45,16 @@ if (option('--recovery')) {
 let gateway
 try {
   const transportKey = randomBytes(32).toString('hex')
+  const brokerToken = randomBytes(32).toString('hex')
+  const sessionChannel = currentSessionChannel()
   gateway = await loopbackGateway({
     services,
     transportKey,
     handleLocalRequest: windowsSetup(
       services,
       here,
-      join(root, 'apps/desktop/launcher')
+      join(root, 'apps/desktop/launcher'),
+      { brokerToken, currentToken: () => sessionChannel.token() }
     )
   })
   const listener = createServer()
@@ -155,8 +159,10 @@ try {
     },
     state,
     true,
-    config
+    config,
+    true
   )
+  sessionChannel.attach(window)
   const code = await new Promise((accept, reject) => {
     window.once('exit', accept)
     window.once('error', reject)

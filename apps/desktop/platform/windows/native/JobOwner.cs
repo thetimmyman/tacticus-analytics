@@ -50,6 +50,12 @@ internal sealed class JobOwner : IDisposable
         return result.ToString();
     }
     public void Dispose() => job.Dispose();
+    public long PeakCommittedBytes()
+    {
+        var limits = new ExtendedLimit();
+        if (!QueryInformationJobObject(job, 9, ref limits, (uint)Marshal.SizeOf<ExtendedLimit>(), IntPtr.Zero)) throw new Win32Exception();
+        return checked((long)limits.PeakJobMemory.ToUInt64());
+    }
     [StructLayout(LayoutKind.Sequential)] private struct BasicLimit
     {
         public long ProcessTime, JobTime; public uint Flags;
@@ -72,6 +78,8 @@ internal sealed class JobOwner : IDisposable
     private static extern SafeFileHandle CreateJobObjectW(IntPtr attributes, string? name);
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern bool SetInformationJobObject(SafeFileHandle job, int infoClass, ref ExtendedLimit limits, uint size);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool QueryInformationJobObject(SafeFileHandle job, int infoClass, ref ExtendedLimit limits, uint size, IntPtr returned);
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern bool CreateProcessW(string application, StringBuilder command, IntPtr processAttributes,
         IntPtr threadAttributes, bool inheritHandles, uint flags, IntPtr environment, string cwd, ref Startup startup, out ProcessInfo info);
