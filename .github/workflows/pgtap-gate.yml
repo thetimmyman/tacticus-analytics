@@ -10,7 +10,6 @@ on:
       - 'scripts/dev/pgtap-throwaway.sh'
       - 'scripts/dev/pgtap-negative-controls.sh'
       - 'scripts/dev/pgtap-controls/**'
-      - 'scripts/dev/catalog-owner-controls.sh'
       - '.github/workflows/pgtap-gate.yml'
   push:
     branches: [main]
@@ -19,7 +18,6 @@ on:
       - 'scripts/dev/pgtap-throwaway.sh'
       - 'scripts/dev/pgtap-negative-controls.sh'
       - 'scripts/dev/pgtap-controls/**'
-      - 'scripts/dev/catalog-owner-controls.sh'
       - '.github/workflows/pgtap-gate.yml'
   schedule:
     - cron: '41 6 * * *'
@@ -52,8 +50,6 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-      - name: Prepare cached image for offline catalog owner controls
-        run: docker pull postgres:16-alpine
       # Reclaim pgtap-* orphans older than 2h (past the job timeout, so never a live run's).
       - name: Reclaim stale pgTAP containers from interrupted runs
         run: |
@@ -67,7 +63,5 @@ jobs:
           done
       - name: Negative controls (must fail before the roster is trusted)
         run: npm run test:pgtap:controls
-      - name: Catalog owner compatibility controls
-        run: npm run test:catalog-owner
       - name: Roster run
         run: npm run test:pgtap

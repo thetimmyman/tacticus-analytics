@@ -43,8 +43,10 @@ cp .env.compose.example .env.local
 
 For the repository's local Supabase CLI instance, `npm run supabase:start` and
 `npm run supabase:status` run on the host. Use the reported anon and service
-role keys in `.env.local`. A remote development Supabase instance also works
-when its URL and keys are reachable from both the browser and Docker host.
+role keys in `.env.local`. Keep both Supabase URLs on one of the local hosts
+in `.app-identity.json` (`localhost`, `127.0.0.1`, or `host.docker.internal`);
+`npm run dev`'s `predev` identity check rejects any other host, including a
+remote `*.supabase.co` project, before Next.js starts.
 
 Launch and stop the web-plus-Redis services with:
 

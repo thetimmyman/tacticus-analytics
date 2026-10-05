@@ -48,7 +48,6 @@
     "test:e2e:signin": "playwright test tests/e2e/auth-form-login.spec.ts",
     "test:pgtap:controls": "bash scripts/dev/pgtap-negative-controls.sh",
     "test:pgtap": "bash scripts/dev/pgtap-throwaway.sh --roster supabase/tests/pgtap/suites.txt",
-    "test:catalog-owner": "bash scripts/dev/catalog-owner-controls.sh",
     "test:integration:replay": "bash scripts/dev/integration-replay-stack.sh",
     "test:edge": "deno test --no-config --allow-env --allow-read --allow-write supabase/functions",
     "test:watch": "vitest",

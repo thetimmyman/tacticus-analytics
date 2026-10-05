@@ -25,35 +25,25 @@ DECLARE
   relation_count integer;
   relation_shared boolean;
   relation_owner text;
-  relation_owner_super boolean;
   public_select boolean;
 BEGIN
-  SELECT count(c.oid)::integer,
+  SELECT count(*)::integer,
          bool_and(c.relisshared),
-         min(owner_role.rolname),
-         bool_and(owner_role.rolsuper)
-    INTO relation_count, relation_shared, relation_owner, relation_owner_super
+         min(pg_catalog.pg_get_userbyid(c.relowner))
+    INTO relation_count, relation_shared, relation_owner
     FROM pg_catalog.pg_class AS c
     JOIN pg_catalog.pg_namespace AS n ON n.oid = c.relnamespace
-    LEFT JOIN pg_catalog.pg_roles AS owner_role ON owner_role.oid = c.relowner
    WHERE n.nspname = 'pg_catalog'
      AND c.relname = 'pg_db_role_setting';
 
-  IF relation_count IS DISTINCT FROM 1
+  IF relation_count <> 1
      OR relation_shared IS DISTINCT FROM true
-     OR (
-       relation_owner IS DISTINCT FROM 'postgres'
-       AND NOT (
-         relation_owner IS NOT DISTINCT FROM 'supabase_admin'
-         AND relation_owner_super IS TRUE
-       )
-     ) THEN
+     OR relation_owner IS DISTINCT FROM 'postgres' THEN
     RAISE EXCEPTION
-      'WI-8360 unexpected pg_db_role_setting identity (count %, shared %, owner %, owner superuser %)',
+      'WI-8360 unexpected pg_db_role_setting identity (count %, shared %, owner %)',
       relation_count,
       relation_shared,
-      relation_owner,
-      relation_owner_super;
+      relation_owner;
   END IF;
 
   SELECT EXISTS (
