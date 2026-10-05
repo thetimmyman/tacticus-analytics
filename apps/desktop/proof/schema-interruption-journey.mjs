@@ -66,10 +66,11 @@ async function run(mode) {
   const controller = new AbortController()
   const activation = nativeServices(updated, { signal: controller.signal })
   let activationError
+  let activationResult
   // Attach immediately: a startup failure must not become an unhandled rejection.
   const settled = activation.then(
-    (value) => ({ value }),
-    (error) => ({ error })
+    (value) => (activationResult = { value }),
+    (error) => (activationResult = { error })
   )
   async function query(sql) {
     const lines = (
@@ -120,14 +121,20 @@ async function run(mode) {
     })
   }
   try {
-    const deadline = Date.now() + 30000
+    // Checkpoint fsync precedes database startup and may exceed the pause budget.
+    // Start that budget only after a real control connection succeeds.
+    const startupDeadline = Date.now() + 90000
+    let pauseDeadline
     let sleeping = false
-    while (Date.now() < deadline) {
+    while (Date.now() < (pauseDeadline ?? startupDeadline)) {
+      if (activationResult?.error) throw activationResult.error
+      if (activationResult?.value) break
       try {
-        sleeping =
-          (await query(
-            "SELECT count(*) FROM pg_stat_activity WHERE wait_event='PgSleep';"
-          )) === '1'
+        const count = await query(
+          "SELECT count(*) FROM pg_stat_activity WHERE wait_event='PgSleep';"
+        )
+        pauseDeadline ??= Date.now() + 30000
+        sleeping = count === '1'
       } catch {}
       if (sleeping) break
       await delay(100)
@@ -142,6 +149,11 @@ async function run(mode) {
     if (mode === 'before-commit')
       assert.equal(activationError.name, 'AbortError')
     else assert.equal(activationError.code, 'EACCES')
+  } catch (error) {
+    controller.abort()
+    const result = await settled
+    if (result.value) await result.value.stop()
+    throw error
   } finally {
     await chmod(state, 0o700)
   }
