@@ -11,7 +11,13 @@ export interface OfficialRosterUnit {
   mythicShards: number
   abilities: Array<{ id: string; level: number }>
   upgrades: number[]
-  items: Array<{ id: string; slotId: 'Slot1' | 'Slot2' | 'Slot3'; level: number; name?: string; rarity?: string }>
+  items: Array<{
+    id: string
+    slotId: 'Slot1' | 'Slot2' | 'Slot3'
+    level: number
+    name?: string
+    rarity?: string
+  }>
 }
 export interface OfficialRosterProjection {
   playerName: string
@@ -21,4 +27,9 @@ export interface OfficialRosterProjection {
 }
 export const ROSTER_MAX_BYTES: number
 export function projectOfficialRoster(value: unknown): OfficialRosterProjection
-export function parseRosterSnapshot(contents: string): OfficialRosterProjection & { format: 'ta-official-roster-v1'; guildCode: string }
+export function parseRosterSnapshot(
+  contents: string
+): OfficialRosterProjection & {
+  format: 'ta-official-roster-v1'
+  guildCode: string
+}
