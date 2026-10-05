@@ -13,9 +13,11 @@ private final class SyntheticVault: OfficialCredentialVault {
 private final class SyntheticOfficialSource: OfficialSource {
     var responses: [OfficialScope: Data]
     var requested: [OfficialScope] = []
+    var delayNanoseconds: UInt64 = 0
     init(responses: [OfficialScope: Data]) { self.responses = responses }
     func read(_ scope: OfficialScope, credential: String) async throws -> Data {
         requested.append(scope)
+        if delayNanoseconds > 0 { try await Task.sleep(nanoseconds: delayNanoseconds) }
         guard let data = responses[scope] else { throw WorkspaceError.unavailable }; return data
     }
     static func fixtures(guild: String = "synthetic-guild", name: String = "Example Player", expiry: Double = Date().timeIntervalSince1970 + 3600) throws -> [OfficialScope: Data] {
@@ -199,6 +201,19 @@ private final class SyntheticOfficialSource: OfficialSource {
         XCTAssertEqual(try store.read().player?.displayName, "Different Example")
         XCTAssertEqual(try store.read().raids, original.raids)
         XCTAssertEqual(vault.values.count, 1)
+    }
+    func testInterruptedSetupRetainsDataAndDoesNotSaveLateCapabilities() async throws {
+        try store.write(.demo)
+        let vault = SyntheticVault(); let source = SyntheticOfficialSource(responses: try SyntheticOfficialSource.fixtures())
+        source.delayNanoseconds = 1_000_000_000
+        let supervisor = ConnectionSupervisor(store: store, vault: vault, source: source)
+        let operation = Task { try await supervisor.connect(credential: "synthetic-interrupted-value") { _, _ in true } }
+        await Task.yield(); operation.cancel()
+        do { try await operation.value; XCTFail("Cancelled setup completed") } catch {}
+        XCTAssertEqual(try store.read(), .demo)
+        XCTAssertTrue(try store.capabilities().isEmpty)
+        XCTAssertTrue(vault.values.isEmpty)
+        XCTAssertLessThanOrEqual(source.requested.count, 1)
     }
 }
 

@@ -26,6 +26,7 @@ final class DeviceOfficialSource: OfficialSource {
     }
     deinit { session.invalidateAndCancel() }
     func read(_ scope: OfficialScope, credential: String) async throws -> Data {
+        try Task.checkCancellation()
         let url = URL(string: "https://api.tacticusgame.com/api/v1/\(scope.path)")!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -55,6 +56,7 @@ final class DeviceOfficialSource: OfficialSource {
     }
     func connect(credential: String?, reuse: String? = nil, requestPlayer: Bool = true,
                  confirm: (String, String?) async -> Bool) async throws {
+        try Task.checkCancellation()
         guard !busy else { throw WorkspaceError.unavailable }
         busy = true
         defer { busy = false }
@@ -70,6 +72,7 @@ final class DeviceOfficialSource: OfficialSource {
         var guild: String?
         var keyExpired = false
         func read(_ scope: OfficialScope) async throws -> [String: Any] {
+            try Task.checkCancellation()
             guard !keyExpired else { throw WorkspaceError.scope }
             let data = try await vault.withOfficialRead(reference) { secret in
                 let raw = try await self.source.read(scope, credential: secret)

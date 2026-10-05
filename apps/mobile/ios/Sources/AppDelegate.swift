@@ -93,11 +93,12 @@ import UniformTypeIdentifiers
                 if let reference = capability?.reference {
                     button("Refresh \(scope.rawValue) key scopes", id: "refresh-\(scope.rawValue)") { [weak self] in self?.connect(credential: nil, reuse: reference, requestPlayer: scope == .player) }
                     button("Disconnect \(scope.rawValue)", id: "disconnect-\(scope.rawValue)") { [weak self] in
-                        guard let self else { return }; do { try self.supervisor?.disconnect(scope); self.status = "Disconnected. Previous local data remains readable." } catch { self.status = "Disconnect could not complete." }; self.render()
+                        guard let self, self.requireIdle() else { return }; do { try self.supervisor?.disconnect(scope); self.status = "Disconnected. Previous local data remains readable." } catch { self.status = "Disconnect could not complete." }; self.render()
                     }
                 }
             }
             button("Import a workspace JSON", id: "import") { [weak self] in
+                guard self?.requireIdle() == true else { return }
                 let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.json], asCopy: true); picker.delegate = self; self?.present(picker, animated: true)
             }
             button("Export this workspace JSON", id: "export") { [weak self] in self?.export() }
@@ -113,6 +114,10 @@ import UniformTypeIdentifiers
         } catch { status = "Protected local data is currently unavailable. Retry after unlocking."; label(status) }
     }
     private func resource(_ token: TokenSnapshot?) -> String { token.map { "\($0.current)/\($0.max)" } ?? "unavailable" }
+    private func requireIdle() -> Bool {
+        guard task == nil else { status = "Wait for the current scope request before changing workspace data."; render(); return false }
+        return true
+    }
     func suspend() {
         task?.cancel(); task = nil
         finishConfirmation(false)
@@ -171,6 +176,7 @@ import UniformTypeIdentifiers
     }
     private func finishConfirmation(_ confirmed: Bool) { let pending = confirmation; confirmation = nil; pending?.resume(returning: confirmed) }
     private func addRaid() {
+        guard requireIdle() else { return }
         guard let store else { return }
         do { let document = try store.read(); guard document.mode != "personal" || document.player != nil else { status = "Verify Player before creating personal content."; render(); return } } catch { return }
         let prompt = UIAlertController(title: "Local raid row", message: "User-supplied, unverified. Integer damage and tokens are calculated offline.", preferredStyle: .alert)
@@ -186,6 +192,7 @@ import UniformTypeIdentifiers
         }); present(prompt, animated: true)
     }
     private func export() {
+        guard requireIdle() else { return }
         guard let store else { return }
         do {
             cleanupExport()
