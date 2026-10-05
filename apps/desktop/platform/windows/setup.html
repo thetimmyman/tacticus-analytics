@@ -18,22 +18,8 @@
         The next step opens Windows secure input. Official keys stay in the
         Windows vault. Cloud contribution requires separate consent.
       </p>
-      <form id="unlock">
-        <label
-          >Local workspace password
-          <input
-            id="workspace-password"
-            type="password"
-            minlength="12"
-            maxlength="128"
-            autocomplete="current-password"
-            required
-        /></label>
-        <button>Create or unlock local workspace</button>
-      </form>
       <p>
-        Unlock once for API setup and sync. Your workspace password is separate
-        from your official API key.
+        Your local workspace opens automatically under your Windows account.
       </p>
       <button id="connect">Connect official API</button>
       <button id="guild">Add Guild access</button
@@ -50,7 +36,8 @@
 Player access is required for a new personal workspace.</pre>
         <p>
           Your validated roster and available official resources appear here.
-          Previously synced data remains readable offline after local unlock.
+          Previously synced data remains readable offline when you reopen the
+          app.
         </p>
       </section>
       <section>
@@ -61,15 +48,6 @@ Player access is required for a new personal workspace.</pre>
         </p>
         <form id="demo">
           <label
-            >Local demo password
-            <input
-              id="password"
-              type="password"
-              minlength="12"
-              maxlength="128"
-              autocomplete="new-password"
-              required /></label
-          ><label
             ><input id="sample" type="checkbox" required /> I understand that
             this is synthetic sample data.</label
           ><button>Open synthetic demo</button>

@@ -10,6 +10,7 @@ import { windowsSetup } from './setup.mjs'
 import { currentSessionChannel } from './session-gate.mjs'
 import { strict as assert } from 'node:assert'
 import { recoveryJourney } from './recovery.mjs'
+import { seedFormerPasswordFixture } from './migration-fixture.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const root = resolve(here, '../../../..')
@@ -20,14 +21,17 @@ const stateArgument = option('--state')
 if (!stateArgument)
   throw new Error('Native workspace owner must supply its protected state path')
 const state = resolve(stateArgument)
+const postgresHome = option('--postgres-home')
+if (!postgresHome || /[^\x00-\x7f]/.test(postgresHome))
+  throw new Error('Native owner must supply a verified ASCII database path')
 const serviceConfig = {
   state,
   schemaDirectory: join(root, 'apps/desktop/local-schema'),
   binaries: {
-    initdb: join(root, 'postgres/bin/initdb.exe'),
-    postgres: join(root, 'postgres/bin/postgres.exe'),
-    psql: join(root, 'postgres/bin/psql.exe'),
-    pgctl: join(root, 'postgres/bin/pg_ctl.exe'),
+    initdb: join(postgresHome, 'bin/initdb.exe'),
+    postgres: join(postgresHome, 'bin/postgres.exe'),
+    psql: join(postgresHome, 'bin/psql.exe'),
+    pgctl: join(postgresHome, 'bin/pg_ctl.exe'),
     auth: join(root, 'auth/auth.exe'),
     authCwd: join(root, 'auth'),
     postgrest: join(root, 'postgrest/postgrest.exe')
@@ -54,7 +58,7 @@ try {
       services,
       here,
       join(root, 'apps/desktop/launcher'),
-      { brokerToken, currentToken: () => sessionChannel.token() }
+      { brokerToken, currentToken: (renew) => sessionChannel.token(renew) }
     )
   })
   const listener = createServer()
@@ -104,6 +108,8 @@ try {
   const verify = verifyPath
     ? JSON.parse(await readFile(verifyPath, 'utf8'))
     : undefined
+  if (verify?.seedFormerPasswordFixture === true)
+    await seedFormerPasswordFixture(services)
   if (verify) {
     assert.equal((await fetch(`${gateway.origin}/desktop/setup`)).status, 403)
     const authorized = { 'x-desktop-transport': transportKey }
@@ -124,37 +130,27 @@ try {
       ).status,
       403
     )
-    const page = await fetch(`${gateway.origin}/desktop/setup`, {
-      headers: authorized
-    })
-    if ((await page.text()).includes('data-mode="create"')) {
-      for (const body of ['null', '{']) {
-        assert.equal(
-          (
-            await fetch(`${gateway.origin}/desktop/demo-setup`, {
-              method: 'POST',
-              headers: { ...authorized, 'content-type': 'application/json' },
-              body
-            })
-          ).status,
-          400
-        )
-      }
-      assert.equal(
-        (
-          await fetch(`${gateway.origin}/desktop/setup`, {
-            method: 'POST',
-            headers: { ...authorized, 'content-type': 'application/json' },
-            body: JSON.stringify({ password: 'x'.repeat(20000), sample: true })
-          })
-        ).status,
-        413
-      )
-    }
+    assert.equal(
+      (
+        await fetch(`${gateway.origin}/desktop/open`, {
+          method: 'POST',
+          headers: authorized
+        })
+      ).status,
+      403
+    )
   }
+  const ownerBefore = verify
+    ? (
+        await services.psql(
+          'SELECT subject_user_id FROM public.desktop_preview_setup LIMIT 1;'
+        )
+      ).trim()
+    : null
   const config = JSON.stringify({
     url: `${gateway.origin}/desktop/setup`,
     transportKey,
+    brokerToken,
     state: services.state,
     verify
   })
@@ -177,6 +173,22 @@ try {
     window.once('exit', accept)
     window.once('error', reject)
   })
+  if (verify && code === 0 && ownerBefore) {
+    assert.equal(
+      (
+        await services.psql(
+          'SELECT subject_user_id FROM public.desktop_preview_setup LIMIT 1;'
+        )
+      ).trim(),
+      ownerBefore
+    )
+    assert.equal(
+      (
+        await services.psql('SELECT count(*) FROM public."EOT_GR_data";')
+      ).trim(),
+      '8'
+    )
+  }
   if (code !== 0)
     throw new Error(
       'Desktop window verification failed; inspect private local logs'

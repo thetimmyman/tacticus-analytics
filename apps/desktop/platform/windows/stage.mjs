@@ -115,6 +115,8 @@ export async function stage(config) {
     'native-command.mjs',
     'onboarding.mjs',
     'session-gate.mjs',
+    'device-session.mjs',
+    'device-session.cjs',
     'credential-surface.mjs',
     'export.mjs',
     'import.mjs',
@@ -123,7 +125,8 @@ export async function stage(config) {
     'windows-setup.js',
     'windows-style.css',
     'main.cjs',
-    'recovery.mjs'
+    'recovery.mjs',
+    'migration-fixture.mjs'
   ])
     await copy(
       join(source, 'apps/desktop/platform/windows', path),

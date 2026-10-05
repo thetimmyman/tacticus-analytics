@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises'
+import { mkdtemp, mkdir, writeFile, rm, readFile } from 'node:fs/promises'
+import { runInNewContext } from 'node:vm'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createServer } from 'node:http'
@@ -222,10 +223,10 @@ test('current native session is checked by local Auth before vault access, and e
     authOwner = subject
     await assert.rejects(
       gate.run(() => guard.connect({})),
-      /Secure onboarding|Unlock/
+      (error) => error.code === 'ESESSION'
     )
     assert.equal(accesses, 1)
-    assert.equal(authCalls, 2)
+    assert.equal(authCalls, 3)
     const { existsSync } = await import('node:fs')
     assert.equal(existsSync(join(root, 'official-onboarding.json')), false)
     assert.throws(gate.assertCurrent, (error) => error.code === 'ESESSION')
@@ -235,81 +236,14 @@ test('current native session is checked by local Auth before vault access, and e
   }
 })
 
-test('interrupted local holding-account creation resumes only after original-password Auth succeeds', async () => {
-  const { windowsSetup } =
-    await import('../../../apps/desktop/platform/windows/setup.mjs')
-  let accepted = false,
-    authCalls = 0
-  const auth = createServer(async (req, res) => {
-    authCalls++
-    assert.equal(req.url, '/token?grant_type=password')
-    assert.equal(req.headers.authorization, undefined)
-    let input = ''
-    for await (const chunk of req) input += chunk
-    assert.equal(JSON.parse(input).email, 'desktop@localhost.invalid')
-    res.statusCode = accepted ? 200 : 401
-    res.setHeader('content-type', 'application/json')
-    res.end(
-      JSON.stringify(
-        accepted ? { user: { id: subject } } : { error: 'synthetic rejection' }
-      )
-    )
-  })
-  await new Promise((accept) => auth.listen(0, '127.0.0.1', accept))
-  const root = await mkdtemp(join(tmpdir(), 'Windows interrupted account ü '))
-  const handler = windowsSetup(
-    {
-      state: root,
-      ports: { auth: auth.address().port },
-      token: { service: 'synthetic-unused-service' },
-      psql: async (sql) => (sql.includes('auth.users') ? 't' : '')
-    },
-    root,
-    root,
-    {}
-  )
-  const server = createServer((req, res) => {
-    void handler(req, res, new URL(req.url, 'http://127.0.0.1')).catch(() => {
-      res.statusCode = 500
-      res.end()
-    })
-  })
-  await new Promise((accept) => server.listen(0, '127.0.0.1', accept))
-  try {
-    const request = () =>
-      fetch(
-        `http://127.0.0.1:${server.address().port}/desktop/workspace-access`,
-        {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ password: 'synthetic-original-password' })
-        }
-      )
-    assert.equal((await request()).status, 409)
-    const { existsSync } = await import('node:fs')
-    assert.equal(existsSync(join(root, 'workspace-owner.json')), false)
-    accepted = true
-    assert.equal((await request()).status, 200)
-    const { readFile } = await import('node:fs/promises')
-    const owner = JSON.parse(
-      await readFile(join(root, 'workspace-owner.json'), 'utf8')
-    )
-    assert.equal(owner.subject, subject)
-    assert.equal(owner.kind, 'personal-holding')
-    assert.equal(JSON.stringify(owner).includes('password'), false)
-    assert.equal((await request()).status, 200)
-    assert.equal(authCalls, 2)
-  } finally {
-    await new Promise((accept) => server.close(accept))
-    await new Promise((accept) => auth.close(accept))
-    await rm(root, { recursive: true, force: true })
-  }
-})
-
 test('legacy key forms and handlers cannot bypass native input after activation or through encoded paths', async () => {
   const { rendererCredentialSurface, holdCredentialSurface } =
     await import('../../../apps/desktop/platform/windows/credential-surface.mjs')
   for (const path of [
+    '/api/auth/login',
+    '/api/auth/logout',
+    '/auth/change-password',
+    '/auth/reset-password',
     '/api-keys',
     '/profile/edit',
     '/profile',
@@ -361,7 +295,6 @@ test('legacy key forms and handlers cannot bypass native input after activation 
   for (const path of [
     '/desktop/setup',
     '/desktop/official-state',
-    '/api/auth/login',
     '/supabase/auth/v1/token',
     '/api/health',
     '/player-performance',
@@ -408,4 +341,58 @@ test('legacy key forms and handlers cannot bypass native input after activation 
     )
     assert.equal(status, 501)
   }
+})
+
+test('setup retries an expired native import once without a renderer login or bootstrap request', async () => {
+  const elements = new Map()
+  const element = (selector) => {
+    if (!elements.has(selector))
+      elements.set(selector, {
+        textContent: '',
+        events: {},
+        addEventListener(name, callback) {
+          this.events[name] = callback
+        }
+      })
+    return elements.get(selector)
+  }
+  let imports = 0
+  const state = {
+    status: 'historical-offline',
+    personal: {},
+    capabilities: { Player: 'reconnect-required' }
+  }
+  const response = (value, ok = true) => ({ ok, json: async () => value })
+  runInNewContext(
+    await readFile(
+      new URL(
+        '../../../apps/desktop/platform/windows/windows-setup.js',
+        import.meta.url
+      ),
+      'utf8'
+    ),
+    {
+      document: { querySelector: element },
+      fetch: async (path, options) => {
+        if (path === '/desktop/official-state') return response(state)
+        assert.equal(path, '/desktop/import-personal')
+        assert.equal(options.body, '{}')
+        imports++
+        return imports === 1
+          ? response(
+              { code: 'ESESSION', error: 'Native session expired' },
+              false
+            )
+          : response(state)
+      }
+    }
+  )
+  await new Promise(setImmediate)
+  await element('#import').events.click()
+  assert.equal(imports, 2)
+  assert.ok(element('#status').textContent.includes('historical-offline'))
+  assert.equal(
+    [...elements.keys()].some((key) => /password|unlock/.test(key)),
+    false
+  )
 })

@@ -31,7 +31,8 @@ internal static class Program
                     using var state = new ProtectedState(args[2]);
                     using var job = new JobOwner();
                     var script = Path.Combine(root, "apps", "desktop", "platform", "windows", "launch.mjs");
-                    var command = new[] { script, "--state", state.Root }.Concat(args.Skip(3));
+                    var postgresHome = RuntimePaths.AsciiDirectory(Path.Combine(root, "postgres"));
+                    var command = new[] { script, "--state", state.Root, "--postgres-home", postgresHome }.Concat(args.Skip(3));
                     var timer = Stopwatch.StartNew();
                     using var process = job.Start(Path.Combine(root, "bin", "node.exe"), command, root);
                     var code = process.Wait();
@@ -103,6 +104,11 @@ internal static class NativeProof
         var assertions = new List<string>();
         try
         {
+            var alias = RuntimePaths.AsciiDirectory(testRoot);
+            File.WriteAllText(Path.Combine(testRoot, "alias-proof.txt"), "synthetic alias target");
+            if (alias.Any(ch => ch > 127) || File.ReadAllText(Path.Combine(alias, "alias-proof.txt")) != "synthetic alias target")
+                throw new InvalidOperationException("Native ASCII alias target verification failed");
+            assertions.Add("native-ascii-alias-preserves-unicode-directory-target");
             var record = Path.Combine(testRoot, "tree.json");
             using (var job = new JobOwner())
             {

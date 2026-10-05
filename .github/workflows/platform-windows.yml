@@ -81,9 +81,11 @@ jobs:
         shell: pwsh
         run: ./apps/desktop/platform/windows/build-runtime.ps1 -Output "$env:RUNNER_TEMP/Tacticus candidate ü"
       - name: Installed runtime journey
+        id: installed
         shell: pwsh
         run: ./tests/desktop/windows/installed-journey.ps1 -Bundle "$env:RUNNER_TEMP/Tacticus candidate ü" -Evidence "$env:RUNNER_TEMP/application-evidence.json"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always() && steps.installed.outcome != 'skipped'
         with:
           name: windows-application-evidence
           path: |

@@ -13,6 +13,13 @@ export function rendererCredentialSurface(url) {
   return (
     (path === '/api/guild-tokens' && url.searchParams.get('live') === 'true') ||
     [
+      '/api/auth/login',
+      '/api/auth/logout',
+      '/api/auth/change-password',
+      '/api/auth/reset-password',
+      '/auth/change-password',
+      '/auth/forgot-password',
+      '/auth/reset-password',
       '/api-keys',
       '/profile',
       '/onboarding',

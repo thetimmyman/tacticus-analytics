@@ -130,5 +130,5 @@ internal static class LocalFiles
 
 internal sealed class LocalSessionExpired : InvalidOperationException
 {
-    public LocalSessionExpired() : base("Unlock your local workspace to continue.") { }
+    public LocalSessionExpired() : base("The native workspace session expired. Retry the operation.") { }
 }
