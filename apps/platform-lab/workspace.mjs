@@ -2,7 +2,6 @@ import {
   mkdtemp,
   mkdir,
   writeFile,
-  readFile,
   lstat,
   readdir,
   realpath,
@@ -10,6 +9,7 @@ import {
   cp,
   open
 } from 'node:fs/promises'
+import { constants } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { homedir } from 'node:os'
@@ -57,15 +57,31 @@ export async function checkWorkspace(path) {
   if ((await lstat(path)).isSymbolicLink() || (await realpath(path)) !== path)
     throw new Error('Workspace path must not traverse symlinks')
   const markerPath = join(path, markerName)
-  const info = await lstat(markerPath)
-  if (
-    !info.isFile() ||
-    info.isSymbolicLink() ||
-    (process.platform !== 'win32' && info.mode & 0o077) ||
-    (process.getuid && info.uid !== process.getuid())
+  // Windows has no O_NOFOLLOW; verify the directory entry and opened identity.
+  const entry = process.platform === 'win32' ? await lstat(markerPath) : null
+  if (entry?.isSymbolicLink()) throw new Error('Private owned marker required')
+  const handle = await open(
+    markerPath,
+    constants.O_RDONLY |
+      (constants.O_NOFOLLOW ?? 0) |
+      (constants.O_NONBLOCK ?? 0)
   )
-    throw new Error('Private owned marker required')
-  const marker = JSON.parse(await readFile(markerPath, 'utf8'))
+  let marker
+  try {
+    if (entry) {
+      const opened = await handle.stat()
+      const current = await lstat(markerPath)
+      if (
+        current.isSymbolicLink() ||
+        current.ino !== opened.ino ||
+        current.dev !== opened.dev
+      )
+        throw new Error('Private owned marker required')
+    }
+    marker = await readPrivateMarker(handle)
+  } finally {
+    await handle.close()
+  }
   if (
     marker.schemaVersion !== 1 ||
     marker.path !== path ||
@@ -75,6 +91,28 @@ export async function checkWorkspace(path) {
     throw new Error('Disposable marker mismatch')
   await noLinks(path)
   return path
+}
+// Reads only the opened descriptor, including when its directory entry is replaced.
+export async function readPrivateMarker(handle) {
+  const info = await handle.stat()
+  if (
+    !info.isFile() ||
+    info.size < 1 ||
+    info.size > 4096 ||
+    (process.platform !== 'win32' && info.mode & 0o077) ||
+    (process.getuid && info.uid !== process.getuid())
+  )
+    throw new Error('Private owned marker required')
+  const buffer = Buffer.alloc(4097)
+  const { bytesRead } = await handle.read(buffer, 0, buffer.length, 0)
+  const after = await handle.stat()
+  if (
+    bytesRead !== info.size ||
+    after.size !== info.size ||
+    after.mtimeMs !== info.mtimeMs
+  )
+    throw new Error('Disposable marker changed while reading')
+  return JSON.parse(buffer.subarray(0, bytesRead).toString('utf8'))
 }
 export async function withWorkspaceLock(path, action) {
   path = await checkWorkspace(path)

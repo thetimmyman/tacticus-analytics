@@ -8,7 +8,10 @@ import {
   readdir,
   rm,
   symlink,
-  stat
+  stat,
+  open,
+  rename,
+  chmod
 } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
@@ -18,7 +21,9 @@ import {
   withWorkspaceLock,
   snapshotState,
   restoreState,
-  boundedDiskPressure
+  boundedDiskPressure,
+  checkWorkspace,
+  readPrivateMarker
 } from '../../apps/platform-lab/workspace.mjs'
 
 export async function temporaryLab() {
@@ -67,6 +72,51 @@ test(
       const marker = JSON.parse(await readFile(markerPath, 'utf8'))
       await writeFile(markerPath, JSON.stringify({ ...marker, path: base }))
       await assert.rejects(resetWorkspace(workspace), /mismatch/)
+    } finally {
+      await rm(base, { recursive: true, force: true })
+    }
+  }
+)
+test(
+  'opened marker cannot be redirected by a directory-entry replacement',
+  { skip: process.platform === 'win32' },
+  async () => {
+    const base = await temporaryLab()
+    try {
+      const workspace = await createWorkspace(base)
+      const markerPath = join(workspace, '.platform-lab-disposable.json')
+      const expected = JSON.parse(await readFile(markerPath, 'utf8'))
+      const outside = join(base, 'outside-marker')
+      await writeFile(outside, '{"redirected":true}', { mode: 0o600 })
+      const handle = await open(markerPath, 'r')
+      try {
+        await rename(markerPath, join(workspace, 'original-marker'))
+        await symlink(outside, markerPath)
+        assert.deepEqual(await readPrivateMarker(handle), expected)
+        await assert.rejects(checkWorkspace(workspace), /ELOOP|marker/)
+        await assert.rejects(resetWorkspace(workspace), /ELOOP|marker/)
+        assert.equal(await readFile(outside, 'utf8'), '{"redirected":true}')
+      } finally {
+        await handle.close()
+      }
+    } finally {
+      await rm(base, { recursive: true, force: true })
+    }
+  }
+)
+test(
+  'marker descriptor rejects public permissions and oversized content',
+  { skip: process.platform === 'win32' },
+  async () => {
+    const base = await temporaryLab()
+    try {
+      const workspace = await createWorkspace(base)
+      const markerPath = join(workspace, '.platform-lab-disposable.json')
+      await chmod(markerPath, 0o644)
+      await assert.rejects(checkWorkspace(workspace), /Private owned/)
+      await chmod(markerPath, 0o600)
+      await writeFile(markerPath, 'x'.repeat(4097))
+      await assert.rejects(checkWorkspace(workspace), /Private owned/)
     } finally {
       await rm(base, { recursive: true, force: true })
     }
