@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 final class Onboarding {
+  static final class Expired extends Exception {}
   interface Confirmation {
     boolean confirm(String displayName) throws Exception;
   }
@@ -49,16 +50,29 @@ final class Onboarding {
         JSONObject response = fetch("Player", handle),
                    metadata = response.getJSONObject("metaData");
         JSONArray scopes = metadata.getJSONArray("scopes");
+        integer(metadata, "lastUpdatedOn");
+        if (metadata.has("apiKeyExpiresOn"))
+          integer(metadata, "apiKeyExpiresOn");
         if (!contains(scopes, "Player"))
           throw new Exception("Player access required");
         if (metadata.has("apiKeyExpiresOn")
             && Math.multiplyExact(metadata.getLong("apiKeyExpiresOn"), 1000)
                 <= System.currentTimeMillis()) {
-          vault.remove(handle);
-          throw new Exception("Player access expired");
+          expireHandle(handle);
+          throw new Expired();
         }
         JSONObject raw = response.getJSONObject("player");
-        String name = raw.getJSONObject("details").getString("name");
+        String name = text(raw.getJSONObject("details"), "name");
+        integer(raw.getJSONObject("details"), "powerLevel");
+        JSONArray units = raw.getJSONArray("units");
+        for (int i = 0; i < units.length(); i++) {
+          JSONObject unit = units.getJSONObject(i);
+          text(unit, "id");
+          integer(unit, "rank");
+          integer(unit, "xpLevel");
+        }
+        raw.getJSONObject("inventory");
+        raw.getJSONObject("progress");
         if (previous.has("personal")
             && !previous.getJSONObject("personal").getString("displayName").equals(name))
           throw new Exception("Display name changed; separate account review required. No stable "
@@ -69,8 +83,8 @@ final class Onboarding {
                      .put("displayName", name)
                      .put("powerLevel", raw.getJSONObject("details").getInt("powerLevel"))
                      .put("roster", raw.getJSONArray("units"))
-                     .put("inventory", raw.optJSONObject("inventory"))
-                     .put("progress", raw.optJSONObject("progress"))
+                     .put("inventory", raw.getJSONObject("inventory"))
+                     .put("progress", raw.getJSONObject("progress"))
                      .put("upstreamUpdatedAt",
                          Math.multiplyExact(metadata.getLong("lastUpdatedOn"), 1000));
         guildRequested = guildRequested && contains(scopes, "Guild");
@@ -84,12 +98,19 @@ final class Onboarding {
       if (guildRequested || raidRequested) {
         try {
           guild = fetch("Guild", handle).getJSONObject("guild");
-          String id = guild.getString("guildId");
+          String id = text(guild, "guildId");
+          text(guild, "guildTag");
+          text(guild, "name");
+          integer(guild, "level");
+          guild.getJSONArray("members");
+          guild.getJSONArray("guildRaidSeasons");
           if (previous.has("guild")
               && !previous.getJSONObject("guild").getString("guildId").equals(id)) {
             guild = null;
             capabilities.put("Guild", "wrong-guild");
           }
+        } catch (Expired expired) {
+          throw expired;
         } catch (Exception unavailable) {
           capabilities.put("Guild", "unavailable");
         }
@@ -99,7 +120,19 @@ final class Onboarding {
           capabilities.put("Guild Raid", "guild-binding-unavailable");
         else
           try {
-            raid = fetch("Guild Raid", handle);
+            JSONObject observed = fetch("Guild Raid", handle);
+            integer(observed, "season");
+            text(observed, "seasonConfigId");
+            JSONArray entries = observed.getJSONArray("entries");
+            for (int i = 0; i < entries.length(); i++) {
+              JSONObject entry = entries.getJSONObject(i);
+              integer(entry, "damageDealt");
+              if (!java.util.Set.of("Battle", "Bomb").contains(text(entry, "damageType")))
+                throw new Exception("Unsupported raid record");
+            }
+            raid = observed;
+          } catch (Expired expired) {
+            throw expired;
           } catch (Exception unavailable) {
             capabilities.put("Guild Raid", "unavailable");
           }
@@ -157,9 +190,41 @@ final class Onboarding {
         vault.remove(handle);
     }
   }
+  private void expireHandle(String handle) throws Exception {
+    vault.remove(handle);
+    for (String scope : new String[] {"Player", "Guild", "Guild Raid"}) {
+      if (handle.equals(store.reference(scope))) {
+        store.disconnectScope(scope, vault);
+        break;
+      }
+    }
+  }
+  private static String text(JSONObject object, String field) throws Exception {
+    Object value = object.get(field);
+    if (!(value instanceof String string) || string.isBlank() || string.length() > 20000)
+      throw new Exception("Unsupported official schema");
+    return string;
+  }
+  private static long integer(JSONObject object, String field) throws Exception {
+    Object value = object.get(field);
+    if (!(value instanceof Number number) || !Double.isFinite(number.doubleValue())
+        || number.doubleValue() < 0 || number.doubleValue() > 9007199254740991L
+        || Math.floor(number.doubleValue()) != number.doubleValue())
+      throw new Exception("Unsupported official schema");
+    return number.longValue();
+  }
   private JSONObject fetch(String scope, String handle) throws Exception {
     return vault.withCredential(handle, credential -> {
       JSONObject response = source.get(scope, credential);
+      if (!scope.equals("Player") && response.has("metaData")) {
+        JSONObject metadata = response.getJSONObject("metaData");
+        if (metadata.has("apiKeyExpiresOn")
+            && Math.multiplyExact(integer(metadata, "apiKeyExpiresOn"), 1000)
+                <= System.currentTimeMillis()) {
+          expireHandle(handle);
+          throw new Expired();
+        }
+      }
       String serialized = response.toString();
       String[] variants = {credential,
           Base64.encodeToString(credential.getBytes(StandardCharsets.UTF_8),

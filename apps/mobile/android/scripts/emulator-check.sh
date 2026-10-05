@@ -11,7 +11,7 @@ ADB="$ANDROID_HOME/platform-tools/adb"
 PORT=${ANDROID_TEST_EMULATOR_PORT:-5554}
 [[ "$PORT" =~ ^[0-9]+$ ]] || exit 1
 SERIAL="emulator-$PORT"
-[[ -z "$("$ADB" devices | rg "^$SERIAL[[:space:]]" || true)" ]] || { printf 'Selected emulator port is already occupied\n' >&2; exit 1; }
+[[ -z "$("$ADB" devices | rg "^${SERIAL}[[:space:]]" || true)" ]] || { printf 'Selected emulator port is already occupied\n' >&2; exit 1; }
 cleanup(){ "$ADB" -s "$SERIAL" emu kill > /dev/null 2>&1 || true; rm -rf "$AVD_TMP"; }
 trap cleanup EXIT
 printf 'no\n' | "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd --name mobile_synthetic_check --package "system-images;android-$API;default;x86_64" --path "$AVD_TMP/check" > /dev/null

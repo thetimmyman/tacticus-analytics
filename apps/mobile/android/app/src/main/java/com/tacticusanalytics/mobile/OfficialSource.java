@@ -7,6 +7,7 @@ import javax.net.ssl.HttpsURLConnection;
 import org.json.JSONObject;
 
 interface OfficialSource {
+  final class Refused extends Exception {}
   JSONObject get(String scope, String credential) throws Exception;
   final class Device implements OfficialSource {
     @Override
@@ -25,7 +26,10 @@ interface OfficialSource {
       connection.setRequestProperty("X-API-KEY", credential);
       connection.setRequestProperty("Accept", "application/json");
       try {
-        if (connection.getResponseCode() != 200)
+        int status = connection.getResponseCode();
+        if (status == 401 || status == 403)
+          throw new Refused();
+        if (status != 200)
           throw new Exception("Official access unavailable; retained data remains readable");
         try (InputStream stream = connection.getInputStream();
             ByteArrayOutputStream body = new ByteArrayOutputStream()) {

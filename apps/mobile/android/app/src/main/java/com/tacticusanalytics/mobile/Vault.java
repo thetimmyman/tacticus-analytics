@@ -16,11 +16,13 @@ import javax.crypto.spec.GCMParameterSpec;
 /** Native broker only: credentials never enter workspace documents or a web bridge. */
 final class Vault {
   private final File directory;
+  private final Context context;
   private static final String ALIAS = "official-read-v1";
   interface Operation<T> {
     T run(String credential) throws Exception;
   }
   Vault(Context context) {
+    this.context = context.getApplicationContext();
     directory = new File(context.getNoBackupFilesDir(), "official-vault");
   }
   private SecretKey key() throws Exception {
@@ -29,18 +31,23 @@ final class Vault {
     if (!store.containsAlias(ALIAS)) {
       KeyGenerator generator =
           KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
-      generator.init(new KeyGenParameterSpec
+      KeyGenParameterSpec.Builder policy =
+          new KeyGenParameterSpec
               .Builder(ALIAS, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
               .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
               .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
               .setKeySize(256)
-              .setRandomizedEncryptionRequired(true)
-              .build());
+              .setRandomizedEncryptionRequired(true);
+      // Earlier Android versions have documented unlocked-device key bugs; native gate remains.
+      if (android.os.Build.VERSION.SDK_INT >= 35)
+        policy.setUnlockedDeviceRequired(true);
+      generator.init(policy.build());
       generator.generateKey();
     }
     return (SecretKey) store.getKey(ALIAS, null);
   }
   String store(String credential) throws Exception {
+    LocalAccess.requireUnlocked(context);
     if (credential.trim().isEmpty() || credential.length() > 4096
         || credential.chars().anyMatch(item -> item < 32 || item == 127))
       throw new Exception("Secure input unavailable");
@@ -57,6 +64,7 @@ final class Vault {
     return handle;
   }
   <T> T withCredential(String handle, Operation<T> operation) throws Exception {
+    LocalAccess.requireUnlocked(context);
     byte[] blob = Files.readAllBytes(file(handle).toPath());
     if (blob.length < 28 || blob.length > 8192)
       throw new Exception("Secure storage unavailable");
@@ -64,6 +72,7 @@ final class Vault {
     cipher.init(Cipher.DECRYPT_MODE, key(), new GCMParameterSpec(128, blob, 0, 12));
     byte[] clear = cipher.doFinal(blob, 12, blob.length - 12);
     try {
+      LocalAccess.requireUnlocked(context);
       return operation.run(new String(clear, StandardCharsets.UTF_8));
     } finally {
       java.util.Arrays.fill(clear, (byte) 0);

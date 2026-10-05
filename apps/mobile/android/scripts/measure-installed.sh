@@ -14,6 +14,16 @@ APK="$APP_ROOT/app/build/outputs/apk/debug/app-debug.apk"
 TEST_APK="$APP_ROOT/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
 "$ADB" -s "$SERIAL" install -r "$APK" > /dev/null
 "$ADB" -s "$SERIAL" install -r "$TEST_APK" > /dev/null
+# The fixed PIN belongs only to this resettable synthetic emulator, never an owner identity.
+if ! "$ADB" -s "$SERIAL" shell locksettings set-pin 2468 > /dev/null 2>&1; then
+  "$ADB" -s "$SERIAL" shell locksettings verify --old 2468 > /dev/null
+fi
+"$ADB" -s "$SERIAL" shell input keyevent KEYCODE_WAKEUP
+"$ADB" -s "$SERIAL" shell wm dismiss-keyguard > /dev/null 2>&1 || true
+"$ADB" -s "$SERIAL" shell input swipe 160 500 160 100 100
+"$ADB" -s "$SERIAL" shell input text 2468
+"$ADB" -s "$SERIAL" shell input keyevent KEYCODE_ENTER
+sleep 1
 "$ADB" -s "$SERIAL" shell pm clear com.tacticusanalytics.mobile.preview > /dev/null
 "$ADB" -s "$SERIAL" shell cmd connectivity airplane-mode enable > /dev/null 2>&1 || true
 if [[ "$("$ADB" -s "$SERIAL" shell settings get global airplane_mode_on | tr -d '\r')" != 1 ]]; then
@@ -30,6 +40,11 @@ rg -q '^Status: ok' "$REPORT/relaunch.txt"
 "$ADB" -s "$SERIAL" shell am force-stop com.tacticusanalytics.mobile.preview
 "$ADB" -s "$SERIAL" shell am instrument -w -e phase reopen com.tacticusanalytics.mobile.preview.test/com.tacticusanalytics.mobile.AndroidProof > "$REPORT/reopen.txt"
 rg -q '^PASS phase=reopen ' "$REPORT/reopen.txt"
+"$ADB" -s "$SERIAL" shell settings put secure lock_screen_lock_after_timeout 0
+"$ADB" -s "$SERIAL" shell input keyevent KEYCODE_SLEEP
+sleep 2
+"$ADB" -s "$SERIAL" shell am instrument -w -e phase locked com.tacticusanalytics.mobile.preview.test/com.tacticusanalytics.mobile.AndroidProof > "$REPORT/locked.txt"
+rg -q '^PASS phase=locked ' "$REPORT/locked.txt"
 rawlog=$(mktemp)
 trap 'rm -f "$rawlog"' EXIT
 "$ADB" -s "$SERIAL" logcat -d > "$rawlog"
@@ -56,13 +71,13 @@ java_text=subprocess.run(['java','-version'],capture_output=True,text=True,check
 emulator_text=subprocess.run([str(sdk/'emulator/emulator'),'-version'],capture_output=True,text=True,check=True).stdout
 adb_text=subprocess.run([str(sdk/'platform-tools/adb'),'version'],capture_output=True,text=True,check=True).stdout
 versions={'gradle':'8.13','androidGradlePlugin':'8.9.3','javaCompiler':re.search(r'version "([^" ]+)"',java_text).group(1),'emulator':re.search(r'Android emulator version ([0-9.]+)',emulator_text).group(1),'adb':re.search(r'Version ([0-9.]+)',adb_text).group(1)}
-for scenario,file in [('offline-core','all.txt'),('restart-persistence','reopen.txt')]:
+for scenario,file in [('offline-core','all.txt'),('restart-persistence','reopen.txt'),('credential-isolation','locked.txt')]:
     captures=[]
-    for capture in ['all.txt','reopen.txt','relaunch.txt']:
+    for capture in ['all.txt','reopen.txt','relaunch.txt','locked.txt']:
         captures.append({'name':capture,'sha256':__import__('hashlib').sha256(report.joinpath(capture).read_bytes()).hexdigest(),'mediaType':'text/plain','redacted':True})
     actual=report.joinpath(file).read_text().strip()
     evidence={'schemaVersion':'platform-evidence/v1','evidenceKind':'harness-self-test' if data['sourceDirty'] else 'product-acceptance','runId':__import__('uuid').uuid4().hex,'build':{'sha':data['sourceCommit'],'artifact':{'sha256':data['artifactSha256'],'format':'apk'}},'environment':{'os':'android','osVersion':'API '+os.environ['API'],'arch':os.environ['ABI'],'classification':'emulator','runtimeVersions':versions,'installation':'clean-install' if scenario=='offline-core' else 'existing-install'},'fixture':{'id':'android-instrumentation-synthetic/v1','sha256':os.environ['FIXTURE_SHA']},'scenario':{'id':scenario,'expected':'Installed native offline behavior and persistence using synthetic inputs'},'startedAt':os.environ['STARTED_AT'],'completedAt':os.environ['COMPLETED_AT'],'outcome':{'status':'pass','actual':actual,'blockers':['Physical owner-signed phone/tablet release qualification pending','Full accepted application parity pending','Real authorized upstream checks and live contribution integration pending']},'assertions':[{'id':'installed-'+scenario,'status':'pass','expected':'Native installed synthetic suite passes','actual':actual}],'attachments':captures}
     report.joinpath(scenario+'-evidence.json').write_text(json.dumps(evidence,indent=2)+'\n')
 print(json.dumps(data))
 PY
-cat "$REPORT/all.txt" "$REPORT/reopen.txt"
+cat "$REPORT/all.txt" "$REPORT/reopen.txt" "$REPORT/locked.txt"

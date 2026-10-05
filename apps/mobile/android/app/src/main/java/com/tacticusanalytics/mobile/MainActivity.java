@@ -223,6 +223,15 @@ public final class MainActivity extends Activity {
       });
   }
   private void connect(boolean player, boolean guild, boolean raid) {
+    LocalAccess.inCurrentSession(
+        this, () -> connectUnlocked(player, guild, raid), this::unlockUnavailable);
+  }
+  private void unlockUnavailable() {
+    notice = "Local device session is locked or unavailable. Set a secure device lock and unlock "
+        + "once; existing offline data remains retained.";
+    show();
+  }
+  private void connectUnlocked(boolean player, boolean guild, boolean raid) {
     demo = false;
     LinearLayout form = new LinearLayout(this);
     form.setPadding(24, 12, 24, 12);
@@ -284,6 +293,18 @@ public final class MainActivity extends Activity {
                       });
                   notice = "Access verified for available scopes. Local data retained; cloud "
                       + "contribution remains off.";
+                } catch (LocalAccess.Locked locked) {
+                  notice = "Local device session locked. Unlock once to resume; offline data "
+                           + "remains retained.";
+                } catch (LocalAccess.Unavailable unavailable) {
+                  notice = "Secure local authorization unavailable. Set a secure device lock "
+                           + "before connection.";
+                } catch (Onboarding.Expired expired) {
+                  notice = "Official access expired. Replace the key; previously synced data "
+                           + "remains readable.";
+                } catch (OfficialSource.Refused refused) {
+                  notice = "The official service refused this key or scope. Verify permission or "
+                           + "replace the key; offline data remains retained.";
                 } catch (Exception unavailable) {
                   notice = "Access could not activate or refresh. Check scopes, expiry and "
                       + "connectivity; retained data remains readable. Different Player/guild "
@@ -296,6 +317,10 @@ public final class MainActivity extends Activity {
         .show();
   }
   private void document(String action, int code) {
+    LocalAccess.inCurrentSession(
+        this, () -> documentUnlocked(action, code), this::unlockUnavailable);
+  }
+  private void documentUnlocked(String action, int code) {
     Intent intent = new Intent(action);
     intent.addCategory(Intent.CATEGORY_OPENABLE);
     intent.setType("application/json");
@@ -310,6 +335,7 @@ public final class MainActivity extends Activity {
       return;
     worker.execute(() -> {
       try {
+        LocalAccess.requireUnlocked(this);
         if (request == 41 || request == 43) {
           try (var output = getContentResolver().openOutputStream(intent.getData())) {
             if (output == null)
@@ -332,14 +358,19 @@ public final class MainActivity extends Activity {
             if (!imported.optString("status").equals("synthetic-demo")) {
               if (!confirmImport())
                 throw new Exception("Import refused");
+              LocalAccess.requireUnlocked(this);
               store.disconnect(vault);
             }
+            LocalAccess.requireUnlocked(this);
             boolean synthetic = imported.optString("status").equals("synthetic-demo");
             store.write(imported, synthetic);
             demo = synthetic;
           }
         }
         notice = "Document operation completed. Credentials and consent were not transferred.";
+      } catch (LocalAccess.Locked | LocalAccess.Unavailable unavailable) {
+        notice = "Local device session locked or unavailable; unlock once before the document "
+            + "operation.";
       } catch (Exception invalid) {
         notice = "Document rejected or unavailable; previous data retained.";
       }

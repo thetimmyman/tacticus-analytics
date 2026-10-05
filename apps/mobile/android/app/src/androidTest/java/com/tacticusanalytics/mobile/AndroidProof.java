@@ -82,11 +82,17 @@ public final class AndroidProof extends Instrumentation {
             new JSONObject()
                 .put("guildId", guild)
                 .put("name", "Synthetic guild")
+                .put("guildTag", "SYNTH")
+                .put("level", 1)
+                .put("guildRaidSeasons", new JSONArray().put(1))
                 .put("members", new JSONArray()));
       if (scope.equals("Guild Raid"))
-        return new JSONObject().put("entries",
-            new JSONArray().put(
-                new JSONObject().put("damageDealt", 400).put("damageType", "Battle")));
+        return new JSONObject()
+            .put("season", 1)
+            .put("seasonConfigId", "synthetic-season-v1")
+            .put("entries",
+                new JSONArray().put(
+                    new JSONObject().put("damageDealt", 400).put("damageType", "Battle")));
       throw new Exception("Unknown scope");
     };
   }
@@ -95,7 +101,29 @@ public final class AndroidProof extends Instrumentation {
     Bundle result = new Bundle();
     long started = SystemClock.elapsedRealtime();
     try (WorkspaceStore store = new WorkspaceStore(getTargetContext())) {
-      if (phase.equals("reopen")) {
+      if (phase.equals("locked")) {
+        check(
+            getTargetContext().getSystemService(android.app.KeyguardManager.class).isDeviceLocked(),
+            "Device was not actually locked");
+        boolean locked = false;
+        try {
+          LocalAccess.requireUnlocked(getTargetContext());
+        } catch (LocalAccess.Locked expected) {
+          locked = true;
+        }
+        check(locked, "Locked native session authorized access");
+        rejects(()
+                    -> new Vault(getTargetContext()).store("synthetic-official-canary-v1"),
+            "Locked vault accepted secure input");
+        rejects(()
+                    -> new Vault(getTargetContext())
+                        .withCredential(getTargetContext()
+                                            .getSharedPreferences("synthetic-test-probe", 0)
+                                            .getString("unfinishedHandle", ""),
+                            value -> value),
+            "Locked vault exposed credentials");
+        check(store.read(false).has("personal"), "Lock discarded offline data");
+      } else if (phase.equals("reopen")) {
         check(store.read(true).getString("status").equals("synthetic-demo"),
             "Restart lost demo data");
         check(store.totalDamage(true) == 300, "Restart calculation changed");
@@ -111,6 +139,10 @@ public final class AndroidProof extends Instrumentation {
         check(!store.enqueueContribution(store.consentGeneration(), new JSONObject()),
             "Restart enabled contribution");
       } else {
+        LocalAccess.requireUnlocked(getTargetContext());
+        check(
+            getTargetContext().getSystemService(android.app.KeyguardManager.class).isDeviceSecure(),
+            "Synthetic secure device lock absent");
         store.write(Demo.document(), true);
         check(store.totalDamage(true) == 300, "Offline analytics failed");
         check(!store.read(false).has("personal"), "Demo activated normal workspace");
@@ -163,6 +195,27 @@ public final class AndroidProof extends Instrumentation {
         store.restorePrevious(true, new Vault(getTargetContext()));
         check(store.totalDamage(true) == 300, "Checkpoint recovery failed");
         Vault vault = new Vault(getTargetContext());
+        rejects(()
+                    -> new Onboarding(vault, store,
+                        (scope, key) -> {
+                          JSONObject malformed = player("Synthetic player", false, false);
+                          malformed.getJSONObject("player").remove("inventory");
+                          return malformed;
+                        })
+                        .connect(vault.store("synthetic-schema-missing-inventory-v1"), true, false,
+                            false, name -> true),
+            "Player missing required inventory activated content");
+        rejects(()
+                    -> new Onboarding(vault, store,
+                        (scope, key) -> {
+                          JSONObject malformed = player("Synthetic player", false, false);
+                          malformed.getJSONObject("player").remove("progress");
+                          return malformed;
+                        })
+                        .connect(vault.store("synthetic-schema-missing-progress-v1"), true, false,
+                            false, name -> true),
+            "Player missing required progress activated content");
+
         String canary = "synthetic-official-canary-v1", handle = vault.store(canary);
         check(vault.withCredential(handle, value -> value.equals(canary)), "Keystore roundtrip");
         java.io.File encrypted =
@@ -218,6 +271,36 @@ public final class AndroidProof extends Instrumentation {
         check(store.totalDamage(false) == 400, "Bound raid failed");
         check(!store.read(false).getJSONObject("raid").has("guildId"),
             "Invented Raid guild identity");
+        final String expiredOptional = vault.store("synthetic-optional-expiry-v1");
+        rejects(()
+                    -> new Onboarding(vault, store,
+                        (scope, key) -> {
+                          JSONObject response =
+                              source("Synthetic Player", true, false, "synthetic-guild")
+                                  .get(scope, key);
+                          return response.put(
+                              "metaData", new JSONObject().put("apiKeyExpiresOn", 1));
+                        })
+                        .connect(expiredOptional, false, true, true, name -> false),
+            "Observed optional expiry gained access");
+        check(store.reference("Guild").equals(handle) && store.totalDamage(false) == 400,
+            "Expired optional candidate replaced existing verified data");
+        for (String absent : new String[] {"seasonConfigId", "entries"}) {
+          final String sameHandle = handle;
+          new Onboarding(vault, store, (scope, key) -> {
+            JSONObject response =
+                source("Synthetic Player", true, false, "synthetic-guild").get(scope, key);
+            if (scope.equals("Guild Raid"))
+              response.remove(absent);
+            return response;
+          }).connectExisting(sameHandle, false, true, true, name -> false);
+          check(store.read(false)
+                      .getJSONObject("capabilities")
+                      .getString("Guild Raid")
+                      .equals("unavailable")
+                  && store.totalDamage(false) == 400,
+              "Malformed Raid replaced retained data or gained scope");
+        }
         final String replaced = previous;
         rejects(()
                     -> vault.withCredential(replaced, value -> value),
