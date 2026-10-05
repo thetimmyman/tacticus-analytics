@@ -238,6 +238,20 @@ test('new normal workspace cannot skip Player; offline initial versus reopen pre
     'refresh-unavailable-offline-readable'
   )
 })
+
+test('expiry on refresh retains its distinct status and the original offline personal snapshot', async () => {
+  const f = fixture()
+  await f.service.connect({ requested: ['Player'], confirmPlayer })
+  const original = f.service.view().personal
+  f.mode('expired')
+  const view = await f.service.connect({
+    requested: ['Player'],
+    reuseHandle: 'opaque-vault-reference',
+    confirmPlayer
+  })
+  assert.equal(view.capabilities.Player, 'expired-offline-readable')
+  assert.deepEqual(view.personal, original)
+})
 test('partial failure, wrong guild, expiry and account confirmation cannot activate unavailable features', async () => {
   const f = fixture(['Player', 'Guild', 'Guild Raid'])
   f.mode('wrong-guild')
