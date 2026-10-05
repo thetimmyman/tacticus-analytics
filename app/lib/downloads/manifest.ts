@@ -49,7 +49,9 @@ export function validateManifest(
   }
   if (!Object.hasOwn(trustedKeys, manifest.keyId))
     throw new Error('Untrusted manifest key')
-  const key = createPublicKey(trustedKeys[manifest.keyId])
+  const trustedKey = trustedKeys[manifest.keyId]
+  if (!trustedKey) throw new Error('Untrusted manifest key')
+  const key = createPublicKey(trustedKey)
   if (key.asymmetricKeyType !== 'ed25519')
     throw new Error('Unsupported manifest key')
   const signature = Buffer.from(manifest.signature, 'base64')
