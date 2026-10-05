@@ -74,6 +74,8 @@ const osDlls = new Set([
   'oleaut32.dll',
   'crypt32.dll',
   'bcrypt.dll',
+  // Windows CNG Cryptographic Primitives Library (Microsoft security policy 140sp1336).
+  'bcryptprimitives.dll',
   'ncrypt.dll',
   'version.dll',
   'winmm.dll',
