@@ -57,7 +57,15 @@ const sourceSha = execFileSync('git', ['rev-parse', 'HEAD'], {
 const dirty =
   execFileSync(
     'git',
-    ['status', '--porcelain', '--', 'packages/addon-host', 'apps/addons'],
+    [
+      'status',
+      '--porcelain',
+      '--',
+      'packages/addon-host',
+      'apps/addons',
+      'package.json',
+      'package-lock.json'
+    ],
     { cwd: root, encoding: 'utf8' }
   ).trim().length > 0
 await writeFile(

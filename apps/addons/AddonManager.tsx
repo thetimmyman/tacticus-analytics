@@ -70,12 +70,13 @@ export function AddonManager({
     return () => clearInterval(timer)
   }, [playing, view])
 
-  async function action(work: () => Promise<void>) {
+  async function action(work: (isCurrent: () => boolean) => Promise<void>) {
     const started = revision.current
+    const isCurrent = () => started === revision.current
     setBusy(true)
     setMessage('')
     try {
-      await work()
+      await work(isCurrent)
       const items = await commands.list()
       if (started === revision.current) setModules(items)
     } catch (error) {
@@ -84,7 +85,11 @@ export function AddonManager({
       if (started === revision.current) setBusy(false)
     }
   }
-  async function chooseFile(file: File | undefined, id?: AddonId) {
+  async function chooseFile(
+    file: File | undefined,
+    id?: AddonId,
+    canRead = true
+  ) {
     if (!file) return
     const started = revision.current
     await action(async () => {
@@ -94,6 +99,8 @@ export function AddonManager({
       if (started !== revision.current) return
       if (id) {
         await commands.importLocalData(id, content)
+        // Import and read are independent permissions: only open the view when read was granted.
+        if (!canRead) return
         const result = await commands.view(id)
         if (started === revision.current) {
           setView({ revision: started, data: result })
@@ -146,11 +153,12 @@ export function AddonManager({
           <button
             disabled={busy}
             onClick={() =>
-              void action(async () => {
+              void action(async (isCurrent) => {
                 await commands.activate(
                   staged.digest,
                   staged.manifest.capabilities
                 )
+                if (!isCurrent()) return
                 setStaged(null)
                 setView(null)
                 setPlaying(false)
@@ -178,12 +186,19 @@ export function AddonManager({
             {module.addonId === 'guild-war' ? 'Guild War' : 'Replays'}{' '}
             {module.version}
           </h2>
-          <p>{module.enabled ? 'Enabled' : 'Disabled — local data retained'}</p>
+          <p>
+            {module.unavailable
+              ? 'Unavailable — package is no longer trusted. You can uninstall it.'
+              : module.enabled
+                ? 'Enabled'
+                : 'Disabled — local data retained'}
+          </p>
           <button
-            disabled={busy}
+            disabled={busy || module.unavailable}
             onClick={() =>
-              void action(async () => {
+              void action(async (isCurrent) => {
                 await commands.setEnabled(module.addonId, !module.enabled)
+                if (!isCurrent()) return
                 setView(null)
                 setPlaying(false)
               })
@@ -192,10 +207,11 @@ export function AddonManager({
             {module.enabled ? 'Disable' : 'Enable'}
           </button>
           <button
-            disabled={busy || !module.hasPrevious}
+            disabled={busy || module.unavailable || !module.hasPrevious}
             onClick={() =>
-              void action(async () => {
+              void action(async (isCurrent) => {
                 await commands.rollback(module.addonId)
+                if (!isCurrent()) return
                 setView(null)
                 setPlaying(false)
               })
@@ -206,11 +222,12 @@ export function AddonManager({
           <button
             disabled={busy}
             onClick={() =>
-              void action(async () => {
+              void action(async (isCurrent) => {
                 await commands.uninstall(
                   module.addonId,
                   deleteData ? 'delete' : 'retain'
                 )
+                if (!isCurrent()) return
                 setView(null)
                 setPlaying(false)
               })
@@ -226,15 +243,27 @@ export function AddonManager({
             <input
               type="file"
               accept="application/json,.json"
-              disabled={busy || !module.enabled}
+              disabled={
+                busy ||
+                !module.enabled ||
+                !module.capabilities.includes('offline.import')
+              }
               onChange={(event) => {
-                void chooseFile(event.target.files?.[0], module.addonId)
+                void chooseFile(
+                  event.target.files?.[0],
+                  module.addonId,
+                  module.capabilities.includes('offline.read')
+                )
                 event.target.value = ''
               }}
             />
           </label>
           <button
-            disabled={busy || !module.enabled}
+            disabled={
+              busy ||
+              !module.enabled ||
+              !module.capabilities.includes('offline.read')
+            }
             onClick={() =>
               void action(async () => {
                 const started = revision.current

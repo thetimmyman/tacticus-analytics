@@ -134,3 +134,23 @@ test('adversarial addons cannot broaden operation/URL/account/signature authorit
     assert.equal(surface.includes(encoded), false)
   }
 })
+
+test('add-on scoped invalidation leaves the other module lease intact', () => {
+  const broker = new DeviceBroker('linux', () => true)
+  broker.setVault('available')
+  const war = broker.lease('guild-war', 'synthetic-session', true),
+    replay = broker.lease('replays', 'synthetic-session', true)
+  const ask = (addonId: 'guild-war' | 'replays', leaseHandle: string) =>
+    broker.request({
+      schemaVersion: 1,
+      addonId,
+      sessionHandle: 'synthetic-session',
+      leaseHandle,
+      operation:
+        addonId === 'guild-war' ? 'guild-war.snapshot' : 'replay.capture',
+      requestId: 'synthetic-request'
+    }).reason
+  broker.invalidate('addon-disabled', 'guild-war')
+  assert.equal(ask('guild-war', war), 'addon-disabled')
+  assert.equal(ask('replays', replay), 'protocol-unapproved')
+})

@@ -300,8 +300,25 @@ test('dependencies are digest-pinned, runtime checked and cannot read another mo
     () => host.importData(replaySession, JSON.stringify(war)),
     /malformed/
   )
+  const job = host.jobSignal(replaySession)
   host.setEnabled('guild-war', false)
-  assert.throws(() => host.readData(replaySession), /dependency-unavailable/)
+  assert.equal(job.aborted, true)
+  assert.throws(() => host.readData(replaySession), /invalid-session/)
+})
+
+test('a revoked installed package stays listed as unavailable and can be uninstalled', (t) => {
+  const { host, policy, install } = setup(t)
+  install('guild-war')
+  install('replays')
+  ;(policy.revokedKeyIds as Set<string>).add('synthetic-test-key')
+  const listed = host.list()
+  assert.equal(listed.length, 2)
+  assert.ok(listed.every((item) => item.unavailable && !item.enabled))
+  host.uninstall('guild-war', 'retain')
+  assert.deepEqual(
+    host.list().map((item) => item.addonId),
+    ['replays']
+  )
 })
 
 test('storage rejects symlinks, traversal digests and retained transaction locks', (t) => {

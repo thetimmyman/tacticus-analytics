@@ -34,6 +34,7 @@ export class DeviceBroker {
   private leases = new Map<string, Lease>()
   private vault: 'available' | 'locked' | 'unavailable' = 'unavailable'
   private stopped: Reason = 'revoked'
+  private stoppedByAddon = new Map<AddonId, Reason>()
   constructor(
     private readonly platform: Platform,
     private readonly currentSession: (
@@ -79,7 +80,8 @@ export class DeviceBroker {
     const request = parsed.data,
       lease = this.leases.get(request.leaseHandle)
     let reason: Reason = 'protocol-unapproved'
-    if (!lease) reason = this.stopped
+    if (!lease)
+      reason = this.stoppedByAddon.get(request.addonId) ?? this.stopped
     else if (
       lease.addonId !== request.addonId ||
       lease.session !== request.sessionHandle
@@ -111,9 +113,20 @@ export class DeviceBroker {
               : 'import-replay-json'
     })
   }
-  invalidate(reason: Reason = 'revoked') {
-    this.leases.clear()
-    this.stopped = reason
+  /**
+   * Without a scope every lease is revoked (vault, binding). With an add-on scope only that
+   * add-on's leases are revoked, so module lifecycle events do not disturb the other module.
+   */
+  invalidate(reason: Reason = 'revoked', addon?: AddonId) {
+    if (addon === undefined) {
+      this.leases.clear()
+      this.stoppedByAddon.clear()
+      this.stopped = reason
+      return
+    }
+    for (const [handle, lease] of this.leases)
+      if (lease.addonId === addon) this.leases.delete(handle)
+    this.stoppedByAddon.set(addon, reason)
   }
   support() {
     return {

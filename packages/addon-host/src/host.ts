@@ -111,6 +111,8 @@ export type AddonSummary = {
   digest: string
   hasPrevious: boolean
   capabilities: AddonManifest['capabilities']
+  /** True when the installed package no longer verifies (for example a revoked key). Only uninstall is offered. */
+  unavailable?: boolean
 }
 
 export function sha256(value: string | Uint8Array): string {
@@ -176,7 +178,12 @@ export class AddonHost {
   private binding: Binding | null = null
   private sessions = new Map<
     string,
-    { addonId: AddonId; digest: string; binding: string }
+    {
+      addonId: AddonId
+      digest: string
+      binding: string
+      dependsOn: AddonId[]
+    }
   >()
   private cancellation = new Map<string, Set<AbortController>>()
   constructor(
@@ -498,7 +505,28 @@ export class AddonHost {
     const registry = this.load()
     return (['guild-war', 'replays'] as const)
       .filter((id) => registry.modules[id])
-      .map((id) => this.summary(id, registry))
+      .map((id) => {
+        try {
+          return this.summary(id, registry)
+        } catch (error) {
+          // A package that no longer verifies must stay listed so it can be uninstalled.
+          if (
+            !(error instanceof AddonError) ||
+            error.code === 'recoverable-storage'
+          )
+            throw error
+          const current = registry.modules[id]!
+          return {
+            addonId: id,
+            version: 'unavailable',
+            enabled: false,
+            digest: current.active,
+            hasPrevious: current.previous !== null,
+            capabilities: [],
+            unavailable: true
+          }
+        }
+      })
   }
   setBinding(input: Binding | null) {
     const binding = input === null ? null : bindingSchema.parse(input)
@@ -521,7 +549,10 @@ export class AddonHost {
     this.sessions.set(handle, {
       addonId: id,
       digest: summary.digest,
-      binding: this.bindingDigest()
+      binding: this.bindingDigest(),
+      dependsOn: this.package(
+        summary.digest
+      ).envelope.manifest.dependencies.map((dependency) => dependency.addonId)
     })
     return handle
   }
@@ -589,7 +620,7 @@ export class AddonHost {
   }
   invalidate(id?: AddonId) {
     for (const [handle, session] of this.sessions)
-      if (!id || session.addonId === id) {
+      if (!id || session.addonId === id || session.dependsOn.includes(id)) {
         for (const controller of this.cancellation.get(handle) ?? [])
           controller.abort()
         this.cancellation.delete(handle)
