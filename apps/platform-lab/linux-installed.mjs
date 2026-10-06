@@ -3,11 +3,19 @@ import { join, resolve } from 'node:path'
 import { randomBytes, randomUUID } from 'node:crypto'
 import { runOwnedProcess } from './process.mjs'
 import { checkWorkspace } from './workspace.mjs'
+import { generateFixture } from './fixtures.mjs'
 
 function quote(value) {
   return `'${String(value).replaceAll("'", "'\\''")}'`
 }
-export function buildOfflineCommand({ runtimeRoot, state, verify, uid, gid }) {
+export function buildOfflineCommand({
+  runtimeRoot,
+  state,
+  verify,
+  launchArgs,
+  uid,
+  gid
+}) {
   if (
     !Number.isSafeInteger(uid) ||
     uid < 1 ||
@@ -18,7 +26,12 @@ export function buildOfflineCommand({ runtimeRoot, state, verify, uid, gid }) {
   const node = join(runtimeRoot, 'bin/node')
   const probe =
     'const n=require("node:os").networkInterfaces();if(Object.keys(n).some(k=>k!=="lo"))process.exit(2)'
-  const inner = `${[node, '-e', probe].map(quote).join(' ')} && exec ${[join(runtimeRoot, 'launch'), '--state', state, '--verify', verify].map(quote).join(' ')}`
+  const inner = `${[node, '-e', probe].map(quote).join(' ')} && exec ${[
+    join(runtimeRoot, 'launch'),
+    ...(launchArgs ?? ['--state', state, '--verify', verify])
+  ]
+    .map(quote)
+    .join(' ')}`
   return [
     '-rn',
     '--',
@@ -80,6 +93,18 @@ export function createAdapter({ runtimeRoot, displayEnvironment = {} }) {
           assertions: [],
           captures: []
         }
+      if (
+        JSON.stringify(fixture.profile) !==
+        JSON.stringify(generateFixture(fixture.seed, 'deny').profile)
+      )
+        return {
+          status: 'blocked',
+          actual:
+            'The installed preview carries its own synthetic data and cannot load this fixture profile.',
+          blockers: ['Fixture profile must match the preview built-in data.'],
+          assertions: [],
+          captures: []
+        }
       await access(join(runtimeRoot, 'launch'))
       const state = join(workspace, 'state', 'installed-regression')
       const passwordFile = join(workspace, 'fixtures', 'regression-password')
@@ -91,7 +116,7 @@ export function createAdapter({ runtimeRoot, displayEnvironment = {} }) {
         password = randomBytes(24).toString('hex')
         await writeFile(passwordFile, password, { mode: 0o600, flag: 'wx' })
       }
-      async function launch(target) {
+      async function launch(target, expectedMode) {
         const id = randomUUID()
         const evidence = join(
           workspace,
@@ -129,6 +154,10 @@ export function createAdapter({ runtimeRoot, displayEnvironment = {} }) {
             'Installed preview regression failed; private diagnostics retained'
           )
         const observed = JSON.parse(await readFile(evidence, 'utf8'))
+        if (observed.setupMode !== expectedMode)
+          throw new Error(
+            'Installed preview did not report the expected setup state'
+          )
         if (
           observed.observed?.nodeAccess !== false ||
           !observed.observed?.text.includes('+58%') ||
@@ -139,30 +168,37 @@ export function createAdapter({ runtimeRoot, displayEnvironment = {} }) {
         )
           throw new Error('Installed preview assertions failed')
         return {
+          setupMode: observed.setupMode,
           scoresRendered: true,
           rendererSandboxed: true,
           onlyLoopbackInterface: true
         }
       }
-      const first = await launch(state)
+      const first = await launch(state, 'create')
       let extra
-      if (scenario === 'restart-persistence') extra = await launch(state)
+      if (scenario === 'restart-persistence')
+        extra = await launch(state, 'unlock')
       if (scenario === 'backup-restore') {
         const backup = join(workspace, 'snapshots', `backup-${randomUUID()}`)
         const restored = join(workspace, 'state', 'restored')
-        for (const args of [
+        for (const launchArgs of [
           ['--state', state, '--backup', backup],
           ['--state', restored, '--restore', backup]
         ]) {
           const result = await runOwnedProcess(
-            join(runtimeRoot, 'launch'),
-            args,
-            { timeoutMs: 60000 }
+            'unshare',
+            buildOfflineCommand({
+              runtimeRoot,
+              launchArgs,
+              uid: process.getuid(),
+              gid: process.getgid()
+            }),
+            { timeoutMs: 60000, env: { ...process.env, ...displayEnvironment } }
           )
           if (result.code !== 0 || result.timedOut || result.exceeded)
             throw new Error('Installed preview transfer failed')
         }
-        extra = await launch(restored)
+        extra = await launch(restored, 'unlock')
       }
       return {
         status: 'pass',
@@ -188,7 +224,7 @@ export function createAdapter({ runtimeRoot, displayEnvironment = {} }) {
                       ? 'Stopped-state restored data renders the same synthetic results.'
                       : 'Ordinary restart retains synthetic calculation data.',
                   actual:
-                    'The installed preview reopened the same synthetic calculation results.'
+                    'The installed preview reported an existing state (unlock rather than first-run create) and rendered the same synthetic calculation results.'
                 }
               ]
             : [])

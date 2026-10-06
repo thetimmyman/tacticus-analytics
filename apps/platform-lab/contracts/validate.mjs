@@ -55,7 +55,9 @@ export function portableName(value) {
   if (
     typeof value !== 'string' ||
     !/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,79}$/.test(value) ||
-    value.includes('..')
+    value.includes('..') ||
+    value.endsWith('.') ||
+    /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\.|$)/i.test(value)
   )
     throw new Error('Invalid portable name')
   return value

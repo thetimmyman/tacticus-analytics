@@ -16,6 +16,10 @@ const toolNames = [
   'unshare',
   'bwrap'
 ]
+function platformName() {
+  const names = { linux: 'linux', darwin: 'macos', win32: 'windows' }
+  return names[platform()] ?? platform()
+}
 export async function inventoryLocal() {
   const tools = {}
   for (const tool of toolNames) {
@@ -42,7 +46,7 @@ export async function inventoryLocal() {
   return {
     schemaVersion: 'platform-inventory/v1',
     observedAt: new Date().toISOString(),
-    os: platform(),
+    os: platformName(),
     arch: arch(),
     osVersion: release(),
     tools,

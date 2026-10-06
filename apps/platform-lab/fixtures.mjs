@@ -55,7 +55,13 @@ export function assertNoCanaries(value, canaries) {
       [...Buffer.from(canary)]
         .map((byte) => `\\u00${byte.toString(16).padStart(2, '0')}`)
         .join(''),
+      [...Buffer.from(canary)]
+        .map(
+          (byte) => `\\u00${byte.toString(16).padStart(2, '0').toUpperCase()}`
+        )
+        .join(''),
       Buffer.from(canary).toString('hex'),
+      Buffer.from(canary).toString('hex').toUpperCase(),
       Buffer.from(canary).toString('base64'),
       Buffer.from(canary).toString('base64url')
     ]

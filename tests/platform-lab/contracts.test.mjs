@@ -6,6 +6,7 @@ import {
   fixtureServer
 } from '../../apps/platform-lab/fixtures.mjs'
 import {
+  portableName,
   validateEvidence,
   validateFixture,
   qualifiesPhysicalMobile
@@ -167,4 +168,15 @@ test('fixture service binds loopback and rejects undeclared routes and capabilit
   } finally {
     await server.stop()
   }
+})
+
+test('portable names reject Windows reserved names and trailing dots', () => {
+  for (const name of ['CON', 'aux.txt', 'Nul', 'com1.log', 'name.'])
+    assert.throws(() => portableName(name), /portable name/)
+  assert.equal(portableName('console.log'), 'console.log')
+})
+test('canary scanner refuses uppercase hexadecimal encodings', () => {
+  const canary = 'SYNTHETIC-CANARY-test'
+  const hex = Buffer.from(canary).toString('hex').toUpperCase()
+  assert.throws(() => assertNoCanaries(hex, [{ id: 'x', value: canary }]))
 })

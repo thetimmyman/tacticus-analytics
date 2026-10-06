@@ -209,3 +209,10 @@ test('Linux namespace command quotes paths and preserves non-root application id
     })
   )
 })
+test('bounded process rejects non-finite or unbounded output limits', async () => {
+  for (const maxBytes of [Infinity, NaN, 0, -1, 1.5, 2 ** 40])
+    await assert.rejects(
+      runOwnedProcess(process.execPath, ['-e', ''], { maxBytes }),
+      /Invalid bounded process/
+    )
+})
