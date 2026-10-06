@@ -46,6 +46,11 @@ vi.mock('@/app/components/Navigation', () => ({
   }
 }))
 
+// Downloads is an independent async server entry; these tests exercise membership authority.
+vi.mock('@/app/downloads/DownloadsNavigationEntry', () => ({
+  default: () => null
+}))
+
 describe('NavigationServer membership authority', () => {
   beforeEach(() => {
     vi.clearAllMocks()

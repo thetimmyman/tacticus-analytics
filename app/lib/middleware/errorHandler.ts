@@ -39,6 +39,7 @@ export const DYNAMIC_ROUTE_PARENTS: ReadonlyMap<
   ['api/admin/carousel', new Set<string>()],
   ['api/admin/gdpr/exports', new Set<string>()],
   ['api/admin/global-thresholds', new Set<string>()],
+  ['api/downloads', new Set(['manifest'])],
   ['api/gdpr/my-data', new Set<string>()],
   ['api/officer/coaching-tasks', new Set<string>()],
   ['api/playbooks', new Set(['seasonal-hub'])],

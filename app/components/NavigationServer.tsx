@@ -2,6 +2,7 @@
 
 import { getLatestSeason } from '@/app/lib/utils/season'
 import Navigation from '@/app/components/Navigation'
+import DownloadsNavigationEntry from '@/app/downloads/DownloadsNavigationEntry'
 import { db } from '@/app/lib/db'
 import { getGuildTheme } from '@/app/lib/theme-system'
 import {
@@ -184,6 +185,7 @@ export async function NavigationServer({
         featureReleaseStages={featureReleaseStages}
         effectiveRole={effectiveRole}
       />
+      <DownloadsNavigationEntry />
     </>
   )
 }
