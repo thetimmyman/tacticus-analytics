@@ -15,24 +15,36 @@ PROJECT_ID="$(sed -n 's/^project_id[[:space:]]*=[[:space:]]*"\(.*\)"/\1/p' supab
 DB_CONTAINER="supabase_db_${PROJECT_ID}"
 CONTAINER_DIR="/supabase-start-fresh"
 
+# supabase-cli.mjs may point DOCKER_HOST at a Podman socket on a machine with
+# no docker client. This script and the replay helper it sources call
+# `docker`, so fall back to podman, whose exec and cp take the same arguments.
+if ! command -v docker >/dev/null 2>&1; then
+  if command -v podman >/dev/null 2>&1; then
+    docker() { podman "$@"; }
+  else
+    echo "supabase-start-fresh: neither docker nor podman is on PATH" >&2
+    exit 1
+  fi
+fi
+
 # Workdir: config.toml copy with migrations and seed disabled, template and
 # function copies, empty migrations dir. A copy, not a symlink: the CLI
-# refuses a content_path that resolves outside the workdir.
-WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/supabase-start-fresh.XXXXXXXX")"
-cleanup() {
-  rm -rf "$WORK_DIR"
-}
-trap cleanup EXIT
-
-mkdir -p "$WORK_DIR/supabase/migrations"
+# refuses a content_path that resolves outside the workdir. It lives under
+# the gitignored supabase/.temp for the stack's lifetime, because the edge
+# runtime bind-mounts its functions directory; each start refreshes the
+# copies in place so that mount keeps pointing at the same directory.
+WORK_DIR="$REPO_ROOT/supabase/.temp/fresh-start"
+mkdir -p "$WORK_DIR/supabase/migrations" "$WORK_DIR/supabase/functions"
+find "$WORK_DIR/supabase/migrations" "$WORK_DIR/supabase/functions" -mindepth 1 -delete
 # Disable the CLI's own migrations (this script replays them) and seed
 # (applied manually below, after the replay, since it needs the migrated
 # schema).
 sed -e '/^\[db\.migrations\]/,/^\[/ s/^enabled = true/enabled = false/' \
     -e '/^\[db\.seed\]/,/^\[/ s/^enabled = true/enabled = false/' \
     supabase/config.toml > "$WORK_DIR/supabase/config.toml"
+rm -rf "$WORK_DIR/supabase/templates"
 cp -R "$REPO_ROOT/supabase/templates" "$WORK_DIR/supabase/templates"
-cp -R "$REPO_ROOT/supabase/functions" "$WORK_DIR/supabase/functions"
+cp -R "$REPO_ROOT/supabase/functions/." "$WORK_DIR/supabase/functions/"
 
 supa() { npx --no-install supabase --workdir "$WORK_DIR" "$@"; }
 

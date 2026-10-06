@@ -75,8 +75,12 @@ and keys.
 
 Running `npm run supabase:start` again against a stack that already has
 this repository's migrations applied (still running, or restarted without
-`--no-backup`) is a no-op: it detects the existing schema and skips the
-replay and seed. `npm run supabase:reset` stops the stack, discards its
+`--no-backup`) detects the existing schema and skips the replay and seed.
+The CLI runs from a generated workdir under the gitignored
+`supabase/.temp/fresh-start`, and the local edge runtime serves a copy of
+`supabase/functions` from there; every `npm run supabase:start` refreshes
+that copy, so rerun it to pick up edits to edge functions.
+`npm run supabase:reset` stops the stack, discards its
 data (`--no-backup`), and runs the same fresh-start path, so it also no
 longer goes through the CLI's own migration pass.
 
