@@ -48,6 +48,20 @@ in `.app-identity.json` (`localhost`, `127.0.0.1`, or `host.docker.internal`);
 `npm run dev`'s `predev` identity check rejects any other host, including a
 remote `*.supabase.co` project, before Next.js starts.
 
+`npm run supabase:start` currently fails on a brand-new Supabase CLI
+database: the CLI's own postgres image makes `supabase_admin`, not
+`postgres`, the owner of the `pg_catalog.pg_db_role_setting` relation, and
+`20260831150100_wi8360_revoke_pg_db_role_setting_public_select.sql` verifies
+that relation's actual owner (`pg_class.relowner`) rather than which role
+executes the migration, so no choice of migration-executing role changes
+the outcome (the migration then rolls the whole stack back). This is a
+known, tracked limitation — see the `cli-stack:` entry for that migration
+in `scripts/dev/lib/replay-unappliable.txt` — not something this Compose
+setup causes, and there is currently no documented way to bring up a
+brand-new local Supabase CLI database that gets past it. Until it's
+resolved, Compose's Supabase URLs only work against an existing local
+instance where this repository's migrations already applied cleanly.
+
 Launch and stop the web-plus-Redis services with:
 
 ```bash
