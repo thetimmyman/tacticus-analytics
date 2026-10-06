@@ -122,3 +122,32 @@ describe('getUnitCatalog', () => {
     expect(catalog.aliases.has('inceptor')).toBe(false)
   })
 })
+
+describe('bundled optional display metadata', () => {
+  it('resolves API aliases to locally supplied labels without inventing unknown alliances', async () => {
+    readdirMock.mockResolvedValue(['synthetic.json'])
+    readFileMock.mockImplementation(async (p: string) => {
+      if (p.endsWith('heroes_index.json')) return '{}'
+      if (p.endsWith('machines_of_war.json')) return '{}'
+      if (p.endsWith('synthetic.json'))
+        return JSON.stringify({
+          id: 'synthetic-engine',
+          gameId: 'syntheticApiUnit',
+          name: 'Synthetic Hero',
+          factionId: 'SyntheticFaction',
+          allianceId: 'Imperial',
+          traits: []
+        })
+      throw new Error('Unexpected fixture path')
+    })
+    const { getUnitCatalog } = await importFresh()
+    const catalog = await getUnitCatalog('/synthetic-data')
+    expect(catalog.aliases?.get('syntheticapiunit')).toBe('synthetic-engine')
+    expect(catalog.display?.get('synthetic-engine')).toEqual({
+      name: 'Synthetic Hero',
+      faction: 'SyntheticFaction',
+      grandAlliance: 'Imperial'
+    })
+    expect(catalog.display?.get('uncatalogued')).toBeUndefined()
+  })
+})

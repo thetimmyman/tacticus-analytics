@@ -39,6 +39,7 @@ export const DYNAMIC_ROUTE_PARENTS: ReadonlyMap<
   ['api/admin/carousel', new Set<string>()],
   ['api/admin/gdpr/exports', new Set<string>()],
   ['api/admin/global-thresholds', new Set<string>()],
+  ['api/downloads', new Set(['manifest'])],
   ['api/gdpr/my-data', new Set<string>()],
   ['api/officer/coaching-tasks', new Set<string>()],
   ['api/playbooks', new Set(['seasonal-hub'])],
@@ -90,10 +91,14 @@ function sentryErrorTags(
 }
 
 export function withErrorHandler(
-  handler: (req: NextRequest, ...args: any[]) => Promise<Response>
+  handler: (req: NextRequest, ...args: any[]) => Promise<Response>,
+  options: { maxJsonBodyBytes?: () => number } = {}
 ) {
   return async (req: NextRequest, ...args: any[]): Promise<Response> => {
-    const bodyLimitResponse = enforceJsonBodyLimit(req)
+    const bodyLimitResponse = enforceJsonBodyLimit(
+      req,
+      options.maxJsonBodyBytes?.()
+    )
     if (bodyLimitResponse) {
       return applyRateLimitHeaders(bodyLimitResponse, req)
     }

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mobile-domain-contract/v1",
+  "documentVersion": "mobile-workspace/v1",
+  "documentFields": ["schemaVersion", "mode", "player", "raids"],
+  "modes": ["personal", "historical", "synthetic-demo"],
+  "playerFields": ["displayName", "units", "resources", "upstreamUpdatedAt"],
+  "unitFields": ["id", "name", "rank", "xpLevel"],
+  "resourceFields": ["guildRaidTokens", "bombTokens"],
+  "tokenFields": [
+    "current",
+    "max",
+    "nextTokenInSeconds",
+    "regenDelayInSeconds"
+  ],
+  "raidFields": ["player", "boss", "damage", "tokens", "observedAt"],
+  "analytics": {
+    "totalDamage": "sum of nonnegative integer damage",
+    "totalTokens": "sum of positive integer tokens",
+    "damagePerToken": "integer floor of totalDamage divided by totalTokens; zero when empty"
+  },
+  "identity": "display-name confirmation only; no stable Player identity or Raid guild identity inferred",
+  "exportBoundary": "no keys, vault handles, consent, queue, verification labels or upstream raw responses",
+  "limits": {
+    "documentBytes": 1048576,
+    "raidRows": 10000,
+    "units": 1000,
+    "textCharacters": 100,
+    "damage": 1000000000000,
+    "tokens": 100
+  }
+}

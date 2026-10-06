@@ -66,7 +66,9 @@ describe('errorHandler', () => {
       ['/api/playbooks/seasonal-hub', 'GET:api.playbooks.seasonal-hub'],
       ['/api/wars/somewar', 'GET:api.wars._'],
       ['/api/wars/analytics/cores', 'GET:api.wars.analytics.cores'],
-      ['/api/admin/carousel/featured', 'GET:api.admin.carousel._']
+      ['/api/admin/carousel/featured', 'GET:api.admin.carousel._'],
+      ['/api/downloads/privateartifact', 'GET:api.downloads._'],
+      ['/api/downloads/manifest', 'GET:api.downloads.manifest']
     ])('masks the dynamic position in %s', (path, expected) => {
       expect(sentryOperationTag('GET', path)).toBe(expected)
     })

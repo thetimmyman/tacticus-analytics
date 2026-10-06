@@ -1,0 +1,489 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "purpose": {
+      "type": "string",
+      "enum": ["release", "fixture"]
+    },
+    "keyId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9.-]{0,79}$"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "generatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+        },
+        "releases": {
+          "maxItems": 200,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9.-]{0,79}$"
+              },
+              "component": {
+                "type": "string",
+                "enum": ["core", "guild-war", "replays"]
+              },
+              "platform": {
+                "type": "string",
+                "enum": ["linux", "macos", "windows", "android", "ios"]
+              },
+              "architecture": {
+                "type": "string",
+                "enum": ["x64", "arm64", "universal"]
+              },
+              "minimumOS": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              },
+              "channel": {
+                "type": "string",
+                "enum": ["stable", "preview"]
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[a-z0-9.-]+)?$"
+              },
+              "releasedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              "sourceCommit": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{40}$"
+              },
+              "state": {
+                "type": "string",
+                "enum": ["candidate", "published", "revoked"]
+              },
+              "artifact": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "size": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "format": {
+                    "type": "string",
+                    "enum": [
+                      "appimage",
+                      "deb",
+                      "rpm",
+                      "dmg",
+                      "pkg",
+                      "exe",
+                      "msix",
+                      "apk",
+                      "aab",
+                      "ipa"
+                    ]
+                  },
+                  "signature": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "verified",
+                          "pending",
+                          "failed",
+                          "revoked",
+                          "not-required"
+                        ]
+                      },
+                      "evidenceUrl": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "scheme": {
+                        "type": "string",
+                        "enum": [
+                          "ed25519",
+                          "authenticode",
+                          "apple-code-sign",
+                          "android-apk"
+                        ]
+                      }
+                    },
+                    "required": ["status", "evidenceUrl", "scheme"],
+                    "additionalProperties": false
+                  },
+                  "notarization": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "verified",
+                          "pending",
+                          "failed",
+                          "revoked",
+                          "not-required"
+                        ]
+                      },
+                      "evidenceUrl": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": ["status", "evidenceUrl"],
+                    "additionalProperties": false
+                  },
+                  "provisioning": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "verified",
+                          "pending",
+                          "failed",
+                          "revoked",
+                          "not-required"
+                        ]
+                      },
+                      "evidenceUrl": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": ["status", "evidenceUrl"],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "url",
+                  "sha256",
+                  "size",
+                  "format",
+                  "signature",
+                  "notarization",
+                  "provisioning"
+                ],
+                "additionalProperties": false
+              },
+              "distribution": {
+                "type": "object",
+                "properties": {
+                  "method": {
+                    "type": "string",
+                    "enum": ["direct", "app-store", "testflight", "play-store"]
+                  },
+                  "url": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "uri"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": ["method", "url"],
+                "additionalProperties": false
+              },
+              "compatibility": {
+                "type": "object",
+                "properties": {
+                  "coreVersion": {
+                    "type": "string",
+                    "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[a-z0-9.-]+)?$"
+                  },
+                  "workspaceSchema": {
+                    "type": "object",
+                    "properties": {
+                      "minimum": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "maximum": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": ["minimum", "maximum"],
+                    "additionalProperties": false
+                  },
+                  "moduleApi": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": ["coreVersion", "workspaceSchema", "moduleApi"],
+                "additionalProperties": false
+              },
+              "qualification": {
+                "type": "object",
+                "properties": {
+                  "evidenceSchema": {
+                    "type": "string",
+                    "const": "platform-evidence/v1"
+                  },
+                  "sourceCommit": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{40}$"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["qualified", "pending", "failed"]
+                  },
+                  "artifactSha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "evidenceUrl": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "uri"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "testedOS": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160
+                  },
+                  "installed": {
+                    "type": "boolean"
+                  },
+                  "offline": {
+                    "type": "boolean"
+                  },
+                  "restart": {
+                    "type": "boolean"
+                  },
+                  "recovery": {
+                    "type": "boolean"
+                  },
+                  "uninstall": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "evidenceSchema",
+                  "sourceCommit",
+                  "status",
+                  "artifactSha256",
+                  "evidenceUrl",
+                  "testedOS",
+                  "installed",
+                  "offline",
+                  "restart",
+                  "recovery",
+                  "uninstall"
+                ],
+                "additionalProperties": false
+              },
+              "approvals": {
+                "type": "object",
+                "properties": {
+                  "rights": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": ["approved", "pending", "rejected"]
+                      },
+                      "evidenceUrl": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": ["status", "evidenceUrl"],
+                    "additionalProperties": false
+                  },
+                  "security": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": ["approved", "pending", "rejected"]
+                      },
+                      "evidenceUrl": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": ["status", "evidenceUrl"],
+                    "additionalProperties": false
+                  },
+                  "publication": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": ["approved", "pending", "rejected"]
+                      },
+                      "evidenceUrl": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": ["status", "evidenceUrl"],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["rights", "security", "publication"],
+                "additionalProperties": false
+              },
+              "guidance": {
+                "type": "object",
+                "properties": {
+                  "install": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000
+                  },
+                  "update": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000
+                  },
+                  "uninstall": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4000
+                  },
+                  "releaseNotes": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8000
+                  },
+                  "knownGaps": {
+                    "maxItems": 40,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1000
+                    }
+                  },
+                  "localClientSupport": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "install",
+                  "update",
+                  "uninstall",
+                  "releaseNotes",
+                  "knownGaps",
+                  "localClientSupport"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "component",
+              "platform",
+              "architecture",
+              "minimumOS",
+              "channel",
+              "version",
+              "releasedAt",
+              "sourceCommit",
+              "state",
+              "artifact",
+              "distribution",
+              "compatibility",
+              "qualification",
+              "approvals",
+              "guidance"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["generatedAt", "expiresAt", "releases"],
+      "additionalProperties": false
+    },
+    "signature": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9+/]{86}==$"
+    }
+  },
+  "required": ["schemaVersion", "purpose", "keyId", "payload", "signature"],
+  "additionalProperties": false
+}

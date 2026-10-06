@@ -3,11 +3,15 @@ import { randomBytes } from 'node:crypto'
 import { readFile, writeFile, readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { createServer } from 'node:net'
+import { homedir } from 'node:os'
 import { setTimeout as delay } from 'node:timers/promises'
 import { createServerClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
 import { nativeServices } from './native-services.mjs'
+import { electronDisplay } from '../launcher/display.mjs'
 import { loopbackGateway } from './loopback-gateway.mjs'
+import { workspaceSetup } from '../launcher/workspace.mjs'
+import { proveMetaRoleBoundaries } from './meta-role-boundaries.mjs'
 import {
   syntheticRaidFixture,
   importSyntheticRaid
@@ -19,7 +23,17 @@ const startedAt = performance.now()
 const services = await nativeServices(config)
 const nativeReadyMs = performance.now() - startedAt
 const transportKey = randomBytes(32).toString('hex')
-const gateway = await loopbackGateway({ services, transportKey })
+const gateway = await loopbackGateway({
+  services,
+  transportKey,
+  handleLocalRequest: workspaceSetup(
+    services,
+    new URL('../launcher', import.meta.url).pathname,
+    {
+      brokerToken: randomBytes(32).toString('hex')
+    }
+  )
+})
 const request: typeof fetch = (url, init) =>
   fetch(url, {
     ...init,
@@ -53,7 +67,7 @@ try {
     403
   )
   await assert.rejects(nativeServices(config), /EEXIST/)
-  const admin = client(services.token.service)
+  const admin = client(services.serviceCredential)
   let account
   try {
     account = JSON.parse(
@@ -86,6 +100,9 @@ try {
     )
     await importSyntheticRaid(services, fixture)
   }
+  await services.psql(
+    `INSERT INTO public.desktop_preview_setup(singleton,subject_user_id,identity_mode,guild_code) VALUES(true,'${account.id}','sample','SYN001') ON CONFLICT(singleton) DO NOTHING;`
+  )
   const user = client('desktop-public')
   const login = await user.auth.signInWithPassword({
     email: account.email,
@@ -93,6 +110,9 @@ try {
   })
   assert.equal(login.error, null)
   assert.equal(login.data.user?.id, account.id)
+  await proveMetaRoleBoundaries(services, account.id)
+  evidence.metaRoleBoundaries =
+    'Self declarations and timestamps, same-guild leader overrides, foreign membership isolation, forged setter and automated-write refusal; synthetic transactions rolled back'
   const raw = await user.from('EOT_GR_data').select('id, Guild').order('id')
   assert.equal(raw.error, null)
   assert.equal(raw.data?.length, 7)
@@ -120,6 +140,82 @@ try {
   assert.equal(owned.data?.length, 1)
   const anon = client('desktop-public')
   assert.ok((await anon.from('EOT_GR_data').select('id')).error)
+  if (config.corePages === true) {
+    const trends = await user.rpc('get_guild_trends_batch', {
+      p_guild_code: 'SYN001',
+      p_seasons: ['9999']
+    })
+    assert.equal(trends.error, null)
+    assert.equal(trends.data?.length, 1)
+    for (const [field, value] of Object.entries({
+      total_damage: 400,
+      total_battles: 6,
+      max_hit: 200,
+      active_players: 2,
+      guild_member_count: 2,
+      participation_rate: 100,
+      avg_damage_per_token: 100,
+      vs_cluster_percent: -20,
+      guild_rank_in_cluster: 1,
+      total_guilds_in_cluster: 2
+    }))
+      assert.equal(trends.data[0][field], value)
+    for (const [name, extra] of [
+      ['get_boss_difficulty_analysis', {}],
+      ['get_damage_by_boss_loop', {}],
+      ['get_token_usage_by_loop', {}],
+      ['get_guild_vs_cluster_prime_performance', {}],
+      ['get_token_usage_by_loop_and_set', {}],
+      ['get_guild_trends_batch', { p_seasons: ['9999'] }],
+      ['get_boss_performance_overview', { p_level: 'L1' }]
+    ] as const) {
+      const args = {
+        p_guild_code: 'SYN003',
+        ...(name === 'get_guild_trends_batch' ? {} : { p_season: '9999' }),
+        ...extra
+      }
+      const response = await user.rpc(name, args)
+      assert.equal(response.error, null)
+      assert.ok(
+        name === 'get_boss_performance_overview'
+          ? response.data === null
+          : response.data.length === 0
+      )
+      assert.ok((await anon.rpc(name, args)).error)
+    }
+    const statsArgs = {
+      p_guild_code: 'SYN001',
+      p_season: '9999',
+      p_display_name: 'SyntheticPlayer-A'
+    }
+    assert.ok(
+      (await user.rpc('get_player_stats_comprehensive', statsArgs)).error
+    )
+    const stats = await admin.rpc('get_player_stats_comprehensive', statsArgs)
+    assert.equal(stats.error, null)
+    assert.equal(stats.data.totalDamage, 525)
+    assert.equal(stats.data.tokensUsed, 4)
+    assert.equal(stats.data.avgDamagePerHit, 150)
+    const rankings = await user.rpc('get_player_boss_rankings', {
+      p_player_name: 'SyntheticPlayer-A',
+      p_guild_code: 'SYN001',
+      p_cluster_code: 'SYN-CLUSTER',
+      p_season: '9999'
+    })
+    assert.equal(rankings.error, null)
+    assert.equal(rankings.data?.length, 1)
+    assert.equal(rankings.data[0].player_rank, 2)
+    assert.equal(rankings.data[0].total_players, 3)
+    for (const table of [
+      'meta_teams',
+      'hero_mappings',
+      'player_avatar_frames',
+      'boss_mapping'
+    ]) {
+      assert.equal((await user.from(table).select('*')).error, null)
+      assert.ok((await user.from(table).insert({})).error)
+    }
+  }
   const inputs = {
     supabase: user,
     playerName: 'SyntheticPlayer-A',
@@ -178,7 +274,7 @@ try {
         NEXT_PUBLIC_SUPABASE_URL: `${gateway.origin}/supabase`,
         SUPABASE_URL: `${gateway.origin}/supabase`,
         NEXT_PUBLIC_SUPABASE_ANON_KEY: 'desktop-public',
-        SUPABASE_SERVICE_ROLE_KEY: services.token.service,
+        SUPABASE_SERVICE_ROLE_KEY: services.serviceCredential,
         DESKTOP_TRANSPORT_KEY: transportKey
       },
       config.application.directory
@@ -200,6 +296,35 @@ try {
       await delay(100)
     }
     assert.ok(up, 'Standalone application readiness')
+    for (const path of [
+      '/api/player-api-key',
+      '/api/player-api-key/sync',
+      '/api/guild/update-api-key',
+      '/api/guild/replace-api-key',
+      '/api/guild/validate-api-key',
+      '/api/player/test-api-key',
+      '/api/admin/player-api-key',
+      '/api/onboarding/validate-player-key',
+      '/api/profile/change-player-id'
+    ]) {
+      const denied = await request(gateway.origin + path, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ apiKey: 'synthetic-forbidden-renderer-key' })
+      })
+      assert.equal(
+        denied.status,
+        409,
+        'Hosted credential operation refused before application authentication or body processing'
+      )
+      assert.equal(
+        (await denied.json()).error,
+        'Use File → Game connection for native credential operations.'
+      )
+    }
+    ;(evidence.checks as string[]).push(
+      'hosted credential endpoints refuse renderer key operations in desktop mode'
+    )
     const cookies: Array<{ name: string; value: string }> = []
     const ssr = createServerClient(
       `${gateway.origin}/supabase`,
@@ -242,7 +367,8 @@ try {
     assert.equal(page.status, 200)
     assert.ok(html.includes('Player Performance'))
     assert.ok(
-      !html.includes(transportKey) && !html.includes(services.token.service),
+      !html.includes(transportKey) &&
+        !html.includes(services.serviceCredential),
       'No privileged secret in renderer HTML'
     )
     evidence.application = {
@@ -252,26 +378,41 @@ try {
       unprotectedInternalPort: 403
     }
     if (config.application.electron) {
+      if (config.rendererWake) {
+        // Earlier HTTP assertions may refresh short-lived sessions. Seed the
+        // browser with a current login rather than an unconsumed response cookie.
+        const current = await ssr.auth.signInWithPassword({
+          email: account.email,
+          password: account.password
+        })
+        assert.equal(current.error, null)
+      }
       const rendererConfig = join(services.state, 'renderer-config.json')
       await writeFile(
         rendererConfig,
         JSON.stringify({
           url: `${gateway.origin}/player-performance?guild=SYN001&season=9999`,
           transportKey,
+          state: services.state,
+          wake: config.rendererWake ? { expected: result } : undefined,
+          corePages: config.corePages === true,
           cookies,
           screenshot: config.application.screenshot,
           evidence: config.application.rendererEvidence
         }),
         { mode: 0o600 }
       )
+      const display = electronDisplay()
       const renderer = services.launch(
         config.application.electron,
-        [config.application.shell, rendererConfig, '--ozone-platform=wayland'],
+        [config.application.shell, rendererConfig, ...display.args],
         {
           PATH: process.env.PATH,
           LANG: 'C.UTF-8',
-          XDG_RUNTIME_DIR: process.env.XDG_RUNTIME_DIR,
-          WAYLAND_DISPLAY: process.env.WAYLAND_DISPLAY
+          HOME: homedir(),
+          XDG_CACHE_HOME: join(services.state, 'cache'),
+          DBUS_SESSION_BUS_ADDRESS: process.env.DBUS_SESSION_BUS_ADDRESS,
+          ...display.environment
         },
         services.state,
         true
@@ -284,16 +425,50 @@ try {
       const observed = JSON.parse(
         await readFile(config.application.rendererEvidence, 'utf8')
       )
+      if (config.rendererWake) assert.equal(observed.wake?.status, 'passed')
       assert.equal(observed.renderer.nodeAccess, false)
       assert.ok(observed.renderer.text.includes('SyntheticPlayer-A'))
       assert.ok(observed.renderer.text.includes('+58%'))
       assert.ok(observed.renderer.text.includes('SyntheticPlayer-B'))
       assert.ok(observed.renderer.text.includes('-50%'))
       assert.ok(!observed.renderer.text.includes('Service Disruption'))
+      if (config.corePages === true) {
+        assert.equal(observed.corePages.length, 6)
+        for (const page of observed.corePages) {
+          assert.equal(page.nodeAccess, false)
+          assert.ok(!page.text.includes('Supabase Warning'))
+          assert.ok(!page.text.includes('Service Disruption'))
+        }
+        const page = (path: string) =>
+          observed.corePages.find((entry: { path: string }) =>
+            entry.path.startsWith(path)
+          )?.text as string
+        assert.ok(page('/dashboard').includes('TOTAL DAMAGE\n625'))
+        assert.ok(page('/guild-trends').includes('#1/2'))
+        assert.ok(page('/guild-trends').includes('-20%'))
+        assert.ok(page('/player-stats').includes('Total Damage\n525'))
+        assert.ok(page('/player-stats').includes('Tokens Used\n4'))
+        assert.ok(page('/boss').includes('AVERAGE DAMAGE\n100'))
+        assert.ok(
+          observed.corePages
+            .find((entry: { path: string }) =>
+              entry.path.startsWith('/token-usage')
+            )
+            ?.title.includes('Access Denied')
+        )
+        assert.ok(page('/roster').includes('Native game connection'))
+        assert.ok(page('/roster').includes('No saved roster yet'))
+      }
       assert.deepEqual(
         observed.failures.filter(
           (failure: { path: string; status: number }) =>
-            !(failure.path === '/api/guild-tokens' && failure.status === 403)
+            !(failure.path === '/api/guild-tokens' && failure.status === 403) &&
+            !(
+              observed.wake?.status === 'passed' &&
+              failure.path === '/supabase/rest/v1/EOT_GR_data' &&
+              failure.query === '?select=id' &&
+              failure.status === 401
+            )
         ),
         [],
         'No unexpected failed renderer requests'
@@ -350,6 +525,33 @@ try {
     (await services.psql('SELECT count(*) FROM public."EOT_GR_data";')).trim(),
     count
   )
+  const credentials = JSON.parse(
+    await readFile(join(services.state, 'credentials.json'), 'utf8')
+  )
+  const administrativeSecrets = [
+    ...Object.values(credentials),
+    services.serviceCredential
+  ] as string[]
+  assert.ok(
+    administrativeSecrets.every(
+      (value) => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value)
+    ),
+    'Administrative credentials have the expected private format'
+  )
+  const noAdministrativeSecret = (content: string) =>
+    assert.ok(
+      administrativeSecrets.every((value) => !content.includes(value)),
+      'Administrative credential reached logs, renderer configuration or process arguments'
+    )
+  for (const file of await readdir(services.state)) {
+    if (/\.log$|^renderer-config\.json$/.test(file))
+      noAdministrativeSecret(await readFile(join(services.state, file), 'utf8'))
+  }
+  for (const child of [services.supervisor, ...services.children]) {
+    if (!child.pid || child.exitCode !== null || child.signalCode !== null)
+      continue
+    noAdministrativeSecret(await readFile(`/proc/${child.pid}/cmdline`, 'utf8'))
+  }
   evidence.result = result
   evidence.checks = [
     'external access blocked',
@@ -364,7 +566,8 @@ try {
     'anonymous read denied',
     'canonical orchestrator and four analytical RPCs',
     'empty player',
-    'interrupted import rollback'
+    'interrupted import rollback',
+    'administrative credentials absent from native logs, renderer configuration and owned process arguments'
   ]
   await writeFile(config.evidence, JSON.stringify(evidence, null, 2), {
     mode: 0o600

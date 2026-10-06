@@ -2,15 +2,20 @@ services:
   nextjs-local:
     image: node:22-bookworm
     working_dir: /workspace
-    command: sleep infinity
+    command: sh -ec 'npm ci && npm run dev -- --hostname 0.0.0.0'
     init: true
     volumes:
       - .:/workspace:cached
       - node_modules:/workspace/node_modules
     ports:
-      - '3000:3000'
+      - '127.0.0.1:3000:3000'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    env_file:
+      - .env.local
     environment:
       REDIS_URL: redis://redis:6379
+      TACTICUS_APP_ID: tacticus-analytics
     depends_on:
       redis:
         condition: service_healthy

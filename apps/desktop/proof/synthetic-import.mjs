@@ -91,6 +91,7 @@ export async function importSyntheticRaid(
     VALUES(${sqlString(fixture.attestation)},1,'synthetic-player-a',${sqlString(fixture.subject)},'operator_quarantine_restore','2000-01-01T00:00:00Z','2000-01-01T00:00:00Z');
     UPDATE public.player_mapping SET ownership_attestation_id=${sqlString(fixture.attestation)} WHERE id=1;
     INSERT INTO public."EOT_GR_data" (${columns}) SELECT ${columns} FROM jsonb_populate_recordset(NULL::public."EOT_GR_data",${sqlString(JSON.stringify(fixture.rows))}::jsonb);
-    ${recordSetup ? `INSERT INTO public.desktop_preview_setup(singleton,subject_user_id) VALUES(true,${sqlString(fixture.subject)});` : ''}
+    ${recordSetup ? `INSERT INTO public.desktop_preview_setup(singleton,subject_user_id,guild_code) VALUES(true,${sqlString(fixture.subject)},'SYN001');` : ''}
+    SELECT setval(pg_get_serial_sequence('public."EOT_GR_data"','id'),coalesce((SELECT max(id)+1 FROM public."EOT_GR_data"),1),false);
     COMMIT;`)
 }

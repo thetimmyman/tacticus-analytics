@@ -1,3 +1,5 @@
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
+import { DesktopCredentialGuide } from '@/app/components/navigation/DesktopCredentialGuide'
 import { requireRole } from '@/app/lib/auth'
 import { db } from '@/app/lib/db'
 import { createPageMetadata } from '@/app/lib/metadata'
@@ -23,6 +25,7 @@ interface GuildConfig {
 }
 
 export default async function ApiKeyManagementPage() {
+  if (getRuntimeProfile() === 'desktop') return <DesktopCredentialGuide />
   // Any guild member may use this console (updating the key fixes a lagging roster sync).
   // Save/Replace need own-guild membership; Remove stays officer+ as it disables auto_sync.
   const { profile } = await requireRole('member')

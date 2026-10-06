@@ -1,5 +1,7 @@
 'use client'
 
+import { DesktopCredentialGuide } from '@/app/components/navigation/DesktopCredentialGuide'
+
 import type { ReactNode } from 'react'
 import { Button } from '@tacticus/ui-kit'
 import { Input } from '@tacticus/ui-kit'
@@ -86,6 +88,8 @@ export function IntegrationSettingsPanel({
   onManualSync,
   validationIndicator
 }: IntegrationSettingsPanelProps) {
+  if (process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop')
+    return <DesktopCredentialGuide />
   if (userRole !== 'leader') {
     return (
       <SettingsSection

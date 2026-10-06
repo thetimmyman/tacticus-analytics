@@ -1,3 +1,4 @@
+import { prepareSchema, completeSchema } from './schema-lifecycle.mjs'
 import { spawn } from 'node:child_process'
 import { createHmac, createHash, randomBytes, randomUUID } from 'node:crypto'
 import { createServer } from 'node:net'
@@ -7,10 +8,10 @@ import { resolve, join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 
 const secret = () => randomBytes(32).toString('hex')
-export function signedToken(key, role) {
+export function signedToken(key, role, lifetimeSeconds = 86400) {
   const encode = (value) =>
     Buffer.from(JSON.stringify(value)).toString('base64url')
-  const body = `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode({ role, iss: 'desktop', iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + 86400 })}`
+  const body = `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode({ role, iss: 'desktop', iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + lifetimeSeconds })}`
   return `${body}.${createHmac('sha256', key).update(body).digest('base64url')}`
 }
 async function freePort() {
@@ -23,11 +24,12 @@ async function freePort() {
   await new Promise((accept) => server.close(accept))
   return port
 }
-async function run(file, args, options) {
+async function run(file, args, options, observe) {
   const child = spawn(file, args, {
     ...options,
-    stdio: ['ignore', 'pipe', 'pipe']
+    stdio: options?.stdio || ['ignore', 'pipe', 'pipe']
   })
+  observe?.(child)
   let stdout = '',
     stderr = ''
   child.stdout.on('data', (v) => {
@@ -38,7 +40,7 @@ async function run(file, args, options) {
   })
   await new Promise((accept, reject) => {
     child.once('error', reject)
-    child.once('exit', (code) =>
+    child.once('close', (code) =>
       code === 0
         ? accept()
         : reject(new Error(`${file} exited ${code}: ${stderr.slice(-1200)}`))
@@ -46,12 +48,34 @@ async function run(file, args, options) {
   })
   return stdout
 }
-export async function nativeServices({
+export async function ownedNativeServices({
   state,
   binaries,
   schemaDirectory,
-  libraryPath
+  libraryPath,
+  tokenLifetimeSeconds = 86400,
+  runtimeGuard,
+  refreshTokenReuseIntervalSeconds = 10,
+  userSessionLifetimeSeconds = 3600
 }) {
+  if (
+    !Number.isInteger(tokenLifetimeSeconds) ||
+    tokenLifetimeSeconds < 1 ||
+    tokenLifetimeSeconds > 86400
+  )
+    throw new Error('Invalid local token lifetime')
+  if (
+    !Number.isInteger(userSessionLifetimeSeconds) ||
+    userSessionLifetimeSeconds < 1 ||
+    userSessionLifetimeSeconds > 86400
+  )
+    throw new Error('Invalid local user session lifetime')
+  if (
+    !Number.isInteger(refreshTokenReuseIntervalSeconds) ||
+    refreshTokenReuseIntervalSeconds < 0 ||
+    refreshTokenReuseIntervalSeconds > 10
+  )
+    throw new Error('Invalid local refresh-token reuse interval')
   state = resolve(state)
   await mkdir(state, { recursive: true, mode: 0o700 })
   const info = await lstat(state)
@@ -67,45 +91,105 @@ export async function nativeServices({
     .update(await readFile(join(schemaDirectory, 'canonical-objects.sql')))
     .update(await readFile(join(schemaDirectory, 'authority.sql')))
     .digest('hex')
-  await writeFile(lockPath, String(process.pid), { flag: 'wx', mode: 0o600 })
-  let needsSchema = true
-  try {
-    if ((await readFile(join(state, 'schema-version'), 'utf8')) !== schemaHash)
-      throw new Error('Incompatible local schema; activation refused')
-    needsSchema = false
-  } catch (error) {
-    if (error.code !== 'ENOENT') {
+  let lockRecord = String(process.pid)
+  if (runtimeGuard) {
+    if (process.env.DESKTOP_KERNEL_LEASE !== '4')
+      throw new Error('Kernel lease required')
+    const lease = await stat(join(state, 'runtime.lease'))
+    const descriptor = await stat('/proc/self/fd/4')
+    if (lease.ino !== descriptor.ino || lease.dev !== descriptor.dev)
+      throw new Error('Kernel lease mismatch')
+    lockRecord = JSON.stringify({
+      format: 'desktop-kernel-lease-v1',
+      ino: lease.ino,
+      dev: lease.dev
+    })
+    try {
+      const old = await readFile(lockPath, 'utf8')
+      // The helper holds the same kernel lease exclusively. Unknown locks are
+      // never interpreted as process identities or removed by this path.
+      if (old !== lockRecord)
+        throw Object.assign(new Error('EEXIST: Unknown workspace lock'), {
+          code: 'EEXIST'
+        })
       await (await import('node:fs/promises')).unlink(lockPath)
-      throw error
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error
     }
   }
+  await writeFile(lockPath, lockRecord, { flag: 'wx', mode: 0o600 })
+  const guarded = (file, args, options) =>
+    runtimeGuard
+      ? {
+          file: runtimeGuard,
+          args: ['--child', String(process.pid), file, ...args],
+          options: {
+            ...options,
+            stdio: ['ignore', 'pipe', 'pipe', 'ignore', 4]
+          }
+        }
+      : { file, args, options }
+  let schemaPlan
+  try {
+    schemaPlan = await prepareSchema({
+      state,
+      schemaDirectory,
+      target: schemaHash
+    })
+  } catch (error) {
+    await (await import('node:fs/promises')).unlink(lockPath)
+    throw error
+  }
+  const needsSchema = schemaPlan.kind === 'bootstrap'
   const children = []
+  const utilities = new Set()
+  const closures = new WeakMap()
+  const observeClose = (child) => {
+    closures.set(child, new Promise((accept) => child.once('close', accept)))
+  }
   const { unlink } = await import('node:fs/promises')
   const onInterrupt = () => {
     void stop().finally(() => process.exit(130))
   }
-  process.once('SIGINT', onInterrupt)
-  process.once('SIGTERM', onInterrupt)
+  process.on('SIGINT', onInterrupt)
+  process.on('SIGTERM', onInterrupt)
   let stopping = false
   let stopPromise
   let fault
+  const managedRun = (file, args, options) => {
+    if (stopping) throw new Error('Local services are stopping')
+    const command = guarded(file, args, options)
+    return run(command.file, command.args, command.options, (child) => {
+      observeClose(child)
+      utilities.add(child)
+      child.once('close', () => utilities.delete(child))
+    })
+  }
   const stop = () => {
     if (stopPromise) return stopPromise
     stopping = true
-    process.removeListener('SIGINT', onInterrupt)
-    process.removeListener('SIGTERM', onInterrupt)
     stopPromise = (async () => {
-      for (const child of [...children].reverse()) {
-        if (child.exitCode !== null || child.signalCode !== null) continue
-        const exited = new Promise((accept) => child.once('exit', accept))
-        child.kill('SIGTERM')
-        await Promise.race([exited, delay(5000, undefined, { ref: false })])
+      for (const child of [...children].reverse().concat([...utilities])) {
+        if (!child.pid) continue
+        const closed = closures.get(child)
+        if (child.exitCode !== null || child.signalCode !== null) {
+          await closed
+          continue
+        }
+        // PostgreSQL fast shutdown cancels open sessions and checkpoints WAL.
+        // SIGTERM requests smart shutdown and can wait indefinitely on clients.
+        child.kill(child === children[0] ? 'SIGINT' : 'SIGTERM')
+        await Promise.race([closed, delay(5000, undefined, { ref: false })])
         if (child.exitCode === null && child.signalCode === null) {
           child.kill('SIGKILL')
-          await exited
         }
+        // Descendant-held pipes and inherited lease descriptors can outlive the
+        // exit event. Complete shutdown only after the owned child closes.
+        await closed
       }
       await unlink(lockPath).catch(() => {})
+      process.removeListener('SIGINT', onInterrupt)
+      process.removeListener('SIGTERM', onInterrupt)
     })()
     return stopPromise
   }
@@ -144,13 +228,14 @@ export async function nativeServices({
       PATH: process.env.PATH,
       LANG: 'C.UTF-8',
       ...(libraryPath ? { LD_LIBRARY_PATH: libraryPath } : {}),
+      PGCONNECT_TIMEOUT: '3',
       PGPASSWORD: credentials.owner
     }
     const psql = async (sql) => {
       const path = join(state, `command-${randomUUID()}.sql`)
       await writeFile(path, sql, { mode: 0o600 })
       try {
-        return await run(
+        return await managedRun(
           binaries.psql,
           [
             '-X',
@@ -174,22 +259,42 @@ export async function nativeServices({
         await unlink(path).catch(() => {})
       }
     }
-    const launch = (file, args, env, cwd = state, ephemeral = false) => {
+    const launch = (
+      file,
+      args,
+      env,
+      cwd = state,
+      ephemeral = false,
+      policy = 'critical'
+    ) => {
+      if (stopping) throw new Error('Local services are stopping')
+      if (!['critical', 'optional'].includes(policy))
+        throw new Error('Unknown child failure policy')
       const log = createWriteStream(join(state, `${children.length}.log`), {
         mode: 0o600,
         flags: 'a'
       })
-      const child = spawn(file, args, {
+      const command = guarded(file, args, {
         cwd,
         env,
         stdio: ['ignore', 'pipe', 'pipe']
       })
+      const child = spawn(command.file, command.args, command.options)
+      observeClose(child)
       child.stdout.pipe(log)
       child.stderr.pipe(log)
-      child.once('error', () => {})
+      child.once('error', () => {
+        if (policy === 'optional') return
+        fault = new Error('A local service failed to start')
+        void stop()
+      })
       children.push(child)
       child.once('exit', (code, signal) => {
-        if (!stopping && (!ephemeral || code !== 0 || signal)) {
+        if (
+          !stopping &&
+          policy === 'critical' &&
+          (!ephemeral || code !== 0 || signal)
+        ) {
           fault = new Error('A proof-owned service failed')
           void stop()
         }
@@ -204,7 +309,7 @@ export async function nativeServices({
       if (error.code !== 'ENOENT') throw error
       const pass = join(state, 'owner-password')
       await writeFile(pass, credentials.owner, { mode: 0o600 })
-      await run(
+      await managedRun(
         binaries.initdb,
         [
           '-D',
@@ -228,8 +333,9 @@ export async function nativeServices({
       ['-D', pgData, '-h', '127.0.0.1', '-p', String(ports.db), '-k', ''],
       pgEnv
     )
-    const ready = async (probe, child, label) => {
-      for (let i = 0; i < 100; i++) {
+    const ready = async (probe, child, label, timeoutMs = 30000) => {
+      const deadline = performance.now() + timeoutMs
+      while (performance.now() < deadline) {
         if (child.exitCode !== null || child.signalCode !== null)
           throw new Error(
             `${label} exited before readiness; inspect private service log`
@@ -243,11 +349,25 @@ export async function nativeServices({
       }
       throw new Error(`${label} readiness timed out`)
     }
-    await ready(() => psql('SELECT 1;'), pg, 'PostgreSQL')
+    // Crash recovery must finish before SQL, Auth migrations or application work.
+    await ready(() => psql('SELECT 1;'), pg, 'PostgreSQL', 90000)
+    if (!needsSchema)
+      await completeSchema({ state, schemaDirectory, plan: schemaPlan, psql })
     const token = {
-      anon: signedToken(credentials.jwt, 'anon'),
-      service: signedToken(credentials.jwt, 'service_role')
+      get anon() {
+        return signedToken(credentials.jwt, 'anon', tokenLifetimeSeconds)
+      },
+      get service() {
+        return signedToken(
+          credentials.jwt,
+          'service_role',
+          tokenLifetimeSeconds
+        )
+      }
     }
+    // Private server clients exchange this stable credential at the guarded
+    // gateway. Native JWTs are minted per use and never retained until expiry.
+    const serviceCredential = secret()
     if (
       (
         await psql(
@@ -285,44 +405,49 @@ export async function nativeServices({
       DB_NAMESPACE: 'auth',
       GOTRUE_JWT_SECRET: credentials.jwt,
       GOTRUE_JWT_AUD: 'authenticated',
+      GOTRUE_JWT_EXP: String(userSessionLifetimeSeconds),
       GOTRUE_JWT_DEFAULT_GROUP_NAME: 'authenticated',
       GOTRUE_JWT_ADMIN_ROLES: 'service_role',
+      GOTRUE_SECURITY_REFRESH_TOKEN_ROTATION_ENABLED: 'true',
+      GOTRUE_SECURITY_REFRESH_TOKEN_REUSE_INTERVAL: String(
+        refreshTokenReuseIntervalSeconds
+      ),
       GOTRUE_DISABLE_SIGNUP: 'true',
       GOTRUE_EXTERNAL_EMAIL_ENABLED: 'true',
       GOTRUE_EXTERNAL_PHONE_ENABLED: 'false',
       GOTRUE_MAILER_AUTOCONFIRM: 'true',
       GOTRUE_LOG_LEVEL: 'warn'
     }
-    await run(binaries.auth, ['migrate'], {
+    await managedRun(binaries.auth, ['migrate'], {
       env: authEnv,
       cwd: binaries.authCwd
     })
     const auth = launch(binaries.auth, ['serve'], authEnv, binaries.authCwd)
     await ready(
       async () => {
-        const r = await fetch(`http://127.0.0.1:${ports.auth}/health`)
+        const r = await fetch(`http://127.0.0.1:${ports.auth}/health`, {
+          signal: AbortSignal.timeout(2000)
+        })
         if (!r.ok) throw Error('Auth not ready')
       },
       auth,
       'Auth'
     )
-    if (needsSchema) {
-      // The native Auth release supplies its own versioned schema migrations.
-      await psql(
-        'BEGIN;\n' +
+    if (needsSchema)
+      await completeSchema({
+        state,
+        schemaDirectory,
+        plan: schemaPlan,
+        psql,
+        bootstrapSql:
           (await readFile(
             join(schemaDirectory, 'canonical-objects.sql'),
             'utf8'
           )) +
           '\n' +
-          (await readFile(join(schemaDirectory, 'authority.sql'), 'utf8')) +
-          '\nCOMMIT;'
-      )
-      await writeFile(join(state, 'schema-version'), schemaHash, {
-        mode: 0o600,
-        flag: 'wx'
+          (await readFile(join(schemaDirectory, 'authority.sql'), 'utf8'))
       })
-    }
+
     const rest = launch(binaries.postgrest, [], {
       PATH: process.env.PATH,
       PGRST_DB_URI: `postgres://authenticator:${credentials.rest}@127.0.0.1:${ports.db}/postgres`,
@@ -336,7 +461,8 @@ export async function nativeServices({
     await ready(
       async () => {
         const r = await fetch(`http://127.0.0.1:${ports.rest}/`, {
-          headers: { Authorization: `Bearer ${token.service}` }
+          headers: { Authorization: `Bearer ${token.service}` },
+          signal: AbortSignal.timeout(2000)
         })
         if (!r.ok) throw Error('PostgREST not ready')
       },
@@ -347,6 +473,7 @@ export async function nativeServices({
       state,
       ports,
       token,
+      serviceCredential,
       psql,
       launch,
       children,
@@ -361,3 +488,5 @@ export async function nativeServices({
     throw error
   }
 }
+
+export { nativeServices } from './service-client.mjs'

@@ -1,4 +1,5 @@
 import { ImageLoaderProps } from 'next/image'
+import { getRuntimeProfile } from './runtime-profile'
 import { getSupabaseHost, hasSupabaseCredentials } from './supabase-env'
 
 export const IMAGE_CONFIG = {
@@ -41,12 +42,20 @@ export const QUALITY_SETTINGS = {
   fallback: 70
 } as const
 
-/** Forwards through Next.js's built-in /_next/image optimizer on any deploy target. */
+/** Desktop uses bundled portraits directly; hosted deployments use the optimizer. */
 export const bossPortraitLoader = ({
   src,
   width,
   quality
 }: ImageLoaderProps): string => {
+  if (
+    getRuntimeProfile() === 'desktop' &&
+    /^\/images\/bosses\/(?:portraits|icons|thumbnails)\/[A-Za-z0-9_-]+\.png$/.test(
+      src
+    )
+  )
+    return src
+
   if (src.includes('/_next/image')) {
     return src
   }
