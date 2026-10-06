@@ -1,0 +1,52 @@
+name: Add-on host components
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/addon-host.yml'
+      - 'packages/addon-host/**'
+      - 'apps/addons/**'
+      - 'tests/addons/**'
+      - 'package.json'
+      - 'package-lock.json'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/addon-host.yml'
+      - 'packages/addon-host/**'
+      - 'apps/addons/**'
+      - 'tests/addons/**'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: addon-host-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  components:
+    name: addon-host-components
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.23.3'
+      - run: npm ci
+      - name: Adversarial lifecycle and graphical component tests
+        run: node --import tsx --test tests/addons/*.node-test.ts tests/addons/*.node-test.tsx
+      - name: Typecheck add-on boundaries
+        run: npx tsc -p packages/addon-host/tsconfig.json
+      - name: Lint host and graphical manager
+        run: npx eslint packages/addon-host/src apps/addons
+      - name: Build exact components
+        run: node apps/addons/build.mjs "$RUNNER_TEMP/addon-components"
+      - name: Verify built component digests and offline lifecycle
+        run: node tests/addons/packaged-smoke.mjs "$RUNNER_TEMP/addon-components"
