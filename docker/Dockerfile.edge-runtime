@@ -7,6 +7,14 @@
 # serves all 76 functions.
 FROM ghcr.io/supabase/edge-runtime:v1.76.2
 
+# Take Debian's security updates for packages already in the upstream image
+# (installing nothing new), so fixed CVEs in the base do not wait on an
+# upstream rebuild.
+RUN apt-get update \
+  && apt-get upgrade -y --no-install-recommends \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
 COPY supabase/functions /home/deno/functions
 
 CMD [ "start", "--main-service", "/home/deno/functions/main" ]
