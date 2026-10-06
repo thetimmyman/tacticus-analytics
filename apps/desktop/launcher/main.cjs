@@ -92,6 +92,9 @@ app
           (await window.webContents.capturePage()).toPNG(),
           { mode: 0o600 }
         )
+      const setupMode = await window.webContents.executeJavaScript(
+        `document.querySelector('form')?.dataset.mode ?? null`
+      )
       if (window.webContents.getURL().includes('/desktop/setup')) {
         await window.webContents.executeJavaScript(
           `if(document.querySelector('input[type="password"]')) throw new Error('Unexpected workspace password'); document.querySelector('#sample').checked=true; document.querySelector('form').requestSubmit();`
@@ -124,6 +127,7 @@ app
             )
           : []
       const evidence = {
+        setupMode,
         observed,
         corePages,
         deviceSession: true,
