@@ -42,6 +42,27 @@ if ! supa start "$@"; then
   exit 1
 fi
 
+# replay_migrations has no concept of "already applied" -- it just tries
+# every migration file, which fails non-idempotent ones the second time
+# around. Detect our own baseline ledger row instead of re-running it
+# against a database this script already migrated (a still-running stack,
+# or one restarted without `stop --no-backup`, which keeps its volume).
+BASELINE_LEDGERED="$(docker exec -i "$DB_CONTAINER" psql -Atq -U postgres -d postgres -c \
+  "SELECT to_regclass('supabase_migrations.schema_migrations') IS NOT NULL" 2>/dev/null)"
+if [ "$BASELINE_LEDGERED" = "t" ]; then
+  BASELINE_LEDGERED="$(docker exec -i "$DB_CONTAINER" psql -Atq -U postgres -d postgres -c \
+    "SELECT count(*) FROM supabase_migrations.schema_migrations WHERE version = '20260813000000'")"
+else
+  BASELINE_LEDGERED="0"
+fi
+
+if [ "$BASELINE_LEDGERED" != "0" ]; then
+  echo "== database already has this repository's migrations and seed applied -- skipping the replay =="
+  echo
+  echo "Supabase stack is up. Run 'npm run supabase:status' for the API URL and keys."
+  exit 0
+fi
+
 echo "== replaying this repository's migrations =="
 # shellcheck source=scripts/dev/lib/replay-migrations.sh
 . "$REPO_ROOT/scripts/dev/lib/replay-migrations.sh"

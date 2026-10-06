@@ -49,27 +49,36 @@ in `.app-identity.json` (`localhost`, `127.0.0.1`, or `host.docker.internal`);
 remote `*.supabase.co` project, before Next.js starts.
 
 On a brand-new Supabase CLI database, the CLI's own migration pass cannot
-get past `20260831150100_wi8360_revoke_pg_db_role_setting_public_select.sql`:
-the CLI's postgres image makes `supabase_admin`, not `postgres`, the owner
-of the `pg_catalog.pg_db_role_setting` relation, and that migration's verify
-block checks the relation's actual owner (`pg_class.relowner`) rather than
-which role executes the migration, so no choice of migration-executing role
-changes the outcome. That check is intentional (it is the production
-hardening the migration exists to add) and is not something this repository
-can or should work around in the migration itself.
+get past migration version `20260831150100`, which revokes `PUBLIC`'s
+`SELECT` on `pg_catalog.pg_db_role_setting`: the CLI's postgres image makes
+`supabase_admin`, not `postgres`, the owner of that relation, and the
+migration's verify block checks the relation's actual owner
+(`pg_class.relowner`) rather than which role executes the migration, so no
+choice of migration-executing role changes the outcome. That check is
+intentional (it is the production hardening the migration exists to add)
+and is not something this repository can or should work around in the
+migration itself.
 
 `npm run supabase:start` therefore does not hand migrations to the CLI.
 Instead it starts the CLI stack with its own migration pass and seed
 disabled, then applies this repository's migrations itself the same way
 the pgTAP and integration test lanes already do (see
 `scripts/dev/supabase-start-fresh.sh` and
-`scripts/dev/lib/replay-migrations.sh`). That replay tolerates the one
-migration above — printing it as "not applied (known)" rather than
-silently skipping it, see the `cli-stack:` entry in
-`scripts/dev/lib/replay-unappliable.txt` — and applies the seed
-(`supabase/seed.sql`) once the schema is in place. `npm run supabase:status`
-then reports the usual API URL and keys for a stack with every other
-migration applied.
+`scripts/dev/lib/replay-migrations.sh`). That replay prints and skips each
+migration listed in `scripts/dev/lib/replay-unappliable.txt` — one
+CLI-stack-only failure (the migration above) plus others that depend on
+data or objects that exist only in production — as "not applied (known)"
+rather than silently, and applies the seed (`supabase/seed.sql`) once the
+schema is in place. The result is close to production's schema but not
+identical to it. `npm run supabase:status` then reports the usual API URL
+and keys.
+
+Running `npm run supabase:start` again against a stack that already has
+this repository's migrations applied (still running, or restarted without
+`--no-backup`) is a no-op: it detects the existing schema and skips the
+replay and seed. `npm run supabase:reset` stops the stack, discards its
+data (`--no-backup`), and runs the same fresh-start path, so it also no
+longer goes through the CLI's own migration pass.
 
 Launch and stop the web-plus-Redis services with:
 
