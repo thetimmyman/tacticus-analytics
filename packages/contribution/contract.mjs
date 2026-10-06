@@ -101,23 +101,52 @@ export function defaultConsent({
     until: null
   })
 }
+// Official timestamps are numeric Unix values at second to nanosecond
+// precision; the canonical form is a whole-second digit string.
+export function unixSeconds(value) {
+  let digits
+  if (typeof value === 'number') {
+    if (!Number.isSafeInteger(value) || value < 0) reject()
+    digits = String(value)
+  } else if (typeof value === 'string' && /^\d{1,19}$/.test(value)) {
+    digits = value.replace(/^0+(?=\d)/, '')
+  } else reject()
+  const drop =
+    digits.length >= 19
+      ? 9
+      : digits.length >= 16
+        ? 6
+        : digits.length >= 13
+          ? 3
+          : 0
+  const seconds = drop ? digits.slice(0, -drop) : digits
+  if (!/^\d{1,12}$/.test(seconds)) reject()
+  return seconds
+}
 export function raidRow(value) {
   exact(value, RAID_FIELDS)
   uuid(value.userId)
   for (const key of ['tier', 'set', 'encounterIndex', 'damageDealt'])
     integer(value[key], 2147483647)
   if (!['Battle', 'Bomb'].includes(value.damageType)) reject()
-  for (const key of ['startedOn', 'completedOn']) {
-    if (typeof value[key] !== 'string' || !/^\d{1,12}$/.test(value[key]))
-      reject()
-  }
-  if (Number(value.completedOn) < Number(value.startedOn)) reject()
+  const startedOn = unixSeconds(value.startedOn),
+    completedOn = unixSeconds(value.completedOn)
+  if (Number(completedOn) < Number(startedOn)) reject()
   if (
     typeof value.unitId !== 'string' ||
     !/^[A-Za-z][A-Za-z0-9]{0,95}$/.test(value.unitId)
   )
     reject()
-  return Object.fromEntries(RAID_FIELDS.map((key) => [key, value[key]]))
+  return Object.fromEntries(
+    RAID_FIELDS.map((key) => [
+      key,
+      key === 'startedOn'
+        ? startedOn
+        : key === 'completedOn'
+          ? completedOn
+          : value[key]
+    ])
+  )
 }
 export function envelope(value) {
   exact(value, [
@@ -164,8 +193,10 @@ export function envelope(value) {
     reject()
   return { ...structuredClone(value), rows }
 }
-export function allowed(policy, upload) {
+export function allowed(policy, upload, now = Date.now()) {
+  const current = Number.isFinite(now) ? new Date(now).toISOString() : null
   return (
+    current !== null &&
     policy.enabled &&
     !policy.paused &&
     policy.purpose === upload.purpose &&
@@ -173,7 +204,8 @@ export function allowed(policy, upload) {
     policy.revision === upload.consentRevision &&
     policy.datasets[upload.dataset] &&
     upload.observedAt >= policy.from &&
-    (policy.until === null || upload.observedAt <= policy.until)
+    (policy.until === null ||
+      (upload.observedAt <= policy.until && current <= policy.until))
   )
 }
 export function receipt(value) {

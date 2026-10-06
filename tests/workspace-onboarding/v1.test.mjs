@@ -415,3 +415,44 @@ test('Guild replacement invalidates old Raid binding and disconnect removes each
   await f.service.disconnect('Guild Raid')
   assert.deepEqual(f.removed, ['guild-only', 'raid-and-guild'])
 })
+
+test('declined Player confirmation stops optional scope discovery and drops the credential', async () => {
+  const { service, stored, revoked } = fixture([
+    'Player',
+    'Guild',
+    'Guild Raid'
+  ])
+  await service.connect({ confirmPlayer: async () => false })
+  assert.equal(stored().vaultReferences?.Guild, undefined)
+  assert.equal(stored().guildId, undefined)
+  assert.equal(stored().personal, undefined)
+  assert.deepEqual(revoked(), ['opaque-vault-reference'])
+})
+test('historical imports reject credential aliases', () => {
+  const { service } = fixture()
+  for (const key of [
+    'accessToken',
+    'refreshToken',
+    'password',
+    'bearerToken',
+    'x-api-key'
+  ])
+    assert.throws(
+      () => service.migrateHistorical({ personal: { [key]: 'synthetic' } }),
+      /secure native migration/
+    )
+})
+test('a failed vault removal keeps a pending cleanup handle that a later disconnect retries', async () => {
+  const f = fixture()
+  await f.service.connect({ confirmPlayer })
+  const original = f.service.vault.remove
+  f.service.vault.remove = async () => {
+    throw new Error('synthetic vault locked')
+  }
+  await assert.rejects(f.service.disconnect('Player'))
+  assert.deepEqual(f.stored().pendingVaultRemovals, ['opaque-vault-reference'])
+  f.service.vault.remove = original
+  await f.service.disconnect('Player')
+  assert.equal(f.stored().pendingVaultRemovals, undefined)
+  assert.deepEqual(f.revoked(), ['opaque-vault-reference'])
+})

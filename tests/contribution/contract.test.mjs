@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  allowed,
   defaultConsent,
   envelope,
   receipt
@@ -62,5 +63,37 @@ test('verified receipt needs an independent authority digest', () => {
       source: 'official-guild-raid',
       results: [{ index: 0, status: 'verified', authorityDigest: null }]
     })
+  )
+})
+test('official numeric timestamps normalize to the canonical whole-second form', () => {
+  const input = structuredClone(upload)
+  input.rows[0].startedOn = 1767225600
+  input.rows[0].completedOn = 1767225601000
+  const [row] = envelope(input).rows
+  assert.equal(row.startedOn, '1767225600')
+  assert.equal(row.completedOn, '1767225601')
+})
+test('policy expiry is enforced against the current time, not only observation time', () => {
+  const policy = {
+    ...defaultConsent({ accountRef: id, guildId: id, now }),
+    revision: 1,
+    enabled: true,
+    datasets: { raid: true, war: false, replay: false },
+    until: '2026-01-01T00:10:00.000Z'
+  }
+  const sent = {
+    purpose: 'meta',
+    guildId: id,
+    consentRevision: 1,
+    dataset: 'raid',
+    observedAt: '2026-01-01T00:09:00.000Z'
+  }
+  assert.equal(
+    allowed(policy, sent, Date.parse('2026-01-01T00:09:30.000Z')),
+    true
+  )
+  assert.equal(
+    allowed(policy, sent, Date.parse('2026-01-01T00:11:00.000Z')),
+    false
   )
 })

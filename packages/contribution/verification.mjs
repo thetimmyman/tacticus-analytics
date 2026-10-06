@@ -31,6 +31,7 @@ export class VerificationService {
     if (
       !Buffer.isBuffer(attributionKey) ||
       attributionKey.length !== 32 ||
+      !Number.isSafeInteger(minimumGuilds) ||
       minimumGuilds < 3
     )
       throw new Error('Protected verification configuration required')
@@ -91,7 +92,7 @@ export class VerificationService {
       upload.purpose !== 'meta' ||
       upload.guildId !== binding.guildId ||
       !policy ||
-      !allowed(policy, upload)
+      !allowed(policy, upload, this.now())
     )
       throw new Error('Contribution is not authorized')
     const requestKey = `${upload.bindingId}/${upload.requestId}`,
@@ -145,7 +146,7 @@ export class VerificationService {
     // Recheck policy and active binding after the upstream await, including revocation races.
     this.credentials.binding(principal, upload.bindingId)
     const currentPolicy = this.store.value.policies[policyKey]
-    if (!currentPolicy || !allowed(currentPolicy, upload))
+    if (!currentPolicy || !allowed(currentPolicy, upload, this.now()))
       throw new Error('Contribution consent revoked')
     if (
       authority.guild?.guildId !== binding.guildId ||

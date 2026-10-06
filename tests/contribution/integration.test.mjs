@@ -483,3 +483,50 @@ test('privacy threshold, retention and per-principal limits are enforced', async
   assert.equal(Object.keys(f.service.store.value.records).length, 0)
   assert.equal(Object.keys(f.service.store.value.requests).length, 0)
 })
+
+test('cohort threshold configuration must be a finite integer of at least three', async (t) => {
+  for (const minimumGuilds of [Number.NaN, 2, 3.5, Infinity])
+    assert.throws(
+      () =>
+        new VerificationService({
+          path: join(tmpdir(), 'unused-sources.json'),
+          upstream: {},
+          credentialStore: {},
+          attributionKey: randomBytes(32),
+          minimumGuilds
+        }),
+      /Protected verification configuration required/
+    )
+})
+test('enrollment rejects partial official payloads', async (t) => {
+  const directory = mkdtempSync(join(tmpdir(), 'contribution-enroll-'))
+  t.after(() => rmSync(directory, { recursive: true, force: true }))
+  const vault = new ProtectedReadVault({
+    path: join(directory, 'protected.json'),
+    encryptionKey: randomBytes(32),
+    upstream: {
+      fetchGuildRaid: async (_, season) => ({
+        guild: { guildId: id(1) },
+        raid: { season }
+      })
+    }
+  })
+  await assert.rejects(
+    vault.enroll(id(3), {
+      separateConsent: true,
+      credentialType: 'official-read',
+      accountRef: id(4),
+      season: 1,
+      readOfficialCredential: async () => Buffer.from(canary)
+    }),
+    /enrollment failed/
+  )
+})
+test('official 403 responses are classified as expired access', async () => {
+  const { DeviceOfficialSourceV1 } =
+    await import('../../packages/workspace-onboarding/v1.mjs')
+  const source = new DeviceOfficialSourceV1({
+    fetchImpl: async () => ({ ok: false, status: 403 })
+  })
+  await assert.rejects(source.get('Player', canary), { code: 'EEXPIRED' })
+})

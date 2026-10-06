@@ -159,8 +159,8 @@ function rejectHistoricalCredentials(value) {
   if (!value || typeof value !== 'object') return
   for (const [key, nested] of Object.entries(value)) {
     if (
-      /^(apiKey|api_key|credential|secret|sessionToken|authorization|headers|cookie)$/i.test(
-        key
+      /apikey|accesstoken|refreshtoken|idtoken|authtoken|sessiontoken|bearer|password|passwd|passphrase|secret|credential|authorization|cookie|headers|privatekey|jwt/.test(
+        key.toLowerCase().replace(/[^a-z0-9]/g, '')
       )
     )
       throw new Error('Historical credentials require secure native migration')
@@ -207,7 +207,7 @@ export class WorkspaceOnboardingV1 {
     )
       throw new Error('Unsupported capability')
     this.busy = true
-    let handle, player, guild, raid, metadata
+    let handle, player, guild, raid, metadata, stopOptional
     const statuses = {},
       previous = this.state.read()
     try {
@@ -275,18 +275,25 @@ export class WorkspaceOnboardingV1 {
             )
               throw new Error('Player confirmation required')
           } catch {
+            // The credential is no longer trusted for this setup attempt.
             player = null
+            metadata = undefined
+            stopOptional = true
             statuses.Player = 'unavailable'
           }
         }
       }
       // Metadata from a successful Player read can discover combined scopes without another prompt.
-      const scopes = new Set([
-        ...requested,
-        ...(metadata?.scopes?.filter((scope) =>
-          REQUESTED_CAPABILITIES.includes(scope)
-        ) ?? [])
-      ])
+      const scopes = new Set(
+        stopOptional
+          ? requested.filter((scope) => scope === 'Player')
+          : [
+              ...requested,
+              ...(metadata?.scopes?.filter((scope) =>
+                REQUESTED_CAPABILITIES.includes(scope)
+              ) ?? [])
+            ]
+      )
       if (scopes.has('Guild Raid')) scopes.add('Guild')
       if (scopes.has('Guild') || scopes.has('Guild Raid'))
         guild = await fetchScope('Guild')
@@ -354,18 +361,11 @@ export class WorkspaceOnboardingV1 {
           }
         } else current.capabilities[scope] = statuses[scope] ?? 'unavailable'
       }
-      this.state.write(current)
-      if (!Object.values(current.vaultReferences).includes(handle))
-        await this.vault.remove(handle)
-      for (const oldHandle of new Set(
-        Object.values(previous.vaultReferences ?? {})
-      )) {
-        if (
-          oldHandle !== handle &&
-          !Object.values(current.vaultReferences).includes(oldHandle)
-        )
-          await this.vault.remove(oldHandle)
-      }
+      // Removal failures stay queued as pending cleanup and retry later.
+      await this.#release(current, [
+        handle,
+        ...Object.values(previous.vaultReferences ?? {})
+      ])
       return this.view()
     } catch (error) {
       if (
@@ -393,6 +393,35 @@ export class WorkspaceOnboardingV1 {
     } finally {
       this.busy = false
     }
+  }
+  // Persists the state with unreferenced handles queued for removal, deletes
+  // them, and only then forgets them, so a locked vault never orphans a key.
+  async #release(current, candidates) {
+    const referenced = new Set(Object.values(current.vaultReferences ?? {}))
+    const pending = new Set([
+      ...(current.pendingVaultRemovals ?? []),
+      ...candidates.filter((handle) => handle && !referenced.has(handle))
+    ])
+    for (const handle of referenced) pending.delete(handle)
+    const queued = pending.size
+    if (queued) current.pendingVaultRemovals = [...pending]
+    else delete current.pendingVaultRemovals
+    this.state.write(current)
+    let failure
+    for (const handle of pending) {
+      try {
+        await this.vault.remove(handle)
+        pending.delete(handle)
+      } catch (error) {
+        failure ??= { error }
+      }
+    }
+    if (pending.size !== queued) {
+      current.pendingVaultRemovals = [...pending]
+      if (!pending.size) delete current.pendingVaultRemovals
+      this.state.write(current)
+    }
+    return failure
   }
   async skipOptional() {
     const current = this.state.read()
@@ -425,10 +454,9 @@ export class WorkspaceOnboardingV1 {
       delete current.vaultReferences?.['Guild Raid']
       current.capabilities['Guild Raid'] = 'guild-binding-unavailable'
     }
-    this.state.write(current)
-    for (const handle of new Set(Object.values(previous.vaultReferences ?? {})))
-      if (!Object.values(current.vaultReferences ?? {}).includes(handle))
-        await this.vault.remove(handle)
+    const stale = [...new Set(Object.values(previous.vaultReferences ?? {}))]
+    const failure = await this.#release(current, stale)
+    if (failure) throw failure.error
     return this.view()
   }
 }
@@ -449,7 +477,15 @@ export class DeviceOfficialSourceV1 {
         signal: AbortSignal.timeout(15000)
       }
     )
-    if (!response.ok) throw new Error('Official access unavailable')
+    if (!response.ok) {
+      await response.body?.cancel?.().catch(() => {})
+      throw Object.assign(new Error('Official access unavailable'), {
+        code:
+          response.status === 401 || response.status === 403
+            ? 'EEXPIRED'
+            : 'EUPSTREAM'
+      })
+    }
     const reader = response.body?.getReader(),
       chunks = []
     if (!reader) throw new Error('Official response unavailable')

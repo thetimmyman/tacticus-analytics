@@ -61,7 +61,11 @@ export class ProtectedReadVault {
         season
       )
       uuid(authority.guild?.guildId)
-      if (authority.raid?.season !== season)
+      if (
+        authority.raid?.season !== season ||
+        !Array.isArray(authority.guild.members) ||
+        !Array.isArray(authority.raid.entries)
+      )
         throw new Error('Guild Raid scope unavailable')
       const id = randomUUID(),
         iv = randomBytes(12),

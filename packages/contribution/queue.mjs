@@ -41,7 +41,7 @@ export class ContributionQueue {
       throw new Error('Consent revision must increase')
     state.policies[key] = policy
     state.jobs = state.jobs.filter(
-      (job) => job.policyKey !== key || allowed(policy, job.upload)
+      (job) => job.policyKey !== key || allowed(policy, job.upload, this.now())
     )
     this.store.commit(state)
     for (const flight of this.#inflight.values())
@@ -56,7 +56,7 @@ export class ContributionQueue {
       key = policyKey({ accountRef, ...upload }),
       state = structuredClone(this.store.value)
     const policy = state.policies[key]
-    if (!policy || !allowed(policy, upload))
+    if (!policy || !allowed(policy, upload, this.now()))
       throw new Error('Contribution consent is not active')
     state.jobs = state.jobs.filter(
       (job) => this.now() - job.createdAt <= this.maxAgeMs
@@ -96,7 +96,7 @@ export class ContributionQueue {
         if (
           this.now() - job.createdAt > this.maxAgeMs ||
           !policy ||
-          !allowed(policy, job.upload)
+          !allowed(policy, job.upload, this.now())
         ) {
           this.store.commit({
             ...state,
@@ -130,7 +130,7 @@ export class ContributionQueue {
             throw new Error('Unmatched receipt')
           state = structuredClone(this.store.value)
           policy = state.policies[job.policyKey]
-          const revoked = !policy || !allowed(policy, job.upload)
+          const revoked = !policy || !allowed(policy, job.upload, this.now())
           state.receipts.push({
             ...response,
             delivery: revoked ? 'sent-before-revocation' : 'received'
