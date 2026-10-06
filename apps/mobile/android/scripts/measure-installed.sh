@@ -43,12 +43,11 @@ stage synthetic-unlock
 "$ADB" -s "$SERIAL" shell input keyevent KEYCODE_WAKEUP
 "$ADB" -s "$SERIAL" shell wm dismiss-keyguard > /dev/null 2>&1 || true
 "$ADB" -s "$SERIAL" shell input swipe 160 500 160 100 100
-"$ADB" -s "$SERIAL" shell input text 2468
-"$ADB" -s "$SERIAL" shell input keyevent KEYCODE_ENTER
-sleep 1
+"$ADB" -s "$SERIAL" shell am instrument -w -e phase unlocked com.tacticusanalytics.mobile.preview.test/com.tacticusanalytics.mobile.AndroidProof > "$REPORT/all.txt"
+rg -q '^PASS phase=unlocked checks=3[;[:space:]]' "$REPORT/all.txt" || { cat "$REPORT/all.txt"; exit 1; }
 stage synthetic-airplane-mode
 "$ADB" -s "$SERIAL" shell cmd connectivity airplane-mode enable > /dev/null 2>&1 || true
-"$ADB" -s "$SERIAL" shell am instrument -w -e phase airplane com.tacticusanalytics.mobile.preview.test/com.tacticusanalytics.mobile.AndroidProof > "$REPORT/all.txt"
+"$ADB" -s "$SERIAL" shell am instrument -w -e phase airplane com.tacticusanalytics.mobile.preview.test/com.tacticusanalytics.mobile.AndroidProof >> "$REPORT/all.txt"
 rg -q '^PASS phase=airplane ' "$REPORT/all.txt" || { cat "$REPORT/all.txt"; exit 1; }
 "$ADB" -s "$SERIAL" logcat -c > /dev/null 2>&1 || printf 'Device log clear unavailable; final log read remains required\n' >&2
 stage installed-functional-assertions

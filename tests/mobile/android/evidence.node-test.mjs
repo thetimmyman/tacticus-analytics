@@ -25,7 +25,8 @@ const script = readFileSync(
 )
 const producer = script.match(/python3 - <<'PY'\n([\s\S]*?)\nPY\n/)[1]
 const captures = {
-  'all.txt': 'PASS phase=airplane checks=2\nPASS phase=all checks=73\n',
+  'all.txt':
+    'PASS phase=unlocked checks=3\nPASS phase=airplane checks=2\nPASS phase=all checks=73\n',
   'reopen.txt': 'PASS phase=reopen checks=7\n',
   'locked.txt': 'PASS phase=locked checks=5\n',
   'relaunch.txt': 'Status: ok\nTotalTime: 123\n'

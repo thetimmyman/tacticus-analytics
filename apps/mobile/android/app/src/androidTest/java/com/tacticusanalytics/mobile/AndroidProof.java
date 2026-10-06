@@ -183,11 +183,76 @@ public final class AndroidProof extends Instrumentation {
     }
     throw new Exception("Airplane mode and disconnected networks did not converge");
   }
+  private AccessibilityNodeInfo systemPinControl(String id) throws Exception {
+    AccessibilityNodeInfo root = getUiAutomation().getRootInActiveWindow();
+    if (root == null || !"com.android.systemui".contentEquals(root.getPackageName()))
+      return null;
+    java.util.List<AccessibilityNodeInfo> controls =
+        root.findAccessibilityNodeInfosByViewId("com.android.systemui:id/" + id);
+    if (controls.size() > 1)
+      throw new Exception("Synthetic PIN control is ambiguous");
+    if (controls.isEmpty())
+      return null;
+    AccessibilityNodeInfo control = controls.get(0);
+    return control.isVisibleToUser() && control.isEnabled() ? control : null;
+  }
+  private void prepareUnlocked() throws Exception {
+    check("ranchu".equals(Build.HARDWARE) || "goldfish".equals(Build.HARDWARE),
+        "Synthetic PIN setup is emulator-only");
+    android.app.KeyguardManager manager =
+        getTargetContext().getSystemService(android.app.KeyguardManager.class);
+    check(manager != null && manager.isDeviceSecure(), "Synthetic secure lock unavailable");
+    android.accessibilityservice.AccessibilityServiceInfo service =
+        getUiAutomation().getServiceInfo();
+    if (service == null)
+      throw new Exception("Synthetic PIN observation unavailable");
+    service.flags |= android.accessibilityservice.AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
+    getUiAutomation().setServiceInfo(service);
+    long deadline = SystemClock.elapsedRealtime() + 20000;
+    boolean submitted = false;
+    String[] keys = {"key2", "key4", "key6", "key8", "key_enter"};
+    while (SystemClock.elapsedRealtime() < deadline) {
+      if (!manager.isDeviceLocked()) {
+        LocalAccess.requireUnlocked(getTargetContext());
+        check(true, "Native session did not unlock");
+        return;
+      }
+      if (!submitted && systemPinControl("keyguard_pin_view") != null) {
+        AccessibilityNodeInfo entry = systemPinControl("pinEntry");
+        AccessibilityNodeInfo clear = systemPinControl("delete_button");
+        boolean ready = entry != null && clear != null && clear.isLongClickable();
+        for (String key : keys) {
+          AccessibilityNodeInfo control = systemPinControl(key);
+          ready &= control != null && control.isClickable();
+        }
+        if (ready) {
+          submitted = true;
+          if (!clear.performAction(AccessibilityNodeInfo.ACTION_LONG_CLICK))
+            throw new Exception("Synthetic PIN clear refused");
+          for (String key : keys) {
+            AccessibilityNodeInfo control = systemPinControl(key);
+            if (control == null || !control.isClickable()
+                || !control.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+              throw new Exception("Synthetic PIN click refused");
+          }
+        }
+      }
+      SystemClock.sleep(250);
+    }
+    throw new Exception("Synthetic PIN did not establish an unlocked native session");
+  }
   @Override
   public void onStart() {
     Bundle result = new Bundle();
     long started = SystemClock.elapsedRealtime();
     try {
+      if (phase.equals("unlocked")) {
+        prepareUnlocked();
+        result.putString("stream",
+            "PASS phase=unlocked checks=" + checks + "; synthetic native PIN session\n");
+        finish(-1, result);
+        return;
+      }
       if (phase.equals("airplane")) {
         prepareAirplaneMode();
         check(airplaneOffline(), "Airplane mode did not disconnect networks");
