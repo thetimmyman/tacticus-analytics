@@ -10,7 +10,7 @@ Each release supplies:
 - Artifact: immutable digest-addressed `url`, SHA-256 `sha256`, byte `size`, `format`, plus signature scheme/status/evidence, notarization status/evidence and provisioning status/evidence.
 - Distribution: `method` and optional store `url`. iOS uses App Store or TestFlight, never a direct IPA link. Store destinations refer to the approved version/build described by the manifest; a store URL alone is not immutable artifact proof.
 - Compatibility: exact `coreVersion`, supported inclusive workspace schema bounds and `moduleApi`. Update consumers must check all three against their installed runtime; a downloads page does not authorize activation or migration.
-- Qualification: `evidenceSchema: platform-evidence/v1`, exact `sourceCommit` and digest binding, public sanitized evidence reference, tested OS and installed/offline/restart/recovery/uninstall results. Synthetic results never qualify real packages.
+- Qualification: `evidenceSchema: platform-evidence/v1`, exact `sourceCommit` and digest binding, public sanitized evidence reference, tested OS (which must equal the release's `minimumOS`) and installed/offline/restart/recovery/uninstall results. Synthetic results never qualify real packages.
 - Approvals: explicit rights, security and publication status/evidence. All must be approved before offering a link.
 - Guidance: install/update/uninstall text, release notes, known gaps and accurate local-client compatibility text. No secrets, private paths or unreviewed support claims belong here.
 

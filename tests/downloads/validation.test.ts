@@ -114,6 +114,9 @@ describe('signed release manifest and promotion gates', () => {
         release.qualification.sourceCommit = 'c'.repeat(40)
       },
       (release: ReturnType<typeof releaseDouble>) => {
+        release.qualification.testedOS = 'Synthetic Linux 0'
+      },
+      (release: ReturnType<typeof releaseDouble>) => {
         release.qualification.offline = false
       },
       (release: ReturnType<typeof releaseDouble>) => {

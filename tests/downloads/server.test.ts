@@ -1,4 +1,4 @@
-import { mkdtemp, writeFile, rm } from 'node:fs/promises'
+import { open, mkdtemp, writeFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -50,6 +50,34 @@ describe('server manifest loading without retained release cache', () => {
       ' '.repeat(MAX_MANIFEST_BYTES + 1)
     )
     expect((await getDownloadsState(null)).status).toBe('unavailable')
+  })
+
+  it('reads a manifest completely when the filesystem returns short reads', async () => {
+    const { manifest, keys } = signedDouble()
+    await writeFile(join(directory, 'manifest.json'), JSON.stringify(manifest))
+    vi.stubEnv('DOWNLOADS_TRUSTED_KEYS_JSON', JSON.stringify(keys))
+    const probe = await open(join(directory, 'manifest.json'))
+    const proto = Object.getPrototypeOf(probe) as {
+      read: (...a: unknown[]) => Promise<unknown>
+    }
+    await probe.close()
+    const realRead = proto.read
+    vi.spyOn(proto, 'read').mockImplementation(function (
+      this: unknown,
+      buffer: unknown,
+      offset: unknown,
+      length: unknown,
+      position: unknown
+    ) {
+      return realRead.call(
+        this,
+        buffer,
+        offset,
+        Math.min(Number(length), 100),
+        position
+      )
+    })
+    expect((await getDownloadsState(null)).releases).toHaveLength(1)
   })
 
   it('rereads atomic replacement and flag/withdrawal changes on every request', async () => {

@@ -41,8 +41,14 @@ export default function DownloadsClient({
   const agent = useSyncExternalStore(subscribeAgent, browserAgent, serverAgent)
   const [override, setOverride] = useState<Platform | 'all' | null>(null)
   const [architecture, setArchitecture] = useState('all')
-  const [channel, setChannel] = useState(initialState.channels[0] || 'stable')
+  const [chosenChannel, setChannel] = useState<Channel>(
+    initialState.channels[0] || 'stable'
+  )
   const [state, setState] = useState(initialState)
+  // Refreshed policy may change the permitted channels; never keep a stale one.
+  const channel: Channel = state.channels.includes(chosenChannel)
+    ? chosenChannel
+    : (state.channels[0] ?? chosenChannel)
   const recommended = detectPlatform(agent)
   const selected = override ?? recommended ?? 'all'
 
@@ -153,7 +159,7 @@ export default function DownloadsClient({
               value={channel}
               onChange={(event) => setChannel(event.target.value as Channel)}
             >
-              {initialState.channels.map((entry) => (
+              {state.channels.map((entry) => (
                 <option value={entry} key={entry}>
                   {entry === 'stable' ? 'Stable' : 'Preview'}
                 </option>

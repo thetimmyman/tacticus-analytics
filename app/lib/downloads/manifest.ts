@@ -228,6 +228,7 @@ export function releaseBlockers(release: Release): string[] {
     qualification.status !== 'qualified' ||
     qualification.artifactSha256 !== artifact.sha256 ||
     qualification.sourceCommit !== release.sourceCommit ||
+    qualification.testedOS !== release.minimumOS ||
     !publicEvidenceUrl(qualification.evidenceUrl) ||
     ![
       qualification.installed,

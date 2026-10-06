@@ -100,4 +100,40 @@ describe('accessible platform selection and honest availability', () => {
       expect.objectContaining({ cache: 'no-store' })
     )
   })
+
+  it('moves to a permitted channel when a refresh changes the channel policy', async () => {
+    const stable = releaseDouble()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            status: 'ready',
+            channels: ['stable'],
+            releases: [stable]
+          })
+        )
+      )
+    )
+    render(
+      <DownloadsClient
+        initialState={{
+          status: 'ready',
+          channels: ['preview'],
+          releases: []
+        }}
+      />
+    )
+    fireEvent.change(screen.getByLabelText('Operating system'), {
+      target: { value: 'linux' }
+    })
+    const event = new Event('pageshow')
+    Object.defineProperty(event, 'persisted', { value: true })
+    window.dispatchEvent(event)
+    await waitFor(() =>
+      expect(
+        screen.getByRole('link', { name: 'Download Linux x64' })
+      ).toBeDefined()
+    )
+  })
 })

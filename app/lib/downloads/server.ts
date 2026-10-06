@@ -24,10 +24,20 @@ async function readManifest(path: string): Promise<unknown> {
     if (!stat.isFile() || stat.size > MAX_MANIFEST_BYTES)
       throw new Error('Manifest is not a bounded file')
     const data = Buffer.alloc(MAX_MANIFEST_BYTES + 1)
-    const result = await file.read(data, 0, data.length, 0)
-    if (result.bytesRead > MAX_MANIFEST_BYTES)
-      throw new Error('Manifest is too large')
-    return JSON.parse(data.subarray(0, result.bytesRead).toString('utf8'))
+    let total = 0
+    // FileHandle.read may return short counts before EOF; read until EOF or the bound.
+    while (total < data.length) {
+      const { bytesRead } = await file.read(
+        data,
+        total,
+        data.length - total,
+        total
+      )
+      if (bytesRead === 0) break
+      total += bytesRead
+    }
+    if (total > MAX_MANIFEST_BYTES) throw new Error('Manifest is too large')
+    return JSON.parse(data.subarray(0, total).toString('utf8'))
   } finally {
     await file.close()
   }
