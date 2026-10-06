@@ -87,7 +87,8 @@ export function workspaceRaidImport(services, { normalize, brokerToken }) {
           req,
           input,
           record.subject,
-          brokerToken
+          brokerToken,
+          { allowBrowserSession: true }
         ))
       ) {
         reply(res, 401, {
