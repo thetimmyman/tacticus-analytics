@@ -27,8 +27,8 @@ async function freePort() {
   await new Promise((accept) => server.close(accept))
   return port
 }
-async function run(file, args, options) {
-  const child = spawn(file, args, {
+export async function run(file, args, options, spawnChild = spawn) {
+  const child = spawnChild(file, args, {
     // Attach to the existing owner console instead of CREATE_NO_WINDOW.
     windowsHide: false,
     ...options,
@@ -45,7 +45,8 @@ async function run(file, args, options) {
   })
   await new Promise((accept, reject) => {
     child.once('error', reject)
-    child.once('exit', (code) =>
+    // Process exit can precede the final pipe data. Wait for both streams.
+    child.once('close', (code) =>
       code === 0
         ? accept()
         : reject(
@@ -83,6 +84,14 @@ export function serviceFailureCode(text) {
       /could not bind|Address already in use|could not create any TCP\/IP sockets/i,
       'loopback-bind-refused'
     ],
+    [/could not read password from file/i, 'password-file-read-refused'],
+    [/could not access directory/i, 'data-directory-access-refused'],
+    [/could not create directory/i, 'data-directory-create-refused'],
+    [
+      /could not change permissions of directory/i,
+      'data-directory-permissions-refused'
+    ],
+    [/could not open file.*for reading/i, 'bootstrap-input-read-refused'],
     [/permission denied|access is denied/i, 'permission-refused'],
     [/invalid locale|locale.*not supported/i, 'locale-unavailable'],
     [

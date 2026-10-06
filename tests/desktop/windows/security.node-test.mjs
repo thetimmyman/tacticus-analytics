@@ -7,6 +7,7 @@ import { join } from 'node:path'
 import { createServer } from 'node:http'
 import { createHmac } from 'node:crypto'
 import { PassThrough } from 'node:stream'
+import { EventEmitter } from 'node:events'
 import {
   peImports,
   auditDependencies
@@ -15,7 +16,8 @@ import {
   validOwnerSession,
   serviceFailureCode,
   serviceStartupDiagnostic,
-  bootstrapPhase
+  bootstrapPhase,
+  run
 } from '../../../apps/desktop/platform/windows/services.mjs'
 import { workspaceGate } from '../../../apps/desktop/platform/windows/session-gate.mjs'
 import { windowsOnboarding } from '../../../apps/desktop/platform/windows/onboarding.mjs'
@@ -47,6 +49,74 @@ test('native helper failures retain only numeric status and fixed bounded catego
       1
     ),
     'native-operation-refused; exit-1; sensitive output suppressed'
+  )
+})
+
+test('service completion waits for pipe data after process exit', async () => {
+  for (const exitCode of [0, 1]) {
+    const child = Object.assign(new EventEmitter(), {
+      stdout: new PassThrough(),
+      stderr: new PassThrough()
+    })
+    let settled = false
+    const result = run('initdb.exe', [], {}, () => child)
+    void result.then(
+      () => {
+        settled = true
+      },
+      () => {
+        settled = true
+      }
+    )
+    child.emit('exit', exitCode)
+    await new Promise((accept) => setImmediate(accept))
+    assert.equal(settled, false)
+    child.stdout.write('running bootstrap script ... ok\n')
+    child.stderr.write(
+      'could not read password from file "synthetic-private-path": Permission denied\n'
+    )
+    child.stdout.end()
+    child.stderr.end()
+    child.emit('close', exitCode)
+    if (exitCode === 0) {
+      assert.equal(await result, 'running bootstrap script ... ok\n')
+    } else {
+      await assert.rejects(result, (error) => {
+        assert.equal(
+          error.message,
+          'initdb.exe exited 1; password-file-read-refused; bootstrap-script; sensitive output suppressed'
+        )
+        assert.equal(error.message.includes('synthetic-private-path'), false)
+        return true
+      })
+    }
+  }
+})
+
+test('initialization permission diagnostics identify the operation without revealing its path', () => {
+  for (const [message, category] of [
+    ['could not read password from file', 'password-file-read-refused'],
+    ['could not access directory', 'data-directory-access-refused'],
+    ['could not create directory', 'data-directory-create-refused'],
+    [
+      'could not change permissions of directory',
+      'data-directory-permissions-refused'
+    ],
+    [
+      'could not open file "synthetic-private-path" for reading',
+      'bootstrap-input-read-refused'
+    ]
+  ]) {
+    assert.equal(
+      serviceFailureCode(
+        `${message} "synthetic-private-path": Permission denied`
+      ),
+      category
+    )
+  }
+  assert.equal(
+    serviceFailureCode('Permission denied synthetic-private-path'),
+    'permission-refused'
   )
 })
 
