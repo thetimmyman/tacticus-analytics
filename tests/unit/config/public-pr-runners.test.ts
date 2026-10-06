@@ -10,13 +10,23 @@ import { parse } from 'yaml'
 
 const WORKFLOWS_DIR = path.join(process.cwd(), '.github', 'workflows')
 
-// Standard hosted Linux images; larger runners are billed even on public repos.
+// Explicit standard hosted labels from GitHub's public runner reference.
+// Larger/custom runner selections remain disallowed.
 const HOSTED_LABELS = new Set([
   'ubuntu-latest',
   'ubuntu-24.04',
   'ubuntu-22.04',
   'ubuntu-24.04-arm',
-  'ubuntu-22.04-arm'
+  'ubuntu-22.04-arm',
+  'windows-latest',
+  'windows-2022',
+  'windows-2025',
+  'macos-latest',
+  'macos-14',
+  'macos-15',
+  'macos-26',
+  'macos-15-intel',
+  'macos-26-intel'
 ])
 
 const REPO = 'thetimmyman/tacticus-analytics'
@@ -249,7 +259,7 @@ function evaluate(src: string, ctx: Ctx): unknown {
         for (const seg of segments) {
           if (cur === null || typeof cur !== 'object') return null
           cur = (cur as Record<string, unknown>)[seg]
-          if (cur === undefined) return null
+          if (cur === undefined) throw new Error(`unknown context ${tok.v}`)
         }
         return cur
       }
@@ -293,6 +303,7 @@ type Workflow = {
       {
         'runs-on'?: unknown
         uses?: string
+        strategy?: { matrix?: unknown }
         if?: string | boolean
         needs?: string[] | string
         steps?: Array<{
@@ -304,6 +315,47 @@ type Workflow = {
       }
     >
   }
+}
+
+function matrixContexts(matrix: unknown): Ctx[] {
+  if (matrix === undefined) return [{}]
+  if (!matrix || typeof matrix !== 'object' || Array.isArray(matrix))
+    throw new Error('matrix must be a fixed literal object')
+  const axes = Object.entries(matrix)
+  if (axes.length < 1 || axes.length > 8)
+    throw new Error('matrix must have 1 to 8 literal axes')
+  let contexts: Ctx[] = [{}]
+  for (const [axis, values] of axes) {
+    if (
+      !/^[A-Za-z_][A-Za-z0-9_]*$/u.test(axis) ||
+      ['include', 'exclude', '__proto__', 'constructor', 'prototype'].includes(
+        axis
+      )
+    )
+      throw new Error('unsupported matrix axis')
+    if (
+      !Array.isArray(values) ||
+      values.length < 1 ||
+      values.length > 16 ||
+      values.some(
+        (value: unknown) =>
+          (typeof value !== 'string' &&
+            typeof value !== 'boolean' &&
+            typeof value !== 'number') ||
+          (typeof value === 'string' && (!value || value.includes('${{'))) ||
+          (typeof value === 'number' && !Number.isFinite(value))
+      )
+    )
+      throw new Error(
+        'matrix axis must contain bounded nonempty literal values'
+      )
+    if (contexts.length * values.length > 64)
+      throw new Error('matrix exceeds 64 combinations')
+    contexts = contexts.flatMap((ctx) =>
+      values.map((value: unknown) => ({ ...ctx, [axis]: value }))
+    )
+  }
+  return contexts
 }
 
 function triggersOf(doc: Workflow['doc']): string[] {
@@ -351,21 +403,32 @@ function prRunnerViolations(workflows: Workflow[]): string[] {
         )
         continue
       }
+      let matrices: Ctx[]
+      try {
+        matrices = matrixContexts(job.strategy?.matrix)
+      } catch (err) {
+        violations.push(
+          `${wf.file}:${jobId} matrix could not be evaluated (${(err as Error).message}) — fails closed`
+        )
+        continue
+      }
       for (const [scenario, ctx] of Object.entries(PR_SCENARIOS)) {
-        let labels: string[]
-        try {
-          labels = resolveRunsOn(job['runs-on'], ctx)
-        } catch (err) {
-          violations.push(
-            `${wf.file}:${jobId} runs-on could not be evaluated (${(err as Error).message}) — fails closed`
-          )
-          break
-        }
-        const bad = labels.filter((l) => !HOSTED_LABELS.has(l))
-        if (bad.length > 0 || labels.length === 0) {
-          violations.push(
-            `${wf.file}:${jobId} [${scenario}] requests non-hosted runner labels ${JSON.stringify(labels)}`
-          )
+        for (const matrix of matrices) {
+          let labels: string[]
+          try {
+            labels = resolveRunsOn(job['runs-on'], { ...ctx, matrix })
+          } catch (err) {
+            violations.push(
+              `${wf.file}:${jobId} runs-on could not be evaluated (${(err as Error).message}) — fails closed`
+            )
+            break
+          }
+          const bad = labels.filter((l) => !HOSTED_LABELS.has(l))
+          if (bad.length > 0 || labels.length === 0) {
+            violations.push(
+              `${wf.file}:${jobId} [${scenario}] requests non-hosted runner labels ${JSON.stringify(labels)}`
+            )
+          }
         }
       }
     }
@@ -603,14 +666,66 @@ describe('public-release workflow contract', () => {
       ).toEqual([])
     })
 
-    const synthetic = (runsOn: unknown): Workflow => ({
+    const synthetic = (runsOn: unknown, matrix?: unknown): Workflow => ({
       file: 'synthetic.yml',
       raw: '',
       doc: {
         on: { pull_request: {} },
         permissions: {},
-        jobs: { j: { 'runs-on': runsOn } }
+        jobs: {
+          j: {
+            'runs-on': runsOn,
+            ...(matrix === undefined ? {} : { strategy: { matrix } })
+          }
+        }
       }
+    })
+
+    it('accepts fixed standard hosted Windows/macOS/Linux matrices', () => {
+      expect(
+        prRunnerViolations([
+          synthetic('${{ matrix.os }}', {
+            os: [...HOSTED_LABELS],
+            configuration: ['debug', 'release']
+          })
+        ])
+      ).toEqual([])
+    })
+
+    it.each(['self-hosted', 'macos-unknown', 'macos-latest-large', ''])(
+      'rejects unsafe matrix runner %s',
+      (runner) => {
+        expect(
+          prRunnerViolations([
+            synthetic('${{ matrix.os }}', { os: ['ubuntu-latest', runner] })
+          ]).length
+        ).toBeGreaterThan(0)
+      }
+    )
+
+    it.each([
+      '${{ fromJSON(needs.generate.outputs.matrix) }}',
+      { os: '${{ fromJSON(vars.RUNNERS) }}' },
+      { os: ['${{ inputs.runner }}'] },
+      { os: [] },
+      {},
+      { os: ['ubuntu-latest'], include: [{ os: 'self-hosted' }] },
+      { os: Array.from({ length: 17 }, () => 'ubuntu-latest') },
+      { os: ['ubuntu-latest'], a: Array(16).fill('x'), b: Array(16).fill('x') }
+    ])('fails closed on an unbounded or dynamic matrix %j', (matrix) => {
+      expect(
+        prRunnerViolations([synthetic('${{ matrix.os }}', matrix)])[0]
+      ).toContain('fails closed')
+    })
+
+    it('rejects a runner expression referencing an unknown matrix axis', () => {
+      expect(
+        prRunnerViolations([
+          synthetic("${{ matrix.unknown || 'ubuntu-latest' }}", {
+            os: ['ubuntu-latest']
+          })
+        ])[0]
+      ).toContain('fails closed')
     })
 
     it('flags a literal self-hosted label list', () => {

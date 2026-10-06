@@ -67,6 +67,9 @@ app
           (await window.webContents.capturePage()).toPNG(),
           { mode: 0o600 }
         )
+      const setupMode = await window.webContents.executeJavaScript(
+        `document.querySelector('form')?.dataset.mode ?? null`
+      )
       await window.webContents.executeJavaScript(
         `document.querySelector('#password').value=${JSON.stringify(config.verify.password)}; document.querySelector('#sample').checked=true; document.querySelector('form').requestSubmit();`
       )
@@ -84,6 +87,7 @@ app
         `({text:document.body.innerText,nodeAccess:typeof require!=='undefined'||typeof process!=='undefined'})`
       )
       const evidence = {
+        setupMode,
         observed,
         failures,
         blocked,
