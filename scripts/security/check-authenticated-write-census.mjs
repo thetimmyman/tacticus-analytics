@@ -16,7 +16,8 @@ const CENSUS_PATH = path.join(HERE, 'authenticated-write-census.json')
 // Every migration that revokes census tables; together they name the 'revoke' set.
 const MIGRATION_PATHS = [
   'supabase/migrations/20260925080000_ps218_revoke_authenticated_write_grants.sql',
-  'supabase/migrations/20261006120000_revoke_discord_dispatch_write_grants.sql'
+  'supabase/migrations/20261006120000_revoke_discord_dispatch_write_grants.sql',
+  'supabase/migrations/20261006130000_revoke_guild_war_import_write_grants.sql'
 ].map((rel) => path.join(REPO_ROOT, rel))
 const PGTAP_PATH = path.join(
   REPO_ROOT,
@@ -35,6 +36,20 @@ const WRITE_VERB = /\.(insert|upsert|update|delete)\s*[(<]/
 // that route.ts builds; PROVENANCE_RULES re-checks that it is serviceDb().
 const DISCORD_DISPATCH_DIR = 'app/api/discord/interactions/command-handlers/'
 const DISCORD_DISPATCH_ROUTE = 'app/api/discord/interactions/route.ts'
+
+// The guild-war ingestor's exported entry point is reached by exactly one
+// non-test route, which builds its client with serviceDb(); PROVENANCE_RULES
+// re-checks that premise. The module also writes guild_war_battles,
+// guild_war_lineups and guild_war_participation under the same proof, but
+// this rule stays scoped to the tables this census sweep actually judges --
+// widening it to the module's other tables is a separate decision.
+const GUILD_WAR_INGESTOR_MODULE = 'app/lib/war/guild-war-ingestor.ts'
+const GUILD_WAR_IMPORT_ROUTE = 'app/api/guild-war/import/route.ts'
+const GUILD_WAR_IMPORT_TABLES = new Set([
+  'guild_war_zones',
+  'guild_war_matches',
+  'guild_war_player_attempts'
+])
 
 /** Claims behind the name-only attribution rules; --scan re-verifies each. */
 const PROVENANCE_RULES = [
@@ -68,6 +83,11 @@ const PROVENANCE_RULES = [
     kind: 'SERVICE(discord-dispatch)',
     claim: `a receiver declared \`x: Supabase\` in a non-test module under ${DISCORD_DISPATCH_DIR} is service-role: ${DISCORD_DISPATCH_ROUTE} builds the client the dispatcher passes down with serviceDb(), and no non-test module that reaches a command handler through value imports (the handlers themselves, the route, and every direct or transitive importer such as the Discord chart routes) builds a request client.`,
     verify: () => discordDispatchIsServiceOnly(trackedFiles(), readIfPresent)
+  },
+  {
+    kind: 'SERVICE(guild-war-import)',
+    claim: `a receiver declared \`x: TypedSupabaseClient\` in ${GUILD_WAR_INGESTOR_MODULE}, writing one of {${[...GUILD_WAR_IMPORT_TABLES].join(', ')}}, is service-role: the only non-test module that imports ${GUILD_WAR_INGESTOR_MODULE} through value imports is ${GUILD_WAR_IMPORT_ROUTE}, which builds its client with serviceDb() and passes it to ingestGuildWar(...), and no non-test module that reaches the ingestor through value imports (that route and every direct or transitive importer) builds a request client.`,
+    verify: () => guildWarIngestorIsServiceOnly(trackedFiles(), readIfPresent)
   }
 ]
 
@@ -149,7 +169,7 @@ function scanSource(rel, text, ctx = {}) {
             file: rel,
             line: useLine,
             verb: m[1],
-            client: classify(rel, text, lines, i, aliasRecv, castTainted)
+            client: classify(rel, text, lines, i, aliasRecv, castTainted, table)
           })
         }
         continue
@@ -171,7 +191,7 @@ function scanSource(rel, text, ctx = {}) {
         file: rel,
         line: i + 1,
         verb: verb[1],
-        client: classify(rel, text, lines, i, recv, castTainted)
+        client: classify(rel, text, lines, i, recv, castTainted, table)
       })
     }
   }
@@ -182,7 +202,15 @@ function escapeRegExp(value) {
   return value.replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
 }
 
-function classify(rel, text, lines, lineIndex, recv, castTainted = new Set()) {
+function classify(
+  rel,
+  text,
+  lines,
+  lineIndex,
+  recv,
+  castTainted = new Set(),
+  table = null
+) {
   if (rel.startsWith('supabase/functions/')) return 'SERVICE(edge)'
   if (!recv) return 'UNKNOWN'
   const base = escapeRegExp(recv.split('.')[0])
@@ -219,6 +247,14 @@ function classify(rel, text, lines, lineIndex, recv, castTainted = new Set()) {
     new RegExp(`\\b${base}\\s*:\\s*Supabase\\b`).test(text)
   ) {
     return 'SERVICE(discord-dispatch)'
+  }
+  if (
+    rel === GUILD_WAR_INGESTOR_MODULE &&
+    table !== null &&
+    GUILD_WAR_IMPORT_TABLES.has(table) &&
+    new RegExp(`\\b${base}\\s*:\\s*TypedSupabaseClient\\b`).test(text)
+  ) {
+    return 'SERVICE(guild-war-import)'
   }
 
   const service = SERVICE_RHS.test(text)
@@ -314,6 +350,260 @@ function discordDispatchIsServiceOnly(files, read) {
     (rel) => rel.startsWith(DISCORD_DISPATCH_DIR) && !isTestFile(rel)
   )
   queue.push(DISCORD_DISPATCH_ROUTE)
+  while (queue.length > 0) {
+    const rel = queue.pop()
+    if (seen.has(rel)) continue
+    seen.add(rel)
+    if (REQUEST_RHS.test(read(rel))) return false
+    queue.push(...(importers.get(rel) ?? []))
+  }
+  return true
+}
+
+/** Position of the char matching the '(' at `openIndex`, skipping quoted strings; -1 if unmatched. */
+function balancedParensEnd(text, openIndex) {
+  let depth = 0
+  let quote = null
+  for (let i = openIndex; i < text.length; i++) {
+    const ch = text[i]
+    if (quote) {
+      if (ch === quote && text[i - 1] !== '\\') quote = null
+      continue
+    }
+    if (ch === '"' || ch === "'" || ch === '`') {
+      quote = ch
+      continue
+    }
+    if (ch === '(') depth++
+    else if (ch === ')') {
+      depth--
+      if (depth === 0) return i
+    }
+  }
+  return -1
+}
+
+/** Position of the char matching the '{' at `openIndex`, skipping quoted strings; -1 if unmatched. */
+function balancedBraceEnd(text, openIndex) {
+  let depth = 0
+  let quote = null
+  for (let i = openIndex; i < text.length; i++) {
+    const ch = text[i]
+    if (quote) {
+      if (ch === quote && text[i - 1] !== '\\') quote = null
+      continue
+    }
+    if (ch === '"' || ch === "'" || ch === '`') {
+      quote = ch
+      continue
+    }
+    if (ch === '{') depth++
+    else if (ch === '}') {
+      depth--
+      if (depth === 0) return i
+    }
+  }
+  return -1
+}
+
+/**
+ * The function body's opening '{' after a parameter list's closing ')',
+ * skipping an optional `: ReturnType` annotation -- which may itself hold
+ * braces and generics, e.g. `): Promise<{ a: string }> {` -- by tracking
+ * paren/bracket/brace/angle depth until a '{' at depth 0.
+ */
+function findBodyOpenBrace(text, fromIndex) {
+  let depth = 0
+  for (let i = fromIndex; i < text.length; i++) {
+    const ch = text[i]
+    if (ch === '{' && depth === 0) return i
+    if (ch === '(' || ch === '[' || ch === '{' || ch === '<') depth++
+    else if (ch === ')' || ch === ']' || ch === '}') depth--
+    else if (ch === '>' && depth > 0) depth--
+  }
+  return -1
+}
+
+/** Splits a parameter or argument list on its top-level commas (depth- and quote-aware). */
+function splitTopLevelArgs(text) {
+  const out = []
+  let depth = 0
+  let current = ''
+  let quote = null
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i]
+    if (quote) {
+      current += ch
+      if (ch === quote && text[i - 1] !== '\\') quote = null
+      continue
+    }
+    if (ch === '"' || ch === "'" || ch === '`') {
+      quote = ch
+      current += ch
+      continue
+    }
+    if (ch === '(' || ch === '[' || ch === '{') depth++
+    if (ch === ')' || ch === ']' || ch === '}') depth--
+    if (ch === ',' && depth === 0) {
+      out.push(current)
+      current = ''
+      continue
+    }
+    current += ch
+  }
+  if (current.trim() !== '' || out.length > 0) out.push(current)
+  return out
+}
+
+/** Every named `function` declaration's name, parameter text and body span. */
+function parseFunctionRanges(text) {
+  const ranges = []
+  const fnRe =
+    /\b(?:export\s+)?(?:async\s+)?function\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\(/g
+  for (const m of text.matchAll(fnRe)) {
+    const openParen = text.indexOf('(', m.index)
+    const closeParen = balancedParensEnd(text, openParen)
+    if (closeParen === -1) continue
+    const bodyStart = findBodyOpenBrace(text, closeParen + 1)
+    if (bodyStart === -1) continue
+    const bodyEnd = balancedBraceEnd(text, bodyStart)
+    if (bodyEnd === -1) continue
+    ranges.push({
+      name: m[1],
+      paramsText: text.slice(openParen + 1, closeParen),
+      bodyStart,
+      bodyEnd
+    })
+  }
+  return ranges
+}
+
+/** The innermost parsed function range whose body contains `index`, or null at module scope. */
+function enclosingFunctionRange(ranges, index) {
+  let best = null
+  for (const r of ranges) {
+    if (index < r.bodyStart || index > r.bodyEnd) continue
+    if (!best || r.bodyEnd - r.bodyStart < best.bodyEnd - best.bodyStart) {
+      best = r
+    }
+  }
+  return best
+}
+
+/** Every call to `fnName(...)` in `text` (its own declaration header excluded), with split args. */
+function calleeCallSites(text, fnName) {
+  const nameEsc = escapeRegExp(fnName)
+  const callRe = new RegExp(`\\b${nameEsc}\\s*\\(`, 'g')
+  const sites = []
+  for (const m of text.matchAll(callRe)) {
+    const before = text.slice(Math.max(0, m.index - 20), m.index)
+    if (/\bfunction\s+$/.test(before)) continue
+    const openIdx = m.index + m[0].length - 1
+    const closeIdx = balancedParensEnd(text, openIdx)
+    if (closeIdx === -1) continue
+    sites.push({
+      index: m.index,
+      args: splitTopLevelArgs(text.slice(openIdx + 1, closeIdx))
+    })
+  }
+  return sites
+}
+
+/**
+ * True when the value bound to `id` at `beforeIndex` is provably serviceDb():
+ * either a direct `const|let <id> = serviceDb()` in the same enclosing
+ * function body (module scope if none), or -- when `id` is instead that
+ * function's own parameter -- every call to the function passes serviceDb()
+ * (inline, or by this same proof recursively) in the matching argument
+ * position. Anything it cannot resolve this way fails closed (false).
+ */
+function identifierTracesToServiceDb(text, ranges, id, beforeIndex, visited) {
+  const idEsc = escapeRegExp(id)
+  const fn = enclosingFunctionRange(ranges, beforeIndex)
+  const scopeStart = fn ? fn.bodyStart : 0
+  const bindRe = new RegExp(
+    `\\b(?:const|let|var)\\s+${idEsc}\\b[^=]*=\\s*([^\\n;]*)`,
+    'g'
+  )
+  let lastBind = null
+  for (const m of text.slice(scopeStart, beforeIndex).matchAll(bindRe)) {
+    lastBind = m
+  }
+  if (lastBind) return /serviceDb\s*\(\s*\)/.test(lastBind[1])
+  if (fn) {
+    const params = splitTopLevelArgs(fn.paramsText)
+    const paramIndex = params.findIndex((p) =>
+      new RegExp(`^\\s*${idEsc}\\b`).test(p)
+    )
+    if (paramIndex !== -1) {
+      return callSitesPassServiceDb(text, ranges, fn.name, paramIndex, visited)
+    }
+  }
+  return false
+}
+
+/** Every call to `fnName(...)` passes serviceDb() (inline or traced) at `argIndex`; none found fails closed. */
+function callSitesPassServiceDb(text, ranges, fnName, argIndex, visited) {
+  const key = `${fnName}#${argIndex}`
+  if (visited.has(key)) return false
+  visited.add(key)
+  const sites = calleeCallSites(text, fnName)
+  if (sites.length === 0) return false
+  for (const site of sites) {
+    const arg = (site.args[argIndex] ?? '').trim()
+    if (/^serviceDb\s*\(\s*\)$/.test(arg)) continue
+    if (!/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(arg)) return false
+    if (!identifierTracesToServiceDb(text, ranges, arg, site.index, visited)) {
+      return false
+    }
+  }
+  return true
+}
+
+/**
+ * True when every `ingestGuildWar(...)` call in `text` passes, as its first
+ * argument, a value `identifierTracesToServiceDb` can trace to serviceDb().
+ * No call site at all, or any call it cannot trace, fails closed (false) --
+ * a route that builds serviceDb() for an unrelated purpose while handing the
+ * ingestor a client from an unrecognized helper no longer passes.
+ */
+function ingestGuildWarCallsAreServiceOnly(text) {
+  const ranges = parseFunctionRanges(text)
+  const sites = calleeCallSites(text, 'ingestGuildWar')
+  if (sites.length === 0) return false
+  for (const site of sites) {
+    const arg = (site.args[0] ?? '').trim()
+    if (/^serviceDb\s*\(\s*\)$/.test(arg)) continue
+    if (!/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(arg)) return false
+    if (
+      !identifierTracesToServiceDb(text, ranges, arg, site.index, new Set())
+    ) {
+      return false
+    }
+  }
+  return true
+}
+
+/** The SERVICE(guild-war-import) premise: every ingestGuildWar(...) call in the route is provably fed serviceDb(), and no non-test module that reaches it through value imports builds a request client. */
+function guildWarIngestorIsServiceOnly(files, read) {
+  if (!ingestGuildWarCallsAreServiceOnly(read(GUILD_WAR_IMPORT_ROUTE))) {
+    return false
+  }
+  const tracked = new Set(files)
+  const importers = new Map()
+  for (const rel of files) {
+    if (isTestFile(rel)) continue
+    for (const dep of valueImports(rel, read(rel), tracked)) {
+      if (!importers.has(dep)) importers.set(dep, [])
+      importers.get(dep).push(rel)
+    }
+  }
+  // Every non-test module that reaches the ingestor, directly or through
+  // other modules, could hand it a client; none of them may build a request one.
+  // The route is seeded directly (like the module itself) so a fixture or a
+  // future caller that imports nothing still gets checked.
+  const seen = new Set()
+  const queue = [GUILD_WAR_INGESTOR_MODULE, GUILD_WAR_IMPORT_ROUTE]
   while (queue.length > 0) {
     const rel = queue.pop()
     if (seen.has(rel)) continue
@@ -541,6 +831,24 @@ const FIXTURES = [
     expect: (h) => h.length === 1 && h[0].client === 'UNKNOWN'
   },
   {
+    name: 'a TypedSupabaseClient parameter in the guild-war ingestor, writing a swept table, is service-role',
+    rel: GUILD_WAR_INGESTOR_MODULE,
+    src: `async function ingestWar(supabase: TypedSupabaseClient) {\n  await supabase.from('guild_war_zones').upsert({ a: 1 })\n}\n`,
+    expect: (h) => h.length === 1 && h[0].client === 'SERVICE(guild-war-import)'
+  },
+  {
+    name: 'a TypedSupabaseClient parameter in the guild-war ingestor, writing a table outside this rule, stays UNKNOWN',
+    rel: GUILD_WAR_INGESTOR_MODULE,
+    src: `async function ingestWar(supabase: TypedSupabaseClient) {\n  await supabase.from('guild_war_battles').upsert({ a: 1 })\n}\n`,
+    expect: (h) => h.length === 1 && h[0].client === 'UNKNOWN'
+  },
+  {
+    name: 'a TypedSupabaseClient parameter outside the guild-war ingestor stays UNKNOWN even for a swept table',
+    rel: 'app/lib/x.ts',
+    src: `export async function f(supabase: TypedSupabaseClient) {\n  await supabase.from('guild_war_zones').upsert({ a: 1 })\n}\n`,
+    expect: (h) => h.length === 1 && h[0].client === 'UNKNOWN'
+  },
+  {
     name: 'an edge function write is service-role',
     rel: 'supabase/functions/f/index.ts',
     src: `await supabase.from('census_fixture_table').insert({ a: 1 })\n`,
@@ -671,6 +979,71 @@ const DISPATCH_FIXTURES = [
   }
 ]
 
+const GUILD_WAR_IMPORT_FIXTURES = [
+  {
+    name: 'the guild-war import route on serviceDb() is service-only',
+    files: {
+      [GUILD_WAR_IMPORT_ROUTE]: `import { serviceDb } from '@/app/lib/db'\nimport { ingestGuildWar } from '@/app/lib/war/guild-war-ingestor'\nconst supabase = serviceDb()\nawait ingestGuildWar(supabase, [], [], ctx)\n`,
+      [GUILD_WAR_INGESTOR_MODULE]: `export async function ingestGuildWar(supabase) {}\n`,
+      'app/lib/war/guild-war-ingestor.test.ts': `import { ingestGuildWar } from './guild-war-ingestor'\nconst s = await db()\n`
+    },
+    expect: (ok) => ok === true
+  },
+  {
+    name: 'a request client in the import route voids the premise',
+    files: {
+      [GUILD_WAR_IMPORT_ROUTE]: `const supabase = serviceDb()\nconst other = await db()\n`
+    },
+    expect: (ok) => ok === false
+  },
+  {
+    name: 'a transitive importer of the ingestor with a request client voids the premise',
+    files: {
+      [GUILD_WAR_IMPORT_ROUTE]: `const supabase = serviceDb()\nawait ingestGuildWar(supabase, [], [], ctx)\n`,
+      [GUILD_WAR_INGESTOR_MODULE]: `export async function ingestGuildWar(supabase) {}\n`,
+      'app/lib/y.ts': `export { ingestGuildWar } from '@/app/lib/war/guild-war-ingestor'\n`,
+      'app/api/z/route.ts': `import { ingestGuildWar } from '@/app/lib/y'\nconst s = await db()\nawait ingestGuildWar(s)\n`
+    },
+    expect: (ok) => ok === false
+  },
+  {
+    name: 'a request client in an unrelated guild-war route does not void the premise',
+    files: {
+      [GUILD_WAR_IMPORT_ROUTE]: `const supabase = serviceDb()\nawait ingestGuildWar(supabase, [], [], ctx)\n`,
+      'app/api/guild-war/status/route.ts': `const callerDb = await db()\n`
+    },
+    expect: (ok) => ok === true
+  },
+  {
+    name: 'an import route without serviceDb() voids the premise',
+    files: {
+      [GUILD_WAR_IMPORT_ROUTE]: `const supabase = makeClient()\nawait ingestGuildWar(supabase, [], [], ctx)\n`
+    },
+    expect: (ok) => ok === false
+  },
+  {
+    name: 'an unrelated serviceDb() call elsewhere in the route does not prove the ingestor receives it',
+    files: {
+      [GUILD_WAR_IMPORT_ROUTE]: `const supabase = serviceDb()\nasync function doImport() {\n  const client = buildClient()\n  await ingestGuildWar(client, [], [], ctx)\n}\n`
+    },
+    expect: (ok) => ok === false
+  },
+  {
+    name: 'the client passed inline as serviceDb() proves the premise',
+    files: {
+      [GUILD_WAR_IMPORT_ROUTE]: `await ingestGuildWar(serviceDb(), [], [], ctx)\n`
+    },
+    expect: (ok) => ok === true
+  },
+  {
+    name: 'the real shape -- a helper parameter fed by serviceDb() at its only call site -- proves the premise',
+    files: {
+      [GUILD_WAR_IMPORT_ROUTE]: `async function handleRawLokiImport(supabase: TypedSupabaseClient, guildCode: string) {\n  const result = await ingestGuildWar(supabase, [], [], ctx)\n}\n\nexport const POST = withErrorHandler(async (request) => {\n  const result = await handleRawLokiImport(serviceDb(), guildCode)\n})\n`
+    },
+    expect: (ok) => ok === true
+  }
+]
+
 function selftest() {
   let failed = 0
   for (const f of FIXTURES) {
@@ -716,6 +1089,19 @@ function selftest() {
 
   for (const f of DISPATCH_FIXTURES) {
     const ok = discordDispatchIsServiceOnly(
+      Object.keys(f.files),
+      (rel) => f.files[rel] ?? ''
+    )
+    if (f.expect(ok)) {
+      console.log(`  ok   ${f.name}`)
+    } else {
+      failed += 1
+      console.error(`  FAIL ${f.name} -- got ${ok}`)
+    }
+  }
+
+  for (const f of GUILD_WAR_IMPORT_FIXTURES) {
+    const ok = guildWarIngestorIsServiceOnly(
       Object.keys(f.files),
       (rel) => f.files[rel] ?? ''
     )
