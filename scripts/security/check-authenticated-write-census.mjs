@@ -16,7 +16,8 @@ const CENSUS_PATH = path.join(HERE, 'authenticated-write-census.json')
 // Every migration that revokes census tables; together they name the 'revoke' set.
 const MIGRATION_PATHS = [
   'supabase/migrations/20260925080000_ps218_revoke_authenticated_write_grants.sql',
-  'supabase/migrations/20261006120000_revoke_discord_dispatch_write_grants.sql'
+  'supabase/migrations/20261006120000_revoke_discord_dispatch_write_grants.sql',
+  'supabase/migrations/20261006130000_revoke_guild_war_import_write_grants.sql'
 ].map((rel) => path.join(REPO_ROOT, rel))
 const PGTAP_PATH = path.join(
   REPO_ROOT,
@@ -35,6 +36,20 @@ const WRITE_VERB = /\.(insert|upsert|update|delete)\s*[(<]/
 // that route.ts builds; PROVENANCE_RULES re-checks that it is serviceDb().
 const DISCORD_DISPATCH_DIR = 'app/api/discord/interactions/command-handlers/'
 const DISCORD_DISPATCH_ROUTE = 'app/api/discord/interactions/route.ts'
+
+// The guild-war ingestor's exported entry point is reached by exactly one
+// non-test route, which builds its client with serviceDb(); PROVENANCE_RULES
+// re-checks that premise. The module also writes guild_war_battles,
+// guild_war_lineups and guild_war_participation under the same proof, but
+// this rule stays scoped to the tables this census sweep actually judges --
+// widening it to the module's other tables is a separate decision.
+const GUILD_WAR_INGESTOR_MODULE = 'app/lib/war/guild-war-ingestor.ts'
+const GUILD_WAR_IMPORT_ROUTE = 'app/api/guild-war/import/route.ts'
+const GUILD_WAR_IMPORT_TABLES = new Set([
+  'guild_war_zones',
+  'guild_war_matches',
+  'guild_war_player_attempts'
+])
 
 /** Claims behind the name-only attribution rules; --scan re-verifies each. */
 const PROVENANCE_RULES = [
@@ -68,6 +83,11 @@ const PROVENANCE_RULES = [
     kind: 'SERVICE(discord-dispatch)',
     claim: `a receiver declared \`x: Supabase\` in a non-test module under ${DISCORD_DISPATCH_DIR} is service-role: ${DISCORD_DISPATCH_ROUTE} builds the client the dispatcher passes down with serviceDb(), and no non-test module that reaches a command handler through value imports (the handlers themselves, the route, and every direct or transitive importer such as the Discord chart routes) builds a request client.`,
     verify: () => discordDispatchIsServiceOnly(trackedFiles(), readIfPresent)
+  },
+  {
+    kind: 'SERVICE(guild-war-import)',
+    claim: `a receiver declared \`x: TypedSupabaseClient\` in ${GUILD_WAR_INGESTOR_MODULE}, writing one of {${[...GUILD_WAR_IMPORT_TABLES].join(', ')}}, is service-role: the only non-test module that imports ${GUILD_WAR_INGESTOR_MODULE} through value imports is ${GUILD_WAR_IMPORT_ROUTE}, which builds its client with serviceDb() and passes it to ingestGuildWar(...), and no non-test module that reaches the ingestor through value imports (that route and every direct or transitive importer) builds a request client.`,
+    verify: () => guildWarIngestorIsServiceOnly(trackedFiles(), readIfPresent)
   }
 ]
 
@@ -149,7 +169,7 @@ function scanSource(rel, text, ctx = {}) {
             file: rel,
             line: useLine,
             verb: m[1],
-            client: classify(rel, text, lines, i, aliasRecv, castTainted)
+            client: classify(rel, text, lines, i, aliasRecv, castTainted, table)
           })
         }
         continue
@@ -171,7 +191,7 @@ function scanSource(rel, text, ctx = {}) {
         file: rel,
         line: i + 1,
         verb: verb[1],
-        client: classify(rel, text, lines, i, recv, castTainted)
+        client: classify(rel, text, lines, i, recv, castTainted, table)
       })
     }
   }
@@ -182,7 +202,15 @@ function escapeRegExp(value) {
   return value.replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
 }
 
-function classify(rel, text, lines, lineIndex, recv, castTainted = new Set()) {
+function classify(
+  rel,
+  text,
+  lines,
+  lineIndex,
+  recv,
+  castTainted = new Set(),
+  table = null
+) {
   if (rel.startsWith('supabase/functions/')) return 'SERVICE(edge)'
   if (!recv) return 'UNKNOWN'
   const base = escapeRegExp(recv.split('.')[0])
@@ -219,6 +247,14 @@ function classify(rel, text, lines, lineIndex, recv, castTainted = new Set()) {
     new RegExp(`\\b${base}\\s*:\\s*Supabase\\b`).test(text)
   ) {
     return 'SERVICE(discord-dispatch)'
+  }
+  if (
+    rel === GUILD_WAR_INGESTOR_MODULE &&
+    table !== null &&
+    GUILD_WAR_IMPORT_TABLES.has(table) &&
+    new RegExp(`\\b${base}\\s*:\\s*TypedSupabaseClient\\b`).test(text)
+  ) {
+    return 'SERVICE(guild-war-import)'
   }
 
   const service = SERVICE_RHS.test(text)
@@ -314,6 +350,34 @@ function discordDispatchIsServiceOnly(files, read) {
     (rel) => rel.startsWith(DISCORD_DISPATCH_DIR) && !isTestFile(rel)
   )
   queue.push(DISCORD_DISPATCH_ROUTE)
+  while (queue.length > 0) {
+    const rel = queue.pop()
+    if (seen.has(rel)) continue
+    seen.add(rel)
+    if (REQUEST_RHS.test(read(rel))) return false
+    queue.push(...(importers.get(rel) ?? []))
+  }
+  return true
+}
+
+/** The SERVICE(guild-war-import) premise: the ingestor's only importer passes serviceDb(), and no non-test module that reaches it through value imports builds a request client. */
+function guildWarIngestorIsServiceOnly(files, read) {
+  if (!/serviceDb\s*\(/.test(read(GUILD_WAR_IMPORT_ROUTE))) return false
+  const tracked = new Set(files)
+  const importers = new Map()
+  for (const rel of files) {
+    if (isTestFile(rel)) continue
+    for (const dep of valueImports(rel, read(rel), tracked)) {
+      if (!importers.has(dep)) importers.set(dep, [])
+      importers.get(dep).push(rel)
+    }
+  }
+  // Every non-test module that reaches the ingestor, directly or through
+  // other modules, could hand it a client; none of them may build a request one.
+  // The route is seeded directly (like the module itself) so a fixture or a
+  // future caller that imports nothing still gets checked.
+  const seen = new Set()
+  const queue = [GUILD_WAR_INGESTOR_MODULE, GUILD_WAR_IMPORT_ROUTE]
   while (queue.length > 0) {
     const rel = queue.pop()
     if (seen.has(rel)) continue
@@ -541,6 +605,24 @@ const FIXTURES = [
     expect: (h) => h.length === 1 && h[0].client === 'UNKNOWN'
   },
   {
+    name: 'a TypedSupabaseClient parameter in the guild-war ingestor, writing a swept table, is service-role',
+    rel: GUILD_WAR_INGESTOR_MODULE,
+    src: `async function ingestWar(supabase: TypedSupabaseClient) {\n  await supabase.from('guild_war_zones').upsert({ a: 1 })\n}\n`,
+    expect: (h) => h.length === 1 && h[0].client === 'SERVICE(guild-war-import)'
+  },
+  {
+    name: 'a TypedSupabaseClient parameter in the guild-war ingestor, writing a table outside this rule, stays UNKNOWN',
+    rel: GUILD_WAR_INGESTOR_MODULE,
+    src: `async function ingestWar(supabase: TypedSupabaseClient) {\n  await supabase.from('guild_war_battles').upsert({ a: 1 })\n}\n`,
+    expect: (h) => h.length === 1 && h[0].client === 'UNKNOWN'
+  },
+  {
+    name: 'a TypedSupabaseClient parameter outside the guild-war ingestor stays UNKNOWN even for a swept table',
+    rel: 'app/lib/x.ts',
+    src: `export async function f(supabase: TypedSupabaseClient) {\n  await supabase.from('guild_war_zones').upsert({ a: 1 })\n}\n`,
+    expect: (h) => h.length === 1 && h[0].client === 'UNKNOWN'
+  },
+  {
     name: 'an edge function write is service-role',
     rel: 'supabase/functions/f/index.ts',
     src: `await supabase.from('census_fixture_table').insert({ a: 1 })\n`,
@@ -671,6 +753,50 @@ const DISPATCH_FIXTURES = [
   }
 ]
 
+const GUILD_WAR_IMPORT_FIXTURES = [
+  {
+    name: 'the guild-war import route on serviceDb() is service-only',
+    files: {
+      [GUILD_WAR_IMPORT_ROUTE]: `import { serviceDb } from '@/app/lib/db'\nimport { ingestGuildWar } from '@/app/lib/war/guild-war-ingestor'\nconst supabase = serviceDb()\nawait ingestGuildWar(supabase, [], [], ctx)\n`,
+      [GUILD_WAR_INGESTOR_MODULE]: `export async function ingestGuildWar(supabase) {}\n`,
+      'app/lib/war/guild-war-ingestor.test.ts': `import { ingestGuildWar } from './guild-war-ingestor'\nconst s = await db()\n`
+    },
+    expect: (ok) => ok === true
+  },
+  {
+    name: 'a request client in the import route voids the premise',
+    files: {
+      [GUILD_WAR_IMPORT_ROUTE]: `const supabase = serviceDb()\nconst other = await db()\n`
+    },
+    expect: (ok) => ok === false
+  },
+  {
+    name: 'a transitive importer of the ingestor with a request client voids the premise',
+    files: {
+      [GUILD_WAR_IMPORT_ROUTE]: `const supabase = serviceDb()\n`,
+      [GUILD_WAR_INGESTOR_MODULE]: `export async function ingestGuildWar(supabase) {}\n`,
+      'app/lib/y.ts': `export { ingestGuildWar } from '@/app/lib/war/guild-war-ingestor'\n`,
+      'app/api/z/route.ts': `import { ingestGuildWar } from '@/app/lib/y'\nconst s = await db()\nawait ingestGuildWar(s)\n`
+    },
+    expect: (ok) => ok === false
+  },
+  {
+    name: 'a request client in an unrelated guild-war route does not void the premise',
+    files: {
+      [GUILD_WAR_IMPORT_ROUTE]: `const supabase = serviceDb()\n`,
+      'app/api/guild-war/status/route.ts': `const callerDb = await db()\n`
+    },
+    expect: (ok) => ok === true
+  },
+  {
+    name: 'an import route without serviceDb() voids the premise',
+    files: {
+      [GUILD_WAR_IMPORT_ROUTE]: `const supabase = makeClient()\n`
+    },
+    expect: (ok) => ok === false
+  }
+]
+
 function selftest() {
   let failed = 0
   for (const f of FIXTURES) {
@@ -716,6 +842,19 @@ function selftest() {
 
   for (const f of DISPATCH_FIXTURES) {
     const ok = discordDispatchIsServiceOnly(
+      Object.keys(f.files),
+      (rel) => f.files[rel] ?? ''
+    )
+    if (f.expect(ok)) {
+      console.log(`  ok   ${f.name}`)
+    } else {
+      failed += 1
+      console.error(`  FAIL ${f.name} -- got ${ok}`)
+    }
+  }
+
+  for (const f of GUILD_WAR_IMPORT_FIXTURES) {
+    const ok = guildWarIngestorIsServiceOnly(
       Object.keys(f.files),
       (rel) => f.files[rel] ?? ''
     )
