@@ -34,7 +34,7 @@
     "previous_measurement": {
       "migration_head": "20260919012000_ps669_retain_departed_player_mappings.sql",
       "tables_carrying_the_grant": 122,
-      "delta": "guild_war_raw_events (was revoke) dropped by 20260925030000_ps516_drop_guild_war_sync_machinery.sql; no table gained the grant, no decision changed; re-measured again after the war-room shared-teams port: guild_war_meta_teams (new, leader write policy, written by app/api/guild-war/war-room/route.ts on the request client) added as keep-policy-governed; swept set unchanged; on review, role_reconciliation_events moved revoke -> keep-undecided (app/api/guild-roles/reconcile/route.ts casts its db() client to ServiceSupabaseClient and role-reconciler.ts inserts into it), and stored query-builder writes are now followed"
+      "delta": "guild_war_raw_events (was revoke) dropped by 20260925030000_ps516_drop_guild_war_sync_machinery.sql; no table gained the grant, no decision changed; re-measured again after the war-room shared-teams port: guild_war_meta_teams (new, leader write policy, written by app/api/guild-war/war-room/route.ts on the request client) added as keep-policy-governed; swept set unchanged; on review, role_reconciliation_events moved revoke -> keep-undecided (app/api/guild-roles/reconcile/route.ts casts its db() client to ServiceSupabaseClient and role-reconciler.ts inserts into it), and stored query-builder writes are now followed; later, the Discord dispatcher's command-handler writes were attributed to service-role (SERVICE(discord-dispatch)), so discord_channel_guilds, discord_server_guilds, discord_token_reminders and discord_user_guild_defaults moved keep-undecided -> revoke, swept by 20261006120000_revoke_discord_dispatch_write_grants.sql"
     },
     "unapplicable_migrations_assessment": "none of the unapplicable migrations grants or revokes INSERT/UPDATE/DELETE for authenticated on a public table or creates a write policy on one (checked 2026-09-25); they can only hide tables the replay never creates, and the migration re-checks every premise (existence, RLS, arming policy, service_role write) against the database it runs on"
   },
@@ -54,11 +54,12 @@
     "chokepoint": "app/lib/db/index.ts -- db() is the cookie-bound anon-key client (PostgREST resolves it to `authenticated`), serviceDb() is the service-role client; app/lib/db/client.ts is the browser half",
     "unresolved_is_conservative": "a write site whose client cannot be proved service-role counts AGAINST revoking, never for it",
     "indirect_writers_checked": "SECURITY INVOKER functions executable by authenticated, and INVOKER trigger functions, whose bodies name a swept table were enumerated on the replayed database; each one that writes a swept table is called only on a service-role client (serviceDb, ServiceSupabaseClient, createDirectClient with the service key, edge functions) or by cron. Live-only functions are not visible to this check.",
-    "cast_taint": "a ServiceSupabaseClient-typed receiver is service-role only if no non-test file casts a value to that type and reaches the module through ServiceSupabaseClient-typed parameters; reached modules report UNKNOWN(param-type-cast)"
+    "cast_taint": "a ServiceSupabaseClient-typed receiver is service-role only if no non-test file casts a value to that type and reaches the module through ServiceSupabaseClient-typed parameters; reached modules report UNKNOWN(param-type-cast)",
+    "discord_dispatch": "a receiver declared `x: Supabase` under app/api/discord/interactions/command-handlers/ is service-role: app/api/discord/interactions/route.ts builds the client the dispatcher passes down with serviceDb(), and no non-test module that reaches a command handler through value imports builds a request client; --scan re-verifies both and reports SERVICE(discord-dispatch)"
   },
   "counts": {
-    "keep-undecided": 22,
-    "revoke": 55,
+    "keep-undecided": 18,
+    "revoke": 59,
     "keep-policy-governed": 45
   },
   "tables": {
@@ -463,41 +464,41 @@
           "file": "app/api/discord/interactions/command-handlers/handlers/guild-config.ts",
           "line": 89,
           "verb": "update",
-          "client": "UNKNOWN"
+          "client": "SERVICE(discord-dispatch)"
         },
         {
           "file": "app/api/discord/interactions/command-handlers/handlers/guild-config.ts",
           "line": 96,
           "verb": "delete",
-          "client": "UNKNOWN"
+          "client": "SERVICE(discord-dispatch)"
         },
         {
           "file": "app/api/discord/interactions/command-handlers/handlers/guild-config.ts",
           "line": 112,
           "verb": "update",
-          "client": "UNKNOWN"
+          "client": "SERVICE(discord-dispatch)"
         },
         {
           "file": "app/api/discord/interactions/command-handlers/handlers/guild-config.ts",
           "line": 120,
           "verb": "update",
-          "client": "UNKNOWN"
+          "client": "SERVICE(discord-dispatch)"
         },
         {
           "file": "app/api/discord/interactions/command-handlers/handlers/guild-config.ts",
           "line": 138,
           "verb": "upsert",
-          "client": "UNKNOWN"
+          "client": "SERVICE(discord-dispatch)"
         },
         {
           "file": "app/api/discord/interactions/command-handlers/handlers/link.ts",
-          "line": 315,
+          "line": 313,
           "verb": "delete",
-          "client": "UNKNOWN"
+          "client": "SERVICE(discord-dispatch)"
         }
       ],
-      "undecided_write_sites": 6,
-      "decision": "keep-undecided"
+      "undecided_write_sites": 0,
+      "decision": "revoke"
     },
     "discord_invite_codes": {
       "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
@@ -608,37 +609,37 @@
       "committed_write_sites": [
         {
           "file": "app/api/discord/interactions/command-handlers/handlers/link.ts",
-          "line": 205,
+          "line": 203,
           "verb": "upsert",
-          "client": "UNKNOWN"
+          "client": "SERVICE(discord-dispatch)"
         },
         {
           "file": "app/api/discord/interactions/command-handlers/handlers/link.ts",
-          "line": 302,
+          "line": 300,
           "verb": "update",
-          "client": "UNKNOWN"
+          "client": "SERVICE(discord-dispatch)"
         },
         {
           "file": "app/api/discord/interactions/command-handlers/handlers/link.ts",
-          "line": 522,
+          "line": 516,
           "verb": "upsert",
-          "client": "UNKNOWN"
+          "client": "SERVICE(discord-dispatch)"
         },
         {
           "file": "supabase/functions/discord-bot-oauth/index.ts",
-          "line": 155,
+          "line": 149,
           "verb": "upsert",
           "client": "SERVICE(edge)"
         },
         {
           "file": "supabase/functions/discord-notifications/general-commands.ts",
-          "line": 233,
+          "line": 231,
           "verb": "upsert",
           "client": "SERVICE(edge)"
         }
       ],
-      "undecided_write_sites": 3,
-      "decision": "keep-undecided"
+      "undecided_write_sites": 0,
+      "decision": "revoke"
     },
     "discord_token_reminders": {
       "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
@@ -649,15 +650,15 @@
       "committed_write_sites": [
         {
           "file": "app/api/discord/interactions/command-handlers/handlers/link.ts",
-          "line": 321,
+          "line": 319,
           "verb": "delete",
-          "client": "UNKNOWN"
+          "client": "SERVICE(discord-dispatch)"
         },
         {
           "file": "app/api/discord/interactions/command-handlers/handlers/reminders.ts",
           "line": 73,
           "verb": "upsert",
-          "client": "UNKNOWN"
+          "client": "SERVICE(discord-dispatch)"
         },
         {
           "file": "supabase/functions/discord-notifications/raid-commands.ts",
@@ -666,8 +667,8 @@
           "client": "SERVICE(edge)"
         }
       ],
-      "undecided_write_sites": 2,
-      "decision": "keep-undecided"
+      "undecided_write_sites": 0,
+      "decision": "revoke"
     },
     "discord_user_guild_defaults": {
       "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
@@ -680,23 +681,23 @@
           "file": "app/api/discord/interactions/command-handlers/handlers/guild-config.ts",
           "line": 200,
           "verb": "delete",
-          "client": "UNKNOWN"
+          "client": "SERVICE(discord-dispatch)"
         },
         {
           "file": "app/api/discord/interactions/command-handlers/handlers/guild-config.ts",
           "line": 243,
           "verb": "upsert",
-          "client": "UNKNOWN"
+          "client": "SERVICE(discord-dispatch)"
         },
         {
           "file": "app/api/discord/interactions/command-handlers/handlers/link.ts",
-          "line": 329,
+          "line": 326,
           "verb": "delete",
-          "client": "UNKNOWN"
+          "client": "SERVICE(discord-dispatch)"
         }
       ],
-      "undecided_write_sites": 3,
-      "decision": "keep-undecided"
+      "undecided_write_sites": 0,
+      "decision": "revoke"
     },
     "discord_user_permissions": {
       "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
