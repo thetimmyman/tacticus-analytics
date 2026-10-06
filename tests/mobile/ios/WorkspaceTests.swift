@@ -14,9 +14,11 @@ private final class SyntheticOfficialSource: OfficialSource {
     var responses: [OfficialScope: Data]
     var requested: [OfficialScope] = []
     var delayNanoseconds: UInt64 = 0
+    var noActiveRaid = false
     init(responses: [OfficialScope: Data]) { self.responses = responses }
     func read(_ scope: OfficialScope, credential: String) async throws -> Data {
         requested.append(scope)
+        if scope == .raid && noActiveRaid { throw WorkspaceError.noActiveRaid }
         if delayNanoseconds > 0 { try await Task.sleep(nanoseconds: delayNanoseconds) }
         guard let data = responses[scope] else { throw WorkspaceError.unavailable }; return data
     }
@@ -145,6 +147,19 @@ private final class SyntheticOfficialSource: OfficialSource {
         XCTAssertEqual(try store.read().mode, "personal")
         let exported = String(decoding: try store.exportDocument(), as: UTF8.self)
         XCTAssertFalse(exported.contains("synthetic-vault-canary-value")); XCTAssertFalse(exported.contains("guildId")); XCTAssertFalse(exported.contains("stablePlayerID"))
+    }
+    func testNonExpiringKeyNullTokenCountdownAndNoActiveRaidAreAccepted() async throws {
+        var player = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(SyntheticOfficialSource.fixtures()[.player])) as? [String: Any])
+        var metadata = try XCTUnwrap(player["metaData"] as? [String: Any]); metadata.removeValue(forKey: "apiKeyExpiresOn"); player["metaData"] = metadata
+        var body = try XCTUnwrap(player["player"] as? [String: Any]); var progress = try XCTUnwrap(body["progress"] as? [String: Any])
+        progress["guildRaid"] = ["tokens": ["current": 6, "max": 6, "nextTokenInSeconds": NSNull()], "bombTokens": ["current": 2, "max": 3]]
+        body["progress"] = progress; player["player"] = body
+        var responses = try SyntheticOfficialSource.fixtures(); responses[.player] = try JSONSerialization.data(withJSONObject: player)
+        let source = SyntheticOfficialSource(responses: responses); source.noActiveRaid = true
+        let supervisor = ConnectionSupervisor(store: store, vault: SyntheticVault(), source: source)
+        try await supervisor.connect(credential: "synthetic-vault-canary-value") { _, _ in true }
+        XCTAssertEqual(try store.read().player?.resources.guildRaidTokens?.current, 6)
+        XCTAssertEqual(try store.capabilities().filter { $0.status == "verified-scope" }.count, 3)
     }
     func testPlayerOnlySeparateOptionalKeysWrongGuildAndOfflineRetention() async throws {
         let vault = SyntheticVault(); let fixtures = try SyntheticOfficialSource.fixtures()

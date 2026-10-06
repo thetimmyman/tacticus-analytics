@@ -33,6 +33,11 @@ final class DeviceOfficialSource: OfficialSource {
         request.setValue(credential, forHTTPHeaderField: "X-API-KEY")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         let (bytes, response) = try await session.bytes(for: request)
+        if scope == .raid, let missing = response as? HTTPURLResponse, missing.statusCode == 404,
+           missing.url?.scheme == "https", missing.url?.host == "api.tacticusgame.com" {
+            // An authenticated 404 means the key has the scope but no raid is active.
+            throw WorkspaceError.noActiveRaid
+        }
         guard let response = response as? HTTPURLResponse, response.statusCode == 200,
               response.url?.scheme == "https", response.url?.host == "api.tacticusgame.com",
               response.expectedContentLength <= 4 * 1024 * 1024 else { throw WorkspaceError.scope }
@@ -82,10 +87,11 @@ final class DeviceOfficialSource: OfficialSource {
                     if let scopes = metadata["scopes"] {
                         guard (scopes as? [String])?.contains(scope.rawValue) == true else { throw WorkspaceError.scope }
                     } else if scope == .player { throw WorkspaceError.scope }
-                    if let expiryValue = metadata["apiKeyExpiresOn"] {
+                    // Non-expiring keys omit the expiry or report null; only a present value is checked.
+                    if let expiryValue = metadata["apiKeyExpiresOn"], !(expiryValue is NSNull) {
                         guard let expiry = expiryValue as? NSNumber, CFGetTypeID(expiry) != CFBooleanGetTypeID(), expiry.doubleValue.isFinite else { throw WorkspaceError.scope }
                         if expiry.doubleValue <= Date().timeIntervalSince1970 { keyExpired = true; throw WorkspaceError.scope }
-                    } else if scope == .player { throw WorkspaceError.scope }
+                    }
                 } else if scope == .player || value["metaData"] != nil { throw WorkspaceError.scope }
                 let projection: [String: Any]
                 if scope == .player { projection = try Self.projectPlayer(value) }
@@ -132,6 +138,8 @@ final class DeviceOfficialSource: OfficialSource {
                           season.doubleValue >= 0, season.doubleValue.rounded() == season.doubleValue,
                           let entries = value["entries"] as? [Any], entries.count <= 10_000 else { throw WorkspaceError.scope }
                     updated.append(CapabilityState(scope: .raid, reference: reference, status: "verified-scope", guild: guild))
+                } catch WorkspaceError.noActiveRaid {
+                    updated.append(CapabilityState(scope: .raid, reference: reference, status: "verified-scope", guild: guild))
                 } catch { updated.append(CapabilityState(scope: .raid, reference: nil, status: "unavailable", guild: nil)) }
             } else { updated.append(CapabilityState(scope: .raid, reference: nil, status: "guild-binding-unavailable", guild: nil)) }
             try Task.checkCancellation()
@@ -140,8 +148,9 @@ final class DeviceOfficialSource: OfficialSource {
                 for state in updated { try store.setCapability(state) }
             }
             let references = Set(try store.capabilities().compactMap(\.reference))
-            if !references.contains(reference) { try vault.remove(reference) }
-            for old in Set(previous.compactMap(\.reference)) where !references.contains(old) { try vault.remove(old) }
+            // The workspace is committed; unreachable credentials are removed best-effort and never undo it.
+            if !references.contains(reference) { try? vault.remove(reference) }
+            for old in Set(previous.compactMap(\.reference)) where !references.contains(old) { try? vault.remove(old) }
             if requestPlayer && projectedPlayer == nil { throw WorkspaceError.scope }
         } catch {
             let retained = Set((try? store.capabilities())?.compactMap(\.reference) ?? [])

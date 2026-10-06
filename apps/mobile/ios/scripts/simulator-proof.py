@@ -17,6 +17,12 @@ parser.add_argument("--sha", required=True)
 args = parser.parse_args()
 if not args.output.is_absolute() or len(args.sha) != 40 or any(c not in "0123456789abcdef" for c in args.sha):
     raise SystemExit("An absolute disposable output directory and full source SHA are required")
+head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+dirty = subprocess.check_output(["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT, text=True).strip()
+if head != args.sha:
+    raise SystemExit("--sha does not match the checked-out commit")
+if dirty:
+    raise SystemExit("Tracked sources are modified; evidence must come from a clean checkout")
 args.output.mkdir(parents=True, exist_ok=False)
 started = datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 

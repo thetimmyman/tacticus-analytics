@@ -2,7 +2,7 @@ import Foundation
 import CoreFoundation
 
 enum WorkspaceError: Error {
-    case invalidDocument, unavailable, incompatibleSchema, storage, credential, scope, cancelled
+    case invalidDocument, unavailable, incompatibleSchema, storage, credential, scope, cancelled, noActiveRaid
 }
 struct TokenSnapshot: Codable, Equatable {
     var current: Int64
@@ -94,7 +94,7 @@ struct WorkspaceDocument: Codable, Equatable {
                 if let value = resources[key] as? [String: Any] {
                     guard Set(value.keys).isSubset(of: ["current", "max", "nextTokenInSeconds", "regenDelayInSeconds"]),
                           value["current"] != nil, value["max"] != nil else { throw WorkspaceError.invalidDocument }
-                    for item in value.values { try integer(item, maximum: 1_000_000_000) }
+                    for item in value.values where !(item is NSNull) { try integer(item, maximum: 1_000_000_000) }
                 } else if let value = resources[key], !(value is NSNull) { throw WorkspaceError.invalidDocument }
             }
         } else if !(root["player"] is NSNull) { throw WorkspaceError.invalidDocument }

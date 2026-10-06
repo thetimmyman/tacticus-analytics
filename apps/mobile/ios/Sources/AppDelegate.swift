@@ -216,9 +216,12 @@ import UniformTypeIdentifiers
             let data = try handle.read(upToCount: 1_048_577) ?? Data()
             let old = try store.capabilities()
             try store.importDocument(data)
-            for ref in Set(old.compactMap(\.reference)) { try vault.remove(ref) }
+            // The import is committed; key cleanup is best-effort and reported separately.
+            var leftover = 0
+            for ref in Set(old.compactMap(\.reference)) { do { try vault.remove(ref) } catch { leftover += 1 } }
             status = "Imported as unverified local history. Sharing is off and keys disconnected."
-        } catch { status = "Import rejected or key cleanup unavailable. Existing workspace is retained when validation fails." }
+                + (leftover > 0 ? " Some stored keys could not be removed from this device; they are no longer used." : "")
+        } catch { status = "Import rejected. Existing workspace is retained." }
         render()
     }
 }
