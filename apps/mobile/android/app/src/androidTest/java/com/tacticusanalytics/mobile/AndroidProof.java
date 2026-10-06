@@ -2,9 +2,15 @@ package com.tacticusanalytics.mobile;
 
 import android.app.Instrumentation;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.view.WindowManager;
+import android.view.accessibility.AccessibilityNodeInfo;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import org.json.JSONArray;
@@ -96,10 +102,108 @@ public final class AndroidProof extends Instrumentation {
       throw new Exception("Unknown scope");
     };
   }
+  private boolean airplaneOffline() throws Exception {
+    if (Settings.Global.getInt(
+            getTargetContext().getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0)
+        != 1)
+      return false;
+    ConnectivityManager manager = getTargetContext().getSystemService(ConnectivityManager.class);
+    if (manager == null)
+      throw new Exception("Network observation unavailable");
+    for (Network network : manager.getAllNetworks()) {
+      NetworkInfo info = manager.getNetworkInfo(network);
+      if (info == null || info.isConnectedOrConnecting())
+        return false;
+    }
+    return true;
+  }
+  private void collectSwitches(AccessibilityNodeInfo node,
+      java.util.List<AccessibilityNodeInfo> switches) {
+    if (node == null)
+      return;
+    if (node.isCheckable() && "android.widget.Switch".contentEquals(node.getClassName()))
+      switches.add(node);
+    for (int i = 0; i < node.getChildCount(); i++) collectSwitches(node.getChild(i), switches);
+  }
+  private AccessibilityNodeInfo airplaneSwitch(AccessibilityNodeInfo root, String title)
+      throws Exception {
+    if (root == null || !"com.android.settings".contentEquals(root.getPackageName()))
+      return null;
+    java.util.List<AccessibilityNodeInfo> titles = new java.util.ArrayList<>();
+    for (AccessibilityNodeInfo node : root.findAccessibilityNodeInfosByText(title)) {
+      if (title.contentEquals(node.getText()))
+        titles.add(node);
+    }
+    if (titles.size() > 1)
+      throw new Exception("Airplane preference is ambiguous");
+    if (titles.isEmpty())
+      return null;
+    AccessibilityNodeInfo row = titles.get(0);
+    for (int depth = 0; row != null && depth < 3; depth++, row = row.getParent()) {
+      java.util.List<AccessibilityNodeInfo> switches = new java.util.ArrayList<>();
+      collectSwitches(row, switches);
+      if (switches.size() > 1)
+        throw new Exception("Airplane switch is ambiguous");
+      if (switches.size() == 1)
+        return switches.get(0);
+    }
+    return null;
+  }
+  private void prepareAirplaneMode() throws Exception {
+    check("ranchu".equals(Build.HARDWARE) || "goldfish".equals(Build.HARDWARE),
+        "Synthetic airplane setup is emulator-only");
+    if (airplaneOffline())
+      return;
+    getTargetContext().startActivity(new Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS)
+                                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+    android.content.res.Resources resources =
+        getTargetContext().getPackageManager().getResourcesForApplication("com.android.settings");
+    int titleId = resources.getIdentifier("airplane_mode", "string", "com.android.settings");
+    if (titleId == 0)
+      throw new Exception("Airplane preference label unavailable");
+    String title = resources.getString(titleId);
+    long deadline = SystemClock.elapsedRealtime() + 20000;
+    boolean clicked = false;
+    while (SystemClock.elapsedRealtime() < deadline) {
+      if (airplaneOffline())
+        return;
+      if (!clicked) {
+        AccessibilityNodeInfo control = airplaneSwitch(getUiAutomation().getRootInActiveWindow(), title);
+        if (control != null && control.isEnabled() && !control.isChecked()) {
+          AccessibilityNodeInfo target = control;
+          for (int depth = 0; target != null && !target.isClickable() && depth < 2; depth++)
+            target = target.getParent();
+          if (target == null || !target.isEnabled() || !target.isClickable()
+              || !target.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+            throw new Exception("Airplane switch click refused");
+          clicked = true;
+        }
+      }
+      SystemClock.sleep(250);
+    }
+    throw new Exception("Airplane mode and disconnected networks did not converge");
+  }
   @Override
   public void onStart() {
     Bundle result = new Bundle();
     long started = SystemClock.elapsedRealtime();
+    try {
+      if (phase.equals("airplane")) {
+        prepareAirplaneMode();
+        check(airplaneOffline(), "Airplane mode did not disconnect networks");
+        result.putString("stream",
+            "PASS phase=airplane checks=" + checks + "; synthetic emulator offline fixture\n");
+        finish(-1, result);
+        return;
+      }
+      if (!phase.equals("all") && !phase.equals("reopen") && !phase.equals("locked"))
+        throw new Exception("Unsupported proof phase");
+    } catch (Exception failure) {
+      result.putString("stream",
+          "FAIL " + failure.getClass().getSimpleName() + ": " + failure.getMessage() + "\n");
+      finish(0, result);
+      return;
+    }
     try (WorkspaceStore store = new WorkspaceStore(getTargetContext())) {
       if (phase.equals("locked")) {
         check(

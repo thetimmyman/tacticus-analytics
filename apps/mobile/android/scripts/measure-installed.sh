@@ -39,21 +39,20 @@ pin_reply=$("$ADB" -s "$SERIAL" shell locksettings set-pin --old 2468 2468 2>&1)
 fi
 [[ "$pin_reply" == "Pin set to "* ]] || { printf 'Synthetic emulator secure lock setup unavailable\n' >&2; exit 1; }
 unset pin_reply
+stage synthetic-unlock
 "$ADB" -s "$SERIAL" shell input keyevent KEYCODE_WAKEUP
 "$ADB" -s "$SERIAL" shell wm dismiss-keyguard > /dev/null 2>&1 || true
 "$ADB" -s "$SERIAL" shell input swipe 160 500 160 100 100
 "$ADB" -s "$SERIAL" shell input text 2468
 "$ADB" -s "$SERIAL" shell input keyevent KEYCODE_ENTER
 sleep 1
+stage synthetic-airplane-mode
 "$ADB" -s "$SERIAL" shell cmd connectivity airplane-mode enable > /dev/null 2>&1 || true
-if [[ "$("$ADB" -s "$SERIAL" shell settings get global airplane_mode_on | tr -d '\r')" != 1 ]]; then
-  "$ADB" -s "$SERIAL" shell settings put global airplane_mode_on 1
-  "$ADB" -s "$SERIAL" shell svc wifi disable
-  "$ADB" -s "$SERIAL" shell svc data disable
-fi
+"$ADB" -s "$SERIAL" shell am instrument -w -e phase airplane com.tacticusanalytics.mobile.preview.test/com.tacticusanalytics.mobile.AndroidProof > "$REPORT/all.txt"
+rg -q '^PASS phase=airplane ' "$REPORT/all.txt" || { cat "$REPORT/all.txt"; exit 1; }
 "$ADB" -s "$SERIAL" logcat -c > /dev/null 2>&1 || printf 'Device log clear unavailable; final log read remains required\n' >&2
 stage installed-functional-assertions
-"$ADB" -s "$SERIAL" shell am instrument -w -e phase all com.tacticusanalytics.mobile.preview.test/com.tacticusanalytics.mobile.AndroidProof > "$REPORT/all.txt"
+"$ADB" -s "$SERIAL" shell am instrument -w -e phase all com.tacticusanalytics.mobile.preview.test/com.tacticusanalytics.mobile.AndroidProof >> "$REPORT/all.txt"
 rg -q '^PASS phase=all ' "$REPORT/all.txt" || { cat "$REPORT/all.txt"; exit 1; }
 "$ADB" -s "$SERIAL" shell am force-stop com.tacticusanalytics.mobile.preview
 stage cold-native-activity

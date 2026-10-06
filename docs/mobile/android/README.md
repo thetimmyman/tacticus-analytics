@@ -30,4 +30,6 @@ The secret-free PR workflow is `platform-android.yml`. Owner signing is a separa
 
 The installed-check scripts require ripgrep, Python 3 and KVM. Hosted PR jobs install ripgrep explicitly. Secure-lock setup checks the emulator command result and the installed native guard; an unavailable GateKeeper service is a failed environment check, never synthetic authorization.
 
+The test APK verifies the airplane-mode flag and absence of connected networks before offline assertions. When the connectivity shell command is unavailable, it uses the normal Settings airplane switch on the synthetic emulator, with a bounded 20-second convergence check. It refuses missing or ambiguous controls and physical hardware, and never grants shell permissions. The airplane fixture result is retained in `all.txt`; unknown instrumentation phases fail before workspace access.
+
 Synthetic installation resets use verified preview-package uninstall/reinstall, avoiding a failing Android 8 `pm clear` shell operation. Runtime evidence reads the emulator revision from the installed SDK package metadata (`emulatorSdkPackage`); version collection needs no graphical desktop. Actual packaged native checks and source/artifact digests remain required.
