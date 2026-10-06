@@ -13,7 +13,7 @@ ADB="$ANDROID_HOME/platform-tools/adb"
 [[ "$($ADB -s "$SERIAL" shell getprop ro.kernel.qemu | tr -d '\r')" == 1 ]] || { printf 'Refusing synthetic reset on a physical device\n' >&2; exit 1; }
 [[ "$(git -C "$APP_ROOT" rev-list --max-parents=0 HEAD)" == 225aa3f138a93a005e460b0b04a0d4df530030c3 ]] || { printf 'Public source ancestry required\n' >&2; exit 1; }
 REPORT="$APP_ROOT/app/build/reports/installed-proof"
-STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)
 mkdir -p "$REPORT"
 APK="$APP_ROOT/app/build/outputs/apk/debug/app-debug.apk"
 TEST_APK="$APP_ROOT/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
@@ -83,26 +83,30 @@ ABI=$("$ADB" -s "$SERIAL" shell getprop ro.product.cpu.abi | tr -d '\r')
 AIRPLANE=$("$ADB" -s "$SERIAL" shell settings get global airplane_mode_on | tr -d '\r')
 [[ "$AIRPLANE" == 1 ]] || { printf 'Airplane mode not enabled\n' >&2; exit 1; }
 FIXTURE_SHA=$(sha256sum "$TEST_APK" | cut -d ' ' -f 1)
-COMPLETED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+COMPLETED_AT=$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)
 export APK_SHA SOURCE_SHA SOURCE_DIRTY FIXTURE_SHA STARTED_AT COMPLETED_AT API ABI REPORT
 python3 - <<'PY'
 import os,json,re,pathlib,subprocess
 report=pathlib.Path(os.environ['REPORT'])
 launch=report.joinpath('relaunch.txt').read_text()
 data={'schemaVersion':'android-emulator-observation/v1','sourceCommit':os.environ['SOURCE_SHA'],'artifactSha256':os.environ['APK_SHA'],'sourceDirty':os.environ['SOURCE_DIRTY']=='true','api':int(os.environ['API']),'abi':os.environ['ABI'],'deviceKind':'emulator','airplaneMode':True,'releaseQualified':False,'checksPassed':True,'credentialCanaryInLogs':False,'coldActivityTotalMs':int(re.search(r'TotalTime: (\d+)',launch).group(1))}
+data['qualificationBlockers']=['Physical owner-signed phone/tablet release qualification pending','Full accepted application parity pending','Real authorized upstream checks and live contribution integration pending']
 report.joinpath('measurement.json').write_text(json.dumps(data,indent=2)+'\n')
 sdk=pathlib.Path(os.environ['ANDROID_HOME'])
 java_text=subprocess.run(['java','-version'],capture_output=True,text=True,check=True).stderr
 emulator_properties=sdk.joinpath('emulator/source.properties').read_text()
 adb_text=subprocess.run([str(sdk/'platform-tools/adb'),'version'],capture_output=True,text=True,check=True).stdout
 versions={'gradle':'8.13','androidGradlePlugin':'8.9.3','javaCompiler':re.search(r'version "([^" ]+)"',java_text).group(1),'emulatorSdkPackage':re.search(r'^Pkg.Revision\s*=\s*([0-9.]+)',emulator_properties,re.M).group(1),'adb':re.search(r'Version ([0-9.]+)',adb_text).group(1)}
-for scenario,file in [('offline-core','all.txt'),('restart-persistence','reopen.txt'),('credential-isolation','locked.txt')]:
+for scenario,file in [('offline-core','all.txt'),('restart-persistence','reopen.txt')]:
     captures=[]
-    for capture in ['all.txt','reopen.txt','relaunch.txt','locked.txt']:
-        captures.append({'name':capture,'sha256':__import__('hashlib').sha256(report.joinpath(capture).read_bytes()).hexdigest(),'mediaType':'text/plain','redacted':True})
+    for capture in ['all.txt','reopen.txt','relaunch.txt','locked.txt','measurement.json']:
+        captures.append({'name':capture,'sha256':__import__('hashlib').sha256(report.joinpath(capture).read_bytes()).hexdigest(),'mediaType':'application/json' if capture.endswith('.json') else 'text/plain','redacted':True})
     actual=report.joinpath(file).read_text().strip()
-    evidence={'schemaVersion':'platform-evidence/v1','evidenceKind':'harness-self-test' if data['sourceDirty'] else 'product-acceptance','runId':__import__('uuid').uuid4().hex,'build':{'sha':data['sourceCommit'],'artifact':{'sha256':data['artifactSha256'],'format':'apk'}},'environment':{'os':'android','osVersion':'API '+os.environ['API'],'arch':os.environ['ABI'],'classification':'emulator','runtimeVersions':versions,'installation':'clean-install' if scenario=='offline-core' else 'existing-install'},'fixture':{'id':'android-instrumentation-synthetic/v1','sha256':os.environ['FIXTURE_SHA']},'scenario':{'id':scenario,'expected':'Installed native offline behavior and persistence using synthetic inputs'},'startedAt':os.environ['STARTED_AT'],'completedAt':os.environ['COMPLETED_AT'],'outcome':{'status':'pass','actual':actual,'blockers':['Physical owner-signed phone/tablet release qualification pending','Full accepted application parity pending','Real authorized upstream checks and live contribution integration pending']},'assertions':[{'id':'installed-'+scenario,'status':'pass','expected':'Native installed synthetic suite passes','actual':actual}],'attachments':captures}
+    evidence={'schemaVersion':'platform-evidence/v1','evidenceKind':'harness-self-test' if data['sourceDirty'] else 'product-acceptance','runId':__import__('uuid').uuid4().hex,'build':{'sha':data['sourceCommit'],'artifact':{'sha256':data['artifactSha256'],'format':'apk'}},'environment':{'os':'android','osVersion':'API '+os.environ['API'],'arch':os.environ['ABI'],'classification':'emulator','runtimeVersions':versions,'installation':'clean-install' if scenario=='offline-core' else 'existing-install'},'fixture':{'id':'android-instrumentation-synthetic-v1','sha256':os.environ['FIXTURE_SHA']},'scenario':{'id':scenario,'expected':'Installed native offline behavior and persistence using synthetic inputs'},'startedAt':os.environ['STARTED_AT'],'completedAt':os.environ['COMPLETED_AT'],'outcome':{'status':'pass','actual':actual,'blockers':[]},'assertions':[{'id':'installed-'+scenario,'status':'pass','expected':'Native installed synthetic suite passes','actual':actual}],'attachments':captures}
+    if scenario=='offline-core':
+        evidence['assertions'].append({'id':'installed-credential-isolation','status':'pass','expected':'Locked native session refuses credential access without discarding offline data','actual':report.joinpath('locked.txt').read_text().strip()})
     report.joinpath(scenario+'-evidence.json').write_text(json.dumps(evidence,indent=2)+'\n')
+report.joinpath('credential-isolation-evidence.json').unlink(missing_ok=True)
 print(json.dumps(data))
 PY
 cat "$REPORT/all.txt" "$REPORT/reopen.txt" "$REPORT/locked.txt"

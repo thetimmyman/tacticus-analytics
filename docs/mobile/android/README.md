@@ -32,4 +32,6 @@ The installed-check scripts require ripgrep, Python 3 and KVM. Hosted PR jobs in
 
 The test APK verifies the airplane-mode flag and absence of connected networks before offline assertions. When the connectivity shell command is unavailable, it uses the normal Settings airplane switch on the synthetic emulator, with a bounded 20-second convergence check. It refuses missing or ambiguous controls and physical hardware, and never grants shell permissions. The airplane fixture result is retained in `all.txt`; unknown instrumentation phases fail before workspace access.
 
+Canonical evidence covers `offline-core` and `restart-persistence`; the offline record also carries locked credential refusal as an assertion with its original capture. Full application, physical signing and live upstream gates remain in `measurement.json` under `qualificationBlockers`, with `releaseQualified` false. A passing selected scenario does not complete those release gates.
+
 Synthetic installation resets use verified preview-package uninstall/reinstall, avoiding a failing Android 8 `pm clear` shell operation. Runtime evidence reads the emulator revision from the installed SDK package metadata (`emulatorSdkPackage`); version collection needs no graphical desktop. Actual packaged native checks and source/artifact digests remain required.
