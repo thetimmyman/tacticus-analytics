@@ -40,6 +40,19 @@ async function withGateway(t, run) {
   await run({ gateway, transportKey })
 }
 
+test('non-hex transport headers are denied without stopping the gateway', async (t) => {
+  await withGateway(t, async ({ gateway, transportKey }) => {
+    const malformed = await fetch(gateway.origin, {
+      headers: { 'x-desktop-transport': 'é'.repeat(64) }
+    })
+    assert.equal(malformed.status, 403)
+    const healthy = await fetch(gateway.origin, {
+      headers: { 'x-desktop-transport': transportKey }
+    })
+    assert.equal(healthy.status, 200)
+  })
+})
+
 test('loopback gateway binds only to 127.0.0.1, not 0.0.0.0 or ::', async (t) => {
   await withGateway(t, async ({ gateway }) => {
     const url = new URL(gateway.origin)
@@ -194,4 +207,43 @@ test('invalid absolute request targets refuse without terminating the HTTP liste
     })
     assert.equal(valid.status, 200)
   })
+})
+
+test('valid action origins use the gateway host and cannot spoof forwarding headers', async (t) => {
+  const upstream = createServer((req, res) => {
+    res.setHeader('content-type', 'application/json')
+    res.end(JSON.stringify(req.headers))
+  })
+  await new Promise((resolve) => upstream.listen(0, '127.0.0.1', resolve))
+  const transportKey = randomBytes(32).toString('hex')
+  const gateway = await loopbackGateway({
+    services: { ports: {}, token: { anon: 'anon-token' } },
+    transportKey,
+    appPort: upstream.address().port
+  })
+  t.after(async () => {
+    await gateway.stop()
+    await new Promise((resolve) => upstream.close(resolve))
+  })
+  const response = await fetch(gateway.origin, {
+    method: 'POST',
+    headers: {
+      'x-desktop-transport': transportKey,
+      origin: gateway.origin,
+      'x-forwarded-host': 'foreign.invalid',
+      'x-forwarded-port': '443',
+      'x-forwarded-proto': 'https',
+      forwarded: 'host=foreign.invalid;proto=https'
+    },
+    body: 'synthetic-action'
+  })
+  assert.equal(response.status, 200)
+  const observed = await response.json()
+  const endpoint = new URL(gateway.origin)
+  assert.equal(observed['x-forwarded-host'], endpoint.host)
+  assert.equal(observed['x-forwarded-port'], endpoint.port)
+  assert.equal(observed['x-forwarded-proto'], 'http')
+  assert.equal(observed.origin, gateway.origin)
+  assert.equal(observed.forwarded, undefined)
+  assert.equal(observed.host, `127.0.0.1:${upstream.address().port}`)
 })

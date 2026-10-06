@@ -195,12 +195,14 @@ export function MetaTeamMembership({
     <div className="card-wh40k p-6">
       <h2 className="text-lg font-semibold text-primary-wh40k mb-2 inline-flex items-center gap-2">
         <Users className="h-5 w-5" />
-        Meta team membership
+        {process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop'
+          ? 'Local meta team membership'
+          : 'Meta team membership'}
       </h2>
       <p className="text-sm text-secondary-wh40k mb-4">
-        Pick the teams you run. Herald notifications will ping your Discord role
-        for the bosses these teams are configured for. Roles assigned by your
-        guild leader are shown locked — ask them to change those.
+        {process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop'
+          ? 'Save the teams you run in this workspace. Roles assigned by the local guild leader are shown locked.'
+          : 'Pick the teams you run. Herald notifications will ping your Discord role for the bosses these teams are configured for. Roles assigned by your guild leader are shown locked — ask them to change those.'}
       </p>
 
       {loading && (

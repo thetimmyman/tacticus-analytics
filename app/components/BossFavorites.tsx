@@ -1,5 +1,6 @@
 'use client'
 
+import { CURRENT_USER_PLAYER_MAPPING } from '@/app/lib/player-mapping-relations'
 import { guildRosterQuery } from '@/app/lib/data/guild-roster'
 import { useState, useEffect, useCallback } from 'react'
 import { getBossDisplayName } from '@/app/lib/resolvers/boss-identity'
@@ -100,6 +101,8 @@ export default function BossFavorites({
   currentPreferences = {},
   onUpdate
 }: BossFavoritesProps) {
+  const desktopMode = process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop'
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [bossGroups, setBossGroups] = useState<BossGroup[]>([])
   const [preferences, setPreferences] =
     useState<Record<string, string>>(currentPreferences)
@@ -155,13 +158,14 @@ export default function BossFavorites({
   const loadPlayerPreferences = useCallback(async () => {
     try {
       const supabase = dbClient()
-      const { data, error } = await guildRosterQuery(
-        supabase,
-        guildCode,
-        'boss_preferences'
-      )
-        .eq('player_id', playerId)
-        .single()
+      const query = desktopMode
+        ? supabase
+            .from(CURRENT_USER_PLAYER_MAPPING)
+            .select('boss_preferences')
+            .eq('guild_code', guildCode)
+            .eq('is_current', true)
+        : guildRosterQuery(supabase, guildCode, 'boss_preferences')
+      const { data, error } = await query.eq('player_id', playerId).single()
 
       if (error && error.code !== 'PGRST116') {
         // PGRST116 = no rows.
@@ -175,7 +179,7 @@ export default function BossFavorites({
     } catch (error) {
       logger.error({ err: error }, 'Error loading player preferences:')
     }
-  }, [playerId, guildCode])
+  }, [playerId, guildCode, desktopMode])
 
   useEffect(() => {
     fetchBossData()
@@ -207,19 +211,27 @@ export default function BossFavorites({
     if (!hasChanges) return
 
     setSaving(true)
+    setSaveError(null)
     try {
       const supabase = dbClient()
-      const { error } = await supabase
-        .from('player_mapping')
+      const update = supabase
+        .from(desktopMode ? CURRENT_USER_PLAYER_MAPPING : 'player_mapping')
         .update({
           boss_preferences: preferences,
-          preferences_updated_at: new Date().toISOString()
+          ...(desktopMode
+            ? {}
+            : { preferences_updated_at: new Date().toISOString() })
         })
         .eq('player_id', playerId)
         .eq('guild_code', guildCode)
         .eq('is_current', true)
+      const { data, error } = desktopMode
+        ? await update.select('boss_preferences')
+        : await update
 
       if (error) throw error
+      if (desktopMode && data?.length !== 1)
+        throw new Error('Local preference update refused')
 
       if (onUpdate) {
         onUpdate(preferences)
@@ -231,6 +243,9 @@ export default function BossFavorites({
       setTimeout(() => setSaveSuccess(false), 3000)
     } catch (error) {
       logger.error({ err: error }, 'Error saving preferences:')
+      setSaveError(
+        'Your boss preferences could not be saved. Your changes are still here; please try again.'
+      )
     } finally {
       setSaving(false)
     }
@@ -336,6 +351,11 @@ export default function BossFavorites({
         </div>
       </div>
 
+      {saveError && (
+        <p role="alert" className="text-(--error) mb-4">
+          {saveError}
+        </p>
+      )}
       {/* Boss Groups */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6">
         {bossGroups.map((group) => (
@@ -422,7 +442,9 @@ export default function BossFavorites({
           </button>
 
           <span className="text-xs text-secondary-wh40k">
-            Stored in player_mapping table
+            {desktopMode
+              ? 'Saved in this workspace'
+              : 'Saved with your profile'}
           </span>
         </div>
 

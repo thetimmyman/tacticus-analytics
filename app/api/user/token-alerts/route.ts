@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 import { db, serviceDb } from '@/app/lib/db'
 import type { TypedSupabaseClient } from '@tacticus/app-core/types'
 import { createComponentLogger } from '@/app/lib/logging'
@@ -234,6 +235,14 @@ export const GET = withErrorHandler(async () => {
   const user = await requireSessionUser(supabase, () =>
     Errors.fromResponse(401, { error: 'Authentication required' })
   )
+
+  // Export storage does not establish the hosted Discord delivery authority.
+  // Local notification delivery remains a separate desktop capability.
+  if (getRuntimeProfile() === 'desktop')
+    return NextResponse.json({
+      available: false,
+      reason: 'Local token-alert delivery is not configured'
+    })
 
   const { data: prefsRow, error: prefsError } = await supabase
     .from('user_token_alert_prefs')
@@ -477,6 +486,9 @@ export const PUT = withErrorHandler(async (request: NextRequest) => {
   const user = await requireSessionUser(supabase, () =>
     Errors.fromResponse(401, { error: 'Authentication required' })
   )
+
+  if (getRuntimeProfile() === 'desktop')
+    throw Errors.conflict('Local token-alert delivery is not configured')
 
   let body: PutBody
   try {

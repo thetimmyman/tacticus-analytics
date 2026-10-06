@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { getUserAvatar } from '@/app/lib/utils/avatar'
 import { dbClient } from '@/app/lib/db/client'
 import { CURRENT_USER_PLAYER_MAPPING } from '@/app/lib/player-mapping-relations'
-import { validateUrl } from '@/app/lib/validation/auth'
+import { validateUrl, safeExternalHttpUrl } from '@/app/lib/validation/auth'
 import {
   createError,
   formatErrorForUser
@@ -57,13 +57,13 @@ interface EditProfileClientProps {
 }
 
 type ProfileUpdatePayload = {
-  timezone?: string
-  tacticus_share_url?: string
-  theme_preference?: string
+  timezone?: string | null
+  tacticus_share_url?: string | null
+  theme_preference?: string | null
   primary_team?: string | null
   secondary_team?: string | null
   tertiary_team?: string | null
-  discord_username?: string
+  discord_username?: string | null
 }
 
 export default function EditProfileClient({
@@ -73,6 +73,7 @@ export default function EditProfileClient({
   teamOptions
 }: EditProfileClientProps) {
   const router = useRouter()
+  const desktopMode = process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop'
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
@@ -88,7 +89,7 @@ export default function EditProfileClient({
   )
 
   const isDiscordUsernameControlled =
-    featureFlags.discordAuth && hasDiscordLinked
+    !desktopMode && featureFlags.discordAuth && hasDiscordLinked
   const [themePreference, setThemePreference] = useState(
     initialProfile.theme_preference || 'guild'
   )
@@ -275,14 +276,19 @@ export default function EditProfileClient({
 
     // Display name is read-only.
 
-    if (tacticusShareUrl && !validateUrl(tacticusShareUrl)) {
+    if (
+      tacticusShareUrl &&
+      !(desktopMode
+        ? safeExternalHttpUrl(tacticusShareUrl)
+        : validateUrl(tacticusShareUrl))
+    ) {
       const enhancedError = createError(
         'PROFILE_VALIDATION_FAILED',
         'Invalid URL format for Tacticus share URL',
         {
           component: 'EditProfileClient',
           action: 'validate_url',
-          url: tacticusShareUrl
+          ...(desktopMode ? {} : { url: tacticusShareUrl })
         }
       )
       const userError = formatErrorForUser(enhancedError)
@@ -305,16 +311,19 @@ export default function EditProfileClient({
       }
 
       const updateData: ProfileUpdatePayload = {
-        timezone: timezone || undefined,
-        tacticus_share_url: tacticusShareUrl || undefined,
-        theme_preference: themePreference || undefined,
+        timezone: timezone || (desktopMode ? null : undefined),
+        tacticus_share_url: desktopMode
+          ? safeExternalHttpUrl(tacticusShareUrl) || null
+          : tacticusShareUrl || undefined,
+        theme_preference: themePreference || (desktopMode ? null : undefined),
         primary_team: primaryTeam || null,
         secondary_team: secondaryTeam || null,
         tertiary_team: tertiaryTeam || null
       }
 
       if (!isDiscordUsernameControlled) {
-        updateData.discord_username = discordUsername || undefined
+        updateData.discord_username =
+          discordUsername || (desktopMode ? null : undefined)
       }
 
       const { error } = await supabase
@@ -380,6 +389,7 @@ export default function EditProfileClient({
         )}
 
         <EditProfileCoreFields
+          desktopMode={desktopMode}
           avatarUrl={avatarUrl}
           displayName={displayName}
           saving={saving}
@@ -411,20 +421,22 @@ export default function EditProfileClient({
         />
 
         {/* Change Player ID Section */}
-        <EditProfilePlayerIdSection
-          initialProfile={initialProfile}
-          showPlayerIdChange={showPlayerIdChange}
-          setShowPlayerIdChange={setShowPlayerIdChange}
-          newPlayerId={newPlayerId}
-          setNewPlayerId={setNewPlayerId}
-          newAccountApiKey={newAccountApiKey}
-          setNewAccountApiKey={setNewAccountApiKey}
-          savingPlayerId={savingPlayerId}
-          handlePlayerIdChange={handlePlayerIdChange}
-          playerIdError={playerIdError}
-          setPlayerIdError={setPlayerIdError}
-          playerIdSuccess={playerIdSuccess}
-        />
+        {!desktopMode && (
+          <EditProfilePlayerIdSection
+            initialProfile={initialProfile}
+            showPlayerIdChange={showPlayerIdChange}
+            setShowPlayerIdChange={setShowPlayerIdChange}
+            newPlayerId={newPlayerId}
+            setNewPlayerId={setNewPlayerId}
+            newAccountApiKey={newAccountApiKey}
+            setNewAccountApiKey={setNewAccountApiKey}
+            savingPlayerId={savingPlayerId}
+            handlePlayerIdChange={handlePlayerIdChange}
+            playerIdError={playerIdError}
+            setPlayerIdError={setPlayerIdError}
+            playerIdSuccess={playerIdSuccess}
+          />
+        )}
 
         {/* Meta Team Preferences with Radix Select */}
         <div className="mt-6">
@@ -449,14 +461,21 @@ export default function EditProfileClient({
                 </RadixTooltipContent>
               </RadixTooltip>
               <RadixSelect
-                value={primaryTeam}
-                onValueChange={setPrimaryTeam}
+                value={desktopMode ? primaryTeam || '__none' : primaryTeam}
+                onValueChange={(value) =>
+                  setPrimaryTeam(value === '__none' ? '' : value)
+                }
                 disabled={saving}
               >
                 <RadixSelectTrigger className="w-full">
                   <RadixSelectValue placeholder="Select team..." />
                 </RadixSelectTrigger>
                 <RadixSelectContent>
+                  {desktopMode && (
+                    <RadixSelectItem value="__none">
+                      No preference
+                    </RadixSelectItem>
+                  )}
                   {teamOptions.map((team) => (
                     <RadixSelectItem
                       key={team}
@@ -485,14 +504,21 @@ export default function EditProfileClient({
                 </RadixTooltipContent>
               </RadixTooltip>
               <RadixSelect
-                value={secondaryTeam}
-                onValueChange={setSecondaryTeam}
+                value={desktopMode ? secondaryTeam || '__none' : secondaryTeam}
+                onValueChange={(value) =>
+                  setSecondaryTeam(value === '__none' ? '' : value)
+                }
                 disabled={saving}
               >
                 <RadixSelectTrigger className="w-full">
                   <RadixSelectValue placeholder="Select team..." />
                 </RadixSelectTrigger>
                 <RadixSelectContent>
+                  {desktopMode && (
+                    <RadixSelectItem value="__none">
+                      No preference
+                    </RadixSelectItem>
+                  )}
                   {teamOptions.map((team) => (
                     <RadixSelectItem
                       key={team}
@@ -521,14 +547,21 @@ export default function EditProfileClient({
                 </RadixTooltipContent>
               </RadixTooltip>
               <RadixSelect
-                value={tertiaryTeam}
-                onValueChange={setTertiaryTeam}
+                value={desktopMode ? tertiaryTeam || '__none' : tertiaryTeam}
+                onValueChange={(value) =>
+                  setTertiaryTeam(value === '__none' ? '' : value)
+                }
                 disabled={saving}
               >
                 <RadixSelectTrigger className="w-full">
                   <RadixSelectValue placeholder="Select team..." />
                 </RadixSelectTrigger>
                 <RadixSelectContent>
+                  {desktopMode && (
+                    <RadixSelectItem value="__none">
+                      No preference
+                    </RadixSelectItem>
+                  )}
                   {teamOptions.map((team) => (
                     <RadixSelectItem
                       key={team}

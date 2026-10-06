@@ -26,6 +26,7 @@ import {
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { SERVICE_TIMEOUTS } from '@/app/lib/utils/async-timeout'
 import { assertUnbannedAuthUser } from '@/app/lib/api/session-user'
+import { serverEnv } from '@tacticus/app-core/server-env'
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
   try {
@@ -389,7 +390,10 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
 
     let syncTriggered = false
     try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      // Server-side call: prefer the internal URL so a split browser/server
+      // Supabase host (e.g. Docker Compose's host.docker.internal) still
+      // reaches the edge function from inside this container.
+      const supabaseUrl = serverEnv.SUPABASE_INTERNAL_URL
       const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
       if (supabaseUrl && serviceKey) {

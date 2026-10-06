@@ -58,6 +58,7 @@ const runtimeProvided = new Set([
   'HOSTNAME',
   'NEXT_BUILD_ID',
   // Inherited OS executable search path and desktop display session, not app settings.
+  'HOME',
   'PATH',
   'HOME',
   'TMPDIR',

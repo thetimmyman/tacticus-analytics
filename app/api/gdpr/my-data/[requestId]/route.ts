@@ -44,7 +44,9 @@ export const GET = withErrorHandler(
 
       const { data, error } = await (supabase as unknown as GdprSupabaseClient)
         .from('gdpr_data_exports')
-        .select('*')
+        .select(
+          'request_id,status,requested_at,completed_at,download_url,expires_at'
+        )
         .eq('request_id', requestId)
         .eq('user_id', user.id)
         .single<GdprDataExportRow>()

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "purpose": "fixture",
+  "keyId": "synthetic-fixture-v1",
+  "payload": {
+    "generatedAt": "2026-01-01T00:00:00Z",
+    "expiresAt": "2026-01-02T00:00:00Z",
+    "releases": []
+  },
+  "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="
+}

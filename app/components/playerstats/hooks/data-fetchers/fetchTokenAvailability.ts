@@ -3,6 +3,7 @@ const logger = createComponentLogger(
   'components.playerstats.hooks.data-fetchers.fetchTokenAvailability'
 )
 import type { TokenAvailability } from '@/app/components/playerstats/types'
+import { canManageHeraldRole } from '@/app/lib/auth/role-predicates'
 
 export interface FetchTokenAvailabilityParams {
   playerName: string
@@ -47,6 +48,7 @@ export async function fetchTokenAvailability(
   } = params
 
   if (!playerName || !guildCode || !season) return null
+  if (!canManageHeraldRole(userRole)) return null
 
   try {
     const normalizedSelectionGuild = (selectedGuild || '').trim().toUpperCase()

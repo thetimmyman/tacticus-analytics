@@ -1,5 +1,7 @@
 'use client'
 
+import { DesktopCredentialGuide } from '@/app/components/navigation/DesktopCredentialGuide'
+
 import { type Dispatch, type SetStateAction } from 'react'
 import { Button } from '@tacticus/ui-kit'
 import {
@@ -50,6 +52,8 @@ export const ApiKeyPanel = ({
   showHowItWorks,
   setShowHowItWorks
 }: ApiKeyPanelProps) => {
+  if (process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop')
+    return <DesktopCredentialGuide />
   return (
     <div className="mt-3 space-y-2">
       <div className="space-y-2">

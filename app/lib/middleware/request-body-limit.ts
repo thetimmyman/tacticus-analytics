@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from 'next/server'
 export const MAX_JSON_BODY_BYTES = 10 * 1024 * 1024
 
 export function enforceJsonBodyLimit(
-  request: NextRequest | undefined
+  request: NextRequest | undefined,
+  maxBytes = MAX_JSON_BODY_BYTES
 ): NextResponse | null {
   if (!request) return null
 
@@ -15,12 +16,12 @@ export function enforceJsonBodyLimit(
 
   const rawContentLength = request.headers.get('content-length')
   const contentLength = rawContentLength ? Number(rawContentLength) : NaN
-  if (!Number.isFinite(contentLength) || contentLength < MAX_JSON_BODY_BYTES) {
+  if (!Number.isFinite(contentLength) || contentLength < maxBytes) {
     return null
   }
 
   return NextResponse.json(
-    { error: 'Payload too large', maxBytes: MAX_JSON_BODY_BYTES },
+    { error: 'Payload too large', maxBytes },
     { status: 413 }
   )
 }

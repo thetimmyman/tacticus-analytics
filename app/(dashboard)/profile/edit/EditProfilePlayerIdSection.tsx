@@ -1,5 +1,7 @@
 'use client'
 
+import { DesktopCredentialGuide } from '@/app/components/navigation/DesktopCredentialGuide'
+
 // The change needs a Guild-scope API key from the new account as proof; it becomes the stored key.
 
 import type { Dispatch, SetStateAction } from 'react'
@@ -33,6 +35,8 @@ export function EditProfilePlayerIdSection({
   setPlayerIdError,
   playerIdSuccess
 }: EditProfilePlayerIdSectionProps) {
+  if (process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop')
+    return <DesktopCredentialGuide />
   return (
     <div className="mt-6 pt-6 border-t border-(--card-border)">
       <h3 className="text-lg font-medium text-primary-wh40k mb-4">Player ID</h3>

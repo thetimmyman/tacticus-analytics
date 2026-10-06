@@ -16,7 +16,66 @@ describe('Avatar Utilities', () => {
   const originalEnv = { ...process.env }
 
   afterEach(() => {
-    process.env = originalEnv
+    process.env = { ...originalEnv }
+  })
+
+  describe('desktop initials', () => {
+    beforeEach(() => {
+      process.env.NEXT_PUBLIC_RUNTIME_PROFILE = 'desktop'
+      process.env.NEXT_PUBLIC_AVATAR_API_URL = 'https://foreign.invalid'
+    })
+
+    it('renders initials from an embedded image without a remote avatar request', () => {
+      const url = getUserAvatar('Synthetic Commander', 'GLOBAL', 64)
+      expect(url.startsWith('data:image/svg+xml;charset=UTF-8,')).toBe(true)
+      const svg = decodeURIComponent(url.slice(url.indexOf(',') + 1))
+      expect(svg).toContain('width="64"')
+      expect(svg).toContain('>SC</text>')
+      expect(svg).not.toContain('foreign.invalid')
+      expect(svg).not.toContain('ui-avatars.com')
+    })
+
+    it('escapes hostile initials and bounds numeric and colour attributes', () => {
+      const url = getAvatarUrl({
+        name: '<script> &evil',
+        size: Infinity,
+        background: 'ff0000" onload="hostile',
+        color: 'url(https://foreign.invalid)'
+      })
+      const svg = decodeURIComponent(url.slice(url.indexOf(',') + 1))
+      expect(svg).toContain('width="40"')
+      expect(svg).toContain('&lt;&amp;</text>')
+      expect(svg).toContain('fill="#6B7280"')
+      expect(svg).not.toContain('<script')
+      expect(svg).not.toContain('onload')
+      expect(svg).not.toContain('foreign.invalid')
+    })
+
+    it('uses local assets or initials for stored and configured external avatar URLs', () => {
+      process.env.NEXT_PUBLIC_DATAMINE_AVATAR_SPRITE_BASE_URL =
+        'https://foreign.invalid'
+      expect(getDatamineAvatarUrl('synthetic-unit')).toBeNull()
+      expect(
+        resolveAvatarIconUrl('synthetic-unit', {
+          'synthetic-unit': 'https://foreign.invalid/avatar.png'
+        })
+      ).toBeNull()
+      expect(
+        getAvatarWithFallback(
+          'https://foreign.invalid/avatar.png',
+          'Synthetic Commander'
+        )
+      ).toMatch(/^data:image\/svg\+xml/)
+      expect(
+        getAvatarWithFallback('/images/synthetic.png', 'Synthetic Commander')
+      ).toBe('/images/synthetic.png')
+      expect(
+        getAvatarWithFallback(
+          '/images/\\foreign.invalid',
+          'Synthetic Commander'
+        )
+      ).toMatch(/^data:image\/svg\+xml/)
+    })
   })
 
   describe('getAvatarUrl', () => {
