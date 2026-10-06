@@ -35,6 +35,7 @@ afterEach(() => {
   document
     .querySelectorAll('link[rel="preload"]')
     .forEach((link) => link.remove())
+  vi.unstubAllEnvs()
   vi.restoreAllMocks()
   vi.useRealTimers()
 })
@@ -49,6 +50,17 @@ describe('image optimization helpers', () => {
     const result = bossPortraitLoader({ src: url, width: 32, quality: 70 })
 
     expect(result).toBe(url)
+  })
+
+  it('loads packaged desktop portraits directly while hosted portraits retain optimization', () => {
+    const src = '/images/bosses/portraits/synthetic_boss_main.png'
+    vi.stubEnv('NEXT_PUBLIC_RUNTIME_PROFILE', 'desktop')
+    expect(bossPortraitLoader({ src, width: 128 })).toBe(src)
+    expect(bossPortraitLoader({ src: baseUrl, width: 128 })).toContain(
+      '/_next/image?'
+    )
+    vi.stubEnv('NEXT_PUBLIC_RUNTIME_PROFILE', 'hosted')
+    expect(bossPortraitLoader({ src, width: 128 })).toContain('/_next/image?')
   })
 
   it('builds optimized URLs for raw sources', () => {

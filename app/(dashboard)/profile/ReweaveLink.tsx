@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useHasMounted } from '@/app/lib/hooks/useHasMounted'
 import { formatRelativeTime } from '@/app/lib/utils/date-format'
+import { DesktopCredentialGuide } from '@/app/components/navigation/DesktopCredentialGuide'
 
 interface ReweaveLinkProps {
   hasKey: boolean
@@ -28,6 +29,7 @@ export function ReweaveLink({ hasKey, lastVerified }: ReweaveLinkProps) {
       : `Last verified ${formatRelativeTime(lastVerified, Date.now())}`
 
   async function handleSave() {
+    if (process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop') return
     if (!apiKey.trim()) return
     setSaving(true)
     setError(null)
@@ -60,6 +62,7 @@ export function ReweaveLink({ hasKey, lastVerified }: ReweaveLinkProps) {
   }
 
   async function handleUnlink() {
+    if (process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop') return
     setUnlinking(true)
     setError(null)
     setSuccess(null)
@@ -84,6 +87,9 @@ export function ReweaveLink({ hasKey, lastVerified }: ReweaveLinkProps) {
       setUnlinking(false)
     }
   }
+
+  if (process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop')
+    return <DesktopCredentialGuide />
 
   return (
     <div className="space-y-3">

@@ -1,5 +1,7 @@
 'use client'
 
+import { DesktopCredentialGuide } from '@/app/components/navigation/DesktopCredentialGuide'
+
 import type { Dispatch, SetStateAction } from 'react'
 import { ClientDate, StatusLabel } from '@tacticus/ui-kit'
 import { TACTICUS_API } from '@tacticus/app-core/app-config'
@@ -31,6 +33,8 @@ export function EditProfileApiKeySection({
   apiKeySuccess,
   tacticusSite
 }: EditProfileApiKeySectionProps) {
+  if (process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop')
+    return <DesktopCredentialGuide />
   return (
     <div className="mt-6 pt-6 border-t border-(--card-border)">
       <h3 className="text-lg font-medium text-primary-wh40k mb-4">

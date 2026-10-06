@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 import { useRouter } from 'next/navigation'
 import { dbClient } from '@/app/lib/db/client'
 import {
@@ -27,6 +28,7 @@ interface ChangePasswordClientProps {
 export default function ChangePasswordClient({
   userEmail
 }: ChangePasswordClientProps) {
+  const desktop = getRuntimeProfile() === 'desktop'
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -40,6 +42,7 @@ export default function ChangePasswordClient({
 
   // OAuth accounts and forgotten passwords cannot pass the current-password check; use email recovery.
   const handleSendResetLink = async () => {
+    if (desktop) return
     if (resetSending) return
     setError(null)
     setResetSending(true)
@@ -109,6 +112,11 @@ export default function ChangePasswordClient({
       )
       const userError = formatErrorForUser(enhancedError)
       setError(userError.displayMessage)
+      return
+    }
+
+    if (desktop && newPassword.length > 128) {
+      setError('Local workspace passwords must be 12–128 characters.')
       return
     }
 
@@ -235,7 +243,16 @@ export default function ChangePasswordClient({
               required
               disabled={saving}
             />
-            {resetSent ? (
+            {desktop ? (
+              <p className="mt-2 text-xs text-secondary-wh40k">
+                Forgot your local password?{' '}
+                <a href="/desktop/setup" className="underline">
+                  Open workspace recovery
+                </a>{' '}
+                and use your saved recovery code. This workspace does not send
+                reset emails.
+              </p>
+            ) : resetSent ? (
               <p className="mt-2 text-xs text-emerald-400">
                 Reset link sent to {userEmail} — open that email to set your new
                 password. This works even if you only ever signed in with
@@ -271,10 +288,12 @@ export default function ChangePasswordClient({
               required
               disabled={saving}
               minLength={PASSWORD_MIN_LENGTH}
+              maxLength={desktop ? 128 : undefined}
             />
             <p className="mt-1 text-xs text-secondary-wh40k">
-              Must be at least {PASSWORD_MIN_LENGTH} characters, with a
-              lowercase letter, an uppercase letter, and a number
+              Must be at least {PASSWORD_MIN_LENGTH} characters
+              {desktop ? ' (up to 128)' : ''}, with a lowercase letter, an
+              uppercase letter, a number, and a special character
             </p>
           </div>
 
@@ -300,8 +319,14 @@ export default function ChangePasswordClient({
         <div className="pt-4 border-t border-(--card-border)">
           <div className="bg-amber-500/10 border border-amber-500/30 rounded-md p-3 mb-4">
             <p className="text-sm text-yellow-400">
-              <strong>Security Note:</strong> After changing your password,
-              you&apos;ll need to sign in again on all devices.
+              {desktop ? (
+                'Use the new password when reopening this local workspace. Keep your saved recovery code private.'
+              ) : (
+                <>
+                  After changing your password, you&apos;ll need to sign in
+                  again on all devices.
+                </>
+              )}
             </p>
           </div>
 

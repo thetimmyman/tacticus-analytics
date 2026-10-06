@@ -180,7 +180,20 @@ export const mergeRosterUnits = (
         : unit.id
     if (!key || seen.has(key)) return
     seen.add(key)
-    merged.push(unit)
+    // Optional API labels are absent for some units and new catalogue entries.
+    merged.push({
+      ...unit,
+      name:
+        typeof unit.name === 'string' && unit.name.trim() ? unit.name : unit.id,
+      faction:
+        typeof unit.faction === 'string' && unit.faction.trim()
+          ? unit.faction
+          : 'Unknown faction',
+      grandAlliance:
+        typeof unit.grandAlliance === 'string' && unit.grandAlliance.trim()
+          ? unit.grandAlliance
+          : 'Unknown alliance'
+    })
   }
   units.forEach(addUnit)
   mows.forEach(addUnit)

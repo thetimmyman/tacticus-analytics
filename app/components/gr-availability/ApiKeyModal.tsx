@@ -1,5 +1,7 @@
 'use client'
 
+import { DesktopCredentialGuide } from '@/app/components/navigation/DesktopCredentialGuide'
+
 import { type Dispatch, type SetStateAction } from 'react'
 import { Button } from '@tacticus/ui-kit'
 import { CheckCircle, Key, RefreshCw, Trash } from 'lucide-react'
@@ -40,6 +42,8 @@ export const ApiKeyModal = ({
   lastSuccessfulSync,
   autoRefresh
 }: ApiKeyModalProps) => {
+  if (process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop')
+    return <DesktopCredentialGuide />
   return (
     <Modal isOpen={showApiModal} onClose={() => setShowApiModal(false)}>
       <div className="p-4 sm:p-6">

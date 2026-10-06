@@ -110,6 +110,7 @@ export function AccountMenuLogout({
 }: AccountMenuLogoutProps) {
   const isMobile = variant === 'mobile'
 
+  if (process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop') return null
   return (
     <div className={isMobile ? 'p-2' : 'p-3'}>
       <button

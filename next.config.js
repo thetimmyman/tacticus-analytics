@@ -113,6 +113,10 @@ const nextConfig = {
   poweredByHeader: false,
 
   experimental: {
+    // An 8 MiB file can double when JSON-escaped, plus bounded local mappings.
+    ...(process.env.NEXT_PUBLIC_RUNTIME_PROFILE === "desktop"
+      ? { proxyClientMaxBodySize: 24 * 1024 * 1024 }
+      : {}),
     // One process per CPU by default; cap it to bound memory on shared CI hosts.
     // Pinned by tests/unit/config/vitest-capacity.test.ts.
     cpus: 2,

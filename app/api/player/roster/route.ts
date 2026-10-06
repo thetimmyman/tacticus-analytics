@@ -8,7 +8,8 @@ import { db, serviceDb } from '@/app/lib/db'
 import { getPlayerApiKey } from '@tacticus/app-core/api-key-helper'
 import {
   tacticusAPI,
-  resolveMachinesOfWar
+  resolveMachinesOfWar,
+  type TacticusPlayer
 } from '@/app/lib/api/tacticus-client'
 import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('api.player.roster')
@@ -23,6 +24,8 @@ import { persistRosterSnapshot } from '@/app/lib/player/roster-sync'
 import { normalizeIdentifier } from '@/app/lib/utils/normalize'
 import { GAME_DATA_ROOT } from '@/app/lib/data/game-data-root'
 import { assertUnbannedAuthUser } from '@/app/lib/api/session-user'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
+import { readOwnRosterCache } from '@/app/lib/desktop/roster-cache'
 
 const normalizeUnitKey = normalizeIdentifier
 
@@ -46,7 +49,8 @@ const enrichUnit = (unit: any, catalog: UnitCatalog) => {
   const rawId = typeof unit?.id === 'string' ? unit.id : String(unit?.id ?? '')
   const engineId = resolveEngineUnitId(rawId, catalog)
   const category = classifyUnitId(engineId, catalog)
-  return { ...unit, engineId, category }
+  const display = engineId ? catalog.display?.get(engineId) : undefined
+  return { ...display, ...unit, engineId, category }
 }
 
 const mergeMowLists = (lists: Array<Array<any>>) => {
@@ -63,6 +67,40 @@ const mergeMowLists = (lists: Array<Array<any>>) => {
   return merged
 }
 
+async function enrichRoster(player: TacticusPlayer | Record<string, unknown>) {
+  const machinesOfWar = resolveMachinesOfWar(player)
+
+  const unitsRaw = Array.isArray(player.units) ? player.units : []
+  let units = unitsRaw
+  let resolvedMows = machinesOfWar.length > 0 ? machinesOfWar : undefined
+  let unitCatalog: UnitCatalog | null = null
+  try {
+    unitCatalog = await getUnitCatalog(GAME_DATA_ROOT)
+  } catch (error) {
+    rethrowIfAppError(error)
+    logger.error({ error }, 'Unit catalog load failed for roster enrichment')
+  }
+
+  if (unitCatalog) {
+    const enrichedUnits = unitsRaw.map((unit) => enrichUnit(unit, unitCatalog))
+    const apiMows =
+      machinesOfWar.length > 0
+        ? machinesOfWar.map((unit: any) => {
+            const enriched = enrichUnit(unit, unitCatalog)
+            return enriched.category === 'mow'
+              ? enriched
+              : { ...enriched, category: 'mow' }
+          })
+        : []
+    const derivedMows = enrichedUnits.filter((unit) => unit.category === 'mow')
+    const mergedMows = mergeMowLists([apiMows, derivedMows])
+    units = enrichedUnits
+    resolvedMows = mergedMows.length > 0 ? mergedMows : undefined
+  }
+
+  return { unitsRaw, machinesOfWar, units, resolvedMows }
+}
+
 export const dynamic = 'force-dynamic'
 
 export const GET = withErrorHandler(async () => {
@@ -76,6 +114,32 @@ export const GET = withErrorHandler(async () => {
     throw Errors.unauthorized('Authentication required')
   }
   await assertUnbannedAuthUser(user)
+
+  if (getRuntimeProfile() === 'desktop') {
+    const cached = await readOwnRosterCache(supabase, user.id)
+    if (!cached)
+      return NextResponse.json({
+        success: true,
+        cachePresent: false,
+        units: [],
+        machinesOfWar: []
+      })
+    const { units, resolvedMows } = await enrichRoster({
+      units: cached.units,
+      machinesOfWar: cached.machinesOfWar
+    })
+    return NextResponse.json({
+      success: true,
+      cachePresent: true,
+      playerName: cached.playerName,
+      powerLevel: cached.powerLevel,
+      units,
+      machinesOfWar: resolvedMows,
+      progress: {},
+      cachedAt: cached.cachedAt,
+      source: cached.source
+    })
+  }
 
   // The authenticated role cannot read tacticus_api_key_encrypted.
   const { data: profile } = await serviceDb()
@@ -123,35 +187,8 @@ export const GET = withErrorHandler(async () => {
     )
   }
 
-  const machinesOfWar = resolveMachinesOfWar(player)
-
-  const unitsRaw = Array.isArray(player.units) ? player.units : []
-  let units = unitsRaw
-  let resolvedMows = machinesOfWar.length > 0 ? machinesOfWar : undefined
-  let unitCatalog: UnitCatalog | null = null
-  try {
-    unitCatalog = await getUnitCatalog(GAME_DATA_ROOT)
-  } catch (error) {
-    rethrowIfAppError(error)
-    logger.error({ error }, 'Unit catalog load failed for roster enrichment')
-  }
-
-  if (unitCatalog) {
-    const enrichedUnits = unitsRaw.map((unit) => enrichUnit(unit, unitCatalog))
-    const apiMows =
-      machinesOfWar.length > 0
-        ? machinesOfWar.map((unit: any) => {
-            const enriched = enrichUnit(unit, unitCatalog)
-            return enriched.category === 'mow'
-              ? enriched
-              : { ...enriched, category: 'mow' }
-          })
-        : []
-    const derivedMows = enrichedUnits.filter((unit) => unit.category === 'mow')
-    const mergedMows = mergeMowLists([apiMows, derivedMows])
-    units = enrichedUnits
-    resolvedMows = mergedMows.length > 0 ? mergedMows : undefined
-  }
+  const { unitsRaw, machinesOfWar, units, resolvedMows } =
+    await enrichRoster(player)
 
   const mowsForPersist = machinesOfWar
   after(() =>

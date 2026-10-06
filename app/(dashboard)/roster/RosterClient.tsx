@@ -30,25 +30,18 @@ import { RosterPagination } from './components/RosterPagination'
 import { RosterToolbar } from './components/RosterToolbar'
 import { RosterUnitsView } from './components/RosterUnitsView'
 import { MemberName } from '@/app/components/ui/MemberName'
+import { safeExternalHttpUrl } from '@/app/lib/validation/auth'
 
 interface RosterClientProps {
+  desktopMode?: boolean
   hasApiKey: boolean
   playerName: string
   guildCode?: string
   tacticusShareUrl?: string
 }
 
-function safeExternalHttpUrl(value: string | undefined): string {
-  if (!value) return ''
-  try {
-    const url = new URL(value)
-    return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : ''
-  } catch {
-    return ''
-  }
-}
-
 export default function RosterClient({
+  desktopMode = false,
   hasApiKey,
   playerName,
   guildCode,
@@ -59,6 +52,8 @@ export default function RosterClient({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [errorCode, setErrorCode] = useState<string | null>(null)
+  const [noCache, setNoCache] = useState(false)
+  const [cachedAt, setCachedAt] = useState<string | null>(null)
 
   const heroMappings = useHeroMappings()
   const rf = useRosterFilters(units, heroMappings)
@@ -77,6 +72,7 @@ export default function RosterClient({
   const [editingUrl, setEditingUrl] = useState(false)
   const [urlInput, setUrlInput] = useState(initialShareUrl || '')
   const [savingUrl, setSavingUrl] = useState(false)
+  const [urlError, setUrlError] = useState<string | null>(null)
 
   const fetchRoster = async () => {
     setLoading(true)
@@ -94,6 +90,13 @@ export default function RosterClient({
         setErrorCode(data.code || null)
         return
       }
+      setNoCache(desktopMode && data.cachePresent === false)
+      setCachedAt(
+        typeof data.cachedAt === 'string' &&
+          Number.isFinite(Date.parse(data.cachedAt))
+          ? data.cachedAt
+          : null
+      )
 
       const mergedUnits = mergeRosterUnits(
         Array.isArray(data.units) ? data.units : [],
@@ -108,22 +111,25 @@ export default function RosterClient({
   }
 
   useEffect(() => {
-    if (hasApiKey) {
+    if (hasApiKey || desktopMode) {
       fetchRoster()
     } else {
       setLoading(false)
     }
-  }, [hasApiKey])
+  }, [hasApiKey, desktopMode])
 
   const handleSaveUrl = async () => {
     if (!userId) return
 
     const safeUrl = safeExternalHttpUrl(urlInput)
     if (urlInput && !safeUrl) {
-      setError('Planner URL must be a valid HTTP or HTTPS URL')
+      setUrlError(
+        'Planner URL must be an HTTP or HTTPS URL without credentials.'
+      )
       return
     }
 
+    setUrlError(null)
     setSavingUrl(true)
     try {
       const supabase = dbClient()
@@ -139,6 +145,9 @@ export default function RosterClient({
       setEditingUrl(false)
     } catch (err) {
       console.error('Failed to save URL:', err)
+      setUrlError(
+        'Planner URL could not be saved. Your previous link was kept.'
+      )
     } finally {
       setSavingUrl(false)
     }
@@ -168,7 +177,7 @@ export default function RosterClient({
     )
   }, [rf.filteredAndSortedUnits, currentPage, pageSize, heroMappings])
 
-  if (!hasApiKey) {
+  if (!hasApiKey && !desktopMode) {
     return (
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-8 text-primary-wh40k">
@@ -214,6 +223,20 @@ export default function RosterClient({
     )
   }
 
+  if (desktopMode && noCache && !loading && !error)
+    return (
+      <div className="card-wh40k p-6 mt-6">
+        <h1 className="text-3xl font-bold mb-4">My Roster</h1>
+        <p>
+          No saved roster yet. Use File → Game connection → Sync my roster, then
+          refresh this page.
+        </p>
+        <Button onClick={fetchRoster} className="mt-4">
+          Refresh cached roster
+        </Button>
+      </div>
+    )
+
   if (error) {
     return (
       <div className="max-w-4xl mx-auto">
@@ -230,7 +253,7 @@ export default function RosterClient({
             Failed to Load Roster
           </h2>
           <p className="text-secondary-wh40k mb-2">{error}</p>
-          {errorCode === 'NO_API_KEY' && (
+          {!desktopMode && errorCode === 'NO_API_KEY' && (
             <Link href="/profile/edit" className="inline-block mt-4">
               <Button>
                 <Key className="h-4 w-4 mr-2" />
@@ -238,7 +261,7 @@ export default function RosterClient({
               </Button>
             </Link>
           )}
-          {errorCode !== 'NO_API_KEY' && (
+          {(desktopMode || errorCode !== 'NO_API_KEY') && (
             <Button onClick={fetchRoster} className="mt-4">
               <RefreshCw className="h-4 w-4 mr-2" />
               Try Again
@@ -256,6 +279,18 @@ export default function RosterClient({
           <h1 className="text-2xl sm:text-3xl font-bold text-primary-wh40k">
             My Roster
           </h1>
+          {desktopMode && cachedAt && (
+            <p className="text-sm text-secondary-wh40k">
+              Saved for offline use:{' '}
+              <time dateTime={cachedAt}>
+                {new Date(cachedAt)
+                  .toISOString()
+                  .replace('T', ' ')
+                  .replace('.000Z', ' UTC')}
+              </time>
+              . Local player identity remains unverified.
+            </p>
+          )}
           <p className="text-sm text-secondary-wh40k">
             <MemberName value={playerName} />
             &apos;s character collection
@@ -283,34 +318,53 @@ export default function RosterClient({
             </a>
           )}
           {editingUrl ? (
-            <div className="flex items-center gap-2">
-              <input
-                type="url"
-                value={urlInput}
-                onChange={(e) => setUrlInput(e.target.value)}
-                placeholder="https://tacticusplanner.com/..."
-                className="input-wh40k text-sm w-56"
-                disabled={savingUrl}
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSaveUrl}
-                disabled={savingUrl}
-              >
-                <Check className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setEditingUrl(false)
-                  setUrlInput(tacticusShareUrl)
-                }}
-                disabled={savingUrl}
-              >
-                <X className="h-4 w-4" />
-              </Button>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="url"
+                  value={urlInput}
+                  onChange={(e) => {
+                    setUrlInput(e.target.value)
+                    setUrlError(null)
+                  }}
+                  maxLength={2048}
+                  aria-label="Planner URL"
+                  aria-invalid={Boolean(urlError)}
+                  aria-describedby={urlError ? 'planner-url-error' : undefined}
+                  placeholder="https://tacticusplanner.com/..."
+                  className="input-wh40k text-sm w-56"
+                  disabled={savingUrl}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSaveUrl}
+                  disabled={savingUrl}
+                >
+                  <Check className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setEditingUrl(false)
+                    setUrlError(null)
+                    setUrlInput(tacticusShareUrl)
+                  }}
+                  disabled={savingUrl}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              {urlError && (
+                <p
+                  id="planner-url-error"
+                  role="alert"
+                  className="text-sm text-red-400"
+                >
+                  {urlError}
+                </p>
+              )}
             </div>
           ) : (
             <Button
@@ -318,6 +372,7 @@ export default function RosterClient({
               size="sm"
               onClick={() => {
                 setUrlInput(tacticusShareUrl)
+                setUrlError(null)
                 setEditingUrl(true)
               }}
               className="text-secondary-wh40k"
@@ -328,7 +383,7 @@ export default function RosterClient({
           )}
           <Button onClick={fetchRoster} variant="outline" size="sm">
             <RefreshCw className="h-4 w-4 mr-1.5" />
-            Refresh
+            {desktopMode ? 'Refresh cached roster' : 'Refresh'}
           </Button>
         </div>
       </div>

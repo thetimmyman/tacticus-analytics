@@ -334,26 +334,28 @@ export default function GuildJoinFlow({
               )}
             </div>
 
-            <div>
-              <Label className="flex items-center gap-1">
-                <Key className="w-4 h-4" />
-                API Key (Optional)
-              </Label>
-              <Input
-                type="password"
-                value={guildData.apiKey}
-                onChange={(e) =>
-                  setGuildData({
-                    ...guildData,
-                    apiKey: e.target.value
-                  })
-                }
-                placeholder="For immediate sync setup"
-              />
-              <p className="text-xs text-secondary-wh40k mt-1">
-                Provide to enable automatic data sync
-              </p>
-            </div>
+            {process.env.NEXT_PUBLIC_RUNTIME_PROFILE !== 'desktop' && (
+              <div>
+                <Label className="flex items-center gap-1">
+                  <Key className="w-4 h-4" />
+                  API Key (Optional)
+                </Label>
+                <Input
+                  type="password"
+                  value={guildData.apiKey}
+                  onChange={(e) =>
+                    setGuildData({
+                      ...guildData,
+                      apiKey: e.target.value
+                    })
+                  }
+                  placeholder="For immediate sync setup"
+                />
+                <p className="text-xs text-secondary-wh40k mt-1">
+                  Provide to enable automatic data sync
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Additional Info */}

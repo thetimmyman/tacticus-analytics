@@ -72,11 +72,15 @@ export function getAvailableThemes(
   const guildTheme = profile?.guild_code
     ? guildThemes[profile.guild_code]
     : null
-  if (profile?.guild_code && guildTheme) {
+  if (
+    profile?.guild_code &&
+    (guildTheme || process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop')
+  ) {
     return [
       {
         code: 'guild',
-        name: 'Guild Default (' + guildTheme.name + ')',
+        name:
+          'Guild Default (' + (guildTheme?.name ?? FALLBACK_THEME.name) + ')',
         category: 'guild'
       },
       ...themes

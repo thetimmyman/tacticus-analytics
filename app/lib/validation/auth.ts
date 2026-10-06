@@ -87,6 +87,21 @@ export function validateUrl(url: string): boolean {
   }
 }
 
+export function safeExternalHttpUrl(value: string | undefined): string {
+  if (!value || value.length > 2048 || /[\u0000-\u001f\u007f]/.test(value))
+    return ''
+  try {
+    const url = new URL(value)
+    return !url.username &&
+      !url.password &&
+      (url.protocol === 'https:' || url.protocol === 'http:')
+      ? url.href
+      : ''
+  } catch {
+    return ''
+  }
+}
+
 export interface ValidationResult {
   isValid: boolean
   error?: string

@@ -1,4 +1,5 @@
 import type { TypedSupabaseClient } from '@tacticus/app-core/types'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 
 interface AvatarOptions {
   name: string
@@ -27,6 +28,27 @@ export function getAvatarUrl(options: AvatarOptions): string {
     .filter(Boolean)
     .slice(0, 2)
     .join('')
+
+  if (getRuntimeProfile() === 'desktop') {
+    const dimension = Number.isFinite(size)
+      ? Math.min(512, Math.max(8, Math.round(size)))
+      : 40
+    const safeColor = (value: string | undefined, fallback: string) =>
+      value && /^[a-f0-9]{6}$/i.test(value) ? value : fallback
+    const text = (uppercase ? initials.toUpperCase() : initials).replace(
+      /[&<>"']/g,
+      (character) =>
+        ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&apos;'
+        })[character]!
+    )
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${dimension}" height="${dimension}" viewBox="0 0 100 100"><rect width="100" height="100" rx="50" fill="#${safeColor(background, '6B7280')}"/><text x="50" y="54" text-anchor="middle" dominant-baseline="middle" font-family="sans-serif" font-size="40" font-weight="${bold ? 700 : 400}" fill="#${safeColor(color, 'FFFFFF')}">${text || 'U'}</text></svg>`
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`
+  }
 
   const params = new URLSearchParams({
     name: uppercase ? initials.toUpperCase() : initials,
@@ -98,6 +120,8 @@ export function getDatamineAvatarUrl(avatarUnitId: string): string | null {
   const configuredBase =
     process.env.NEXT_PUBLIC_DATAMINE_AVATAR_SPRITE_BASE_URL?.trim()
   if (!configuredBase) return null
+  if (getRuntimeProfile() === 'desktop' && !localAvatarAsset(configuredBase))
+    return null
 
   const base = configuredBase.replace(/\/+$/, '')
   return `${base}/ui_avatar_${encodeURIComponent(avatarUnitId)}.png`
@@ -116,7 +140,17 @@ function lookupFrameIcon(
 ): string | null {
   const icon =
     frameMap instanceof Map ? frameMap.get(avatarId) : frameMap[avatarId]
-  return icon || null
+  return icon && (getRuntimeProfile() !== 'desktop' || localAvatarAsset(icon))
+    ? icon
+    : null
+}
+
+function localAvatarAsset(value: string): boolean {
+  return (
+    value.startsWith('/images/') &&
+    !value.includes('\\') &&
+    new URL(value, 'http://127.0.0.1').pathname.startsWith('/images/')
+  )
 }
 
 /** Strips premium suffixes (`..._premium_2` → base); frames store only base ids for some variants. */
@@ -212,6 +246,10 @@ export function getAvatarWithFallback(
   guildCode: string = 'GLOBAL',
   size: number = 40
 ): string {
+  if (getRuntimeProfile() === 'desktop')
+    return avatarUrl && localAvatarAsset(avatarUrl)
+      ? avatarUrl
+      : getUserAvatar(displayName, guildCode, size)
   if (avatarUrl && avatarUrl.startsWith('http')) {
     return avatarUrl
   }

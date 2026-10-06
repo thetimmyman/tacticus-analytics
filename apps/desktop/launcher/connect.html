@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Connect API access · Tacticus Analytics</title>
+    <link rel="stylesheet" href="/desktop/style.css" />
+    <script src="/desktop/connect.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">TACTICUS ANALYTICS · LOCAL WORKSPACE</p>
+      <h1>Connect your Tacticus API access</h1>
+      <p>
+        Player access is required for your personal experience. Add Guild and
+        Guild Raid access now or later to unlock the guild experience. One key
+        can provide multiple scopes; you can reuse it.
+      </p>
+      <p>
+        Keys are entered in a secure native dialog and stay in your device's OS
+        vault. Connecting does not enable meta contribution or share keys with
+        Tacticus Analytics.
+      </p>
+      <section>
+        <h2>Player · required</h2>
+        <p id="player-status">Checking your workspace…</p>
+        <a href="/desktop/connect-player">Add, replace or sync Player access</a>
+        <p id="resources"></p>
+        <a id="personal" href="/roster" hidden
+          >Open my roster and personal experience</a
+        >
+      </section>
+      <section>
+        <h2>Guild · optional</h2>
+        <p id="guild-status"></p>
+        <a href="/desktop/connect-guild">Add or replace Guild access</a>
+      </section>
+      <section>
+        <h2>Guild Raid · optional</h2>
+        <p id="raid-status"></p>
+        <a href="/desktop/connect-guild-raid"
+          >Add, replace or sync Guild Raid access</a
+        >
+        <p>
+          Use a key with both Guild and Guild Raid scopes so the app can verify
+          that its raid access belongs to your selected guild.
+        </p>
+      </section>
+      <p id="holding"></p>
+      <p>
+        <a href="/desktop/disconnect-api-access"
+          >Remove saved API keys from this device</a
+        >
+      </p>
+      <a id="guild-experience" hidden>Open guild analytics</a>
+      <p>
+        Previously synced data stays available offline. Counters reflect the
+        last upstream update; a saved key must be rechecked when syncing. Local
+        player labels do not establish game-account ownership.
+      </p>
+      <p>
+        <a href="/profile">Profile and local data controls</a> ·
+        <a href="/desktop/setup">Open workspace</a>
+      </p>
+      <p role="status" id="status"></p>
+    </main>
+  </body>
+</html>

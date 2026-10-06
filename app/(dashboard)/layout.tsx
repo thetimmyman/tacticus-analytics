@@ -3,6 +3,7 @@ import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 import { requireAuth } from '@/app/lib/auth'
 import { db } from '@/app/lib/db'
 import DashboardShell from '@/app/components/dashboard/DashboardShell'
+import DesktopAccessGate from '@/app/components/dashboard/DesktopAccessGate'
 import { GuildSyncStoppedBanner } from '@/app/components/alerts/GuildSyncStoppedBanner'
 import { getOpenGuildSyncIncidentForUser } from '@/app/lib/data/guild-sync-incident'
 import { createPageMetadata } from '@/app/lib/metadata'
@@ -32,7 +33,11 @@ export default async function DashboardLayout({
   return (
     <DashboardShell user={user} profile={profile}>
       <GuildSyncStoppedBanner incident={guildSyncIncident} />
-      {children}
+      {getRuntimeProfile() === 'desktop' ? (
+        <DesktopAccessGate>{children}</DesktopAccessGate>
+      ) : (
+        children
+      )}
     </DashboardShell>
   )
 }

@@ -183,39 +183,27 @@ async function persistPlayerPower(
   return true
 }
 
-/** Keyed by userId (site accounts) or playerMappingId (unclaimed); units missing from hero_mappings are skipped. */
-export async function persistRosterSnapshot(
+/** Canonical mapped roster rows, shared by hosted sync and local transactions. */
+export async function buildRosterSnapshotRows(
   userId: string | null,
   units: AnyUnit[],
   mows: AnyUnit[],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: SupabaseClient<any>,
-  playerMappingId?: number,
-  options: PersistRosterSnapshotOptions = {}
-): Promise<{ upserted: number; playerPowerUpdated: boolean }> {
-  if (!userId && !playerMappingId) {
-    return { upserted: 0, playerPowerUpdated: false }
-  }
-
-  const playerPowerUpdated = await persistPlayerPower(
-    userId,
-    playerMappingId,
-    normalizePlayerPower(options.playerPower),
-    supabase
-  )
-
+  playerMappingId?: number
+) {
   const allUnits = [...units, ...mows]
-  if (allUnits.length === 0) return { upserted: 0, playerPowerUpdated }
+  if (allUnits.length === 0) return []
 
   const unitIds = [...new Set(allUnits.map((u) => u.id).filter(Boolean))]
-  if (unitIds.length === 0) return { upserted: 0, playerPowerUpdated }
+  if (unitIds.length === 0) return []
 
   const { data: mappings, error: mapErr } = await supabase
     .from('hero_mappings')
     .select('id, unit_id')
     .in('unit_id', unitIds)
 
-  if (mapErr || !mappings?.length) return { upserted: 0, playerPowerUpdated }
+  if (mapErr || !mappings?.length) return []
 
   const unitIdToMappingId = new Map<string, number>(
     (mappings as Array<{ id: number; unit_id: string }>).map((m) => [
@@ -251,6 +239,37 @@ export async function persistRosterSnapshot(
       }
     })
 
+  return rows
+}
+
+/** Keyed by userId (site accounts) or playerMappingId (unclaimed); units missing from hero_mappings are skipped. */
+export async function persistRosterSnapshot(
+  userId: string | null,
+  units: AnyUnit[],
+  mows: AnyUnit[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: SupabaseClient<any>,
+  playerMappingId?: number,
+  options: PersistRosterSnapshotOptions = {}
+): Promise<{ upserted: number; playerPowerUpdated: boolean }> {
+  if (!userId && !playerMappingId) {
+    return { upserted: 0, playerPowerUpdated: false }
+  }
+
+  const playerPowerUpdated = await persistPlayerPower(
+    userId,
+    playerMappingId,
+    normalizePlayerPower(options.playerPower),
+    supabase
+  )
+
+  const rows = await buildRosterSnapshotRows(
+    userId,
+    units,
+    mows,
+    supabase,
+    playerMappingId
+  )
   if (rows.length === 0) return { upserted: 0, playerPowerUpdated }
 
   const onConflict = userId

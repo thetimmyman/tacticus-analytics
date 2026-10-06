@@ -8,6 +8,7 @@ import {
 import { createPageMetadata } from '@/app/lib/metadata'
 import EditProfileClient from './EditProfileClient'
 import { CURRENT_USER_PLAYER_MAPPING } from '@/app/lib/player-mapping-relations'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 
 export const metadata = createPageMetadata({
   title: 'Edit Profile',
@@ -30,7 +31,9 @@ export default async function EditProfilePage() {
   const supabase = await db()
   const { user, profile } = await requireAuth(supabase)
   const { data: onboardingState, error: onboardingStateError } =
-    await supabase.rpc('get_my_onboarding_state')
+    getRuntimeProfile() === 'desktop'
+      ? { data: null, error: null }
+      : await supabase.rpc('get_my_onboarding_state')
   const hasApiKey =
     !onboardingStateError && onboardingState?.[0]?.api_key_configured === true
 

@@ -2,6 +2,8 @@ import { cp, mkdir, readFile, writeFile, stat, readdir } from 'node:fs/promises'
 import { resolve, join, dirname, isAbsolute } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
+import { verifyDesktopBuild } from './build-profile.mjs'
+import { updateConfiguration } from '../launcher/updates.mjs'
 const source = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const config = JSON.parse(await readFile(process.argv[2], 'utf8'))
 for (const name of [
@@ -11,10 +13,24 @@ for (const name of [
   'node',
   'electron',
   'auth',
-  'postgrest'
+  'postgrest',
+  'runtimeGuard',
+  'nodeLicense',
+  'authLicense',
+  'postgrestLicense'
 ])
   if (!isAbsolute(config[name] || ''))
     throw new Error(`Absolute ${name} path required`)
+verifyDesktopBuild(
+  JSON.parse(
+    await readFile(join(config.application, 'desktop-build.json'), 'utf8')
+  ),
+  await readFile(
+    join(config.application, '.next/required-server-files.json'),
+    'utf8'
+  ),
+  await readFile(join(config.application, '.next/BUILD_ID'), 'utf8')
+)
 try {
   await stat(config.output)
   throw new Error('Package output already exists')
@@ -28,12 +44,42 @@ await copy(config.application, 'application')
 await copy(config.postgres, 'postgres')
 await mkdir(join(config.output, 'bin'))
 await copy(config.node, 'bin/node')
+await copy(config.runtimeGuard, 'bin/runtime-guard')
 await copy(config.electron, 'electron')
 await mkdir(join(config.output, 'auth'))
 await copy(join(config.auth, 'auth'), 'auth/auth')
 await copy(join(config.auth, 'migrations'), 'auth/migrations')
 await mkdir(join(config.output, 'postgrest'))
 await copy(config.postgrest, 'postgrest/postgrest')
+if (config.updateConfig && !isAbsolute(config.updateConfig))
+  throw new Error('Absolute update configuration path required')
+const updateConfig = updateConfiguration(
+  JSON.parse(
+    await readFile(
+      config.updateConfig ?? join(source, 'apps/desktop/package/updates.json'),
+      'utf8'
+    )
+  )
+)
+await writeFile(
+  join(config.output, 'updates.json'),
+  JSON.stringify(updateConfig, null, 2) + '\n',
+  { mode: 0o600 }
+)
+await mkdir(join(config.output, 'notices'))
+for (const [from, name] of [
+  [config.nodeLicense, 'node-LICENSE'],
+  [config.authLicense, 'supabase-auth-LICENSE'],
+  [config.postgrestLicense, 'postgrest-LICENSE'],
+  [join(config.postgres, 'COPYRIGHT'), 'postgresql-COPYRIGHT'],
+  [join(config.electron, 'LICENSE'), 'electron-LICENSE'],
+  [join(config.electron, 'LICENSES.chromium.html'), 'LICENSES.chromium.html']
+]) {
+  const notice = await readFile(from)
+  if (!notice.length)
+    throw new Error('A bundled component notice is missing or empty')
+  await writeFile(join(config.output, 'notices', name), notice, { mode: 0o600 })
+}
 for (const path of [
   'apps/desktop/launcher',
   'apps/desktop/local-schema',
@@ -45,8 +91,15 @@ for (const path of [
 await mkdir(join(config.output, 'apps/desktop/proof'))
 for (const file of [
   'native-services.mjs',
+  'service-owner.mjs',
+  'service-client.mjs',
+  'schema-lifecycle.mjs',
+  'safe-files.mjs',
+  'workspace-transfer.mjs',
   'loopback-gateway.mjs',
-  'synthetic-import.mjs'
+  'synthetic-import.mjs',
+  'renderer-wake.cjs',
+  'core-pages.cjs'
 ])
   await copy(
     join(source, 'apps/desktop/proof', file),

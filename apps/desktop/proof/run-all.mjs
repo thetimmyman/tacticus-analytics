@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process'
-import { stat } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
+import { resetDerivedState } from './reset-derived-state.mjs'
 
 /**
  * Entry point for `npm run desktop:proof`. Runs gates (a) and (d)'s
@@ -23,14 +24,38 @@ console.log(
   '\n== Gate (a): loopback gateway origin/auth/bind-loopback proof =='
 )
 run('a-loopback-gateway', '--test', [
-  'apps/desktop/proof/loopback-gateway.test.mjs'
+  'apps/desktop/proof/loopback-gateway.test.mjs',
+  'apps/desktop/proof/service-client.test.mjs',
+  'apps/desktop/proof/schema-lifecycle.test.mjs',
+  'apps/desktop/proof/safe-files.test.mjs',
+  'apps/desktop/proof/workspace-selection.test.mjs',
+  'apps/desktop/proof/job-scheduler.test.mjs',
+  'apps/desktop/proof/credential-vault.test.mjs',
+  'apps/desktop/proof/official-raid-broker.test.mjs',
+  'apps/desktop/proof/roster-validation.test.mjs',
+  'apps/desktop/proof/reference-catalog.test.mjs',
+  'apps/desktop/proof/saved-game-connection.test.mjs',
+  'apps/desktop/proof/native-secret.test.mjs',
+  'apps/desktop/proof/official-access.test.mjs',
+  'apps/desktop/proof/scoped-connections.test.mjs',
+  'apps/desktop/proof/onboarding-menu.test.mjs',
+  'apps/desktop/proof/workspace-session.test.mjs',
+  'apps/desktop/proof/updates.test.mjs',
+  'apps/desktop/proof/game-connection.test.mjs',
+  'apps/desktop/proof/game-menu.test.mjs',
+  'apps/desktop/proof/external-links.test.mjs',
+  'apps/desktop/proof/system-browser.test.mjs',
+  'apps/desktop/proof/launcher-options.test.mjs'
 ])
 
 console.log(
   '\n== Gate (d): component-manifest generator/verifier self-test ==\n(logic proof only; see below for the real-binary verification path)'
 )
 run('d-component-manifest-selftest', '--test', [
-  'apps/desktop/package/component-manifest.test.mjs'
+  'apps/desktop/package/component-manifest.test.mjs',
+  'apps/desktop/package/application-notices.test.mjs',
+  'apps/desktop/package/build-profile.test.mjs',
+  'apps/desktop/package/runtime-guard.test.mjs'
 ])
 
 console.log(
@@ -52,7 +77,8 @@ if (!configPath) {
   results.push({ gate: 'b-offline-journey', exitCode: 'skipped' })
   results.push({ gate: 'c-checkpoint-recovery', exitCode: 'skipped' })
 } else {
-  await stat(configPath)
+  const nativeConfig = JSON.parse(await readFile(configPath, 'utf8'))
+  await resetDerivedState(nativeConfig.state)
   console.log('\n== Gate (b): offline /player-performance journey ==')
   run('b-offline-journey', 'apps/desktop/proof/offline-journey.mjs', [
     configPath
@@ -63,6 +89,101 @@ if (!configPath) {
   ])
   console.log('\n== Gate (c): setup interruption / resume recovery ==')
   run('c-setup-recovery', 'apps/desktop/proof/setup-recovery.mjs', [configPath])
+  console.log('\n== Gate (c): native workspace password recovery ==')
+  run('c-password-recovery', 'apps/desktop/proof/recovery-journey.mjs', [
+    configPath
+  ])
+  console.log('\n== Gate (c): verified stopped-workspace export / restore ==')
+  run('c-workspace-transfer', 'apps/desktop/proof/transfer-journey.mjs', [
+    configPath
+  ])
+  console.log('\n== Runtime token expiry and active-session shutdown ==')
+  run('c-lifecycle', 'apps/desktop/proof/lifecycle-journey.mjs', [configPath])
+  console.log('\n== Forced coordinator death / native restart ==')
+  run('c-hard-kill', 'apps/desktop/proof/hard-kill-journey.mjs', [configPath])
+  if (nativeConfig.runtimeGuard) {
+    console.log(
+      '\n== External browser descriptor closure / native lease reacquisition =='
+    )
+    run(
+      'c-browser-lifetime',
+      'apps/desktop/proof/browser-lifetime-journey.mjs',
+      [configPath]
+    )
+    console.log('\n== Owned descriptor closure / immediate native restart ==')
+    run('c-shutdown-close', 'apps/desktop/proof/shutdown-close-journey.mjs', [
+      configPath
+    ])
+    console.log('\n== Forced supervisor death / kernel lease recovery ==')
+    run('c-owner-death', 'apps/desktop/proof/owner-death-journey.mjs', [
+      configPath
+    ])
+  } else {
+    console.log('Kernel lease recovery SKIPPED: runtimeGuard is not supplied')
+    results.push({ gate: 'c-owner-death', exitCode: 'skipped' })
+  }
+  console.log('\n== Optional worker failure / critical dependency shutdown ==')
+  run('c-optional-worker', 'apps/desktop/proof/optional-worker-journey.mjs', [
+    configPath
+  ])
+  if (nativeConfig.application?.node && nativeConfig.application?.directory) {
+    run('c-scoped-onboarding', 'apps/desktop/proof/onboarding-journey.mjs', [
+      configPath
+    ])
+    run('c-password-change', 'apps/desktop/proof/password-change-journey.mjs', [
+      configPath
+    ])
+    console.log('\n== Compiled local snapshot job / crash claim recovery ==')
+    run('c-local-jobs', 'apps/desktop/proof/jobs-journey.mjs', [configPath])
+    console.log(
+      '\n== Native achievements / owner scope / durable retry / restart =='
+    )
+    run('c-local-data-export', 'apps/desktop/proof/data-export-journey.mjs', [
+      configPath
+    ])
+    run('c-local-achievements', 'apps/desktop/proof/achievements-journey.mjs', [
+      configPath
+    ])
+    console.log(
+      '\n== Native own roster / scoped cache / atomic replacement / restart =='
+    )
+    run('c-local-roster', 'apps/desktop/proof/roster-journey.mjs', [configPath])
+    console.log('\n== Native local file import / atomic retries / restart ==')
+    run('c-local-file-import', 'apps/desktop/proof/import-journey.mjs', [
+      configPath
+    ])
+  } else {
+    console.log(
+      'Local job recovery SKIPPED: compiled application is not supplied'
+    )
+    results.push({ gate: 'c-local-jobs', exitCode: 'skipped' })
+  }
+  console.log('\n== Native schema migration interruption / receipt recovery ==')
+  run(
+    'c-schema-interruption',
+    'apps/desktop/proof/schema-interruption-journey.mjs',
+    [configPath]
+  )
+  console.log(
+    '\n== Native owner-only planner link / rejected writes / restart =='
+  )
+  run('c-planner-link', 'apps/desktop/proof/planner-link-journey.mjs', [
+    configPath
+  ])
+  console.log('\n== Native local profile preferences / scope / restart ==')
+  run('c-profile-preferences', 'apps/desktop/proof/preferences-journey.mjs', [
+    configPath
+  ])
+  console.log(
+    '\n== Native owner boss preferences / packaged catalogue / restart =='
+  )
+  run('c-boss-preferences', 'apps/desktop/proof/boss-preferences-journey.mjs', [
+    configPath
+  ])
+  console.log('\n== Native user-session expiry / restart renewal ==')
+  run('c-session-renewal', 'apps/desktop/proof/session-journey.mjs', [
+    configPath
+  ])
 }
 
 console.log('\n== Summary ==')

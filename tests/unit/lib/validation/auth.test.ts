@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   validatePassword,
-  PASSWORD_MIN_LENGTH
+  PASSWORD_MIN_LENGTH,
+  safeExternalHttpUrl,
+  validateUrl
 } from '@/app/lib/validation/auth'
 
 // At least as strict as the auth server policy (min 12, lower:upper:digit).
@@ -70,5 +72,32 @@ describe('validatePassword', () => {
     const result = validatePassword('')
     expect(result.isValid).toBe(false)
     expect(result.error).toBe('Password is required')
+  })
+})
+
+describe('local external links', () => {
+  it('normalizes HTTP links and permits clearing', () => {
+    expect(safeExternalHttpUrl('https://example.invalid')).toBe(
+      'https://example.invalid/'
+    )
+    expect(safeExternalHttpUrl('http://example.invalid/synthetic')).toBe(
+      'http://example.invalid/synthetic'
+    )
+    expect(safeExternalHttpUrl('')).toBe('')
+  })
+
+  it('refuses privileged schemes, credentials, controls and oversized links', () => {
+    for (const value of [
+      'javascript:alert(1)',
+      'file:///synthetic',
+      'data:text/html,synthetic',
+      'https://synthetic:synthetic@example.invalid',
+      'https://example.invalid/\nsynthetic',
+      'https://example.invalid/' + 'a'.repeat(2048),
+      'synthetic-invalid-url'
+    ])
+      expect(safeExternalHttpUrl(value)).toBe('')
+    // Existing hosted URL validation retains its contract.
+    expect(validateUrl('file:///synthetic')).toBe(true)
   })
 })

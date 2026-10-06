@@ -235,3 +235,24 @@ describe('mergeRosterUnits', () => {
     expect(merged.map((unit) => unit.id)).toEqual(['unit-1', 'unit-2'])
   })
 })
+
+describe('optional official roster labels', () => {
+  it('keeps an uncatalogued unit readable when the API omits display metadata', () => {
+    const minimal = {
+      id: 'syntheticUncatalogued',
+      progressionIndex: 12,
+      rank: 15,
+      xp: 1,
+      xpLevel: 1,
+      shards: 0,
+      abilities: []
+    }
+    const merged = mergeRosterUnits(
+      [minimal as Parameters<typeof mergeRosterUnits>[0][number]],
+      []
+    )
+    expect(merged[0].name).toBe('syntheticUncatalogued')
+    expect(merged[0].faction).toBe('Unknown faction')
+    expect(merged[0].grandAlliance).toBe('Unknown alliance')
+  })
+})

@@ -494,7 +494,7 @@ describe('redriveDataExport re-runs a failed export', () => {
   })
 })
 
-/** Nothing reads exports by status to act on them; a future poller fails here. */
+/** Hosted exports remain request/re-drive driven; the desktop worker is separately gated. */
 const APP_DIR = join(process.cwd(), 'app')
 
 function sourceFiles(dir: string): string[] {
@@ -508,12 +508,16 @@ function sourceFiles(dir: string): string[] {
   return out
 }
 
-describe('NEGATIVE CONTROL: nothing polls gdpr_data_exports for pending rows', () => {
-  it('has no reader that picks up a pending export row', async () => {
+describe('NEGATIVE CONTROL: hosted exports have no automatic pending-row poller', () => {
+  it('has no pending-row reader outside the explicit desktop worker', async () => {
     const offenders: string[] = []
     for (const file of sourceFiles(APP_DIR)) {
       const text = readFileSync(file, 'utf8')
       if (!text.includes('gdpr_data_exports')) continue
+      // Its hosted refusal is tested by export-local-profile-data.test.ts; the
+      // native journey also exercises the actual durable worker and SQL scope.
+      if (file === join(APP_DIR, 'lib', 'jobs', 'export-local-profile-data.ts'))
+        continue
       // Reads for display only; any other status-keyed read would be a poller.
       for (const match of text.matchAll(
         /\.(?:eq|in)\(\s*'status'\s*,\s*(?:'pending'|\[[^\]]*'pending'[^\]]*\])/gu

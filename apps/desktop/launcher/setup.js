@@ -1,9 +1,15 @@
 const form = document.querySelector('form')
 let creating = form.dataset.mode === 'create'
 if (!creating) document.querySelector('#sample-label').hidden = true
+const identityFields = document.querySelector('#local-identity')
+const identityVisibility = () => {
+  identityFields.hidden = !creating || document.querySelector('#sample').checked
+}
+document.querySelector('#sample').addEventListener('change', identityVisibility)
+identityVisibility()
 document.querySelector('h1').textContent = creating
   ? 'Create a local preview workspace'
-  : 'Unlock your local workspace'
+  : 'Open your local workspace'
 form.addEventListener('submit', async (event) => {
   event.preventDefault()
   const button = form.querySelector('button')
@@ -13,14 +19,20 @@ form.addEventListener('submit', async (event) => {
     ? 'Creating your local workspace…'
     : 'Signing in…'
   try {
-    const password = document.querySelector('#password').value
     if (creating) {
       const setup = await fetch('/desktop/setup', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          password,
-          sample: document.querySelector('#sample').checked
+          sample: document.querySelector('#sample').checked,
+          identity: document.querySelector('#sample').checked
+            ? undefined
+            : {
+                guildCode: document.querySelector('#guild-code').value,
+                guildName: document.querySelector('#guild-name').value,
+                playerId: document.querySelector('#player-id').value,
+                displayName: document.querySelector('#display-name').value
+              }
         })
       })
       if (!setup.ok)
@@ -28,20 +40,7 @@ form.addEventListener('submit', async (event) => {
       form.dataset.mode = 'unlock'
       creating = false
     }
-    const login = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify({
-        email: 'desktop@localhost.invalid',
-        password,
-        rememberMe: true
-      })
-    })
-    if (!login.ok)
-      throw new Error('Sign-in failed. Check your workspace password.')
-    document.querySelector('#password').value = ''
-    window.location.assign('/player-performance?guild=SYN001&season=9999')
+    window.location.assign('/desktop/setup')
   } catch (error) {
     status.textContent = error.message
     button.disabled = false
