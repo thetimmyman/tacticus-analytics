@@ -71,14 +71,6 @@ if ! replay_migrations "$DB_CONTAINER" "$REPO_ROOT" "$CONTAINER_DIR"; then
   exit 1
 fi
 
-# replay_migrations applies 20260813000000_clean_baseline.sql directly and
-# does not ledger it (it is the baseline, not a tracked step for the other
-# lanes that call this helper). Ledger it here so `supabase migration list`
-# shows it as applied instead of a phantom local-only migration.
-docker exec -i "$DB_CONTAINER" psql -q -U postgres -d postgres -c \
-  "INSERT INTO supabase_migrations.schema_migrations(version, name)
-     VALUES ('20260813000000', 'clean_baseline') ON CONFLICT DO NOTHING;" >/dev/null
-
 echo "== seeding the database (supabase/seed.sql) =="
 docker exec "$DB_CONTAINER" mkdir -p "$CONTAINER_DIR" >/dev/null
 docker cp "$REPO_ROOT/supabase/seed.sql" "$DB_CONTAINER":"$CONTAINER_DIR/seed.sql" >/dev/null
@@ -87,6 +79,16 @@ if ! docker exec -i "$DB_CONTAINER" psql -q -v ON_ERROR_STOP=1 -U postgres -d po
   echo "supabase-start-fresh: supabase/seed.sql failed to apply" >&2
   exit 1
 fi
+
+# replay_migrations applies 20260813000000_clean_baseline.sql directly and
+# does not ledger it (it is the baseline, not a tracked step for the other
+# lanes that call this helper). Ledger it here so `supabase migration list`
+# shows it as applied instead of a phantom local-only migration. It is also
+# the marker the rerun check above looks for, so it is written only after
+# the replay and the seed have both succeeded.
+docker exec -i "$DB_CONTAINER" psql -q -U postgres -d postgres -c \
+  "INSERT INTO supabase_migrations.schema_migrations(version, name)
+     VALUES ('20260813000000', 'clean_baseline') ON CONFLICT DO NOTHING;" >/dev/null
 
 echo "== reloading the PostgREST schema cache =="
 docker exec -i "$DB_CONTAINER" psql -q -U postgres -d postgres \
