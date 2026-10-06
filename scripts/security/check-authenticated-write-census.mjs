@@ -13,10 +13,11 @@ import { fileURLToPath } from 'node:url'
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = path.resolve(HERE, '..', '..')
 const CENSUS_PATH = path.join(HERE, 'authenticated-write-census.json')
-const MIGRATION_PATH = path.join(
-  REPO_ROOT,
-  'supabase/migrations/20260925080000_ps218_revoke_authenticated_write_grants.sql'
-)
+// Every migration that revokes census tables; together they name the 'revoke' set.
+const MIGRATION_PATHS = [
+  'supabase/migrations/20260925080000_ps218_revoke_authenticated_write_grants.sql',
+  'supabase/migrations/20261006120000_revoke_discord_dispatch_write_grants.sql'
+].map((rel) => path.join(REPO_ROOT, rel))
 const PGTAP_PATH = path.join(
   REPO_ROOT,
   'supabase/tests/pgtap/authenticated_write_grants.sql'
@@ -29,6 +30,11 @@ const SERVICE_RHS =
 const REQUEST_RHS =
   /\bawait\s+db\s*\(\s*\)|\bdbClient\s*\(\s*\)|createBrowserClient\s*\(|createAuthenticatedDataClient\s*\(|storageClient\s*\(|await\s+createClient\s*\(\s*\)/
 const WRITE_VERB = /\.(insert|upsert|update|delete)\s*[(<]/
+
+// The Discord interactions dispatcher hands every command handler the client
+// that route.ts builds; PROVENANCE_RULES re-checks that it is serviceDb().
+const DISCORD_DISPATCH_DIR = 'app/api/discord/interactions/command-handlers/'
+const DISCORD_DISPATCH_ROUTE = 'app/api/discord/interactions/route.ts'
 
 /** Claims behind the name-only attribution rules; --scan re-verifies each. */
 const PROVENANCE_RULES = [
@@ -57,6 +63,11 @@ const PROVENANCE_RULES = [
       /SUPABASE_SERVICE_ROLE_KEY/.test(
         readIfPresent('tests/integration/gdpr/gdpr.test.ts')
       )
+  },
+  {
+    kind: 'SERVICE(discord-dispatch)',
+    claim: `a receiver declared \`x: Supabase\` in a non-test module under ${DISCORD_DISPATCH_DIR} is service-role: ${DISCORD_DISPATCH_ROUTE} builds the client the dispatcher passes down with serviceDb(), and no non-test module that reaches a command handler through value imports (the handlers themselves, the route, and every direct or transitive importer such as the Discord chart routes) builds a request client.`,
+    verify: () => discordDispatchIsServiceOnly(trackedFiles(), readIfPresent)
   }
 ]
 
@@ -202,6 +213,13 @@ function classify(rel, text, lines, lineIndex, recv, castTainted = new Set()) {
   ) {
     return 'SERVICE(test-admin)'
   }
+  if (
+    rel.startsWith(DISCORD_DISPATCH_DIR) &&
+    !isTestFile(rel) &&
+    new RegExp(`\\b${base}\\s*:\\s*Supabase\\b`).test(text)
+  ) {
+    return 'SERVICE(discord-dispatch)'
+  }
 
   const service = SERVICE_RHS.test(text)
   const request = REQUEST_RHS.test(text)
@@ -275,6 +293,35 @@ const SERVICE_PARAM = /\b[A-Za-z_$][A-Za-z0-9_$]*\s*:\s*ServiceSupabaseClient\b/
 
 function isTestFile(rel) {
   return /^tests\//.test(rel) || /\.(test|spec)\.[cm]?[jt]sx?$/.test(rel)
+}
+
+/** The SERVICE(discord-dispatch) premise: the dispatcher's client is serviceDb() and no request client reaches it. */
+function discordDispatchIsServiceOnly(files, read) {
+  if (!/serviceDb\s*\(/.test(read(DISCORD_DISPATCH_ROUTE))) return false
+  const tracked = new Set(files)
+  const importers = new Map()
+  for (const rel of files) {
+    if (isTestFile(rel)) continue
+    for (const dep of valueImports(rel, read(rel), tracked)) {
+      if (!importers.has(dep)) importers.set(dep, [])
+      importers.get(dep).push(rel)
+    }
+  }
+  // Every non-test module that reaches a command handler, directly or through
+  // other modules, could hand it a client; none of them may build a request one.
+  const seen = new Set()
+  const queue = files.filter(
+    (rel) => rel.startsWith(DISCORD_DISPATCH_DIR) && !isTestFile(rel)
+  )
+  queue.push(DISCORD_DISPATCH_ROUTE)
+  while (queue.length > 0) {
+    const rel = queue.pop()
+    if (seen.has(rel)) continue
+    seen.add(rel)
+    if (REQUEST_RHS.test(read(rel))) return false
+    queue.push(...(importers.get(rel) ?? []))
+  }
+  return true
 }
 
 /** Modules a ServiceSupabaseClient cast reaches via typed params; annotation proves nothing there. */
@@ -363,29 +410,33 @@ function scan() {
     }
   }
 
-  const migration = readIfPresent(path.relative(REPO_ROOT, MIGRATION_PATH))
-  if (!migration) {
-    errors.push(
-      `migration not found: ${path.relative(REPO_ROOT, MIGRATION_PATH)}`
-    )
-  } else {
-    const named = new Set(
-      [
-        ...migration.matchAll(/^\s*'([a-zA-Z_][a-zA-Z0-9_]*)',?\s*(?:--.*)?$/gm)
-      ].map((m) => m[1])
-    )
-    for (const t of revoke) {
-      if (!named.has(t))
-        errors.push(
-          `${t} is 'revoke' in the census but the revoke migration does not name it`
-        )
+  const named = new Set()
+  for (const abs of MIGRATION_PATHS) {
+    const rel = path.relative(REPO_ROOT, abs)
+    const migration = readIfPresent(rel)
+    if (!migration) {
+      errors.push(`migration not found: ${rel}`)
+      continue
     }
-    for (const t of named) {
-      if (!revoke.includes(t))
-        errors.push(
-          `the revoke migration names ${t}, which the census does not mark 'revoke'`
-        )
+    for (const m of migration.matchAll(
+      /^\s*'([a-zA-Z_][a-zA-Z0-9_]*)',?\s*(?:--.*)?$/gm
+    )) {
+      if (named.has(m[1]))
+        errors.push(`${m[1]} is named by more than one revoke migration`)
+      named.add(m[1])
     }
+  }
+  for (const t of revoke) {
+    if (!named.has(t))
+      errors.push(
+        `${t} is 'revoke' in the census but no revoke migration names it`
+      )
+  }
+  for (const t of named) {
+    if (!revoke.includes(t))
+      errors.push(
+        `a revoke migration names ${t}, which the census does not mark 'revoke'`
+      )
   }
 
   const pgtap = readIfPresent(path.relative(REPO_ROOT, PGTAP_PATH))
@@ -470,6 +521,24 @@ const FIXTURES = [
     rel: 'app/lib/x.ts',
     src: `export async function f(supabase: ServiceSupabaseClient) {\n  await supabase.from('census_fixture_table').update({ a: 1 })\n}\n`,
     expect: (h) => h.length === 1 && h[0].client === 'SERVICE(param-type)'
+  },
+  {
+    name: 'a Supabase parameter in a Discord command handler is service-role',
+    rel: 'app/api/discord/interactions/command-handlers/handlers/x.ts',
+    src: `export async function f(supabase: Supabase) {\n  await supabase.from('census_fixture_table').delete()\n}\n`,
+    expect: (h) => h.length === 1 && h[0].client === 'SERVICE(discord-dispatch)'
+  },
+  {
+    name: 'a Supabase parameter outside the Discord dispatcher stays UNKNOWN',
+    rel: 'app/lib/x.ts',
+    src: `export async function f(supabase: Supabase) {\n  await supabase.from('census_fixture_table').delete()\n}\n`,
+    expect: (h) => h.length === 1 && h[0].client === 'UNKNOWN'
+  },
+  {
+    name: 'a SupabaseClient parameter in a Discord command handler stays UNKNOWN',
+    rel: 'app/api/discord/interactions/command-handlers/handlers/x.ts',
+    src: `export async function f(supabase: SupabaseClient) {\n  await supabase.from('census_fixture_table').delete()\n}\n`,
+    expect: (h) => h.length === 1 && h[0].client === 'UNKNOWN'
   },
   {
     name: 'an edge function write is service-role',
@@ -558,6 +627,50 @@ const TAINT_FIXTURES = [
   }
 ]
 
+const DISPATCH_FIXTURES = [
+  {
+    name: 'the Discord dispatcher on serviceDb() is service-only',
+    files: {
+      'app/api/discord/interactions/route.ts': `import { serviceDb } from '@/app/lib/db'\nimport { h } from './command-handlers/index'\nconst supabase = serviceDb()\n`,
+      'app/api/discord/interactions/command-handlers/index.ts': `export { h } from './handlers/x'\n`,
+      'tests/unit/x.test.ts': `import { h } from '@/app/api/discord/interactions/command-handlers/index'\nconst s = await db()\n`
+    },
+    expect: (ok) => ok === true
+  },
+  {
+    name: 'a request client in the dispatcher route voids the premise',
+    files: {
+      'app/api/discord/interactions/route.ts': `const supabase = serviceDb()\nconst other = await db()\n`
+    },
+    expect: (ok) => ok === false
+  },
+  {
+    name: 'a transitive command-handlers importer with a request client voids the dispatcher premise',
+    files: {
+      'app/api/discord/interactions/route.ts': `const supabase = serviceDb()\n`,
+      'app/api/discord/interactions/command-handlers/handlers/x.ts': `export async function h(supabase: Supabase) {}\n`,
+      'app/lib/y.ts': `export { h } from '@/app/api/discord/interactions/command-handlers/handlers/x'\n`,
+      'app/api/z/route.ts': `import { h } from '@/app/lib/y'\nconst s = await db()\nawait h(s)\n`
+    },
+    expect: (ok) => ok === false
+  },
+  {
+    name: 'a request client in an unrelated Discord route does not void the dispatcher premise',
+    files: {
+      'app/api/discord/interactions/route.ts': `const supabase = serviceDb()\n`,
+      'app/api/discord/verified/route.ts': `const callerDb = await db()\n`
+    },
+    expect: (ok) => ok === true
+  },
+  {
+    name: 'a dispatcher route without serviceDb() voids the premise',
+    files: {
+      'app/api/discord/interactions/route.ts': `const supabase = makeClient()\n`
+    },
+    expect: (ok) => ok === false
+  }
+]
+
 function selftest() {
   let failed = 0
   for (const f of FIXTURES) {
@@ -598,6 +711,19 @@ function selftest() {
     } else {
       failed += 1
       console.error(`  FAIL ${f.name} -- got ${JSON.stringify([...tainted])}`)
+    }
+  }
+
+  for (const f of DISPATCH_FIXTURES) {
+    const ok = discordDispatchIsServiceOnly(
+      Object.keys(f.files),
+      (rel) => f.files[rel] ?? ''
+    )
+    if (f.expect(ok)) {
+      console.log(`  ok   ${f.name}`)
+    } else {
+      failed += 1
+      console.error(`  FAIL ${f.name} -- got ${ok}`)
     }
   }
 
