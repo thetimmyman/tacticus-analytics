@@ -3,6 +3,7 @@
 import { spawnSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import process from 'node:process'
+import { fileURLToPath } from 'node:url'
 
 function detectDockerHost() {
   if (process.env.DOCKER_HOST) return process.env.DOCKER_HOST
@@ -39,11 +40,24 @@ if (dockerHost) {
   )
 }
 
-const result = spawnSync('npx', ['--no-install', 'supabase', ...args], {
-  env,
-  shell: false,
-  stdio: 'inherit'
-})
+// `start` on a brand-new CLI database fails the CLI's own migration pass
+// (see supabase-start-fresh.sh for why) and leaves the stack unusable, so
+// it runs through a wrapper that replays this repository's migrations
+// itself instead of a plain `supabase start` passthrough. Every other
+// subcommand (stop, status, db reset, ...) is unaffected.
+const [command, ...rest] = args
+const result =
+  command === 'start'
+    ? spawnSync(
+        fileURLToPath(new URL('./supabase-start-fresh.sh', import.meta.url)),
+        rest,
+        { env, shell: false, stdio: 'inherit' }
+      )
+    : spawnSync('npx', ['--no-install', 'supabase', ...args], {
+        env,
+        shell: false,
+        stdio: 'inherit'
+      })
 
 if (result.error) {
   console.error(`supabase-cli: failed to start: ${result.error.message}`)
