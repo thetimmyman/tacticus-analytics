@@ -12,29 +12,38 @@
       <p class="eyebrow">TACTICUS ANALYTICS · LOCAL PREVIEW</p>
       <h1>Open your local workspace</h1>
       <p>
-        This preview runs on your computer. It uses synthetic raid data; real
-        raid import is still being developed.
+        This preview runs on your computer. Create your workspace, then connect
+        required Player API access for your roster and personal content. Guild
+        and Guild Raid access can be added during setup or later. Local player
+        labels do not verify ownership of a game account.
       </p>
       <form data-mode="SETUP_MODE">
-        <label for="password">Workspace password</label
-        ><input
-          id="password"
-          name="password"
-          type="password"
-          minlength="12"
-          maxlength="128"
-          autocomplete="current-password"
-          required
-        /><label id="sample-label"
+        <label id="sample-label"
           ><input id="sample" type="checkbox" /> Create a workspace with
           synthetic sample data</label
-        ><button type="submit">Open workspace</button>
+        >
+        <section id="local-identity">
+          <p>
+            For a local file workspace, enter the guild code and player ID that
+            appear in your raid files. These are local labels; no game
+            connection or account verification occurs.
+          </p>
+          <label for="guild-code">Guild code</label
+          ><input id="guild-code" type="text" maxlength="32" />
+          <label for="guild-name">Guild display name</label
+          ><input id="guild-name" type="text" maxlength="128" />
+          <label for="player-id">Your player ID</label
+          ><input id="player-id" type="text" maxlength="128" />
+          <label for="display-name">Your local display name</label
+          ><input id="display-name" type="text" maxlength="128" />
+        </section>
+        <button type="submit">Open workspace</button>
         <p role="status" id="status"></p>
       </form>
       <p class="footnote">
-        No hosted account or email service is required. Keep your password safe;
-        retry interrupted setup with the same password. Password recovery is not
-        yet included in this preview.
+        Your OS account controls local workspace access. No app password or
+        hosted login is required. Back up your workspace to keep a recovery
+        copy.
       </p>
     </main>
   </body>

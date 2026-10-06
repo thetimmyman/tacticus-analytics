@@ -17,18 +17,45 @@ export function nativeSessionRequest(req, brokerToken) {
   )
 }
 
+export function browserWorkspaceToken(req) {
+  try {
+    const cookies = String(req.headers.cookie ?? '')
+      .split(';')
+      .map((part) => {
+        const index = part.indexOf('=')
+        return {
+          name: part.slice(0, index).trim(),
+          value: part.slice(index + 1).trim()
+        }
+      })
+    return currentWorkspaceToken(cookies)
+  } catch {
+    return null
+  }
+}
+
 export async function workspaceAuthorized(
   services,
   req,
   input,
   subject,
-  brokerToken
+  brokerToken,
+  { allowBrowserSession = false } = {}
 ) {
-  if (nativeSessionRequest(req, brokerToken)) {
+  // Native callers require the separate broker capability. Only the browser
+  // raid-file route opts into cookie sessions after its transport checks.
+  const native = nativeSessionRequest(req, brokerToken)
+  const browserToken =
+    !native && allowBrowserSession === true ? browserWorkspaceToken(req) : null
+  if (native || browserToken) {
     const response = await fetch(
       `http://127.0.0.1:${services.ports.auth}/user`,
       {
-        headers: { authorization: req.headers.authorization },
+        headers: {
+          authorization: native
+            ? req.headers.authorization
+            : `Bearer ${browserToken}`
+        },
         redirect: 'error',
         signal: AbortSignal.timeout(10000)
       }
@@ -64,9 +91,12 @@ export function currentWorkspaceToken(cookies) {
     /^tacticus-auth-token(?:\.\d{1,2})?$/.test(cookie.name)
   )
   if (!selected.length || selected.length > 16)
-    throw Object.assign(new Error('Unlock your workspace to continue.'), {
-      code: 'ESESSION'
-    })
+    throw Object.assign(
+      new Error('Reopen the app to restore your local session.'),
+      {
+        code: 'ESESSION'
+      }
+    )
   const whole = selected.find((cookie) => cookie.name === 'tacticus-auth-token')
   let text
   if (whole) text = whole.value
@@ -78,9 +108,12 @@ export function currentWorkspaceToken(cookies) {
     if (
       selected.some((cookie, i) => cookie.name !== `tacticus-auth-token.${i}`)
     )
-      throw Object.assign(new Error('Unlock your workspace to continue.'), {
-        code: 'ESESSION'
-      })
+      throw Object.assign(
+        new Error('Reopen the app to restore your local session.'),
+        {
+          code: 'ESESSION'
+        }
+      )
     text = selected.map((cookie) => cookie.value).join('')
   }
   try {
@@ -97,8 +130,11 @@ export function currentWorkspaceToken(cookies) {
       throw new Error()
     return value
   } catch {
-    throw Object.assign(new Error('Unlock your workspace to continue.'), {
-      code: 'ESESSION'
-    })
+    throw Object.assign(
+      new Error('Reopen the app to restore your local session.'),
+      {
+        code: 'ESESSION'
+      }
+    )
   }
 }

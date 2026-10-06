@@ -21,11 +21,11 @@ await mkdir(join(root, 'DEBIAN'), { recursive: true })
 await mkdir(join(root, 'usr/share/applications'), { recursive: true })
 await writeFile(
   join(root, 'DEBIAN/control'),
-  `Package: tacticus-analytics-preview\nVersion: 0.0.0-preview1\nArchitecture: amd64\nMaintainer: Tacticus Analytics\nSection: games\nPriority: optional\nDepends: libc6 (>= 2.35), libstdc++6, libgtk-3-0, libnss3, libasound2, libgbm1, libxss1, libdrm2, libatk1.0-0, libatk-bridge2.0-0, libx11-6, libxcb1, libxkbcommon0, xkb-data, fonts-dejavu-core\nDescription: Private synthetic Tacticus Analytics desktop preview\n Local-account and sample-data packaging experiment.\n Real raid import and complete desktop feature parity are not included.\n`
+  `Package: tacticus-analytics-preview\nVersion: 0.0.0-preview1\nArchitecture: amd64\nMaintainer: Tacticus Analytics\nSection: games\nPriority: optional\nDepends: libc6 (>= 2.35), libstdc++6, libgtk-3-0, libnss3, libasound2, libgbm1, libxss1, libdrm2, libatk1.0-0, libatk-bridge2.0-0, libx11-6, libxcb1, libxkbcommon0, xkb-data, fonts-dejavu-core, libsecret-1-0, zenity, xdg-utils\nDescription: Private Tacticus Analytics desktop preview\n Local accounts, sample data, raid-file imports and manual official API sync.\n Automatic game connection and complete desktop feature parity are not included.\n`
 )
 await writeFile(
   join(root, 'usr/share/applications/tacticus-analytics-preview.desktop'),
-  `[Desktop Entry]\nType=Application\nName=Tacticus Analytics Preview\nComment=Local synthetic raid analytics preview\nExec=/opt/tacticus-analytics-preview/launch\nIcon=/opt/tacticus-analytics-preview/application/public/favicon.svg\nTerminal=false\nCategories=Game;Utility;\n`
+  `[Desktop Entry]\nType=Application\nName=Tacticus Analytics Preview\nComment=Local raid analytics preview\nExec=/opt/tacticus-analytics-preview/launch\nIcon=/opt/tacticus-analytics-preview/application/public/favicon.svg\nTerminal=false\nCategories=Game;Utility;\n`
 )
 // Packaging runs in a disposable builder. Consumers install with their ordinary
 // graphical package manager; no Docker or Node installation is required.

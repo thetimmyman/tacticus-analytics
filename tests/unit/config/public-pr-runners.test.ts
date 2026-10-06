@@ -3,6 +3,7 @@
  * Checks where each job RUNS regardless of `if:`; an unevaluable `runs-on` fails closed.
  */
 import { readFileSync, readdirSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { parse } from 'yaml'
@@ -32,11 +33,12 @@ const REPO = 'thetimmyman/tacticus-analytics'
 
 type Ctx = Record<string, unknown>
 
-// Every PR situation a public repo can produce, plus a fork PR while still private.
+// Every public-repository PR situation, plus same-repo and fork events while private.
 const PR_SCENARIOS: Record<string, Ctx> = {
   'public, same-repo PR': prContext({ isPrivate: false, fork: false }),
   'public, fork PR': prContext({ isPrivate: false, fork: true }),
-  'private, fork PR': prContext({ isPrivate: true, fork: true })
+  'private, fork PR': prContext({ isPrivate: true, fork: true }),
+  'private, same-repo PR': prContext({ isPrivate: true, fork: false })
 }
 
 function prContext({
@@ -153,6 +155,7 @@ function looseEquals(a: unknown, b: unknown): boolean {
 }
 
 const FUNCTIONS: Record<string, (...args: unknown[]) => unknown> = {
+  always: () => true,
   fromJSON: (s) => JSON.parse(String(s)),
   format: (f, ...args) =>
     String(f).replace(/\{(\d+)\}/gu, (_, n) => String(args[Number(n)])),
@@ -297,7 +300,19 @@ type Workflow = {
     permissions?: unknown
     jobs: Record<
       string,
-      { 'runs-on'?: unknown; uses?: string; strategy?: { matrix?: unknown } }
+      {
+        'runs-on'?: unknown
+        uses?: string
+        strategy?: { matrix?: unknown }
+        if?: string | boolean
+        needs?: string[] | string
+        steps?: Array<{
+          name?: string
+          run?: string
+          uses?: string
+          if?: string | boolean
+        }>
+      }
     >
   }
 }
@@ -421,6 +436,30 @@ function prRunnerViolations(workflows: Workflow[]): string[] {
   return violations
 }
 
+function jobEligible(job: Workflow['doc']['jobs'][string], ctx: Ctx): boolean {
+  if (job.if === undefined) return true
+  if (typeof job.if === 'boolean') return job.if
+  const condition = job.if.replace(/^\s*\$\{\{/u, '').replace(/\}\}\s*$/u, '')
+  return Boolean(evaluate(condition, ctx))
+}
+
+function eventContext(
+  eventName: string,
+  scenario = 'public, same-repo PR'
+): Ctx {
+  const ctx = structuredClone(PR_SCENARIOS[scenario]) as Ctx
+  const github = ctx.github as Record<string, unknown>
+  github.event_name = eventName
+  github.ref = eventName === 'push' ? 'refs/heads/main' : 'refs/heads/main'
+  return ctx
+}
+
+function workflowByName(workflows: Workflow[], file: string): Workflow {
+  const workflow = workflows.find((entry) => entry.file === file)
+  if (!workflow) throw new Error(`missing workflow ${file}`)
+  return workflow
+}
+
 describe('public-release workflow contract', () => {
   const workflows = loadWorkflows()
 
@@ -439,6 +478,138 @@ describe('public-release workflow contract', () => {
 
   it('never schedules a pull_request job onto a self-hosted runner once public', () => {
     expect(prRunnerViolations(workflows)).toEqual([])
+  })
+
+  it('uses literal standard hosted labels in every admitted public workflow', () => {
+    const admitted = [
+      'build-clean-image.yml',
+      'build-edge-runtime-image.yml',
+      'codeql.yml',
+      'dependency-audit.yml',
+      'governance-baseline.yml',
+      'integration-replay-gate.yml',
+      'pgtap-gate.yml',
+      'unused-exports-report.yml'
+    ]
+    for (const file of admitted) {
+      const wf = workflowByName(workflows, file)
+      for (const [jobId, job] of Object.entries(wf.doc.jobs)) {
+        expect(job['runs-on'], `${file}:${jobId}`).toMatch(
+          /^ubuntu-24\.04(?:-arm)?$/u
+        )
+        expect(wf.raw, file).not.toContain('self-hosted')
+        expect(wf.raw, file).not.toContain('amd64-builder')
+        expect(wf.raw, file).not.toContain('arm64-builder')
+        expect(wf.raw, file).not.toContain('DB_LANE_RUNNER')
+      }
+    }
+  })
+
+  it('makes the real static, unit, build, pgTAP, replay and CodeQL jobs eligible on same-repo and fork PRs', () => {
+    const expected = [
+      'codeql.yml',
+      'dependency-audit.yml',
+      'governance-baseline.yml',
+      'integration-replay-gate.yml',
+      'pgtap-gate.yml'
+    ]
+    for (const file of expected) {
+      const wf = workflowByName(workflows, file)
+      expect(triggersOf(wf.doc), file).toContain('pull_request')
+      for (const scenario of ['public, same-repo PR', 'public, fork PR']) {
+        const ctx = PR_SCENARIOS[scenario]
+        for (const [jobId, job] of Object.entries(wf.doc.jobs)) {
+          expect(jobEligible(job, ctx), `${file}:${jobId}:${scenario}`).toBe(
+            true
+          )
+        }
+      }
+    }
+
+    const governance = workflowByName(workflows, 'governance-baseline.yml')
+    expect(
+      governance.doc.jobs.checks.steps?.some((step) =>
+        step.run?.includes('npm run security:clean-repo')
+      )
+    ).toBe(true)
+    expect(
+      governance.doc.jobs.tests.steps?.some(
+        (step) => step.run?.trim() === 'npm run test'
+      )
+    ).toBe(true)
+    expect(
+      governance.doc.jobs.build.steps?.some(
+        (step) => step.run?.trim() === 'npm run build'
+      )
+    ).toBe(true)
+    expect(
+      workflowByName(workflows, 'pgtap-gate.yml').doc.jobs[
+        'pgtap-general'
+      ].steps?.some(
+        (step) =>
+          step.run?.includes('npm run test:pgtap:controls') &&
+          step.run.includes('npm run test:pgtap')
+      )
+    ).toBe(true)
+    expect(
+      workflowByName(workflows, 'integration-replay-gate.yml').doc.jobs[
+        'integration-replay'
+      ].steps?.some((step) =>
+        step.run?.includes('npm run test:integration:replay')
+      )
+    ).toBe(true)
+    expect(
+      workflowByName(workflows, 'codeql.yml').doc.jobs.analyze.steps?.some(
+        (step) => step.run?.includes('npm run security:codeql:check')
+      )
+    ).toBe(true)
+  })
+
+  it('evaluates actual gate eligibility for push, schedule and dispatch events', () => {
+    const files = [
+      'codeql.yml',
+      'dependency-audit.yml',
+      'governance-baseline.yml',
+      'integration-replay-gate.yml',
+      'pgtap-gate.yml'
+    ]
+    for (const file of files) {
+      const wf = workflowByName(workflows, file)
+      for (const event of ['push', 'schedule', 'workflow_dispatch']) {
+        if (!triggersOf(wf.doc).includes(event)) continue
+        const ctx = eventContext(event)
+        for (const [jobId, job] of Object.entries(wf.doc.jobs)) {
+          expect(jobEligible(job, ctx), `${file}:${jobId}:${event}`).toBe(true)
+        }
+      }
+    }
+  })
+
+  it('keeps both required result rollups red for failure, cancellation, or skip', () => {
+    const wf = workflowByName(workflows, 'governance-baseline.yml')
+    for (const id of ['governance-baseline', 'fork-pr-block']) {
+      const job = wf.doc.jobs[id]
+      expect(job.needs).toEqual(['checks', 'tests', 'build'])
+      expect(job.if).toContain('always()')
+      const shell = job.steps?.find((step) =>
+        step.name?.startsWith('Assert every gate')
+      )?.run
+      expect(shell).toBeDefined()
+      for (const results of [
+        ['success', 'success', 'success'],
+        ['failure', 'success', 'success'],
+        ['success', 'cancelled', 'success'],
+        ['success', 'success', 'skipped']
+      ]) {
+        const result = spawnSync('bash', ['-euo', 'pipefail', '-c', shell!], {
+          encoding: 'utf8',
+          env: { ...process.env, GATE_RESULTS: JSON.stringify(results) }
+        })
+        expect(result.status, `${id}:${results.join(',')}`).toBe(
+          results.every((status) => status === 'success') ? 0 : 1
+        )
+      }
+    }
   })
 
   it('uses no privileged pull-request triggers', () => {
@@ -560,21 +731,26 @@ describe('public-release workflow contract', () => {
     it('flags a literal self-hosted label list', () => {
       expect(
         prRunnerViolations([synthetic(['self-hosted', 'amd64-builder'])])
-      ).toHaveLength(3)
+      ).toHaveLength(4)
     })
 
     it('flags the pre-release fork-only split for same-repo PRs on a public repo', () => {
       const forkOnly =
         "${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-latest' || fromJSON('[\"self-hosted\",\"amd64-builder\"]') }}"
       const v = prRunnerViolations([synthetic(forkOnly)])
-      expect(v).toHaveLength(1)
-      expect(v[0]).toContain('public, same-repo PR')
+      expect(v).toHaveLength(2)
+      expect(
+        v.some((violation) => violation.includes('public, same-repo PR'))
+      ).toBe(true)
+      expect(
+        v.some((violation) => violation.includes('private, same-repo PR'))
+      ).toBe(true)
     })
 
     it('flags a PR runner taken from a repository variable', () => {
       const fromVar =
         '${{ fromJSON(vars.DB_LANE_RUNNER || \'["ubuntu-latest"]\') }}'
-      expect(prRunnerViolations([synthetic(fromVar)])).toHaveLength(3)
+      expect(prRunnerViolations([synthetic(fromVar)])).toHaveLength(4)
     })
 
     it('fails closed on an expression it cannot evaluate', () => {
@@ -584,10 +760,12 @@ describe('public-release workflow contract', () => {
       expect(v[0]).toContain('fails closed')
     })
 
-    it('accepts the visibility-aware expression the workflows use', () => {
+    it('flags the private same-repository case hidden by a visibility-aware runner expression', () => {
       const canonical =
         "${{ (github.event_name == 'pull_request' && (!github.event.repository.private || github.event.pull_request.head.repo.full_name != github.repository)) && 'ubuntu-latest' || fromJSON('[\"self-hosted\",\"amd64-builder\"]') }}"
-      expect(prRunnerViolations([synthetic(canonical)])).toEqual([])
+      const violations = prRunnerViolations([synthetic(canonical)])
+      expect(violations).toHaveLength(1)
+      expect(violations[0]).toContain('private, same-repo PR')
       expect(
         resolveRunsOn(canonical, prContext({ isPrivate: true, fork: false }))
       ).toEqual(['self-hosted', 'amd64-builder'])

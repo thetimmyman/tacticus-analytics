@@ -19,16 +19,9 @@ spec:
       labels:
         app: supabase-edge-functions
     spec:
-      affinity:
-        nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              preference:
-                matchExpressions:
-                  - key: kubernetes.io/arch
-                    operator: In
-                    values:
-                      - arm64
+      # The image is published for amd64 only.
+      nodeSelector:
+        kubernetes.io/arch: amd64
       imagePullSecrets:
         - name: ghcr-pull-secret
       # Fail-soft: an unreadable override falls through to upstream, never a crashloop.
@@ -108,4 +101,4 @@ spec:
               memory: 384Mi
             limits:
               cpu: 500m
-              memory: 768Mi
+              memory: 1Gi

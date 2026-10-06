@@ -1,0 +1,34 @@
+name: Contribution contracts
+
+on:
+  pull_request:
+    paths:
+      - packages/contribution/**
+      - packages/workspace-onboarding/**
+      - tests/contribution/**
+      - tests/workspace-onboarding/**
+      - .github/workflows/contribution-contracts.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: contribution-contracts-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+      - run: npm ci
+      - run: node --test tests/contribution/*.test.mjs tests/workspace-onboarding/*.test.mjs
+      - run: npx vitest run --config tests/contribution/vitest.config.mts
+      - run: npx eslint packages/contribution packages/workspace-onboarding

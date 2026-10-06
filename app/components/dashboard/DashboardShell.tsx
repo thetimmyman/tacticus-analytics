@@ -9,6 +9,7 @@ import { RadixTooltipProvider } from '@tacticus/ui-kit/radix-tooltip'
 import { ActivityTracker } from '@/app/components/ActivityTracker'
 import MonitorTelemetryStrip from '@/app/(dashboard)/_components/MonitorTelemetryStrip'
 import OperationalStatusPill from '@/app/(dashboard)/_components/OperationalStatusPill'
+import { DesktopWorkspaceBar } from '@/app/components/navigation/DesktopWorkspaceBar'
 
 interface DashboardShellProps {
   children: React.ReactNode
@@ -41,6 +42,7 @@ export default function DashboardShell({
               profile={profile}
               hideAnalytics={hideAnalytics}
             />
+            {!hosted && <DesktopWorkspaceBar />}
             <main
               id="main-content"
               className="max-w-[1440px] mx-auto px-4 py-8"

@@ -71,9 +71,22 @@ export async function loopbackGateway({
       res.end()
       return
     }
-    const headers = { ...req.headers, host: `127.0.0.1:${port}` }
+    const publicEndpoint = new URL(origin)
+    const headers = {
+      ...req.headers,
+      host: `127.0.0.1:${port}`,
+      'x-forwarded-host': publicEndpoint.host,
+      'x-forwarded-port': publicEndpoint.port,
+      'x-forwarded-proto': 'http'
+    }
+    delete headers.forwarded
     if (headers.authorization === 'Bearer desktop-public')
       headers.authorization = `Bearer ${services.token.anon}`
+    else if (
+      services.serviceCredential &&
+      headers.authorization === `Bearer ${services.serviceCredential}`
+    )
+      headers.authorization = `Bearer ${services.token.service}`
     delete headers.connection
     const upstream = httpRequest(
       { host: '127.0.0.1', port, path, method: req.method, headers },

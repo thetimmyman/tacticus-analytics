@@ -1,0 +1,6 @@
+FROM ubuntu:22.04@sha256:b8b6ee6aa931ecd9d0d952abc34dc0e5f7c6a30c6bb71b079fe399fde0329c02 AS build
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends gcc libc6-dev && rm -rf /var/lib/apt/lists/*
+COPY runtime-guard.c /build/runtime-guard.c
+RUN mkdir /package && cc -O2 -Wall -Wextra -Werror /build/runtime-guard.c -o /package/runtime-guard
+FROM scratch AS package
+COPY --from=build /package/runtime-guard /runtime-guard
