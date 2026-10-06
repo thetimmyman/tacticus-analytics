@@ -250,7 +250,11 @@ const packageBaseRules = {
 
 /** @type {import('eslint').Linter.Config[]} */
 const eslintConfig = [
-  ...nextCoreWebVitals,
+  ...nextCoreWebVitals.map((config) =>
+    config.name === 'next/typescript'
+      ? { ...config, files: [...(config.files || []), '**/*.mts', '**/*.cts'] }
+      : config
+  ),
   {
     plugins: {
       ...nextCoreWebVitals[0].plugins,
@@ -406,7 +410,16 @@ const eslintConfig = [
   },
   {
     // Operational entrypoints and scripts may create ad hoc clients.
-    files: ['proxy.ts', 'apps/desktop/proof/native-journey.mts'],
+    files: [
+      'proxy.ts',
+      'apps/desktop/proof/native-journey.mts',
+      'apps/desktop/proof/roster-journey.mjs',
+      'apps/desktop/proof/achievements-journey.mjs',
+      'apps/desktop/proof/data-export-journey.mjs',
+      'apps/desktop/proof/password-change-journey.mjs',
+      'apps/desktop/proof/session-journey.mjs',
+      'apps/desktop/proof/jobs-journey.mjs'
+    ],
     rules: {
       'no-restricted-imports': [
         'error',

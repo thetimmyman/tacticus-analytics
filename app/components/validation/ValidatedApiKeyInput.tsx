@@ -1,5 +1,7 @@
 'use client'
 
+import { DesktopCredentialGuide } from '@/app/components/navigation/DesktopCredentialGuide'
+
 import { useState, useEffect } from 'react'
 import { Input } from '@tacticus/ui-kit'
 import { Button } from '@tacticus/ui-kit'
@@ -55,13 +57,19 @@ export function ValidatedApiKeyInput({
   const [hasValidated, setHasValidated] = useState(false)
 
   useEffect(() => {
-    if (autoValidate && value && !hasValidated) {
+    if (
+      process.env.NEXT_PUBLIC_RUNTIME_PROFILE !== 'desktop' &&
+      autoValidate &&
+      value &&
+      !hasValidated
+    ) {
       validateApiKey()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoValidate, value])
 
   const validateApiKey = async () => {
+    if (process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop') return
     if (!value.trim()) {
       setValidationStatus('invalid')
       setValidationMessage('Please enter an API key')
@@ -138,6 +146,8 @@ export function ValidatedApiKeyInput({
     }
   }
 
+  if (process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop')
+    return <DesktopCredentialGuide />
   return (
     <div className={className}>
       {label && <Label htmlFor="api-key">{label}</Label>}

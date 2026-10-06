@@ -39,6 +39,7 @@ export interface AchievementPlayerContext {
 
 export interface AchievementEvaluationOptions {
   includeVotlwAwards?: boolean
+  strict?: boolean
 }
 
 export interface AchievementEvaluation {
@@ -189,10 +190,11 @@ async function canonicalizeDiscordContext(
 
 async function fetchRosterRows(
   supabase: TypedSupabaseClient,
-  player: AchievementPlayerContext
+  player: AchievementPlayerContext,
+  strict = false
 ): Promise<RosterRow[]> {
   if (player.userId && player.mappingId) {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('player_roster')
       .select(
         'rank_name,rarity,xp_level,active_ability_level,passive_ability_level'
@@ -200,26 +202,29 @@ async function fetchRosterRows(
       .or(
         `user_id.eq.${player.userId},player_mapping_id.eq.${player.mappingId}`
       )
+    if (strict && error) throw new Error('Achievement roster read failed')
     return (data ?? []) as RosterRow[]
   }
 
   if (player.userId) {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('player_roster')
       .select(
         'rank_name,rarity,xp_level,active_ability_level,passive_ability_level'
       )
       .eq('user_id', player.userId)
+    if (strict && error) throw new Error('Achievement roster read failed')
     return (data ?? []) as RosterRow[]
   }
 
   if (player.mappingId) {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('player_roster')
       .select(
         'rank_name,rarity,xp_level,active_ability_level,passive_ability_level'
       )
       .eq('player_mapping_id', player.mappingId)
+    if (strict && error) throw new Error('Achievement roster read failed')
     return (data ?? []) as RosterRow[]
   }
 
@@ -430,7 +435,8 @@ function awardMatches(
 async function calculateVotlwStats(
   supabase: TypedSupabaseClient,
   player: AchievementPlayerContext,
-  seasons: string[]
+  seasons: string[],
+  strict = false
 ): Promise<AchievementStats> {
   const playerName = normalizeName(player.displayName)
   if (!player.guildCode || !playerName || seasons.length === 0) {
@@ -450,11 +456,12 @@ async function calculateVotlwStats(
   }
 
   for (const season of seasons) {
-    const { data } = await supabase.rpc('get_votlw_set_winners', {
+    const { data, error } = await supabase.rpc('get_votlw_set_winners', {
       p_guild_code: player.guildCode,
       p_season: season,
       p_cluster_code: player.clusterCode ?? undefined
     })
+    if (strict && error) throw new Error('Achievement award calculation failed')
 
     const rows = Array.isArray(data) ? (data as VotlwSetWinnerRow[]) : []
     for (const row of rows) {
@@ -480,11 +487,12 @@ async function calculateVotlwStats(
     }
   }
 
-  const { data: winnerRows } = await supabase
+  const { data: winnerRows, error: winnerError } = await supabase
     .from('votlw_winners')
     .select('kill_bonus_points,bomb_bonus_points,winner_name')
     .eq('guild_code', player.guildCode)
     .in('season', seasons)
+  if (strict && winnerError) throw new Error('Achievement award read failed')
 
   for (const row of winnerRows ?? []) {
     if (normalizeName(row.winner_name) !== playerName) continue
@@ -554,8 +562,12 @@ export async function getAchievementEvaluation(
       .select('war_id')
       .eq('player_id', resolvedPlayerId),
 
-    player ? fetchRosterRows(supabase, player) : Promise.resolve([])
+    player
+      ? fetchRosterRows(supabase, player, options.strict)
+      : Promise.resolve([])
   ])
+  if (options.strict && (raidRes.error || warsRes.error))
+    throw new Error('Achievement activity read failed')
 
   const raidRows: BattleRow[] = raidRes.data ?? []
   const raidStats = calculateRaidStats(raidRows)
@@ -570,7 +582,7 @@ export async function getAchievementEvaluation(
 
   const votlwStats =
     includeVotlwAwards && player
-      ? await calculateVotlwStats(supabase, player, seasons)
+      ? await calculateVotlwStats(supabase, player, seasons, options.strict)
       : {}
 
   const warSet = new Set((warsRes.data ?? []).map((row) => row.war_id))

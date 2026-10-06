@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { act, render, screen, within } from '@testing-library/react'
 import AchievementsClient, {
   RECENT_UNLOCK_WINDOW_MS,
   isRecentAchievementUnlock
@@ -147,6 +147,7 @@ describe('achievement unlock recency', () => {
   })
 
   afterEach(() => {
+    vi.useRealTimers()
     vi.restoreAllMocks()
     vi.unstubAllGlobals()
   })
@@ -228,6 +229,7 @@ describe('achievement unlock recency', () => {
   })
 
   it('expires the recent marker while the page remains mounted', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
     const expiresInMs = 30
     renderClient([
       makeSeries({
@@ -239,15 +241,19 @@ describe('achievement unlock recency', () => {
       })
     ])
 
-    const card = await screen.findByRole('article', {
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0)
+    })
+    const card = screen.getByRole('article', {
       name: 'Expiring Unlock achievement'
     })
     expect(within(card).getByText('Just unlocked')).toBeInTheDocument()
 
     vi.mocked(Date.now).mockReturnValue(NOW_MS + expiresInMs + 1)
-    await waitFor(() => {
-      expect(within(card).queryByText('Just unlocked')).not.toBeInTheDocument()
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(expiresInMs + 1)
     })
+    expect(within(card).queryByText('Just unlocked')).not.toBeInTheDocument()
     expect(card.className).not.toContain('motion-safe:animate-[')
     expect(card.querySelector('svg.absolute')).toBeNull()
   })
