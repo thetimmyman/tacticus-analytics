@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "mobile-workspace/v1",
+  "mode": "synthetic-demo",
+  "player": {
+    "displayName": "Example Player",
+    "units": [
+      {
+        "id": "synthetic-unit",
+        "name": "Example Unit",
+        "rank": 3,
+        "xpLevel": 10
+      }
+    ],
+    "resources": {
+      "guildRaidTokens": {
+        "current": 4,
+        "max": 6,
+        "nextTokenInSeconds": 120,
+        "regenDelayInSeconds": 3600
+      },
+      "bombTokens": { "current": 2, "max": 3, "regenDelayInSeconds": 3600 }
+    },
+    "upstreamUpdatedAt": 1767225600000
+  },
+  "raids": [
+    {
+      "player": "Example Player",
+      "boss": "Example Boss",
+      "damage": 1200,
+      "tokens": 2,
+      "observedAt": 1767225600000
+    },
+    {
+      "player": "Example Player",
+      "boss": "Example Boss",
+      "damage": 800,
+      "tokens": 1,
+      "observedAt": 1767225660000
+    }
+  ]
+}
