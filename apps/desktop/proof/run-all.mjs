@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process'
 import { readFile } from 'node:fs/promises'
+import { resetDerivedState } from './reset-derived-state.mjs'
 
 /**
  * Entry point for `npm run desktop:proof`. Runs gates (a) and (d)'s
@@ -77,6 +78,7 @@ if (!configPath) {
   results.push({ gate: 'c-checkpoint-recovery', exitCode: 'skipped' })
 } else {
   const nativeConfig = JSON.parse(await readFile(configPath, 'utf8'))
+  await resetDerivedState(nativeConfig.state)
   console.log('\n== Gate (b): offline /player-performance journey ==')
   run('b-offline-journey', 'apps/desktop/proof/offline-journey.mjs', [
     configPath

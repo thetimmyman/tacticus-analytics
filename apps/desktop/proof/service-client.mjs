@@ -74,7 +74,7 @@ export async function nativeServices(config, { signal } = {}) {
   owner.on('error', (error) => {
     if (readyComplete || error.code !== 'EPIPE') fail(error)
   })
-  owner.on('exit', (code) => {
+  owner.on('exit', (code, exitSignal) => {
     fail(
       code === 73
         ? Object.assign(new Error('EEXIST: Workspace already in use'), {
@@ -82,6 +82,15 @@ export async function nativeServices(config, { signal } = {}) {
           })
         : new Error('Local service supervisor stopped')
     )
+    // The supervisor's runtime guard terminates the real processes with it, so
+    // surface that on every live proxy handle instead of leaving them pending.
+    for (const child of children) {
+      if (!child || child.exitCode !== null || child.signalCode !== null)
+        continue
+      child.exitCode = code ?? null
+      child.signalCode = exitSignal ?? (code == null ? 'SIGKILL' : null)
+      child.emit('exit', child.exitCode, child.signalCode)
+    }
     signal?.removeEventListener('abort', onAbort)
     process.removeListener('SIGINT', onInterrupt)
     process.removeListener('SIGTERM', onInterrupt)
