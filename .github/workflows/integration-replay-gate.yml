@@ -8,11 +8,6 @@ on:
     # An hour after the pgTAP gate so they do not contend for a runner.
     - cron: '41 7 * * *'
   workflow_dispatch:
-    inputs:
-      runner:
-        description: 'Runner labels as a JSON array, e.g. ["ubuntu-latest"]'
-        required: false
-        type: string
   pull_request:
     paths:
       - 'tests/integration/rls/**'
@@ -32,12 +27,8 @@ concurrency:
 jobs:
   integration-replay:
     name: integration-replay
-    if: >-
-      github.event_name != 'pull_request' ||
-      github.event.pull_request.head.repo.full_name == github.repository
-    # Runner from `DB_LANE_RUNNER`; public-repo and fork PRs are pinned to ubuntu-latest.
-    runs-on: >-
-      ${{ (github.event_name == 'pull_request' && (!github.event.repository.private || github.event.pull_request.head.repo.full_name != github.repository)) && 'ubuntu-latest' || fromJSON(inputs.runner || vars.DB_LANE_RUNNER || '["self-hosted", "amd64-builder"]') }}
+    # Full local replay runs with Docker on a standard hosted runner.
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
