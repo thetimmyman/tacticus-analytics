@@ -3,6 +3,7 @@
 import { spawnSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import process from 'node:process'
+import { fileURLToPath } from 'node:url'
 
 function detectDockerHost() {
   if (process.env.DOCKER_HOST) return process.env.DOCKER_HOST
@@ -39,11 +40,40 @@ if (dockerHost) {
   )
 }
 
-const result = spawnSync('npx', ['--no-install', 'supabase', ...args], {
-  env,
-  shell: false,
-  stdio: 'inherit'
-})
+const freshStart = (extraArgs) =>
+  spawnSync(
+    fileURLToPath(new URL('./supabase-start-fresh.sh', import.meta.url)),
+    extraArgs,
+    { env, shell: false, stdio: 'inherit' }
+  )
+
+// `start` and `db reset` both fail the CLI's own migration pass on a
+// database it manages itself (see supabase-start-fresh.sh for why), so both
+// route through the fresh-start wrapper instead of a plain passthrough.
+// `db reset` additionally discards the existing volume first, matching
+// what a reset is supposed to do. Every other subcommand is unaffected.
+const [command, sub, ...rest] = args
+let result
+if (command === 'start') {
+  result = freshStart(args.slice(1))
+} else if (command === 'db' && sub === 'reset') {
+  const stopResult = spawnSync(
+    'npx',
+    ['--no-install', 'supabase', 'stop', '--no-backup'],
+    { env, shell: false, stdio: 'inherit' }
+  )
+  if (stopResult.error) {
+    console.error(`supabase-cli: failed to stop: ${stopResult.error.message}`)
+    process.exit(1)
+  }
+  result = freshStart(rest)
+} else {
+  result = spawnSync('npx', ['--no-install', 'supabase', ...args], {
+    env,
+    shell: false,
+    stdio: 'inherit'
+  })
+}
 
 if (result.error) {
   console.error(`supabase-cli: failed to start: ${result.error.message}`)

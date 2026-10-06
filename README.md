@@ -26,6 +26,80 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 Never commit `.env.local`, service-role keys, client secrets, or user exports.
 
+### Run the web app with Docker Compose
+
+The optional local Compose file runs only the Next.js web app and Redis. It
+does not start Supabase or provide database credentials. Install Docker with
+the Compose plugin. If you use the repository's local Supabase CLI stack,
+install Node 22 and npm 10.9.7 on the host as well.
+
+Start or connect to a Supabase instance first, then copy the local environment
+template and replace both key placeholders with that instance's actual keys:
+
+```bash
+cp .env.compose.example .env.local
+# Edit .env.local; never commit it.
+```
+
+For the repository's local Supabase CLI instance, `npm run supabase:start` and
+`npm run supabase:status` run on the host. Use the reported anon and service
+role keys in `.env.local`. Keep both Supabase URLs on one of the local hosts
+in `.app-identity.json` (`localhost`, `127.0.0.1`, or `host.docker.internal`);
+`npm run dev`'s `predev` identity check rejects any other host, including a
+remote `*.supabase.co` project, before Next.js starts.
+
+On a brand-new Supabase CLI database, the CLI's own migration pass cannot
+get past migration version `20260831150100`, which revokes `PUBLIC`'s
+`SELECT` on `pg_catalog.pg_db_role_setting`: the CLI's postgres image makes
+`supabase_admin`, not `postgres`, the owner of that relation, and the
+migration's verify block checks the relation's actual owner
+(`pg_class.relowner`) rather than which role executes the migration, so no
+choice of migration-executing role changes the outcome. That check is
+intentional (it is the production hardening the migration exists to add)
+and is not something this repository can or should work around in the
+migration itself.
+
+`npm run supabase:start` therefore does not hand migrations to the CLI.
+Instead it starts the CLI stack with its own migration pass and seed
+disabled, then applies this repository's migrations itself the same way
+the pgTAP and integration test lanes already do (see
+`scripts/dev/supabase-start-fresh.sh` and
+`scripts/dev/lib/replay-migrations.sh`). That replay prints and skips each
+migration listed in `scripts/dev/lib/replay-unappliable.txt` — one
+CLI-stack-only failure (the migration above) plus others that depend on
+data or objects that exist only in production — as "not applied (known)"
+rather than silently, and applies the seed (`supabase/seed.sql`) once the
+schema is in place. The result is close to production's schema but not
+identical to it. `npm run supabase:status` then reports the usual API URL
+and keys.
+
+Running `npm run supabase:start` again against a stack that already has
+this repository's migrations applied (still running, or restarted without
+`--no-backup`) detects the existing schema and skips the replay and seed.
+The CLI runs from a generated workdir under the gitignored
+`supabase/.temp/fresh-start`, and the local edge runtime serves a copy of
+`supabase/functions` from there; every `npm run supabase:start` refreshes
+that copy, so rerun it to pick up edits to edge functions.
+`npm run supabase:reset` stops the stack, discards its
+data (`--no-backup`), and runs the same fresh-start path, so it also no
+longer goes through the CLI's own migration pass.
+
+Launch and stop the web-plus-Redis services with:
+
+```bash
+docker compose -f docker-compose.local.yml up
+docker compose -f docker-compose.local.yml down
+```
+
+Compose installs from the lockfile into the named `node_modules` volume before
+starting Next.js, and retains Redis data in a separate named volume. Browser
+traffic uses `NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321`; server-side
+traffic uses `SUPABASE_URL=http://host.docker.internal:54321`, mapped to the
+host gateway for Linux Compose. Keep these URLs pointed at the same Supabase
+instance. Replace the template keys before using authentication or data routes;
+placeholder keys and an unreachable Supabase instance do not make the app
+functional. Open <http://localhost:3000> in the host browser.
+
 ## Common commands
 
 ```bash

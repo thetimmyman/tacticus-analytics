@@ -1,7 +1,7 @@
 name: Build Edge Runtime Image
 
 # Builds supabase/functions into an edge-runtime image and pushes it to GHCR; stamp-pin pushes the
-# pin to its own branch. No `pull_request` trigger: self-hosted runners never build fork code.
+# pin to its own branch. No `pull_request` trigger: this workflow never builds fork code.
 
 on:
   push:
@@ -31,10 +31,7 @@ env:
 
 jobs:
   prep:
-    if: >-
-      github.event_name != 'pull_request' ||
-      github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: [self-hosted, amd64-builder]
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
       tag: ${{ steps.tag.outputs.value }}
@@ -61,7 +58,7 @@ jobs:
       contents: read
       packages: write
     needs: prep
-    runs-on: [self-hosted, amd64-builder]
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -104,7 +101,7 @@ jobs:
       contents: read
       packages: write
     needs: [prep, build-amd64]
-    runs-on: [self-hosted, amd64-builder]
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     outputs:
       digest: ${{ steps.publish.outputs.digest }}
@@ -165,7 +162,7 @@ jobs:
     permissions:
       contents: write
     needs: [prep, merge-manifest]
-    runs-on: [self-hosted, amd64-builder]
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
