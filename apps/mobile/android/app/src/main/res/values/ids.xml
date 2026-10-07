@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="manual_raid_boss" type="id" />
+    <item name="manual_raid_damage" type="id" />
+    <item name="manual_raid_tokens" type="id" />
+    <item name="manual_raid_error" type="id" />
+</resources>
