@@ -18,7 +18,7 @@ BEGIN
   SELECT statements INTO v_statements
   FROM supabase_migrations.schema_migrations
   WHERE version='20261007200000' AND name='revoke_remaining_public_definer_execute';
-  IF coalesce(cardinality(v_statements),0) < 21 THEN
+  IF v_statements IS NULL THEN
     RAISE EXCEPTION 'Rollback requires the recorded target statements; use the pre-apply ACL snapshot if unavailable';
   END IF;
   FOREACH v_statement IN ARRAY v_statements LOOP

@@ -15,8 +15,10 @@ BEGIN
 END;
 $guard$;
 
-CREATE TEMP TABLE remaining_public_definers(signature text, required boolean) ON COMMIT DROP;
-INSERT INTO remaining_public_definers VALUES
+CREATE TEMP TABLE remaining_public_definers(
+  signature text, required boolean, had_public_execute boolean NOT NULL DEFAULT false
+) ON COMMIT DROP;
+INSERT INTO remaining_public_definers(signature, required) VALUES
   ('public._pm_caller_cluster_guild_codes()', true),
   ('public._pm_caller_guild_codes()', true),
   ('public._pm_caller_is_app_admin()', true),
@@ -68,7 +70,7 @@ BEGIN
     END IF;
     IF NOT EXISTS (SELECT 1 FROM remaining_public_definers f
       WHERE to_regprocedure(f.signature)=to_regprocedure(v_signature)) THEN
-      INSERT INTO remaining_public_definers VALUES (v_signature, true);
+      INSERT INTO remaining_public_definers(signature, required) VALUES (v_signature, true);
     END IF;
   END LOOP;
 END;
@@ -90,6 +92,13 @@ BEGIN
     IF NOT (SELECT prosecdef FROM pg_proc WHERE oid=v_fn) THEN
       RAISE EXCEPTION 'remaining definer revoke: no longer SECURITY DEFINER: %', v_fn;
     END IF;
+    UPDATE remaining_public_definers
+    SET had_public_execute = EXISTS (
+      SELECT 1 FROM pg_proc p,
+        LATERAL aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) a
+      WHERE p.oid=v_fn AND a.grantee=0 AND a.privilege_type='EXECUTE'
+    )
+    WHERE signature=v_entry.signature;
     EXECUTE format('REVOKE EXECUTE ON FUNCTION %s FROM PUBLIC', v_fn);
     IF NOT has_function_privilege('anon', v_fn, 'EXECUTE')
        OR NOT has_function_privilege('authenticated', v_fn, 'EXECUTE')
@@ -146,7 +155,8 @@ $verify$;
 
 INSERT INTO supabase_migrations.schema_migrations(version, name, statements)
 SELECT '20261007200000', 'revoke_remaining_public_definer_execute',
-  array_agg(format('REVOKE EXECUTE ON FUNCTION %s FROM PUBLIC', to_regprocedure(signature)) ORDER BY signature)
+  coalesce(array_agg(format('REVOKE EXECUTE ON FUNCTION %s FROM PUBLIC', to_regprocedure(signature)) ORDER BY signature)
+    FILTER (WHERE had_public_execute), ARRAY[]::text[])
 FROM remaining_public_definers
 ON CONFLICT(version) DO NOTHING;
 COMMIT;
