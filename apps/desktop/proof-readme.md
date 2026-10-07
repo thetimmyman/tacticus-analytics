@@ -44,14 +44,15 @@ reproducible proof for each PR gate and reports pass/fail/skipped per gate:
 
 ## Run the experiment
 
-Use the desktop build entry point in a checkout without automatic environment
+Use the desktop build entry point (`npm run desktop:build`, not `npm run build`;
+only it writes the build record that staging requires) in a checkout without automatic environment
 files. It supplies the desktop profile, standalone output, disposable loopback
 URL and `desktop-public` placeholder, and excludes inherited hosted secrets.
 Never copy a hosted env file into the proof. Staging requires a matching completed
 build record and refuses a missing or stale record before creating output:
 
 ```sh
-node apps/desktop/proof/build-application.mjs
+npm run desktop:build
 node apps/desktop/proof/stage-standalone.mjs /absolute/private/staged-application
 node --conditions=react-server --import tsx apps/desktop/proof/native-journey.mts /absolute/private/config.json
 node apps/desktop/proof/checkpoint-journey.mjs /absolute/private/config.json
