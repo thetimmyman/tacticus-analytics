@@ -50,13 +50,6 @@ jobs:
   application:
     runs-on: windows-latest
     timeout-minutes: 35
-    env:
-      NEXT_PUBLIC_RUNTIME_PROFILE: desktop
-      STANDALONE_BUILD: 'true'
-      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: desktop-public
-      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
-      SUPABASE_SERVICE_ROLE_KEY: desktop-synthetic-build
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -83,7 +76,7 @@ jobs:
         run: |
           node --test tests/desktop/windows/*.node-test.mjs apps/desktop/proof/workspace-session.test.mjs apps/desktop/proof/loopback-gateway.test.mjs
           if ($LASTEXITCODE -ne 0) { throw 'Adapter tests failed' }
-          npm run build
+          npm run desktop:build
           if ($LASTEXITCODE -ne 0) { throw 'Complete application build failed' }
       - name: Stage real Windows components
         shell: pwsh
