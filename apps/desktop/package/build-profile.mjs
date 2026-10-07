@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { stat } from 'node:fs/promises'
+import { readFile, stat } from 'node:fs/promises'
 import { join } from 'node:path'
 
 const digest = (value) => createHash('sha256').update(value).digest('hex')
@@ -33,7 +33,15 @@ export function desktopBuildEnvironment(env) {
     'TEMP',
     'TMP',
     'CI',
-    'npm_config_cache'
+    'npm_config_cache',
+    // Windows process essentials for npm.cmd and Node; none carry secrets.
+    'SystemRoot',
+    'WINDIR',
+    'ComSpec',
+    'PATHEXT',
+    'USERPROFILE',
+    'APPDATA',
+    'LOCALAPPDATA'
   ]
   return {
     ...Object.fromEntries(
@@ -69,7 +77,26 @@ export function verifyDesktopBuild(record, requiredFiles, buildId) {
     !record ||
     Object.entries(expected).some(([key, value]) => record[key] !== value)
   )
-    throw new Error(
-      'Desktop build record is missing or stale; rebuild with build-application.mjs'
-    )
+    throw new Error(staleBuildMessage)
+}
+
+const staleBuildMessage =
+  'Desktop build record is missing or stale; rebuild with npm run desktop:build'
+
+const readOptional = (path) =>
+  readFile(path, 'utf8').catch((error) => {
+    if (error.code === 'ENOENT') return null
+    throw error
+  })
+
+// A plain `next build` leaves no record; refuse it with the remedy, not ENOENT.
+export async function verifyRecordedDesktopBuild(directory, recordPath) {
+  const [record, requiredFiles, buildId] = await Promise.all([
+    readOptional(recordPath),
+    readOptional(join(directory, '.next/required-server-files.json')),
+    readOptional(join(directory, '.next/BUILD_ID'))
+  ])
+  if (record === null || requiredFiles === null || buildId === null)
+    throw new Error(staleBuildMessage)
+  verifyDesktopBuild(JSON.parse(record), requiredFiles, buildId)
 }

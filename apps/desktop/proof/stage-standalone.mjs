@@ -1,19 +1,15 @@
-import { cp, mkdir, stat, readFile } from 'node:fs/promises'
+import { cp, mkdir, stat } from 'node:fs/promises'
 import { dirname, resolve, isAbsolute, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { stageApplicationNotices } from '../package/application-notices.mjs'
-import { verifyDesktopBuild } from '../package/build-profile.mjs'
+import { verifyRecordedDesktopBuild } from '../package/build-profile.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const destination = process.argv[2]
 if (!destination || !isAbsolute(destination))
   throw new Error('An absolute staging destination is required')
 const buildRecordPath = join(root, '.next/desktop-build.json')
-verifyDesktopBuild(
-  JSON.parse(await readFile(buildRecordPath, 'utf8')),
-  await readFile(join(root, '.next/required-server-files.json'), 'utf8'),
-  await readFile(join(root, '.next/BUILD_ID'), 'utf8')
-)
+await verifyRecordedDesktopBuild(root, buildRecordPath)
 try {
   await stat(destination)
   throw new Error('Staging destination already exists')
