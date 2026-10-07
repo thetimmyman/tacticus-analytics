@@ -1,7 +1,6 @@
 import 'server-only'
 import { createHash } from 'crypto'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { ServiceSupabaseClient } from '@/app/lib/sync/worker-types'
 import { createComponentLogger } from '@/app/lib/logging'
 import { fetchHeraldSeedFromMetaAtlas } from './meta-atlas'
 import {
@@ -624,7 +623,7 @@ export const loadGuildHeraldConfig = async (
 
 // Status stays `pending`: `delivered`/`failed` would corrupt the webhook health signal.
 export const logSuppressedHeraldDispatch = async (
-  supabase: ServiceSupabaseClient,
+  supabase: SupabaseClient,
   params: {
     guildCode: string
     channels: HeraldChannel[]

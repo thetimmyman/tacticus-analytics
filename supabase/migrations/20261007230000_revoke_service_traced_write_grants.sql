@@ -1,4 +1,4 @@
--- Revoke authenticated writes on six tables whose writers all trace to
+-- Revoke authenticated writes on five tables whose writers all trace to
 -- service-role: RLS on, no arming policy, INSERT already RLS-denied and
 -- UPDATE/DELETE matching zero rows for authenticated, so nothing observable
 -- changes except that a user-session write now fails loudly. The census
@@ -26,7 +26,6 @@ CREATE TEMP TABLE service_traced_swept (relname text PRIMARY KEY) ON COMMIT DROP
 
 INSERT INTO service_traced_swept (relname)
 SELECT unnest(ARRAY[
-      'discord_webhook_logs',
       'execution_locks',
       'guild_themes',
       'guild_war_battles',
@@ -150,8 +149,8 @@ DECLARE
   v_remaining text[];
   v_changed text[];
 BEGIN
-  IF (SELECT count(*) FROM service_traced_before) <> 6 THEN
-    RAISE EXCEPTION 'service-traced revoke verify: expected 6 tables in the before-state';
+  IF (SELECT count(*) FROM service_traced_before) <> 5 THEN
+    RAISE EXCEPTION 'service-traced revoke verify: expected 5 tables in the before-state';
   END IF;
 
   SELECT coalesce(array_agg(x ORDER BY x), ARRAY[]::text[])

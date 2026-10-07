@@ -52,6 +52,62 @@ const GUILD_WAR_IMPORT_TABLES = new Set([
   'guild_war_participation'
 ])
 
+// Writers whose table is configuration, not a literal `.from('...')`. Each call
+// shape is rewritten to the literal it resolves to before scanning, so the
+// write is judged like any other; the rule below fails closed if the
+// configuration moves off that table or a `config.table` use escapes the shape.
+const EDGE_LOCK_CALLER = 'supabase/functions/sync-modular-workflow/index.ts'
+const CONFIGURED_TABLE_WRITERS = [
+  {
+    file: 'app/lib/sync/execution-locks.ts',
+    table: 'execution_locks',
+    call: /\bexecutionLocksTable\(\s*([A-Za-z_$][A-Za-z0-9_$]*)\s*,\s*config\.table\s*\)/g,
+    literal: (recv) => `${recv}.from('execution_locks')`,
+    configured: (read) =>
+      /\bconst DEFAULT_EXECUTION_LOCK_TABLE = 'execution_locks'/.test(
+        read('app/lib/sync/execution-locks.ts')
+      )
+  },
+  {
+    file: 'supabase/functions/_shared/sync-modules/db-locking.ts',
+    table: 'execution_locks',
+    call: /\.from\(\s*config\.table\s*\)/g,
+    literal: () => `.from('execution_locks')`,
+    configured: (read) => {
+      const caller = read(EDGE_LOCK_CALLER)
+      const calls = (caller.match(/\b(?:acquireLock|releaseLock)\(/g) ?? [])
+        .length
+      const fixed = (caller.match(/\btable:\s*CONFIG\.tables\.locks\b/g) ?? [])
+        .length
+      return (
+        /\blocks:\s*'execution_locks'/.test(caller) &&
+        calls > 0 &&
+        calls === fixed
+      )
+    }
+  }
+]
+
+/** `text` with each configured-table call rewritten to the literal it resolves to. */
+function resolveConfiguredTables(rel, text) {
+  let out = text
+  for (const w of CONFIGURED_TABLE_WRITERS) {
+    if (w.file !== rel) continue
+    out = out.replace(w.call, (_m, recv) => w.literal(recv))
+  }
+  return out
+}
+
+/** Every configured-table writer still resolves to its table, and no `config.table` use escapes its call shape. */
+function configuredTablesResolve(read) {
+  return CONFIGURED_TABLE_WRITERS.every((w) => {
+    const text = read(w.file)
+    const uses = (text.match(/\bconfig\.table\b/g) ?? []).length
+    const shaped = (text.match(w.call) ?? []).length
+    return w.configured(read) && shaped > 0 && uses === shaped
+  })
+}
+
 /** Claims behind the name-only attribution rules; --scan re-verifies each. */
 const PROVENANCE_RULES = [
   {
@@ -84,6 +140,11 @@ const PROVENANCE_RULES = [
     kind: 'SERVICE(discord-dispatch)',
     claim: `a receiver declared \`x: Supabase\` in a non-test module under ${DISCORD_DISPATCH_DIR} is service-role: ${DISCORD_DISPATCH_ROUTE} builds the client the dispatcher passes down with serviceDb(), and no non-test module that reaches a command handler through value imports (the handlers themselves, the route, and every direct or transitive importer such as the Discord chart routes) builds a request client.`,
     verify: () => discordDispatchIsServiceOnly(trackedFiles(), readIfPresent)
+  },
+  {
+    kind: 'configured-table',
+    claim: `${CONFIGURED_TABLE_WRITERS.map((w) => w.file).join(' and ')} write execution_locks through a configured table name: app/lib/sync/execution-locks.ts defaults it to 'execution_locks', and every acquireLock/releaseLock call in ${EDGE_LOCK_CALLER} passes CONFIG.tables.locks, which is 'execution_locks'. --scan reads those writes as literal .from('execution_locks') calls; every config.table use in both files must take that shape.`,
+    verify: () => configuredTablesResolve(readIfPresent)
   },
   {
     kind: 'SERVICE(guild-war-import)',
@@ -641,7 +702,8 @@ function scanTree() {
   const byTable = new Map()
   const castTainted = castTaintedModules(trackedFiles(), readIfPresent)
   for (const rel of trackedFiles()) {
-    for (const hit of scanSource(rel, readIfPresent(rel), { castTainted })) {
+    const text = resolveConfiguredTables(rel, readIfPresent(rel))
+    for (const hit of scanSource(rel, text, { castTainted })) {
       if (!byTable.has(hit.table)) byTable.set(hit.table, [])
       byTable.get(hit.table).push(hit)
     }
@@ -1045,6 +1107,81 @@ const GUILD_WAR_IMPORT_FIXTURES = [
   }
 ]
 
+const LOCKS_MODULE = CONFIGURED_TABLE_WRITERS[0].file
+const EDGE_LOCKS_MODULE = CONFIGURED_TABLE_WRITERS[1].file
+const LOCKS_SRC =
+  `const DEFAULT_EXECUTION_LOCK_TABLE = 'execution_locks'\n` +
+  `export async function release(supabase: ServiceSupabaseClient, config) {\n` +
+  `  await executionLocksTable(supabase, config.table)\n    .delete()\n}\n`
+const EDGE_LOCKS_SRC = `export async function releaseLock(deps, config) {\n  await deps.supabase\n    .from(config.table)\n    .delete()\n}\n`
+const EDGE_CALLER_SRC = `const CONFIG = { tables: { locks: 'execution_locks' } }\nawait acquireLock(d, { table: CONFIG.tables.locks })\nawait releaseLock(d, { table: CONFIG.tables.locks })\n`
+const CONFIGURED_TABLE_FIXTURES = [
+  {
+    name: 'a configured lock-table write is judged as an execution_locks write',
+    rel: LOCKS_MODULE,
+    src: LOCKS_SRC,
+    expect: (h) =>
+      h.length === 1 &&
+      h[0].table === 'execution_locks' &&
+      h[0].verb === 'delete' &&
+      h[0].client === 'SERVICE(param-type)'
+  },
+  {
+    name: "the edge lock module's configured write is judged as an execution_locks write",
+    rel: EDGE_LOCKS_MODULE,
+    src: EDGE_LOCKS_SRC,
+    expect: (h) =>
+      h.length === 1 &&
+      h[0].table === 'execution_locks' &&
+      h[0].client === 'SERVICE(edge)'
+  },
+  {
+    name: 'the same call shape in another file is not rewritten',
+    rel: 'app/lib/x.ts',
+    src: LOCKS_SRC,
+    expect: (h) => h.length === 0
+  }
+]
+const CONFIGURED_TABLE_RULE_FIXTURES = [
+  {
+    name: 'both configured lock writers resolve to execution_locks',
+    files: {
+      [LOCKS_MODULE]: LOCKS_SRC,
+      [EDGE_LOCKS_MODULE]: EDGE_LOCKS_SRC,
+      [EDGE_LOCK_CALLER]: EDGE_CALLER_SRC
+    },
+    expect: (ok) => ok === true
+  },
+  {
+    name: 'a default moved off execution_locks voids the rule',
+    files: {
+      [LOCKS_MODULE]: LOCKS_SRC.replace(`'execution_locks'`, `'other_locks'`),
+      [EDGE_LOCKS_MODULE]: EDGE_LOCKS_SRC,
+      [EDGE_LOCK_CALLER]: EDGE_CALLER_SRC
+    },
+    expect: (ok) => ok === false
+  },
+  {
+    name: 'a config.table use outside the known call shape voids the rule',
+    files: {
+      [LOCKS_MODULE]: LOCKS_SRC + `const t = sb.from(config.table)\n`,
+      [EDGE_LOCKS_MODULE]: EDGE_LOCKS_SRC,
+      [EDGE_LOCK_CALLER]: EDGE_CALLER_SRC
+    },
+    expect: (ok) => ok === false
+  },
+  {
+    name: 'an edge lock call with another table voids the rule',
+    files: {
+      [LOCKS_MODULE]: LOCKS_SRC,
+      [EDGE_LOCKS_MODULE]: EDGE_LOCKS_SRC,
+      [EDGE_LOCK_CALLER]:
+        EDGE_CALLER_SRC + `await releaseLock(d, { table: 'other_locks' })\n`
+    },
+    expect: (ok) => ok === false
+  }
+]
+
 function selftest() {
   let failed = 0
   for (const f of FIXTURES) {
@@ -1106,6 +1243,28 @@ function selftest() {
       Object.keys(f.files),
       (rel) => f.files[rel] ?? ''
     )
+    if (f.expect(ok)) {
+      console.log(`  ok   ${f.name}`)
+    } else {
+      failed += 1
+      console.error(`  FAIL ${f.name} -- got ${ok}`)
+    }
+  }
+
+  for (const f of CONFIGURED_TABLE_FIXTURES) {
+    const hits = scanSource(f.rel, resolveConfiguredTables(f.rel, f.src))
+    if (f.expect(hits)) {
+      console.log(`  ok   ${f.name}`)
+    } else {
+      failed += 1
+      console.error(
+        `  FAIL ${f.name} -- got ${JSON.stringify(hits.map((h) => [h.table, h.client, h.verb]))}`
+      )
+    }
+  }
+
+  for (const f of CONFIGURED_TABLE_RULE_FIXTURES) {
+    const ok = configuredTablesResolve((rel) => f.files[rel] ?? '')
     if (f.expect(ok)) {
       console.log(`  ok   ${f.name}`)
     } else {

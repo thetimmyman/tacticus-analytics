@@ -23,7 +23,6 @@ INSERT INTO census_swept (relname) SELECT unnest(ARRAY[
     'discord_token_reminders',
     'discord_user_guild_defaults',
     'discord_user_permissions',
-    'discord_webhook_logs',
     'execution_locks',
     'gdpr_processing_log',
     'global_strength_thresholds',
@@ -133,6 +132,7 @@ SELECT relname, 'keep-policy-governed' FROM unnest(ARRAY[ -- census_kept_policy
 INSERT INTO census_kept (relname, decision)
 SELECT relname, 'keep-undecided' FROM unnest(ARRAY[ -- census_kept_undecided
     'coaching_tasks',
+    'discord_webhook_logs',
     'EOT_GR_data',
     'guild_roster_scoring_config',
     'herald_boss_availability',
@@ -184,8 +184,8 @@ SELECT is(
 -- 2. The population this suite judges is the population the census names.
 SELECT is(
   (SELECT count(*)::integer FROM census_swept),
-  68,
-  'the swept population is 68 tables (matches scripts/security/authenticated-write-census.json)'
+  67,
+  'the swept population is 67 tables (matches scripts/security/authenticated-write-census.json)'
 );
 
 -- 3. Every swept table exists, or 4 could pass with nothing to check.

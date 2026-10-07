@@ -1,7 +1,6 @@
 import 'server-only'
 import { createHash } from 'crypto'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { ServiceSupabaseClient } from '@/app/lib/sync/worker-types'
 import { createComponentLogger } from '@/app/lib/logging'
 import {
   postToWebhook,
@@ -400,7 +399,7 @@ export const MANUAL_OVERRIDE_AUDIT_ROLE = '__manual_override__'
 export type ManualOverridePrime = 'a' | 'b'
 
 export interface ManualOverrideParams {
-  supabase: ServiceSupabaseClient
+  supabase: SupabaseClient
   guildCode: string
   /** MAIN encounter boss id (e.g. `Magnus_E0`); the prime arg picks A or B. */
   mainBossId: string
