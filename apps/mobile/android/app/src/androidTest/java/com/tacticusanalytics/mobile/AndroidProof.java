@@ -33,6 +33,20 @@ public final class AndroidProof extends Instrumentation {
       throw new Exception(message);
     checks++;
   }
+  private String failureContext() {
+    String context = "; phase=" + phase + " afterChecks=" + checks;
+    try {
+      android.app.KeyguardManager manager =
+          getTargetContext().getSystemService(android.app.KeyguardManager.class);
+      if (manager == null)
+        return context + " nativeLockState=unavailable";
+      return context + " deviceSecure=" + manager.isDeviceSecure()
+          + " deviceLocked=" + manager.isDeviceLocked()
+          + " keyguardLocked=" + manager.isKeyguardLocked();
+    } catch (Exception unavailable) {
+      return context + " nativeLockState=unavailable";
+    }
+  }
   interface Rejected {
     void run() throws Exception;
   }
@@ -360,7 +374,8 @@ public final class AndroidProof extends Instrumentation {
         throw new Exception("Unsupported proof phase");
     } catch (Exception failure) {
       result.putString("stream",
-          "FAIL " + failure.getClass().getSimpleName() + ": " + failure.getMessage() + "\n");
+          "FAIL " + failure.getClass().getSimpleName() + ": " + failure.getMessage()
+              + failureContext() + "\n");
       finish(0, result);
       return;
     }
@@ -753,7 +768,8 @@ public final class AndroidProof extends Instrumentation {
       finish(-1, result);
     } catch (Exception failure) {
       result.putString("stream",
-          "FAIL " + failure.getClass().getSimpleName() + ": " + failure.getMessage() + "\n");
+          "FAIL " + failure.getClass().getSimpleName() + ": " + failure.getMessage()
+              + failureContext() + "\n");
       finish(0, result);
     }
   }
