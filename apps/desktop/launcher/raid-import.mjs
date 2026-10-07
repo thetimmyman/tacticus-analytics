@@ -37,6 +37,11 @@ export function workspaceRaidImport(services, { normalize, brokerToken }) {
         }
         chunks.push(chunk)
       }
+      // Cookies ride along on any request to this origin; honour one only for
+      // the app's own same-origin JSON form post.
+      const browserSession =
+        req.headers.origin === `http://${req.headers.host}` &&
+        /^application\/json(?:;|$)/i.test(req.headers['content-type'] ?? '')
       let input
       try {
         input = JSON.parse(Buffer.concat(chunks).toString('utf8'))
@@ -51,7 +56,7 @@ export function workspaceRaidImport(services, { normalize, brokerToken }) {
           (key) => !['password', 'contents'].includes(key)
         ) ||
         (!nativeSessionRequest(req, brokerToken) &&
-          !browserWorkspaceToken(req) &&
+          !(browserSession && browserWorkspaceToken(req)) &&
           (typeof input.password !== 'string' ||
             input.password.length < 12 ||
             input.password.length > 128)) ||
@@ -63,7 +68,6 @@ export function workspaceRaidImport(services, { normalize, brokerToken }) {
         })
         return true
       }
-      const file = parseRaidFile(input.contents)
       const record = JSON.parse(
         (
           await services.psql(`SELECT coalesce((SELECT json_build_object('subject',s.subject_user_id,'guildCode',s.guild_code,'clusterCode',g.cluster_code,'clusterId',g.cluster_id,
@@ -75,23 +79,26 @@ export function workspaceRaidImport(services, { normalize, brokerToken }) {
         reply(res, 409, { error: 'Create a workspace before importing data.' })
         return true
       }
-      if (file.guildCode !== record.guildCode) {
-        reply(res, 400, {
-          error: 'This file belongs to a different guild. No data was imported.'
-        })
-        return true
-      }
       if (
         !(await workspaceAuthorized(
           services,
           req,
           input,
           record.subject,
-          brokerToken
+          brokerToken,
+          { allowBrowserSession: browserSession }
         ))
       ) {
         reply(res, 401, {
           error: 'Reopen the app to restore your local session.'
+        })
+        return true
+      }
+      // Only the authorized owner learns how the file compares to the workspace.
+      const file = parseRaidFile(input.contents)
+      if (file.guildCode !== record.guildCode) {
+        reply(res, 400, {
+          error: 'This file belongs to a different guild. No data was imported.'
         })
         return true
       }

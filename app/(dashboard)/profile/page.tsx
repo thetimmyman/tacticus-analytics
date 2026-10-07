@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 import Image from 'next/image'
 import { requireAuth } from '@/app/lib/auth'
 import { labelForMember } from '@/app/lib/member-labels-server'
@@ -54,7 +55,7 @@ interface ProfilePageProps {
 }
 
 export default async function ProfilePage({ searchParams }: ProfilePageProps) {
-  const desktopMode = process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop'
+  const desktopMode = getRuntimeProfile() === 'desktop'
   const resolvedSearchParams = searchParams ? await searchParams : undefined
   const supabase = await db()
   const { user, profile } = await requireAuth(supabase)
