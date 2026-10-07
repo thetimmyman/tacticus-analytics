@@ -13,6 +13,7 @@
   "scripts": {
     "app:identity:check": "node scripts/dev/verify-app-identity.mjs",
     "app:identity:test": "node --test scripts/dev/verify-app-identity.test.mjs",
+    "desktop:build": "node apps/desktop/proof/build-application.mjs",
     "desktop:proof": "node apps/desktop/proof/run-all.mjs",
     "prepare": "husky",
     "predev": "npm run app:identity:check",
