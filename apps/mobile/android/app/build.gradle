@@ -1,0 +1,37 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.tacticusanalytics.mobile'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'com.tacticusanalytics.mobile'
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName '0.1.0-preview'
+        testInstrumentationRunner 'com.tacticusanalytics.mobile.AndroidProof'
+    }
+    buildFeatures { buildConfig true }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    def releaseStore = System.getenv('ANDROID_RELEASE_KEYSTORE')
+    if (releaseStore) {
+        ['ANDROID_RELEASE_STORE_PASSWORD','ANDROID_RELEASE_KEY_ALIAS','ANDROID_RELEASE_KEY_PASSWORD'].each { name ->
+            if (!System.getenv(name)) throw new GradleException('Complete protected signing inputs are required')
+        }
+        signingConfigs {
+            protectedRelease {
+                storeFile file(releaseStore)
+                storePassword System.getenv('ANDROID_RELEASE_STORE_PASSWORD')
+                keyAlias System.getenv('ANDROID_RELEASE_KEY_ALIAS')
+                keyPassword System.getenv('ANDROID_RELEASE_KEY_PASSWORD')
+            }
+        }
+    }
+    buildTypes {
+        debug { applicationIdSuffix '.preview' }
+        release { minifyEnabled false; debuggable false; if (releaseStore) signingConfig signingConfigs.protectedRelease }
+    }
+}

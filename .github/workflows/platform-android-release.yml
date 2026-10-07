@@ -1,0 +1,59 @@
+name: Protected native Android candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      sign_release:
+        description: Build using an existing protected owner signing identity; no publication
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: protected-native-android-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  protected-release-build:
+    if: github.event_name == 'workflow_dispatch' && inputs.sign_release && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: android-release-signing
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Prepare release SDK
+        run: apps/mobile/android/scripts/prepare-sdk.sh 35
+      - name: Build with existing owner signing inputs
+        env:
+          SIGNING_KEY_BASE64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_BASE64 }}
+          ANDROID_RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_STORE_PASSWORD }}
+          ANDROID_RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_RELEASE_KEY_ALIAS }}
+          ANDROID_RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          umask 077
+          key_file=$(mktemp)
+          trap 'rm -f "$key_file"' EXIT
+          test -n "$SIGNING_KEY_BASE64"
+          printf '%s' "$SIGNING_KEY_BASE64" | base64 --decode > "$key_file"
+          export ANDROID_RELEASE_KEYSTORE="$key_file"
+          apps/mobile/android/scripts/build.sh :app:assembleRelease :app:bundleRelease :app:lintRelease
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose apps/mobile/android/app/build/outputs/apk/release/app-release.apk
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: unqualified-owner-signed-android-candidate
+          retention-days: 7
+          if-no-files-found: error
+          path: |
+            apps/mobile/android/app/build/outputs/apk/release/*.apk
+            apps/mobile/android/app/build/outputs/bundle/release/*.aab
