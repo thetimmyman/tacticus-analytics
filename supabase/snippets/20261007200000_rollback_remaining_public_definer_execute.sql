@@ -2,6 +2,7 @@
 -- This reopens direct-login execution. Capture and compare pre/post ACLs;
 -- explicit API grants are untouched. The ledger includes operator-supplied
 -- legacy targets without publishing their identifiers in repository source.
+-- The nullable ledger compatibility column is retained for other migrations.
 -- target-db: general
 BEGIN;
 SET LOCAL lock_timeout = '5s';

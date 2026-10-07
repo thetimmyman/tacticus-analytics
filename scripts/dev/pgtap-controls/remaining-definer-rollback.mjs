@@ -84,85 +84,104 @@ try {
   }
   assert.ok(ready, 'disposable PostgreSQL must become ready')
   sql(`CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role; CREATE ROLE direct_probe LOGIN;
-    CREATE SCHEMA supabase_migrations;
-    CREATE TABLE supabase_migrations.schema_migrations(version text PRIMARY KEY, name text, statements text[]);`)
+    CREATE SCHEMA supabase_migrations;`)
 
-  for (const [name, hardened] of [
-    ['all PUBLIC', []],
-    ['one already hardened', ['public.get_auth_uid()']],
-    ['all already hardened', signatures]
-  ]) {
-    sql(`DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT USAGE ON SCHEMA public TO PUBLIC;
-      TRUNCATE supabase_migrations.schema_migrations;
+  for (const ledgerShape of ['standard', 'legacy']) {
+    for (const [name, hardened] of [
+      ['all PUBLIC', []],
+      ['one already hardened', ['public.get_auth_uid()']],
+      ['all already hardened', signatures]
+    ]) {
+      sql(`DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT USAGE ON SCHEMA public TO PUBLIC;
+      DROP TABLE IF EXISTS supabase_migrations.schema_migrations;
+      CREATE TABLE supabase_migrations.schema_migrations(version text PRIMARY KEY, name text NOT NULL, applied_at timestamptz NOT NULL DEFAULT now()${ledgerShape === 'standard' ? ', statements text[]' : ''});
+      INSERT INTO supabase_migrations.schema_migrations(version,name) VALUES ('20261001000000','synthetic_prior');
+      ${ledgerShape === 'standard' ? "UPDATE supabase_migrations.schema_migrations SET statements=ARRAY['SELECT 1'];" : ''}
       ${signatures.map((signature) => `CREATE FUNCTION ${signature} RETURNS integer LANGUAGE sql SECURITY DEFINER AS 'SELECT 1'; GRANT EXECUTE ON FUNCTION ${signature} TO anon,authenticated,service_role;`).join('\n')}
       ${hardened.map((signature) => `REVOKE EXECUTE ON FUNCTION ${signature} FROM PUBLIC;`).join('\n')}`)
-    const before = snapshot()
-    sql(migration)
-    const ledger = JSON.parse(
-      sql(
-        "SELECT to_json(statements) FROM supabase_migrations.schema_migrations WHERE version='20261007200000';"
-      )
-    )
-    assert.equal(
-      ledger.length,
-      signatures.length - hardened.length,
-      `${name}: record only previously held PUBLIC grants`
-    )
-    for (const signature of hardened) {
-      assert.ok(
-        !ledger.includes(
-          `REVOKE EXECUTE ON FUNCTION ${signature.replace(/^public\./, '')} FROM PUBLIC`
-        ),
-        `${name}: omit previously hardened function`
-      )
-    }
-    assert.equal(
-      sql(
-        `SELECT count(*) FROM unnest(${targets}) s WHERE has_function_privilege('direct_probe',to_regprocedure(s),'EXECUTE');`
-      ),
-      '0'
-    )
-    assert.equal(
-      sql(
-        `SELECT bool_and(has_function_privilege(r,to_regprocedure(s),'EXECUTE')) FROM unnest(${targets}) s CROSS JOIN unnest(ARRAY['anon','authenticated','service_role']) r;`
-      ),
-      't'
-    )
-    const after = snapshot()
-    sql(migration)
-    assert.deepEqual(
-      snapshot(),
-      after,
-      `${name}: repeat preserves ACLs and bodies`
-    )
-    assert.deepEqual(
-      JSON.parse(
+      const before = snapshot()
+      const priorRowQuery = `SELECT ${ledgerShape === 'standard' ? 'to_jsonb(m)' : "to_jsonb(m)-'statements'"} FROM supabase_migrations.schema_migrations m WHERE version='20261001000000';`
+      const priorLedgerRow = JSON.parse(sql(priorRowQuery))
+      sql(migration)
+      const ledger = JSON.parse(
         sql(
           "SELECT to_json(statements) FROM supabase_migrations.schema_migrations WHERE version='20261007200000';"
         )
-      ),
-      ledger,
-      `${name}: repeat preserves rollback ledger`
-    )
-    sql(rollback)
-    assert.deepEqual(
-      snapshot(),
-      before,
-      `${name}: rollback exactly restores prior ACLs and bodies`
-    )
-    assert.equal(
-      sql(
-        "SELECT count(*) FROM supabase_migrations.schema_migrations WHERE version='20261007200000';"
-      ),
-      '0'
-    )
-    console.log(
-      JSON.stringify({
-        case: name,
-        result: 'PASS',
-        restoredPublicGrants: ledger.length
-      })
-    )
+      )
+      assert.equal(
+        ledger.length,
+        signatures.length - hardened.length,
+        `${name}: record only previously held PUBLIC grants`
+      )
+      for (const signature of hardened) {
+        assert.ok(
+          !ledger.includes(
+            `REVOKE EXECUTE ON FUNCTION ${signature.replace(/^public\./, '')} FROM PUBLIC`
+          ),
+          `${name}: omit previously hardened function`
+        )
+      }
+      assert.equal(
+        sql(
+          `SELECT count(*) FROM unnest(${targets}) s WHERE has_function_privilege('direct_probe',to_regprocedure(s),'EXECUTE');`
+        ),
+        '0'
+      )
+      assert.equal(
+        sql(
+          `SELECT bool_and(has_function_privilege(r,to_regprocedure(s),'EXECUTE')) FROM unnest(${targets}) s CROSS JOIN unnest(ARRAY['anon','authenticated','service_role']) r;`
+        ),
+        't'
+      )
+      const after = snapshot()
+      sql(migration)
+      assert.deepEqual(
+        snapshot(),
+        after,
+        `${name}: repeat preserves ACLs and bodies`
+      )
+      assert.deepEqual(
+        JSON.parse(
+          sql(
+            "SELECT to_json(statements) FROM supabase_migrations.schema_migrations WHERE version='20261007200000';"
+          )
+        ),
+        ledger,
+        `${name}: repeat preserves rollback ledger`
+      )
+      sql(rollback)
+      assert.deepEqual(
+        snapshot(),
+        before,
+        `${name}: rollback exactly restores prior ACLs and bodies`
+      )
+      assert.equal(
+        sql(
+          "SELECT count(*) FROM supabase_migrations.schema_migrations WHERE version='20261007200000';"
+        ),
+        '0'
+      )
+      assert.deepEqual(
+        JSON.parse(sql(priorRowQuery)),
+        priorLedgerRow,
+        'prior ledger row is unchanged'
+      )
+      assert.equal(
+        sql(
+          "SELECT format_type(atttypid,atttypmod) FROM pg_attribute WHERE attrelid='supabase_migrations.schema_migrations'::regclass AND attname='statements' AND NOT attisdropped;"
+        ),
+        'text[]',
+        'nullable compatibility column remains available'
+      )
+      console.log(
+        JSON.stringify({
+          case: name,
+          ledgerShape,
+          result: 'PASS',
+          restoredPublicGrants: ledger.length
+        })
+      )
+    }
   }
 } finally {
   spawnSync('docker', ['rm', '-f', container], {
