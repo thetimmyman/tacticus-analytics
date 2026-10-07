@@ -135,6 +135,23 @@
           "expected": "absent"
         }
       ]
+    },
+    {
+      "capability": "discord-notifications-edge-function",
+      "product": "tacticus-analytics",
+      "ruling": "The discord-notifications edge function retired. It duplicated the Next.js interactions route app/api/discord/interactions, which is the application's only interactions endpoint, so the edge copy could never receive a request.",
+      "rulingDate": "2026-10-07",
+      "rulingSource": "operator ruling; the edge function was removed from this repository",
+      "signatures": [
+        {
+          "type": "cluster-edge-function",
+          "target": "tacticus",
+          "description": "the retired discord-notifications edge function redeployed into this product's supabase-edge-functions pod by a shared image",
+          "deployment": "supabase-edge-functions",
+          "functionNames": ["discord-notifications"],
+          "expected": "absent"
+        }
+      ]
     }
   ],
   "openQuestions": [

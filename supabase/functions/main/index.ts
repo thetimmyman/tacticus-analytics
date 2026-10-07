@@ -24,7 +24,6 @@ const envVars = Object.keys(envVarsObj).map((k) => [k, envVarsObj[k]])
 const VALID_FUNCTIONS = new Set([
   'sync-modular-workflow',
   'discord-bot-oauth',
-  'discord-notifications',
   'boss-assignment-solver',
   'check-capped-players',
   'calculate-votlw',
