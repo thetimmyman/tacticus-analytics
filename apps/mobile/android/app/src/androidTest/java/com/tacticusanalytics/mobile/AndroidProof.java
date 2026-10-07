@@ -23,6 +23,7 @@ public final class AndroidProof extends Instrumentation {
   private String phase;
   private int checks;
   private boolean pinPresentationAttempted;
+  private int pinPresentationAttempts;
   private boolean pinSubmitted;
   private boolean systemUiObserved;
   private boolean pinContainerObserved;
@@ -30,6 +31,7 @@ public final class AndroidProof extends Instrumentation {
   private String pinPresentationBounds = "none";
   private String pinContext() {
     return "; pinPresentationAttempted=" + pinPresentationAttempted
+        + " pinPresentationAttempts=" + pinPresentationAttempts
         + " pinSubmitted=" + pinSubmitted + " systemUiObserved=" + systemUiObserved
         + " pinContainerObserved=" + pinContainerObserved
         + " keyguardStatusObserved=" + keyguardStatusObserved
@@ -487,10 +489,10 @@ public final class AndroidProof extends Instrumentation {
     float end = bounds.top + bounds.height() * 0.2f;
     long downTime = SystemClock.uptimeMillis();
     injectSwipeEvent(downTime, android.view.MotionEvent.ACTION_DOWN, x, start);
-    for (int step = 1; step <= 10; step++) {
-      SystemClock.sleep(10);
+    for (int step = 1; step <= 20; step++) {
+      SystemClock.sleep(15);
       injectSwipeEvent(downTime, android.view.MotionEvent.ACTION_MOVE, x,
-          start + (end - start) * step / 10);
+          start + (end - start) * step / 20);
     }
     injectSwipeEvent(downTime, android.view.MotionEvent.ACTION_UP, x, end);
   }
@@ -508,6 +510,7 @@ public final class AndroidProof extends Instrumentation {
     getUiAutomation().setServiceInfo(service);
     long deadline = SystemClock.elapsedRealtime() + 20000;
     android.graphics.Rect previousLockBounds = null;
+    long nextPresentation = 0;
     String[] keys = {"key2", "key4", "key6", "key8", "key_enter"};
     while (SystemClock.elapsedRealtime() < deadline) {
       if (!manager.isDeviceLocked()) {
@@ -522,13 +525,18 @@ public final class AndroidProof extends Instrumentation {
       pinContainerObserved |= pinContainer;
       boolean keyguardStatus = systemPinControl(root, "keyguard_status_view") != null;
       keyguardStatusObserved |= keyguardStatus;
-      if (!pinSubmitted && !pinPresentationAttempted && keyguardStatus && !pinContainer) {
+      // A swipe that lands during a keyguard transition is dropped, so retry a bounded number of
+      // times until the PIN pad is observed.
+      if (!pinSubmitted && pinPresentationAttempts < 5 && keyguardStatus && !pinContainer
+          && SystemClock.elapsedRealtime() >= nextPresentation) {
         android.graphics.Rect bounds = new android.graphics.Rect();
         root.getBoundsInScreen(bounds);
         if (bounds.equals(previousLockBounds)) {
           pinPresentationAttempted = true;
+          pinPresentationAttempts++;
           pinPresentationBounds = bounds.toShortString();
           presentPin(root);
+          nextPresentation = SystemClock.elapsedRealtime() + 2500;
         }
         previousLockBounds = bounds;
       } else {
