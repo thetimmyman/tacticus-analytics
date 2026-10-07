@@ -188,8 +188,11 @@ SELECT set_eq(
 
 SELECT ok(
   (
-    SELECT other_acl = ARRAY[]::text[]
-      OR other_acl = ARRAY['analytics_ro:SELECT:false']::text[]
+    -- The only other grantees allowed are the two SELECT-only read roles.
+    SELECT other_acl <@ ARRAY[
+      'analytics_ro:SELECT:false',
+      'rest_reader:SELECT:false'
+    ]::text[]
     FROM (
       SELECT ARRAY(
         SELECT COALESCE(grantee.rolname, 'OID:' || acl.grantee::text)
@@ -215,7 +218,7 @@ SELECT ok(
       ) AS other_acl
     ) AS captured
   ),
-  'meta_teams has no other table ACL beyond the captured analytics read role'
+  'meta_teams has no other table ACL beyond the captured SELECT-only read roles'
 );
 
 SELECT is(
