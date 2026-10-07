@@ -15,6 +15,11 @@ BEGIN
 END;
 $guard$;
 
+-- Older ledgers contain only version/name/timestamp. Keep their rows intact
+-- while adding the nullable standard column needed for exact grant rollback.
+ALTER TABLE supabase_migrations.schema_migrations
+  ADD COLUMN IF NOT EXISTS statements text[];
+
 CREATE TEMP TABLE remaining_public_definers(
   signature text, required boolean, had_public_execute boolean NOT NULL DEFAULT false
 ) ON COMMIT DROP;
