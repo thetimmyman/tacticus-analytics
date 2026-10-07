@@ -175,7 +175,10 @@ function rejectHistoricalCredentials(value, path = []) {
                 'max',
                 'nextTokenInSeconds',
                 'regenDelayInSeconds'
-              ].includes(name) && Number.isSafeInteger(number)
+              ].includes(name) &&
+              Number.isSafeInteger(number) &&
+              number >= 0 &&
+              !Object.is(number, -0)
           )))
     if (
       !gameResource &&
@@ -459,12 +462,14 @@ export class WorkspaceOnboardingV1 {
       throw new Error('Player access is required for a new personal workspace')
     return this.view()
   }
-  migrateHistorical(profile) {
+  migrateHistorical(input) {
+    // Validate the copy that is stored, so accessors cannot change it after.
+    const profile = structuredClone(input)
     rejectHistoricalCredentials(profile)
     if (this.state.read().personal)
       throw new Error('Workspace already initialized')
     this.state.write({
-      ...structuredClone(profile),
+      ...profile,
       version: 1,
       status: 'historical-offline',
       capabilities: { Player: 'reconnect-required' }

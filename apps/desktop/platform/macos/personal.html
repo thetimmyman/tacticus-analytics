@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Personal workspace</title>
+  </head>
+  <body>
+    <main>
+      <h1 id="name">Personal workspace</h1>
+      <p id="status" role="status" aria-live="polite">Reading local data…</p>
+      <p id="freshness"></p>
+      <h2>Access</h2>
+      <ul id="capabilities"></ul>
+      <p>
+        Use the native Official access menu to add or replace access. Guild
+        features remain on hold until their verified access is available. Cloud
+        contribution requires separate consent and remains off.
+      </p>
+      <nav aria-label="Cached Player features">
+        <a href="#roster-section">Roster</a>
+        <a href="#resource-section">Resources</a>
+        <a href="#progress-section">Progress</a>
+        <a href="#snapshot-section">Complete snapshot</a>
+      </nav>
+      <section id="roster-section" aria-labelledby="roster-heading">
+        <h2 id="roster-heading">Cached roster</h2>
+        <div id="roster-feature"></div>
+      </section>
+      <section id="resource-section" aria-labelledby="resource-heading">
+        <h2 id="resource-heading">Cached resources</h2>
+        <div id="resource-feature"></div>
+      </section>
+      <section id="progress-section" aria-labelledby="progress-heading">
+        <h2 id="progress-heading">Cached progress</h2>
+        <div id="progress-feature"></div>
+      </section>
+      <section id="snapshot-section" aria-labelledby="snapshot-heading">
+        <h2 id="snapshot-heading">Complete official Player snapshot</h2>
+        <div id="snapshot"></div>
+      </section>
+      <p id="limitation"></p>
+    </main>
+    <script type="module" src="/desktop/personal.js"></script>
+  </body>
+</html>

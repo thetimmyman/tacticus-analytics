@@ -16,8 +16,118 @@ const CHECKS_PERFORMED = [
   'version uniqueness and ordering',
   'non-empty contents',
   'no nested migration directories',
-  `version suffix (":00" seconds) for versions newer than ${VERSION_SUFFIX_CUTOFF}`
+  `version suffix (":00" seconds) for versions newer than ${VERSION_SUFFIX_CUTOFF}`,
+  'a stated stats-window header on migrations citing zero statistics counters'
 ]
+
+// idx_scan, n_tup_ins and n_live_tup are cumulative, per node, and restart at
+// the last stats reset or server start, so a zero cited in a comment needs one
+//   -- stats-window: start=<ISO-8601> age=<duration> nodes=<N> minimum=<N>d
+// header. Live predicates in SQL are not evidence. These counters never decide
+// that a table is empty: a DROP TABLE they justify must also cite count(*).
+export const STATS_WINDOW_MIN_DAYS = 14
+const STATS_WINDOW_HEADER_LINES = 40
+const ZERO_COUNTER =
+  /\b(idx_scan|n_tup_ins|n_live_tup)\b\s*(?:<=?|=|:|\||\bwas\b|\bis\b|\bof\b)?\s*0(?![\d.])/gi
+const NEVER_SCANNED = /never[ -]scanned/i
+const ROW_COUNTERS = new Set(['n_tup_ins', 'n_live_tup'])
+const STATS_WINDOW_LINE = /^\s*--\s*stats-window:/
+const STATS_WINDOW_FORM =
+  /^\s*--\s*stats-window:\s*start=(\S+)\s+age=(\S+)\s+nodes=(\S+)\s+minimum=(\S+)\s*$/
+const ISO_WITH_ZONE =
+  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:Z|[+-](\d{2})(?::?(\d{2}))?)$/
+const DURATION_UNIT_SECONDS = { d: 86400, h: 3600, m: 60, s: 1 }
+
+// "21d", "20d4h", "1209600s" -> seconds; null when not understood, never 0.
+function durationSeconds(raw) {
+  if (!/^(\d+[dhms])+$/.test(raw)) return null
+  let total = 0
+  for (const [, n, unit] of raw.matchAll(/(\d+)([dhms])/g))
+    total += Number(n) * DURATION_UNIT_SECONDS[unit]
+  return total
+}
+
+// The comment text of a migration (line and block comments), and the SQL
+// with those comments removed. Quoted strings are not parsed; a "--" inside
+// a literal only widens what is read as evidence.
+function splitComments(contents) {
+  const comments = []
+  const code = contents
+    .replace(/\/\*[\s\S]*?\*\//g, (block) => {
+      comments.push(block)
+      return ' '
+    })
+    .replace(/--[^\n]*/g, (line) => {
+      comments.push(line)
+      return ''
+    })
+  return { comments: comments.join('\n'), code }
+}
+
+// A real calendar instant with a real zone offset, not just the shape of one.
+function isIsoInstant(value) {
+  const m = value.match(ISO_WITH_ZONE)
+  if (!m) return false
+  const [, y, mo, d, h, mi, sec, oh = '0', om = '0'] = m
+  const day = new Date(Date.UTC(Number(y), Number(mo) - 1, Number(d)))
+  return (
+    day.getUTCFullYear() === Number(y) &&
+    day.getUTCMonth() === Number(mo) - 1 &&
+    day.getUTCDate() === Number(d) &&
+    Number(h) <= 23 &&
+    Number(mi) <= 59 &&
+    Number(sec) <= 59 &&
+    Number(om) <= 59 &&
+    Number(oh) * 60 + Number(om) <= 14 * 60
+  )
+}
+
+// Returns the reason a migration's stats-window evidence is unacceptable, or
+// null when it cites no counter or states an adequate window.
+function statsWindowViolation(contents) {
+  const { comments, code } = splitComments(contents)
+  const cited = [...comments.matchAll(ZERO_COUNTER)].map((m) =>
+    m[1].toLowerCase()
+  )
+  if (cited.length === 0 && !NEVER_SCANNED.test(comments)) return null
+
+  const lines = contents.split('\n')
+  const declared = lines
+    .map((text, index) => ({ text, line: index + 1 }))
+    .filter(({ text }) => STATS_WINDOW_LINE.test(text))
+  if (declared.length === 0)
+    return "cites a zero statistics counter as evidence but has no '-- stats-window:' header"
+  if (declared.length > 1)
+    return `${declared.length} 'stats-window:' lines; exactly one is required`
+  const [{ text, line }] = declared
+  if (line > STATS_WINDOW_HEADER_LINES)
+    return `'stats-window:' is at line ${line}; it must be in the first ${STATS_WINDOW_HEADER_LINES} lines`
+
+  const form = text.match(STATS_WINDOW_FORM)
+  if (!form)
+    return "expected exactly '-- stats-window: start=<ISO-8601> age=<duration> nodes=<N> minimum=<N>d'"
+  const [, start, age, nodes, minimum] = form
+  if (!isIsoInstant(start))
+    return `start='${start}' is not an ISO-8601 timestamp with a zone`
+  const ageSeconds = durationSeconds(age)
+  if (ageSeconds === null) return `age='${age}' is not a duration (21d, 20d4h)`
+  const minimumSeconds = durationSeconds(minimum)
+  if (minimumSeconds === null)
+    return `minimum='${minimum}' is not a duration (${STATS_WINDOW_MIN_DAYS}d)`
+  if (!/^\d+$/.test(nodes) || Number(nodes) < 1)
+    return `nodes='${nodes}' must be the number of nodes actually read (>= 1)`
+  if (minimumSeconds < STATS_WINDOW_MIN_DAYS * 86400)
+    return `minimum=${minimum} is below the ${STATS_WINDOW_MIN_DAYS}d floor`
+  if (ageSeconds < minimumSeconds)
+    return `age=${age} is shorter than the stated minimum=${minimum}`
+  if (
+    cited.some((counter) => ROW_COUNTERS.has(counter)) &&
+    /\bdrop\s+table\b/i.test(code) &&
+    !/count\s*\(\s*\*\s*\)/i.test(comments)
+  )
+    return 'drops a table on n_live_tup / n_tup_ins evidence; whether a table is empty must come from count(*), cited in a comment'
+  return null
+}
 
 // Lints source files only; never connects to a database.
 export function checkMigrations({ directory } = {}) {
@@ -56,12 +166,13 @@ export function checkMigrations({ directory } = {}) {
       )
     }
 
-    if (
-      readFileSync(path.join(resolvedDirectory, file), 'utf8').trim().length ===
-      0
-    ) {
+    const contents = readFileSync(path.join(resolvedDirectory, file), 'utf8')
+    if (contents.trim().length === 0) {
       errors.push(`${file}: migration is empty`)
     }
+
+    const statsWindow = statsWindowViolation(contents)
+    if (statsWindow) errors.push(`${file}: ${statsWindow}`)
   }
 
   for (const [version, matches] of versions) {

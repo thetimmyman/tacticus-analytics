@@ -1,0 +1,2041 @@
+{
+  "schemaVersion": "android-feature-matrix/v1",
+  "inventoryStatus": "provisional",
+  "rows": [
+    {
+      "source": "app/(auth)/auth/callback/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(auth)/auth/confirm-email/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(auth)/auth/error/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(auth)/auth/forgot-password/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(auth)/auth/login/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(auth)/auth/og/route.tsx",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(auth)/auth/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(auth)/auth/reset-password/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(auth)/auth/reset-session/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(auth)/auth/signup/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(auth)/auth/suspended/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(auth)/auth/verify-email/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(auth)/profile/claim/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(auth)/profile/setup/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/achievements/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/admin/deployments/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/admin/feature-releases/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/admin/raid-config/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/api-keys/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/boss-assignments/current/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/boss-assignments/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/boss-assignments/performance/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/boss-assignments/season-planner/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/boss-assignments/season/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/boss-assignments/targets/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/boss-assignments/upcoming/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/boss-playbooks/[bossId]/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/boss-playbooks/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/boss/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/clusters/create/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/dashboard/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/error-codes/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/error-monitoring/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/guild-management/members/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/guild-management/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/guild-management/settings/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/guild-management/theme/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/guild-management/war/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/guild-ops/cluster-analytics/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/guild-ops/cluster-management/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/guild-ops/herald/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/guild-ops/player-lookup/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/guild-settings/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/guild-teams/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/guild-trends/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/leaderboards/boss/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/leaderboards/meta-analysis/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/leaderboards/overall/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/leaderboards/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/meta-atlas/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/player-performance/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/player-stats/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/player-stats/search/[searchName]/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/profile/[id]/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/profile/change-password/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/profile/edit/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/profile/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/replays/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/roster-development/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/roster/[playerId]/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/roster/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/token-usage/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/votlw/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/war-explorer/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/war-room/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/[warId]/board/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/[warId]/failed/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/[warId]/guild/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/[warId]/maps/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/[warId]/opponent/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/[warId]/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/[warId]/perfect/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/[warId]/recent/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/[warId]/zones/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/analyze/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/analyze/team/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/config/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/cores/defense/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/cores/offense/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/cores/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/lineups/attackers/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/lineups/defenders/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/lineups/defense/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/lineups/offense/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/lineups/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/maps/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/metrics/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/performance/attackers/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/performance/defenders/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(dashboard)/wars/performance/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(home)/home/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/acknowledgements/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/community/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/community/roadmap/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/creators/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/do-not-sell/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/explore/og/route.tsx",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/explore/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/faq/og/route.tsx",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/faq/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/onboarding/claim/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/onboarding/cluster/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/onboarding/dashboard/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/onboarding/guild/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/onboarding/join-existing/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/onboarding/og/route.tsx",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/onboarding/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/privacy-rights/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/privacy/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/status/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/support-creator/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/terms/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/(public)/unauthorized/page.tsx",
+      "kind": "UI",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/account/delete/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/activity-analytics/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/alpha-testers/remove/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/alpha-testers/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/app-admins/remove/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/app-admins/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/auto-invalidate-api-keys/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/beta-testers/remove/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/beta-testers/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/carousel/[id]/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/carousel/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/deployments/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "sha256:a5a086befaee39a1412f8d72b41459e1f1b774be0b23a6398a6dccfc2615def3",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native token-comparison diagnostic and installed parity evidence pending; no approved exclusion. Source content is referenced by digest to avoid repeating a legacy internal slug."
+    },
+    {
+      "source": "app/api/admin/features/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/features/update-stage/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/gdpr/exports/[id]/redrive/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/global-thresholds/[id]/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/global-thresholds/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/guild-cleanup/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/invite-codes/guild-members/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/invite-codes/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/platform-summary/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/player-api-key/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/progression-config/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/support-draft/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/users/bans/lift/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/users/bans/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/users/bulk/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/users/guilds/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/admin/users/search/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/assignments/current-season-bosses/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/assignments/next-season-bosses/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/auth/login/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/auth/signout/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/auth/sync-discord/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/boss-assignments/target-tokens/rotation-stats/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/boss-assignments/target-tokens/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/boss-assignments/target-tokens/schedule/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/boss-assignments/target-tokens/seed/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/boss/identifiers/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/boss/token-performance/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/briefing/seen/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/cluster/discord-links/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/cluster/guilds/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/cluster/info/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/clusters/create-cluster/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/clusters/create/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/clusters/join/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/cron/gdpr-cleanup/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/cron/refresh-global-config/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/cron/terminus-replay-ingest/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/cron/token-audit/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/cron/token-reminders/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/discord-webhooks/boss-assignments/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/discord-webhooks/cap-notification/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/discord-webhooks/event-notification/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/discord-webhooks/leaderboard/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/discord-webhooks/new-member/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/discord-webhooks/post-availability/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/discord-webhooks/version-update/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/discord/bot-invite/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/discord/charts/boss/route.tsx",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/discord/charts/player-performance/route.tsx",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/discord/charts/player-radar/route.tsx",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/discord/charts/player-time/route.tsx",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/discord/charts/player/route.tsx",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/discord/charts/raid/route.tsx",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/discord/interactions/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/discord/leaderboard-refresh/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/discord/verified-members/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/explore/refresh-cache/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/features/access-levels/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/features/stages/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/gdpr/my-data/[requestId]/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/gdpr/my-data/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild-raid/season-plan/generate/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild-raid/season-plan/roster-strategy/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild-raid/season-plan/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild-raid/season-plan/save/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild-raid/season-plan/snapshot/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild-raid/unified-assignments/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild-roles/config/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild-roles/reconcile/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild-teams/backfill/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild-teams/tokens/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild-tokens/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild-tokens/sync/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild-trends/target-scores-batch/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild-war/export/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild-war/import/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild-war/war-room/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild/check-availability/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild/check-status/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild/claim/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild/create-config/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild/initial-sync/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild/invite-code/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild/replace-api-key/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild/test-api-key/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild/trigger-sync/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild/update-api-key/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/guild/validate-api-key/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/health/detailed/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/health/external-apis/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/health/infrastructure/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/health/live/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/health/process/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/health/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/health/status/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/health/sync-status/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/health/telemetry/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/herald/available-meta-teams/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/herald/boss-config/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/herald/config-versions/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/herald/preview-message/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/herald/role-mappings/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/herald/role-mappings/seed-from-meta-atlas/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/herald/test-fire/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/herald/trigger-notification/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/members/boss-performance/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/members/request-api-key/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/members/roster/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/members/token-usage/battles/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/members/token-usage/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta-analysis/batch/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta-analysis/boss-names/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta-analysis/recommendations/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta-analysis/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta-teams/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta/benchmarks/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta/boss-recommendations-batch/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta/boss-recommendations/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta/filters/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta/hero-impact/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta/optimize/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta/performance-gaps/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta/player-current-teams/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta/player-history/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta/player-recommendations/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta/roster-roi/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta/strength-overrides/batch/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta/strength-overrides/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta/team-floor/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta/team-heroes/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/meta/trends/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/metrics/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/ml/inference-inputs/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/ml/training-features/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/officer/briefing/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/officer/coaching-tasks/[id]/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/officer/coaching-tasks/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/officer/member-detail/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/onboarding/claim/consume/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/onboarding/cluster/add-guild/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/onboarding/cluster/requeue-guild/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/onboarding/complete-via-invite/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/onboarding/data-sync/start/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/onboarding/guild/start/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/onboarding/jobs/process/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/onboarding/leader/claim-seat/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/onboarding/profile/claim/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/onboarding/progress/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/onboarding/start/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/onboarding/validate-player-key/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/performance/five-season-averages/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/playbooks/[bossId]/maps/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/playbooks/[bossId]/requirements/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/playbooks/[bossId]/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/playbooks/[bossId]/teams/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/playbooks/seasonal-hub/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/player-api-key/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/player-api-key/sync/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/player-meta-roles/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/player-stats/historical-performance/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/player/achievements/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/player/lifetime-stats/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/player/mentions-received/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/player/roster/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/player/test-api-key/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/profile/change-player-id/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/public/live-stats/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/roster-development/analysis/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/roster-development/member-gaps/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/roster-development/scoring-config/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/season-config/kill-threshold/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/season-config/notes-mode/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/season-config/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/season-config/skip-prime/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/season-forecast/outlook/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/season/latest/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/season/timing/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/sync/freshness/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/sync/worker/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/tokens/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/upcoming/enhanced-data/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/upcoming/historical-performance/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/upcoming/token-performance/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/user/activity/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/user/token-alerts/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/validate-api-key/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/validate-discord-webhook/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/version/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/war/zone-config/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/wars/[warId]/board/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/wars/[warId]/maps/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/wars/[warId]/players/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/wars/[warId]/recent/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/wars/[warId]/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/wars/[warId]/stats/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/wars/[warId]/zones/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/wars/analytics/cores/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/wars/analytics/lineups/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/wars/analytics/maps/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/wars/analytics/performance/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/wars/analytics/player-ranking/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/wars/analytics/team/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/webhooks/post-assignments/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/webhooks/save/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/webhooks/test/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/worker/batch/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/api/worker/hooks/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/monitoring/route.ts",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/og-home/route.tsx",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    },
+    {
+      "source": "app/og/route.tsx",
+      "kind": "API",
+      "status": "blocked",
+      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
+    }
+  ],
+  "approvedExclusions": []
+}
