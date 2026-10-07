@@ -253,3 +253,79 @@ test('Electron bootstrap uses a distinct fixed-endpoint partition and installs o
   assert.equal(decoded.user.id, subject)
   assert.equal(decoded.brokerToken, undefined)
 })
+
+for (const scenario of [
+  {
+    name: 'a retained owner that differs from the local Auth account',
+    owner: subject,
+    stored: '00000000-0000-4000-8000-000000000002',
+    occupied: true
+  },
+  {
+    name: 'retained data without any owner binding',
+    owner: null,
+    stored: null,
+    occupied: true
+  }
+])
+  test(`bootstrap refuses ${scenario.name} before any Auth credential write`, async () => {
+    const root = await mkdtemp(join(tmpdir(), 'Windows device refusal ü '))
+    const ownerFile = join(root, 'workspace-owner.json')
+    if (scenario.owner)
+      await writeFile(
+        ownerFile,
+        JSON.stringify({ subject: scenario.owner, kind: 'personal-holding' })
+      )
+    let authCalls = 0
+    const auth = createServer((_req, res) => {
+      authCalls++
+      res.statusCode = 500
+      res.end()
+    })
+    await new Promise((accept) => auth.listen(0, '127.0.0.1', accept))
+    const handler = windowsSetup(
+      {
+        state: root,
+        ports: { auth: auth.address().port },
+        token: { service: 'synthetic-service' },
+        validOwnerSession: () => false,
+        psql: async (sql) =>
+          sql.includes('json_build_object')
+            ? JSON.stringify({
+                subject: scenario.stored,
+                occupied: scenario.occupied,
+                demo: false
+              })
+            : ''
+      },
+      root,
+      root,
+      { brokerToken: capability }
+    )
+    const server = createServer(
+      (req, res) => void handler(req, res, new URL(req.url, 'http://127.0.0.1'))
+    )
+    await new Promise((accept) => server.listen(0, '127.0.0.1', accept))
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:${server.address().port}/desktop/open`,
+        { method: 'POST', headers: { 'x-desktop-broker': capability } }
+      )
+      assert.equal(response.status, 503)
+      assert.equal(
+        JSON.stringify(await response.json()).includes('Owner'),
+        false
+      )
+      assert.equal(authCalls, 0)
+      if (scenario.owner)
+        assert.deepEqual(JSON.parse(await readFile(ownerFile, 'utf8')), {
+          subject: scenario.owner,
+          kind: 'personal-holding'
+        })
+      else await assert.rejects(readFile(ownerFile), { code: 'ENOENT' })
+    } finally {
+      await new Promise((accept) => server.close(accept))
+      await new Promise((accept) => auth.close(accept))
+      await rm(root, { recursive: true, force: true })
+    }
+  })
