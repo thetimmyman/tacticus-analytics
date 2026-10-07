@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { createServer } from 'node:net'
 import { setTimeout as delay } from 'node:timers/promises'
 import { nativeServices } from './services.mjs'
+import { accessStatus } from './access-status.mjs'
 import { loopbackGateway } from '../../proof/loopback-gateway.mjs'
 import { DeviceOfficialSourceV1 } from '../../../../packages/workspace-onboarding/v1.mjs'
 import { privateState } from './state.mjs'
@@ -233,7 +234,12 @@ try {
           )
           return true
         }
-        if (url.pathname === '/api/desktop/personal' && req.method === 'GET') {
+        const accessRoutes = {
+          '/api/desktop/personal': () => controller.view(),
+          '/desktop/onboarding-status': () =>
+            accessStatus(controller.view(), { synthetic: Boolean(verify) })
+        }
+        if (Object.hasOwn(accessRoutes, url.pathname) && req.method === 'GET') {
           try {
             const cookies = String(req.headers.cookie ?? '')
               .split(';')
@@ -257,7 +263,7 @@ try {
             'content-type': 'application/json',
             'cache-control': 'no-store'
           })
-          res.end(JSON.stringify(controller.view()))
+          res.end(JSON.stringify(accessRoutes[url.pathname]()))
           return true
         }
         // Existing renderer key-writing surfaces remain disabled until their native
