@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 final class WorkspaceStore extends SQLiteOpenHelper {
+  static final class CleanupIncomplete extends Exception {}
   static final int VERSION = 1;
   private final Context applicationContext;
   WorkspaceStore(Context context) {
@@ -73,6 +74,10 @@ final class WorkspaceStore extends SQLiteOpenHelper {
   }
   synchronized void commit(JSONObject document, boolean demo, JSONObject references,
       long expectedGeneration) throws Exception {
+    commit(document, demo, references, expectedGeneration, true);
+  }
+  private synchronized void commit(JSONObject document, boolean demo, JSONObject references,
+      long expectedGeneration, boolean checkpoint) throws Exception {
     rejectSecrets(document, 0);
     boolean synthetic = document.optString("status").equals("synthetic-demo");
     if (document.getInt("schemaVersion") != VERSION || demo != synthetic
@@ -97,12 +102,14 @@ final class WorkspaceStore extends SQLiteOpenHelper {
           }
         }
       }
-      db.execSQL("INSERT INTO workspace_history(workspace_id,document) SELECT id,document FROM "
-              + "workspace WHERE id=?",
-          new Object[] {id});
-      db.execSQL("DELETE FROM workspace_history WHERE workspace_id=? AND id NOT IN (SELECT id FROM "
-              + "workspace_history WHERE workspace_id=? ORDER BY id DESC LIMIT 3)",
-          new Object[] {id, id});
+      if (checkpoint) {
+        db.execSQL("INSERT INTO workspace_history(workspace_id,document) SELECT id,document FROM "
+                + "workspace WHERE id=?",
+            new Object[] {id});
+        db.execSQL("DELETE FROM workspace_history WHERE workspace_id=? AND id NOT IN (SELECT id "
+                + "FROM workspace_history WHERE workspace_id=? ORDER BY id DESC LIMIT 3)",
+            new Object[] {id, id});
+      }
       ContentValues values = new ContentValues();
       values.put("id", id);
       values.put("mode", demo ? "synthetic" : "personal");
@@ -194,6 +201,9 @@ final class WorkspaceStore extends SQLiteOpenHelper {
     }
   }
   synchronized boolean disconnect(Vault vault) {
+    return disconnect(vault, true);
+  }
+  private synchronized boolean disconnect(Vault vault, boolean checkpoint) {
     ScheduledRefresh.disable(applicationContext, this);
     invalidateConnection();
     getWritableDatabase().delete("vault_reference", null, null);
@@ -208,7 +218,7 @@ final class WorkspaceStore extends SQLiteOpenHelper {
                     .put("Guild", "disconnected")
                     .put("Guild Raid", "disconnected"));
         retained.remove("expiresAt");
-        write(retained, false);
+        commit(retained, false, new JSONObject(), -1, checkpoint);
       }
     } catch (Exception unavailable) {
       return false;
@@ -220,6 +230,15 @@ final class WorkspaceStore extends SQLiteOpenHelper {
       return false;
     }
   }
+  synchronized void replaceDocument(JSONObject document, boolean demo, Vault vault) throws Exception {
+    LocalAccess.requireUnlocked(applicationContext);
+    // Cleanup changes authority, not the saved recovery target. Only a completed replacement
+    // checkpoints the current data; a failed cleanup must remain safe to retry.
+    if (!demo && !disconnect(vault, false))
+      throw new CleanupIncomplete();
+    LocalAccess.requireUnlocked(applicationContext);
+    write(document, demo);
+  }
   synchronized void restorePrevious(boolean demo, Vault vault) throws Exception {
     JSONObject previous;
     try (Cursor cursor = getReadableDatabase().rawQuery(
@@ -230,12 +249,11 @@ final class WorkspaceStore extends SQLiteOpenHelper {
       previous = StrictJson.parse(cursor.getString(0));
     }
     if (!demo) {
-      disconnect(vault);
       previous.put("status", "historical-offline")
           .put("capabilities", new JSONObject().put("Player", "reconnect-required"))
           .remove("expiresAt");
     }
-    write(previous, demo);
+    replaceDocument(previous, demo, vault);
   }
   synchronized long consentGeneration() {
     try (Cursor cursor =

@@ -170,6 +170,9 @@ public final class MainActivity extends Activity {
       try {
         store.restorePrevious(demo, vault);
         notice = "Checkpoint restored as offline data. Reconnect to verify current access.";
+      } catch (WorkspaceStore.CleanupIncomplete failure) {
+        notice = "Secure file cleanup requires retry; checkpoint was not restored. Current data "
+            + "retained.";
       } catch (Exception failure) {
         notice = "Checkpoint unavailable; current data retained.";
       }
@@ -358,12 +361,10 @@ public final class MainActivity extends Activity {
             if (!imported.optString("status").equals("synthetic-demo")) {
               if (!confirmImport())
                 throw new Exception("Import refused");
-              LocalAccess.requireUnlocked(this);
-              store.disconnect(vault);
             }
             LocalAccess.requireUnlocked(this);
             boolean synthetic = imported.optString("status").equals("synthetic-demo");
-            store.write(imported, synthetic);
+            store.replaceDocument(imported, synthetic, vault);
             demo = synthetic;
           }
         }
@@ -371,6 +372,9 @@ public final class MainActivity extends Activity {
       } catch (LocalAccess.Locked | LocalAccess.Unavailable unavailable) {
         notice = "Local device session locked or unavailable; unlock once before the document "
             + "operation.";
+      } catch (WorkspaceStore.CleanupIncomplete failure) {
+        notice = "Secure file cleanup requires retry; document was not imported. Current data "
+            + "retained.";
       } catch (Exception invalid) {
         notice = "Document rejected or unavailable; previous data retained.";
       }

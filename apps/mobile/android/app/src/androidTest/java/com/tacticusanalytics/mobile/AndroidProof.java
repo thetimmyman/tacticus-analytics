@@ -45,6 +45,101 @@ public final class AndroidProof extends Instrumentation {
     }
     check(rejected, message);
   }
+  private void recoveryCleanup(Vault vault) throws Exception {
+    String database = "synthetic-recovery-cleanup.db";
+    java.nio.file.Path obstruction = new java.io.File(getTargetContext().getNoBackupFilesDir(),
+        "official-vault/synthetic-recovery-obstruction").toPath();
+    java.nio.file.Path marker = obstruction.resolve("synthetic-marker");
+    getTargetContext().deleteDatabase(database);
+    try (WorkspaceStore recovery = new WorkspaceStore(getTargetContext(), database)) {
+      JSONObject previous = NativeBackup.importDocument(NativeBackup.export(Demo.document()));
+      previous.put("status", "historical-offline")
+          .put("capabilities", new JSONObject().put("Player", "reconnect-required"));
+      previous.getJSONObject("personal").put("displayName", "Synthetic previous Player");
+      recovery.write(previous, false);
+      JSONObject current = new JSONObject(previous.toString());
+      current.getJSONObject("personal").put("displayName", "Synthetic current Player");
+      recovery.write(current, false);
+      String originalHistory = history(recovery);
+      recovery.reference("Player", vault.store("synthetic-recovery-cleanup-v1"));
+      recovery.setScheduledRefresh(true);
+      long generation = recovery.connectionGeneration(), consent = recovery.consentGeneration();
+      Files.createDirectory(obstruction);
+      Files.write(marker, new byte[] {1});
+      rejectsCleanup(() -> recovery.restorePrevious(false, vault));
+      check(recovery.read(false).getJSONObject("personal").getString("displayName")
+              .equals("Synthetic current Player"),
+          "Failed cleanup replaced current data");
+      check(history(recovery).equals(originalHistory), "Failed cleanup changed recovery target");
+      check(recovery.reference("Player") == null && !recovery.scheduledRefreshEnabled()
+              && recovery.connectionGeneration() > generation
+              && recovery.consentGeneration() > consent,
+          "Failed cleanup retained live authority");
+      JSONObject imported = new JSONObject(previous.toString());
+      imported.getJSONObject("personal").put("displayName", "Synthetic imported Player");
+      recovery.reference("Player", vault.store("synthetic-import-cleanup-v1"));
+      rejectsCleanup(() -> recovery.replaceDocument(imported, false, vault));
+      check(recovery.read(false).getJSONObject("personal").getString("displayName")
+                  .equals("Synthetic current Player")
+              && history(recovery).equals(originalHistory) && recovery.reference("Player") == null,
+          "Failed import changed data/history or retained credential references");
+      String demoReference = vault.store("synthetic-demo-isolation-v1");
+      recovery.reference("Player", demoReference);
+      recovery.setScheduledRefresh(true);
+      generation = recovery.connectionGeneration();
+      consent = recovery.consentGeneration();
+      String personal = recovery.read(false).toString();
+      recovery.replaceDocument(Demo.document(), true, vault);
+      check(recovery.totalDamage(true) == 300, "Demo import failed during personal cleanup fault");
+      check(recovery.read(false).toString().equals(personal)
+              && history(recovery).equals(originalHistory)
+              && demoReference.equals(recovery.reference("Player"))
+              && recovery.scheduledRefreshEnabled() && recovery.connectionGeneration() == generation
+              && recovery.consentGeneration() == consent,
+          "Demo import changed personal state or authority");
+      check(vault.withCredential(demoReference, value -> value.equals("synthetic-demo-isolation-v1")),
+          "Demo import swept personal credentials");
+      Files.delete(marker);
+      Files.delete(obstruction);
+      recovery.restorePrevious(false, vault);
+      check(recovery.read(false).getJSONObject("personal").getString("displayName")
+              .equals("Synthetic previous Player"),
+          "Cleanup retry lost the original checkpoint");
+      check(history(recovery).contains("Synthetic current Player")
+              && new JSONArray(history(recovery)).length() == 2,
+          "Successful restore did not create one checkpoint");
+      recovery.replaceDocument(imported, false, vault);
+      check(recovery.read(false).getJSONObject("personal").getString("displayName")
+                  .equals("Synthetic imported Player")
+              && new JSONArray(history(recovery)).length() == 3,
+          "Successful import lost data or created extra checkpoints");
+      check(recovery.reference("Player") == null && !recovery.scheduledRefreshEnabled(),
+          "Successful replacement retained live authority");
+    } finally {
+      Files.deleteIfExists(marker);
+      Files.deleteIfExists(obstruction);
+      getTargetContext().deleteDatabase(database);
+    }
+  }
+  private void rejectsCleanup(Rejected operation) throws Exception {
+    boolean rejected = false;
+    try {
+      operation.run();
+    } catch (WorkspaceStore.CleanupIncomplete expected) {
+      rejected = true;
+    }
+    check(rejected, "Replacement ignored incomplete credential cleanup");
+  }
+  private String history(WorkspaceStore store) throws Exception {
+    JSONArray rows = new JSONArray();
+    try (android.database.Cursor cursor = store.getReadableDatabase().rawQuery(
+             "SELECT id,document FROM workspace_history WHERE workspace_id='personal' ORDER BY id",
+             null)) {
+      while (cursor.moveToNext())
+        rows.put(new JSONObject().put("id", cursor.getLong(0)).put("document", cursor.getString(1)));
+    }
+    return rows.toString();
+  }
   private JSONObject player(String name, boolean combined, boolean expired) throws Exception {
     JSONArray scopes = new JSONArray().put("Player");
     if (combined)
@@ -598,6 +693,7 @@ public final class AndroidProof extends Instrumentation {
                     .getString("Player")
                     .equals("reconnect-required"),
             "Backup imported verification");
+        recoveryCleanup(vault);
         check((getTargetContext().getApplicationInfo().flags
                   & android.content.pm.ApplicationInfo.FLAG_ALLOW_BACKUP)
                 == 0,
