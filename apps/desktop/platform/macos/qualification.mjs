@@ -91,7 +91,8 @@ try {
 const runtime = join(installed, 'Contents/Resources/runtime'),
   state = join(working, 'workspace')
 await mkdir(state, { mode: 0o700 })
-const verify = join(working, 'verify.json')
+const verify = join(working, 'verify.json'),
+  storageVerify = join(working, 'storage-verify.json')
 const config = {
   synthetic: true,
   sourceCommit: process.env.MAC_SOURCE_SHA,
@@ -100,9 +101,12 @@ const config = {
   evidence: join(working, 'renderer.json'),
   screenshot: join(working, 'renderer.png')
 }
-await writeFile(verify, JSON.stringify(config), { mode: 0o600 })
-// The sandbox applies to the full installed descendant tree. This policy is a
-// qualification tool, not a request to weaken any consumer OS protection.
+await writeFile(storageVerify, JSON.stringify(config), { mode: 0o600 })
+// Storage launches run the full installed descendant tree under this policy.
+// The graphical launch confines every service with it but keeps Electron
+// outside, because Chromium cannot initialize its own sandbox inside another
+// Seatbelt profile; Electron proves its refusal of external requests itself.
+// This policy is a qualification tool, not a weakened consumer OS protection.
 const policy =
   '(version 1)(allow default)(deny network*)(allow network* (local unix-socket))(allow network* (remote unix-socket))(allow network-inbound (local ip "localhost:*"))(allow network-outbound (remote ip "localhost:*"))'
 // Resolve a public target before sandboxing, then exercise the installed Node
@@ -121,6 +125,15 @@ try {
     })
   ])
   clearTimeout(dnsDeadline)
+  await writeFile(
+    verify,
+    JSON.stringify({
+      ...config,
+      networkPolicy: policy,
+      externalAddress: target.address
+    }),
+    { mode: 0o600 }
+  )
   networkReceipt = execFileSync(
     '/usr/bin/sandbox-exec',
     [
@@ -164,17 +177,13 @@ await cp(
 )
 async function run(
   arguments_,
-  {
-    outsideQualificationPolicy = false,
-    stateDirectory = state,
-    verifyFile = verify
-  } = {}
+  { wholeTreePolicy = false, stateDirectory = state, verifyFile = verify } = {}
 ) {
   const executable = join(installed, 'Contents/MacOS/TacticusAnalytics')
   const child = spawn(
-    outsideQualificationPolicy ? executable : '/usr/bin/sandbox-exec',
+    wholeTreePolicy ? '/usr/bin/sandbox-exec' : executable,
     [
-      ...(outsideQualificationPolicy ? [] : ['-p', policy, executable]),
+      ...(wholeTreePolicy ? ['-p', policy, executable] : []),
       '--run',
       join(stateDirectory, 'owner.lock'),
       join(runtime, 'bin/node'),
@@ -212,14 +221,18 @@ let failedPhase = 'graphical'
 try {
   await run([])
   failedPhase = 'storage'
-  await run(['--storage-check', join(working, 'storage-first.json')])
-  await run(['--storage-check', join(working, 'storage-second.json')])
+  for (const name of ['storage-first.json', 'storage-second.json'])
+    await run(['--storage-check', join(working, name)], {
+      wholeTreePolicy: true,
+      verifyFile: storageVerify
+    })
 } catch (error) {
   for (const name of [
     'device-session.json',
     'renderer.json',
     'renderer.json.failure.json',
     'renderer.json.native.json',
+    'renderer.png',
     'storage-first.json',
     'storage-second.json'
   ]) {
@@ -265,6 +278,7 @@ try {
       try {
         for (let index = 1; index <= 2; index++) {
           const prefix = 'compatibility-' + index
+          // Outside the policy entirely: neither the services nor Electron.
           const probeConfig = {
             ...config,
             deviceEvidence: join(working, prefix + '-device.json'),
@@ -277,7 +291,6 @@ try {
             mode: 0o600
           })
           await run([], {
-            outsideQualificationPolicy: true,
             stateDirectory: probeState,
             verifyFile: probeVerify
           })
@@ -328,6 +341,15 @@ try {
         probe.result = 'passed'
         probe.syntheticRestartDataPreserved = true
       } catch {
+        // The synthetic screenshot and boolean renderer receipt are written
+        // before the final score assertion, so a failed run keeps both.
+        for (const [from, to] of [
+          [activeProbeConfig?.screenshot, '.png'],
+          [activeProbeConfig?.evidence, '-renderer.json']
+        ])
+          try {
+            await cp(from, join(output, 'compatibility-failed' + to))
+          } catch {}
         // Keep only a fixed failure classification. Raw renderer content, URLs,
         // credentials, workspace files and environment never enter this receipt.
         probe.result = 'failed'

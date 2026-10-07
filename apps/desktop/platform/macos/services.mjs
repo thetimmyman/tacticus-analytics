@@ -50,7 +50,8 @@ export async function nativeServices({
   state,
   binaries,
   schemaDirectory,
-  libraryPath
+  libraryPath,
+  confine = (file, args) => [file, args]
 }) {
   state = resolve(state)
   await mkdir(state, { recursive: true, mode: 0o700 })
@@ -80,6 +81,10 @@ export async function nativeServices({
     }
   }
   const children = []
+  // Confinement may exec through a wrapper (the qualification network policy),
+  // so the shutdown signal follows the logical binary, not the spawned one.
+  const logical = new WeakMap()
+  const exec = (file, args, options) => run(...confine(file, args), options)
   const { unlink } = await import('node:fs/promises')
   const onInterrupt = () => {
     void stop().finally(() => process.exit(130))
@@ -100,7 +105,9 @@ export async function nativeServices({
         const exited = new Promise((accept) => child.once('exit', accept))
         // PostgreSQL treats SIGTERM as a smart shutdown that waits for clients;
         // SIGINT is its fast shutdown, so it is not SIGKILLed into recovery.
-        child.kill(child.spawnfile === binaries.postgres ? 'SIGINT' : 'SIGTERM')
+        child.kill(
+          logical.get(child) === binaries.postgres ? 'SIGINT' : 'SIGTERM'
+        )
         await Promise.race([exited, delay(5000, undefined, { ref: false })])
         if (child.exitCode === null && child.signalCode === null) {
           child.kill('SIGKILL')
@@ -152,7 +159,7 @@ export async function nativeServices({
       const path = join(state, `command-${randomUUID()}.sql`)
       await writeFile(path, sql, { mode: 0o600 })
       try {
-        return await run(
+        return await exec(
           binaries.psql,
           [
             '-X',
@@ -182,13 +189,14 @@ export async function nativeServices({
       env,
       cwd = state,
       ephemeral = false,
-      nativeIPC = false
+      nativeIPC = false,
+      confined = true
     ) => {
       const log = createWriteStream(join(state, `${children.length}.log`), {
         mode: 0o600,
         flags: 'a'
       })
-      const child = spawn(file, args, {
+      const child = spawn(...(confined ? confine(file, args) : [file, args]), {
         cwd,
         env,
         stdio: nativeIPC
@@ -199,6 +207,7 @@ export async function nativeServices({
       child.stderr.pipe(log)
       child.once('error', () => {})
       children.push(child)
+      logical.set(child, file)
       child.once('exit', (code, signal) => {
         if (!stopping && (!ephemeral || code !== 0 || signal)) {
           fault = new Error('A proof-owned service failed')
@@ -226,7 +235,7 @@ export async function nativeServices({
       if (error.code !== 'ENOENT') throw error
       const pass = join(state, 'owner-password')
       await writeFile(pass, credentials.owner, { mode: 0o600 })
-      await run(
+      await exec(
         binaries.initdb,
         [
           '-D',
@@ -315,7 +324,7 @@ export async function nativeServices({
       GOTRUE_MAILER_AUTOCONFIRM: 'true',
       GOTRUE_LOG_LEVEL: 'warn'
     }
-    await run(binaries.auth, ['migrate'], {
+    await exec(binaries.auth, ['migrate'], {
       env: authEnv,
       cwd: binaries.authCwd
     })

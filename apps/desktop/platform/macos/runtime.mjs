@@ -84,8 +84,25 @@ const onboarding = controller.onboarding
 await unlink(join(state, 'running.lock')).catch((error) => {
   if (error.code !== 'ENOENT') throw error
 })
+// A graphical qualification confines every service to the deny-network policy
+// but launches Electron outside it: Chromium cannot apply its own sandbox
+// inside another Seatbelt profile, and its origin filter is verified instead.
+const networkPolicy = verify?.networkPolicy
+if (
+  networkPolicy !== undefined &&
+  (typeof networkPolicy !== 'string' ||
+    !networkPolicy.startsWith('(version 1)') ||
+    !networkPolicy.includes('(deny network*)'))
+)
+  throw new Error('Invalid synthetic network policy')
 const services = await nativeServices({
   state,
+  confine: networkPolicy
+    ? (file, args) => [
+        '/usr/bin/sandbox-exec',
+        ['-p', networkPolicy, file, ...args]
+      ]
+    : undefined,
   schemaDirectory: join(root, 'apps/desktop/local-schema'),
   binaries: {
     initdb: join(root, 'postgres/bin/initdb'),
@@ -352,7 +369,8 @@ try {
       },
       state,
       true,
-      true
+      true,
+      false
     )
     const nativeDiagnostic = windowDiagnostics()
     if (verify) {

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, session, Menu, dialog } = require('electron')
+const { app, BrowserWindow, session, Menu, dialog, net } = require('electron')
 const { readFileSync, writeFileSync } = require('node:fs')
 const { join } = require('node:path')
 const { randomBytes } = require('node:crypto')
@@ -22,6 +22,13 @@ if (
   throw new Error('Invalid local desktop configuration')
 app.enableSandbox()
 app.disableHardwareAcceleration()
+// The window only ever loads the loopback gateway by address, so no host name
+// needs to resolve. Refusing resolution also covers requests the origin filter
+// below cannot see, such as DNS prefetch.
+app.commandLine.appendSwitch(
+  'host-resolver-rules',
+  'MAP * ~NOTFOUND, EXCLUDE 127.0.0.1'
+)
 app.setPath('userData', join(config.state, 'browser'))
 let verifyStage = 'window-startup',
   verifyNetwork,
@@ -104,7 +111,29 @@ app
         offscreen: Boolean(config.verify)
       }
     })
-    if (config.verify) verificationWindow = window
+    if (config.verify) {
+      verificationWindow = window
+      // Qualification runs Electron outside the deny-network policy, so prove
+      // here that its own network stack refuses a public name and address.
+      verifyStage = 'renderer-network'
+      const filtered = blocked.length
+      const targets = ['http://example.com/']
+      if (/^\d{1,3}(?:\.\d{1,3}){3}$/.test(config.verify.externalAddress ?? ''))
+        targets.push(`http://${config.verify.externalAddress}/`)
+      for (const target of targets) {
+        const refusal = await net.fetch(target).then(
+          () => '',
+          (error) => String(error?.message)
+        )
+        if (!/ERR_BLOCKED_BY_CLIENT|ERR_NAME_NOT_RESOLVED/.test(refusal))
+          throw Object.assign(
+            new Error('Electron reached a non-loopback destination'),
+            { cause: 'request-failed' }
+          )
+      }
+      blocked.splice(filtered)
+      verifyStage = 'window-startup'
+    }
     const device = require('./device-session.cjs')(window, config)
     const capabilities = ['Player', 'Guild', 'Guild Raid']
     const { currentWorkspaceToken } =
@@ -470,7 +499,8 @@ app
         nativeSessionVerified: true,
         deviceSession: true,
         signedOutRecovery: true,
-        rendererBootstrapRefused: true
+        rendererBootstrapRefused: true,
+        electronExternalRefused: true
       }
       writeFileSync(config.verify.evidence, JSON.stringify(evidence, null, 2), {
         mode: 0o600

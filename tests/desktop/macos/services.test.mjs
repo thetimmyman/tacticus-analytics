@@ -22,7 +22,7 @@ const fakes = {
   postgrest: server('PGRST_SERVER_PORT')
 }
 
-test('stopping local services asks PostgreSQL for a fast shutdown', async (t) => {
+async function fixture(t) {
   const root = await mkdtemp(join(tmpdir(), 'synthetic services ü '))
   t.after(() => rm(root, { recursive: true, force: true }))
   const bin = join(root, 'bin'),
@@ -38,14 +38,52 @@ test('stopping local services asks PostgreSQL for a fast shutdown', async (t) =>
     await writeFile(binaries[name], `#!${process.execPath}\n${source}\n`)
     await chmod(binaries[name], 0o700)
   }
-  const services = await nativeServices({
-    state,
-    binaries,
-    schemaDirectory: schema
-  })
+  return { root, state, binaries, schemaDirectory: schema }
+}
+
+test('stopping local services asks PostgreSQL for a fast shutdown', async (t) => {
+  const { state, binaries, schemaDirectory } = await fixture(t)
+  const services = await nativeServices({ state, binaries, schemaDirectory })
   await services.stop()
   assert.equal(
     await readFile(join(state, 'pgdata/stopped-by'), 'utf8'),
     'SIGINT'
+  )
+})
+
+test('confinement wraps every service and keeps the PostgreSQL shutdown', async (t) => {
+  const { root, state, binaries, schemaDirectory } = await fixture(t)
+  const wrapper = join(root, 'confine'),
+    seen = join(root, 'confined.log')
+  await writeFile(wrapper, `#!/bin/sh\nbasename "$1" >> '${seen}'\nexec "$@"\n`)
+  await chmod(wrapper, 0o700)
+  const services = await nativeServices({
+    state,
+    binaries,
+    schemaDirectory,
+    confine: (file, args) => [wrapper, [file, ...args]]
+  })
+  const outside = services.launch(
+    binaries.auth,
+    ['version'],
+    {},
+    root,
+    true,
+    false,
+    false
+  )
+  await new Promise((accept) => outside.once('exit', accept))
+  await services.stop()
+  assert.equal(
+    await readFile(join(state, 'pgdata/stopped-by'), 'utf8'),
+    'SIGINT'
+  )
+  const confined = (await readFile(seen, 'utf8')).trim().split('\n')
+  for (const name of ['initdb', 'postgres', 'psql', 'auth', 'postgrest'])
+    assert.ok(confined.includes(name), name)
+  assert.equal(
+    confined.filter((name) => name === 'auth').length,
+    2,
+    'an explicitly unconfined child bypasses the wrapper'
   )
 })
