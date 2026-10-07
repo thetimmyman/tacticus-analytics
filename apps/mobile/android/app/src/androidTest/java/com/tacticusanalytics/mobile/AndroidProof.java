@@ -26,10 +26,14 @@ public final class AndroidProof extends Instrumentation {
   private boolean pinSubmitted;
   private boolean systemUiObserved;
   private boolean pinContainerObserved;
+  private boolean keyguardStatusObserved;
+  private String pinPresentationBounds = "none";
   private String pinContext() {
     return "; pinPresentationAttempted=" + pinPresentationAttempted
         + " pinSubmitted=" + pinSubmitted + " systemUiObserved=" + systemUiObserved
-        + " pinContainerObserved=" + pinContainerObserved;
+        + " pinContainerObserved=" + pinContainerObserved
+        + " keyguardStatusObserved=" + keyguardStatusObserved
+        + " pinPresentationBounds=" + pinPresentationBounds;
   }
   @Override
   public void onCreate(Bundle arguments) {
@@ -304,7 +308,10 @@ public final class AndroidProof extends Instrumentation {
     throw new Exception("Airplane mode and disconnected networks did not converge");
   }
   private AccessibilityNodeInfo systemPinControl(String id) throws Exception {
-    AccessibilityNodeInfo root = getUiAutomation().getRootInActiveWindow();
+    return systemPinControl(getUiAutomation().getRootInActiveWindow(), id);
+  }
+  private AccessibilityNodeInfo systemPinControl(AccessibilityNodeInfo root, String id)
+      throws Exception {
     if (root == null || !"com.android.systemui".contentEquals(root.getPackageName()))
       return null;
     java.util.List<AccessibilityNodeInfo> controls =
@@ -357,6 +364,7 @@ public final class AndroidProof extends Instrumentation {
     service.flags |= android.accessibilityservice.AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
     getUiAutomation().setServiceInfo(service);
     long deadline = SystemClock.elapsedRealtime() + 20000;
+    android.graphics.Rect previousLockBounds = null;
     String[] keys = {"key2", "key4", "key6", "key8", "key_enter"};
     while (SystemClock.elapsedRealtime() < deadline) {
       if (!manager.isDeviceLocked()) {
@@ -367,11 +375,21 @@ public final class AndroidProof extends Instrumentation {
       AccessibilityNodeInfo root = getUiAutomation().getRootInActiveWindow();
       boolean systemUi = root != null && "com.android.systemui".contentEquals(root.getPackageName());
       systemUiObserved |= systemUi;
-      boolean pinContainer = systemPinControl("keyguard_pin_view") != null;
+      boolean pinContainer = systemPinControl(root, "keyguard_pin_view") != null;
       pinContainerObserved |= pinContainer;
-      if (!pinSubmitted && !pinPresentationAttempted && systemUi && !pinContainer) {
-        pinPresentationAttempted = true;
-        presentPin(root);
+      boolean keyguardStatus = systemPinControl(root, "keyguard_status_view") != null;
+      keyguardStatusObserved |= keyguardStatus;
+      if (!pinSubmitted && !pinPresentationAttempted && keyguardStatus && !pinContainer) {
+        android.graphics.Rect bounds = new android.graphics.Rect();
+        root.getBoundsInScreen(bounds);
+        if (bounds.equals(previousLockBounds)) {
+          pinPresentationAttempted = true;
+          pinPresentationBounds = bounds.toShortString();
+          presentPin(root);
+        }
+        previousLockBounds = bounds;
+      } else {
+        previousLockBounds = null;
       }
       if (!pinSubmitted && pinContainer) {
         AccessibilityNodeInfo entry = systemPinControl("pinEntry");
