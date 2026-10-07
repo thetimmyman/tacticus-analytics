@@ -50,6 +50,23 @@ stage synthetic-airplane-mode
 "$ADB" -s "$SERIAL" shell am instrument -w -e phase airplane com.tacticusanalytics.mobile.preview.test/com.tacticusanalytics.mobile.AndroidProof >> "$REPORT/all.txt"
 rg -q '^PASS phase=airplane ' "$REPORT/all.txt" || { cat "$REPORT/all.txt"; exit 1; }
 "$ADB" -s "$SERIAL" logcat -c > /dev/null 2>&1 || printf 'Device log clear unavailable; final log read remains required\n' >&2
+stage final-synthetic-unlock
+"$ADB" -s "$SERIAL" shell input keyevent KEYCODE_WAKEUP
+"$ADB" -s "$SERIAL" shell wm dismiss-keyguard > /dev/null 2>&1 || true
+"$ADB" -s "$SERIAL" shell input swipe 160 500 160 100 100
+if ! "$ADB" -s "$SERIAL" shell am instrument -w -e phase unlocked com.tacticusanalytics.mobile.preview.test/com.tacticusanalytics.mobile.AndroidProof > "$REPORT/final-unlocked.txt"; then
+  cat "$REPORT/final-unlocked.txt" >> "$REPORT/all.txt"
+  cat "$REPORT/final-unlocked.txt"
+  exit 1
+fi
+cat "$REPORT/final-unlocked.txt" >> "$REPORT/all.txt"
+if ! rg -q '^PASS phase=unlocked checks=3[;[:space:]]' "$REPORT/final-unlocked.txt" \
+  || [[ "$(rg -c '^PASS phase=' "$REPORT/final-unlocked.txt")" != 1 ]] \
+  || rg -q '^(FAIL|INSTRUMENTATION_FAILED|INSTRUMENTATION_ABORTED)(:|[[:space:]]|$)' "$REPORT/final-unlocked.txt"; then
+  cat "$REPORT/final-unlocked.txt"
+  exit 1
+fi
+rm "$REPORT/final-unlocked.txt"
 stage installed-functional-assertions
 "$ADB" -s "$SERIAL" shell am instrument -w -e phase all com.tacticusanalytics.mobile.preview.test/com.tacticusanalytics.mobile.AndroidProof >> "$REPORT/all.txt"
 rg -q '^PASS phase=all ' "$REPORT/all.txt" || { cat "$REPORT/all.txt"; exit 1; }
