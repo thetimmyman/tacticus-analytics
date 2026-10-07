@@ -4,7 +4,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createServer } from 'node:net'
 import { setTimeout as delay } from 'node:timers/promises'
-import { nativeServices } from './services.mjs'
+import { nativeServices, windowFailureDiagnostic } from './services.mjs'
 import { loopbackGateway } from '../../proof/loopback-gateway.mjs'
 import { windowsSetup } from './setup.mjs'
 import { currentSessionChannel } from './session-gate.mjs'
@@ -169,6 +169,14 @@ try {
     true
   )
   sessionChannel.attach(window)
+  let windowOutput = Buffer.alloc(0)
+  window.stderr.on('data', (chunk) => {
+    if (windowOutput.length < 8192)
+      windowOutput = Buffer.concat([
+        windowOutput,
+        Buffer.from(chunk).subarray(0, 8192 - windowOutput.length)
+      ])
+  })
   const code = await new Promise((accept, reject) => {
     window.once('exit', accept)
     window.once('error', reject)
@@ -191,7 +199,8 @@ try {
   }
   if (code !== 0)
     throw new Error(
-      'Desktop window verification failed; inspect private local logs'
+      'Desktop window verification failed; ' +
+        windowFailureDiagnostic(windowOutput.toString('utf8'), code)
     )
 } finally {
   if (gateway) await gateway.stop()

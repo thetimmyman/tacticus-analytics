@@ -185,6 +185,36 @@ export function serviceStartupDiagnostic(child) {
     return `${category}; ${status}; sensitive output suppressed`
   }
 }
+// Fixed coordinator messages only; renderer status text and other output stay private.
+const windowFailures = [
+  ['Invalid local desktop configuration', 'window-configuration-invalid'],
+  ['Desktop setup exposed a password field', 'window-password-field'],
+  [
+    'Native coordinator could not reuse the authenticated workspace session',
+    'window-session-reuse-failed'
+  ],
+  ['Renderer obtained bootstrap access', 'window-bootstrap-exposed'],
+  ['Native signed-out session recovery failed', 'window-recovery-failed'],
+  ['Session recovery lost retained sample data', 'window-recovery-data-lost'],
+  [
+    'Packaged graphical journey did not render expected scores',
+    'window-scores-missing'
+  ],
+  ['Unexpected packaged renderer request failure', 'window-request-failure'],
+  ['The local workspace could not open', 'window-workspace-unavailable'],
+  ['Invalid local session destination', 'window-session-destination-invalid'],
+  ['Invalid local session', 'window-session-invalid']
+]
+export function windowFailureDiagnostic(text, code) {
+  const prefix = String(text).slice(0, 8192)
+  const category =
+    windowFailures.find(([message]) => prefix.includes(message))?.[1] ??
+    'window-unclassified'
+  const status = Number.isSafeInteger(code)
+    ? `exit-${code > 0xffff || code < 0 ? '0x' + (code >>> 0).toString(16).toUpperCase().padStart(8, '0') : code}`
+    : 'exit-unavailable'
+  return `${category}; ${status}; sensitive output suppressed`
+}
 export function bootstrapPhase(text) {
   if (/performing post-bootstrap initialization/.test(text))
     return 'post-bootstrap'

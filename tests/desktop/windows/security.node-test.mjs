@@ -17,6 +17,7 @@ import {
   serviceFailureCode,
   serviceStartupDiagnostic,
   bootstrapPhase,
+  windowFailureDiagnostic,
   run
 } from '../../../apps/desktop/platform/windows/services.mjs'
 import { workspaceGate } from '../../../apps/desktop/platform/windows/session-gate.mjs'
@@ -140,6 +141,40 @@ test('initialization permission diagnostics identify the operation without revea
     const code = serviceFailureCode(message)
     assert.equal(code, category)
     assert.equal(code.includes('synthetic'), false)
+  }
+})
+
+test('window failures report fixed coordinator categories without exposing renderer output', () => {
+  for (const [text, code, expected] of [
+    [
+      'Unexpected packaged renderer request failure\n',
+      1,
+      'window-request-failure; exit-1; sensitive output suppressed'
+    ],
+    [
+      'Invalid local session destination',
+      1,
+      'window-session-destination-invalid; exit-1; sensitive output suppressed'
+    ],
+    [
+      'synthetic-private-path synthetic renderer status',
+      3221225794,
+      'window-unclassified; exit-0xC0000142; sensitive output suppressed'
+    ],
+    [
+      'x'.repeat(9000) + 'Invalid local desktop configuration',
+      1,
+      'window-unclassified; exit-1; sensitive output suppressed'
+    ],
+    [
+      '',
+      null,
+      'window-unclassified; exit-unavailable; sensitive output suppressed'
+    ]
+  ]) {
+    const diagnostic = windowFailureDiagnostic(text, code)
+    assert.equal(diagnostic, expected)
+    assert.equal(diagnostic.includes('synthetic'), false)
   }
 })
 
