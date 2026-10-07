@@ -142,7 +142,8 @@ try {
         )
       ).trim()
     )
-    if (sum !== 525) throw new Error('Installed local calculation differs')
+    // The synthetic fixture's SYN001 guild total; player A alone is 525.
+    if (sum !== 625) throw new Error('Installed local calculation differs')
     let migrationRejected = false
     try {
       await services.psql(
