@@ -74,10 +74,151 @@ public final class AndroidProof extends Instrumentation {
     }
     check(rejected, message);
   }
+  private void onUi(Rejected operation) throws Exception {
+    Exception[] failure = new Exception[1];
+    runOnMainSync(() -> {
+      try {
+        operation.run();
+      } catch (Exception exception) {
+        failure[0] = exception;
+      }
+    });
+    if (failure[0] != null)
+      throw failure[0];
+  }
+  private void manualRaidEntry(android.app.Activity activity) throws Exception {
+    String database = "synthetic-manual-raid-ui.db";
+    getTargetContext().deleteDatabase(database);
+    android.app.AlertDialog[] dialog = new android.app.AlertDialog[1];
+    java.util.concurrent.atomic.AtomicInteger completed =
+        new java.util.concurrent.atomic.AtomicInteger();
+    try (WorkspaceStore entry = new WorkspaceStore(getTargetContext(), database)) {
+      entry.write(Demo.document(), true);
+      String original = entry.read(true).toString();
+      onUi(() -> {
+        dialog[0] =
+            ManualRaidDialog.show(activity, entry, true, message -> completed.incrementAndGet());
+        android.widget.EditText boss = dialog[0].findViewById(R.id.manual_raid_boss),
+                                damage = dialog[0].findViewById(R.id.manual_raid_damage),
+                                tokens = dialog[0].findViewById(R.id.manual_raid_tokens);
+        boss.setText("Synthetic UI boss");
+        damage.setText("");
+        tokens.setText("2");
+        dialog[0].getButton(android.app.AlertDialog.BUTTON_POSITIVE).performClick();
+      });
+      waitForIdleSync();
+      onUi(() -> {
+        check(dialog[0].isShowing(), "Invalid manual raid dismissed entered values");
+        check((dialog[0].getWindow().getAttributes().flags &
+               WindowManager.LayoutParams.FLAG_SECURE) != 0,
+              "Manual raid dialog lacks secure window");
+        android.widget.EditText boss = dialog[0].findViewById(R.id.manual_raid_boss),
+                                damage = dialog[0].findViewById(R.id.manual_raid_damage),
+                                tokens = dialog[0].findViewById(R.id.manual_raid_tokens);
+        check(boss.getText().toString().equals("Synthetic UI boss") &&
+                  tokens.getText().toString().equals("2") && damage.getError() != null,
+              "Invalid manual raid lost input or lacks field error");
+        check(completed.get() == 0 && entry.read(true).toString().equals(original),
+              "Invalid manual raid changed stored data or completed");
+        damage.setText("101");
+        tokens.setText("0");
+        dialog[0].getButton(android.app.AlertDialog.BUTTON_POSITIVE).performClick();
+        check(dialog[0].isShowing() && tokens.getError() != null,
+              "Invalid token count closed form or lacks field error");
+        tokens.setText("2");
+        boss.setText("   ");
+        dialog[0].getButton(android.app.AlertDialog.BUTTON_POSITIVE).performClick();
+        check(dialog[0].isShowing() && boss.getError() != null, "Blank boss label accepted");
+        boss.setText("Synthetic UI boss");
+        damage.setText("9007199254740992");
+        dialog[0].getButton(android.app.AlertDialog.BUTTON_POSITIVE).performClick();
+        check(dialog[0].isShowing() && damage.getError() != null, "Nonportable damage accepted");
+        damage.setText("101");
+        entry.getWritableDatabase().execSQL(
+            "CREATE TRIGGER synthetic_manual_write_failure "
+            + "BEFORE INSERT ON workspace WHEN NEW.id='demo' "
+            + "BEGIN SELECT RAISE(ABORT, 'Synthetic manual write failure'); END");
+        dialog[0].getButton(android.app.AlertDialog.BUTTON_POSITIVE).performClick();
+      });
+      waitForIdleSync();
+      onUi(() -> {
+        check(dialog[0].isShowing() &&
+                  ((android.widget.EditText)dialog[0].findViewById(R.id.manual_raid_damage))
+                      .getText()
+                      .toString()
+                      .equals("101") &&
+                  !((android.widget.TextView)dialog[0].findViewById(R.id.manual_raid_error))
+                       .getText()
+                       .toString()
+                       .isEmpty(),
+              "Failed native write discarded input or lacks explanation");
+        check(completed.get() == 0 && entry.read(true).toString().equals(original),
+              "Failed native write changed stored rows");
+        try (android.database.Cursor history = entry.getReadableDatabase().rawQuery(
+                 "SELECT COUNT(*) FROM workspace_history", null)) {
+          history.moveToFirst();
+          check(history.getInt(0) == 0, "Failed native write changed checkpoints");
+        }
+        entry.getWritableDatabase().execSQL("DROP TRIGGER synthetic_manual_write_failure");
+        dialog[0].getButton(android.app.AlertDialog.BUTTON_POSITIVE).performClick();
+      });
+      waitForIdleSync();
+      check(!dialog[0].isShowing() && completed.get() == 1,
+            "Corrected manual raid did not save once");
+      JSONObject document = MobileDocument.export(entry.read(true));
+      JSONObject row = document.getJSONArray("raids").getJSONObject(2);
+      check(document.getJSONArray("raids").length() == 3 &&
+                row.getString("boss").equals("Synthetic UI boss") && row.getLong("damage") == 101 &&
+                row.getLong("tokens") == 2 &&
+                PortableAnalytics.calculate(document).getLong("totalDamage") == 401,
+            "Corrected manual raid changed values or lost earlier rows");
+      check(!entry.read(false).has("personal") && entry.reference("Player") == null &&
+                !entry.scheduledRefreshEnabled(),
+            "Manual demo raid changed personal authority");
+      onUi(() -> {
+        dialog[0] =
+            ManualRaidDialog.show(activity, entry, true, message -> completed.incrementAndGet());
+        ((android.widget.EditText)dialog[0].findViewById(R.id.manual_raid_boss))
+            .setText("Synthetic cancelled boss");
+        dialog[0].getButton(android.app.AlertDialog.BUTTON_NEGATIVE).performClick();
+      });
+      waitForIdleSync();
+      check(completed.get() == 1 && entry.read(true).getJSONArray("portableRaids").length() == 3,
+            "Cancelled manual raid changed stored rows");
+      String empty = entry.read(false).toString();
+      onUi(() -> {
+        dialog[0] =
+            ManualRaidDialog.show(activity, entry, false, message -> completed.incrementAndGet());
+        ((android.widget.EditText)dialog[0].findViewById(R.id.manual_raid_boss))
+            .setText("Synthetic refused boss");
+        ((android.widget.EditText)dialog[0].findViewById(R.id.manual_raid_damage)).setText("5");
+        ((android.widget.EditText)dialog[0].findViewById(R.id.manual_raid_tokens)).setText("1");
+        dialog[0].getButton(android.app.AlertDialog.BUTTON_POSITIVE).performClick();
+      });
+      waitForIdleSync();
+      onUi(()
+               -> check(dialog[0].isShowing() && !((android.widget.TextView)dialog[0].findViewById(
+                                                       R.id.manual_raid_error))
+                                                      .getText()
+                                                      .toString()
+                                                      .isEmpty(),
+                        "Unavailable workspace discarded manual entry or lacks explanation"));
+      check(completed.get() == 1 && entry.read(false).toString().equals(empty),
+            "Refused manual raid changed personal data");
+    } finally {
+      onUi(() -> {
+        if (dialog[0] != null)
+          dialog[0].dismiss();
+      });
+      getTargetContext().deleteDatabase(database);
+    }
+  }
   private void recoveryCleanup(Vault vault) throws Exception {
     String database = "synthetic-recovery-cleanup.db";
-    java.nio.file.Path obstruction = new java.io.File(getTargetContext().getNoBackupFilesDir(),
-        "official-vault/synthetic-recovery-obstruction").toPath();
+    java.nio.file.Path obstruction = new java.io
+                                         .File(getTargetContext().getNoBackupFilesDir(),
+                                               "official-vault/synthetic-recovery-obstruction")
+                                         .toPath();
     java.nio.file.Path marker = obstruction.resolve("synthetic-marker");
     getTargetContext().deleteDatabase(database);
     try (WorkspaceStore recovery = new WorkspaceStore(getTargetContext(), database)) {
@@ -96,9 +237,11 @@ public final class AndroidProof extends Instrumentation {
       Files.createDirectory(obstruction);
       Files.write(marker, new byte[] {1});
       rejectsCleanup(() -> recovery.restorePrevious(false, vault));
-      check(recovery.read(false).getJSONObject("personal").getString("displayName")
-              .equals("Synthetic current Player"),
-          "Failed cleanup replaced current data");
+      check(recovery.read(false)
+                .getJSONObject("personal")
+                .getString("displayName")
+                .equals("Synthetic current Player"),
+            "Failed cleanup replaced current data");
       check(history(recovery).equals(originalHistory), "Failed cleanup changed recovery target");
       check(recovery.reference("Player") == null && !recovery.scheduledRefreshEnabled()
               && recovery.connectionGeneration() > generation
@@ -795,10 +938,14 @@ public final class AndroidProof extends Instrumentation {
         android.app.Activity activity =
             startActivitySync(new Intent(getTargetContext(), MainActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        check((activity.getWindow().getAttributes().flags & WindowManager.LayoutParams.FLAG_SECURE)
-                != 0,
-            "Secure screen missing");
-        runOnMainSync(activity::finish);
+        try {
+          check((activity.getWindow().getAttributes().flags & WindowManager.LayoutParams.FLAG_SECURE)
+                  != 0,
+              "Secure screen missing");
+          manualRaidEntry(activity);
+        } finally {
+          runOnMainSync(activity::finish);
+        }
         try (WorkspaceStore probe =
                  new WorkspaceStore(getTargetContext(), "synthetic-schema-probe.db")) {
           probe.write(Demo.document(), true);

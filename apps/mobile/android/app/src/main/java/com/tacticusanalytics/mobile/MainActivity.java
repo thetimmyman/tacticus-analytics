@@ -434,48 +434,10 @@ public final class MainActivity extends Activity {
     }
   }
   private void manualRaid() {
-    LinearLayout form = new LinearLayout(this);
-    form.setPadding(24, 12, 24, 12);
-    form.setOrientation(LinearLayout.VERTICAL);
-    EditText boss = new EditText(this), damage = new EditText(this), tokens = new EditText(this);
-    boss.setHint("Boss label");
-    damage.setHint("Damage (whole number)");
-    tokens.setHint("Tokens used (1–100)");
-    damage.setInputType(InputType.TYPE_CLASS_NUMBER);
-    tokens.setInputType(InputType.TYPE_CLASS_NUMBER);
-    form.addView(boss);
-    form.addView(damage);
-    form.addView(tokens);
-    new AlertDialog.Builder(this)
-        .setTitle("Local manual raid — unverified")
-        .setView(form)
-        .setNegativeButton("Cancel", null)
-        .setPositiveButton("Save locally",
-            (d, w) -> {
-              try {
-                JSONObject data = store.read(demo);
-                if (!data.has("personal"))
-                  throw new Exception("Player required");
-                JSONArray rows = data.optJSONArray("portableRaids");
-                if (rows == null)
-                  rows = new JSONArray();
-                rows.put(new JSONObject()
-                        .put("player", data.getJSONObject("personal").getString("displayName"))
-                        .put("boss", boss.getText().toString())
-                        .put("damage", Long.parseLong(damage.getText().toString()))
-                        .put("tokens", Long.parseLong(tokens.getText().toString()))
-                        .put("observedAt", System.currentTimeMillis()));
-                data.put("portableRaids", rows);
-                PortableAnalytics.calculate(MobileDocument.export(data));
-                store.write(data, demo);
-                notice = "Manual raid saved locally; no verified or contribution claim.";
-              } catch (Exception invalid) {
-                notice = "Manual raid rejected. Use a boss label, nonnegative whole damage and "
-                    + "1–100 tokens.";
-              }
-              show();
-            })
-        .show();
+    ManualRaidDialog.show(this, store, demo, message -> {
+      notice = message;
+      show();
+    });
   }
   static byte[] readBounded(java.io.InputStream input) throws Exception {
     java.io.ByteArrayOutputStream output = new java.io.ByteArrayOutputStream();

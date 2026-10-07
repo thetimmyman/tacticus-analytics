@@ -2,6 +2,8 @@
 
 This is an installed local app with native Views, private SQLite and Android Keystore. It reads complete sanitized Player roster/inventory/progress and retained Guild/Raid responses offline, provides paginated native inspection and integer raid calculations, and records manual unverified raids. It has no hosted login or embedded website. This preview is not a qualified release or full application port.
 
+Manual raid entry keeps the form and entered values open when a field is invalid or a local write fails. Field errors identify invalid labels, damage or token counts. A successful save closes the form once; cancellation leaves stored rows unchanged. The form scrolls, uses a secure window and reports save failures through an accessibility live region. Installed synthetic checks cover correction, a forced SQLite write failure with checkpoint rollback, retry, cancellation and demo isolation. These selected checks do not establish complete accessibility or application parity.
+
 Requirements for the reproducible Linux build: JDK 17, official Android command-line tools, Android SDK API 35/build-tools 35.0.0, curl, unzip, Python 3 and ripgrep. Set `JAVA_HOME`, `ANDROID_HOME` and add the SDK tools to PATH. Gradle 8.13 is downloaded outside the repository and checked against its pinned SHA-256. Maven artifacts use committed Gradle dependency verification. Review dependency updates before changing those hashes.
 
 ```bash
