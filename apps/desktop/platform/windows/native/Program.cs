@@ -76,7 +76,15 @@ internal static class Program
                 case "proof-token" when args.Length == 2:
                 {
                     using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
-                    File.WriteAllText(args[1], JsonSerializer.Serialize(new { subject = identity.User?.Value,
+                    // A named object takes the token's default DACL; reopening it proves the runtime can use what it creates.
+                    var name = "Local\\TacticusProof-" + Guid.NewGuid().ToString("N");
+                    var reopened = false;
+                    using (new Mutex(false, name))
+                    {
+                        try { using var opened = Mutex.OpenExisting(name); reopened = true; }
+                        catch (UnauthorizedAccessException) { }
+                    }
+                    File.WriteAllText(args[1], JsonSerializer.Serialize(new { subject = identity.User?.Value, reopened,
                         administrative = new System.Security.Principal.WindowsPrincipal(identity).IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator),
                         powerUser = new System.Security.Principal.WindowsPrincipal(identity).IsInRole(System.Security.Principal.WindowsBuiltInRole.PowerUser) }));
                     return 0;
@@ -133,6 +141,7 @@ internal static class NativeProof
                 using var token = JsonDocument.Parse(File.ReadAllText(tokenRecord));
                 using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
                 if (token.RootElement.GetProperty("administrative").GetBoolean() || token.RootElement.GetProperty("powerUser").GetBoolean() ||
+                    !token.RootElement.GetProperty("reopened").GetBoolean() ||
                     token.RootElement.GetProperty("subject").GetString() != identity.User?.Value)
                     throw new InvalidOperationException("Child did not retain the current user without administrative access");
             }

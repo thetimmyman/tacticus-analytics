@@ -118,6 +118,29 @@ test('initialization permission diagnostics identify the operation without revea
     serviceFailureCode('Permission denied synthetic-private-path'),
     'permission-refused'
   )
+  for (const [message, category] of [
+    [
+      'could not access file "synthetic-private-path": Permission denied',
+      'bootstrap-input-access-refused'
+    ],
+    [
+      'Access is denied.\nprogram "postgres" is needed by initdb but was not found in the same directory as "synthetic-private-path"',
+      'postgres-executable-unavailable-access-denied'
+    ],
+    [
+      'program "postgres" was found by "synthetic-private-path" but was not the same version as initdb',
+      'postgres-executable-unavailable'
+    ],
+    [
+      'invalid binary "synthetic-private-path": Permission denied',
+      'own-executable-unavailable-access-denied'
+    ],
+    ['could not open process token: error code 5', 'process-token-refused']
+  ]) {
+    const code = serviceFailureCode(message)
+    assert.equal(code, category)
+    assert.equal(code.includes('synthetic'), false)
+  }
 })
 
 test('bootstrap status diagnostics retain numeric loader failures without exposing service output', () => {
@@ -158,6 +181,18 @@ test('bootstrap status diagnostics retain numeric loader failures without exposi
       'running bootstrap script ... ok\nperforming post-bootstrap initialization ...'
     ),
     'post-bootstrap'
+  )
+  assert.equal(
+    bootstrapPhase(
+      'The files belonging to this database system will be owned by user "synthetic-private-user".\ncreating directory synthetic-private-path ... ok\ncreating subdirectories ... ok\nselecting dynamic shared memory implementation ... windows'
+    ),
+    'shared-memory'
+  )
+  assert.equal(
+    bootstrapPhase(
+      'The files belonging to this database system will be owned by user "synthetic-private-user".'
+    ),
+    'preflight'
   )
   assert.equal(
     bootstrapPhase('synthetic-private-body'),

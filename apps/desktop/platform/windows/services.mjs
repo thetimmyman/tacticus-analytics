@@ -92,6 +92,19 @@ export function serviceFailureCode(text) {
       'data-directory-permissions-refused'
     ],
     [/could not open file.*for reading/i, 'bootstrap-input-read-refused'],
+    [/could not access file/i, 'bootstrap-input-access-refused'],
+    [
+      /is needed by .* but was not found|was found by .* but was not the same version/is,
+      'postgres-executable-unavailable'
+    ],
+    [
+      /invalid binary|could not find a ".+" to execute|could not identify current directory/i,
+      'own-executable-unavailable'
+    ],
+    [
+      /could not (?:open process token|get token information|set token information)/i,
+      'process-token-refused'
+    ],
     [/permission denied|access is denied/i, 'permission-refused'],
     [/invalid locale|locale.*not supported/i, 'locale-unavailable'],
     [
@@ -145,7 +158,14 @@ export function serviceFailureCode(text) {
     [/child process exited.*exit code 1/i, 'postgres-child-exit-1'],
     [/bootstrap.*failed|child process exited/i, 'postgres-bootstrap-failed']
   ])
-    if (pattern.test(text)) return code
+    if (pattern.test(text))
+      // A shell or loader refusal can accompany a later fixed initdb message.
+      return [
+        'postgres-executable-unavailable',
+        'own-executable-unavailable'
+      ].includes(code) && /permission denied|access is denied/i.test(text)
+        ? `${code}-access-denied`
+        : code
   return 'unclassified-service-failure'
 }
 export function serviceStartupDiagnostic(child) {
@@ -170,6 +190,19 @@ export function bootstrapPhase(text) {
     return 'post-bootstrap'
   if (/running bootstrap script/.test(text)) return 'bootstrap-script'
   if (/creating configuration files/.test(text)) return 'configuration'
+  for (const [pattern, phase] of [
+    [/selecting default time zone/, 'time-zone'],
+    [/selecting default shared_buffers/, 'shared-buffers'],
+    [/selecting default max_connections/, 'max-connections'],
+    [/selecting dynamic shared memory/, 'shared-memory'],
+    [/creating subdirectories/, 'subdirectories'],
+    [
+      /creating directory|fixing permissions on existing directory/,
+      'data-directory'
+    ],
+    [/will be owned by user/, 'preflight']
+  ])
+    if (pattern.test(text)) return phase
   return 'bootstrap-phase-unavailable'
 }
 export function validOwnerSession(value, subject, key) {
