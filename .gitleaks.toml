@@ -25,18 +25,6 @@ regexes = [
   '''SECRET-TACTICUS-KEY-9f8e7d6c'''
 ]
 
-# A Discord application's public key is an Ed25519 verification key: public by
-# design (Discord shows it in the developer portal) and it can only verify
-# request signatures, never sign them. Scoped to its one use so the same value
-# anywhere else is still reported.
-[[allowlists]]
-description = "Discord application public key: an Ed25519 verification key, public by design (Discord shows it in the developer portal) and it can only verify request signatures, never sign them"
-paths = ['''(^|/)supabase/functions/discord-notifications/index\.ts$''']
-condition = "AND"
-regexes = [
-  '''9be90ced4b0c257eb5ef9acd706b9f00cd3723946dfd005d2785be4e3cd12895'''
-]
-
 [[allowlists]]
 description = "Generated game catalog asset ids"
 targetRules = ["generic-api-key"]
