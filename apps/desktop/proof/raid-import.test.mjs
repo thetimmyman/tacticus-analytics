@@ -82,7 +82,7 @@ async function fixture(t, { identity = owner, authStatus = 200 } = {}) {
     authCalls,
     normalized,
     queries,
-    send: (headers = {}) =>
+    send: (headers = {}, body = contents) =>
       fetch(gateway.origin + '/desktop/import', {
         method: 'POST',
         headers: {
@@ -92,7 +92,7 @@ async function fixture(t, { identity = owner, authStatus = 200 } = {}) {
           cookie,
           ...headers
         },
-        body: JSON.stringify({ contents })
+        body: JSON.stringify({ contents: body })
       })
   }
 }
@@ -140,4 +140,29 @@ test('missing owner cookies refuse before SQL or Auth', async (t) => {
   assert.deepEqual(f.authCalls, [])
   assert.deepEqual(f.queries, [])
   assert.deepEqual(f.normalized, [])
+})
+
+for (const headers of [
+  { origin: '' },
+  { 'content-type': 'text/plain' },
+  { 'content-type': 'application/x-www-form-urlencoded' }
+])
+  test(`owner cookies are ignored without a same-origin JSON post: ${JSON.stringify(headers)}`, async (t) => {
+    const f = await fixture(t)
+    assert.equal((await f.send(headers)).status, 400)
+    assert.deepEqual(f.authCalls, [])
+    assert.deepEqual(f.queries, [])
+    assert.deepEqual(f.normalized, [])
+  })
+
+test('another owner learns nothing about the file before authorization', async (t) => {
+  const f = await fixture(t, {
+    identity: '00000000-0000-4000-8000-000000000002'
+  })
+  const foreign = contents.replace('SYN001', 'SYN999')
+  assert.equal((await f.send({}, foreign)).status, 401)
+  // A refused attempt still starts the cooldown that throttles guessing.
+  assert.equal((await f.send({}, 'not a raid file')).status, 429)
+  assert.deepEqual(f.normalized, [])
+  assert.equal(f.queries.filter((sql) => sql.startsWith('BEGIN;')).length, 0)
 })

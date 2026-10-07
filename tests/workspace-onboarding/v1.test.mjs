@@ -483,6 +483,8 @@ test('historical game resource counts remain importable without accepting creden
   for (const value of [
     'synthetic',
     { current: 'synthetic' },
+    { current: -1 },
+    { max: -0 },
     { current: 2, idToken: 'synthetic' }
   ]) {
     const { service } = fixture()
@@ -502,4 +504,20 @@ test('historical game resource counts remain importable without accepting creden
       }),
     /secure native migration/
   )
+})
+
+test('historical migration stores exactly the profile it validated', () => {
+  const { service, stored } = fixture()
+  let reads = 0
+  const counts = {
+    get current() {
+      return ++reads === 1 ? 2 : 'SYNTHETIC-SWAPPED-CANARY'
+    }
+  }
+  try {
+    service.migrateHistorical({
+      personal: { resources: { guildRaidTokens: counts } }
+    })
+  } catch {}
+  assert.equal(JSON.stringify(stored() ?? {}).includes('CANARY'), false)
 })

@@ -24,6 +24,35 @@ async function until(action) {
   }
   assert.fail('Native process deadline exceeded')
 }
+const treeScript = `import{spawn}from'node:child_process';import{writeFileSync}from'node:fs';const grand=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});writeFileSync(process.argv[2],JSON.stringify([process.pid,grand.pid]));setInterval(()=>{},1000);`
+async function launch(state) {
+  const restart = spawn(
+    guard,
+    ['--run', join(state, 'lock'), process.execPath, '-e', 'process.exit(0)'],
+    { stdio: 'ignore' }
+  )
+  return new Promise((accept) => restart.once('exit', accept))
+}
+async function startTree(state) {
+  const script = join(state, 'tree.mjs'),
+    record = join(state, 'pids.json')
+  await writeFile(script, treeScript)
+  const child = spawn(
+    guard,
+    ['--run', join(state, 'lock'), process.execPath, script, record],
+    { stdio: 'ignore' }
+  )
+  let ids
+  await until(async () => {
+    try {
+      ids = JSON.parse(await readFile(record))
+      return ids.length === 2
+    } catch {
+      return false
+    }
+  })
+  return { child, ids }
+}
 test(
   'owner SIGKILL terminates its real child and descendant; a second launch is refused',
   { skip: !darwin },
@@ -69,21 +98,8 @@ test(
       child.kill('SIGKILL')
       await until(() => ids.every((pid) => !exists(pid)))
       assert.ok(ids.every((pid) => !exists(pid)))
-      const restart = spawn(
-        guard,
-        [
-          '--run',
-          join(state, 'lock'),
-          process.execPath,
-          '-e',
-          'process.exit(0)'
-        ],
-        { stdio: 'ignore' }
-      )
-      assert.equal(
-        await new Promise((accept) => restart.once('exit', accept)),
-        0
-      )
+      // The watcher releases the lock just after the tree is gone.
+      await until(async () => (await launch(state)) === 0)
     } finally {
       child.kill('SIGKILL')
       for (const pid of ids ?? []) if (exists(pid)) process.kill(pid, 'SIGKILL')
@@ -91,6 +107,30 @@ test(
     }
   }
 )
+
+for (const signal of ['SIGTERM', 'SIGHUP'])
+  test(
+    `owner ${signal} stops its real child and descendant and releases the lock`,
+    { skip: !darwin },
+    async () => {
+      assert.ok(guard)
+      const state = await mkdtemp(join(tmpdir(), 'mac native ü '))
+      let tree
+      try {
+        tree = await startTree(state)
+        const exited = new Promise((accept) => tree.child.once('exit', accept))
+        tree.child.kill(signal)
+        assert.equal(await exited, 130)
+        await until(() => tree.ids.every((pid) => !exists(pid)))
+        assert.equal(await launch(state), 0)
+      } finally {
+        tree?.child.kill('SIGKILL')
+        for (const pid of tree?.ids ?? [])
+          if (exists(pid)) process.kill(pid, 'SIGKILL')
+        await rm(state, { recursive: true, force: true })
+      }
+    }
+  )
 
 test(
   'native Keychain stores, reads, refuses locked reads, deletes and excludes plaintext files',

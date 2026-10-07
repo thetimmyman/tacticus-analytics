@@ -354,17 +354,6 @@ export default async function proxy(request: NextRequest) {
       )
   }
   const rawPathname = request.nextUrl.pathname
-  if (
-    getRuntimeProfile() === 'desktop' &&
-    [
-      '/auth/login',
-      '/auth/signup',
-      '/auth/forgot-password',
-      '/auth/reset-password',
-      '/login'
-    ].includes(rawPathname)
-  )
-    return NextResponse.redirect(new URL('/desktop/setup', request.url))
   const isResetRoute = rawPathname.startsWith('/auth/reset-session')
   const isAuthCallback = rawPathname.startsWith('/auth/callback')
 

@@ -83,6 +83,7 @@ int main(int argc, char **argv) {
   if (pipe(status_pipe) < 0) return 71;
   signal(SIGTERM, interrupt);
   signal(SIGINT, interrupt);
+  signal(SIGHUP, interrupt);
   pid_t owner = getpid();
   pid_t watcher = fork();
   if (watcher < 0) return 71;
@@ -106,6 +107,7 @@ int main(int argc, char **argv) {
       if (interrupted) _exit(130);
       signal(SIGTERM, SIG_DFL);
       signal(SIGINT, SIG_DFL);
+      signal(SIGHUP, SIG_DFL);
       setenv("TA_MAC_GUARD_LOCK", lock_path, 1);
       execv(command[0], command);
       _exit(127);
@@ -144,13 +146,18 @@ int main(int argc, char **argv) {
   pid_t group = 0;
   ssize_t received = read(status_pipe[0], &group, sizeof(group));
   close(status_pipe[0]);
-  int status;
-  if (interrupted) kill(watcher, SIGTERM);
+  /* signal() restarts a blocking waitpid on macOS, so poll like the watcher
+   * does; otherwise a SIGTERM to the owner is never forwarded. */
+  int status = 0, forwarded = 0;
   for (;;) {
-    pid_t ended = waitpid(watcher, &status, 0);
+    pid_t ended = waitpid(watcher, &status, WNOHANG);
     if (ended == watcher) break;
     if (ended < 0 && errno != EINTR) return 71;
-    if (interrupted) kill(watcher, SIGTERM);
+    if (interrupted && !forwarded) {
+      kill(watcher, SIGTERM);
+      forwarded = 1;
+    }
+    usleep(100000);
   }
   if (received == sizeof(group) && WIFSIGNALED(status)) stop_group(group);
   close(lock);

@@ -96,12 +96,12 @@ const services = await nativeServices({
     postgrest: join(root, 'postgrest/postgrest')
   }
 })
-const gate = localSessionGate({
-  services,
-  signingKey: privateState(join(state, 'credentials.json')).read().jwt
-})
 let gateway
 try {
+  const gate = localSessionGate({
+    services,
+    signingKey: privateState(join(state, 'credentials.json')).read().jwt
+  })
   if (option('--storage-check')) {
     if (verify?.synthetic !== true)
       throw new Error('Disposable synthetic verification required')
@@ -480,7 +480,7 @@ try {
       )
       console.log('TA-MAC-WINDOW-EXIT:' + JSON.stringify(diagnostic))
     }
-    if (result.code !== 0)
+    if (result.code !== 0 || services.fault)
       throw new Error(
         'Local application window failed; retained data was preserved'
       )
@@ -499,8 +499,15 @@ try {
     }
   }
 } finally {
-  lifetime.abort()
-  vault.close()
-  if (gateway) await gateway.stop()
-  await services.stop()
+  // Each step must run even if an earlier one throws, or services outlive us.
+  try {
+    lifetime.abort()
+    vault.close()
+  } finally {
+    try {
+      if (gateway) await gateway.stop()
+    } finally {
+      await services.stop()
+    }
+  }
 }

@@ -98,7 +98,9 @@ export async function nativeServices({
       for (const child of [...children].reverse()) {
         if (child.exitCode !== null || child.signalCode !== null) continue
         const exited = new Promise((accept) => child.once('exit', accept))
-        child.kill('SIGTERM')
+        // PostgreSQL treats SIGTERM as a smart shutdown that waits for clients;
+        // SIGINT is its fast shutdown, so it is not SIGKILLed into recovery.
+        child.kill(child.spawnfile === binaries.postgres ? 'SIGINT' : 'SIGTERM')
         await Promise.race([exited, delay(5000, undefined, { ref: false })])
         if (child.exitCode === null && child.signalCode === null) {
           child.kill('SIGKILL')
@@ -320,7 +322,9 @@ export async function nativeServices({
     const auth = launch(binaries.auth, ['serve'], authEnv, binaries.authCwd)
     await ready(
       async () => {
-        const r = await fetch(`http://127.0.0.1:${ports.auth}/health`)
+        const r = await fetch(`http://127.0.0.1:${ports.auth}/health`, {
+          signal: AbortSignal.timeout(2000)
+        })
         if (!r.ok) throw Error('Auth not ready')
       },
       auth,
@@ -356,7 +360,8 @@ export async function nativeServices({
     await ready(
       async () => {
         const r = await fetch(`http://127.0.0.1:${ports.rest}/`, {
-          headers: { Authorization: `Bearer ${token.service}` }
+          headers: { Authorization: `Bearer ${token.service}` },
+          signal: AbortSignal.timeout(2000)
         })
         if (!r.ok) throw Error('PostgREST not ready')
       },

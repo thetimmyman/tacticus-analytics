@@ -64,6 +64,7 @@ function validateSnapshot(value) {
       'status',
       'capabilities',
       'vaultReferences',
+      'pendingVaultRemovals',
       'personal',
       'guildId',
       'raid'
@@ -90,6 +91,12 @@ function validateSnapshot(value) {
     )
       throw fail('ESCHEMA', 'Invalid personal capability metadata')
   }
+  // Shared onboarding queues unreferenced Keychain handles here until removed.
+  if (
+    Object.hasOwn(value, 'pendingVaultRemovals') &&
+    (!handles(value.pendingVaultRemovals) || !value.pendingVaultRemovals.length)
+  )
+    throw fail('ESCHEMA', 'Invalid pending credential removals')
   if (Object.hasOwn(value, 'personal')) validatePersonal(value.personal)
   if (
     ['active', 'historical-offline'].includes(value.status) &&

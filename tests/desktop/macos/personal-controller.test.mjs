@@ -213,3 +213,52 @@ test('corruption discovered on a later authorized action blocks connection befor
   assert.equal(controller.onboarding.busy, false)
   assert.equal(f.calls.length, 0)
 })
+
+test('disconnecting the only scope removes its Keychain item and forgets the handle', async (t) => {
+  const f = await fixture(t)
+  const controller = f.create()
+  await controller.run({ operation: 'connect', scope: 'Player' })
+  f.calls.length = 0
+  const view = await controller.run({
+    operation: 'disconnect',
+    scope: 'Player'
+  })
+  assert.deepEqual(
+    f.calls.filter(([operation]) => operation === 'remove'),
+    [['remove', handle]]
+  )
+  const saved = createPersonalStore(f.directory).read()
+  assert.equal(saved.vaultReferences?.Player, undefined)
+  assert.equal(saved.pendingVaultRemovals, undefined)
+  assert.equal(JSON.stringify(view).includes(handle), false)
+})
+
+test('a locked Keychain keeps the removal queued across restart until it succeeds', async (t) => {
+  const f = await fixture(t)
+  await f.create().run({ operation: 'connect', scope: 'Player' })
+  f.vault.remove = async (ref) => {
+    f.calls.push(['remove-locked', ref])
+    throw Object.assign(new Error('Synthetic lock'), { code: 'EVAULTLOCKED' })
+  }
+  await f
+    .create()
+    .run({ operation: 'disconnect', scope: 'Player' })
+    .catch(() => {})
+  assert.deepEqual(
+    createPersonalStore(f.directory).read().pendingVaultRemovals,
+    [handle]
+  )
+  f.calls.length = 0
+  f.vault.remove = async (ref) => {
+    f.calls.push(['remove', ref])
+  }
+  await f.create().run({ operation: 'disconnect', scope: 'Player' })
+  assert.deepEqual(
+    f.calls.filter(([op]) => op === 'remove'),
+    [['remove', handle]]
+  )
+  assert.equal(
+    createPersonalStore(f.directory).read().pendingVaultRemovals,
+    undefined
+  )
+})
