@@ -8194,22 +8194,6 @@ export type Database = {
         }
         Relationships: []
       }
-      mv_season_summary: {
-        Row: {
-          avg_damage: number | null
-          cluster_code: string | null
-          completed_battles: number | null
-          Guild: string | null
-          last_activity: string | null
-          one_shots: number | null
-          player_count: number | null
-          Season: string | null
-          total_battles: number | null
-          total_damage: number | null
-          unique_bosses: number | null
-        }
-        Relationships: []
-      }
       player_architecture_health: {
         Row: {
           metric: string | null
