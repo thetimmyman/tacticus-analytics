@@ -98,10 +98,14 @@ BEGIN
 
   -- Retire the keys of guilds that are no longer enabled. The loop above only visits enabled
   -- guilds, so a disabled guild's key is never refreshed again: it ages past the roster.write.%
-  -- expectation and monitoring.stale_alerts() reports it as a stopped monitor. A key still
-  -- firing gets a cleared notice first so the open alert is closed, not orphaned.
+  -- expectation and monitoring.stale_alerts() reports it as a stopped monitor.
+  -- Retirement takes two runs for a key that is still firing: this run posts the cleared notice
+  -- and notify() records the transition only once it is delivered (a Plane-tracked key records
+  -- it without posting), a later run deletes the row. Deleting in the same run would hide the
+  -- transition from the tracker and drop a key whose clear failed to deliver. A cleared row is
+  -- only deleted once the clear is at least an hour old, long enough for the tracker to see it.
   FOR retired IN
-    SELECT s.alert_key, s.status
+    SELECT s.alert_key, s.status, s.since
       FROM monitoring.alert_state s
      WHERE s.alert_key LIKE 'roster.write.%'
        AND NOT EXISTS (
@@ -111,6 +115,13 @@ BEGIN
             AND 'roster.write.' || gc.guild_code = s.alert_key)
      ORDER BY s.alert_key
   LOOP
+    -- Re-check right before acting: a guild re-enabled since the snapshot above keeps its key.
+    CONTINUE WHEN EXISTS (
+      SELECT 1
+        FROM public.guild_config gc
+       WHERE gc.enabled IS TRUE
+         AND 'roster.write.' || gc.guild_code = retired.alert_key);
+
     IF retired.status = 'firing' THEN
       PERFORM monitoring.notify(
         retired.alert_key, 'cleared',
@@ -118,8 +129,10 @@ BEGIN
         format('Roster alert withdrawn for %s: guild disabled, monitoring retired.',
                substr(retired.alert_key, 14)),
         p_quiet);
+    ELSIF retired.since <= now() - INTERVAL '1 hour' THEN
+      DELETE FROM monitoring.alert_state AS s
+       WHERE s.alert_key = retired.alert_key AND s.status = 'cleared';
     END IF;
-    DELETE FROM monitoring.alert_state AS s WHERE s.alert_key = retired.alert_key;
   END LOOP;
 
   RETURN firing;
@@ -155,5 +168,7 @@ $verify$;
 INSERT INTO supabase_migrations.schema_migrations (version, name)
 VALUES ('20261007164500', 'roster_write_retire_disabled_guild_keys')
 ON CONFLICT (version) DO NOTHING;
+
+NOTIFY pgrst, 'reload schema';
 
 COMMIT;

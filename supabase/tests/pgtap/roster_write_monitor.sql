@@ -6,7 +6,7 @@ CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 SET LOCAL timezone TO 'UTC';
 
-SELECT plan(36);
+SELECT plan(38);
 
 SELECT is(
   current_database()::text,
@@ -364,19 +364,41 @@ SELECT is(
 
 DO $run$ BEGIN PERFORM public.check_guild_roster_write_health(7, 0.5, 3, true); END $run$;
 
+-- First run: a firing key is closed (cleared notice) but kept for the tracker to observe; a cleared
+-- key younger than an hour is kept too.
+SELECT is(
+  (SELECT status FROM monitoring.alert_state WHERE alert_key = 'roster.write.TP513OFFFIRE'),
+  'cleared'::text,
+  '33. a disabled guild''s firing key gets its cleared notice and is not deleted in the same run'
+);
+
+SELECT is(
+  (SELECT count(*)::integer FROM monitoring.alert_state
+    WHERE alert_key IN ('roster.write.TP513OFFCLR', 'roster.write.TP513GONE')),
+  2,
+  '34. a cleared key whose clear is under an hour old is left for the tracker to observe'
+);
+
+-- Age every cleared key past the hour (enabled guilds' included), then run again.
+UPDATE monitoring.alert_state SET since = now() - INTERVAL '2 hours'
+ WHERE alert_key IN ('roster.write.TP513OFFCLR', 'roster.write.TP513OFFFIRE',
+                     'roster.write.TP513GONE', 'roster.write.TP513SYNCOFF',
+                     'roster.write.TP513SYNCFAIL');
+DO $run$ BEGIN PERFORM public.check_guild_roster_write_health(7, 0.5, 3, true); END $run$;
+
 SELECT is(
   (SELECT count(*)::integer FROM monitoring.alert_state
     WHERE alert_key IN ('roster.write.TP513OFFCLR', 'roster.write.TP513OFFFIRE',
                         'roster.write.TP513GONE')),
   0,
-  '33. THE KEYS ARE RETIRED: disabled and removed guilds, firing or cleared, leave no alert_state row'
+  '35. THE KEYS ARE RETIRED: disabled and removed guilds leave no alert_state row'
 );
 
 SELECT is(
   (SELECT count(*)::integer FROM monitoring.stale_alerts()
     WHERE alert_key LIKE 'roster.write.TP513OFF%' OR alert_key = 'roster.write.TP513GONE'),
   0,
-  '34. AFTER: stale_alerts() reports nothing for the retired guilds'
+  '36. AFTER: stale_alerts() reports nothing for the retired guilds'
 );
 
 SELECT is(
@@ -385,7 +407,7 @@ SELECT is(
                         'roster.write.TP513FRESHBAD', 'roster.write.TP513EDGE')
       AND status = 'firing'),
   4,
-  '35. NEGATIVE CONTROL: the keys of enabled guilds are untouched by the retirement'
+  '37. NEGATIVE CONTROL: the keys of enabled guilds are untouched by the retirement'
 );
 
 SELECT is(
@@ -393,7 +415,7 @@ SELECT is(
     WHERE alert_key IN ('roster.write.TP513SYNCOFF', 'roster.write.TP513SYNCFAIL')
       AND status = 'cleared'),
   2,
-  '36. NEGATIVE CONTROL: an enabled guild whose alert is cleared keeps its row'
+  '38. NEGATIVE CONTROL: an enabled guild whose alert is cleared keeps its row, even an aged one'
 );
 
 SELECT * FROM finish();
