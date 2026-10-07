@@ -20,14 +20,11 @@ const CHECKS_PERFORMED = [
   'a stated stats-window header on migrations citing zero statistics counters'
 ]
 
-// Statistics counters (idx_scan, n_tup_ins, n_live_tup) are cumulative, kept
-// per node, and restart at the last stats reset or server start. A zero read
-// from them proves nothing unless the window it covers is stated, so a
-// migration whose comments cite one as evidence must carry exactly one header:
+// idx_scan, n_tup_ins and n_live_tup are cumulative, per node, and restart at
+// the last stats reset or server start, so a zero cited in a comment needs one
 //   -- stats-window: start=<ISO-8601> age=<duration> nodes=<N> minimum=<N>d
-// Only comments are read as evidence; a live predicate in SQL (a monitoring
-// view's WHERE idx_scan = 0) reports nothing observed. A table is never judged
-// empty from these counters, so a DROP TABLE they justify must cite count(*).
+// header. Live predicates in SQL are not evidence. These counters never decide
+// that a table is empty: a DROP TABLE they justify must also cite count(*).
 export const STATS_WINDOW_MIN_DAYS = 14
 const STATS_WINDOW_HEADER_LINES = 40
 const ZERO_COUNTER =
