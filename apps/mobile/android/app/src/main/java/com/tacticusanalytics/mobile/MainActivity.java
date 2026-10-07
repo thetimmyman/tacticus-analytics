@@ -339,8 +339,9 @@ public final class MainActivity extends Activity {
     worker.execute(() -> {
       try {
         LocalAccess.requireUnlocked(this);
+        android.net.Uri location = DocumentUri.require(intent.getData(), getPackageName());
         if (request == 41 || request == 43) {
-          try (var output = getContentResolver().openOutputStream(intent.getData())) {
+          try (var output = getContentResolver().openOutputStream(location, "wt")) {
             if (output == null)
               throw new Exception();
             output.write((request == 43 ? NativeBackup.export(store.read(demo))
@@ -349,7 +350,7 @@ public final class MainActivity extends Activity {
                     .getBytes(java.nio.charset.StandardCharsets.UTF_8));
           }
         } else {
-          try (var input = getContentResolver().openInputStream(intent.getData())) {
+          try (var input = getContentResolver().openInputStream(location)) {
             if (input == null)
               throw new Exception();
             byte[] bytes = readBounded(input);

@@ -703,6 +703,37 @@ public final class AndroidProof extends Instrumentation {
                         .connect(vault.store("synthetic-schema-missing-progress-v1"), true, false,
                             false, name -> true),
             "Player missing required progress activated content");
+        String beforeOutOfContract = store.read(false).toString();
+        rejects(()
+                    -> new Onboarding(vault, store,
+                        (scope, key) -> {
+                          JSONObject outOfContract = player("Synthetic player", false, false);
+                          outOfContract.getJSONObject("player").getJSONArray("units")
+                              .getJSONObject(0).put("rank", 99);
+                          return outOfContract;
+                        })
+                        .connect(vault.store("synthetic-schema-rank-v1"), true, false, false,
+                            name -> true),
+            "Out-of-contract upstream rank activated content");
+        check(store.read(false).toString().equals(beforeOutOfContract),
+            "Refused upstream data changed the workspace");
+        JSONObject highRank = Demo.document();
+        highRank.getJSONObject("personal").getJSONArray("roster").getJSONObject(0)
+            .put("rank", 23).put("xpLevel", 55);
+        check(MobileDocument.export(highRank).getJSONObject("player").getJSONArray("units")
+                  .getJSONObject(0).getInt("rank") == 23,
+            "Highest current rank refused by the portable document");
+        String own = getTargetContext().getPackageName();
+        for (String location : new String[] {
+                 "file://" + getTargetContext().getDatabasePath("workspaces-v1.db").getPath(),
+                 "content://" + own + ".documents/document/synthetic.json",
+                 "content:///synthetic.json", "https://example.invalid/synthetic.json"})
+          rejects(() -> DocumentUri.require(android.net.Uri.parse(location), own),
+              "Document picker result reached a private or non-document location");
+        check(DocumentUri.require(android.net.Uri.parse(
+                  "content://com.android.externalstorage.documents/document/primary%3Asynthetic.json"),
+                  own) != null,
+            "Document provider location refused");
 
         String canary = "synthetic-official-canary-v1", handle = vault.store(canary);
         check(vault.withCredential(handle, value -> value.equals(canary)), "Keystore roundtrip");

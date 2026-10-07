@@ -181,6 +181,8 @@ final class Onboarding {
       JSONObject latest = store.read(false);
       if (latest.has("portableRaids"))
         current.put("portableRaids", latest.getJSONArray("portableRaids"));
+      // Refuse upstream data the portable contract cannot carry before it replaces retained data.
+      MobileDocument.export(current);
       store.commit(current, false, references, expectedGeneration);
       retained = references.length() > 0;
       vault.sweep(store.referencedHandles());

@@ -45,6 +45,18 @@ describe('Android portable boundary and retained acceptance', () => {
     }
   )
 
+  it('carries every current unit rank and refuses ranks beyond Mythic III', () => {
+    const withRank = (rank: number) => {
+      const document = structuredClone(fixture) as {
+        player: { units: { rank: number }[] }
+      }
+      document.player.units[0].rank = rank
+      return document
+    }
+    expect(validate(withRank(23))).toBe(true)
+    expect(validate(withRank(24))).toBe(false)
+  })
+
   it('retains every provisional source without silently approving exclusions', () => {
     const matrix = readJson(
       resolve('docs/mobile/android/feature-matrix.json')

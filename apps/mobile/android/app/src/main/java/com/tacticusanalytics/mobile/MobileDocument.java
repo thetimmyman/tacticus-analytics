@@ -98,8 +98,8 @@ final class MobileDocument {
         exact(unit, "id", "name", "rank", "xpLevel");
         string(unit, "id");
         string(unit, "name");
-        integer(unit, "rank", 0, 17);
-        integer(unit, "xpLevel", 1, 50);
+        integer(unit, "rank", 0, 23);
+        integer(unit, "xpLevel", 1, 60);
       }
       JSONObject resources = player.getJSONObject("resources");
       exact(resources, "guildRaidTokens", "bombTokens");
