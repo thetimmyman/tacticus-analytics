@@ -1,20 +1,13 @@
 -- target-db: general
--- Drop public.mv_season_summary and the dead guild-war backfill chain.
---
--- mv_season_summary: no function, view, policy or app code reads it. The only
--- refresher, purge_old_seasons(), was retired by 20260925050000.
---
--- gw_backfill_guild_war_battles_batch(integer) and the two helpers it alone
--- calls, gw_tmp_lineup_id(jsonb) and gw_tmp_build_unit_snapshots(jsonb): a
--- one-shot backfill that no migration here creates, flagged "DO NOT RUN" by
--- 20260831030000 (its guard assumes battles.id = attempts.id, which no longer
--- holds). No caller exists in app, modules, edge functions, scripts, cron,
--- other functions or views; pg_stat_statements shows no calls.
---
--- Rollback: re-create the matview and the three functions from the definitions
--- captured before apply, then
---   DELETE FROM supabase_migrations.schema_migrations WHERE version = '20261007153000';
--- The matview comes back populated by a plain REFRESH (about 1.6k rows).
+
+-- mv_season_summary has no reader and no refresher left (purge_old_seasons
+-- was retired by 20260925050000).
+
+-- gw_backfill_guild_war_battles_batch and its two helpers have no migration
+-- source and no caller; 20260831030000 already marks the backfill DO NOT RUN.
+
+-- Rollback: recreate the matview (plus REFRESH) and the three functions from
+-- definitions captured before apply, then delete this ledger row.
 
 BEGIN;
 
@@ -30,8 +23,7 @@ $guard$;
 
 SET LOCAL lock_timeout = '5s';
 
--- Refuse if anything other than the dropped objects still names them. A plain
--- DROP also fails on a dependent view or index, but not on a function body.
+-- Refuse if another function body names them; DROP only checks dependents.
 DO $precondition$
 DECLARE
   v_readers text[];
