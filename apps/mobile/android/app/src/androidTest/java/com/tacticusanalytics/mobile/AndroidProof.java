@@ -22,6 +22,15 @@ import org.json.JSONObject;
 public final class AndroidProof extends Instrumentation {
   private String phase;
   private int checks;
+  private boolean pinPresentationAttempted;
+  private boolean pinSubmitted;
+  private boolean systemUiObserved;
+  private boolean pinContainerObserved;
+  private String pinContext() {
+    return "; pinPresentationAttempted=" + pinPresentationAttempted
+        + " pinSubmitted=" + pinSubmitted + " systemUiObserved=" + systemUiObserved
+        + " pinContainerObserved=" + pinContainerObserved;
+  }
   @Override
   public void onCreate(Bundle arguments) {
     super.onCreate(arguments);
@@ -35,6 +44,8 @@ public final class AndroidProof extends Instrumentation {
   }
   private String failureContext() {
     String context = "; phase=" + phase + " afterChecks=" + checks;
+    if ("unlocked".equals(phase))
+      context += pinContext();
     try {
       android.app.KeyguardManager manager =
           getTargetContext().getSystemService(android.app.KeyguardManager.class);
@@ -305,6 +316,34 @@ public final class AndroidProof extends Instrumentation {
     AccessibilityNodeInfo control = controls.get(0);
     return control.isVisibleToUser() && control.isEnabled() ? control : null;
   }
+  private void injectSwipeEvent(long downTime, int action, float x, float y) throws Exception {
+    android.view.MotionEvent event = android.view.MotionEvent.obtain(
+        downTime, SystemClock.uptimeMillis(), action, x, y, 0);
+    event.setSource(android.view.InputDevice.SOURCE_TOUCHSCREEN);
+    try {
+      if (!getUiAutomation().injectInputEvent(event, true))
+        throw new Exception("Synthetic lock-screen gesture refused");
+    } finally {
+      event.recycle();
+    }
+  }
+  private void presentPin(AccessibilityNodeInfo root) throws Exception {
+    android.graphics.Rect bounds = new android.graphics.Rect();
+    root.getBoundsInScreen(bounds);
+    if (bounds.width() < 2 || bounds.height() < 10)
+      throw new Exception("Synthetic lock-screen bounds unavailable");
+    float x = bounds.exactCenterX();
+    float start = bounds.top + bounds.height() * 0.8f;
+    float end = bounds.top + bounds.height() * 0.2f;
+    long downTime = SystemClock.uptimeMillis();
+    injectSwipeEvent(downTime, android.view.MotionEvent.ACTION_DOWN, x, start);
+    for (int step = 1; step <= 10; step++) {
+      SystemClock.sleep(10);
+      injectSwipeEvent(downTime, android.view.MotionEvent.ACTION_MOVE, x,
+          start + (end - start) * step / 10);
+    }
+    injectSwipeEvent(downTime, android.view.MotionEvent.ACTION_UP, x, end);
+  }
   private void prepareUnlocked() throws Exception {
     check("ranchu".equals(Build.HARDWARE) || "goldfish".equals(Build.HARDWARE),
         "Synthetic PIN setup is emulator-only");
@@ -318,7 +357,6 @@ public final class AndroidProof extends Instrumentation {
     service.flags |= android.accessibilityservice.AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
     getUiAutomation().setServiceInfo(service);
     long deadline = SystemClock.elapsedRealtime() + 20000;
-    boolean submitted = false;
     String[] keys = {"key2", "key4", "key6", "key8", "key_enter"};
     while (SystemClock.elapsedRealtime() < deadline) {
       if (!manager.isDeviceLocked()) {
@@ -326,7 +364,16 @@ public final class AndroidProof extends Instrumentation {
         check(true, "Native session did not unlock");
         return;
       }
-      if (!submitted && systemPinControl("keyguard_pin_view") != null) {
+      AccessibilityNodeInfo root = getUiAutomation().getRootInActiveWindow();
+      boolean systemUi = root != null && "com.android.systemui".contentEquals(root.getPackageName());
+      systemUiObserved |= systemUi;
+      boolean pinContainer = systemPinControl("keyguard_pin_view") != null;
+      pinContainerObserved |= pinContainer;
+      if (!pinSubmitted && !pinPresentationAttempted && systemUi && !pinContainer) {
+        pinPresentationAttempted = true;
+        presentPin(root);
+      }
+      if (!pinSubmitted && pinContainer) {
         AccessibilityNodeInfo entry = systemPinControl("pinEntry");
         AccessibilityNodeInfo clear = systemPinControl("delete_button");
         boolean ready = entry != null && clear != null && clear.isLongClickable();
@@ -335,7 +382,7 @@ public final class AndroidProof extends Instrumentation {
           ready &= control != null && control.isClickable();
         }
         if (ready) {
-          submitted = true;
+          pinSubmitted = true;
           if (!clear.performAction(AccessibilityNodeInfo.ACTION_LONG_CLICK))
             throw new Exception("Synthetic PIN clear refused");
           for (String key : keys) {
@@ -358,7 +405,8 @@ public final class AndroidProof extends Instrumentation {
       if (phase.equals("unlocked")) {
         prepareUnlocked();
         result.putString("stream",
-            "PASS phase=unlocked checks=" + checks + "; synthetic native PIN session\n");
+            "PASS phase=unlocked checks=" + checks + "; synthetic native PIN session" + pinContext()
+                + "\n");
         finish(-1, result);
         return;
       }
