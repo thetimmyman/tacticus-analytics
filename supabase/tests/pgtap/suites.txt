@@ -55,6 +55,7 @@ port_war_room_readiness.sql # 27
 pgnet_failure_snapshots.sql # 13
 authenticated_write_grants.sql # 11
 anon_definer_maintenance_revokes.sql # 7
+claim_definer_public_revoke.sql # 9
 role_statement_and_idle_timeouts.sql # 14
 guild_latest_raid_index.sql # 8
 global_leaderboard_retired.sql # 5
@@ -73,7 +74,7 @@ alert_staleness_and_renotify.sql # 40
 guild_war_zones_match_fk.sql # 12
 erase_residual_player_mapping_identity.sql # 65
 player_mapping_analytics_ro.sql # 14
-roster_write_monitor.sql # 31
+roster_write_monitor.sql # 38
 guild_war_sync_remnants.sql # 18
 player_mapping_retention.sql # 18
 player_hash_name_heal.sql # 14
