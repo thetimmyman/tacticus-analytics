@@ -1,7 +1,7 @@
 import 'server-only'
 
 import { randomUUID } from 'node:crypto'
-import type { TypedSupabaseClient } from '@tacticus/app-core/types'
+import type { ServiceSupabaseClient } from '@/app/lib/sync/worker-types'
 import { createComponentLogger } from '@/app/lib/logging'
 
 const logger = createComponentLogger('lib.auth.user-ban-lock')
@@ -51,7 +51,7 @@ export interface UserBanLockLease {
 }
 
 async function renewUserBanLock(
-  supabase: TypedSupabaseClient,
+  supabase: ServiceSupabaseClient,
   lock: UserBanLock
 ): Promise<void> {
   const now = new Date()
@@ -81,7 +81,7 @@ async function renewUserBanLock(
 }
 
 async function acquireUserBanLock(
-  supabase: TypedSupabaseClient,
+  supabase: ServiceSupabaseClient,
   userId: string
 ): Promise<UserBanLock | null> {
   const canonicalUserId = canonicalizeUserBanAuthUserId(userId)
@@ -124,7 +124,7 @@ async function acquireUserBanLock(
 }
 
 async function releaseUserBanLock(
-  supabase: TypedSupabaseClient,
+  supabase: ServiceSupabaseClient,
   lock: UserBanLock
 ): Promise<void> {
   const { error } = await supabase
@@ -140,7 +140,7 @@ async function releaseUserBanLock(
 }
 
 export async function withUserBanLock<T>(
-  supabase: TypedSupabaseClient,
+  supabase: ServiceSupabaseClient,
   userId: string,
   operation: (lease: UserBanLockLease) => Promise<T>,
   signal?: AbortSignal
@@ -208,7 +208,7 @@ export async function withUserBanLock<T>(
 
 /** Acquires in stable order to avoid lock-order deadlocks. */
 export async function withUserBanLocks<T>(
-  supabase: TypedSupabaseClient,
+  supabase: ServiceSupabaseClient,
   userIds: readonly string[],
   operation: (leases: readonly UserBanLockLease[]) => Promise<T>,
   signal?: AbortSignal
@@ -239,7 +239,7 @@ export async function withUserBanLocks<T>(
  * past the TTL, and abandoning compensation would violate the ban invariant.
  */
 export async function withUserBanLocksAfterLeaseLoss<T>(
-  supabase: TypedSupabaseClient,
+  supabase: ServiceSupabaseClient,
   userIds: readonly string[],
   operation: (leases: readonly UserBanLockLease[]) => Promise<T>
 ): Promise<T> {

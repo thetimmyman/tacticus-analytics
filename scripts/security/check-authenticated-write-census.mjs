@@ -17,7 +17,8 @@ const CENSUS_PATH = path.join(HERE, 'authenticated-write-census.json')
 const MIGRATION_PATHS = [
   'supabase/migrations/20260925080000_ps218_revoke_authenticated_write_grants.sql',
   'supabase/migrations/20261006120000_revoke_discord_dispatch_write_grants.sql',
-  'supabase/migrations/20261006130000_revoke_guild_war_import_write_grants.sql'
+  'supabase/migrations/20261006130000_revoke_guild_war_import_write_grants.sql',
+  'supabase/migrations/20261007230000_revoke_service_traced_write_grants.sql'
 ].map((rel) => path.join(REPO_ROOT, rel))
 const PGTAP_PATH = path.join(
   REPO_ROOT,
@@ -39,16 +40,16 @@ const DISCORD_DISPATCH_ROUTE = 'app/api/discord/interactions/route.ts'
 
 // The guild-war ingestor's exported entry point is reached by exactly one
 // non-test route, which builds its client with serviceDb(); PROVENANCE_RULES
-// re-checks that premise. The module also writes guild_war_battles,
-// guild_war_lineups and guild_war_participation under the same proof, but
-// this rule stays scoped to the tables this census sweep actually judges --
-// widening it to the module's other tables is a separate decision.
+// re-checks that premise. guild_war_lineups is written under the same proof
+// but stays out: a write policy governs it, so its grant is not judged here.
 const GUILD_WAR_INGESTOR_MODULE = 'app/lib/war/guild-war-ingestor.ts'
 const GUILD_WAR_IMPORT_ROUTE = 'app/api/guild-war/import/route.ts'
 const GUILD_WAR_IMPORT_TABLES = new Set([
   'guild_war_zones',
   'guild_war_matches',
-  'guild_war_player_attempts'
+  'guild_war_player_attempts',
+  'guild_war_battles',
+  'guild_war_participation'
 ])
 
 /** Claims behind the name-only attribution rules; --scan re-verifies each. */
@@ -839,7 +840,7 @@ const FIXTURES = [
   {
     name: 'a TypedSupabaseClient parameter in the guild-war ingestor, writing a table outside this rule, stays UNKNOWN',
     rel: GUILD_WAR_INGESTOR_MODULE,
-    src: `async function ingestWar(supabase: TypedSupabaseClient) {\n  await supabase.from('guild_war_battles').upsert({ a: 1 })\n}\n`,
+    src: `async function ingestWar(supabase: TypedSupabaseClient) {\n  await supabase.from('guild_war_lineups').upsert({ a: 1 })\n}\n`,
     expect: (h) => h.length === 1 && h[0].client === 'UNKNOWN'
   },
   {
