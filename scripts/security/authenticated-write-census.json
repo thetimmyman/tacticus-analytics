@@ -555,12 +555,6 @@
           "line": 185,
           "verb": "update",
           "client": "SERVICE(edge)"
-        },
-        {
-          "file": "supabase/functions/discord-notifications/general-commands.ts",
-          "line": 258,
-          "verb": "update",
-          "client": "SERVICE(edge)"
         }
       ],
       "undecided_write_sites": 4,
@@ -631,12 +625,6 @@
           "line": 149,
           "verb": "upsert",
           "client": "SERVICE(edge)"
-        },
-        {
-          "file": "supabase/functions/discord-notifications/general-commands.ts",
-          "line": 231,
-          "verb": "upsert",
-          "client": "SERVICE(edge)"
         }
       ],
       "undecided_write_sites": 0,
@@ -660,12 +648,6 @@
           "line": 73,
           "verb": "upsert",
           "client": "SERVICE(discord-dispatch)"
-        },
-        {
-          "file": "supabase/functions/discord-notifications/raid-commands.ts",
-          "line": 275,
-          "verb": "upsert",
-          "client": "SERVICE(edge)"
         }
       ],
       "undecided_write_sites": 0,
