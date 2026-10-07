@@ -135,4 +135,40 @@ function rendererReceipt({ observed, pending, failed, blocked }) {
   }
 }
 
-module.exports = { requestLabel, sanitizeFailure, rendererReceipt }
+// The gateway tags its deliberate holding refusal of legacy credential routes,
+// which renderer navigation and prefetch can reach without any defect.
+const holdingHeader = 'x-desktop-holding'
+function holdingRefusal(status, headers) {
+  if (status !== 403) return false
+  return Object.entries(headers ?? {}).some(
+    ([name, values]) =>
+      name.toLowerCase() === holdingHeader &&
+      [].concat(values).includes('credential-surface')
+  )
+}
+
+// A failed request is expected only when the journey provoked it: the refused
+// renderer bootstrap, a refused live guild token read, or an authorization
+// failure while the renderer was deliberately signed out and recovering.
+function unexpectedFailure(failure) {
+  if (
+    failure?.status === 403 &&
+    ['/api/guild-tokens', '/desktop/open'].includes(failure.path)
+  )
+    return false
+  if (
+    failure?.status === 401 &&
+    ['signed-out-check', 'recovered-open'].includes(failure.phase)
+  )
+    return false
+  return true
+}
+
+module.exports = {
+  requestLabel,
+  sanitizeFailure,
+  rendererReceipt,
+  holdingHeader,
+  holdingRefusal,
+  unexpectedFailure
+}

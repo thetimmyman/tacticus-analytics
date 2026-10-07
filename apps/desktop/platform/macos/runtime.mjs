@@ -269,7 +269,10 @@ try {
         // Existing renderer key-writing surfaces remain disabled until their native
         // capability adapter is integrated. API credentials only enter native input.
         if (rendererCredentialSurface(url)) {
-          res.writeHead(403, { 'content-type': 'application/json' })
+          res.writeHead(403, {
+            'content-type': 'application/json',
+            [requestDiagnostics.holdingHeader]: 'credential-surface'
+          })
           res.end('{"error":"Use native official access"}')
           return true
         }

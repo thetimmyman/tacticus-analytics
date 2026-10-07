@@ -5,7 +5,9 @@ const { randomBytes } = require('node:crypto')
 const {
   requestLabel,
   sanitizeFailure,
-  rendererReceipt
+  rendererReceipt,
+  holdingRefusal,
+  unexpectedFailure
 } = require('./request-diagnostics.cjs')
 const {
   createNativeActions,
@@ -67,7 +69,10 @@ app
     session.defaultSession.webRequest.onCompleted((details) => {
       const label = activeRequests.get(details.id)
       activeRequests.delete(details.id)
-      if (details.statusCode >= 400)
+      if (
+        details.statusCode >= 400 &&
+        !holdingRefusal(details.statusCode, details.responseHeaders)
+      )
         failures.push({
           path: new URL(details.url).pathname,
           ...(label ??
@@ -521,16 +526,7 @@ app
           'Packaged graphical journey did not render expected scores'
         )
       verifyStage = 'renderer-network'
-      if (
-        blocked.length ||
-        failures.some(
-          (failure) =>
-            !(
-              failure.status === 403 &&
-              ['/api/guild-tokens', '/desktop/open'].includes(failure.path)
-            )
-        )
-      ) {
+      if (blocked.length || failures.some(unexpectedFailure)) {
         verifyNetwork = {
           pending: [...activeRequests.values()],
           failed: failures,

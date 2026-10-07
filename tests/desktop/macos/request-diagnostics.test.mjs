@@ -118,3 +118,39 @@ test('renderer attachment projects calculation flags without document text or re
   assert.equal(diagnostics.rendererReceipt({}).observed.nodeAccess, true)
   assert.equal(diagnostics.rendererReceipt({}).observed.serviceDisruption, true)
 })
+
+test('only the tagged credential holding refusal is treated as deliberate', () => {
+  const tagged = { [diagnostics.holdingHeader]: ['credential-surface'] }
+  assert.equal(diagnostics.holdingRefusal(403, tagged), true)
+  assert.equal(
+    diagnostics.holdingRefusal(403, {
+      'X-Desktop-Holding': 'credential-surface'
+    }),
+    true
+  )
+  assert.equal(diagnostics.holdingRefusal(403, {}), false)
+  assert.equal(diagnostics.holdingRefusal(500, tagged), false)
+  assert.equal(
+    diagnostics.holdingRefusal(403, { [diagnostics.holdingHeader]: ['other'] }),
+    false
+  )
+})
+
+test('authorization failures are expected only while deliberately signed out', () => {
+  const failure = (path, status, phase) => ({ path, status, phase })
+  for (const expected of [
+    failure('/desktop/open', 403, 'renderer-refusal'),
+    failure('/api/guild-tokens', 403, 'scores-view'),
+    failure('/supabase/rest/v1/guild_config', 401, 'signed-out-check'),
+    failure('/supabase/rest/v1/guild_config', 401, 'recovered-open')
+  ])
+    assert.equal(diagnostics.unexpectedFailure(expected), false)
+  for (const unexpected of [
+    failure('/supabase/rest/v1/guild_config', 401, 'scores-view'),
+    failure('/supabase/rest/v1/guild_config', 401, 'initial-open'),
+    failure('/profile', 403, 'scores-view'),
+    failure('/player-performance', 500, 'scores-view'),
+    failure('/api/guild-tokens', 0, 'scores-view')
+  ])
+    assert.equal(diagnostics.unexpectedFailure(unexpected), true)
+})
