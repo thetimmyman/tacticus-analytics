@@ -6,7 +6,7 @@ CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 SET LOCAL timezone TO 'UTC';
 
-SELECT plan(31);
+SELECT plan(36);
 
 SELECT is(
   current_database()::text,
@@ -328,6 +328,72 @@ SELECT is(
     WHERE guild_code = 'TP513SYNCNULL'),
   'sync_dead'::text,
   '31. no key, auto sync unset (NULL), no clean sync in the window: sync_dead'
+);
+
+-- A guild that is disabled (or removed) stops being visited, so its key must be retired, not left
+-- to age into a false monitoring.staleness alert.
+DO $retire$
+BEGIN
+  INSERT INTO public.guild_config
+    (guild_code, display_name, enabled, last_successful_sync,
+     consecutive_sync_failures, consecutive_loki_failures)
+  VALUES
+    ('TP513OFFCLR',  'Synthetic disabled guild, cleared key', false, now() - INTERVAL '3 days', 0, 0),
+    ('TP513OFFFIRE', 'Synthetic disabled guild, firing key',  false, now() - INTERVAL '3 days', 0, 0);
+  PERFORM monitoring.notify('roster.write.TP513OFFCLR', 'cleared',
+    'Roster write stalled: TP513OFFCLR', 'synthetic prior alert', true);
+  PERFORM monitoring.notify('roster.write.TP513OFFFIRE', 'firing',
+    'Roster write stalled: TP513OFFFIRE', 'synthetic prior alert', true);
+  -- TP513GONE has no guild_config row at all.
+  PERFORM monitoring.notify('roster.write.TP513GONE', 'cleared',
+    'Roster write stalled: TP513GONE', 'synthetic prior alert', true);
+  -- Three days without a report: past the roster.write.% expectation.
+  UPDATE monitoring.alert_state SET last_seen_at = now() - INTERVAL '3 days'
+   WHERE alert_key IN ('roster.write.TP513OFFCLR', 'roster.write.TP513OFFFIRE',
+                       'roster.write.TP513GONE');
+END
+$retire$;
+
+SELECT is(
+  (SELECT count(*)::integer FROM monitoring.stale_alerts()
+    WHERE alert_key IN ('roster.write.TP513OFFCLR', 'roster.write.TP513OFFFIRE',
+                        'roster.write.TP513GONE')),
+  3,
+  '32. BEFORE: the three keys of disabled or removed guilds read as stopped monitors'
+);
+
+DO $run$ BEGIN PERFORM public.check_guild_roster_write_health(7, 0.5, 3, true); END $run$;
+
+SELECT is(
+  (SELECT count(*)::integer FROM monitoring.alert_state
+    WHERE alert_key IN ('roster.write.TP513OFFCLR', 'roster.write.TP513OFFFIRE',
+                        'roster.write.TP513GONE')),
+  0,
+  '33. THE KEYS ARE RETIRED: disabled and removed guilds, firing or cleared, leave no alert_state row'
+);
+
+SELECT is(
+  (SELECT count(*)::integer FROM monitoring.stale_alerts()
+    WHERE alert_key LIKE 'roster.write.TP513OFF%' OR alert_key = 'roster.write.TP513GONE'),
+  0,
+  '34. AFTER: stale_alerts() reports nothing for the retired guilds'
+);
+
+SELECT is(
+  (SELECT count(*)::integer FROM monitoring.alert_state
+    WHERE alert_key IN ('roster.write.TP513KEYOFF', 'roster.write.TP513FLAKY',
+                        'roster.write.TP513FRESHBAD', 'roster.write.TP513EDGE')
+      AND status = 'firing'),
+  4,
+  '35. NEGATIVE CONTROL: the keys of enabled guilds are untouched by the retirement'
+);
+
+SELECT is(
+  (SELECT count(*)::integer FROM monitoring.alert_state
+    WHERE alert_key IN ('roster.write.TP513SYNCOFF', 'roster.write.TP513SYNCFAIL')
+      AND status = 'cleared'),
+  2,
+  '36. NEGATIVE CONTROL: an enabled guild whose alert is cleared keeps its row'
 );
 
 SELECT * FROM finish();

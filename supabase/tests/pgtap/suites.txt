@@ -73,7 +73,7 @@ alert_staleness_and_renotify.sql # 40
 guild_war_zones_match_fk.sql # 12
 erase_residual_player_mapping_identity.sql # 65
 player_mapping_analytics_ro.sql # 14
-roster_write_monitor.sql # 31
+roster_write_monitor.sql # 36
 guild_war_sync_remnants.sql # 18
 player_mapping_retention.sql # 18
 player_hash_name_heal.sql # 14
