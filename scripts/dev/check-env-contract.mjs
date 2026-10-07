@@ -60,6 +60,8 @@ const runtimeProvided = new Set([
   // Inherited OS executable search path and desktop display session, not app settings.
   'HOME',
   'PATH',
+  'HOME',
+  'TMPDIR',
   'WAYLAND_DISPLAY',
   'XDG_RUNTIME_DIR',
   // Downward-API pod identity (like HOSTNAME), not app config.
@@ -68,7 +70,11 @@ const runtimeProvided = new Set([
   'NEXT_RUNTIME',
   'NODE_ENV',
   // Set by GitHub Actions on every runner; not app config.
-  'RUNNER_TEMP'
+  'RUNNER_TEMP',
+  // Qualification source SHA is injected by the owned macOS workflow.
+  'MAC_SOURCE_SHA',
+  // Private lock path is injected by the native macOS supervisor.
+  'TA_MAC_GUARD_LOCK'
 ])
 // Consumed by platform CLIs, manifests or external services, so never seen as
 // process.env/Deno.env references.

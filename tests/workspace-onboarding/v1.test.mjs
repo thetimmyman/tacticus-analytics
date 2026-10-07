@@ -456,3 +456,68 @@ test('a failed vault removal keeps a pending cleanup handle that a later disconn
   assert.equal(f.stored().pendingVaultRemovals, undefined)
   assert.deepEqual(f.revoked(), ['opaque-vault-reference'])
 })
+
+test('historical game resource counts remain importable without accepting credential aliases', () => {
+  for (const value of [null, { current: 2, max: 3, nextTokenInSeconds: 0 }]) {
+    const { service } = fixture()
+    service.migrateHistorical({
+      personal: { resources: { guildRaidTokens: value } }
+    })
+    assert.deepEqual(service.view().personal.resources.guildRaidTokens, value)
+  }
+  for (const key of [
+    'idToken',
+    'Id-Token',
+    'encryptedIdToken',
+    'encryptedidtokenvalue'
+  ]) {
+    const { service } = fixture()
+    assert.throws(
+      () =>
+        service.migrateHistorical({
+          personal: { resources: { [key]: 'synthetic' } }
+        }),
+      /secure native migration/
+    )
+  }
+  for (const value of [
+    'synthetic',
+    { current: 'synthetic' },
+    { current: -1 },
+    { max: -0 },
+    { current: 2, idToken: 'synthetic' }
+  ]) {
+    const { service } = fixture()
+    assert.throws(
+      () =>
+        service.migrateHistorical({
+          personal: { resources: { guildRaidTokens: value } }
+        }),
+      /secure native migration/
+    )
+  }
+  const { service } = fixture()
+  assert.throws(
+    () =>
+      service.migrateHistorical({
+        personal: { guildRaidTokens: { current: 2 } }
+      }),
+    /secure native migration/
+  )
+})
+
+test('historical migration stores exactly the profile it validated', () => {
+  const { service, stored } = fixture()
+  let reads = 0
+  const counts = {
+    get current() {
+      return ++reads === 1 ? 2 : 'SYNTHETIC-SWAPPED-CANARY'
+    }
+  }
+  try {
+    service.migrateHistorical({
+      personal: { resources: { guildRaidTokens: counts } }
+    })
+  } catch {}
+  assert.equal(JSON.stringify(stored() ?? {}).includes('CANARY'), false)
+})

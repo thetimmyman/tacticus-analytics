@@ -155,16 +155,39 @@ function validateScope(response, scope, now) {
     throw new Error('Raid response unavailable')
 }
 
-function rejectHistoricalCredentials(value) {
+function rejectHistoricalCredentials(value, path = []) {
   if (!value || typeof value !== 'object') return
   for (const [key, nested] of Object.entries(value)) {
+    // The validated Player projection has a numeric game resource whose name
+    // contains "idtoken". Accept that exact shape, never a credential alias.
+    const gameResource =
+      path.length === 2 &&
+      path[0] === 'personal' &&
+      path[1] === 'resources' &&
+      key === 'guildRaidTokens' &&
+      (nested === null ||
+        (typeof nested === 'object' &&
+          !Array.isArray(nested) &&
+          Object.entries(nested).every(
+            ([name, number]) =>
+              [
+                'current',
+                'max',
+                'nextTokenInSeconds',
+                'regenDelayInSeconds'
+              ].includes(name) &&
+              Number.isSafeInteger(number) &&
+              number >= 0 &&
+              !Object.is(number, -0)
+          )))
     if (
+      !gameResource &&
       /apikey|accesstoken|refreshtoken|idtoken|authtoken|sessiontoken|bearer|password|passwd|passphrase|secret|credential|authorization|cookie|headers|privatekey|jwt/.test(
         key.toLowerCase().replace(/[^a-z0-9]/g, '')
       )
     )
       throw new Error('Historical credentials require secure native migration')
-    rejectHistoricalCredentials(nested)
+    rejectHistoricalCredentials(nested, [...path, key])
   }
 }
 
@@ -368,8 +391,18 @@ export class WorkspaceOnboardingV1 {
       ])
       return this.view()
     } catch (error) {
+      // A write or later metadata cleanup can fail after the new references
+      // became visible. Roll back only when current state proves the new
+      // handle unreferenced; an unreadable/uncertain outcome retains access.
+      let unreferenced = false
+      try {
+        unreferenced = !Object.values(
+          this.state.read().vaultReferences ?? {}
+        ).includes(handle)
+      } catch {}
       if (
         handle &&
+        unreferenced &&
         !Object.values(previous.vaultReferences ?? {}).includes(handle)
       )
         await this.vault.remove(handle)
@@ -429,12 +462,14 @@ export class WorkspaceOnboardingV1 {
       throw new Error('Player access is required for a new personal workspace')
     return this.view()
   }
-  migrateHistorical(profile) {
+  migrateHistorical(input) {
+    // Validate the copy that is stored, so accessors cannot change it after.
+    const profile = structuredClone(input)
     rejectHistoricalCredentials(profile)
     if (this.state.read().personal)
       throw new Error('Workspace already initialized')
     this.state.write({
-      ...structuredClone(profile),
+      ...profile,
       version: 1,
       status: 'historical-offline',
       capabilities: { Player: 'reconnect-required' }

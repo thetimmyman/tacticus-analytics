@@ -1,0 +1,156 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import diagnostics from '../../../apps/desktop/platform/macos/request-diagnostics.cjs'
+
+test('pending and failed requests retain fixed endpoint/resource labels and distinct causes', () => {
+  assert.deepEqual(diagnostics.requestLabel('/api/user/activity', 'xhr'), {
+    endpoint: 'activity',
+    resource: 'xhr'
+  })
+  const pending = diagnostics.sanitizeFailure({
+    stage: 'renderer-network',
+    cause: 'requests-pending',
+    network: {
+      pending: [
+        diagnostics.requestLabel('/_next/static/synthetic-secret.js', 'script')
+      ]
+    }
+  })
+  assert.equal(pending.cause, 'requests-pending')
+  assert.deepEqual(pending.network.pending, [
+    { endpoint: 'static-asset', resource: 'script' }
+  ])
+  const failed = diagnostics.sanitizeFailure({
+    stage: 'renderer-network',
+    cause: 'request-failed',
+    network: {
+      failed: [
+        { ...diagnostics.requestLabel('/api/version', 'xhr'), status: 500 }
+      ],
+      blocked: 2
+    }
+  })
+  assert.deepEqual(failed.network.failed, [
+    { endpoint: 'version', resource: 'xhr', status: 500 }
+  ])
+  assert.equal(failed.network.blocked, 2)
+})
+
+test('untrusted diagnostic frames cannot copy paths, messages, cookies or arbitrary labels', () => {
+  const canary = 'SYNTHETIC-SECRET-CANARY'
+  const entry = {
+    endpoint: canary,
+    resource: canary,
+    status: canary,
+    path: '/' + canary,
+    cookie: canary,
+    phase: canary
+  }
+  const input = {
+    stage: 'renderer-network',
+    cause: 'request-failed',
+    code: canary,
+    message: canary,
+    network: {
+      pending: Array(1000).fill(entry),
+      failed: Array(1000).fill(entry),
+      blocked: canary
+    }
+  }
+  const result = diagnostics.sanitizeFailure(input)
+  assert.equal(JSON.stringify(result).includes(canary), false)
+  assert.deepEqual(result.network.failed, [
+    { endpoint: 'other-local', resource: 'other', status: 0 }
+  ])
+  assert.deepEqual(diagnostics.sanitizeFailure({ ...input, cause: canary }), {
+    synthetic: true,
+    stage: 'renderer-network',
+    code: 'EVERIFY'
+  })
+  assert.equal(
+    JSON.stringify(
+      diagnostics.requestLabel('/private/' + canary, canary)
+    ).includes(canary),
+    false
+  )
+})
+
+test('request start phases and known local readers survive projection without copying arbitrary paths', () => {
+  const label = diagnostics.requestLabel(
+    '/supabase/rest/v1/player_with_cluster',
+    'xhr',
+    'signed-out-check'
+  )
+  assert.deepEqual(label, {
+    endpoint: 'cluster-profile',
+    resource: 'xhr',
+    phase: 'signed-out-check'
+  })
+  const value = diagnostics.sanitizeFailure({
+    stage: 'renderer-network',
+    cause: 'request-failed',
+    network: { failed: [{ ...label, status: 401 }] }
+  })
+  assert.deepEqual(value.network.failed, [{ ...label, status: 401 }])
+  assert.deepEqual(
+    diagnostics.requestLabel('/unknown', 'xhr', 'SYNTHETIC-SECRET-CANARY'),
+    { endpoint: 'other-local', resource: 'xhr' }
+  )
+})
+
+test('renderer attachment projects calculation flags without document text or request paths', () => {
+  const canary = 'SYNTHETIC-SECRET-CANARY'
+  const value = diagnostics.rendererReceipt({
+    observed: { text: '+58% -50% ' + canary, nodeAccess: false },
+    failed: [{ path: '/private/' + canary, status: 500 }],
+    blocked: 1
+  })
+  assert.equal(JSON.stringify(value).includes(canary), false)
+  assert.deepEqual(value.observed, {
+    nodeAccess: false,
+    positiveScore: true,
+    negativeScore: true,
+    serviceDisruption: false
+  })
+  assert.deepEqual(value.network.failed, [
+    { endpoint: 'other-local', resource: 'other', status: 500 }
+  ])
+  assert.equal(diagnostics.rendererReceipt({}).observed.nodeAccess, true)
+  assert.equal(diagnostics.rendererReceipt({}).observed.serviceDisruption, true)
+})
+
+test('only the tagged credential holding refusal is treated as deliberate', () => {
+  const tagged = { [diagnostics.holdingHeader]: ['credential-surface'] }
+  assert.equal(diagnostics.holdingRefusal(403, tagged), true)
+  assert.equal(
+    diagnostics.holdingRefusal(403, {
+      'X-Desktop-Holding': 'credential-surface'
+    }),
+    true
+  )
+  assert.equal(diagnostics.holdingRefusal(403, {}), false)
+  assert.equal(diagnostics.holdingRefusal(500, tagged), false)
+  assert.equal(
+    diagnostics.holdingRefusal(403, { [diagnostics.holdingHeader]: ['other'] }),
+    false
+  )
+})
+
+test('authorization failures are expected only while deliberately signed out', () => {
+  const failure = (path, status, phase) => ({ path, status, phase })
+  for (const expected of [
+    failure('/desktop/open', 403, 'renderer-refusal'),
+    failure('/api/guild-tokens', 403, 'scores-view'),
+    failure('/supabase/rest/v1/guild_config', 401, 'signed-out-check'),
+    failure('/supabase/rest/v1/guild_config', 401, 'recovered-open')
+  ])
+    assert.equal(diagnostics.unexpectedFailure(expected), false)
+  for (const unexpected of [
+    failure('/supabase/rest/v1/guild_config', 401, 'scores-view'),
+    failure('/supabase/rest/v1/guild_config', 401, 'initial-open'),
+    failure('/profile', 403, 'scores-view'),
+    failure('/player-performance', 500, 'scores-view'),
+    failure('/api/guild-tokens', 0, 'scores-view')
+  ])
+    assert.equal(diagnostics.unexpectedFailure(unexpected), true)
+})

@@ -39,17 +39,22 @@ export async function workspaceAuthorized(
   req,
   input,
   subject,
-  brokerToken
+  brokerToken,
+  { allowBrowserSession = false } = {}
 ) {
-  const browserToken = browserWorkspaceToken(req)
-  if (nativeSessionRequest(req, brokerToken) || browserToken) {
+  // Native callers require the separate broker capability. Only the browser
+  // raid-file route opts into cookie sessions after its transport checks.
+  const native = nativeSessionRequest(req, brokerToken)
+  const browserToken =
+    !native && allowBrowserSession === true ? browserWorkspaceToken(req) : null
+  if (native || browserToken) {
     const response = await fetch(
       `http://127.0.0.1:${services.ports.auth}/user`,
       {
         headers: {
-          authorization: browserToken
-            ? `Bearer ${browserToken}`
-            : req.headers.authorization
+          authorization: native
+            ? req.headers.authorization
+            : `Bearer ${browserToken}`
         },
         redirect: 'error',
         signal: AbortSignal.timeout(10000)
