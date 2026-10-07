@@ -70,18 +70,12 @@ jobs:
           cache: false
       - name: Build pinned macOS runtime inputs
         run: node apps/desktop/platform/macos/build-inputs.mjs "$RUNNER_TEMP/mac-inputs"
+      # desktop:build supplies the desktop profile and loopback placeholders
+      # and writes the build record that staging verifies.
       - name: Build desktop application with local origins
-        env:
-          STANDALONE_BUILD: 'true'
-          NEXT_PUBLIC_RUNTIME_PROFILE: desktop
-          NEXT_TELEMETRY_DISABLED: '1'
-          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:9/supabase
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: desktop-public
-          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:9
-          SITE_URL: http://127.0.0.1:9
         run: |
           npm ci
-          npm run build
+          npm run desktop:build
           node apps/desktop/proof/stage-standalone.mjs "$RUNNER_TEMP/mac-application"
       - name: Compile bundled native adapters
         run: |
