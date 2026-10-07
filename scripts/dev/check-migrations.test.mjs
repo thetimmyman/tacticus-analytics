@@ -342,3 +342,66 @@ test('the stats-window header must appear once, in the first 40 lines', () => {
   assert.equal(late.length, 1)
   assert.match(late[0], /must be in the first 40 lines/)
 })
+
+test('zero-counter citations written as prose or pasted output are detected', () => {
+  for (const citation of [
+    'idx_scan: 0',
+    'observed idx_scan was 0',
+    'n_live_tup is 0',
+    'idx_scan | 0'
+  ]) {
+    const errors = statsWindowErrors(`-- ${citation}\nselect 1;\n`)
+    assert.equal(errors.length, 1, citation)
+    assert.match(errors[0], /no '-- stats-window:' header/, citation)
+  }
+  assert.deepEqual(statsWindowErrors('-- idx_scan was 10\nselect 1;\n'), [])
+})
+
+test('a live counter predicate in SQL is not evidence and needs no header', () => {
+  assert.deepEqual(
+    statsWindowErrors(
+      'CREATE VIEW ops.unused_indexes AS\n  SELECT indexrelid FROM pg_stat_user_indexes WHERE idx_scan = 0;\n'
+    ),
+    []
+  )
+  const blockComment = statsWindowErrors(
+    '/* idx_scan = 0 on the primary */\nDROP INDEX public.ix_widget;\n'
+  )
+  assert.equal(blockComment.length, 1)
+})
+
+test('an impossible stats-window start is rejected', () => {
+  for (const start of [
+    '2026-99-99T99:99:99+24:99',
+    '2026-02-30T00:00:00Z',
+    '2026-01-01T24:00:00Z',
+    '2026-01-01T00:00:00+15:00'
+  ]) {
+    const errors = statsWindowErrors(
+      `-- stats-window: start=${start} age=21d nodes=3 minimum=14d\n-- idx_scan = 0\nselect 1;\n`
+    )
+    assert.equal(errors.length, 1, start)
+    assert.match(errors[0], /not an ISO-8601 timestamp/, start)
+  }
+})
+
+test('a table drop justified by row counters must cite count(*)', () => {
+  const noCount = statsWindowErrors(
+    `${STATS_HEADER}\n-- n_live_tup = 0 and n_tup_ins = 0\nDROP TABLE public.widgets;\n`
+  )
+  assert.equal(noCount.length, 1)
+  assert.match(noCount[0], /count\(\*\)/)
+
+  assert.deepEqual(
+    statsWindowErrors(
+      `${STATS_HEADER}\n-- n_tup_ins = 0; SELECT count(*) FROM public.widgets returned 0\nDROP TABLE IF EXISTS public.widgets;\n`
+    ),
+    []
+  )
+  assert.deepEqual(
+    statsWindowErrors(
+      `${STATS_HEADER}\n-- idx_scan = 0\nDROP INDEX public.ix_widget;\n`
+    ),
+    []
+  )
+})

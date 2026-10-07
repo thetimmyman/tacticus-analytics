@@ -23,22 +23,22 @@ const CHECKS_PERFORMED = [
 // Statistics counters (idx_scan, n_tup_ins, n_live_tup) are cumulative, kept
 // per node, and restart at the last stats reset or server start. A zero read
 // from them proves nothing unless the window it covers is stated, so a
-// migration citing one as evidence must carry exactly one header line:
+// migration whose comments cite one as evidence must carry exactly one header:
 //   -- stats-window: start=<ISO-8601> age=<duration> nodes=<N> minimum=<N>d
-// A table is never judged unused from these counters; count(*) decides that.
+// Only comments are read as evidence; a live predicate in SQL (a monitoring
+// view's WHERE idx_scan = 0) reports nothing observed. A table is never judged
+// empty from these counters, so a DROP TABLE they justify must cite count(*).
 export const STATS_WINDOW_MIN_DAYS = 14
 const STATS_WINDOW_HEADER_LINES = 40
-const COUNTER_CITATIONS = [
-  /idx_scan\s*(=|<=?)\s*0/i,
-  /n_tup_ins\s*(=|<=?)\s*0/i,
-  /n_live_tup\s*(=|<=?)\s*0/i,
-  /never[ -]scanned/i
-]
+const ZERO_COUNTER =
+  /\b(idx_scan|n_tup_ins|n_live_tup)\b\s*(?:<=?|=|:|\||\bwas\b|\bis\b|\bof\b)?\s*0(?![\d.])/gi
+const NEVER_SCANNED = /never[ -]scanned/i
+const ROW_COUNTERS = new Set(['n_tup_ins', 'n_live_tup'])
 const STATS_WINDOW_LINE = /^\s*--\s*stats-window:/
 const STATS_WINDOW_FORM =
   /^\s*--\s*stats-window:\s*start=(\S+)\s+age=(\S+)\s+nodes=(\S+)\s+minimum=(\S+)\s*$/
 const ISO_WITH_ZONE =
-  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}(:?\d{2})?)$/
+  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:Z|[+-](\d{2})(?::?(\d{2}))?)$/
 const DURATION_UNIT_SECONDS = { d: 86400, h: 3600, m: 60, s: 1 }
 
 // "21d", "20d4h", "1209600s" -> seconds; null when not understood, never 0.
@@ -50,10 +50,49 @@ function durationSeconds(raw) {
   return total
 }
 
+// The comment text of a migration (line and block comments), and the SQL
+// with those comments removed. Quoted strings are not parsed; a "--" inside
+// a literal only widens what is read as evidence.
+function splitComments(contents) {
+  const comments = []
+  const code = contents
+    .replace(/\/\*[\s\S]*?\*\//g, (block) => {
+      comments.push(block)
+      return ' '
+    })
+    .replace(/--[^\n]*/g, (line) => {
+      comments.push(line)
+      return ''
+    })
+  return { comments: comments.join('\n'), code }
+}
+
+// A real calendar instant with a real zone offset, not just the shape of one.
+function isIsoInstant(value) {
+  const m = value.match(ISO_WITH_ZONE)
+  if (!m) return false
+  const [, y, mo, d, h, mi, sec, oh = '0', om = '0'] = m
+  const day = new Date(Date.UTC(Number(y), Number(mo) - 1, Number(d)))
+  return (
+    day.getUTCFullYear() === Number(y) &&
+    day.getUTCMonth() === Number(mo) - 1 &&
+    day.getUTCDate() === Number(d) &&
+    Number(h) <= 23 &&
+    Number(mi) <= 59 &&
+    Number(sec) <= 59 &&
+    Number(om) <= 59 &&
+    Number(oh) * 60 + Number(om) <= 14 * 60
+  )
+}
+
 // Returns the reason a migration's stats-window evidence is unacceptable, or
 // null when it cites no counter or states an adequate window.
 function statsWindowViolation(contents) {
-  if (!COUNTER_CITATIONS.some((pattern) => pattern.test(contents))) return null
+  const { comments, code } = splitComments(contents)
+  const cited = [...comments.matchAll(ZERO_COUNTER)].map((m) =>
+    m[1].toLowerCase()
+  )
+  if (cited.length === 0 && !NEVER_SCANNED.test(comments)) return null
 
   const lines = contents.split('\n')
   const declared = lines
@@ -71,7 +110,7 @@ function statsWindowViolation(contents) {
   if (!form)
     return "expected exactly '-- stats-window: start=<ISO-8601> age=<duration> nodes=<N> minimum=<N>d'"
   const [, start, age, nodes, minimum] = form
-  if (!ISO_WITH_ZONE.test(start))
+  if (!isIsoInstant(start))
     return `start='${start}' is not an ISO-8601 timestamp with a zone`
   const ageSeconds = durationSeconds(age)
   if (ageSeconds === null) return `age='${age}' is not a duration (21d, 20d4h)`
@@ -84,6 +123,12 @@ function statsWindowViolation(contents) {
     return `minimum=${minimum} is below the ${STATS_WINDOW_MIN_DAYS}d floor`
   if (ageSeconds < minimumSeconds)
     return `age=${age} is shorter than the stated minimum=${minimum}`
+  if (
+    cited.some((counter) => ROW_COUNTERS.has(counter)) &&
+    /\bdrop\s+table\b/i.test(code) &&
+    !/count\s*\(\s*\*\s*\)/i.test(comments)
+  )
+    return 'drops a table on n_live_tup / n_tup_ins evidence; whether a table is empty must come from count(*), cited in a comment'
   return null
 }
 
