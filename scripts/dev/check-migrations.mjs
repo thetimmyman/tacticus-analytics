@@ -16,8 +16,76 @@ const CHECKS_PERFORMED = [
   'version uniqueness and ordering',
   'non-empty contents',
   'no nested migration directories',
-  `version suffix (":00" seconds) for versions newer than ${VERSION_SUFFIX_CUTOFF}`
+  `version suffix (":00" seconds) for versions newer than ${VERSION_SUFFIX_CUTOFF}`,
+  'a stated stats-window header on migrations citing zero statistics counters'
 ]
+
+// Statistics counters (idx_scan, n_tup_ins, n_live_tup) are cumulative, kept
+// per node, and restart at the last stats reset or server start. A zero read
+// from them proves nothing unless the window it covers is stated, so a
+// migration citing one as evidence must carry exactly one header line:
+//   -- stats-window: start=<ISO-8601> age=<duration> nodes=<N> minimum=<N>d
+// A table is never judged unused from these counters; count(*) decides that.
+export const STATS_WINDOW_MIN_DAYS = 14
+const STATS_WINDOW_HEADER_LINES = 40
+const COUNTER_CITATIONS = [
+  /idx_scan\s*(=|<=?)\s*0/i,
+  /n_tup_ins\s*(=|<=?)\s*0/i,
+  /n_live_tup\s*(=|<=?)\s*0/i,
+  /never[ -]scanned/i
+]
+const STATS_WINDOW_LINE = /^\s*--\s*stats-window:/
+const STATS_WINDOW_FORM =
+  /^\s*--\s*stats-window:\s*start=(\S+)\s+age=(\S+)\s+nodes=(\S+)\s+minimum=(\S+)\s*$/
+const ISO_WITH_ZONE =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}(:?\d{2})?)$/
+const DURATION_UNIT_SECONDS = { d: 86400, h: 3600, m: 60, s: 1 }
+
+// "21d", "20d4h", "1209600s" -> seconds; null when not understood, never 0.
+function durationSeconds(raw) {
+  if (!/^(\d+[dhms])+$/.test(raw)) return null
+  let total = 0
+  for (const [, n, unit] of raw.matchAll(/(\d+)([dhms])/g))
+    total += Number(n) * DURATION_UNIT_SECONDS[unit]
+  return total
+}
+
+// Returns the reason a migration's stats-window evidence is unacceptable, or
+// null when it cites no counter or states an adequate window.
+function statsWindowViolation(contents) {
+  if (!COUNTER_CITATIONS.some((pattern) => pattern.test(contents))) return null
+
+  const lines = contents.split('\n')
+  const declared = lines
+    .map((text, index) => ({ text, line: index + 1 }))
+    .filter(({ text }) => STATS_WINDOW_LINE.test(text))
+  if (declared.length === 0)
+    return "cites a zero statistics counter as evidence but has no '-- stats-window:' header"
+  if (declared.length > 1)
+    return `${declared.length} 'stats-window:' lines; exactly one is required`
+  const [{ text, line }] = declared
+  if (line > STATS_WINDOW_HEADER_LINES)
+    return `'stats-window:' is at line ${line}; it must be in the first ${STATS_WINDOW_HEADER_LINES} lines`
+
+  const form = text.match(STATS_WINDOW_FORM)
+  if (!form)
+    return "expected exactly '-- stats-window: start=<ISO-8601> age=<duration> nodes=<N> minimum=<N>d'"
+  const [, start, age, nodes, minimum] = form
+  if (!ISO_WITH_ZONE.test(start))
+    return `start='${start}' is not an ISO-8601 timestamp with a zone`
+  const ageSeconds = durationSeconds(age)
+  if (ageSeconds === null) return `age='${age}' is not a duration (21d, 20d4h)`
+  const minimumSeconds = durationSeconds(minimum)
+  if (minimumSeconds === null)
+    return `minimum='${minimum}' is not a duration (${STATS_WINDOW_MIN_DAYS}d)`
+  if (!/^\d+$/.test(nodes) || Number(nodes) < 1)
+    return `nodes='${nodes}' must be the number of nodes actually read (>= 1)`
+  if (minimumSeconds < STATS_WINDOW_MIN_DAYS * 86400)
+    return `minimum=${minimum} is below the ${STATS_WINDOW_MIN_DAYS}d floor`
+  if (ageSeconds < minimumSeconds)
+    return `age=${age} is shorter than the stated minimum=${minimum}`
+  return null
+}
 
 // Lints source files only; never connects to a database.
 export function checkMigrations({ directory } = {}) {
@@ -56,12 +124,13 @@ export function checkMigrations({ directory } = {}) {
       )
     }
 
-    if (
-      readFileSync(path.join(resolvedDirectory, file), 'utf8').trim().length ===
-      0
-    ) {
+    const contents = readFileSync(path.join(resolvedDirectory, file), 'utf8')
+    if (contents.trim().length === 0) {
       errors.push(`${file}: migration is empty`)
     }
+
+    const statsWindow = statsWindowViolation(contents)
+    if (statsWindow) errors.push(`${file}: ${statsWindow}`)
   }
 
   for (const [version, matches] of versions) {
