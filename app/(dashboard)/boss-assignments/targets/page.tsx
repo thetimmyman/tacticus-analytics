@@ -2,7 +2,10 @@ import { requireBossAssignmentsAccess } from '@/app/(dashboard)/boss-assignments
 import { getGuildPerBossActualTokens } from '@/app/lib/data/guild-per-boss-actual-tokens'
 import { db } from '@/app/lib/db'
 import { getLatestSeason } from '@/app/lib/utils/season'
-import { getSeasonConfigIdForOffset } from '@/app/lib/loki/season-configs'
+import {
+  getSeasonConfigForSeasonNumber,
+  getSeasonConfigIdForOffset
+} from '@/app/lib/loki/season-configs'
 import { EmptyState } from '@tacticus/ui-kit'
 import {
   SEASON_WINDOW_OFFSETS,
@@ -59,10 +62,33 @@ export default async function TargetTokensPage({ searchParams }: PageProps) {
       ? clusterLatestSeasonResult.data
       : (latestSeason ?? '')
 
-  const { selectedSeason } = resolveSelectedSeason(
+  const savedSeasons = desktopMode
+    ? ((
+        await supabase.rpc('get_distinct_seasons_for_guild', {
+          p_guild: guildCode
+        })
+      ).data ?? [])
+    : []
+  let { selectedSeason } = resolveSelectedSeason(
     seasonOverride,
     clusterLatestSeason
   )
+  if (
+    desktopMode &&
+    seasonOverride === null &&
+    getSeasonConfigForSeasonNumber(Number(selectedSeason)) === null
+  ) {
+    // Default navigation may outlive the captured rotation window. Keep saved
+    // captured data reachable without inferring any older season's lineup.
+    selectedSeason =
+      [...savedSeasons]
+        .filter(
+          (season) =>
+            parseSeasonParam(season) !== null &&
+            getSeasonConfigForSeasonNumber(Number(season)) !== null
+        )
+        .sort((a, b) => Number(b) - Number(a))[0] ?? selectedSeason
+  }
 
   // No resolvable season would write the '' legacy row and read unscoped; render unavailable.
   const selectedSeasonNumber = Number.parseInt(selectedSeason, 10)
@@ -78,15 +104,20 @@ export default async function TargetTokensPage({ searchParams }: PageProps) {
     )
   }
 
+  if (
+    desktopMode &&
+    getSeasonConfigForSeasonNumber(selectedSeasonNumber) === null
+  ) {
+    return (
+      <EmptyState title="Season configuration unavailable">
+        Choose a saved season with a captured boss configuration before editing
+        targets.
+      </EmptyState>
+    )
+  }
+
   const clusterLatestSeasonNumber = Number.parseInt(clusterLatestSeason, 10)
 
-  const savedSeasons = desktopMode
-    ? ((
-        await supabase.rpc('get_distinct_seasons_for_guild', {
-          p_guild: guildCode
-        })
-      ).data ?? [])
-    : []
   const windowSeasonNumbers = buildSeasonWindowNumbers(
     desktopMode
       ? savedSeasons.map(Number)
@@ -98,14 +129,20 @@ export default async function TargetTokensPage({ searchParams }: PageProps) {
   const seasonOptions = buildSeasonWindowOptions(
     windowSeasonNumbers,
     clusterLatestSeasonNumber
-  ).map((option) =>
-    desktopMode
-      ? {
-          ...option,
-          label: `${savedSeasons.includes(option.value) ? 'Saved · ' : ''}S${option.value}`
-        }
-      : option
   )
+    .filter(
+      (option) =>
+        !desktopMode ||
+        getSeasonConfigForSeasonNumber(Number(option.value)) !== null
+    )
+    .map((option) =>
+      desktopMode
+        ? {
+            ...option,
+            label: `${savedSeasons.includes(option.value) ? 'Saved · ' : ''}S${option.value}`
+          }
+        : option
+    )
 
   // Runs after the season guard; gated on `canManageHerald`.
   const opsSlice = await loadTargetsOpsSlice({

@@ -103,15 +103,19 @@ function mockFetch(
         })
       }
       if (url.includes('target-tokens')) {
-        if (method === 'PUT' && opts.failPut) {
+        if ((method === 'PUT' || method === 'PATCH') && opts.failPut) {
           return new Response('nope', { status: 500 })
         }
-        if (method === 'PUT') {
+        if (method === 'PUT' || method === 'PATCH') {
           const input = JSON.parse(String(init?.body))
           savedRows = savedRows.map((row) =>
             row.boss_name === input.boss_name &&
             row.encounter_id === input.encounter_id
-              ? { ...row, ...input }
+              ? {
+                  ...row,
+                  ...input,
+                  ...(method === 'PUT' ? { source: 'officer_manual' } : {})
+                }
               : row
           )
           return json({ row: input })
@@ -155,6 +159,51 @@ beforeEach(() => mockFetch([targetRow({})]))
 afterEach(() => vi.unstubAllGlobals())
 
 describe('TargetsClient', () => {
+  it('keeps a seeded legacy target seeded when an officer edits only its note', async () => {
+    mockFetch([
+      targetRow({
+        source: 'historical_seed',
+        seeded_from_seasons: '101,102',
+        season_number: ''
+      })
+    ])
+    renderClient()
+    await findGroupHeader()
+    fireEvent.click(
+      (
+        await screen.findAllByRole('button', {
+          name: 'Edit target notes for Magnus the Red'
+        })
+      )[0]!
+    )
+    fireEvent.change(
+      screen.getByRole('textbox', { name: 'Target notes for Magnus the Red' }),
+      { target: { value: 'Keep the historical refresh' } }
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Save target notes' }))
+    await waitFor(() =>
+      expect(
+        screen.getAllByText('Keep the historical refresh').length
+      ).toBeGreaterThan(0)
+    )
+    expect(screen.getByTitle('Seeded from 101,102')).toHaveTextContent('Seeded')
+    const writes = fetchCalls.filter(({ method }) => method !== 'GET')
+    expect(writes).toEqual([
+      {
+        url: '/api/boss-assignments/target-tokens?guild_code=TESTGUILD',
+        method: 'PATCH',
+        body: {
+          boss_name: 'Magnus',
+          rarity: 'Mythic',
+          set: 1,
+          encounter_id: 0,
+          season_number: '',
+          notes: 'Keep the historical refresh'
+        }
+      }
+    ])
+  })
+
   it('shows saved actual-token comparisons in the expanded narrow layout', async () => {
     renderClient({
       desktopMode: true,

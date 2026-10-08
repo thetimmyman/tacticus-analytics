@@ -163,6 +163,8 @@ export function validateSavedPlan(value: unknown, guild: string) {
     if (
       time < at ||
       time >= end ||
+      session.tokensSpent > session.tokensAvailable ||
+      session.tokensHeld !== session.tokensAvailable - session.tokensSpent ||
       session.actions.length !== session.tokensSpent
     )
       invalidPlan('Invalid planned session')

@@ -14,7 +14,6 @@ type TargetWrite = {
   encounter_id: number
   target_tokens: number
   skip: boolean
-  notes?: string
 }
 
 type SeedResult = {
@@ -63,21 +62,6 @@ export function useTargetMutations({
   const upsertMutation = useMutation({
     // `skip` is required: this page is the skip-aware writer (a committed target clears skip).
     mutationFn: async (input: TargetWrite) => {
-      if (input.notes !== undefined) {
-        const response = await fetch(
-          `/api/boss-assignments/target-tokens?guild_code=${encodeURIComponent(guildCode)}`,
-          {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...input, season_number: selectedSeason })
-          }
-        )
-        if (!response.ok)
-          throw new Error(
-            `Could not save target note (HTTP ${response.status})`
-          )
-        return
-      }
       // Season-inclusive onConflict keeps writes off the '' legacy row.
       await saveTargetToken({
         bossType: input.boss_name,
@@ -97,6 +81,41 @@ export function useTargetMutations({
       setEditValue('')
     },
     // Surface the failure so a refused write does not look like a stuck Save.
+    onError: (error) =>
+      setSaveError(error instanceof Error ? error.message : 'Save failed')
+  })
+
+  const notesMutation = useMutation({
+    mutationFn: async ({
+      target,
+      notes
+    }: {
+      target: NonNullable<MergedRow['target']>
+      notes: string
+    }) => {
+      const response = await fetch(
+        `/api/boss-assignments/target-tokens?guild_code=${encodeURIComponent(guildCode)}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            boss_name: target.boss_name,
+            rarity: target.rarity,
+            set: target.set,
+            encounter_id: target.encounter_id,
+            // Annotate the displayed stored row, including a legacy fallback.
+            season_number: target.season_number ?? '',
+            notes
+          })
+        }
+      )
+      if (!response.ok)
+        throw new Error(`Could not save target note (HTTP ${response.status})`)
+    },
+    onSuccess: () => {
+      setSaveError(null)
+      void invalidateTargets()
+    },
     onError: (error) =>
       setSaveError(error instanceof Error ? error.message : 'Save failed')
   })
@@ -211,19 +230,14 @@ export function useTargetMutations({
     toggleSkip,
     saveNotes: async (row: MergedRow, notes: string) => {
       if (!canEdit || !row.target) return
-      await upsertMutation.mutateAsync({
-        boss_name: row.boss_type,
-        rarity: row.rarity,
-        set: row.set,
-        encounter_id: row.encounter_id,
-        target_tokens: row.target.target_tokens,
-        skip: row.target.skip === true,
+      await notesMutation.mutateAsync({
+        target: row.target,
         notes
       })
     },
     resetTarget: (row: MergedRow) => deleteMutation.mutate(row),
     seedFromHistory: () => seedMutation.mutate(),
-    isSaving: upsertMutation.isPending,
+    isSaving: upsertMutation.isPending || notesMutation.isPending,
     isResetting: deleteMutation.isPending,
     isSeeding: seedMutation.isPending
   }

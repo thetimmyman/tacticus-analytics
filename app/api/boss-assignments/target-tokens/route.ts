@@ -361,6 +361,86 @@ export const PUT = withErrorHandler(async (request: NextRequest) => {
   }
 })
 
+/** Notes annotate an existing target; they do not make its seeded value an override. */
+export const PATCH = withErrorHandler(async (request: NextRequest) => {
+  try {
+    const authData = await requireActiveMembershipForApi()
+    const guildCode =
+      request.nextUrl.searchParams.get('guild_code') ??
+      authData.profile.guild_code
+    if (!guildCode) {
+      throw Errors.fromStatus(400, 'guild_code required', {
+        code: 'VALIDATION_ERROR'
+      })
+    }
+    const supabase = await db()
+    await requireTargetTokenWriter(
+      supabase,
+      authData.user.id,
+      guildCode,
+      Boolean(authData.profile.is_app_admin),
+      // A filtered UPDATE must not look like a successful note save.
+      false
+    )
+    const body: unknown = await request.json().catch(() => null)
+    const allowed = new Set([
+      'boss_name',
+      'rarity',
+      'set',
+      'encounter_id',
+      'season_number',
+      'notes'
+    ])
+    if (
+      !body ||
+      typeof body !== 'object' ||
+      Array.isArray(body) ||
+      Object.keys(body).some((key) => !allowed.has(key)) ||
+      Array.from(allowed).some((key) => !Object.hasOwn(body, key)) ||
+      typeof (body as Record<string, unknown>).season_number !== 'string'
+    ) {
+      throw Errors.fromStatus(
+        400,
+        'An existing target identity, explicit season_number and notes are required',
+        { code: 'VALIDATION_ERROR' }
+      )
+    }
+    // Reuse the target identity/note validation; token values are never accepted or written.
+    const input = validateBody({ ...body, target_tokens: 1 })
+    const { data, error } = await supabase
+      .from('boss_target_tokens')
+      .update({ notes: input.notes, updated_by: authData.user.id })
+      .eq('guild_code', guildCode)
+      .eq('boss_name', input.boss_name)
+      .eq('rarity', input.rarity)
+      .eq('set', input.set)
+      .eq('encounter_id', input.encounter_id)
+      .eq('season_number', input.season_number)
+      .select()
+      .maybeSingle()
+    if (error) {
+      if (isRlsDenial(error)) {
+        throw Errors.fromStatus(403, rlsDenialMessage(guildCode), {
+          code: 'FORBIDDEN'
+        })
+      }
+      logger.error({ guildCode, error }, 'boss_target_tokens PATCH failed')
+      throw Errors.fromStatus(500, 'Failed to save target note', {
+        code: 'HISTORICAL_DATA_FAILED'
+      })
+    }
+    if (!data) {
+      throw Errors.fromStatus(404, 'Target not found', { code: 'NOT_FOUND' })
+    }
+    return NextResponse.json({ row: data })
+  } catch (error: unknown) {
+    rethrowIfAppError(error)
+    rethrowIfAuthError(error)
+    logger.error({ err: error }, 'Error in boss-target-tokens PATCH:')
+    throw Errors.fromStatus(500, 'Internal error', { code: 'INTERNAL_ERROR' })
+  }
+})
+
 export const DELETE = withErrorHandler(async (request: NextRequest) => {
   try {
     const authData = await requireActiveMembershipForApi()

@@ -131,6 +131,7 @@ export default function SeasonPlannerClient({
   const [swapIncomingGuildFilter, setSwapIncomingGuildFilter] = useState('all')
   const [strategyOptimizerRequested, setStrategyOptimizerRequested] =
     useState(false)
+  const seasonContextIdRef = useRef(0)
   const planRequestIdRef = useRef(0)
   const snapshotRequestIdRef = useRef(0)
   const savedPlansRequestIdRef = useRef(0)
@@ -144,6 +145,9 @@ export default function SeasonPlannerClient({
       savedPlanRequestIdRef.current += 1
       strategyRequestIdRef.current += 1
       if (options?.clearSnapshot) {
+        seasonContextIdRef.current += 1
+        setSaveLoading(false)
+        setDeletingPlanId(null)
         setEditingPlanId(null)
         snapshotRequestIdRef.current += 1
         setSnapshotLoading(false)
@@ -152,6 +156,8 @@ export default function SeasonPlannerClient({
       if (options?.clearSnapshot) {
         setSnapshot(null)
         setRoster([])
+        setSavedPlans([])
+        setSavedPlansError(null)
       }
       setPlan(null)
       setPlanError(null)
@@ -290,14 +296,14 @@ export default function SeasonPlannerClient({
           `/api/guild-raid/season-plan?id=${encodeURIComponent(planId)}`
         )
         if (!isCurrentRequest()) return
+        const generated = selectDisplayedPlan(data.plan?.plan, null)
+        if (generated?.time_zone) setTimeZone(generated.time_zone)
         if (desktopMode && edit && data.plan && canEdit) {
-          const generated = selectDisplayedPlan(data.plan.plan, null)
           if (!generated) throw new Error('Saved plan payload is unavailable')
           setPlan(generated)
           setEditingPlanId(planId)
           setLookbackDays(generated.lookback_days)
           setSessionsPerDay(generated.sessions_per_day)
-          setTimeZone(generated.time_zone)
           setSnapshotAt(generated.snapshot_at)
         } else {
           setEditingPlanId(null)
@@ -528,6 +534,8 @@ export default function SeasonPlannerClient({
   const savePlan = useCallback(async () => {
     // AUTH-CRITICAL read-only gate: members never persist saved plans.
     if (!canEdit) return
+    const contextId = seasonContextIdRef.current
+    const isCurrentContext = () => seasonContextIdRef.current === contextId
     try {
       setSaveLoading(true)
       setSaveError(null)
@@ -555,14 +563,17 @@ export default function SeasonPlannerClient({
         }
       )
 
+      if (!isCurrentContext()) return
       setSaveSuccess(`Saved plan ${res.id}`)
       if (snapshot?.seasonId) {
         await loadSavedPlans(snapshot.seasonId)
       }
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : 'Failed to save plan')
+      if (isCurrentContext()) {
+        setSaveError(err instanceof Error ? err.message : 'Failed to save plan')
+      }
     } finally {
-      setSaveLoading(false)
+      if (isCurrentContext()) setSaveLoading(false)
     }
   }, [
     canEdit,
@@ -576,6 +587,8 @@ export default function SeasonPlannerClient({
   const deleteSavedPlan = useCallback(
     async (id: string) => {
       if (!canEdit) return
+      const contextId = seasonContextIdRef.current
+      const isCurrentContext = () => seasonContextIdRef.current === contextId
       setDeletingPlanId(id)
       setSavedPlansError(null)
       try {
@@ -583,6 +596,7 @@ export default function SeasonPlannerClient({
           `/api/guild-raid/season-plan?id=${encodeURIComponent(id)}`,
           { method: 'DELETE' }
         )
+        if (!isCurrentContext()) return
         setSavedPlans((current) => current.filter((row) => row.id !== id))
         if (activeSavedPlanId === id) {
           setActiveSavedPlanId(null)
@@ -593,11 +607,13 @@ export default function SeasonPlannerClient({
           setPlan(null)
         }
       } catch (error) {
-        setSavedPlansError(
-          error instanceof Error ? error.message : 'Plan deletion refused'
-        )
+        if (isCurrentContext()) {
+          setSavedPlansError(
+            error instanceof Error ? error.message : 'Plan deletion refused'
+          )
+        }
       } finally {
-        setDeletingPlanId(null)
+        if (isCurrentContext()) setDeletingPlanId(null)
       }
     },
     [canEdit, activeSavedPlanId, editingPlanId]
