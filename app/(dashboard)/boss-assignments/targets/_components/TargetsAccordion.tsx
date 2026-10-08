@@ -26,6 +26,9 @@ export interface TargetsAccordionProps {
   opsSkippedKeys?: Set<string>
   editingKey: string | null
   renderEditor: (row: MergedRow) => React.ReactNode
+  renderNotes?: (row: MergedRow) => React.ReactNode
+  renderActual?: (row: MergedRow) => React.ReactNode
+  onToggleSkip?: (row: MergedRow) => void
 }
 
 interface BossGroup {
@@ -73,7 +76,10 @@ export function TargetsAccordion({
   onReset,
   opsSkippedKeys,
   editingKey,
-  renderEditor
+  renderEditor,
+  renderNotes,
+  renderActual,
+  onToggleSkip
 }: TargetsAccordionProps) {
   const groups = groupByBoss(rows)
   const [open, setOpen] = useState<Set<string>>(new Set())
@@ -157,8 +163,9 @@ export function TargetsAccordion({
                   return (
                     <div
                       key={rowKey}
+                      data-target-key={rowKey}
                       className={clsx(
-                        'flex min-h-[52px] items-center gap-2 border-b border-(--card-border) px-3 py-2 last:border-b-0',
+                        'flex min-h-[52px] flex-wrap items-center gap-2 border-b border-(--card-border) px-3 py-2 last:border-b-0',
                         (showSkipped || seed.isNoneAvailable) && 'opacity-50'
                       )}
                     >
@@ -212,6 +219,18 @@ export function TargetsAccordion({
                             Reset
                           </button>
                         )}
+                      {canEdit && row.encounter_id !== 0 && onToggleSkip && (
+                        <label className="flex min-h-11 items-center gap-1 text-xs">
+                          <input
+                            type="checkbox"
+                            aria-label={`Skip target for ${row.display_name}`}
+                            checked={seed.isSkipped}
+                            onChange={() => onToggleSkip(row)}
+                            data-testid="targets-mutation-control"
+                          />
+                          Skip
+                        </label>
+                      )}
                       {canManageHerald && (
                         <button
                           type="button"
@@ -222,6 +241,12 @@ export function TargetsAccordion({
                         >
                           <Settings2 className="h-4 w-4" />
                         </button>
+                      )}
+                      {renderActual && (
+                        <div className="basis-full">{renderActual(row)}</div>
+                      )}
+                      {renderNotes && (
+                        <div className="basis-full">{renderNotes(row)}</div>
                       )}
                     </div>
                   )

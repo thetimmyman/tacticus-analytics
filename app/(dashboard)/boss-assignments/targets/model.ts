@@ -17,6 +17,8 @@ export interface TargetRow {
   updated_by: string | null
   updated_at: string
   skip: boolean
+  /** Empty string is the cross-season legacy fallback. */
+  season_number?: string
 }
 
 export interface SlotEntry {

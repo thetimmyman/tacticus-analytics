@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Errors } from '@/app/lib/errors/AppError'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { requireTokenUsageGuildAccess } from '../access'
+import { requireTokenSeason } from '../parameters'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,6 +27,18 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
       error: 'Guild and seasons parameters required'
     })
   }
+  if (
+    seasons.length > 12 ||
+    rarities.some(
+      (rarity) =>
+        !['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Mythic'].includes(
+          rarity
+        )
+    )
+  ) {
+    throw Errors.validation('Invalid battle history filters')
+  }
+  seasons.forEach(requireTokenSeason)
 
   const { supabase, guild } = await requireTokenUsageGuildAccess(requestedGuild)
 

@@ -12,6 +12,7 @@ import { isMainBossEncounter, isPrimeEncounter } from '@/app/lib/config'
 
 function normalizeDataSource(value: string | null | undefined): DataSource {
   if (value === 'api' || value === 'live') return 'live'
+  if (value === 'cached') return 'cached'
   if (value === 'calculated') return 'calculated'
   return 'default'
 }

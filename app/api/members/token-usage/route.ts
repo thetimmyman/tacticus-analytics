@@ -7,6 +7,9 @@ import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { loadGuildTokenStatuses } from '@/app/api/guild-tokens/token-service'
 import { requireTokenUsageGuildAccess } from './access'
+import { requireTokenSeason } from './parameters'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
+import type { TypedSupabaseClient } from '@tacticus/app-core/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,6 +27,11 @@ interface TokenUsagePayloadRow {
   burned_tokens: number | null
   time_over_cap_seconds: number | null
   data_source: string | null
+  boss_tokens: number
+  prime_tokens: number
+  last_sync_at?: string | null
+  computed_at?: string
+  lost_tokens_at_cap?: number | null
 }
 
 // Each compute is a ~30s rate-limited fan-out; the TTL must exceed it and stay far below the 12h regen.
@@ -38,13 +46,15 @@ function createComputeFailure(stage: string, reason: unknown): Error {
   return new Error(`${stage} failed`, { cause: reason })
 }
 
-/** Service client on purpose: guild-wide result, requests gated by requireTokenUsageGuildAccess. */
+/** Hosted reads use the service client; desktop reads retain the signed caller's RLS scope. */
 async function computeTokenUsagePayload(
   guild: string,
   season: string,
-  clusterCode: string | null
+  clusterCode: string | null,
+  client?: TypedSupabaseClient
 ): Promise<TokenUsagePayloadRow[]> {
-  const supabase = serviceDb()
+  const desktop = getRuntimeProfile() === 'desktop'
+  const supabase = client ?? serviceDb()
   const t0 = Date.now()
   const timings: Record<string, number> = {}
 
@@ -64,7 +74,7 @@ async function computeTokenUsagePayload(
     clusterCode,
     verifyLiveRoster: false,
     // Capped at ~3s wall-clock; paid once per TTL window.
-    skipLiveOverlay: false
+    skipLiveOverlay: desktop
   }).then(
     (r) => {
       timings['loadStatuses'] = Date.now() - t0
@@ -128,9 +138,26 @@ async function computeTokenUsagePayload(
       token_next_in_seconds: player.token_next_in_seconds,
       bombs_available_live: player.bombs_available,
       bomb_next_in_seconds: player.next_bomb_seconds,
-      burned_tokens: null,
-      time_over_cap_seconds: null,
-      data_source: player.data_source
+      burned_tokens: desktop
+        ? usageRow
+          ? (usageRow.burned_tokens ?? 0)
+          : null
+        : null,
+      time_over_cap_seconds: desktop
+        ? (player.time_over_cap_seconds ??
+          usageRow?.time_over_cap_seconds ??
+          null)
+        : null,
+      data_source: player.data_source,
+      boss_tokens: usageRow?.boss_tokens ?? 0,
+      prime_tokens: usageRow?.prime_tokens ?? 0,
+      ...(desktop
+        ? {
+            last_sync_at: player.last_sync_at,
+            computed_at: new Date().toISOString(),
+            lost_tokens_at_cap: player.burned_tokens ?? null
+          }
+        : {})
     }
   })
 
@@ -156,10 +183,20 @@ export const GET = withErrorHandler(async (request: Request) => {
         error: 'Guild and season parameters required'
       })
     }
+    requireTokenSeason(season)
 
     // Runs on every call, cache hits included.
-    const { guild, clusterCode } =
+    const { guild, clusterCode, supabase } =
       await requireTokenUsageGuildAccess(requestedGuild)
+
+    // Saved imports can change between calls. Re-read under the caller's JWT;
+    // never serve a process cache or request upstream data in desktop mode.
+    if (getRuntimeProfile() === 'desktop') {
+      return NextResponse.json(
+        await computeTokenUsagePayload(guild, season, clusterCode, supabase),
+        { headers: { 'Cache-Control': 'no-store' } }
+      )
+    }
 
     const key = `${guild}:${season}`
     const cached = tokenUsageCache.get(key)

@@ -31,7 +31,7 @@ async function captureCorePages(window, origin) {
   assert.ok(page('/player-stats').text.includes('Tokens Used\n4'))
   assert.ok(page('/boss').text.includes('AVERAGE DAMAGE\n100'))
   assert.ok(page('/token-usage').title.includes('Access Denied'))
-  assert.ok(page('/roster').text.includes('Native game connection'))
+  assert.ok(page('/roster').text.includes('My Roster'))
   assert.ok(page('/roster').text.includes('No saved roster yet'))
   assert.ok(page('/roster').text.includes('Sync my roster'))
   for (const path of [
@@ -46,7 +46,8 @@ async function captureCorePages(window, origin) {
       `({text:document.body.innerText, keyInputs:document.querySelectorAll('input[id*="api-key"],input[placeholder*="API key"],input[placeholder*="api key"]').length})`
     )
     assert.ok(
-      guide.text.includes('Native game connection'),
+      guide.text.includes('Tacticus API access') &&
+        guide.text.includes('secure native dialog'),
       `Credential guide missing on ${path}`
     )
     assert.equal(guide.keyInputs, 0)
