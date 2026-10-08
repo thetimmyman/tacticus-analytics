@@ -46,7 +46,12 @@ runs the installed binaries under a network sandbox allowing loopback and local
 Unix IPC. Before launch, the installed Node must exchange a synthetic Unix
 socket message and receive an OS permission refusal for direct external TCP.
 The receipt records only fixed results; a timeout never counts as denial.
-Electron's renderer sandbox remains enabled. This qualification policy does
+Storage and restart launches run the whole installed tree under that policy.
+The graphical launch confines each local service with it but starts Electron
+outside it, because Chromium cannot initialize its own sandbox inside another
+Seatbelt profile. Electron's sandbox stays enabled; instead the journey requires
+Electron to refuse a public host name and a public address, and the desktop
+window never resolves host names. This qualification policy does
 not establish the consumer's full opt-in network boundary. It exercises
 the selected synthetic renderer calculation, persisted writes, whole database
 dump/restore into a disposable database, and failed migration rollback.
@@ -58,10 +63,11 @@ Before Electron launch, the installed qualification verifies password-free
 holding setup and former-password owner migration against the bundled Auth
 service. It compares all synthetic raid, mapping, guild and attestation rows plus
 cached personal state, and refuses renderer-only and forged-session access.
-This receipt is bound to the source commit and DMG digest. Actual Electron
-bootstrap, signed-out recovery, restart and preserved consumer Keychain bindings
-remain separate qualification requirements.
-If the mandatory isolated journey records a native sandbox initialization
+This receipt is bound to the source commit and DMG digest. The packaged
+journey then covers actual Electron bootstrap, signed-out recovery and restart
+on virtual machines. Preserved consumer Keychain bindings remain a separate
+qualification requirement.
+If the graphical journey still records a native sandbox initialization
 failure, a separate compatibility probe runs the same installed payload in one
 fresh synthetic workspace across two ordinary launches. Electron's own sandbox
 remains enabled. The probe checks actual renderer bootstrap refusal, native
@@ -70,8 +76,11 @@ receipt declares network isolation unestablished; it never emits platform
 acceptance and the mandatory isolated journey remains failed.
 Renderer diagnostics use fixed endpoint/resource/request-start-phase labels and bounded numeric
 statuses. JSON receipts contain calculation flags rather than document text or
-request paths; failed screenshots are withheld. Intentional refusal assertions
-remain separate from unexpected renderer failures.
+request paths. A failed run keeps its screenshot, which shows only the
+synthetic workspace, so a calculation or rendering mismatch can be diagnosed.
+Intentional refusals stay separate from unexpected renderer failures: the
+gateway tags its credential holding response, and authorization failures are
+accepted only while the journey has deliberately signed the renderer out.
 
 Ordinary setup creates a local Auth account in a Player-required holding state.
 The workspace opens automatically under the current OS account, without an app
