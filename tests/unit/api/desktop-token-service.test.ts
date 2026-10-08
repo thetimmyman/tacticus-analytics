@@ -67,12 +67,10 @@ describe('desktop cached token-state adapter', () => {
   })
   it('fails closed if selected local RPC is missing without legacy reads or live fallback', async () => {
     const db = {
-      rpc: vi
-        .fn()
-        .mockResolvedValue({
-          data: null,
-          error: { message: 'missing selected function' }
-        })
+      rpc: vi.fn().mockResolvedValue({
+        data: null,
+        error: { message: 'missing selected function' }
+      })
     } as unknown as SupabaseClient
     await expect(
       loadGuildTokenStatuses(db, { guildCode: 'SYN001', season: '100' })

@@ -26,7 +26,9 @@ describe('desktop API access holding states', () => {
     async (path) => {
       mount(path, { playerReady: false, guildReady: false })
       expect(await screen.findByText('Cached content')).toBeInTheDocument()
-      expect(screen.queryByText('Connect your Player API key')).not.toBeInTheDocument()
+      expect(
+        screen.queryByText('Connect your Player API key')
+      ).not.toBeInTheDocument()
     }
   )
   it('opens saved roster team comparison without live Player or Guild access', async () => {

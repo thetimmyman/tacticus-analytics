@@ -60,7 +60,10 @@ test('every admitted prior schema upgrades directly to the exact current bytes',
     )
     assert.equal(entry.to, target)
     assert.equal(entry.sha256, digest(sql))
-    if (entry.from === '62875299367a965d8ec5596d3a4b5aaa28b091cd5b36f3cabd3fe1f208a0c952') {
+    if (
+      entry.from ===
+      '62875299367a965d8ec5596d3a4b5aaa28b091cd5b36f3cabd3fe1f208a0c952'
+    ) {
       // This installed schema already contains the team projection and role.
       // Its next migration must retain them without trying to create them twice.
       assert.equal(statement(sql), undefined)
