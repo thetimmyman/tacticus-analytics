@@ -99,7 +99,7 @@ if (
 )
   throw new Error('Invalid synthetic network policy')
 if (verify?.networkPolicy && !option('--storage-check')) {
-  if (process.env.TA_MAC_WINDOW_BROKER !== '1')
+  if (!args.includes('--window-broker'))
     throw new Error('Confined graphical broker required')
   const proof = await verifyNetworkIsolation(verify.externalAddress)
   await writeFile(
@@ -116,7 +116,7 @@ if (verify?.networkPolicy && !option('--storage-check')) {
 const services = await nativeServices({
   state,
   confine:
-    networkPolicy && process.env.TA_MAC_WINDOW_BROKER !== '1'
+    networkPolicy && !args.includes('--window-broker')
       ? (file, args) => [
           '/usr/bin/sandbox-exec',
           ['-p', networkPolicy, file, ...args]
@@ -386,23 +386,22 @@ try {
       }),
       { mode: 0o600 }
     )
-    const window =
-      process.env.TA_MAC_WINDOW_BROKER === '1'
-        ? brokerWindow()
-        : services.launch(
-            join(root, 'electron/Electron.app/Contents/MacOS/Electron'),
-            [join(here, 'main.cjs'), config],
-            {
-              PATH: join(root, 'bin'),
-              LANG: 'en_US.UTF-8',
-              HOME: process.env.HOME,
-              TMPDIR: process.env.TMPDIR
-            },
-            state,
-            true,
-            true,
-            false
-          )
+    const window = args.includes('--window-broker')
+      ? brokerWindow()
+      : services.launch(
+          join(root, 'electron/Electron.app/Contents/MacOS/Electron'),
+          [join(here, 'main.cjs'), config],
+          {
+            PATH: join(root, 'bin'),
+            LANG: 'en_US.UTF-8',
+            HOME: process.env.HOME,
+            TMPDIR: process.env.TMPDIR
+          },
+          state,
+          true,
+          true,
+          false
+        )
     const nativeDiagnostic = windowDiagnostics()
     if (verify) {
       window.stderr.on('data', nativeDiagnostic.observe)

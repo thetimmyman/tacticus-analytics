@@ -56,7 +56,7 @@ test('runtime is confined and only one fixed Electron entrypoint can launch', ()
     '/synthetic/runtime/bin/node',
     '/synthetic/runtime/apps/desktop/platform/macos/runtime.mjs'
   ])
-  assert.equal(owner.launches[0].options.env.TA_MAC_WINDOW_BROKER, '1')
+  assert.equal(owner.launches[0].args.at(-1), '--window-broker')
   runtime.emit('message', { broker: 'launch', file: '/foreign/executable' })
   assert.equal(owner.launches.length, 1)
   runtime.emit('message', { broker: 'launch' })
