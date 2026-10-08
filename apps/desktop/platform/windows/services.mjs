@@ -169,22 +169,79 @@ export function serviceFailureCode(text) {
         : code
   return 'unclassified-service-failure'
 }
+// These codes are finite diagnostic labels, not exit-status interpretations.
+const postgrestCodes = ['PGRST000', 'PGRST001', 'PGRST002', 'PGRST003']
+const postgresCodes = [
+  '08000',
+  '08001',
+  '08006',
+  '28P01',
+  '3D000',
+  '42501',
+  '42710',
+  '42883',
+  '42P01',
+  '57P03'
+]
+function fixedServiceCode(text, codes) {
+  return (
+    codes.find((code) =>
+      new RegExp(
+        `(?:"code"\\s*:\\s*"${code}"|\\bSQLSTATE\\s+${code}\\b)`,
+        'i'
+      ).test(text)
+    ) ?? 'unavailable'
+  )
+}
 export function serviceStartupDiagnostic(child) {
   let output = Buffer.alloc(0)
+  let truncated = false
+  let streamComplete = false
+  let closed = false
+  let resolveClosed
+  const onClose = new Promise((resolve) => {
+    resolveClosed = resolve
+  })
   const collect = (chunk) => {
     const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
-    if (output.length < 8192)
-      output = Buffer.concat([output, bytes.subarray(0, 8192 - output.length)])
+    const retained = bytes.subarray(0, 8192 - output.length)
+    if (retained.length < bytes.length) truncated = true
+    if (retained.length) output = Buffer.concat([output, retained])
   }
   child.stdout.on('data', collect)
   child.stderr.on('data', collect)
-  return () => {
-    const category = serviceFailureCode(output.toString('utf8'))
+  child.once?.('close', () => {
+    closed = true
+    streamComplete =
+      child.stdout.readableEnded === true && child.stderr.readableEnded === true
+    resolveClosed()
+  })
+  const diagnostic = () => {
+    const text = output.toString('utf8')
+    const category = serviceFailureCode(text)
     const status = Number.isSafeInteger(child.exitCode)
       ? `exit-${child.exitCode}`
       : 'exit-unavailable'
-    return `${category}; ${status}; sensitive output suppressed`
+    return `${category}; ${status}; pgrst-${fixedServiceCode(text, postgrestCodes)}; sqlstate-${fixedServiceCode(text, postgresCodes)}; streamComplete-${streamComplete}; capturedBytes-${output.length}; truncated-${truncated}; sensitive output suppressed`
   }
+  diagnostic.afterClose = async () => {
+    // Exit may precede pipe EOF. Bound diagnostic draining, not readiness.
+    if (!closed) {
+      let timer
+      try {
+        await Promise.race([
+          onClose,
+          new Promise((resolve) => {
+            timer = setTimeout(resolve, 250)
+          })
+        ])
+      } finally {
+        clearTimeout(timer)
+      }
+    }
+    return diagnostic()
+  }
+  return diagnostic
 }
 // Fixed coordinator messages only; renderer status text and other output stay private.
 const windowFailures = [
@@ -422,8 +479,15 @@ export async function nativeServices({
       children.push(child)
       child.once('exit', (code, signal) => {
         if (!stopping && (!ephemeral || code !== 0 || signal)) {
-          fault = new Error('A proof-owned service failed; ' + diagnostic())
+          const failure = new Error(
+            'A proof-owned service failed; startup diagnostic pending; sensitive output suppressed'
+          )
+          fault = failure
+          // Fail closed immediately; complete only the bounded diagnostic asynchronously.
           void stop()
+          void diagnostic.afterClose().then((text) => {
+            failure.message = 'A proof-owned service failed; ' + text
+          })
         }
       })
       return child
@@ -467,7 +531,7 @@ export async function nativeServices({
       for (let i = 0; i < 100; i++) {
         if (child.exitCode !== null || child.signalCode !== null)
           throw new Error(
-            `${label} exited before readiness; ${diagnostics.get(child)()}`
+            `${label} exited before readiness; ${await diagnostics.get(child).afterClose()}`
           )
         try {
           await probe()
