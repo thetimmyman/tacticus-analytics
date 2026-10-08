@@ -98,11 +98,6 @@ if (!configPath) {
   run('c-workspace-transfer', 'apps/desktop/proof/transfer-journey.mjs', [
     configPath
   ])
-  console.log('\n== Local own-roster team comparison ==')
-  run('c-guild-teams', 'apps/desktop/proof/guild-teams-journey.mjs', [
-    configPath
-  ])
-
   console.log('\n== Runtime token expiry and active-session shutdown ==')
   run('c-lifecycle', 'apps/desktop/proof/lifecycle-journey.mjs', [configPath])
   console.log('\n== Forced coordinator death / native restart ==')
@@ -154,6 +149,17 @@ if (!configPath) {
       '\n== Native own roster / scoped cache / atomic replacement / restart =='
     )
     run('c-local-roster', 'apps/desktop/proof/roster-journey.mjs', [configPath])
+    if (nativeConfig.application.electron) {
+      console.log('\n== Local own-roster team comparison ==')
+      run('c-guild-teams', 'apps/desktop/proof/guild-teams-journey.mjs', [
+        configPath
+      ])
+    } else {
+      console.log(
+        'Local team renderer SKIPPED: Electron runtime is not supplied'
+      )
+      results.push({ gate: 'c-guild-teams', exitCode: 'skipped' })
+    }
     console.log('\n== Native local file import / atomic retries / restart ==')
     run('c-local-file-import', 'apps/desktop/proof/import-journey.mjs', [
       configPath
@@ -163,6 +169,7 @@ if (!configPath) {
       'Local job recovery SKIPPED: compiled application is not supplied'
     )
     results.push({ gate: 'c-local-jobs', exitCode: 'skipped' })
+    results.push({ gate: 'c-guild-teams', exitCode: 'skipped' })
   }
   console.log('\n== Native schema migration interruption / receipt recovery ==')
   run(

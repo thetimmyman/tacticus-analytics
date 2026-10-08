@@ -91,7 +91,10 @@ app
         config
       )
     const guildTeams = config.guildTeams
-      ? await require('./guild-teams-renderer.cjs').captureGuildTeams(window)
+      ? await require('./guild-teams-renderer.cjs').captureGuildTeams(
+          window,
+          config
+        )
       : undefined
     console.log('renderer: read DOM')
     const renderer = await window.webContents.executeJavaScript(
