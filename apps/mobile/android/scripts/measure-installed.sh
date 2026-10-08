@@ -25,11 +25,19 @@ keyguard_showing(){
 # The fixed PIN belongs only to this resettable synthetic emulator. Type it through the keypad only
 # while the keyguard reports showing; the installed guard still decides whether the session unlocked.
 synthetic_unlock(){
+  # Lock first so every run exercises PIN entry instead of sometimes finding the emulator unlocked.
+  "$ADB" -s "$SERIAL" shell settings put secure lock_screen_lock_after_timeout 0
+  "$ADB" -s "$SERIAL" shell input keyevent KEYCODE_SLEEP
+  sleep 2
   "$ADB" -s "$SERIAL" shell input keyevent KEYCODE_WAKEUP
   "$ADB" -s "$SERIAL" shell wm dismiss-keyguard > /dev/null 2>&1 || true
   "$ADB" -s "$SERIAL" shell input swipe 160 500 160 100 100
+  "$ADB" -s "$SERIAL" shell dumpsys window policy | tr -d '\r' | rg -i 'keyguard|showing' | head -8 || true
   for ((attempt=1; attempt<=3; attempt++)); do
-    keyguard_showing || { printf 'Synthetic keyguard not showing (attempt %s)\n' "$attempt"; return 0; }
+    if ! keyguard_showing; then
+      printf 'Synthetic keyguard not showing (attempt %s)\n' "$attempt"
+      return 0
+    fi
     printf 'Synthetic keyguard showing; typing synthetic PIN (attempt %s)\n' "$attempt"
     sleep 1
     "$ADB" -s "$SERIAL" shell input text 2468
