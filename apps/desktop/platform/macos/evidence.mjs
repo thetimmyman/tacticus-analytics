@@ -36,7 +36,7 @@ export function records(context) {
     'offline-core':
       'Selected real renderer calculations ran under a process sandbox allowing loopback and local Unix IPC with external TCP refusal measured.',
     'restart-persistence':
-      'Two cold installed launches retained eight fixture rows and incremented the stored counter from one to two.',
+      'Two graphical installed launches reopened the same workspace with matching synthetic data digests; two storage launches retained eight fixture rows and incremented the stored counter from one to two.',
     'backup-restore':
       'Bundled pg_dump and pg_restore restored eight fixture rows and one synthetic account into a disposable database.',
     'bad-update':

@@ -10,24 +10,30 @@ import { loopbackGateway } from './loopback-gateway.mjs'
 // test exercises the HTTP gateway in loopback-gateway.mjs directly, with a
 // stub upstream app port.
 
-async function startStubUpstream() {
-  const httpServer = createServer((req, res) => {
+async function startStubUpstream(
+  handle = (req, res) => {
     res.writeHead(200, { 'content-type': 'text/plain' })
     res.end('ok')
-  })
+  }
+) {
+  const httpServer = createServer(handle)
   await new Promise((accept, reject) => {
     httpServer.once('error', reject)
     httpServer.listen(0, '127.0.0.1', accept)
   })
   return {
     port: httpServer.address().port,
-    stop: () => new Promise((accept) => httpServer.close(accept))
+    stop: () =>
+      new Promise((accept) => {
+        httpServer.close(accept)
+        httpServer.closeAllConnections()
+      })
   }
 }
 
-async function withGateway(t, run) {
+async function withGateway(t, run, handle) {
   const transportKey = randomBytes(32).toString('hex')
-  const upstream = await startStubUpstream()
+  const upstream = await startStubUpstream(handle)
   const gateway = await loopbackGateway({
     services: { ports: {}, token: { anon: 'anon-token' } },
     transportKey,
@@ -39,6 +45,147 @@ async function withGateway(t, run) {
   })
   await run({ gateway, transportKey })
 }
+
+for (const framing of ['content-length', 'chunked'])
+  test(`a truncated ${framing} upstream body rejects and leaves healthy requests usable`, async (t) => {
+    let incomplete
+    await withGateway(
+      t,
+      async ({ gateway, transportKey }) => {
+        const response = await fetch(gateway.origin + '/truncated', {
+          headers: { 'x-desktop-transport': transportKey },
+          signal: AbortSignal.timeout(1500)
+        })
+        assert.equal(response.status, 200)
+        incomplete.destroy()
+        await assert.rejects(response.text(), { name: 'TypeError' })
+        const healthy = await fetch(gateway.origin + '/healthy', {
+          headers: { 'x-desktop-transport': transportKey }
+        })
+        assert.equal(healthy.status, 200)
+        assert.equal(await healthy.text(), 'ok')
+      },
+      (req, res) => {
+        if (req.url === '/truncated') {
+          incomplete = res
+          res.writeHead(
+            200,
+            framing === 'content-length' ? { 'content-length': '100' } : {}
+          )
+          res.write('partial')
+        } else res.end('ok')
+      }
+    )
+  })
+
+for (const phase of ['before headers', 'during body'])
+  test(`canceling downstream ${phase} closes its upstream response`, async (t) => {
+    let observeClose, observeRequest
+    const closed = new Promise((resolve) => {
+      observeClose = resolve
+    })
+    const seen = new Promise((resolve) => {
+      observeRequest = resolve
+    })
+    await withGateway(
+      t,
+      async ({ gateway, transportKey }) => {
+        const controller = new AbortController()
+        const request = fetch(gateway.origin + '/stream', {
+          headers: { 'x-desktop-transport': transportKey },
+          signal: controller.signal
+        })
+        let reader
+        if (phase === 'during body') {
+          const response = await request
+          assert.equal(response.status, 200)
+          reader = response.body.getReader()
+          assert.equal((await reader.read()).done, false)
+        } else await seen
+        controller.abort()
+        if (phase === 'before headers')
+          await assert.rejects(request, { name: 'AbortError' })
+        let deadline
+        try {
+          assert.equal(
+            await Promise.race([
+              closed,
+              new Promise((resolve) => {
+                deadline = setTimeout(() => resolve(false), 1500)
+              })
+            ]),
+            true,
+            'The canceled request must stop its upstream response'
+          )
+        } finally {
+          clearTimeout(deadline)
+          reader?.releaseLock()
+        }
+        const healthy = await fetch(gateway.origin + '/healthy', {
+          headers: { 'x-desktop-transport': transportKey }
+        })
+        assert.equal(await healthy.text(), 'ok')
+      },
+      (req, res) => {
+        if (req.url === '/stream') {
+          res.once('close', () => observeClose(true))
+          if (phase === 'during body') res.write('partial')
+          observeRequest()
+        } else res.end('ok')
+      }
+    )
+  })
+
+test('complete chunked and HTTP error responses retain their status and complete body', async (t) => {
+  await withGateway(
+    t,
+    async ({ gateway, transportKey }) => {
+      for (const [path, status, body] of [
+        ['/healthy', 200, 'complete body'],
+        ['/unavailable', 503, 'upstream unavailable']
+      ]) {
+        const response = await fetch(gateway.origin + path, {
+          headers: { 'x-desktop-transport': transportKey },
+          signal: AbortSignal.timeout(1500)
+        })
+        assert.equal(response.status, status)
+        assert.equal(await response.text(), body)
+      }
+    },
+    (req, res) => {
+      if (req.url === '/unavailable') {
+        res.writeHead(503)
+        res.end('upstream unavailable')
+      } else {
+        res.write('complete ')
+        setImmediate(() => res.end('body'))
+      }
+    }
+  )
+})
+
+test('an upstream disconnect before headers returns 503 and preserves later requests', async (t) => {
+  await withGateway(
+    t,
+    async ({ gateway, transportKey }) => {
+      for (const [path, status] of [
+        ['/disconnect', 503],
+        ['/healthy', 200]
+      ]) {
+        const response = await fetch(gateway.origin + path, {
+          headers: { 'x-desktop-transport': transportKey },
+          signal: AbortSignal.timeout(1500)
+        })
+        assert.equal(response.status, status)
+        assert.equal(await response.text(), status === 503 ? '' : 'ok')
+      }
+    },
+    (req, res) => {
+      if (req.url === '/disconnect') res.destroy()
+      else res.end('ok')
+    }
+  )
+})
 
 test('non-hex transport headers are denied without stopping the gateway', async (t) => {
   await withGateway(t, async ({ gateway, transportKey }) => {

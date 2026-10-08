@@ -4,19 +4,44 @@ import {
   importSyntheticRaid
 } from '../../proof/synthetic-import.mjs'
 
-export async function syntheticWorkspaceDigest(services, personal) {
+export const syntheticDigestScope =
+  'persistent-business-data-excluding-activity-timestamps'
+
+export function syntheticSnapshotDigest(database, personal) {
+  const stable = structuredClone(database)
+  // The ordinary page activity endpoint updates these fields on every view.
+  // All business, membership, owner and attestation fields remain measured.
+  for (const row of stable.mapping ?? []) {
+    delete row.last_active_at
+    delete row.updated_at
+  }
+  for (const row of stable.guilds ?? []) delete row.updated_at
+  const canonical = (value) => {
+    if (Array.isArray(value)) return value.map(canonical)
+    if (value && typeof value === 'object')
+      return Object.fromEntries(
+        Object.keys(value)
+          .sort()
+          .map((key) => [key, canonical(value[key])])
+      )
+    return value
+  }
   return createHash('sha256')
-    .update(
-      await services.psql(`SELECT jsonb_build_object(
+    .update(JSON.stringify(canonical({ database: stable, personal })))
+    .digest('hex')
+}
+
+export async function syntheticWorkspaceDigest(services, personal) {
+  const database = JSON.parse(
+    await services.psql(`SELECT jsonb_build_object(
       'subject',(SELECT subject_user_id FROM public.desktop_preview_setup WHERE singleton),
       'rows',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text),'[]'::jsonb) FROM public."EOT_GR_data" t),
       'mapping',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text),'[]'::jsonb) FROM public.player_mapping t),
       'guilds',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text),'[]'::jsonb) FROM public.guild_config t),
       'attestations',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text),'[]'::jsonb) FROM public.player_identity_attestations t)
     );`)
-    )
-    .update(JSON.stringify(personal.state.read()))
-    .digest('hex')
+  )
+  return syntheticSnapshotDigest(database, personal.state.read())
 }
 
 // This runs only in the disposable installed qualification workspace, against
@@ -128,6 +153,7 @@ export async function qualifyDeviceSession({
     forgedSessionRefused: true,
     localDataPreserved: true,
     syntheticDataDigest: before,
+    syntheticDataDigestScope: syntheticDigestScope,
     keychainBindings: 'unqualified-owner-provisioning-required'
   }
 }

@@ -1,7 +1,14 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawn, execFileSync } from 'node:child_process'
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import {
+  mkdir,
+  mkdtemp,
+  readFile,
+  rm,
+  writeFile,
+  symlink
+} from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
@@ -197,3 +204,75 @@ test(
     }
   }
 )
+
+for (const failure of ['broker-killed', 'window-spawn-error'])
+  test(
+    `graphical broker ${failure} leaves no runtime or Electron descendant`,
+    { skip: !darwin },
+    async () => {
+      assert.ok(guard)
+      const state = await mkdtemp(join(tmpdir(), 'mac broker ü '))
+      const root = join(state, 'runtime'),
+        here = join(root, 'apps/desktop/platform/macos')
+      const record = join(state, 'runtime.pid'),
+        windowRecord = join(state, 'window.pid')
+      const brokerRecord = join(state, 'broker.pid'),
+        harness = join(state, 'broker.mjs')
+      let owner,
+        ids = []
+      try {
+        await mkdir(here, { recursive: true })
+        await mkdir(join(root, 'bin'), { recursive: true })
+        await symlink(process.execPath, join(root, 'bin/node'))
+        await mkdir(join(root, 'electron/Electron.app/Contents/MacOS'), {
+          recursive: true
+        })
+        if (failure !== 'window-spawn-error')
+          await symlink(
+            process.execPath,
+            join(root, 'electron/Electron.app/Contents/MacOS/Electron')
+          )
+        await writeFile(
+          join(here, 'runtime.mjs'),
+          `import{writeFileSync}from'node:fs';writeFileSync(${JSON.stringify(record)},String(process.pid));process.on('message',m=>{if(m.broker==='error')process.exit(1)});process.send({broker:'launch'});setInterval(()=>{},1000);`
+        )
+        await writeFile(
+          join(here, 'main.cjs'),
+          `require('node:fs').writeFileSync(${JSON.stringify(windowRecord)},String(process.pid));setInterval(()=>{},1000);`
+        )
+        const module = new URL(
+          '../../../apps/desktop/platform/macos/window-broker.mjs',
+          import.meta.url
+        ).href
+        await writeFile(
+          harness,
+          `import{superviseWindows}from${JSON.stringify(module)};import{writeFileSync}from'node:fs';writeFileSync(${JSON.stringify(brokerRecord)},String(process.pid));const owner=superviseWindows({root:${JSON.stringify(root)},state:${JSON.stringify(state)},policy:'(version 1)(allow default)(deny network*)',args:[],env:process.env});owner.runtime.on('broker-exit',()=>{});`
+        )
+        owner = spawn(
+          guard,
+          ['--run', join(state, 'lock'), process.execPath, harness],
+          { stdio: 'ignore' }
+        )
+        await until(async () => {
+          try {
+            ids = [
+              Number(await readFile(record, 'utf8')),
+              Number(await readFile(brokerRecord, 'utf8'))
+            ]
+            if (failure === 'broker-killed')
+              ids.push(Number(await readFile(windowRecord, 'utf8')))
+            return ids.every(Number.isSafeInteger)
+          } catch {
+            return false
+          }
+        })
+        if (failure === 'broker-killed') process.kill(ids[1], 'SIGKILL')
+        await until(() => ids.every((pid) => !exists(pid)))
+        await until(async () => (await launch(state)) === 0)
+      } finally {
+        owner?.kill('SIGKILL')
+        for (const pid of ids) if (exists(pid)) process.kill(pid, 'SIGKILL')
+        await rm(state, { recursive: true, force: true })
+      }
+    }
+  )
