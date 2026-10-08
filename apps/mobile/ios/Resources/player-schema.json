@@ -1,0 +1,633 @@
+{
+  "schemaVersion": "official-player-projection/v1",
+  "root": "Player",
+  "definitions": {
+    "Player": {
+      "required": ["details", "inventory", "progress", "units"],
+      "type": "object",
+      "properties": {
+        "details": {
+          "$ref": "Player Details"
+        },
+        "units": {
+          "type": "array",
+          "items": {
+            "$ref": "Unit"
+          }
+        },
+        "inventory": {
+          "$ref": "Inventory"
+        },
+        "progress": {
+          "$ref": "Progress"
+        }
+      }
+    },
+    "Player Details": {
+      "required": ["name", "powerLevel"],
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "powerLevel": {
+          "type": "integer"
+        }
+      }
+    },
+    "Unit": {
+      "required": [
+        "abilities",
+        "id",
+        "items",
+        "mythicShards",
+        "progressionIndex",
+        "rank",
+        "shards",
+        "upgrades",
+        "xp",
+        "xpLevel"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "faction": {
+          "type": "string"
+        },
+        "grandAlliance": {
+          "type": "string",
+          "enum": ["Imperial", "Xenos", "Chaos"]
+        },
+        "progressionIndex": {
+          "maximum": 15,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "xp": {
+          "type": "integer"
+        },
+        "xpLevel": {
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "rank": {
+          "maximum": 17,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "abilities": {
+          "type": "array",
+          "items": {
+            "$ref": "Ability"
+          }
+        },
+        "upgrades": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "Unit Item"
+          }
+        },
+        "shards": {
+          "type": "integer"
+        },
+        "mythicShards": {
+          "type": "integer"
+        }
+      }
+    },
+    "Ability": {
+      "required": ["id", "level"],
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "level": {
+          "maximum": 50,
+          "minimum": 0,
+          "type": "integer"
+        }
+      }
+    },
+    "Unit Item": {
+      "required": ["id", "level", "slotId"],
+      "type": "object",
+      "properties": {
+        "slotId": {
+          "type": "string",
+          "enum": ["Slot1", "Slot2", "Slot3"]
+        },
+        "level": {
+          "maximum": 11,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "rarity": {
+          "type": "string",
+          "enum": ["Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"]
+        }
+      }
+    },
+    "Inventory": {
+      "required": [
+        "abilityBadges",
+        "components",
+        "forgeBadges",
+        "items",
+        "mythicShards",
+        "orbs",
+        "resetStones",
+        "shards",
+        "upgrades",
+        "xpBooks"
+      ],
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "Item"
+          }
+        },
+        "upgrades": {
+          "type": "array",
+          "items": {
+            "$ref": "Upgrade"
+          }
+        },
+        "shards": {
+          "type": "array",
+          "items": {
+            "$ref": "Shard"
+          }
+        },
+        "mythicShards": {
+          "type": "array",
+          "items": {
+            "$ref": "Shard"
+          }
+        },
+        "xpBooks": {
+          "type": "array",
+          "items": {
+            "$ref": "Xp Book"
+          }
+        },
+        "abilityBadges": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "Ability Badge"
+            }
+          }
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "Component"
+          }
+        },
+        "forgeBadges": {
+          "type": "array",
+          "items": {
+            "$ref": "Forge Badge"
+          }
+        },
+        "orbs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "Orb"
+            }
+          }
+        },
+        "requisitionOrders": {
+          "$ref": "Requisition Orders"
+        },
+        "resetStones": {
+          "type": "integer"
+        }
+      }
+    },
+    "Item": {
+      "required": ["amount", "id", "level"],
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "level": {
+          "type": "integer"
+        },
+        "amount": {
+          "type": "integer"
+        }
+      }
+    },
+    "Upgrade": {
+      "required": ["amount", "id"],
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "integer"
+        }
+      }
+    },
+    "Shard": {
+      "required": ["amount", "id"],
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "integer"
+        }
+      }
+    },
+    "Xp Book": {
+      "required": ["amount", "id", "rarity"],
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "enum": [
+            "xpUncommon",
+            "xpUncommon",
+            "xpRare",
+            "xpEpic",
+            "xpLegendary"
+          ]
+        },
+        "rarity": {
+          "type": "string",
+          "enum": ["Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"]
+        },
+        "amount": {
+          "type": "integer"
+        }
+      }
+    },
+    "Ability Badge": {
+      "required": ["amount", "rarity"],
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "rarity": {
+          "type": "string",
+          "enum": ["Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"]
+        },
+        "amount": {
+          "type": "integer"
+        }
+      }
+    },
+    "Component": {
+      "required": ["amount", "grandAlliance", "name"],
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "grandAlliance": {
+          "type": "string",
+          "enum": ["Imperial", "Xenos", "Chaos"]
+        },
+        "amount": {
+          "type": "integer"
+        }
+      }
+    },
+    "Forge Badge": {
+      "required": ["amount", "name", "rarity"],
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "rarity": {
+          "type": "string",
+          "enum": ["Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"]
+        },
+        "amount": {
+          "type": "integer"
+        }
+      }
+    },
+    "Orb": {
+      "required": ["amount", "rarity"],
+      "type": "object",
+      "properties": {
+        "rarity": {
+          "type": "string",
+          "enum": ["Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"]
+        },
+        "amount": {
+          "type": "integer"
+        }
+      }
+    },
+    "Requisition Orders": {
+      "required": ["blessed", "regular"],
+      "type": "object",
+      "properties": {
+        "regular": {
+          "type": "integer"
+        },
+        "blessed": {
+          "type": "integer"
+        }
+      }
+    },
+    "Progress": {
+      "required": ["campaigns", "legendaryEvents"],
+      "type": "object",
+      "properties": {
+        "campaigns": {
+          "type": "array",
+          "items": {
+            "$ref": "Campaign Progress"
+          }
+        },
+        "arena": {
+          "$ref": "Arena"
+        },
+        "guildRaid": {
+          "$ref": "Guild Raid"
+        },
+        "onslaught": {
+          "$ref": "Onslaught"
+        },
+        "salvageRun": {
+          "$ref": "Salvage Run"
+        },
+        "legendaryEvents": {
+          "type": "array",
+          "items": {
+            "$ref": "LegendaryEvent (LE)"
+          }
+        }
+      }
+    },
+    "Campaign Progress": {
+      "required": ["battles", "id", "name", "type"],
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["Standard", "Mirror", "Elite", "EliteMirror"]
+        },
+        "battles": {
+          "type": "array",
+          "items": {
+            "$ref": "Campaign Level"
+          }
+        }
+      }
+    },
+    "Campaign Level": {
+      "required": ["attemptsLeft", "attemptsUsed", "battleIndex"],
+      "type": "object",
+      "properties": {
+        "battleIndex": {
+          "maximum": 75,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "attemptsLeft": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "attemptsUsed": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      }
+    },
+    "Arena": {
+      "type": "object",
+      "properties": {
+        "tokens": {
+          "$ref": "Token"
+        }
+      }
+    },
+    "Token": {
+      "required": ["current", "max", "regenDelayInSeconds"],
+      "type": "object",
+      "properties": {
+        "current": {
+          "type": "integer"
+        },
+        "max": {
+          "type": "integer"
+        },
+        "nextTokenInSeconds": {
+          "type": "integer"
+        },
+        "regenDelayInSeconds": {
+          "type": "integer"
+        }
+      }
+    },
+    "Guild Raid": {
+      "type": "object",
+      "properties": {
+        "tokens": {
+          "$ref": "Token"
+        },
+        "bombTokens": {
+          "$ref": "Token"
+        }
+      }
+    },
+    "Onslaught": {
+      "type": "object",
+      "properties": {
+        "tokens": {
+          "$ref": "Token"
+        }
+      }
+    },
+    "Salvage Run": {
+      "type": "object",
+      "properties": {
+        "tokens": {
+          "$ref": "Token"
+        }
+      }
+    },
+    "LegendaryEvent (LE)": {
+      "required": [
+        "currentClaimedChestIndex",
+        "currentCurrency",
+        "currentShards",
+        "id",
+        "lanes"
+      ],
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "lanes": {
+          "type": "array",
+          "items": {
+            "$ref": "LELane"
+          }
+        },
+        "currentPoints": {
+          "type": "integer"
+        },
+        "currentCurrency": {
+          "type": "integer"
+        },
+        "currentShards": {
+          "type": "integer"
+        },
+        "currentClaimedChestIndex": {
+          "type": "integer"
+        },
+        "currentEvent": {
+          "$ref": "LECurrentEvent"
+        }
+      }
+    },
+    "LELane": {
+      "required": ["battleConfigs", "id", "name", "progress"],
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "battleConfigs": {
+          "type": "array",
+          "items": {
+            "$ref": "LEBattleConfig"
+          }
+        },
+        "progress": {
+          "type": "array",
+          "items": {
+            "$ref": "LEBattleProgress"
+          }
+        }
+      }
+    },
+    "LEBattleConfig": {
+      "required": ["disallowedFactions", "numEnemies", "objectives"],
+      "type": "object",
+      "properties": {
+        "numEnemies": {
+          "type": "integer"
+        },
+        "objectives": {
+          "type": "array",
+          "items": {
+            "$ref": "LEBattleObjective"
+          }
+        },
+        "disallowedFactions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "LEBattleObjective": {
+      "required": ["objectiveTarget", "objectiveType", "score"],
+      "type": "object",
+      "properties": {
+        "objectiveType": {
+          "type": "string"
+        },
+        "objectiveTarget": {
+          "type": "string"
+        },
+        "score": {
+          "type": "integer"
+        }
+      }
+    },
+    "LEBattleProgress": {
+      "required": ["encounterPoints", "highScore", "objectivesCleared"],
+      "type": "object",
+      "properties": {
+        "objectivesCleared": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "highScore": {
+          "type": "integer"
+        },
+        "encounterPoints": {
+          "type": "integer"
+        }
+      }
+    },
+    "LECurrentEvent": {
+      "required": ["extraCurrencyPerPayout", "hasUsedAdForExtraTokenToday"],
+      "type": "object",
+      "properties": {
+        "run": {
+          "type": "integer"
+        },
+        "tokens": {
+          "$ref": "Token"
+        },
+        "hasUsedAdForExtraTokenToday": {
+          "type": "boolean"
+        },
+        "extraCurrencyPerPayout": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

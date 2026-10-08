@@ -24,6 +24,26 @@ final class WorkspaceUITests: XCTestCase {
         XCTAssertEqual(app.staticTexts["analytics"].label, saved)
         XCTAssertEqual(app.switches["offline"].value as? String, "1")
     }
+    func testInstalledCachedInventoryProgressPaginationAndRestart() throws {
+        let app = XCUIApplication(); app.launchArguments = ["--synthetic-demo"]; app.launch()
+        XCTAssertTrue(app.buttons["inspect-inventory"].waitForExistence(timeout: 15))
+        app.buttons["inspect-inventory"].tap(); app.buttons["snapshot-items"].tap()
+        XCTAssertTrue(app.staticTexts["snapshot-summary"].label.contains("52 entries"))
+        app.buttons["snapshot-0"].tap()
+        XCTAssertEqual(app.staticTexts["snapshot-value-amount"].label, "amount: 1")
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        for _ in 0..<15 { if app.buttons["snapshot-next"].isHittable { break }; app.swipeUp() }
+        app.buttons["snapshot-next"].tap(); app.buttons["snapshot-50"].tap()
+        XCTAssertEqual(app.staticTexts["snapshot-value-amount"].label, "amount: 51")
+        app.buttons["Close snapshot"].tap()
+        app.terminate(); app.launch()
+        XCTAssertTrue(app.buttons["inspect-progress"].waitForExistence(timeout: 15))
+        app.buttons["inspect-progress"].tap(); app.buttons["snapshot-campaigns"].tap(); app.buttons["snapshot-0"].tap()
+        XCTAssertEqual(app.staticTexts["snapshot-value-name"].label, "name: Example Campaign")
+        XCUIDevice.shared.press(.home); app.activate()
+        XCTAssertFalse(app.staticTexts["snapshot-value-name"].exists)
+        XCTAssertEqual(app.switches["offline"].value as? String, "1")
+    }
     func testFreshPersonalWorkspaceRequiresPlayerAndSecureInput() throws {
         let app = XCUIApplication(); app.launch()
         XCTAssertTrue(app.buttons["connect-all"].waitForExistence(timeout: 15))

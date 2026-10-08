@@ -1,0 +1,399 @@
+{
+  "schemaVersion": "official-player-cache/v1",
+  "updatedOn": 1767225600,
+  "player": {
+    "details": {
+      "name": "Example Player",
+      "powerLevel": 42
+    },
+    "units": [
+      {
+        "id": "synthetic-unit",
+        "name": "Example Unit",
+        "rank": 3,
+        "xpLevel": 10,
+        "xp": 100,
+        "abilities": [
+          {
+            "id": "synthetic-ability",
+            "level": 2
+          }
+        ],
+        "items": [],
+        "upgrades": [
+          1,
+          2
+        ],
+        "mythicShards": 0,
+        "shards": 20,
+        "progressionIndex": 2
+      }
+    ],
+    "inventory": {
+      "items": [
+        {
+          "id": "synthetic-item-0",
+          "name": "Example Item 0",
+          "level": 1,
+          "amount": 1
+        },
+        {
+          "id": "synthetic-item-1",
+          "name": "Example Item 1",
+          "level": 1,
+          "amount": 2
+        },
+        {
+          "id": "synthetic-item-2",
+          "name": "Example Item 2",
+          "level": 1,
+          "amount": 3
+        },
+        {
+          "id": "synthetic-item-3",
+          "name": "Example Item 3",
+          "level": 1,
+          "amount": 4
+        },
+        {
+          "id": "synthetic-item-4",
+          "name": "Example Item 4",
+          "level": 1,
+          "amount": 5
+        },
+        {
+          "id": "synthetic-item-5",
+          "name": "Example Item 5",
+          "level": 1,
+          "amount": 6
+        },
+        {
+          "id": "synthetic-item-6",
+          "name": "Example Item 6",
+          "level": 1,
+          "amount": 7
+        },
+        {
+          "id": "synthetic-item-7",
+          "name": "Example Item 7",
+          "level": 1,
+          "amount": 8
+        },
+        {
+          "id": "synthetic-item-8",
+          "name": "Example Item 8",
+          "level": 1,
+          "amount": 9
+        },
+        {
+          "id": "synthetic-item-9",
+          "name": "Example Item 9",
+          "level": 1,
+          "amount": 10
+        },
+        {
+          "id": "synthetic-item-10",
+          "name": "Example Item 10",
+          "level": 1,
+          "amount": 11
+        },
+        {
+          "id": "synthetic-item-11",
+          "name": "Example Item 11",
+          "level": 1,
+          "amount": 12
+        },
+        {
+          "id": "synthetic-item-12",
+          "name": "Example Item 12",
+          "level": 1,
+          "amount": 13
+        },
+        {
+          "id": "synthetic-item-13",
+          "name": "Example Item 13",
+          "level": 1,
+          "amount": 14
+        },
+        {
+          "id": "synthetic-item-14",
+          "name": "Example Item 14",
+          "level": 1,
+          "amount": 15
+        },
+        {
+          "id": "synthetic-item-15",
+          "name": "Example Item 15",
+          "level": 1,
+          "amount": 16
+        },
+        {
+          "id": "synthetic-item-16",
+          "name": "Example Item 16",
+          "level": 1,
+          "amount": 17
+        },
+        {
+          "id": "synthetic-item-17",
+          "name": "Example Item 17",
+          "level": 1,
+          "amount": 18
+        },
+        {
+          "id": "synthetic-item-18",
+          "name": "Example Item 18",
+          "level": 1,
+          "amount": 19
+        },
+        {
+          "id": "synthetic-item-19",
+          "name": "Example Item 19",
+          "level": 1,
+          "amount": 20
+        },
+        {
+          "id": "synthetic-item-20",
+          "name": "Example Item 20",
+          "level": 1,
+          "amount": 21
+        },
+        {
+          "id": "synthetic-item-21",
+          "name": "Example Item 21",
+          "level": 1,
+          "amount": 22
+        },
+        {
+          "id": "synthetic-item-22",
+          "name": "Example Item 22",
+          "level": 1,
+          "amount": 23
+        },
+        {
+          "id": "synthetic-item-23",
+          "name": "Example Item 23",
+          "level": 1,
+          "amount": 24
+        },
+        {
+          "id": "synthetic-item-24",
+          "name": "Example Item 24",
+          "level": 1,
+          "amount": 25
+        },
+        {
+          "id": "synthetic-item-25",
+          "name": "Example Item 25",
+          "level": 1,
+          "amount": 26
+        },
+        {
+          "id": "synthetic-item-26",
+          "name": "Example Item 26",
+          "level": 1,
+          "amount": 27
+        },
+        {
+          "id": "synthetic-item-27",
+          "name": "Example Item 27",
+          "level": 1,
+          "amount": 28
+        },
+        {
+          "id": "synthetic-item-28",
+          "name": "Example Item 28",
+          "level": 1,
+          "amount": 29
+        },
+        {
+          "id": "synthetic-item-29",
+          "name": "Example Item 29",
+          "level": 1,
+          "amount": 30
+        },
+        {
+          "id": "synthetic-item-30",
+          "name": "Example Item 30",
+          "level": 1,
+          "amount": 31
+        },
+        {
+          "id": "synthetic-item-31",
+          "name": "Example Item 31",
+          "level": 1,
+          "amount": 32
+        },
+        {
+          "id": "synthetic-item-32",
+          "name": "Example Item 32",
+          "level": 1,
+          "amount": 33
+        },
+        {
+          "id": "synthetic-item-33",
+          "name": "Example Item 33",
+          "level": 1,
+          "amount": 34
+        },
+        {
+          "id": "synthetic-item-34",
+          "name": "Example Item 34",
+          "level": 1,
+          "amount": 35
+        },
+        {
+          "id": "synthetic-item-35",
+          "name": "Example Item 35",
+          "level": 1,
+          "amount": 36
+        },
+        {
+          "id": "synthetic-item-36",
+          "name": "Example Item 36",
+          "level": 1,
+          "amount": 37
+        },
+        {
+          "id": "synthetic-item-37",
+          "name": "Example Item 37",
+          "level": 1,
+          "amount": 38
+        },
+        {
+          "id": "synthetic-item-38",
+          "name": "Example Item 38",
+          "level": 1,
+          "amount": 39
+        },
+        {
+          "id": "synthetic-item-39",
+          "name": "Example Item 39",
+          "level": 1,
+          "amount": 40
+        },
+        {
+          "id": "synthetic-item-40",
+          "name": "Example Item 40",
+          "level": 1,
+          "amount": 41
+        },
+        {
+          "id": "synthetic-item-41",
+          "name": "Example Item 41",
+          "level": 1,
+          "amount": 42
+        },
+        {
+          "id": "synthetic-item-42",
+          "name": "Example Item 42",
+          "level": 1,
+          "amount": 43
+        },
+        {
+          "id": "synthetic-item-43",
+          "name": "Example Item 43",
+          "level": 1,
+          "amount": 44
+        },
+        {
+          "id": "synthetic-item-44",
+          "name": "Example Item 44",
+          "level": 1,
+          "amount": 45
+        },
+        {
+          "id": "synthetic-item-45",
+          "name": "Example Item 45",
+          "level": 1,
+          "amount": 46
+        },
+        {
+          "id": "synthetic-item-46",
+          "name": "Example Item 46",
+          "level": 1,
+          "amount": 47
+        },
+        {
+          "id": "synthetic-item-47",
+          "name": "Example Item 47",
+          "level": 1,
+          "amount": 48
+        },
+        {
+          "id": "synthetic-item-48",
+          "name": "Example Item 48",
+          "level": 1,
+          "amount": 49
+        },
+        {
+          "id": "synthetic-item-49",
+          "name": "Example Item 49",
+          "level": 1,
+          "amount": 50
+        },
+        {
+          "id": "synthetic-item-50",
+          "name": "Example Item 50",
+          "level": 1,
+          "amount": 51
+        },
+        {
+          "id": "synthetic-item-51",
+          "name": "Example Item 51",
+          "level": 1,
+          "amount": 52
+        }
+      ],
+      "upgrades": [],
+      "shards": [],
+      "mythicShards": [],
+      "xpBooks": [],
+      "components": [],
+      "forgeBadges": [],
+      "abilityBadges": {
+        "Imperial": [
+          {
+            "rarity": "Common",
+            "amount": 4
+          }
+        ]
+      },
+      "orbs": {},
+      "resetStones": 2,
+      "requisitionOrders": {
+        "regular": 3,
+        "blessed": 1
+      }
+    },
+    "progress": {
+      "campaigns": [
+        {
+          "id": "synthetic-campaign",
+          "name": "Example Campaign",
+          "type": "Standard",
+          "battles": [
+            {
+              "battleIndex": 1,
+              "attemptsLeft": 3,
+              "attemptsUsed": 0
+            }
+          ]
+        }
+      ],
+      "legendaryEvents": [],
+      "guildRaid": {
+        "tokens": {
+          "current": 4,
+          "max": 6,
+          "nextTokenInSeconds": 120,
+          "regenDelayInSeconds": 3600
+        },
+        "bombTokens": {
+          "current": 2,
+          "max": 3,
+          "regenDelayInSeconds": 3600
+        }
+      }
+    }
+  }
+}

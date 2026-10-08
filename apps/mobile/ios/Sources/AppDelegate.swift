@@ -84,6 +84,16 @@ import UniformTypeIdentifiers
                 label("Raid tokens \(resource(player.resources.guildRaidTokens)) · Bombs \(resource(player.resources.bombTokens))", id: "resources")
                 for unit in player.units { label("\(unit.name) · Rank \(unit.rank) · Level \(unit.xpLevel)", id: "unit-\(unit.id)") }
             }
+            if let cache = try store.playerCache() {
+                for (key, title) in [("inventory", "Inspect cached inventory"), ("progress", "Inspect cached progress"), ("units", "Inspect complete cached roster")] {
+                    if let node = cache.player[key] {
+                        button(title, id: "inspect-\(key)") { [weak self] in
+                            let controller = PlayerInspectionController(title: title, node: node)
+                            self?.present(UINavigationController(rootViewController: controller), animated: true)
+                        }
+                    }
+                }
+            }
             button("Add local raid", id: "add-raid") { [weak self] in self?.addRaid() }
             button("Connect Player, Guild and GuildRaid", id: "connect-all") { [weak self] in self?.enterCredential(requestPlayer: true) }
             button("Connect optional Guild / GuildRaid key", id: "connect-optional") { [weak self] in self?.enterCredential(requestPlayer: false) }
@@ -102,8 +112,9 @@ import UniformTypeIdentifiers
                 guard self?.requireIdle() == true else { return }
                 let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.json], asCopy: true); picker.delegate = self; self?.present(picker, animated: true)
             }
-            button("Export this workspace JSON", id: "export") { [weak self] in self?.export() }
-            label("Import/export uses an explicitly selected file. Exports contain local projections and raid rows, never credentials, Keychain references, verification claims, consent or queued contributions. Imported personal data becomes unverified history.")
+            button("Export portable workspace JSON", id: "export") { [weak self] in self?.export() }
+            button("Export full local backup", id: "export-backup") { [weak self] in self?.export(full: true) }
+            label("Import/export uses an explicitly selected file. Portable exports contain core projections and raid rows; full backups also retain cached Player inventory and progress. Neither contains credentials, Keychain references, verification claims, consent or queued contributions. Imported personal data becomes unverified history.")
             label("Sharing preferences — independent and off by default. Cloud sending requires a reviewed account/guild binding and transport; it is currently unavailable.")
             for purpose in ContributionPurpose.allCases { for dataset in ContributionDataset.allCases {
                 let policy = try store.consent(purpose: purpose, dataset: dataset)
@@ -133,7 +144,12 @@ import UniformTypeIdentifiers
             else {
                 let store = try WorkspaceStore(url: WorkspaceStore.applicationURL(demo: demo))
                 self.store = store
-                if demo { if (try store.read()).player == nil { try store.write(.demo) } }
+                if demo {
+                    if (try store.read()).player == nil { try store.write(.demo) }
+                    if try store.playerCache() == nil, let url = Bundle.main.url(forResource: "synthetic-player", withExtension: "json") {
+                        try store.writePlayerCache(PlayerCache.decode(Data(contentsOf: url)))
+                    }
+                }
                 supervisor = ConnectionSupervisor(store: store, vault: vault, source: DeviceOfficialSource())
             }
             if !demo, let store { try vault.removeOrphans(keeping: Set(try store.capabilities().compactMap(\.reference))) }
@@ -193,13 +209,13 @@ import UniformTypeIdentifiers
             catch { self.status = "Row rejected. Existing data retained." }; self.render()
         }); present(prompt, animated: true)
     }
-    private func export() {
+    private func export(full: Bool = false) {
         guard requireIdle() else { return }
         guard let store else { return }
         do {
             cleanupExport()
             let url = FileManager.default.temporaryDirectory.appendingPathComponent("workspace-\(UUID().uuidString).json")
-            try store.exportDocument().write(to: url, options: [.atomic, .completeFileProtection])
+            try (full ? store.exportBackup() : store.exportDocument()).write(to: url, options: [.atomic, .completeFileProtection])
             var excluded = url; var values = URLResourceValues(); values.isExcludedFromBackup = true; try excluded.setResourceValues(values)
             temporaryExport = url
             let picker = UIDocumentPickerViewController(forExporting: [url], asCopy: true); picker.delegate = self; present(picker, animated: true)
@@ -213,7 +229,7 @@ import UniformTypeIdentifiers
         let access = url.startAccessingSecurityScopedResource(); defer { if access { url.stopAccessingSecurityScopedResource() } }
         do {
             let handle = try FileHandle(forReadingFrom: url); defer { try? handle.close() }
-            let data = try handle.read(upToCount: 1_048_577) ?? Data()
+            let data = try handle.read(upToCount: LocalBackup.limit + 1) ?? Data()
             let old = try store.capabilities()
             try store.importDocument(data)
             // The import is committed; key cleanup is best-effort and reported separately.

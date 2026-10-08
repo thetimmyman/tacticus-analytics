@@ -24,8 +24,11 @@ private final class SyntheticOfficialSource: OfficialSource {
     }
     static func fixtures(guild: String = "synthetic-guild", name: String = "Example Player", expiry: Double = Date().timeIntervalSince1970 + 3600) throws -> [OfficialScope: Data] {
         let metadata: [String: Any] = ["scopes": ["Player", "Guild", "Guild Raid"], "lastUpdatedOn": Int64(Date().timeIntervalSince1970 - 60), "apiKeyExpiresOn": expiry]
-        let player: [String: Any] = ["metaData": metadata, "player": ["details": ["name": name], "units": [["id": "synthetic-unit", "name": "Example Unit", "rank": 3, "xpLevel": 10]],
-            "progress": ["guildRaid": ["tokens": ["current": 4, "max": 6, "nextTokenInSeconds": 120], "bombTokens": ["current": 2, "max": 3]]]]]
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "synthetic-player", withExtension: "json"))
+        let cache = try PlayerCache.decode(Data(contentsOf: url))
+        var body = cache.player; var details = body["details"] as? [String: Any] ?? [:]
+        details["name"] = name; body["details"] = details
+        let player: [String: Any] = ["metaData": metadata, "player": body]
         // Player metadata is not invented on Guild/Raid endpoints. Raid has no guild/event identity.
         let responses: [OfficialScope: [String: Any]] = [.player: player, .guild: ["guild": ["guildId": guild]], .raid: ["season": 1, "seasonConfigId": "synthetic-season", "entries": []]]
         return try responses.mapValues { try JSONSerialization.data(withJSONObject: $0) }
@@ -53,6 +56,123 @@ private final class SyntheticOfficialSource: OfficialSource {
         XCTAssertEqual(try store.read().totalDamage, 2100)
         XCTAssertEqual(try store.read().damagePerToken, 525)
         XCTAssertEqual(try store.url.resourceValues(forKeys: [.isExcludedFromBackupKey]).isExcludedFromBackup, true)
+    }
+    private func cachedFixture() throws -> PlayerCache {
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "synthetic-player", withExtension: "json"))
+        return try PlayerCache.decode(Data(contentsOf: url))
+    }
+    private func installCachedFixture() throws -> PlayerCache {
+        let cache = try cachedFixture()
+        var document = WorkspaceDocument.demo; document.mode = "personal"; document.player = try cache.portablePlayer()
+        try store.transaction { try store.write(document); try store.writePlayerCache(cache) }
+        return cache
+    }
+    func testCanonicalInventoryProgressProjectionAndNameFallbackPersistAcrossRestart() throws {
+        let cache = try installCachedFixture()
+        let inventory = try XCTUnwrap(cache.player["inventory"] as? [String: Any])
+        XCTAssertEqual((inventory["items"] as? [Any])?.count, 52)
+        XCTAssertEqual(inventory["resetStones"] as? Int, 2)
+        let progress = try XCTUnwrap(cache.player["progress"] as? [String: Any])
+        XCTAssertEqual((progress["campaigns"] as? [Any])?.count, 1)
+        store.close(); try store.open(); XCTAssertEqual(try store.playerCache(), cache)
+        var player = cache.player; var units = try XCTUnwrap(player["units"] as? [[String: Any]])
+        units[0].removeValue(forKey: "name"); player["units"] = units
+        player["privateUnknownField"] = "discard-me"
+        var changedInventory = inventory; changedInventory["api_key"] = "discard-me"; player["inventory"] = changedInventory
+        let projected = try PlayerCache.project(["player": player, "metaData": ["scopes": ["Player"], "lastUpdatedOn": 1767225600]])
+        XCTAssertEqual(try projected.portablePlayer().units[0].name, "synthetic-unit")
+        XCTAssertFalse(String(decoding: projected.data, as: UTF8.self).contains("discard-me"))
+    }
+    func testFullBackupRestoresCachedDataAsDisconnectedHistoryAndPortableImportClearsCache() throws {
+        let cache = try installCachedFixture()
+        try store.setCapability(CapabilityState(scope: .player, reference: "synthetic-private-reference", status: "verified-scope", guild: nil))
+        try store.setConsent(purpose: .meta, dataset: .raid, enabled: true); try store.stageContribution(purpose: .meta, dataset: .raid)
+        let backup = try store.exportBackup(), portable = try store.exportDocument()
+        XCTAssertFalse(String(decoding: backup, as: UTF8.self).contains("synthetic-private-reference"))
+        XCTAssertFalse(String(decoding: backup, as: UTF8.self).contains("verified-scope"))
+        XCTAssertEqual(try LocalBackup.decode(backup).playerCache, cache)
+        try store.importDocument(backup); store.close(); try store.open()
+        XCTAssertEqual(try store.playerCache(), cache); XCTAssertEqual(try store.read().mode, "historical")
+        XCTAssertTrue(try store.capabilities().isEmpty); XCTAssertEqual(try store.queuedCount(), 0)
+        XCTAssertFalse(try store.consent(purpose: .meta, dataset: .raid).enabled)
+        try store.importDocument(portable); XCTAssertNil(try store.playerCache())
+        XCTAssertEqual(try store.read().player, try cache.portablePlayer())
+    }
+    func testCorruptForeignAndCredentialBearingBackupRefusalsRetainBothStores() throws {
+        let cache = try installCachedFixture(), original = try store.read()
+        let backup = try store.exportBackup()
+        var envelope = try XCTUnwrap(JSONSerialization.jsonObject(with: backup) as? [String: Any])
+        envelope["credential"] = "synthetic-backup-secret"
+        XCTAssertThrowsError(try store.importDocument(JSONSerialization.data(withJSONObject: envelope)))
+        envelope.removeValue(forKey: "credential")
+        var foreign = cache.object, player = cache.player
+        player["details"] = ["name": "Foreign Example", "powerLevel": 42]; foreign["player"] = player; envelope["playerCache"] = foreign
+        XCTAssertThrowsError(try store.importDocument(JSONSerialization.data(withJSONObject: envelope)))
+        player = cache.player; var inventory = try XCTUnwrap(player["inventory"] as? [String: Any])
+        inventory["credential"] = "synthetic-backup-secret"; player["inventory"] = inventory; foreign["player"] = player; envelope["playerCache"] = foreign
+        XCTAssertThrowsError(try store.importDocument(JSONSerialization.data(withJSONObject: envelope)))
+        envelope["schemaVersion"] = "ios-local-backup/v2"
+        XCTAssertThrowsError(try store.importDocument(JSONSerialization.data(withJSONObject: envelope)))
+        XCTAssertThrowsError(try store.importDocument(Data(repeating: 32, count: LocalBackup.limit + 1)))
+        XCTAssertThrowsError(try store.importDocument(Data("{broken".utf8)))
+        XCTAssertEqual(try store.read(), original); XCTAssertEqual(try store.playerCache(), cache)
+        store.close(); try store.open(); XCTAssertEqual(try store.playerCache(), cache)
+    }
+    func testCanonicalPlayerRejectsMissingRequiredFieldsWrongTypesAndBounds() throws {
+        let cache = try cachedFixture()
+        func response(_ player: [String: Any], updated: Any = 1767225600) -> [String: Any] {
+            ["player": player, "metaData": ["scopes": ["Player"], "lastUpdatedOn": updated]]
+        }
+        var player = cache.player; player.removeValue(forKey: "inventory")
+        XCTAssertThrowsError(try PlayerCache.project(response(player)))
+        player = cache.player; player["units"] = Array(repeating: (cache.player["units"] as! [Any])[0], count: 10_001)
+        XCTAssertThrowsError(try PlayerCache.project(response(player)))
+        player = cache.player; var units = try XCTUnwrap(player["units"] as? [[String: Any]])
+        for invalid in [true, 1.5, 18] as [Any] {
+            units[0]["rank"] = invalid; player["units"] = units
+            XCTAssertThrowsError(try PlayerCache.project(response(player)))
+        }
+        XCTAssertThrowsError(try PlayerCache.project(response(cache.player, updated: true)))
+        XCTAssertThrowsError(try PlayerCache.project(response(cache.player, updated: 9_007_199_254_741 as Int64)))
+    }
+    func testInventoryCredentialEchoAndInvalidRefreshRetainPriorSnapshot() async throws {
+        let cache = try installCachedFixture(), original = try store.read()
+        var responses = try SyntheticOfficialSource.fixtures()
+        var response = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(responses[.player])) as? [String: Any])
+        var player = try XCTUnwrap(response["player"] as? [String: Any]), inventory = try XCTUnwrap(player["inventory"] as? [String: Any])
+        inventory["items"] = [["id": "synthetic-item", "name": "synthetic-inventory-canary", "level": 1, "amount": 2]]
+        player["inventory"] = inventory; response["player"] = player; responses[.player] = try JSONSerialization.data(withJSONObject: response)
+        let vault = SyntheticVault(), source = SyntheticOfficialSource(responses: responses)
+        let supervisor = ConnectionSupervisor(store: store, vault: vault, source: source)
+        do { try await supervisor.connect(credential: "synthetic-inventory-canary") { _, _ in true }; XCTFail("Inventory credential echo activated") } catch {}
+        XCTAssertEqual(try store.read(), original); XCTAssertEqual(try store.playerCache(), cache)
+        XCTAssertFalse(String(decoding: try store.exportBackup(), as: UTF8.self).contains("synthetic-inventory-canary"))
+    }
+    func testVersionOneMigrationFailureRollsBackAndRetryPreservesExistingData() throws {
+        try store.write(.demo)
+        try store.setCapability(CapabilityState(scope: .player, reference: "synthetic-reference", status: "verified-scope", guild: nil))
+        try store.setConsent(purpose: .meta, dataset: .raid, enabled: true)
+        store.close()
+        var database: OpaquePointer?; XCTAssertEqual(sqlite3_open(store.url.path, &database), SQLITE_OK)
+        XCTAssertEqual(sqlite3_exec(database, "DROP TABLE player_snapshot; PRAGMA user_version=1", nil, nil, nil), SQLITE_OK); sqlite3_close(database)
+        XCTAssertThrowsError(try store.open(failMigration: true))
+        try store.open()
+        XCTAssertEqual(try store.read(), .demo); XCTAssertNil(try store.playerCache())
+        XCTAssertEqual(try store.capabilities().first?.reference, "synthetic-reference")
+        XCTAssertTrue(try store.consent(purpose: .meta, dataset: .raid).enabled)
+    }
+    func testStorageFullRollsBackCombinedWorkspaceAndSnapshotWrite() throws {
+        let cache = try installCachedFixture(), original = try store.read()
+        let bytes = try XCTUnwrap(FileManager.default.attributesOfItem(atPath: store.url.path)[.size] as? NSNumber)
+        try store.limitStorage(pages: (bytes.int64Value + 4095) / 4096)
+        var envelope = cache.object, player = cache.player, inventory = try XCTUnwrap(cache.player["inventory"] as? [String: Any])
+        inventory["items"] = Array(repeating: ["id": "synthetic-item", "name": String(repeating: "A", count: 200), "level": 1, "amount": 1], count: 8000)
+        player["inventory"] = inventory; envelope["player"] = player
+        let large = try PlayerCache.decode(JSONSerialization.data(withJSONObject: envelope))
+        var changed = original; changed.raids.append(.demo)
+        XCTAssertThrowsError(try store.transaction { try store.write(changed); try store.writePlayerCache(large) })
+        XCTAssertEqual(try store.read(), original); XCTAssertEqual(try store.playerCache(), cache)
+        store.close(); try store.open(); XCTAssertEqual(try store.read(), original); XCTAssertEqual(try store.playerCache(), cache)
     }
     func testPhysicalCompleteFileProtection() throws {
         #if targetEnvironment(simulator)
@@ -152,7 +272,7 @@ private final class SyntheticOfficialSource: OfficialSource {
         var player = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(SyntheticOfficialSource.fixtures()[.player])) as? [String: Any])
         var metadata = try XCTUnwrap(player["metaData"] as? [String: Any]); metadata.removeValue(forKey: "apiKeyExpiresOn"); player["metaData"] = metadata
         var body = try XCTUnwrap(player["player"] as? [String: Any]); var progress = try XCTUnwrap(body["progress"] as? [String: Any])
-        progress["guildRaid"] = ["tokens": ["current": 6, "max": 6, "nextTokenInSeconds": NSNull()], "bombTokens": ["current": 2, "max": 3]]
+        progress["guildRaid"] = ["tokens": ["current": 6, "max": 6, "nextTokenInSeconds": NSNull(), "regenDelayInSeconds": 3600], "bombTokens": ["current": 2, "max": 3, "regenDelayInSeconds": 3600]]
         body["progress"] = progress; player["player"] = body
         var responses = try SyntheticOfficialSource.fixtures(); responses[.player] = try JSONSerialization.data(withJSONObject: player)
         let source = SyntheticOfficialSource(responses: responses); source.noActiveRaid = true
