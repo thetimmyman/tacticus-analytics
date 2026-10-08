@@ -2,6 +2,7 @@
 
 import { getRankIndexFromName } from '@/app/(dashboard)/roster/utils/roster-helpers'
 import type { GuildTeamRosterEntry } from './types'
+import type { RaidTeamHero } from '@/app/lib/constants/guild-raid-teams'
 
 export interface HeroMappingInfo {
   id: number
@@ -24,6 +25,7 @@ export interface GuildTeamsClientProps {
   guildCode: string
   heroMappings: Record<string, HeroMappingInfo>
   pageTitle: string
+  desktopMode?: boolean
 }
 
 export type SortField = 'name' | 'team_score' | 'hero'
@@ -123,4 +125,14 @@ export function weightedHeroScore(
   const raw = heroScore(entry)
   if (raw < 0) return raw
   return Math.round(raw * (TIER_WEIGHTS[tier] ?? 1))
+}
+
+export function scoreTeam(
+  roster: ReadonlyMap<string, GuildTeamRosterEntry> | undefined,
+  heroes: ReadonlyArray<Pick<RaidTeamHero, 'unitId' | 'tier'>>
+): number {
+  return heroes.reduce(
+    (sum, hero) => sum + weightedHeroScore(roster?.get(hero.unitId), hero.tier),
+    0
+  )
 }

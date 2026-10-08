@@ -26,7 +26,7 @@ import {
   TIER_BG,
   TOKEN_CAP,
   heroScore,
-  weightedHeroScore,
+  scoreTeam,
   type GuildTeamsClientProps,
   type PlayerTokenInfo,
   type SortField,
@@ -42,7 +42,8 @@ import { GuildTeamsDesktopTable } from './GuildTeamsDesktopTable'
 export function GuildTeamsClient({
   guildCode,
   heroMappings,
-  pageTitle
+  pageTitle,
+  desktopMode = false
 }: GuildTeamsClientProps) {
   const [selectedTeamId, setSelectedTeamId] = useState(
     RAID_TEAMS[0]?.id ?? 'custom'
@@ -149,6 +150,7 @@ export function GuildTeamsClient({
   }, [selectedTeam, fetchRosterData, selectedTeamId])
 
   useEffect(() => {
+    if (desktopMode) return
     if (backfillTriggered.current) return
     backfillTriggered.current = true
 
@@ -162,7 +164,7 @@ export function GuildTeamsClient({
       .catch(() => {
         /* backfill is best-effort */
       })
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [desktopMode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Background sync runs every 5-30 min: poll silently every 60s while visible, and on focus.
   useEffect(() => {
@@ -192,6 +194,7 @@ export function GuildTeamsClient({
 
   // From the cached endpoint; the live one fans out to Tacticus per player.
   useEffect(() => {
+    if (desktopMode) return
     let cancelled = false
     fetch(`/api/guild-teams/tokens?guild=${encodeURIComponent(guildCode)}`)
       .then((res) => (res.ok ? res.json() : []))
@@ -211,7 +214,7 @@ export function GuildTeamsClient({
     return () => {
       cancelled = true
     }
-  }, [guildCode])
+  }, [guildCode, desktopMode])
 
   const tokenInfoFor = useCallback(
     (name: string): PlayerTokenInfo | null =>
@@ -240,6 +243,20 @@ export function GuildTeamsClient({
     }
     return { playerHeroMap: heroMap, playerRoleMap: roleMap }
   }, [rosterData])
+
+  const playerTeamScores = useMemo(() => {
+    const heroes = selectedHeroUnitIds
+      ? selectedTeam.heroes.filter((hero) =>
+          selectedHeroUnitIds.has(hero.unitId)
+        )
+      : selectedTeam.heroes
+    return new Map(
+      [...playerHeroMap].map(([name, roster]) => [
+        name,
+        scoreTeam(roster, heroes)
+      ])
+    )
+  }, [playerHeroMap, selectedTeam, selectedHeroUnitIds])
 
   const playerNames = useMemo(() => {
     let names = [...playerHeroMap.keys()]
@@ -280,20 +297,9 @@ export function GuildTeamsClient({
         return dir * (scoreA - scoreB)
       })
     } else if (sortField === 'team_score') {
-      const activeHeroes = selectedHeroUnitIds
-        ? selectedTeam.heroes.filter((h) => selectedHeroUnitIds.has(h.unitId))
-        : selectedTeam.heroes
       names.sort((a, b) => {
-        const heroMapA = playerHeroMap.get(a)
-        const heroMapB = playerHeroMap.get(b)
-        const totalA = activeHeroes.reduce(
-          (sum, h) => sum + weightedHeroScore(heroMapA?.get(h.unitId), h.tier),
-          0
-        )
-        const totalB = activeHeroes.reduce(
-          (sum, h) => sum + weightedHeroScore(heroMapB?.get(h.unitId), h.tier),
-          0
-        )
+        const totalA = playerTeamScores.get(a) ?? 0
+        const totalB = playerTeamScores.get(b) ?? 0
         return dir * (totalA - totalB)
       })
     }
@@ -301,6 +307,7 @@ export function GuildTeamsClient({
     return names
   }, [
     playerHeroMap,
+    playerTeamScores,
     playerRoleMap,
     sortField,
     sortDirection,
@@ -309,8 +316,7 @@ export function GuildTeamsClient({
     minRank,
     searchQuery,
     roleFilter,
-    selectedTeam,
-    selectedHeroUnitIds
+    selectedTeam
   ])
 
   const herosByTier = useMemo(() => {
@@ -446,6 +452,14 @@ export function GuildTeamsClient({
             >
               <MemberName value={playerName} />
             </span>
+            {desktopMode && (
+              <span
+                data-testid="local-team-score"
+                className="block text-xs text-secondary-wh40k"
+              >
+                Team score: {playerTeamScores.get(playerName)}
+              </span>
+            )}
           </td>
           {orderedHeroes.map((hero, colIdx) => {
             const entry = heroMap?.get(hero.unitId) ?? null
@@ -470,6 +484,8 @@ export function GuildTeamsClient({
   }, [
     playerNames,
     playerHeroMap,
+    playerTeamScores,
+    desktopMode,
     orderedHeroes,
     heroMappings,
     tokenInfoFor,
@@ -518,6 +534,14 @@ export function GuildTeamsClient({
               </span>
             )}
           </div>
+          {desktopMode && (
+            <p
+              data-testid="local-team-score"
+              className="px-3 pt-2 text-xs text-secondary-wh40k"
+            >
+              Team score: {playerTeamScores.get(playerName)}
+            </p>
+          )}
           <div className="space-y-2 p-2">
             {herosByTier.map((group) => (
               <div key={group.tier}>
@@ -561,12 +585,30 @@ export function GuildTeamsClient({
         </div>
       )
     })
-  }, [playerNames, playerHeroMap, herosByTier, heroMappings, tokenInfoFor])
+  }, [
+    playerNames,
+    playerHeroMap,
+    playerTeamScores,
+    desktopMode,
+    herosByTier,
+    heroMappings,
+    tokenInfoFor
+  ])
 
   const totalMembers = playerHeroMap.size
 
   return (
     <div className="space-y-4">
+      {desktopMode && (
+        <p className="text-sm text-secondary-wh40k">
+          Compare teams using your imported roster. Refresh reads the saved
+          roster; use{' '}
+          <a href="/desktop/connect" className="underline">
+            API access and sync
+          </a>{' '}
+          to import a new roster. Custom teams are kept for this page visit.
+        </p>
+      )}
       {/* Ref-driven tooltip, so hover never re-renders this table. */}
       <RosterTokenTooltip ref={tooltipRef} />
       {/* Header */}
