@@ -215,6 +215,131 @@ public final class AndroidProof extends Instrumentation {
       getTargetContext().deleteDatabase(database);
     }
   }
+  private android.widget.Button button(android.view.View view, String label) throws Exception {
+    if (view instanceof android.widget.Button
+        && ((android.widget.Button) view).getText().toString().equals(label))
+      return (android.widget.Button) view;
+    if (view instanceof android.view.ViewGroup) {
+      android.view.ViewGroup group = (android.view.ViewGroup) view;
+      for (int index = 0; index < group.getChildCount(); index++) {
+        android.widget.Button found = button(group.getChildAt(index), label);
+        if (found != null)
+          return found;
+      }
+    }
+    return null;
+  }
+  private AccessibilityNodeInfo field(String id) throws Exception {
+    android.accessibilityservice.AccessibilityServiceInfo service =
+        getUiAutomation().getServiceInfo();
+    service.flags |= android.accessibilityservice.AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
+    getUiAutomation().setServiceInfo(service);
+    for (int attempt = 0; attempt < 50; attempt++) {
+      AccessibilityNodeInfo root = getUiAutomation().getRootInActiveWindow();
+      if (root != null) {
+        java.util.List<AccessibilityNodeInfo> found = root.findAccessibilityNodeInfosByViewId(id);
+        if (found.size() == 1)
+          return found.get(0);
+      }
+      SystemClock.sleep(100);
+    }
+    throw new Exception("Native manual entry control unavailable");
+  }
+  private void entryText(String id, String text) throws Exception {
+    Bundle value = new Bundle();
+    value.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text);
+    check(field(getTargetContext().getPackageName() + ":id/" + id)
+              .performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, value),
+        "Native manual entry refused text");
+  }
+  private android.app.Activity recreate(android.app.Activity activity) throws Exception {
+    ActivityMonitor monitor = addMonitor(MainActivity.class.getName(), null, false);
+    try {
+      onUi(activity::recreate);
+      android.app.Activity reopened = monitor.waitForActivityWithTimeout(10000);
+      check(reopened != null && reopened != activity, "Native Activity recreation did not finish");
+      waitForIdleSync();
+      return reopened;
+    } finally {
+      removeMonitor(monitor);
+    }
+  }
+  private android.app.Activity manualRaidRecreation(android.app.Activity activity)
+      throws Exception {
+    final android.app.Activity initial = activity;
+    onUi(() -> {
+      button(initial.getWindow().getDecorView(), "Open isolated synthetic demo").performClick();
+      button(initial.getWindow().getDecorView(), "Record local manual raid").performClick();
+    });
+    waitForIdleSync();
+    entryText("manual_raid_boss", "Synthetic recreation boss");
+    entryText("manual_raid_damage", "101");
+    entryText("manual_raid_tokens", "0");
+    check(field("android:id/button1").performAction(AccessibilityNodeInfo.ACTION_CLICK),
+        "Native validation click refused");
+    waitForIdleSync();
+    String original, originalPersonal, originalPlayer;
+    try (WorkspaceStore local = new WorkspaceStore(getTargetContext())) {
+      original = local.read(true).toString();
+      originalPersonal = local.read(false).toString();
+      originalPlayer = local.reference("Player");
+    }
+    activity = recreate(activity);
+    for (String[] expected : new String[][] {{"manual_raid_boss", "Synthetic recreation boss"},
+             {"manual_raid_damage", "101"}, {"manual_raid_tokens", "0"}})
+      check(field(getTargetContext().getPackageName() + ":id/" + expected[0])
+                .getText()
+                .toString()
+                .equals(expected[1]),
+          "Activity recreation lost unsaved manual entry");
+    check(field(getTargetContext().getPackageName() + ":id/manual_raid_tokens").getError() != null,
+        "Activity recreation lost validation refusal");
+    try (WorkspaceStore local = new WorkspaceStore(getTargetContext())) {
+      check(local.read(true).toString().equals(original),
+          "Activity recreation saved an unconfirmed raid");
+    }
+    entryText("manual_raid_tokens", "2");
+    check(field("android:id/button1").performAction(AccessibilityNodeInfo.ACTION_CLICK),
+        "Native save click refused");
+    waitForIdleSync();
+    try (WorkspaceStore local = new WorkspaceStore(getTargetContext())) {
+      check(local.read(true).getJSONArray("portableRaids").length() == 3,
+          "Restored draft did not save exactly once");
+      check(local.read(false).toString().equals(originalPersonal)
+              && java.util.Objects.equals(local.reference("Player"), originalPlayer),
+          "Restored demo draft changed personal authority");
+    }
+    activity = recreate(activity);
+    AccessibilityNodeInfo root = getUiAutomation().getRootInActiveWindow();
+    check(root != null
+            && root
+                .findAccessibilityNodeInfosByViewId(
+                    getTargetContext().getPackageName() + ":id/manual_raid_boss")
+                .isEmpty(),
+        "Saved draft reappeared after recreation");
+    final android.app.Activity current = activity;
+    onUi(()
+             -> button(current.getWindow().getDecorView(), "Record local manual raid")
+                 .performClick());
+    waitForIdleSync();
+    entryText("manual_raid_boss", "Synthetic cancelled recreation boss");
+    check(field("android:id/button2").performAction(AccessibilityNodeInfo.ACTION_CLICK),
+        "Native cancel click refused");
+    waitForIdleSync();
+    activity = recreate(activity);
+    root = getUiAutomation().getRootInActiveWindow();
+    check(root != null
+            && root
+                .findAccessibilityNodeInfosByViewId(
+                    getTargetContext().getPackageName() + ":id/manual_raid_boss")
+                .isEmpty(),
+        "Cancelled draft reappeared after recreation");
+    try (WorkspaceStore local = new WorkspaceStore(getTargetContext())) {
+      check(local.read(true).getJSONArray("portableRaids").length() == 3,
+          "Cancelled recreated draft changed stored rows");
+    }
+    return activity;
+  }
   private void recoveryCleanup(Vault vault) throws Exception {
     String database = "synthetic-recovery-cleanup.db";
     java.nio.file.Path obstruction = new java.io
@@ -982,6 +1107,7 @@ public final class AndroidProof extends Instrumentation {
                   != 0,
               "Secure screen missing");
           manualRaidEntry(activity);
+          activity = manualRaidRecreation(activity);
         } finally {
           runOnMainSync(activity::finish);
         }

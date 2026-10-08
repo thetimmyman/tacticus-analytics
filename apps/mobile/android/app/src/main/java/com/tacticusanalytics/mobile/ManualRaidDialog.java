@@ -2,6 +2,8 @@ package com.tacticusanalytics.mobile;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.os.Bundle;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.view.View;
 import android.view.WindowManager;
@@ -13,10 +15,39 @@ import java.util.function.Consumer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-/** Native entry for local, unverified raid rows. Refusal retains the editable form. */
+/**
+ * Native entry for local, unverified raid rows. Refusal retains the editable
+ * form.
+ */
 final class ManualRaidDialog {
+  private static final String SAVE_ERROR =
+      "The raid could not be saved. Your entries are kept here. Check the "
+      + "local "
+      + "workspace and values, or cancel to return.";
+  static Bundle save(AlertDialog dialog, boolean demo) {
+    if (dialog == null || !dialog.isShowing())
+      return null;
+    Bundle draft = new Bundle();
+    draft.putBoolean("demo", demo);
+    for (int id :
+        new int[] {R.id.manual_raid_boss, R.id.manual_raid_damage, R.id.manual_raid_tokens}) {
+      EditText field = dialog.findViewById(id);
+      draft.putString(Integer.toString(id), field.getText().toString());
+      draft.putBoolean("error" + id, field.getError() != null);
+      if (field.hasFocus())
+        draft.putInt("focus", id);
+    }
+    draft.putBoolean("saveError",
+        ((TextView) dialog.findViewById(R.id.manual_raid_error)).getVisibility() == View.VISIBLE);
+    return draft;
+  }
+
+  static AlertDialog show(
+      Activity activity, WorkspaceStore store, boolean demo, Consumer<String> completed) {
+    return show(activity, store, demo, completed, null);
+  }
   static AlertDialog show(Activity activity, WorkspaceStore store, boolean demo,
-                          Consumer<String> completed) {
+      Consumer<String> completed, Bundle draft) {
     LinearLayout form = new LinearLayout(activity);
     form.setPadding(24, 12, 24, 12);
     form.setOrientation(LinearLayout.VERTICAL);
@@ -25,6 +56,9 @@ final class ManualRaidDialog {
     boss.setId(R.id.manual_raid_boss);
     damage.setId(R.id.manual_raid_damage);
     tokens.setId(R.id.manual_raid_tokens);
+    boss.setFilters(new InputFilter[] {new InputFilter.LengthFilter(200)});
+    damage.setFilters(new InputFilter[] {new InputFilter.LengthFilter(16)});
+    tokens.setFilters(new InputFilter[] {new InputFilter.LengthFilter(3)});
     boss.setHint("Boss label");
     damage.setHint("Damage (whole number)");
     tokens.setHint("Tokens used (1–100)");
@@ -48,6 +82,24 @@ final class ManualRaidDialog {
                              .create();
     dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
     dialog.show();
+    if (draft != null && draft.getBoolean("demo") == demo) {
+      EditText[] fields = {boss, damage, tokens};
+      String[] explanations = {"Enter a boss label of 1–200 characters.",
+          "Enter whole damage from 0 to 9007199254740991.",
+          "Enter a whole token count from 1 to 100."};
+      for (int index = 0; index < fields.length; index++) {
+        EditText field = fields[index];
+        field.setText(draft.getString(Integer.toString(field.getId()), ""));
+        if (draft.getBoolean("error" + field.getId()))
+          field.setError(explanations[index]);
+        if (draft.getInt("focus") == field.getId())
+          field.requestFocus();
+      }
+      if (draft.getBoolean("saveError")) {
+        error.setText(SAVE_ERROR);
+        error.setVisibility(View.VISIBLE);
+      }
+    }
     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
       boss.setError(null);
       damage.setError(null);
@@ -73,17 +125,16 @@ final class ManualRaidDialog {
         if (rows == null)
           rows = new JSONArray();
         rows.put(new JSONObject()
-                     .put("player", data.getJSONObject("personal").getString("displayName"))
-                     .put("boss", label)
-                     .put("damage", damageValue)
-                     .put("tokens", tokenValue)
-                     .put("observedAt", System.currentTimeMillis()));
+                .put("player", data.getJSONObject("personal").getString("displayName"))
+                .put("boss", label)
+                .put("damage", damageValue)
+                .put("tokens", tokenValue)
+                .put("observedAt", System.currentTimeMillis()));
         data.put("portableRaids", rows);
         PortableAnalytics.calculate(MobileDocument.export(data));
         store.write(data, demo);
       } catch (Exception unavailable) {
-        error.setText("The raid could not be saved. Your entries are kept here. Check the local "
-                      + "workspace and values, or cancel to return.");
+        error.setText(SAVE_ERROR);
         error.setVisibility(View.VISIBLE);
         return;
       }
