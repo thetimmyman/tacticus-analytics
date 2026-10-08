@@ -24,7 +24,7 @@ function child() {
   })
   return value
 }
-function setup() {
+function setup(options = {}) {
   const launches = []
   const owner = superviseWindows({
     root: '/synthetic/runtime',
@@ -36,6 +36,7 @@ function setup() {
       TMPDIR: '/synthetic/tmp',
       TA_MAC_GUARD_LOCK: '/synthetic/workspace/owner.lock'
     },
+    ...options,
     launch(file, args, options) {
       const process = child()
       launches.push({ file, args, options, process })
@@ -137,6 +138,8 @@ test('supervisor proxy relays only native events and reports broker interruption
   proxy.on('error', (value) => errors.push(value.message))
   interrupted.emit('disconnect')
   assert.equal(proxy.connected, false)
+  assert.equal(interrupted.listenerCount('message'), 0)
+  assert.equal(interrupted.listenerCount('disconnect'), 0)
   assert.deepEqual(errors, ['Native graphical broker closed'])
 })
 
@@ -148,4 +151,32 @@ test('close stops both children once and rejects missing inherited IPC', () => {
   assert.deepEqual(owner.runtime.killed, ['SIGTERM'])
   assert.deepEqual(owner.launches[1].process.killed, ['SIGTERM'])
   assert.throws(() => brokerWindow({}), /Native graphical broker unavailable/)
+})
+
+test('runtime IPC loss stops both children and escalates a stalled shutdown', () => {
+  const deadlines = [],
+    cleared = []
+  const owner = setup({
+    schedule(callback, ms) {
+      deadlines.push({ callback, ms })
+      return deadlines.length
+    },
+    cancel(value) {
+      cleared.push(value)
+    }
+  })
+  owner.runtime.emit('message', { broker: 'launch' })
+  const window = owner.launches[1].process
+  owner.runtime.emit('disconnect')
+  assert.deepEqual(owner.runtime.killed, ['SIGTERM'])
+  assert.deepEqual(window.killed, ['SIGTERM'])
+  assert.deepEqual(
+    deadlines.map((value) => value.ms),
+    [5000, 5000]
+  )
+  for (const deadline of deadlines) deadline.callback()
+  assert.deepEqual(owner.runtime.killed, ['SIGTERM', 'SIGKILL'])
+  assert.deepEqual(window.killed, ['SIGTERM', 'SIGKILL'])
+  window.emit('exit', 0, null)
+  assert(cleared.includes(2))
 })
