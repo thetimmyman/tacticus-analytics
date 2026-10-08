@@ -44,7 +44,8 @@ test('untrusted diagnostic frames cannot copy paths, messages, cookies or arbitr
     status: canary,
     path: '/' + canary,
     cookie: canary,
-    phase: canary
+    phase: canary,
+    networkError: canary
   }
   const input = {
     stage: 'renderer-network',
@@ -168,4 +169,29 @@ test('fixed health and raid readers distinguish failures without disclosing vari
     diagnostics.requestLabel('/private/SYNTHETIC-CANARY', 'xhr').endpoint,
     'other-local'
   )
+})
+
+test('transport failure diagnostics retain only fixed error labels and still fail qualification', () => {
+  const networkError = diagnostics.networkErrorLabel(
+    'net::ERR_CONNECTION_RESET'
+  )
+  assert.equal(networkError, 'connection-reset')
+  assert.equal(diagnostics.networkErrorLabel('constructor'), 'other')
+  assert.equal(
+    diagnostics.networkErrorLabel('SYNTHETIC-SECRET-CANARY'),
+    'other'
+  )
+  const label = diagnostics.requestLabel(
+    '/api/sync/freshness',
+    'xhr',
+    'scores-view'
+  )
+  const failure = { ...label, status: 0, networkError }
+  const receipt = diagnostics.sanitizeFailure({
+    stage: 'renderer-network',
+    cause: 'request-failed',
+    network: { failed: [failure] }
+  })
+  assert.deepEqual(receipt.network.failed, [failure])
+  assert.equal(diagnostics.unexpectedFailure(failure), true)
 })
