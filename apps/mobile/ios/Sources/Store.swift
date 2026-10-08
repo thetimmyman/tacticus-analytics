@@ -29,7 +29,7 @@ final class WorkspaceStore {
         do {
             sqlite3_busy_timeout(database, 1000)
             let version = try scalar("PRAGMA user_version")
-            guard version <= 1 else { throw WorkspaceError.incompatibleSchema }
+            guard version <= 2 else { throw WorkspaceError.incompatibleSchema }
             try execute("PRAGMA journal_mode=DELETE")
             try execute("PRAGMA synchronous=FULL")
             if version == 0 {
@@ -38,8 +38,16 @@ final class WorkspaceStore {
                     try execute("CREATE TABLE capability(scope TEXT PRIMARY KEY, reference TEXT, status TEXT NOT NULL, guild TEXT)")
                     try execute("CREATE TABLE consent(purpose TEXT NOT NULL, dataset TEXT NOT NULL, enabled INTEGER NOT NULL, generation INTEGER NOT NULL, PRIMARY KEY(purpose,dataset))")
                     try execute("CREATE TABLE contribution_queue(id TEXT PRIMARY KEY, purpose TEXT NOT NULL, dataset TEXT NOT NULL, generation INTEGER NOT NULL, payload TEXT NOT NULL)")
+                    try execute("CREATE TABLE player_snapshot(id INTEGER PRIMARY KEY CHECK(id=1), payload TEXT NOT NULL)")
                     if failMigration { try execute("INSERT INTO nonexistent_migration_control VALUES(1)") }
-                    try execute("PRAGMA user_version=1")
+                    try execute("PRAGMA user_version=2")
+                }
+            }
+            if version == 1 {
+                try transaction {
+                    try execute("CREATE TABLE player_snapshot(id INTEGER PRIMARY KEY CHECK(id=1), payload TEXT NOT NULL)")
+                    if failMigration { throw WorkspaceError.storage }
+                    try execute("PRAGMA user_version=2")
                 }
             }
             try FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: url.path)
@@ -105,17 +113,42 @@ final class WorkspaceStore {
         guard pages > 0, pages <= 1_000_000 else { throw WorkspaceError.storage }
         try execute("PRAGMA max_page_count=\(pages)")
     }
+    func playerCache() throws -> PlayerCache? {
+        var result: PlayerCache?
+        try statement("SELECT payload FROM player_snapshot WHERE id=1") { statement in
+            let status = sqlite3_step(statement)
+            if status == SQLITE_ROW, let payload = text(statement, 0) { result = try PlayerCache.decode(Data(payload.utf8)) }
+            else if status != SQLITE_DONE { throw WorkspaceError.storage }
+        }
+        if let result, try result.portablePlayer() != read().player { throw WorkspaceError.invalidDocument }
+        return result
+    }
+    func writePlayerCache(_ cache: PlayerCache?) throws {
+        guard let cache else { try execute("DELETE FROM player_snapshot"); return }
+        let validated = try PlayerCache.decode(cache.data)
+        guard try validated.portablePlayer() == read().player else { throw WorkspaceError.invalidDocument }
+        try statement("INSERT INTO player_snapshot(id,payload) VALUES(1,?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload", values: [String(decoding: validated.data, as: UTF8.self)]) {
+            guard sqlite3_step($0) == SQLITE_DONE else { throw WorkspaceError.storage }
+        }
+    }
     func importDocument(_ data: Data) throws {
-        var document = try WorkspaceDocument.decode(data)
-        document.mode = "historical"
+        // Portable v1 stays unchanged. Full native backups use a separate envelope.
+        guard data.count <= LocalBackup.limit,
+              let value = try JSONSerialization.jsonObject(with: data) as? [String: Any] else { throw WorkspaceError.invalidDocument }
+        let backup: LocalBackup
+        if value["schemaVersion"] as? String == "ios-local-backup/v1" { backup = try LocalBackup.decode(data) }
+        else { backup = LocalBackup(document: try WorkspaceDocument.decode(data), playerCache: nil) }
+        var document = backup.document; document.mode = "historical"
         try transaction {
             try write(document)
+            try writePlayerCache(backup.playerCache)
             try execute("DELETE FROM capability")
             try execute("DELETE FROM contribution_queue")
             try execute("UPDATE consent SET enabled=0,generation=generation+1")
         }
     }
     func exportDocument() throws -> Data { try read().encoded() }
+    func exportBackup() throws -> Data { try LocalBackup(document: read(), playerCache: playerCache()).encoded() }
     func capabilities() throws -> [CapabilityState] {
         var states: [CapabilityState] = []
         try statement("SELECT scope,reference,status,guild FROM capability") { statement in
