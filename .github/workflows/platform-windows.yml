@@ -1,0 +1,97 @@
+name: Windows native candidate
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: windows-candidate-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_GENERATE_ASPNET_CERTIFICATE: 'false'
+  NEXT_TELEMETRY_DISABLED: '1'
+jobs:
+  native:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: 10.0.401
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22.23.2
+          package-manager-cache: false
+      - name: Build self contained host and exercise native ownership, vault and activation
+        shell: pwsh
+        run: |
+          $out = Join-Path $env:RUNNER_TEMP 'native-host'
+          dotnet publish apps/desktop/platform/windows/native/WindowsHost.csproj -c Release -r win-x64 --self-contained true -p:DebugType=None -p:DebugSymbols=false -o $out
+          if ($LASTEXITCODE -ne 0) { throw 'Native host compilation failed' }
+          $env:TACTICUS_BUILD_SHA = git rev-parse HEAD
+          & "$out/TacticusDesktop.exe" native-proof "$env:RUNNER_TEMP/native-evidence.json"
+          if ($LASTEXITCODE -ne 0) { throw 'Native Windows adversarial proof failed' }
+          Get-Content "$env:RUNNER_TEMP/native-evidence.json"
+          & "$out/TacticusDesktop.exe" probe-node-helpers (Get-Command node).Source "$env:GITHUB_WORKSPACE/tests/desktop/windows/native-helper-probe.mjs" "$env:RUNNER_TEMP/helper-evidence.json"
+          if ($LASTEXITCODE -ne 0) { throw 'Supplementary native helper diagnostic failed' }
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: windows-native-evidence
+          path: |
+            ${{ runner.temp }}/native-evidence.json
+            ${{ runner.temp }}/helper-evidence.json
+          if-no-files-found: error
+          retention-days: 7
+  application:
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: 10.0.401
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: '1.27.0'
+          cache: false
+      - name: Validate application-local Microsoft runtime publisher
+        shell: pwsh
+        run: |
+          $null = & ./apps/desktop/platform/windows/crt-runtime.ps1
+      - name: Install exact application dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Portable adapter tests and complete application build
+        run: |
+          node --test tests/desktop/windows/*.node-test.mjs apps/desktop/proof/workspace-session.test.mjs apps/desktop/proof/loopback-gateway.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Adapter tests failed' }
+          npm run desktop:build
+          if ($LASTEXITCODE -ne 0) { throw 'Complete application build failed' }
+      - name: Stage real Windows components
+        shell: pwsh
+        run: ./apps/desktop/platform/windows/build-runtime.ps1 -Output "$env:RUNNER_TEMP/Tacticus candidate ü"
+      - name: Installed runtime journey
+        id: installed
+        shell: pwsh
+        run: ./tests/desktop/windows/installed-journey.ps1 -Bundle "$env:RUNNER_TEMP/Tacticus candidate ü" -Evidence "$env:RUNNER_TEMP/application-evidence.json"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always() && steps.installed.outcome != 'skipped'
+        with:
+          name: windows-application-evidence
+          path: |
+            ${{ runner.temp }}/application-evidence.json
+            ${{ runner.temp }}/renderer-*.png
+            ${{ runner.temp }}/renderer-*.json
+          if-no-files-found: error
+          retention-days: 7
