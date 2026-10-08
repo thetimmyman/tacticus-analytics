@@ -99,10 +99,12 @@ function resolveConfiguredTables(rel, text) {
   return out
 }
 
-// The one module allowed to mint ServiceSupabaseClient (serviceDb()).
+// The one module allowed to mint ServiceSupabaseClient (serviceDb()), and
+// the module whose createServiceClient() it wraps.
 const SERVICE_DB_MODULE = 'app/lib/db/index.ts'
+const SERVICE_CLIENT_MODULE = 'app/lib/auth/server.ts'
 
-/** ServiceSupabaseClient is a unique-symbol brand minted by serviceDb(), and worker-types re-exports it rather than re-declaring a plain alias. */
+/** ServiceSupabaseClient is a unique-symbol brand minted once, by serviceDb() wrapping createServiceClient(), and worker-types re-exports it rather than re-declaring a plain alias. */
 function serviceClientIsBranded(read) {
   const dbModule = read(SERVICE_DB_MODULE)
   const brand = dbModule.match(/declare const (\w+): unique symbol/)
@@ -111,10 +113,17 @@ function serviceClientIsBranded(read) {
     new RegExp(
       `export type ServiceSupabaseClient = TypedSupabaseClient & \\{\\s*readonly \\[${brand[1]}\\]: true\\s*\\}`
     ).test(dbModule) &&
-    /export function serviceDb\([^)]*\): ServiceSupabaseClient\b/.test(
+    // The one cast must be serviceDb()'s own return of the service-key client.
+    /\bimport \{[^}]*\bcreateServiceClient\b[^}]*\} from '@\/app\/lib\/auth\/server'/.test(
+      dbModule
+    ) &&
+    /export function serviceDb\([^)]*\): ServiceSupabaseClient \{\s*try \{\s*return createServiceClient\([^)]*\) as ServiceSupabaseClient\b/.test(
       dbModule
     ) &&
     (dbModule.match(SERVICE_CAST_ALL) ?? []).length === 1 &&
+    /export function createServiceClient\([\s\S]*?\{[\s\S]*?return createServerClient<Database>\(\s*serverEnv\.SUPABASE_INTERNAL_URL,\s*serverEnv\.SUPABASE_SERVICE_ROLE_KEY\b/.test(
+      read(SERVICE_CLIENT_MODULE)
+    ) &&
     /export type \{ ServiceSupabaseClient \} from '@\/app\/lib\/db'/.test(
       read('app/lib/sync/worker-types.ts')
     ) &&
@@ -143,7 +152,7 @@ const PROVENANCE_RULES = [
   },
   {
     kind: 'SERVICE(param-type)',
-    claim: `a receiver declared \`x: ServiceSupabaseClient\` is service-role unless a cast can reach it: ${SERVICE_DB_MODULE} brands the type with a unique symbol and serviceDb() is the only place that mints it, so the compiler refuses any other client there (a db() client, a bare SupabaseClient, a TypedSupabaseClient). Only a cast or an \`any\`-typed value gets around that (ESLint's no-explicit-any flags the latter), so a module reachable from a non-test file containing \`as ... ServiceSupabaseClient\` (other than serviceDb() itself) through modules that declare a ServiceSupabaseClient parameter is cast-tainted, and its param-type writes stay UNKNOWN.`,
+    claim: `a receiver declared \`x: ServiceSupabaseClient\` is service-role unless a cast can reach it: ${SERVICE_DB_MODULE} brands the type with a unique symbol and serviceDb() is the only place that mints it, by casting the createServiceClient() result (built from SUPABASE_SERVICE_ROLE_KEY in ${SERVICE_CLIENT_MODULE}), so the compiler refuses any other client there (a db() client, a bare SupabaseClient, a TypedSupabaseClient). Only a cast or an \`any\`-typed value gets around that (ESLint's no-explicit-any flags the latter), so a module reachable from a non-test file containing \`as ... ServiceSupabaseClient\` (other than serviceDb() itself) through modules that declare a ServiceSupabaseClient parameter is cast-tainted, and its param-type writes stay UNKNOWN.`,
     verify: () => serviceClientIsBranded(readIfPresent)
   },
   {
@@ -1167,17 +1176,22 @@ const CONFIGURED_TABLE_FIXTURES = [
   }
 ]
 const BRANDED_DB_SRC =
+  `import { createClient, createServiceClient } from '@/app/lib/auth/server'\n` +
   `declare const serviceRole: unique symbol\n` +
   `export type ServiceSupabaseClient = TypedSupabaseClient & {\n  readonly [serviceRole]: true\n}\n` +
   `export function serviceDb(signal?: AbortSignal): ServiceSupabaseClient {\n` +
-  `  return createServiceClient(signal) as ServiceSupabaseClient\n}\n`
+  `  try {\n    return createServiceClient(signal) as ServiceSupabaseClient\n  } catch (error) {\n    throw error\n  }\n}\n`
 const WORKER_TYPES_SRC = `export type { ServiceSupabaseClient } from '@/app/lib/db'\n`
+const AUTH_SERVER_SRC =
+  `export function createServiceClient(\n  signal?: AbortSignal\n): ReturnType<typeof createServerClient<Database>> {\n` +
+  `  return createServerClient<Database>(\n    serverEnv.SUPABASE_INTERNAL_URL,\n    serverEnv.SUPABASE_SERVICE_ROLE_KEY,\n    {}\n  )\n}\n`
 const SERVICE_BRAND_FIXTURES = [
   {
     name: 'a branded ServiceSupabaseClient minted only by serviceDb() holds',
     files: {
       [SERVICE_DB_MODULE]: BRANDED_DB_SRC,
-      'app/lib/sync/worker-types.ts': WORKER_TYPES_SRC
+      'app/lib/sync/worker-types.ts': WORKER_TYPES_SRC,
+      [SERVICE_CLIENT_MODULE]: AUTH_SERVER_SRC
     },
     expect: (ok) => ok === true
   },
@@ -1185,7 +1199,8 @@ const SERVICE_BRAND_FIXTURES = [
     name: 'a plain alias of TypedSupabaseClient voids the rule',
     files: {
       [SERVICE_DB_MODULE]: BRANDED_DB_SRC,
-      'app/lib/sync/worker-types.ts': `export type ServiceSupabaseClient = TypedSupabaseClient\n`
+      'app/lib/sync/worker-types.ts': `export type ServiceSupabaseClient = TypedSupabaseClient\n`,
+      [SERVICE_CLIENT_MODULE]: AUTH_SERVER_SRC
     },
     expect: (ok) => ok === false
   },
@@ -1195,7 +1210,46 @@ const SERVICE_BRAND_FIXTURES = [
       [SERVICE_DB_MODULE]:
         BRANDED_DB_SRC +
         `export const other = () => createClient() as ServiceSupabaseClient\n`,
-      'app/lib/sync/worker-types.ts': WORKER_TYPES_SRC
+      'app/lib/sync/worker-types.ts': WORKER_TYPES_SRC,
+      [SERVICE_CLIENT_MODULE]: AUTH_SERVER_SRC
+    },
+    expect: (ok) => ok === false
+  },
+  {
+    name: 'serviceDb() minting the brand from a request client voids the rule',
+    files: {
+      [SERVICE_DB_MODULE]: BRANDED_DB_SRC.replace(
+        'return createServiceClient(signal) as',
+        'return createClient() as'
+      ),
+      'app/lib/sync/worker-types.ts': WORKER_TYPES_SRC,
+      [SERVICE_CLIENT_MODULE]: AUTH_SERVER_SRC
+    },
+    expect: (ok) => ok === false
+  },
+  {
+    name: 'the sole cast moved out of serviceDb() voids the rule',
+    files: {
+      [SERVICE_DB_MODULE]:
+        BRANDED_DB_SRC.replace(
+          'return createServiceClient(signal) as ServiceSupabaseClient',
+          'return createServiceClient(signal)'
+        ) +
+        `export const other = () => createClient() as ServiceSupabaseClient\n`,
+      'app/lib/sync/worker-types.ts': WORKER_TYPES_SRC,
+      [SERVICE_CLIENT_MODULE]: AUTH_SERVER_SRC
+    },
+    expect: (ok) => ok === false
+  },
+  {
+    name: 'createServiceClient from another module voids the rule',
+    files: {
+      [SERVICE_DB_MODULE]: BRANDED_DB_SRC.replace(
+        "from '@/app/lib/auth/server'",
+        "from '@/app/lib/auth/client'"
+      ),
+      'app/lib/sync/worker-types.ts': WORKER_TYPES_SRC,
+      [SERVICE_CLIENT_MODULE]: AUTH_SERVER_SRC
     },
     expect: (ok) => ok === false
   },
@@ -1206,7 +1260,20 @@ const SERVICE_BRAND_FIXTURES = [
         '): ServiceSupabaseClient {',
         '): TypedSupabaseClient {'
       ),
-      'app/lib/sync/worker-types.ts': WORKER_TYPES_SRC
+      'app/lib/sync/worker-types.ts': WORKER_TYPES_SRC,
+      [SERVICE_CLIENT_MODULE]: AUTH_SERVER_SRC
+    },
+    expect: (ok) => ok === false
+  },
+  {
+    name: 'a createServiceClient() built from the anon key voids the rule',
+    files: {
+      [SERVICE_DB_MODULE]: BRANDED_DB_SRC,
+      'app/lib/sync/worker-types.ts': WORKER_TYPES_SRC,
+      [SERVICE_CLIENT_MODULE]: AUTH_SERVER_SRC.replace(
+        'SUPABASE_SERVICE_ROLE_KEY',
+        'NEXT_PUBLIC_SUPABASE_ANON_KEY'
+      )
     },
     expect: (ok) => ok === false
   }
