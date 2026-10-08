@@ -11,7 +11,11 @@ import { createComponentLogger } from '@/app/lib/logging'
 import { rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { captureSentryException } from '@/app/lib/monitoring/sentry'
 import { persistRosterSnapshot } from '@/app/lib/player/roster-sync'
-import { isKeyRejection, recordKeyRejection } from '@/app/lib/player-key/strike'
+import {
+  clearKeyRejections,
+  isKeyRejection,
+  recordKeyRejection
+} from '@/app/lib/player-key/strike'
 import type { AnyUnit } from '@/app/lib/player/roster-sync'
 import { withTimeout, TimeoutError } from '@/app/lib/utils/async-timeout'
 import { registerJobHandler } from './dispatcher'
@@ -51,7 +55,7 @@ const rosterBackfillHandler: JobHandler = async (payload, ctx) => {
     let query = supabase
       .from('player_mapping')
       .select(
-        'id, user_id, player_id, display_name, guild_code, tacticus_api_key_encrypted'
+        'id, user_id, player_id, display_name, guild_code, tacticus_api_key_encrypted, consecutive_api_key_failures'
       )
       .eq('is_current', true)
       .eq('api_key_is_valid', true)
@@ -151,6 +155,10 @@ const rosterBackfillHandler: JobHandler = async (payload, ctx) => {
               )
               failed++
               return
+            }
+
+            if (player.consecutive_api_key_failures > 0) {
+              await clearKeyRejections(supabase, player.id)
             }
 
             const unitsRaw: AnyUnit[] = Array.isArray(tacticusPlayer.units)

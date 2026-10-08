@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   getPlayerResult: vi.fn(),
   persistRosterSnapshot: vi.fn(),
   rpc: vi.fn(),
+  updates: [] as { values: unknown; filters: unknown[][] }[],
   players: [] as Record<string, unknown>[]
 }))
 
@@ -21,6 +22,21 @@ function thenableQuery() {
   for (const method of ['select', 'eq', 'not', 'or']) {
     query[method] = vi.fn(() => query)
   }
+  query.update = vi.fn((values: unknown) => {
+    const write = { values, filters: [] as unknown[][] }
+    mocks.updates.push(write)
+    const chain: Record<string, unknown> = {
+      then: (resolve: (value: unknown) => unknown) =>
+        Promise.resolve({ error: null }).then(resolve)
+    }
+    for (const method of ['eq', 'gt']) {
+      chain[method] = vi.fn((...args: unknown[]) => {
+        write.filters.push([method, ...args])
+        return chain
+      })
+    }
+    return chain
+  })
   return query
 }
 
@@ -53,6 +69,7 @@ const run = () => handler({}, { jobId: 1, workerId: 'w', attempts: 1 })
 
 beforeEach(() => {
   vi.clearAllMocks()
+  mocks.updates = []
   mocks.players = [
     {
       id: 11,
@@ -60,7 +77,8 @@ beforeEach(() => {
       player_id: 'player-1',
       display_name: 'Player 1',
       guild_code: 'GUILD',
-      tacticus_api_key_encrypted: 'ciphertext'
+      tacticus_api_key_encrypted: 'ciphertext',
+      consecutive_api_key_failures: 0
     }
   ]
   mocks.rpc.mockResolvedValue({
@@ -113,6 +131,31 @@ describe('roster-backfill and rejected player keys', () => {
 
     expect(mocks.rpc).not.toHaveBeenCalled()
     expect(mocks.persistRosterSnapshot).toHaveBeenCalledOnce()
+    expect(mocks.updates).toEqual([])
+    expect(result).toMatchObject({ processed: 1, failed: 0 })
+  })
+
+  it('clears earlier strikes once Tacticus accepts the key again', async () => {
+    mocks.players[0].consecutive_api_key_failures = 2
+    mocks.getPlayerResult.mockResolvedValue({
+      player: { details: { powerLevel: 5 }, units: [] },
+      status: 200
+    })
+
+    const result = await run()
+
+    expect(mocks.updates).toEqual([
+      {
+        values: {
+          consecutive_api_key_failures: 0,
+          last_api_key_failure_at: null
+        },
+        filters: [
+          ['eq', 'id', 11],
+          ['gt', 'consecutive_api_key_failures', 0]
+        ]
+      }
+    ])
     expect(result).toMatchObject({ processed: 1, failed: 0 })
   })
 

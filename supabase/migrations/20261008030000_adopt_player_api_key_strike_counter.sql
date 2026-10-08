@@ -1,8 +1,8 @@
--- Adopt record_player_api_key_auth_failure. The General database already has
--- it, but no migration here defines it, so a database built from this history
--- lacks the counter that roster-backfill now calls. Body, defaults and the
--- service_role-only EXECUTE match the live function, so applying this to the
--- live database changes nothing.
+-- Adopt record_player_api_key_auth_failure and its two player_mapping columns.
+-- The General database already has all three, but no migration here defines
+-- them, so a database built from this history lacks the counter roster-backfill
+-- now calls. Column types, the function body and service_role-only EXECUTE
+-- match live, so applying this to the live database changes nothing.
 
 -- target-db: general
 
@@ -17,6 +17,10 @@ BEGIN
   END IF;
 END;
 $guard$;
+
+ALTER TABLE public.player_mapping
+  ADD COLUMN IF NOT EXISTS consecutive_api_key_failures integer NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS last_api_key_failure_at timestamptz;
 
 CREATE OR REPLACE FUNCTION public.record_player_api_key_auth_failure(p_player_id text, p_cooldown_seconds integer DEFAULT 600, p_decay_seconds integer DEFAULT 86400, p_threshold integer DEFAULT 3)
  RETURNS TABLE(strikes integer, flagged boolean, counted boolean)

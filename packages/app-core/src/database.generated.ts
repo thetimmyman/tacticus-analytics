@@ -5574,6 +5574,7 @@ export type Database = {
           boss_preferences: Json | null
           cluster_code: string | null
           cluster_id: string | null
+          consecutive_api_key_failures: number
           created_at: string | null
           discord_user_id: string | null
           discord_username: string | null
@@ -5585,6 +5586,7 @@ export type Database = {
           is_app_admin: boolean | null
           is_current: boolean | null
           last_active_at: string | null
+          last_api_key_failure_at: string | null
           last_battle_time: string | null
           last_sync_at: string | null
           last_sync_bombs: number | null
@@ -5631,6 +5633,7 @@ export type Database = {
           boss_preferences?: Json | null
           cluster_code?: string | null
           cluster_id?: string | null
+          consecutive_api_key_failures?: number
           created_at?: string | null
           discord_user_id?: string | null
           discord_username?: string | null
@@ -5642,6 +5645,7 @@ export type Database = {
           is_app_admin?: boolean | null
           is_current?: boolean | null
           last_active_at?: string | null
+          last_api_key_failure_at?: string | null
           last_battle_time?: string | null
           last_sync_at?: string | null
           last_sync_bombs?: number | null
@@ -5688,6 +5692,7 @@ export type Database = {
           boss_preferences?: Json | null
           cluster_code?: string | null
           cluster_id?: string | null
+          consecutive_api_key_failures?: number
           created_at?: string | null
           discord_user_id?: string | null
           discord_username?: string | null
@@ -5699,6 +5704,7 @@ export type Database = {
           is_app_admin?: boolean | null
           is_current?: boolean | null
           last_active_at?: string | null
+          last_api_key_failure_at?: string | null
           last_battle_time?: string | null
           last_sync_at?: string | null
           last_sync_bombs?: number | null

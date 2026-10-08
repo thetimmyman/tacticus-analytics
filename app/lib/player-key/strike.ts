@@ -54,3 +54,21 @@ export async function recordKeyRejection(
   }
   return row
 }
+
+/** A key Tacticus accepted starts over, so old rejections don't add up. */
+export async function clearKeyRejections(
+  supabase: ServiceSupabaseClient,
+  playerMappingId: number
+): Promise<void> {
+  const { error } = await supabase
+    .from('player_mapping')
+    .update({ consecutive_api_key_failures: 0, last_api_key_failure_at: null })
+    .eq('id', playerMappingId)
+    .gt('consecutive_api_key_failures', 0)
+  if (error) {
+    logger.warn(
+      { playerMappingId, error: error.message },
+      'Key strikes not cleared'
+    )
+  }
+}
