@@ -10,9 +10,26 @@ import org.json.JSONObject;
  * authenticity.
  */
 final class NativeBackup {
+  /** Largest workspace a backup carries; the same limit the workspace store enforces. */
+  static final int MAX_PAYLOAD_CHARS = WorkspaceStore.MAX_DOCUMENT_CHARS;
+  /**
+   * Largest backup file import reads. The payload is org.json output, so it holds no raw control
+   * characters: each payload char encodes to at most 3 UTF-8 bytes in the envelope (a two-byte
+   * escape or a BMP character), plus a small envelope. encode() enforces the bound on export.
+   */
+  static final int MAX_FILE_BYTES = 3 * MAX_PAYLOAD_CHARS + 4096;
+  /** The backup file bytes; never larger than import accepts. */
+  static byte[] encode(JSONObject state) throws Exception {
+    byte[] bytes = export(state).toString(2).getBytes(StandardCharsets.UTF_8);
+    if (bytes.length > MAX_FILE_BYTES)
+      throw new Exception("Backup size limit");
+    return bytes;
+  }
   static JSONObject export(JSONObject state) throws Exception {
     validateState(state);
     String payload = state.toString();
+    if (payload.length() > MAX_PAYLOAD_CHARS)
+      throw new Exception("Backup size limit");
     return new JSONObject()
         .put("schemaVersion", "android-local-backup/v1")
         .put("payload", payload)
@@ -26,7 +43,7 @@ final class NativeBackup {
     if (!(envelope.get("payload") instanceof String) || !(envelope.get("sha256") instanceof String))
       throw new Exception("Invalid backup field type");
     String payload = envelope.getString("payload");
-    if (payload.length() > 4 * 1024 * 1024
+    if (payload.length() > MAX_PAYLOAD_CHARS
         || !MessageDigest.isEqual(digest(payload).getBytes(StandardCharsets.US_ASCII),
             envelope.getString("sha256").getBytes(StandardCharsets.US_ASCII)))
       throw new Exception("Backup integrity failed");

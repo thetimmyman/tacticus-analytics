@@ -619,6 +619,10 @@ public final class AndroidProof extends Instrumentation {
                             value -> value),
             "Locked vault exposed credentials");
         check(store.read(false).has("personal"), "Lock discarded offline data");
+        store.setScheduledRefresh(true);
+        OfficialRefreshService.refresh(getTargetContext(), () -> false);
+        check(store.scheduledRefreshEnabled(), "Locked scheduled refresh disabled the opt-in");
+        store.setScheduledRefresh(false);
       } else if (phase.equals("reopen")) {
         check(store.read(true).getString("status").equals("synthetic-demo"),
             "Restart lost demo data");
@@ -683,6 +687,31 @@ public final class AndroidProof extends Instrumentation {
                     -> NativeBackup.importDocument(
                         new JSONObject(backup.toString()).put("sha256", "invalid")),
             "Corrupt backup accepted");
+        // A workspace at the size limit in 3-byte UTF-8 text restores from its own backup file.
+        JSONObject large = Demo.document();
+        String wide = "\u6226".repeat(200);
+        JSONObject largeRow = new JSONObject()
+                                  .put("player", wide)
+                                  .put("boss", wide)
+                                  .put("damage", 1)
+                                  .put("tokens", 1)
+                                  .put("observedAt", 0);
+        org.json.JSONArray largeRows = large.getJSONArray("portableRaids");
+        int added = (NativeBackup.MAX_PAYLOAD_CHARS - large.toString().length())
+            / (largeRow.toString().length() + 1);
+        for (int i = 0; i < added; i++) largeRows.put(new JSONObject(largeRow.toString()));
+        byte[] largeFile = NativeBackup.encode(large);
+        check(largeFile.length > 4 * 1024 * 1024, "Large backup fixture below the old file limit");
+        check(NativeBackup
+                    .importDocument(StrictJson.parse(
+                        MainActivity.readBounded(new java.io.ByteArrayInputStream(largeFile)),
+                        NativeBackup.MAX_FILE_BYTES))
+                    .getJSONArray("portableRaids")
+                    .length()
+                == largeRows.length(),
+            "Large backup did not restore");
+        largeRows.put(new JSONObject(largeRow.toString()));
+        rejects(() -> NativeBackup.encode(large), "Oversized workspace exported");
         check(store.totalDamage(true) == 300, "Rejected import changed data");
         JSONObject changed = Demo.document();
         changed.getJSONObject("raid").getJSONArray("entries").getJSONObject(0).put(
@@ -943,11 +972,22 @@ public final class AndroidProof extends Instrumentation {
           count.moveToFirst();
           check(count.getInt(0) == 0, "Revocation retained queue");
         }
+        final JSONObject oversized =
+            new JSONObject(large.toString()).put("status", "historical-offline");
+        final String connected = store.reference("Player");
+        rejects(() -> store.replaceDocument(oversized, false, vault), "Oversized import accepted");
+        check(connected != null && connected.equals(store.reference("Player")),
+            "Oversized import revoked credentials");
         check(store.disconnect(vault), "Secure disconnect cleanup failed");
         check(store.reference("Player") == null && store.reference("Guild") == null
                 && store.reference("Guild Raid") == null,
             "Disconnect left references");
         check(store.totalDamage(false) == 400, "Disconnect lost offline data");
+        store.setScheduledRefresh(true);
+        OfficialRefreshService.refresh(getTargetContext(), () -> true);
+        check(store.scheduledRefreshEnabled(), "Stopped scheduled refresh disabled the opt-in");
+        OfficialRefreshService.refresh(getTargetContext(), () -> false);
+        check(!store.scheduledRefreshEnabled(), "Failed scheduled refresh stayed enabled");
         final String disconnected = previous;
         rejects(() -> vault.withCredential(disconnected, value -> value), "Disconnect allowed key");
         JSONObject full = NativeBackup.importDocument(NativeBackup.export(store.read(false)));
