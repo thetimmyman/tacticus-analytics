@@ -41,15 +41,26 @@ exports.captureTokenUsage = async (window, config) => {
             element.textContent || element.getAttribute('placeholder') || ''
           )
       ),
-      accessBlocked:
-        document.body.innerText.includes('Connect your Player API key') ||
-        document.body.innerText.includes('Add Guild and Guild Raid access')
+      accessBlocked: [...document.querySelectorAll('h1')].some((heading) =>
+        [
+          'Connect your Player API key',
+          'Add Guild and Guild Raid access'
+        ].includes(heading.textContent.trim())
+      )
     }
   }
   const initial = await run(read)
-  assert.equal(initial.nodeAccess, false)
-  assert.equal(initial.liveControls, false)
-  assert.equal(initial.accessBlocked, false)
+  assert.equal(initial.nodeAccess, false, 'Renderer must remain sandboxed')
+  assert.equal(
+    initial.liveControls,
+    false,
+    'Cached view must omit live controls'
+  )
+  assert.equal(
+    initial.accessBlocked,
+    false,
+    'Saved token content must remain accessible'
+  )
   assert(initial.status.includes('No live API request'))
   for (const expected of config.expectedPlayers) {
     const row = initial.rows.find((cells) => cells[0] === expected.name)
