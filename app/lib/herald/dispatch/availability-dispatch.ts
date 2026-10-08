@@ -1,6 +1,6 @@
 import 'server-only'
 
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { ServiceSupabaseClient } from '@/app/lib/sync/worker-types'
 import {
   postToWebhook,
   logDiscordWebhookDelivery
@@ -35,7 +35,7 @@ import {
 } from '@/app/lib/herald/dispatch/dispatch-shared'
 
 export interface PostHeraldAvailabilityParams {
-  supabase: SupabaseClient
+  supabase: ServiceSupabaseClient
   guildCode: string
   transition: AvailabilityTransition
   invocationId: string
@@ -67,6 +67,20 @@ export const postHeraldAvailabilityEvent = async (
     note = null,
     compactAvailabilityPosts = false
   } = params
+
+  // set_num is NOT NULL and in the dedup key: a setless stage has no row to claim.
+  const setNum = transition.set
+  if (setNum === null) {
+    logger.warn(
+      {
+        herald_invocation_id: invocationId,
+        guild_code: guildCode,
+        boss_id: transition.boss_id
+      },
+      'herald.available.skip.no_set'
+    )
+    return { outcome: 'skipped', reason: 'no_set' }
+  }
 
   if (channels.length === 0) {
     logger.info(
@@ -108,7 +122,7 @@ export const postHeraldAvailabilityEvent = async (
     encounter_index: transition.encounter_index,
     rarity: transition.rarity,
     tier: transition.tier,
-    set_num: transition.set,
+    set_num: setNum,
     loop_index: transition.loop_index
   }
 

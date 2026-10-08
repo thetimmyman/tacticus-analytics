@@ -1,8 +1,8 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { ServiceSupabaseClient } from '@/app/lib/sync/worker-types'
 import type { HeraldBattle } from './contracts'
 
 export interface RunHeraldForSyncParams {
-  supabase: SupabaseClient
+  supabase: ServiceSupabaseClient
   guildCode: string
   battles: HeraldBattle[]
   /** All battles seen this sync. When omitted, availability detection is skipped. */

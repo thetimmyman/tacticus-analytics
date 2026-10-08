@@ -3,6 +3,7 @@ import 'server-only'
 import { createHash } from 'node:crypto'
 import type { Json, TypedSupabaseClient } from '@tacticus/app-core/types'
 import { createComponentLogger } from '@/app/lib/logging'
+import type { ServiceSupabaseClient } from '@/app/lib/sync/worker-types'
 import {
   credentialBanDuration,
   findActivelyBannedAuthUserIds
@@ -151,10 +152,10 @@ function hasExactUpdatedUsers(data: Json, expectedUserIds: string[]): boolean {
 }
 
 export async function reconcileUserBanState(
-  supabase: TypedSupabaseClient,
+  supabase: ServiceSupabaseClient,
   rawPayload: UserBanReconciliationPayload,
   options: {
-    operationSupabase?: TypedSupabaseClient
+    operationSupabase?: ServiceSupabaseClient
     signal?: AbortSignal
   } = {}
 ): Promise<{ adminsRevoked: number; credentialsReconciled: number }> {

@@ -18,7 +18,8 @@ const MIGRATION_PATHS = [
   'supabase/migrations/20260925080000_ps218_revoke_authenticated_write_grants.sql',
   'supabase/migrations/20261006120000_revoke_discord_dispatch_write_grants.sql',
   'supabase/migrations/20261006130000_revoke_guild_war_import_write_grants.sql',
-  'supabase/migrations/20261007230000_revoke_service_traced_write_grants.sql'
+  'supabase/migrations/20261007230000_revoke_service_traced_write_grants.sql',
+  'supabase/migrations/20261008020000_revoke_service_typed_write_grants.sql'
 ].map((rel) => path.join(REPO_ROOT, rel))
 const PGTAP_PATH = path.join(
   REPO_ROOT,
@@ -98,6 +99,29 @@ function resolveConfiguredTables(rel, text) {
   return out
 }
 
+// The one module allowed to mint ServiceSupabaseClient (serviceDb()).
+const SERVICE_DB_MODULE = 'app/lib/db/index.ts'
+
+/** ServiceSupabaseClient is a unique-symbol brand minted by serviceDb(), and worker-types re-exports it rather than re-declaring a plain alias. */
+function serviceClientIsBranded(read) {
+  const dbModule = read(SERVICE_DB_MODULE)
+  const brand = dbModule.match(/declare const (\w+): unique symbol/)
+  return (
+    brand !== null &&
+    new RegExp(
+      `export type ServiceSupabaseClient = TypedSupabaseClient & \\{\\s*readonly \\[${brand[1]}\\]: true\\s*\\}`
+    ).test(dbModule) &&
+    /export function serviceDb\([^)]*\): ServiceSupabaseClient\b/.test(
+      dbModule
+    ) &&
+    (dbModule.match(SERVICE_CAST_ALL) ?? []).length === 1 &&
+    /export type \{ ServiceSupabaseClient \} from '@\/app\/lib\/db'/.test(
+      read('app/lib/sync/worker-types.ts')
+    ) &&
+    !/type ServiceSupabaseClient\s*=/.test(read('app/lib/sync/worker-types.ts'))
+  )
+}
+
 /** Every configured-table writer still resolves to its table, and no `config.table` use escapes its call shape. */
 function configuredTablesResolve(read) {
   return CONFIGURED_TABLE_WRITERS.every((w) => {
@@ -119,10 +143,8 @@ const PROVENANCE_RULES = [
   },
   {
     kind: 'SERVICE(param-type)',
-    claim:
-      "a receiver declared `x: ServiceSupabaseClient` is service-role ONLY when no file casts a value to that type and reaches the receiver's module: the alias is plain TypedSupabaseClient, so the annotation proves nothing on its own. The sync worker chain that uses it enters at app/api/sync/worker/route.ts, which builds its client with serviceDb(). A module reachable from a file containing `as ... ServiceSupabaseClient` through modules that declare a ServiceSupabaseClient parameter is cast-tainted, and its param-type writes stay UNKNOWN.",
-    verify: () =>
-      /serviceDb\s*\(/.test(readIfPresent('app/api/sync/worker/route.ts'))
+    claim: `a receiver declared \`x: ServiceSupabaseClient\` is service-role unless a cast can reach it: ${SERVICE_DB_MODULE} brands the type with a unique symbol and serviceDb() is the only place that mints it, so the compiler refuses any other client there (a db() client, a bare SupabaseClient, a TypedSupabaseClient). Only a cast or an \`any\`-typed value gets around that (ESLint's no-explicit-any flags the latter), so a module reachable from a non-test file containing \`as ... ServiceSupabaseClient\` (other than serviceDb() itself) through modules that declare a ServiceSupabaseClient parameter is cast-tainted, and its param-type writes stay UNKNOWN.`,
+    verify: () => serviceClientIsBranded(readIfPresent)
   },
   {
     kind: 'SERVICE(test-admin)',
@@ -353,6 +375,7 @@ function isServiceClient(client) {
 }
 
 const SERVICE_CAST = /\bas\s+(?:unknown\s+as\s+)?ServiceSupabaseClient\b/
+const SERVICE_CAST_ALL = new RegExp(SERVICE_CAST.source, 'g')
 
 function resolveImport(fromRel, spec, tracked) {
   let base
@@ -682,7 +705,8 @@ function castTaintedModules(files, read) {
   const seen = new Set()
   const queue = []
   for (const rel of files) {
-    if (isTestFile(rel)) continue
+    // serviceDb() mints the brand there; the brand check pins it to one cast.
+    if (isTestFile(rel) || rel === SERVICE_DB_MODULE) continue
     const text = read(rel)
     if (!SERVICE_CAST.test(text)) continue
     queue.push(...valueImports(rel, text, tracked))
@@ -1142,6 +1166,52 @@ const CONFIGURED_TABLE_FIXTURES = [
     expect: (h) => h.length === 0
   }
 ]
+const BRANDED_DB_SRC =
+  `declare const serviceRole: unique symbol\n` +
+  `export type ServiceSupabaseClient = TypedSupabaseClient & {\n  readonly [serviceRole]: true\n}\n` +
+  `export function serviceDb(signal?: AbortSignal): ServiceSupabaseClient {\n` +
+  `  return createServiceClient(signal) as ServiceSupabaseClient\n}\n`
+const WORKER_TYPES_SRC = `export type { ServiceSupabaseClient } from '@/app/lib/db'\n`
+const SERVICE_BRAND_FIXTURES = [
+  {
+    name: 'a branded ServiceSupabaseClient minted only by serviceDb() holds',
+    files: {
+      [SERVICE_DB_MODULE]: BRANDED_DB_SRC,
+      'app/lib/sync/worker-types.ts': WORKER_TYPES_SRC
+    },
+    expect: (ok) => ok === true
+  },
+  {
+    name: 'a plain alias of TypedSupabaseClient voids the rule',
+    files: {
+      [SERVICE_DB_MODULE]: BRANDED_DB_SRC,
+      'app/lib/sync/worker-types.ts': `export type ServiceSupabaseClient = TypedSupabaseClient\n`
+    },
+    expect: (ok) => ok === false
+  },
+  {
+    name: 'a second mint in the db module voids the rule',
+    files: {
+      [SERVICE_DB_MODULE]:
+        BRANDED_DB_SRC +
+        `export const other = () => createClient() as ServiceSupabaseClient\n`,
+      'app/lib/sync/worker-types.ts': WORKER_TYPES_SRC
+    },
+    expect: (ok) => ok === false
+  },
+  {
+    name: 'an unbranded serviceDb() return voids the rule',
+    files: {
+      [SERVICE_DB_MODULE]: BRANDED_DB_SRC.replace(
+        '): ServiceSupabaseClient {',
+        '): TypedSupabaseClient {'
+      ),
+      'app/lib/sync/worker-types.ts': WORKER_TYPES_SRC
+    },
+    expect: (ok) => ok === false
+  }
+]
+
 const CONFIGURED_TABLE_RULE_FIXTURES = [
   {
     name: 'both configured lock writers resolve to execution_locks',
@@ -1260,6 +1330,16 @@ function selftest() {
       console.error(
         `  FAIL ${f.name} -- got ${JSON.stringify(hits.map((h) => [h.table, h.client, h.verb]))}`
       )
+    }
+  }
+
+  for (const f of SERVICE_BRAND_FIXTURES) {
+    const ok = serviceClientIsBranded((rel) => f.files[rel] ?? '')
+    if (f.expect(ok)) {
+      console.log(`  ok   ${f.name}`)
+    } else {
+      failed += 1
+      console.error(`  FAIL ${f.name} -- got ${ok}`)
     }
   }
 
