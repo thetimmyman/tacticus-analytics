@@ -344,17 +344,18 @@ public final class MainActivity extends Activity {
           try (var output = getContentResolver().openOutputStream(location, "wt")) {
             if (output == null)
               throw new Exception();
-            output.write((request == 43 ? NativeBackup.export(store.read(demo))
-                                        : MobileDocument.export(store.read(demo)))
-                    .toString(2)
-                    .getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            output.write(request == 43
+                    ? NativeBackup.encode(store.read(demo))
+                    : MobileDocument.export(store.read(demo))
+                          .toString(2)
+                          .getBytes(java.nio.charset.StandardCharsets.UTF_8));
           }
         } else {
           try (var input = getContentResolver().openInputStream(location)) {
             if (input == null)
               throw new Exception();
             byte[] bytes = readBounded(input);
-            JSONObject envelope = StrictJson.parse(bytes);
+            JSONObject envelope = StrictJson.parse(bytes, NativeBackup.MAX_FILE_BYTES);
             JSONObject imported =
                 envelope.optString("schemaVersion").equals("android-local-backup/v1")
                 ? NativeBackup.importDocument(envelope)
@@ -440,12 +441,13 @@ public final class MainActivity extends Activity {
       show();
     });
   }
+  /** Reads up to the largest document this app exports: a full backup. */
   static byte[] readBounded(java.io.InputStream input) throws Exception {
     java.io.ByteArrayOutputStream output = new java.io.ByteArrayOutputStream();
     byte[] buffer = new byte[8192];
     int count;
     while ((count = input.read(buffer)) != -1) {
-      if (output.size() + count > 4 * 1024 * 1024)
+      if (output.size() + count > NativeBackup.MAX_FILE_BYTES)
         throw new Exception("Document size limit");
       output.write(buffer, 0, count);
     }
