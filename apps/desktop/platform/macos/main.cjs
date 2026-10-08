@@ -4,6 +4,7 @@ const { join } = require('node:path')
 const { randomBytes } = require('node:crypto')
 const {
   requestLabel,
+  networkErrorLabel,
   sanitizeFailure,
   rendererReceipt,
   holdingRefusal,
@@ -100,7 +101,8 @@ app
               details.resourceType,
               requestPhase
             )),
-          status: 0
+          status: 0,
+          networkError: networkErrorLabel(details.error)
         })
     })
     const window = new BrowserWindow({

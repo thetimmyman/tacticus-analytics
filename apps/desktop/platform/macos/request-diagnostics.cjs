@@ -10,6 +10,21 @@ const stages = [
 ]
 const codes = ['ESESSION', 'EVAULT', 'EVAULTLOCKED', 'EACCESS', 'EVERIFY']
 const causes = ['requests-pending', 'request-failed']
+const networkErrors = {
+  'net::ERR_FAILED': 'request-failed',
+  'net::ERR_CONNECTION_RESET': 'connection-reset',
+  'net::ERR_CONNECTION_CLOSED': 'connection-closed',
+  'net::ERR_CONNECTION_REFUSED': 'connection-refused',
+  'net::ERR_EMPTY_RESPONSE': 'empty-response',
+  'net::ERR_TIMED_OUT': 'timed-out',
+  'net::ERR_NETWORK_CHANGED': 'network-changed',
+  'net::ERR_INCOMPLETE_CHUNKED_ENCODING': 'incomplete-body',
+  'net::ERR_CONTENT_LENGTH_MISMATCH': 'body-length-mismatch',
+  'net::ERR_CONTENT_DECODING_FAILED': 'body-decoding-failed',
+  'net::ERR_NAME_NOT_RESOLVED': 'name-not-resolved',
+  'net::ERR_BLOCKED_BY_CLIENT': 'client-blocked'
+}
+const networkErrorNames = Object.values(networkErrors)
 const phases = [
   'initial-open',
   'renderer-refusal',
@@ -50,6 +65,9 @@ const endpoints = {
   '/supabase/rest/v1/player_with_cluster': 'cluster-profile',
   '/supabase/rest/v1/rpc/get_token_usage_for_guild': 'token-usage-read',
   '/supabase/rest/v1/rpc/get_season_token_stats': 'token-stats-read',
+  '/supabase/rest/v1/rpc/get_guild_player_scores_batch': 'scores-batch-read',
+  '/supabase/rest/v1/rpc/get_season_token_stats_batch':
+    'token-stats-batch-read',
   '/api/performance/five-season-averages': 'performance-averages',
   '/api/upcoming/token-performance': 'target-performance',
   '/api/health': 'health',
@@ -59,6 +77,11 @@ const endpoints = {
   '/api/season/timing': 'season-timing',
   '/api/assignments/current-season-bosses': 'current-season-bosses',
   '/api/assignments/next-season-bosses': 'next-season-bosses',
+  '/api/sync/freshness': 'sync-freshness',
+  '/api/features/stages': 'feature-stages',
+  '/api/guild-trends/target-scores-batch': 'target-scores',
+  '/api/boss-assignments/target-tokens/schedule': 'target-schedule',
+  '/api/boss-assignments/target-tokens/rotation-stats': 'target-rotation',
   '/supabase/rest/v1/EOT_GR_data': 'raid-data',
   '/supabase/rest/v1/guild_members': 'guild-members',
   '/supabase/rest/v1/guild_raid_season': 'raid-season',
@@ -79,6 +102,10 @@ function requestLabel(path, resource, phase) {
     resource: resources.includes(resource) ? resource : 'other',
     ...(phases.includes(phase) ? { phase } : {})
   }
+}
+
+function networkErrorLabel(error) {
+  return Object.hasOwn(networkErrors, error) ? networkErrors[error] : 'other'
 }
 
 function sanitizeFailure(input) {
@@ -108,7 +135,11 @@ function sanitizeFailure(input) {
               entry.status >= 0 &&
               entry.status <= 599
                 ? entry.status
-                : 0
+                : 0,
+            ...(networkErrorNames.includes(entry?.networkError) ||
+            entry?.networkError === 'other'
+              ? { networkError: entry.networkError }
+              : {})
           }
         : {})
     }))
@@ -170,6 +201,7 @@ function unexpectedFailure(failure) {
 
 module.exports = {
   requestLabel,
+  networkErrorLabel,
   sanitizeFailure,
   rendererReceipt,
   holdingHeader,
