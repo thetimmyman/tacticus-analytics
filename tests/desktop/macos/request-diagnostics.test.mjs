@@ -295,3 +295,57 @@ test('request metadata retains only a bounded method and observed RSC/prefetch f
     true
   )
 })
+
+test('final network verdict refuses a request that starts during asynchronous renderer capture', async () => {
+  const active = new Map()
+  const snapshot = () => ({
+    pending: [...active.values()],
+    failed: [],
+    blocked: 0
+  })
+  assert.equal(diagnostics.networkFailureCause(snapshot()), undefined)
+  await Promise.resolve().then(() =>
+    active.set(1, { endpoint: 'onboarding-status' })
+  )
+  const final = snapshot()
+  queueMicrotask(() => active.clear())
+  assert.equal(diagnostics.networkFailureCause(final), 'requests-pending')
+  await Promise.resolve()
+  assert.equal(diagnostics.networkFailureCause(final), 'requests-pending')
+  assert.equal(diagnostics.networkFailureCause(snapshot()), undefined)
+})
+
+test('final network verdict refuses late ERR_FAILED and preserves only deliberate authorization refusals', async () => {
+  const failed = [
+    { path: '/desktop/open', status: 403 },
+    { path: '/api/guild-tokens', status: 403 },
+    { status: 401, phase: 'signed-out-check' }
+  ]
+  assert.equal(
+    diagnostics.networkFailureCause({ pending: [], failed, blocked: 0 }),
+    undefined
+  )
+  await Promise.resolve().then(() =>
+    failed.push({ status: 0, networkError: 'request-failed' })
+  )
+  assert.equal(
+    diagnostics.networkFailureCause({ pending: [], failed, blocked: 0 }),
+    'request-failed'
+  )
+  assert.equal(
+    diagnostics.networkFailureCause({ pending: [], failed: [], blocked: 1 }),
+    'request-failed'
+  )
+})
+
+test('final network verdict refuses absent or malformed safety observations', () => {
+  for (const value of [
+    undefined,
+    {},
+    { pending: [], failed: [], blocked: undefined },
+    { pending: [], failed: {}, blocked: 0 },
+    { pending: {}, failed: [], blocked: 0 },
+    { pending: [], failed: [], blocked: -1 }
+  ])
+    assert.equal(diagnostics.networkFailureCause(value), 'request-failed')
+})

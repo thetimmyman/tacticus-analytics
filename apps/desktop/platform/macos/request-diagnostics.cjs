@@ -66,6 +66,22 @@ const resources = [
 ]
 const endpoints = {
   '/home': 'home-page',
+  // Fixed local Next Link targets from workspace/account navigation and footer.
+  '/dashboard': 'raid-dashboard-page',
+  '/guild-trends': 'guild-trends-page',
+  '/boss-assignments': 'boss-assignments-page',
+  '/wars': 'wars-page',
+  '/creators': 'creators-page',
+  '/roster': 'roster-page',
+  '/achievements': 'achievements-page',
+  '/explore': 'explore-page',
+  '/guild-settings': 'guild-settings-page',
+  '/admin/feature-releases': 'admin-releases-page',
+  '/faq': 'faq-page',
+  '/acknowledgements': 'acknowledgements-page',
+  '/privacy': 'privacy-page',
+  '/terms': 'terms-page',
+  '/do-not-sell': 'do-not-sell-page',
   '/desktop/open': 'device-bootstrap',
   '/desktop/personal': 'personal-page',
   '/desktop/onboarding-status': 'onboarding-status',
@@ -264,6 +280,20 @@ function unexpectedFailure(failure) {
   return true
 }
 
+// Fail closed on an incomplete final observation; pending work is never a pass.
+function networkFailureCause(network) {
+  if (
+    !Array.isArray(network?.pending) ||
+    !Array.isArray(network?.failed) ||
+    !Number.isSafeInteger(network?.blocked) ||
+    network.blocked < 0
+  )
+    return 'request-failed'
+  if (network.pending.length) return 'requests-pending'
+  if (network.blocked || network.failed.some(unexpectedFailure))
+    return 'request-failed'
+}
+
 module.exports = {
   requestLabel,
   networkErrorLabel,
@@ -273,5 +303,6 @@ module.exports = {
   rendererReceipt,
   holdingHeader,
   holdingRefusal,
-  unexpectedFailure
+  unexpectedFailure,
+  networkFailureCause
 }

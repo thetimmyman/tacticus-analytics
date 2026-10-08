@@ -10,8 +10,9 @@ const {
   sanitizeFailure,
   rendererReceipt,
   holdingRefusal,
-  unexpectedFailure
+  networkFailureCause
 } = require('./request-diagnostics.cjs')
+const { observeRequestLifecycle } = require('./request-lifecycle.cjs')
 const {
   createNativeActions,
   exportCachedPersonal
@@ -37,7 +38,28 @@ app.commandLine.appendSwitch(
 app.setPath('userData', join(config.state, 'browser'))
 let verifyStage = 'window-startup',
   verifyNetwork,
-  verificationWindow
+  verificationWindow,
+  verificationLifecycle
+function writeRequestLifecycle() {
+  if (!verificationLifecycle) return
+  writeFileSync(
+    config.verify.evidence + '.lifecycle.json',
+    JSON.stringify(
+      {
+        ...verificationLifecycle.snapshot(),
+        ...(/^[a-f0-9]{40}$/.test(config.verify.sourceCommit ?? '')
+          ? { sourceCommit: config.verify.sourceCommit }
+          : {}),
+        ...(/^[a-f0-9]{64}$/.test(config.verify.artifactSha256 ?? '')
+          ? { artifactSha256: config.verify.artifactSha256 }
+          : {})
+      },
+      null,
+      2
+    ),
+    { mode: 0o600 }
+  )
+}
 app
   .whenReady()
   .then(async () => {
@@ -454,6 +476,14 @@ app
     }
     if (!(await device.open())) await window.loadURL(config.url)
     if (config.verify) {
+      // The initial page has loaded before Network.enable, avoiding an
+      // unresolved pre-navigation command. Observe the recovery and Next route
+      // lifecycle only; no CDP interception, cache changes or response reads.
+      verificationLifecycle = await observeRequestLifecycle(
+        window.webContents,
+        origin,
+        () => requestPhase
+      )
       verifyStage = 'workspace-setup'
       requestPhase = 'renderer-refusal'
       const rendererBootstrapRefused =
@@ -508,12 +538,22 @@ app
       const observed = await window.webContents.executeJavaScript(
         `({text:document.body.innerText,nodeAccess:typeof require!=='undefined'||typeof process!=='undefined'})`
       )
+      const screenshot = (await window.webContents.capturePage()).toPNG()
+      verifyStage = 'renderer-network'
+      // Observation and capture can start a new periodic request. Drain after
+      // both awaits, then keep receipt, verdict and shutdown in one turn.
+      for (let attempt = 0; attempt < 100 && activeRequests.size; attempt++)
+        await new Promise((accept) => setTimeout(accept, 100))
+      const finalNetwork = {
+        pending: [...activeRequests.values()],
+        failed: [...failures],
+        blocked: blocked.length
+      }
+      const finalNetworkCause = networkFailureCause(finalNetwork)
       const evidence = {
         ...rendererReceipt({
           observed,
-          pending: [...activeRequests.values()],
-          failed: failures,
-          blocked: blocked.length
+          ...finalNetwork
         }),
         sandbox: true,
         contextIsolation: true,
@@ -527,11 +567,8 @@ app
       writeFileSync(config.verify.evidence, JSON.stringify(evidence, null, 2), {
         mode: 0o600
       })
-      writeFileSync(
-        config.verify.screenshot,
-        (await window.webContents.capturePage()).toPNG(),
-        { mode: 0o600 }
-      )
+      writeFileSync(config.verify.screenshot, screenshot, { mode: 0o600 })
+      writeRequestLifecycle()
       verifyStage = 'renderer-scores'
       if (
         observed.nodeAccess ||
@@ -543,15 +580,11 @@ app
           'Packaged graphical journey did not render expected scores'
         )
       verifyStage = 'renderer-network'
-      if (blocked.length || failures.some(unexpectedFailure)) {
-        verifyNetwork = {
-          pending: [...activeRequests.values()],
-          failed: failures,
-          blocked: blocked.length
-        }
+      if (finalNetworkCause) {
+        verifyNetwork = finalNetwork
         throw Object.assign(
-          new Error('Unexpected packaged renderer request failure'),
-          { cause: 'request-failed' }
+          new Error('Packaged renderer final network verdict failed'),
+          { cause: finalNetworkCause }
         )
       }
       window.destroy()
@@ -566,6 +599,9 @@ app
         cause: error.cause,
         network: verifyNetwork
       })
+      try {
+        writeRequestLifecycle()
+      } catch {}
       console.log('TA-MAC-VERIFY-FAILURE:' + JSON.stringify(diagnostic))
       writeFileSync(
         config.verify.evidence + '.failure.json',

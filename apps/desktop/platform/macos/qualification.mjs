@@ -218,9 +218,27 @@ const repeatedGraphicalAttachments = [3, 4, 5].flatMap((launch) => [
   ['repeat-' + launch + '-device-session.json', 'application/json'],
   ['repeat-' + launch + '-supervisor-network.json', 'application/json'],
   ['repeat-' + launch + '-renderer.json', 'application/json'],
+  ['repeat-' + launch + '-renderer.json.lifecycle.json', 'application/json'],
   ['repeat-' + launch + '-renderer.png', 'image/png']
 ])
-let failedPhase = 'navigation-control'
+let failedPhase = 'graphical',
+  installedInventoryVerified = false,
+  navigationControlAttempted = false
+async function collectNavigationControl() {
+  navigationControlAttempted = true
+  await runNavigationControl({
+    electron: join(runtime, 'electron/Electron.app/Contents/MacOS/Electron'),
+    guard: join(installed, 'Contents/MacOS/TacticusAnalytics'),
+    script: join(runtime, 'apps/desktop/platform/macos/navigation-control.cjs'),
+    output: join(working, 'navigation-control.json'),
+    sourceCommit: process.env.MAC_SOURCE_SHA,
+    artifactSha256: digest
+  })
+  await cp(
+    join(working, 'navigation-control.json'),
+    join(output, 'navigation-control.json')
+  )
+}
 try {
   // Bind the diagnostic to the complete installed image before execution.
   const manifest = JSON.parse(
@@ -238,19 +256,7 @@ try {
     JSON.stringify(installedFiles) !== JSON.stringify(manifest.files)
   )
     throw new Error('Installed control package inventory mismatch')
-  await runNavigationControl({
-    electron: join(runtime, 'electron/Electron.app/Contents/MacOS/Electron'),
-    guard: join(installed, 'Contents/MacOS/TacticusAnalytics'),
-    script: join(runtime, 'apps/desktop/platform/macos/navigation-control.cjs'),
-    output: join(working, 'navigation-control.json'),
-    sourceCommit: process.env.MAC_SOURCE_SHA,
-    artifactSha256: digest
-  })
-  await cp(
-    join(working, 'navigation-control.json'),
-    join(output, 'navigation-control.json')
-  )
-  failedPhase = 'graphical'
+  installedInventoryVerified = true
   await run([])
   const firstGraphical = JSON.parse(await readFile(config.deviceEvidence))
   const restartConfig = {
@@ -332,6 +338,9 @@ try {
       )
     previousGraphical = current
   }
+  // Keep the actual first launch free of diagnostic Electron warmup.
+  failedPhase = 'navigation-control'
+  await collectNavigationControl()
   failedPhase = 'storage'
   for (const name of ['storage-first.json', 'storage-second.json'])
     await run(['--storage-check', join(working, name)], {
@@ -339,6 +348,29 @@ try {
       verifyFile: storageVerify
     })
 } catch (error) {
+  // A failed primary journey retains its original error and verdict. Collect
+  // the bounded diagnostic afterward, only from the verified installed image.
+  if (installedInventoryVerified && !navigationControlAttempted) {
+    try {
+      await collectNavigationControl()
+    } catch {
+      try {
+        await writeFile(
+          join(output, 'navigation-control-diagnostic-failure.json'),
+          JSON.stringify({
+            synthetic: true,
+            sourceCommit: process.env.MAC_SOURCE_SHA,
+            artifactSha256: digest,
+            classification: 'diagnostic',
+            accepted: false,
+            productAcceptance: false,
+            failure: 'control-not-established'
+          }),
+          { mode: 0o600 }
+        )
+      } catch {}
+    }
+  }
   for (const name of [
     'navigation-control.json',
     'device-session.json',
@@ -348,10 +380,12 @@ try {
     'restart-renderer.json',
     'restart-renderer.json.failure.json',
     'restart-renderer.json.native.json',
+    'restart-renderer.json.lifecycle.json',
     'restart-renderer.png',
     'renderer.json',
     'renderer.json.failure.json',
     'renderer.json.native.json',
+    'renderer.json.lifecycle.json',
     'renderer.png',
     'storage-first.json',
     'storage-second.json',
@@ -564,8 +598,10 @@ for (const [name, mediaType] of [
   ['restart-device-session.json', 'application/json'],
   ['restart-supervisor-network.json', 'application/json'],
   ['restart-renderer.json', 'application/json'],
+  ['restart-renderer.json.lifecycle.json', 'application/json'],
   ['restart-renderer.png', 'image/png'],
   ['renderer.json', 'application/json'],
+  ['renderer.json.lifecycle.json', 'application/json'],
   ['renderer.png', 'image/png'],
   ['storage-first.json', 'application/json'],
   ['storage-second.json', 'application/json'],
