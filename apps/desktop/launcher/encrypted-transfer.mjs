@@ -68,7 +68,12 @@ if (
     if (process.argv.length !== 5)
       throw new Error('Unexpected transfer arguments')
     passphrase = await readPassphrase(process.stdin)
-    const result = await encryptedTransfer(...process.argv.slice(2), passphrase)
+    const result = await encryptedTransfer(
+      process.argv[2],
+      process.argv[3],
+      process.argv[4],
+      passphrase
+    )
     console.log(JSON.stringify(result))
   } catch {
     console.error(

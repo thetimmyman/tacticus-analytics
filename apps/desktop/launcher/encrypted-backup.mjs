@@ -25,7 +25,6 @@ import { validateBackup } from '../proof/workspace-transfer.mjs'
 import { syncTree } from '../proof/schema-lifecycle.mjs'
 
 const derive = promisify(scrypt)
-const magic = Buffer.from('TABKENC1')
 const headerBytes = 64
 const tagBytes = 16
 const blockBytes = 1024 * 1024
@@ -33,8 +32,23 @@ const maxInventory = 32 * 1024 * 1024
 const maxEntries = 200000
 // Stay below GCM's per-message limit, including the encrypted inventory.
 const maxData = 32 * 1024 ** 3
-const kdf = { N: 65536, r: 8, p: 1, maxmem: 128 * 1024 * 1024 }
-const format = 'desktop-encrypted-backup-v1'
+// Exact, authenticated profiles bound KDF work. Legacy parameters are read-only;
+// new exports always use the stronger v2 profile, with no authentication fallback.
+const profiles = [
+  {
+    magic: Buffer.from('TABKENC1'),
+    version: 1,
+    format: 'desktop-encrypted-backup-v1',
+    kdf: { N: 65536, r: 8, p: 1, maxmem: 128 * 1024 * 1024 }
+  },
+  {
+    magic: Buffer.from('TABKENC2'),
+    version: 2,
+    format: 'desktop-encrypted-backup-v2',
+    kdf: { N: 65536, r: 8, p: 2, maxmem: 128 * 1024 * 1024 }
+  }
+]
+const currentProfile = profiles[1]
 const failure = () =>
   new Error('Encrypted backup is invalid or its passphrase is incorrect')
 
@@ -181,7 +195,7 @@ async function scan(
   }
   return entries
 }
-function parseInventory(bytes, total) {
+function parseInventory(bytes, total, format) {
   let value
   try {
     value = JSON.parse(bytes.toString('utf8'))
@@ -225,8 +239,9 @@ function parseInventory(bytes, total) {
 }
 function makeHeader(length, total) {
   const header = Buffer.alloc(headerBytes)
+  const { magic, version, kdf } = currentProfile
   magic.copy(header)
-  header.writeUInt32BE(1, 8)
+  header.writeUInt32BE(version, 8)
   header.writeUInt32BE(kdf.N, 12)
   header.writeUInt32BE(kdf.r, 16)
   header.writeUInt32BE(kdf.p, 20)
@@ -237,14 +252,15 @@ function makeHeader(length, total) {
   return header
 }
 function parseHeader(header, size) {
-  if (
-    !header.subarray(0, 8).equals(magic) ||
-    header.readUInt32BE(8) !== 1 ||
-    header.readUInt32BE(12) !== kdf.N ||
-    header.readUInt32BE(16) !== kdf.r ||
-    header.readUInt32BE(20) !== kdf.p
+  const profile = profiles.find(
+    ({ magic, version, kdf }) =>
+      header.subarray(0, 8).equals(magic) &&
+      header.readUInt32BE(8) === version &&
+      header.readUInt32BE(12) === kdf.N &&
+      header.readUInt32BE(16) === kdf.r &&
+      header.readUInt32BE(20) === kdf.p
   )
-    throw failure()
+  if (!profile) throw failure()
   const length = header.readUInt32BE(52)
   const total = header.readBigUInt64BE(56)
   if (
@@ -254,7 +270,7 @@ function parseHeader(header, size) {
     BigInt(size) !== BigInt(headerBytes + length + tagBytes) + total
   )
     throw failure()
-  return { length, total: Number(total) }
+  return { length, total: Number(total), profile }
 }
 async function relativeEntry(root, path, action) {
   const parts = relativePath(path)
@@ -372,6 +388,7 @@ export async function sealDirectory(source, destination, passphrase) {
       await validateBackup(`${anchor}/.`)
       const total = entries.reduce((sum, e) => sum + (e.bytes || 0), 0)
       if (!Number.isSafeInteger(total) || total > maxData) throw failure()
+      const { format, kdf } = currentProfile
       const manifest = Buffer.from(JSON.stringify({ format, entries }))
       if (manifest.length > maxInventory) throw failure()
       const header = makeHeader(manifest.length, total)
@@ -481,8 +498,8 @@ export async function unsealToDirectory(source, destination, passphrase) {
         )
           throw failure()
         const header = await readExact(input, headerBytes, 0)
-        const { length, total } = parseHeader(header, info.size)
-        key = await derive(password, header.subarray(24, 40), 32, kdf)
+        const { length, total, profile } = parseHeader(header, info.size)
+        key = await derive(password, header.subarray(24, 40), 32, profile.kdf)
         const decipher = createDecipheriv(
           'aes-256-gcm',
           key,
@@ -510,7 +527,8 @@ export async function unsealToDirectory(source, destination, passphrase) {
                     decipher.update(
                       await readExact(input, length, headerBytes)
                     ),
-                    total
+                    total,
+                    profile.format
                   )
                   let position = headerBytes + length
                   for (const entry of entries) {
@@ -580,7 +598,7 @@ export async function unsealToDirectory(source, destination, passphrase) {
                   )
                   await parent.sync()
                   return {
-                    format,
+                    format: profile.format,
                     authenticated: true,
                     files: entries.filter((e) => e.kind === 'file').length,
                     source: saved.source
