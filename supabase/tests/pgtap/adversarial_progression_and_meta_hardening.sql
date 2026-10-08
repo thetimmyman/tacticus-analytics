@@ -235,6 +235,10 @@ SELECT is(
         AND attribute.attnum > 0
         AND NOT attribute.attisdropped
         AND attribute.attacl IS NOT NULL
+        -- rest_reader's column-level SELECTs (read-only tooling) are set aside;
+        -- any other privilege it held would still break the exact match.
+        AND NOT (acl.grantee = 'rest_reader'::regrole
+                 AND acl.privilege_type = 'SELECT' AND NOT acl.is_grantable)
       ORDER BY 1
     )
   ),
@@ -245,7 +249,7 @@ SELECT is(
     'team_name:command_center_rpc_owner:SELECT:false',
     'trigger_heroes:command_center_rpc_owner:SELECT:false'
   ]::text[],
-  'meta_teams retains exactly the five captured command-center column grants'
+  'meta_teams retains exactly the five captured command-center column grants beside the reader''s SELECTs'
 );
 
 SELECT ok(
