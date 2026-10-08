@@ -64,6 +64,9 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
     : await supabase.rpc('get_my_onboarding_state')
   const hasApiKey =
     !onboardingStateError && onboardingState?.[0]?.api_key_configured === true
+  // A key Tacticus keeps rejecting stays configured but stops syncing.
+  const apiKeyValid =
+    !onboardingStateError && onboardingState?.[0]?.api_key_valid === true
 
   const extendedProfile = profile as typeof profile & ExtendedProfile
 
@@ -423,6 +426,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             </h2>
             <ReweaveLink
               hasKey={hasApiKey}
+              keyValid={apiKeyValid}
               lastVerified={profile.api_key_last_verified ?? null}
             />
           </>

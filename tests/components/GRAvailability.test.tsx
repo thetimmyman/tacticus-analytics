@@ -288,6 +288,23 @@ describe('GRAvailability', () => {
     ).toBe(false)
   })
 
+  it('warns about a rejected key and leaves auto-refresh off', async () => {
+    global.fetch = vi.fn(async (input: RequestInfo) => {
+      const url = typeof input === 'string' ? input : input.url
+      if (url === '/api/player-api-key') {
+        return createJsonResponse({ hasApiKey: true, isValid: false })
+      }
+      return createJsonResponse({})
+    }) as any
+
+    render(<GRAvailability guildCode="ABCD" season="12" />)
+
+    expect(
+      await screen.findByText(/Tacticus keeps rejecting your saved API key/)
+    ).toBeInTheDocument()
+    expect(screen.queryByText(/Auto-refresh enabled/)).not.toBeInTheDocument()
+  })
+
   it('applies refreshed seeded token rows for the same guild and season', async () => {
     const fetchMock = vi.fn(async (input: RequestInfo) => {
       const url = typeof input === 'string' ? input : input.url

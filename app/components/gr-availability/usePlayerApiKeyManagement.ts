@@ -42,6 +42,8 @@ export function usePlayerApiKeyManagement({
   const [apiKey, setApiKey] = useState('')
   const [savingKey, setSavingKey] = useState(false)
   const [hasApiKey, setHasApiKey] = useState(false)
+  // False once Tacticus has rejected the stored key repeatedly.
+  const [apiKeyValid, setApiKeyValid] = useState(true)
   const [autoRefresh, setAutoRefresh] = useState(false)
   const [deletingKey, setDeletingKey] = useState(false)
   const [saveStatus, setSaveStatus] =
@@ -92,6 +94,7 @@ export function usePlayerApiKeyManagement({
 
       setApiKey('')
       setHasApiKey(true)
+      setApiKeyValid(true)
       const successMessage = `API key saved for ${data.playerName || 'player'}! Fetching live data...`
       setSaveStatus({ type: 'success', message: successMessage })
       toast.success('API Key Saved', successMessage)
@@ -154,11 +157,18 @@ export function usePlayerApiKeyManagement({
     try {
       const response = await fetch('/api/player-api-key')
       if (!response.ok) return
-      const data = (await response.json()) as { hasApiKey?: boolean }
+      const data = (await response.json()) as {
+        hasApiKey?: boolean
+        isValid?: boolean
+      }
       const nextHasApiKey = data.hasApiKey === true
+      const nextApiKeyValid = data.isValid !== false
       setHasApiKey(nextHasApiKey)
-      // Auto-enable only on initial load.
-      if (nextHasApiKey && !hasApiKey && !autoRefresh) setAutoRefresh(true)
+      setApiKeyValid(nextApiKeyValid)
+      // Auto-enable only on initial load, and never for a rejected key.
+      if (nextHasApiKey && nextApiKeyValid && !hasApiKey && !autoRefresh) {
+        setAutoRefresh(true)
+      }
     } catch (error) {
       logger.error({ err: error }, 'Failed to check API key status:')
     }
@@ -208,6 +218,7 @@ export function usePlayerApiKeyManagement({
     setApiKey,
     savingKey,
     hasApiKey,
+    apiKeyValid,
     autoRefresh,
     setAutoRefresh,
     deletingKey,

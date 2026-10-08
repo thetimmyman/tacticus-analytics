@@ -82,7 +82,9 @@ describe('persistPlayerApiKey', () => {
     expect(encryptApiKey).toHaveBeenCalledWith('raw-key')
     expect(captured.payload).toMatchObject({
       tacticus_api_key_encrypted: 'encrypted-blob',
-      api_key_is_valid: true
+      api_key_is_valid: true,
+      consecutive_api_key_failures: 0,
+      last_api_key_failure_at: null
     })
     expect(captured.payload?.api_key_last_verified).toEqual(expect.any(String))
     expect(captured.payload?.api_key_added_at).toEqual(expect.any(String))

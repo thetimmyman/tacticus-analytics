@@ -44,6 +44,9 @@ export async function persistPlayerApiKey(
         tacticus_api_key_encrypted: encryptedKey,
         api_key_is_valid: true,
         api_key_last_verified: timestamp,
+        // A new key starts with no strikes, whatever the old one collected.
+        consecutive_api_key_failures: 0,
+        last_api_key_failure_at: null,
         ...(stampAddedAt ? { api_key_added_at: timestamp } : {}),
         ...(playerPower !== null ? { player_power: playerPower } : {}),
         updated_at: timestamp

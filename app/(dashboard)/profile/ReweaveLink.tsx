@@ -8,10 +8,16 @@ import { DesktopCredentialGuide } from '@/app/components/navigation/DesktopCrede
 
 interface ReweaveLinkProps {
   hasKey: boolean
+  /** False once Tacticus has rejected the stored key repeatedly. */
+  keyValid: boolean
   lastVerified: string | null
 }
 
-export function ReweaveLink({ hasKey, lastVerified }: ReweaveLinkProps) {
+export function ReweaveLink({
+  hasKey,
+  keyValid,
+  lastVerified
+}: ReweaveLinkProps) {
   const hasMounted = useHasMounted()
   const router = useRouter()
   const [showForm, setShowForm] = useState(false)
@@ -95,9 +101,13 @@ export function ReweaveLink({ hasKey, lastVerified }: ReweaveLinkProps) {
     <div className="space-y-3">
       {/* Status line */}
       <div className="flex items-center gap-3 flex-wrap">
-        {hasKey ? (
+        {hasKey && keyValid ? (
           <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-(--success-bg) text-(--success) border border-(--success-border)">
             Configured
+          </span>
+        ) : hasKey ? (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-(--error-bg) text-(--error) border border-(--error-border)">
+            Rejected by Tacticus — reweave a new key
           </span>
         ) : (
           <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-medium bg-(--warning-bg) text-(--warning) border border-(--warning-border)">
