@@ -17,6 +17,26 @@ STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)
 mkdir -p "$REPORT"
 APK="$APP_ROOT/app/build/outputs/apk/debug/app-debug.apk"
 TEST_APK="$APP_ROOT/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+keyguard_showing(){
+  local policy
+  policy=$("$ADB" -s "$SERIAL" shell dumpsys window policy | tr -d '\r')
+  printf '%s\n' "$policy" | rg -q '^[[:space:]]*showing=true$'
+}
+# The fixed PIN belongs only to this resettable synthetic emulator. Type it through the keypad only
+# while the keyguard reports showing; the installed guard still decides whether the session unlocked.
+synthetic_unlock(){
+  "$ADB" -s "$SERIAL" shell input keyevent KEYCODE_WAKEUP
+  "$ADB" -s "$SERIAL" shell wm dismiss-keyguard > /dev/null 2>&1 || true
+  "$ADB" -s "$SERIAL" shell input swipe 160 500 160 100 100
+  for ((attempt=1; attempt<=3; attempt++)); do
+    keyguard_showing || { printf 'Synthetic keyguard not showing (attempt %s)\n' "$attempt"; return 0; }
+    printf 'Synthetic keyguard showing; typing synthetic PIN (attempt %s)\n' "$attempt"
+    sleep 1
+    "$ADB" -s "$SERIAL" shell input text 2468
+    "$ADB" -s "$SERIAL" shell input keyevent KEYCODE_ENTER
+    sleep 2
+  done
+}
 stage reset-synthetic-preview-installation
 for package in com.tacticusanalytics.mobile.preview.test com.tacticusanalytics.mobile.preview; do
   installed_packages=$("$ADB" -s "$SERIAL" shell pm list packages "$package" | tr -d '\r')
@@ -40,9 +60,7 @@ fi
 [[ "$pin_reply" == "Pin set to "* ]] || { printf 'Synthetic emulator secure lock setup unavailable\n' >&2; exit 1; }
 unset pin_reply
 stage synthetic-unlock
-"$ADB" -s "$SERIAL" shell input keyevent KEYCODE_WAKEUP
-"$ADB" -s "$SERIAL" shell wm dismiss-keyguard > /dev/null 2>&1 || true
-"$ADB" -s "$SERIAL" shell input swipe 160 500 160 100 100
+synthetic_unlock
 "$ADB" -s "$SERIAL" shell am instrument -w -e phase unlocked com.tacticusanalytics.mobile.preview.test/com.tacticusanalytics.mobile.AndroidProof > "$REPORT/all.txt"
 rg -q '^PASS phase=unlocked checks=3[;[:space:]]' "$REPORT/all.txt" || { cat "$REPORT/all.txt"; exit 1; }
 stage synthetic-airplane-mode
@@ -51,9 +69,7 @@ stage synthetic-airplane-mode
 rg -q '^PASS phase=airplane ' "$REPORT/all.txt" || { cat "$REPORT/all.txt"; exit 1; }
 "$ADB" -s "$SERIAL" logcat -c > /dev/null 2>&1 || printf 'Device log clear unavailable; final log read remains required\n' >&2
 stage final-synthetic-unlock
-"$ADB" -s "$SERIAL" shell input keyevent KEYCODE_WAKEUP
-"$ADB" -s "$SERIAL" shell wm dismiss-keyguard > /dev/null 2>&1 || true
-"$ADB" -s "$SERIAL" shell input swipe 160 500 160 100 100
+synthetic_unlock
 if ! "$ADB" -s "$SERIAL" shell am instrument -w -e phase unlocked com.tacticusanalytics.mobile.preview.test/com.tacticusanalytics.mobile.AndroidProof > "$REPORT/final-unlocked.txt"; then
   cat "$REPORT/final-unlocked.txt" >> "$REPORT/all.txt"
   cat "$REPORT/final-unlocked.txt"
