@@ -169,3 +169,10 @@ Relocated developer Mach-O files receive a local ad-hoc loader seal. This create
 no signing identity and supplies no trusted consumer signature or notarization.
 Qualification emits all thirteen `platform-evidence/v1` scenarios, leaving
 unmeasured consumer acceptance blocked even when selected database checks pass.
+
+The graphical restart receipt compares persistent business data before and after
+relaunch. Its declared digest scope excludes only mapping activity/update
+timestamps and guild update timestamps written by the ordinary page heartbeat.
+Raid data, Player cache, guild configuration, owner/membership and identity
+attestations remain included; these fields must survive the same-workspace
+restart and signed-out recovery unchanged.
