@@ -123,7 +123,7 @@
       "esbuild": "0.25.12"
     },
     "linkify-it": "5.0.2",
-    "sharp": "^0.35.3",
+    "sharp": "^0.35.5",
     "test-exclude": {
       "glob": "13.0.6"
     },
@@ -172,7 +172,7 @@
     "recharts": "^3.10.1",
     "remark-gfm": "^4.0.1",
     "resend": "6.30.0",
-    "sharp": "^0.35.3",
+    "sharp": "^0.35.5",
     "tailwind-merge": "^3.7.0",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
     "uuid": "^14.0.2",
