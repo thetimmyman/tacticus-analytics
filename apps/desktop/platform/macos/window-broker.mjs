@@ -3,6 +3,7 @@ import { EventEmitter } from 'node:events'
 import { readFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { realpathSync } from 'node:fs'
 
 // This broker has no HTTP client or renderer bridge. It launches two fixed
 // installed entrypoints and relays only their inherited native IPC channel.
@@ -163,7 +164,7 @@ export function brokerWindow(channel = process) {
 
 if (
   process.argv[1] &&
-  resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+  realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
   if (process.platform !== 'darwin' || !process.env.TA_MAC_GUARD_LOCK)
     throw new Error('Native macOS owner required')

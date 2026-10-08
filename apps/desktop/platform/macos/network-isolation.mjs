@@ -1,7 +1,8 @@
 import { createConnection, createServer, isIP } from 'node:net'
 import { mkdtemp, rm } from 'node:fs/promises'
-import { join, resolve } from 'node:path'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { realpathSync } from 'node:fs'
 
 export async function verifyNetworkIsolation(target) {
   if (isIP(target ?? '') !== 4 || target.startsWith('127.'))
@@ -89,6 +90,6 @@ export async function verifyNetworkIsolation(target) {
 }
 if (
   process.argv[1] &&
-  resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+  realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)
 )
   console.log(JSON.stringify(await verifyNetworkIsolation(process.argv[2])))
