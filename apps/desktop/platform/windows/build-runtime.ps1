@@ -51,7 +51,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Standalone application staging failed' }
 $sharpSource = Join-Path $sourceRoot 'node_modules/@img/sharp-win32-x64'
 $sharpDestination = Join-Path $application 'node_modules/@img/sharp-win32-x64'
 if (-not (Test-Path -LiteralPath (Join-Path $sharpSource 'lib/libvips-42.dll')) -or
-    -not (Test-Path -LiteralPath (Join-Path $sharpSource 'lib/libvips-cpp-8.18.6.dll'))) { throw 'Locked Windows Sharp dependency payload unavailable' }
+    -not (Test-Path -LiteralPath (Join-Path $sharpSource 'lib/libvips-cpp-8.18.7.dll'))) { throw 'Locked Windows Sharp dependency payload unavailable' }
 New-Item -ItemType Directory -Path $sharpDestination -Force | Out-Null
 Copy-Item -Path (Join-Path $sharpSource '*') -Destination $sharpDestination -Recurse -Force
 $native = Join-Path $work 'native'
