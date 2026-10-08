@@ -21,6 +21,7 @@ internal static class Program
                 case "run-installed-candidate":
                 {
                     var active = Bundle.Active(Installation.Root, false);
+                    using var activatedBytes = Bundle.PinVerified(active);
                     // The native owner must come from the activated version, so a rollback also rolls back the host.
                     var activated = Path.Combine(active, "TacticusDesktop.exe");
                     if (!string.Equals(Path.GetFullPath(Environment.ProcessPath!), Path.GetFullPath(activated), StringComparison.OrdinalIgnoreCase))
@@ -40,7 +41,7 @@ internal static class Program
                 case "run-candidate" when args.Length >= 3:
                 {
                     var root = Path.GetFullPath(args[1]);
-                    Bundle.Verify(root, Bundle.Load(root));
+                    using var verifiedBytes = Bundle.PinVerified(root);
                     using var state = new ProtectedState(args[2]);
                     using var job = new JobOwner();
                     var script = Path.Combine(root, "apps", "desktop", "platform", "windows", "launch.mjs");
@@ -51,7 +52,7 @@ internal static class Program
                     var code = process.Wait();
                     var measurement = Array.IndexOf(args, "--measurement");
                     if (measurement >= 0 && measurement + 1 < args.Length)
-                        File.WriteAllText(args[measurement + 1], JsonSerializer.Serialize(new { sourceSha = Bundle.Load(root).SourceSha,
+                        File.WriteAllText(args[measurement + 1], JsonSerializer.Serialize(new { sourceSha = verifiedBytes.Manifest.SourceSha,
                             elapsedMs = timer.ElapsedMilliseconds, peakJobCommittedBytes = job.PeakCommittedBytes() is var peak && peak > 0 ? (long?)peak : null, exitCode = code,
                             metric = "Windows Job Object peak committed memory; not RSS" }));
                     return code;
@@ -98,6 +99,7 @@ internal static class Program
                         catch (UnauthorizedAccessException) { }
                     }
                     File.WriteAllText(args[1], JsonSerializer.Serialize(new { subject = identity.User?.Value, reopened,
+                        mediumIntegrity = AdministrativeToken.CurrentIntegrity() == 0x2000,
                         administrative = new System.Security.Principal.WindowsPrincipal(identity).IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator),
                         powerUser = new System.Security.Principal.WindowsPrincipal(identity).IsInRole(System.Security.Principal.WindowsBuiltInRole.PowerUser) }));
                     return 0;
@@ -155,11 +157,12 @@ internal static class NativeProof
                 using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
                 if (token.RootElement.GetProperty("administrative").GetBoolean() || token.RootElement.GetProperty("powerUser").GetBoolean() ||
                     !token.RootElement.GetProperty("reopened").GetBoolean() ||
+                    !token.RootElement.GetProperty("mediumIntegrity").GetBoolean() ||
                     token.RootElement.GetProperty("subject").GetString() != identity.User?.Value)
                     throw new InvalidOperationException("Child did not retain the current user without administrative access");
             }
             File.Delete(tokenRecord);
-            assertions.Add("same-user-nonadministrative-child-token");
+            assertions.Add("same-user-nonadministrative-medium-integrity-child-token");
             var desktopRecord = Path.Combine(testRoot, "owner-desktop.txt");
             using (var job = new JobOwner())
             using (var child = job.Start(Environment.ProcessPath!, new[] { "proof-desktop", desktopRecord }, testRoot, removeAdministrativeAccess: true))
@@ -272,6 +275,23 @@ internal static class NativeProof
             File.WriteAllText(Path.Combine(candidate, "item.txt"), "synthetic retained content");
             var digest = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Path.Combine(candidate, "item.txt")))).ToLowerInvariant();
             File.WriteAllText(Path.Combine(candidate, "bundle-manifest.json"), JsonSerializer.Serialize(new { schemaVersion = 1, platform = "win-x64", sourceSha = new string('a', 40), files = new[] { new { path = "item.txt", size = new FileInfo(Path.Combine(candidate, "item.txt")).Length, sha256 = digest } } }));
+            using (var pinned = Bundle.PinVerified(candidate))
+            {
+                foreach (var mutation in new Action[] {
+                    () => File.WriteAllText(Path.Combine(candidate, "item.txt"), "substitution"),
+                    () => File.Delete(Path.Combine(candidate, "item.txt")),
+                    () => File.Move(Path.Combine(candidate, "item.txt"), Path.Combine(candidate, "replacement.txt")),
+                    () => File.WriteAllText(Path.Combine(candidate, "bundle-manifest.json"), "{}"),
+                    () => Directory.Move(candidate, candidate + "-replaced")
+                })
+                {
+                    var refused = false;
+                    try { mutation(); } catch (IOException) { refused = true; } catch (UnauthorizedAccessException) { refused = true; }
+                    if (!refused) throw new InvalidOperationException("Verified package mutation was not refused while pinned");
+                }
+                if (pinned.Manifest.SourceSha != new string('a', 40)) throw new InvalidOperationException("Pinned manifest identity changed");
+            }
+            assertions.Add("verified-runtime-file-manifest-and-directory-substitution-refused-through-execution");
             var install = Path.Combine(testRoot, "install ü");
             var first = Bundle.StageCandidate(candidate, install); var second = Bundle.StageCandidate(candidate, install);
             if (first == second || Bundle.Active(install, true) != first) throw new InvalidOperationException("Rollback failed");

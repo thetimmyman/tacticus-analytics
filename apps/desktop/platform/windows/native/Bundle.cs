@@ -1,4 +1,7 @@
 using System.Security.Cryptography;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using Microsoft.Win32.SafeHandles;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -16,6 +19,10 @@ internal static class Bundle
     {
         ProtectedState.RejectReparseParents(root);
         using var stream = new FileStream(System.IO.Path.Combine(root, "bundle-manifest.json"), FileMode.Open, FileAccess.Read, FileShare.Read);
+        return ReadManifest(stream);
+    }
+    private static BundleManifest ReadManifest(Stream stream)
+    {
         if (stream.Length > 4 * 1024 * 1024) throw new InvalidOperationException("Manifest limit");
         var manifest = JsonSerializer.Deserialize<BundleManifest>(stream, Options) ?? throw new InvalidOperationException("Missing manifest");
         if (manifest.SchemaVersion != 1 || manifest.Platform != "win-x64" || !IsHex(manifest.SourceSha, 40) ||
@@ -60,6 +67,78 @@ internal static class Bundle
         if (expected.Count != 0) throw new InvalidOperationException("Missing package file");
         foreach (var entry in manifest.Files) CopyVerified(root, entry, null);
     }
+    // Hold verified bytes and their directory names until the owned process tree
+    // has stopped. A verification followed by closing the inputs leaves a race
+    // where an update or another same-user process can replace executable code.
+    public static VerifiedBundle PinVerified(string root)
+    {
+        root = System.IO.Path.TrimEndingDirectorySeparator(System.IO.Path.GetFullPath(root));
+        var retained = new List<IDisposable>();
+        var directories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        SafeFileHandle Pin(string path, bool directory)
+        {
+            var handle = CreateFileW(path, directory ? 0x80u : 0x80000000u, 1, IntPtr.Zero, 3,
+                0x00200000u | (directory ? 0x02000000u : 0u), IntPtr.Zero);
+            if (handle.IsInvalid) { handle.Dispose(); throw new Win32Exception(); }
+            try
+            {
+                if (!GetFileInformationByHandleEx(handle, 9, out var attributes, (uint)Marshal.SizeOf<AttributeTag>()))
+                    throw new Win32Exception();
+                if ((attributes.Attributes & 0x400) != 0 || ((attributes.Attributes & 0x10) != 0) != directory)
+                    throw new InvalidOperationException("Package entry is a reparse point or changed type");
+                return handle;
+            }
+            catch { handle.Dispose(); throw; }
+        }
+        void PinDirectory(string path)
+        {
+            if (directories.Add(path)) retained.Add(Pin(path, true));
+        }
+        FileStream PinFile(string path)
+        {
+            var handle = Pin(path, false);
+            try
+            {
+                var stream = new FileStream(handle, FileAccess.Read);
+                retained.Add(stream);
+                return stream;
+            }
+            catch { handle.Dispose(); throw; }
+        }
+        try
+        {
+            // Pin parents from the volume downward before resolving children.
+            // Denying delete sharing also prevents ancestor-directory swaps.
+            var ancestors = new Stack<string>();
+            for (string? directory = root; directory is not null; directory = System.IO.Path.GetDirectoryName(directory))
+                ancestors.Push(directory);
+            while (ancestors.Count != 0) PinDirectory(ancestors.Pop());
+            var manifest = ReadManifest(PinFile(System.IO.Path.Combine(root, "bundle-manifest.json")));
+            var expected = manifest.Files.ToDictionary(entry => entry.Path, StringComparer.OrdinalIgnoreCase);
+            var pending = new Stack<string>(); pending.Push(root);
+            while (pending.Count != 0)
+            {
+                foreach (var path in Directory.EnumerateFileSystemEntries(pending.Pop()))
+                {
+                    if (Directory.Exists(path)) { PinDirectory(path); pending.Push(path); continue; }
+                    var relative = System.IO.Path.GetRelativePath(root, path).Replace('\\', '/');
+                    if (relative.Equals("bundle-manifest.json", StringComparison.OrdinalIgnoreCase)) continue;
+                    if (!expected.Remove(relative, out var entry)) throw new InvalidOperationException("Unexpected package file");
+                    var input = PinFile(path);
+                    if (input.Length != entry.Size || Convert.ToHexString(SHA256.HashData(input)).ToLowerInvariant() != entry.Sha256)
+                        throw new InvalidOperationException("Package content changed before activation");
+                }
+            }
+            if (expected.Count != 0) throw new InvalidOperationException("Missing package file");
+            return new VerifiedBundle(manifest, retained);
+        }
+        catch { foreach (var handle in retained.AsEnumerable().Reverse()) handle.Dispose(); throw; }
+    }
+    [StructLayout(LayoutKind.Sequential)] private struct AttributeTag { public uint Attributes, Tag; }
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern SafeFileHandle CreateFileW(string path, uint access, uint sharing, IntPtr security, uint creation, uint flags, IntPtr template);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool GetFileInformationByHandleEx(SafeFileHandle handle, int kind, out AttributeTag information, uint size);
     public static void CopyVerified(string root, BundleEntry entry, string? destination)
     {
         var path = System.IO.Path.Combine(root, entry.Path.Replace('/', System.IO.Path.DirectorySeparatorChar));
@@ -130,5 +209,15 @@ internal static class Bundle
     {
         // No owner-provided release identity or signed manifest policy has been enrolled.
         throw new InvalidOperationException("Production installation blocked: owner-approved signing identity and release trust policy required");
+    }
+}
+
+internal sealed class VerifiedBundle(BundleManifest manifest, List<IDisposable> retained) : IDisposable
+{
+    public BundleManifest Manifest { get; } = manifest;
+    public void Dispose()
+    {
+        foreach (var handle in retained.AsEnumerable().Reverse()) handle.Dispose();
+        retained.Clear();
     }
 }
