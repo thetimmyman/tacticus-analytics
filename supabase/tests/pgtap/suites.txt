@@ -56,6 +56,7 @@ pgnet_failure_snapshots.sql # 13
 authenticated_write_grants.sql # 11
 anon_definer_maintenance_revokes.sql # 7
 claim_definer_public_revoke.sql # 9
+cron_history_privileges.sql # 10
 remaining_definer_public_revoke.sql # 22
 policy_rows_trusted_caller.sql # 24
 readonly_request_transaction.sql # 9
