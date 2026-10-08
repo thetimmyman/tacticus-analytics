@@ -33,10 +33,186 @@ const corsReasons = {
   RedirectContainsCredentials: 'redirect-policy'
 }
 
+function createRequestCorrelation(origin, phase) {
+  const groups = new Map(),
+    browser = new Map(),
+    web = new Map(),
+    failures = []
+  let truncated = false
+  // Match only a single occurrence from each API across the entire launch.
+  // No clock tolerance, event-order assumption or shared request ID is used.
+  function start(side, id, rawUrl, method, document) {
+    const records = side === 'browser' ? browser : web
+    if (records.has(id)) {
+      records.get(id).redirected = true
+      return
+    }
+    if (records.size >= 4096) {
+      truncated = true
+      return
+    }
+    let url, documentUrl
+    try {
+      if (
+        typeof rawUrl !== 'string' ||
+        rawUrl.length > 8192 ||
+        typeof document !== 'string' ||
+        document.length > 8192 ||
+        typeof method !== 'string' ||
+        !/^[A-Z]{1,16}$/.test(method)
+      )
+        return
+      url = new URL(rawUrl)
+      documentUrl = new URL(document)
+    } catch {
+      return
+    }
+    if (url.origin !== origin || documentUrl.origin !== origin) return
+    // Full URLs (including query), document URLs and IDs stay private.
+    const key = JSON.stringify([url.href, method, documentUrl.href])
+    if (!groups.has(key)) {
+      if (groups.size >= 4096) {
+        truncated = true
+        return
+      }
+      groups.set(key, { browser: [], web: [] })
+    }
+    const group = groups.get(key)
+    const record = {
+      group,
+      redirected: false
+    }
+    group[side].push(record)
+    records.set(id, record)
+    return record
+  }
+  function project(record) {
+    if (!record.group) return { correlation: 'unmatched' }
+    if (record.group.browser.length !== 1 || record.group.web.length !== 1)
+      return {
+        correlation: record.group.browser.length ? 'ambiguous' : 'unmatched'
+      }
+    const candidate = record.group.browser[0]
+    if (record.redirected || candidate.redirected)
+      return { correlation: 'redirected' }
+    if (!candidate.terminal) return { correlation: 'pending' }
+    return {
+      correlation: 'unique-exact-key',
+      browserOutcome: candidate.terminal,
+      ...(candidate.failure
+        ? {
+            browserNetworkError: candidate.failure.networkError,
+            ...(typeof candidate.failure.canceled === 'boolean'
+              ? { browserCanceled: candidate.failure.canceled }
+              : {}),
+            ...(candidate.failure.blockedReason
+              ? { browserBlockedReason: candidate.failure.blockedReason }
+              : {}),
+            ...(candidate.failure.corsCategory
+              ? { browserCorsCategory: candidate.failure.corsCategory }
+              : {})
+          }
+        : {})
+    }
+  }
+  return {
+    browserStart(params) {
+      if (params.redirectResponse) {
+        const record = browser.get(params.requestId)
+        if (record) record.redirected = true
+        return
+      }
+      start(
+        'browser',
+        params.requestId,
+        params.request?.url,
+        params.request?.method,
+        params.documentURL
+      )
+    },
+    browserFinished(id, failure) {
+      const record = browser.get(id)
+      if (!record) return
+      record.terminal = failure ? 'failed' : 'completed'
+      record.failure = failure
+    },
+    webRequest(event, details) {
+      if (!Number.isSafeInteger(details?.id)) return
+      if (typeof details.url !== 'string') return
+      if (details.url.length > 8192) {
+        truncated = true
+        return
+      }
+      let url
+      try {
+        url = new URL(details.url)
+      } catch {
+        return
+      }
+      if (url.origin !== origin) return
+      if (event === 'start') {
+        let record = start(
+          'web',
+          details.id,
+          details.url,
+          details.method,
+          details.referrer
+        )
+        if (!record && !web.has(details.id) && web.size < 4096) {
+          record = {}
+          web.set(details.id, record)
+        }
+        if (record)
+          record.label = {
+            ...diagnostics.requestLabel(
+              url.pathname,
+              details.resourceType,
+              phase()
+            ),
+            ...diagnostics.requestMetadata(details.method),
+            document: diagnostics.requestDocumentLabel(details.referrer)
+          }
+      } else {
+        const record = web.get(details.id)
+        if (!record) return
+        if (event === 'headers')
+          record.label = {
+            ...record.label,
+            ...diagnostics.requestMetadata(
+              details.method,
+              details.requestHeaders
+            )
+          }
+        else if (event === 'error' && details.error !== 'net::ERR_ABORTED') {
+          if (failures.length >= 64) truncated = true
+          else
+            failures.push({
+              record,
+              webRequestError: diagnostics.networkErrorLabel(details.error)
+            })
+        }
+      }
+    },
+    snapshot(unavailable) {
+      return {
+        truncated,
+        failed: failures.map(({ record, webRequestError }) => ({
+          ...record.label,
+          webRequestError,
+          ...(truncated || unavailable
+            ? { correlation: 'unavailable' }
+            : project(record))
+        }))
+      }
+    }
+  }
+}
+
 // CDP IDs remain private Map keys. Only fixed labels/booleans leave this module.
 function createRequestLifecycle(origin, phase) {
   const requests = new Map(),
     failed = []
+  const correlation = createRequestCorrelation(origin, phase)
   let available = false,
     reason = 'not-attached',
     truncated = false
@@ -55,6 +231,9 @@ function createRequestLifecycle(origin, phase) {
         ? value
         : 'not-attached'
     },
+    recordWebRequest(event, details) {
+      correlation.webRequest(event, details)
+    },
     record(method, params) {
       if (
         typeof params?.requestId !== 'string' ||
@@ -62,6 +241,7 @@ function createRequestLifecycle(origin, phase) {
       )
         return
       if (method === 'Network.requestWillBeSent') {
+        correlation.browserStart(params)
         let url
         try {
           url = new URL(params.request?.url)
@@ -97,9 +277,10 @@ function createRequestLifecycle(origin, phase) {
           ),
           document: diagnostics.requestDocumentLabel(params.documentURL)
         })
-      } else if (method === 'Network.loadingFinished')
+      } else if (method === 'Network.loadingFinished') {
+        correlation.browserFinished(params.requestId)
         requests.delete(params.requestId)
-      else if (method === 'Network.loadingFailed') {
+      } else if (method === 'Network.loadingFailed') {
         const label = requests.get(params.requestId)
         requests.delete(params.requestId)
         if (!label) return
@@ -108,7 +289,7 @@ function createRequestLifecycle(origin, phase) {
           return
         }
         const cors = params.corsErrorStatus?.corsError
-        failed.push({
+        const failure = {
           ...label,
           networkError:
             params.errorText === 'net::ERR_ABORTED'
@@ -136,7 +317,9 @@ function createRequestLifecycle(origin, phase) {
                     : 'other'
               }
             : {})
-        })
+        }
+        correlation.browserFinished(params.requestId, failure)
+        failed.push(failure)
       }
     },
     snapshot() {
@@ -150,7 +333,8 @@ function createRequestLifecycle(origin, phase) {
         ...(reason ? { reason } : {}),
         truncated,
         trackedRequestCount: requests.size,
-        failed: failed.map((value) => ({ ...value }))
+        failed: failed.map((value) => ({ ...value })),
+        webRequestCorrelation: correlation.snapshot(!available || truncated)
       }
     }
   }

@@ -83,10 +83,12 @@ app
           ...requestMetadata(details.method),
           document: requestDocumentLabel(details.referrer)
         })
+      verificationLifecycle?.recordWebRequest('start', details)
       callback({ cancel: !allowed })
     })
     session.defaultSession.webRequest.onBeforeSendHeaders(
       (details, callback) => {
+        verificationLifecycle?.recordWebRequest('headers', details)
         const label = activeRequests.get(details.id)
         if (label)
           activeRequests.set(details.id, {
@@ -117,6 +119,7 @@ app
         })
     })
     session.defaultSession.webRequest.onErrorOccurred((details) => {
+      verificationLifecycle?.recordWebRequest('error', details)
       const label = activeRequests.get(details.id)
       activeRequests.delete(details.id)
       if (
