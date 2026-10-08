@@ -29,6 +29,7 @@ run('a-loopback-gateway', '--test', [
   'apps/desktop/proof/schema-lifecycle.test.mjs',
   'apps/desktop/proof/local-team-schema.test.mjs',
   'apps/desktop/proof/raid-management-schema.test.mjs',
+  'apps/desktop/proof/season-planning-schema.test.mjs',
   'apps/desktop/proof/safe-files.test.mjs',
   'apps/desktop/proof/workspace-selection.test.mjs',
   'apps/desktop/proof/job-scheduler.test.mjs',
@@ -190,6 +191,11 @@ if (!configPath) {
   ])
   if (nativeConfig.raidManagementEvidence) {
     run('c-raid-management', 'apps/desktop/proof/raid-management-journey.mjs', [
+      configPath
+    ])
+  }
+  if (nativeConfig.seasonPlanningEvidence) {
+    run('c-season-planning', 'apps/desktop/proof/season-planning-journey.mjs', [
       configPath
     ])
   }

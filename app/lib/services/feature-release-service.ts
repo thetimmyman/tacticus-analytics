@@ -1,4 +1,5 @@
 import { serviceDb } from '@/app/lib/db'
+import type { TypedSupabaseClient } from '@tacticus/app-core/types'
 import { Errors } from '@/app/lib/errors/AppError'
 import { createComponentLogger } from '@/app/lib/logging'
 import { requireAppAdminUserIdForApi } from '@/app/lib/auth/app-admin'
@@ -95,10 +96,11 @@ export async function getAllFeatureReleaseStages(): Promise<FeatureReleaseStages
 
 export async function checkFeatureAccess(
   userId: string,
-  featureKey: string
+  featureKey: string,
+  signedClient?: TypedSupabaseClient
 ): Promise<FeatureAccessResult> {
   try {
-    const client = serviceDb()
+    const client = signedClient ?? serviceDb()
 
     const { data, error } = await client.rpc('check_feature_access', {
       p_user_id: userId,

@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { dbClient } from '@/app/lib/db/client'
+import { canManageHeraldRole } from '@/app/lib/auth/role-predicates'
 import { normalizeDisplayName } from '@/app/lib/utils/normalize'
 import {
   calculateBurnedTokens,
@@ -95,10 +96,16 @@ export function enrichTokenBurnRows(
 export function useTokenBurnRows(
   selectedGuild: string,
   selectedSeason: string,
-  enabled: boolean
+  enabled: boolean,
+  userRole?: string
 ) {
+  // The page supplies the freshly checked membership profile role, not Auth metadata.
+  const includeAvailability = canManageHeraldRole(userRole)
   return useQuery({
-    queryKey: queryKeys.tokenBurnStats(selectedGuild, selectedSeason),
+    queryKey: [
+      ...queryKeys.tokenBurnStats(selectedGuild, selectedSeason),
+      includeAvailability
+    ],
     queryFn: async ({ signal }) => {
       const supabase = dbClient()
       // Burn is recomputed client-side, so freshness can differ from the bot.
@@ -114,22 +121,24 @@ export function useTokenBurnRows(
               ? (result.data as TokenUsageBurnRpcRow[])
               : []
           }),
-        fetch(
-          `/api/guild-tokens?guild=${encodeURIComponent(selectedGuild)}&season=${encodeURIComponent(selectedSeason)}`,
-          { signal }
-        )
-          .then((response) =>
-            response.ok
-              ? (response.json() as Promise<{
-                  players?: LiveAvailabilityRow[]
-                }>)
-              : { players: [] as LiveAvailabilityRow[] }
-          )
-          .then((body) => (Array.isArray(body.players) ? body.players : []))
-          .catch((error) => {
-            if (isAbortError(error)) throw error
-            return [] as LiveAvailabilityRow[]
-          })
+        includeAvailability
+          ? fetch(
+              `/api/guild-tokens?guild=${encodeURIComponent(selectedGuild)}&season=${encodeURIComponent(selectedSeason)}`,
+              { signal }
+            )
+              .then((response) =>
+                response.ok
+                  ? (response.json() as Promise<{
+                      players?: LiveAvailabilityRow[]
+                    }>)
+                  : { players: [] as LiveAvailabilityRow[] }
+              )
+              .then((body) => (Array.isArray(body.players) ? body.players : []))
+              .catch((error) => {
+                if (isAbortError(error)) throw error
+                return [] as LiveAvailabilityRow[]
+              })
+          : Promise.resolve([] as LiveAvailabilityRow[])
       ])
       throwIfAborted(signal)
       return enrichTokenBurnRows(rpcRows, liveRows)

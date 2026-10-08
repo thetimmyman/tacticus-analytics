@@ -5967,3 +5967,47 @@ BEGIN
   RETURN v_latest_season;
 END;
 $$;
+
+CREATE TABLE public.guild_raid_season_plans (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    guild_code text NOT NULL,
+    season_id text NOT NULL,
+    start_at timestamp with time zone NOT NULL,
+    end_at timestamp with time zone NOT NULL,
+    snapshot_at timestamp with time zone,
+    kind text NOT NULL,
+    baseline_key text,
+    baseline_plan_id uuid,
+    trigger text DEFAULT 'manual'::text NOT NULL,
+    resolved_options jsonb DEFAULT '{}'::jsonb NOT NULL,
+    seed integer,
+    plan_hash text,
+    input_snapshots jsonb DEFAULT '{}'::jsonb NOT NULL,
+    plan_metrics jsonb DEFAULT '{}'::jsonb NOT NULL,
+    plan jsonb DEFAULT '{}'::jsonb NOT NULL,
+    created_by uuid,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT guild_raid_season_plans_kind_check CHECK ((kind = ANY (ARRAY['baseline'::text, 'replan'::text])))
+);
+
+CREATE TABLE public.raid_progression_config (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    scope text DEFAULT 'global'::text NOT NULL,
+    game_version text,
+    first_pass_sequence text[] NOT NULL,
+    loop_sequence text[] NOT NULL,
+    loop_start_stage text DEFAULT 'L1'::text NOT NULL,
+    is_active boolean DEFAULT true NOT NULL,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now()
+);
+
+CREATE FUNCTION public.update_updated_at_column() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$;

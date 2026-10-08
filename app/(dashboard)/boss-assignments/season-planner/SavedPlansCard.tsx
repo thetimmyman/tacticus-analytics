@@ -5,6 +5,10 @@ import { formatDateTime } from '@/app/(dashboard)/boss-assignments/season-planne
 import type { SavedPlanSummary } from '@/app/(dashboard)/boss-assignments/season-planner/planner-types'
 
 interface SavedPlansCardProps {
+  canEdit?: boolean
+  editSavedPlan?: (id: string) => Promise<void>
+  deleteSavedPlan?: (id: string) => Promise<void>
+  deletingPlanId?: string | null
   savedPlans: SavedPlanSummary[]
   savedPlansLoading: boolean
   savedPlansError: string | null
@@ -18,6 +22,10 @@ interface SavedPlansCardProps {
 }
 
 export default function SavedPlansCard({
+  canEdit = false,
+  editSavedPlan,
+  deleteSavedPlan,
+  deletingPlanId = null,
   savedPlans,
   savedPlansLoading,
   savedPlansError,
@@ -66,23 +74,44 @@ export default function SavedPlansCard({
       header: 'Actions',
       sortable: false,
       render: (p) => (
-        <button
-          onClick={() => void loadSavedPlan(p.id)}
-          disabled={loadingSavedPlanId !== null}
-          className="text-(--accent) hover:underline"
-        >
-          {loadingSavedPlanId === p.id
-            ? 'Loading...'
-            : activeSavedPlanId === p.id
-              ? 'Loaded'
-              : 'Load'}
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => void loadSavedPlan(p.id)}
+            disabled={loadingSavedPlanId !== null}
+            className="text-(--accent) hover:underline"
+          >
+            {loadingSavedPlanId === p.id
+              ? 'Loading...'
+              : activeSavedPlanId === p.id
+                ? 'Loaded'
+                : 'Load'}
+          </button>
+          {canEdit && editSavedPlan && (
+            <button
+              onClick={() => void editSavedPlan(p.id)}
+              disabled={loadingSavedPlanId !== null || deletingPlanId !== null}
+            >
+              Edit
+            </button>
+          )}
+          {canEdit && deleteSavedPlan && (
+            <button
+              onClick={() => void deleteSavedPlan(p.id)}
+              disabled={deletingPlanId !== null}
+            >
+              {deletingPlanId === p.id ? 'Deleting…' : 'Delete'}
+            </button>
+          )}
+        </div>
       )
     }
   ]
 
   return (
-    <div className="rounded-lg border border-(--card-border) bg-(--card-bg) p-6 space-y-4">
+    <div
+      aria-label="Saved season plans"
+      className="rounded-lg border border-(--card-border) bg-(--card-bg) p-6 space-y-4"
+    >
       <div className="flex items-center justify-between gap-4">
         <div>
           <h3 className="text-lg font-semibold text-primary-wh40k">
