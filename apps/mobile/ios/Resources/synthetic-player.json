@@ -20,10 +20,7 @@
           }
         ],
         "items": [],
-        "upgrades": [
-          1,
-          2
-        ],
+        "upgrades": [1, 2],
         "mythicShards": 0,
         "shards": 20,
         "progressionIndex": 2
