@@ -329,3 +329,65 @@ for (const scenario of [
       await rm(root, { recursive: true, force: true })
     }
   })
+
+test('the page state read and a setup change queue instead of refusing each other', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'Windows setup queue ü '))
+  await writeFile(
+    join(root, 'workspace-owner.json'),
+    JSON.stringify({ subject, kind: 'personal-holding' })
+  )
+  let active = 0,
+    overlapped = false
+  const handler = windowsSetup(
+    {
+      state: root,
+      ports: { auth: 1 },
+      token: { service: 'synthetic-service' },
+      validOwnerSession: () => false,
+      psql: async () => ''
+    },
+    root,
+    root,
+    {
+      brokerToken: capability,
+      async currentToken() {
+        if (++active > 1) overlapped = true
+        await new Promise((accept) => setTimeout(accept, 50))
+        active--
+        return null
+      }
+    }
+  )
+  const server = createServer(
+    (req, res) => void handler(req, res, new URL(req.url, 'http://127.0.0.1'))
+  )
+  await new Promise((accept) => server.listen(0, '127.0.0.1', accept))
+  const call = (path) =>
+    fetch(`http://127.0.0.1:${server.address().port}${path}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{}'
+    }).then((response) => response.status)
+  try {
+    assert.deepEqual(
+      await Promise.all([
+        call('/desktop/official-state'),
+        call('/desktop/demo-setup')
+      ]),
+      [401, 401]
+    )
+    assert.deepEqual(
+      (
+        await Promise.all([
+          call('/desktop/demo-setup'),
+          call('/desktop/skip-optional')
+        ])
+      ).sort(),
+      [401, 409]
+    )
+    assert.equal(overlapped, false)
+  } finally {
+    await new Promise((accept) => server.close(accept))
+    await rm(root, { recursive: true, force: true })
+  }
+})

@@ -64,7 +64,10 @@ export function windowsSetup(services, assets, launcherAssets, session) {
     gate,
     onboarding
   })
-  let confirming = false
+  // Protected operations run one at a time. The page's state read waits its
+  // turn; a second change while one is running is refused.
+  let queue = Promise.resolve()
+  let changing = false
   return async (req, res, url) => {
     if (holdCredentialSurface(req, res, url)) return true
     const json = (code, value) => {
@@ -110,12 +113,17 @@ export function windowsSetup(services, assets, launcherAssets, session) {
       ].includes(url.pathname) ||
       url.pathname.startsWith('/desktop/disconnect/')
     if (protectedOperation) {
-      if (confirming) {
+      const change = url.pathname !== '/desktop/official-state'
+      if (change && changing) {
         json(409, { error: 'Setup is already running' })
         return true
       }
-      confirming = true
+      if (change) changing = true
+      const previous = queue
+      let release
+      queue = new Promise((accept) => (release = accept))
       try {
+        await previous
         return await gate.run(async () => {
           await onboarding.recoverPending()
           return official(req, res, url, json)
@@ -131,7 +139,8 @@ export function windowsSetup(services, assets, launcherAssets, session) {
         })
         return true
       } finally {
-        confirming = false
+        if (change) changing = false
+        release()
       }
     }
     if (url.pathname.startsWith('/desktop/')) {
