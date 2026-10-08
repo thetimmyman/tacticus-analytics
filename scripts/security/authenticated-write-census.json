@@ -34,7 +34,7 @@
     "previous_measurement": {
       "migration_head": "20260919012000_ps669_retain_departed_player_mappings.sql",
       "tables_carrying_the_grant": 122,
-      "delta": "guild_war_raw_events (was revoke) dropped by 20260925030000_ps516_drop_guild_war_sync_machinery.sql; no table gained the grant, no decision changed; re-measured again after the war-room shared-teams port: guild_war_meta_teams (new, leader write policy, written by app/api/guild-war/war-room/route.ts on the request client) added as keep-policy-governed; swept set unchanged; on review, role_reconciliation_events moved revoke -> keep-undecided (app/api/guild-roles/reconcile/route.ts casts its db() client to ServiceSupabaseClient and role-reconciler.ts inserts into it), and stored query-builder writes are now followed; later, the Discord dispatcher's command-handler writes were attributed to service-role (SERVICE(discord-dispatch)), so discord_channel_guilds, discord_server_guilds, discord_token_reminders and discord_user_guild_defaults moved keep-undecided -> revoke, swept by 20261006120000_revoke_discord_dispatch_write_grants.sql; later still, the guild-war import ingestor's writes were attributed to service-role (SERVICE(guild-war-import)) for the three tables this rule covers, so guild_war_zones, guild_war_matches and guild_war_player_attempts moved keep-undecided -> revoke, swept by 20261006130000_revoke_guild_war_import_write_grants.sql; guild_war_battles, guild_war_lineups, guild_war_participation and guild_themes were reviewed in the same pass and intentionally left out (see that migration's header and the guild_themes entry's write site, whose only caller is also service-role but was left for a separate, narrower change)"
+      "delta": "guild_war_raw_events (was revoke) dropped by 20260925030000_ps516_drop_guild_war_sync_machinery.sql; no table gained the grant, no decision changed; re-measured again after the war-room shared-teams port: guild_war_meta_teams (new, leader write policy, written by app/api/guild-war/war-room/route.ts on the request client) added as keep-policy-governed; swept set unchanged; on review, role_reconciliation_events moved revoke -> keep-undecided (app/api/guild-roles/reconcile/route.ts casts its db() client to ServiceSupabaseClient and role-reconciler.ts inserts into it), and stored query-builder writes are now followed; later, the Discord dispatcher's command-handler writes were attributed to service-role (SERVICE(discord-dispatch)), so discord_channel_guilds, discord_server_guilds, discord_token_reminders and discord_user_guild_defaults moved keep-undecided -> revoke, swept by 20261006120000_revoke_discord_dispatch_write_grants.sql; later still, the guild-war import ingestor's writes were attributed to service-role (SERVICE(guild-war-import)) for the three tables this rule covers, so guild_war_zones, guild_war_matches and guild_war_player_attempts moved keep-undecided -> revoke, swept by 20261006130000_revoke_guild_war_import_write_grants.sql; guild_war_battles, guild_war_lineups, guild_war_participation and guild_themes were reviewed in the same pass and intentionally left out (see that migration's header and the guild_themes entry's write site, whose only caller is also service-role but was left for a separate, narrower change); later again, five keep-undecided tables whose writers trace to service-role were swept: guild_war_battles and guild_war_participation by widening SERVICE(guild-war-import), and execution_locks, guild_themes and sync_health by declaring their traced receivers ServiceSupabaseClient (execution_locks' configured-table writers are now scanned too), so all five moved keep-undecided -> revoke, swept by 20261007230000_revoke_service_traced_write_grants.sql; discord_webhook_logs was reviewed in the same pass and stays keep-undecided (see writer_scan.service_param_annotations)"
     },
     "unapplicable_migrations_assessment": "none of the unapplicable migrations grants or revokes INSERT/UPDATE/DELETE for authenticated on a public table or creates a write policy on one (checked 2026-09-25); they can only hide tables the replay never creates, and the migration re-checks every premise (existence, RLS, arming policy, service_role write) against the database it runs on"
   },
@@ -56,11 +56,13 @@
     "indirect_writers_checked": "SECURITY INVOKER functions executable by authenticated, and INVOKER trigger functions, whose bodies name a swept table were enumerated on the replayed database; each one that writes a swept table is called only on a service-role client (serviceDb, ServiceSupabaseClient, createDirectClient with the service key, edge functions) or by cron. Live-only functions are not visible to this check.",
     "cast_taint": "a ServiceSupabaseClient-typed receiver is service-role only if no non-test file casts a value to that type and reaches the module through ServiceSupabaseClient-typed parameters; reached modules report UNKNOWN(param-type-cast)",
     "discord_dispatch": "a receiver declared `x: Supabase` under app/api/discord/interactions/command-handlers/ is service-role: app/api/discord/interactions/route.ts builds the client the dispatcher passes down with serviceDb(), and no non-test module that reaches a command handler through value imports builds a request client; --scan re-verifies both and reports SERVICE(discord-dispatch)",
-    "guild_war_import": "a receiver declared `x: TypedSupabaseClient` in app/lib/war/guild-war-ingestor.ts, writing guild_war_zones, guild_war_matches or guild_war_player_attempts, is service-role: app/api/guild-war/import/route.ts is the only non-test module that imports the ingestor, builds its client with serviceDb(), and passes it to ingestGuildWar(...); no non-test module reaching the ingestor through value imports builds a request client; --scan re-verifies both and reports SERVICE(guild-war-import). The same ingestor also writes guild_war_battles, guild_war_lineups and guild_war_participation under the identical proof, but this rule stays scoped to the three tables this sweep judges -- see the migration header for why the other three are left for separate review."
+    "guild_war_import": "a receiver declared `x: TypedSupabaseClient` in app/lib/war/guild-war-ingestor.ts, writing guild_war_zones, guild_war_matches, guild_war_player_attempts, guild_war_battles or guild_war_participation, is service-role: app/api/guild-war/import/route.ts is the only non-test module that imports the ingestor, builds its client with serviceDb(), and passes it to ingestGuildWar(...); no non-test module reaching the ingestor through value imports builds a request client; --scan re-verifies both and reports SERVICE(guild-war-import). guild_war_lineups is written under the same proof but is policy-governed, so its grant is not judged by this rule.",
+    "service_param_annotations": "the receivers of the remaining execution_locks, guild_themes and sync_health writes (the user-ban lock helpers, eraseAllUserData, processValidationSync) are declared `ServiceSupabaseClient`; each sits one call from a serviceDb() client: the admin ban, bulk and lift routes and the ban-reconcile job build the lock client with serviceDb(), app/api/account/delete/route.ts and the GDPR manager pass serviceDb() to eraseAllUserData, and processValidationSync runs on the sync worker chain. The alias is plain TypedSupabaseClient, so these annotations record that trace, and the cast-taint rule still demotes any a cast can reach. discord_webhook_logs stays keep-undecided: its Herald writers sit several calls below serviceDb() behind parameters typed as plain SupabaseClient",
+    "configured_table": "app/lib/sync/execution-locks.ts and supabase/functions/_shared/sync-modules/db-locking.ts write execution_locks through a configured table name (executionLocksTable(supabase, config.table) and .from(config.table)); --scan reads those calls as .from('execution_locks') once the configured-table rule confirms the default is 'execution_locks', every edge acquireLock/releaseLock call passes CONFIG.tables.locks ('execution_locks'), and every config.table use takes one of those two shapes"
   },
   "counts": {
-    "keep-undecided": 15,
-    "revoke": 62,
+    "keep-undecided": 10,
+    "revoke": 67,
     "keep-policy-governed": 45
   },
   "tables": {
@@ -701,25 +703,25 @@
       "committed_write_sites": [
         {
           "file": "app/lib/discord/webhook-service.ts",
-          "line": 160,
+          "line": 157,
           "verb": "insert",
           "client": "SERVICE"
         },
         {
           "file": "app/lib/herald/config.ts",
-          "line": 680,
+          "line": 641,
           "verb": "insert",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/herald/dispatch/bomb-range-dispatch.ts",
-          "line": 348,
+          "line": 297,
           "verb": "insert",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/herald/preview.ts",
-          "line": 609,
+          "line": 548,
           "verb": "insert",
           "client": "UNKNOWN"
         }
@@ -736,31 +738,67 @@
       "committed_write_sites": [
         {
           "file": "app/lib/auth/user-ban-lock.ts",
-          "line": 63,
+          "line": 59,
           "verb": "update",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/auth/user-ban-lock.ts",
-          "line": 101,
+          "line": 93,
           "verb": "delete",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/auth/user-ban-lock.ts",
-          "line": 114,
+          "line": 106,
           "verb": "insert",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/auth/user-ban-lock.ts",
-          "line": 139,
+          "line": 131,
           "verb": "delete",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/sync/execution-locks.ts",
+          "line": 100,
+          "verb": "delete",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/sync/execution-locks.ts",
+          "line": 111,
+          "verb": "insert",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/sync/execution-locks.ts",
+          "line": 147,
+          "verb": "delete",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "supabase/functions/_shared/sync-modules/db-locking.ts",
+          "line": 30,
+          "verb": "delete",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "supabase/functions/_shared/sync-modules/db-locking.ts",
+          "line": 36,
+          "verb": "insert",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "supabase/functions/_shared/sync-modules/db-locking.ts",
+          "line": 77,
+          "verb": "delete",
+          "client": "SERVICE(edge)"
         }
       ],
-      "undecided_write_sites": 4,
-      "decision": "keep-undecided"
+      "undecided_write_sites": 0,
+      "decision": "revoke"
     },
     "feature_access_grants": {
       "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
@@ -1440,13 +1478,13 @@
       "committed_write_sites": [
         {
           "file": "app/lib/compliance/erase-user-data.ts",
-          "line": 119,
+          "line": 75,
           "verb": "update",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         }
       ],
-      "undecided_write_sites": 1,
-      "decision": "keep-undecided"
+      "undecided_write_sites": 0,
+      "decision": "revoke"
     },
     "guild_war_battles": {
       "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
@@ -1457,13 +1495,13 @@
       "committed_write_sites": [
         {
           "file": "app/lib/war/guild-war-ingestor.ts",
-          "line": 431,
+          "line": 383,
           "verb": "upsert",
-          "client": "UNKNOWN"
+          "client": "SERVICE(guild-war-import)"
         }
       ],
-      "undecided_write_sites": 1,
-      "decision": "keep-undecided"
+      "undecided_write_sites": 0,
+      "decision": "revoke"
     },
     "guild_war_defensive_lineups": {
       "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
@@ -1565,19 +1603,19 @@
       "committed_write_sites": [
         {
           "file": "app/api/guild-war/import/route.ts",
-          "line": 204,
+          "line": 183,
           "verb": "upsert",
           "client": "SERVICE"
         },
         {
           "file": "app/lib/war/guild-war-ingestor.ts",
-          "line": 503,
+          "line": 449,
           "verb": "upsert",
-          "client": "UNKNOWN"
+          "client": "SERVICE(guild-war-import)"
         }
       ],
-      "undecided_write_sites": 1,
-      "decision": "keep-undecided"
+      "undecided_write_sites": 0,
+      "decision": "revoke"
     },
     "guild_war_player_attempts": {
       "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
@@ -2621,13 +2659,13 @@
       "committed_write_sites": [
         {
           "file": "app/lib/sync/worker-jobs/validation-sync.ts",
-          "line": 66,
+          "line": 58,
           "verb": "upsert",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         }
       ],
-      "undecided_write_sites": 1,
-      "decision": "keep-undecided"
+      "undecided_write_sites": 0,
+      "decision": "revoke"
     },
     "sync_metrics": {
       "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],

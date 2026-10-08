@@ -55,8 +55,7 @@ export async function processValidationSync(
   const dataQuality =
     100 - (duplicateIds.length / (battleData?.length || 1)) * 100
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (supabase as any).from('sync_health').upsert(
+  await supabase.from('sync_health').upsert(
     {
       guild_code: job.guild_code,
       data_completeness: dataQuality,
