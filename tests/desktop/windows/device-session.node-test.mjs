@@ -391,3 +391,54 @@ test('the page state read and a setup change queue instead of refusing each othe
     await rm(root, { recursive: true, force: true })
   }
 })
+
+test('the dashboard access summary requires the owner session and reports the sample workspace', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'Windows access status ü '))
+  await writeFile(
+    join(root, 'workspace-owner.json'),
+    JSON.stringify({ subject, kind: 'personal-holding' })
+  )
+  const auth = createServer((_req, res) => {
+    res.setHeader('content-type', 'application/json')
+    res.end(JSON.stringify({ id: subject }))
+  })
+  await new Promise((accept) => auth.listen(0, '127.0.0.1', accept))
+  let live = true
+  const handler = windowsSetup(
+    {
+      state: root,
+      ports: { auth: auth.address().port },
+      token: { service: 'synthetic-service' },
+      validOwnerSession: (token, owner) =>
+        live && validOwnerSession(token, owner, key),
+      psql: async (sql) => (sql.includes("identity_mode='sample'") ? 't' : '')
+    },
+    root,
+    root,
+    { brokerToken: capability, currentToken: async () => jwt() }
+  )
+  const server = createServer(
+    (req, res) => void handler(req, res, new URL(req.url, 'http://127.0.0.1'))
+  )
+  await new Promise((accept) => server.listen(0, '127.0.0.1', accept))
+  const status = () =>
+    fetch(`http://127.0.0.1:${server.address().port}/desktop/onboarding-status`)
+  try {
+    const response = await status()
+    assert.equal(response.status, 200)
+    assert.deepEqual(await response.json(), {
+      demo: true,
+      playerReady: false,
+      guildReady: false,
+      tokens: null,
+      bombs: null,
+      updatedAt: null
+    })
+    live = false
+    assert.equal((await status()).status, 401)
+  } finally {
+    await new Promise((accept) => server.close(accept))
+    await new Promise((accept) => auth.close(accept))
+    await rm(root, { recursive: true, force: true })
+  }
+})

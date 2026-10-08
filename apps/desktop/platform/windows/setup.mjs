@@ -104,6 +104,7 @@ export function windowsSetup(services, assets, launcherAssets, session) {
     if (await open(req, res, url)) return true
     const protectedOperation =
       url.pathname === '/desktop/official-state' ||
+      url.pathname === '/desktop/onboarding-status' ||
       url.pathname === '/desktop/demo-setup' ||
       [
         '/desktop/export-personal',
@@ -113,7 +114,10 @@ export function windowsSetup(services, assets, launcherAssets, session) {
       ].includes(url.pathname) ||
       url.pathname.startsWith('/desktop/disconnect/')
     if (protectedOperation) {
-      const change = url.pathname !== '/desktop/official-state'
+      const change = ![
+        '/desktop/official-state',
+        '/desktop/onboarding-status'
+      ].includes(url.pathname)
       if (change && changing) {
         json(409, { error: 'Setup is already running' })
         return true
@@ -210,6 +214,28 @@ export function windowsSetup(services, assets, launcherAssets, session) {
     }
     if (req.method === 'GET' && url.pathname === '/desktop/official-state') {
       json(200, onboarding.view())
+      return true
+    }
+    // The shared dashboard gate reads this access summary in desktop mode.
+    if (req.method === 'GET' && url.pathname === '/desktop/onboarding-status') {
+      const demo =
+        (
+          await services.psql(
+            "SELECT EXISTS(SELECT 1 FROM public.desktop_preview_setup WHERE identity_mode='sample');"
+          )
+        ).trim() === 't'
+      const view = onboarding.view()
+      gate.assertCurrent()
+      json(200, {
+        demo,
+        playerReady: Boolean(view.personal) && view.status === 'active',
+        guildReady:
+          view.capabilities.Guild === 'verified-scope' &&
+          view.capabilities['Guild Raid'] === 'verified-scope',
+        tokens: null,
+        bombs: null,
+        updatedAt: view.freshness?.syncedAt ?? null
+      })
       return true
     }
     if (req.method === 'POST' && url.pathname === '/desktop/export-personal') {
