@@ -18,6 +18,11 @@ import {
 } from './schema-lifecycle.mjs'
 
 const inputs = ['pgdata', 'credentials.json', 'schema-version']
+function backupInputs(format) {
+  if (format === 'desktop-stopped-checkpoint-v1') return inputs
+  if (format === 'desktop-stopped-checkpoint-v2') return [...inputs, 'addons']
+  throw new Error('Invalid backup format')
+}
 async function privateDirectory(path) {
   const entry = await lstat(path)
   if (
@@ -50,12 +55,6 @@ async function absent(path) {
 }
 export async function validateBackup(source) {
   await privateDirectory(source)
-  const names = (await readdir(source)).sort()
-  if (
-    JSON.stringify(names) !==
-    JSON.stringify([...inputs, 'checkpoint.json'].sort())
-  )
-    throw new Error('Backup is incomplete or contains unexpected data')
   const metadata = await lstat(join(source, 'checkpoint.json'))
   if (
     !metadata.isFile() ||
@@ -66,11 +65,13 @@ export async function validateBackup(source) {
   const saved = JSON.parse(
     await readFile(join(source, 'checkpoint.json'), 'utf8')
   )
-  if (
-    saved.format !== 'desktop-stopped-checkpoint-v1' ||
-    !/^[a-f0-9]{64}$/.test(saved.source)
-  )
+  if (!/^[a-f0-9]{64}$/.test(saved.source))
     throw new Error('Invalid backup format')
+  if (
+    JSON.stringify((await readdir(source)).sort()) !==
+    JSON.stringify([...backupInputs(saved.format), 'checkpoint.json'].sort())
+  )
+    throw new Error('Backup is incomplete or contains unexpected data')
   const actual = (await inventory(source)).filter(
     (file) => file.path !== 'checkpoint.json'
   )
@@ -109,16 +110,38 @@ export async function exportWorkspace(state, destination) {
   )
   for (const input of inputs)
     await copyRegularTree(join(source, input), join(destination, input))
+  let hasAddons = false
+  try {
+    await lstat(join(state, 'addons'))
+    hasAddons = true
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error
+  }
+  if (hasAddons) {
+    // The native app has stopped under the workspace lease. Module packages and
+    // imported data join the same checkpoint; trust policy and credential vaults do not.
+    await absent(join(state, 'addons/transaction.lock'))
+    await copyRegularTree(join(state, 'addons'), join(destination, 'addons'))
+  }
   await syncTree(destination)
+  const metadata = JSON.parse(
+    await readFile(join(source, 'checkpoint.json'), 'utf8')
+  )
+  if (hasAddons) {
+    metadata.format = 'desktop-stopped-checkpoint-v2'
+    metadata.files = (await inventory(destination)).filter(
+      (file) => file.path !== 'backup.pending.json'
+    )
+  }
   await writeAtomic(
     join(destination, 'checkpoint.json'),
-    await readFile(join(source, 'checkpoint.json'))
+    JSON.stringify(metadata)
   )
   await unlink(join(destination, 'backup.pending.json'))
   await syncTree(destination)
   await validateBackup(destination)
   return {
-    format: 'desktop-stopped-checkpoint-v1',
+    format: metadata.format,
     files: (await inventory(destination)).length
   }
 }
@@ -141,7 +164,7 @@ export async function restoreWorkspace(state, source) {
       source: saved.source
     })
   )
-  for (const input of inputs)
+  for (const input of backupInputs(saved.format))
     await copyRegularTree(join(source, input), join(state, input))
   const files = []
   for (const file of await inventory(state))

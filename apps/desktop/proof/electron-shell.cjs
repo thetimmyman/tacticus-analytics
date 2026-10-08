@@ -90,6 +90,12 @@ app
         session.defaultSession,
         config
       )
+    const guildTeams = config.guildTeams
+      ? await require('./guild-teams-renderer.cjs').captureGuildTeams(
+          window,
+          config
+        )
+      : undefined
     console.log('renderer: read DOM')
     const renderer = await window.webContents.executeJavaScript(
       `({ text: document.body.innerText, nodeAccess: typeof require !== 'undefined' || typeof process !== 'undefined', title: document.title })`
@@ -113,6 +119,7 @@ app
         {
           renderer,
           corePages,
+          guildTeams,
           wake,
           failures,
           blocked,

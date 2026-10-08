@@ -10,6 +10,8 @@ import {
 } from '@/app/api/guild-tokens/token-service'
 import { requireTokenUsageGuildAccess } from '@/app/api/members/token-usage/access'
 import { getLatestSeason } from '@/app/lib/data/get-latest-season'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
+import { requireRoleForApi } from '@/app/lib/auth'
 
 const logger = createComponentLogger('api.guild-teams.tokens')
 
@@ -36,6 +38,15 @@ export const GET = withErrorHandler(async (request: Request) => {
     const requestedGuild = searchParams.get('guild')
     if (!requestedGuild) {
       throw Errors.fromResponse(400, { error: 'guild parameter required' })
+    }
+
+    if (getRuntimeProfile() === 'desktop') {
+      const { profile } = await requireRoleForApi('member')
+      if (requestedGuild !== profile.guild_code) {
+        throw Errors.fromResponse(403, { error: 'Guild access denied' })
+      }
+      // Imported roster snapshots do not establish live game token state.
+      return NextResponse.json([])
     }
 
     const { guild, clusterCode } =
@@ -123,6 +134,7 @@ export const GET = withErrorHandler(async (request: Request) => {
 
     return NextResponse.json(payload)
   } catch (error) {
+    if (getRuntimeProfile() === 'desktop') throw error
     rethrowIfAppError(error)
     logger.error({ err: error }, 'guild-teams tokens error')
     return NextResponse.json([])
