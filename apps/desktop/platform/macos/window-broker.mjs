@@ -19,9 +19,16 @@ export function superviseWindows({
   const here = join(root, 'apps/desktop/platform/macos')
   const runtime = launch(
     '/usr/bin/sandbox-exec',
-    ['-p', policy, join(root, 'bin/node'), join(here, 'runtime.mjs'), ...args],
+    [
+      '-p',
+      policy,
+      join(root, 'bin/node'),
+      join(here, 'runtime.mjs'),
+      ...args,
+      '--window-broker'
+    ],
     {
-      env: { ...env, TA_MAC_WINDOW_BROKER: '1' },
+      env,
       stdio: ['ignore', 'inherit', 'inherit', 'ipc']
     }
   )
