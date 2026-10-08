@@ -45,12 +45,17 @@ mounts a generated DMG, copies the app into a path with spaces and Unicode, and
 runs the installed binaries under a network sandbox allowing loopback and local
 Unix IPC. Before launch, the installed Node must exchange a synthetic Unix
 socket message and receive an OS permission refusal for direct external TCP.
-The receipt records only fixed results; a timeout never counts as denial.
+DNS target lookup retries transient failures with bounded deadlines before
+applying the policy. The receipt records only fixed results; a timeout never
+counts as denial.
 Storage and restart launches run the whole installed tree under that policy.
-The graphical launch confines the PostgreSQL, Auth, PostgREST and Next.js
-server child processes with it. The runtime supervisor, which hosts the loopback
-gateway, and Electron run outside it, because Chromium cannot initialize its own
-sandbox inside another Seatbelt profile. Electron's sandbox stays enabled; instead the journey requires
+The graphical launch uses a fixed native IPC broker to launch the runtime
+supervisor and its PostgreSQL, Auth, PostgREST and Next.js services under the
+policy. The supervisor verifies its own direct external TCP permission refusal
+before starting services. The broker launches Electron outside the inherited
+policy, because Chromium must initialize its own sandbox. The broker accepts
+no executable, argument, path or environment from renderer messages.
+Electron's sandbox stays enabled; the journey requires
 Electron to refuse a public host name and a public address, and the desktop
 window never resolves host names. This qualification policy does
 not establish the consumer's full opt-in network boundary. It exercises
@@ -66,8 +71,10 @@ service. It compares all synthetic raid, mapping, guild and attestation rows plu
 cached personal state, and refuses renderer-only and forged-session access.
 This receipt is bound to the source commit and DMG digest. The packaged
 journey then covers actual Electron bootstrap and signed-out recovery on virtual
-machines. Its two later launches restart storage only and do not reopen the
-graphical application. Preserved consumer Keychain bindings remain a separate
+machines. A second graphical launch reopens the same installed workspace and
+compares the first post-journey digest with the second pre-journey digest. Both
+supervisor refusals are source- and artifact-bound. Two later storage launches
+check retained fixture writes and database recovery separately. Preserved consumer Keychain bindings remain a separate
 qualification requirement.
 If the graphical journey still records a native sandbox initialization
 failure, a separate compatibility probe runs the same installed payload in one
@@ -82,7 +89,8 @@ request paths. A failed run keeps its screenshot, which shows only the
 synthetic workspace, so a calculation or rendering mismatch can be diagnosed.
 Intentional refusals stay separate from unexpected renderer failures: the
 gateway tags its credential holding response, and authorization failures are
-accepted only from the deliberate sign-out until the recovery reload completes.
+accepted only while deliberately signed out. The recovery phase begins as soon
+as replacement session cookies are installed, before loading the recovered page.
 The analytics view loaded after recovery must have none.
 
 Ordinary setup creates a local Auth account in a Player-required holding state.

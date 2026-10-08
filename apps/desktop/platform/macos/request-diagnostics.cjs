@@ -55,6 +55,13 @@ const endpoints = {
   '/api/health': 'health',
   '/api/user/activity': 'activity',
   '/api/version': 'version',
+  '/api/health/telemetry': 'health-telemetry',
+  '/api/season/timing': 'season-timing',
+  '/api/assignments/current-season-bosses': 'current-season-bosses',
+  '/api/assignments/next-season-bosses': 'next-season-bosses',
+  '/supabase/rest/v1/EOT_GR_data': 'raid-data',
+  '/supabase/rest/v1/guild_members': 'guild-members',
+  '/supabase/rest/v1/guild_raid_season': 'raid-season',
   '/favicon.ico': 'favicon'
 }
 const endpointNames = [
@@ -156,10 +163,7 @@ function unexpectedFailure(failure) {
     ['/api/guild-tokens', '/desktop/open'].includes(failure.path)
   )
     return false
-  if (
-    failure?.status === 401 &&
-    ['signed-out-check', 'recovered-open'].includes(failure.phase)
-  )
+  if (failure?.status === 401 && failure.phase === 'signed-out-check')
     return false
   return true
 }

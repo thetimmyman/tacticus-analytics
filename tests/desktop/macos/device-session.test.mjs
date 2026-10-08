@@ -442,7 +442,12 @@ function mainFixture(
       }
     }
   }
-  const device = deviceSession(window, config, { electron })
+  const device = deviceSession(window, config, {
+    electron,
+    sessionInstalled: () => {
+      assert.equal(currentWorkspaceToken(cookies), sessionGrant.access_token)
+    }
+  })
   return {
     device,
     window,

@@ -141,16 +141,31 @@ test('authorization failures are expected only while deliberately signed out', (
   for (const expected of [
     failure('/desktop/open', 403, 'renderer-refusal'),
     failure('/api/guild-tokens', 403, 'scores-view'),
-    failure('/supabase/rest/v1/guild_config', 401, 'signed-out-check'),
-    failure('/supabase/rest/v1/guild_config', 401, 'recovered-open')
+    failure('/supabase/rest/v1/guild_config', 401, 'signed-out-check')
   ])
     assert.equal(diagnostics.unexpectedFailure(expected), false)
   for (const unexpected of [
     failure('/supabase/rest/v1/guild_config', 401, 'scores-view'),
+    failure('/supabase/rest/v1/guild_config', 401, 'recovered-open'),
     failure('/supabase/rest/v1/guild_config', 401, 'initial-open'),
     failure('/profile', 403, 'scores-view'),
     failure('/player-performance', 500, 'scores-view'),
     failure('/api/guild-tokens', 0, 'scores-view')
   ])
     assert.equal(diagnostics.unexpectedFailure(unexpected), true)
+})
+
+test('fixed health and raid readers distinguish failures without disclosing variable paths', () => {
+  assert.equal(
+    diagnostics.requestLabel('/api/health/telemetry', 'xhr').endpoint,
+    'health-telemetry'
+  )
+  assert.equal(
+    diagnostics.requestLabel('/supabase/rest/v1/EOT_GR_data', 'xhr').endpoint,
+    'raid-data'
+  )
+  assert.equal(
+    diagnostics.requestLabel('/private/SYNTHETIC-CANARY', 'xhr').endpoint,
+    'other-local'
+  )
 })

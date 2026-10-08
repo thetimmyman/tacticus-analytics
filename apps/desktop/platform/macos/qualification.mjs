@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, readFile, writeFile, cp } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import { join, resolve, isAbsolute } from 'node:path'
 import { tmpdir } from 'node:os'
-import { lookup } from 'node:dns/promises'
+import { qualificationTarget } from './qualification-network.mjs'
 import { stage, inventory } from './stage.mjs'
 import { records } from './evidence.mjs'
 import requestDiagnostics from './request-diagnostics.cjs'
@@ -98,14 +98,15 @@ const config = {
   sourceCommit: process.env.MAC_SOURCE_SHA,
   artifactSha256: digest,
   deviceEvidence: join(working, 'device-session.json'),
+  supervisorEvidence: join(working, 'supervisor-network.json'),
   evidence: join(working, 'renderer.json'),
   screenshot: join(working, 'renderer.png')
 }
 await writeFile(storageVerify, JSON.stringify(config), { mode: 0o600 })
 // Storage launches run the full installed descendant tree under this policy.
-// The graphical launch confines every service with it but keeps Electron
-// outside, because Chromium cannot initialize its own sandbox inside another
-// Seatbelt profile; Electron proves its refusal of external requests itself.
+// The graphical launch confines its runtime supervisor and services with it.
+// The fixed native IPC broker launches Electron outside the inherited policy
+// so Chromium can initialize its own sandbox and prove its request filter.
 // This policy is a qualification tool, not a weakened consumer OS protection.
 const policy =
   '(version 1)(allow default)(deny network*)(allow network* (local unix-socket))(allow network* (remote unix-socket))(allow network-inbound (local ip "localhost:*"))(allow network-outbound (remote ip "localhost:*"))'
@@ -113,24 +114,14 @@ const policy =
 // under the identical descendant policy. Neither target nor raw errors enter
 // the synthetic receipt. Success requires an actual OS permission refusal.
 let networkReceipt
-let dnsDeadline
 try {
-  const target = await Promise.race([
-    lookup('example.com', { family: 4 }),
-    new Promise((_accept, reject) => {
-      dnsDeadline = setTimeout(
-        () => reject(new Error('Qualification DNS timed out')),
-        5000
-      )
-    })
-  ])
-  clearTimeout(dnsDeadline)
+  const target = await qualificationTarget()
   await writeFile(
     verify,
     JSON.stringify({
       ...config,
       networkPolicy: policy,
-      externalAddress: target.address
+      externalAddress: target
     }),
     { mode: 0o600 }
   )
@@ -141,7 +132,7 @@ try {
       policy,
       join(runtime, 'bin/node'),
       join(runtime, 'apps/desktop/platform/macos/network-isolation.mjs'),
-      target.address
+      target
     ],
     {
       env: { PATH: '/usr/bin:/bin', TMPDIR: process.env.TMPDIR },
@@ -156,8 +147,6 @@ try {
     { mode: 0o600 }
   )
   throw new Error('Installed local IPC and external TCP policy proof failed')
-} finally {
-  clearTimeout(dnsDeadline)
 }
 const networkResult = JSON.parse(networkReceipt)
 if (
@@ -180,6 +169,8 @@ async function run(
   { wholeTreePolicy = false, stateDirectory = state, verifyFile = verify } = {}
 ) {
   const executable = join(installed, 'Contents/MacOS/TacticusAnalytics')
+  const config = JSON.parse(await readFile(verifyFile, 'utf8'))
+  const graphicalBroker = !wholeTreePolicy && Boolean(config.networkPolicy)
   const child = spawn(
     wholeTreePolicy ? '/usr/bin/sandbox-exec' : executable,
     [
@@ -187,7 +178,11 @@ async function run(
       '--run',
       join(stateDirectory, 'owner.lock'),
       join(runtime, 'bin/node'),
-      join(runtime, 'apps/desktop/platform/macos/runtime.mjs'),
+      join(
+        runtime,
+        'apps/desktop/platform/macos',
+        graphicalBroker ? 'window-broker.mjs' : 'runtime.mjs'
+      ),
       '--verify',
       verifyFile,
       ...arguments_
@@ -220,6 +215,45 @@ async function run(
 let failedPhase = 'graphical'
 try {
   await run([])
+  const firstGraphical = JSON.parse(await readFile(config.deviceEvidence))
+  const restartConfig = {
+    ...JSON.parse(await readFile(verify, 'utf8')),
+    deviceEvidence: join(working, 'restart-device-session.json'),
+    supervisorEvidence: join(working, 'restart-supervisor-network.json'),
+    evidence: join(working, 'restart-renderer.json'),
+    screenshot: join(working, 'restart-renderer.png')
+  }
+  const restartVerify = join(working, 'restart-verify.json')
+  await writeFile(restartVerify, JSON.stringify(restartConfig), { mode: 0o600 })
+  await run([], { verifyFile: restartVerify })
+  const secondGraphical = JSON.parse(
+    await readFile(restartConfig.deviceEvidence)
+  )
+  if (
+    firstGraphical.postJourneyDataDigest !==
+      secondGraphical.syntheticDataDigest ||
+    secondGraphical.freshPasswordFreeHolding !== false ||
+    secondGraphical.postJourneyDataDigest !==
+      secondGraphical.syntheticDataDigest
+  )
+    throw new Error(
+      'Graphical restart did not preserve the installed workspace'
+    )
+  for (const path of [
+    config.supervisorEvidence,
+    restartConfig.supervisorEvidence
+  ]) {
+    const supervisor = JSON.parse(await readFile(path))
+    if (
+      supervisor.runtimeSupervisor !== true ||
+      supervisor.nonLoopbackTCPDenied !== true ||
+      supervisor.sourceCommit !== process.env.MAC_SOURCE_SHA ||
+      supervisor.artifactSha256 !== digest
+    )
+      throw new Error(
+        'Installed supervisor network confinement was not established'
+      )
+  }
   failedPhase = 'storage'
   for (const name of ['storage-first.json', 'storage-second.json'])
     await run(['--storage-check', join(working, name)], {
@@ -229,6 +263,13 @@ try {
 } catch (error) {
   for (const name of [
     'device-session.json',
+    'supervisor-network.json',
+    'restart-device-session.json',
+    'restart-supervisor-network.json',
+    'restart-renderer.json',
+    'restart-renderer.json.failure.json',
+    'restart-renderer.json.native.json',
+    'restart-renderer.png',
     'renderer.json',
     'renderer.json.failure.json',
     'renderer.json.native.json',
@@ -434,6 +475,11 @@ const attachments = []
 for (const [name, mediaType] of [
   ['device-session.json', 'application/json'],
   ['network-policy.json', 'application/json'],
+  ['supervisor-network.json', 'application/json'],
+  ['restart-device-session.json', 'application/json'],
+  ['restart-supervisor-network.json', 'application/json'],
+  ['restart-renderer.json', 'application/json'],
+  ['restart-renderer.png', 'image/png'],
   ['renderer.json', 'application/json'],
   ['renderer.png', 'image/png'],
   ['storage-first.json', 'application/json'],
@@ -500,7 +546,8 @@ console.log(
     installation: 'unsigned-developer-copy-from-mounted-image',
     files: files.length,
     offlineRenderer: 'selected-analytics-pass',
-    restart: 'pass',
+    restart: 'graphical-and-storage-pass',
+    runtimeSupervisorNetwork: 'os-external-tcp-denied',
     databaseBackupRestore: 'pass',
     badMigrationRollback: 'pass',
     signature: 'pending-owner-identity',

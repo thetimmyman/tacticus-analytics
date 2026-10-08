@@ -1,3 +1,5 @@
+import { brokerWindow } from './window-broker.mjs'
+import { verifyNetworkIsolation } from './network-isolation.mjs'
 import { randomBytes } from 'node:crypto'
 import { mkdir, lstat, readFile, writeFile, unlink } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
@@ -85,9 +87,9 @@ const onboarding = controller.onboarding
 await unlink(join(state, 'running.lock')).catch((error) => {
   if (error.code !== 'ENOENT') throw error
 })
-// A graphical qualification confines every service to the deny-network policy
-// but launches Electron outside it: Chromium cannot apply its own sandbox
-// inside another Seatbelt profile, and its origin filter is verified instead.
+// Graphical qualification runs this supervisor and every service under the
+// policy. The native IPC broker launches Electron outside the inherited policy
+// so Chromium can apply its own sandbox and verify its origin filter.
 const networkPolicy = verify?.networkPolicy
 if (
   networkPolicy !== undefined &&
@@ -96,14 +98,30 @@ if (
     !networkPolicy.includes('(deny network*)'))
 )
   throw new Error('Invalid synthetic network policy')
+if (verify?.networkPolicy && !option('--storage-check')) {
+  if (process.env.TA_MAC_WINDOW_BROKER !== '1')
+    throw new Error('Confined graphical broker required')
+  const proof = await verifyNetworkIsolation(verify.externalAddress)
+  await writeFile(
+    verify.supervisorEvidence,
+    JSON.stringify({
+      ...proof,
+      sourceCommit: verify.sourceCommit,
+      artifactSha256: verify.artifactSha256,
+      runtimeSupervisor: true
+    }),
+    { mode: 0o600 }
+  )
+}
 const services = await nativeServices({
   state,
-  confine: networkPolicy
-    ? (file, args) => [
-        '/usr/bin/sandbox-exec',
-        ['-p', networkPolicy, file, ...args]
-      ]
-    : undefined,
+  confine:
+    networkPolicy && process.env.TA_MAC_WINDOW_BROKER !== '1'
+      ? (file, args) => [
+          '/usr/bin/sandbox-exec',
+          ['-p', networkPolicy, file, ...args]
+        ]
+      : undefined,
   schemaDirectory: join(root, 'apps/desktop/local-schema'),
   binaries: {
     initdb: join(root, 'postgres/bin/initdb'),
@@ -368,20 +386,23 @@ try {
       }),
       { mode: 0o600 }
     )
-    const window = services.launch(
-      join(root, 'electron/Electron.app/Contents/MacOS/Electron'),
-      [join(here, 'main.cjs'), config],
-      {
-        PATH: join(root, 'bin'),
-        LANG: 'en_US.UTF-8',
-        HOME: process.env.HOME,
-        TMPDIR: process.env.TMPDIR
-      },
-      state,
-      true,
-      true,
-      false
-    )
+    const window =
+      process.env.TA_MAC_WINDOW_BROKER === '1'
+        ? brokerWindow()
+        : services.launch(
+            join(root, 'electron/Electron.app/Contents/MacOS/Electron'),
+            [join(here, 'main.cjs'), config],
+            {
+              PATH: join(root, 'bin'),
+              LANG: 'en_US.UTF-8',
+              HOME: process.env.HOME,
+              TMPDIR: process.env.TMPDIR
+            },
+            state,
+            true,
+            true,
+            false
+          )
     const nativeDiagnostic = windowDiagnostics()
     if (verify) {
       window.stderr.on('data', nativeDiagnostic.observe)

@@ -157,6 +157,7 @@ module.exports = function deviceSession(window, config, dependencies = {}) {
             await cookies.remove(origin, cookie.name)
         throw new Error('Local session cookies could not be installed')
       }
+      dependencies.sessionInstalled?.()
       await window.loadURL(origin + body.destination)
       return true
     })()
