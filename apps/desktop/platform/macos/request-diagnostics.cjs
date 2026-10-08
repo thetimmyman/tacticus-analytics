@@ -25,6 +25,13 @@ const networkErrors = {
   'net::ERR_BLOCKED_BY_CLIENT': 'client-blocked'
 }
 const networkErrorNames = Object.values(networkErrors)
+const documents = {
+  '/home': 'home-document',
+  '/player-performance': 'scores-document',
+  '/desktop/personal': 'personal-document',
+  '/desktop/setup': 'setup-document'
+}
+const documentNames = [...Object.values(documents), 'other-document']
 const phases = [
   'initial-open',
   'renderer-refusal',
@@ -50,6 +57,7 @@ const resources = [
 const endpoints = {
   '/desktop/open': 'device-bootstrap',
   '/desktop/personal': 'personal-page',
+  '/desktop/onboarding-status': 'onboarding-status',
   '/player-performance': 'scores-page',
   '/profile': 'profile-page',
   '/api-keys': 'official-access-page',
@@ -68,6 +76,7 @@ const endpoints = {
   '/supabase/rest/v1/rpc/get_guild_player_scores_batch': 'scores-batch-read',
   '/supabase/rest/v1/rpc/get_season_token_stats_batch':
     'token-stats-batch-read',
+  '/supabase/rest/v1/rpc/get_distinct_seasons_for_guild': 'distinct-seasons',
   '/api/performance/five-season-averages': 'performance-averages',
   '/api/upcoming/token-performance': 'target-performance',
   '/api/health': 'health',
@@ -108,6 +117,15 @@ function networkErrorLabel(error) {
   return Object.hasOwn(networkErrors, error) ? networkErrors[error] : 'other'
 }
 
+function requestDocumentLabel(referrer) {
+  try {
+    const path = new URL(referrer).pathname
+    return Object.hasOwn(documents, path) ? documents[path] : 'other-document'
+  } catch {
+    return 'other-document'
+  }
+}
+
 function sanitizeFailure(input) {
   const value = {
     synthetic: true,
@@ -128,6 +146,9 @@ function sanitizeFailure(input) {
         : 'other-local',
       resource: resources.includes(entry?.resource) ? entry.resource : 'other',
       ...(phases.includes(entry?.phase) ? { phase: entry.phase } : {}),
+      ...(documentNames.includes(entry?.document)
+        ? { document: entry.document }
+        : {}),
       ...(name === 'failed'
         ? {
             status:
@@ -139,6 +160,9 @@ function sanitizeFailure(input) {
             ...(networkErrorNames.includes(entry?.networkError) ||
             entry?.networkError === 'other'
               ? { networkError: entry.networkError }
+              : {}),
+            ...(typeof entry?.frameAvailable === 'boolean'
+              ? { frameAvailable: entry.frameAvailable }
               : {})
           }
         : {})
@@ -202,6 +226,7 @@ function unexpectedFailure(failure) {
 module.exports = {
   requestLabel,
   networkErrorLabel,
+  requestDocumentLabel,
   sanitizeFailure,
   rendererReceipt,
   holdingHeader,

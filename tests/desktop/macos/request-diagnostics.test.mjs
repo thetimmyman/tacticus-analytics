@@ -45,7 +45,9 @@ test('untrusted diagnostic frames cannot copy paths, messages, cookies or arbitr
     path: '/' + canary,
     cookie: canary,
     phase: canary,
-    networkError: canary
+    networkError: canary,
+    document: canary,
+    frameAvailable: canary
   }
   const input = {
     stage: 'renderer-network',
@@ -193,5 +195,45 @@ test('transport failure diagnostics retain only fixed error labels and still fai
     network: { failed: [failure] }
   })
   assert.deepEqual(receipt.network.failed, [failure])
+  assert.equal(diagnostics.unexpectedFailure(failure), true)
+})
+
+test('failed requests retain fixed originating document and frame availability without URLs or identifiers', () => {
+  const canary = 'SYNTHETIC-SECRET-CANARY'
+  const document = diagnostics.requestDocumentLabel(
+    'http://127.0.0.1:1234/home?private=' + canary
+  )
+  assert.equal(document, 'home-document')
+  assert.equal(
+    diagnostics.requestDocumentLabel('http://127.0.0.1:1234/private/' + canary),
+    'other-document'
+  )
+  assert.equal(diagnostics.requestDocumentLabel(canary), 'other-document')
+  assert.equal(
+    diagnostics.requestLabel('/desktop/onboarding-status', 'xhr').endpoint,
+    'onboarding-status'
+  )
+  assert.equal(
+    diagnostics.requestLabel(
+      '/supabase/rest/v1/rpc/get_distinct_seasons_for_guild',
+      'xhr'
+    ).endpoint,
+    'distinct-seasons'
+  )
+  const failure = {
+    endpoint: 'onboarding-status',
+    resource: 'xhr',
+    document,
+    status: 0,
+    networkError: 'request-failed',
+    frameAvailable: false
+  }
+  const value = diagnostics.sanitizeFailure({
+    stage: 'renderer-network',
+    cause: 'request-failed',
+    network: { failed: [failure] }
+  })
+  assert.deepEqual(value.network.failed, [failure])
+  assert.equal(JSON.stringify(value).includes(canary), false)
   assert.equal(diagnostics.unexpectedFailure(failure), true)
 })

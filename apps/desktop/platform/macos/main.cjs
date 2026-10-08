@@ -5,6 +5,7 @@ const { randomBytes } = require('node:crypto')
 const {
   requestLabel,
   networkErrorLabel,
+  requestDocumentLabel,
   sanitizeFailure,
   rendererReceipt,
   holdingRefusal,
@@ -54,10 +55,10 @@ app
         url.protocol === 'blob:'
       if (!allowed) blocked.push(url.origin + url.pathname)
       if (config.verify && url.origin === origin)
-        activeRequests.set(
-          details.id,
-          requestLabel(url.pathname, details.resourceType, requestPhase)
-        )
+        activeRequests.set(details.id, {
+          ...requestLabel(url.pathname, details.resourceType, requestPhase),
+          document: requestDocumentLabel(details.referrer)
+        })
       callback({ cancel: !allowed })
     })
     session.defaultSession.webRequest.onBeforeSendHeaders(
@@ -102,7 +103,10 @@ app
               requestPhase
             )),
           status: 0,
-          networkError: networkErrorLabel(details.error)
+          networkError: networkErrorLabel(details.error),
+          ...('frame' in details
+            ? { frameAvailable: Boolean(details.frame) }
+            : {})
         })
     })
     const window = new BrowserWindow({
