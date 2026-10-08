@@ -66,7 +66,8 @@ app
         url.origin === origin ||
         url.protocol === 'data:' ||
         url.protocol === 'blob:'
-      if (!allowed) blocked.push(url.origin + url.pathname)
+      // Request logs feed verification evidence only; normal sessions keep none.
+      if (!allowed && config.verify) blocked.push(url.origin + url.pathname)
       callback({ cancel: !allowed })
     })
     session.defaultSession.webRequest.onBeforeSendHeaders(
@@ -80,7 +81,7 @@ app
       }
     )
     session.defaultSession.webRequest.onCompleted((details) => {
-      if (details.statusCode >= 400)
+      if (config.verify && details.statusCode >= 400)
         failures.push({
           path: new URL(details.url).pathname,
           status: details.statusCode
@@ -129,7 +130,7 @@ app
             `document.querySelector('#status')?.textContent`
           )
           if (error && /failed|Invalid|already|cannot|unavailable/.test(error))
-            throw new Error(error)
+            throw new Error('Desktop setup reported a failure status: ' + error)
         }
       }
       await new Promise((accept) => setTimeout(accept, 10000))
@@ -217,7 +218,7 @@ app
     }
   })
   .catch((error) => {
-    console.error(error.message)
+    console.error(`${error?.name}: ${error?.message}`)
     app.exit(1)
   })
 app.on('window-all-closed', () => app.quit())

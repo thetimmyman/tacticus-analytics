@@ -60,6 +60,13 @@ export async function recoveryJourney(initial, config, evidencePath) {
       await writeFile(schemaPath, schema)
     }
     checks.push('incompatible-schema-refused-before-service-start')
+    // A crash between the schema transaction and its marker file must not re-run the bootstrap.
+    await rm(schemaPath)
+    services = await nativeServices(config)
+    assert.equal(await snapshot(), before)
+    await services.stop()
+    assert.equal(await readFile(schemaPath, 'utf8'), schema)
+    checks.push('lost-schema-marker-restored-without-rebootstrap')
     const checkpoint = join(config.state, '.checkpoints', 'native-proof')
     await mkdir(checkpoint, { recursive: true })
     await cp(join(config.state, 'pgdata'), join(checkpoint, 'pgdata'), {

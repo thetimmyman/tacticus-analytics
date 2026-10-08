@@ -167,6 +167,26 @@ test('window failures report fixed coordinator categories without exposing rende
       'window-unclassified; exit-1; sensitive output suppressed'
     ],
     [
+      'Error: Desktop setup reported a failure status: synthetic-private-path cannot be read',
+      1,
+      'window-setup-status-cannot; exit-1; sensitive output suppressed'
+    ],
+    [
+      "Error: ERR_ABORTED (-3) loading 'http://127.0.0.1:1/synthetic-private-path'",
+      1,
+      'window-load-err-aborted; exit-1; sensitive output suppressed'
+    ],
+    [
+      'TypeError: fetch failed',
+      1,
+      'window-coordinator-unreachable; exit-1; sensitive output suppressed'
+    ],
+    [
+      'TypeError: synthetic-private-path is not a function',
+      1,
+      'window-unclassified-typeerror; exit-1; sensitive output suppressed'
+    ],
+    [
       '',
       null,
       'window-unclassified; exit-unavailable; sensitive output suppressed'
@@ -443,6 +463,11 @@ test('legacy key forms and handlers cannot bypass native input after activation 
     '/api/auth/login',
     '/api/auth/logout',
     '/api/auth/signout',
+    '/auth',
+    '/AUTH/',
+    '/auth/login',
+    '/auth/signup',
+    '/login',
     '/auth/change-password',
     '/auth/reset-password',
     '/api-keys',
@@ -496,6 +521,9 @@ test('legacy key forms and handlers cannot bypass native input after activation 
   for (const path of [
     '/desktop/setup',
     '/desktop/official-state',
+    '/auth/callback',
+    '/auth/error',
+    '/authors',
     '/supabase/auth/v1/token',
     '/api/health',
     '/player-performance',

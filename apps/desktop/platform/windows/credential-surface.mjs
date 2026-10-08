@@ -12,12 +12,16 @@ export function rendererCredentialSurface(url) {
   }
   return (
     (path === '/api/guild-tokens' && url.searchParams.get('live') === 'true') ||
+    // Hosted sign-in pages render password fields; their sibling routes stay reachable.
+    ['/auth', '/login'].includes(path) ||
     [
       '/api/auth/login',
       '/api/auth/logout',
       '/api/auth/signout',
       '/api/auth/change-password',
       '/api/auth/reset-password',
+      '/auth/login',
+      '/auth/signup',
       '/auth/change-password',
       '/auth/forgot-password',
       '/auth/reset-password',

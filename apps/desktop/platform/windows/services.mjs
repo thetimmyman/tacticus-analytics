@@ -2,19 +2,20 @@ import { spawn } from 'node:child_process'
 import {
   createHmac,
   createHash,
+  randomBytes,
   randomUUID,
   timingSafeEqual
 } from 'node:crypto'
 import { createServer } from 'node:net'
-import { mkdir, readFile, writeFile, stat } from 'node:fs/promises'
+import { mkdir, readFile, writeFile, stat, rename } from 'node:fs/promises'
 import { nativeCommand } from './native-command.mjs'
 import { resolve, join, basename } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 
-export function signedToken(key, role) {
+export function signedToken(key, role, lifetimeSeconds = 86400) {
   const encode = (value) =>
     Buffer.from(JSON.stringify(value)).toString('base64url')
-  const body = `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode({ role, iss: 'desktop', iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + 86400 })}`
+  const body = `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode({ role, iss: 'desktop', iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + lifetimeSeconds })}`
   return `${body}.${createHmac('sha256', key).update(body).digest('base64url')}`
 }
 async function freePort() {
@@ -207,9 +208,26 @@ const windowFailures = [
 ]
 export function windowFailureDiagnostic(text, code) {
   const prefix = String(text).slice(0, 8192)
+  const setupStatus = prefix.match(
+    /Desktop setup reported a failure status: .*?(failed|Invalid|already|cannot|unavailable)/
+  )
+  const network = prefix.match(/\b(ERR_[A-Z_]{2,48})\b/)
+  const kind = prefix.match(
+    /^(TypeError|RangeError|SyntaxError|ReferenceError|AbortError|TimeoutError|AssertionError)\b/m
+  )
   const category =
     windowFailures.find(([message]) => prefix.includes(message))?.[1] ??
-    'window-unclassified'
+    (setupStatus
+      ? `window-setup-status-${setupStatus[1].toLowerCase()}`
+      : network
+        ? `window-load-${network[1].toLowerCase().replaceAll('_', '-')}`
+        : /fetch failed/.test(prefix)
+          ? 'window-coordinator-unreachable'
+          : /Script failed to execute/.test(prefix)
+            ? 'window-script-failed'
+            : kind
+              ? `window-unclassified-${kind[1].toLowerCase()}`
+              : 'window-unclassified')
   const status = Number.isSafeInteger(code)
     ? `exit-${code > 0xffff || code < 0 ? '0x' + (code >>> 0).toString(16).toUpperCase().padStart(8, '0') : code}`
     : 'exit-unavailable'
@@ -461,10 +479,17 @@ export async function nativeServices({
       throw new Error(`${label} readiness timed out`)
     }
     await ready(() => psql('SELECT 1;'), pg, 'PostgreSQL')
+    // Native JWTs are minted per use; the application only holds a stable
+    // private credential that the guarded gateway exchanges.
     const token = {
-      anon: signedToken(credentials.jwt, 'anon'),
-      service: signedToken(credentials.jwt, 'service_role')
+      get anon() {
+        return signedToken(credentials.jwt, 'anon', 300)
+      },
+      get service() {
+        return signedToken(credentials.jwt, 'service_role', 300)
+      }
     }
+    const serviceCredential = randomBytes(32).toString('hex')
     if (
       (
         await psql(
@@ -526,21 +551,31 @@ export async function nativeServices({
       'Auth'
     )
     if (needsSchema) {
-      // The native Auth release supplies its own versioned schema migrations.
-      await psql(
-        'BEGIN;\n' +
-          (await readFile(
-            join(schemaDirectory, 'canonical-objects.sql'),
-            'utf8'
-          )) +
-          '\n' +
-          (await readFile(join(schemaDirectory, 'authority.sql'), 'utf8')) +
-          '\nCOMMIT;'
-      )
-      await writeFile(join(state, 'schema-version'), schemaHash, {
-        mode: 0o600,
-        flag: 'wx'
-      })
+      // The database records the applied schema in the bootstrap transaction,
+      // so a lost marker file is restored instead of re-running the bootstrap.
+      const applied = (
+        await psql(
+          "SELECT coalesce(shobj_description(oid, 'pg_database'), '') FROM pg_database WHERE datname = current_database();"
+        )
+      ).trim()
+      if (applied.startsWith('desktop-schema:')) {
+        if (applied !== `desktop-schema:${schemaHash}`)
+          throw new Error('Incompatible local schema; activation refused')
+      } else
+        // The native Auth release supplies its own versioned schema migrations.
+        await psql(
+          'BEGIN;\n' +
+            (await readFile(
+              join(schemaDirectory, 'canonical-objects.sql'),
+              'utf8'
+            )) +
+            '\n' +
+            (await readFile(join(schemaDirectory, 'authority.sql'), 'utf8')) +
+            `\nDO $$ BEGIN EXECUTE format('COMMENT ON DATABASE %I IS %L', current_database(), 'desktop-schema:${schemaHash}'); END $$;\nCOMMIT;`
+        )
+      const pending = join(state, `schema-version.${randomUUID()}.pending`)
+      await writeFile(pending, schemaHash, { mode: 0o600, flag: 'wx' })
+      await rename(pending, join(state, 'schema-version'))
     }
     const rest = launch(binaries.postgrest, [], {
       ...process.env,
@@ -567,6 +602,7 @@ export async function nativeServices({
       state,
       ports,
       token,
+      serviceCredential,
       validOwnerSession: (value, subject) =>
         validOwnerSession(value, subject, credentials.jwt),
       psql,

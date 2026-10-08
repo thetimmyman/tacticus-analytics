@@ -19,7 +19,20 @@ internal static class Program
                 case "uninstall-candidate": Installation.Uninstall(); return 0;
                 case "finish-uninstall" when args.Length == 2 && int.TryParse(args[1], out var parent): Installation.FinishUninstall(parent); return 0;
                 case "run-installed-candidate":
-                    return await Main(new[] { "run-candidate", Bundle.Active(Installation.Root, false), Installation.Workspace });
+                {
+                    var active = Bundle.Active(Installation.Root, false);
+                    // The native owner must come from the activated version, so a rollback also rolls back the host.
+                    var activated = Path.Combine(active, "TacticusDesktop.exe");
+                    if (!string.Equals(Path.GetFullPath(Environment.ProcessPath!), Path.GetFullPath(activated), StringComparison.OrdinalIgnoreCase))
+                    {
+                        var host = new ProcessStartInfo(activated) { UseShellExecute = false, WorkingDirectory = active };
+                        host.ArgumentList.Add("run-installed-candidate");
+                        using var relaunched = Process.Start(host) ?? throw new InvalidOperationException("Activated host unavailable");
+                        await relaunched.WaitForExitAsync();
+                        return relaunched.ExitCode;
+                    }
+                    return await Main(new[] { "run-candidate", active, Installation.Workspace });
+                }
                 case "install-candidate" when args.Length == 3:
                     Console.WriteLine(Bundle.StageCandidate(Path.GetFullPath(args[1]), Path.GetFullPath(args[2]))); return 0;
                 case "rollback" when args.Length == 2:
