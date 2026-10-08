@@ -84,7 +84,7 @@ module.exports = function maintenanceMenu(window, config, gameItems = []) {
               window.loadURL(new URL('/desktop/import', config.url).href)
           },
           ...(gameItems.length
-            ? [{ label: 'API access and updates', submenu: gameItems }]
+            ? [{ label: 'API access, add-ons and updates', submenu: gameItems }]
             : []),
           {
             id: 'workspace-backup',

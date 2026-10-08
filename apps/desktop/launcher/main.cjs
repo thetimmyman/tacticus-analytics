@@ -74,11 +74,19 @@ app
     })
     const device = require('./device-session.cjs')(window, config)
     if (!(await device.open())) await window.loadURL(config.url)
+    let addonMenu
+    try {
+      addonMenu = await require('./addon-menu.cjs')(window, config)
+    } catch {
+      // Optional module damage must leave the local core and recovery controls usable.
+      addonMenu = { label: 'Local add-ons unavailable', enabled: false }
+    }
     const gameItems = config.verify
       ? []
       : [
           await require('./onboarding-menu.cjs')(window, config),
-          await require('./update-menu.cjs')(window, config)
+          await require('./update-menu.cjs')(window, config),
+          addonMenu
         ]
     const maintenance = require('./maintenance-menu.cjs')(
       window,
@@ -126,10 +134,18 @@ app
               origin
             )
           : []
+      const addons = config.verify.addons
+        ? await require('../proof/addons-journey.cjs')(
+            window,
+            addonMenu,
+            config.verify.addons
+          )
+        : undefined
       const evidence = {
         setupMode,
         observed,
         corePages,
+        addons,
         deviceSession: true,
         wake,
         failures,
