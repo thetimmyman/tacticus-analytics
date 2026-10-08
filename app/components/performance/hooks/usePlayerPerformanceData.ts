@@ -55,7 +55,8 @@ import { useTokenBurnRows } from './player-performance-data/useTokenBurnRows'
 
 export function usePlayerPerformanceData({
   selectedGuild,
-  selectedSeason
+  selectedSeason,
+  userRole
 }: PlayerPerformancePageProps) {
   const { context, loading: contextLoading } = useDataContext()
   const [compareMode, setCompareMode] = useState<CompareMode>('guild')
@@ -215,7 +216,8 @@ export function usePlayerPerformanceData({
     useTokenBurnRows(
       selectedGuild,
       selectedSeason,
-      !!selectedGuild && !!selectedSeason && !show5SeasonAvg
+      !!selectedGuild && !!selectedSeason && !show5SeasonAvg,
+      userRole
     )
 
   const tokenRatioState = React.useMemo(
