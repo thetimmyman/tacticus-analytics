@@ -65,6 +65,17 @@ exports.captureSeasonPlanning = async (window, config) => {
   url.searchParams.set('season', config.season)
   await window.loadURL(url.href)
   await wait(() => document.querySelector('[aria-label="Saved season plans"]'))
+  if (canEdit)
+    await wait(() =>
+      Boolean(
+        document.querySelector('[aria-label="Snapshot time (UTC)"]') &&
+        [...document.querySelectorAll('button')].some(
+          (element) =>
+            element.textContent.trim() === 'Refresh Snapshot' &&
+            !element.disabled
+        )
+      )
+    )
   const initial = await run(read)
   assert.equal(
     initial.nodeAccess,
