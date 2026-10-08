@@ -665,7 +665,11 @@ describe('usePlayerPerformanceData', () => {
     )
 
     renderHook(() =>
-      usePlayerPerformanceData({ selectedGuild: 'GUILD', selectedSeason: '1' })
+      usePlayerPerformanceData({
+        selectedGuild: 'GUILD',
+        selectedSeason: '1',
+        userRole: 'officer'
+      })
     )
 
     const rows = (await tokenBurnQueryConfig?.queryFn?.({})) as MockRow[]
@@ -739,7 +743,11 @@ describe('usePlayerPerformanceData', () => {
     )
 
     renderHook(() =>
-      usePlayerPerformanceData({ selectedGuild: 'GUILD', selectedSeason: '1' })
+      usePlayerPerformanceData({
+        selectedGuild: 'GUILD',
+        selectedSeason: '1',
+        userRole: 'officer'
+      })
     )
 
     const rows = (await tokenBurnQueryConfig?.queryFn?.({})) as MockRow[]
@@ -799,7 +807,11 @@ describe('usePlayerPerformanceData', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     renderHook(() =>
-      usePlayerPerformanceData({ selectedGuild: 'GUILD', selectedSeason: '1' })
+      usePlayerPerformanceData({
+        selectedGuild: 'GUILD',
+        selectedSeason: '1',
+        userRole: 'officer'
+      })
     )
 
     await tokenBurnQueryConfig?.queryFn?.({ signal: controller.signal })
@@ -820,7 +832,11 @@ describe('usePlayerPerformanceData', () => {
     )
 
     renderHook(() =>
-      usePlayerPerformanceData({ selectedGuild: 'GUILD', selectedSeason: '1' })
+      usePlayerPerformanceData({
+        selectedGuild: 'GUILD',
+        selectedSeason: '1',
+        userRole: 'officer'
+      })
     )
 
     await expect(tokenBurnQueryConfig?.queryFn?.({})).rejects.toBe(abortError)
