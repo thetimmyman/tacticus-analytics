@@ -160,13 +160,27 @@ app
       )
       if (recovered !== 200)
         throw new Error('Native signed-out session recovery failed')
-      window.webContents.reload()
-      await new Promise((accept) => setTimeout(accept, 3000))
-      const retained = await window.webContents.executeJavaScript(
-        `document.body.innerText`
-      )
-      if (!retained.includes('+58%') || !retained.includes('-50%'))
+      // The reloaded page renders after its own data requests, so wait for it.
+      await new Promise((accept) => {
+        window.webContents.once('did-finish-load', accept)
+        window.webContents.reload()
+      })
+      let retained = ''
+      for (let i = 0; i < 300; i++) {
+        retained = await window.webContents.executeJavaScript(
+          `document.body.innerText`
+        )
+        if (retained.includes('+58%') && retained.includes('-50%')) break
+        await new Promise((accept) => setTimeout(accept, 100))
+      }
+      if (!retained.includes('+58%') || !retained.includes('-50%')) {
+        writeFileSync(
+          config.verify.screenshot,
+          (await window.webContents.capturePage()).toPNG(),
+          { mode: 0o600 }
+        )
         throw new Error('Session recovery lost retained sample data')
+      }
       const evidence = {
         automaticDeviceSession: true,
         signedOutNativeRecovery: true,
