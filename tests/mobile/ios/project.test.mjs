@@ -72,12 +72,30 @@ test('portable core v1 excludes native security, consent and identity claims', a
 })
 
 test('native Player projection uses the complete canonical public schema', async () => {
-  const canonical = await readFile(join(root, 'packages/workspace-onboarding/player-schema.json'), 'utf8')
-  assert.equal(await readFile(join(root, 'apps/mobile/ios/Resources/player-schema.json'), 'utf8'), canonical)
+  const canonical = await readFile(
+    join(root, 'packages/workspace-onboarding/player-schema.json'),
+    'utf8'
+  )
+  assert.equal(
+    await readFile(
+      join(root, 'apps/mobile/ios/Resources/player-schema.json'),
+      'utf8'
+    ),
+    canonical
+  )
   const schema = JSON.parse(canonical)
-  const fixture = JSON.parse(await readFile(join(root, 'apps/mobile/ios/Resources/synthetic-player.json'), 'utf8'))
-  const { projectCachedPlayer } = await import('../../../packages/workspace-onboarding/v1.mjs')
-  const projected = projectCachedPlayer({ player: fixture.player, updatedOn: fixture.updatedOn })
+  const fixture = JSON.parse(
+    await readFile(
+      join(root, 'apps/mobile/ios/Resources/synthetic-player.json'),
+      'utf8'
+    )
+  )
+  const { projectCachedPlayer } =
+    await import('../../../packages/workspace-onboarding/v1.mjs')
+  const projected = projectCachedPlayer({
+    player: fixture.player,
+    updatedOn: fixture.updatedOn
+  })
   assert.deepEqual(projected.apiData, fixture.player)
   assert.ok(schema.definitions.Player.required.includes('inventory'))
   assert.equal(projected.apiData.inventory.items.length, 52)
