@@ -25,7 +25,11 @@ remains readable offline.
 
 The native File menu offers backup and restore. Backup closes the application,
 stops its services and acquires the workspace kernel lease before exporting a
-stopped PostgreSQL checkpoint into a new private directory. Restore verifies its
+stopped PostgreSQL checkpoint into a new encrypted `.tabackup` file. A separate
+masked native prompt confirms the backup passphrase; it goes to the transfer
+worker over stdin and is never saved in the maintenance request. AES-256-GCM
+authenticates the versioned header, inventory and file bytes using a bounded
+scrypt-derived key. Restore also supports legacy backup folders. It verifies its
 file inventory and creates a separate workspace; it never replaces the current
 database. A pending restore blocks startup, and a corrupt or incomplete backup
 is rejected. After the restored database opens successfully with the pinned

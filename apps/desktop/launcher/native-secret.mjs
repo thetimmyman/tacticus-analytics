@@ -1,6 +1,21 @@
 import { spawn as spawnProcess } from 'node:child_process'
 
 const prompts = {
+  'backup-passphrase': {
+    title: 'Encrypt workspace backup',
+    text: 'Choose a long backup passphrase. Keep it separately: it is required to restore this backup.',
+    bytes: 1024
+  },
+  'backup-passphrase-confirm': {
+    title: 'Confirm backup passphrase',
+    text: 'Enter the same backup passphrase again.',
+    bytes: 1024
+  },
+  'restore-passphrase': {
+    title: 'Decrypt workspace backup',
+    text: 'Enter the passphrase for the selected encrypted backup.',
+    bytes: 1024
+  },
   'workspace-password': {
     title: 'Confirm local workspace',
     text: 'Enter your current workspace password.',

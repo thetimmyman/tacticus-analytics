@@ -35,6 +35,7 @@ test('only the manager top frame can invoke fixed commands; binding changes clos
   const owner = new EventEmitter()
   let guildCode = 'SYN001'
   let contextAvailable = true
+  let contextPause
   const menu = await addonMenu(
     owner,
     {
@@ -75,6 +76,7 @@ test('only the manager top frame can invoke fixed commands; binding changes clos
       },
       policy: {},
       context: async () => {
+        await contextPause
         if (!contextAvailable) throw new Error('Synthetic expired session')
         return {
           installation: '11111111-1111-4111-8111-111111111111',
@@ -145,5 +147,16 @@ test('only the manager top frame can invoke fixed commands; binding changes clos
     { ok: false, code: 'invalid-session' }
   )
   assert.equal(reopened.isDestroyed(), true)
+  assert.equal(calls.at(-1).binding, null)
+  contextAvailable = true
+  let release
+  contextPause = new Promise((accept) => {
+    release = accept
+  })
+  const opening = menu.open()
+  owner.emit('closed')
+  release()
+  await assert.rejects(opening, /workspace closed/)
+  assert.equal(handlers.size, 0)
   assert.equal(calls.at(-1).binding, null)
 })

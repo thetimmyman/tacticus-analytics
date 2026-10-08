@@ -115,7 +115,9 @@ module.exports = async function addonMenu(owner, config, dependencies = {}) {
       guildHandle: hash(value.installation + ':' + value.guildCode)
     }
   }
-  let window, pending
+  let window,
+    pending,
+    ownerClosed = owner.isDestroyed?.() === true
   const open = () =>
     (pending ??= (async () => {
       if (window && !window.isDestroyed()) {
@@ -123,6 +125,7 @@ module.exports = async function addonMenu(owner, config, dependencies = {}) {
         return window
       }
       const initial = await binding()
+      if (ownerClosed) throw new Error('Local workspace closed')
       runtime.setBinding(initial)
       const channel = randomBytes(32).toString('hex')
       const partition = session.fromPartition(
@@ -218,6 +221,8 @@ module.exports = async function addonMenu(owner, config, dependencies = {}) {
       })
       try {
         await current.loadURL(address)
+        if (ownerClosed || current.isDestroyed())
+          throw new Error('Local workspace closed')
         current.show()
         return current
       } catch (error) {
@@ -228,6 +233,8 @@ module.exports = async function addonMenu(owner, config, dependencies = {}) {
       pending = null
     }))
   owner.once('closed', () => {
+    ownerClosed = true
+    runtime.setBinding(null)
     if (window && !window.isDestroyed()) window.destroy()
   })
   return {

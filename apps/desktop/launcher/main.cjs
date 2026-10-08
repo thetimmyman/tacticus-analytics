@@ -1,7 +1,6 @@
 const { app, BrowserWindow, session, dialog, shell } = require('electron')
 const { readFileSync, writeFileSync } = require('node:fs')
 const { join } = require('node:path')
-const { randomBytes } = require('node:crypto')
 const config = JSON.parse(readFileSync(process.argv[2], 'utf8'))
 const origin = new URL(config.url).origin
 if (
@@ -111,6 +110,9 @@ app
           await new Promise((accept) => setTimeout(accept, 100))
           if (!window.webContents.getURL().includes('/desktop/setup')) break
         }
+        // Wait for native session navigation to settle before starting proof pages.
+        // A changed URL alone does not mean its asynchronous load has completed.
+        await device.open()
       }
       await window.loadURL(
         origin + '/player-performance?guild=SYN001&season=9999'
