@@ -12,7 +12,9 @@ export function superviseWindows({
   policy,
   args,
   env,
-  launch = spawn
+  launch = spawn,
+  schedule = setTimeout,
+  cancel = clearTimeout
 }) {
   const here = join(root, 'apps/desktop/platform/macos')
   const runtime = launch(
@@ -25,15 +27,31 @@ export function superviseWindows({
   )
   let window,
     launched = false,
+    windowExited = false,
     stopping = false
+  const terminating = new WeakSet()
   const send = (child, value) => {
     if (child?.connected) child.send(value, () => {})
+  }
+  const terminate = (child) => {
+    if (
+      !child ||
+      terminating.has(child) ||
+      (child.exitCode !== null && child.exitCode !== undefined) ||
+      child.signalCode
+    )
+      return
+    terminating.add(child)
+    child.kill('SIGTERM')
+    const deadline = schedule(() => child.kill('SIGKILL'), 5000)
+    deadline.unref?.()
+    child.once('exit', () => cancel(deadline))
   }
   const close = () => {
     if (stopping) return
     stopping = true
-    runtime.kill('SIGTERM')
-    window?.kill('SIGTERM')
+    terminate(runtime)
+    terminate(window)
   }
   runtime.on('message', (message) => {
     if (
@@ -76,14 +94,19 @@ export function superviseWindows({
             })
         })
       window.once('error', () => send(runtime, { broker: 'error' }))
-      window.once('exit', (code, signal) =>
+      window.once('exit', (code, signal) => {
+        windowExited = true
         send(runtime, { broker: 'exit', code, signal })
-      )
+      })
     } else if (message.broker === 'send' && window) send(window, message.value)
   })
+  runtime.once('disconnect', () => {
+    if (!windowExited) close()
+  })
+  runtime.once('error', close)
   runtime.once('exit', (code, signal) => {
     stopping = true
-    window?.kill('SIGTERM')
+    terminate(window)
     runtime.emit('broker-exit', code, signal)
   })
   return { runtime, close }
@@ -97,6 +120,13 @@ export function brokerWindow(channel = process) {
   window.stderr = new EventEmitter()
   window.connected = true
   window.send = (value) => channel.send({ broker: 'send', value })
+  let finished = false
+  const detach = () => {
+    finished = true
+    window.connected = false
+    channel.removeListener('message', observe)
+    channel.removeListener('disconnect', disconnect)
+  }
   const observe = (message) => {
     if (!message || typeof message.broker !== 'string') return
     if (
@@ -108,15 +138,15 @@ export function brokerWindow(channel = process) {
     else if (message.broker === 'error')
       window.emit('error', new Error('Native window failed'))
     else if (message.broker === 'exit') {
-      window.connected = false
-      channel.removeListener('message', observe)
-      channel.removeListener('disconnect', disconnect)
+      detach()
       window.emit('exit', message.code, message.signal)
     }
   }
   const disconnect = () => {
-    window.connected = false
+    if (finished) return
+    detach()
     window.emit('error', new Error('Native graphical broker closed'))
+    window.emit('exit', null, 'SIGTERM')
   }
   channel.on('message', observe)
   channel.once('disconnect', disconnect)

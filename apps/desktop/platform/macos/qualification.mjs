@@ -225,6 +225,7 @@ try {
   }
   const restartVerify = join(working, 'restart-verify.json')
   await writeFile(restartVerify, JSON.stringify(restartConfig), { mode: 0o600 })
+  failedPhase = 'graphical-restart'
   await run([], { verifyFile: restartVerify })
   const secondGraphical = JSON.parse(
     await readFile(restartConfig.deviceEvidence)
