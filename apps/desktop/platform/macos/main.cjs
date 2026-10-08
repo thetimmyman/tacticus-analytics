@@ -139,7 +139,11 @@ app
       blocked.splice(filtered)
       verifyStage = 'window-startup'
     }
-    const device = require('./device-session.cjs')(window, config)
+    const device = require('./device-session.cjs')(window, config, {
+      sessionInstalled: () => {
+        if (requestPhase === 'signed-out-check') requestPhase = 'recovered-open'
+      }
+    })
     const capabilities = ['Player', 'Guild', 'Guild Raid']
     const { currentWorkspaceToken } =
       await import('../../launcher/workspace-session.mjs')
@@ -459,7 +463,6 @@ app
       }
       if (!signedOutRefused)
         throw new Error('Automatic signed-out recovery failed')
-      requestPhase = 'recovered-open'
       if (!(await device.open()))
         throw new Error('Automatic signed-out recovery failed')
       await nativeRequest('session', 'Player')
