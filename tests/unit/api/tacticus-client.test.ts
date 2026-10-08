@@ -286,6 +286,47 @@ describe('TacticusAPIClient', () => {
     })
   })
 
+  describe('getPlayerResult', () => {
+    it('reports the status of a rejected key', async () => {
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 403,
+        statusText: 'Forbidden',
+        text: vi.fn().mockResolvedValue('')
+      })
+
+      const { TacticusAPIClient } =
+        await import('@/app/lib/api/tacticus-client')
+      const result = await new TacticusAPIClient().getPlayerResult(validApiKey)
+
+      expect(result).toEqual({ player: null, status: 403 })
+    })
+
+    it('reports the player with the response status', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: vi.fn().mockResolvedValue(mockPlayerData)
+      })
+
+      const { TacticusAPIClient } =
+        await import('@/app/lib/api/tacticus-client')
+      const result = await new TacticusAPIClient().getPlayerResult(validApiKey)
+
+      expect(result).toEqual({ player: mockPlayerData.player, status: 200 })
+    })
+
+    it('reports no status when no response arrived', async () => {
+      mockFetch.mockRejectedValue(new Error('Network error'))
+
+      const { TacticusAPIClient } =
+        await import('@/app/lib/api/tacticus-client')
+      const result = await new TacticusAPIClient().getPlayerResult(validApiKey)
+
+      expect(result).toEqual({ player: null, status: null })
+    })
+  })
+
   describe('getPlayerWithRetry', () => {
     it('returns player data using circuit breaker + retry logic', async () => {
       mockFetch.mockResolvedValue({

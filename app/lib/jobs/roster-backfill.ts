@@ -11,6 +11,7 @@ import { createComponentLogger } from '@/app/lib/logging'
 import { rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { captureSentryException } from '@/app/lib/monitoring/sentry'
 import { persistRosterSnapshot } from '@/app/lib/player/roster-sync'
+import { isKeyRejection, recordKeyRejection } from '@/app/lib/player-key/strike'
 import type { AnyUnit } from '@/app/lib/player/roster-sync'
 import { withTimeout, TimeoutError } from '@/app/lib/utils/async-timeout'
 import { registerJobHandler } from './dispatcher'
@@ -50,7 +51,7 @@ const rosterBackfillHandler: JobHandler = async (payload, ctx) => {
     let query = supabase
       .from('player_mapping')
       .select(
-        'id, user_id, display_name, guild_code, tacticus_api_key_encrypted'
+        'id, user_id, player_id, display_name, guild_code, tacticus_api_key_encrypted'
       )
       .eq('is_current', true)
       .eq('api_key_is_valid', true)
@@ -125,17 +126,26 @@ const rosterBackfillHandler: JobHandler = async (payload, ctx) => {
               return
             }
 
-            const tacticusPlayer = await withTimeout(
-              tacticusAPI.getPlayer(apiKey),
+            const { player: tacticusPlayer, status } = await withTimeout(
+              tacticusAPI.getPlayerResult(apiKey),
               PER_PLAYER_TIMEOUT_MS,
               `tacticusAPI.getPlayer(${player.display_name ?? player.id})`
             )
             if (!tacticusPlayer) {
+              // A rejected key counts toward flagging it invalid, which drops it
+              // from this job's api_key_is_valid filter instead of retrying forever.
+              const strike =
+                isKeyRejection(status) && player.player_id
+                  ? await recordKeyRejection(supabase, player.player_id)
+                  : null
               logger.warn(
                 {
                   jobId: ctx.jobId,
                   playerMappingId: player.id,
-                  userId: player.user_id
+                  userId: player.user_id,
+                  status,
+                  strikes: strike?.strikes,
+                  flagged: strike?.flagged
                 },
                 '[RosterBackfill] Tacticus API returned null'
               )

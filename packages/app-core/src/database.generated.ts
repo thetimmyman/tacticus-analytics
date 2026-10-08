@@ -12164,6 +12164,19 @@ export type Database = {
         }
         Returns: Json
       }
+      record_player_api_key_auth_failure: {
+        Args: {
+          p_cooldown_seconds?: number
+          p_decay_seconds?: number
+          p_player_id: string
+          p_threshold?: number
+        }
+        Returns: {
+          counted: boolean
+          flagged: boolean
+          strikes: number
+        }[]
+      }
       record_roster_write_outcome: {
         Args: {
           p_guild_code: string
