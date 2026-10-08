@@ -15,11 +15,15 @@ test('installed qualification entrypoints execute through symlinked parent direc
       ['network-isolation.mjs', 'External IPv4 qualification target required'],
       ['window-broker.mjs', 'Native macOS owner required']
     ]) {
-      const result = spawnSync(process.execPath, [join(alias, file), '127.0.0.1'], {
-        env: { PATH: process.env.PATH },
-        encoding: 'utf8',
-        timeout: 5000
-      })
+      const result = spawnSync(
+        process.execPath,
+        [join(alias, file), '127.0.0.1'],
+        {
+          env: { PATH: process.env.PATH },
+          encoding: 'utf8',
+          timeout: 5000
+        }
+      )
       assert.notEqual(result.status, 0)
       assert.ok(result.stderr.includes(message), result.stderr)
     }

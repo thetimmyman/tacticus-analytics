@@ -213,6 +213,12 @@ async function run(
     clearTimeout(deadline)
   }
 }
+const repeatedGraphicalAttachments = [3, 4, 5].flatMap((launch) => [
+  ['repeat-' + launch + '-device-session.json', 'application/json'],
+  ['repeat-' + launch + '-supervisor-network.json', 'application/json'],
+  ['repeat-' + launch + '-renderer.json', 'application/json'],
+  ['repeat-' + launch + '-renderer.png', 'image/png']
+])
 let failedPhase = 'graphical'
 try {
   await run([])
@@ -258,6 +264,44 @@ try {
         'Installed supervisor network confinement was not established'
       )
   }
+  // Reproduce the unresolved intermittent renderer transport failure against
+  // this precise package, retaining every strict verdict and business digest.
+  let previousGraphical = secondGraphical
+  for (const launch of [3, 4, 5]) {
+    const prefix = 'repeat-' + launch
+    const repeatConfig = {
+      ...restartConfig,
+      deviceEvidence: join(working, prefix + '-device-session.json'),
+      supervisorEvidence: join(working, prefix + '-supervisor-network.json'),
+      evidence: join(working, prefix + '-renderer.json'),
+      screenshot: join(working, prefix + '-renderer.png')
+    }
+    const repeatVerify = join(working, prefix + '-verify.json')
+    await writeFile(repeatVerify, JSON.stringify(repeatConfig), { mode: 0o600 })
+    failedPhase = 'graphical-repeat-' + launch
+    await run([], { verifyFile: repeatVerify })
+    const current = JSON.parse(await readFile(repeatConfig.deviceEvidence))
+    const supervisor = JSON.parse(
+      await readFile(repeatConfig.supervisorEvidence)
+    )
+    if (
+      current.syntheticDataDigestScope !== syntheticDigestScope ||
+      !/^[a-f0-9]{64}$/.test(current.syntheticDataDigest ?? '') ||
+      current.sourceCommit !== process.env.MAC_SOURCE_SHA ||
+      current.artifactSha256 !== digest ||
+      current.freshPasswordFreeHolding !== false ||
+      previousGraphical.postJourneyDataDigest !== current.syntheticDataDigest ||
+      current.postJourneyDataDigest !== current.syntheticDataDigest ||
+      supervisor.runtimeSupervisor !== true ||
+      supervisor.nonLoopbackTCPDenied !== true ||
+      supervisor.sourceCommit !== process.env.MAC_SOURCE_SHA ||
+      supervisor.artifactSha256 !== digest
+    )
+      throw new Error(
+        'Repeated graphical open did not preserve the confined workspace'
+      )
+    previousGraphical = current
+  }
   failedPhase = 'storage'
   for (const name of ['storage-first.json', 'storage-second.json'])
     await run(['--storage-check', join(working, name)], {
@@ -279,7 +323,12 @@ try {
     'renderer.json.native.json',
     'renderer.png',
     'storage-first.json',
-    'storage-second.json'
+    'storage-second.json',
+    ...repeatedGraphicalAttachments.map(([name]) => name),
+    ...[3, 4, 5].flatMap((launch) => [
+      'repeat-' + launch + '-renderer.json.failure.json',
+      'repeat-' + launch + '-renderer.json.native.json'
+    ])
   ]) {
     try {
       await cp(join(working, name), join(output, name))
@@ -487,7 +536,8 @@ for (const [name, mediaType] of [
   ['renderer.json', 'application/json'],
   ['renderer.png', 'image/png'],
   ['storage-first.json', 'application/json'],
-  ['storage-second.json', 'application/json']
+  ['storage-second.json', 'application/json'],
+  ...repeatedGraphicalAttachments
 ]) {
   attachments.push({
     name,
@@ -551,6 +601,7 @@ console.log(
     files: files.length,
     offlineRenderer: 'selected-analytics-pass',
     restart: 'graphical-and-storage-pass',
+    sameWorkspaceGraphicalLaunches: 5,
     runtimeSupervisorNetwork: 'os-external-tcp-denied',
     databaseBackupRestore: 'pass',
     badMigrationRollback: 'pass',
