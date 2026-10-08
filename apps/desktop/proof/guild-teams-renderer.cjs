@@ -1,7 +1,8 @@
 const assert = require('node:assert/strict')
+const { writeFileSync } = require('node:fs')
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-exports.captureGuildTeams = async (window) => {
+exports.captureGuildTeams = async (window, config) => {
   const run = (fn, ...args) =>
     window.webContents.executeJavaScript(`(${fn})(...${JSON.stringify(args)})`)
   const wait = async (fn, ...args) => {
@@ -126,8 +127,15 @@ exports.captureGuildTeams = async (window) => {
         ?.textContent.trim() === 'Team score: 22667'
   )
   const text = await run(() => document.body.innerText)
+  await delay(500)
+  writeFileSync(
+    config.screenshot.replace(/\.png$/, '-team.png'),
+    (await window.webContents.capturePage()).toPNG(),
+    { mode: 0o600 }
+  )
   await window.loadURL(new URL('/roster', window.webContents.getURL()).href)
   await wait(() => document.body.innerText.includes('Refresh cached roster'))
+  await delay(500)
   const rosterText = await run(() => document.body.innerText)
   assert(
     rosterText.includes('My Roster') &&
