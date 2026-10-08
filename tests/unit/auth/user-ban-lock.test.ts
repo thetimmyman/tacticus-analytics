@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { TypedSupabaseClient } from '@tacticus/app-core/types'
+import type { ServiceSupabaseClient } from '@/app/lib/sync/worker-types'
 
 vi.unmock('@/app/lib/auth/user-ban-lock')
 
@@ -41,7 +41,7 @@ function lockClient(
   }
   const client = {
     from: vi.fn().mockReturnValue(table)
-  } as unknown as TypedSupabaseClient
+  } as unknown as ServiceSupabaseClient
   return { client, table, cleanup, release, renewal }
 }
 

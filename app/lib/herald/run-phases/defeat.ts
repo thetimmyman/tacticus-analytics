@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { ServiceSupabaseClient } from '@/app/lib/sync/worker-types'
 import { createComponentLogger } from '@/app/lib/logging'
 import type {
   AvailabilityTransition,
@@ -16,7 +16,7 @@ import { postHeraldEvent } from '../dispatch'
 const logger = createComponentLogger('herald')
 
 export interface DefeatPhaseInput {
-  supabase: SupabaseClient
+  supabase: ServiceSupabaseClient
   guildCode: string
   invocationId: string
   defeatTransitions: DefeatTransition[]

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/app/lib/db'
+import { db, serviceDb } from '@/app/lib/db'
 import { createComponentLogger } from '@/app/lib/logging'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
@@ -117,7 +117,9 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       update.auto_role_assign_tier = body.auto_role_assign_tier
     }
 
-    const { data, error } = await supabase
+    // Authorized above; no RLS write policy admits the session client.
+    const service = serviceDb()
+    const { data, error } = await service
       .from('guild_roster_scoring_config')
       .upsert(update, { onConflict: 'guild_code' })
       .select('auto_role_assign_enabled, auto_role_assign_tier')

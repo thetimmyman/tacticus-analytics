@@ -1,5 +1,3 @@
-import type { TypedSupabaseClient } from '@tacticus/app-core/types'
-
 /** PERMANENT: no retry. TRANSIENT_NONCOUNTING: retried with backoff. Neither counts toward the
  * shared breaker, so one guild's key cannot block every guild. Mirrored in
  * supabase/functions/_shared/sync-modules/circuit-breaker.ts. */
@@ -49,7 +47,7 @@ export const WORKER_CONFIG = {
   laneTailReserveMs: 5000
 }
 
-export type ServiceSupabaseClient = TypedSupabaseClient
+export type { ServiceSupabaseClient } from '@/app/lib/db'
 
 export interface WorkerResult {
   jobId: string

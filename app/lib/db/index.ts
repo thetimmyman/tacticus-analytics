@@ -18,10 +18,15 @@ export async function db(): Promise<TypedSupabaseClient> {
   }
 }
 
+declare const serviceRole: unique symbol
+export type ServiceSupabaseClient = TypedSupabaseClient & {
+  readonly [serviceRole]: true
+}
+
 /** RLS bypass. Use this, not createServiceClient(), so bypass paths stay behind one import. */
-export function serviceDb(signal?: AbortSignal): TypedSupabaseClient {
+export function serviceDb(signal?: AbortSignal): ServiceSupabaseClient {
   try {
-    return createServiceClient(signal) as TypedSupabaseClient
+    return createServiceClient(signal) as ServiceSupabaseClient
   } catch (error) {
     logError(logger, error, 'Service database connection error')
     throw new Error('Failed to connect to database (service role)')

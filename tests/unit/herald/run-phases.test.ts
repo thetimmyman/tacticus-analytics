@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { ServiceSupabaseClient } from '@/app/lib/sync/worker-types'
 import { DEFAULT_GUILD_HERALD_CONFIG } from '@/app/lib/herald/config'
 import { createEmptyHeraldRunResult } from '@/app/lib/herald/run-types'
 import { dispatchDefeatPhase } from '@/app/lib/herald/run-phases/defeat'
 import { dispatchAvailabilityPhase } from '@/app/lib/herald/run-phases/availability'
 import { dispatchBombRangePhase } from '@/app/lib/herald/run-phases/bomb-range'
 
-const supabase = {} as SupabaseClient
+const supabase = {} as ServiceSupabaseClient
 const bossConfigs = { resolve: () => null, size: 0, rows: [] }
 
 describe('Herald sync phases', () => {

@@ -1,6 +1,6 @@
 import 'server-only'
 import { createHash } from 'crypto'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { ServiceSupabaseClient } from '@/app/lib/sync/worker-types'
 import { createComponentLogger } from '@/app/lib/logging'
 import { fetchHeraldSeedFromMetaAtlas } from './meta-atlas'
 import {
@@ -43,7 +43,7 @@ export interface ResolveRoleMappingsResult {
 
 /** Herald-internal. Per-transition filtering is in-memory. */
 export const resolveHeraldRoleMappings = async (
-  supabase: SupabaseClient,
+  supabase: ServiceSupabaseClient,
   guildCode: string
 ): Promise<ResolveRoleMappingsResult> => {
   const { data, error } = await supabase
@@ -168,7 +168,7 @@ export interface ResolveWebhookResult {
 }
 
 export const resolveHeraldWebhook = async (
-  supabase: SupabaseClient,
+  supabase: ServiceSupabaseClient,
   guildCode: string
 ): Promise<ResolveWebhookResult> => {
   // order+limit guards against duplicate rows.
@@ -302,7 +302,7 @@ const normalizeRoleLabels = (value: unknown): Record<string, string> => {
 }
 
 export const resolveHeraldBossConfigs = async (
-  supabase: SupabaseClient,
+  supabase: ServiceSupabaseClient,
   guildCode: string
 ): Promise<HeraldBossConfigLookup> => {
   const rows: HeraldBossConfigRow[] = []
@@ -402,7 +402,7 @@ export interface HeraldChannel {
 }
 
 export const resolveChannelsForTransition = async (
-  supabase: SupabaseClient,
+  supabase: ServiceSupabaseClient,
   guildCode: string,
   bossConfig: HeraldBossConfigRow | null,
   guildDefaultUrl: string | null,
@@ -556,7 +556,7 @@ export const DEFAULT_GUILD_HERALD_CONFIG: GuildHeraldConfig = {
 }
 
 export const loadGuildHeraldConfig = async (
-  supabase: SupabaseClient,
+  supabase: ServiceSupabaseClient,
   guildCode: string
 ): Promise<GuildHeraldConfig> => {
   try {
@@ -623,7 +623,7 @@ export const loadGuildHeraldConfig = async (
 
 // Status stays `pending`: `delivered`/`failed` would corrupt the webhook health signal.
 export const logSuppressedHeraldDispatch = async (
-  supabase: SupabaseClient,
+  supabase: ServiceSupabaseClient,
   params: {
     guildCode: string
     channels: HeraldChannel[]
@@ -672,7 +672,7 @@ export const logSuppressedHeraldDispatch = async (
 export const AUTO_UPDATE_THROTTLE_MS = 60 * 60 * 1000
 
 export const refreshAutoUpdateMappings = async (
-  supabase: SupabaseClient,
+  supabase: ServiceSupabaseClient,
   guildCode: string,
   invocationId: string,
   nowMs: number = Date.now()

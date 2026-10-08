@@ -1,6 +1,6 @@
 import 'server-only'
 
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { ServiceSupabaseClient } from '@/app/lib/sync/worker-types'
 import {
   postToWebhook,
   logDiscordWebhookDelivery
@@ -26,7 +26,7 @@ import {
 } from '@/app/lib/herald/dispatch/dispatch-shared'
 
 export interface PostHeraldEventParams {
-  supabase: SupabaseClient
+  supabase: ServiceSupabaseClient
   guildCode: string
   transition: DefeatTransition
   invocationId: string

@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { ServiceSupabaseClient } from '@/app/lib/sync/worker-types'
 import { createComponentLogger } from '@/app/lib/logging'
 import type { AvailabilityTransition, HeraldPingMode } from '../contracts'
 import type {
@@ -27,7 +27,7 @@ import { postHeraldAvailabilityEvent } from '../dispatch'
 const logger = createComponentLogger('herald')
 
 export interface AvailabilityPhaseInput {
-  supabase: SupabaseClient
+  supabase: ServiceSupabaseClient
   guildCode: string
   invocationId: string
   availabilityTransitions: AvailabilityTransition[]
@@ -107,6 +107,7 @@ export async function dispatchAvailabilityPhase({
     )
     // Pre-claim consumed secondaries so later syncs don't re-fire; 23505 is benign.
     for (const t of availabilityCollapsed.consumed) {
+      if (t.set === null) continue
       try {
         const { error: insertErr } = await supabase
           .from('herald_boss_availability')

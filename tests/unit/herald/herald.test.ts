@@ -1115,6 +1115,21 @@ describe('postHeraldAvailabilityEvent — snapshot-claim rollback', () => {
     expect(deleteEq).toHaveBeenCalledWith('id', 'snap-1')
   })
 
+  it('skips a setless transition without claiming or posting (set_num is NOT NULL)', async () => {
+    const { supabase } = makeAvailabilitySupabaseMock()
+    vi.mocked(postToWebhook).mockClear()
+    const result = await postHeraldAvailabilityEvent({
+      supabase,
+      guildCode: 'TEST_GUILD',
+      transition: { ...availabilityTransition, set: null },
+      invocationId: 'inv-av-noset',
+      channels: singleChannel
+    })
+    expect(result).toEqual({ outcome: 'skipped', reason: 'no_set' })
+    expect(supabase.from).not.toHaveBeenCalled()
+    expect(postToWebhook).not.toHaveBeenCalled()
+  })
+
   it('keeps the snapshot claim on success', async () => {
     const { supabase, deleteEq } = makeAvailabilitySupabaseMock()
     const result = await postHeraldAvailabilityEvent({
@@ -2200,6 +2215,14 @@ describe('detectAvailabilityTransitions', () => {
     ])
     const result = detectAvailabilityTransitions(battles, snapshot)
     expect(result.map((t) => t.boss_id)).toEqual(['Belisarius_E1'])
+  })
+
+  it('skips a stage with no set: set_num is NOT NULL and part of the dedup key', () => {
+    const battles = [
+      bossAt({ set: undefined }),
+      bossAt({ type: 'Belisarius', set: null })
+    ]
+    expect(detectAvailabilityTransitions(battles, new Set())).toEqual([])
   })
 
   it('does NOT emit availability for main-boss rows (encounterIndex 0)', () => {

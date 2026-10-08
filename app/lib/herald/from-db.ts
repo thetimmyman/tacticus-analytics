@@ -1,5 +1,5 @@
 import 'server-only'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { ServiceSupabaseClient } from '@/app/lib/sync/worker-types'
 import { createComponentLogger } from '@/app/lib/logging'
 import {
   createEmptyHeraldRunResult,
@@ -14,7 +14,7 @@ const logger = createComponentLogger('herald.from-db')
 const DEFAULT_LOOKBACK_MS = 30 * 60 * 1000
 
 export interface RunHeraldFromDbParams {
-  supabase: SupabaseClient
+  supabase: ServiceSupabaseClient
   guildCode: string
   lookbackMs?: number
   nowMs?: number

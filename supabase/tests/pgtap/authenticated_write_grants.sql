@@ -23,6 +23,7 @@ INSERT INTO census_swept (relname) SELECT unnest(ARRAY[
     'discord_token_reminders',
     'discord_user_guild_defaults',
     'discord_user_permissions',
+    'discord_webhook_logs',
     'execution_locks',
     'gdpr_processing_log',
     'global_strength_thresholds',
@@ -32,6 +33,7 @@ INSERT INTO census_swept (relname) SELECT unnest(ARRAY[
     'guild_historical_backfill_history',
     'guild_historical_backfill_status',
     'guild_raid_boss_difficulty',
+    'guild_roster_scoring_config',
     'guild_sync_history',
     'guild_themes',
     'guild_war_battles',
@@ -42,6 +44,8 @@ INSERT INTO census_swept (relname) SELECT unnest(ARRAY[
     'guild_war_visibility_audit',
     'guild_war_zone_events',
     'guild_war_zones',
+    'herald_boss_availability',
+    'herald_posted_events',
     'login_audit',
     'maps',
     'meta_atlas_dag_edges',
@@ -58,6 +62,7 @@ INSERT INTO census_swept (relname) SELECT unnest(ARRAY[
     'player_identity_quarantine_pii',
     'player_identity_subject_authority_blocks',
     'player_invite_codes',
+    'role_reconciliation_events',
     'schema_migrations',
     'season_boss_lineup',
     'season_summary_tracking',
@@ -132,15 +137,10 @@ SELECT relname, 'keep-policy-governed' FROM unnest(ARRAY[ -- census_kept_policy
 INSERT INTO census_kept (relname, decision)
 SELECT relname, 'keep-undecided' FROM unnest(ARRAY[ -- census_kept_undecided
     'coaching_tasks',
-    'discord_webhook_logs',
     'EOT_GR_data',
-    'guild_roster_scoring_config',
-    'herald_boss_availability',
-    'herald_posted_events',
     'hero_mappings',
     'onboarding_jobs',
-    'player_claim_audit',
-    'role_reconciliation_events'
+    'player_claim_audit'
   ]::text[]) AS relname;
 
 SELECT NOT EXISTS (
@@ -154,13 +154,15 @@ SELECT NOT EXISTS (
   WHERE version = '20261006130000' AND name = 'revoke_guild_war_import_write_grants'
 ) OR NOT EXISTS (SELECT 1 FROM supabase_migrations.schema_migrations
   WHERE version = '20261007230000' AND name = 'revoke_service_traced_write_grants'
+) OR NOT EXISTS (SELECT 1 FROM supabase_migrations.schema_migrations
+  WHERE version = '20261008020000' AND name = 'revoke_service_typed_write_grants'
 ) AS census_not_applied \gset
 
 \if :census_not_applied
 SELECT plan(11);
 SELECT * FROM skip(
   11,
-  'this database predates the authenticated write-grant revokes; apply 20260925080000, 20261006120000, 20261006130000 and 20261007230000 and this suite executes fully'
+  'this database predates the authenticated write-grant revokes; apply 20260925080000, 20261006120000, 20261006130000, 20261007230000 and 20261008020000 and this suite executes fully'
 );
 SELECT * FROM finish();
 ROLLBACK;
@@ -176,16 +178,17 @@ SELECT is(
       ('20260925080000', 'ps218_revoke_authenticated_write_grants'),
       ('20261006120000', 'revoke_discord_dispatch_write_grants'),
       ('20261006130000', 'revoke_guild_war_import_write_grants'),
-      ('20261007230000', 'revoke_service_traced_write_grants'))),
-  4,
-  'the authenticated write-grant revokes 20260925080000, 20261006120000, 20261006130000 and 20261007230000 are recorded as applied'
+      ('20261007230000', 'revoke_service_traced_write_grants'),
+      ('20261008020000', 'revoke_service_typed_write_grants'))),
+  5,
+  'the authenticated write-grant revokes 20260925080000, 20261006120000, 20261006130000, 20261007230000 and 20261008020000 are recorded as applied'
 );
 
 -- 2. The population this suite judges is the population the census names.
 SELECT is(
   (SELECT count(*)::integer FROM census_swept),
-  67,
-  'the swept population is 67 tables (matches scripts/security/authenticated-write-census.json)'
+  72,
+  'the swept population is 72 tables (matches scripts/security/authenticated-write-census.json)'
 );
 
 -- 3. Every swept table exists, or 4 could pass with nothing to check.

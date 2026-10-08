@@ -221,8 +221,7 @@ export const PUT = withErrorHandler(async (request: NextRequest) => {
 
     const serviceClient = serviceDb()
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error: upsertError } = await (serviceClient as any)
+    const { error: upsertError } = await serviceClient
       .from('guild_roster_scoring_config')
       .upsert(
         {

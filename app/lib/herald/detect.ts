@@ -494,7 +494,7 @@ export const detectAvailabilityTransitions = (
   interface StageActivity {
     bossType: string
     season: number
-    set: number | null
+    set: number
     rarity: string
     loopIndex: number
     tier: number | null
@@ -511,9 +511,11 @@ export const detectAvailabilityTransitions = (
     if (encounterIndex === null) continue
     if (encounterIndex !== 1 && encounterIndex !== 2) continue
     const bossType = battle.type
+    // set_num is NOT NULL and in the dedup key: a setless stage cannot be claimed.
     const set = toInt(battle.set)
+    if (set === null) continue
     const loopIndex = toInt(battle.loopIndex) ?? 0
-    const stageKey = `${bossType}|${season}|${set ?? 'null'}|${rarity}|${loopIndex}`
+    const stageKey = `${bossType}|${season}|${set}|${rarity}|${loopIndex}`
     if (stages.has(stageKey)) continue
     stages.set(stageKey, {
       bossType,
@@ -531,7 +533,7 @@ export const detectAvailabilityTransitions = (
   for (const stage of stages.values()) {
     for (const enc of [1, 2] as const) {
       const bossId = buildBossId(stage.bossType, enc)
-      const snapshotKey = `${stage.season}|${bossId}|${stage.loopIndex}|${stage.rarity}|${stage.set ?? 'null'}`
+      const snapshotKey = `${stage.season}|${bossId}|${stage.loopIndex}|${stage.rarity}|${stage.set}`
       if (alreadySeen.has(snapshotKey)) continue
       if (emitted.has(snapshotKey)) continue
       emitted.add(snapshotKey)
