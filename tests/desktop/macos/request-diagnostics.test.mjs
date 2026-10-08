@@ -349,3 +349,75 @@ test('final network verdict refuses absent or malformed safety observations', ()
   ])
     assert.equal(diagnostics.networkFailureCause(value), 'request-failed')
 })
+
+test('member home content labels recognize only finite public playbook targets without IDs', () => {
+  assert.equal(
+    diagnostics.requestLabel('/boss-playbooks', 'xhr').endpoint,
+    'boss-playbooks-page'
+  )
+  assert.equal(
+    diagnostics.requestLabel('/player-stats', 'xhr').endpoint,
+    'player-stats-page'
+  )
+  for (const id of [
+    'magnus',
+    'mortarion',
+    'silent-king',
+    'ghazghkull',
+    'avatar-of-khaine',
+    'belisarius',
+    'riptide',
+    'rogal-dorn',
+    'screamer-killer',
+    'lion',
+    'hive-tyrant-kronos',
+    'hive-tyrant-gorgon',
+    'hive-tyrant-leviathan',
+    'tervigon-kronos',
+    'tervigon-gorgon',
+    'tervigon-leviathan'
+  ]) {
+    const label = diagnostics.requestLabel(
+      '/boss-playbooks/' + id,
+      'xhr',
+      'scores-view'
+    )
+    assert.deepEqual(label, {
+      endpoint: 'boss-playbook-detail-page',
+      resource: 'xhr',
+      phase: 'scores-view'
+    })
+  }
+  const canary = 'SYNTHETIC-SECRET-CANARY'
+  for (const path of [
+    '/boss-playbooks/' + canary,
+    '/boss-playbooks/magnus/private',
+    '/boss-playbooks/%6dagnus',
+    '/boss-playbooks/magnus?key=' + canary
+  ]) {
+    const label = diagnostics.requestLabel(path, 'xhr')
+    assert.equal(label.endpoint, 'other-local')
+    assert.equal(JSON.stringify(label).includes(canary), false)
+  }
+  const failure = {
+    ...diagnostics.requestLabel('/boss-playbooks/magnus', 'xhr'),
+    status: 0,
+    networkError: 'request-failed'
+  }
+  assert.equal(
+    diagnostics.networkFailureCause({
+      pending: [],
+      failed: [failure],
+      blocked: 0
+    }),
+    'request-failed'
+  )
+  assert.equal(
+    diagnostics.sanitizeFailure({
+      stage: 'renderer-network',
+      cause: 'request-failed',
+      network: { failed: [failure] }
+    }).network.failed[0].endpoint,
+    'boss-playbook-detail-page'
+  )
+})

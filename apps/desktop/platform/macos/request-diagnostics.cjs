@@ -82,6 +82,8 @@ const endpoints = {
   '/privacy': 'privacy-page',
   '/terms': 'terms-page',
   '/do-not-sell': 'do-not-sell-page',
+  '/boss-playbooks': 'boss-playbooks-page',
+  '/player-stats': 'player-stats-page',
   '/desktop/open': 'device-bootstrap',
   '/desktop/personal': 'personal-page',
   '/desktop/onboarding-status': 'onboarding-status',
@@ -130,8 +132,31 @@ const endpoints = {
     'cluster-boss-performance',
   '/favicon.ico': 'favicon'
 }
+// Finite home-table targets from boss-playbooks/playbook-id.ts; the ID is never
+// emitted and arbitrary detail paths remain unknown.
+const playbookPaths = new Set(
+  [
+    'magnus',
+    'mortarion',
+    'silent-king',
+    'ghazghkull',
+    'avatar-of-khaine',
+    'belisarius',
+    'riptide',
+    'rogal-dorn',
+    'screamer-killer',
+    'lion',
+    'hive-tyrant-kronos',
+    'hive-tyrant-gorgon',
+    'hive-tyrant-leviathan',
+    'tervigon-kronos',
+    'tervigon-gorgon',
+    'tervigon-leviathan'
+  ].map((id) => `/boss-playbooks/${id}`)
+)
 const endpointNames = [
   ...Object.values(endpoints),
+  'boss-playbook-detail-page',
   'static-asset',
   'other-local'
 ]
@@ -141,7 +166,11 @@ function requestLabel(path, resource, phase) {
   return {
     endpoint:
       endpoints[path] ??
-      (path.startsWith('/_next/static/') ? 'static-asset' : 'other-local'),
+      (playbookPaths.has(path)
+        ? 'boss-playbook-detail-page'
+        : path.startsWith('/_next/static/')
+          ? 'static-asset'
+          : 'other-local'),
     resource: resources.includes(resource) ? resource : 'other',
     ...(phases.includes(phase) ? { phase } : {})
   }
