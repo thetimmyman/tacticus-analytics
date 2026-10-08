@@ -5,6 +5,7 @@ const { randomBytes } = require('node:crypto')
 const {
   requestLabel,
   networkErrorLabel,
+  requestMetadata,
   requestDocumentLabel,
   sanitizeFailure,
   rendererReceipt,
@@ -57,12 +58,19 @@ app
       if (config.verify && url.origin === origin)
         activeRequests.set(details.id, {
           ...requestLabel(url.pathname, details.resourceType, requestPhase),
+          ...requestMetadata(details.method),
           document: requestDocumentLabel(details.referrer)
         })
       callback({ cancel: !allowed })
     })
     session.defaultSession.webRequest.onBeforeSendHeaders(
       (details, callback) => {
+        const label = activeRequests.get(details.id)
+        if (label)
+          activeRequests.set(details.id, {
+            ...label,
+            ...requestMetadata(details.method, details.requestHeaders)
+          })
         if (new URL(details.url).origin === origin)
           details.requestHeaders['x-desktop-transport'] = config.transportKey
         callback({ requestHeaders: details.requestHeaders })

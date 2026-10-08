@@ -47,7 +47,10 @@ test('untrusted diagnostic frames cannot copy paths, messages, cookies or arbitr
     phase: canary,
     networkError: canary,
     document: canary,
-    frameAvailable: canary
+    frameAvailable: canary,
+    method: canary,
+    rsc: canary,
+    prefetch: canary
   }
   const input = {
     stage: 'renderer-network',
@@ -236,4 +239,59 @@ test('failed requests retain fixed originating document and frame availability w
   assert.deepEqual(value.network.failed, [failure])
   assert.equal(JSON.stringify(value).includes(canary), false)
   assert.equal(diagnostics.unexpectedFailure(failure), true)
+})
+
+test('request metadata retains only a bounded method and observed RSC/prefetch flags', () => {
+  const canary = 'SYNTHETIC-SECRET-CANARY'
+  assert.deepEqual(diagnostics.requestMetadata(canary), { method: 'other' })
+  assert.deepEqual(
+    diagnostics.requestMetadata('POST', {
+      RSC: '1',
+      'Next-Router-Prefetch': '1',
+      Authorization: canary,
+      Cookie: canary
+    }),
+    { method: 'POST', rsc: true, prefetch: true }
+  )
+  const label = diagnostics.requestLabel(
+    '/api/briefing/seen',
+    'xhr',
+    'scores-view'
+  )
+  const result = diagnostics.sanitizeFailure({
+    stage: 'renderer-network',
+    cause: 'request-failed',
+    network: {
+      failed: [
+        {
+          ...label,
+          ...diagnostics.requestMetadata('POST', {}),
+          status: 0,
+          document: 'home-document',
+          frameAvailable: true,
+          headers: { Authorization: canary }
+        }
+      ]
+    }
+  })
+  assert.equal(JSON.stringify(result).includes(canary), false)
+  assert.deepEqual(result.network.failed[0], {
+    endpoint: 'briefing-seen',
+    resource: 'xhr',
+    phase: 'scores-view',
+    document: 'home-document',
+    method: 'POST',
+    rsc: false,
+    prefetch: false,
+    status: 0,
+    frameAvailable: true
+  })
+  assert.equal(
+    diagnostics.unexpectedFailure({
+      path: '/api/briefing/seen',
+      status: 0,
+      phase: 'scores-view'
+    }),
+    true
+  )
 })

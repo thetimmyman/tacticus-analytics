@@ -8,6 +8,7 @@ import { qualificationTarget } from './qualification-network.mjs'
 import { stage, inventory } from './stage.mjs'
 import { records } from './evidence.mjs'
 import requestDiagnostics from './request-diagnostics.cjs'
+import { runNavigationControl } from './navigation-control.mjs'
 
 const inputs = resolve(process.argv[2]),
   application = resolve(process.argv[3]),
@@ -219,8 +220,37 @@ const repeatedGraphicalAttachments = [3, 4, 5].flatMap((launch) => [
   ['repeat-' + launch + '-renderer.json', 'application/json'],
   ['repeat-' + launch + '-renderer.png', 'image/png']
 ])
-let failedPhase = 'graphical'
+let failedPhase = 'navigation-control'
 try {
+  // Bind the diagnostic to the complete installed image before execution.
+  const manifest = JSON.parse(
+    await readFile(
+      join(installed, 'Contents/Resources/package-inventory.json'),
+      'utf8'
+    )
+  )
+  const installedFiles = (await inventory(installed)).filter(
+    (file) => file.path !== 'Contents/Resources/package-inventory.json'
+  )
+  if (
+    manifest.sourceCommit !== process.env.MAC_SOURCE_SHA ||
+    manifest.architecture !== process.arch ||
+    JSON.stringify(installedFiles) !== JSON.stringify(manifest.files)
+  )
+    throw new Error('Installed control package inventory mismatch')
+  await runNavigationControl({
+    electron: join(runtime, 'electron/Electron.app/Contents/MacOS/Electron'),
+    guard: join(installed, 'Contents/MacOS/TacticusAnalytics'),
+    script: join(runtime, 'apps/desktop/platform/macos/navigation-control.cjs'),
+    output: join(working, 'navigation-control.json'),
+    sourceCommit: process.env.MAC_SOURCE_SHA,
+    artifactSha256: digest
+  })
+  await cp(
+    join(working, 'navigation-control.json'),
+    join(output, 'navigation-control.json')
+  )
+  failedPhase = 'graphical'
   await run([])
   const firstGraphical = JSON.parse(await readFile(config.deviceEvidence))
   const restartConfig = {
@@ -310,6 +340,7 @@ try {
     })
 } catch (error) {
   for (const name of [
+    'navigation-control.json',
     'device-session.json',
     'supervisor-network.json',
     'restart-device-session.json',
@@ -526,6 +557,7 @@ if (first.counter !== 1 || second.counter !== 2)
 const files = await inventory(installed)
 const attachments = []
 for (const [name, mediaType] of [
+  ['navigation-control.json', 'application/json'],
   ['device-session.json', 'application/json'],
   ['network-policy.json', 'application/json'],
   ['supervisor-network.json', 'application/json'],

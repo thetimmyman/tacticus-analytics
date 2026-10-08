@@ -32,6 +32,16 @@ const documents = {
   '/desktop/setup': 'setup-document'
 }
 const documentNames = [...Object.values(documents), 'other-document']
+const methods = [
+  'GET',
+  'POST',
+  'HEAD',
+  'OPTIONS',
+  'PUT',
+  'PATCH',
+  'DELETE',
+  'other'
+]
 const phases = [
   'initial-open',
   'renderer-refusal',
@@ -55,6 +65,7 @@ const resources = [
   'other'
 ]
 const endpoints = {
+  '/home': 'home-page',
   '/desktop/open': 'device-bootstrap',
   '/desktop/personal': 'personal-page',
   '/desktop/onboarding-status': 'onboarding-status',
@@ -81,6 +92,8 @@ const endpoints = {
   '/api/upcoming/token-performance': 'target-performance',
   '/api/health': 'health',
   '/api/user/activity': 'activity',
+  '/api/user/token-alerts': 'token-alerts',
+  '/api/briefing/seen': 'briefing-seen',
   '/api/version': 'version',
   '/api/health/telemetry': 'health-telemetry',
   '/api/season/timing': 'season-timing',
@@ -94,6 +107,11 @@ const endpoints = {
   '/supabase/rest/v1/EOT_GR_data': 'raid-data',
   '/supabase/rest/v1/guild_members': 'guild-members',
   '/supabase/rest/v1/guild_raid_season': 'raid-season',
+  '/supabase/rest/v1/rpc/get_player_boss_performance': 'boss-performance',
+  '/supabase/rest/v1/rpc/get_player_prime_performance': 'prime-performance',
+  '/supabase/rest/v1/rpc/get_player_performance_summary': 'performance-summary',
+  '/supabase/rest/v1/rpc/get_guild_vs_cluster_boss_performance':
+    'cluster-boss-performance',
   '/favicon.ico': 'favicon'
 }
 const endpointNames = [
@@ -115,6 +133,24 @@ function requestLabel(path, resource, phase) {
 
 function networkErrorLabel(error) {
   return Object.hasOwn(networkErrors, error) ? networkErrors[error] : 'other'
+}
+
+function requestMetadata(method, headers) {
+  const value = { method: methods.includes(method) ? method : 'other' }
+  if (!headers || typeof headers !== 'object' || Array.isArray(headers))
+    return value
+  const names = Object.fromEntries(
+    Object.entries(headers).map(([name, value]) => [name.toLowerCase(), value])
+  )
+  value.rsc = names.rsc === '1'
+  value.prefetch =
+    names['next-router-prefetch'] === '1' ||
+    ['purpose', 'sec-purpose'].some(
+      (name) =>
+        typeof names[name] === 'string' &&
+        names[name].toLowerCase().includes('prefetch')
+    )
+  return value
 }
 
 function requestDocumentLabel(referrer) {
@@ -148,6 +184,11 @@ function sanitizeFailure(input) {
       ...(phases.includes(entry?.phase) ? { phase: entry.phase } : {}),
       ...(documentNames.includes(entry?.document)
         ? { document: entry.document }
+        : {}),
+      ...(methods.includes(entry?.method) ? { method: entry.method } : {}),
+      ...(typeof entry?.rsc === 'boolean' ? { rsc: entry.rsc } : {}),
+      ...(typeof entry?.prefetch === 'boolean'
+        ? { prefetch: entry.prefetch }
         : {}),
       ...(name === 'failed'
         ? {
@@ -226,6 +267,7 @@ function unexpectedFailure(failure) {
 module.exports = {
   requestLabel,
   networkErrorLabel,
+  requestMetadata,
   requestDocumentLabel,
   sanitizeFailure,
   rendererReceipt,
