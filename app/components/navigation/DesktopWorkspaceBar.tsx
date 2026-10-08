@@ -14,6 +14,9 @@ export function DesktopWorkspaceBar() {
           <DesktopGameStatus />
         </p>
         <nav aria-label="Local workspace actions" className="flex gap-4">
+          <a href="/guild-teams" className="text-(--primary) underline">
+            Raid teams
+          </a>
           <a href="/desktop/import" className="text-(--primary) underline">
             Import raid file
           </a>

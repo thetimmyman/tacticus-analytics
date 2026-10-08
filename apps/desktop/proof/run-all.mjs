@@ -27,6 +27,7 @@ run('a-loopback-gateway', '--test', [
   'apps/desktop/proof/loopback-gateway.test.mjs',
   'apps/desktop/proof/service-client.test.mjs',
   'apps/desktop/proof/schema-lifecycle.test.mjs',
+  'apps/desktop/proof/local-team-schema.test.mjs',
   'apps/desktop/proof/safe-files.test.mjs',
   'apps/desktop/proof/workspace-selection.test.mjs',
   'apps/desktop/proof/job-scheduler.test.mjs',
@@ -97,6 +98,11 @@ if (!configPath) {
   run('c-workspace-transfer', 'apps/desktop/proof/transfer-journey.mjs', [
     configPath
   ])
+  console.log('\n== Local own-roster team comparison ==')
+  run('c-guild-teams', 'apps/desktop/proof/guild-teams-journey.mjs', [
+    configPath
+  ])
+
   console.log('\n== Runtime token expiry and active-session shutdown ==')
   run('c-lifecycle', 'apps/desktop/proof/lifecycle-journey.mjs', [configPath])
   console.log('\n== Forced coordinator death / native restart ==')
