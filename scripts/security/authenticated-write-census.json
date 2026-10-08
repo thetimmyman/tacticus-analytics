@@ -34,7 +34,7 @@
     "previous_measurement": {
       "migration_head": "20260919012000_ps669_retain_departed_player_mappings.sql",
       "tables_carrying_the_grant": 122,
-      "delta": "guild_war_raw_events (was revoke) dropped by 20260925030000_ps516_drop_guild_war_sync_machinery.sql; no table gained the grant, no decision changed; re-measured again after the war-room shared-teams port: guild_war_meta_teams (new, leader write policy, written by app/api/guild-war/war-room/route.ts on the request client) added as keep-policy-governed; swept set unchanged; on review, role_reconciliation_events moved revoke -> keep-undecided (app/api/guild-roles/reconcile/route.ts casts its db() client to ServiceSupabaseClient and role-reconciler.ts inserts into it), and stored query-builder writes are now followed; later, the Discord dispatcher's command-handler writes were attributed to service-role (SERVICE(discord-dispatch)), so discord_channel_guilds, discord_server_guilds, discord_token_reminders and discord_user_guild_defaults moved keep-undecided -> revoke, swept by 20261006120000_revoke_discord_dispatch_write_grants.sql; later still, the guild-war import ingestor's writes were attributed to service-role (SERVICE(guild-war-import)) for the three tables this rule covers, so guild_war_zones, guild_war_matches and guild_war_player_attempts moved keep-undecided -> revoke, swept by 20261006130000_revoke_guild_war_import_write_grants.sql; guild_war_battles, guild_war_lineups, guild_war_participation and guild_themes were reviewed in the same pass and intentionally left out (see that migration's header and the guild_themes entry's write site, whose only caller is also service-role but was left for a separate, narrower change); later again, five keep-undecided tables whose writers trace to service-role were swept: guild_war_battles and guild_war_participation by widening SERVICE(guild-war-import), and execution_locks, guild_themes and sync_health by declaring their traced receivers ServiceSupabaseClient (execution_locks' configured-table writers are now scanned too), so all five moved keep-undecided -> revoke, swept by 20261007230000_revoke_service_traced_write_grants.sql; discord_webhook_logs was reviewed in the same pass and stays keep-undecided (see writer_scan.service_param_annotations)"
+      "delta": "guild_war_raw_events (was revoke) dropped by 20260925030000_ps516_drop_guild_war_sync_machinery.sql; no table gained the grant, no decision changed; re-measured again after the war-room shared-teams port: guild_war_meta_teams (new, leader write policy, written by app/api/guild-war/war-room/route.ts on the request client) added as keep-policy-governed; swept set unchanged; on review, role_reconciliation_events moved revoke -> keep-undecided (app/api/guild-roles/reconcile/route.ts casts its db() client to ServiceSupabaseClient and role-reconciler.ts inserts into it), and stored query-builder writes are now followed; later, the Discord dispatcher's command-handler writes were attributed to service-role (SERVICE(discord-dispatch)), so discord_channel_guilds, discord_server_guilds, discord_token_reminders and discord_user_guild_defaults moved keep-undecided -> revoke, swept by 20261006120000_revoke_discord_dispatch_write_grants.sql; later still, the guild-war import ingestor's writes were attributed to service-role (SERVICE(guild-war-import)) for the three tables this rule covers, so guild_war_zones, guild_war_matches and guild_war_player_attempts moved keep-undecided -> revoke, swept by 20261006130000_revoke_guild_war_import_write_grants.sql; guild_war_battles, guild_war_lineups, guild_war_participation and guild_themes were reviewed in the same pass and intentionally left out (see that migration's header and the guild_themes entry's write site, whose only caller is also service-role but was left for a separate, narrower change); later again, five keep-undecided tables whose writers trace to service-role were swept: guild_war_battles and guild_war_participation by widening SERVICE(guild-war-import), and execution_locks, guild_themes and sync_health by declaring their traced receivers ServiceSupabaseClient (execution_locks' configured-table writers are now scanned too), so all five moved keep-undecided -> revoke, swept by 20261007230000_revoke_service_traced_write_grants.sql; discord_webhook_logs was reviewed in the same pass and stays keep-undecided (see writer_scan.service_param_annotations); later, ServiceSupabaseClient became a unique-symbol brand minted only by serviceDb(), the Herald write chain was typed with it, and the guild Role Reconciler config and manual-resync routes were moved to write with serviceDb() after authorizing (both had written through the request client, which no write policy admits), so discord_webhook_logs, guild_roster_scoring_config, herald_boss_availability, herald_posted_events and role_reconciliation_events moved keep-undecided -> revoke, swept by 20261008020000_revoke_service_typed_write_grants.sql; committed_write_sites were re-measured for every table in the same pass"
     },
     "unapplicable_migrations_assessment": "none of the unapplicable migrations grants or revokes INSERT/UPDATE/DELETE for authenticated on a public table or creates a write policy on one (checked 2026-09-25); they can only hide tables the replay never creates, and the migration re-checks every premise (existence, RLS, arming policy, service_role write) against the database it runs on"
   },
@@ -54,15 +54,15 @@
     "chokepoint": "app/lib/db/index.ts -- db() is the cookie-bound anon-key client (PostgREST resolves it to `authenticated`), serviceDb() is the service-role client; app/lib/db/client.ts is the browser half",
     "unresolved_is_conservative": "a write site whose client cannot be proved service-role counts AGAINST revoking, never for it",
     "indirect_writers_checked": "SECURITY INVOKER functions executable by authenticated, and INVOKER trigger functions, whose bodies name a swept table were enumerated on the replayed database; each one that writes a swept table is called only on a service-role client (serviceDb, ServiceSupabaseClient, createDirectClient with the service key, edge functions) or by cron. Live-only functions are not visible to this check.",
-    "cast_taint": "a ServiceSupabaseClient-typed receiver is service-role only if no non-test file casts a value to that type and reaches the module through ServiceSupabaseClient-typed parameters; reached modules report UNKNOWN(param-type-cast)",
+    "cast_taint": "ServiceSupabaseClient is a unique-symbol brand only serviceDb() mints (app/lib/db/index.ts), so a receiver declared with it is service-role unless a cast reaches it: a ServiceSupabaseClient-typed receiver is service-role only if no non-test file other than serviceDb() itself casts a value to that type and reaches the module through ServiceSupabaseClient-typed parameters; reached modules report UNKNOWN(param-type-cast). An any-typed value also bypasses the brand; ESLint's no-explicit-any flags those",
     "discord_dispatch": "a receiver declared `x: Supabase` under app/api/discord/interactions/command-handlers/ is service-role: app/api/discord/interactions/route.ts builds the client the dispatcher passes down with serviceDb(), and no non-test module that reaches a command handler through value imports builds a request client; --scan re-verifies both and reports SERVICE(discord-dispatch)",
     "guild_war_import": "a receiver declared `x: TypedSupabaseClient` in app/lib/war/guild-war-ingestor.ts, writing guild_war_zones, guild_war_matches, guild_war_player_attempts, guild_war_battles or guild_war_participation, is service-role: app/api/guild-war/import/route.ts is the only non-test module that imports the ingestor, builds its client with serviceDb(), and passes it to ingestGuildWar(...); no non-test module reaching the ingestor through value imports builds a request client; --scan re-verifies both and reports SERVICE(guild-war-import). guild_war_lineups is written under the same proof but is policy-governed, so its grant is not judged by this rule.",
-    "service_param_annotations": "the receivers of the remaining execution_locks, guild_themes and sync_health writes (the user-ban lock helpers, eraseAllUserData, processValidationSync) are declared `ServiceSupabaseClient`; each sits one call from a serviceDb() client: the admin ban, bulk and lift routes and the ban-reconcile job build the lock client with serviceDb(), app/api/account/delete/route.ts and the GDPR manager pass serviceDb() to eraseAllUserData, and processValidationSync runs on the sync worker chain. The alias is plain TypedSupabaseClient, so these annotations record that trace, and the cast-taint rule still demotes any a cast can reach. discord_webhook_logs stays keep-undecided: its Herald writers sit several calls below serviceDb() behind parameters typed as plain SupabaseClient",
+    "service_param_annotations": "the receivers of the execution_locks, guild_themes and sync_health writes (the user-ban lock helpers, reconcileUserBanState, eraseAllUserData, processValidationSync), and of every Herald write (the dispatchers, run phases, preview and config helpers, runHeraldFromDb), are declared ServiceSupabaseClient; the compiler accepts only serviceDb() clients there, which is what the Herald entry points (app/lib/jobs/guild-sync.ts, the sync worker's raid-sync chain, app/api/herald/test-fire and trigger-notification) and the ban routes and job pass. app/api/guild-roles/reconcile/route.ts no longer casts its db() client to ServiceSupabaseClient (it passes serviceDb() after authorizing), so role-reconciler.ts is no longer cast-tainted",
     "configured_table": "app/lib/sync/execution-locks.ts and supabase/functions/_shared/sync-modules/db-locking.ts write execution_locks through a configured table name (executionLocksTable(supabase, config.table) and .from(config.table)); --scan reads those calls as .from('execution_locks') once the configured-table rule confirms the default is 'execution_locks', every edge acquireLock/releaseLock call passes CONFIG.tables.locks ('execution_locks'), and every config.table use takes one of those two shapes"
   },
   "counts": {
-    "keep-undecided": 10,
-    "revoke": 67,
+    "keep-undecided": 5,
+    "revoke": 72,
     "keep-policy-governed": 45
   },
   "tables": {
@@ -75,67 +75,55 @@
       "committed_write_sites": [
         {
           "file": "app/api/player-api-key/sync/route.ts",
-          "line": 282,
+          "line": 233,
           "verb": "upsert",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/sync/db-operations/raid-upsert.ts",
-          "line": 56,
+          "line": 57,
           "verb": "upsert",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/sync/db-operations/raid-upsert.ts",
-          "line": 73,
-          "verb": "upsert",
-          "client": "UNKNOWN"
-        },
-        {
-          "file": "app/lib/sync/post-sync-hooks.ts",
-          "line": 350,
-          "verb": "delete",
-          "client": "SERVICE(param-type)"
-        },
-        {
-          "file": "app/lib/sync/worker-jobs/raid-sync.ts",
-          "line": 494,
+          "line": 74,
           "verb": "upsert",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/sync/worker-jobs/raid-sync.ts",
-          "line": 528,
+          "line": 443,
+          "verb": "upsert",
+          "client": "UNKNOWN"
+        },
+        {
+          "file": "app/lib/sync/worker-jobs/raid-sync.ts",
+          "line": 477,
           "verb": "upsert",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/sync/worker-jobs/season-reconcile.ts",
-          "line": 67,
+          "line": 52,
           "verb": "delete",
           "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/sync/worker-jobs/validation-sync.ts",
-          "line": 44,
+          "line": 39,
           "verb": "delete",
           "client": "SERVICE(param-type)"
         },
         {
-          "file": "supabase/functions/purge-old-seasons/index.ts",
-          "line": 158,
-          "verb": "delete",
-          "client": "SERVICE(edge)"
-        },
-        {
           "file": "tests/integration/gdpr/gdpr.test.ts",
-          "line": 255,
+          "line": 199,
           "verb": "insert",
           "client": "SERVICE(file)"
         },
         {
           "file": "tests/integration/gdpr/gdpr.test.ts",
-          "line": 291,
+          "line": 229,
           "verb": "delete",
           "client": "SERVICE(file)"
         }
@@ -172,7 +160,7 @@
       "committed_write_sites": [
         {
           "file": "app/lib/audit/log-guild-config-change.ts",
-          "line": 158,
+          "line": 107,
           "verb": "insert",
           "client": "SERVICE(file)"
         }
@@ -189,7 +177,7 @@
       "committed_write_sites": [
         {
           "file": "app/lib/sync/db-operations/bomb-tracking.ts",
-          "line": 68,
+          "line": 67,
           "verb": "upsert",
           "client": "UNKNOWN"
         }
@@ -266,7 +254,7 @@
       "committed_write_sites": [
         {
           "file": "app/api/playbooks/[bossId]/requirements/route.ts",
-          "line": 195,
+          "line": 187,
           "verb": "upsert",
           "client": "UNKNOWN"
         }
@@ -283,25 +271,25 @@
       "committed_write_sites": [
         {
           "file": "app/api/boss-assignments/target-tokens/route.ts",
-          "line": 321,
+          "line": 289,
           "verb": "upsert",
           "client": "REQUEST"
         },
         {
           "file": "app/api/boss-assignments/target-tokens/route.ts",
-          "line": 437,
+          "line": 392,
           "verb": "delete",
           "client": "REQUEST"
         },
         {
           "file": "app/api/boss-assignments/target-tokens/seed/route.ts",
-          "line": 596,
+          "line": 550,
           "verb": "delete",
           "client": "REQUEST"
         },
         {
           "file": "app/api/boss-assignments/target-tokens/seed/route.ts",
-          "line": 611,
+          "line": 565,
           "verb": "upsert",
           "client": "REQUEST"
         }
@@ -377,25 +365,25 @@
         },
         {
           "file": "app/api/clusters/create-cluster/route.ts",
-          "line": 67,
+          "line": 62,
           "verb": "insert",
           "client": "SERVICE"
         },
         {
           "file": "app/api/clusters/create/route.ts",
-          "line": 186,
+          "line": 190,
           "verb": "insert",
           "client": "SERVICE"
         },
         {
           "file": "app/lib/utils/invite-codes.ts",
-          "line": 199,
+          "line": 151,
           "verb": "update",
           "client": "REQUEST"
         },
         {
           "file": "app/lib/utils/invite-codes.ts",
-          "line": 247,
+          "line": 194,
           "verb": "update",
           "client": "REQUEST"
         }
@@ -442,13 +430,13 @@
       "committed_write_sites": [
         {
           "file": "app/api/officer/coaching-tasks/[id]/route.ts",
-          "line": 93,
+          "line": 83,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/api/officer/coaching-tasks/route.ts",
-          "line": 311,
+          "line": 286,
           "verb": "insert",
           "client": "UNKNOWN"
         }
@@ -512,54 +500,54 @@
       "committed_write_sites": [
         {
           "file": "app/api/cluster/discord-links/route.ts",
-          "line": 390,
+          "line": 378,
           "verb": "insert",
           "client": "SERVICE"
         },
         {
           "file": "app/api/cluster/discord-links/route.ts",
-          "line": 481,
+          "line": 469,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/discord/interactions/command-handlers/handlers/link.ts",
-          "line": 230,
+          "line": 228,
           "verb": "update",
-          "client": "UNKNOWN"
+          "client": "SERVICE(discord-dispatch)"
         },
         {
           "file": "app/api/discord/interactions/command-handlers/handlers/link.ts",
-          "line": 538,
+          "line": 532,
           "verb": "update",
-          "client": "UNKNOWN"
+          "client": "SERVICE(discord-dispatch)"
         },
         {
           "file": "app/components/discord/DiscordIntegration.tsx",
-          "line": 238,
+          "line": 236,
           "verb": "insert",
           "client": "REQUEST"
         },
         {
           "file": "app/components/discord/DiscordIntegration.tsx",
-          "line": 268,
+          "line": 266,
           "verb": "update",
           "client": "REQUEST"
         },
         {
           "file": "supabase/functions/discord-bot-oauth/index.ts",
-          "line": 134,
+          "line": 129,
           "verb": "update",
           "client": "SERVICE(edge)"
         },
         {
           "file": "supabase/functions/discord-bot-oauth/index.ts",
-          "line": 185,
+          "line": 178,
           "verb": "update",
           "client": "SERVICE(edge)"
         }
       ],
-      "undecided_write_sites": 4,
+      "undecided_write_sites": 2,
       "decision": "keep-policy-governed"
     },
     "discord_message_tracking": {
@@ -571,25 +559,25 @@
       "committed_write_sites": [
         {
           "file": "supabase/functions/update-discord-leaderboards/index.ts",
-          "line": 338,
+          "line": 364,
           "verb": "upsert",
           "client": "SERVICE(edge)"
         },
         {
           "file": "supabase/functions/update-discord-leaderboards/index.ts",
-          "line": 520,
+          "line": 548,
           "verb": "upsert",
           "client": "SERVICE(edge)"
         },
         {
           "file": "supabase/functions/update-discord-leaderboards/index.ts",
-          "line": 721,
+          "line": 737,
           "verb": "upsert",
           "client": "SERVICE(edge)"
         },
         {
           "file": "supabase/functions/update-discord-leaderboards/index.ts",
-          "line": 863,
+          "line": 894,
           "verb": "upsert",
           "client": "SERVICE(edge)"
         }
@@ -711,23 +699,23 @@
           "file": "app/lib/herald/config.ts",
           "line": 641,
           "verb": "insert",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/herald/dispatch/bomb-range-dispatch.ts",
           "line": 297,
           "verb": "insert",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/herald/preview.ts",
           "line": 548,
           "verb": "insert",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         }
       ],
-      "undecided_write_sites": 3,
-      "decision": "keep-undecided"
+      "undecided_write_sites": 0,
+      "decision": "revoke"
     },
     "execution_locks": {
       "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
@@ -812,19 +800,19 @@
       "committed_write_sites": [
         {
           "file": "app/api/admin/users/bulk/route.ts",
-          "line": 217,
+          "line": 215,
           "verb": "upsert",
           "client": "SERVICE"
         },
         {
           "file": "app/api/admin/users/bulk/route.ts",
-          "line": 229,
+          "line": 227,
           "verb": "delete",
           "client": "SERVICE"
         },
         {
           "file": "app/lib/services/feature-release-service.ts",
-          "line": 473,
+          "line": 449,
           "verb": "delete",
           "client": "SERVICE"
         }
@@ -850,43 +838,67 @@
       "service_role_retains_write": true,
       "committed_write_sites": [
         {
+          "file": "app/api/gdpr/my-data/route.ts",
+          "line": 70,
+          "verb": "insert",
+          "client": "REQUEST(file)"
+        },
+        {
           "file": "app/lib/compliance/gdpr-manager.ts",
-          "line": 273,
+          "line": 168,
           "verb": "insert",
           "client": "SERVICE"
         },
         {
           "file": "app/lib/compliance/gdpr-manager.ts",
-          "line": 352,
+          "line": 234,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/lib/compliance/gdpr-manager.ts",
-          "line": 400,
+          "line": 268,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/lib/compliance/gdpr-manager.ts",
-          "line": 440,
+          "line": 311,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/lib/compliance/gdpr-manager.ts",
-          "line": 1045,
+          "line": 803,
           "verb": "delete",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/jobs/export-local-profile-data.ts",
+          "line": 40,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/jobs/export-local-profile-data.ts",
+          "line": 69,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/lib/jobs/export-local-profile-data.ts",
+          "line": 80,
+          "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "tests/integration/gdpr/gdpr.test.ts",
-          "line": 295,
+          "line": 233,
           "verb": "delete",
           "client": "SERVICE(file)"
         }
       ],
-      "undecided_write_sites": 0,
+      "undecided_write_sites": 1,
       "decision": "keep-policy-governed"
     },
     "gdpr_deletion_requests": {
@@ -898,25 +910,25 @@
       "committed_write_sites": [
         {
           "file": "app/lib/compliance/gdpr-manager.ts",
-          "line": 608,
+          "line": 458,
           "verb": "insert",
           "client": "SERVICE"
         },
         {
           "file": "app/lib/compliance/gdpr-manager.ts",
-          "line": 667,
+          "line": 505,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "tests/integration/gdpr/gdpr.test.ts",
-          "line": 298,
+          "line": 236,
           "verb": "delete",
           "client": "SERVICE(file)"
         },
         {
           "file": "tests/integration/gdpr/gdpr.test.ts",
-          "line": 428,
+          "line": 348,
           "verb": "insert",
           "client": "SERVICE(file)"
         }
@@ -933,19 +945,19 @@
       "committed_write_sites": [
         {
           "file": "app/lib/compliance/gdpr-manager.ts",
-          "line": 248,
+          "line": 143,
           "verb": "insert",
           "client": "SERVICE"
         },
         {
           "file": "app/lib/compliance/gdpr-manager.ts",
-          "line": 1036,
+          "line": 794,
           "verb": "delete",
           "client": "SERVICE"
         },
         {
           "file": "tests/integration/gdpr/gdpr.test.ts",
-          "line": 301,
+          "line": 239,
           "verb": "delete",
           "client": "SERVICE(file)"
         }
@@ -1002,7 +1014,7 @@
       "committed_write_sites": [
         {
           "file": "app/lib/loki/rotation-cache.ts",
-          "line": 209,
+          "line": 205,
           "verb": "insert",
           "client": "SERVICE"
         }
@@ -1029,19 +1041,19 @@
       "committed_write_sites": [
         {
           "file": "app/(dashboard)/guild-management/settings/useHeraldNotificationSettings.ts",
-          "line": 129,
+          "line": 111,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/(dashboard)/guild-management/settings/useHeraldNotificationSettings.ts",
-          "line": 164,
+          "line": 147,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/(dashboard)/guild-management/settings/useHeraldNotificationSettings.ts",
-          "line": 203,
+          "line": 187,
           "verb": "update",
           "client": "UNKNOWN"
         },
@@ -1065,169 +1077,169 @@
         },
         {
           "file": "app/api/admin/auto-invalidate-api-keys/route.ts",
-          "line": 94,
+          "line": 78,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/api/admin/guild-cleanup/route.ts",
-          "line": 330,
+          "line": 314,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/clusters/create/route.ts",
-          "line": 344,
+          "line": 337,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/clusters/create/route.ts",
-          "line": 452,
+          "line": 445,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/clusters/create/route.ts",
-          "line": 565,
+          "line": 557,
           "verb": "insert",
           "client": "SERVICE"
         },
         {
           "file": "app/api/clusters/create/route.ts",
-          "line": 648,
+          "line": 640,
           "verb": "delete",
           "client": "SERVICE"
         },
         {
           "file": "app/api/clusters/join/route.ts",
-          "line": 243,
+          "line": 231,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/clusters/join/route.ts",
-          "line": 375,
+          "line": 363,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/clusters/join/route.ts",
-          "line": 522,
+          "line": 504,
           "verb": "insert",
           "client": "SERVICE"
         },
         {
           "file": "app/api/clusters/join/route.ts",
-          "line": 629,
+          "line": 609,
           "verb": "delete",
           "client": "SERVICE"
         },
         {
           "file": "app/api/guild/claim/route.ts",
-          "line": 325,
+          "line": 272,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/guild/create-config/route.ts",
-          "line": 568,
+          "line": 501,
           "verb": "upsert",
           "client": "UNKNOWN"
         },
         {
           "file": "app/api/guild/replace-api-key/route.ts",
-          "line": 175,
+          "line": 141,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/api/guild/update-api-key/route.ts",
-          "line": 107,
+          "line": 92,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/api/guild/update-api-key/route.ts",
-          "line": 367,
+          "line": 315,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/api/guild/validate-api-key/route.ts",
-          "line": 133,
+          "line": 132,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/guild/validate-api-key/route.ts",
-          "line": 259,
+          "line": 257,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/onboarding/complete-via-invite/route.ts",
-          "line": 124,
+          "line": 113,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/user/activity/route.ts",
-          "line": 102,
+          "line": 91,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/webhooks/save/route.ts",
-          "line": 363,
+          "line": 366,
           "verb": "update",
           "client": "REQUEST"
         },
         {
           "file": "app/components/votlw/actions.ts",
-          "line": 61,
+          "line": 59,
           "verb": "update",
-          "client": "REQUEST(file)"
+          "client": "UNKNOWN"
         },
         {
           "file": "app/lib/loki/guild-client.ts",
-          "line": 55,
+          "line": 49,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/services/guild-settings-service.ts",
-          "line": 365,
+          "line": 327,
           "verb": "insert",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/services/guild-settings-service.ts",
-          "line": 496,
+          "line": 439,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/services/guild-settings-service.ts",
-          "line": 558,
+          "line": 495,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/sync/db-operations/sync-status.ts",
-          "line": 82,
+          "line": 75,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/sync/guild-config-discovery.ts",
-          "line": 124,
+          "line": 122,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/sync/loki-rankings.ts",
-          "line": 459,
+          "line": 440,
           "verb": "update",
           "client": "UNKNOWN"
         },
@@ -1239,43 +1251,55 @@
         },
         {
           "file": "app/lib/sync/post-sync-hooks.ts",
-          "line": 125,
+          "line": 52,
           "verb": "update",
           "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/sync/post-sync-hooks.ts",
-          "line": 164,
+          "line": 83,
           "verb": "update",
           "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/sync/post-sync-hooks.ts",
-          "line": 236,
-          "verb": "update",
-          "client": "SERVICE(param-type)"
-        },
-        {
-          "file": "app/lib/sync/sync-job-lifecycle.ts",
           "line": 123,
           "verb": "update",
           "client": "SERVICE(param-type)"
         },
         {
-          "file": "app/lib/sync/sync-job-lifecycle.ts",
-          "line": 148,
+          "file": "app/lib/sync/post-sync-hooks.ts",
+          "line": 264,
           "verb": "update",
           "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/sync/sync-job-lifecycle.ts",
-          "line": 170,
+          "line": 109,
+          "verb": "update",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/sync/sync-job-lifecycle.ts",
+          "line": 129,
+          "verb": "update",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/sync/sync-job-lifecycle.ts",
+          "line": 151,
           "verb": "update",
           "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/sync/worker-jobs/player-sync.ts",
-          "line": 38,
+          "line": 68,
+          "verb": "update",
+          "client": "SERVICE(param-type)"
+        },
+        {
+          "file": "app/lib/sync/worker-jobs/raid-sync.ts",
+          "line": 615,
           "verb": "update",
           "client": "SERVICE(param-type)"
         },
@@ -1286,20 +1310,26 @@
           "client": "SERVICE(edge)"
         },
         {
+          "file": "supabase/functions/update-discord-leaderboards/index.ts",
+          "line": 80,
+          "verb": "update",
+          "client": "SERVICE(edge)"
+        },
+        {
           "file": "tests/integration/gdpr/gdpr.test.ts",
-          "line": 231,
+          "line": 179,
           "verb": "upsert",
           "client": "SERVICE(file)"
         },
         {
           "file": "tests/integration/gdpr/gdpr.test.ts",
-          "line": 304,
+          "line": 242,
           "verb": "delete",
           "client": "SERVICE(file)"
         },
         {
           "file": "tests/integration/rls/rls.test.ts",
-          "line": 151,
+          "line": 154,
           "verb": "upsert",
           "client": "SERVICE(file)"
         },
@@ -1401,19 +1431,19 @@
       "committed_write_sites": [
         {
           "file": "app/api/guild-roles/config/route.ts",
-          "line": 129,
+          "line": 123,
           "verb": "upsert",
-          "client": "REQUEST"
+          "client": "SERVICE"
         },
         {
           "file": "app/api/roster-development/scoring-config/route.ts",
-          "line": 226,
+          "line": 225,
           "verb": "upsert",
-          "client": "UNKNOWN"
+          "client": "SERVICE"
         }
       ],
-      "undecided_write_sites": 2,
-      "decision": "keep-undecided"
+      "undecided_write_sites": 0,
+      "decision": "revoke"
     },
     "guild_sync_history": {
       "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
@@ -1437,19 +1467,19 @@
       "committed_write_sites": [
         {
           "file": "app/api/guild/create-config/initial-sync.ts",
-          "line": 251,
+          "line": 211,
           "verb": "upsert",
           "client": "UNKNOWN"
         },
         {
           "file": "app/api/guild/trigger-sync/route.ts",
-          "line": 104,
+          "line": 86,
           "verb": "upsert",
           "client": "SERVICE"
         },
         {
           "file": "app/lib/sync/db-operations/sync-status.ts",
-          "line": 52,
+          "line": 38,
           "verb": "upsert",
           "client": "UNKNOWN"
         },
@@ -1534,7 +1564,7 @@
       "committed_write_sites": [
         {
           "file": "app/lib/war/guild-war-ingestor.ts",
-          "line": 420,
+          "line": 372,
           "verb": "upsert",
           "client": "UNKNOWN"
         }
@@ -1574,19 +1604,19 @@
       "committed_write_sites": [
         {
           "file": "app/api/guild-war/war-room/route.ts",
-          "line": 233,
+          "line": 366,
           "verb": "insert",
           "client": "REQUEST"
         },
         {
           "file": "app/api/guild-war/war-room/route.ts",
-          "line": 286,
+          "line": 419,
           "verb": "update",
           "client": "REQUEST"
         },
         {
           "file": "app/api/guild-war/war-room/route.ts",
-          "line": 329,
+          "line": 462,
           "verb": "delete",
           "client": "REQUEST"
         }
@@ -1694,13 +1724,13 @@
       "committed_write_sites": [
         {
           "file": "app/(dashboard)/wars/_components/ZoneManagement.tsx",
-          "line": 284,
+          "line": 278,
           "verb": "upsert",
           "client": "REQUEST"
         },
         {
           "file": "app/(dashboard)/wars/_components/ZoneManagement.tsx",
-          "line": 307,
+          "line": 301,
           "verb": "upsert",
           "client": "REQUEST"
         }
@@ -1750,25 +1780,25 @@
       "committed_write_sites": [
         {
           "file": "app/lib/herald/dispatch/availability-dispatch.ts",
-          "line": 141,
+          "line": 130,
           "verb": "insert",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/herald/dispatch/availability-dispatch.ts",
-          "line": 409,
+          "line": 370,
           "verb": "delete",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/herald/run-phases/availability.ts",
-          "line": 140,
+          "line": 113,
           "verb": "insert",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         }
       ],
-      "undecided_write_sites": 3,
-      "decision": "keep-undecided"
+      "undecided_write_sites": 0,
+      "decision": "revoke"
     },
     "herald_boss_config": {
       "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
@@ -1779,7 +1809,7 @@
       "committed_write_sites": [
         {
           "file": "app/api/herald/boss-config/route.ts",
-          "line": 790,
+          "line": 748,
           "verb": "delete",
           "client": "REQUEST"
         }
@@ -1796,19 +1826,19 @@
       "committed_write_sites": [
         {
           "file": "app/api/herald/config-versions/route.ts",
-          "line": 193,
+          "line": 178,
           "verb": "update",
           "client": "REQUEST"
         },
         {
           "file": "app/api/herald/config-versions/route.ts",
-          "line": 196,
+          "line": 181,
           "verb": "insert",
           "client": "REQUEST"
         },
         {
           "file": "app/api/herald/config-versions/route.ts",
-          "line": 205,
+          "line": 190,
           "verb": "upsert",
           "client": "REQUEST"
         }
@@ -1827,24 +1857,24 @@
       "committed_write_sites": [
         {
           "file": "app/api/herald/role-mappings/route.ts",
-          "line": 377,
+          "line": 349,
           "verb": "delete",
           "client": "REQUEST"
         },
         {
           "file": "app/api/herald/role-mappings/seed-from-meta-atlas/route.ts",
-          "line": 167,
+          "line": 154,
           "verb": "insert",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/herald/config.ts",
-          "line": 785,
+          "line": 738,
           "verb": "update",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         }
       ],
-      "undecided_write_sites": 3,
+      "undecided_write_sites": 2,
       "decision": "keep-policy-governed"
     },
     "herald_posted_events": {
@@ -1856,49 +1886,49 @@
       "committed_write_sites": [
         {
           "file": "app/lib/herald/dispatch/availability-dispatch.ts",
-          "line": 190,
+          "line": 178,
           "verb": "insert",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/herald/dispatch/bomb-range-dispatch.ts",
-          "line": 168,
+          "line": 132,
           "verb": "insert",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/herald/dispatch/bomb-range-dispatch.ts",
-          "line": 295,
+          "line": 246,
           "verb": "delete",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/herald/dispatch/defeat-dispatch.ts",
-          "line": 103,
+          "line": 93,
           "verb": "insert",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/herald/dispatch/defeat-dispatch.ts",
-          "line": 266,
+          "line": 244,
           "verb": "update",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/herald/dispatch/defeat-dispatch.ts",
-          "line": 301,
+          "line": 277,
           "verb": "delete",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/herald/run-phases/defeat.ts",
-          "line": 91,
+          "line": 77,
           "verb": "insert",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         }
       ],
-      "undecided_write_sites": 7,
-      "decision": "keep-undecided"
+      "undecided_write_sites": 0,
+      "decision": "revoke"
     },
     "hero_mappings": {
       "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
@@ -1928,19 +1958,19 @@
       "committed_write_sites": [
         {
           "file": "supabase/functions/process-log-exports/index.ts",
-          "line": 43,
+          "line": 41,
           "verb": "update",
           "client": "SERVICE(edge)"
         },
         {
           "file": "supabase/functions/process-log-exports/index.ts",
-          "line": 124,
+          "line": 115,
           "verb": "update",
           "client": "SERVICE(edge)"
         },
         {
           "file": "supabase/functions/process-log-exports/index.ts",
-          "line": 137,
+          "line": 127,
           "verb": "update",
           "client": "SERVICE(edge)"
         }
@@ -1997,31 +2027,31 @@
       "committed_write_sites": [
         {
           "file": "app/api/onboarding/jobs/process/route.ts",
-          "line": 67,
+          "line": 63,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/onboarding/jobs/process/route.ts",
-          "line": 94,
+          "line": 89,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/onboarding/jobs/process/route.ts",
-          "line": 111,
+          "line": 106,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/onboarding/jobs/process/route.ts",
-          "line": 135,
+          "line": 130,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/onboarding/jobs/process/route.ts",
-          "line": 162,
+          "line": 156,
           "verb": "update",
           "client": "SERVICE"
         },
@@ -2039,7 +2069,7 @@
         },
         {
           "file": "tests/unit/scripts/check-handler-coverage.test.ts",
-          "line": 107,
+          "line": 88,
           "verb": "insert",
           "client": "UNKNOWN"
         }
@@ -2056,7 +2086,7 @@
       "committed_write_sites": [
         {
           "file": "app/api/onboarding/cluster/add-guild/route.ts",
-          "line": 341,
+          "line": 312,
           "verb": "update",
           "client": "REQUEST"
         },
@@ -2068,67 +2098,67 @@
         },
         {
           "file": "app/api/onboarding/complete-via-invite/route.ts",
-          "line": 91,
+          "line": 81,
           "verb": "update",
           "client": "REQUEST"
         },
         {
           "file": "app/api/onboarding/data-sync/start/route.ts",
-          "line": 181,
+          "line": 158,
           "verb": "update",
           "client": "REQUEST"
         },
         {
           "file": "app/api/onboarding/data-sync/start/route.ts",
-          "line": 237,
+          "line": 211,
           "verb": "update",
           "client": "REQUEST"
         },
         {
           "file": "app/api/onboarding/jobs/process/route.ts",
-          "line": 171,
+          "line": 165,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/onboarding/start/route.ts",
-          "line": 44,
+          "line": 38,
           "verb": "update",
           "client": "REQUEST"
         },
         {
           "file": "app/api/onboarding/start/route.ts",
-          "line": 79,
+          "line": 73,
           "verb": "update",
           "client": "REQUEST"
         },
         {
           "file": "app/lib/onboarding/job-runner.ts",
-          "line": 232,
+          "line": 226,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/onboarding/job-runner.ts",
-          "line": 259,
+          "line": 253,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/onboarding/job-runner.ts",
-          "line": 285,
+          "line": 279,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/onboarding/job-runner.ts",
-          "line": 318,
+          "line": 312,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/onboarding/progress.ts",
-          "line": 52,
+          "line": 49,
           "verb": "insert",
           "client": "UNKNOWN"
         }
@@ -2175,19 +2205,19 @@
       "committed_write_sites": [
         {
           "file": "app/api/onboarding/claim/consume/route.ts",
-          "line": 117,
+          "line": 93,
           "verb": "insert",
           "client": "UNKNOWN"
         },
         {
           "file": "app/api/onboarding/leader/claim-seat/route.ts",
-          "line": 159,
+          "line": 124,
           "verb": "insert",
           "client": "UNKNOWN"
         },
         {
           "file": "app/api/profile/change-player-id/route.ts",
-          "line": 152,
+          "line": 115,
           "verb": "insert",
           "client": "UNKNOWN"
         }
@@ -2204,7 +2234,7 @@
       "committed_write_sites": [
         {
           "file": "tests/integration/helpers/attested-player-mapping.ts",
-          "line": 126,
+          "line": 101,
           "verb": "insert",
           "client": "SERVICE(test-admin)"
         }
@@ -2221,13 +2251,13 @@
       "committed_write_sites": [
         {
           "file": "tests/integration/helpers/attested-player-mapping.ts",
-          "line": 83,
+          "line": 61,
           "verb": "insert",
           "client": "SERVICE(test-admin)"
         },
         {
           "file": "tests/integration/rls/rls.test.ts",
-          "line": 309,
+          "line": 301,
           "verb": "insert",
           "client": "SERVICE(file)"
         }
@@ -2324,133 +2354,127 @@
       "committed_write_sites": [
         {
           "file": "app/api/admin/guild-cleanup/route.ts",
-          "line": 210,
+          "line": 199,
           "verb": "delete",
           "client": "SERVICE"
         },
         {
           "file": "app/api/clusters/_lib/membership-authority.ts",
-          "line": 264,
+          "line": 256,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/api/guild-tokens/sync/route.ts",
-          "line": 239,
+          "line": 212,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/guild-tokens/sync/route.ts",
-          "line": 276,
+          "line": 249,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/guild-tokens/sync/route.ts",
-          "line": 335,
+          "line": 308,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/guild/create-config/initial-sync.ts",
-          "line": 68,
+          "line": 59,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/api/guild/create-config/initial-sync.ts",
-          "line": 168,
+          "line": 144,
           "verb": "upsert",
           "client": "UNKNOWN"
         },
         {
           "file": "app/api/guild/create-config/initial-sync.ts",
-          "line": 215,
+          "line": 179,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/api/player-api-key/route.ts",
-          "line": 418,
+          "line": 324,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/api/player-api-key/sync/route.ts",
-          "line": 160,
+          "line": 147,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/player-api-key/sync/route.ts",
-          "line": 346,
+          "line": 292,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/player-api-key/sync/route.ts",
-          "line": 371,
+          "line": 315,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/tokens/route.ts",
-          "line": 499,
+          "line": 482,
           "verb": "update",
           "client": "SERVICE"
         },
         {
-          "file": "app/components/BossFavorites.tsx",
-          "line": 220,
-          "verb": "update",
-          "client": "REQUEST"
-        },
-        {
           "file": "app/lib/jobs/reconcile-guild-ranks.ts",
-          "line": 404,
+          "line": 380,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/lib/player/roster-sync.ts",
-          "line": 192,
+          "line": 159,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/profile/persist-player-api-key.ts",
-          "line": 64,
+          "line": 42,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/services/feature-release-service.ts",
-          "line": 501,
+          "line": 474,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/lib/sync/db-operations/player-mappings.ts",
-          "line": 405,
+          "line": 426,
           "verb": "upsert",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/sync/worker-jobs/player-sync.ts",
-          "line": 71,
+          "line": 109,
           "verb": "upsert",
           "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/sync/worker-jobs/raid-sync.ts",
-          "line": 1031,
+          "line": 937,
           "verb": "upsert",
           "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/sync/worker-jobs/raid-sync.ts",
-          "line": 1049,
+          "line": 951,
           "verb": "update",
           "client": "SERVICE(param-type)"
         },
@@ -2462,48 +2486,48 @@
         },
         {
           "file": "app/lib/war/guild-war-ingestor.ts",
-          "line": 480,
+          "line": 426,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "tests/integration/helpers/attested-player-mapping.ts",
-          "line": 66,
+          "line": 45,
           "verb": "insert",
           "client": "SERVICE(test-admin)"
         },
         {
           "file": "tests/integration/helpers/attested-player-mapping.ts",
-          "line": 102,
+          "line": 80,
           "verb": "update",
           "client": "SERVICE(test-admin)"
         },
         {
           "file": "tests/integration/helpers/attested-player-mapping.ts",
-          "line": 139,
+          "line": 114,
           "verb": "delete",
           "client": "SERVICE(test-admin)"
         },
         {
           "file": "tests/integration/rls/rls.test.ts",
-          "line": 294,
+          "line": 286,
           "verb": "insert",
           "client": "SERVICE(file)"
         },
         {
           "file": "tests/integration/rls/rls.test.ts",
-          "line": 323,
+          "line": 315,
           "verb": "update",
           "client": "SERVICE(file)"
         },
         {
           "file": "tests/integration/rls/rls.test.ts",
-          "line": 335,
+          "line": 327,
           "verb": "delete",
           "client": "SERVICE(file)"
         }
       ],
-      "undecided_write_sites": 11,
+      "undecided_write_sites": 10,
       "decision": "keep-policy-governed"
     },
     "player_meta_roles": {
@@ -2518,24 +2542,24 @@
       "committed_write_sites": [
         {
           "file": "app/api/player-meta-roles/route.ts",
-          "line": 222,
+          "line": 178,
           "verb": "upsert",
           "client": "REQUEST"
         },
         {
           "file": "app/api/player-meta-roles/route.ts",
-          "line": 317,
+          "line": 266,
           "verb": "delete",
           "client": "REQUEST"
         },
         {
           "file": "app/lib/discord/role-reconciler.ts",
-          "line": 744,
+          "line": 695,
           "verb": "upsert",
-          "client": "UNKNOWN(param-type-cast)"
+          "client": "SERVICE(param-type)"
         }
       ],
-      "undecided_write_sites": 3,
+      "undecided_write_sites": 2,
       "decision": "keep-policy-governed"
     },
     "player_roster": {
@@ -2547,7 +2571,7 @@
       "committed_write_sites": [
         {
           "file": "app/lib/player/roster-sync.ts",
-          "line": 308,
+          "line": 280,
           "verb": "upsert",
           "client": "UNKNOWN"
         }
@@ -2576,13 +2600,13 @@
       "committed_write_sites": [
         {
           "file": "app/lib/discord/role-reconciler.ts",
-          "line": 134,
+          "line": 107,
           "verb": "insert",
-          "client": "UNKNOWN(param-type-cast)"
+          "client": "SERVICE(param-type)"
         }
       ],
-      "undecided_write_sites": 1,
-      "decision": "keep-undecided"
+      "undecided_write_sites": 0,
+      "decision": "revoke"
     },
     "schema_migrations": {
       "authenticated_grants": ["DELETE", "INSERT", "UPDATE"],
@@ -2613,7 +2637,7 @@
       "committed_write_sites": [
         {
           "file": "app/lib/sync/post-sync-hooks.ts",
-          "line": 284,
+          "line": 300,
           "verb": "upsert",
           "client": "SERVICE(param-type)"
         }
@@ -2630,8 +2654,14 @@
       "committed_write_sites": [
         {
           "file": "supabase/functions/detect-season-end/index.ts",
-          "line": 132,
-          "verb": "insert",
+          "line": 140,
+          "verb": "update",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "supabase/functions/detect-season-end/index.ts",
+          "line": 281,
+          "verb": "delete",
           "client": "SERVICE(edge)"
         }
       ],
@@ -2685,20 +2715,20 @@
       "service_role_retains_write": true,
       "committed_write_sites": [
         {
-          "file": "app/lib/sync/sync-job-lifecycle.ts",
-          "line": 35,
+          "file": "app/lib/sync/sync-job-defer.ts",
+          "line": 37,
           "verb": "update",
           "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/sync/sync-job-lifecycle.ts",
-          "line": 217,
+          "line": 34,
           "verb": "update",
           "client": "SERVICE(param-type)"
         },
         {
-          "file": "app/lib/sync/worker-jobs/raid-sync.ts",
-          "line": 219,
+          "file": "app/lib/sync/sync-job-lifecycle.ts",
+          "line": 197,
           "verb": "update",
           "client": "SERVICE(param-type)"
         }
@@ -2715,7 +2745,7 @@
       "committed_write_sites": [
         {
           "file": "tests/integration/rls/rls.test.ts",
-          "line": 139,
+          "line": 142,
           "verb": "upsert",
           "client": "SERVICE(file)"
         },
@@ -2748,7 +2778,7 @@
       "committed_write_sites": [
         {
           "file": "app/lib/token-audit/run-token-audit.ts",
-          "line": 477,
+          "line": 429,
           "verb": "insert",
           "client": "SERVICE(file)"
         }
@@ -2778,13 +2808,13 @@
       "committed_write_sites": [
         {
           "file": "supabase/functions/check-capped-players/index.ts",
-          "line": 191,
+          "line": 173,
           "verb": "insert",
           "client": "SERVICE(edge)"
         },
         {
           "file": "supabase/functions/check-capped-players/index.ts",
-          "line": 257,
+          "line": 236,
           "verb": "update",
           "client": "SERVICE(edge)"
         },
@@ -2796,7 +2826,7 @@
         },
         {
           "file": "supabase/functions/process-cap-notifications/index.ts",
-          "line": 141,
+          "line": 130,
           "verb": "update",
           "client": "SERVICE(edge)"
         }
@@ -2847,13 +2877,13 @@
       "committed_write_sites": [
         {
           "file": "app/api/season-config/_write-helpers.ts",
-          "line": 300,
+          "line": 263,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/api/season-config/_write-helpers.ts",
-          "line": 340,
+          "line": 293,
           "verb": "insert",
           "client": "UNKNOWN"
         }
@@ -2874,15 +2904,15 @@
       "committed_write_sites": [
         {
           "file": "app/api/briefing/seen/route.ts",
-          "line": 40,
+          "line": 31,
           "verb": "upsert",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/briefing/load-since-last-visit.ts",
-          "line": 96,
+          "line": 45,
           "verb": "upsert",
-          "client": "UNKNOWN"
+          "client": "REQUEST(file)"
         }
       ],
       "undecided_write_sites": 2,
@@ -2901,19 +2931,19 @@
       "committed_write_sites": [
         {
           "file": "app/api/user/token-alerts/route.ts",
-          "line": 403,
+          "line": 371,
           "verb": "upsert",
           "client": "REQUEST"
         },
         {
           "file": "app/api/user/token-alerts/route.ts",
-          "line": 466,
+          "line": 429,
           "verb": "insert",
           "client": "REQUEST"
         },
         {
           "file": "app/api/user/token-alerts/route.ts",
-          "line": 486,
+          "line": 449,
           "verb": "update",
           "client": "REQUEST"
         }
@@ -2930,19 +2960,19 @@
       "committed_write_sites": [
         {
           "file": "app/api/user/token-alerts/route.ts",
-          "line": 557,
+          "line": 520,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/lib/token-alerts/scan.ts",
-          "line": 386,
+          "line": 330,
           "verb": "upsert",
           "client": "SERVICE"
         },
         {
           "file": "app/lib/token-alerts/scan.ts",
-          "line": 611,
+          "line": 542,
           "verb": "upsert",
           "client": "SERVICE"
         }
@@ -2959,7 +2989,7 @@
       "committed_write_sites": [
         {
           "file": "supabase/functions/calculate-votlw/index.ts",
-          "line": 91,
+          "line": 106,
           "verb": "upsert",
           "client": "SERVICE(edge)"
         }
@@ -3005,14 +3035,20 @@
       "committed_write_sites": [
         {
           "file": "app/(dashboard)/leaderboards/components/UnifiedWebhookManager.tsx",
-          "line": 340,
+          "line": 316,
           "verb": "update",
           "client": "REQUEST"
         },
         {
           "file": "app/api/clusters/create/route.ts",
-          "line": 231,
+          "line": 234,
           "verb": "insert",
+          "client": "REQUEST"
+        },
+        {
+          "file": "app/api/discord-webhooks/boss-assignments/route.ts",
+          "line": 282,
+          "verb": "update",
           "client": "REQUEST"
         },
         {
@@ -3022,38 +3058,32 @@
           "client": "REQUEST"
         },
         {
-          "file": "app/api/discord-webhooks/boss-assignments/route.ts",
-          "line": 296,
-          "verb": "update",
-          "client": "REQUEST"
-        },
-        {
           "file": "app/api/discord-webhooks/event-notification/route.ts",
-          "line": 241,
+          "line": 224,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/discord-webhooks/new-member/route.ts",
-          "line": 388,
+          "line": 372,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/discord-webhooks/version-update/route.ts",
-          "line": 294,
+          "line": 282,
           "verb": "update",
           "client": "SERVICE"
         },
         {
           "file": "app/api/webhooks/save/route.ts",
-          "line": 247,
+          "line": 248,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/api/webhooks/save/route.ts",
-          "line": 293,
+          "line": 296,
           "verb": "insert",
           "client": "UNKNOWN"
         },
@@ -3065,36 +3095,42 @@
         },
         {
           "file": "app/lib/compliance/erase-user-data.ts",
-          "line": 106,
+          "line": 63,
           "verb": "update",
-          "client": "UNKNOWN"
+          "client": "SERVICE(param-type)"
         },
         {
           "file": "supabase/functions/daily-summary/index.ts",
-          "line": 384,
+          "line": 377,
           "verb": "update",
           "client": "SERVICE(edge)"
         },
         {
           "file": "supabase/functions/detect-season-end/index.ts",
-          "line": 391,
+          "line": 408,
           "verb": "update",
           "client": "SERVICE(edge)"
         },
         {
           "file": "supabase/functions/gr-availability/index.ts",
-          "line": 246,
+          "line": 220,
           "verb": "update",
           "client": "SERVICE(edge)"
         },
         {
           "file": "supabase/functions/process-cap-notifications/index.ts",
-          "line": 149,
+          "line": 137,
+          "verb": "update",
+          "client": "SERVICE(edge)"
+        },
+        {
+          "file": "supabase/functions/update-discord-leaderboards/index.ts",
+          "line": 51,
           "verb": "update",
           "client": "SERVICE(edge)"
         }
       ],
-      "undecided_write_sites": 10,
+      "undecided_write_sites": 7,
       "decision": "keep-policy-governed"
     },
     "webhook_cron_jobs": {
@@ -3115,14 +3151,20 @@
       "service_role_retains_write": true,
       "committed_write_sites": [
         {
+          "file": "app/lib/jobs/daily-alert-summary.ts",
+          "line": 187,
+          "verb": "update",
+          "client": "SERVICE(file)"
+        },
+        {
           "file": "app/lib/sync/post-sync-hooks.ts",
-          "line": 334,
+          "line": 350,
           "verb": "insert",
           "client": "SERVICE(param-type)"
         },
         {
           "file": "supabase/functions/sync-modular-workflow/index.ts",
-          "line": 1155,
+          "line": 1094,
           "verb": "insert",
           "client": "SERVICE(edge)"
         }

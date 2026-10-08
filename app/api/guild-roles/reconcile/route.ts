@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/app/lib/db'
+import { db, serviceDb } from '@/app/lib/db'
 import { createComponentLogger } from '@/app/lib/logging'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
@@ -9,7 +9,6 @@ import {
   reconcileGuildRoles,
   type ReconcileResult
 } from '@/app/lib/discord/role-reconciler'
-import type { ServiceSupabaseClient } from '@/app/lib/sync/worker-types'
 
 const logger = createComponentLogger('api.guild-roles.reconcile')
 
@@ -47,8 +46,10 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       'manual_resync.start'
     )
 
+    // Authorized above with the session client; the reconciler's reads and
+    // audit writes are service-role only.
     const result: ReconcileResult = await reconcileGuildRoles(
-      supabase as unknown as ServiceSupabaseClient,
+      serviceDb(),
       body.guild_code,
       {
         trigger_source: 'manual_resync',

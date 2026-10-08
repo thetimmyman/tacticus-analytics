@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { ServiceSupabaseClient } from '@/app/lib/sync/worker-types'
 import { createComponentLogger } from '@/app/lib/logging'
 import type { BombRangeTransition } from '../contracts'
 import type { GuildHeraldConfig } from '../config'
@@ -8,7 +8,7 @@ import { postHeraldBombRangeEvent } from '../dispatch'
 const logger = createComponentLogger('herald')
 
 export interface BombRangeDispatchInput {
-  supabase: SupabaseClient
+  supabase: ServiceSupabaseClient
   guildCode: string
   invocationId: string
   bombTransitions: BombRangeTransition[]

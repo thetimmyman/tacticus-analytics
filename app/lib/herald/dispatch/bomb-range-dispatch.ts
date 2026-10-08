@@ -3,7 +3,7 @@ import { guildRosterQuery } from '@/app/lib/data/guild-roster'
 import 'server-only'
 
 import { createHash } from 'crypto'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { ServiceSupabaseClient } from '@/app/lib/sync/worker-types'
 import {
   postToWebhook,
   logDiscordWebhookDelivery
@@ -28,7 +28,7 @@ import type { TypedSupabaseClient } from '@tacticus/app-core/types'
 // Pings `bomb_alert_role_id` or @everyone. Dedup claims a herald_posted_events row via the
 // bomb_range_breach partial unique index.
 export interface PostHeraldBombRangeParams {
-  supabase: SupabaseClient
+  supabase: ServiceSupabaseClient
   guildCode: string
   transition: BombRangeTransition
   invocationId: string
@@ -43,7 +43,7 @@ export interface PostHeraldBombRangeParams {
 const DISCORD_MAX_MENTIONS = 100
 
 const resolveBombHolderDiscordIds = async (
-  supabase: SupabaseClient,
+  supabase: ServiceSupabaseClient,
   guildCode: string,
   memberIds: string[]
 ): Promise<{ ids: string[]; truncated: boolean }> => {
