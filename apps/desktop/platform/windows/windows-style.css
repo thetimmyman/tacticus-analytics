@@ -1,0 +1,27 @@
+body {
+  color: #edf4ff;
+  background: #111a29;
+  font: 16px system-ui;
+  margin: 0;
+}
+main {
+  max-width: 850px;
+  margin: 4rem auto;
+  padding: 2rem;
+}
+button,
+input {
+  font: inherit;
+  padding: 0.6rem;
+  margin: 0.5rem;
+}
+section {
+  border-top: 1px solid #567;
+  margin-top: 2rem;
+}
+label {
+  display: block;
+}
+pre {
+  white-space: pre-wrap;
+}
