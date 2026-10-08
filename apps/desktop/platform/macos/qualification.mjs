@@ -3,6 +3,7 @@ import { mkdtemp, mkdir, readFile, writeFile, cp } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import { join, resolve, isAbsolute } from 'node:path'
 import { tmpdir } from 'node:os'
+import { syntheticDigestScope } from './device-proof.mjs'
 import { qualificationTarget } from './qualification-network.mjs'
 import { stage, inventory } from './stage.mjs'
 import { records } from './evidence.mjs'
@@ -231,6 +232,8 @@ try {
     await readFile(restartConfig.deviceEvidence)
   )
   if (
+    firstGraphical.syntheticDataDigestScope !== syntheticDigestScope ||
+    secondGraphical.syntheticDataDigestScope !== syntheticDigestScope ||
     firstGraphical.postJourneyDataDigest !==
       secondGraphical.syntheticDataDigest ||
     secondGraphical.freshPasswordFreeHolding !== false ||
