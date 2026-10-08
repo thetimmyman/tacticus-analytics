@@ -53,6 +53,41 @@ beforeEach(() => {
   m.rpc.mockResolvedValue({ data: ['139', '140'], error: null })
 })
 describe('signed saved planning admission', () => {
+  it.each(['member', 'officer', 'leader'])(
+    'reads fresh signed %s membership through the granted canonical view',
+    async (role) => {
+      m.profile = { guild_code: 'TEST', role, is_app_admin: false }
+      const allowed = {
+        select: vi.fn().mockReturnThis(),
+        eq: m.eq,
+        single: async () => ({ data: m.profile, error: null })
+      }
+      const denied = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        single: async () => ({
+          data: null,
+          error: { code: '42501', message: 'Column access denied' }
+        })
+      }
+      m.eq.mockReturnValue(allowed)
+      m.from.mockImplementation((relation) =>
+        relation === 'current_user_player_mapping' ? allowed : denied
+      )
+      await expect(requireSeasonPlanReadContext()).resolves.toHaveProperty(
+        'profile.guild_code',
+        'TEST'
+      )
+      expect(m.from).toHaveBeenCalledWith('current_user_player_mapping')
+      expect(m.from).not.toHaveBeenCalledWith('player_mapping')
+      expect(allowed.select).toHaveBeenCalledWith(
+        'player_id, guild_code, role, is_app_admin'
+      )
+      expect(m.eq).toHaveBeenCalledWith('user_id', m.user!.id)
+      expect(m.eq).toHaveBeenCalledWith('is_current', true)
+      expect(m.eq).toHaveBeenCalledWith('is_active', true)
+    }
+  )
   it.each(['member', 'MEMBER'])(
     'permits canonical member read %s but refuses writes even app-admin',
     async (role) => {

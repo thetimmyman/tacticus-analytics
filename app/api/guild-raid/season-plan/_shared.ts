@@ -11,6 +11,7 @@ import { isOfficerLeaderOrAdminRole } from '@/app/lib/auth/role-predicates'
 import { parseSeasonParam } from '@/app/lib/boss-assignments/target-token-season'
 import { checkFeatureAccess } from '@/app/lib/services/feature-release-service'
 import { getLatestSeason } from '@/app/lib/utils/season'
+import { CURRENT_USER_PLAYER_MAPPING } from '@/app/lib/player-mapping-relations'
 
 type SeasonPlanProfile = {
   guild_code: string
@@ -74,7 +75,7 @@ export async function requireSeasonPlanOfficerContext(
   const profile = desktop
     ? (
         await supabase
-          .from('player_mapping')
+          .from(CURRENT_USER_PLAYER_MAPPING)
           .select('player_id, guild_code, role, is_app_admin')
           .eq('user_id', user.id)
           .eq('is_current', true)
