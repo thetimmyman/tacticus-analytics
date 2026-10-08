@@ -26,6 +26,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { inventory } from './schema-lifecycle.mjs'
+import { withEntry } from './safe-files.mjs'
 import { validateBackup } from './workspace-transfer.mjs'
 import {
   sealDirectory,
@@ -97,8 +98,16 @@ test('encrypted stream roundtrip preserves complete checkpoint and empty directo
     const sealed = await sealDirectory(source, file, passphrase)
     assert.equal(sealed.encrypted, true)
     assert.ok(sealed.bytes > 3 * 1024 * 1024)
-    assert.equal((await lstat(file)).mode & 0o777, 0o600)
-    const ciphertext = await readFile(file)
+    const ciphertext = await withEntry(file, async (input, info) => {
+      assert.equal(info.mode & 0o777, 0o600)
+      return input.readFile()
+    })
+    assert.equal(sealed.format, 'desktop-encrypted-backup-v2')
+    assert.equal(ciphertext.subarray(0, 8).toString(), 'TABKENC2')
+    assert.equal(ciphertext.readUInt32BE(8), 2)
+    assert.equal(ciphertext.readUInt32BE(12), 65536)
+    assert.equal(ciphertext.readUInt32BE(16), 8)
+    assert.equal(ciphertext.readUInt32BE(20), 2)
     assert.equal(ciphertext.includes(Buffer.from(marker)), false)
     assert.equal(ciphertext.includes(Buffer.from('credentials.json')), false)
     assert.equal(ciphertext.includes(passphrase), false)
@@ -277,16 +286,25 @@ test('oversized sparse inputs are refused in preflight before hashing or derivin
 
 // Construct deliberately malicious authenticated files independently from the
 // writer, so extraction admission is tested even when an attacker knows a key.
-async function forged(file, entries, data = Buffer.alloc(0)) {
+async function forged(
+  file,
+  entries,
+  data = Buffer.alloc(0),
+  { version = 2, manifestVersion = version } = {}
+) {
+  assert.ok([1, 2].includes(version))
   const manifest = Buffer.from(
-    JSON.stringify({ format: 'desktop-encrypted-backup-v1', entries })
+    JSON.stringify({
+      format: `desktop-encrypted-backup-v${manifestVersion}`,
+      entries
+    })
   )
   const header = Buffer.alloc(64)
-  Buffer.from('TABKENC1').copy(header)
-  header.writeUInt32BE(1, 8)
+  Buffer.from(`TABKENC${version}`).copy(header)
+  header.writeUInt32BE(version, 8)
   header.writeUInt32BE(65536, 12)
   header.writeUInt32BE(8, 16)
-  header.writeUInt32BE(1, 20)
+  header.writeUInt32BE(version, 20)
   randomBytes(16).copy(header, 24)
   randomBytes(12).copy(header, 40)
   header.writeUInt32BE(manifest.length, 52)
@@ -294,7 +312,7 @@ async function forged(file, entries, data = Buffer.alloc(0)) {
   const key = scryptSync(passphrase, header.subarray(24, 40), 32, {
     N: 65536,
     r: 8,
-    p: 1,
+    p: version,
     maxmem: 128 * 1024 * 1024
   })
   try {
@@ -314,6 +332,110 @@ async function forged(file, entries, data = Buffer.alloc(0)) {
     key.fill(0)
   }
 }
+
+async function checkpointPayload(source) {
+  const entries = [],
+    chunks = []
+  async function walk(anchor, prefix = '') {
+    for (const name of (await readdir(anchor)).sort()) {
+      const path = prefix ? `${prefix}/${name}` : name
+      await withEntry(join(anchor, name), async (file, info, next) => {
+        if (info.isDirectory()) {
+          entries.push({ kind: 'directory', path })
+          await walk(next, path)
+        } else {
+          const bytes = await file.readFile()
+          entries.push({
+            kind: 'file',
+            path,
+            bytes: bytes.length,
+            sha256: createHash('sha256').update(bytes).digest('hex')
+          })
+          chunks.push(bytes)
+        }
+      })
+    }
+  }
+  await withEntry(source, (_file, _info, anchor) => walk(anchor))
+  return { entries, data: Buffer.concat(chunks) }
+}
+
+test('independent legacy encrypted v1 remains readable and re-export always upgrades to v2', async () =>
+  fixture(async (root, source, file) => {
+    const { entries, data } = await checkpointPayload(source)
+    await forged(file, entries, data, { version: 1 })
+    const destination = join(root, 'legacy-restored')
+    const receipt = await unsealToDirectory(file, destination, passphrase)
+    assert.equal(receipt.format, 'desktop-encrypted-backup-v1')
+    assert.equal(receipt.authenticated, true)
+    assert.deepEqual(await inventory(destination), await inventory(source))
+    await validateBackup(destination)
+    const upgraded = join(root, 'upgraded.tabackup')
+    await sealDirectory(destination, upgraded, passphrase)
+    const current = await readFile(upgraded)
+    assert.equal(current.subarray(0, 8).toString(), 'TABKENC2')
+    assert.equal(current.readUInt32BE(20), 2)
+    const wrong = join(root, 'wrong-legacy')
+    await assert.rejects(
+      unsealToDirectory(file, wrong, Buffer.from('wrong legacy passphrase'))
+    )
+    await missing(wrong)
+    await noPlaintextTemps(root)
+  }))
+
+test('unknown and mixed KDF profiles plus coherent header downgrades and upgrades never activate a target', async () =>
+  fixture(async (root, source, file) => {
+    await sealDirectory(source, file, passphrase)
+    const current = await readFile(file)
+    const { entries, data } = await checkpointPayload(source)
+    await forged(file, entries, data, { version: 1 })
+    const legacy = await readFile(file)
+    const destination = join(root, 'refused-profile')
+    const cases = [
+      [current, 8, 1],
+      [current, 8, 3],
+      [current, 12, 32768],
+      [current, 12, 0xffffffff],
+      [current, 16, 1],
+      [current, 20, 1],
+      [current, 20, 0xffffffff],
+      [legacy, 8, 2],
+      [legacy, 20, 2]
+    ].map(([original, offset, value]) => {
+      const changed = Buffer.from(original)
+      changed.writeUInt32BE(value, offset)
+      return changed
+    })
+    const downgraded = Buffer.from(current)
+    Buffer.from('TABKENC1').copy(downgraded)
+    downgraded.writeUInt32BE(1, 8)
+    downgraded.writeUInt32BE(1, 20)
+    const upgraded = Buffer.from(legacy)
+    Buffer.from('TABKENC2').copy(upgraded)
+    upgraded.writeUInt32BE(2, 8)
+    upgraded.writeUInt32BE(2, 20)
+    for (const changed of [...cases, downgraded, upgraded]) {
+      await writeFile(file, changed)
+      await assert.rejects(unsealToDirectory(file, destination, passphrase))
+      await missing(destination)
+      await noPlaintextTemps(root)
+    }
+  }))
+
+test('even authenticated files must agree on header and encrypted inventory version', async () =>
+  fixture(async (root, source, file) => {
+    const { entries, data } = await checkpointPayload(source)
+    for (const [version, manifestVersion] of [
+      [1, 2],
+      [2, 1]
+    ]) {
+      await forged(file, entries, data, { version, manifestVersion })
+      const destination = join(root, 'refused-inventory')
+      await assert.rejects(unsealToDirectory(file, destination, passphrase))
+      await missing(destination)
+      await noPlaintextTemps(root)
+    }
+  }))
 
 test('authenticated malicious inventories cannot traverse, collide, invent parents or activate incomplete checkpoints', async () =>
   fixture(async (root, _source, file) => {
@@ -387,7 +509,7 @@ async function childTransfer(operation, state, file, password = passphrase) {
     child.stdin.end(password)
     const code = await new Promise((accept, reject) => {
       child.once('error', reject)
-      child.once('exit', accept)
+      child.once('close', accept)
     })
     assert.equal(stdout.includes(password.toString()), false)
     assert.equal(stderr.includes(password.toString()), false)
@@ -443,6 +565,34 @@ test('worker wrong-secret, occupied workspace and missing lease never overwrite 
       /lease/
     )
     await noPlaintextTemps(root)
+  }))
+
+test('unrecognized plaintext staging matching the leased workspace is preserved and refuses transfer', async () =>
+  fixture(async (root, source, file) => {
+    const sourceInfo = await lstat(source)
+    const identity = createHash('sha256')
+      .update(
+        JSON.stringify({
+          path: source,
+          dev: sourceInfo.dev,
+          ino: sourceInfo.ino
+        })
+      )
+      .digest('hex')
+      .slice(0, 24)
+    const staging = join(
+      root,
+      `.encrypted-transfer-${identity}-${randomUUID()}`
+    )
+    await mkdir(staging, { mode: 0o700 })
+    await writeFile(join(staging, 'transfer.json'), 'unrecognized marker', {
+      mode: 0o600
+    })
+    await writeFile(join(staging, 'preserve'), marker, { mode: 0o600 })
+    const result = await childTransfer('backup', source, file)
+    assert.equal(result.code, 1)
+    assert.equal(await readFile(join(staging, 'preserve'), 'utf8'), marker)
+    await missing(file)
   }))
 
 test('SIGKILL leaves recognizable ciphertext only externally and next leased transfer reaps only its own private plaintext', async () =>
@@ -503,7 +653,7 @@ test('SIGKILL leaves recognizable ciphertext only externally and next leased tra
       await missing(file)
       const partial = await readFile(join(root, pending))
       if (partial.length >= 8)
-        assert.equal(partial.subarray(0, 8).toString(), 'TABKENC1')
+        assert.equal(partial.subarray(0, 8).toString(), 'TABKENC2')
       assert.equal(partial.includes(Buffer.from(marker)), false)
       const stale = (await readdir(root)).filter(
         (name) =>

@@ -29,7 +29,12 @@ stopped PostgreSQL checkpoint into a new encrypted `.tabackup` file. A separate
 masked native prompt confirms the backup passphrase; it goes to the transfer
 worker over stdin and is never saved in the maintenance request. AES-256-GCM
 authenticates the versioned header, inventory and file bytes using a bounded
-scrypt-derived key. Restore also supports legacy backup folders. It verifies its
+scrypt-derived key. New encrypted files use format v2 with fixed scrypt
+`N=65536, r=8, p=2` and a 128 MiB memory ceiling. Restore admits existing encrypted
+v1 files only with their exact original header and `N=65536, r=8, p=1` parameters;
+it never retries another profile after authentication failure. The complete
+header is authenticated, and its format must match the encrypted inventory.
+Restore also supports legacy backup folders. It verifies its
 file inventory and creates a separate workspace; it never replaces the current
 database. A pending restore blocks startup, and a corrupt or incomplete backup
 is rejected. After the restored database opens successfully with the pinned

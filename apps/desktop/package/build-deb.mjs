@@ -51,7 +51,9 @@ const result = spawnSync(
     image,
     'sh',
     '-c',
-    `chmod -R a+rX /output/payload; dpkg-deb --root-owner-group -Zgzip --build /output/payload /output/tacticus-analytics-preview_${metadata.version}_amd64.deb`
+    'chmod -R a+rX /output/payload; exec dpkg-deb --root-owner-group -Zgzip --build /output/payload "$1"',
+    'package-builder',
+    `/output/tacticus-analytics-preview_${metadata.version}_amd64.deb`
   ],
   { stdio: 'inherit' }
 )
