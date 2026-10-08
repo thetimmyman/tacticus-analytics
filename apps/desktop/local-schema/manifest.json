@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 13,
+  "schemaVersion": 15,
   "purpose": "Selected native desktop analytics, local snapshot jobs and local file imports; not the complete application schema",
   "sourceCommit": "5d41a8776f3e216c04dae14d1bfa09fd48ca730a",
   "objects": [
@@ -488,6 +488,66 @@
       "name": "get_user_data_for_export",
       "canonicalStatementSha256": "1df10c381c617d250e40e926cbda1432c738d16f028af5db1d5671708a830069",
       "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_guild_team_roster",
+      "canonicalStatementSha256": "b1df99fb7ac43f8ce0cc2ea1a137ee74c463a97cd351c48ecadf59998f73a604",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "season_calendar",
+      "canonicalStatementSha256": "73ec56cfb062308b211a1dada6e6237134588ba1620b1e90653b2ee0d2cb6dd3",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "calculate_player_tokens_by_user",
+      "canonicalStatementSha256": "8bf11d67126005637f00c626cd02c7400e76bf5c40492f91a396319e14faf209",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "project_token_snapshot",
+      "canonicalStatementSha256": "2bf7d01e00327c283576efb4d018d3d69b736224bacdf1558f51555b96a5320a",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_player_token_state",
+      "canonicalStatementSha256": "2b095a21566446223f12bbc8b4d1e875856b0f56c9d17e8ee48871eec2dfc8d3",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "boss_target_tokens",
+      "canonicalStatementSha256": "e0a9771a537718539eb20605a5a9af245ef3d53d1bf5fba2a2ee9a2878f7d4a8",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "herald_boss_config",
+      "canonicalStatementSha256": "ca10301590d76d9ca1681f9a4e3409d51c5d951d9d261517f668ae402c510313",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "upcoming_season_bosses",
+      "canonicalStatementSha256": "ef42d044511d0c4b8035e237848c9878770d0d55327d6f99a991808b395a8ebc",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "boss_target_tokens_touch_updated_at",
+      "canonicalStatementSha256": "4c42d0b901deb717a7bc238d685af87c202b4d88f21b76623d5350e80676c198",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_cluster_latest_season",
+      "canonicalStatementSha256": "4a0171a6ac64472d3e5ebdbbaf5c31634f40f429994b2ab7c76361ba042c88de",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
     }
   ],
   "excluded": "Hosted triggers, schedulers, operational SQL, captured data and blanket grants are deliberately excluded. Local bootstrap supplies constraints, RLS and ownership separately. Cluster aggregate must use a scoped invoker view rather than an unscoped materialized-view grant.",
@@ -503,6 +563,10 @@
     "Meta-team memberships retain canonical rows and timestamps, scoped reads, own self declarations and same-guild leader overrides; local clients cannot write automated reconciler records.",
     "An own-key roster snapshot remains an explicit unverified local claim. A dedicated non-login non-bypass writer atomically commits its bounded cache, canonical mapped rows and local power; renderer roles cannot write cached payloads or invoke the primitive.",
     "Authenticated local planner-link writes use the canonical owner-only projection and a bounded HTTP(S) write validator; role, identity and credential columns stay read-only. Historical links and unrelated profile updates are retained while future link writes are checked.",
-    "Canonical achievement inputs include guild-war attempts and computed raid awards. Owner-readable first-unlock rows are written by a strict durable local job; award calculation uses a non-login non-bypass reader scoped to the requesting installation. Guild-war input writes and module acquisition remain outside this selected closure."
+    "Canonical achievement inputs include guild-war attempts and computed raid awards. Owner-readable first-unlock rows are written by a strict durable local job; award calculation uses a non-login non-bypass reader scoped to the requesting installation. Guild-war input writes and module acquisition remain outside this selected closure.",
+    "Canonical guild-team roster reads use a dedicated non-login non-bypass reader with membership-scoped RLS. Local members see only their own saved roster; no service-role or anonymous projection is granted. Desktop team comparison reads imported snapshots and does not invoke hosted roster backfill or live token overlays.",
+    "Cached token reads use the signed-in local caller, the canonical membership guard and a non-login non-bypass reader. The explicit desktop token-state adapter preserves canonical math while using durable snapshot presence after disconnect and reporting cached provenance. It never acquires live data or synthesizes officer authority. Its peer-guild authorization explicitly aligns with current officer/leader roles (case-insensitive), while the canonical parent remains unchanged; admin is not an admitted membership role.",
+    "Boss target assignments retain canonical constraints and current-member read plus officer/leader write policies. Authenticated callers have only target CRUD and read-only ops dependencies; anonymous access, blanket grants and unrelated orchestration writes are not selected.",
+    "Historical comments are omitted from newly selected canonical raid-management functions. Source statement hashes retain the original bytes; executable SQL and mathematical expressions are unchanged."
   ]
 }

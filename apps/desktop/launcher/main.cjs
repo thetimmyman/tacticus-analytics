@@ -1,7 +1,6 @@
 const { app, BrowserWindow, session, dialog, shell } = require('electron')
 const { readFileSync, writeFileSync } = require('node:fs')
 const { join } = require('node:path')
-const { randomBytes } = require('node:crypto')
 const config = JSON.parse(readFileSync(process.argv[2], 'utf8'))
 const origin = new URL(config.url).origin
 if (
@@ -74,11 +73,19 @@ app
     })
     const device = require('./device-session.cjs')(window, config)
     if (!(await device.open())) await window.loadURL(config.url)
+    let addonMenu
+    try {
+      addonMenu = await require('./addon-menu.cjs')(window, config)
+    } catch {
+      // Optional module damage must leave the local core and recovery controls usable.
+      addonMenu = { label: 'Local add-ons unavailable', enabled: false }
+    }
     const gameItems = config.verify
       ? []
       : [
           await require('./onboarding-menu.cjs')(window, config),
-          await require('./update-menu.cjs')(window, config)
+          await require('./update-menu.cjs')(window, config),
+          addonMenu
         ]
     const maintenance = require('./maintenance-menu.cjs')(
       window,
@@ -103,6 +110,9 @@ app
           await new Promise((accept) => setTimeout(accept, 100))
           if (!window.webContents.getURL().includes('/desktop/setup')) break
         }
+        // Wait for native session navigation to settle before starting proof pages.
+        // A changed URL alone does not mean its asynchronous load has completed.
+        await device.open()
       }
       await window.loadURL(
         origin + '/player-performance?guild=SYN001&season=9999'
@@ -126,10 +136,32 @@ app
               origin
             )
           : []
+      const addons = config.verify.addons
+        ? await require('../proof/addons-journey.cjs')(
+            window,
+            addonMenu,
+            config.verify.addons
+          )
+        : undefined
+      const tokenUsage = config.verify.tokenUsage
+        ? await require('../proof/token-usage-renderer.cjs').captureTokenUsage(
+            window,
+            config.verify.tokenUsage
+          )
+        : undefined
+      const targetAssignments = config.verify.targetAssignments
+        ? await require('../proof/target-assignments-renderer.cjs').captureTargetAssignments(
+            window,
+            config.verify.targetAssignments
+          )
+        : undefined
       const evidence = {
         setupMode,
         observed,
         corePages,
+        addons,
+        tokenUsage,
+        targetAssignments,
         deviceSession: true,
         wake,
         failures,

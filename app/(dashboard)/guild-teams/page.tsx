@@ -1,4 +1,5 @@
 import { requireRole } from '@/app/lib/auth'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 import { db } from '@/app/lib/db'
 import { createPageMetadata } from '@/app/lib/metadata'
 
@@ -13,7 +14,10 @@ export const metadata = createPageMetadata({
 })
 
 export default async function GuildTeamsPage() {
-  const { profile } = await requireRole('officer')
+  const desktopMode = getRuntimeProfile() === 'desktop'
+  // Local owners keep their member role. The canonical roster RPC restricts
+  // members to their own guild and their own roster.
+  const { profile } = await requireRole(desktopMode ? 'member' : 'officer')
   const supabase = await db()
 
   const { data: mappings } = await supabase
@@ -41,6 +45,7 @@ export default async function GuildTeamsPage() {
         guildCode={profile.guild_code!}
         heroMappings={heroMappings}
         pageTitle={pickPageTitle()}
+        desktopMode={desktopMode}
       />
     </div>
   )

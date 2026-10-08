@@ -14,6 +14,7 @@ type TargetWrite = {
   encounter_id: number
   target_tokens: number
   skip: boolean
+  notes?: string
 }
 
 type SeedResult = {
@@ -62,6 +63,21 @@ export function useTargetMutations({
   const upsertMutation = useMutation({
     // `skip` is required: this page is the skip-aware writer (a committed target clears skip).
     mutationFn: async (input: TargetWrite) => {
+      if (input.notes !== undefined) {
+        const response = await fetch(
+          `/api/boss-assignments/target-tokens?guild_code=${encodeURIComponent(guildCode)}`,
+          {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...input, season_number: selectedSeason })
+          }
+        )
+        if (!response.ok)
+          throw new Error(
+            `Could not save target note (HTTP ${response.status})`
+          )
+        return
+      }
       // Season-inclusive onConflict keeps writes off the '' legacy row.
       await saveTargetToken({
         bossType: input.boss_name,
@@ -108,12 +124,13 @@ export function useTargetMutations({
       // AUTH-CRITICAL read-only gate; the server also enforces requireTargetTokenWriter on DELETE.
       if (!canEdit || !row.target) return
       const params = new URLSearchParams({
+        guild_code: guildCode,
         // DELETE matches the stored PK (row.target.boss_name).
         boss_name: row.target.boss_name,
         rarity: row.rarity,
         set: String(row.set),
         encounter_id: String(row.encounter_id),
-        season: selectedSeason
+        season: row.target.season_number ?? ''
       })
       const response = await fetch(
         `/api/boss-assignments/target-tokens?${params.toString()}`,
@@ -122,7 +139,12 @@ export function useTargetMutations({
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       return response.json()
     },
-    onSuccess: invalidateTargets
+    onSuccess: () => {
+      setSaveError(null)
+      void invalidateTargets()
+    },
+    onError: (error) =>
+      setSaveError(error instanceof Error ? error.message : 'Delete failed')
   })
 
   const startEdit = (row: MergedRow) => {
@@ -187,6 +209,18 @@ export function useTargetMutations({
     cancelEdit,
     saveEdit,
     toggleSkip,
+    saveNotes: async (row: MergedRow, notes: string) => {
+      if (!canEdit || !row.target) return
+      await upsertMutation.mutateAsync({
+        boss_name: row.boss_type,
+        rarity: row.rarity,
+        set: row.set,
+        encounter_id: row.encounter_id,
+        target_tokens: row.target.target_tokens,
+        skip: row.target.skip === true,
+        notes
+      })
+    },
     resetTarget: (row: MergedRow) => deleteMutation.mutate(row),
     seedFromHistory: () => seedMutation.mutate(),
     isSaving: upsertMutation.isPending,
