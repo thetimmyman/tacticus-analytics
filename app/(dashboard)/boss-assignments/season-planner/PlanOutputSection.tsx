@@ -199,7 +199,15 @@ export default function PlanOutputSection({
   ]
 
   return (
-    <div className="rounded-lg border border-(--card-border) bg-(--card-bg) p-6 space-y-4">
+    <div
+      aria-label="Season plan results"
+      data-sessions-per-day={displayedPlan?.sessions_per_day}
+      data-tokens-spent={metrics?.tokensSpent}
+      data-wasted-tokens={metrics?.wastedTokens}
+      data-bosses-defeated={metrics?.bossesDefeated}
+      data-loop-advances={metrics?.loopAdvances}
+      className="rounded-lg border border-(--card-border) bg-(--card-bg) p-6 space-y-4"
+    >
       <div className="flex items-center justify-between gap-4">
         <div>
           <h3 className="text-lg font-semibold text-primary-wh40k">

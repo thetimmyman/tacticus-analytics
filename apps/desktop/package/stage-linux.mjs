@@ -106,7 +106,8 @@ for (const file of [
   'electron-shell.cjs',
   'guild-teams-renderer.cjs',
   'token-usage-renderer.cjs',
-  'target-assignments-renderer.cjs'
+  'target-assignments-renderer.cjs',
+  'season-planning-renderer.cjs'
 ])
   await copy(
     join(source, 'apps/desktop/proof', file),

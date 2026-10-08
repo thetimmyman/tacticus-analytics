@@ -155,6 +155,12 @@ app
             config.verify.targetAssignments
           )
         : undefined
+      const seasonPlanning = config.verify.seasonPlanning
+        ? await require('../proof/season-planning-renderer.cjs').captureSeasonPlanning(
+            window,
+            config.verify.seasonPlanning
+          )
+        : undefined
       const evidence = {
         setupMode,
         observed,
@@ -162,6 +168,7 @@ app
         addons,
         tokenUsage,
         targetAssignments,
+        seasonPlanning,
         deviceSession: true,
         wake,
         failures,

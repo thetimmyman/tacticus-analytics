@@ -1,3 +1,4 @@
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 import { NextRequest, NextResponse } from 'next/server'
 import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('api.guild-raid.season-plan.generate')
@@ -8,6 +9,7 @@ import {
   clampInt,
   requireSeasonPlanOfficerContext,
   resolveSeasonPlanSeason,
+  validateDesktopPlanningParameters,
   toPositiveInt
 } from '../_shared'
 
@@ -15,12 +17,17 @@ export const dynamic = 'force-dynamic'
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
   try {
-    const { profile } = await requireSeasonPlanOfficerContext({
+    const { supabase, profile } = await requireSeasonPlanOfficerContext({
       requireFeatureAccess: true
     })
 
     const searchParams = request.nextUrl.searchParams
-    const season = await resolveSeasonPlanSeason(searchParams.get('season'))
+    validateDesktopPlanningParameters(searchParams)
+    const season = await resolveSeasonPlanSeason(
+      searchParams.get('season'),
+      supabase,
+      profile.guild_code
+    )
     const snapshotAt =
       searchParams.get('snapshot_at') || new Date().toISOString()
     const lookbackDays = clampInt(
@@ -44,10 +51,16 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
       lookbackDays,
       sessionsPerDay,
       timeZone,
-      configId
+      configId,
+      ...(getRuntimeProfile() === 'desktop' ? { signedClient: supabase } : {})
     })
 
-    return NextResponse.json(result)
+    return NextResponse.json(result, {
+      headers:
+        getRuntimeProfile() === 'desktop'
+          ? { 'Cache-Control': 'no-store' }
+          : undefined
+    })
   } catch (error) {
     rethrowIfAppError(error)
     logger.error({ err: error }, 'Error generating season plan:')

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 15,
+  "schemaVersion": 16,
   "purpose": "Selected native desktop analytics, local snapshot jobs and local file imports; not the complete application schema",
   "sourceCommit": "5d41a8776f3e216c04dae14d1bfa09fd48ca730a",
   "objects": [
@@ -548,6 +548,24 @@
       "name": "get_cluster_latest_season",
       "canonicalStatementSha256": "4a0171a6ac64472d3e5ebdbbaf5c31634f40f429994b2ab7c76361ba042c88de",
       "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "guild_raid_season_plans",
+      "canonicalStatementSha256": "a2b3d393b4a79a580a8f845ba5aa4797bfbd7a204a3a79c976cb24693a3c9ff0",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "raid_progression_config",
+      "canonicalStatementSha256": "40e5a2cb1b981e31ad7d8f64e57a7cd96ff835045c41b49c441be1293605058b",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "update_updated_at_column",
+      "canonicalStatementSha256": "266f5a1a5e0f7d4ac6c648a936254a311200af7d4f4b734d823558cd7533525c",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
     }
   ],
   "excluded": "Hosted triggers, schedulers, operational SQL, captured data and blanket grants are deliberately excluded. Local bootstrap supplies constraints, RLS and ownership separately. Cluster aggregate must use a scoped invoker view rather than an unscoped materialized-view grant.",
@@ -567,6 +585,120 @@
     "Canonical guild-team roster reads use a dedicated non-login non-bypass reader with membership-scoped RLS. Local members see only their own saved roster; no service-role or anonymous projection is granted. Desktop team comparison reads imported snapshots and does not invoke hosted roster backfill or live token overlays.",
     "Cached token reads use the signed-in local caller, the canonical membership guard and a non-login non-bypass reader. The explicit desktop token-state adapter preserves canonical math while using durable snapshot presence after disconnect and reporting cached provenance. It never acquires live data or synthesizes officer authority. Its peer-guild authorization explicitly aligns with current officer/leader roles (case-insensitive), while the canonical parent remains unchanged; admin is not an admitted membership role.",
     "Boss target assignments retain canonical constraints and current-member read plus officer/leader write policies. Authenticated callers have only target CRUD and read-only ops dependencies; anonymous access, blanket grants and unrelated orchestration writes are not selected.",
-    "Historical comments are omitted from newly selected canonical raid-management functions. Source statement hashes retain the original bytes; executable SQL and mathematical expressions are unchanged."
+    "Historical comments are omitted from newly selected canonical raid-management functions. Source statement hashes retain the original bytes; executable SQL and mathematical expressions are unchanged.",
+    "Saved season plans preserve canonical storage, constraints and current own-guild member/officer policies. Progression configuration is authenticated read-only. Native runtime roles receive no blanket plan/progression privileges.",
+    "Exactly two public local saved-capability catalogue rows describe desktop preview availability only; they do not grant hosted entitlements or officer membership.",
+    "An additional invoker-rights direct plan write trigger requires the signed creator on INSERT, immutable creator on UPDATE and a caller-visible baseline with the same guild, captured configuration season_id and numerical saved plan season. Canonical minimal JSON with both seasons absent remains compatible. Only the explicit native fixture and Auth owner roles bypass this guard for fixture enrollment and canonical ON DELETE SET NULL actions. Missing uid never grants runtime authority.",
+    "The two saved-capability catalogue upserts change only local preview stage and route on conflict, preserving captured metadata and all unrelated catalogue entries."
+  ],
+  "seasonPlanningAuthoritySources": [
+    {
+      "kind": "AUTHORITY",
+      "name": "guild_raid_season_plans_pkey",
+      "canonicalStatementSha256": "ef5ddaffd92ee5b4dae392bb9ef389a975d5e94a688ca24ea9b1f00e8f387e8a",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "AUTHORITY",
+      "name": "raid_progression_config_pkey",
+      "canonicalStatementSha256": "f1bdd32db9e6e0ac02c3cc30b97f1c049918cc20daeda65ad372e053d77fa51b",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "AUTHORITY",
+      "name": "guild_raid_season_plans_baseline_plan_id_fkey",
+      "canonicalStatementSha256": "8074c7601b72d796269b515a2ae29ea814b9149a77f7d5e0e3c8aeffd5771415",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "AUTHORITY",
+      "name": "guild_raid_season_plans_guild_code_fkey",
+      "canonicalStatementSha256": "df190fda676e22d8337a0fdc9c23a1aa807c9c3370a606643681f1771a59d61f",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "AUTHORITY",
+      "name": "feature_releases_feature_key_key",
+      "canonicalStatementSha256": "0cd692d713ec5a0a635285adb2926e756351fba51168c299bc998b967bc46158",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "AUTHORITY",
+      "name": "guild_raid_season_plans_created_by_fkey",
+      "canonicalStatementSha256": "0a69514cd37761af5011359f21a1589a8a5f5b2706b1344f9f75c8edf581ffed",
+      "sourceFileSha256": "72032fd9ae256d47789efdaf4fa6b66e1c7aa1118feae75557b06a0e00d47829"
+    },
+    {
+      "kind": "AUTHORITY",
+      "name": "idx_gr_season_plans_guild_season_created",
+      "canonicalStatementSha256": "ee31399409aaf27998d02292da0448f6440d11d87e946781a38434e3c8d651a6",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "AUTHORITY",
+      "name": "idx_raid_progression_config_active_scope",
+      "canonicalStatementSha256": "0a0530aa2ef5ab77277ab329b39951031522ba63b3a2563631fd96b6b2877fed",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "AUTHORITY",
+      "name": "ux_gr_season_plans_baseline_key",
+      "canonicalStatementSha256": "fd5cfcf69e9c6b1d66e885372f6350db094502e453690da7c61935a4bec9262a",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "AUTHORITY",
+      "name": "update_gr_season_plans_updated_at",
+      "canonicalStatementSha256": "d376859fd7ca3d087a31cb130a1b8a72e3ec293db60bbf761d3bcefc7f6f4a52",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "AUTHORITY",
+      "name": "gr_season_plans_delete_officers",
+      "canonicalStatementSha256": "1313186f345f01d032fd07938c627c338c4954f119cb57855148e3f12a0e0d26",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "AUTHORITY",
+      "name": "gr_season_plans_insert_officers",
+      "canonicalStatementSha256": "3b6bdff98a85ddc07daad8b6287a24d9cfa166c77c2d81e80e8079b1fa80c1e5",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "AUTHORITY",
+      "name": "gr_season_plans_select_own_guild",
+      "canonicalStatementSha256": "61050728b5aca5f93c47cc44c0fd787e665071ce512836c320ac537e7df44de7",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "AUTHORITY",
+      "name": "gr_season_plans_update_officers",
+      "canonicalStatementSha256": "108d4edefa358dcbb96823b58382374a72fa36ba058aef5e204bbde76a7869aa",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "AUTHORITY",
+      "name": "Anyone authenticated can read progression config",
+      "canonicalStatementSha256": "c0e0c38b65812ca7118f94db909000ca1b3876eb5936250789f2e70519be7166",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "AUTHORITY",
+      "name": "Service role can manage progression config",
+      "canonicalStatementSha256": "a3f51f877a4b8f6c93a3b0688e956e73763a4e6e5ee9b25c1a5b41e46ed1dc8c",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "AUTHORITY",
+      "name": "guild_raid_season_plans_rls",
+      "canonicalStatementSha256": "4ebb70b81e37d1b087208ff5f61e9f249365dc8404d0825f7ea28a3687de1f92",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "AUTHORITY",
+      "name": "raid_progression_config_rls",
+      "canonicalStatementSha256": "af044e76b2c7b86e1b824472b79c10c6a10fa633cb4b9cc865ca7af9002dd490",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    }
   ]
 }

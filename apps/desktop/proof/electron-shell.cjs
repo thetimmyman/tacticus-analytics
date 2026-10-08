@@ -108,6 +108,12 @@ app
           config.targetAssignments
         )
       : undefined
+    const seasonPlanning = config.seasonPlanning
+      ? await require('./season-planning-renderer.cjs').captureSeasonPlanning(
+          window,
+          config.seasonPlanning
+        )
+      : undefined
     console.log('renderer: read DOM')
     const renderer = await window.webContents.executeJavaScript(
       `({ text: document.body.innerText, nodeAccess: typeof require !== 'undefined' || typeof process !== 'undefined', title: document.title })`
@@ -134,6 +140,7 @@ app
           guildTeams,
           tokenUsage,
           targetAssignments,
+          seasonPlanning,
           wake,
           failures,
           blocked,

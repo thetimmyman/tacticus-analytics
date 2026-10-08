@@ -41,7 +41,8 @@ export default function DesktopAccessGate({
     pathname === '/guild-teams' ||
     pathname === '/roster' ||
     pathname === '/token-usage' ||
-    pathname === '/boss-assignments/targets'
+    pathname === '/boss-assignments/targets' ||
+    pathname === '/boss-assignments/season'
   const personal =
     pathname === '/roster' ||
     pathname === '/achievements' ||
