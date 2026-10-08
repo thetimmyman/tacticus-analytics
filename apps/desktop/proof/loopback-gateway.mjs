@@ -97,6 +97,12 @@ export async function loopbackGateway({
         }
         delete responseHeaders.connection
         res.writeHead(response.statusCode, responseHeaders)
+        // A broken upstream body must remain a failed response downstream,
+        // rather than waiting forever or ending a partial body as successful.
+        response.on('error', () => res.destroy())
+        response.on('close', () => {
+          if (!response.complete) res.destroy()
+        })
         response.pipe(res)
       }
     )
@@ -104,8 +110,15 @@ export async function loopbackGateway({
       upstream.destroy(new Error('Local upstream timeout'))
     )
     upstream.on('error', () => {
-      if (!res.headersSent) res.writeHead(503)
-      res.end()
+      if (res.destroyed) return
+      if (res.headersSent) res.destroy()
+      else {
+        res.writeHead(503)
+        res.end()
+      }
+    })
+    res.on('close', () => {
+      if (!res.writableFinished) upstream.destroy()
     })
     req.on('aborted', () => upstream.destroy())
     let size = 0

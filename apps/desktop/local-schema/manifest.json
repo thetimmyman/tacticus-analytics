@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 13,
+  "schemaVersion": 14,
   "purpose": "Selected native desktop analytics, local snapshot jobs and local file imports; not the complete application schema",
   "sourceCommit": "5d41a8776f3e216c04dae14d1bfa09fd48ca730a",
   "objects": [
@@ -488,6 +488,12 @@
       "name": "get_user_data_for_export",
       "canonicalStatementSha256": "1df10c381c617d250e40e926cbda1432c738d16f028af5db1d5671708a830069",
       "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "get_guild_team_roster",
+      "canonicalStatementSha256": "b1df99fb7ac43f8ce0cc2ea1a137ee74c463a97cd351c48ecadf59998f73a604",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
     }
   ],
   "excluded": "Hosted triggers, schedulers, operational SQL, captured data and blanket grants are deliberately excluded. Local bootstrap supplies constraints, RLS and ownership separately. Cluster aggregate must use a scoped invoker view rather than an unscoped materialized-view grant.",
@@ -503,6 +509,7 @@
     "Meta-team memberships retain canonical rows and timestamps, scoped reads, own self declarations and same-guild leader overrides; local clients cannot write automated reconciler records.",
     "An own-key roster snapshot remains an explicit unverified local claim. A dedicated non-login non-bypass writer atomically commits its bounded cache, canonical mapped rows and local power; renderer roles cannot write cached payloads or invoke the primitive.",
     "Authenticated local planner-link writes use the canonical owner-only projection and a bounded HTTP(S) write validator; role, identity and credential columns stay read-only. Historical links and unrelated profile updates are retained while future link writes are checked.",
-    "Canonical achievement inputs include guild-war attempts and computed raid awards. Owner-readable first-unlock rows are written by a strict durable local job; award calculation uses a non-login non-bypass reader scoped to the requesting installation. Guild-war input writes and module acquisition remain outside this selected closure."
+    "Canonical achievement inputs include guild-war attempts and computed raid awards. Owner-readable first-unlock rows are written by a strict durable local job; award calculation uses a non-login non-bypass reader scoped to the requesting installation. Guild-war input writes and module acquisition remain outside this selected closure.",
+    "Canonical guild-team roster reads use a dedicated non-login non-bypass reader with membership-scoped RLS. Local members see only their own saved roster; no service-role or anonymous projection is granted. Desktop team comparison reads imported snapshots and does not invoke hosted roster backfill or live token overlays."
   ]
 }

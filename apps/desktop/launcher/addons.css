@@ -1,0 +1,47 @@
+:root {
+  color-scheme: dark;
+  font:
+    16px/1.5 system-ui,
+    sans-serif;
+  background: #141a24;
+  color: #eef2f8;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 1000px;
+  margin: auto;
+  padding: 32px;
+}
+article,
+[role='group'] {
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid #64748b;
+  border-radius: 8px;
+}
+button,
+input {
+  font: inherit;
+  margin: 8px;
+}
+button {
+  padding: 8px 16px;
+  cursor: pointer;
+}
+button:disabled {
+  cursor: default;
+}
+:focus-visible {
+  outline: 3px solid #7dd3fc;
+  outline-offset: 3px;
+}
+label {
+  display: block;
+}
+svg {
+  max-width: 100%;
+  height: auto;
+  background: #253047;
+}
