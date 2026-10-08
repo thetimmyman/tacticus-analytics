@@ -126,6 +126,17 @@ describe('POST /api/guild-teams/backfill', () => {
     vi.unstubAllEnvs()
   })
 
+  it('refuses hosted roster backfill in desktop mode before reading keys', async () => {
+    vi.stubEnv('NEXT_PUBLIC_RUNTIME_PROFILE', 'desktop')
+    await loadRoute()
+    const response = await POST()
+    expect(response.status).toBe(409)
+    expect(mockServiceDb).not.toHaveBeenCalled()
+    expect(mockGetPlayerApiKey).not.toHaveBeenCalled()
+    expect(mockTacticusGetPlayer).not.toHaveBeenCalled()
+    expect(mockCreateLokiClient).not.toHaveBeenCalled()
+  })
+
   it('forwards Tacticus profile power to roster snapshot persistence', async () => {
     const supabase = buildSupabase({
       players: [

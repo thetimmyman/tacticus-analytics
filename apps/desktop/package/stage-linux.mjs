@@ -102,7 +102,9 @@ for (const file of [
   'synthetic-import.mjs',
   'renderer-wake.cjs',
   'core-pages.cjs',
-  'addons-journey.cjs'
+  'addons-journey.cjs',
+  'electron-shell.cjs',
+  'guild-teams-renderer.cjs'
 ])
   await copy(
     join(source, 'apps/desktop/proof', file),
