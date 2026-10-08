@@ -74,26 +74,36 @@ export async function dispatchDefeatPhase({
     // Pre-claim consumed secondaries; 23505 means an earlier run did.
     for (const t of collapsed.consumed) {
       try {
-        await supabase.from('herald_posted_events').insert({
-          guild_code: guildCode,
-          season: t.season,
-          boss_id: t.boss_id,
-          transition_type: 'boss_defeated',
-          completed_on: t.completed_on
-        })
-      } catch (err) {
-        const code = (err as { code?: string }).code
-        if (code !== '23505') {
+        const { error: insertErr } = await supabase
+          .from('herald_posted_events')
+          .insert({
+            guild_code: guildCode,
+            season: t.season,
+            boss_id: t.boss_id,
+            transition_type: 'boss_defeated',
+            completed_on: t.completed_on
+          })
+        if (insertErr && (insertErr as { code?: string }).code !== '23505') {
           logger.warn(
             {
               herald_invocation_id: invocationId,
               guild_code: guildCode,
               boss_id: t.boss_id,
-              error: err instanceof Error ? err.message : String(err)
+              error: insertErr.message
             },
             'herald.combine.dedup_claim_error'
           )
         }
+      } catch (err) {
+        logger.warn(
+          {
+            herald_invocation_id: invocationId,
+            guild_code: guildCode,
+            boss_id: t.boss_id,
+            error: err instanceof Error ? err.message : String(err)
+          },
+          'herald.combine.dedup_claim_exception'
+        )
       }
     }
   }
