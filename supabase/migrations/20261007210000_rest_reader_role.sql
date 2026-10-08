@@ -5,8 +5,9 @@
 -- target-db: general
 
 -- Grants: the public columns service_role can SELECT, minus credential columns
--- (CREDENTIAL pattern; counts, flags and timestamps are never withheld). A
--- relation with a withheld column gets column-level SELECT, so name columns.
+-- (CREDENTIAL pattern, including possession codes and links such as invite
+-- codes and download URLs; counts, flags and timestamps are never withheld).
+-- Every grant is column-level, so a column added later stays closed.
 -- BYPASSRLS with no write privilege anywhere. A snapshot: later relations and
 -- columns stay invisible until a migration grants them (fail closed).
 
@@ -63,7 +64,7 @@ REVOKE ALL ON ALL FUNCTIONS IN SCHEMA public FROM rest_reader;
 DO $grants$
 DECLARE
   credential constant text :=
-    '(secret|passw|encrypted|webhook_url|private_object_key|private_key|_token$|^token$|session_id$|api_key$|jwt|bearer|credential$|dsn$)';
+    '(secret|passw|encrypted|webhook_url|private_object_key|private_key|_token$|^token$|session_id$|api_key$|jwt|bearer|credential$|dsn$|invite_code|invited_with_code|^code$|invite_url|download_url|raw_video_url|nonce|otp$|recovery_code|verification_code)';
   credential_exempt constant text := '(_at|_by|_hash)$';
   -- Counts, flags and timestamps cannot carry a credential.
   plain_types constant regtype[] := ARRAY['boolean', 'smallint', 'integer', 'bigint', 'numeric', 'real',
@@ -72,9 +73,7 @@ DECLARE
   readable text[];
 BEGIN
   FOR rel IN
-    SELECT c.oid, c.relname,
-           (SELECT count(*) FROM pg_attribute a
-             WHERE a.attrelid = c.oid AND a.attnum > 0 AND NOT a.attisdropped) AS ncols
+    SELECT c.oid, c.relname
     FROM pg_class c
     JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE n.nspname = 'public' AND c.relkind IN ('r', 'p', 'v', 'm', 'f')
@@ -87,14 +86,11 @@ BEGIN
       AND NOT (a.attname ~* credential AND a.attname !~* credential_exempt
                AND a.atttypid::regtype <> ALL (plain_types));
     CONTINUE WHEN readable IS NULL;
-    IF cardinality(readable) = rel.ncols
-       AND has_table_privilege('service_role', rel.oid, 'SELECT') THEN
-      EXECUTE format('GRANT SELECT ON public.%I TO rest_reader', rel.relname);
-    ELSE
-      EXECUTE format('GRANT SELECT (%s) ON public.%I TO rest_reader',
-                     (SELECT string_agg(quote_ident(col), ', ') FROM unnest(readable) AS col),
-                     rel.relname);
-    END IF;
+    -- Column-level even when every column is readable: a table-level grant
+    -- would also cover columns added later.
+    EXECUTE format('GRANT SELECT (%s) ON public.%I TO rest_reader',
+                   (SELECT string_agg(quote_ident(col), ', ') FROM unnest(readable) AS col),
+                   rel.relname);
   END LOOP;
 END $grants$;
 
@@ -113,6 +109,7 @@ AS $fn$
     'db', current_database()::text,
     'in_recovery', pg_is_in_recovery(),
     'is_superuser', (SELECT rolsuper FROM pg_roles WHERE rolname = current_user),
+    'statement_timeout', current_setting('statement_timeout'),
     'writable_exposed_relations', (
       SELECT count(*)
       FROM pg_class c
@@ -171,11 +168,21 @@ BEGIN
     RAISE EXCEPTION 'rest_reader can write % exposed relations', n;
   END IF;
 
+  -- Every SELECT must be column-level, so columns added later stay closed.
+  SELECT count(*) INTO n
+  FROM pg_class c JOIN pg_namespace ns ON ns.oid = c.relnamespace
+  CROSS JOIN LATERAL aclexplode(c.relacl) AS acl
+  WHERE ns.nspname IN ('public', 'graphql_public')
+    AND acl.grantee = 'rest_reader'::regrole;
+  IF n <> 0 THEN
+    RAISE EXCEPTION 'rest_reader holds % table-level privileges; grant columns only', n;
+  END IF;
+
   SELECT string_agg(c.relname || '.' || a.attname, ', ') INTO leaked
   FROM pg_class c JOIN pg_namespace ns ON ns.oid = c.relnamespace
   JOIN pg_attribute a ON a.attrelid = c.oid AND a.attnum > 0 AND NOT a.attisdropped
   WHERE ns.nspname = 'public'
-    AND a.attname ~* '(secret|passw|encrypted|webhook_url|private_object_key|private_key|_token$|^token$|session_id$|api_key$|jwt|bearer|credential$|dsn$)'
+    AND a.attname ~* '(secret|passw|encrypted|webhook_url|private_object_key|private_key|_token$|^token$|session_id$|api_key$|jwt|bearer|credential$|dsn$|invite_code|invited_with_code|^code$|invite_url|download_url|raw_video_url|nonce|otp$|recovery_code|verification_code)'
     AND a.attname !~* '(_at|_by|_hash)$'
     AND a.atttypid::regtype <> ALL (ARRAY['boolean', 'smallint', 'integer', 'bigint', 'numeric', 'real',
       'double precision', 'date', 'timestamp without time zone', 'timestamp with time zone']::regtype[])
@@ -205,4 +212,7 @@ VALUES ('20261007210000', 'rest_reader_role')
 ON CONFLICT (version) DO NOTHING;
 
 NOTIFY pgrst, 'reload schema';
+-- Config too: PostgREST applies the reader's statement_timeout from the role
+-- settings it reads at config load.
+NOTIFY pgrst, 'reload config';
 COMMIT;
