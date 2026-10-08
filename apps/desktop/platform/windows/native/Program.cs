@@ -271,7 +271,7 @@ internal static class NativeProof
             catch (InvalidOperationException) { oversizedImport = true; }
             if (!oversizedImport) throw new InvalidOperationException("Oversized native import accepted");
             assertions.Add("expired-import-refused-and-bounded-same-handle-credential-free-read");
-            var candidate = Path.Combine(testRoot, "source"); Directory.CreateDirectory(candidate);
+            var candidate = Path.Combine(testRoot, new string('A', 80), new string('B', 80), new string('C', 80), "source"); Directory.CreateDirectory(candidate);
             File.WriteAllText(Path.Combine(candidate, "item.txt"), "synthetic retained content");
             var digest = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Path.Combine(candidate, "item.txt")))).ToLowerInvariant();
             File.WriteAllText(Path.Combine(candidate, "bundle-manifest.json"), JsonSerializer.Serialize(new { schemaVersion = 1, platform = "win-x64", sourceSha = new string('a', 40), files = new[] { new { path = "item.txt", size = new FileInfo(Path.Combine(candidate, "item.txt")).Length, sha256 = digest } } }));
@@ -291,7 +291,7 @@ internal static class NativeProof
                 }
                 if (pinned.Manifest.SourceSha != new string('a', 40)) throw new InvalidOperationException("Pinned manifest identity changed");
             }
-            assertions.Add("verified-runtime-file-manifest-and-directory-substitution-refused-through-execution");
+            assertions.Add("verified-runtime-file-manifest-and-directory-substitution-refused-through-execution-beyond-max-path");
             var install = Path.Combine(testRoot, "install ü");
             var first = Bundle.StageCandidate(candidate, install); var second = Bundle.StageCandidate(candidate, install);
             if (first == second || Bundle.Active(install, true) != first) throw new InvalidOperationException("Rollback failed");

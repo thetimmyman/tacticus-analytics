@@ -77,7 +77,12 @@ internal static class Bundle
         var directories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         SafeFileHandle Pin(string path, bool directory)
         {
-            var handle = CreateFileW(path, directory ? 0x80u : 0x80000000u, 1, IntPtr.Zero, 3,
+            // Direct Win32 calls need the extended absolute form; .NET file APIs
+            // already support deep per-user install roots without MAX_PATH truncation.
+            var full = System.IO.Path.GetFullPath(path);
+            var nativePath = full.StartsWith(@"\\?\", StringComparison.Ordinal) ? full :
+                full.StartsWith(@"\\", StringComparison.Ordinal) ? @"\\?\UNC\" + full[2..] : @"\\?\" + full;
+            var handle = CreateFileW(nativePath, directory ? 0x80u : 0x80000000u, 1, IntPtr.Zero, 3,
                 0x00200000u | (directory ? 0x02000000u : 0u), IntPtr.Zero);
             if (handle.IsInvalid) { handle.Dispose(); throw new Win32Exception(); }
             try
