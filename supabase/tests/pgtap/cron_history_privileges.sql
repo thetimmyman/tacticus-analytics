@@ -3,14 +3,16 @@ BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 SELECT plan(10);
+SELECT to_regclass('cron.job_run_details') IS NULL AS no_cron_history \gset
+\if :no_cron_history
+SELECT is((SELECT count(*)::integer FROM supabase_migrations.schema_migrations
+  WHERE version = '20261008180000'), 0,
+  'absent pg_cron cannot be recorded as hardened');
+SELECT * FROM skip(9, 'pg_cron is absent; the required real-extension control executes these privilege checks');
+\else
 SELECT is((SELECT count(*)::integer FROM supabase_migrations.schema_migrations
   WHERE version = '20261008180000' AND name = 'revoke_public_cron_history'), 1,
   'the cron history privilege migration is applied');
-
-SELECT to_regclass('cron.job_run_details') IS NULL AS no_cron_history \gset
-\if :no_cron_history
-SELECT * FROM skip(9, 'pg_cron is absent; run this suite on a pg_cron-enabled database for privilege coverage');
-\else
 SELECT is_empty($$SELECT a.privilege_type FROM pg_class c
   CROSS JOIN LATERAL aclexplode(c.relacl) a
   WHERE c.oid = 'cron.job_run_details'::regclass AND a.grantee = 0$$,

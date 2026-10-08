@@ -14,12 +14,11 @@ $guard$;
 
 DO $privileges$
 BEGIN
-  -- The replay database does not install pg_cron. An installed extension
-  -- must have its own history table; refuse a missing or unrelated object.
-  IF NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron')
-     AND to_regclass('cron.job_run_details') IS NULL THEN
-    RAISE NOTICE 'pg_cron is not installed; no history privileges to revoke';
-    RETURN;
+  -- Require installation first: recording a no-op would let a later extension
+  -- install recreate upstream PUBLIC grants without replaying this migration.
+  IF NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN
+    RAISE EXCEPTION 'Install pg_cron before the history privilege migration'
+      USING ERRCODE = '42704';
   END IF;
   IF NOT EXISTS (
     SELECT 1 FROM pg_class c
