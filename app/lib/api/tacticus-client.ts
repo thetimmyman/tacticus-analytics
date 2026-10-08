@@ -302,6 +302,11 @@ function normalizeGuildRaidResponse(
   }
 }
 
+export interface PlayerFetchResult {
+  player: TacticusPlayer | null
+  status: number | null
+}
+
 export class TacticusAPIClient {
   private baseUrl = TACTICUS_API.BASE_URL
 
@@ -335,6 +340,14 @@ export class TacticusAPIClient {
   }
 
   async getPlayer(apiKey: string): Promise<TacticusPlayer | null> {
+    return (await this.getPlayerResult(apiKey)).player
+  }
+
+  /**
+   * getPlayer plus the HTTP status, so a caller can tell a rejected key (401/403)
+   * from an outage. `status` is null when no response arrived.
+   */
+  async getPlayerResult(apiKey: string): Promise<PlayerFetchResult> {
     try {
       logger.debug(
         {
@@ -360,15 +373,18 @@ export class TacticusAPIClient {
         } catch {
           // ignore
         }
-        logger.error(
+        const rejected = response.status === 401 || response.status === 403
+        logger[rejected ? 'warn' : 'error'](
           {
             status: response.status,
             statusText: response.statusText,
             errorBody
           },
-          'Failed to fetch player from Tacticus API'
+          rejected
+            ? 'Tacticus API rejected the player key'
+            : 'Failed to fetch player from Tacticus API'
         )
-        return null
+        return { player: null, status: response.status }
       }
 
       const data = await response.json()
@@ -382,16 +398,19 @@ export class TacticusAPIClient {
       )
 
       if (data && data.player) {
-        return data.player as TacticusPlayer
+        return {
+          player: data.player as TacticusPlayer,
+          status: response.status
+        }
       }
 
       // Some API versions return the player directly without nesting
       if (data && data.details) {
-        return data as TacticusPlayer
+        return { player: data as TacticusPlayer, status: response.status }
       }
 
       logger.warn({ data }, 'Unexpected player API response format')
-      return null
+      return { player: null, status: response.status }
     } catch (error: unknown) {
       const details = extractErrorDetails(error)
       logger.error(
@@ -404,7 +423,7 @@ export class TacticusAPIClient {
         },
         'Error fetching player'
       )
-      return null
+      return { player: null, status: null }
     }
   }
 

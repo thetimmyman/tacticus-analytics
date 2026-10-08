@@ -80,6 +80,7 @@ export default function GRAvailability({
     setApiKey,
     savingKey,
     hasApiKey,
+    apiKeyValid,
     autoRefresh,
     setAutoRefresh,
     deletingKey,
@@ -203,6 +204,21 @@ export default function GRAvailability({
             <div className="text-center py-4 text-(--primary) text-xs">
               <AlertCircle className="h-3 w-3 inline mr-1" />
               No player data available for this season
+            </div>
+          )}
+
+          {hasApiKey && !apiKeyValid && (
+            <div
+              role="alert"
+              className="mb-3 py-2 px-3 rounded-md text-xs font-medium bg-(--error-bg) text-(--error) border border-(--error-border)"
+            >
+              <div className="flex items-start gap-2">
+                <AlertCircle className="h-3 w-3 mt-0.5 shrink-0" />
+                <span>
+                  Tacticus keeps rejecting your saved API key, so live sync has
+                  stopped. Save a new key to resume it.
+                </span>
+              </div>
             </div>
           )}
 

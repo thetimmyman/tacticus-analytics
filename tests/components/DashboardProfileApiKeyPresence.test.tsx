@@ -58,7 +58,11 @@ vi.mock('@/app/(dashboard)/profile/edit/EditProfileClient', () => ({
 }))
 
 vi.mock('@/app/(dashboard)/profile/ReweaveLink', () => ({
-  ReweaveLink: (props: { hasKey: boolean; lastVerified: string | null }) => {
+  ReweaveLink: (props: {
+    hasKey: boolean
+    keyValid: boolean
+    lastVerified: string | null
+  }) => {
     reweaveLinkSpy(props)
     return <div data-testid="reweave-link" />
   }
@@ -209,7 +213,23 @@ describe('Dashboard profile API-key presence', () => {
         }
       ],
       rpcError: null,
-      expected: true
+      expected: true,
+      expectedValid: true
+    },
+    {
+      label: 'rejected key',
+      rpcData: [
+        {
+          has_claimed_profile: true,
+          api_key_configured: true,
+          api_key_valid: false,
+          guild_resolved: true,
+          blocking_condition: null
+        }
+      ],
+      rpcError: null,
+      expected: true,
+      expectedValid: false
     },
     {
       label: 'not configured',
@@ -223,17 +243,19 @@ describe('Dashboard profile API-key presence', () => {
         }
       ],
       rpcError: null,
-      expected: false
+      expected: false,
+      expectedValid: false
     },
     {
       label: 'RPC failure',
       rpcData: null,
       rpcError: { message: 'RPC unavailable' },
-      expected: false
+      expected: false,
+      expectedValid: false
     }
   ])(
     'derives $label state from the caller-scoped boolean-only RPC',
-    async ({ rpcData, rpcError, expected }) => {
+    async ({ rpcData, rpcError, expected, expectedValid }) => {
       authenticatedClient.rpc.mockResolvedValue({
         data: rpcData,
         error: rpcError
@@ -263,6 +285,7 @@ describe('Dashboard profile API-key presence', () => {
       )
       expect(reweaveLinkSpy).toHaveBeenCalledWith({
         hasKey: expected,
+        keyValid: expectedValid,
         lastVerified
       })
       expect(screen.getByTestId('edit-profile-client')).toBeInTheDocument()
