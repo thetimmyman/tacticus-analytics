@@ -40,9 +40,11 @@ export function workspaceGameConnection(
       return true
     }
     if (
-      !['/desktop/broker-context', '/desktop/broker-status'].includes(
-        url.pathname
-      )
+      ![
+        '/desktop/broker-context',
+        '/desktop/broker-status',
+        '/desktop/addon-context'
+      ].includes(url.pathname)
     )
       return false
     const supplied = req.headers['x-desktop-broker']
@@ -58,6 +60,7 @@ export function workspaceGameConnection(
       return true
     }
     const contextRequest = url.pathname === '/desktop/broker-context'
+    const addonContext = url.pathname === '/desktop/addon-context'
     if (contextRequest && (busy || clock() < nextAttempt)) {
       respond(res, 429, { error: 'Please wait before trying again.' })
       return true
@@ -80,9 +83,13 @@ export function workspaceGameConnection(
       const input = JSON.parse(Buffer.concat(chunks).toString('utf8'))
       if (!input || typeof input !== 'object' || Array.isArray(input))
         throw new Error('Invalid input')
-      if (contextRequest) {
+      if (contextRequest || addonContext) {
         if (
-          Object.keys(input).some((key) => key !== 'password') ||
+          (addonContext &&
+            (Object.keys(input).length !== 0 ||
+              !nativeSessionRequest(req, brokerToken))) ||
+          (!addonContext &&
+            Object.keys(input).some((key) => key !== 'password')) ||
           (!nativeSessionRequest(req, brokerToken) &&
             (typeof input.password !== 'string' ||
               input.password.length < 12 ||
@@ -90,7 +97,12 @@ export function workspaceGameConnection(
         )
           throw new Error('Invalid input')
         const expected = await record()
-        if (!expected || expected.mode !== 'local-file') {
+        if (
+          !expected ||
+          !(addonContext
+            ? ['local-file', 'sample'].includes(expected.mode)
+            : expected.mode === 'local-file')
+        ) {
           respond(res, 409, {
             error:
               'Create a local-file workspace with your guild tag before connecting.'

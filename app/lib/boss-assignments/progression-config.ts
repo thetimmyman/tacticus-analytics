@@ -1,4 +1,5 @@
 import 'server-only'
+import type { TypedSupabaseClient } from '@tacticus/app-core/types'
 import { serviceDb } from '@/app/lib/db'
 import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('lib.boss-assignments.progression-config')
@@ -95,7 +96,8 @@ function rowToConfig(
 /** Throws when unresolved: a global fallback would advance guilds to the wrong boss. */
 export async function getActiveProgressionConfig(
   guildCode: string | undefined,
-  season: number
+  season: number,
+  signedClient?: TypedSupabaseClient
 ): Promise<ProgressionConfig> {
   try {
     if (!Number.isFinite(season)) {
@@ -105,7 +107,7 @@ export async function getActiveProgressionConfig(
     }
 
     if (guildCode) {
-      const supabase = serviceDb()
+      const supabase = signedClient ?? serviceDb()
       const { data: guildConfig, error: guildConfigError } = await supabase
         .from('raid_progression_config')
         .select(
