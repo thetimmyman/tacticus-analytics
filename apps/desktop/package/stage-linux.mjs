@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
 import { verifyRecordedDesktopBuild } from './build-profile.mjs'
 import { updateConfiguration } from '../launcher/updates.mjs'
+import { buildNativeAddons } from '../../addons/build-native.mjs'
 const source = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const config = JSON.parse(await readFile(process.argv[2], 'utf8'))
 for (const name of [
@@ -32,6 +33,13 @@ try {
   if (error.code !== 'ENOENT') throw error
 }
 await mkdir(config.output, { recursive: true, mode: 0o700 })
+await buildNativeAddons(join(config.output, 'apps/desktop/addons'))
+if (config.addonPolicy && !isAbsolute(config.addonPolicy))
+  throw new Error('Absolute add-on policy path required')
+await cp(
+  config.addonPolicy ?? join(source, 'apps/desktop/package/addon-policy.json'),
+  join(config.output, 'addon-policy.json')
+)
 const copy = (from, to) =>
   cp(from, join(config.output, to), { recursive: true, dereference: true })
 await copy(config.application, 'application')
@@ -93,7 +101,8 @@ for (const file of [
   'loopback-gateway.mjs',
   'synthetic-import.mjs',
   'renderer-wake.cjs',
-  'core-pages.cjs'
+  'core-pages.cjs',
+  'addons-journey.cjs'
 ])
   await copy(
     join(source, 'apps/desktop/proof', file),

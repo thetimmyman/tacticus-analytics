@@ -39,6 +39,14 @@ These are same-installation physical database transfers, not PostgreSQL major
 version conversion or fresh-install signing-key rotation.
 The repository's proprietary license is unchanged.
 
+File → API access, add-ons and updates → Local add-ons opens the isolated Linux
+manager. Reviewed signed data packages can enable the normalized war report and
+placeholder replay timeline. The installed policy trusts no packages by default.
+Canonical Guild War source transfer, game replay decoding/assets and live capture
+retain their independent review and qualification gates. A module failure does
+not prevent using core analytics or recovery controls. Backups that include
+module data use v2 checkpoints; existing v1 backups remain supported.
+
 `stage-linux.mjs` accepts a private JSON configuration with absolute paths for
 `output`, `application`, `postgres`, `node`, `electron`, `auth`, `postgrest`
 and `runtimeGuard`, plus `nodeLicense`, `authLicense` and `postgrestLicense`.
