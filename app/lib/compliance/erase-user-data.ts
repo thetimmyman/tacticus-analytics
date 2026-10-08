@@ -1,6 +1,6 @@
 import 'server-only'
 
-import type { TypedSupabaseClient } from '@tacticus/app-core/types'
+import type { ServiceSupabaseClient } from '@/app/lib/sync/worker-types'
 import { createComponentLogger } from '@/app/lib/logging'
 import {
   parseAccountDeletionPreparation,
@@ -51,7 +51,7 @@ export function isAuthUserAlreadyAbsent(error: unknown): boolean {
  * request is marked completed, and the nightly executor re-runs this idempotent function.
  */
 export async function eraseAllUserData(
-  supabase: TypedSupabaseClient,
+  supabase: ServiceSupabaseClient,
   userId: string,
   reason: 'account_delete' | 'gdpr_erasure',
   hooks: ErasureAuditHooks = {}
