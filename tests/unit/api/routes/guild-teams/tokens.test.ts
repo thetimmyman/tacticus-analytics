@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // The hover serves the token projection, never the legacy 3/1 estimate; the loader returns legacy
 // rows (no throw) when its guard fails, so the route must pass a resolved season or skip it.
@@ -65,6 +65,8 @@ describe('GET /api/guild-teams/tokens — projection', () => {
   const request = () =>
     new Request('http://localhost/api/guild-teams/tokens?guild=EOT')
 
+  afterEach(() => vi.unstubAllEnvs())
+
   beforeEach(() => {
     vi.resetModules()
 
@@ -77,6 +79,11 @@ describe('GET /api/guild-teams/tokens — projection', () => {
       .mockResolvedValue({ players: [], debug: {} })
     mockGetLatestSeason = vi.fn().mockResolvedValue('105')
 
+    vi.doMock('@/app/lib/auth', () => ({
+      requireRoleForApi: vi
+        .fn()
+        .mockResolvedValue({ profile: { guild_code: 'EOT' } })
+    }))
     vi.doMock('@/app/lib/db', () => ({ serviceDb: mockServiceDb }))
     vi.doMock('@/app/api/members/token-usage/access', () => ({
       requireTokenUsageGuildAccess: mockRequireAccess
@@ -99,6 +106,39 @@ describe('GET /api/guild-teams/tokens — projection', () => {
         debug: vi.fn()
       })
     }))
+  })
+
+  it('returns no token estimate or live overlay for an authorized local owner', async () => {
+    vi.stubEnv('NEXT_PUBLIC_RUNTIME_PROFILE', 'desktop')
+    await loadRoute()
+    const response = await GET(request())
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual([])
+    expect(mockServiceDb).not.toHaveBeenCalled()
+    expect(mockLoadGuildTokenStatuses).not.toHaveBeenCalled()
+  })
+
+  it('propagates local authentication failure to the API error boundary', async () => {
+    vi.stubEnv('NEXT_PUBLIC_RUNTIME_PROFILE', 'desktop')
+    vi.doMock('@/app/lib/auth', () => ({
+      requireRoleForApi: vi.fn().mockRejectedValue(new Error('Unauthenticated'))
+    }))
+    await loadRoute()
+    await expect(GET(request())).rejects.toThrow('Unauthenticated')
+    expect(mockServiceDb).not.toHaveBeenCalled()
+    expect(mockLoadGuildTokenStatuses).not.toHaveBeenCalled()
+  })
+
+  it('denies a foreign guild token query in desktop mode', async () => {
+    vi.stubEnv('NEXT_PUBLIC_RUNTIME_PROFILE', 'desktop')
+    await loadRoute()
+    await expect(
+      GET(
+        new Request('http://localhost/api/guild-teams/tokens?guild=SYN-FOREIGN')
+      )
+    ).rejects.toThrow()
+    expect(mockServiceDb).not.toHaveBeenCalled()
+    expect(mockLoadGuildTokenStatuses).not.toHaveBeenCalled()
   })
 
   it('serves the projected on-hand for a key-holder and falls back to the raw snapshot for a member with no projection row', async () => {
