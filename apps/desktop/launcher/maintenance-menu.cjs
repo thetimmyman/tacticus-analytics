@@ -9,10 +9,13 @@ module.exports = function maintenanceMenu(window, config, gameItems = []) {
     if (busy) return
     busy = true
     try {
-      let source, directory
+      let source,
+        directory,
+        encrypted = true
       if (scripted) {
         source = scripted.source
         directory = scripted.directory
+        encrypted = scripted.encrypted === true
       } else {
         const confirmed = await dialog.showMessageBox(window, {
           type: 'question',
@@ -22,7 +25,7 @@ module.exports = function maintenanceMenu(window, config, gameItems = []) {
               : 'Restore a workspace copy',
           message:
             operation === 'backup'
-              ? 'The application will close to make a consistent backup. The backup includes your local account and data; keep it private.'
+              ? 'The application will close to make a consistent encrypted backup. You will choose a separate backup passphrase. Keep it safely: the backup cannot be restored without it.'
               : 'Restore the account and data from a saved backup into a new workspace. Your current workspace will stay in place. The application will close during restore.',
           buttons: ['Cancel', 'Continue'],
           defaultId: 0,
@@ -30,25 +33,61 @@ module.exports = function maintenanceMenu(window, config, gameItems = []) {
         })
         if (confirmed.response !== 1) return
         if (operation === 'restore') {
+          const format = await dialog.showMessageBox(window, {
+            type: 'question',
+            title: 'Choose backup format',
+            message: 'Choose the type of saved backup.',
+            buttons: [
+              'Cancel',
+              'Encrypted backup file',
+              'Legacy backup folder'
+            ],
+            defaultId: 1,
+            cancelId: 0
+          })
+          if (format.response === 0) return
+          encrypted = format.response === 1
           const picked = await dialog.showOpenDialog(window, {
             title: 'Choose a saved workspace backup',
-            properties: ['openDirectory']
+            properties: [encrypted ? 'openFile' : 'openDirectory'],
+            ...(encrypted
+              ? {
+                  filters: [
+                    {
+                      name: 'Encrypted workspace backup',
+                      extensions: ['tabackup']
+                    }
+                  ]
+                }
+              : {})
           })
           if (picked.canceled) return
           source = picked.filePaths[0]
         }
-        const parent = await dialog.showOpenDialog(window, {
-          title:
-            operation === 'backup'
-              ? 'Choose where to save the backup'
-              : 'Choose where to create the restored workspace',
-          properties: ['openDirectory', 'createDirectory']
-        })
-        if (parent.canceled) return
-        directory = join(
-          parent.filePaths[0],
-          `tacticus-${operation}-${new Date().toISOString().slice(0, 10)}-${randomUUID()}`
-        )
+        if (operation === 'backup') {
+          const picked = await dialog.showSaveDialog(window, {
+            title: 'Save encrypted workspace backup',
+            defaultPath: `tacticus-backup-${new Date().toISOString().slice(0, 10)}.tabackup`,
+            filters: [
+              { name: 'Encrypted workspace backup', extensions: ['tabackup'] }
+            ]
+          })
+          if (picked.canceled || !picked.filePath) return
+          directory = picked.filePath
+        } else {
+          const parent = await dialog.showOpenDialog(window, {
+            title:
+              operation === 'backup'
+                ? 'Choose where to save the backup'
+                : 'Choose where to create the restored workspace',
+            properties: ['openDirectory', 'createDirectory']
+          })
+          if (parent.canceled) return
+          directory = join(
+            parent.filePaths[0],
+            `tacticus-${operation}-${new Date().toISOString().slice(0, 10)}-${randomUUID()}`
+          )
+        }
       }
       writeFileSync(
         config.maintenanceRequest,
@@ -56,7 +95,8 @@ module.exports = function maintenanceMenu(window, config, gameItems = []) {
           nonce: config.maintenanceNonce,
           operation,
           directory,
-          source
+          source,
+          encrypted
         }),
         { mode: 0o600, flag: 'wx' }
       )
@@ -84,7 +124,7 @@ module.exports = function maintenanceMenu(window, config, gameItems = []) {
               window.loadURL(new URL('/desktop/import', config.url).href)
           },
           ...(gameItems.length
-            ? [{ label: 'API access and updates', submenu: gameItems }]
+            ? [{ label: 'API access, add-ons and updates', submenu: gameItems }]
             : []),
           {
             id: 'workspace-backup',

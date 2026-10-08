@@ -1,4 +1,4 @@
-/** GET: any member. PUT/DELETE: officer/leader or app-admin. */
+/** Current members read; canonical officer/leader policies govern writes. */
 
 import { NextRequest, NextResponse } from 'next/server'
 import {
@@ -28,9 +28,10 @@ const requireTargetTokenWriter = async (
   supabase: Awaited<ReturnType<typeof db>>,
   userId: string,
   guildCode: string,
-  isAppAdmin: boolean
+  isAppAdmin: boolean,
+  allowAdminAdmission = true
 ) => {
-  if (isAppAdmin) return
+  if (isAppAdmin && allowAdminAdmission) return
   await requireGuildOfficerOrClusterLeader(
     supabase,
     userId,
@@ -57,6 +58,13 @@ const rlsDenialMessage = (guildCode: string): string =>
   `does not satisfy it. Ask an officer or the leader of ${guildCode} to make ` +
   `this change.`
 
+function numericInput(value: unknown): number {
+  if (typeof value === 'number') return value
+  if (typeof value !== 'string' || !/^\d+(?:\.\d+)?$/.test(value.trim()))
+    return Number.NaN
+  return Number(value)
+}
+
 function validateBody(body: unknown): {
   boss_name: string
   rarity: 'Legendary' | 'Mythic'
@@ -68,6 +76,11 @@ function validateBody(body: unknown): {
   skip: boolean | undefined
   season_number: string
 } {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    throw Errors.fromStatus(400, 'A target object is required', {
+      code: 'VALIDATION_ERROR'
+    })
+  }
   const b = body as Record<string, unknown>
   const boss_name = typeof b.boss_name === 'string' ? b.boss_name.trim() : ''
   const rarity =
@@ -76,20 +89,16 @@ function validateBody(body: unknown): {
       : b.rarity === 'Legendary'
         ? 'Legendary'
         : null
-  const set =
-    typeof b.set === 'number' ? b.set : parseInt(String(b.set ?? ''), 10)
+  const set = numericInput(b.set)
   const rawEncounterId = b.encounter_id
   const encounter_id =
     typeof rawEncounterId === 'number'
       ? rawEncounterId
-      : rawEncounterId === undefined || rawEncounterId === null
+      : rawEncounterId === undefined
         ? 0
-        : parseInt(String(rawEncounterId), 10)
-  const target_tokens =
-    typeof b.target_tokens === 'number'
-      ? b.target_tokens
-      : parseFloat(String(b.target_tokens ?? ''))
-  // Absent: column omitted; string: stored (max 500, '' clears); anything else: explicit null.
+        : numericInput(rawEncounterId)
+  const target_tokens = numericInput(b.target_tokens)
+  // Omitted preserves the note; null or an empty string clears it.
   const rawNotes = b.notes
   let notes: string | null | undefined
   if (rawNotes === undefined) {
@@ -97,15 +106,27 @@ function validateBody(body: unknown): {
   } else if (typeof rawNotes === 'string') {
     const sliced = rawNotes.slice(0, 500)
     notes = sliced.length > 0 ? sliced : null
-  } else {
+  } else if (rawNotes === null) {
     notes = null
+  } else {
+    throw Errors.fromStatus(400, 'notes must be text or null', {
+      code: 'VALIDATION_ERROR'
+    })
+  }
+  if (b.skip !== undefined && typeof b.skip !== 'boolean') {
+    throw Errors.fromStatus(400, 'skip must be a boolean', {
+      code: 'VALIDATION_ERROR'
+    })
   }
   const skip = b.skip === undefined ? undefined : b.skip === true
   // Positive integer string, or LEGACY_SEASON ('') for season-less callers.
   const rawSeason = b.season_number
   let season_number: string = LEGACY_SEASON
   if (rawSeason !== undefined && rawSeason !== null && rawSeason !== '') {
-    const parsedSeason = parseSeasonParam(rawSeason)
+    const parsedSeason =
+      typeof rawSeason === 'string' || typeof rawSeason === 'number'
+        ? parseSeasonParam(rawSeason)
+        : null
     if (parsedSeason === null) {
       throw Errors.fromStatus(
         400,
@@ -118,10 +139,10 @@ function validateBody(body: unknown): {
   if (
     !boss_name ||
     !rarity ||
-    !Number.isFinite(set) ||
+    !Number.isInteger(set) ||
     set < 1 ||
     set > 5 ||
-    !Number.isFinite(encounter_id) ||
+    !Number.isInteger(encounter_id) ||
     encounter_id < 0 ||
     encounter_id > 2 ||
     !Number.isFinite(target_tokens) ||
@@ -261,6 +282,7 @@ export const PUT = withErrorHandler(async (request: NextRequest) => {
       .from('boss_mapping')
       .select('boss_type')
       .eq('boss_type', input.boss_name)
+      .eq('encounter_index', input.encounter_id)
       .limit(1)
     if (!mappingExact || mappingExact.length === 0) {
       const { data: mappingByDisplay } = await supabase
@@ -339,6 +361,86 @@ export const PUT = withErrorHandler(async (request: NextRequest) => {
   }
 })
 
+/** Notes annotate an existing target; they do not make its seeded value an override. */
+export const PATCH = withErrorHandler(async (request: NextRequest) => {
+  try {
+    const authData = await requireActiveMembershipForApi()
+    const guildCode =
+      request.nextUrl.searchParams.get('guild_code') ??
+      authData.profile.guild_code
+    if (!guildCode) {
+      throw Errors.fromStatus(400, 'guild_code required', {
+        code: 'VALIDATION_ERROR'
+      })
+    }
+    const supabase = await db()
+    await requireTargetTokenWriter(
+      supabase,
+      authData.user.id,
+      guildCode,
+      Boolean(authData.profile.is_app_admin),
+      // A filtered UPDATE must not look like a successful note save.
+      false
+    )
+    const body: unknown = await request.json().catch(() => null)
+    const allowed = new Set([
+      'boss_name',
+      'rarity',
+      'set',
+      'encounter_id',
+      'season_number',
+      'notes'
+    ])
+    if (
+      !body ||
+      typeof body !== 'object' ||
+      Array.isArray(body) ||
+      Object.keys(body).some((key) => !allowed.has(key)) ||
+      Array.from(allowed).some((key) => !Object.hasOwn(body, key)) ||
+      typeof (body as Record<string, unknown>).season_number !== 'string'
+    ) {
+      throw Errors.fromStatus(
+        400,
+        'An existing target identity, explicit season_number and notes are required',
+        { code: 'VALIDATION_ERROR' }
+      )
+    }
+    // Reuse the target identity/note validation; token values are never accepted or written.
+    const input = validateBody({ ...body, target_tokens: 1 })
+    const { data, error } = await supabase
+      .from('boss_target_tokens')
+      .update({ notes: input.notes, updated_by: authData.user.id })
+      .eq('guild_code', guildCode)
+      .eq('boss_name', input.boss_name)
+      .eq('rarity', input.rarity)
+      .eq('set', input.set)
+      .eq('encounter_id', input.encounter_id)
+      .eq('season_number', input.season_number)
+      .select()
+      .maybeSingle()
+    if (error) {
+      if (isRlsDenial(error)) {
+        throw Errors.fromStatus(403, rlsDenialMessage(guildCode), {
+          code: 'FORBIDDEN'
+        })
+      }
+      logger.error({ guildCode, error }, 'boss_target_tokens PATCH failed')
+      throw Errors.fromStatus(500, 'Failed to save target note', {
+        code: 'HISTORICAL_DATA_FAILED'
+      })
+    }
+    if (!data) {
+      throw Errors.fromStatus(404, 'Target not found', { code: 'NOT_FOUND' })
+    }
+    return NextResponse.json({ row: data })
+  } catch (error: unknown) {
+    rethrowIfAppError(error)
+    rethrowIfAuthError(error)
+    logger.error({ err: error }, 'Error in boss-target-tokens PATCH:')
+    throw Errors.fromStatus(500, 'Internal error', { code: 'INTERNAL_ERROR' })
+  }
+})
+
 export const DELETE = withErrorHandler(async (request: NextRequest) => {
   try {
     const authData = await requireActiveMembershipForApi()
@@ -356,19 +458,24 @@ export const DELETE = withErrorHandler(async (request: NextRequest) => {
       supabase,
       authData.user.id,
       guildCode,
-      Boolean(profile.is_app_admin)
+      Boolean(profile.is_app_admin),
+      // RLS filters an unauthorized DELETE to zero rows without raising 42501.
+      // Verify current write authority so that cannot be reported as success.
+      false
     )
     const boss_name = searchParams.get('boss_name')
     const rarity = searchParams.get('rarity')
     const setStr = searchParams.get('set')
-    const set = setStr ? parseInt(setStr, 10) : NaN
+    const set = numericInput(setStr)
     const encStr = searchParams.get('encounter_id')
-    const encounter_id = encStr ? parseInt(encStr, 10) : 0
+    const encounter_id = encStr === null ? 0 : numericInput(encStr)
     if (
       !boss_name ||
       (rarity !== 'Legendary' && rarity !== 'Mythic') ||
-      !Number.isFinite(set) ||
-      !Number.isFinite(encounter_id) ||
+      !Number.isInteger(set) ||
+      set < 1 ||
+      set > 5 ||
+      !Number.isInteger(encounter_id) ||
       encounter_id < 0 ||
       encounter_id > 2
     ) {
@@ -397,8 +504,11 @@ export const DELETE = withErrorHandler(async (request: NextRequest) => {
       .eq('rarity', rarity)
       .eq('set', set)
       .eq('encounter_id', encounter_id)
-    if (scopedSeason !== null) {
-      deleteQuery = deleteQuery.eq('season_number', scopedSeason)
+    if (seasonRaw !== null) {
+      deleteQuery = deleteQuery.eq(
+        'season_number',
+        scopedSeason ?? LEGACY_SEASON
+      )
     }
     const { error } = await deleteQuery
     if (error) {

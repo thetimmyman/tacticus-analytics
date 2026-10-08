@@ -10,6 +10,8 @@ import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { GuildConfigService } from '@/app/lib/services/guild-config-service'
 import { normalizeGuildIdentifier } from '@/app/lib/format/guild'
 import { canManageHeraldRole } from '@/app/lib/auth/role-predicates'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
+import { requireTokenSeason } from '@/app/api/members/token-usage/parameters'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,6 +23,8 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   if (!requestedGuildCode) {
     throw Errors.validation('Guild code is required')
   }
+  if (season) requireTokenSeason(season)
+  const desktop = getRuntimeProfile() === 'desktop'
 
   const authClient = await createClient()
 
@@ -32,6 +36,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     .from('player_with_cluster')
     .select('guild_code, role, cluster_code')
     .eq('user_id', user.id)
+    .eq('is_current', true)
     .single()
 
   if (profileError || !userProfile) {
@@ -56,8 +61,8 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     throw Errors.forbidden('Guild association required')
   }
 
-  // Service role: sees all guild members.
-  const supabase = serviceDb()
+  // Desktop reads retain the signed caller's RLS scope; hosted reads use the service client.
+  const supabase = desktop ? authClient : serviceDb()
 
   const guildConfig = await GuildConfigService.getBasic(
     supabase,
@@ -95,17 +100,28 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
 
   // Live Tacticus overlay only on ?live=true; cron keeps the DB fresh.
   const wantLive = searchParams.get('live') === 'true'
+  if (desktop && wantLive) {
+    throw Errors.forbidden(
+      'Live token acquisition is unavailable on cached reads'
+    )
+  }
 
   const { players, debug } = await loadGuildTokenStatuses(supabase, {
     guildCode,
     season,
     clusterCode,
-    skipLiveOverlay: !wantLive
+    skipLiveOverlay: desktop || !wantLive
   })
 
-  return NextResponse.json({
-    players,
-    cluster: clusterCode,
-    debug
-  })
+  return NextResponse.json(
+    {
+      players,
+      cluster: clusterCode,
+      debug,
+      ...(desktop
+        ? { read_mode: 'cached', computed_at: new Date().toISOString() }
+        : {})
+    },
+    desktop ? { headers: { 'Cache-Control': 'no-store' } } : undefined
+  )
 })

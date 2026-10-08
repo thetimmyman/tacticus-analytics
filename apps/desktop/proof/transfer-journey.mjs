@@ -51,13 +51,37 @@ try {
   await services.stop()
 }
 const credentials = await readFile(join(config.state, 'credentials.json'))
+await mkdir(join(config.state, 'addons'), { mode: 0o700 })
+await writeFile(
+  join(config.state, 'addons/registry.json'),
+  JSON.stringify({ schemaVersion: 1, modules: {}, data: {} }),
+  { mode: 0o600 }
+)
+await mkdir(join(config.state, 'game-vault'), { mode: 0o700, recursive: true })
+await writeFile(
+  join(config.state, 'game-vault/synthetic-key'),
+  'SYNTHETIC-VAULT-CANARY',
+  { mode: 0o600 }
+)
 assert.equal(await transfer('backup', config.state, backup), 0)
+assert.equal(
+  JSON.parse(await readFile(join(backup, 'checkpoint.json'))).format,
+  'desktop-stopped-checkpoint-v2'
+)
+await assert.rejects(readFile(join(backup, 'game-vault/synthetic-key')), {
+  code: 'ENOENT'
+})
 const manifest = await readFile(join(backup, 'checkpoint.json'))
 assert.equal(await transfer('backup', config.state, backup), 1)
 assert((await readFile(join(backup, 'checkpoint.json'))).equals(manifest))
 await mkdir(restored, { mode: 0o700 })
 assert.equal(await transfer('restore', restored, backup), 0)
 assert((await readFile(join(restored, 'credentials.json'))).equals(credentials))
+assert(
+  (await readFile(join(restored, 'addons/registry.json'))).equals(
+    await readFile(join(config.state, 'addons/registry.json'))
+  )
+)
 services = await nativeServices({ ...config, state: restored })
 try {
   assert.equal(
@@ -111,6 +135,7 @@ const evidence = {
     'stopped checkpoint exports and verifies exact file hashes',
     'existing backup and workspace refused without replacement',
     'restored native database preserves eight rows, setup ledger and credential identity',
+    'module data is included while the synthetic game-vault canary is excluded',
     'corrupted backup rejected before copying',
     'pending restore refuses bootstrap and application activation'
   ],

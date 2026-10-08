@@ -1,80 +1,98 @@
 [
   {
     "from": "2748cd79f5035152b1ec405c2dca6a8570cfd552a717c6c2a5cc7fd3a65def40",
-    "to": "fdfb8fe209d71d2f8fdce56c7ccaaebc1e0c49ac83258ef39688f2949a2e2aea",
+    "to": "755bb30a7f5e541591601f28ccf396809afd9436784dcb91dcebe9a567bcef86",
     "file": "001-local-snapshot-jobs.sql",
-    "sha256": "1066fc4092287e348fa3b16206862884575af9bce7241f70a26634da85bbcba5"
+    "sha256": "e5a8bcb8cbef33b15bd83ad122062b51ac4d682e9819ac5962e821dac705f752"
   },
   {
     "from": "571a4d823a6b9434dc34b9f11823c3537a88d84c085559aaa7657f1cd6d971e9",
-    "to": "fdfb8fe209d71d2f8fdce56c7ccaaebc1e0c49ac83258ef39688f2949a2e2aea",
+    "to": "755bb30a7f5e541591601f28ccf396809afd9436784dcb91dcebe9a567bcef86",
     "file": "001-local-snapshot-jobs.sql",
-    "sha256": "1066fc4092287e348fa3b16206862884575af9bce7241f70a26634da85bbcba5"
+    "sha256": "e5a8bcb8cbef33b15bd83ad122062b51ac4d682e9819ac5962e821dac705f752"
   },
   {
     "from": "be68a20152b6068feea19d0db5b88177ee46040459c005e20ef4ec1713446cb4",
-    "to": "fdfb8fe209d71d2f8fdce56c7ccaaebc1e0c49ac83258ef39688f2949a2e2aea",
+    "to": "755bb30a7f5e541591601f28ccf396809afd9436784dcb91dcebe9a567bcef86",
     "file": "002-core-analytics.sql",
-    "sha256": "4a9b144fc33f42f3cbbeb94ff0af66ee3fa969e1839a41d583e7b7ffdf2b64f3"
+    "sha256": "f55de8f952c8d53c1b409ccb44b797b0e6bcc8776ca1f71b2c3cd57c2fc5945a"
   },
   {
     "from": "c80808116ba03f182aea1242f808c4b6299c8b12549372ee564db029085e1ca3",
-    "to": "fdfb8fe209d71d2f8fdce56c7ccaaebc1e0c49ac83258ef39688f2949a2e2aea",
+    "to": "755bb30a7f5e541591601f28ccf396809afd9436784dcb91dcebe9a567bcef86",
     "file": "003-workspace-recovery.sql",
-    "sha256": "731a92a1def5913ee1029902be06632649d4e086fc3149391dc08810f8e88f7e"
+    "sha256": "7076e05181bf7baadc0b183745f15e61bea8122bba4c963d3d5827ce71e071fb"
   },
   {
     "from": "b3f278812e9423592e9a9e4c87c61ddb15ec7bc00bf79a14a40846801a49616f",
     "file": "004-local-file-import.sql",
-    "to": "fdfb8fe209d71d2f8fdce56c7ccaaebc1e0c49ac83258ef39688f2949a2e2aea",
-    "sha256": "5cfa7e8dc9a4dbc89ecf77ed381433bafaf32100d8e293116e1b305a144ba42c"
+    "to": "755bb30a7f5e541591601f28ccf396809afd9436784dcb91dcebe9a567bcef86",
+    "sha256": "c82d79b40434da39b5fbd4c955dbbe0beff27f9618a6d38a5f973e02bb1c9e22"
   },
   {
     "from": "6378c9a688ea5604f6fd596de36ece5364668f0ec35c9cea8fc524cbd61897e2",
-    "to": "fdfb8fe209d71d2f8fdce56c7ccaaebc1e0c49ac83258ef39688f2949a2e2aea",
+    "to": "755bb30a7f5e541591601f28ccf396809afd9436784dcb91dcebe9a567bcef86",
     "file": "005-profile-meta-roles.sql",
-    "sha256": "69bec5254e1a41f7bc2e8ea3d93842fe5ede66528990bebb860b5c1bd3cf3bed"
+    "sha256": "bd154f1a1a8ec7300387ba73c7d309fe9e2f77badd1def31e62407d128404a10"
   },
   {
     "from": "3307460f840a3d37ebd654dbd938aa72cb7de6841731f2ebca23b9eb43f9b3fa",
-    "to": "fdfb8fe209d71d2f8fdce56c7ccaaebc1e0c49ac83258ef39688f2949a2e2aea",
+    "to": "755bb30a7f5e541591601f28ccf396809afd9436784dcb91dcebe9a567bcef86",
     "file": "006-offline-roster.sql",
-    "sha256": "1850ab34ffe6a0d5177d4fa3c0456c299328d242e458b326a90994986740f5db"
+    "sha256": "6134035672501beeb230a31042b3e59e3e3413f4c8b8640b8720334bf8e09804"
   },
   {
     "from": "126222933a4f15e91faa55e38271a4d2a3351e774c96b1917996403585acbb3a",
-    "to": "fdfb8fe209d71d2f8fdce56c7ccaaebc1e0c49ac83258ef39688f2949a2e2aea",
+    "to": "755bb30a7f5e541591601f28ccf396809afd9436784dcb91dcebe9a567bcef86",
     "file": "007-local-planner-link.sql",
-    "sha256": "11a9cfd02a701ed822c41a4e9cbd27bfb24fdff11b0c85ce521a4ee2d137db91"
+    "sha256": "fb48109b3c9cf424fbb9154b05dcc55439a8cd63b6a22049873b4217be60c831"
   },
   {
     "from": "5d818a76d92df6aafe9d483d193586add2975360055b4bc4709dcd259f7eb3c1",
-    "to": "fdfb8fe209d71d2f8fdce56c7ccaaebc1e0c49ac83258ef39688f2949a2e2aea",
+    "to": "755bb30a7f5e541591601f28ccf396809afd9436784dcb91dcebe9a567bcef86",
     "file": "008-local-achievements.sql",
-    "sha256": "5947ccd40c611d5686bce24710db85ddabc507984418fe1f63ee6b8274bc2981"
+    "sha256": "ef6c78408edc5ec445655d6bf33df623c2c000d1aab41e6ed98cf30382208226"
   },
   {
     "from": "02393e4125211af8e4a6ecd2b424024df7a3fb82736ab610d4c915673ff5ef10",
-    "to": "fdfb8fe209d71d2f8fdce56c7ccaaebc1e0c49ac83258ef39688f2949a2e2aea",
+    "to": "755bb30a7f5e541591601f28ccf396809afd9436784dcb91dcebe9a567bcef86",
     "file": "009-local-profile-preferences.sql",
-    "sha256": "cb7c6261bd49dbae32867dfb0dee817557e61c0541c7f619141c429c3bc4934a"
+    "sha256": "98b1255dd72990968735e7686a4f78e3837b4f44b6bbf3f65ae7a1f5c3f1c385"
   },
   {
-    "to": "fdfb8fe209d71d2f8fdce56c7ccaaebc1e0c49ac83258ef39688f2949a2e2aea",
+    "to": "755bb30a7f5e541591601f28ccf396809afd9436784dcb91dcebe9a567bcef86",
     "file": "010-local-boss-preferences.sql",
     "from": "42d777641ff34d538d81b8b13b98d9706d8e6c230070bd5c8ab0878c7577cb1d",
-    "sha256": "6676c8643056c7c84b92b297b93c789e063083dced51a9ddc3cd3008238e31cf"
+    "sha256": "bd7784e2f6a8e2ce709568c375120e986f0ea80abd1d2519a156ac10b76844b0"
   },
   {
     "from": "9975a9417da7ece54152d24076d02a7f8c8401c082b7bb2c92da644def29778b",
-    "to": "fdfb8fe209d71d2f8fdce56c7ccaaebc1e0c49ac83258ef39688f2949a2e2aea",
+    "to": "755bb30a7f5e541591601f28ccf396809afd9436784dcb91dcebe9a567bcef86",
     "file": "011-local-data-export.sql",
-    "sha256": "1f063309a3c6aab8eb3e904e143bcf735cf759d01e09abd71949e80741e0223e"
+    "sha256": "3a260cb1444b4087cc937832b50d4e3ec624a4b311d69af78fdc88f6fe6f5266"
   },
   {
     "from": "36e9ec519b0b6c576199c4aaa17a545078ae24fc1df636983b14cdb359e33191",
-    "to": "fdfb8fe209d71d2f8fdce56c7ccaaebc1e0c49ac83258ef39688f2949a2e2aea",
+    "to": "755bb30a7f5e541591601f28ccf396809afd9436784dcb91dcebe9a567bcef86",
     "file": "012-mythic-roster.sql",
-    "sha256": "81ddf1fd11bdc72d5789a8e1ed4e27fa5abb27cf36fb935aed10c92181dddde8"
+    "sha256": "782d9174f26a5b09ad2371adfbe5a3eebd55501499d5278ee02c3a3ec3b95bc2"
+  },
+  {
+    "from": "fdfb8fe209d71d2f8fdce56c7ccaaebc1e0c49ac83258ef39688f2949a2e2aea",
+    "to": "755bb30a7f5e541591601f28ccf396809afd9436784dcb91dcebe9a567bcef86",
+    "file": "013-local-guild-teams.sql",
+    "sha256": "56a572364e2556878baefe9e4d25cff9a6e428bb21e2cdb1202664909367e96a"
+  },
+  {
+    "from": "62875299367a965d8ec5596d3a4b5aaa28b091cd5b36f3cabd3fe1f208a0c952",
+    "to": "755bb30a7f5e541591601f28ccf396809afd9436784dcb91dcebe9a567bcef86",
+    "file": "014-local-raid-management.sql",
+    "sha256": "ac6a6532c7cb10241ced31e6e96640325ec3bbaf283f0e52b4e2f0b72797f3d3"
+  },
+  {
+    "from": "175767fb25c7c49fa0262da11563abd0c19f3acd2e0254008aed38746398fa96",
+    "to": "755bb30a7f5e541591601f28ccf396809afd9436784dcb91dcebe9a567bcef86",
+    "file": "015-local-season-planning.sql",
+    "sha256": "a361f3aab28ea208b63f8b22343c2525780c21b84092d6fc9c62d0e9123c33ef"
   }
 ]

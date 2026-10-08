@@ -17,6 +17,16 @@ async function fixture(action) {
   }
   const auth = createServer(async (req, res) => {
     state.logins++
+    if (req.url === '/user') {
+      res.writeHead(
+        req.headers.authorization === 'Bearer synthetic.valid.token'
+          ? 200
+          : 401,
+        { 'content-type': 'application/json' }
+      )
+      res.end(JSON.stringify({ id: state.loginSubject ?? state.subject }))
+      return
+    }
     let body = ''
     for await (const chunk of req) body += chunk
     const input = JSON.parse(body)
@@ -51,12 +61,13 @@ async function fixture(action) {
   })
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
   const origin = 'http://127.0.0.1:' + server.address().port
-  const request = (path, body, capability = token) =>
+  const request = (path, body, capability = token, authorization) =>
     fetch(origin + path, {
       method: body === undefined ? 'GET' : 'POST',
       headers: {
         'content-type': 'application/json',
-        ...(capability ? { 'x-desktop-broker': capability } : {})
+        ...(capability ? { 'x-desktop-broker': capability } : {}),
+        ...(authorization ? { authorization } : {})
       },
       body: body === undefined ? undefined : JSON.stringify(body)
     })
@@ -82,6 +93,70 @@ test('the separate native capability precedes body parsing, database access and 
     assert.deepEqual(
       await (await f.request('/desktop/connection-status')).json(),
       { connected: false }
+    )
+  }))
+test('add-on context revalidates the native session on rapid calls without password fallback or game-connection throttling', async () =>
+  fixture(async (f) => {
+    f.state.mode = 'sample'
+    for (let i = 0; i < 4; i++) {
+      const response = await f.request(
+        '/desktop/addon-context',
+        {},
+        f.token,
+        'Bearer synthetic.valid.token'
+      )
+      assert.equal(response.status, 200)
+      assert.equal((await response.json()).installation, f.state.subject)
+    }
+    assert.equal(
+      (
+        await f.request(
+          '/desktop/addon-context',
+          { password: f.password },
+          f.token,
+          'Bearer synthetic.valid.token'
+        )
+      ).status,
+      400
+    )
+    assert.equal(
+      (
+        await f.request(
+          '/desktop/addon-context',
+          {},
+          f.token,
+          'Bearer synthetic.expired.token'
+        )
+      ).status,
+      401
+    )
+    assert.equal(
+      (await f.request('/desktop/addon-context', { password: f.password }))
+        .status,
+      400
+    )
+    assert.equal(
+      (
+        await f.request(
+          '/desktop/addon-context',
+          {},
+          null,
+          'Bearer synthetic.valid.token'
+        )
+      ).status,
+      403
+    )
+    f.state.loginSubject = randomUUID()
+    assert.equal(
+      (
+        await f.request(
+          '/desktop/addon-context',
+          {},
+          f.token,
+          'Bearer synthetic.valid.token'
+        )
+      ).status,
+      401
     )
   }))
 test('only the current local-file installation password releases its native connection context', async () =>

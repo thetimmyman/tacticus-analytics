@@ -5,6 +5,7 @@ import { resolveEffectiveSeason } from '@/app/lib/season-date/precedence'
 import { EmptyState } from '@tacticus/ui-kit'
 import { createPageMetadata } from '@/app/lib/metadata'
 import { checkFeatureAccess } from '@/app/lib/services/feature-release-service'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 
 export const metadata = createPageMetadata({
   title: 'Token Usage',
@@ -28,9 +29,10 @@ export default async function TokenUsagePage({ searchParams }: PageProps) {
   const userGuild = authData.profile.guild_code
 
   // Forecasts need the `proactive_token_management` flag; per-member rows rely on the officer gate.
-  const showForecast = (
-    await checkFeatureAccess(authData.user.id, 'proactive_token_management')
-  ).has_access
+  const showForecast =
+    getRuntimeProfile() !== 'desktop' &&
+    (await checkFeatureAccess(authData.user.id, 'proactive_token_management'))
+      .has_access
 
   const params = await searchParams
 

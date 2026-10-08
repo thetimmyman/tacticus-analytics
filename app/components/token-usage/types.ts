@@ -6,7 +6,7 @@ import type {
 } from '@/app/lib/season-forecast/forecast-service'
 import type { SeasonOutlookProjection } from '@/app/lib/season-forecast/season-outlook-reduce'
 
-export type DataSource = 'live' | 'calculated' | 'default'
+export type DataSource = 'live' | 'calculated' | 'cached' | 'default'
 
 export interface PlayerTokens {
   userId: string
@@ -153,6 +153,7 @@ export interface BattleDataRow {
 }
 
 export interface TokenUsageResult {
+  computedAt?: string | null
   players: PlayerTokens[]
   bossDistribution: BossTokenData[]
   totalStats: TotalStats

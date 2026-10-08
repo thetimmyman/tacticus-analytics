@@ -13,6 +13,7 @@ import {
 import { serviceDb } from '@/app/lib/db'
 import { fetchLiveTokenDataForMembers } from '@/app/lib/token-service/live-fetch'
 import { formatCooldownWithSeconds } from '@/app/lib/token-service/format'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 import type {
   BattleQueryRow,
   BattleRow,
@@ -72,7 +73,34 @@ function normalizeTokenDataSource(
   value: unknown
 ): PlayerTokenStatus['data_source'] {
   if (value === 'live' || value === 'api') return 'live'
+  if (value === 'cached') return 'cached'
   return 'calculated'
+}
+
+function isCachedTokenRow(value: unknown): value is RpcPlayerTokenStateRow {
+  if (!value || typeof value !== 'object') return false
+  const row = value as RpcPlayerTokenStateRow
+  const integer = (n: unknown, max = Number.MAX_SAFE_INTEGER) =>
+    typeof n === 'number' && Number.isSafeInteger(n) && n >= 0 && n <= max
+  const optionalInteger = (n: unknown) => n == null || integer(n)
+  return (
+    typeof row.player_id === 'string' &&
+    row.player_id.length > 0 &&
+    typeof row.display_name === 'string' &&
+    row.display_name.length > 0 &&
+    integer(row.tokens_available, 3) &&
+    integer(row.bombs_available, 1) &&
+    integer(row.tokens_used) &&
+    integer(row.max_possible) &&
+    optionalInteger(row.token_next_in_seconds) &&
+    optionalInteger(row.bomb_next_in_seconds) &&
+    optionalInteger(row.burned_tokens) &&
+    optionalInteger(row.time_over_cap_seconds) &&
+    (row.data_source === 'cached' || row.data_source === 'calculated') &&
+    (row.last_sync_at == null ||
+      (typeof row.last_sync_at === 'string' &&
+        Number.isFinite(Date.parse(row.last_sync_at))))
+  )
 }
 
 async function fetchLiveOverlayForRpcRows(
@@ -159,15 +187,21 @@ async function loadGuildTokenStatusesFromRpc(
   players: PlayerTokenStatus[]
   debug: GuildTokenDebugInfo
 } | null> {
+  const desktop = getRuntimeProfile() === 'desktop'
   try {
-    const { data, error } = await supabase.rpc('get_player_token_state', {
-      p_guild_code: guildCode,
-      p_season: season ?? null,
-      p_cluster_code: clusterCode ?? null,
-      p_player_id: null
-    })
+    const { data, error } = await supabase.rpc(
+      desktop ? 'desktop_get_player_token_state' : 'get_player_token_state',
+      {
+        p_guild_code: guildCode,
+        p_season: season ?? null,
+        p_cluster_code: clusterCode ?? null,
+        p_player_id: null
+      }
+    )
 
     if (error) {
+      if (desktop)
+        throw new Error('Saved token state is unavailable', { cause: error })
       logger.warn(
         {
           guildCode,
@@ -178,6 +212,10 @@ async function loadGuildTokenStatusesFromRpc(
         'get_player_token_state RPC failed; using legacy token service fallback'
       )
       return null
+    }
+
+    if (desktop && (!Array.isArray(data) || !data.every(isCachedTokenRow))) {
+      throw new Error('Saved token state is malformed')
     }
 
     const rawRows = Array.isArray(data)
@@ -205,7 +243,10 @@ async function loadGuildTokenStatusesFromRpc(
           display_name: row.display_name as string,
           player_id: row.player_id as string,
           discord_user_id: asNullableString(row.discord_user_id),
-          last_sync_tokens: dataSource === 'live' ? tokensAvailable : null,
+          last_sync_tokens:
+            dataSource === 'live' || dataSource === 'cached'
+              ? tokensAvailable
+              : null,
           last_sync_bombs: asNullableFiniteInt(row.bombs_available),
           last_sync_at: asNullableString(row.last_sync_at),
           next_token_seconds: tokenNextIn,
@@ -295,6 +336,7 @@ async function loadGuildTokenStatusesFromRpc(
     }
   } catch (error) {
     rethrowIfAppError(error)
+    if (desktop) throw error
     logger.warn(
       {
         guildCode,
@@ -389,6 +431,19 @@ export async function loadGuildTokenStatuses(
   players: PlayerTokenStatus[]
   debug: GuildTokenDebugInfo
 }> {
+  const desktop = getRuntimeProfile() === 'desktop'
+  if (desktop) {
+    // The local database adapter projects saved snapshots with canonical math.
+    // Never verify a live roster or fall through to key-based legacy acquisition.
+    const cached = await loadGuildTokenStatusesFromRpc(supabase, {
+      guildCode,
+      season,
+      clusterCode,
+      skipLiveOverlay: true
+    })
+    if (!cached) throw new Error('Saved token state is unavailable')
+    return cached
+  }
   let liveRosterPlayerIds: Set<string> | null = null
   if (verifyLiveRoster) {
     liveRosterPlayerIds = await fetchLiveRosterPlayerIds(supabase, guildCode)

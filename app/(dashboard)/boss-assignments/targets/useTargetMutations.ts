@@ -85,6 +85,41 @@ export function useTargetMutations({
       setSaveError(error instanceof Error ? error.message : 'Save failed')
   })
 
+  const notesMutation = useMutation({
+    mutationFn: async ({
+      target,
+      notes
+    }: {
+      target: NonNullable<MergedRow['target']>
+      notes: string
+    }) => {
+      const response = await fetch(
+        `/api/boss-assignments/target-tokens?guild_code=${encodeURIComponent(guildCode)}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            boss_name: target.boss_name,
+            rarity: target.rarity,
+            set: target.set,
+            encounter_id: target.encounter_id,
+            // Annotate the displayed stored row, including a legacy fallback.
+            season_number: target.season_number ?? '',
+            notes
+          })
+        }
+      )
+      if (!response.ok)
+        throw new Error(`Could not save target note (HTTP ${response.status})`)
+    },
+    onSuccess: () => {
+      setSaveError(null)
+      void invalidateTargets()
+    },
+    onError: (error) =>
+      setSaveError(error instanceof Error ? error.message : 'Save failed')
+  })
+
   const seedMutation = useMutation({
     mutationFn: async () => {
       // Seed the selected season (the server stamps season_number).
@@ -108,12 +143,13 @@ export function useTargetMutations({
       // AUTH-CRITICAL read-only gate; the server also enforces requireTargetTokenWriter on DELETE.
       if (!canEdit || !row.target) return
       const params = new URLSearchParams({
+        guild_code: guildCode,
         // DELETE matches the stored PK (row.target.boss_name).
         boss_name: row.target.boss_name,
         rarity: row.rarity,
         set: String(row.set),
         encounter_id: String(row.encounter_id),
-        season: selectedSeason
+        season: row.target.season_number ?? ''
       })
       const response = await fetch(
         `/api/boss-assignments/target-tokens?${params.toString()}`,
@@ -122,7 +158,12 @@ export function useTargetMutations({
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       return response.json()
     },
-    onSuccess: invalidateTargets
+    onSuccess: () => {
+      setSaveError(null)
+      void invalidateTargets()
+    },
+    onError: (error) =>
+      setSaveError(error instanceof Error ? error.message : 'Delete failed')
   })
 
   const startEdit = (row: MergedRow) => {
@@ -187,9 +228,16 @@ export function useTargetMutations({
     cancelEdit,
     saveEdit,
     toggleSkip,
+    saveNotes: async (row: MergedRow, notes: string) => {
+      if (!canEdit || !row.target) return
+      await notesMutation.mutateAsync({
+        target: row.target,
+        notes
+      })
+    },
     resetTarget: (row: MergedRow) => deleteMutation.mutate(row),
     seedFromHistory: () => seedMutation.mutate(),
-    isSaving: upsertMutation.isPending,
+    isSaving: upsertMutation.isPending || notesMutation.isPending,
     isResetting: deleteMutation.isPending,
     isSeeding: seedMutation.isPending
   }

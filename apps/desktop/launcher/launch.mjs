@@ -7,7 +7,12 @@ import {
   initializeReferenceHeroes,
   initializeReferenceBosses
 } from './reference-catalog.mjs'
-import { maintenanceCLI, guardedTransfer } from './maintenance.mjs'
+import {
+  maintenanceCLI,
+  guardedTransfer,
+  guardedEncryptedTransfer,
+  encryptedPassphrase
+} from './maintenance.mjs'
 import { selectedWorkspace, selectWorkspace } from './workspace-selection.mjs'
 import { startupMessage } from './startup-message.mjs'
 import { randomBytes } from 'node:crypto'
@@ -317,6 +322,8 @@ try {
       !['backup', 'restore'].includes(request.operation) ||
       typeof request.directory !== 'string' ||
       !request.directory.startsWith('/') ||
+      (request.encrypted !== undefined &&
+        typeof request.encrypted !== 'boolean') ||
       (request.operation === 'restore' &&
         (typeof request.source !== 'string' || !request.source.startsWith('/')))
     )
@@ -335,7 +342,28 @@ try {
 }
 if (maintenance) {
   try {
-    if (maintenance.operation === 'backup')
+    if (maintenance.encrypted) {
+      const passphrase = await encryptedPassphrase(maintenance.operation)
+      try {
+        if (maintenance.operation === 'restore')
+          await mkdir(resolve(maintenance.directory), { mode: 0o700 })
+        await guardedEncryptedTransfer(
+          root,
+          maintenance.operation,
+          maintenance.operation === 'backup'
+            ? state
+            : resolve(maintenance.directory),
+          resolve(
+            maintenance.operation === 'backup'
+              ? maintenance.directory
+              : maintenance.source
+          ),
+          passphrase
+        )
+      } finally {
+        passphrase.fill(0)
+      }
+    } else if (maintenance.operation === 'backup')
       await guardedTransfer(
         root,
         'backup',
@@ -349,6 +377,8 @@ if (maintenance) {
         '--restore',
         maintenance.source
       ])
+    }
+    if (maintenance.operation === 'restore') {
       // Check that this application's pinned services can reopen the restored
       // schema before making it the default workspace for future launches.
       let restored

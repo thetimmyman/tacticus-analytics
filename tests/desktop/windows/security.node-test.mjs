@@ -266,8 +266,8 @@ test('startup streams emit only fixed categories and numeric status from a bound
     'synthetic-private-body: Execution of PostgreSQL by a user with administrative permissions is not\npermitted.\n'
   )
   assert.equal(
-    diagnostic(),
-    'administrative-token-refused; exit-1; sensitive output suppressed'
+    diagnostic().split('; pgrst-')[0],
+    'administrative-token-refused; exit-1'
   )
   assert.equal(diagnostic().includes('synthetic-private-body'), false)
   const bounded = {
@@ -280,7 +280,7 @@ test('startup streams emit only fixed categories and numeric status from a bound
   bounded.stderr.write('permission denied synthetic-private-body')
   assert.equal(
     later(),
-    'unclassified-service-failure; exit-3221225781; sensitive output suppressed'
+    'unclassified-service-failure; exit-3221225781; pgrst-unavailable; sqlstate-unavailable; streamComplete-false; capturedBytes-8192; truncated-true; sensitive output suppressed'
   )
 })
 

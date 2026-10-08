@@ -37,11 +37,17 @@ export default function DesktopAccessGate({
     return () => controller.abort()
   }, [])
   const controls = pathname === '/profile' || pathname.startsWith('/profile/')
+  const savedContent =
+    pathname === '/guild-teams' ||
+    pathname === '/roster' ||
+    pathname === '/token-usage' ||
+    pathname === '/boss-assignments/targets' ||
+    pathname === '/boss-assignments/season'
   const personal =
     pathname === '/roster' ||
     pathname === '/achievements' ||
     pathname === '/meta-atlas'
-  if (controls || access?.demo) return children
+  if (controls || savedContent || access?.demo) return children
   if (!access)
     return (
       <div role="status">

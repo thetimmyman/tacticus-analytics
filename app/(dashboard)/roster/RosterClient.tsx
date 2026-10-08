@@ -228,7 +228,7 @@ export default function RosterClient({
       <div className="card-wh40k p-6 mt-6">
         <h1 className="text-3xl font-bold mb-4">My Roster</h1>
         <p>
-          No saved roster yet. Use File → Game connection → Sync my roster, then
+          No saved roster yet. Use File → API access → Sync my roster, then
           refresh this page.
         </p>
         <Button onClick={fetchRoster} className="mt-4">
