@@ -570,3 +570,598 @@ REVOKE ALL ON FUNCTION public.get_user_data_for_export(uuid) FROM PUBLIC,anon,au
 GRANT EXECUTE ON FUNCTION public.get_user_data_for_export(uuid) TO authenticated,service_role;
 ALTER TABLE public.work_queue DROP CONSTRAINT desktop_local_job_type;
 ALTER TABLE public.work_queue ADD CONSTRAINT desktop_local_job_type CHECK(job_type IN ('refresh-explore-snapshots','refresh-local-achievements','export-local-profile-data'));
+
+-- The canonical team projection keeps its own non-login, non-bypass reader.
+-- Only the RPC can use this role; its member branch remains self-only.
+CREATE ROLE desktop_team_reader NOLOGIN NOSUPERUSER NOBYPASSRLS;
+GRANT USAGE ON SCHEMA public,auth TO desktop_team_reader;
+GRANT EXECUTE ON FUNCTION auth.uid(),public._pm_caller_guild_codes(),public._pm_caller_cluster_guild_codes(),public._pm_caller_is_app_admin() TO desktop_team_reader;
+GRANT SELECT ON public.player_mapping,public.guild_config,public.hero_mappings,public.player_roster TO desktop_team_reader;
+CREATE POLICY desktop_team_mapping ON public.player_mapping FOR SELECT TO desktop_team_reader USING (
+ user_id=auth.uid() OR guild_code IN (SELECT public._pm_caller_guild_codes()) OR guild_code IN (SELECT public._pm_caller_cluster_guild_codes())
+);
+CREATE POLICY desktop_team_guild ON public.guild_config FOR SELECT TO desktop_team_reader USING (
+ guild_code IN (SELECT public._pm_caller_guild_codes()) OR guild_code IN (SELECT public._pm_caller_cluster_guild_codes())
+);
+CREATE POLICY desktop_team_catalog ON public.hero_mappings FOR SELECT TO desktop_team_reader USING (true);
+CREATE POLICY desktop_team_roster ON public.player_roster FOR SELECT TO desktop_team_reader USING (
+ EXISTS (SELECT 1 FROM public.player_mapping pm WHERE pm.is_current AND
+   (pm.id=player_roster.player_mapping_id OR (player_roster.player_mapping_id IS NULL AND pm.user_id=player_roster.user_id)) AND
+   (pm.guild_code IN (SELECT public._pm_caller_guild_codes()) OR pm.guild_code IN (SELECT public._pm_caller_cluster_guild_codes())))
+);
+ALTER FUNCTION public.get_guild_team_roster(text,text[]) OWNER TO desktop_team_reader;
+REVOKE ALL ON FUNCTION public.get_guild_team_roster(text,text[]) FROM PUBLIC,anon,authenticated,service_role,desktop_rpc_reader;
+GRANT EXECUTE ON FUNCTION public.get_guild_team_roster(text,text[]) TO authenticated;
+
+-- Cached token reads keep the signed-in caller and canonical membership checks.
+-- Present durable snapshots remain useful after API access has been removed.
+-- The adapter preserves the canonical calculation body, replaces the snapshot
+-- credential predicate with snapshot presence, and labels that source cached.
+CREATE FUNCTION public.desktop_get_player_token_state(p_guild_code text, p_season text DEFAULT NULL::text, p_cluster_code text DEFAULT NULL::text, p_player_id text DEFAULT NULL::text) RETURNS TABLE(player_id text, display_name text, discord_user_id text, tokens_available integer, is_capped boolean, time_to_next_token interval, data_source text, token_next_in_seconds integer, last_sync_at timestamp with time zone, tokens_used integer, max_possible integer, burned_tokens integer, time_over_cap_seconds integer, last_battle_time timestamp with time zone, bombs_available integer, bomb_next_in_seconds integer, post_snapshot_spends integer)
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public', 'auth'
+    AS $_$
+declare
+  v_season text;
+  v_is_service boolean := COALESCE(
+    NULLIF(NULLIF(current_setting('role', true), ''), 'none'),
+    NULLIF(session_user, '')
+  ) = 'service_role';
+  v_requester_id uuid := auth.uid();
+  v_requester_role text := null;
+  v_requester_guild text := null;
+  v_requester_cluster text := null;
+  v_target_cluster text := null;
+begin
+  if not v_is_service then
+    if v_requester_id is null then
+      return;
+    end if;
+
+    select pm.guild_code, pm.cluster_code, pm.role
+      into v_requester_guild, v_requester_cluster, v_requester_role
+    from public.player_with_cluster pm
+    where pm.user_id = v_requester_id
+      and pm.is_current = true
+    limit 1;
+
+    select gc.cluster_code::text
+      into v_target_cluster
+    from public.guild_config gc
+    where gc.guild_code = p_guild_code
+    limit 1;
+
+    if v_requester_guild is distinct from p_guild_code then
+      if lower(v_requester_role) not in ('officer', 'leader') then
+        return;
+      end if;
+      if v_target_cluster is null or v_requester_cluster is distinct from v_target_cluster then
+        return;
+      end if;
+    end if;
+  end if;
+
+  if p_season is null or trim(p_season) = '' then
+    select max(d.season_num)::text into v_season
+    from "EOT_GR_data" d
+    where d."Guild" = p_guild_code
+      and (p_cluster_code is null or d.cluster_code = p_cluster_code);
+  else
+    v_season := trim(p_season);
+  end if;
+
+  if v_season is null then
+    return;
+  end if;
+
+  return query
+  with members as (
+    select
+      pm.player_id,
+      pm.display_name,
+      pm.discord_user_id::text as discord_user_id,
+      pm.last_sync_tokens,
+      pm.next_token_seconds,
+      pm.last_sync_at::timestamptz as last_sync_at,
+      pm.api_key_is_valid,
+      pm.tacticus_api_key_encrypted,
+      pm.last_sync_bombs,
+      pm.next_bomb_seconds
+    from public.player_mapping pm
+    where pm.guild_code = p_guild_code
+      and pm.is_current = true
+      and (p_player_id is null or pm.player_id = p_player_id)
+  ),
+  recent_spend as (
+    select
+      m2.player_id,
+      count(distinct d."startedOn") filter (where d."damageType" = 'Battle')::int as battles_after_sync,
+      count(distinct d."startedOn") filter (where d."damageType" = 'Bomb')::int as bombs_after_sync,
+      array_agg(distinct d."startedOn"::timestamptz)
+        filter (where d."damageType" = 'Battle') as battle_spends,
+      array_agg(distinct d."startedOn"::timestamptz)
+        filter (where d."damageType" = 'Bomb') as bomb_spends
+    from members m2
+    join public."EOT_GR_data" d
+      on d."userId" = m2.player_id
+      and d."Guild" = p_guild_code
+      and (
+        d."Season" = v_season
+        or (v_season ~ '^\d+$' and d."Season" = (v_season::int - 1)::text)
+      )
+      and d."damageType" in ('Battle', 'Bomb')
+      and (p_cluster_code is null or d.cluster_code = p_cluster_code)
+    where m2.last_sync_at is not null
+      and d."startedOn"::timestamptz > m2.last_sync_at
+    group by m2.player_id
+  ),
+  battle_rows as (
+    select
+      d."userId" as player_id,
+      d."damageType" as damage_type,
+      d."damageDealt" as damage_dealt,
+      d."startedOn"::timestamptz as started_on
+    from public."EOT_GR_data" d
+    where d."Guild" = p_guild_code
+      and d."Season" = v_season
+      and d."damageType" in ('Battle', 'Bomb')
+      and d."userId" is not null
+      and (p_cluster_code is null or d.cluster_code = p_cluster_code)
+  ),
+  current_season_totals as (
+    select
+      b.player_id,
+      count(*) filter (
+        where b.damage_type = 'Battle'
+      )::int as tokens_used,
+      max(b.started_on) filter (where b.damage_type = 'Battle') as last_battle_time
+    from battle_rows b
+    group by b.player_id
+  ),
+  max_tokens as (
+    select coalesce(max(c.tokens_used), 0)::int as max_possible
+    from current_season_totals c
+  ),
+  calculated as (
+    select
+      m.player_id,
+      calc.tokens_available as calc_tokens_available,
+      calc.is_capped as calc_is_capped,
+      calc.time_until_next_token as calc_time_until_next_token,
+      calc.last_battle_time as calc_last_battle_time
+    from members m
+    left join lateral (
+      select *
+      from public.calculate_player_tokens_by_user(m.player_id, p_guild_code, v_season)
+      limit 1
+    ) calc on true
+  ),
+  burn_state as (
+    select
+      m.player_id,
+      cb.burned_tokens,
+      cb.time_over_cap_seconds
+    from members m
+    cross join lateral public.compute_player_token_burn(
+      p_guild_code := p_guild_code,
+      p_season := v_season,
+      p_player_id := m.player_id
+    ) cb
+  ),
+  bomb_calc as (
+    select
+      b.player_id,
+      max(b.started_on) as last_bomb_time,
+      case
+        when max(b.started_on) is not null
+          and extract(epoch from (now() - max(b.started_on))) < 64800
+        then 0
+        else 1
+      end as calc_bombs_available,
+      case
+        when max(b.started_on) is not null
+          and extract(epoch from (now() - max(b.started_on))) < 64800
+        then floor(64800 - extract(epoch from (now() - max(b.started_on))))::int
+        else null
+      end as calc_bomb_next_seconds
+    from battle_rows b
+    where b.damage_type = 'Bomb'
+    group by b.player_id
+  )
+  select
+    m.player_id,
+    m.display_name,
+    m.discord_user_id,
+    case
+      when live_source.token_spent then tok_spend_proj.spent_tokens
+      when live_source.token_pure then tok_proj.proj_tokens
+      else coalesce(c.calc_tokens_available, 3)
+    end as tokens_available,
+    case
+      when live_source.token_spent then tok_spend_proj.spent_tokens >= 3
+      when live_source.token_pure then tok_proj.proj_tokens >= 3
+      else coalesce(c.calc_is_capped, coalesce(c.calc_tokens_available, 3) >= 3)
+    end as is_capped,
+    case
+      when live_source.token_spent then
+        case
+          when tok_spend_proj.spent_next_seconds is null then null::interval
+          else make_interval(secs => tok_spend_proj.spent_next_seconds)
+        end
+      when live_source.token_pure then
+        case
+          when tok_proj.proj_next_seconds is null then null::interval
+          else make_interval(secs => tok_proj.proj_next_seconds)
+        end
+      else
+        case
+          when coalesce(c.calc_tokens_available, 3) >= 3 then null::interval
+          else c.calc_time_until_next_token
+        end
+    end as time_to_next_token,
+    case
+      when live_source.token_live then 'cached'::text
+      else 'calculated'::text
+    end as data_source,
+    case
+      when live_source.token_spent then tok_spend_proj.spent_next_seconds
+      when live_source.token_pure then tok_proj.proj_next_seconds
+      else floor(extract(epoch from c.calc_time_until_next_token))::int
+    end as token_next_in_seconds,
+    m.last_sync_at,
+    coalesce(t.tokens_used, 0) as tokens_used,
+    coalesce(mt.max_possible, 0) as max_possible,
+    coalesce(bs.burned_tokens, 0) as burned_tokens,
+    coalesce(bs.time_over_cap_seconds, 0) as time_over_cap_seconds,
+    coalesce(t.last_battle_time, c.calc_last_battle_time) as last_battle_time,
+    case
+      when live_source.bomb_spent and bomb_spend_proj.spent_bombs is not null
+        then bomb_spend_proj.spent_bombs
+      when live_source.bomb_pure and bomb_proj.proj_bombs is not null
+        then bomb_proj.proj_bombs
+      else coalesce(bc.calc_bombs_available, 1)
+    end as bombs_available,
+    case
+      when live_source.bomb_spent and bomb_spend_proj.spent_bombs is not null
+        then bomb_spend_proj.spent_bomb_next
+      when live_source.bomb_pure and bomb_proj.proj_bombs is not null
+        then bomb_proj.proj_bomb_next
+      else bc.calc_bomb_next_seconds
+    end as bomb_next_in_seconds,
+    case
+      when live_source.token_live then coalesce(rs.battles_after_sync, 0)
+      else null::int
+    end as post_snapshot_spends
+  from members m
+  left join calculated c
+    on c.player_id = m.player_id
+  left join current_season_totals t
+    on t.player_id = m.player_id
+  cross join max_tokens mt
+  left join burn_state bs
+    on bs.player_id = m.player_id
+  left join bomb_calc bc
+    on bc.player_id = m.player_id
+  left join recent_spend rs
+    on rs.player_id = m.player_id
+  cross join lateral (
+    select
+      base_live.ok as base_live,
+      base_live.ok as token_live,
+      (base_live.ok and coalesce(rs.battles_after_sync, 0) = 0) as token_pure,
+      (base_live.ok and coalesce(rs.battles_after_sync, 0) > 0) as token_spent,
+      (base_live.ok and coalesce(rs.bombs_after_sync, 0) = 0) as bomb_pure,
+      (base_live.ok and coalesce(rs.bombs_after_sync, 0) > 0) as bomb_spent
+    from (
+      select (
+        m.last_sync_tokens is not null
+        and m.last_sync_at is not null
+      ) as ok
+    ) base_live
+  ) live_source
+  cross join lateral (
+    select
+      case
+        when live_source.base_live
+          then greatest(0::numeric, floor(extract(epoch from (now() - m.last_sync_at))))
+        else null::numeric
+      end as elapsed_secs,
+      greatest(0, least(3, coalesce(m.last_sync_tokens, 3))) as synced_tokens
+  ) sync_snap
+  cross join lateral (
+    select
+      case
+        when not live_source.token_pure then null::int
+        when sync_snap.synced_tokens >= 3 then 3
+        when coalesce(m.next_token_seconds, 0) <= 0 then sync_snap.synced_tokens
+        when sync_snap.elapsed_secs < m.next_token_seconds then sync_snap.synced_tokens
+        else least(
+          3,
+          sync_snap.synced_tokens + 1 + floor(
+            (sync_snap.elapsed_secs - m.next_token_seconds) / 43200.0
+          )::int
+        )
+      end as proj_tokens,
+      case
+        when not live_source.token_pure then null::int
+        when sync_snap.synced_tokens >= 3 then null::int
+        when coalesce(m.next_token_seconds, 0) <= 0 then null::int
+        when sync_snap.elapsed_secs < m.next_token_seconds
+          then (m.next_token_seconds - sync_snap.elapsed_secs)::int
+        else (43200 - ((sync_snap.elapsed_secs - m.next_token_seconds)::bigint % 43200))::int
+      end as proj_next_raw
+  ) tok_proj0
+  cross join lateral (
+    select
+      tok_proj0.proj_tokens,
+      case
+        when tok_proj0.proj_tokens is null then null::int
+        when tok_proj0.proj_tokens >= 3 then null::int
+        else tok_proj0.proj_next_raw
+      end as proj_next_seconds
+  ) tok_proj
+  cross join lateral (
+    select
+      tsp.available as spent_tokens,
+      tsp.next_in_seconds as spent_next_seconds
+    from public.project_token_snapshot(
+      case when live_source.token_spent then m.last_sync_tokens else null::int end,
+      m.next_token_seconds,
+      m.last_sync_at,
+      coalesce(rs.battle_spends, array[]::timestamptz[]),
+      now(),
+      3,
+      43200
+    ) tsp
+  ) tok_spend_proj
+  cross join lateral (
+    select
+      case
+        when not live_source.bomb_pure or m.next_bomb_seconds is null then null::int
+        when sync_snap.elapsed_secs >= m.next_bomb_seconds
+          then greatest(1, coalesce(m.last_sync_bombs, 0))
+        else greatest(0, coalesce(m.last_sync_bombs, 0))
+      end as proj_bombs,
+      case
+        when not live_source.bomb_pure or m.next_bomb_seconds is null then null::int
+        when sync_snap.elapsed_secs >= m.next_bomb_seconds then null::int
+        else (m.next_bomb_seconds - sync_snap.elapsed_secs)::int
+      end as proj_bomb_next
+  ) bomb_proj
+  cross join lateral (
+    select
+      bsp.available as spent_bombs,
+      bsp.next_in_seconds as spent_bomb_next
+    from public.project_token_snapshot(
+      case when live_source.bomb_spent then m.last_sync_bombs else null::int end,
+      m.next_bomb_seconds,
+      m.last_sync_at,
+      coalesce(rs.bomb_spends, array[]::timestamptz[]),
+      now(),
+      1,
+      64800
+    ) bsp
+  ) bomb_spend_proj
+  order by m.display_name;
+end;
+$_$;
+
+ALTER TABLE public.season_calendar ADD PRIMARY KEY(season_id);
+ALTER TABLE public.season_calendar ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.season_calendar FORCE ROW LEVEL SECURITY;
+REVOKE ALL ON public.season_calendar FROM PUBLIC,anon,authenticated,service_role,desktop_rpc_reader;
+GRANT SELECT ON public.season_calendar TO authenticated,service_role,desktop_rpc_reader;
+CREATE POLICY desktop_season_calendar_read ON public.season_calendar FOR SELECT TO authenticated,desktop_rpc_reader USING(true);
+GRANT SELECT ON public.player_with_cluster TO desktop_rpc_reader;
+REVOKE ALL ON FUNCTION public.calculate_player_tokens_by_user(text,text,text),public.project_token_snapshot(integer,integer,timestamptz,timestamptz[],timestamptz,integer,bigint),public.get_player_token_state(text,text,text,text),public.desktop_get_player_token_state(text,text,text,text),public.get_cluster_latest_season() FROM PUBLIC,anon,authenticated,service_role,desktop_rpc_reader;
+ALTER FUNCTION public.get_player_token_state(text,text,text,text) OWNER TO desktop_rpc_reader;
+ALTER FUNCTION public.desktop_get_player_token_state(text,text,text,text) OWNER TO desktop_rpc_reader;
+ALTER FUNCTION public.get_cluster_latest_season() OWNER TO desktop_rpc_reader;
+GRANT EXECUTE ON FUNCTION public.calculate_player_tokens_by_user(text,text,text),public.project_token_snapshot(integer,integer,timestamptz,timestamptz[],timestamptz,integer,bigint) TO desktop_rpc_reader;
+GRANT EXECUTE ON FUNCTION public.get_player_token_state(text,text,text,text),public.desktop_get_player_token_state(text,text,text,text),public.get_cluster_latest_season() TO authenticated;
+
+CREATE POLICY boss_target_tokens_write
+  ON public.boss_target_tokens
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public._pm_caller_mapping_rows() AS pm
+      WHERE pm.guild_code = boss_target_tokens.guild_code
+        AND pm.is_current = true
+        AND lower(pm.role::text) IN ('leader', 'officer')
+    )
+    OR EXISTS (
+      SELECT 1
+      FROM public._pm_caller_mapping_rows() AS pm
+      JOIN public.guild_config AS gc_user
+        ON gc_user.guild_code = pm.guild_code
+      JOIN public.guild_config AS gc_target
+        ON gc_target.guild_code = boss_target_tokens.guild_code
+      WHERE pm.is_current = true
+        AND lower(pm.role::text) = 'leader'
+        AND gc_user.cluster_code IS NOT NULL
+        AND gc_user.cluster_code::text = gc_target.cluster_code::text
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1
+      FROM public._pm_caller_mapping_rows() AS pm
+      WHERE pm.guild_code = boss_target_tokens.guild_code
+        AND pm.is_current = true
+        AND lower(pm.role::text) IN ('leader', 'officer')
+    )
+    OR EXISTS (
+      SELECT 1
+      FROM public._pm_caller_mapping_rows() AS pm
+      JOIN public.guild_config AS gc_user
+        ON gc_user.guild_code = pm.guild_code
+      JOIN public.guild_config AS gc_target
+        ON gc_target.guild_code = boss_target_tokens.guild_code
+      WHERE pm.is_current = true
+        AND lower(pm.role::text) = 'leader'
+        AND gc_user.cluster_code IS NOT NULL
+        AND gc_user.cluster_code::text = gc_target.cluster_code::text
+    )
+  );
+
+ALTER TABLE ONLY public.boss_target_tokens
+    ADD CONSTRAINT boss_target_tokens_pkey PRIMARY KEY (guild_code, boss_name, rarity, set, encounter_id, season_number);
+
+ALTER TABLE ONLY public.boss_target_tokens
+    ADD CONSTRAINT boss_target_tokens_guild_code_fkey FOREIGN KEY (guild_code) REFERENCES public.guild_config(guild_code) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.boss_target_tokens
+    ADD CONSTRAINT boss_target_tokens_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES auth.users(id) ON DELETE SET NULL;
+
+CREATE INDEX boss_target_tokens_guild_idx ON public.boss_target_tokens USING btree (guild_code);
+
+CREATE INDEX boss_target_tokens_skip_idx ON public.boss_target_tokens USING btree (guild_code, skip);
+
+CREATE INDEX idx_boss_target_tokens_guild_rarity_set ON public.boss_target_tokens USING btree (guild_code, rarity, set);
+
+CREATE TRIGGER boss_target_tokens_touch BEFORE UPDATE ON public.boss_target_tokens FOR EACH ROW EXECUTE FUNCTION public.boss_target_tokens_touch_updated_at();
+
+ALTER TABLE public.boss_target_tokens ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY boss_target_tokens_read ON public.boss_target_tokens FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1
+   FROM public.player_mapping pm
+  WHERE ((pm.user_id = ( SELECT auth.uid() AS uid)) AND (pm.guild_code = boss_target_tokens.guild_code) AND (pm.is_current = true)))));
+
+CREATE POLICY herald_boss_config_guild_read ON public.herald_boss_config FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1
+   FROM public.player_mapping pm
+  WHERE ((pm.user_id = ( SELECT auth.uid() AS uid)) AND (pm.is_current = true) AND (pm.guild_code = herald_boss_config.guild_code)))));
+
+CREATE POLICY upcoming_season_bosses_member_read ON public.upcoming_season_bosses FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1
+   FROM public.player_mapping pm
+  WHERE ((pm.user_id = ( SELECT auth.uid() AS uid)) AND (pm.guild_code = upcoming_season_bosses.guild_code) AND (pm.is_current = true)))));
+
+ALTER TABLE ONLY public.herald_boss_config
+    ADD CONSTRAINT herald_boss_config_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.herald_boss_config
+    ADD CONSTRAINT herald_boss_config_guild_code_fkey FOREIGN KEY (guild_code) REFERENCES public.guild_config(guild_code) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.upcoming_season_bosses
+    ADD CONSTRAINT upcoming_season_bosses_guild_code_season_number_level_key UNIQUE (guild_code, season_number, level);
+
+ALTER TABLE ONLY public.upcoming_season_bosses
+    ADD CONSTRAINT upcoming_season_bosses_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.upcoming_season_bosses
+    ADD CONSTRAINT upcoming_season_bosses_guild_code_fkey FOREIGN KEY (guild_code) REFERENCES public.guild_config(guild_code) ON UPDATE CASCADE;
+
+ALTER TABLE ONLY public.upcoming_season_bosses
+    ADD CONSTRAINT upcoming_season_bosses_selected_by_fkey FOREIGN KEY (selected_by) REFERENCES auth.users(id) ON DELETE SET NULL;
+
+ALTER TABLE public.boss_target_tokens FORCE ROW LEVEL SECURITY;
+ALTER TABLE public.herald_boss_config ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.herald_boss_config FORCE ROW LEVEL SECURITY;
+ALTER TABLE public.upcoming_season_bosses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.upcoming_season_bosses FORCE ROW LEVEL SECURITY;
+REVOKE ALL ON public.boss_target_tokens,public.herald_boss_config,public.upcoming_season_bosses FROM PUBLIC,anon,authenticated,service_role,desktop_rpc_reader;
+GRANT SELECT,INSERT,UPDATE,DELETE ON public.boss_target_tokens TO authenticated;
+GRANT SELECT ON public.herald_boss_config,public.upcoming_season_bosses TO authenticated;
+REVOKE ALL ON FUNCTION public.boss_target_tokens_touch_updated_at() FROM PUBLIC,anon,authenticated,service_role,desktop_rpc_reader;
+
+ALTER TABLE ONLY public.guild_raid_season_plans
+    ADD CONSTRAINT guild_raid_season_plans_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.raid_progression_config
+    ADD CONSTRAINT raid_progression_config_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.guild_raid_season_plans
+    ADD CONSTRAINT guild_raid_season_plans_baseline_plan_id_fkey FOREIGN KEY (baseline_plan_id) REFERENCES public.guild_raid_season_plans(id) ON DELETE SET NULL;
+
+ALTER TABLE ONLY public.guild_raid_season_plans
+    ADD CONSTRAINT guild_raid_season_plans_guild_code_fkey FOREIGN KEY (guild_code) REFERENCES public.guild_config(guild_code) ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.feature_releases
+    ADD CONSTRAINT feature_releases_feature_key_key UNIQUE (feature_key);
+
+ALTER TABLE public.guild_raid_season_plans
+  DROP CONSTRAINT IF EXISTS guild_raid_season_plans_created_by_fkey,
+  ADD CONSTRAINT guild_raid_season_plans_created_by_fkey
+    FOREIGN KEY (created_by) REFERENCES auth.users(id) ON DELETE SET NULL;
+
+CREATE INDEX idx_gr_season_plans_guild_season_created ON public.guild_raid_season_plans USING btree (guild_code, season_id, created_at DESC);
+
+CREATE UNIQUE INDEX idx_raid_progression_config_active_scope ON public.raid_progression_config USING btree (scope) WHERE (is_active = true);
+
+CREATE UNIQUE INDEX ux_gr_season_plans_baseline_key ON public.guild_raid_season_plans USING btree (guild_code, season_id, baseline_key) WHERE ((kind = 'baseline'::text) AND (baseline_key IS NOT NULL));
+
+CREATE TRIGGER update_gr_season_plans_updated_at BEFORE UPDATE ON public.guild_raid_season_plans FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+CREATE POLICY gr_season_plans_delete_officers ON public.guild_raid_season_plans FOR DELETE USING ((EXISTS ( SELECT 1
+   FROM public.player_mapping pm
+  WHERE ((pm.guild_code = guild_raid_season_plans.guild_code) AND (pm.user_id = ( SELECT auth.uid() AS uid)) AND (pm.is_current = true) AND (pm.role = ANY (ARRAY['officer'::public.app_role, 'leader'::public.app_role, 'Officer'::public.app_role, 'Leader'::public.app_role]))))));
+
+CREATE POLICY gr_season_plans_insert_officers ON public.guild_raid_season_plans FOR INSERT WITH CHECK ((EXISTS ( SELECT 1
+   FROM public.player_mapping pm
+  WHERE ((pm.guild_code = guild_raid_season_plans.guild_code) AND (pm.user_id = ( SELECT auth.uid() AS uid)) AND (pm.is_current = true) AND (pm.role = ANY (ARRAY['officer'::public.app_role, 'leader'::public.app_role, 'Officer'::public.app_role, 'Leader'::public.app_role]))))));
+
+CREATE POLICY gr_season_plans_select_own_guild ON public.guild_raid_season_plans FOR SELECT USING ((EXISTS ( SELECT 1
+   FROM public._pm_caller_mapping_rows() pm(user_id, guild_code, cluster_code, role, is_current, is_app_admin)
+  WHERE ((pm.guild_code = guild_raid_season_plans.guild_code) AND (pm.user_id = ( SELECT auth.uid() AS uid)) AND (pm.is_current = true)))));
+
+CREATE POLICY gr_season_plans_update_officers ON public.guild_raid_season_plans FOR UPDATE USING ((EXISTS ( SELECT 1
+   FROM public.player_mapping pm
+  WHERE ((pm.guild_code = guild_raid_season_plans.guild_code) AND (pm.user_id = ( SELECT auth.uid() AS uid)) AND (pm.is_current = true) AND (pm.role = ANY (ARRAY['officer'::public.app_role, 'leader'::public.app_role, 'Officer'::public.app_role, 'Leader'::public.app_role]))))));
+
+CREATE POLICY "Anyone authenticated can read progression config" ON public.raid_progression_config FOR SELECT USING ((( SELECT auth.role() AS role) = 'authenticated'::text));
+
+CREATE POLICY "Service role can manage progression config" ON public.raid_progression_config USING ((( SELECT auth.role() AS role) = 'service_role'::text));
+
+ALTER TABLE public.guild_raid_season_plans ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE public.raid_progression_config ENABLE ROW LEVEL SECURITY;
+
+REVOKE ALL ON public.guild_raid_season_plans,public.raid_progression_config FROM PUBLIC,anon,authenticated,service_role,desktop_rpc_reader;
+GRANT SELECT,INSERT,UPDATE,DELETE ON public.guild_raid_season_plans TO authenticated;
+GRANT SELECT ON public.raid_progression_config TO authenticated;
+GRANT SELECT(timezone) ON public.guild_config TO authenticated;
+REVOKE ALL ON FUNCTION public.update_updated_at_column() FROM PUBLIC,anon,authenticated,service_role,desktop_rpc_reader;
+
+-- Local saved capabilities describe preview availability, not upstream entitlements.
+INSERT INTO public.feature_releases(feature_key,display_name,release_stage,route)
+VALUES ('boss_assignments','Saved boss assignments','public','/boss-assignments/targets'),
+       ('boss_assignment_season_planner','Saved season planning','public','/boss-assignments/season')
+ON CONFLICT (feature_key) DO UPDATE
+SET release_stage = EXCLUDED.release_stage, route = EXCLUDED.route;
+
+-- Local direct-write guard supplements the preserved canonical role policies.
+-- Fixture and Auth owners are trusted by explicit role, never by a missing uid.
+CREATE FUNCTION public.desktop_guard_season_plan_write() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO ''
+    AS $$
+BEGIN
+  IF current_user IN ('desktop_owner', 'supabase_auth_admin') THEN
+    RETURN NEW;
+  END IF;
+  IF current_user <> 'authenticated' OR auth.uid() IS NULL THEN
+    RAISE EXCEPTION USING ERRCODE = '42501', MESSAGE = 'Signed plan writer required';
+  END IF;
+  IF TG_OP = 'INSERT' AND NEW.created_by IS DISTINCT FROM auth.uid() THEN
+    RAISE EXCEPTION USING ERRCODE = '42501', MESSAGE = 'Plan creator must be the signed caller';
+  END IF;
+  IF TG_OP = 'UPDATE' AND NEW.created_by IS DISTINCT FROM OLD.created_by THEN
+    RAISE EXCEPTION USING ERRCODE = '42501', MESSAGE = 'Plan creator is immutable';
+  END IF;
+  IF NEW.baseline_plan_id IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM public.guild_raid_season_plans AS baseline
+    WHERE baseline.id = NEW.baseline_plan_id
+      AND baseline.guild_code = NEW.guild_code
+      AND baseline.season_id = NEW.season_id
+      AND (baseline.plan->>'season') IS NOT DISTINCT FROM (NEW.plan->>'season')
+  ) THEN
+    RAISE EXCEPTION USING ERRCODE = '42501', MESSAGE = 'Baseline must be a visible plan in the same guild and season';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+REVOKE ALL ON FUNCTION public.desktop_guard_season_plan_write() FROM PUBLIC,anon,authenticated,service_role,desktop_rpc_reader;
+CREATE TRIGGER desktop_guard_season_plan_write
+    BEFORE INSERT OR UPDATE ON public.guild_raid_season_plans
+    FOR EACH ROW EXECUTE FUNCTION public.desktop_guard_season_plan_write();

@@ -56,6 +56,8 @@ interface SeasonPlannerClientProps {
   liveConfigId?: string | null
   /** Edit access. When false "Save Plan" is hidden and savePlan no-ops. */
   canEdit?: boolean
+  desktopMode?: boolean
+  savedSeasons?: string[]
 }
 
 export default function SeasonPlannerClient({
@@ -64,7 +66,9 @@ export default function SeasonPlannerClient({
   initialSeason,
   initialConfigId,
   liveConfigId,
-  canEdit = false
+  canEdit = false,
+  desktopMode = false,
+  savedSeasons = []
 }: SeasonPlannerClientProps) {
   const hasMounted = useHasMounted()
   const { labelFor } = useMemberLabels()
@@ -78,6 +82,12 @@ export default function SeasonPlannerClient({
   const [roster, setRoster] = useState<RosterEntry[]>([])
 
   const [season, setSeason] = useState<string>(initialSeason ?? '')
+  const [planningSnapshotAt, setPlanningSnapshotAt] = useState('')
+  const planningSnapshotAtRef = useRef('')
+  const setSnapshotAt = useCallback((value: string) => {
+    planningSnapshotAtRef.current = value
+    setPlanningSnapshotAt(value)
+  }, [])
   const [lookbackDays, setLookbackDays] = useState(30)
   const [sessionsPerDay, setSessionsPerDay] = useState(1)
   const [timeZone, setTimeZone] = useState('UTC')
@@ -103,6 +113,8 @@ export default function SeasonPlannerClient({
     null
   )
 
+  const [editingPlanId, setEditingPlanId] = useState<string | null>(null)
+  const [deletingPlanId, setDeletingPlanId] = useState<string | null>(null)
   const [saveLoading, setSaveLoading] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null)
@@ -119,6 +131,7 @@ export default function SeasonPlannerClient({
   const [swapIncomingGuildFilter, setSwapIncomingGuildFilter] = useState('all')
   const [strategyOptimizerRequested, setStrategyOptimizerRequested] =
     useState(false)
+  const seasonContextIdRef = useRef(0)
   const planRequestIdRef = useRef(0)
   const snapshotRequestIdRef = useRef(0)
   const savedPlansRequestIdRef = useRef(0)
@@ -132,6 +145,10 @@ export default function SeasonPlannerClient({
       savedPlanRequestIdRef.current += 1
       strategyRequestIdRef.current += 1
       if (options?.clearSnapshot) {
+        seasonContextIdRef.current += 1
+        setSaveLoading(false)
+        setDeletingPlanId(null)
+        setEditingPlanId(null)
         snapshotRequestIdRef.current += 1
         setSnapshotLoading(false)
       }
@@ -139,6 +156,8 @@ export default function SeasonPlannerClient({
       if (options?.clearSnapshot) {
         setSnapshot(null)
         setRoster([])
+        setSavedPlans([])
+        setSavedPlansError(null)
       }
       setPlan(null)
       setPlanError(null)
@@ -177,6 +196,8 @@ export default function SeasonPlannerClient({
 
         const params = new URLSearchParams()
         if (season) params.set('season', season)
+        if (desktopMode && planningSnapshotAtRef.current)
+          params.set('snapshot_at', planningSnapshotAtRef.current)
         const configToUse =
           options && 'configId' in options
             ? options.configId
@@ -214,79 +235,99 @@ export default function SeasonPlannerClient({
         }
       }
     },
-    [clearGeneratedPlanState, season, selectedSeasonConfig]
+    [clearGeneratedPlanState, season, selectedSeasonConfig, desktopMode]
   )
 
-  const loadSavedPlans = useCallback(async (seasonId: string) => {
-    const requestId = savedPlansRequestIdRef.current + 1
-    savedPlansRequestIdRef.current = requestId
-    const isCurrentRequest = () => savedPlansRequestIdRef.current === requestId
+  const loadSavedPlans = useCallback(
+    async (seasonId: string) => {
+      const requestId = savedPlansRequestIdRef.current + 1
+      savedPlansRequestIdRef.current = requestId
+      const isCurrentRequest = () =>
+        savedPlansRequestIdRef.current === requestId
 
-    try {
-      setSavedPlansLoading(true)
-      setSavedPlansError(null)
+      try {
+        setSavedPlansLoading(true)
+        setSavedPlansError(null)
 
-      const data = await fetchJson<{ plans: SavedPlanSummary[] }>(
-        `/api/guild-raid/season-plan?season_id=${encodeURIComponent(seasonId)}`
-      )
-      if (!isCurrentRequest()) return
-      setSavedPlans(Array.isArray(data.plans) ? data.plans : [])
-    } catch (err) {
-      if (!isCurrentRequest()) return
-      setSavedPlansError(
-        err instanceof Error ? err.message : 'Failed to load saved plans'
-      )
-      setSavedPlans([])
-    } finally {
-      if (isCurrentRequest()) {
-        setSavedPlansLoading(false)
+        const data = await fetchJson<{ plans: SavedPlanSummary[] }>(
+          `/api/guild-raid/season-plan?season_id=${encodeURIComponent(seasonId)}${desktopMode ? `&season=${encodeURIComponent(season)}` : ''}`
+        )
+        if (!isCurrentRequest()) return
+        setSavedPlans(Array.isArray(data.plans) ? data.plans : [])
+      } catch (err) {
+        if (!isCurrentRequest()) return
+        setSavedPlansError(
+          err instanceof Error ? err.message : 'Failed to load saved plans'
+        )
+        setSavedPlans([])
+      } finally {
+        if (isCurrentRequest()) {
+          setSavedPlansLoading(false)
+        }
       }
-    }
-  }, [])
+    },
+    [desktopMode, season]
+  )
 
-  const loadSavedPlan = useCallback(async (planId: string) => {
-    const requestId = savedPlanRequestIdRef.current + 1
-    savedPlanRequestIdRef.current = requestId
-    const isCurrentRequest = () => savedPlanRequestIdRef.current === requestId
+  const loadSavedPlan = useCallback(
+    async (planId: string, edit = false) => {
+      const requestId = savedPlanRequestIdRef.current + 1
+      savedPlanRequestIdRef.current = requestId
+      const isCurrentRequest = () => savedPlanRequestIdRef.current === requestId
 
-    try {
-      planRequestIdRef.current += 1
-      setLoadingSavedPlanId(planId)
-      setActiveSavedPlanId(null)
-      setActiveSavedPlan(null)
-      setPlan(null)
-      setPlanError(null)
-      setPlanLoading(false)
-      setSaveError(null)
-      setSaveSuccess(null)
-      strategyRequestIdRef.current += 1
-      setStrategy(null)
-      setStrategyError(null)
-      setStrategyLoading(false)
-      setSwapOutgoingPlayerId('')
-      setSwapIncomingPlayerId('')
-      setSwapIncomingGuildFilter('all')
-      const data = await fetchJson<{ plan: SavedPlanRow }>(
-        `/api/guild-raid/season-plan?id=${encodeURIComponent(planId)}`
-      )
-      if (!isCurrentRequest()) return
-      setActiveSavedPlan(data.plan ?? null)
-      setActiveSavedPlanId(data.plan ? planId : null)
-    } catch (err) {
-      if (!isCurrentRequest()) return
-      setSavedPlansError(
-        err instanceof Error ? err.message : 'Failed to load plan details'
-      )
-      setActiveSavedPlan(null)
-      setActiveSavedPlanId(null)
-    } finally {
-      if (isCurrentRequest()) {
-        setLoadingSavedPlanId(null)
+      try {
+        planRequestIdRef.current += 1
+        setLoadingSavedPlanId(planId)
+        setActiveSavedPlanId(null)
+        setActiveSavedPlan(null)
+        setPlan(null)
+        setPlanError(null)
+        setPlanLoading(false)
+        setSaveError(null)
+        setSaveSuccess(null)
+        strategyRequestIdRef.current += 1
+        setStrategy(null)
+        setStrategyError(null)
+        setStrategyLoading(false)
+        setSwapOutgoingPlayerId('')
+        setSwapIncomingPlayerId('')
+        setSwapIncomingGuildFilter('all')
+        const data = await fetchJson<{ plan: SavedPlanRow }>(
+          `/api/guild-raid/season-plan?id=${encodeURIComponent(planId)}`
+        )
+        if (!isCurrentRequest()) return
+        const generated = selectDisplayedPlan(data.plan?.plan, null)
+        if (generated?.time_zone) setTimeZone(generated.time_zone)
+        if (desktopMode && edit && data.plan && canEdit) {
+          if (!generated) throw new Error('Saved plan payload is unavailable')
+          setPlan(generated)
+          setEditingPlanId(planId)
+          setLookbackDays(generated.lookback_days)
+          setSessionsPerDay(generated.sessions_per_day)
+          setSnapshotAt(generated.snapshot_at)
+        } else {
+          setEditingPlanId(null)
+          setActiveSavedPlan(data.plan ?? null)
+          setActiveSavedPlanId(data.plan ? planId : null)
+        }
+      } catch (err) {
+        if (!isCurrentRequest()) return
+        setSavedPlansError(
+          err instanceof Error ? err.message : 'Failed to load plan details'
+        )
+        setActiveSavedPlan(null)
+        setActiveSavedPlanId(null)
+      } finally {
+        if (isCurrentRequest()) {
+          setLoadingSavedPlanId(null)
+        }
       }
-    }
-  }, [])
+    },
+    [desktopMode, canEdit, setSnapshotAt]
+  )
 
   const generatePlan = useCallback(async () => {
+    if (desktopMode && !canEdit) return
     const requestId = planRequestIdRef.current + 1
     planRequestIdRef.current = requestId
     const isCurrentRequest = () => planRequestIdRef.current === requestId
@@ -311,6 +352,8 @@ export default function SeasonPlannerClient({
 
       const params = new URLSearchParams()
       if (season) params.set('season', season)
+      if (desktopMode && planningSnapshotAtRef.current)
+        params.set('snapshot_at', planningSnapshotAtRef.current)
       params.set('lookback_days', String(lookbackDays))
       params.set('sessions_per_day', String(sessionsPerDay))
       if (timeZone) params.set('time_zone', timeZone)
@@ -347,7 +390,9 @@ export default function SeasonPlannerClient({
     timeZone,
     selectedSeasonConfig,
     detectedConfigId,
-    liveConfigId
+    liveConfigId,
+    desktopMode,
+    canEdit
   ])
 
   const displayedPlanSnapshotAt =
@@ -489,6 +534,8 @@ export default function SeasonPlannerClient({
   const savePlan = useCallback(async () => {
     // AUTH-CRITICAL read-only gate: members never persist saved plans.
     if (!canEdit) return
+    const contextId = seasonContextIdRef.current
+    const isCurrentContext = () => seasonContextIdRef.current === contextId
     try {
       setSaveLoading(true)
       setSaveError(null)
@@ -504,6 +551,7 @@ export default function SeasonPlannerClient({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            ...(desktopMode && editingPlanId ? { id: editingPlanId } : {}),
             season_id: plan.season_id,
             start_at: plan.season_start_at,
             end_at: plan.season_end_at,
@@ -515,16 +563,61 @@ export default function SeasonPlannerClient({
         }
       )
 
+      if (!isCurrentContext()) return
       setSaveSuccess(`Saved plan ${res.id}`)
       if (snapshot?.seasonId) {
         await loadSavedPlans(snapshot.seasonId)
       }
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : 'Failed to save plan')
+      if (isCurrentContext()) {
+        setSaveError(err instanceof Error ? err.message : 'Failed to save plan')
+      }
     } finally {
-      setSaveLoading(false)
+      if (isCurrentContext()) setSaveLoading(false)
     }
-  }, [canEdit, loadSavedPlans, plan, snapshot?.seasonId])
+  }, [
+    canEdit,
+    desktopMode,
+    editingPlanId,
+    loadSavedPlans,
+    plan,
+    snapshot?.seasonId
+  ])
+
+  const deleteSavedPlan = useCallback(
+    async (id: string) => {
+      if (!canEdit) return
+      const contextId = seasonContextIdRef.current
+      const isCurrentContext = () => seasonContextIdRef.current === contextId
+      setDeletingPlanId(id)
+      setSavedPlansError(null)
+      try {
+        await fetchJson(
+          `/api/guild-raid/season-plan?id=${encodeURIComponent(id)}`,
+          { method: 'DELETE' }
+        )
+        if (!isCurrentContext()) return
+        setSavedPlans((current) => current.filter((row) => row.id !== id))
+        if (activeSavedPlanId === id) {
+          setActiveSavedPlanId(null)
+          setActiveSavedPlan(null)
+        }
+        if (editingPlanId === id) {
+          setEditingPlanId(null)
+          setPlan(null)
+        }
+      } catch (error) {
+        if (isCurrentContext()) {
+          setSavedPlansError(
+            error instanceof Error ? error.message : 'Plan deletion refused'
+          )
+        }
+      } finally {
+        if (isCurrentContext()) setDeletingPlanId(null)
+      }
+    },
+    [canEdit, activeSavedPlanId, editingPlanId]
+  )
 
   // Seed from the browser zone once; guild_config.timezone takes over after a plan is generated.
   useEffect(() => {
@@ -533,8 +626,12 @@ export default function SeasonPlannerClient({
   }, [])
 
   useEffect(() => {
+    if (desktopMode && !canEdit) {
+      setSnapshotLoading(false)
+      return
+    }
     void loadSnapshot()
-  }, [loadSnapshot])
+  }, [loadSnapshot, desktopMode, canEdit])
 
   // Keep the active zone selectable even if the runtime does not list it.
   const timeZoneOptions = useMemo(
@@ -631,10 +728,17 @@ export default function SeasonPlannerClient({
       !swapIncomingPlayerId)
 
   useEffect(() => {
-    if (snapshot?.seasonId) {
-      void loadSavedPlans(snapshot.seasonId)
-    }
-  }, [loadSavedPlans, snapshot?.seasonId])
+    const seasonId = desktopMode
+      ? seasonConfigByNumber.get(Number(season))
+      : snapshot?.seasonId
+    if (seasonId) void loadSavedPlans(seasonId)
+  }, [
+    loadSavedPlans,
+    snapshot?.seasonId,
+    desktopMode,
+    seasonConfigByNumber,
+    season
+  ])
 
   const displayedPlan = useMemo(
     () => selectDisplayedPlan(activeSavedPlan?.plan, plan),
@@ -710,8 +814,21 @@ export default function SeasonPlannerClient({
   return (
     <div className="space-y-6">
       <PlannerHeaderCard />
+      {desktopMode && (
+        <p role="status" className="text-sm text-secondary-wh40k">
+          Saved season inputs and captured boss configuration. Calculations run
+          locally; no live API request.
+          {!canEdit &&
+            ' Members can load saved plans. Current officers and leaders can generate and edit plans.'}
+        </p>
+      )}
 
       <PlannerInputsSection
+        desktopMode={desktopMode}
+        savedSeasons={savedSeasons}
+        editingPlanId={editingPlanId}
+        planningSnapshotAt={planningSnapshotAt}
+        setSnapshotAt={setSnapshotAt}
         snapshot={snapshot}
         snapshotLoading={snapshotLoading}
         snapshotError={snapshotError}
@@ -746,7 +863,7 @@ export default function SeasonPlannerClient({
         saveSuccess={saveSuccess}
       />
 
-      {canEdit && (
+      {canEdit && !desktopMode && (
         <RosterStrategySection
           strategySeasonCount={strategySeasonCount}
           setStrategySeasonCount={setStrategySeasonCount}
@@ -781,10 +898,19 @@ export default function SeasonPlannerClient({
       )}
 
       <SavedPlansCard
+        canEdit={desktopMode && canEdit}
+        deleteSavedPlan={deleteSavedPlan}
+        deletingPlanId={deletingPlanId}
+        editSavedPlan={(id) => loadSavedPlan(id, true)}
         savedPlans={savedPlans}
         savedPlansLoading={savedPlansLoading}
         savedPlansError={savedPlansError}
-        snapshotSeasonId={snapshot?.seasonId ?? null}
+        snapshotSeasonId={
+          snapshot?.seasonId ??
+          (desktopMode
+            ? (seasonConfigByNumber.get(Number(season)) ?? null)
+            : null)
+        }
         loadSavedPlans={loadSavedPlans}
         loadSavedPlan={loadSavedPlan}
         loadingSavedPlanId={loadingSavedPlanId}

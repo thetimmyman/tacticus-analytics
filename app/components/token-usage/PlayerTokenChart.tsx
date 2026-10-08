@@ -224,9 +224,11 @@ function PlayerTokenChart({
                       title={
                         player.dataSource === 'live'
                           ? 'Live from the Tacticus API (player API key)'
-                          : player.dataSource === 'calculated'
-                            ? 'Estimated from battle history — no live API reading for this player'
-                            : undefined
+                          : player.dataSource === 'cached'
+                            ? 'Projected from the saved local snapshot; no live request'
+                            : player.dataSource === 'calculated'
+                              ? 'Estimated from battle history — no live API reading for this player'
+                              : undefined
                       }
                     >
                       Avail: {cappedAvailable(player.tokensAvailable)}

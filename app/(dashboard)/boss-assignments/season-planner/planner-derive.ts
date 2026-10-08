@@ -139,7 +139,17 @@ export function selectDisplayedPlan(
   plan: GeneratedSeasonPlanPayload | null
 ): GeneratedSeasonPlanPayload | null {
   const saved = savedPlanValue as GeneratedSeasonPlanPayload | undefined
-  if (saved && typeof saved === 'object') return saved
+  if (
+    saved &&
+    typeof saved === 'object' &&
+    typeof saved.season === 'string' &&
+    typeof saved.snapshot_at === 'string' &&
+    typeof saved.season_end_at === 'string' &&
+    saved.plan &&
+    Array.isArray(saved.plan.sessions) &&
+    saved.plan.metrics
+  )
+    return saved
   if (plan) return plan
   return null
 }

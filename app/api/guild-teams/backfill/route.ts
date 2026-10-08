@@ -2,6 +2,7 @@ import { guildRosterQuery } from '@/app/lib/data/guild-roster'
 import { NextResponse } from 'next/server'
 import { serviceDb } from '@/app/lib/db'
 import { requireRoleForApi } from '@/app/lib/auth'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 import { canManageHeraldRole } from '@/app/lib/auth/role-predicates'
 import { getPlayerApiKey } from '@tacticus/app-core/api-key-helper'
 import {
@@ -31,7 +32,20 @@ export const dynamic = 'force-dynamic'
 export const POST = withErrorHandler(async () => {
   const startTime = Date.now()
 
-  const { profile } = await requireRoleForApi('officer')
+  const desktopMode = getRuntimeProfile() === 'desktop'
+  const { profile } = await requireRoleForApi(
+    desktopMode ? 'member' : 'officer'
+  )
+  if (desktopMode) {
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          'Import your roster from API access and sync to update local team comparisons.'
+      },
+      { status: 409 }
+    )
+  }
   const guildCode = profile.guild_code
   if (!guildCode) {
     return NextResponse.json(

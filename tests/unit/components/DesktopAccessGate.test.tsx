@@ -21,15 +21,39 @@ function mount(path: string, access: object) {
   )
 }
 describe('desktop API access holding states', () => {
-  it('requires Player access for personal content', async () => {
+  it.each([
+    '/token-usage',
+    '/boss-assignments/targets',
+    '/boss-assignments/season'
+  ])(
+    'opens saved raid management at %s without live API capabilities',
+    async (path) => {
+      mount(path, { playerReady: false, guildReady: false })
+      expect(await screen.findByText('Cached content')).toBeInTheDocument()
+      expect(
+        screen.queryByText('Connect your Player API key')
+      ).not.toBeInTheDocument()
+    }
+  )
+  it('opens saved roster team comparison without live Player or Guild access', async () => {
+    mount('/guild-teams', { playerReady: false, guildReady: false })
+    expect(await screen.findByText('Cached content')).toBeInTheDocument()
+    expect(
+      screen.queryByText('Connect your Player API key')
+    ).not.toBeInTheDocument()
+  })
+  it('opens cached roster without Player access and retains live capability gates elsewhere', async () => {
     mount('/roster', { playerReady: false, guildReady: false })
+    expect(await screen.findByText('Cached content')).toBeInTheDocument()
+    cleanup()
+    mount('/achievements', { playerReady: false, guildReady: false })
     expect(
       await screen.findByText('Connect your Player API key')
     ).toBeInTheDocument()
     expect(screen.queryByText('Cached content')).not.toBeInTheDocument()
   })
   it('opens personal content and counters while keeping guild content in holding state', async () => {
-    mount('/roster', {
+    mount('/achievements', {
       playerReady: true,
       guildReady: false,
       tokens: 2,

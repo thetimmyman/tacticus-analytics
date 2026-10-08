@@ -2,6 +2,27 @@
 
 This implementation provides a signed first-party data-package host, native command facade, graphical manager, bounded local war reports and deterministic placeholder replay playback. It is a review candidate, not a qualified native release.
 
+The Linux desktop File menu opens the graphical manager in a separate sandboxed
+window. Its preload exposes only the eight fixed module commands. Main verifies
+the calling window and top frame, revalidates the current signed workspace owner
+before each operation, and closes retained views if authentication or guild
+binding changes. The manager cannot make network requests, choose filesystem
+paths, access game credentials, or invoke the broker. An invalid module policy
+leaves the core application and recovery menu usable.
+
+Linux staging bundles the manager and host with their dependencies. The default
+`addon-policy.json` has no trusted keys or approved source/rights receipts and
+therefore refuses package installation. A distributor may supply a separately
+reviewed policy with the staging configuration's absolute `addonPolicy` path.
+This does not approve a canonical decoder, source transfer, assets or live game
+protocol. Synthetic qualification uses separate ephemeral test trust material.
+
+Stopped workspace exports include retained module data and packages in the v2
+checkpoint format. The v1 core-only format remains readable. Trust configuration
+and the game vault are outside both formats; restored modules must still pass the
+installed application's current trust policy. An interrupted module transaction
+refuses export until it is recovered.
+
 ## Build and verify
 
 Use the repository's locked dependencies and Node 22.23.x. Choose an absolute output directory outside the checkout:
