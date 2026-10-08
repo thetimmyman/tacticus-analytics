@@ -6,7 +6,7 @@ import org.json.JSONObject;
 
 /** Bound nesting before the platform parser can recurse over untrusted documents. */
 final class StrictJson {
-  private static final int MAX_DOCUMENT = 4 * 1024 * 1024;
+  static final int MAX_DOCUMENT = 4 * 1024 * 1024;
   static JSONObject parse(byte[] bytes) throws Exception {
     return parse(bytes, MAX_DOCUMENT);
   }

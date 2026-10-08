@@ -690,16 +690,16 @@ public final class AndroidProof extends Instrumentation {
         // A workspace at the size limit in 3-byte UTF-8 text restores from its own backup file.
         JSONObject large = Demo.document();
         String wide = "\u6226".repeat(200);
-        JSONObject row = new JSONObject()
-                             .put("player", wide)
-                             .put("boss", wide)
-                             .put("damage", 1)
-                             .put("tokens", 1)
-                             .put("observedAt", 0);
-        org.json.JSONArray rows = large.getJSONArray("portableRaids");
+        JSONObject largeRow = new JSONObject()
+                                  .put("player", wide)
+                                  .put("boss", wide)
+                                  .put("damage", 1)
+                                  .put("tokens", 1)
+                                  .put("observedAt", 0);
+        org.json.JSONArray largeRows = large.getJSONArray("portableRaids");
         int added = (NativeBackup.MAX_PAYLOAD_CHARS - large.toString().length())
-            / (row.toString().length() + 1);
-        for (int i = 0; i < added; i++) rows.put(new JSONObject(row.toString()));
+            / (largeRow.toString().length() + 1);
+        for (int i = 0; i < added; i++) largeRows.put(new JSONObject(largeRow.toString()));
         byte[] largeFile = NativeBackup.encode(large);
         check(largeFile.length > 4 * 1024 * 1024, "Large backup fixture below the old file limit");
         check(NativeBackup
@@ -708,9 +708,9 @@ public final class AndroidProof extends Instrumentation {
                         NativeBackup.MAX_FILE_BYTES))
                     .getJSONArray("portableRaids")
                     .length()
-                == rows.length(),
+                == largeRows.length(),
             "Large backup did not restore");
-        rows.put(new JSONObject(row.toString()));
+        largeRows.put(new JSONObject(largeRow.toString()));
         rejects(() -> NativeBackup.encode(large), "Oversized workspace exported");
         check(store.totalDamage(true) == 300, "Rejected import changed data");
         JSONObject changed = Demo.document();
@@ -972,6 +972,12 @@ public final class AndroidProof extends Instrumentation {
           count.moveToFirst();
           check(count.getInt(0) == 0, "Revocation retained queue");
         }
+        final JSONObject oversized =
+            new JSONObject(large.toString()).put("status", "historical-offline");
+        final String connected = store.reference("Player");
+        rejects(() -> store.replaceDocument(oversized, false, vault), "Oversized import accepted");
+        check(connected != null && connected.equals(store.reference("Player")),
+            "Oversized import revoked credentials");
         check(store.disconnect(vault), "Secure disconnect cleanup failed");
         check(store.reference("Player") == null && store.reference("Guild") == null
                 && store.reference("Guild Raid") == null,

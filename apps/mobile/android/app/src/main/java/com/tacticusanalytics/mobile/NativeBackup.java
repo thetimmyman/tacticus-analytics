@@ -11,7 +11,7 @@ import org.json.JSONObject;
  */
 final class NativeBackup {
   /** Largest workspace a backup carries; the same limit the workspace store enforces. */
-  static final int MAX_PAYLOAD_CHARS = 4 * 1024 * 1024;
+  static final int MAX_PAYLOAD_CHARS = WorkspaceStore.MAX_DOCUMENT_CHARS;
   /**
    * Largest backup file import reads. The payload is org.json output, so it holds no raw control
    * characters: each payload char encodes to at most 3 UTF-8 bytes in the envelope (a two-byte

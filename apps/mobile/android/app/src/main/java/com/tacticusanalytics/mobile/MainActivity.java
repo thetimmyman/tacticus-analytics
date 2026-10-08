@@ -356,10 +356,13 @@ public final class MainActivity extends Activity {
               throw new Exception();
             byte[] bytes = readBounded(input);
             JSONObject envelope = StrictJson.parse(bytes, NativeBackup.MAX_FILE_BYTES);
-            JSONObject imported =
-                envelope.optString("schemaVersion").equals("android-local-backup/v1")
-                ? NativeBackup.importDocument(envelope)
-                : MobileDocument.importDocument(envelope);
+            boolean backup = envelope.optString("schemaVersion").equals("android-local-backup/v1");
+            // Only full backups need the larger file limit; portable documents keep the default.
+            if (!backup && bytes.length > StrictJson.MAX_DOCUMENT)
+              throw new Exception("Document size limit");
+            JSONObject imported = backup ? NativeBackup.importDocument(envelope)
+                                         : MobileDocument.importDocument(envelope);
+            WorkspaceStore.requireWithinLimit(imported);
             if (!imported.optString("status").equals("synthetic-demo")) {
               if (!confirmImport())
                 throw new Exception("Import refused");

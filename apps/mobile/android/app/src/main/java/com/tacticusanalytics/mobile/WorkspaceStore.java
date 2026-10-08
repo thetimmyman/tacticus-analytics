@@ -84,8 +84,7 @@ final class WorkspaceStore extends SQLiteOpenHelper {
         || (!demo && !document.has("personal")
             && !document.optString("status").equals("historical-offline")))
       throw new Exception("Player validation required");
-    if (document.toString().length() > 4 * 1024 * 1024)
-      throw new Exception("Workspace size limit");
+    requireWithinLimit(document);
     SQLiteDatabase db = getWritableDatabase();
     db.beginTransaction();
     String id = demo ? "demo" : "personal";
@@ -232,6 +231,8 @@ final class WorkspaceStore extends SQLiteOpenHelper {
   }
   synchronized void replaceDocument(JSONObject document, boolean demo, Vault vault) throws Exception {
     LocalAccess.requireUnlocked(applicationContext);
+    // Refuse a document the write would reject before cleanup revokes current access.
+    requireWithinLimit(document);
     // Cleanup changes authority, not the saved recovery target. Only a completed replacement
     // checkpoints the current data; a failed cleanup must remain safe to retry.
     if (!demo && !disconnect(vault, false))
@@ -284,6 +285,11 @@ final class WorkspaceStore extends SQLiteOpenHelper {
     // No transport or live authority adapter exists; enabling is intentionally unavailable in this
     // preview.
     return false;
+  }
+  static final int MAX_DOCUMENT_CHARS = 4 * 1024 * 1024;
+  static void requireWithinLimit(JSONObject document) throws Exception {
+    if (document.toString().length() > MAX_DOCUMENT_CHARS)
+      throw new Exception("Workspace size limit");
   }
   static void rejectSecrets(Object value, int depth) throws Exception {
     if (depth > 12)
