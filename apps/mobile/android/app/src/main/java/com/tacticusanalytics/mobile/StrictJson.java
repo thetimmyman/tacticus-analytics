@@ -6,18 +6,25 @@ import org.json.JSONObject;
 
 /** Bound nesting before the platform parser can recurse over untrusted documents. */
 final class StrictJson {
+  static final int MAX_DOCUMENT = 4 * 1024 * 1024;
   static JSONObject parse(byte[] bytes) throws Exception {
-    if (bytes.length > 4 * 1024 * 1024)
+    return parse(bytes, MAX_DOCUMENT);
+  }
+  static JSONObject parse(byte[] bytes, int limit) throws Exception {
+    if (bytes.length > limit)
       throw new Exception("Document size limit");
     String text = StandardCharsets.UTF_8.newDecoder()
                       .onMalformedInput(CodingErrorAction.REPORT)
                       .onUnmappableCharacter(CodingErrorAction.REPORT)
                       .decode(ByteBuffer.wrap(bytes))
                       .toString();
-    return parse(text);
+    return parse(text, limit);
   }
   static JSONObject parse(String text) throws Exception {
-    if (text.length() > 4 * 1024 * 1024)
+    return parse(text, MAX_DOCUMENT);
+  }
+  private static JSONObject parse(String text, int limit) throws Exception {
+    if (text.length() > limit)
       throw new Exception("Document size limit");
     boolean quoted = false, escaped = false;
     int depth = 0;
