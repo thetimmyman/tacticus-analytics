@@ -96,6 +96,18 @@ app
           config
         )
       : undefined
+    const tokenUsage = config.tokenUsage
+      ? await require('./token-usage-renderer.cjs').captureTokenUsage(
+          window,
+          config.tokenUsage
+        )
+      : undefined
+    const targetAssignments = config.targetAssignments
+      ? await require('./target-assignments-renderer.cjs').captureTargetAssignments(
+          window,
+          config.targetAssignments
+        )
+      : undefined
     console.log('renderer: read DOM')
     const renderer = await window.webContents.executeJavaScript(
       `({ text: document.body.innerText, nodeAccess: typeof require !== 'undefined' || typeof process !== 'undefined', title: document.title })`
@@ -120,6 +132,8 @@ app
           renderer,
           corePages,
           guildTeams,
+          tokenUsage,
+          targetAssignments,
           wake,
           failures,
           blocked,

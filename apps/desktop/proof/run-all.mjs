@@ -28,6 +28,7 @@ run('a-loopback-gateway', '--test', [
   'apps/desktop/proof/service-client.test.mjs',
   'apps/desktop/proof/schema-lifecycle.test.mjs',
   'apps/desktop/proof/local-team-schema.test.mjs',
+  'apps/desktop/proof/raid-management-schema.test.mjs',
   'apps/desktop/proof/safe-files.test.mjs',
   'apps/desktop/proof/workspace-selection.test.mjs',
   'apps/desktop/proof/job-scheduler.test.mjs',
@@ -187,6 +188,11 @@ if (!configPath) {
   run('c-planner-link', 'apps/desktop/proof/planner-link-journey.mjs', [
     configPath
   ])
+  if (nativeConfig.raidManagementEvidence) {
+    run('c-raid-management', 'apps/desktop/proof/raid-management-journey.mjs', [
+      configPath
+    ])
+  }
   console.log('\n== Native local profile preferences / scope / restart ==')
   run('c-profile-preferences', 'apps/desktop/proof/preferences-journey.mjs', [
     configPath

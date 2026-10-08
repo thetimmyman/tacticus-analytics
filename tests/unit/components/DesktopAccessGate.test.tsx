@@ -21,6 +21,14 @@ function mount(path: string, access: object) {
   )
 }
 describe('desktop API access holding states', () => {
+  it.each(['/token-usage', '/boss-assignments/targets'])(
+    'opens saved raid management at %s without live API capabilities',
+    async (path) => {
+      mount(path, { playerReady: false, guildReady: false })
+      expect(await screen.findByText('Cached content')).toBeInTheDocument()
+      expect(screen.queryByText('Connect your Player API key')).not.toBeInTheDocument()
+    }
+  )
   it('opens saved roster team comparison without live Player or Guild access', async () => {
     mount('/guild-teams', { playerReady: false, guildReady: false })
     expect(await screen.findByText('Cached content')).toBeInTheDocument()

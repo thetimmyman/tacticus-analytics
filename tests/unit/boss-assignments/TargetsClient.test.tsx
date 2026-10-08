@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within
+} from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import TargetsClient from '@/app/(dashboard)/boss-assignments/targets/TargetsClient'
 
@@ -72,6 +78,7 @@ function mockFetch(
   opts: { failPut?: boolean } = {}
 ) {
   fetchCalls = []
+  let savedRows = rows.map((row) => ({ ...row }))
   vi.stubGlobal(
     'fetch',
     vi.fn(async (input: string, init?: RequestInit) => {
@@ -99,7 +106,17 @@ function mockFetch(
         if (method === 'PUT' && opts.failPut) {
           return new Response('nope', { status: 500 })
         }
-        return json({ rows })
+        if (method === 'PUT') {
+          const input = JSON.parse(String(init?.body))
+          savedRows = savedRows.map((row) =>
+            row.boss_name === input.boss_name &&
+            row.encounter_id === input.encounter_id
+              ? { ...row, ...input }
+              : row
+          )
+          return json({ row: input })
+        }
+        return json({ rows: savedRows })
       }
       return json({ ok: true })
     })
@@ -138,6 +155,96 @@ beforeEach(() => mockFetch([targetRow({})]))
 afterEach(() => vi.unstubAllGlobals())
 
 describe('TargetsClient', () => {
+  it('shows saved actual-token comparisons in the expanded narrow layout', async () => {
+    renderClient({
+      desktopMode: true,
+      perBossActuals: {
+        Magnus__Mythic__1__0: {
+          season: '102',
+          tokensToKill: 8.25,
+          sampleCount: 3
+        }
+      }
+    })
+    fireEvent.click(await findGroupHeader())
+    const reset = screen.getByRole('button', {
+      name: 'Reset target for Magnus the Red'
+    })
+    const row = reset.parentElement!
+    expect(within(row).getByText('actual ≈ 8.3')).toHaveAttribute(
+      'title',
+      'Recent guild actual: 8.3 tokens to kill (S102, 3 attacks)'
+    )
+  })
+
+  it('lets an officer skip a prime from the narrow layout and reloads that saved state', async () => {
+    mockFetch([targetRow({ encounter_id: 1 })])
+    renderClient()
+    fireEvent.click(await findGroupHeader())
+    fireEvent.click(
+      screen.getByRole('checkbox', { name: 'Skip target for Abraxas' })
+    )
+    await waitFor(() =>
+      expect(
+        screen.getByRole('checkbox', { name: 'Skip target for Abraxas' })
+      ).toBeChecked()
+    )
+    expect(screen.getAllByText(/Skipped/).length).toBeGreaterThan(0)
+  })
+
+  it('retains the saved note and edit draft after a refused note write', async () => {
+    mockFetch([targetRow({ notes: 'Original target note' })], { failPut: true })
+    renderClient()
+    await findGroupHeader()
+    fireEvent.click(
+      (
+        await screen.findAllByRole('button', {
+          name: 'Edit target notes for Magnus the Red'
+        })
+      )[0]!
+    )
+    fireEvent.change(
+      screen.getByRole('textbox', { name: 'Target notes for Magnus the Red' }),
+      { target: { value: 'Rejected draft' } }
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Save target notes' }))
+    await waitFor(() =>
+      expect(screen.getAllByRole('alert').length).toBeGreaterThan(0)
+    )
+    expect(
+      screen.getByRole('textbox', { name: 'Target notes for Magnus the Red' })
+    ).toHaveValue('Rejected draft')
+    expect(
+      screen.queryByText('Rejected draft', { selector: 'p' })
+    ).not.toBeInTheDocument()
+  })
+
+  it('edits target notes through the hydrated interface and reloads the saved note', async () => {
+    mockFetch([targetRow({ notes: 'Original target note' })])
+    renderClient()
+    await findGroupHeader()
+    fireEvent.click(
+      (
+        await screen.findAllByRole('button', {
+          name: 'Edit target notes for Magnus the Red'
+        })
+      )[0]!
+    )
+    fireEvent.change(
+      screen.getByRole('textbox', { name: 'Target notes for Magnus the Red' }),
+      { target: { value: 'Use the saved anti-boss team' } }
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Save target notes' }))
+    await waitFor(() =>
+      expect(
+        screen.getAllByText('Use the saved anti-boss team').length
+      ).toBeGreaterThan(0)
+    )
+    expect(
+      screen.queryByRole('textbox', { name: 'Target notes for Magnus the Red' })
+    ).not.toBeInTheDocument()
+  })
+
   it('groups the stage into one accordion card with a token total', async () => {
     mockFetch([
       targetRow({ encounter_id: 0, target_tokens: 22 }),

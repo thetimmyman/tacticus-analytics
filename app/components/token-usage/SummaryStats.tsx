@@ -25,13 +25,14 @@ function SummaryStats({
 }: SummaryStatsProps) {
   const dataSourceStats = useMemo(() => {
     const liveCount = players.filter((p) => p.dataSource === 'live').length
+    const cachedCount = players.filter((p) => p.dataSource === 'cached').length
     const calculatedCount = players.filter(
       (p) => p.dataSource === 'calculated'
     ).length
     const defaultCount = players.filter(
       (p) => !p.dataSource || p.dataSource === 'default'
     ).length
-    return { liveCount, calculatedCount, defaultCount }
+    return { liveCount, cachedCount, calculatedCount, defaultCount }
   }, [players])
 
   const avgRegenSeconds = useMemo(() => {
@@ -152,6 +153,12 @@ function SummaryStats({
           <span className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-yellow-500" />
             {dataSourceStats.calculatedCount} Estimated
+          </span>
+        )}
+        {dataSourceStats.cachedCount > 0 && (
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-blue-500" />
+            {dataSourceStats.cachedCount} Cached
           </span>
         )}
         {dataSourceStats.defaultCount > 0 && (

@@ -94,9 +94,18 @@ async function fetchBattleHistory(
   const response = await fetch(`/api/members/token-usage/battles?${params}`, {
     signal
   })
-  if (!response.ok) return []
+  if (!response.ok) {
+    if (process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop')
+      throw new Error('Saved battle history is unavailable')
+    return []
+  }
   const body = (await response.json()) as unknown
-  return Array.isArray(body) ? (body as BattleDataRow[]) : []
+  if (!Array.isArray(body)) {
+    if (process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop')
+      throw new Error('Saved battle history is malformed')
+    return []
+  }
+  return body as BattleDataRow[]
 }
 
 // /api/guild-tokens: the same source as GR Availability and the Discord /tokens overview.
@@ -107,9 +116,17 @@ async function fetchGuildTokens(
 ): Promise<GuildTokenAvailabilityRow[]> {
   const params = new URLSearchParams({ guild: guildCode, season })
   const response = await fetch(`/api/guild-tokens?${params}`, { signal })
-  if (!response.ok) return []
+  if (!response.ok) {
+    if (process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop')
+      throw new Error('Saved token availability is unavailable')
+    return []
+  }
   const body = (await response.json()) as { players?: unknown }
-  if (!body || !Array.isArray(body.players)) return []
+  if (!body || !Array.isArray(body.players)) {
+    if (process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop')
+      throw new Error('Saved token availability is malformed')
+    return []
+  }
   // TokenUsage passes these rows on to GRAvailability to avoid a second request.
   return body.players as GuildTokenAvailabilityRow[]
 }
@@ -150,6 +167,7 @@ async function fetchTokenUsageData(
   const supabase = dbClient()
   const useRpc = process.env.NEXT_PUBLIC_ENABLE_TOKEN_USAGE_RPC !== 'false'
   const normalizedGuild = normalizeGuildIdentifier(guildCode)
+  const desktop = process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop'
 
   const currentSeasonNum = Number.parseInt(season, 10)
 
@@ -172,7 +190,7 @@ async function fetchTokenUsageData(
 
   const past5Seasons = Array.from({ length: 5 }, (_, i) =>
     (currentSeasonNum - 1 - i).toString()
-  )
+  ).filter((value) => Number(value) > 0)
   const allSeasons = [season, ...past5Seasons]
   const activeRarities =
     selectedRarities.length > 0 ? selectedRarities : DEFAULT_RARITIES
@@ -185,22 +203,34 @@ async function fetchTokenUsageData(
     forecastEnvelope,
     outlookResponse
   ] = await Promise.all([
-    useRpc && normalizedGuild
+    desktop
       ? (async () => {
-          try {
-            const r = await supabase.rpc('get_token_usage_for_guild', {
-              p_guild_code: normalizedGuild,
-              p_season: season
-            })
-            return r.error ? null : r.data
-          } catch {
-            return null
-          }
+          const params = new URLSearchParams({ guild: normalizedGuild, season })
+          const response = await fetch(`/api/members/token-usage?${params}`, {
+            signal
+          })
+          if (!response.ok) throw new Error('Saved token usage is unavailable')
+          const rows: unknown = await response.json()
+          if (!Array.isArray(rows))
+            throw new Error('Saved token usage is malformed')
+          return rows
         })()
-      : Promise.resolve(null),
+      : useRpc && normalizedGuild
+        ? (async () => {
+            try {
+              const r = await supabase.rpc('get_token_usage_for_guild', {
+                p_guild_code: normalizedGuild,
+                p_season: season
+              })
+              return r.error ? null : r.data
+            } catch {
+              return null
+            }
+          })()
+        : Promise.resolve(null),
 
     fetchGuildTokens(normalizedGuild, season, signal).catch((error) => {
-      if (isAbortError(error)) throw error
+      if (desktop || isAbortError(error)) throw error
       return [] as GuildTokenAvailabilityRow[]
     }),
 
@@ -518,7 +548,13 @@ async function fetchTokenUsageData(
     totalStats,
     availabilityRows: availabilityRaw,
     forecast,
-    outlook: outlookProjection ?? null
+    outlook: outlookProjection ?? null,
+    computedAt:
+      desktop && Array.isArray(rpcRawData)
+        ? ((rpcRawData as Array<{ computed_at?: string }>).find(
+            (row) => row.computed_at
+          )?.computed_at ?? null)
+        : null
   }
 }
 
@@ -530,6 +566,8 @@ export function useTokenUsageData({
   enableForecast = false
 }: UseTokenUsageDataOptions) {
   const normalizedGuild = normalizeGuildIdentifier(guildCode)
+  const forecastEnabled =
+    enableForecast && process.env.NEXT_PUBLIC_RUNTIME_PROFILE !== 'desktop'
   const raritiesKey = [...selectedRarities].sort().join(',')
 
   const query = useQuery({
@@ -538,14 +576,14 @@ export function useTokenUsageData({
       normalizedGuild,
       season,
       raritiesKey,
-      enableForecast ? 'forecast' : 'no-forecast'
+      forecastEnabled ? 'forecast' : 'no-forecast'
     ],
     queryFn: async ({ signal }) => {
       return fetchTokenUsageData(
         normalizedGuild,
         season,
         selectedRarities,
-        enableForecast,
+        forecastEnabled,
         signal
       )
     },
@@ -569,6 +607,7 @@ export function useTokenUsageData({
     outlook: query.data?.outlook ?? (null as SeasonOutlookProjection | null),
     loading: query.isLoading,
     error: query.error,
+    computedAt: query.data?.computedAt ?? null,
     refetch: query.refetch,
     streamStatus: 'idle' as const
   }

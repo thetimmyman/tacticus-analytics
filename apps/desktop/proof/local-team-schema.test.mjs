@@ -60,7 +60,14 @@ test('every admitted prior schema upgrades directly to the exact current bytes',
     )
     assert.equal(entry.to, target)
     assert.equal(entry.sha256, digest(sql))
-    assert.equal(statement(sql), statement(canonical.toString()))
-    assert.equal(sql.split('CREATE ROLE desktop_team_reader ').length - 1, 1)
+    if (entry.from === '62875299367a965d8ec5596d3a4b5aaa28b091cd5b36f3cabd3fe1f208a0c952') {
+      // This installed schema already contains the team projection and role.
+      // Its next migration must retain them without trying to create them twice.
+      assert.equal(statement(sql), undefined)
+      assert.equal(sql.split('CREATE ROLE desktop_team_reader ').length - 1, 0)
+    } else {
+      assert.equal(statement(sql), statement(canonical.toString()))
+      assert.equal(sql.split('CREATE ROLE desktop_team_reader ').length - 1, 1)
+    }
   }
 })
