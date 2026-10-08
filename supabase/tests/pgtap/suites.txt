@@ -59,7 +59,7 @@ claim_definer_public_revoke.sql # 9
 cron_history_privileges.sql # 10
 remaining_definer_public_revoke.sql # 22
 policy_rows_trusted_caller.sql # 24
-readonly_request_transaction.sql # 9
+readonly_request_transaction.sql # 14
 role_statement_and_idle_timeouts.sql # 14
 guild_latest_raid_index.sql # 8
 global_leaderboard_retired.sql # 5

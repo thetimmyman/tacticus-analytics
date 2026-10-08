@@ -48,7 +48,7 @@
     "test": "vitest run",
     "test:e2e:signin": "playwright test tests/e2e/auth-form-login.spec.ts",
     "test:pgtap:controls": "bash scripts/dev/pgtap-negative-controls.sh && node scripts/dev/pgtap-controls/remaining-definer-rollback.mjs && node scripts/dev/pgtap-controls/policy-caller-boundary.mjs && node scripts/dev/pgtap-controls/cron-history-privileges.mjs",
-    "test:pgtap": "bash scripts/dev/pgtap-throwaway.sh --roster supabase/tests/pgtap/suites.txt",
+    "test:pgtap": "bash scripts/dev/pgtap-throwaway.sh --roster supabase/tests/pgtap/suites.txt && python3 scripts/testing/postgrest-readonly/run.py",
     "test:integration:replay": "bash scripts/dev/integration-replay-stack.sh",
     "test:edge": "deno test --no-config --allow-env --allow-read --allow-write supabase/functions",
     "test:watch": "vitest",
