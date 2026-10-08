@@ -34,6 +34,7 @@ import {
 import { normalizeGuildIdentifier } from '@/app/lib/format/guild'
 import { cappedAvailable } from '@/app/lib/calculations/token-burn'
 import { useGuildDisplayLabel } from '@/app/lib/hooks/useGuildDisplayLabel'
+import { CachedTokenAvailability } from './token-usage/CachedTokenAvailability'
 
 interface TokenUsagePageProps {
   selectedGuild: string
@@ -51,6 +52,7 @@ function TokenUsage({
   useAsyncPerformance()
   useMemoryMonitor('TokenUsage', 70)
   const guildDisplayLabel = useGuildDisplayLabel(selectedGuild)
+  const desktop = process.env.NEXT_PUBLIC_RUNTIME_PROFILE === 'desktop'
 
   if (process.env.NODE_ENV === 'development') {
     logRender('TokenUsage')
@@ -74,7 +76,9 @@ function TokenUsage({
     outlook,
     availabilityRows,
     loading,
-    refetch
+    refetch,
+    error,
+    computedAt
   } = useTokenUsageData({
     guildCode: normalizedGuild,
     season: selectedSeason,
@@ -115,15 +119,21 @@ function TokenUsage({
   if (!players || players.length === 0) {
     return (
       <EmptyState
-        title="No Token Usage Data"
-        description={`We haven't collected any token usage for ${guildDisplayLabel} in Season ${selectedSeason} yet. Once members sync their data, you'll see the breakdown here.`}
+        title={error ? 'Token usage unavailable' : 'No Token Usage Data'}
+        description={
+          desktop
+            ? error
+              ? 'Saved token data could not be read. Your stored data is preserved. Reopen the app or retry.'
+              : `No saved token usage for ${guildDisplayLabel} in Season ${selectedSeason}. Import raid history through API access and sync.`
+            : `We haven't collected any token usage for ${guildDisplayLabel} in Season ${selectedSeason} yet. Once members sync their data, you'll see the breakdown here.`
+        }
         action={
           <button
             type="button"
             onClick={() => refetch()}
             className="rounded-sm border border-(--card-border) bg-(--card-bg) px-4 py-2 text-sm font-medium text-primary-wh40k transition hover:bg-(--bg-tertiary)"
           >
-            Retry sync
+            {desktop ? 'Retry saved data' : 'Retry sync'}
           </button>
         }
       />
@@ -134,6 +144,12 @@ function TokenUsage({
 
   return (
     <div className="container-modern py-6 space-y-6">
+      {desktop && error && (
+        <p role="alert">
+          Saved data could not be refreshed. Showing the previous saved
+          calculation; retry or reopen the app.
+        </p>
+      )}
       {showForecast && (
         <div
           className="flex w-fit overflow-hidden rounded-lg border border-(--card-border)"
@@ -215,11 +231,21 @@ function TokenUsage({
             />
           </div>
 
-          <GRAvailability
-            guildCode={normalizedGuild}
-            season={selectedSeason}
-            initialTokenRows={availabilityRows}
-          />
+          {desktop ? (
+            <CachedTokenAvailability
+              rows={availabilityRows}
+              computedAt={computedAt}
+              refresh={() => {
+                void refetch()
+              }}
+            />
+          ) : (
+            <GRAvailability
+              guildCode={normalizedGuild}
+              season={selectedSeason}
+              initialTokenRows={availabilityRows}
+            />
+          )}
           <BossDistributionChart bossDistribution={bossDistribution} />
 
           <PlayerTokenChart

@@ -143,11 +143,25 @@ app
             config.verify.addons
           )
         : undefined
+      const tokenUsage = config.verify.tokenUsage
+        ? await require('../proof/token-usage-renderer.cjs').captureTokenUsage(
+            window,
+            config.verify.tokenUsage
+          )
+        : undefined
+      const targetAssignments = config.verify.targetAssignments
+        ? await require('../proof/target-assignments-renderer.cjs').captureTargetAssignments(
+            window,
+            config.verify.targetAssignments
+          )
+        : undefined
       const evidence = {
         setupMode,
         observed,
         corePages,
         addons,
+        tokenUsage,
+        targetAssignments,
         deviceSession: true,
         wake,
         failures,

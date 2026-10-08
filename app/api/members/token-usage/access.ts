@@ -4,6 +4,7 @@ import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { normalizeGuildIdentifier } from '@/app/lib/format/guild'
 import { GuildConfigService } from '@/app/lib/services/guild-config-service'
 import { canManageHeraldRole } from '@/app/lib/auth/role-predicates'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 
 const DEFAULT_AUTH_TIMEOUT_MS = 2000
 
@@ -19,10 +20,10 @@ export async function requireTokenUsageGuildAccess(
   requestedGuild: string,
   options: { authTimeoutMs?: number } = {}
 ) {
-  const profile = await loadTokenUsageProfile(
+  const { profile, authClient } = await loadTokenUsageProfile(
     options.authTimeoutMs ?? DEFAULT_AUTH_TIMEOUT_MS
   )
-  const supabase = serviceDb()
+  const supabase = getRuntimeProfile() === 'desktop' ? authClient : serviceDb()
   const guildConfig = await GuildConfigService.getBasic(
     supabase,
     requestedGuild
@@ -69,9 +70,7 @@ export async function requireTokenUsageGuildAccess(
   }
 }
 
-async function loadTokenUsageProfile(
-  timeoutMs: number
-): Promise<TokenUsageAccessProfile> {
+async function loadTokenUsageProfile(timeoutMs: number) {
   try {
     return await Promise.race([
       loadProfile(),
@@ -87,7 +86,7 @@ async function loadTokenUsageProfile(
   }
 }
 
-async function loadProfile(): Promise<TokenUsageAccessProfile> {
+async function loadProfile() {
   const authClient = await db()
   const user = await requireSessionUser(authClient, () =>
     Errors.fromResponse(401, { error: 'Authentication required' })
@@ -97,6 +96,7 @@ async function loadProfile(): Promise<TokenUsageAccessProfile> {
     .from('player_with_cluster')
     .select('player_id, guild_code, role, cluster_code')
     .eq('user_id', user.id)
+    .eq('is_current', true)
     .single()
 
   if (profileError || !profileData) {
@@ -110,8 +110,6 @@ async function loadProfile(): Promise<TokenUsageAccessProfile> {
     throw Errors.fromResponse(403, { error: 'Guild association required' })
   }
 
-  return {
-    ...profileData,
-    role
-  }
+  const profile: TokenUsageAccessProfile = { ...profileData, role }
+  return { profile, authClient }
 }

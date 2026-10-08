@@ -12,6 +12,8 @@ import {
 } from '@/app/(dashboard)/boss-assignments/_lib/season-window'
 import { loadTargetsOpsSlice } from './_lib/load-targets-ops-slice'
 import TargetsClient from './TargetsClient'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
+import { parseSeasonParam } from '@/app/lib/boss-assignments/target-token-season'
 
 // Per-request rendering so a `?season=` change re-runs this component.
 export const dynamic = 'force-dynamic'
@@ -33,6 +35,13 @@ export default async function TargetTokensPage({ searchParams }: PageProps) {
   const guildCode = profile.guild_code ?? ''
   const params = await searchParams
   const seasonOverride = params.season ?? null
+  const desktopMode = getRuntimeProfile() === 'desktop'
+  if (seasonOverride !== null && parseSeasonParam(seasonOverride) === null)
+    return (
+      <EmptyState title="Invalid season">
+        Choose a positive season number before editing targets.
+      </EmptyState>
+    )
 
   const supabase = await db()
   // Live actuals for the tooltip (non-fatal), anchored on the cluster's latest season.
@@ -71,15 +80,31 @@ export default async function TargetTokensPage({ searchParams }: PageProps) {
 
   const clusterLatestSeasonNumber = Number.parseInt(clusterLatestSeason, 10)
 
+  const savedSeasons = desktopMode
+    ? ((
+        await supabase.rpc('get_distinct_seasons_for_guild', {
+          p_guild: guildCode
+        })
+      ).data ?? [])
+    : []
   const windowSeasonNumbers = buildSeasonWindowNumbers(
-    SEASON_WINDOW_OFFSETS.map(
-      (offset) => getSeasonConfigIdForOffset(offset).seasonNumber
-    ),
+    desktopMode
+      ? savedSeasons.map(Number)
+      : SEASON_WINDOW_OFFSETS.map(
+          (offset) => getSeasonConfigIdForOffset(offset).seasonNumber
+        ),
     selectedSeason
   )
   const seasonOptions = buildSeasonWindowOptions(
     windowSeasonNumbers,
     clusterLatestSeasonNumber
+  ).map((option) =>
+    desktopMode
+      ? {
+          ...option,
+          label: `${savedSeasons.includes(option.value) ? 'Saved · ' : ''}S${option.value}`
+        }
+      : option
   )
 
   // Runs after the season guard; gated on `canManageHerald`.
@@ -94,9 +119,10 @@ export default async function TargetTokensPage({ searchParams }: PageProps) {
       guildCode={guildCode}
       perBossActuals={perBossActuals}
       canEdit={canEdit}
-      canSeed={canSeed}
+      canSeed={!desktopMode && canSeed}
       opsSlice={opsSlice}
-      canManageHerald={canManageHerald}
+      canManageHerald={!desktopMode && canManageHerald}
+      desktopMode={desktopMode}
       // Uses the cluster anchor; the hub's rotation math would disagree on a lagging cluster.
       isCurrentSeason={selectedSeason === clusterLatestSeason}
       seasonOptions={seasonOptions}

@@ -1,7 +1,7 @@
 {
   "format": "ta-update-configuration-v1",
-  "version": "0.0.0-preview4",
-  "sequence": 4,
+  "version": "0.0.0-preview5",
+  "sequence": 5,
   "channel": "private-preview",
   "platform": "linux-x64",
   "packageName": "tacticus-analytics-preview",
