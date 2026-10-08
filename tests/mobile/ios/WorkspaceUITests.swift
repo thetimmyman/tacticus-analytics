@@ -2,6 +2,10 @@ import XCTest
 
 final class WorkspaceUITests: XCTestCase {
     override func setUpWithError() throws { continueAfterFailure = false }
+    private func waitForHittable(_ element: XCUIElement) {
+        let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "hittable == true"), object: element)
+        XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 15), .completed)
+    }
     func testInstalledSyntheticOfflineWriteAndProcessRelaunch() throws {
         let app = XCUIApplication(); app.launchArguments = ["--synthetic-demo"]; app.launch()
         XCTAssertTrue(app.staticTexts["workspace-mode"].waitForExistence(timeout: 15))
@@ -35,6 +39,10 @@ final class WorkspaceUITests: XCTestCase {
         app.secureTextFields["secure-official-key"].tap()
         app.secureTextFields["secure-official-key"].typeText("synthetic-ui-input")
         XCUIDevice.shared.press(.home); app.activate()
+        // Foreground activation can return while the protected store is reopening and
+        // the privacy veil still covers the previous accessibility tree.
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15))
+        waitForHittable(app.buttons["connect-all"])
         XCTAssertFalse(app.secureTextFields["secure-official-key"].exists)
         app.buttons["connect-all"].tap()
         XCTAssertTrue(app.secureTextFields["secure-official-key"].waitForExistence(timeout: 5))
@@ -42,6 +50,8 @@ final class WorkspaceUITests: XCTestCase {
         app.buttons["Skip"].tap()
         XCTAssertFalse(app.secureTextFields["secure-official-key"].exists)
         XCUIDevice.shared.press(.home); app.activate()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15))
+        waitForHittable(app.buttons["connect-all"])
         XCTAssertTrue(app.staticTexts["analytics"].exists)
     }
 }
