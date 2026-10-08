@@ -78,4 +78,6 @@ INSERT INTO supabase_migrations.schema_migrations (version, name)
 VALUES ('20261008030000', 'adopt_player_api_key_strike_counter')
 ON CONFLICT (version) DO NOTHING;
 
+NOTIFY pgrst, 'reload schema';
+
 COMMIT;
