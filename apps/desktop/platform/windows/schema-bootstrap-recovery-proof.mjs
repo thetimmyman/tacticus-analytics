@@ -13,6 +13,7 @@ import { release } from 'node:os'
 import { setTimeout as delay } from 'node:timers/promises'
 import { nativeServices } from './services.mjs'
 import { nativeCommand } from './native-command.mjs'
+import { nodeLaunchDiagnostic } from './launch-diagnostic.mjs'
 
 const refused = () =>
   Object.assign(new Error('Installed Windows schema recovery proof refused'), {
@@ -209,6 +210,8 @@ export async function windowsSchemaRecoveryProof(
     services,
     retiredBlocker,
     admission
+  let failedSubstep = 'not-applicable',
+    primaryFailed = false
   const observations = {}
   try {
     requireProof(
@@ -339,6 +342,7 @@ export async function windowsSchemaRecoveryProof(
       observations.actualMarkerPublicationRefused = true
     }
     stage = 'same-workspace-recovery'
+    failedSubstep = 'recovery-native-startup'
     let recoveryBootstrapCalls = 0
     services = await nativeServices(config, {
       completeSchema: ({ preparation, psql }) =>
@@ -347,24 +351,36 @@ export async function windowsSchemaRecoveryProof(
           return psql(sql)
         })
     })
+    failedSubstep = 'recovery-bootstrap-count'
     requireProof(
       recoveryBootstrapCalls === (scenario === 'interrupted-bootstrap' ? 1 : 0)
     )
+    // These are the same ordered, short-circuit conservation checks. Fixed
+    // failure labels distinguish their boundary without exporting values.
+    failedSubstep = 'recovery-receipt'
+    requireProof((await comment(services.psql)) === expectedReceipt)
+    failedSubstep = 'recovery-marker'
     requireProof(
-      (await comment(services.psql)) === expectedReceipt &&
-        (await readFile(join(config.state, 'schema-version'), 'utf8')) ===
-          target &&
-        (await absent(join(config.state, 'schema-bootstrap.json'))) &&
-        (await credentialsHash(config.state)) === credentialBefore
+      (await readFile(join(config.state, 'schema-version'), 'utf8')) === target
     )
+    failedSubstep = 'recovery-journal'
+    requireProof(await absent(join(config.state, 'schema-bootstrap.json')))
+    failedSubstep = 'recovery-credentials'
+    requireProof((await credentialsHash(config.state)) === credentialBefore)
+    failedSubstep = 'recovery-postgres-version'
     const postgresVersion = await scalar(services.psql, 'SHOW server_version;')
     requireProof(postgresVersion === '18.6')
     if (scenario === 'interrupted-bootstrap') {
+      failedSubstep = 'recovery-seed'
       await seed(services.psql)
+      failedSubstep = 'recovery-seed-data'
       dataBefore = await dataHash(services.psql)
     }
+    failedSubstep = 'recovery-data-conservation'
     requireProof((await dataHash(services.psql)) === dataBefore)
+    failedSubstep = 'recovery-stack-stop'
     await services.stop()
+    failedSubstep = 'not-applicable'
     stage = 'second-open-conservation'
     let secondOpenBootstrapCalls = 0
     services = await nativeServices(config, {
@@ -415,7 +431,8 @@ export async function windowsSchemaRecoveryProof(
       ),
       { flag: 'wx', mode: 0o600 }
     )
-  } catch {
+  } catch (error) {
+    primaryFailed = true
     await writeFile(
       evidence + '.failure.json',
       JSON.stringify({
@@ -425,12 +442,21 @@ export async function windowsSchemaRecoveryProof(
         completed: false,
         scenario,
         stage,
+        failedSubstep,
+        ...(failedSubstep === 'recovery-native-startup'
+          ? { startupDiagnostic: nodeLaunchDiagnostic(error) }
+          : {}),
         ...admission
       }),
       { flag: 'wx', mode: 0o600 }
     ).catch(() => {})
     throw refused()
   } finally {
-    await services?.stop()
+    try {
+      await services?.stop()
+    } catch (error) {
+      // Cleanup still runs; it cannot replace an already recorded refusal.
+      if (!primaryFailed) throw error
+    }
   }
 }
