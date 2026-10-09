@@ -1,6 +1,7 @@
 /** Per (player, boss) token performance for the badges on /boss-assignments and /upcoming. */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 import {
   rethrowIfAuthError,
   withErrorHandler
@@ -18,6 +19,21 @@ const logger = createComponentLogger('api.upcoming.token-performance')
 export const dynamic = 'force-dynamic'
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
+  if (
+    getRuntimeProfile() === 'desktop' &&
+    request.nextUrl.searchParams.has('view')
+  ) {
+    const { readSavedTokenPerformance } =
+      await import('@/app/lib/boss-assignments/saved-token-performance')
+    return NextResponse.json(
+      await readSavedTokenPerformance({
+        params: request.nextUrl.searchParams,
+        body: request.body,
+        signal: request.signal
+      }),
+      { headers: { 'Cache-Control': 'no-store' } }
+    )
+  }
   try {
     const authData = await requireRoleForApi('officer')
     const profile = authData.profile
