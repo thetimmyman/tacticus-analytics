@@ -72,22 +72,14 @@ final class NativeBackup {
       throw new Exception("Unsupported workspace");
     if (state.has("personal")) {
       JSONObject player = state.getJSONObject("personal");
-      Set<String> playerFields = new java.util.HashSet<>(java.util.Arrays.asList(
-          "displayName", "powerLevel", "roster", "inventory", "progress", "upstreamUpdatedAt"));
-      Iterator<String> keys = player.keys();
-      while (keys.hasNext())
-        if (!playerFields.contains(keys.next()))
-          throw new Exception("Unknown personal field");
-      if (!(player.get("displayName") instanceof String))
-        throw new Exception("Invalid Player name");
-      player.getString("displayName");
-      player.getJSONArray("roster");
-      player.getLong("upstreamUpdatedAt");
-      if (player.has("inventory"))
-        player.getJSONObject("inventory");
-      if (player.has("progress"))
-        player.getJSONObject("progress");
-      MobileDocument.export(state);
+      PlayerCache cache = PlayerCache.read(player);
+      if (cache.complete) {
+        JSONObject portableOnly = new JSONObject(state.toString());
+        portableOnly.remove("personal");
+        MobileDocument.export(portableOnly);
+      } else {
+        MobileDocument.export(state);
+      }
     }
   }
   private static String digest(String payload) throws Exception {

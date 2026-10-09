@@ -61,32 +61,14 @@ final class Onboarding {
           expireHandle(handle);
           throw new Expired();
         }
-        JSONObject raw = response.getJSONObject("player");
-        String name = text(raw.getJSONObject("details"), "name");
-        integer(raw.getJSONObject("details"), "powerLevel");
-        JSONArray units = raw.getJSONArray("units");
-        for (int i = 0; i < units.length(); i++) {
-          JSONObject unit = units.getJSONObject(i);
-          text(unit, "id");
-          integer(unit, "rank");
-          integer(unit, "xpLevel");
-        }
-        raw.getJSONObject("inventory");
-        raw.getJSONObject("progress");
+        player = PlayerCache.project(response).personal();
+        String name = player.getString("displayName");
         if (previous.has("personal")
             && !previous.getJSONObject("personal").getString("displayName").equals(name))
           throw new Exception("Display name changed; separate account review required. No stable "
               + "Player identity is exposed upstream");
         if (!confirmation.confirm(name))
           throw new Exception("Player confirmation refused");
-        player = new JSONObject()
-                     .put("displayName", name)
-                     .put("powerLevel", raw.getJSONObject("details").getInt("powerLevel"))
-                     .put("roster", raw.getJSONArray("units"))
-                     .put("inventory", raw.getJSONObject("inventory"))
-                     .put("progress", raw.getJSONObject("progress"))
-                     .put("upstreamUpdatedAt",
-                         Math.multiplyExact(metadata.getLong("lastUpdatedOn"), 1000));
         guildRequested = guildRequested && contains(scopes, "Guild");
         raidRequested =
             raidRequested && contains(scopes, "Guild Raid") && contains(scopes, "Guild");
@@ -181,8 +163,11 @@ final class Onboarding {
       JSONObject latest = store.read(false);
       if (latest.has("portableRaids"))
         current.put("portableRaids", latest.getJSONArray("portableRaids"));
-      // Refuse upstream data the portable contract cannot carry before it replaces retained data.
-      MobileDocument.export(current);
+      // Full Player data and the reduced portable format have separate supported ranges.
+      PlayerCache.read(current.getJSONObject("personal"));
+      JSONObject portableOnly = new JSONObject(current.toString());
+      portableOnly.remove("personal");
+      MobileDocument.export(portableOnly);
       store.commit(current, false, references, expectedGeneration);
       retained = references.length() > 0;
       vault.sweep(store.referencedHandles());
