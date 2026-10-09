@@ -12,8 +12,28 @@ internal static class Program
         try
         {
             if (args.Length == 0) throw new InvalidOperationException("Choose run-candidate, install-candidate, rollback, native-proof or official onboarding");
+            var package = PackageRuntime.Current();
+            if (package is not null && PackageRuntime.IsUnpackagedOnlyVerb(args[0]))
+                throw new InvalidOperationException("Operation unavailable in the packaged runtime");
             switch (args[0])
             {
+                case "run-msix" when package is not null:
+                    return RunCandidate(package.Payload, Installation.Workspace, args.Skip(1));
+                case "run-msix-qualified" when package is not null && args.Length >= 2:
+                    return RunCandidate(package.Payload, QualifiedWorkspace(args[1]), args.Skip(2));
+                case "package-integrity-proof" when package is not null && args.Length == 2:
+                {
+                    using var job = new JobOwner();
+                    using var child = job.Start(Environment.ProcessPath!,
+                        new[] { "proof-package-mutation", package.Payload, Path.GetFullPath(args[1]) },
+                        package.Payload, removeAdministrativeAccess: true);
+                    if (child.Wait() != 0) throw new InvalidOperationException("Package integrity proof failed");
+                    return 0;
+                }
+                case "proof-package-mutation" when package is not null && args.Length == 3:
+                    if (!string.Equals(Path.GetFullPath(args[1]), package.Payload, StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidOperationException("Package proof payload is invalid");
+                    PackageMutationProof.Run(package.Payload, args[2]); return 0;
                 case "install": Bundle.RequireProductionTrust(); return 1;
                 case "setup-candidate" when args.Length == 2: Installation.Setup(Path.GetFullPath(args[1])); return 0;
                 case "uninstall-candidate": Installation.Uninstall(); return 0;
@@ -38,24 +58,7 @@ internal static class Program
                 case "rollback" when args.Length == 2:
                     Console.WriteLine(Bundle.Active(Path.GetFullPath(args[1]), true)); return 0;
                 case "run-candidate" when args.Length >= 3:
-                {
-                    var root = Path.GetFullPath(args[1]);
-                    Bundle.Verify(root, Bundle.Load(root));
-                    using var state = new ProtectedState(args[2]);
-                    using var job = new JobOwner();
-                    var script = Path.Combine(root, "apps", "desktop", "platform", "windows", "launch.mjs");
-                    var postgresHome = RuntimePaths.AsciiDirectory(Path.Combine(root, "postgres"));
-                    var command = new[] { script, "--state", state.Root, "--postgres-home", postgresHome }.Concat(args.Skip(3));
-                    var timer = Stopwatch.StartNew();
-                    using var process = job.Start(Path.Combine(root, "bin", "node.exe"), command, root, removeAdministrativeAccess: true);
-                    var code = process.Wait();
-                    var measurement = Array.IndexOf(args, "--measurement");
-                    if (measurement >= 0 && measurement + 1 < args.Length)
-                        File.WriteAllText(args[measurement + 1], JsonSerializer.Serialize(new { sourceSha = Bundle.Load(root).SourceSha,
-                            elapsedMs = timer.ElapsedMilliseconds, peakJobCommittedBytes = job.PeakCommittedBytes() is var peak && peak > 0 ? (long?)peak : null, exitCode = code,
-                            metric = "Windows Job Object peak committed memory; not RSS" }));
-                    return code;
-                }
+                    return RunCandidate(Path.GetFullPath(args[1]), args[2], args.Skip(3));
                 case "prompt-official" when args.Length is 1 or 2:
                     Console.WriteLine(JsonSerializer.Serialize(new { handle = Vault.PromptOfficial(args.Length == 2 ? args[1] : null) })); return 0;
                 case "read-official" when args.Length == 3:
@@ -98,6 +101,7 @@ internal static class Program
                         catch (UnauthorizedAccessException) { }
                     }
                     File.WriteAllText(args[1], JsonSerializer.Serialize(new { subject = identity.User?.Value, reopened,
+                        mediumIntegrity = AdministrativeToken.CurrentIntegrity() == 0x2000,
                         administrative = new System.Security.Principal.WindowsPrincipal(identity).IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator),
                         powerUser = new System.Security.Principal.WindowsPrincipal(identity).IsInRole(System.Security.Principal.WindowsBuiltInRole.PowerUser) }));
                     return 0;
@@ -127,6 +131,46 @@ internal static class Program
             return error is SecureStoreUnavailable ? 2 : error is OfficialAccessUnavailable ? 3 : error is LocalSessionExpired ? 4 : 1;
         }
     }
+    private static string QualifiedWorkspace(string value)
+    {
+        if (!Path.IsPathFullyQualified(value))
+            throw new InvalidOperationException("Qualification workspace must be absolute");
+        var profile = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        if (string.IsNullOrWhiteSpace(profile))
+            throw new InvalidOperationException("Current-user application directory unavailable");
+        var root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(Path.Combine(profile, "TacticusDesktopPreview")));
+        var workspace = Path.TrimEndingDirectorySeparator(Path.GetFullPath(value));
+        var prefix = root + Path.DirectorySeparatorChar;
+        if (!workspace.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Qualification workspace is outside the qualification root");
+        var relative = workspace[prefix.Length..];
+        var separator = relative.IndexOfAny(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
+        const string qualificationPrefix = "qualification-";
+        if (separator <= qualificationPrefix.Length || separator == relative.Length - 1 ||
+            !relative[..separator].StartsWith(qualificationPrefix, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Qualification workspace is outside a qualification run");
+        return workspace;
+    }
+    private static int RunCandidate(string root, string workspace, IEnumerable<string> forwarded)
+    {
+        var arguments = forwarded.ToArray();
+        var manifest = Bundle.Load(root);
+        Bundle.Verify(root, manifest);
+        using var state = new ProtectedState(workspace);
+        using var job = new JobOwner();
+        var script = Path.Combine(root, "apps", "desktop", "platform", "windows", "launch.mjs");
+        var postgresHome = RuntimePaths.AsciiDirectory(Path.Combine(root, "postgres"));
+        var command = new[] { script, "--state", state.Root, "--postgres-home", postgresHome }.Concat(arguments);
+        var timer = Stopwatch.StartNew();
+        using var process = job.Start(Path.Combine(root, "bin", "node.exe"), command, root, removeAdministrativeAccess: true);
+        var code = process.Wait();
+        var measurement = Array.IndexOf(arguments, "--measurement");
+        if (measurement >= 0 && measurement + 1 < arguments.Length)
+            File.WriteAllText(arguments[measurement + 1], JsonSerializer.Serialize(new { sourceSha = manifest.SourceSha,
+                elapsedMs = timer.ElapsedMilliseconds, peakJobCommittedBytes = job.PeakCommittedBytes() is var peak && peak > 0 ? (long?)peak : null, exitCode = code,
+                metric = "Windows Job Object peak committed memory; not RSS" }));
+        return code;
+    }
     [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
     private static extern int MessageBoxW(IntPtr window, string text, string caption, uint flags);
 }
@@ -155,11 +199,12 @@ internal static class NativeProof
                 using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
                 if (token.RootElement.GetProperty("administrative").GetBoolean() || token.RootElement.GetProperty("powerUser").GetBoolean() ||
                     !token.RootElement.GetProperty("reopened").GetBoolean() ||
+                    !token.RootElement.GetProperty("mediumIntegrity").GetBoolean() ||
                     token.RootElement.GetProperty("subject").GetString() != identity.User?.Value)
                     throw new InvalidOperationException("Child did not retain the current user without administrative access");
             }
             File.Delete(tokenRecord);
-            assertions.Add("same-user-nonadministrative-child-token");
+            assertions.Add("same-user-nonadministrative-medium-integrity-child-token");
             var desktopRecord = Path.Combine(testRoot, "owner-desktop.txt");
             using (var job = new JobOwner())
             using (var child = job.Start(Environment.ProcessPath!, new[] { "proof-desktop", desktopRecord }, testRoot, removeAdministrativeAccess: true))

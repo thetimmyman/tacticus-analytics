@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using System.Collections;
+using System.Security.Cryptography;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32.SafeHandles;
@@ -24,11 +26,12 @@ internal sealed class JobOwner : IDisposable
         using var reduced = removeAdministrativeAccess ? AdministrativeToken.ReduceCurrent() : null;
         if (reduced is not null) startup.Desktop = OwnerDesktop.Current();
         ProcessInfo process;
+        using var environment = ChildEnvironment.Create();
         var started = reduced is null
             ? CreateProcessW(executable, command, IntPtr.Zero, IntPtr.Zero, false,
-                0x4 | 0x400, IntPtr.Zero, workingDirectory, ref startup, out process)
+                0x4 | 0x400, environment.Pointer, workingDirectory, ref startup, out process)
             : CreateProcessAsUserW(reduced, executable, command, IntPtr.Zero, IntPtr.Zero, false,
-                0x4 | 0x400, IntPtr.Zero, workingDirectory, ref startup, out process);
+                0x4 | 0x400, environment.Pointer, workingDirectory, ref startup, out process);
         if (!started)
             throw new Win32Exception();
         using var thread = new SafeFileHandle(process.Thread, true);
@@ -56,7 +59,23 @@ internal sealed class JobOwner : IDisposable
         result.Append('\\', slashes * 2); result.Append('"');
         return result.ToString();
     }
-    public void Dispose() => job.Dispose();
+    public void Dispose()
+    {
+        try
+        {
+            if (!TerminateJobObject(job, 1)) throw new Win32Exception();
+            for (var attempt = 0; attempt < 300; attempt++)
+            {
+                var accounting = new BasicAccounting();
+                if (!QueryInformationJobObject(job, 1, ref accounting, (uint)Marshal.SizeOf<BasicAccounting>(), IntPtr.Zero))
+                    throw new Win32Exception();
+                if (accounting.ActiveProcesses == 0) return;
+                Thread.Sleep(100);
+            }
+            throw new InvalidOperationException("Owned process tree did not stop");
+        }
+        finally { job.Dispose(); }
+    }
     public long PeakCommittedBytes()
     {
         var limits = new ExtendedLimit();
@@ -73,6 +92,11 @@ internal sealed class JobOwner : IDisposable
     { public ulong ReadOperations, WriteOperations, OtherOperations, ReadBytes, WriteBytes, OtherBytes; }
     [StructLayout(LayoutKind.Sequential)] private struct ExtendedLimit
     { public BasicLimit Basic; public IoCounters Io; public UIntPtr ProcessMemory, JobMemory, PeakProcessMemory, PeakJobMemory; }
+    [StructLayout(LayoutKind.Sequential)] private struct BasicAccounting
+    {
+        public long TotalUserTime, TotalKernelTime, ThisPeriodUserTime, ThisPeriodKernelTime;
+        public uint TotalPageFaultCount, TotalProcesses, ActiveProcesses, TotalTerminatedProcesses;
+    }
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)] private struct Startup
     {
         public uint Size; public string? Reserved, Desktop, Title;
@@ -87,6 +111,8 @@ internal sealed class JobOwner : IDisposable
     private static extern bool SetInformationJobObject(SafeFileHandle job, int infoClass, ref ExtendedLimit limits, uint size);
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern bool QueryInformationJobObject(SafeFileHandle job, int infoClass, ref ExtendedLimit limits, uint size, IntPtr returned);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool QueryInformationJobObject(SafeFileHandle job, int infoClass, ref BasicAccounting accounting, uint size, IntPtr returned);
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern bool CreateProcessW(string application, StringBuilder command, IntPtr processAttributes,
         IntPtr threadAttributes, bool inheritHandles, uint flags, IntPtr environment, string cwd, ref Startup startup, out ProcessInfo info);
@@ -97,6 +123,36 @@ internal sealed class JobOwner : IDisposable
     [DllImport("kernel32.dll", SetLastError = true)] private static extern bool AssignProcessToJobObject(SafeFileHandle job, SafeFileHandle process);
     [DllImport("kernel32.dll", SetLastError = true)] private static extern uint ResumeThread(SafeFileHandle thread);
     [DllImport("kernel32.dll", SetLastError = true)] private static extern bool TerminateProcess(SafeFileHandle process, uint code);
+    [DllImport("kernel32.dll", SetLastError = true)] private static extern bool TerminateJobObject(SafeFileHandle job, uint code);
+
+    private sealed class ChildEnvironment : IDisposable
+    {
+        private static readonly HashSet<string> Removed = new(StringComparer.OrdinalIgnoreCase)
+        { "NODE_OPTIONS", "NODE_PATH", "NODE_REPL_EXTERNAL_MODULE", "NODE_EXTRA_CA_CERTS" };
+        private readonly byte[] bytes;
+        public IntPtr Pointer { get; }
+
+        private ChildEnvironment(byte[] value)
+        {
+            bytes = value;
+            Pointer = Marshal.AllocHGlobal(bytes.Length);
+            Marshal.Copy(bytes, 0, Pointer, bytes.Length);
+        }
+        public static ChildEnvironment Create()
+        {
+            var entries = Environment.GetEnvironmentVariables().Cast<DictionaryEntry>()
+                .Where(entry => entry.Key is string key && !Removed.Contains(key))
+                .Select(entry => $"{entry.Key}={entry.Value}")
+                .OrderBy(entry => entry, StringComparer.OrdinalIgnoreCase);
+            return new ChildEnvironment(Encoding.Unicode.GetBytes(string.Join("\0", entries) + "\0\0"));
+        }
+        public void Dispose()
+        {
+            CryptographicOperations.ZeroMemory(bytes);
+            Marshal.Copy(bytes, 0, Pointer, bytes.Length);
+            Marshal.FreeHGlobal(Pointer);
+        }
+    }
 }
 
 internal sealed class OwnedProcess(SafeFileHandle handle, int id) : IDisposable
