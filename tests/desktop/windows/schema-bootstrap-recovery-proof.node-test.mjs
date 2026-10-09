@@ -156,12 +156,34 @@ test('actual inert child remains blocked before wake; fixed wake+EOF observes a 
 })
 
 for (const mode of ['zero', 'signal', 'stall'])
-  test(`actual ${mode} child close cannot qualify rollback`, async (t) => {
-    const { client, closed } = inertClient(t, mode)
-    await assert.rejects(windowsSchemaRollbackClientFailure(client, closed), {
-      code: 'ESCHEMAPROOF'
-    })
-  })
+  test(
+    `actual ${mode} child close cannot qualify rollback`,
+    { skip: mode === 'signal' && process.platform === 'win32' },
+    async (t) => {
+      const { client, closed } = inertClient(t, mode)
+      await assert.rejects(windowsSchemaRollbackClientFailure(client, closed), {
+        code: 'ESCHEMAPROOF'
+      })
+    }
+  )
+
+// The Windows self-signal child does not establish the POSIX signal-close
+// contract. These unit records test that guard on every platform, separately
+// from the actual OS child cases above.
+test('reported signaled close records refuse rollback and keep the fixed wake contract', async () => {
+  for (const code of [null, 37]) {
+    const writes = []
+    const client = { stdin: { end: (value) => writes.push(value) } }
+    await assert.rejects(
+      windowsSchemaRollbackClientFailure(
+        client,
+        Promise.resolve({ code, signal: 'SIGTERM' })
+      ),
+      { code: 'ESCHEMAPROOF' }
+    )
+    assert.deepEqual(writes, ['SELECT 1;\n'])
+  }
+})
 
 test('EOF-only success is never sufficient evidence of a failed connection', async (t) => {
   const { client, closed } = inertClient(t, 'nonzero')
