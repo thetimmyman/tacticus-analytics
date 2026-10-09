@@ -317,11 +317,16 @@ test('blocker retirement preserves displaced or nonempty replacement directories
 // The complete maintained proof function runs with explicitly inert service and
 // native-command stand-ins. These cases establish diagnostic control flow only;
 // they execute no PostgreSQL, Windows native owner or packaged application.
-async function recoveryFailureFixture(t, failedSubstep) {
+async function recoveryFailureFixture(t, failedSubstep, errorMode = 'known') {
   const { runInNewContext } = await import('node:vm')
   const { createHash, randomBytes } = await import('node:crypto')
   const { readdir, lstat, rmdir } = await import('node:fs/promises')
-  const { nodeLaunchDiagnostic } =
+  const {
+    nodeLaunchDiagnostic,
+    nativeServicesProbeDiagnostic,
+    launchCoordinatorDiagnostic,
+    captureNativeServicesFailure
+  } =
     await import('../../../apps/desktop/platform/windows/launch-diagnostic.mjs')
   const source = await readFile(
     new URL(
@@ -368,10 +373,15 @@ async function recoveryFailureFixture(t, failedSubstep) {
     new Error(
       'synthetic-private-message postgresql://synthetic:synthetic@private.invalid/postgres'
     )
+  const secondOpen = failedSubstep.startsWith('second-open-')
+  const secondCalls = []
+  let accessorCalls = 0
   const nativeCommand = async () => {
+    if (serviceCalls === 3) secondCalls.push('credentials')
     materialCalls++
     return {
-      owner: (failedSubstep === 'recovery-credentials' && materialCalls > 1
+      owner: ((failedSubstep === 'recovery-credentials' && materialCalls > 1) ||
+      (failedSubstep === 'second-open-credentials' && serviceCalls === 3)
         ? 'e'
         : 'a'
       ).repeat(64),
@@ -398,10 +408,19 @@ async function recoveryFailureFixture(t, failedSubstep) {
     return 'default administrative connection database\n'
   }
   const psql = async (sql) => {
+    if (serviceCalls === 3)
+      secondCalls.push(
+        sql === 'synthetic-bootstrap-sql'
+          ? 'bootstrap'
+          : sql.includes('shobj_description')
+            ? 'receipt'
+            : 'data'
+      )
     if (sql === 'synthetic-bootstrap-sql') return ''
     if (sql.includes('shobj_description'))
       return (
-        (failedSubstep === 'recovery-receipt'
+        (failedSubstep === 'recovery-receipt' ||
+        (failedSubstep === 'second-open-receipt' && serviceCalls === 3)
           ? 'synthetic-wrong-receipt'
           : expectedReceipt) + '\n'
       )
@@ -420,7 +439,8 @@ async function recoveryFailureFixture(t, failedSubstep) {
       { id: 991701, userId: 'synthetic-bootstrap-player', damageDealt: 123 }
     ])
     return (
-      (failedSubstep === 'recovery-data-conservation' && dataCalls > 1
+      ((failedSubstep === 'recovery-data-conservation' && dataCalls > 1) ||
+      (failedSubstep === 'second-open-data-conservation' && serviceCalls === 3)
         ? ' '
         : '') +
       row +
@@ -429,6 +449,7 @@ async function recoveryFailureFixture(t, failedSubstep) {
   }
   const nativeServices = async (_config, { completeSchema }) => {
     serviceCalls++
+    if (serviceCalls === 3) secondCalls.push('startup')
     if (serviceCalls === 1) {
       await writeFile(
         join(state, 'schema-bootstrap.json'),
@@ -462,6 +483,34 @@ async function recoveryFailureFixture(t, failedSubstep) {
       }
       assert.fail('The original fault-window must refuse')
     }
+    if (serviceCalls === 3 && failedSubstep === 'second-open-native-startup') {
+      const error = Object.assign(syntheticError(), { code: 'ESESSION' })
+      if (errorMode === 'unknown') {
+        Object.assign(error, {
+          name: 'synthetic-private-name',
+          code: 'synthetic-private-code',
+          serviceFailureCode: 'synthetic-private-service'
+        })
+      } else if (errorMode === 'accessors') {
+        for (const name of ['name', 'code', 'message', 'serviceFailureCode'])
+          Object.defineProperty(error, name, {
+            get() {
+              accessorCalls++
+              throw new Error('synthetic-accessor-must-not-run')
+            }
+          })
+      }
+      captureNativeServicesFailure(error, { stage: 'service-material' })
+      throw Object.freeze(error)
+    }
+    if (serviceCalls === 3 && failedSubstep === 'second-open-bootstrap-count') {
+      await completeSchema({
+        preparation: {
+          complete: (callback) => callback('synthetic-bootstrap-sql')
+        },
+        psql
+      })
+    }
     if (failedSubstep === 'recovery-native-startup') {
       throw Object.assign(syntheticError(), {
         serviceFailureCode: 'child-launch-failed',
@@ -487,6 +536,16 @@ async function recoveryFailureFixture(t, failedSubstep) {
       psql,
       stop: async () => {
         cleanupCalls++
+        if (secondOpen) {
+          if (serviceCalls === 3) secondCalls.push('stop')
+          if (cleanupCalls === 1) return
+          throw Object.assign(syntheticError(), {
+            code:
+              failedSubstep === 'second-open-stack-stop' && cleanupCalls === 2
+                ? 'EPIPE'
+                : 'EPERM'
+          })
+        }
         if (failedSubstep !== 'cleanup-without-primary' || cleanupCalls === 3)
           throw syntheticError()
       }
@@ -513,6 +572,8 @@ async function recoveryFailureFixture(t, failedSubstep) {
     nativeServices,
     nativeCommand,
     nodeLaunchDiagnostic,
+    nativeServicesProbeDiagnostic,
+    launchCoordinatorDiagnostic,
     process: { platform: 'win32', arch: 'x64', version: 'v22.23.2' },
     Buffer,
     TextDecoder,
@@ -553,7 +614,10 @@ async function recoveryFailureFixture(t, failedSubstep) {
   const receipt = JSON.parse(await readFile(evidence + '.failure.json', 'utf8'))
   assert.equal(receipt.completed, false)
   assert.equal(receipt.scenario, 'interrupted-bootstrap')
-  assert.equal(receipt.stage, 'same-workspace-recovery')
+  assert.equal(
+    receipt.stage,
+    secondOpen ? 'second-open-conservation' : 'same-workspace-recovery'
+  )
   assert.equal(receipt.failedSubstep, failedSubstep)
   assert.equal(receipt.schemaTarget, target)
   assert.equal(receipt.sourceSha, 'a'.repeat(40))
@@ -571,7 +635,9 @@ async function recoveryFailureFixture(t, failedSubstep) {
       'sourceSha',
       'manifestSha256',
       'schemaTarget',
-      ...(failedSubstep === 'recovery-native-startup'
+      ...(secondOpen ? ['failureDiagnostic'] : []),
+      ...(failedSubstep === 'recovery-native-startup' ||
+      failedSubstep === 'second-open-native-startup'
         ? ['startupDiagnostic']
         : [])
     ].sort()
@@ -581,7 +647,78 @@ async function recoveryFailureFixture(t, failedSubstep) {
     false
   )
   assert.equal(JSON.stringify(receipt).includes('private.invalid'), false)
-  assert.equal(serviceCalls, 2)
+  assert.equal(serviceCalls, secondOpen ? 3 : 2)
+  if (secondOpen) {
+    assert.equal(
+      cleanupCalls,
+      failedSubstep === 'second-open-stack-stop' ? 3 : 2
+    )
+    assert.equal(
+      receipt.failureDiagnostic.exceptionClass,
+      errorMode === 'known' ? 'Error' : 'unavailable'
+    )
+    assert.equal(
+      receipt.failureDiagnostic.errorCode,
+      failedSubstep === 'second-open-native-startup'
+        ? errorMode === 'known'
+          ? 'ESESSION'
+          : errorMode === 'accessors'
+            ? 'none'
+            : 'unavailable'
+        : failedSubstep === 'second-open-stack-stop'
+          ? 'EPIPE'
+          : 'unavailable'
+    )
+    assert.equal(receipt.failureDiagnostic.serviceFailureCode, 'unavailable')
+    assert.equal(JSON.stringify(receipt).includes('EPERM'), false)
+    if (failedSubstep === 'second-open-native-startup') {
+      assert.equal(receipt.startupDiagnostic.stage, 'services-start')
+      assert.equal(
+        receipt.startupDiagnostic.nativeServicesDiagnostic.stage,
+        'service-material'
+      )
+      assert.equal(
+        receipt.startupDiagnostic.nativeServicesDiagnostic.errorCode,
+        errorMode === 'known'
+          ? 'ESESSION'
+          : errorMode === 'accessors'
+            ? 'none'
+            : 'unavailable'
+      )
+    } else assert.equal(Object.hasOwn(receipt, 'startupDiagnostic'), false)
+    const expectedCalls = {
+      'second-open-native-startup': ['startup', 'stop'],
+      'second-open-bootstrap-count': ['startup', 'bootstrap', 'stop'],
+      'second-open-data-conservation': ['startup', 'data', 'stop'],
+      'second-open-credentials': ['startup', 'data', 'credentials', 'stop'],
+      'second-open-receipt': [
+        'startup',
+        'data',
+        'credentials',
+        'receipt',
+        'stop'
+      ],
+      'second-open-stack-stop': [
+        'startup',
+        'data',
+        'credentials',
+        'receipt',
+        'stop',
+        'stop'
+      ]
+    }
+    assert.deepEqual(secondCalls, expectedCalls[failedSubstep])
+    assert.equal(accessorCalls, 0)
+    for (const text of [
+      'synthetic-private-name',
+      'synthetic-private-code',
+      'synthetic-private-service',
+      'synthetic-accessor-must-not-run'
+    ])
+      assert.equal(JSON.stringify(receipt).includes(text), false)
+    await assert.rejects(readFile(evidence), { code: 'ENOENT' })
+    return
+  }
   assert.equal(
     cleanupCalls,
     failedSubstep === 'recovery-native-startup'
@@ -625,3 +762,22 @@ for (const failedSubstep of [
 test('maintained proof does not hide cleanup failure when no earlier failure exists', async (t) => {
   await recoveryFailureFixture(t, 'cleanup-without-primary')
 })
+
+for (const failedSubstep of [
+  'second-open-native-startup',
+  'second-open-bootstrap-count',
+  'second-open-data-conservation',
+  'second-open-credentials',
+  'second-open-receipt',
+  'second-open-stack-stop'
+]) {
+  test(`maintained second-open function retains ${failedSubstep} before cleanup with no raw errors`, async (t) => {
+    await recoveryFailureFixture(t, failedSubstep)
+  })
+}
+
+for (const mode of ['unknown', 'accessors']) {
+  test(`maintained second-open startup diagnostics refuse ${mode} error properties without evaluation or raw output`, async (t) => {
+    await recoveryFailureFixture(t, 'second-open-native-startup', mode)
+  })
+}
