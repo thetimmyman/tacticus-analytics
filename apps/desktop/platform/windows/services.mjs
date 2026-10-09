@@ -51,10 +51,28 @@ export async function run(file, args, options, spawnChild = spawn) {
   }
   let child
   try {
+    const baseOptions = options ?? {}
+    const childOptions =
+      serviceName === 'initdb.exe'
+        ? {
+            ...baseOptions,
+            // The native owner already enforces a non-administrative,
+            // medium-integrity token. Keep initdb from replacing that token
+            // with a child that loses package access.
+            env: {
+              ...Object.fromEntries(
+                Object.entries(baseOptions.env ?? process.env).filter(
+                  ([name]) => name.toUpperCase() !== 'PG_RESTRICT_EXEC'
+                )
+              ),
+              PG_RESTRICT_EXEC: '1'
+            }
+          }
+        : baseOptions
     child = spawnChild(file, args, {
       // Attach to the existing owner console instead of CREATE_NO_WINDOW.
       windowsHide: false,
-      ...options,
+      ...childOptions,
       stdio: ['ignore', 'pipe', 'pipe']
     })
   } catch {

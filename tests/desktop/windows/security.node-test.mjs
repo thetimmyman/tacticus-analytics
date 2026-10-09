@@ -99,6 +99,51 @@ test('service completion waits for pipe data after process exit', async () => {
   }
 })
 
+test('only initdb skips the redundant restricted-token relaunch', async () => {
+  const launches = []
+  const spawnChild = (file, args, options) => {
+    launches.push({ file, args, options })
+    const child = Object.assign(new EventEmitter(), {
+      stdout: new PassThrough(),
+      stderr: new PassThrough()
+    })
+    setImmediate(() => {
+      child.stdout.end()
+      child.stderr.end()
+      child.emit('close', 0)
+    })
+    return child
+  }
+  const inherited = {
+    PATH: 'synthetic-path',
+    PG_RESTRICT_EXEC: '0',
+    pg_restrict_exec: 'hostile-case-variant'
+  }
+
+  await run('initdb.exe', [], { env: inherited }, spawnChild)
+  await run('psql.exe', [], { env: inherited }, spawnChild)
+  await run('initdb.exe', [], undefined, spawnChild)
+
+  assert.deepEqual(launches[0].options.env, {
+    PATH: 'synthetic-path',
+    PG_RESTRICT_EXEC: '1'
+  })
+  assert.equal(launches[1].options.env, inherited)
+  assert.equal(launches[2].options.env.PG_RESTRICT_EXEC, '1')
+  assert.equal(launches[2].options.env.PATH, process.env.PATH)
+  assert.deepEqual(
+    Object.keys(launches[2].options.env).filter(
+      (name) => name.toUpperCase() === 'PG_RESTRICT_EXEC'
+    ),
+    ['PG_RESTRICT_EXEC']
+  )
+  assert.deepEqual(inherited, {
+    PATH: 'synthetic-path',
+    PG_RESTRICT_EXEC: '0',
+    pg_restrict_exec: 'hostile-case-variant'
+  })
+})
+
 test('one-shot service failures retain only allowlisted executable and uint32 loader status', async () => {
   const child = Object.assign(new EventEmitter(), {
     stdout: new EventEmitter(),
