@@ -7,6 +7,77 @@ import { createComponentLogger } from '@/app/lib/logging/client'
 const logger = createComponentLogger('components.SeasonSelector')
 import { useClusterContext } from '@/app/hooks/useClusterContext'
 
+const seasonErrorCodes = new Set([
+  'PGRST000',
+  'PGRST001',
+  'PGRST002',
+  'PGRST003',
+  'PGRST116',
+  'PGRST202',
+  'PGRST301',
+  'PGRST302',
+  'PGRST303',
+  '42501',
+  '22023',
+  '57014',
+  '42P01',
+  '42883'
+])
+
+function seasonRequestDiagnostic(
+  status: unknown,
+  error: unknown,
+  queryAborted: boolean,
+  navigationAborted: boolean
+) {
+  const value =
+    error && typeof error === 'object'
+      ? (error as Record<string, unknown>)
+      : null
+  const code = typeof value?.code === 'string' ? value.code : null
+  const bytes =
+    code !== null && code.length <= 8192
+      ? new TextEncoder().encode(code).byteLength
+      : null
+  const oversized = code !== null && (bytes === null || bytes > 8192)
+  const statusCode =
+    typeof status === 'number' &&
+    Number.isInteger(status) &&
+    status >= 0 &&
+    status <= 599
+      ? status
+      : -1
+  const message = typeof value?.message === 'string' ? value.message : ''
+  // These are reported SDK categories, not independently observed network causes.
+  return {
+    operation: 'season_list',
+    request_category:
+      statusCode === 0
+        ? 'transport-result-error'
+        : statusCode >= 400
+          ? 'http-result-error'
+          : statusCode >= 200 && statusCode < 300
+            ? 'success-result-error'
+            : 'other-result-error',
+    status_code: statusCode,
+    reported_error_name:
+      ['AbortError', 'TypeError', 'FetchError', 'Error'].find((name) =>
+        message.startsWith(`${name}:`)
+      ) ?? 'other',
+    error_code:
+      code === null || code === ''
+        ? 'none'
+        : seasonErrorCodes.has(code)
+          ? code
+          : 'other',
+    error_code_bytes: oversized ? null : bytes,
+    error_code_size:
+      code === null ? 'absent' : oversized ? 'oversized' : 'within-bound',
+    query_aborted: queryAborted,
+    navigation_aborted: navigationAborted
+  }
+}
+
 interface SeasonSelectorProps {
   currentSeason?: string
   selectedSeason?: number | null
@@ -54,7 +125,7 @@ export default function SeasonSelector({
       const { dbClient } = await import('@/app/lib/db/client')
       const supabase = dbClient()
       try {
-        const { data, error } = await supabase
+        const { data, error, status } = await supabase
           .rpc('get_distinct_seasons_for_guild', {
             p_guild: guildCode ?? '',
             p_cluster_code: clusterCode ?? undefined
@@ -62,7 +133,18 @@ export default function SeasonSelector({
           .abortSignal(navigationController.signal)
         if (navigationController.signal.aborted) return [] as string[]
         if (error) {
-          logger.error({ err: error }, 'Error fetching seasons:')
+          logger.error(
+            {
+              err: error,
+              ...seasonRequestDiagnostic(
+                status,
+                error,
+                signal.aborted,
+                navigationController.signal.aborted
+              )
+            },
+            'Error fetching seasons:'
+          )
           return [] as string[]
         }
         return Array.isArray(data) ? data : []
