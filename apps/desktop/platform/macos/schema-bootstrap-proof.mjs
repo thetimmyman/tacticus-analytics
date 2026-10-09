@@ -553,6 +553,40 @@ export async function retainSchemaProofPrimaryEvidence({ working, output }) {
   }
 }
 
+const freshSubsteps = [
+  'fresh-state-and-journal',
+  'pg-initdb',
+  'pg-start-ready',
+  'default-comment-and-journal',
+  'bootstrap-inspect',
+  'auth-prerequisites-migrate-ready',
+  'bootstrap-complete',
+  'receipt-marker-retirement-relation',
+  'fresh-native-startup-and-receipt'
+]
+
+// Keep the first boundary's failure in memory through enclosing cleanup.
+// Only its closed label is serializable; error details never leave the trace.
+export function schemaBootstrapProofTrace() {
+  let firstFailure
+  return {
+    async step(substep, action) {
+      requireProof(
+        freshSubsteps.includes(substep) && typeof action === 'function'
+      )
+      try {
+        return await action()
+      } catch (error) {
+        firstFailure ??= { substep, error }
+        throw firstFailure.error
+      }
+    },
+    failure() {
+      return firstFailure ? { failedSubstep: firstFailure.substep } : {}
+    }
+  }
+}
+
 // Failure metadata describes the child boundary, never raw paths or output.
 // A completed shape here is diagnostic only; the qualification's complete
 // receipt and runtime-authority comparisons still decide acceptance.
@@ -612,6 +646,11 @@ export function schemaBootstrapChildFailure({
     const allowedGroups = Object.keys(groups)
     if (allowedGroups.includes(diagnostic.failedGroup))
       result.failedGroup = diagnostic.failedGroup
+    if (
+      result.failedGroup === 'fresh-default-comment' &&
+      freshSubsteps.includes(diagnostic.failedSubstep)
+    )
+      result.failedSubstep = diagnostic.failedSubstep
     if (Array.isArray(diagnostic.completedGroups))
       result.completedGroups = [
         ...new Set(
@@ -786,6 +825,11 @@ async function credentialsAt(state, create = false) {
 }
 async function runActualProof({ admission, output }) {
   let activeGroup = 'admission'
+  const freshTrace = schemaBootstrapProofTrace()
+  const freshStep = (substep, action) =>
+    activeGroup === 'fresh-default-comment'
+      ? freshTrace.step(substep, action)
+      : action()
   const startedAt = new Date().toISOString(),
     observations = {}
   let binding
@@ -885,31 +929,35 @@ async function runActualProof({ admission, output }) {
         port = await freePort()
       const pgEnv = { ...cleanEnvironment(), PGPASSWORD: credentials.owner }
       if (initialize) {
-        const password = join(state, 'owner-password')
-        await writeFile(password, credentials.owner, {
-          flag: 'wx',
-          mode: 0o600
+        await freshStep('pg-initdb', async () => {
+          const password = join(state, 'owner-password')
+          await writeFile(password, credentials.owner, {
+            flag: 'wx',
+            mode: 0o600
+          })
+          try {
+            await freshStep('pg-initdb', () =>
+              capture(
+                binaries.initdb,
+                [
+                  '-D',
+                  join(state, 'pgdata'),
+                  '-U',
+                  'desktop_owner',
+                  '--pwfile',
+                  password,
+                  '--auth-local=scram-sha-256',
+                  '--auth-host=scram-sha-256',
+                  '--encoding=UTF8',
+                  '--locale=C'
+                ],
+                { env: pgEnv }
+              )
+            )
+          } finally {
+            await rm(password, { force: true })
+          }
         })
-        try {
-          await capture(
-            binaries.initdb,
-            [
-              '-D',
-              join(state, 'pgdata'),
-              '-U',
-              'desktop_owner',
-              '--pwfile',
-              password,
-              '--auth-local=scram-sha-256',
-              '--auth-host=scram-sha-256',
-              '--encoding=UTF8',
-              '--locale=C'
-            ],
-            { env: pgEnv }
-          )
-        } finally {
-          await rm(password, { force: true })
-        }
       }
       const pg = child(
         binaries.postgres,
@@ -943,14 +991,16 @@ async function runActualProof({ admission, output }) {
       const psql = (sql) =>
         capture(binaries.psql, psqlArgs, { input: sql, env: pgEnv })
       try {
-        await ready(() => psql('SELECT 1;'), pg)
-        return await action({
-          state,
-          credentials,
-          port,
-          pgEnv,
-          psqlArgs,
-          psql
+        return await freshStep('pg-start-ready', async () => {
+          await ready(() => psql('SELECT 1;'), pg)
+          return await action({
+            state,
+            credentials,
+            port,
+            pgEnv,
+            psqlArgs,
+            psql
+          })
         })
       } finally {
         await stop(pg, 'SIGINT')
@@ -1017,32 +1067,48 @@ async function runActualProof({ admission, output }) {
         stdio: 'ignore'
       })
       try {
-        await ready(async () => {
-          const response = await fetch(
-            'http://127.0.0.1:' + authPort + '/health',
-            { signal: AbortSignal.timeout(2000), redirect: 'error' }
-          )
-          await response.arrayBuffer()
-          requireProof(response.ok)
-        }, auth)
-        return await action({
-          ...db,
-          ports: { db: db.port, auth: authPort },
-          token: { service: signedToken(credentials.jwt, 'service_role') }
+        return await freshStep('auth-prerequisites-migrate-ready', async () => {
+          await ready(async () => {
+            const response = await fetch(
+              'http://127.0.0.1:' + authPort + '/health',
+              { signal: AbortSignal.timeout(2000), redirect: 'error' }
+            )
+            await response.arrayBuffer()
+            requireProof(response.ok)
+          }, auth)
+          return await action({
+            ...db,
+            ports: { db: db.port, auth: authPort },
+            token: { service: signedToken(credentials.jwt, 'service_role') }
+          })
         })
       } finally {
         await stop(auth)
       }
     }
     const prepared = async (name, action) => {
-      const state = await newState(name),
-        preparation = await prepareSchemaBootstrap({ state, schemaDirectory })
-      return withPG(state, true, async (db) => {
-        requireProof(
-          (await comment(db.psql)) === defaultComment && (await journal(state))
-        )
-        return action({ ...db, preparation })
-      })
+      const { state, preparation } = await freshStep(
+        'fresh-state-and-journal',
+        async () => {
+          const state = await newState(name),
+            preparation = await prepareSchemaBootstrap({
+              state,
+              schemaDirectory
+            })
+          return { state, preparation }
+        }
+      )
+      return freshStep('pg-start-ready', () =>
+        withPG(state, true, async (db) => {
+          await freshStep('default-comment-and-journal', async () => {
+            requireProof(
+              (await comment(db.psql)) === defaultComment &&
+                (await journal(state))
+            )
+          })
+          return action({ ...db, preparation })
+        })
+      )
     }
     const native = async (state, action, factory = nativeServices, calls) => {
       const services = await factory({
@@ -1062,9 +1128,11 @@ async function runActualProof({ admission, output }) {
         }
       })
       try {
-        const result = await action(services)
-        requireProof(!services.fault)
-        return result
+        return await freshStep('fresh-native-startup-and-receipt', async () => {
+          const result = await action(services)
+          requireProof(!services.fault)
+          return result
+        })
       } finally {
         await services.stop()
         requireProof(
@@ -1125,28 +1193,38 @@ async function runActualProof({ admission, output }) {
     }
     activeGroup = 'fresh-default-comment'
     await prepared('fresh-module', async (db) => {
-      await db.preparation.inspect(db.psql)
-      await withAuth(db, async () => {
-        await db.preparation.complete(db.psql)
+      await freshStep('bootstrap-inspect', () =>
+        db.preparation.inspect(db.psql)
+      )
+      await freshStep('auth-prerequisites-migrate-ready', () =>
+        withAuth(db, async () => {
+          await freshStep('bootstrap-complete', () =>
+            db.preparation.complete(db.psql)
+          )
+          await freshStep('receipt-marker-retirement-relation', async () => {
+            requireProof(
+              (await comment(db.psql)) === expectedReceipt &&
+                (await marker(db.state)) &&
+                (await absent(join(db.state, 'schema-bootstrap.json')))
+            )
+            requireProof(
+              (await db.psql(
+                "SELECT to_regclass('public.player_mapping') IS NOT NULL;"
+              )) === 't'
+            )
+          })
+        })
+      )
+    })
+    await freshStep('fresh-native-startup-and-receipt', async () => {
+      const freshNative = await newState('fresh-native')
+      await native(freshNative, async (services) => {
         requireProof(
-          (await comment(db.psql)) === expectedReceipt &&
-            (await marker(db.state)) &&
-            (await absent(join(db.state, 'schema-bootstrap.json')))
-        )
-        requireProof(
-          (await db.psql(
-            "SELECT to_regclass('public.player_mapping') IS NOT NULL;"
-          )) === 't'
+          services.fresh === true &&
+            (await marker(freshNative)) &&
+            (await comment(services.psql)) === expectedReceipt
         )
       })
-    })
-    const freshNative = await newState('fresh-native')
-    await native(freshNative, async (services) => {
-      requireProof(
-        services.fresh === true &&
-          (await marker(freshNative)) &&
-          (await comment(services.psql)) === expectedReceipt
-      )
     })
     observations[activeGroup] = {
       defaultComment: true,
@@ -1642,6 +1720,9 @@ async function runActualProof({ admission, output }) {
             failedGroup: Object.hasOwn(groups, activeGroup)
               ? activeGroup
               : 'admission',
+            ...(activeGroup === 'fresh-default-comment'
+              ? freshTrace.failure()
+              : {}),
             completedGroups: Object.keys(observations).filter((name) =>
               Object.hasOwn(groups, name)
             ),
