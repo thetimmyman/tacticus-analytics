@@ -28,6 +28,15 @@ const failed = () =>
 const requireProof = (value) => {
   if (!value) throw failed()
 }
+
+export function schemaBootstrapProofScalar(value) {
+  requireProof(typeof value === 'string')
+  // psql -At terminates its last record with LF; preserve scalar content.
+  const scalar = value.endsWith('\n') ? value.slice(0, -1) : value
+  requireProof(!/[\r\n]/u.test(scalar))
+  return scalar
+}
+
 const sha = (value) => createHash('sha256').update(value).digest('hex')
 const hex = (value, length = 64) =>
   typeof value === 'string' &&
@@ -920,9 +929,11 @@ async function runActualProof({ admission, output }) {
       (
         await boundedFile(join(state, 'schema-bootstrap.json'), 256)
       ).toString() === expectedJournal
-    const comment = (psql) =>
-      psql(
-        "SELECT shobj_description(oid,'pg_database') FROM pg_database WHERE datname=current_database();"
+    const comment = async (psql) =>
+      schemaBootstrapProofScalar(
+        await psql(
+          "SELECT shobj_description(oid,'pg_database') FROM pg_database WHERE datname=current_database();"
+        )
       )
     const withPG = async (state, initialize, action) => {
       const credentials = await credentialsAt(state, initialize),
@@ -1160,22 +1171,26 @@ async function runActualProof({ admission, output }) {
     }
     const snapshot = async (services) => ({
       data: sha(
-        await services.psql(
-          'SELECT jsonb_build_object(' +
-            '\'raids\',(SELECT jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text) FROM public."EOT_GR_data" t),' +
-            "'mapping',(SELECT jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text) FROM public.player_mapping t)," +
-            "'guilds',(SELECT jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text) FROM public.guild_config t)," +
-            "'attestations',(SELECT jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text) FROM public.player_identity_attestations t)," +
-            "'setup',(SELECT jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text) FROM public.desktop_preview_setup t)," +
-            "'owner',(SELECT jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text) FROM auth.users t));"
+        schemaBootstrapProofScalar(
+          await services.psql(
+            'SELECT jsonb_build_object(' +
+              '\'raids\',(SELECT jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text) FROM public."EOT_GR_data" t),' +
+              "'mapping',(SELECT jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text) FROM public.player_mapping t)," +
+              "'guilds',(SELECT jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text) FROM public.guild_config t)," +
+              "'attestations',(SELECT jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text) FROM public.player_identity_attestations t)," +
+              "'setup',(SELECT jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text) FROM public.desktop_preview_setup t)," +
+              "'owner',(SELECT jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text) FROM auth.users t));"
+          )
         )
       ),
       credentials: sha(
         await boundedFile(join(services.state, 'credentials.json'), 4096)
       ),
       database: sha(
-        await services.psql(
-          'SELECT system_identifier::text FROM pg_control_system();'
+        schemaBootstrapProofScalar(
+          await services.psql(
+            'SELECT system_identifier::text FROM pg_control_system();'
+          )
         )
       ),
       receipt: sha(await comment(services.psql))
