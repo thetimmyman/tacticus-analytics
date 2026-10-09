@@ -64,7 +64,7 @@
           "enum": ["Imperial", "Xenos", "Chaos"]
         },
         "progressionIndex": {
-          "maximum": 15,
+          "maximum": 19,
           "minimum": 0,
           "type": "integer"
         },
@@ -72,12 +72,12 @@
           "type": "integer"
         },
         "xpLevel": {
-          "maximum": 50,
+          "maximum": 32767,
           "minimum": 1,
           "type": "integer"
         },
         "rank": {
-          "maximum": 17,
+          "maximum": 23,
           "minimum": 0,
           "type": "integer"
         },
@@ -115,7 +115,7 @@
           "type": "string"
         },
         "level": {
-          "maximum": 50,
+          "maximum": 32767,
           "minimum": 0,
           "type": "integer"
         }
