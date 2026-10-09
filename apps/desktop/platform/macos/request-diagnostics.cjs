@@ -149,17 +149,14 @@ function holdingRefusal(status, headers) {
 
 // A failed request is expected only when the journey provoked it: the refused
 // renderer bootstrap, a refused live guild token read, or an authorization
-// failure while the renderer was deliberately signed out and recovering.
+// failure from a request started while the renderer was deliberately signed out.
 function unexpectedFailure(failure) {
   if (
     failure?.status === 403 &&
     ['/api/guild-tokens', '/desktop/open'].includes(failure.path)
   )
     return false
-  if (
-    failure?.status === 401 &&
-    ['signed-out-check', 'recovered-open'].includes(failure.phase)
-  )
+  if (failure?.status === 401 && failure.phase === 'signed-out-check')
     return false
   return true
 }
