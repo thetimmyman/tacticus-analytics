@@ -472,7 +472,8 @@ for (const kind of [
   'invalid-utf8',
   'oversized',
   'symlink',
-  'nonprivate'
+  'nonprivate',
+  'directory'
 ]) {
   test(`${kind} device evidence refuses without following or trusting it`, async (t) => {
     const f = await fixture(t)
@@ -489,6 +490,10 @@ for (const kind of [
           if (kind === 'oversized')
             await writeFile(f.config.deviceEvidence, Buffer.alloc(1048577))
           if (kind === 'nonprivate') await chmod(f.config.deviceEvidence, 0o644)
+          if (kind === 'directory') {
+            await rm(f.config.deviceEvidence)
+            await mkdir(f.config.deviceEvidence, { mode: 0o700 })
+          }
           if (kind === 'symlink') {
             const target = join(f.working, 'synthetic-private.json')
             await writeFile(target, 'SYNTHETIC-PRIVATE-CANARY', { mode: 0o600 })
