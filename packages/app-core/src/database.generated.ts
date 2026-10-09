@@ -12429,6 +12429,13 @@ export type Database = {
         Args: { p_enabled: boolean; p_job_name: string }
         Returns: undefined
       }
+      transfer_roster_confirmed_players: {
+        Args: { p_player_ids: string[]; p_target_guild_code: string }
+        Returns: {
+          from_guild_code: string
+          player_id: string
+        }[]
+      }
       trigger_historical_backfill: { Args: never; Returns: Json }
       trigger_historical_backfill_all: { Args: never; Returns: undefined }
       update_bomb_used: {

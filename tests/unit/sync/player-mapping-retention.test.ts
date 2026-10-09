@@ -71,6 +71,15 @@ function buildClient(options: {
     rpc: vi.fn((name: string, args: Record<string, unknown>) => {
       rpcCalls.push({ name, args })
       const ids = (args.p_player_ids as string[]) ?? []
+      if (name === 'transfer_roster_confirmed_players') {
+        return Promise.resolve({
+          data: ids.map((player_id) => ({
+            player_id,
+            from_guild_code: 'OLD'
+          })),
+          error: null
+        })
+      }
       return Promise.resolve({
         data: {
           success: true,
@@ -176,5 +185,75 @@ describe('worker roster retention', () => {
     expect(rejoined?.is_current).toBe(true)
     expect(rejoined?.display_name).toBe('Charlie')
     expect(rejoined?.guild_code).toBe('GUILD')
+  })
+
+  it('moves a claimed player from another guild on live Tacticus evidence alone', async () => {
+    const claimed = row('H', {
+      guild_code: 'OLD',
+      user_id: 'subject-h',
+      ownership_attestation_id: 'attestation-h'
+    })
+    const { client, upserted, rpcCalls } = buildClient({
+      currentRosterRows: ['A'],
+      existingRows: [row('A'), claimed]
+    })
+
+    await savePlayerMappings(
+      client as never,
+      'GUILD',
+      [
+        { userId: 'A', displayName: 'Alpha', role: 'leader' },
+        { userId: 'H', displayName: 'Hotel', role: 'member' }
+      ] as never,
+      null,
+      null,
+      new Date().toISOString(),
+      ['A', 'H']
+    )
+
+    expect(
+      rpcCalls.filter(
+        (call) => call.name === 'transfer_roster_confirmed_players'
+      )
+    ).toEqual([
+      {
+        name: 'transfer_roster_confirmed_players',
+        args: { p_target_guild_code: 'GUILD', p_player_ids: ['H'] }
+      }
+    ])
+    const moved = upserted.find((record) => record.player_id === 'H')
+    expect(moved?.guild_code).toBe('GUILD')
+    expect(moved?.is_current).toBe(true)
+  })
+
+  it('never moves a claimed player on a LOKI roster without Tacticus evidence', async () => {
+    const claimed = row('H', {
+      guild_code: 'OLD',
+      user_id: 'subject-h',
+      ownership_attestation_id: 'attestation-h'
+    })
+    const { client, upserted, rpcCalls } = buildClient({
+      currentRosterRows: ['A'],
+      existingRows: [row('A'), claimed]
+    })
+
+    await savePlayerMappings(
+      client as never,
+      'GUILD',
+      [
+        { userId: 'A', displayName: 'Alpha', role: 'leader' },
+        { userId: 'H', displayName: 'Hotel', role: 'member' }
+      ] as never,
+      null,
+      null,
+      new Date().toISOString()
+    )
+
+    expect(
+      rpcCalls.filter(
+        (call) => call.name === 'transfer_roster_confirmed_players'
+      )
+    ).toEqual([])
+    expect(upserted.map((record) => record.player_id)).toEqual(['A'])
   })
 })

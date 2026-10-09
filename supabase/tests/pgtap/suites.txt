@@ -106,6 +106,7 @@ season_summary_claim_atomicity.sql # 6
 season_summary_stats_rpc.sql # 8
 
 token_burn_player_order.sql # 9
+transfer_roster_confirmed_players.sql # 12
 
 # === DARK ===
 # cluster_rankings_refresh_throttle.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply

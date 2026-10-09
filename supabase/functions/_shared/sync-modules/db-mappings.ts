@@ -300,6 +300,50 @@ async function recordRosterWriteOutcome(
   }
 }
 
+/** Ids the live Tacticus roster lists exactly once; only these can move a claimed player. */
+export function tacticusConfirmedIds(
+  tacticusMemberIds: string[] | null | undefined
+): Set<string> {
+  const counts = new Map<string, number>()
+  for (const id of tacticusMemberIds ?? []) {
+    if (id) counts.set(id, (counts.get(id) ?? 0) + 1)
+  }
+  return new Set(
+    [...counts.entries()].filter(([, n]) => n === 1).map(([id]) => id)
+  )
+}
+
+/**
+ * Moves claimed players from another guild into this one when the live Tacticus roster confirms them.
+ * Returns the ids that moved; a failed call moves nobody and the players stay blocked.
+ */
+async function transferRosterConfirmedPlayers(
+  deps: DbMappingsDeps,
+  guildCode: string,
+  candidateIds: string[]
+): Promise<Map<string, string>> {
+  const moved = new Map<string, string>()
+  if (candidateIds.length === 0) return moved
+  const { data, error } = await deps.supabase.rpc(
+    'transfer_roster_confirmed_players',
+    { p_target_guild_code: guildCode, p_player_ids: candidateIds }
+  )
+  if (error) {
+    deps.logger.warn(
+      guildCode,
+      `Could not move ${candidateIds.length} Tacticus-confirmed claimed players into this guild: ${error.message}`
+    )
+    return moved
+  }
+  for (const row of (data as Array<{
+    player_id: string
+    from_guild_code: string
+  }> | null) ?? []) {
+    moved.set(row.player_id, row.from_guild_code)
+  }
+  return moved
+}
+
 export async function savePlayerMappings(
   deps: DbMappingsDeps,
   config: { playerMappingTable: string; dataTable: string },
@@ -389,15 +433,44 @@ export async function savePlayerMappings(
         .map(([playerId]) => playerId)
     )
 
-    const blockedTransferIds = new Set(
+    // A claimed player moves guilds only on this guild's live Tacticus roster (a player is in one
+    // guild at a time); a LOKI row alone never moves one.
+    const isClaimedElsewhere = (data: ExistingPlayerData) =>
+      data.guild_code !== guildCode &&
+      (data.user_id !== null || data.ownership_attestation_id !== null)
+    const confirmedIds = tacticusConfirmedIds(tacticusMemberIds)
+    const movedIds = await transferRosterConfirmedPlayers(
+      deps,
+      guildCode,
       Array.from(existingPlayerData.entries())
         .filter(
-          ([, data]) =>
-            data.guild_code !== guildCode &&
-            (data.user_id !== null || data.ownership_attestation_id !== null)
+          ([playerId, data]) =>
+            confirmedIds.has(playerId) &&
+            !data.protected &&
+            isClaimedElsewhere(data)
         )
         .map(([playerId]) => playerId)
     )
+    for (const [playerId, fromGuildCode] of movedIds) {
+      const data = existingPlayerData.get(playerId)
+      if (data) data.guild_code = guildCode
+      deps.logger.info(
+        guildCode,
+        `Claimed player ${playerId} moved from ${fromGuildCode} on the live Tacticus roster`
+      )
+    }
+
+    const blockedTransferIds = new Set(
+      Array.from(existingPlayerData.entries())
+        .filter(([, data]) => isClaimedElsewhere(data))
+        .map(([playerId]) => playerId)
+    )
+    if (blockedTransferIds.size > 0) {
+      deps.logger.warn(
+        guildCode,
+        `Skipped ${blockedTransferIds.size} claimed players still mapped to another guild (not confirmed by the live Tacticus roster): ${[...blockedTransferIds].join(', ')}`
+      )
+    }
 
     const eligibleMembers = lokiMembers.filter(
       (member) =>
