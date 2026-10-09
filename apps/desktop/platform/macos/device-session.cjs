@@ -3,6 +3,11 @@ const { setTimeout: delay } = require('node:timers/promises')
 
 module.exports = function deviceSession(window, config, dependencies = {}) {
   const { session } = dependencies.electron ?? require('electron')
+  if (
+    dependencies.onSessionInstalled !== undefined &&
+    typeof dependencies.onSessionInstalled !== 'function'
+  )
+    throw new Error('Invalid local session observer')
   let initial
   try {
     initial = new URL(config.url)
@@ -151,6 +156,9 @@ module.exports = function deviceSession(window, config, dependencies = {}) {
           })
         }
         signal.throwIfAborted()
+        // This synchronous notification marks the cookie boundary, before any
+        // recovered renderer navigation. A failure follows cookie cleanup.
+        dependencies.onSessionInstalled?.()
       } catch {
         for (const cookie of await cookies.get({ url: origin }))
           if (/^tacticus-auth-token(?:\.\d+)?$/.test(cookie.name))
