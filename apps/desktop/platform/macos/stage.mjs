@@ -33,8 +33,9 @@ export async function containedLibrary(runtime, library) {
   if (part.startsWith('..') || isAbsolute(part))
     throw new Error('External relocated library target')
 }
-export async function inventory(directory) {
-  const files = []
+async function packageInventory(directory) {
+  const files = [],
+    directories = []
   const root = await realpath(directory)
   async function walk(path = '') {
     const entries = await readdir(join(root, path), { withFileTypes: true })
@@ -47,8 +48,10 @@ export async function inventory(directory) {
         )
       )
         throw new Error('Mutable or private material in package')
-      if (info.isDirectory()) await walk(part)
-      else if (info.isSymbolicLink()) {
+      if (info.isDirectory()) {
+        directories.push(part.split(sep).join('/'))
+        await walk(part)
+      } else if (info.isSymbolicLink()) {
         const target = await realpath(full)
         if (
           relative(root, target).startsWith('..') ||
@@ -77,7 +80,10 @@ export async function inventory(directory) {
     }
   }
   await walk()
-  return files
+  return { files, directories }
+}
+export async function inventory(directory) {
+  return (await packageInventory(directory)).files
 }
 export async function stage(config) {
   if (
@@ -217,16 +223,17 @@ export async function stage(config) {
       }
     }
   }
-  const files = await inventory(config.output)
+  const { files, directories } = await packageInventory(config.output)
   const manifest = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     platform: 'macos',
     architecture: config.architecture,
     sourceCommit: config.sourceCommit,
     kind: 'unsigned-developer-candidate',
     rights: 'review-required',
     minimumOS: '15.0',
-    files
+    files,
+    directories
   }
   await writeFile(
     join(contents, 'Resources/package-inventory.json'),

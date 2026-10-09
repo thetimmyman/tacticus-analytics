@@ -1,12 +1,19 @@
 import { execFileSync, spawn } from 'node:child_process'
 import { mkdtemp, mkdir, readFile, writeFile, cp } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
-import { join, resolve, isAbsolute } from 'node:path'
+import { join, resolve, isAbsolute, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { tmpdir } from 'node:os'
 import { lookup } from 'node:dns/promises'
 import { stage, inventory } from './stage.mjs'
 import { records } from './evidence.mjs'
 import requestDiagnostics from './request-diagnostics.cjs'
+import {
+  verifySchemaProofInstallation,
+  schemaBootstrapProofReceipt,
+  retainSchemaProofPrimaryEvidence,
+  schemaBootstrapChildFailure
+} from './schema-bootstrap-proof.mjs'
 
 const inputs = resolve(process.argv[2]),
   application = resolve(process.argv[3]),
@@ -88,6 +95,53 @@ try {
 } finally {
   execFileSync('/usr/bin/hdiutil', ['detach', mount], { stdio: 'pipe' })
 }
+// Admission uses the source tree and pre-install staged manifest as authority,
+// never values supplied by the copied application's executable modules.
+const sourceRoot = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  '../../../..'
+)
+const proofSourcePaths = [
+  'apps/desktop/platform/macos/schema-bootstrap-proof.mjs',
+  'apps/desktop/platform/macos/schema-bootstrap.mjs',
+  'apps/desktop/platform/macos/services.mjs',
+  'apps/desktop/platform/macos/workspace.mjs',
+  'apps/desktop/proof/synthetic-import.mjs',
+  'apps/desktop/local-schema/canonical-objects.sql',
+  'apps/desktop/local-schema/authority.sql',
+  'apps/desktop/local-schema/manifest.json'
+]
+const proofAdmission = {
+  schemaVersion: 1,
+  sourceCommit: process.env.MAC_SOURCE_SHA,
+  artifactSha256: digest,
+  architecture: process.arch,
+  inventorySha256: createHash('sha256')
+    .update(
+      await readFile(join(app, 'Contents/Resources/package-inventory.json'))
+    )
+    .digest('hex'),
+  sourceHashes: Object.fromEntries(
+    await Promise.all(
+      proofSourcePaths.map(async (path) => [
+        path,
+        createHash('sha256')
+          .update(await readFile(join(sourceRoot, path)))
+          .digest('hex')
+      ])
+    )
+  )
+}
+// No copied runtime, owner guard or installed source is used before this check.
+const proofBinding = await verifySchemaProofInstallation({
+  installed,
+  admission: proofAdmission
+})
+const proofAdmissionPath = join(working, 'schema-proof-admission.json')
+await writeFile(proofAdmissionPath, JSON.stringify(proofAdmission), {
+  mode: 0o600,
+  flag: 'wx'
+})
 const runtime = join(installed, 'Contents/Resources/runtime'),
   state = join(working, 'workspace')
 await mkdir(state, { mode: 0o700 })
@@ -429,6 +483,128 @@ const first = JSON.parse(await readFile(join(working, 'storage-first.json'))),
   second = JSON.parse(await readFile(join(working, 'storage-second.json')))
 if (first.counter !== 1 || second.counter !== 2)
   throw new Error('Restart did not retain installed writes')
+// Recovery qualification follows the original graphical and storage verdicts.
+// Its private states and raw service logs are never attachments.
+const proofState = join(working, 'schema-proof')
+await mkdir(proofState, { mode: 0o700 })
+const proofOutput = join(proofState, 'schema-bootstrap-proof.json')
+const proofChild = spawn(
+  '/usr/bin/sandbox-exec',
+  [
+    '-p',
+    policy,
+    join(installed, 'Contents/MacOS/TacticusAnalytics'),
+    '--run',
+    join(proofState, 'owner.lock'),
+    join(runtime, 'bin/node'),
+    join(runtime, 'apps/desktop/platform/macos/schema-bootstrap-proof.mjs'),
+    proofAdmissionPath,
+    proofOutput
+  ],
+  {
+    env: {
+      PATH: '/usr/bin:/bin',
+      HOME: process.env.HOME,
+      TMPDIR: process.env.TMPDIR
+    },
+    stdio: 'ignore'
+  }
+)
+let proofTimedOut = false,
+  proofKill,
+  proofExit = { code: null, signal: null }
+const proofDeadline = setTimeout(() => {
+  proofTimedOut = true
+  proofChild.kill('SIGTERM')
+  // The native watcher owns descendant termination; killing the owner still
+  // leaves that watcher to reap its exact foreground process group.
+  proofKill = setTimeout(() => proofChild.kill('SIGKILL'), 6000)
+}, 240000)
+try {
+  proofExit = await new Promise((accept, reject) => {
+    proofChild.once('error', () =>
+      reject(new Error('Installed schema recovery proof failed'))
+    )
+    proofChild.once('close', (code, signal) => accept({ code, signal }))
+  })
+  if (proofExit.code !== 0 || proofExit.signal || proofTimedOut)
+    throw new Error('Installed schema recovery proof failed')
+  const bytes = await readFile(proofOutput)
+  if (bytes.length > 65536)
+    throw new Error('Installed schema recovery proof failed')
+  const proof = JSON.parse(bytes)
+  const projected = schemaBootstrapProofReceipt({
+    binding: proofBinding,
+    observations: Object.fromEntries(
+      (proof.groups ?? []).map((group) => [group.name, group.observations])
+    ),
+    runtimes: proof.runtimes,
+    startedAt: proof.startedAt,
+    completedAt: proof.completedAt
+  })
+  const { osVersion, runtimeVersionAuthority, ...base } = proof
+  if (
+    JSON.stringify(base) !== JSON.stringify(projected) ||
+    osVersion !==
+      execFileSync('/usr/bin/sw_vers', ['-productVersion'], {
+        encoding: 'utf8'
+      }).trim() ||
+    JSON.stringify(runtimeVersionAuthority) !==
+      JSON.stringify({
+        node: 'actual-process',
+        postgres: 'actual-three-binary-version-check',
+        auth: 'inventoried-pinned-build-input-and-real-migrator',
+        postgrest: 'actual-binary-version-check'
+      })
+  )
+    throw new Error('Installed schema recovery proof failed')
+  await writeFile(join(working, 'schema-bootstrap-proof.json'), bytes, {
+    flag: 'wx',
+    mode: 0o600
+  })
+} catch {
+  // Fail closed with a fixed projection; no raw service output, SQL errors,
+  // credentials or synthetic workspace contents are retained here.
+  let primaryEvidenceRetained = false
+  try {
+    await retainSchemaProofPrimaryEvidence({ working, output })
+    primaryEvidenceRetained = true
+  } catch {}
+  const failure = {
+    primaryEvidenceRetained,
+    schemaVersion: 1,
+    synthetic: true,
+    sourceCommit: proofBinding.sourceCommit,
+    artifactSha256: proofBinding.artifactSha256,
+    architecture: proofBinding.architecture,
+    inventorySha256: proofBinding.inventorySha256,
+    result: 'failed',
+    timedOut: proofTimedOut,
+    actualInstalledMacRecovery: false,
+    graphicalAndStorage: 'previous-primary-checks-passed'
+  }
+  let outputRead = 'unreadable',
+    outputBytes
+  try {
+    outputBytes = await readFile(proofOutput)
+    outputRead = 'read'
+  } catch (error) {
+    if (error.code === 'ENOENT') outputRead = 'missing'
+  }
+  Object.assign(
+    failure,
+    schemaBootstrapChildFailure({ ...proofExit, outputRead, outputBytes })
+  )
+  await writeFile(
+    join(output, 'schema-bootstrap-proof-failure.json'),
+    JSON.stringify(failure),
+    { flag: 'wx', mode: 0o600 }
+  )
+  throw new Error('Installed schema recovery proof failed')
+} finally {
+  clearTimeout(proofDeadline)
+  clearTimeout(proofKill)
+}
 const files = await inventory(installed)
 const attachments = []
 for (const [name, mediaType] of [
@@ -437,7 +613,8 @@ for (const [name, mediaType] of [
   ['renderer.json', 'application/json'],
   ['renderer.png', 'image/png'],
   ['storage-first.json', 'application/json'],
-  ['storage-second.json', 'application/json']
+  ['storage-second.json', 'application/json'],
+  ['schema-bootstrap-proof.json', 'application/json']
 ]) {
   attachments.push({
     name,
