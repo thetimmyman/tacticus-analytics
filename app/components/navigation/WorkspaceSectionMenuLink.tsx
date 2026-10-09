@@ -1,5 +1,5 @@
 import { forwardRef, type ComponentPropsWithoutRef } from 'react'
-import Link from 'next/link'
+import { ChromeLink as Link } from './ChromeLink'
 import { DiscordIcon } from '@/app/components/icons/DiscordIcon'
 import { getHrefWithSeason } from '@/app/lib/utils/navigation'
 import type { WorkspaceSection } from './workspaces'

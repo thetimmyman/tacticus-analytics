@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 import { usePathname, useSearchParams } from 'next/navigation'
 import type { UserRole } from '@tacticus/app-core/types'
 import type {
@@ -55,6 +56,7 @@ export function WorkspaceBar({
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const currentSeason = searchParams.get('season')
+  const prefetch = getRuntimeProfile() === 'desktop' ? false : undefined
 
   const active = resolveActiveWorkspace(pathname ?? '/')
 
@@ -98,6 +100,7 @@ export function WorkspaceBar({
                 <li key={ws.id} className="shrink-0">
                   <Link
                     href={href}
+                    prefetch={prefetch}
                     aria-current={isActive ? 'page' : undefined}
                     onMouseEnter={() => onPreviewWorkspace?.(ws.id)}
                     onMouseLeave={onClearPreviewWorkspace}

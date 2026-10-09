@@ -1081,12 +1081,21 @@ test('later proof failure retains exactly primary evidence without creating a su
     'device-session.json',
     'renderer.json',
     'renderer.png',
+    'graphical-reopen-device-session.json',
+    'graphical-reopen-renderer.json',
+    'graphical-reopen-renderer.png',
+    'graphical-reopen.json',
     'storage-first.json',
     'storage-second.json'
   ]
   for (const name of names)
     await writeFile(join(working, name), 'synthetic-primary:' + name)
   await writeFile(join(working, 'credentials.json'), 'SYNTHETIC-PRIVATE-CANARY')
+  await writeFile(
+    join(working, 'graphical-reopen-verify.json'),
+    'SYNTHETIC-PRIVATE-CANARY'
+  )
+  await writeFile(join(working, 'verify.json'), 'SYNTHETIC-PRIVATE-CANARY')
   await writeFile(
     join(working, 'schema-bootstrap-proof.json'),
     'SYNTHETIC-NOT-A-PASS'
@@ -1097,7 +1106,7 @@ test('later proof failure retains exactly primary evidence without creating a su
   )
   assert.equal(
     await proof.retainSchemaProofPrimaryEvidence({ working, output }),
-    5
+    9
   )
   assert.deepEqual((await readdir(output)).sort(), [...names].sort())
   for (const name of names)
@@ -1106,3 +1115,47 @@ test('later proof failure retains exactly primary evidence without creating a su
       'synthetic-primary:' + name
     )
 })
+for (const kind of ['linked-reopen', 'oversized-reopen', 'existing-output']) {
+  test(`later proof retention refuses ${kind} without exposing private state`, async (t) => {
+    const working = await mkdtemp(join(tmpdir(), 'synthetic-primary-source-'))
+    const output = await mkdtemp(join(tmpdir(), 'synthetic-primary-evidence-'))
+    t.after(() => rm(working, { recursive: true, force: true }))
+    t.after(() => rm(output, { recursive: true, force: true }))
+    for (const name of [
+      'device-session.json',
+      'renderer.json',
+      'renderer.png',
+      'graphical-reopen-device-session.json',
+      'graphical-reopen-renderer.json',
+      'graphical-reopen-renderer.png',
+      'graphical-reopen.json',
+      'storage-first.json',
+      'storage-second.json'
+    ])
+      await writeFile(join(working, name), 'synthetic-primary:' + name)
+    const name = 'graphical-reopen-device-session.json'
+    await writeFile(
+      join(working, 'credentials.json'),
+      'SYNTHETIC-PRIVATE-CANARY'
+    )
+    if (kind === 'linked-reopen') {
+      await rm(join(working, name))
+      await symlink(join(working, 'credentials.json'), join(working, name))
+    }
+    if (kind === 'oversized-reopen')
+      await writeFile(join(working, name), Buffer.alloc(1048577))
+    if (kind === 'existing-output')
+      await writeFile(join(output, name), 'SYNTHETIC-EXISTING')
+    await assert.rejects(
+      proof.retainSchemaProofPrimaryEvidence({ working, output }),
+      refused
+    )
+    assert.equal((await readdir(output)).includes('credentials.json'), false)
+    if (kind === 'existing-output')
+      assert.equal(
+        await readFile(join(output, name), 'utf8'),
+        'SYNTHETIC-EXISTING'
+      )
+    else assert.equal((await readdir(output)).includes(name), false)
+  })
+}
