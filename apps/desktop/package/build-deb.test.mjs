@@ -65,22 +65,24 @@ const assert = require('node:assert/strict')
 const { spawnSync } = require('node:child_process')
 const { join, basename } = require('node:path')
 const args = process.argv.slice(2)
+const output = ${JSON.stringify(output)}
+const version = ${JSON.stringify(configuration.version)}
 assert.deepEqual(args.slice(0, 5), ['run', '--rm', '--network', 'none', '-v'])
 assert.equal(args.length, 12)
-assert.equal(args[5], process.env.PACKAGE_TEST_OUTPUT + ':/output')
+assert.equal(args[5], output + ':/output')
 assert.equal(args[6], 'ubuntu@sha256:b8b6ee6aa931ecd9d0d952abc34dc0e5f7c6a30c6bb71b079fe399fde0329c02')
 assert.deepEqual(args.slice(7, 9), ['sh', '-c'])
 assert.equal(args[10], 'package-builder')
-assert.equal(args[11], '/output/tacticus-analytics-preview_' + process.env.PACKAGE_TEST_VERSION + '_amd64.deb')
-const command = args[9].replaceAll('/output/payload', '"$PACKAGE_TEST_OUTPUT/payload"')
-const result = spawnSync('/bin/sh', ['-c', command, args[10], join(process.env.PACKAGE_TEST_OUTPUT, basename(args[11]))], { env: process.env, stdio: 'inherit' })
+assert.equal(args[11], '/output/tacticus-analytics-preview_' + version + '_amd64.deb')
+const command = args[9].replaceAll('/output/payload', '"$2/payload"')
+const result = spawnSync('/bin/sh', ['-c', command, args[10], join(output, basename(args[11])), output], { env: process.env, stdio: 'inherit' })
 process.exit(result.status ?? 1)
 `
     )
     await writeFile(
       join(bin, 'dpkg-deb'),
       `#!${process.execPath}
-require('node:fs').writeFileSync(process.env.PACKAGE_TEST_RECORD, JSON.stringify(process.argv.slice(2)))
+require('node:fs').writeFileSync(${JSON.stringify(record)}, JSON.stringify(process.argv.slice(2)))
 `
     )
     for (const name of ['docker', 'dpkg-deb'])
@@ -93,10 +95,7 @@ require('node:fs').writeFileSync(process.env.PACKAGE_TEST_RECORD, JSON.stringify
       env: {
         PATH: `${bin}:${dirname(process.execPath)}:/usr/bin:/bin`,
         HOME: home,
-        LANG: 'C',
-        PACKAGE_TEST_OUTPUT: output,
-        PACKAGE_TEST_VERSION: configuration.version,
-        PACKAGE_TEST_RECORD: record
+        LANG: 'C'
       },
       encoding: 'utf8',
       timeout: 10000
