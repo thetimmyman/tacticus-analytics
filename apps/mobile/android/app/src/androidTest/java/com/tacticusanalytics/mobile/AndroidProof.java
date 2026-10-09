@@ -28,6 +28,10 @@ public final class AndroidProof extends Instrumentation {
   private boolean systemUiObserved;
   private boolean pinContainerObserved;
   private boolean keyguardStatusObserved;
+  private boolean pinPanelObserved;
+  private boolean pinScrollUpAdvertised;
+  private boolean pinAccessibilityAttempted;
+  private boolean pinAccessibilityAccepted;
   private String pinPresentationBounds = "none";
   private String pinContext() {
     return "; pinPresentationAttempted=" + pinPresentationAttempted
@@ -35,6 +39,10 @@ public final class AndroidProof extends Instrumentation {
         + " pinSubmitted=" + pinSubmitted + " systemUiObserved=" + systemUiObserved
         + " pinContainerObserved=" + pinContainerObserved
         + " keyguardStatusObserved=" + keyguardStatusObserved
+        + " pinPanelObserved=" + pinPanelObserved
+        + " pinScrollUpAdvertised=" + pinScrollUpAdvertised
+        + " pinAccessibilityAttempted=" + pinAccessibilityAttempted
+        + " pinAccessibilityAccepted=" + pinAccessibilityAccepted
         + " pinPresentationBounds=" + pinPresentationBounds;
   }
   @Override
@@ -695,6 +703,26 @@ public final class AndroidProof extends Instrumentation {
     }
     injectSwipeEvent(downTime, android.view.MotionEvent.ACTION_UP, x, end);
   }
+  private boolean presentPinAction(AccessibilityNodeInfo root) throws Exception {
+    if (pinAccessibilityAccepted)
+      return true;
+    AccessibilityNodeInfo panel = systemPinControl(root, "notification_panel");
+    if (panel == null || !"com.android.systemui".contentEquals(panel.getPackageName()))
+      return false;
+    pinPanelObserved = true;
+    AccessibilityNodeInfo.AccessibilityAction action =
+        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_UP;
+    if (!panel.getActionList().contains(action))
+      return false;
+    pinScrollUpAdvertised = true;
+    pinAccessibilityAttempted = true;
+    pinPresentationAttempted = true;
+    pinPresentationAttempts++;
+    if (!panel.performAction(action.getId()))
+      throw new Exception("Synthetic PIN presentation action refused");
+    pinAccessibilityAccepted = true;
+    return true;
+  }
   private void prepareUnlocked() throws Exception {
     check("ranchu".equals(Build.HARDWARE) || "goldfish".equals(Build.HARDWARE),
         "Synthetic PIN setup is emulator-only");
@@ -724,18 +752,23 @@ public final class AndroidProof extends Instrumentation {
       pinContainerObserved |= pinContainer;
       boolean keyguardStatus = systemPinControl(root, "keyguard_status_view") != null;
       keyguardStatusObserved |= keyguardStatus;
-      // A swipe that lands during a keyguard transition is dropped, so retry a bounded number of
-      // times until the PIN pad is observed.
-      if (!pinSubmitted && pinPresentationAttempts < 5 && keyguardStatus && !pinContainer
+      // Prefer SystemUI's advertised normal presentation action. Accepted input still requires
+      // observing the PIN controls and passing the unchanged native session guard.
+      if (!pinSubmitted && !pinAccessibilityAccepted && pinPresentationAttempts < 5
+          && keyguardStatus && !pinContainer
           && SystemClock.elapsedRealtime() >= nextPresentation) {
         android.graphics.Rect bounds = new android.graphics.Rect();
         root.getBoundsInScreen(bounds);
         if (bounds.equals(previousLockBounds)) {
-          pinPresentationAttempted = true;
-          pinPresentationAttempts++;
           pinPresentationBounds = bounds.toShortString();
-          presentPin(root);
-          nextPresentation = SystemClock.elapsedRealtime() + 2500;
+          if (!presentPinAction(root)) {
+            // A swipe that lands during a keyguard transition can be dropped. Retain the bounded
+            // fallback only when the normal accessibility presentation action is unavailable.
+            pinPresentationAttempted = true;
+            pinPresentationAttempts++;
+            presentPin(root);
+            nextPresentation = SystemClock.elapsedRealtime() + 2500;
+          }
         }
         previousLockBounds = bounds;
       } else {
