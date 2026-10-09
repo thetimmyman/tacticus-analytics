@@ -55,7 +55,10 @@ export async function recoveryJourney(initial, config, evidencePath) {
     const schema = await readFile(schemaPath, 'utf8')
     await writeFile(schemaPath, 'incompatible')
     try {
-      await assert.rejects(nativeServices(config), /Incompatible local schema/)
+      await assert.rejects(nativeServices(config), {
+        code: 'ESCHEMA',
+        message: 'Local schema state is incompatible; activation refused'
+      })
     } finally {
       await writeFile(schemaPath, schema)
     }

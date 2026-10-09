@@ -1,14 +1,14 @@
 import { spawn } from 'node:child_process'
 import {
   createHmac,
-  createHash,
   randomBytes,
   randomUUID,
   timingSafeEqual
 } from 'node:crypto'
 import { createServer } from 'node:net'
-import { mkdir, readFile, writeFile, stat, rename } from 'node:fs/promises'
+import { mkdir, writeFile, stat } from 'node:fs/promises'
 import { nativeCommand } from './native-command.mjs'
+import { prepareSchemaBootstrap } from './schema-bootstrap.mjs'
 import { resolve, join, basename } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 
@@ -346,20 +346,7 @@ export async function nativeServices({
   state = resolve(state)
   await mkdir(state, { recursive: true, mode: 0o700 })
   // The native owner holds the OS exclusive workspace lock and validates ACLs/reparse points.
-  const schemaHash = createHash('sha256')
-    .update(await readFile(join(schemaDirectory, 'canonical-objects.sql')))
-    .update(await readFile(join(schemaDirectory, 'authority.sql')))
-    .digest('hex')
-  let needsSchema = true
-  try {
-    if ((await readFile(join(state, 'schema-version'), 'utf8')) !== schemaHash)
-      throw new Error('Incompatible local schema; activation refused')
-    needsSchema = false
-  } catch (error) {
-    if (error.code !== 'ENOENT') {
-      throw error
-    }
-  }
+  const schema = await prepareSchemaBootstrap({ state, schemaDirectory })
   const children = []
   const diagnostics = new WeakMap()
   const { unlink } = await import('node:fs/promises')
@@ -543,6 +530,7 @@ export async function nativeServices({
       throw new Error(`${label} readiness timed out`)
     }
     await ready(() => psql('SELECT 1;'), pg, 'PostgreSQL')
+    await schema.inspect(psql)
     // Native JWTs are minted per use; the application only holds a stable
     // private credential that the guarded gateway exchanges.
     const token = {
@@ -614,33 +602,7 @@ export async function nativeServices({
       auth,
       'Auth'
     )
-    if (needsSchema) {
-      // The database records the applied schema in the bootstrap transaction,
-      // so a lost marker file is restored instead of re-running the bootstrap.
-      const applied = (
-        await psql(
-          "SELECT coalesce(shobj_description(oid, 'pg_database'), '') FROM pg_database WHERE datname = current_database();"
-        )
-      ).trim()
-      if (applied.startsWith('desktop-schema:')) {
-        if (applied !== `desktop-schema:${schemaHash}`)
-          throw new Error('Incompatible local schema; activation refused')
-      } else
-        // The native Auth release supplies its own versioned schema migrations.
-        await psql(
-          'BEGIN;\n' +
-            (await readFile(
-              join(schemaDirectory, 'canonical-objects.sql'),
-              'utf8'
-            )) +
-            '\n' +
-            (await readFile(join(schemaDirectory, 'authority.sql'), 'utf8')) +
-            `\nDO $$ BEGIN EXECUTE format('COMMENT ON DATABASE %I IS %L', current_database(), 'desktop-schema:${schemaHash}'); END $$;\nCOMMIT;`
-        )
-      const pending = join(state, `schema-version.${randomUUID()}.pending`)
-      await writeFile(pending, schemaHash, { mode: 0o600, flag: 'wx' })
-      await rename(pending, join(state, 'schema-version'))
-    }
+    await schema.complete(psql)
     const rest = launch(binaries.postgrest, [], {
       ...process.env,
       PATH: process.env.PATH,
