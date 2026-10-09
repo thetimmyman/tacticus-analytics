@@ -191,16 +191,97 @@ $allowedNodeCategories = @(
   'launch-timeout',
   'node-launch-unclassified'
 )
+$allowedServiceFailureCodes = @(
+  'administrative-token-refused', 'loopback-bind-refused',
+  'password-file-read-refused', 'data-directory-access-refused',
+  'data-directory-create-refused', 'data-directory-permissions-refused',
+  'bootstrap-input-read-refused', 'bootstrap-input-access-refused',
+  'postgres-executable-unavailable',
+  'postgres-executable-unavailable-access-denied',
+  'own-executable-unavailable', 'own-executable-unavailable-access-denied',
+  'process-token-refused', 'permission-refused', 'locale-unavailable',
+  'required-file-unavailable', 'child-launch-failed',
+  'postgres-executable-mismatch', 'dynamic-library-unavailable',
+  'restricted-token-unavailable', 'shared-memory-unavailable',
+  'system-memory-unavailable', 'random-source-unavailable',
+  'bootstrap-syntax-error', 'bootstrap-encoding-invalid',
+  'database-authority-refused', 'database-schema-unavailable',
+  'database-function-unavailable', 'database-object-conflict',
+  'database-authentication-refused', 'postgres-child-exit-1',
+  'postgres-bootstrap-failed', 'unclassified-service-failure',
+  'unavailable', 'not-applicable'
+)
+$allowedServiceBootstrapPhases = @(
+  'post-bootstrap', 'bootstrap-script', 'configuration', 'time-zone',
+  'shared-buffers', 'max-connections', 'shared-memory', 'subdirectories',
+  'data-directory', 'preflight', 'bootstrap-phase-unavailable',
+  'unavailable', 'not-applicable'
+)
+$allowedServiceExecutables = @(
+  'initdb.exe', 'psql.exe', 'auth.exe', 'pg_ctl.exe', 'owned-service',
+  'unavailable', 'not-applicable'
+)
+function ConvertTo-Uint32Evidence([object]$Value) {
+  if ($null -eq $Value) { return $null }
+  $jsonIntegerTypes = @(
+    [byte], [sbyte], [int16], [uint16], [int32], [uint32], [int64], [uint64]
+  )
+  if ($jsonIntegerTypes -notcontains $Value.GetType()) { return $null }
+  [uint64]$parsed = 0
+  if ([uint64]::TryParse([string]$Value, [ref]$parsed) -and
+      $parsed -le [uint32]::MaxValue) {
+    return $parsed
+  }
+  return $null
+}
 $nodeCategory = if ($NoNodeLaunch) { 'not-applicable' } else { 'diagnostic-unavailable' }
 $nodeOutcome = if ($NoNodeLaunch) { 'not-applicable' } else { 'unavailable' }
+$nodeServiceFailureCode = 'not-applicable'
+$nodeServiceBootstrapPhase = 'not-applicable'
+$nodeServiceExecutable = 'not-applicable'
+$nodeServiceExitCode = $null
+$nodePostgresChildStatus = $null
 if ($nodeDiagnosticPath -and (Test-Path -LiteralPath $nodeDiagnosticPath -PathType Leaf)) {
   try {
     $nodeEvidence = Get-Content -LiteralPath $nodeDiagnosticPath -Raw | ConvertFrom-Json
-    if ($nodeEvidence.schemaVersion -eq 1 -and $nodeEvidence.platform -eq 'win-x64' -and
-        @('completed', 'failed').Contains([string]$nodeEvidence.outcome) -and
-        $allowedNodeCategories.Contains([string]$nodeEvidence.nodeLaunchFailureCategory)) {
-      $nodeCategory = [string]$nodeEvidence.nodeLaunchFailureCategory
-      $nodeOutcome = [string]$nodeEvidence.outcome
+    $schemaVersion = ConvertTo-Uint32Evidence $nodeEvidence.schemaVersion
+    $serviceExitCode = ConvertTo-Uint32Evidence $nodeEvidence.serviceExitCode
+    $postgresChildStatus = ConvertTo-Uint32Evidence $nodeEvidence.postgresChildStatus
+    $evidenceOutcome = [string]$nodeEvidence.outcome
+    $evidenceCategory = [string]$nodeEvidence.nodeLaunchFailureCategory
+    $evidenceFailureCode = [string]$nodeEvidence.serviceFailureCode
+    $evidenceBootstrapPhase = [string]$nodeEvidence.serviceBootstrapPhase
+    $evidenceExecutable = [string]$nodeEvidence.serviceExecutable
+    $serviceFieldsNotApplicable =
+      $evidenceFailureCode -eq 'not-applicable' -and
+      $evidenceBootstrapPhase -eq 'not-applicable' -and
+      $evidenceExecutable -eq 'not-applicable' -and
+      $null -eq $nodeEvidence.serviceExitCode -and
+      $null -eq $nodeEvidence.postgresChildStatus
+    $diagnosticShapeValid =
+      ($evidenceOutcome -eq 'completed' -and $evidenceCategory -eq 'none' -and
+        $serviceFieldsNotApplicable) -or
+      ($evidenceOutcome -eq 'failed' -and $evidenceCategory -eq 'service-startup-failed' -and
+        $evidenceFailureCode -ne 'not-applicable' -and
+        $evidenceExecutable -ne 'not-applicable') -or
+      ($evidenceOutcome -eq 'failed' -and $evidenceCategory -ne 'none' -and
+        $evidenceCategory -ne 'service-startup-failed' -and $serviceFieldsNotApplicable)
+    if ($schemaVersion -eq 1 -and $nodeEvidence.platform -is [string] -and
+        [string]$nodeEvidence.platform -ceq 'win-x64' -and
+        $diagnosticShapeValid -and
+        $allowedNodeCategories.Contains($evidenceCategory) -and
+        $allowedServiceFailureCodes.Contains($evidenceFailureCode) -and
+        $allowedServiceBootstrapPhases.Contains($evidenceBootstrapPhase) -and
+        $allowedServiceExecutables.Contains($evidenceExecutable) -and
+        ($null -eq $nodeEvidence.serviceExitCode -or $null -ne $serviceExitCode) -and
+        ($null -eq $nodeEvidence.postgresChildStatus -or $null -ne $postgresChildStatus)) {
+      $nodeCategory = $evidenceCategory
+      $nodeOutcome = $evidenceOutcome
+      $nodeServiceFailureCode = $evidenceFailureCode
+      $nodeServiceBootstrapPhase = $evidenceBootstrapPhase
+      $nodeServiceExecutable = $evidenceExecutable
+      $nodeServiceExitCode = $serviceExitCode
+      $nodePostgresChildStatus = $postgresChildStatus
     } else {
       $nodeCategory = 'diagnostic-invalid'
       $nodeOutcome = 'invalid'
@@ -221,12 +302,17 @@ $completed = -not $activationFailed -and $exitCode -eq 0 -and
   childExitCode = $exitCode
   nodeLaunchOutcome = $(if ($activationFailed) { 'activation-failed' } else { $nodeOutcome })
   nodeLaunchFailureCategory = $(if ($activationFailed) { 'activation-failed' } else { $nodeCategory })
+  serviceFailureCode = $nodeServiceFailureCode
+  serviceBootstrapPhase = $nodeServiceBootstrapPhase
+  serviceExecutable = $nodeServiceExecutable
+  serviceExitCode = $nodeServiceExitCode
+  postgresChildStatus = $nodePostgresChildStatus
 } | ConvertTo-Json | Set-Content -LiteralPath $evidencePath -Encoding utf8
 
 if ($activationFailed) {
   throw 'Packaged application activation failed; AUMID process exit code unavailable; Node launch category activation-failed'
 }
 if (-not $completed) {
-  throw "Packaged application invocation failed; AUMID process exit code $exitCode; Node launch category $nodeCategory"
+  throw "Packaged application invocation failed; AUMID process exit code $exitCode; Node launch category $nodeCategory; service $nodeServiceExecutable; failure $nodeServiceFailureCode; phase $nodeServiceBootstrapPhase; service exit $nodeServiceExitCode; PostgreSQL child status $nodePostgresChildStatus"
 }
 Write-Output $exitCode
