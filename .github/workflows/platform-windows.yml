@@ -49,7 +49,7 @@ jobs:
           retention-days: 7
   application:
     runs-on: windows-latest
-    timeout-minutes: 35
+    timeout-minutes: 65
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -81,16 +81,20 @@ jobs:
       - name: Stage real Windows components
         shell: pwsh
         run: ./apps/desktop/platform/windows/build-runtime.ps1 -Output "$env:RUNNER_TEMP/Tacticus candidate ü"
-      - name: Installed runtime journey
+      - name: Ephemeral MSIX install, update, rollback, uninstall and runtime journey
         id: installed
         shell: pwsh
-        run: ./tests/desktop/windows/installed-journey.ps1 -Bundle "$env:RUNNER_TEMP/Tacticus candidate ü" -Evidence "$env:RUNNER_TEMP/application-evidence.json"
+        run: ./tests/desktop/windows/msix-lifecycle.ps1 -Bundle "$env:RUNNER_TEMP/Tacticus candidate ü" -LifecycleEvidence "$env:RUNNER_TEMP/msix-lifecycle-evidence.json" -JourneyEvidence "$env:RUNNER_TEMP/application-evidence.json" -IntegrityEvidence "$env:RUNNER_TEMP/msix-package-integrity-evidence.json"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always() && steps.installed.outcome != 'skipped'
         with:
           name: windows-application-evidence
           path: |
             ${{ runner.temp }}/application-evidence.json
+            ${{ runner.temp }}/msix-lifecycle-evidence.json
+            ${{ runner.temp }}/msix-package-integrity-evidence.json
+            ${{ runner.temp }}/measurement-*.json
+            ${{ runner.temp }}/node-launch-diagnostic-*.json
             ${{ runner.temp }}/renderer-*.png
             ${{ runner.temp }}/renderer-*.json
           if-no-files-found: error
