@@ -18,6 +18,11 @@ import {
 export type ModuleView =
   | { addonId: 'guild-war'; report: ReturnType<typeof summarizeWar> }
   | { addonId: 'replays'; replay: ReplayTimeline }
+/** Trusted main-process adapter; neither callback nor destination crosses renderer IPC. */
+export type SaveLocalData = (
+  id: AddonId,
+  readCurrent: () => string
+) => Promise<void>
 export type AddonCommands = {
   list(): Promise<AddonSummary[]>
   stagePackage(
@@ -32,10 +37,14 @@ export type AddonCommands = {
   uninstall(id: AddonId, dataChoice: 'retain' | 'delete'): Promise<void>
   importLocalData(id: AddonId, json: string): Promise<void>
   view(id: AddonId): Promise<ModuleView>
+  exportLocalData(id: AddonId): Promise<void>
 }
 
 /** Mount behind native authenticated IPC. Do not expose a loopback HTTP endpoint. */
-export function createAddonCommands(host: AddonHost): AddonCommands {
+export function createAddonCommands(
+  host: AddonHost,
+  saveLocalData?: SaveLocalData
+): AddonCommands {
   function withSession<T>(id: AddonId, work: (handle: string) => T): T {
     const handle = host.openSession(addonId.parse(id))
     try {
@@ -93,6 +102,20 @@ export function createAddonCommands(host: AddonHost): AddonCommands {
       if (parsedId === 'replays' && data.format === 'ta-replay-timeline-v1')
         return { addonId: 'replays', replay: data }
       throw new AddonError('no-local-data')
+    },
+    async exportLocalData(id) {
+      const parsedId = addonId.parse(id),
+        handle = host.openSession(parsedId)
+      try {
+        if (typeof saveLocalData !== 'function')
+          throw new AddonError('invalid-session')
+        // Check read authority/data before opening a dialog. Keep this exact
+        // session across the await so invalidated epochs cannot be reopened.
+        host.exportModuleData(handle)
+        await saveLocalData(parsedId, () => host.exportModuleData(handle))
+      } finally {
+        host.closeSession(handle)
+      }
     }
   }
 }

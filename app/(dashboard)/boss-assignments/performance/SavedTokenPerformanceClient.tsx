@@ -1,7 +1,10 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import type { SavedTokenPerformance } from '@/app/lib/boss-assignments/saved-token-performance-types'
+import type {
+  SavedTokenPerformance,
+  SavedTokenPerformanceEncounters
+} from '@/app/lib/boss-assignments/saved-token-performance-types'
 
 export interface SavedTokenPerformanceClientProps {
   contextKey: string
@@ -73,7 +76,8 @@ function tier(value: unknown): keyof typeof TIERS {
 function readPerformance(
   value: unknown,
   season: string,
-  asOf: string
+  asOf: string,
+  encounters: SavedTokenPerformanceEncounters
 ): SavedTokenPerformance {
   const body = fields(value, [
     'source',
@@ -94,7 +98,7 @@ function readPerformance(
     body.season !== season ||
     body.asOf !== asOf ||
     body.cohort !== 'own-guild' ||
-    body.encounters !== 'main' ||
+    body.encounters !== encounters ||
     body.currentSavedRoster !== true ||
     body.targets !== 'current-saved' ||
     !Array.isArray(body.rarities) ||
@@ -124,7 +128,7 @@ function readPerformance(
     if (!/^[a-f0-9]{64}$/.test(key) || keys.has(key)) invalid()
     keys.add(key)
     text(player.name)
-    const bosses = list(player.bosses, 10)
+    const bosses = list(player.bosses, encounters === 'main' ? 10 : 30)
     metric(player.bossCount, bosses.length, true)
     metric(player.scoredBossCount, player.bossCount as number, true)
     metric(player.tokensSpent, 10000, true)
@@ -139,7 +143,7 @@ function readPerformance(
     let tierTotal = 0
     for (const [name, count] of Object.entries(player.tierCounts)) {
       tier(name)
-      tierTotal += metric(count, 10, true)
+      tierTotal += metric(count, encounters === 'main' ? 10 : 30, true)
     }
     if (tierTotal !== player.bossCount) invalid()
     const bossKeys = new Set<string>()
@@ -163,7 +167,9 @@ function readPerformance(
       if (
         set < 1 ||
         (boss.rarity !== 'Legendary' && boss.rarity !== 'Mythic') ||
-        boss.encounterId !== 0
+        !Number.isSafeInteger(boss.encounterId) ||
+        (boss.encounterId as number) < 0 ||
+        (boss.encounterId as number) > (encounters === 'main' ? 0 : 2)
       )
         invalid()
       const bossKey = text(boss.bossKey, 210)
@@ -294,6 +300,8 @@ function PerformanceForm({
 }: SavedTokenPerformanceClientProps) {
   const [season, setSeason] = useState(initialSeason)
   const [input, setInput] = useState('')
+  const [encounters, setEncounters] =
+    useState<SavedTokenPerformanceEncounters>('main')
   const [data, setData] = useState<SavedTokenPerformance | null>(null)
   const [error, setError] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -337,6 +345,7 @@ function PerformanceForm({
     setBusy(true)
     try {
       const params = new URLSearchParams({ view: 'saved', season, asOf })
+      if (encounters === 'main-and-primes') params.set('encounters', encounters)
       const response = await Promise.race([
         fetch(`/api/upcoming/token-performance?${params}`, {
           method: 'GET',
@@ -359,7 +368,7 @@ function PerformanceForm({
       const body = await responseBody(response, !!json, op)
       if (active.current !== op || controller.signal.aborted) return
       if (!json || performance.now() >= op.deadline) invalid()
-      const result = readPerformance(body, season, asOf)
+      const result = readPerformance(body, season, asOf, encounters)
       if (performance.now() >= op.deadline) invalid()
       if (active.current === op && !controller.signal.aborted) setData(result)
     } catch {
@@ -388,8 +397,9 @@ function PerformanceForm({
         targets.
       </p>
       <p>
-        Own-guild Legendary and Mythic main bosses only. Primes and other
-        cohorts are unavailable here.
+        Own-guild Legendary and Mythic bosses. Main bosses are selected by
+        default; primes require explicit selection. Other cohorts are
+        unavailable here.
       </p>
       <label className="block">
         Saved season
@@ -408,6 +418,26 @@ function PerformanceForm({
               {value}
             </option>
           ))}
+        </select>
+      </label>
+      <label className="block">
+        Boss encounters
+        <select
+          aria-label="Boss encounters"
+          className="input-wh40k ml-2"
+          value={encounters}
+          onChange={(event) => {
+            reset()
+            setEncounters(
+              event.target.value === 'main-and-primes'
+                ? 'main-and-primes'
+                : 'main'
+            )
+            setInput('')
+          }}
+        >
+          <option value="main">Main bosses</option>
+          <option value="main-and-primes">Main bosses and primes</option>
         </select>
       </label>
       {canCalculate ? (
@@ -466,7 +496,8 @@ function Results({ data }: { data: SavedTokenPerformance }) {
       </p>
       <p>
         Uses the current saved roster and current saved targets · Legendary and
-        Mythic main bosses
+        Mythic{' '}
+        {data.encounters === 'main' ? 'main bosses' : 'main bosses and primes'}
       </p>
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div>
@@ -496,7 +527,11 @@ function Results({ data }: { data: SavedTokenPerformance }) {
         expected-token totals cover scored bosses only.
       </p>
       {data.players.length === 0 ? (
-        <p>No saved main-boss battles match this season and as-of time.</p>
+        <p>
+          No saved{' '}
+          {data.encounters === 'main' ? 'main-boss' : 'main-boss or prime'}{' '}
+          battles match this season and as-of time.
+        </p>
       ) : (
         <>
           <div className="overflow-x-auto">
@@ -534,7 +569,10 @@ function Results({ data }: { data: SavedTokenPerformance }) {
               {player.bosses.map((boss) => (
                 <section key={boss.bossKey} className="mt-3 space-y-2">
                   <h2>
-                    {boss.bossName} · {boss.rarity} set {boss.set} · Main
+                    {boss.bossName} · {boss.rarity} set {boss.set} ·{' '}
+                    {boss.encounterId === 0
+                      ? 'Main'
+                      : `Prime ${boss.encounterId}`}
                   </h2>
                   <p>
                     Expected-token source:{' '}
