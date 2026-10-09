@@ -326,3 +326,130 @@ test('disable and changed guild binding hide zone totals while returning to the 
     ['7', '2', '280']
   ])
 })
+
+for (const id of ['guild-war', 'replays'] as const) {
+  test(`explicit ${id} export uses trusted read-only save callback and retains other module data`, async (t) => {
+    const root = mkdtempSync(join(tmpdir(), 'addon-export-ui-'))
+    t.after(() => rmSync(root, { recursive: true, force: true }))
+    const fixture = fixturePolicy(),
+      host = new AddonHost(root, fixture.policy)
+    host.setBinding({
+      accountHandle: 'synthetic-export-account',
+      guildHandle: 'synthetic-export-guild'
+    })
+    const saved: { id: string; json: string }[] = []
+    const commands = createAddonCommands(host, async (selected, read) => {
+      saved.push({ id: selected, json: read() })
+    })
+    for (const moduleId of ['guild-war', 'replays'] as const) {
+      const staged = host.stage(fixture.bundle(moduleId))
+      host.activate(staged.digest, staged.manifest.capabilities)
+      await commands.importLocalData(
+        moduleId,
+        JSON.stringify(moduleId === 'guild-war' ? war : replay)
+      )
+    }
+    const other = await commands.view(
+      id === 'guild-war' ? 'replays' : 'guild-war'
+    )
+    const ui = render(
+      <AddonManager commands={commands} bindingRevision="export-current" />
+    )
+    const name =
+      id === 'guild-war'
+        ? 'Export war summary JSON'
+        : 'Export replay timeline JSON'
+    await waitFor(() => assert.ok(ui.getByRole('button', { name })))
+    fireEvent.click(ui.getByRole('button', { name }))
+    await waitFor(() => assert.equal(saved.length, 1))
+    assert.equal(saved[0]!.id, id)
+    assert.deepEqual(
+      JSON.parse(saved[0]!.json),
+      id === 'guild-war' ? war : replay
+    )
+    assert.deepEqual(
+      await commands.view(id === 'guild-war' ? 'replays' : 'guild-war'),
+      other
+    )
+    await waitFor(() =>
+      assert.equal(
+        (ui.getByRole('button', { name }) as HTMLButtonElement).disabled,
+        false
+      )
+    )
+    assert.equal(ui.queryByRole('alert'), null)
+  })
+}
+
+test('export UI refuses missing data and changed binding, disables unreadable or disabled modules and hides raw failures', async (t) => {
+  const root = mkdtempSync(join(tmpdir(), 'addon-export-gates-ui-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  const fixture = fixturePolicy(),
+    host = new AddonHost(root, fixture.policy)
+  const binding = {
+    accountHandle: 'synthetic-export-account',
+    guildHandle: 'synthetic-export-guild'
+  }
+  host.setBinding(binding)
+  let saves = 0
+  const commands = createAddonCommands(host, async () => {
+    saves += 1
+  })
+  for (const id of ['guild-war', 'replays'] as const) {
+    const staged = host.stage(
+      fixture.bundle(
+        id,
+        '1.0.0',
+        id === 'replays' ? { capabilities: ['offline.import'] } : {}
+      )
+    )
+    host.activate(staged.digest, staged.manifest.capabilities)
+  }
+  const ui = render(
+    <AddonManager commands={commands} bindingRevision="export-first" />
+  )
+  await waitFor(() =>
+    assert.ok(ui.getByRole('button', { name: 'Export war summary JSON' }))
+  )
+  assert.equal(
+    (
+      ui.getByRole('button', {
+        name: 'Export replay timeline JSON'
+      }) as HTMLButtonElement
+    ).disabled,
+    true
+  )
+  fireEvent.click(ui.getByRole('button', { name: 'Export war summary JSON' }))
+  await waitFor(() =>
+    assert.match(ui.getByRole('alert').textContent!, /No imported data/)
+  )
+  assert.equal(saves, 0)
+  await commands.importLocalData('guild-war', JSON.stringify(war))
+  await act(async () => {
+    host.setBinding({ ...binding, guildHandle: 'synthetic-other-export-guild' })
+    ui.rerender(
+      <AddonManager commands={commands} bindingRevision="export-second" />
+    )
+  })
+  fireEvent.click(ui.getByRole('button', { name: 'Export war summary JSON' }))
+  await waitFor(() =>
+    assert.match(ui.getByRole('alert').textContent!, /No imported data/)
+  )
+  assert.equal(saves, 0)
+  await act(async () => {
+    await commands.setEnabled('guild-war', false)
+    ui.rerender(
+      <AddonManager commands={commands} bindingRevision="export-disabled" />
+    )
+  })
+  await waitFor(() =>
+    assert.equal(
+      (
+        ui.getByRole('button', {
+          name: 'Export war summary JSON'
+        }) as HTMLButtonElement
+      ).disabled,
+      true
+    )
+  )
+})

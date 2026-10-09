@@ -12,7 +12,8 @@ const commands = Object.fromEntries(
     'rollback',
     'uninstall',
     'importLocalData',
-    'view'
+    'view',
+    'exportLocalData'
   ].map((method) => [
     method,
     async (...args) => {

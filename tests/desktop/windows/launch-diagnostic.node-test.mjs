@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { types as utilTypes } from 'node:util'
 import {
   nodeLaunchFailureCategories,
   nodeLaunchFailureCategory,
@@ -219,6 +220,7 @@ async function coordinator({
   const writes = []
   const calls = []
   const context = vm.createContext({
+    utilTypes,
     Buffer,
     AbortSignal,
     Error,
@@ -351,7 +353,9 @@ async function coordinator({
       )
     )
   const diagnosticValues = new vm.Script(`(() => {
-    ${diagnosticSource.replaceAll('export ', '')}
+    ${diagnosticSource
+      .replace(/^import { types as utilTypes } from 'node:util'\r?\n/, '')
+      .replaceAll('export ', '')}
     return { nodeLaunchDiagnostic, launchCoordinatorDiagnostic:
       typeof launchCoordinatorDiagnostic === 'function' ? launchCoordinatorDiagnostic : undefined }
   })()`).runInContext(context)

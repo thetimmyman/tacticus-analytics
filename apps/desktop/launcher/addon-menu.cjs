@@ -1,5 +1,6 @@
 const { randomBytes, createHash } = require('node:crypto')
 const { readFile } = require('node:fs/promises')
+const { writeFileSync } = require('node:fs')
 const { join } = require('node:path')
 const { pathToFileURL } = require('node:url')
 
@@ -187,7 +188,61 @@ module.exports = async function addonMenu(owner, config, dependencies = {}) {
             }
             if (!authorizedSender(event, current, address))
               return { ok: false, code: 'invalid-session' }
-            return { ok: true, value: await runtime.dispatch(request) }
+            return {
+              ok: true,
+              value: await runtime.dispatch(
+                request,
+                async (id, readCurrent) => {
+                  const selected = await dialog.showSaveDialog(current, {
+                    title: 'Export local module JSON',
+                    defaultPath:
+                      id === 'guild-war'
+                        ? 'war-summary.json'
+                        : 'replay-timeline.json',
+                    filters: [{ name: 'JSON', extensions: ['json'] }],
+                    properties: ['showOverwriteConfirmation']
+                  })
+                  if (selected.canceled) return
+                  const refused = () =>
+                    Object.assign(new Error('Local export refused'), {
+                      code: 'invalid-session'
+                    })
+                  let fresh
+                  try {
+                    fresh = await binding()
+                  } catch {
+                    runtime.setBinding(null)
+                    current.destroy()
+                    throw refused()
+                  }
+                  if (JSON.stringify(fresh) !== JSON.stringify(initial)) {
+                    runtime.setBinding(fresh)
+                    current.destroy()
+                    throw refused()
+                  }
+                  if (!authorizedSender(event, current, address))
+                    throw refused()
+                  // The original session rechecks trust, enablement, permission,
+                  // binding and data. No await separates that read from writing.
+                  const json = readCurrent()
+                  try {
+                    if (
+                      typeof selected.filePath !== 'string' ||
+                      !selected.filePath
+                    )
+                      throw new Error('Missing export destination')
+                    writeFileSync(selected.filePath, json, {
+                      encoding: 'utf8',
+                      mode: 0o600
+                    })
+                  } catch {
+                    throw Object.assign(new Error('Local export refused'), {
+                      code: 'recoverable-storage'
+                    })
+                  }
+                }
+              )
+            }
           } catch (error) {
             const codes = new Set([
               'invalid-package',

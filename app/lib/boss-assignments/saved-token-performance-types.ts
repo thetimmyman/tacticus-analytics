@@ -2,6 +2,8 @@ import type { ExpectedTokensTier } from './performance-score'
 import type { GuildSummary } from './performance-leaderboard-aggregate'
 import type { TokenPerformanceLoopEntry } from './token-performance-types'
 
+export type SavedTokenPerformanceEncounters = 'main' | 'main-and-primes'
+
 export interface SavedTokenPerformancePageContext {
   source: 'saved-local'
   seasons: string[]
@@ -16,7 +18,7 @@ export interface SavedTokenPerformanceBoss {
   bossName: string
   rarity: 'Legendary' | 'Mythic'
   set: number
-  encounterId: 0
+  encounterId: 0 | 1 | 2
   score: number | null
   tier: ExpectedTokensTier
   tokensSpent: number
@@ -47,7 +49,7 @@ export interface SavedTokenPerformance {
   timeZone: string
   cohort: 'own-guild'
   rarities: ['Legendary', 'Mythic']
-  encounters: 'main'
+  encounters: SavedTokenPerformanceEncounters
   currentSavedRoster: true
   /** Current saved targets are not a historical target snapshot at asOf. */
   targets: 'current-saved'
