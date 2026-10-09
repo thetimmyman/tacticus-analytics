@@ -74,6 +74,7 @@ final class DeviceOfficialSource: OfficialSource {
         var document = oldDocument
         var updated: [CapabilityState] = []
         var projectedPlayer: PlayerSnapshot?
+        var projectedCache: PlayerCache?
         var guild: String?
         var keyExpired = false
         var playerReferenceChanged = false
@@ -94,7 +95,7 @@ final class DeviceOfficialSource: OfficialSource {
                     }
                 } else if scope == .player || value["metaData"] != nil { throw WorkspaceError.scope }
                 let projection: [String: Any]
-                if scope == .player { projection = try Self.projectPlayer(value) }
+                if scope == .player { projection = try PlayerCache.project(value).object }
                 else if scope == .guild { projection = ["guildId": (value["guild"] as? [String: Any])?["guildId"] ?? NSNull()] }
                 else { projection = ["season": value["season"] ?? NSNull()] }
                 try SecretGuard.check(try JSONSerialization.data(withJSONObject: projection), credential: secret)
@@ -108,11 +109,10 @@ final class DeviceOfficialSource: OfficialSource {
             if requestPlayer {
                 do {
                     let value = try await read(.player)
-                    let projection = try Self.projectPlayer(value)
-                    let data = try JSONSerialization.data(withJSONObject: ["schemaVersion": "mobile-workspace/v1", "mode": "personal", "player": projection, "raids": []])
-                    guard let candidate = try WorkspaceDocument.decode(data).player,
-                          await confirm(candidate.displayName, oldDocument.player?.displayName) else { throw WorkspaceError.cancelled }
-                    projectedPlayer = candidate
+                    let cache = try PlayerCache.project(value)
+                    let candidate = try cache.portablePlayer()
+                    guard await confirm(candidate.displayName, oldDocument.player?.displayName) else { throw WorkspaceError.cancelled }
+                    projectedPlayer = candidate; projectedCache = cache
                     playerReferenceChanged = previous.first(where: { $0.scope == .player })?.reference != reference
                     document.player = candidate; document.mode = "personal"
                     updated.append(CapabilityState(scope: .player, reference: reference, status: "verified-scope", guild: nil))
@@ -144,7 +144,11 @@ final class DeviceOfficialSource: OfficialSource {
             } else { updated.append(CapabilityState(scope: .raid, reference: nil, status: "guild-binding-unavailable", guild: nil)) }
             try Task.checkCancellation()
             try store.transaction {
-                if projectedPlayer != nil { try store.write(document) }
+                if projectedPlayer != nil {
+                    // Re-read local rows at commit: a delayed refresh cannot overwrite a local edit.
+                    document.raids = try store.read().raids
+                    try store.write(document); try store.writePlayerCache(projectedCache)
+                }
                 for state in updated { try store.setCapability(state) }
             }
             let references = Set(try store.capabilities().compactMap(\.reference))
@@ -169,26 +173,5 @@ final class DeviceOfficialSource: OfficialSource {
         }
         let retained = Set(try store.capabilities().compactMap(\.reference))
         for reference in Set(previous.compactMap(\.reference)) where !retained.contains(reference) { try vault.remove(reference) }
-    }
-    private static func projectPlayer(_ value: [String: Any]) throws -> [String: Any] {
-        guard let player = value["player"] as? [String: Any], let metadata = value["metaData"] as? [String: Any],
-              (metadata["scopes"] as? [String])?.contains("Player") == true,
-              let name = (player["details"] as? [String: Any])?["name"] as? String,
-              let units = player["units"] as? [[String: Any]], units.count <= 1000,
-              let updated = metadata["lastUpdatedOn"] as? NSNumber,
-              updated.doubleValue.isFinite, updated.doubleValue >= 0,
-              updated.doubleValue <= 9_007_199_254_740 else { throw WorkspaceError.scope }
-        let sanitized = try units.map { unit -> [String: Any] in
-            guard let id = unit["id"] as? String, let name = unit["name"] as? String,
-                  let rank = unit["rank"] as? NSNumber, let level = unit["xpLevel"] as? NSNumber else { throw WorkspaceError.scope }
-            return ["id": id, "name": name, "rank": rank, "xpLevel": level]
-        }
-        let progress = (player["progress"] as? [String: Any])?["guildRaid"] as? [String: Any]
-        func token(_ object: Any?) -> Any {
-            guard let object = object as? [String: Any], object["current"] is NSNumber, object["max"] is NSNumber else { return NSNull() }
-            return object.filter { ["current", "max", "nextTokenInSeconds", "regenDelayInSeconds"].contains($0.key) }
-        }
-        return ["displayName": name, "units": sanitized, "resources": ["guildRaidTokens": token(progress?["tokens"]), "bombTokens": token(progress?["bombTokens"])],
-                "upstreamUpdatedAt": updated.int64Value * 1000]
     }
 }
