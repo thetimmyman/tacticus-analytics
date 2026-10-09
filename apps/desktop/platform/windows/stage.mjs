@@ -112,6 +112,7 @@ export async function stage(config) {
   for (const path of [
     'launch.mjs',
     'services.mjs',
+    'schema-bootstrap.mjs',
     'native-command.mjs',
     'onboarding.mjs',
     'session-gate.mjs',
