@@ -130,7 +130,12 @@ test('only initdb skips the redundant restricted-token relaunch', async () => {
   })
   assert.equal(launches[1].options.env, inherited)
   assert.equal(launches[2].options.env.PG_RESTRICT_EXEC, '1')
-  assert.equal(launches[2].options.env.PATH, process.env.PATH)
+  assert.deepEqual(
+    Object.entries(launches[2].options.env).find(
+      ([name]) => name.toUpperCase() === 'PATH'
+    ),
+    Object.entries(process.env).find(([name]) => name.toUpperCase() === 'PATH')
+  )
   assert.deepEqual(
     Object.keys(launches[2].options.env).filter(
       (name) => name.toUpperCase() === 'PG_RESTRICT_EXEC'
