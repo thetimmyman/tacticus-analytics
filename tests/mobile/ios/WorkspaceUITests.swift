@@ -53,8 +53,22 @@ final class WorkspaceUITests: XCTestCase {
     func testFreshPersonalWorkspaceRequiresPlayerAndSecureInput() throws {
         let app = XCUIApplication(); app.launch()
         XCTAssertTrue(app.buttons["connect-all"].waitForExistence(timeout: 15))
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15))
+        let personalReady = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            let mode = app.staticTexts["workspace-mode"], player = app.staticTexts["scope-Player"]
+            guard mode.exists, player.exists else { return false }
+            return mode.label == "Personal workspace" && player.label == "Player: not connected" && !app.staticTexts["resources"].exists
+        }, object: nil)
+        XCTAssertEqual(XCTWaiter.wait(for: [personalReady], timeout: 15), .completed)
+        waitForHittable(app.buttons["add-raid"])
+        let before = app.staticTexts["analytics"].label
+        XCTAssertEqual(before, "Damage 0 · Tokens 0 · Damage/token 0")
         app.buttons["add-raid"].tap()
-        XCTAssertTrue(app.staticTexts["workspace-status"].label.contains("Verify Player"))
+        let refused = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == true AND label == %@", "Verify Player before creating personal content."), object: app.staticTexts["workspace-status"])
+        XCTAssertEqual(XCTWaiter.wait(for: [refused], timeout: 15), .completed)
+        XCTAssertFalse(app.alerts["Local raid row"].exists)
+        XCTAssertFalse(app.textFields["raid-player"].exists)
+        XCTAssertEqual(app.staticTexts["analytics"].label, before)
         app.switches["offline"].tap()
         app.buttons["connect-all"].tap()
         XCTAssertTrue(app.secureTextFields["secure-official-key"].waitForExistence(timeout: 5))

@@ -170,3 +170,242 @@ export function nodeLaunchDiagnostic(error, argumentsList = []) {
     postgresChildStatus: uint32(error?.postgresChildStatus)
   }
 }
+
+// Trusted startup tracing only. This WeakMap preserves frozen error identities;
+// no serialized configuration or renderer value supplies a diagnostic record.
+const nativeServicesFailures = new WeakMap()
+const nativeServicesStages = new Set([
+  'configuration',
+  'platform-admission',
+  'state-directory',
+  'schema-preparation',
+  'interrupt-handlers',
+  'service-material',
+  'credentials-check',
+  'port-allocation',
+  'postgres-version-check',
+  'initdb-password-write',
+  'initdb-run',
+  'initdb-password-retire',
+  'postgres-launch',
+  'postgres-readiness',
+  'schema-inspect',
+  'role-inspection',
+  'role-bootstrap',
+  'auth-role-maintenance',
+  'auth-migrate',
+  'auth-launch',
+  'auth-readiness',
+  'schema-completion',
+  'postgrest-launch',
+  'postgrest-readiness',
+  'services-result'
+])
+const nativeErrorNames = new Set([
+  'Error',
+  'TypeError',
+  'RangeError',
+  'SyntaxError',
+  'ReferenceError',
+  'AssertionError',
+  'AbortError',
+  'TimeoutError',
+  'AggregateError'
+])
+const nativeErrorCodes = new Set([
+  'EACCES',
+  'EPERM',
+  'ENOENT',
+  'EEXIST',
+  'ENOTDIR',
+  'EISDIR',
+  'ELOOP',
+  'EBUSY',
+  'ENOSPC',
+  'EMFILE',
+  'ENFILE',
+  'EADDRINUSE',
+  'EADDRNOTAVAIL',
+  'ECONNREFUSED',
+  'ECONNRESET',
+  'ETIMEDOUT',
+  'EPIPE',
+  'ERR_STREAM_DESTROYED',
+  'ERR_INVALID_ARG_TYPE',
+  'ERR_OUT_OF_RANGE',
+  'ERR_SOCKET_BAD_PORT',
+  'ENATIVE',
+  'EVAULTLOCKED',
+  'EUPSTREAM',
+  'ESESSION',
+  'ESCHEMA'
+])
+const nativeSourceFailures = new Map([
+  ['Windows native owner required', 'windows-owner-required'],
+  ['Corrupt local credentials; refusing activation', 'credentials-corrupt'],
+  [
+    'Local schema state is incompatible; activation refused',
+    'schema-state-refused'
+  ],
+  ['Invalid schema proof callback', 'schema-callback-refused'],
+  ['Invalid schema proof client', 'schema-client-refused'],
+  ['Unsupported native operation', 'native-operation-unsupported'],
+  ['Unlock your local workspace to continue.', 'native-session-locked'],
+  ['Windows secure input or vault is unavailable.', 'native-vault-unavailable'],
+  [
+    'Official access is invalid, expired or unavailable.',
+    'native-upstream-refused'
+  ],
+  ['PostgreSQL readiness timed out', 'postgres-readiness-timeout'],
+  ['Auth readiness timed out', 'auth-readiness-timeout'],
+  ['PostgREST readiness timed out', 'postgrest-readiness-timeout']
+])
+function diagnosticProperty(error, name) {
+  // Read data descriptors only; an unknown accessor must never run merely to
+  // classify a refusal. Proxy/descriptor failures also stay closed.
+  try {
+    for (let current = error, depth = 0; current && depth < 4; depth++) {
+      const descriptor = Object.getOwnPropertyDescriptor(current, name)
+      if (descriptor)
+        return 'value' in descriptor ? descriptor.value : undefined
+      current = Object.getPrototypeOf(current)
+    }
+  } catch {}
+}
+function nativeErrorDiagnostic(error) {
+  const name = diagnosticProperty(error, 'name')
+  const code = diagnosticProperty(error, 'code')
+  return {
+    exceptionClass: nativeErrorNames.has(name) ? name : 'unavailable',
+    errorCode:
+      code === undefined
+        ? 'none'
+        : nativeErrorCodes.has(code)
+          ? code
+          : 'unavailable'
+  }
+}
+function nativeSourceFailure(error) {
+  const message = diagnosticProperty(error, 'message')
+  if (typeof message !== 'string' || message.length > 4096) return 'unavailable'
+  const fixed = nativeSourceFailures.get(message)
+  if (fixed) return fixed
+  for (const [prefix, category] of [
+    [
+      'PostgreSQL exited before readiness; ',
+      'postgres-exited-before-readiness'
+    ],
+    ['Auth exited before readiness; ', 'auth-exited-before-readiness'],
+    ['PostgREST exited before readiness; ', 'postgrest-exited-before-readiness']
+  ])
+    if (message.startsWith(prefix)) return category
+  return 'unavailable'
+}
+export function nativeServicesProbeDiagnostic(error) {
+  const code = diagnosticProperty(error, 'serviceFailureCode')
+  return Object.freeze({
+    ...nativeErrorDiagnostic(error),
+    serviceFailureCode: serviceFailureCodeSet.has(code) ? code : 'unavailable'
+  })
+}
+export function captureNativeServicesFailure(error, trace) {
+  // Evidence must not change the original failure, even for a frozen error or
+  // an exotic thrown value. The service cleanup and thrown object stay intact.
+  try {
+    if (
+      (typeof error !== 'object' || error === null) &&
+      typeof error !== 'function'
+    )
+      return
+    const first = trace.failure ?? {
+      error,
+      stage: trace.stage,
+      probe: trace.probe
+    }
+    const primary = nativeErrorDiagnostic(first.error)
+    const cleanup = first.error === error ? null : nativeErrorDiagnostic(error)
+    const probe = first.probe
+    const probeName = diagnosticProperty(probe, 'exceptionClass')
+    const probeCode = diagnosticProperty(probe, 'errorCode')
+    const probeServiceCode = diagnosticProperty(probe, 'serviceFailureCode')
+    nativeServicesFailures.set(
+      error,
+      Object.freeze({
+        stage: nativeServicesStages.has(first.stage)
+          ? first.stage
+          : 'stage-unavailable',
+        ...primary,
+        sourceFailureCode: nativeSourceFailure(first.error),
+        probeExceptionClass:
+          probe === undefined
+            ? 'not-applicable'
+            : nativeErrorNames.has(probeName)
+              ? probeName
+              : 'unavailable',
+        probeErrorCode:
+          probe === undefined
+            ? 'not-applicable'
+            : probeCode === 'none' || nativeErrorCodes.has(probeCode)
+              ? probeCode
+              : 'unavailable',
+        probeServiceFailureCode:
+          probe === undefined
+            ? 'not-applicable'
+            : serviceFailureCodeSet.has(probeServiceCode)
+              ? probeServiceCode
+              : 'unavailable',
+        cleanupExceptionClass: cleanup?.exceptionClass ?? 'not-applicable',
+        cleanupErrorCode: cleanup?.errorCode ?? 'not-applicable'
+      })
+    )
+  } catch {}
+}
+
+// Failure-only coordinator evidence. Unknown values never enter the receipt.
+const coordinatorStages = new Set([
+  'configuration',
+  'schema-recovery',
+  'services-start',
+  'recovery-journey',
+  'gateway-start',
+  'app-port-allocation',
+  'application-launch',
+  'application-health',
+  'verification-input',
+  'former-password-fixture',
+  'verification-route-controls',
+  'owner-before-window',
+  'window-launch',
+  'window-exit',
+  'post-window-conservation',
+  'window-result',
+  'gateway-stop',
+  'services-stop'
+])
+const fixtureFailures = new Map([
+  [
+    'Migration fixture requires a new empty test workspace',
+    'workspace-occupied'
+  ],
+  ['Migration fixture local account failed', 'account-response-refused'],
+  ['Invalid fixture owner', 'owner-shape-refused'],
+  ['Invalid synthetic Auth subject', 'subject-shape-refused'],
+  ['Invalid synthetic fixture envelope', 'envelope-refused'],
+  ['Unexpected synthetic fields', 'fields-refused'],
+  ['Invalid synthetic row', 'row-refused'],
+  ['Invalid synthetic cluster', 'cluster-refused'],
+  ['Invalid fixture identity', 'identity-refused']
+])
+
+export function launchCoordinatorDiagnostic(error, stage) {
+  return {
+    stage: coordinatorStages.has(stage) ? stage : 'stage-unavailable',
+    fixtureFailureCode:
+      stage === 'former-password-fixture'
+        ? (fixtureFailures.get(error?.message) ?? 'unavailable')
+        : 'not-applicable',
+    ...(stage === 'services-start' && nativeServicesFailures.has(error)
+      ? { nativeServicesDiagnostic: nativeServicesFailures.get(error) }
+      : {})
+  }
+}
