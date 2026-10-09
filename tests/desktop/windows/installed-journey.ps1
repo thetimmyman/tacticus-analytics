@@ -46,12 +46,27 @@ $recoveryPath = Join-Path $env:RUNNER_TEMP 'recovery-evidence.json'
 & "$installed/TacticusDesktop.exe" run-candidate $installed $workspace --recovery $recoveryPath
 if ($LASTEXITCODE -ne 0) { throw 'Installed database recovery qualification failed' }
 $recovery = Get-Content $recoveryPath | ConvertFrom-Json
+$schemaRecovery = @()
+# Separate fresh workspaces retain the existing native owner/ACL/restricted
+# token/Job Object boundary. These follow, and cannot replace, the primary
+# graphical journeys or the original five-control recovery verdict above.
+foreach ($scenario in @('interrupted-bootstrap', 'committed-marker-refusal')) {
+  $proofWorkspace = Join-Path $qualification ("schema $scenario workspace ü")
+  $proofEvidence = Join-Path $env:RUNNER_TEMP ("renderer-schema-recovery-$scenario.json")
+  & "$installed/TacticusDesktop.exe" run-candidate $installed $proofWorkspace --schema-recovery $scenario --schema-recovery-evidence $proofEvidence
+  if ($LASTEXITCODE -ne 0) { throw 'Installed schema recovery proof failed' }
+  $proof = Get-Content $proofEvidence | ConvertFrom-Json
+  if (-not $proof.completed -or $proof.scenario -ne $scenario -or $proof.sourceSha -ne $manifest.sourceSha -or $proof.manifestSha256 -ne $manifestDigest) {
+    throw 'Installed schema recovery evidence binding failed'
+  }
+  $schemaRecovery += $proof
+}
 @{ schemaVersion = 1; sourceSha = $manifest.sourceSha; manifestSha256 = $manifestDigest;
    platform = 'win-x64'; artifactKind = 'installed-candidate'; candidateOnly = $true; standardConsumerUser = $false; nativeInstalledArtifact = $true;
    completed = $true; qualificationLocation = 'current-user-application-directory';
    postgresFilesystemAlias = 'verified-by-native-owner'; os = [System.Environment]::OSVersion.VersionString;
    packageFiles = $manifest.files.Count; packageBytes = ($manifest.files | Measure-Object -Property size -Sum).Sum; elapsedMs = $timer.ElapsedMilliseconds;
-   journeys = $journeys; recovery = $recovery; officialApiKeysUsed = $false; featureParityClaim = $false; syntheticDemo = $true;
+   journeys = $journeys; recovery = $recovery; schemaRecovery = $schemaRecovery; officialApiKeysUsed = $false; featureParityClaim = $false; syntheticDemo = $true;
    wholeProcessOfflineQualified = $false; networkBoundary = 'Electron-renderer-session-only';
    remainingGates = @('owner-approved signing and release trust', 'standard-user consumer Windows install', 'full accepted feature inventory', 'official onboarding projection integration', 'migrated real API vault bindings', 'Unicode PostgreSQL on volumes without short aliases', 'whole-process external network denial', 'rights and full notices review') } |
   ConvertTo-Json -Depth 8 | Set-Content -Encoding utf8 $Evidence

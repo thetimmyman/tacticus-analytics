@@ -335,12 +335,26 @@ export function validOwnerSession(value, subject, key) {
   }
 }
 
-export async function nativeServices({
-  state,
-  binaries,
-  schemaDirectory,
-  libraryPath
-}) {
+// Trusted installed-proof seam only. No serialized configuration, renderer or
+// native IPC value supplies this callback. Normal activation uses the exact
+// preparation and psql path, and any failure still stops the real stack.
+export async function completeNativeSchema(
+  preparation,
+  psql,
+  openClient,
+  hook
+) {
+  if (hook !== undefined && typeof hook !== 'function')
+    throw new Error('Invalid schema proof callback')
+  return hook
+    ? hook({ preparation, psql, openClient })
+    : preparation.complete(psql)
+}
+
+export async function nativeServices(
+  { state, binaries, schemaDirectory, libraryPath },
+  { completeSchema } = {}
+) {
   if (process.platform !== 'win32')
     throw new Error('Windows native owner required')
   state = resolve(state)
@@ -437,6 +451,46 @@ export async function nativeServices({
       } finally {
         await unlink(path).catch(() => {})
       }
+    }
+    const openSchemaClient = (applicationName) => {
+      if (
+        typeof applicationName !== 'string' ||
+        !/^desktop-bootstrap-[a-f0-9]{16}$/.test(applicationName)
+      )
+        throw new Error('Invalid schema proof client')
+      const client = spawn(
+        binaries.psql,
+        [
+          '-X',
+          '-v',
+          'ON_ERROR_STOP=1',
+          '-h',
+          '127.0.0.1',
+          '-p',
+          String(ports.db),
+          '-U',
+          'desktop_owner',
+          '-d',
+          'postgres',
+          '-At'
+        ],
+        {
+          cwd: state,
+          env: { ...pgEnv, PGAPPNAME: applicationName },
+          stdio: ['pipe', 'ignore', 'ignore'],
+          windowsHide: false
+        }
+      )
+      // This utility deliberately observes a terminated backend. Its expected
+      // nonzero close is tested by the proof, while stop still owns cleanup.
+      // Long-lived service fault handling below is unchanged.
+      children.push(client)
+      client.stdin.on('error', () => {})
+      const closed = new Promise((accept) => {
+        client.once('error', () => accept({ code: null, signal: null }))
+        client.once('close', (code, signal) => accept({ code, signal }))
+      })
+      return { client, closed }
     }
     const launch = (
       file,
@@ -602,7 +656,7 @@ export async function nativeServices({
       auth,
       'Auth'
     )
-    await schema.complete(psql)
+    await completeNativeSchema(schema, psql, openSchemaClient, completeSchema)
     const rest = launch(binaries.postgrest, [], {
       ...process.env,
       PATH: process.env.PATH,

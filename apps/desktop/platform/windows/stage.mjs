@@ -113,6 +113,7 @@ export async function stage(config) {
     'launch.mjs',
     'services.mjs',
     'schema-bootstrap.mjs',
+    'schema-bootstrap-recovery-proof.mjs',
     'native-command.mjs',
     'onboarding.mjs',
     'session-gate.mjs',
