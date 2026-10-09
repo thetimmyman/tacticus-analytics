@@ -37,6 +37,16 @@ const serviceConfig = {
     postgrest: join(root, 'postgrest/postgrest.exe')
   }
 }
+if (args.includes('--schema-recovery')) {
+  const { windowsSchemaRecoveryProof } =
+    await import('./schema-bootstrap-recovery-proof.mjs')
+  await windowsSchemaRecoveryProof(serviceConfig, {
+    scenario: option('--schema-recovery'),
+    evidence: option('--schema-recovery-evidence'),
+    root
+  })
+  process.exit(0)
+}
 const services = await nativeServices(serviceConfig)
 if (option('--recovery')) {
   try {
