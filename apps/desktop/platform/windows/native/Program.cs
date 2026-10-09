@@ -15,7 +15,7 @@ internal static class Program
             if (args.Length == 0)
             {
                 if (package is not null)
-                    return RunCandidate(package.Payload, Installation.Workspace, Array.Empty<string>());
+                    return RunCandidate(package.Payload, Installation.PackagedWorkspace, Array.Empty<string>());
                 throw new InvalidOperationException("Choose run-candidate, install-candidate, rollback, native-proof or official onboarding");
             }
             if (package is not null && PackageRuntime.IsUnpackagedOnlyVerb(args[0]))
@@ -23,7 +23,7 @@ internal static class Program
             switch (args[0])
             {
                 case "run-msix" when package is not null:
-                    return RunCandidate(package.Payload, Installation.Workspace, args.Skip(1));
+                    return RunCandidate(package.Payload, Installation.PackagedWorkspace, args.Skip(1));
                 case "run-msix-qualified" when package is not null && args.Length >= 2:
                     return RunCandidate(package.Payload, QualifiedWorkspace(args[1]), args.Skip(2));
                 case "package-integrity-proof" when package is not null && args.Length == 2:
@@ -140,10 +140,7 @@ internal static class Program
     {
         if (!Path.IsPathFullyQualified(value))
             throw new InvalidOperationException("Qualification workspace must be absolute");
-        var profile = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        if (string.IsNullOrWhiteSpace(profile))
-            throw new InvalidOperationException("Current-user application directory unavailable");
-        var root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(Path.Combine(profile, "TacticusDesktopPreview")));
+        var root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(Installation.PackagedWorkspaceRoot));
         var workspace = Path.TrimEndingDirectorySeparator(Path.GetFullPath(value));
         var prefix = root + Path.DirectorySeparatorChar;
         if (!workspace.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
@@ -159,6 +156,11 @@ internal static class Program
     private static int RunCandidate(string root, string workspace, IEnumerable<string> forwarded)
     {
         var arguments = forwarded.ToArray();
+        var measurementIndex = Array.IndexOf(arguments, "--measurement");
+        var measurementPath = measurementIndex >= 0 && measurementIndex + 1 < arguments.Length
+            ? arguments[measurementIndex + 1]
+            : null;
+        WriteMeasurement(measurementPath, "native-admitted", null, null, null, null);
         var manifest = Bundle.Load(root);
         Bundle.Verify(root, manifest);
         using var state = new ProtectedState(workspace);
@@ -167,14 +169,33 @@ internal static class Program
         var postgresHome = RuntimePaths.AsciiDirectory(Path.Combine(root, "postgres"));
         var command = new[] { script, "--state", state.Root, "--postgres-home", postgresHome }.Concat(arguments);
         var timer = Stopwatch.StartNew();
+        WriteMeasurement(measurementPath, "native-prelaunch", manifest.SourceSha, timer.ElapsedMilliseconds, null, null);
         using var process = job.Start(Path.Combine(root, "bin", "node.exe"), command, root, removeAdministrativeAccess: true);
         var code = process.Wait();
-        var measurement = Array.IndexOf(arguments, "--measurement");
-        if (measurement >= 0 && measurement + 1 < arguments.Length)
-            File.WriteAllText(arguments[measurement + 1], JsonSerializer.Serialize(new { sourceSha = manifest.SourceSha,
-                elapsedMs = timer.ElapsedMilliseconds, peakJobCommittedBytes = job.PeakCommittedBytes() is var peak && peak > 0 ? (long?)peak : null, exitCode = code,
-                metric = "Windows Job Object peak committed memory; not RSS" }));
+        long? peak = null;
+        try
+        {
+            var measured = job.PeakCommittedBytes();
+            if (measured > 0) peak = measured;
+        }
+        catch (System.ComponentModel.Win32Exception) { }
+        WriteMeasurement(measurementPath, "child-exited", manifest.SourceSha, timer.ElapsedMilliseconds, peak, code);
         return code;
+    }
+    private static void WriteMeasurement(string? path, string stage, string? sourceSha, long? elapsedMs, long? peakJobCommittedBytes, int? exitCode)
+    {
+        if (path is null) return;
+        File.WriteAllText(path, JsonSerializer.Serialize(new
+        {
+            schemaVersion = 1,
+            platform = "win-x64",
+            stage,
+            sourceSha,
+            elapsedMs,
+            peakJobCommittedBytes,
+            exitCode,
+            metric = "Windows Job Object peak committed memory; not RSS"
+        }));
     }
     [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
     private static extern int MessageBoxW(IntPtr window, string text, string caption, uint flags);

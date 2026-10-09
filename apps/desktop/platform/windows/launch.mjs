@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
+import { writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createServer } from 'node:net'
@@ -11,12 +12,32 @@ import { currentSessionChannel } from './session-gate.mjs'
 import { strict as assert } from 'node:assert'
 import { recoveryJourney } from './recovery.mjs'
 import { seedFormerPasswordFixture } from './migration-fixture.mjs'
+import { nodeLaunchFailureCategory } from './launch-diagnostic.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const root = resolve(here, '../../../..')
 const args = process.argv.slice(2)
 const option = (name) =>
   args.includes(name) ? args[args.indexOf(name) + 1] : undefined
+const launchDiagnostic = option('--launch-diagnostic')
+const writeLaunchDiagnostic = (outcome, category) => {
+  if (!launchDiagnostic) return
+  try {
+    writeFileSync(
+      launchDiagnostic,
+      JSON.stringify({
+        schemaVersion: 1,
+        platform: 'win-x64',
+        outcome,
+        nodeLaunchFailureCategory: category
+      }),
+      { encoding: 'utf8', mode: 0o600 }
+    )
+  } catch {}
+}
+process.once('uncaughtExceptionMonitor', (error) => {
+  writeLaunchDiagnostic('failed', nodeLaunchFailureCategory(error, args))
+})
 const stateArgument = option('--state')
 if (!stateArgument)
   throw new Error('Native workspace owner must supply its protected state path')
@@ -45,6 +66,7 @@ if (args.includes('--schema-recovery')) {
     evidence: option('--schema-recovery-evidence'),
     root
   })
+  writeLaunchDiagnostic('completed', 'none')
   process.exit(0)
 }
 const services = await nativeServices(serviceConfig)
@@ -54,6 +76,7 @@ if (option('--recovery')) {
   } finally {
     await services.stop()
   }
+  writeLaunchDiagnostic('completed', 'none')
   process.exit(0)
 }
 let gateway
@@ -216,3 +239,4 @@ try {
   if (gateway) await gateway.stop()
   await services.stop()
 }
+writeLaunchDiagnostic('completed', 'none')

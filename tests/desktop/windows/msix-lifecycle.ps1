@@ -19,9 +19,9 @@ $msixActivator = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot 'activate-m
 $manifestPath = Join-Path $Bundle 'bundle-manifest.json'
 $manifest = Get-Content -LiteralPath $manifestPath | ConvertFrom-Json
 $manifestDigest = (Get-FileHash -LiteralPath $manifestPath -Algorithm SHA256).Hash.ToLowerInvariant()
-$localApplicationData = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::LocalApplicationData)
-if ([string]::IsNullOrWhiteSpace($localApplicationData)) { throw 'Current-user application directory unavailable' }
-$qualificationRoot = Join-Path $localApplicationData (Join-Path 'TacticusDesktopPreview' ('qualification-' + [guid]::NewGuid().ToString('N')))
+$userProfile = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile)
+if ([string]::IsNullOrWhiteSpace($userProfile)) { throw 'Current-user profile directory unavailable' }
+$qualificationRoot = Join-Path $userProfile (Join-Path 'TacticusDesktopPreview' ('qualification-' + [guid]::NewGuid().ToString('N')))
 
 $receipt = [ordered]@{
   schemaVersion = 1
@@ -95,10 +95,13 @@ function Invoke-CachedReopen($Package, [string]$Label) {
   $screenshot = Join-Path $env:RUNNER_TEMP "renderer-msix-$Label.png"
   $verify = Join-Path $env:RUNNER_TEMP "window-verification-msix-$Label.json"
   $measurement = Join-Path $env:RUNNER_TEMP "measurement-msix-$Label.json"
+  $activationEvidence = Join-Path $env:RUNNER_TEMP "measurement-aumid-$Label.json"
+  $nodeDiagnostic = Join-Path $env:RUNNER_TEMP "node-launch-diagnostic-$Label.json"
   @{ seedFormerPasswordFixture = $false; evidence = $renderer; screenshot = $screenshot } |
     ConvertTo-Json | Set-Content -Encoding utf8 $verify
-  $activationExit = & $msixActivator -PackageFamilyName $Package.PackageFamilyName `
-    -Arguments @('run-msix-qualified', $workspace, '--verify', $verify, '--measurement', $measurement)
+  $activationExit = & $msixActivator -PackageFamilyName $Package.PackageFamilyName -Evidence $activationEvidence `
+    -NodeDiagnostic $nodeDiagnostic -Arguments @('run-msix-qualified', $workspace, '--verify', $verify, `
+      '--measurement', $measurement, '--launch-diagnostic', $nodeDiagnostic)
   if ($activationExit -ne 0) { throw 'Updated package cached reopen failed' }
   $result = Get-Content -LiteralPath $renderer | ConvertFrom-Json
   $nativeMeasurement = Get-Content -LiteralPath $measurement | ConvertFrom-Json
@@ -181,8 +184,9 @@ try {
   [System.IO.File]::WriteAllText($sentinel, "workspace-bound-to-$($manifest.sourceSha)", [System.Text.UTF8Encoding]::new($false))
   $sentinelDigest = (Get-FileHash -LiteralPath $sentinel -Algorithm SHA256).Hash.ToLowerInvariant()
 
+  $integrityActivationEvidence = Join-Path $env:RUNNER_TEMP 'measurement-aumid-package-integrity.json'
   $activationExit = & $msixActivator -PackageFamilyName $installed.PackageFamilyName `
-    -Arguments @('package-integrity-proof', $IntegrityEvidence)
+    -Evidence $integrityActivationEvidence -NoNodeLaunch -Arguments @('package-integrity-proof', $IntegrityEvidence)
   if ($activationExit -ne 0 -or -not (Test-Path -LiteralPath $IntegrityEvidence -PathType Leaf)) {
     throw 'Installed package integrity proof failed'
   }
