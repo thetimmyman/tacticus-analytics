@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os'
 import { lookup } from 'node:dns/promises'
 import { stage, inventory } from './stage.mjs'
 import { records } from './evidence.mjs'
+import { qualifyGraphicalReopen } from './graphical-reopen.mjs'
 import requestDiagnostics from './request-diagnostics.cjs'
 import {
   verifySchemaProofInstallation,
@@ -273,7 +274,35 @@ async function run(
 }
 let failedPhase = 'graphical'
 try {
-  await run([])
+  await qualifyGraphicalReopen({
+    working,
+    state,
+    verifyFile: verify,
+    binding: {
+      sourceCommit: proofBinding.sourceCommit,
+      artifactSha256: proofBinding.artifactSha256,
+      inventorySha256: proofBinding.inventorySha256,
+      architecture: proofBinding.architecture,
+      sourceHashes: Object.fromEntries(
+        await Promise.all(
+          [
+            'apps/desktop/platform/macos/qualification.mjs',
+            'apps/desktop/platform/macos/graphical-reopen.mjs'
+          ].map(async (path) => [
+            path,
+            createHash('sha256')
+              .update(await readFile(join(sourceRoot, path)))
+              .digest('hex')
+          ])
+        )
+      )
+    },
+    run: async (arguments_, options) => {
+      failedPhase =
+        options.verifyFile === verify ? 'graphical' : 'graphical-reopen'
+      await run(arguments_, options)
+    }
+  })
   failedPhase = 'storage'
   for (const name of ['storage-first.json', 'storage-second.json'])
     await run(['--storage-check', join(working, name)], {
@@ -287,13 +316,20 @@ try {
     'renderer.json.failure.json',
     'renderer.json.native.json',
     'renderer.png',
+    'graphical-reopen-device-session.json',
+    'graphical-reopen-renderer.json',
+    'graphical-reopen-renderer.json.failure.json',
+    'graphical-reopen-renderer.json.native.json',
+    'graphical-reopen-renderer.png',
+    'graphical-reopen.json',
+    'graphical-reopen-failure.json',
     'storage-first.json',
     'storage-second.json'
   ]) {
     try {
       await cp(join(working, name), join(output, name))
-    } catch (copyError) {
-      if (copyError.code !== 'ENOENT') throw copyError
+    } catch {
+      // Retention failure cannot replace the original mandatory outcome.
     }
   }
   // Diagnose ordinary runtime compatibility separately. The mandatory network
@@ -302,7 +338,14 @@ try {
   let nativeFailure
   try {
     nativeFailure = JSON.parse(
-      await readFile(join(working, 'renderer.json.native.json'))
+      await readFile(
+        join(
+          working,
+          failedPhase === 'graphical-reopen'
+            ? 'graphical-reopen-renderer.json.native.json'
+            : 'renderer.json.native.json'
+        )
+      )
     )
   } catch {}
   try {
@@ -612,6 +655,10 @@ for (const [name, mediaType] of [
   ['network-policy.json', 'application/json'],
   ['renderer.json', 'application/json'],
   ['renderer.png', 'image/png'],
+  ['graphical-reopen-device-session.json', 'application/json'],
+  ['graphical-reopen-renderer.json', 'application/json'],
+  ['graphical-reopen-renderer.png', 'image/png'],
+  ['graphical-reopen.json', 'application/json'],
   ['storage-first.json', 'application/json'],
   ['storage-second.json', 'application/json'],
   ['schema-bootstrap-proof.json', 'application/json']

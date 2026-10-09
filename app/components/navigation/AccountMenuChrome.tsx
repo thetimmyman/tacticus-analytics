@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { ChromeLink as Link } from './ChromeLink'
 import { Avatar } from '@tacticus/ui-kit'
 import { RadixDropdownMenuItem } from '@tacticus/ui-kit/radix-dropdown'
 import { LogOut, Settings } from 'lucide-react'

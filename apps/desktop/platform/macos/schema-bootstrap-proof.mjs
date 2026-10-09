@@ -571,6 +571,10 @@ export async function retainSchemaProofPrimaryEvidence({ working, output }) {
       'device-session.json',
       'renderer.json',
       'renderer.png',
+      'graphical-reopen-device-session.json',
+      'graphical-reopen-renderer.json',
+      'graphical-reopen-renderer.png',
+      'graphical-reopen.json',
       'storage-first.json',
       'storage-second.json'
     ]

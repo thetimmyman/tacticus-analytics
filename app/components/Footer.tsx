@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { ChromeLink as Link } from '@/app/components/navigation/ChromeLink'
 import VersionFooter from '@/app/components/VersionFooter'
 
 interface FooterProps {
