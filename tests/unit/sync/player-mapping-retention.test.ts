@@ -75,7 +75,9 @@ function buildClient(options: {
         return Promise.resolve({
           data: ids.map((player_id) => ({
             player_id,
-            from_guild_code: 'OLD'
+            from_guild_code: 'OLD',
+            cluster_code: 'NEWC',
+            cluster_id: 'new-cluster'
           })),
           error: null
         })
@@ -190,6 +192,8 @@ describe('worker roster retention', () => {
   it('moves a claimed player from another guild on live Tacticus evidence alone', async () => {
     const claimed = row('H', {
       guild_code: 'OLD',
+      cluster_code: 'OLDC',
+      cluster_id: 'old-cluster',
       user_id: 'subject-h',
       ownership_attestation_id: 'attestation-h'
     })
@@ -224,6 +228,41 @@ describe('worker roster retention', () => {
     const moved = upserted.find((record) => record.player_id === 'H')
     expect(moved?.guild_code).toBe('GUILD')
     expect(moved?.is_current).toBe(true)
+    expect(moved?.cluster_code).toBe('NEWC')
+    expect(moved?.cluster_id).toBe('new-cluster')
+  })
+
+  it('moves a Tacticus-confirmed claimed player LOKI has not listed yet', async () => {
+    const claimed = row('H', {
+      guild_code: 'OLD',
+      user_id: 'subject-h',
+      ownership_attestation_id: 'attestation-h'
+    })
+    const { client, rpcCalls } = buildClient({
+      currentRosterRows: ['A'],
+      existingRows: [row('A'), claimed]
+    })
+
+    await savePlayerMappings(
+      client as never,
+      'GUILD',
+      [{ userId: 'A', displayName: 'Alpha', role: 'leader' }] as never,
+      null,
+      null,
+      new Date().toISOString(),
+      ['A', 'H']
+    )
+
+    expect(
+      rpcCalls.filter(
+        (call) => call.name === 'transfer_roster_confirmed_players'
+      )
+    ).toEqual([
+      {
+        name: 'transfer_roster_confirmed_players',
+        args: { p_target_guild_code: 'GUILD', p_player_ids: ['H'] }
+      }
+    ])
   })
 
   it('never moves a claimed player on a LOKI roster without Tacticus evidence', async () => {

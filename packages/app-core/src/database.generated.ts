@@ -12432,6 +12432,8 @@ export type Database = {
       transfer_roster_confirmed_players: {
         Args: { p_player_ids: string[]; p_target_guild_code: string }
         Returns: {
+          cluster_code: string
+          cluster_id: string
           from_guild_code: string
           player_id: string
         }[]

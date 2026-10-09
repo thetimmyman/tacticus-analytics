@@ -12,6 +12,7 @@ function buildClient(
   const transferCalls: Array<Record<string, unknown>> = []
   const upserted: Array<Record<string, unknown>> = []
   const rpcCalls: Array<Record<string, unknown>> = []
+  const loadedIds: string[][] = []
   const existingRows = [
     {
       player_id: 'player-1',
@@ -22,8 +23,8 @@ function buildClient(
       tacticus_share_url: null,
       theme_preference: 'dark',
       boss_preferences: null,
-      cluster_code: null,
-      cluster_id: null,
+      cluster_code: 'OLDC',
+      cluster_id: 'old-cluster',
       avatar_unit_id: null,
       player_level: null,
       player_power: null,
@@ -59,9 +60,9 @@ function buildClient(
           playerSelect += 1
           return playerSelect === 1
             ? {
-                in: vi.fn().mockResolvedValue({
-                  data: existingRows,
-                  error: null
+                in: vi.fn((_column: string, ids: string[]) => {
+                  loadedIds.push(ids)
+                  return Promise.resolve({ data: existingRows, error: null })
                 })
               }
             : resetChain
@@ -83,7 +84,9 @@ function buildClient(
             : {
                 data: (args.p_player_ids as string[]).map((id) => ({
                   player_id: id,
-                  from_guild_code: 'OLD'
+                  from_guild_code: 'OLD',
+                  cluster_code: 'NEWC',
+                  cluster_id: 'new-cluster'
                 })),
                 error: null
               }
@@ -110,7 +113,7 @@ function buildClient(
       })
     })
   }
-  return { client, rpcCalls, transferCalls, upserted }
+  return { client, loadedIds, rpcCalls, transferCalls, upserted }
 }
 
 const logger = {
@@ -154,8 +157,29 @@ describe('Edge roster guarded writes', () => {
         player_id: 'player-1',
         guild_code: 'NEW',
         is_current: true,
-        role: 'officer'
+        role: 'officer',
+        cluster_code: 'NEWC',
+        cluster_id: 'new-cluster'
       })
+    ])
+  })
+
+  it('moves a Tacticus-confirmed claimed player LOKI has not listed yet', async () => {
+    const { client, loadedIds, transferCalls } = buildClient()
+
+    await savePlayerMappings(
+      { supabase: client, logger },
+      { playerMappingTable: 'player_mapping', dataTable: 'raid_data' },
+      'NEW',
+      [{ userId: 'other-player', displayName: 'Other', role: 'member' }],
+      ['player-1', 'other-player']
+    )
+
+    expect(loadedIds[0]).toEqual(
+      expect.arrayContaining(['player-1', 'other-player'])
+    )
+    expect(transferCalls).toEqual([
+      { p_target_guild_code: 'NEW', p_player_ids: ['player-1'] }
     ])
   })
 

@@ -58,13 +58,19 @@ export function tacticusConfirmedIds(
   )
 }
 
-/** Returns player id -> former guild for each claimed player moved in; a failed call moves nobody. */
+type RosterTransfer = {
+  from_guild_code: string
+  cluster_code: string | null
+  cluster_id: string | null
+}
+
+/** Returns player id -> move (former guild, new cluster) for each claimed player moved in; a failed call moves nobody. */
 async function transferRosterConfirmedPlayers(
   supabase: StrictSupabaseClient,
   guildCode: string,
   candidateIds: string[]
-): Promise<Map<string, string>> {
-  const moved = new Map<string, string>()
+): Promise<Map<string, RosterTransfer>> {
+  const moved = new Map<string, RosterTransfer>()
   if (candidateIds.length === 0) return moved
   try {
     const { data, error } = await supabase.rpc(
@@ -79,7 +85,11 @@ async function transferRosterConfirmedPlayers(
       return moved
     }
     for (const row of data ?? []) {
-      moved.set(row.player_id, row.from_guild_code)
+      moved.set(row.player_id, {
+        from_guild_code: row.from_guild_code,
+        cluster_code: row.cluster_code ?? null,
+        cluster_id: row.cluster_id ?? null
+      })
     }
   } catch (error) {
     logger.warn(
@@ -294,13 +304,17 @@ export async function savePlayerMappings(
           .filter((id): id is string => Boolean(id))
       )
     )
+    // Tacticus-confirmed players LOKI has not listed yet are loaded too, so they can still move.
+    const confirmedIds = tacticusConfirmedIds(
+      transferEvidenceIds ?? tacticusMemberIds
+    )
 
     const { data: existingRecords, error: existingError } = await supabase
       .from('player_mapping')
       .select(
         'player_id, protected, guild_code, is_current, cluster_code, cluster_id, user_id, ownership_attestation_id'
       )
-      .in('player_id', playerIdsToUpdate)
+      .in('player_id', [...new Set([...playerIdsToUpdate, ...confirmedIds])])
 
     if (existingError) {
       logger.error(
@@ -354,9 +368,6 @@ export async function savePlayerMappings(
     const isClaimedElsewhere = (data: ExistingPlayerData) =>
       data.guild_code !== guildCode &&
       (data.user_id !== null || data.ownership_attestation_id !== null)
-    const confirmedIds = tacticusConfirmedIds(
-      transferEvidenceIds ?? tacticusMemberIds
-    )
     const movedIds = await transferRosterConfirmedPlayers(
       supabase,
       guildCode,
@@ -369,11 +380,15 @@ export async function savePlayerMappings(
         )
         .map(([playerId]) => playerId)
     )
-    for (const [playerId, fromGuildCode] of movedIds) {
+    for (const [playerId, move] of movedIds) {
       const data = existingPlayerData.get(playerId)
-      if (data) data.guild_code = guildCode
+      if (data) {
+        data.guild_code = guildCode
+        data.cluster_code = move.cluster_code
+        data.cluster_id = move.cluster_id
+      }
       logger.info(
-        { guildCode, playerId, previousGuildCode: fromGuildCode },
+        { guildCode, playerId, previousGuildCode: move.from_guild_code },
         'Claimed player moved on the live Tacticus roster'
       )
     }

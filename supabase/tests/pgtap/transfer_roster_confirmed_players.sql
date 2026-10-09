@@ -3,7 +3,7 @@ BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 
-SELECT plan(12);
+SELECT plan(16);
 
 -- A roster sync moves a claimed player into the guild whose live Tacticus
 -- roster lists them, through the owner-only function and nothing else.
@@ -17,6 +17,17 @@ SELECT is(
   ),
   1,
   'roster-confirmed transfer migration is recorded exactly once'
+);
+
+SELECT is(
+  (
+    SELECT count(*)::integer
+    FROM supabase_migrations.schema_migrations
+    WHERE version = '20261009170000'
+      AND name = 'roster_transfer_cluster_and_audit'
+  ),
+  1,
+  'roster transfer cluster and audit migration is recorded exactly once'
 );
 
 SELECT set_eq(
@@ -67,6 +78,9 @@ INSERT INTO public.player_mapping (
   (1009160002, 't1009-protected', 'Protected Player', 'T1009OLD',
    'member'::public.app_role, true, true);
 
+UPDATE public.player_mapping
+SET cluster_code = 'T1009C', cluster_id = '10091600-0000-0000-0000-0000000000c1'
+WHERE id IN (1009160001, 1009160002);
 UPDATE public.player_mapping SET protected = true WHERE id = 1009160002;
 
 INSERT INTO public.player_identity_attestations (
@@ -129,9 +143,42 @@ SELECT is(
 );
 
 SELECT is(
+  (
+    SELECT coalesce(cluster_code, 'NULL') || ':' || coalesce(cluster_id::text, 'NULL')
+    FROM public.player_mapping WHERE id = 1009160001
+  ),
+  'NULL:NULL',
+  'the moved mapping takes the target guild''s cluster, here none, and loses the old one'
+);
+
+SELECT is(
+  (
+    SELECT count(*)::integer
+    FROM public.player_claim_audit AS audit
+    WHERE audit.player_id = 't1009-claimed'
+      AND audit.user_id = '10091600-0000-0000-0000-000000000001'
+      AND audit.guild_code = 'T1009NEW'
+      AND audit.source_path = 'sync/roster-confirmed-transfer'
+      AND audit.outcome = 'success'
+      AND audit.details ->> 'source_guild_code' = 'T1009OLD'
+      AND audit.details ->> 'source_cluster_code' = 'T1009C'
+  ),
+  1,
+  'the move writes one player_claim_audit receipt'
+);
+
+SELECT is(
   (SELECT guild_code FROM public.player_mapping WHERE id = 1009160002),
   'T1009OLD',
   'a protected mapping is never moved'
+);
+
+UPDATE public.player_mapping SET cluster_code = NULL, cluster_id = NULL
+WHERE id = 1009160002;
+SELECT is(
+  (SELECT cluster_code FROM public.player_mapping WHERE id = 1009160002),
+  'T1009C',
+  'a sync write that blanks the cluster without a move still keeps it'
 );
 
 SELECT is(
