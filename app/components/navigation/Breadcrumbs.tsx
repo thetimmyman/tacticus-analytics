@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { ChromeLink as Link } from './ChromeLink'
 import { ChevronRight, Home } from 'lucide-react'
 import { BreadcrumbStructuredData } from '@/app/components/StructuredData'
 
