@@ -20,6 +20,10 @@ import {
 } from './performance-leaderboard-aggregate'
 import { LEGACY_SEASON, selectSeasonScoped } from './target-token-season'
 import {
+  applyQualifyingSweepException,
+  isSweepRow
+} from '@/app/lib/calculations/utils/sweep-helpers'
+import {
   resolveSavedPlanningRotation,
   resolveSavedSeasonWindow
 } from './season-planner/saved-season'
@@ -340,7 +344,12 @@ function input(params: URLSearchParams, seasons: string[]) {
   const window = resolveSavedSeasonWindow(season)
   if (ms < window.seasonStartMs || ms >= window.seasonEndMs)
     throw Errors.unprocessable('asOf must be inside the selected season')
-  return { season, asOf: new Date(ms).toISOString(), ms }
+  return {
+    season,
+    asOf: new Date(ms).toISOString(),
+    ms,
+    seasonStartMs: window.seasonStartMs
+  }
 }
 async function roster(c: Context): Promise<Map<string, string>> {
   const value = await c.read(
@@ -380,6 +389,7 @@ function historyRows(
   value: unknown,
   guild: string,
   season: string,
+  seasonStart: number,
   asOf: number
 ): DamageRow[] {
   if (!Array.isArray(value)) unavailable()
@@ -400,6 +410,7 @@ function historyRows(
       r.damageDealt > MAX_DAMAGE ||
       !text(r.startedOn, 64) ||
       !Number.isFinite(Date.parse(r.startedOn)) ||
+      Date.parse(r.startedOn) < seasonStart ||
       Date.parse(r.startedOn) > asOf ||
       (r.userId !== null && r.userId !== '' && !stableId(r.userId)) ||
       (r.displayName !== null && !text(r.displayName, 1024)) ||
@@ -474,6 +485,66 @@ function targets(value: unknown, guild: string, season: string) {
   return Object.fromEntries(
     [...selected].map(([key, r]) => [key, r.target_tokens])
   )
+}
+/** Current eligible buckets must survive scoring; unqualified sweeps stay absent. */
+function requireCompleteCurrentBuckets(
+  rows: DamageRow[],
+  data: TokenPerformanceData,
+  current: Map<string, string>
+) {
+  type Bucket = { total: number; count: number; sweeps: number[] }
+  const bosses = new Map<
+    string,
+    { total: number; count: number; players: Map<string, Bucket> }
+  >()
+  for (const row of rows) {
+    const key = `${row.Name}_${row.rarity === 'Mythic' ? 'M' : 'L'}${row.set! + 1}`
+    const boss = bosses.get(key) ?? {
+      total: 0,
+      count: 0,
+      players: new Map<string, Bucket>()
+    }
+    const sweep = isSweepRow(row)
+    if (!sweep) {
+      boss.total += row.damageDealt!
+      boss.count++
+    }
+    if (stableId(row.userId) && current.has(row.userId)) {
+      const bucket = boss.players.get(row.userId) ?? {
+        total: 0,
+        count: 0,
+        sweeps: []
+      }
+      if (sweep) bucket.sweeps.push(row.damageDealt!)
+      else {
+        bucket.total += row.damageDealt!
+        bucket.count++
+      }
+      boss.players.set(row.userId, bucket)
+    }
+    bosses.set(key, boss)
+  }
+  for (const [key, boss] of bosses) {
+    const reference = boss.count > 0 ? boss.total / boss.count : 0
+    for (const [id, bucket] of boss.players) {
+      const eligible = applyQualifyingSweepException(
+        bucket.total,
+        bucket.count,
+        bucket.sweeps,
+        reference,
+        bucket.count > 0 ? bucket.total / bucket.count : 0
+      )
+      if (eligible.adjustedCount > 0) {
+        const entry = data[id]?.[key]
+        if (
+          !entry ||
+          entry.playerId !== id ||
+          entry.tokensSpent !== eligible.adjustedCount
+        )
+          unavailable()
+      }
+    }
+  }
 }
 function validEntry(entry: TokenPerformanceEntry) {
   return (
@@ -622,34 +693,72 @@ export function readSavedTokenPerformance(args: {
         .in('rarity', ['Legendary', 'Mythic'])
         .gt('damageDealt', 0)
         .not('Name', 'is', null)
+        .gte('startedOn', new Date(selected.seasonStartMs).toISOString())
         .lte('startedOn', selected.asOf)
         .order('startedOn', { ascending: false })
         .limit(MAX_HISTORY + 1),
       MAX_HISTORY,
       true
     )
-    const damageData = historyRows(raw, c.guild, selected.season, selected.ms)
+    const damageData = historyRows(
+      raw,
+      c.guild,
+      selected.season,
+      selected.seasonStartMs,
+      selected.ms
+    )
     // The local relation predates generated application table typings.
     const targetRelation = c.client.from(
       'boss_target_tokens' as 'guild_config'
     ) as unknown as {
       select(columns: string, options: { count: 'exact' }): TargetQuery
     }
-    const rawTargets = await c.read(
-      targetRelation
-        .select(
-          'guild_code,boss_name,rarity,set,encounter_id,target_tokens,season_number,skip',
-          { count: 'exact' }
+    const identities = new Map<
+      string,
+      { name: string; rarity: string; set: number }
+    >()
+    for (const row of damageData) {
+      const identity = {
+        name: row.Name!,
+        rarity: row.rarity!,
+        set: row.set! + 1
+      }
+      identities.set(JSON.stringify(identity), identity)
+    }
+    const rawTargets: unknown[] = []
+    // The primary key allows at most one selected and one legacy row per identity.
+    // Exact equality avoids wire expressions and accumulated unrelated targets.
+    for (const identity of identities.values()) {
+      const value = await c.read(
+        targetRelation
+          .select(
+            'guild_code,boss_name,rarity,set,encounter_id,target_tokens,season_number,skip',
+            { count: 'exact' }
+          )
+          .eq('guild_code', c.guild)
+          .in('season_number', [selected.season, LEGACY_SEASON])
+          .eq('encounter_id', 0)
+          .eq('boss_name', identity.name)
+          .eq('rarity', identity.rarity)
+          .eq('set', identity.set)
+          .eq('skip', false)
+          .limit(3),
+        2,
+        true
+      )
+      if (
+        !Array.isArray(value) ||
+        value.some(
+          (r) =>
+            !record(r) ||
+            r.boss_name !== identity.name ||
+            r.rarity !== identity.rarity ||
+            r.set !== identity.set
         )
-        .eq('guild_code', c.guild)
-        .in('season_number', [selected.season, LEGACY_SEASON])
-        .eq('encounter_id', 0)
-        .in('rarity', ['Legendary', 'Mythic'])
-        .eq('skip', false)
-        .limit(21),
-      20,
-      true
-    )
+      )
+        unavailable()
+      rawTargets.push(...value)
+    }
     const data = await getGuildTokenPerformance(c.guild, {
       seasonOverride: selected.season,
       compareMode: 'guild',
@@ -668,6 +777,7 @@ export function readSavedTokenPerformance(args: {
     })
     c.running()
     const current = await roster(c)
+    requireCompleteCurrentBuckets(damageData, data, current)
     return {
       source: 'saved-local',
       season: selected.season,

@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 import { PostgrestClient } from '@supabase/postgrest-js'
+import { resolveSavedSeasonWindow } from '@/app/lib/boss-assignments/season-planner/saved-season'
 
 const fixture = vi.hoisted(() => ({
   user: { id: '11111111-1111-4111-8111-111111111111' } as { id: string } | null,
@@ -31,6 +32,9 @@ const fixture = vi.hoisted(() => ({
   missingCount: false,
   truncate: false,
   excessCount: false,
+  ignoreHistoryStart: false,
+  targetTruncate: false,
+  targetExcessCount: false,
   authError: false,
   dbPending: null as Promise<void> | null,
   authPending: null as Promise<unknown> | null,
@@ -231,7 +235,10 @@ async function fetchAdapter(
             .map((x) => x.replace(/^"|"$/g, ''))
             .includes(String(r[column]))
         )
-      else if (filter.startsWith('lte.'))
+      else if (filter.startsWith('gte.')) {
+        if (table !== 'EOT_GR_data' || !fixture.ignoreHistoryStart)
+          rows = rows.filter((r) => String(r[column]) >= filter.slice(4))
+      } else if (filter.startsWith('lte.'))
         rows = rows.filter((r) => String(r[column]) <= filter.slice(4))
       else if (filter.startsWith('gt.'))
         rows = rows.filter((r) => Number(r[column]) > Number(filter.slice(3)))
@@ -248,6 +255,8 @@ async function fetchAdapter(
     if (limit) rows = rows.slice(0, limit)
     if (table === 'EOT_GR_data' && fixture.truncate) rows = rows.slice(0, 0)
     if (table === 'EOT_GR_data' && fixture.excessCount) count = 10001
+    if (table === 'boss_target_tokens' && fixture.targetTruncate) rows = []
+    if (table === 'boss_target_tokens' && fixture.targetExcessCount) count = 3
     data =
       headers.get('Accept') === 'application/vnd.pgrst.object+json'
         ? (rows[0] ?? null)
@@ -328,6 +337,9 @@ beforeEach(() => {
     missingCount: false,
     truncate: false,
     excessCount: false,
+    ignoreHistoryStart: false,
+    targetTruncate: false,
+    targetExcessCount: false,
     authError: false,
     dbPending: null,
     authPending: null,
@@ -467,7 +479,9 @@ describe('saved performance scope and canonical calculation', () => {
     expect(history.url.searchParams.get('Guild')).toBe('eq.SYN-PERF')
     expect(history.url.searchParams.get('Season')).toBe('eq.101')
     expect(history.url.searchParams.get('encounterId')).toBe('eq.0')
-    expect(history.url.searchParams.get('startedOn')).toBe(`lte.${AS_OF}`)
+    expect(history.url.searchParams.getAll('startedOn')).toContain(
+      `lte.${AS_OF}`
+    )
   })
   it('prefers selected-season targets over legacy targets regardless of order', async () => {
     fixture.targets = [target(2, { season_number: '' }), target(4)]
@@ -567,20 +581,244 @@ describe('saved performance scope and canonical calculation', () => {
     })
     expect(data.players[0].bosses[0].perLoop).toHaveLength(2)
   })
-  it('preserves canonical unscored absence and a null summary separately from numeric zero', async () => {
+  it('refuses a current non-sweep bucket omitted because its HP is unavailable', async () => {
     fixture.history = [
       attack(A, 'Synthetic Twin', 100, { Name: 'Synthetic unknown boss' })
     ]
     fixture.roster = [member(A, 'Synthetic Twin')]
     fixture.targets = []
-    const data = await (await get()).json()
-    expect(data.players).toEqual([])
+    const response = await get()
+    expect(response.status).toBe(503)
+    expect(await response.text()).not.toContain('players')
+  })
+
+  it('admits accumulated valid targets beyond twenty using only matching history identities', async () => {
+    fixture.targets = [target(2, { season_number: '' }), target(4)]
+    for (let i = 0; i < 30; i++) {
+      fixture.targets.push(
+        target(8, {
+          boss_name: `Synthetic historical boss ${i}`,
+          season_number: i % 2 ? '' : '101'
+        })
+      )
+    }
+    const response = await get()
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    expect(
+      data.players.map((p: { weightedScore: number }) => p.weightedScore).sort()
+    ).toEqual([0.8, 1.6])
+    const reads = fixture.requests.filter(
+      (r) => r.table === 'boss_target_tokens'
+    )
+    expect(reads).toHaveLength(1)
+    expect(reads[0]!.url.searchParams.get('boss_name')).toBe('eq.Riptide')
+    expect(reads[0]!.url.searchParams.get('rarity')).toBe('eq.Legendary')
+    expect(reads[0]!.url.searchParams.get('set')).toBe('eq.1')
+    expect(reads[0]!.url.searchParams.get('limit')).toBe('3')
+    expect(reads[0]!.url.searchParams.has('or')).toBe(false)
+  })
+  it('admits more than twenty relevant targets while preserving selected-over-legacy precedence', async () => {
+    fixture.history = [attack(A, 'Synthetic current', 1000000)]
+    fixture.roster = [member(A, 'Synthetic current')]
+    fixture.targets = [target(2, { season_number: '' }), target(4)]
+    for (let i = 0; i < 10; i++) {
+      const Name = `RiptideHistorical${i}`
+      fixture.history.push(
+        attack(`SYN-DEPARTED-${i}`, 'Synthetic departed', 1000000, { Name })
+      )
+      fixture.targets.push(
+        target(2, { boss_name: Name, season_number: '' }),
+        target(6, { boss_name: Name })
+      )
+    }
+    const response = await get()
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    expect(data.players).toHaveLength(1)
+    expect(data.players[0].bosses[0]).toMatchObject({
+      expectedTokens: 4,
+      tier: 'officer_target'
+    })
+    expect(
+      fixture.requests.filter((r) => r.table === 'boss_target_tokens')
+    ).toHaveLength(11)
+  })
+  it.each(['duplicate', 'truncated', 'excess-count'])(
+    'refuses incomplete or ambiguous exact-identity targets: %s',
+    async (kind) => {
+      if (kind === 'duplicate') fixture.targets.push(target(6))
+      if (kind === 'truncated') fixture.targetTruncate = true
+      if (kind === 'excess-count') fixture.targetExcessCount = true
+      expect((await get()).status).toBe(503)
+    }
+  )
+  it('treats punctuation in a validated boss label as an equality value rather than a filter expression', async () => {
+    const Name = 'Riptide,(rarity.eq.Mythic),"quoted"'
+    fixture.history = [attack(A, 'Synthetic current', 1000000, { Name })]
+    fixture.roster = [member(A, 'Synthetic current')]
+    fixture.targets = [target(4, { boss_name: Name }), target(7)]
+    const response = await get()
+    expect(response.status).toBe(200)
+    expect((await response.json()).players[0].bosses[0].expectedTokens).toBe(4)
+    const read = fixture.requests.find((r) => r.table === 'boss_target_tokens')!
+    expect(read.url.searchParams.get('boss_name')).toBe(`eq.${Name}`)
+    expect(read.url.searchParams.has('or')).toBe(false)
+  })
+  it('refuses a partial leaderboard when one current player bucket has unknown HP', async () => {
+    fixture.history.push(
+      attack(A, 'Synthetic current', 1000000, {
+        Name: 'Synthetic newly imported boss'
+      })
+    )
+    const response = await get()
+    expect(response.status).toBe(503)
+    expect(await response.text()).not.toContain('players')
+  })
+  it('does not demand output for an unknown-HP bucket belonging only to departed players', async () => {
+    fixture.history.push(
+      attack('SYN-DEPARTED', 'Synthetic departed', 1000000, {
+        Name: 'Synthetic newly imported boss'
+      })
+    )
+    const response = await get()
+    expect(response.status).toBe(200)
+    expect((await response.json()).players).toHaveLength(2)
+  })
+  it('checks bucket coverage against the fresh roster without retaining a departed player', async () => {
+    fixture.history.push(
+      attack(A, 'Synthetic current', 1000000, {
+        Name: 'Synthetic newly imported boss'
+      })
+    )
+    fixture.finalRoster = [member(B, 'Synthetic retained')]
+    const response = await get()
+    expect(response.status).toBe(200)
+    expect(
+      (await response.json()).players.map((p: { name: string }) => p.name)
+    ).toEqual(['Synthetic retained'])
+  })
+  it.each(['Riptide', 'Synthetic unknown boss'])(
+    'preserves legitimate unqualified sweep-only absence: %s',
+    async (Name) => {
+      fixture.history = [
+        attack(A, 'Synthetic current', 100, { Name, remainingHp: 0 })
+      ]
+      fixture.roster = [member(A, 'Synthetic current')]
+      fixture.targets = []
+      const response = await get()
+      expect(response.status).toBe(200)
+      expect(await response.json()).toMatchObject({
+        players: [],
+        summary: {
+          playerCount: 0,
+          mean: null,
+          median: null,
+          pctAtOrAbove: null
+        }
+      })
+    }
+  )
+  it('refuses an HP-omitted current sweep bucket which qualifies against complete historical non-sweep work', async () => {
+    const Name = 'Synthetic unknown boss'
+    fixture.history = [
+      attack('SYN-DEPARTED', 'Synthetic departed', 100, { Name }),
+      attack(A, 'Synthetic current', 200, { Name, remainingHp: 0 })
+    ]
+    fixture.roster = [member(A, 'Synthetic current')]
+    fixture.targets = []
+    expect((await get()).status).toBe(503)
+  })
+  it('excludes mislabeled pre-season attacks from both current tokens and the complete guild baseline', async () => {
+    const { seasonStartMs } = resolveSavedSeasonWindow('101')
+    fixture.targets = []
+    fixture.history.push(
+      attack(A, 'Synthetic current', 4000000, {
+        startedOn: new Date(seasonStartMs - 1).toISOString()
+      })
+    )
+    const response = await get()
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    expect(
+      data.players
+        .map((p: { tokensSpent: number; weightedScore: number }) => [
+          p.tokensSpent,
+          p.weightedScore
+        ])
+        .sort()
+    ).toEqual([
+      [1, 0.8],
+      [1, 1.6]
+    ])
+    const read = fixture.requests.find((r) => r.table === 'EOT_GR_data')!
+    expect(read.url.searchParams.getAll('startedOn')).toContain(
+      `gte.${new Date(seasonStartMs).toISOString()}`
+    )
+    expect(read.url.searchParams.getAll('startedOn')).toContain(`lte.${AS_OF}`)
+  })
+  it('defensively refuses an out-of-window row returned despite the signed lower-bound filter', async () => {
+    fixture.ignoreHistoryStart = true
+    fixture.history.push(
+      attack(A, 'Synthetic current', 1000000, {
+        startedOn: new Date(
+          resolveSavedSeasonWindow('101').seasonStartMs - 1
+        ).toISOString()
+      })
+    )
+    expect((await get()).status).toBe(503)
+  })
+  it('admits an attack exactly at the captured selected-season start', async () => {
+    fixture.history = [
+      attack(A, 'Synthetic current', 1000000, {
+        startedOn: new Date(
+          resolveSavedSeasonWindow('101').seasonStartMs
+        ).toISOString()
+      })
+    ]
+    fixture.roster = [member(A, 'Synthetic current')]
+    const response = await get()
+    expect(response.status).toBe(200)
+    expect((await response.json()).players[0].tokensSpent).toBe(1)
+  })
+
+  it('retains a nonempty canonical unscored bucket with an unavailable expected-token denominator', async () => {
+    fixture.history = [attack(A, 'Synthetic current', Number.MIN_VALUE)]
+    fixture.roster = [member(A, 'Synthetic current')]
+    fixture.targets = []
+    const response = await get()
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    expect(data.players[0]).toMatchObject({
+      tokensSpent: 1,
+      weightedScore: null,
+      bossCount: 1,
+      scoredBossCount: 0
+    })
+    expect(data.players[0].bosses[0]).toMatchObject({
+      score: null,
+      tier: 'insufficient',
+      expectedTokens: null,
+      expectedDamage: null
+    })
     expect(data.summary).toEqual({
-      playerCount: 0,
+      playerCount: 1,
       mean: null,
       median: null,
       pctAtOrAbove: null
     })
+  })
+  it('bounds repeated exact target reads by the original whole-entry deadline', async () => {
+    vi.useFakeTimers()
+    fixture.stall = 'boss_target_tokens'
+    const pending = get()
+    await vi.advanceTimersByTimeAsync(7001)
+    expect((await pending).status).toBe(503)
+    const reads = fixture.requests.filter(
+      (r) => r.table === 'boss_target_tokens'
+    )
+    expect(reads).toHaveLength(1)
+    expect(reads[0]!.signal?.aborted).toBe(true)
   })
   it('returns a legitimate empty result when saved history is empty', async () => {
     fixture.history = []
