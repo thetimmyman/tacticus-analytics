@@ -149,7 +149,7 @@ it('matches a worked three-token saved-season schedule through unchanged engine'
     firstSeasonStartMs: FIRST_SEASON_START_MS,
     seasonDurationSeconds: SEASON_DURATION_SECONDS,
     bufferAfterSeasonEndSeconds:
-      GLOBAL_CONFIG.guildBoss.misc.bufferAfterSeasonEnd,
+      GLOBAL_CONFIG.guildBoss.misc.bufferAfterSeasonEnd ?? 86400,
     seasonNumberOffset: SEASON_NUMBER_OFFSET
   })
   const at = new Date(seasonEndMs - 2 * 3600000).toISOString(),

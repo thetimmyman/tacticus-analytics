@@ -112,14 +112,16 @@ export function credentialBanDuration(
 async function findActiveBanForSubjects(
   subjects: BanSubject[],
   authUserId: string,
-  supabase: TypedSupabaseClient = serviceDb()
+  supabase: TypedSupabaseClient = serviceDb(),
+  signal?: AbortSignal
 ): Promise<ActiveBan | null> {
+  signal?.throwIfAborted()
   const nowIso = new Date().toISOString()
 
   // `auth_user_id` is immutable; check it first so changing a handle cannot evade a ban.
   const normalizedAuthUserId = normalizeBanSubjectValue(authUserId)
   if (normalizedAuthUserId) {
-    const { data: authRows, error: authError } = await supabase
+    const authQuery = supabase
       .from('user_bans')
       .select(ACTIVE_BAN_SELECT)
       .eq('auth_user_id', normalizedAuthUserId)
@@ -127,6 +129,9 @@ async function findActiveBanForSubjects(
       .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
       .order('banned_at', { ascending: false })
       .limit(1)
+    if (signal) authQuery.abortSignal(signal).retry(false)
+    const { data: authRows, error: authError } = await authQuery
+    signal?.throwIfAborted()
 
     if (authError) {
       logger.error({ error: authError }, 'Immutable ban lookup failed closed')
@@ -150,7 +155,8 @@ async function findActiveBanForSubjects(
 
   if (subjects.length === 0) return null
 
-  const { data, error } = await supabase
+  signal?.throwIfAborted()
+  const subjectQuery = supabase
     .from('user_bans')
     .select(ACTIVE_BAN_SELECT)
     .is('lifted_at', null)
@@ -159,6 +165,9 @@ async function findActiveBanForSubjects(
       subjects.map((subject) => subject.subject_value)
     )
     .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
+  if (signal) subjectQuery.abortSignal(signal).retry(false)
+  const { data, error } = await subjectQuery
+  signal?.throwIfAborted()
 
   if (error) {
     // Security boundary: an ambiguous lookup must deny, not become a ban bypass.
@@ -208,14 +217,19 @@ export async function findActiveBanForUser(
 
 export async function findActiveBanForAuthUser(
   user: User,
-  supabase: TypedSupabaseClient = serviceDb()
+  supabase?: TypedSupabaseClient,
+  signal?: AbortSignal
 ): Promise<ActiveBan | null> {
-  const { data: mapping, error } = await supabase
+  signal?.throwIfAborted()
+  const client = supabase ?? (signal ? serviceDb(signal) : serviceDb())
+  const mappingQuery = client
     .from('player_mapping')
     .select('discord_user_id,player_id')
     .eq('user_id', user.id)
     .eq('is_current', true)
-    .maybeSingle()
+  if (signal) mappingQuery.abortSignal(signal).retry(false)
+  const { data: mapping, error } = await mappingQuery.maybeSingle()
+  signal?.throwIfAborted()
 
   if (error) {
     logger.error(
@@ -246,7 +260,7 @@ export async function findActiveBanForAuthUser(
     }
   }
 
-  return findActiveBanForSubjects(subjects, user.id, supabase)
+  return findActiveBanForSubjects(subjects, user.id, client, signal)
 }
 
 /** Called under the ban/lift per-user locks so no banned user can become admin concurrently. */

@@ -35,18 +35,24 @@ import { normalizeGuildIdentifier } from '@/app/lib/format/guild'
 import { cappedAvailable } from '@/app/lib/calculations/token-burn'
 import { useGuildDisplayLabel } from '@/app/lib/hooks/useGuildDisplayLabel'
 import { CachedTokenAvailability } from './token-usage/CachedTokenAvailability'
+import { SavedSeasonOutlookCard } from './token-usage/SavedSeasonOutlookCard'
 
 interface TokenUsagePageProps {
   selectedGuild: string
   selectedSeason: string
   /** Gates forecast surfaces (server-resolved `proactive_token_management` flag). */
   showForecast?: boolean
+  /** Separate server-admitted local calculation; does not enable the full forecast. */
+  showSavedOutlook?: boolean
+  savedOutlookContextKey?: string
 }
 
 function TokenUsage({
   selectedGuild,
   selectedSeason,
-  showForecast = false
+  showForecast = false,
+  showSavedOutlook = false,
+  savedOutlookContextKey
 }: TokenUsagePageProps) {
   usePerformance('TokenUsage', { threshold: 50, trackRerenders: true })
   useAsyncPerformance()
@@ -108,160 +114,180 @@ function TokenUsage({
     [players]
   )
 
+  const savedOutlookCard =
+    desktop && showSavedOutlook && savedOutlookContextKey ? (
+      <div className="container-modern pt-6">
+        <SavedSeasonOutlookCard
+          guildCode={normalizedGuild}
+          season={selectedSeason}
+          contextKey={savedOutlookContextKey}
+        />
+      </div>
+    ) : null
+
   if (loading) {
     return (
-      <div className="p-6">
-        <TableSkeleton rows={6} columns={6} />
-      </div>
+      <>
+        {savedOutlookCard}
+        <div className="p-6">
+          <TableSkeleton rows={6} columns={6} />
+        </div>
+      </>
     )
   }
 
   if (!players || players.length === 0) {
     return (
-      <EmptyState
-        title={error ? 'Token usage unavailable' : 'No Token Usage Data'}
-        description={
-          desktop
-            ? error
-              ? 'Saved token data could not be read. Your stored data is preserved. Reopen the app or retry.'
-              : `No saved token usage for ${guildDisplayLabel} in Season ${selectedSeason}. Import raid history through API access and sync.`
-            : `We haven't collected any token usage for ${guildDisplayLabel} in Season ${selectedSeason} yet. Once members sync their data, you'll see the breakdown here.`
-        }
-        action={
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="rounded-sm border border-(--card-border) bg-(--card-bg) px-4 py-2 text-sm font-medium text-primary-wh40k transition hover:bg-(--bg-tertiary)"
-          >
-            {desktop ? 'Retry saved data' : 'Retry sync'}
-          </button>
-        }
-      />
+      <>
+        {savedOutlookCard}
+        <EmptyState
+          title={error ? 'Token usage unavailable' : 'No Token Usage Data'}
+          description={
+            desktop
+              ? error
+                ? 'Saved token data could not be read. Your stored data is preserved. Reopen the app or retry.'
+                : `No saved token usage for ${guildDisplayLabel} in Season ${selectedSeason}. Import raid history through API access and sync.`
+              : `We haven't collected any token usage for ${guildDisplayLabel} in Season ${selectedSeason} yet. Once members sync their data, you'll see the breakdown here.`
+          }
+          action={
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="rounded-sm border border-(--card-border) bg-(--card-bg) px-4 py-2 text-sm font-medium text-primary-wh40k transition hover:bg-(--bg-tertiary)"
+            >
+              {desktop ? 'Retry saved data' : 'Retry sync'}
+            </button>
+          }
+        />
+      </>
     )
   }
 
   const forecastView = showForecast && view === 'forecast'
 
   return (
-    <div className="container-modern py-6 space-y-6">
-      {desktop && error && (
-        <p role="alert">
-          Saved data could not be refreshed. Showing the previous saved
-          calculation; retry or reopen the app.
-        </p>
-      )}
-      {showForecast && (
-        <div
-          className="flex w-fit overflow-hidden rounded-lg border border-(--card-border)"
-          role="tablist"
-          aria-label="Token view"
-        >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={!forecastView}
-            onClick={() => setView('usage')}
-            className={`px-4 py-1.5 text-sm font-medium transition-colors ${
-              !forecastView
-                ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent)'
-                : 'text-secondary-wh40k hover:bg-(--bg-tertiary)'
-            }`}
+    <>
+      {savedOutlookCard}
+      <div className="container-modern py-6 space-y-6">
+        {desktop && error && (
+          <p role="alert">
+            Saved data could not be refreshed. Showing the previous saved
+            calculation; retry or reopen the app.
+          </p>
+        )}
+        {showForecast && (
+          <div
+            className="flex w-fit overflow-hidden rounded-lg border border-(--card-border)"
+            role="tablist"
+            aria-label="Token view"
           >
-            Usage
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={forecastView}
-            onClick={() => setView('forecast')}
-            className={`px-4 py-1.5 text-sm font-medium transition-colors ${
-              forecastView
-                ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent)'
-                : 'text-secondary-wh40k hover:bg-(--bg-tertiary)'
-            }`}
-          >
-            Forecast
-          </button>
-        </div>
-      )}
-
-      {forecastView ? (
-        forecast ? (
-          <>
-            <SeasonFeasibilityCard forecast={forecast} outlook={outlook} />
-            <BombsSubTable forecast={forecast} />
-            <CapWasteBanner
-              forecast={forecast}
-              outlook={outlook}
-              guildCode={normalizedGuild}
-              season={selectedSeason}
-            />
-          </>
-        ) : (
-          <EmptyState
-            title="Forecast unavailable"
-            description={`We couldn't build a season forecast for ${guildDisplayLabel} in Season ${selectedSeason} yet. It appears once members have synced recent token activity.`}
-          />
-        )
-      ) : (
-        <>
-          <SummaryStats
-            totalStats={totalStats}
-            totalTokensAvailable={totalTokensAvailable}
-            totalBurned={totalBurned}
-            totalOvercapped={totalOvercapped}
-            players={players}
-            showBurned
-          />
-
-          <div className="bg-gray-800/50 backdrop-blur-xs rounded-lg p-4">
-            <RarityFilterControls
-              selectedRarities={selectedRarities}
-              defaultRarities={DEFAULT_RARITIES}
-              onChange={setSelectedRarities}
-              availableRarities={[
-                'Common',
-                'Uncommon',
-                'Rare',
-                'Epic',
-                'Legendary',
-                'Mythic'
-              ]}
-              label="Filter Token Usage by Rarity"
-            />
+            <button
+              type="button"
+              role="tab"
+              aria-selected={!forecastView}
+              onClick={() => setView('usage')}
+              className={`px-4 py-1.5 text-sm font-medium transition-colors ${
+                !forecastView
+                  ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent)'
+                  : 'text-secondary-wh40k hover:bg-(--bg-tertiary)'
+              }`}
+            >
+              Usage
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={forecastView}
+              onClick={() => setView('forecast')}
+              className={`px-4 py-1.5 text-sm font-medium transition-colors ${
+                forecastView
+                  ? 'bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent)'
+                  : 'text-secondary-wh40k hover:bg-(--bg-tertiary)'
+              }`}
+            >
+              Forecast
+            </button>
           </div>
+        )}
 
-          {desktop ? (
-            <CachedTokenAvailability
-              rows={availabilityRows}
-              computedAt={computedAt}
-              refresh={() => {
-                void refetch()
-              }}
-            />
+        {forecastView ? (
+          forecast ? (
+            <>
+              <SeasonFeasibilityCard forecast={forecast} outlook={outlook} />
+              <BombsSubTable forecast={forecast} />
+              <CapWasteBanner
+                forecast={forecast}
+                outlook={outlook}
+                guildCode={normalizedGuild}
+                season={selectedSeason}
+              />
+            </>
           ) : (
-            <GRAvailability
-              guildCode={normalizedGuild}
-              season={selectedSeason}
-              initialTokenRows={availabilityRows}
+            <EmptyState
+              title="Forecast unavailable"
+              description={`We couldn't build a season forecast for ${guildDisplayLabel} in Season ${selectedSeason} yet. It appears once members have synced recent token activity.`}
             />
-          )}
-          <BossDistributionChart bossDistribution={bossDistribution} />
+          )
+        ) : (
+          <>
+            <SummaryStats
+              totalStats={totalStats}
+              totalTokensAvailable={totalTokensAvailable}
+              totalBurned={totalBurned}
+              totalOvercapped={totalOvercapped}
+              players={players}
+              showBurned
+            />
 
-          <PlayerTokenChart
-            players={players}
-            sortBy={sortBy}
-            onSortChange={setSortBy}
-            showForecast={showForecast}
-          />
-          <RarityDistributionChart players={players} />
-          <BurnedTokensChart players={players} />
-          <HistoricalChart players={players} />
-          <TokenUsageStats players={players} totalStats={totalStats} />
-          <TokenUsageCalculationsFAQ />
-        </>
-      )}
-    </div>
+            <div className="bg-gray-800/50 backdrop-blur-xs rounded-lg p-4">
+              <RarityFilterControls
+                selectedRarities={selectedRarities}
+                defaultRarities={DEFAULT_RARITIES}
+                onChange={setSelectedRarities}
+                availableRarities={[
+                  'Common',
+                  'Uncommon',
+                  'Rare',
+                  'Epic',
+                  'Legendary',
+                  'Mythic'
+                ]}
+                label="Filter Token Usage by Rarity"
+              />
+            </div>
+
+            {desktop ? (
+              <CachedTokenAvailability
+                rows={availabilityRows}
+                computedAt={computedAt}
+                refresh={() => {
+                  void refetch()
+                }}
+              />
+            ) : (
+              <GRAvailability
+                guildCode={normalizedGuild}
+                season={selectedSeason}
+                initialTokenRows={availabilityRows}
+              />
+            )}
+            <BossDistributionChart bossDistribution={bossDistribution} />
+
+            <PlayerTokenChart
+              players={players}
+              sortBy={sortBy}
+              onSortChange={setSortBy}
+              showForecast={showForecast}
+            />
+            <RarityDistributionChart players={players} />
+            <BurnedTokensChart players={players} />
+            <HistoricalChart players={players} />
+            <TokenUsageStats players={players} totalStats={totalStats} />
+            <TokenUsageCalculationsFAQ />
+          </>
+        )}
+      </div>
+    </>
   )
 }
 

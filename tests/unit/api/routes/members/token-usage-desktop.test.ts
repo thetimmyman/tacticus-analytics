@@ -63,7 +63,7 @@ import { GET as getTokens } from '@/app/api/guild-tokens/route'
 import { GET as getBattles } from '@/app/api/members/token-usage/battles/route'
 
 const usageRequest = (suffix = '') =>
-  new Request(
+  new NextRequest(
     `http://localhost/api/members/token-usage?guild=SYN001&season=100${suffix}`
   )
 const tokenRequest = (suffix = '') =>
