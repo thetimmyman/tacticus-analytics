@@ -43,7 +43,8 @@ export default function DesktopAccessGate({
     pathname === '/token-usage' ||
     pathname === '/boss-assignments/targets' ||
     pathname === '/boss-assignments/season' ||
-    pathname === '/boss-assignments/current'
+    pathname === '/boss-assignments/current' ||
+    pathname === '/boss-assignments/performance'
   const personal =
     pathname === '/roster' ||
     pathname === '/achievements' ||
