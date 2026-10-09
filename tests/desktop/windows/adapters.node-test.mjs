@@ -471,4 +471,18 @@ test('staged service imports its exact schema recovery module and inventories th
       size: original.length,
       sha256: createHash('sha256').update(original).digest('hex')
     })
+    const proofRelative =
+      'apps/desktop/platform/windows/schema-bootstrap-recovery-proof.mjs'
+    const proofOriginal = await readFile(
+      new URL('../../../' + proofRelative, import.meta.url)
+    )
+    assert.deepEqual(await readFile(join(output, proofRelative)), proofOriginal)
+    assert.deepEqual(
+      manifest.files.find((item) => item.path === proofRelative),
+      {
+        path: proofRelative,
+        size: proofOriginal.length,
+        sha256: createHash('sha256').update(proofOriginal).digest('hex')
+      }
+    )
   }))
