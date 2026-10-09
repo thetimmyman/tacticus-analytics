@@ -12,12 +12,160 @@ import {
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createHash } from 'node:crypto'
+import { spawnSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 import {
   verifySchemaProofInstallation,
   schemaBootstrapProofReceipt
 } from '../../../apps/desktop/platform/macos/schema-bootstrap-proof.mjs'
 
 import * as proof from '../../../apps/desktop/platform/macos/schema-bootstrap-proof.mjs'
+
+test('maintained CLI refuses invalid invocations through direct and symlink-ancestor paths equally', async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), 'synthetic-proof-cli-'))
+  t.after(() => rm(directory, { recursive: true, force: true }))
+  const modulePath = fileURLToPath(
+    new URL(
+      '../../../apps/desktop/platform/macos/schema-bootstrap-proof.mjs',
+      import.meta.url
+    )
+  )
+  const ancestor = join(directory, 'module-parent')
+  await symlink(join(modulePath, '..'), ancestor, 'dir')
+  const alias = join(ancestor, 'schema-bootstrap-proof.mjs')
+  const admission = join(directory, 'invalid-admission.json')
+  const invalidShape = join(directory, 'invalid-admission-shape.json')
+  const output = join(directory, 'schema-bootstrap-proof.json')
+  await writeFile(admission, 'not-json')
+  await writeFile(invalidShape, '{}')
+  for (const args of [[], [admission, output], [invalidShape, output]]) {
+    for (const entry of [modulePath, alias]) {
+      const result = spawnSync(process.execPath, [entry, ...args], {
+        env: { PATH: '/usr/bin:/bin' },
+        timeout: 5000,
+        encoding: 'utf8'
+      })
+      assert.equal(result.error, undefined)
+      assert.equal(result.signal, null)
+      assert.equal(result.status, 1)
+      assert.equal(result.stdout, '')
+      assert.equal(result.stderr, '')
+    }
+  }
+  assert.deepEqual((await readdir(directory)).sort(), [
+    'invalid-admission-shape.json',
+    'invalid-admission.json',
+    'module-parent'
+  ])
+})
+
+test('child failure diagnostics distinguish missing output from safe failed and completed shapes', () => {
+  assert.deepEqual(
+    proof.schemaBootstrapChildFailure({
+      code: 0,
+      signal: null,
+      outputRead: 'missing'
+    }),
+    {
+      child: {
+        exitCode: 0,
+        signal: null,
+        outputPresent: false,
+        parseStage: 'missing'
+      },
+      failedGroup: 'admission',
+      completedGroups: []
+    }
+  )
+  const failed = proof.schemaBootstrapChildFailure({
+    code: 1,
+    signal: null,
+    outputRead: 'read',
+    outputBytes: Buffer.from(
+      JSON.stringify({
+        status: 'failed',
+        actualInstalledMacRecovery: false,
+        failedGroup: 'actual-bootstrap-rollback',
+        completedGroups: [
+          'fresh-default-comment',
+          'fresh-default-comment',
+          'private-path'
+        ],
+        rawError: 'SYNTHETIC-PRIVATE-CANARY'
+      })
+    )
+  })
+  assert.equal(failed.child.parseStage, 'failed-shape')
+  assert.equal(failed.child.outputPresent, true)
+  assert.equal(failed.failedGroup, 'actual-bootstrap-rollback')
+  assert.deepEqual(failed.completedGroups, ['fresh-default-comment'])
+  assert.equal(
+    JSON.stringify(failed).includes('SYNTHETIC-PRIVATE-CANARY'),
+    false
+  )
+  const completed = proof.schemaBootstrapChildFailure({
+    code: 0,
+    signal: null,
+    outputRead: 'read',
+    outputBytes: Buffer.from(
+      JSON.stringify({
+        schemaVersion: 1,
+        actualInstalledMacRecovery: true,
+        groups: []
+      })
+    )
+  })
+  assert.equal(completed.child.parseStage, 'completed-shape')
+  assert.equal(completed.failedGroup, 'admission')
+  assert.deepEqual(completed.completedGroups, [])
+})
+
+test('child failure diagnostics emit finite opaque states for malformed output and unknown exits', () => {
+  for (const [outputRead, outputBytes, stage, present] of [
+    ['unreadable', undefined, 'unreadable', null],
+    ['read', Buffer.alloc(65537), 'oversized', true],
+    ['read', Buffer.from('SYNTHETIC-PRIVATE-CANARY'), 'invalid-json', true],
+    ['read', Buffer.from('null'), 'invalid-shape', true],
+    [
+      'read',
+      Buffer.from('{"status":"failed","actualInstalledMacRecovery":true}'),
+      'invalid-shape',
+      true
+    ]
+  ]) {
+    const result = proof.schemaBootstrapChildFailure({
+      code: false,
+      signal: 'SYNTHETIC-PRIVATE-CANARY',
+      outputRead,
+      outputBytes
+    })
+    assert.equal(result.child.exitCode, null)
+    assert.equal(result.child.signal, 'other')
+    assert.equal(result.child.parseStage, stage)
+    assert.equal(result.child.outputPresent, present)
+    assert.equal(
+      JSON.stringify(result).includes('SYNTHETIC-PRIVATE-CANARY'),
+      false
+    )
+    assert.deepEqual(result.completedGroups, [])
+  }
+  assert.equal(
+    proof.schemaBootstrapChildFailure({
+      code: 999,
+      signal: 'SIGTERM',
+      outputRead: 'missing'
+    }).child.exitCode,
+    null
+  )
+  assert.equal(
+    proof.schemaBootstrapChildFailure({
+      code: null,
+      signal: 'SIGTERM',
+      outputRead: 'missing'
+    }).child.signal,
+    'SIGTERM'
+  )
+})
 
 const hash = (bytes) => createHash('sha256').update(bytes).digest('hex')
 const componentPaths = [

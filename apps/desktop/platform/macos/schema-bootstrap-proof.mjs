@@ -553,6 +553,83 @@ export async function retainSchemaProofPrimaryEvidence({ working, output }) {
   }
 }
 
+// Failure metadata describes the child boundary, never raw paths or output.
+// A completed shape here is diagnostic only; the qualification's complete
+// receipt and runtime-authority comparisons still decide acceptance.
+export function schemaBootstrapChildFailure({
+  code,
+  signal,
+  outputRead,
+  outputBytes
+}) {
+  const child = {
+    exitCode:
+      Number.isSafeInteger(code) && code >= 0 && code <= 255 ? code : null,
+    signal:
+      signal === null
+        ? null
+        : [
+              'SIGABRT',
+              'SIGBUS',
+              'SIGHUP',
+              'SIGILL',
+              'SIGINT',
+              'SIGKILL',
+              'SIGPIPE',
+              'SIGQUIT',
+              'SIGSEGV',
+              'SIGTERM',
+              'SIGTRAP'
+            ].includes(signal)
+          ? signal
+          : 'other',
+    outputPresent:
+      outputRead === 'read' ? true : outputRead === 'missing' ? false : null,
+    parseStage: outputRead === 'missing' ? 'missing' : 'unreadable'
+  }
+  const result = { child, failedGroup: 'admission', completedGroups: [] }
+  if (outputRead !== 'read') return result
+  child.parseStage = 'invalid-shape'
+  if (!Buffer.isBuffer(outputBytes)) return result
+  if (outputBytes.length > 65536) {
+    child.parseStage = 'oversized'
+    return result
+  }
+  let diagnostic
+  try {
+    diagnostic = JSON.parse(
+      new TextDecoder('utf-8', { fatal: true }).decode(outputBytes)
+    )
+  } catch {
+    child.parseStage = 'invalid-json'
+    return result
+  }
+  if (
+    diagnostic?.status === 'failed' &&
+    diagnostic.actualInstalledMacRecovery === false
+  ) {
+    child.parseStage = 'failed-shape'
+    const allowedGroups = Object.keys(groups)
+    if (allowedGroups.includes(diagnostic.failedGroup))
+      result.failedGroup = diagnostic.failedGroup
+    if (Array.isArray(diagnostic.completedGroups))
+      result.completedGroups = [
+        ...new Set(
+          diagnostic.completedGroups.filter((group) =>
+            allowedGroups.includes(group)
+          )
+        )
+      ].slice(0, 8)
+  } else if (
+    diagnostic?.schemaVersion === 1 &&
+    diagnostic.actualInstalledMacRecovery === true &&
+    Array.isArray(diagnostic.groups)
+  ) {
+    child.parseStage = 'completed-shape'
+  }
+  return result
+}
+
 // Fixture-only exact public legacy bootstrap. Never replaces installed product bytes.
 const legacyServicesSha256 =
   '0a63745cf55dbed3067f0804d16b9a702149afafd789371f63b408cb37742386'
@@ -1585,7 +1662,8 @@ async function runActualProof({ admission, output }) {
 }
 if (
   process.argv[1] &&
-  resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+  (await realpath(resolve(process.argv[1])).catch(() => undefined)) ===
+    (await realpath(fileURLToPath(import.meta.url)))
 ) {
   process.umask(0o077)
   try {
