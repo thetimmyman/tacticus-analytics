@@ -310,6 +310,91 @@ export function nativeServicesProbeDiagnostic(error) {
     serviceFailureCode: serviceFailureCodeSet.has(code) ? code : 'unavailable'
   })
 }
+// Only source-owned daemon records can cross this publication boundary.
+// Inspect own data descriptors; neither accessors nor Proxy traps may execute.
+function nativeDaemonDiagnostic(record) {
+  try {
+    const values = (object, keys) => {
+      if (!object || typeof object !== 'object' || utilTypes.isProxy(object))
+        return
+      const names = Reflect.ownKeys(object)
+      if (
+        names.length !== keys.length ||
+        names.some((key) => !keys.includes(key))
+      )
+        return
+      const result = {}
+      for (const key of keys) {
+        const descriptor = Object.getOwnPropertyDescriptor(object, key)
+        if (!descriptor || !('value' in descriptor)) return
+        result[key] = descriptor.value
+      }
+      return result
+    }
+    const owned = values(record, ['role', 'details'])
+    if (!owned || !['postgres', 'auth', 'postgrest'].includes(owned.role))
+      return
+    const details = values(owned.details, [
+      'serviceFailureCode',
+      'exitCode',
+      'signal',
+      'postgrestCode',
+      'postgresCode',
+      'streamComplete',
+      'capturedBytes',
+      'truncated'
+    ])
+    if (
+      !details ||
+      !(
+        serviceFailureCodeSet.has(details.serviceFailureCode) ||
+        details.serviceFailureCode === 'unavailable'
+      ) ||
+      !(
+        details.exitCode === null ||
+        (Number.isInteger(details.exitCode) &&
+          details.exitCode >= -0x80000000 &&
+          details.exitCode <= 0xffffffff)
+      ) ||
+      ![
+        'none',
+        'unavailable',
+        'SIGTERM',
+        'SIGKILL',
+        'SIGINT',
+        'SIGABRT',
+        'SIGSEGV',
+        'SIGILL',
+        'SIGFPE',
+        'SIGBREAK',
+        'SIGHUP'
+      ].includes(details.signal) ||
+      !['unavailable', 'PGRST000', 'PGRST001', 'PGRST002', 'PGRST003'].includes(
+        details.postgrestCode
+      ) ||
+      ![
+        'unavailable',
+        '08000',
+        '08001',
+        '08006',
+        '28P01',
+        '3D000',
+        '42501',
+        '42710',
+        '42883',
+        '42P01',
+        '57P03'
+      ].includes(details.postgresCode) ||
+      typeof details.streamComplete !== 'boolean' ||
+      typeof details.truncated !== 'boolean' ||
+      !Number.isInteger(details.capturedBytes) ||
+      details.capturedBytes < 0 ||
+      details.capturedBytes > 8192
+    )
+      return
+    return Object.freeze({ role: owned.role, ...details })
+  } catch {}
+}
 export function captureNativeServicesFailure(error, trace) {
   // Evidence must not change the original failure, even for a frozen error or
   // an exotic thrown value. The service cleanup and thrown object stay intact.
@@ -327,6 +412,12 @@ export function captureNativeServicesFailure(error, trace) {
     const primary = nativeErrorDiagnostic(first.error)
     const cleanup = first.error === error ? null : nativeErrorDiagnostic(error)
     const probe = first.probe
+    const firstExit = nativeDaemonDiagnostic(
+      diagnosticProperty(trace, 'firstExit')
+    )
+    const readinessChild = nativeDaemonDiagnostic(
+      diagnosticProperty(trace, 'readinessChild')
+    )
     const probeName = diagnosticProperty(probe, 'exceptionClass')
     const probeCode = diagnosticProperty(probe, 'errorCode')
     const probeServiceCode = diagnosticProperty(probe, 'serviceFailureCode')
@@ -357,7 +448,9 @@ export function captureNativeServicesFailure(error, trace) {
               ? probeServiceCode
               : 'unavailable',
         cleanupExceptionClass: cleanup?.exceptionClass ?? 'not-applicable',
-        cleanupErrorCode: cleanup?.errorCode ?? 'not-applicable'
+        cleanupErrorCode: cleanup?.errorCode ?? 'not-applicable',
+        ...(firstExit ? { firstUnexpectedExit: firstExit } : {}),
+        ...(readinessChild ? { readinessChild } : {})
       })
     )
   } catch {}
