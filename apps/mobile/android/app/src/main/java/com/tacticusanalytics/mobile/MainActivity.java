@@ -113,11 +113,11 @@ public final class MainActivity extends Activity {
           18);
       try {
         text("Manual / imported raid calculations: "
-                + PortableAnalytics.calculate(MobileDocument.export(data)).toString(2),
+                + PortableAnalytics.calculate(MobileDocument.exportRaids(data)).toString(2),
             16);
       } catch (Exception unsupportedPortable) {
-        text("Reduced portable export cannot represent these saved Player values. Full local "
-                + "backup and saved roster remain available.",
+        text("Manual / imported raid calculations are unavailable. Full local backup and saved "
+                + "roster remain available.",
             16);
       }
       if (data.has("guild"))
@@ -418,14 +418,8 @@ public final class MainActivity extends Activity {
         LocalAccess.requireUnlocked(this);
         android.net.Uri location = DocumentUri.require(intent.getData(), getPackageName());
         if (request == 41 || request == 43) {
-          try (var output = getContentResolver().openOutputStream(location, "wt")) {
-            if (output == null)
-              throw new Exception();
-            output.write(request == 43 ? NativeBackup.encode(store.read(demo))
-                                       : MobileDocument.export(store.read(demo))
-                                             .toString(2)
-                                             .getBytes(java.nio.charset.StandardCharsets.UTF_8));
-          }
+          DocumentExport.write(store.read(demo), request == 43,
+              () -> getContentResolver().openOutputStream(location, "wt"));
         } else {
           try (var input = getContentResolver().openInputStream(location)) {
             if (input == null)
