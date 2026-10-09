@@ -7,6 +7,121 @@ import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'node:child_process'
 import diagnostics from '../../../apps/desktop/platform/macos/request-diagnostics.cjs'
 
+test('failure-only labels distinguish native access and exact public chrome destinations', () => {
+  for (const [path, endpoint] of [
+    ['/desktop/onboarding-status', 'workspace-access-status'],
+    ['/desktop/setup', 'workspace-setup-page'],
+    ['/desktop/connect', 'workspace-connect-page'],
+    ['/desktop/import', 'workspace-import-page'],
+    ['/home', 'home-page'],
+    ['/boss-assignments', 'boss-assignments-page'],
+    ['/guild-teams', 'guild-teams-page'],
+    ['/downloads', 'downloads-page'],
+    ['/auth/login', 'login-page']
+  ]) {
+    const label = diagnostics.networkRequestLabel(path, 'xhr', 'scores-view')
+    assert.equal(label.diagnosticEndpoint, endpoint)
+    assert.deepEqual(
+      diagnostics.rendererReceipt({ failed: [{ ...label, status: 0 }] }),
+      diagnostics.rendererReceipt({
+        failed: [
+          { ...diagnostics.requestLabel(path, 'xhr', 'scores-view'), status: 0 }
+        ]
+      })
+    )
+  }
+  for (const path of [
+    '/home/unknown',
+    '/boss-assignments/unknown',
+    '/desktop/onboarding-status/unknown',
+    '/home?secret=synthetic',
+    '/home#secret',
+    '//home'
+  ])
+    assert.equal(
+      diagnostics.networkRequestLabel(path, 'xhr', 'scores-view')
+        .diagnosticEndpoint,
+      'other-local'
+    )
+})
+
+test('request kind reads only exact own standard indicators without copying arbitrary header values', () => {
+  for (const [headers, kind] of [
+    [{ RSC: '1', 'Next-Router-Prefetch': '1' }, 'rsc-prefetch'],
+    [{ rsc: '1', purpose: 'prefetch' }, 'rsc-prefetch'],
+    [{ Rsc: '1' }, 'rsc'],
+    [{ 'next-router-prefetch': '1' }, 'prefetch'],
+    [{ Purpose: 'prefetch' }, 'prefetch'],
+    [{ RSC: '0', purpose: 'prefetch' }, 'prefetch'],
+    [{ RSC: true, Purpose: 'PREFETCH' }, 'other'],
+    [{ RSC: ['1'], 'Next-Router-Prefetch': ['1'] }, 'other'],
+    [{ RSC: '1 extra', purpose: 'prefetch extra' }, 'other'],
+    [{ RSC: '1', rsc: '1' }, 'other'],
+    [Object.create({ RSC: '1', Purpose: 'prefetch' }), 'other'],
+    [null, 'other'],
+    [[], 'other']
+  ])
+    assert.equal(diagnostics.requestKind(headers), kind)
+  const headers = { RSC: '1' }
+  Object.defineProperty(headers, 'Authorization', {
+    enumerable: true,
+    get() {
+      throw new Error('Unknown header must not be read')
+    }
+  })
+  Object.defineProperty(headers, 'Cookie', {
+    enumerable: true,
+    get() {
+      throw new Error('Unknown header must not be read')
+    }
+  })
+  assert.equal(diagnostics.requestKind(headers), 'rsc')
+  const accessor = Object.defineProperty({}, 'RSC', {
+    enumerable: true,
+    get() {
+      throw new Error('Header getter must not execute')
+    }
+  })
+  assert.equal(diagnostics.requestKind(accessor), 'other')
+})
+
+test('optional request-kind projection is closed, failure-only and survives the owner sanitizer', () => {
+  for (const kind of [
+    'rsc-prefetch',
+    'rsc',
+    'prefetch',
+    'other',
+    'SYNTHETIC-UNKNOWN-CANARY'
+  ]) {
+    const row = {
+      ...diagnostics.networkRequestLabel('/home', 'xhr', 'scores-view'),
+      requestKind: kind,
+      status: 0,
+      errorCategory: 'ERR_FAILED'
+    }
+    const value = diagnostics.sanitizeFailure({
+      stage: 'renderer-network',
+      cause: 'request-failed',
+      network: { failed: [row] },
+      networkDiagnostics: { schemaVersion: 1, failed: [row] }
+    })
+    assert.equal(
+      value.networkDiagnostics.failed[0].requestKind,
+      kind === 'SYNTHETIC-UNKNOWN-CANARY' ? 'other' : kind
+    )
+    assert.deepEqual(diagnostics.sanitizeFailure(value), value)
+    assert.equal(
+      JSON.stringify(value).includes('SYNTHETIC-UNKNOWN-CANARY'),
+      false
+    )
+    assert.equal(value.network.failed[0].requestKind, undefined)
+    assert.equal(
+      diagnostics.rendererReceipt({ failed: [row] }).networkDiagnostics,
+      undefined
+    )
+  }
+})
+
 test('network failure adds closed endpoint and Chromium error diagnostics that survive relay sanitization', () => {
   const failed = {
     ...diagnostics.networkRequestLabel(
@@ -510,9 +625,18 @@ class BrowserWindow extends EventEmitter {
   }
   async loadURL(url) {
     if (url===origin+'/player-performance?guild=SYN001&season=9999' && mode.startsWith('network-')) {
-      const url=origin+'/supabase/rest/v1/rpc/get_distinct_seasons_for_guild'
+      const path = mode==='network-native-kind' ? '/desktop/onboarding-status'
+        : mode==='network-page-kind' ? '/boss-assignments' : '/supabase/rest/v1/rpc/get_distinct_seasons_for_guild'
+      const url=origin+path
       hooks.onBeforeRequest({id:4,url,resourceType:'xhr'},()=>{})
-      const error = mode==='network-reset' ? 'net::ERR_CONNECTION_RESET'
+      if (mode==='network-native-kind' || mode==='network-page-kind') {
+        const headers = mode==='network-native-kind' ? { RSC:'1', 'Next-Router-Prefetch':'1' } : { Purpose:'prefetch' }
+        hooks.onBeforeSendHeaders({id:4,url,requestHeaders:headers}, result => {
+          if(result.requestHeaders['x-desktop-transport']!=='b'.repeat(64)) throw new Error('Synthetic transport header missing')
+        })
+      }
+      const error = mode==='network-native-kind' || mode==='network-page-kind' ? 'net::ERR_FAILED'
+        : mode==='network-reset' ? 'net::ERR_CONNECTION_RESET'
         : mode==='network-aborted' ? 'net::ERR_ABORTED' : 'SYNTHETIC-UNKNOWN-CANARY'
       hooks.onErrorOccurred({id:4,url,resourceType:'xhr',error})
     }
@@ -657,4 +781,66 @@ test('actual main retains the original aborted-request exclusion and success sha
     blocked: 0
   })
   assert.equal(result.receipt.networkDiagnostics, undefined)
+})
+
+test('actual main tags tracked native and page requests from standard headers while keeping status zero fatal', () => {
+  for (const [mode, endpoint, requestKind] of [
+    ['network-native-kind', 'workspace-access-status', 'rsc-prefetch'],
+    ['network-page-kind', 'boss-assignments-page', 'prefetch']
+  ]) {
+    const result = mainJourney401(mode)
+    assert.equal(result.exitCode, 1)
+    assert.equal(result.failure.cause, 'request-failed')
+    assert.deepEqual(result.failure.networkDiagnostics.failed, [
+      {
+        endpoint,
+        requestClass: 'other-local',
+        resource: 'xhr',
+        phase: 'scores-view',
+        requestKind,
+        status: 0,
+        errorCategory: 'ERR_FAILED'
+      }
+    ])
+    assert.deepEqual(
+      diagnostics.sanitizeFailure(result.failure),
+      result.failure
+    )
+    assert.deepEqual(result.receipt.network.failed, [
+      {
+        endpoint: 'other-local',
+        resource: 'xhr',
+        phase: 'scores-view',
+        status: 0
+      }
+    ])
+    assert.equal(result.receipt.networkDiagnostics, undefined)
+  }
+})
+
+test('current static internal chrome destinations all have fixed failure labels without changing success fields', () => {
+  const chrome = readFileSync(
+    new URL(
+      '../../../app/components/navigation/workspaces.ts',
+      import.meta.url
+    ),
+    'utf8'
+  )
+  const paths = new Set(
+    [...chrome.matchAll(/\bhref:\s*'(\/[^']*)'/g)].map(
+      (match) => match[1].split('#')[0]
+    )
+  )
+  for (const path of paths) {
+    const label = diagnostics.networkRequestLabel(path, 'xhr', 'scores-view')
+    assert.notEqual(label.diagnosticEndpoint, 'other-local', path)
+    assert.deepEqual(
+      diagnostics.rendererReceipt({ failed: [{ ...label, status: 0 }] }),
+      diagnostics.rendererReceipt({
+        failed: [
+          { ...diagnostics.requestLabel(path, 'xhr', 'scores-view'), status: 0 }
+        ]
+      })
+    )
+  }
 })

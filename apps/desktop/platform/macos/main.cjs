@@ -5,6 +5,7 @@ const { randomBytes } = require('node:crypto')
 const {
   networkRequestLabel,
   chromiumErrorCategory,
+  requestKind,
   sanitizeFailure,
   rendererReceipt,
   holdingRefusal,
@@ -64,6 +65,10 @@ app
       (details, callback) => {
         if (new URL(details.url).origin === origin)
           details.requestHeaders['x-desktop-transport'] = config.transportKey
+        if (config.verify) {
+          const label = activeRequests.get(details.id)
+          if (label) label.requestKind = requestKind(details.requestHeaders)
+        }
         callback({ requestHeaders: details.requestHeaders })
       }
     )
