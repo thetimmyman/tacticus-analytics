@@ -216,12 +216,13 @@ export async function verifySchemaProofInstallation({ installed, admission }) {
         'kind',
         'rights',
         'minimumOS',
-        'files'
+        'files',
+        ...(manifest.schemaVersion === 2 ? ['directories'] : [])
       ])
     )
     stage = 'manifest-metadata'
     requireProof(
-      manifest.schemaVersion === 1 &&
+      [1, 2].includes(manifest.schemaVersion) &&
         manifest.platform === 'macos' &&
         manifest.sourceCommit === admission.sourceCommit &&
         manifest.architecture === admission.architecture &&
@@ -270,14 +271,49 @@ export async function verifySchemaProofInstallation({ installed, admission }) {
       expected.set(row.path, row)
     }
     const directories = new Set([''])
-    for (const path of [...expected.keys(), manifestPath]) {
-      let parent = dirname(path)
-      while (parent !== '.') {
-        directories.add(parent)
-        parent = dirname(parent)
+    if (manifest.schemaVersion === 2) {
+      // Directory authority comes from the pre-install manifest, including
+      // empty resources and contained link targets. No directory is inferred
+      // from the copied package or admitted merely because it is empty.
+      stage = 'directory-inventory'
+      requireProof(
+        Array.isArray(manifest.directories) &&
+          manifest.directories.length <= 25000
+      )
+      for (const path of manifest.directories) {
+        requireProof(
+          typeof path === 'string' &&
+            path.length <= 4096 &&
+            !isAbsolute(path) &&
+            !/[\0-\x1f]/u.test(path) &&
+            path
+              .split('/')
+              .every((part) => part && part !== '.' && part !== '..') &&
+            !directories.has(path) &&
+            !expected.has(path) &&
+            path !== manifestPath
+        )
+        directories.add(path)
+      }
+      for (const path of [...expected.keys(), manifestPath, ...directories]) {
+        let parent = dirname(path)
+        while (parent !== '.') {
+          requireProof(directories.has(parent))
+          parent = dirname(parent)
+        }
+      }
+    } else {
+      // Legacy manifests retain their original ancestor-only contract.
+      for (const path of [...expected.keys(), manifestPath]) {
+        let parent = dirname(path)
+        while (parent !== '.') {
+          directories.add(parent)
+          parent = dirname(parent)
+        }
       }
     }
-    const observed = new Set()
+    const observed = new Set(),
+      observedDirectories = new Set([''])
     const walk = async (path = '') => {
       stage = 'entry-list'
       for (const entry of await readdir(join(root, path), {
@@ -289,6 +325,7 @@ export async function verifySchemaProofInstallation({ installed, admission }) {
         if (entry.isDirectory()) {
           stage = 'directory-set'
           requireProof(directories.has(name))
+          observedDirectories.add(name)
           await walk(name)
           continue
         }
@@ -322,6 +359,8 @@ export async function verifySchemaProofInstallation({ installed, admission }) {
     await walk()
     stage = 'entry-completeness'
     requireProof(observed.size === expected.size)
+    stage = 'directory-completeness'
+    requireProof(observedDirectories.size === directories.size)
     stage = 'component-presence'
     for (const path of componentPaths) {
       const row = expected.get(path)

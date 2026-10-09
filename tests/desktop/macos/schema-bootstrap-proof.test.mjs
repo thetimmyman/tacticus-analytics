@@ -96,6 +96,124 @@ test('installed proof admits only the complete source-bound copied inventory', a
   assert.equal(result.inventorySha256, f.admission.inventorySha256)
   assert.equal(result.sourceCommit, 'a'.repeat(40))
 })
+async function directoryFixture(t) {
+  const f = await fixture(t)
+  await mkdir(
+    join(f.installed, 'Contents/Resources/empty-parent/empty-child'),
+    {
+      recursive: true
+    }
+  )
+  f.manifest.schemaVersion = 2
+  f.manifest.directories = []
+  const walk = async (path = '') => {
+    for (const entry of await readdir(join(f.installed, path), {
+      withFileTypes: true
+    })) {
+      if (!entry.isDirectory()) continue
+      const relative = path ? path + '/' + entry.name : entry.name
+      f.manifest.directories.push(relative)
+      await walk(relative)
+    }
+  }
+  await walk()
+  return f
+}
+async function writeManifest(f) {
+  const bytes = Buffer.from(JSON.stringify(f.manifest))
+  await writeFile(
+    join(f.installed, 'Contents/Resources/package-inventory.json'),
+    bytes
+  )
+  f.admission.inventorySha256 = hash(bytes)
+}
+test('directory manifest admits its exact declared empty hierarchy and refuses copied changes', async (t) => {
+  for (const kind of [
+    'unchanged',
+    'injected-empty',
+    'missing-empty',
+    'directory-to-file',
+    'directory-to-link',
+    'changed-file',
+    'missing-file',
+    'escaping-link'
+  ]) {
+    await t.test(kind, async (t) => {
+      const f = await directoryFixture(t)
+      const empty = join(
+        f.installed,
+        'Contents/Resources/empty-parent/empty-child'
+      )
+      if (kind === 'injected-empty')
+        await mkdir(join(f.installed, 'not-in-manifest'))
+      if (kind === 'missing-empty') await rm(empty, { recursive: true })
+      if (kind === 'directory-to-file' || kind === 'directory-to-link') {
+        await rm(empty, { recursive: true })
+        if (kind === 'directory-to-file') await writeFile(empty, 'canary')
+        else await symlink('../runtime', empty)
+      }
+      const first = join(f.installed, f.files[0].path)
+      if (kind === 'changed-file') await writeFile(first, 'canary')
+      if (kind === 'missing-file') await rm(first)
+      if (kind === 'escaping-link') {
+        await rm(first)
+        await symlink('/dev/null', first)
+        f.manifest.files[0] = { path: f.files[0].path, link: '/dev/null' }
+      }
+      await writeManifest(f)
+      if (kind === 'unchanged')
+        assert.equal((await verifySchemaProofInstallation(f)).files, 15)
+      else await assert.rejects(verifySchemaProofInstallation(f), refused)
+    })
+  }
+})
+test('directory manifest rejects malformed, duplicate, overlapping or incomplete ancestry authority', async (t) => {
+  for (const kind of [
+    'not-array',
+    'duplicate',
+    'file-overlap',
+    'manifest-overlap',
+    'absolute',
+    'traversal',
+    'empty',
+    'dot',
+    'control',
+    'too-long',
+    'too-many',
+    'missing-directory-parent',
+    'missing-file-parent',
+    'unknown-key'
+  ]) {
+    await t.test(kind, async (t) => {
+      const f = await directoryFixture(t)
+      const paths = f.manifest.directories
+      if (kind === 'not-array') f.manifest.directories = {}
+      if (kind === 'duplicate') paths.push(paths[0])
+      if (kind === 'file-overlap') paths.push(f.files[0].path)
+      if (kind === 'manifest-overlap')
+        paths.push('Contents/Resources/package-inventory.json')
+      if (kind === 'absolute') paths.push('/outside')
+      if (kind === 'traversal') paths.push('Contents/../outside')
+      if (kind === 'empty') paths.push('')
+      if (kind === 'dot') paths.push('Contents/./Resources')
+      if (kind === 'control') paths.push('Contents/\u0000canary')
+      if (kind === 'too-long') paths.push('x'.repeat(4097))
+      if (kind === 'too-many')
+        f.manifest.directories = Array(25001).fill('Contents')
+      if (kind === 'missing-directory-parent')
+        f.manifest.directories = paths.filter(
+          (path) => path !== 'Contents/Resources/empty-parent'
+        )
+      if (kind === 'missing-file-parent')
+        f.manifest.directories = paths.filter(
+          (path) => path !== 'Contents/MacOS'
+        )
+      if (kind === 'unknown-key') f.manifest.untrusted = true
+      await writeManifest(f)
+      await assert.rejects(verifySchemaProofInstallation(f), refused)
+    })
+  }
+})
 test('unknown, changed, missing or escaping installed entries refuse before imports', async (t) => {
   for (const kind of [
     'unknown',
