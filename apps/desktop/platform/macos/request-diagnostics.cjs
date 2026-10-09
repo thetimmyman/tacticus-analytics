@@ -62,7 +62,57 @@ const endpointNames = [
   'static-asset',
   'other-local'
 ]
-const diagnosticEndpointNames = [...endpointNames, 'season-list']
+// Exact public chrome/native destinations only. Dynamic and unknown paths stay
+// unlabelled; these additions never change the original success receipt.
+const diagnosticEndpoints = {
+  '/desktop/onboarding-status': 'workspace-access-status',
+  '/desktop/setup': 'workspace-setup-page',
+  '/desktop/connect': 'workspace-connect-page',
+  '/desktop/import': 'workspace-import-page',
+  '/': 'root-page',
+  '/auth/login': 'login-page',
+  '/auth/signup': 'signup-page',
+  '/home': 'home-page',
+  '/roster': 'roster-page',
+  '/achievements': 'achievements-page',
+  '/explore': 'explore-page',
+  '/dashboard': 'dashboard-page',
+  '/boss': 'boss-page',
+  '/boss-playbooks': 'boss-playbooks-page',
+  '/replays': 'replays-page',
+  '/leaderboards': 'leaderboards-page',
+  '/player-stats': 'player-stats-page',
+  '/votlw': 'awards-page',
+  '/meta-atlas': 'meta-atlas-page',
+  '/guild-ops/player-lookup': 'player-lookup-page',
+  '/guild-management/members': 'guild-members-page',
+  '/guild-teams': 'guild-teams-page',
+  '/token-usage': 'token-usage-page',
+  '/guild-trends': 'guild-trends-page',
+  '/guild-ops/cluster-analytics': 'cluster-analytics-page',
+  '/guild-ops/cluster-management': 'cluster-management-page',
+  '/boss-assignments': 'boss-assignments-page',
+  '/wars': 'wars-page',
+  '/war-room': 'war-room-page',
+  '/wars/metrics': 'war-metrics-page',
+  '/wars/lineups/offense': 'war-lineups-page',
+  '/wars/maps': 'war-maps-page',
+  '/wars/cores/offense': 'war-cores-page',
+  '/wars/analyze/team': 'war-team-analysis-page',
+  '/wars/config': 'war-config-page',
+  '/creators': 'creators-page',
+  '/support-creator': 'support-creator-page',
+  '/acknowledgements': 'acknowledgements-page',
+  '/guild-settings': 'guild-settings-page',
+  '/admin/feature-releases': 'feature-releases-page',
+  '/downloads': 'downloads-page'
+}
+const diagnosticEndpointNames = [
+  ...endpointNames,
+  'season-list',
+  ...Object.values(diagnosticEndpoints)
+]
+const requestKinds = ['rsc-prefetch', 'rsc', 'prefetch', 'other']
 const requestClasses = [
   'supabase-rpc',
   'supabase-auth',
@@ -137,9 +187,33 @@ function networkRequestLabel(path, resource, phase) {
     diagnosticEndpoint:
       path === '/supabase/rest/v1/rpc/get_distinct_seasons_for_guild'
         ? 'season-list'
-        : original.endpoint,
+        : (diagnosticEndpoints[path] ?? original.endpoint),
     requestClass: requestClass(path)
   }
+}
+
+// Read only own data properties for these standard indicators. Other header
+// values, including credentials and router state, are never inspected.
+function requestKind(headers) {
+  if (!headers || typeof headers !== 'object' || Array.isArray(headers))
+    return 'other'
+  const names = Object.keys(headers)
+  const matches = (name, expected) => {
+    const keys = names.filter((key) => key.toLowerCase() === name)
+    if (keys.length !== 1) return false
+    const descriptor = Object.getOwnPropertyDescriptor(headers, keys[0])
+    return descriptor && 'value' in descriptor && descriptor.value === expected
+  }
+  const rsc = matches('rsc', '1')
+  const prefetch =
+    matches('next-router-prefetch', '1') || matches('purpose', 'prefetch')
+  return rsc
+    ? prefetch
+      ? 'rsc-prefetch'
+      : 'rsc'
+    : prefetch
+      ? 'prefetch'
+      : 'other'
 }
 
 function chromiumErrorCategory(error) {
@@ -169,6 +243,13 @@ function sanitizeNetworkDiagnostics(input) {
           ? entry.resource
           : 'other',
         ...(phases.includes(entry?.phase) ? { phase: entry.phase } : {}),
+        ...(Object.hasOwn(entry ?? {}, 'requestKind')
+          ? {
+              requestKind: requestKinds.includes(entry.requestKind)
+                ? entry.requestKind
+                : 'other'
+            }
+          : {}),
         ...(kind === 'failed'
           ? {
               status: validStatus ? entry.status : 0,
@@ -298,6 +379,7 @@ module.exports = {
   requestLabel,
   networkRequestLabel,
   chromiumErrorCategory,
+  requestKind,
   sanitizeFailure,
   rendererReceipt,
   holdingHeader,
