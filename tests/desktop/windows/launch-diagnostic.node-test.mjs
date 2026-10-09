@@ -19,6 +19,11 @@ test('launch diagnostics expose only fixed bounded categories', () => {
       'schema-recovery-failed'
     ],
     [
+      Object.assign(new Error('private schema detail'), { code: 'ESCHEMA' }),
+      [],
+      'schema-admission-failed'
+    ],
+    [
       new Error('private recovery detail'),
       ['--recovery'],
       'recovery-journey-failed'
@@ -49,6 +54,51 @@ test('launch diagnostics expose only fixed bounded categories', () => {
       new Error('Desktop window verification failed; private output'),
       [],
       'window-verification-failed'
+    ],
+    [
+      Object.assign(
+        new Error('Windows secure input or vault is unavailable.'),
+        {
+          code: 'EVAULTLOCKED'
+        }
+      ),
+      [],
+      'native-helper-vault-unavailable'
+    ],
+    [
+      Object.assign(
+        new Error(
+          'Native secure operation unavailable; native-dll-initialization-failed-0xc0000142; exit-3221225794; sensitive output suppressed'
+        ),
+        { code: 'ENATIVE' }
+      ),
+      [],
+      'native-helper-dll-init-failed'
+    ],
+    [
+      Object.assign(
+        new Error(
+          'Native secure operation unavailable; native-runtime-load-refused; exit-3221225781; sensitive output suppressed'
+        ),
+        { code: 'ENATIVE' }
+      ),
+      [],
+      'native-helper-runtime-load-refused'
+    ],
+    [
+      Object.assign(
+        new Error(
+          'Native secure operation unavailable; native-os-status-1314; exit-1; sensitive output suppressed'
+        ),
+        { code: 'ENATIVE' }
+      ),
+      [],
+      'native-helper-os-operation-failed'
+    ],
+    [
+      Object.assign(new Error('synthetic-private-value'), { code: 'ENATIVE' }),
+      [],
+      'native-helper-operation-refused'
     ],
     [
       Object.assign(new Error('private assertion'), { name: 'AssertionError' }),

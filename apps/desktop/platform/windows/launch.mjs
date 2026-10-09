@@ -48,6 +48,7 @@ if (!postgresHome || /[^\x00-\x7f]/.test(postgresHome))
 const serviceConfig = {
   state,
   schemaDirectory: join(root, 'apps/desktop/local-schema'),
+  allowSourceHardlinks: args.includes('--native-package-runtime'),
   binaries: {
     initdb: join(postgresHome, 'bin/initdb.exe'),
     postgres: join(postgresHome, 'bin/postgres.exe'),

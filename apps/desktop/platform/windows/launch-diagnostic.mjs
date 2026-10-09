@@ -11,12 +11,18 @@ const errorKinds = new Map([
 export const nodeLaunchFailureCategories = Object.freeze([
   'none',
   'launch-configuration-invalid',
+  'schema-admission-failed',
   'schema-recovery-failed',
   'recovery-journey-failed',
   'service-startup-failed',
   'application-stopped-during-startup',
   'application-health-timeout',
   'window-verification-failed',
+  'native-helper-vault-unavailable',
+  'native-helper-dll-init-failed',
+  'native-helper-runtime-load-refused',
+  'native-helper-os-operation-failed',
+  'native-helper-operation-refused',
   ...errorKinds.values(),
   'node-launch-unclassified'
 ])
@@ -93,6 +99,7 @@ export function nodeLaunchFailureCategory(error, argumentsList = []) {
   if (argumentsList.includes('--schema-recovery'))
     return 'schema-recovery-failed'
   if (argumentsList.includes('--recovery')) return 'recovery-journey-failed'
+  if (error?.code === 'ESCHEMA') return 'schema-admission-failed'
   if (
     message.includes('Native workspace owner must supply') ||
     message.includes('Native owner must supply')
@@ -113,6 +120,16 @@ export function nodeLaunchFailureCategory(error, argumentsList = []) {
     return 'application-health-timeout'
   if (message.includes('Desktop window verification failed'))
     return 'window-verification-failed'
+  if (error?.code === 'EVAULTLOCKED') return 'native-helper-vault-unavailable'
+  if (error?.code === 'ENATIVE') {
+    if (message.includes('native-dll-initialization-failed-0xc0000142'))
+      return 'native-helper-dll-init-failed'
+    if (message.includes('native-runtime-load-refused'))
+      return 'native-helper-runtime-load-refused'
+    if (/native-os-status-\d{1,10}\b/.test(message))
+      return 'native-helper-os-operation-failed'
+    return 'native-helper-operation-refused'
+  }
   return errorKinds.get(error?.name) ?? 'node-launch-unclassified'
 }
 

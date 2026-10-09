@@ -389,7 +389,13 @@ export async function completeNativeSchema(
 }
 
 export async function nativeServices(
-  { state, binaries, schemaDirectory, libraryPath },
+  {
+    state,
+    binaries,
+    schemaDirectory,
+    libraryPath,
+    allowSourceHardlinks = false
+  },
   { completeSchema } = {}
 ) {
   if (process.platform !== 'win32')
@@ -397,7 +403,11 @@ export async function nativeServices(
   state = resolve(state)
   await mkdir(state, { recursive: true, mode: 0o700 })
   // The native owner holds the OS exclusive workspace lock and validates ACLs/reparse points.
-  const schema = await prepareSchemaBootstrap({ state, schemaDirectory })
+  const schema = await prepareSchemaBootstrap({
+    state,
+    schemaDirectory,
+    allowSourceHardlinks
+  })
   const children = []
   const diagnostics = new WeakMap()
   const { unlink } = await import('node:fs/promises')
