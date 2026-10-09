@@ -121,9 +121,11 @@ function Get-SigningCertificate([string]$Thumbprint, [string]$ExpectedPublisher)
     throw 'The signing certificate is not currently valid.'
   }
   $expectedName = [System.Security.Cryptography.X509Certificates.X500DistinguishedName]::new($ExpectedPublisher)
-  $actualSubject = [Convert]::ToBase64String($certificate.SubjectName.RawData)
-  $expectedSubject = [Convert]::ToBase64String($expectedName.RawData)
-  if ($actualSubject -cne $expectedSubject) {
+  # Compare decoded canonical names rather than DER bytes. Equivalent X.500
+  # names can encode the same value with different ASN.1 string types.
+  $actualSubject = $certificate.SubjectName.Name.Trim()
+  $expectedSubject = $expectedName.Name.Trim()
+  if (-not [string]::Equals($actualSubject, $expectedSubject, [System.StringComparison]::OrdinalIgnoreCase)) {
     throw 'Publisher does not match the signing certificate subject.'
   }
   return [pscustomobject]@{ Certificate = $certificate; MachineStore = $machineStore }

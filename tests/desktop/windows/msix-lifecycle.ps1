@@ -15,6 +15,7 @@ $firstPackage = Join-Path $scratch 'TacticusDesktop-1.0.0.0.msix'
 $secondPackage = Join-Path $scratch 'TacticusDesktop-2.0.0.0.msix'
 $publicCertificate = Join-Path $scratch 'ephemeral-test-signing.cer'
 $packager = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../../../apps/desktop/platform/windows/package-msix.ps1')).Path
+$msixActivator = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot 'activate-msix.ps1')).Path
 $manifestPath = Join-Path $Bundle 'bundle-manifest.json'
 $manifest = Get-Content -LiteralPath $manifestPath | ConvertFrom-Json
 $manifestDigest = (Get-FileHash -LiteralPath $manifestPath -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -35,6 +36,7 @@ $receipt = [ordered]@{
   standardConsumerUser = $false
   nativeInstalledArtifact = $true
   packageArtifactPublished = $false
+  aumidActivationQualified = $false
   completed = $false
   installVersion = $null
   updateVersion = $null
@@ -88,7 +90,6 @@ function Assert-Sentinel {
 }
 
 function Invoke-CachedReopen($Package, [string]$Label) {
-  $payload = Join-Path $Package.InstallLocation 'Payload'
   $workspace = Join-Path $qualificationRoot 'retained workspace ü'
   $renderer = Join-Path $env:RUNNER_TEMP "renderer-msix-$Label.json"
   $screenshot = Join-Path $env:RUNNER_TEMP "renderer-msix-$Label.png"
@@ -96,8 +97,9 @@ function Invoke-CachedReopen($Package, [string]$Label) {
   $measurement = Join-Path $env:RUNNER_TEMP "measurement-msix-$Label.json"
   @{ seedFormerPasswordFixture = $false; evidence = $renderer; screenshot = $screenshot } |
     ConvertTo-Json | Set-Content -Encoding utf8 $verify
-  & (Join-Path $payload 'TacticusDesktop.exe') run-msix-qualified $workspace --verify $verify --measurement $measurement
-  if ($LASTEXITCODE -ne 0) { throw 'Updated package cached reopen failed' }
+  $activationExit = & $msixActivator -PackageFamilyName $Package.PackageFamilyName `
+    -Arguments @('run-msix-qualified', $workspace, '--verify', $verify, '--measurement', $measurement)
+  if ($activationExit -ne 0) { throw 'Updated package cached reopen failed' }
   $result = Get-Content -LiteralPath $renderer | ConvertFrom-Json
   $nativeMeasurement = Get-Content -LiteralPath $measurement | ConvertFrom-Json
   if ($result.observed.nodeAccess -or -not $result.observed.text.Contains('+58%') -or
@@ -179,8 +181,9 @@ try {
   [System.IO.File]::WriteAllText($sentinel, "workspace-bound-to-$($manifest.sourceSha)", [System.Text.UTF8Encoding]::new($false))
   $sentinelDigest = (Get-FileHash -LiteralPath $sentinel -Algorithm SHA256).Hash.ToLowerInvariant()
 
-  & (Join-Path $payload 'TacticusDesktop.exe') package-integrity-proof $IntegrityEvidence
-  if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $IntegrityEvidence -PathType Leaf)) {
+  $activationExit = & $msixActivator -PackageFamilyName $installed.PackageFamilyName `
+    -Arguments @('package-integrity-proof', $IntegrityEvidence)
+  if ($activationExit -ne 0 -or -not (Test-Path -LiteralPath $IntegrityEvidence -PathType Leaf)) {
     throw 'Installed package integrity proof failed'
   }
   $integrity = Get-Content -LiteralPath $IntegrityEvidence | ConvertFrom-Json
@@ -192,7 +195,7 @@ try {
     'package-existing-rename-refused',
     'package-rename-in-refused',
     'package-hardlink-in-refused',
-    'package-reparse-write-access-refused',
+    'package-symlink-reparse-create-refused',
     'package-payload-write-dac-refused',
     'package-payload-write-owner-refused'
   )
@@ -210,8 +213,9 @@ try {
   $receipt.packageIntegrityAssertions = $actualIntegrityAssertions
 
   & (Join-Path $PSScriptRoot 'installed-journey.ps1') -Bundle $payload -Evidence $JourneyEvidence -AlreadyInstalled `
-    -QualificationRoot $qualificationRoot
+    -QualificationRoot $qualificationRoot -PackageFamilyName $installed.PackageFamilyName
   if ($LASTEXITCODE -ne 0) { throw 'Installed MSIX application journey failed' }
+  $receipt.aumidActivationQualified = $true
 
   Add-AppxPackage -Path $secondPackage
   $installed = Assert-PackageVersion $secondVersion

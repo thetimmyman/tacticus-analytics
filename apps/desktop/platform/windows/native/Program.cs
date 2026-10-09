@@ -11,8 +11,13 @@ internal static class Program
     {
         try
         {
-            if (args.Length == 0) throw new InvalidOperationException("Choose run-candidate, install-candidate, rollback, native-proof or official onboarding");
             var package = PackageRuntime.Current();
+            if (args.Length == 0)
+            {
+                if (package is not null)
+                    return RunCandidate(package.Payload, Installation.Workspace, Array.Empty<string>());
+                throw new InvalidOperationException("Choose run-candidate, install-candidate, rollback, native-proof or official onboarding");
+            }
             if (package is not null && PackageRuntime.IsUnpackagedOnlyVerb(args[0]))
                 throw new InvalidOperationException("Operation unavailable in the packaged runtime");
             switch (args[0])
