@@ -120,6 +120,115 @@ test('child failure diagnostics distinguish missing output from safe failed and 
   assert.deepEqual(completed.completedGroups, [])
 })
 
+const freshSubsteps = [
+  'fresh-state-and-journal',
+  'pg-initdb',
+  'pg-start-ready',
+  'default-comment-and-journal',
+  'bootstrap-inspect',
+  'auth-prerequisites-migrate-ready',
+  'bootstrap-complete',
+  'receipt-marker-retirement-relation',
+  'fresh-native-startup-and-receipt'
+]
+
+for (const substep of freshSubsteps) {
+  test(`fresh proof retains the first ${substep} failure through cleanup`, async () => {
+    const trace = proof.schemaBootstrapProofTrace()
+    const original = new Error('SYNTHETIC-PRIVATE-CANARY')
+    let cleaned = false
+    await assert.rejects(
+      trace.step('fresh-native-startup-and-receipt', async () => {
+        try {
+          await trace.step(substep, async () => {
+            throw original
+          })
+        } finally {
+          cleaned = true
+          throw new Error('SYNTHETIC-CLEANUP-CANARY')
+        }
+      }),
+      (error) => error === original
+    )
+    assert.equal(cleaned, true)
+    assert.deepEqual(trace.failure(), { failedSubstep: substep })
+    const projected = proof.schemaBootstrapChildFailure({
+      code: 1,
+      signal: null,
+      outputRead: 'read',
+      outputBytes: Buffer.from(
+        JSON.stringify({
+          status: 'failed',
+          actualInstalledMacRecovery: false,
+          failedGroup: 'fresh-default-comment',
+          completedGroups: [],
+          ...trace.failure(),
+          error: original.message,
+          stack: original.stack
+        })
+      )
+    })
+    assert.equal(projected.failedSubstep, substep)
+    assert.equal(projected.failedGroup, 'fresh-default-comment')
+    assert.deepEqual(projected.completedGroups, [])
+    assert.equal(JSON.stringify(projected).includes('CANARY'), false)
+  })
+}
+
+test('fresh proof trace leaves successful results unchanged and refuses unknown labels before action', async () => {
+  const trace = proof.schemaBootstrapProofTrace()
+  const result = { synthetic: true }
+  assert.equal(await trace.step('pg-initdb', async () => result), result)
+  assert.deepEqual(trace.failure(), {})
+  let invoked = false
+  await assert.rejects(
+    trace.step('SYNTHETIC-PRIVATE-CANARY', async () => {
+      invoked = true
+    }),
+    { code: 'EPROOF' }
+  )
+  assert.equal(invoked, false)
+  assert.deepEqual(trace.failure(), {})
+})
+
+test('fresh substep projection rejects unknown metadata and labels outside the fresh group', () => {
+  for (const failedGroup of [
+    'fresh-default-comment',
+    'actual-bootstrap-rollback',
+    'private-group'
+  ]) {
+    for (const failedSubstep of [
+      'SYNTHETIC-PRIVATE-CANARY',
+      {},
+      null,
+      7,
+      ['pg-initdb'],
+      'pg-initdb'
+    ]) {
+      const projected = proof.schemaBootstrapChildFailure({
+        code: 1,
+        signal: null,
+        outputRead: 'read',
+        outputBytes: Buffer.from(
+          JSON.stringify({
+            status: 'failed',
+            actualInstalledMacRecovery: false,
+            failedGroup,
+            failedSubstep,
+            rawError: 'SYNTHETIC-PRIVATE-CANARY',
+            command: 'SYNTHETIC-PRIVATE-CANARY'
+          })
+        )
+      })
+      assert.equal(
+        Object.hasOwn(projected, 'failedSubstep'),
+        failedGroup === 'fresh-default-comment' && failedSubstep === 'pg-initdb'
+      )
+      assert.equal(JSON.stringify(projected).includes('CANARY'), false)
+    }
+  }
+})
+
 test('child failure diagnostics emit finite opaque states for malformed output and unknown exits', () => {
   for (const [outputRead, outputBytes, stage, present] of [
     ['unreadable', undefined, 'unreadable', null],
