@@ -1,10 +1,11 @@
 import { spawn } from 'node:child_process'
-import { createHmac, createHash, randomBytes, randomUUID } from 'node:crypto'
+import { createHmac, randomBytes, randomUUID } from 'node:crypto'
 import { createServer } from 'node:net'
 import { mkdir, readFile, writeFile, stat, lstat } from 'node:fs/promises'
 import { createWriteStream } from 'node:fs'
 import { resolve, join, basename } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
+import { prepareSchemaBootstrap } from './schema-bootstrap.mjs'
 
 const secret = () => randomBytes(32).toString('hex')
 export function signedToken(key, role) {
@@ -38,7 +39,7 @@ async function run(file, args, options) {
   })
   await new Promise((accept, reject) => {
     child.once('error', reject)
-    child.once('exit', (code) =>
+    child.once('close', (code) =>
       code === 0
         ? accept()
         : reject(new Error(`${file} exited ${code}: ${stderr.slice(-1200)}`))
@@ -64,21 +65,13 @@ export async function nativeServices({
     throw new Error('State directory must be private')
   const lockPath = join(state, 'running.lock')
   // Never recover a stale lock by guessing which process owns it.
-  const schemaHash = createHash('sha256')
-    .update(await readFile(join(schemaDirectory, 'canonical-objects.sql')))
-    .update(await readFile(join(schemaDirectory, 'authority.sql')))
-    .digest('hex')
   await writeFile(lockPath, String(process.pid), { flag: 'wx', mode: 0o600 })
-  let needsSchema = true
+  let schema
   try {
-    if ((await readFile(join(state, 'schema-version'), 'utf8')) !== schemaHash)
-      throw new Error('Incompatible local schema; activation refused')
-    needsSchema = false
+    schema = await prepareSchemaBootstrap({ state, schemaDirectory })
   } catch (error) {
-    if (error.code !== 'ENOENT') {
-      await (await import('node:fs/promises')).unlink(lockPath)
-      throw error
-    }
+    await (await import('node:fs/promises')).unlink(lockPath)
+    throw error
   }
   const children = []
   // Confinement may exec through a wrapper (the qualification network policy),
@@ -275,6 +268,7 @@ export async function nativeServices({
       throw new Error(`${label} readiness timed out`)
     }
     await ready(() => psql('SELECT 1;'), pg, 'PostgreSQL')
+    await schema.inspect(psql)
     const token = {
       anon: signedToken(credentials.jwt, 'anon'),
       service: signedToken(credentials.jwt, 'service_role')
@@ -339,23 +333,8 @@ export async function nativeServices({
       auth,
       'Auth'
     )
-    if (needsSchema) {
-      // The native Auth release supplies its own versioned schema migrations.
-      await psql(
-        'BEGIN;\n' +
-          (await readFile(
-            join(schemaDirectory, 'canonical-objects.sql'),
-            'utf8'
-          )) +
-          '\n' +
-          (await readFile(join(schemaDirectory, 'authority.sql'), 'utf8')) +
-          '\nCOMMIT;'
-      )
-      await writeFile(join(state, 'schema-version'), schemaHash, {
-        mode: 0o600,
-        flag: 'wx'
-      })
-    }
+    // Auth supplies its own schema before canonical application bootstrap.
+    await schema.complete(psql)
     const rest = launch(binaries.postgrest, [], {
       PATH: process.env.PATH,
       PGRST_DB_URI: `postgres://authenticator:${credentials.rest}@127.0.0.1:${ports.db}/postgres`,
