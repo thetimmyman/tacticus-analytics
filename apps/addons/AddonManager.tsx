@@ -278,6 +278,23 @@ export function AddonManager({
           >
             Open retained local data
           </button>
+          <button
+            disabled={
+              busy ||
+              module.unavailable ||
+              !module.enabled ||
+              !module.capabilities.includes('offline.read')
+            }
+            onClick={() =>
+              void action(async () => {
+                await commands.exportLocalData(module.addonId)
+              })
+            }
+          >
+            Export{' '}
+            {module.addonId === 'guild-war' ? 'war summary' : 'replay timeline'}{' '}
+            JSON
+          </button>
         </article>
       ))}
       {view?.addonId === 'guild-war' && (

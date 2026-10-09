@@ -2,7 +2,7 @@ import { createPublicKey } from 'node:crypto'
 import { z } from 'zod'
 import { AddonHost, AddonError } from '../../packages/addon-host/src/host'
 import { addonId, capability } from '../../packages/addon-host/src/contract'
-import { createAddonCommands } from './commands'
+import { createAddonCommands, type SaveLocalData } from './commands'
 
 const digest = z.string().regex(/^[a-f0-9]{64}$/)
 const policySchema = z
@@ -53,7 +53,10 @@ const requests = z.discriminatedUnion('method', [
       args: z.tuple([addonId, z.string().max(2_097_152)])
     })
     .strict(),
-  z.object({ method: z.literal('view'), args: z.tuple([addonId]) }).strict()
+  z.object({ method: z.literal('view'), args: z.tuple([addonId]) }).strict(),
+  z
+    .object({ method: z.literal('exportLocalData'), args: z.tuple([addonId]) })
+    .strict()
 ])
 
 /** Main-process adapter. No filesystem paths, credentials or broker calls are renderer inputs. */
@@ -80,7 +83,7 @@ export function createNativeAddonRuntime(root: string, rawPolicy: unknown) {
   const commands = createAddonCommands(host)
   return {
     setBinding: host.setBinding.bind(host),
-    async dispatch(input: unknown) {
+    async dispatch(input: unknown, saveLocalData?: SaveLocalData) {
       const request = requests.parse(input)
       // Explicit dispatch keeps the public bridge smaller than the host implementation.
       switch (request.method) {
@@ -100,6 +103,10 @@ export function createNativeAddonRuntime(root: string, rawPolicy: unknown) {
           return commands.importLocalData(...request.args)
         case 'view':
           return commands.view(...request.args)
+        case 'exportLocalData':
+          return createAddonCommands(host, saveLocalData).exportLocalData(
+            ...request.args
+          )
       }
     }
   }

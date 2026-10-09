@@ -1273,3 +1273,591 @@ describe('explicit saved-view admission', () => {
     expect(fixture.legacyAuthCalls).toBe(0)
   })
 })
+
+describe('explicit saved prime encounter scope', () => {
+  function primes() {
+    fixture.history.push(
+      attack(A, 'Synthetic Twin', 500000, {
+        Name: 'SyntheticPrime',
+        encounterId: 1,
+        maxHp: 2000000,
+        remainingHp: 1500000
+      }),
+      attack(B, 'Synthetic Twin', 1000000, {
+        Name: 'SyntheticPrime',
+        encounterId: 1,
+        maxHp: 2000000,
+        remainingHp: 1000000
+      })
+    )
+    fixture.targets.push(
+      target(2, { boss_name: 'SyntheticPrime', encounter_id: 1 })
+    )
+  }
+  const query = `season=101&asOf=${AS_OF}&encounters=main-and-primes`
+  it('explicitly includes prime HP, target and loop scores without merging duplicate current labels', async () => {
+    primes()
+    const response = await get(query)
+    expect(response.status).toBe(200)
+    const value = await response.json()
+    expect(value.encounters).toBe('main-and-primes')
+    expect(value.players.map((p: { name: string }) => p.name)).toEqual([
+      'Synthetic Twin',
+      'Synthetic Twin'
+    ])
+    expect(
+      value.players
+        .map((p: { weightedScore: number }) => p.weightedScore)
+        .sort()
+    ).toEqual([0.65, 1.3])
+    expect(
+      value.players
+        .find((p: { weightedScore: number }) => p.weightedScore === 0.65)
+        .bosses.find((p: { encounterId: number }) => p.encounterId === 1)
+    ).toMatchObject({
+      bossName: 'SyntheticPrime',
+      expectedTokens: 2,
+      actualDamage: 500000,
+      expectedDamage: 1000000,
+      score: 0.5
+    })
+    expect(JSON.stringify(value)).not.toContain(A)
+    expect(
+      fixture.requests
+        .find((r) => r.table === 'EOT_GR_data')!
+        .url.searchParams.get('encounterId')
+    ).toBe('in.(0,1,2)')
+  })
+  it('keeps the existing main-only response unchanged without the opt-in', async () => {
+    primes()
+    const response = await get()
+    expect(response.status).toBe(200)
+    const value = await response.json()
+    expect(value.encounters).toBe('main')
+    expect(
+      value.players.every((p: { bosses: { encounterId: number }[] }) =>
+        p.bosses.every((e) => e.encounterId === 0)
+      )
+    ).toBe(true)
+  })
+  it('refuses a same-name stage shared by different encounter identities', async () => {
+    primes()
+    fixture.history.push(
+      attack(A, 'Synthetic Twin', 100000, {
+        Name: 'SyntheticPrime',
+        encounterId: 2,
+        maxHp: 4000000,
+        remainingHp: 3900000
+      })
+    )
+    const response = await get(query)
+    expect(response.status).toBe(503)
+    expect(JSON.stringify(await response.json())).not.toContain(
+      'SyntheticPrime'
+    )
+  })
+  it('refuses a prime whose HP cannot be obtained by the canonical data contract', async () => {
+    fixture.history = [
+      attack(A, 'Synthetic Twin', 100000, {
+        Name: 'UnknownPrime',
+        encounterId: 1,
+        maxHp: null,
+        remainingHp: null
+      })
+    ]
+    expect((await get(query)).status).toBe(503)
+  })
+  it('keeps complete own-guild prime baselines and excludes departed/missing-ID output', async () => {
+    fixture.history = [
+      attack(A, 'Old name', 500000, {
+        Name: 'SyntheticPrime',
+        encounterId: 1,
+        maxHp: 2000000
+      }),
+      attack('SYN-DEPARTED', 'Departed', 1000000, {
+        Name: 'SyntheticPrime',
+        encounterId: 1,
+        maxHp: 2000000
+      }),
+      attack(null, A, 1500000, {
+        Name: 'SyntheticPrime',
+        encounterId: 1,
+        maxHp: 2000000
+      })
+    ]
+    fixture.targets = []
+    fixture.finalRoster = [member(A, 'Current label', { is_active: false })]
+    const response = await get(query)
+    expect(response.status).toBe(200)
+    const value = await response.json()
+    expect(value.players).toHaveLength(1)
+    expect(value.players[0]).toMatchObject({
+      name: 'Current label',
+      weightedScore: 0.5
+    })
+    expect(value.players[0].bosses[0]).toMatchObject({
+      expectedTokens: 2,
+      tier: 'per_boss',
+      tokensSpent: 1
+    })
+    expect(JSON.stringify(value)).not.toContain('SYN-DEPARTED')
+    expect(JSON.stringify(value)).not.toContain(A)
+  })
+  it('uses canonical paired-main static HP only when one main identity is available', async () => {
+    fixture.history.push(
+      attack(A, 'Synthetic Twin', 100000, {
+        Name: 'SyntheticPrime',
+        encounterId: 1,
+        maxHp: null,
+        remainingHp: null
+      })
+    )
+    fixture.targets.push(
+      target(2, { boss_name: 'SyntheticPrime', encounter_id: 1 })
+    )
+    const response = await get(query)
+    expect(response.status).toBe(200)
+    const value = await response.json()
+    const prime = value.players
+      .flatMap((p: { bosses: unknown[] }) => p.bosses)
+      .find((b: { encounterId: number }) => b.encounterId === 1)
+    expect(prime).toMatchObject({
+      expectedDamage: 150000,
+      actualDamage: 100000,
+      score: 2 / 3
+    })
+  })
+  it('refuses ambiguous paired-main fallback while retaining unambiguous positive row-HP precedence', async () => {
+    primes()
+    fixture.history.push(
+      attack(A, 'Synthetic Twin', 100000, { Name: 'Avatar' })
+    )
+    expect((await get(query)).status).toBe(200)
+    for (const r of fixture.history) if (r.encounterId === 1) r.maxHp = null
+    expect((await get(query)).status).toBe(503)
+  })
+  it('keeps prime1 and prime2 targets distinct and prefers selected-season over legacy per encounter', async () => {
+    primes()
+    fixture.history.push(
+      attack(A, 'Synthetic Twin', 500000, {
+        Name: 'SyntheticPrimeTwo',
+        encounterId: 2,
+        maxHp: 4000000,
+        loopIndex: 2
+      })
+    )
+    fixture.targets.push(
+      target(8, { boss_name: 'SyntheticPrimeTwo', encounter_id: 2 }),
+      target(4, {
+        boss_name: 'SyntheticPrime',
+        encounter_id: 1,
+        season_number: ''
+      })
+    )
+    const value = await (await get(query)).json()
+    const bosses = value.players.flatMap((p: { bosses: unknown[] }) => p.bosses)
+    expect(
+      bosses.find((b: { encounterId: number }) => b.encounterId === 1)
+    ).toMatchObject({ expectedTokens: 2, tier: 'officer_target' })
+    expect(
+      bosses.find((b: { encounterId: number }) => b.encounterId === 2)
+    ).toMatchObject({
+      expectedTokens: 8,
+      expectedDamage: 500000,
+      score: 1,
+      perLoop: [{ loopIndex: 2, score: 1 }]
+    })
+  })
+  it('preserves canonical skipped-target omission, legacy fallback and qualifying-sweep rules for primes', async () => {
+    fixture.history = [
+      attack(A, 'Twin', 500000, {
+        Name: 'SyntheticPrime',
+        encounterId: 1,
+        maxHp: 2000000
+      }),
+      attack(A, 'Twin', 600000, {
+        Name: 'SyntheticPrime',
+        encounterId: 1,
+        maxHp: 2000000,
+        remainingHp: 0,
+        loopIndex: 1
+      }),
+      attack(A, 'Twin', 100000, {
+        Name: 'SyntheticPrime',
+        encounterId: 1,
+        maxHp: 2000000,
+        remainingHp: 0,
+        loopIndex: 2
+      })
+    ]
+    fixture.targets = [
+      target(4, {
+        boss_name: 'SyntheticPrime',
+        encounter_id: 1,
+        season_number: ''
+      }),
+      target(2, { boss_name: 'SyntheticPrime', encounter_id: 1, skip: true })
+    ]
+    const value = await (await get(query)).json()
+    expect(value.players[0].bosses[0]).toMatchObject({
+      expectedTokens: 4,
+      actualDamage: 1100000,
+      tokensSpent: 2,
+      expectedDamage: 1000000,
+      score: 1.1,
+      tier: 'officer_target'
+    })
+    expect(
+      value.players[0].bosses[0].perLoop.map(
+        (v: { loopIndex: number }) => v.loopIndex
+      )
+    ).toEqual([0, 1])
+  })
+  it('returns canonical null summary when saved prime rows contain only nonqualifying sweeps', async () => {
+    fixture.history = [
+      attack(A, 'Twin', 100000, {
+        Name: 'SyntheticPrime',
+        encounterId: 1,
+        maxHp: 2000000,
+        remainingHp: 0
+      })
+    ]
+    fixture.targets = []
+    const value = await (await get(query)).json()
+    expect(value.players).toEqual([])
+    expect(value.summary).toEqual({
+      playerCount: 0,
+      mean: null,
+      median: null,
+      pctAtOrAbove: null
+    })
+  })
+  it('refuses duplicate full target identity instead of choosing an arbitrary row', async () => {
+    primes()
+    fixture.targets.push(
+      target(3, { boss_name: 'SyntheticPrime', encounter_id: 1 })
+    )
+    expect((await get(query)).status).toBe(503)
+  })
+  it.each([
+    '',
+    'main',
+    'MAIN-AND-PRIMES',
+    'primes',
+    'main-and-primes&encounters=main-and-primes',
+    'main-and-primes&guild_code=FOREIGN'
+  ])(
+    'refuses invalid/duplicate/unknown scope %s without a legacy fallback',
+    async (scope) => {
+      expect(
+        (await get(`season=101&asOf=${AS_OF}&encounters=${scope}`)).status
+      ).toBe(400)
+      expect(fixture.legacyAuthCalls).toBe(0)
+      expect(fixture.requests.some((r) => r.table === 'EOT_GR_data')).toBe(
+        false
+      )
+    }
+  )
+  it.each(['member', 'admin', 'Officer', 'leader '])(
+    'refuses prime scope for role %s before history reads',
+    async (role) => {
+      fixture.role = role
+      expect((await get(query)).status).toBe(403)
+      expect(fixture.requests.some((r) => r.table === 'EOT_GR_data')).toBe(
+        false
+      )
+    }
+  )
+  it.each(['guild', 'active', 'feature', 'ban'])(
+    'refuses prime result after final %s authority changes',
+    async (kind) => {
+      primes()
+      if (kind === 'guild') fixture.finalGuild = 'FOREIGN'
+      if (kind === 'active') fixture.finalActive = false
+      if (kind === 'feature') fixture.finalFeature = false
+      if (kind === 'ban') fixture.finalBan = true
+      const response = await get(query)
+      expect(response.status).toBe(403)
+      expect(await response.text()).not.toContain('SyntheticPrime')
+    }
+  )
+  it.each(['missingCount', 'truncate', 'excessCount'])(
+    'refuses incomplete prime reads: %s',
+    async (kind) => {
+      primes()
+      fixture[kind as 'missingCount' | 'truncate' | 'excessCount'] = true
+      expect((await get(query)).status).toBe(503)
+    }
+  )
+  it.each(['EOT_GR_data', 'boss_target_tokens'])(
+    'refuses prime %s read errors without leaking diagnostics',
+    async (table) => {
+      primes()
+      fixture.fail = table
+      const response = await get(query)
+      expect(response.status).toBe(503)
+      expect(await response.text()).not.toContain('Synthetic private')
+    }
+  )
+  it('refuses overflowing exact prime target identity reads instead of accepting partial rows', async () => {
+    primes()
+    fixture.targets.push(
+      target(2, { boss_name: 'SyntheticPrime', encounter_id: 1 }),
+      target(3, { boss_name: 'SyntheticPrime', encounter_id: 1 })
+    )
+    expect((await get(query)).status).toBe(503)
+    const read = fixture.requests.find(
+      (r) =>
+        r.table === 'boss_target_tokens' &&
+        r.url.searchParams.get('encounter_id') === 'eq.1'
+    )!
+    expect(read.url.searchParams.get('limit')).toBe('3')
+    expect(read.headers.get('prefer')).toContain('count=exact')
+  })
+})
+
+describe('independent prime identity boundary', () => {
+  const query = `season=101&asOf=${AS_OF}&encounters=main-and-primes`
+  it('refuses a main and prime sharing the exact canonical name-stage key', async () => {
+    fixture.history.push(
+      attack(A, 'Synthetic Twin', 500000, {
+        Name: 'Riptide',
+        encounterId: 1,
+        maxHp: 2000000
+      })
+    )
+    expect((await get(query)).status).toBe(503)
+  })
+  it('allows the same prime name at two different stages with exact encounter targets', async () => {
+    fixture.history = [
+      attack(A, 'Synthetic Twin', 500000, {
+        Name: 'SyntheticPrime',
+        encounterId: 1,
+        maxHp: 2000000,
+        set: 0
+      }),
+      attack(A, 'Synthetic Twin', 500000, {
+        Name: 'SyntheticPrime',
+        encounterId: 1,
+        maxHp: 4000000,
+        set: 1
+      })
+    ]
+    fixture.targets = [
+      target(2, { boss_name: 'SyntheticPrime', encounter_id: 1, set: 1 }),
+      target(4, { boss_name: 'SyntheticPrime', encounter_id: 1, set: 2 })
+    ]
+    const response = await get(query)
+    expect(response.status).toBe(200)
+    const value = await response.json()
+    expect(value.players).toHaveLength(1)
+    expect(
+      value.players[0].bosses.map((b: { bossKey: string }) => b.bossKey).sort()
+    ).toEqual(['SyntheticPrime_L1', 'SyntheticPrime_L2'])
+    expect(
+      value.players[0].bosses.map(
+        (b: { expectedDamage: number }) => b.expectedDamage
+      )
+    ).toEqual([1000000, 1000000])
+  })
+  it('refuses missing prime HP when the unique main has no canonical static fallback', async () => {
+    fixture.history = [
+      attack(A, 'Synthetic Twin', 500000, { Name: 'UnknownMain' }),
+      attack(A, 'Synthetic Twin', 500000, {
+        Name: 'SyntheticPrime',
+        encounterId: 1,
+        maxHp: null,
+        remainingHp: null
+      })
+    ]
+    expect((await get(query)).status).toBe(503)
+  })
+  it('uses greatest positive prime row HP across the complete baseline', async () => {
+    fixture.history = [
+      attack(A, 'Synthetic Twin', 500000, {
+        Name: 'SyntheticPrime',
+        encounterId: 1,
+        maxHp: 2000000
+      }),
+      attack(B, 'Synthetic Twin', 1000000, {
+        Name: 'SyntheticPrime',
+        encounterId: 1,
+        maxHp: 4000000
+      })
+    ]
+    fixture.targets = [
+      target(2, { boss_name: 'SyntheticPrime', encounter_id: 1 })
+    ]
+    const response = await get(query)
+    expect(response.status).toBe(200)
+    const value = await response.json()
+    expect(
+      value.players.map(
+        (p: { bosses: { expectedDamage: number }[] }) =>
+          p.bosses[0]!.expectedDamage
+      )
+    ).toEqual([2000000, 2000000])
+    expect(
+      value.players
+        .map((p: { weightedScore: number }) => p.weightedScore)
+        .sort()
+    ).toEqual([0.25, 0.5])
+  })
+})
+
+describe('prime scope on corrected saved season boundaries', () => {
+  const query = `season=101&asOf=${AS_OF}&encounters=main-and-primes`
+  const prime = (id = A, extra: Row = {}) =>
+    attack(id, 'Synthetic Twin', 500000, {
+      Name: 'SyntheticPrime',
+      encounterId: 1,
+      maxHp: 2000000,
+      remainingHp: 1500000,
+      ...extra
+    })
+  it('queries the exact encounter-inclusive target tuple and admits unrelated accumulated targets', async () => {
+    fixture.history.push(prime())
+    fixture.targets.push(
+      target(2, { boss_name: 'SyntheticPrime', encounter_id: 1 }),
+      target(8, { boss_name: 'SyntheticPrime', encounter_id: 2 }),
+      target(9, {
+        boss_name: 'SyntheticPrime',
+        encounter_id: 2,
+        season_number: ''
+      })
+    )
+    for (let i = 0; i < 61; i++)
+      fixture.targets.push(
+        target(3, { boss_name: `SyntheticUnrelated${i}`, encounter_id: 1 })
+      )
+    const response = await get(query)
+    expect(response.status).toBe(200)
+    const value = await response.json()
+    expect(
+      value.players
+        .find((p: { tokensSpent: number }) => p.tokensSpent === 2)
+        .bosses.find((b: { encounterId: number }) => b.encounterId === 1)
+    ).toMatchObject({ expectedTokens: 2, expectedDamage: 1000000, score: 0.5 })
+    const reads = fixture.requests.filter(
+      (r) => r.table === 'boss_target_tokens'
+    )
+    expect(reads).toHaveLength(2)
+    for (const read of reads) {
+      expect(read.url.searchParams.get('limit')).toBe('3')
+      expect(read.headers.get('prefer')).toContain('count=exact')
+      expect(read.url.searchParams.has('or')).toBe(false)
+    }
+    const read = reads.find(
+      (r) => r.url.searchParams.get('boss_name') === 'eq.SyntheticPrime'
+    )!
+    expect(read.url.searchParams.get('encounter_id')).toBe('eq.1')
+    expect(read.url.searchParams.get('rarity')).toBe('eq.Legendary')
+    expect(read.url.searchParams.get('set')).toBe('eq.1')
+    expect(read.url.searchParams.get('skip')).toBe('eq.false')
+  })
+  it('admits more than twenty relevant main-and-prime selected/legacy target rows', async () => {
+    for (let i = 0; i < 11; i++) {
+      const Name = `SyntheticPrime${i}`
+      fixture.history.push(prime(A, { Name }))
+      fixture.targets.push(
+        target(3, { boss_name: Name, encounter_id: 1, season_number: '' }),
+        target(2, { boss_name: Name, encounter_id: 1 })
+      )
+    }
+    const response = await get(query)
+    expect(response.status).toBe(200)
+    const value = await response.json()
+    expect(
+      value.players.find((p: { tokensSpent: number }) => p.tokensSpent === 12)
+        .bosses
+    ).toHaveLength(12)
+    expect(
+      fixture.requests.filter((r) => r.table === 'boss_target_tokens')
+    ).toHaveLength(12)
+  })
+  it('refuses an omitted current main HP bucket even while included prime work is valid', async () => {
+    fixture.history = [
+      attack(A, 'Synthetic Twin', 500000, {
+        Name: 'UnknownMain',
+        maxHp: null,
+        remainingHp: null
+      }),
+      prime(B)
+    ]
+    fixture.targets = []
+    expect((await get(query)).status).toBe(503)
+  })
+  it('retains valid unqualified main sweep absence alongside a scored prime bucket', async () => {
+    fixture.history = [
+      attack(A, 'Synthetic Twin', 1, {
+        Name: 'UnknownMain',
+        maxHp: 5000000,
+        remainingHp: 0
+      }),
+      prime(B)
+    ]
+    fixture.targets = []
+    const response = await get(query)
+    expect(response.status).toBe(200)
+    const value = await response.json()
+    expect(value.players).toHaveLength(1)
+    expect(value.players[0].bosses[0]).toMatchObject({
+      bossName: 'SyntheticPrime',
+      encounterId: 1,
+      tokensSpent: 1
+    })
+  })
+  it('checks prime qualifying sweep coverage using complete historical non-sweep baselines', async () => {
+    fixture.history = [
+      prime('SYN-DEPARTED', { damageDealt: 1000000 }),
+      prime(A, { damageDealt: 1500000, remainingHp: 0 })
+    ]
+    fixture.targets = []
+    const response = await get(query)
+    expect(response.status).toBe(200)
+    const value = await response.json()
+    expect(value.players).toHaveLength(1)
+    expect(value.players[0].bosses[0]).toMatchObject({
+      bossName: 'SyntheticPrime',
+      encounterId: 1,
+      tokensSpent: 1,
+      actualDamage: 1500000
+    })
+  })
+  it('filters pre-season prime work and admits the exact selected-season start inclusively', async () => {
+    const { seasonStartMs } = resolveSavedSeasonWindow('101')
+    fixture.history = [
+      prime(A, { startedOn: new Date(seasonStartMs).toISOString() }),
+      prime(B, {
+        damageDealt: 1900000,
+        startedOn: new Date(seasonStartMs - 1).toISOString()
+      })
+    ]
+    fixture.targets = []
+    const response = await get(query)
+    expect(response.status).toBe(200)
+    const value = await response.json()
+    expect(value.players).toHaveLength(1)
+    expect(value.players[0].tokensSpent).toBe(1)
+    const read = fixture.requests.find((r) => r.table === 'EOT_GR_data')!
+    expect(read.url.searchParams.getAll('startedOn')).toContain(
+      `gte.${new Date(seasonStartMs).toISOString()}`
+    )
+  })
+  it('refuses a prime row leaking past the signed season-start filter', async () => {
+    fixture.ignoreHistoryStart = true
+    fixture.history.push(
+      prime(A, {
+        startedOn: new Date(
+          resolveSavedSeasonWindow('101').seasonStartMs - 1
+        ).toISOString()
+      })
+    )
+    expect((await get(query)).status).toBe(503)
+  })
+  it('requires exact counts for each prime target identity', async () => {
+    fixture.history.push(prime())
+    fixture.targetTruncate = true
+    expect((await get(query)).status).toBe(503)
+  })
+})

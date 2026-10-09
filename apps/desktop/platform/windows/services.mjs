@@ -10,7 +10,8 @@ import { mkdir, writeFile, stat } from 'node:fs/promises'
 import { nativeCommand } from './native-command.mjs'
 import {
   captureNativeServicesFailure,
-  nativeServicesProbeDiagnostic
+  nativeServicesProbeDiagnostic,
+  serviceFailureCodes
 } from './launch-diagnostic.mjs'
 import { prepareSchemaBootstrap } from './schema-bootstrap.mjs'
 import { resolve, join, basename } from 'node:path'
@@ -265,6 +266,42 @@ export function serviceStartupDiagnostic(child) {
       : 'exit-unavailable'
     return `${category}; ${status}; pgrst-${fixedServiceCode(text, postgrestCodes)}; sqlstate-${fixedServiceCode(text, postgresCodes)}; streamComplete-${streamComplete}; capturedBytes-${output.length}; truncated-${truncated}; sensitive output suppressed`
   }
+  diagnostic.snapshot = () => {
+    const text = output.toString('utf8')
+    const category = serviceFailureCode(text)
+    return Object.freeze({
+      serviceFailureCode: serviceFailureCodes.includes(category)
+        ? category
+        : 'unavailable',
+      exitCode:
+        Number.isInteger(child.exitCode) &&
+        child.exitCode >= -0x80000000 &&
+        child.exitCode <= 0xffffffff
+          ? child.exitCode
+          : null,
+      signal:
+        child.signalCode === null
+          ? 'none'
+          : [
+                'SIGTERM',
+                'SIGKILL',
+                'SIGINT',
+                'SIGABRT',
+                'SIGSEGV',
+                'SIGILL',
+                'SIGFPE',
+                'SIGBREAK',
+                'SIGHUP'
+              ].includes(child.signalCode)
+            ? child.signalCode
+            : 'unavailable',
+      postgrestCode: fixedServiceCode(text, postgrestCodes),
+      postgresCode: fixedServiceCode(text, postgresCodes),
+      streamComplete,
+      capturedBytes: output.length,
+      truncated
+    })
+  }
   diagnostic.afterClose = async () => {
     // Exit may precede pipe EOF. Bound diagnostic draining, not readiness.
     if (!closed) {
@@ -428,6 +465,7 @@ async function startNativeServices(
   })
   const children = []
   const diagnostics = new WeakMap()
+  const serviceRoles = new WeakMap()
   const { unlink } = await import('node:fs/promises')
   const onInterrupt = () => {
     void stop().finally(() => process.exit(130))
@@ -585,6 +623,15 @@ async function startNativeServices(
       if (input) child.stdin.end(input)
       const diagnostic = serviceStartupDiagnostic(child)
       diagnostics.set(child, diagnostic)
+      const role =
+        file === binaries.postgres
+          ? 'postgres'
+          : file === binaries.auth
+            ? 'auth'
+            : file === binaries.postgrest
+              ? 'postgrest'
+              : 'unavailable'
+      serviceRoles.set(child, role)
       child.once('error', () => {})
       children.push(child)
       child.once('exit', (code, signal) => {
@@ -593,10 +640,18 @@ async function startNativeServices(
             'A proof-owned service failed; startup diagnostic pending; sensitive output suppressed'
           )
           fault = failure
+          // Separate evidence from fault behavior. stop() synchronously marks
+          // stopping before cleanup exits; the first guarded exit owns this record.
+          const firstExit =
+            trace.firstExit === undefined
+              ? { role, details: diagnostic.snapshot() }
+              : undefined
+          if (firstExit) trace.firstExit = firstExit
           // Fail closed immediately; complete only the bounded diagnostic asynchronously.
           void stop()
           void diagnostic.afterClose().then((text) => {
             failure.message = 'A proof-owned service failed; ' + text
+            if (firstExit) firstExit.details = diagnostic.snapshot()
           })
         }
       })
@@ -648,10 +703,15 @@ async function startNativeServices(
     const ready = async (probe, child, label) => {
       trace.probe = undefined
       for (let i = 0; i < 100; i++) {
-        if (child.exitCode !== null || child.signalCode !== null)
-          throw new Error(
-            `${label} exited before readiness; ${await diagnostics.get(child).afterClose()}`
-          )
+        if (child.exitCode !== null || child.signalCode !== null) {
+          const diagnostic = diagnostics.get(child)
+          const text = await diagnostic.afterClose()
+          trace.readinessChild = {
+            role: serviceRoles.get(child),
+            details: diagnostic.snapshot()
+          }
+          throw new Error(`${label} exited before readiness; ${text}`)
+        }
         try {
           await probe()
           trace.probe = undefined

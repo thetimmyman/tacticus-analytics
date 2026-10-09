@@ -10,6 +10,7 @@ import { CURRENT_USER_PLAYER_MAPPING } from '@/app/lib/player-mapping-relations'
 import { normalizeGuildIdentifier } from '@/app/lib/format/guild'
 import { getSeasonConfigForSeasonNumber } from '@/app/lib/loki/season-configs'
 import { getAllBossHp } from '@/app/lib/data/boss-hp'
+import { getPrimeBossMaxHp, type BossHpData } from './season-planner/boss-hp'
 import {
   getGuildTokenPerformance,
   type DamageRow
@@ -33,6 +34,7 @@ import type {
 } from './token-performance-types'
 import type {
   SavedTokenPerformance,
+  SavedTokenPerformanceEncounters,
   SavedTokenPerformancePageContext,
   SavedTokenPerformancePlayer
 } from './saved-token-performance-types'
@@ -48,7 +50,7 @@ type Query = PromiseLike<Result> & {
 }
 type TargetQuery = Query & {
   eq(column: string, value: string | number | boolean): TargetQuery
-  in(column: string, values: string[]): TargetQuery
+  in(column: string, values: (string | number)[]): TargetQuery
   limit(count: number): TargetQuery
 }
 type Row = Record<string, unknown>
@@ -320,14 +322,17 @@ async function emptyBody(body: ReadableStream<Uint8Array> | null, c: Context) {
 function input(params: URLSearchParams, seasons: string[]) {
   if (
     new TextEncoder().encode(params.toString()).byteLength > 256 ||
-    [...params].length !== 3 ||
+    [...params].length !== (params.has('encounters') ? 4 : 3) ||
+    (params.has('encounters') &&
+      (params.getAll('encounters').length !== 1 ||
+        params.get('encounters') !== 'main-and-primes')) ||
     params.getAll('view').length !== 1 ||
     params.get('view') !== 'saved' ||
     params.getAll('season').length !== 1 ||
     params.getAll('asOf').length !== 1
   )
     throw Errors.validation(
-      'Exactly view=saved, season and UTC asOf are required'
+      'Exactly view=saved, season and UTC asOf with optional encounters=main-and-primes are required'
     )
   const season = selectSeason(seasons, params.get('season') ?? '')
   const raw = params.get('asOf') ?? ''
@@ -348,7 +353,10 @@ function input(params: URLSearchParams, seasons: string[]) {
     season,
     asOf: new Date(ms).toISOString(),
     ms,
-    seasonStartMs: window.seasonStartMs
+    seasonStartMs: window.seasonStartMs,
+    encounters: (params.has('encounters')
+      ? 'main-and-primes'
+      : 'main') as SavedTokenPerformanceEncounters
   }
 }
 async function roster(c: Context): Promise<Map<string, string>> {
@@ -390,7 +398,8 @@ function historyRows(
   guild: string,
   season: string,
   seasonStart: number,
-  asOf: number
+  asOf: number,
+  encounters: SavedTokenPerformanceEncounters
 ): DamageRow[] {
   if (!Array.isArray(value)) unavailable()
   return value.map((r, i) => {
@@ -399,7 +408,7 @@ function historyRows(
       r.Guild !== guild ||
       r.Season !== season ||
       r.damageType !== 'Battle' ||
-      r.encounterId !== 0 ||
+      !integer(r.encounterId, encounters === 'main' ? 0 : 2) ||
       !['Legendary', 'Mythic'].includes(String(r.rarity)) ||
       !integer(r.set, 4) ||
       (r.loopIndex !== null && !integer(r.loopIndex, MAX_HISTORY)) ||
@@ -432,7 +441,7 @@ function historyRows(
       set: r.set,
       Season: season,
       rarity: r.rarity as string,
-      encounterId: 0,
+      encounterId: r.encounterId,
       loopIndex: r.loopIndex as number | null,
       damageDealt: r.damageDealt,
       maxHp: r.maxHp as number | null,
@@ -440,7 +449,12 @@ function historyRows(
     }
   })
 }
-function targets(value: unknown, guild: string, season: string) {
+function targets(
+  value: unknown,
+  guild: string,
+  season: string,
+  encounters: SavedTokenPerformanceEncounters
+) {
   if (!Array.isArray(value)) unavailable()
   const seen = new Set<string>()
   const rows: {
@@ -449,6 +463,7 @@ function targets(value: unknown, guild: string, season: string) {
     set: number
     target_tokens: number
     season_number: string
+    encounter_id: number
   }[] = []
   for (const r of value) {
     if (
@@ -460,13 +475,19 @@ function targets(value: unknown, guild: string, season: string) {
       !['Legendary', 'Mythic'].includes(String(r.rarity)) ||
       !integer(r.set, 5) ||
       r.set < 1 ||
-      r.encounter_id !== 0 ||
+      !integer(r.encounter_id, encounters === 'main' ? 0 : 2) ||
       r.skip !== false ||
       !finite(r.target_tokens) ||
       r.target_tokens <= 0
     )
       unavailable()
-    const key = JSON.stringify([r.boss_name, r.rarity, r.set, r.season_number])
+    const key = JSON.stringify([
+      r.boss_name,
+      r.rarity,
+      r.set,
+      r.encounter_id,
+      r.season_number
+    ])
     if (seen.has(key)) unavailable()
     seen.add(key)
     rows.push({
@@ -474,17 +495,49 @@ function targets(value: unknown, guild: string, season: string) {
       rarity: r.rarity as string,
       set: r.set,
       target_tokens: r.target_tokens,
-      season_number: r.season_number
+      season_number: r.season_number,
+      encounter_id: r.encounter_id
     })
   }
   const selected = selectSeasonScoped(
     rows,
     season,
-    (r) => `${r.boss_name}_${r.rarity === 'Mythic' ? 'M' : 'L'}${r.set}_0`
+    (r) =>
+      `${r.boss_name}_${r.rarity === 'Mythic' ? 'M' : 'L'}${r.set}_${r.encounter_id}`
   )
   return Object.fromEntries(
     [...selected].map(([key, r]) => [key, r.target_tokens])
   )
+}
+/** Canonical boss keys omit encounter identity; refuse aliases before scoring. */
+function validatePrimeIdentity(rows: DamageRow[], hp: BossHpData) {
+  const encounters = new Map<string, number>()
+  const maxima = new Map<string, number>()
+  const mains = new Map<string, Set<string>>()
+  for (const row of rows) {
+    const stage = `${row.rarity === 'Mythic' ? 'M' : 'L'}${row.set! + 1}`
+    const key = `${row.Name}_${stage}`
+    const encounter = row.encounterId!
+    if (encounters.has(key) && encounters.get(key) !== encounter) unavailable()
+    encounters.set(key, encounter)
+    maxima.set(key, Math.max(maxima.get(key) ?? 0, row.maxHp ?? 0))
+    if (encounter === 0) {
+      const names = mains.get(stage) ?? new Set<string>()
+      names.add(row.Name!)
+      mains.set(stage, names)
+    }
+  }
+  for (const row of rows) {
+    if (row.encounterId === 0) continue
+    const stage = `${row.rarity === 'Mythic' ? 'M' : 'L'}${row.set! + 1}`
+    if ((maxima.get(`${row.Name}_${stage}`) ?? 0) > 0) continue
+    const names = mains.get(stage)
+    // The canonical fallback pairs a prime with one main identity at this stage.
+    if (!names || names.size !== 1) unavailable()
+    const main = names.values().next().value!
+    if (!getPrimeBossMaxHp(hp, main, stage, row.encounterId as 1 | 2))
+      unavailable()
+  }
 }
 /** Current eligible buckets must survive scoring; unqualified sweeps stay absent. */
 function requireCompleteCurrentBuckets(
@@ -495,13 +548,19 @@ function requireCompleteCurrentBuckets(
   type Bucket = { total: number; count: number; sweeps: number[] }
   const bosses = new Map<
     string,
-    { total: number; count: number; players: Map<string, Bucket> }
+    {
+      total: number
+      count: number
+      encounter: number
+      players: Map<string, Bucket>
+    }
   >()
   for (const row of rows) {
     const key = `${row.Name}_${row.rarity === 'Mythic' ? 'M' : 'L'}${row.set! + 1}`
     const boss = bosses.get(key) ?? {
       total: 0,
       count: 0,
+      encounter: row.encounterId!,
       players: new Map<string, Bucket>()
     }
     const sweep = isSweepRow(row)
@@ -539,6 +598,7 @@ function requireCompleteCurrentBuckets(
         if (
           !entry ||
           entry.playerId !== id ||
+          entry.encounterId !== boss.encounter ||
           entry.tokensSpent !== eligible.adjustedCount
         )
           unavailable()
@@ -546,7 +606,10 @@ function requireCompleteCurrentBuckets(
     }
   }
 }
-function validEntry(entry: TokenPerformanceEntry) {
+function validEntry(
+  entry: TokenPerformanceEntry,
+  encounters: SavedTokenPerformanceEncounters
+) {
   return (
     nullableFinite(entry.score) &&
     integer(entry.tokensSpent, MAX_HISTORY) &&
@@ -556,13 +619,14 @@ function validEntry(entry: TokenPerformanceEntry) {
     ['officer_target', 'per_boss', 'rarity_set_guild', 'insufficient'].includes(
       entry.tier
     ) &&
-    entry.encounterId === 0
+    integer(entry.encounterId, encounters === 'main' ? 0 : 2)
   )
 }
 function present(
   data: TokenPerformanceData,
   current: Map<string, string>,
-  guild: string
+  guild: string,
+  encounters: SavedTokenPerformanceEncounters
 ): {
   players: SavedTokenPerformancePlayer[]
   summary: SavedTokenPerformance['summary']
@@ -598,7 +662,7 @@ function present(
         unavailable()
       const bosses = Object.entries(scoped[id] ?? {})
         .map(([bossKey, e]) => {
-          if (!validEntry(e)) unavailable()
+          if (!validEntry(e, encounters)) unavailable()
           const match = /^(.+)_([ML])([1-5])$/.exec(bossKey)
           if (!match) unavailable()
           const perLoop = Object.values(e.perLoop ?? {}).sort(
@@ -621,7 +685,7 @@ function present(
             rarity:
               match[2] === 'M' ? ('Mythic' as const) : ('Legendary' as const),
             set: Number(match[3]),
-            encounterId: 0 as const,
+            encounterId: e.encounterId as 0 | 1 | 2,
             score: e.score,
             tier: e.tier,
             tokensSpent: e.tokensSpent,
@@ -647,7 +711,10 @@ function present(
     .sort(
       (a, b) => a.name.localeCompare(b.name) || a.rowKey.localeCompare(b.rowKey)
     )
-  if (players.length > 30 || players.some((p) => p.bosses.length > 10))
+  if (
+    players.length > 30 ||
+    players.some((p) => p.bosses.length > (encounters === 'main' ? 10 : 30))
+  )
     unavailable()
   return { players, summary: summarizeGuild(aggregates) }
 }
@@ -679,17 +746,21 @@ export function readSavedTokenPerformance(args: {
       unavailable()
     }
     await roster(c)
+    const history = c.client
+      .from('EOT_GR_data')
+      .select(
+        'Guild,Season,userId,displayName,damageType,Name,set,encounterId,rarity,loopIndex,damageDealt,remainingHp,maxHp,startedOn',
+        { count: 'exact' }
+      )
+      .eq('Guild', c.guild)
+      .eq('Season', selected.season)
+      .eq('damageType', 'Battle')
+    const scopedHistory =
+      selected.encounters === 'main'
+        ? history.eq('encounterId', 0)
+        : history.in('encounterId', [0, 1, 2])
     const raw = await c.read(
-      c.client
-        .from('EOT_GR_data')
-        .select(
-          'Guild,Season,userId,displayName,damageType,Name,set,encounterId,rarity,loopIndex,damageDealt,remainingHp,maxHp,startedOn',
-          { count: 'exact' }
-        )
-        .eq('Guild', c.guild)
-        .eq('Season', selected.season)
-        .eq('damageType', 'Battle')
-        .eq('encounterId', 0)
+      scopedHistory
         .in('rarity', ['Legendary', 'Mythic'])
         .gt('damageDealt', 0)
         .not('Name', 'is', null)
@@ -705,8 +776,12 @@ export function readSavedTokenPerformance(args: {
       c.guild,
       selected.season,
       selected.seasonStartMs,
-      selected.ms
+      selected.ms,
+      selected.encounters
     )
+    const bossHpData = await getAllBossHp(c.guild)
+    if (selected.encounters === 'main-and-primes')
+      validatePrimeIdentity(damageData, bossHpData)
     // The local relation predates generated application table typings.
     const targetRelation = c.client.from(
       'boss_target_tokens' as 'guild_config'
@@ -715,13 +790,14 @@ export function readSavedTokenPerformance(args: {
     }
     const identities = new Map<
       string,
-      { name: string; rarity: string; set: number }
+      { name: string; rarity: string; set: number; encounter: number }
     >()
     for (const row of damageData) {
       const identity = {
         name: row.Name!,
         rarity: row.rarity!,
-        set: row.set! + 1
+        set: row.set! + 1,
+        encounter: row.encounterId!
       }
       identities.set(JSON.stringify(identity), identity)
     }
@@ -737,7 +813,7 @@ export function readSavedTokenPerformance(args: {
           )
           .eq('guild_code', c.guild)
           .in('season_number', [selected.season, LEGACY_SEASON])
-          .eq('encounter_id', 0)
+          .eq('encounter_id', identity.encounter)
           .eq('boss_name', identity.name)
           .eq('rarity', identity.rarity)
           .eq('set', identity.set)
@@ -753,7 +829,8 @@ export function readSavedTokenPerformance(args: {
             !record(r) ||
             r.boss_name !== identity.name ||
             r.rarity !== identity.rarity ||
-            r.set !== identity.set
+            r.set !== identity.set ||
+            r.encounter_id !== identity.encounter
         )
       )
         unavailable()
@@ -765,14 +842,19 @@ export function readSavedTokenPerformance(args: {
       rarities: ['Legendary', 'Mythic'],
       includePerLoop: true,
       includeHistoricalPlayers: true,
-      includePrimes: false,
+      includePrimes: selected.encounters === 'main-and-primes',
       prefetched: {
         damageData,
         mostRecentSeasonPerBoss: Object.fromEntries(
           damageData.map((r) => [r.Name!, selected.season])
         ),
-        bossHpData: await getAllBossHp(c.guild),
-        officerTargetsByBossKey: targets(rawTargets, c.guild, selected.season)
+        bossHpData,
+        officerTargetsByBossKey: targets(
+          rawTargets,
+          c.guild,
+          selected.season,
+          selected.encounters
+        )
       }
     })
     c.running()
@@ -786,10 +868,10 @@ export function readSavedTokenPerformance(args: {
       timeZone: config.timezone,
       cohort: 'own-guild',
       rarities: ['Legendary', 'Mythic'],
-      encounters: 'main',
+      encounters: selected.encounters,
       currentSavedRoster: true,
       targets: 'current-saved',
-      ...present(data, current, c.guild)
+      ...present(data, current, c.guild, selected.encounters)
     }
   })
 }

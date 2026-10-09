@@ -126,15 +126,41 @@ async function nativeStartup({
   fresh = false,
   platform = 'win32',
   corrupt = false,
-  invalidConfiguration = false
+  invalidConfiguration = false,
+  exitDuringProbe,
+  unexpectedRole = 'postgrest',
+  childOutput = '',
+  childExitCode = 3,
+  childSignal = null,
+  lateChildOutput = false
 } = {}) {
   const calls = [],
     children = [],
     sql = new Map()
   let port = 12000
   const observedProbeFailures = new Set()
+  let unexpectedExit = false
   const at = (stage) => {
     calls.push(stage)
+    if (stage === exitDuringProbe && !unexpectedExit) {
+      unexpectedExit = true
+      const owned = children.find((value) => value.role === unexpectedRole)
+      assert.ok(owned)
+      owned.exitCode = childExitCode
+      owned.signalCode = childSignal
+      if (!lateChildOutput) owned.stderr.write(childOutput)
+      calls.push('unexpected-' + unexpectedRole)
+      owned.emit('exit', childExitCode, childSignal)
+      const ended = Promise.all([
+        new Promise((accept) => owned.stdout.once('end', accept)),
+        new Promise((accept) => owned.stderr.once('end', accept))
+      ])
+      owned.stdout.end()
+      owned.stderr.end(lateChildOutput ? childOutput : '')
+      void ended.then(() => owned.emit('close', childExitCode, childSignal))
+      // A failed fetch is only the probe symptom, not an origin classifier.
+      throw new TypeError('synthetic-private-fetch')
+    }
     if (stage === failAt) throw error
     if (stage === oneProbeFailure && !observedProbeFailures.has(stage)) {
       observedProbeFailures.add(stage)
@@ -143,13 +169,18 @@ async function nativeStartup({
       })
     }
   }
-  const makeChild = () => {
+  const makeChild = (file) => {
     const child = Object.assign(new EventEmitter(), {
       stdout: new PassThrough(),
       stderr: new PassThrough(),
       stdin: new PassThrough(),
       exitCode: null,
-      signalCode: null
+      signalCode: null,
+      role: file.endsWith('postgres.exe')
+        ? 'postgres'
+        : file.endsWith('auth.exe')
+          ? 'auth'
+          : 'postgrest'
     })
     child.kill = () => {
       calls.push('child-stop')
@@ -176,6 +207,8 @@ async function nativeStartup({
   }
   const context = vm.createContext({
     Buffer,
+    setTimeout,
+    clearTimeout,
     Error,
     Promise,
     console,
@@ -243,7 +276,7 @@ async function nativeStartup({
             ? 'auth-launch'
             : 'postgrest-launch'
       )
-      return makeChild()
+      return makeChild(file)
     },
     fetch: async (url) => {
       at(url.endsWith('/health') ? 'auth-readiness' : 'postgrest-readiness')
@@ -254,7 +287,8 @@ async function nativeStartup({
     captureNativeServicesFailure:
       launchDiagnostics.captureNativeServicesFailure,
     nativeServicesProbeDiagnostic:
-      launchDiagnostics.nativeServicesProbeDiagnostic
+      launchDiagnostics.nativeServicesProbeDiagnostic,
+    serviceFailureCodes: launchDiagnostics.serviceFailureCodes
   })
   const source = await readFile(
     new URL(
@@ -588,4 +622,280 @@ test('service-start metadata is unavailable on unrelated coordinator stages and 
     ),
     false
   )
+})
+
+const daemonFields = [
+  'role',
+  'serviceFailureCode',
+  'exitCode',
+  'signal',
+  'postgrestCode',
+  'postgresCode',
+  'streamComplete',
+  'capturedBytes',
+  'truncated'
+]
+
+for (const role of ['postgres', 'auth', 'postgrest'])
+  test(
+    'actual startup distinguishes first unexpected ' +
+      role +
+      ' exit from readiness symptom',
+    async () => {
+      const body =
+        '{"code":"PGRST002","details":{"code":"28P01"},"message":"synthetic-private-daemon"}'
+      const result = await nativeStartup({
+        exitDuringProbe: 'postgrest-readiness',
+        unexpectedRole: role,
+        childOutput: body
+      })
+      const observed = nativeDiagnostic(result.failure)
+      assert.equal(observed?.stage, 'postgrest-readiness')
+      assert.equal(
+        observed.sourceFailureCode,
+        'postgrest-exited-before-readiness'
+      )
+      assert.equal(observed.firstUnexpectedExit?.role, role)
+      assert.equal(observed.firstUnexpectedExit.exitCode, 3)
+      assert.equal(observed.firstUnexpectedExit.signal, 'none')
+      assert.equal(observed.firstUnexpectedExit.postgrestCode, 'PGRST002')
+      assert.equal(observed.firstUnexpectedExit.postgresCode, '28P01')
+      assert.equal(
+        observed.firstUnexpectedExit.capturedBytes,
+        Buffer.byteLength(body)
+      )
+      assert.equal(observed.firstUnexpectedExit.truncated, false)
+      assert.deepEqual(
+        Object.keys(observed.firstUnexpectedExit).sort(),
+        daemonFields.toSorted()
+      )
+      assert.equal(observed.readinessChild?.role, 'postgrest')
+      assert.equal(
+        observed.readinessChild.exitCode,
+        role === 'postgrest' ? 3 : 0
+      )
+      assert.equal(
+        result.children.every((child) => child.exitCode !== null),
+        true
+      )
+      assert.ok(
+        result.calls.indexOf('unexpected-' + role) <
+          result.calls.indexOf('child-stop')
+      )
+      assert.equal(
+        JSON.stringify(observed).includes('synthetic-private'),
+        false
+      )
+    }
+  )
+
+test('actual first-exit snapshot retains late pipe classification within unchanged close drain', async () => {
+  const result = await nativeStartup({
+    exitDuringProbe: 'postgrest-readiness',
+    lateChildOutput: true,
+    childOutput: '{"code":"PGRST001","message":"synthetic-private-late"}'
+  })
+  const observed = nativeDiagnostic(result.failure)
+  assert.equal(observed.firstUnexpectedExit?.postgrestCode, 'PGRST001')
+  assert.equal(observed.firstUnexpectedExit.streamComplete, true)
+  assert.equal(observed.readinessChild.streamComplete, true)
+})
+
+test('actual owned signal and unknown output remain finite without guessed cause', async () => {
+  const result = await nativeStartup({
+    exitDuringProbe: 'postgrest-readiness',
+    childExitCode: null,
+    childSignal: 'SIGTERM',
+    childOutput:
+      '{"code":"PGRST999","details":{"code":"AB123"},"message":"synthetic-private-unknown"}'
+  })
+  const observed = nativeDiagnostic(result.failure)
+  assert.equal(observed.firstUnexpectedExit?.exitCode, null)
+  assert.equal(observed.firstUnexpectedExit.signal, 'SIGTERM')
+  assert.equal(observed.firstUnexpectedExit.postgrestCode, 'unavailable')
+  assert.equal(observed.firstUnexpectedExit.postgresCode, 'unavailable')
+  assert.equal(
+    observed.firstUnexpectedExit.serviceFailureCode,
+    'unclassified-service-failure'
+  )
+})
+
+test('actual first exit remains available across original cleanup masking', async () => {
+  const cleanup = new RangeError('synthetic-private-cleanup')
+  const result = await nativeStartup({
+    exitDuringProbe: 'postgrest-readiness',
+    unexpectedRole: 'postgres',
+    cleanupError: cleanup,
+    failAt: 'postgrest-readiness',
+    childOutput: 'permission denied synthetic-private-data'
+  })
+  assert.equal(result.failure, cleanup)
+  const observed = nativeDiagnostic(result.failure)
+  assert.equal(observed.firstUnexpectedExit?.role, 'postgres')
+  assert.equal(
+    observed.firstUnexpectedExit.serviceFailureCode,
+    'permission-refused'
+  )
+  assert.equal(observed.cleanupExceptionClass, 'RangeError')
+  assert.equal(observed.sourceFailureCode, 'postgrest-readiness-timeout')
+})
+
+test('structured collector snapshot is frozen, finite and does not replace its original string', async () => {
+  const process = child()
+  process.signalCode = null
+  const diagnostic = serviceStartupDiagnostic(process)
+  process.stderr.write(
+    'child process exited with exit code 3221225794 synthetic-private-data'
+  )
+  assert.match(diagnostic(), /postgres-child-status-0xc0000142/)
+  const observed = diagnostic.snapshot()
+  assert.equal(Object.isFrozen(observed), true)
+  assert.equal(observed.serviceFailureCode, 'unavailable')
+  assert.equal(observed.exitCode, 3)
+  assert.equal(JSON.stringify(observed).includes('synthetic-private'), false)
+})
+
+for (const changed of [
+  { role: 'synthetic-private-role' },
+  { exitCode: true },
+  { exitCode: Infinity },
+  { exitCode: -2147483649 },
+  { exitCode: 4294967296 },
+  { signal: 'synthetic-private-signal' },
+  { postgrestCode: 'PGRST999' },
+  { postgresCode: 'AB123' },
+  { capturedBytes: 8193 },
+  { capturedBytes: true },
+  { streamComplete: 1 },
+  { truncated: 'false' },
+  { serviceFailureCode: 'synthetic-private-category' },
+  { extra: 'synthetic-private-field' }
+])
+  test(
+    'trusted publication refuses malformed daemon record: ' +
+      Object.keys(changed).join(','),
+    () => {
+      const error = new Error('synthetic-private-error')
+      const record = {
+        role: 'postgres',
+        details: {
+          serviceFailureCode: 'unclassified-service-failure',
+          exitCode: 3,
+          signal: 'none',
+          postgrestCode: 'unavailable',
+          postgresCode: 'unavailable',
+          streamComplete: false,
+          capturedBytes: 0,
+          truncated: false
+        }
+      }
+      if ('role' in changed) record.role = changed.role
+      else Object.assign(record.details, changed)
+      launchDiagnostics.captureNativeServicesFailure(error, {
+        stage: 'postgrest-readiness',
+        firstExit: record,
+        readinessChild: record
+      })
+      const observed = nativeDiagnostic(error)
+      assert.equal('firstUnexpectedExit' in observed, false)
+      assert.equal('readinessChild' in observed, false)
+      assert.equal(
+        JSON.stringify(observed).includes('synthetic-private'),
+        false
+      )
+    }
+  )
+
+test('daemon publication never executes accessors or proxy traps and freezes safe copies', () => {
+  let reads = 0
+  const details = {
+    serviceFailureCode: 'unclassified-service-failure',
+    exitCode: 3,
+    signal: 'none',
+    postgrestCode: 'unavailable',
+    postgresCode: 'unavailable',
+    streamComplete: false,
+    capturedBytes: 0,
+    truncated: false
+  }
+  const first = { role: 'postgres', details }
+  Object.defineProperty(details, 'exitCode', {
+    get() {
+      reads++
+      throw Error('synthetic-private-getter')
+    },
+    enumerable: true
+  })
+  const error = Object.freeze(new Error('synthetic-private-error'))
+  launchDiagnostics.captureNativeServicesFailure(error, {
+    stage: 'postgrest-readiness',
+    firstExit: first,
+    readinessChild: new Proxy(
+      {},
+      {
+        ownKeys() {
+          reads++
+          throw Error('synthetic-private-trap')
+        }
+      }
+    )
+  })
+  assert.equal(reads, 0)
+  assert.equal('firstUnexpectedExit' in nativeDiagnostic(error), false)
+  assert.equal('readinessChild' in nativeDiagnostic(error), false)
+})
+
+test('published daemon records are frozen independent copies of the trusted snapshot', () => {
+  const details = {
+    serviceFailureCode: 'permission-refused',
+    exitCode: 3,
+    signal: 'none',
+    postgrestCode: 'PGRST000',
+    postgresCode: '42501',
+    streamComplete: true,
+    capturedBytes: 20,
+    truncated: false
+  }
+  const error = new Error('synthetic-private-error')
+  launchDiagnostics.captureNativeServicesFailure(error, {
+    stage: 'postgrest-readiness',
+    firstExit: { role: 'postgres', details },
+    readinessChild: { role: 'postgrest', details }
+  })
+  const observed = nativeDiagnostic(error)
+  assert.equal(Object.isFrozen(observed.firstUnexpectedExit), true)
+  assert.equal(Object.isFrozen(observed.readinessChild), true)
+  details.exitCode = 77
+  details.postgresCode = 'synthetic-private-changed'
+  assert.equal(observed.firstUnexpectedExit.exitCode, 3)
+  assert.equal(observed.readinessChild.postgresCode, '42501')
+})
+
+test('intentional successful shutdown emits no diagnostic or fault', async () => {
+  const result = await nativeStartup()
+  await result.value.stop()
+  assert.equal(result.value.fault, undefined)
+  assert.equal(
+    result.children.every((child) => child.exitCode === 0),
+    true
+  )
+})
+
+test('published owned fault retains the original fault identity and text behavior after startup', async () => {
+  const result = await nativeStartup()
+  const pg = result.children[0]
+  pg.exitCode = 3
+  pg.stderr.write('{"code":"PGRST002","message":"synthetic-private-fault"}')
+  pg.emit('exit', 3, null)
+  const fault = result.value.fault
+  assert.ok(fault instanceof Error)
+  assert.match(fault.message, /startup diagnostic pending/)
+  pg.stdout.end()
+  pg.stderr.end()
+  pg.emit('close', 3, null)
+  await result.value.stop()
+  await Promise.resolve()
+  assert.equal(result.value.fault, fault)
+  assert.match(fault.message, /pgrst-PGRST002/)
+  assert.equal(fault.message.includes('synthetic-private'), false)
 })

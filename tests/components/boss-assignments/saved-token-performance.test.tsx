@@ -132,6 +132,142 @@ afterEach(() => {
 })
 
 describe('ordinary saved token performance', () => {
+  it('aborts an in-progress prime body on scope change and fences its late error/finally', async () => {
+    let canceled = 0
+    let fail!: (error: Error) => void
+    const pending = new ReadableStream<Uint8Array>({
+      start(controller) {
+        fail = (error) => controller.error(error)
+      },
+      cancel() {
+        canceled++
+      }
+    })
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(pending, {
+          headers: { 'content-type': 'application/json' }
+        })
+      )
+      .mockResolvedValueOnce(Response.json(result()))
+    vi.stubGlobal('fetch', fetcher)
+    render(<SavedTokenPerformanceClient {...props} />)
+    fireEvent.change(screen.getByLabelText('Boss encounters'), {
+      target: { value: 'main-and-primes' }
+    })
+    input()
+    calculate()
+    await act(async () => {
+      await Promise.resolve()
+    })
+    fireEvent.change(screen.getByLabelText('Boss encounters'), {
+      target: { value: 'main' }
+    })
+    expect(fetcher.mock.calls[0]![1].signal.aborted).toBe(true)
+    expect(canceled).toBe(1)
+    expect(screen.getByLabelText('As-of time (UTC)')).toHaveValue('')
+    input()
+    calculate()
+    await screen.findByRole('region', { name: 'Calculated saved performance' })
+    await act(async () => {
+      fail(new Error('Synthetic private late body failure'))
+      await Promise.resolve()
+    })
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('region', { name: 'Calculated saved performance' })
+    ).toHaveTextContent('main bosses')
+  })
+  it.each(['wrong-scope', 'unexpected-id', 'unsupported-encounter'])(
+    'refuses %s prime responses with a static error',
+    async (kind) => {
+      const body = result()
+      if (kind !== 'wrong-scope') body.encounters = 'main-and-primes'
+      if (kind === 'unexpected-id')
+        Object.assign(body.players[0]!.bosses[0]!, {
+          playerId: 'SYN-PRIVATE-ID'
+        })
+      if (kind === 'unsupported-encounter')
+        Object.assign(body.players[0]!.bosses[0]!, { encounterId: 3 })
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json(body)))
+      const { container } = render(<SavedTokenPerformanceClient {...props} />)
+      fireEvent.change(screen.getByLabelText('Boss encounters'), {
+        target: { value: 'main-and-primes' }
+      })
+      input()
+      calculate()
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        'Saved token performance unavailable'
+      )
+      expect(
+        screen.queryByRole('region', { name: 'Calculated saved performance' })
+      ).not.toBeInTheDocument()
+      expect(container.innerHTML).not.toContain('SYN-PRIVATE-ID')
+      expect(container.innerHTML).not.toContain(props.contextKey)
+    }
+  )
+  it('preserves prime null denominators distinctly from zero and escapes hostile labels', async () => {
+    const body = result()
+    body.encounters = 'main-and-primes'
+    body.players[0]!.bosses[0]!.encounterId = 1
+    body.players[1]!.bosses[0]!.encounterId = 2
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json(body)))
+    const { container } = render(<SavedTokenPerformanceClient {...props} />)
+    fireEvent.change(screen.getByLabelText('Boss encounters'), {
+      target: { value: 'main-and-primes' }
+    })
+    input()
+    calculate()
+    const region = await screen.findByRole('region', {
+      name: 'Calculated saved performance'
+    })
+    expect(region).toHaveTextContent('Prime 1')
+    expect(region).toHaveTextContent('Prime 2')
+    expect(region).toHaveTextContent('Not available')
+    expect(region).toHaveTextContent('0.00×')
+    expect(region).toHaveTextContent('<script>synthetic label</script>')
+    expect(container.querySelector('script')).toBeNull()
+    expect(container.innerHTML).not.toContain('a'.repeat(64))
+    expect(container.innerHTML).not.toContain(props.contextKey)
+  })
+  it('requires explicit prime opt-in and shows its encounter provenance', async () => {
+    const prime = result()
+    // The response oracle is synthetic; the route tests separately use canonical math.
+    Object.assign(prime, { encounters: 'main-and-primes' })
+    Object.assign(prime.players[0]!.bosses[0]!, { encounterId: 1 })
+    const fetcher = vi.fn<typeof fetch>(async () => Response.json(prime))
+    vi.stubGlobal('fetch', fetcher)
+    render(<SavedTokenPerformanceClient {...props} />)
+    expect(screen.getByLabelText('Boss encounters')).toHaveValue('main')
+    fireEvent.change(screen.getByLabelText('Boss encounters'), {
+      target: { value: 'main-and-primes' }
+    })
+    expect(fetcher).not.toHaveBeenCalled()
+    input()
+    calculate()
+    expect(
+      await screen.findByRole('region', {
+        name: 'Calculated saved performance'
+      })
+    ).toHaveTextContent('Prime 1')
+    expect(
+      new URL(
+        String(fetcher.mock.calls[0]![0]),
+        'https://synthetic.invalid'
+      ).searchParams.get('encounters')
+    ).toBe('main-and-primes')
+    fireEvent.change(screen.getByLabelText('Boss encounters'), {
+      target: { value: 'main' }
+    })
+    expect(
+      screen.queryByRole('region', { name: 'Calculated saved performance' })
+    ).not.toBeInTheDocument()
+    expect(screen.getByLabelText('As-of time (UTC)')).toHaveValue('')
+    expect(
+      screen.getByRole('button', { name: 'Calculate saved performance' })
+    ).toBeDisabled()
+  })
   it.each([
     ['2026-06-02T08:00', '2026-06-02T08:00:00.000Z'],
     ['2026-06-02T08:00:01', '2026-06-02T08:00:01.000Z'],
@@ -782,5 +918,80 @@ describe('desktop page admission and hosted continuity', () => {
       seasonOverride: '9999'
     })
     expect(getSavedTokenPerformancePageContext).not.toHaveBeenCalled()
+  })
+})
+
+describe('independent prime UI scope boundary', () => {
+  it('rejects a prime encounter hidden inside a main-labelled response', async () => {
+    const body = result()
+    body.players[0]!.bosses[0]!.encounterId = 1
+    const fetcher = vi.fn().mockResolvedValue(Response.json(body))
+    vi.stubGlobal('fetch', fetcher)
+    render(<SavedTokenPerformanceClient {...props} />)
+    input()
+    calculate()
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Saved token performance unavailable'
+    )
+    expect(
+      screen.queryByRole('region', { name: 'Calculated saved performance' })
+    ).not.toBeInTheDocument()
+    expect(
+      new URL(
+        String(fetcher.mock.calls[0]![0]),
+        'https://synthetic.invalid'
+      ).searchParams.has('encounters')
+    ).toBe(false)
+  })
+  it('fences prime late headers after an explicit main scope reset', async () => {
+    const first = deferred<Response>()
+    const fetcher = vi
+      .fn()
+      .mockReturnValueOnce(first.promise)
+      .mockResolvedValueOnce(Response.json(result()))
+    vi.stubGlobal('fetch', fetcher)
+    render(<SavedTokenPerformanceClient {...props} />)
+    fireEvent.change(screen.getByLabelText('Boss encounters'), {
+      target: { value: 'main-and-primes' }
+    })
+    input()
+    calculate()
+    fireEvent.change(screen.getByLabelText('Boss encounters'), {
+      target: { value: 'main' }
+    })
+    expect(fetcher.mock.calls[0]![1].signal.aborted).toBe(true)
+    input()
+    calculate()
+    await screen.findByRole('region', { name: 'Calculated saved performance' })
+    const late = result()
+    late.encounters = 'main-and-primes'
+    late.players[0]!.bosses[0]!.encounterId = 1
+    await act(async () => {
+      first.resolve(Response.json(late))
+      await Promise.resolve()
+    })
+    expect(
+      screen.getByRole('region', { name: 'Calculated saved performance' })
+    ).toHaveTextContent('main bosses')
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(fetcher).toHaveBeenCalledTimes(2)
+  })
+  it('resets opt-in on caller replacement without an automatic fetch', async () => {
+    const fetcher = vi.fn()
+    vi.stubGlobal('fetch', fetcher)
+    const view = render(<SavedTokenPerformanceClient {...props} />)
+    fireEvent.change(screen.getByLabelText('Boss encounters'), {
+      target: { value: 'main-and-primes' }
+    })
+    input()
+    view.rerender(
+      <SavedTokenPerformanceClient
+        {...props}
+        contextKey="synthetic-next-caller"
+      />
+    )
+    expect(screen.getByLabelText('Boss encounters')).toHaveValue('main')
+    expect(screen.getByLabelText('As-of time (UTC)')).toHaveValue('')
+    expect(fetcher).not.toHaveBeenCalled()
   })
 })
