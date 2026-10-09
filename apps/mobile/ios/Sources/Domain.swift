@@ -87,7 +87,7 @@ struct WorkspaceDocument: Codable, Equatable {
             for unit in units {
                 try exact(unit, ["id", "name", "rank", "xpLevel"])
                 try text(unit["id"]); try text(unit["name"])
-                try integer(unit["rank"], maximum: 1000); try integer(unit["xpLevel"], maximum: 1000)
+                try integer(unit["rank"], maximum: 1000); try integer(unit["xpLevel"], maximum: 32767)
             }
             guard Set(resources.keys).isSubset(of: ["guildRaidTokens", "bombTokens"]) else { throw WorkspaceError.invalidDocument }
             for key in ["guildRaidTokens", "bombTokens"] {

@@ -26,7 +26,7 @@ targets, products, references = [], [], []
 target_ids = {name: identifier(name) for name in ["TacticusIOS", "WorkspaceTests", "WorkspaceUITests"]}
 for name, sources, kind in [
     ("TacticusIOS", [str(p.relative_to(ROOT)) for p in sorted((ROOT / "Sources").glob("*.swift"))], "application"),
-    ("WorkspaceTests", ["../../../tests/mobile/ios/WorkspaceTests.swift"], "bundle.unit-test"),
+    ("WorkspaceTests", ["../../../tests/mobile/ios/WorkspaceTests.swift", "../../../tests/mobile/ios/DemoWorkspaceTests.swift"], "bundle.unit-test"),
     ("WorkspaceUITests", ["../../../tests/mobile/ios/WorkspaceUITests.swift"], "bundle.ui-testing")
 ]:
     builds = []
@@ -39,10 +39,11 @@ for name, sources, kind in [
     products.append(product)
     resources = []
     if kind == "application":
-        source = "Resources/synthetic-demo.json"
-        ref = add(source, "PBXFileReference", lastKnownFileType="text.json", path=source, sourceTree="SOURCE_ROOT")
-        references.append(ref)
-        resources.append(add("build-" + source, "PBXBuildFile", fileRef=ref))
+        for path in sorted((ROOT / "Resources").glob("*.json")):
+            source = str(path.relative_to(ROOT))
+            ref = add(source, "PBXFileReference", lastKnownFileType="text.json", path=source, sourceTree="SOURCE_ROOT")
+            references.append(ref)
+            resources.append(add("build-" + source, "PBXBuildFile", fileRef=ref))
     phases = [add(name + "-sources", "PBXSourcesBuildPhase", buildActionMask=2147483647, files=builds, runOnlyForDeploymentPostprocessing=0),
               add(name + "-frameworks", "PBXFrameworksBuildPhase", buildActionMask=2147483647, files=[], runOnlyForDeploymentPostprocessing=0),
               add(name + "-resources", "PBXResourcesBuildPhase", buildActionMask=2147483647, files=resources, runOnlyForDeploymentPostprocessing=0)]

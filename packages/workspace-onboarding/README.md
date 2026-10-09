@@ -22,9 +22,16 @@ A Raid-only separate key cannot prove guild binding using this documented API;
 the adapter exposes a holding state and a combined-scope alternative instead of
 inventing ownership. Optional failures do not discard Player data.
 
-This candidate projects roster basics and actual raid/bomb token resources.
-Other Player inventory/progression fields need reviewed projection/database
-adapters. Native secure-input/vault implementation, full accepted content,
+The cached Player projection includes the allowlisted roster, inventory and
+progress fields in `player-schema.json`. Its progression limits follow the
+desktop application's supported data: rank 0–23 and progression index 0–19.
+XP levels 1–32767 and ability levels 0–32767 are bounded storage compatibility
+ranges, not claims about the game's current maximum levels. Required fields,
+integer types, minimums, array limits and credential filtering still apply.
+The iOS resource copy must remain byte-identical to the canonical schema.
+
+Application routes still need qualified personal-data adapters.
+Native secure-input/vault implementation, full accepted content,
 interrupted setup/key replacement transactions and actual packaged onboarding
 remain platform qualification gates. There is no hosted-account requirement and
 connection never enrolls cloud contribution credentials.
