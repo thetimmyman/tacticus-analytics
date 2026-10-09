@@ -170,7 +170,10 @@ internal static class Program
         var command = new[] { script, "--state", state.Root, "--postgres-home", postgresHome }.Concat(arguments);
         var timer = Stopwatch.StartNew();
         WriteMeasurement(measurementPath, "native-prelaunch", manifest.SourceSha, timer.ElapsedMilliseconds, null, null);
-        using var process = job.Start(Path.Combine(root, "bin", "node.exe"), command, root, removeAdministrativeAccess: true);
+        // The package payload is immutable. Start the coordinator in its
+        // protected writable state so native tools that inspect or inherit the
+        // current directory never depend on a writable installation tree.
+        using var process = job.Start(Path.Combine(root, "bin", "node.exe"), command, state.Root, removeAdministrativeAccess: true);
         var code = process.Wait();
         long? peak = null;
         try
