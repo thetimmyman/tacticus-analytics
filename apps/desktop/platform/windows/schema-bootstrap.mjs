@@ -1,4 +1,5 @@
 import { open, lstat, readdir, rename, unlink } from 'node:fs/promises'
+import { constants } from 'node:fs'
 import { join, dirname, resolve } from 'node:path'
 import { createHash, randomUUID } from 'node:crypto'
 
@@ -61,31 +62,40 @@ async function checkState(state, expected) {
 }
 
 async function readBounded(path, limit) {
-  let before
-  try {
-    await directories(dirname(path))
-    before = await lstat(path, { bigint: true })
-  } catch (error) {
-    if (error.code === 'ENOENT') return undefined
-    throw refused()
-  }
   let file
   try {
-    if (
-      !before.isFile() ||
-      before.isSymbolicLink() ||
-      before.nlink !== 1n ||
-      before.size > BigInt(limit)
+    await directories(dirname(path))
+    // The held handle owns all reads. These flags also reject links and avoid
+    // blocking special-file opens where supported; Windows admission still
+    // relies on the native ACL/reparse boundary and the observations below.
+    file = await open(
+      path,
+      constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK
     )
-      throw refused()
-    const expected = identity(before)
-    file = await open(path, 'r')
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      // A non-following open may still report ENOENT for a dangling reparse
+      // target. Only a genuinely absent path is an absent authority record.
+      try {
+        await lstat(path, { bigint: true })
+      } catch (missing) {
+        if (missing.code === 'ENOENT') return undefined
+      }
+    }
+    throw refused()
+  }
+  try {
     const opened = await file.stat({ bigint: true })
+    if (!opened.isFile() || opened.nlink !== 1n || opened.size > BigInt(limit))
+      throw refused()
+    const expected = identity(opened)
+    await directories(dirname(path))
+    const current = await lstat(path, { bigint: true })
     if (
-      !opened.isFile() ||
-      opened.nlink !== 1n ||
-      opened.size > BigInt(limit) ||
-      !sameIdentity(expected, identity(opened))
+      !current.isFile() ||
+      current.isSymbolicLink() ||
+      current.nlink !== 1n ||
+      !sameIdentity(expected, identity(current))
     )
       throw refused()
     const bytes = Buffer.alloc(limit + 1)
@@ -96,6 +106,7 @@ async function readBounded(path, limit) {
       size += next.bytesRead
     }
     if (size > limit) throw refused()
+    await directories(dirname(path))
     const after = await lstat(path, { bigint: true })
     if (
       !after.isFile() ||

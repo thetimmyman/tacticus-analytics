@@ -10,7 +10,12 @@ import {
 } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { inventory } from '../../../apps/desktop/platform/windows/stage.mjs'
+import {
+  inventory,
+  stage
+} from '../../../apps/desktop/platform/windows/stage.mjs'
+import { pathToFileURL } from 'node:url'
+import { createHash } from 'node:crypto'
 import { windowsOnboarding } from '../../../apps/desktop/platform/windows/onboarding.mjs'
 import {
   personalImport,
@@ -402,3 +407,68 @@ test('expiry during native import prevents every state write and a retained vaul
   assert.equal(choices, 1)
   assert.equal(writes, 0)
 })
+
+test('staged service imports its exact schema recovery module and inventories those bytes', () =>
+  workspace(async (root) => {
+    const input = join(root, 'inputs')
+    for (const path of [
+      'application',
+      'postgres/bin',
+      'postgres/lib',
+      'postgres/share',
+      'electron',
+      'auth',
+      'native',
+      'crt'
+    ])
+      await mkdir(join(input, path), { recursive: true })
+    // Synthetic inert component bytes exercise packaging, not native execution.
+    for (const path of [
+      'postgres/bin/postgres.exe',
+      'node.exe',
+      'electron/electron.exe',
+      'auth/auth.exe',
+      'postgrest.exe',
+      'native/TacticusDesktop.exe',
+      'crt/msvcp140.dll'
+    ])
+      await writeFile(join(input, path), Buffer.alloc(64))
+    await writeFile(
+      join(input, 'application/server.js'),
+      '// synthetic application'
+    )
+    const output = join(root, 'staged')
+    await stage({
+      output,
+      application: join(input, 'application'),
+      postgres: join(input, 'postgres'),
+      node: join(input, 'node.exe'),
+      electron: join(input, 'electron'),
+      auth: join(input, 'auth'),
+      postgrest: join(input, 'postgrest.exe'),
+      native: join(input, 'native'),
+      vcRuntime: join(input, 'crt'),
+      sourceSha: 'a'.repeat(40)
+    })
+    const servicePath = join(
+      output,
+      'apps/desktop/platform/windows/services.mjs'
+    )
+    const services = await import(pathToFileURL(servicePath).href)
+    assert.equal(typeof services.nativeServices, 'function')
+    const relative = 'apps/desktop/platform/windows/schema-bootstrap.mjs'
+    const original = await readFile(
+      new URL('../../../' + relative, import.meta.url)
+    )
+    const staged = await readFile(join(output, relative))
+    assert.deepEqual(staged, original)
+    const manifest = JSON.parse(
+      await readFile(join(output, 'bundle-manifest.json'), 'utf8')
+    )
+    const row = manifest.files.find((item) => item.path === relative)
+    assert.deepEqual(row, {
+      path: relative,
+      size: original.length,
+      sha256: createHash('sha256').update(original).digest('hex')
+    })
+  }))
