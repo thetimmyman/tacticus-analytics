@@ -11,8 +11,16 @@ import { findActiveBanForAuthUser } from '@/app/lib/auth/user-bans'
  * Ban-ledger check for legacy routes that authenticate GoTrue directly (keeps
  * their error shapes). Prefer `requireSessionUser` for new code.
  */
-export async function assertUnbannedAuthUser(user: User): Promise<void> {
-  if (await findActiveBanForAuthUser(user)) {
+export async function assertUnbannedAuthUser(
+  user: User,
+  signal?: AbortSignal
+): Promise<void> {
+  signal?.throwIfAborted()
+  const ban = signal
+    ? await findActiveBanForAuthUser(user, undefined, signal)
+    : await findActiveBanForAuthUser(user)
+  signal?.throwIfAborted()
+  if (ban) {
     throw Errors.forbidden('Account suspended', { code: 'ACCOUNT_BANNED' })
   }
 }
@@ -21,11 +29,14 @@ export async function assertUnbannedAuthUser(user: User): Promise<void> {
 export async function requireSessionUser(
   supabase: Pick<SupabaseClient, 'auth'>,
   makeError: () => AppError = () =>
-    Errors.authenticationRequired('Authentication required')
+    Errors.authenticationRequired('Authentication required'),
+  signal?: AbortSignal
 ): Promise<User> {
+  signal?.throwIfAborted()
   const { data, error } = await supabase.auth.getUser()
+  signal?.throwIfAborted()
   if (error || !data.user) throw makeError()
-  await assertUnbannedAuthUser(data.user)
+  await assertUnbannedAuthUser(data.user, signal)
   return data.user
 }
 
