@@ -7,16 +7,109 @@ import {
   symlink,
   rm,
   cp,
-  readlink
+  readlink,
+  readFile
 } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
+import { createHash } from 'node:crypto'
 import {
   inventory,
   stage,
   containedLibrary
 } from '../../../apps/desktop/platform/macos/stage.mjs'
 import { privateState } from '../../../apps/desktop/platform/macos/state.mjs'
+import { verifySchemaProofInstallation } from '../../../apps/desktop/platform/macos/schema-bootstrap-proof.mjs'
+
+test('a copied staged package admits its inventoried empty directories and contained empty link target', async (t) => {
+  const root = await mkdtemp(join(tmpdir(), 'mac directory inventory ü '))
+  t.after(() => rm(root, { recursive: true, force: true }))
+  const inputs = join(root, 'inputs')
+  const config = {
+    output: join(root, 'candidate.app'),
+    architecture: 'arm64',
+    sourceCommit: 'a'.repeat(40)
+  }
+  for (const key of ['application', 'postgres', 'electron', 'auth']) {
+    config[key] = join(inputs, key)
+    await mkdir(config[key], { recursive: true })
+  }
+  // Inert inputs exercise the real packager and verifier, not native code.
+  for (const key of ['node', 'postgrest', 'guard', 'vault']) {
+    config[key] = join(inputs, key)
+    await writeFile(config[key], 'synthetic executable')
+  }
+  await mkdir(join(config.postgres, 'bin'))
+  for (const name of ['initdb', 'postgres', 'psql'])
+    await writeFile(join(config.postgres, 'bin', name), 'synthetic postgres')
+  await writeFile(join(config.auth, 'auth'), 'synthetic auth')
+  await mkdir(join(config.application, 'empty-resources'))
+  const versions = join(config.electron, 'Framework/Versions')
+  await mkdir(join(versions, 'Empty'), { recursive: true })
+  await symlink('Empty', join(versions, 'Current'))
+  await stage(config)
+  const installed = join(root, 'installed.app')
+  await cp(config.output, installed, {
+    recursive: true,
+    verbatimSymlinks: true
+  })
+  await rm(inputs, { recursive: true })
+  await rm(config.output, { recursive: true })
+  const bytes = await readFile(
+    join(installed, 'Contents/Resources/package-inventory.json')
+  )
+  const manifest = JSON.parse(bytes)
+  const sourcePaths = [
+    'apps/desktop/platform/macos/schema-bootstrap-proof.mjs',
+    'apps/desktop/platform/macos/schema-bootstrap.mjs',
+    'apps/desktop/platform/macos/services.mjs',
+    'apps/desktop/platform/macos/workspace.mjs',
+    'apps/desktop/proof/synthetic-import.mjs',
+    'apps/desktop/local-schema/canonical-objects.sql',
+    'apps/desktop/local-schema/authority.sql',
+    'apps/desktop/local-schema/manifest.json'
+  ]
+  const sha = (value) => createHash('sha256').update(value).digest('hex')
+  const result = await verifySchemaProofInstallation({
+    installed,
+    admission: {
+      schemaVersion: 1,
+      sourceCommit: config.sourceCommit,
+      architecture: config.architecture,
+      artifactSha256: 'b'.repeat(64),
+      inventorySha256: sha(bytes),
+      sourceHashes: Object.fromEntries(
+        await Promise.all(
+          sourcePaths.map(async (path) => [
+            path,
+            sha(await readFile(new URL('../../../' + path, import.meta.url)))
+          ])
+        )
+      )
+    }
+  })
+  assert.equal(result.files, manifest.files.length)
+  assert.equal(manifest.schemaVersion, 2)
+  assert.ok(
+    manifest.directories.includes(
+      'Contents/Resources/runtime/application/empty-resources'
+    )
+  )
+  assert.ok(
+    manifest.directories.includes(
+      'Contents/Resources/runtime/electron/Framework/Versions/Empty'
+    )
+  )
+  assert.equal(
+    await readlink(
+      join(
+        installed,
+        'Contents/Resources/runtime/electron/Framework/Versions/Current'
+      )
+    ),
+    'Empty'
+  )
+})
 
 test('relocated dependencies compare canonical roots and reject an escaping library', async () => {
   const root = await mkdtemp(join(tmpdir(), 'mac library alias '))
