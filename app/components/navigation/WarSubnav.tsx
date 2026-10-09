@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { ChromeLink as Link } from './ChromeLink'
 import { ChevronDown } from 'lucide-react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import {
