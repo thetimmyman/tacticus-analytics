@@ -66,9 +66,13 @@ service. It compares all synthetic raid, mapping, guild and attestation rows plu
 cached personal state, and refuses renderer-only and forged-session access.
 This receipt is bound to the source commit and DMG digest. The packaged
 journey then covers actual Electron bootstrap and signed-out recovery on virtual
-machines. Its two later launches restart storage only and do not reopen the
-graphical application. Preserved consumer Keychain bindings remain a separate
-qualification requirement.
+machines, then requires a second sequential graphical launch against the same
+workspace under the same service policy. Both native launches must complete
+successfully; distinct device, renderer and screenshot evidence binds the
+first post-journey data digest to the second pre-journey digest. The two later
+storage-only launches remain separate checks. These are synthetic VM proof
+requirements, not preserved consumer Keychain qualification or confinement of
+the runtime supervisor, which remain separate requirements.
 If the graphical journey still records a native sandbox initialization
 failure, a separate compatibility probe runs the same installed payload in one
 fresh synthetic workspace across two ordinary launches. Electron's own sandbox
