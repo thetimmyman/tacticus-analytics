@@ -32,8 +32,7 @@
       Id="TacticusDesktop"
       Executable="Payload\TacticusDesktop.exe"
       uap10:RuntimeBehavior="packagedClassicApp"
-      uap10:TrustLevel="mediumIL"
-      uap10:Parameters="run-msix">
+      uap10:TrustLevel="mediumIL">
       <uap:VisualElements
         DisplayName="Tacticus Analytics"
         Description="Tacticus Analytics desktop application"

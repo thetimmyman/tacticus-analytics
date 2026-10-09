@@ -2,7 +2,8 @@ param(
   [Parameter(Mandatory=$true)][string]$Bundle,
   [Parameter(Mandatory=$true)][string]$Evidence,
   [switch]$AlreadyInstalled,
-  [string]$QualificationRoot
+  [string]$QualificationRoot,
+  [string]$PackageFamilyName
 )
 $ErrorActionPreference = 'Stop'
 # The hosted scratch volume may disable filesystem short aliases. Exercise the
@@ -26,6 +27,8 @@ $timer = [System.Diagnostics.Stopwatch]::StartNew()
 $artifactKind = if ($AlreadyInstalled) { 'installed-msix-candidate' } else { 'installed-candidate' }
 $distributionKind = if ($AlreadyInstalled) { 'ephemeral-msix' } else { 'staged-directory' }
 if ($AlreadyInstalled) {
+  if ([string]::IsNullOrWhiteSpace($PackageFamilyName)) { throw 'Installed package family name is required' }
+  $msixActivator = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot 'activate-msix.ps1')).Path
   $installed = (Resolve-Path -LiteralPath $Bundle).Path
   if (-not (Test-Path -LiteralPath (Join-Path $installed 'TacticusDesktop.exe') -PathType Leaf)) {
     throw 'Installed package payload is incomplete'
@@ -59,22 +62,26 @@ for ($iteration = 0; $iteration -lt 4; $iteration++) {
   $runTimer = [System.Diagnostics.Stopwatch]::StartNew()
   $measurementPath = Join-Path $env:RUNNER_TEMP "measurement-$iteration.json"
   if ($AlreadyInstalled) {
-    & "$installed/TacticusDesktop.exe" run-msix-qualified $activeWorkspace --verify $verify --measurement $measurementPath
+    $activationExit = & $msixActivator -PackageFamilyName $PackageFamilyName `
+      -Arguments @('run-msix-qualified', $activeWorkspace, '--verify', $verify, '--measurement', $measurementPath)
+    if ($activationExit -ne 0) { throw 'Installed complete application journey failed' }
   } else {
     & "$installed/TacticusDesktop.exe" run-candidate $installed $activeWorkspace --verify $verify --measurement $measurementPath
+    if ($LASTEXITCODE -ne 0) { throw 'Installed complete application journey failed' }
   }
-  if ($LASTEXITCODE -ne 0) { throw 'Installed complete application journey failed' }
   $result = Get-Content $renderer | ConvertFrom-Json
   if ($result.observed.nodeAccess -or -not $result.observed.text.Contains('+58%')) { throw 'Renderer result incorrect' }
   $journeys += @{ iteration = $iteration; scenario = $scenario; elapsedMs = $runTimer.ElapsedMilliseconds; nativeMeasurement = (Get-Content $measurementPath | ConvertFrom-Json); screenshotSha256 = (Get-FileHash (Join-Path $env:RUNNER_TEMP "renderer-$iteration.png") -Algorithm SHA256).Hash.ToLowerInvariant(); automaticDeviceSession = $result.automaticDeviceSession; signedOutNativeRecovery = $result.signedOutNativeRecovery; rendererBootstrapStatus = $result.rendererBootstrapStatus; workspaceSessionReuse = $result.workspaceSessionReuse; sandbox = $result.sandbox; nodeAccess = $result.observed.nodeAccess }
 }
 $recoveryPath = Join-Path $env:RUNNER_TEMP 'recovery-evidence.json'
 if ($AlreadyInstalled) {
-  & "$installed/TacticusDesktop.exe" run-msix-qualified $workspace --recovery $recoveryPath
+  $activationExit = & $msixActivator -PackageFamilyName $PackageFamilyName `
+    -Arguments @('run-msix-qualified', $workspace, '--recovery', $recoveryPath)
+  if ($activationExit -ne 0) { throw 'Installed database recovery qualification failed' }
 } else {
   & "$installed/TacticusDesktop.exe" run-candidate $installed $workspace --recovery $recoveryPath
+  if ($LASTEXITCODE -ne 0) { throw 'Installed database recovery qualification failed' }
 }
-if ($LASTEXITCODE -ne 0) { throw 'Installed database recovery qualification failed' }
 $recovery = Get-Content $recoveryPath | ConvertFrom-Json
 $schemaRecovery = @()
 # Separate fresh workspaces retain the existing native owner/ACL/restricted
@@ -84,11 +91,13 @@ foreach ($scenario in @('interrupted-bootstrap', 'committed-marker-refusal')) {
   $proofWorkspace = Join-Path $qualification ("schema $scenario workspace ü")
   $proofEvidence = Join-Path $env:RUNNER_TEMP ("renderer-schema-recovery-$scenario.json")
   if ($AlreadyInstalled) {
-    & "$installed/TacticusDesktop.exe" run-msix-qualified $proofWorkspace --schema-recovery $scenario --schema-recovery-evidence $proofEvidence
+    $activationExit = & $msixActivator -PackageFamilyName $PackageFamilyName `
+      -Arguments @('run-msix-qualified', $proofWorkspace, '--schema-recovery', $scenario, '--schema-recovery-evidence', $proofEvidence)
+    if ($activationExit -ne 0) { throw 'Installed schema recovery proof failed' }
   } else {
     & "$installed/TacticusDesktop.exe" run-candidate $installed $proofWorkspace --schema-recovery $scenario --schema-recovery-evidence $proofEvidence
+    if ($LASTEXITCODE -ne 0) { throw 'Installed schema recovery proof failed' }
   }
-  if ($LASTEXITCODE -ne 0) { throw 'Installed schema recovery proof failed' }
   $proof = Get-Content $proofEvidence | ConvertFrom-Json
   if (-not $proof.completed -or $proof.scenario -ne $scenario -or $proof.sourceSha -ne $manifest.sourceSha -or $proof.manifestSha256 -ne $manifestDigest) {
     throw 'Installed schema recovery evidence binding failed'
