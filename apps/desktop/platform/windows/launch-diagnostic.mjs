@@ -170,3 +170,49 @@ export function nodeLaunchDiagnostic(error, argumentsList = []) {
     postgresChildStatus: uint32(error?.postgresChildStatus)
   }
 }
+
+// Failure-only coordinator evidence. Unknown values never enter the receipt.
+const coordinatorStages = new Set([
+  'configuration',
+  'schema-recovery',
+  'services-start',
+  'recovery-journey',
+  'gateway-start',
+  'app-port-allocation',
+  'application-launch',
+  'application-health',
+  'verification-input',
+  'former-password-fixture',
+  'verification-route-controls',
+  'owner-before-window',
+  'window-launch',
+  'window-exit',
+  'post-window-conservation',
+  'window-result',
+  'gateway-stop',
+  'services-stop'
+])
+const fixtureFailures = new Map([
+  [
+    'Migration fixture requires a new empty test workspace',
+    'workspace-occupied'
+  ],
+  ['Migration fixture local account failed', 'account-response-refused'],
+  ['Invalid fixture owner', 'owner-shape-refused'],
+  ['Invalid synthetic Auth subject', 'subject-shape-refused'],
+  ['Invalid synthetic fixture envelope', 'envelope-refused'],
+  ['Unexpected synthetic fields', 'fields-refused'],
+  ['Invalid synthetic row', 'row-refused'],
+  ['Invalid synthetic cluster', 'cluster-refused'],
+  ['Invalid fixture identity', 'identity-refused']
+])
+
+export function launchCoordinatorDiagnostic(error, stage) {
+  return {
+    stage: coordinatorStages.has(stage) ? stage : 'stage-unavailable',
+    fixtureFailureCode:
+      stage === 'former-password-fixture'
+        ? (fixtureFailures.get(error?.message) ?? 'unavailable')
+        : 'not-applicable'
+  }
+}
