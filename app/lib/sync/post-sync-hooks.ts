@@ -22,6 +22,7 @@ import {
   savePlayerMappings
 } from '@/app/lib/sync/db-operations'
 import type { TablesUpdate } from '@tacticus/app-core/database.generated'
+import { fetchGuildMembersViaTacticus } from '@/app/lib/sync/tacticus-api'
 
 async function requestClusterRankingsRefresh(
   supabase: ServiceSupabaseClient
@@ -64,7 +65,8 @@ async function markRosterRefreshed(
 export async function refreshGuildRoster(
   guildCode: string,
   config: GuildConfig,
-  supabase: ServiceSupabaseClient
+  supabase: ServiceSupabaseClient,
+  apiKey: string | null = null
 ): Promise<LokiRosterContext | null> {
   // The env scraper id wins over a legacy per-guild `guild_config.user_id` (it must match the shared secret).
   const { guild_id } = config
@@ -132,6 +134,10 @@ export async function refreshGuildRoster(
         guildCode
       )
       if (lokiMembers.length > 0) {
+        // The live Tacticus roster is the only evidence that moves a claimed player into this guild.
+        const tacticusMembers = apiKey
+          ? await fetchGuildMembersViaTacticus(apiKey, guild_id, guildCode)
+          : null
         // Never a parallel upsert: heterogeneous-key bulk payloads make PostgREST
         // NULL missing keys, wiping linked identity. savePlayerMappings owns
         // is_current/is_active, the activity guard, the breaker and transfers.
@@ -144,7 +150,8 @@ export async function refreshGuildRoster(
             cluster_code: config.cluster_code ?? null,
             cluster_id: config.cluster_id ?? null
           },
-          rosterObservedAt
+          rosterObservedAt,
+          tacticusMembers?.success ? tacticusMembers.memberIds : null
         )
       }
     } catch (err) {
@@ -185,7 +192,8 @@ export async function runPostSyncHooks(
   guildCode: string,
   season: string,
   config: GuildConfig,
-  supabase: ServiceSupabaseClient
+  supabase: ServiceSupabaseClient,
+  apiKey: string | null = null
 ): Promise<void> {
   const clusterCode = config.cluster_code ?? null
 
@@ -233,7 +241,7 @@ export async function runPostSyncHooks(
   )
   const loki = rosterFresh
     ? null
-    : await refreshGuildRoster(guildCode, config, supabase)
+    : await refreshGuildRoster(guildCode, config, supabase, apiKey)
   if (rosterFresh) {
     logger.debug(
       { guildCode },

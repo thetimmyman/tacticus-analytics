@@ -3,10 +3,16 @@ import { describe, expect, it, vi } from 'vitest'
 import { savePlayerMappings } from '@/supabase/functions/_shared/sync-modules/db-mappings.ts'
 
 function buildClient(
-  options: { malformedProof?: boolean; claimed?: boolean } = {}
+  options: {
+    malformedProof?: boolean
+    claimed?: boolean
+    transfer?: 'moves' | 'fails'
+  } = {}
 ) {
+  const transferCalls: Array<Record<string, unknown>> = []
   const upserted: Array<Record<string, unknown>> = []
   const rpcCalls: Array<Record<string, unknown>> = []
+  const loadedIds: string[][] = []
   const existingRows = [
     {
       player_id: 'player-1',
@@ -17,8 +23,8 @@ function buildClient(
       tacticus_share_url: null,
       theme_preference: 'dark',
       boss_preferences: null,
-      cluster_code: null,
-      cluster_id: null,
+      cluster_code: 'OLDC',
+      cluster_id: 'old-cluster',
       avatar_unit_id: null,
       player_level: null,
       player_power: null,
@@ -54,9 +60,9 @@ function buildClient(
           playerSelect += 1
           return playerSelect === 1
             ? {
-                in: vi.fn().mockResolvedValue({
-                  data: existingRows,
-                  error: null
+                in: vi.fn((_column: string, ids: string[]) => {
+                  loadedIds.push(ids)
+                  return Promise.resolve({ data: existingRows, error: null })
                 })
               }
             : resetChain
@@ -69,7 +75,23 @@ function buildClient(
         })
       }
     }),
-    rpc: vi.fn((_name: string, args: Record<string, unknown>) => {
+    rpc: vi.fn((name: string, args: Record<string, unknown>) => {
+      if (name === 'transfer_roster_confirmed_players') {
+        transferCalls.push(args)
+        return Promise.resolve(
+          options.transfer === 'fails'
+            ? { data: null, error: { message: 'permission denied' } }
+            : {
+                data: (args.p_player_ids as string[]).map((id) => ({
+                  player_id: id,
+                  from_guild_code: 'OLD',
+                  cluster_code: 'NEWC',
+                  cluster_id: 'new-cluster'
+                })),
+                error: null
+              }
+        )
+      }
       rpcCalls.push(args)
       const ids = args.p_player_ids as string[]
       return Promise.resolve({
@@ -91,7 +113,7 @@ function buildClient(
       })
     })
   }
-  return { client, rpcCalls, upserted }
+  return { client, loadedIds, rpcCalls, transferCalls, upserted }
 }
 
 const logger = {
@@ -113,6 +135,83 @@ describe('Edge roster guarded writes', () => {
     )
 
     expect(rpcCalls).toEqual([])
+    expect(upserted).toEqual([])
+  })
+
+  it('moves a claimed player the live Tacticus roster lists in the new guild', async () => {
+    const { client, transferCalls, upserted } = buildClient()
+
+    await savePlayerMappings(
+      { supabase: client, logger },
+      { playerMappingTable: 'player_mapping', dataTable: 'raid_data' },
+      'NEW',
+      [{ userId: 'player-1', displayName: 'Player', role: 'officer' }],
+      ['player-1', 'other-player']
+    )
+
+    expect(transferCalls).toEqual([
+      { p_target_guild_code: 'NEW', p_player_ids: ['player-1'] }
+    ])
+    expect(upserted).toEqual([
+      expect.objectContaining({
+        player_id: 'player-1',
+        guild_code: 'NEW',
+        is_current: true,
+        role: 'officer',
+        cluster_code: 'NEWC',
+        cluster_id: 'new-cluster'
+      })
+    ])
+  })
+
+  it('moves a Tacticus-confirmed claimed player LOKI has not listed yet', async () => {
+    const { client, loadedIds, transferCalls } = buildClient()
+
+    await savePlayerMappings(
+      { supabase: client, logger },
+      { playerMappingTable: 'player_mapping', dataTable: 'raid_data' },
+      'NEW',
+      [{ userId: 'other-player', displayName: 'Other', role: 'member' }],
+      ['player-1', 'other-player']
+    )
+
+    expect(loadedIds[0]).toEqual(
+      expect.arrayContaining(['player-1', 'other-player'])
+    )
+    expect(transferCalls).toEqual([
+      { p_target_guild_code: 'NEW', p_player_ids: ['player-1'] }
+    ])
+  })
+
+  it('does not move a claimed player the Tacticus roster lists twice', async () => {
+    const { client, transferCalls, upserted } = buildClient()
+
+    await savePlayerMappings(
+      { supabase: client, logger },
+      { playerMappingTable: 'player_mapping', dataTable: 'raid_data' },
+      'NEW',
+      [{ userId: 'player-1', displayName: 'Player', role: 'leader' }],
+      ['player-1', 'player-1']
+    )
+
+    expect(transferCalls).toEqual([])
+    expect(upserted).toEqual([])
+  })
+
+  it('leaves a claimed player in place when the move is refused', async () => {
+    const { client, transferCalls, upserted } = buildClient({
+      transfer: 'fails'
+    })
+
+    await savePlayerMappings(
+      { supabase: client, logger },
+      { playerMappingTable: 'player_mapping', dataTable: 'raid_data' },
+      'NEW',
+      [{ userId: 'player-1', displayName: 'Player', role: 'leader' }],
+      ['player-1']
+    )
+
+    expect(transferCalls).toHaveLength(1)
     expect(upserted).toEqual([])
   })
 

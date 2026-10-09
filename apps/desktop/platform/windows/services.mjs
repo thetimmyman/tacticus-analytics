@@ -29,12 +29,37 @@ async function freePort() {
   return port
 }
 export async function run(file, args, options, spawnChild = spawn) {
-  const child = spawnChild(file, args, {
-    // Attach to the existing owner console instead of CREATE_NO_WINDOW.
-    windowsHide: false,
-    ...options,
-    stdio: ['ignore', 'pipe', 'pipe']
-  })
+  const serviceName = basename(file)
+  const publicServiceName = [
+    'initdb.exe',
+    'psql.exe',
+    'auth.exe',
+    'pg_ctl.exe'
+  ].includes(serviceName)
+    ? serviceName
+    : 'owned-service'
+  const launchFailure = () => {
+    const error = new Error(
+      `${publicServiceName === 'owned-service' ? 'Owned service' : publicServiceName} could not start; child-launch-failed; sensitive output suppressed`
+    )
+    error.serviceFailureCode = 'child-launch-failed'
+    error.serviceBootstrapPhase = 'not-applicable'
+    error.serviceExecutable = publicServiceName
+    error.serviceExitCode = null
+    error.postgresChildStatus = null
+    return error
+  }
+  let child
+  try {
+    child = spawnChild(file, args, {
+      // Attach to the existing owner console instead of CREATE_NO_WINDOW.
+      windowsHide: false,
+      ...options,
+      stdio: ['ignore', 'pipe', 'pipe']
+    })
+  } catch {
+    throw launchFailure()
+  }
   let stdout = ''
   let failureText = ''
   child.stdout.on('data', (v) => {
@@ -45,17 +70,29 @@ export async function run(file, args, options, spawnChild = spawn) {
       failureText += value.toString().slice(0, 65536 - failureText.length)
   })
   await new Promise((accept, reject) => {
-    child.once('error', reject)
+    child.once('error', () => reject(launchFailure()))
     // Process exit can precede the final pipe data. Wait for both streams.
-    child.once('close', (code) =>
-      code === 0
-        ? accept()
-        : reject(
-            new Error(
-              `${['initdb.exe', 'psql.exe', 'auth.exe', 'pg_ctl.exe'].includes(basename(file)) ? basename(file) : 'Owned service'} exited ${code}; ${serviceFailureCode(failureText + stdout)}${basename(file) === 'initdb.exe' ? '; ' + bootstrapPhase(stdout) : ''}; sensitive output suppressed`
-            )
-          )
-    )
+    child.once('close', (code) => {
+      if (code === 0) return accept()
+      const failureCode = serviceFailureCode(`${failureText}\n${stdout}`)
+      const phase =
+        serviceName === 'initdb.exe' ? bootstrapPhase(stdout) : 'not-applicable'
+      const postgresStatus = /^postgres-child-status-0x([0-9a-f]{8})$/.exec(
+        failureCode
+      )
+      const error = new Error(
+        `${['initdb.exe', 'psql.exe', 'auth.exe', 'pg_ctl.exe'].includes(serviceName) ? serviceName : 'Owned service'} exited ${code}; ${failureCode}${serviceName === 'initdb.exe' ? '; ' + phase : ''}; sensitive output suppressed`
+      )
+      error.serviceFailureCode = failureCode
+      error.serviceBootstrapPhase = phase
+      error.serviceExecutable = publicServiceName
+      error.serviceExitCode =
+        Number.isInteger(code) && code >= 0 && code <= 0xffffffff ? code : null
+      error.postgresChildStatus = postgresStatus
+        ? Number.parseInt(postgresStatus[1], 16)
+        : null
+      reject(error)
+    })
   })
   return stdout
 }
@@ -352,7 +389,13 @@ export async function completeNativeSchema(
 }
 
 export async function nativeServices(
-  { state, binaries, schemaDirectory, libraryPath },
+  {
+    state,
+    binaries,
+    schemaDirectory,
+    libraryPath,
+    allowSourceHardlinks = false
+  },
   { completeSchema } = {}
 ) {
   if (process.platform !== 'win32')
@@ -360,7 +403,11 @@ export async function nativeServices(
   state = resolve(state)
   await mkdir(state, { recursive: true, mode: 0o700 })
   // The native owner holds the OS exclusive workspace lock and validates ACLs/reparse points.
-  const schema = await prepareSchemaBootstrap({ state, schemaDirectory })
+  const schema = await prepareSchemaBootstrap({
+    state,
+    schemaDirectory,
+    allowSourceHardlinks
+  })
   const children = []
   const diagnostics = new WeakMap()
   const { unlink } = await import('node:fs/promises')

@@ -465,6 +465,25 @@ test('staged service imports its exact schema recovery module and inventories th
     const manifest = JSON.parse(
       await readFile(join(output, 'bundle-manifest.json'), 'utf8')
     )
+    const packageIntegrityCanary = Buffer.from(
+      'synthetic package integrity canary\n'
+    )
+    assert.deepEqual(
+      await readFile(join(output, 'package-integrity-canary.txt')),
+      packageIntegrityCanary
+    )
+    assert.deepEqual(
+      manifest.files.find(
+        (item) => item.path === 'package-integrity-canary.txt'
+      ),
+      {
+        path: 'package-integrity-canary.txt',
+        size: packageIntegrityCanary.length,
+        sha256: createHash('sha256')
+          .update(packageIntegrityCanary)
+          .digest('hex')
+      }
+    )
     const row = manifest.files.find((item) => item.path === relative)
     assert.deepEqual(row, {
       path: relative,
