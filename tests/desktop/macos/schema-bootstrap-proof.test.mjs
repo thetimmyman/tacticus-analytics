@@ -7,7 +7,8 @@ import {
   readFile,
   readdir,
   rm,
-  symlink
+  symlink,
+  chmod
 } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -20,6 +21,139 @@ import {
 } from '../../../apps/desktop/platform/macos/schema-bootstrap-proof.mjs'
 
 import * as proof from '../../../apps/desktop/platform/macos/schema-bootstrap-proof.mjs'
+import { nativeServices } from '../../../apps/desktop/platform/macos/services.mjs'
+
+// Inert host binaries exercise the maintained service/psql subprocess adapter.
+// They do not execute SQL or establish native PostgreSQL/macOS semantics.
+async function scalarServiceFixture(t) {
+  const root = await mkdtemp(join(tmpdir(), 'synthetic-proof-scalar-'))
+  let services
+  t.after(async () => {
+    try {
+      await services?.stop()
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  })
+  const schemaDirectory = join(root, 'schema')
+  await mkdir(schemaDirectory)
+  for (const name of ['canonical-objects.sql', 'authority.sql'])
+    await writeFile(join(schemaDirectory, name), 'SELECT 1;')
+  const database = join(root, 'synthetic-database.json')
+  await writeFile(
+    database,
+    JSON.stringify({
+      applied: false,
+      receipt: 'default administrative connection database',
+      scalar: ''
+    })
+  )
+  const http = (port) =>
+    `require('node:http').createServer((_, response) => response.end('{}')).listen(Number(process.env.${port}), '127.0.0.1')`
+  const sources = {
+    initdb: `const fs=require('node:fs'), path=process.argv[process.argv.indexOf('-D')+1]; fs.mkdirSync(path,{recursive:true,mode:0o700}); fs.writeFileSync(path+'/PG_VERSION','18',{mode:0o600})`,
+    postgres: `for(const signal of ['SIGINT','SIGTERM']) process.on(signal,()=>process.exit(0)); setInterval(()=>{},1000)`,
+    auth: `if(process.argv[2]==='serve') ${http('PORT')}`,
+    postgrest: http('PGRST_SERVER_PORT'),
+    psql: `
+      const fs=require('node:fs');
+      const sql=fs.readFileSync(process.argv.at(-1),'utf8');
+      const path=${JSON.stringify(database)}, db=JSON.parse(fs.readFileSync(path,'utf8'));
+      if(sql.startsWith('SELECT json_build_object('))
+        console.log(JSON.stringify({database:'postgres',owner:'desktop_owner',receipt:db.receipt,empty:!db.applied}));
+      else if(sql.includes('pg_roles')) console.log('1');
+      else if(sql.includes('COMMENT ON DATABASE')) {
+        const receipt=/desktop-macos-schema:[a-f0-9]{64}/.exec(sql);
+        if(!receipt) process.exit(1);
+        db.receipt=receipt[0]; db.applied=true; fs.writeFileSync(path,JSON.stringify(db));
+      } else if(sql==='SELECT synthetic_scalar;') {
+        if(db.fail) process.exit(9);
+        process.stdout.write(db.scalar);
+      }
+    `
+  }
+  const binaries = { authCwd: root }
+  for (const [name, source] of Object.entries(sources)) {
+    binaries[name] = join(root, name)
+    await writeFile(binaries[name], `#!${process.execPath}\n${source}\n`)
+    await chmod(binaries[name], 0o700)
+  }
+  services = await nativeServices({
+    state: join(root, 'state'),
+    binaries,
+    schemaDirectory
+  })
+  return {
+    services,
+    async read(value, fail = false) {
+      const db = JSON.parse(await readFile(database, 'utf8'))
+      await writeFile(database, JSON.stringify({ ...db, scalar: value, fail }))
+      return services.psql('SELECT synthetic_scalar;')
+    }
+  }
+}
+
+test('proof scalars accept the maintained native psql framing without changing raw service output', async (t) => {
+  const fixture = await scalarServiceFixture(t)
+  const receipt = 'desktop-macos-schema:' + 'a'.repeat(64)
+  assert.equal(fixture.services.fresh, true)
+  const raw = await fixture.read(receipt + '\n')
+  assert.equal(raw, receipt + '\n')
+  assert.equal(proof.schemaBootstrapProofScalar(raw), receipt)
+  assert.equal(proof.schemaBootstrapProofScalar(receipt), receipt)
+  await assert.rejects(fixture.read(receipt + '\n', true), /exited 9:/u)
+})
+
+test('recovered proof snapshot scalar digests match across raw native and unframed adapters', async (t) => {
+  const fixture = await scalarServiceFixture(t)
+  const values = [
+    '{"synthetic":true,"saved":"content remains exact"}',
+    '123456789',
+    'desktop-macos-schema:' + 'a'.repeat(64)
+  ]
+  const digest = (value) =>
+    createHash('sha256')
+      .update(proof.schemaBootstrapProofScalar(value))
+      .digest('hex')
+  const before = values.map(digest)
+  const recovered = []
+  for (const value of values)
+    recovered.push(digest(await fixture.read(value + '\n')))
+  assert.deepEqual(recovered, before)
+  assert.notEqual(digest('987654321\n'), before[1])
+})
+
+test('proof scalar framing preserves content whitespace and refuses malformed rows opaquely', () => {
+  assert.equal(
+    proof.schemaBootstrapProofScalar(
+      ' default administrative  connection database \t\n'
+    ),
+    ' default administrative  connection database \t'
+  )
+  assert.equal(proof.schemaBootstrapProofScalar(''), '')
+  const receipt = 'desktop-macos-schema:' + 'a'.repeat(64)
+  assert.notEqual(proof.schemaBootstrapProofScalar(receipt + ' \n'), receipt)
+  assert.notEqual(
+    proof.schemaBootstrapProofScalar(' ' + receipt + '\n'),
+    receipt
+  )
+  for (const value of [
+    receipt + '\n' + receipt + '\n',
+    receipt + '\n\n',
+    receipt + '\r\n',
+    receipt + '\r',
+    'first\nsecond',
+    'first\rsecond',
+    undefined,
+    null,
+    7,
+    {}
+  ])
+    assert.throws(() => proof.schemaBootstrapProofScalar(value), {
+      code: 'EPROOF',
+      message: 'Installed schema recovery proof refused'
+    })
+})
 
 test('maintained CLI refuses invalid invocations through direct and symlink-ancestor paths equally', async (t) => {
   const directory = await mkdtemp(join(tmpdir(), 'synthetic-proof-cli-'))
