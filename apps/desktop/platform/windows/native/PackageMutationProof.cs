@@ -32,6 +32,10 @@ internal static class PackageMutationProof
         var assertions = new List<string> { "package-child-medium-integrity" };
         try
         {
+            var package = PackageRuntime.Current() ?? throw new InvalidOperationException("Package proof identity is unavailable");
+            if (!string.Equals(package.Payload, Path.GetFullPath(payload), StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Package proof identity changed");
+            assertions.Add("package-descendant-retains-package-identity");
             RequireCreateDenied(Path.Combine(payload, "proof-create-" + suffix), assertions);
             RequireOpenDenied(existing, GenericWrite, false, "package-existing-write-open-refused", assertions);
             RequireOpenDenied(existing, Delete, false, "package-existing-delete-refused", assertions);

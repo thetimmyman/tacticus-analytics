@@ -193,6 +193,7 @@ try {
   $integrity = Get-Content -LiteralPath $IntegrityEvidence | ConvertFrom-Json
   $requiredIntegrityAssertions = @(
     'package-child-medium-integrity',
+    'package-descendant-retains-package-identity',
     'package-new-file-create-refused',
     'package-existing-write-open-refused',
     'package-existing-delete-refused',

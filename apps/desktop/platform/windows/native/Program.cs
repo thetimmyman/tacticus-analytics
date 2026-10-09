@@ -15,7 +15,7 @@ internal static class Program
             if (args.Length == 0)
             {
                 if (package is not null)
-                    return RunCandidate(package.Payload, Installation.PackagedWorkspace, Array.Empty<string>());
+                    return RunCandidate(package.Payload, Installation.PackagedWorkspace, Array.Empty<string>(), retainDesktopAppRuntime: true);
                 throw new InvalidOperationException("Choose run-candidate, install-candidate, rollback, native-proof or official onboarding");
             }
             if (package is not null && PackageRuntime.IsUnpackagedOnlyVerb(args[0]))
@@ -23,16 +23,35 @@ internal static class Program
             switch (args[0])
             {
                 case "run-msix" when package is not null:
-                    return RunCandidate(package.Payload, Installation.PackagedWorkspace, args.Skip(1));
+                    return RunCandidate(package.Payload, Installation.PackagedWorkspace, args.Skip(1), retainDesktopAppRuntime: true);
                 case "run-msix-qualified" when package is not null && args.Length >= 2:
-                    return RunCandidate(package.Payload, QualifiedWorkspace(args[1]), args.Skip(2));
+                    return RunCandidate(package.Payload, QualifiedWorkspace(args[1]), args.Skip(2), retainDesktopAppRuntime: true);
                 case "package-integrity-proof" when package is not null && args.Length == 2:
                 {
                     using var job = new JobOwner();
                     using var child = job.Start(Environment.ProcessPath!,
-                        new[] { "proof-package-mutation", package.Payload, Path.GetFullPath(args[1]) },
-                        package.Payload, removeAdministrativeAccess: true);
+                        new[] { "proof-package-descendant", package.Payload, Path.GetFullPath(args[1]) },
+                        package.Payload, removeAdministrativeAccess: true, retainDesktopAppRuntime: true);
                     if (child.Wait() != 0) throw new InvalidOperationException("Package integrity proof failed");
+                    return 0;
+                }
+                case "proof-package-descendant" when package is not null && args.Length == 3:
+                {
+                    if (!string.Equals(Path.GetFullPath(args[1]), package.Payload, StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidOperationException("Package proof payload is invalid");
+                    var start = new ProcessStartInfo(Environment.ProcessPath!)
+                    {
+                        UseShellExecute = false,
+                        WorkingDirectory = package.Payload
+                    };
+                    start.ArgumentList.Add("proof-package-mutation");
+                    start.ArgumentList.Add(package.Payload);
+                    start.ArgumentList.Add(Path.GetFullPath(args[2]));
+                    using var descendant = Process.Start(start) ??
+                        throw new InvalidOperationException("Package proof descendant unavailable");
+                    descendant.WaitForExit();
+                    if (descendant.ExitCode != 0)
+                        throw new InvalidOperationException("Package proof descendant failed");
                     return 0;
                 }
                 case "proof-package-mutation" when package is not null && args.Length == 3:
@@ -153,7 +172,8 @@ internal static class Program
             throw new InvalidOperationException("Qualification workspace is outside a qualification run");
         return workspace;
     }
-    private static int RunCandidate(string root, string workspace, IEnumerable<string> forwarded)
+    private static int RunCandidate(string root, string workspace, IEnumerable<string> forwarded,
+        bool retainDesktopAppRuntime = false)
     {
         var arguments = forwarded.ToArray();
         var measurementIndex = Array.IndexOf(arguments, "--measurement");
@@ -173,7 +193,8 @@ internal static class Program
         // The package payload is immutable. Start the coordinator in its
         // protected writable state so native tools that inspect or inherit the
         // current directory never depend on a writable installation tree.
-        using var process = job.Start(Path.Combine(root, "bin", "node.exe"), command, state.Root, removeAdministrativeAccess: true);
+        using var process = job.Start(Path.Combine(root, "bin", "node.exe"), command, state.Root,
+            removeAdministrativeAccess: true, retainDesktopAppRuntime: retainDesktopAppRuntime);
         var code = process.Wait();
         long? peak = null;
         try
