@@ -13,7 +13,11 @@ import { release } from 'node:os'
 import { setTimeout as delay } from 'node:timers/promises'
 import { nativeServices } from './services.mjs'
 import { nativeCommand } from './native-command.mjs'
-import { nodeLaunchDiagnostic } from './launch-diagnostic.mjs'
+import {
+  nodeLaunchDiagnostic,
+  nativeServicesProbeDiagnostic,
+  launchCoordinatorDiagnostic
+} from './launch-diagnostic.mjs'
 
 const refused = () =>
   Object.assign(new Error('Installed Windows schema recovery proof refused'), {
@@ -382,6 +386,7 @@ export async function windowsSchemaRecoveryProof(
     await services.stop()
     failedSubstep = 'not-applicable'
     stage = 'second-open-conservation'
+    failedSubstep = 'second-open-native-startup'
     let secondOpenBootstrapCalls = 0
     services = await nativeServices(config, {
       completeSchema: ({ preparation, psql }) =>
@@ -390,13 +395,19 @@ export async function windowsSchemaRecoveryProof(
           return psql(sql)
         })
     })
-    requireProof(
-      secondOpenBootstrapCalls === 0 &&
-        (await dataHash(services.psql)) === dataBefore &&
-        (await credentialsHash(config.state)) === credentialBefore &&
-        (await comment(services.psql)) === expectedReceipt
-    )
+    // Preserve the original short-circuit order and exact predicates. These
+    // fixed labels expose only the failing boundary, never compared values.
+    failedSubstep = 'second-open-bootstrap-count'
+    requireProof(secondOpenBootstrapCalls === 0)
+    failedSubstep = 'second-open-data-conservation'
+    requireProof((await dataHash(services.psql)) === dataBefore)
+    failedSubstep = 'second-open-credentials'
+    requireProof((await credentialsHash(config.state)) === credentialBefore)
+    failedSubstep = 'second-open-receipt'
+    requireProof((await comment(services.psql)) === expectedReceipt)
+    failedSubstep = 'second-open-stack-stop'
     await services.stop()
+    failedSubstep = 'not-applicable'
     stage = 'receipt'
     await writeFile(
       evidence,
@@ -445,6 +456,16 @@ export async function windowsSchemaRecoveryProof(
         failedSubstep,
         ...(failedSubstep === 'recovery-native-startup'
           ? { startupDiagnostic: nodeLaunchDiagnostic(error) }
+          : failedSubstep === 'second-open-native-startup'
+            ? {
+                startupDiagnostic: launchCoordinatorDiagnostic(
+                  error,
+                  'services-start'
+                )
+              }
+            : {}),
+        ...(stage === 'second-open-conservation'
+          ? { failureDiagnostic: nativeServicesProbeDiagnostic(error) }
           : {}),
         ...admission
       }),
