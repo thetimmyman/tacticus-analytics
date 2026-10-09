@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import Link from 'next/link'
+import { ChromeLink as Link } from '@/app/components/navigation/ChromeLink'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Check, Loader2, Minus, Plus, Save } from 'lucide-react'
 import { getBossDisplayName } from '@/app/lib/resolvers/boss-identity'

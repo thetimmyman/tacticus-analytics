@@ -61,7 +61,7 @@ async function checkState(state, expected) {
   }
 }
 
-async function readBounded(path, limit) {
+async function readBounded(path, limit, { requireSingleLink = true } = {}) {
   let file
   try {
     await directories(dirname(path))
@@ -86,7 +86,11 @@ async function readBounded(path, limit) {
   }
   try {
     const opened = await file.stat({ bigint: true })
-    if (!opened.isFile() || opened.nlink !== 1n || opened.size > BigInt(limit))
+    if (
+      !opened.isFile() ||
+      (requireSingleLink && opened.nlink !== 1n) ||
+      opened.size > BigInt(limit)
+    )
       throw refused()
     const expected = identity(opened)
     await directories(dirname(path))
@@ -94,7 +98,7 @@ async function readBounded(path, limit) {
     if (
       !current.isFile() ||
       current.isSymbolicLink() ||
-      current.nlink !== 1n ||
+      (requireSingleLink && current.nlink !== 1n) ||
       !sameIdentity(expected, identity(current))
     )
       throw refused()
@@ -111,7 +115,7 @@ async function readBounded(path, limit) {
     if (
       !after.isFile() ||
       after.isSymbolicLink() ||
-      after.nlink !== 1n ||
+      (requireSingleLink && after.nlink !== 1n) ||
       !sameIdentity(expected, identity(after))
     )
       throw refused()
@@ -215,19 +219,33 @@ const emptyPublic = `NOT EXISTS (
 
 // Call under the existing native ProtectedState lock, before initdb or service
 // material changes. Retained SQL bytes own both the digest and transaction.
-export async function prepareSchemaBootstrap({ state, schemaDirectory }) {
-  if (typeof state !== 'string' || typeof schemaDirectory !== 'string')
+export async function prepareSchemaBootstrap({
+  state,
+  schemaDirectory,
+  allowSourceHardlinks = false
+}) {
+  if (
+    typeof state !== 'string' ||
+    typeof schemaDirectory !== 'string' ||
+    typeof allowSourceHardlinks !== 'boolean'
+  )
     throw refused()
   state = resolve(state)
   schemaDirectory = resolve(schemaDirectory)
   const expectedState = await checkState(state)
+  // MSIX single-instance storage may hardlink unchanged payload files across
+  // package versions. The native package owner opts into that representation
+  // only after verifying the complete immutable bundle. Writable authority
+  // records continue to require one link through readState.
   const canonical = await readBounded(
     join(schemaDirectory, 'canonical-objects.sql'),
-    16 * 1024 * 1024
+    16 * 1024 * 1024,
+    { requireSingleLink: !allowSourceHardlinks }
   )
   const authority = await readBounded(
     join(schemaDirectory, 'authority.sql'),
-    16 * 1024 * 1024
+    16 * 1024 * 1024,
+    { requireSingleLink: !allowSourceHardlinks }
   )
   if (!canonical?.length || !authority?.length) throw refused()
   let canonicalSql, authoritySql

@@ -28,12 +28,52 @@ internal static class AdministrativeToken
                 // No SANDBOX_INERT, policy modification or permission fallback.
                 if (!CreateRestrictedToken(original, 1, (uint)disabled.Length, disabled, 0, IntPtr.Zero,
                         0, IntPtr.Zero, out var reduced)) throw new Win32Exception();
-                try { GrantUserDefaults(reduced, identity.User ?? throw new InvalidOperationException("User unavailable")); }
+                try {
+                    GrantUserDefaults(reduced, identity.User ?? throw new InvalidOperationException("User unavailable"));
+                    // Disabling privileged SIDs does not lower a high integrity label.
+                    // Give the child the ordinary interactive medium label explicitly.
+                    SetMediumIntegrity(reduced);
+                }
                 catch { reduced.Dispose(); throw; }
                 return reduced;
             }
             finally { foreach (var item in disabled) if (item.Sid != IntPtr.Zero) Marshal.FreeHGlobal(item.Sid); }
         }
+    }
+    internal static int CurrentIntegrity()
+    {
+        if (!OpenProcessToken(new IntPtr(-1), 0x8, out var token)) throw new Win32Exception();
+        using (token) return Integrity(token);
+    }
+    private static int Integrity(SafeAccessTokenHandle token)
+    {
+        GetTokenInformation(token, 25, IntPtr.Zero, 0, out var needed);
+        var buffer = Marshal.AllocHGlobal(checked((int)needed));
+        try
+        {
+            if (!GetTokenInformation(token, 25, buffer, needed, out _)) throw new Win32Exception();
+            var sid = new SecurityIdentifier(Marshal.ReadIntPtr(buffer));
+            if (!sid.Value.StartsWith("S-1-16-", StringComparison.Ordinal))
+                throw new InvalidOperationException("Unexpected token integrity label");
+            return int.Parse(sid.Value[7..], System.Globalization.CultureInfo.InvariantCulture);
+        }
+        finally { Marshal.FreeHGlobal(buffer); }
+    }
+    private static void SetMediumIntegrity(SafeAccessTokenHandle token)
+    {
+        var sid = new SecurityIdentifier("S-1-16-8192");
+        var label = AllocateSid(sid);
+        label.Attributes = 0x20; // SE_GROUP_INTEGRITY
+        var buffer = Marshal.AllocHGlobal(Marshal.SizeOf<SidAndAttributes>());
+        try
+        {
+            Marshal.StructureToPtr(label, buffer, false);
+            if (!SetTokenInformation(token, 25, buffer, checked((uint)(Marshal.SizeOf<SidAndAttributes>() + sid.BinaryLength))))
+                throw new Win32Exception();
+            if (Integrity(token) != 0x2000)
+                throw new InvalidOperationException("Reduced token did not retain medium integrity");
+        }
+        finally { Marshal.FreeHGlobal(buffer); Marshal.FreeHGlobal(label.Sid); }
     }
     // An elevated default DACL grants only Administrators and SYSTEM. With Administrators deny-only,
     // the reduced runtime could not reopen objects it creates, so grant the user as PostgreSQL does.

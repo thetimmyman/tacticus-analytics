@@ -486,7 +486,7 @@ describe('savePlayerMappings guarded authority writes', () => {
     )
   })
 
-  it('leaves an attested cross-guild player for the onboarding reconciler', async () => {
+  it('leaves an attested cross-guild player in place without live Tacticus evidence', async () => {
     const existingRows = [
       {
         player_id: 'P7',
@@ -506,7 +506,7 @@ describe('savePlayerMappings guarded authority writes', () => {
       supabase,
       'NEWGUILD',
       [{ userId: 'P7', displayName: 'Claimed', role: 'leader' }],
-      ['P7'],
+      null,
       null
     )
 

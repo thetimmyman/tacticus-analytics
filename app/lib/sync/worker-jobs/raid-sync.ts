@@ -262,7 +262,13 @@ async function runRaidSync(
     }
     result.syncPath = 'empty'
     await timePhase(result, 'quiet_maintenance', () =>
-      runQuietTickMaintenance(job.guild_code, config, supabase)
+      runQuietTickMaintenance(
+        job.guild_code,
+        config,
+        supabase,
+        Date.now(),
+        apiKey
+      )
     )
     return
   }
@@ -351,7 +357,13 @@ async function runRaidSync(
     result.raidDataLanded = true
     logger.info({ guildCode: job.guild_code }, 'No new battles to sync')
     await timePhase(result, 'quiet_maintenance', () =>
-      runQuietTickMaintenance(job.guild_code, config, supabase)
+      runQuietTickMaintenance(
+        job.guild_code,
+        config,
+        supabase,
+        Date.now(),
+        apiKey
+      )
     )
     return
   }
@@ -557,7 +569,13 @@ async function runRaidSync(
   )
 
   await timePhase(result, 'hooks', () =>
-    runPostSyncHooks(job.guild_code, String(currentSeason), config, supabase)
+    runPostSyncHooks(
+      job.guild_code,
+      String(currentSeason),
+      config,
+      supabase,
+      apiKey
+    )
   )
 
   await timePhase(result, 'herald', () =>
@@ -581,7 +599,8 @@ export async function runQuietTickMaintenance(
   guildCode: string,
   config: GuildConfig,
   supabase: ServiceSupabaseClient,
-  now: number = Date.now()
+  now: number = Date.now(),
+  apiKey: string | null = null
 ): Promise<void> {
   const row = config as unknown as Record<string, unknown>
 
@@ -589,7 +608,7 @@ export async function runQuietTickMaintenance(
     const last = Date.parse(String(row.last_roster_refresh_at ?? ''))
     if (!Number.isFinite(last) || now - last >= QUIET_ROSTER_REFRESH_MS) {
       try {
-        await refreshGuildRoster(guildCode, config, supabase)
+        await refreshGuildRoster(guildCode, config, supabase, apiKey)
       } catch (err) {
         logger.warn(
           { err, guildCode },
