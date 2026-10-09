@@ -11,7 +11,8 @@ import requestDiagnostics from './request-diagnostics.cjs'
 import {
   verifySchemaProofInstallation,
   schemaBootstrapProofReceipt,
-  retainSchemaProofPrimaryEvidence
+  retainSchemaProofPrimaryEvidence,
+  schemaBootstrapChildFailure
 } from './schema-bootstrap-proof.mjs'
 
 const inputs = resolve(process.argv[2]),
@@ -510,7 +511,8 @@ const proofChild = spawn(
   }
 )
 let proofTimedOut = false,
-  proofKill
+  proofKill,
+  proofExit = { code: null, signal: null }
 const proofDeadline = setTimeout(() => {
   proofTimedOut = true
   proofChild.kill('SIGTERM')
@@ -519,7 +521,7 @@ const proofDeadline = setTimeout(() => {
   proofKill = setTimeout(() => proofChild.kill('SIGKILL'), 6000)
 }, 240000)
 try {
-  const proofExit = await new Promise((accept, reject) => {
+  proofExit = await new Promise((accept, reject) => {
     proofChild.once('error', () =>
       reject(new Error('Installed schema recovery proof failed'))
     )
@@ -581,39 +583,18 @@ try {
     actualInstalledMacRecovery: false,
     graphicalAndStorage: 'previous-primary-checks-passed'
   }
-  const allowedGroups = [
-    'fresh-default-comment',
-    'committed-marker-loss',
-    'post-commit-filesystem-denial',
-    'actual-bootstrap-rollback',
-    'genuine-legacy-workspace',
-    'unknown-and-conflicting-authority',
-    'state-directory-identity',
-    'public-catalog-footprint'
-  ]
-  failure.failedGroup = 'admission'
-  failure.completedGroups = []
+  let outputRead = 'unreadable',
+    outputBytes
   try {
-    const bytes = await readFile(proofOutput)
-    if (bytes.length <= 65536) {
-      const diagnostic = JSON.parse(bytes)
-      if (
-        diagnostic.status === 'failed' &&
-        diagnostic.actualInstalledMacRecovery === false
-      ) {
-        if (allowedGroups.includes(diagnostic.failedGroup))
-          failure.failedGroup = diagnostic.failedGroup
-        if (Array.isArray(diagnostic.completedGroups))
-          failure.completedGroups = [
-            ...new Set(
-              diagnostic.completedGroups.filter((group) =>
-                allowedGroups.includes(group)
-              )
-            )
-          ].slice(0, 8)
-      }
-    }
-  } catch {}
+    outputBytes = await readFile(proofOutput)
+    outputRead = 'read'
+  } catch (error) {
+    if (error.code === 'ENOENT') outputRead = 'missing'
+  }
+  Object.assign(
+    failure,
+    schemaBootstrapChildFailure({ ...proofExit, outputRead, outputBytes })
+  )
   await writeFile(
     join(output, 'schema-bootstrap-proof-failure.json'),
     JSON.stringify(failure),
