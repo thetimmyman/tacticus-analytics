@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
+import { ChromeLink as Link } from '@/app/components/navigation/ChromeLink'
 import { Sparkles, X } from 'lucide-react'
 import type { BriefingDelta } from '@/app/lib/briefing/load-since-last-visit'
 

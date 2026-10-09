@@ -653,6 +653,290 @@ test('menu external anchor and server downloads availability remain unchanged', 
   }
 })
 
+const { QueryClient, QueryClientProvider } = requireActual(
+  '@tanstack/react-query'
+)
+const { PerformanceTargetTokensTable } = load(
+  resolve(
+    sourceRoot,
+    'app/components/performance/PerformanceTargetTokensTable.tsx'
+  )
+)
+for (const profile of ['desktop', 'hosted', undefined]) {
+  for (const canManage of [false, true]) {
+    test(`${profile ?? 'unset'} performance target links retain permission copy and explicit navigation policy (${canManage ? 'officer' : 'member'})`, async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+            refetchOnMount: false,
+            refetchOnWindowFocus: false,
+            gcTime: 0
+          }
+        }
+      })
+      queryClient.setQueryData(['target-tokens-schedule'], {
+        current: { config_id: 'synthetic', season_number: 9999, slots: [] },
+        upcoming: {
+          config_id: 'synthetic-next',
+          season_number: 10000,
+          slots: []
+        },
+        all: { slots: [], config_ids: ['synthetic'] }
+      })
+      queryClient.setQueryData(['boss-target-tokens', 'SYN-NAV', '9999'], {
+        rows: []
+      })
+      queryClient.setQueryData(['boss-rotation-stats', 'SYN-NAV', '9999'], {
+        stats: {}
+      })
+      const Component = () =>
+        React.createElement(
+          QueryClientProvider,
+          { client: queryClient },
+          React.createElement(PerformanceTargetTokensTable, {
+            guildCode: 'SYN-NAV',
+            canManage,
+            selectedSeason: '9999'
+          })
+        )
+      try {
+        await rendered(
+          profile,
+          {},
+          async (host) => {
+            assert.ok(
+              host.textContent.includes(
+                canManage
+                  ? 'Hover a row to adjust the allocation.'
+                  : 'Set by your guild'
+              )
+            )
+            for (const [href, label] of [
+              ['/boss-assignments/targets', 'Targets'],
+              ['/boss-playbooks', 'Boss Playbooks']
+            ]) {
+              const link = [...host.querySelectorAll('a')].find(
+                (a) => a.getAttribute('href') === href
+              )
+              assert.ok(link, 'original destination remains available')
+              assert.equal(link.textContent, label)
+              assert.equal(link.className, 'underline')
+              assert.equal(
+                [...observed].some((a) => a.getAttribute('href') === href),
+                profile !== 'desktop'
+              )
+              if (profile === 'desktop') {
+                await React.act(async () => {
+                  link.dispatchEvent(
+                    new MouseEvent('mouseover', { bubbles: true })
+                  )
+                  link.dispatchEvent(
+                    new FocusEvent('focusin', { bubbles: true })
+                  )
+                })
+                const click = new MouseEvent('click', {
+                  bubbles: true,
+                  cancelable: true,
+                  ctrlKey: true
+                })
+                link.dispatchEvent(click)
+                assert.equal(click.defaultPrevented, false)
+                assert.equal(link.getAttribute('href'), href)
+                assert.equal(observed.size, 0)
+              }
+            }
+          },
+          { Component }
+        )
+      } finally {
+        queryClient.clear()
+      }
+    })
+  }
+}
+
+// These are genuine default-home source components reached before the scores
+// navigation. Controlled props do not claim their actual failed-run DOM existed.
+const YourNextMoveCard = load(
+  resolve(sourceRoot, 'app/components/briefing/YourNextMoveCard.tsx')
+).default
+const SinceLastVisitStrip = load(
+  resolve(sourceRoot, 'app/components/briefing/SinceLastVisitStrip.tsx')
+).default
+const BossPerformanceTable = load(
+  resolve(sourceRoot, 'app/components/briefing/BossPerformanceTable.tsx')
+).default
+const homeBossRow = {
+  bossName: 'SyntheticBoss',
+  encounterId: 0,
+  guildAvg: 100,
+  yourTarget: 120,
+  targetSource: 'guild',
+  yourAvg: 158,
+  vsTargetPct: 32,
+  vsGuildPct: 58,
+  battleCount: 3,
+  isCurrentTarget: true
+}
+const homeCases = [
+  {
+    name: 'next move encounter',
+    Component: YourNextMoveCard,
+    props: {
+      move: {
+        state: 'unknown',
+        headline: 'Live boss status unavailable',
+        detail: 'Check the encounter page.',
+        reasonCodes: ['no_boss_data'],
+        confidence: 'low',
+        primaryAction: {
+          label: 'Open encounter',
+          href: '/boss-playbooks?season=9999'
+        },
+        basis: [],
+        sourceTimestamps: {}
+      }
+    },
+    destination: '/boss-playbooks?season=9999',
+    label: 'Open encounter',
+    count: 1,
+    copy: 'Live boss status unavailable'
+  },
+  {
+    name: 'since visit raid delta',
+    Component: SinceLastVisitStrip,
+    props: {
+      deltas: [
+        {
+          kind: 'raid_advanced',
+          label: 'Raid advanced — 1 encounter cleared',
+          href: '/boss-playbooks'
+        }
+      ],
+      snapshotAtIso: '2000-01-01T00:00:00.000Z'
+    },
+    destination: '/boss-playbooks',
+    label: 'Raid advanced — 1 encounter cleared',
+    count: 1,
+    copy: 'Since your last visit',
+    seen: true
+  },
+  {
+    name: 'boss performance unknown-name fallback and footer',
+    Component: BossPerformanceTable,
+    props: {
+      data: {
+        rows: [homeBossRow],
+        overallVsGuildPct: 58,
+        strongestAlternate: null
+      },
+      seasonNumber: '9999'
+    },
+    destination: '/boss-playbooks?season=9999',
+    label: 'All bosses →',
+    count: 3,
+    copy: 'Boss performance'
+  },
+  {
+    name: 'boss performance known-name detail',
+    Component: BossPerformanceTable,
+    props: {
+      data: {
+        rows: [{ ...homeBossRow, bossName: 'Magnus', isCurrentTarget: false }],
+        overallVsGuildPct: 58,
+        strongestAlternate: null
+      },
+      seasonNumber: '9999'
+    },
+    destination: '/boss-playbooks/magnus?season=9999',
+    label: 'open playbook',
+    count: 2,
+    copy: 'Boss performance'
+  }
+]
+for (const profile of ['desktop', 'hosted', undefined]) {
+  for (const c of homeCases) {
+    test(`${profile ?? 'unset'} default-home ${c.name} retains href/copy and explicit navigation policy`, async () => {
+      // The sole side effect is the maintained best-effort seen POST. Its
+      // transport is an explicit inert data seam; Next and core are genuine.
+      const previousFetch = globalThis.fetch
+      const previousWindowFetch = window.fetch
+      let seen = 0
+      if (c.seen)
+        globalThis.fetch = window.fetch = async (path, options) => {
+          assert.equal(path, '/api/briefing/seen')
+          assert.equal(options.method, 'POST')
+          assert.deepEqual(options.headers, {
+            'Content-Type': 'application/json'
+          })
+          assert.deepEqual(JSON.parse(options.body), {
+            snapshotAt: c.props.snapshotAtIso
+          })
+          seen++
+          return { ok: true }
+        }
+      try {
+        await rendered(
+          profile,
+          c.props,
+          async (host) => {
+            assert.ok(host.textContent.includes(c.copy))
+            const links = [...host.querySelectorAll('a')].filter(
+              (a) => a.getAttribute('href') === c.destination
+            )
+            assert.equal(
+              links.length,
+              c.count,
+              'all responsive rows and footer remain, with no truncation'
+            )
+            assert.ok(links.some((a) => a.textContent.includes(c.label)))
+            for (const link of links) {
+              assert.equal(observed.has(link), profile !== 'desktop')
+              if (profile === 'desktop') {
+                await React.act(async () => {
+                  link.dispatchEvent(
+                    new MouseEvent('mouseover', { bubbles: true })
+                  )
+                  link.dispatchEvent(
+                    new FocusEvent('focusin', { bubbles: true })
+                  )
+                })
+                const click = new MouseEvent('click', {
+                  bubbles: true,
+                  cancelable: true,
+                  ctrlKey: true
+                })
+                link.dispatchEvent(click)
+                assert.equal(click.defaultPrevented, false)
+                assert.equal(link.getAttribute('href'), c.destination)
+                assert.equal(observed.has(link), false)
+              }
+            }
+            if (profile === 'desktop')
+              assert.equal(
+                [...observed].filter((element) => element.tagName === 'A')
+                  .length,
+                0,
+                'no speculative Link observer; portrait visibility observers are independent'
+              )
+            if (c.seen)
+              assert.equal(
+                seen,
+                1,
+                'original best-effort seen POST retained once'
+              )
+          },
+          { Component: c.Component, pathname: '/home' }
+        )
+      } finally {
+        globalThis.fetch = previousFetch
+        window.fetch = previousWindowFetch
+      }
+    })
+  }
+}
+
 // This host-only file performs no HTTP, browser chunk loading, or native work.
 after(() => {
   Module._resolveFilename = originalResolve
