@@ -86,22 +86,19 @@ public final class MainActivity extends Activity {
                 + player.optLong("upstreamUpdatedAt")
                 + ". Refresh requires explicit connection consent.",
             16);
-        JSONArray roster = player.getJSONArray("roster");
-        text("Roster: " + roster.length() + " units", 18);
-        for (int i = 0; i < Math.min(roster.length(), 50); i++) {
-          JSONObject unit = roster.getJSONObject(i);
-          text(unit.optString("name", unit.optString("id")) + " · rank " + unit.optInt("rank")
-                  + " · level " + unit.optInt("xpLevel"),
-              16);
-        }
-        button("Inspect complete roster", () -> inspect(roster, "Roster", 0));
+        PlayerCache cache = PlayerCache.read(player);
+        text(cache.complete ? "Canonical saved Player cache"
+                            : "Legacy / portable partial Player cache",
+            16);
+        text("Roster: " + player.getJSONArray("roster").length() + " saved units", 18);
+        button("Browse saved roster", () -> roster("", "All", "All", "Name", 0));
         JSONObject progress = player.optJSONObject("progress");
         if (progress != null)
-          button("Inspect complete personal resources and progress",
+          button("Inspect saved personal resources and progress",
               () -> inspect(progress, "Personal progress", 0));
         JSONObject inventory = player.optJSONObject("inventory");
         if (inventory != null)
-          button("Inspect complete personal inventory",
+          button("Inspect saved personal inventory",
               () -> inspect(inventory, "Personal inventory", 0));
       }
       text("Last verification outcomes: " + data.getJSONObject("capabilities").toString(2), 16);
@@ -114,9 +111,15 @@ public final class MainActivity extends Activity {
       text("Retained raid damage total (verification may be unavailable): "
               + store.totalDamage(demo),
           18);
-      text("Manual / imported raid calculations: "
-              + PortableAnalytics.calculate(MobileDocument.export(data)).toString(2),
-          16);
+      try {
+        text("Manual / imported raid calculations: "
+                + PortableAnalytics.calculate(MobileDocument.export(data)).toString(2),
+            16);
+      } catch (Exception unsupportedPortable) {
+        text("Reduced portable export cannot represent these saved Player values. Full local "
+                + "backup and saved roster remain available.",
+            16);
+      }
       if (data.has("guild"))
         button(
             "Inspect retained Guild data", () -> inspect(data.optJSONObject("guild"), "Guild", 0));
@@ -225,6 +228,80 @@ public final class MainActivity extends Activity {
         }
       });
   }
+  private void roster(String query, String tier, String rarity, String order, int pageNumber) {
+    try {
+      SavedRoster saved =
+          new SavedRoster(PlayerCache.read(store.read(demo).getJSONObject("personal")));
+      SavedRoster.Page page = saved.page(query, tier, rarity, order, pageNumber);
+      ScrollView scroll = new ScrollView(this);
+      content = new LinearLayout(this);
+      content.setOrientation(LinearLayout.VERTICAL);
+      content.setPadding(24, 24, 24, 24);
+      scroll.addView(content);
+      setContentView(scroll);
+      button("Back to workspace", this::show);
+      text("Saved roster", 24);
+      text(demo ? "Synthetic demo · isolated data"
+                : "Personal saved data · no live request or ownership claim",
+          16);
+      text(saved.complete ? "Canonical Player cache · saved upstream timestamp: " + saved.updatedAt
+                          : "Legacy / portable partial cache · missing fields remain unknown · "
+                            + "saved upstream timestamp: "
+                  + saved.updatedAt,
+          16);
+      EditText search = new EditText(this);
+      search.setSingleLine(true);
+      search.setHint("Search saved name or unit ID");
+      search.setContentDescription("Search saved roster");
+      search.setFilters(
+          new android.text.InputFilter[] {new android.text.InputFilter.LengthFilter(1000)});
+      search.setText(query);
+      content.addView(search);
+      Spinner ranks = rosterChoice("Rank tier", SavedRoster.TIERS, tier);
+      Spinner rarities = rosterChoice("Rarity", SavedRoster.RARITIES, rarity);
+      Spinner orders = rosterChoice("Order", SavedRoster.ORDERS, order);
+      button("Apply roster filters",
+          ()
+              -> roster(search.getText().toString(), ranks.getSelectedItem().toString(),
+                  rarities.getSelectedItem().toString(), orders.getSelectedItem().toString(), 0));
+      text("Page " + (page.page + 1) + " of " + page.pageCount + " · " + page.total
+              + " matching saved units",
+          18);
+      JSONArray units = page.units();
+      if (units.length() == 0)
+        text("No saved units match these filters.", 16);
+      for (int i = 0; i < units.length(); i++) {
+        JSONObject unit = units.getJSONObject(i);
+        text(SavedRoster.label(unit) + " · " + SavedRoster.rank(unit) + " · level "
+                + unit.getInt("xpLevel") + " · " + SavedRoster.rarity(unit),
+            16);
+        button("View saved details: " + SavedRoster.label(unit), () -> {
+          inspect(unit,
+              "Saved unit details · " + (saved.complete ? "canonical cache" : "partial cache"), 0);
+          button("Back to saved roster", () -> roster(query, tier, rarity, order, page.page));
+        });
+      }
+      if (page.page > 0)
+        button("Previous roster page", () -> roster(query, tier, rarity, order, page.page - 1));
+      if (page.page + 1 < page.pageCount)
+        button("Next roster page", () -> roster(query, tier, rarity, order, page.page + 1));
+    } catch (Exception unavailable) {
+      notice = "Saved roster is unavailable or incompatible. Existing data is retained.";
+      show();
+    }
+  }
+  private Spinner rosterChoice(String label, String[] choices, String selected) {
+    text(label, 16);
+    Spinner spinner = new Spinner(this);
+    spinner.setContentDescription(label);
+    spinner.setAdapter(
+        new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, choices));
+    for (int i = 0; i < choices.length; i++)
+      if (choices[i].equals(selected))
+        spinner.setSelection(i);
+    content.addView(spinner);
+    return spinner;
+  }
   private void connect(boolean player, boolean guild, boolean raid) {
     LocalAccess.inCurrentSession(
         this, () -> connectUnlocked(player, guild, raid), this::unlockUnavailable);
@@ -298,16 +375,16 @@ public final class MainActivity extends Activity {
                       + "contribution remains off.";
                 } catch (LocalAccess.Locked locked) {
                   notice = "Local device session locked. Unlock once to resume; offline data "
-                           + "remains retained.";
+                      + "remains retained.";
                 } catch (LocalAccess.Unavailable unavailable) {
                   notice = "Secure local authorization unavailable. Set a secure device lock "
-                           + "before connection.";
+                      + "before connection.";
                 } catch (Onboarding.Expired expired) {
                   notice = "Official access expired. Replace the key; previously synced data "
-                           + "remains readable.";
+                      + "remains readable.";
                 } catch (OfficialSource.Refused refused) {
                   notice = "The official service refused this key or scope. Verify permission or "
-                           + "replace the key; offline data remains retained.";
+                      + "replace the key; offline data remains retained.";
                 } catch (Exception unavailable) {
                   notice = "Access could not activate or refresh. Check scopes, expiry and "
                       + "connectivity; retained data remains readable. Different Player/guild "
@@ -344,11 +421,10 @@ public final class MainActivity extends Activity {
           try (var output = getContentResolver().openOutputStream(location, "wt")) {
             if (output == null)
               throw new Exception();
-            output.write(request == 43
-                    ? NativeBackup.encode(store.read(demo))
-                    : MobileDocument.export(store.read(demo))
-                          .toString(2)
-                          .getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            output.write(request == 43 ? NativeBackup.encode(store.read(demo))
+                                       : MobileDocument.export(store.read(demo))
+                                             .toString(2)
+                                             .getBytes(java.nio.charset.StandardCharsets.UTF_8));
           }
         } else {
           try (var input = getContentResolver().openInputStream(location)) {
