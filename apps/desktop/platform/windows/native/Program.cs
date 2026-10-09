@@ -176,6 +176,11 @@ internal static class Program
         bool retainDesktopAppRuntime = false)
     {
         var arguments = forwarded.ToArray();
+        const string packageRuntimeArgument = "--native-package-runtime";
+        // Only PackageRuntime admission may relax the source-file link shape;
+        // callers cannot forward this reserved native assertion themselves.
+        if (arguments.Contains(packageRuntimeArgument, StringComparer.Ordinal))
+            throw new InvalidOperationException("Reserved runtime argument");
         var measurementIndex = Array.IndexOf(arguments, "--measurement");
         var measurementPath = measurementIndex >= 0 && measurementIndex + 1 < arguments.Length
             ? arguments[measurementIndex + 1]
@@ -187,7 +192,9 @@ internal static class Program
         using var job = new JobOwner();
         var script = Path.Combine(root, "apps", "desktop", "platform", "windows", "launch.mjs");
         var postgresHome = RuntimePaths.AsciiDirectory(Path.Combine(root, "postgres"));
-        var command = new[] { script, "--state", state.Root, "--postgres-home", postgresHome }.Concat(arguments);
+        var runtimeArguments = retainDesktopAppRuntime ? new[] { packageRuntimeArgument } : Array.Empty<string>();
+        var command = new[] { script, "--state", state.Root, "--postgres-home", postgresHome }
+            .Concat(runtimeArguments).Concat(arguments);
         var timer = Stopwatch.StartNew();
         WriteMeasurement(measurementPath, "native-prelaunch", manifest.SourceSha, timer.ElapsedMilliseconds, null, null);
         // The package payload is immutable. Start the coordinator in its

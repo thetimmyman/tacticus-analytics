@@ -635,6 +635,47 @@ test('missing, nonregular and indirect packaged SQL refuses before bootstrap int
     })
 })
 
+test('multiply-linked packaged SQL is admitted while writable authority remains single-link', async (t) => {
+  const f = await fixture(t)
+  for (const [name, contents] of [
+    ['canonical-objects.sql', canonical],
+    ['authority.sql', authority]
+  ]) {
+    const packaged = join(f.schemaDirectory, name)
+    const packageStoreCopy = join(f.root, `package-store-${name}`)
+    await writeFile(packageStoreCopy, contents)
+    await rm(packaged)
+    await link(packageStoreCopy, packaged)
+    assert.equal((await lstat(packaged)).nlink, 2)
+  }
+
+  await prepareSchemaBootstrap({ ...f, allowSourceHardlinks: true })
+  assert.equal(
+    await readFile(join(f.state, 'schema-bootstrap.json'), 'utf8'),
+    journal
+  )
+})
+
+test('packaged source admission never permits multiply-linked writable authority', async (t) => {
+  for (const [name, contents] of [
+    ['schema-version', target],
+    ['schema-bootstrap.json', journal]
+  ])
+    await t.test(name, async (t) => {
+      const f = await fixture(t)
+      await f.pgdata()
+      const outside = join(f.root, 'outside-record')
+      await writeFile(outside, contents)
+      await link(outside, join(f.state, name))
+
+      await assert.rejects(
+        prepareSchemaBootstrap({ ...f, allowSourceHardlinks: true }),
+        refusal
+      )
+      assert.equal(await readFile(outside, 'utf8'), contents)
+    })
+})
+
 test('partial or incompatible PostgreSQL data is not mistaken for fresh state', async (t) => {
   for (const kind of [
     'partial',
