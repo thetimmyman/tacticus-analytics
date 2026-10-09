@@ -345,7 +345,10 @@ async function coordinator({
     .slice(prefixEnd)
     .replace(
       'import.meta.url',
-      "'file:///synthetic/apps/desktop/platform/windows/launch.mjs'"
+      JSON.stringify(
+        new URL('apps/desktop/platform/windows/launch.mjs', coordinatorRoot)
+          .href
+      )
     )
   const diagnosticValues = new vm.Script(`(() => {
     ${diagnosticSource.replaceAll('export ', '')}
