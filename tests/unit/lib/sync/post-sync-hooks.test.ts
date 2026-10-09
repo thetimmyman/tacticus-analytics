@@ -14,6 +14,12 @@ vi.mock('@/app/lib/sync/api-operations', () => ({
     .mockResolvedValue({ guildRaid: null, guildWar: null })
 }))
 
+vi.mock('@/app/lib/sync/tacticus-api', () => ({
+  fetchGuildMembersViaTacticus: vi
+    .fn()
+    .mockResolvedValue({ success: true, memberIds: ['A', 'H'] })
+}))
+
 vi.mock('@/app/lib/services/season-timing-service', () => ({
   getSeasonTiming: vi.fn().mockResolvedValue({
     seasonStart: '2024-01-01T00:00:00Z',
@@ -253,6 +259,76 @@ describe('runPostSyncHooks — LOKI deactivation guard', () => {
 
     return { supabase, deactivatedIds }
   }
+
+  it('moves a claimed player into the guild on the live Tacticus roster', async () => {
+    const { fetchGuildMembersViaLoki } =
+      await import('@/app/lib/sync/api-operations')
+    const { fetchGuildMembersViaTacticus } =
+      await import('@/app/lib/sync/tacticus-api')
+    vi.mocked(fetchGuildMembersViaLoki).mockResolvedValueOnce({
+      members: [
+        { userId: 'A', displayName: 'Alice', role: 'member' },
+        { userId: 'H', displayName: 'Hotel', role: 'member' }
+      ],
+      authFailed: false
+    } as any)
+
+    const { supabase } = buildLokiMockSupabase({
+      activeUserIds: [],
+      currentPlayers: [
+        { player_id: 'A', guild_code: 'GUILD01' },
+        {
+          player_id: 'H',
+          guild_code: 'OLDGUILD',
+          user_id: 'subject-h',
+          ownership_attestation_id: 'attestation-h'
+        } as never
+      ]
+    })
+
+    await runPostSyncHooks('GUILD01', '5', lokiConfig, supabase, 'guild-key')
+
+    expect(fetchGuildMembersViaTacticus).toHaveBeenCalledWith(
+      'guild-key',
+      'g-123',
+      'GUILD01'
+    )
+    expect(supabase.rpc).toHaveBeenCalledWith(
+      'transfer_roster_confirmed_players',
+      { p_target_guild_code: 'GUILD01', p_player_ids: ['H'] }
+    )
+  })
+
+  it('does not call Tacticus or move anyone without the guild key', async () => {
+    const { fetchGuildMembersViaLoki } =
+      await import('@/app/lib/sync/api-operations')
+    const { fetchGuildMembersViaTacticus } =
+      await import('@/app/lib/sync/tacticus-api')
+    vi.mocked(fetchGuildMembersViaLoki).mockResolvedValueOnce({
+      members: [{ userId: 'H', displayName: 'Hotel', role: 'member' }],
+      authFailed: false
+    } as any)
+
+    const { supabase } = buildLokiMockSupabase({
+      activeUserIds: [],
+      currentPlayers: [
+        {
+          player_id: 'H',
+          guild_code: 'OLDGUILD',
+          user_id: 'subject-h',
+          ownership_attestation_id: 'attestation-h'
+        } as never
+      ]
+    })
+
+    await runPostSyncHooks('GUILD01', '5', lokiConfig, supabase)
+
+    expect(fetchGuildMembersViaTacticus).not.toHaveBeenCalled()
+    expect(supabase.rpc).not.toHaveBeenCalledWith(
+      'transfer_roster_confirmed_players',
+      expect.anything()
+    )
+  })
 
   it('Case A: spares an active member X absent from the LOKI roster', async () => {
     const { fetchGuildMembersViaLoki } =
