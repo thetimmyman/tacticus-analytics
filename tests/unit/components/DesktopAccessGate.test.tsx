@@ -25,7 +25,8 @@ describe('desktop API access holding states', () => {
     '/token-usage',
     '/boss-assignments/targets',
     '/boss-assignments/season',
-    '/boss-assignments/current'
+    '/boss-assignments/current',
+    '/boss-assignments/performance'
   ])(
     'opens saved raid management at %s without live API capabilities',
     async (path) => {
@@ -46,19 +47,28 @@ describe('desktop API access holding states', () => {
       screen.queryByText('Connect your Player API key')
     ).not.toBeInTheDocument()
   })
+  it('opens selected saved performance without Player or Guild API access', async () => {
+    const selected = new URL(
+      'https://example.invalid/boss-assignments/performance?season=101&asOf=2026-06-02T08%3A00%3A00.000Z'
+    )
+    mount(selected.pathname, { playerReady: false, guildReady: false })
+    expect(await screen.findByText('Cached content')).toBeInTheDocument()
+    expect(
+      screen.queryByText('Connect your Player API key')
+    ).not.toBeInTheDocument()
+  })
   it.each([
     '/boss-assignments/current-other',
-    '/boss-assignments/current/unknown'
-  ])(
-    'keeps unmatched current-like route %s behind API access',
-    async (path) => {
-      mount(path, { playerReady: false, guildReady: false })
-      expect(
-        await screen.findByText('Connect your Player API key')
-      ).toBeInTheDocument()
-      expect(screen.queryByText('Cached content')).not.toBeInTheDocument()
-    }
-  )
+    '/boss-assignments/current/unknown',
+    '/boss-assignments/performance-other',
+    '/boss-assignments/performance/unknown'
+  ])('keeps unmatched saved route %s behind API access', async (path) => {
+    mount(path, { playerReady: false, guildReady: false })
+    expect(
+      await screen.findByText('Connect your Player API key')
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Cached content')).not.toBeInTheDocument()
+  })
   it('opens saved roster team comparison without live Player or Guild access', async () => {
     mount('/guild-teams', { playerReady: false, guildReady: false })
     expect(await screen.findByText('Cached content')).toBeInTheDocument()
