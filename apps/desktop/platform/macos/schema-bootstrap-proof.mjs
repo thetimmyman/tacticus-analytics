@@ -186,20 +186,27 @@ async function fileDigest(path, bytes) {
   }
 }
 export async function verifySchemaProofInstallation({ installed, admission }) {
+  // Fixed stages identify the refused gate without exposing paths or contents.
+  let stage = 'admission'
   try {
     admissionFields(admission)
+    stage = 'installation-root'
     requireProof(isAbsolute(installed))
     const info = await lstat(installed)
     requireProof(info.isDirectory() && !info.isSymbolicLink())
     const root = await realpath(installed)
+    stage = 'manifest-read'
     const manifestBytes = await boundedFile(
       join(root, manifestPath),
       8 * 1024 * 1024
     )
+    stage = 'manifest-hash'
     requireProof(sha(manifestBytes) === admission.inventorySha256)
+    stage = 'manifest-decode'
     const manifest = JSON.parse(
       new TextDecoder('utf-8', { fatal: true }).decode(manifestBytes)
     )
+    stage = 'manifest-shape'
     requireProof(
       exactKeys(manifest, [
         'schemaVersion',
@@ -212,6 +219,7 @@ export async function verifySchemaProofInstallation({ installed, admission }) {
         'files'
       ])
     )
+    stage = 'manifest-metadata'
     requireProof(
       manifest.schemaVersion === 1 &&
         manifest.platform === 'macos' &&
@@ -227,6 +235,7 @@ export async function verifySchemaProofInstallation({ installed, admission }) {
     const expected = new Map()
     let totalBytes = 0
     for (const row of manifest.files) {
+      stage = 'inventory-path'
       requireProof(
         typeof row?.path === 'string' &&
           row.path.length <= 4096 &&
@@ -239,6 +248,7 @@ export async function verifySchemaProofInstallation({ installed, admission }) {
           !expected.has(row.path)
       )
       if (Object.hasOwn(row, 'link')) {
+        stage = 'inventory-link'
         requireProof(
           exactKeys(row, ['path', 'link']) &&
             typeof row.link === 'string' &&
@@ -247,6 +257,7 @@ export async function verifySchemaProofInstallation({ installed, admission }) {
             !/[\0-\x1f]/u.test(row.link)
         )
       } else {
+        stage = 'inventory-file'
         requireProof(
           exactKeys(row, ['path', 'bytes', 'sha256']) &&
             Number.isSafeInteger(row.bytes) &&
@@ -268,23 +279,29 @@ export async function verifySchemaProofInstallation({ installed, admission }) {
     }
     const observed = new Set()
     const walk = async (path = '') => {
+      stage = 'entry-list'
       for (const entry of await readdir(join(root, path), {
         withFileTypes: true
       })) {
         const name = path ? path + '/' + entry.name : entry.name
+        stage = 'entry-name'
         requireProof(!/[\0-\x1f]/u.test(name))
         if (entry.isDirectory()) {
+          stage = 'directory-set'
           requireProof(directories.has(name))
           await walk(name)
           continue
         }
         if (name === manifestPath) {
+          stage = 'manifest-entry'
           requireProof(entry.isFile())
           continue
         }
         const row = expected.get(name)
+        stage = 'entry-set'
         requireProof(row && !observed.has(name))
         if (entry.isSymbolicLink()) {
+          stage = 'entry-link'
           requireProof(
             Object.hasOwn(row, 'link') &&
               (await readlink(join(root, name))) === row.link
@@ -292,6 +309,7 @@ export async function verifySchemaProofInstallation({ installed, admission }) {
           const part = relative(root, await realpath(join(root, name)))
           requireProof(!part.startsWith('..') && !isAbsolute(part))
         } else {
+          stage = 'entry-file'
           requireProof(
             entry.isFile() &&
               !Object.hasOwn(row, 'link') &&
@@ -302,11 +320,14 @@ export async function verifySchemaProofInstallation({ installed, admission }) {
       }
     }
     await walk()
+    stage = 'entry-completeness'
     requireProof(observed.size === expected.size)
+    stage = 'component-presence'
     for (const path of componentPaths) {
       const row = expected.get(path)
       requireProof(row && !Object.hasOwn(row, 'link'))
     }
+    stage = 'source-authority'
     for (const path of sourcePaths) {
       const row = expected.get('Contents/Resources/runtime/' + path)
       requireProof(
@@ -323,7 +344,7 @@ export async function verifySchemaProofInstallation({ installed, admission }) {
       files: observed.size
     }
   } catch {
-    throw failed()
+    throw Object.assign(failed(), { stage })
   }
 }
 export function schemaBootstrapProofReceipt({

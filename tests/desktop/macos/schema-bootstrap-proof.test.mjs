@@ -160,6 +160,92 @@ test('duplicate, unsafe, foreign-source and unsupported inventory authority refu
     })
   }
 })
+test('installation refusal exposes only the fixed failing admission stage', async (t) => {
+  for (const stage of [
+    'admission',
+    'installation-root',
+    'manifest-read',
+    'manifest-hash',
+    'manifest-decode',
+    'manifest-shape',
+    'manifest-metadata',
+    'inventory-path',
+    'directory-set',
+    'entry-set',
+    'entry-file',
+    'entry-link',
+    'entry-completeness',
+    'component-presence',
+    'source-authority'
+  ]) {
+    await t.test(stage, async (t) => {
+      const f = await fixture(t)
+      const canary = 'SYNTHETIC_PRIVATE_CANARY'
+      const first = join(f.installed, f.files[0].path)
+      let changedManifest
+      if (stage === 'admission') f.admission.sourceCommit = canary
+      if (stage === 'installation-root') f.installed += '/' + canary
+      if (stage === 'manifest-read')
+        await rm(join(f.installed, 'Contents/Resources/package-inventory.json'))
+      if (stage === 'manifest-hash')
+        await writeFile(
+          join(f.installed, 'Contents/Resources/package-inventory.json'),
+          canary
+        )
+      if (stage === 'manifest-decode') changedManifest = Buffer.from([0xff])
+      if (stage === 'manifest-shape') changedManifest = Buffer.from('[]')
+      if (stage === 'manifest-metadata') {
+        f.manifest.sourceCommit = 'd'.repeat(40)
+        changedManifest = Buffer.from(JSON.stringify(f.manifest))
+      }
+      if (stage === 'inventory-path') {
+        f.manifest.files.push(f.manifest.files[0])
+        changedManifest = Buffer.from(JSON.stringify(f.manifest))
+      }
+      if (stage === 'directory-set') await mkdir(join(f.installed, canary))
+      if (stage === 'entry-set')
+        await writeFile(join(f.installed, canary), canary)
+      if (stage === 'entry-file') await writeFile(first, canary)
+      if (stage === 'entry-link') {
+        await rm(first)
+        await symlink('/dev/null', first)
+        f.manifest.files[0] = { path: f.files[0].path, link: '/dev/null' }
+        changedManifest = Buffer.from(JSON.stringify(f.manifest))
+      }
+      if (stage === 'entry-completeness') await rm(first)
+      if (stage === 'component-presence') {
+        const removed = f.manifest.files.pop()
+        await rm(join(f.installed, removed.path))
+        const replacement = removed.path + '-replacement'
+        await writeFile(join(f.installed, replacement), canary)
+        f.manifest.files.push({
+          path: replacement,
+          bytes: Buffer.byteLength(canary),
+          sha256: hash(canary)
+        })
+        changedManifest = Buffer.from(JSON.stringify(f.manifest))
+      }
+      if (stage === 'source-authority')
+        f.admission.sourceHashes[sourcePaths[0]] = 'c'.repeat(64)
+      if (changedManifest) {
+        await writeFile(
+          join(f.installed, 'Contents/Resources/package-inventory.json'),
+          changedManifest
+        )
+        f.admission.inventorySha256 = hash(changedManifest)
+      }
+      await assert.rejects(verifySchemaProofInstallation(f), (error) => {
+        assert.equal(error.code, refused.code)
+        assert.equal(error.message, refused.message)
+        assert.equal(error.stage, stage)
+        assert.deepEqual(Object.keys(error).sort(), ['code', 'stage'])
+        assert.equal(JSON.stringify(error).includes(canary), false)
+        assert.equal(JSON.stringify(error).includes(f.installed), false)
+        return true
+      })
+    })
+  }
+})
 const observations = {
   'fresh-default-comment': {
     defaultComment: true,
