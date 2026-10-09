@@ -11,6 +11,13 @@ android {
         versionName '0.1.0-preview'
         testInstrumentationRunner 'com.tacticusanalytics.mobile.AndroidProof'
     }
+    def playerSchemaDir = layout.buildDirectory.dir('generated/player-schema')
+    sourceSets {
+        main {
+            assets.srcDir(playerSchemaDir)
+            resources.srcDir(playerSchemaDir)
+        }
+    }
     buildFeatures { buildConfig true }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -34,4 +41,20 @@ android {
         debug { applicationIdSuffix '.preview' }
         release { minifyEnabled false; debuggable false; if (releaseStore) signingConfig signingConfigs.protectedRelease }
     }
+}
+
+// One source owns both native assets and the JVM/classloader resource.
+def generatePlayerSchema = tasks.register('generatePlayerSchema', Copy) {
+    from(rootProject.file('../../../packages/workspace-onboarding/player-schema.json'))
+    into(layout.buildDirectory.dir('generated/player-schema'))
+}
+tasks.configureEach { task ->
+    if (task.name == 'preBuild' || task.name.startsWith('merge') &&
+            (task.name.endsWith('Assets') || task.name.endsWith('JavaResource'))) {
+        task.dependsOn(generatePlayerSchema)
+    }
+}
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.json:json:20240303'
 }

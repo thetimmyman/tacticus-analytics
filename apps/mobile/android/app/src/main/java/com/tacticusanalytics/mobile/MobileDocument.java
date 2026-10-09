@@ -6,6 +6,13 @@ import org.json.JSONObject;
 
 /** Secret-free portable mobile-workspace/v1; imported rows have no verified label. */
 final class MobileDocument {
+  /** Raid-only analytics do not narrow the unrelated canonical Player cache. */
+  static JSONObject exportRaids(JSONObject state) throws Exception {
+    return export(
+        new JSONObject()
+            .put("status", state.optString("status"))
+            .put("portableRaids", state.optJSONArray("portableRaids")));
+  }
   static JSONObject export(JSONObject state) throws Exception {
     JSONObject player = state.optJSONObject("personal"), projected = null;
     if (player != null) {
