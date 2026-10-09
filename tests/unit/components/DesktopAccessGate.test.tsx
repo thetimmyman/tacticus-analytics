@@ -24,7 +24,8 @@ describe('desktop API access holding states', () => {
   it.each([
     '/token-usage',
     '/boss-assignments/targets',
-    '/boss-assignments/season'
+    '/boss-assignments/season',
+    '/boss-assignments/current'
   ])(
     'opens saved raid management at %s without live API capabilities',
     async (path) => {
@@ -33,6 +34,29 @@ describe('desktop API access holding states', () => {
       expect(
         screen.queryByText('Connect your Player API key')
       ).not.toBeInTheDocument()
+    }
+  )
+  it('opens a selected saved current season without Player or Guild API access', async () => {
+    const selected = new URL(
+      'https://example.invalid/boss-assignments/current?season=101'
+    )
+    mount(selected.pathname, { playerReady: false, guildReady: false })
+    expect(await screen.findByText('Cached content')).toBeInTheDocument()
+    expect(
+      screen.queryByText('Connect your Player API key')
+    ).not.toBeInTheDocument()
+  })
+  it.each([
+    '/boss-assignments/current-other',
+    '/boss-assignments/current/unknown'
+  ])(
+    'keeps unmatched current-like route %s behind API access',
+    async (path) => {
+      mount(path, { playerReady: false, guildReady: false })
+      expect(
+        await screen.findByText('Connect your Player API key')
+      ).toBeInTheDocument()
+      expect(screen.queryByText('Cached content')).not.toBeInTheDocument()
     }
   )
   it('opens saved roster team comparison without live Player or Guild access', async () => {

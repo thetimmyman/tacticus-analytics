@@ -75,12 +75,12 @@ test('saved-plan authority statements preserve their exact canonical constraints
     )
   )
 })
-test('v16 direct and every admitted older migration are digest-bound and add planning exactly once', async () => {
+test('v17 direct and every admitted older migration are digest-bound and add planning exactly once', async () => {
   const registry = JSON.parse(
     await readFile(new URL('migrations.json', schema), 'utf8')
   )
-  assert.equal(manifest.schemaVersion, 16)
-  assert.equal(registry.length, 16)
+  assert.equal(manifest.schemaVersion, 17)
+  assert.equal(registry.length, 17)
   assert.equal(
     new Set(registry.map((entry) => entry.from)).size,
     registry.length
@@ -101,6 +101,22 @@ test('v16 direct and every admitted older migration are digest-bound and add pla
     )
     assert.equal(entry.to, target)
     assert.equal(entry.sha256, digest(sql))
+    // The v16 predecessor already contains planning. Its v17 migration adds
+    // assignment storage without recreating existing planning objects.
+    if (
+      entry.from ===
+      '755bb30a7f5e541591601f28ccf396809afd9436784dcb91dcebe9a567bcef86'
+    ) {
+      assert.equal(
+        statement(sql, 'TABLE', 'guild_raid_season_plans'),
+        undefined
+      )
+      assert.equal(
+        statement(sql, 'TABLE', 'raid_progression_config'),
+        undefined
+      )
+      continue
+    }
     for (const [kind, name] of [
       ['TABLE', 'guild_raid_season_plans'],
       ['TABLE', 'raid_progression_config'],
@@ -151,8 +167,11 @@ test('local supplements describe narrow caller authority and exactly two saved p
       "(baseline.plan->>'season') IS NOT DISTINCT FROM (NEW.plan->>'season')"
     )
   )
+  const guardEnd =
+    'FOR EACH ROW EXECUTE FUNCTION public.desktop_guard_season_plan_write();'
   const guard = authority.slice(
-    authority.indexOf('CREATE FUNCTION public.desktop_guard_season_plan_write')
+    authority.indexOf('CREATE FUNCTION public.desktop_guard_season_plan_write'),
+    authority.indexOf(guardEnd) + guardEnd.length
   )
   assert.doesNotMatch(guard, /SECURITY DEFINER/)
   assert.match(

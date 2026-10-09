@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, expect, it, vi, type Mock } from 'vitest'
 import {
   act,
   cleanup,
@@ -131,7 +131,7 @@ function deferredResponse() {
   })
   return { promise, resolve }
 }
-let fetchMock: ReturnType<typeof vi.fn>
+let fetchMock: Mock<(input: string, init?: RequestInit) => Promise<Response>>
 beforeEach(() => {
   fetchMock = vi.fn(async (input: string) => {
     const url = new URL(String(input), 'http://localhost')
@@ -214,9 +214,7 @@ it.each([false, true])(
     expect(screen.getByLabelText('Saved season')).toHaveValue('141')
     expect(within(saved).queryByText('Old saved plan')).toBeNull()
     for (const name of ['Load', 'Loaded', 'Edit', 'Delete'])
-      expect(
-        within(saved).queryByRole('button', { name, exact: true })
-      ).toBeNull()
+      expect(within(saved).queryByRole('button', { name })).toBeNull()
     expect(screen.getByLabelText('Season plan results')).not.toHaveAttribute(
       'data-tokens-spent'
     )

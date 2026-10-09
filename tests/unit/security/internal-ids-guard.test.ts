@@ -30,14 +30,30 @@ function makeRepo(files: Record<string, string>, entries: Entry[]) {
     mkdirSync(path.dirname(path.join(repo, file)), { recursive: true })
     writeFileSync(path.join(repo, file), text)
   }
-  execFileSync('git', ['init', '-q'], { cwd: repo })
-  execFileSync('git', ['add', '-A'], { cwd: repo })
+  // Supply only tracked-file inventory at the external process boundary.
+  // These scanner fixtures need no repository, credentials or Git mutation.
+  const inventory = path.join(repo, 'fixture-inventory')
+  writeFileSync(inventory, Object.keys(all).join('\0') + '\0')
+  const bin = path.join(repo, 'fixture-bin')
+  mkdirSync(bin)
+  writeFileSync(
+    path.join(bin, 'git'),
+    `#!${process.execPath}\n` +
+      `const fs = require('node:fs');\n` +
+      `if (JSON.stringify(process.argv.slice(2)) !== JSON.stringify(['ls-files', '-z'])) process.exit(64);\n` +
+      `process.stdout.write(fs.readFileSync(${JSON.stringify(inventory)}));\n`,
+    { mode: 0o700 }
+  )
 }
 
 function guard(...args: string[]) {
   const result = spawnSync(process.execPath, [SCRIPT, ...args], {
     cwd: repo,
-    encoding: 'utf8'
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      PATH: path.join(repo, 'fixture-bin') + path.delimiter + process.env.PATH
+    }
   })
   return { status: result.status, out: `${result.stdout}${result.stderr}` }
 }

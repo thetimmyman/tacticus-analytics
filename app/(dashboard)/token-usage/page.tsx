@@ -1,4 +1,5 @@
 import dynamicImport from 'next/dynamic'
+import { createHash } from 'node:crypto'
 import { requireRole } from '@/app/lib/auth'
 import { getLatestSeason } from '@/app/lib/utils/season'
 import { resolveEffectiveSeason } from '@/app/lib/season-date/precedence'
@@ -28,11 +29,24 @@ export default async function TokenUsagePage({ searchParams }: PageProps) {
   const authData = await requireRole('officer')
   const userGuild = authData.profile.guild_code
 
-  // Forecasts need the `proactive_token_management` flag; per-member rows rely on the officer gate.
+  const isDesktop = getRuntimeProfile() === 'desktop'
+  // Saved outlook is a separate local calculation; full forecasts retain their entitlement.
   const showForecast =
-    getRuntimeProfile() !== 'desktop' &&
+    !isDesktop &&
     (await checkFeatureAccess(authData.user.id, 'proactive_token_management'))
       .has_access
+  const savedOutlookContextKey = isDesktop
+    ? createHash('sha256')
+        .update(
+          JSON.stringify([
+            authData.user.id,
+            authData.profile.player_id,
+            userGuild,
+            authData.profile.role
+          ])
+        )
+        .digest('hex')
+    : undefined
 
   const params = await searchParams
 
@@ -56,6 +70,8 @@ export default async function TokenUsagePage({ searchParams }: PageProps) {
       selectedGuild={selectedGuild}
       selectedSeason={selectedSeason}
       showForecast={showForecast}
+      showSavedOutlook={isDesktop}
+      savedOutlookContextKey={savedOutlookContextKey}
     />
   )
 }

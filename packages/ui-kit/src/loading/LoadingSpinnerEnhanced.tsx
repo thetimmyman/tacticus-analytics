@@ -35,7 +35,6 @@ const SACRED_MESSAGES = [
   '🌟 Machine Spirit demands caffeine offering...',
   '⚡ Negotiating with temperamental servo-skull...',
   '🔋 Promising oil bath to cranky cogitator...',
-  '💻 Sweet-talking the database daemon...',
   '🤖 Bribing firewall spirit with digital cookies...',
 
   '01001000 01100101 01101100 01110000...',
