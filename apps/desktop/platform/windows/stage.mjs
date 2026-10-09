@@ -128,6 +128,7 @@ export async function stage(config) {
     'windows-setup.js',
     'windows-style.css',
     'main.cjs',
+    'renderer-proof.cjs',
     'recovery.mjs',
     'migration-fixture.mjs'
   ])
