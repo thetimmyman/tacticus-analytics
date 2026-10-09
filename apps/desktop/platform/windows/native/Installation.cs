@@ -8,6 +8,8 @@ internal static class Installation
 {
     public static string Root => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "TacticusDesktopCandidate");
     public static string Workspace => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TacticusDesktopPreview", "workspace");
+    public static string PackagedWorkspaceRoot => Path.Combine(UserProfile(), "TacticusDesktopPreview");
+    public static string PackagedWorkspace => Path.Combine(PackagedWorkspaceRoot, "workspace");
     private const string RegistryKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\TacticusDesktopCandidate";
     public static void Setup(string bundle)
     {
@@ -40,7 +42,7 @@ internal static class Installation
     {
         if (MessageBoxW(IntPtr.Zero, "Remove the installed candidate? Your workspace and Windows vault references will be retained for reinstall.", "Uninstall Tacticus Desktop candidate", 4 | 0x40) != 6)
             return;
-        // The self-contained single-file helper can finish after the installed executable exits.
+        // The temporary helper can finish after the installed executable exits.
         var temporary = Path.Combine(Path.GetTempPath(), "Tacticus-uninstall-" + Guid.NewGuid().ToString("N"));
         using (var protectedRoot = new ProtectedState(temporary))
             File.Copy(Environment.ProcessPath!, Path.Combine(temporary, "uninstall.exe"));
@@ -59,6 +61,13 @@ internal static class Installation
         if (File.Exists(shortcut)) File.Delete(shortcut);
         Registry.CurrentUser.DeleteSubKeyTree(RegistryKey, false);
         // A single temporary helper remains until the next maintenance pass; no reboot/admin request is made.
+    }
+    private static string UserProfile()
+    {
+        var profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        if (string.IsNullOrWhiteSpace(profile))
+            throw new InvalidOperationException("Current-user profile directory unavailable");
+        return profile;
     }
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern int MessageBoxW(IntPtr window, string text, string caption, uint flags);
 }

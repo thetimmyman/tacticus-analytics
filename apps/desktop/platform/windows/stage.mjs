@@ -111,6 +111,7 @@ export async function stage(config) {
   })
   for (const path of [
     'launch.mjs',
+    'launch-diagnostic.mjs',
     'services.mjs',
     'schema-bootstrap.mjs',
     'schema-bootstrap-recovery-proof.mjs',
@@ -140,6 +141,10 @@ export async function stage(config) {
       join(source, 'apps/desktop/proof', path),
       `apps/desktop/proof/${path}`
     )
+  await writeFile(
+    join(config.output, 'package-integrity-canary.txt'),
+    'synthetic package integrity canary\n'
+  )
   const files = await inventory(config.output)
   const dependencies = await auditDependencies(config.output, files)
   await writeFile(
