@@ -9,7 +9,9 @@ import {
   readdir,
   rename,
   symlink,
-  link
+  link,
+  lstat,
+  readlink
 } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -561,6 +563,30 @@ test('nonregular, indirect, multiply-linked and oversized authority files are re
         assert.equal(await readFile(outside, 'utf8'), contents)
         assert.equal(f.transactions.length, 0)
       })
+})
+
+test('dangling marker and journal links are refused rather than adopted as absent files', async (t) => {
+  for (const name of ['schema-version', 'schema-bootstrap.json'])
+    await t.test(name, async (t) => {
+      const f = await fixture(t)
+      const outside = join(f.root, 'absent-target')
+      const path = join(f.state, name)
+      try {
+        await symlink(outside, path)
+      } catch (error) {
+        if (error.code === 'EPERM') {
+          t.skip('Host cannot create the symlink fixture')
+          return
+        }
+        throw error
+      }
+      await assert.rejects(prepareSchemaBootstrap(f), refusal)
+      assert.equal((await lstat(path)).isSymbolicLink(), true)
+      assert.equal(await readlink(path), outside)
+      assert.deepEqual(await readdir(f.state), [name])
+      await assert.rejects(readFile(outside), { code: 'ENOENT' })
+      assert.equal(f.transactions.length, 0)
+    })
 })
 
 test('invalid packaged SQL refuses before creating a bootstrap journal', async (t) => {
