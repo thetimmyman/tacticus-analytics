@@ -160,13 +160,31 @@ echo "== later migrations =="
 
   NOT_APPLIED=0
   local -a UNEXPECTED=() SEEN_EXPECTED=()
-  local err expected
+  local err expected migration_role
   for path in "$REPO_ROOT"/supabase/migrations/*.sql; do
     file="$(basename "$path")"
     case "$file" in *clean_baseline.sql) continue;; esac
     target_db="$(grep -m1 -i '^-- target-db:' "$path" | sed 's/.*: *//' | tr -d '\r')"
     case "$target_db" in eot) echo "  skip (not this database) $file"; continue;; esac
-    err="$(docker exec -i "$CONTAINER" psql -q -v ON_ERROR_STOP=1 -U postgres -d postgres \
+    migration_role=postgres
+    if [ "$file" = "20261007210000_rest_reader_role.sql" ]; then
+      # Only this migration changes privileged role attributes. The CLI's
+      # postgres role is not necessarily a superuser; never weaken the SQL or
+      # excuse its failure. Use only a measured disposable superuser.
+      if ! migration_role="$(docker exec "$CONTAINER" psql -At -U postgres -d postgres -c \
+        "SELECT CASE WHEN EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'supabase_admin' AND rolsuper) THEN 'supabase_admin' WHEN EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'postgres' AND rolsuper) THEN 'postgres' ELSE '' END")"; then
+        echo "replay: REFUSED -- could not verify a disposable superuser for the reader-role migration" >&2
+        return 1
+      fi
+      case "$migration_role" in
+        supabase_admin|postgres) ;;
+        *)
+          echo "replay: REFUSED -- no verified disposable superuser for the reader-role migration" >&2
+          return 1
+          ;;
+      esac
+    fi
+    err="$(docker exec -i "$CONTAINER" psql -q -v ON_ERROR_STOP=1 -U "$migration_role" -d postgres \
              -f "$CONTAINER_DIR/mig/$file" 2>&1 >/dev/null)"
     if [ $? -eq 0 ]; then
       version="${file%%_*}"; name="${file#*_}"; name="${name%.sql}"
