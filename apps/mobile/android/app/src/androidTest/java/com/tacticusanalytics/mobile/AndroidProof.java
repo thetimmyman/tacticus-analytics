@@ -215,6 +215,57 @@ public final class AndroidProof extends Instrumentation {
                         "Unavailable workspace discarded manual entry or lacks explanation"));
       check(completed.get() == 1 && entry.read(false).toString().equals(empty),
             "Refused manual raid changed personal data");
+      for (int level : new int[] {61, 32767}) {
+        JSONObject response =
+            player("Synthetic canonical commander", false, false);
+        response.getJSONObject("player")
+            .getJSONArray("units")
+            .getJSONObject(0)
+            .put("xpLevel", level);
+        JSONObject canonical = entry.read(true).put(
+            "personal", PlayerCache.project(response).personal());
+        String personal = canonical.getJSONObject("personal").toString();
+        int previousRows = canonical.getJSONArray("portableRaids").length(),
+            previousCompletions = completed.get();
+        entry.write(canonical, true);
+        onUi(() -> {
+          dialog[0] = ManualRaidDialog.show(
+              activity, entry, true, message -> completed.incrementAndGet());
+          ((android.widget.EditText)dialog[0].findViewById(
+               R.id.manual_raid_boss))
+              .setText("Synthetic canonical boss");
+          ((android.widget.EditText)dialog[0].findViewById(
+               R.id.manual_raid_damage))
+              .setText("7");
+          ((android.widget.EditText)dialog[0].findViewById(
+               R.id.manual_raid_tokens))
+              .setText("1");
+          dialog[0]
+              .getButton(android.app.AlertDialog.BUTTON_POSITIVE)
+              .performClick();
+        });
+        waitForIdleSync();
+        JSONObject saved = entry.read(true);
+        check(!dialog[0].isShowing() &&
+                  completed.get() == previousCompletions + 1 &&
+                  saved.getJSONArray("portableRaids").length() ==
+                      previousRows + 1,
+              "Canonical Player level blocked manual raid or did not save " +
+              "exactly once");
+        JSONObject last =
+            saved.getJSONArray("portableRaids").getJSONObject(previousRows);
+        check(last.getLong("damage") == 7 && last.getLong("tokens") == 1 &&
+                  last.getString("boss").equals("Synthetic canonical boss") &&
+                  saved.getJSONObject("personal").toString().equals(personal) &&
+                  PlayerCache.read(saved.getJSONObject("personal")).complete,
+              "Manual raid changed canonical cache or entered values");
+        check(PortableAnalytics.calculate(MobileDocument.exportRaids(saved))
+                      .getLong("totalDamage") == (level == 61 ? 408 : 415),
+              "Canonical manual raid lost earlier damage");
+        rejects(()
+                    -> MobileDocument.export(saved),
+                "Portable v1 level range changed for manual raid");
+      }
     } finally {
       onUi(() -> {
         if (dialog[0] != null)
@@ -545,6 +596,49 @@ public final class AndroidProof extends Instrumentation {
             == 32767,
         "Full backup reduced canonical level range");
     rejects(() -> MobileDocument.export(high), "Portable v1 silently changed its level range");
+    java.nio.file.Path destination = java.nio.file.Files.createTempFile(
+        getTargetContext().getCacheDir().toPath(), "synthetic-export-",
+        ".json");
+    byte[] previous = "Synthetic previous destination".getBytes(
+        java.nio.charset.StandardCharsets.UTF_8);
+    java.util.concurrent.atomic.AtomicInteger opened =
+        new java.util.concurrent.atomic.AtomicInteger();
+    try {
+      java.nio.file.Files.write(destination, previous);
+      rejects(() -> DocumentExport.write(high, false, () -> {
+        opened.incrementAndGet();
+        return new java.io.FileOutputStream(destination.toFile());
+      }), "Unrepresentable portable export accepted");
+      check(opened.get() == 0 &&
+                java.util.Arrays.equals(
+                    previous, java.nio.file.Files.readAllBytes(destination)),
+            "Rejected portable export opened or truncated destination");
+      JSONObject invalidBackup =
+          new JSONObject(high.toString()).put("schemaVersion", 2);
+      rejects(() -> DocumentExport.write(invalidBackup, true, () -> {
+        opened.incrementAndGet();
+        return new java.io.FileOutputStream(destination.toFile());
+      }), "Malformed native backup accepted");
+      check(opened.get() == 0 &&
+                java.util.Arrays.equals(
+                    previous, java.nio.file.Files.readAllBytes(destination)),
+            "Rejected backup opened or truncated destination");
+      DocumentExport.write(high, true, () -> {
+        opened.incrementAndGet();
+        return new java.io.FileOutputStream(destination.toFile());
+      });
+      JSONObject file =
+          StrictJson.parse(java.nio.file.Files.readAllBytes(destination),
+                           NativeBackup.MAX_FILE_BYTES);
+      check(opened.get() == 1 && NativeBackup.importDocument(file)
+                                         .getJSONObject("personal")
+                                         .getJSONArray("roster")
+                                         .getJSONObject(0)
+                                         .getInt("xpLevel") == 32767,
+            "Valid backup lost canonical range or did not write once");
+    } finally {
+      java.nio.file.Files.deleteIfExists(destination);
+    }
     JSONObject legacy = Demo.document();
     String original = legacy.getJSONObject("personal").toString();
     check(!PlayerCache.read(legacy.getJSONObject("personal")).complete, "Legacy cache promoted");
