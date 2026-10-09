@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { ChromeLink as Link } from './ChromeLink'
 import { usePathname } from 'next/navigation'
 import { AnalyticsIcon } from '@/app/components/icons/AnalyticsIcon'
 import { MemberName } from '@/app/components/ui/MemberName'
