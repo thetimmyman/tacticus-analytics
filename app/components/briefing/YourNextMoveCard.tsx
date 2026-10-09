@@ -5,7 +5,7 @@
  * and confidence is shown, so a guess never reads as a command.
  */
 
-import Link from 'next/link'
+import { ChromeLink as Link } from '@/app/components/navigation/ChromeLink'
 import {
   ArrowRight,
   Crosshair,
