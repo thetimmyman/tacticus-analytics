@@ -3,7 +3,8 @@ const { readFileSync, writeFileSync } = require('node:fs')
 const { join } = require('node:path')
 const { randomBytes } = require('node:crypto')
 const {
-  requestLabel,
+  networkRequestLabel,
+  chromiumErrorCategory,
   sanitizeFailure,
   rendererReceipt,
   holdingRefusal,
@@ -55,7 +56,7 @@ app
       if (config.verify && url.origin === origin)
         activeRequests.set(
           details.id,
-          requestLabel(url.pathname, details.resourceType, requestPhase)
+          networkRequestLabel(url.pathname, details.resourceType, requestPhase)
         )
       callback({ cancel: !allowed })
     })
@@ -76,7 +77,7 @@ app
         failures.push({
           path: new URL(details.url).pathname,
           ...(label ??
-            requestLabel(
+            networkRequestLabel(
               new URL(details.url).pathname,
               details.resourceType,
               requestPhase
@@ -95,12 +96,13 @@ app
         failures.push({
           path: new URL(details.url).pathname,
           ...(label ??
-            requestLabel(
+            networkRequestLabel(
               new URL(details.url).pathname,
               details.resourceType,
               requestPhase
             )),
-          status: 0
+          status: 0,
+          errorCategory: chromiumErrorCategory(details.error)
         })
     })
     const window = new BrowserWindow({
@@ -551,7 +553,11 @@ app
         stage: verifyStage,
         code: error.code,
         cause: error.cause,
-        network: verifyNetwork
+        network: verifyNetwork,
+        networkDiagnostics: verifyNetwork && {
+          schemaVersion: 1,
+          ...verifyNetwork
+        }
       })
       console.log('TA-MAC-VERIFY-FAILURE:' + JSON.stringify(diagnostic))
       writeFileSync(
