@@ -1,3 +1,4 @@
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 import { guildRosterQuery } from '@/app/lib/data/guild-roster'
 import { NextRequest, NextResponse } from 'next/server'
 import { db, serviceDb } from '@/app/lib/db'
@@ -72,6 +73,19 @@ const PROJECTED_RAID_TOKEN_BUDGET = (() => {
 const SYNC_FRESHNESS_WINDOW_MS = 7 * 24 * 60 * 60 * 1000
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
+  if (getRuntimeProfile() === 'desktop') {
+    const { computeSavedQueue } =
+      await import('@/app/lib/boss-assignments/saved-queue')
+    const result = await computeSavedQueue({
+      body: request.body,
+      contentType: request.headers.get('content-type'),
+      params: new URL(request.url).searchParams,
+      signal: request.signal
+    })
+    return NextResponse.json(result, {
+      headers: { 'Cache-Control': 'no-store' }
+    })
+  }
   const supabase = await db()
 
   const user = await requireSessionUser(supabase, () =>

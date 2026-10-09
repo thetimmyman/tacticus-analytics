@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 16,
+  "schemaVersion": 17,
   "purpose": "Selected native desktop analytics, local snapshot jobs and local file imports; not the complete application schema",
   "sourceCommit": "5d41a8776f3e216c04dae14d1bfa09fd48ca730a",
   "objects": [
@@ -566,6 +566,24 @@
       "name": "update_updated_at_column",
       "canonicalStatementSha256": "266f5a1a5e0f7d4ac6c648a936254a311200af7d4f4b734d823558cd7533525c",
       "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "TABLE",
+      "name": "upcoming_season_assignments",
+      "canonicalStatementSha256": "087171e7b60ff2dd52d8eaa96f442e10be30c31a2dc907fe0de00d455aee6d38",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "manage_season_assignments",
+      "canonicalStatementSha256": "68400ff3bd0bafa201e4df49cffd52531e480b80813db6a7385a7a96aa1176fd",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "kind": "FUNCTION",
+      "name": "clear_season_assignments",
+      "canonicalStatementSha256": "57fafc0cda117486177194c7c725aa26bf51a418ba9030ba098027e65d4eb43a",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
     }
   ],
   "excluded": "Hosted triggers, schedulers, operational SQL, captured data and blanket grants are deliberately excluded. Local bootstrap supplies constraints, RLS and ownership separately. Cluster aggregate must use a scoped invoker view rather than an unscoped materialized-view grant.",
@@ -589,7 +607,8 @@
     "Saved season plans preserve canonical storage, constraints and current own-guild member/officer policies. Progression configuration is authenticated read-only. Native runtime roles receive no blanket plan/progression privileges.",
     "Exactly two public local saved-capability catalogue rows describe desktop preview availability only; they do not grant hosted entitlements or officer membership.",
     "An additional invoker-rights direct plan write trigger requires the signed creator on INSERT, immutable creator on UPDATE and a caller-visible baseline with the same guild, captured configuration season_id and numerical saved plan season. Canonical minimal JSON with both seasons absent remains compatible. Only the explicit native fixture and Auth owner roles bypass this guard for fixture enrollment and canonical ON DELETE SET NULL actions. Missing uid never grants runtime authority.",
-    "The two saved-capability catalogue upserts change only local preview stage and route on conflict, preserving captured metadata and all unrelated catalogue entries."
+    "The two saved-capability catalogue upserts change only local preview stage and route on conflict, preserving captured metadata and all unrelated catalogue entries.",
+    "Selected saved-assignment intent uses atomic own-guild replacement and clear wrappers with exact lowercase active officer/leader authority, subject-bound bans and database-owned metadata; canonical parents are not client-executable. Direct RPC validates imported season and structural stage/roster inputs; captured lineup/as-of/model budgets are application admission, not storage authority. Global player mapping is never changed. A dedicated non-login non-bypass owner holds UPDATE(id) solely for FOR SHARE locks, with false mapping WITH CHECK. No broad authenticated ban access or stored forecast timestamp is admitted. A caller-bound paired read projects both selected-season intent arrays from one SQL statement snapshot, with one excess row exposed for decoder overflow refusal and no metadata identity fields."
   ],
   "seasonPlanningAuthoritySources": [
     {
@@ -698,6 +717,83 @@
       "kind": "AUTHORITY",
       "name": "raid_progression_config_rls",
       "canonicalStatementSha256": "af044e76b2c7b86e1b824472b79c10c6a10fa633cb4b9cc865ca7af9002dd490",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    }
+  ],
+  "savedAssignmentsAuthoritySources": [
+    {
+      "name": "ALTER TABLE ONLY public.upcoming_season_assignments FORCE ROW LEVEL SECURITY;",
+      "canonicalStatementSha256": "56457c933c4562619976302ce573c9f0258566b994a6ff584c134c9e7526bfec",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "name": "ALTER TABLE ONLY public.upcoming_season_assignments",
+      "canonicalStatementSha256": "626c386ba3c3ea6cd769b73e92cda7feb3669104b3e243e7b1f47f316e475614",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "name": "ALTER TABLE ONLY public.upcoming_season_assignments",
+      "canonicalStatementSha256": "60ab047eaf4e157a9f3638f633a8579758746cbb5210a7e1eae2219fbd020537",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "name": "CREATE INDEX idx_fk_upcoming_season_assignments_assigned_by ON public.upcoming_season_assignments USING btree (assigned_by);",
+      "canonicalStatementSha256": "2aa214428ff7bc3a571eb0024a0c0f05d7d29e585d516e4796fcd23a2d98e108",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "name": "CREATE INDEX idx_upcoming_assignments_guild_season ON public.upcoming_season_assignments USING btree (guild_code, season_number);",
+      "canonicalStatementSha256": "f8bb5902a70c301a378c48f493bd34f14c62e35c00299d1dfd15119cc8c8215e",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "name": "CREATE INDEX idx_upcoming_assignments_player ON public.upcoming_season_assignments USING btree (player_id);",
+      "canonicalStatementSha256": "1c4fe6ebf2bd396a7d2b5f57652b933514a3fdbb1b4770dff419e749f923bf72",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "name": "CREATE INDEX idx_upcoming_assignments_token_allocations ON public.upcoming_season_assignments USING gin (token_allocations);",
+      "canonicalStatementSha256": "578f81c5bdfa26d0fa6e4f8ee9117abfdc2f2ef10ecc01aa897e6e0cc6ce4f8b",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "name": "CREATE INDEX idx_upcoming_season_assignments_guild ON public.upcoming_season_assignments USING btree (guild_code);",
+      "canonicalStatementSha256": "a70a9ba1fb56fb6500f39e82fbd9d232de2c57cb066f7e79949df25d2c861a85",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "name": "CREATE TRIGGER update_upcoming_season_assignments_updated_at BEFORE UPDATE ON public.upcoming_season_assignments FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();",
+      "canonicalStatementSha256": "95aabcbdae929c164dd87ee384d04dbea2274cd4b04d704cdbdcb9ae4562c47d",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "name": "ALTER TABLE ONLY public.upcoming_season_assignments",
+      "canonicalStatementSha256": "b3f16ca20be9c725c944b87c14f92dca4b8f7fcf1a18cad6e7d65c4150954576",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "name": "ALTER TABLE ONLY public.upcoming_season_assignments",
+      "canonicalStatementSha256": "3d0317b3aec39e26e8a02992e89392a956cb763196ca573b1a678f8e14dd5528",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "name": "CREATE POLICY \"Guild members can view their guild assignments\" ON public.upcoming_season_assignments FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1",
+      "canonicalStatementSha256": "657b547797ccf56c7439a5468e02aa5917c3c8b03574fb6e72e9b0e7380d3bf2",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "name": "CREATE POLICY \"Officers can manage their guild assignments\" ON public.upcoming_season_assignments TO authenticated USING ((EXISTS ( SELECT 1",
+      "canonicalStatementSha256": "84e3218c6da0f33f1b1fd5c52a2b924d55c0fb467600d7442be302d4cecd0a88",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "name": "CREATE POLICY \"Officers can view their guild assignments\" ON public.upcoming_season_assignments FOR SELECT TO authenticated USING ((EXISTS ( SELECT 1",
+      "canonicalStatementSha256": "c2f87f094e99081890f58616d14f7fb424bac1a1d948bf56807b343472c42ae3",
+      "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
+    },
+    {
+      "name": "ALTER TABLE public.upcoming_season_assignments ENABLE ROW LEVEL SECURITY;",
+      "canonicalStatementSha256": "df133a78e07f3f0f7d54d6cd5f5751e3b9d043bd1aceb19a28d0f10ea1f303ce",
       "sourceFileSha256": "868403b65e648bae6d8de2f9b7c358f0235a9a3aacb9846e839a993b05e6d32a"
     }
   ]

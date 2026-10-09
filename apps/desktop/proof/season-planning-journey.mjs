@@ -585,7 +585,7 @@ try {
         classification: 'synthetic-native-module-proof',
         status: 'passed',
         previousSchemaMigrated: Boolean(config.previousSchemaDirectory),
-        schemaVersion: 16,
+        schemaVersion: 17,
         schemaSha256: createHash('sha256')
           .update(canonical)
           .update(authority)
