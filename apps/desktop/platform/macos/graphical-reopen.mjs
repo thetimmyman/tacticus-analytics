@@ -43,21 +43,21 @@ async function absent(path) {
   throw refuse()
 }
 async function boundedFile(path, limit) {
-  const before = await lstat(path, { bigint: true })
-  requireProof(
-    before.isFile() &&
-      !before.isSymbolicLink() &&
-      before.uid === BigInt(process.getuid()) &&
-      !(before.mode & 0o077n) &&
-      before.size <= BigInt(limit)
-  )
   const file = await open(
     path,
     constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK
-  )
+  ).catch((error) => {
+    if (error.code === 'ELOOP') throw refuse()
+    throw error
+  })
   try {
-    const opened = await file.stat({ bigint: true })
-    requireProof(opened.dev === before.dev && opened.ino === before.ino)
+    const before = await file.stat({ bigint: true })
+    requireProof(
+      before.isFile() &&
+        before.uid === BigInt(process.getuid()) &&
+        !(before.mode & 0o077n) &&
+        before.size <= BigInt(limit)
+    )
     const buffer = Buffer.alloc(limit + 1)
     let bytes = 0
     for (;;) {
