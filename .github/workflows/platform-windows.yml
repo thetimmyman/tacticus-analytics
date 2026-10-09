@@ -93,6 +93,8 @@ jobs:
             ${{ runner.temp }}/application-evidence.json
             ${{ runner.temp }}/msix-lifecycle-evidence.json
             ${{ runner.temp }}/msix-package-integrity-evidence.json
+            ${{ runner.temp }}/measurement-*.json
+            ${{ runner.temp }}/node-launch-diagnostic-*.json
             ${{ runner.temp }}/renderer-*.png
             ${{ runner.temp }}/renderer-*.json
           if-no-files-found: error

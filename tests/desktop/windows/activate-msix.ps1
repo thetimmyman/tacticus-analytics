@@ -1,14 +1,37 @@
 [CmdletBinding()]
 param(
   [Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$PackageFamilyName,
+  [Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$Evidence,
   [string]$ApplicationId = 'TacticusDesktop',
-  [AllowEmptyCollection()][AllowEmptyString()][string[]]$Arguments = @()
+  [AllowEmptyCollection()][AllowEmptyString()][string[]]$Arguments = @(),
+  [string]$NodeDiagnostic,
+  [switch]$NoNodeLaunch
 )
 $ErrorActionPreference = 'Stop'
 
 if ($PackageFamilyName -match '[!\x00-\x1f]' -or $ApplicationId -notmatch '^[A-Za-z0-9._-]+$') {
   throw 'Invalid packaged application identity'
 }
+
+$runnerTemp = [System.IO.Path]::TrimEndingDirectorySeparator([System.IO.Path]::GetFullPath($env:RUNNER_TEMP))
+$runnerPrefix = $runnerTemp + [System.IO.Path]::DirectorySeparatorChar
+function Resolve-RunnerEvidencePath([string]$Path) {
+  if ([string]::IsNullOrWhiteSpace($Path)) { throw 'Packaged activation evidence path is required' }
+  $resolved = [System.IO.Path]::GetFullPath($Path)
+  if (-not $resolved.StartsWith($runnerPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+    throw 'Packaged activation evidence must be inside the runner temporary directory'
+  }
+  return $resolved
+}
+$evidencePath = Resolve-RunnerEvidencePath $Evidence
+$nodeDiagnosticPath = if ($NoNodeLaunch) {
+  if (-not [string]::IsNullOrWhiteSpace($NodeDiagnostic)) { throw 'Node diagnostic is invalid for a non-Node invocation' }
+  $null
+} else {
+  Resolve-RunnerEvidencePath $NodeDiagnostic
+}
+[System.IO.File]::Delete($evidencePath)
+if ($nodeDiagnosticPath) { [System.IO.File]::Delete($nodeDiagnosticPath) }
 
 if (-not ('Tacticus.Windows.ApplicationActivationManager' -as [type])) {
   Add-Type -TypeDefinition @'
@@ -142,4 +165,68 @@ function ConvertTo-WindowsCommandLineArgument([string]$Value) {
 
 $argumentLine = (@($Arguments) | ForEach-Object { ConvertTo-WindowsCommandLineArgument $_ }) -join ' '
 $appUserModelId = "$PackageFamilyName!$ApplicationId"
-Write-Output ([Tacticus.Windows.PackagedApplicationRunner]::Run($appUserModelId, $argumentLine))
+$exitCode = $null
+$activationFailed = $false
+try {
+  $exitCode = [Tacticus.Windows.PackagedApplicationRunner]::Run($appUserModelId, $argumentLine)
+} catch {
+  $activationFailed = $true
+}
+
+$allowedNodeCategories = @(
+  'none',
+  'launch-configuration-invalid',
+  'schema-recovery-failed',
+  'recovery-journey-failed',
+  'service-startup-failed',
+  'application-stopped-during-startup',
+  'application-health-timeout',
+  'window-verification-failed',
+  'launch-assertion-failed',
+  'launch-type-error',
+  'launch-range-error',
+  'launch-syntax-error',
+  'launch-reference-error',
+  'launch-aborted',
+  'launch-timeout',
+  'node-launch-unclassified'
+)
+$nodeCategory = if ($NoNodeLaunch) { 'not-applicable' } else { 'diagnostic-unavailable' }
+$nodeOutcome = if ($NoNodeLaunch) { 'not-applicable' } else { 'unavailable' }
+if ($nodeDiagnosticPath -and (Test-Path -LiteralPath $nodeDiagnosticPath -PathType Leaf)) {
+  try {
+    $nodeEvidence = Get-Content -LiteralPath $nodeDiagnosticPath -Raw | ConvertFrom-Json
+    if ($nodeEvidence.schemaVersion -eq 1 -and $nodeEvidence.platform -eq 'win-x64' -and
+        @('completed', 'failed').Contains([string]$nodeEvidence.outcome) -and
+        $allowedNodeCategories.Contains([string]$nodeEvidence.nodeLaunchFailureCategory)) {
+      $nodeCategory = [string]$nodeEvidence.nodeLaunchFailureCategory
+      $nodeOutcome = [string]$nodeEvidence.outcome
+    } else {
+      $nodeCategory = 'diagnostic-invalid'
+      $nodeOutcome = 'invalid'
+    }
+  } catch {
+    $nodeCategory = 'diagnostic-invalid'
+    $nodeOutcome = 'invalid'
+  }
+}
+
+$completed = -not $activationFailed -and $exitCode -eq 0 -and
+  ($NoNodeLaunch -or ($nodeOutcome -eq 'completed' -and $nodeCategory -eq 'none'))
+@{
+  schemaVersion = 1
+  platform = 'win-x64'
+  activation = 'application-user-model-id'
+  completed = $completed
+  childExitCode = $exitCode
+  nodeLaunchOutcome = $(if ($activationFailed) { 'activation-failed' } else { $nodeOutcome })
+  nodeLaunchFailureCategory = $(if ($activationFailed) { 'activation-failed' } else { $nodeCategory })
+} | ConvertTo-Json | Set-Content -LiteralPath $evidencePath -Encoding utf8
+
+if ($activationFailed) {
+  throw 'Packaged application activation failed; AUMID process exit code unavailable; Node launch category activation-failed'
+}
+if (-not $completed) {
+  throw "Packaged application invocation failed; AUMID process exit code $exitCode; Node launch category $nodeCategory"
+}
+Write-Output $exitCode

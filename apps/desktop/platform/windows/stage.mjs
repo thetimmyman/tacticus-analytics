@@ -111,6 +111,7 @@ export async function stage(config) {
   })
   for (const path of [
     'launch.mjs',
+    'launch-diagnostic.mjs',
     'services.mjs',
     'schema-bootstrap.mjs',
     'schema-bootstrap-recovery-proof.mjs',

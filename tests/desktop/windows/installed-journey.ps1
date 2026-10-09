@@ -6,11 +6,17 @@ param(
   [string]$PackageFamilyName
 )
 $ErrorActionPreference = 'Stop'
-# The hosted scratch volume may disable filesystem short aliases. Exercise the
-# same per-user volume as ordinary installation without changing volume policy.
-# Native ownership still verifies the PostgreSQL alias and protects both roots.
-$qualificationProfile = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::LocalApplicationData)
-if ([string]::IsNullOrWhiteSpace($qualificationProfile)) { throw 'Current-user application directory unavailable' }
+# The hosted scratch volume may disable filesystem short aliases. Exercise a
+# durable per-user volume without changing volume policy. Packaged state stays
+# outside virtualized AppData; the unpackaged regression fixture retains its
+# original application-data contract.
+$qualificationFolder = if ($AlreadyInstalled) {
+  [System.Environment+SpecialFolder]::UserProfile
+} else {
+  [System.Environment+SpecialFolder]::LocalApplicationData
+}
+$qualificationProfile = [System.Environment]::GetFolderPath($qualificationFolder)
+if ([string]::IsNullOrWhiteSpace($qualificationProfile)) { throw 'Current-user qualification directory unavailable' }
 $qualification = if ([string]::IsNullOrWhiteSpace($QualificationRoot)) {
   Join-Path $qualificationProfile ('Tacticus qualification ' + [guid]::NewGuid().ToString('N'))
 } else {
@@ -44,7 +50,7 @@ $manifestDigest = (Get-FileHash "$installed/bundle-manifest.json" -Algorithm SHA
 # Keep a source/content-bound incomplete receipt if an actual runtime step fails.
 @{ schemaVersion = 1; sourceSha = $manifest.sourceSha; manifestSha256 = $manifestDigest;
    platform = 'win-x64'; artifactKind = $artifactKind; distributionKind = $distributionKind; candidateOnly = $true; standardConsumerUser = $false;
-   nativeInstalledArtifact = $true; qualificationLocation = 'current-user-application-directory';
+   nativeInstalledArtifact = $true; qualificationLocation = $(if ($AlreadyInstalled) { 'current-user-profile' } else { 'current-user-application-directory' });
    postgresFilesystemAlias = 'not-yet-verified'; completed = $false; os = [System.Environment]::OSVersion.VersionString;
    packageFiles = $manifest.files.Count; packageBytes = ($manifest.files | Measure-Object -Property size -Sum).Sum;
    officialApiKeysUsed = $false; featureParityClaim = $false; wholeProcessOfflineQualified = $false;
@@ -62,8 +68,11 @@ for ($iteration = 0; $iteration -lt 4; $iteration++) {
   $runTimer = [System.Diagnostics.Stopwatch]::StartNew()
   $measurementPath = Join-Path $env:RUNNER_TEMP "measurement-$iteration.json"
   if ($AlreadyInstalled) {
-    $activationExit = & $msixActivator -PackageFamilyName $PackageFamilyName `
-      -Arguments @('run-msix-qualified', $activeWorkspace, '--verify', $verify, '--measurement', $measurementPath)
+    $activationEvidence = Join-Path $env:RUNNER_TEMP "measurement-aumid-journey-$iteration.json"
+    $nodeDiagnostic = Join-Path $env:RUNNER_TEMP "node-launch-diagnostic-journey-$iteration.json"
+    $activationExit = & $msixActivator -PackageFamilyName $PackageFamilyName -Evidence $activationEvidence `
+      -NodeDiagnostic $nodeDiagnostic -Arguments @('run-msix-qualified', $activeWorkspace, '--verify', $verify, `
+        '--measurement', $measurementPath, '--launch-diagnostic', $nodeDiagnostic)
     if ($activationExit -ne 0) { throw 'Installed complete application journey failed' }
   } else {
     & "$installed/TacticusDesktop.exe" run-candidate $installed $activeWorkspace --verify $verify --measurement $measurementPath
@@ -75,8 +84,12 @@ for ($iteration = 0; $iteration -lt 4; $iteration++) {
 }
 $recoveryPath = Join-Path $env:RUNNER_TEMP 'recovery-evidence.json'
 if ($AlreadyInstalled) {
-  $activationExit = & $msixActivator -PackageFamilyName $PackageFamilyName `
-    -Arguments @('run-msix-qualified', $workspace, '--recovery', $recoveryPath)
+  $recoveryMeasurement = Join-Path $env:RUNNER_TEMP 'measurement-recovery.json'
+  $activationEvidence = Join-Path $env:RUNNER_TEMP 'measurement-aumid-recovery.json'
+  $nodeDiagnostic = Join-Path $env:RUNNER_TEMP 'node-launch-diagnostic-recovery.json'
+  $activationExit = & $msixActivator -PackageFamilyName $PackageFamilyName -Evidence $activationEvidence `
+    -NodeDiagnostic $nodeDiagnostic -Arguments @('run-msix-qualified', $workspace, '--recovery', $recoveryPath, `
+      '--measurement', $recoveryMeasurement, '--launch-diagnostic', $nodeDiagnostic)
   if ($activationExit -ne 0) { throw 'Installed database recovery qualification failed' }
 } else {
   & "$installed/TacticusDesktop.exe" run-candidate $installed $workspace --recovery $recoveryPath
@@ -91,8 +104,12 @@ foreach ($scenario in @('interrupted-bootstrap', 'committed-marker-refusal')) {
   $proofWorkspace = Join-Path $qualification ("schema $scenario workspace ü")
   $proofEvidence = Join-Path $env:RUNNER_TEMP ("renderer-schema-recovery-$scenario.json")
   if ($AlreadyInstalled) {
-    $activationExit = & $msixActivator -PackageFamilyName $PackageFamilyName `
-      -Arguments @('run-msix-qualified', $proofWorkspace, '--schema-recovery', $scenario, '--schema-recovery-evidence', $proofEvidence)
+    $schemaMeasurement = Join-Path $env:RUNNER_TEMP ("measurement-schema-recovery-$scenario.json")
+    $activationEvidence = Join-Path $env:RUNNER_TEMP ("measurement-aumid-schema-recovery-$scenario.json")
+    $nodeDiagnostic = Join-Path $env:RUNNER_TEMP ("node-launch-diagnostic-schema-recovery-$scenario.json")
+    $activationExit = & $msixActivator -PackageFamilyName $PackageFamilyName -Evidence $activationEvidence `
+      -NodeDiagnostic $nodeDiagnostic -Arguments @('run-msix-qualified', $proofWorkspace, '--schema-recovery', $scenario, `
+        '--schema-recovery-evidence', $proofEvidence, '--measurement', $schemaMeasurement, '--launch-diagnostic', $nodeDiagnostic)
     if ($activationExit -ne 0) { throw 'Installed schema recovery proof failed' }
   } else {
     & "$installed/TacticusDesktop.exe" run-candidate $installed $proofWorkspace --schema-recovery $scenario --schema-recovery-evidence $proofEvidence
@@ -106,7 +123,7 @@ foreach ($scenario in @('interrupted-bootstrap', 'committed-marker-refusal')) {
 }
 @{ schemaVersion = 1; sourceSha = $manifest.sourceSha; manifestSha256 = $manifestDigest;
    platform = 'win-x64'; artifactKind = $artifactKind; distributionKind = $distributionKind; candidateOnly = $true; standardConsumerUser = $false; nativeInstalledArtifact = $true;
-   completed = $true; qualificationLocation = 'current-user-application-directory';
+   completed = $true; qualificationLocation = $(if ($AlreadyInstalled) { 'current-user-profile' } else { 'current-user-application-directory' });
    postgresFilesystemAlias = 'verified-by-native-owner'; os = [System.Environment]::OSVersion.VersionString;
    packageFiles = $manifest.files.Count; packageBytes = ($manifest.files | Measure-Object -Property size -Sum).Sum; elapsedMs = $timer.ElapsedMilliseconds;
    journeys = $journeys; recovery = $recovery; schemaRecovery = $schemaRecovery; officialApiKeysUsed = $false; featureParityClaim = $false; syntheticDemo = $true;
