@@ -500,6 +500,31 @@ export function schemaBootstrapRollbackFence(sql) {
     readyApplicationName
   }
 }
+// A terminated backend is still an error only if its client observes the
+// failed connection and closes without a supervisor signal.
+export async function schemaBootstrapRollbackClientFailure(client, closed) {
+  // psql may be blocked reading stdin after the post-prefix ClientRead latch.
+  // A fixed query makes it observe the terminated connection; EOF alone can
+  // report success without reading that connection. Never send COMMIT.
+  client.stdin.end('SELECT 1;\n')
+  let timer
+  try {
+    const result = await Promise.race([
+      closed,
+      new Promise((accept) => {
+        timer = setTimeout(() => accept(null), 5000)
+      })
+    ])
+    requireProof(
+      result &&
+        Number.isInteger(result.code) &&
+        result.code !== 0 &&
+        !result.signal
+    )
+  } finally {
+    clearTimeout(timer)
+  }
+}
 // Only a unique actual backend that has executed the post-prefix marker may
 // be terminated. An early ClientRead between product commands is not ready.
 export function schemaBootstrapRollbackBackend(rows) {
@@ -1366,12 +1391,9 @@ async function runActualProof({ admission, output }) {
                   't'
               )
               backendTerminated = true
-              const result = await closedWithin(client, 5000)
-              requireProof(
-                result &&
-                  Number.isInteger(result.code) &&
-                  result.code !== 0 &&
-                  !result.signal
+              await schemaBootstrapRollbackClientFailure(
+                client,
+                closings.get(client)
               )
               nonzeroClientExit = true
             } finally {

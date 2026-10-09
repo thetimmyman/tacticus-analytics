@@ -13,7 +13,7 @@ import {
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createHash } from 'node:crypto'
-import { spawnSync } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import {
   verifySchemaProofInstallation,
@@ -899,6 +899,129 @@ test('receipt refuses invalid timestamps with the fixed public error', () => {
         completedAt: '2026-01-01T00:01:00.000Z'
       }),
     refused
+  )
+})
+
+// This is an inert stdin-driven host child, not a PostgreSQL emulator. It
+// exposes the supervision boundary without claiming native rollback semantics.
+async function rollbackClientFixture(t, exitCode = 7) {
+  const client = spawn(
+    process.execPath,
+    [
+      '--input-type=module',
+      '-e',
+      `
+      let ready = false, broken = false, input = '';
+      process.on('message', message => {
+        if (message === 'backend-terminated') {
+          broken = true;
+          process.send('backend-terminated');
+        }
+      });
+      process.stdin.on('data', chunk => {
+        input += chunk.toString('utf8');
+        if (!ready && input.endsWith("SET LOCAL application_name='desktop-schema-rollback-ready';\\n")) {
+          ready = true;
+          input = '';
+          process.send('ready');
+        } else if (ready && input === 'SELECT 1;\\n') {
+          if (!broken) process.exit(0);
+          if (${JSON.stringify(exitCode)} === 'stall') return;
+          if (${JSON.stringify(exitCode)} === 'signal') process.kill(process.pid, 'SIGTERM');
+          else process.exit(${JSON.stringify(exitCode)});
+        }
+      });
+      process.stdin.on('end', () => { if (${JSON.stringify(exitCode)} !== 'stall') process.exit(0) });
+    `
+    ],
+    { stdio: ['pipe', 'ignore', 'ignore', 'ipc'] }
+  )
+  const closed = new Promise((accept) =>
+    client.once('close', (code, signal) => accept({ code, signal }))
+  )
+  client.stdin.on('error', () => {})
+  t.after(async () => {
+    client.stdin.destroy()
+    if (client.exitCode === null && client.signalCode === null) client.kill()
+    await closed
+  })
+  const message = (expected) =>
+    new Promise((accept, reject) => {
+      const timer = setTimeout(() => {
+        client.off('message', received)
+        reject(new Error('Synthetic rollback client did not reach readiness'))
+      }, 2000)
+      const received = (value) => {
+        if (value !== expected) return
+        clearTimeout(timer)
+        client.off('message', received)
+        accept()
+      }
+      client.on('message', received)
+    })
+  const ready = message('ready')
+  client.stdin.write(
+    proof.schemaBootstrapRollbackFence(
+      "BEGIN;\nSELECT 7;\nDO $receipt$ BEGIN EXECUTE format('x'); END $receipt$;\nCOMMIT;"
+    ).input
+  )
+  await ready
+  const terminated = message('backend-terminated')
+  client.send('backend-terminated')
+  await terminated
+  return { client, closed }
+}
+
+test('rollback proof wakes an idle stdin client after backend termination and observes its nonzero close', async (t) => {
+  const { client, closed } = await rollbackClientFixture(t)
+  const idle = await Promise.race([
+    closed,
+    new Promise((accept) =>
+      setTimeout(() => accept('still-waiting-for-input'), 100)
+    )
+  ])
+  assert.equal(idle, 'still-waiting-for-input')
+  await proof.schemaBootstrapRollbackClientFailure(client, closed)
+  assert.deepEqual(await closed, { code: 7, signal: null })
+  assert.equal(client.stdin.writableEnded, true)
+})
+
+test('rollback proof refuses a client that reports success after the post-termination query', async (t) => {
+  const { client, closed } = await rollbackClientFixture(t, 0)
+  await assert.rejects(
+    proof.schemaBootstrapRollbackClientFailure(client, closed),
+    { code: 'EPROOF', message: 'Installed schema recovery proof refused' }
+  )
+  assert.deepEqual(await closed, { code: 0, signal: null })
+})
+
+test('rollback proof refuses a signalled client instead of accepting it as a transport failure', async (t) => {
+  const { client, closed } = await rollbackClientFixture(t, 'signal')
+  await assert.rejects(
+    proof.schemaBootstrapRollbackClientFailure(client, closed),
+    { code: 'EPROOF', message: 'Installed schema recovery proof refused' }
+  )
+  assert.deepEqual(await closed, { code: null, signal: 'SIGTERM' })
+})
+
+test('rollback proof retains its bounded refusal when the client never closes', async (t) => {
+  const { client, closed } = await rollbackClientFixture(t, 'stall')
+  await assert.rejects(
+    proof.schemaBootstrapRollbackClientFailure(client, closed),
+    { code: 'EPROOF', message: 'Installed schema recovery proof refused' }
+  )
+  assert.equal(client.exitCode, null)
+  assert.equal(client.signalCode, null)
+})
+
+test('closing idle client input without observing the failed connection is not a nonzero transport result', async (t) => {
+  const { client, closed } = await rollbackClientFixture(t)
+  client.stdin.end()
+  const result = await closed
+  assert.deepEqual(result, { code: 0, signal: null })
+  await assert.rejects(
+    proof.schemaBootstrapRollbackClientFailure(client, Promise.resolve(result)),
+    { code: 'EPROOF', message: 'Installed schema recovery proof refused' }
   )
 })
 
