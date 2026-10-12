@@ -443,7 +443,14 @@ function mainFixture(
       }
     }
   }
-  const device = deviceSession(window, config, { ...dependencies, electron })
+  const device = deviceSession(window, config, {
+    ...dependencies,
+    electron,
+    onSessionInstalled: () => {
+      assert.equal(currentWorkspaceToken(cookies), sessionGrant.access_token)
+      dependencies.onSessionInstalled?.()
+    }
+  })
   return {
     device,
     window,

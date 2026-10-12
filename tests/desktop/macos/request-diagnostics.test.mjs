@@ -442,7 +442,13 @@ test('untrusted diagnostic frames cannot copy paths, messages, cookies or arbitr
     status: canary,
     path: '/' + canary,
     cookie: canary,
-    phase: canary
+    phase: canary,
+    networkError: canary,
+    document: canary,
+    frameAvailable: canary,
+    method: canary,
+    rsc: canary,
+    prefetch: canary
   }
   const input = {
     stage: 'renderer-network',
@@ -545,6 +551,7 @@ test('authorization failures are expected only while deliberately signed out', (
   for (const unexpected of [
     failure('/supabase/rest/v1/guild_config', 401, 'recovered-open'),
     failure('/supabase/rest/v1/guild_config', 401, 'scores-view'),
+    failure('/supabase/rest/v1/guild_config', 401, 'recovered-open'),
     failure('/supabase/rest/v1/guild_config', 401, 'initial-open'),
     failure('/profile', 403, 'scores-view'),
     failure('/player-performance', 500, 'scores-view'),
@@ -843,4 +850,275 @@ test('current static internal chrome destinations all have fixed failure labels 
       })
     )
   }
+})
+
+test('fixed health and raid readers distinguish failures without disclosing variable paths', () => {
+  assert.equal(
+    diagnostics.requestLabel('/api/health/telemetry', 'xhr').endpoint,
+    'health-telemetry'
+  )
+  assert.equal(
+    diagnostics.requestLabel('/supabase/rest/v1/EOT_GR_data', 'xhr').endpoint,
+    'raid-data'
+  )
+  assert.equal(
+    diagnostics.requestLabel('/private/SYNTHETIC-CANARY', 'xhr').endpoint,
+    'other-local'
+  )
+})
+
+test('transport failure diagnostics retain only fixed error labels and still fail qualification', () => {
+  const networkError = diagnostics.networkErrorLabel(
+    'net::ERR_CONNECTION_RESET'
+  )
+  assert.equal(networkError, 'connection-reset')
+  assert.equal(diagnostics.networkErrorLabel('constructor'), 'other')
+  assert.equal(
+    diagnostics.networkErrorLabel('SYNTHETIC-SECRET-CANARY'),
+    'other'
+  )
+  const label = diagnostics.requestLabel(
+    '/api/sync/freshness',
+    'xhr',
+    'scores-view'
+  )
+  const failure = { ...label, status: 0, networkError }
+  // The receipt keeps its original closed shape; observer labels stay out.
+  const receipt = diagnostics.sanitizeFailure({
+    stage: 'renderer-network',
+    cause: 'request-failed',
+    network: { failed: [failure] }
+  })
+  assert.deepEqual(receipt.network.failed, [
+    {
+      endpoint: 'sync-freshness',
+      resource: 'xhr',
+      phase: 'scores-view',
+      status: 0
+    }
+  ])
+  assert.equal(diagnostics.unexpectedFailure(failure), true)
+})
+
+test('observer labels bound the originating document and never reach the renderer receipt', () => {
+  const canary = 'SYNTHETIC-SECRET-CANARY'
+  const document = diagnostics.requestDocumentLabel(
+    'http://127.0.0.1:1234/home?private=' + canary
+  )
+  assert.equal(document, 'home-document')
+  assert.equal(
+    diagnostics.requestDocumentLabel('http://127.0.0.1:1234/private/' + canary),
+    'other-document'
+  )
+  assert.equal(diagnostics.requestDocumentLabel(canary), 'other-document')
+  const failure = {
+    endpoint: 'sync-freshness',
+    resource: 'xhr',
+    document,
+    status: 0,
+    networkError: 'request-failed',
+    frameAvailable: false
+  }
+  const value = diagnostics.sanitizeFailure({
+    stage: 'renderer-network',
+    cause: 'request-failed',
+    network: { failed: [failure] }
+  })
+  assert.deepEqual(value.network.failed, [
+    { endpoint: 'sync-freshness', resource: 'xhr', status: 0 }
+  ])
+  assert.equal(JSON.stringify(value).includes(canary), false)
+  assert.equal(diagnostics.unexpectedFailure(failure), true)
+})
+
+test('request metadata retains only a bounded method and observed RSC/prefetch flags, outside the renderer receipt', () => {
+  const canary = 'SYNTHETIC-SECRET-CANARY'
+  assert.deepEqual(diagnostics.requestMetadata(canary), { method: 'other' })
+  assert.deepEqual(
+    diagnostics.requestMetadata('POST', {
+      RSC: '1',
+      'Next-Router-Prefetch': '1',
+      Authorization: canary,
+      Cookie: canary
+    }),
+    { method: 'POST', rsc: true, prefetch: true }
+  )
+  const label = diagnostics.requestLabel(
+    '/api/briefing/seen',
+    'xhr',
+    'scores-view'
+  )
+  const result = diagnostics.sanitizeFailure({
+    stage: 'renderer-network',
+    cause: 'request-failed',
+    network: {
+      failed: [
+        {
+          ...label,
+          ...diagnostics.requestMetadata('POST', {}),
+          status: 0,
+          document: 'home-document',
+          frameAvailable: true,
+          headers: { Authorization: canary }
+        }
+      ]
+    }
+  })
+  assert.equal(JSON.stringify(result).includes(canary), false)
+  assert.deepEqual(result.network.failed[0], {
+    endpoint: 'briefing-seen',
+    resource: 'xhr',
+    phase: 'scores-view',
+    status: 0
+  })
+  assert.equal(
+    diagnostics.unexpectedFailure({
+      path: '/api/briefing/seen',
+      status: 0,
+      phase: 'scores-view'
+    }),
+    true
+  )
+})
+
+test('final network verdict refuses a request that starts during asynchronous renderer capture', async () => {
+  const active = new Map()
+  const snapshot = () => ({
+    pending: [...active.values()],
+    failed: [],
+    blocked: 0
+  })
+  assert.equal(diagnostics.networkFailureCause(snapshot()), undefined)
+  await Promise.resolve().then(() =>
+    active.set(1, { endpoint: 'onboarding-status' })
+  )
+  const final = snapshot()
+  queueMicrotask(() => active.clear())
+  assert.equal(diagnostics.networkFailureCause(final), 'requests-pending')
+  await Promise.resolve()
+  assert.equal(diagnostics.networkFailureCause(final), 'requests-pending')
+  assert.equal(diagnostics.networkFailureCause(snapshot()), undefined)
+})
+
+test('final network verdict refuses late ERR_FAILED and preserves only deliberate authorization refusals', async () => {
+  const failed = [
+    { path: '/desktop/open', status: 403 },
+    { path: '/api/guild-tokens', status: 403 },
+    { status: 401, phase: 'signed-out-check' }
+  ]
+  assert.equal(
+    diagnostics.networkFailureCause({ pending: [], failed, blocked: 0 }),
+    undefined
+  )
+  await Promise.resolve().then(() =>
+    failed.push({ status: 0, networkError: 'request-failed' })
+  )
+  assert.equal(
+    diagnostics.networkFailureCause({ pending: [], failed, blocked: 0 }),
+    'request-failed'
+  )
+  assert.equal(
+    diagnostics.networkFailureCause({ pending: [], failed: [], blocked: 1 }),
+    'request-failed'
+  )
+})
+
+test('final network verdict refuses absent or malformed safety observations', () => {
+  for (const value of [
+    undefined,
+    {},
+    { pending: [], failed: [], blocked: undefined },
+    { pending: [], failed: {}, blocked: 0 },
+    { pending: {}, failed: [], blocked: 0 },
+    { pending: [], failed: [], blocked: -1 }
+  ])
+    assert.equal(diagnostics.networkFailureCause(value), 'request-failed')
+})
+
+test('member home content labels recognize only finite public playbook targets without IDs', () => {
+  assert.equal(
+    diagnostics.networkRequestLabel('/boss-playbooks', 'xhr')
+      .diagnosticEndpoint,
+    'boss-playbooks-page'
+  )
+  assert.equal(
+    diagnostics.networkRequestLabel('/player-stats', 'xhr').diagnosticEndpoint,
+    'player-stats-page'
+  )
+  for (const id of [
+    'magnus',
+    'mortarion',
+    'silent-king',
+    'ghazghkull',
+    'avatar-of-khaine',
+    'belisarius',
+    'riptide',
+    'rogal-dorn',
+    'screamer-killer',
+    'lion',
+    'hive-tyrant-kronos',
+    'hive-tyrant-gorgon',
+    'hive-tyrant-leviathan',
+    'tervigon-kronos',
+    'tervigon-gorgon',
+    'tervigon-leviathan'
+  ]) {
+    const label = diagnostics.requestLabel(
+      '/boss-playbooks/' + id,
+      'xhr',
+      'scores-view'
+    )
+    assert.deepEqual(label, {
+      endpoint: 'boss-playbook-detail-page',
+      resource: 'xhr',
+      phase: 'scores-view'
+    })
+  }
+  const canary = 'SYNTHETIC-SECRET-CANARY'
+  for (const path of [
+    '/boss-playbooks/' + canary,
+    '/boss-playbooks/magnus/private',
+    '/boss-playbooks/%6dagnus',
+    '/boss-playbooks/magnus?key=' + canary
+  ]) {
+    const label = diagnostics.requestLabel(path, 'xhr')
+    assert.equal(label.endpoint, 'other-local')
+    assert.equal(JSON.stringify(label).includes(canary), false)
+  }
+  const failure = {
+    ...diagnostics.requestLabel('/boss-playbooks/magnus', 'xhr'),
+    status: 0,
+    networkError: 'request-failed'
+  }
+  assert.equal(
+    diagnostics.networkFailureCause({
+      pending: [],
+      failed: [failure],
+      blocked: 0
+    }),
+    'request-failed'
+  )
+  assert.equal(
+    diagnostics.sanitizeFailure({
+      stage: 'renderer-network',
+      cause: 'request-failed',
+      network: { failed: [failure] }
+    }).network.failed[0].endpoint,
+    'boss-playbook-detail-page'
+  )
+})
+
+test('observer labels use the fine endpoint name while the receipt label keeps its original shape', () => {
+  assert.deepEqual(
+    diagnostics.observerRequestLabel('/boss-assignments', 'xhr', 'scores-view'),
+    {
+      endpoint: 'boss-assignments-page',
+      resource: 'xhr',
+      phase: 'scores-view'
+    }
+  )
+  assert.deepEqual(
+    diagnostics.requestLabel('/boss-assignments', 'xhr', 'scores-view'),
+    { endpoint: 'other-local', resource: 'xhr', phase: 'scores-view' }
+  )
 })

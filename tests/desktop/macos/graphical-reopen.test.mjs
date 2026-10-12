@@ -14,6 +14,7 @@ import { createHash } from 'node:crypto'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { qualifyGraphicalReopen } from '../../../apps/desktop/platform/macos/graphical-reopen.mjs'
+import { syntheticDigestScope } from '../../../apps/desktop/platform/macos/device-proof.mjs'
 
 const refused = { code: 'EGRAPHICALPROOF' }
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
@@ -42,6 +43,7 @@ async function fixture(t) {
     sourceCommit: binding.sourceCommit,
     artifactSha256: binding.artifactSha256,
     deviceEvidence: join(working, 'device-session.json'),
+    supervisorEvidence: join(working, 'supervisor-network.json'),
     evidence: join(working, 'renderer.json'),
     screenshot: join(working, 'renderer.png'),
     networkPolicy: '(version 1)(allow default)(deny network*)',
@@ -62,10 +64,21 @@ function device(f, launch) {
     forgedSessionRefused: true,
     localDataPreserved: true,
     syntheticDataDigest: String(launch).repeat(64),
+    syntheticDataDigestScope: syntheticDigestScope,
     postJourneyDataDigest: String(launch + 1).repeat(64),
     keychainBindings: 'unqualified-owner-provisioning-required',
     sourceCommit: f.binding.sourceCommit,
     artifactSha256: f.binding.artifactSha256
+  }
+}
+function supervisor(f) {
+  return {
+    synthetic: true,
+    localUnixIPC: true,
+    nonLoopbackTCPDenied: true,
+    sourceCommit: f.binding.sourceCommit,
+    artifactSha256: f.binding.artifactSha256,
+    runtimeSupervisor: true
   }
 }
 function renderer() {
@@ -95,11 +108,21 @@ function writer(f, change = () => {}) {
     launch++
     assert.deepEqual(args, [])
     const config = JSON.parse(await readFile(options.verifyFile))
-    const receipts = { device: device(f, launch), renderer: renderer(), png }
+    const receipts = {
+      device: device(f, launch),
+      supervisor: supervisor(f),
+      renderer: renderer(),
+      png
+    }
     await change(receipts, launch, config)
     await writeFile(config.deviceEvidence, JSON.stringify(receipts.device), {
       mode: 0o600
     })
+    await writeFile(
+      config.supervisorEvidence,
+      JSON.stringify(receipts.supervisor),
+      { mode: 0o600 }
+    )
     await writeFile(config.evidence, JSON.stringify(receipts.renderer), {
       mode: 0o600
     })
@@ -160,6 +183,10 @@ test('mandatory graphical qualification awaits two installed launches in the sam
   assert.deepEqual(second, {
     ...f.config,
     deviceEvidence: join(f.working, 'graphical-reopen-device-session.json'),
+    supervisorEvidence: join(
+      f.working,
+      'graphical-reopen-supervisor-network.json'
+    ),
     evidence: join(f.working, 'graphical-reopen-renderer.json'),
     screenshot: join(f.working, 'graphical-reopen-renderer.png')
   })
@@ -171,7 +198,7 @@ test('mandatory graphical qualification awaits two installed launches in the sam
   assert.equal(result.architecture, 'arm64')
   assert.equal(result.sameWorkspace, true)
   assert.equal(result.crossLaunchDataPreserved, true)
-  assert.equal(result.runtimeSupervisorConfinement, 'not-established')
+  assert.equal(result.runtimeSupervisorConfinement, 'os-external-tcp-denied')
   for (const [index, config] of [f.config, second].entries()) {
     const record = result.launches[index]
     assert.equal(record.launch, index + 1)
@@ -181,6 +208,10 @@ test('mandatory graphical qualification awaits two installed launches in the sam
     assert.equal(
       record.deviceSHA256,
       sha(await readFile(config.deviceEvidence))
+    )
+    assert.equal(
+      record.supervisorSHA256,
+      sha(await readFile(config.supervisorEvidence))
     )
     assert.equal(record.rendererSHA256, sha(await readFile(config.evidence)))
     assert.equal(
@@ -302,6 +333,42 @@ for (const [name, change] of [
     'unknown device field',
     (r) => {
       r.device.extra = 'SYNTHETIC-PRIVATE-CANARY'
+    }
+  ],
+  [
+    'wrong device digest scope',
+    (r) => {
+      r.device.syntheticDataDigestScope = 'all-rows'
+    }
+  ],
+  [
+    'external TCP not denied by the supervisor',
+    (r) => {
+      r.supervisor.nonLoopbackTCPDenied = false
+    }
+  ],
+  [
+    'supervisor receipt not from the runtime supervisor',
+    (r) => {
+      r.supervisor.runtimeSupervisor = false
+    }
+  ],
+  [
+    'supervisor receipt for another artifact',
+    (r) => {
+      r.supervisor.artifactSha256 = 'f'.repeat(64)
+    }
+  ],
+  [
+    'supervisor receipt for another source',
+    (r) => {
+      r.supervisor.sourceCommit = 'f'.repeat(40)
+    }
+  ],
+  [
+    'unknown supervisor field',
+    (r) => {
+      r.supervisor.extra = 'SYNTHETIC-PRIVATE-CANARY'
     }
   ],
   [

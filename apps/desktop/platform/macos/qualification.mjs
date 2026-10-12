@@ -15,6 +15,7 @@ import {
   retainSchemaProofPrimaryEvidence,
   schemaBootstrapChildFailure
 } from './schema-bootstrap-proof.mjs'
+import { runNavigationControl } from './navigation-control.mjs'
 
 const inputs = resolve(process.argv[2]),
   application = resolve(process.argv[3]),
@@ -153,14 +154,15 @@ const config = {
   sourceCommit: process.env.MAC_SOURCE_SHA,
   artifactSha256: digest,
   deviceEvidence: join(working, 'device-session.json'),
+  supervisorEvidence: join(working, 'supervisor-network.json'),
   evidence: join(working, 'renderer.json'),
   screenshot: join(working, 'renderer.png')
 }
 await writeFile(storageVerify, JSON.stringify(config), { mode: 0o600 })
 // Storage launches run the full installed descendant tree under this policy.
-// The graphical launch confines every service with it but keeps Electron
-// outside, because Chromium cannot initialize its own sandbox inside another
-// Seatbelt profile; Electron proves its refusal of external requests itself.
+// The graphical launch confines its runtime supervisor and services with it.
+// The fixed native IPC broker launches Electron outside the inherited policy
+// so Chromium can initialize its own sandbox and prove its request filter.
 // This policy is a qualification tool, not a weakened consumer OS protection.
 const policy =
   '(version 1)(allow default)(deny network*)(allow network* (local unix-socket))(allow network* (remote unix-socket))(allow network-inbound (local ip "localhost:*"))(allow network-outbound (remote ip "localhost:*"))'
@@ -223,6 +225,8 @@ async function run(
   { wholeTreePolicy = false, stateDirectory = state, verifyFile = verify } = {}
 ) {
   const executable = join(installed, 'Contents/MacOS/TacticusAnalytics')
+  const config = JSON.parse(await readFile(verifyFile, 'utf8'))
+  const graphicalBroker = !wholeTreePolicy && Boolean(config.networkPolicy)
   const child = spawn(
     wholeTreePolicy ? '/usr/bin/sandbox-exec' : executable,
     [
@@ -230,7 +234,11 @@ async function run(
       '--run',
       join(stateDirectory, 'owner.lock'),
       join(runtime, 'bin/node'),
-      join(runtime, 'apps/desktop/platform/macos/runtime.mjs'),
+      join(
+        runtime,
+        'apps/desktop/platform/macos',
+        graphicalBroker ? 'window-broker.mjs' : 'runtime.mjs'
+      ),
       '--verify',
       verifyFile,
       ...arguments_
@@ -260,8 +268,42 @@ async function run(
     clearTimeout(deadline)
   }
 }
-let failedPhase = 'graphical'
+let failedPhase = 'graphical',
+  installedInventoryVerified = false,
+  navigationControlAttempted = false
+async function collectNavigationControl() {
+  navigationControlAttempted = true
+  await runNavigationControl({
+    electron: join(runtime, 'electron/Electron.app/Contents/MacOS/Electron'),
+    guard: join(installed, 'Contents/MacOS/TacticusAnalytics'),
+    script: join(runtime, 'apps/desktop/platform/macos/navigation-control.cjs'),
+    output: join(working, 'navigation-control.json'),
+    sourceCommit: process.env.MAC_SOURCE_SHA,
+    artifactSha256: digest
+  })
+  await cp(
+    join(working, 'navigation-control.json'),
+    join(output, 'navigation-control.json')
+  )
+}
 try {
+  // Bind the diagnostic to the complete installed image before execution.
+  const manifest = JSON.parse(
+    await readFile(
+      join(installed, 'Contents/Resources/package-inventory.json'),
+      'utf8'
+    )
+  )
+  const installedFiles = (await inventory(installed)).filter(
+    (file) => file.path !== 'Contents/Resources/package-inventory.json'
+  )
+  if (
+    manifest.sourceCommit !== process.env.MAC_SOURCE_SHA ||
+    manifest.architecture !== process.arch ||
+    JSON.stringify(installedFiles) !== JSON.stringify(manifest.files)
+  )
+    throw new Error('Installed control package inventory mismatch')
+  installedInventoryVerified = true
   await qualifyGraphicalReopen({
     working,
     state,
@@ -291,6 +333,9 @@ try {
       await run(arguments_, options)
     }
   })
+  // Keep the actual graphical launches free of diagnostic Electron warmup.
+  failedPhase = 'navigation-control'
+  await collectNavigationControl()
   failedPhase = 'storage'
   for (const name of ['storage-first.json', 'storage-second.json'])
     await run(['--storage-check', join(working, name)], {
@@ -298,16 +343,44 @@ try {
       verifyFile: storageVerify
     })
 } catch (error) {
+  // A failed primary journey retains its original error and verdict. Collect
+  // the bounded diagnostic afterward, only from the verified installed image.
+  if (installedInventoryVerified && !navigationControlAttempted) {
+    try {
+      await collectNavigationControl()
+    } catch {
+      try {
+        await writeFile(
+          join(output, 'navigation-control-diagnostic-failure.json'),
+          JSON.stringify({
+            synthetic: true,
+            sourceCommit: process.env.MAC_SOURCE_SHA,
+            artifactSha256: digest,
+            classification: 'diagnostic',
+            accepted: false,
+            productAcceptance: false,
+            failure: 'control-not-established'
+          }),
+          { mode: 0o600 }
+        )
+      } catch {}
+    }
+  }
   for (const name of [
+    'navigation-control.json',
     'device-session.json',
+    'supervisor-network.json',
     'renderer.json',
     'renderer.json.failure.json',
     'renderer.json.native.json',
+    'renderer.json.lifecycle.json',
     'renderer.png',
     'graphical-reopen-device-session.json',
+    'graphical-reopen-supervisor-network.json',
     'graphical-reopen-renderer.json',
     'graphical-reopen-renderer.json.failure.json',
     'graphical-reopen-renderer.json.native.json',
+    'graphical-reopen-renderer.json.lifecycle.json',
     'graphical-reopen-renderer.png',
     'graphical-reopen.json',
     'graphical-reopen-failure.json',
@@ -639,12 +712,17 @@ try {
 const files = await inventory(installed)
 const attachments = []
 for (const [name, mediaType] of [
+  ['navigation-control.json', 'application/json'],
   ['device-session.json', 'application/json'],
   ['network-policy.json', 'application/json'],
+  ['supervisor-network.json', 'application/json'],
   ['renderer.json', 'application/json'],
+  ['renderer.json.lifecycle.json', 'application/json'],
   ['renderer.png', 'image/png'],
   ['graphical-reopen-device-session.json', 'application/json'],
+  ['graphical-reopen-supervisor-network.json', 'application/json'],
   ['graphical-reopen-renderer.json', 'application/json'],
+  ['graphical-reopen-renderer.json.lifecycle.json', 'application/json'],
   ['graphical-reopen-renderer.png', 'image/png'],
   ['graphical-reopen.json', 'application/json'],
   ['storage-first.json', 'application/json'],
@@ -712,7 +790,9 @@ console.log(
     installation: 'unsigned-developer-copy-from-mounted-image',
     files: files.length,
     offlineRenderer: 'selected-analytics-pass',
-    restart: 'pass',
+    restart: 'graphical-and-storage-pass',
+    sameWorkspaceGraphicalLaunches: 2,
+    runtimeSupervisorNetwork: 'os-external-tcp-denied',
     databaseBackupRestore: 'pass',
     badMigrationRollback: 'pass',
     signature: 'pending-owner-identity',

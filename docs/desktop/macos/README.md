@@ -45,12 +45,17 @@ mounts a generated DMG, copies the app into a path with spaces and Unicode, and
 runs the installed binaries under a network sandbox allowing loopback and local
 Unix IPC. Before launch, the installed Node must exchange a synthetic Unix
 socket message and receive an OS permission refusal for direct external TCP.
-The receipt records only fixed results; a timeout never counts as denial.
+DNS target lookup retries transient failures with bounded deadlines before
+applying the policy. The receipt records only fixed results; a timeout never
+counts as denial.
 Storage and restart launches run the whole installed tree under that policy.
-The graphical launch confines the PostgreSQL, Auth, PostgREST and Next.js
-server child processes with it. The runtime supervisor, which hosts the loopback
-gateway, and Electron run outside it, because Chromium cannot initialize its own
-sandbox inside another Seatbelt profile. Electron's sandbox stays enabled; instead the journey requires
+The graphical launch uses a fixed native IPC broker to launch the runtime
+supervisor and its PostgreSQL, Auth, PostgREST and Next.js services under the
+policy. The supervisor verifies its own direct external TCP permission refusal
+before starting services. The broker launches Electron outside the inherited
+policy, because Chromium must initialize its own sandbox. The broker accepts
+no executable, argument, path or environment from renderer messages.
+Electron's sandbox stays enabled; the journey requires
 Electron to refuse a public host name and a public address, and the desktop
 window never resolves host names. This qualification policy does
 not establish the consumer's full opt-in network boundary. It exercises
@@ -68,11 +73,14 @@ This receipt is bound to the source commit and DMG digest. The packaged
 journey then covers actual Electron bootstrap and signed-out recovery on virtual
 machines, then requires a second sequential graphical launch against the same
 workspace under the same service policy. Both native launches must complete
-successfully; distinct device, renderer and screenshot evidence binds the
-first post-journey data digest to the second pre-journey digest. The two later
-storage-only launches remain separate checks. These are synthetic VM proof
-requirements, not preserved consumer Keychain qualification or confinement of
-the runtime supervisor, which remain separate requirements.
+successfully; distinct device, supervisor, renderer and screenshot evidence
+binds the first post-journey data digest to the second pre-journey digest. In
+each launch the runtime supervisor itself runs under the policy and its
+external-TCP refusal receipt is source- and artifact-bound, while the native IPC
+broker starts Electron outside the inherited policy. The two later storage-only
+launches remain separate checks. These are synthetic VM proof requirements, not
+preserved consumer Keychain qualification, which remains a separate
+requirement.
 If the graphical journey still records a native sandbox initialization
 failure, a separate compatibility probe runs the same installed payload in one
 fresh synthetic workspace across two ordinary launches. Electron's own sandbox
@@ -86,7 +94,8 @@ request paths. A failed run keeps its screenshot, which shows only the
 synthetic workspace, so a calculation or rendering mismatch can be diagnosed.
 Intentional refusals stay separate from unexpected renderer failures: the
 gateway tags its credential holding response, and authorization failures are
-accepted only from the deliberate sign-out until the recovery reload completes.
+accepted only while deliberately signed out. The recovery phase begins as soon
+as replacement session cookies are installed, before loading the recovered page.
 The analytics view loaded after recovery must have none.
 
 Ordinary setup creates a local Auth account in a Player-required holding state.
@@ -165,3 +174,10 @@ Relocated developer Mach-O files receive a local ad-hoc loader seal. This create
 no signing identity and supplies no trusted consumer signature or notarization.
 Qualification emits all thirteen `platform-evidence/v1` scenarios, leaving
 unmeasured consumer acceptance blocked even when selected database checks pass.
+
+The graphical restart receipt compares persistent business data before and after
+relaunch. Its declared digest scope excludes only mapping activity/update
+timestamps and guild update timestamps written by the ordinary page heartbeat.
+Raid data, Player cache, guild configuration, owner/membership and identity
+attestations remain included; these fields must survive the same-workspace
+restart and signed-out recovery unchanged.

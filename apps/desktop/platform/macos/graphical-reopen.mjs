@@ -2,6 +2,7 @@ import { constants } from 'node:fs'
 import { lstat, open, writeFile } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import { join, isAbsolute } from 'node:path'
+import { syntheticDigestScope } from './device-proof.mjs'
 
 const refuse = () =>
   Object.assign(new Error('Installed graphical reopen proof refused'), {
@@ -90,6 +91,24 @@ function decode(bytes) {
     throw refuse()
   }
 }
+function validateSupervisor(supervisor, binding) {
+  requireProof(
+    keys(supervisor, [
+      'synthetic',
+      'localUnixIPC',
+      'nonLoopbackTCPDenied',
+      'sourceCommit',
+      'artifactSha256',
+      'runtimeSupervisor'
+    ]) &&
+      supervisor.synthetic === true &&
+      supervisor.localUnixIPC === true &&
+      supervisor.nonLoopbackTCPDenied === true &&
+      supervisor.runtimeSupervisor === true &&
+      supervisor.sourceCommit === binding.sourceCommit &&
+      supervisor.artifactSha256 === binding.artifactSha256
+  )
+}
 function validateRenderer(renderer) {
   requireProof(
     keys(renderer, [
@@ -162,6 +181,7 @@ function validateDevice(device, binding, launch) {
       'forgedSessionRefused',
       'localDataPreserved',
       'syntheticDataDigest',
+      'syntheticDataDigestScope',
       'postJourneyDataDigest',
       'keychainBindings',
       'sourceCommit',
@@ -178,6 +198,7 @@ function validateDevice(device, binding, launch) {
       ].every((key) => device[key] === true) &&
       device.freshPasswordFreeHolding === (launch === 1) &&
       device.formerPasswordOwnerPreserved === (launch === 1) &&
+      device.syntheticDataDigestScope === syntheticDigestScope &&
       device.sourceCommit === binding.sourceCommit &&
       device.artifactSha256 === binding.artifactSha256 &&
       device.keychainBindings === 'unqualified-owner-provisioning-required' &&
@@ -228,6 +249,7 @@ export async function qualifyGraphicalReopen({
         'sourceCommit',
         'artifactSha256',
         'deviceEvidence',
+        'supervisorEvidence',
         'evidence',
         'screenshot',
         'networkPolicy',
@@ -237,6 +259,8 @@ export async function qualifyGraphicalReopen({
         config.sourceCommit === binding.sourceCommit &&
         config.artifactSha256 === binding.artifactSha256 &&
         config.deviceEvidence === join(working, 'device-session.json') &&
+        config.supervisorEvidence ===
+          join(working, 'supervisor-network.json') &&
         config.evidence === join(working, 'renderer.json') &&
         config.screenshot === join(working, 'renderer.png') &&
         typeof config.networkPolicy === 'string' &&
@@ -247,6 +271,10 @@ export async function qualifyGraphicalReopen({
     const second = {
       ...config,
       deviceEvidence: join(working, 'graphical-reopen-device-session.json'),
+      supervisorEvidence: join(
+        working,
+        'graphical-reopen-supervisor-network.json'
+      ),
       evidence: join(working, 'graphical-reopen-renderer.json'),
       screenshot: join(working, 'graphical-reopen-renderer.png')
     }
@@ -255,7 +283,9 @@ export async function qualifyGraphicalReopen({
       config.deviceEvidence,
       config.evidence,
       config.screenshot,
+      config.supervisorEvidence,
       second.deviceEvidence,
+      second.supervisorEvidence,
       second.evidence,
       second.screenshot,
       secondVerify,
@@ -277,6 +307,12 @@ export async function qualifyGraphicalReopen({
       const deviceBytes = await boundedFile(current.deviceEvidence, 1048576)
       const device = decode(deviceBytes)
       validateDevice(device, binding, launch)
+      stage = 'supervisor-receipt'
+      const supervisorBytes = await boundedFile(
+        current.supervisorEvidence,
+        65536
+      )
+      validateSupervisor(decode(supervisorBytes), binding)
       stage = 'renderer-receipt'
       const rendererBytes = await boundedFile(current.evidence, 1048576)
       validateRenderer(decode(rendererBytes))
@@ -294,6 +330,7 @@ export async function qualifyGraphicalReopen({
         beforeJourneyDataDigest: device.syntheticDataDigest,
         afterJourneyDataDigest: device.postJourneyDataDigest,
         deviceSHA256: sha(deviceBytes),
+        supervisorSHA256: sha(supervisorBytes),
         rendererSHA256: sha(rendererBytes),
         screenshotSHA256: sha(png)
       })
@@ -313,7 +350,7 @@ export async function qualifyGraphicalReopen({
       launches,
       crossLaunchDataPreserved: true,
       networkScope: 'existing-service-policy-plus-electron-refusal',
-      runtimeSupervisorConfinement: 'not-established',
+      runtimeSupervisorConfinement: 'os-external-tcp-denied',
       scope:
         'Installed synthetic VM graphical reopen only; owning acceptance remains open.'
     }

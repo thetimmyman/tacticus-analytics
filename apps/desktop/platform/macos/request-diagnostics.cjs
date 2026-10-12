@@ -10,6 +10,36 @@ const stages = [
 ]
 const codes = ['ESESSION', 'EVAULT', 'EVAULTLOCKED', 'EACCESS', 'EVERIFY']
 const causes = ['requests-pending', 'request-failed']
+const networkErrors = {
+  'net::ERR_FAILED': 'request-failed',
+  'net::ERR_CONNECTION_RESET': 'connection-reset',
+  'net::ERR_CONNECTION_CLOSED': 'connection-closed',
+  'net::ERR_CONNECTION_REFUSED': 'connection-refused',
+  'net::ERR_EMPTY_RESPONSE': 'empty-response',
+  'net::ERR_TIMED_OUT': 'timed-out',
+  'net::ERR_NETWORK_CHANGED': 'network-changed',
+  'net::ERR_INCOMPLETE_CHUNKED_ENCODING': 'incomplete-body',
+  'net::ERR_CONTENT_LENGTH_MISMATCH': 'body-length-mismatch',
+  'net::ERR_CONTENT_DECODING_FAILED': 'body-decoding-failed',
+  'net::ERR_NAME_NOT_RESOLVED': 'name-not-resolved',
+  'net::ERR_BLOCKED_BY_CLIENT': 'client-blocked'
+}
+const documents = {
+  '/home': 'home-document',
+  '/player-performance': 'scores-document',
+  '/desktop/personal': 'personal-document',
+  '/desktop/setup': 'setup-document'
+}
+const methods = [
+  'GET',
+  'POST',
+  'HEAD',
+  'OPTIONS',
+  'PUT',
+  'PATCH',
+  'DELETE',
+  'other'
+]
 const phases = [
   'initial-open',
   'renderer-refusal',
@@ -50,15 +80,60 @@ const endpoints = {
   '/supabase/rest/v1/player_with_cluster': 'cluster-profile',
   '/supabase/rest/v1/rpc/get_token_usage_for_guild': 'token-usage-read',
   '/supabase/rest/v1/rpc/get_season_token_stats': 'token-stats-read',
+  '/supabase/rest/v1/rpc/get_guild_player_scores_batch': 'scores-batch-read',
+  '/supabase/rest/v1/rpc/get_season_token_stats_batch':
+    'token-stats-batch-read',
   '/api/performance/five-season-averages': 'performance-averages',
   '/api/upcoming/token-performance': 'target-performance',
   '/api/health': 'health',
   '/api/user/activity': 'activity',
+  '/api/user/token-alerts': 'token-alerts',
+  '/api/briefing/seen': 'briefing-seen',
   '/api/version': 'version',
+  '/api/health/telemetry': 'health-telemetry',
+  '/api/season/timing': 'season-timing',
+  '/api/assignments/current-season-bosses': 'current-season-bosses',
+  '/api/assignments/next-season-bosses': 'next-season-bosses',
+  '/api/sync/freshness': 'sync-freshness',
+  '/api/features/stages': 'feature-stages',
+  '/api/guild-trends/target-scores-batch': 'target-scores',
+  '/api/boss-assignments/target-tokens/schedule': 'target-schedule',
+  '/api/boss-assignments/target-tokens/rotation-stats': 'target-rotation',
+  '/supabase/rest/v1/EOT_GR_data': 'raid-data',
+  '/supabase/rest/v1/guild_members': 'guild-members',
+  '/supabase/rest/v1/guild_raid_season': 'raid-season',
+  '/supabase/rest/v1/rpc/get_player_boss_performance': 'boss-performance',
+  '/supabase/rest/v1/rpc/get_player_prime_performance': 'prime-performance',
+  '/supabase/rest/v1/rpc/get_player_performance_summary': 'performance-summary',
+  '/supabase/rest/v1/rpc/get_guild_vs_cluster_boss_performance':
+    'cluster-boss-performance',
   '/favicon.ico': 'favicon'
 }
+// Finite home-table targets from boss-playbooks/playbook-id.ts; the ID is never
+// emitted and arbitrary detail paths remain unknown.
+const playbookPaths = new Set(
+  [
+    'magnus',
+    'mortarion',
+    'silent-king',
+    'ghazghkull',
+    'avatar-of-khaine',
+    'belisarius',
+    'riptide',
+    'rogal-dorn',
+    'screamer-killer',
+    'lion',
+    'hive-tyrant-kronos',
+    'hive-tyrant-gorgon',
+    'hive-tyrant-leviathan',
+    'tervigon-kronos',
+    'tervigon-gorgon',
+    'tervigon-leviathan'
+  ].map((id) => `/boss-playbooks/${id}`)
+)
 const endpointNames = [
   ...Object.values(endpoints),
+  'boss-playbook-detail-page',
   'static-asset',
   'other-local'
 ]
@@ -105,7 +180,11 @@ const diagnosticEndpoints = {
   '/acknowledgements': 'acknowledgements-page',
   '/guild-settings': 'guild-settings-page',
   '/admin/feature-releases': 'feature-releases-page',
-  '/downloads': 'downloads-page'
+  '/downloads': 'downloads-page',
+  '/faq': 'faq-page',
+  '/privacy': 'privacy-page',
+  '/terms': 'terms-page',
+  '/do-not-sell': 'do-not-sell-page'
 }
 const diagnosticEndpointNames = [
   ...endpointNames,
@@ -142,7 +221,11 @@ function requestLabel(path, resource, phase) {
   return {
     endpoint:
       endpoints[path] ??
-      (path.startsWith('/_next/static/') ? 'static-asset' : 'other-local'),
+      (playbookPaths.has(path)
+        ? 'boss-playbook-detail-page'
+        : path.startsWith('/_next/static/')
+          ? 'static-asset'
+          : 'other-local'),
     resource: resources.includes(resource) ? resource : 'other',
     ...(phases.includes(phase) ? { phase } : {})
   }
@@ -190,6 +273,18 @@ function networkRequestLabel(path, resource, phase) {
         : (diagnosticEndpoints[path] ?? original.endpoint),
     requestClass: requestClass(path)
   }
+}
+
+// Observer snapshots are diagnostics, not success receipts, so they carry the
+// finer fixed endpoint name in the ordinary endpoint field.
+function observerRequestLabel(path, resource, phase) {
+  const { diagnosticEndpoint, requestClass, ...label } = networkRequestLabel(
+    path,
+    resource,
+    phase
+  )
+  void requestClass
+  return { ...label, endpoint: diagnosticEndpoint }
 }
 
 // Read only own data properties for these standard indicators. Other header
@@ -271,6 +366,37 @@ function sanitizeNetworkDiagnostics(input) {
     value[kind] = unique.slice(0, 20)
   }
   return value
+}
+
+function networkErrorLabel(error) {
+  return Object.hasOwn(networkErrors, error) ? networkErrors[error] : 'other'
+}
+
+function requestMetadata(method, headers) {
+  const value = { method: methods.includes(method) ? method : 'other' }
+  if (!headers || typeof headers !== 'object' || Array.isArray(headers))
+    return value
+  const names = Object.fromEntries(
+    Object.entries(headers).map(([name, value]) => [name.toLowerCase(), value])
+  )
+  value.rsc = names.rsc === '1'
+  value.prefetch =
+    names['next-router-prefetch'] === '1' ||
+    ['purpose', 'sec-purpose'].some(
+      (name) =>
+        typeof names[name] === 'string' &&
+        names[name].toLowerCase().includes('prefetch')
+    )
+  return value
+}
+
+function requestDocumentLabel(referrer) {
+  try {
+    const path = new URL(referrer).pathname
+    return Object.hasOwn(documents, path) ? documents[path] : 'other-document'
+  } catch {
+    return 'other-document'
+  }
 }
 
 function sanitizeFailure(input) {
@@ -375,14 +501,33 @@ function unexpectedFailure(failure) {
   return true
 }
 
+// Fail closed on an incomplete final observation; pending work is never a pass.
+function networkFailureCause(network) {
+  if (
+    !Array.isArray(network?.pending) ||
+    !Array.isArray(network?.failed) ||
+    !Number.isSafeInteger(network?.blocked) ||
+    network.blocked < 0
+  )
+    return 'request-failed'
+  if (network.pending.length) return 'requests-pending'
+  if (network.blocked || network.failed.some(unexpectedFailure))
+    return 'request-failed'
+}
+
 module.exports = {
   requestLabel,
   networkRequestLabel,
+  observerRequestLabel,
   chromiumErrorCategory,
   requestKind,
+  networkErrorLabel,
+  requestMetadata,
+  requestDocumentLabel,
   sanitizeFailure,
   rendererReceipt,
   holdingHeader,
   holdingRefusal,
-  unexpectedFailure
+  unexpectedFailure,
+  networkFailureCause
 }
