@@ -65,17 +65,16 @@ internal static class Program
                 case "run-installed-candidate":
                 {
                     var active = Bundle.Active(Installation.Root, false);
+                    using var activatedBytes = Bundle.PinVerified(active);
                     // The native owner must come from the activated version, so a rollback also rolls back the host.
                     var activated = Path.Combine(active, "TacticusDesktop.exe");
                     if (!string.Equals(Path.GetFullPath(Environment.ProcessPath!), Path.GetFullPath(activated), StringComparison.OrdinalIgnoreCase))
                     {
-                        var host = new ProcessStartInfo(activated) { UseShellExecute = false, WorkingDirectory = active };
-                        host.ArgumentList.Add("run-installed-candidate");
-                        using var relaunched = Process.Start(host) ?? throw new InvalidOperationException("Activated host unavailable");
-                        await relaunched.WaitForExitAsync();
-                        return relaunched.ExitCode;
+                        using var owner = new JobOwner();
+                        using var relaunched = owner.Start(activated, new[] { "run-installed-candidate" }, active);
+                        return relaunched.Wait();
                     }
-                    return await Main(new[] { "run-candidate", active, Installation.Workspace });
+                    return RunCandidate(active, Installation.Workspace, Array.Empty<string>(), pinned: activatedBytes);
                 }
                 case "install-candidate" when args.Length == 3:
                     Console.WriteLine(Bundle.StageCandidate(Path.GetFullPath(args[1]), Path.GetFullPath(args[2]))); return 0;
@@ -173,7 +172,7 @@ internal static class Program
         return workspace;
     }
     private static int RunCandidate(string root, string workspace, IEnumerable<string> forwarded,
-        bool retainDesktopAppRuntime = false)
+        bool retainDesktopAppRuntime = false, VerifiedBundle? pinned = null)
     {
         var arguments = forwarded.ToArray();
         const string packageRuntimeArgument = "--native-package-runtime";
@@ -186,8 +185,12 @@ internal static class Program
             ? arguments[measurementIndex + 1]
             : null;
         WriteMeasurement(measurementPath, "native-admitted", null, null, null, null);
-        var manifest = Bundle.Load(root);
-        Bundle.Verify(root, manifest);
+        // The unpackaged candidate holds its verified inputs open until the owned
+        // process tree stops. A package payload is sealed by Windows itself.
+        using var ownedPin = pinned is null && !retainDesktopAppRuntime ? Bundle.PinVerified(root) : null;
+        var held = pinned ?? ownedPin;
+        var manifest = held?.Manifest ?? Bundle.Load(root);
+        if (held is null) Bundle.Verify(root, manifest);
         using var state = new ProtectedState(workspace);
         using var job = new JobOwner();
         var script = Path.Combine(root, "apps", "desktop", "platform", "windows", "launch.mjs");
@@ -370,13 +373,57 @@ internal static class NativeProof
             catch (InvalidOperationException) { oversizedImport = true; }
             if (!oversizedImport) throw new InvalidOperationException("Oversized native import accepted");
             assertions.Add("expired-import-refused-and-bounded-same-handle-credential-free-read");
-            var candidate = Path.Combine(testRoot, "source"); Directory.CreateDirectory(candidate);
+            var candidate = Path.Combine(testRoot, new string('A', 80), new string('B', 80), new string('C', 80), "source"); Directory.CreateDirectory(candidate);
             File.WriteAllText(Path.Combine(candidate, "item.txt"), "synthetic retained content");
             var digest = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Path.Combine(candidate, "item.txt")))).ToLowerInvariant();
             File.WriteAllText(Path.Combine(candidate, "bundle-manifest.json"), JsonSerializer.Serialize(new { schemaVersion = 1, platform = "win-x64", sourceSha = new string('a', 40), files = new[] { new { path = "item.txt", size = new FileInfo(Path.Combine(candidate, "item.txt")).Length, sha256 = digest } } }));
             var install = Path.Combine(testRoot, "install ü");
             var first = Bundle.StageCandidate(candidate, install); var second = Bundle.StageCandidate(candidate, install);
             if (first == second || Bundle.Active(install, true) != first) throw new InvalidOperationException("Rollback failed");
+            using (var pinned = Bundle.PinVerified(first))
+            {
+                var outside = Path.Combine(testRoot, "outside.dll");
+                File.WriteAllText(outside, "synthetic outside module");
+                var insertionRefused = false;
+                try { File.WriteAllText(Path.Combine(first, "unmanifested.dll"), "synthetic unverified module"); }
+                catch (IOException) { insertionRefused = true; } catch (UnauthorizedAccessException) { insertionRefused = true; }
+                if (!insertionRefused) throw new InvalidOperationException("New unmanifested executable input was accepted after verification");
+                var renameRefused = false;
+                try { File.Move(outside, Path.Combine(first, "renamed-in.dll")); }
+                catch (IOException) { renameRefused = true; } catch (UnauthorizedAccessException) { renameRefused = true; }
+                if (!renameRefused) throw new InvalidOperationException("Executable input was renamed into the sealed package");
+                if (SealedDirectoryTree.TryCreateHardLinkForProof(Path.Combine(first, "linked-in.dll"), outside))
+                    throw new InvalidOperationException("Executable input was hard-linked into the sealed package");
+                foreach (var mutation in new Action[] {
+                    () => File.WriteAllText(Path.Combine(first, "item.txt"), "substitution"),
+                    () => File.Delete(Path.Combine(first, "item.txt")),
+                    () => File.Move(Path.Combine(first, "item.txt"), Path.Combine(first, "replacement.txt")),
+                    () => File.WriteAllText(Path.Combine(first, "bundle-manifest.json"), "{}"),
+                    () => Directory.Move(first, first + "-replaced")
+                })
+                {
+                    var refused = false;
+                    try { mutation(); } catch (IOException) { refused = true; } catch (UnauthorizedAccessException) { refused = true; }
+                    if (!refused) throw new InvalidOperationException("Verified package mutation was not refused while pinned");
+                }
+                if (pinned.Manifest.SourceSha != new string('a', 40)) throw new InvalidOperationException("Pinned manifest identity changed");
+            }
+            assertions.Add("sealed-runtime-insertion-file-manifest-and-directory-substitution-refused-through-execution-beyond-max-path");
+            var capabilityRoot = Path.Combine(testRoot, "preopened capability");
+            using (var tree = SealedDirectoryTree.Create(capabilityRoot))
+            {
+                tree.Seal();
+                if (tree.TryOpenAddCapabilityForProof())
+                    throw new InvalidOperationException("Sealed package directory admitted a child-creation capability");
+            }
+            foreach (var (input, expected) in new[] {
+                (@"C:\data\root", @"\??\C:\data\root"),
+                (@"\\?\C:\data\root", @"\??\C:\data\root"),
+                (@"\\?\UNC\host\share\root", @"\??\UNC\host\share\root"),
+                (@"\\host\share\root", @"\??\UNC\host\share\root") })
+                if (SealedDirectoryTree.NtPath(input) != expected) throw new InvalidOperationException("NT path mapping changed");
+            Directory.Delete(capabilityRoot, true);
+            assertions.Add("sealed-directory-child-creation-capability-refused-and-nt-path-forms-mapped");
             File.WriteAllText(Path.Combine(candidate, "item.txt"), "substitution");
             var bad = false; try { Bundle.StageCandidate(candidate, install); } catch (InvalidOperationException) { bad = true; }
             if (!bad || Bundle.Active(install, false) != first) throw new InvalidOperationException("Failed update changed activation");

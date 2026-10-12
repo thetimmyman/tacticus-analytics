@@ -51,6 +51,7 @@ const internalSupabaseStoragePattern = (() => {
 })();
 
 const enableRuntimePatch = process.env.ENABLE_RUNTIME_PATCH !== "false";
+const desktopRuntime = process.env.NEXT_PUBLIC_RUNTIME_PROFILE === "desktop";
 
 const nextConfig = {
   typescript: {
@@ -80,6 +81,7 @@ const nextConfig = {
   },
 
   images: {
+    unoptimized: desktopRuntime,
     loader: "default",
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -114,8 +116,8 @@ const nextConfig = {
 
   experimental: {
     // An 8 MiB file can double when JSON-escaped, plus bounded local mappings.
-    ...(process.env.NEXT_PUBLIC_RUNTIME_PROFILE === "desktop"
-      ? { proxyClientMaxBodySize: 24 * 1024 * 1024 }
+    ...(desktopRuntime
+      ? { proxyClientMaxBodySize: 24 * 1024 * 1024, isrFlushToDisk: false }
       : {}),
     // One process per CPU by default; cap it to bound memory on shared CI hosts.
     // Pinned by tests/unit/config/vitest-capacity.test.ts.
