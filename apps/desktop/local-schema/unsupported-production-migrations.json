@@ -1,0 +1,586 @@
+{
+  "schemaVersion": 1,
+  "description": "Files in supabase/migrations that the desktop local-schema bootstrap deliberately does not apply, each with a fixed reason code. The bootstrap selects canonical statements from the source migrations pinned in manifest.json by sourceFileSha256; every other migration is production-only.",
+  "unsupported": [
+    {
+      "file": "20260814000000_publication_security_boundaries.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260814100000_security_close_cross_guild_client_read_paths.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260814180000_wi6790_hash_cluster_leaderboard_account_uuid.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260814190000_wi6790_cluster_authz_and_guild_config_anon_columns.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260814200000_drop_dead_process_raw_api_fn_with_hardcoded_player_pii.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20260818220000_global_war_meta_and_external_archive.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260819020000_empty_external_war_meta_snapshots.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260819030000_bootstrap_first_leader_seat_claim.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260819234500_harden_finalize_onboarding_profile_guild_derivation.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260819235500_close_clusters_anon_read_boundary.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260819235600_drop_client_execute_get_cluster_config_for_edge.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260820140000_reconcile_replay_and_member_stats_schema.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260820150000_harden_replay_visibility_and_grants.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260820180000_reconcile_onboarding_guild_membership.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260820210000_wi7370_out_of_band_grant_allowance.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260820220000_harden_guild_reconciliation_races.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260821010000_claim_consume_read_invite_definer.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260823020000_permit_trusted_guild_code_rename.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260823164500_defer_attestation_ledger_read_in_move_guard.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260824130000_close_ban_and_pr56_review_boundaries.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260824180000_wi7920_public_snapshot_meta_team.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260824200000_record_guild_bootstrap_claim_authority.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260824210000_harden_progression_and_meta_config.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260824220000_serialize_user_ban_identity_bindings.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260825022000_include_auth_provider_ban_serialization.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260825040000_atomic_user_ban_reconciliation_enqueue.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260831030000_wi8210_attempts_event_id_backfill.sql",
+      "reason": "data-backfill"
+    },
+    {
+      "file": "20260831150100_wi8360_revoke_pg_db_role_setting_public_select.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260901010000_drop_2026_06_24_audit_dead_set.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20260901220000_wi7290_storage_objects_rls_authorization.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260901233000_drop_stale_member_luck_summary_general.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20260902010000_cron_secret_delivery_table_general.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260903120000_retire_competitive_intel_schema.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20260903130000_drop_never_scanned_indexes.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20260903160000_retire_ta_captured_replay_surface.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20260903170000_drop_never_scanned_indexes_sweep2.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20260903190000_retire_orphaned_member_stats_summary.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20260903200000_guild_member_stats_rpc.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260904000000_rescope_terminus_replays_to_cluster.sql",
+      "reason": "data-backfill"
+    },
+    {
+      "file": "20260904010000_drop_leftover_backup_tables.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20260904020000_explore_privacy_view.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260904021000_explore_privacy_revoke.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260904030000_ps22_retire_guc_secret_channel_general.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260904040000_ps22_reset_guc_secret_keys_general.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260904050000_restore_terminus_replays_public.sql",
+      "reason": "data-backfill"
+    },
+    {
+      "file": "20260904060000_ps125_revoke_public_guild_snapshots_writes.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260904070000_player_invite_codes_auth_fk_set_null.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260904080000_ps200_estimator_freshness_guard.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260904090000_ps253_can_upload_guild_images_gate.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260904100000_ps254_explore_obfuscation_percent.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260904110000_ps277_auth_audit_log_retention.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260904140000_ps291_guild_total_carriers_obey_privacy.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260904150000_ps285_anon_definer_oracles.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260904160000_ps40_erase_residual_player_mapping_identity.sql",
+      "reason": "data-backfill"
+    },
+    {
+      "file": "20260904180000_ps329_resync_serial_sequences.sql",
+      "reason": "data-backfill"
+    },
+    {
+      "file": "20260904190000_ps317_revoke_anon_has_active_users.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260904200000_ps308_drop_global_leaderboard_view.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20260904210000_ps364_revoke_anon_buckets.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260904220000_ps381_null_applicant_read_guard.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260908010000_ps387_playbook_anon_guard.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260908011000_ps397_auth_user_emails_invoker_avatar_revoke.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260908012000_ps399_drop_cluster_applications_plaintext_api_key_columns.sql",
+      "reason": "data-backfill"
+    },
+    {
+      "file": "20260908013000_ps472_player_mapping_analytics_ro_column_grants.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260908016000_ps497_eot_gr_data_lowercase_view.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260908017000_fix_deactivation_shim_infinity_observation.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260910010000_ps513_roster_write_monitor.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260919010000_ps25_role_statement_and_idle_timeouts.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260919011000_ps411_alert_staleness_and_renotify.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260919012000_ps669_retain_departed_player_mappings.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260919120000_ps256_revoke_anon_execute_on_maintenance_definers.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260919121000_ps80_sync_queue_drain_lanes.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260919123000_ps365_application_insert_policy_caller_bound.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260919180000_ps392_storage_prefixes_grants.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260919190000_ps378_retire_guild_war_showcase_rpcs.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20260919200000_ps377_invite_code_info_shape_leak.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260919210000_ps393_refresh_token_inactivity_sweep.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260920010000_ps516_drop_guild_war_sync_columns.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20260920100000_ps398_wire_quarantine_pii_eraser_cron.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260921010000_ps721_guild_sync_status_view_policy.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260921130000_ps293_late_arrival_window.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260924120000_ps278_guild_latest_raid_index.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260924130000_ps411_check_staleness_twin_contract.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260924203000_ps670_player_mapping_retention_cron.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260924213000_ps670_prune_registrations_hardening.sql",
+      "reason": "data-backfill"
+    },
+    {
+      "file": "20260925010000_ps111_drop_audit_only_indexes.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20260925010500_ps670_subject_erasure_player_ids.sql",
+      "reason": "data-backfill"
+    },
+    {
+      "file": "20260925011000_ps219_drop_ta_off_backup_tables.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20260925020000_ps203_pgnet_failure_snapshots.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260925030000_ps516_drop_guild_war_sync_machinery.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20260925040000_ps670_anonymize_subject_battle_rows.sql",
+      "reason": "data-backfill"
+    },
+    {
+      "file": "20260925045000_ps416_guild_war_zones_match_fk.sql",
+      "reason": "data-backfill"
+    },
+    {
+      "file": "20260925050000_retire_purge_old_seasons.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20260925060000_port_war_room_shared_teams.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260925070000_port_war_room_readiness.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260925080000_ps218_revoke_authenticated_write_grants.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260925085000_sync_quiet_tick_markers.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260925140000_authenticator_memberships_noinherit.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260925150000_war_room_teams_cluster_read.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260925160000_eot_gr_data_preserve_erasure_tombstone.sql",
+      "reason": "data-backfill"
+    },
+    {
+      "file": "20260925170000_alert_channel_routing.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260925180000_webhook_config_url_must_be_discord_webhook.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260925190000_alert_tracking_quiet.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260926010000_ps422_pgnet_outcome_ledger.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260927200000_bootstrap_authority_canonical_guild_code.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260927201000_sync_drain_run_recency_bound.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260927210000_orphan_guild_cleanup_keeps_battle_history.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260927220000_roster_write_sync_health_verdict.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260927230000_ability_icons_bucket_limits.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260928010000_heal_player_hash_battle_names.sql",
+      "reason": "data-backfill"
+    },
+    {
+      "file": "20260928020000_votlw_guild_season_first_battle.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260928030000_votlw_guilds_for_season.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260928040000_gdpr_request_health_monitor.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260928041000_retire_votlw_global_season_rule.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20260928050000_votlw_guild_season_first_battle_index.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260928053000_webhook_url_officer_only.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260928060000_season_summary_claim_atomic.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260928070000_season_summary_stats_rpc.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260928080000_recreate_get_all_boss_hp.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20260928081000_dead_function_retirement_ta_baseline.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20260928120000_gdpr_export_redrive_claim.sql",
+      "reason": "data-backfill"
+    },
+    {
+      "file": "20260928150000_sync_drain_gate_live_depth.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20260928200000_guild_config_credential_columns_client_hidden.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260928210000_default_privileges_no_client_grants.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20260928220000_discord_message_tracking_client_select_revoked.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20261004150000_sync_drain_sustained_window.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20261004193000_token_burn_lock_order.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20261004200000_loki_globalconfig_alert_state.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20261004230000_alert_persistence_policy.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20261005160000_pgnet_outcome_response_identity.sql",
+      "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20261006120000_revoke_discord_dispatch_write_grants.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20261006130000_revoke_guild_war_import_write_grants.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20261007120000_revoke_public_execute_on_claim_definers.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20261007153000_drop_mv_season_summary_and_gw_backfill_helpers.sql",
+      "reason": "schema-retirement"
+    },
+    {
+      "file": "20261007164500_roster_write_retire_disabled_guild_keys.sql",
+      "reason": "data-backfill"
+    },
+    {
+      "file": "20261007200000_revoke_remaining_public_definer_execute.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20261007210000_rest_reader_role.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20261007230000_revoke_service_traced_write_grants.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20261008001000_policy_rows_trusted_caller.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20261008020000_revoke_service_typed_write_grants.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20261008030000_adopt_player_api_key_strike_counter.sql",
+      "reason": "production-app-schema"
+    },
+    {
+      "file": "20261008150000_readonly_request_transaction.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20261008180000_revoke_public_cron_history.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20261008200000_readonly_caller_boundary.sql",
+      "reason": "production-only-role"
+    },
+    {
+      "file": "20261009160000_roster_confirmed_attested_transfer.sql",
+      "reason": "data-backfill"
+    },
+    {
+      "file": "20261009170000_roster_transfer_cluster_and_audit.sql",
+      "reason": "data-backfill"
+    }
+  ]
+}

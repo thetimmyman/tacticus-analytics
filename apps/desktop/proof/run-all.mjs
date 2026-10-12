@@ -27,6 +27,7 @@ run('a-loopback-gateway', '--test', [
   'apps/desktop/proof/loopback-gateway.test.mjs',
   'apps/desktop/proof/service-client.test.mjs',
   'apps/desktop/proof/schema-lifecycle.test.mjs',
+  'apps/desktop/local-schema/parity-report.test.mjs',
   'apps/desktop/proof/local-team-schema.test.mjs',
   'apps/desktop/proof/raid-management-schema.test.mjs',
   'apps/desktop/proof/season-planning-schema.test.mjs',
