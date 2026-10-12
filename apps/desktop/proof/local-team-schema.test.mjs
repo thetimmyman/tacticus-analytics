@@ -63,7 +63,8 @@ test('every admitted prior schema upgrades directly to the exact current bytes',
     if (
       [
         '62875299367a965d8ec5596d3a4b5aaa28b091cd5b36f3cabd3fe1f208a0c952',
-        '175767fb25c7c49fa0262da11563abd0c19f3acd2e0254008aed38746398fa96'
+        '175767fb25c7c49fa0262da11563abd0c19f3acd2e0254008aed38746398fa96',
+        '755bb30a7f5e541591601f28ccf396809afd9436784dcb91dcebe9a567bcef86'
       ].includes(entry.from)
     ) {
       // This installed schema already contains the team projection and role.

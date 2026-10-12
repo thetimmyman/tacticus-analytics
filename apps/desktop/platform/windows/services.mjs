@@ -1,14 +1,19 @@
 import { spawn } from 'node:child_process'
 import {
   createHmac,
-  createHash,
   randomBytes,
   randomUUID,
   timingSafeEqual
 } from 'node:crypto'
 import { createServer } from 'node:net'
-import { mkdir, readFile, writeFile, stat, rename } from 'node:fs/promises'
+import { mkdir, writeFile, stat } from 'node:fs/promises'
 import { nativeCommand } from './native-command.mjs'
+import {
+  captureNativeServicesFailure,
+  nativeServicesProbeDiagnostic,
+  serviceFailureCodes
+} from './launch-diagnostic.mjs'
+import { prepareSchemaBootstrap } from './schema-bootstrap.mjs'
 import { resolve, join, basename } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 
@@ -29,12 +34,37 @@ async function freePort() {
   return port
 }
 export async function run(file, args, options, spawnChild = spawn) {
-  const child = spawnChild(file, args, {
-    // Attach to the existing owner console instead of CREATE_NO_WINDOW.
-    windowsHide: false,
-    ...options,
-    stdio: ['ignore', 'pipe', 'pipe']
-  })
+  const serviceName = basename(file)
+  const publicServiceName = [
+    'initdb.exe',
+    'psql.exe',
+    'auth.exe',
+    'pg_ctl.exe'
+  ].includes(serviceName)
+    ? serviceName
+    : 'owned-service'
+  const launchFailure = () => {
+    const error = new Error(
+      `${publicServiceName === 'owned-service' ? 'Owned service' : publicServiceName} could not start; child-launch-failed; sensitive output suppressed`
+    )
+    error.serviceFailureCode = 'child-launch-failed'
+    error.serviceBootstrapPhase = 'not-applicable'
+    error.serviceExecutable = publicServiceName
+    error.serviceExitCode = null
+    error.postgresChildStatus = null
+    return error
+  }
+  let child
+  try {
+    child = spawnChild(file, args, {
+      // Attach to the existing owner console instead of CREATE_NO_WINDOW.
+      windowsHide: false,
+      ...options,
+      stdio: ['ignore', 'pipe', 'pipe']
+    })
+  } catch {
+    throw launchFailure()
+  }
   let stdout = ''
   let failureText = ''
   child.stdout.on('data', (v) => {
@@ -45,17 +75,29 @@ export async function run(file, args, options, spawnChild = spawn) {
       failureText += value.toString().slice(0, 65536 - failureText.length)
   })
   await new Promise((accept, reject) => {
-    child.once('error', reject)
+    child.once('error', () => reject(launchFailure()))
     // Process exit can precede the final pipe data. Wait for both streams.
-    child.once('close', (code) =>
-      code === 0
-        ? accept()
-        : reject(
-            new Error(
-              `${['initdb.exe', 'psql.exe', 'auth.exe', 'pg_ctl.exe'].includes(basename(file)) ? basename(file) : 'Owned service'} exited ${code}; ${serviceFailureCode(failureText + stdout)}${basename(file) === 'initdb.exe' ? '; ' + bootstrapPhase(stdout) : ''}; sensitive output suppressed`
-            )
-          )
-    )
+    child.once('close', (code) => {
+      if (code === 0) return accept()
+      const failureCode = serviceFailureCode(`${failureText}\n${stdout}`)
+      const phase =
+        serviceName === 'initdb.exe' ? bootstrapPhase(stdout) : 'not-applicable'
+      const postgresStatus = /^postgres-child-status-0x([0-9a-f]{8})$/.exec(
+        failureCode
+      )
+      const error = new Error(
+        `${['initdb.exe', 'psql.exe', 'auth.exe', 'pg_ctl.exe'].includes(serviceName) ? serviceName : 'Owned service'} exited ${code}; ${failureCode}${serviceName === 'initdb.exe' ? '; ' + phase : ''}; sensitive output suppressed`
+      )
+      error.serviceFailureCode = failureCode
+      error.serviceBootstrapPhase = phase
+      error.serviceExecutable = publicServiceName
+      error.serviceExitCode =
+        Number.isInteger(code) && code >= 0 && code <= 0xffffffff ? code : null
+      error.postgresChildStatus = postgresStatus
+        ? Number.parseInt(postgresStatus[1], 16)
+        : null
+      reject(error)
+    })
   })
   return stdout
 }
@@ -224,6 +266,42 @@ export function serviceStartupDiagnostic(child) {
       : 'exit-unavailable'
     return `${category}; ${status}; pgrst-${fixedServiceCode(text, postgrestCodes)}; sqlstate-${fixedServiceCode(text, postgresCodes)}; streamComplete-${streamComplete}; capturedBytes-${output.length}; truncated-${truncated}; sensitive output suppressed`
   }
+  diagnostic.snapshot = () => {
+    const text = output.toString('utf8')
+    const category = serviceFailureCode(text)
+    return Object.freeze({
+      serviceFailureCode: serviceFailureCodes.includes(category)
+        ? category
+        : 'unavailable',
+      exitCode:
+        Number.isInteger(child.exitCode) &&
+        child.exitCode >= -0x80000000 &&
+        child.exitCode <= 0xffffffff
+          ? child.exitCode
+          : null,
+      signal:
+        child.signalCode === null
+          ? 'none'
+          : [
+                'SIGTERM',
+                'SIGKILL',
+                'SIGINT',
+                'SIGABRT',
+                'SIGSEGV',
+                'SIGILL',
+                'SIGFPE',
+                'SIGBREAK',
+                'SIGHUP'
+              ].includes(child.signalCode)
+            ? child.signalCode
+            : 'unavailable',
+      postgrestCode: fixedServiceCode(text, postgrestCodes),
+      postgresCode: fixedServiceCode(text, postgresCodes),
+      streamComplete,
+      capturedBytes: output.length,
+      truncated
+    })
+  }
   diagnostic.afterClose = async () => {
     // Exit may precede pipe EOF. Bound diagnostic draining, not readiness.
     if (!closed) {
@@ -335,37 +413,64 @@ export function validOwnerSession(value, subject, key) {
   }
 }
 
-export async function nativeServices({
-  state,
-  binaries,
-  schemaDirectory,
-  libraryPath
-}) {
+// Trusted installed-proof seam only. No serialized configuration, renderer or
+// native IPC value supplies this callback. Normal activation uses the exact
+// preparation and psql path, and any failure still stops the real stack.
+export async function completeNativeSchema(
+  preparation,
+  psql,
+  openClient,
+  hook
+) {
+  if (hook !== undefined && typeof hook !== 'function')
+    throw new Error('Invalid schema proof callback')
+  return hook
+    ? hook({ preparation, psql, openClient })
+    : preparation.complete(psql)
+}
+
+export async function nativeServices(config, options = {}) {
+  const trace = { stage: 'configuration' }
+  try {
+    return await startNativeServices(config, options, trace)
+  } catch (error) {
+    captureNativeServicesFailure(error, trace)
+    throw error
+  }
+}
+
+async function startNativeServices(
+  {
+    state,
+    binaries,
+    schemaDirectory,
+    libraryPath,
+    allowSourceHardlinks = false
+  },
+  { completeSchema } = {},
+  trace
+) {
+  trace.stage = 'platform-admission'
   if (process.platform !== 'win32')
     throw new Error('Windows native owner required')
   state = resolve(state)
+  trace.stage = 'state-directory'
   await mkdir(state, { recursive: true, mode: 0o700 })
   // The native owner holds the OS exclusive workspace lock and validates ACLs/reparse points.
-  const schemaHash = createHash('sha256')
-    .update(await readFile(join(schemaDirectory, 'canonical-objects.sql')))
-    .update(await readFile(join(schemaDirectory, 'authority.sql')))
-    .digest('hex')
-  let needsSchema = true
-  try {
-    if ((await readFile(join(state, 'schema-version'), 'utf8')) !== schemaHash)
-      throw new Error('Incompatible local schema; activation refused')
-    needsSchema = false
-  } catch (error) {
-    if (error.code !== 'ENOENT') {
-      throw error
-    }
-  }
+  trace.stage = 'schema-preparation'
+  const schema = await prepareSchemaBootstrap({
+    state,
+    schemaDirectory,
+    allowSourceHardlinks
+  })
   const children = []
   const diagnostics = new WeakMap()
+  const serviceRoles = new WeakMap()
   const { unlink } = await import('node:fs/promises')
   const onInterrupt = () => {
     void stop().finally(() => process.exit(130))
   }
+  trace.stage = 'interrupt-handlers'
   process.once('SIGINT', onInterrupt)
   process.once('SIGTERM', onInterrupt)
   let stopping = false
@@ -403,13 +508,16 @@ export async function nativeServices({
     return stopPromise
   }
   try {
+    trace.stage = 'service-material'
     const credentials = await nativeCommand(['service-material', state])
+    trace.stage = 'credentials-check'
     if (
       ['owner', 'auth', 'rest', 'jwt'].some(
         (key) => !/^[a-f0-9]{64}$/.test(credentials[key])
       )
     )
       throw new Error('Corrupt local credentials; refusing activation')
+    trace.stage = 'port-allocation'
     const ports = {
       db: await freePort(),
       auth: await freePort(),
@@ -451,6 +559,46 @@ export async function nativeServices({
         await unlink(path).catch(() => {})
       }
     }
+    const openSchemaClient = (applicationName) => {
+      if (
+        typeof applicationName !== 'string' ||
+        !/^desktop-bootstrap-[a-f0-9]{16}$/.test(applicationName)
+      )
+        throw new Error('Invalid schema proof client')
+      const client = spawn(
+        binaries.psql,
+        [
+          '-X',
+          '-v',
+          'ON_ERROR_STOP=1',
+          '-h',
+          '127.0.0.1',
+          '-p',
+          String(ports.db),
+          '-U',
+          'desktop_owner',
+          '-d',
+          'postgres',
+          '-At'
+        ],
+        {
+          cwd: state,
+          env: { ...pgEnv, PGAPPNAME: applicationName },
+          stdio: ['pipe', 'ignore', 'ignore'],
+          windowsHide: false
+        }
+      )
+      // This utility deliberately observes a terminated backend. Its expected
+      // nonzero close is tested by the proof, while stop still owns cleanup.
+      // Long-lived service fault handling below is unchanged.
+      children.push(client)
+      client.stdin.on('error', () => {})
+      const closed = new Promise((accept) => {
+        client.once('error', () => accept({ code: null, signal: null }))
+        client.once('close', (code, signal) => accept({ code, signal }))
+      })
+      return { client, closed }
+    }
     const launch = (
       file,
       args,
@@ -475,6 +623,15 @@ export async function nativeServices({
       if (input) child.stdin.end(input)
       const diagnostic = serviceStartupDiagnostic(child)
       diagnostics.set(child, diagnostic)
+      const role =
+        file === binaries.postgres
+          ? 'postgres'
+          : file === binaries.auth
+            ? 'auth'
+            : file === binaries.postgrest
+              ? 'postgrest'
+              : 'unavailable'
+      serviceRoles.set(child, role)
       child.once('error', () => {})
       children.push(child)
       child.once('exit', (code, signal) => {
@@ -483,23 +640,34 @@ export async function nativeServices({
             'A proof-owned service failed; startup diagnostic pending; sensitive output suppressed'
           )
           fault = failure
+          // Separate evidence from fault behavior. stop() synchronously marks
+          // stopping before cleanup exits; the first guarded exit owns this record.
+          const firstExit =
+            trace.firstExit === undefined
+              ? { role, details: diagnostic.snapshot() }
+              : undefined
+          if (firstExit) trace.firstExit = firstExit
           // Fail closed immediately; complete only the bounded diagnostic asynchronously.
           void stop()
           void diagnostic.afterClose().then((text) => {
             failure.message = 'A proof-owned service failed; ' + text
+            if (firstExit) firstExit.details = diagnostic.snapshot()
           })
         }
       })
       return child
     }
     let fresh = false
+    trace.stage = 'postgres-version-check'
     try {
       await stat(join(pgData, 'PG_VERSION'))
     } catch (error) {
       if (error.code !== 'ENOENT') throw error
       const pass = join(state, 'owner-password')
+      trace.stage = 'initdb-password-write'
       await writeFile(pass, credentials.owner, { mode: 0o600 })
       try {
+        trace.stage = 'initdb-run'
         await run(
           binaries.initdb,
           [
@@ -516,11 +684,16 @@ export async function nativeServices({
           ],
           { env: pgEnv }
         )
+      } catch (error) {
+        trace.failure ??= { stage: trace.stage, error, probe: trace.probe }
+        throw error
       } finally {
+        trace.stage = 'initdb-password-retire'
         await unlink(pass)
       }
       fresh = true
     }
+    trace.stage = 'postgres-launch'
     const pg = launch(
       binaries.postgres,
       ['-D', pgData, '-h', '127.0.0.1', '-p', String(ports.db), '-k', ''],
@@ -528,21 +701,32 @@ export async function nativeServices({
     )
     pgProcess = pg
     const ready = async (probe, child, label) => {
+      trace.probe = undefined
       for (let i = 0; i < 100; i++) {
-        if (child.exitCode !== null || child.signalCode !== null)
-          throw new Error(
-            `${label} exited before readiness; ${await diagnostics.get(child).afterClose()}`
-          )
+        if (child.exitCode !== null || child.signalCode !== null) {
+          const diagnostic = diagnostics.get(child)
+          const text = await diagnostic.afterClose()
+          trace.readinessChild = {
+            role: serviceRoles.get(child),
+            details: diagnostic.snapshot()
+          }
+          throw new Error(`${label} exited before readiness; ${text}`)
+        }
         try {
           await probe()
+          trace.probe = undefined
           return
-        } catch {
+        } catch (error) {
+          trace.probe = nativeServicesProbeDiagnostic(error)
           await delay(100)
         }
       }
       throw new Error(`${label} readiness timed out`)
     }
+    trace.stage = 'postgres-readiness'
     await ready(() => psql('SELECT 1;'), pg, 'PostgreSQL')
+    trace.stage = 'schema-inspect'
+    await schema.inspect(psql)
     // Native JWTs are minted per use; the application only holds a stable
     // private credential that the guarded gateway exchanges.
     const token = {
@@ -554,13 +738,15 @@ export async function nativeServices({
       }
     }
     const serviceCredential = randomBytes(32).toString('hex')
+    trace.stage = 'role-inspection'
     if (
       (
         await psql(
           "SELECT count(*) FROM pg_roles WHERE rolname='supabase_auth_admin';"
         )
       ).trim() === '0'
-    )
+    ) {
+      trace.stage = 'role-bootstrap'
       await psql(`
       BEGIN;
       REVOKE CREATE ON SCHEMA public FROM PUBLIC;
@@ -575,6 +761,8 @@ export async function nativeServices({
       GRANT USAGE ON SCHEMA public TO supabase_auth_admin;
       COMMIT;
     `)
+    }
+    trace.stage = 'auth-role-maintenance'
     await psql(`DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='postgres') THEN CREATE ROLE postgres NOLOGIN NOBYPASSRLS; END IF; END $$;
       ALTER ROLE supabase_auth_admin SET search_path=auth;
       DO $$ BEGIN IF to_regprocedure('auth.uid()') IS NOT NULL THEN ALTER FUNCTION auth.uid() OWNER TO supabase_auth_admin; END IF; IF to_regprocedure('auth.jwt()') IS NOT NULL THEN ALTER FUNCTION auth.jwt() OWNER TO supabase_auth_admin; END IF; END $$;`)
@@ -601,11 +789,14 @@ export async function nativeServices({
       GOTRUE_MAILER_AUTOCONFIRM: 'true',
       GOTRUE_LOG_LEVEL: 'warn'
     }
+    trace.stage = 'auth-migrate'
     await run(binaries.auth, ['migrate'], {
       env: authEnv,
       cwd: binaries.authCwd
     })
+    trace.stage = 'auth-launch'
     const auth = launch(binaries.auth, ['serve'], authEnv, binaries.authCwd)
+    trace.stage = 'auth-readiness'
     await ready(
       async () => {
         const r = await fetch(`http://127.0.0.1:${ports.auth}/health`)
@@ -614,33 +805,9 @@ export async function nativeServices({
       auth,
       'Auth'
     )
-    if (needsSchema) {
-      // The database records the applied schema in the bootstrap transaction,
-      // so a lost marker file is restored instead of re-running the bootstrap.
-      const applied = (
-        await psql(
-          "SELECT coalesce(shobj_description(oid, 'pg_database'), '') FROM pg_database WHERE datname = current_database();"
-        )
-      ).trim()
-      if (applied.startsWith('desktop-schema:')) {
-        if (applied !== `desktop-schema:${schemaHash}`)
-          throw new Error('Incompatible local schema; activation refused')
-      } else
-        // The native Auth release supplies its own versioned schema migrations.
-        await psql(
-          'BEGIN;\n' +
-            (await readFile(
-              join(schemaDirectory, 'canonical-objects.sql'),
-              'utf8'
-            )) +
-            '\n' +
-            (await readFile(join(schemaDirectory, 'authority.sql'), 'utf8')) +
-            `\nDO $$ BEGIN EXECUTE format('COMMENT ON DATABASE %I IS %L', current_database(), 'desktop-schema:${schemaHash}'); END $$;\nCOMMIT;`
-        )
-      const pending = join(state, `schema-version.${randomUUID()}.pending`)
-      await writeFile(pending, schemaHash, { mode: 0o600, flag: 'wx' })
-      await rename(pending, join(state, 'schema-version'))
-    }
+    trace.stage = 'schema-completion'
+    await completeNativeSchema(schema, psql, openSchemaClient, completeSchema)
+    trace.stage = 'postgrest-launch'
     const rest = launch(binaries.postgrest, [], {
       ...process.env,
       PATH: process.env.PATH,
@@ -652,6 +819,7 @@ export async function nativeServices({
       PGRST_SERVER_PORT: String(ports.rest),
       PGRST_LOG_LEVEL: 'warn'
     })
+    trace.stage = 'postgrest-readiness'
     await ready(
       async () => {
         const r = await fetch(`http://127.0.0.1:${ports.rest}/`, {
@@ -662,6 +830,7 @@ export async function nativeServices({
       rest,
       'PostgREST'
     )
+    trace.stage = 'services-result'
     return {
       state,
       ports,
@@ -679,6 +848,7 @@ export async function nativeServices({
       }
     }
   } catch (error) {
+    trace.failure ??= { stage: trace.stage, error, probe: trace.probe }
     await stop()
     throw error
   }

@@ -134,9 +134,6 @@ app
         }
       }
       await new Promise((accept) => setTimeout(accept, 10000))
-      const observed = await window.webContents.executeJavaScript(
-        `({text:document.body.innerText,nodeAccess:typeof require!=='undefined'||typeof process!=='undefined'})`
-      )
       const sessionStatus = await window.webContents.executeJavaScript(
         `(async()=>{const response=await fetch('/desktop/official-state');return response.status})()`
       )
@@ -165,28 +162,28 @@ app
         window.webContents.once('did-finish-load', accept)
         window.webContents.reload()
       })
-      let retained = ''
-      for (let i = 0; i < 300; i++) {
-        retained = await window.webContents.executeJavaScript(
-          `document.body.innerText`
-        )
-        if (retained.includes('+58%') && retained.includes('-50%')) break
-        await new Promise((accept) => setTimeout(accept, 100))
+      const { captureScoreCheckpoint } = require('./renderer-proof.cjs')
+      let capture
+      try {
+        capture = await captureScoreCheckpoint(window.webContents)
+      } catch (error) {
+        if (error.failurePNG) {
+          try {
+            writeFileSync(config.verify.screenshot, error.failurePNG, {
+              mode: 0o600
+            })
+          } catch {}
+        }
+        throw error
       }
-      if (!retained.includes('+58%') || !retained.includes('-50%')) {
-        writeFileSync(
-          config.verify.screenshot,
-          (await window.webContents.capturePage()).toPNG(),
-          { mode: 0o600 }
-        )
-        throw new Error('Session recovery lost retained sample data')
-      }
+      const observed = capture.observed
       const evidence = {
         automaticDeviceSession: true,
         signedOutNativeRecovery: true,
         rendererBootstrapStatus,
         workspaceSessionReuse: true,
         observed,
+        scoreCaptureCheckpoint: capture.checkpoint,
         failures,
         blocked,
         sandbox: true,
@@ -196,11 +193,7 @@ app
       writeFileSync(config.verify.evidence, JSON.stringify(evidence, null, 2), {
         mode: 0o600
       })
-      writeFileSync(
-        config.verify.screenshot,
-        (await window.webContents.capturePage()).toPNG(),
-        { mode: 0o600 }
-      )
+      writeFileSync(config.verify.screenshot, capture.png, { mode: 0o600 })
       if (
         observed.nodeAccess ||
         !observed.text.includes('+58%') ||

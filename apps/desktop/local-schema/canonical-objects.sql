@@ -6011,3 +6011,329 @@ BEGIN
     RETURN NEW;
 END;
 $$;
+
+CREATE TABLE public.upcoming_season_assignments (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    guild_code text NOT NULL,
+    season_number text NOT NULL,
+    player_id text NOT NULL,
+    display_name text NOT NULL,
+    primary_boss text,
+    secondary_boss text,
+    assigned_by uuid,
+    assigned_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now(),
+    token_allocations jsonb DEFAULT '{}'::jsonb,
+    uses_flexible_tokens boolean DEFAULT false,
+    total_tokens_allocated integer DEFAULT 0
+);
+
+CREATE FUNCTION public.manage_season_assignments(p_guild_code text, p_season_number text, p_mode text DEFAULT 'upcoming'::text, p_bosses jsonb DEFAULT '[]'::jsonb, p_assignments jsonb DEFAULT '[]'::jsonb, p_primary_secondary jsonb DEFAULT NULL::jsonb) RETURNS jsonb
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+DECLARE
+  v_user_role TEXT;
+  v_user_guild_code TEXT;
+  v_user_cluster TEXT;
+  v_target_cluster TEXT;
+  v_assigned_count INTEGER := 0;
+  v_total_players INTEGER := 0;
+  v_total_tokens INTEGER := 0;
+  v_mode TEXT := lower(COALESCE(p_mode, 'upcoming'));
+  v_bosses JSONB := COALESCE(p_bosses, '[]'::jsonb);
+  v_assignments JSONB := COALESCE(p_assignments, '[]'::jsonb);
+  v_primary_secondary JSONB := COALESCE(p_primary_secondary, '[]'::jsonb);
+BEGIN
+  IF p_guild_code IS NULL OR btrim(p_guild_code) = '' THEN
+    RAISE EXCEPTION 'Invalid guild code';
+  END IF;
+
+  IF p_season_number IS NULL OR btrim(p_season_number) = '' THEN
+    RAISE EXCEPTION 'Invalid season number';
+  END IF;
+
+  IF v_mode NOT IN ('current', 'upcoming') THEN
+    RAISE EXCEPTION 'Invalid mode';
+  END IF;
+
+  IF jsonb_typeof(v_bosses) <> 'array' THEN
+    v_bosses := '[]'::jsonb;
+  END IF;
+
+  IF jsonb_typeof(v_assignments) <> 'array' THEN
+    v_assignments := '[]'::jsonb;
+  END IF;
+
+  IF jsonb_typeof(v_primary_secondary) <> 'array' THEN
+    v_primary_secondary := '[]'::jsonb;
+  END IF;
+
+  IF auth.role() IS DISTINCT FROM 'service_role' THEN
+    IF auth.uid() IS NULL THEN
+      RAISE EXCEPTION 'Auth required';
+    END IF;
+
+    SELECT role, guild_code
+      INTO v_user_role, v_user_guild_code
+    FROM player_mapping
+    WHERE user_id = auth.uid()
+      AND is_current = true
+    LIMIT 1;
+
+    IF v_user_role IS NULL THEN
+      RAISE EXCEPTION 'User profile not found';
+    END IF;
+
+    IF v_user_role NOT IN ('officer', 'leader') THEN
+      RAISE EXCEPTION 'Insufficient permissions';
+    END IF;
+
+    IF v_user_role = 'officer' THEN
+      IF v_user_guild_code IS DISTINCT FROM p_guild_code THEN
+        RAISE EXCEPTION 'Access denied for guild';
+      END IF;
+    ELSE
+      SELECT gc.cluster_code INTO v_user_cluster
+      FROM guild_config gc
+      WHERE gc.guild_code = v_user_guild_code;
+
+      SELECT gc.cluster_code INTO v_target_cluster
+      FROM guild_config gc
+      WHERE gc.guild_code = p_guild_code;
+
+      IF v_user_guild_code IS DISTINCT FROM p_guild_code AND
+         (v_user_cluster IS NULL OR v_target_cluster IS NULL OR v_user_cluster != v_target_cluster) THEN
+        RAISE EXCEPTION 'Access denied for cluster';
+      END IF;
+    END IF;
+  END IF;
+
+  IF jsonb_array_length(v_bosses) > 0 THEN
+    INSERT INTO upcoming_season_bosses (
+      guild_code,
+      season_number,
+      level,
+      boss_name,
+      sub_bosses,
+      selected_by,
+      selected_at
+    )
+    SELECT
+      p_guild_code,
+      p_season_number,
+      b.level,
+      b.boss_name,
+      b.sub_bosses,
+      auth.uid(),
+      NOW()
+    FROM jsonb_to_recordset(v_bosses) AS b(
+      level TEXT,
+      boss_name TEXT,
+      sub_bosses JSONB
+    )
+    WHERE b.boss_name IS NOT NULL AND btrim(b.boss_name) <> ''
+    ON CONFLICT (guild_code, season_number, level)
+    DO UPDATE SET
+      boss_name = EXCLUDED.boss_name,
+      sub_bosses = coalesce(upcoming_season_bosses.sub_bosses, '{}'::jsonb) || coalesce(excluded.sub_bosses, '{}'::jsonb),
+      selected_by = EXCLUDED.selected_by,
+      selected_at = NOW();
+  END IF;
+
+  IF jsonb_array_length(v_assignments) > 0 THEN
+    INSERT INTO upcoming_season_assignments (
+      guild_code,
+      season_number,
+      player_id,
+      display_name,
+      primary_boss,
+      secondary_boss,
+      token_allocations,
+      uses_flexible_tokens,
+      total_tokens_allocated,
+      assigned_by,
+      assigned_at
+    )
+    SELECT
+      p_guild_code,
+      p_season_number,
+      a.player_id,
+      a.display_name,
+      a.primary_boss,
+      a.secondary_boss,
+      a.token_allocations,
+      a.uses_flexible_tokens,
+      a.total_tokens_allocated,
+      auth.uid(),
+      NOW()
+    FROM jsonb_to_recordset(v_assignments) AS a(
+      player_id TEXT,
+      display_name TEXT,
+      primary_boss TEXT,
+      secondary_boss TEXT,
+      token_allocations JSONB,
+      uses_flexible_tokens BOOLEAN,
+      total_tokens_allocated INTEGER
+    )
+    ON CONFLICT (guild_code, season_number, player_id)
+    DO UPDATE SET
+      display_name = EXCLUDED.display_name,
+      primary_boss = EXCLUDED.primary_boss,
+      secondary_boss = EXCLUDED.secondary_boss,
+      token_allocations = EXCLUDED.token_allocations,
+      uses_flexible_tokens = EXCLUDED.uses_flexible_tokens,
+      total_tokens_allocated = EXCLUDED.total_tokens_allocated,
+      assigned_by = EXCLUDED.assigned_by,
+      assigned_at = NOW(),
+      updated_at = NOW();
+  END IF;
+
+  IF v_mode = 'current' AND jsonb_array_length(v_primary_secondary) > 0 THEN
+    UPDATE player_mapping pm
+    SET
+      primary_boss = u.primary_boss,
+      secondary_boss = u.secondary_boss,
+      assigned_at = NOW(),
+      updated_at = NOW()
+    FROM jsonb_to_recordset(v_primary_secondary) AS u(
+      player_id TEXT,
+      primary_boss TEXT,
+      secondary_boss TEXT
+    )
+    WHERE pm.player_id = u.player_id
+      AND pm.guild_code = p_guild_code
+      AND pm.is_current = true;
+  END IF;
+
+  SELECT
+    COUNT(*),
+    COALESCE(SUM(COALESCE(a.total_tokens_allocated, 0)), 0),
+    COALESCE(SUM(CASE WHEN COALESCE(a.total_tokens_allocated, 0) > 0 THEN 1 ELSE 0 END), 0)
+  INTO v_total_players, v_total_tokens, v_assigned_count
+  FROM jsonb_to_recordset(v_assignments) AS a(total_tokens_allocated INTEGER);
+
+  BEGIN
+    INSERT INTO audit_logs (action, user_id, details)
+    VALUES (
+      'assignment_save',
+      auth.uid(),
+      jsonb_build_object(
+        'guild_code', p_guild_code,
+        'season', p_season_number,
+        'mode', v_mode,
+        'assigned_count', v_assigned_count,
+        'total_players', v_total_players,
+        'total_tokens', v_total_tokens,
+        'bosses', COALESCE(
+          (
+            SELECT jsonb_agg(b.boss_name)
+            FROM jsonb_to_recordset(v_bosses) AS b(boss_name TEXT)
+            WHERE b.boss_name IS NOT NULL AND btrim(b.boss_name) <> ''
+          ),
+          '[]'::jsonb
+        )
+      )
+    );
+  EXCEPTION WHEN OTHERS THEN
+  END;
+
+  RETURN jsonb_build_object(
+    'assignedCount', v_assigned_count,
+    'totalPlayers', v_total_players,
+    'totalTokens', v_total_tokens
+  );
+END;
+$$;
+
+CREATE FUNCTION public.clear_season_assignments(p_guild_code text, p_season_number text) RETURNS jsonb
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+DECLARE
+  v_user_role TEXT;
+  v_user_guild_code TEXT;
+  v_user_cluster TEXT;
+  v_target_cluster TEXT;
+  v_assignments_deleted INTEGER := 0;
+  v_bosses_deleted INTEGER := 0;
+BEGIN
+  IF p_guild_code IS NULL OR btrim(p_guild_code) = '' THEN
+    RAISE EXCEPTION 'Invalid guild code';
+  END IF;
+
+  IF p_season_number IS NULL OR btrim(p_season_number) = '' THEN
+    RAISE EXCEPTION 'Invalid season number';
+  END IF;
+
+  IF auth.role() IS DISTINCT FROM 'service_role' THEN
+    IF auth.uid() IS NULL THEN
+      RAISE EXCEPTION 'Auth required';
+    END IF;
+
+    SELECT role, guild_code
+      INTO v_user_role, v_user_guild_code
+    FROM player_mapping
+    WHERE user_id = auth.uid()
+      AND is_current = true
+    LIMIT 1;
+
+    IF v_user_role IS NULL THEN
+      RAISE EXCEPTION 'User profile not found';
+    END IF;
+
+    IF v_user_role NOT IN ('officer', 'leader') THEN
+      RAISE EXCEPTION 'Insufficient permissions';
+    END IF;
+
+    IF v_user_role = 'officer' THEN
+      IF v_user_guild_code IS DISTINCT FROM p_guild_code THEN
+        RAISE EXCEPTION 'Access denied for guild';
+      END IF;
+    ELSE
+      SELECT gc.cluster_code INTO v_user_cluster
+      FROM guild_config gc
+      WHERE gc.guild_code = v_user_guild_code;
+
+      SELECT gc.cluster_code INTO v_target_cluster
+      FROM guild_config gc
+      WHERE gc.guild_code = p_guild_code;
+
+      IF v_user_guild_code IS DISTINCT FROM p_guild_code AND
+         (v_user_cluster IS NULL OR v_target_cluster IS NULL OR v_user_cluster != v_target_cluster) THEN
+        RAISE EXCEPTION 'Access denied for cluster';
+      END IF;
+    END IF;
+  END IF;
+
+  DELETE FROM upcoming_season_assignments
+  WHERE guild_code = p_guild_code
+    AND season_number = p_season_number;
+  GET DIAGNOSTICS v_assignments_deleted = ROW_COUNT;
+
+  DELETE FROM upcoming_season_bosses
+  WHERE guild_code = p_guild_code
+    AND season_number = p_season_number;
+  GET DIAGNOSTICS v_bosses_deleted = ROW_COUNT;
+
+  BEGIN
+    INSERT INTO audit_logs (action, user_id, details)
+    VALUES (
+      'assignment_clear',
+      auth.uid(),
+      jsonb_build_object(
+        'guild_code', p_guild_code,
+        'season', p_season_number,
+        'assignments_deleted', v_assignments_deleted,
+        'bosses_deleted', v_bosses_deleted
+      )
+    );
+  EXCEPTION WHEN OTHERS THEN
+  END;
+
+  RETURN jsonb_build_object(
+    'assignmentsDeleted', v_assignments_deleted,
+    'bossesDeleted', v_bosses_deleted
+  );
+END;
+$$;

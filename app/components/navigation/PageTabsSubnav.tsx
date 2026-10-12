@@ -3,7 +3,7 @@
 // Tier-3 page tab rail below WorkspaceBar and SectionSubnav. Controlled; a tab
 // with `href` renders as a Link and does not fire `onValueChange`.
 
-import Link from 'next/link'
+import { ChromeLink as Link } from './ChromeLink'
 import type { ReactNode } from 'react'
 import { cn } from '@/app/lib/utils/cn'
 

@@ -278,6 +278,23 @@ export function AddonManager({
           >
             Open retained local data
           </button>
+          <button
+            disabled={
+              busy ||
+              module.unavailable ||
+              !module.enabled ||
+              !module.capabilities.includes('offline.read')
+            }
+            onClick={() =>
+              void action(async () => {
+                await commands.exportLocalData(module.addonId)
+              })
+            }
+          >
+            Export{' '}
+            {module.addonId === 'guild-war' ? 'war summary' : 'replay timeline'}{' '}
+            JSON
+          </button>
         </article>
       ))}
       {view?.addonId === 'guild-war' && (
@@ -307,6 +324,29 @@ export function AddonManager({
               ))}
             </tbody>
           </table>
+          <h3>Zone totals</h3>
+          {view.report.zones.length === 0 ? (
+            <p>No zone activity in this imported report.</p>
+          ) : (
+            <table aria-label="Zone totals">
+              <thead>
+                <tr>
+                  <th scope="col">Zone</th>
+                  <th scope="col">Battles</th>
+                  <th scope="col">Points</th>
+                </tr>
+              </thead>
+              <tbody>
+                {view.report.zones.map((zone) => (
+                  <tr key={zone.zone}>
+                    <td>{zone.zone}</td>
+                    <td>{zone.battles}</td>
+                    <td>{zone.points}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       )}
       {view?.addonId === 'replays' && frame && (

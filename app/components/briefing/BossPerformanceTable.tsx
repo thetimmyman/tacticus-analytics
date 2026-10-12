@@ -5,7 +5,7 @@
  * coaching estimate, else the guild average, with a source chip.
  */
 
-import Link from 'next/link'
+import { ChromeLink as Link } from '@/app/components/navigation/ChromeLink'
 import { getHrefWithSeason } from '@/app/lib/utils/navigation'
 import { getPlaybookId } from '@/app/lib/boss-playbooks/playbook-id'
 import { BossPortrait } from '@/app/components/ui/BossPortrait'
