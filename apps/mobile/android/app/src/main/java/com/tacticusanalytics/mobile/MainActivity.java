@@ -23,6 +23,7 @@ public final class MainActivity extends Activity {
   private boolean demo = false;
   private volatile boolean connecting = false;
   private String notice = "";
+  private AlertDialog manualRaidDialog;
   @Override
   public void onCreate(Bundle state) {
     super.onCreate(state);
@@ -37,10 +38,15 @@ public final class MainActivity extends Activity {
     if (state != null)
       demo = state.getBoolean("demo");
     show();
+    if (state != null && state.getBundle("manualRaidDraft") != null)
+      manualRaid(state.getBundle("manualRaidDraft"));
   }
   @Override
   protected void onSaveInstanceState(Bundle state) {
     state.putBoolean("demo", demo);
+    Bundle draft = ManualRaidDialog.save(manualRaidDialog, demo);
+    if (draft != null)
+      state.putBundle("manualRaidDraft", draft);
     super.onSaveInstanceState(state);
   }
   private void text(String value, int size) {
@@ -509,10 +515,15 @@ public final class MainActivity extends Activity {
     }
   }
   private void manualRaid() {
-    ManualRaidDialog.show(this, store, demo, message -> {
+    manualRaid(null);
+  }
+  private void manualRaid(Bundle draft) {
+    if (manualRaidDialog != null && manualRaidDialog.isShowing())
+      return;
+    manualRaidDialog = ManualRaidDialog.show(this, store, demo, message -> {
       notice = message;
       show();
-    });
+    }, draft);
   }
   /** Reads up to the largest document this app exports: a full backup. */
   static byte[] readBounded(java.io.InputStream input) throws Exception {
@@ -529,6 +540,8 @@ public final class MainActivity extends Activity {
   @Override
   protected void onDestroy() {
     worker.shutdownNow();
+    if (manualRaidDialog != null)
+      manualRaidDialog.dismiss();
     store.close();
     super.onDestroy();
   }
