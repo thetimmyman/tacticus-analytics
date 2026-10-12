@@ -10,6 +10,7 @@ import { join, resolve, isAbsolute, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
 import { auditDependencies } from './pe-dependencies.mjs'
+import { evaluate as scanInventory } from '../../../../scripts/security/scan-release-artifact.mjs'
 
 export async function inventory(root) {
   const files = []
@@ -41,6 +42,11 @@ export async function inventory(root) {
     }
   }
   await visit()
+  const privateMaterial = scanInventory(files)
+  if (privateMaterial.length)
+    throw new Error(
+      `Private material in package: ${privateMaterial.join('; ')}`
+    )
   return files.sort((a, b) => a.path.localeCompare(b.path))
 }
 

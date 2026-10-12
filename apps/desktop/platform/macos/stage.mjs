@@ -22,6 +22,7 @@ import {
 import { fileURLToPath } from 'node:url'
 import { execFileSync } from 'node:child_process'
 import { buildNativeAddons } from '../../../addons/build-native.mjs'
+import { evaluate as scanInventory } from '../../../../scripts/security/scan-release-artifact.mjs'
 
 const source = resolve(dirname(fileURLToPath(import.meta.url)), '../../../..')
 export async function containedLibrary(runtime, library) {
@@ -81,6 +82,11 @@ export async function packageInventory(directory) {
     }
   }
   await walk()
+  const privateMaterial = scanInventory(files)
+  if (privateMaterial.length)
+    throw new Error(
+      `Private material in package: ${privateMaterial.join('; ')}`
+    )
   return { files, directories }
 }
 export async function inventory(directory) {

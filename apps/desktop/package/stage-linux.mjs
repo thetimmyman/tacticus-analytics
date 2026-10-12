@@ -5,6 +5,8 @@ import { createHash } from 'node:crypto'
 import { verifyRecordedDesktopBuild } from './build-profile.mjs'
 import { updateConfiguration } from '../launcher/updates.mjs'
 import { buildNativeAddons } from '../../addons/build-native.mjs'
+import { generateSbom } from './generate-sbom.mjs'
+import { evaluate as scanInventory } from '../../../scripts/security/scan-release-artifact.mjs'
 const source = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const config = JSON.parse(await readFile(process.argv[2], 'utf8'))
 for (const name of [
@@ -118,6 +120,30 @@ await writeFile(
   `#!/bin/sh\npackage_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"\nexec "$package_dir/bin/node" "$package_dir/apps/desktop/launcher/launch.mjs" "$@"\n`,
   { mode: 0o755 }
 )
+await writeFile(
+  join(config.output, 'sbom.cdx.json'),
+  JSON.stringify(
+    generateSbom(
+      JSON.parse(
+        await readFile(join(source, 'apps/desktop/runtime-inputs.json'), 'utf8')
+      ),
+      JSON.parse(await readFile(join(source, 'package-lock.json'), 'utf8')),
+      {
+        application: {
+          name: 'tacticus-analytics-preview',
+          version: JSON.parse(
+            await readFile(
+              join(source, 'apps/desktop/package/updates.json'),
+              'utf8'
+            )
+          ).version
+        }
+      }
+    ),
+    null,
+    2
+  ) + '\n'
+)
 const inventory = []
 async function visit(path = '') {
   for (const entry of await readdir(join(config.output, path), {
@@ -142,6 +168,9 @@ async function visit(path = '') {
   }
 }
 await visit()
+const privateMaterial = scanInventory(inventory)
+if (privateMaterial.length)
+  throw new Error(`Private material in package: ${privateMaterial.join('; ')}`)
 await writeFile(
   join(config.output, 'package-inventory.json'),
   JSON.stringify(
