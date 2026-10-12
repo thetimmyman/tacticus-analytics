@@ -4,7 +4,8 @@ import {
   allowed,
   defaultConsent,
   envelope,
-  receipt
+  receipt,
+  RAID_FIELDS
 } from '../../packages/contribution/contract.mjs'
 
 const id = '00000000-0000-4000-8000-000000000001'
@@ -52,6 +53,124 @@ test('upload rejects nested unknown fields and encoded credentials', () => {
     assert.throws(() => envelope(input), /Invalid contribution contract/)
   }
   assert.throws(() => envelope({ ...upload, signature: 'client-truth-claim' }))
+})
+test('contribution payload rejects unknown fields at any depth', () => {
+  assert.deepEqual(envelope(upload), upload)
+  for (const field of [
+    'signature',
+    'metadata',
+    'extra',
+    'debug',
+    'note',
+    'trace',
+    'nonce',
+    'ref'
+  ]) {
+    const input = structuredClone(upload)
+    input[field] = 'synthetic-value'
+    assert.throws(() => envelope(input), /Invalid contribution contract/)
+  }
+  for (const field of [
+    'rank',
+    'guild',
+    'note',
+    'meta',
+    'source',
+    'log',
+    'tag',
+    'label'
+  ]) {
+    const input = structuredClone(upload)
+    input.rows[0][field] = 'synthetic-value'
+    assert.throws(() => envelope(input), /Invalid contribution contract/)
+  }
+})
+test('contribution payload rejects secret-bearing fields at any depth', () => {
+  for (const field of [
+    'token',
+    'password',
+    'secret',
+    'privateKey',
+    'passphrase',
+    'apiSecret',
+    'encryptionKey'
+  ]) {
+    const atTop = structuredClone(upload)
+    atTop[field] = 'synthetic-secret'
+    assert.throws(() => envelope(atTop), /Invalid contribution contract/)
+    const atRow = structuredClone(upload)
+    atRow.rows[0][field] = 'synthetic-secret'
+    assert.throws(() => envelope(atRow), /Invalid contribution contract/)
+  }
+})
+test('contribution payload rejects credential fields at any depth', () => {
+  for (const field of [
+    'credential',
+    'credentials',
+    'authToken',
+    'accessToken',
+    'refreshToken',
+    'bearerToken',
+    'clientId',
+    'clientSecret'
+  ]) {
+    const atTop = structuredClone(upload)
+    atTop[field] = 'synthetic-credential'
+    assert.throws(() => envelope(atTop), /Invalid contribution contract/)
+    const atRow = structuredClone(upload)
+    atRow.rows[0][field] = 'synthetic-credential'
+    assert.throws(() => envelope(atRow), /Invalid contribution contract/)
+  }
+})
+test('contribution payload rejects raw request header fields at any depth', () => {
+  for (const field of [
+    'authorization',
+    'cookie',
+    'x-api-key',
+    'set-cookie',
+    'user-agent',
+    'accept',
+    'content-type',
+    'x-forwarded-for',
+    'referer'
+  ]) {
+    const atTop = structuredClone(upload)
+    atTop[field] = 'synthetic-header'
+    assert.throws(() => envelope(atTop), /Invalid contribution contract/)
+    const atRow = structuredClone(upload)
+    atRow.rows[0][field] = 'synthetic-header'
+    assert.throws(() => envelope(atRow), /Invalid contribution contract/)
+  }
+  for (const field of ['headers', 'requestHeaders', 'responseHeaders']) {
+    const atTop = structuredClone(upload)
+    atTop[field] = { authorization: 'synthetic', cookie: 'synthetic' }
+    assert.throws(() => envelope(atTop), /Invalid contribution contract/)
+    const atRow = structuredClone(upload)
+    atRow.rows[0][field] = { authorization: 'synthetic', cookie: 'synthetic' }
+    assert.throws(() => envelope(atRow), /Invalid contribution contract/)
+  }
+})
+test('accepted payload contains only allowlisted fields', () => {
+  const accepted = envelope(upload)
+  assert.deepEqual(
+    Object.keys(accepted).sort(),
+    [
+      'version',
+      'requestId',
+      'bindingId',
+      'consentRevision',
+      'purpose',
+      'dataset',
+      'guildId',
+      'season',
+      'observedAt',
+      'rows'
+    ].sort()
+  )
+  assert.equal(accepted.rows.length, 1)
+  for (const row of accepted.rows) {
+    assert.deepEqual(Object.keys(row).sort(), [...RAID_FIELDS].sort())
+  }
 })
 test('verified receipt needs an independent authority digest', () => {
   assert.throws(() =>
