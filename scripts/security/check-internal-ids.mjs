@@ -15,7 +15,7 @@ const MAX_SHOWN = 100
 // Generated lockfiles hold base64 digests that can spell a key by chance.
 const SKIPPED_FILES = new Set([ALLOW_FILE, 'package-lock.json'])
 
-const PREFIXES = 'PS|WI|SEC|TMOS|TA|ADV|POS|EOT'
+const PREFIXES = 'PS|WI|SEC|TMOS|TA|ADV|POS|EOT|OD|HL|EST'
 const PATTERNS = [
   {
     kind: 'key',
@@ -280,8 +280,12 @@ function selfTest() {
   expectKinds('key in comment', `// see ${wi}\n`, [`key:${wi}`])
   expectKinds(
     'every prefix',
-    ['SEC', 'TMOS', 'TA', 'ADV', 'POS', 'EOT'].map((p) => key(p, 7)).join(' '),
-    ['SEC', 'TMOS', 'TA', 'ADV', 'POS', 'EOT'].map((p) => `key:${key(p, 7)}`)
+    ['SEC', 'TMOS', 'TA', 'ADV', 'POS', 'EOT', 'OD', 'HL', 'EST']
+      .map((p) => key(p, 7))
+      .join(' '),
+    ['SEC', 'TMOS', 'TA', 'ADV', 'POS', 'EOT', 'OD', 'HL', 'EST'].map(
+      (p) => `key:${key(p, 7)}`
+    )
   )
   expectKinds('lettered finding id', key('TA-A', '023'), [
     `key:${key('TA-A', '023')}`

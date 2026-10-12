@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module'
+import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -6,6 +7,26 @@ import { describe, expect, it } from 'vitest'
 const require = createRequire(import.meta.url)
 
 describe('next standalone runtime tracing', () => {
+  it('keeps the sealed desktop application tree free of runtime cache writes', () => {
+    const inspect = (profile: string) =>
+      JSON.parse(
+        execFileSync(
+          process.execPath,
+          [
+            '-e',
+            "process.env.NEXT_PUBLIC_RUNTIME_PROFILE=process.argv[1];const c=require('./next.config.js');process.stdout.write(JSON.stringify({unoptimized:c.images.unoptimized,isrFlushToDisk:c.experimental.isrFlushToDisk}))",
+            profile
+          ],
+          { cwd: process.cwd(), encoding: 'utf8' }
+        )
+      ) as { unoptimized: boolean; isrFlushToDisk?: boolean }
+    expect(inspect('desktop')).toEqual({
+      unoptimized: true,
+      isrFlushToDisk: false
+    })
+    expect(inspect('hosted')).toEqual({ unoptimized: false })
+  })
+
   it('keeps runtime-traced roots out of the global tracing excludes', () => {
     // Runtime data is copied explicitly; only application support roots stay traceable.
     const config = require(path.join(process.cwd(), 'next.config.js')) as {
