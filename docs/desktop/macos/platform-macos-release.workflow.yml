@@ -1,0 +1,201 @@
+name: Protected native macOS candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      sign_release:
+        description: Build using an existing protected owner signing identity; no publication
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: protected-native-macos-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  protected-release-build:
+    if: github.event_name == 'workflow_dispatch' && inputs.sign_release && github.ref == 'refs/heads/main'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            arch: arm64
+          - os: macos-15-intel
+            arch: x64
+    timeout-minutes: 60
+    environment: macos-release-signing
+    env:
+      MAC_SOURCE_SHA: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.23.3'
+      - name: Verify exact public source history
+        run: |
+          test "$(git rev-parse HEAD)" = "$MAC_SOURCE_SHA"
+          test "$(git rev-list --max-parents=0 HEAD)" = "225aa3f138a93a005e460b0b04a0d4df530030c3"
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        if: runner.arch == 'X64'
+        with:
+          go-version: '1.27.0'
+          cache: false
+      - name: Build pinned macOS runtime inputs
+        run: node apps/desktop/platform/macos/build-inputs.mjs "$RUNNER_TEMP/mac-inputs"
+      - name: Build desktop application with local origins
+        run: |
+          npm ci
+          npm run desktop:build
+          node apps/desktop/proof/stage-standalone.mjs "$RUNNER_TEMP/mac-application"
+      - name: Compile bundled native adapters
+        run: |
+          mkdir -p "$RUNNER_TEMP/mac-native"
+          clang -Wall -Wextra -Werror apps/desktop/platform/macos/owner-guard.c -o "$RUNNER_TEMP/mac-native/owner-guard"
+          swiftc apps/desktop/platform/macos/SecretVault.swift -o "$RUNNER_TEMP/mac-native/secret-vault"
+      - name: Stage the candidate bundle
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/mac-release/image"
+          node --input-type=module <<'EOF'
+          import { join } from 'node:path'
+          import { stage } from './apps/desktop/platform/macos/stage.mjs'
+          const temp = process.env.RUNNER_TEMP
+          await stage({
+            output: join(temp, 'mac-release/image/Tacticus Analytics Preview.app'),
+            sourceCommit: process.env.MAC_SOURCE_SHA,
+            architecture: process.arch,
+            application: join(temp, 'mac-application'),
+            postgres: join(temp, 'mac-inputs/postgres'),
+            node: join(temp, 'mac-inputs/node/bin/node'),
+            electron: join(temp, 'mac-inputs/electron'),
+            auth: join(temp, 'mac-inputs/auth'),
+            postgrest: join(temp, 'mac-inputs/postgrest/postgrest'),
+            guard: join(temp, 'mac-native/owner-guard'),
+            vault: join(temp, 'mac-native/secret-vault')
+          })
+          EOF
+          {
+            echo "MAC_APP=$RUNNER_TEMP/mac-release/image/Tacticus Analytics Preview.app"
+            echo "MAC_DMG=$RUNNER_TEMP/mac-release/candidate.dmg"
+          } >> "$GITHUB_ENV"
+      - name: Decode signing and notarization secrets into temporary files
+        env:
+          MACOS_DEVELOPER_ID_P12_BASE64: ${{ secrets.MACOS_DEVELOPER_ID_P12_BASE64 }}
+          MACOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.MACOS_PROVISIONING_PROFILE_BASE64 }}
+          MACOS_NOTARY_KEY_P8_BASE64: ${{ secrets.MACOS_NOTARY_KEY_P8_BASE64 }}
+        run: |
+          set -euo pipefail
+          umask 077
+          test -n "$MACOS_DEVELOPER_ID_P12_BASE64"
+          test -n "$MACOS_PROVISIONING_PROFILE_BASE64"
+          test -n "$MACOS_NOTARY_KEY_P8_BASE64"
+          SECRETS_DIR="$(mktemp -d "$RUNNER_TEMP/macos-release-secrets.XXXXXX")"
+          printf '%s' "$MACOS_DEVELOPER_ID_P12_BASE64" | tr -d '\n' | base64 -D > "$SECRETS_DIR/identity.p12"
+          printf '%s' "$MACOS_PROVISIONING_PROFILE_BASE64" | tr -d '\n' | base64 -D > "$SECRETS_DIR/profile.mobileprovision"
+          printf '%s' "$MACOS_NOTARY_KEY_P8_BASE64" | tr -d '\n' | base64 -D > "$SECRETS_DIR/notary.p8"
+          {
+            echo "MACOS_SECRETS_DIR=$SECRETS_DIR"
+            echo "MACOS_P12=$SECRETS_DIR/identity.p12"
+            echo "MACOS_PROFILE=$SECRETS_DIR/profile.mobileprovision"
+            echo "MACOS_NOTARY_KEY=$SECRETS_DIR/notary.p8"
+            echo "MACOS_KEYCHAIN=$SECRETS_DIR/release.keychain-db"
+          } >> "$GITHUB_ENV"
+      - name: Import Developer ID signing identity into a temporary keychain
+        env:
+          MACOS_DEVELOPER_ID_P12_PASSWORD: ${{ secrets.MACOS_DEVELOPER_ID_P12_PASSWORD }}
+        run: |
+          set -euo pipefail
+          security create-keychain -p "$MACOS_DEVELOPER_ID_P12_PASSWORD" "$MACOS_KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$MACOS_KEYCHAIN"
+          security unlock-keychain -p "$MACOS_DEVELOPER_ID_P12_PASSWORD" "$MACOS_KEYCHAIN"
+          security import "$MACOS_P12" -P "$MACOS_DEVELOPER_ID_P12_PASSWORD" -T /usr/bin/codesign -t cert -f pkcs12 -k "$MACOS_KEYCHAIN" >/dev/null
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_DEVELOPER_ID_P12_PASSWORD" "$MACOS_KEYCHAIN" >/dev/null
+          security list-keychain -d user -s "$MACOS_KEYCHAIN"
+          security find-identity -v -p codesigning "$MACOS_KEYCHAIN" | awk -F'"' '/Developer ID Application/ {print $2; exit}' > "$MACOS_SECRETS_DIR/identity.txt"
+      - name: Deep-sign the candidate bundle
+        env:
+          MACOS_TEAM_ID: ${{ secrets.MACOS_TEAM_ID }}
+          MACOS_BUNDLE_ID: ${{ secrets.MACOS_BUNDLE_ID }}
+        run: |
+          set -euo pipefail
+          MACOS_IDENTITY="$(cat "$MACOS_SECRETS_DIR/identity.txt")"
+          SIGN_CONFIG="$RUNNER_TEMP/mac-release/sign-config.json"
+          MACOS_TEAM_ID="$MACOS_TEAM_ID" MACOS_BUNDLE_ID="$MACOS_BUNDLE_ID" \
+            MACOS_IDENTITY="$MACOS_IDENTITY" MAC_APP="$MAC_APP" \
+            MACOS_PROFILE="$MACOS_PROFILE" SIGN_CONFIG="$SIGN_CONFIG" \
+            node --input-type=module <<'EOF'
+          import { writeFile } from 'node:fs/promises'
+          await writeFile(
+            process.env.SIGN_CONFIG,
+            JSON.stringify({
+              appBundle: process.env.MAC_APP,
+              identity: process.env.MACOS_IDENTITY,
+              teamId: process.env.MACOS_TEAM_ID,
+              bundleId: process.env.MACOS_BUNDLE_ID,
+              provisioningProfile: process.env.MACOS_PROFILE
+            })
+          )
+          EOF
+          node apps/desktop/platform/macos/sign-release.mjs sign "$SIGN_CONFIG"
+      - name: Create and sign the DMG from the signed bundle
+        run: |
+          set -euo pipefail
+          MACOS_IDENTITY="$(cat "$MACOS_SECRETS_DIR/identity.txt")"
+          /usr/bin/hdiutil create -srcfolder "$(dirname "$MAC_APP")" \
+            -volname "Tacticus Analytics Preview" -format UDZO "$MAC_DMG"
+          /usr/bin/codesign --force --timestamp --sign "$MACOS_IDENTITY" "$MAC_DMG"
+      - name: Notarize the DMG
+        env:
+          MACOS_NOTARY_KEY_ID: ${{ secrets.MACOS_NOTARY_KEY_ID }}
+          MACOS_NOTARY_ISSUER_ID: ${{ secrets.MACOS_NOTARY_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          xcrun notarytool submit "$MAC_DMG" \
+            --key "$MACOS_NOTARY_KEY" \
+            --key-id "$MACOS_NOTARY_KEY_ID" \
+            --issuer "$MACOS_NOTARY_ISSUER_ID" \
+            --wait
+      - name: Staple the notarization ticket
+        run: |
+          set -euo pipefail
+          xcrun stapler staple "$MAC_DMG"
+      - name: Verify signature, notarization and staple
+        run: |
+          set -euo pipefail
+          VERIFY_CONFIG="$RUNNER_TEMP/mac-release/verify-config.json"
+          MAC_APP="$MAC_APP" MAC_DMG="$MAC_DMG" VERIFY_CONFIG="$VERIFY_CONFIG" \
+            node --input-type=module <<'EOF'
+          import { writeFile } from 'node:fs/promises'
+          await writeFile(
+            process.env.VERIFY_CONFIG,
+            JSON.stringify({ appBundle: process.env.MAC_APP, dmg: process.env.MAC_DMG })
+          )
+          EOF
+          node apps/desktop/platform/macos/sign-release.mjs verify "$VERIFY_CONFIG" > "$RUNNER_TEMP/mac-release/evidence.json"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: unqualified-owner-signed-macos-candidate-${{ matrix.arch }}
+          path: |
+            ${{ runner.temp }}/mac-release/candidate.dmg
+            ${{ runner.temp }}/mac-release/evidence.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Delete temporary keychain and secret material
+        if: always()
+        run: |
+          set +e
+          if [ -n "${MACOS_KEYCHAIN:-}" ] && [ -e "$MACOS_KEYCHAIN" ]; then
+            security delete-keychain "$MACOS_KEYCHAIN" 2>/dev/null || true
+          fi
+          if [ -n "${MACOS_SECRETS_DIR:-}" ]; then
+            rm -rf "$MACOS_SECRETS_DIR"
+          fi

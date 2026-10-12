@@ -487,6 +487,27 @@ test('installed proof admits only the complete source-bound copied inventory', a
   assert.equal(result.inventorySha256, f.admission.inventorySha256)
   assert.equal(result.sourceCommit, 'a'.repeat(40))
 })
+test('signed candidate inventory tolerates only the top-level seal directory', async (t) => {
+  const f = await fixture(t)
+  f.manifest.kind = 'signed-developer-id-candidate'
+  await writeManifest(f)
+  await mkdir(join(f.installed, 'Contents/_CodeSignature'), { recursive: true })
+  await writeFile(
+    join(f.installed, 'Contents/_CodeSignature/CodeResources'),
+    'seal'
+  )
+  assert.equal((await verifySchemaProofInstallation(f)).files, 15)
+  // The same directory is not admitted for an unsigned candidate.
+  f.manifest.kind = 'unsigned-developer-candidate'
+  await writeManifest(f)
+  await assert.rejects(verifySchemaProofInstallation(f), refused)
+  // Nor is any other unlisted directory for a signed candidate.
+  f.manifest.kind = 'signed-developer-id-candidate'
+  await writeManifest(f)
+  await rm(join(f.installed, 'Contents/_CodeSignature'), { recursive: true })
+  await mkdir(join(f.installed, 'Contents/Extra'))
+  await assert.rejects(verifySchemaProofInstallation(f), refused)
+})
 async function directoryFixture(t) {
   const f = await fixture(t)
   await mkdir(

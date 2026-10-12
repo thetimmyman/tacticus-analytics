@@ -34,7 +34,7 @@ export async function containedLibrary(runtime, library) {
   if (part.startsWith('..') || isAbsolute(part))
     throw new Error('External relocated library target')
 }
-async function packageInventory(directory) {
+export async function packageInventory(directory) {
   const files = [],
     directories = []
   const root = await realpath(directory)

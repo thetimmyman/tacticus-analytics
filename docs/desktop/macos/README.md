@@ -181,3 +181,8 @@ timestamps and guild update timestamps written by the ordinary page heartbeat.
 Raid data, Player cache, guild configuration, owner/membership and identity
 attestations remain included; these fields must survive the same-workspace
 restart and signed-out recovery unchanged.
+
+The protected, manual [signing and notarization path](signing.md) builds a signed
+and notarized candidate only when the owner has provisioned the signing identity
+and configured the protected environment. It runs only on `main`, never on pull
+requests, and publishes nothing.

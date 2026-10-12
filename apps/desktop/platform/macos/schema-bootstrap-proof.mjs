@@ -194,6 +194,13 @@ async function fileDigest(path, bytes) {
     await file?.close()
   }
 }
+// The signed candidate regenerates its inventory after signing. Its code
+// signature seal directory is created afterwards and is verified by codesign.
+const signedKinds = new Set([
+  'unsigned-developer-candidate',
+  'signed-developer-id-candidate'
+])
+const sealDirectory = 'Contents/_CodeSignature'
 export async function verifySchemaProofInstallation({ installed, admission }) {
   // Fixed stages identify the refused gate without exposing paths or contents.
   let stage = 'admission'
@@ -235,7 +242,7 @@ export async function verifySchemaProofInstallation({ installed, admission }) {
         manifest.platform === 'macos' &&
         manifest.sourceCommit === admission.sourceCommit &&
         manifest.architecture === admission.architecture &&
-        manifest.kind === 'unsigned-developer-candidate' &&
+        signedKinds.has(manifest.kind) &&
         manifest.rights === 'review-required' &&
         manifest.minimumOS === '15.0' &&
         Array.isArray(manifest.files) &&
@@ -331,6 +338,12 @@ export async function verifySchemaProofInstallation({ installed, admission }) {
         const name = path ? path + '/' + entry.name : entry.name
         stage = 'entry-name'
         requireProof(!/[\0-\x1f]/u.test(name))
+        if (
+          entry.isDirectory() &&
+          name === sealDirectory &&
+          manifest.kind === 'signed-developer-id-candidate'
+        )
+          continue
         if (entry.isDirectory()) {
           stage = 'directory-set'
           requireProof(directories.has(name))
@@ -373,7 +386,13 @@ export async function verifySchemaProofInstallation({ installed, admission }) {
     stage = 'component-presence'
     for (const path of componentPaths) {
       const row = expected.get(path)
-      requireProof(row && !Object.hasOwn(row, 'link'))
+      // The signed candidate links the vault runtime path to its helper bundle.
+      requireProof(
+        row &&
+          (!Object.hasOwn(row, 'link') ||
+            (manifest.kind === 'signed-developer-id-candidate' &&
+              path === 'Contents/Resources/runtime/bin/secret-vault'))
+      )
     }
     stage = 'source-authority'
     for (const path of sourcePaths) {
