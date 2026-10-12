@@ -301,6 +301,18 @@ app
       }
     })
     const nativeAction = nativeActions.run
+    let addonMenu
+    if (!config.verify) {
+      try {
+        addonMenu = await require('../../launcher/addon-menu.cjs')(
+          window,
+          config
+        )
+      } catch {
+        // Optional module damage must leave the local core and recovery controls usable.
+        addonMenu = { label: 'Local add-ons unavailable', enabled: false }
+      }
+    }
     let choosingRestore = false
     Menu.setApplicationMenu(
       Menu.buildFromTemplate([
@@ -399,7 +411,8 @@ app
                 if (selected.canceled || !selected.filePath) return
                 await nativeAction('export', 'Player', selected.filePath)
               }
-            }
+            },
+            ...(addonMenu ? [{ type: 'separator' }, addonMenu] : [])
           ]
         },
         { role: 'editMenu' },

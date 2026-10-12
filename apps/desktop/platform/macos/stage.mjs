@@ -21,6 +21,7 @@ import {
 } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execFileSync } from 'node:child_process'
+import { buildNativeAddons } from '../../../addons/build-native.mjs'
 
 const source = resolve(dirname(fileURLToPath(import.meta.url)), '../../../..')
 export async function containedLibrary(runtime, library) {
@@ -111,6 +112,11 @@ export async function stage(config) {
     runtime = join(contents, 'Resources/runtime')
   await mkdir(join(contents, 'MacOS'), { recursive: true })
   await mkdir(runtime, { recursive: true })
+  await buildNativeAddons(join(runtime, 'apps/desktop/addons'))
+  await cp(
+    join(source, 'apps/desktop/package/addon-policy.json'),
+    join(runtime, 'addon-policy.json')
+  )
   const copy = (from, to) =>
     cp(from, join(runtime, to), {
       recursive: true,

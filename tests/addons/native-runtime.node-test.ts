@@ -281,3 +281,138 @@ test('export checks enabled/read/current data before showing a destination and a
   await assert.rejects(commands.exportLocalData('guild-war'), /addon-disabled/)
   assert.equal(dialogs, 0)
 })
+
+const emptyNativePolicy = {
+  schemaVersion: 1,
+  coreVersion: '1.0.0',
+  trustedKeys: {},
+  revokedKeyIds: [],
+  approvedReviews: [],
+  approvedRightsReceipts: []
+}
+
+async function onNativePlatform(
+  platform: string,
+  architecture: string,
+  action: () => Promise<void>
+) {
+  const priorPlatform = Object.getOwnPropertyDescriptor(process, 'platform')!
+  const priorArchitecture = Object.getOwnPropertyDescriptor(process, 'arch')!
+  Object.defineProperty(process, 'platform', {
+    value: platform,
+    configurable: true
+  })
+  Object.defineProperty(process, 'arch', {
+    value: architecture,
+    configurable: true
+  })
+  try {
+    await action()
+  } finally {
+    Object.defineProperty(process, 'platform', priorPlatform)
+    Object.defineProperty(process, 'arch', priorArchitecture)
+  }
+}
+
+for (const architecture of ['x64', 'arm64']) {
+  test(`native adapter admits macOS ${architecture} with empty trust and keeps fixed dispatch closed`, async () => {
+    const root = mkdtempSync(join(tmpdir(), 'mac-native-addon-'))
+    try {
+      await onNativePlatform('darwin', architecture, async () => {
+        const runtime = createNativeAddonRuntime(root, emptyNativePolicy)
+        runtime.setBinding({
+          accountHandle: 'synthetic-owner',
+          guildHandle: 'synthetic-guild'
+        })
+        assert.deepEqual(
+          await runtime.dispatch({ method: 'list', args: [] }),
+          []
+        )
+        await assert.rejects(
+          runtime.dispatch({ method: 'setBinding', args: [] })
+        )
+        await assert.rejects(
+          runtime.dispatch({ method: 'stagePackage', args: ['{}'] })
+        )
+      })
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+}
+
+for (const [platform, architecture] of [
+  ['win32', 'x64'],
+  ['linux', 'ia32'],
+  ['darwin', 'ia32']
+]) {
+  test(`native adapter still refuses unsupported ${platform}/${architecture}`, async () => {
+    const root = mkdtempSync(join(tmpdir(), 'unsupported-native-addon-'))
+    try {
+      await onNativePlatform(platform!, architecture!, async () => {
+        assert.throws(
+          () => createNativeAddonRuntime(root, emptyNativePolicy),
+          /incompatible-package/
+        )
+      })
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+}
+
+// Observe the real adapter's host-policy boundary without a native process or key.
+test('native adapter supplies the actual Linux or macOS platform to package compatibility policy', async () => {
+  const { transformSync } = await import('esbuild')
+  const { runInNewContext } = await import('node:vm')
+  const { createRequire } = await import('node:module')
+  const require = createRequire(import.meta.url)
+  const contract = await import('../../packages/addon-host/src/contract')
+  const { AddonError } = await import('../../packages/addon-host/src/host')
+  const code = transformSync(
+    readFileSync(
+      new URL('../../apps/addons/native-runtime.ts', import.meta.url),
+      'utf8'
+    ),
+    { loader: 'ts', format: 'cjs', target: 'node22' }
+  ).code
+  for (const [platform, expected] of [
+    ['linux', 'linux'],
+    ['darwin', 'macos']
+  ]) {
+    for (const architecture of ['x64', 'arm64']) {
+      let captured: { platform: string; architecture: string } | undefined
+      const adapterModule = {
+        exports: {} as {
+          createNativeAddonRuntime: typeof createNativeAddonRuntime
+        }
+      }
+      runInNewContext(code, {
+        module: adapterModule,
+        exports: adapterModule.exports,
+        process: { platform, arch: architecture },
+        require(name: string) {
+          if (name === '../../packages/addon-host/src/host')
+            return {
+              AddonError,
+              AddonHost: class {
+                constructor(_root: string, policy: typeof captured) {
+                  captured = policy
+                }
+                setBinding() {}
+              }
+            }
+          if (name === '../../packages/addon-host/src/contract') return contract
+          if (name === './commands') return { createAddonCommands }
+          return require(name)
+        }
+      })
+      adapterModule.exports.createNativeAddonRuntime(
+        '/synthetic-unused-addon-root',
+        emptyNativePolicy
+      )
+      assert.equal(captured?.platform, expected)
+      assert.equal(captured?.architecture, architecture)
+    }
+  }
+})
