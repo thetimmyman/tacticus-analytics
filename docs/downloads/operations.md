@@ -41,6 +41,8 @@ Rollback discovery only to an approved signed manifest whose generation timestam
 
 Remove a compromised or retired key from the trusted map and verify old envelopes are rejected. A new public key requires independent review and publisher signing-service coordination. Do not create or rotate signing identities from the downloads application. Preserve the prior configuration and receipt for a reviewed rollback when appropriate.
 
+For the desktop Linux-preview update feed's separate single-key model, see the [desktop key rotation runbook](../desktop/update-key-rotation.md).
+
 ## Reproduce consumer checks
 
 Use the repository's declared Node version and dependencies:
