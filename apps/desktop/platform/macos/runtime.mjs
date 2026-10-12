@@ -20,6 +20,7 @@ import { rendererCredentialSurface } from './credential-surface.mjs'
 import { windowDiagnostics } from './window-diagnostics.mjs'
 import requestDiagnostics from './request-diagnostics.cjs'
 import { workspaceDeviceSession } from './device-session.mjs'
+import { macAddonContext } from './addon-context.mjs'
 import {
   qualifyDeviceSession,
   syntheticWorkspaceDigest
@@ -183,11 +184,13 @@ try {
       brokerToken,
       synthetic: Boolean(verify)
     })
+    const addonContext = macAddonContext(services, { brokerToken })
     gateway = await loopbackGateway({
       services,
       transportKey,
       handleLocalRequest: async (req, res, url) => {
         if (await device(req, res, url)) return true
+        if (await addonContext(req, res, url)) return true
         if (
           savedPersonal.mode() === 'recovery-required' &&
           url.pathname === '/desktop/setup' &&

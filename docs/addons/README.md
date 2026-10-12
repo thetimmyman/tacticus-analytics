@@ -2,18 +2,20 @@
 
 This implementation provides a signed first-party data-package host, native command facade, graphical manager, bounded local war reports and deterministic placeholder replay playback. It is a review candidate, not a qualified native release.
 
-The Linux desktop File menu opens the graphical manager in a separate sandboxed
-window. Its preload exposes only the nine fixed module commands. Main verifies
+The Linux desktop File menu and macOS Workspace menu open the graphical manager
+in a separate sandboxed window. Its preload exposes only the nine fixed module commands. Main verifies
 the calling window and top frame, revalidates the current signed workspace owner
 before each operation, and closes retained views if authentication or guild
 binding changes. The manager cannot make network requests, choose filesystem
 paths, access game credentials, or invoke the broker. An invalid module policy
 leaves the core application and recovery menu usable.
 
-Linux staging bundles the manager and host with their dependencies. The default
+Linux and macOS staging bundle the manager and host with their dependencies. The default
 `addon-policy.json` has no trusted keys or approved source/rights receipts and
 therefore refuses package installation. A distributor may supply a separately
-reviewed policy with the staging configuration's absolute `addonPolicy` path.
+reviewed policy with Linux staging's absolute `addonPolicy` path. macOS staging
+always copies the empty default policy; no trusted release package is introduced
+by this integration.
 This does not approve a canonical decoder, source transfer, assets or live game
 protocol. Synthetic qualification uses separate ephemeral test trust material.
 

@@ -13,6 +13,7 @@ import {
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { createHash } from 'node:crypto'
+import { createRequire } from 'node:module'
 import {
   inventory,
   stage,
@@ -233,3 +234,124 @@ test('private projected state survives a new reader; unsafe replacements refuse 
     await rm(root, { recursive: true, force: true })
   }
 })
+
+for (const architecture of ['x64', 'arm64']) {
+  test(`macOS ${architecture} staging carries a self-contained add-on manager and exact empty default trust`, async (t) => {
+    const root = await mkdtemp(join(tmpdir(), 'mac addon stage '))
+    t.after(() => rm(root, { recursive: true, force: true }))
+    const inputs = join(root, 'inputs')
+    const config = {
+      output: join(root, 'candidate.app'),
+      architecture,
+      sourceCommit: 'a'.repeat(40)
+    }
+    for (const key of ['application', 'postgres', 'electron', 'auth']) {
+      config[key] = join(inputs, key)
+      await mkdir(config[key], { recursive: true })
+    }
+    for (const key of ['node', 'postgrest', 'guard', 'vault']) {
+      config[key] = join(inputs, key)
+      await writeFile(config[key], 'synthetic executable')
+    }
+    await stage(config)
+    const installed = join(root, 'installed.app')
+    await cp(config.output, installed, {
+      recursive: true,
+      verbatimSymlinks: true
+    })
+    await rm(inputs, { recursive: true })
+    await rm(config.output, { recursive: true })
+    const runtime = join(installed, 'Contents/Resources/runtime')
+    const policy = JSON.parse(
+      await readFile(join(runtime, 'addon-policy.json'), 'utf8')
+    )
+    assert.deepEqual(policy, {
+      schemaVersion: 1,
+      coreVersion: '1.0.0',
+      trustedKeys: {},
+      revokedKeyIds: [],
+      approvedReviews: [],
+      approvedRightsReceipts: []
+    })
+    const manifest = JSON.parse(
+      await readFile(
+        join(installed, 'Contents/Resources/package-inventory.json'),
+        'utf8'
+      )
+    )
+    const components = JSON.parse(
+      await readFile(
+        join(runtime, 'apps/desktop/addons/native-components.json'),
+        'utf8'
+      )
+    )
+    assert.deepEqual(components.files.map((row) => row.path).sort(), [
+      'native-manager.js',
+      'native-runtime.cjs'
+    ])
+    for (const component of components.files) {
+      const path =
+        'Contents/Resources/runtime/apps/desktop/addons/' + component.path
+      const bytes = await readFile(join(installed, path))
+      assert.equal(component.bytes, bytes.length)
+      assert.equal(
+        component.sha256,
+        createHash('sha256').update(bytes).digest('hex')
+      )
+      assert.deepEqual(
+        manifest.files.find((row) => row.path === path),
+        { path, bytes: bytes.length, sha256: component.sha256 }
+      )
+    }
+    for (const name of [
+      'addon-menu.cjs',
+      'addon-preload.cjs',
+      'addons.html',
+      'addons.css'
+    ])
+      assert(
+        manifest.files.some(
+          (row) =>
+            row.path ===
+            'Contents/Resources/runtime/apps/desktop/launcher/' + name
+        )
+      )
+    assert(
+      manifest.files.some(
+        (row) => row.path === 'Contents/Resources/runtime/addon-policy.json'
+      )
+    )
+    const { createNativeAddonRuntime } = createRequire(import.meta.url)(
+      join(runtime, 'apps/desktop/addons/native-runtime.cjs')
+    )
+    const previousPlatform = Object.getOwnPropertyDescriptor(
+      process,
+      'platform'
+    )
+    const previousArchitecture = Object.getOwnPropertyDescriptor(
+      process,
+      'arch'
+    )
+    try {
+      Object.defineProperty(process, 'platform', {
+        value: 'darwin',
+        configurable: true
+      })
+      Object.defineProperty(process, 'arch', {
+        value: architecture,
+        configurable: true
+      })
+      const adapter = createNativeAddonRuntime(
+        join(root, 'synthetic-state'),
+        policy
+      )
+      assert.deepEqual(await adapter.dispatch({ method: 'list', args: [] }), [])
+      await assert.rejects(
+        adapter.dispatch({ method: 'stagePackage', args: ['{}'] })
+      )
+    } finally {
+      Object.defineProperty(process, 'platform', previousPlatform)
+      Object.defineProperty(process, 'arch', previousArchitecture)
+    }
+  })
+}

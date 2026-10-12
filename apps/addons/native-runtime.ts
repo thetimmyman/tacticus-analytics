@@ -62,11 +62,17 @@ const requests = z.discriminatedUnion('method', [
 /** Main-process adapter. No filesystem paths, credentials or broker calls are renderer inputs. */
 export function createNativeAddonRuntime(root: string, rawPolicy: unknown) {
   const policy = policySchema.parse(rawPolicy)
-  if (process.platform !== 'linux' || !['x64', 'arm64'].includes(process.arch))
+  const platform =
+    process.platform === 'darwin'
+      ? 'macos'
+      : process.platform === 'linux'
+        ? 'linux'
+        : null
+  if (platform === null || !['x64', 'arm64'].includes(process.arch))
     throw new AddonError('incompatible-package')
   const host = new AddonHost(root, {
     ...policy,
-    platform: 'linux',
+    platform,
     architecture: process.arch as 'x64' | 'arm64',
     trustedKeys: new Map(
       Object.entries(policy.trustedKeys).map(([id, pem]) => {
