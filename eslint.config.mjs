@@ -414,6 +414,7 @@ const eslintConfig = [
       'proxy.ts',
       'apps/desktop/proof/native-journey.mts',
       'apps/desktop/proof/roster-journey.mjs',
+      'apps/desktop/proof/guild-teams-journey.mjs',
       'apps/desktop/proof/achievements-journey.mjs',
       'apps/desktop/proof/data-export-journey.mjs',
       'apps/desktop/proof/password-change-journey.mjs',

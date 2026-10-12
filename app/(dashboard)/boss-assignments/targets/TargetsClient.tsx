@@ -10,6 +10,7 @@ import { isSkipUnion } from '@/app/lib/boss-ops/skip-union'
 import { AssignmentSeasonWindow } from '@/app/(dashboard)/boss-assignments/_components/AssignmentSeasonWindow'
 import { TargetsAccordion } from './_components/TargetsAccordion'
 import { OpsSurface } from './_components/OpsSurface'
+import { TargetNotes } from './_components/TargetNotes'
 import type { SeasonOption } from '@/app/components/ui/SeasonSelectorPills'
 import type { EncounterOpsSlice } from '@/app/lib/boss-ops/encounter-ops-merge'
 import { useTargetMutations } from './useTargetMutations'
@@ -70,6 +71,7 @@ interface TargetsClientProps {
   seasonOptions: SeasonOption[]
   /** URL `?season` (default: cluster live). Reads and writes are scoped to it. */
   selectedSeason: string
+  desktopMode?: boolean
 }
 
 type Mode = 'current' | 'upcoming' | 'all'
@@ -83,7 +85,8 @@ export default function TargetsClient({
   selectedSeason,
   opsSlice,
   canManageHerald = false,
-  isCurrentSeason = true
+  isCurrentSeason = true,
+  desktopMode = false
 }: TargetsClientProps) {
   const actuals = perBossActuals ?? {}
   const queryClient = useQueryClient()
@@ -113,12 +116,36 @@ export default function TargetsClient({
     cancelEdit,
     saveEdit,
     toggleSkip,
+    saveNotes,
     resetTarget,
     seedFromHistory,
     isSaving,
     isResetting,
     isSeeding
   } = useTargetMutations({ guildCode, selectedSeason, canEdit })
+
+  const renderNotes = (row: MergedRow) =>
+    row.target ? (
+      <TargetNotes
+        key={`${selectedSeason}:${targetRowKey(row)}`}
+        name={row.display_name}
+        notes={row.target.notes}
+        canEdit={canEdit}
+        onSave={(notes) => saveNotes(row, notes)}
+      />
+    ) : null
+
+  const renderActual = (row: MergedRow) => {
+    const actual = actuals[targetRowKey(row)]
+    return actual ? (
+      <div
+        className="text-[10px] text-amber-100/40 font-normal"
+        title={`Recent guild actual: ${actual.tokensToKill.toFixed(1)} tokens to kill (S${actual.season}, ${actual.sampleCount} attacks)`}
+      >
+        actual ≈ {actual.tokensToKill.toFixed(1)}
+      </div>
+    ) : null
+  }
 
   // Season-scoped key; invalidations use the `['boss-target-tokens', guildCode]` prefix.
   const targetsQuery = useQuery<TargetsResponse>({
@@ -287,6 +314,12 @@ export default function TargetsClient({
             </Link>
             . Unset bosses keep auto-deriving from guild history.
           </p>
+          {desktopMode && (
+            <p className="mt-2 text-xs text-amber-100/60">
+              Targets and actual-token comparisons use saved local data. Editing
+              does not refresh live raid data.
+            </p>
+          )}
           {seedStatus && (
             <p className="text-xs text-amber-300 mt-2">{seedStatus}</p>
           )}
@@ -395,6 +428,9 @@ export default function TargetsClient({
                   onOpenOps={setOpsRow}
                   opsSkippedKeys={opsSkippedKeys}
                   onReset={resetTarget}
+                  renderNotes={renderNotes}
+                  renderActual={renderActual}
+                  onToggleSkip={toggleSkip}
                   renderEditor={(row) => (
                     <input
                       type="number"
@@ -497,6 +533,7 @@ export default function TargetsClient({
                     return (
                       <tr
                         key={rowKey}
+                        data-target-key={rowKey}
                         className={`border-t border-(--card-border) hover:bg-[color-mix(in_srgb,var(--bg-secondary)_20%,transparent)] ${rowOpacity}`}
                       >
                         <td className="px-4 py-2 text-primary-wh40k">
@@ -532,6 +569,7 @@ export default function TargetsClient({
                               <div title={tooltip}>
                                 {isEditing ? (
                                   <input
+                                    aria-label={`${row.display_name} target tokens`}
                                     type="number"
                                     min="1"
                                     step="0.5"
@@ -578,7 +616,9 @@ export default function TargetsClient({
                               title={
                                 isSkipped
                                   ? undefined
-                                  : 'Skipped via the season planner / ops rule — change it from the gear, not the Skip checkbox'
+                                  : desktopMode
+                                    ? 'Skipped in the saved season plan'
+                                    : 'Skipped via the season planner / ops rule — change it from the gear, not the Skip checkbox'
                               }
                             >
                               Skip
@@ -616,6 +656,7 @@ export default function TargetsClient({
                         </td>
                         <td className="px-4 py-2 text-xs text-amber-100/50">
                           {updatedLabel}
+                          {renderNotes(row)}
                         </td>
                         <td className="px-4 py-2 text-right">
                           {!canEdit ? (

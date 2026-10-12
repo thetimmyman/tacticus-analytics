@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 import { usePathname, useSearchParams } from 'next/navigation'
 import type { UserRole } from '@tacticus/app-core/types'
 import type {
@@ -76,6 +77,7 @@ export function SectionSubnav({
   const pathname = usePathname() ?? '/'
   const searchParams = useSearchParams()
   const currentSeason = searchParams.get('season')
+  const prefetch = getRuntimeProfile() === 'desktop' ? false : undefined
 
   const workspace = workspaceId
     ? (workspaces.find((w) => w.id === workspaceId) ??
@@ -126,6 +128,7 @@ export function SectionSubnav({
             <li className="shrink-0">
               <Link
                 href={getHrefWithSeason(exitHref, currentSeason)}
+                prefetch={prefetch}
                 className="inline-flex items-center gap-2 rounded-full border border-dashed border-(--card-border) px-3.5 py-1.5 text-xs font-medium text-secondary-wh40k transition-colors hover:text-primary-wh40k hover:border-[color-mix(in_srgb,var(--text-secondary)_60%,transparent)]"
               >
                 <span aria-hidden="true">◂</span>
@@ -161,7 +164,10 @@ export function SectionSubnav({
                   target: '_blank',
                   rel: 'noopener noreferrer'
                 }
-              : { href: getHrefWithSeason(section.href, currentSeason) }
+              : {
+                  href: getHrefWithSeason(section.href, currentSeason),
+                  prefetch
+                }
 
             const Component = section.external ? 'a' : Link
 

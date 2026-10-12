@@ -1,5 +1,8 @@
 import { guildRosterQuery } from '@/app/lib/data/guild-roster'
 import 'server-only'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
+import type { TypedSupabaseClient } from '@tacticus/app-core/types'
+import { resolveSavedPlanningRotation } from './saved-season'
 
 import { serviceDb } from '@/app/lib/db'
 import { createComponentLogger } from '@/app/lib/logging'
@@ -118,6 +121,7 @@ export async function generateSeasonPlanForGuild(args: {
   timeZone?: string | null
   optionalSpendMinHpMultiplier?: number
   configId?: string | null
+  signedClient?: TypedSupabaseClient
 }): Promise<GeneratedSeasonPlanPayload> {
   const requestedSnapshotDate = new Date(args.snapshotAt)
   const requestedSnapshotMs = requestedSnapshotDate.getTime()
@@ -153,7 +157,10 @@ export async function generateSeasonPlanForGuild(args: {
   const season_start_at = new Date(seasonStartMs).toISOString()
   const season_end_at = new Date(seasonEndMs).toISOString()
 
-  const service = serviceDb()
+  const desktop = getRuntimeProfile() === 'desktop'
+  if (desktop && !args.signedClient)
+    throw new Error('Signed saved-season context required')
+  const service = desktop ? args.signedClient! : serviceDb()
 
   let time_zone = args.timeZone ?? null
   if (args.timeZone === undefined) {
@@ -180,21 +187,34 @@ export async function generateSeasonPlanForGuild(args: {
   const [bossHpData, liveRotation, { skippedPrimes, officerTargets }] =
     await Promise.all([
       getAllBossHp(args.guildCode),
-      ensureRotationSnapshot(),
+      desktop
+        ? Promise.resolve(
+            resolveSavedPlanningRotation(
+              args.season,
+              effectiveSnapshotAt,
+              args.configId
+            )
+          )
+        : ensureRotationSnapshot(),
       loadPlanTargetSignalsForSeason(service, args.guildCode, args.season)
     ])
 
   const seasonConfig = getSeasonConfigForSeasonNumber(seasonNumber)
-  const { rotation: rotationSnapshot, seasonId: season_id } =
-    resolvePlanningRotation({
-      configId: args.configId,
-      seasonConfig,
-      liveRotation
-    })
+  const { rotation: rotationSnapshot, seasonId: season_id } = desktop
+    ? {
+        rotation: liveRotation,
+        seasonId: liveRotation?.currentConfigId ?? null
+      }
+    : resolvePlanningRotation({
+        configId: args.configId,
+        seasonConfig,
+        liveRotation
+      })
 
   const progressionConfig = await getActiveProgressionConfig(
     args.guildCode,
-    seasonNumber
+    seasonNumber,
+    ...(desktop ? ([service] as const) : [])
   )
 
   const snapshot = await buildPlanFromNowSnapshot({

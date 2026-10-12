@@ -1,3 +1,5 @@
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
+import { requireSeasonPlanOfficerContext } from '@/app/api/guild-raid/season-plan/_shared'
 import { ReleaseStageBadge } from '@/app/components/release/ReleaseStageBadge'
 import {
   getFeatureReleaseStage,
@@ -12,6 +14,30 @@ export default async function BossAssignmentsLayout({
 }: {
   children: React.ReactNode
 }) {
+  if (getRuntimeProfile() === 'desktop') {
+    const { supabase, user } = await requireSeasonPlanOfficerContext({
+      allowMemberRead: true
+    })
+    const access = await checkFeatureAccess(
+      user.id,
+      'boss_assignment_season_planner',
+      supabase
+    )
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-primary-wh40k">
+            Boss Assignments
+          </h1>
+          <p className="text-secondary-wh40k">
+            Saved guild target and season planning
+          </p>
+        </div>
+        <BossAssignmentsSubnav hasSeasonAccess={access.has_access} />
+        <div>{children}</div>
+      </div>
+    )
+  }
   // The auth call is React-cached, so this adds no round-trip.
   const { user, profile, canEdit } = await requireBossAssignmentsAccess()
   const [stage, seasonAccess] = await Promise.all([

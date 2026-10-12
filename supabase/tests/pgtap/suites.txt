@@ -56,8 +56,10 @@ pgnet_failure_snapshots.sql # 13
 authenticated_write_grants.sql # 11
 anon_definer_maintenance_revokes.sql # 7
 claim_definer_public_revoke.sql # 9
+cron_history_privileges.sql # 10
 remaining_definer_public_revoke.sql # 22
 policy_rows_trusted_caller.sql # 24
+readonly_request_transaction.sql # 14
 role_statement_and_idle_timeouts.sql # 14
 guild_latest_raid_index.sql # 8
 global_leaderboard_retired.sql # 5
@@ -104,6 +106,7 @@ season_summary_claim_atomicity.sql # 6
 season_summary_stats_rpc.sql # 8
 
 token_burn_player_order.sql # 9
+transfer_roster_confirmed_players.sql # 16
 
 # === DARK ===
 # cluster_rankings_refresh_throttle.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply

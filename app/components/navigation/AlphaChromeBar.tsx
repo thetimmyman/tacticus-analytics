@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { ChromeLink as Link } from './ChromeLink'
 import { Suspense, useCallback, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import type { UserRole } from '@tacticus/app-core/types'

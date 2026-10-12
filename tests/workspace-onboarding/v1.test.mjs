@@ -32,6 +32,21 @@ function syntheticPlayer(units = []) {
   }
 }
 
+function syntheticUnit() {
+  return {
+    id: 'SyntheticAdvancedUnit',
+    rank: 23,
+    xp: 100,
+    xpLevel: 55,
+    progressionIndex: 19,
+    abilities: [{ id: 'SyntheticAbility', level: 55 }],
+    items: [],
+    upgrades: [],
+    shards: 0,
+    mythicShards: 0
+  }
+}
+
 function fixture(scopes = ['Player']) {
   let stored = {},
     prompts = 0,
@@ -143,6 +158,66 @@ test('offline projection validates the entire cached schema without granting cap
       updatedOn: Number.MAX_SAFE_INTEGER
     })
   )
+})
+
+test('cached advanced units retain supported progression and bounded storage levels', () => {
+  for (const level of [55, 65, 32767]) {
+    const unit = syntheticUnit()
+    unit.xpLevel = level
+    unit.abilities[0].level = level
+    const personal = projectCachedPlayer({
+      player: syntheticPlayer([unit]),
+      updatedOn: 1767225600
+    })
+    assert.equal(personal.apiData.units[0].rank, 23)
+    assert.equal(personal.apiData.units[0].progressionIndex, 19)
+    assert.equal(personal.apiData.units[0].xpLevel, level)
+    assert.equal(personal.apiData.units[0].abilities[0].level, level)
+    assert.equal(personal.roster[0].xpLevel, level)
+    assert.equal(personal.capabilities, undefined)
+  }
+})
+
+test('cached unit levels keep integer storage limits and progression bounds', () => {
+  const minimum = syntheticUnit()
+  Object.assign(minimum, { rank: 0, progressionIndex: 0, xpLevel: 1 })
+  minimum.abilities[0].level = 0
+  const personal = projectCachedPlayer({
+    player: syntheticPlayer([minimum]),
+    updatedOn: 1767225600
+  })
+  assert.equal(personal.apiData.units[0].xpLevel, 1)
+  assert.equal(personal.apiData.units[0].abilities[0].level, 0)
+
+  for (const [field, outsideBounds] of [
+    ['rank', [-1, 24]],
+    ['progressionIndex', [-1, 20]],
+    ['xpLevel', [0, 32768]],
+    ['abilityLevel', [-1, 32768]]
+  ]) {
+    for (const invalid of [
+      ...outsideBounds,
+      1.5,
+      true,
+      '55',
+      null,
+      NaN,
+      Infinity
+    ]) {
+      const unit = syntheticUnit()
+      if (field === 'abilityLevel') unit.abilities[0].level = invalid
+      else unit[field] = invalid
+      assert.throws(
+        () =>
+          projectCachedPlayer({
+            player: syntheticPlayer([unit]),
+            updatedOn: 1767225600
+          }),
+        /Player number unavailable/,
+        `${field} must refuse ${String(invalid)}`
+      )
+    }
+  }
 })
 
 test('native setup errors retain only an allowlisted category and never native error text', async () => {

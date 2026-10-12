@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { ChromeLink as Link } from './ChromeLink'
 import { ChevronRight } from 'lucide-react'
 import { AnalyticsIcon } from '@/app/components/icons/AnalyticsIcon'
 

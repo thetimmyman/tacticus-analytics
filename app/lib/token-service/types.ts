@@ -14,7 +14,7 @@ export interface PlayerTokenStatus {
   bombs_available: number
   token_cooldown: string | null
   bomb_cooldown: string | null
-  data_source: 'live' | 'calculated'
+  data_source: 'live' | 'calculated' | 'cached'
   last_battle_time: string | null
   battles_with_damage: number
   burned_tokens?: number | null

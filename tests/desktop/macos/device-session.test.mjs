@@ -370,7 +370,8 @@ test('bounded session input drops unexpected grant fields and rejects oversized 
 })
 function mainFixture(
   responses,
-  sessionGrant = grant({ padding: 'x'.repeat(6000) })
+  sessionGrant = grant({ padding: 'x'.repeat(6000) }),
+  dependencies = {}
 ) {
   const origin = 'http://127.0.0.1:34567',
     calls = [],
@@ -442,7 +443,7 @@ function mainFixture(
       }
     }
   }
-  const device = deviceSession(window, config, { electron })
+  const device = deviceSession(window, config, { ...dependencies, electron })
   return {
     device,
     window,
@@ -573,6 +574,85 @@ test('coalesced opens install contiguous normal Auth chunks decoded by the exist
     { name: 'unrelated', value: 'retained' }
   )
 })
+test('session installation callback runs once after all cookies and before recovered navigation', async () => {
+  const sessionGrant = grant({ padding: 'x'.repeat(6000) })
+  let installed = 0
+  const main = mainFixture(undefined, sessionGrant, {
+    onSessionInstalled(...args) {
+      assert.deepEqual(args, [])
+      assert.equal(
+        currentWorkspaceToken(main.cookies),
+        sessionGrant.access_token
+      )
+      assert.deepEqual(main.loaded, [])
+      installed++
+    }
+  })
+  const load = main.window.loadURL
+  main.window.loadURL = async (url) => {
+    assert.equal(installed, 1)
+    return load(url)
+  }
+  const first = main.device.open()
+  assert.equal(main.device.open(), first)
+  assert.equal(await first, true)
+  assert.equal(installed, 1)
+  assert.equal(main.calls.length, 1)
+})
+test('invalid session installation callback refuses before coordinator or cookie changes', () => {
+  const main = mainFixture()
+  const before = [...main.cookies]
+  for (const value of [null, false, 'callback', {}, []])
+    assert.throws(
+      () =>
+        deviceSession(main.window, main.config, {
+          electron: main.electron,
+          onSessionInstalled: value
+        }),
+      /Invalid local session observer/
+    )
+  assert.equal(main.partitions.length, 1)
+  assert.equal(main.calls.length, 0)
+  assert.deepEqual(main.cookies, before)
+})
+test('failed session installation callback removes Auth cookies without navigating or exposing its exception', async () => {
+  let installed = 0
+  const main = mainFixture(undefined, undefined, {
+    onSessionInstalled() {
+      installed++
+      throw new Error('SYNTHETIC-OBSERVER-SECRET')
+    }
+  })
+  await assert.rejects(main.device.open(), (error) => {
+    assert.equal(
+      error.message,
+      'The local workspace could not open. Try reopening the app.'
+    )
+    return true
+  })
+  assert.equal(installed, 1)
+  assert.deepEqual(main.cookies, [{ name: 'unrelated', value: 'retained' }])
+  assert.equal(main.loaded.length, 0)
+})
+test('closing during the final cookie installation aborts before callback and removes installed chunks', async () => {
+  let installed = 0
+  const main = mainFixture(undefined, grant(), {
+    onSessionInstalled() {
+      installed++
+    }
+  })
+  const cookies = main.webContents.session.cookies
+  const set = cookies.set
+  cookies.set = async (cookie) => {
+    await set(cookie)
+    // Closing after a write must still be observed by the final abort check.
+    main.window.emit('closed')
+  }
+  await assert.rejects(main.device.open(), /The local workspace could not open/)
+  assert.equal(installed, 0)
+  assert.deepEqual(main.cookies, [{ name: 'unrelated', value: 'retained' }])
+  assert.equal(main.loaded.length, 0)
+})
 test('main rejects invalid session or destination before replacing cookies and sanitizes transport failures', async () => {
   for (const body of [
     { session: grant(), destination: '/desktop/setup' },
@@ -633,7 +713,12 @@ test('main retries explicit busy only once; fresh setup and denied recovery do n
   assert.deepEqual(absent.loaded, [absent.origin + '/desktop/setup'])
 })
 test('failed cookie installation removes partial Auth chunks and preserves unrelated cookies', async () => {
-  const main = mainFixture()
+  let observed = 0
+  const main = mainFixture(undefined, undefined, {
+    onSessionInstalled() {
+      observed++
+    }
+  })
   const cookies = main.webContents.session.cookies
   const set = cookies.set
   let installed = 0
@@ -648,6 +733,7 @@ test('failed cookie installation removes partial Auth chunks and preserves unrel
       !error.message.includes(broker)
   )
   assert.equal(installed, 2)
+  assert.equal(observed, 0)
   assert.deepEqual(main.cookies, [{ name: 'unrelated', value: 'retained' }])
   assert.equal(main.loaded.length, 0)
   assert.throws(() => currentWorkspaceToken(main.cookies), { code: 'ESESSION' })

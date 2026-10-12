@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
+import { writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createServer } from 'node:net'
@@ -11,12 +12,47 @@ import { currentSessionChannel } from './session-gate.mjs'
 import { strict as assert } from 'node:assert'
 import { recoveryJourney } from './recovery.mjs'
 import { seedFormerPasswordFixture } from './migration-fixture.mjs'
+import {
+  nodeLaunchDiagnostic,
+  launchCoordinatorDiagnostic
+} from './launch-diagnostic.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const root = resolve(here, '../../../..')
 const args = process.argv.slice(2)
 const option = (name) =>
   args.includes(name) ? args[args.indexOf(name) + 1] : undefined
+const launchDiagnostic = option('--launch-diagnostic')
+let coordinatorStage = 'configuration'
+let firstFailureRecorded = false
+const writeLaunchDiagnostic = (outcome, error) => {
+  if (!launchDiagnostic || (outcome === 'failed' && firstFailureRecorded))
+    return
+  try {
+    writeFileSync(
+      launchDiagnostic,
+      JSON.stringify({
+        schemaVersion: 1,
+        platform: 'win-x64',
+        outcome,
+        ...nodeLaunchDiagnostic(error, args),
+        ...(outcome === 'failed'
+          ? {
+              coordinatorDiagnostic: launchCoordinatorDiagnostic(
+                error,
+                coordinatorStage
+              )
+            }
+          : {})
+      }),
+      { encoding: 'utf8', mode: 0o600 }
+    )
+    if (outcome === 'failed') firstFailureRecorded = true
+  } catch {}
+}
+process.once('uncaughtExceptionMonitor', (error) => {
+  writeLaunchDiagnostic('failed', error)
+})
 const stateArgument = option('--state')
 if (!stateArgument)
   throw new Error('Native workspace owner must supply its protected state path')
@@ -27,6 +63,7 @@ if (!postgresHome || /[^\x00-\x7f]/.test(postgresHome))
 const serviceConfig = {
   state,
   schemaDirectory: join(root, 'apps/desktop/local-schema'),
+  allowSourceHardlinks: args.includes('--native-package-runtime'),
   binaries: {
     initdb: join(postgresHome, 'bin/initdb.exe'),
     postgres: join(postgresHome, 'bin/postgres.exe'),
@@ -37,13 +74,32 @@ const serviceConfig = {
     postgrest: join(root, 'postgrest/postgrest.exe')
   }
 }
+if (args.includes('--schema-recovery')) {
+  const { windowsSchemaRecoveryProof } =
+    await import('./schema-bootstrap-recovery-proof.mjs')
+  coordinatorStage = 'schema-recovery'
+  await windowsSchemaRecoveryProof(serviceConfig, {
+    scenario: option('--schema-recovery'),
+    evidence: option('--schema-recovery-evidence'),
+    root
+  })
+  writeLaunchDiagnostic('completed')
+  process.exit(0)
+}
+coordinatorStage = 'services-start'
 const services = await nativeServices(serviceConfig)
 if (option('--recovery')) {
   try {
+    coordinatorStage = 'recovery-journey'
     await recoveryJourney(services, serviceConfig, option('--recovery'))
+  } catch (error) {
+    writeLaunchDiagnostic('failed', error)
+    throw error
   } finally {
+    coordinatorStage = 'services-stop'
     await services.stop()
   }
+  writeLaunchDiagnostic('completed')
   process.exit(0)
 }
 let gateway
@@ -51,6 +107,7 @@ try {
   const transportKey = randomBytes(32).toString('hex')
   const brokerToken = randomBytes(32).toString('hex')
   const sessionChannel = currentSessionChannel()
+  coordinatorStage = 'gateway-start'
   gateway = await loopbackGateway({
     services,
     transportKey,
@@ -61,11 +118,13 @@ try {
       { brokerToken, currentToken: (renew) => sessionChannel.token(renew) }
     )
   })
+  coordinatorStage = 'app-port-allocation'
   const listener = createServer()
   await new Promise((accept) => listener.listen(0, '127.0.0.1', accept))
   const port = listener.address().port
   await new Promise((accept) => listener.close(accept))
   gateway.setAppPort(port)
+  coordinatorStage = 'application-launch'
   const application = services.launch(
     join(root, 'bin/node.exe'),
     [join(root, 'application/server.js')],
@@ -87,6 +146,7 @@ try {
     },
     join(root, 'application')
   )
+  coordinatorStage = 'application-health'
   let ready = false
   for (let i = 0; i < 150; i++) {
     if (application.exitCode !== null || services.fault)
@@ -104,13 +164,17 @@ try {
     await delay(100)
   }
   if (!ready) throw new Error('Local application health did not become ready')
+  coordinatorStage = 'verification-input'
   const verifyPath = option('--verify')
   const verify = verifyPath
     ? JSON.parse(await readFile(verifyPath, 'utf8'))
     : undefined
-  if (verify?.seedFormerPasswordFixture === true)
+  if (verify?.seedFormerPasswordFixture === true) {
+    coordinatorStage = 'former-password-fixture'
     await seedFormerPasswordFixture(services)
+  }
   if (verify) {
+    coordinatorStage = 'verification-route-controls'
     assert.equal((await fetch(`${gateway.origin}/desktop/setup`)).status, 403)
     const authorized = { 'x-desktop-transport': transportKey }
     for (const path of [
@@ -140,6 +204,7 @@ try {
       403
     )
   }
+  coordinatorStage = 'owner-before-window'
   const ownerBefore = verify
     ? (
         await services.psql(
@@ -154,6 +219,7 @@ try {
     state: services.state,
     verify
   })
+  coordinatorStage = 'window-launch'
   const window = services.launch(
     join(root, 'electron/electron.exe'),
     [join(here, 'main.cjs')],
@@ -177,10 +243,12 @@ try {
         Buffer.from(chunk).subarray(0, 8192 - windowOutput.length)
       ])
   })
+  coordinatorStage = 'window-exit'
   const code = await new Promise((accept, reject) => {
     window.once('exit', accept)
     window.once('error', reject)
   })
+  coordinatorStage = 'post-window-conservation'
   if (verify && code === 0 && ownerBefore) {
     assert.equal(
       (
@@ -197,12 +265,19 @@ try {
       '8'
     )
   }
+  coordinatorStage = 'window-result'
   if (code !== 0)
     throw new Error(
       'Desktop window verification failed; ' +
         windowFailureDiagnostic(windowOutput.toString('utf8'), code)
     )
+} catch (error) {
+  writeLaunchDiagnostic('failed', error)
+  throw error
 } finally {
+  coordinatorStage = 'gateway-stop'
   if (gateway) await gateway.stop()
+  coordinatorStage = 'services-stop'
   await services.stop()
 }
+writeLaunchDiagnostic('completed')

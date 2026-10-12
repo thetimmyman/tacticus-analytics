@@ -2,6 +2,10 @@ import XCTest
 
 final class WorkspaceUITests: XCTestCase {
     override func setUpWithError() throws { continueAfterFailure = false }
+    private func waitForHittable(_ element: XCUIElement) {
+        let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "hittable == true"), object: element)
+        XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 15), .completed)
+    }
     func testInstalledSyntheticOfflineWriteAndProcessRelaunch() throws {
         let app = XCUIApplication(); app.launchArguments = ["--synthetic-demo"]; app.launch()
         XCTAssertTrue(app.staticTexts["workspace-mode"].waitForExistence(timeout: 15))
@@ -21,20 +25,60 @@ final class WorkspaceUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["analytics"].waitForExistence(timeout: 15))
         XCTAssertEqual(app.staticTexts["analytics"].label, saved)
         XCUIDevice.shared.press(.home); app.activate()
+        waitForHittable(app.switches["offline"])
         XCTAssertEqual(app.staticTexts["analytics"].label, saved)
+        XCTAssertEqual(app.switches["offline"].value as? String, "1")
+    }
+    func testInstalledCachedInventoryProgressPaginationAndRestart() throws {
+        let app = XCUIApplication(); app.launchArguments = ["--synthetic-demo"]; app.launch()
+        XCTAssertTrue(app.buttons["inspect-inventory"].waitForExistence(timeout: 15))
+        app.buttons["inspect-inventory"].tap(); app.buttons["snapshot-items"].tap()
+        XCTAssertTrue(app.staticTexts["snapshot-summary"].label.contains("52 entries"))
+        app.buttons["snapshot-0"].tap()
+        XCTAssertEqual(app.staticTexts["snapshot-value-amount"].label, "amount: 1")
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        for _ in 0..<15 { if app.buttons["snapshot-next"].isHittable { break }; app.swipeUp() }
+        app.buttons["snapshot-next"].tap(); app.buttons["snapshot-50"].tap()
+        XCTAssertEqual(app.staticTexts["snapshot-value-amount"].label, "amount: 51")
+        app.buttons["Close snapshot"].tap()
+        app.terminate(); app.launch()
+        XCTAssertTrue(app.buttons["inspect-progress"].waitForExistence(timeout: 15))
+        app.buttons["inspect-progress"].tap(); app.buttons["snapshot-campaigns"].tap(); app.buttons["snapshot-0"].tap()
+        XCTAssertEqual(app.staticTexts["snapshot-value-name"].label, "name: Example Campaign")
+        XCUIDevice.shared.press(.home); app.activate()
+        waitForHittable(app.switches["offline"])
+        XCTAssertFalse(app.staticTexts["snapshot-value-name"].exists)
         XCTAssertEqual(app.switches["offline"].value as? String, "1")
     }
     func testFreshPersonalWorkspaceRequiresPlayerAndSecureInput() throws {
         let app = XCUIApplication(); app.launch()
         XCTAssertTrue(app.buttons["connect-all"].waitForExistence(timeout: 15))
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15))
+        let personalReady = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            let mode = app.staticTexts["workspace-mode"], player = app.staticTexts["scope-Player"]
+            guard mode.exists, player.exists else { return false }
+            return mode.label == "Personal workspace" && player.label == "Player: not connected" && !app.staticTexts["resources"].exists
+        }, object: nil)
+        XCTAssertEqual(XCTWaiter.wait(for: [personalReady], timeout: 15), .completed)
+        waitForHittable(app.buttons["add-raid"])
+        let before = app.staticTexts["analytics"].label
+        XCTAssertEqual(before, "Damage 0 · Tokens 0 · Damage/token 0")
         app.buttons["add-raid"].tap()
-        XCTAssertTrue(app.staticTexts["workspace-status"].label.contains("Verify Player"))
+        let refused = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == true AND label == %@", "Verify Player before creating personal content."), object: app.staticTexts["workspace-status"])
+        XCTAssertEqual(XCTWaiter.wait(for: [refused], timeout: 15), .completed)
+        XCTAssertFalse(app.alerts["Local raid row"].exists)
+        XCTAssertFalse(app.textFields["raid-player"].exists)
+        XCTAssertEqual(app.staticTexts["analytics"].label, before)
         app.switches["offline"].tap()
         app.buttons["connect-all"].tap()
         XCTAssertTrue(app.secureTextFields["secure-official-key"].waitForExistence(timeout: 5))
         app.secureTextFields["secure-official-key"].tap()
         app.secureTextFields["secure-official-key"].typeText("synthetic-ui-input")
         XCUIDevice.shared.press(.home); app.activate()
+        // Foreground activation can return while the protected store is reopening and
+        // the privacy veil still covers the previous accessibility tree.
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15))
+        waitForHittable(app.buttons["connect-all"])
         XCTAssertFalse(app.secureTextFields["secure-official-key"].exists)
         app.buttons["connect-all"].tap()
         XCTAssertTrue(app.secureTextFields["secure-official-key"].waitForExistence(timeout: 5))
@@ -42,6 +86,8 @@ final class WorkspaceUITests: XCTestCase {
         app.buttons["Skip"].tap()
         XCTAssertFalse(app.secureTextFields["secure-official-key"].exists)
         XCUIDevice.shared.press(.home); app.activate()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15))
+        waitForHittable(app.buttons["connect-all"])
         XCTAssertTrue(app.staticTexts["analytics"].exists)
     }
 }

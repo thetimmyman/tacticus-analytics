@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { ChromeLink as Link } from './ChromeLink'
 import { AnalyticsIcon } from '@/app/components/icons/AnalyticsIcon'
 import { DiscordNavButton } from './DiscordNavButton'
 

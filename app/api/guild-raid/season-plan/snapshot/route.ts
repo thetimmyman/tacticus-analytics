@@ -1,3 +1,5 @@
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
+import { resolveSavedPlanningRotation } from '@/app/lib/boss-assignments/season-planner/saved-season'
 import { guildRosterQuery } from '@/app/lib/data/guild-roster'
 import { NextRequest, NextResponse } from 'next/server'
 import { createComponentLogger } from '@/app/lib/logging'
@@ -16,6 +18,7 @@ import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 import {
   requireSeasonPlanOfficerContext,
+  validateDesktopPlanningParameters,
   resolveSeasonPlanSeason
 } from '../_shared'
 
@@ -30,14 +33,24 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     const searchParams = request.nextUrl.searchParams
     const hasExplicitSeason = searchParams.has('season')
     const hasExplicitSnapshotAt = searchParams.has('snapshot_at')
-    const season = await resolveSeasonPlanSeason(searchParams.get('season'))
+    const desktop = getRuntimeProfile() === 'desktop'
+    validateDesktopPlanningParameters(searchParams)
+    const season = await resolveSeasonPlanSeason(
+      searchParams.get('season'),
+      supabase,
+      profile.guild_code
+    )
     const snapshotAt =
       searchParams.get('snapshot_at') || new Date().toISOString()
     const configIdParam = searchParams.get('config_id')
 
     const [bossHpData, rotationSnapshot] = await Promise.all([
       getAllBossHp(profile.guild_code),
-      ensureRotationSnapshot()
+      desktop
+        ? Promise.resolve(
+            resolveSavedPlanningRotation(season, snapshotAt, configIdParam)
+          )
+        : ensureRotationSnapshot()
     ])
     const seasonNumber = Number.parseInt(season, 10)
 
@@ -61,21 +74,29 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
 
     const { config: detectedConfig, matches: detectedMatches } =
       matchSeasonConfig(observedBossNames)
-    const detectedConfigId = detectedConfig.id
+    const detectedConfigId = desktop
+      ? rotationSnapshot!.currentConfigId
+      : detectedConfig.id
     const detectedConfigIndex = SEASON_CONFIGS.findIndex(
       (c) => c.id === detectedConfigId
     )
 
-    const { rotation: planningRotation, seasonId } = resolvePlanningRotation({
-      configId: configIdParam || null,
-      seasonConfig: getSeasonConfigForSeasonNumber(seasonNumber),
-      liveRotation: rotationSnapshot
-    })
+    const { rotation: planningRotation, seasonId } = desktop
+      ? {
+          rotation: rotationSnapshot,
+          seasonId: rotationSnapshot!.currentConfigId
+        }
+      : resolvePlanningRotation({
+          configId: configIdParam || null,
+          seasonConfig: getSeasonConfigForSeasonNumber(seasonNumber),
+          liveRotation: rotationSnapshot
+        })
 
     // Its captured ladder, never a cross-season fallback.
     const progressionConfig = await getActiveProgressionConfig(
       profile.guild_code,
-      seasonNumber
+      seasonNumber,
+      ...(desktop ? ([supabase] as const) : [])
     )
 
     const snapshot = await buildPlanFromNowSnapshot({
@@ -88,7 +109,10 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
       rotationSnapshot: planningRotation,
       progressionConfig,
       preferAsOfStatus:
-        hasExplicitSeason || hasExplicitSnapshotAt || Boolean(configIdParam)
+        desktop ||
+        hasExplicitSeason ||
+        hasExplicitSnapshotAt ||
+        Boolean(configIdParam)
     })
 
     const { data: roster, error: rosterError } = await guildRosterQuery(
@@ -104,14 +128,24 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
       )
     }
 
-    return NextResponse.json({
-      snapshot,
-      roster: roster ?? [],
-      detectedConfigId,
-      detectedConfigIndex,
-      detectedMatches,
-      observedBossCount: observedBossNames.length
-    })
+    return NextResponse.json(
+      {
+        snapshot,
+        roster: roster ?? [],
+        detectedConfigId,
+        detectedConfigIndex,
+        detectedMatches,
+        observedBossCount: observedBossNames.length,
+        ...(desktop
+          ? {
+              data_source: 'saved',
+              selected_season: season,
+              rotation_source: 'captured-public-config'
+            }
+          : {})
+      },
+      { headers: desktop ? { 'Cache-Control': 'no-store' } : undefined }
+    )
   } catch (error) {
     rethrowIfAppError(error)
     logger.error({ err: error }, 'Error in season planner snapshot API:')

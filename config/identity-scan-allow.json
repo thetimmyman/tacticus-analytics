@@ -162,5 +162,9 @@
   {
     "sha256": "57b05a1a25353554bfd2eb09467d60f0ffc4642e733bc0284e479dba846df0b1",
     "why": "public support server id"
+  },
+  {
+    "sha256": "2ea0d25e51920dc0ba247fcda7f514f3e8ad6234e704277036df405af860ed6c",
+    "why": "standard DOM EventInit option used by browser proof drivers"
   }
 ]

@@ -88,9 +88,74 @@ test('service completion waits for pipe data after process exit', async () => {
           'initdb.exe exited 1; password-file-read-refused; bootstrap-script; sensitive output suppressed'
         )
         assert.equal(error.message.includes('synthetic-private-path'), false)
+        assert.equal(error.serviceFailureCode, 'password-file-read-refused')
+        assert.equal(error.serviceBootstrapPhase, 'bootstrap-script')
+        assert.equal(error.serviceExecutable, 'initdb.exe')
+        assert.equal(error.serviceExitCode, 1)
+        assert.equal(error.postgresChildStatus, null)
         return true
       })
     }
+  }
+})
+
+test('one-shot service failures retain only allowlisted executable and uint32 loader status', async () => {
+  const child = Object.assign(new EventEmitter(), {
+    stdout: new EventEmitter(),
+    stderr: new EventEmitter()
+  })
+  const result = run('initdb.exe', [], {}, () => child)
+  child.stderr.emit(
+    'data',
+    Buffer.from(
+      'synthetic-private-path: child process exited with exit code 3221225794'
+    )
+  )
+  child.stdout.emit(
+    'data',
+    Buffer.from('creating configuration files ... ok\n')
+  )
+  child.emit('close', 1)
+  await assert.rejects(result, (error) => {
+    assert.equal(error.serviceFailureCode, 'postgres-child-status-0xc0000142')
+    assert.equal(error.serviceBootstrapPhase, 'configuration')
+    assert.equal(error.serviceExecutable, 'initdb.exe')
+    assert.equal(error.serviceExitCode, 1)
+    assert.equal(error.postgresChildStatus, 3221225794)
+    assert.equal(error.message.includes('synthetic-private-path'), false)
+    return true
+  })
+})
+
+test('service spawn failures suppress native error details and retain bounded metadata', async () => {
+  for (const spawnChild of [
+    () => {
+      throw new Error('synthetic-private-sync-path')
+    },
+    () => {
+      const child = Object.assign(new EventEmitter(), {
+        stdout: new PassThrough(),
+        stderr: new PassThrough()
+      })
+      setImmediate(() =>
+        child.emit('error', new Error('synthetic-private-async-path'))
+      )
+      return child
+    }
+  ]) {
+    await assert.rejects(run('initdb.exe', [], {}, spawnChild), (error) => {
+      assert.equal(
+        error.message,
+        'initdb.exe could not start; child-launch-failed; sensitive output suppressed'
+      )
+      assert.equal(error.serviceFailureCode, 'child-launch-failed')
+      assert.equal(error.serviceBootstrapPhase, 'not-applicable')
+      assert.equal(error.serviceExecutable, 'initdb.exe')
+      assert.equal(error.serviceExitCode, null)
+      assert.equal(error.postgresChildStatus, null)
+      assert.equal(error.message.includes('synthetic-private'), false)
+      return true
+    })
   }
 })
 
@@ -266,8 +331,8 @@ test('startup streams emit only fixed categories and numeric status from a bound
     'synthetic-private-body: Execution of PostgreSQL by a user with administrative permissions is not\npermitted.\n'
   )
   assert.equal(
-    diagnostic(),
-    'administrative-token-refused; exit-1; sensitive output suppressed'
+    diagnostic().split('; pgrst-')[0],
+    'administrative-token-refused; exit-1'
   )
   assert.equal(diagnostic().includes('synthetic-private-body'), false)
   const bounded = {
@@ -280,7 +345,7 @@ test('startup streams emit only fixed categories and numeric status from a bound
   bounded.stderr.write('permission denied synthetic-private-body')
   assert.equal(
     later(),
-    'unclassified-service-failure; exit-3221225781; sensitive output suppressed'
+    'unclassified-service-failure; exit-3221225781; pgrst-unavailable; sqlstate-unavailable; streamComplete-false; capturedBytes-8192; truncated-true; sensitive output suppressed'
   )
 })
 

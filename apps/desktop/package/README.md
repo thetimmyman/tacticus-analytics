@@ -25,7 +25,16 @@ remains readable offline.
 
 The native File menu offers backup and restore. Backup closes the application,
 stops its services and acquires the workspace kernel lease before exporting a
-stopped PostgreSQL checkpoint into a new private directory. Restore verifies its
+stopped PostgreSQL checkpoint into a new encrypted `.tabackup` file. A separate
+masked native prompt confirms the backup passphrase; it goes to the transfer
+worker over stdin and is never saved in the maintenance request. AES-256-GCM
+authenticates the versioned header, inventory and file bytes using a bounded
+scrypt-derived key. New encrypted files use format v2 with fixed scrypt
+`N=65536, r=8, p=2` and a 128 MiB memory ceiling. Restore admits existing encrypted
+v1 files only with their exact original header and `N=65536, r=8, p=1` parameters;
+it never retries another profile after authentication failure. The complete
+header is authenticated, and its format must match the encrypted inventory.
+Restore also supports legacy backup folders. It verifies its
 file inventory and creates a separate workspace; it never replaces the current
 database. A pending restore blocks startup, and a corrupt or incomplete backup
 is rejected. After the restored database opens successfully with the pinned
@@ -38,6 +47,14 @@ The launcher also accepts `--backup /new/backup-directory` or
 These are same-installation physical database transfers, not PostgreSQL major
 version conversion or fresh-install signing-key rotation.
 The repository's proprietary license is unchanged.
+
+File → API access, add-ons and updates → Local add-ons opens the isolated Linux
+manager. Reviewed signed data packages can enable the normalized war report and
+placeholder replay timeline. The installed policy trusts no packages by default.
+Canonical Guild War source transfer, game replay decoding/assets and live capture
+retain their independent review and qualification gates. A module failure does
+not prevent using core analytics or recovery controls. Backups that include
+module data use v2 checkpoints; existing v1 backups remain supported.
 
 `stage-linux.mjs` accepts a private JSON configuration with absolute paths for
 `output`, `application`, `postgres`, `node`, `electron`, `auth`, `postgrest`

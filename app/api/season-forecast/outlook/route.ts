@@ -5,13 +5,31 @@ import { requireTokenUsageGuildAccess } from '@/app/api/members/token-usage/acce
 import { computeSeasonOutlookDetailWithTimeout } from '@/app/lib/season-forecast/season-outlook-projection'
 import { scopeOutlookPlayers } from '@/app/lib/season-forecast/outlook-player-scope'
 import { getLatestSeason } from '@/app/lib/utils/season'
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
+import {
+  computeSavedSeasonOutlook,
+  parseSavedOutlookQuery
+} from '@/app/lib/season-forecast/saved-outlook'
 
-/** Both null on sim miss/timeout; `players` is the full roster for officers, else at most the caller's row. */
+/** Hosted sim misses return nulls. Saved local calculations return explicit errors.
+ * Player rows are the full roster for officers, else at most the caller's row. */
 
 export const dynamic = 'force-dynamic'
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
   const searchParams = new URL(request.url).searchParams
+  if (getRuntimeProfile() === 'desktop') {
+    const query = parseSavedOutlookQuery(searchParams)
+    const result = await computeSavedSeasonOutlook({
+      guildCode: query.guildCode,
+      season: query.season,
+      asOf: query.asOf,
+      signal: request.signal
+    })
+    return NextResponse.json(result, {
+      headers: { 'Cache-Control': 'no-store' }
+    })
+  }
   const requestedGuild = searchParams.get('guildCode')
   const seasonParam = searchParams.get('season')?.trim() ?? ''
   const seasonNumber = Number.parseInt(seasonParam, 10)

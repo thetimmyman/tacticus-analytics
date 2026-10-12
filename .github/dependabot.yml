@@ -35,4 +35,4 @@ updates:
       - dependency-name: 'esbuild' # overrides: tsx > esbuild 0.25.12 (exact)
       - dependency-name: 'linkify-it' # overrides: linkify-it 5.0.2 (exact)
       - dependency-name: '@types/react' # overrides: recharts > @types/react ^19.3.0
-      - dependency-name: 'sharp' # overrides: sharp ^0.35.3
+      - dependency-name: 'sharp' # overrides: sharp ^0.35.5

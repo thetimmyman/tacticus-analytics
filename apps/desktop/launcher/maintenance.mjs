@@ -3,6 +3,91 @@ import { readFile, mkdir } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { nativeServices } from '../proof/native-services.mjs'
 import { bundledServices } from './runtime.mjs'
+import { nativeSecretPrompt } from './native-secret.mjs'
+
+export async function encryptedPassphrase(
+  operation,
+  prompt = nativeSecretPrompt
+) {
+  let value = Buffer.from(
+    await prompt(
+      operation === 'backup' ? 'backup-passphrase' : 'restore-passphrase'
+    ),
+    'utf8'
+  )
+  try {
+    if (value.length < 12 || value.length > 1024)
+      throw new Error('Use a backup passphrase of 12 to 1024 bytes.')
+    if (operation === 'backup') {
+      const confirmation = Buffer.from(
+        await prompt('backup-passphrase-confirm'),
+        'utf8'
+      )
+      try {
+        if (!value.equals(confirmation))
+          throw new Error('Backup passphrases did not match.')
+      } finally {
+        confirmation.fill(0)
+      }
+    }
+    const result = value
+    value = undefined
+    return result
+  } finally {
+    value?.fill(0)
+  }
+}
+
+export async function guardedEncryptedTransfer(
+  root,
+  operation,
+  state,
+  other,
+  passphrase
+) {
+  if (
+    !['backup', 'restore'].includes(operation) ||
+    !Buffer.isBuffer(passphrase)
+  )
+    throw new Error('Invalid encrypted workspace operation')
+  const child = spawn(
+    join(root, 'bin/runtime-guard'),
+    [
+      '--owner',
+      state,
+      join(root, 'bin/node'),
+      join(root, 'apps/desktop/launcher/encrypted-transfer.mjs'),
+      operation,
+      state,
+      other
+    ],
+    {
+      stdio: ['pipe', 'pipe', 'ignore'],
+      env: { PATH: join(root, 'bin'), LANG: 'C.UTF-8' }
+    }
+  )
+  let output = ''
+  child.stdout.on('data', (bytes) => {
+    if (output.length + bytes.length > 65536) {
+      child.stdout.destroy()
+      child.kill('SIGKILL')
+    } else output += bytes
+  })
+  child.stdin.on('error', () => {})
+  const completion = new Promise((accept, reject) => {
+    child.once('error', reject)
+    child.once('close', accept)
+  })
+  child.stdin.end(passphrase)
+  const code = await completion
+  if (code !== 0)
+    throw new Error(
+      code === 73
+        ? 'Workspace is in use. Close it before transferring data.'
+        : 'Encrypted workspace transfer failed. Check the passphrase and backup. Existing data was preserved.'
+    )
+  return JSON.parse(output)
+}
 
 export async function guardedTransfer(root, operation, state, other) {
   const child = spawn(
@@ -27,7 +112,7 @@ export async function guardedTransfer(root, operation, state, other) {
   })
   const code = await new Promise((accept, reject) => {
     child.once('error', reject)
-    child.once('exit', accept)
+    child.once('close', accept)
   })
   if (code !== 0)
     throw new Error(

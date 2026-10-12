@@ -96,3 +96,10 @@ cli-stack:20260831150100_wi8360_revoke_pg_db_role_setting_public_select.sql
 # the preflight locks and censuses the live bucket's objects before capping it,
 # and neither replay has that bucket.
 20260927230000_ability_icons_bucket_limits.sql
+
+# ERROR: Install pg_cron before the history privilege migration (42704).
+# pg_cron is intentionally absent from the general replay image. This migration
+# must fail without recording a no-op: installing the extension later would
+# otherwise recreate PUBLIC grants. The required cron-history control installs
+# real pg_cron, executes the privilege suite, and tests this ordering failure.
+20261008180000_revoke_public_cron_history.sql
