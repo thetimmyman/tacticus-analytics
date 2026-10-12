@@ -6,6 +6,7 @@ on:
       - 'apps/mobile/android/**'
       - 'tests/mobile/android/**'
       - 'docs/mobile/android/**'
+      - 'packages/workspace-onboarding/player-schema.json'
       - '.github/workflows/platform-android.yml'
 
 permissions:
