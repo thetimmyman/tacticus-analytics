@@ -28,6 +28,10 @@ public final class AndroidProof extends Instrumentation {
   private boolean systemUiObserved;
   private boolean pinContainerObserved;
   private boolean keyguardStatusObserved;
+  private boolean pinPanelObserved;
+  private boolean pinScrollUpAdvertised;
+  private boolean pinAccessibilityAttempted;
+  private boolean pinAccessibilityAccepted;
   private String pinPresentationBounds = "none";
   private String pinContext() {
     return "; pinPresentationAttempted=" + pinPresentationAttempted
@@ -35,6 +39,10 @@ public final class AndroidProof extends Instrumentation {
         + " pinSubmitted=" + pinSubmitted + " systemUiObserved=" + systemUiObserved
         + " pinContainerObserved=" + pinContainerObserved
         + " keyguardStatusObserved=" + keyguardStatusObserved
+        + " pinPanelObserved=" + pinPanelObserved
+        + " pinScrollUpAdvertised=" + pinScrollUpAdvertised
+        + " pinAccessibilityAttempted=" + pinAccessibilityAttempted
+        + " pinAccessibilityAccepted=" + pinAccessibilityAccepted
         + " pinPresentationBounds=" + pinPresentationBounds;
   }
   @Override
@@ -207,6 +215,57 @@ public final class AndroidProof extends Instrumentation {
                         "Unavailable workspace discarded manual entry or lacks explanation"));
       check(completed.get() == 1 && entry.read(false).toString().equals(empty),
             "Refused manual raid changed personal data");
+      for (int level : new int[] {61, 32767}) {
+        JSONObject response =
+            player("Synthetic canonical commander", false, false);
+        response.getJSONObject("player")
+            .getJSONArray("units")
+            .getJSONObject(0)
+            .put("xpLevel", level);
+        JSONObject canonical = entry.read(true).put(
+            "personal", PlayerCache.project(response).personal());
+        String personal = canonical.getJSONObject("personal").toString();
+        int previousRows = canonical.getJSONArray("portableRaids").length(),
+            previousCompletions = completed.get();
+        entry.write(canonical, true);
+        onUi(() -> {
+          dialog[0] = ManualRaidDialog.show(
+              activity, entry, true, message -> completed.incrementAndGet());
+          ((android.widget.EditText)dialog[0].findViewById(
+               R.id.manual_raid_boss))
+              .setText("Synthetic canonical boss");
+          ((android.widget.EditText)dialog[0].findViewById(
+               R.id.manual_raid_damage))
+              .setText("7");
+          ((android.widget.EditText)dialog[0].findViewById(
+               R.id.manual_raid_tokens))
+              .setText("1");
+          dialog[0]
+              .getButton(android.app.AlertDialog.BUTTON_POSITIVE)
+              .performClick();
+        });
+        waitForIdleSync();
+        JSONObject saved = entry.read(true);
+        check(!dialog[0].isShowing() &&
+                  completed.get() == previousCompletions + 1 &&
+                  saved.getJSONArray("portableRaids").length() ==
+                      previousRows + 1,
+              "Canonical Player level blocked manual raid or did not save " +
+              "exactly once");
+        JSONObject last =
+            saved.getJSONArray("portableRaids").getJSONObject(previousRows);
+        check(last.getLong("damage") == 7 && last.getLong("tokens") == 1 &&
+                  last.getString("boss").equals("Synthetic canonical boss") &&
+                  saved.getJSONObject("personal").toString().equals(personal) &&
+                  PlayerCache.read(saved.getJSONObject("personal")).complete,
+              "Manual raid changed canonical cache or entered values");
+        check(PortableAnalytics.calculate(MobileDocument.exportRaids(saved))
+                      .getLong("totalDamage") == (level == 61 ? 408 : 415),
+              "Canonical manual raid lost earlier damage");
+        rejects(()
+                    -> MobileDocument.export(saved),
+                "Portable v1 level range changed for manual raid");
+      }
     } finally {
       onUi(() -> {
         if (dialog[0] != null)
@@ -331,22 +390,264 @@ public final class AndroidProof extends Instrumentation {
                             .put("id", "synthetic-unit")
                             .put("name", "Synthetic unit")
                             .put("rank", 1)
-                            .put("xpLevel", 2)))
+                            .put("xpLevel", 2)
+                            .put("progressionIndex", 6)
+                            .put("xp", 123)
+                            .put("shards", 45)
+                            .put("mythicShards", 7)
+                            .put("upgrades", new JSONArray().put(3))
+                            .put("abilities",
+                                new JSONArray().put(new JSONObject()
+                                        .put("id", "synthetic-ability")
+                                        .put("level", 35)))
+                            .put("items",
+                                new JSONArray().put(new JSONObject()
+                                        .put("id", "synthetic-item")
+                                        .put("slotId", "Slot1")
+                                        .put("level", 8)))))
                 .put("inventory",
-                    new JSONObject().put("items", new JSONArray()).put("shards", new JSONArray()))
+                    new JSONObject()
+                        .put("items", new JSONArray())
+                        .put("shards", new JSONArray())
+                        .put("abilityBadges", new JSONObject())
+                        .put("components", new JSONArray())
+                        .put("forgeBadges", new JSONArray())
+                        .put("mythicShards", new JSONArray())
+                        .put("orbs", new JSONObject())
+                        .put("resetStones", 2)
+                        .put("upgrades", new JSONArray())
+                        .put("xpBooks", new JSONArray()))
                 .put("progress",
-                    new JSONObject().put("guildRaid",
-                        new JSONObject()
-                            .put("tokens",
-                                new JSONObject()
-                                    .put("current", 2)
-                                    .put("max", 3)
-                                    .put("regenDelayInSeconds", 43200))
-                            .put("bombTokens",
-                                new JSONObject()
-                                    .put("current", 1)
-                                    .put("max", 3)
-                                    .put("regenDelayInSeconds", 43200)))));
+                    new JSONObject()
+                        .put("campaigns", new JSONArray())
+                        .put("legendaryEvents", new JSONArray())
+                        .put("guildRaid",
+                            new JSONObject()
+                                .put("tokens",
+                                    new JSONObject()
+                                        .put("current", 2)
+                                        .put("max", 3)
+                                        .put("regenDelayInSeconds", 43200))
+                                .put("bombTokens",
+                                    new JSONObject()
+                                        .put("current", 1)
+                                        .put("max", 3)
+                                        .put("regenDelayInSeconds", 43200)))));
+  }
+  private android.view.View viewWithText(android.view.View root, String value) {
+    if (root instanceof android.widget.TextView text && value.contentEquals(text.getText()))
+      return root;
+    if (root instanceof android.view.ViewGroup group)
+      for (int i = 0; i < group.getChildCount(); i++) {
+        android.view.View found = viewWithText(group.getChildAt(i), value);
+        if (found != null)
+          return found;
+      }
+    return null;
+  }
+  private android.view.View viewWithDescription(android.view.View root, String value) {
+    if (value.contentEquals(
+            root.getContentDescription() == null ? "" : root.getContentDescription()))
+      return root;
+    if (root instanceof android.view.ViewGroup group)
+      for (int i = 0; i < group.getChildCount(); i++) {
+        android.view.View found = viewWithDescription(group.getChildAt(i), value);
+        if (found != null)
+          return found;
+      }
+    return null;
+  }
+  private void savedRosterEntry(android.app.Activity activity) throws Exception {
+    onUi(() -> {
+      android.view.View root = activity.getWindow().getDecorView();
+      android.view.View browse = viewWithText(root, "Browse saved roster");
+      check(browse != null && browse.performClick(), "Saved roster control unavailable");
+      check(viewWithText(
+                activity.getWindow().getDecorView(), "Page 1 of 3 · 103 matching saved units")
+              != null,
+          "Saved roster first page missing");
+      check(viewWithText(activity.getWindow().getDecorView(),
+                "View saved details: <script>synthetic</script>")
+              != null,
+          "Hostile name not displayed as literal native text");
+      check(viewWithText(activity.getWindow().getDecorView(), "Next roster page").performClick(),
+          "Next roster page refused");
+      check(viewWithText(
+                activity.getWindow().getDecorView(), "Page 2 of 3 · 103 matching saved units")
+              != null,
+          "Saved roster second page missing");
+      check(viewWithText(activity.getWindow().getDecorView(), "Next roster page").performClick(),
+          "Final roster page refused");
+      check(viewWithText(
+                activity.getWindow().getDecorView(), "Page 3 of 3 · 103 matching saved units")
+              != null,
+          "Saved roster final page missing");
+      android.widget.EditText search = (android.widget.EditText) viewWithDescription(
+          activity.getWindow().getDecorView(), "Search saved roster");
+      search.setText("synthetic-roster-102");
+      check(
+          viewWithText(activity.getWindow().getDecorView(), "Apply roster filters").performClick(),
+          "Saved search refused");
+      check(
+          viewWithText(activity.getWindow().getDecorView(), "Page 1 of 1 · 1 matching saved units")
+              != null,
+          "Saved search did not reach off-page identity");
+      check(viewWithText(
+                activity.getWindow().getDecorView(), "View saved details: Synthetic roster 102")
+                .performClick(),
+          "Saved detail refused");
+      check(viewWithText(activity.getWindow().getDecorView(), "abilities") != null
+              && viewWithText(activity.getWindow().getDecorView(), "items") != null,
+          "Saved detail lost supported fields");
+      check(
+          viewWithText(activity.getWindow().getDecorView(), "Back to saved roster").performClick(),
+          "Saved roster return refused");
+      ((android.widget.EditText) viewWithDescription(
+           activity.getWindow().getDecorView(), "Search saved roster"))
+          .setText("");
+      ((android.widget.Spinner) viewWithDescription(
+           activity.getWindow().getDecorView(), "Rank tier"))
+          .setSelection(1);
+      ((android.widget.Spinner) viewWithDescription(activity.getWindow().getDecorView(), "Rarity"))
+          .setSelection(3);
+      check(
+          viewWithText(activity.getWindow().getDecorView(), "Apply roster filters").performClick(),
+          "Saved filters refused");
+      check(viewWithText(
+                activity.getWindow().getDecorView(), "Page 1 of 2 · 97 matching saved units")
+              != null,
+          "Canonical Stone/Rare filters disagree");
+      ((android.widget.Spinner) viewWithDescription(
+           activity.getWindow().getDecorView(), "Rank tier"))
+          .setSelection(7);
+      check(
+          viewWithText(activity.getWindow().getDecorView(), "Apply roster filters").performClick(),
+          "Adamantium filter refused");
+      check(viewWithText(
+                activity.getWindow().getDecorView(), "Page 1 of 1 · 3 matching saved units")
+              != null
+              && viewWithText(activity.getWindow().getDecorView(),
+                     "View saved details: Synthetic roster 97")
+                  != null
+              && viewWithText(activity.getWindow().getDecorView(),
+                     "View saved details: Synthetic roster 100")
+                  == null,
+          "Adamantium ranks mixed with Mythic");
+      ((android.widget.Spinner) viewWithDescription(
+           activity.getWindow().getDecorView(), "Rank tier"))
+          .setSelection(8);
+      check(
+          viewWithText(activity.getWindow().getDecorView(), "Apply roster filters").performClick(),
+          "Mythic filter refused");
+      check(viewWithText(
+                activity.getWindow().getDecorView(), "Page 1 of 1 · 3 matching saved units")
+              != null
+              && viewWithText(activity.getWindow().getDecorView(),
+                     "View saved details: Synthetic roster 100")
+                  != null
+              && viewWithText(activity.getWindow().getDecorView(),
+                     "View saved details: Synthetic roster 97")
+                  == null,
+          "Mythic ranks mixed with Adamantium");
+      check(viewWithText(activity.getWindow().getDecorView(), "Back to workspace").performClick(),
+          "Workspace return refused");
+    });
+  }
+  private JSONObject savedRosterFixture(JSONObject state) throws Exception {
+    JSONObject response = player("Synthetic Player", false, false);
+    JSONArray units = response.getJSONObject("player").getJSONArray("units");
+    JSONObject unit = units.getJSONObject(0);
+    units = new JSONArray();
+    for (int i = 0; i < 103; i++)
+      units.put(new JSONObject(unit.toString())
+              .put("id", "synthetic-roster-" + i)
+              .put("name", i == 0 ? "<script>synthetic</script>" : "Synthetic roster " + i)
+              .put("rank", i >= 97 ? 18 + (i - 97) : 0));
+    response.getJSONObject("player").put("units", units);
+    JSONObject personal = PlayerCache.project(response).personal();
+    check(PlayerCache.read(personal).complete, "Canonical Player cache not marked complete");
+    check(personal.getJSONArray("roster")
+                .getJSONObject(0)
+                .getJSONArray("abilities")
+                .getJSONObject(0)
+                .getInt("level")
+            == 35,
+        "Canonical ability lost");
+    JSONObject current = new JSONObject(state.toString()).put("personal", personal);
+    JSONObject restored = NativeBackup.importDocument(NativeBackup.export(current));
+    check(restored.getJSONObject("personal").getJSONArray("roster").length() == 103,
+        "Full backup lost saved roster");
+    check(restored.getJSONObject("personal")
+                .getJSONArray("roster")
+                .getJSONObject(0)
+                .getInt("mythicShards")
+            == 7,
+        "Full backup lost canonical shards");
+    JSONObject invalid = new JSONObject(current.toString());
+    invalid.getJSONObject("personal").getJSONArray("roster").getJSONObject(0).put("rank", 24);
+    rejects(() -> NativeBackup.export(invalid), "Malformed marked cache exported");
+    JSONObject high = new JSONObject(current.toString());
+    high.getJSONObject("personal").getJSONArray("roster").getJSONObject(0).put("xpLevel", 32767);
+    check(NativeBackup.importDocument(NativeBackup.export(high))
+                .getJSONObject("personal")
+                .getJSONArray("roster")
+                .getJSONObject(0)
+                .getInt("xpLevel")
+            == 32767,
+        "Full backup reduced canonical level range");
+    rejects(() -> MobileDocument.export(high), "Portable v1 silently changed its level range");
+    java.nio.file.Path destination = java.nio.file.Files.createTempFile(
+        getTargetContext().getCacheDir().toPath(), "synthetic-export-",
+        ".json");
+    byte[] previous = "Synthetic previous destination".getBytes(
+        java.nio.charset.StandardCharsets.UTF_8);
+    java.util.concurrent.atomic.AtomicInteger opened =
+        new java.util.concurrent.atomic.AtomicInteger();
+    try {
+      java.nio.file.Files.write(destination, previous);
+      rejects(() -> DocumentExport.write(high, false, () -> {
+        opened.incrementAndGet();
+        return new java.io.FileOutputStream(destination.toFile());
+      }), "Unrepresentable portable export accepted");
+      check(opened.get() == 0 &&
+                java.util.Arrays.equals(
+                    previous, java.nio.file.Files.readAllBytes(destination)),
+            "Rejected portable export opened or truncated destination");
+      JSONObject invalidBackup =
+          new JSONObject(high.toString()).put("schemaVersion", 2);
+      rejects(() -> DocumentExport.write(invalidBackup, true, () -> {
+        opened.incrementAndGet();
+        return new java.io.FileOutputStream(destination.toFile());
+      }), "Malformed native backup accepted");
+      check(opened.get() == 0 &&
+                java.util.Arrays.equals(
+                    previous, java.nio.file.Files.readAllBytes(destination)),
+            "Rejected backup opened or truncated destination");
+      DocumentExport.write(high, true, () -> {
+        opened.incrementAndGet();
+        return new java.io.FileOutputStream(destination.toFile());
+      });
+      JSONObject file =
+          StrictJson.parse(java.nio.file.Files.readAllBytes(destination),
+                           NativeBackup.MAX_FILE_BYTES);
+      check(opened.get() == 1 && NativeBackup.importDocument(file)
+                                         .getJSONObject("personal")
+                                         .getJSONArray("roster")
+                                         .getJSONObject(0)
+                                         .getInt("xpLevel") == 32767,
+            "Valid backup lost canonical range or did not write once");
+    } finally {
+      java.nio.file.Files.deleteIfExists(destination);
+    }
+    JSONObject legacy = Demo.document();
+    String original = legacy.getJSONObject("personal").toString();
+    check(!PlayerCache.read(legacy.getJSONObject("personal")).complete, "Legacy cache promoted");
+    check(NativeBackup.importDocument(NativeBackup.export(legacy))
+              .getJSONObject("personal")
+              .toString()
+              .equals(original),
+        "Legacy backup erased or promoted fields");
+    return current;
   }
   private OfficialSource source(String name, boolean combined, boolean expired, String guild) {
     return (scope, key) -> {
@@ -496,6 +797,26 @@ public final class AndroidProof extends Instrumentation {
     }
     injectSwipeEvent(downTime, android.view.MotionEvent.ACTION_UP, x, end);
   }
+  private boolean presentPinAction(AccessibilityNodeInfo root) throws Exception {
+    if (pinAccessibilityAccepted)
+      return true;
+    AccessibilityNodeInfo panel = systemPinControl(root, "notification_panel");
+    if (panel == null || !"com.android.systemui".contentEquals(panel.getPackageName()))
+      return false;
+    pinPanelObserved = true;
+    AccessibilityNodeInfo.AccessibilityAction action =
+        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_UP;
+    if (!panel.getActionList().contains(action))
+      return false;
+    pinScrollUpAdvertised = true;
+    pinAccessibilityAttempted = true;
+    pinPresentationAttempted = true;
+    pinPresentationAttempts++;
+    if (!panel.performAction(action.getId()))
+      throw new Exception("Synthetic PIN presentation action refused");
+    pinAccessibilityAccepted = true;
+    return true;
+  }
   private void prepareUnlocked() throws Exception {
     check("ranchu".equals(Build.HARDWARE) || "goldfish".equals(Build.HARDWARE),
         "Synthetic PIN setup is emulator-only");
@@ -525,18 +846,23 @@ public final class AndroidProof extends Instrumentation {
       pinContainerObserved |= pinContainer;
       boolean keyguardStatus = systemPinControl(root, "keyguard_status_view") != null;
       keyguardStatusObserved |= keyguardStatus;
-      // A swipe that lands during a keyguard transition is dropped, so retry a bounded number of
-      // times until the PIN pad is observed.
-      if (!pinSubmitted && pinPresentationAttempts < 5 && keyguardStatus && !pinContainer
+      // Prefer SystemUI's advertised normal presentation action. Accepted input still requires
+      // observing the PIN controls and passing the unchanged native session guard.
+      if (!pinSubmitted && !pinAccessibilityAccepted && pinPresentationAttempts < 5
+          && keyguardStatus && !pinContainer
           && SystemClock.elapsedRealtime() >= nextPresentation) {
         android.graphics.Rect bounds = new android.graphics.Rect();
         root.getBoundsInScreen(bounds);
         if (bounds.equals(previousLockBounds)) {
-          pinPresentationAttempted = true;
-          pinPresentationAttempts++;
           pinPresentationBounds = bounds.toShortString();
-          presentPin(root);
-          nextPresentation = SystemClock.elapsedRealtime() + 2500;
+          if (!presentPinAction(root)) {
+            // A swipe that lands during a keyguard transition can be dropped. Retain the bounded
+            // fallback only when the normal accessibility presentation action is unavailable.
+            pinPresentationAttempted = true;
+            pinPresentationAttempts++;
+            presentPin(root);
+            nextPresentation = SystemClock.elapsedRealtime() + 2500;
+          }
         }
         previousLockBounds = bounds;
       } else {
@@ -1014,16 +1340,25 @@ public final class AndroidProof extends Instrumentation {
         check(packaged.services.length == 1
                 && packaged.services[0].permission.equals("android.permission.BIND_JOB_SERVICE"),
             "Unprotected service boundary");
+        JSONObject beforeRoster = store.read(false);
+        JSONObject rosterState = savedRosterFixture(beforeRoster);
+        store.write(rosterState, false);
+        String savedRosterBeforeUI = store.read(false).toString();
         android.app.Activity activity =
             startActivitySync(new Intent(getTargetContext(), MainActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         try {
-          check((activity.getWindow().getAttributes().flags & WindowManager.LayoutParams.FLAG_SECURE)
+          check(
+              (activity.getWindow().getAttributes().flags & WindowManager.LayoutParams.FLAG_SECURE)
                   != 0,
               "Secure screen missing");
+          savedRosterEntry(activity);
+          check(store.read(false).toString().equals(savedRosterBeforeUI),
+              "Read-only roster UI mutated saved data");
           manualRaidEntry(activity);
         } finally {
           runOnMainSync(activity::finish);
+          store.write(beforeRoster, false);
         }
         try (WorkspaceStore probe =
                  new WorkspaceStore(getTargetContext(), "synthetic-schema-probe.db")) {
