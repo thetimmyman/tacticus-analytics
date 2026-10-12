@@ -11,5 +11,5 @@ if [[ ! -x "$TOOLS_CACHE/gradle-$GRADLE_VERSION/bin/gradle" ]]; then
   printf '%s  %s\n' "$GRADLE_SHA256" "$archive" | sha256sum --check --status
   unzip -q -o "$archive" -d "$TOOLS_CACHE"
 fi
-if (($# == 0)); then set -- :app:assembleDebug :app:assembleDebugAndroidTest :app:assembleRelease :app:bundleRelease :app:lintDebug :app:lintRelease; fi
+if (($# == 0)); then set -- :app:assembleDebug :app:assembleDebugAndroidTest :app:assembleRelease :app:bundleRelease :app:lintDebug :app:lintRelease :app:testDebugUnitTest; fi
 exec "$TOOLS_CACHE/gradle-$GRADLE_VERSION/bin/gradle" -p "$APP_ROOT" --no-daemon --console=plain --dependency-verification strict "$@"

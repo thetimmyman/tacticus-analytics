@@ -131,7 +131,7 @@ final class ManualRaidDialog {
                 .put("tokens", tokenValue)
                 .put("observedAt", System.currentTimeMillis()));
         data.put("portableRaids", rows);
-        PortableAnalytics.calculate(MobileDocument.export(data));
+        PortableAnalytics.calculate(MobileDocument.exportRaids(data));
         store.write(data, demo);
       } catch (Exception unavailable) {
         error.setText(SAVE_ERROR);
