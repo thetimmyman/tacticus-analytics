@@ -4,8 +4,8 @@ import { createHash } from 'node:crypto'
 import { join, resolve, isAbsolute, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { tmpdir } from 'node:os'
-import { lookup } from 'node:dns/promises'
 import { stage, inventory } from './stage.mjs'
+import { resolveQualificationTarget } from './dns-retry.mjs'
 import { records } from './evidence.mjs'
 import { qualifyGraphicalReopen } from './graphical-reopen.mjs'
 import requestDiagnostics from './request-diagnostics.cjs'
@@ -168,18 +168,8 @@ const policy =
 // under the identical descendant policy. Neither target nor raw errors enter
 // the synthetic receipt. Success requires an actual OS permission refusal.
 let networkReceipt
-let dnsDeadline
 try {
-  const target = await Promise.race([
-    lookup('example.com', { family: 4 }),
-    new Promise((_accept, reject) => {
-      dnsDeadline = setTimeout(
-        () => reject(new Error('Qualification DNS timed out')),
-        5000
-      )
-    })
-  ])
-  clearTimeout(dnsDeadline)
+  const target = await resolveQualificationTarget('example.com')
   await writeFile(
     verify,
     JSON.stringify({
@@ -211,8 +201,6 @@ try {
     { mode: 0o600 }
   )
   throw new Error('Installed local IPC and external TCP policy proof failed')
-} finally {
-  clearTimeout(dnsDeadline)
 }
 const networkResult = JSON.parse(networkReceipt)
 if (
