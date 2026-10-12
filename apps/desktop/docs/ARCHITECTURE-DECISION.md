@@ -123,3 +123,5 @@ See `apps/desktop/proof-readme.md` for the full experiment setup and
 `npm run desktop:proof` (implemented in `apps/desktop/proof/run-all.mjs`)
 for the checked-in, runnable proof scripts for each gate, including which
 gates could and could not be executed in a given environment and why.
+
+The threat model for this profile is in `docs/desktop/THREAT-MODEL.md`.
