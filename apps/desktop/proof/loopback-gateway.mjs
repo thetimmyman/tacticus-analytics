@@ -140,6 +140,8 @@ export async function loopbackGateway({
   origin = `http://127.0.0.1:${server.address().port}`
   return {
     origin,
+    // The socket's real bound address, for listener-inventory proofs.
+    address: () => server.address(),
     setAppPort: (port) => {
       appPort = port
     },

@@ -394,3 +394,79 @@ test('valid action origins use the gateway host and cannot spoof forwarding head
   assert.equal(observed.forwarded, undefined)
   assert.equal(observed.host, `127.0.0.1:${upstream.address().port}`)
 })
+
+test('loopback gateway rejects a well-formed but forged per-launch transport key', async (t) => {
+  await withGateway(t, async ({ gateway, transportKey }) => {
+    // Same length and format as the real key, but a different value, so the
+    // timing-safe comparison (not the format check) must refuse it.
+    const forged = (transportKey[0] === '0' ? '1' : '0') + transportKey.slice(1)
+    const rejected = await fetch(`${gateway.origin}/`, {
+      headers: { 'x-desktop-transport': forged }
+    })
+    assert.equal(rejected.status, 403)
+    const healthy = await fetch(`${gateway.origin}/`, {
+      headers: { 'x-desktop-transport': transportKey }
+    })
+    assert.equal(healthy.status, 200)
+    assert.equal(await healthy.text(), 'ok')
+  })
+})
+
+test('loopback gateway rejects a DNS-rebinding Host header even with a valid transport key', async (t) => {
+  // A DNS-rebinding attacker serves the page from its own host and then
+  // rebinds the name to 127.0.0.1; the browser reaches the gateway with the
+  // attacker hostname in Host, which must be refused.
+  await withGateway(t, async ({ gateway, transportKey }) => {
+    const url = new URL(gateway.origin)
+    const http = await import('node:http')
+    const status = await new Promise((accept, reject) => {
+      const req = http.request(
+        {
+          host: '127.0.0.1',
+          port: url.port,
+          path: '/',
+          method: 'GET',
+          headers: {
+            'x-desktop-transport': transportKey,
+            Host: 'localhost.attacker.example'
+          }
+        },
+        (res) => {
+          res.resume()
+          accept(res.statusCode)
+        }
+      )
+      req.on('error', reject)
+      req.end()
+    })
+    assert.equal(status, 403)
+  })
+})
+
+test('loopback gateway rejects CSRF-shaped cross-site requests', async (t) => {
+  await withGateway(t, async ({ gateway, transportKey }) => {
+    // A cross-site form POST is a "simple" request the browser sends without a
+    // CORS preflight, so the gateway must refuse it on its own.
+    const formPost = await fetch(`${gateway.origin}/`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        origin: 'https://attacker.example'
+      },
+      body: 'synthetic=payload'
+    })
+    assert.equal(formPost.status, 403)
+    // Sandboxed or redirected cross-site contexts can present Origin: null.
+    // Authorized, so only the Origin check can refuse it.
+    const nullOrigin = await fetch(`${gateway.origin}/`, {
+      headers: { origin: 'null', 'x-desktop-transport': transportKey }
+    })
+    assert.equal(nullOrigin.status, 403)
+    // A legitimate same-origin request still passes.
+    const healthy = await fetch(`${gateway.origin}/`, {
+      headers: { 'x-desktop-transport': transportKey }
+    })
+    assert.equal(healthy.status, 200)
+    assert.equal(await healthy.text(), 'ok')
+  })
+})
