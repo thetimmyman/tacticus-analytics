@@ -84,7 +84,7 @@ jobs:
           swiftc apps/desktop/platform/macos/SecretVault.swift -o "$RUNNER_TEMP/mac-native/secret-vault"
       - name: Install unsigned image and exercise actual packaged offline runtime
         run: node apps/desktop/platform/macos/qualification.mjs "$RUNNER_TEMP/mac-inputs" "$RUNNER_TEMP/mac-application" "$RUNNER_TEMP/mac-native" "$RUNNER_TEMP/mac-evidence"
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: macos-synthetic-${{ matrix.os }}
