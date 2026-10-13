@@ -11,7 +11,7 @@ SERIAL=${1:?Pass the selected emulator serial}
 ADB="$ANDROID_HOME/platform-tools/adb"
 [[ "$SERIAL" =~ ^emulator-[0-9]+$ ]] || { printf 'This resettable synthetic runner is emulator-only\n' >&2; exit 1; }
 [[ "$($ADB -s "$SERIAL" shell getprop ro.kernel.qemu | tr -d '\r')" == 1 ]] || { printf 'Refusing synthetic reset on a physical device\n' >&2; exit 1; }
-[[ "$(git -C "$APP_ROOT" rev-list --max-parents=0 HEAD)" == 225aa3f138a93a005e460b0b04a0d4df530030c3 ]] || { printf 'Public source ancestry required\n' >&2; exit 1; }
+[[ "$(git -C "$APP_ROOT" rev-list --max-parents=0 HEAD)" == ae24cab4d1130ee3739169638e995391744772e0 ]] || { printf 'Public source ancestry required\n' >&2; exit 1; }
 REPORT="$APP_ROOT/app/build/reports/installed-proof"
 STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)
 mkdir -p "$REPORT"
