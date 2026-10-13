@@ -137,7 +137,7 @@ export const inferSetFromBossName = (bossName: string): number | null => {
   if (name.includes('sanguinius')) return 3 // M4
   if (name.includes('kara')) return 4 // M5
 
-  if (name.includes('eldyron')) return 0 // L1 - Eldyron Pilot2e786c Aurelia
+  if (name.includes('eldyron')) return 0 // L1
   if (
     name.includes('avatarofkhaine') ||
     name.includes('avatar of khaine') ||

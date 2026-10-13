@@ -25,7 +25,7 @@ test('flags private material and nothing else', () => {
   const ok = [
     'app/index.js',
     'node_modules/credentials-helper/index.js',
-    'lib/Pilot000c28.db.js',
+    'lib/turnkey.db.js',
     'notices/LICENSE'
   ]
   assert.deepEqual(evaluate(ok.map((path) => ({ path }))), [])
