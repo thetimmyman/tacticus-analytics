@@ -1,11 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { render, screen, cleanup } from '@testing-library/react'
 import { getDownloadsState } from '../../app/lib/downloads/server'
+import { resolveDownloads } from '../../app/lib/downloads/state'
+import { downloadsPolicy } from '../../app/lib/downloads/policy'
 import { GET as manifestGET } from '../../app/api/downloads/manifest/route'
 import { GET as artifactGET } from '../../app/api/downloads/[releaseId]/route'
 import DownloadsPage from '../../app/downloads/page'
 import DownloadsNavigationEntry from '../../app/downloads/DownloadsNavigationEntry'
-import { releaseDouble } from './fixtures.v1'
+import { releaseDouble, signedDouble, testNow } from './fixtures.v1'
 
 vi.mock('../../app/lib/downloads/server', async (importOriginal) => {
   const original =
@@ -91,5 +93,43 @@ describe('cache-safe unauthenticated downloads routes', () => {
     expect(JSON.stringify(await manifestResponse.json())).not.toContain(
       'synthetic-review-header'
     )
+  })
+
+  it('never offers a withdrawn or missing release and shows the unavailable state', async () => {
+    // A withdrawn release is stripped before any page or route can offer it.
+    const { manifest, keys } = signedDouble([
+      releaseDouble({ state: 'revoked' })
+    ])
+    const policy = downloadsPolicy({
+      DOWNLOADS_ENABLED: 'true',
+      DOWNLOADS_READY_PLATFORMS: 'linux:stable'
+    })
+    expect(resolveDownloads(manifest, policy, keys, testNow).releases).toEqual(
+      []
+    )
+
+    // A missing manifest resolves to unavailable; the page stays honest.
+    loader.mockResolvedValue({
+      status: 'unavailable',
+      releases: [],
+      channels: ['stable']
+    })
+    render(await DownloadsPage())
+    expect(screen.getByRole('status').textContent).toContain(
+      'currently unavailable'
+    )
+    expect(screen.queryByRole('link', { name: /Download Linux/ })).toBeNull()
+    const response = await manifestGET(request)
+    expect(response.status).toBe(503)
+    expect(await response.json()).toEqual({
+      status: 'unavailable',
+      releases: []
+    })
+
+    // The artifact route refuses a release the state no longer contains.
+    const artifact = await artifactGET(request, {
+      params: Promise.resolve({ releaseId: 'synthetic-linux-v1' })
+    })
+    expect(artifact.status).toBe(404)
   })
 })
