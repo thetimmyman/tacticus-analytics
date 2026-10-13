@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import {
   isTransientAuthError,
   isTransientSupabaseResult,
+  isUnsentAuthFailure,
   TRANSIENT_AUTH_USER_MESSAGE,
   withTransientAuthRetry
 } from '@/app/lib/auth/retry-transient'
@@ -115,6 +116,22 @@ describe('isTransientSupabaseResult', () => {
     ).toBe(false)
     expect(isTransientSupabaseResult(null)).toBe(false)
     expect(isTransientSupabaseResult(undefined)).toBe(false)
+  })
+})
+
+describe('isUnsentAuthFailure', () => {
+  it('flags failures that happen before the request is sent', () => {
+    expect(isUnsentAuthFailure(abortError())).toBe(true)
+    const lockTimeout = new Error('Acquiring process lock timed out')
+    lockTimeout.name = 'ProcessLockAcquireTimeoutError'
+    expect(isUnsentAuthFailure(lockTimeout)).toBe(true)
+  })
+
+  it('does not flag network drops, whose request may have been processed', () => {
+    expect(isUnsentAuthFailure(new TypeError('Load failed'))).toBe(false)
+    const retryable = new Error('Failed to fetch')
+    retryable.name = 'AuthRetryableFetchError'
+    expect(isUnsentAuthFailure({ data: null, error: retryable })).toBe(false)
   })
 })
 

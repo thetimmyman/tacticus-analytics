@@ -11,6 +11,21 @@ import {
   validatePassword,
   PASSWORD_MIN_LENGTH
 } from '@/app/lib/validation/auth'
+import {
+  isTransientAuthError,
+  isTransientSupabaseResult,
+  isUnsentAuthFailure,
+  withTransientAuthRetry
+} from '@/app/lib/auth/retry-transient'
+
+const SIGNUP_INTERRUPTED_MESSAGE =
+  'The connection dropped before we could confirm your account was created. Check your inbox for a confirmation email first. If none arrives within a few minutes, check your internet connection and try again.'
+
+// A retry after a dropped attempt that reached the server finds the account it created.
+const CREATED_BY_DROPPED_ATTEMPT_CODES = new Set([
+  'over_email_send_rate_limit',
+  'user_already_exists'
+])
 
 type SignupField = 'displayName' | 'email' | 'password' | 'confirmPassword'
 
@@ -65,17 +80,30 @@ export default function SimplifiedSignupForm() {
 
     setIsLoading(true)
 
+    let droppedAttemptMayHaveLanded = false
     try {
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-        options: {
-          data: {
-            display_name: displayName.trim(),
-            role: 'onboarding'
+      const { data, error: signUpError } = await withTransientAuthRetry(
+        () =>
+          supabase.auth.signUp({
+            email: email.trim(),
+            password,
+            options: {
+              data: {
+                display_name: displayName.trim(),
+                role: 'onboarding'
+              }
+            }
+          }),
+        {
+          isRetryableResult: isTransientSupabaseResult,
+          // Resolved results are network drops after sending; rejections may be unsent lock failures.
+          onRetry: (_attempt, failure) => {
+            if (!isUnsentAuthFailure(failure)) {
+              droppedAttemptMayHaveLanded = true
+            }
           }
         }
-      })
+      )
 
       if (signUpError) {
         throw signUpError
@@ -88,8 +116,19 @@ export default function SimplifiedSignupForm() {
 
       setRequiresEmailConfirm(true)
     } catch (signUpException) {
-      const message =
-        signUpException instanceof Error && signUpException.message
+      const code = (signUpException as { code?: unknown } | null)?.code
+      if (
+        droppedAttemptMayHaveLanded &&
+        typeof code === 'string' &&
+        CREATED_BY_DROPPED_ATTEMPT_CODES.has(code)
+      ) {
+        setRequiresEmailConfirm(true)
+        return
+      }
+
+      const message = isTransientAuthError(signUpException)
+        ? SIGNUP_INTERRUPTED_MESSAGE
+        : signUpException instanceof Error && signUpException.message
           ? signUpException.message
           : 'Unable to create your account. Please try again.'
       setError(message)

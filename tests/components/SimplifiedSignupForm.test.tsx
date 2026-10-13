@@ -260,6 +260,129 @@ describe('SimplifiedSignupForm', () => {
     expect(mockPush).toHaveBeenCalledWith('/auth/login')
   })
 
+  const submitForm = () => {
+    const form = screen
+      .getByRole('button', { name: /create account/i })
+      .closest('form')
+    fireEvent.submit(form as HTMLFormElement)
+  }
+
+  const retryableFetchError = () =>
+    Object.assign(new Error('Load failed (api.example.test)'), {
+      name: 'AuthRetryableFetchError',
+      status: 0
+    })
+
+  it('retries a dropped connection and continues when the retry succeeds', async () => {
+    mockSignUp
+      .mockResolvedValueOnce({ data: null, error: retryableFetchError() })
+      .mockResolvedValueOnce({
+        data: { session: { user: { id: 'user-1' } } },
+        error: null
+      })
+
+    render(<SimplifiedSignupForm />)
+    fillRequiredFields()
+    submitForm()
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/onboarding')
+    })
+    expect(mockSignUp).toHaveBeenCalledTimes(2)
+    expect(screen.queryByText(/load failed/i)).toBeNull()
+  })
+
+  it('explains a connection that keeps dropping instead of showing the raw fetch error', async () => {
+    mockSignUp.mockResolvedValue({ data: null, error: retryableFetchError() })
+
+    render(<SimplifiedSignupForm />)
+    fillRequiredFields()
+    submitForm()
+
+    expect(
+      await screen.findByText(/connection dropped/i, {}, { timeout: 5000 })
+    ).toBeInTheDocument()
+    expect(mockSignUp).toHaveBeenCalledTimes(3)
+    expect(screen.queryByText(/load failed/i)).toBeNull()
+  })
+
+  it.each([
+    ['over_email_send_rate_limit', 429],
+    ['user_already_exists', 422]
+  ])(
+    'treats %s after a dropped first attempt as an account already created',
+    async (code, status) => {
+      mockSignUp
+        .mockResolvedValueOnce({ data: null, error: retryableFetchError() })
+        .mockResolvedValueOnce({
+          data: null,
+          error: Object.assign(new Error('rejected'), {
+            name: 'AuthApiError',
+            code,
+            status
+          })
+        })
+
+      render(<SimplifiedSignupForm />)
+      fillRequiredFields()
+      submitForm()
+
+      expect(
+        await screen.findByText(/check your inbox for a confirmation email/i)
+      ).toBeInTheDocument()
+      expect(screen.queryByText('rejected')).toBeNull()
+    }
+  )
+
+  it('keeps the real error when the retried attempt never left the browser', async () => {
+    mockSignUp
+      .mockRejectedValueOnce(
+        Object.assign(new Error('Acquiring process lock timed out'), {
+          name: 'ProcessLockAcquireTimeoutError'
+        })
+      )
+      .mockResolvedValueOnce({
+        data: null,
+        error: Object.assign(new Error('User already registered'), {
+          name: 'AuthApiError',
+          code: 'user_already_exists',
+          status: 422
+        })
+      })
+
+    render(<SimplifiedSignupForm />)
+    fillRequiredFields()
+    submitForm()
+
+    expect(
+      await screen.findByText('User already registered')
+    ).toBeInTheDocument()
+    expect(mockSignUp).toHaveBeenCalledTimes(2)
+    expect(
+      screen.queryByText(/check your inbox for a confirmation email/i)
+    ).toBeNull()
+  })
+
+  it('shows an already-registered error when no attempt was dropped', async () => {
+    mockSignUp.mockResolvedValue({
+      data: null,
+      error: Object.assign(new Error('User already registered'), {
+        name: 'AuthApiError',
+        code: 'user_already_exists',
+        status: 422
+      })
+    })
+
+    render(<SimplifiedSignupForm />)
+    fillRequiredFields()
+    submitForm()
+
+    expect(
+      await screen.findByText('User already registered')
+    ).toBeInTheDocument()
+    expect(mockSignUp).toHaveBeenCalledTimes(1)
+  })
+
   it('shows error when signup fails', async () => {
     mockSignUp.mockResolvedValue({
       data: null,

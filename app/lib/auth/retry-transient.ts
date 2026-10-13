@@ -51,6 +51,24 @@ export function isTransientAuthError(err: unknown): boolean {
   return false
 }
 
+/**
+ * True when a transient failure happened before the request was sent (a lock
+ * timeout or abort), so the server never saw it. Network drops return false:
+ * the request may have been processed.
+ */
+export function isUnsentAuthFailure(err: unknown): boolean {
+  if (err == null || typeof err !== 'object') return false
+  const e = err as { name?: unknown; message?: unknown }
+  const name = (typeof e.name === 'string' ? e.name : '').toLowerCase()
+  const message = (typeof e.message === 'string' ? e.message : '').toLowerCase()
+
+  if (name.includes('processlockacquiretimeout')) return true
+  if (/acquiring .*lock/.test(message) && message.includes('timed out')) {
+    return true
+  }
+  return name === 'aborterror' || message.includes('signal is aborted')
+}
+
 export function isTransientSupabaseResult(
   result: { error?: unknown } | null | undefined
 ): boolean {
