@@ -12,6 +12,8 @@ export interface TacticusApiLogger {
 export interface TacticusApiConfig {
   baseUrl: string
   maxRetries: number
+  /** Enable only for a configured API variant that documents this endpoint. */
+  membersEndpointEnabled?: boolean
 }
 
 export interface ApiCallResult<T> {
@@ -118,6 +120,16 @@ export async function fetchGuildMembersViaTacticus(
   config: TacticusApiConfig,
   logger: TacticusApiLogger
 ): Promise<TacticusMembersResult> {
+  // The standard API exposes its roster through /guild. Avoid speculative
+  // requests to a variant-specific endpoint unless support is explicit.
+  if (config.membersEndpointEnabled !== true) {
+    return {
+      success: false,
+      memberIds: [],
+      members: [],
+      error: 'Members endpoint disabled'
+    }
+  }
   const endpoint = `/guild/${guildId}/members`
   const url = `${config.baseUrl}${endpoint}`
   const headers = {
