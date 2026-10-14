@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { types as utilTypes } from 'node:util'
+import { workspaceDiagnostics } from '../../../apps/desktop/platform/windows/workspace-diagnostics.mjs'
 import {
   nodeLaunchFailureCategories,
   nodeLaunchFailureCategory,
@@ -372,7 +373,7 @@ async function coordinator({
     bindings['../../proof/loopback-gateway.mjs'],
     bindings['./setup.mjs'],
     bindings['./session-gate.mjs'],
-    { assert },
+    { assert, workspaceDiagnostics },
     bindings['./recovery.mjs'],
     bindings['./migration-fixture.mjs'],
     diagnosticValues

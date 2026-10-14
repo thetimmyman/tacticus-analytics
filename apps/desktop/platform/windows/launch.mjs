@@ -9,6 +9,7 @@ import { nativeServices, windowFailureDiagnostic } from './services.mjs'
 import { loopbackGateway } from '../../proof/loopback-gateway.mjs'
 import { windowsSetup } from './setup.mjs'
 import { currentSessionChannel } from './session-gate.mjs'
+import { workspaceDiagnostics } from './workspace-diagnostics.mjs'
 import { strict as assert } from 'node:assert'
 import { recoveryJourney } from './recovery.mjs'
 import { seedFormerPasswordFixture } from './migration-fixture.mjs'
@@ -25,6 +26,7 @@ const option = (name) =>
 const launchDiagnostic = option('--launch-diagnostic')
 let coordinatorStage = 'configuration'
 let firstFailureRecorded = false
+const workspaceTrace = option('--verify') ? workspaceDiagnostics() : undefined
 const writeLaunchDiagnostic = (outcome, error) => {
   if (!launchDiagnostic || (outcome === 'failed' && firstFailureRecorded))
     return
@@ -41,7 +43,10 @@ const writeLaunchDiagnostic = (outcome, error) => {
               coordinatorDiagnostic: launchCoordinatorDiagnostic(
                 error,
                 coordinatorStage
-              )
+              ),
+              ...(workspaceTrace
+                ? { workspaceOperations: workspaceTrace.snapshot() }
+                : {})
             }
           : {})
       }),
@@ -115,7 +120,11 @@ try {
       services,
       here,
       join(root, 'apps/desktop/launcher'),
-      { brokerToken, currentToken: (renew) => sessionChannel.token(renew) }
+      {
+        brokerToken,
+        currentToken: (renew) => sessionChannel.token(renew),
+        diagnostics: workspaceTrace
+      }
     )
   })
   coordinatorStage = 'app-port-allocation'
