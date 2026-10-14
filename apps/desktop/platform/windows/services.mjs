@@ -5,7 +5,7 @@ import {
   randomUUID,
   timingSafeEqual
 } from 'node:crypto'
-import { createServer } from 'node:net'
+import { reserveLoopbackPorts } from '../../launcher/loopback-ports.mjs'
 import { mkdir, writeFile, stat } from 'node:fs/promises'
 import { nativeCommand } from './native-command.mjs'
 import {
@@ -23,16 +23,7 @@ export function signedToken(key, role, lifetimeSeconds = 86400) {
   const body = `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode({ role, iss: 'desktop', iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + lifetimeSeconds })}`
   return `${body}.${createHmac('sha256', key).update(body).digest('base64url')}`
 }
-async function freePort() {
-  const server = createServer()
-  await new Promise((accept, reject) => {
-    server.once('error', reject)
-    server.listen(0, '127.0.0.1', accept)
-  })
-  const port = server.address().port
-  await new Promise((accept) => server.close(accept))
-  return port
-}
+
 export async function run(file, args, options, spawnChild = spawn) {
   const serviceName = basename(file)
   const publicServiceName = [
@@ -477,6 +468,7 @@ async function startNativeServices(
   let stopPromise
   let fault
   let pgProcess
+  let portReservations
   const pgData = join(state, 'pgdata')
   const stop = () => {
     if (stopPromise) return stopPromise
@@ -484,25 +476,29 @@ async function startNativeServices(
     process.removeListener('SIGINT', onInterrupt)
     process.removeListener('SIGTERM', onInterrupt)
     stopPromise = (async () => {
-      for (const child of [...children].reverse()) {
-        if (child.exitCode !== null || child.signalCode !== null) continue
-        const exited = new Promise((accept) => child.once('exit', accept))
-        if (child === pgProcess && binaries.pgctl) {
-          try {
-            await run(
-              binaries.pgctl,
-              ['stop', '-D', pgData, '-m', 'fast', '-w', '-t', '5'],
-              { env: process.env }
-            )
-          } catch {}
+      try {
+        for (const child of [...children].reverse()) {
           if (child.exitCode !== null || child.signalCode !== null) continue
+          const exited = new Promise((accept) => child.once('exit', accept))
+          if (child === pgProcess && binaries.pgctl) {
+            try {
+              await run(
+                binaries.pgctl,
+                ['stop', '-D', pgData, '-m', 'fast', '-w', '-t', '5'],
+                { env: process.env }
+              )
+            } catch {}
+            if (child.exitCode !== null || child.signalCode !== null) continue
+          }
+          child.kill('SIGTERM')
+          await Promise.race([exited, delay(5000, undefined, { ref: false })])
+          if (child.exitCode === null && child.signalCode === null) {
+            child.kill('SIGKILL')
+            await exited
+          }
         }
-        child.kill('SIGTERM')
-        await Promise.race([exited, delay(5000, undefined, { ref: false })])
-        if (child.exitCode === null && child.signalCode === null) {
-          child.kill('SIGKILL')
-          await exited
-        }
+      } finally {
+        await portReservations?.close()
       }
     })()
     return stopPromise
@@ -518,11 +514,8 @@ async function startNativeServices(
     )
       throw new Error('Corrupt local credentials; refusing activation')
     trace.stage = 'port-allocation'
-    const ports = {
-      db: await freePort(),
-      auth: await freePort(),
-      rest: await freePort()
-    }
+    portReservations = await reserveLoopbackPorts(['db', 'auth', 'rest'])
+    const ports = portReservations.ports
     const pgEnv = {
       ...process.env,
       PATH: process.env.PATH,
@@ -694,6 +687,7 @@ async function startNativeServices(
       fresh = true
     }
     trace.stage = 'postgres-launch'
+    await portReservations.release('db')
     const pg = launch(
       binaries.postgres,
       ['-D', pgData, '-h', '127.0.0.1', '-p', String(ports.db), '-k', ''],
@@ -795,6 +789,7 @@ async function startNativeServices(
       cwd: binaries.authCwd
     })
     trace.stage = 'auth-launch'
+    await portReservations.release('auth')
     const auth = launch(binaries.auth, ['serve'], authEnv, binaries.authCwd)
     trace.stage = 'auth-readiness'
     await ready(
@@ -808,6 +803,7 @@ async function startNativeServices(
     trace.stage = 'schema-completion'
     await completeNativeSchema(schema, psql, openSchemaClient, completeSchema)
     trace.stage = 'postgrest-launch'
+    await portReservations.release('rest')
     const rest = launch(binaries.postgrest, [], {
       ...process.env,
       PATH: process.env.PATH,
