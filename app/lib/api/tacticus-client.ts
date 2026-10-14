@@ -367,6 +367,9 @@ export class TacticusAPIClient {
       })
 
       if (!response.ok) {
+        // Release the connection without downloading or retaining an error payload.
+        // Cancellation failure must not erase the provider's HTTP status.
+        await response.body?.cancel().catch(() => undefined)
         const rejected = response.status === 401 || response.status === 403
         logger[rejected ? 'warn' : 'error'](
           {

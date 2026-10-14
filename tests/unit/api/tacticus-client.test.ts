@@ -293,6 +293,31 @@ describe('TacticusAPIClient', () => {
   })
 
   describe('getPlayerResult', () => {
+    it.each([false, true])(
+      'releases unread error bodies and preserves status when cancellation fails: %s',
+      async (cancelFails) => {
+        const sensitiveBody = 'synthetic-private-response-marker'
+        const cancel = vi.fn(() => {
+          if (cancelFails) throw new Error(sensitiveBody)
+        })
+        const body = new ReadableStream({ cancel })
+        mockFetch.mockResolvedValue(new Response(body, { status: 429 }))
+
+        const { TacticusAPIClient } =
+          await import('@/app/lib/api/tacticus-client')
+        const result = await new TacticusAPIClient().getPlayerResult(
+          validApiKey
+        )
+
+        expect(result).toEqual({ player: null, status: 429 })
+        expect(cancel).toHaveBeenCalledTimes(1)
+        expect(mockFetch).toHaveBeenCalledTimes(1)
+        expect(JSON.stringify(mockLogger.error.mock.calls)).not.toContain(
+          sensitiveBody
+        )
+      }
+    )
+
     it.each([401, 403, 429, 503])(
       'keeps response bodies out of logs for status %i',
       async (status) => {
