@@ -3,10 +3,16 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 const mockFetch = vi.fn()
 vi.stubGlobal('fetch', mockFetch)
 
-vi.mock(
-  '@tacticus/app-core/logger',
-  () => import('@/tests/helpers/logger-mock')
-)
+const mockLogger = vi.hoisted(() => ({
+  log: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  debug: vi.fn(),
+  info: vi.fn()
+}))
+vi.mock('@/app/lib/logging', () => ({
+  createComponentLogger: () => mockLogger
+}))
 
 vi.mock('@tacticus/app-core/app-config', () => ({
   TACTICUS_API: {
@@ -287,6 +293,52 @@ describe('TacticusAPIClient', () => {
   })
 
   describe('getPlayerResult', () => {
+    it.each([401, 403, 429, 503])(
+      'keeps response bodies out of logs for status %i',
+      async (status) => {
+        const sensitiveBody = 'synthetic-private-response-marker'
+        mockFetch.mockResolvedValue({
+          ok: false,
+          status,
+          statusText: 'Failure',
+          text: vi.fn().mockResolvedValue(sensitiveBody)
+        })
+
+        const { TacticusAPIClient } =
+          await import('@/app/lib/api/tacticus-client')
+        const result = await new TacticusAPIClient().getPlayerResult(
+          validApiKey
+        )
+
+        expect(result).toEqual({ player: null, status })
+        expect(mockFetch).toHaveBeenCalledTimes(1)
+        expect(
+          JSON.stringify([
+            mockLogger.error.mock.calls,
+            mockLogger.warn.mock.calls
+          ])
+        ).not.toContain(sensitiveBody)
+      }
+    )
+
+    it('keeps malformed player payloads out of logs', async () => {
+      const sensitiveBody = 'synthetic-private-response-marker'
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: vi.fn().mockResolvedValue({ privateValue: sensitiveBody })
+      })
+      const { TacticusAPIClient } =
+        await import('@/app/lib/api/tacticus-client')
+
+      expect(
+        await new TacticusAPIClient().getPlayerResult(validApiKey)
+      ).toEqual({ player: null, status: 200 })
+      expect(JSON.stringify(mockLogger.warn.mock.calls)).not.toContain(
+        sensitiveBody
+      )
+    })
+
     it('reports the status of a rejected key', async () => {
       mockFetch.mockResolvedValue({
         ok: false,

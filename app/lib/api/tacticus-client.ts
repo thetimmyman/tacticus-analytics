@@ -367,18 +367,10 @@ export class TacticusAPIClient {
       })
 
       if (!response.ok) {
-        let errorBody = ''
-        try {
-          errorBody = await response.text()
-        } catch {
-          // ignore
-        }
         const rejected = response.status === 401 || response.status === 403
         logger[rejected ? 'warn' : 'error'](
           {
-            status: response.status,
-            statusText: response.statusText,
-            errorBody
+            status: response.status
           },
           rejected
             ? 'Tacticus API rejected the player key'
@@ -409,7 +401,10 @@ export class TacticusAPIClient {
         return { player: data as TacticusPlayer, status: response.status }
       }
 
-      logger.warn({ data }, 'Unexpected player API response format')
+      logger.warn(
+        { status: response.status },
+        'Unexpected player API response format'
+      )
       return { player: null, status: response.status }
     } catch (error: unknown) {
       const details = extractErrorDetails(error)
