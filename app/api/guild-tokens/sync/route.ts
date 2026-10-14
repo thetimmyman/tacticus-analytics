@@ -6,7 +6,6 @@ import { settledMapWithConcurrency } from '@/app/lib/utils/bounded-fanout'
 import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('api.guild-tokens.sync')
 import { getPlayerApiKey } from '@tacticus/app-core/api-key-helper'
-import { validateApiKeyWithTacticus } from '@tacticus/app-core/api-key-validation'
 import { CLUSTER_LOOKUP_SELECT } from '@/app/lib/guild-config-selects'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
@@ -234,14 +233,11 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
             }
           }
 
-          const validationResult = await validateApiKeyWithTacticus(
-            apiKey,
-            true,
-            { skipFormatValidation: true }
-          )
-
-          if (!validationResult.isValid) {
-            const statusCode = validationResult.statusCode
+          // The player response proves key validity and contains the tokens.
+          // A separate validation probe would read the same account twice.
+          const { player, status: statusCode } =
+            await tacticusAPI.getPlayerResult(apiKey)
+          if (!player) {
             const isUnauthorized = statusCode === 401 || statusCode === 403
 
             if (isUnauthorized) {
@@ -261,11 +257,9 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
               }
             }
 
-            const failureReason = validationResult.error
-              ? `Validation error: ${validationResult.error}`
-              : statusCode
-                ? `Validation failed with status ${statusCode}`
-                : 'Validation failed - unknown error'
+            const failureReason = statusCode
+              ? `Player request failed with status ${statusCode}`
+              : 'Player request unavailable'
 
             return {
               success: false,
@@ -274,9 +268,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
             }
           }
 
-          const playerData = (await tacticusAPI.getPlayerWithRetry(
-            apiKey
-          )) as PlayerData | null
+          const playerData = player as PlayerData
 
           if (!playerData || !playerData.progress) {
             return {

@@ -345,6 +345,10 @@ describe('guild-batch-sync handler', () => {
     expect(result.successful).toBe(1)
     expect(result.failed).toBe(1)
     expect(result.totalEntries).toBe(7)
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ successful: 1, failed: 1, totalEntries: 7 }),
+      'guild-batch-sync complete'
+    )
   })
 
   it('warns about the thundering-herd regression when LOKI_SCRAPER_USER_ID is unset', async () => {
@@ -422,6 +426,7 @@ describe('guild-batch-sync handler', () => {
     >
 
     expect(result.message).toBe('No guilds need syncing')
+    expect(mockRefresh).not.toHaveBeenCalled()
     expect(result.guildsProcessed).toBe(0)
     expect(syncedGuildCodes.length).toBe(0)
   })

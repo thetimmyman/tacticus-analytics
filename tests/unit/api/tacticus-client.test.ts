@@ -3,10 +3,16 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 const mockFetch = vi.fn()
 vi.stubGlobal('fetch', mockFetch)
 
-vi.mock(
-  '@tacticus/app-core/logger',
-  () => import('@/tests/helpers/logger-mock')
-)
+const mockLogger = vi.hoisted(() => ({
+  log: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  debug: vi.fn(),
+  info: vi.fn()
+}))
+vi.mock('@/app/lib/logging', () => ({
+  createComponentLogger: () => mockLogger
+}))
 
 vi.mock('@tacticus/app-core/app-config', () => ({
   TACTICUS_API: {
@@ -287,6 +293,77 @@ describe('TacticusAPIClient', () => {
   })
 
   describe('getPlayerResult', () => {
+    it.each([false, true])(
+      'releases unread error bodies and preserves status when cancellation fails: %s',
+      async (cancelFails) => {
+        const sensitiveBody = 'synthetic-private-response-marker'
+        const cancel = vi.fn(() => {
+          if (cancelFails) throw new Error(sensitiveBody)
+        })
+        const body = new ReadableStream({ cancel })
+        mockFetch.mockResolvedValue(new Response(body, { status: 429 }))
+
+        const { TacticusAPIClient } =
+          await import('@/app/lib/api/tacticus-client')
+        const result = await new TacticusAPIClient().getPlayerResult(
+          validApiKey
+        )
+
+        expect(result).toEqual({ player: null, status: 429 })
+        expect(cancel).toHaveBeenCalledTimes(1)
+        expect(mockFetch).toHaveBeenCalledTimes(1)
+        expect(JSON.stringify(mockLogger.error.mock.calls)).not.toContain(
+          sensitiveBody
+        )
+      }
+    )
+
+    it.each([401, 403, 429, 503])(
+      'keeps response bodies out of logs for status %i',
+      async (status) => {
+        const sensitiveBody = 'synthetic-private-response-marker'
+        mockFetch.mockResolvedValue({
+          ok: false,
+          status,
+          statusText: 'Failure',
+          text: vi.fn().mockResolvedValue(sensitiveBody)
+        })
+
+        const { TacticusAPIClient } =
+          await import('@/app/lib/api/tacticus-client')
+        const result = await new TacticusAPIClient().getPlayerResult(
+          validApiKey
+        )
+
+        expect(result).toEqual({ player: null, status })
+        expect(mockFetch).toHaveBeenCalledTimes(1)
+        expect(
+          JSON.stringify([
+            mockLogger.error.mock.calls,
+            mockLogger.warn.mock.calls
+          ])
+        ).not.toContain(sensitiveBody)
+      }
+    )
+
+    it('keeps malformed player payloads out of logs', async () => {
+      const sensitiveBody = 'synthetic-private-response-marker'
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: vi.fn().mockResolvedValue({ privateValue: sensitiveBody })
+      })
+      const { TacticusAPIClient } =
+        await import('@/app/lib/api/tacticus-client')
+
+      expect(
+        await new TacticusAPIClient().getPlayerResult(validApiKey)
+      ).toEqual({ player: null, status: 200 })
+      expect(JSON.stringify(mockLogger.warn.mock.calls)).not.toContain(
+        sensitiveBody
+      )
+    })
+
     it('reports the status of a rejected key', async () => {
       mockFetch.mockResolvedValue({
         ok: false,
@@ -300,6 +377,38 @@ describe('TacticusAPIClient', () => {
       const result = await new TacticusAPIClient().getPlayerResult(validApiKey)
 
       expect(result).toEqual({ player: null, status: 403 })
+    })
+
+    it('keeps invalid JSON and unexpected property names out of logs', async () => {
+      const sensitiveBody = 'synthetic-private-response-marker'
+      const { TacticusAPIClient } =
+        await import('@/app/lib/api/tacticus-client')
+      const client = new TacticusAPIClient()
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: vi.fn().mockRejectedValue(new SyntaxError(sensitiveBody))
+      })
+      expect(await client.getPlayerResult(validApiKey)).toEqual({
+        player: null,
+        status: null
+      })
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: vi.fn().mockResolvedValue({ [sensitiveBody]: true })
+      })
+      expect(await client.getPlayerResult(validApiKey)).toEqual({
+        player: null,
+        status: 200
+      })
+      expect(
+        JSON.stringify([
+          mockLogger.error.mock.calls,
+          mockLogger.warn.mock.calls,
+          mockLogger.debug.mock.calls
+        ])
+      ).not.toContain(sensitiveBody)
     })
 
     it('reports the player with the response status', async () => {

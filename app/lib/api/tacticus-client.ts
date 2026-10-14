@@ -367,18 +367,13 @@ export class TacticusAPIClient {
       })
 
       if (!response.ok) {
-        let errorBody = ''
-        try {
-          errorBody = await response.text()
-        } catch {
-          // ignore
-        }
+        // Release the connection without downloading or retaining an error payload.
+        // Cancellation failure must not erase the provider's HTTP status.
+        await response.body?.cancel().catch(() => undefined)
         const rejected = response.status === 401 || response.status === 403
         logger[rejected ? 'warn' : 'error'](
           {
-            status: response.status,
-            statusText: response.statusText,
-            errorBody
+            status: response.status
           },
           rejected
             ? 'Tacticus API rejected the player key'
@@ -391,8 +386,7 @@ export class TacticusAPIClient {
       logger.debug(
         {
           hasData: !!data,
-          hasPlayer: !!data?.player,
-          keys: data ? Object.keys(data) : []
+          hasPlayer: !!data?.player
         },
         'Player API response structure:'
       )
@@ -409,14 +403,14 @@ export class TacticusAPIClient {
         return { player: data as TacticusPlayer, status: response.status }
       }
 
-      logger.warn({ data }, 'Unexpected player API response format')
+      logger.warn(
+        { status: response.status },
+        'Unexpected player API response format'
+      )
       return { player: null, status: response.status }
     } catch (error: unknown) {
-      const details = extractErrorDetails(error)
       logger.error(
         {
-          err: error,
-          errMessage: details?.message,
           errName: error instanceof Error ? error.name : undefined,
           status: (error as { status?: number })?.status,
           endpoint: `${this.baseUrl}/player`

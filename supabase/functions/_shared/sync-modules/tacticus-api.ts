@@ -12,6 +12,8 @@ export interface TacticusApiLogger {
 export interface TacticusApiConfig {
   baseUrl: string
   maxRetries: number
+  /** Enable only for a configured API variant that documents this endpoint. */
+  membersEndpointEnabled?: boolean
 }
 
 export interface ApiCallResult<T> {
@@ -44,6 +46,9 @@ export interface TacticusMembersResult {
 
 // Module scope so failures accumulate across calls in the isolate.
 const tacticusApiCircuitBreaker = new CircuitBreaker(2, 30000)
+// The optional members endpoint has an independent failure domain. Its errors
+// must not suppress the guild and raid endpoints needed for synchronization.
+const tacticusMembersCircuitBreaker = new CircuitBreaker(2, 30000)
 
 export async function callTacticusApi<T = unknown>(
   endpoint: string,
@@ -115,6 +120,16 @@ export async function fetchGuildMembersViaTacticus(
   config: TacticusApiConfig,
   logger: TacticusApiLogger
 ): Promise<TacticusMembersResult> {
+  // The standard API exposes its roster through /guild. Avoid speculative
+  // requests to a variant-specific endpoint unless support is explicit.
+  if (config.membersEndpointEnabled !== true) {
+    return {
+      success: false,
+      memberIds: [],
+      members: [],
+      error: 'Members endpoint disabled'
+    }
+  }
   const endpoint = `/guild/${guildId}/members`
   const url = `${config.baseUrl}${endpoint}`
   const headers = {
@@ -122,7 +137,7 @@ export async function fetchGuildMembersViaTacticus(
     Accept: 'application/json'
   }
 
-  const circuitBreaker = tacticusApiCircuitBreaker
+  const circuitBreaker = tacticusMembersCircuitBreaker
 
   try {
     logger.debug(
