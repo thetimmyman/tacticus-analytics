@@ -44,6 +44,9 @@ export interface TacticusMembersResult {
 
 // Module scope so failures accumulate across calls in the isolate.
 const tacticusApiCircuitBreaker = new CircuitBreaker(2, 30000)
+// The optional members endpoint has an independent failure domain. Its errors
+// must not suppress the guild and raid endpoints needed for synchronization.
+const tacticusMembersCircuitBreaker = new CircuitBreaker(2, 30000)
 
 export async function callTacticusApi<T = unknown>(
   endpoint: string,
@@ -122,7 +125,7 @@ export async function fetchGuildMembersViaTacticus(
     Accept: 'application/json'
   }
 
-  const circuitBreaker = tacticusApiCircuitBreaker
+  const circuitBreaker = tacticusMembersCircuitBreaker
 
   try {
     logger.debug(

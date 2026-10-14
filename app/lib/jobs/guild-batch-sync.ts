@@ -75,58 +75,6 @@ const guildBatchSyncHandler: JobHandler = async (payload, ctx) => {
     }
 
     let freshLokiSessionId: string | null = null
-    try {
-      const refreshResult = await refreshSharedLokiSession()
-      if (refreshResult.success && refreshResult.sessionId) {
-        freshLokiSessionId = refreshResult.sessionId
-        logger.info(
-          { jobId: ctx.jobId, durationMs: refreshResult.durationMs },
-          'LOKI session pre-refreshed'
-        )
-
-        const lokiUserId = process.env.LOKI_SCRAPER_USER_ID || ''
-        if (lokiUserId) {
-          const bulkResp = await directFetch(
-            `${internalUrl}/rest/v1/guild_config?or=(user_id.is.null,user_id.eq.${encodeURIComponent(lokiUserId)})`,
-            {
-              method: 'PATCH',
-              headers: {
-                apikey: anonKey,
-                Authorization: `Bearer ${serviceKey}`,
-                'Content-Type': 'application/json',
-                Prefer: 'return=minimal'
-              },
-              body: JSON.stringify({
-                session_id: freshLokiSessionId,
-                session_refreshed_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-              })
-            }
-          )
-          if (!bulkResp.ok) {
-            logger.warn(
-              { jobId: ctx.jobId, status: bulkResp.status },
-              'bulk LOKI session update failed (per-guild fallback will trigger)'
-            )
-          }
-        } else {
-          logger.warn(
-            { jobId: ctx.jobId },
-            'LOKI_SCRAPER_USER_ID is unset; bulk session PATCH skipped — per-guild reactive refresh will fire (thundering-herd regression)'
-          )
-        }
-      } else {
-        logger.warn(
-          { jobId: ctx.jobId, err: refreshResult.error },
-          'LOKI session pre-refresh failed; falling back to per-guild reactive refresh'
-        )
-      }
-    } catch (preRefreshError) {
-      logger.warn(
-        { jobId: ctx.jobId, err: getErrorMessage(preRefreshError) },
-        'LOKI session pre-refresh exception (non-fatal)'
-      )
-    }
 
     // `not.is.false` keeps unvalidated (null) keys.
     const guildResp = await directFetch(
@@ -232,6 +180,59 @@ const guildBatchSyncHandler: JobHandler = async (payload, ctx) => {
       ...healGuilds.filter((g) => !alreadyQueued.has(g.guild_code))
     ]
 
+    try {
+      const refreshResult = await refreshSharedLokiSession()
+      if (refreshResult.success && refreshResult.sessionId) {
+        freshLokiSessionId = refreshResult.sessionId
+        logger.info(
+          { jobId: ctx.jobId, durationMs: refreshResult.durationMs },
+          'LOKI session pre-refreshed'
+        )
+
+        const lokiUserId = process.env.LOKI_SCRAPER_USER_ID || ''
+        if (lokiUserId) {
+          const bulkResp = await directFetch(
+            `${internalUrl}/rest/v1/guild_config?or=(user_id.is.null,user_id.eq.${encodeURIComponent(lokiUserId)})`,
+            {
+              method: 'PATCH',
+              headers: {
+                apikey: anonKey,
+                Authorization: `Bearer ${serviceKey}`,
+                'Content-Type': 'application/json',
+                Prefer: 'return=minimal'
+              },
+              body: JSON.stringify({
+                session_id: freshLokiSessionId,
+                session_refreshed_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              })
+            }
+          )
+          if (!bulkResp.ok) {
+            logger.warn(
+              { jobId: ctx.jobId, status: bulkResp.status },
+              'bulk LOKI session update failed (per-guild fallback will trigger)'
+            )
+          }
+        } else {
+          logger.warn(
+            { jobId: ctx.jobId },
+            'LOKI_SCRAPER_USER_ID is unset; bulk session PATCH skipped — per-guild reactive refresh will fire (thundering-herd regression)'
+          )
+        }
+      } else {
+        logger.warn(
+          { jobId: ctx.jobId, err: refreshResult.error },
+          'LOKI session pre-refresh failed; falling back to per-guild reactive refresh'
+        )
+      }
+    } catch (preRefreshError) {
+      logger.warn(
+        { jobId: ctx.jobId, err: getErrorMessage(preRefreshError) },
+        'LOKI session pre-refresh exception (non-fatal)'
+      )
+    }
+
     logger.info(
       {
         jobId: ctx.jobId,
@@ -323,7 +324,7 @@ const guildBatchSyncHandler: JobHandler = async (payload, ctx) => {
     const totalEntries = results.reduce((sum, r) => sum + (r.entries || 0), 0)
     const totalDuration = Date.now() - startTime
 
-    logger.info(
+    logger[failed > 0 ? 'warn' : 'info'](
       {
         jobId: ctx.jobId,
         successful,
