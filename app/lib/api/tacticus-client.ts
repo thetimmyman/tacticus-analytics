@@ -383,8 +383,7 @@ export class TacticusAPIClient {
       logger.debug(
         {
           hasData: !!data,
-          hasPlayer: !!data?.player,
-          keys: data ? Object.keys(data) : []
+          hasPlayer: !!data?.player
         },
         'Player API response structure:'
       )
@@ -407,11 +406,8 @@ export class TacticusAPIClient {
       )
       return { player: null, status: response.status }
     } catch (error: unknown) {
-      const details = extractErrorDetails(error)
       logger.error(
         {
-          err: error,
-          errMessage: details?.message,
           errName: error instanceof Error ? error.name : undefined,
           status: (error as { status?: number })?.status,
           endpoint: `${this.baseUrl}/player`

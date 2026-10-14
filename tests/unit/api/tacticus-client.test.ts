@@ -354,6 +354,38 @@ describe('TacticusAPIClient', () => {
       expect(result).toEqual({ player: null, status: 403 })
     })
 
+    it('keeps invalid JSON and unexpected property names out of logs', async () => {
+      const sensitiveBody = 'synthetic-private-response-marker'
+      const { TacticusAPIClient } =
+        await import('@/app/lib/api/tacticus-client')
+      const client = new TacticusAPIClient()
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: vi.fn().mockRejectedValue(new SyntaxError(sensitiveBody))
+      })
+      expect(await client.getPlayerResult(validApiKey)).toEqual({
+        player: null,
+        status: null
+      })
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: vi.fn().mockResolvedValue({ [sensitiveBody]: true })
+      })
+      expect(await client.getPlayerResult(validApiKey)).toEqual({
+        player: null,
+        status: 200
+      })
+      expect(
+        JSON.stringify([
+          mockLogger.error.mock.calls,
+          mockLogger.warn.mock.calls,
+          mockLogger.debug.mock.calls
+        ])
+      ).not.toContain(sensitiveBody)
+    })
+
     it('reports the player with the response status', async () => {
       mockFetch.mockResolvedValue({
         ok: true,
