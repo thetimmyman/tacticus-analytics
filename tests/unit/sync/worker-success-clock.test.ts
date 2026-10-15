@@ -62,7 +62,7 @@ function result(overrides: Record<string, unknown> = {}) {
 describe('completeSyncJob — success clock', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    callRpc.mockResolvedValue({ data: null, error: null })
+    callRpc.mockResolvedValue({ data: true, error: null })
   })
 
   for (const jobType of ['full_sync', 'incremental_sync', 'realtime_sync']) {

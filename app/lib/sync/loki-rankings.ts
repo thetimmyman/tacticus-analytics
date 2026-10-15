@@ -71,7 +71,8 @@ export async function fetchGuildRankings(
   async function fetchRanking(
     type: 'GUILD_RAID' | 'GUILD_WAR',
     currentSessionId: string,
-    gwSeason: number | null = null
+    gwSeason: number | null = null,
+    isRetry = false
   ): Promise<LokiApiResult<RankingData>> {
     const url = `${CONFIG.api.lokiUrl}/player/player2/userId/${userId}/sessionId/${currentSessionId}`
 
@@ -124,7 +125,8 @@ export async function fetchGuildRankings(
           body: JSON.stringify(payload)
         },
         2,
-        10000
+        10000,
+        isRetry
       )
 
       if (!response.ok) {
@@ -236,7 +238,7 @@ export async function fetchGuildRankings(
       if (newSessionId) {
         await updateSessionIdInDatabase(supabase, guildCode, newSessionId)
         sessionId = newSessionId
-        result = await fetchRanking('GUILD_RAID', newSessionId)
+        result = await fetchRanking('GUILD_RAID', newSessionId, null, true)
       } else {
         logger.error(
           { guildCode },
@@ -340,7 +342,7 @@ export async function fetchGuildRankings(
           await updateSessionIdInDatabase(supabase, guildCode, newSessionId)
           sessionId = newSessionId
           sessionRefreshedInLoop = true
-          result = await fetchRanking('GUILD_WAR', newSessionId, season)
+          result = await fetchRanking('GUILD_WAR', newSessionId, season, true)
         } else {
           // Credentials are bad; stop probing to avoid N×2 amplification.
           logger.error(

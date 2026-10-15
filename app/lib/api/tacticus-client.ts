@@ -1,5 +1,10 @@
+import {
+  providerFetch,
+  withProviderRetry
+} from '@/app/lib/network/provider-metrics'
 /** Client for the official Tacticus API (based on Homina's implementation). */
 import { createComponentLogger } from '@/app/lib/logging'
+import { cancelResponseBody } from '@/app/lib/utils/async-timeout'
 
 const logger = createComponentLogger('tacticus-api')
 import { TACTICUS_API } from '@tacticus/app-core/app-config'
@@ -312,7 +317,7 @@ export class TacticusAPIClient {
 
   async validateApiKey(apiKey: string): Promise<boolean> {
     try {
-      const response = await fetch(`${this.baseUrl}/player`, {
+      const response = await providerFetch(`${this.baseUrl}/player`, {
         method: 'GET',
         headers: {
           Accept: 'application/json',
@@ -357,7 +362,7 @@ export class TacticusAPIClient {
         'Fetching player from Tacticus API'
       )
 
-      const response = await fetch(`${this.baseUrl}/player`, {
+      const response = await providerFetch(`${this.baseUrl}/player`, {
         method: 'GET',
         headers: {
           Accept: 'application/json',
@@ -442,26 +447,29 @@ export class TacticusAPIClient {
           'Fetching player from Tacticus API with retry'
         )
 
+        let requestAttempt = 0
         const response = await withRetry(
-          async () => {
-            // attemptTimeout only rejects the wrapper; without this signal the
-            // orphaned fetch holds its undici connection and starves the pod.
-            const res = await fetch(`${this.baseUrl}/player`, {
-              method: 'GET',
-              headers: {
-                Accept: 'application/json',
-                'X-API-KEY': apiKey
-              },
-              signal: AbortSignal.timeout(timeoutMs)
-            })
-            if (!res.ok && res.status >= 500) {
-              throw new ServiceError(
-                res.status,
-                `Tacticus API: ${res.status} ${res.statusText}`
-              )
-            }
-            return res
-          },
+          () =>
+            withProviderRetry(requestAttempt++ > 0, async () => {
+              // attemptTimeout only rejects the wrapper; without this signal the
+              // orphaned fetch holds its undici connection and starves the pod.
+              const res = await providerFetch(`${this.baseUrl}/player`, {
+                method: 'GET',
+                headers: {
+                  Accept: 'application/json',
+                  'X-API-KEY': apiKey
+                },
+                signal: AbortSignal.timeout(timeoutMs)
+              })
+              if (!res.ok && res.status >= 500) {
+                cancelResponseBody(res)
+                throw new ServiceError(
+                  res.status,
+                  `Tacticus API: ${res.status} ${res.statusText}`
+                )
+              }
+              return res
+            }),
           {
             ...TACTICUS_API_POLICY,
             maxAttempts: maxRetries + 1,
@@ -532,7 +540,7 @@ export class TacticusAPIClient {
   async getGuild(apiKey: string): Promise<TacticusGuild | null> {
     try {
       return await tacticusCircuit.execute(async () => {
-        const response = await fetch(`${this.baseUrl}/guild`, {
+        const response = await providerFetch(`${this.baseUrl}/guild`, {
           method: 'GET',
           headers: {
             Accept: 'application/json',
@@ -598,7 +606,7 @@ export class TacticusAPIClient {
           { url: `${this.baseUrl}/guildRaid` },
           'Attempting to fetch guild raid'
         )
-        const response = await fetch(`${this.baseUrl}/guildRaid`, {
+        const response = await providerFetch(`${this.baseUrl}/guildRaid`, {
           method: 'GET',
           headers: {
             Accept: 'application/json',
@@ -679,14 +687,17 @@ export class TacticusAPIClient {
   ): Promise<GuildRaidResponse | null> {
     try {
       return await tacticusCircuit.execute(async () => {
-        const response = await fetch(`${this.baseUrl}/guildRaid/${season}`, {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'X-API-KEY': apiKey
-          },
-          signal: AbortSignal.timeout(GET_GUILD_RAID_TIMEOUT_MS)
-        })
+        const response = await providerFetch(
+          `${this.baseUrl}/guildRaid/${season}`,
+          {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+              'X-API-KEY': apiKey
+            },
+            signal: AbortSignal.timeout(GET_GUILD_RAID_TIMEOUT_MS)
+          }
+        )
 
         if (!response.ok) {
           const status = response.status
