@@ -34,3 +34,11 @@ scripts, native adapters and WebSocket traffic still need enrollment and
 observation. Account labels, response-byte measurements, cache/coalescing outcomes
 and matched physical-dispatch UTC windows are not represented by these job totals.
 They do not certify distributed admission or an estate-wide shutdown procedure.
+
+The migration accepts only two sealed predecessor layouts, both reproduced from
+public SQL in the disposable controls. One older layout already writes successful
+call counters. Unknown function code, missing signatures and changed execution
+authority remain refused before replacement. Recovery restores the exact captured
+predecessor layout and retains measurements; it does not substitute the clean
+baseline for an older supported layout. Both layout modes exercise ownership,
+replay, failure, retry, authorization and all guarded recovery cases.

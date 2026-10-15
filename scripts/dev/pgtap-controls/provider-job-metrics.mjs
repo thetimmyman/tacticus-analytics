@@ -5,7 +5,14 @@ import { spawn, spawnSync } from 'node:child_process'
 import { setTimeout } from 'node:timers/promises'
 
 const baselineOnly = process.argv.includes('--expect-new-on-baseline')
-assert(process.argv.slice(2).every((arg) => arg === '--expect-new-on-baseline'))
+const legacyPredecessors = process.argv.includes('--legacy-predecessors')
+assert(
+  process.argv
+    .slice(2)
+    .every((arg) =>
+      ['--expect-new-on-baseline', '--legacy-predecessors'].includes(arg)
+    )
+)
 const image =
   'postgres:17.4-alpine@sha256:7062a2109c4b51f3c792c7ea01e83ed12ef9a980886e3b3d380a7d2e5f6ce3f5'
 const container = `provider-metrics-${randomUUID()}`
@@ -30,7 +37,7 @@ const rollback = readFileSync(
   ),
   'utf8'
 )
-const predecessors = ['complete_job', 'fail_job']
+let predecessors = ['complete_job', 'fail_job']
   .map((name) => {
     const match = baseline.match(
       new RegExp(
@@ -41,6 +48,38 @@ const predecessors = ['complete_job', 'fail_job']
     return match[0]
   })
   .join('\n')
+if (legacyPredecessors) {
+  // Derive the earlier counter projection and SQL layout from public source.
+  // These are function-code fixtures, never captured rows or account data.
+  predecessors = predecessors
+    .replace(
+      '    players_updated,\n    success',
+      '    players_updated,\n    api_calls,\n    api_errors,\n    api_retry_count,\n    success'
+    )
+    .replace(
+      "    COALESCE((p_metrics->>'players_updated')::INT, 0),\n    TRUE",
+      "    COALESCE((p_metrics->>'players_updated')::INT, 0),\n    COALESCE((p_metrics->>'api_calls')::INT, 0),\n    COALESCE((p_metrics->>'api_errors')::INT, 0),\n    COALESCE((p_metrics->>'api_retry_count')::INT, 0),\n    TRUE"
+    )
+    .replace(
+      'WHERE id = p_job_id AND worker_id = p_worker_id;\n\n  IF NOT FOUND',
+      'WHERE id = p_job_id AND worker_id = p_worker_id;\n  \n  IF NOT FOUND'
+    )
+    .replace(
+      'END IF;\n\n  UPDATE sync_queue\n  SET\n',
+      'END IF;\n  \n  UPDATE sync_queue\n  SET \n'
+    )
+    .replace(
+      'WHERE id = p_job_id;\n\n  IF v_job_type',
+      'WHERE id = p_job_id;\n  \n  IF v_job_type'
+    )
+    .replace(
+      'v_jitter_seconds := floor(random() * 30)::INTEGER;\n\n',
+      'v_jitter_seconds := floor(random() * 30)::INTEGER;\n    \n'
+    )
+}
+const predecessorHashes = legacyPredecessors
+  ? ['b20dff99aa08ffe8160cc3754358b103', 'b936f8e36d18ab843757672134b01689']
+  : ['bc50fd9768db5fd90306b6bcf440f1b1', '3d63c61f3124312d6348efc940016b7e']
 const id = (n) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`
 const docker = (args, input) =>
   spawnSync('docker', args, { input, encoding: 'utf8', timeout: 60_000 })
@@ -170,6 +209,16 @@ try {
     "SELECT json_agg(json_build_array(proowner,proacl,prosecdef,proconfig) ORDER BY proname) FROM pg_proc WHERE oid IN ('public.complete_job(uuid,text,jsonb,jsonb)'::regprocedure,'public.fail_job(uuid,text,text,jsonb)'::regprocedure);",
     'postgres'
   )
+  assert.deepEqual(
+    JSON.parse(
+      execute(
+        "SELECT json_agg(md5(prosrc) ORDER BY proname) FROM pg_proc WHERE oid IN ('public.complete_job(uuid,text,jsonb,jsonb)'::regprocedure,'public.fail_job(uuid,text,text,jsonb)'::regprocedure);",
+        'postgres'
+      )
+    ),
+    predecessorHashes,
+    'the public-derived predecessor fixtures match their sealed code fingerprints'
+  )
   if (!baselineOnly) {
     execute(
       'ALTER FUNCTION public.complete_job(uuid,text,jsonb,jsonb) SECURITY DEFINER;',
@@ -192,6 +241,30 @@ try {
       'ALTER FUNCTION public.complete_job(uuid,text,jsonb,jsonb) SECURITY INVOKER;',
       'postgres'
     )
+    const replaceablePredecessors = predecessors.replaceAll(
+      'CREATE FUNCTION ',
+      'CREATE OR REPLACE FUNCTION '
+    )
+    execute(
+      replaceablePredecessors.replace('RETURN TRUE;', 'RETURN FALSE;'),
+      'postgres'
+    )
+    const drift = query(migration, 'postgres')
+    assert.notEqual(
+      drift.status,
+      0,
+      'an unrecognized terminal behavior is refused'
+    )
+    assert.match(drift.stderr, /Job terminal contract drifted/)
+    assert.equal(
+      execute(
+        'SELECT count(*) FROM supabase_migrations.schema_migrations;',
+        'postgres'
+      ),
+      '0',
+      'contract refusal leaves no migration receipt'
+    )
+    execute(replaceablePredecessors, 'postgres')
     execute(migration, 'postgres')
   }
   assert.equal(
@@ -397,19 +470,19 @@ try {
       "SELECT md5(prosrc) FROM pg_proc WHERE oid='public.complete_job(uuid,text,jsonb,jsonb)'::regprocedure;",
       'postgres'
     ),
-    'bc50fd9768db5fd90306b6bcf440f1b1'
+    predecessorHashes[0]
   )
   assert.equal(
     execute(
       "SELECT md5(prosrc) FROM pg_proc WHERE oid='public.fail_job(uuid,text,text,jsonb)'::regprocedure;",
       'postgres'
     ),
-    '3d63c61f3124312d6348efc940016b7e'
+    predecessorHashes[1]
   )
   execute(migration, 'postgres')
   assert.deepEqual(metrics(), retained, 'reapplication retains observations')
   console.log(
-    'PASS: provider job measurements, claim ownership, replay refusal, failed attempts, existing retries, narrow authorization and guarded rollback/reapply'
+    `PASS: ${legacyPredecessors ? 'legacy-counter' : 'clean-baseline'} provider job measurements, claim ownership, replay refusal, failed attempts, existing retries, narrow authorization and guarded rollback/reapply`
   )
 } finally {
   docker(['rm', '-f', container])
