@@ -23,7 +23,7 @@ workspace does not require game access; personal content requires Player access,
 and guild content requires matched Guild and Guild Raid access. Cached data
 remains readable offline.
 
-The native File menu offers backup and restore. Backup closes the application,
+The native File menu offers backup and restore. Backup pauses the application,
 stops its services and acquires the workspace kernel lease before exporting a
 stopped PostgreSQL checkpoint into a new encrypted `.tabackup` file. A separate
 masked native prompt confirms the backup passphrase; it goes to the transfer
@@ -38,10 +38,15 @@ Restore also supports legacy backup folders. It verifies its
 file inventory and creates a separate workspace; it never replaces the current
 database. A pending restore blocks startup, and a corrupt or incomplete backup
 is rejected. After the restored database opens successfully with the pinned
-services, normal launches select that copy. Explicit `--state` still selects a
+services, the checked restored copy opens and normal launches select it. Explicit `--state` still selects a
 specific workspace. Restore recovers the account and data from the time of the backup; the native
 app then opens that local account automatically. Keep backups private. Browser cache,
 diagnostic logs and game-credential vault storage are outside this backup.
+After a successful backup, the current workspace reopens. Cancelling a passphrase
+prompt returns to the current workspace without creating a destination. An
+unsuccessful transfer explains the failure and returns to the original workspace;
+it does not switch to an incomplete restored copy. Passphrase mismatch and length
+errors show guidance without displaying the entered passphrase.
 The launcher also accepts `--backup /new/backup-directory` or
 `--restore /saved/backup-directory --state /new/workspace-directory` without a GUI.
 These are same-installation physical database transfers, not PostgreSQL major
