@@ -228,10 +228,9 @@ describe('fetchTacticusApi', () => {
 
     const fetchCalls = vi.mocked(fetch).mock.calls
     expect(fetchCalls[0][0]).toBe('https://api.tacticusgame.com/guildRaid')
-    expect((fetchCalls[0][1] as RequestInit).headers).toEqual({
-      'X-API-KEY': 'test-key',
-      Accept: 'application/json'
-    })
+    const headers = new Headers((fetchCalls[0][1] as RequestInit).headers)
+    expect(headers.get('x-api-key')).toBe('test-key')
+    expect(headers.get('accept')).toBe('application/json')
   })
 
   it('throws TacticusApiError for 4xx without retrying', async () => {

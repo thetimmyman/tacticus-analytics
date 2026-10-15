@@ -43,3 +43,30 @@ CREATE OR REPLACE preserves each function’s existing owner and ACL; the migrat
 does not certify their predecessor values. Production application requires a
 separately reviewed expected owner/ACL preflight and backup. Recovery restores the
 exact captured bodies and retains measurements.
+
+## Physical transport events
+
+The existing Node and edge loggers emit `provider_dispatch` when an enrolled
+HTTP adapter invokes its physical fetch, and `provider_dispatch_result` when
+that fetch resolves or rejects. Count only `provider_dispatch` as a request.
+The matching `corr_` correlation ID joins the diagnostic result to that attempt.
+Admission control calls, local refusals, cache reuse and unrelated traffic do
+not create provider dispatch events.
+
+Events use closed domain, endpoint and purpose labels. Unregistered paths and
+missing operation metadata are `unknown`. Account labels use the existing keyed
+resolver; unavailable attribution is `null` with `attribution: unavailable`.
+Raw URLs, credentials, accounts and response bodies are never event fields.
+Node retry state comes from the existing metric scope; edge retry state is
+`null` until the caller supplies observable retry context.
+
+`fetch_duration_ms` measures the fetch call, which includes body buffering in
+the native Node adapter. It is not a headers-only latency measurement. A fetch
+may resolve before a caller later fails to decode its body; existing job error
+counters retain that separate failure. Observation does not drain or clone
+responses. `response_bytes` is `null` and `body_completion` is `unknown`, even
+when Content-Length is present.
+
+These events cover calls through these HTTP adapters. They do not establish
+complete caller enrollment, WebSocket coverage, monitoring totals or production
+traffic reduction.

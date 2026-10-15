@@ -15,6 +15,17 @@ export interface ProviderOperation {
   timeoutMs: number
 }
 
+export interface ProviderPhysicalContext {
+  operation?: ProviderOperation
+  dispatch?: ProviderDispatch
+}
+
+export type ProviderPhysicalFetch = (
+  input: RequestInfo | URL,
+  init?: RequestInit,
+  context?: ProviderPhysicalContext
+) => Promise<Response>
+
 export function createProviderDispatchResolver(options: {
   key: string
   officialOrigin?: string
@@ -80,7 +91,7 @@ export interface ProviderAdmissionOptions {
   token: string
   officialOrigin?: string
   controlFetch?: typeof fetch
-  physicalFetch?: typeof fetch
+  physicalFetch?: ProviderPhysicalFetch
   rpcTimeoutMs?: number
   pollMs?: number
 }
@@ -113,6 +124,10 @@ const purposes = new Set([
   'guildchat-replay',
   'health-check'
 ])
+
+export function providerObservationPurpose(value: unknown): string {
+  return typeof value === 'string' && purposes.has(value) ? value : 'unknown'
+}
 const reasons = new Set([
   'policy-unconfigured',
   'disabled',
@@ -442,7 +457,8 @@ export function createProviderAdmission(options: ProviderAdmissionOptions) {
     async fetch(
       input: RequestInfo | URL,
       init: RequestInit,
-      dispatch: ProviderDispatch
+      dispatch: ProviderDispatch,
+      operation?: ProviderOperation
     ): Promise<Response> {
       const descriptor = record(dispatch)
       if (
@@ -596,11 +612,14 @@ export function createProviderAdmission(options: ProviderAdmissionOptions) {
         const pending = Promise.resolve().then(() => {
           physical.signal.throwIfAborted()
           invokedPhysical = true
-          return physicalFetch(prepared, {
+          const physicalInit = {
             ...requestInit,
             body: undefined,
             signal: physical.signal
-          })
+          }
+          return operation
+            ? physicalFetch(prepared, physicalInit, { operation, dispatch })
+            : physicalFetch(prepared, physicalInit)
         })
         // A late response after cancellation is drained without becoming a fallback send.
         void pending.then(
@@ -727,23 +746,31 @@ export interface ProviderRuntimeSettings {
   accountLabelKey?: string
 }
 
-const runtimeProviderHosts = new Set([
-  'api.tacticusgame.com',
-  'api-live.loki.snowprintstudios.com',
-  'cdn.loki.snowprintstudios.com',
-  'websocket-live.loki.snowprintstudios.com'
-])
+export function providerRequestDomain(
+  url: URL,
+  officialOrigin = 'https://api.tacticusgame.com'
+): ProviderDomain | null {
+  if (
+    url.hostname === 'api.tacticusgame.com' ||
+    url.hostname === new URL(officialOrigin).hostname
+  )
+    return 'official'
+  if (url.hostname === 'api-live.loki.snowprintstudios.com') return 'loki'
+  if (url.hostname === 'cdn.loki.snowprintstudios.com') return 'cdn'
+  if (url.hostname === 'websocket-live.loki.snowprintstudios.com')
+    return 'websocket'
+  return null
+}
 
 /** Enrollment wraps the existing physical boundary; it never schedules or retries. */
 export function createProviderRuntime(options: {
   settings: () => ProviderRuntimeSettings
   officialOrigin?: string
-  physicalFetch: typeof fetch
+  physicalFetch: ProviderPhysicalFetch
   controlFetch?: typeof fetch
 }) {
   const officialOrigin =
     options.officialOrigin ?? 'https://api.tacticusgame.com'
-  const officialHost = new URL(officialOrigin).hostname
   let cached:
     | {
         settings: Required<Omit<ProviderRuntimeSettings, 'mode'>>
@@ -758,10 +785,7 @@ export function createProviderRuntime(options: {
       operation?: ProviderOperation
     ): Promise<Response> {
       const url = new URL(input instanceof Request ? input.url : String(input))
-      if (
-        !runtimeProviderHosts.has(url.hostname) &&
-        url.hostname !== officialHost
-      )
+      if (!providerRequestDomain(url, officialOrigin))
         return options.physicalFetch(input, init)
       let settings: ProviderRuntimeSettings
       try {
@@ -769,8 +793,12 @@ export function createProviderRuntime(options: {
       } catch {
         throw new ProviderAdmissionError()
       }
-      if (settings.mode === undefined || settings.mode === 'off')
-        return options.physicalFetch(input, { ...init, redirect: 'error' })
+      if (settings.mode === undefined || settings.mode === 'off') {
+        const physicalInit = { ...init, redirect: 'error' as const }
+        return operation
+          ? options.physicalFetch(input, physicalInit, { operation })
+          : options.physicalFetch(input, physicalInit)
+      }
       if (
         settings.mode !== 'enforce' ||
         !settings.authorityOrigin ||
@@ -808,7 +836,7 @@ export function createProviderRuntime(options: {
       // Bind attribution and the physical send to the same private snapshot.
       const prepared = new Request(input, { ...init, redirect: 'error' })
       const dispatch = await cached.resolve(prepared, {}, operation)
-      return cached.admission.fetch(prepared, {}, dispatch)
+      return cached.admission.fetch(prepared, {}, dispatch, operation)
     }
   }
 }
