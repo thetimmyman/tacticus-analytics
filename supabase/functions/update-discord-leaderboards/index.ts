@@ -140,16 +140,20 @@ serve(async (req) => {
       if (b === null) return 1
       return a.localeCompare(b)
     })
-    // Reference data is cached at module scope; a rollout forces a refresh.
-    const emojiMap = await loadHeroEmojiMap(supabase)
-    const bossMap = await loadBossMap(supabase)
-    const playerNameMap = await loadPlayerNameMap(supabase)
-    // Duplicate-name labels apply to display strings only (top_player included).
-    const labelMap = await loadDuplicateNameLabels(supabase)
-    logger.info(
-      '[update-discord-leaderboards]',
-      `Loaded ${playerNameMap.size / 2} player name mappings`
-    )
+    const loadReferences = async () => {
+      // Preserve the shared caches; load them only for a destination with data.
+      const emojiMap = await loadHeroEmojiMap(supabase)
+      const bossMap = await loadBossMap(supabase)
+      const playerNameMap = await loadPlayerNameMap(supabase)
+      const labelMap = await loadDuplicateNameLabels(supabase)
+      logger.info(
+        '[update-discord-leaderboards]',
+        `Loaded ${playerNameMap.size / 2} player name mappings`
+      )
+      return { emojiMap, bossMap, playerNameMap, labelMap }
+    }
+    // A rejected load also stays memoized: later clusters must not amplify it.
+    let references: ReturnType<typeof loadReferences> | undefined
     const overallResults = {
       clusters_processed: 0,
       guild_leaderboards_sent: 0,
@@ -286,6 +290,8 @@ serve(async (req) => {
         if (!battleData || battleData.length === 0) {
           continue
         }
+        const { emojiMap, bossMap, playerNameMap, labelMap } =
+          await (references ??= loadReferences())
         const guildResults = new Map()
         let clusterSkipped = 0
         let clusterUpdated = 0

@@ -585,6 +585,10 @@
     {
       "file": "20261015010000_record_provider_job_metrics.sql",
       "reason": "hosted-service-integration"
+    },
+    {
+      "file": "20261015020000_atomic_roster_snapshots.sql",
+      "reason": "production-app-schema"
     }
   ]
 }

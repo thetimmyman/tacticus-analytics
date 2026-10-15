@@ -12,6 +12,7 @@ on:
       - 'scripts/dev/pgtap-controls/**'
       - 'scripts/testing/postgrest-readonly/**'
       - 'package.json'
+      - 'package-lock.json'
       - '.github/workflows/pgtap-gate.yml'
   push:
     branches: [main]
@@ -22,6 +23,7 @@ on:
       - 'scripts/dev/pgtap-controls/**'
       - 'scripts/testing/postgrest-readonly/**'
       - 'package.json'
+      - 'package-lock.json'
       - '.github/workflows/pgtap-gate.yml'
   schedule:
     - cron: '41 6 * * *'
@@ -54,6 +56,8 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
+      - name: Install locked control dependencies
+        run: npm ci --no-audit --no-fund
       # Reclaim pgtap-* orphans older than 2h (past the job timeout, so never a live run's).
       - name: Reclaim stale pgTAP containers from interrupted runs
         run: |

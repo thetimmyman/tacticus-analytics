@@ -8,6 +8,7 @@ type Handler = (
 const mocks = vi.hoisted(() => ({
   handlers: new Map<string, unknown>(),
   getPlayerResult: vi.fn(),
+  selectCandidates: vi.fn(),
   persistRosterSnapshot: vi.fn(),
   rpc: vi.fn(),
   updates: [] as { values: unknown; filters: unknown[][] }[],
@@ -53,6 +54,16 @@ vi.mock('@/app/lib/api/tacticus-client', () => ({
 vi.mock('@/app/lib/player/roster-sync', () => ({
   persistRosterSnapshot: mocks.persistRosterSnapshot
 }))
+vi.mock('@/app/lib/player/roster-snapshot-store', () => ({
+  selectRosterRefreshCandidates: mocks.selectCandidates,
+  tryBeginPlayerRosterRefresh: vi.fn(
+    async (_user: string | null, id: number) => ({
+      playerMappingId: id,
+      attemptId: '00000000-0000-4000-8000-000000000001',
+      observedAt: '2026-01-01T00:00:00.000Z'
+    })
+  )
+}))
 vi.mock('@/app/lib/monitoring/sentry', () => ({
   captureSentryException: vi.fn()
 }))
@@ -85,10 +96,60 @@ beforeEach(() => {
     data: [{ strikes: 1, flagged: false, counted: true }],
     error: null
   })
-  mocks.persistRosterSnapshot.mockResolvedValue({ upserted: 1 })
+  mocks.selectCandidates.mockImplementation(async (rows) => rows)
+  mocks.persistRosterSnapshot.mockResolvedValue({
+    status: 'applied',
+    upserted: 1,
+    complete: true,
+    unchanged: false,
+    playerPowerUpdated: true
+  })
 })
 
 describe('roster-backfill and rejected player keys', () => {
+  it('does not make a provider request when the roster cohort is already verified', async () => {
+    mocks.selectCandidates.mockResolvedValue([])
+    expect(await run()).toMatchObject({
+      processed: 0,
+      failed: 0,
+      total: 1,
+      notDue: 1,
+      skipped: 1
+    })
+    expect(mocks.getPlayerResult).not.toHaveBeenCalled()
+  })
+  it('honors oldest-attempt-first order from the database', async () => {
+    mocks.players.push({
+      ...mocks.players[0],
+      id: 12,
+      player_id: 'synthetic-second'
+    })
+    mocks.selectCandidates.mockResolvedValue([
+      mocks.players[1],
+      mocks.players[0]
+    ])
+    mocks.getPlayerResult.mockResolvedValue({
+      player: { units: [] },
+      status: 200
+    })
+    await run()
+    expect(
+      mocks.persistRosterSnapshot.mock.calls.map((call) => call[4])
+    ).toEqual([12, 11])
+  })
+  it('reports incomplete evidence as failed without a rejected-key strike', async () => {
+    mocks.getPlayerResult.mockResolvedValue({
+      player: { units: [] },
+      status: 200
+    })
+    mocks.persistRosterSnapshot.mockResolvedValue({
+      status: 'applied',
+      complete: false
+    })
+    expect(await run()).toMatchObject({ processed: 0, failed: 1 })
+    expect(mocks.rpc).not.toHaveBeenCalled()
+  })
+
   it.each([401, 403])(
     'records a key strike when Tacticus answers %i',
     async (status) => {

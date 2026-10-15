@@ -21,6 +21,7 @@ import { formatRelativeTime } from '@/app/(dashboard)/guild-management/members/c
 import { useHasMounted } from '@/app/lib/hooks/useHasMounted'
 import { useMediaQuery } from '@/app/lib/hooks/useMediaQuery'
 import type { GuildTeamRosterEntry } from './types'
+import type { RosterVerificationSummary } from '@/app/lib/player/roster-snapshot-store'
 import {
   TIER_LABELS,
   TIER_BG,
@@ -52,6 +53,8 @@ export function GuildTeamsClient({
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [verification, setVerification] =
+    useState<RosterVerificationSummary | null>(null)
 
   const [sortField, setSortField] = useState<SortField>('name')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
@@ -118,6 +121,16 @@ export function GuildTeamsClient({
 
       const unitIds = team.heroes.map((h) => h.unitId)
 
+      if (!desktopMode)
+        void fetch('/api/guild-teams/freshness', { cache: 'no-store' })
+          .then(async (response) => (response.ok ? response.json() : null))
+          .then(
+            (
+              data: (RosterVerificationSummary & { available?: boolean }) | null
+            ) => setVerification(data?.available ? data : null)
+          )
+          .catch(() => setVerification(null))
+
       const { data: rpcData, error: rpcError } = await supabase.rpc(
         'get_guild_team_roster',
         {
@@ -137,7 +150,7 @@ export function GuildTeamsClient({
       setLoading(false)
       setRefreshing(false)
     },
-    [guildCode, supabase]
+    [guildCode, supabase, desktopMode]
   )
 
   useEffect(() => {
@@ -182,7 +195,7 @@ export function GuildTeamsClient({
     }
   }, [selectedTeam, fetchRosterData])
 
-  const lastSynced = useMemo(() => {
+  const lastChanged = useMemo(() => {
     let max: string | null = null
     for (const entry of rosterData) {
       if (entry.synced_at && (!max || entry.synced_at > max)) {
@@ -624,14 +637,28 @@ export function GuildTeamsClient({
                 : `${playerNames.length} / ${totalMembers} members`}
             </span>
           )}
-          {!loading && lastSynced && (
+          {!loading && lastChanged && (
             <span
               className="text-xs text-secondary-wh40k"
               title={
-                hasMounted ? new Date(lastSynced).toLocaleString() : undefined
+                hasMounted ? new Date(lastChanged).toLocaleString() : undefined
               }
             >
-              Updated {formatRelativeTime(lastSynced)}
+              Last change {formatRelativeTime(lastChanged)}
+            </span>
+          )}
+          {!loading && !desktopMode && rosterData.length > 0 && (
+            <span
+              className="text-xs text-secondary-wh40k"
+              title={
+                verification?.oldestVerifiedAt
+                  ? `Oldest complete check: ${new Date(verification.oldestVerifiedAt).toLocaleString()}`
+                  : undefined
+              }
+            >
+              {verification
+                ? `${verification.fresh} / ${verification.total} rosters verified in last 6h`
+                : 'Roster verification unavailable'}
             </span>
           )}
           <button

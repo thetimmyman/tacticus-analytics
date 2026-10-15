@@ -8382,6 +8382,44 @@ export type Database = {
         Args: { p_target_user_id: string }
         Returns: boolean
       }
+      begin_player_roster_refresh: {
+        Args: { p_player_mapping_id: number | null; p_user_id: string | null }
+        Returns: Json
+      }
+      get_player_roster_refresh_candidates: {
+        Args: {
+          p_mapping_ids: number[]
+          p_fresh_seconds: number
+          p_retry_seconds: number
+          p_require_enabled_guild?: boolean
+        }
+        Returns: number[]
+      }
+      persist_player_roster_snapshot: {
+        Args: {
+          p_player_mapping_id: number
+          p_user_id: string | null
+          p_attempt_id: string
+          p_rows: Json
+          p_player_power: number | null
+          p_complete: boolean
+        }
+        Returns: Json
+      }
+      try_begin_player_roster_refresh: {
+        Args: {
+          p_player_mapping_id: number
+          p_user_id: string | null
+          p_fresh_seconds: number
+          p_retry_seconds: number
+          p_require_enabled_guild: boolean
+        }
+        Returns: Json
+      }
+      get_player_roster_verification_summary: {
+        Args: {p_mapping_ids:number[];p_fresh_seconds:number}
+        Returns:Json
+      }
       _pm_caller_cluster_guild_codes: { Args: never; Returns: string[] }
       _pm_caller_guild_codes: { Args: never; Returns: string[] }
       _pm_caller_is_app_admin: { Args: never; Returns: boolean }

@@ -1,8 +1,12 @@
 import { guildRosterQuery } from '@/app/lib/data/guild-roster'
+import {
+  tryBeginPlayerRosterRefresh,
+  selectRosterRefreshCandidates
+} from '@/app/lib/player/roster-snapshot-store'
+import type { PlayerMapping } from '@tacticus/app-core/types'
 import { providerFetch } from '@/app/lib/network/provider-metrics'
 // Shared-Loki-session roster refresh for members without a valid Tacticus API key.
 
-import { randomInt } from 'node:crypto'
 import { serviceDb } from '@/app/lib/db'
 import { createComponentLogger } from '@/app/lib/logging'
 import { rethrowIfAppError } from '@/app/lib/errors/AppError'
@@ -67,15 +71,6 @@ const rosterLokiBackfillHandler: JobHandler = async (payload, ctx) => {
   }
 
   try {
-    try {
-      await refreshSharedLokiSession({ fetchImpl: budgetedFetch })
-    } catch (preErr) {
-      logger.warn(
-        { jobId: ctx.jobId, err: getErrorMessage(preErr) },
-        '[RosterLokiBackfill] shared Loki session refresh failed (non-fatal)'
-      )
-    }
-
     let guildsQuery = supabase
       .from('guild_config')
       .select(
@@ -112,17 +107,74 @@ const rosterLokiBackfillHandler: JobHandler = async (payload, ctx) => {
       (g) => (g.consecutive_sync_failures ?? 0) < 5
     )
 
-    // Shuffle so a run cut short doesn't always starve the same guilds.
-    for (let i = eligibleGuilds.length - 1; i > 0; i--) {
-      const j = randomInt(i + 1)
-      const tmp = eligibleGuilds[i]!
-      eligibleGuilds[i] = eligibleGuilds[j]!
-      eligibleGuilds[j] = tmp
+    const allMembers: PlayerMapping[] = []
+    const memberGuild = new Map<number, string>()
+    for (const guild of eligibleGuilds) {
+      const { data: members, error: membersErr } = await guildRosterQuery(
+        supabase,
+        guild.guild_code,
+        'id, user_id, player_id, display_name, api_key_is_valid, tacticus_api_key_encrypted'
+      ).not('player_id', 'is', null)
+      if (membersErr) {
+        logger.warn(
+          { jobId: ctx.jobId, guildCode: guild.guild_code },
+          'Roster member selection unavailable'
+        )
+        continue
+      }
+      for (const member of members ?? []) {
+        if (member.api_key_is_valid && member.tacticus_api_key_encrypted)
+          continue
+        allMembers.push(member)
+        memberGuild.set(member.id, guild.guild_code)
+      }
+    }
+    const candidates = await selectRosterRefreshCandidates(
+      allMembers,
+      {
+        freshMs: staleMs,
+        retryMs: Math.min(staleMs, 5 * 60_000)
+      },
+      supabase
+    )
+    const candidatesByGuild = new Map<string, PlayerMapping[]>()
+    const guildOrder = new Map<string, number>()
+    candidates.forEach((player, index) => {
+      const code = memberGuild.get(player.id)!
+      if (!guildOrder.has(code)) guildOrder.set(code, index)
+      const group = candidatesByGuild.get(code) ?? []
+      group.push(player)
+      candidatesByGuild.set(code, group)
+    })
+    eligibleGuilds.sort(
+      (a, b) =>
+        (guildOrder.get(a.guild_code) ?? Infinity) -
+        (guildOrder.get(b.guild_code) ?? Infinity)
+    )
+    // Never refresh a shared session for a fully fresh or already-expired pass.
+    if (candidates.length === 0 || Date.now() >= softDeadline)
+      return {
+        processed: 0,
+        failed: 0,
+        skipped: allMembers.length,
+        guilds: eligibleGuilds.length,
+        requestsStarted: 0,
+        durationMs: Date.now() - startTime,
+        partialDueToTimeout: candidates.length > 0
+      }
+    try {
+      await refreshSharedLokiSession({ fetchImpl: budgetedFetch })
+    } catch (preErr) {
+      logger.warn(
+        { jobId: ctx.jobId, err: getErrorMessage(preErr) },
+        '[RosterLokiBackfill] shared Loki session refresh failed (non-fatal)'
+      )
     }
 
     let processed = 0
     let failed = 0
-    let skipped = 0
+    let skipped = allMembers.length - candidates.length
+    let unchanged = 0
     let timedOutEarly = false
     for (const guild of eligibleGuilds) {
       if (Date.now() >= softDeadline || budgetExhausted) {
@@ -143,6 +195,8 @@ const rosterLokiBackfillHandler: JobHandler = async (payload, ctx) => {
         break
       }
 
+      const needsSync = candidatesByGuild.get(guild.guild_code) ?? []
+      if (needsSync.length === 0) continue
       const lokiClient = await createGuildLokiClient(
         supabase,
         guild.guild_code,
@@ -152,53 +206,8 @@ const rosterLokiBackfillHandler: JobHandler = async (payload, ctx) => {
           fetchImpl: budgetedFetch
         }
       )
-      if (!lokiClient) continue
-
-      const { data: members, error: membersErr } = await guildRosterQuery(
-        supabase,
-        guild.guild_code,
-        'id, user_id, player_id, display_name, api_key_is_valid, tacticus_api_key_encrypted'
-      ).not('player_id', 'is', null)
-
-      if (membersErr || !members?.length) {
-        if (membersErr) {
-          logger.warn(
-            {
-              jobId: ctx.jobId,
-              guildCode: guild.guild_code,
-              err: membersErr.message
-            },
-            '[RosterLokiBackfill] fetch members failed'
-          )
-        }
-        continue
-      }
-
-      const lokiOnlyMembers = members.filter(
-        (m) => !(m.api_key_is_valid && m.tacticus_api_key_encrypted)
-      )
-
-      if (lokiOnlyMembers.length === 0) {
-        continue
-      }
-
-      const mappingIds = lokiOnlyMembers.map((m) => m.id)
-      const staleBefore = new Date(Date.now() - staleMs).toISOString()
-
-      const { data: recentSyncs } = await supabase
-        .from('player_roster')
-        .select('player_mapping_id')
-        .in('player_mapping_id', mappingIds)
-        .gte('synced_at', staleBefore)
-
-      const recentlySynced = new Set(
-        (recentSyncs ?? []).map((r) => r.player_mapping_id)
-      )
-
-      const needsSync = lokiOnlyMembers.filter((m) => !recentlySynced.has(m.id))
-      skipped += lokiOnlyMembers.length - needsSync.length
-
-      if (needsSync.length === 0) {
+      if (!lokiClient) {
+        skipped += needsSync.length
         continue
       }
 
@@ -206,7 +215,7 @@ const rosterLokiBackfillHandler: JobHandler = async (payload, ctx) => {
         {
           jobId: ctx.jobId,
           guildCode: guild.guild_code,
-          eligible: lokiOnlyMembers.length,
+          eligible: needsSync.length,
           needsSync: needsSync.length
         },
         '[RosterLokiBackfill] guild members to sync'
@@ -249,6 +258,16 @@ const rosterLokiBackfillHandler: JobHandler = async (payload, ctx) => {
                 skipped++
                 return
               }
+              const observation = await tryBeginPlayerRosterRefresh(
+                player.user_id ?? null,
+                player.id,
+                { freshMs: staleMs, retryMs: Math.min(staleMs, 5 * 60_000) },
+                supabase
+              )
+              if (!observation) {
+                skipped++
+                return
+              }
               const result = await lokiClient.getPlayerInfo(player.player_id)
               if (!result.ok || !result.data?.heroInfo?.units?.units) {
                 failed++
@@ -275,13 +294,14 @@ const rosterLokiBackfillHandler: JobHandler = async (payload, ctx) => {
                 })
               )
 
-              const { upserted } = await persistRosterSnapshot(
+              const receipt = await persistRosterSnapshot(
                 player.user_id ?? null,
                 units,
                 [],
                 supabase,
                 player.id,
                 {
+                  observation,
                   playerPower:
                     result.data.heroInfo.player?.powerLevel ??
                     result.data.heroInfo.player?.totalPower ??
@@ -289,13 +309,23 @@ const rosterLokiBackfillHandler: JobHandler = async (payload, ctx) => {
                 }
               )
 
+              if (receipt.status === 'superseded') {
+                skipped++
+                return
+              }
+              if (!receipt.complete) {
+                failed++
+                return
+              }
+              if (receipt.unchanged) unchanged++
               logger.info(
                 {
                   jobId: ctx.jobId,
                   guildCode: guild.guild_code,
                   playerMappingId: player.id,
                   displayName: player.display_name,
-                  upserted
+                  upserted: receipt.upserted,
+                  unchanged: receipt.unchanged
                 },
                 '[RosterLokiBackfill] synced player'
               )
@@ -330,6 +360,7 @@ const rosterLokiBackfillHandler: JobHandler = async (payload, ctx) => {
         failed,
         skipped,
         requestsStarted,
+        unchanged,
         durationMs,
         timedOutEarly,
         budgetExhausted
@@ -343,6 +374,7 @@ const rosterLokiBackfillHandler: JobHandler = async (payload, ctx) => {
       failed,
       skipped,
       requestsStarted,
+      unchanged,
       durationMs,
       partialDueToTimeout: timedOutEarly,
       partialDueToBudget: budgetExhausted

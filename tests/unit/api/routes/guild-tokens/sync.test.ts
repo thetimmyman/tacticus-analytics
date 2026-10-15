@@ -11,6 +11,9 @@ let mockTacticusAPI: {
 }
 let mockGuildConfigFindByCodeOrTag: ReturnType<typeof vi.fn>
 let mockGuildConfigGetBasic: ReturnType<typeof vi.fn>
+let mockBeginRoster: ReturnType<typeof vi.fn>
+let mockPersistRoster: ReturnType<typeof vi.fn>
+let afterTasks: Array<() => unknown>
 
 describe('/api/guild-tokens/sync', () => {
   let POST: (request: NextRequest) => Promise<Response>
@@ -24,6 +27,26 @@ describe('/api/guild-tokens/sync', () => {
 
   beforeEach(async () => {
     vi.resetModules()
+    afterTasks = []
+    mockBeginRoster = vi.fn(async () => ({
+      playerMappingId: 7,
+      attemptId: '00000000-0000-4000-8000-000000000001',
+      observedAt: '2026-01-01T00:00:00.000Z'
+    }))
+    mockPersistRoster = vi.fn(async () => ({
+      status: 'applied',
+      complete: true
+    }))
+    vi.doMock('next/server', async () => ({
+      ...(await vi.importActual<typeof import('next/server')>('next/server')),
+      after: (task: () => unknown) => afterTasks.push(task)
+    }))
+    vi.doMock('@/app/lib/player/roster-snapshot-store', () => ({
+      beginPlayerRosterRefresh: mockBeginRoster
+    }))
+    vi.doMock('@/app/lib/player/roster-sync', () => ({
+      persistRosterSnapshot: mockPersistRoster
+    }))
 
     mockCreateClient = vi.fn()
     mockCreateServiceClient = vi.fn()
@@ -50,7 +73,8 @@ describe('/api/guild-tokens/sync', () => {
     }))
 
     vi.doMock('@/app/lib/api/tacticus-client', () => ({
-      tacticusAPI: mockTacticusAPI
+      tacticusAPI: mockTacticusAPI,
+      resolveMachinesOfWar: vi.fn(() => [])
     }))
 
     vi.doMock('@tacticus/app-core/api-key-helper', () => ({
@@ -348,97 +372,137 @@ describe('/api/guild-tokens/sync', () => {
       expect(body.error.message).toContain('Failed to fetch')
     })
 
-    it('syncs members with valid API keys successfully', async () => {
-      mockSupabase.auth.getUser.mockResolvedValue({
-        data: { user: { id: 'user-123' } },
-        error: null
-      })
+    it.each(['available', 'unavailable'])(
+      'syncs tokens with one player read when auxiliary roster storage is %s',
+      async (storage) => {
+        mockSupabase.auth.getUser.mockResolvedValue({
+          data: { user: { id: 'user-123' } },
+          error: null
+        })
 
-      let authFromCallCount = 0
-      mockSupabase.from.mockImplementation(() => {
-        authFromCallCount++
-        if (authFromCallCount === 1) {
+        let authFromCallCount = 0
+        mockSupabase.from.mockImplementation(() => {
+          authFromCallCount++
+          if (authFromCallCount === 1) {
+            return {
+              select: vi.fn().mockReturnThis(),
+              eq: vi.fn().mockReturnThis(),
+              single: vi.fn().mockResolvedValue({
+                data: { guild_code: 'TEST', cluster_code: 'EOT' },
+                error: null
+              })
+            }
+          }
           return {
             select: vi.fn().mockReturnThis(),
             eq: vi.fn().mockReturnThis(),
             single: vi.fn().mockResolvedValue({
-              data: { guild_code: 'TEST', cluster_code: 'EOT' },
+              data: { cluster_code: 'EOT' },
               error: null
             })
           }
-        }
-        return {
-          select: vi.fn().mockReturnThis(),
-          eq: vi.fn().mockReturnThis(),
-          single: vi.fn().mockResolvedValue({
-            data: { cluster_code: 'EOT' },
-            error: null
-          })
-        }
-      })
+        })
 
-      let serviceFromCallCount = 0
-      mockServiceSupabase.from.mockImplementation(() => {
-        serviceFromCallCount++
-        if (serviceFromCallCount === 1) {
+        let serviceFromCallCount = 0
+        mockServiceSupabase.from.mockImplementation(() => {
+          serviceFromCallCount++
+          if (serviceFromCallCount === 1) {
+            return {
+              select: vi.fn().mockReturnThis(),
+              eq: vi.fn().mockReturnThis(),
+              not: vi.fn().mockReturnThis(),
+              neq: vi.fn().mockResolvedValue({
+                data: [
+                  {
+                    id: 7,
+                    player_id: 'p1',
+                    display_name: 'Player1',
+                    tacticus_api_key_encrypted: 'encrypted-key',
+                    user_id: 'u1'
+                  }
+                ],
+                error: null
+              })
+            }
+          }
           return {
-            select: vi.fn().mockReturnThis(),
-            eq: vi.fn().mockReturnThis(),
-            not: vi.fn().mockReturnThis(),
-            neq: vi.fn().mockResolvedValue({
-              data: [
-                {
-                  player_id: 'p1',
-                  display_name: 'Player1',
-                  tacticus_api_key_encrypted: 'encrypted-key',
-                  user_id: 'u1'
-                }
-              ],
-              error: null
-            })
+            update: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis()
           }
-        }
-        return {
-          update: vi.fn().mockReturnThis(),
-          eq: vi.fn().mockReturnThis()
-        }
-      })
+        })
 
-      mockGetPlayerApiKey.mockResolvedValue('valid-api-key')
-      mockValidateApiKeyWithTacticus.mockResolvedValue({ isValid: true })
-      const player = {
-        progress: {
-          guildRaid: {
-            tokens: { current: 3, nextTokenInSeconds: 3600 },
-            bombTokens: { current: 2, nextTokenInSeconds: 7200 }
+        mockGetPlayerApiKey.mockResolvedValue('valid-api-key')
+        mockValidateApiKeyWithTacticus.mockResolvedValue({ isValid: true })
+        if (storage === 'unavailable')
+          mockBeginRoster.mockRejectedValue(
+            new Error('Roster snapshot storage unavailable')
+          )
+        const player = {
+          details: { powerLevel: 123 },
+          units: [{ id: 'synthetic-hero' }],
+          progress: {
+            guildRaid: {
+              tokens: { current: 3, nextTokenInSeconds: 3600 },
+              bombTokens: { current: 2, nextTokenInSeconds: 7200 }
+            }
           }
+        }
+        mockTacticusAPI.getPlayerWithRetry.mockResolvedValue(player)
+        mockTacticusAPI.getPlayerResult.mockResolvedValue({
+          player,
+          status: 200
+        })
+
+        const request = new NextRequest(
+          'http://localhost/api/guild-tokens/sync',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ guild: 'TEST' })
+          }
+        )
+
+        const response = await POST(request)
+        const body = await response.json()
+
+        expect(response.status).toBe(200)
+        expect(body.success).toBe(true)
+        expect(body.syncedCount).toBe(1)
+        expect(body.totalMembers).toBe(1)
+        expect(mockTacticusAPI.getPlayerResult).toHaveBeenCalledExactlyOnceWith(
+          'valid-api-key'
+        )
+        expect(mockValidateApiKeyWithTacticus).not.toHaveBeenCalled()
+        expect(mockTacticusAPI.getPlayerWithRetry).not.toHaveBeenCalled()
+        expect(mockBeginRoster).toHaveBeenCalledWith(
+          'u1',
+          7,
+          expect.anything(),
+          { timeoutMs: 500 }
+        )
+        expect(mockBeginRoster.mock.invocationCallOrder[0]).toBeLessThan(
+          mockTacticusAPI.getPlayerResult.mock.invocationCallOrder[0]
+        )
+        if (storage === 'available') {
+          expect(afterTasks).toHaveLength(1)
+          for (const task of afterTasks) await task()
+          expect(mockPersistRoster).toHaveBeenCalledWith(
+            'u1',
+            player.units,
+            [],
+            expect.anything(),
+            7,
+            expect.objectContaining({
+              playerPower: 123,
+              observation: expect.objectContaining({ playerMappingId: 7 })
+            })
+          )
+        } else {
+          expect(afterTasks).toHaveLength(0)
+          expect(mockPersistRoster).not.toHaveBeenCalled()
         }
       }
-      mockTacticusAPI.getPlayerWithRetry.mockResolvedValue(player)
-      mockTacticusAPI.getPlayerResult.mockResolvedValue({ player, status: 200 })
-
-      const request = new NextRequest(
-        'http://localhost/api/guild-tokens/sync',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ guild: 'TEST' })
-        }
-      )
-
-      const response = await POST(request)
-      const body = await response.json()
-
-      expect(response.status).toBe(200)
-      expect(body.success).toBe(true)
-      expect(body.syncedCount).toBe(1)
-      expect(body.totalMembers).toBe(1)
-      expect(mockTacticusAPI.getPlayerResult).toHaveBeenCalledExactlyOnceWith(
-        'valid-api-key'
-      )
-      expect(mockValidateApiKeyWithTacticus).not.toHaveBeenCalled()
-      expect(mockTacticusAPI.getPlayerWithRetry).not.toHaveBeenCalled()
-    })
+    )
 
     it.each([401, 403, 429, 503, null])(
       'marks key health invalid only for an authorization rejection (%s)',

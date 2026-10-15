@@ -58,6 +58,7 @@ describe('roster-loki-backfill handler', () => {
   let getPlayerInfoMock: AnyMock
   let persistRosterSnapshotMock: AnyMock
   let providerFetchMock: AnyMock
+  let selectCandidatesMock: AnyMock
   let physicalCallsPerPlayer: number
   let handler: Handler
   let members: ReturnType<typeof memberRows>
@@ -70,6 +71,7 @@ describe('roster-loki-backfill handler', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0)
     members = memberRows(20)
     physicalCallsPerPlayer = 1
+    selectCandidatesMock = vi.fn(async (rows) => rows)
     providerFetchMock = vi.fn().mockResolvedValue({ ok: true })
     vi.stubGlobal('fetch', providerFetchMock)
 
@@ -98,7 +100,13 @@ describe('roster-loki-backfill handler', () => {
         }
       }
     })
-    persistRosterSnapshotMock = vi.fn().mockResolvedValue({ upserted: 1 })
+    persistRosterSnapshotMock = vi.fn().mockResolvedValue({
+      status: 'applied',
+      upserted: 1,
+      complete: true,
+      unchanged: false,
+      playerPowerUpdated: true
+    })
 
     const supabase = {
       from: vi.fn((table: string) => {
@@ -178,6 +186,16 @@ describe('roster-loki-backfill handler', () => {
     vi.doMock('@/app/lib/player/roster-sync', () => ({
       persistRosterSnapshot: persistRosterSnapshotMock
     }))
+    vi.doMock('@/app/lib/player/roster-snapshot-store', () => ({
+      selectRosterRefreshCandidates: selectCandidatesMock,
+      tryBeginPlayerRosterRefresh: vi.fn(
+        async (_user: string | null, id: number) => ({
+          playerMappingId: id,
+          attemptId: '00000000-0000-4000-8000-000000000001',
+          observedAt: '2026-01-01T00:00:00.000Z'
+        })
+      )
+    }))
     vi.doMock('@/app/lib/jobs/dispatcher', () => ({
       registerJobHandler: vi.fn()
     }))
@@ -192,6 +210,29 @@ describe('roster-loki-backfill handler', () => {
     vi.unstubAllEnvs()
   })
 
+  it('does not refresh a shared session or read players when all rosters are fresh', async () => {
+    selectCandidatesMock.mockResolvedValue([])
+    const result = await handler(
+      {},
+      { jobId: 1, workerId: 'synthetic-worker', attempts: 1 }
+    )
+    expect(result).toMatchObject({
+      processed: 0,
+      skipped: members.length,
+      requestsStarted: 0
+    })
+    expect(providerFetchMock).not.toHaveBeenCalled()
+    expect(getPlayerInfoMock).not.toHaveBeenCalled()
+  })
+  it('fails closed on unavailable freshness evidence before any provider send', async () => {
+    selectCandidatesMock.mockRejectedValue(
+      new Error('Roster snapshot storage unavailable')
+    )
+    await expect(
+      handler({}, { jobId: 1, workerId: 'synthetic-worker', attempts: 1 })
+    ).rejects.toThrow('Roster snapshot storage unavailable')
+    expect(providerFetchMock).not.toHaveBeenCalled()
+  })
   it('stops before starting the second member chunk when ctx.softDeadlineAt is crossed', async () => {
     const result = (await handler(
       {},
@@ -211,7 +252,12 @@ describe('roster-loki-backfill handler', () => {
       [],
       expect.anything(),
       expect.any(Number),
-      { playerPower: 98765 }
+      {
+        playerPower: 98765,
+        observation: expect.objectContaining({
+          playerMappingId: expect.any(Number)
+        })
+      }
     )
     expect(result.processed).toBe(2)
     expect(result.skipped).toBe(18)

@@ -2,6 +2,18 @@
 
 These terms distinguish saved local planning inputs from current activity.
 
+## Imported character rosters
+
+**Roster observation**: The database-timed identity assigned before an authorized
+player read. It orders overlapping results for the current mapping owner.
+
+**Roster verification**: A complete player response has been mapped and committed
+for that owner. Its age starts at observation time, including when values are
+unchanged. Token freshness and imported row-change times have separate meanings.
+
+**Snapshot receipt**: The retained outcome of one roster observation. A replay
+returns the same outcome without extending verification or rewriting rows.
+
 ## Language
 
 **Imported raid history**:
