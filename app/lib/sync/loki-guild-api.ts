@@ -271,26 +271,41 @@ export async function fetchGuildMembersViaLoki(
 }
 
 // No in-memory cache: season persists in guild_config.last_successful_gw_season.
+interface GuildSeasonPayload {
+  currentGuildWarSeason?: unknown
+  guildWarSeason?: unknown
+  guild?: {
+    currentGuildWarSeason?: unknown
+    guildWar?: { season?: unknown; currentSeason?: unknown }
+  }
+  seasons?: { guildWar?: unknown }
+  activeEvents?: { guildWar?: { season?: unknown } }
+}
 
 export async function detectCurrentGWSeasonFromGuildData(
   guildCode: string,
-  apiKey: string
+  apiKey: string,
+  guildPayload?: unknown
 ): Promise<number | null> {
   try {
-    const response = await fetchWithCircuitBreaker(
-      `${CONFIG.api.baseUrl}/guild`,
-      {
-        headers: {
-          'X-API-KEY': apiKey,
-          Accept: 'application/json'
-        }
-      },
-      2,
-      10000
-    )
+    const response =
+      guildPayload === undefined
+        ? await fetchWithCircuitBreaker(
+            `${CONFIG.api.baseUrl}/guild`,
+            {
+              headers: {
+                'X-API-KEY': apiKey,
+                Accept: 'application/json'
+              }
+            },
+            2,
+            10000
+          )
+        : null
 
-    if (response.ok) {
-      const data = await response.json()
+    if (guildPayload !== undefined || response?.ok) {
+      const data = (guildPayload ??
+        (await response?.json())) as GuildSeasonPayload
 
       const possibleSeasonPaths = [
         data.currentGuildWarSeason,

@@ -572,6 +572,51 @@ describe('POST /api/guild/initial-sync', () => {
       )
     })
 
+    it('passes the validated response through the same guild operation without another roster or discovery read', async () => {
+      const snapshot = {
+        guild: {
+          guildId: 'guild-123',
+          members: [{ userId: 'synthetic-member' }]
+        }
+      }
+      mockValidateApiKeyWithTacticus.mockImplementation(
+        async (_key, _player, options) => {
+          options.onGuildResponse(snapshot)
+          return {
+            isValid: true,
+            canAccessGuild: true,
+            canAccessRaidData: true,
+            guildInfo: { guildId: 'guild-123' }
+          }
+        }
+      )
+      const response = await POST(
+        new NextRequest('http://localhost/api/guild/initial-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'test', api_key: 'valid-key' })
+        })
+      )
+      expect(response.status).toBe(200)
+      expect(mockAutoPatchGuildConfig).toHaveBeenCalledWith(
+        expect.anything(),
+        'TEST',
+        'valid-key',
+        { guildPayload: snapshot }
+      )
+      expect(mockDetectCurrentGWSeasonFromGuildData).toHaveBeenCalledWith(
+        'TEST',
+        'valid-key',
+        snapshot
+      )
+      expect(mockFetchGuildMembersViaTacticus).toHaveBeenCalledWith(
+        'valid-key',
+        'guild-123',
+        'TEST',
+        snapshot
+      )
+    })
+
     it('does not report a roster read when LOKI returned no members', async () => {
       mockFetchGuildMembersViaLoki.mockResolvedValue({
         members: [],

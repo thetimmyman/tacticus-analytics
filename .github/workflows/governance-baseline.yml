@@ -53,7 +53,7 @@ jobs:
           fetch https://github.com/zizmorcore/zizmor/releases/download/v1.30.0/zizmor-x86_64-unknown-linux-gnu.tar.gz \
             ec8c95cd800845abb9bbc5f377ec7c57d2eb8e2386a00a201d3a74ee4092e5ed
           echo "$bin" >> "$GITHUB_PATH"
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -103,7 +103,7 @@ jobs:
           persist-credentials: false
       - name: Verify application repository identity
         run: npm run app:identity:check
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -121,7 +121,7 @@ jobs:
           persist-credentials: false
       - name: Verify application repository identity
         run: npm run app:identity:check
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
           cache: npm
