@@ -213,6 +213,7 @@ async function prepareRosterSnapshot(
     rows,
     complete:
       equipmentComplete &&
+      allUnits.length === unitIds.length &&
       allUnits.every((unit) => Boolean(unit.id)) &&
       rows.length === unitIds.length
   }

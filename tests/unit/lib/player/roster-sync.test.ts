@@ -58,6 +58,29 @@ function client() {
 }
 
 describe('persistRosterSnapshot', () => {
+  it('does not let duplicate known units hide an unmapped unit', async () => {
+    const supabase = client()
+    await persistRosterSnapshot(
+      owner,
+      [
+        { id: 'synthetic-unit' },
+        { id: 'synthetic-unit' },
+        { id: 'unmapped-unit' }
+      ],
+      [],
+      supabase as never,
+      42,
+      { observation, playerPower: 50 }
+    )
+    expect(supabase.rpc).toHaveBeenCalledWith(
+      'persist_player_roster_snapshot',
+      expect.objectContaining({
+        p_rows: [],
+        p_complete: false,
+        p_player_power: 50
+      })
+    )
+  })
   it.each(['missing', 'unavailable'])(
     'preserves existing roster when equipment classification is %s',
     async (failure) => {
