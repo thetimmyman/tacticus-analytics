@@ -29,14 +29,12 @@ interface RosterDevelopmentSummary {
   members_total: number
   members_with_roster: number
   members_with_api_key: number
-  members_with_loki: number
   roster_coverage_pct: number
   hero_count: number
   missing_heroes: number
   meta_teams_analyzed: number
   roster_complete: boolean
   partial_roster: boolean
-  loki_used: boolean
 }
 
 interface RosterGap {
@@ -637,10 +635,7 @@ export function RosterDevelopmentClient({
       setError(null)
 
       try {
-        const params = new URLSearchParams({ include_loki: 'true' })
-        const response = await fetch(
-          `/api/roster-development/analysis?${params}`
-        )
+        const response = await fetch('/api/roster-development/analysis')
         const data = await response.json()
 
         if (!response.ok) {

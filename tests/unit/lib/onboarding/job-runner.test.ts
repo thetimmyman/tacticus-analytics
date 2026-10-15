@@ -1,21 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { NextRequest } from 'next/server'
 import { SERVICE_TIMEOUTS } from '@/app/lib/utils/async-timeout'
 
-const { mockDecryptApiKey, mockUpdateOnboardingJobStatus, mockLogger } =
-  vi.hoisted(() => ({
-    mockDecryptApiKey: vi.fn(),
-    mockUpdateOnboardingJobStatus: vi.fn(),
-    mockLogger: {
-      error: vi.fn(),
-      warn: vi.fn(),
-      info: vi.fn(),
-      debug: vi.fn()
-    }
-  }))
-
-vi.mock('@tacticus/app-core/encryption', () => ({
-  decryptApiKey: (...args: readonly unknown[]) => mockDecryptApiKey(...args)
+const { mockUpdateOnboardingJobStatus, mockLogger } = vi.hoisted(() => ({
+  mockUpdateOnboardingJobStatus: vi.fn(),
+  mockLogger: {
+    error: vi.fn(),
+    warn: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn()
+  }
 }))
 
 vi.mock('@/app/lib/onboarding/jobs', () => ({
@@ -109,7 +102,6 @@ async function hasSettled<T>(promise: Promise<T>): Promise<boolean> {
 function processJob(overrides: {
   serviceClient: ReturnType<typeof createServiceClient>
   authedClient: ReturnType<typeof createAuthedClient>['client']
-  request?: NextRequest
 }) {
   return processGuildInitialSyncJob({
     job: {
@@ -129,8 +121,7 @@ function processJob(overrides: {
       user_id: 'user-1',
       guild_code: 'GUILD1',
       sync_records_synced: 0
-    } as never,
-    request: overrides.request
+    } as never
   })
 }
 
@@ -138,7 +129,6 @@ describe('processGuildInitialSyncJob', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     process.env = { ...originalEnv }
-    mockDecryptApiKey.mockResolvedValue('decrypted-key')
     mockUpdateOnboardingJobStatus.mockResolvedValue(undefined)
   })
 
@@ -180,60 +170,6 @@ describe('processGuildInitialSyncJob', () => {
     )
   })
 
-  it('times out hung legacy initial sync fetches and marks sync retryable', async () => {
-    vi.useFakeTimers()
-    process.env.ONBOARDING_USE_EDGE_FUNCTION = 'false'
-    process.env.SITE_URL = 'https://internal.example'
-
-    let aborted = false
-    const fetchMock = vi.fn((_url: string | URL, init?: RequestInit) => {
-      return new Promise<Response>((_, reject) => {
-        init?.signal?.addEventListener(
-          'abort',
-          () => {
-            aborted = true
-            const abortError = new Error('Request timed out')
-            abortError.name = 'AbortError'
-            reject(abortError)
-          },
-          { once: true }
-        )
-      })
-    })
-    vi.stubGlobal('fetch', fetchMock)
-
-    const serviceClient = createServiceClient()
-    const { client: authedClient, progressUpdate } = createAuthedClient()
-    const resultPromise = processJob({
-      serviceClient,
-      authedClient,
-      request: new NextRequest(
-        'https://attacker.example/api/onboarding/jobs/process',
-        {
-          headers: { cookie: 'session=abc' }
-        }
-      )
-    })
-
-    await waitForMockCall(fetchMock)
-    expect(String(fetchMock.mock.calls[0]?.[0])).toBe(
-      'https://internal.example/api/guild/initial-sync'
-    )
-    await vi.advanceTimersByTimeAsync(SERVICE_TIMEOUTS.EXTERNAL_API)
-
-    expect(aborted).toBe(true)
-    expect(await hasSettled(resultPromise)).toBe(true)
-    const result = await resultPromise
-
-    expect(result.success).toBe(false)
-    expect(result.error).toContain('timed out')
-    expect(progressUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        sync_status: 'failed',
-        sync_can_retry: true
-      })
-    )
-  })
   // The credential is keyed on the job, never on client-writable onboarding_progress.guild_code.
   it('loads the credential for the JOB guild, never the progress guild', async () => {
     const eq = vi.fn().mockReturnValue({

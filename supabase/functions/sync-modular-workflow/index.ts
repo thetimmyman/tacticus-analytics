@@ -44,7 +44,6 @@ import {
   type GuildConfigMetadataUpdate
 } from '../_shared/sync-modules/guild-metadata.ts'
 import { requireServiceRole } from '../_shared/auth-guard.ts'
-import { fetchGuildRankings } from '../_shared/sync-modules/rankings.ts'
 import { getLokiSeasonTimingConstants } from '../_shared/loki-build-version.ts'
 import {
   isHistoricalSeason,
@@ -966,49 +965,6 @@ serve(async (req) => {
             })
           } catch {
             /* ignore */
-          }
-        }
-
-        if (hasLokiCredentials && validation.guildInfo?.guildId) {
-          try {
-            await fetchGuildRankings(
-              {
-                logger,
-                refreshSessionId: async (_gc, uid, secret, to) => {
-                  const result = await refreshLokiSession(
-                    uid,
-                    secret,
-                    (to as EdgeFunctionTimeouts).createSignal('api_request')
-                  )
-                  return result.sessionId
-                },
-                updateSessionIdInDatabase: async (sb, gc, newSessionId) => {
-                  const { error } = await sb
-                    .from(CONFIG.tables.guildConfig)
-                    .update({
-                      session_id: newSessionId,
-                      updated_at: new Date().toISOString()
-                    })
-                    .eq('guild_code', gc)
-                  return !error
-                }
-              },
-              {
-                lokiUrl: CONFIG.api.lokiUrl,
-                guildConfigTable: CONFIG.tables.guildConfig
-              },
-              {
-                guildCode,
-                guildId: validation.guildInfo.guildId,
-                userId: lokiUserId,
-                sessionId: freshSessionId || storedLokiSessionId,
-                clientSecret: lokiClientSecret || '',
-                supabase,
-                timeouts
-              }
-            )
-          } catch (err) {
-            logger.warn(`Rankings fetch failed: ${getErrorMessage(err)}`)
           }
         }
 

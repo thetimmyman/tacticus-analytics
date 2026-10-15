@@ -5,7 +5,6 @@ import { registerGuildBatchSyncHandler } from './guild-batch-sync'
 import { registerRosterBackfillHandler } from './roster-backfill'
 import { registerGuildSyncHandler } from './guild-sync'
 import { registerGuildHistoricalBackfillHandler } from './guild-historical-backfill'
-import { registerRosterLokiBackfillHandler } from './roster-loki-backfill'
 import { registerReconcileGuildRanksHandler } from './reconcile-guild-ranks'
 import { registerTokenAuditGuildHandler } from './token-audit-guild'
 
@@ -14,7 +13,6 @@ registerGuildBatchSyncHandler()
 registerRosterBackfillHandler()
 registerGuildSyncHandler()
 registerGuildHistoricalBackfillHandler()
-registerRosterLokiBackfillHandler()
 registerReconcileGuildRanksHandler()
 registerTokenAuditGuildHandler()
 

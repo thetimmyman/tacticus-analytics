@@ -16,8 +16,7 @@ import type {
   LokiRequestOptions,
   LokiRequestResult,
   LokiSessionInfo,
-  LokiError,
-  LokiPlayerInfoResponse
+  LokiError
 } from '@/app/lib/loki/types'
 import { sleep } from '@/app/lib/utils/async-timeout'
 import {
@@ -30,7 +29,6 @@ type JsonBoundary = unknown
 
 const DEFAULT_CONNECT_GAME_CONFIG = '706f74cc2d10c3547d81b89417afba20'
 const DEFAULT_VIEW_GUILD_GAME_CONFIG = '75da56c8362630f0ff1838e76b4c6e54'
-const DEFAULT_LEADERBOARD_GAME_CONFIG = '9517a7dd237edad05a86e948e469c631'
 
 const SESSION_ERROR_PATTERNS = [
   'invalid_session',
@@ -90,7 +88,6 @@ export interface LokiClientOptions {
   retryDelayMs?: number
   defaultGameConfigVersion?: string
   connectGameConfigVersion?: string
-  leaderboardGameConfigVersion?: string
   onSessionUpdate?: (info: LokiSessionInfo) => void | Promise<void>
   fetchImpl?: typeof fetch
 }
@@ -111,7 +108,6 @@ export class LokiClient {
   private readonly retryDelayMs: number
   private defaultGameConfigVersion: string
   private connectGameConfigVersion: string
-  private leaderboardGameConfigVersion: string
   private readonly onSessionUpdate?: (
     info: LokiSessionInfo
   ) => void | Promise<void>
@@ -133,8 +129,6 @@ export class LokiClient {
       options?.defaultGameConfigVersion ?? DEFAULT_VIEW_GUILD_GAME_CONFIG
     this.connectGameConfigVersion =
       options?.connectGameConfigVersion ?? DEFAULT_CONNECT_GAME_CONFIG
-    this.leaderboardGameConfigVersion =
-      options?.leaderboardGameConfigVersion ?? DEFAULT_LEADERBOARD_GAME_CONFIG
     this.onSessionUpdate = options?.onSessionUpdate
     this.fetchImpl =
       options?.fetchImpl ??
@@ -178,11 +172,7 @@ export class LokiClient {
         playerEventData: (options.eventData ?? {}) as Data,
         universeVersion: options.universeVersion ?? 'universe_not_needed',
         gameConfigVersion:
-          options.gameConfigVersion ??
-          (options.eventType === 'GET_GUILD_SEASON_LEADERBOARD' ||
-          options.eventType === 'GET_GUILD_WAR_LEADERBOARD'
-            ? this.leaderboardGameConfigVersion
-            : this.defaultGameConfigVersion),
+          options.gameConfigVersion ?? this.defaultGameConfigVersion,
         multiConfigVersion: options.multiConfigVersion ?? '',
         createdOn
       },
@@ -569,53 +559,6 @@ export class LokiClient {
     return {
       ok: false,
       error: lastError ?? this.createError('Unknown LOKI error')
-    }
-  }
-
-  public async fetchGuildView<TResponse = unknown>(
-    guildId: string
-  ): Promise<LokiRequestResult<TResponse>> {
-    return this.request<TResponse>({
-      eventType: 'VIEW_GUILD_2',
-      eventData: { guildId },
-      gameConfigVersion: this.defaultGameConfigVersion,
-      tag: 'VIEW_GUILD_2'
-    })
-  }
-
-  public async getPlayerInfo(
-    requestedUserId: string
-  ): Promise<LokiRequestResult<LokiPlayerInfoResponse>> {
-    const result = await this.request<{
-      eventResult?: { eventResponseData?: LokiPlayerInfoResponse }
-    }>({
-      eventType: 'GET_PLAYER_INFO',
-      eventData: { requestedUserId },
-      gameConfigVersion: this.defaultGameConfigVersion,
-      tag: 'GET_PLAYER_INFO'
-    })
-
-    if (!result.ok) {
-      return result
-    }
-
-    const playerInfo = result.data?.eventResult?.eventResponseData
-    if (!playerInfo) {
-      return {
-        ok: false,
-        error: this.createError(
-          'No player info in response',
-          undefined,
-          result.raw
-        )
-      }
-    }
-
-    return {
-      ok: true,
-      data: playerInfo,
-      raw: result.raw,
-      sessionId: result.sessionId
     }
   }
 }

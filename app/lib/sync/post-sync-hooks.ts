@@ -4,7 +4,6 @@ import type { GuildConfig } from '@tacticus/app-core/types'
 import { resolveLokiIdentity } from '@/app/lib/loki/identity'
 import {
   fetchGuildMembersViaLoki,
-  fetchGuildRankings,
   type LokiFetchResult
 } from '@/app/lib/sync/api-operations'
 import { getSeasonTiming } from '@/app/lib/services/season-timing-service'
@@ -37,14 +36,6 @@ async function requestClusterRankingsRefresh(
   }
 }
 
-interface LokiRosterContext {
-  guildId: string
-  userId: string
-  sessionId: string
-  clientSecret: string
-  authFailed: boolean
-}
-
 async function markRosterRefreshed(
   supabase: ServiceSupabaseClient,
   guildCode: string
@@ -61,13 +52,13 @@ async function markRosterRefreshed(
   }
 }
 
-/** Also the authority path: savePlayerMappings deactivates departed members. Null without a LOKI identity. */
+/** Also the authority path: savePlayerMappings deactivates departed members. No-op without a LOKI identity. */
 export async function refreshGuildRoster(
   guildCode: string,
   config: GuildConfig,
   supabase: ServiceSupabaseClient,
   apiKey: string | null = null
-): Promise<LokiRosterContext | null> {
+): Promise<void> {
   // The env scraper id wins over a legacy per-guild `guild_config.user_id` (it must match the shared secret).
   const { guild_id } = config
   const resolvedClientSecret = process.env.LOKI_SCRAPER_CLIENT_SECRET ?? null
@@ -100,8 +91,7 @@ export async function refreshGuildRoster(
     }
     session_id = ''
   }
-  if (!guild_id || !resolvedUserId || !resolvedClientSecret) return null
-  let lokiAuthFailed = false
+  if (!guild_id || !resolvedUserId || !resolvedClientSecret) return
   {
     try {
       const rosterObservedAt = await beginGuildRosterObservation(supabase)
@@ -113,10 +103,8 @@ export async function refreshGuildRoster(
         resolvedClientSecret,
         supabase
       )
-      lokiAuthFailed = lokiResult.authFailed
-
       // Circuit breaker: clearing session_id stops retry amplification.
-      if (lokiAuthFailed) {
+      if (lokiResult.authFailed) {
         logger.warn(
           { guildCode },
           'Loki auth failed; clearing session to stop retry amplification'
@@ -163,16 +151,9 @@ export async function refreshGuildRoster(
     // Stamp failures too, so a failing guild is throttled.
     await markRosterRefreshed(supabase, guildCode)
   }
-  return {
-    guildId: guild_id,
-    userId: resolvedUserId,
-    sessionId: session_id ?? '',
-    clientSecret: resolvedClientSecret,
-    authFailed: lokiAuthFailed
-  }
 }
 
-/** Writing ticks refresh the roster and rankings at most this often per guild. */
+/** Writing ticks refresh the roster at most this often per guild. */
 const WRITE_TICK_ROSTER_REFRESH_MS = 15 * 60 * 1000
 
 // A future stamp (clock skew, bad write) must not suppress refreshes indefinitely.
@@ -239,54 +220,13 @@ export async function runPostSyncHooks(
     WRITE_TICK_ROSTER_REFRESH_MS,
     Date.now()
   )
-  const loki = rosterFresh
-    ? null
-    : await refreshGuildRoster(guildCode, config, supabase, apiKey)
   if (rosterFresh) {
     logger.debug(
       { guildCode },
-      'Roster refreshed recently; skipping LOKI roster and rankings this tick'
+      'Roster refreshed recently; skipping LOKI roster this tick'
     )
-  }
-  if (loki) {
-    if (loki.authFailed) {
-      logger.info(
-        { guildCode },
-        'Skipping rankings fetch after Loki auth failure'
-      )
-    } else
-      try {
-        const rankings = await fetchGuildRankings(
-          guildCode,
-          loki.guildId,
-          loki.userId,
-          loki.sessionId,
-          loki.clientSecret,
-          supabase
-        )
-        const updates: Record<string, unknown> = {}
-        if (rankings.guildRaid !== null) updates.GR_Ranking = rankings.guildRaid
-        if (rankings.guildWar !== null) updates.GW_Ranking = rankings.guildWar
-        if (Object.keys(updates).length > 0) {
-          await supabase
-            .from('guild_config')
-            .update(updates as TablesUpdate<'guild_config'>)
-            .eq('guild_code', guildCode)
-          logger.info(
-            {
-              guildCode,
-              guildRaidRanking: rankings.guildRaid,
-              guildWarRanking: rankings.guildWar
-            },
-            'Guild rankings updated'
-          )
-        }
-      } catch (err) {
-        logger.warn(
-          { err, guildCode },
-          'Guild rankings sync failed (non-fatal)'
-        )
-      }
+  } else {
+    await refreshGuildRoster(guildCode, config, supabase, apiKey)
   }
 
   // Usually a no-op: `apiCache` is per-process in web pods, so dashboards rely on the TTL.

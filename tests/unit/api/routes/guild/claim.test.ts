@@ -10,6 +10,7 @@ let mockValidateApiKeyWithTacticus: ReturnType<typeof vi.fn>
 let mockGenerateApiKeyUpdatePayload: ReturnType<typeof vi.fn>
 let mockApiSecurityMiddleware: ReturnType<typeof vi.fn>
 let mockResolveVerifiedPlayers: ReturnType<typeof vi.fn>
+let mockRunInitialGuildSync: ReturnType<typeof vi.fn>
 
 describe('POST /api/guild/claim', () => {
   let POST: (req: NextRequest) => Promise<Response>
@@ -35,10 +36,23 @@ describe('POST /api/guild/claim', () => {
     clusterError = null as unknown,
     inClusterGuilds = [] as Array<Record<string, unknown>>,
     clusterMembershipError = null as unknown,
-    updateError = null as unknown
+    updateError = null as unknown,
+    guildIdFillError = null as unknown
   } = {}) => {
-    guildUpdateSpy = vi.fn().mockReturnValue({
-      eq: vi.fn().mockResolvedValue({ error: updateError })
+    let updateCall = 0
+    guildUpdateSpy = vi.fn().mockImplementation(() => {
+      const result = {
+        error: updateCall++ === 0 ? updateError : guildIdFillError
+      }
+      const chain = {
+        eq: vi.fn(() => chain),
+        is: vi.fn(() => chain),
+        then: (
+          resolve: (value: typeof result) => unknown,
+          reject?: (reason: unknown) => unknown
+        ) => Promise.resolve(result).then(resolve, reject)
+      }
+      return chain
     })
     let guildConfigCall = 0
     return {
@@ -104,6 +118,10 @@ describe('POST /api/guild/claim', () => {
       .fn()
       .mockReturnValue({ api_key_encrypted: 'encrypted-key' })
     mockApiSecurityMiddleware = vi.fn().mockResolvedValue(null)
+    mockRunInitialGuildSync = vi.fn().mockResolvedValue({
+      initialSyncTriggered: true,
+      playerMappingsCreated: false
+    })
     mockResolveVerifiedPlayers = vi.fn().mockResolvedValue([
       {
         mappingId: 42,
@@ -132,6 +150,9 @@ describe('POST /api/guild/claim', () => {
     }))
     vi.doMock('@/app/lib/auth/verified-player-authority', () => ({
       resolveVerifiedPlayers: mockResolveVerifiedPlayers
+    }))
+    vi.doMock('@/app/lib/onboarding/initial-guild-sync', () => ({
+      runInitialGuildSync: mockRunInitialGuildSync
     }))
 
     mockAuthSupabase = {
@@ -241,6 +262,7 @@ describe('POST /api/guild/claim', () => {
     expect(body.error.message).toContain('different guild')
     expect(guildUpdateSpy).not.toHaveBeenCalled()
     expect(mockEncryptApiKey).not.toHaveBeenCalled()
+    expect(mockRunInitialGuildSync).not.toHaveBeenCalled()
   })
 
   it('returns 400 when the key is invalid', async () => {
@@ -563,5 +585,115 @@ describe('POST /api/guild/claim', () => {
     expect(body.success).toBe(true)
     expect(body.data.new_cluster).toBe('NEW')
     expect(guildUpdateSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('runs the initial sync server-side once the claim is written', async () => {
+    mockValidateApiKeyWithTacticus.mockResolvedValue({
+      isValid: true,
+      guildInfo: {
+        guildId: 'guild-uuid-AAAA',
+        guildName: 'Alpha',
+        guildCode: 'AA'
+      }
+    })
+    mockServiceDb.mockReturnValue(
+      buildServiceClient({
+        claimTargetGuildId: 'guild-uuid-AAAA',
+        cluster: { id: 'cluster-uuid', created_by: 'user-123' }
+      })
+    )
+
+    const res = await POST(makeRequest(validBody))
+
+    expect(res.status).toBe(200)
+    expect(mockRunInitialGuildSync).toHaveBeenCalledTimes(1)
+    expect(mockRunInitialGuildSync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        guildCode: 'AAAA',
+        apiKey: 'valid-key',
+        reconcileRoles: true
+      })
+    )
+  })
+
+  it('fills a missing guild_id from the validated key', async () => {
+    mockValidateApiKeyWithTacticus.mockResolvedValue({
+      isValid: true,
+      guildInfo: {
+        guildId: 'guild-uuid-AAAA',
+        guildName: 'Alpha',
+        guildCode: 'AA'
+      }
+    })
+    mockServiceDb.mockReturnValue(
+      buildServiceClient({
+        claimTargetGuildId: null,
+        cluster: { id: 'cluster-uuid', created_by: 'user-123' }
+      })
+    )
+
+    const res = await POST(makeRequest(validBody))
+
+    expect(res.status).toBe(200)
+    expect(guildUpdateSpy).toHaveBeenCalledTimes(2)
+    expect(guildUpdateSpy.mock.calls[0][0]).not.toHaveProperty('guild_id')
+    expect(guildUpdateSpy.mock.calls[1][0]).toEqual({
+      guild_id: 'guild-uuid-AAAA'
+    })
+    const fill = guildUpdateSpy.mock.results[1].value
+    expect(fill.is).toHaveBeenCalledWith('guild_id', null)
+  })
+
+  it('still claims when the guild_id fill is refused', async () => {
+    mockValidateApiKeyWithTacticus.mockResolvedValue({
+      isValid: true,
+      guildInfo: {
+        guildId: 'guild-uuid-AAAA',
+        guildName: 'Alpha',
+        guildCode: 'AA'
+      }
+    })
+    mockServiceDb.mockReturnValue(
+      buildServiceClient({
+        claimTargetGuildId: null,
+        cluster: { id: 'cluster-uuid', created_by: 'user-123' },
+        guildIdFillError: { code: '23505', message: 'duplicate key' }
+      })
+    )
+
+    const res = await POST(makeRequest(validBody))
+    const body = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(body.success).toBe(true)
+    expect(mockRunInitialGuildSync).toHaveBeenCalledTimes(1)
+  })
+
+  it('still reports the claim when the initial sync fails', async () => {
+    mockValidateApiKeyWithTacticus.mockResolvedValue({
+      isValid: true,
+      guildInfo: {
+        guildId: 'guild-uuid-AAAA',
+        guildName: 'Alpha',
+        guildCode: 'AA'
+      }
+    })
+    mockServiceDb.mockReturnValue(
+      buildServiceClient({
+        claimTargetGuildId: 'guild-uuid-AAAA',
+        cluster: { id: 'cluster-uuid', created_by: 'user-123' }
+      })
+    )
+    mockRunInitialGuildSync.mockResolvedValue({
+      initialSyncTriggered: false,
+      playerMappingsCreated: false
+    })
+
+    const res = await POST(makeRequest(validBody))
+    const body = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(body.success).toBe(true)
+    expect(body.data.initial_sync_triggered).toBe(false)
   })
 })

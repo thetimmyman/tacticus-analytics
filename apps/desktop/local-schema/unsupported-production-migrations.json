@@ -589,6 +589,10 @@
     {
       "file": "20261015020000_atomic_roster_snapshots.sql",
       "reason": "production-app-schema"
+    },
+    {
+      "file": "20261015200000_drop_guild_config_gw_season_ratchet.sql",
+      "reason": "schema-retirement"
     }
   ]
 }

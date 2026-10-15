@@ -26,7 +26,7 @@ describe('LokiClient session extraction (findSessionId)', () => {
         makeResponse({
           eventResult: {
             eventResponseData: {
-              heroInfo: { player: { powerLevel: 42 } }
+              guild: { guildId: 'g' }
             }
           }
         })
@@ -44,7 +44,10 @@ describe('LokiClient session extraction (findSessionId)', () => {
       }
     )
 
-    const result = await client.getPlayerInfo('target')
+    const result = await client.request({
+      eventType: 'VIEW_GUILD_2',
+      eventData: { guildId: 'g' }
+    })
 
     expect(result.ok).toBe(true)
     expect(fetchImpl).toHaveBeenCalledTimes(3)

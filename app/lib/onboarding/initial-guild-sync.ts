@@ -7,7 +7,7 @@ import { createComponentLogger } from '@/app/lib/logging'
 import { fetchWithAbortTimeout } from '@/app/lib/sync/api-client'
 import { SERVICE_TIMEOUTS, withTimeout } from '@/app/lib/utils/async-timeout'
 
-const logger = createComponentLogger('api.guild.create-config.initial-sync')
+const logger = createComponentLogger('lib.onboarding.initial-guild-sync')
 type Supabase = SupabaseClient<Database>
 
 interface SyncResult {

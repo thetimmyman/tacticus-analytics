@@ -12,6 +12,7 @@ import {
 } from '@tacticus/app-core/api-key-validation'
 import { apiSecurityMiddleware } from '@/app/lib/middleware/rate-limit'
 import { resolveVerifiedPlayers } from '@/app/lib/auth/verified-player-authority'
+import { runInitialGuildSync } from '@/app/lib/onboarding/initial-guild-sync'
 
 /** Claims an existing guild into a cluster; the key must validate upstream for it. */
 export const POST = withErrorHandler(
@@ -290,6 +291,21 @@ export const POST = withErrorHandler(
       })
     }
 
+    // Member sync needs guild_id. Separate and non-fatal: a guild_id held by another row must not fail the claim.
+    if (!claimTarget?.guild_id) {
+      const { error: guildIdError } = await supabase
+        .from('guild_config')
+        .update({ guild_id: validation.guildInfo.guildId })
+        .eq('guild_code', normalizedGuildCode)
+        .is('guild_id', null)
+      if (guildIdError) {
+        logger.warn(
+          { err: guildIdError, guildCode: normalizedGuildCode },
+          '[claim] Could not fill missing guild_id'
+        )
+      }
+    }
+
     logger.info(
       {
         guildCode: normalizedGuildCode,
@@ -299,6 +315,14 @@ export const POST = withErrorHandler(
       '[claim] Guild successfully claimed into cluster'
     )
 
+    // Fails soft: the claim is already written and the scheduled sync retries.
+    const { initialSyncTriggered } = await runInitialGuildSync({
+      supabase,
+      guildCode: normalizedGuildCode,
+      apiKey: api_key,
+      reconcileRoles: Boolean(validation.guildInfo?.guildId)
+    })
+
     return NextResponse.json({
       success: true,
       action: 'guild_claimed',
@@ -306,7 +330,8 @@ export const POST = withErrorHandler(
         guild_code: normalizedGuildCode,
         display_name: existingGuild.display_name,
         previous_cluster: previousCluster,
-        new_cluster: normalizedClusterCode
+        new_cluster: normalizedClusterCode,
+        initial_sync_triggered: initialSyncTriggered
       }
     })
   }

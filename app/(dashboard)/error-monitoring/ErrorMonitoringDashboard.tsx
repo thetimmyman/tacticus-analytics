@@ -64,7 +64,6 @@ const generateMockErrorData = (): ErrorLogEntry[] => {
     '/api/player-api-key',
     '/api/discord-webhooks/leaderboard',
     '/api/meta-analysis/batch',
-    '/api/guild/initial-sync',
     '/api/validate-api-key'
   ]
 

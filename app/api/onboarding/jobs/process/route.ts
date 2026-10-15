@@ -145,8 +145,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       job: job as unknown as OnboardingJob,
       authedSupabase: serviceSupabase,
       serviceSupabase,
-      progress: onboardingProgress,
-      request: undefined
+      progress: onboardingProgress
     })
 
     if (!result.success) {

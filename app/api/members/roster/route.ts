@@ -8,8 +8,6 @@ import {
 import { createComponentLogger } from '@/app/lib/logging'
 import { CLUSTER_LOOKUP_SELECT } from '@/app/lib/guild-config-selects'
 const logger = createComponentLogger('api.members.roster')
-import { createGuildLokiClient } from '@/app/lib/loki/guild-client'
-import type { LokiPlayerInfoUnit } from '@/app/lib/loki/types'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { canManageHeraldRole } from '@/app/lib/auth/role-predicates'
@@ -17,78 +15,12 @@ import {
   requireSessionUser,
   resolveCurrentMembership
 } from '@/app/lib/api/session-user'
-import { checkActionRateLimit } from '@/app/lib/middleware/rate-limit'
 import {
   findVerifiedDiscordForMapping,
   resolveVerifiedDiscordIdentities
 } from '@/app/lib/auth/verified-player-authority'
 
 export const dynamic = 'force-dynamic'
-
-interface PartialPlayerData {
-  powerLevel: number | undefined
-  pvpLineup: string[] | undefined
-  units: Array<{ id: string } & LokiPlayerInfoUnit>
-  pvpInfo:
-    | {
-        leagueIndex?: number
-        playerPosition?: number
-        ranked?: boolean
-        trophies?: number
-      }
-    | undefined
-}
-
-async function tryLokiPlayerInfoFallback(
-  guildCode: string | null,
-  playerId: string
-): Promise<PartialPlayerData | null> {
-  if (!guildCode) return null
-
-  try {
-    const serviceSupabase = serviceDb()
-
-    const client = await createGuildLokiClient(serviceSupabase, guildCode)
-    if (!client) return null
-
-    const result = await client.getPlayerInfo(playerId)
-
-    if (!result.ok || !result.data?.heroInfo) {
-      logger.warn(
-        {
-          error: result.ok ? 'No heroInfo' : result.error?.message
-        },
-        'LOKI GET_PLAYER_INFO fallback failed'
-      )
-      return null
-    }
-
-    const heroInfo = result.data.heroInfo
-    const units = heroInfo.units?.units
-      ? Object.entries(heroInfo.units.units).map(([id, data]) => ({
-          id,
-          abilities: [] as Array<{ id: string; level: number }>,
-          ...data
-        }))
-      : []
-
-    return {
-      powerLevel: heroInfo.player?.powerLevel,
-      pvpLineup: heroInfo.units?.lineup?.pvp,
-      units,
-      pvpInfo: heroInfo.pvpInfo
-    }
-  } catch (error) {
-    rethrowIfAppError(error)
-    logger.warn(
-      {
-        error: error instanceof Error ? error.message : String(error)
-      },
-      'LOKI GET_PLAYER_INFO fallback error'
-    )
-    return null
-  }
-}
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
   try {
@@ -186,37 +118,6 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
           discordUserId: targetPlayer.discord_user_id
         })
       )
-      const rateLimit = await checkActionRateLimit(
-        `member-roster:loki:${targetPlayer.player_id}`,
-        60
-      )
-      if (!rateLimit.allowed) {
-        throw Errors.fromResponse(429, {
-          error: 'Please wait before refreshing this roster again',
-          code: 'RATE_LIMITED',
-          retryAfter: rateLimit.remainingTime ?? 60
-        })
-      }
-
-      const partialData = await tryLokiPlayerInfoFallback(
-        targetPlayer.guild_code,
-        targetPlayer.player_id
-      )
-
-      if (partialData) {
-        return NextResponse.json({
-          success: true,
-          partial: true,
-          playerName: targetPlayer.display_name,
-          powerLevel: partialData.powerLevel,
-          pvpLineup: partialData.pvpLineup,
-          units: partialData.units,
-          pvpInfo: partialData.pvpInfo,
-          guildCode: targetPlayer.guild_code,
-          tacticusShareUrl: targetPlayer.tacticus_share_url
-        })
-      }
-
       throw Errors.fromResponse(400, {
         error: 'This player has not configured their API key',
         code: 'NO_API_KEY',
@@ -246,7 +147,7 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
       playerName: targetPlayer.display_name,
       powerLevel: player.details?.powerLevel,
       units: player.units || [],
-      // Parity with /api/player/roster; the Loki partial path has no MoW data.
+      // Parity with /api/player/roster.
       machinesOfWar: resolveMachinesOfWar(player),
       progress: player.progress || {},
       guildCode: targetPlayer.guild_code,

@@ -16,7 +16,6 @@ import {
   HERO_MAPPINGS_SELECT,
   HeroCatalog
 } from '@/app/lib/catalogs/heroes'
-import { createGuildLokiClient } from '@/app/lib/loki/guild-client'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { isOfficerLeaderOrAdminRole } from '@/app/lib/auth/role-predicates'
@@ -31,7 +30,6 @@ export const dynamic = 'force-dynamic'
 const MAX_META_TEAMS_PER_BOSS = 10
 const MIN_META_ATTACK_COUNT = 30
 const API_CONCURRENCY = 4
-const MAX_LOKI_FALLBACK = 10
 const FALLBACK_SEASON = '83'
 
 const chunkedMap = async <T, R>(
@@ -135,7 +133,6 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     }
 
     const searchParams = request.nextUrl.searchParams
-    const includeLoki = searchParams.get('include_loki') === 'true'
     const requestedSeason = searchParams.get('season')
 
     const serviceClient = serviceDb()
@@ -209,52 +206,6 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
       })
     })
 
-    let lokiUsed = false
-    let membersWithLoki = 0
-
-    if (includeLoki) {
-      const membersMissingRoster = members.filter(
-        (member) =>
-          !member.tacticus_api_key_encrypted ||
-          member.api_key_is_valid === false
-      )
-
-      if (membersMissingRoster.length > 0) {
-        const lokiClient = await createGuildLokiClient(serviceClient, guildCode)
-
-        if (lokiClient) {
-          const targets = membersMissingRoster.slice(0, MAX_LOKI_FALLBACK)
-          const lokiResults = await chunkedMap(targets, 2, async (member) => {
-            const result = await lokiClient.getPlayerInfo(member.player_id)
-            if (!result.ok) {
-              return null
-            }
-            const units = result.data?.heroInfo?.units?.units
-            if (!units) return null
-            const unitIds = Object.keys(units)
-            if (unitIds.length === 0) return null
-            const resolvedUnits = unitIds.map((unitId) =>
-              resolveDisplayName(unitId, undefined, heroCatalog)
-            )
-            return { playerId: member.player_id, units: resolvedUnits }
-          })
-
-          lokiResults.forEach((result) => {
-            if (!result) return
-            lokiUsed = true
-            membersWithLoki += 1
-            rosterMemberCount += 1
-            result.units.forEach((unit) => {
-              const normalized = normalizeUnitName(unit)
-              if (normalized) rosterSet.add(normalized)
-            })
-          })
-        } else {
-          warnings.push('LOKI fallback unavailable for this guild.')
-        }
-      }
-    }
-
     if (membersTotal === 0) {
       return NextResponse.json({
         guild_code: guildCode,
@@ -263,14 +214,12 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
           members_total: 0,
           members_with_roster: 0,
           members_with_api_key: 0,
-          members_with_loki: 0,
           roster_coverage_pct: 0,
           hero_count: 0,
           missing_heroes: 0,
           meta_teams_analyzed: 0,
           roster_complete: false,
-          partial_roster: false,
-          loki_used: false
+          partial_roster: false
         },
         gaps: [],
         development_priorities: [],
@@ -342,14 +291,12 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
         members_total: membersTotal,
         members_with_roster: rosterMemberCount,
         members_with_api_key: membersWithApiKey.length,
-        members_with_loki: membersWithLoki,
         roster_coverage_pct: rosterCoveragePct,
         hero_count: rosterSet.size,
         missing_heroes: analysis.gaps.length,
         meta_teams_analyzed: analysis.meta_teams_analyzed,
         roster_complete: rosterComplete,
-        partial_roster: partialRoster,
-        loki_used: lokiUsed
+        partial_roster: partialRoster
       },
       gaps: analysis.gaps,
       development_priorities: analysis.development_priorities,

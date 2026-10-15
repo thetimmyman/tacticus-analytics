@@ -143,17 +143,8 @@ export function useGuildOnboardingActions({
         return
       }
 
+      // The claim route runs the initial sync server-side.
       const result = await response.json()
-      try {
-        await fetch('/api/guild/initial-sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ guild_code: guildCode, api_key: apiKey })
-        })
-      } catch (error) {
-        logger.warn({ err: error }, 'Initial sync after claim failed:')
-      }
-
       toast.success(
         `Guild ${result.data?.display_name || guildCode} has been claimed into your cluster!`
       )
@@ -231,22 +222,10 @@ export function useGuildOnboardingActions({
         return
       }
 
-      try {
-        const syncResponse = await fetch('/api/guild/initial-sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ guild_code: guildCode, api_key: apiKey })
-        })
-        if (!syncResponse.ok) {
-          const syncBody = await syncResponse.json().catch(() => null)
-          toast.warning(
-            `Guild ${guildCode} was created, but initial sync failed: ${syncBody?.error || 'Unknown error'}`
-          )
-        }
-      } catch (error) {
-        logger.error({ err: error }, 'Error triggering initial sync')
+      // create-config runs the initial sync server-side; the scheduled sync retries a miss.
+      if (createResult?.data?.initialSyncTriggered === false) {
         toast.warning(
-          `Guild ${guildCode} was created, but we could not start the initial sync.`
+          `Guild ${guildCode} was created, but its first sync has not run yet. Data appears after the next scheduled sync.`
         )
       }
 

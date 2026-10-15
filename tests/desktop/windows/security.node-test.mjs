@@ -555,7 +555,6 @@ test('legacy key forms and handlers cannot bypass native input after activation 
     '/api/clusters/join',
     '/api/guild/claim',
     '/api/guild/create-config',
-    '/api/guild/initial-sync',
     '/api/guild/trigger-sync',
     '/api/guild-tokens/sync',
     '/api/guild-teams/backfill',
@@ -622,8 +621,7 @@ test('legacy key forms and handlers cannot bypass native input after activation 
   for (const path of [
     '/api/clusters/create',
     '/api/clusters/join',
-    '/api/guild/create-config',
-    '/api/guild/initial-sync'
+    '/api/guild/create-config'
   ]) {
     assert.equal(
       holdCredentialSurface(

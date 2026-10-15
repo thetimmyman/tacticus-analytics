@@ -93,12 +93,13 @@ describe('useGuildActions.handleAddGuild — no browser guild_config write', () 
           json: () =>
             Promise.resolve({
               success: true,
-              data: { guild_code: 'NEWGLD', cluster_id: CLUSTER_ID }
+              data: {
+                guild_code: 'NEWGLD',
+                cluster_id: CLUSTER_ID,
+                initialSyncTriggered: true
+              }
             })
         })
-      }
-      if (url === '/api/guild/initial-sync') {
-        return Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
       }
       return Promise.resolve({ ok: false, text: () => Promise.resolve('') })
     })
@@ -137,6 +138,50 @@ describe('useGuildActions.handleAddGuild — no browser guild_config write', () 
     expect(body.enabled).toBe(true)
     expect(body.cluster_id).toBeUndefined()
 
+    expect(toastMock.success).toHaveBeenCalledTimes(1)
+    expect(toastMock.error).not.toHaveBeenCalled()
+    expect(toastMock.warning).not.toHaveBeenCalled()
+    // create-config runs the initial sync server-side; the browser starts no second one.
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      '/api/guild/create-config'
+    ])
+  })
+
+  it('warns, but still reports the guild added, when the server-side initial sync did not run', async () => {
+    fetchMock.mockImplementation((url: string) => {
+      if (url === '/api/guild/create-config') {
+        return Promise.resolve({
+          ok: true,
+          text: () => Promise.resolve(''),
+          json: () =>
+            Promise.resolve({
+              success: true,
+              data: {
+                guild_code: 'NEWGLD',
+                cluster_id: CLUSTER_ID,
+                initialSyncTriggered: false
+              }
+            })
+        })
+      }
+      return Promise.resolve({ ok: false, text: () => Promise.resolve('') })
+    })
+
+    const { result } = setup()
+
+    act(() => {
+      result.current.setNewGuild({
+        guild_code: 'newgld',
+        display_name: 'New Guild',
+        api_key: 'valid-key'
+      })
+    })
+
+    await act(async () => {
+      await result.current.handleAddGuild()
+    })
+
+    expect(toastMock.warning).toHaveBeenCalledTimes(1)
     expect(toastMock.success).toHaveBeenCalledTimes(1)
     expect(toastMock.error).not.toHaveBeenCalled()
   })
