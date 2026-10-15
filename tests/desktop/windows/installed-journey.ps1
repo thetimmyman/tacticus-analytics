@@ -3,9 +3,32 @@ param(
   [Parameter(Mandatory=$true)][string]$Evidence,
   [switch]$AlreadyInstalled,
   [string]$QualificationRoot,
-  [string]$PackageFamilyName
+  [string]$PackageFamilyName,
+  [switch]$StandardUser,
+  [string]$ExpectedManifestSha256,
+  [string]$ExpectedSourceSha
 )
 $ErrorActionPreference = 'Stop'
+if ($StandardUser) {
+  if (-not [System.Environment]::UserInteractive -or (Get-Process -Id $PID).SessionId -eq 0) {
+    throw 'Standard-user qualification requires an interactive Windows desktop session'
+  }
+  $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+  try {
+    # A filtered administrator token still carries the Administrators SID.
+    if (@($identity.Groups | Where-Object { $_.Value -eq 'S-1-5-32-544' }).Count -ne 0) {
+      throw 'Sign in with a standard user account for this qualification'
+    }
+  } finally { $identity.Dispose() }
+  if ($ExpectedManifestSha256 -cnotmatch '^[a-f0-9]{64}$' -or $ExpectedSourceSha -cnotmatch '^[a-f0-9]{40}$') {
+    throw 'Reviewed manifest digest and source commit are required'
+  }
+  $candidateManifest = Join-Path $Bundle 'bundle-manifest.json'
+  if ((Get-FileHash -LiteralPath $candidateManifest -Algorithm SHA256).Hash.ToLowerInvariant() -ne $ExpectedManifestSha256 -or
+      (Get-Content -LiteralPath $candidateManifest -Raw | ConvertFrom-Json).sourceSha -cne $ExpectedSourceSha) {
+    throw 'Candidate does not match the reviewed source and manifest'
+  }
+}
 # The hosted scratch volume may disable filesystem short aliases. Exercise a
 # durable per-user volume without changing volume policy. Packaged state stays
 # outside virtualized AppData; the unpackaged regression fixture retains its
@@ -22,7 +45,7 @@ $qualification = if ([string]::IsNullOrWhiteSpace($QualificationRoot)) {
 } else {
   [System.IO.Path]::GetFullPath($QualificationRoot)
 }
-$profilePrefix = [System.IO.Path]::TrimEndingDirectorySeparator([System.IO.Path]::GetFullPath($qualificationProfile)) + [System.IO.Path]::DirectorySeparatorChar
+$profilePrefix = [System.IO.Path]::GetFullPath($qualificationProfile).TrimEnd([char[]]@('\', '/')) + [System.IO.Path]::DirectorySeparatorChar
 if (-not ($qualification + [System.IO.Path]::DirectorySeparatorChar).StartsWith($profilePrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
   throw 'Qualification root must be inside the current-user application directory'
 }
@@ -47,9 +70,12 @@ if ($AlreadyInstalled) {
 }
 $manifest = Get-Content "$installed/bundle-manifest.json" | ConvertFrom-Json
 $manifestDigest = (Get-FileHash "$installed/bundle-manifest.json" -Algorithm SHA256).Hash.ToLowerInvariant()
+if ($StandardUser -and ($manifestDigest -cne $ExpectedManifestSha256 -or $manifest.sourceSha -cne $ExpectedSourceSha)) {
+  throw 'Installed candidate does not match the reviewed source and manifest'
+}
 # Keep a source/content-bound incomplete receipt if an actual runtime step fails.
 @{ schemaVersion = 1; sourceSha = $manifest.sourceSha; manifestSha256 = $manifestDigest;
-   platform = 'win-x64'; artifactKind = $artifactKind; distributionKind = $distributionKind; candidateOnly = $true; standardConsumerUser = $false;
+   platform = 'win-x64'; artifactKind = $artifactKind; distributionKind = $distributionKind; candidateOnly = $true; standardConsumerUser = [bool]$StandardUser;
    nativeInstalledArtifact = $true; qualificationLocation = $(if ($AlreadyInstalled) { 'current-user-profile' } else { 'current-user-application-directory' });
    postgresFilesystemAlias = 'not-yet-verified'; completed = $false; os = [System.Environment]::OSVersion.VersionString;
    packageFiles = $manifest.files.Count; packageBytes = ($manifest.files | Measure-Object -Property size -Sum).Sum;
@@ -122,7 +148,7 @@ foreach ($scenario in @('interrupted-bootstrap', 'committed-marker-refusal')) {
   $schemaRecovery += $proof
 }
 @{ schemaVersion = 1; sourceSha = $manifest.sourceSha; manifestSha256 = $manifestDigest;
-   platform = 'win-x64'; artifactKind = $artifactKind; distributionKind = $distributionKind; candidateOnly = $true; standardConsumerUser = $false; nativeInstalledArtifact = $true;
+   platform = 'win-x64'; artifactKind = $artifactKind; distributionKind = $distributionKind; candidateOnly = $true; standardConsumerUser = [bool]$StandardUser; nativeInstalledArtifact = $true;
    completed = $true; qualificationLocation = $(if ($AlreadyInstalled) { 'current-user-profile' } else { 'current-user-application-directory' });
    postgresFilesystemAlias = 'verified-by-native-owner'; os = [System.Environment]::OSVersion.VersionString;
    packageFiles = $manifest.files.Count; packageBytes = ($manifest.files | Measure-Object -Property size -Sum).Sum; elapsedMs = $timer.ElapsedMilliseconds;

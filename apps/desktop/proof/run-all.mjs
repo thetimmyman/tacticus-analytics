@@ -109,6 +109,21 @@ if (!configPath) {
   run('c-workspace-transfer', 'apps/desktop/proof/transfer-journey.mjs', [
     configPath
   ])
+  if (nativeConfig.packageRoot) {
+    run(
+      'c-encrypted-workspace-transfer',
+      'apps/desktop/proof/encrypted-transfer-journey.mjs',
+      [configPath]
+    )
+  } else {
+    console.log(
+      'Bundled encrypted transfer SKIPPED: packageRoot is not supplied'
+    )
+    results.push({
+      gate: 'c-encrypted-workspace-transfer',
+      exitCode: 'skipped'
+    })
+  }
   console.log('\n== Runtime token expiry and active-session shutdown ==')
   run('c-lifecycle', 'apps/desktop/proof/lifecycle-journey.mjs', [configPath])
   console.log('\n== Forced coordinator death / native restart ==')

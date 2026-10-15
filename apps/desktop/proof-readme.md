@@ -70,6 +70,19 @@ The test harness uses checkout dependencies and `tsx`. The staged application
 itself runs with the supplied Node binary, native services and local assets.
 This separation leaves an end-user launcher and installation test outstanding.
 
+For a packaged Linux encrypted-transfer journey, also set `packageRoot` to the
+extracted or installed candidate and `packageInventorySha256` to the reviewed
+SHA-256 of its `package-inventory.json`. Supply private `stateRoot` and `evidence`
+paths, then run `node apps/desktop/proof/encrypted-transfer-journey.mjs` with that
+configuration. The journey loads the bundled code and native services, verifies
+the complete package inventory before and after, and creates its own synthetic
+workspace. It checks active-workspace refusal, encrypted backup, incorrect
+passphrase/corruption/format refusal, disconnected restored credentials, and
+exact raid, roster, owner and saved-plan conservation across reopens. It runs in
+`desktop:proof` when `packageRoot` is supplied. This is same-identity native
+transfer evidence; graphical dialogs, consumer installation and fresh-install
+identity rotation require separate qualification.
+
 ## Observed scope
 
 The offline wrapper brings loopback up before entering a nested, non-root user
