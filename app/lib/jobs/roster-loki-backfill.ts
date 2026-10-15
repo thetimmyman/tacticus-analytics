@@ -4,6 +4,7 @@ import {
   selectRosterRefreshCandidates
 } from '@/app/lib/player/roster-snapshot-store'
 import type { PlayerMapping } from '@tacticus/app-core/types'
+import { providerFetch } from '@/app/lib/network/provider-metrics'
 // Shared-Loki-session roster refresh for members without a valid Tacticus API key.
 
 import { serviceDb } from '@/app/lib/db'
@@ -66,7 +67,7 @@ const rosterLokiBackfillHandler: JobHandler = async (payload, ctx) => {
       throw new Error('Roster Loki provider request budget exhausted')
     }
     requestsStarted += 1
-    return globalThis.fetch(input, init)
+    return providerFetch(input, init)
   }
 
   try {

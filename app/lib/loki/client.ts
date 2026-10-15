@@ -1,4 +1,8 @@
 import 'server-only'
+import {
+  providerFetch,
+  withProviderRetry
+} from '@/app/lib/network/provider-metrics'
 
 import { API_REQUEST_CONFIG, API_URLS } from '@tacticus/app-core/api-constants'
 import { createComponentLogger } from '@/app/lib/logging'
@@ -131,7 +135,7 @@ export class LokiClient {
     this.leaderboardGameConfigVersion =
       options?.leaderboardGameConfigVersion ?? DEFAULT_LEADERBOARD_GAME_CONFIG
     this.onSessionUpdate = options?.onSessionUpdate
-    this.fetchImpl = options?.fetchImpl ?? fetch
+    this.fetchImpl = options?.fetchImpl ?? providerFetch
   }
 
   public get sessionId(): string | null {
@@ -487,7 +491,10 @@ export class LokiClient {
 
     while (attempt <= this.retryAttempts) {
       try {
-        const result = await this.executeRequest<TResponse, TData>(options)
+        const result = await withProviderRetry(
+          attempt > 0 || authRefreshAttempted,
+          () => this.executeRequest<TResponse, TData>(options)
+        )
 
         if (!result.ok) {
           const error = result.error ?? this.createError('Unknown LOKI error')

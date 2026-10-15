@@ -85,7 +85,8 @@ export async function fetchGuildMembersViaLoki(
   }
 
   async function attemptLokiCall(
-    currentSessionId: string
+    currentSessionId: string,
+    isRetry = false
   ): Promise<LokiApiResult<Record<string, unknown>>> {
     const currentUrl = `${CONFIG.api.lokiUrl}/player/player2/userId/${userId}/sessionId/${currentSessionId}`
 
@@ -101,7 +102,8 @@ export async function fetchGuildMembersViaLoki(
           body: JSON.stringify(payload)
         },
         2,
-        CONFIG.api.lokiTimeout
+        CONFIG.api.lokiTimeout,
+        isRetry
       )
 
       logger.info({ guildCode }, `LOKI API Response Status: ${response.status}`)
@@ -152,7 +154,7 @@ export async function fetchGuildMembersViaLoki(
       if (newSessionId) {
         await updateSessionIdInDatabase(supabase, guildCode, newSessionId)
         logger.info({ guildCode }, 'Retrying LOKI API with fresh sessionId')
-        result = await attemptLokiCall(newSessionId)
+        result = await attemptLokiCall(newSessionId, true)
       } else {
         // CONNECT failed: credentials are likely dead; no retry, to avoid amplification.
         logger.error(

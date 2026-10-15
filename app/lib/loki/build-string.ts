@@ -1,5 +1,7 @@
 import 'server-only'
 
+import { providerFetch } from '@/app/lib/network/provider-metrics'
+
 import { API_REQUEST_CONFIG, API_URLS } from '@tacticus/app-core/api-constants'
 import { createComponentLogger } from '@/app/lib/logging'
 import { withResponseBodyTimeout } from '@/app/lib/utils/async-timeout'
@@ -24,7 +26,7 @@ const fetchGlobalConfig = async (url: string): Promise<Response> => {
   )
 
   try {
-    const response = await fetch(url, {
+    const response = await providerFetch(url, {
       method: 'GET',
       headers: { Accept: 'application/json' },
       cache: 'no-store',

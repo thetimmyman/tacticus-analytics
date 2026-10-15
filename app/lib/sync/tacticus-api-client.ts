@@ -1,6 +1,8 @@
 import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('lib.sync.tacticus-api-client')
 import { TACTICUS_API } from '@tacticus/app-core/app-config'
+import { providerFetch } from '@/app/lib/network/provider-metrics'
+import { cancelResponseBody } from '@/app/lib/utils/async-timeout'
 import {
   PERMANENT_HTTP_STATUSES,
   TRANSIENT_NONCOUNTING_HTTP_STATUSES,
@@ -86,10 +88,23 @@ export async function fetchTacticusApi(
 
     for (let attempt = 0; attempt <= WORKER_CONFIG.maxRetries; attempt++) {
       try {
-        const response = await fetch(`${TACTICUS_API.BASE_URL}${endpoint}`, {
-          headers: { 'X-API-KEY': apiKey, Accept: 'application/json' },
-          signal: AbortSignal.timeout(WORKER_CONFIG.apiTimeout)
-        })
+        const controller = new AbortController()
+        const response = await providerFetch(
+          `${TACTICUS_API.BASE_URL}${endpoint}`,
+          {
+            headers: { 'X-API-KEY': apiKey, Accept: 'application/json' },
+            signal: AbortSignal.any([
+              controller.signal,
+              AbortSignal.timeout(WORKER_CONFIG.apiTimeout)
+            ])
+          },
+          attempt > 0
+        )
+
+        if (!response.ok) {
+          cancelResponseBody(response)
+          controller.abort()
+        }
 
         if (PERMANENT_HTTP_STATUSES.has(response.status)) {
           throw new TacticusApiError(response.status, guildCode)
@@ -104,6 +119,7 @@ export async function fetchTacticusApi(
           response.status === 204 ||
           response.headers?.get('content-length') === '0'
         ) {
+          await response.body?.cancel()
           return new Response('{}', {
             status: 200,
             headers: { 'content-type': 'application/json' }

@@ -2,7 +2,14 @@ import { createComponentLogger } from '@/app/lib/logging'
 import { withRetry, TACTICUS_API_POLICY } from '@/app/lib/resilience'
 import type { WithRetryOptions } from '@/app/lib/resilience'
 import { API_URLS, API_REQUEST_CONFIG } from '@tacticus/app-core/api-constants'
-import { withResponseBodyTimeout } from '@/app/lib/utils/async-timeout'
+import {
+  cancelResponseBody,
+  withResponseBodyTimeout
+} from '@/app/lib/utils/async-timeout'
+import {
+  providerFetch,
+  withProviderRetry
+} from '@/app/lib/network/provider-metrics'
 
 export const logger = createComponentLogger('lib.sync.api-operations')
 
@@ -30,9 +37,11 @@ export async function fetchWithAbortTimeout(
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
 
   try {
-    const response = await fetch(url, {
+    const response = await providerFetch(url, {
       ...options,
-      signal: controller.signal
+      signal: options.signal
+        ? AbortSignal.any([options.signal, controller.signal])
+        : controller.signal
     })
     return withResponseBodyTimeout(response, timeoutMs, responseLabel, {
       onTimeout: () => controller.abort()
@@ -55,23 +64,30 @@ export async function fetchWithCircuitBreaker(
   url: string,
   options: RequestInit,
   maxRetries = 3,
-  timeoutMs: number = CONFIG.api.requestTimeout
+  timeoutMs: number = CONFIG.api.requestTimeout,
+  isRetry = false
 ): Promise<Response> {
   const policy: WithRetryOptions = {
     ...TACTICUS_API_POLICY,
     maxAttempts: maxRetries + 1
   }
-  return withRetry(async () => {
-    const response = await fetchWithAbortTimeout(
-      url,
-      options,
-      timeoutMs,
-      'sync API response',
-      { convertAbortToTimeoutError: true }
-    )
-    if (!response.ok && response.status >= 500) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-    }
-    return response
-  }, policy)
+  let requestAttempt = 0
+  return withRetry(
+    () =>
+      withProviderRetry(requestAttempt++ > 0 || isRetry, async () => {
+        const response = await fetchWithAbortTimeout(
+          url,
+          options,
+          timeoutMs,
+          'sync API response',
+          { convertAbortToTimeoutError: true }
+        )
+        if (!response.ok && response.status >= 500) {
+          cancelResponseBody(response)
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        }
+        return response
+      }),
+    policy
+  )
 }
