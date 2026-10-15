@@ -1,3 +1,4 @@
+import { ProviderAdmissionError } from '../provider-admission.ts'
 /**
  * Module-scoped (shared across guilds in a warm isolate), so one guild's revoked key must not open it
  * for everyone: only 5xx and network errors count. Status is parsed from the Error message.
@@ -52,6 +53,7 @@ export class CircuitBreaker {
 
   /** False for permanent/per-key 4xx and our own local timeouts. */
   static shouldCount(error: unknown): boolean {
+    if (error instanceof ProviderAdmissionError) return false
     const message = error instanceof Error ? error.message : String(error)
     // Our own timeout often means local event-loop starvation, not upstream failure (as in the app twin).
     if (message.startsWith('Request timed out after')) {

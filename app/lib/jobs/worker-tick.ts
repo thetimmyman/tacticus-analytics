@@ -1,3 +1,5 @@
+import { ProviderAdmissionError } from '@/supabase/functions/_shared/provider-admission'
+import type { Json } from '@tacticus/app-core/types'
 // Claims and dispatches jobs until `deadlineMs` minus a margin, so the response beats the CronJob deadline.
 
 import { serviceDb } from '@/app/lib/db'
@@ -215,6 +217,65 @@ async function processClaimedJob(
       status: 'completed'
     })
   } catch (err) {
+    if (err instanceof ProviderAdmissionError) {
+      const hold = err.retryAfterSeconds
+      const recheckSeconds =
+        hold !== undefined && Number.isFinite(hold) && hold > 0
+          ? Math.min(300, Math.max(1, hold))
+          : 60
+      const now = new Date()
+      const { data: deferred, error } = await callSettlementRpc<{ id: number }>(
+        supabase,
+        true,
+        async (client) =>
+          await client
+            .from('work_queue')
+            .update({
+              status: 'pending',
+              attempts: Math.max(0, job.attempts - 1),
+              claimed_by: null,
+              claimed_at: null,
+              started_at: null,
+              completed_at: null,
+              error: null,
+              scheduled_for: new Date(
+                now.getTime() + recheckSeconds * 1000
+              ).toISOString(),
+              updated_at: now.toISOString(),
+              payload: {
+                ...job.payload,
+                provider_admission: {
+                  deferred_at: now.toISOString(),
+                  recheck_seconds: recheckSeconds,
+                  ...(hold !== undefined && { retry_after_seconds: hold })
+                }
+              } as Json
+            })
+            .eq('id', job.id)
+            .eq('claimed_by', workerId)
+            .eq('status', 'processing')
+            .select('id')
+            .maybeSingle()
+      )
+      if (!error && deferred?.id === job.id) {
+        result.jobsDeferred = (result.jobsDeferred ?? 0) + 1
+        result.details.push({
+          id: job.id,
+          job_type: job.job_type,
+          status: 'deferred'
+        })
+      } else {
+        // Unknown or lost ownership is left for the existing stuck-job reaper.
+        result.jobsFailed++
+        result.details.push({
+          id: job.id,
+          job_type: job.job_type,
+          status: 'failed',
+          error: 'Provider deferral did not settle'
+        })
+      }
+      return
+    }
     const message = err instanceof Error ? err.message : String(err)
     const backoff = computeBackoffSeconds(job.attempts)
     const settled = await finishJobWithError(

@@ -1,3 +1,4 @@
+import { ProviderAdmissionError } from '@/supabase/functions/_shared/provider-admission'
 import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('lib.sync.tacticus-api-client')
 import { TACTICUS_API } from '@tacticus/app-core/app-config'
@@ -54,6 +55,7 @@ export class CircuitBreaker {
   }
 
   private static shouldCount(error: unknown): boolean {
+    if (error instanceof ProviderAdmissionError) return false
     if (error instanceof TacticusApiError && error.isPermanent) return false
     // Transient 4xx (408/425/429) after retries: one throttled guild must not open the shared breaker.
     if (error instanceof Error) {
@@ -128,6 +130,7 @@ export async function fetchTacticusApi(
 
         return response
       } catch (error) {
+        if (error instanceof ProviderAdmissionError) throw error
         lastError = error instanceof Error ? error : new Error(String(error))
 
         if (error instanceof TacticusApiError && error.isPermanent) {

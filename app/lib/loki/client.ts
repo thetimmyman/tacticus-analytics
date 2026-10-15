@@ -1,4 +1,5 @@
 import 'server-only'
+import { ProviderAdmissionError } from '@/supabase/functions/_shared/provider-admission'
 import {
   providerFetch,
   withProviderRetry
@@ -135,7 +136,14 @@ export class LokiClient {
     this.leaderboardGameConfigVersion =
       options?.leaderboardGameConfigVersion ?? DEFAULT_LEADERBOARD_GAME_CONFIG
     this.onSessionUpdate = options?.onSessionUpdate
-    this.fetchImpl = options?.fetchImpl ?? providerFetch
+    this.fetchImpl =
+      options?.fetchImpl ??
+      ((input, init) =>
+        providerFetch(input, init, false, {
+          purpose: 'guild-sync',
+          trigger: 'scheduled',
+          timeoutMs: Math.min(this.timeoutMs, 60000)
+        }))
   }
 
   public get sessionId(): string | null {
@@ -294,6 +302,7 @@ export class LokiClient {
       const json = safeJsonParse(text)
       return { response, text, json }
     } catch (error) {
+      if (error instanceof ProviderAdmissionError) throw error
       if ((error as Error)?.name === 'AbortError') {
         throw this.createError(
           `LOKI request timed out after ${effectiveTimeout}ms`,
@@ -432,6 +441,7 @@ export class LokiClient {
       await this.notifySession(sessionId, json)
       return { ok: true, sessionId, raw: json }
     } catch (error) {
+      if (error instanceof ProviderAdmissionError) throw error
       if (
         error &&
         typeof error === 'object' &&
@@ -532,6 +542,7 @@ export class LokiClient {
           }
         }
       } catch (error: unknown) {
+        if (error instanceof ProviderAdmissionError) throw error
         const wrappedError =
           error && typeof error === 'object' && 'message' in error
             ? (error as LokiError)

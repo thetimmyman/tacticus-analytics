@@ -1,3 +1,4 @@
+import { ProviderAdmissionError } from '@/supabase/functions/_shared/provider-admission'
 import {
   providerFetch,
   withProviderRetry
@@ -317,17 +318,28 @@ export class TacticusAPIClient {
 
   async validateApiKey(apiKey: string): Promise<boolean> {
     try {
-      const response = await providerFetch(`${this.baseUrl}/player`, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'X-API-KEY': apiKey
+      const response = await providerFetch(
+        `${this.baseUrl}/player`,
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'X-API-KEY': apiKey
+          },
+          signal: AbortSignal.timeout(VALIDATE_API_KEY_TIMEOUT_MS)
         },
-        signal: AbortSignal.timeout(VALIDATE_API_KEY_TIMEOUT_MS)
-      })
+        false,
+        {
+          purpose: 'credential-check',
+          trigger: 'user',
+          timeoutMs: VALIDATE_API_KEY_TIMEOUT_MS
+        }
+      )
 
+      cancelResponseBody(response)
       return response.ok
     } catch (error: unknown) {
+      if (error instanceof ProviderAdmissionError) throw error
       // pino drops err passed as a format arg; the object goes first.
       const details = extractErrorDetails(error)
       logger.error(
@@ -362,14 +374,23 @@ export class TacticusAPIClient {
         'Fetching player from Tacticus API'
       )
 
-      const response = await providerFetch(`${this.baseUrl}/player`, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'X-API-KEY': apiKey
+      const response = await providerFetch(
+        `${this.baseUrl}/player`,
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'X-API-KEY': apiKey
+          },
+          signal: AbortSignal.timeout(GET_PLAYER_TIMEOUT_MS)
         },
-        signal: AbortSignal.timeout(GET_PLAYER_TIMEOUT_MS)
-      })
+        false,
+        {
+          purpose: 'roster-fetch',
+          trigger: 'user',
+          timeoutMs: GET_PLAYER_TIMEOUT_MS
+        }
+      )
 
       if (!response.ok) {
         // Release the connection without downloading or retaining an error payload.
@@ -414,6 +435,7 @@ export class TacticusAPIClient {
       )
       return { player: null, status: response.status }
     } catch (error: unknown) {
+      if (error instanceof ProviderAdmissionError) throw error
       logger.error(
         {
           errName: error instanceof Error ? error.name : undefined,
@@ -453,14 +475,23 @@ export class TacticusAPIClient {
             withProviderRetry(requestAttempt++ > 0, async () => {
               // attemptTimeout only rejects the wrapper; without this signal the
               // orphaned fetch holds its undici connection and starves the pod.
-              const res = await providerFetch(`${this.baseUrl}/player`, {
-                method: 'GET',
-                headers: {
-                  Accept: 'application/json',
-                  'X-API-KEY': apiKey
+              const res = await providerFetch(
+                `${this.baseUrl}/player`,
+                {
+                  method: 'GET',
+                  headers: {
+                    Accept: 'application/json',
+                    'X-API-KEY': apiKey
+                  },
+                  signal: AbortSignal.timeout(timeoutMs)
                 },
-                signal: AbortSignal.timeout(timeoutMs)
-              })
+                false,
+                {
+                  purpose: 'roster-fetch',
+                  trigger: 'user',
+                  timeoutMs: PLAYER_API_TIMEOUT
+                }
+              )
               if (!res.ok && res.status >= 500) {
                 cancelResponseBody(res)
                 throw new ServiceError(
@@ -513,6 +544,7 @@ export class TacticusAPIClient {
         return null
       })
     } catch (error: unknown) {
+      if (error instanceof ProviderAdmissionError) throw error
       if (error instanceof CircuitOpenError) {
         logger.warn(
           {
@@ -540,14 +572,23 @@ export class TacticusAPIClient {
   async getGuild(apiKey: string): Promise<TacticusGuild | null> {
     try {
       return await tacticusCircuit.execute(async () => {
-        const response = await providerFetch(`${this.baseUrl}/guild`, {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'X-API-KEY': apiKey
+        const response = await providerFetch(
+          `${this.baseUrl}/guild`,
+          {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+              'X-API-KEY': apiKey
+            },
+            signal: AbortSignal.timeout(GET_GUILD_TIMEOUT_MS)
           },
-          signal: AbortSignal.timeout(GET_GUILD_TIMEOUT_MS)
-        })
+          false,
+          {
+            purpose: 'guild-sync',
+            trigger: 'user',
+            timeoutMs: GET_GUILD_TIMEOUT_MS
+          }
+        )
 
         if (!response.ok) {
           const status = response.status
@@ -575,6 +616,7 @@ export class TacticusAPIClient {
         return null
       })
     } catch (error) {
+      if (error instanceof ProviderAdmissionError) throw error
       if (error instanceof CircuitOpenError) {
         logger.warn(
           {
@@ -606,14 +648,23 @@ export class TacticusAPIClient {
           { url: `${this.baseUrl}/guildRaid` },
           'Attempting to fetch guild raid'
         )
-        const response = await providerFetch(`${this.baseUrl}/guildRaid`, {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'X-API-KEY': apiKey
+        const response = await providerFetch(
+          `${this.baseUrl}/guildRaid`,
+          {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+              'X-API-KEY': apiKey
+            },
+            signal: AbortSignal.timeout(GET_GUILD_RAID_TIMEOUT_MS)
           },
-          signal: AbortSignal.timeout(GET_GUILD_RAID_TIMEOUT_MS)
-        })
+          false,
+          {
+            purpose: 'guild-sync',
+            trigger: 'user',
+            timeoutMs: GET_GUILD_RAID_TIMEOUT_MS
+          }
+        )
 
         if (!response.ok) {
           const status = response.status
@@ -656,6 +707,7 @@ export class TacticusAPIClient {
         return normalizeGuildRaidResponse(data as GuildRaidResponse)
       })
     } catch (error) {
+      if (error instanceof ProviderAdmissionError) throw error
       if (error instanceof CircuitOpenError) {
         logger.warn(
           {
@@ -696,6 +748,12 @@ export class TacticusAPIClient {
               'X-API-KEY': apiKey
             },
             signal: AbortSignal.timeout(GET_GUILD_RAID_TIMEOUT_MS)
+          },
+          false,
+          {
+            purpose: 'guild-sync',
+            trigger: 'user',
+            timeoutMs: GET_GUILD_RAID_TIMEOUT_MS
           }
         )
 
@@ -723,6 +781,7 @@ export class TacticusAPIClient {
         )
       })
     } catch (error: unknown) {
+      if (error instanceof ProviderAdmissionError) throw error
       if (error instanceof CircuitOpenError) {
         logger.warn(
           {

@@ -1,3 +1,4 @@
+import { edgeProviderFetch } from './provider-fetch.ts'
 import {
   decodeBase64,
   OVERRIDE_BYTES_ENV,
@@ -126,12 +127,16 @@ export async function getRecommendedLokiBuildString(
   }
 
   try {
-    const response = await fetch(GLOBAL_CONFIG_URL, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json'
-      }
-    })
+    const response = await edgeProviderFetch(
+      GLOBAL_CONFIG_URL,
+      {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json'
+        }
+      },
+      { purpose: 'game-config-refresh', trigger: 'scheduled', timeoutMs: 10000 }
+    )
 
     if (!response.ok) {
       throw new Error(`globalConfig responded with ${response.status}`)
@@ -209,12 +214,16 @@ export async function getLokiSeasonTimingConstants(): Promise<LokiSeasonTimingCo
   }
 
   try {
-    const response = await fetch(GLOBAL_CONFIG_URL, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json'
-      }
-    })
+    const response = await edgeProviderFetch(
+      GLOBAL_CONFIG_URL,
+      {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json'
+        }
+      },
+      { purpose: 'game-config-refresh', trigger: 'scheduled', timeoutMs: 10000 }
+    )
 
     if (!response.ok) {
       throw new Error(`globalConfig responded with ${response.status}`)

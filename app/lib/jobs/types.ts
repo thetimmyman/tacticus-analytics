@@ -53,12 +53,13 @@ export interface WorkerTickResult {
   jobsProcessed: number
   jobsSucceeded: number
   jobsFailed: number
+  jobsDeferred?: number
   durationMs: number
   error?: string
   details: Array<{
     id: number
     job_type: string
-    status: 'completed' | 'failed'
+    status: 'completed' | 'failed' | 'deferred'
     error?: string
   }>
 }
