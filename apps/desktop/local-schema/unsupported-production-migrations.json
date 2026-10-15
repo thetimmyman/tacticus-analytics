@@ -581,6 +581,10 @@
     {
       "file": "20261009170000_roster_transfer_cluster_and_audit.sql",
       "reason": "data-backfill"
+    },
+    {
+      "file": "20261015020000_atomic_roster_snapshots.sql",
+      "reason": "production-app-schema"
     }
   ]
 }

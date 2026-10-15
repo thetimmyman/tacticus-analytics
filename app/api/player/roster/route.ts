@@ -21,6 +21,7 @@ import {
   rethrowIfAppError
 } from '@/app/lib/errors/AppError'
 import { persistRosterSnapshot } from '@/app/lib/player/roster-sync'
+import { beginPlayerRosterRefresh } from '@/app/lib/player/roster-snapshot-store'
 import { normalizeIdentifier } from '@/app/lib/utils/normalize'
 import { GAME_DATA_ROOT } from '@/app/lib/data/game-data-root'
 import { assertUnbannedAuthUser } from '@/app/lib/api/session-user'
@@ -142,7 +143,8 @@ export const GET = withErrorHandler(async () => {
   }
 
   // The authenticated role cannot read tacticus_api_key_encrypted.
-  const { data: profile } = await serviceDb()
+  const rosterWriter = serviceDb()
+  const { data: profile } = await rosterWriter
     .from('player_mapping')
     .select('id, tacticus_api_key_encrypted')
     .eq('user_id', user.id)
@@ -166,6 +168,11 @@ export const GET = withErrorHandler(async () => {
     )
   }
 
+  const observation = await beginPlayerRosterRefresh(
+    user.id,
+    profile.id,
+    rosterWriter
+  )
   // Retries absorb transient DNS failures (EAI_AGAIN).
   const player = await tacticusAPI.getPlayerWithRetry(apiKey)
   if (!player) {
@@ -196,9 +203,9 @@ export const GET = withErrorHandler(async () => {
       user.id,
       unitsRaw,
       mowsForPersist,
-      supabase,
+      rosterWriter,
       typeof profile.id === 'number' ? profile.id : undefined,
-      { playerPower: player.details?.powerLevel ?? null }
+      { playerPower: player.details?.powerLevel ?? null, observation }
     ).catch((err) => {
       logger.warn(
         { error: err?.message ?? err },

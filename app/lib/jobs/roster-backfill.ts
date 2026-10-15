@@ -1,5 +1,5 @@
 // One batch job, not per-player fan-out: throughput is bound by the Tacticus rate budget.
-// No .order(), so partial runs re-skip the same tail each fire.
+// Database-owned observation order lets partial runs rotate through the cohort.
 
 import { serviceDb } from '@/app/lib/db'
 import { getPlayerApiKey } from '@tacticus/app-core/api-key-helper'
@@ -11,6 +11,10 @@ import { createComponentLogger } from '@/app/lib/logging'
 import { rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { captureSentryException } from '@/app/lib/monitoring/sentry'
 import { persistRosterSnapshot } from '@/app/lib/player/roster-sync'
+import {
+  tryBeginPlayerRosterRefresh,
+  selectRosterRefreshCandidates
+} from '@/app/lib/player/roster-snapshot-store'
 import {
   clearKeyRejections,
   isKeyRejection,
@@ -28,6 +32,10 @@ const logger = createComponentLogger('lib.jobs.roster-backfill')
 const BATCH_CONCURRENCY = 5
 const SOFT_TIMEOUT_MS = 360_000
 const PER_PLAYER_TIMEOUT_MS = 30_000
+// Preserve the half-hour sweep cadence with ten minutes for pass/deadline drift.
+// An explicit full player read can satisfy this background verification window.
+const DEFAULT_FRESHNESS_MS = 20 * 60_000
+const RETRY_COOLDOWN_MS = 5 * 60_000
 
 interface RosterBackfillPayload {
   guildCode?: string
@@ -65,26 +73,36 @@ const rosterBackfillHandler: JobHandler = async (payload, ctx) => {
       query = query.eq('guild_code', guildCode)
     }
 
-    if (staleHours && staleHours > 0) {
-      const staleBefore = new Date(
-        Date.now() - staleHours * 60 * 60 * 1000
-      ).toISOString()
-      query = query.or(`last_sync_at.is.null,last_sync_at.lt.${staleBefore}`)
-    }
-
-    const { data: players, error: fetchErr } = await query
+    const { data: cohort, error: fetchErr } = await query
 
     if (fetchErr) {
       throw new Error(`Failed to fetch players: ${fetchErr.message}`)
     }
+
+    const freshMs =
+      typeof staleHours === 'number' &&
+      Number.isFinite(staleHours) &&
+      staleHours > 0
+        ? Math.max(60_000, staleHours * 60 * 60 * 1000)
+        : DEFAULT_FRESHNESS_MS
+    const players = await selectRosterRefreshCandidates(
+      cohort ?? [],
+      {
+        freshMs,
+        retryMs: Math.min(freshMs, RETRY_COOLDOWN_MS)
+      },
+      supabase
+    )
+    const notDue = (cohort?.length ?? 0) - players.length
 
     if (!players?.length) {
       logger.info({ jobId: ctx.jobId }, '[RosterBackfill] no players to sync')
       return {
         processed: 0,
         failed: 0,
-        skipped: 0,
-        total: 0,
+        skipped: notDue,
+        notDue,
+        total: cohort?.length ?? 0,
         durationMs: Date.now() - startTime
       }
     }
@@ -100,7 +118,8 @@ const rosterBackfillHandler: JobHandler = async (payload, ctx) => {
 
     let processed = 0
     let failed = 0
-    let skipped = 0
+    let skipped = notDue
+    let unchanged = 0
     let timedOutEarly = false
 
     for (let i = 0; i < players.length; i += BATCH_CONCURRENCY) {
@@ -130,6 +149,16 @@ const rosterBackfillHandler: JobHandler = async (payload, ctx) => {
               return
             }
 
+            const observation = await tryBeginPlayerRosterRefresh(
+              player.user_id ?? null,
+              player.id,
+              { freshMs, retryMs: Math.min(freshMs, RETRY_COOLDOWN_MS) },
+              supabase
+            )
+            if (!observation) {
+              skipped++
+              return
+            }
             const { player: tacticusPlayer, status } = await withTimeout(
               tacticusAPI.getPlayerResult(apiKey),
               PER_PLAYER_TIMEOUT_MS,
@@ -166,14 +195,26 @@ const rosterBackfillHandler: JobHandler = async (payload, ctx) => {
               : []
             const mowsRaw: AnyUnit[] = resolveMachinesOfWar(tacticusPlayer)
 
-            const { upserted } = await persistRosterSnapshot(
+            const receipt = await persistRosterSnapshot(
               player.user_id ?? null,
               unitsRaw,
               mowsRaw,
               supabase,
               player.id,
-              { playerPower: tacticusPlayer.details?.powerLevel ?? null }
+              {
+                playerPower: tacticusPlayer.details?.powerLevel ?? null,
+                observation
+              }
             )
+            if (receipt.status === 'superseded') {
+              skipped++
+              return
+            }
+            if (!receipt.complete) {
+              failed++
+              return
+            }
+            if (receipt.unchanged) unchanged++
 
             logger.info(
               {
@@ -181,7 +222,8 @@ const rosterBackfillHandler: JobHandler = async (payload, ctx) => {
                 playerMappingId: player.id,
                 userId: player.user_id,
                 displayName: player.display_name,
-                upserted
+                upserted: receipt.upserted,
+                unchanged: receipt.unchanged
               },
               '[RosterBackfill] synced player'
             )
@@ -212,6 +254,7 @@ const rosterBackfillHandler: JobHandler = async (payload, ctx) => {
         processed,
         failed,
         skipped,
+        unchanged,
         durationMs,
         timedOutEarly
       },
@@ -222,7 +265,9 @@ const rosterBackfillHandler: JobHandler = async (payload, ctx) => {
       processed,
       failed,
       skipped,
-      total: players.length,
+      unchanged,
+      total: cohort?.length ?? 0,
+      notDue,
       durationMs,
       partialDueToTimeout: timedOutEarly
     }

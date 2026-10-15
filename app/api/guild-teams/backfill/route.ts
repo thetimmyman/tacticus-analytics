@@ -1,4 +1,8 @@
 import { guildRosterQuery } from '@/app/lib/data/guild-roster'
+import {
+  tryBeginPlayerRosterRefresh,
+  selectRosterRefreshCandidates
+} from '@/app/lib/player/roster-snapshot-store'
 import { NextResponse } from 'next/server'
 import { serviceDb } from '@/app/lib/db'
 import { requireRoleForApi } from '@/app/lib/auth'
@@ -94,20 +98,15 @@ export const POST = withErrorHandler(async () => {
     })
   }
 
-  const mappingIds = players.map((p) => p.id).filter(Boolean) as number[]
-  const staleThreshold = new Date(Date.now() - STALE_THRESHOLD_MS).toISOString()
-
-  const { data: recentSyncs } = await supabase
-    .from('player_roster')
-    .select('player_mapping_id')
-    .in('player_mapping_id', mappingIds)
-    .gte('synced_at', staleThreshold)
-
-  const recentlySynced = new Set(
-    (recentSyncs ?? []).map((r) => r.player_mapping_id)
+  const needsSync = await selectRosterRefreshCandidates(
+    players,
+    {
+      freshMs: STALE_THRESHOLD_MS,
+      retryMs: 5 * 60_000,
+      requireEnabledGuild: false
+    },
+    supabase
   )
-
-  const needsSync = players.filter((p) => !recentlySynced.has(p.id))
 
   if (needsSync.length === 0) {
     return NextResponse.json({
@@ -149,6 +148,20 @@ export const POST = withErrorHandler(async () => {
           let units: AnyUnit[] = []
           let mows: AnyUnit[] = []
           let playerPower: number | null = null
+          const observation = await tryBeginPlayerRosterRefresh(
+            player.user_id ?? null,
+            player.id,
+            {
+              freshMs: STALE_THRESHOLD_MS,
+              retryMs: 5 * 60_000,
+              requireEnabledGuild: false
+            },
+            supabase
+          )
+          if (!observation) {
+            skipped++
+            return
+          }
 
           if (player.tacticus_api_key_encrypted && player.api_key_is_valid) {
             const apiKey = await getPlayerApiKey(player)
@@ -193,15 +206,17 @@ export const POST = withErrorHandler(async () => {
             return
           }
 
-          await persistRosterSnapshot(
+          const receipt = await persistRosterSnapshot(
             player.user_id ?? null,
             units,
             mows,
             supabase,
             player.id, // player_mapping_id — works for both claimed and unclaimed
-            { playerPower }
+            { playerPower, observation }
           )
-          processed++
+          if (receipt.status === 'superseded') skipped++
+          else if (!receipt.complete) failed++
+          else processed++
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err)
           logger.warn(

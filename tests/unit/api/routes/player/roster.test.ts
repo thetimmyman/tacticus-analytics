@@ -62,6 +62,15 @@ describe('GET /api/player/roster', () => {
     vi.doMock('@/app/lib/player/roster-sync', () => ({
       persistRosterSnapshot: mockPersistRosterSnapshot
     }))
+    vi.doMock('@/app/lib/player/roster-snapshot-store', () => ({
+      beginPlayerRosterRefresh: vi.fn(
+        async (_user: string | null, id?: number) => ({
+          playerMappingId: id ?? 42,
+          attemptId: '00000000-0000-4000-8000-000000000001',
+          observedAt: '2026-01-01T00:00:00.000Z'
+        })
+      )
+    }))
 
     vi.doMock('@tacticus/app-core/logger', () => ({
       legacyConsoleLogger: {
@@ -218,7 +227,10 @@ describe('GET /api/player/roster', () => {
         mockPlayerData.machinesOfWar,
         mockSupabase,
         undefined,
-        { playerPower: 100000 }
+        {
+          playerPower: 100000,
+          observation: expect.objectContaining({ playerMappingId: 42 })
+        }
       )
     })
 

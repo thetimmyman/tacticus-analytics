@@ -1,6 +1,12 @@
 import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('lib.player.roster-sync')
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { ServiceSupabaseClient } from '@/app/lib/db'
+import {
+  commitPlayerRosterSnapshot,
+  type RosterObservation,
+  type RosterSnapshotReceipt
+} from './roster-snapshot-store'
 import {
   getRankName,
   getRarityFromProgressionIndex
@@ -25,6 +31,7 @@ export type AnyUnit = {
 
 export type PersistRosterSnapshotOptions = {
   playerPower?: number | null
+  observation?: RosterObservation
 }
 
 /** No hero equips both I_Block and I_Defensive, so one defensive column suffices. */
@@ -106,7 +113,7 @@ function resolveAbilityLevels(
 /** The unit's own itemType wins, else items.json (there is no items table). Never throws. */
 async function buildItemTypeMap(
   units: AnyUnit[]
-): Promise<Map<string, string>> {
+): Promise<{ map: Map<string, string>; complete: boolean }> {
   const map = new Map<string, string>()
   const needLookup = new Set<string>()
 
@@ -122,7 +129,7 @@ async function buildItemTypeMap(
     }
   }
 
-  if (needLookup.size === 0) return map
+  if (needLookup.size === 0) return { map, complete: true }
 
   try {
     const resolved = await loadItemTypeMap(needLookup)
@@ -133,7 +140,7 @@ async function buildItemTypeMap(
       '[RosterSync] itemType resolution from items.json threw; equipment slots may be left null'
     )
   }
-  return map
+  return { map, complete: [...needLookup].every((id) => map.has(id)) }
 }
 
 const normalizePlayerPower = (
@@ -145,46 +152,8 @@ const normalizePlayerPower = (
   return Math.trunc(value)
 }
 
-async function persistPlayerPower(
-  userId: string | null,
-  playerMappingId: number | undefined,
-  playerPower: number | null,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  supabase: SupabaseClient<any>
-): Promise<boolean> {
-  if (playerPower == null || (!userId && !playerMappingId)) {
-    return false
-  }
-
-  let query = supabase.from('player_mapping').update({
-    player_power: playerPower,
-    updated_at: new Date().toISOString()
-  })
-
-  if (playerMappingId) {
-    query = query.eq('id', playerMappingId)
-  } else if (userId) {
-    query = query.eq('user_id', userId).eq('is_current', true)
-  }
-
-  const { error } = await query
-  if (error) {
-    logger.warn(
-      {
-        userId,
-        playerMappingId,
-        error: error.message
-      },
-      '[RosterSync] player_power update failed'
-    )
-    return false
-  }
-
-  return true
-}
-
 /** Canonical mapped roster rows, shared by hosted sync and local transactions. */
-export async function buildRosterSnapshotRows(
+async function prepareRosterSnapshot(
   userId: string | null,
   units: AnyUnit[],
   mows: AnyUnit[],
@@ -193,17 +162,17 @@ export async function buildRosterSnapshotRows(
   playerMappingId?: number
 ) {
   const allUnits = [...units, ...mows]
-  if (allUnits.length === 0) return []
+  if (allUnits.length === 0) return { rows: [], complete: false }
 
   const unitIds = [...new Set(allUnits.map((u) => u.id).filter(Boolean))]
-  if (unitIds.length === 0) return []
+  if (unitIds.length === 0) return { rows: [], complete: false }
 
   const { data: mappings, error: mapErr } = await supabase
     .from('hero_mappings')
     .select('id, unit_id')
     .in('unit_id', unitIds)
 
-  if (mapErr || !mappings?.length) return []
+  if (mapErr || !mappings?.length) return { rows: [], complete: false }
 
   const unitIdToMappingId = new Map<string, number>(
     (mappings as Array<{ id: number; unit_id: string }>).map((m) => [
@@ -212,7 +181,8 @@ export async function buildRosterSnapshotRows(
     ])
   )
 
-  const itemTypeById = await buildItemTypeMap(allUnits)
+  const { map: itemTypeById, complete: equipmentComplete } =
+    await buildItemTypeMap(allUnits)
 
   const rows = allUnits
     .filter((u) => u.id && unitIdToMappingId.has(u.id))
@@ -239,7 +209,27 @@ export async function buildRosterSnapshotRows(
       }
     })
 
-  return rows
+  return {
+    rows,
+    complete:
+      equipmentComplete &&
+      allUnits.every((unit) => Boolean(unit.id)) &&
+      rows.length === unitIds.length
+  }
+}
+
+/** Preserve local import normalization; hosted writes require complete evidence. */
+export async function buildRosterSnapshotRows(
+  userId: string | null,
+  units: AnyUnit[],
+  mows: AnyUnit[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: SupabaseClient<any>,
+  playerMappingId?: number
+) {
+  return (
+    await prepareRosterSnapshot(userId, units, mows, supabase, playerMappingId)
+  ).rows
 }
 
 /** Keyed by userId (site accounts) or playerMappingId (unclaimed); units missing from hero_mappings are skipped. */
@@ -247,46 +237,40 @@ export async function persistRosterSnapshot(
   userId: string | null,
   units: AnyUnit[],
   mows: AnyUnit[],
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  supabase: SupabaseClient<any>,
+  supabase: ServiceSupabaseClient,
   playerMappingId?: number,
   options: PersistRosterSnapshotOptions = {}
-): Promise<{ upserted: number; playerPowerUpdated: boolean }> {
-  if (!userId && !playerMappingId) {
-    return { upserted: 0, playerPowerUpdated: false }
-  }
-
-  const playerPowerUpdated = await persistPlayerPower(
-    userId,
-    playerMappingId,
-    normalizePlayerPower(options.playerPower),
-    supabase
+): Promise<RosterSnapshotReceipt> {
+  const observation = options.observation
+  if (
+    !observation ||
+    (playerMappingId !== undefined &&
+      observation.playerMappingId !== playerMappingId)
   )
+    throw new Error('Roster observation required')
 
-  const rows = await buildRosterSnapshotRows(
+  const { rows, complete } = await prepareRosterSnapshot(
     userId,
     units,
     mows,
     supabase,
     playerMappingId
   )
-  if (rows.length === 0) return { upserted: 0, playerPowerUpdated }
-
-  const onConflict = userId
-    ? 'user_id,hero_mapping_id'
-    : 'player_mapping_id,hero_mapping_id'
-
-  const { error } = await supabase
-    .from('player_roster')
-    .upsert(rows, { onConflict, ignoreDuplicates: false })
-
-  if (error) {
-    logger.warn(
-      { userId, playerMappingId, error: error.message },
-      '[RosterSync] Upsert failed'
-    )
-    return { upserted: 0, playerPowerUpdated }
-  }
-
-  return { upserted: rows.length, playerPowerUpdated }
+  // Missing mappings or equipment classifications cannot erase trusted columns.
+  const imported = (complete ? rows : []).map(
+    ({
+      user_id: _user,
+      player_mapping_id: _mapping,
+      synced_at: _synced,
+      ...row
+    }) => row
+  )
+  return commitPlayerRosterSnapshot(
+    observation,
+    userId,
+    imported,
+    normalizePlayerPower(options.playerPower),
+    complete,
+    supabase
+  )
 }

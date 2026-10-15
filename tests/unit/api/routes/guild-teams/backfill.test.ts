@@ -78,9 +78,13 @@ describe('POST /api/guild-teams/backfill', () => {
       getPlayerInfo: mockLokiGetPlayerInfo
     }))
     mockCheckActionRateLimit = vi.fn().mockResolvedValue({ allowed: true })
-    mockPersistRosterSnapshot = vi
-      .fn()
-      .mockResolvedValue({ upserted: 1, playerPowerUpdated: true })
+    mockPersistRosterSnapshot = vi.fn().mockResolvedValue({
+      status: 'applied',
+      upserted: 1,
+      playerPowerUpdated: true,
+      complete: true,
+      unchanged: false
+    })
 
     vi.doMock('@/app/lib/db', () => ({
       serviceDb: mockServiceDb
@@ -116,6 +120,16 @@ describe('POST /api/guild-teams/backfill', () => {
     }))
     vi.doMock('@/app/lib/player/roster-sync', () => ({
       persistRosterSnapshot: mockPersistRosterSnapshot
+    }))
+    vi.doMock('@/app/lib/player/roster-snapshot-store', () => ({
+      selectRosterRefreshCandidates: vi.fn(async (rows) => rows),
+      tryBeginPlayerRosterRefresh: vi.fn(
+        async (_user: string | null, id: number) => ({
+          playerMappingId: id,
+          attemptId: '00000000-0000-4000-8000-000000000001',
+          observedAt: '2026-01-01T00:00:00.000Z'
+        })
+      )
     }))
     vi.doMock('@/app/lib/middleware/rate-limit', () => ({
       checkActionRateLimit: mockCheckActionRateLimit
@@ -171,7 +185,10 @@ describe('POST /api/guild-teams/backfill', () => {
       mows,
       supabase,
       101,
-      { playerPower: 123456 }
+      {
+        playerPower: 123456,
+        observation: expect.objectContaining({ playerMappingId: 101 })
+      }
     )
   })
 
@@ -236,7 +253,10 @@ describe('POST /api/guild-teams/backfill', () => {
       [],
       supabase,
       202,
-      { playerPower: 654321 }
+      {
+        playerPower: 654321,
+        observation: expect.objectContaining({ playerMappingId: 202 })
+      }
     )
     expect(mockCreateLokiClient).toHaveBeenCalledWith(
       expect.any(Object),

@@ -1,7 +1,15 @@
 import { guildRosterQuery } from '@/app/lib/data/guild-roster'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { db, serviceDb } from '@/app/lib/db'
-import { tacticusAPI } from '@/app/lib/api/tacticus-client'
+import {
+  tacticusAPI,
+  resolveMachinesOfWar
+} from '@/app/lib/api/tacticus-client'
+import {
+  beginPlayerRosterRefresh,
+  type RosterObservation
+} from '@/app/lib/player/roster-snapshot-store'
+import { persistRosterSnapshot } from '@/app/lib/player/roster-sync'
 import { settledMapWithConcurrency } from '@/app/lib/utils/bounded-fanout'
 import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('api.guild-tokens.sync')
@@ -13,6 +21,7 @@ import { requireSessionUser } from '@/app/lib/api/session-user'
 import { GuildConfigService } from '@/app/lib/services/guild-config-service'
 
 interface GuildMember {
+  id: number
   player_id: string
   display_name: string
   tacticus_api_key_encrypted: string | null
@@ -157,7 +166,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     const { data: members, error: membersError } = await guildRosterQuery(
       serviceSupabase,
       normalizedGuild,
-      'player_id, display_name, tacticus_api_key_encrypted, user_id'
+      'id, player_id, display_name, tacticus_api_key_encrypted, user_id'
     )
       .eq('is_active', true)
       .not('tacticus_api_key_encrypted', 'is', null)
@@ -233,6 +242,20 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
             }
           }
 
+          let rosterObservation: RosterObservation | null = null
+          if (Number.isSafeInteger(member.id) && member.id > 0) {
+            try {
+              rosterObservation = await beginPlayerRosterRefresh(
+                member.user_id,
+                member.id,
+                serviceSupabase,
+                { timeoutMs: 500 }
+              )
+            } catch {
+              logger.warn({}, 'Auxiliary roster observation unavailable')
+            }
+          }
+
           // The player response proves key validity and contains the tokens.
           // A separate validation probe would read the same account twice.
           const { player, status: statusCode } =
@@ -268,6 +291,31 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
             }
           }
 
+          if (rosterObservation && Array.isArray(player.units)) {
+            const observation = rosterObservation
+            const units = player.units
+            try {
+              after(async () => {
+                try {
+                  await persistRosterSnapshot(
+                    member.user_id,
+                    units,
+                    resolveMachinesOfWar(player),
+                    serviceSupabase,
+                    member.id,
+                    {
+                      playerPower: player.details?.powerLevel ?? null,
+                      observation
+                    }
+                  )
+                } catch {
+                  logger.warn({}, 'Auxiliary roster projection unavailable')
+                }
+              })
+            } catch {
+              logger.warn({}, 'Auxiliary roster projection unavailable')
+            }
+          }
           const playerData = player as PlayerData
 
           if (!playerData || !playerData.progress) {

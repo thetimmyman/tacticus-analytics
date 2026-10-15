@@ -42,6 +42,8 @@ public.player_identity_quarantine_evidence
 public.player_identity_quarantine_pii
 public.player_identity_subject_authority_blocks
 public.player_invite_codes
+# Only snapshot SECURITY DEFINER operations access this observation state.
+public.player_roster_sync_state
 public.schema_migrations
 public.sync_drain_runs
 public.token_audit_snapshots
