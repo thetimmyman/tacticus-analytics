@@ -528,3 +528,7 @@ sessions, origin/guild refusal, atomicity, deduplication, exact byte boundaries 
 restart. Focused device-session tests cover capability validation, cookie chunking
 and fixed bootstrap transport. Historical password/recovery journeys describe the
 superseded flow and do not qualify the current desktop UI.
+`desktop:proof` selects both current onboarding modes automatically when a
+compiled application is configured. Each mode retains its own private generated
+configuration and evidence file; the supplied configuration is unchanged. The
+aggregate does not execute the historical password/recovery journeys.

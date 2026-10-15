@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process'
-import { readFile } from 'node:fs/promises'
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises'
+import { dirname, join } from 'node:path'
 import { resetDerivedState } from './reset-derived-state.mjs'
 
 /**
@@ -18,6 +19,29 @@ function run(label, file, args) {
   })
   results.push({ gate: label, exitCode: result.status })
   return result.status === 0
+}
+
+async function onboarding(
+  label,
+  nativeConfig,
+  configPath,
+  legacyPasswordWorkspace
+) {
+  const directory = await mkdtemp(
+    join(nativeConfig.stateRoot || dirname(configPath), 'device-session-proof-')
+  )
+  const selected = join(directory, 'config.json')
+  await writeFile(
+    selected,
+    JSON.stringify({
+      ...nativeConfig,
+      deviceSession: true,
+      legacyPasswordWorkspace,
+      evidence: join(directory, 'evidence.json')
+    }),
+    { mode: 0o600 }
+  )
+  run(label, 'apps/desktop/proof/onboarding-journey.mjs', [selected])
 }
 
 console.log(
@@ -51,6 +75,9 @@ run('a-loopback-gateway', '--test', [
   'apps/desktop/proof/scoped-connections.test.mjs',
   'apps/desktop/proof/onboarding-menu.test.mjs',
   'apps/desktop/proof/workspace-session.test.mjs',
+  'apps/desktop/proof/device-session.test.mjs',
+  'apps/desktop/proof/device-session-main.test.mjs',
+  'apps/desktop/proof/run-all.test.mjs',
   'apps/desktop/proof/updates.test.mjs',
   'apps/desktop/proof/game-connection.test.mjs',
   'apps/desktop/proof/game-menu.test.mjs',
@@ -101,10 +128,6 @@ if (!configPath) {
   ])
   console.log('\n== Gate (c): setup interruption / resume recovery ==')
   run('c-setup-recovery', 'apps/desktop/proof/setup-recovery.mjs', [configPath])
-  console.log('\n== Gate (c): native workspace password recovery ==')
-  run('c-password-recovery', 'apps/desktop/proof/recovery-journey.mjs', [
-    configPath
-  ])
   console.log('\n== Gate (c): verified stopped-workspace export / restore ==')
   run('c-workspace-transfer', 'apps/desktop/proof/transfer-journey.mjs', [
     configPath
@@ -154,12 +177,16 @@ if (!configPath) {
     configPath
   ])
   if (nativeConfig.application?.node && nativeConfig.application?.directory) {
-    run('c-scoped-onboarding', 'apps/desktop/proof/onboarding-journey.mjs', [
-      configPath
-    ])
-    run('c-password-change', 'apps/desktop/proof/password-change-journey.mjs', [
-      configPath
-    ])
+    console.log(
+      '\n== Password-free native onboarding and former-password owner migration =='
+    )
+    await onboarding(
+      'c-device-session-onboarding',
+      nativeConfig,
+      configPath,
+      false
+    )
+    await onboarding('c-legacy-owner-migration', nativeConfig, configPath, true)
     console.log('\n== Compiled local snapshot job / crash claim recovery ==')
     run('c-local-jobs', 'apps/desktop/proof/jobs-journey.mjs', [configPath])
     console.log(
@@ -196,6 +223,8 @@ if (!configPath) {
     )
     results.push({ gate: 'c-local-jobs', exitCode: 'skipped' })
     results.push({ gate: 'c-guild-teams', exitCode: 'skipped' })
+    results.push({ gate: 'c-device-session-onboarding', exitCode: 'skipped' })
+    results.push({ gate: 'c-legacy-owner-migration', exitCode: 'skipped' })
   }
   console.log('\n== Native schema migration interruption / receipt recovery ==')
   run(
