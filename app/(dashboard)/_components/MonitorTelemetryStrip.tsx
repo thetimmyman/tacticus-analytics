@@ -21,12 +21,6 @@ function formatRelative(iso: string | null, hasMounted: boolean): string {
   return `${days}d ago`
 }
 
-function formatCadence(seconds: number): string {
-  if (seconds < 60) return `${seconds}s`
-  const minutes = Math.round(seconds / 60)
-  return minutes === 1 ? '1 min' : `${minutes} min`
-}
-
 function formatCount(n: number): string {
   return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
@@ -69,11 +63,11 @@ export default function MonitorTelemetryStrip() {
     <div className="border-t border-(--border) bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] px-4 py-2">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs text-(--text-tertiary)">
         <Kpi
-          label="Last Poll"
+          label="Latest successful sync"
           value={formatRelative(data.last_poll_at, hasMounted)}
         />
         <span className="opacity-40">·</span>
-        <Kpi label="Cadence" value={formatCadence(data.poll_cadence_seconds)} />
+        <Kpi label="Cadence" value="Unavailable" />
         <span className="opacity-40">·</span>
         <Kpi
           label="Webhook logs (24h)"
