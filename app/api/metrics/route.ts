@@ -362,11 +362,11 @@ async function collectMetrics(): Promise<void> {
 
   uptimeSeconds.set(process.uptime())
 
-  cacheHitRate.set(0.75)
-  lastBackupTimestamp.set(Date.now() / 1000 - 3600)
-  lastBackupStatus.set(1)
-
-  duplicateCurrentRecords.set(0)
+  // Retain these families without samples until actual measurements exist.
+  cacheHitRate.remove()
+  lastBackupTimestamp.remove()
+  lastBackupStatus.remove()
+  duplicateCurrentRecords.remove()
   void signupsTotal
   void signupFailuresTotal
   void edgeFunctionInvocations
