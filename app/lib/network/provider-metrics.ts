@@ -9,10 +9,17 @@ export interface ProviderMetrics {
   api_retry_count: number
 }
 
+interface PhysicalAttempt {
+  metrics: ProviderMetrics
+  started: boolean
+  failed: boolean
+}
+
 const metricsScope = new AsyncLocalStorage<{
   metrics?: ProviderMetrics
   isRetry: boolean
   operation?: ProviderOperation
+  attempt?: PhysicalAttempt
 }>()
 const providerHosts = new Set([
   'api.tacticusgame.com',
@@ -102,15 +109,102 @@ export function providerFetch(
   isRetry = false,
   operation?: ProviderOperation
 ): Promise<Response> {
-  return withProviderRetry(
-    isRetry || metricsScope.getStore()?.isRetry === true,
-    () =>
-      providerRuntime.fetch(
-        input,
-        init,
-        metricsScope.getStore()?.operation ?? operation
-      )
+  const context = metricsScope.getStore()
+  const execute = () =>
+    providerRuntime.fetch(
+      input,
+      init,
+      metricsScope.getStore()?.operation ?? operation
+    )
+  if (!context?.metrics)
+    return withProviderRetry(isRetry || context?.isRetry === true, execute)
+  const attempt: PhysicalAttempt = {
+    metrics: context.metrics,
+    started: false,
+    failed: false
+  }
+  return metricsScope.run(
+    { ...context, isRetry: isRetry || context.isRetry, attempt },
+    async () => {
+      try {
+        const response = await execute()
+        return attempt.started
+          ? observeProviderResponse(response, attempt)
+          : response
+      } catch (error) {
+        markAttemptFailure(attempt)
+        throw error
+      }
+    }
   )
+}
+
+function markAttemptFailure(attempt: PhysicalAttempt | undefined): void {
+  if (!attempt?.started || attempt.failed) return
+  attempt.failed = true
+  attempt.metrics.api_errors++
+}
+
+function observeProviderResponse(
+  response: Response,
+  attempt: PhysicalAttempt
+): Response {
+  const fail = (error: unknown): never => {
+    markAttemptFailure(attempt)
+    throw error
+  }
+  const guarded =
+    (target: object, method: (...args: unknown[]) => unknown) =>
+    (...args: unknown[]) => {
+      try {
+        return Promise.resolve(Reflect.apply(method, target, args)).catch(fail)
+      } catch (error) {
+        return fail(error)
+      }
+    }
+  const wrapReader = (reader: object) =>
+    new Proxy(reader, {
+      get(target, key) {
+        const value = Reflect.get(target, key, target)
+        if (typeof value !== 'function') return value
+        return key === 'read' || key === 'cancel'
+          ? guarded(target, value)
+          : value.bind(target)
+      }
+    })
+  const wrapResponse = (value: Response): Response => {
+    let body: ReadableStream | null | undefined
+    return new Proxy(value, {
+      get(target, key) {
+        const member = Reflect.get(target, key, target)
+        if (key === 'body' && member) {
+          body ??= new Proxy(member, {
+            get(stream, streamKey) {
+              const method = Reflect.get(stream, streamKey, stream)
+              if (typeof method !== 'function') return method
+              if (streamKey === 'getReader')
+                return (...args: unknown[]) =>
+                  wrapReader(Reflect.apply(method, stream, args))
+              if (streamKey === 'cancel' || streamKey === 'pipeTo')
+                return guarded(stream, method)
+              return method.bind(stream)
+            }
+          })
+          return body
+        }
+        if (typeof member !== 'function') return member
+        if (key === 'clone') return () => wrapResponse(target.clone())
+        if (
+          ['json', 'text', 'arrayBuffer', 'blob', 'formData', 'bytes'].includes(
+            String(key)
+          )
+        )
+          return guarded(target, member)
+        return member.bind(target)
+      }
+    })
+  }
+  return wrapResponse(response)
 }
 
 /** Count only the admitted physical send, excluding control exchanges. */
@@ -134,79 +228,14 @@ async function physicalProviderFetch(
     metrics.api_calls++
     if (isRetry || context?.isRetry) metrics.api_retry_count++
   }
+  const attempt = context?.attempt
+  if (attempt) attempt.started = true
   try {
     const response = await globalThis.fetch(input, init)
-    if (metrics && !response.ok) metrics.api_errors++
-    if (!metrics) return response
-    let failed = !response.ok
-    const fail = (error: unknown): never => {
-      if (!failed) {
-        failed = true
-        metrics.api_errors++
-      }
-      throw error
-    }
-    const guarded =
-      (target: object, method: (...args: unknown[]) => unknown) =>
-      (...args: unknown[]) => {
-        try {
-          return Promise.resolve(Reflect.apply(method, target, args)).catch(
-            fail
-          )
-        } catch (error) {
-          return fail(error)
-        }
-      }
-    const wrapReader = (reader: object) =>
-      new Proxy(reader, {
-        get(target, key) {
-          const value = Reflect.get(target, key, target)
-          if (typeof value !== 'function') return value
-          return key === 'read' || key === 'cancel'
-            ? guarded(target, value)
-            : value.bind(target)
-        }
-      })
-    const wrapResponse = (value: Response): Response => {
-      let body: ReadableStream | null | undefined
-      return new Proxy(value, {
-        get(target, key) {
-          const member = Reflect.get(target, key, target)
-          if (key === 'body' && member) {
-            body ??= new Proxy(member, {
-              get(stream, streamKey) {
-                const method = Reflect.get(stream, streamKey, stream)
-                if (typeof method !== 'function') return method
-                if (streamKey === 'getReader')
-                  return (...args: unknown[]) =>
-                    wrapReader(Reflect.apply(method, stream, args))
-                if (streamKey === 'cancel' || streamKey === 'pipeTo')
-                  return guarded(stream, method)
-                return method.bind(stream)
-              }
-            })
-            return body
-          }
-          if (typeof member !== 'function') return member
-          if (key === 'clone') return () => wrapResponse(target.clone())
-          if (
-            [
-              'json',
-              'text',
-              'arrayBuffer',
-              'blob',
-              'formData',
-              'bytes'
-            ].includes(String(key))
-          )
-            return guarded(target, member)
-          return member.bind(target)
-        }
-      })
-    }
-    return wrapResponse(response)
+    if (!response.ok) markAttemptFailure(attempt)
+    return response
   } catch (error) {
-    if (metrics) metrics.api_errors++
+    markAttemptFailure(attempt)
     throw error
   }
 }

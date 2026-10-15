@@ -467,3 +467,133 @@ it('counts an admitted physical response once while excluding every authority ex
   expect(operations).toEqual(['reserve', 'dispatch', 'outcome'])
   expect(wire).toHaveBeenCalledTimes(4)
 })
+
+it.each(['json', 'http-and-json', 'stream', 'clone'])(
+  'counts an admitted %s response failure once per physical attempt',
+  async (kind) => {
+    vi.stubEnv('PROVIDER_ADMISSION_MODE', 'enforce')
+    vi.stubEnv('PROVIDER_ADMISSION_ORIGIN', 'http://authority.example.invalid')
+    vi.stubEnv('PROVIDER_ADMISSION_TOKEN', 'synthetic-token')
+    vi.stubEnv('PROVIDER_ACCOUNT_LABEL_KEY', 'K'.repeat(32))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const target = new URL(
+          input instanceof Request ? input.url : String(input)
+        )
+        if (target.hostname === 'authority.example.invalid') {
+          const operation = target.pathname.split('/').at(-1)
+          const body = JSON.parse(String(init?.body))
+          if (operation === 'reserve' || operation === 'dispatch')
+            return Response.json({
+              status: operation === 'reserve' ? 'reserved' : 'dispatch',
+              attemptId: body.attemptId,
+              timeoutMs: 5000,
+              [operation === 'reserve' ? 'claimUntil' : 'deadline']: new Date(
+                Date.now() + 2000
+              ).toISOString()
+            })
+          return Response.json({ status: 'continue' })
+        }
+        if (kind === 'stream')
+          return new Response(
+            new ReadableStream({
+              start(controller) {
+                controller.error(new Error('synthetic body failure'))
+              }
+            })
+          )
+        return new Response('synthetic invalid JSON', {
+          status: kind === 'http-and-json' ? 503 : 200
+        })
+      })
+    )
+    const observed = await captureProviderMetrics(() =>
+      withProviderOperation(
+        { purpose: 'roster-fetch', trigger: 'scheduled', timeoutMs: 5000 },
+        async () => {
+          const response = await providerFetch(
+            'https://api.tacticusgame.com/api/v1/player',
+            { headers: { 'x-api-key': 'synthetic-key' } }
+          )
+          const clone = kind === 'clone' ? response.clone() : undefined
+          await expect(response.json()).rejects.toThrow()
+          if (clone) await expect(clone.json()).rejects.toThrow()
+        }
+      )
+    )
+    expect(observed.metrics).toEqual({
+      api_calls: 1,
+      api_errors: 1,
+      api_retry_count: 0
+    })
+  }
+)
+
+it('isolates concurrent admitted response errors within a shared job counter', async () => {
+  vi.stubEnv('PROVIDER_ADMISSION_MODE', 'enforce')
+  vi.stubEnv('PROVIDER_ADMISSION_ORIGIN', 'http://authority.example.invalid')
+  vi.stubEnv('PROVIDER_ADMISSION_TOKEN', 'synthetic-token')
+  vi.stubEnv('PROVIDER_ACCOUNT_LABEL_KEY', 'K'.repeat(32))
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const target = new URL(
+        input instanceof Request ? input.url : String(input)
+      )
+      if (target.hostname === 'authority.example.invalid') {
+        const operation = target.pathname.split('/').at(-1),
+          body = JSON.parse(String(init?.body))
+        if (operation === 'reserve' || operation === 'dispatch')
+          return Response.json({
+            status: operation === 'reserve' ? 'reserved' : 'dispatch',
+            attemptId: body.attemptId,
+            timeoutMs: 5000,
+            [operation === 'reserve' ? 'claimUntil' : 'deadline']: new Date(
+              Date.now() + 2000
+            ).toISOString()
+          })
+        return Response.json({ status: 'continue' })
+      }
+      return new Response('synthetic invalid JSON', {
+        status: target.pathname.endsWith('/guild') ? 503 : 200
+      })
+    })
+  )
+  const observed = await captureProviderMetrics(() =>
+    withProviderOperation(
+      { purpose: 'guild-sync', trigger: 'scheduled', timeoutMs: 5000 },
+      async () =>
+        Promise.all(
+          ['/player', '/guild'].map(async (path) => {
+            const response = await providerFetch(
+              'https://api.tacticusgame.com/api/v1' + path,
+              { headers: { 'x-api-key': 'synthetic-key' } }
+            )
+            await expect(response.json()).rejects.toThrow()
+          })
+        )
+    )
+  )
+  expect(observed.metrics).toEqual({
+    api_calls: 2,
+    api_errors: 2,
+    api_retry_count: 0
+  })
+})
+
+it('does not count an internal response decoding error as a provider failure', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async () => new Response('synthetic invalid JSON'))
+  )
+  const observed = await captureProviderMetrics(async () => {
+    const response = await providerFetch('https://internal.example.invalid/api')
+    await expect(response.json()).rejects.toThrow()
+  })
+  expect(observed.metrics).toEqual({
+    api_calls: 0,
+    api_errors: 0,
+    api_retry_count: 0
+  })
+})
