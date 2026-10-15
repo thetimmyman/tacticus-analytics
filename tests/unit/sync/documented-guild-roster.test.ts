@@ -71,6 +71,12 @@ it.each([
     }
   },
   { guild: { guildId: 'synthetic-target', members: [] } },
+  {
+    guild: {
+      guildId: 'synthetic-target',
+      members: [{ userId: 'synthetic-a' }, { userId: 'synthetic-a' }]
+    }
+  },
   null
 ])(
   'does not assert partial or cross-guild membership, or retry a supplied invalid response',
@@ -112,6 +118,31 @@ it('releases an unread throttle body without another attempt', async () => {
   expect(send).toHaveBeenCalledTimes(1)
   expect(cancel).toHaveBeenCalledTimes(1)
 })
+
+it.each(['pending', 'rejected'])(
+  'returns the throttle result when body cancellation is %s',
+  async (cleanup) => {
+    const cancel = vi.fn(() =>
+      cleanup === 'pending'
+        ? new Promise<void>(() => {})
+        : Promise.reject(new Error('synthetic cleanup failure'))
+    )
+    const send = vi.fn(
+      async () => new Response(new ReadableStream({ cancel }), { status: 429 })
+    )
+    vi.stubGlobal('fetch', send)
+    expect(
+      await fetchGuildMembersViaTacticus(
+        'synthetic-key',
+        'synthetic-target',
+        'SYNTHETIC'
+      )
+    ).toMatchObject({ success: false, error: 'HTTP 429' })
+    expect(send).toHaveBeenCalledTimes(1)
+    expect(cancel).toHaveBeenCalledTimes(1)
+  },
+  1000
+)
 
 it('keeps malformed response content out of results and logs', async () => {
   const privateText = 'synthetic-private-roster-response'

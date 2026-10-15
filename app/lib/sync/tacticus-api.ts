@@ -45,7 +45,7 @@ export async function fetchGuildMembersViaTacticus(
         )
         if (!res.ok) {
           try {
-            await res.body?.cancel()
+            void res.body?.cancel().catch(() => {})
           } catch {}
         }
         if (!res.ok && res.status >= 500) throw new Error(`HTTP ${res.status}`)

@@ -28,7 +28,7 @@ export function extractGuildRosterEvidence(
   const ids = new Set<string>()
   for (const value of guild.members) {
     const id = record(value)?.userId
-    if (typeof id !== 'string' || !id || id.trim() !== id)
+    if (typeof id !== 'string' || !id || id.trim() !== id || ids.has(id))
       return { success: false, memberIds: [], error: 'Guild roster invalid' }
     ids.add(id)
   }
