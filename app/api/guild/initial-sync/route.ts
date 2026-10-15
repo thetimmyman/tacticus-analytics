@@ -74,9 +74,15 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       }
     }
 
+    let guildPayload: unknown
     const apiKeyValidation = await validateApiKeyWithTacticus(
       decryptedApiKey,
-      false
+      false,
+      {
+        onGuildResponse: (payload) => {
+          guildPayload = payload
+        }
+      }
     )
     if (!apiKeyValidation.isValid) {
       throw Errors.fromResponse(401, {
@@ -132,9 +138,14 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     const patchedConfig = await autoPatchGuildConfig(
       supabase,
       upperGuildCode,
-      decryptedApiKey
+      decryptedApiKey,
+      { guildPayload }
     )
-    await detectCurrentGWSeasonFromGuildData(upperGuildCode, decryptedApiKey)
+    await detectCurrentGWSeasonFromGuildData(
+      upperGuildCode,
+      decryptedApiKey,
+      guildPayload
+    )
 
     const response = await fetchGuildRaidData(decryptedApiKey, upperGuildCode)
 
@@ -194,9 +205,10 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
 
     if (patchedConfig.guild_id) {
       const result = await fetchGuildMembersViaTacticus(
-        api_key,
+        decryptedApiKey,
         patchedConfig.guild_id,
-        upperGuildCode
+        upperGuildCode,
+        guildPayload
       )
       if (result.success) tacticusMemberIds = result.memberIds
     }

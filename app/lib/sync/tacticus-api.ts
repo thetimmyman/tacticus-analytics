@@ -1,29 +1,32 @@
 import { withRetry, TACTICUS_API_POLICY } from '@/app/lib/resilience'
 import {
+  extractGuildRosterEvidence,
+  type GuildRosterEvidence
+} from '@/supabase/functions/_shared/guild-roster-evidence'
+import {
   CONFIG,
   fetchWithAbortTimeout,
   fetchWithCircuitBreaker,
-  getErrorMessage,
   logger
 } from './api-client'
 
-export type TacticusMembersResult = {
-  success: boolean
-  memberIds: string[]
-  error?: string
-}
+export type TacticusMembersResult = GuildRosterEvidence
 
 export async function fetchGuildMembersViaTacticus(
   apiKey: string,
   guildId: string,
-  guildCode: string
+  guildCode: string,
+  guildPayload?: unknown
 ): Promise<TacticusMembersResult> {
-  const url = `${CONFIG.api.baseUrl}/guild/${guildId}/members`
+  if (guildPayload !== undefined)
+    return extractGuildRosterEvidence(guildPayload, guildId)
+  if (!guildId) return extractGuildRosterEvidence(null, guildId)
+  const url = `${CONFIG.api.baseUrl}/guild`
 
   try {
     logger.info(
-      { guildCode, guildId },
-      'Fetching guild members from Tacticus API'
+      { guildCode },
+      'Reading guild membership from the documented guild response'
     )
 
     const response = await withRetry(
@@ -38,8 +41,13 @@ export async function fetchGuildMembersViaTacticus(
             }
           },
           CONFIG.api.requestTimeout,
-          'Tacticus guild members response'
+          'Tacticus guild roster response'
         )
+        if (!res.ok) {
+          try {
+            void res.body?.cancel().catch(() => {})
+          } catch {}
+        }
         if (!res.ok && res.status >= 500) throw new Error(`HTTP ${res.status}`)
         return res
       },
@@ -48,68 +56,21 @@ export async function fetchGuildMembersViaTacticus(
 
     if (!response.ok) {
       if (response.status === 404) {
-        logger.info(
-          { guildCode },
-          'Tacticus members endpoint returned 404 - may not be available for this guild'
-        )
+        logger.info({ guildCode }, 'Tacticus guild response returned 404')
         return { success: false, memberIds: [], error: 'Endpoint not found' }
       }
       return { success: false, memberIds: [], error: `HTTP ${response.status}` }
     }
 
-    const data = (await response.json()) as Record<string, unknown>
-
-    const possibleMemberArrays = [
-      data.members,
-      data.guildMembers,
-      (data.body as Record<string, unknown> | undefined)?.members,
-      (data.body as Record<string, unknown> | undefined)?.guildMembers,
-      (data.guild as Record<string, unknown> | undefined)?.members
-    ]
-
-    type RawMember = {
-      userId?: string
-      playerId?: string
-      id?: string
-      odlPlayerId?: string
-      odlId?: string
-    }
-    let rawMembers: RawMember[] = []
-
-    for (const arr of possibleMemberArrays) {
-      if (Array.isArray(arr) && arr.length > 0) {
-        rawMembers = arr as RawMember[]
-        break
-      }
-    }
-
-    const memberIds: string[] = []
-    for (const member of rawMembers) {
-      const id =
-        member.userId ||
-        member.playerId ||
-        member.id ||
-        member.odlPlayerId ||
-        member.odlId
-      if (id && typeof id === 'string') {
-        memberIds.push(id)
-      }
-    }
-
-    if (memberIds.length > 0) {
-      logger.info(
-        { guildCode },
-        `Tacticus API returned ${memberIds.length} guild members (authoritative for is_current)`
-      )
-    }
-
-    return { success: memberIds.length > 0, memberIds }
+    return extractGuildRosterEvidence(await response.json(), guildId)
   } catch (error) {
-    logger.warn(
-      { guildCode },
-      `Tacticus members fetch failed: ${getErrorMessage(error)}`
-    )
-    return { success: false, memberIds: [], error: getErrorMessage(error) }
+    const message =
+      error instanceof Error &&
+      ['AbortError', 'TimeoutError'].includes(error.name)
+        ? 'Guild roster request timed out'
+        : 'Guild roster unavailable'
+    logger.warn({ guildCode }, message)
+    return { success: false, memberIds: [], error: message }
   }
 }
 
