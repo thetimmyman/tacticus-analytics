@@ -31,11 +31,11 @@ function useQueryResults(
   const results: Record<QueryName, QueryResult> = {
     latest: {
       data: { last_successful_sync: '2026-01-01T00:00:00.000Z' },
-      error: null
+      error: null,
+      ...overrides.latest
     },
-    total: { count: 12, error: null },
-    failed: { count: 3, error: null },
-    ...overrides
+    total: { count: 12, error: null, ...overrides.total },
+    failed: { count: 3, error: null, ...overrides.failed }
   }
   let logQueryIndex = 0
   serviceDbMock.mockReturnValue({
@@ -200,8 +200,6 @@ describe('GET /api/health/telemetry', () => {
     async (name) => {
       useQueryResults({
         [name]: {
-          data: null,
-          count: null,
           error: { message: 'synthetic database query failure' }
         }
       })
