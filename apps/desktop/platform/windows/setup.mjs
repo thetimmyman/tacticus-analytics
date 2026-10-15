@@ -122,6 +122,13 @@ export function windowsSetup(services, assets, launcherAssets, session) {
         json(409, { error: 'Setup is already running' })
         return true
       }
+      const trace = session.diagnostics?.begin(
+        url.pathname === '/desktop/onboarding-status'
+          ? 'access-status'
+          : url.pathname === '/desktop/official-state'
+            ? 'official-state'
+            : 'protected-change'
+      )
       if (change) changing = true
       const previous = queue
       let release
@@ -129,9 +136,11 @@ export function windowsSetup(services, assets, launcherAssets, session) {
       try {
         await previous
         return await gate.run(async () => {
+          trace?.stage('pending-recovery')
           await onboarding.recoverPending()
+          trace?.stage('local-status')
           return official(req, res, url, json)
-        })
+        }, trace?.stage)
       } catch (error) {
         if (res.headersSent) return true
         json(error.code === 'ESESSION' ? 401 : 503, {
@@ -143,6 +152,7 @@ export function windowsSetup(services, assets, launcherAssets, session) {
         })
         return true
       } finally {
+        trace?.finish(res.statusCode)
         if (change) changing = false
         release()
       }

@@ -68,12 +68,15 @@ export function workspaceGate({ services, brokerToken, currentToken, owner }) {
         ).exp * 1000
       )
     },
-    async run(operation) {
+    async run(operation, observe = () => {}) {
+      observe('owner-read')
       const subject = await owner()
       if (!subject) throw expired()
       let token
       for (let attempt = 0; attempt < 2; attempt++) {
+        observe('native-session')
         token = await currentToken(attempt === 1)
+        observe('auth-verification')
         if (
           services.validOwnerSession(token, subject) &&
           (await workspaceAuthorized(
@@ -95,6 +98,7 @@ export function workspaceGate({ services, brokerToken, currentToken, owner }) {
       return context.run({ token, subject }, async () => {
         assertCurrent()
         try {
+          observe('operation')
           return await operation()
         } finally {
           assertCurrent()

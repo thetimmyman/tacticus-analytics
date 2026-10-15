@@ -237,19 +237,12 @@ async function nativeStartup({
       if (fresh)
         throw Object.assign(new Error('synthetic-absent'), { code: 'ENOENT' })
     },
-    createServer: () => {
+    reserveLoopbackPorts: async (roles) => {
       at('port-allocation')
       return {
-        once() {},
-        listen(p, h, accept) {
-          accept()
-        },
-        address() {
-          return { port: ++port }
-        },
-        close(accept) {
-          accept()
-        }
+        ports: Object.fromEntries(roles.map((role) => [role, ++port])),
+        release: async () => {},
+        close: async () => {}
       }
     },
     nativeCommand: async () => {
