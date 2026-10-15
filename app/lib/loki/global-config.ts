@@ -1,5 +1,7 @@
 import 'server-only'
 
+import { providerFetch } from '@/app/lib/network/provider-metrics'
+
 import { promises as fs } from 'node:fs'
 
 import { API_REQUEST_CONFIG, API_URLS } from '@tacticus/app-core/api-constants'
@@ -100,7 +102,7 @@ const fetchRemoteGlobalConfig =
     )
 
     try {
-      const response = await fetch(url, {
+      const response = await providerFetch(url, {
         method: 'GET',
         headers: {
           Accept: 'application/json'

@@ -206,5 +206,17 @@ BEGIN
 END;
 $$;
 
+-- Keep the two predecessor definitions followed by the installed contract.
+-- Function definitions include execution attributes; owner and ACL are separate.
+UPDATE supabase_migrations.schema_migrations
+SET statements = statements || ARRAY[(
+  SELECT jsonb_object_agg(p.proname,
+    md5(jsonb_build_array(pg_get_functiondef(p.oid), p.proowner, p.proacl)::text))::text
+  FROM pg_catalog.pg_proc p
+  WHERE p.oid IN ('public.complete_job(uuid,text,jsonb,jsonb)'::regprocedure,
+                  'public.fail_job(uuid,text,text,jsonb)'::regprocedure)
+)]
+WHERE version = '20261015010000' AND name = 'record_provider_job_metrics';
+
 NOTIFY pgrst, 'reload schema';
 COMMIT;

@@ -2,7 +2,7 @@
 -- Restore captured predecessor functions; retain all recorded measurements.
 BEGIN;
 DO $rollback$
-DECLARE saved text[]; statement text;
+DECLARE saved text[]; statement text; installed jsonb;
 BEGIN
   IF current_database() <> 'postgres' THEN
     RAISE EXCEPTION 'Provider job rollback requires database postgres';
@@ -15,10 +15,19 @@ BEGIN
   END IF;
   SELECT statements INTO saved FROM supabase_migrations.schema_migrations
   WHERE version='20261015010000' AND name='record_provider_job_metrics';
-  IF cardinality(saved) IS DISTINCT FROM 2 THEN
+  IF cardinality(saved) IS DISTINCT FROM 3 THEN
     RAISE EXCEPTION 'Provider job rollback state missing';
   END IF;
-  FOREACH statement IN ARRAY saved LOOP EXECUTE statement; END LOOP;
+  SELECT jsonb_object_agg(p.proname,
+    md5(jsonb_build_array(pg_get_functiondef(p.oid), p.proowner, p.proacl)::text))
+  INTO installed
+  FROM pg_catalog.pg_proc p
+  WHERE p.oid IN ('public.complete_job(uuid,text,jsonb,jsonb)'::regprocedure,
+                  'public.fail_job(uuid,text,text,jsonb)'::regprocedure);
+  IF installed IS DISTINCT FROM saved[3]::jsonb THEN
+    RAISE EXCEPTION 'Job terminal authority or definition changed after apply; inspect before rollback';
+  END IF;
+  FOREACH statement IN ARRAY saved[1:2] LOOP EXECUTE statement; END LOOP;
   DELETE FROM supabase_migrations.schema_migrations WHERE version='20261015010000';
 END;
 $rollback$;

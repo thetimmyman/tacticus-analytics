@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
+import { API_URLS } from '@tacticus/app-core/api-constants'
 
 export interface ProviderMetrics {
   api_calls: number
@@ -16,6 +17,15 @@ const providerHosts = new Set([
   'cdn.loki.snowprintstudios.com',
   'websocket-live.loki.snowprintstudios.com'
 ])
+
+function isProviderHost(hostname: string): boolean {
+  if (providerHosts.has(hostname)) return true
+  try {
+    return hostname === new URL(API_URLS.TACTICUS.BASE).hostname
+  } catch {
+    return false
+  }
+}
 
 export function currentProviderMetrics(): ProviderMetrics | null {
   const metrics = metricsScope.getStore()?.metrics
@@ -51,7 +61,7 @@ export async function providerFetch(
   isRetry = false
 ): Promise<Response> {
   const url = new URL(input instanceof Request ? input.url : String(input))
-  if (!providerHosts.has(url.hostname)) return globalThis.fetch(input, init)
+  if (!isProviderHost(url.hostname)) return globalThis.fetch(input, init)
   init = { ...init, redirect: 'error' }
   const signal = init.signal ?? (input instanceof Request ? input.signal : null)
   signal?.throwIfAborted()

@@ -334,6 +334,57 @@ try {
     0,
     'wrong database is refused'
   )
+  if (!baselineOnly) {
+    const installed = execute(
+      "SELECT json_agg(json_build_array(pg_get_functiondef(oid),proowner,proacl,prosecdef,proconfig) ORDER BY proname) FROM pg_proc WHERE oid IN ('public.complete_job(uuid,text,jsonb,jsonb)'::regprocedure,'public.fail_job(uuid,text,text,jsonb)'::regprocedure);",
+      'postgres'
+    )
+    for (const signature of [
+      'public.complete_job(uuid,text,jsonb,jsonb)',
+      'public.fail_job(uuid,text,text,jsonb)'
+    ]) {
+      for (const change of [
+        'SECURITY DEFINER',
+        'SET search_path = pg_catalog',
+        'OWNER TO synthetic_worker',
+        'REVOKE'
+      ]) {
+        const alteration =
+          change === 'REVOKE'
+            ? `REVOKE EXECUTE ON FUNCTION ${signature} FROM PUBLIC;`
+            : `ALTER FUNCTION ${signature} ${change};`
+        // The failed rollback aborts this caller transaction, including its
+        // synthetic drift. A false success commits and fails the control.
+        const refused = query(`BEGIN; ${alteration}\n${rollback}`, 'postgres')
+        assert.notEqual(
+          refused.status,
+          0,
+          `rollback refuses ${change} drift on ${signature}`
+        )
+        assert.match(
+          refused.stderr,
+          /Job terminal authority or definition changed after apply/,
+          'the rollback guard, rather than an invalid alteration, refuses drift'
+        )
+        assert.equal(
+          execute(
+            "SELECT json_agg(json_build_array(pg_get_functiondef(oid),proowner,proacl,prosecdef,proconfig) ORDER BY proname) FROM pg_proc WHERE oid IN ('public.complete_job(uuid,text,jsonb,jsonb)'::regprocedure,'public.fail_job(uuid,text,text,jsonb)'::regprocedure);",
+            'postgres'
+          ),
+          installed,
+          'refused rollback preserves the installed contract'
+        )
+        assert.equal(
+          execute(
+            "SELECT count(*) FROM supabase_migrations.schema_migrations WHERE version='20261015010000';",
+            'postgres'
+          ),
+          '1',
+          'refused rollback preserves its recovery receipt'
+        )
+      }
+    }
+  }
   const retained = metrics()
   execute(rollback, 'postgres')
   assert.deepEqual(

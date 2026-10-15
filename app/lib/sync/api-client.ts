@@ -64,7 +64,8 @@ export async function fetchWithCircuitBreaker(
   url: string,
   options: RequestInit,
   maxRetries = 3,
-  timeoutMs: number = CONFIG.api.requestTimeout
+  timeoutMs: number = CONFIG.api.requestTimeout,
+  isRetry = false
 ): Promise<Response> {
   const policy: WithRetryOptions = {
     ...TACTICUS_API_POLICY,
@@ -73,7 +74,7 @@ export async function fetchWithCircuitBreaker(
   let requestAttempt = 0
   return withRetry(
     () =>
-      withProviderRetry(requestAttempt++ > 0, async () => {
+      withProviderRetry(requestAttempt++ > 0 || isRetry, async () => {
         const response = await fetchWithAbortTimeout(
           url,
           options,
