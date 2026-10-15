@@ -1,3 +1,4 @@
+import { ProviderAdmissionError } from '@/supabase/functions/_shared/provider-admission'
 import { guildRosterQuery } from '@/app/lib/data/guild-roster'
 import {
   tryBeginPlayerRosterRefresh,
@@ -165,6 +166,7 @@ const rosterLokiBackfillHandler: JobHandler = async (payload, ctx) => {
     try {
       await refreshSharedLokiSession({ fetchImpl: budgetedFetch })
     } catch (preErr) {
+      if (preErr instanceof ProviderAdmissionError) throw preErr
       logger.warn(
         { jobId: ctx.jobId, err: getErrorMessage(preErr) },
         '[RosterLokiBackfill] shared Loki session refresh failed (non-fatal)'
@@ -331,6 +333,7 @@ const rosterLokiBackfillHandler: JobHandler = async (payload, ctx) => {
               )
               processed++
             } catch (err) {
+              if (err instanceof ProviderAdmissionError) throw err
               logger.warn(
                 {
                   jobId: ctx.jobId,
@@ -380,6 +383,7 @@ const rosterLokiBackfillHandler: JobHandler = async (payload, ctx) => {
       partialDueToBudget: budgetExhausted
     }
   } catch (error) {
+    if (error instanceof ProviderAdmissionError) throw error
     rethrowIfAppError(error)
     const message = getErrorMessage(error)
     captureSentryException(error, {
@@ -395,7 +399,11 @@ const rosterLokiBackfillHandler: JobHandler = async (payload, ctx) => {
 }
 
 export function registerRosterLokiBackfillHandler(): void {
-  registerJobHandler('roster-loki-backfill', rosterLokiBackfillHandler)
+  registerJobHandler('roster-loki-backfill', rosterLokiBackfillHandler, {
+    purpose: 'roster-fetch',
+    trigger: 'scheduled',
+    timeoutMs: 30000
+  })
 }
 
 export const __internal = {

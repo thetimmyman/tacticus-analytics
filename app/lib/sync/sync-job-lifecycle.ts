@@ -1,3 +1,5 @@
+import { ProviderAdmissionError } from '@/supabase/functions/_shared/provider-admission'
+import { deferSyncJob } from './sync-job-defer'
 import { createComponentLogger } from '@/app/lib/logging'
 import { rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { captureSentryException } from '@/app/lib/monitoring/sentry'
@@ -175,6 +177,25 @@ export async function failSyncJob(
   workerId: string,
   result: WorkerResult
 ) {
+  if (error instanceof ProviderAdmissionError) {
+    const hold = error.retryAfterSeconds
+    // The authority retains the full provider hold. This is only a queue
+    // recheck interval, never a provider retry or a JavaScript sleep timer.
+    const recheckSeconds =
+      hold !== undefined && Number.isFinite(hold) && hold > 0
+        ? Math.min(300, Math.max(1, hold))
+        : 60
+    await deferSyncJob(job, supabase, workerId, {
+      delayMs: recheckSeconds * 1000,
+      reason: 'provider_admission',
+      progress: {
+        ...(hold !== undefined && { provider_retry_after_seconds: hold }),
+        ...(currentProviderMetrics() ?? {})
+      }
+    })
+    result.errors.push('Provider traffic deferred')
+    return
+  }
   rethrowIfAppError(error)
   const errorMessage = error instanceof Error ? error.message : 'Unknown error'
   result.errors.push(errorMessage)

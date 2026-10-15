@@ -1,3 +1,4 @@
+import { ProviderAdmissionError } from '@/supabase/functions/_shared/provider-admission'
 // One batch job, not per-player fan-out: throughput is bound by the Tacticus rate budget.
 // Database-owned observation order lets partial runs rotate through the cohort.
 
@@ -229,6 +230,7 @@ const rosterBackfillHandler: JobHandler = async (payload, ctx) => {
             )
             processed++
           } catch (err) {
+            if (err instanceof ProviderAdmissionError) throw err
             const msg = getErrorMessage(err)
             const isTimeout = err instanceof TimeoutError
             logger.warn(
@@ -272,6 +274,7 @@ const rosterBackfillHandler: JobHandler = async (payload, ctx) => {
       partialDueToTimeout: timedOutEarly
     }
   } catch (error) {
+    if (error instanceof ProviderAdmissionError) throw error
     rethrowIfAppError(error)
     const message = getErrorMessage(error)
     captureSentryException(error, {
@@ -287,5 +290,9 @@ const rosterBackfillHandler: JobHandler = async (payload, ctx) => {
 }
 
 export function registerRosterBackfillHandler(): void {
-  registerJobHandler('roster-backfill', rosterBackfillHandler)
+  registerJobHandler('roster-backfill', rosterBackfillHandler, {
+    purpose: 'roster-fetch',
+    trigger: 'scheduled',
+    timeoutMs: 30000
+  })
 }

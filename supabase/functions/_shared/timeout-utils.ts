@@ -1,3 +1,8 @@
+import {
+  ProviderAdmissionError,
+  type ProviderOperation
+} from './provider-admission.ts'
+import { edgeProviderFetch } from './provider-fetch.ts'
 // Every edge operation is capped by the time left before the runtime limit.
 import {
   getSyncTimeouts,
@@ -80,16 +85,17 @@ export async function timeoutFetch(
   url: string,
   options: RequestInit,
   operationType: Exclude<TimeoutOperation, 'batch_operation'>,
-  timeouts: EdgeFunctionTimeouts
+  timeouts: EdgeFunctionTimeouts,
+  providerOperation?: ProviderOperation
 ): Promise<Response> {
   const signal = timeouts.createSignal(operationType)
   const fetchOptions = {
     ...options,
-    signal
+    signal: options.signal ? AbortSignal.any([options.signal, signal]) : signal
   }
 
   try {
-    return await fetch(url, fetchOptions)
+    return await edgeProviderFetch(url, fetchOptions, providerOperation)
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
       const timeout = timeouts.getTimeout(operationType)
@@ -117,6 +123,7 @@ export async function retryWithTimeout<T>(
     try {
       return await operation()
     } catch (error) {
+      if (error instanceof ProviderAdmissionError) throw error
       lastError = error instanceof Error ? error : new Error(String(error))
 
       if (attempt === maxRetries) {

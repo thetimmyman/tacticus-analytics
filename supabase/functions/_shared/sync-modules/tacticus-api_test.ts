@@ -12,6 +12,7 @@ const config = {
 }
 const timeouts = {
   createSignal: () => AbortSignal.timeout(1000),
+  getTimeout: () => 1000,
   canStartOperation: () => true
 }
 

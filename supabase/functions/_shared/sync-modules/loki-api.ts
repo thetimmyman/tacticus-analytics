@@ -1,3 +1,4 @@
+import { ProviderAdmissionError } from '../provider-admission.ts'
 import { timeoutFetch } from '../timeout-utils.ts'
 import { pickString, getErrorMessage, toNumberValue } from './helpers.ts'
 import { PUBLIC_LOKI_INSTALL_ID } from '../loki-public-device.ts'
@@ -239,7 +240,12 @@ export async function fetchGuildMembersViaLoki(
           body: JSON.stringify(payload)
         },
         'api_request',
-        timeouts
+        timeouts,
+        {
+          purpose: 'guild-sync',
+          trigger: 'scheduled',
+          timeoutMs: Math.min(60000, timeouts.getTimeout('api_request'))
+        }
       )
 
       deps.logger.info(
@@ -259,6 +265,7 @@ export async function fetchGuildMembersViaLoki(
       const data = await response.json()
       return { success: true, data }
     } catch (error) {
+      if (error instanceof ProviderAdmissionError) throw error
       return {
         success: false,
         status: 500,
@@ -391,6 +398,7 @@ export async function fetchGuildMembersViaLoki(
 
     return members
   } catch (error) {
+    if (error instanceof ProviderAdmissionError) throw error
     deps.logger.error(
       guildCode,
       `LOKI members fetch exception: ${getErrorMessage(error)}`,

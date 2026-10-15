@@ -1,3 +1,4 @@
+import { ProviderAdmissionError } from '@/supabase/functions/_shared/provider-admission'
 import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('lib.resilience.circuit-breaker')
 
@@ -208,6 +209,7 @@ export class CircuitBreaker {
       this.onSuccess()
       return result
     } catch (error) {
+      if (error instanceof ProviderAdmissionError) throw error
       this.onFailure()
       throw error
     }

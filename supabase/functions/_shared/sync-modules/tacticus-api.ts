@@ -1,3 +1,4 @@
+import { ProviderAdmissionError } from '../provider-admission.ts'
 import { timeoutFetch, retryWithTimeout } from '../timeout-utils.ts'
 import { CircuitBreaker } from './circuit-breaker.ts'
 import { getErrorMessage } from './helpers.ts'
@@ -77,7 +78,12 @@ export async function callTacticusApi<T = unknown>(
             url,
             { headers },
             'api_request',
-            timeouts
+            timeouts,
+            {
+              purpose: 'guild-sync',
+              trigger: 'scheduled',
+              timeoutMs: Math.min(60000, timeouts.getTimeout('api_request'))
+            }
           )
 
           if (!response.ok) {
@@ -96,6 +102,7 @@ export async function callTacticusApi<T = unknown>(
 
     return { success: true, data }
   } catch (error) {
+    if (error instanceof ProviderAdmissionError) throw error
     const message = getErrorMessage(error)
     logger.warn(guildCode, `API call failed: ${message}`)
 
@@ -153,7 +160,12 @@ export async function fetchGuildMembersViaTacticus(
             url,
             { headers },
             'api_request',
-            timeouts
+            timeouts,
+            {
+              purpose: 'guild-sync',
+              trigger: 'scheduled',
+              timeoutMs: Math.min(60000, timeouts.getTimeout('api_request'))
+            }
           )
 
           if (!response.ok) {
@@ -231,6 +243,7 @@ export async function fetchGuildMembersViaTacticus(
       members: rawMembers
     }
   } catch (error) {
+    if (error instanceof ProviderAdmissionError) throw error
     const message = getErrorMessage(error)
     logger.warn(guildCode, `Tacticus members fetch failed: ${message}`)
 

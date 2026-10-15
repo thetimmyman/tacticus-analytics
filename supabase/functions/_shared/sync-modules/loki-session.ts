@@ -1,3 +1,5 @@
+import { edgeProviderFetch } from '../provider-fetch.ts'
+import { ProviderAdmissionError } from '../provider-admission.ts'
 import { getErrorMessage } from './helpers.ts'
 import { getRecommendedLokiBuildString } from '../loki-build-version.ts'
 import {
@@ -66,18 +68,22 @@ async function attemptLokiConnect(
   }
 
   try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: '*/*',
-        'User-Agent':
-          'UnityPlayer/2022.3.40f1 (UnityWebRequest/1.0, libcurl/8.5.0-DEV)',
-        'X-Unity-Version': '2022.3.40f1'
+    const response = await edgeProviderFetch(
+      url,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: '*/*',
+          'User-Agent':
+            'UnityPlayer/2022.3.40f1 (UnityWebRequest/1.0, libcurl/8.5.0-DEV)',
+          'X-Unity-Version': '2022.3.40f1'
+        },
+        body: JSON.stringify(payload),
+        signal: timeoutSignal
       },
-      body: JSON.stringify(payload),
-      signal: timeoutSignal
-    })
+      { purpose: 'session-connect', trigger: 'scheduled', timeoutMs: 30000 }
+    )
 
     if (!response.ok) {
       const errorText = await response
@@ -99,6 +105,7 @@ async function attemptLokiConnect(
 
     return { success: false, error: 'No sessionId in LOKI CONNECT response' }
   } catch (error) {
+    if (error instanceof ProviderAdmissionError) throw error
     const errMsg = getErrorMessage(error)
     const isRetryable =
       errMsg.includes('ECONNRESET') ||
@@ -161,6 +168,7 @@ export async function refreshLokiSession(
       attempts
     }
   } catch (error) {
+    if (error instanceof ProviderAdmissionError) throw error
     return { sessionId: null, error: getErrorMessage(error), attempts }
   }
 }

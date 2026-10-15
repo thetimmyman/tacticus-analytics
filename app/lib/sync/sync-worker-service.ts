@@ -21,8 +21,14 @@ export async function processJob(
   supabase: ServiceSupabaseClient,
   workerId: string
 ): Promise<WorkerResult> {
-  const measured = await captureProviderMetrics(() =>
-    processMeasuredJob(job, supabase, workerId)
+  const measured = await captureProviderMetrics(
+    () => processMeasuredJob(job, supabase, workerId),
+    {
+      purpose:
+        job.job_type === 'validation_sync' ? 'credential-check' : 'guild-sync',
+      trigger: 'scheduled',
+      timeoutMs: 30000
+    }
   )
   return measured.result
 }

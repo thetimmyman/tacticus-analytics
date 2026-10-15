@@ -1,3 +1,4 @@
+import { ProviderAdmissionError } from '@/supabase/functions/_shared/provider-admission'
 import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('lib.resilience.with-retry')
 import {
@@ -235,6 +236,7 @@ export async function withRetry<T>(
 
       return result
     } catch (error) {
+      if (error instanceof ProviderAdmissionError) throw error
       lastError = error as Error
       const attemptDuration = Date.now() - attemptStart
       attemptDurations.push(attemptDuration)

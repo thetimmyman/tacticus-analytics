@@ -1,5 +1,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { API_URLS } from '@tacticus/app-core/api-constants'
+import { createProviderRuntime } from '@/supabase/functions/_shared/provider-admission'
+import type { ProviderOperation } from '@/supabase/functions/_shared/provider-admission'
 
 export interface ProviderMetrics {
   api_calls: number
@@ -8,8 +10,9 @@ export interface ProviderMetrics {
 }
 
 const metricsScope = new AsyncLocalStorage<{
-  metrics: ProviderMetrics
+  metrics?: ProviderMetrics
   isRetry: boolean
+  operation?: ProviderOperation
 }>()
 const providerHosts = new Set([
   'api.tacticusgame.com',
@@ -33,14 +36,23 @@ export function currentProviderMetrics(): ProviderMetrics | null {
 }
 
 export async function captureProviderMetrics<T>(
-  operation: () => Promise<T>
+  operation: () => Promise<T>,
+  context?: ProviderOperation
 ): Promise<{ result: T; metrics: ProviderMetrics }> {
   const metrics: ProviderMetrics = {
     api_calls: 0,
     api_errors: 0,
     api_retry_count: 0
   }
-  const result = await metricsScope.run({ metrics, isRetry: false }, operation)
+  const result = await metricsScope.run(
+    {
+      ...metricsScope.getStore(),
+      metrics,
+      isRetry: false,
+      ...(context && { operation: context })
+    },
+    operation
+  )
   return { result, metrics: { ...metrics } }
 }
 
@@ -54,8 +66,56 @@ export function withProviderRetry<T>(
     : operation()
 }
 
-/** Call at the actual fetch boundary, after local traffic controls admit work. */
-export async function providerFetch(
+/** Attribution shares the existing async scope with physical counters and retry state. */
+export function withProviderOperation<T>(
+  context: ProviderOperation,
+  operation: () => Promise<T>
+): Promise<T> {
+  const current = metricsScope.getStore()
+  return metricsScope.run(
+    { ...current, isRetry: current?.isRetry ?? false, operation: context },
+    operation
+  )
+}
+
+const providerRuntime = createProviderRuntime({
+  officialOrigin: (() => {
+    try {
+      return new URL(API_URLS.TACTICUS.BASE).origin
+    } catch {
+      return undefined
+    }
+  })(),
+  settings: () => ({
+    mode: process.env.PROVIDER_ADMISSION_MODE,
+    authorityOrigin: process.env.PROVIDER_ADMISSION_ORIGIN,
+    token: process.env.PROVIDER_ADMISSION_TOKEN,
+    accountLabelKey: process.env.PROVIDER_ACCOUNT_LABEL_KEY
+  }),
+  physicalFetch: (input, init) => physicalProviderFetch(input, init),
+  controlFetch: (input, init) => globalThis.fetch(input, init)
+})
+
+export function providerFetch(
+  input: RequestInfo | URL,
+  init: RequestInit = {},
+  isRetry = false,
+  operation?: ProviderOperation
+): Promise<Response> {
+  return withProviderRetry(
+    isRetry || metricsScope.getStore()?.isRetry === true,
+    () =>
+      providerRuntime.fetch(
+        input,
+        init,
+        metricsScope.getStore()?.operation ?? operation
+      )
+  )
+}
+
+/** Count only the admitted physical send, excluding control exchanges. */
+
+async function physicalProviderFetch(
   input: RequestInfo | URL,
   init: RequestInit = {},
   isRetry = false

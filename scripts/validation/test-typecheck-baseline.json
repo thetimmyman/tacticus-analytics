@@ -1,4 +1,4 @@
 {
   "$comment": "Advisory ceiling on test type errors; --update lowers it, while increases need review.",
-  "maxErrors": 459
+  "maxErrors": 425
 }
