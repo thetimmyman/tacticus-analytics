@@ -1,4 +1,5 @@
 import { guildRosterQuery } from '@/app/lib/data/guild-roster'
+import { providerFetch } from '@/app/lib/network/provider-metrics'
 // Shared-Loki-session roster refresh for members without a valid Tacticus API key.
 
 import { randomInt } from 'node:crypto'
@@ -62,7 +63,7 @@ const rosterLokiBackfillHandler: JobHandler = async (payload, ctx) => {
       throw new Error('Roster Loki provider request budget exhausted')
     }
     requestsStarted += 1
-    return globalThis.fetch(input, init)
+    return providerFetch(input, init)
   }
 
   try {

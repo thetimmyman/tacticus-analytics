@@ -1,4 +1,5 @@
 import { withRetry, TACTICUS_API_POLICY } from '@/app/lib/resilience'
+import { withProviderRetry } from '@/app/lib/network/provider-metrics'
 import {
   CONFIG,
   fetchWithAbortTimeout,
@@ -26,23 +27,28 @@ export async function fetchGuildMembersViaTacticus(
       'Fetching guild members from Tacticus API'
     )
 
+    let requestAttempt = 0
     const response = await withRetry(
-      async () => {
-        const res = await fetchWithAbortTimeout(
-          url,
-          {
-            method: 'GET',
-            headers: {
-              'X-API-KEY': apiKey,
-              Accept: 'application/json'
-            }
-          },
-          CONFIG.api.requestTimeout,
-          'Tacticus guild members response'
-        )
-        if (!res.ok && res.status >= 500) throw new Error(`HTTP ${res.status}`)
-        return res
-      },
+      () =>
+        withProviderRetry(requestAttempt++ > 0, async () => {
+          const res = await fetchWithAbortTimeout(
+            url,
+            {
+              method: 'GET',
+              headers: {
+                'X-API-KEY': apiKey,
+                Accept: 'application/json'
+              }
+            },
+            CONFIG.api.requestTimeout,
+            'Tacticus guild members response'
+          )
+          if (!res.ok && res.status >= 500) {
+            await res.body?.cancel()
+            throw new Error(`HTTP ${res.status}`)
+          }
+          return res
+        }),
       { ...TACTICUS_API_POLICY, maxAttempts: 2 }
     )
 

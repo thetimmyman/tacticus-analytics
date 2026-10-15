@@ -1,4 +1,5 @@
 import { decryptApiKey } from '@tacticus/app-core/encryption'
+import { captureProviderMetrics } from '@/app/lib/network/provider-metrics'
 import {
   type ServiceSupabaseClient,
   type WorkerResult,
@@ -16,6 +17,17 @@ import {
 } from './worker-jobs'
 
 export async function processJob(
+  job: SyncJob,
+  supabase: ServiceSupabaseClient,
+  workerId: string
+): Promise<WorkerResult> {
+  const measured = await captureProviderMetrics(() =>
+    processMeasuredJob(job, supabase, workerId)
+  )
+  return measured.result
+}
+
+async function processMeasuredJob(
   job: SyncJob,
   supabase: ServiceSupabaseClient,
   workerId: string
