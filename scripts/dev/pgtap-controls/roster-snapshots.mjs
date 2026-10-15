@@ -463,6 +463,130 @@ try {
         ),
       /permission denied/
     )
+  // Retain legacy rows with both lookup keys across each ownership transition.
+  for (const transition of [
+    { id: 7, user: '00000000-0000-4000-8000-000000000003', claimed: true },
+    { id: 8, user: '00000000-0000-4000-8000-000000000004', claimed: false }
+  ]) {
+    const previousOwner = transition.claimed
+      ? 'NULL'
+      : sqlString(transition.user)
+    const currentOwner = transition.claimed
+      ? sqlString(transition.user)
+      : 'NULL'
+    sql(`INSERT INTO auth.users VALUES ('${transition.user}');
+      INSERT INTO public.player_mapping(id,user_id,player_id,player_power)
+      VALUES (${transition.id},${previousOwner},'synthetic-transition-${transition.id}',10);`)
+    const rowId = Number(
+      sql(`INSERT INTO public.player_roster
+        (user_id,player_mapping_id,hero_mapping_id,rank_name,stars,rarity)
+        VALUES ('${transition.user}',${transition.id},10,'Stone 1',0,'Common')
+        RETURNING id`)
+    )
+    assert(Number.isSafeInteger(rowId) && rowId > 0)
+    const observe = (subject) =>
+      JSON.parse(
+        service(
+          `SELECT public.begin_player_roster_refresh(${transition.id},${subject})`
+        )
+      )
+    const commit = (subject, observation, payload = rows, power = 10) =>
+      JSON.parse(
+        service(
+          `SELECT public.persist_player_roster_snapshot(${transition.id},${subject},'${observation.attemptId}',${sqlString(JSON.stringify(payload))}::jsonb,${power},true)`
+        )
+      )
+    const verification = () => summary([transition.id])
+    const original = observe(previousOwner)
+    assert.equal(commit(previousOwner, original).complete, true)
+    assert.equal(verification().fresh, 1)
+    const pending = observe(previousOwner)
+    sql(
+      `UPDATE public.player_mapping SET user_id=${currentOwner} WHERE id=${transition.id}`
+    )
+    assert.throws(() => observe(previousOwner), /Invalid roster owner/)
+    assert.throws(() => commit(previousOwner, pending), /Invalid roster owner/)
+    assert.deepEqual(verification(), {
+      total: 1,
+      verified: 0,
+      fresh: 0,
+      oldestVerifiedAt: null
+    })
+    assert.deepEqual(candidates([transition.id]), [transition.id])
+    const siblingRows = () =>
+      sql(
+        `SELECT id,xmin,row_to_json(r) FROM public.player_roster r WHERE id<>${rowId} ORDER BY id`
+      )
+    const siblingsBefore = siblingRows()
+    const observation = observe(currentOwner)
+    const changed = commit(
+      currentOwner,
+      observation,
+      [{ ...rows[0], rank_name: 'Stone 2' }],
+      11
+    )
+    assert.equal(changed.status, 'applied')
+    assert.equal(changed.complete, true)
+    assert.equal(changed.upserted, 1)
+    assert.equal(
+      sql(
+        `SELECT player_power FROM public.player_mapping WHERE id=${transition.id}`
+      ),
+      '11'
+    )
+    const lookup = transition.claimed
+      ? `user_id='${transition.user}'`
+      : `player_mapping_id=${transition.id}`
+    const stored = () =>
+      sql(
+        `SELECT id,xmin,row_to_json(r) FROM public.player_roster r WHERE id=${rowId}`
+      )
+    assert.equal(
+      sql(
+        `SELECT id,rank_name FROM public.player_roster WHERE (${lookup}) AND hero_mapping_id=10`
+      ),
+      `${rowId}|Stone 2`,
+      'the current ownership lookup sees the updated legacy row without a duplicate'
+    )
+    assert.equal(
+      sql(
+        `SELECT count(*) FROM public.player_roster WHERE user_id='${transition.user}' OR player_mapping_id=${transition.id}`
+      ),
+      '1'
+    )
+    assert.equal(siblingRows(), siblingsBefore)
+    assert.equal(verification().fresh, 1)
+    assert.equal(
+      Date.parse(verification().oldestVerifiedAt),
+      Date.parse(observation.observedAt)
+    )
+    const imported = stored()
+    assert.equal(
+      commit(
+        currentOwner,
+        observation,
+        [{ ...rows[0], rank_name: 'Stone 2' }],
+        11
+      ).idempotent,
+      true
+    )
+    assert.equal(stored(), imported)
+    assert.equal(siblingRows(), siblingsBefore)
+    const repeated = commit(
+      currentOwner,
+      observe(currentOwner),
+      [{ ...rows[0], rank_name: 'Stone 2' }],
+      11
+    )
+    assert.equal(repeated.upserted, 0)
+    assert.equal(repeated.unchanged, true)
+    assert.equal(
+      stored(),
+      imported,
+      'unchanged legacy rows keep their row version'
+    )
+    assert.equal(siblingRows(), siblingsBefore)
+  }
   await rosterSnapshotHttp({ container, network, sql, owner, rows })
   console.log(
     'PASS: atomic/unchanged roster writes, fenced/replayed observations, owner changes, private roles, retained rollback/reapply and wrong-target guard'
