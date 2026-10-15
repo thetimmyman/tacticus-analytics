@@ -70,3 +70,15 @@ when Content-Length is present.
 These events cover calls through these HTTP adapters. They do not establish
 complete caller enrollment, WebSocket coverage, monitoring totals or production
 traffic reduction.
+
+The versioned GlobalConfig CDN download also uses the Node boundary. Each of
+its existing three network attempts is observed separately, with subsequent
+attempts marked as retries. Its 15 second per-attempt timeout, version-hash
+validation and parsed payload contract remain unchanged. APP_START discovery
+and Discord notification calls in the same module retain their own transport.
+
+The download inherits known operation metadata from `withProviderOperation`.
+Without that context, purpose and trigger remain `unknown` in observation mode;
+enforcement refuses the request before any CDN send. A cron-secret-authenticated
+request alone does not establish whether its trigger was scheduled or manual.
+Local admission refusal does not enter the download's network retry ladder.
