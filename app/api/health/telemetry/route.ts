@@ -47,11 +47,24 @@ export const GET = withErrorHandler(async () => {
         .eq('status', 'failed')
     ])
 
+    // Failed or uncounted reads cannot establish a measured zero.
+    if (
+      latestSync.error ||
+      totalLogs.error ||
+      failedLogs.error ||
+      totalLogs.count === null ||
+      totalLogs.count === undefined ||
+      failedLogs.count === null ||
+      failedLogs.count === undefined
+    ) {
+      throw new Error('Telemetry query unavailable')
+    }
+
     const body: TelemetryResponse = {
       last_poll_at: latestSync.data?.last_successful_sync ?? null,
       poll_cadence_seconds: POLL_CADENCE_SECONDS,
-      api_calls_24h: totalLogs.count ?? 0,
-      errors_24h: failedLogs.count ?? 0
+      api_calls_24h: totalLogs.count,
+      errors_24h: failedLogs.count
     }
 
     return NextResponse.json(body, {
