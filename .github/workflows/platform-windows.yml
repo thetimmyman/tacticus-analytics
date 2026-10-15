@@ -39,7 +39,7 @@ jobs:
           Get-Content "$env:RUNNER_TEMP/native-evidence.json"
           & "$out/TacticusDesktop.exe" probe-node-helpers (Get-Command node).Source "$env:GITHUB_WORKSPACE/tests/desktop/windows/native-helper-probe.mjs" "$env:RUNNER_TEMP/helper-evidence.json"
           if ($LASTEXITCODE -ne 0) { throw 'Supplementary native helper diagnostic failed' }
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: windows-native-evidence
           path: |
@@ -85,7 +85,7 @@ jobs:
         id: installed
         shell: pwsh
         run: ./tests/desktop/windows/msix-lifecycle.ps1 -Bundle "$env:RUNNER_TEMP/Tacticus candidate ü" -LifecycleEvidence "$env:RUNNER_TEMP/msix-lifecycle-evidence.json" -JourneyEvidence "$env:RUNNER_TEMP/application-evidence.json" -IntegrityEvidence "$env:RUNNER_TEMP/msix-package-integrity-evidence.json"
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always() && steps.installed.outcome != 'skipped'
         with:
           name: windows-application-evidence
