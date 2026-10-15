@@ -26,3 +26,21 @@ it('identifies filtered webhook log counts without presenting them as provider A
   expect(screen.getByText('Failed webhook logs (24h)')).toBeInTheDocument()
   expect(screen.queryByText('API Calls (24h)')).not.toBeInTheDocument()
 })
+
+it('leaves measured cadence unavailable when the response only provides a legacy interval', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async () =>
+      Response.json({
+        last_poll_at: '2026-01-01T00:00:00.000Z',
+        poll_cadence_seconds: 60,
+        api_calls_24h: 12,
+        errors_24h: 3
+      })
+    )
+  )
+  render(<MonitorTelemetryStrip />)
+  const cadence = await screen.findByText('Cadence')
+  expect(cadence.parentElement).toHaveTextContent('Unavailable')
+  expect(cadence.parentElement).not.toHaveTextContent('1 min')
+})

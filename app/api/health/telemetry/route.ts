@@ -8,7 +8,9 @@ export const dynamic = 'force-dynamic'
 const POLL_CADENCE_SECONDS = 60
 
 export type TelemetryResponse = {
+  /** Legacy key: latest recorded successful sync, not a physical poll time. */
   last_poll_at: string | null
+  /** Legacy nominal interval, not measured feed cadence. */
   poll_cadence_seconds: number
   /** Legacy key: filtered webhook log rows, not provider HTTP calls. */
   api_calls_24h: number
