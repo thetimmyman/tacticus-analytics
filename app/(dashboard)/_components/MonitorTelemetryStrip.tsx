@@ -75,10 +75,13 @@ export default function MonitorTelemetryStrip() {
         <span className="opacity-40">·</span>
         <Kpi label="Cadence" value={formatCadence(data.poll_cadence_seconds)} />
         <span className="opacity-40">·</span>
-        <Kpi label="API Calls (24h)" value={formatCount(data.api_calls_24h)} />
+        <Kpi
+          label="Webhook logs (24h)"
+          value={formatCount(data.api_calls_24h)}
+        />
         <span className="opacity-40">·</span>
         <Kpi
-          label="Errors (24h)"
+          label="Failed webhook logs (24h)"
           value={formatCount(data.errors_24h)}
           tone={data.errors_24h > 0 ? 'warn' : undefined}
         />

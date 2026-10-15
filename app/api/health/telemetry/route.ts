@@ -10,7 +10,9 @@ const POLL_CADENCE_SECONDS = 60
 export type TelemetryResponse = {
   last_poll_at: string | null
   poll_cadence_seconds: number
+  /** Legacy key: filtered webhook log rows, not provider HTTP calls. */
   api_calls_24h: number
+  /** Failed rows in the same webhook log population. */
   errors_24h: number
 }
 
@@ -22,6 +24,7 @@ export const GET = withErrorHandler(async () => {
     const supabase = serviceDb()
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
 
+    // Keep suppression and manual aggregate audits outside these log counts.
     const [latestSync, totalLogs, failedLogs] = await Promise.all([
       supabase
         .from('sync_health')
