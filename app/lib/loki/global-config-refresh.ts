@@ -9,6 +9,7 @@ import {
   type GlobalConfigShape
 } from '@/app/lib/loki/global-config-diff'
 import { resolveEffectiveGlobalConfig } from './effective-global-config'
+import { providerFetch } from '@/app/lib/network/provider-metrics'
 
 // GlobalConfig drift detection (IO side): compares the served config with live LOKI
 // (APP_START -> hash -> CDN). Reports drift only; never writes GlobalConfig.json.
@@ -25,7 +26,12 @@ const GLOBAL_CONFIG_FETCH_TIMEOUT_MS = 15000
 async function fetchWithRetry(
   url: string,
   init: RequestInit,
-  attempts = 3
+  attempts = 3,
+  send: (
+    url: string,
+    init: RequestInit,
+    isRetry: boolean
+  ) => Promise<Response> = (url, init) => fetch(url, init)
 ): Promise<Response> {
   let lastErr: unknown
   for (let i = 1; i <= attempts; i++) {
@@ -37,10 +43,14 @@ async function fetchWithRetry(
     let retryDelayMs: number | null = null
 
     try {
-      return await fetch(url, {
-        ...init,
-        signal: controller.signal
-      })
+      return await send(
+        url,
+        {
+          ...init,
+          signal: controller.signal
+        },
+        i > 1
+      )
     } catch (err) {
       lastErr = err
       const msg = err instanceof Error ? err.message : String(err)
@@ -173,10 +183,15 @@ export async function fetchGlobalConfig(
   if (!/^[0-9a-f]{32}$/i.test(hash)) {
     throw new Error('Invalid GlobalConfig version hash')
   }
-  const resp = await fetchWithRetry(GLOBAL_CONFIG_URL(hash), {
-    headers: { 'User-Agent': 'tacticus-analytics/refresh-global-config' },
-    cache: 'no-store'
-  })
+  const resp = await fetchWithRetry(
+    GLOBAL_CONFIG_URL(hash),
+    {
+      headers: { 'User-Agent': 'tacticus-analytics/refresh-global-config' },
+      cache: 'no-store'
+    },
+    3,
+    providerFetch
+  )
   if (!resp.ok) {
     throw new Error(`GlobalConfig.${hash}.json returned HTTP ${resp.status}`)
   }
