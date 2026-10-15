@@ -532,3 +532,4 @@ superseded flow and do not qualify the current desktop UI.
 compiled application is configured. Each mode retains its own private generated
 configuration and evidence file; the supplied configuration is unchanged. The
 aggregate does not execute the historical password/recovery journeys.
+Child processes that cannot start or terminate by signal count as failed gates.

@@ -14,6 +14,41 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { test } from 'node:test'
 
+for (const mode of ['signalled proof', 'missing Node']) {
+  test(
+    `native proof reports failure for ${mode}`,
+    { skip: process.platform !== 'linux' },
+    async () => {
+      const folder = await mkdtemp(join(tmpdir(), 'native proof failure '))
+      try {
+        if (mode === 'signalled proof') {
+          const executable = join(folder, 'node')
+          await writeFile(
+            executable,
+            `#!${process.execPath}\nprocess.kill(process.pid, 'SIGTERM')\n`
+          )
+          await chmod(executable, 0o755)
+        }
+        const env = { ...process.env, PATH: folder }
+        delete env.DESKTOP_PROOF_CONFIG
+        const result = spawnSync(
+          process.execPath,
+          [fileURLToPath(new URL('./run-all.mjs', import.meta.url))],
+          {
+            env,
+            encoding: 'utf8',
+            timeout: 30000
+          }
+        )
+        assert.ifError(result.error)
+        assert.equal(result.status, 1)
+      } finally {
+        await rm(folder, { recursive: true, force: true })
+      }
+    }
+  )
+}
+
 test(
   'native proof dispatches current fresh and former-password device sessions without modifying the supplied configuration',
   {

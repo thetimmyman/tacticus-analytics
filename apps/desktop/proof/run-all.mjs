@@ -17,8 +17,9 @@ function run(label, file, args) {
     stdio: 'inherit',
     cwd: new URL('../../..', import.meta.url).pathname
   })
-  results.push({ gate: label, exitCode: result.status })
-  return result.status === 0
+  const exitCode = result.status ?? 1
+  results.push({ gate: label, exitCode })
+  return exitCode === 0
 }
 
 async function onboarding(
