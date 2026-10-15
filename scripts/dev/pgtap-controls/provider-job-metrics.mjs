@@ -56,6 +56,8 @@ const query = (sql, user = 'synthetic_worker', database = 'postgres') =>
       'ON_ERROR_STOP=1',
       '-U',
       user,
+      '-h',
+      '127.0.0.1',
       '-d',
       database
     ],
@@ -78,6 +80,8 @@ const concurrentQuery = (sql) =>
       'ON_ERROR_STOP=1',
       '-U',
       'synthetic_worker',
+      '-h',
+      '127.0.0.1',
       '-d',
       'postgres'
     ])
