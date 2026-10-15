@@ -2,6 +2,9 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 import { API_URLS } from '@tacticus/app-core/api-constants'
 import { createProviderRuntime } from '@/supabase/functions/_shared/provider-admission'
 import type { ProviderOperation } from '@/supabase/functions/_shared/provider-admission'
+import type { ProviderPhysicalContext } from '@/supabase/functions/_shared/provider-admission'
+import { prepareProviderObservation } from '@/supabase/functions/_shared/provider-observation'
+import { logger } from '@/app/lib/logging/logger'
 
 export interface ProviderMetrics {
   api_calls: number
@@ -68,9 +71,7 @@ export function withProviderRetry<T>(
   operation: () => Promise<T>
 ): Promise<T> {
   const context = metricsScope.getStore()
-  return context
-    ? metricsScope.run({ ...context, isRetry }, operation)
-    : operation()
+  return metricsScope.run({ ...context, isRetry }, operation)
 }
 
 /** Attribution shares the existing async scope with physical counters and retry state. */
@@ -85,21 +86,24 @@ export function withProviderOperation<T>(
   )
 }
 
+const officialOrigin = (() => {
+  try {
+    return new URL(API_URLS.TACTICUS.BASE).origin
+  } catch {
+    return undefined
+  }
+})()
+
 const providerRuntime = createProviderRuntime({
-  officialOrigin: (() => {
-    try {
-      return new URL(API_URLS.TACTICUS.BASE).origin
-    } catch {
-      return undefined
-    }
-  })(),
+  officialOrigin,
   settings: () => ({
     mode: process.env.PROVIDER_ADMISSION_MODE,
     authorityOrigin: process.env.PROVIDER_ADMISSION_ORIGIN,
     token: process.env.PROVIDER_ADMISSION_TOKEN,
     accountLabelKey: process.env.PROVIDER_ACCOUNT_LABEL_KEY
   }),
-  physicalFetch: (input, init) => physicalProviderFetch(input, init),
+  physicalFetch: (input, init, context) =>
+    physicalProviderFetch(input, init, false, context),
   controlFetch: (input, init) => globalThis.fetch(input, init)
 })
 
@@ -212,7 +216,8 @@ function observeProviderResponse(
 async function physicalProviderFetch(
   input: RequestInfo | URL,
   init: RequestInit = {},
-  isRetry = false
+  isRetry = false,
+  physicalContext?: ProviderPhysicalContext
 ): Promise<Response> {
   const url = new URL(input instanceof Request ? input.url : String(input))
   if (!isProviderHost(url.hostname)) return globalThis.fetch(input, init)
@@ -223,6 +228,19 @@ async function physicalProviderFetch(
   if (!(input instanceof Request)) new Request(input, init)
   signal?.throwIfAborted()
   const context = metricsScope.getStore()
+  const preparation = prepareProviderObservation(input, init, {
+    runtime: 'node',
+    officialOrigin,
+    accountLabelKey: process.env.PROVIDER_ACCOUNT_LABEL_KEY,
+    context:
+      physicalContext ??
+      (context?.operation ? { operation: context.operation } : undefined),
+    retry: isRetry || context?.isRetry === true,
+    emit: (record) => logger.info(record, 'provider transport')
+  })
+  const observed =
+    preparation instanceof Promise ? await preparation : preparation
+  signal?.throwIfAborted()
   const metrics = context?.metrics
   if (metrics) {
     metrics.api_calls++
@@ -231,7 +249,9 @@ async function physicalProviderFetch(
   const attempt = context?.attempt
   if (attempt) attempt.started = true
   try {
-    const response = await globalThis.fetch(input, init)
+    const response = await (observed
+      ? observed.run(() => globalThis.fetch(observed.input, observed.init))
+      : globalThis.fetch(input, init))
     if (!response.ok) markAttemptFailure(attempt)
     return response
   } catch (error) {
