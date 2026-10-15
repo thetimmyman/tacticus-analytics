@@ -8,6 +8,10 @@ updates:
     directory: '/'
     schedule:
       interval: 'monthly'
+    groups:
+      codeql-action:
+        patterns:
+          - 'github/codeql-action/*'
 
   # Root app plus workspaces; monthly, grouped and capped to keep PR noise low.
   - package-ecosystem: 'npm'
