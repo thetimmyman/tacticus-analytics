@@ -8,13 +8,15 @@ type Handler = (
 const context = { jobId: 4242, workerId: 'vitest', attempts: 1 }
 
 let mockFetch: ReturnType<typeof vi.fn>
-let mockRefresh: ReturnType<typeof vi.fn>
+let mockEnsure: ReturnType<typeof vi.fn>
+let mockCreateStore: ReturnType<typeof vi.fn>
 let warnSpy: ReturnType<typeof vi.fn>
 let guildBatchSyncHandler: Handler
 
 const ANON = 'anon-key'
 const SERVICE = 'service-key'
 const BASE = 'http://supabase.local'
+const SESSION_STORE = { read: vi.fn(), write: vi.fn() }
 
 function isoHoursAgo(hours: number): string {
   return new Date(Date.now() - hours * 60 * 60 * 1000).toISOString()
@@ -26,6 +28,7 @@ type GuildRow = {
   consecutive_sync_failures: number | null
   last_successful_sync: string | null
   sync_tier?: string | null
+  guild_id?: string | null
   // Not selected by the healing lane; the mock needs it for the cohort predicate.
   api_key_is_valid?: boolean | null
 }
@@ -77,9 +80,6 @@ function buildFetch(opts: {
   const fn = vi.fn(async (url: string, init?: { body?: string }) => {
     if (url.includes('guild_config') && init && init.body === undefined) {
     }
-    if (url.includes('/rest/v1/guild_config?or=')) {
-      return jsonResponse(null) // bulk session PATCH (or=null-user_id,scraper)
-    }
     if (url.includes('/rest/v1/guild_config?select=')) {
       // Only the healing-lane GET filters on api_key_encrypted, a stable discriminator.
       if (url.includes('api_key_encrypted=not.is.null')) {
@@ -123,18 +123,21 @@ describe('guild-batch-sync handler', () => {
     process.env.LOKI_SCRAPER_USER_ID = 'loki-user-123'
 
     mockFetch = vi.fn()
-    mockRefresh = vi.fn().mockResolvedValue({
-      success: true,
-      sessionId: 'fresh-session',
+    mockEnsure = vi.fn().mockResolvedValue({
+      sessionId: 'shared-session',
+      connected: false,
+      reused: true,
       durationMs: 12
     })
+    mockCreateStore = vi.fn().mockReturnValue(SESSION_STORE)
     warnSpy = vi.fn()
 
     vi.doMock('@/app/lib/network/undici-agent', () => ({
       getSharedFetch: () => mockFetch
     }))
     vi.doMock('@/app/lib/loki/batch-session-refresh', () => ({
-      refreshSharedLokiSession: mockRefresh
+      ensureSharedLokiSession: mockEnsure,
+      createRestSharedSessionStore: mockCreateStore
     }))
     vi.doMock('@/app/lib/jobs/dispatcher', () => ({
       registerJobHandler: vi.fn()
@@ -351,11 +354,18 @@ describe('guild-batch-sync handler', () => {
     )
   })
 
-  it('warns about the thundering-herd regression when LOKI_SCRAPER_USER_ID is unset', async () => {
-    delete process.env.LOKI_SCRAPER_USER_ID
+  it('warns and sends no session when the shared LOKI session is unavailable', async () => {
+    mockEnsure.mockResolvedValue({
+      sessionId: null,
+      connected: false,
+      reused: false,
+      error: 'LOKI CONNECT failed',
+      durationMs: 5
+    })
     const guilds: GuildRow[] = [
       {
         guild_code: 'ONLY',
+        guild_id: 'synthetic-guild-only',
         auto_sync_enabled: true,
         consecutive_sync_failures: 0,
         last_successful_sync: isoHoursAgo(3),
@@ -366,27 +376,46 @@ describe('guild-batch-sync handler', () => {
     mockFetch = fn
 
     guildBatchSyncHandler = await loadHandler()
-    await guildBatchSyncHandler({}, context)
+    const result = (await guildBatchSyncHandler({}, context)) as Record<
+      string,
+      unknown
+    >
 
     const warnedThunderingHerd = warnSpy.mock.calls.some((call) =>
       String(call[1] ?? '').includes('thundering-herd')
     )
     expect(warnedThunderingHerd).toBe(true)
-
-    const patchAttempted = mockFetch.mock.calls.some(
-      ([url]) =>
-        String(url).includes('guild_config') && String(url).includes('?or=')
-    )
-    expect(patchAttempted).toBe(false)
+    expect(result.lokiSharedSession).toBe('none')
+    const syncBody = mockFetch.mock.calls
+      .filter(([url]) => String(url).includes('sync-modular-workflow'))
+      .map(([, init]) => JSON.parse(init.body))
+    expect(syncBody).toEqual([{ guild_code: 'ONLY' }])
   })
 
-  it('bulk-refreshes the shared session for scraper-managed (null user_id) guilds', async () => {
+  it('probes with the stalest guild that has a guild id and hands every sync the shared session', async () => {
     const guilds: GuildRow[] = [
       {
-        guild_code: 'SCRAPER1',
+        guild_code: 'NOID',
+        guild_id: null,
         auto_sync_enabled: true,
         consecutive_sync_failures: 0,
-        last_successful_sync: isoHoursAgo(3),
+        last_successful_sync: isoHoursAgo(9),
+        sync_tier: 'active'
+      },
+      {
+        guild_code: 'NEWER',
+        guild_id: 'synthetic-guild-newer',
+        auto_sync_enabled: true,
+        consecutive_sync_failures: 0,
+        last_successful_sync: isoHoursAgo(2),
+        sync_tier: 'active'
+      },
+      {
+        guild_code: 'OLDER',
+        guild_id: 'synthetic-guild-older',
+        auto_sync_enabled: true,
+        consecutive_sync_failures: 0,
+        last_successful_sync: isoHoursAgo(5),
         sync_tier: 'active'
       }
     ]
@@ -394,16 +423,61 @@ describe('guild-batch-sync handler', () => {
     mockFetch = fn
 
     guildBatchSyncHandler = await loadHandler()
+    const result = (await guildBatchSyncHandler({}, context)) as Record<
+      string,
+      unknown
+    >
+
+    const guildGet = String(mockFetch.mock.calls[0]?.[0])
+    expect(guildGet).toContain('guild_id')
+    expect(mockCreateStore).toHaveBeenCalledWith(
+      expect.objectContaining({ baseUrl: BASE, scraperUserId: 'loki-user-123' })
+    )
+    expect(mockEnsure).toHaveBeenCalledTimes(1)
+    expect(mockEnsure).toHaveBeenCalledWith({
+      store: SESSION_STORE,
+      probeGuildId: 'synthetic-guild-older'
+    })
+    const sessions = mockFetch.mock.calls
+      .filter(([url]) => String(url).includes('sync-modular-workflow'))
+      .map(([, init]) => JSON.parse(init.body).fresh_session_id)
+    expect(sessions).toEqual([
+      'shared-session',
+      'shared-session',
+      'shared-session'
+    ])
+    expect(result.lokiSharedSession).toBe('reused')
+  })
+
+  it('asks for no LOKI session when no guild to sync has a guild id', async () => {
+    const guilds: GuildRow[] = [
+      {
+        guild_code: 'NOID',
+        auto_sync_enabled: true,
+        consecutive_sync_failures: 0,
+        last_successful_sync: isoHoursAgo(3),
+        sync_tier: 'active'
+      }
+    ]
+    mockEnsure.mockResolvedValue({
+      sessionId: null,
+      connected: false,
+      reused: false,
+      durationMs: 0
+    })
+    const { fn } = buildFetch({ guilds })
+    mockFetch = fn
+
+    guildBatchSyncHandler = await loadHandler()
     await guildBatchSyncHandler({}, context)
 
-    // The bulk PATCH targets null-user_id guilds; user_id=eq.<scraper> matched zero rows.
-    const patchCall = mockFetch.mock.calls.find(([url]) =>
-      String(url).includes('/rest/v1/guild_config?or=')
+    expect(mockEnsure).toHaveBeenCalledWith(
+      expect.objectContaining({ probeGuildId: null })
     )
-    expect(patchCall).toBeDefined()
-    expect(String(patchCall?.[0])).toContain(
-      'or=(user_id.is.null,user_id.eq.loki-user-123)'
+    const warnedThunderingHerd = warnSpy.mock.calls.some((call) =>
+      String(call[1] ?? '').includes('thundering-herd')
     )
+    expect(warnedThunderingHerd).toBe(false)
   })
 
   it('returns the no-op shape when no guilds need syncing', async () => {
@@ -426,7 +500,7 @@ describe('guild-batch-sync handler', () => {
     >
 
     expect(result.message).toBe('No guilds need syncing')
-    expect(mockRefresh).not.toHaveBeenCalled()
+    expect(mockEnsure).not.toHaveBeenCalled()
     expect(result.guildsProcessed).toBe(0)
     expect(syncedGuildCodes.length).toBe(0)
   })

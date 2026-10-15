@@ -92,6 +92,8 @@ export interface LokiClientOptions {
   fetchImpl?: typeof fetch
 }
 
+export type SessionCheck = 'valid' | 'rejected' | 'unavailable'
+
 interface InternalRequestResult<T> {
   ok: boolean
   data?: T
@@ -478,6 +480,35 @@ export class LokiClient {
         raw: result.raw
       },
       raw: result.raw
+    }
+  }
+
+  /**
+   * One guild view on `sessionId`. Never CONNECTs, retries or adopts a session from the reply.
+   * 'unavailable' means the game gave no verdict on the session.
+   */
+  public async checkSession(
+    sessionId: string,
+    guildId: string
+  ): Promise<SessionCheck> {
+    // No session argument: the event carries the session in its path only, as the sync's does.
+    const payload = this.buildEventPayload({
+      eventType: 'VIEW_GUILD_2',
+      eventData: { guildId }
+    })
+    try {
+      const { response, text } = await this.postJson(
+        `player/player2/userId/${this.credentials.userId}/sessionId/${sessionId}`,
+        payload
+      )
+      if (response.ok) return 'valid'
+      if (response.status === 401 || this.shouldRefreshFromBody(text)) {
+        return 'rejected'
+      }
+      return 'unavailable'
+    } catch (error) {
+      if (error instanceof ProviderAdmissionError) throw error
+      return 'unavailable'
     }
   }
 
