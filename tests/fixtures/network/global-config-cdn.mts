@@ -29,8 +29,24 @@ const config = { configVersion: hash, synthetic: ['preserved', 7, true] }
 let physicalRequests = 0
 let controls = 0
 let siblingRequests = 0
+let settledHttpErrors = 0
+let permitHeld = false
+let slotDenials = 0
+let firstBodyCancelled = false
+let rejectionElapsedMs = 0
+let resolveFirstResponseClosed!: () => void
+const firstResponseClosed = new Promise<void>((resolve) => {
+  resolveFirstResponseClosed = resolve
+})
 const server = createServer((request, response) => {
   physicalRequests++
+  const requestNumber = physicalRequests
+  response.on('close', () => {
+    if (requestNumber === 1) {
+      firstBodyCancelled = !response.writableFinished
+      resolveFirstResponseClosed()
+    }
+  })
   assert.equal(request.url, `/config/global/GlobalConfig.${hash}.json`)
   assert.equal(request.method, 'GET')
   assert.equal(
@@ -46,8 +62,16 @@ const server = createServer((request, response) => {
       request.socket.destroy()
       return
     }
-    response.statusCode = scenario === 'http' ? 429 : 200
+    response.statusCode =
+      scenario.startsWith('http') &&
+      (!scenario.startsWith('http-enforced') || requestNumber === 1)
+        ? 429
+        : 200
     response.setHeader('content-type', 'application/json')
+    if (scenario === 'http-enforced-open' && requestNumber === 1) {
+      response.write('{"synthetic":"unfinished error body')
+      return
+    }
     response.end(JSON.stringify(config))
   })
 })
@@ -56,6 +80,7 @@ const address = server.address()
 assert(address && typeof address !== 'string')
 const endpoint = `http://127.0.0.1:${address.port}`
 const nativeFetch = getSharedFetch()
+const streamingFetch = globalThis.fetch
 
 globalThis.fetch = (input, init) => {
   const url = new URL(input instanceof Request ? input.url : String(input))
@@ -63,11 +88,24 @@ globalThis.fetch = (input, init) => {
     controls++
     const action = url.pathname.split('/').at(-1)
     const body = JSON.parse(String(init?.body))
+    if (action === 'outcome' && body.settled === true) {
+      permitHeld = false
+      if (body.status === 429) settledHttpErrors++
+    }
     if (action === 'reserve') {
       assert.equal(body.domain, 'cdn')
       assert.equal(body.endpoint, '/config/global/GlobalConfig.<hash>.json')
       assert.equal(body.purpose, 'game-config-refresh')
       assert.equal(body.timeoutMs, 15000)
+      if (scenario.startsWith('http-enforced')) {
+        if (permitHeld) {
+          slotDenials++
+          return Promise.resolve(
+            Response.json({ status: 'denied', reason: 'disabled' })
+          )
+        }
+        permitHeld = true
+      }
     }
     return Promise.resolve(
       Response.json(
@@ -106,7 +144,9 @@ globalThis.fetch = (input, init) => {
   }
   assert.equal(url.hostname, 'cdn.loki.snowprintstudios.com')
   assert.equal(input instanceof Request ? input.cache : init?.cache, 'no-store')
-  return nativeFetch(
+  // The default native adapter buffers a completed body. Use Node's actual
+  // streaming fetch for the never-ending-body control; both reach loopback only.
+  return (scenario === 'http-enforced-open' ? streamingFetch : nativeFetch)(
     input instanceof Request
       ? new Request(endpoint + url.pathname, input)
       : endpoint + url.pathname,
@@ -146,7 +186,8 @@ try {
         ),
         { code: 'PROVIDER_ADMISSION_REFUSED' }
       )
-    } else if (scenario === 'exhausted' || scenario === 'http') {
+    } else if (scenario === 'exhausted' || scenario.startsWith('http')) {
+      const started = performance.now()
       await assert.rejects(
         withProviderOperation(
           {
@@ -156,10 +197,49 @@ try {
           },
           operation
         ),
-        scenario === 'http'
+        scenario.startsWith('http')
           ? /HTTP 429/
           : /fetch failed|socket|other side closed/i
       )
+      if (scenario.startsWith('http-enforced')) {
+        rejectionElapsedMs = performance.now() - started
+        assert.ok(
+          rejectionElapsedMs < 5000,
+          'HTTP rejection must settle well before its 15 second deadline'
+        )
+        assert.equal(
+          settledHttpErrors,
+          1,
+          'HTTP error body must release its admission permit before rejection'
+        )
+        if (scenario === 'http-enforced-open') {
+          await new Promise<void>((resolve, reject) => {
+            const timeout = setTimeout(
+              () => reject(new Error('Error body was not cancelled promptly')),
+              2000
+            )
+            void firstResponseClosed.then(() => {
+              clearTimeout(timeout)
+              resolve()
+            })
+          })
+          assert.equal(firstBodyCancelled, true)
+        }
+        const nextConfig = await withProviderOperation(
+          {
+            purpose: 'game-config-refresh',
+            trigger: 'scheduled',
+            timeoutMs: 15000
+          },
+          operation
+        )
+        assert.deepEqual(nextConfig, config)
+        assert.equal(
+          slotDenials,
+          0,
+          'The next legitimate operation must acquire the one-slot permit'
+        )
+      }
     } else {
       const value =
         scenario === 'unknown'
@@ -181,6 +261,11 @@ try {
       physicalRequests,
       controls,
       siblingRequests,
+      settledHttpErrors,
+      permitHeld,
+      slotDenials,
+      firstBodyCancelled,
+      rejectionElapsedMs,
       metrics: measured.metrics
     },
     'synthetic CDN result'

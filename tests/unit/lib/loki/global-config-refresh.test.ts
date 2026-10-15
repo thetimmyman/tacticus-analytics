@@ -80,4 +80,29 @@ describe('global-config-refresh fetch timeout', () => {
     expect(wire).toHaveBeenCalledTimes(1)
     expect(vi.getTimerCount()).toBe(0)
   })
+
+  it('retains the original HTTP error when cancelling the unused CDN body fails', async () => {
+    vi.stubEnv('PROVIDER_ADMISSION_MODE', 'off')
+    const cancel = vi.fn(async () => {
+      throw new Error('synthetic cancellation failure')
+    })
+    const wire = vi.fn(
+      async () => new Response(new ReadableStream({ cancel }), { status: 503 })
+    )
+    vi.stubGlobal('fetch', wire)
+    const { fetchGlobalConfig } =
+      await import('@/app/lib/loki/global-config-refresh')
+    const measured = await captureProviderMetrics(async () => {
+      await expect(fetchGlobalConfig('a'.repeat(32))).rejects.toThrow(
+        'returned HTTP 503'
+      )
+    })
+    expect(cancel).toHaveBeenCalledTimes(1)
+    expect(wire).toHaveBeenCalledTimes(1)
+    expect(measured.metrics).toEqual({
+      api_calls: 1,
+      api_errors: 1,
+      api_retry_count: 0
+    })
+  })
 })

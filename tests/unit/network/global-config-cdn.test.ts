@@ -28,7 +28,9 @@ async function observe(scenario: string) {
           'refused',
           'enforced',
           'siblings',
-          'missing'
+          'missing',
+          'http-enforced',
+          'http-enforced-open'
         ].includes(scenario)
           ? 'enforce'
           : 'off',
@@ -166,3 +168,22 @@ it('refuses missing operation context under enforcement before any control or CD
   expect(dispatches).toHaveLength(0)
   expect(outcomes).toHaveLength(0)
 })
+
+it.each(['http-enforced', 'http-enforced-open'])(
+  'settles %s before the deadline and admits the next one-slot operation',
+  async (scenario) => {
+    const { result, dispatches, outcomes } = await observe(scenario)
+    expect(result).toMatchObject({
+      physicalRequests: 2,
+      settledHttpErrors: 1,
+      permitHeld: false,
+      slotDenials: 0,
+      metrics: { api_calls: 2, api_errors: 1, api_retry_count: 0 }
+    })
+    if (scenario === 'http-enforced-open')
+      expect(result).toMatchObject({ firstBodyCancelled: true })
+    expect(dispatches).toHaveLength(2)
+    expect(dispatches.map((r) => r.retry)).toEqual([false, false])
+    expect(outcomes.map((r) => r.status)).toEqual([429, 200])
+  }
+)

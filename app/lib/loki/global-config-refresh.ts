@@ -193,6 +193,8 @@ export async function fetchGlobalConfig(
     providerFetch
   )
   if (!resp.ok) {
+    // Release the unused body and its admission permit without parsing error data.
+    await resp.body?.cancel().catch(() => undefined)
     throw new Error(`GlobalConfig.${hash}.json returned HTTP ${resp.status}`)
   }
   return (await resp.json()) as GlobalConfigShape
