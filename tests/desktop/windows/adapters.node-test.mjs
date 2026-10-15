@@ -456,6 +456,15 @@ test('staged service imports its exact schema recovery module and inventories th
     )
     const services = await import(pathToFileURL(servicePath).href)
     assert.equal(typeof services.nativeServices, 'function')
+    // The actual staged launcher must resolve its complete static graph before
+    // refusing the absent native owner's state. No native process is started.
+    await assert.rejects(
+      import(
+        pathToFileURL(join(output, 'apps/desktop/platform/windows/launch.mjs'))
+          .href
+      ),
+      { message: 'Native workspace owner must supply its protected state path' }
+    )
     const relative = 'apps/desktop/platform/windows/schema-bootstrap.mjs'
     const original = await readFile(
       new URL('../../../' + relative, import.meta.url)
