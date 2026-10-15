@@ -15,10 +15,17 @@ BEGIN
   ) THEN
     RAISE EXCEPTION 'Job function authority drifted; inspect before applying measurements';
   END IF;
-  IF (SELECT md5(prosrc) FROM pg_proc WHERE oid = to_regprocedure('public.complete_job(uuid,text,jsonb,jsonb)'))
-       IS DISTINCT FROM 'bc50fd9768db5fd90306b6bcf440f1b1'
-    OR (SELECT md5(prosrc) FROM pg_proc WHERE oid = to_regprocedure('public.fail_job(uuid,text,text,jsonb)'))
-       IS DISTINCT FROM '3d63c61f3124312d6348efc940016b7e' THEN
+  -- Both sealed layouts are reproduced from public source in the DB controls.
+  -- The older layout already projects successful-call counters; unknown code
+  -- and missing functions remain refused before any replacement or receipt.
+  IF NOT COALESCE((SELECT md5(prosrc) IN (
+       'bc50fd9768db5fd90306b6bcf440f1b1',
+       'b20dff99aa08ffe8160cc3754358b103'
+     ) FROM pg_proc WHERE oid = to_regprocedure('public.complete_job(uuid,text,jsonb,jsonb)')),false)
+    OR NOT COALESCE((SELECT md5(prosrc) IN (
+       '3d63c61f3124312d6348efc940016b7e',
+       'b936f8e36d18ab843757672134b01689'
+     ) FROM pg_proc WHERE oid = to_regprocedure('public.fail_job(uuid,text,text,jsonb)')),false) THEN
     RAISE EXCEPTION 'Job terminal contract drifted; inspect before applying measurements';
   END IF;
 END;

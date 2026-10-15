@@ -34,3 +34,12 @@ scripts, native adapters and WebSocket traffic still need enrollment and
 observation. Account labels, response-byte measurements, cache/coalescing outcomes
 and matched physical-dispatch UTC windows are not represented by these job totals.
 They do not certify distributed admission or an estate-wide shutdown procedure.
+
+Each function accepts either of its two sealed, independently supported predecessor
+bodies, reproduced from public SQL in disposable controls. One earlier complete_job
+body already records successful-call counters. Unknown bodies, missing signatures,
+SECURITY DEFINER and function-level configuration are refused before replacement.
+CREATE OR REPLACE preserves each function’s existing owner and ACL; the migration
+does not certify their predecessor values. Production application requires a
+separately reviewed expected owner/ACL preflight and backup. Recovery restores the
+exact captured bodies and retains measurements.
