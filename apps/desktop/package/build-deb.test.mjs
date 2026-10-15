@@ -5,6 +5,7 @@ import {
   chmod,
   mkdir,
   mkdtemp,
+  open,
   readFile,
   rm,
   stat,
@@ -215,9 +216,17 @@ test(
       assert.match(profile, /userns,/)
       for (const name of ['postinst', 'prerm', 'postrm']) {
         const path = join(output, 'payload/DEBIAN', name)
-        assert.equal((await stat(path)).mode & 0o111, 0o111)
-        const script = await readFile(path, 'utf8')
-        assert.doesNotMatch(script, /sysctl -w|no-sandbox|chmod.*[467][0-7]{3}/)
+        const file = await open(path, 'r')
+        try {
+          assert.equal((await file.stat()).mode & 0o111, 0o111)
+          const script = await file.readFile('utf8')
+          assert.doesNotMatch(
+            script,
+            /sysctl -w|no-sandbox|chmod.*[467][0-7]{3}/
+          )
+        } finally {
+          await file.close()
+        }
       }
       const home = join(output, 'hook test')
       const etc = join(home, 'etc/apparmor.d')
