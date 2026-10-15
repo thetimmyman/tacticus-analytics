@@ -1,0 +1,7 @@
+abi <abi/4.0>,
+include <tunables/global>
+
+profile tacticus-analytics-preview /opt/tacticus-analytics-preview/electron/electron flags=(unconfined) {
+  userns,
+  include if exists <local/tacticus-analytics-preview>
+}
