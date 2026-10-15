@@ -10,12 +10,18 @@ import {
 type StrictSupabaseClient = TypedSupabaseClient
 type GuildConfigRow =
   SupabaseDatabase['public']['Tables']['guild_config']['Row']
+interface GuildDiscoveryPayload {
+  guild?: { guildId?: unknown; guildTag?: unknown }
+  guildId?: unknown
+  id?: unknown
+  guildTag?: unknown
+}
 
 export async function autoPatchGuildConfig(
   supabase: StrictSupabaseClient,
   guildCode: string,
   apiKey: string,
-  options: { forceRefreshTag?: boolean } = {}
+  options: { forceRefreshTag?: boolean; guildPayload?: unknown } = {}
 ): Promise<GuildConfigRow> {
   let needsUpdate = false
   const updateData: Partial<GuildConfigRow> = {}
@@ -41,20 +47,24 @@ export async function autoPatchGuildConfig(
       'Missing guild_id or guild_tag, attempting to extract from API...'
     )
     try {
-      const guildResult = await fetchWithCircuitBreaker(
-        `${CONFIG.api.baseUrl}/guild`,
-        {
-          headers: {
-            'X-API-KEY': apiKey,
-            Accept: 'application/json'
-          }
-        },
-        2,
-        10000
-      )
+      const guildResult =
+        options.guildPayload === undefined
+          ? await fetchWithCircuitBreaker(
+              `${CONFIG.api.baseUrl}/guild`,
+              {
+                headers: {
+                  'X-API-KEY': apiKey,
+                  Accept: 'application/json'
+                }
+              },
+              2,
+              10000
+            )
+          : null
 
-      if (guildResult.ok) {
-        const guildData = await guildResult.json()
+      if (options.guildPayload !== undefined || guildResult?.ok) {
+        const guildData = (options.guildPayload ??
+          (await guildResult?.json())) as GuildDiscoveryPayload
 
         // The API returns guildTag, not our guildCode, so compare by guildId.
         const guildId =
@@ -71,7 +81,7 @@ export async function autoPatchGuildConfig(
           throw new Error('API key belongs to a different guild')
         }
 
-        if (guildId) {
+        if (typeof guildId === 'string' && guildId) {
           updateData.guild_id = guildId
           updatedConfig.guild_id = guildId
           needsUpdate = true
@@ -84,6 +94,7 @@ export async function autoPatchGuildConfig(
         // Only fill a missing tag unless forceRefreshTag (admin backfill) is set.
         const guildTag = guildData.guild?.guildTag || guildData.guildTag
         if (
+          typeof guildTag === 'string' &&
           guildTag &&
           (!config.guild_tag ||
             (options.forceRefreshTag && guildTag !== config.guild_tag))

@@ -78,10 +78,11 @@ describe('API Operations Module', () => {
         ok: true,
         status: 200,
         json: vi.fn().mockResolvedValue({
+          guildId: 'guild-id',
           members: [
             { userId: 'user1' },
             { userId: 'user2' },
-            { playerId: 'player3' }
+            { userId: 'player3' }
           ]
         })
       }
@@ -156,7 +157,7 @@ describe('API Operations Module', () => {
       )
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('Network error')
+      expect(result.error).toBe('Guild roster unavailable')
     })
 
     it('aborts hung Tacticus member fetches', async () => {
@@ -246,8 +247,9 @@ describe('API Operations Module', () => {
         ok: true,
         status: 200,
         json: vi.fn().mockResolvedValue({
-          body: {
-            guildMembers: [{ id: 'member1' }, { odlPlayerId: 'member2' }]
+          guild: {
+            guildId: 'guild-id',
+            members: [{ userId: 'member1' }, { userId: 'member2' }]
           }
         })
       }

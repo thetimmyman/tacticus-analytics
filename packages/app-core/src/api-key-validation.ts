@@ -100,6 +100,8 @@ export interface ApiKeyValidationResult {
 /** Player keys need guild access; guild management keys need guild and raid access. */
 interface ValidateApiKeyOptions {
   skipFormatValidation?: boolean
+  /** Reuse within the authorized operation; the response is never retained in the result. */
+  onGuildResponse?: (payload: unknown) => void
 }
 
 export async function validateApiKeyWithTacticus(
@@ -237,6 +239,7 @@ export async function validateApiKeyWithTacticus(
               guildData?.guild?.guildCode ||
               guildData?.guildCode
           }
+          options.onGuildResponse?.(guildData)
         } catch (parseError) {
           logger.warn(
             '[API-KEY-VALIDATION] Could not parse guild response, but API key appears valid'

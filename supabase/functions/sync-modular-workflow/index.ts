@@ -9,10 +9,8 @@ import { createLogger } from '../_shared/logger.ts'
 import { createServiceClient } from '../_shared/supabase-client.ts'
 import { decryptApiKey } from '../_shared/sync-modules/decryption.ts'
 import { acquireLock, releaseLock } from '../_shared/sync-modules/db-locking.ts'
-import {
-  callTacticusApi,
-  fetchGuildMembersViaTacticus
-} from '../_shared/sync-modules/tacticus-api.ts'
+import { callTacticusApi } from '../_shared/sync-modules/tacticus-api.ts'
+import { extractGuildRosterEvidence } from '../_shared/guild-roster-evidence.ts'
 import { fetchGuildMembersViaLoki } from '../_shared/sync-modules/loki-api.ts'
 import {
   updateBombTracking,
@@ -610,13 +608,9 @@ serve(async (req) => {
         hasLokiCredentials &&
         validation.guildInfo?.guildId
       ) {
-        const tacticusMembersResult = await fetchGuildMembersViaTacticus(
-          apiKey,
-          validation.guildInfo.guildId,
-          guildCode,
-          timeouts,
-          { baseUrl: CONFIG.api.baseUrl, maxRetries: 1 },
-          logger
+        const tacticusMembersResult = extractGuildRosterEvidence(
+          guildResult.data,
+          validation.guildInfo.guildId
         )
         if (
           tacticusMembersResult.success &&

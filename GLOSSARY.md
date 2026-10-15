@@ -59,3 +59,8 @@ _Avoid_: Guaranteed executable plan
 **Uncalculated intent**:
 Assignment intent with manually edited token counts. Prior calculated stage projections and feasibility no longer describe it; saving validates the supported intent constraints without proving a timed attack schedule.
 _Avoid_: Recalculated plan
+
+## Guild membership
+
+**Guild roster evidence**:
+A complete member list from the documented guild response, bound to the expected upstream guild. Missing or mismatched guild identity, an empty roster, or malformed members provide no membership authority. Reuse stays within the authorized operation.
