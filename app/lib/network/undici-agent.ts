@@ -11,8 +11,12 @@ function httpFetch(
   init?: Parameters<typeof globalThis.fetch>[1]
 ): Promise<Response> {
   return new Promise((resolve, reject) => {
+    let requestBody: import('node:stream').Readable | undefined
     try {
-      if (init?.signal?.aborted) {
+      const inputRequest = input instanceof Request ? input : undefined
+      const signal =
+        init?.signal === undefined ? inputRequest?.signal : init.signal
+      if (signal?.aborted) {
         reject(new DOMException('The operation was aborted.', 'AbortError'))
         return
       }
@@ -50,7 +54,7 @@ function httpFetch(
       const mod = isHttps ? https : http
 
       const headers: Record<string, string> = {}
-      if (inputHeaders) {
+      if (inputHeaders && init?.headers === undefined) {
         if (inputHeaders instanceof Headers) {
           inputHeaders.forEach((value, key) => {
             headers[key] = value
@@ -82,17 +86,29 @@ function httpFetch(
       const bodyStr = init?.body != null ? String(init.body) : ''
       const finalMethod = init?.method ?? inputMethod ?? 'GET'
 
+      if (init?.body == null && inputRequest?.body) {
+        if (inputRequest.bodyUsed)
+          throw new TypeError('Request body has already been consumed')
+        const { Readable } =
+          require('node:stream') as typeof import('node:stream')
+        requestBody = Readable.fromWeb(
+          inputRequest.body as import('node:stream/web').ReadableStream
+        )
+      }
+
       // node:http adds no Content-Length; an unframed body on a keep-alive
       // connection bleeds into the next request, corrupting both.
-      if (bodyStr) {
+      if (bodyStr || requestBody) {
         const hasFramingHeader = Object.keys(headers).some((key) => {
           const lower = key.toLowerCase()
           return lower === 'content-length' || lower === 'transfer-encoding'
         })
         if (!hasFramingHeader) {
-          headers['Content-Length'] = String(
-            Buffer.byteLength(bodyStr, 'utf-8')
-          )
+          if (requestBody) headers['Transfer-Encoding'] = 'chunked'
+          else
+            headers['Content-Length'] = String(
+              Buffer.byteLength(bodyStr, 'utf-8')
+            )
         }
       }
 
@@ -108,6 +124,13 @@ function httpFetch(
           res.on('data', (chunk: Buffer) => chunks.push(chunk))
           res.on('end', () => {
             try {
+              // An early response must stop a still-open upload before it is
+              // presented as a completed response to the admission owner.
+              if (requestBody && !req.writableFinished) {
+                requestBody.destroy()
+                req.destroy()
+              }
+              signal?.removeEventListener('abort', abort)
               const status = res.statusCode ?? 200
               const responseHeaders = new Headers()
               for (const [key, value] of Object.entries(res.headers)) {
@@ -134,32 +157,52 @@ function httpFetch(
               reject(err)
             }
           })
+          res.on('error', (error: Error) => {
+            requestBody?.destroy()
+            reject(error)
+          })
         }
       )
 
-      if (init?.signal) {
-        init.signal.addEventListener(
-          'abort',
-          () => {
-            req.destroy()
-            reject(new DOMException('The operation was aborted.', 'AbortError'))
-          },
-          { once: true }
+      const abort = () => {
+        const error = new DOMException(
+          'The operation was aborted.',
+          'AbortError'
         )
+        requestBody?.destroy(error)
+        req.destroy(error)
+        reject(error)
       }
+      signal?.addEventListener('abort', abort, { once: true })
 
       req.on('error', (err: Error) => {
-        if (init?.signal?.aborted) return
+        requestBody?.destroy()
+        signal?.removeEventListener('abort', abort)
+        if (signal?.aborted) return
         reject(err)
       })
       req.on('timeout', () => {
+        requestBody?.destroy()
         req.destroy()
         reject(new Error('httpFetch: request timed out after 120s'))
       })
+      req.once('close', () => {
+        signal?.removeEventListener('abort', abort)
+        requestBody?.destroy()
+      })
+      requestBody?.on('error', (error: Error) => req.destroy(error))
 
-      if (bodyStr) req.write(bodyStr)
-      req.end()
+      if (signal?.aborted) {
+        abort()
+        return
+      }
+      if (requestBody) requestBody.pipe(req)
+      else {
+        if (bodyStr) req.write(bodyStr)
+        req.end()
+      }
     } catch (err) {
+      requestBody?.destroy()
       reject(err)
     }
   })
