@@ -417,13 +417,16 @@ describe('/api/sync/worker', () => {
           payload: null
         }
 
-        mockSupabase.rpc
-          .mockResolvedValueOnce({ data: mockJob, error: null })
-          .mockResolvedValueOnce({ data: [], error: null })
-          .mockResolvedValueOnce({ data: null, error: null })
-          .mockResolvedValueOnce({ data: null, error: null })
-          .mockResolvedValueOnce({ data: null, error: null })
-          .mockResolvedValueOnce({ data: null, error: null })
+        let claimed = false
+        mockSupabase.rpc.mockImplementation((name: string) => {
+          let data: unknown = null
+          if (name === 'claim_next_job' && !claimed) {
+            claimed = true
+            data = mockJob
+          } else if (name === 'get_unmapped_players') data = []
+          else if (name === 'complete_job') data = true
+          return Promise.resolve({ data, error: null })
+        })
 
         mockSupabase.from.mockReturnValue({
           select: vi.fn().mockReturnThis(),
@@ -857,7 +860,12 @@ describe('/api/sync/worker', () => {
             },
             error: null
           })
-          .mockResolvedValue({ data: null, error: null })
+          .mockImplementation((name: string) =>
+            Promise.resolve({
+              data: name === 'complete_job' ? true : null,
+              error: null
+            })
+          )
       }
 
       const setupFromMock = (eoTOverrides: ChainOverrides = {}) => {

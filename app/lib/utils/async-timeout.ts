@@ -54,7 +54,7 @@ type ResponseBodyTimeoutOptions = {
   onTimeout?: () => void
 }
 
-function cancelBody(response: Response) {
+export function cancelResponseBody(response: Response) {
   try {
     void response.body?.cancel().catch(() => undefined)
   } catch {
@@ -96,7 +96,7 @@ export function withResponseBodyTimeout(
           if (error instanceof TimeoutError) {
             runOnTimeout(options)
           }
-          cancelBody(response)
+          cancelResponseBody(response)
           throw error
         }
       }

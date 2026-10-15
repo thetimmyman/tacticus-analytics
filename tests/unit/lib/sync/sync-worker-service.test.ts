@@ -82,7 +82,10 @@ function buildRpcMock(
   const impl = (fn: string, args?: Record<string, unknown>) => {
     ;(calls[fn] ??= []).push(args)
     if (overrides[fn]) return overrides[fn](args)
-    return Promise.resolve({ data: null, error: null })
+    return Promise.resolve({
+      data: fn === 'complete_job' ? true : null,
+      error: null
+    })
   }
   return { impl, calls }
 }

@@ -2,6 +2,7 @@ import { createComponentLogger } from '@/app/lib/logging'
 import { rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { captureSentryException } from '@/app/lib/monitoring/sentry'
 import { callRpc } from './worker-utils'
+import { currentProviderMetrics } from '@/app/lib/network/provider-metrics'
 import {
   TacticusApiError,
   type ServiceSupabaseClient,
@@ -50,7 +51,7 @@ export async function completeSyncJob(
   workerId: string,
   result: WorkerResult
 ) {
-  const { error } = await callRpc<unknown>(supabase, 'complete_job', {
+  const { data, error } = await callRpc<boolean>(supabase, 'complete_job', {
     p_job_id: job.id,
     p_worker_id: workerId,
     p_progress: {
@@ -71,13 +72,17 @@ export async function completeSyncJob(
     },
     p_metrics: {
       records_processed: result.recordsProcessed,
-      players_updated: result.playersUpdated
+      players_updated: result.playersUpdated,
+      ...(currentProviderMetrics() ?? {})
     }
   })
   if (error) {
     throw new Error(
       `Failed to mark job complete: ${error.message ?? 'Unknown error'}`
     )
+  }
+  if (data !== true) {
+    throw new Error('Job completion refused: worker claim is no longer active')
   }
   result.success = true
   await advanceSuccessClock(job, supabase, result)
@@ -181,7 +186,8 @@ export async function failSyncJob(
     p_progress: {
       records_processed: result.recordsProcessed,
       players_updated: result.playersUpdated,
-      ...(result.phaseMs !== undefined && { phase_ms: result.phaseMs })
+      ...(result.phaseMs !== undefined && { phase_ms: result.phaseMs }),
+      ...(currentProviderMetrics() ?? {})
     }
   })
   if (failError) {
