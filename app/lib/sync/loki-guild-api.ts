@@ -2,8 +2,10 @@ import { normalizeTacticusGuildRole } from '@tacticus/app-core/role-utils'
 import { PUBLIC_LOKI_INSTALL_ID } from '@/app/lib/loki/public-device'
 import type { LokiMember } from './transformers'
 import type { PlayerRole, TypedSupabaseClient } from '@tacticus/app-core/types'
+import { withProviderRetry } from '@/app/lib/network/provider-metrics'
 import {
   CONFIG,
+  fetchWithAbortTimeout,
   fetchWithCircuitBreaker,
   getErrorMessage,
   logger
@@ -91,19 +93,23 @@ export async function fetchGuildMembersViaLoki(
     const currentUrl = `${CONFIG.api.lokiUrl}/player/player2/userId/${userId}/sessionId/${currentSessionId}`
 
     try {
-      const response = await fetchWithCircuitBreaker(
-        currentUrl,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json'
+      // One attempt that keeps the body: the game reports a dead session as a 500,
+      // and a retrying fetch repeats it and drops the body the refresh check reads.
+      const response = await withProviderRetry(isRetry, () =>
+        fetchWithAbortTimeout(
+          currentUrl,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json'
+            },
+            body: JSON.stringify(payload)
           },
-          body: JSON.stringify(payload)
-        },
-        2,
-        CONFIG.api.lokiTimeout,
-        isRetry
+          CONFIG.api.lokiTimeout,
+          'LOKI guild response',
+          { convertAbortToTimeoutError: true }
+        )
       )
 
       logger.info({ guildCode }, `LOKI API Response Status: ${response.status}`)
