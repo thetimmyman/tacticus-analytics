@@ -6,7 +6,6 @@ import { withProviderRetry } from '@/app/lib/network/provider-metrics'
 import {
   CONFIG,
   fetchWithAbortTimeout,
-  fetchWithCircuitBreaker,
   getErrorMessage,
   logger
 } from './api-client'
