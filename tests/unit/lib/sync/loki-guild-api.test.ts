@@ -39,11 +39,12 @@ function database() {
       return chain
     }),
     eq: vi.fn(() => chain),
+    or: vi.fn(() => chain),
     then: (resolve: (value: unknown) => unknown) =>
       Promise.resolve({ data: null, error: null }).then(resolve)
   }
   const client = { from: vi.fn(() => chain) } as unknown as TypedSupabaseClient
-  return { client, updates }
+  return { client, updates, chain }
 }
 
 /** Answers globalConfig itself; every game event goes to `game`. */
@@ -84,7 +85,7 @@ it.each(['{"error":"invalid_session"}', 'Incorrect session key'])(
         return new Response(body, { status: 500 })
       return Response.json(guildView)
     })
-    const { client, updates } = database()
+    const { client, updates, chain } = database()
 
     const result = await fetchMembers(client)
 
@@ -99,6 +100,11 @@ it.each(['{"error":"invalid_session"}', 'Incorrect session key'])(
     expect(events[2]?.url).toContain(`/sessionId/${NEW_SESSION}`)
     expect(updates).toContainEqual(
       expect.objectContaining({ session_id: NEW_SESSION })
+    )
+    // The refreshed session lands only on a row its minting account owns.
+    expect(chain.eq).toHaveBeenCalledWith('guild_code', 'SYNTH')
+    expect(chain.or).toHaveBeenCalledWith(
+      'user_id.is.null,user_id.eq.synthetic-user'
     )
   }
 )

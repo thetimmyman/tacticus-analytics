@@ -13,6 +13,10 @@ import { callTacticusApi } from '../_shared/sync-modules/tacticus-api.ts'
 import { extractGuildRosterEvidence } from '../_shared/guild-roster-evidence.ts'
 import { fetchGuildMembersViaLoki } from '../_shared/sync-modules/loki-api.ts'
 import {
+  lokiSessionOwnerFilter,
+  resolveLokiSessionAccount
+} from '../_shared/loki-session-account.ts'
+import {
   updateBombTracking,
   upsertDataBatches
 } from '../_shared/sync-modules/db-writer.ts'
@@ -116,7 +120,7 @@ serve(async (req) => {
     const context = parseSyncRequestContext(await req.json())
     guildCode = context.guildCode
     correlationId = context.correlationId
-    const { requestedSeason, freshSessionId, preserveSyncSettings } = context
+    const { requestedSeason, freshSession, preserveSyncSettings } = context
     skipNotifications = context.skipNotifications
 
     // Declare `logger` before the decrypt block: a TDZ error there is swallowed
@@ -580,19 +584,15 @@ serve(async (req) => {
         )
       }
 
-      // The env scraper id is authoritative (it must match the shared secret;
-      // pairing the secret with a legacy guild_config.user_id makes LOKI 500).
-      const envLokiUserId = Deno.env.get('LOKI_SCRAPER_USER_ID') || null
-      const lokiUserId = envLokiUserId || guildConfig.user_id
-      // The stored session belongs to the legacy user; connect a fresh one.
-      const lokiOverrodeLegacyRow = !!(
-        envLokiUserId &&
-        guildConfig.user_id &&
-        guildConfig.user_id !== envLokiUserId
+      // Every request goes out as the scraper with a session it minted: the
+      // batch session only when it names the scraper, else the row's own session
+      // only when the scraper owns the row (else '' forces a CONNECT).
+      const lokiAccount = resolveLokiSessionAccount(
+        guildConfig,
+        Deno.env.get('LOKI_SCRAPER_USER_ID'),
+        freshSession
       )
-      const storedLokiSessionId = lokiOverrodeLegacyRow
-        ? null
-        : guildConfig.session_id
+      const lokiUserId = lokiAccount.userId
       const lokiClientSecret =
         Deno.env.get('LOKI_SCRAPER_CLIENT_SECRET') ?? null
 
@@ -641,7 +641,7 @@ serve(async (req) => {
                 )
                 return result.sessionId
               },
-              updateSessionIdInDatabase: async (sb, gc, newSessionId) => {
+              updateSessionIdInDatabase: async (sb, gc, uid, newSessionId) => {
                 const { error } = await sb
                   .from(CONFIG.tables.guildConfig)
                   .update({
@@ -649,6 +649,7 @@ serve(async (req) => {
                     updated_at: new Date().toISOString()
                   })
                   .eq('guild_code', gc)
+                  .or(lokiSessionOwnerFilter(uid))
                 return !error
               }
             },
@@ -656,8 +657,8 @@ serve(async (req) => {
             {
               guildCode,
               guildId: guildConfig.guild_id!,
-              userId: lokiUserId,
-              sessionId: freshSessionId || storedLokiSessionId,
+              userId: lokiUserId!,
+              sessionId: lokiAccount.sessionId,
               clientSecret: lokiClientSecret || '',
               supabase,
               timeouts,

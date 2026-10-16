@@ -88,6 +88,7 @@ describe('ensureSharedLokiSession', () => {
 
     expect(result).toMatchObject({
       sessionId: STORED,
+      userId: SCRAPER,
       reused: true,
       connected: false
     })
@@ -128,6 +129,7 @@ describe('ensureSharedLokiSession', () => {
 
       expect(result).toMatchObject({
         sessionId: CONNECTED,
+        userId: SCRAPER,
         connected: true,
         reused: false
       })
@@ -153,7 +155,11 @@ describe('ensureSharedLokiSession', () => {
 
     const result = await run(store, fetchImpl)
 
-    expect(result).toMatchObject({ sessionId: CONNECTED, connected: true })
+    expect(result).toMatchObject({
+      sessionId: CONNECTED,
+      userId: SCRAPER,
+      connected: true
+    })
     expect(eventTypes(fetchImpl)).toEqual(['CONNECT'])
     expect(store.write).toHaveBeenCalledWith(
       CONNECTED,
@@ -205,6 +211,7 @@ describe('ensureSharedLokiSession', () => {
     const result = await run(store, fetchImpl)
 
     expect(result.sessionId).toBeNull()
+    expect(result.userId).toBeNull()
     expect(result.connected).toBe(false)
     expect(result.error).toBeTruthy()
     expect(store.write).not.toHaveBeenCalled()
@@ -230,6 +237,7 @@ describe('ensureSharedLokiSession', () => {
     const result = await run(store, fetchImpl)
 
     expect(result.sessionId).toBeNull()
+    expect(result.userId).toBeNull()
     expect(result.error).toMatch(/not configured/)
     expect(fetchImpl).not.toHaveBeenCalled()
   })

@@ -22,6 +22,8 @@ export interface SharedSessionStore {
 
 export interface SharedSessionResult {
   sessionId: string | null
+  /** The account whose CONNECT minted `sessionId`; null without a session. */
+  userId: string | null
   connected: boolean
   reused: boolean
   error?: string
@@ -52,11 +54,15 @@ export async function ensureSharedLokiSession({
   now = Date.now
 }: EnsureSharedSessionOptions): Promise<SharedSessionResult> {
   const startTime = Date.now()
-  const finish = (
-    result: Omit<SharedSessionResult, 'durationMs'>
-  ): SharedSessionResult => ({ ...result, durationMs: Date.now() - startTime })
-
   const userId = process.env.LOKI_SCRAPER_USER_ID
+  const finish = (
+    result: Omit<SharedSessionResult, 'durationMs' | 'userId'>
+  ): SharedSessionResult => ({
+    ...result,
+    userId: result.sessionId ? userId || null : null,
+    durationMs: Date.now() - startTime
+  })
+
   const clientSecret = process.env.LOKI_SCRAPER_CLIENT_SECRET
   if (!userId || !clientSecret) {
     return finish({

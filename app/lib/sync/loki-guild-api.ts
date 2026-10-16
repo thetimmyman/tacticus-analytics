@@ -157,7 +157,12 @@ export async function fetchGuildMembersViaLoki(
       )
 
       if (newSessionId) {
-        await updateSessionIdInDatabase(supabase, guildCode, newSessionId)
+        await updateSessionIdInDatabase(
+          supabase,
+          guildCode,
+          userId,
+          newSessionId
+        )
         logger.info({ guildCode }, 'Retrying LOKI API with fresh sessionId')
         result = await attemptLokiCall(newSessionId, true)
       } else {
