@@ -6,6 +6,7 @@ import type { Database } from '@tacticus/app-core/types'
 import { dbClient } from '@/app/lib/db/client'
 import { formatGuildDisplayLabel } from '@/app/lib/format/guild'
 import { createComponentLogger } from '@/app/lib/logging/client'
+import { validateGuildDisplayName } from '@/app/lib/validation/guild-display-name'
 import type { Guild } from '../types'
 import { extractErrorMessage } from './useClusterData'
 
@@ -140,6 +141,21 @@ export function useGuildEditingActions({
 
   const handleSaveEdit = async () => {
     if (!editedGuild) return
+    // Only a changed name is validated, so legacy names don't block other edits.
+    const original = guilds.find(
+      (candidate) => candidate.guild_code === editedGuild.guild_code
+    )
+    let displayName = original?.display_name ?? null
+    const nameChanged =
+      (editedGuild.display_name ?? '') !== (original?.display_name ?? '')
+    if (nameChanged) {
+      const check = validateGuildDisplayName(editedGuild.display_name)
+      if (!check.ok) {
+        toast.error(check.error)
+        return
+      }
+      displayName = check.value
+    }
     try {
       const apiKeyChanged = Boolean(editedGuild.api_key?.trim())
       if (apiKeyChanged && editedGuild.api_key) {
@@ -166,16 +182,25 @@ export function useGuildEditingActions({
       if (!apiKeyChanged && editedGuild.API_Owner !== undefined) {
         update.API_Owner = editedGuild.API_Owner
       }
-      const { error } = await supabase
+      if (nameChanged && displayName) update.display_name = displayName
+      // RLS (guild_config_update_by_role) filters rows the caller may not edit
+      // without an error, so an empty result means nothing was saved.
+      const { data: updatedRows, error } = await supabase
         .from('guild_config')
         .update(update)
         .eq('guild_code', editedGuild.guild_code)
+        .select('guild_code')
       if (error) throw error
+      if (!updatedRows || updatedRows.length === 0) {
+        throw new Error(
+          'No changes saved: only a leader or officer of this guild has permission to edit it'
+        )
+      }
 
       toast.success(
         `${formatGuildDisplayLabel(
           {
-            display_name: editedGuild.display_name,
+            display_name: displayName,
             guild_code: editedGuild.guild_code
           },
           editedGuild.guild_code
