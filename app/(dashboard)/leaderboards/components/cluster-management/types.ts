@@ -78,11 +78,6 @@ export interface DiscordLinksResponse {
   }
 }
 
-export interface ClusterConfig {
-  minimum_player_level: number
-  rejection_message: string
-}
-
 export interface ClusterManagementProps {
   season: string
   isNonEot?: boolean
@@ -90,10 +85,4 @@ export interface ClusterManagementProps {
   userRole?: string
   clusterCode?: string
   initialTab?: string
-}
-
-export const DEFAULT_CLUSTER_CONFIG: ClusterConfig = {
-  minimum_player_level: 55,
-  rejection_message:
-    'We are an end-game cluster with all guilds in the top 30 rankings, we require players to be at least level {level}. Please come join our discord for conversation on how to increase your player level, check out the IVS cluster that has starter friendly guilds available, and check us out later.'
 }
