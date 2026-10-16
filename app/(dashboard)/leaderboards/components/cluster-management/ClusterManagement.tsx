@@ -15,7 +15,6 @@ import {
   LeaderWarningBanner,
   AddGuildForm,
   DeleteConfirmDialog,
-  ClusterConfigSection,
   GuildTable,
   GuildCards,
   DiscordBotSection
@@ -85,21 +84,18 @@ export default function ClusterManagement({
 }: ClusterManagementProps) {
   const [webhooksExpanded, setWebhooksExpanded] = useState(false)
   const [expandedWebhooks, setExpandedWebhooks] = useState<string | null>(null)
-  const [clusterConfigExpanded, setClusterConfigExpanded] = useState(false)
   const isLeader = isClusterLeaderRole(userRole)
 
   const {
     guilds,
     loading,
     clusterId,
-    clusterConfig,
     currentUserDisplayName,
     discordLinks,
     discordLinksLoading,
     discordLinksError,
     clusterInvites,
     setGuilds,
-    setClusterConfig,
     fetchGuilds,
     fetchDiscordLinks,
     setDiscordLinksError: _setDiscordLinksError
@@ -115,9 +111,6 @@ export default function ClusterManagement({
     deleteConfirmOpen,
     guildToDelete,
     deleteConfirmText,
-    savingClusterConfig,
-    errorMessage,
-    successMessage,
     setEditingGuild: _setEditingGuild,
     setEditedGuild,
     setAddingGuild,
@@ -125,8 +118,6 @@ export default function ClusterManagement({
     setDeleteConfirmOpen,
     setGuildToDelete,
     setDeleteConfirmText,
-    setErrorMessage: _setErrorMessage,
-    setSuccessMessage: _setSuccessMessage,
     handleEdit,
     handleCancelEdit,
     handleSaveEdit,
@@ -139,7 +130,6 @@ export default function ClusterManagement({
     claimGuildInfo,
     checkingGuild,
     validateApiKey,
-    saveClusterConfig,
     getApiKeyStatus
   } = useGuildActions({
     clusterCode,
@@ -306,19 +296,6 @@ export default function ClusterManagement({
         onEditedGuildChange={setEditedGuild as (guild: Guild) => void}
         getApiKeyStatus={getApiKeyStatus}
       />
-
-      {userRole === 'leader' && (
-        <ClusterConfigSection
-          clusterConfig={clusterConfig}
-          expanded={clusterConfigExpanded}
-          savingClusterConfig={savingClusterConfig}
-          errorMessage={errorMessage}
-          successMessage={successMessage}
-          onConfigChange={setClusterConfig}
-          onExpandedChange={setClusterConfigExpanded}
-          onSave={() => saveClusterConfig(clusterConfig)}
-        />
-      )}
 
       <DeleteConfirmDialog
         open={deleteConfirmOpen}

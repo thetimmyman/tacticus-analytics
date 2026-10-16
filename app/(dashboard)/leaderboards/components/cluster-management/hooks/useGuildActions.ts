@@ -2,7 +2,6 @@
 
 import { useToast } from '@/app/hooks/useToast'
 import type { Guild } from '../types'
-import { useClusterConfigActions } from './useClusterConfigActions'
 import { useGuildEditingActions } from './useGuildEditingActions'
 import {
   useGuildOnboardingActions,
@@ -42,11 +41,9 @@ export function useGuildActions({
     fetchGuilds,
     toast
   })
-  const clusterConfig = useClusterConfigActions(clusterCode)
 
   return {
     ...editing,
-    ...onboarding,
-    ...clusterConfig
+    ...onboarding
   }
 }

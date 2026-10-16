@@ -12,7 +12,6 @@ import type {
   Guild,
   GuildDiscordLink,
   ClusterInvite,
-  ClusterConfig,
   RawInvite,
   RawGuildLink,
   DiscordLinksResponse
@@ -51,14 +50,12 @@ interface UseClusterDataReturn {
   guilds: Guild[]
   loading: boolean
   clusterId: string | null
-  clusterConfig: ClusterConfig
   currentUserDisplayName: string | null
   discordLinks: GuildDiscordLink[]
   discordLinksLoading: boolean
   discordLinksError: string | null
   clusterInvites: ClusterInvite[]
   setGuilds: React.Dispatch<React.SetStateAction<Guild[]>>
-  setClusterConfig: React.Dispatch<React.SetStateAction<ClusterConfig>>
   fetchGuilds: () => Promise<void>
   fetchDiscordLinks: () => Promise<void>
   setDiscordLinksError: React.Dispatch<React.SetStateAction<string | null>>
@@ -81,11 +78,6 @@ export function useClusterData({
   const [guilds, setGuilds] = useState<Guild[]>([])
   const [loading, setLoading] = useState(true)
   const [clusterId, setClusterId] = useState<string | null>(null)
-  const [clusterConfig, setClusterConfig] = useState<ClusterConfig>({
-    minimum_player_level: 55,
-    rejection_message:
-      'We are an end-game cluster with all guilds in the top 30 rankings, we require players to be at least level {level}. Please come join our discord for conversation on how to increase your player level, check out the IVS cluster that has starter friendly guilds available, and check us out later.'
-  })
 
   const [discordLinks, setDiscordLinks] = useState<GuildDiscordLink[]>([])
   const [discordLinksLoading, setDiscordLinksLoading] = useState(false)
@@ -108,35 +100,6 @@ export function useClusterData({
       }
     } catch (error) {
       logger.error({ err: error }, 'Error fetching cluster ID:')
-    }
-  }
-
-  const fetchClusterConfig = async () => {
-    if (!clusterCode) return
-
-    try {
-      type ClusterConfigRow = {
-        minimum_player_level: number | null
-        rejection_message: string | null
-      }
-      const { data, error } = await (supabase
-        .from('cluster_config' as 'clusters')
-        .select('minimum_player_level, rejection_message')
-        .eq('cluster_code', clusterCode)
-        .single() as unknown as Promise<{
-        data: ClusterConfigRow | null
-        error: unknown
-      }>)
-
-      if (data && !error) {
-        setClusterConfig({
-          minimum_player_level: data.minimum_player_level || 55,
-          rejection_message:
-            data.rejection_message || clusterConfig.rejection_message
-        })
-      }
-    } catch (error) {
-      logger.error({ err: error }, 'Error fetching cluster config:')
     }
   }
 
@@ -300,7 +263,6 @@ export function useClusterData({
   useEffect(() => {
     fetchGuilds()
     fetchClusterId()
-    fetchClusterConfig()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -311,14 +273,12 @@ export function useClusterData({
     guilds,
     loading,
     clusterId,
-    clusterConfig,
     currentUserDisplayName: contextDisplayName,
     discordLinks,
     discordLinksLoading,
     discordLinksError,
     clusterInvites,
     setGuilds,
-    setClusterConfig,
     fetchGuilds,
     fetchDiscordLinks,
     setDiscordLinksError
