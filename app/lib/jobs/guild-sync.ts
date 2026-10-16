@@ -137,6 +137,7 @@ const guildSyncHandler: JobHandler = async (_payload, ctx) => {
 
     let sharedLokiSession: 'reused' | 'connected' | 'none' = 'none'
     let sharedLokiSessionId: string | null = null
+    let sharedLokiSessionUserId: string | null = null
     try {
       const shared = await ensureSharedLokiSession({
         store: createRestSharedSessionStore({
@@ -153,6 +154,7 @@ const guildSyncHandler: JobHandler = async (_payload, ctx) => {
         probeGuildId: guildsToSync.find((g) => g.guild_id)?.guild_id ?? null
       })
       sharedLokiSessionId = shared.sessionId
+      sharedLokiSessionUserId = shared.userId
       if (shared.sessionId) {
         sharedLokiSession = shared.reused ? 'reused' : 'connected'
       } else if (shared.error) {
@@ -183,8 +185,12 @@ const guildSyncHandler: JobHandler = async (_payload, ctx) => {
             {
               guild_code: guild.guild_code,
               // Without it each guild refreshes a rejected session on its own.
-              ...(sharedLokiSessionId
-                ? { fresh_session_id: sharedLokiSessionId }
+              // The edge sends the session only as the account that minted it.
+              ...(sharedLokiSessionId && sharedLokiSessionUserId
+                ? {
+                    fresh_session_id: sharedLokiSessionId,
+                    fresh_session_user_id: sharedLokiSessionUserId
+                  }
                 : {})
             }
           )

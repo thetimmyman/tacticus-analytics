@@ -156,6 +156,7 @@ describe('runPostSyncHooks', () => {
 describe('runPostSyncHooks — LOKI deactivation guard', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.stubEnv('LOKI_SCRAPER_USER_ID', 'u-123')
     vi.stubEnv('LOKI_SCRAPER_CLIENT_SECRET', 'server-loki-secret')
   })
 
@@ -675,6 +676,7 @@ describe('runPostSyncHooks — writing-tick roster throttle', () => {
 describe('runPostSyncHooks — LOKI roster disambiguation', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.stubEnv('LOKI_SCRAPER_USER_ID', 'u-123')
     vi.stubEnv('LOKI_SCRAPER_CLIENT_SECRET', 'server-loki-secret')
   })
 

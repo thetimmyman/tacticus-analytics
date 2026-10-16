@@ -2,6 +2,7 @@ import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('lib.sync.post-sync-hooks')
 import type { GuildConfig } from '@tacticus/app-core/types'
 import { resolveLokiIdentity } from '@/app/lib/loki/identity'
+import { lokiSessionOwnerFilter } from '@/supabase/functions/_shared/loki-session-account'
 import {
   fetchGuildMembersViaLoki,
   type LokiFetchResult
@@ -113,6 +114,7 @@ export async function refreshGuildRoster(
           .from('guild_config')
           .update({ session_id: null, updated_at: new Date().toISOString() })
           .eq('guild_code', guildCode)
+          .or(lokiSessionOwnerFilter(resolvedUserId))
       }
 
       // Disambiguate before the upsert as other writers do: LOKI omits

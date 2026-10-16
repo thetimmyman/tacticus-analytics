@@ -125,6 +125,7 @@ describe('guild-batch-sync handler', () => {
     mockFetch = vi.fn()
     mockEnsure = vi.fn().mockResolvedValue({
       sessionId: 'shared-session',
+      userId: 'loki-user-123',
       connected: false,
       reused: true,
       durationMs: 12
@@ -357,6 +358,7 @@ describe('guild-batch-sync handler', () => {
   it('warns and sends no session when the shared LOKI session is unavailable', async () => {
     mockEnsure.mockResolvedValue({
       sessionId: null,
+      userId: null,
       connected: false,
       reused: false,
       error: 'LOKI CONNECT failed',
@@ -440,12 +442,11 @@ describe('guild-batch-sync handler', () => {
     })
     const sessions = mockFetch.mock.calls
       .filter(([url]) => String(url).includes('sync-modular-workflow'))
-      .map(([, init]) => JSON.parse(init.body).fresh_session_id)
-    expect(sessions).toEqual([
-      'shared-session',
-      'shared-session',
-      'shared-session'
-    ])
+      .map(([, init]) => {
+        const body = JSON.parse(init.body)
+        return [body.fresh_session_id, body.fresh_session_user_id]
+      })
+    expect(sessions).toEqual(Array(3).fill(['shared-session', 'loki-user-123']))
     expect(result.lokiSharedSession).toBe('reused')
   })
 
@@ -461,6 +462,7 @@ describe('guild-batch-sync handler', () => {
     ]
     mockEnsure.mockResolvedValue({
       sessionId: null,
+      userId: null,
       connected: false,
       reused: false,
       durationMs: 0

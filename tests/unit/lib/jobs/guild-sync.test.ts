@@ -72,6 +72,7 @@ describe('guild-sync handler', () => {
     }))
     mockEnsure = vi.fn().mockResolvedValue({
       sessionId: null,
+      userId: null,
       connected: false,
       reused: false,
       durationMs: 1
@@ -128,6 +129,7 @@ describe('guild-sync handler', () => {
   it('probes with the stalest guild that has a guild id and hands every sync the shared session', async () => {
     mockEnsure.mockResolvedValue({
       sessionId: 'shared-session',
+      userId: 'synthetic-scraper',
       connected: false,
       reused: true,
       durationMs: 2
@@ -171,14 +173,16 @@ describe('guild-sync handler', () => {
       store: SESSION_STORE,
       probeGuildId: 'synthetic-guild-older'
     })
-    const sessions = mockInvoke.mock.calls.map(
-      (c) => (c[1] as { fresh_session_id?: string }).fresh_session_id
+    const sessions = mockInvoke.mock.calls.map((c) => {
+      const body = c[1] as {
+        fresh_session_id?: string
+        fresh_session_user_id?: string
+      }
+      return [body.fresh_session_id, body.fresh_session_user_id]
+    })
+    expect(sessions).toEqual(
+      Array(3).fill(['shared-session', 'synthetic-scraper'])
     )
-    expect(sessions).toEqual([
-      'shared-session',
-      'shared-session',
-      'shared-session'
-    ])
     expect(result.lokiSharedSession).toBe('reused')
   })
 
