@@ -10,6 +10,14 @@ const script = fileURLToPath(
   new URL('./installed-journey.ps1', import.meta.url)
 )
 
+// Windows PowerShell must construct its own module path when Node inherits
+// PowerShell 7's environment; those modules can break legacy cmdlet autoloading.
+const powerShellEnvironment = Object.fromEntries(
+  Object.entries(process.env).filter(
+    ([name]) => name.toLowerCase() !== 'psmodulepath'
+  )
+)
+
 test(
   'consumer qualification refuses an unapproved invocation before creating an install or receipt',
   {
@@ -36,7 +44,7 @@ test(
           qualification,
           '-StandardUser'
         ],
-        { encoding: 'utf8', timeout: 30000 }
+        { encoding: 'utf8', timeout: 30000, env: powerShellEnvironment }
       )
       assert.ifError(result.error)
       assert.notEqual(result.status, 0)
@@ -79,7 +87,7 @@ test(
           '-Root',
           root
         ],
-        { encoding: 'utf8', timeout: 30000 }
+        { encoding: 'utf8', timeout: 30000, env: powerShellEnvironment }
       )
       assert.ifError(result.error)
       if (
