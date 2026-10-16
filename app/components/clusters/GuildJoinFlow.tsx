@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Button } from '@tacticus/ui-kit'
 import { Input } from '@tacticus/ui-kit'
 import { Label } from '@tacticus/ui-kit'
@@ -47,6 +47,14 @@ interface JoinClusterResult {
   [key: string]: unknown
 }
 
+interface ValidateApiKeyResponse {
+  valid?: boolean
+  details?: { guildInfo?: { guildName?: string | null } }
+}
+
+// Shorter strings can't be a Tacticus API key; skip the lookup.
+const MIN_API_KEY_LENGTH = 20
+
 interface GuildJoinFlowProps {
   initialInviteCode?: string
   onJoinSuccess?: (result: JoinClusterResult) => void
@@ -74,7 +82,44 @@ export default function GuildJoinFlow({
     logoUrl: ''
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
+  // The in-game name last filled in, so a later lookup can replace it but never a typed name.
+  const apiFilledName = useRef<string | null>(null)
+  const [nameFromApi, setNameFromApi] = useState(false)
   const { toast } = useToast()
+
+  const prefillDisplayNameFromApiKey = async (rawKey: string) => {
+    const apiKey = rawKey.trim()
+    if (apiKey.length < MIN_API_KEY_LENGTH) return
+    const current = guildData.displayName.trim()
+    if (current && current !== apiFilledName.current) return
+
+    try {
+      const response = await fetch('/api/validate-api-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey })
+      })
+      if (!response.ok) return
+      const result: ValidateApiKeyResponse = await response.json()
+      if (!result.valid) return
+      const nameCheck = validateGuildDisplayName(
+        result.details?.guildInfo?.guildName
+      )
+      if (!nameCheck.ok) return
+      const inGameName = nameCheck.value
+
+      setGuildData((previous) => {
+        const typed = previous.displayName.trim()
+        if (typed && typed !== apiFilledName.current) return previous
+        return { ...previous, displayName: inGameName }
+      })
+      apiFilledName.current = inGameName
+      setNameFromApi(true)
+    } catch (error) {
+      // The leader can still type the name; the server also falls back to it.
+      logger.warn({ error }, 'Could not look up the in-game guild name')
+    }
+  }
 
   const handleValidateCode = useCallback(async () => {
     if (!inviteCode.trim()) {
@@ -135,8 +180,13 @@ export default function GuildJoinFlow({
   const handleJoinCluster = async () => {
     const newErrors: Record<string, string> = {}
     if (!guildData.guildCode) newErrors.guildCode = 'Guild code is required'
-    const displayNameCheck = validateGuildDisplayName(guildData.displayName)
-    if (!displayNameCheck.ok) newErrors.displayName = displayNameCheck.error
+    // With an API key, a blank name is filled from the in-game name on the server.
+    const leaveNameToServer =
+      !guildData.displayName.trim() && Boolean(guildData.apiKey.trim())
+    if (!leaveNameToServer) {
+      const displayNameCheck = validateGuildDisplayName(guildData.displayName)
+      if (!displayNameCheck.ok) newErrors.displayName = displayNameCheck.error
+    }
     if (
       guildData.leaderEmail &&
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guildData.leaderEmail)
@@ -167,10 +217,17 @@ export default function GuildJoinFlow({
       const result: JoinClusterResult = await response.json()
 
       if (response.ok && result.success) {
+        const joinedGuild = result.guild as
+          { display_name?: unknown } | undefined
+        const joinedName =
+          typeof joinedGuild?.display_name === 'string'
+            ? joinedGuild.display_name
+            : guildData.displayName.trim()
+        setGuildData((previous) => ({ ...previous, displayName: joinedName }))
         setStep('success')
         toast.success(
           'Joined cluster',
-          `${guildData.displayName} has joined ${clusterInfo?.display_name}`
+          `${joinedName} has joined ${clusterInfo?.display_name}`
         )
         logger.info(
           {
@@ -297,15 +354,21 @@ export default function GuildJoinFlow({
               </Label>
               <Input
                 value={guildData.displayName}
-                onChange={(e) =>
+                onChange={(e) => {
                   setGuildData({
                     ...guildData,
                     displayName: e.target.value
                   })
-                }
+                  setNameFromApi(e.target.value === apiFilledName.current)
+                }}
                 placeholder="Your Guild Name"
                 maxLength={GUILD_DISPLAY_NAME_MAX_LENGTH}
               />
+              {nameFromApi && !errors.displayName && (
+                <p className="text-xs text-secondary-wh40k mt-1">
+                  Filled in from your in-game guild name. You can edit it.
+                </p>
+              )}
               {errors.displayName && (
                 <p className="text-red-400 text-sm mt-1">
                   {errors.displayName}
@@ -354,10 +417,14 @@ export default function GuildJoinFlow({
                       apiKey: e.target.value
                     })
                   }
+                  onBlur={(e) => {
+                    void prefillDisplayNameFromApiKey(e.target.value)
+                  }}
                   placeholder="For immediate sync setup"
                 />
                 <p className="text-xs text-secondary-wh40k mt-1">
-                  Provide to enable automatic data sync
+                  Provide to enable automatic data sync and fill in your in-game
+                  guild name
                 </p>
               </div>
             )}
