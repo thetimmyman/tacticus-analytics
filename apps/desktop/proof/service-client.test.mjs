@@ -58,3 +58,58 @@ test('cancelled startup never creates a workspace or starts an owner', async () 
     await rm(state, { recursive: true, force: true })
   }
 })
+
+test(
+  'an explicit service Node is used with and without the runtime guard',
+  { skip: process.platform === 'win32' },
+  async () => {
+    const root = await mkdtemp(join(tmpdir(), 'desktop selected node '))
+    const quote = (value) => `'${value.replaceAll("'", "'\\''")}'`
+    try {
+      const marker = join(root, 'selected-runtime-used')
+      const executable = join(root, 'selected node')
+      const guard = join(root, 'synthetic guard')
+      await writeFile(
+        executable,
+        `#!/bin/sh\nprintf selected > ${quote(marker)}\nexec ${quote(process.execPath)} "$@"\n`,
+        { mode: 0o700 }
+      )
+      // Only argument forwarding is exercised here. This fixture is not a kernel
+      // lease or parent-death-signal qualification of the native runtime guard.
+      await writeFile(guard, '#!/bin/sh\nshift 2\nexec "$@"\n', { mode: 0o700 })
+      for (const runtimeGuard of [undefined, guard]) {
+        await rm(marker, { force: true })
+        const state = join(root, runtimeGuard ? 'guarded' : 'direct')
+        await assert.rejects(
+          nativeServices(
+            { state, schemaDirectory: root, binaries: {}, runtimeGuard },
+            { nodeExecutable: executable }
+          )
+        )
+        assert.equal(await readFile(marker, 'utf8'), 'selected')
+      }
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  }
+)
+
+test('missing or relative service Node never falls back to the caller runtime', async () => {
+  const state = await mkdtemp(join(tmpdir(), 'desktop missing selected node '))
+  try {
+    const config = { state, schemaDirectory: state, binaries: {} }
+    await assert.rejects(
+      nativeServices(config, { nodeExecutable: join(state, 'missing-node') }),
+      { code: 'ENOENT' }
+    )
+    await assert.rejects(
+      nativeServices(config, { nodeExecutable: 'node' }),
+      /Absolute service Node executable required/
+    )
+    await assert.rejects(readFile(join(state, 'running.lock')), {
+      code: 'ENOENT'
+    })
+  } finally {
+    await rm(state, { recursive: true, force: true })
+  }
+})

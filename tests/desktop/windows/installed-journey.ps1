@@ -3,9 +3,119 @@ param(
   [Parameter(Mandatory=$true)][string]$Evidence,
   [switch]$AlreadyInstalled,
   [string]$QualificationRoot,
-  [string]$PackageFamilyName
+  [string]$PackageFamilyName,
+  [switch]$StandardUser,
+  [string]$ExpectedManifestSha256,
+  [string]$ExpectedSourceSha
 )
 $ErrorActionPreference = 'Stop'
+# The proof driver verifies candidate data before invoking candidate code. This
+# is a trusted, non-concurrent qualification snapshot, not same-user immutability.
+function Assert-ManifestFields($Value, [string[]]$Names) {
+  if ($null -eq $Value -or $Value -isnot [pscustomobject]) { throw 'Invalid bundle manifest object' }
+  $actual = @($Value.PSObject.Properties.Name)
+  if ($actual.Count -ne $Names.Count) { throw 'Unexpected bundle manifest fields' }
+  foreach ($name in $Names) {
+    if ($actual -cnotcontains $name) { throw 'Missing bundle manifest field' }
+  }
+}
+function Read-VerifiedBundleManifest([string]$Root, [string]$ExpectedDigest = '', [string]$ExpectedSource = '', $ExpectedManifest = $null) {
+  $rootPath = [System.IO.Path]::GetFullPath($Root)
+  for ($parent = $rootPath; $null -ne $parent; $parent = [System.IO.Path]::GetDirectoryName($parent)) {
+    if ((Get-Item -LiteralPath $parent -Force).Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
+      throw 'Package reparse paths are unsupported'
+    }
+  }
+  if (-not (Get-Item -LiteralPath $rootPath -Force).PSIsContainer) { throw 'Bundle directory required' }
+  $manifestPath = Join-Path $rootPath 'bundle-manifest.json'
+  $manifestItem = Get-Item -LiteralPath $manifestPath -Force
+  if ($manifestItem.PSIsContainer -or ($manifestItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -or
+      $manifestItem.Length -gt 4 * 1024 * 1024) { throw 'Invalid bundle manifest file' }
+  $bytes = [System.IO.File]::ReadAllBytes($manifestPath)
+  $sha = [System.Security.Cryptography.SHA256]::Create()
+  try { $manifestDigest = ([System.BitConverter]::ToString($sha.ComputeHash($bytes))).Replace('-', '').ToLowerInvariant() }
+  finally { $sha.Dispose() }
+  if ($ExpectedDigest -and $manifestDigest -cne $ExpectedDigest) { throw 'Candidate does not match the reviewed manifest' }
+  $text = [System.Text.UTF8Encoding]::new($false, $true).GetString($bytes).TrimStart([char]0xfeff)
+  $manifest = $text | ConvertFrom-Json
+  Assert-ManifestFields $manifest @('schemaVersion', 'platform', 'sourceSha', 'files')
+  if (($manifest.schemaVersion -isnot [int] -and $manifest.schemaVersion -isnot [long]) -or $manifest.schemaVersion -ne 1 -or
+      $manifest.platform -isnot [string] -or $manifest.platform -cne 'win-x64' -or $manifest.sourceSha -isnot [string] -or
+      $manifest.sourceSha -cnotmatch '^[a-f0-9]{40}$' -or $manifest.files -isnot [array] -or
+      $manifest.files.Count -eq 0 -or $manifest.files.Count -gt 20000) { throw 'Unsupported bundle manifest' }
+  if ($ExpectedSource -and $manifest.sourceSha -cne $ExpectedSource) { throw 'Candidate does not match the reviewed source' }
+  $expected = [System.Collections.Generic.Dictionary[string,object]]::new([System.StringComparer]::OrdinalIgnoreCase)
+  foreach ($entry in $manifest.files) {
+    Assert-ManifestFields $entry @('path', 'size', 'sha256')
+    if ($entry.path -isnot [string] -or $entry.path.Length -eq 0 -or $entry.path.Length -gt 240 -or
+        $entry.path.StartsWith('/') -or $entry.path -cmatch '[\\:\x00]' -or
+        $entry.path -ieq 'bundle-manifest.json' -or $entry.sha256 -isnot [string] -or
+        $entry.sha256 -cnotmatch '^[a-f0-9]{64}$' -or
+        ($entry.size -isnot [int] -and $entry.size -isnot [long]) -or
+        $entry.size -lt 0 -or $entry.size -gt 2GB -or $expected.ContainsKey($entry.path)) {
+      throw 'Invalid bundle inventory entry'
+    }
+    foreach ($part in $entry.path.Split('/')) {
+      if ($part -in @('', '.', '..') -or $part.EndsWith('.') -or $part.EndsWith(' ') -or
+          $part -cmatch '[\x00-\x1f<>"|?*]' -or
+          $part.Split('.')[0] -imatch '^(CON|PRN|AUX|NUL|COM[0-9]|LPT[0-9])$') { throw 'Unsafe bundle inventory path' }
+    }
+    $expected.Add($entry.path, $entry)
+  }
+  if (-not $expected.ContainsKey('TacticusDesktop.exe')) { throw 'Declared launcher required' }
+  if ($null -ne $ExpectedManifest) { Assert-SameBundleManifest $ExpectedManifest $manifest }
+  $prefix = $rootPath.TrimEnd([char[]]@('\', '/')) + [System.IO.Path]::DirectorySeparatorChar
+  $pending = [System.Collections.Generic.Stack[string]]::new()
+  $pending.Push($rootPath)
+  while ($pending.Count -ne 0) {
+    $directory = $pending.Pop()
+    foreach ($item in (Get-ChildItem -LiteralPath $directory -Force)) {
+      if ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) { throw 'Package reparse paths are unsupported' }
+      if ($item.PSIsContainer) { $pending.Push($item.FullName); continue }
+      $relative = $item.FullName.Substring($prefix.Length).Replace('\', '/')
+      if ($relative -ieq 'bundle-manifest.json') { continue }
+      if (-not $expected.ContainsKey($relative)) { throw 'Unexpected package file' }
+      $entry = $expected[$relative]
+      if ($item.Length -ne $entry.size -or
+          (Get-FileHash -LiteralPath $item.FullName -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) {
+        throw 'Package inventory content mismatch'
+      }
+      [void]$expected.Remove($relative)
+    }
+  }
+  if ($expected.Count -ne 0) { throw 'Missing package file' }
+  return [pscustomobject]@{ Manifest = $manifest; Sha256 = $manifestDigest }
+}
+function Assert-SameBundleManifest($Expected, $Actual) {
+  if ($Actual.schemaVersion -ne $Expected.schemaVersion -or $Actual.platform -cne $Expected.platform -or
+      $Actual.sourceSha -cne $Expected.sourceSha -or $Actual.files.Count -ne $Expected.files.Count) {
+    throw 'Installed candidate does not match the reviewed source and inventory'
+  }
+  $entries = [System.Collections.Generic.Dictionary[string,object]]::new([System.StringComparer]::Ordinal)
+  foreach ($entry in $Expected.files) { $entries.Add($entry.path, $entry) }
+  foreach ($entry in $Actual.files) {
+    if (-not $entries.ContainsKey($entry.path) -or $entry.size -ne $entries[$entry.path].size -or
+        $entry.sha256 -cne $entries[$entry.path].sha256) {
+      throw 'Installed candidate does not match the reviewed source and inventory'
+    }
+  }
+}
+if ($StandardUser) {
+  if (-not [System.Environment]::UserInteractive -or (Get-Process -Id $PID).SessionId -eq 0) {
+    throw 'Standard-user qualification requires an interactive Windows desktop session'
+  }
+  $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+  try {
+    # Raw group membership also catches filtered or deny-only privileged SIDs.
+    if (@($identity.Groups | Where-Object { $_.Value -in @('S-1-5-32-544', 'S-1-5-32-547') }).Count -ne 0) {
+      throw 'Sign in with a standard user account for this qualification'
+    }
+  } finally { $identity.Dispose() }
+  if ($ExpectedManifestSha256 -cnotmatch '^[a-f0-9]{64}$' -or $ExpectedSourceSha -cnotmatch '^[a-f0-9]{40}$') {
+    throw 'Reviewed manifest digest and source commit are required'
+  }
+  $reviewedBundle = Read-VerifiedBundleManifest -Root $Bundle -ExpectedDigest $ExpectedManifestSha256 -ExpectedSource $ExpectedSourceSha
+}
 # The hosted scratch volume may disable filesystem short aliases. Exercise a
 # durable per-user volume without changing volume policy. Packaged state stays
 # outside virtualized AppData; the unpackaged regression fixture retains its
@@ -22,7 +132,7 @@ $qualification = if ([string]::IsNullOrWhiteSpace($QualificationRoot)) {
 } else {
   [System.IO.Path]::GetFullPath($QualificationRoot)
 }
-$profilePrefix = [System.IO.Path]::TrimEndingDirectorySeparator([System.IO.Path]::GetFullPath($qualificationProfile)) + [System.IO.Path]::DirectorySeparatorChar
+$profilePrefix = [System.IO.Path]::GetFullPath($qualificationProfile).TrimEnd([char[]]@('\', '/')) + [System.IO.Path]::DirectorySeparatorChar
 if (-not ($qualification + [System.IO.Path]::DirectorySeparatorChar).StartsWith($profilePrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
   throw 'Qualification root must be inside the current-user application directory'
 }
@@ -45,11 +155,17 @@ if ($AlreadyInstalled) {
   $active = (Get-Content "$install/current.json" | ConvertFrom-Json).version
   $installed = Join-Path $install "versions/$active"
 }
-$manifest = Get-Content "$installed/bundle-manifest.json" | ConvertFrom-Json
-$manifestDigest = (Get-FileHash "$installed/bundle-manifest.json" -Algorithm SHA256).Hash.ToLowerInvariant()
+if ($StandardUser) {
+  $installedBundle = Read-VerifiedBundleManifest -Root $installed -ExpectedManifest $reviewedBundle.Manifest
+  $manifest = $installedBundle.Manifest
+  $manifestDigest = $installedBundle.Sha256
+} else {
+  $manifest = Get-Content "$installed/bundle-manifest.json" | ConvertFrom-Json
+  $manifestDigest = (Get-FileHash "$installed/bundle-manifest.json" -Algorithm SHA256).Hash.ToLowerInvariant()
+}
 # Keep a source/content-bound incomplete receipt if an actual runtime step fails.
 @{ schemaVersion = 1; sourceSha = $manifest.sourceSha; manifestSha256 = $manifestDigest;
-   platform = 'win-x64'; artifactKind = $artifactKind; distributionKind = $distributionKind; candidateOnly = $true; standardConsumerUser = $false;
+   platform = 'win-x64'; artifactKind = $artifactKind; distributionKind = $distributionKind; candidateOnly = $true; standardConsumerUser = [bool]$StandardUser;
    nativeInstalledArtifact = $true; qualificationLocation = $(if ($AlreadyInstalled) { 'current-user-profile' } else { 'current-user-application-directory' });
    postgresFilesystemAlias = 'not-yet-verified'; completed = $false; os = [System.Environment]::OSVersion.VersionString;
    packageFiles = $manifest.files.Count; packageBytes = ($manifest.files | Measure-Object -Property size -Sum).Sum;
@@ -122,7 +238,7 @@ foreach ($scenario in @('interrupted-bootstrap', 'committed-marker-refusal')) {
   $schemaRecovery += $proof
 }
 @{ schemaVersion = 1; sourceSha = $manifest.sourceSha; manifestSha256 = $manifestDigest;
-   platform = 'win-x64'; artifactKind = $artifactKind; distributionKind = $distributionKind; candidateOnly = $true; standardConsumerUser = $false; nativeInstalledArtifact = $true;
+   platform = 'win-x64'; artifactKind = $artifactKind; distributionKind = $distributionKind; candidateOnly = $true; standardConsumerUser = [bool]$StandardUser; nativeInstalledArtifact = $true;
    completed = $true; qualificationLocation = $(if ($AlreadyInstalled) { 'current-user-profile' } else { 'current-user-application-directory' });
    postgresFilesystemAlias = 'verified-by-native-owner'; os = [System.Environment]::OSVersion.VersionString;
    packageFiles = $manifest.files.Count; packageBytes = ($manifest.files | Measure-Object -Property size -Sum).Sum; elapsedMs = $timer.ElapsedMilliseconds;
