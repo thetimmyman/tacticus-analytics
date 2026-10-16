@@ -170,7 +170,6 @@ describe('pure helpers', () => {
     })
   })
 
-  /** The anchor must never come from `last_successful_gw_season` (a per-guild ratchet). */
   it('pins the season calendar to the IN-GAME numbers', () => {
     const inGame = (iso: string) =>
       computeSeasonAndWarNumberFromStart(Date.parse(iso)).season

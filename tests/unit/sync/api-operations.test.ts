@@ -409,43 +409,4 @@ describe('API Operations Module', () => {
       expect(shouldRefreshSession(result, 'secret')).toBe(false)
     })
   })
-
-  describe('autoPatchGuildConfig', () => {
-    it('throws when API key belongs to a different guild', async () => {
-      const { autoPatchGuildConfig } =
-        await import('@/app/lib/sync/api-operations')
-
-      mockWithRetry.mockResolvedValue({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            guild: {
-              guildId: 'wrong-guild-id',
-              guildCode: 'WRONG',
-              name: 'Wrong Guild'
-            }
-          })
-      } as unknown as Response)
-
-      const mockSupabase = {
-        from: vi.fn().mockReturnValue({
-          select: vi.fn().mockReturnThis(),
-          eq: vi.fn().mockReturnThis(),
-          single: vi.fn().mockResolvedValue({
-            data: {
-              guild_code: 'TARGET',
-              guild_id: 'target-guild-id',
-              client_secret: 'some-secret'
-            },
-            error: null
-          }),
-          update: vi.fn().mockReturnThis()
-        })
-      }
-
-      await expect(
-        autoPatchGuildConfig(mockSupabase as any, 'TARGET', 'some-api-key')
-      ).rejects.toThrow('API key belongs to a different guild')
-    })
-  })
 })

@@ -14,7 +14,7 @@ import { apiSecurityMiddleware } from '@/app/lib/middleware/rate-limit'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@tacticus/app-core/types'
 import { buildGuildConfigData } from './config-data'
-import { runInitialGuildSync } from './initial-sync'
+import { runInitialGuildSync } from '@/app/lib/onboarding/initial-guild-sync'
 import {
   detectCurrentGuildRaidSeason,
   discoverGuildData,

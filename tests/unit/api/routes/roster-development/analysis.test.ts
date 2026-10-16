@@ -7,7 +7,6 @@ let mockCheckFeatureAccess: ReturnType<typeof vi.fn>
 let mockGetPlayerApiKey: ReturnType<typeof vi.fn>
 let mockTacticusAPI: any
 let mockAnalyzeRoster: ReturnType<typeof vi.fn>
-let mockCreateLokiClient: ReturnType<typeof vi.fn>
 
 const createNextRequest = (params: Record<string, string> = {}) => {
   const url = new URL('http://localhost/api/roster-development/analysis')
@@ -41,7 +40,6 @@ describe('GET /api/roster-development/analysis', () => {
       getPlayer: vi.fn()
     }
     mockAnalyzeRoster = vi.fn()
-    mockCreateLokiClient = vi.fn()
 
     vi.doMock('@/app/lib/auth/server', () => ({
       createClient: vi.fn().mockResolvedValue(mockSupabase),
@@ -65,10 +63,6 @@ describe('GET /api/roster-development/analysis', () => {
       normalizeUnitName: vi.fn((name: string) =>
         name.toLowerCase().replace(/\s+/g, '')
       )
-    }))
-
-    vi.doMock('@/app/lib/loki/client', () => ({
-      createLokiClient: mockCreateLokiClient
     }))
 
     vi.doMock('@tacticus/app-core/logger', () => ({

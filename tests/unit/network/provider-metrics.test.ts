@@ -289,7 +289,7 @@ it('measures worker retries at the wire boundary and releases rejected responses
   expect(wire).toHaveBeenCalledTimes(2)
 })
 
-it('measures documented guild retries while reused roster evidence makes no request', async () => {
+it('measures documented guild retries', async () => {
   vi.useFakeTimers()
   const payload = {
     guild: {
@@ -307,24 +307,16 @@ it('measures documented guild retries while reused roster evidence makes no requ
   vi.stubGlobal('fetch', wire)
   const { fetchGuildMembersViaTacticus } =
     await import('@/app/lib/sync/tacticus-api')
-  const pending = captureProviderMetrics(async () => {
-    const fetched = await fetchGuildMembersViaTacticus(
+  const pending = captureProviderMetrics(() =>
+    fetchGuildMembersViaTacticus(
       'synthetic-key',
       'synthetic-target',
       'SYNTHETIC'
     )
-    const reused = await fetchGuildMembersViaTacticus(
-      'synthetic-key',
-      'synthetic-target',
-      'SYNTHETIC',
-      payload
-    )
-    return { fetched, reused }
-  })
+  )
   await vi.advanceTimersByTimeAsync(10_000)
-  const expected = { success: true, memberIds: ['synthetic-a'] }
   expect(await pending).toEqual({
-    result: { fetched: expected, reused: expected },
+    result: { success: true, memberIds: ['synthetic-a'] },
     metrics: { api_calls: 2, api_errors: 1, api_retry_count: 1 }
   })
   expect(cancel).toHaveBeenCalledTimes(1)

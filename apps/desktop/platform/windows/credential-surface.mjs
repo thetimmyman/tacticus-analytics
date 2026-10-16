@@ -42,7 +42,6 @@ export function rendererCredentialSurface(url) {
       '/api/clusters/join',
       '/api/guild/claim',
       '/api/guild/create-config',
-      '/api/guild/initial-sync',
       '/api/guild/trigger-sync',
       '/api/guild-tokens/sync',
       '/api/guild-teams/backfill',

@@ -16,11 +16,8 @@ export type TacticusMembersResult = GuildRosterEvidence
 export async function fetchGuildMembersViaTacticus(
   apiKey: string,
   guildId: string,
-  guildCode: string,
-  guildPayload?: unknown
+  guildCode: string
 ): Promise<TacticusMembersResult> {
-  if (guildPayload !== undefined)
-    return extractGuildRosterEvidence(guildPayload, guildId)
   if (!guildId) return extractGuildRosterEvidence(null, guildId)
   const url = `${CONFIG.api.baseUrl}/guild`
 

@@ -64,8 +64,8 @@ describe('Android portable boundary and retained acceptance', () => {
       rows: { source: string; status: string; reason: string }[]
       approvedExclusions: string[]
     }
-    expect(matrix.rows).toHaveLength(339)
-    expect(new Set(matrix.rows.map((row) => row.source)).size).toBe(339)
+    expect(matrix.rows).toHaveLength(338)
+    expect(new Set(matrix.rows.map((row) => row.source)).size).toBe(338)
     for (const row of matrix.rows) {
       const exists = row.source.startsWith('sha256:')
         ? execFileSync('git', ['ls-files', 'app'], { encoding: 'utf8' })

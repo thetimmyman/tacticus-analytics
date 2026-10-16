@@ -6,7 +6,10 @@ import { createComponentLogger } from '@/app/lib/logging'
 import { rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { captureSentryException } from '@/app/lib/monitoring/sentry'
 import { runHeraldFromDb } from '@/app/lib/herald/from-db'
-import { refreshSharedLokiSession } from '@/app/lib/loki/batch-session-refresh'
+import {
+  createRestSharedSessionStore,
+  ensureSharedLokiSession
+} from '@/app/lib/loki/batch-session-refresh'
 import { getSharedFetch } from '@/app/lib/network/undici-agent'
 import { registerJobHandler } from './dispatcher'
 import { softDeadlineFor } from './deadline'
@@ -45,13 +48,14 @@ const guildSyncHandler: JobHandler = async (_payload, ctx) => {
     const { data: betaGuilds, error: queryError } = await db.query<
       Array<{
         guild_code: string
+        guild_id: string | null
         enabled: boolean
         auto_sync_enabled: boolean
         last_successful_sync: string | null
         consecutive_sync_failures: number | null
       }>
     >(
-      `guild_config?select=guild_code,enabled,auto_sync_enabled,last_successful_sync,consecutive_sync_failures&beta_tester=eq.true`
+      `guild_config?select=guild_code,guild_id,enabled,auto_sync_enabled,last_successful_sync,consecutive_sync_failures&beta_tester=eq.true`
     )
 
     if (queryError) {
@@ -131,59 +135,36 @@ const guildSyncHandler: JobHandler = async (_payload, ctx) => {
       }
     }
 
-    let freshLokiSessionId: string | null = null
+    let sharedLokiSession: 'reused' | 'connected' | 'none' = 'none'
+    let sharedLokiSessionId: string | null = null
     try {
-      const refreshResult = await refreshSharedLokiSession()
-      if (refreshResult.success && refreshResult.sessionId) {
-        freshLokiSessionId = refreshResult.sessionId
-        const lokiUserId = process.env.LOKI_SCRAPER_USER_ID || ''
-        if (lokiUserId) {
-          const directFetch = getSharedFetch()
-          const internalUrl =
+      const shared = await ensureSharedLokiSession({
+        store: createRestSharedSessionStore({
+          fetchImpl: getSharedFetch(),
+          baseUrl:
             process.env.SUPABASE_URL ||
             process.env.NEXT_PUBLIC_SUPABASE_URL ||
-            ''
-          const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-          const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-          const bulkResp = await directFetch(
-            `${internalUrl}/rest/v1/guild_config?or=(user_id.is.null,user_id.eq.${encodeURIComponent(lokiUserId)})`,
-            {
-              method: 'PATCH',
-              headers: {
-                apikey: anonKey,
-                Authorization: `Bearer ${serviceKey}`,
-                'Content-Type': 'application/json',
-                Prefer: 'return=minimal'
-              },
-              body: JSON.stringify({
-                session_id: freshLokiSessionId,
-                session_refreshed_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-              })
-            }
-          )
-          if (!bulkResp.ok) {
-            logger.warn(
-              { jobId: ctx.jobId, status: bulkResp.status },
-              '[GuildSync] bulk LOKI session update failed'
-            )
-          }
-        } else {
-          logger.warn(
-            { jobId: ctx.jobId },
-            '[GuildSync] LOKI_SCRAPER_USER_ID unset; bulk PATCH skipped (per-guild reactive refresh will fire)'
-          )
-        }
-      } else {
+            '',
+          anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+          serviceKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+          scraperUserId: process.env.LOKI_SCRAPER_USER_ID || ''
+        }),
+        // Only guilds with a guild_id reach LOKI, so only they can test the session.
+        probeGuildId: guildsToSync.find((g) => g.guild_id)?.guild_id ?? null
+      })
+      sharedLokiSessionId = shared.sessionId
+      if (shared.sessionId) {
+        sharedLokiSession = shared.reused ? 'reused' : 'connected'
+      } else if (shared.error) {
         logger.warn(
-          { jobId: ctx.jobId, err: refreshResult.error ?? 'unknown' },
-          '[GuildSync] LOKI session pre-refresh failed'
+          { jobId: ctx.jobId, err: shared.error },
+          '[GuildSync] no shared LOKI session this run; each guild refreshes its own'
         )
       }
-    } catch (preRefreshError) {
+    } catch (sessionError) {
       logger.warn(
-        { jobId: ctx.jobId, err: getErrorMessage(preRefreshError) },
-        '[GuildSync] LOKI session pre-refresh exception (non-fatal)'
+        { jobId: ctx.jobId, err: getErrorMessage(sessionError) },
+        '[GuildSync] shared LOKI session exception (non-fatal)'
       )
     }
 
@@ -201,9 +182,9 @@ const guildSyncHandler: JobHandler = async (_payload, ctx) => {
             'sync-modular-workflow',
             {
               guild_code: guild.guild_code,
-              // The edge fn has no LOKI creds to refresh the session itself.
-              ...(freshLokiSessionId
-                ? { fresh_session_id: freshLokiSessionId }
+              // Without it each guild refreshes a rejected session on its own.
+              ...(sharedLokiSessionId
+                ? { fresh_session_id: sharedLokiSessionId }
                 : {})
             }
           )
@@ -304,7 +285,7 @@ const guildSyncHandler: JobHandler = async (_payload, ctx) => {
       failed: results.length - successful,
       totalEntries,
       durationMs: totalDuration,
-      lokiSessionPreRefresh: !!freshLokiSessionId
+      lokiSharedSession: sharedLokiSession
     }
   } catch (error) {
     rethrowIfAppError(error)

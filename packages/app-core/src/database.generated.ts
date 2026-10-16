@@ -2369,7 +2369,6 @@ export type Database = {
           last_raid_write_at: string | null
           last_resume_attempt_at: string | null
           last_roster_refresh_at: string | null
-          last_successful_gw_season: number | null
           last_successful_sync: string | null
           last_sync_attempt: string | null
           logo_url: string | null
@@ -2453,7 +2452,6 @@ export type Database = {
           last_raid_write_at?: string | null
           last_resume_attempt_at?: string | null
           last_roster_refresh_at?: string | null
-          last_successful_gw_season?: number | null
           last_successful_sync?: string | null
           last_sync_attempt?: string | null
           logo_url?: string | null
@@ -2537,7 +2535,6 @@ export type Database = {
           last_raid_write_at?: string | null
           last_resume_attempt_at?: string | null
           last_roster_refresh_at?: string | null
-          last_successful_gw_season?: number | null
           last_successful_sync?: string | null
           last_sync_attempt?: string | null
           logo_url?: string | null

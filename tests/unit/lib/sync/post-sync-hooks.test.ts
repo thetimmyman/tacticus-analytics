@@ -8,10 +8,7 @@ vi.mock(
 vi.mock('@/app/lib/sync/api-operations', () => ({
   fetchGuildMembersViaLoki: vi
     .fn()
-    .mockResolvedValue({ members: [], authFailed: false }),
-  fetchGuildRankings: vi
-    .fn()
-    .mockResolvedValue({ guildRaid: null, guildWar: null })
+    .mockResolvedValue({ members: [], authFailed: false })
 }))
 
 vi.mock('@/app/lib/sync/tacticus-api', () => ({
@@ -594,15 +591,14 @@ describe('runPostSyncHooks — writing-tick roster throttle', () => {
     return { supabase, guildConfigUpdates }
   }
 
-  it('skips the LOKI roster and rankings calls when the roster was refreshed minutes ago', async () => {
-    const { fetchGuildMembersViaLoki, fetchGuildRankings } =
+  it('skips the LOKI roster call when the roster was refreshed minutes ago', async () => {
+    const { fetchGuildMembersViaLoki } =
       await import('@/app/lib/sync/api-operations')
     const { supabase } = buildStampCapturingSupabase()
 
     await runPostSyncHooks('THROTTLE1', '5', configRefreshed(5), supabase)
 
     expect(fetchGuildMembersViaLoki).not.toHaveBeenCalled()
-    expect(fetchGuildRankings).not.toHaveBeenCalled()
     // The rest of the writing-tick pipeline still runs.
     expect(supabase.rpc).toHaveBeenCalledWith(
       'update_token_burn_state_for_guild',
@@ -617,15 +613,15 @@ describe('runPostSyncHooks — writing-tick roster throttle', () => {
     ['refreshed outside the window', 16],
     ['stamped in the future', -60]
   ])(
-    'refreshes the roster and rankings when %s',
+    'refreshes the roster, and writes no ranking, when %s',
     async (_label, minutesAgo) => {
-      const { fetchGuildMembersViaLoki, fetchGuildRankings } =
+      const { fetchGuildMembersViaLoki } =
         await import('@/app/lib/sync/api-operations')
       vi.mocked(fetchGuildMembersViaLoki).mockResolvedValueOnce({
         members: [],
         authFailed: false
       } as any)
-      const { supabase } = buildStampCapturingSupabase()
+      const { supabase, guildConfigUpdates } = buildStampCapturingSupabase()
 
       await runPostSyncHooks(
         'THROTTLE1',
@@ -635,7 +631,12 @@ describe('runPostSyncHooks — writing-tick roster throttle', () => {
       )
 
       expect(fetchGuildMembersViaLoki).toHaveBeenCalledTimes(1)
-      expect(fetchGuildRankings).toHaveBeenCalledTimes(1)
+      // Rankings are entered by hand; the sync never overwrites them.
+      expect(
+        guildConfigUpdates.filter(
+          (update) => 'GR_Ranking' in update || 'GW_Ranking' in update
+        )
+      ).toEqual([])
     }
   )
 

@@ -24,12 +24,10 @@ function thenableQuery(response: QueryResponse) {
 
 function buildSupabase({
   players,
-  recentSyncs = [],
-  guildConfig = null
+  recentSyncs = []
 }: {
   players: Array<Record<string, unknown>>
   recentSyncs?: Array<Record<string, unknown>>
-  guildConfig?: Record<string, unknown> | null
 }) {
   return {
     from: vi.fn((table: string) => {
@@ -38,9 +36,6 @@ function buildSupabase({
       }
       if (table === 'player_roster') {
         return thenableQuery({ data: recentSyncs, error: null })
-      }
-      if (table === 'guild_config') {
-        return thenableQuery({ data: guildConfig, error: null })
       }
       return thenableQuery({ data: null, error: null })
     })
@@ -51,11 +46,10 @@ describe('POST /api/guild-teams/backfill', () => {
   let POST: () => Promise<Response>
   let mockServiceDb: ReturnType<typeof vi.fn>
   let mockGetPlayerApiKey: ReturnType<typeof vi.fn>
-  let mockResolveStoredSecret: ReturnType<typeof vi.fn>
   let mockTacticusGetPlayer: ReturnType<typeof vi.fn>
   let mockResolveMachinesOfWar: ReturnType<typeof vi.fn>
-  let mockCreateLokiClient: ReturnType<typeof vi.fn>
-  let mockLokiGetPlayerInfo: ReturnType<typeof vi.fn>
+  let mockSelectRosterRefreshCandidates: ReturnType<typeof vi.fn>
+  let mockTryBeginPlayerRosterRefresh: ReturnType<typeof vi.fn>
   let mockPersistRosterSnapshot: ReturnType<typeof vi.fn>
   let mockCheckActionRateLimit: ReturnType<typeof vi.fn>
 
@@ -66,17 +60,19 @@ describe('POST /api/guild-teams/backfill', () => {
 
   beforeEach(() => {
     vi.resetModules()
-    vi.stubEnv('LOKI_SCRAPER_CLIENT_SECRET', 'server-loki-secret')
 
     mockServiceDb = vi.fn()
     mockGetPlayerApiKey = vi.fn()
-    mockResolveStoredSecret = vi.fn().mockResolvedValue(null)
     mockTacticusGetPlayer = vi.fn()
     mockResolveMachinesOfWar = vi.fn().mockReturnValue([])
-    mockLokiGetPlayerInfo = vi.fn()
-    mockCreateLokiClient = vi.fn(() => ({
-      getPlayerInfo: mockLokiGetPlayerInfo
-    }))
+    mockSelectRosterRefreshCandidates = vi.fn(async (rows) => rows)
+    mockTryBeginPlayerRosterRefresh = vi.fn(
+      async (_user: string | null, id: number) => ({
+        playerMappingId: id,
+        attemptId: '00000000-0000-4000-8000-000000000001',
+        observedAt: '2026-01-01T00:00:00.000Z'
+      })
+    )
     mockCheckActionRateLimit = vi.fn().mockResolvedValue({ allowed: true })
     mockPersistRosterSnapshot = vi.fn().mockResolvedValue({
       status: 'applied',
@@ -97,15 +93,9 @@ describe('POST /api/guild-teams/backfill', () => {
     vi.doMock('@tacticus/app-core/api-key-helper', () => ({
       getPlayerApiKey: mockGetPlayerApiKey
     }))
-    vi.doMock('@tacticus/app-core/encryption', () => ({
-      resolveStoredSecret: mockResolveStoredSecret
-    }))
     vi.doMock('@/app/lib/api/tacticus-client', () => ({
       tacticusAPI: { getPlayer: mockTacticusGetPlayer },
       resolveMachinesOfWar: mockResolveMachinesOfWar
-    }))
-    vi.doMock('@/app/lib/loki/client', () => ({
-      createLokiClient: mockCreateLokiClient
     }))
     vi.doMock('@/app/lib/middleware/errorHandler', () => ({
       withErrorHandler: (handler: () => Promise<Response>) => handler
@@ -122,14 +112,8 @@ describe('POST /api/guild-teams/backfill', () => {
       persistRosterSnapshot: mockPersistRosterSnapshot
     }))
     vi.doMock('@/app/lib/player/roster-snapshot-store', () => ({
-      selectRosterRefreshCandidates: vi.fn(async (rows) => rows),
-      tryBeginPlayerRosterRefresh: vi.fn(
-        async (_user: string | null, id: number) => ({
-          playerMappingId: id,
-          attemptId: '00000000-0000-4000-8000-000000000001',
-          observedAt: '2026-01-01T00:00:00.000Z'
-        })
-      )
+      selectRosterRefreshCandidates: mockSelectRosterRefreshCandidates,
+      tryBeginPlayerRosterRefresh: mockTryBeginPlayerRosterRefresh
     }))
     vi.doMock('@/app/lib/middleware/rate-limit', () => ({
       checkActionRateLimit: mockCheckActionRateLimit
@@ -148,7 +132,6 @@ describe('POST /api/guild-teams/backfill', () => {
     expect(mockServiceDb).not.toHaveBeenCalled()
     expect(mockGetPlayerApiKey).not.toHaveBeenCalled()
     expect(mockTacticusGetPlayer).not.toHaveBeenCalled()
-    expect(mockCreateLokiClient).not.toHaveBeenCalled()
   })
 
   it('forwards Tacticus profile power to roster snapshot persistence', async () => {
@@ -157,7 +140,7 @@ describe('POST /api/guild-teams/backfill', () => {
         {
           id: 101,
           user_id: 'user-101',
-          player_id: 'loki-player-101',
+          player_id: 'player-101',
           display_name: 'Api Key Player',
           tacticus_api_key_encrypted: 'encrypted-key',
           api_key_is_valid: true
@@ -192,76 +175,43 @@ describe('POST /api/guild-teams/backfill', () => {
     )
   })
 
-  it('forwards Loki profile totalPower to roster snapshot persistence', async () => {
+  it('skips members without a valid key and claims no refresh slot for them', async () => {
     const supabase = buildSupabase({
       players: [
         {
           id: 202,
           user_id: null,
-          player_id: 'loki-player-202',
-          display_name: 'Loki Player',
+          player_id: 'player-202',
+          display_name: 'Keyless Player',
           tacticus_api_key_encrypted: null,
           api_key_is_valid: false
+        },
+        {
+          id: 303,
+          user_id: 'user-303',
+          player_id: 'player-303',
+          display_name: 'Revoked Key Player',
+          tacticus_api_key_encrypted: 'encrypted-key',
+          api_key_is_valid: false
         }
-      ],
-      guildConfig: {
-        user_id: 'loki-user',
-        session_id: 'session',
-        client_secret: 'encrypted-secret'
-      }
+      ]
     })
     mockServiceDb.mockReturnValue(supabase)
-    mockResolveStoredSecret.mockResolvedValue('secret')
-    mockLokiGetPlayerInfo.mockResolvedValue({
-      ok: true,
-      data: {
-        heroInfo: {
-          player: { totalPower: 654321 },
-          units: {
-            units: {
-              hero_b: {
-                progressionIndex: 2,
-                rank: 3,
-                xpLevel: 4,
-                active: 5,
-                passive: 6
-              }
-            }
-          }
-        }
-      }
-    })
 
     await loadRoute()
     const response = await POST()
+    const body = await response.json()
 
     expect(response.status).toBe(200)
-    expect(mockPersistRosterSnapshot).toHaveBeenCalledWith(
-      null,
-      [
-        {
-          id: 'hero_b',
-          progressionIndex: 2,
-          rank: 3,
-          xpLevel: 4,
-          abilities: [
-            { id: 'active', level: 5 },
-            { id: 'passive', level: 6 }
-          ]
-        }
-      ],
+    expect(body).toMatchObject({ processed: 0, failed: 0, skipped: 2 })
+    expect(mockSelectRosterRefreshCandidates).toHaveBeenCalledWith(
       [],
-      supabase,
-      202,
-      {
-        playerPower: 654321,
-        observation: expect.objectContaining({ playerMappingId: 202 })
-      }
-    )
-    expect(mockCreateLokiClient).toHaveBeenCalledWith(
       expect.any(Object),
-      expect.objectContaining({ retryAttempts: 0 })
+      supabase
     )
+    expect(mockTryBeginPlayerRosterRefresh).not.toHaveBeenCalled()
+    expect(mockGetPlayerApiKey).not.toHaveBeenCalled()
+    expect(mockPersistRosterSnapshot).not.toHaveBeenCalled()
   })
 
   it('returns without provider calls when the guild backfill is rate limited', async () => {
@@ -287,6 +237,6 @@ describe('POST /api/guild-teams/backfill', () => {
       retryAfter: 120
     })
     expect(mockServiceDb).not.toHaveBeenCalled()
-    expect(mockLokiGetPlayerInfo).not.toHaveBeenCalled()
+    expect(mockTacticusGetPlayer).not.toHaveBeenCalled()
   })
 })
