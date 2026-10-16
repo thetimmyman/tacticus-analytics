@@ -147,6 +147,64 @@ describe('GuildJoinFlow — display name from the in-game guild name', () => {
     )
   })
 
+  it('ignores a lookup that finishes after the key was changed', async () => {
+    const pending = new Map<string, (name: string) => void>()
+    stubFetch(undefined)
+    const baseFetch = vi.mocked(fetch).getMockImplementation()!
+    vi.mocked(fetch).mockImplementation(async (input, init) => {
+      if (String(input) !== '/api/validate-api-key')
+        return baseFetch(input, init)
+      const { apiKey } = JSON.parse(String(init?.body))
+      const guildName = await new Promise<string>((resolve) =>
+        pending.set(apiKey, resolve)
+      )
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          valid: true,
+          details: { guildInfo: { guildName } }
+        })
+      } as Response
+    })
+    const user = userEvent.setup()
+    await openGuildForm(user)
+    const keyInput = screen.getByPlaceholderText('For immediate sync setup')
+    const firstKey = 'a'.repeat(24)
+    const secondKey = 'b'.repeat(24)
+
+    await user.type(keyInput, firstKey)
+    await user.tab()
+    await user.clear(keyInput)
+    await user.type(keyInput, secondKey)
+    await user.tab()
+    await waitFor(() => expect(pending.size).toBe(2))
+
+    pending.get(firstKey)!('First Guild')
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    expect(displayNameInput().value).toBe('')
+
+    pending.get(secondKey)!('Second Guild')
+    await waitFor(() => expect(displayNameInput().value).toBe('Second Guild'))
+  })
+
+  it('clears a filled-in name when the API key changes', async () => {
+    stubFetch('Synthetic Legion')
+    const user = userEvent.setup()
+    await openGuildForm(user)
+    await enterApiKey(user)
+    await waitFor(() =>
+      expect(displayNameInput().value).toBe('Synthetic Legion')
+    )
+
+    await user.type(
+      screen.getByPlaceholderText('For immediate sync setup'),
+      'x'
+    )
+
+    expect(displayNameInput().value).toBe('')
+  })
+
   it('still requires a display name when no API key is given', async () => {
     const calls = stubFetch('Synthetic Legion')
     const user = userEvent.setup()

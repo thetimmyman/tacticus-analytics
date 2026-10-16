@@ -84,6 +84,8 @@ export default function GuildJoinFlow({
   const [errors, setErrors] = useState<Record<string, string>>({})
   // The in-game name last filled in, so a later lookup can replace it but never a typed name.
   const apiFilledName = useRef<string | null>(null)
+  // The key in the field now; a lookup for any other key is stale and dropped.
+  const currentApiKey = useRef('')
   const [nameFromApi, setNameFromApi] = useState(false)
   const { toast } = useToast()
 
@@ -101,6 +103,7 @@ export default function GuildJoinFlow({
       })
       if (!response.ok) return
       const result: ValidateApiKeyResponse = await response.json()
+      if (currentApiKey.current.trim() !== apiKey) return
       if (!result.valid) return
       const nameCheck = validateGuildDisplayName(
         result.details?.guildInfo?.guildName
@@ -411,12 +414,22 @@ export default function GuildJoinFlow({
                 <Input
                   type="password"
                   value={guildData.apiKey}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    currentApiKey.current = e.target.value
+                    // A name filled from the previous key belongs to that guild.
+                    const filledFromOldKey =
+                      apiFilledName.current !== null &&
+                      guildData.displayName === apiFilledName.current
                     setGuildData({
                       ...guildData,
-                      apiKey: e.target.value
+                      apiKey: e.target.value,
+                      ...(filledFromOldKey ? { displayName: '' } : {})
                     })
-                  }
+                    if (filledFromOldKey) {
+                      apiFilledName.current = null
+                      setNameFromApi(false)
+                    }
+                  }}
                   onBlur={(e) => {
                     void prefillDisplayNameFromApiKey(e.target.value)
                   }}
