@@ -12,6 +12,7 @@ import InlineWebhookManager from '../../InlineWebhookManager'
 import type { Guild } from '../types'
 import { formatGuildTag } from '@/app/lib/format/guild'
 import { GuildActionsMenu } from './GuildActionsMenu'
+import { GUILD_DISPLAY_NAME_MAX_LENGTH } from '@/app/lib/validation/guild-display-name'
 
 interface GuildCardProps {
   guild: Guild
@@ -77,12 +78,25 @@ export function GuildCard({
 
           <div className="space-y-2">
             <div>
-              <Label className="text-xs">Display Name (Read-only)</Label>
+              <Label
+                htmlFor={`guild-display-name-${editedGuild.guild_code}`}
+                className="text-xs"
+              >
+                Display Name
+              </Label>
               <Input
-                value={editedGuild?.display_name || ''}
-                disabled
-                className="mt-1 opacity-60 cursor-not-allowed"
-                title="Guild name is managed by the game API"
+                id={`guild-display-name-${editedGuild.guild_code}`}
+                value={editedGuild.display_name ?? ''}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  onEditedGuildChange({
+                    ...editedGuild,
+                    display_name: e.target.value
+                  })
+                }
+                aria-label="Guild display name"
+                placeholder="Guild name"
+                maxLength={GUILD_DISPLAY_NAME_MAX_LENGTH}
+                className="mt-1"
               />
             </div>
 

@@ -482,6 +482,35 @@ describe('/api/clusters/join', () => {
         expect(res.status).toBe(400)
       })
 
+      it('returns 400 and writes nothing when displayName is an email address', async () => {
+        const res = await POST(
+          makePostRequest({
+            ...validBody,
+            guildData: {
+              ...validBody.guildData,
+              displayName: 'leader.one@example.com'
+            }
+          })
+        )
+        expect(res.status).toBe(400)
+        const body = await res.json()
+        expect(JSON.stringify(body)).toMatch(/email/i)
+        expect(mockValidateInviteCode).not.toHaveBeenCalled()
+        expect(serviceUpdates).toEqual([])
+        expect(serviceInserts).toEqual([])
+      })
+
+      it('returns 400 when displayName exceeds the maximum length', async () => {
+        const res = await POST(
+          makePostRequest({
+            ...validBody,
+            guildData: { ...validBody.guildData, displayName: 'a'.repeat(200) }
+          })
+        )
+        expect(res.status).toBe(400)
+        expect(serviceInserts).toEqual([])
+      })
+
       it('returns 400 when invite code is invalid', async () => {
         mockValidateInviteCode.mockResolvedValue({
           valid: false,
@@ -1033,6 +1062,22 @@ describe('/api/clusters/join', () => {
           ['cluster_id', null],
           ['cluster_code', null]
         ])
+      })
+
+      it('stores the trimmed displayName on the new guild row', async () => {
+        mockGuildConfigServiceFindByCodeOrTag.mockResolvedValue(null)
+
+        const res = await POST(
+          makePostRequest({
+            ...validBody,
+            guildData: { ...validBody.guildData, displayName: '  My Guild  ' }
+          })
+        )
+        expect(res.status).toBe(200)
+        expect(serviceInserts).toContainEqual({
+          table: 'guild_config',
+          payload: expect.objectContaining({ display_name: 'My Guild' })
+        })
       })
 
       it('returns 500 when guild_config insert fails', async () => {

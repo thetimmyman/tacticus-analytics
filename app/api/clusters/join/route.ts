@@ -29,6 +29,7 @@ import {
   guildIdentitiesMatch,
   nullableGuildIdentitiesMatch
 } from '@/app/api/clusters/_lib/guild-identity'
+import { validateGuildDisplayName } from '@/app/lib/validation/guild-display-name'
 
 interface JoinClusterData {
   inviteCode: string
@@ -73,6 +74,12 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         error: 'Missing required fields: inviteCode, guildCode, displayName'
       })
     }
+
+    const displayNameCheck = validateGuildDisplayName(guildData.displayName)
+    if (!displayNameCheck.ok) {
+      throw Errors.fromResponse(400, { error: displayNameCheck.error })
+    }
+    const displayName = displayNameCheck.value
 
     const supabase = await db()
 
@@ -233,7 +240,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
           cluster_id: cluster.id,
           cluster_code: cluster.cluster_code,
           is_cluster: true,
-          display_name: guildData.displayName,
+          display_name: displayName,
           tagline: guildData.tagline,
           description: guildData.description,
           logo_url: guildData.logoUrl,
@@ -506,7 +513,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
               guild_code: canonicalGuildCode,
               guild_tag: validationResult?.guildInfo?.guildCode || null,
               guild_id: expectedGuildId,
-              display_name: guildData.displayName,
+              display_name: displayName,
               cluster_id: cluster.id,
               cluster_code: cluster.cluster_code,
               enabled: true,

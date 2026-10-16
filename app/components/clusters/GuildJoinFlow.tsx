@@ -20,6 +20,10 @@ import {
   Globe
 } from 'lucide-react'
 import { createComponentLogger } from '@/app/lib/logging/client'
+import {
+  GUILD_DISPLAY_NAME_MAX_LENGTH,
+  validateGuildDisplayName
+} from '@/app/lib/validation/guild-display-name'
 const logger = createComponentLogger('components.clusters.GuildJoinFlow')
 
 interface ClusterInfo {
@@ -131,8 +135,8 @@ export default function GuildJoinFlow({
   const handleJoinCluster = async () => {
     const newErrors: Record<string, string> = {}
     if (!guildData.guildCode) newErrors.guildCode = 'Guild code is required'
-    if (!guildData.displayName)
-      newErrors.displayName = 'Guild display name is required'
+    const displayNameCheck = validateGuildDisplayName(guildData.displayName)
+    if (!displayNameCheck.ok) newErrors.displayName = displayNameCheck.error
     if (
       guildData.leaderEmail &&
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guildData.leaderEmail)
@@ -300,6 +304,7 @@ export default function GuildJoinFlow({
                   })
                 }
                 placeholder="Your Guild Name"
+                maxLength={GUILD_DISPLAY_NAME_MAX_LENGTH}
               />
               {errors.displayName && (
                 <p className="text-red-400 text-sm mt-1">
