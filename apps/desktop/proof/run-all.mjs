@@ -46,6 +46,7 @@ run('a-loopback-gateway', '--test', [
   'apps/desktop/proof/native-secret.test.mjs',
   'apps/desktop/proof/encrypted-backup.test.mjs',
   'apps/desktop/proof/encrypted-maintenance.test.mjs',
+  'apps/desktop/proof/maintenance-workflow.test.mjs',
   'apps/desktop/proof/addon-menu.test.mjs',
   'apps/desktop/proof/official-access.test.mjs',
   'apps/desktop/proof/scoped-connections.test.mjs',

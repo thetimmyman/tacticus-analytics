@@ -25,8 +25,8 @@ module.exports = function maintenanceMenu(window, config, gameItems = []) {
               : 'Restore a workspace copy',
           message:
             operation === 'backup'
-              ? 'The application will close to make a consistent encrypted backup. You will choose a separate backup passphrase. Keep it safely: the backup cannot be restored without it.'
-              : 'Restore the account and data from a saved backup into a new workspace. Your current workspace will stay in place. The application will close during restore.',
+              ? 'The application will pause to make a consistent encrypted backup, then reopen your workspace. You will choose a separate backup passphrase. Keep it safely: the backup cannot be restored without it.'
+              : 'Restore the account and data from a saved backup into a new workspace. Your current workspace will stay in place. The restored copy will open after it is checked. Cancelling or an unsuccessful restore returns you to your current workspace.',
           buttons: ['Cancel', 'Continue'],
           defaultId: 0,
           cancelId: 0
