@@ -1,19 +1,24 @@
 import { fork } from 'node:child_process'
 import { EventEmitter } from 'node:events'
 import { readFile, mkdir } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { isAbsolute, resolve } from 'node:path'
 import { join } from 'node:path'
 import { signedToken } from './native-services.mjs'
 
-export async function nativeServices(config, { signal } = {}) {
+export async function nativeServices(
+  config,
+  { signal, nodeExecutable = process.execPath } = {}
+) {
   signal?.throwIfAborted()
+  if (!isAbsolute(nodeExecutable))
+    throw new Error('Absolute service Node executable required')
   if (config.runtimeGuard)
     await mkdir(resolve(config.state), { recursive: true, mode: 0o700 })
   const owner = fork(new URL('./service-owner.mjs', import.meta.url), [], {
     // Use the bundled Node executable without inheriting proof-only tsx hooks.
-    execPath: config.runtimeGuard || process.execPath,
+    execPath: config.runtimeGuard || nodeExecutable,
     execArgv: config.runtimeGuard
-      ? ['--owner', resolve(config.state), process.execPath]
+      ? ['--owner', resolve(config.state), nodeExecutable]
       : [],
     stdio: ['ignore', 'ignore', 'ignore', 'ipc']
   })

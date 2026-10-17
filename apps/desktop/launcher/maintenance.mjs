@@ -17,7 +17,10 @@ export async function encryptedPassphrase(
   )
   try {
     if (value.length < 12 || value.length > 1024)
-      throw new Error('Use a backup passphrase of 12 to 1024 bytes.')
+      throw Object.assign(
+        new Error('Use a backup passphrase of 12 to 1024 bytes.'),
+        { code: 'EPASSPHRASELENGTH' }
+      )
     if (operation === 'backup') {
       const confirmation = Buffer.from(
         await prompt('backup-passphrase-confirm'),
@@ -25,7 +28,9 @@ export async function encryptedPassphrase(
       )
       try {
         if (!value.equals(confirmation))
-          throw new Error('Backup passphrases did not match.')
+          throw Object.assign(new Error('Backup passphrases did not match.'), {
+            code: 'EPASSPHRASEMISMATCH'
+          })
       } finally {
         confirmation.fill(0)
       }
