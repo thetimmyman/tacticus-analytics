@@ -22,6 +22,11 @@ export interface ClaimGuildInfo {
   enabled: boolean
 }
 
+type GuildLookup =
+  | { status: 'exists'; config: ClaimGuildInfo }
+  | { status: 'missing' }
+  | { status: 'failed' }
+
 interface Options {
   clusterCode?: string
   clusterId: string | null
@@ -76,6 +81,22 @@ export function useGuildOnboardingActions({
     setNewGuild(emptyGuildDraft())
   }
 
+  const lookupGuild = async (guildCode: string): Promise<GuildLookup> => {
+    try {
+      const response = await fetch(
+        `/api/guild/check-status?guild_code=${encodeURIComponent(guildCode)}`
+      )
+      if (!response.ok) return { status: 'failed' }
+      const result = await response.json()
+      return result.exists
+        ? { status: 'exists', config: result.config as ClaimGuildInfo }
+        : { status: 'missing' }
+    } catch (error) {
+      logger.error({ err: error }, 'Error checking guild existence:')
+      return { status: 'failed' }
+    }
+  }
+
   const checkGuildExists = async (guildCode: string) => {
     const trimmed = guildCode.trim().toUpperCase()
     if (!trimmed || trimmed.length < 2) {
@@ -85,48 +106,34 @@ export function useGuildOnboardingActions({
 
     setCheckingGuild(true)
     try {
-      const response = await fetch(
-        `/api/guild/check-status?guild_code=${encodeURIComponent(trimmed)}`
-      )
-      if (!response.ok) {
+      const lookup = await lookupGuild(trimmed)
+      if (lookup.status === 'failed') {
+        toast.error(`Could not check guild ${trimmed}. Please try again.`)
         resetClaimMode()
         return
       }
-      const result = await response.json()
-      if (!result.exists) {
+      if (lookup.status === 'missing') {
+        toast.info(
+          `No guild is registered as ${trimmed} yet. Fill in the form to add it as a new guild.`
+        )
         resetClaimMode()
         return
       }
-
-      const config = result.config as ClaimGuildInfo
-      if (config.cluster_code === clusterCode) {
+      if (lookup.config.cluster_code === clusterCode) {
         toast.info('This guild is already in your cluster')
         resetClaimMode()
         return
       }
       setClaimMode(true)
-      setClaimGuildInfo(config)
-    } catch (error) {
-      logger.error({ err: error }, 'Error checking guild existence:')
-      resetClaimMode()
+      setClaimGuildInfo(lookup.config)
     } finally {
       setCheckingGuild(false)
     }
   }
 
-  const handleClaimGuild = async () => {
-    const guildCode = newGuild.guild_code?.trim().toUpperCase()
-    const apiKey = newGuild.api_key?.trim()
-    if (!guildCode) {
-      toast.warning('Guild code is required')
-      return
-    }
-    if (!apiKey) {
-      toast.warning('An API key is required to claim this guild')
-      return
-    }
-
-    setAddingGuildPending(true)
+  // The claim route checks cluster authority and that the key belongs to this guild, and updates only
+  // the cluster and key columns of the existing row.
+  const claimGuild = async (guildCode: string, apiKey: string) => {
     try {
       const response = await fetch('/api/guild/claim', {
         method: 'POST',
@@ -156,6 +163,24 @@ export function useGuildOnboardingActions({
       toast.error(
         'An error occurred while claiming the guild. Please try again.'
       )
+    }
+  }
+
+  const handleClaimGuild = async () => {
+    const guildCode = newGuild.guild_code?.trim().toUpperCase()
+    const apiKey = newGuild.api_key?.trim()
+    if (!guildCode) {
+      toast.warning('Guild code is required')
+      return
+    }
+    if (!apiKey) {
+      toast.warning('An API key is required to claim this guild')
+      return
+    }
+
+    setAddingGuildPending(true)
+    try {
+      await claimGuild(guildCode, apiKey)
     } finally {
       setAddingGuildPending(false)
     }
@@ -165,7 +190,7 @@ export function useGuildOnboardingActions({
     const guildCode = newGuild.guild_code?.trim().toUpperCase()
     const displayName = newGuild.display_name?.trim()
     const apiKey = newGuild.api_key?.trim()
-    if (!guildCode || !displayName) {
+    if (!guildCode) {
       toast.warning('Guild code and display name are required')
       return
     }
@@ -176,6 +201,24 @@ export function useGuildOnboardingActions({
 
     setAddingGuildPending(true)
     try {
+      // create-config refuses a registered code, so an existing guild joins through the claim route.
+      const lookup = await lookupGuild(guildCode)
+      if (lookup.status === 'exists') {
+        if (lookup.config.cluster_code === clusterCode) {
+          toast.info(`Guild ${guildCode} is already in your cluster`)
+          return
+        }
+        setClaimMode(true)
+        setClaimGuildInfo(lookup.config)
+        await claimGuild(guildCode, apiKey)
+        return
+      }
+
+      if (!displayName) {
+        toast.warning('Guild code and display name are required')
+        return
+      }
+
       const response = await fetch('/api/guild/create-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
