@@ -142,9 +142,10 @@ describe('useGuildActions.handleAddGuild — no browser guild_config write', () 
     expect(toastMock.error).not.toHaveBeenCalled()
     expect(toastMock.warning).not.toHaveBeenCalled()
     // create-config runs the initial sync server-side; the browser starts no second one.
-    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
-      '/api/guild/create-config'
-    ])
+    // Only the code lookup precedes create-config.
+    expect(
+      fetchMock.mock.calls.map(([url]) => String(url).split('?')[0])
+    ).toEqual(['/api/guild/check-status', '/api/guild/create-config'])
   })
 
   it('warns, but still reports the guild added, when the server-side initial sync did not run', async () => {
