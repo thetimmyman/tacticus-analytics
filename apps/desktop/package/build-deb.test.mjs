@@ -5,6 +5,7 @@ import {
   chmod,
   mkdir,
   mkdtemp,
+  open,
   readFile,
   rm,
   stat,
@@ -191,6 +192,129 @@ test(
       assert.notEqual(result.status, 0)
       assert.match(result.stderr, /Debian package builder failed/)
       await assert.rejects(stat(record), { code: 'ENOENT' })
+    })
+  }
+)
+
+test(
+  'Debian installation supplies an app-specific namespace profile and reversible package hooks',
+  { skip: process.platform === 'win32' },
+  async () => {
+    await withBuilder(false, async ({ result, output }) => {
+      assert.equal(result.status, 0, result.stderr)
+      const profile = await readFile(
+        join(
+          output,
+          'payload/usr/share/tacticus-analytics-preview/apparmor-profile'
+        ),
+        'utf8'
+      )
+      assert.match(
+        profile,
+        /profile tacticus-analytics-preview \/opt\/tacticus-analytics-preview\/electron\/electron/
+      )
+      assert.match(profile, /userns,/)
+      for (const name of ['postinst', 'prerm', 'postrm']) {
+        const path = join(output, 'payload/DEBIAN', name)
+        const file = await open(path, 'r')
+        try {
+          assert.equal((await file.stat()).mode & 0o111, 0o111)
+          const script = await file.readFile('utf8')
+          assert.doesNotMatch(
+            script,
+            /sysctl -w|no-sandbox|chmod.*[467][0-7]{3}/
+          )
+        } finally {
+          await file.close()
+        }
+      }
+      const home = join(output, 'hook test')
+      const etc = join(home, 'etc/apparmor.d')
+      const share = join(home, 'usr/share/tacticus-analytics-preview')
+      const feature = join(home, 'namespace-feature')
+      const kernel = join(home, 'loaded-profiles')
+      const tools = join(home, 'tools')
+      const invocations = join(home, 'parser-calls')
+      await mkdir(join(etc, 'abi'), { recursive: true })
+      await writeFile(join(etc, 'abi/4.0'), 'Synthetic ABI marker')
+      await mkdir(share, { recursive: true })
+      await mkdir(tools)
+      await writeFile(join(share, 'apparmor-profile'), profile)
+      await writeFile(feature, '1\n')
+      await writeFile(kernel, 'tacticus-analytics-preview (unconfined)\n')
+      await writeFile(
+        join(tools, 'apparmor_parser'),
+        '#!/bin/sh\nprintf "%s\\n" "$*" >> "$PARSER_CALLS"\nexit "${PARSER_EXIT:-0}"\n',
+        { mode: 0o755 }
+      )
+      const run = async (name, action, extra = {}) => {
+        const source = await readFile(
+          join(output, 'payload/DEBIAN', name),
+          'utf8'
+        )
+        const quoted = (value) => "'" + value.replaceAll("'", "'\\''") + "'"
+        const script = source
+          .replaceAll('/etc/apparmor.d', quoted(etc))
+          .replaceAll('/usr/share/tacticus-analytics-preview', quoted(share))
+          .replaceAll(
+            '/proc/sys/kernel/apparmor_restrict_unprivileged_userns',
+            quoted(feature)
+          )
+          .replaceAll('/sys/kernel/security/apparmor/profiles', quoted(kernel))
+        return spawnSync('/bin/sh', ['-c', script, name, action], {
+          env: {
+            PATH: `${tools}:/usr/bin:/bin`,
+            PARSER_CALLS: invocations,
+            ...extra
+          },
+          encoding: 'utf8'
+        })
+      }
+      assert.equal((await run('postinst', 'configure')).status, 0)
+      assert.equal(
+        await readFile(join(etc, 'tacticus-analytics-preview'), 'utf8'),
+        profile
+      )
+      assert.match(await readFile(invocations, 'utf8'), /-r/)
+      assert.notEqual(
+        (await run('postinst', 'configure', { PARSER_EXIT: '73' })).status,
+        0
+      )
+      assert.equal((await run('prerm', 'upgrade')).status, 0)
+      assert.equal(
+        await readFile(join(etc, 'tacticus-analytics-preview'), 'utf8'),
+        profile
+      )
+      assert.equal((await run('prerm', 'remove')).status, 0)
+      assert.match(await readFile(invocations, 'utf8'), /-R/)
+      await assert.rejects(stat(join(etc, 'tacticus-analytics-preview')), {
+        code: 'ENOENT'
+      })
+      await rm(feature)
+      assert.equal((await run('postinst', 'configure')).status, 0)
+      await assert.rejects(stat(join(etc, 'tacticus-analytics-preview')), {
+        code: 'ENOENT'
+      })
+      await writeFile(feature, '0\n')
+      await rm(join(etc, 'abi/4.0'))
+      assert.equal((await run('postinst', 'configure')).status, 0)
+      await assert.rejects(stat(join(etc, 'tacticus-analytics-preview')), {
+        code: 'ENOENT'
+      })
+      await writeFile(feature, '1\n')
+      assert.notEqual((await run('postinst', 'configure')).status, 0)
+      await writeFile(join(etc, 'abi/4.0'), 'Synthetic ABI marker')
+      await writeFile(
+        join(etc, 'tacticus-analytics-preview'),
+        'Administrator policy'
+      )
+      assert.equal((await run('postinst', 'configure')).status, 0)
+      assert.equal((await run('prerm', 'remove')).status, 0)
+      assert.equal((await run('postrm', 'purge')).status, 0)
+      assert.equal(
+        await readFile(join(etc, 'tacticus-analytics-preview'), 'utf8'),
+        'Administrator policy'
+      )
     })
   }
 )

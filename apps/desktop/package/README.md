@@ -6,6 +6,15 @@ access is required, while Guild and Guild Raid access unlock guild content.
 A sample workspace opens synthetic player performance. Full feature parity and
 release approval remain outstanding.
 
+On systems with AppArmor user-namespace restrictions, the Debian installer
+registers a profile for the installed Electron executable. The profile permits
+the namespaces required by Chromium's sandbox while leaving the system-wide
+restriction enabled. Older systems without this AppArmor feature do not register
+the profile. Package upgrades reload the package-owned policy; removal unloads it
+and removes only the link created by this package. Administrator-provided policy
+and local overrides are preserved. See Ubuntu's
+[AppArmor namespace documentation](https://documentation.ubuntu.com/security/security-features/privilege-restriction/apparmor/).
+
 Local workspaces open automatically under the logged-in OS account, including
 existing workspaces created with a user password. Electron main obtains a signed,
 expiring owner session through a separate per-launch capability. This capability

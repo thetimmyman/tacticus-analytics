@@ -2,6 +2,8 @@ import { cp, mkdir, writeFile, stat, readFile } from 'node:fs/promises'
 import { join, isAbsolute } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { debianMetadata } from './debian-metadata.mjs'
+import { fileURLToPath } from 'node:url'
+import { chmod } from 'node:fs/promises'
 const [bundle, output] = process.argv.slice(2)
 if (!isAbsolute(bundle || '') || !isAbsolute(output || ''))
   throw new Error('Absolute bundle and new output-directory paths are required')
@@ -29,6 +31,21 @@ for (const [name, bytes] of [
   await writeFile(join(root, 'opt/tacticus-analytics-preview', name), bytes)
 await mkdir(join(root, 'DEBIAN'), { recursive: true })
 await mkdir(join(root, 'usr/share/applications'), { recursive: true })
+await mkdir(join(root, 'usr/share/tacticus-analytics-preview'), {
+  recursive: true
+})
+await cp(
+  fileURLToPath(new URL('./apparmor-profile', import.meta.url)),
+  join(root, 'usr/share/tacticus-analytics-preview/apparmor-profile')
+)
+for (const name of ['postinst', 'prerm', 'postrm']) {
+  const destination = join(root, 'DEBIAN', name)
+  await cp(
+    fileURLToPath(new URL(`./debian-${name}.sh`, import.meta.url)),
+    destination
+  )
+  await chmod(destination, 0o755)
+}
 await writeFile(
   join(root, 'DEBIAN/control'),
   `Package: tacticus-analytics-preview\nVersion: ${metadata.version}\nArchitecture: amd64\nMaintainer: Tacticus Analytics\nSection: games\nPriority: optional\nDepends: libc6 (>= 2.35), libstdc++6, libgtk-3-0, libnss3, libasound2, libgbm1, libxss1, libdrm2, libatk1.0-0, libatk-bridge2.0-0, libx11-6, libxcb1, libxkbcommon0, xkb-data, fonts-dejavu-core, libsecret-1-0, zenity, xdg-utils\nDescription: Private Tacticus Analytics desktop preview\n Local accounts, sample data, raid-file imports and manual official API sync.\n Automatic game connection and complete desktop feature parity are not included.\n`
