@@ -142,6 +142,39 @@ describe('GET /api/guild/check-status', () => {
       expect(body.config.onboarding_completed).toBeUndefined()
     })
 
+    it('reports whether create-config would refuse the code', async () => {
+      const cases: Array<[Record<string, unknown>, boolean]> = [
+        [{ onboarding_completed: true, onboarding_source: 'standard' }, true],
+        [{ onboarding_completed: false, onboarding_source: 'standard' }, false],
+        [{ onboarding_completed: false, onboarding_source: null }, false],
+        [{ onboarding_completed: false, onboarding_source: 'legacy' }, true],
+        [
+          {
+            onboarding_completed: true,
+            onboarding_source: 'scraped_leaderboard'
+          },
+          false
+        ]
+      ]
+
+      for (const [row, registered] of cases) {
+        mockGuildConfigGetFull.mockResolvedValue({
+          guild_code: 'TEST',
+          display_name: 'Test Guild',
+          enabled: true,
+          cluster_code: null,
+          ...row
+        })
+
+        const response = await GET(
+          new Request('http://localhost/api/guild/check-status?guild_code=TEST')
+        )
+        const body = await response.json()
+
+        expect(body.config.registered, JSON.stringify(row)).toBe(registered)
+      }
+    })
+
     it('normalizes guild code to uppercase', async () => {
       const request = new Request(
         'http://localhost/api/guild/check-status?guild_code=lowercase'

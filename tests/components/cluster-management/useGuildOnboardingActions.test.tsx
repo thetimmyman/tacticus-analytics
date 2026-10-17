@@ -202,6 +202,45 @@ describe('useGuildOnboardingActions', () => {
     expect(toast.success).toHaveBeenCalled()
   })
 
+  it('retries create-config for a row whose onboarding never finished', async () => {
+    routes['/api/guild/check-status'] = () => ({
+      status: 200,
+      body: {
+        exists: true,
+        config: {
+          guild_code: 'NEWG',
+          display_name: 'New Guild',
+          enabled: true,
+          cluster_code: 'CLU',
+          registered: false
+        }
+      }
+    })
+    routes['/api/guild/create-config'] = () => ({
+      status: 200,
+      body: { data: { cluster_id: 'cluster-1', initialSyncTriggered: true } }
+    })
+    const { result, toast } = setup()
+
+    act(() =>
+      result.current.setNewGuild({
+        guild_code: 'NEWG',
+        display_name: 'New Guild',
+        api_key: 'synthetic-key'
+      })
+    )
+    await act(async () => {
+      await result.current.handleAddGuild()
+    })
+
+    expect(calls.map((c) => c.path)).toEqual([
+      '/api/guild/check-status',
+      '/api/guild/create-config'
+    ])
+    expect(toast.info).not.toHaveBeenCalled()
+    expect(toast.success).toHaveBeenCalled()
+  })
+
   describe('Check button', () => {
     it('tells the user when no guild has that code', async () => {
       routes['/api/guild/check-status'] = missing

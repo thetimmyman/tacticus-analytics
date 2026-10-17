@@ -20,10 +20,12 @@ export interface ClaimGuildInfo {
   display_name: string | null
   cluster_code: string | null
   enabled: boolean
+  // False for a scraped or unfinished row, which create-config still accepts.
+  registered?: boolean
 }
 
 type GuildLookup =
-  | { status: 'exists'; config: ClaimGuildInfo }
+  | { status: 'registered'; config: ClaimGuildInfo }
   | { status: 'missing' }
   | { status: 'failed' }
 
@@ -88,8 +90,10 @@ export function useGuildOnboardingActions({
       )
       if (!response.ok) return { status: 'failed' }
       const result = await response.json()
-      return result.exists
-        ? { status: 'exists', config: result.config as ClaimGuildInfo }
+      const config = result.config as ClaimGuildInfo | undefined
+      // A row create-config still accepts goes down the create path, as if the code were free.
+      return result.exists && config && config.registered !== false
+        ? { status: 'registered', config }
         : { status: 'missing' }
     } catch (error) {
       logger.error({ err: error }, 'Error checking guild existence:')
@@ -201,9 +205,9 @@ export function useGuildOnboardingActions({
 
     setAddingGuildPending(true)
     try {
-      // create-config refuses a registered code, so an existing guild joins through the claim route.
+      // create-config refuses a registered code, so a registered guild joins through the claim route.
       const lookup = await lookupGuild(guildCode)
-      if (lookup.status === 'exists') {
+      if (lookup.status === 'registered') {
         if (lookup.config.cluster_code === clusterCode) {
           toast.info(`Guild ${guildCode} is already in your cluster`)
           return
