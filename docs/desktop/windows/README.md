@@ -4,6 +4,22 @@ The candidate adapts the existing Electron, Next standalone, PostgreSQL, Supabas
 
 The intended consumer target is Windows 11 x64. The workflow exercises Windows Server on standard GitHub-hosted capacity. That evidence cannot establish ordinary standard-user installation, UAC prompts, SmartScreen, antivirus behavior or a consumer Windows host. Other Windows versions and architectures remain unqualified.
 
+For a later consumer-host test, `tests/desktop/windows/installed-journey.ps1`
+accepts `-StandardUser`, `-ExpectedManifestSha256` and `-ExpectedSourceSha`.
+That mode requires an interactive desktop under an account outside the local
+Administrators group, including filtered administrator tokens, and checks the
+reviewed bundle manifest before installation. Set `RUNNER_TEMP` to a new private
+evidence directory before running the script with `-Bundle` and `-Evidence`.
+It uses bundled runtimes and synthetic data for setup, cached reopen, migration
+and recovery. The standard-user field records this execution context; the
+scripted candidate installation does not qualify the ordinary signed installer,
+SmartScreen, native file dialogs or the complete consumer release matrix.
+Keep its receipts and screenshots private. If Windows refuses the candidate,
+retain that failure and leave OS protections enabled.
+If execution policy refuses the unsigned PowerShell test script, record the
+scripted check as blocked and leave that policy unchanged. The ordinary native
+application test remains a separate graphical journey.
+
 ## Native ownership and storage
 
 `TacticusDesktop.exe` creates a private Job Object with `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`. It creates the bundled Node process suspended, assigns it before resuming, and terminates it if assignment fails. The job handle is never inherited. Node owns the existing real service and Electron processes; closing or killing their native owner closes the job. The native proof exercises a child and grandchild on normal job close and forced owner death.

@@ -70,6 +70,19 @@ The test harness uses checkout dependencies and `tsx`. The staged application
 itself runs with the supplied Node binary, native services and local assets.
 This separation leaves an end-user launcher and installation test outstanding.
 
+For a packaged Linux encrypted-transfer journey, also set `packageRoot` to the
+extracted or installed candidate and `packageInventorySha256` to the reviewed
+SHA-256 of its `package-inventory.json`. Supply private `stateRoot` and `evidence`
+paths, then run `node apps/desktop/proof/encrypted-transfer-journey.mjs` with that
+configuration. The journey loads the bundled code and native services, verifies
+the complete package inventory before and after, and creates its own synthetic
+workspace. It checks active-workspace refusal, encrypted backup, incorrect
+passphrase/corruption/format refusal, disconnected restored credentials, and
+exact raid, roster, owner and saved-plan conservation across reopens. It runs in
+`desktop:proof` when `packageRoot` is supplied. This is same-identity native
+transfer evidence; graphical dialogs, consumer installation and fresh-install
+identity rotation require separate qualification.
+
 ## Observed scope
 
 The offline wrapper brings loopback up before entering a nested, non-root user
@@ -515,3 +528,8 @@ sessions, origin/guild refusal, atomicity, deduplication, exact byte boundaries 
 restart. Focused device-session tests cover capability validation, cookie chunking
 and fixed bootstrap transport. Historical password/recovery journeys describe the
 superseded flow and do not qualify the current desktop UI.
+`desktop:proof` selects both current onboarding modes automatically when a
+compiled application is configured. Each mode retains its own private generated
+configuration and evidence file; the supplied configuration is unchanged. The
+aggregate does not execute the historical password/recovery journeys.
+Child processes that cannot start or terminate by signal count as failed gates.
