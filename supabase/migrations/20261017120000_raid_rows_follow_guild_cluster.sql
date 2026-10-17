@@ -1,17 +1,9 @@
 -- target-db: general
--- Raid rows carry the cluster of their guild. The sync stamps the guild's
--- cluster when it writes a row and only rewrites recent seasons, so a guild
--- that joins, leaves or changes cluster keeps its older seasons under the old
--- value. Cluster-scoped reads (the season list among them) then hide those
--- seasons from the guild, and a cluster the guild left can still read them.
---
--- This migration re-tags the existing rows from guild_config, then keeps them
--- in step: a change to a guild's cluster re-tags all of that guild's raid rows.
---
--- Rollback: DROP TRIGGER trg_guild_config_restamp_raid_cluster ON
--- public.guild_config; DROP FUNCTION public.guild_config_restamp_raid_cluster().
--- The re-tagged values were backed up as (id, cluster_code, cluster_id) before
--- apply and can be restored from that copy.
+-- Re-tag each guild's raid rows with its current cluster and keep them in step.
+-- The sync tags rows at write time and only rewrites recent seasons, so older
+-- seasons kept a stale cluster and cluster-scoped reads hid them.
+-- Rollback: drop trg_guild_config_restamp_raid_cluster and its function, then
+-- restore (id, cluster_code, cluster_id) from the pre-apply backup.
 BEGIN;
 
 SET LOCAL lock_timeout = '5s';
