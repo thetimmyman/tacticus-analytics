@@ -158,3 +158,4 @@ transfer_roster_confirmed_players.sql # 16
 # capture_truth_war_rpcs.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
 # capture_truth_tail.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
 # storage_object_authorization.sql # ALL-SKIP -- every assertion skips: gated on ledger version 20260901220000, which this lane cannot apply 
+raid_rows_follow_guild_cluster.sql # 9
