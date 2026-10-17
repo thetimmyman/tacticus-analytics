@@ -597,6 +597,10 @@
     {
       "file": "20261017120000_raid_rows_follow_guild_cluster.sql",
       "reason": "data-backfill"
+    },
+    {
+      "file": "20261017130000_raid_rows_take_cluster_on_write.sql",
+      "reason": "data-backfill"
     }
   ]
 }

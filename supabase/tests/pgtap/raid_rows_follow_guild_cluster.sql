@@ -3,7 +3,7 @@ BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 
-SELECT plan(9);
+SELECT plan(11);
 
 -- A guild's raid rows follow its cluster, so seasons written before a join stay visible.
 
@@ -60,16 +60,39 @@ SELECT is(
   'another guild''s raid rows are untouched'
 );
 
--- An update that leaves the cluster alone does not re-tag rows.
-UPDATE public."EOT_GR_data" SET cluster_code = NULL, cluster_id = NULL
- WHERE "Guild" = 'TRFGC1' AND "Season" = '97';
-UPDATE public.guild_config SET display_name = 'Test Restamp Guild 2' WHERE guild_code = 'TRFGC1';
+-- A write carrying a stale cluster, as a sync that cached guild_config would, takes the guild's.
+INSERT INTO public."EOT_GR_data" (
+  "Guild", "Season", "displayName", "Name", "damageType", "damageDealt",
+  "loopIndex", "tier", "set", "maxHp", "remainingHp",
+  "startedOn", "completedOn", "encounterId", "rarity", "userId",
+  "encounterIndex", "encounterType", cluster_code, cluster_id
+)
+VALUES
+  ('TRFGC1', '98', 'Tester', 'TanGida', 'Battle', 200000, 1, 6, 0, 1800000, 700000, now(), now(), 1, 'Mythic', 'trfgc-p1', 1, 'SideBoss', NULL, NULL),
+  ('TRFGC9', '98', 'Nobody', 'TanGida', 'Battle', 200000, 1, 6, 0, 1800000, 700000, now(), now(), 1, 'Mythic', 'trfgc-p9', 1, 'SideBoss', 'TSTCLB', 'a1000000-0000-4000-8000-000000000002');
 
 SELECT is(
   (SELECT count(*)::integer FROM public."EOT_GR_data"
-    WHERE "Guild" = 'TRFGC1' AND cluster_code IS NULL),
+    WHERE "Guild" = 'TRFGC1' AND "loopIndex" = 1 AND cluster_code = 'TSTCLA'
+      AND cluster_id = 'a1000000-0000-4000-8000-000000000001'),
   1,
-  'an update that does not change the cluster leaves raid rows alone'
+  'an insert with a stale cluster is written under the guild''s current cluster'
+);
+
+UPDATE public."EOT_GR_data"
+   SET cluster_code = 'TSTCLB', cluster_id = 'a1000000-0000-4000-8000-000000000002'
+ WHERE "Guild" = 'TRFGC1' AND "Season" = '97';
+
+SELECT is(
+  (SELECT cluster_code::text FROM public."EOT_GR_data" WHERE "Guild" = 'TRFGC1' AND "Season" = '97'),
+  'TSTCLA',
+  'an update with a stale cluster keeps the guild''s current cluster'
+);
+
+SELECT is(
+  (SELECT cluster_code::text FROM public."EOT_GR_data" WHERE "Guild" = 'TRFGC9'),
+  'TSTCLB',
+  'a row for a guild with no config keeps the cluster it was written with'
 );
 
 -- Move to cluster B.
@@ -81,7 +104,7 @@ SELECT is(
   (SELECT count(*)::integer FROM public."EOT_GR_data"
     WHERE "Guild" = 'TRFGC1' AND cluster_code = 'TSTCLB'
       AND cluster_id = 'a1000000-0000-4000-8000-000000000002'),
-  2,
+  3,
   'moving to another cluster re-tags every raid row of the guild'
 );
 
@@ -99,7 +122,7 @@ UPDATE public.guild_config
 SELECT is(
   (SELECT count(*)::integer FROM public."EOT_GR_data"
     WHERE "Guild" = 'TRFGC1' AND cluster_code IS NULL AND cluster_id IS NULL),
-  2,
+  3,
   'leaving a cluster clears it from every raid row of the guild'
 );
 
