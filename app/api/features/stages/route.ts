@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { db } from '@/app/lib/db'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
+import { OUTBOUND_KILL_SWITCH_KEY } from '@/supabase/functions/_shared/outbound-kill-switch-core'
 
 export const GET = withErrorHandler(async () => {
   try {
@@ -17,6 +18,8 @@ export const GET = withErrorHandler(async () => {
 
     const stages: Record<string, string> = {}
     for (const feature of features || []) {
+      // Operator infrastructure, not a product feature: not published.
+      if (feature.feature_key === OUTBOUND_KILL_SWITCH_KEY) continue
       stages[feature.feature_key] = feature.release_stage
     }
 

@@ -39,6 +39,20 @@ describe('GET /api/features/stages', () => {
     })
   })
 
+  it('does not publish the operator outbound stop', async () => {
+    mockSupabase.from.mockReturnValue(
+      createChainedMock([
+        { feature_key: 'meta_atlas', release_stage: 'public' },
+        { feature_key: 'upstream_outbound', release_stage: 'coming_soon' }
+      ])
+    )
+
+    const { GET } = await import('@/app/api/features/stages/route')
+    const json = await (await GET()).json()
+
+    expect(json).toEqual({ meta_atlas: 'public' })
+  })
+
   it('returns empty object when no features exist', async () => {
     mockSupabase.from.mockReturnValue(createChainedMock([]))
 

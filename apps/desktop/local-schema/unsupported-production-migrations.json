@@ -601,6 +601,10 @@
     {
       "file": "20261017130000_raid_rows_take_cluster_on_write.sql",
       "reason": "data-backfill"
+    },
+    {
+      "file": "20261019120000_provision_outbound_kill_switch.sql",
+      "reason": "data-backfill"
     }
   ]
 }

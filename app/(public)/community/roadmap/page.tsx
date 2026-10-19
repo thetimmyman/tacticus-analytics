@@ -12,6 +12,7 @@ import {
 import { NavigationServer } from '@/app/components/NavigationServer'
 import { getAuthUser } from '@/app/lib/auth'
 import { serviceDb } from '@/app/lib/db'
+import { OUTBOUND_KILL_SWITCH_KEY } from '@/supabase/functions/_shared/outbound-kill-switch-core'
 import { ReleaseStageBadge } from '@/app/components/release/ReleaseStageBadge'
 import type { ReleaseStage } from '@/app/components/release/ReleaseStageBadge'
 
@@ -94,6 +95,8 @@ async function getFeatures(): Promise<FeatureRow[]> {
     .select(
       'feature_key, display_name, description, release_stage, route, sort_order'
     )
+    // Operator infrastructure, not a product feature: kept off the roadmap.
+    .neq('feature_key', OUTBOUND_KILL_SWITCH_KEY)
     .order('sort_order', { ascending: true })
 
   if (error) {
