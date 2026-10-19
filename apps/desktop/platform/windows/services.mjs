@@ -115,7 +115,7 @@ export function serviceFailureCode(text) {
       'administrative-token-refused'
     ],
     [
-      /could not bind|Address already in use|could not create any TCP\/IP sockets/i,
+      /\bNetwork\.Socket\.bind:|could not bind|Address already in use|could not create any TCP\/IP sockets/i,
       'loopback-bind-refused'
     ],
     [/could not read password from file/i, 'password-file-read-refused'],
