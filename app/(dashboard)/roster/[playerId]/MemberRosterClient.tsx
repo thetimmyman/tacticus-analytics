@@ -126,7 +126,7 @@ export default function MemberRosterClient({
         return
       }
 
-      // Merge Machines of War like /roster; the Loki partial response omits them.
+      // Merge Machines of War like /roster.
       const payload: RosterPagePayload = {
         units: mergeRosterUnits(
           Array.isArray(data.units) ? data.units : [],

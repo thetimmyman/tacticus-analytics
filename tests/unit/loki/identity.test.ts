@@ -33,15 +33,16 @@ describe('resolveLokiIdentity', () => {
     ).toEqual({ userId: 'scraper', sessionId: 's1', overrodeLegacyRow: false })
   })
 
-  it('falls back to the row identity only when no env scraper id exists', () => {
+  it('never sends a row user_id: without a scraper id there is no account to send as', () => {
+    // No secret exists for a guild's own user_id, so pairing it with any session is a mismatched login.
     expect(
       resolveLokiIdentity(
-        { user_id: 'row-user', session_id: 'row-session' },
+        { user_id: 'leader-user', session_id: 'scraper-session' },
         { userId: '' }
       )
     ).toEqual({
-      userId: 'row-user',
-      sessionId: 'row-session',
+      userId: null,
+      sessionId: '',
       overrodeLegacyRow: false
     })
     expect(resolveLokiIdentity(null, { userId: null })).toEqual({

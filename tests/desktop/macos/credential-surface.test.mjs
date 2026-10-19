@@ -31,7 +31,6 @@ test('legacy forms and key handlers stay behind native input even after Player a
     '/api/clusters/join',
     '/api/guild/claim',
     '/api/guild/create-config',
-    '/api/guild/initial-sync',
     '/api/guild/trigger-sync',
     '/api/guild-tokens/sync',
     '/api/guild-tokens?live=true',

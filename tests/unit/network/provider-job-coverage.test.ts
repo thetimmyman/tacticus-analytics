@@ -27,7 +27,7 @@ function database(): TypedSupabaseClient {
     select: vi.fn(() => chain),
     eq: vi.fn(() => chain),
     single: vi.fn(async () => ({
-      data: { last_successful_gw_season: 1 },
+      data: null,
       error: null
     })),
     then: (resolve: (value: unknown) => unknown) =>
@@ -128,65 +128,53 @@ it('observes both physical requests when a session refresh needs a build string'
   })
 })
 
-it.each(['members', 'raid-ranking', 'war-ranking'] as const)(
-  'counts the successful %s replay after session refresh as a retry',
-  async (caller) => {
-    let replayed = false
-    const wire = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      if (String(input).endsWith('/globalConfig'))
-        return Response.json(globalConfig)
-      const event = JSON.parse(String(init?.body)).playerEvent.playerEventType
-      if (event === 'CONNECT') {
-        return Response.json({ sessionId: 'synthetic-refreshed-session' })
-      }
-      if (
-        !replayed &&
-        (caller !== 'war-ranking' || event === 'GET_GUILD_WAR_LEADERBOARD')
-      ) {
-        replayed = true
-        return new Response('invalid_session', { status: 401 })
-      }
-      return Response.json({
-        eventResult: {
-          eventResponseData: {
-            guild: {
-              members: [
-                { userId: 'synthetic-member', displayName: 'Synthetic' }
-              ]
-            },
-            leaderboard: { guildPosition: 0, season: '1' }
-          }
+it('counts the successful members replay after session refresh as a retry', async () => {
+  let replayed = false
+  const wire = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    if (String(input).endsWith('/globalConfig'))
+      return Response.json(globalConfig)
+    const event = JSON.parse(String(init?.body)).playerEvent.playerEventType
+    if (event === 'CONNECT') {
+      return Response.json({ sessionId: 'synthetic-refreshed-session' })
+    }
+    if (!replayed) {
+      replayed = true
+      return new Response('invalid_session', { status: 401 })
+    }
+    return Response.json({
+      eventResult: {
+        eventResponseData: {
+          guild: {
+            members: [{ userId: 'synthetic-member', displayName: 'Synthetic' }]
+          },
+          leaderboard: { guildPosition: 0, season: '1' }
         }
-      })
+      }
     })
-    vi.stubGlobal('fetch', wire)
-    const { resolveLokiBuildString } =
-      await import('@/app/lib/loki/build-string')
-    await resolveLokiBuildString('Windows', { forceRefresh: true })
-    wire.mockClear()
-    const { captureProviderMetrics } =
-      await import('@/app/lib/network/provider-metrics')
-    const args = [
-      'synthetic',
-      'synthetic-guild',
-      'synthetic-user',
-      'synthetic-old-session',
-      'synthetic-secret',
-      database()
-    ] as const
-    const operation =
-      caller === 'members'
-        ? (await import('@/app/lib/sync/loki-guild-api'))
-            .fetchGuildMembersViaLoki
-        : (await import('@/app/lib/sync/loki-rankings')).fetchGuildRankings
-    const observed = await captureProviderMetrics(async () =>
-      operation(...args)
-    )
-    expect(wire).toHaveBeenCalledTimes(caller === 'members' ? 3 : 4)
-    expect(observed.metrics).toEqual({
-      api_calls: caller === 'members' ? 3 : 4,
-      api_errors: 1,
-      api_retry_count: 1
-    })
-  }
-)
+  })
+  vi.stubGlobal('fetch', wire)
+  const { resolveLokiBuildString } = await import('@/app/lib/loki/build-string')
+  await resolveLokiBuildString('Windows', { forceRefresh: true })
+  wire.mockClear()
+  const { captureProviderMetrics } =
+    await import('@/app/lib/network/provider-metrics')
+  const args = [
+    'synthetic',
+    'synthetic-guild',
+    'synthetic-user',
+    'synthetic-old-session',
+    'synthetic-secret',
+    database()
+  ] as const
+  const { fetchGuildMembersViaLoki } =
+    await import('@/app/lib/sync/loki-guild-api')
+  const observed = await captureProviderMetrics(async () =>
+    fetchGuildMembersViaLoki(...args)
+  )
+  expect(wire).toHaveBeenCalledTimes(3)
+  expect(observed.metrics).toEqual({
+    api_calls: 3,
+    api_errors: 1,
+    api_retry_count: 1
+  })
+})

@@ -6,7 +6,6 @@ import { withProviderRetry } from '@/app/lib/network/provider-metrics'
 import {
   CONFIG,
   fetchWithAbortTimeout,
-  fetchWithCircuitBreaker,
   getErrorMessage,
   logger
 } from './api-client'
@@ -158,7 +157,12 @@ export async function fetchGuildMembersViaLoki(
       )
 
       if (newSessionId) {
-        await updateSessionIdInDatabase(supabase, guildCode, newSessionId)
+        await updateSessionIdInDatabase(
+          supabase,
+          guildCode,
+          userId,
+          newSessionId
+        )
         logger.info({ guildCode }, 'Retrying LOKI API with fresh sessionId')
         result = await attemptLokiCall(newSessionId, true)
       } else {
@@ -276,71 +280,4 @@ export async function fetchGuildMembersViaLoki(
     )
     return { members: [], authFailed: false }
   }
-}
-
-// No in-memory cache: season persists in guild_config.last_successful_gw_season.
-interface GuildSeasonPayload {
-  currentGuildWarSeason?: unknown
-  guildWarSeason?: unknown
-  guild?: {
-    currentGuildWarSeason?: unknown
-    guildWar?: { season?: unknown; currentSeason?: unknown }
-  }
-  seasons?: { guildWar?: unknown }
-  activeEvents?: { guildWar?: { season?: unknown } }
-}
-
-export async function detectCurrentGWSeasonFromGuildData(
-  guildCode: string,
-  apiKey: string,
-  guildPayload?: unknown
-): Promise<number | null> {
-  try {
-    const response =
-      guildPayload === undefined
-        ? await fetchWithCircuitBreaker(
-            `${CONFIG.api.baseUrl}/guild`,
-            {
-              headers: {
-                'X-API-KEY': apiKey,
-                Accept: 'application/json'
-              }
-            },
-            2,
-            10000
-          )
-        : null
-
-    if (guildPayload !== undefined || response?.ok) {
-      const data = (guildPayload ??
-        (await response?.json())) as GuildSeasonPayload
-
-      const possibleSeasonPaths = [
-        data.currentGuildWarSeason,
-        data.guildWarSeason,
-        data.guild?.currentGuildWarSeason,
-        data.guild?.guildWar?.season,
-        data.guild?.guildWar?.currentSeason,
-        data.seasons?.guildWar,
-        data.activeEvents?.guildWar?.season
-      ]
-
-      for (const seasonPath of possibleSeasonPaths) {
-        if (seasonPath && typeof seasonPath === 'number') {
-          logger.info(
-            { guildCode },
-            `Found current GW season from guild data: ${seasonPath}`
-          )
-          return seasonPath
-        }
-      }
-    }
-  } catch (error: unknown) {
-    logger.error(
-      { guildCode },
-      `Exception detecting GW season from guild data: ${getErrorMessage(error)}`
-    )
-  }
-
-  return null
 }

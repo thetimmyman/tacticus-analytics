@@ -29,12 +29,13 @@ import {
   guildIdentitiesMatch,
   nullableGuildIdentitiesMatch
 } from '@/app/api/clusters/_lib/guild-identity'
+import { validateGuildDisplayName } from '@/app/lib/validation/guild-display-name'
 
 interface JoinClusterData {
   inviteCode: string
   guildData: {
     guildCode: string
-    displayName: string
+    displayName?: string
     leaderEmail?: string
     apiKey?: string
     tagline?: string
@@ -64,14 +65,44 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     const body: JoinClusterData = await request.json()
     const { inviteCode, guildData } = body
 
+    const typedDisplayName =
+      typeof guildData?.displayName === 'string'
+        ? guildData.displayName.trim()
+        : ''
     if (
       !inviteCode ||
       !guildData?.guildCode?.trim() ||
-      !guildData?.displayName?.trim()
+      (!typedDisplayName && !guildData?.apiKey?.trim())
     ) {
       throw Errors.fromResponse(400, {
-        error: 'Missing required fields: inviteCode, guildCode, displayName'
+        error:
+          'Missing required fields: inviteCode, guildCode, and displayName or apiKey'
       })
+    }
+
+    // A blank name is filled from the in-game name once the API key validates.
+    let typedDisplayNameValue: string | null = null
+    if (typedDisplayName) {
+      const displayNameCheck = validateGuildDisplayName(typedDisplayName)
+      if (!displayNameCheck.ok) {
+        throw Errors.fromResponse(400, { error: displayNameCheck.error })
+      }
+      typedDisplayNameValue = displayNameCheck.value
+    }
+    const resolveDisplayName = (
+      validation: { guildInfo?: { guildName?: string | null } } | null
+    ): string => {
+      if (typedDisplayNameValue) return typedDisplayNameValue
+      const apiNameCheck = validateGuildDisplayName(
+        validation?.guildInfo?.guildName
+      )
+      if (!apiNameCheck.ok) {
+        throw Errors.fromResponse(400, {
+          error:
+            "Enter a display name: the API key didn't return a usable guild name"
+        })
+      }
+      return apiNameCheck.value
     }
 
     const supabase = await db()
@@ -219,6 +250,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
           error: 'The API key belongs to a different guild'
         })
       }
+      const displayName = resolveDisplayName(validationResult)
 
       const encryptedKey = await encryptApiKey(guildData.apiKey)
       const apiKeyFields = generateApiKeyUpdatePayload(
@@ -233,7 +265,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
           cluster_id: cluster.id,
           cluster_code: cluster.cluster_code,
           is_cluster: true,
-          display_name: guildData.displayName,
+          display_name: displayName,
           tagline: guildData.tagline,
           description: guildData.description,
           logo_url: guildData.logoUrl,
@@ -441,6 +473,10 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
           cluster_code: cluster.cluster_code,
           display_name: cluster.display_name
         },
+        guild: {
+          guild_code: existingGuild.guild_code,
+          display_name: displayName
+        },
         action: 'guild_joined'
       })
     } else {
@@ -474,6 +510,8 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         )
       }
 
+      const displayName = resolveDisplayName(validationResult)
+
       // guild_id makes identity-first lookups resolve; LOKI credentials stay null (shared account in env).
       const ownsNewGuildByMapping = guildIdentitiesMatch(
         currentMapping.guild_code,
@@ -506,7 +544,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
               guild_code: canonicalGuildCode,
               guild_tag: validationResult?.guildInfo?.guildCode || null,
               guild_id: expectedGuildId,
-              display_name: guildData.displayName,
+              display_name: displayName,
               cluster_id: cluster.id,
               cluster_code: cluster.cluster_code,
               enabled: true,

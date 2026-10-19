@@ -26,9 +26,11 @@ export interface LokiApiClientDeps {
     clientSecret: string,
     timeouts: any
   ) => Promise<string | null>
+  /** `userId` is the account whose CONNECT minted `newSessionId`. */
   updateSessionIdInDatabase: (
     supabase: any,
     guildCode: string,
+    userId: string,
     newSessionId: string
   ) => Promise<boolean>
 }
@@ -318,7 +320,12 @@ export async function fetchGuildMembersViaLoki(
       )
       if (newSessionId) {
         sessionId = newSessionId
-        await deps.updateSessionIdInDatabase(supabase, guildCode, newSessionId)
+        await deps.updateSessionIdInDatabase(
+          supabase,
+          guildCode,
+          userId,
+          newSessionId
+        )
         deps.logger.info(
           guildCode,
           `Session refreshed, retrying LOKI API with fresh sessionId`
@@ -375,6 +382,7 @@ export async function fetchGuildMembersViaLoki(
           await deps.updateSessionIdInDatabase(
             supabase,
             guildCode,
+            userId,
             retrySessionId
           )
           const retryResult = await attemptLokiCall(retrySessionId)

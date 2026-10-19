@@ -1,21 +1,17 @@
-import type { NextRequest } from 'next/server'
 import type { TypedSupabaseClient } from '@tacticus/app-core/types'
 import type { OnboardingJob } from '@tacticus/app-core/onboarding.types'
 import type { OnboardingProgress } from '@/app/lib/onboarding/progress'
-import { decryptApiKey } from '@tacticus/app-core/encryption'
 import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('lib.onboarding.job-runner')
 import { resetStatusFields } from '@/app/lib/onboarding/progress'
 import { updateOnboardingJobStatus } from '@/app/lib/onboarding/jobs'
 import { SERVICE_TIMEOUTS, withTimeout } from '@/app/lib/utils/async-timeout'
-import { buildTrustedInternalUrl } from '@/app/lib/onboarding/internal-url'
 
 interface ProcessJobArgs {
   job: OnboardingJob
   authedSupabase: TypedSupabaseClient
   serviceSupabase: TypedSupabaseClient
   progress: OnboardingProgress
-  request?: NextRequest
 }
 
 type SyncEdgeResponse = {
@@ -61,39 +57,11 @@ type OnboardingProgressClient = {
   }
 }
 
-async function fetchLegacyInitialSync(
-  url: URL,
-  init: RequestInit
-): Promise<Response> {
-  const controller = new AbortController()
-  const timeoutId = setTimeout(
-    () => controller.abort(),
-    SERVICE_TIMEOUTS.EXTERNAL_API
-  )
-
-  try {
-    return await fetch(url, {
-      ...init,
-      signal: controller.signal
-    })
-  } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error(
-        `Legacy initial sync timed out after ${SERVICE_TIMEOUTS.EXTERNAL_API}ms`
-      )
-    }
-    throw error
-  } finally {
-    clearTimeout(timeoutId)
-  }
-}
-
 export async function processGuildInitialSyncJob({
   job,
   authedSupabase,
   serviceSupabase,
-  progress,
-  request
+  progress
 }: ProcessJobArgs): Promise<{ success: boolean; error?: string | null }> {
   const startedAt = new Date().toISOString()
   const authedClient = authedSupabase as unknown as OnboardingProgressClient
@@ -125,119 +93,64 @@ export async function processGuildInitialSyncJob({
     }
 
     const encryptedKey = guildConfig.api_key_encrypted
-    const useEdgeFunction = process.env.ONBOARDING_USE_EDGE_FUNCTION !== 'false'
-    const allowLegacyFallback =
-      !!request && process.env.ONBOARDING_ALLOW_LEGACY_FALLBACK !== 'false'
 
     let syncPayload: SyncEdgeResponse | null = null
     let syncSuccess = false
     let failureMessage: string | null = null
 
-    if (useEdgeFunction) {
-      try {
-        const { data: functionData, error: functionError } = await withTimeout(
-          serviceClient.functions.invoke('sync-modular-workflow', {
-            body: {
-              guild_code: authorizedGuildCode,
-              api_key: encryptedKey
-            }
-          }),
-          SERVICE_TIMEOUTS.EXTERNAL_API,
-          'onboarding edge initial sync'
-        )
+    try {
+      const { data: functionData, error: functionError } = await withTimeout(
+        serviceClient.functions.invoke('sync-modular-workflow', {
+          body: {
+            guild_code: authorizedGuildCode,
+            api_key: encryptedKey
+          }
+        }),
+        SERVICE_TIMEOUTS.EXTERNAL_API,
+        'onboarding edge initial sync'
+      )
 
-        if (functionError) {
-          failureMessage =
-            functionError.message || 'Edge function invocation failed'
-          logger.error(
-            {
-              jobId: job.id,
-              guild: authorizedGuildCode,
-              error: functionError
-            },
-            '[OnboardingJobs] Edge function invocation error'
-          )
-        } else if (!functionData?.success) {
-          failureMessage =
-            functionData?.error ||
-            functionData?.message ||
-            'Edge function reported failure'
-          logger.error(
-            {
-              jobId: job.id,
-              guild: authorizedGuildCode,
-              payload: functionData
-            },
-            '[OnboardingJobs] Edge function reported failure'
-          )
-        } else {
-          syncPayload = functionData
-          syncSuccess = true
-        }
-      } catch (edgeError) {
+      if (functionError) {
         failureMessage =
-          edgeError instanceof Error
-            ? edgeError.message
-            : 'Edge function invocation threw'
+          functionError.message || 'Edge function invocation failed'
         logger.error(
           {
             jobId: job.id,
             guild: authorizedGuildCode,
-            error: edgeError
+            error: functionError
           },
-          '[OnboardingJobs] Edge function invocation threw'
+          '[OnboardingJobs] Edge function invocation error'
         )
-      }
-    }
-
-    if (!syncSuccess && allowLegacyFallback) {
-      const decryptedKey = await decryptApiKey(encryptedKey)
-
-      const syncResponse = await fetchLegacyInitialSync(
-        buildTrustedInternalUrl('/api/guild/initial-sync'),
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            cookie: request!.headers.get('cookie') || ''
+      } else if (!functionData?.success) {
+        failureMessage =
+          functionData?.error ||
+          functionData?.message ||
+          'Edge function reported failure'
+        logger.error(
+          {
+            jobId: job.id,
+            guild: authorizedGuildCode,
+            payload: functionData
           },
-          body: JSON.stringify({
-            guild_code: authorizedGuildCode,
-            api_key: decryptedKey
-          })
-        }
-      )
-
-      const legacyPayload = (await syncResponse.json()) as SyncEdgeResponse
-
-      if (!syncResponse.ok || !legacyPayload?.success) {
-        const errorMessage =
-          legacyPayload?.error ||
-          legacyPayload?.message ||
-          failureMessage ||
-          'Initial sync failed. Please verify your API key.'
-
-        await updateOnboardingJobStatus(serviceSupabase, job.id, 'failed', {
-          error_message: errorMessage,
-          last_error_at: new Date().toISOString()
-        })
-
-        await authedClient
-          .from('onboarding_progress')
-          .update(
-            resetStatusFields(progress, {
-              sync_status: 'failed',
-              sync_error_message: errorMessage,
-              sync_can_retry: true
-            })
-          )
-          .eq('user_id', progress.user_id)
-
-        return { success: false, error: errorMessage }
+          '[OnboardingJobs] Edge function reported failure'
+        )
+      } else {
+        syncPayload = functionData
+        syncSuccess = true
       }
-
-      syncPayload = legacyPayload
-      syncSuccess = true
+    } catch (edgeError) {
+      failureMessage =
+        edgeError instanceof Error
+          ? edgeError.message
+          : 'Edge function invocation threw'
+      logger.error(
+        {
+          jobId: job.id,
+          guild: authorizedGuildCode,
+          error: edgeError
+        },
+        '[OnboardingJobs] Edge function invocation threw'
+      )
     }
 
     if (!syncSuccess) {

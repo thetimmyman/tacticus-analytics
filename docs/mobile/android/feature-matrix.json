@@ -1263,12 +1263,6 @@
       "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
     },
     {
-      "source": "app/api/guild/initial-sync/route.ts",
-      "kind": "API",
-      "status": "blocked",
-      "reason": "Native behavior and installed parity evidence pending; no approved exclusion."
-    },
-    {
       "source": "app/api/guild/invite-code/route.ts",
       "kind": "API",
       "status": "blocked",

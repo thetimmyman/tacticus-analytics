@@ -59,8 +59,7 @@ vi.mock('@/app/lib/monitoring/sentry', () => ({
 vi.mock('@/app/lib/sync/api-operations', () => ({
   fetchGuildMembersViaLoki: vi
     .fn()
-    .mockResolvedValue({ members: [], authFailed: false }),
-  fetchGuildRankings: vi.fn().mockResolvedValue([])
+    .mockResolvedValue({ members: [], authFailed: false })
 }))
 
 vi.mock('@/app/lib/services/season-timing-service', () => ({

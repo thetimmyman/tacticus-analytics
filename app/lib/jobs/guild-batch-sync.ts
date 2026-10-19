@@ -1,11 +1,14 @@
-// One shared LOKI CONNECT for all guilds, then staggered per-guild edge syncs.
+// One shared LOKI session for all guilds, reused while the game accepts it, then staggered per-guild edge syncs.
 // Raw fetch: the Supabase SDK hangs in long-running handlers.
 
 import { createComponentLogger } from '@/app/lib/logging'
 import { rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { captureSentryException } from '@/app/lib/monitoring/sentry'
 import { getSharedFetch } from '@/app/lib/network/undici-agent'
-import { refreshSharedLokiSession } from '@/app/lib/loki/batch-session-refresh'
+import {
+  createRestSharedSessionStore,
+  ensureSharedLokiSession
+} from '@/app/lib/loki/batch-session-refresh'
 import { registerJobHandler } from './dispatcher'
 import { softDeadlineFor } from './deadline'
 import type { JobHandler } from './types'
@@ -31,6 +34,7 @@ interface SyncFunctionResponse {
 
 interface GuildConfigRow {
   guild_code: string
+  guild_id?: string | null
   auto_sync_enabled: boolean | null
   consecutive_sync_failures: number | null
   last_successful_sync: string | null
@@ -74,11 +78,13 @@ const guildBatchSyncHandler: JobHandler = async (payload, ctx) => {
       )
     }
 
-    let freshLokiSessionId: string | null = null
+    let sharedLokiSession: 'reused' | 'connected' | 'none' = 'none'
+    let sharedLokiSessionId: string | null = null
+    let sharedLokiSessionUserId: string | null = null
 
     // `not.is.false` keeps unvalidated (null) keys.
     const guildResp = await directFetch(
-      `${internalUrl}/rest/v1/guild_config?select=guild_code,auto_sync_enabled,consecutive_sync_failures,last_successful_sync,sync_tier&enabled=eq.true&api_key_is_valid=not.is.false${realtimeOnly ? '&realtime_sync=eq.true' : ''}&order=guild_code`,
+      `${internalUrl}/rest/v1/guild_config?select=guild_code,guild_id,auto_sync_enabled,consecutive_sync_failures,last_successful_sync,sync_tier&enabled=eq.true&api_key_is_valid=not.is.false${realtimeOnly ? '&realtime_sync=eq.true' : ''}&order=guild_code`,
       {
         method: 'GET',
         headers: {
@@ -125,7 +131,7 @@ const guildBatchSyncHandler: JobHandler = async (payload, ctx) => {
         `consecutive_sync_failures.gte.${MAX_CONSECUTIVE_FAILURES}`
       ].join(',')
       const healResp = await directFetch(
-        `${internalUrl}/rest/v1/guild_config?select=guild_code,auto_sync_enabled,consecutive_sync_failures,last_successful_sync,sync_tier&enabled=eq.true&api_key_encrypted=not.is.null&or=(${healCohort})&order=last_successful_sync.desc.nullslast&limit=${MAX_HEAL_GUILDS_PER_RUN}`,
+        `${internalUrl}/rest/v1/guild_config?select=guild_code,guild_id,auto_sync_enabled,consecutive_sync_failures,last_successful_sync,sync_tier&enabled=eq.true&api_key_encrypted=not.is.null&or=(${healCohort})&order=last_successful_sync.desc.nullslast&limit=${MAX_HEAL_GUILDS_PER_RUN}`,
         {
           method: 'GET',
           headers: {
@@ -159,7 +165,7 @@ const guildBatchSyncHandler: JobHandler = async (payload, ctx) => {
         successful: 0,
         failed: 0,
         totalEntries: 0,
-        lokiSessionPreRefresh: !!freshLokiSessionId,
+        lokiSharedSession: sharedLokiSession,
         durationMs: Date.now() - startTime
       }
     }
@@ -181,55 +187,39 @@ const guildBatchSyncHandler: JobHandler = async (payload, ctx) => {
     ]
 
     try {
-      const refreshResult = await refreshSharedLokiSession()
-      if (refreshResult.success && refreshResult.sessionId) {
-        freshLokiSessionId = refreshResult.sessionId
+      const shared = await ensureSharedLokiSession({
+        store: createRestSharedSessionStore({
+          fetchImpl: directFetch,
+          baseUrl: internalUrl,
+          anonKey,
+          serviceKey,
+          scraperUserId: process.env.LOKI_SCRAPER_USER_ID || ''
+        }),
+        // Only guilds with a guild_id reach LOKI, so only they can test the session.
+        probeGuildId: guildsToSync.find((g) => g.guild_id)?.guild_id ?? null
+      })
+      sharedLokiSessionId = shared.sessionId
+      sharedLokiSessionUserId = shared.userId
+      if (shared.sessionId) {
+        sharedLokiSession = shared.reused ? 'reused' : 'connected'
         logger.info(
-          { jobId: ctx.jobId, durationMs: refreshResult.durationMs },
-          'LOKI session pre-refreshed'
+          {
+            jobId: ctx.jobId,
+            session: sharedLokiSession,
+            durationMs: shared.durationMs
+          },
+          'shared LOKI session ready'
         )
-
-        const lokiUserId = process.env.LOKI_SCRAPER_USER_ID || ''
-        if (lokiUserId) {
-          const bulkResp = await directFetch(
-            `${internalUrl}/rest/v1/guild_config?or=(user_id.is.null,user_id.eq.${encodeURIComponent(lokiUserId)})`,
-            {
-              method: 'PATCH',
-              headers: {
-                apikey: anonKey,
-                Authorization: `Bearer ${serviceKey}`,
-                'Content-Type': 'application/json',
-                Prefer: 'return=minimal'
-              },
-              body: JSON.stringify({
-                session_id: freshLokiSessionId,
-                session_refreshed_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-              })
-            }
-          )
-          if (!bulkResp.ok) {
-            logger.warn(
-              { jobId: ctx.jobId, status: bulkResp.status },
-              'bulk LOKI session update failed (per-guild fallback will trigger)'
-            )
-          }
-        } else {
-          logger.warn(
-            { jobId: ctx.jobId },
-            'LOKI_SCRAPER_USER_ID is unset; bulk session PATCH skipped — per-guild reactive refresh will fire (thundering-herd regression)'
-          )
-        }
-      } else {
+      } else if (shared.error) {
         logger.warn(
-          { jobId: ctx.jobId, err: refreshResult.error },
-          'LOKI session pre-refresh failed; falling back to per-guild reactive refresh'
+          { jobId: ctx.jobId, err: shared.error },
+          'no shared LOKI session this run; each guild refreshes its own (thundering-herd risk)'
         )
       }
-    } catch (preRefreshError) {
+    } catch (sessionError) {
       logger.warn(
-        { jobId: ctx.jobId, err: getErrorMessage(preRefreshError) },
-        'LOKI session pre-refresh exception (non-fatal)'
+        { jobId: ctx.jobId, err: getErrorMessage(sessionError) },
+        'shared LOKI session exception (non-fatal)'
       )
     }
 
@@ -279,8 +269,12 @@ const guildBatchSyncHandler: JobHandler = async (payload, ctx) => {
               },
               body: JSON.stringify({
                 guild_code: guild.guild_code,
-                ...(freshLokiSessionId
-                  ? { fresh_session_id: freshLokiSessionId }
+                // The edge sends the session only as the account that minted it.
+                ...(sharedLokiSessionId && sharedLokiSessionUserId
+                  ? {
+                      fresh_session_id: sharedLokiSessionId,
+                      fresh_session_user_id: sharedLokiSessionUserId
+                    }
                   : {})
               })
             }
@@ -349,7 +343,7 @@ const guildBatchSyncHandler: JobHandler = async (payload, ctx) => {
               results.reduce((sum, r) => sum + r.duration, 0) / results.length
             )
           : 0,
-      lokiSessionPreRefresh: !!freshLokiSessionId,
+      lokiSharedSession: sharedLokiSession,
       nextSyncRecommended:
         needsSync.length > guildsToSync.length ? '1 hour' : '4 hours'
     }

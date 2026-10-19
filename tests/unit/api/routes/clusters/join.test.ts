@@ -482,6 +482,35 @@ describe('/api/clusters/join', () => {
         expect(res.status).toBe(400)
       })
 
+      it('returns 400 and writes nothing when displayName is an email address', async () => {
+        const res = await POST(
+          makePostRequest({
+            ...validBody,
+            guildData: {
+              ...validBody.guildData,
+              displayName: 'leader.one@example.com'
+            }
+          })
+        )
+        expect(res.status).toBe(400)
+        const body = await res.json()
+        expect(JSON.stringify(body)).toMatch(/email/i)
+        expect(mockValidateInviteCode).not.toHaveBeenCalled()
+        expect(serviceUpdates).toEqual([])
+        expect(serviceInserts).toEqual([])
+      })
+
+      it('returns 400 when displayName exceeds the maximum length', async () => {
+        const res = await POST(
+          makePostRequest({
+            ...validBody,
+            guildData: { ...validBody.guildData, displayName: 'a'.repeat(200) }
+          })
+        )
+        expect(res.status).toBe(400)
+        expect(serviceInserts).toEqual([])
+      })
+
       it('returns 400 when invite code is invalid', async () => {
         mockValidateInviteCode.mockResolvedValue({
           valid: false,
@@ -613,6 +642,36 @@ describe('/api/clusters/join', () => {
           ['cluster_id', null],
           ['cluster_code', null]
         ])
+      })
+
+      it('uses the API guild name for an existing guild when no display name is sent', async () => {
+        setupFromResults({
+          'guild_config.select': { data: existingGuild, error: null }
+        })
+        mockValidateApiKeyWithTacticus.mockResolvedValue({
+          isValid: true,
+          guildInfo: {
+            guildCode: 'MYGUILD',
+            guildId: 'guild-id-1',
+            guildName: 'Synthetic Legion'
+          }
+        })
+
+        const res = await POST(
+          makePostRequest({
+            ...validBody,
+            guildData: { guildCode: 'MYGUILD', apiKey: 'matching-key' }
+          })
+        )
+        expect(res.status).toBe(200)
+        expect(serviceUpdates).toContainEqual({
+          table: 'guild_config',
+          payload: expect.objectContaining({ display_name: 'Synthetic Legion' })
+        })
+        expect((await res.json()).guild).toEqual({
+          guild_code: 'MYGUILD',
+          display_name: 'Synthetic Legion'
+        })
       })
 
       it('returns 400 when API key validation fails', async () => {
@@ -1033,6 +1092,103 @@ describe('/api/clusters/join', () => {
           ['cluster_id', null],
           ['cluster_code', null]
         ])
+      })
+
+      it('stores the trimmed displayName on the new guild row', async () => {
+        mockGuildConfigServiceFindByCodeOrTag.mockResolvedValue(null)
+
+        const res = await POST(
+          makePostRequest({
+            ...validBody,
+            guildData: { ...validBody.guildData, displayName: '  My Guild  ' }
+          })
+        )
+        expect(res.status).toBe(200)
+        expect(serviceInserts).toContainEqual({
+          table: 'guild_config',
+          payload: expect.objectContaining({ display_name: 'My Guild' })
+        })
+      })
+
+      describe('display name from the in-game guild name', () => {
+        const keyBody = (displayName?: string) => ({
+          ...validBody,
+          guildData: {
+            guildCode: 'MYGUILD',
+            apiKey: 'matching-key',
+            ...(displayName === undefined ? {} : { displayName })
+          }
+        })
+
+        beforeEach(() => {
+          mockGuildConfigServiceFindByCodeOrTag.mockResolvedValue(null)
+          mockValidateApiKeyWithTacticus.mockResolvedValue({
+            isValid: true,
+            guildInfo: {
+              guildCode: 'MYGUILD',
+              guildId: 'guild-id-1',
+              guildName: 'Synthetic Legion'
+            }
+          })
+        })
+
+        it('uses the API guild name when no display name is sent', async () => {
+          const res = await POST(makePostRequest(keyBody()))
+          expect(res.status).toBe(200)
+          expect(serviceInserts).toContainEqual({
+            table: 'guild_config',
+            payload: expect.objectContaining({
+              display_name: 'Synthetic Legion'
+            })
+          })
+        })
+
+        it('uses the API guild name when the display name is blank', async () => {
+          const res = await POST(makePostRequest(keyBody('   ')))
+          expect(res.status).toBe(200)
+          expect(serviceInserts).toContainEqual({
+            table: 'guild_config',
+            payload: expect.objectContaining({
+              display_name: 'Synthetic Legion'
+            })
+          })
+        })
+
+        it('keeps a typed display name over the API guild name', async () => {
+          const res = await POST(
+            makePostRequest(keyBody('[XX] Synthetic Legion'))
+          )
+          expect(res.status).toBe(200)
+          expect(serviceInserts).toContainEqual({
+            table: 'guild_config',
+            payload: expect.objectContaining({
+              display_name: '[XX] Synthetic Legion'
+            })
+          })
+        })
+
+        it('returns 400 and writes nothing when neither a name nor a key is sent', async () => {
+          const res = await POST(
+            makePostRequest({
+              ...validBody,
+              guildData: { guildCode: 'MYGUILD' }
+            })
+          )
+          expect(res.status).toBe(400)
+          expect(mockValidateApiKeyWithTacticus).not.toHaveBeenCalled()
+          expect(serviceInserts).toEqual([])
+        })
+
+        it('returns 400 and writes nothing when the API has no guild name', async () => {
+          mockValidateApiKeyWithTacticus.mockResolvedValue({
+            isValid: true,
+            guildInfo: { guildCode: 'MYGUILD', guildId: 'guild-id-1' }
+          })
+          const res = await POST(makePostRequest(keyBody()))
+          expect(res.status).toBe(400)
+          expect(JSON.stringify(await res.json())).toMatch(/display name/i)
+          expect(serviceInserts).toEqual([])
+        })
       })
 
       it('returns 500 when guild_config insert fails', async () => {

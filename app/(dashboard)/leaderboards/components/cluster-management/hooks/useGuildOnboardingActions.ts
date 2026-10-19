@@ -20,7 +20,14 @@ export interface ClaimGuildInfo {
   display_name: string | null
   cluster_code: string | null
   enabled: boolean
+  // False for a scraped or unfinished row, which create-config still accepts.
+  registered?: boolean
 }
+
+type GuildLookup =
+  | { status: 'registered'; config: ClaimGuildInfo }
+  | { status: 'missing' }
+  | { status: 'failed' }
 
 interface Options {
   clusterCode?: string
@@ -76,6 +83,24 @@ export function useGuildOnboardingActions({
     setNewGuild(emptyGuildDraft())
   }
 
+  const lookupGuild = async (guildCode: string): Promise<GuildLookup> => {
+    try {
+      const response = await fetch(
+        `/api/guild/check-status?guild_code=${encodeURIComponent(guildCode)}`
+      )
+      if (!response.ok) return { status: 'failed' }
+      const result = await response.json()
+      const config = result.config as ClaimGuildInfo | undefined
+      // A row create-config still accepts goes down the create path, as if the code were free.
+      return result.exists && config && config.registered !== false
+        ? { status: 'registered', config }
+        : { status: 'missing' }
+    } catch (error) {
+      logger.error({ err: error }, 'Error checking guild existence:')
+      return { status: 'failed' }
+    }
+  }
+
   const checkGuildExists = async (guildCode: string) => {
     const trimmed = guildCode.trim().toUpperCase()
     if (!trimmed || trimmed.length < 2) {
@@ -85,32 +110,63 @@ export function useGuildOnboardingActions({
 
     setCheckingGuild(true)
     try {
-      const response = await fetch(
-        `/api/guild/check-status?guild_code=${encodeURIComponent(trimmed)}`
-      )
-      if (!response.ok) {
+      const lookup = await lookupGuild(trimmed)
+      if (lookup.status === 'failed') {
+        toast.error(`Could not check guild ${trimmed}. Please try again.`)
         resetClaimMode()
         return
       }
-      const result = await response.json()
-      if (!result.exists) {
+      if (lookup.status === 'missing') {
+        toast.info(
+          `No guild is registered as ${trimmed} yet. Fill in the form to add it as a new guild.`
+        )
         resetClaimMode()
         return
       }
-
-      const config = result.config as ClaimGuildInfo
-      if (config.cluster_code === clusterCode) {
+      if (lookup.config.cluster_code === clusterCode) {
         toast.info('This guild is already in your cluster')
         resetClaimMode()
         return
       }
       setClaimMode(true)
-      setClaimGuildInfo(config)
-    } catch (error) {
-      logger.error({ err: error }, 'Error checking guild existence:')
-      resetClaimMode()
+      setClaimGuildInfo(lookup.config)
     } finally {
       setCheckingGuild(false)
+    }
+  }
+
+  // The claim route checks cluster authority and that the key belongs to this guild, and updates only
+  // the cluster and key columns of the existing row.
+  const claimGuild = async (guildCode: string, apiKey: string) => {
+    try {
+      const response = await fetch('/api/guild/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          guild_code: guildCode,
+          api_key: apiKey,
+          cluster_code: clusterCode,
+          api_key_owner: newGuild.API_Owner || null
+        })
+      })
+      if (!response.ok) {
+        toast.error(await readServerError(response, 'Failed to claim guild'))
+        return
+      }
+
+      // The claim route runs the initial sync server-side.
+      const result = await response.json()
+      toast.success(
+        `Guild ${result.data?.display_name || guildCode} has been claimed into your cluster!`
+      )
+      await fetchGuilds()
+      resetDraft()
+      resetClaimMode()
+    } catch (error) {
+      logger.error({ err: error }, 'Error claiming guild:')
+      toast.error(
+        'An error occurred while claiming the guild. Please try again.'
+      )
     }
   }
 
@@ -128,43 +184,7 @@ export function useGuildOnboardingActions({
 
     setAddingGuildPending(true)
     try {
-      const response = await fetch('/api/guild/claim', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: guildCode,
-          api_key: apiKey,
-          cluster_code: clusterCode,
-          api_key_owner: newGuild.API_Owner || null
-        })
-      })
-      if (!response.ok) {
-        toast.error(await readServerError(response, 'Failed to claim guild'))
-        return
-      }
-
-      const result = await response.json()
-      try {
-        await fetch('/api/guild/initial-sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ guild_code: guildCode, api_key: apiKey })
-        })
-      } catch (error) {
-        logger.warn({ err: error }, 'Initial sync after claim failed:')
-      }
-
-      toast.success(
-        `Guild ${result.data?.display_name || guildCode} has been claimed into your cluster!`
-      )
-      await fetchGuilds()
-      resetDraft()
-      resetClaimMode()
-    } catch (error) {
-      logger.error({ err: error }, 'Error claiming guild:')
-      toast.error(
-        'An error occurred while claiming the guild. Please try again.'
-      )
+      await claimGuild(guildCode, apiKey)
     } finally {
       setAddingGuildPending(false)
     }
@@ -174,7 +194,7 @@ export function useGuildOnboardingActions({
     const guildCode = newGuild.guild_code?.trim().toUpperCase()
     const displayName = newGuild.display_name?.trim()
     const apiKey = newGuild.api_key?.trim()
-    if (!guildCode || !displayName) {
+    if (!guildCode) {
       toast.warning('Guild code and display name are required')
       return
     }
@@ -185,6 +205,24 @@ export function useGuildOnboardingActions({
 
     setAddingGuildPending(true)
     try {
+      // create-config refuses a registered code, so a registered guild joins through the claim route.
+      const lookup = await lookupGuild(guildCode)
+      if (lookup.status === 'registered') {
+        if (lookup.config.cluster_code === clusterCode) {
+          toast.info(`Guild ${guildCode} is already in your cluster`)
+          return
+        }
+        setClaimMode(true)
+        setClaimGuildInfo(lookup.config)
+        await claimGuild(guildCode, apiKey)
+        return
+      }
+
+      if (!displayName) {
+        toast.warning('Guild code and display name are required')
+        return
+      }
+
       const response = await fetch('/api/guild/create-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -231,22 +269,10 @@ export function useGuildOnboardingActions({
         return
       }
 
-      try {
-        const syncResponse = await fetch('/api/guild/initial-sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ guild_code: guildCode, api_key: apiKey })
-        })
-        if (!syncResponse.ok) {
-          const syncBody = await syncResponse.json().catch(() => null)
-          toast.warning(
-            `Guild ${guildCode} was created, but initial sync failed: ${syncBody?.error || 'Unknown error'}`
-          )
-        }
-      } catch (error) {
-        logger.error({ err: error }, 'Error triggering initial sync')
+      // create-config runs the initial sync server-side; the scheduled sync retries a miss.
+      if (createResult?.data?.initialSyncTriggered === false) {
         toast.warning(
-          `Guild ${guildCode} was created, but we could not start the initial sync.`
+          `Guild ${guildCode} was created, but its first sync has not run yet. Data appears after the next scheduled sync.`
         )
       }
 

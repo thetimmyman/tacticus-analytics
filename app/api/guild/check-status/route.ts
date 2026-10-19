@@ -4,6 +4,7 @@ import { requireAuthForApi } from '@/app/lib/auth'
 import { GuildConfigService } from '@/app/lib/services/guild-config-service'
 import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('api.guild.check-status')
+import { isGuildRegistrationFinal } from '@/app/lib/onboarding/guild-registration'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 
@@ -56,7 +57,9 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
         guild_code: configData.guild_code,
         display_name: configData.display_name,
         enabled: configData.enabled,
-        cluster_code: configData.cluster_code
+        cluster_code: configData.cluster_code,
+        // False when Add Guild may still create over this row (scraped, or onboarding never finished).
+        registered: isGuildRegistrationFinal(configData)
       }
     })
   } catch (error) {

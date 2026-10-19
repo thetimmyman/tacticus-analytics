@@ -14,7 +14,8 @@ import { apiSecurityMiddleware } from '@/app/lib/middleware/rate-limit'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@tacticus/app-core/types'
 import { buildGuildConfigData } from './config-data'
-import { runInitialGuildSync } from './initial-sync'
+import { runInitialGuildSync } from '@/app/lib/onboarding/initial-guild-sync'
+import { isGuildRegistrationFinal } from '@/app/lib/onboarding/guild-registration'
 import {
   detectCurrentGuildRaidSeason,
   discoverGuildData,
@@ -259,7 +260,7 @@ export const POST = withErrorHandler(
         (existingGuild.onboarding_source === 'standard' ||
           existingGuild.onboarding_source === null)
 
-      if (existingGuild && !isScrapedGuild && !isIncompleteOnboarding) {
+      if (isGuildRegistrationFinal(existingGuild)) {
         throw Errors.guildAlreadyExists(normalizedGuildCode)
       }
 

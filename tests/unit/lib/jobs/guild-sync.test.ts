@@ -15,11 +15,14 @@ type BetaGuild = {
   auto_sync_enabled: boolean
   last_successful_sync: string | null
   consecutive_sync_failures: number | null
+  guild_id?: string | null
 }
 
 let mockQuery: ReturnType<typeof vi.fn>
 let mockInvoke: ReturnType<typeof vi.fn>
 let mockRunHerald: ReturnType<typeof vi.fn>
+let mockEnsure: ReturnType<typeof vi.fn>
+const SESSION_STORE = { read: vi.fn(), write: vi.fn() }
 let guildSyncHandler: Handler
 
 function isoSecondsAgo(seconds: number): string {
@@ -49,7 +52,7 @@ describe('guild-sync handler', () => {
     process.env.SUPABASE_URL = 'http://supabase.local'
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'anon'
     process.env.SUPABASE_SERVICE_ROLE_KEY = 'service'
-    delete process.env.LOKI_SCRAPER_USER_ID // skip bulk PATCH branch for simplicity
+    process.env.LOKI_SCRAPER_USER_ID = 'synthetic-scraper'
 
     mockQuery = vi.fn()
     mockInvoke = vi.fn().mockResolvedValue({
@@ -67,10 +70,16 @@ describe('guild-sync handler', () => {
     vi.doMock('@/app/lib/herald/from-db', () => ({
       runHeraldFromDb: mockRunHerald
     }))
+    mockEnsure = vi.fn().mockResolvedValue({
+      sessionId: null,
+      userId: null,
+      connected: false,
+      reused: false,
+      durationMs: 1
+    })
     vi.doMock('@/app/lib/loki/batch-session-refresh', () => ({
-      refreshSharedLokiSession: vi
-        .fn()
-        .mockResolvedValue({ success: false, sessionId: null, durationMs: 1 })
+      ensureSharedLokiSession: mockEnsure,
+      createRestSharedSessionStore: () => SESSION_STORE
     }))
     vi.doMock('@/app/lib/network/undici-agent', () => ({
       getSharedFetch: () => vi.fn()
@@ -99,6 +108,7 @@ describe('guild-sync handler', () => {
     delete process.env.SUPABASE_URL
     delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     delete process.env.SUPABASE_SERVICE_ROLE_KEY
+    delete process.env.LOKI_SCRAPER_USER_ID
   })
 
   it('queries guild_config gated on beta_tester=eq.true', async () => {
@@ -114,6 +124,93 @@ describe('guild-sync handler', () => {
       expect.stringContaining('beta_tester=eq.true')
     )
     expect(result.message).toBe('No beta-tester guilds to sync')
+  })
+
+  it('probes with the stalest guild that has a guild id and hands every sync the shared session', async () => {
+    mockEnsure.mockResolvedValue({
+      sessionId: 'shared-session',
+      userId: 'synthetic-scraper',
+      connected: false,
+      reused: true,
+      durationMs: 2
+    })
+    const guilds: BetaGuild[] = [
+      {
+        guild_code: 'NOID',
+        guild_id: null,
+        enabled: true,
+        auto_sync_enabled: true,
+        last_successful_sync: isoSecondsAgo(600),
+        consecutive_sync_failures: 0
+      },
+      {
+        guild_code: 'NEWER',
+        guild_id: 'synthetic-guild-newer',
+        enabled: true,
+        auto_sync_enabled: true,
+        last_successful_sync: isoSecondsAgo(60),
+        consecutive_sync_failures: 0
+      },
+      {
+        guild_code: 'OLDER',
+        guild_id: 'synthetic-guild-older',
+        enabled: true,
+        auto_sync_enabled: true,
+        last_successful_sync: isoSecondsAgo(300),
+        consecutive_sync_failures: 0
+      }
+    ]
+    mockQuery.mockResolvedValue({ data: guilds, error: null })
+
+    guildSyncHandler = await loadHandler()
+    const result = (await guildSyncHandler({}, context)) as Record<
+      string,
+      unknown
+    >
+
+    expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining('guild_id'))
+    expect(mockEnsure).toHaveBeenCalledWith({
+      store: SESSION_STORE,
+      probeGuildId: 'synthetic-guild-older'
+    })
+    const sessions = mockInvoke.mock.calls.map((c) => {
+      const body = c[1] as {
+        fresh_session_id?: string
+        fresh_session_user_id?: string
+      }
+      return [body.fresh_session_id, body.fresh_session_user_id]
+    })
+    expect(sessions).toEqual(
+      Array(3).fill(['shared-session', 'synthetic-scraper'])
+    )
+    expect(result.lokiSharedSession).toBe('reused')
+  })
+
+  it('sends no session when none is available', async () => {
+    mockQuery.mockResolvedValue({
+      data: [
+        {
+          guild_code: 'ONLY',
+          guild_id: 'synthetic-guild-only',
+          enabled: true,
+          auto_sync_enabled: true,
+          last_successful_sync: null,
+          consecutive_sync_failures: 0
+        }
+      ],
+      error: null
+    })
+
+    guildSyncHandler = await loadHandler()
+    const result = (await guildSyncHandler({}, context)) as Record<
+      string,
+      unknown
+    >
+
+    expect(mockInvoke.mock.calls.map((c) => c[1])).toEqual([
+      { guild_code: 'ONLY' }
+    ])
+    expect(result.lokiSharedSession).toBe('none')
   })
 
   it('filters out disabled / no-auto-sync / failing / fresh guilds', async () => {

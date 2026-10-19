@@ -135,7 +135,12 @@ it('stops Loki retries and session repair on a local refusal', async () => {
     },
     { fetchImpl, retryAttempts: 0 }
   )
-  await expect(client.getPlayerInfo('synthetic-target')).rejects.toBe(refusal)
+  await expect(
+    client.request({
+      eventType: 'VIEW_GUILD_2',
+      eventData: { guildId: 'synthetic-guild' }
+    })
+  ).rejects.toBe(refusal)
   expect(fetchImpl).toHaveBeenCalledTimes(1)
   await expect(client.refreshSession()).rejects.toBe(refusal)
   expect(fetchImpl).toHaveBeenCalledTimes(2)

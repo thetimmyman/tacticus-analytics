@@ -539,7 +539,7 @@ describe('POST /api/onboarding/data-sync/start', () => {
     )
   })
 
-  it('passes request to processGuildInitialSyncJob', async () => {
+  it('passes the enqueued job, and no caller request, to processGuildInitialSyncJob', async () => {
     const job = { id: 'job-123', status: 'queued' }
     mockGetOrCreateOnboardingProgress.mockResolvedValue(poisonedProgress())
     arrangeKeyProvesOwnedGuild()
@@ -552,8 +552,11 @@ describe('POST /api/onboarding/data-sync/start', () => {
     await POST(request)
 
     expect(mockProcessGuildInitialSyncJob).toHaveBeenCalledWith(
-      expect.objectContaining({ job, request })
+      expect.objectContaining({ job })
     )
+    expect(
+      mockProcessGuildInitialSyncJob.mock.calls[0]?.[0]
+    ).not.toHaveProperty('request')
   })
 
   it('returns 500 on unexpected errors', async () => {

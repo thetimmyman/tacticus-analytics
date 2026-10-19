@@ -1,4 +1,5 @@
 import { normalizeGuildCode } from '../_shared/guild-code.ts'
+import type { LokiSessionPair } from '../_shared/loki-session-account.ts'
 
 export interface SyncRequestContext {
   guildCode: string
@@ -6,7 +7,7 @@ export interface SyncRequestContext {
   requestedSeason: number | null
   skipNotifications: boolean
   preserveSyncSettings: boolean
-  freshSessionId: string | null
+  freshSession: LokiSessionPair | null
   explicitApiKey: string | null
 }
 
@@ -34,14 +35,24 @@ export function parseSyncRequestContext(
     skipNotifications:
       input.skip_notifications === true || input.dr_mode === true,
     preserveSyncSettings: input.preserve_sync_settings === true,
-    // Pre-refreshed LOKI session from batch cron (avoids per-guild CONNECT thundering herd)
-    freshSessionId:
-      typeof input.fresh_session_id === 'string'
-        ? input.fresh_session_id.trim()
-        : null,
+    // Pre-refreshed LOKI session from batch cron (avoids per-guild CONNECT thundering herd).
+    // Without the user id that minted it, the session cannot be paired and is ignored.
+    freshSession: parseFreshSession(
+      input.fresh_session_id,
+      input.fresh_session_user_id
+    ),
     explicitApiKey:
       typeof input.api_key === 'string' ? input.api_key.trim() : null
   }
+}
+
+function parseFreshSession(
+  sessionId: unknown,
+  userId: unknown
+): LokiSessionPair | null {
+  if (typeof sessionId !== 'string' || typeof userId !== 'string') return null
+  const pair = { userId: userId.trim(), sessionId: sessionId.trim() }
+  return pair.userId && pair.sessionId ? pair : null
 }
 
 export function parseLatestSeason(value: unknown): number | null {

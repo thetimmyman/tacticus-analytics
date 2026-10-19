@@ -15,8 +15,8 @@ import { guildRosterQuery } from '@/app/lib/data/guild-roster'
  *     logged-not-applied unless payload.demote === true (sensitive direction).
  *   - never touches `protected` or `is_app_admin` rows.
  *   - leaves `member` targets alone in promote mode (the default; gates nothing).
- *   - soft-timeout-then-partial + shuffled guild order, mirroring
- *     roster-loki-backfill.ts, so no guild is systematically starved.
+ *   - soft-timeout-then-partial + shuffled guild order, so no guild is
+ *     systematically starved.
  */
 
 import { randomInt } from 'node:crypto'

@@ -173,8 +173,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         job: fallbackJob,
         authedSupabase,
         serviceSupabase,
-        progress: progressInFlight,
-        request
+        progress: progressInFlight
       })
 
       if (!fallbackResult.success) {
@@ -240,8 +239,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       job,
       authedSupabase,
       serviceSupabase,
-      progress: progressInFlight,
-      request
+      progress: progressInFlight
     })
 
     if (!result.success) {

@@ -3,6 +3,7 @@ import {
   buildLokiConnectPayload,
   findLokiSessionId
 } from '@/app/lib/loki/session-refresh'
+import { lokiSessionOwnerFilter } from '@/supabase/functions/_shared/loki-session-account'
 import type { GuildRaidApiResponse } from './transformers'
 import type { TypedSupabaseClient } from '@tacticus/app-core/types'
 import {
@@ -40,7 +41,12 @@ export async function validateAndRefreshSession(
         clientSecret
       )
       if (newSessionId) {
-        await updateSessionIdInDatabase(supabase, guildCode, newSessionId)
+        await updateSessionIdInDatabase(
+          supabase,
+          guildCode,
+          userId,
+          newSessionId
+        )
         return newSessionId
       }
     }
@@ -106,9 +112,11 @@ export async function refreshSessionId(
   }
 }
 
+/** `userId` is the account whose CONNECT minted `newSessionId`. */
 export async function updateSessionIdInDatabase(
   supabase: StrictSupabaseClient,
   guildCode: string,
+  userId: string,
   newSessionId: string
 ) {
   try {
@@ -119,6 +127,7 @@ export async function updateSessionIdInDatabase(
         updated_at: new Date().toISOString()
       })
       .eq('guild_code', guildCode)
+      .or(lokiSessionOwnerFilter(userId))
 
     if (error) {
       logger.error(

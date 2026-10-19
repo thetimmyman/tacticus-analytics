@@ -4,7 +4,7 @@ import {
   buildGuildConfigData,
   numericValue
 } from '@/app/api/guild/create-config/config-data'
-import { splitElevatedRoleIds } from '@/app/api/guild/create-config/initial-sync'
+import { splitElevatedRoleIds } from '@/app/lib/onboarding/initial-guild-sync'
 
 describe('create-config data model', () => {
   it('coerces finite numeric settings and rejects invalid values', () => {

@@ -10,6 +10,7 @@ import { Save, X, CheckCircle, MessageSquare } from 'lucide-react'
 import type { Guild } from '../types'
 import { formatGuildTag } from '@/app/lib/format/guild'
 import { GuildActionsMenu } from './GuildActionsMenu'
+import { GUILD_DISPLAY_NAME_MAX_LENGTH } from '@/app/lib/validation/guild-display-name'
 
 interface GuildTableRowProps {
   guild: Guild
@@ -52,9 +53,19 @@ export function GuildTableRow({
           </span>
         </td>
         <td className="px-4 py-3">
-          <div className="px-3 py-1 text-sm text-primary-wh40k bg-card/50 hover:bg-card/80 transition-colors duration-200 rounded-sm border border-(--card-border) opacity-60">
-            {editedGuild?.display_name || '-'}
-          </div>
+          <Input
+            value={editedGuild.display_name ?? ''}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onEditedGuildChange({
+                ...editedGuild,
+                display_name: e.target.value
+              })
+            }
+            aria-label="Guild display name"
+            placeholder="Guild name"
+            maxLength={GUILD_DISPLAY_NAME_MAX_LENGTH}
+            className="max-w-[180px]"
+          />
         </td>
         <td className="px-4 py-3 text-center">
           <div className="flex items-center gap-1">

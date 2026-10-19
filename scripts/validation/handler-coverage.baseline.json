@@ -55,10 +55,6 @@
       "source": "pg_cron (app/lib/jobs/roster-backfill.ts header)"
     },
     {
-      "job_type": "roster-loki-backfill",
-      "source": "pg_cron (app/lib/jobs/roster-loki-backfill.ts header)"
-    },
-    {
       "job_type": "season-transition-monitor",
       "source": "pg_cron (app/lib/jobs/season-transition-monitor.ts header)"
     },

@@ -37,6 +37,7 @@ export interface GuildConfigFull extends GuildConfigBasic {
   onboarding_started_at: string | null
   onboarding_completed_at: string | null
   onboarding_completed: boolean | null
+  onboarding_source: string | null
   tagline: string | null
   description: string | null
   logo_url: string | null
@@ -99,6 +100,7 @@ const FULL_SELECT = `
   onboarding_started_at,
   onboarding_completed_at,
   onboarding_completed,
+  onboarding_source,
   tagline,
   description,
   logo_url,

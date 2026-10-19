@@ -1,7 +1,4 @@
-/**
- * Guild War season calendar, in core so the leaderboard probe can use it. Mirror of
- * supabase/functions/_shared/gw-season.ts; ground truth is the in-game UI.
- */
+/** Guild War season calendar; ground truth is the in-game UI. */
 
 /** In-game season number for {@link GW_SEASON_ANCHOR_START_MS}, confirmed from the game UI. */
 export const GW_SEASON_ANCHOR_SEASON = 25

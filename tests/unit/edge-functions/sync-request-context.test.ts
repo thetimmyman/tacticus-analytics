@@ -17,6 +17,7 @@ describe('sync request context', () => {
           dr_mode: true,
           preserve_sync_settings: true,
           fresh_session_id: ' session ',
+          fresh_session_user_id: ' minting-user ',
           api_key: ' key '
         },
         () => 'generated'
@@ -27,7 +28,7 @@ describe('sync request context', () => {
       requestedSeason: 91,
       skipNotifications: true,
       preserveSyncSettings: true,
-      freshSessionId: 'session',
+      freshSession: { userId: 'minting-user', sessionId: 'session' },
       explicitApiKey: 'key'
     })
   })
@@ -39,10 +40,21 @@ describe('sync request context', () => {
       requestedSeason: null,
       skipNotifications: false,
       preserveSyncSettings: false,
-      freshSessionId: null,
+      freshSession: null,
       explicitApiKey: null
     })
   })
+
+  it.each([
+    { fresh_session_id: 'session' },
+    { fresh_session_id: 'session', fresh_session_user_id: ' ' },
+    { fresh_session_id: ' ', fresh_session_user_id: 'minting-user' }
+  ])(
+    'ignores a batch session without the account that minted it: %j',
+    (body) => {
+      expect(parseSyncRequestContext(body, () => 'id').freshSession).toBeNull()
+    }
+  )
 
   it.each(['106', {}, false])(
     'does not turn invalid explicit season %j into a live sync',

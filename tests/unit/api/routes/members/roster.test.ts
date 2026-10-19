@@ -6,8 +6,6 @@ let mockCreateServiceClient: ReturnType<typeof vi.fn>
 let mockGetPlayerApiKey: ReturnType<typeof vi.fn>
 let mockTacticusAPI: { getPlayer: ReturnType<typeof vi.fn> }
 let mockGetUserAccessLevels: ReturnType<typeof vi.fn>
-let mockCreateLokiClient: ReturnType<typeof vi.fn>
-let mockCheckActionRateLimit: ReturnType<typeof vi.fn>
 
 const createNextRequest = (url: string) => {
   const urlObj = new URL(url)
@@ -37,10 +35,6 @@ describe('GET /api/members/roster', () => {
     mockGetPlayerApiKey = vi.fn()
     mockTacticusAPI = { getPlayer: vi.fn() }
     mockGetUserAccessLevels = vi.fn()
-    mockCreateLokiClient = vi.fn(() => ({
-      getPlayerInfo: vi.fn().mockResolvedValue({ ok: false })
-    }))
-    mockCheckActionRateLimit = vi.fn().mockResolvedValue({ allowed: true })
 
     vi.doMock('@/app/lib/db', () => ({
       db: mockCreateClient,
@@ -61,14 +55,6 @@ describe('GET /api/members/roster', () => {
 
     vi.doMock('@/app/lib/services/feature-release-service', () => ({
       getUserAccessLevels: mockGetUserAccessLevels
-    }))
-
-    vi.doMock('@/app/lib/loki/client', () => ({
-      createLokiClient: mockCreateLokiClient
-    }))
-
-    vi.doMock('@/app/lib/middleware/rate-limit', () => ({
-      checkActionRateLimit: mockCheckActionRateLimit
     }))
 
     vi.doMock('@tacticus/app-core/logger', () => ({
@@ -420,39 +406,7 @@ describe('GET /api/members/roster', () => {
       expect(response.status).toBe(400)
       expect(body.error.code).toBe(2001) // VALIDATION
       expect(body.error.metadata.hasDiscord).toBe(false)
-      expect(mockCheckActionRateLimit).toHaveBeenCalledWith(
-        'member-roster:loki:player-123',
-        60
-      )
-    })
-
-    it('returns 429 without a provider call when the player fallback is rate limited', async () => {
-      mockTargetPlayerQueries({
-        user_id: null,
-        player_id: 'player-123',
-        display_name: 'Target Player',
-        guild_code: 'TEST',
-        cluster_code: null,
-        tacticus_api_key_encrypted: null,
-        discord_user_id: 'discord-123'
-      })
-      mockCheckActionRateLimit.mockResolvedValue({
-        allowed: false,
-        remainingTime: 42
-      })
-
-      const request = createNextRequest(
-        'http://localhost/api/members/roster?player_id=player-123'
-      )
-
-      const response = await GET(request)
-      const body = await response.json()
-
-      expect(response.status).toBe(429)
-      expect(body.error.message).toBe(
-        'Please wait before refreshing this roster again'
-      )
-      expect(mockCreateLokiClient).not.toHaveBeenCalled()
+      expect(body.error.metadata.code).toBe('NO_API_KEY')
     })
 
     it('returns 500 when API key decryption fails', async () => {

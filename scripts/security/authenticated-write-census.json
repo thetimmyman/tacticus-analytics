@@ -1137,7 +1137,13 @@
         },
         {
           "file": "app/api/guild/claim/route.ts",
-          "line": 272,
+          "line": 273,
+          "verb": "update",
+          "client": "SERVICE"
+        },
+        {
+          "file": "app/api/guild/claim/route.ts",
+          "line": 297,
           "verb": "update",
           "client": "SERVICE"
         },
@@ -1202,12 +1208,6 @@
           "client": "UNKNOWN"
         },
         {
-          "file": "app/lib/loki/guild-client.ts",
-          "line": 49,
-          "verb": "update",
-          "client": "UNKNOWN"
-        },
-        {
           "file": "app/lib/services/guild-settings-service.ts",
           "line": 327,
           "verb": "insert",
@@ -1232,18 +1232,6 @@
           "client": "UNKNOWN"
         },
         {
-          "file": "app/lib/sync/guild-config-discovery.ts",
-          "line": 122,
-          "verb": "update",
-          "client": "UNKNOWN"
-        },
-        {
-          "file": "app/lib/sync/loki-rankings.ts",
-          "line": 440,
-          "verb": "update",
-          "client": "UNKNOWN"
-        },
-        {
           "file": "app/lib/sync/loki-session-api.ts",
           "line": 116,
           "verb": "update",
@@ -1251,25 +1239,19 @@
         },
         {
           "file": "app/lib/sync/post-sync-hooks.ts",
-          "line": 52,
+          "line": 44,
           "verb": "update",
           "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/sync/post-sync-hooks.ts",
-          "line": 83,
+          "line": 76,
           "verb": "update",
           "client": "SERVICE(param-type)"
         },
         {
           "file": "app/lib/sync/post-sync-hooks.ts",
-          "line": 123,
-          "verb": "update",
-          "client": "SERVICE(param-type)"
-        },
-        {
-          "file": "app/lib/sync/post-sync-hooks.ts",
-          "line": 264,
+          "line": 113,
           "verb": "update",
           "client": "SERVICE(param-type)"
         },
@@ -1466,7 +1448,7 @@
       "service_role_retains_write": true,
       "committed_write_sites": [
         {
-          "file": "app/api/guild/create-config/initial-sync.ts",
+          "file": "app/lib/onboarding/initial-guild-sync.ts",
           "line": 211,
           "verb": "upsert",
           "client": "UNKNOWN"
@@ -2051,7 +2033,7 @@
         },
         {
           "file": "app/api/onboarding/jobs/process/route.ts",
-          "line": 156,
+          "line": 155,
           "verb": "update",
           "client": "SERVICE"
         },
@@ -2110,13 +2092,13 @@
         },
         {
           "file": "app/api/onboarding/data-sync/start/route.ts",
-          "line": 211,
+          "line": 210,
           "verb": "update",
           "client": "REQUEST"
         },
         {
           "file": "app/api/onboarding/jobs/process/route.ts",
-          "line": 165,
+          "line": 164,
           "verb": "update",
           "client": "SERVICE"
         },
@@ -2134,25 +2116,19 @@
         },
         {
           "file": "app/lib/onboarding/job-runner.ts",
-          "line": 226,
+          "line": 166,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/onboarding/job-runner.ts",
-          "line": 253,
+          "line": 192,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
           "file": "app/lib/onboarding/job-runner.ts",
-          "line": 279,
-          "verb": "update",
-          "client": "UNKNOWN"
-        },
-        {
-          "file": "app/lib/onboarding/job-runner.ts",
-          "line": 312,
+          "line": 225,
           "verb": "update",
           "client": "UNKNOWN"
         },
@@ -2383,19 +2359,19 @@
           "client": "SERVICE"
         },
         {
-          "file": "app/api/guild/create-config/initial-sync.ts",
+          "file": "app/lib/onboarding/initial-guild-sync.ts",
           "line": 59,
           "verb": "update",
           "client": "UNKNOWN"
         },
         {
-          "file": "app/api/guild/create-config/initial-sync.ts",
+          "file": "app/lib/onboarding/initial-guild-sync.ts",
           "line": 144,
           "verb": "upsert",
           "client": "UNKNOWN"
         },
         {
-          "file": "app/api/guild/create-config/initial-sync.ts",
+          "file": "app/lib/onboarding/initial-guild-sync.ts",
           "line": 179,
           "verb": "update",
           "client": "UNKNOWN"
@@ -2637,7 +2613,7 @@
       "committed_write_sites": [
         {
           "file": "app/lib/sync/post-sync-hooks.ts",
-          "line": 300,
+          "line": 248,
           "verb": "upsert",
           "client": "SERVICE(param-type)"
         }
@@ -3158,13 +3134,13 @@
         },
         {
           "file": "app/lib/sync/post-sync-hooks.ts",
-          "line": 350,
+          "line": 298,
           "verb": "insert",
           "client": "SERVICE(param-type)"
         },
         {
           "file": "supabase/functions/sync-modular-workflow/index.ts",
-          "line": 1094,
+          "line": 1044,
           "verb": "insert",
           "client": "SERVICE(edge)"
         }
