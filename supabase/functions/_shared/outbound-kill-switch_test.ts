@@ -92,6 +92,9 @@ Deno.test(
         return Promise.resolve(Response.json({ status: 'denied' }))
       }
 
+      const providerUrl = 'https://api.tacticusgame.com/api/v1/guild'
+      const providerHost = new URL(providerUrl).hostname
+
       resetOutboundKillSwitchCache()
       strictEqual(
         await outboundHalted(Date.now(), () => Promise.resolve('halted')),
@@ -102,15 +105,15 @@ Deno.test(
       await rejects(
         () =>
           edgeProviderFetch(
-            'https://api.tacticusgame.com/api/v1/guild',
+            providerUrl,
             { headers: { 'x-api-key': 'synthetic-key' } },
             { purpose: 'guild-sync', trigger: 'scheduled', timeoutMs: 5000 }
           ),
         ProviderAdmissionError
       )
       strictEqual(
-        requested.includes('api.tacticusgame.com'),
-        false,
+        requested.filter((host) => host === providerHost).length,
+        0,
         'no provider request may leave this runtime while the switch is halted'
       )
     } finally {
