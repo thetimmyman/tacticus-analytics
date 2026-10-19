@@ -1,13 +1,8 @@
 #!/usr/bin/env node
-// Gate: this application may identify itself, but it may not present itself as
-// the game's own client, and it may not go anonymous by accident.
-//
-// The Loki session CONNECT once sent a Unity player User-Agent and a version
-// header, so every request claimed to be the Unity game client. That identity
-// is borrowed: it is the game's, not ours. It is removed, and this guard keeps
-// it removed. The reverse mistake is equally silent — dropping our own name
-// from the published device metadata would leave the application posing as an
-// unattributed scraper instead of an identifiable integration.
+// Gate: this application may name itself, never the game's client, and it must
+// stay identifiable. Both failures are silent: borrowed game-client identity
+// misrepresents the caller, while dropping our own name turns an identifiable
+// integration into an anonymous scraper.
 //
 // Usage: check-upstream-identity.mjs [--selftest|--scan]
 
