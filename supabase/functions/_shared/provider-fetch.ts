@@ -1,8 +1,10 @@
 import {
   createProviderRuntime,
+  ProviderAdmissionError,
   type ProviderOperation
 } from './provider-admission.ts'
 import { prepareProviderObservation } from './provider-observation.ts'
+import { outboundHalted } from './outbound-kill-switch.ts'
 import { logger } from './logger.ts'
 
 // This edge adapter is also type-checked through Node's shared-source tests.
@@ -31,6 +33,9 @@ const runtime = createProviderRuntime({
     const observed =
       preparation instanceof Promise ? await preparation : preparation
     signal?.throwIfAborted()
+    // Operator stop, checked after the caller snapshot so a refusal cannot
+    // delay or alter what this dispatch would have observed. Nothing is sent.
+    if (await outboundHalted()) throw new ProviderAdmissionError()
     return observed
       ? observed.run(() => globalThis.fetch(observed.input, observed.init))
       : globalThis.fetch(input, init)
