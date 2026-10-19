@@ -6,6 +6,15 @@ access is required, while Guild and Guild Raid access unlock guild content.
 A sample workspace opens synthetic player performance. Full feature parity and
 release approval remain outstanding.
 
+On systems with AppArmor user-namespace restrictions, the Debian installer
+registers a profile for the installed Electron executable. The profile permits
+the namespaces required by Chromium's sandbox while leaving the system-wide
+restriction enabled. Older systems without this AppArmor feature do not register
+the profile. Package upgrades reload the package-owned policy; removal unloads it
+and removes only the link created by this package. Administrator-provided policy
+and local overrides are preserved. See Ubuntu's
+[AppArmor namespace documentation](https://documentation.ubuntu.com/security/security-features/privilege-restriction/apparmor/).
+
 Local workspaces open automatically under the logged-in OS account, including
 existing workspaces created with a user password. Electron main obtains a signed,
 expiring owner session through a separate per-launch capability. This capability
@@ -23,7 +32,7 @@ workspace does not require game access; personal content requires Player access,
 and guild content requires matched Guild and Guild Raid access. Cached data
 remains readable offline.
 
-The native File menu offers backup and restore. Backup closes the application,
+The native File menu offers backup and restore. Backup pauses the application,
 stops its services and acquires the workspace kernel lease before exporting a
 stopped PostgreSQL checkpoint into a new encrypted `.tabackup` file. A separate
 masked native prompt confirms the backup passphrase; it goes to the transfer
@@ -38,10 +47,17 @@ Restore also supports legacy backup folders. It verifies its
 file inventory and creates a separate workspace; it never replaces the current
 database. A pending restore blocks startup, and a corrupt or incomplete backup
 is rejected. After the restored database opens successfully with the pinned
-services, normal launches select that copy. Explicit `--state` still selects a
+services, the checked restored copy opens and normal launches select it. Explicit `--state` still selects a
 specific workspace. Restore recovers the account and data from the time of the backup; the native
 app then opens that local account automatically. Keep backups private. Browser cache,
 diagnostic logs and game-credential vault storage are outside this backup.
+After a successful backup, the current workspace reopens. Cancelling a passphrase
+prompt returns to the current workspace without creating a destination. An
+unsuccessful transfer explains the failure and returns to the original workspace;
+it does not switch to an incomplete restored copy. Passphrase mismatch and length
+errors show guidance without displaying the entered passphrase.
+A native progress window stays visible during transfer and restored-workspace
+checks, then closes before the result dialog and workspace reopen.
 The launcher also accepts `--backup /new/backup-directory` or
 `--restore /saved/backup-directory --state /new/workspace-directory` without a GUI.
 These are same-installation physical database transfers, not PostgreSQL major
