@@ -17,7 +17,9 @@ async function connectHeaders(): Promise<Record<string, string>> {
   edgeProviderFetch.mockResolvedValue(
     new Response(
       JSON.stringify({
-        eventResult: { eventResponseData: { userData: { sessionId: 'session-1' } } }
+        eventResult: {
+          eventResponseData: { userData: { sessionId: 'session-1' } }
+        }
       }),
       { status: 200, headers: { 'content-type': 'application/json' } }
     )
@@ -26,9 +28,14 @@ async function connectHeaders(): Promise<Record<string, string>> {
   await refreshLokiSession('user-1', 'secret-1')
   expect(edgeProviderFetch).toHaveBeenCalledTimes(1)
 
-  const init = edgeProviderFetch.mock.calls[0][1] as { headers?: Record<string, string> }
+  const init = edgeProviderFetch.mock.calls[0][1] as {
+    headers?: Record<string, string>
+  }
   return Object.fromEntries(
-    Object.entries(init.headers ?? {}).map(([name, value]) => [name.toLowerCase(), value])
+    Object.entries(init.headers ?? {}).map(([name, value]) => [
+      name.toLowerCase(),
+      value
+    ])
   )
 }
 
