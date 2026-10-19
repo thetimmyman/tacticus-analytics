@@ -62,12 +62,19 @@ const APP_IDENTITY = [
   }
 ]
 
+// This file names the forbidden tokens in order to forbid them, and is a build
+// gate rather than a request path. Scanning it would only match itself.
+const SELF_PATH = 'scripts/validation/check-upstream-identity.mjs'
+
 const SOURCE_FILE = /\.(?:[cm]?[jt]sx?)$/u
 const SKIPPED = /(?:^|\/)(?:node_modules|\.next|coverage|reference)\//u
 
 function isSourceFile(file) {
   return (
-    SOURCE_FILE.test(file) && !SKIPPED.test(file) && !/\.d\.mts$/u.test(file)
+    SOURCE_FILE.test(file) &&
+    !SKIPPED.test(file) &&
+    !/\.d\.mts$/u.test(file) &&
+    file !== SELF_PATH
   )
 }
 
