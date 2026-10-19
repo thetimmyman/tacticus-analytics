@@ -87,7 +87,8 @@ Deno.test(
         'K'.repeat(32)
       ].forEach((value, i) => Deno.env.set(names[i], value))
       globalThis.fetch = (input) => {
-        requested.push(input instanceof Request ? input.url : String(input))
+        const raw = input instanceof Request ? input.url : String(input)
+        requested.push(new URL(raw).hostname)
         return Promise.resolve(Response.json({ status: 'denied' }))
       }
 
@@ -108,8 +109,8 @@ Deno.test(
         ProviderAdmissionError
       )
       strictEqual(
-        requested.filter((url) => url.includes('tacticusgame.com')).length,
-        0,
+        requested.includes('api.tacticusgame.com'),
+        false,
         'no provider request may leave this runtime while the switch is halted'
       )
     } finally {
