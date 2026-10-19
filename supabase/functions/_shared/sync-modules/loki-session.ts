@@ -74,10 +74,7 @@ async function attemptLokiConnect(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Accept: '*/*',
-          'User-Agent':
-            'UnityPlayer/2022.3.40f1 (UnityWebRequest/1.0, libcurl/8.5.0-DEV)',
-          'X-Unity-Version': '2022.3.40f1'
+          Accept: '*/*'
         },
         body: JSON.stringify(payload),
         signal: timeoutSignal
