@@ -1,6 +1,8 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { API_URLS } from '@tacticus/app-core/api-constants'
 import { createProviderRuntime } from '@/supabase/functions/_shared/provider-admission'
+import { ProviderAdmissionError } from '@/supabase/functions/_shared/provider-admission'
+import { outboundHalted } from '@/app/lib/network/outbound-kill-switch'
 import type { ProviderOperation } from '@/supabase/functions/_shared/provider-admission'
 import type { ProviderPhysicalContext } from '@/supabase/functions/_shared/provider-admission'
 import { prepareProviderObservation } from '@/supabase/functions/_shared/provider-observation'
@@ -37,6 +39,15 @@ function isProviderHost(hostname: string): boolean {
     return hostname === new URL(API_URLS.TACTICUS.BASE).hostname
   } catch {
     return false
+  }
+}
+
+/** Malformed input is a caller bug, so it fails loudly as a request error. */
+function parseRequestUrl(input: RequestInfo | URL): URL {
+  try {
+    return new URL(input instanceof Request ? input.url : String(input))
+  } catch (error) {
+    throw new TypeError(`provider request URL is not valid: ${String(error)}`)
   }
 }
 
@@ -157,16 +168,17 @@ function observeProviderResponse(
     markAttemptFailure(attempt)
     throw error
   }
+  type GuardedTarget = Response | ReadableStream | ReadableStreamDefaultReader
   const guarded =
-    (target: object, method: (...args: unknown[]) => unknown) =>
+    (target: GuardedTarget, method: (...args: unknown[]) => unknown) =>
     (...args: unknown[]) => {
       try {
-        return Promise.resolve(Reflect.apply(method, target, args)).catch(fail)
+        return Promise.resolve(method.apply(target, args)).catch(fail)
       } catch (error) {
         return fail(error)
       }
     }
-  const wrapReader = (reader: object) =>
+  const wrapReader = (reader: ReadableStreamDefaultReader) =>
     new Proxy(reader, {
       get(target, key) {
         const value = Reflect.get(target, key, target)
@@ -188,9 +200,11 @@ function observeProviderResponse(
               if (typeof method !== 'function') return method
               if (streamKey === 'getReader')
                 return (...args: unknown[]) =>
-                  wrapReader(Reflect.apply(method, stream, args))
+                  wrapReader(
+                    method.apply(stream, args) as ReadableStreamDefaultReader
+                  )
               if (streamKey === 'cancel' || streamKey === 'pipeTo')
-                return guarded(stream, method)
+                return guarded(stream as ReadableStream, method)
               return method.bind(stream)
             }
           })
@@ -219,7 +233,7 @@ async function physicalProviderFetch(
   isRetry = false,
   physicalContext?: ProviderPhysicalContext
 ): Promise<Response> {
-  const url = new URL(input instanceof Request ? input.url : String(input))
+  const url = parseRequestUrl(input)
   if (!isProviderHost(url.hostname)) return globalThis.fetch(input, init)
   init = { ...init, redirect: 'error' }
   const signal = init.signal ?? (input instanceof Request ? input.signal : null)
@@ -241,6 +255,9 @@ async function physicalProviderFetch(
   const observed =
     preparation instanceof Promise ? await preparation : preparation
   signal?.throwIfAborted()
+  // Operator stop: refuse after the caller snapshot, before counting or
+  // sending. A refused dispatch is not an API call.
+  if (await outboundHalted()) throw new ProviderAdmissionError()
   const metrics = context?.metrics
   if (metrics) {
     metrics.api_calls++
