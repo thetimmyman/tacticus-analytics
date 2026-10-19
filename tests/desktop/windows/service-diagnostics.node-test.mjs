@@ -26,6 +26,31 @@ test('startup diagnostics retain known structured error codes without private me
   assert.equal(observed.includes('synthetic-private'), false)
 })
 
+test('Haskell socket bind errors identify the failed startup operation', async () => {
+  const process = child()
+  process.signalCode = null
+  const diagnostic = serviceStartupDiagnostic(process)
+  const ended = Promise.all([
+    new Promise((resolve) => process.stdout.once('end', resolve)),
+    new Promise((resolve) => process.stderr.once('end', resolve))
+  ])
+  process.stdout.end()
+  // The error location is fixed by network-3.2.8.0; the detail is synthetic.
+  // https://github.com/haskell/network/blob/v3.2.8.0/Network/Socket/Syscall.hs
+  process.stderr.end(
+    'Network.Socket.bind: failed (synthetic-private-bind-detail)'
+  )
+  await ended
+  process.emit('close', 3)
+  const observed = await diagnostic.afterClose()
+  assert.equal(observed.includes('synthetic-private'), false)
+  assert.match(observed, /streamComplete-true/)
+  assert.equal(
+    diagnostic.snapshot().serviceFailureCode,
+    'loopback-bind-refused'
+  )
+})
+
 test('exit-before-final-pipe data is drained before the final diagnostic', async () => {
   const process = child()
   const diagnostic = serviceStartupDiagnostic(process)
