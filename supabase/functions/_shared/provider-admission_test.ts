@@ -129,3 +129,37 @@ Deno.test(
     strictEqual(controls, 1)
   }
 )
+
+Deno.test(
+  'Deno refuses a stopped dispatch before any admission exchange',
+  async () => {
+    let controls = 0
+    let stopped = true
+    const runtime = createProviderRuntime({
+      settings: () => ({
+        mode: 'enforce',
+        authorityOrigin: 'http://authority.example.invalid',
+        token: 'synthetic-control',
+        accountLabelKey: 'K'.repeat(32)
+      }),
+      outboundStopped: () => Promise.resolve(stopped),
+      physicalFetch: () => Promise.resolve(new Response('unexpected')),
+      controlFetch: () => {
+        controls++
+        return Promise.resolve(Response.json({ status: 'denied' }))
+      }
+    })
+    const call = () =>
+      runtime.fetch(
+        url,
+        { headers: { 'x-api-key': 'synthetic-key' } },
+        { purpose: 'roster-fetch', trigger: 'scheduled', timeoutMs: 5000 }
+      )
+
+    await rejects(call, ProviderAdmissionError)
+    strictEqual(controls, 0)
+    stopped = false
+    await rejects(call, ProviderAdmissionError)
+    strictEqual(controls, 1, 'control: an open stop reaches admission')
+  }
+)
