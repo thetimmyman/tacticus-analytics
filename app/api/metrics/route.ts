@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Errors } from '@/app/lib/errors/AppError'
-import { Registry, Gauge, Counter, collectDefaultMetrics } from 'prom-client'
+import { Gauge, Counter, collectDefaultMetrics } from 'prom-client'
+import { register } from '@/app/lib/metrics/registry'
 import { serviceDb } from '@/app/lib/db'
 import {
   checkCloudflaredTunnel,
@@ -13,7 +14,6 @@ import { safeEqual } from '@/app/lib/auth/require-header-secret'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-const register = new Registry()
 const METRICS_SECRET = process.env.METRICS_SECRET?.trim()
 
 register.setDefaultLabels({
