@@ -21,9 +21,11 @@ three RESTRICTIVE policies on this one key, so the permissive
 `feature_releases_manage_admins` policy, which admits any guild leader, cannot
 be used to halt provider traffic for every guild. Other features are unchanged.
 
-The migration seeds the row at `public` and never overwrites an existing row,
-so an operator's setting survives a replay. The row is hidden from the public
-roadmap and from `/api/features/stages`.
+The migration seeds the row at `public`. No operator path wrote this key before
+the migration, so a row already present was planted (a guild leader could insert
+it) and is reset to open; the policies are created first so none can be planted
+mid-migration. The migration runs once, so it never overwrites a later operator
+setting. The row is hidden from the public roadmap and from `/api/features/stages`.
 
 ## Read semantics
 

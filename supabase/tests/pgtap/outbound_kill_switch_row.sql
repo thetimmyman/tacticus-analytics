@@ -10,7 +10,7 @@ SELECT set_config('request.jwt.claim.role', '', true);
 -- an app admin or the service role may write it: feature_releases_manage_admins alone would let any
 -- guild leader halt provider traffic for every guild.
 
-SELECT plan(20);
+SELECT plan(21);
 
 GRANT USAGE ON SCHEMA extensions TO anon, authenticated, service_role;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA extensions TO anon, authenticated, service_role;
@@ -156,14 +156,42 @@ SELECT is(
   (SELECT count(*)::integer FROM public.feature_releases WHERE feature_key = 'upstream_outbound'),
   1, 'exactly one outbound stop row exists throughout');
 
--- The seed never overwrites an operator's setting: rerunning it leaves a halt in place.
-UPDATE public.feature_releases SET release_stage = 'coming_soon' WHERE feature_key = 'upstream_outbound';
-INSERT INTO public.feature_releases (feature_key, display_name, release_stage)
-VALUES ('upstream_outbound', 'Upstream provider traffic', 'public')
-ON CONFLICT (feature_key) DO NOTHING;
+-- A row planted before the migration is reset to open. The statement is the migration's seed, verbatim.
+UPDATE public.feature_releases
+   SET release_stage = 'coming_soon', icon = 'x', route = '/planted', value_proposition = 'planted'
+ WHERE feature_key = 'upstream_outbound';
+INSERT INTO public.feature_releases (
+  feature_key,
+  display_name,
+  description,
+  release_stage,
+  sort_order,
+  released_at
+)
+VALUES (
+  'upstream_outbound',
+  'Upstream provider traffic',
+  'Operator stop. Any stage other than public halts outbound provider requests from the edge runtime and the app provider runtime.',
+  'public',
+  9999,
+  now()
+)
+ON CONFLICT (feature_key) DO UPDATE SET
+  display_name = EXCLUDED.display_name,
+  description = EXCLUDED.description,
+  release_stage = EXCLUDED.release_stage,
+  icon = NULL,
+  route = NULL,
+  value_proposition = NULL,
+  sort_order = EXCLUDED.sort_order,
+  released_at = EXCLUDED.released_at;
 SELECT is(
   (SELECT release_stage FROM public.feature_releases WHERE feature_key = 'upstream_outbound'),
-  'coming_soon', 'a repeated seed keeps the operator''s halt');
+  'public', 'the seed resets a row that was planted before the migration to open');
+SELECT ok(
+  (SELECT route IS NULL AND icon IS NULL AND value_proposition IS NULL
+     FROM public.feature_releases WHERE feature_key = 'upstream_outbound'),
+  'the reset also clears the planted route, icon and pitch so the row is not a product page');
 
 ALTER TABLE public.player_mapping ENABLE TRIGGER USER;
 ALTER TABLE public.guild_config ENABLE TRIGGER USER;
