@@ -54,7 +54,7 @@ INSERT INTO public.feature_releases (
 VALUES (
   'upstream_outbound',
   'Upstream provider traffic',
-  'Operator stop. Any stage other than public halts outbound provider requests from the edge runtime and the app provider runtime.',
+  'Operator stop. Any stage other than public halts outbound provider requests where the stop is enforced.',
   'public',
   9999,
   now()

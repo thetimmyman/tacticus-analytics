@@ -29,8 +29,8 @@ setting. The row is hidden from the public roadmap and from `/api/features/stage
 
 ## Read semantics
 
-The flag is read by the edge runtime and the app provider runtime through the
-shared `outbound-kill-switch-core.ts`:
+The flag is read by the edge runtime through the shared
+`outbound-kill-switch-core.ts`:
 
 - Cached for 30 seconds per runtime instance, so a halt takes effect within
   that window.
@@ -47,9 +47,11 @@ shared `outbound-kill-switch-core.ts`:
 
 ## Coverage
 
-Edge provider dispatch through the shared adapter and the app provider runtime.
-Not covered: Next routes that fetch a game host directly, the credential broker
-and operator scripts. This is a partial stop, not a global one.
+Edge provider dispatch through the shared adapter only. Not covered: the Next
+app's provider runtime and every route that sends from it, routes that fetch a
+game host directly, the credential broker and operator scripts. Engaging the
+stop does not halt app-initiated traffic. This is a partial stop, not a global
+one, and must not be reported as such.
 
 ## Release order
 
