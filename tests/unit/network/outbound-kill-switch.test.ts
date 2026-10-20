@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, it } from 'vitest'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { ProviderAdmissionError } from '@/supabase/functions/_shared/provider-admission'
 import { providerFetch } from '@/app/lib/network/provider-metrics'
 import { useOutboundKillSwitchReader } from '@/app/lib/network/outbound-kill-switch'
@@ -12,6 +12,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  vi.useRealTimers()
   globalThis.fetch = originalFetch
   useOutboundKillSwitchReader(null)
 })
@@ -43,4 +44,85 @@ it('lets the dispatch through when the flag is public', async () => {
   const response = await providerFetch(url, {})
   expect(called).toBe(1)
   expect(response.status).toBe(204)
+})
+
+function countingFetch(): { calls: () => number } {
+  let calls = 0
+  globalThis.fetch = (async () => {
+    calls += 1
+    return new Response(null, { status: 204 })
+  }) as typeof fetch
+  return { calls: () => calls }
+}
+
+it('treats a missing switch row as open', async () => {
+  useOutboundKillSwitchReader(async () => undefined)
+  const sent = countingFetch()
+
+  const response = await providerFetch(url, {})
+
+  expect(response.status).toBe(204)
+  expect(sent.calls()).toBe(1)
+})
+
+it('reads the switch once for a burst of concurrent dispatches', async () => {
+  let reads = 0
+  useOutboundKillSwitchReader(async () => {
+    reads += 1
+    return 'public'
+  })
+  const sent = countingFetch()
+
+  await Promise.all(Array.from({ length: 5 }, () => providerFetch(url, {})))
+
+  expect(reads).toBe(1)
+  expect(sent.calls()).toBe(5)
+})
+
+it('abandons a stalled read and dispatches, aborting the query', async () => {
+  vi.useFakeTimers()
+  let aborted = false
+  useOutboundKillSwitchReader(
+    (signal) =>
+      new Promise(() => {
+        signal.addEventListener('abort', () => {
+          aborted = true
+        })
+      })
+  )
+  const sent = countingFetch()
+
+  const pending = providerFetch(url, {})
+  await vi.advanceTimersByTimeAsync(2_000)
+  const response = await pending
+
+  expect(aborted).toBe(true)
+  expect(response.status).toBe(204)
+  expect(sent.calls()).toBe(1)
+})
+
+it('keeps a halt in force when a later refresh stalls', async () => {
+  vi.useFakeTimers()
+  let stall = false
+  useOutboundKillSwitchReader((signal) =>
+    stall
+      ? new Promise(() => {
+          signal.addEventListener('abort', () => {})
+        })
+      : Promise.resolve('coming_soon')
+  )
+  const sent = countingFetch()
+
+  await expect(providerFetch(url, {})).rejects.toBeInstanceOf(
+    ProviderAdmissionError
+  )
+  stall = true
+  await vi.advanceTimersByTimeAsync(31_000)
+  const refused = expect(providerFetch(url, {})).rejects.toBeInstanceOf(
+    ProviderAdmissionError
+  )
+  await vi.advanceTimersByTimeAsync(2_000)
+  await refused
+
+  expect(sent.calls()).toBe(0)
 })
