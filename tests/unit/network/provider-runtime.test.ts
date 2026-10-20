@@ -126,3 +126,30 @@ it('binds account admission to an immutable snapshot of the request sent on the 
   await response.text()
   expect(sentKey).toBe('synthetic-original')
 })
+
+it('refuses a stopped dispatch before any admission exchange', async () => {
+  const wire = vi.fn()
+  const control = vi.fn(async () => Response.json({ status: 'denied' }))
+  let stopped = true
+  const runtime = createProviderRuntime({
+    settings: () => ({
+      mode: 'enforce',
+      authorityOrigin: 'http://authority.example.invalid',
+      token: 'synthetic-control',
+      accountLabelKey: 'K'.repeat(32)
+    }),
+    outboundStopped: async () => stopped,
+    physicalFetch: wire,
+    controlFetch: control
+  })
+  const call = () =>
+    runtime.fetch(url, { headers: { 'x-api-key': 'synthetic-key' } }, operation)
+
+  await expect(call()).rejects.toBeInstanceOf(ProviderAdmissionError)
+  expect(control).not.toHaveBeenCalled()
+  expect(wire).not.toHaveBeenCalled()
+
+  stopped = false
+  await expect(call()).rejects.toBeInstanceOf(ProviderAdmissionError)
+  expect(control, 'control: an open stop reaches admission').toHaveBeenCalled()
+})

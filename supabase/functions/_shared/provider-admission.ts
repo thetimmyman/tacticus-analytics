@@ -768,6 +768,8 @@ export function createProviderRuntime(options: {
   officialOrigin?: string
   physicalFetch: ProviderPhysicalFetch
   controlFetch?: typeof fetch
+  /** True when an operator stop is engaged; checked before any admission exchange. */
+  outboundStopped?: () => Promise<boolean>
 }) {
   const officialOrigin =
     options.officialOrigin ?? 'https://api.tacticusgame.com'
@@ -835,6 +837,8 @@ export function createProviderRuntime(options: {
       // The caller can mutate Headers or URL while HMAC derivation awaits.
       // Bind attribution and the physical send to the same private snapshot.
       const prepared = new Request(input, { ...init, redirect: 'error' })
+      // A stopped dispatch must not reserve or claim capacity at the authority.
+      if (await options.outboundStopped?.()) throw new ProviderAdmissionError()
       const dispatch = await cached.resolve(prepared, {}, operation)
       return cached.admission.fetch(prepared, {}, dispatch, operation)
     }

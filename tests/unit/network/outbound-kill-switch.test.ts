@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { ProviderAdmissionError } from '@/supabase/functions/_shared/provider-admission'
-import { providerFetch } from '@/app/lib/network/provider-metrics'
+import {
+  captureProviderMetrics,
+  providerFetch
+} from '@/app/lib/network/provider-metrics'
 import { useOutboundKillSwitchReader } from '@/app/lib/network/outbound-kill-switch'
 
 const originalFetch = globalThis.fetch
@@ -124,5 +127,33 @@ it('keeps a halt in force when a later refresh stalls', async () => {
   await vi.advanceTimersByTimeAsync(2_000)
   await refused
 
+  expect(sent.calls()).toBe(0)
+})
+
+it('does not count or send a dispatch cancelled while the switch is read', async () => {
+  vi.useFakeTimers()
+  useOutboundKillSwitchReader(
+    (signal) =>
+      new Promise(() => {
+        signal.addEventListener('abort', () => {})
+      })
+  )
+  const sent = countingFetch()
+  const controller = new AbortController()
+
+  let thrown: unknown
+  const run = captureProviderMetrics(async () => {
+    try {
+      await providerFetch(url, { signal: controller.signal })
+    } catch (error) {
+      thrown = error
+    }
+  })
+  controller.abort()
+  await vi.advanceTimersByTimeAsync(2_000)
+  const { metrics } = await run
+
+  expect(thrown).toMatchObject({ name: 'AbortError' })
+  expect(metrics.api_calls).toBe(0)
   expect(sent.calls()).toBe(0)
 })

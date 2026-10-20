@@ -1,3 +1,4 @@
+import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
 import { serviceDb } from '@/app/lib/db'
 import { logger } from '@/app/lib/logging/logger'
 import {
@@ -13,12 +14,14 @@ export {
 
 // The same `feature_releases` row the edge runtime reads; the shared core
 // bounds, coalesces and fails open (see docs/outbound-kill-switch.md).
+// A desktop install talks to its own loopback database, which no operator can
+// reach, so there is nothing central to read there.
 const readStageFromDb: OutboundKillSwitchReader = async (signal) => {
-  const { data, error } = await serviceDb()
+  if (getRuntimeProfile() === 'desktop') return 'public'
+  const { data, error } = await serviceDb(signal)
     .from('feature_releases')
     .select('release_stage')
     .eq('feature_key', OUTBOUND_KILL_SWITCH_KEY)
-    .abortSignal(signal)
     .limit(1)
   if (error) throw error
   return (data as { release_stage?: unknown }[] | null)?.[0]?.release_stage

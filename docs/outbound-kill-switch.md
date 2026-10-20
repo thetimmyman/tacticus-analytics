@@ -48,10 +48,13 @@ shared `outbound-kill-switch-core.ts`:
 ## Coverage
 
 Edge provider dispatch through the shared adapter, and the app provider runtime
-(`providerFetch`), where a refusal is checked before the physical API counters
-move. Not covered: routes that fetch a game host directly outside either
-runtime, the credential broker and operator scripts. This is a partial stop, not
-a global one, and must not be reported as such.
+(`providerFetch`). With admission enforced, the stop is checked before any
+reserve or dispatch exchange, so a stopped request does not touch the
+authority; it is checked again just before the send, and before the physical
+API counters move. Not covered: desktop installs, which run against their own
+local database that no operator can reach; routes that fetch a game host
+directly outside either runtime; the credential broker; and operator scripts.
+This is a partial stop, not a global one, and must not be reported as such.
 
 ## Release order
 

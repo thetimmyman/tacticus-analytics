@@ -12,6 +12,7 @@ import { logger } from './logger.ts'
 declare const Deno: { env: { get(name: string): string | undefined } }
 
 const runtime = createProviderRuntime({
+  outboundStopped: () => outboundHalted(),
   settings: () => ({
     mode: Deno.env.get('PROVIDER_ADMISSION_MODE'),
     authorityOrigin: Deno.env.get('PROVIDER_ADMISSION_ORIGIN'),

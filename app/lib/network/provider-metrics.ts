@@ -107,6 +107,7 @@ const officialOrigin = (() => {
 
 const providerRuntime = createProviderRuntime({
   officialOrigin,
+  outboundStopped: () => outboundHalted(),
   settings: () => ({
     mode: process.env.PROVIDER_ADMISSION_MODE,
     authorityOrigin: process.env.PROVIDER_ADMISSION_ORIGIN,
@@ -256,8 +257,10 @@ async function physicalProviderFetch(
     preparation instanceof Promise ? await preparation : preparation
   signal?.throwIfAborted()
   // Operator stop: refuse after the caller snapshot, before counting or
-  // sending. A refused dispatch is not an API call.
+  // sending. A refused dispatch is not an API call. The read can outlast a
+  // cancellation, so the signal is checked again before anything is counted.
   if (await outboundHalted()) throw new ProviderAdmissionError()
+  signal?.throwIfAborted()
   const metrics = context?.metrics
   if (metrics) {
     metrics.api_calls++
