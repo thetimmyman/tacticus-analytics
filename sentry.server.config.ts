@@ -109,6 +109,7 @@ function makeBestEffortFanoutTransport(
 
 Sentry.init({
   dsn,
+  release: process.env.NEXT_PUBLIC_BUILD_SHA,
   enabled:
     Boolean(dsn) &&
     (process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV) === 'production',
