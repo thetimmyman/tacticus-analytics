@@ -38,6 +38,7 @@
 
 # === ROSTER ===
 guild_season_lookup.sql # 8
+public_stats_lookup.sql # 5
 adversarial_progression_and_meta_hardening.sql # 29
 bootstrap_authority_canonical_guild_code.sql # 12
 bootstrap_first_leader_seat_claim.sql # 9
