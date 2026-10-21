@@ -605,6 +605,11 @@
     {
       "file": "20261019120000_provision_outbound_kill_switch.sql",
       "reason": "data-backfill"
+    },
+    {
+      "file": "20261021192500_bound_guild_season_lookup_reads.sql",
+      "reason": "production-app-schema",
+      "detail": "Uses hosted guild/season indexes absent from the local bootstrap; the local lookup keeps its existing result contract."
     }
   ]
 }
