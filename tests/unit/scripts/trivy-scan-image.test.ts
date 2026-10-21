@@ -338,8 +338,12 @@ describe('build-clean-image.yml Actions policy compatibility', () => {
     ]
     expect(helperCalls).toHaveLength(1)
 
+    const scanStep = workflow
+      .split('      - name: Scan pushed linux/amd64 image for CRITICAL CVEs')[1]
+      ?.split('\n  merge-manifest:')[0]
+    expect(scanStep).toBeDefined()
     const digestRefs = [
-      ...workflow.matchAll(
+      ...scanStep!.matchAll(
         /\$\{\{ env\.IMAGE \}\}@\$\{\{ steps\.build\.outputs\.digest \}\}/gmu
       )
     ]

@@ -164,6 +164,7 @@ jobs:
           tags: ${{ env.IMAGE }}:${{ needs.prep.outputs.tag }}-amd64
           build-args: |
             GITHUB_REPOSITORY=${{ github.repository }}
+            NEXT_PUBLIC_BUILD_SHA=${{ github.sha }}
             NEXT_PUBLIC_SUPABASE_URL=${{ env.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ env.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
             NEXT_PUBLIC_SITE_URL=${{ env.NEXT_PUBLIC_SITE_URL }}
@@ -175,6 +176,15 @@ jobs:
             NEXT_PUBLIC_CONTACT_EMAIL=${{ env.NEXT_PUBLIC_CONTACT_EMAIL }}
           cache-from: type=gha,scope=amd64
           cache-to: type=gha,mode=max,scope=amd64
+      - name: Verify published image source revision
+        env:
+          IMAGE_REF: ${{ env.IMAGE }}@${{ steps.build.outputs.digest }}
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          docker run --rm --network none --read-only --cap-drop ALL --memory 128m \
+            --entrypoint node "$IMAGE_REF" -e \
+            'require("node:assert/strict").equal(process.env.NEXT_PUBLIC_BUILD_SHA, process.argv[1])' \
+            "$EXPECTED_SHA"
       # Scan by digest so a moved tag cannot race it; suppressions go in .trivyignore.
       # A shell step, not trivy-action: the Actions policy allows only GitHub, docker/* and setup-deno.
       - name: Scan pushed linux/amd64 image for CRITICAL CVEs
