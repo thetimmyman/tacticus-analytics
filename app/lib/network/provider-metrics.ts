@@ -6,6 +6,15 @@ import { outboundHalted } from '@/app/lib/network/outbound-kill-switch'
 import type { ProviderOperation } from '@/supabase/functions/_shared/provider-admission'
 import type { ProviderPhysicalContext } from '@/supabase/functions/_shared/provider-admission'
 import { prepareProviderObservation } from '@/supabase/functions/_shared/provider-observation'
+import {
+  providerObservationPurpose,
+  providerRequestTarget
+} from '@/supabase/functions/_shared/provider-admission'
+import {
+  countProviderCall,
+  countProviderFailure,
+  countProviderRetry
+} from '@/app/lib/network/provider-call-counters'
 import { logger } from '@/app/lib/logging/logger'
 
 export interface ProviderMetrics {
@@ -18,6 +27,8 @@ interface PhysicalAttempt {
   metrics: ProviderMetrics
   started: boolean
   failed: boolean
+  /** Counts the physical dispatch's failure once; set by the physical send. */
+  onFailure?: () => void
 }
 
 const metricsScope = new AsyncLocalStorage<{
@@ -159,6 +170,7 @@ function markAttemptFailure(attempt: PhysicalAttempt | undefined): void {
   if (!attempt?.started || attempt.failed) return
   attempt.failed = true
   attempt.metrics.api_errors++
+  attempt.onFailure?.()
 }
 
 function observeProviderResponse(
@@ -261,20 +273,54 @@ async function physicalProviderFetch(
   // cancellation, so the signal is checked again before anything is counted.
   if (await outboundHalted()) throw new ProviderAdmissionError()
   signal?.throwIfAborted()
+  // Bounded labels only: the reviewed route inventory, never the caller path.
+  let callLabels = {
+    domain: 'unregistered',
+    endpoint: 'unknown',
+    purpose: 'unknown'
+  }
+  try {
+    const target = providerRequestTarget(input, init, officialOrigin)
+    callLabels = {
+      domain: target.domain ?? 'unregistered',
+      endpoint: target.endpoint ?? 'unknown',
+      purpose: providerObservationPurpose(
+        physicalContext?.operation?.purpose ?? context?.operation?.purpose
+      )
+    }
+  } catch {
+    /* Unregistered traffic stays explicit and unlabelled. */
+  }
+  const dispatchLabels = callLabels
+  let failureCounted = false
+  const countFailure = () => {
+    if (failureCounted) return
+    failureCounted = true
+    countProviderFailure(dispatchLabels)
+  }
+  countProviderCall(callLabels)
+  if (isRetry || context?.isRetry) countProviderRetry(callLabels)
   const metrics = context?.metrics
   if (metrics) {
     metrics.api_calls++
     if (isRetry || context?.isRetry) metrics.api_retry_count++
   }
   const attempt = context?.attempt
-  if (attempt) attempt.started = true
+  if (attempt) {
+    attempt.started = true
+    attempt.onFailure = countFailure
+  }
   try {
     const response = await (observed
       ? observed.run(() => globalThis.fetch(observed.input, observed.init))
       : globalThis.fetch(input, init))
-    if (!response.ok) markAttemptFailure(attempt)
+    if (!response.ok) {
+      countFailure()
+      markAttemptFailure(attempt)
+    }
     return response
   } catch (error) {
+    countFailure()
     markAttemptFailure(attempt)
     throw error
   }
