@@ -1,15 +1,10 @@
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { registerHooks } from 'node:module'
-import {
-  captureProviderMetrics,
-  withProviderOperation
-} from '../../../app/lib/network/provider-metrics.ts'
-import { getSharedFetch } from '../../../app/lib/network/undici-agent.ts'
-import { logger } from '../../../app/lib/logging/logger.ts'
 
 // Use the same empty server-only marker as the Vitest alias. All application
-// transport, admission, observation and logger modules remain real.
+// transport, admission, observation and logger modules remain real. Register
+// before importing them so every import shares the same loader and metrics scope.
 registerHooks({
   resolve(specifier, context, nextResolve) {
     return specifier === 'server-only'
@@ -20,6 +15,11 @@ registerHooks({
       : nextResolve(specifier, context)
   }
 })
+const { captureProviderMetrics, withProviderOperation } =
+  await import('../../../app/lib/network/provider-metrics.ts')
+const { getSharedFetch } =
+  await import('../../../app/lib/network/undici-agent.ts')
+const { logger } = await import('../../../app/lib/logging/logger.ts')
 const { discoverLatestHash, fetchGlobalConfig, postDiscordWebhook } =
   await import('../../../app/lib/loki/global-config-refresh.ts')
 
