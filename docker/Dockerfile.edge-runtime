@@ -23,4 +23,13 @@ RUN apt-get update \
 
 COPY supabase/functions /home/deno/functions
 
-CMD [ "start", "--main-service", "/home/deno/functions/main" ]
+# v1.77.8 ships Deno 2.1.4, whose workers do not exit on SIGTERM: the default
+# 15s graceful-exit window always elapses and then terminates forcibly, taking
+# shutdown from ~200ms to ~15s. Measured on this image: default 15243ms,
+# --graceful-exit-timeout 5 gives 5157ms (still "did not able to terminate the
+# workers"), 0 gives 119ms. Since the window never completes, it only delays
+# termination, so it is set to 0. Revisit if worker exit is fixed upstream or
+# the functions' open connections are closed on shutdown.
+CMD [ "start", \
+      "--main-service", "/home/deno/functions/main", \
+      "--graceful-exit-timeout", "0" ]
