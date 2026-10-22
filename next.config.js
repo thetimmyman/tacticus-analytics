@@ -52,6 +52,7 @@ const internalSupabaseStoragePattern = (() => {
 
 const enableRuntimePatch = process.env.ENABLE_RUNTIME_PATCH !== "false";
 const desktopRuntime = process.env.NEXT_PUBLIC_RUNTIME_PROFILE === "desktop";
+const uploadSourceMaps = Boolean(process.env.SENTRY_AUTH_TOKEN);
 
 const nextConfig = {
   typescript: {
@@ -126,7 +127,7 @@ const nextConfig = {
     optimizeCss: true,
     scrollRestoration: true,
 
-    serverSourceMaps: false,
+    serverSourceMaps: uploadSourceMaps,
 
     optimizePackageImports: [
       "lucide-react",
@@ -141,8 +142,8 @@ const nextConfig = {
     ],
   },
 
-  // Turbopack's maps are unusable for bundle attribution; `npm run analyze` is map-free.
-  productionBrowserSourceMaps: false,
+  // Authorized image builds upload maps; local and desktop builds stay map-free.
+  productionBrowserSourceMaps: uploadSourceMaps,
 
   async headers() {
     return [
@@ -272,7 +273,8 @@ module.exports = withSentryConfig(module.exports, {
   silent: !process.env.CI,
 
   sourcemaps: {
-    disable: !process.env.SENTRY_AUTH_TOKEN,
+    disable: !uploadSourceMaps,
+    deleteSourcemapsAfterUpload: true,
   },
 
   widenClientFileUpload: true,
