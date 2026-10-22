@@ -1,6 +1,13 @@
 'use client'
 
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import {
+  Fragment,
+  useEffect,
+  useId,
+  useMemo,
+  useState,
+  type ReactNode
+} from 'react'
 import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react'
 import clsx from 'clsx'
 import { EmptyState } from './EmptyState'
@@ -44,6 +51,16 @@ interface DataTableBaseProps<Row, Key extends string> {
    */
   rowClassName?: (row: Row) => string | undefined
   empty?: ReactNode
+  /**
+   * Renders each row as a card below the `lg` breakpoint, where the table is hidden.
+   * Use it when the row's decision does not need every column; wide numeric matrices
+   * that need the comparison stay a table in a labelled scroll container.
+   *
+   * `'auto'` builds the card from the column metadata: the first column becomes the
+   * title and the rest become label/value pairs. Pass a function when a row needs a
+   * different shape than that.
+   */
+  mobileCard?: 'auto' | ((row: Row) => ReactNode)
   className?: string
   tableClassName?: string
   density?: 'default' | 'compact'
@@ -95,6 +112,7 @@ export function DataTable<Row, Key extends string = string>({
   onRowClick,
   rowClassName,
   empty,
+  mobileCard,
   className,
   tableClassName,
   density = 'default'
@@ -105,6 +123,8 @@ export function DataTable<Row, Key extends string = string>({
   const [internalDirection, setInternalDirection] = useState<SortDirection>(
     defaultSort?.direction ?? 'desc'
   )
+
+  const mobileSortId = useId()
 
   const isControlled = sort !== undefined
   const requestedSortKey = isControlled ? sort.key : internalSortKey
@@ -190,9 +210,125 @@ export function DataTable<Row, Key extends string = string>({
       : `Sort ${headerText} ascending`
   }
 
+  // Builds a card from column metadata: first column is the title, the rest are
+  // label/value pairs. Callers that need a different row shape pass a function.
+  const autoCard = (row: Row) => {
+    const [title, ...rest] = columns
+    // A column with no label cannot name a value; bar/spacer columns belong to
+    // the table view only.
+    const fields = rest.filter((col) => col.header !== '')
+    return (
+      <>
+        <div className="text-sm font-semibold break-words">
+          {title.render(row)}
+        </div>
+        {fields.length > 0 && (
+          <dl className="mt-1 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-xs">
+            {fields.map((col) => (
+              <Fragment key={col.key}>
+                <dt className="text-(--text-tertiary)">
+                  {col.headerTitle ?? col.header}
+                </dt>
+                <dd
+                  className={clsx(
+                    'min-w-0 break-words',
+                    col.align === 'right' && 'text-right'
+                  )}
+                >
+                  {col.render(row)}
+                </dd>
+              </Fragment>
+            ))}
+          </dl>
+        )}
+      </>
+    )
+  }
+
+  let mobileList: ReactNode = null
+  if (mobileCard) {
+    const renderCard = typeof mobileCard === 'function' ? mobileCard : autoCard
+    mobileList =
+      sorted.length === 0 ? (
+        (empty ?? <EmptyState size="md" title="No data available." />)
+      ) : (
+        <ul className="space-y-2">
+          {sorted.map((row) => (
+            <li
+              key={rowKey(row)}
+              className="rounded-lg border border-(--card-border) bg-(--card-bg) p-3"
+            >
+              {renderCard(row)}
+            </li>
+          ))}
+        </ul>
+      )
+  }
+
+  const sortableColumns = columns.filter((col) => col.sortable !== false)
+
   return (
     <div className={clsx('overflow-x-auto', className)}>
-      <table className={clsx('w-full text-sm', tableClassName)}>
+      {mobileCard && sortableColumns.length > 0 && (
+        <div
+          className="mb-2 flex items-center gap-2 lg:hidden"
+          data-testid="datatable-mobile-sort"
+        >
+          <label
+            className="shrink-0 text-xs text-(--text-tertiary)"
+            htmlFor={mobileSortId}
+          >
+            Sort by
+          </label>
+          <select
+            id={mobileSortId}
+            className="min-w-0 flex-1 rounded-md border border-(--card-border) bg-(--card-bg) px-2 py-1.5 text-xs"
+            value={sortKey === undefined ? '' : String(sortKey)}
+            onChange={(event) => {
+              const column = sortableColumns.find(
+                (col) => String(col.key) === event.target.value
+              )
+              if (column) onSort(column.key, column.sortable)
+            }}
+          >
+            <option value="">Default order</option>
+            {sortableColumns.map((col) => (
+              <option key={col.key} value={String(col.key)}>
+                {typeof col.header === 'string' ? col.header : 'Column'}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className="shrink-0 rounded-md border border-(--card-border) bg-(--card-bg) px-2 py-1.5 text-xs disabled:opacity-50"
+            onClick={() => sortKey !== undefined && onSort(sortKey, true)}
+            disabled={sortKey === undefined}
+            aria-label={`Sort ${direction === 'asc' ? 'descending' : 'ascending'}`}
+          >
+            {direction === 'asc' ? 'Asc' : 'Desc'}
+          </button>
+        </div>
+      )}
+      {mobileCard && (
+        <div className="lg:hidden" data-testid="datatable-mobile-cards">
+          {mobileList}
+        </div>
+      )}
+      <table
+        className={clsx(
+          'w-full text-sm',
+          mobileCard && 'hidden lg:table',
+          tableClassName
+        )}
+      >
+        {!mobileCard && columns.length >= 5 && (
+          <caption
+            className="pb-1 text-left text-xs text-(--text-tertiary) lg:hidden"
+            data-testid="datatable-scroll-hint"
+          >
+            Scroll sideways to see all {columns.length} columns.
+          </caption>
+        )}
         <thead className="border-b border-(--card-border) bg-(--bg-secondary)">
           <tr>
             {columns.map((col) => {

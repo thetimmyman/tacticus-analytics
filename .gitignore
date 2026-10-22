@@ -564,3 +564,9 @@ supabase/reports/
 
 # Local agent run reports (never committed)
 /RESULT.md
+
+# OpenUI design studies: generated output is a local artifact; sources under design/studies are committed.
+/design/build/
+
+# Vitest local cache
+.vitest/

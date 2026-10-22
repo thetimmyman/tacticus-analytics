@@ -574,6 +574,7 @@ export function InviteCodeManager() {
               </CardHeader>
               <CardContent>
                 <DataTable
+                  mobileCard="auto"
                   columns={recentCodeColumns}
                   rows={recentCodes.slice(0, 20)}
                   rowKey={(code) => code.id}

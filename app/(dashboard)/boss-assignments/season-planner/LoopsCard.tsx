@@ -74,6 +74,7 @@ export default function LoopsCard({
       ) : (
         <div className="mt-3">
           <DataTable
+            mobileCard="auto"
             rows={loopTimelineWindow}
             columns={loopColumns}
             rowKey={(row) => `loop-${row.loopIndex}`}

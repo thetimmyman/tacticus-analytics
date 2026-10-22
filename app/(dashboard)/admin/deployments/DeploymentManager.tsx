@@ -378,6 +378,7 @@ export function DeploymentManager() {
                   </div>
                 ) : (
                   <DataTable
+                    mobileCard="auto"
                     rows={service.versions}
                     columns={versionColumns}
                     rowKey={(version) => version.tag}

@@ -62,6 +62,7 @@ export default function PerformanceTable({
   )
   return (
     <DataTable
+      mobileCard="auto"
       rows={nameOrderedRows}
       columns={columns}
       rowKey={(row) => row.unit.id}
