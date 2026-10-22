@@ -53,11 +53,11 @@ ENV NODE_OPTIONS="--max-old-space-size=12288"
 
 # Credentials exist only for this build step, never as build args or image ENV.
 # Local builds may omit uploading; trusted publication explicitly enables it.
-RUN --mount=type=secret,id=sentry_auth_token \
-  node scripts/dev/verify-app-identity.mjs \
+RUN --mount=type=secret,id=sentry_auth_token node scripts/dev/verify-app-identity.mjs \
   && if [ "$SENTRY_UPLOAD_SOURCE_MAPS" = "true" ]; then \
-       [ -s /run/secrets/sentry_auth_token ] && [ -n "$SENTRY_ORG" ] && [ -n "$SENTRY_PROJECT" ] \
-         || { echo "Source-map upload requires a token, organization and project" >&2; exit 1; }; \
+       if [ ! -s /run/secrets/sentry_auth_token ] || [ -z "$SENTRY_ORG" ] || [ -z "$SENTRY_PROJECT" ]; then \
+         echo "Source-map upload requires a token, organization and project" >&2; exit 1; \
+       fi; \
        export SENTRY_AUTH_TOKEN="$(cat /run/secrets/sentry_auth_token)"; \
        export SENTRY_RELEASE="$NEXT_PUBLIC_BUILD_SHA"; \
      fi \
