@@ -7,6 +7,32 @@ import { describe, expect, it } from 'vitest'
 const require = createRequire(import.meta.url)
 
 describe('next standalone runtime tracing', () => {
+  it.each([false, true])(
+    'generates browser and server source maps only when upload authorization is present (%s)',
+    (authorized) => {
+      const config = JSON.parse(
+        execFileSync(
+          process.execPath,
+          [
+            '-e',
+            "const c=require('./next.config.js');process.stdout.write(JSON.stringify({browser:c.productionBrowserSourceMaps,server:c.experimental.serverSourceMaps}))"
+          ],
+          {
+            cwd: process.cwd(),
+            encoding: 'utf8',
+            env: {
+              ...process.env,
+              SENTRY_AUTH_TOKEN: authorized
+                ? 'synthetic-build-authorization'
+                : ''
+            }
+          }
+        )
+      ) as { browser: boolean; server: boolean }
+      expect(config).toEqual({ browser: authorized, server: authorized })
+    }
+  )
+
   it('keeps the sealed desktop application tree free of runtime cache writes', () => {
     const inspect = (profile: string) =>
       JSON.parse(
