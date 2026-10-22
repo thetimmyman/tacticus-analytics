@@ -5,7 +5,13 @@
 # function source on top of it — the router at supabase/functions/main
 # dispatches by path (see that file's VALID_FUNCTIONS set), so one image
 # serves all 76 functions.
-FROM ghcr.io/supabase/edge-runtime:v1.76.2
+# Base bumped v1.76.2 -> v1.77.8 (2026-10-22) for the eMudhra intermediate-CA
+# compromise (Cloudflare advisory, 2026-10-20). The edge-runtime binary bundles
+# its own CA root store, so the apt-get upgrade below cannot reach it: v1.76.2
+# still carries the emSign ECC Root CA - G3 and AAA Certificate Services anchors
+# that all eight compromised intermediates chain to, while v1.77.8 carries
+# neither. Verified by inspecting the subject DNs embedded in the binary.
+FROM ghcr.io/supabase/edge-runtime:v1.77.8
 
 # Take Debian's security updates for packages already in the upstream image
 # (installing nothing new), so fixed CVEs in the base do not wait on an
@@ -17,4 +23,5 @@ RUN apt-get update \
 
 COPY supabase/functions /home/deno/functions
 
+# Keep the upstream grace period so pending requests can complete during shutdown.
 CMD [ "start", "--main-service", "/home/deno/functions/main" ]
