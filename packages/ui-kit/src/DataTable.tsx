@@ -266,6 +266,9 @@ export function DataTable<Row, Key extends string = string>({
   }
 
   const sortableColumns = columns.filter((col) => col.sortable !== false)
+  // A wide table that stays a table on a phone scrolls sideways, so the first
+  // column stays pinned to keep each row identifiable while it scrolls.
+  const stickyFirstColumn = !mobileCard && columns.length >= 5
 
   return (
     <div className={clsx('overflow-x-auto', className)}>
@@ -321,7 +324,7 @@ export function DataTable<Row, Key extends string = string>({
           tableClassName
         )}
       >
-        {!mobileCard && columns.length >= 5 && (
+        {!mobileCard && stickyFirstColumn && (
           <caption
             className="pb-1 text-left text-xs text-(--text-tertiary) lg:hidden"
             data-testid="datatable-scroll-hint"
@@ -331,7 +334,7 @@ export function DataTable<Row, Key extends string = string>({
         )}
         <thead className="border-b border-(--card-border) bg-(--bg-secondary)">
           <tr>
-            {columns.map((col) => {
+            {columns.map((col, colIndex) => {
               const isActive = sortKey === col.key
               const isSortable = col.sortable !== false
               return (
@@ -341,6 +344,9 @@ export function DataTable<Row, Key extends string = string>({
                   className={clsx(
                     'p-0 text-xs font-semibold text-secondary-wh40k select-none',
                     alignClass[col.align ?? 'left'],
+                    stickyFirstColumn &&
+                      colIndex === 0 &&
+                      'sticky left-0 z-10 bg-(--bg-secondary)',
                     col.headerClassName,
                     col.className
                   )}
@@ -419,12 +425,15 @@ export function DataTable<Row, Key extends string = string>({
                 )}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
-                {columns.map((col) => (
+                {columns.map((col, colIndex) => (
                   <td
                     key={col.key}
                     className={clsx(
                       'p-3 text-secondary-wh40k',
                       alignClass[col.align ?? 'left'],
+                      stickyFirstColumn &&
+                        colIndex === 0 &&
+                        'sticky left-0 bg-(--card-bg)',
                       col.className
                     )}
                   >

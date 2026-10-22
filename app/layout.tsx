@@ -30,10 +30,21 @@ const supabaseOrigin: string | undefined = hasSupabase
   : undefined
 const tacticusOrigin = TACTICUS_API.ORIGIN
 
-const DOMAIN_URL = process.env.NEXT_PUBLIC_DOMAIN || APP_ORIGINS.CURRENT
+// A malformed NEXT_PUBLIC_DOMAIN would throw and take the build down with it, so
+// the value is parsed once, here, with a fallback to the configured origin. Every
+// consumer below gets something already validated and never guards the parse itself.
+const DOMAIN_BASE_URL = (() => {
+  const candidate = process.env.NEXT_PUBLIC_DOMAIN
+  try {
+    return new URL(candidate || APP_ORIGINS.CURRENT)
+  } catch {
+    return new URL(APP_ORIGINS.CURRENT)
+  }
+})()
+const DOMAIN_URL = DOMAIN_BASE_URL.toString()
 
 export const metadata: Metadata = {
-  metadataBase: new URL(DOMAIN_URL),
+  metadataBase: DOMAIN_BASE_URL,
   title:
     'Tacticus Analytics | Professional Guild Raid Analytics for Warhammer 40,000: Tacticus',
   description:
