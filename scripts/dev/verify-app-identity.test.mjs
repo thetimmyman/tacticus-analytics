@@ -1,5 +1,11 @@
 import assert from 'node:assert/strict'
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
@@ -206,6 +212,66 @@ test('refuses to report OK when no identity signal is available', () => {
         error.includes('no identity signal was available')
       ),
       `expected a blind-check error, got: ${JSON.stringify(result.errors)}`
+    )
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+function productionDockerFixture({ removeVerifier = false } = {}) {
+  const root = fixture()
+  const contractPath = join(root, '.app-identity.json')
+  const contract = JSON.parse(readFileSync(contractPath, 'utf8'))
+  const productionContract = JSON.parse(
+    readFileSync(new URL('../../.app-identity.json', import.meta.url), 'utf8')
+  )
+  contract.contentRules = productionContract.contentRules.filter(
+    (rule) => rule.path === 'docker/Dockerfile.prod'
+  )
+  writeFileSync(contractPath, JSON.stringify(contract))
+  mkdirSync(join(root, 'docker'))
+  let dockerfile = readFileSync(
+    new URL('../../docker/Dockerfile.prod', import.meta.url),
+    'utf8'
+  )
+  if (removeVerifier) {
+    dockerfile = dockerfile.replace(
+      'node scripts/dev/verify-app-identity.mjs',
+      'true'
+    )
+  }
+  writeFileSync(
+    join(root, 'docker/Dockerfile.prod'),
+    dockerfile.replace(/\r?\n/g, '\r\n')
+  )
+  return root
+}
+
+test('accepts the production Docker identity contract in a CRLF checkout', () => {
+  const root = productionDockerFixture()
+  try {
+    assert.deepEqual(
+      verifyAppIdentity({
+        root,
+        origin: 'https://github.com/thetimmyman/tacticus-analytics',
+        env: {}
+      }).errors,
+      []
+    )
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('a CRLF checkout still refuses a production build without its identity verifier', () => {
+  const root = productionDockerFixture({ removeVerifier: true })
+  try {
+    assert.ok(
+      verifyAppIdentity({
+        root,
+        origin: 'https://github.com/thetimmyman/tacticus-analytics',
+        env: {}
+      }).errors.some((error) => error.includes('identity marker is missing'))
     )
   } finally {
     rmSync(root, { recursive: true, force: true })

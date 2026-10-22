@@ -1,0 +1,32 @@
+name: Source map build contract
+
+on:
+  pull_request:
+    paths:
+      - docker/Dockerfile.prod
+      - .github/workflows/build-clean-image.yml
+      - .github/workflows/sentry-build-contract.yml
+      - scripts/testing/sentry-build-contract.test.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: source-map-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - name: Check secret lifetime and upload requirements using synthetic credentials
+        run: node --test scripts/testing/sentry-build-contract.test.mjs

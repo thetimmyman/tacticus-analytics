@@ -65,7 +65,7 @@ describe('next standalone runtime tracing', () => {
       /^ENV GITHUB_REPOSITORY=\$GITHUB_REPOSITORY$/mu
     )
     const buildIdentityCheckIndex = builderStage!.search(
-      /^RUN node scripts\/dev\/verify-app-identity\.mjs \\/mu
+      /^RUN --mount=type=secret,id=sentry_auth_token node scripts\/dev\/verify-app-identity\.mjs \\/mu
     )
     expect(builderIdentityArgIndex).toBeGreaterThan(-1)
     expect(builderIdentityEnvIndex).toBeGreaterThan(builderIdentityArgIndex)
