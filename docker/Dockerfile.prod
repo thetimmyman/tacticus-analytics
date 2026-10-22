@@ -28,6 +28,9 @@ ARG NEXT_PUBLIC_VIDEO_CDN_URL
 ARG NEXT_PUBLIC_SENTRY_DSN
 ARG NEXT_PUBLIC_BUILD_SHA
 ARG NEXT_PUBLIC_CONTACT_EMAIL
+ARG SENTRY_UPLOAD_SOURCE_MAPS=false
+ARG SENTRY_ORG
+ARG SENTRY_PROJECT
 # No default: the build caller must attest which GitHub repository supplied
 # this context. A missing value leaves the verifier with no identity signal;
 # a fork or foreign repository value fails the repository contract.
@@ -48,7 +51,16 @@ ENV SKIP_TYPECHECK_IN_DOCKER=true
 ENV ALLOW_STALE_STATS=true
 ENV NODE_OPTIONS="--max-old-space-size=12288"
 
-RUN node scripts/dev/verify-app-identity.mjs \
+# Credentials exist only for this build step, never as build args or image ENV.
+# Local builds may omit uploading; trusted publication explicitly enables it.
+RUN --mount=type=secret,id=sentry_auth_token \
+  node scripts/dev/verify-app-identity.mjs \
+  && if [ "$SENTRY_UPLOAD_SOURCE_MAPS" = "true" ]; then \
+       [ -s /run/secrets/sentry_auth_token ] && [ -n "$SENTRY_ORG" ] && [ -n "$SENTRY_PROJECT" ] \
+         || { echo "Source-map upload requires a token, organization and project" >&2; exit 1; }; \
+       export SENTRY_AUTH_TOKEN="$(cat /run/secrets/sentry_auth_token)"; \
+       export SENTRY_RELEASE="$NEXT_PUBLIC_BUILD_SHA"; \
+     fi \
   && ./node_modules/.bin/next build
 
 FROM base AS runner

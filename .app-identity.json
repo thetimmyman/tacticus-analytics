@@ -34,7 +34,7 @@
     {
       "path": "docker/Dockerfile.prod",
       "required": [
-        "RUN node scripts/dev/verify-app-identity.mjs",
+        "RUN --mount=type=secret,id=sentry_auth_token \\\n  node scripts/dev/verify-app-identity.mjs",
         "ENV TACTICUS_APP_ID=tacticus-analytics",
         "COPY --from=builder --chown=nextjs:nodejs /app/.app-identity.json ./.app-identity.json",
         "CMD [\"sh\", \"-c\", \"APP_IDENTITY_RUNTIME=1 node scripts/dev/verify-app-identity.mjs && exec ./node_modules/.bin/next start\"]"
