@@ -3,7 +3,10 @@ import { resolve } from 'node:path'
 import { mergeConfig } from 'vite'
 
 const config: StorybookConfig = {
-  stories: ['../app/components/ui/**/*.stories.@(ts|tsx|mdx)'],
+  stories: [
+    '../app/components/ui/**/*.stories.@(ts|tsx|mdx)',
+    '../app/components/navigation/**/*.stories.@(ts|tsx|mdx)'
+  ],
   addons: [
     '@storybook/addon-docs',
     '@storybook/addon-a11y',
@@ -27,6 +30,10 @@ const config: StorybookConfig = {
           '@tacticus/ui-kit': resolve(
             process.cwd(),
             'packages/ui-kit/src/index.ts'
+          ),
+          'next/navigation': resolve(
+            process.cwd(),
+            '.storybook/stubs/next-navigation.ts'
           )
         }
       }
