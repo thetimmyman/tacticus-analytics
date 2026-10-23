@@ -285,7 +285,7 @@ export function DataTable<Row, Key extends string = string>({
           </label>
           <select
             id={mobileSortId}
-            className="min-w-0 flex-1 rounded-md border border-(--card-border) bg-(--card-bg) px-2 py-1.5 text-xs"
+            className="h-11 min-w-0 flex-1 appearance-none rounded-md border border-(--card-border) bg-(--card-bg) px-2 text-xs"
             value={sortKey === undefined ? '' : String(sortKey)}
             onChange={(event) => {
               const column = sortableColumns.find(
@@ -303,7 +303,7 @@ export function DataTable<Row, Key extends string = string>({
           </select>
           <button
             type="button"
-            className="shrink-0 rounded-md border border-(--card-border) bg-(--card-bg) px-2 py-1.5 text-xs disabled:opacity-50"
+            className="h-11 shrink-0 rounded-md border border-(--card-border) bg-(--card-bg) px-3 text-xs disabled:opacity-50"
             onClick={() => sortKey !== undefined && onSort(sortKey, true)}
             disabled={sortKey === undefined}
             aria-label={`Sort ${direction === 'asc' ? 'descending' : 'ascending'}`}

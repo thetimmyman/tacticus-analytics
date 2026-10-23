@@ -21,7 +21,13 @@ const config: StorybookConfig = {
     mergeConfig(viteConfig, {
       resolve: {
         alias: {
-          '@': resolve(process.cwd())
+          '@': resolve(process.cwd()),
+          // Resolve the workspace package to this checkout, not to whichever
+          // checkout installed the root node_modules link.
+          '@tacticus/ui-kit': resolve(
+            process.cwd(),
+            'packages/ui-kit/src/index.ts'
+          )
         }
       }
     })
