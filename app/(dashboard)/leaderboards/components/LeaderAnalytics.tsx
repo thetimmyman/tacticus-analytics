@@ -467,6 +467,7 @@ export default function LeaderAnalytics({ season }: LeaderAnalyticsProps) {
               </h3>
             </div>
             <DataTable
+              mobileCard="auto"
               rows={guildMetrics}
               columns={performanceColumns}
               rowKey={(guild) => guild.guild}

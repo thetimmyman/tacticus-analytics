@@ -168,6 +168,7 @@ export default function PlayerStatsTable({
 
   return (
     <DataTable
+      mobileCard="auto"
       rows={rows}
       columns={columns}
       rowKey={(row) => row.playerId}

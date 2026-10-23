@@ -116,6 +116,7 @@ export function PlayerRankingPanel({ warCount }: { warCount: number }) {
         ) : (
           <>
             <DataTable
+              mobileCard="auto"
               rows={data.players}
               columns={columns}
               rowKey={(row) => row.playerId}

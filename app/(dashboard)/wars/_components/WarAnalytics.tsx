@@ -548,6 +548,7 @@ export default function WarAnalytics({ guildCode }: WarAnalyticsProps) {
               </CardHeader>
               <CardContent className="p-0">
                 <DataTable
+                  mobileCard="auto"
                   rows={players.slice(0, 15)}
                   columns={topPlayersColumns}
                   rowKey={(row) => row.playerId}
@@ -565,6 +566,7 @@ export default function WarAnalytics({ guildCode }: WarAnalyticsProps) {
               </CardHeader>
               <CardContent className="p-0">
                 <DataTable
+                  mobileCard="auto"
                   rows={wars}
                   columns={warsInRangeColumns}
                   rowKey={(war) => war.war_id}

@@ -60,6 +60,7 @@ export default function InvestmentPrioritiesCard({
       </div>
       <div className="mt-3">
         <DataTable
+          mobileCard="auto"
           rows={investmentRows}
           columns={investmentColumns}
           rowKey={(item) =>

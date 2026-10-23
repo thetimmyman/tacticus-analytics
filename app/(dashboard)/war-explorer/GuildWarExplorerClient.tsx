@@ -583,6 +583,7 @@ export default function GuildWarExplorerClient({
     return (
       <>
         <DataTable
+          mobileCard="auto"
           tableClassName="text-xs sm:text-sm"
           rows={matchesState.data}
           columns={matchesColumns}

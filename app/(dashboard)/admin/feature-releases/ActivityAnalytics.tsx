@@ -775,6 +775,7 @@ export function ActivityAnalytics() {
         </CardHeader>
         <CardContent>
           <DataTable
+            mobileCard="auto"
             rows={paginatedGuilds}
             columns={guildActivityColumns}
             rowKey={(g) => g.guild_code}

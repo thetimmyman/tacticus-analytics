@@ -66,9 +66,11 @@ describe('PerformanceTable', () => {
 
   it('shows the original empty-state copy when there are no rows', () => {
     render(<PerformanceTable rows={[]} />)
+    // Both the card list and the table carry the empty state; in a browser only
+    // one is visible, so assert the copy appears rather than its exact count.
     expect(
-      screen.getByText('No data available for the selected period.')
-    ).toBeTruthy()
+      screen.getAllByText('No data available for the selected period.').length
+    ).toBeGreaterThan(0)
   })
 
   it('breaks primary-value ties by unit name ascending (stable base order)', () => {

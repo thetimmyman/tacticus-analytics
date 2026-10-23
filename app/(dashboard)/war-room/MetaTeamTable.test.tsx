@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import MetaTeamTable from './MetaTeamTable'
 import type { MetaTeam } from './types'
 
@@ -37,16 +37,18 @@ describe('MetaTeamTable readiness availability', () => {
   it('does not present uncomputed readiness as ready', () => {
     renderTable(false)
 
-    expect(screen.getByText('Ork swarm')).toBeTruthy()
-    expect(screen.queryByText('Readiness')).toBeNull()
-    expect(screen.queryByText('Gear floor')).toBeNull()
-    expect(screen.queryByText('ready')).toBeNull()
+    const table = screen.getByRole('table')
+    expect(within(table).getByText('Ork swarm')).toBeTruthy()
+    expect(within(table).queryByText('Readiness')).toBeNull()
+    expect(within(table).queryByText('Gear floor')).toBeNull()
+    expect(within(table).queryByText('ready')).toBeNull()
   })
 
   it('shows readiness columns for the caller own guild', () => {
     renderTable(true)
 
-    expect(screen.getByText('Readiness')).toBeTruthy()
-    expect(screen.getByText('Gear floor')).toBeTruthy()
+    const table = screen.getByRole('table')
+    expect(within(table).getByText('Readiness')).toBeTruthy()
+    expect(within(table).getByText('Gear floor')).toBeTruthy()
   })
 })

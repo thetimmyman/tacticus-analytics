@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import {
   BarMeter,
   ConfirmDialog,
@@ -186,6 +186,52 @@ describe('Design primitives accessibility', () => {
     fireEvent.click(targetRow!)
 
     expect(onRowClick).toHaveBeenCalledWith(rows[1])
+  })
+
+  it('builds auto cards from column metadata and keeps them in sorted order', () => {
+    type Row = { id: string; name: string; score: number }
+    const rows: Row[] = [
+      { id: 'a', name: 'Alpha', score: 1 },
+      { id: 'b', name: 'Beta', score: 2 }
+    ]
+    const columns: DataTableColumn<Row>[] = [
+      {
+        key: 'name',
+        header: 'Name',
+        render: (row) => row.name,
+        sortValue: (row) => row.name
+      },
+      {
+        key: 'score',
+        header: 'Score',
+        render: (row) => row.score,
+        sortValue: (row) => row.score
+      }
+    ]
+
+    render(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowKey={(row) => row.id}
+        mobileCard="auto"
+      />
+    )
+
+    const list = screen.getByTestId('datatable-mobile-cards')
+    // First column is the card title; the rest become label/value pairs.
+    expect(within(list).getAllByRole('listitem')[0].textContent).toContain(
+      'Alpha'
+    )
+    expect(
+      within(within(list).getAllByRole('listitem')[0]).getByText('Score')
+    ).toBeInTheDocument()
+
+    // Cards follow the table's sort, so the two views never disagree.
+    fireEvent.click(screen.getByRole('button', { name: 'Sort by Score' }))
+    expect(within(list).getAllByRole('listitem')[0].textContent).toContain(
+      'Beta'
+    )
   })
 
   it('gives BarMeter progressbars an accessible name', () => {
