@@ -21,13 +21,22 @@ name: Dependabot automerge
 # Docker and Gradle PRs are not listed: no required check builds those images or
 # the Android project, so they are reviewed by hand.
 
+# A merge made for auto-merge enabled with GITHUB_TOKEN fires no `push`, so
+# build-clean-image would not publish an image with the update. The hourly
+# `dispatch-image-build` job dispatches it for such a merge (workflow_dispatch is
+# the one event GITHUB_TOKEN may still trigger). The other push workflows on main
+# are gates that already passed on the PR.
+
 on:
   pull_request:
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
 
 permissions: {}
 
 concurrency:
-  group: dependabot-automerge-${{ github.event.pull_request.number }}
+  group: dependabot-automerge-${{ github.event.pull_request.number || 'dispatch' }}
   cancel-in-progress: true
 
 jobs:
@@ -89,3 +98,36 @@ jobs:
 
           gh pr merge --auto --squash "$PR_URL"
           echo "::notice::auto-merge enabled ($kind update in $ECOSYSTEM:$DIRECTORY)"
+
+  dispatch-image-build:
+    name: Build the image for a Dependabot merge
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: write
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Dispatch build-clean-image when main's head is an unbuilt Dependabot merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          head="$(gh api "repos/$REPO/commits/main" --jq .sha)"
+          author="$(gh api "repos/$REPO/commits/$head/pulls" --jq '[.[] | select(.merged_at != null)][0].user.login // empty')"
+          if [ "$author" != 'dependabot[bot]' ]; then
+            echo "main is at ${head:0:8}, not a Dependabot merge; nothing to build"
+            exit 0
+          fi
+
+          runs="$(gh api "repos/$REPO/actions/workflows/build-clean-image.yml/runs?head_sha=$head" --jq .total_count)"
+          if [ "$runs" -gt 0 ]; then
+            echo "build-clean-image already ran for ${head:0:8}"
+            exit 0
+          fi
+
+          gh workflow run build-clean-image.yml --repo "$REPO" --ref main
+          echo "::notice::dispatched build-clean-image for the Dependabot merge ${head:0:8}"
