@@ -746,7 +746,7 @@ const evidence = records({
   }).trim(),
   arch: process.arch,
   runtimeVersions: {
-    node: '22.23.3',
+    node: '22.23.4',
     electron: '44.5.1',
     postgres: '18.6',
     auth: '2.197.0',

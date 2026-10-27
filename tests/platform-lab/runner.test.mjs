@@ -35,7 +35,7 @@ async function setup() {
         osVersion: 'synthetic',
         arch: 'x64',
         classification: 'vm',
-        runtimeVersions: { node: '22.23.3' },
+        runtimeVersions: { node: '22.23.4' },
         installation: 'source'
       },
       labRoot: root,

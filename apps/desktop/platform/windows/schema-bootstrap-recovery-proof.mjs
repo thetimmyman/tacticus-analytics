@@ -203,7 +203,7 @@ export async function windowsSchemaRecoveryProof(
   requireProof(
     process.platform === 'win32' &&
       process.arch === 'x64' &&
-      process.version === 'v22.23.2' &&
+      process.version === 'v22.23.4' &&
       ['interrupted-bootstrap', 'committed-marker-refusal'].includes(
         scenario
       ) &&

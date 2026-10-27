@@ -12,7 +12,7 @@ function Get-VerifiedArchive([string]$Name, [string]$Url, [string]$Digest) {
   return $directory
 }
 $pg = Get-VerifiedArchive 'postgres' 'https://sbp.enterprisedb.com/getfile.jsp?fileid=1260609' 'e2246ba91d22345bc3d017586c09ede52d9df180b1eeb480f050445f1cad84e2'
-$node = Get-VerifiedArchive 'node' 'https://nodejs.org/dist/v22.23.2/node-v22.23.2-win-x64.zip' '1177b4137ba5adaa56354ae40f1080c7450e8ae09cecb47da459d1c52ac99f97'
+$node = Get-VerifiedArchive 'node' 'https://nodejs.org/dist/v22.23.4/node-v22.23.4-win-x64.zip' 'cbc74b5e0982c9dbb41525fd8fb5dcd32fbee237863f7829072f4639a1ce5f20'
 $electron = Get-VerifiedArchive 'electron' 'https://github.com/electron/electron/releases/download/v44.5.1/electron-v44.5.1-win32-x64.zip' '9b382492dcfee91f8f9e92c91f7972550a1b95d2299cac72279dab33a600d7db'
 $rest = Get-VerifiedArchive 'rest' 'https://github.com/PostgREST/postgrest/releases/download/v16.4/postgrest-v16.4-windows-x86-64.zip' '29a5b56e5a09b7168bb552ef14aa7ade40bf0a81dd0687cffa86610187b89d78'
 # Auth does not publish a Windows binary. Build the exact public release source, with module verification.
@@ -59,7 +59,7 @@ dotnet publish apps/desktop/platform/windows/native/WindowsHost.csproj -c Releas
 if ($LASTEXITCODE -ne 0) { throw 'Native host publish failed' }
 $crtPath = & (Join-Path $PSScriptRoot 'crt-runtime.ps1')
 $config = @{
-  output = $Output; application = $application; postgres = (Join-Path $pg 'pgsql'); node = (Join-Path $node 'node-v22.23.2-win-x64/node.exe')
+  output = $Output; application = $application; postgres = (Join-Path $pg 'pgsql'); node = (Join-Path $node 'node-v22.23.4-win-x64/node.exe')
   electron = $electron; auth = $auth; postgrest = (Join-Path $rest 'postgrest.exe'); native = $native; vcRuntime = $crtPath; sourceSha = (git rev-parse HEAD)
 }
 $configPath = Join-Path $work 'stage-config.json'

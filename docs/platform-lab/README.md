@@ -29,7 +29,7 @@ const plan = {
     arch: 'x64',
     classification: 'physical',
     installation: 'existing-install',
-    runtimeVersions: { node: '22.23.2' }
+    runtimeVersions: { node: '22.23.4' }
   },
   labRoot: '/absolute/private/lab',
   fixture: {

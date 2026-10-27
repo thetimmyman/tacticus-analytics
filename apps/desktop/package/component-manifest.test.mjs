@@ -27,7 +27,7 @@ test('buildManifest hashes each component artifact and sorts by component name',
     const manifest = await buildManifest([
       {
         name: 'Node.js',
-        version: '22.23.2',
+        version: '22.23.4',
         license: 'MIT',
         artifact: nodeArtifact
       },
@@ -51,7 +51,7 @@ test('buildManifest rejects a component descriptor missing a required field', as
   await withSyntheticArtifacts(async ({ nodeArtifact }) => {
     await assert.rejects(
       buildManifest([
-        { name: 'Node.js', version: '22.23.2', artifact: nodeArtifact }
+        { name: 'Node.js', version: '22.23.4', artifact: nodeArtifact }
       ]),
       /missing name\/version\/license\/artifact/
     )
@@ -63,7 +63,7 @@ test('diffManifest reports no problems when actual matches expected', async () =
     const manifest = await buildManifest([
       {
         name: 'Node.js',
-        version: '22.23.2',
+        version: '22.23.4',
         license: 'MIT',
         artifact: nodeArtifact
       }
@@ -77,7 +77,7 @@ test('diffManifest flags a version drift, a license drift, and a hash drift', as
     const actual = await buildManifest([
       {
         name: 'Node.js',
-        version: '22.23.2',
+        version: '22.23.4',
         license: 'MIT',
         artifact: nodeArtifact
       }
@@ -111,7 +111,7 @@ test('diffManifest flags a missing component and an unexpected component', async
     const expected = await buildManifest([
       {
         name: 'Node.js',
-        version: '22.23.2',
+        version: '22.23.4',
         license: 'MIT',
         artifact: nodeArtifact
       }

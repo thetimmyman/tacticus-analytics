@@ -574,7 +574,7 @@ async function recoveryFailureFixture(t, failedSubstep, errorMode = 'known') {
     nodeLaunchDiagnostic,
     nativeServicesProbeDiagnostic,
     launchCoordinatorDiagnostic,
-    process: { platform: 'win32', arch: 'x64', version: 'v22.23.2' },
+    process: { platform: 'win32', arch: 'x64', version: 'v22.23.4' },
     Buffer,
     TextDecoder,
     performance,

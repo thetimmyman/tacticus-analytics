@@ -847,7 +847,7 @@ test('receipt retains fixed measured scope and explicit unestablished extension 
     },
     observations,
     runtimes: {
-      node: '22.23.3',
+      node: '22.23.4',
       postgres: '18.6',
       auth: '2.197.0',
       postgrest: '16.4'
@@ -885,7 +885,7 @@ test('receipt refuses incomplete, failed or sensitive observations rather than i
           },
           observations: changed,
           runtimes: {
-            node: '22.23.3',
+            node: '22.23.4',
             postgres: '18.6',
             auth: '2.197.0',
             postgrest: '16.4'
@@ -911,7 +911,7 @@ test('receipt refuses invalid timestamps with the fixed public error', () => {
         },
         observations,
         runtimes: {
-          node: '22.23.3',
+          node: '22.23.4',
           postgres: '18.6',
           auth: '2.197.0',
           postgrest: '16.4'
