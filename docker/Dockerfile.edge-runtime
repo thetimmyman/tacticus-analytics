@@ -5,7 +5,7 @@
 # function source on top of it — the router at supabase/functions/main
 # dispatches by path (see that file's VALID_FUNCTIONS set), so one image
 # serves all 76 functions.
-FROM ghcr.io/supabase/edge-runtime:v1.76.2
+FROM ghcr.io/supabase/edge-runtime:v1.77.8
 
 # Take Debian's security updates for packages already in the upstream image
 # (installing nothing new), so fixed CVEs in the base do not wait on an
