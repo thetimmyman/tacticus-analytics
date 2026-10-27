@@ -25,7 +25,7 @@ jobs:
           dotnet-version: 10.0.401
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 22.23.2
+          node-version: 22.23.4
           package-manager-cache: false
       - name: Build self contained host and exercise native ownership, vault and activation
         shell: pwsh
