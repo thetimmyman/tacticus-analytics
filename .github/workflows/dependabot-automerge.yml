@@ -11,13 +11,11 @@ name: Dependabot automerge
 # job's GITHUB_TOKEN. Runs triggered by Dependabot get a read-only token unless
 # the workflow asks for more, so the job requests exactly what it uses.
 
-# No third-party action: this repository allows only GitHub-owned actions, so
-# the job reads what dependabot/fetch-metadata would itself. The update types
-# come from the metadata block that ends Dependabot's commit message, and every
-# dependency in it must be a semver patch or minor bump. The ecosystem comes from
-# the branch name. The directory is checked against the files the PR changes, so
-# a PR touching anything outside the listed manifests is not merged. Commits by
-# anyone other than Dependabot also leave the PR for review.
+# No third-party action: this repository allows only GitHub-owned actions. The
+# update types come from the metadata block ending Dependabot's commit message
+# (each dependency must be a semver patch or minor bump), the ecosystem from the
+# branch name, and the directory from the files the PR changes. Commits by anyone
+# other than Dependabot leave the PR for review.
 
 # Required checks come from the main ruleset (governance-baseline, CodeQL and
 # fork-pr-block). The guard step refuses to enable auto-merge if that ruleset
