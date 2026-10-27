@@ -11,8 +11,13 @@ name: Dependabot automerge
 # job's GITHUB_TOKEN. Runs triggered by Dependabot get a read-only token unless
 # the workflow asks for more, so the job requests exactly what it uses.
 
-# `directory` and `package-ecosystem` are read from the Dependabot branch name;
-# an unexpected value matches no pattern and the PR is simply not merged.
+# No third-party action: this repository allows only GitHub-owned actions, so
+# the job reads what dependabot/fetch-metadata would itself. The update types
+# come from the metadata block that ends Dependabot's commit message, and every
+# dependency in it must be a semver patch or minor bump. The ecosystem comes from
+# the branch name. The directory is checked against the files the PR changes, so
+# a PR touching anything outside the listed manifests is not merged. Commits by
+# anyone other than Dependabot also leave the PR for review.
 
 # Required checks come from the main ruleset (governance-baseline, CodeQL and
 # fork-pr-block). The guard step refuses to enable auto-merge if that ruleset
@@ -49,41 +54,51 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - name: Read Dependabot metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Enable auto-merge when the PR is eligible
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ github.head_ref }}
           REPO: ${{ github.repository }}
           BASE: ${{ github.event.pull_request.base.ref }}
-          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
-          ECOSYSTEM: ${{ steps.metadata.outputs.package-ecosystem }}
-          DIRECTORY: ${{ steps.metadata.outputs.directory }}
         run: |
           set -euo pipefail
 
+          commits="repos/$REPO/pulls/$PR_NUMBER/commits"
+          foreign="$(gh api --paginate "$commits" --jq '.[] | select(.author.login != "dependabot[bot]") | .sha')"
+
+          # The metadata block is the last `---` ... `...` section of the first commit.
+          metadata="$(gh api "$commits" --jq '.[0].commit.message' |
+            awk '/^---$/ { block = ""; on = 1; next } /^\.\.\.$/ { on = 0 } on { block = block $0 "\n" } END { printf "%s", block }')"
+          deps="$(printf '%s' "$metadata" | grep -c '^- dependency-name: ' || true)"
+          semver="$(printf '%s' "$metadata" | grep -cE '^  update-type: version-update:semver-(patch|minor)$' || true)"
           kind=other
-          case "$UPDATE_TYPE" in
-            version-update:semver-patch | version-update:semver-minor) kind=semver ;;
+          if [ -z "$foreign" ] && [ "$deps" -gt 0 ] && [ "$semver" -eq "$deps" ]; then
+            kind=semver
+          fi
+
+          ecosystem="${HEAD_REF#dependabot/}"
+          ecosystem="${ecosystem%%/*}"
+          case "$ecosystem" in
+            npm_and_yarn) manifests='^package(-lock)?\.json$' ;;
+            github_actions) manifests='^\.github/workflows/[^/]+\.ya?ml$' ;;
+            *) manifests='' ;;
           esac
+          files="$(gh api --paginate "repos/$REPO/pulls/$PR_NUMBER/files" --jq '.[].filename')"
 
           eligible=false
-          case "$kind:$ECOSYSTEM:$DIRECTORY" in
-            semver:npm_and_yarn:/) eligible=true ;;
-            semver:github_actions:/) eligible=true ;;
-          esac
+          if [ "$kind" = semver ] && [ -n "$manifests" ] && [ -n "$files" ] &&
+            ! printf '%s\n' "$files" | grep -qvE "$manifests"; then
+            eligible=true
+          fi
 
           if [ "$eligible" != true ]; then
             # Auto-merge enabled for an earlier head must not outlive a change that is no longer eligible.
             if [ "$(gh pr view "$PR_URL" --json autoMergeRequest --jq '.autoMergeRequest != null')" = true ]; then
               gh pr merge --disable-auto "$PR_URL"
             fi
-            echo "::notice::not eligible for auto-merge (${UPDATE_TYPE:-no semver bump} in $ECOSYSTEM:$DIRECTORY); left for manual review"
+            echo "::notice::not eligible for auto-merge ($semver of $deps dependencies semver patch or minor, ${foreign:+commits not by Dependabot, }$ecosystem, files: $(printf '%s' "$files" | tr '\n' ' ')); left for manual review"
             exit 0
           fi
 
@@ -97,7 +112,7 @@ jobs:
           fi
 
           gh pr merge --auto --squash "$PR_URL"
-          echo "::notice::auto-merge enabled ($kind update in $ECOSYSTEM:$DIRECTORY)"
+          echo "::notice::auto-merge enabled ($deps semver patch or minor updates in $ecosystem)"
 
   dispatch-image-build:
     name: Build the image for a Dependabot merge
