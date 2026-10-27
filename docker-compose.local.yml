@@ -1,6 +1,6 @@
 services:
   nextjs-local:
-    image: node:22-bookworm
+    image: node:26-bookworm
     working_dir: /workspace
     command: sh -ec 'npm ci && npm run dev -- --hostname 0.0.0.0'
     init: true
