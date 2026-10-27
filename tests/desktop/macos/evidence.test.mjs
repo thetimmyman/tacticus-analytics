@@ -9,7 +9,7 @@ test('installed partial measurements cannot qualify consumer install, personal o
     fixtureSha256: 'c'.repeat(64),
     osVersion: '15.0',
     arch: 'arm64',
-    runtimeVersions: { node: '22.23.3' },
+    runtimeVersions: { node: '22.23.4' },
     startedAt: '2026-01-01T00:00:00.000Z',
     completedAt: '2026-01-01T00:00:01.000Z',
     attachments: []

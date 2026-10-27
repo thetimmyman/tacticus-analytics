@@ -439,7 +439,7 @@ export function schemaBootstrapProofReceipt({
   )
   requireProof(
     exactKeys(runtimes, ['node', 'postgres', 'auth', 'postgrest']) &&
-      runtimes.node === '22.23.3' &&
+      runtimes.node === '22.23.4' &&
       runtimes.postgres === '18.6' &&
       runtimes.auth === '2.197.0' &&
       runtimes.postgrest === '16.4'
@@ -898,7 +898,7 @@ async function runActualProof({ admission, output }) {
     requireProof(
       process.platform === 'darwin' &&
         process.arch === binding.architecture &&
-        process.version === 'v22.23.3' &&
+        process.version === 'v22.23.4' &&
         process.getuid() !== 0 &&
         (await realpath(process.execPath)) ===
           (await realpath(join(runtime, 'bin/node')))

@@ -33,7 +33,7 @@ internal static class NodeHelperProof
             var result = JsonSerializer.Deserialize<Result>(input, options) ?? throw new InvalidOperationException("Node helper diagnostic unavailable");
             var modes = new[] { "hidden-pipes", "attached-pipes", "hidden-inherited-input" };
             var operations = new[] { "proof-service-material", "proof-desktop" };
-            if (result.NodeVersion != "v22.23.2" || result.Cases.Length != modes.Length)
+            if (result.NodeVersion != "v22.23.4" || result.Cases.Length != modes.Length)
                 throw new InvalidOperationException("Node helper diagnostic runtime mismatch");
             for (var i = 0; i < modes.Length; i++)
             {

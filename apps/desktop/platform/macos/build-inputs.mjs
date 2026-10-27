@@ -52,10 +52,10 @@ const node = join(output, 'node'),
   postgres = join(output, 'postgres')
 await archive(
   'node.tar.gz',
-  `https://nodejs.org/dist/v22.23.3/node-v22.23.3-darwin-${arch}.tar.gz`,
+  `https://nodejs.org/dist/v22.23.4/node-v22.23.4-darwin-${arch}.tar.gz`,
   arch === 'arm64'
-    ? '23b25245dcfb9af7262f8ff142e9e2e0af025368117329e7a7458a51e5922f53'
-    : '8a677b0219178efd6eb0e475457c4afb452b521a92f6e67845a73bd85727f2a8',
+    ? 'c9e1dbc748b33ed2d14f42445191ecaf14c56259c7a9a26d0042c49ec2b66428'
+    : 'efcc2b0db6f94bf53eddb038fe2b370277a042bd29e4f19b8f8e23598795b819',
   node
 )
 await archive(
@@ -151,7 +151,7 @@ await writeFile(
       platform: 'macos',
       architecture: arch,
       versions: {
-        node: '22.23.3',
+        node: '22.23.4',
         postgres: '18.6',
         auth: '2.197.0',
         postgrest: '16.4',

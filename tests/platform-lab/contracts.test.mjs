@@ -27,7 +27,7 @@ export function evidence(overrides = {}) {
       arch: 'x64',
       classification: 'vm',
       installation: 'source',
-      runtimeVersions: { node: '22.23.3' }
+      runtimeVersions: { node: '22.23.4' }
     },
     fixture: { id: 'synthetic-fixture', sha256: 'c'.repeat(64) },
     scenario: {
