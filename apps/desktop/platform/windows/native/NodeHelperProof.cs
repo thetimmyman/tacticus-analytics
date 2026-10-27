@@ -15,7 +15,7 @@ internal static class NodeHelperProof
     private sealed record Result(string NodeVersion, Case[] Cases);
     public static void Run(string node, string script, string evidence)
     {
-        if (Digest(Path.GetFullPath(node)) != "0d0f5e39f9f3d9587bc19f73eab3c2c9c4903fd02d6dbf9c853dd81b3d95fad4")
+        if (Digest(Path.GetFullPath(node)) != "dccc52de28d8df2ee22d2062424f8c563070d95d8ad70c54c4bf01d590dec14f")
             throw new InvalidOperationException("Node helper diagnostic binary differs from the pinned bundled runtime");
         var timer = Stopwatch.StartNew();
         var root = Path.Combine(Path.GetTempPath(), "Tacticus helper diagnostic ü " + Guid.NewGuid().ToString("N"));
