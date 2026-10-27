@@ -1,0 +1,146 @@
+name: Dependabot automerge
+
+# For Dependabot PRs that are safe to take once CI is green, enable GitHub
+# auto-merge (squash), which merges only after the base branch required status
+# checks pass. Eligible: semver-patch and semver-minor updates, in the ecosystem
+# and directory combinations listed in the `case` below. Majors, and anything
+# not listed, stay open for review (deny by default).
+
+# `pull_request`, not `pull_request_target`: nothing here checks out or runs PR
+# code. The job reads Dependabot's metadata and calls the GitHub API with the
+# job's GITHUB_TOKEN. Runs triggered by Dependabot get a read-only token unless
+# the workflow asks for more, so the job requests exactly what it uses.
+
+# No third-party action: this repository allows only GitHub-owned actions. The
+# update types come from the metadata block ending Dependabot's commit message
+# (each dependency must be a semver patch or minor bump), the ecosystem from the
+# branch name, and the directory from the files the PR changes. Commits by anyone
+# other than Dependabot leave the PR for review.
+
+# Required checks come from the main ruleset (governance-baseline, CodeQL and
+# fork-pr-block). The guard step refuses to enable auto-merge if that ruleset
+# ever stops requiring checks.
+
+# Docker and Gradle PRs are not listed: no required check builds those images or
+# the Android project, so they are reviewed by hand.
+
+# A merge made for auto-merge enabled with GITHUB_TOKEN fires no `push`, so
+# build-clean-image would not publish an image with the update. The hourly
+# `dispatch-image-build` job dispatches it for such a merge (workflow_dispatch is
+# the one event GITHUB_TOKEN may still trigger). The other push workflows on main
+# are gates that already passed on the PR.
+
+on:
+  pull_request:
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: dependabot-automerge-${{ github.event.pull_request.number || 'dispatch' }}
+  cancel-in-progress: true
+
+jobs:
+  automerge:
+    name: Enable auto-merge for eligible Dependabot PRs
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Enable auto-merge when the PR is eligible
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ github.head_ref }}
+          REPO: ${{ github.repository }}
+          BASE: ${{ github.event.pull_request.base.ref }}
+        run: |
+          set -euo pipefail
+
+          commits="repos/$REPO/pulls/$PR_NUMBER/commits"
+          foreign="$(gh api --paginate "$commits" --jq '.[] | select(.author.login != "dependabot[bot]") | .sha')"
+
+          # The metadata block is the last `---` ... `...` section of the first commit.
+          metadata="$(gh api "$commits" --jq '.[0].commit.message' |
+            awk '/^---$/ { block = ""; on = 1; next } /^\.\.\.$/ { on = 0 } on { block = block $0 "\n" } END { printf "%s", block }')"
+          deps="$(printf '%s' "$metadata" | grep -c '^- dependency-name: ' || true)"
+          semver="$(printf '%s' "$metadata" | grep -cE '^  update-type: version-update:semver-(patch|minor)$' || true)"
+          kind=other
+          if [ -z "$foreign" ] && [ "$deps" -gt 0 ] && [ "$semver" -eq "$deps" ]; then
+            kind=semver
+          fi
+
+          ecosystem="${HEAD_REF#dependabot/}"
+          ecosystem="${ecosystem%%/*}"
+          case "$ecosystem" in
+            npm_and_yarn) manifests='^package(-lock)?\.json$' ;;
+            github_actions) manifests='^\.github/workflows/[^/]+\.ya?ml$' ;;
+            *) manifests='' ;;
+          esac
+          files="$(gh api --paginate "repos/$REPO/pulls/$PR_NUMBER/files" --jq '.[].filename')"
+
+          eligible=false
+          if [ "$kind" = semver ] && [ -n "$manifests" ] && [ -n "$files" ] &&
+            ! printf '%s\n' "$files" | grep -qvE "$manifests"; then
+            eligible=true
+          fi
+
+          if [ "$eligible" != true ]; then
+            # Auto-merge enabled for an earlier head must not outlive a change that is no longer eligible.
+            if [ "$(gh pr view "$PR_URL" --json autoMergeRequest --jq '.autoMergeRequest != null')" = true ]; then
+              gh pr merge --disable-auto "$PR_URL"
+            fi
+            echo "::notice::not eligible for auto-merge ($semver of $deps dependencies semver patch or minor, ${foreign:+commits not by Dependabot, }$ecosystem, files: $(printf '%s' "$files" | tr '\n' ' ')); left for manual review"
+            exit 0
+          fi
+
+          # Auto-merge merges immediately when the base branch has no required checks,
+          # so refuse to enable it unless branch protection or a ruleset requires some.
+          classic="$(gh api "repos/$REPO/branches/$BASE" --jq '(.protection.required_status_checks.contexts // []) | length')"
+          ruleset="$(gh api "repos/$REPO/rules/branches/$BASE" --jq '[.[] | select(.type == "required_status_checks")] | length')"
+          if [ "$classic" -eq 0 ] && [ "$ruleset" -eq 0 ]; then
+            echo "::error::$BASE has no required status checks; refusing to enable auto-merge"
+            exit 1
+          fi
+
+          gh pr merge --auto --squash "$PR_URL"
+          echo "::notice::auto-merge enabled ($deps semver patch or minor updates in $ecosystem)"
+
+  dispatch-image-build:
+    name: Build the image for a Dependabot merge
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: write
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Dispatch build-clean-image when main's head is an unbuilt Dependabot merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          head="$(gh api "repos/$REPO/commits/main" --jq .sha)"
+          author="$(gh api "repos/$REPO/commits/$head/pulls" --jq '[.[] | select(.merged_at != null)][0].user.login // empty')"
+          if [ "$author" != 'dependabot[bot]' ]; then
+            echo "main is at ${head:0:8}, not a Dependabot merge; nothing to build"
+            exit 0
+          fi
+
+          runs="$(gh api "repos/$REPO/actions/workflows/build-clean-image.yml/runs?head_sha=$head" --jq .total_count)"
+          if [ "$runs" -gt 0 ]; then
+            echo "build-clean-image already ran for ${head:0:8}"
+            exit 0
+          fi
+
+          gh workflow run build-clean-image.yml --repo "$REPO" --ref main
+          echo "::notice::dispatched build-clean-image for the Dependabot merge ${head:0:8}"
