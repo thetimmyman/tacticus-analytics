@@ -69,6 +69,65 @@ describe('worker-utils', () => {
       })
       expect(result?.payload).toBeNull()
     })
+
+    it('preserves the exact claim generation metadata', () => {
+      const result = parseSyncJob({
+        id: 'job-1',
+        guild_code: 'GUILD01',
+        job_type: 'full_sync',
+        started_at: '2026-10-28T12:00:00.123456+00:00',
+        attempts: 3
+      })
+
+      expect(result).toEqual({
+        id: 'job-1',
+        guild_code: 'GUILD01',
+        job_type: 'full_sync',
+        payload: null,
+        claimStartedAt: '2026-10-28T12:00:00.123456+00:00',
+        claimAttempts: 3
+      })
+    })
+
+    it.each([
+      ['a numeric started_at', { started_at: 123, attempts: 2 }],
+      ['an empty started_at', { started_at: '', attempts: 2 }],
+      [
+        'a fractional attempts value',
+        { started_at: '2026-10-28T12:00:00.123456Z', attempts: 2.5 }
+      ],
+      [
+        'a string attempts value',
+        { started_at: '2026-10-28T12:00:00.123456Z', attempts: '2' }
+      ],
+      ['a missing started_at', { attempts: 2 }],
+      [
+        'a missing attempts value',
+        { started_at: '2026-10-28T12:00:00.123456Z' }
+      ],
+      [
+        'an unclaimed zero attempt',
+        { started_at: '2026-10-28T12:00:00.123456Z', attempts: 0 }
+      ],
+      [
+        'a naive claim timestamp',
+        { started_at: '2026-10-28T12:00:00.123456', attempts: 2 }
+      ],
+      [
+        'an impossible claim date',
+        { started_at: '2026-02-30T12:00:00Z', attempts: 2 }
+      ]
+    ])('omits invalid claim metadata: %s', (_label, metadata) => {
+      const result = parseSyncJob({
+        id: 'job-1',
+        guild_code: 'GUILD01',
+        job_type: 'full_sync',
+        ...metadata
+      })
+
+      expect(result).not.toHaveProperty('claimStartedAt')
+      expect(result).not.toHaveProperty('claimAttempts')
+    })
   })
 
   describe('isSyncJobType', () => {
@@ -269,6 +328,42 @@ describe('worker-utils', () => {
       mockSupabase.rpc.mockResolvedValue(null)
       const result = await callRpc(mockSupabase, 'fn')
       expect(result).toEqual({ data: null, error: null })
+    })
+
+    it('exposes a validated integer HTTP status alongside the ordinary result', async () => {
+      mockSupabase.rpc.mockResolvedValue({
+        data: null,
+        error: { message: 'gateway lost the response' },
+        status: 503,
+        statusText: 'Service Unavailable'
+      })
+
+      const result = await callRpc(mockSupabase, 'fn')
+
+      expect(result).toEqual({
+        data: null,
+        error: { message: 'gateway lost the response' },
+        status: 503
+      })
+    })
+
+    it.each([
+      ['a numeric string', '503'],
+      ['a fractional number', 503.5],
+      ['a below-range number', 99],
+      ['an above-range number', 600],
+      ['zero from a transport abort', 0],
+      ['NaN', Number.NaN]
+    ])('omits an invalid HTTP status: %s', async (_label, status) => {
+      mockSupabase.rpc.mockResolvedValue({
+        data: null,
+        error: { message: 'unknown' },
+        status
+      })
+
+      const result = await callRpc(mockSupabase, 'fn')
+
+      expect(result).toEqual({ data: null, error: { message: 'unknown' } })
     })
   })
 })

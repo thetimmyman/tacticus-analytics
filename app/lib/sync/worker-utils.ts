@@ -7,6 +7,7 @@ import type {
   RpcResult
 } from './worker-types'
 import type { RawRaidEntry, GuildRaidApiResponse } from './transformers'
+import { isClaimTimestamp } from './completion-reconciliation'
 
 /** @deprecated Use requireCronSecret from '@/app/lib/scheduler/require-cron-secret' */
 export { requireCronSecret as requireCronAuthorization } from '@/app/lib/scheduler/require-cron-secret'
@@ -18,7 +19,7 @@ export function parseSyncJob(
     return null
   }
 
-  const { id, guild_code, job_type, payload } = claimedJob
+  const { id, guild_code, job_type, payload, started_at, attempts } = claimedJob
   if (!id || !guild_code || !job_type) {
     return null
   }
@@ -28,11 +29,25 @@ export function parseSyncJob(
     return null
   }
 
+  const claimStartedAt = isClaimTimestamp(started_at) ? started_at : undefined
+  const claimAttempts =
+    typeof attempts === 'number' &&
+    Number.isSafeInteger(attempts) &&
+    attempts >= 1
+      ? attempts
+      : undefined
+  const hasClaimGeneration =
+    claimStartedAt !== undefined && claimAttempts !== undefined
+
   return {
     id,
     guild_code,
     job_type,
-    payload: payload ?? null
+    payload: payload ?? null,
+    ...(hasClaimGeneration && {
+      claimStartedAt,
+      claimAttempts
+    })
   }
 }
 
@@ -133,8 +148,26 @@ export async function callRpc<T>(
     return { data: null, error: null }
   }
 
+  const status = validatedHttpStatus(
+    'status' in result ? (result as { status?: unknown }).status : undefined
+  )
+
   return {
     data: ('data' in result ? result.data : null) as T | null,
-    error: ('error' in result ? result.error : null) as RpcError | null
+    error: ('error' in result ? result.error : null) as RpcError | null,
+    ...(status !== undefined && { status })
   }
+}
+
+/** Only a real HTTP status survives; strings, fractions and transport zeros stay unknown. */
+function validatedHttpStatus(value: unknown): number | undefined {
+  if (
+    typeof value === 'number' &&
+    Number.isInteger(value) &&
+    value >= 100 &&
+    value <= 599
+  ) {
+    return value
+  }
+  return undefined
 }
