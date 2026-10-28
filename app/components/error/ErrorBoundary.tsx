@@ -9,6 +9,7 @@ import { AlertTriangle, RefreshCcw, Home, Bug } from 'lucide-react'
 import { Button } from '@tacticus/ui-kit'
 import { authConfig } from '@/app/lib/auth/config'
 import { captureSentryException } from '@/app/lib/monitoring/sentry'
+import { browserRenderErrorTags } from '@/app/lib/monitoring/browser-render-error'
 import { generateId } from '@/app/lib/utils/id-generation'
 import { resolveChunkReloadOutcome } from '@/app/lib/client/chunk-reload'
 
@@ -99,7 +100,11 @@ export class ErrorBoundary extends Component<Props, State> {
         // App-wide tag so deploy churn groups consistently.
         ...(chunkReloadOutcome === 'suppressed'
           ? { chunk_reload: 'suppressed' }
-          : {})
+          : {}),
+        ...browserRenderErrorTags(
+          error,
+          typeof window !== 'undefined' ? window.location.pathname : undefined
+        )
       },
       extra: {
         errorId: this.state.errorId,
