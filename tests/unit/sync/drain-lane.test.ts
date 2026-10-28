@@ -24,6 +24,8 @@ type ClaimRow = {
   guild_code: string
   job_type: string
   payload: null
+  started_at?: string
+  attempts?: number
 }
 
 function job(id: string): ClaimRow {
@@ -88,6 +90,37 @@ describe('drain lanes', () => {
       expect(laneWorkerId('w-1-abc', 0)).toBe('w-1-abc-l0')
       expect(laneWorkerId('w-1-abc', 1)).toBe('w-1-abc-l1')
       expect(laneWorkerId('w-1-abc', 0)).not.toBe(laneWorkerId('w-1-abc', 1))
+    })
+
+    it('hands the claimed generation and lane deadline to the job processor', async () => {
+      const { client } = makeClient([
+        {
+          ...job('a'),
+          started_at: '2026-10-28T12:00:00.123456+00:00',
+          attempts: 4
+        }
+      ])
+
+      await runDrainLane({
+        supabase: client,
+        laneIndex: 0,
+        laneWorkerId: 'w-run-l0',
+        startTime: 1000,
+        budgetMs: 45000,
+        tailReserveMs: 5000,
+        now: () => 1000
+      })
+
+      expect(processJob).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'a',
+          claimStartedAt: '2026-10-28T12:00:00.123456+00:00',
+          claimAttempts: 4,
+          reconciliationDeadlineMs: 41000
+        }),
+        client,
+        'w-run-l0'
+      )
     })
 
     it('claims under the lane worker_id, not the run worker_id', async () => {

@@ -4,6 +4,7 @@ import { createComponentLogger } from '@/app/lib/logging'
 import { rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { captureSentryException } from '@/app/lib/monitoring/sentry'
 import { callRpc } from './worker-utils'
+import { readCompletedAttempt } from './completion-reconciliation'
 import { currentProviderMetrics } from '@/app/lib/network/provider-metrics'
 import {
   TacticusApiError,
@@ -53,35 +54,60 @@ export async function completeSyncJob(
   workerId: string,
   result: WorkerResult
 ) {
-  const { data, error } = await callRpc<boolean>(supabase, 'complete_job', {
-    p_job_id: job.id,
-    p_worker_id: workerId,
-    p_progress: {
-      records_processed: result.recordsProcessed,
-      players_updated: result.playersUpdated,
-      ...(result.errors.length > 0 && {
-        batch_errors: result.errors.slice(0, 10)
-      }),
-      ...(result.phaseMs !== undefined && { phase_ms: result.phaseMs }),
-      ...(result.syncPath !== undefined && { sync_path: result.syncPath }),
-      ...(result.snapshotEntries !== undefined && {
-        snapshot_entries: result.snapshotEntries
-      }),
-      ...(result.storedKeys !== undefined && {
-        stored_keys: result.storedKeys
-      }),
-      ...(result.newEntries !== undefined && { new_entries: result.newEntries })
-    },
-    p_metrics: {
-      records_processed: result.recordsProcessed,
-      players_updated: result.playersUpdated,
-      ...(currentProviderMetrics() ?? {})
+  const { data, error, status } = await callRpc<boolean>(
+    supabase,
+    'complete_job',
+    {
+      p_job_id: job.id,
+      p_worker_id: workerId,
+      p_progress: {
+        records_processed: result.recordsProcessed,
+        players_updated: result.playersUpdated,
+        ...(result.errors.length > 0 && {
+          batch_errors: result.errors.slice(0, 10)
+        }),
+        ...(result.phaseMs !== undefined && { phase_ms: result.phaseMs }),
+        ...(result.syncPath !== undefined && { sync_path: result.syncPath }),
+        ...(result.snapshotEntries !== undefined && {
+          snapshot_entries: result.snapshotEntries
+        }),
+        ...(result.storedKeys !== undefined && {
+          stored_keys: result.storedKeys
+        }),
+        ...(result.newEntries !== undefined && {
+          new_entries: result.newEntries
+        })
+      },
+      p_metrics: {
+        records_processed: result.recordsProcessed,
+        players_updated: result.playersUpdated,
+        ...(currentProviderMetrics() ?? {})
+      }
     }
-  })
+  )
   if (error) {
-    throw new Error(
+    const originalError = new Error(
       `Failed to mark job complete: ${error.message ?? 'Unknown error'}`
     )
+    // complete_job has no generation predicate, so it is never retried. A lost
+    // gateway response can only be proven by reading the already-committed row.
+    if (data !== true) {
+      const completedAt = await readCompletedAttempt({
+        job,
+        supabase,
+        workerId,
+        status
+      })
+      if (completedAt !== null) {
+        result.success = true
+        await advanceReconciledSuccessClock(job, supabase, result, completedAt)
+        logger.info(
+          `[Worker ${workerId}] Job ${job.id} completed after a lost completion response`
+        )
+        return
+      }
+    }
+    throw originalError
   }
   if (data !== true) {
     throw new Error('Job completion refused: worker claim is no longer active')
@@ -105,11 +131,7 @@ async function advanceSuccessClock(
   supabase: ServiceSupabaseClient,
   result: WorkerResult
 ): Promise<void> {
-  if (
-    !RAID_INGEST_JOB_TYPES.has(job.job_type) ||
-    result.raidDataLanded !== true ||
-    result.upsertFailures > 0
-  ) {
+  if (!shouldAdvanceSuccessClock(job, result)) {
     return
   }
   const { error } = await supabase
@@ -122,6 +144,68 @@ async function advanceSuccessClock(
       'Failed to advance last_successful_sync after a clean worker sync'
     )
   }
+}
+
+/**
+ * A reconciled completion uses the committed `completed_at` at full database
+ * precision. The conditional update makes the write atomic with respect to a
+ * newer clock value written by another attempt.
+ */
+async function advanceReconciledSuccessClock(
+  job: SyncJob,
+  supabase: ServiceSupabaseClient,
+  result: WorkerResult,
+  completedAt: string
+): Promise<void> {
+  if (!shouldAdvanceSuccessClock(job, result)) {
+    return
+  }
+  const deadline = job.reconciliationDeadlineMs
+  if (
+    typeof deadline !== 'number' ||
+    !Number.isFinite(deadline) ||
+    deadline <= Date.now()
+  ) {
+    return
+  }
+  const controller = new AbortController()
+  const timer = setTimeout(
+    () => controller.abort(),
+    Math.max(1, Math.min(1500, Math.floor(deadline - Date.now())))
+  )
+  try {
+    if (Date.now() >= deadline) return
+    const { error } = await supabase
+      .from('guild_config')
+      .update({ last_successful_sync: completedAt })
+      .eq('guild_code', job.guild_code)
+      .abortSignal(controller.signal)
+      .or(`last_successful_sync.is.null,last_successful_sync.lt.${completedAt}`)
+    if (error) {
+      logger.warn(
+        { jobId: job.id, guildCode: job.guild_code, err: error },
+        'Failed to advance last_successful_sync after a reconciled worker sync'
+      )
+    }
+  } catch (error) {
+    logger.warn(
+      { jobId: job.id, guildCode: job.guild_code, err: error },
+      'Failed to advance last_successful_sync after a reconciled worker sync'
+    )
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+function shouldAdvanceSuccessClock(
+  job: SyncJob,
+  result: WorkerResult
+): boolean {
+  return (
+    RAID_INGEST_JOB_TYPES.has(job.job_type) &&
+    result.raidDataLanded === true &&
+    !(result.upsertFailures > 0)
+  )
 }
 
 // Gateway throttling also returns 403, so 401/403 invalidate only after 3

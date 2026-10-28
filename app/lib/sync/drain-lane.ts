@@ -120,6 +120,9 @@ export async function runDrainLane(
       break
     }
 
+    // Completion reconciliation must finish inside the lane window, not after it.
+    typedJob.reconciliationDeadlineMs = startTime + window
+
     if (guildsInFlight.has(typedJob.guild_code)) {
       try {
         await deferSyncJob(typedJob, supabase, workerIdForLane, {

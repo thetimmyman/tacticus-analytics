@@ -78,6 +78,12 @@ export interface SyncJob {
   guild_code: string
   job_type: SyncJobType
   payload?: Record<string, unknown> | null
+  /** Raw started_at from the claim that authorized this attempt; exact string is the generation. */
+  claimStartedAt?: string
+  /** attempts value from that same claim. */
+  claimAttempts?: number
+  /** Epoch ms by which a completion-reconciliation read must finish. */
+  reconciliationDeadlineMs?: number
 }
 
 export interface GuildApiMember {
@@ -90,6 +96,8 @@ export interface SyncQueueClaimRow {
   guild_code?: string | null
   job_type?: string | null
   payload?: Record<string, unknown> | null
+  started_at?: unknown
+  attempts?: unknown
 }
 
 export interface RpcError {
@@ -99,6 +107,8 @@ export interface RpcError {
 export interface RpcResult<T> {
   data: T | null
   error: RpcError | null
+  /** Raw PostgREST HTTP status when the SDK supplied a valid one. */
+  status?: number
 }
 
 export interface BattleValidationRow {
