@@ -112,6 +112,8 @@ transfer_roster_confirmed_players.sql # 16
 raid_rows_follow_guild_cluster.sql # 11
 outbound_kill_switch_row.sql # 21
 
+monitoring_observation_retirement.sql # 110
+
 # === DARK ===
 # cluster_rankings_refresh_throttle.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
 # cron_secret_delivery_general.sql # SHORT -- pgTAP is installed WITH SCHEMA extensions and this suite does not qualify or set search_path for it
@@ -161,6 +163,4 @@ outbound_kill_switch_row.sql # 21
 # war_defense_stats.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
 # capture_truth_war_rpcs.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
 # capture_truth_tail.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply
-# storage_object_authorization.sql # ALL-SKIP -- every assertion skips: gated on ledger version 20260901220000, which this lane cannot apply 
-
-monitoring_observation_retirement.sql # 110
+# storage_object_authorization.sql # ALL-SKIP -- every assertion skips: gated on ledger version 20260901220000, which this lane cannot apply
