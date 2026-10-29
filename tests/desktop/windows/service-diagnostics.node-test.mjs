@@ -920,6 +920,10 @@ test('published owned fault retains the original fault identity and text behavio
 
 for (const [message, category] of [
   [
+    'postgrest.exe: getMBlocks: VirtualAlloc MEM_COMMIT failed\r\nsynthetic-private-detail',
+    'runtime-memory-commit-failed'
+  ],
+  [
     'postgrest.exe: failed to create OS thread: synthetic-private-detail',
     'runtime-thread-creation-failed'
   ],

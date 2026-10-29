@@ -111,6 +111,10 @@ export function serviceFailureCode(text) {
   }
   for (const [pattern, code] of [
     [
+      /(?:^|\r?\n)(?:[A-Za-z0-9_.-]+: )?getMBlocks: VirtualAlloc MEM_COMMIT failed\b/i,
+      'runtime-memory-commit-failed'
+    ],
+    [
       /(?:^|\r?\n)(?:[A-Za-z0-9_.-]+: )?failed to create OS thread\b/i,
       'runtime-thread-creation-failed'
     ],

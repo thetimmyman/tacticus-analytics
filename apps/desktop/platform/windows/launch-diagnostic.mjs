@@ -32,6 +32,7 @@ export const nodeLaunchFailureCategories = Object.freeze([
 // This publication boundary deliberately excludes parameterized PostgreSQL
 // status and encoding labels. Only exact, finite values can enter CI evidence.
 export const serviceFailureCodes = Object.freeze([
+  'runtime-memory-commit-failed',
   'runtime-thread-creation-failed',
   'runtime-assertion-failed',
   'administrative-token-refused',
