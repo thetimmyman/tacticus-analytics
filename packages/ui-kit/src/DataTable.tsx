@@ -362,7 +362,7 @@ export function DataTable<Row, Key extends string = string>({
                     alignClass[col.align ?? 'left'],
                     stickyFirstColumn &&
                       colIndex === 0 &&
-                      'sticky left-0 z-10 bg-(--bg-secondary)',
+                      'sticky left-0 z-10 bg-(--dropdown-bg-solid)',
                     col.headerClassName,
                     col.className
                   )}
