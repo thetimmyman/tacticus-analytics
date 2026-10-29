@@ -111,6 +111,14 @@ export function serviceFailureCode(text) {
   }
   for (const [pattern, code] of [
     [
+      /(?:^|\r?\n)(?:[A-Za-z0-9_.-]+: )?failed to create OS thread\b/i,
+      'runtime-thread-creation-failed'
+    ],
+    [
+      /(?:^|\r?\n)(?:[A-Za-z0-9_.-]+: )?assertion failed\b/i,
+      'runtime-assertion-failed'
+    ],
+    [
       /administrative permissions.*not\s+permitted/is,
       'administrative-token-refused'
     ],

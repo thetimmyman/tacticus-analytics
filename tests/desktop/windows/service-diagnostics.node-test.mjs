@@ -917,3 +917,23 @@ test('published owned fault retains the original fault identity and text behavio
   assert.match(fault.message, /pgrst-PGRST002/)
   assert.equal(fault.message.includes('synthetic-private'), false)
 })
+
+for (const [message, category] of [
+  [
+    'postgrest.exe: failed to create OS thread: synthetic-private-detail',
+    'runtime-thread-creation-failed'
+  ],
+  [
+    'ASSERTION FAILED: file synthetic-private/source.c, line 17',
+    'runtime-assertion-failed'
+  ]
+]) {
+  test(`native runtime startup reports ${category} without its private detail`, () => {
+    const process = child()
+    const diagnostic = serviceStartupDiagnostic(process)
+    process.stderr.write(message)
+    const observed = diagnostic()
+    assert.equal(diagnostic.snapshot().serviceFailureCode, category)
+    assert.equal(observed.includes('synthetic-private'), false)
+  })
+}
