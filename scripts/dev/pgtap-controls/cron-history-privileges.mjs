@@ -6,7 +6,7 @@ import { setTimeout } from 'node:timers/promises'
 
 // Registry index digest, including PostgreSQL 17.4 and pg_cron extension 1.6.
 const image =
-  'public.ecr.aws/supabase/postgres@sha256:d2876f04b74270999881ee26922b145a697b748c109e2d300b5c0a5b156250c7'
+  'docker.io/supabase/postgres@sha256:d2876f04b74270999881ee26922b145a697b748c109e2d300b5c0a5b156250c7'
 const read = (path) =>
   readFileSync(new URL(`../../../${path}`, import.meta.url), 'utf8')
 const migration = process.argv[2]
