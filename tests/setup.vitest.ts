@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/vitest'
 
 loadEnv({ path: '.env.local', override: false })
 loadEnv({ path: '.env', override: false })
-process.env.NODE_ENV = 'test'
+vi.stubEnv('NODE_ENV', 'test')
 const DEFAULT_TEST_ANON_KEY = ''
 const DEFAULT_TEST_SERVICE_ROLE_KEY = ''
 const DEFAULT_TEST_ENCRYPTION_KEY = 'test-encryption-key'
@@ -144,7 +144,7 @@ const installTestLocalStorage = () => {
 }
 
 beforeAll(() => {
-  process.env.NODE_ENV = 'test'
+  vi.stubEnv('NODE_ENV', 'test')
 
   process.env.NEXT_PUBLIC_SUPABASE_URL ||=
     process.env.SUPABASE_URL || 'http://localhost:54321'

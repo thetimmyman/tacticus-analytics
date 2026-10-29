@@ -19,7 +19,15 @@ describe('app/error.tsx route boundary', () => {
     render(<RouteError error={err} reset={() => {}} />)
 
     await waitFor(() =>
-      expect(captureSentryException).toHaveBeenCalledWith(err)
+      expect(captureSentryException).toHaveBeenCalledWith(
+        err,
+        expect.objectContaining({
+          tags: expect.objectContaining({
+            component: 'app-error',
+            source: 'react.error-boundary'
+          })
+        })
+      )
     )
     expect(screen.getByText(/abc123def/)).toBeInTheDocument()
   })

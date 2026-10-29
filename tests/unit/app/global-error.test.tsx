@@ -38,7 +38,15 @@ describe('GlobalError (chunk-reload wiring)', () => {
       )
     ).toBeInTheDocument()
     expect(handleChunkLoadError).toHaveBeenCalledWith(error)
-    expect(captureSentryException).toHaveBeenCalledWith(error)
+    expect(captureSentryException).toHaveBeenCalledWith(
+      error,
+      expect.objectContaining({
+        tags: expect.objectContaining({
+          component: 'app-global-error',
+          source: 'react.error-boundary'
+        })
+      })
+    )
     expect(captureSentryException).toHaveBeenCalledTimes(1)
   })
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { captureSentryException } from '@/app/lib/monitoring/sentry'
+import { browserRenderErrorTags } from '@/app/lib/monitoring/browser-render-error'
 import {
   handleChunkLoadError,
   isChunkLoadError,
@@ -26,7 +27,15 @@ export default function GlobalError({
     setOutcome(result)
     // Report only errors handleChunkLoadError did not already report.
     if (result === 'ignored') {
-      captureSentryException(error)
+      captureSentryException(error, {
+        tags: {
+          component: 'app-global-error',
+          ...browserRenderErrorTags(
+            error,
+            typeof window !== 'undefined' ? window.location.pathname : undefined
+          )
+        }
+      })
     }
   }, [error])
 
