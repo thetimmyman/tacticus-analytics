@@ -45,6 +45,7 @@ export function MobileTabBar({
       aria-label="Primary"
       data-app-chrome
       data-testid="mobile-tab-bar"
+      data-mobile-navigation
       className="safe-x safe-bottom lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-(--card-border) bg-(--dropdown-bg-solid)"
     >
       <ul className="flex items-stretch justify-around">

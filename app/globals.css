@@ -499,6 +499,7 @@
   /* Default theme variables (Dark) - fallback for when ThemeProvider hasn't loaded */
   :root {
     --mobile-navigation-height: 4rem;
+    --mobile-navigation-offset: env(safe-area-inset-bottom);
     --primary: #60a5fa;
     --secondary: #3b82f6;
     --accent: #93c5fd;
@@ -601,6 +602,14 @@
 
     /* Ensure dark background even before JS loads */
     background-color: #0f172a;
+  }
+
+  @media (max-width: 1023px) {
+    :root:has([data-mobile-navigation]) {
+      --mobile-navigation-offset: calc(
+        var(--mobile-navigation-height) + env(safe-area-inset-bottom)
+      );
+    }
   }
 
   /* Accessibility — honor prefers-reduced-motion globally.

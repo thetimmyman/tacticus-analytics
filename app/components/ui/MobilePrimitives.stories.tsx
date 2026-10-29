@@ -1,6 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useRef, useState } from 'react'
 import { DataTable, type DataTableColumn } from '@tacticus/ui-kit'
+import { ToastProvider } from '@/app/hooks/useToast'
+import { SyncStatusPanel } from './SyncStatusPanel'
+import {
+  CORNER_STACK_PILL_SLOT_CLASS,
+  CORNER_STACK_MOBILE_CLEARANCE_CLASS,
+  CORNER_STACK_INLINE_CLEARANCE_CLASS,
+  CORNER_STACK_ROOMY_INLINE_CLEARANCE_CLASS,
+  CORNER_STACK_RIGHT_GUTTER_CLASS
+} from './corner-stack'
 import PerformanceTable from '@/app/(dashboard)/wars/_components/PerformanceTable'
 import { MobileTabBar } from '../navigation/MobileTabBar'
 import { workspaces } from '../navigation/workspaces'
@@ -316,4 +325,98 @@ export const UnitPerformanceComparison: Story = {
       />
     </div>
   )
+}
+
+function ExampleCornerStack({
+  roomy,
+  navigation
+}: {
+  roomy: boolean
+  navigation: boolean
+}) {
+  const [saved, setSaved] = useState(false)
+  return (
+    <ToastProvider>
+      <div className="safe-x">
+        <div className="p-4 mobile-page-bottom-reserve">
+          <h1>Example page with auxiliary controls</h1>
+          {Array.from({ length: 12 }, (_, index) => (
+            <p key={index} className="py-5">
+              Example record {index + 1}
+            </p>
+          ))}
+          <div
+            role="region"
+            aria-label="Example page actions"
+            className={`sticky ${CORNER_STACK_MOBILE_CLEARANCE_CLASS} ${roomy ? CORNER_STACK_ROOMY_INLINE_CLEARANCE_CLASS : CORNER_STACK_INLINE_CLEARANCE_CLASS} ${CORNER_STACK_RIGHT_GUTTER_CLASS}`}
+          >
+            <button
+              type="button"
+              className="min-h-11 rounded border px-3"
+              onClick={() => setSaved(true)}
+            >
+              {saved ? 'Example saved' : 'Save example'}
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        className={CORNER_STACK_PILL_SLOT_CLASS}
+        data-testid="example-operational-slot"
+      >
+        <span className="block rounded border bg-(--dropdown-bg-solid) p-2 text-xs">
+          Example source unknown
+        </span>
+      </div>
+      <SyncStatusPanel />
+      {navigation && (
+        <MobileTabBar workspaces={workspaces} currentSeason="112" />
+      )}
+    </ToastProvider>
+  )
+}
+
+export const CornerStack: StoryObj<typeof ExampleCornerStack> = {
+  args: { roomy: false, navigation: true },
+  render: (args) => (
+    <ExampleCornerStack
+      roomy={Boolean(args.roomy)}
+      navigation={args.navigation !== false}
+    />
+  )
+}
+
+function InteractiveCardActions() {
+  const [reviewed, setReviewed] = useState<string | null>(null)
+  return (
+    <div className="mx-auto max-w-[640px] p-4">
+      <DataTable
+        rows={rows}
+        columns={[
+          ...columns,
+          {
+            key: 'actions',
+            header: '',
+            sortable: false,
+            render: (row) => (
+              <button
+                type="button"
+                className="min-h-11 rounded border px-3"
+                onClick={() => setReviewed(row.name)}
+              >
+                Review record
+              </button>
+            )
+          }
+        ]}
+        rowKey={(row) => row.name}
+        mobileCard="auto"
+      />
+      <p role="status">{reviewed ? `Reviewing ${reviewed}` : ''}</p>
+    </div>
+  )
+}
+
+export const TableWithUnlabeledActions: Story = {
+  render: () => <InteractiveCardActions />
 }

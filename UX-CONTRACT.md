@@ -42,9 +42,14 @@ controls keep their existing owners and are outside this change.
 - Bottom tabs carry the current season like the existing menu links.
 - The current workspace has a text label and `aria-current` state.
 - An unavailable destination is removed by the shared visibility owner.
-- A linked card does not nest action controls inside its link.
+- A linked card does not nest action controls inside its link. Unlabeled table
+  columns retain their controls after card fields; an empty heading is not a
+  reason to remove an action.
 - Page actions and destructive confirmations stay with their existing owners.
 - Changing the phone representation must not lose a detail link or callback.
+- The shared corner stack clears the visible phone navigation and gesture area.
+  Its status, manual-sync control and existing sticky-page clearances keep their
+  desktop spacing; narrow landscape controls also respect the right safe area.
 
 ## Filters
 

@@ -217,9 +217,9 @@ export function DataTable<Row, Key extends string = string>({
         'DataTable: automatic mobile cards require at least one column.'
       )
     }
-    // A column with no label cannot name a value; bar/spacer columns belong to
-    // the table view only.
+    // Unlabeled cells may contain actions, so retain them outside the field list.
     const fields = rest.filter((col) => col.header !== '')
+    const actions = rest.filter((col) => col.header === '')
     return (
       <>
         <div className="text-sm font-semibold break-words">
@@ -243,6 +243,13 @@ export function DataTable<Row, Key extends string = string>({
               </Fragment>
             ))}
           </dl>
+        )}
+        {actions.length > 0 && (
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            {actions.map((col) => (
+              <Fragment key={col.key}>{col.render(row)}</Fragment>
+            ))}
+          </div>
         )}
       </>
     )

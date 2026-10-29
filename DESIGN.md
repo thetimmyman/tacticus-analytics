@@ -98,7 +98,10 @@ workspace definitions.
 Its height accommodates complete labels without shrinking the text. Content bottom reserve
 and a sticky page-action bar reference that same token and add the safe-area
 inset. A phone viewport must not place the last record or an action underneath
-the navigation bar. Desktop pages keep their existing document scrolling.
+the navigation bar. The shared corner-stack owner uses the same visible navigation
+offset for auxiliary sync/status controls and sticky page actions. Without phone
+navigation it reserves only the safe-area inset. Desktop pages keep their existing
+document scrolling.
 
 Use cards where a report is read one record at a time. Preserve labelled,
 contained horizontal tables for numeric matrices that require comparison. A
@@ -125,6 +128,7 @@ row is 64px high before the safe-area inset.
 | Phone chrome                       | `MobileNav`, `MobileTabBar`                                        |
 | Record cards and page actions      | `MobileCardList`, `MobileActionBar`                                |
 | Sorting and responsive table rows  | `packages/ui-kit/src/DataTable.tsx`                                |
+| Auxiliary sync/status geometry     | `app/components/ui/corner-stack.ts`                                |
 | Filter disclosure                  | `app/components/ui/FilterBar.tsx`                                  |
 | Dialog confirmation                | Existing shared `ConfirmDialog` and page action owner              |
 

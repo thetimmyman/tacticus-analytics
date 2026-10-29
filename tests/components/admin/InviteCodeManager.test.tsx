@@ -119,4 +119,30 @@ describe('InviteCodeManager DataTable migration', () => {
     expect(within(row!).queryByRole('button')).not.toBeInTheDocument()
     expect(within(row!).getByText('Used')).toBeInTheDocument()
   })
+  it('keeps mobile invite revocation behind its existing confirmation', async () => {
+    const confirm = vi.fn().mockReturnValueOnce(false).mockReturnValueOnce(true)
+    vi.stubGlobal('confirm', confirm)
+    render(<InviteCodeManager />)
+    fireEvent.click(
+      await screen.findByRole('button', { name: /select a guild/i })
+    )
+    fireEvent.click(await screen.findByText('Guild One'))
+    const cards = await screen.findByTestId('datatable-mobile-cards')
+    const revoke = within(cards).getByRole('button', {
+      name: 'Revoke invite code'
+    })
+    fireEvent.click(revoke)
+    expect(confirm).toHaveBeenCalledWith('Revoke this invite code?')
+    expect(fetch).not.toHaveBeenCalledWith(
+      '/api/admin/invite-codes?id=code-1',
+      expect.objectContaining({ method: 'DELETE' })
+    )
+    fireEvent.click(revoke)
+    await waitFor(() =>
+      expect(fetch).toHaveBeenCalledWith('/api/admin/invite-codes?id=code-1', {
+        method: 'DELETE'
+      })
+    )
+    expect(await screen.findByText('Code revoked')).toBeInTheDocument()
+  })
 })

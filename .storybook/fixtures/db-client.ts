@@ -8,7 +8,11 @@ import type { Database } from '@tacticus/app-core/types'
 
 function scene() {
   const id = new URLSearchParams(window.location.search).get('id') ?? ''
-  if (!id.startsWith('navigation-mobile-nav--')) return null
+  if (
+    !id.startsWith('navigation-mobile-nav--') &&
+    id !== 'ui-mobile-primitives--corner-stack'
+  )
+    return null
   const inactive = id.endsWith('--inactive-account')
   const role = id.endsWith('--officer') ? 'officer' : 'member'
   return {
