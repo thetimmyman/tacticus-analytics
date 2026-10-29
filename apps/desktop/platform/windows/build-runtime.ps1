@@ -34,8 +34,14 @@ try {
   git apply $patch
   if ($LASTEXITCODE -ne 0) { throw 'Auth socket adaptation failed' }
   $env:CGO_ENABLED = '0'; $env:GOOS = 'windows'; $env:GOARCH = 'amd64'
-  go mod download
-  if ($LASTEXITCODE -ne 0) { throw 'Auth dependency download failed' }
+  # A proxy stream can fail after some modules have arrived. Retry downloads
+  # only; checksum verification and compilation still fail immediately.
+  for ($downloadAttempt = 1; $downloadAttempt -le 3; $downloadAttempt++) {
+    go mod download
+    if ($LASTEXITCODE -eq 0) { break }
+    if ($downloadAttempt -eq 3) { throw 'Auth dependency download failed after three attempts' }
+    Start-Sleep -Seconds (2 * $downloadAttempt)
+  }
   go mod verify
   if ($LASTEXITCODE -ne 0) { throw 'Auth dependency verification failed' }
   go build -trimpath -buildvcs=false -ldflags '-X github.com/supabase/auth/internal/utilities.Version=v2.197.0+windows.1' -o (Join-Path $auth 'auth.exe') .
