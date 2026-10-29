@@ -146,6 +146,7 @@ export default function WarRoomAnalytics({
           />
         ) : (
           <DataTable
+            mobileCard="auto"
             rows={rows}
             columns={columns}
             rowKey={(row) => row.unitId}

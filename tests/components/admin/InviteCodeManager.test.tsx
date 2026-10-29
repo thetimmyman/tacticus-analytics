@@ -110,7 +110,10 @@ describe('InviteCodeManager DataTable migration', () => {
     )
     fireEvent.click(await screen.findByText('Guild One'))
 
-    const redacted = await screen.findByText('Redacted')
+    // Both the card list and the table carry the label; the test asserts on the table row.
+    const redacted = (await screen.findAllByText('Redacted')).find((el) =>
+      el.closest('tr')
+    )!
     const row = redacted.closest('tr')
     expect(row).not.toBeNull()
     expect(within(row!).queryByRole('button')).not.toBeInTheDocument()

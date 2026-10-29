@@ -1,6 +1,13 @@
 'use client'
 
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import {
+  Fragment,
+  useEffect,
+  useId,
+  useMemo,
+  useState,
+  type ReactNode
+} from 'react'
 import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react'
 import clsx from 'clsx'
 import { EmptyState } from './EmptyState'
@@ -44,6 +51,14 @@ interface DataTableBaseProps<Row, Key extends string> {
    */
   rowClassName?: (row: Row) => string | undefined
   empty?: ReactNode
+  /**
+   * Cards replace the table below `lg`; numeric comparison matrices stay tables.
+   * Both views use the same resolved rows and sort state.
+   * 'auto' uses the first column as title and the remaining label/value pairs.
+   * Automatic cards require a column; a custom renderer owns its content and
+   * may use no table columns.
+   */
+  mobileCard?: 'auto' | ((row: Row) => ReactNode)
   className?: string
   tableClassName?: string
   density?: 'default' | 'compact'
@@ -95,6 +110,7 @@ export function DataTable<Row, Key extends string = string>({
   onRowClick,
   rowClassName,
   empty,
+  mobileCard,
   className,
   tableClassName,
   density = 'default'
@@ -105,6 +121,8 @@ export function DataTable<Row, Key extends string = string>({
   const [internalDirection, setInternalDirection] = useState<SortDirection>(
     defaultSort?.direction ?? 'desc'
   )
+
+  const mobileSortId = useId()
 
   const isControlled = sort !== undefined
   const requestedSortKey = isControlled ? sort.key : internalSortKey
@@ -190,12 +208,149 @@ export function DataTable<Row, Key extends string = string>({
       : `Sort ${headerText} ascending`
   }
 
+  // Builds a card from column metadata: first column is the title, the rest are
+  // label/value pairs. Callers that need a different row shape pass a function.
+  const autoCard = (row: Row) => {
+    const [title, ...rest] = columns
+    if (!title) {
+      throw new Error(
+        'DataTable: automatic mobile cards require at least one column.'
+      )
+    }
+    // A column with no label cannot name a value; bar/spacer columns belong to
+    // the table view only.
+    const fields = rest.filter((col) => col.header !== '')
+    return (
+      <>
+        <div className="text-sm font-semibold break-words">
+          {title.render(row)}
+        </div>
+        {fields.length > 0 && (
+          <dl className="mt-1 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-xs">
+            {fields.map((col) => (
+              <Fragment key={col.key}>
+                <dt className="text-secondary-wh40k" title={col.headerTitle}>
+                  {col.header}
+                </dt>
+                <dd
+                  className={clsx(
+                    'min-w-0 break-words',
+                    col.align === 'right' && 'text-right'
+                  )}
+                >
+                  {col.render(row)}
+                </dd>
+              </Fragment>
+            ))}
+          </dl>
+        )}
+      </>
+    )
+  }
+
+  let mobileList: ReactNode = null
+  if (mobileCard) {
+    const renderCard = typeof mobileCard === 'function' ? mobileCard : autoCard
+    mobileList =
+      sorted.length === 0 ? (
+        (empty ?? <EmptyState size="md" title="No data available." />)
+      ) : (
+        <ul className="space-y-2">
+          {sorted.map((row) => (
+            <li
+              key={rowKey(row)}
+              className="rounded-lg border border-(--card-border) bg-(--card-bg) p-3"
+            >
+              {renderCard(row)}
+            </li>
+          ))}
+        </ul>
+      )
+  }
+
+  const sortableColumns = columns.filter((col) => col.sortable !== false)
+  // A wide table that stays a table on a phone scrolls sideways, so the first
+  // column stays pinned to keep each row identifiable while it scrolls.
+  const stickyFirstColumn = !mobileCard && columns.length >= 5
+
   return (
-    <div className={clsx('overflow-x-auto', className)}>
-      <table className={clsx('w-full text-sm', tableClassName)}>
+    <div
+      className={clsx(
+        'overflow-x-auto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary)',
+        className
+      )}
+      role={stickyFirstColumn ? 'region' : undefined}
+      aria-label={stickyFirstColumn ? 'Scrollable data table' : undefined}
+      tabIndex={stickyFirstColumn ? 0 : undefined}
+    >
+      {mobileCard && sortableColumns.length > 0 && (
+        <div
+          className="mb-2 flex items-center gap-2 lg:hidden"
+          data-testid="datatable-mobile-sort"
+        >
+          <label
+            className="shrink-0 text-xs text-secondary-wh40k"
+            htmlFor={mobileSortId}
+          >
+            Sort by
+          </label>
+          <select
+            id={mobileSortId}
+            className="h-11 min-w-0 flex-1 appearance-none rounded-md border border-(--card-border) bg-(--card-bg) px-2 text-xs"
+            value={sortKey === undefined ? '' : String(sortKey)}
+            onChange={(event) => {
+              const column = sortableColumns.find(
+                (col) => String(col.key) === event.target.value
+              )
+              if (column) onSort(column.key, column.sortable)
+            }}
+          >
+            <option value="" disabled>
+              Choose column
+            </option>
+            {sortableColumns.map((col) => (
+              <option key={col.key} value={String(col.key)}>
+                {typeof col.header === 'string' ? col.header : 'Column'}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className="h-11 shrink-0 rounded-md border border-(--card-border) bg-(--card-bg) px-3 text-xs disabled:opacity-50"
+            onClick={() => sortKey !== undefined && onSort(sortKey, true)}
+            disabled={sortKey === undefined}
+            aria-label={`Sort ${direction === 'asc' ? 'descending' : 'ascending'}`}
+          >
+            {direction === 'asc' ? 'Asc' : 'Desc'}
+          </button>
+        </div>
+      )}
+      {mobileCard && (
+        <div
+          className="lg:hidden [&_button]:min-h-11 [&_button]:min-w-11"
+          data-testid="datatable-mobile-cards"
+        >
+          {mobileList}
+        </div>
+      )}
+      <table
+        className={clsx(
+          'w-full text-sm',
+          mobileCard && 'hidden lg:table',
+          tableClassName
+        )}
+      >
+        {!mobileCard && stickyFirstColumn && (
+          <caption
+            className="pb-1 text-left text-xs text-secondary-wh40k lg:hidden"
+            data-testid="datatable-scroll-hint"
+          >
+            Scroll sideways to see all {columns.length} columns.
+          </caption>
+        )}
         <thead className="border-b border-(--card-border) bg-(--bg-secondary)">
           <tr>
-            {columns.map((col) => {
+            {columns.map((col, colIndex) => {
               const isActive = sortKey === col.key
               const isSortable = col.sortable !== false
               return (
@@ -205,6 +360,9 @@ export function DataTable<Row, Key extends string = string>({
                   className={clsx(
                     'p-0 text-xs font-semibold text-secondary-wh40k select-none',
                     alignClass[col.align ?? 'left'],
+                    stickyFirstColumn &&
+                      colIndex === 0 &&
+                      'sticky left-0 z-10 bg-(--bg-secondary)',
                     col.headerClassName,
                     col.className
                   )}
@@ -283,12 +441,15 @@ export function DataTable<Row, Key extends string = string>({
                 )}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
-                {columns.map((col) => (
+                {columns.map((col, colIndex) => (
                   <td
                     key={col.key}
                     className={clsx(
                       'p-3 text-secondary-wh40k',
                       alignClass[col.align ?? 'left'],
+                      stickyFirstColumn &&
+                        colIndex === 0 &&
+                        'sticky left-0 bg-(--dropdown-bg-solid)',
                       col.className
                     )}
                   >

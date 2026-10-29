@@ -48,6 +48,11 @@ export interface WorkspaceSection {
 export interface Workspace {
   id: WorkspaceId
   label: string
+  /**
+   * Takes one of the five phone bottom-bar slots, in declaration order. A workspace
+   * without it stays reachable through the top-bar menu, which lists everything.
+   */
+  mobileTab?: boolean
   icon: LucideIcon
   /**
    * Preferred entry route. Pass role-filtered, non-empty `visibleSections` to
@@ -63,6 +68,7 @@ export const workspaces: Workspace[] = [
   {
     id: 'command',
     label: 'Command',
+    mobileTab: true,
     icon: Home,
     primaryHref: '/home',
     // /profile lives in Settings; /token-usage lives in Guild Ops.
@@ -77,6 +83,7 @@ export const workspaces: Workspace[] = [
   {
     id: 'raid',
     label: 'Raid',
+    mobileTab: true,
     icon: Swords,
     primaryHref: '/dashboard',
     match: [
@@ -104,6 +111,7 @@ export const workspaces: Workspace[] = [
   {
     id: 'guild-ops',
     label: 'Guild Ops',
+    mobileTab: true,
     icon: Shield,
     primaryHref: '/player-performance',
     match: [
@@ -166,6 +174,7 @@ export const workspaces: Workspace[] = [
   {
     id: 'war',
     label: 'War',
+    mobileTab: true,
     icon: MapIcon,
     primaryHref: '/wars',
     match: ['/wars', '/war-room', '/war-explorer'],
@@ -267,6 +276,7 @@ export const workspaces: Workspace[] = [
   {
     id: 'settings',
     label: 'Settings',
+    mobileTab: true,
     icon: Settings,
     primaryHref: '/profile',
     match: ['/profile', '/api-keys', '/guild-settings'],

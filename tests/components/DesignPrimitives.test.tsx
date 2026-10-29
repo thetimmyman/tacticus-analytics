@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import {
   BarMeter,
   ConfirmDialog,
@@ -186,6 +186,118 @@ describe('Design primitives accessibility', () => {
     fireEvent.click(targetRow!)
 
     expect(onRowClick).toHaveBeenCalledWith(rows[1])
+  })
+
+  it('builds auto cards from column metadata and keeps them in sorted order', () => {
+    type Row = { id: string; name: string; score: number }
+    const rows: Row[] = [
+      { id: 'a', name: 'Alpha', score: 1 },
+      { id: 'b', name: 'Beta', score: 2 }
+    ]
+    const columns: DataTableColumn<Row>[] = [
+      {
+        key: 'name',
+        header: 'Name',
+        render: (row) => row.name,
+        sortValue: (row) => row.name
+      },
+      {
+        key: 'score',
+        header: 'Score',
+        render: (row) => row.score,
+        sortValue: (row) => row.score
+      }
+    ]
+
+    render(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        rowKey={(row) => row.id}
+        mobileCard="auto"
+      />
+    )
+
+    const list = screen.getByTestId('datatable-mobile-cards')
+    // First column is the card title; the rest become label/value pairs.
+    expect(within(list).getAllByRole('listitem')[0].textContent).toContain(
+      'Alpha'
+    )
+    expect(
+      within(within(list).getAllByRole('listitem')[0]).getByText('Score')
+    ).toBeInTheDocument()
+
+    // Cards follow the table's sort, so the two views never disagree.
+    fireEvent.click(screen.getByRole('button', { name: 'Sort by Score' }))
+    expect(within(list).getAllByRole('listitem')[0].textContent).toContain(
+      'Beta'
+    )
+    const sort = within(screen.getByTestId('datatable-mobile-sort')).getByRole(
+      'combobox'
+    )
+    expect(sort).toHaveValue('score')
+    // The shared sort contract has no reset action. A placeholder must not
+    // offer a default-order selection that leaves the current sort active.
+    expect(
+      within(sort)
+        .getAllByRole('option')
+        .find((option) => (option as HTMLOptionElement).value === '')
+    ).toBeDisabled()
+  })
+
+  it('keeps card field labels concise while retaining column explanations', () => {
+    render(
+      <DataTable
+        rows={[{ id: 'example-row', name: 'Example record', score: 42 }]}
+        columns={[
+          { key: 'name', header: 'Name', render: (row) => row.name },
+          {
+            key: 'score',
+            header: 'Score',
+            headerTitle: 'Includes completed objective bonuses.',
+            render: (row) => row.score
+          }
+        ]}
+        rowKey={(row) => row.id}
+        mobileCard="auto"
+      />
+    )
+    const card = screen.getByTestId('datatable-mobile-cards')
+    const label = within(card).getByText('Score', { exact: true })
+    expect(label).toHaveAttribute(
+      'title',
+      'Includes completed objective bonuses.'
+    )
+    expect(label).toHaveTextContent(/^Score$/)
+  })
+
+  it('reports invalid automatic card configuration instead of dereferencing a missing title', () => {
+    expect(() =>
+      render(
+        <DataTable
+          rows={[{ id: 'synthetic-row' }]}
+          columns={[]}
+          rowKey={(row) => row.id}
+          mobileCard="auto"
+        />
+      )
+    ).toThrow('automatic mobile cards require at least one column')
+  })
+
+  it('lets an explicit mobile card renderer own its content without table columns', () => {
+    render(
+      <DataTable
+        rows={[{ id: 'synthetic-row', name: 'Alpha' }]}
+        columns={[]}
+        rowKey={(row) => row.id}
+        mobileCard={(row) => <button type="button">Review {row.name}</button>}
+      />
+    )
+    expect(
+      within(screen.getByTestId('datatable-mobile-cards')).getByRole('button', {
+        name: 'Review Alpha'
+      })
+    ).toBeInTheDocument()
   })
 
   it('gives BarMeter progressbars an accessible name', () => {

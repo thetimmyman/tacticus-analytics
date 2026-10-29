@@ -85,6 +85,7 @@ export default function RosterOptimizerCard({
       </div>
       <div className="mt-3">
         <DataTable
+          mobileCard="auto"
           rows={optimizer}
           columns={optimizerColumns}
           rowKey={(candidate) =>

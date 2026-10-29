@@ -260,6 +260,7 @@ export default function MetaTeamTable({
       </CardHeader>
       <CardContent className="p-0">
         <DataTable
+          mobileCard="auto"
           rows={rows}
           columns={columns}
           rowKey={({ team }) => team.id}

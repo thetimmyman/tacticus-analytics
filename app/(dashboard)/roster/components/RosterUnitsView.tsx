@@ -204,6 +204,7 @@ export function RosterUnitsView({
         }`}
       >
         <DataTable
+          mobileCard="auto"
           rows={units}
           columns={columns}
           rowKey={(unit) => unit.id}
