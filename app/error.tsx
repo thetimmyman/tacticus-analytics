@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { createComponentLogger } from '@/app/lib/logging/client'
 import { captureSentryException } from '@/app/lib/monitoring/sentry'
+import { browserRenderErrorTags } from '@/app/lib/monitoring/browser-render-error'
 
 const logger = createComponentLogger('app.error')
 
@@ -16,7 +17,15 @@ export default function Error({
   useEffect(() => {
     logger.error({ err: error }, 'Route error boundary caught an error')
     // This boundary catches far more than global-error; report so nothing is lost.
-    captureSentryException(error)
+    captureSentryException(error, {
+      tags: {
+        component: 'app-error',
+        ...browserRenderErrorTags(
+          error,
+          typeof window !== 'undefined' ? window.location.pathname : undefined
+        )
+      }
+    })
   }, [error])
 
   return (

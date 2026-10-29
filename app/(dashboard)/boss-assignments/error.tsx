@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { createComponentLogger } from '@/app/lib/logging/client'
 import { captureSentryException } from '@/app/lib/monitoring/sentry'
+import { browserRenderErrorTags } from '@/app/lib/monitoring/browser-render-error'
 
 const logger = createComponentLogger('boss-assignments.error')
 
@@ -16,7 +17,15 @@ export default function BossAssignmentsError({ error, reset }: ErrorProps) {
   useEffect(() => {
     logger.error({ err: error }, 'Boss assignments error:')
     // Route-segment boundaries bypass global-error, so report to Sentry here.
-    captureSentryException(error)
+    captureSentryException(error, {
+      tags: {
+        component: 'boss-assignments-error',
+        ...browserRenderErrorTags(
+          error,
+          typeof window !== 'undefined' ? window.location.pathname : undefined
+        )
+      }
+    })
   }, [error])
 
   return (
