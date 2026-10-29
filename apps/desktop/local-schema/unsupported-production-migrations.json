@@ -615,6 +615,11 @@
       "file": "20261021201500_bound_public_stats_distinct_reads.sql",
       "reason": "production-app-schema",
       "detail": "Uses hosted history name indexes absent from the local bootstrap; it does not change the canonical desktop schema."
+    },
+    {
+      "file": "20261028120000_monitoring_observation_retirement.sql",
+      "reason": "hosted-service-integration",
+      "detail": "Audits obsolete hosted monitoring observations; the desktop bootstrap has no monitoring inventory."
     }
   ]
 }
