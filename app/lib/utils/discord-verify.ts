@@ -49,7 +49,7 @@ export async function verifyDiscordRequest(
   }
 }
 
-function hexToUint8Array(hex: string): Uint8Array {
+function hexToUint8Array(hex: string): Uint8Array<ArrayBuffer> {
   if (hex.length % 2 !== 0) {
     throw new Error('Invalid hex string')
   }

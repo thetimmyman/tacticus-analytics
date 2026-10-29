@@ -131,12 +131,12 @@
     "test-exclude": {
       "glob": "13.0.6"
     },
-    "fast-uri": "3.1.8",
+    "fast-uri": "3.1.9",
     "@tailwindcss/typography": {
       "postcss-selector-parser": "7.1.6"
     },
     "solid-js": {
-      "seroval": "1.6.8",
+      "seroval": "1.6.11",
       "seroval-plugins": "1.6.8"
     }
   },
@@ -194,11 +194,12 @@
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.8",
-    "@types/node": "^22.20.5",
+    "@types/node": "^26.6.6",
     "@typescript-eslint/parser": "^8.72.0",
     "@typescript/native": "npm:typescript@^7.0.2",
     "@vitejs/plugin-react": "^6.1.2",
     "@vitest/ui": "^5.0.5",
+    "ajv": "^8.20.0",
     "critters": "^0.0.25",
     "dotenv": "^18.0.8",
     "esbuild": "^0.25.12",
@@ -207,7 +208,7 @@
     "eslint-plugin-react-hooks": "^7.0.0",
     "eslint-plugin-storybook": "^10.6.3",
     "glob": "^13.0.0",
-    "happy-dom": "^20.14.6",
+    "happy-dom": "^21.0.4",
     "husky": "^9.1.7",
     "knip": "^6.42.1",
     "lint-staged": "^17.6.0",
@@ -220,7 +221,7 @@
     "tsx": "^4.23.15",
     "vite": "^8.3.4",
     "vitest": "^5.0.5",
-    "webpack": "^5.112.0",
+    "webpack": "^5.112.2",
     "yaml": "^2.8.4"
   }
 }
