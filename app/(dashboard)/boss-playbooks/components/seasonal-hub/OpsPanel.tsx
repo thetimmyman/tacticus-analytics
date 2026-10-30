@@ -5,6 +5,7 @@ import { flushSync } from 'react-dom'
 import Link from 'next/link'
 import {
   CORNER_STACK_MOBILE_CLEARANCE_CLASS,
+  CORNER_STACK_INLINE_CLEARANCE_CLASS,
   CORNER_STACK_RIGHT_GUTTER_CLASS
 } from '@/app/components/ui/corner-stack'
 import { Activity, ArrowUpRight, Loader2, Save } from 'lucide-react'
@@ -805,7 +806,7 @@ export function OpsPanel({
       {/* Sticky save bar, kept clear of the bottom-right widget stack (corner-stack.ts). */}
       {saveFooter && (
         <div
-          className={`sticky ${CORNER_STACK_MOBILE_CLEARANCE_CLASS} z-30 mt-2 flex sm:bottom-4 ${CORNER_STACK_RIGHT_GUTTER_CLASS}`}
+          className={`sticky ${CORNER_STACK_MOBILE_CLEARANCE_CLASS} z-30 mt-2 flex ${CORNER_STACK_INLINE_CLEARANCE_CLASS} ${CORNER_STACK_RIGHT_GUTTER_CLASS}`}
         >
           <div className="w-full rounded-lg shadow-lg shadow-black/40">
             {saveFooter}

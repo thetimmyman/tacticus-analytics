@@ -5,6 +5,10 @@ import { PublicThemeProvider } from '@/app/components/PublicThemeProvider'
 
 const preview: Preview = {
   parameters: {
+    nextjs: {
+      appDirectory: true,
+      navigation: { pathname: '/home' }
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,
@@ -21,9 +25,11 @@ const preview: Preview = {
     layout: 'centered'
   },
   decorators: [
-    (Story) => (
+    (Story, context) => (
       <PublicThemeProvider>
-        <div className="min-h-screen w-full bg-[var(--bg-primary)] text-[var(--text-primary)] p-6">
+        <div
+          className={`min-h-screen w-full bg-[var(--bg-primary)] text-[var(--text-primary)] ${context.parameters.layout === 'fullscreen' ? '' : 'p-6'}`}
+        >
           <Story />
         </div>
       </PublicThemeProvider>

@@ -201,6 +201,7 @@ export function WarActivityPanel({
         )}
 
         <DataTable
+          mobileCard="auto"
           rows={playerActivity.slice(0, 20)}
           columns={playerActivityColumns}
           rowKey={(row) => row.playerId}

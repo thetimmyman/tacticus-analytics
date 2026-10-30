@@ -306,6 +306,8 @@ export function InviteCodeManager() {
         !code.revoked_at &&
         new Date(code.expires_at) > new Date() && (
           <button
+            type="button"
+            aria-label="Revoke invite code"
             onClick={() => revokeCode(code.id)}
             className="text-red-400 hover:text-red-300"
           >
@@ -574,6 +576,7 @@ export function InviteCodeManager() {
               </CardHeader>
               <CardContent>
                 <DataTable
+                  mobileCard="auto"
                   columns={recentCodeColumns}
                   rows={recentCodes.slice(0, 20)}
                   rowKey={(code) => code.id}

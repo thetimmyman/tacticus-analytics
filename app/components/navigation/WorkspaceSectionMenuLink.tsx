@@ -38,7 +38,7 @@ export const WorkspaceSectionMenuLink = forwardRef<
   const spacingClass = variant === 'mobile' ? 'space-x-1.5' : 'gap-2'
   const labelClass =
     variant === 'mobile'
-      ? 'text-[11px] font-medium truncate'
+      ? 'min-w-0 text-xs font-medium whitespace-normal break-words'
       : 'font-medium truncate'
   const mergeClass = (ownClass: string) =>
     className ? `${ownClass} ${className}` : ownClass

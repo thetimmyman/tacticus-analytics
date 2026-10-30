@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '@testing-library/react'
 import { MobileNav } from '@/app/components/navigation/MobileNav'
 import { canAccessReleaseStage } from '@/app/lib/utils/release-stage'
 
@@ -95,7 +95,9 @@ describe('MobileNav', () => {
 
   it('renders mobile navigation', () => {
     render(<MobileNav {...defaultProps} />)
-    expect(screen.getByText('Tacticus Analytics')).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: 'Tacticus Analytics' })
+    ).toBeInTheDocument()
   })
 
   it('renders season selector', () => {
@@ -163,7 +165,9 @@ describe('MobileNav', () => {
 
   it('renders core navigation links', () => {
     render(<MobileNav {...defaultProps} />)
-    expect(screen.getByText('Command')).toBeInTheDocument()
+    expect(
+      within(screen.getByTestId('dropdown-content')).getByText('Command')
+    ).toBeInTheDocument()
     expect(screen.getByText('Home')).toBeInTheDocument()
     expect(screen.getByText('Explore')).toBeInTheDocument()
     expect(screen.getByText('Roster')).toBeInTheDocument()
@@ -173,7 +177,9 @@ describe('MobileNav', () => {
     render(
       <MobileNav {...defaultProps} hideAnalytics={false} hasProfile={true} />
     )
-    expect(screen.getByText(/^Raid$/)).toBeInTheDocument()
+    expect(
+      within(screen.getByTestId('dropdown-content')).getByText(/^Raid$/)
+    ).toBeInTheDocument()
     expect(screen.getAllByText('Dashboard').length).toBeGreaterThan(0)
     expect(screen.getByText('Bosses')).toBeInTheDocument()
     expect(screen.getByText('Your Stats')).toBeInTheDocument()
@@ -318,7 +324,9 @@ describe('MobileNav', () => {
     expect(screen.queryByText('Meta Atlas')).not.toBeInTheDocument()
     expect(screen.queryByText('Locked')).not.toBeInTheDocument()
     expect(screen.queryByText('B')).not.toBeInTheDocument()
-    expect(screen.getByText('Command')).toBeInTheDocument()
+    expect(
+      within(screen.getByTestId('dropdown-content')).getByText('Command')
+    ).toBeInTheDocument()
     expect(screen.getByText('Home')).toBeInTheDocument()
   })
 
@@ -328,7 +336,9 @@ describe('MobileNav', () => {
     expect(screen.queryByText(/^Raid$/)).not.toBeInTheDocument()
     expect(screen.queryByText(/War/)).not.toBeInTheDocument()
     expect(screen.queryByText('Dashboard')).not.toBeInTheDocument()
-    expect(screen.getByText('Command')).toBeInTheDocument()
+    expect(
+      within(screen.getByTestId('dropdown-content')).getByText('Command')
+    ).toBeInTheDocument()
   })
 
   it('renders only the recovery-safe allowlist for an inactive session', () => {
@@ -364,7 +374,9 @@ describe('MobileNav', () => {
 
     expect(screen.queryByText(/^Raid$/)).not.toBeInTheDocument()
     expect(screen.queryByText(/War/)).not.toBeInTheDocument()
-    expect(screen.getByText('Command')).toBeInTheDocument()
+    expect(
+      within(screen.getByTestId('dropdown-content')).getByText('Command')
+    ).toBeInTheDocument()
   })
 
   it('handles null profile gracefully', () => {
@@ -381,5 +393,23 @@ describe('MobileNav', () => {
         (link) => link.getAttribute('href') === '/profile?season=81'
       )
     ).toBe(true)
+  })
+
+  it('gives a bottom-bar slot to each marked workspace and labels it in full', () => {
+    render(<MobileNav {...defaultProps} />)
+    const bar = within(screen.getByTestId('mobile-tab-bar'))
+    for (const label of ['Command', 'Raid', 'Guild Ops', 'War', 'Settings']) {
+      expect(
+        bar.getByRole('link', { name: new RegExp(`^${label}`) })
+      ).toBeInTheDocument()
+    }
+  })
+
+  it('gives no bottom-bar slot to a workspace filtered out of navigation', () => {
+    render(<MobileNav {...defaultProps} effectiveRole="onboarding" />)
+    const bar = within(screen.getByTestId('mobile-tab-bar'))
+    expect(bar.queryByRole('link', { name: /^Raid/ })).not.toBeInTheDocument()
+    expect(bar.queryByRole('link', { name: /^War/ })).not.toBeInTheDocument()
+    expect(bar.getByRole('link', { name: /^Command/ })).toBeInTheDocument()
   })
 })

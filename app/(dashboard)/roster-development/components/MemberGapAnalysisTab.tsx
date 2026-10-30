@@ -450,6 +450,7 @@ export function MemberGapAnalysisTab() {
 
     return (
       <DataTable
+        mobileCard="auto"
         rows={filteredMembers}
         columns={columns}
         rowKey={(member) => member.player_id}

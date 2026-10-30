@@ -182,6 +182,7 @@ export default function ActivityTable({ rows }: { rows: RecentAttempt[] }) {
 
   return (
     <DataTable
+      mobileCard="auto"
       rows={rows}
       columns={columns}
       rowKey={(attempt) => attempt.id}

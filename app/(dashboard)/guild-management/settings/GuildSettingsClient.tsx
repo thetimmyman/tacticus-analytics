@@ -51,6 +51,7 @@ import { useGuildApiKey } from './useGuildApiKey'
 import { cn } from '@/app/lib/utils/cn'
 import {
   CORNER_STACK_MOBILE_CLEARANCE_CLASS,
+  CORNER_STACK_ROOMY_INLINE_CLEARANCE_CLASS,
   CORNER_STACK_RIGHT_GUTTER_CLASS
 } from '@/app/components/ui/corner-stack'
 import { DEFAULT_OBFUSCATION_PERCENT } from '@tacticus/app-core/privacy'
@@ -927,7 +928,7 @@ export default function GuildSettingsClient({
 
               {/* Lifted/inset so the save bar clears the SYS chip and status pill (corner-stack.ts). */}
               <div
-                className={`sticky ${CORNER_STACK_MOBILE_CLEARANCE_CLASS} z-40 sm:bottom-6 ${CORNER_STACK_RIGHT_GUTTER_CLASS}`}
+                className={`sticky ${CORNER_STACK_MOBILE_CLEARANCE_CLASS} z-40 ${CORNER_STACK_ROOMY_INLINE_CLEARANCE_CLASS} ${CORNER_STACK_RIGHT_GUTTER_CLASS}`}
               >
                 <div className="flex flex-col gap-4 rounded-2xl border border-card-border/60 bg-(--bg-secondary) p-4 shadow-[0_25px_50px_rgba(4,8,20,0.55)] backdrop-blur-xs lg:flex-row lg:items-center lg:justify-between">
                   <div className="text-sm text-secondary-wh40k">

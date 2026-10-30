@@ -6,7 +6,7 @@ import './styles/particle-effects.css'
 import './performance-optimizations.css'
 import './styles/interactions.css'
 import './styles/boss-portrait.css'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Providers } from './providers'
 import { ThemeScript } from '@/app/components/ThemeScript'
 import {
@@ -31,6 +31,13 @@ const supabaseOrigin: string | undefined = hasSupabase
 const tacticusOrigin = TACTICUS_API.ORIGIN
 
 const DOMAIN_URL = process.env.NEXT_PUBLIC_DOMAIN || APP_ORIGINS.CURRENT
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: 'cover'
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL(DOMAIN_URL),
@@ -100,10 +107,6 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=5"
-        />
         <meta name="theme-color" content="#dc2626" />
         {hasSupabase && <link rel="preconnect" href={supabaseOrigin} />}
         {!desktop && <link rel="preconnect" href={tacticusOrigin} />}
