@@ -5,7 +5,398 @@
   "payload": {
     "generatedAt": "2026-01-01T00:00:00Z",
     "expiresAt": "2026-01-02T00:00:00Z",
-    "releases": []
+    "releases": [
+      {
+        "id": "synthetic-linux-candidate-v1",
+        "component": "core",
+        "platform": "linux",
+        "architecture": "x64",
+        "minimumOS": "Synthetic Linux 1",
+        "channel": "stable",
+        "version": "1.0.0",
+        "releasedAt": "2026-01-01T00:00:00Z",
+        "sourceCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "state": "candidate",
+        "artifact": {
+          "url": "https://github.com/thetimmyman/tacticus-analytics/releases/download/v1.0.0/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb-synthetic.appimage",
+          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "size": 1024,
+          "format": "appimage",
+          "signature": {
+            "status": "pending",
+            "evidenceUrl": null,
+            "scheme": "ed25519"
+          },
+          "notarization": {
+            "status": "not-required",
+            "evidenceUrl": null
+          },
+          "provisioning": {
+            "status": "not-required",
+            "evidenceUrl": null
+          }
+        },
+        "distribution": {
+          "method": "direct",
+          "url": null
+        },
+        "compatibility": {
+          "coreVersion": "1.0.0",
+          "workspaceSchema": {
+            "minimum": 1,
+            "maximum": 1
+          },
+          "moduleApi": 1
+        },
+        "qualification": {
+          "evidenceSchema": "platform-evidence/v1",
+          "sourceCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "pending",
+          "artifactSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "evidenceUrl": null,
+          "testedOS": "Synthetic Linux 1",
+          "installed": false,
+          "offline": false,
+          "restart": false,
+          "recovery": false,
+          "uninstall": false
+        },
+        "approvals": {
+          "rights": {
+            "status": "pending",
+            "evidenceUrl": null
+          },
+          "security": {
+            "status": "pending",
+            "evidenceUrl": null
+          },
+          "publication": {
+            "status": "pending",
+            "evidenceUrl": null
+          }
+        },
+        "guidance": {
+          "install": "Synthetic install guidance for linux.",
+          "update": "Synthetic update guidance for linux.",
+          "uninstall": "Synthetic uninstall guidance for linux; local data retained.",
+          "releaseNotes": "Versioned test double candidate; not a real artifact.",
+          "knownGaps": ["Qualification is incomplete and unverified."],
+          "localClientSupport": "Synthetic local discovery unavailable."
+        }
+      },
+      {
+        "id": "synthetic-macos-candidate-v1",
+        "component": "core",
+        "platform": "macos",
+        "architecture": "arm64",
+        "minimumOS": "Synthetic macOS 12",
+        "channel": "stable",
+        "version": "1.0.0",
+        "releasedAt": "2026-01-01T00:00:00Z",
+        "sourceCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "state": "candidate",
+        "artifact": {
+          "url": "https://github.com/thetimmyman/tacticus-analytics/releases/download/v1.0.0/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb-synthetic.dmg",
+          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "size": 1024,
+          "format": "dmg",
+          "signature": {
+            "status": "pending",
+            "evidenceUrl": null,
+            "scheme": "apple-code-sign"
+          },
+          "notarization": {
+            "status": "pending",
+            "evidenceUrl": null
+          },
+          "provisioning": {
+            "status": "not-required",
+            "evidenceUrl": null
+          }
+        },
+        "distribution": {
+          "method": "direct",
+          "url": null
+        },
+        "compatibility": {
+          "coreVersion": "1.0.0",
+          "workspaceSchema": {
+            "minimum": 1,
+            "maximum": 1
+          },
+          "moduleApi": 1
+        },
+        "qualification": {
+          "evidenceSchema": "platform-evidence/v1",
+          "sourceCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "pending",
+          "artifactSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "evidenceUrl": null,
+          "testedOS": "Synthetic macOS 12",
+          "installed": false,
+          "offline": false,
+          "restart": false,
+          "recovery": false,
+          "uninstall": false
+        },
+        "approvals": {
+          "rights": {
+            "status": "pending",
+            "evidenceUrl": null
+          },
+          "security": {
+            "status": "pending",
+            "evidenceUrl": null
+          },
+          "publication": {
+            "status": "pending",
+            "evidenceUrl": null
+          }
+        },
+        "guidance": {
+          "install": "Synthetic install guidance for macos.",
+          "update": "Synthetic update guidance for macos.",
+          "uninstall": "Synthetic uninstall guidance for macos; local data retained.",
+          "releaseNotes": "Versioned test double candidate; not a real artifact.",
+          "knownGaps": ["Qualification is incomplete and unverified."],
+          "localClientSupport": "Synthetic local discovery unavailable."
+        }
+      },
+      {
+        "id": "synthetic-windows-candidate-v1",
+        "component": "core",
+        "platform": "windows",
+        "architecture": "x64",
+        "minimumOS": "Synthetic Windows 10",
+        "channel": "stable",
+        "version": "1.0.0",
+        "releasedAt": "2026-01-01T00:00:00Z",
+        "sourceCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "state": "candidate",
+        "artifact": {
+          "url": "https://github.com/thetimmyman/tacticus-analytics/releases/download/v1.0.0/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb-synthetic.msix",
+          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "size": 1024,
+          "format": "msix",
+          "signature": {
+            "status": "pending",
+            "evidenceUrl": null,
+            "scheme": "authenticode"
+          },
+          "notarization": {
+            "status": "not-required",
+            "evidenceUrl": null
+          },
+          "provisioning": {
+            "status": "not-required",
+            "evidenceUrl": null
+          }
+        },
+        "distribution": {
+          "method": "direct",
+          "url": null
+        },
+        "compatibility": {
+          "coreVersion": "1.0.0",
+          "workspaceSchema": {
+            "minimum": 1,
+            "maximum": 1
+          },
+          "moduleApi": 1
+        },
+        "qualification": {
+          "evidenceSchema": "platform-evidence/v1",
+          "sourceCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "pending",
+          "artifactSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "evidenceUrl": null,
+          "testedOS": "Synthetic Windows 10",
+          "installed": false,
+          "offline": false,
+          "restart": false,
+          "recovery": false,
+          "uninstall": false
+        },
+        "approvals": {
+          "rights": {
+            "status": "pending",
+            "evidenceUrl": null
+          },
+          "security": {
+            "status": "pending",
+            "evidenceUrl": null
+          },
+          "publication": {
+            "status": "pending",
+            "evidenceUrl": null
+          }
+        },
+        "guidance": {
+          "install": "Synthetic install guidance for windows.",
+          "update": "Synthetic update guidance for windows.",
+          "uninstall": "Synthetic uninstall guidance for windows; local data retained.",
+          "releaseNotes": "Versioned test double candidate; not a real artifact.",
+          "knownGaps": ["Qualification is incomplete and unverified."],
+          "localClientSupport": "Synthetic local discovery unavailable."
+        }
+      },
+      {
+        "id": "synthetic-android-candidate-v1",
+        "component": "core",
+        "platform": "android",
+        "architecture": "arm64",
+        "minimumOS": "Synthetic Android 12",
+        "channel": "stable",
+        "version": "1.0.0",
+        "releasedAt": "2026-01-01T00:00:00Z",
+        "sourceCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "state": "candidate",
+        "artifact": {
+          "url": "https://github.com/thetimmyman/tacticus-analytics/releases/download/v1.0.0/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb-synthetic.apk",
+          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "size": 1024,
+          "format": "apk",
+          "signature": {
+            "status": "pending",
+            "evidenceUrl": null,
+            "scheme": "android-apk"
+          },
+          "notarization": {
+            "status": "not-required",
+            "evidenceUrl": null
+          },
+          "provisioning": {
+            "status": "not-required",
+            "evidenceUrl": null
+          }
+        },
+        "distribution": {
+          "method": "play-store",
+          "url": "https://play.google.com/store/apps/details?id=com.tacticusanalytics.synthetic"
+        },
+        "compatibility": {
+          "coreVersion": "1.0.0",
+          "workspaceSchema": {
+            "minimum": 1,
+            "maximum": 1
+          },
+          "moduleApi": 1
+        },
+        "qualification": {
+          "evidenceSchema": "platform-evidence/v1",
+          "sourceCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "pending",
+          "artifactSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "evidenceUrl": null,
+          "testedOS": "Synthetic Android 12",
+          "installed": false,
+          "offline": false,
+          "restart": false,
+          "recovery": false,
+          "uninstall": false
+        },
+        "approvals": {
+          "rights": {
+            "status": "pending",
+            "evidenceUrl": null
+          },
+          "security": {
+            "status": "pending",
+            "evidenceUrl": null
+          },
+          "publication": {
+            "status": "pending",
+            "evidenceUrl": null
+          }
+        },
+        "guidance": {
+          "install": "Synthetic install guidance for android.",
+          "update": "Synthetic update guidance for android.",
+          "uninstall": "Synthetic uninstall guidance for android; local data retained.",
+          "releaseNotes": "Versioned test double candidate; not a real artifact.",
+          "knownGaps": ["Qualification is incomplete and unverified."],
+          "localClientSupport": "Synthetic local discovery unavailable."
+        }
+      },
+      {
+        "id": "synthetic-ios-candidate-v1",
+        "component": "core",
+        "platform": "ios",
+        "architecture": "arm64",
+        "minimumOS": "Synthetic iOS 16",
+        "channel": "stable",
+        "version": "1.0.0",
+        "releasedAt": "2026-01-01T00:00:00Z",
+        "sourceCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "state": "candidate",
+        "artifact": {
+          "url": "https://github.com/thetimmyman/tacticus-analytics/releases/download/v1.0.0/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb-synthetic.ipa",
+          "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "size": 1024,
+          "format": "ipa",
+          "signature": {
+            "status": "pending",
+            "evidenceUrl": null,
+            "scheme": "apple-code-sign"
+          },
+          "notarization": {
+            "status": "not-required",
+            "evidenceUrl": null
+          },
+          "provisioning": {
+            "status": "pending",
+            "evidenceUrl": null
+          }
+        },
+        "distribution": {
+          "method": "app-store",
+          "url": "https://apps.apple.com/us/app/synthetic-app/id1234567890"
+        },
+        "compatibility": {
+          "coreVersion": "1.0.0",
+          "workspaceSchema": {
+            "minimum": 1,
+            "maximum": 1
+          },
+          "moduleApi": 1
+        },
+        "qualification": {
+          "evidenceSchema": "platform-evidence/v1",
+          "sourceCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "status": "pending",
+          "artifactSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "evidenceUrl": null,
+          "testedOS": "Synthetic iOS 16",
+          "installed": false,
+          "offline": false,
+          "restart": false,
+          "recovery": false,
+          "uninstall": false
+        },
+        "approvals": {
+          "rights": {
+            "status": "pending",
+            "evidenceUrl": null
+          },
+          "security": {
+            "status": "pending",
+            "evidenceUrl": null
+          },
+          "publication": {
+            "status": "pending",
+            "evidenceUrl": null
+          }
+        },
+        "guidance": {
+          "install": "Synthetic install guidance for ios.",
+          "update": "Synthetic update guidance for ios.",
+          "uninstall": "Synthetic uninstall guidance for ios; local data retained.",
+          "releaseNotes": "Versioned test double candidate; not a real artifact.",
+          "knownGaps": ["Qualification is incomplete and unverified."],
+          "localClientSupport": "Synthetic local discovery unavailable."
+        }
+      }
+    ]
   },
   "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="
 }

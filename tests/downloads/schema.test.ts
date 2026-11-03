@@ -6,7 +6,14 @@ describe('release manifest v1 structural contract', () => {
   it('accepts the visibly synthetic versioned envelope without asserting qualification', () => {
     const parsed = releaseManifestSchema.parse(example)
     expect(parsed.purpose).toBe('fixture')
-    expect(parsed.payload.releases).toEqual([])
+    expect(parsed.payload.releases).toHaveLength(5)
+    expect(parsed.payload.releases.map((release) => release.platform)).toEqual([
+      'linux',
+      'macos',
+      'windows',
+      'android',
+      'ios'
+    ])
   })
 
   it('rejects unknown fields at the envelope and payload boundaries', () => {

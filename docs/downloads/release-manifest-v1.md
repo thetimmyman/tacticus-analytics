@@ -29,4 +29,4 @@ const envelope = releaseManifestSchema.parse(untrustedJson)
 // An updater also checks coreVersion, workspaceSchema and moduleApi locally.
 ```
 
-`apps/releases/example.manifest.v1.json` is deliberately synthetic, has no releases and has a non-valid signature. It must never be used as publication evidence or installed-artifact proof. Publishers populate candidates using the exact artifact digest and approved sanitized evidence. No signing identity or release is created by this interface.
+`apps/releases/example.manifest.v1.json` is deliberately synthetic, contains representative platform candidates with pending qualification, and has a non-valid signature. It must never be used as publication evidence or installed-artifact proof. Publishers populate candidates using the exact artifact digest and approved sanitized evidence. No signing identity or release is created by this interface.
