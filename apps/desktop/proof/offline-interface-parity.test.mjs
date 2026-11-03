@@ -208,10 +208,18 @@ describe('Offline Interface Parity, Asset Integrity, and Display Sanitization Su
         result.violations.some((v) => v.includes('NEXT_PUBLIC_RUNTIME_PROFILE'))
       )
       assert.ok(
-        result.violations.some((v) => v.includes('fonts.googleapis.com'))
+        result.violations.some(
+          (v) =>
+            v ===
+            'Forbidden external asset/telemetry domain found: fonts.googleapis.com'
+        )
       )
       assert.ok(
-        result.violations.some((v) => v.includes('cdnjs.cloudflare.com'))
+        result.violations.some(
+          (v) =>
+            v ===
+            'Forbidden external asset/telemetry domain found: cdnjs.cloudflare.com'
+        )
       )
     })
 
