@@ -128,9 +128,13 @@
     },
     "linkify-it": "5.0.2",
     "sharp": "^0.35.5",
-    "test-exclude": {
-      "glob": "13.0.6"
+    "@sentry/bundler-plugins": {
+      "glob": "14.0.3"
     },
+    "@joshwooding/vite-plugin-react-docgen-typescript": {
+      "glob": "14.0.3"
+    },
+    "minimatch": "11.0.4",
     "fast-uri": "3.1.9",
     "@tailwindcss/typography": {
       "postcss-selector-parser": "7.1.6"
@@ -208,7 +212,7 @@
     "eslint-config-next": "16.4.3",
     "eslint-plugin-react-hooks": "^7.0.0",
     "eslint-plugin-storybook": "^10.6.3",
-    "glob": "^13.0.0",
+    "glob": "^14.0.3",
     "happy-dom": "^21.0.4",
     "husky": "^9.1.7",
     "knip": "^6.42.1",
