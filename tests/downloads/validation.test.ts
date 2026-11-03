@@ -5,8 +5,20 @@ import {
   validateManifest
 } from '../../app/lib/downloads/manifest'
 import { downloadsPolicy } from '../../app/lib/downloads/policy'
+import { releaseSchema } from '../../app/lib/downloads/schema'
 import { resolveDownloads } from '../../app/lib/downloads/state'
-import { releaseDouble, signedDouble, testNow } from './fixtures.v1'
+import {
+  androidReleaseDouble,
+  candidateReleaseDouble,
+  iosReleaseDouble,
+  linuxReleaseDouble,
+  macosReleaseDouble,
+  releaseDouble,
+  representativePlatformReleases,
+  signedDouble,
+  testNow,
+  windowsReleaseDouble
+} from './fixtures.v1'
 
 const enabled = downloadsPolicy({
   DOWNLOADS_ENABLED: 'true',
@@ -225,5 +237,112 @@ describe('signed release manifest and promotion gates', () => {
         DOWNLOADS_REVOKED_RELEASE_IDS: '*'
       }).enabled
     ).toBe(false)
+  })
+
+  describe('representative platform release fixtures and constraints', () => {
+    it('qualifies each representative platform test double', () => {
+      const platforms = representativePlatformReleases()
+      expect(platforms).toHaveLength(5)
+      for (const release of platforms) {
+        expect(releaseSchema.parse(release)).toEqual(release)
+        expect(releaseBlockers(release)).toEqual([])
+      }
+    })
+
+    it('rejects candidate releases with honest incomplete qualification and pending approvals', () => {
+      for (const platform of [
+        'linux',
+        'macos',
+        'windows',
+        'android',
+        'ios'
+      ] as const) {
+        const candidate = candidateReleaseDouble(platform)
+        expect(releaseSchema.parse(candidate)).toEqual(candidate)
+        const blockers = releaseBlockers(candidate)
+        expect(blockers).toContain('Release has not been published')
+        expect(blockers).toContain('Artifact signature has not been verified')
+        expect(blockers).toContain(
+          'Installed artifact qualification is incomplete'
+        )
+        expect(blockers).toContain(
+          'Rights, security or publication approval is incomplete'
+        )
+      }
+    })
+
+    it('enforces platform-specific signing, notarization, and distribution constraints across all platforms', () => {
+      // macOS requires notarization verified
+      const macos = macosReleaseDouble()
+      macos.artifact.notarization.status = 'pending'
+      expect(releaseBlockers(macos)).toContain(
+        'macOS notarization has not been verified'
+      )
+
+      // macOS requires apple-code-sign
+      const macosBadSig = macosReleaseDouble()
+      macosBadSig.artifact.signature.scheme = 'authenticode'
+      expect(releaseBlockers(macosBadSig)).toContain(
+        'Artifact signature has not been verified'
+      )
+
+      // Windows requires authenticode and exe/msix
+      const winBadScheme = windowsReleaseDouble()
+      winBadScheme.artifact.signature.scheme = 'ed25519'
+      expect(releaseBlockers(winBadScheme)).toContain(
+        'Artifact signature has not been verified'
+      )
+
+      const winBadFormat = windowsReleaseDouble()
+      winBadFormat.artifact.format = 'dmg'
+      expect(releaseBlockers(winBadFormat)).toContain(
+        'Platform, architecture or package format is unsupported'
+      )
+
+      // Android requires android-apk and disallows direct distribution for AAB
+      const androidBadScheme = androidReleaseDouble()
+      androidBadScheme.artifact.signature.scheme = 'ed25519'
+      expect(releaseBlockers(androidBadScheme)).toContain(
+        'Artifact signature has not been verified'
+      )
+
+      const androidAabDirect = androidReleaseDouble()
+      androidAabDirect.artifact.format = 'aab'
+      androidAabDirect.distribution = { method: 'direct', url: null }
+      expect(releaseBlockers(androidAabDirect)).toContain(
+        'Distribution channel is not approved for this platform'
+      )
+
+      // Universal architecture is prohibited outside macOS
+      const linuxUniversal = linuxReleaseDouble({ architecture: 'universal' })
+      expect(releaseBlockers(linuxUniversal)).toContain(
+        'Platform, architecture or package format is unsupported'
+      )
+
+      // Non-arm64 architecture is prohibited on iOS
+      const iosX64 = iosReleaseDouble({ architecture: 'x64' })
+      expect(releaseBlockers(iosX64)).toContain(
+        'Platform, architecture or package format is unsupported'
+      )
+    })
+
+    it('validates a signed manifest containing all 5 qualified platform releases', () => {
+      const allPlatforms = representativePlatformReleases()
+      const { manifest, keys } = signedDouble(allPlatforms)
+      const validated = validateManifest(manifest, keys, testNow)
+      expect(validated.payload.releases).toHaveLength(5)
+
+      const resolved = resolveDownloads(
+        manifest,
+        downloadsPolicy({
+          DOWNLOADS_ENABLED: 'true',
+          DOWNLOADS_READY_PLATFORMS:
+            'linux:stable,macos:stable,windows:stable,android:stable,ios:stable'
+        }),
+        keys,
+        testNow
+      )
+      expect(resolved.releases).toHaveLength(5)
+    })
   })
 })
