@@ -76,7 +76,8 @@ import { registerRosterBackfillHandler } from '@/app/lib/jobs/roster-backfill'
 
 registerRosterBackfillHandler()
 const handler = mocks.handlers.get('roster-backfill') as Handler
-const run = () => handler({}, { jobId: 1, workerId: 'w', attempts: 1 })
+const run = (payload: Record<string, unknown> = {}) =>
+  handler(payload, { jobId: 1, workerId: 'w', attempts: 1 })
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -227,5 +228,86 @@ describe('roster-backfill and rejected player keys', () => {
     const result = await run()
 
     expect(result).toMatchObject({ failed: 1 })
+  })
+})
+
+describe('roster-backfill staleHours and cohort admission behavior', () => {
+  it('applies default freshness when staleHours is omitted or not a positive number', async () => {
+    mocks.selectCandidates.mockResolvedValue([])
+
+    await run({})
+    expect(mocks.selectCandidates).toHaveBeenLastCalledWith(
+      expect.any(Array),
+      { freshMs: 20 * 60_000, retryMs: 5 * 60_000 },
+      expect.anything()
+    )
+
+    await run({ staleHours: 0 })
+    expect(mocks.selectCandidates).toHaveBeenLastCalledWith(
+      expect.any(Array),
+      { freshMs: 20 * 60_000, retryMs: 5 * 60_000 },
+      expect.anything()
+    )
+
+    await run({ staleHours: -5 })
+    expect(mocks.selectCandidates).toHaveBeenLastCalledWith(
+      expect.any(Array),
+      { freshMs: 20 * 60_000, retryMs: 5 * 60_000 },
+      expect.anything()
+    )
+
+    await run({ staleHours: 'invalid' as unknown as number })
+    expect(mocks.selectCandidates).toHaveBeenLastCalledWith(
+      expect.any(Array),
+      { freshMs: 20 * 60_000, retryMs: 5 * 60_000 },
+      expect.anything()
+    )
+  })
+
+  it('applies explicit staleHours calculation when supplied as a positive number', async () => {
+    mocks.selectCandidates.mockResolvedValue([])
+
+    await run({ staleHours: 4 })
+    expect(mocks.selectCandidates).toHaveBeenLastCalledWith(
+      expect.any(Array),
+      { freshMs: 4 * 3600 * 1000, retryMs: 5 * 60_000 },
+      expect.anything()
+    )
+
+    await run({ staleHours: 0.5 })
+    expect(mocks.selectCandidates).toHaveBeenLastCalledWith(
+      expect.any(Array),
+      { freshMs: 1800 * 1000, retryMs: 300_000 },
+      expect.anything()
+    )
+  })
+
+  it('preserves query cohort order and does not impose client-side oldest-first sort before candidate selection', async () => {
+    mocks.players = [
+      {
+        id: 40,
+        user_id: 'u-40',
+        player_id: 'p-40',
+        consecutive_api_key_failures: 0
+      },
+      {
+        id: 10,
+        user_id: 'u-10',
+        player_id: 'p-10',
+        consecutive_api_key_failures: 0
+      },
+      {
+        id: 25,
+        user_id: 'u-25',
+        player_id: 'p-25',
+        consecutive_api_key_failures: 0
+      }
+    ]
+    mocks.selectCandidates.mockResolvedValue([])
+
+    await run({})
+
+    const passedCohort = mocks.selectCandidates.mock.calls[0][0]
+    expect(passedCohort.map((p: { id: number }) => p.id)).toEqual([40, 10, 25])
   })
 })
