@@ -2,13 +2,13 @@
   "name": "tacticus-analytics",
   "version": "1.41.31",
   "private": true,
-  "packageManager": "npm@10.9.7",
+  "packageManager": "npm@11.20.0",
   "workspaces": [
     "packages/*",
     "apps/*"
   ],
   "engines": {
-    "node": ">=22.22.2 <23"
+    "node": ">=26.13.1 <27"
   },
   "scripts": {
     "app:identity:check": "node scripts/dev/verify-app-identity.mjs",

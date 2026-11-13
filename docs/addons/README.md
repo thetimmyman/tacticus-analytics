@@ -27,7 +27,7 @@ refuses export until it is recovered.
 
 ## Build and verify
 
-Use the repository's locked dependencies and Node 22.23.x. Choose an absolute output directory outside the checkout:
+Use the repository's locked dependencies and the Node line in `.nvmrc`. Choose an absolute output directory outside the checkout:
 
 ```sh
 node --import tsx --test tests/addons/*.node-test.ts tests/addons/*.node-test.tsx

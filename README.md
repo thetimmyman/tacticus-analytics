@@ -19,7 +19,10 @@ The source stays in the repository (`apps/desktop`, `apps/mobile`,
 picked up again. Those documents describe development candidates as they stood
 when work stopped, not a supported or available product. The platform
 workflows (`platform-*.yml`) no longer run on pull requests; start them by hand
-from the Actions tab, or restore their `pull_request` triggers to resume.
+from the Actions tab, or restore their `pull_request` triggers to resume. They
+pin the Node 22 runtime the desktop candidates bundled, while the web
+application's `engines` now require Node 26: re-pin and re-prove that bundled
+runtime before running them again.
 
 ## Setup
 
@@ -32,7 +35,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Use Node 22 (see `.nvmrc`) and npm 10.9.7. At minimum, configure:
+Use Node 26 (see `.nvmrc`) and npm 11.20.0. At minimum, configure:
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=...
@@ -47,7 +50,7 @@ Never commit `.env.local`, service-role keys, client secrets, or user exports.
 The optional local Compose file runs only the Next.js web app and Redis. It
 does not start Supabase or provide database credentials. Install Docker with
 the Compose plugin. If you use the repository's local Supabase CLI stack,
-install Node 22 and npm 10.9.7 on the host as well.
+install Node 26 and npm 11.20.0 on the host as well.
 
 Start or connect to a Supabase instance first, then copy the local environment
 template and replace both key placeholders with that instance's actual keys:
