@@ -32,6 +32,30 @@ export function isProcessLockTimeoutEvent(event: {
   return values.every((v) => isProcessLockTimeout(v.type ?? '', v.value ?? ''))
 }
 
+// A browser extension's injected page script is always named inpage.js; the app ships no such file.
+const isExtensionInpageFrame = (filename: string | undefined): boolean =>
+  typeof filename === 'string' &&
+  !filename.includes('/_next/') &&
+  /(?:^|\/)inpage\.js(?:[?#].*)?$/.test(filename)
+
+/** True only when every frame of every exception in the chain is an extension inpage script. */
+export function isExtensionInpageEvent(event: {
+  exception?: {
+    values?: Array<{ stacktrace?: { frames?: Array<{ filename?: string }> } }>
+  }
+}): boolean {
+  const values = event.exception?.values
+  if (!values || values.length === 0) return false
+  return values.every((v) => {
+    const frames = v.stacktrace?.frames
+    return (
+      Array.isArray(frames) &&
+      frames.length > 0 &&
+      frames.every((f) => isExtensionInpageFrame(f.filename))
+    )
+  })
+}
+
 const sentryEnabled =
   process.env.NEXT_PUBLIC_RUNTIME_PROFILE !== 'desktop' &&
   Boolean(dsn) &&
@@ -68,6 +92,11 @@ init({
       exceptionValue.toLowerCase().includes('aborted') ||
       exceptionValue.includes('signal is aborted')
     ) {
+      return null
+    }
+
+    // An error raised entirely inside an extension's injected script is not ours.
+    if (isExtensionInpageEvent(event)) {
       return null
     }
 
