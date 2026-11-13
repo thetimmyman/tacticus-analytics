@@ -5,6 +5,22 @@ built with Next.js and Supabase.
 
 Live app: <https://www.tacticusanalytics.com>
 
+## Native applications (shelved)
+
+The web application above is the supported product. Work on the native
+desktop (Linux, Windows, macOS) and mobile (Android, iOS) applications was
+shelved in November 2026. No native build was signed, published or offered for
+download, and none is planned; the `/downloads` page stays disabled and the
+desktop update feed was never configured.
+
+The source stays in the repository (`apps/desktop`, `apps/mobile`,
+`apps/platform-lab`, `apps/releases`, with notes under `docs/desktop`,
+`docs/mobile`, `docs/platform-lab` and `docs/downloads`) so the work can be
+picked up again. Those documents describe development candidates as they stood
+when work stopped, not a supported or available product. The platform
+workflows (`platform-*.yml`) no longer run on pull requests; start them by hand
+from the Actions tab, or restore their `pull_request` triggers to resume.
+
 ## Setup
 
 ```bash

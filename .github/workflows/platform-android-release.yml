@@ -1,5 +1,8 @@
 name: Protected native Android candidate
 
+# Shelved: the native applications are on hold (see "Native applications" in
+# the README). This manual workflow is kept for a later resumption; no signing
+# identity or protected environment is provisioned for it.
 on:
   workflow_dispatch:
     inputs:

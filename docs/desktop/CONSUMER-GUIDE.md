@@ -1,5 +1,7 @@
 # Tacticus Analytics Desktop — Consumer & Operations Guide
 
+> **Status: shelved (November 2026).** The native applications are on hold and no build has been published; this document describes a development candidate as it stood when work stopped. See "Native applications (shelved)" in the repository README.
+
 Welcome to Tacticus Analytics Desktop. This guide outlines installation, day-to-day offline operations, add-on management, data privacy and sharing controls, backup and disaster recovery, and troubleshooting.
 
 ---

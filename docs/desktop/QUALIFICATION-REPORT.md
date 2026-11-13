@@ -1,5 +1,7 @@
 # Desktop Platform Qualification Report
 
+> **Status: shelved (November 2026).** The native applications are on hold and no build has been published; this document describes a development candidate as it stood when work stopped. See "Native applications (shelved)" in the repository README.
+
 ## 1. Executive Summary & Scope
 
 This report certifies the privacy, security, offline operation, and cross-platform reliability of the Tacticus Analytics Native Desktop application.

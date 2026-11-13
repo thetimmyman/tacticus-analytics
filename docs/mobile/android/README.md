@@ -1,5 +1,7 @@
 # Native Android preview
 
+> **Status: shelved (November 2026).** The native applications are on hold and no build has been published; this document describes a development candidate as it stood when work stopped. See "Native applications (shelved)" in the repository README.
+
 This is an installed local app with native Views, private SQLite and Android Keystore. It reads complete sanitized Player roster/inventory/progress and retained Guild/Raid responses offline, provides paginated native inspection and integer raid calculations, and records manual unverified raids. It has no hosted login or embedded website. This preview is not a qualified release or full application port.
 
 Manual raid entry keeps the form and entered values open when a field is invalid or a local write fails. Field errors identify invalid labels, damage or token counts. A successful save closes the form once; cancellation leaves stored rows unchanged. The form scrolls, uses a secure window and reports save failures through an accessibility live region. Installed synthetic checks cover correction, a forced SQLite write failure with checkpoint rollback, retry, cancellation and demo isolation. These selected checks do not establish complete accessibility or application parity.

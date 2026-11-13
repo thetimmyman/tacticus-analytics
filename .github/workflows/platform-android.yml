@@ -1,13 +1,15 @@
 name: Native Android preview
 
+# Shelved: the native applications are on hold (see "Native applications" in
+# the README). This workflow runs only when started by hand. To resume
+# automatic runs, restore the pull_request trigger commented out below.
 on:
-  pull_request:
-    paths:
-      - 'apps/mobile/android/**'
-      - 'tests/mobile/android/**'
-      - 'docs/mobile/android/**'
-      - 'packages/workspace-onboarding/player-schema.json'
-      - '.github/workflows/platform-android.yml'
+  # pull_request:
+  #   paths: ['apps/mobile/android/**', 'tests/mobile/android/**',
+  #     'docs/mobile/android/**',
+  #     'packages/workspace-onboarding/player-schema.json',
+  #     '.github/workflows/platform-android.yml']
+  workflow_dispatch:
 
 permissions:
   contents: read

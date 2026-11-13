@@ -1,5 +1,7 @@
 # Downloads operation and withdrawal
 
+> **Status: shelved (November 2026).** The native applications are on hold and no build has been published; this document describes a development candidate as it stood when work stopped. See "Native applications (shelved)" in the repository README.
+
 The downloads routes are implemented with all flags off by default. No release manifest, trust key or qualified artifact is bundled for publication. Synthetic fixtures test decisions; they do not establish release availability, installed operation or staging approval.
 
 ## Server configuration

@@ -1,5 +1,7 @@
 # macOS developer candidate
 
+> **Status: shelved (November 2026).** The native applications are on hold and no build has been published; this document describes a development candidate as it stood when work stopped. See "Native applications (shelved)" in the repository README.
+
 The desktop composition remains Electron, the local Next.js server, PostgreSQL,
 Supabase Auth and PostgREST. Native ownership and secret input live outside the
 renderer. This candidate is under development; it does not establish consumer
