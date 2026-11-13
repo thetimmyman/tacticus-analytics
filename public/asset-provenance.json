@@ -53,15 +53,15 @@
     },
     {
       "id": "site-ui-and-branding",
-      "pathPrefixes": ["public/icons/"],
+      "pathPrefixes": ["public/icons/", "public/brand/"],
       "exactPaths": [
         "public/favicon.svg",
         "public/grid.svg",
         "public/images/logo-no-words.png",
         "public/images/logo-words.png"
       ],
-      "trackedAssetCount": 8,
-      "source": "Repository UI and branding assets; public/icons/*.png generated from public/favicon.svg via scripts/assets/generate-pwa-icons.mjs",
+      "trackedAssetCount": 11,
+      "source": "Application branding SVGs and mechanically derived PNGs; regenerate with node scripts/assets/generate-pwa-icons.mjs",
       "rightsStatus": "operator-owned",
       "publicationApproved": true,
       "rightsEvidence": "The site's own UI and branding; publication approved by the operator for the public release (2026-09-25)."

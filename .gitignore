@@ -133,6 +133,8 @@ dist
 !/public/sitemap.xml
 # PWA manifest icons generated from public/favicon.svg via
 # scripts/assets/generate-pwa-icons.mjs.
+!/public/brand/
+!/public/brand/**
 !/public/icons/
 !/public/icons/**
 !/public/images/
