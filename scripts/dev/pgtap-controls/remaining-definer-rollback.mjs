@@ -73,9 +73,18 @@ try {
   ])
   let ready = false
   for (let attempt = 0; attempt < 60; attempt += 1) {
+    // Over TCP: the image's temporary init server answers on the socket
+    // only, and shuts down before the final server starts.
     if (
-      spawnSync('docker', ['exec', container, 'pg_isready', '-U', 'postgres'])
-        .status === 0
+      spawnSync('docker', [
+        'exec',
+        container,
+        'pg_isready',
+        '-h',
+        '127.0.0.1',
+        '-U',
+        'postgres'
+      ]).status === 0
     ) {
       ready = true
       break
