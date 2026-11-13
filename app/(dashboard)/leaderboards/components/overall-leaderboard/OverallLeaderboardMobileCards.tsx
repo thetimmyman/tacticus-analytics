@@ -6,7 +6,7 @@ import {
 } from '@tacticus/app-core/formatters'
 import { PlayerLink } from '@/app/components/ui/PlayerLink'
 import { formatGuildDisplayLabel } from '@/app/lib/format/guild'
-import { getGuildColor, getRankBadge } from './model'
+import { getGuildColor, getLeaderboardRowKey, getRankBadge } from './model'
 import type { EnhancedPlayerStats } from './types'
 
 interface OverallLeaderboardMobileCardsProps {
@@ -28,7 +28,7 @@ export function OverallLeaderboardMobileCards({
         const rank = player.scoreRank ?? player.currentRank
         return (
           <div
-            key={player.stableKey}
+            key={getLeaderboardRowKey(player)}
             className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg p-3 sm:p-4 space-y-2 sm:space-y-3"
           >
             <div className="flex items-start justify-between">

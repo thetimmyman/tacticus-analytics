@@ -113,6 +113,7 @@ raid_rows_follow_guild_cluster.sql # 11
 outbound_kill_switch_row.sql # 21
 
 monitoring_observation_retirement.sql # 110
+cluster_leaderboard_guild_scope.sql # 33
 
 # === DARK ===
 # cluster_rankings_refresh_throttle.sql # RED -- ledger gate: the migration this suite judges is one of the 17 the throwaway cannot apply

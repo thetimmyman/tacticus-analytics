@@ -13,7 +13,7 @@ export type ClusterLeaderboardRow = {
   all_battle_count: number
   all_bosses_killed: number
   percent_vs_cluster: number | null
-  current_rank: number
+  current_rank: number | null
 }
 
 export type HistoricalRankingRow = {

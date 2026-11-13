@@ -7,7 +7,7 @@ import {
 import { PlayerLink } from '@/app/components/ui/PlayerLink'
 import { DataTable, type DataTableColumn } from '@tacticus/ui-kit'
 import { formatGuildDisplayLabel } from '@/app/lib/format/guild'
-import { getGuildColor, getRankBadge } from './model'
+import { getGuildColor, getLeaderboardRowKey, getRankBadge } from './model'
 import type { EnhancedPlayerStats, SortDirection, SortField } from './types'
 
 interface OverallLeaderboardDesktopTableProps {
@@ -176,7 +176,7 @@ export function OverallLeaderboardDesktopTable({
       <DataTable
         rows={rows}
         columns={columns}
-        rowKey={(player) => player.stableKey}
+        rowKey={getLeaderboardRowKey}
         sort={{ key: sortField, direction: sortDirection }}
         onSortChange={onSortChange}
         externallySorted

@@ -5,6 +5,7 @@ import {
   getTokenRatioForIdentifiers
 } from '@tacticus/app-core/token-weighting'
 import type { SeasonTokenStats } from '@tacticus/app-core/tokens.types'
+import type { TokenRatioParticipant } from '@tacticus/app-core/token-weighting'
 import type {
   ClusterLeaderboardRow,
   HistoricalRankingRow
@@ -65,6 +66,8 @@ export function attachHistoricalRankings(
     rankingsBySeason.get(priorSeason) ?? new Map<string, number>()
 
   return players.map((player) => {
+    // Only the player's ranked row carries rank history.
+    if (player.currentRank == null) return player
     const currentRank = player.currentRank ?? 0
     const priorRank = priorRankings.get(player.stableKey)
     const rankChange = priorRank ? priorRank - currentRank : undefined
@@ -103,11 +106,52 @@ export function buildLeaderboardTokenRatioMaps(
     }
   }
 
-  const participants = players.map((player) => ({
-    playerId: player.userId ?? undefined,
-    displayName: player.displayName,
-    value: player.battleCount
-  }))
+  // One participant per player: a player can appear in several rows (for
+  // example after a mid-season guild or name change). Battle counts are
+  // totals for a player within one guild, so rows repeating the same guild --
+  // a rename inside that guild -- already carry the guild's whole count and
+  // only an increase adds battles, while rows in different guilds are summed.
+  // Identity comes from the player's ranked row when it exists.
+  const participantIndexByStableKey = new Map<string, number>()
+  const countedBattlesByPair = new Map<string, number>()
+  const rankedIdentityApplied = new Set<string>()
+  const participants: TokenRatioParticipant[] = []
+
+  players.forEach((player) => {
+    const pairKey = `${player.stableKey}::${player.Guild}`
+    const battlesAlreadyCounted = countedBattlesByPair.get(pairKey) ?? 0
+    const addedBattles = Math.max(0, player.battleCount - battlesAlreadyCounted)
+    countedBattlesByPair.set(
+      pairKey,
+      Math.max(battlesAlreadyCounted, player.battleCount)
+    )
+    const existingIndex = participantIndexByStableKey.get(player.stableKey)
+
+    if (existingIndex === undefined) {
+      participantIndexByStableKey.set(player.stableKey, participants.length)
+      participants.push({
+        playerId: player.userId ?? undefined,
+        displayName: player.displayName,
+        value: addedBattles
+      })
+      if (player.currentRank != null) {
+        rankedIdentityApplied.add(player.stableKey)
+      }
+      return
+    }
+
+    const participant = participants[existingIndex]!
+    participant.value += addedBattles
+
+    if (
+      player.currentRank != null &&
+      !rankedIdentityApplied.has(player.stableKey)
+    ) {
+      participant.playerId = player.userId ?? undefined
+      participant.displayName = player.displayName
+      rankedIdentityApplied.add(player.stableKey)
+    }
+  })
 
   return {
     max: deriveParticipationShareRatiosFromParticipants(participants, 'max'),
@@ -162,24 +206,23 @@ export function enhanceLeaderboardPlayers(options: {
       scoreRank: null
     }
   })
-  const ranked = [...computed].sort((left, right) => {
-    const leftScore =
-      typeof left.performanceValue === 'number'
-        ? left.performanceValue
-        : Number.NEGATIVE_INFINITY
-    const rightScore =
-      typeof right.performanceValue === 'number'
-        ? right.performanceValue
-        : Number.NEGATIVE_INFINITY
-    return rightScore - leftScore
+  const rankedEntries = computed
+    .map((player, index) => ({ player, index }))
+    .filter((entry) => entry.player.currentRank != null)
+    .sort(
+      (left, right) =>
+        (right.player.performanceValue ?? Number.NEGATIVE_INFINITY) -
+        (left.player.performanceValue ?? Number.NEGATIVE_INFINITY)
+    )
+  const ranks = new Map<number, number>()
+
+  rankedEntries.forEach((entry, position) => {
+    ranks.set(entry.index, position + 1)
   })
-  const ranks = new Map<string, number>()
 
-  ranked.forEach((player, index) => ranks.set(player.stableKey, index + 1))
-
-  return computed.map((player) => ({
+  return computed.map((player, index) => ({
     ...player,
-    scoreRank: ranks.get(player.stableKey) ?? null
+    scoreRank: ranks.get(index) ?? null
   }))
 }
 
@@ -206,6 +249,13 @@ export function filterAndSortLeaderboardPlayers(options: {
   }
 
   filtered.sort((left, right) => {
+    // Unranked rows always trail ranked rows, in either direction.
+    if (options.sortField === 'rank') {
+      const leftRanked = left.scoreRank != null
+      const rightRanked = right.scoreRank != null
+      if (leftRanked !== rightRanked) return leftRanked ? -1 : 1
+    }
+
     const getValue = (player: EnhancedPlayerStats): number | string => {
       switch (options.sortField) {
         case 'rank':
@@ -292,4 +342,8 @@ export function getRankBadge(rank: number | null | undefined): string {
 
 export function getGuildColor(guild: string, userGuild: string): string {
   return guild === userGuild ? 'text-(--primary)' : 'text-primary-wh40k'
+}
+
+export function getLeaderboardRowKey(player: PlayerStats): string {
+  return `${player.stableKey}::${player.Guild}::${player.displayName}`
 }
