@@ -22,7 +22,7 @@ export interface PlayerStats {
   allBattleCount: number
   allBossesKilled: number
   percentVsCluster?: number
-  currentRank?: number
+  currentRank?: number | null
   priorSeasonRank?: number
   rankChange?: number
   fiveSeasonAvgRank?: number

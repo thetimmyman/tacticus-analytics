@@ -620,6 +620,11 @@
       "file": "20261028120000_monitoring_observation_retirement.sql",
       "reason": "hosted-service-integration",
       "detail": "Audits obsolete hosted monitoring observations; the desktop bootstrap has no monitoring inventory."
+    },
+    {
+      "file": "20261113000000_guild_scope_cluster_leaderboard_totals_and_rank.sql",
+      "reason": "production-app-schema",
+      "detail": "Rewrites the hosted cluster leaderboard functions and rankings materialized view, which are absent from the local bootstrap; it does not change the canonical desktop schema."
     }
   ]
 }
