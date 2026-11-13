@@ -143,7 +143,8 @@ docker run -d --name "$CONTAINER" \
   echo "could not start $IMAGE" >&2; exit 1; }
 
 for _ in $(seq 1 60); do
-  docker exec "$CONTAINER" pg_isready -U postgres >/dev/null 2>&1 && break
+  # Over TCP: the image's temporary init server answers on the socket only.
+  docker exec "$CONTAINER" pg_isready -h 127.0.0.1 -U postgres >/dev/null 2>&1 && break
   sleep 1
 done
 
