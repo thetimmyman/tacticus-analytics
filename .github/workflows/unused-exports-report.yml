@@ -1,7 +1,6 @@
 name: Unused Exports Report
 
-# Advisory report, run on request. The weekly schedule was removed on
-# 2026-11-13: development has stopped, so the report no longer changes.
+# Advisory report, run on request: with development stopped it does not change.
 on:
   workflow_dispatch:
 
