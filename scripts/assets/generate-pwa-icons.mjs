@@ -1,78 +1,50 @@
 #!/usr/bin/env node
-/** Generates the PWA manifest icons from public/favicon.svg (ImageMagick), glyph recoloured white. */
-import { execFileSync } from 'node:child_process'
-import {
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  statSync,
-  writeFileSync
-} from 'node:fs'
-import { tmpdir } from 'node:os'
+/** Derives app icons and compatibility logos without altering the SVG artwork. */
+import { mkdir } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import sharp from 'sharp'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const repoRoot = path.resolve(__dirname, '..', '..')
-const publicDir = path.join(repoRoot, 'public')
-const iconsDir = path.join(publicDir, 'icons')
-const svgSource = path.join(publicDir, 'favicon.svg')
+const root = fileURLToPath(new URL('../../', import.meta.url))
+const source = path.join(root, 'public/favicon.svg')
+const icons = path.join(root, 'public/icons')
+const android = path.join(root, 'apps/mobile/android/app/src/main/res/drawable')
+await mkdir(icons, { recursive: true })
+await mkdir(android, { recursive: true })
 
-const BACKGROUND_COLOR = '#000000'
-const GLYPH_COLOR = '#ffffff'
-
-mkdirSync(iconsDir, { recursive: true })
-
-// mkdtempSync gives a private 0700 directory, not a symlink-attackable path.
-const scratchDir = mkdtempSync(path.join(tmpdir(), 'pwa-icons-'))
-const whiteSvgPath = path.join(scratchDir, 'favicon-white.svg')
-const svgText = readFileSync(svgSource, 'utf8').replace(
-  /fill="#000000"/g,
-  `fill="${GLYPH_COLOR}"`
-)
-writeFileSync(whiteSvgPath, svgText)
-
-function composite(outPath, canvasSize, glyphSize) {
-  execFileSync('magick', [
-    '-size',
-    `${canvasSize}x${canvasSize}`,
-    `xc:${BACKGROUND_COLOR}`,
-    '(',
-    '-background',
-    'none',
-    whiteSvgPath,
-    '-resize',
-    `${glyphSize}x${glyphSize}`,
-    ')',
-    '-gravity',
-    'center',
-    '-compose',
-    'over',
-    '-composite',
-    // Drop PNG date chunks so re-runs are byte-identical.
-    '-define',
-    'png:exclude-chunk=date,time',
-    outPath
-  ])
-  console.log(
-    `wrote ${path.relative(repoRoot, outPath)} (${statSync(outPath).size} bytes)`
-  )
+async function raster(input, output, width) {
+  await sharp(input, { density: 384 }).resize({ width }).png().toFile(output)
+  console.log(`wrote ${path.relative(root, output)}`)
 }
 
-for (const { file, size } of [
-  { file: 'icon-192.png', size: 192 },
-  { file: 'icon-512.png', size: 512 },
-  { file: 'icon-1024.png', size: 1024 }
-]) {
-  composite(path.join(iconsDir, file), size, Math.round(size * 0.8))
+for (const size of [192, 512, 1024]) {
+  await raster(source, path.join(icons, `icon-${size}.png`), size)
 }
-
-// Maskable: glyph within the inner 80% safe zone so OS masks don't clip it.
-composite(
-  path.join(iconsDir, 'icon-512-maskable.png'),
-  512,
-  Math.round(512 * 0.8)
+await raster(source, path.join(icons, 'apple-touch-icon.png'), 180)
+await raster(source, path.join(android, 'app_icon.png'), 192)
+await raster(source, path.join(root, 'public/images/logo-no-words.png'), 512)
+await raster(
+  path.join(root, 'public/brand/tacticus-analytics-logo.svg'),
+  path.join(root, 'public/images/logo-words.png'),
+  1024
 )
 
-rmSync(scratchDir, { recursive: true, force: true })
+// The entire tile fits in the central 80%-diameter safe circle, including corners.
+// A 56% square has a diagonal below 80%; padding is outside the unchanged artwork.
+const size = 512
+const inset = await sharp(source, { density: 384 })
+  .resize(Math.floor(size * 0.56))
+  .png()
+  .toBuffer()
+await sharp({
+  create: {
+    width: size,
+    height: size,
+    channels: 4,
+    background: '#0e1213'
+  }
+})
+  .composite([{ input: inset, gravity: 'centre' }])
+  .png()
+  .toFile(path.join(icons, 'icon-512-maskable.png'))
+console.log('wrote public/icons/icon-512-maskable.png')
