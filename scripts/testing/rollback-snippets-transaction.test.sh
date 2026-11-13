@@ -25,7 +25,8 @@ docker run --detach --name "$container" --network none \
 
 ready=0
 for _ in $(seq 1 60); do
-  if docker exec "$container" pg_isready -U postgres >/dev/null 2>&1; then
+  # Over TCP: the image's temporary init server answers on the socket only.
+  if docker exec "$container" pg_isready -h 127.0.0.1 -U postgres >/dev/null 2>&1; then
     ready=1
     break
   fi
