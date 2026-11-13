@@ -195,25 +195,23 @@ export function enhanceLeaderboardPlayers(options: {
       scoreRank: null
     }
   })
-  const rankedIndices = computed
-    .map((_, index) => index)
-    .filter((index) => computed[index].currentRank != null)
-    .sort((left, right) => {
-      const leftScore =
-        computed[left].performanceValue ?? Number.NEGATIVE_INFINITY
-      const rightScore =
-        computed[right].performanceValue ?? Number.NEGATIVE_INFINITY
-      return rightScore - leftScore
-    })
-  const ranks: (number | null)[] = computed.map(() => null)
+  const rankedEntries = computed
+    .map((player, index) => ({ player, index }))
+    .filter((entry) => entry.player.currentRank != null)
+    .sort(
+      (left, right) =>
+        (right.player.performanceValue ?? Number.NEGATIVE_INFINITY) -
+        (left.player.performanceValue ?? Number.NEGATIVE_INFINITY)
+    )
+  const ranks = new Map<number, number>()
 
-  rankedIndices.forEach((rowIndex, index) => {
-    ranks[rowIndex] = index + 1
+  rankedEntries.forEach((entry, position) => {
+    ranks.set(entry.index, position + 1)
   })
 
   return computed.map((player, index) => ({
     ...player,
-    scoreRank: ranks[index]
+    scoreRank: ranks.get(index) ?? null
   }))
 }
 
