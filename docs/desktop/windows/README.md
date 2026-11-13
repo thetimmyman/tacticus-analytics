@@ -1,5 +1,7 @@
 # Windows qualification candidate
 
+> **Status: shelved (November 2026).** The native applications are on hold and no build has been published; this document describes a development candidate as it stood when work stopped. See "Native applications (shelved)" in the repository README.
+
 The candidate adapts the existing Electron, Next standalone, PostgreSQL, Supabase Auth and PostgREST application to Windows x64. It preserves the existing local schema and synthetic graphical journey. It does not establish full application parity or authorize a public release.
 
 The intended consumer target is Windows 11 x64. The workflow exercises Windows Server on standard GitHub-hosted capacity. That evidence cannot establish ordinary standard-user installation, UAC prompts, SmartScreen, antivirus behavior or a consumer Windows host. Other Windows versions and architectures remain unqualified.

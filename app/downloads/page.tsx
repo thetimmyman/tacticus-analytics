@@ -27,9 +27,9 @@ export default async function DownloadsPage() {
       <h1 className="text-3xl font-bold">Tacticus Analytics downloads</h1>
       {state.status !== 'ready' ? (
         <p className="mt-5 rounded border border-slate-600 p-5" role="status">
-          Downloads are currently unavailable. Public releases will appear here
-          after their installation, signing, rights and security reviews are
-          complete.
+          Downloads are currently unavailable. The native desktop and mobile
+          applications are on hold and no release has been published. Tacticus
+          Analytics is supported as this web application.
         </p>
       ) : (
         <>

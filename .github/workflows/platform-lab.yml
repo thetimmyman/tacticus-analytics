@@ -1,12 +1,15 @@
 name: Platform lab smoke
 
+# Shelved: the native applications are on hold (see "Native applications" in
+# the README). This workflow runs only when started by hand. To resume
+# automatic runs, restore the pull_request trigger commented out below.
 on:
-  pull_request:
-    paths:
-      - 'apps/platform-lab/**'
-      - 'tests/platform-lab/**'
-      - 'docs/platform-lab/**'
-      - '.github/workflows/platform-lab.yml'
+  # pull_request:
+  #   paths:
+  #     - 'apps/platform-lab/**'
+  #     - 'tests/platform-lab/**'
+  #     - 'docs/platform-lab/**'
+  #     - '.github/workflows/platform-lab.yml'
   workflow_dispatch:
 
 permissions:

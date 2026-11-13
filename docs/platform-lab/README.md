@@ -1,5 +1,7 @@
 # Platform lab
 
+> **Status: shelved (November 2026).** The native applications are on hold and no build has been published; this document describes a development candidate as it stood when work stopped. See "Native applications (shelved)" in the repository README.
+
 The lab runs explicitly supplied installed-product adapters against synthetic fixtures and writes private, hash-bound evidence. It supplies environments and orchestration; platform applications and packaging belong to their adapters. Run with Node 22.23.x:
 
 ```sh
