@@ -7,7 +7,7 @@ production service, background collector or automatic sharing. The native
 runtime must supply `ContributionControlAdapter`, authenticated transport and
 secure input. These adapters have not been qualified on packaged platforms.
 
-Run the synthetic integration checks with Node 22:
+Run the synthetic integration checks with the Node line in `.nvmrc`:
 
 ```sh
 node --test tests/contribution/*.test.mjs

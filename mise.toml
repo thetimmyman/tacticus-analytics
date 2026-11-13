@@ -12,4 +12,4 @@
 # tracked in the tooling-adoption follow-ups. Don't add a python pin casually;
 # it would shadow the engine venv.
 [tools]
-node = "22"
+node = "26"

@@ -18,6 +18,11 @@ version: 2
 # Not covered by Dependabot: Node version pins (workflow `node-version:`
 # fields, .nvmrc, mise.toml, apps/desktop/runtime-inputs.json).
 
+# Node images stay on an active LTS line. Odd-numbered Node majors never
+# become LTS, so they are ignored below. An even major is a Current release
+# until its October promotion to LTS; move to it only after that, and move the
+# image tags, .nvmrc, mise.toml and `engines` together in one change.
+
 # The native applications are shelved, so the Android Gradle plugin entry
 # (`gradle` in /apps/mobile/android) is not listed. To restore it, add that
 # entry with the weekly schedule, a limit of 2, a 7-day cooldown and a
@@ -89,6 +94,14 @@ updates:
         update-types:
           - 'minor'
           - 'patch'
+    ignore:
+      - dependency-name: 'node' # odd majors are never LTS
+        versions:
+          - '>= 23, < 24'
+          - '>= 25, < 26'
+          - '>= 27, < 28'
+          - '>= 29, < 30'
+          - '>= 31, < 32'
 
   - package-ecosystem: 'docker-compose'
     directory: '/'
@@ -105,3 +118,11 @@ updates:
         update-types:
           - 'minor'
           - 'patch'
+    ignore:
+      - dependency-name: 'node' # odd majors are never LTS
+        versions:
+          - '>= 23, < 24'
+          - '>= 25, < 26'
+          - '>= 27, < 28'
+          - '>= 29, < 30'
+          - '>= 31, < 32'
