@@ -9,7 +9,6 @@ import { YouTubeIcon } from '@/app/components/icons/YouTubeIcon'
 
 const iconCases: Array<[string, ComponentType<{ className?: string }>]> = [
   ['DiscordIcon', DiscordIcon],
-  ['AnalyticsIcon', AnalyticsIcon],
   ['GoogleSheetsIcon', GoogleSheetsIcon],
   ['TikTokIcon', TikTokIcon],
   ['YouTubeIcon', YouTubeIcon]
@@ -22,5 +21,16 @@ describe('icon components', () => {
 
     expect(svg).not.toBeNull()
     expect(svg?.getAttribute('class')).toContain('icon-class')
+  })
+
+  it('renders AnalyticsIcon as the decorative project mark with className', () => {
+    const { container } = render(<AnalyticsIcon className="icon-class" />)
+    const img = container.querySelector('img')
+
+    expect(img).not.toBeNull()
+    expect(img?.getAttribute('src')).toBe('/favicon.svg')
+    expect(img?.getAttribute('alt')).toBe('')
+    expect(img?.getAttribute('aria-hidden')).toBe('true')
+    expect(img?.getAttribute('class')).toContain('icon-class')
   })
 })
