@@ -467,6 +467,74 @@ describe('OverallLeaderboard model', () => {
     expect(fallback.max.get('other-id')).toBeCloseTo(12 / 13)
   })
 
+  it('counts a rename inside one guild once in the token fallback', () => {
+    const players = [
+      makePlayer({
+        displayName: 'Old Alias',
+        Guild: 'AAA',
+        stableKey: 'renamed-key',
+        userId: 'renamed-id',
+        battleCount: 8,
+        currentRank: null
+      }),
+      makePlayer({
+        displayName: 'New Alias',
+        Guild: 'AAA',
+        stableKey: 'renamed-key',
+        userId: 'renamed-id',
+        battleCount: 8,
+        currentRank: 2
+      }),
+      makePlayer({
+        displayName: 'Other',
+        stableKey: 'other-key',
+        userId: 'other-id',
+        battleCount: 10,
+        currentRank: 1
+      })
+    ]
+
+    const fallback = buildLeaderboardTokenRatioMaps(players, null)
+
+    expect(fallback.max.get('other-id')).toBe(1)
+    expect(fallback.max.get('renamed-id')).toBe(0.8)
+    expect(fallback.max.get('new alias')).toBe(0.8)
+    expect(fallback.max.has('old alias')).toBe(false)
+  })
+
+  it('sums a guild mover across guilds in the token fallback', () => {
+    const players = [
+      makePlayer({
+        displayName: 'Mover',
+        Guild: 'NEW',
+        stableKey: 'mover-key',
+        userId: 'mover-id',
+        battleCount: 12,
+        currentRank: 3
+      }),
+      makePlayer({
+        displayName: 'Mover',
+        Guild: 'OLD',
+        stableKey: 'mover-key',
+        userId: 'mover-id',
+        battleCount: 1,
+        currentRank: null
+      }),
+      makePlayer({
+        displayName: 'Other',
+        stableKey: 'other-key',
+        userId: 'other-id',
+        battleCount: 26,
+        currentRank: 1
+      })
+    ]
+
+    const fallback = buildLeaderboardTokenRatioMaps(players, null)
+
+    expect(fallback.max.get('other-id')).toBe(1)
+    expect(fallback.max.get('mover-id')).toBe(0.5)
+  })
+
   it.each([false, true])(
     'ranks only the primary renamed row with token mode %s',
     (tokenMode) => {

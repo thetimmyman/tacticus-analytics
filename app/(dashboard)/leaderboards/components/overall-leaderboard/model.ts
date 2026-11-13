@@ -107,13 +107,24 @@ export function buildLeaderboardTokenRatioMaps(
   }
 
   // One participant per player: a player can appear in several rows (for
-  // example after a mid-season guild or name change), so battle counts are
-  // summed while identity comes from the player's ranked row when it exists.
+  // example after a mid-season guild or name change). Battle counts are
+  // totals for a player within one guild, so rows repeating the same guild --
+  // a rename inside that guild -- already carry the guild's whole count and
+  // only an increase adds battles, while rows in different guilds are summed.
+  // Identity comes from the player's ranked row when it exists.
   const participantIndexByStableKey = new Map<string, number>()
+  const countedBattlesByPair = new Map<string, number>()
   const rankedIdentityApplied = new Set<string>()
   const participants: TokenRatioParticipant[] = []
 
   players.forEach((player) => {
+    const pairKey = `${player.stableKey}::${player.Guild}`
+    const battlesAlreadyCounted = countedBattlesByPair.get(pairKey) ?? 0
+    const addedBattles = Math.max(0, player.battleCount - battlesAlreadyCounted)
+    countedBattlesByPair.set(
+      pairKey,
+      Math.max(battlesAlreadyCounted, player.battleCount)
+    )
     const existingIndex = participantIndexByStableKey.get(player.stableKey)
 
     if (existingIndex === undefined) {
@@ -121,7 +132,7 @@ export function buildLeaderboardTokenRatioMaps(
       participants.push({
         playerId: player.userId ?? undefined,
         displayName: player.displayName,
-        value: player.battleCount
+        value: addedBattles
       })
       if (player.currentRank != null) {
         rankedIdentityApplied.add(player.stableKey)
@@ -130,7 +141,7 @@ export function buildLeaderboardTokenRatioMaps(
     }
 
     const participant = participants[existingIndex]!
-    participant.value += player.battleCount
+    participant.value += addedBattles
 
     if (
       player.currentRank != null &&
