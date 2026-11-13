@@ -220,7 +220,7 @@
     "postcss": "^8.5.28",
     "prettier": "^3.9.10",
     "storybook": "^10.6.6",
-    "supabase": "^2.121.0",
+    "supabase": "^3.0.0",
     "tailwindcss": "^4.3.3",
     "tailwindcss-debug-screens": "^3.0.1",
     "tsx": "^4.23.15",
