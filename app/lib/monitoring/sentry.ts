@@ -64,6 +64,16 @@ function normalizeNonError(value: NonErrorLike): Error {
   return err
 }
 
+const capturedOriginalValues = new WeakMap<Error, unknown>()
+
+/** Return the un-normalized rejection value when Sentry captured a synthetic NonError wrapper. */
+export function unwrapCapturedOriginalException(value: unknown): unknown {
+  if (value instanceof Error && capturedOriginalValues.has(value)) {
+    return capturedOriginalValues.get(value)
+  }
+  return value
+}
+
 export function captureSentryException(
   error: unknown,
   context?: CaptureContext
@@ -82,7 +92,9 @@ export function captureSentryException(
       return true
     }
     const nonError = error as NonErrorLike
-    sentryCaptureException(normalizeNonError(nonError), {
+    const wrappedError = normalizeNonError(nonError)
+    capturedOriginalValues.set(wrappedError, error)
+    sentryCaptureException(wrappedError, {
       level: safeContext?.level,
       tags: safeContext?.tags,
       extra: {

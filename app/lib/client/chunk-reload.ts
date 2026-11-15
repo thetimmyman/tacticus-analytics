@@ -335,50 +335,153 @@ export function resolveChunkReloadOutcome(
   return 'attempted'
 }
 
-const capturedChunkObjects = new WeakSet<object>()
-const pendingChunkMessages = new Map<string, number>()
+const MAX_STRING_TRACKING_ENTRIES = 64
+const STRING_TRACKING_TTL_MS = 50
 
-function recordCapturedChunkError(value: unknown): void {
-  if (value && typeof value === 'object') {
-    capturedChunkObjects.add(value)
-    return
-  }
-  if (typeof value === 'string') {
-    const nextCount = (pendingChunkMessages.get(value) ?? 0) + 1
-    pendingChunkMessages.set(value, nextCount)
-    queueMicrotask(() => {
-      const current = pendingChunkMessages.get(value)
-      if (current !== undefined && current <= 1) {
-        pendingChunkMessages.delete(value)
-      } else if (current !== undefined) {
-        pendingChunkMessages.set(value, current - 1)
-      }
-    })
+const processedTaggedChunkObjects = new WeakSet<object>()
+const processedTaggedChunkStrings = new Map<string, Set<number>>()
+const processedGlobalChunkStrings = new Map<string, Set<number>>()
+const resolvedChunkObjectOutcomes = new WeakMap<
+  object,
+  'attempted' | 'suppressed'
+>()
+const resolvedChunkStringOutcomes = new Map<
+  string,
+  { outcome: 'attempted' | 'suppressed'; token: number }
+>()
+let nextTrackingToken = 0
+
+function unrefTimer(timer: ReturnType<typeof setTimeout>): void {
+  if (typeof timer === 'object' && timer !== null && 'unref' in timer) {
+    ;(timer as { unref?: () => void }).unref?.()
   }
 }
 
-/** True only when handleChunkLoadError already emitted a tagged capture for this error. */
-export function consumeCapturedChunkReloadDuplicate(value: unknown): boolean {
+function evictOldestMapEntry<K, V>(map: Map<K, V>, maxEntries: number): void {
+  if (map.size < maxEntries) return
+  const oldestKey = map.keys().next().value
+  if (oldestKey !== undefined) {
+    map.delete(oldestKey)
+  }
+}
+
+function addPendingMessageToken(
+  map: Map<string, Set<number>>,
+  message: string
+): void {
+  let tokens = map.get(message)
+  if (!tokens) {
+    evictOldestMapEntry(map, MAX_STRING_TRACKING_ENTRIES)
+    tokens = new Set<number>()
+    map.set(message, tokens)
+  }
+  const token = ++nextTrackingToken
+  tokens.add(token)
+  const activeTokens = tokens
+  const timer = setTimeout(() => {
+    activeTokens.delete(token)
+    if (activeTokens.size === 0 && map.get(message) === activeTokens) {
+      map.delete(message)
+    }
+  }, STRING_TRACKING_TTL_MS)
+  unrefTimer(timer)
+}
+
+function consumePendingMessageToken(
+  map: Map<string, Set<number>>,
+  message: string
+): boolean {
+  const tokens = map.get(message)
+  if (!tokens || tokens.size === 0) return false
+  const firstToken = tokens.values().next().value
+  if (firstToken === undefined) return false
+  tokens.delete(firstToken)
+  if (tokens.size === 0) {
+    map.delete(message)
+  }
+  return true
+}
+
+function recordResolvedChunkOutcome(
+  value: unknown,
+  outcome: 'attempted' | 'suppressed'
+): void {
   if (value && typeof value === 'object') {
-    if (!capturedChunkObjects.has(value)) return false
-    capturedChunkObjects.delete(value)
-    return true
+    resolvedChunkObjectOutcomes.set(value, outcome)
+    return
   }
   if (typeof value === 'string') {
-    const current = pendingChunkMessages.get(value)
-    if (!current) return false
-    if (current <= 1) {
-      pendingChunkMessages.delete(value)
-    } else {
-      pendingChunkMessages.set(value, current - 1)
+    evictOldestMapEntry(
+      resolvedChunkStringOutcomes,
+      MAX_STRING_TRACKING_ENTRIES
+    )
+    const token = ++nextTrackingToken
+    resolvedChunkStringOutcomes.set(value, { outcome, token })
+    const timer = setTimeout(() => {
+      if (resolvedChunkStringOutcomes.get(value)?.token === token) {
+        resolvedChunkStringOutcomes.delete(value)
+      }
+    }, STRING_TRACKING_TTL_MS)
+    unrefTimer(timer)
+  }
+}
+
+/** Record a chunk event only after Sentry beforeSend actually processes it. */
+export function recordProcessedChunkEvent(
+  value: unknown,
+  source: 'tagged' | 'global'
+): void {
+  if (source === 'tagged') {
+    if (value && typeof value === 'object') {
+      processedTaggedChunkObjects.add(value)
+      return
     }
-    return true
+    if (typeof value === 'string') {
+      addPendingMessageToken(processedTaggedChunkStrings, value)
+    }
+    return
+  }
+  if (typeof value === 'string') {
+    addPendingMessageToken(processedGlobalChunkStrings, value)
+  }
+}
+
+/** True only when a matching chunk event already cleared Sentry beforeSend. */
+export function consumeCapturedChunkReloadDuplicate(
+  value: unknown,
+  source: 'tagged' | 'global' = 'tagged'
+): boolean {
+  if (source === 'tagged') {
+    if (value && typeof value === 'object') {
+      if (!processedTaggedChunkObjects.has(value)) return false
+      processedTaggedChunkObjects.delete(value)
+      return true
+    }
+    if (typeof value === 'string') {
+      return consumePendingMessageToken(processedTaggedChunkStrings, value)
+    }
+    return false
+  }
+  if (typeof value === 'string') {
+    return consumePendingMessageToken(processedGlobalChunkStrings, value)
   }
   return false
 }
 
-/** Read-only outcome for chunk failures seen via global handlers before handleChunkLoadError runs. */
-export function peekChunkReloadOutcome(): 'attempted' | 'suppressed' {
+/** Read-only outcome for chunk failures seen via global handlers, even if async beforeSend runs after sessionStorage mutation. */
+export function peekChunkReloadOutcome(
+  value?: unknown
+): 'attempted' | 'suppressed' {
+  if (value && typeof value === 'object') {
+    const resolved = resolvedChunkObjectOutcomes.get(value)
+    if (resolved) return resolved
+  } else if (typeof value === 'string') {
+    const resolved = resolvedChunkStringOutcomes.get(value)
+    if (resolved) {
+      resolvedChunkStringOutcomes.delete(value)
+      return resolved.outcome
+    }
+  }
   const storage = getSessionStorage()
   if (!storage) {
     return 'suppressed'
@@ -398,12 +501,10 @@ export function handleChunkLoadError(
 ): ChunkReloadOutcome {
   const outcome = resolveChunkReloadOutcome(value, context)
   if (outcome === 'attempted' || outcome === 'suppressed') {
-    const captured = captureSentryException(value, {
+    recordResolvedChunkOutcome(value, outcome)
+    captureSentryException(value, {
       tags: { chunk_reload: outcome }
     })
-    if (captured !== false) {
-      recordCapturedChunkError(value)
-    }
   }
   return outcome
 }

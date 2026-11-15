@@ -197,4 +197,105 @@ describe('instrumentation-client + Sentry SDK chunk telemetry integration', () =
       'attempted'
     )
   })
+
+  it('preserves 1 warning on attempted reload and 1 error on suppressed reload when an async event processor defers global-handler beforeSend past handleChunkLoadError', async () => {
+    const { chunkReload, sentry } = await loadClientModules()
+    sentry.addEventProcessor((event) => Promise.resolve(event))
+
+    const firstChunkError = new Error(
+      'Failed to load chunk /_next/static/chunks/async-page.js'
+    )
+    firstChunkError.name = 'ChunkLoadError'
+
+    sentry.withScope((scope) => {
+      scope.addEventProcessor((event) => {
+        if (event.exception?.values?.[0]) {
+          event.exception.values[0].mechanism = {
+            type: 'auto.browser.global_handlers.onunhandledrejection',
+            handled: false
+          }
+        }
+        return event
+      })
+      sentry.captureException(firstChunkError)
+    })
+    expect(chunkReload.handleChunkLoadError(firstChunkError)).toBe('attempted')
+
+    await sentry.flush(1000)
+
+    expect(reloadMock).toHaveBeenCalledTimes(1)
+    expect(sentEvents).toHaveLength(1)
+    expect(sentEvents[0]?.level).toBe('warning')
+    expect(sentEvents[0]?.fingerprint).toEqual([
+      'client-chunk-reload-attempted'
+    ])
+    expect((sentEvents[0]?.tags as Record<string, string>)?.chunk_reload).toBe(
+      'attempted'
+    )
+
+    sentEvents.length = 0
+    const secondChunkError = new Error(
+      'Failed to load chunk /_next/static/chunks/async-page.js'
+    )
+    secondChunkError.name = 'ChunkLoadError'
+
+    sentry.withScope((scope) => {
+      scope.addEventProcessor((event) => {
+        if (event.exception?.values?.[0]) {
+          event.exception.values[0].mechanism = {
+            type: 'auto.browser.global_handlers.onerror',
+            handled: false
+          }
+        }
+        return event
+      })
+      sentry.captureException(secondChunkError)
+    })
+    expect(chunkReload.handleChunkLoadError(secondChunkError)).toBe(
+      'suppressed'
+    )
+
+    await sentry.flush(1000)
+
+    expect(reloadMock).toHaveBeenCalledTimes(1)
+    expect(sentEvents).toHaveLength(1)
+    expect(sentEvents[0]?.level).toBe('error')
+    expect((sentEvents[0]?.tags as Record<string, string>)?.chunk_reload).toBe(
+      'suppressed'
+    )
+  })
+
+  it('deduplicates global-handler captures after handleChunkLoadError even for non-Error string rejections under async event processors', async () => {
+    const { chunkReload, sentry } = await loadClientModules()
+    sentry.addEventProcessor((event) => Promise.resolve(event))
+
+    const rawRejection =
+      'Failed to fetch dynamically imported module: https://app.example.test/_next/static/chunks/async-app.js'
+
+    expect(chunkReload.handleChunkLoadError(rawRejection)).toBe('attempted')
+
+    sentry.withScope((scope) => {
+      scope.addEventProcessor((event) => {
+        if (event.exception?.values?.[0]) {
+          event.exception.values[0].mechanism = {
+            type: 'auto.browser.global_handlers.onunhandledrejection',
+            handled: false
+          }
+        }
+        return event
+      })
+      sentry.captureException(rawRejection)
+    })
+
+    await sentry.flush(1000)
+
+    expect(sentEvents).toHaveLength(1)
+    expect(sentEvents[0]?.level).toBe('warning')
+    expect(sentEvents[0]?.fingerprint).toEqual([
+      'client-chunk-reload-attempted'
+    ])
+    expect((sentEvents[0]?.tags as Record<string, string>)?.chunk_reload).toBe(
+      'attempted'
+    )
+  })
 })

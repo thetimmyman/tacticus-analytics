@@ -5,8 +5,10 @@ import {
   consumeCapturedChunkReloadDuplicate,
   initChunkReloadListeners,
   isChunkLoadError,
-  peekChunkReloadOutcome
+  peekChunkReloadOutcome,
+  recordProcessedChunkEvent
 } from './app/lib/client/chunk-reload'
+import { unwrapCapturedOriginalException } from './app/lib/monitoring/sentry'
 
 const dsn =
   process.env.NEXT_PUBLIC_SENTRY_DSN || process.env.NEXT_PUBLIC_GLITCHTIP_DSN
@@ -159,10 +161,19 @@ init({
       mechanismType === 'auto.browser.global_handlers.onerror'
 
     if (isChunkEvent || typeof existingChunkReloadTag === 'string') {
+      const chunkErrorKey = unwrapCapturedOriginalException(error)
+
       if (
         existingChunkReloadTag === undefined &&
         isGlobalHandler &&
-        consumeCapturedChunkReloadDuplicate(error)
+        consumeCapturedChunkReloadDuplicate(chunkErrorKey, 'tagged')
+      ) {
+        return null
+      }
+
+      if (
+        typeof existingChunkReloadTag === 'string' &&
+        consumeCapturedChunkReloadDuplicate(chunkErrorKey, 'global')
       ) {
         return null
       }
@@ -171,7 +182,7 @@ init({
         typeof existingChunkReloadTag === 'string'
           ? existingChunkReloadTag
           : isGlobalHandler
-            ? peekChunkReloadOutcome()
+            ? peekChunkReloadOutcome(chunkErrorKey)
             : undefined
 
       if (resolvedChunkReloadTag !== undefined) {
@@ -181,13 +192,18 @@ init({
         }
       }
 
+      const eventSource =
+        typeof existingChunkReloadTag === 'string' ? 'tagged' : 'global'
+
       if (resolvedChunkReloadTag === 'attempted') {
+        recordProcessedChunkEvent(chunkErrorKey, eventSource)
         event.level = 'warning'
         event.fingerprint = ['client-chunk-reload-attempted']
         return sanitizeSentryEvent(event)
       }
 
       if (resolvedChunkReloadTag === 'suppressed') {
+        recordProcessedChunkEvent(chunkErrorKey, eventSource)
         return sanitizeSentryEvent(event)
       }
     }
