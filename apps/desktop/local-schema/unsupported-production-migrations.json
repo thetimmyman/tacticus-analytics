@@ -625,6 +625,11 @@
       "file": "20261113000000_guild_scope_cluster_leaderboard_totals_and_rank.sql",
       "reason": "production-app-schema",
       "detail": "Rewrites the hosted cluster leaderboard functions and rankings materialized view, which are absent from the local bootstrap; it does not change the canonical desktop schema."
+    },
+    {
+      "file": "20261115120000_sync_drain_health_claimable_age.sql",
+      "reason": "production-app-schema",
+      "detail": "Updates hosted queue monitoring, which is absent from the desktop bootstrap."
     }
   ]
 }

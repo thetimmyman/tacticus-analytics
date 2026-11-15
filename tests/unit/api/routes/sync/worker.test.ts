@@ -209,7 +209,7 @@ describe('/api/sync/worker', () => {
         expect(body.duration).toBeDefined()
       })
 
-      it('drains with three lanes by default, the last one background-first', async () => {
+      it('drains with four lanes by default, the last one background-first', async () => {
         delete process.env.SYNC_DRAIN_LANES
         mockSupabase.rpc.mockResolvedValue({ data: null, error: null })
 
@@ -221,18 +221,18 @@ describe('/api/sync/worker', () => {
         )
         const body = await response.json()
 
-        expect(body.lanes).toBe(3)
+        expect(body.lanes).toBe(4)
         expect(body.perLane.map((lane: { role: string }) => lane.role)).toEqual(
-          ['any', 'any', 'background_first']
+          ['any', 'any', 'any', 'background_first']
         )
         const claimWorkers = mockSupabase.rpc.mock.calls
           .filter(([name]) => name === 'claim_next_job')
           .map(([, args]) => (args as { p_worker_id: string }).p_worker_id)
-        expect(new Set(claimWorkers).size).toBe(3)
+        expect(new Set(claimWorkers).size).toBe(4)
         const recorded = mockSupabase.rpc.mock.calls.find(
           ([name]) => name === 'record_sync_drain_run'
         )
-        expect((recorded?.[1] as { p_lanes: number }).p_lanes).toBe(3)
+        expect((recorded?.[1] as { p_lanes: number }).p_lanes).toBe(4)
       })
 
       it('honours SYNC_DRAIN_LANES=1 as a single unfiltered lane', async () => {
@@ -478,7 +478,7 @@ describe('/api/sync/worker', () => {
               eq: vi.fn().mockReturnThis(),
               single: vi.fn().mockResolvedValue({
                 data: null,
-                error: { message: 'Not found' }
+                error: { code: 'PGRST116', message: 'Not found' }
               })
             }
           }

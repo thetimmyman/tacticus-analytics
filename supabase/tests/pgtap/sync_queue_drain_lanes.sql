@@ -7,7 +7,7 @@ CREATE EXTENSION IF NOT EXISTS dblink WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 SET LOCAL timezone TO 'UTC';
 
-SELECT plan(49);
+SELECT plan(53);
 
 SELECT is(
   current_database()::text,
@@ -402,6 +402,22 @@ INSERT INTO public.sync_queue
   (guild_code, job_type, status, priority, scheduled_for, created_at, attempts, max_attempts)
 VALUES ('TP80AGED', 'incremental_sync', 'pending', 5,
         now() - INTERVAL '30 minutes', now() - INTERVAL '30 minutes', 0, 3);
+
+-- A deferred row does not age while it is waiting for its scheduled time.
+UPDATE public.sync_queue SET scheduled_for = now() + INTERVAL '1 hour'
+ WHERE guild_code = 'TP80AGED';
+SELECT is((SELECT oldest_pending_age_seconds FROM public.sync_queue_drain_health()),
+          0::numeric, 'future jobs contribute no claimable age');
+SELECT isnt((SELECT verdict FROM public.sync_queue_drain_health()),
+            'stalled'::text, 'future jobs do not trigger stalled');
+UPDATE public.sync_queue SET scheduled_for = now() - INTERVAL '1 minute'
+ WHERE guild_code = 'TP80AGED';
+SELECT is((SELECT oldest_pending_age_seconds FROM public.sync_queue_drain_health()),
+          60::numeric, 'claimable age starts at the scheduled time');
+SELECT isnt((SELECT verdict FROM public.sync_queue_drain_health()),
+            'stalled'::text, 'recently claimable old jobs do not trigger stalled');
+UPDATE public.sync_queue SET scheduled_for = now() - INTERVAL '30 minutes'
+ WHERE guild_code = 'TP80AGED';
 
 SELECT is(
   (SELECT verdict FROM public.sync_queue_drain_health(3, 20, 10)),

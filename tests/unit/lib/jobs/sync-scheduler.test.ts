@@ -342,6 +342,52 @@ describe('sync-scheduler work_queue handler', () => {
     })
   })
 
+  it.each([5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])(
+    'skips the daily validation pass at 06:%i UTC',
+    async (minute) => {
+      vi.setSystemTime(new Date(Date.UTC(2026, 1, 12, 6, minute)))
+      mockDirectClient.query.mockResolvedValue({ data: [], error: null })
+      await syncSchedulerHandler({}, context)
+      expect(
+        mockDirectClient.query.mock.calls.some(([path]) =>
+          String(path).includes('offset=0&limit=50')
+        )
+      ).toBe(false)
+      expect(mockDirectClient.rpc).not.toHaveBeenCalled()
+    }
+  )
+
+  it('spreads daily validation jobs across twelve five-minute buckets', async () => {
+    vi.setSystemTime(new Date('2026-02-12T06:04:00.000Z'))
+    mockDirectClient.query.mockImplementation(async (path: string) => ({
+      data: path.includes('offset=0&limit=50')
+        ? Array.from({ length: 13 }, (_, i) => ({
+            guild_code: `SYNTHETIC${i}`
+          }))
+        : [],
+      error: null
+    }))
+    mockDirectClient.rpc.mockResolvedValue({ data: 'job', error: null })
+    await syncSchedulerHandler({}, context)
+    expect(
+      mockDirectClient.rpc.mock.calls.map(([, args]) => args.p_scheduled_for)
+    ).toEqual([
+      '2026-02-12T06:04:00.000Z',
+      '2026-02-12T06:09:00.000Z',
+      '2026-02-12T06:14:00.000Z',
+      '2026-02-12T06:19:00.000Z',
+      '2026-02-12T06:24:00.000Z',
+      '2026-02-12T06:29:00.000Z',
+      '2026-02-12T06:34:00.000Z',
+      '2026-02-12T06:39:00.000Z',
+      '2026-02-12T06:44:00.000Z',
+      '2026-02-12T06:49:00.000Z',
+      '2026-02-12T06:54:00.000Z',
+      '2026-02-12T06:59:00.000Z',
+      '2026-02-12T06:04:00.000Z'
+    ])
+  })
+
   describe('incremental syncs behind a pending realtime sync', () => {
     function mockQueries(activeRealtime: unknown) {
       mockDirectClient.query.mockImplementation(async (path: string) => {

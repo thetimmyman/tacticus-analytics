@@ -212,23 +212,24 @@ const syncSchedulerHandler: JobHandler = async (_payload, ctx) => {
       }
     }
 
-    if (now.getUTCHours() !== VALIDATION_HOUR_UTC) {
+    if (now.getUTCHours() !== VALIDATION_HOUR_UTC || now.getUTCMinutes() >= 5) {
       logger.debug(
         {
           jobId: ctx.jobId,
           currentHourUTC: now.getUTCHours(),
           expectedHourUTC: VALIDATION_HOUR_UTC
         },
-        'skipping daily validation pass — handler ran outside 06:xx UTC window'
+        'skipping daily validation pass — handler ran outside the first 06:00 UTC tick window'
       )
     } else {
       logger.info(
         { jobId: ctx.jobId },
-        'starting daily 06:xx UTC validation pass'
+        'starting daily 06:00 UTC validation pass'
       )
       let offset = 0
       let hasMore = true
       let batchCount = 0
+      let validationIndex = 0
 
       while (hasMore) {
         if (batchCount >= MAX_VALIDATION_BATCHES) {
@@ -263,8 +264,11 @@ const syncSchedulerHandler: JobHandler = async (_payload, ctx) => {
             p_guild_code: guild.guild_code,
             p_job_type: 'validation_sync',
             p_priority: 9,
-            p_scheduled_for: now.toISOString()
+            p_scheduled_for: new Date(
+              now.getTime() + (validationIndex % 12) * 5 * 60_000
+            ).toISOString()
           })
+          validationIndex++
 
           if (enqueueError) {
             logger.error(
