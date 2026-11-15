@@ -127,7 +127,10 @@ function hasDisqualifyingMetadata(record: Record<string, unknown>): boolean {
   ] as const) {
     if (!(key in record) || record[key] === undefined) continue
     const value = record[key]
-    if (!isBoundedString(value) || NON_TRANSIENT_DIAGNOSIS_PATTERN.test(value)) {
+    if (
+      !isBoundedString(value) ||
+      NON_TRANSIENT_DIAGNOSIS_PATTERN.test(value)
+    ) {
       return true
     }
   }
@@ -137,9 +140,7 @@ function hasDisqualifyingMetadata(record: Record<string, unknown>): boolean {
 
 function isErrorOrDomException(value: unknown): value is Error {
   if (value instanceof Error) return true
-  return (
-    typeof DOMException !== 'undefined' && value instanceof DOMException
-  )
+  return typeof DOMException !== 'undefined' && value instanceof DOMException
 }
 
 function isAbortErrorInstance(error: Error): boolean {
