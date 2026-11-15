@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import type {
   HeroUsage,
   MetaTeam,
@@ -73,7 +73,7 @@ export function useWarRoom(minRankIndex = 9, guildCode: string | null = null) {
     queryKey: ['war-room', minRankIndex, guildCode],
     queryFn: () => fetchWarRoom(minRankIndex, guildCode),
     // Keep the current guild on screen while another loads.
-    placeholderData: (previous) => previous,
+    placeholderData: keepPreviousData,
     staleTime: 30_000,
     retry: 1
   })

@@ -25,6 +25,7 @@ export type BrowserRenderFamily =
 
 export type BrowserRenderErrorCode =
   | 'REACT_INVALID_CHILD'
+  | 'REACT_MAX_UPDATE_DEPTH'
   | 'DOM_INSERT_TARGET_MISSING'
   | 'DOM_REMOVE_TARGET_MISSING'
   | 'DOM_NOT_FOUND'
@@ -74,6 +75,8 @@ const FAMILY_BY_SEGMENT = new Map<string, BrowserRenderFamily>([
 const BLOCKED_SEGMENTS = new Set(['__proto__', 'constructor', 'prototype'])
 const INVALID_CHILD_MESSAGE = 'Objects are not valid as a React child'
 const MINIFIED_INVALID_CHILD = /^Minified React error #31(?:;|$)/u
+const MAX_UPDATE_DEPTH_MESSAGE = 'Maximum update depth exceeded'
+const MINIFIED_MAX_UPDATE_DEPTH = /^Minified React error #185(?:;|$)/u
 
 const resolveFamily = (pathname: unknown): BrowserRenderFamily => {
   if (typeof pathname !== 'string' || pathname.length === 0) return 'other'
@@ -122,6 +125,13 @@ const resolveErrorCode = (error: unknown): BrowserRenderErrorCode => {
       MINIFIED_INVALID_CHILD.test(message)
     ) {
       return 'REACT_INVALID_CHILD'
+    }
+    if (
+      message === MAX_UPDATE_DEPTH_MESSAGE ||
+      message.startsWith(`${MAX_UPDATE_DEPTH_MESSAGE}.`) ||
+      MINIFIED_MAX_UPDATE_DEPTH.test(message)
+    ) {
+      return 'REACT_MAX_UPDATE_DEPTH'
     }
   }
 

@@ -159,7 +159,7 @@ export function usePlayerPerformanceData({
   })
 
   const playerMembershipMap = useMemo(
-    () => rosterMembershipData ?? new Map<string, boolean>(),
+    () => rosterMembershipData ?? EMPTY_ROSTER_MEMBERSHIP,
     [rosterMembershipData]
   )
 

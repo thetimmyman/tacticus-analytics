@@ -55,4 +55,36 @@ describe('performance loading', () => {
     unmount()
     client.clear()
   })
+
+  it('remains stable across interactive state updates when guild selection is empty', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => new Promise<never>(() => {}))
+    )
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } }
+    })
+    function Wrapper({ children }: PropsWithChildren) {
+      return (
+        <QueryClientProvider client={client}>{children}</QueryClientProvider>
+      )
+    }
+    const { result, rerender, unmount } = renderHook(
+      () =>
+        usePlayerPerformanceData({
+          selectedGuild: '',
+          selectedSeason: '1'
+        }),
+      { wrapper: Wrapper }
+    )
+    await act(async () => {
+      result.current.setCompareMode('cluster')
+      result.current.setShowBossDetail(true)
+    })
+    rerender()
+    expect(result.current.compareMode).toBe('cluster')
+    expect(result.current.showBossDetail).toBe(true)
+    unmount()
+    client.clear()
+  })
 })
