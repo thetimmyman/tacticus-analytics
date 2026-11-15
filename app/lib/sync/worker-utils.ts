@@ -19,7 +19,15 @@ export function parseSyncJob(
     return null
   }
 
-  const { id, guild_code, job_type, payload, started_at, attempts } = claimedJob
+  const {
+    id,
+    guild_code,
+    job_type,
+    payload,
+    started_at,
+    attempts,
+    max_attempts
+  } = claimedJob
   if (!id || !guild_code || !job_type) {
     return null
   }
@@ -36,6 +44,12 @@ export function parseSyncJob(
     attempts >= 1
       ? attempts
       : undefined
+  const claimMaxAttempts =
+    typeof max_attempts === 'number' &&
+    Number.isSafeInteger(max_attempts) &&
+    max_attempts >= 1
+      ? max_attempts
+      : undefined
   const hasClaimGeneration =
     claimStartedAt !== undefined && claimAttempts !== undefined
 
@@ -46,7 +60,8 @@ export function parseSyncJob(
     payload: payload ?? null,
     ...(hasClaimGeneration && {
       claimStartedAt,
-      claimAttempts
+      claimAttempts,
+      ...(claimMaxAttempts !== undefined && { claimMaxAttempts })
     })
   }
 }

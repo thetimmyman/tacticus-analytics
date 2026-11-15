@@ -18,7 +18,8 @@ vi.mock('@/app/lib/monitoring/sentry', () => ({
   captureSentryException: vi.fn()
 }))
 
-import { completeSyncJob } from '@/app/lib/sync/sync-job-lifecycle'
+import { completeSyncJob, failSyncJob } from '@/app/lib/sync/sync-job-lifecycle'
+import { captureSentryException } from '@/app/lib/monitoring/sentry'
 import type {
   ServiceSupabaseClient,
   SyncJob,
@@ -1053,5 +1054,269 @@ describe('completeSyncJob — lost completion response reconciliation', () => {
 
     expect(workerResult.success).toBe(false)
     expect(db.readCalls).toBe(0)
+  })
+
+  it('preserves upstream cause and HTTP status on an unreconciled completion error and suppresses Sentry on non-terminal retryable attempts', async () => {
+    const upstreamError = {
+      message: 'An invalid response was received from the upstream server',
+      details: '',
+      hint: '',
+      code: ''
+    }
+    const rpcCalls: Array<{ fn: string; args?: Record<string, unknown> }> = []
+    const client = {
+      rpc: vi.fn(async (fn: string, args?: Record<string, unknown>) => {
+        rpcCalls.push({ fn, args })
+        if (fn === 'complete_job') {
+          return { data: null, error: upstreamError, status: 502 }
+        }
+        if (fn === 'fail_job') {
+          return { data: true, error: null, status: 200 }
+        }
+        throw new Error(`unexpected rpc: ${fn}`)
+      }),
+      from: () => ({
+        select: () => ({
+          eq() {
+            return this
+          },
+          abortSignal() {
+            return this
+          },
+          async maybeSingle() {
+            return {
+              data: committedRow({ status: 'processing', attempts: 1 }),
+              error: null
+            }
+          }
+        })
+      })
+    } as unknown as ServiceSupabaseClient
+
+    const claimedJob = job({ claimAttempts: 1, claimMaxAttempts: 3 })
+    const workerResult = result()
+
+    let thrownError: unknown
+    try {
+      await completeSyncJob(claimedJob, client, WORKER, workerResult)
+    } catch (error) {
+      thrownError = error
+    }
+
+    expect(thrownError).toBeInstanceOf(Error)
+    expect((thrownError as Error).message).toBe(
+      'Failed to mark job complete: An invalid response was received from the upstream server'
+    )
+    expect((thrownError as Error).cause).toBe(upstreamError)
+    expect((thrownError as { status?: number }).status).toBe(502)
+
+    await failSyncJob(thrownError, claimedJob, client, WORKER, workerResult)
+
+    expect(rpcCalls.map((call) => call.fn)).toEqual([
+      'complete_job',
+      'fail_job'
+    ])
+    expect(captureSentryException).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    ['fail_job returns false (worker lost ownership)', false],
+    ['fail_job returns null without confirming retry', null]
+  ])(
+    'still captures Sentry on a transient completion error when %s',
+    async (_label, failJobData) => {
+      const upstreamError = {
+        message: 'An invalid response was received from the upstream server'
+      }
+      const client = {
+        rpc: vi.fn(async (fn: string) => {
+          if (fn === 'complete_job') {
+            return { data: null, error: upstreamError, status: 502 }
+          }
+          if (fn === 'fail_job') {
+            return { data: failJobData, error: null, status: 200 }
+          }
+          throw new Error(`unexpected rpc: ${fn}`)
+        }),
+        from: () => ({
+          select: () => ({
+            eq() {
+              return this
+            },
+            abortSignal() {
+              return this
+            },
+            async maybeSingle() {
+              return {
+                data: committedRow({ status: 'processing', attempts: 1 }),
+                error: null
+              }
+            }
+          })
+        })
+      } as unknown as ServiceSupabaseClient
+
+      const claimedJob = job({ claimAttempts: 1, claimMaxAttempts: 3 })
+      const workerResult = result()
+
+      let thrownError: unknown
+      try {
+        await completeSyncJob(claimedJob, client, WORKER, workerResult)
+      } catch (error) {
+        thrownError = error
+      }
+
+      await failSyncJob(thrownError, claimedJob, client, WORKER, workerResult)
+
+      expect(captureSentryException).toHaveBeenCalledTimes(1)
+    }
+  )
+
+  it.each([
+    [
+      'claimAttempts is missing',
+      { claimAttempts: undefined, claimMaxAttempts: 3 }
+    ],
+    [
+      'claimMaxAttempts is missing',
+      { claimAttempts: 1, claimMaxAttempts: undefined }
+    ]
+  ])(
+    'still captures Sentry on a transient completion error when retry budget is unverified (%s)',
+    async (_label, claimOverrides) => {
+      const upstreamError = {
+        message: 'An invalid response was received from the upstream server'
+      }
+      const client = {
+        rpc: vi.fn(async (fn: string) => {
+          if (fn === 'complete_job') {
+            return { data: null, error: upstreamError, status: 502 }
+          }
+          if (fn === 'fail_job') {
+            return { data: true, error: null, status: 200 }
+          }
+          throw new Error(`unexpected rpc: ${fn}`)
+        }),
+        from: () => ({
+          select: () => ({
+            eq() {
+              return this
+            },
+            abortSignal() {
+              return this
+            },
+            async maybeSingle() {
+              return {
+                data: committedRow({ status: 'processing', attempts: 1 }),
+                error: null
+              }
+            }
+          })
+        })
+      } as unknown as ServiceSupabaseClient
+
+      const claimedJob = job(claimOverrides)
+      const workerResult = result()
+
+      let thrownError: unknown
+      try {
+        await completeSyncJob(claimedJob, client, WORKER, workerResult)
+      } catch (error) {
+        thrownError = error
+      }
+
+      await failSyncJob(thrownError, claimedJob, client, WORKER, workerResult)
+
+      expect(captureSentryException).toHaveBeenCalledTimes(1)
+    }
+  )
+
+  it('captures Sentry when a transient upstream completion error exhausts its final attempt', async () => {
+    const upstreamError = {
+      message: 'An invalid response was received from the upstream server'
+    }
+    const client = {
+      rpc: vi.fn(async (fn: string) => {
+        if (fn === 'complete_job') {
+          return { data: null, error: upstreamError, status: 502 }
+        }
+        if (fn === 'fail_job') {
+          return { data: true, error: null, status: 200 }
+        }
+        throw new Error(`unexpected rpc: ${fn}`)
+      }),
+      from: () => ({
+        select: () => ({
+          eq() {
+            return this
+          },
+          abortSignal() {
+            return this
+          },
+          async maybeSingle() {
+            return {
+              data: committedRow({ status: 'processing', attempts: 3 }),
+              error: null
+            }
+          }
+        })
+      })
+    } as unknown as ServiceSupabaseClient
+
+    const claimedJob = job({ claimAttempts: 3, claimMaxAttempts: 3 })
+    const workerResult = result()
+
+    let thrownError: unknown
+    try {
+      await completeSyncJob(claimedJob, client, WORKER, workerResult)
+    } catch (error) {
+      thrownError = error
+    }
+
+    await failSyncJob(thrownError, claimedJob, client, WORKER, workerResult)
+
+    expect(captureSentryException).toHaveBeenCalledTimes(1)
+    expect(captureSentryException).toHaveBeenCalledWith(
+      thrownError,
+      expect.objectContaining({
+        tags: {
+          component: 'sync-worker',
+          guild_code: GUILD,
+          job_type: 'incremental_sync'
+        }
+      })
+    )
+  })
+
+  it('captures Sentry on non-transient completion SQL errors even on attempt 1', async () => {
+    const sqlError = {
+      message: 'permission denied for table sync_queue',
+      code: '42501'
+    }
+    const client = {
+      rpc: vi.fn(async (fn: string) => {
+        if (fn === 'complete_job') {
+          return { data: null, error: sqlError, status: 403 }
+        }
+        if (fn === 'fail_job') {
+          return { data: true, error: null, status: 200 }
+        }
+        throw new Error(`unexpected rpc: ${fn}`)
+      })
+    } as unknown as ServiceSupabaseClient
+
+    const claimedJob = job({ claimAttempts: 1, claimMaxAttempts: 3 })
+    const workerResult = result()
+
+    let thrownError: unknown
+    try {
+      await completeSyncJob(claimedJob, client, WORKER, workerResult)
+    } catch (error) {
+      thrownError = error
+    }
+
+    await failSyncJob(thrownError, claimedJob, client, WORKER, workerResult)
+
+    expect(captureSentryException).toHaveBeenCalledTimes(1)
   })
 })

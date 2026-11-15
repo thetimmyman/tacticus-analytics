@@ -10,8 +10,13 @@ import { Button } from '@tacticus/ui-kit'
 import { authConfig } from '@/app/lib/auth/config'
 import { captureSentryException } from '@/app/lib/monitoring/sentry'
 import { browserRenderErrorTags } from '@/app/lib/monitoring/browser-render-error'
+import { isTransientBrowserBoundaryError } from '@/app/lib/monitoring/browser-boundary-filter'
 import { generateId } from '@/app/lib/utils/id-generation'
-import { resolveChunkReloadOutcome } from '@/app/lib/client/chunk-reload'
+import {
+  isChunkLoadError,
+  resolveChunkReloadOutcome,
+  type ChunkReloadOutcome
+} from '@/app/lib/client/chunk-reload'
 
 export interface ErrorFallbackRenderProps {
   error: ParsedError | null
@@ -40,6 +45,7 @@ interface State {
   error: ParsedError | null
   errorInfo: ErrorInfo | null
   errorId: string | null
+  chunkReloadOutcome: ChunkReloadOutcome | 'pending'
 }
 
 export class ErrorBoundary extends Component<Props, State> {
@@ -51,7 +57,8 @@ export class ErrorBoundary extends Component<Props, State> {
       hasError: false,
       error: null,
       errorInfo: null,
-      errorId: null
+      errorId: null,
+      chunkReloadOutcome: 'ignored'
     }
   }
 
@@ -63,7 +70,8 @@ export class ErrorBoundary extends Component<Props, State> {
       hasError: true,
       error: parsedError,
       errorInfo: null,
-      errorId
+      errorId,
+      chunkReloadOutcome: isChunkLoadError(error) ? 'pending' : 'ignored'
     }
   }
 
@@ -74,6 +82,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
     if (chunkReloadOutcome === 'attempted') {
       // Reload triggered; auto-recovered chunk errors are not reported.
+      this.setState({ chunkReloadOutcome: 'attempted' })
       return
     }
 
@@ -92,32 +101,34 @@ export class ErrorBoundary extends Component<Props, State> {
       'ErrorBoundary caught an error:'
     )
 
-    // One Sentry capture of the original Error; parseError()'s plain object mis-groups.
-    captureSentryException(error, {
-      tags: {
-        component: 'ErrorBoundary',
-        boundary: this.constructor.name,
-        // App-wide tag so deploy churn groups consistently.
-        ...(chunkReloadOutcome === 'suppressed'
-          ? { chunk_reload: 'suppressed' }
-          : {}),
-        ...browserRenderErrorTags(
-          error,
-          typeof window !== 'undefined' ? window.location.pathname : undefined
-        )
-      },
-      extra: {
-        errorId: this.state.errorId,
-        componentStack: errorInfo.componentStack,
-        version: versionInfo,
-        message: error.message,
-        url: typeof window !== 'undefined' ? window.location.href : undefined,
-        userAgent:
-          typeof navigator !== 'undefined' ? navigator.userAgent : undefined
-      }
-    })
+    if (!isTransientBrowserBoundaryError(error)) {
+      // One Sentry capture of the original Error; parseError()'s plain object mis-groups.
+      captureSentryException(error, {
+        tags: {
+          component: 'ErrorBoundary',
+          boundary: this.constructor.name,
+          // App-wide tag so deploy churn groups consistently.
+          ...(chunkReloadOutcome === 'suppressed'
+            ? { chunk_reload: 'suppressed' }
+            : {}),
+          ...browserRenderErrorTags(
+            error,
+            typeof window !== 'undefined' ? window.location.pathname : undefined
+          )
+        },
+        extra: {
+          errorId: this.state.errorId,
+          componentStack: errorInfo.componentStack,
+          version: versionInfo,
+          message: error.message,
+          url: typeof window !== 'undefined' ? window.location.href : undefined,
+          userAgent:
+            typeof navigator !== 'undefined' ? navigator.userAgent : undefined
+        }
+      })
+    }
 
-    this.setState({ errorInfo })
+    this.setState({ errorInfo, chunkReloadOutcome })
     this.scheduleReset()
 
     if (this.props.onError) {
@@ -166,7 +177,8 @@ export class ErrorBoundary extends Component<Props, State> {
       hasError: false,
       error: null,
       errorInfo: null,
-      errorId: null
+      errorId: null,
+      chunkReloadOutcome: 'ignored'
     })
   }
 
@@ -201,6 +213,13 @@ export class ErrorBoundary extends Component<Props, State> {
 
   override render() {
     if (this.state.hasError) {
+      if (
+        this.state.chunkReloadOutcome === 'pending' ||
+        this.state.chunkReloadOutcome === 'attempted'
+      ) {
+        return null
+      }
+
       if (this.props.fallbackRender) {
         const Fallback = this.props.fallbackRender
         return (

@@ -1,10 +1,15 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { createComponentLogger } from '@/app/lib/logging/client'
 import { captureSentryException } from '@/app/lib/monitoring/sentry'
 import { browserRenderErrorTags } from '@/app/lib/monitoring/browser-render-error'
-import { handleChunkLoadError } from '@/app/lib/client/chunk-reload'
+import { isTransientBrowserBoundaryError } from '@/app/lib/monitoring/browser-boundary-filter'
+import {
+  handleChunkLoadError,
+  isChunkLoadError,
+  type ChunkReloadOutcome
+} from '@/app/lib/client/chunk-reload'
 
 const logger = createComponentLogger('app.error')
 
@@ -15,11 +20,17 @@ export default function Error({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  const [outcome, setOutcome] = useState<ChunkReloadOutcome | 'pending'>(() =>
+    isChunkLoadError(error) ? 'pending' : 'ignored'
+  )
+
   useEffect(() => {
     logger.error({ err: error }, 'Route error boundary caught an error')
     // Stale/corrupted chunks get the guarded once-per-build reload; only
     // errors the guard did not already report (or suppress) are captured here.
-    if (handleChunkLoadError(error) !== 'ignored') {
+    const result = handleChunkLoadError(error)
+    setOutcome(result)
+    if (result !== 'ignored' || isTransientBrowserBoundaryError(error)) {
       return
     }
     // This boundary catches far more than global-error; report so nothing is lost.
@@ -33,6 +44,10 @@ export default function Error({
       }
     })
   }, [error])
+
+  if (outcome === 'pending' || outcome === 'attempted') {
+    return null
+  }
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center">

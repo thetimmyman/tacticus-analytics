@@ -89,6 +89,50 @@ describe('worker-utils', () => {
       })
     })
 
+    it('preserves claimMaxAttempts when max_attempts is a positive integer on a valid claim', () => {
+      const result = parseSyncJob({
+        id: 'job-1',
+        guild_code: 'GUILD01',
+        job_type: 'full_sync',
+        started_at: '2026-10-28T12:00:00.123456+00:00',
+        attempts: 1,
+        max_attempts: 3
+      })
+
+      expect(result).toEqual({
+        id: 'job-1',
+        guild_code: 'GUILD01',
+        job_type: 'full_sync',
+        payload: null,
+        claimStartedAt: '2026-10-28T12:00:00.123456+00:00',
+        claimAttempts: 1,
+        claimMaxAttempts: 3
+      })
+    })
+
+    it.each([0, -1, 2.5, '3', null, undefined])(
+      'omits invalid max_attempts (%j) while keeping valid claim generation',
+      (maxAttempts) => {
+        const result = parseSyncJob({
+          id: 'job-1',
+          guild_code: 'GUILD01',
+          job_type: 'full_sync',
+          started_at: '2026-10-28T12:00:00.123456+00:00',
+          attempts: 1,
+          max_attempts: maxAttempts
+        })
+
+        expect(result).toEqual({
+          id: 'job-1',
+          guild_code: 'GUILD01',
+          job_type: 'full_sync',
+          payload: null,
+          claimStartedAt: '2026-10-28T12:00:00.123456+00:00',
+          claimAttempts: 1
+        })
+      }
+    )
+
     it.each([
       ['a numeric started_at', { started_at: 123, attempts: 2 }],
       ['an empty started_at', { started_at: '', attempts: 2 }],

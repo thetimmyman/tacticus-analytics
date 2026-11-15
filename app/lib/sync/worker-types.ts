@@ -82,6 +82,8 @@ export interface SyncJob {
   claimStartedAt?: string
   /** attempts value from that same claim. */
   claimAttempts?: number
+  /** max_attempts value from that same claim when valid. */
+  claimMaxAttempts?: number
   /** Epoch ms by which a completion-reconciliation read must finish. */
   reconciliationDeadlineMs?: number
 }
@@ -98,6 +100,7 @@ export interface SyncQueueClaimRow {
   payload?: Record<string, unknown> | null
   started_at?: unknown
   attempts?: unknown
+  max_attempts?: unknown
 }
 
 export interface RpcError {
