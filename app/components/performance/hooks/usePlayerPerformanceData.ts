@@ -53,6 +53,9 @@ import {
 } from './player-performance-data/model'
 import { useTokenBurnRows } from './player-performance-data/useTokenBurnRows'
 
+// Pending query results must retain their identity across renders.
+const EMPTY_ROSTER_MEMBERSHIP = new Map<string, boolean>()
+
 export function usePlayerPerformanceData({
   selectedGuild,
   selectedSeason,
@@ -152,7 +155,7 @@ export function usePlayerPerformanceData({
     enabled: !!selectedGuild,
     staleTime: 2 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
-    placeholderData: () => new Map<string, boolean>()
+    placeholderData: EMPTY_ROSTER_MEMBERSHIP
   })
 
   const playerMembershipMap = useMemo(
