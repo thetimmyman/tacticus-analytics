@@ -1231,6 +1231,255 @@ describe('completeSyncJob — lost completion response reconciliation', () => {
     }
   )
 
+  describe('cause-node validation beneath a transient gateway wrapper', () => {
+    class SyntheticCauseShape {
+      message = 'Bad Gateway'
+    }
+
+    const failJobOnlyClient = () =>
+      ({
+        rpc: vi.fn(async (fn: string) => {
+          if (fn === 'fail_job') {
+            return { data: true, error: null, status: 200 }
+          }
+          throw new Error(`unexpected rpc: ${fn}`)
+        })
+      }) as unknown as ServiceSupabaseClient
+
+    const gatewayWrapper = (cause: unknown) =>
+      Object.assign(
+        new Error('Failed to mark job complete: Bad Gateway', { cause }),
+        { status: 502 }
+      )
+
+    const failThroughWrapper = async (cause: unknown) => {
+      const claimedJob = job({ claimAttempts: 1, claimMaxAttempts: 3 })
+      await failSyncJob(
+        gatewayWrapper(cause),
+        claimedJob,
+        failJobOnlyClient(),
+        WORKER,
+        result()
+      )
+    }
+
+    it.each<[string, unknown]>([
+      [
+        'a plain SQL duplicate-key cause',
+        {
+          message: 'duplicate key',
+          sqlState: '23505',
+          constraint: 'synthetic_unique'
+        }
+      ],
+      ['a bare permanent-failure cause', { isPermanent: true }],
+      [
+        'a transient-looking cause flagged permanent',
+        { message: 'Bad Gateway', isPermanent: true }
+      ],
+      [
+        'a transient-looking cause carrying sqlState',
+        { message: 'Bad Gateway', sqlState: '23505' }
+      ],
+      [
+        'a transient-looking cause carrying a constraint',
+        { message: 'Bad Gateway', constraint: 'synthetic_unique' }
+      ],
+      [
+        'a transient-looking cause carrying an application marker',
+        { message: 'Bad Gateway', isAppError: true }
+      ],
+      [
+        'a transient-looking cause carrying a table name',
+        { message: 'Bad Gateway', table: 'synthetic_table' }
+      ],
+      [
+        'a transient-looking cause carrying SQL severity',
+        { message: 'Bad Gateway', severity: 'ERROR' }
+      ],
+      [
+        'a transient-looking cause with a client HTTP status',
+        { message: 'Bad Gateway', status: 409 }
+      ],
+      [
+        'a transient-looking cause with a client HTTP statusCode',
+        { message: 'Bad Gateway', statusCode: 422 }
+      ],
+      [
+        'a transient-looking cause with a non-numeric HTTP status',
+        { message: 'Bad Gateway', status: '502' }
+      ],
+      [
+        'a transient-looking cause with a SQL error code',
+        { message: 'Bad Gateway', code: '23505' }
+      ],
+      [
+        'a transient-looking cause with an actionable reason',
+        { message: 'Bad Gateway', reason: 'duplicate key' }
+      ],
+      [
+        'a transient-looking cause with an actionable statusText',
+        { message: 'Bad Gateway', statusText: 'Conflict' }
+      ],
+      [
+        'a transient-looking cause with actionable details',
+        { message: 'Bad Gateway', details: 'unique constraint failed' }
+      ],
+      [
+        'a transient-looking cause with an actionable hint',
+        { message: 'Bad Gateway', hint: 'check the synthetic column' }
+      ],
+      [
+        'a transient-looking cause with a non-string message field',
+        { message: 'Bad Gateway', details: { nested: true } }
+      ],
+      [
+        'a plain cause with only a duplicate-key message',
+        { message: 'duplicate key' }
+      ],
+      [
+        'a plain cause with an unrecognized message',
+        { message: 'synthetic opaque failure' }
+      ],
+      ['an empty plain cause', {}],
+      [
+        'a transient-looking cause with an unrecognized field',
+        { message: 'Bad Gateway', payload: { rows: 0 } }
+      ],
+      ['a class-instance cause', new SyntheticCauseShape()],
+      ['an array cause', [{ message: 'Bad Gateway' }]],
+      ['a string cause', 'Bad Gateway'],
+      ['a numeric cause', 502],
+      ['a boolean cause', true],
+      ['a function cause', () => 'Bad Gateway'],
+      [
+        'an actionable plain cause nested under a transient Error cause',
+        new Error('fetch failed', {
+          cause: {
+            message: 'duplicate key',
+            sqlState: '23505',
+            constraint: 'synthetic_unique'
+          }
+        })
+      ],
+      [
+        'a permanent plain cause nested under a transient plain cause',
+        { message: 'Bad Gateway', cause: { isPermanent: true } }
+      ],
+      [
+        'an Error cause carrying sqlState',
+        Object.assign(new Error('fetch failed'), { sqlState: '23505' })
+      ],
+      [
+        'an Error cause flagged permanent',
+        Object.assign(new Error('fetch failed'), { isPermanent: true })
+      ],
+      [
+        'an Error cause with an actionable reason',
+        Object.assign(new Error('fetch failed'), { reason: 'duplicate key' })
+      ],
+      [
+        'a cause whose field access throws',
+        Object.defineProperty({ message: 'Bad Gateway' }, 'details', {
+          enumerable: true,
+          get() {
+            throw new Error('synthetic getter failure')
+          }
+        })
+      ]
+    ])('captures Sentry when a 502 wrapper holds %s', async (_label, cause) => {
+      await failThroughWrapper(cause)
+
+      expect(captureSentryException).toHaveBeenCalledTimes(1)
+    })
+
+    it.each<[string, unknown]>([
+      ['no cause', undefined],
+      [
+        'a gateway transport object',
+        { message: 'Bad Gateway', details: '', hint: '', code: '' }
+      ],
+      [
+        'a gateway object with transient status fields',
+        { message: 'Bad Gateway', status: 502, statusText: 'Bad Gateway' }
+      ],
+      [
+        'a null-prototype gateway object',
+        Object.assign(Object.create(null), { message: 'Service Unavailable' })
+      ],
+      [
+        'a transport Error with a transient plain cause',
+        new Error('fetch failed', {
+          cause: { message: 'socket hang up', code: 'ECONNRESET' }
+        })
+      ]
+    ])(
+      'still suppresses Sentry when a 502 wrapper holds %s',
+      async (_label, cause) => {
+        await failThroughWrapper(cause)
+
+        expect(captureSentryException).not.toHaveBeenCalled()
+      }
+    )
+
+    it('captures Sentry when the upstream completion error is an actionable plain object behind a 502', async () => {
+      const client = {
+        rpc: vi.fn(async (fn: string) => {
+          if (fn === 'complete_job') {
+            return {
+              data: null,
+              error: {
+                message: 'duplicate key',
+                sqlState: '23505',
+                constraint: 'synthetic_unique'
+              },
+              status: 502
+            }
+          }
+          if (fn === 'fail_job') {
+            return { data: true, error: null, status: 200 }
+          }
+          throw new Error(`unexpected rpc: ${fn}`)
+        }),
+        from: () => ({
+          select: () => ({
+            eq() {
+              return this
+            },
+            abortSignal() {
+              return this
+            },
+            async maybeSingle() {
+              return {
+                data: committedRow({ status: 'processing', attempts: 1 }),
+                error: null
+              }
+            }
+          })
+        })
+      } as unknown as ServiceSupabaseClient
+
+      const claimedJob = job({ claimAttempts: 1, claimMaxAttempts: 3 })
+      const workerResult = result()
+
+      let thrownError: unknown
+      try {
+        await completeSyncJob(claimedJob, client, WORKER, workerResult)
+      } catch (error) {
+        thrownError = error
+      }
+      expect((thrownError as { status?: number }).status).toBe(502)
+
+      await failSyncJob(thrownError, claimedJob, client, WORKER, workerResult)
+
+      expect(captureSentryException).toHaveBeenCalledTimes(1)
+      expect(captureSentryException).toHaveBeenCalledWith(
+        thrownError,
+        expect.anything()
+      )
+    })
+  })
+
   it('captures Sentry when a transient upstream completion error exhausts its final attempt', async () => {
     const upstreamError = {
       message: 'An invalid response was received from the upstream server'

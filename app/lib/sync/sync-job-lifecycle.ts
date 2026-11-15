@@ -50,7 +50,123 @@ const TRANSIENT_SYNC_MESSAGE_PATTERNS: readonly RegExp[] = [
 ]
 
 const NON_TRANSIENT_SYNC_DIAGNOSIS_PATTERN =
-  /invalid signature|permission denied|access denied|unauthorized|forbidden|invalid jwt|jwt expired|row-level security|schema cache|does not exist|violates|syntax error/iu
+  /invalid signature|permission denied|access denied|unauthorized|forbidden|invalid jwt|jwt expired|row-level security|schema cache|does not exist|violates|syntax error|duplicate key|null value in column|foreign key|unique constraint|check constraint|authentication|not found|status code 4\d\d|cannot read properties|is not a function|is not defined|unexpected token/iu
+
+const ACTIONABLE_CAUSE_KEYS = [
+  'isAppError',
+  'isPermanent',
+  'sqlState',
+  'constraint',
+  'table',
+  'column',
+  'schema',
+  'routine',
+  'severity'
+] as const
+
+const DIAGNOSIS_TEXT_KEYS = [
+  'message',
+  'details',
+  'hint',
+  'reason',
+  'statusText'
+] as const
+
+const PLAIN_CAUSE_KEYS = new Set<string>([
+  ...DIAGNOSIS_TEXT_KEYS,
+  'code',
+  'name',
+  'cause',
+  'status',
+  'statusCode'
+])
+
+const MAX_CAUSE_DEPTH = 8
+
+type CauseNodeVerdict = 'actionable' | 'transient' | 'neutral'
+
+function isPlainCauseObject(value: object): boolean {
+  if (Array.isArray(value)) return false
+  const proto: unknown = Object.getPrototypeOf(value)
+  return proto === null || proto === Object.prototype
+}
+
+/**
+ * Classifies one node of an error's `.cause` chain. `actionable` means the node
+ * carries metadata or a shape that must be reported; `neutral` is only reachable
+ * for Error instances, which may wrap a transient cause without describing it.
+ */
+function classifyCauseNode(node: object): CauseNodeVerdict {
+  const record = node as Record<string, unknown>
+  const isErrorNode = node instanceof Error
+  if (!isErrorNode) {
+    if (
+      !isPlainCauseObject(node) ||
+      !Reflect.ownKeys(node).every(
+        (key) => typeof key === 'string' && PLAIN_CAUSE_KEYS.has(key)
+      )
+    ) {
+      return 'actionable'
+    }
+  }
+
+  for (const key of ACTIONABLE_CAUSE_KEYS) {
+    const value = record[key]
+    if (value !== undefined && value !== false && value !== '') {
+      return 'actionable'
+    }
+  }
+
+  let transient = false
+
+  for (const statusKey of ['status', 'statusCode'] as const) {
+    const rawStatus = record[statusKey]
+    if (rawStatus === undefined || rawStatus === 0) continue
+    if (
+      typeof rawStatus !== 'number' ||
+      !Number.isInteger(rawStatus) ||
+      !TRANSIENT_GATEWAY_HTTP_STATUSES.has(rawStatus)
+    ) {
+      return 'actionable'
+    }
+    transient = true
+  }
+
+  const code = record.code
+  if (code !== undefined && code !== '') {
+    if (typeof code !== 'string' || !TRANSIENT_ERROR_CODES.has(code)) {
+      return 'actionable'
+    }
+    transient = true
+  }
+
+  if (record.name !== undefined && typeof record.name !== 'string') {
+    return 'actionable'
+  }
+
+  for (const textKey of DIAGNOSIS_TEXT_KEYS) {
+    const value = record[textKey]
+    if (value === undefined) continue
+    if (
+      typeof value !== 'string' ||
+      NON_TRANSIENT_SYNC_DIAGNOSIS_PATTERN.test(value)
+    ) {
+      return 'actionable'
+    }
+    if (value === '') continue
+    if (
+      TRANSIENT_SYNC_MESSAGE_PATTERNS.some((pattern) => pattern.test(value))
+    ) {
+      transient = true
+    } else if (!isErrorNode) {
+      // A plain cause has no wrapper role, so unrecognized text is a diagnosis.
+      return 'actionable'
+    }
+  }
+
+  if (transient) return 'transient'
+  return isErrorNode ? 'neutral' : 'actionable'
+}
 
 function hasVerifiedRemainingRetryBudget(job: SyncJob): boolean {
   if (
@@ -69,69 +185,33 @@ function hasVerifiedRemainingRetryBudget(job: SyncJob): boolean {
 function isTransientSyncLifecycleError(error: unknown): boolean {
   let current: unknown = error
   const seen = new Set<unknown>()
-  let depth = 0
   let sawTransientIndicator = false
 
-  while (current !== undefined && current !== null) {
-    if (seen.has(current) || depth >= 8 || typeof current !== 'object') {
-      return false
-    }
-    seen.add(current)
-    depth += 1
-
-    const record = current as Record<string, unknown>
-    let nodeHasTransientIndicator = false
-
-    for (const statusKey of ['status', 'statusCode'] as const) {
-      const rawStatus = record[statusKey]
-      if (rawStatus !== undefined && rawStatus !== 0) {
-        if (
-          typeof rawStatus === 'number' &&
-          Number.isInteger(rawStatus) &&
-          TRANSIENT_GATEWAY_HTTP_STATUSES.has(rawStatus)
-        ) {
-          nodeHasTransientIndicator = true
-        } else {
-          return false
-        }
-      }
-    }
-
-    if ('code' in record && record.code !== undefined && record.code !== '') {
+  try {
+    while (current !== undefined && current !== null) {
       if (
-        typeof record.code === 'string' &&
-        TRANSIENT_ERROR_CODES.has(record.code)
-      ) {
-        nodeHasTransientIndicator = true
-      } else {
-        return false
-      }
-    }
-
-    for (const textKey of ['message', 'details', 'hint'] as const) {
-      if (!(textKey in record) || record[textKey] === undefined) continue
-      const value = record[textKey]
-      if (
-        typeof value !== 'string' ||
-        NON_TRANSIENT_SYNC_DIAGNOSIS_PATTERN.test(value)
+        typeof current !== 'object' ||
+        seen.has(current) ||
+        seen.size >= MAX_CAUSE_DEPTH
       ) {
         return false
       }
-      if (
-        TRANSIENT_SYNC_MESSAGE_PATTERNS.some((pattern) => pattern.test(value))
-      ) {
-        nodeHasTransientIndicator = true
+      seen.add(current)
+
+      const verdict = classifyCauseNode(current)
+      if (verdict === 'actionable') return false
+      if (verdict === 'transient') {
+        sawTransientIndicator = true
+      } else if (sawTransientIndicator) {
+        // A cause that does not itself verify as transient explains the failure.
+        return false
       }
-    }
 
-    if (nodeHasTransientIndicator) {
-      sawTransientIndicator = true
-    } else if (current instanceof Error && sawTransientIndicator) {
-      // A non-transient Error cause beneath a transient outer Error disqualifies suppression.
-      return false
+      current = (current as { cause?: unknown }).cause
     }
-
-    current = record.cause
+  } catch {
+    // A cause that cannot be inspected is never proven transient.
+    return false
   }
 
   return sawTransientIndicator
