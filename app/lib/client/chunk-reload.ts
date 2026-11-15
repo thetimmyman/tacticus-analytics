@@ -435,6 +435,24 @@ function readFallbackSessionOutcome(): ResolvedChunkOutcome {
   }
 }
 
+// Session key of a global capture that provisionally claimed the single reload
+// before any handler ran. One reload per build session means a second
+// provisional global capture in the same window must resolve as suppressed.
+let provisionalAttemptClaimKey: string | null = null
+
+function readProvisionalGlobalOutcome(): ResolvedChunkOutcome {
+  const outcome = readFallbackSessionOutcome()
+  if (outcome !== 'attempted') {
+    return outcome
+  }
+  const key = sessionKey(resolveBuildId())
+  if (provisionalAttemptClaimKey === key) {
+    return 'suppressed'
+  }
+  provisionalAttemptClaimKey = key
+  return 'attempted'
+}
+
 function registerHandlerChunkOccurrence(
   value: unknown,
   outcome: ResolvedChunkOutcome
@@ -487,7 +505,10 @@ export function resolveChunkTelemetryEvent(
 
     if (matched) {
       matched.taggedBound = true
-      if (matched.globalProcessed) {
+      // Drop the tagged capture only when the global capture already reported
+      // this same outcome; a provisional global outcome that disagrees with
+      // the handler's real outcome must not swallow the real one.
+      if (matched.globalProcessed && matched.outcome === existingTag) {
         matched.taggedProcessed = true
         removeOccurrenceFromQueue(value, matched)
         return 'duplicate'
@@ -532,7 +553,7 @@ export function resolveChunkTelemetryEvent(
       return matched.outcome
     }
 
-    const fallbackOutcome = readFallbackSessionOutcome()
+    const fallbackOutcome = readProvisionalGlobalOutcome()
     if (!(value instanceof Error)) {
       const createdQueue = getOrCreateOccurrenceQueue(value)
       if (createdQueue) {
@@ -652,6 +673,8 @@ export function handleChunkLoadError(
 ): ChunkReloadOutcome {
   const outcome = resolveChunkReloadOutcome(value, context)
   if (outcome === 'attempted' || outcome === 'suppressed') {
+    // The handler has made the real decision; session storage is authoritative now.
+    provisionalAttemptClaimKey = null
     const registered = registerHandlerChunkOccurrence(value, outcome)
     const captured = captureSentryException(value, {
       tags: { chunk_reload: outcome }

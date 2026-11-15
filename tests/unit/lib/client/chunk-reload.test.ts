@@ -510,5 +510,66 @@ describe('chunk-reload', () => {
         resolveChunkTelemetryEvent(disabledMsg, { isGlobalHandler: true })
       ).toBe('suppressed')
     })
+
+    it('resolves the second provisional global capture as suppressed and drops only matching tagged duplicates when globals precede handlers', () => {
+      vi.stubEnv('NEXT_PUBLIC_BUILD_SHA', 'build-global-first')
+      vi.mocked(captureSentryException).mockReturnValue(true)
+
+      const msg = 'Failed to load chunk /_next/static/chunks/global-first.js'
+      expect(resolveChunkTelemetryEvent(msg, { isGlobalHandler: true })).toBe(
+        'attempted'
+      )
+      expect(resolveChunkTelemetryEvent(msg, { isGlobalHandler: true })).toBe(
+        'suppressed'
+      )
+
+      expect(handleChunkLoadError(msg)).toBe('attempted')
+      expect(handleChunkLoadError(msg)).toBe('suppressed')
+      expect(reloadMock).toHaveBeenCalledTimes(1)
+
+      expect(
+        resolveChunkTelemetryEvent(msg, {
+          existingTag: 'attempted',
+          isGlobalHandler: false
+        })
+      ).toBe('duplicate')
+      expect(
+        resolveChunkTelemetryEvent(msg, {
+          existingTag: 'suppressed',
+          isGlobalHandler: false
+        })
+      ).toBe('duplicate')
+    })
+
+    it('keeps a tagged capture whose real outcome disagrees with the provisional global outcome', () => {
+      vi.stubEnv('NEXT_PUBLIC_BUILD_SHA', 'build-mismatch')
+      vi.mocked(captureSentryException).mockReturnValue(true)
+
+      const first = 'Failed to load chunk /_next/static/chunks/first.js'
+      const second = 'Failed to load chunk /_next/static/chunks/second.js'
+      expect(resolveChunkTelemetryEvent(first, { isGlobalHandler: true })).toBe(
+        'attempted'
+      )
+      expect(
+        resolveChunkTelemetryEvent(second, { isGlobalHandler: true })
+      ).toBe('suppressed')
+
+      // Handlers run in the opposite order, so real outcomes swap.
+      expect(handleChunkLoadError(second)).toBe('attempted')
+      expect(handleChunkLoadError(first)).toBe('suppressed')
+
+      expect(
+        resolveChunkTelemetryEvent(second, {
+          existingTag: 'attempted',
+          isGlobalHandler: false
+        })
+      ).toBe('attempted')
+      expect(
+        resolveChunkTelemetryEvent(first, {
+          existingTag: 'suppressed',
+          isGlobalHandler: false
+        })
+      ).toBe('suppressed')
+    })
   })
 })

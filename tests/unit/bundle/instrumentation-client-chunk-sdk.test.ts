@@ -42,6 +42,8 @@ describe('instrumentation-client + Sentry SDK chunk telemetry integration', () =
 
   beforeEach(() => {
     vi.resetModules()
+    // Fresh SDK carrier so event processors from earlier tests cannot reorder this one.
+    delete (globalThis as { __SENTRY__?: unknown }).__SENTRY__
     sentEvents.length = 0
     sessionStorage.clear()
     reloadMock = vi.fn()
@@ -491,6 +493,51 @@ describe('instrumentation-client + Sentry SDK chunk telemetry integration', () =
       chunk_reload: 'attempted'
     })
     expect(objSummary).toContainEqual({
+      level: 'error',
+      chunk_reload: 'suppressed'
+    })
+  })
+
+  it('preserves 1 attempted warning and 1 suppressed error when two same-text global captures are processed before either handler runs', async () => {
+    const { chunkReload, sentry } = await loadClientModules()
+    const repeatedMessage =
+      'Failed to load chunk /_next/static/chunks/global-first-shared.js'
+
+    const captureGlobalRejection = (reason: unknown) => {
+      sentry.withScope((scope) => {
+        scope.addEventProcessor((event) => {
+          if (event.exception?.values?.[0]) {
+            event.exception.values[0].mechanism = {
+              type: 'auto.browser.global_handlers.onunhandledrejection',
+              handled: false
+            }
+          }
+          return event
+        })
+        sentry.captureException(reason)
+      })
+    }
+
+    // global1, global2 -> handler1 attempted, handler2 suppressed
+    captureGlobalRejection(repeatedMessage)
+    captureGlobalRejection(repeatedMessage)
+    expect(chunkReload.handleChunkLoadError(repeatedMessage)).toBe('attempted')
+    expect(chunkReload.handleChunkLoadError(repeatedMessage)).toBe('suppressed')
+
+    await sentry.flush(1000)
+
+    expect(reloadMock).toHaveBeenCalledTimes(1)
+    const summary = sentEvents.map((ev) => ({
+      level: ev.level,
+      chunk_reload: (ev.tags as Record<string, string> | undefined)
+        ?.chunk_reload
+    }))
+    expect(summary).toHaveLength(2)
+    expect(summary).toContainEqual({
+      level: 'warning',
+      chunk_reload: 'attempted'
+    })
+    expect(summary).toContainEqual({
       level: 'error',
       chunk_reload: 'suppressed'
     })
