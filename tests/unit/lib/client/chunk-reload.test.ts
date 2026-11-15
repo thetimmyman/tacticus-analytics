@@ -61,6 +61,31 @@ describe('chunk-reload', () => {
       ).toBe(true)
     })
 
+    it('matches Turbopack, WebKit, and SpiderMonkey dynamic import chunk failures and cause-wrapped chunk errors', () => {
+      expect(
+        isChunkLoadError(
+          new Error(
+            'Failed to load chunk /_next/static/chunks/main.js from module 42'
+          )
+        )
+      ).toBe(true)
+      expect(
+        isChunkLoadError(new TypeError('Importing a module script failed.'))
+      ).toBe(true)
+      expect(
+        isChunkLoadError(
+          new TypeError('error loading dynamically imported module')
+        )
+      ).toBe(true)
+      expect(
+        isChunkLoadError(
+          new Error('Component failed to render', {
+            cause: new TypeError('Importing a module script failed.')
+          })
+        )
+      ).toBe(true)
+    })
+
     it('does not match an unrelated error', () => {
       expect(isChunkLoadError(new Error('Network request failed'))).toBe(false)
     })

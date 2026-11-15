@@ -11,7 +11,10 @@ const CHUNK_LOAD_ERROR_NAME = 'ChunkLoadError'
 
 const CHUNK_LOAD_ERROR_MESSAGE_PATTERNS: RegExp[] = [
   /Loading chunk [\w-]+ failed/i,
-  /Failed to fetch dynamically imported module/i
+  /Failed to load chunk\b/i,
+  /Failed to fetch dynamically imported module/i,
+  /Importing a module script failed/i,
+  /error loading dynamically imported module/i
 ]
 
 // Parse failures from stale/corrupted chunks served as HTML after a deploy.
@@ -43,18 +46,26 @@ interface ErrorLike {
   message?: string
 }
 
-function toErrorLike(value: unknown): ErrorLike | null {
-  if (value instanceof Error) {
-    return { name: value.name, message: value.message }
+function readStringProperty(
+  record: Record<string, unknown>,
+  key: 'name' | 'message'
+): string | undefined {
+  try {
+    const value = record[key]
+    return typeof value === 'string' ? value : undefined
+  } catch {
+    return undefined
   }
+}
+
+function toErrorLike(value: unknown): ErrorLike | null {
   if (typeof value === 'string') {
     return { message: value }
   }
   if (value && typeof value === 'object') {
     const record = value as Record<string, unknown>
-    const name = typeof record.name === 'string' ? record.name : undefined
-    const message =
-      typeof record.message === 'string' ? record.message : undefined
+    const name = readStringProperty(record, 'name')
+    const message = readStringProperty(record, 'message')
     if (name === undefined && message === undefined) {
       return null
     }
@@ -224,7 +235,7 @@ function hasChunkScriptParseEvidence(
   return false
 }
 
-export function isChunkLoadError(
+function matchesSingleChunkLoadError(
   value: unknown,
   context?: ChunkErrorContext
 ): boolean {
@@ -245,6 +256,23 @@ export function isChunkLoadError(
     ) &&
     hasChunkScriptParseEvidence(value, context?.resourceFilename)
   )
+}
+
+export function isChunkLoadError(
+  value: unknown,
+  context?: ChunkErrorContext
+): boolean {
+  try {
+    if (matchesSingleChunkLoadError(value, context)) {
+      return true
+    }
+    if (value instanceof Error && value.cause !== undefined) {
+      return matchesSingleChunkLoadError(value.cause, context)
+    }
+  } catch {
+    return false
+  }
+  return false
 }
 
 /** Without NEXT_PUBLIC_BUILD_SHA the guard cannot tell builds apart. */

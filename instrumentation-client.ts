@@ -1,7 +1,10 @@
 import { captureRouterTransitionStart, init } from '@sentry/nextjs'
 import { sanitizeSentryEvent } from './app/lib/monitoring/sentry-privacy'
 import { hasTransientCause } from './app/lib/monitoring/transient-error'
-import { initChunkReloadListeners } from './app/lib/client/chunk-reload'
+import {
+  initChunkReloadListeners,
+  isChunkLoadError
+} from './app/lib/client/chunk-reload'
 
 const dsn =
   process.env.NEXT_PUBLIC_SENTRY_DSN || process.env.NEXT_PUBLIC_GLITCHTIP_DSN
@@ -57,6 +60,37 @@ export function isExtensionInpageEvent(event: {
   })
 }
 
+const BROWSER_NETWORK_FETCH_ERROR_MESSAGE_PATTERN =
+  /^(?:Failed to fetch|Load failed|NetworkError when attempting to fetch resource\.?)$/iu
+
+function isChunkLoadErrorEvent(
+  event: {
+    exception?: {
+      values?: Array<{
+        type?: string
+        value?: string
+      }>
+    }
+  },
+  error: unknown
+): boolean {
+  if (isChunkLoadError(error)) {
+    return true
+  }
+  const values = event.exception?.values
+  if (!values || values.length === 0) {
+    return false
+  }
+  return values.some((v) => v.type === 'ChunkLoadError')
+}
+
+function isBrowserNetworkFetchTypeError(error: Error): boolean {
+  if (error.name !== 'TypeError' || isChunkLoadError(error)) {
+    return false
+  }
+  return BROWSER_NETWORK_FETCH_ERROR_MESSAGE_PATTERN.test(error.message.trim())
+}
+
 const sentryEnabled =
   process.env.NEXT_PUBLIC_RUNTIME_PROFILE !== 'desktop' &&
   Boolean(dsn) &&
@@ -108,6 +142,27 @@ init({
       return sanitizeSentryEvent(event)
     }
 
+    // Deduplicate global-handler ChunkLoadError captures against initChunkReloadListeners()
+    // and downgrade first-occurrence auto-recovered reloads to warning.
+    if (isChunkLoadErrorEvent(event, error)) {
+      const mechanismType = event.exception?.values?.[0]?.mechanism?.type
+      const chunkReloadTag = (event.tags as Record<string, unknown> | undefined)
+        ?.chunk_reload
+      if (
+        chunkReloadTag === undefined &&
+        (mechanismType ===
+          'auto.browser.global_handlers.onunhandledrejection' ||
+          mechanismType === 'auto.browser.global_handlers.onerror')
+      ) {
+        return null
+      }
+      if (chunkReloadTag === 'attempted') {
+        event.level = 'warning'
+        event.fingerprint = ['client-chunk-reload-attempted']
+        return sanitizeSentryEvent(event)
+      }
+    }
+
     if (error instanceof Error) {
       if (
         error.name === 'AbortError' ||
@@ -140,7 +195,8 @@ init({
         error.message.includes('failed to pipe response') ||
         error.message.includes('ECONNRESET') ||
         error.message.includes('ETIMEDOUT') ||
-        error.message.includes('socket hang up')
+        error.message.includes('socket hang up') ||
+        isBrowserNetworkFetchTypeError(error)
       ) {
         return null
       }

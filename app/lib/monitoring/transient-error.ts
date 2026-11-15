@@ -4,6 +4,9 @@ const ALLOWED_WRAPPER_MESSAGES = new Set(['Unable to verify account access'])
 
 const TRANSPORT_MESSAGE_PATTERNS: readonly string[] = [
   'fetch failed',
+  'Failed to fetch',
+  'Load failed',
+  'NetworkError when attempting to fetch resource',
   'failed to pipe response',
   'ECONNRESET',
   'ETIMEDOUT',
