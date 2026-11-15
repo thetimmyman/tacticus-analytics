@@ -13,6 +13,7 @@ import {
   sanitizeObservabilityValue,
   sanitizeSentryEvent
 } from './app/lib/monitoring/sentry-privacy'
+import { hasTransientCause } from './app/lib/monitoring/transient-error'
 
 // Local mirror of `VercelEdgeTransportOptions`, which is not exported. Type-only.
 interface EdgeFetchTransportOptions extends BaseTransportOptions {
@@ -189,6 +190,14 @@ Sentry.init({
         return null // Don't send to Sentry
       }
 
+      if (
+        /invalid signature|permission denied|access denied|unauthorized|forbidden/i.test(
+          error.message
+        )
+      ) {
+        return sanitizeSentryEvent(event)
+      }
+
       // Schema cache errors are temporary and resolve on retry.
       if (
         error.message.includes('schema cache') ||
@@ -205,6 +214,11 @@ Sentry.init({
         error.message.includes('ETIMEDOUT') ||
         error.message.includes('socket hang up')
       ) {
+        return null // Don't send to Sentry
+      }
+
+      // A transient failure behind a fail-closed wrapper is the same event.
+      if (hasTransientCause(error)) {
         return null // Don't send to Sentry
       }
 

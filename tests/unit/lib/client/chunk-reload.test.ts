@@ -1,3 +1,4 @@
+import vm from 'node:vm'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { captureSentryException } from '@/app/lib/monitoring/sentry'
 import {
@@ -68,6 +69,118 @@ describe('chunk-reload', () => {
       expect(isChunkLoadError(null)).toBe(false)
       expect(isChunkLoadError(undefined)).toBe(false)
       expect(isChunkLoadError(42)).toBe(false)
+    })
+
+    it('matches a parse-failure SyntaxError from our own bundle', () => {
+      const error = new SyntaxError("Unexpected token '<'")
+      error.stack =
+        "SyntaxError: Unexpected token '<'\n" +
+        '    at https://app.example/_next/static/chunks/2619-abc.js:1:1'
+      expect(isChunkLoadError(error)).toBe(true)
+    })
+
+    it('matches a Firefox/Safari top-level anonymous chunk resource stack', () => {
+      const error = new SyntaxError("Unexpected token '<'")
+      error.stack = '@https://app.example/_next/static/chunks/2619-abc.js:1:1'
+      expect(isChunkLoadError(error)).toBe(true)
+    })
+
+    it('matches a real VM script-compilation SyntaxError when a Next chunk contains HTML', () => {
+      let caught: unknown
+      try {
+        vm.runInThisContext('<html>502 Bad Gateway</html>', {
+          filename: 'https://app.example/_next/static/chunks/2619-abc.js'
+        })
+      } catch (error) {
+        caught = error
+      }
+      expect(isChunkLoadError(caught)).toBe(true)
+    })
+
+    it('matches a truncated parse failure with Next server chunk stack evidence', () => {
+      const error = new SyntaxError('Unexpected end of input')
+      error.stack =
+        'SyntaxError: Unexpected end of input\n' +
+        '    at node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:1:1'
+      expect(isChunkLoadError(error)).toBe(true)
+    })
+
+    it('does not match a parse-failure SyntaxError without bundle evidence', () => {
+      const error = new SyntaxError("Unexpected token '<'")
+      error.stack = "SyntaxError: Unexpected token '<'\n    at inpage.js:1:1"
+      expect(isChunkLoadError(error)).toBe(false)
+    })
+
+    it('does not match an unrelated SyntaxError even with valid chunk bundle evidence', () => {
+      const error = new SyntaxError('Invalid regular expression: missing )')
+      error.stack =
+        'SyntaxError: Invalid regular expression: missing )\n' +
+        '    at https://app.example/_next/static/chunks/2619-abc.js:1:1'
+      expect(isChunkLoadError(error)).toBe(false)
+    })
+
+    it('does not match runtime JSON.parse failures thrown inside a compiled Next chunk', () => {
+      let vmJsonError: unknown
+      try {
+        vm.runInThisContext("JSON.parse('<html>invalid response</html>')", {
+          filename: 'https://app.example/_next/static/chunks/auth.js'
+        })
+      } catch (error) {
+        vmJsonError = error
+      }
+      expect(isChunkLoadError(vmJsonError)).toBe(false)
+
+      const v8JsonStackOnly = new SyntaxError("Unexpected token '<'")
+      v8JsonStackOnly.stack =
+        "SyntaxError: Unexpected token '<'\n" +
+        '    at JSON.parse (<anonymous>)\n' +
+        '    at https://app.example/_next/static/chunks/auth.js:1:6'
+      expect(isChunkLoadError(v8JsonStackOnly)).toBe(false)
+
+      const firefoxJsonStack = new SyntaxError("Unexpected token '<'")
+      firefoxJsonStack.stack =
+        'parse@[native code]\n' +
+        'login@https://app.example/_next/static/chunks/auth.js:1:32'
+      expect(isChunkLoadError(firefoxJsonStack)).toBe(false)
+    })
+
+    it('does not match runtime eval, Function constructor, or named function SyntaxErrors inside Next chunks', () => {
+      for (const snippet of [
+        "eval('<html>invalid</html>')",
+        "new Function('<html>invalid</html>')"
+      ]) {
+        let caught: unknown
+        try {
+          vm.runInThisContext(snippet, {
+            filename: 'https://app.example/_next/static/chunks/auth.js'
+          })
+        } catch (error) {
+          caught = error
+        }
+        expect(isChunkLoadError(caught)).toBe(false)
+      }
+
+      const namedCaller = new SyntaxError("Unexpected token '<'")
+      namedCaller.stack =
+        "SyntaxError: Unexpected token '<'\n" +
+        '    at decodePayload (https://app.example/_next/static/chunks/auth.js:1:420)'
+      expect(isChunkLoadError(namedCaller)).toBe(false)
+    })
+
+    it('does not match mixed extension and _next stacks in either frame order', () => {
+      const extensionTop = new SyntaxError("Unexpected token '<'")
+      extensionTop.stack =
+        "SyntaxError: Unexpected token '<'\n" +
+        '    at chrome-extension://abcdefghijklmnop/scripts/inpage.js:1:1\n' +
+        '    at https://app.example/_next/static/chunks/main.js:1:1'
+      expect(isChunkLoadError(extensionTop)).toBe(false)
+
+      const nextTopWithExtensionCaller = new SyntaxError("Unexpected token '<'")
+      nextTopWithExtensionCaller.stack =
+        "SyntaxError: Unexpected token '<'\n" +
+        '    at https://app.example/_next/static/chunks/main.js:1:1\n' +
+        '    at moz-extension://0000-1111/inpage.js:12:4'
+      expect(isChunkLoadError(nextTopWithExtensionCaller)).toBe(false)
     })
   })
 
@@ -248,6 +361,32 @@ describe('chunk-reload', () => {
       window.dispatchEvent(event)
 
       expect(reloadMock).not.toHaveBeenCalled()
+
+      cleanup()
+    })
+
+    it('reloads when a Next chunk script tag fails to parse with a frameless SyntaxError and ErrorEvent.filename', () => {
+      vi.stubEnv('NEXT_PUBLIC_BUILD_SHA', 'build-1')
+      const cleanup = initChunkReloadListeners()
+
+      const frameless = new SyntaxError("Unexpected token '<'")
+      frameless.stack = "SyntaxError: Unexpected token '<'"
+
+      const extensionEvent = new Event('error') as ErrorEvent
+      Object.defineProperty(extensionEvent, 'error', { value: frameless })
+      Object.defineProperty(extensionEvent, 'filename', {
+        value: 'chrome-extension://abcdefghijklmnop/scripts/inpage.js'
+      })
+      window.dispatchEvent(extensionEvent)
+      expect(reloadMock).not.toHaveBeenCalled()
+
+      const chunkEvent = new Event('error') as ErrorEvent
+      Object.defineProperty(chunkEvent, 'error', { value: frameless })
+      Object.defineProperty(chunkEvent, 'filename', {
+        value: 'https://app.example/_next/static/chunks/2619-abc.js'
+      })
+      window.dispatchEvent(chunkEvent)
+      expect(reloadMock).toHaveBeenCalledTimes(1)
 
       cleanup()
     })
