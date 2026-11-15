@@ -188,10 +188,11 @@ function hasChunkScriptParseEvidence(
     return false
   }
 
-  if (preludeLines.length > 0) {
+  const preludeLine = preludeLines[0]
+  if (preludeLine !== undefined) {
     const firstFrame = frameLines[0] ?? ''
     return (
-      isNextScriptResourceLocation(preludeLines[0], {
+      isNextScriptResourceLocation(preludeLine, {
         requireLineSuffix: true,
         allowNodeNextRuntime: true
       }) &&
@@ -201,8 +202,9 @@ function hasChunkScriptParseEvidence(
     )
   }
 
-  if (frameLines.length === 1) {
-    const location = extractAnonymousFrameLocation(frameLines[0])
+  const singleFrame = frameLines[0]
+  if (frameLines.length === 1 && singleFrame !== undefined) {
+    const location = extractAnonymousFrameLocation(singleFrame)
     return (
       location !== null &&
       isNextScriptResourceLocation(location, {
