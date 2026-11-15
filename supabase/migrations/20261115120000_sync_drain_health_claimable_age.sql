@@ -1,4 +1,9 @@
 -- target-db: general
+-- Rollback: Restore the saved pre-migration definition of
+-- public.sync_queue_drain_health(integer, integer, integer), preserving its
+-- signature, owner and grants. Confirm the function and ledger entry still
+-- match this apply before reverting only this migration's ledger entry.
+-- Reload the API schema cache and verify the restored function and permissions.
 BEGIN;
 
 DO $guard$
