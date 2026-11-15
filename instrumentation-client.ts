@@ -153,10 +153,13 @@ init({
       event.tags as Record<string, unknown> | undefined
     )?.chunk_reload
     const isChunkEvent = isChunkLoadErrorEvent(event, error)
-    const mechanismType = event.exception?.values?.[0]?.mechanism?.type
     const isGlobalHandler =
-      mechanismType === 'auto.browser.global_handlers.onunhandledrejection' ||
-      mechanismType === 'auto.browser.global_handlers.onerror'
+      event.exception?.values?.some(
+        ({ mechanism }) =>
+          mechanism?.type ===
+            'auto.browser.global_handlers.onunhandledrejection' ||
+          mechanism?.type === 'auto.browser.global_handlers.onerror'
+      ) ?? false
 
     if (isChunkEvent || typeof existingChunkReloadTag === 'string') {
       const chunkErrorKey = unwrapCapturedOriginalException(error)
