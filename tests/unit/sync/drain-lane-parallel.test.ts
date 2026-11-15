@@ -51,12 +51,12 @@ describe('parallel drain lanes', () => {
   })
 
   it('resolves configured lane count', () => {
-    expect(resolveDrainLanes({})).toBe(3)
+    expect(resolveDrainLanes({})).toBe(4)
     expect(resolveDrainLanes({ SYNC_DRAIN_LANES: '5' })).toBe(5)
     expect(resolveDrainLanes({ SYNC_DRAIN_LANES: '0' })).toBe(1)
     expect(resolveDrainLanes({ SYNC_DRAIN_LANES: '99' })).toBe(8)
     for (const invalid of ['', 'nope', '2.5', 'Infinity']) {
-      expect(resolveDrainLanes({ SYNC_DRAIN_LANES: invalid })).toBe(3)
+      expect(resolveDrainLanes({ SYNC_DRAIN_LANES: invalid })).toBe(4)
     }
   })
 
