@@ -335,13 +335,75 @@ export function resolveChunkReloadOutcome(
   return 'attempted'
 }
 
+const capturedChunkObjects = new WeakSet<object>()
+const pendingChunkMessages = new Map<string, number>()
+
+function recordCapturedChunkError(value: unknown): void {
+  if (value && typeof value === 'object') {
+    capturedChunkObjects.add(value)
+    return
+  }
+  if (typeof value === 'string') {
+    const nextCount = (pendingChunkMessages.get(value) ?? 0) + 1
+    pendingChunkMessages.set(value, nextCount)
+    queueMicrotask(() => {
+      const current = pendingChunkMessages.get(value)
+      if (current !== undefined && current <= 1) {
+        pendingChunkMessages.delete(value)
+      } else if (current !== undefined) {
+        pendingChunkMessages.set(value, current - 1)
+      }
+    })
+  }
+}
+
+/** True only when handleChunkLoadError already emitted a tagged capture for this error. */
+export function consumeCapturedChunkReloadDuplicate(value: unknown): boolean {
+  if (value && typeof value === 'object') {
+    if (!capturedChunkObjects.has(value)) return false
+    capturedChunkObjects.delete(value)
+    return true
+  }
+  if (typeof value === 'string') {
+    const current = pendingChunkMessages.get(value)
+    if (!current) return false
+    if (current <= 1) {
+      pendingChunkMessages.delete(value)
+    } else {
+      pendingChunkMessages.set(value, current - 1)
+    }
+    return true
+  }
+  return false
+}
+
+/** Read-only outcome for chunk failures seen via global handlers before handleChunkLoadError runs. */
+export function peekChunkReloadOutcome(): 'attempted' | 'suppressed' {
+  const storage = getSessionStorage()
+  if (!storage) {
+    return 'suppressed'
+  }
+  try {
+    return storage.getItem(sessionKey(resolveBuildId())) === '1'
+      ? 'suppressed'
+      : 'attempted'
+  } catch {
+    return 'suppressed'
+  }
+}
+
 export function handleChunkLoadError(
   value: unknown,
   context?: ChunkErrorContext
 ): ChunkReloadOutcome {
   const outcome = resolveChunkReloadOutcome(value, context)
   if (outcome === 'attempted' || outcome === 'suppressed') {
-    captureSentryException(value, { tags: { chunk_reload: outcome } })
+    const captured = captureSentryException(value, {
+      tags: { chunk_reload: outcome }
+    })
+    if (captured !== false) {
+      recordCapturedChunkError(value)
+    }
   }
   return outcome
 }

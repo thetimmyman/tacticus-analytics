@@ -2,8 +2,10 @@ import { captureRouterTransitionStart, init } from '@sentry/nextjs'
 import { sanitizeSentryEvent } from './app/lib/monitoring/sentry-privacy'
 import { hasTransientCause } from './app/lib/monitoring/transient-error'
 import {
+  consumeCapturedChunkReloadDuplicate,
   initChunkReloadListeners,
-  isChunkLoadError
+  isChunkLoadError,
+  peekChunkReloadOutcome
 } from './app/lib/client/chunk-reload'
 
 const dsn =
@@ -91,6 +93,9 @@ function isBrowserNetworkFetchTypeError(error: Error): boolean {
   return BROWSER_NETWORK_FETCH_ERROR_MESSAGE_PATTERN.test(error.message.trim())
 }
 
+// Register chunk listeners before init() so tagged captures run ahead of Sentry global handlers.
+initChunkReloadListeners()
+
 const sentryEnabled =
   process.env.NEXT_PUBLIC_RUNTIME_PROFILE !== 'desktop' &&
   Boolean(dsn) &&
@@ -142,23 +147,47 @@ init({
       return sanitizeSentryEvent(event)
     }
 
-    // Deduplicate global-handler ChunkLoadError captures against initChunkReloadListeners()
-    // and downgrade first-occurrence auto-recovered reloads to warning.
-    if (isChunkLoadErrorEvent(event, error)) {
-      const mechanismType = event.exception?.values?.[0]?.mechanism?.type
-      const chunkReloadTag = (event.tags as Record<string, unknown> | undefined)
-        ?.chunk_reload
+    // Classify chunk reload telemetry without dropping the sole SDK capture when
+    // Sentry global handlers catch an error before handleChunkLoadError runs.
+    const existingChunkReloadTag = (
+      event.tags as Record<string, unknown> | undefined
+    )?.chunk_reload
+    const isChunkEvent = isChunkLoadErrorEvent(event, error)
+    const mechanismType = event.exception?.values?.[0]?.mechanism?.type
+    const isGlobalHandler =
+      mechanismType === 'auto.browser.global_handlers.onunhandledrejection' ||
+      mechanismType === 'auto.browser.global_handlers.onerror'
+
+    if (isChunkEvent || typeof existingChunkReloadTag === 'string') {
       if (
-        chunkReloadTag === undefined &&
-        (mechanismType ===
-          'auto.browser.global_handlers.onunhandledrejection' ||
-          mechanismType === 'auto.browser.global_handlers.onerror')
+        existingChunkReloadTag === undefined &&
+        isGlobalHandler &&
+        consumeCapturedChunkReloadDuplicate(error)
       ) {
         return null
       }
-      if (chunkReloadTag === 'attempted') {
+
+      const resolvedChunkReloadTag =
+        typeof existingChunkReloadTag === 'string'
+          ? existingChunkReloadTag
+          : isGlobalHandler
+            ? peekChunkReloadOutcome()
+            : undefined
+
+      if (resolvedChunkReloadTag !== undefined) {
+        event.tags = {
+          ...(event.tags as Record<string, unknown> | undefined),
+          chunk_reload: resolvedChunkReloadTag
+        }
+      }
+
+      if (resolvedChunkReloadTag === 'attempted') {
         event.level = 'warning'
         event.fingerprint = ['client-chunk-reload-attempted']
+        return sanitizeSentryEvent(event)
+      }
+
+      if (resolvedChunkReloadTag === 'suppressed') {
         return sanitizeSentryEvent(event)
       }
     }
@@ -219,8 +248,5 @@ init({
     return sanitizeSentryEvent(event)
   }
 })
-
-// One guarded reload recovers from stale chunks after a deploy.
-initChunkReloadListeners()
 
 export const onRouterTransitionStart = captureRouterTransitionStart

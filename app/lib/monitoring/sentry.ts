@@ -67,8 +67,8 @@ function normalizeNonError(value: NonErrorLike): Error {
 export function captureSentryException(
   error: unknown,
   context?: CaptureContext
-): void {
-  if (!isSentryEnabled()) return
+): boolean {
+  if (!isSentryEnabled()) return false
   try {
     const safeContext = sanitizeObservabilityValue(context) as
       CaptureContext | undefined
@@ -79,7 +79,7 @@ export function captureSentryException(
         tags: safeContext?.tags,
         extra: safeContext?.extra
       })
-      return
+      return true
     }
     const nonError = error as NonErrorLike
     sentryCaptureException(normalizeNonError(nonError), {
@@ -90,8 +90,10 @@ export function captureSentryException(
         nonErrorValue: serializeNonError(nonError)
       }
     })
+    return true
   } catch {
     // Capture failures are swallowed.
+    return false
   }
 }
 

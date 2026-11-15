@@ -160,7 +160,8 @@ describe('client beforeSend', () => {
     ).not.toBeNull()
   })
 
-  it('drops duplicate untagged global-handler ChunkLoadError captures while downgrading attempted reloads to warning and keeping suppressed reloads as error', () => {
+  it('preserves and classifies uncaptured global-handler ChunkLoadError events while downgrading attempted reloads to warning and keeping suppressed reloads as error', () => {
+    sessionStorage.clear()
     const chunkError = new Error(
       'Failed to load chunk /_next/static/chunks/main.js'
     )
@@ -189,9 +190,18 @@ describe('client beforeSend', () => {
         ]
       }
     }
+    const preservedGlobalAttempted = beforeSend(
+      structuredClone(unhandledGlobalEvent),
+      { originalException: chunkError }
+    )
+    expect(preservedGlobalAttempted).not.toBeNull()
+    expect(preservedGlobalAttempted?.level).toBe('warning')
+    expect(preservedGlobalAttempted?.fingerprint).toEqual([
+      'client-chunk-reload-attempted'
+    ])
     expect(
-      beforeSend(unhandledGlobalEvent, { originalException: chunkError })
-    ).toBeNull()
+      (preservedGlobalAttempted?.tags as Record<string, string>)?.chunk_reload
+    ).toBe('attempted')
 
     const attemptedEvent = {
       level: 'error',
