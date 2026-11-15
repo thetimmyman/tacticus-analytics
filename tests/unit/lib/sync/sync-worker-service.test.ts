@@ -353,6 +353,34 @@ describe('processJob', () => {
     expect(failArgs['p_error']).toContain('permanent')
   })
 
+  it('retries a job when the guild config read fails transiently', async () => {
+    const rpc = buildRpcMock({
+      fail_job: () => Promise.resolve({ data: true, error: null })
+    })
+    const supabase = {
+      rpc: vi.fn(rpc.impl),
+      from: vi.fn(
+        buildFromMock({
+          guild_config: {
+            singleError: { code: '503', message: 'Unavailable' }
+          },
+          sync_queue: {}
+        })
+      )
+    } as any
+
+    const result = await processJob(
+      { id: 'j1', guild_code: 'GUILD01', job_type: 'full_sync' },
+      supabase,
+      'w-1'
+    )
+
+    expect(result.success).toBe(false)
+    expect(rpc.calls['fail_job']?.[0]?.['p_error']).toContain('Unavailable')
+    expect(rpc.calls['fail_job']?.[0]?.['p_error']).not.toContain('permanent')
+    expect(supabase.from).not.toHaveBeenCalledWith('sync_queue')
+  })
+
   it('routes player_sync to player handler', async () => {
     mockFetchTacticusApi.mockResolvedValue({
       ok: true,

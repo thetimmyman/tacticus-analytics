@@ -478,7 +478,7 @@ describe('/api/sync/worker', () => {
               eq: vi.fn().mockReturnThis(),
               single: vi.fn().mockResolvedValue({
                 data: null,
-                error: { message: 'Not found' }
+                error: { code: 'PGRST116', message: 'Not found' }
               })
             }
           }

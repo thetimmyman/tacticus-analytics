@@ -59,7 +59,7 @@ async function processMeasuredJob(
 
     if (configError || !guildConfig) {
       // PGRST116 / no row means the guild doesn't exist, not a transient RLS issue.
-      const isPermanentError = configError?.code === 'PGRST116' || !guildConfig
+      const isPermanentError = configError?.code === 'PGRST116'
       if (isPermanentError) {
         await failMissingGuildConfig(
           job,
