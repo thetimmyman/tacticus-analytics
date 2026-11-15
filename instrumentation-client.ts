@@ -2,11 +2,9 @@ import { captureRouterTransitionStart, init } from '@sentry/nextjs'
 import { sanitizeSentryEvent } from './app/lib/monitoring/sentry-privacy'
 import { hasTransientCause } from './app/lib/monitoring/transient-error'
 import {
-  consumeCapturedChunkReloadDuplicate,
   initChunkReloadListeners,
   isChunkLoadError,
-  peekChunkReloadOutcome,
-  recordProcessedChunkEvent
+  resolveChunkTelemetryEvent
 } from './app/lib/client/chunk-reload'
 import { unwrapCapturedOriginalException } from './app/lib/monitoring/sentry'
 
@@ -162,28 +160,23 @@ init({
 
     if (isChunkEvent || typeof existingChunkReloadTag === 'string') {
       const chunkErrorKey = unwrapCapturedOriginalException(error)
+      const chunkResolution = resolveChunkTelemetryEvent(chunkErrorKey, {
+        existingTag:
+          typeof existingChunkReloadTag === 'string'
+            ? existingChunkReloadTag
+            : undefined,
+        isGlobalHandler
+      })
 
-      if (
-        existingChunkReloadTag === undefined &&
-        isGlobalHandler &&
-        consumeCapturedChunkReloadDuplicate(chunkErrorKey, 'tagged')
-      ) {
-        return null
-      }
-
-      if (
-        typeof existingChunkReloadTag === 'string' &&
-        consumeCapturedChunkReloadDuplicate(chunkErrorKey, 'global')
-      ) {
+      if (chunkResolution === 'duplicate') {
         return null
       }
 
       const resolvedChunkReloadTag =
-        typeof existingChunkReloadTag === 'string'
+        chunkResolution ??
+        (typeof existingChunkReloadTag === 'string'
           ? existingChunkReloadTag
-          : isGlobalHandler
-            ? peekChunkReloadOutcome(chunkErrorKey)
-            : undefined
+          : undefined)
 
       if (resolvedChunkReloadTag !== undefined) {
         event.tags = {
@@ -192,18 +185,13 @@ init({
         }
       }
 
-      const eventSource =
-        typeof existingChunkReloadTag === 'string' ? 'tagged' : 'global'
-
       if (resolvedChunkReloadTag === 'attempted') {
-        recordProcessedChunkEvent(chunkErrorKey, eventSource)
         event.level = 'warning'
         event.fingerprint = ['client-chunk-reload-attempted']
         return sanitizeSentryEvent(event)
       }
 
       if (resolvedChunkReloadTag === 'suppressed') {
-        recordProcessedChunkEvent(chunkErrorKey, eventSource)
         return sanitizeSentryEvent(event)
       }
     }

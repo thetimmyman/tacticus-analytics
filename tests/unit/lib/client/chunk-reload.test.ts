@@ -5,7 +5,8 @@ import {
   handleChunkLoadError,
   isChunkLoadError,
   initChunkReloadListeners,
-  resolveBuildId
+  resolveBuildId,
+  resolveChunkTelemetryEvent
 } from '@/app/lib/client/chunk-reload'
 
 vi.mock('@/app/lib/monitoring/sentry', () => ({
@@ -466,6 +467,48 @@ describe('chunk-reload', () => {
       cleanupA()
       cleanupB()
       addSpy.mockRestore()
+    })
+  })
+
+  describe('resolveChunkTelemetryEvent per-occurrence correlation', () => {
+    it('tracks attempted then suppressed outcomes independently for identical string messages and cleans up when Sentry is disabled', () => {
+      vi.stubEnv('NEXT_PUBLIC_BUILD_SHA', 'build-corr')
+      vi.mocked(captureSentryException).mockReturnValue(true)
+
+      const msg = 'Failed to load chunk /_next/static/chunks/unit-shared.js'
+      expect(handleChunkLoadError(msg)).toBe('attempted')
+      expect(handleChunkLoadError(msg)).toBe('suppressed')
+
+      expect(resolveChunkTelemetryEvent(msg, { isGlobalHandler: true })).toBe(
+        'attempted'
+      )
+      expect(resolveChunkTelemetryEvent(msg, { isGlobalHandler: true })).toBe(
+        'suppressed'
+      )
+
+      expect(
+        resolveChunkTelemetryEvent(msg, {
+          existingTag: 'attempted',
+          isGlobalHandler: false
+        })
+      ).toBe('duplicate')
+      expect(
+        resolveChunkTelemetryEvent(msg, {
+          existingTag: 'suppressed',
+          isGlobalHandler: false
+        })
+      ).toBe('duplicate')
+
+      // When captureSentryException returns false (Sentry disabled), occurrences are not retained.
+      sessionStorage.clear()
+      vi.mocked(captureSentryException).mockReturnValue(false)
+      const disabledMsg =
+        'Failed to load chunk /_next/static/chunks/disabled.js'
+      expect(handleChunkLoadError(disabledMsg)).toBe('attempted')
+      // Because sessionStorage now has '1' and no pending occurrence was retained, fallback is 'suppressed'.
+      expect(
+        resolveChunkTelemetryEvent(disabledMsg, { isGlobalHandler: true })
+      ).toBe('suppressed')
     })
   })
 })
