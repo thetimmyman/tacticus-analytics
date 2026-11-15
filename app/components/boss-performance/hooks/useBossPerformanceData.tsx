@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { createComponentLogger } from '@/app/lib/logging/client'
 const logger = createComponentLogger(
   'components.boss-performance.hooks.useBossPerformanceData'
@@ -509,7 +509,7 @@ function useBossPerformanceDataInternal({
     enabled,
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000, // 5 minutes
-    placeholderData: (previousData) => previousData
+    placeholderData: keepPreviousData
   })
 
   const error = useMemo(() => {

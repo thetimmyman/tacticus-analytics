@@ -19,10 +19,9 @@ interface ClientDateProps {
   title?: boolean
 }
 
-const subscribeToClientReady = (callback: () => void) => {
-  callback()
-  return () => {}
-}
+const subscribeToClientReady = () => () => {}
+const getClientReadySnapshot = () => true
+const getServerReadySnapshot = () => false
 
 export function ClientDate({
   date,
@@ -32,8 +31,8 @@ export function ClientDate({
 }: ClientDateProps) {
   const mounted = useSyncExternalStore(
     subscribeToClientReady,
-    () => true,
-    () => false
+    getClientReadySnapshot,
+    getServerReadySnapshot
   )
 
   if (!mounted) {

@@ -182,6 +182,46 @@ describe('browserRenderErrorTags', () => {
     ).toBe('REACT_RENDER_FAILURE')
   })
 
+  it('classifies React maximum update depth errors without substring false positives', () => {
+    expect(
+      tagsFor(
+        '/player-performance',
+        new Error(
+          'Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate.'
+        )
+      )
+    ).toEqual({
+      source: 'react.error-boundary',
+      operation: 'browser.render.player',
+      error_code: 'REACT_MAX_UPDATE_DEPTH'
+    })
+    expect(tagsFor('/', 'Maximum update depth exceeded').error_code).toBe(
+      'REACT_MAX_UPDATE_DEPTH'
+    )
+    expect(
+      tagsFor(
+        '/player-performance',
+        new Error(
+          'Minified React error #185; visit https://react.dev/errors/185 for the full message'
+        )
+      ).error_code
+    ).toBe('REACT_MAX_UPDATE_DEPTH')
+    expect(
+      tagsFor('/player-performance', new Error('Minified React error #185'))
+        .error_code
+    ).toBe('REACT_MAX_UPDATE_DEPTH')
+    expect(
+      tagsFor('/player-performance', new Error('Minified React error #1850'))
+        .error_code
+    ).toBe('REACT_RENDER_FAILURE')
+    expect(
+      tagsFor(
+        '/player-performance',
+        new Error('Minified React error #185arbitrary')
+      ).error_code
+    ).toBe('REACT_RENDER_FAILURE')
+  })
+
   it('classifies NotFoundError DOM insert/remove failures by duck typing', () => {
     const insert = {
       name: 'NotFoundError',
@@ -259,11 +299,14 @@ describe('ErrorBoundary browser render telemetry', () => {
 
     try {
       render(
-        React.createElement(ErrorBoundary, {
-          autoReset: false,
-          showDetails: false,
-          children: React.createElement(Explodes)
-        })
+        React.createElement(
+          ErrorBoundary,
+          {
+            autoReset: false,
+            showDetails: false
+          },
+          React.createElement(Explodes)
+        )
       )
     } finally {
       consoleError.mockRestore()

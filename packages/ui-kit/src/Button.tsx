@@ -54,7 +54,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {loading && (
-          <div className="relative -ml-1 mr-3 h-4 w-4">
+          <div className="relative -ml-1 mr-3 h-4 w-4" aria-hidden="true">
             {/* Sacred Mechanicus gear */}
             <svg
               className="animate-spin h-4 w-4 text-red-500"
@@ -118,7 +118,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             </div>
           </div>
         )}
-        {loading ? loadingText : children}
+        <span key={loading ? 'loading' : 'idle'} className="contents">
+          {loading ? loadingText : children}
+        </span>
       </button>
     )
 
