@@ -1,56 +1,322 @@
-import { describe, expect, it } from 'vitest'
+import { PostgrestClient } from '@supabase/postgrest-js'
+import { GoTrueClient } from '@supabase/auth-js'
+import { describe, expect, it, vi } from 'vitest'
 import { hasTransientCause } from '@/app/lib/monitoring/transient-error'
+
+const sentry = vi.hoisted(() => ({
+  addIntegration: vi.fn(),
+  captureRouterTransitionStart: vi.fn(),
+  init: vi.fn(),
+  lazyLoadIntegration: vi.fn(() => Promise.resolve(vi.fn()))
+}))
+
+vi.mock('@sentry/nextjs', () => sentry)
+
+type BeforeSendHook = (
+  event: Record<string, unknown>,
+  hint: { originalException?: unknown }
+) => Record<string, unknown> | null
+
+async function loadBeforeSendHooks(): Promise<Record<string, BeforeSendHook>> {
+  const loaders: Array<[string, () => Promise<unknown>]> = [
+    ['client', () => import('../../../instrumentation-client')],
+    ['server', () => import('../../../sentry.server.config')],
+    ['edge', () => import('../../../sentry.edge.config')]
+  ]
+  const hooks: Record<string, BeforeSendHook> = {}
+  for (const [name, load] of loaders) {
+    vi.resetModules()
+    sentry.init.mockClear()
+    await load()
+    const beforeSend = sentry.init.mock.calls[0]?.[0]?.beforeSend as
+      BeforeSendHook | undefined
+    if (typeof beforeSend !== 'function') {
+      throw new Error(`Missing beforeSend hook for ${name}`)
+    }
+    hooks[name] = beforeSend
+  }
+  return hooks
+}
+
+function makeEvent(error: Error): Record<string, unknown> {
+  return {
+    level: 'error',
+    exception: {
+      values: [{ type: error.name, value: error.message }]
+    }
+  }
+}
 
 function wrapped(cause: unknown): Error {
   return new Error('Unable to verify account access', { cause })
 }
 
+async function queryPostgrestWithFetch(
+  customFetch: typeof fetch
+): Promise<unknown> {
+  const client = new PostgrestClient('https://database.example/rest/v1', {
+    fetch: customFetch
+  })
+  const { error } = await client.from('user_bans').select('id').retry(false)
+  return error
+}
+
 describe('hasTransientCause', () => {
-  it('matches a transient network failure in the cause chain', () => {
-    expect(hasTransientCause(wrapped(new Error('fetch failed')))).toBe(true)
+  it('matches verified transport Error causes behind the account-access wrapper', () => {
+    expect(hasTransientCause(wrapped(new TypeError('fetch failed')))).toBe(true)
     expect(hasTransientCause(wrapped(new Error('socket hang up')))).toBe(true)
-    expect(hasTransientCause(wrapped(new Error('read ECONNRESET')))).toBe(true)
-    expect(hasTransientCause(wrapped(new Error('connect ETIMEDOUT')))).toBe(
-      true
-    )
+    expect(
+      hasTransientCause(
+        wrapped(
+          Object.assign(new Error('read ECONNRESET'), { code: 'ECONNRESET' })
+        )
+      )
+    ).toBe(true)
+    expect(
+      hasTransientCause(
+        wrapped(
+          Object.assign(new Error('connect ETIMEDOUT'), { code: 'ETIMEDOUT' })
+        )
+      )
+    ).toBe(true)
+    expect(
+      hasTransientCause(wrapped(new Error('failed to pipe response')))
+    ).toBe(true)
   })
 
-  it('matches a schema cache failure in the cause chain', () => {
-    expect(hasTransientCause(wrapped(new Error('schema cache is stale')))).toBe(
-      true
+  it('walks nested transport-only cause chains and nested allowlisted wrappers', () => {
+    const socketCause = Object.assign(new Error('read ECONNRESET'), {
+      code: 'ECONNRESET'
+    })
+    const fetchFailure = new TypeError('fetch failed', { cause: socketCause })
+    expect(hasTransientCause(wrapped(fetchFailure))).toBe(true)
+    expect(hasTransientCause(wrapped(wrapped(fetchFailure)))).toBe(true)
+  })
+
+  it('classifies real PostgrestClient transport failures while rejecting database/HTTP errors', async () => {
+    const transportError = await queryPostgrestWithFetch(async () => {
+      throw new TypeError('fetch failed')
+    })
+    expect(transportError).not.toBeInstanceOf(Error)
+    expect(hasTransientCause(wrapped(transportError))).toBe(true)
+
+    const nestedTransportError = await queryPostgrestWithFetch(async () => {
+      throw new TypeError('fetch failed', {
+        cause: Object.assign(new Error('read ECONNRESET'), {
+          code: 'ECONNRESET'
+        })
+      })
+    })
+    expect(hasTransientCause(wrapped(nestedTransportError))).toBe(true)
+
+    const permissionError = await queryPostgrestWithFetch(
+      async () =>
+        new Response(
+          JSON.stringify({
+            code: '42501',
+            message: 'permission denied for schema cache',
+            details: null,
+            hint: null
+          }),
+          { status: 403, headers: { 'content-type': 'application/json' } }
+        )
     )
+    expect(hasTransientCause(wrapped(permissionError))).toBe(false)
+
+    const missingFnError = await queryPostgrestWithFetch(
+      async () =>
+        new Response(
+          JSON.stringify({
+            code: 'PGRST202',
+            message:
+              'Could not find the function public.enforce_account_access in the schema cache',
+            details: 'Searched for the function',
+            hint: null
+          }),
+          { status: 404, headers: { 'content-type': 'application/json' } }
+        )
+    )
+    expect(hasTransientCause(wrapped(missingFnError))).toBe(false)
+
+    const gatewayTextError = await queryPostgrestWithFetch(
+      async () => new Response('fetch failed upstream', { status: 502 })
+    )
+    expect(hasTransientCause(wrapped(gatewayTextError))).toBe(false)
+  })
+
+  it('classifies GoTrue transport errors (status 0) while retaining HTTP auth failures', async () => {
+    const failingAuth = new GoTrueClient({
+      url: 'https://auth.example/auth/v1',
+      autoRefreshToken: false,
+      persistSession: false,
+      fetch: async () => {
+        throw new TypeError('fetch failed')
+      }
+    })
+    const { error: transportAuthError } = await failingAuth.admin.getUserById(
+      '00000000-0000-0000-0000-000000000000'
+    )
+    expect(hasTransientCause(wrapped(transportAuthError))).toBe(true)
+
+    const unauthorizedAuth = new GoTrueClient({
+      url: 'https://auth.example/auth/v1',
+      autoRefreshToken: false,
+      persistSession: false,
+      fetch: async () =>
+        new Response(JSON.stringify({ message: 'Invalid JWT: fetch failed' }), {
+          status: 401,
+          headers: { 'content-type': 'application/json' }
+        })
+    })
+    const { error: authHttpError } = await unauthorizedAuth.admin.getUserById(
+      '00000000-0000-0000-0000-000000000000'
+    )
+    expect(hasTransientCause(wrapped(authHttpError))).toBe(false)
+  })
+
+  it('rejects security/domain outer wrappers, intermediate security/domain errors, and schema/function errors', () => {
+    expect(
+      hasTransientCause(
+        new Error('Invalid signature', { cause: new Error('fetch failed') })
+      )
+    ).toBe(false)
+    expect(
+      hasTransientCause(
+        new Error('Session verification failed', {
+          cause: new Error('fetch failed')
+        })
+      )
+    ).toBe(false)
+    expect(
+      hasTransientCause(
+        wrapped(
+          new Error('Invalid signature', { cause: new Error('fetch failed') })
+        )
+      )
+    ).toBe(false)
+    expect(
+      hasTransientCause(
+        wrapped(
+          new Error('lookup failed', { cause: new Error('fetch failed') })
+        )
+      )
+    ).toBe(false)
+    expect(
+      hasTransientCause(
+        wrapped(
+          new Error('fetch failed', { cause: new Error('Invalid signature') })
+        )
+      )
+    ).toBe(false)
+    expect(
+      hasTransientCause(
+        wrapped(new Error('permission denied for schema cache'))
+      )
+    ).toBe(false)
+    expect(hasTransientCause(wrapped(new Error('schema cache is stale')))).toBe(
+      false
+    )
+    expect(
+      hasTransientCause(
+        wrapped(new Error('function enforce_account_access does not exist'))
+      )
+    ).toBe(false)
     expect(
       hasTransientCause(
         wrapped(new Error('the function does not exist in the schema cache'))
       )
-    ).toBe(true)
-  })
-
-  it('walks a nested cause chain', () => {
-    const root = new Error('fetch failed')
-    const middle = new Error('lookup failed', { cause: root })
-    expect(hasTransientCause(wrapped(middle))).toBe(true)
-  })
-
-  it('does not match a non-transient cause', () => {
+    ).toBe(false)
     expect(hasTransientCause(wrapped(new Error('permission denied')))).toBe(
       false
     )
   })
 
-  it('does not match when there is no cause', () => {
+  it('rejects unvalidated plain objects, missing causes, and cycles', () => {
+    expect(hasTransientCause(wrapped({ message: 'fetch failed' }))).toBe(false)
+    expect(
+      hasTransientCause(
+        wrapped({
+          message: 'TypeError: fetch failed',
+          details: '',
+          hint: '',
+          code: '42501'
+        })
+      )
+    ).toBe(false)
+    expect(
+      hasTransientCause(
+        wrapped({
+          message: 'TypeError: fetch failed: Invalid signature',
+          details: '',
+          hint: '',
+          code: ''
+        })
+      )
+    ).toBe(false)
     expect(
       hasTransientCause(new Error('Unable to verify account access'))
     ).toBe(false)
-  })
-
-  it('tolerates non-error causes and cycles', () => {
     expect(hasTransientCause(wrapped('fetch failed'))).toBe(false)
     expect(hasTransientCause(wrapped(null))).toBe(false)
 
-    const a = new Error('a')
-    const b = new Error('b', { cause: a })
+    const a = new Error('Unable to verify account access')
+    const b = new Error('Unable to verify account access', { cause: a })
     a.cause = b
     expect(hasTransientCause(wrapped(a))).toBe(false)
+  })
+})
+
+describe('beforeSend hooks across client, server, and edge configs', () => {
+  it('retains security/permission/schema errors while dropping verified transport-backed account-access wrappers', async () => {
+    const hooks = await loadBeforeSendHooks()
+    const postgrestTransport = await queryPostgrestWithFetch(async () => {
+      throw new TypeError('fetch failed')
+    })
+    const postgrestPermission = await queryPostgrestWithFetch(
+      async () =>
+        new Response(
+          JSON.stringify({
+            code: '42501',
+            message: 'permission denied for schema cache',
+            details: null,
+            hint: null
+          }),
+          { status: 403, headers: { 'content-type': 'application/json' } }
+        )
+    )
+
+    for (const [hookName, beforeSend] of Object.entries(hooks)) {
+      const retainedCases = [
+        new Error('Invalid signature'),
+        new Error('Invalid signature', { cause: new Error('fetch failed') }),
+        new Error('Invalid signature', { cause: postgrestTransport }),
+        wrapped(
+          new Error('Invalid signature', { cause: new Error('fetch failed') })
+        ),
+        wrapped(new Error('permission denied for schema cache')),
+        wrapped(new Error('function enforce_account_access does not exist')),
+        wrapped(postgrestPermission),
+        new Error('permission denied for schema cache')
+      ]
+
+      for (const err of retainedCases) {
+        expect(
+          beforeSend(makeEvent(err), { originalException: err }),
+          `${hookName} should retain: ${err.message}`
+        ).not.toBeNull()
+      }
+
+      const droppedCases = [
+        wrapped(new TypeError('fetch failed')),
+        wrapped(postgrestTransport)
+      ]
+
+      for (const err of droppedCases) {
+        expect(
+          beforeSend(makeEvent(err), { originalException: err }),
+          `${hookName} should drop: ${err.message}`
+        ).toBeNull()
+      }
+    }
   })
 })

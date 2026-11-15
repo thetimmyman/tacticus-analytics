@@ -118,6 +118,14 @@ init({
         return null
       }
 
+      if (
+        /invalid signature|permission denied|access denied|unauthorized|forbidden/i.test(
+          error.message
+        )
+      ) {
+        return sanitizeSentryEvent(event)
+      }
+
       // Schema cache errors are temporary and resolve on retry.
       if (
         error.message.includes('schema cache') ||

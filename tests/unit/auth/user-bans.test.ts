@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { PostgrestClient } from '@supabase/postgrest-js'
 import type { User } from '@supabase/supabase-js'
 import type { AppUser } from '@/app/types'
 import type { TypedSupabaseClient } from '@tacticus/app-core/types'
+import { hasTransientCause } from '@/app/lib/monitoring/transient-error'
 
 const mocks = vi.hoisted(() => ({
   serviceDb: vi.fn(),
@@ -347,6 +349,59 @@ describe('user ban matching', () => {
     )
     expect(thrown).toBeInstanceOf(Error)
     expect((thrown as Error).cause).toBe(underlying)
+  })
+
+  it('preserves real PostgrestClient transport failures as suppressible causes while retaining permission errors', async () => {
+    const signal = new AbortController().signal
+    const transportDb = new PostgrestClient(
+      'https://database.example/rest/v1',
+      {
+        fetch: async () => {
+          throw new TypeError('fetch failed')
+        }
+      }
+    )
+
+    const transportThrown = await findActiveBanForAuthUser(
+      authUser(),
+      transportDb as unknown as TypedSupabaseClient,
+      signal
+    ).catch((error: unknown) => error)
+    expect(transportThrown).toBeInstanceOf(Error)
+    expect((transportThrown as Error).message).toBe(
+      'Unable to verify account access'
+    )
+    expect((transportThrown as Error).cause).toBeTruthy()
+    expect((transportThrown as Error).cause).not.toBeInstanceOf(Error)
+    expect(hasTransientCause(transportThrown)).toBe(true)
+
+    const permissionDb = new PostgrestClient(
+      'https://database.example/rest/v1',
+      {
+        fetch: async () =>
+          new Response(
+            JSON.stringify({
+              code: '42501',
+              message: 'permission denied for table player_mapping',
+              details: null,
+              hint: null
+            }),
+            { status: 403, headers: { 'content-type': 'application/json' } }
+          )
+      }
+    )
+
+    const permissionThrown = await findActiveBanForAuthUser(
+      authUser(),
+      permissionDb as unknown as TypedSupabaseClient,
+      signal
+    ).catch((error: unknown) => error)
+    expect(permissionThrown).toBeInstanceOf(Error)
+    expect((permissionThrown as Error).message).toBe(
+      'Unable to verify account access'
+    )
+    expect((permissionThrown as Error).cause).toBeTruthy()
+    expect(hasTransientCause(permissionThrown)).toBe(false)
   })
 
   it('finds durable identity bans for coordinated admin promotion', async () => {
