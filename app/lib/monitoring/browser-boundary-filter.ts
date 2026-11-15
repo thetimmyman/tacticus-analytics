@@ -224,6 +224,15 @@ function isAllowedOuterWrapperError(error: Error): boolean {
  * actionable HTTP, SQL, auth, or application failure metadata.
  */
 export function isTransientBrowserBoundaryError(error: unknown): boolean {
+  try {
+    return inspectTransientBrowserBoundaryError(error)
+  } catch {
+    // Unreadable metadata cannot establish that an error is transient.
+    return false
+  }
+}
+
+function inspectTransientBrowserBoundaryError(error: unknown): boolean {
   if (error === null || typeof error !== 'object') {
     return false
   }
