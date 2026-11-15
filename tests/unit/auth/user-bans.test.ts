@@ -310,9 +310,12 @@ describe('user ban matching', () => {
       { data: null, error: { message: 'database unavailable' } }
     )
 
-    await expect(findActiveBanForAuthUser(authUser())).rejects.toThrow(
-      'Unable to verify account access'
-    )
+    await expect(
+      findActiveBanForAuthUser(authUser()).catch((error: unknown) => error)
+    ).resolves.toMatchObject({
+      message: 'Unable to verify account access',
+      cause: { message: 'database unavailable' }
+    })
     expect(mocks.loggerError).toHaveBeenCalled()
   })
 
@@ -322,10 +325,28 @@ describe('user ban matching', () => {
       { data: null, error: { message: 'database unavailable' } }
     )
 
-    await expect(findActiveBanForAuthUser(authUser())).rejects.toThrow(
-      'Unable to verify account access'
-    )
+    await expect(
+      findActiveBanForAuthUser(authUser()).catch((error: unknown) => error)
+    ).resolves.toMatchObject({
+      message: 'Unable to verify account access',
+      cause: { message: 'database unavailable' }
+    })
     expect(mocks.loggerError).toHaveBeenCalled()
+  })
+
+  it('keeps the underlying lookup error as the cause of a fail-closed throw', async () => {
+    const underlying = new Error('fetch failed')
+    mockBanQuery(
+      { data: [], error: null },
+      { data: null, error: null },
+      { data: null, error: underlying }
+    )
+
+    const thrown = await findActiveBanForAuthUser(authUser()).catch(
+      (error: unknown) => error
+    )
+    expect(thrown).toBeInstanceOf(Error)
+    expect((thrown as Error).cause).toBe(underlying)
   })
 
   it('finds durable identity bans for coordinated admin promotion', async () => {

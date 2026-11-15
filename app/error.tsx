@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { createComponentLogger } from '@/app/lib/logging/client'
 import { captureSentryException } from '@/app/lib/monitoring/sentry'
 import { browserRenderErrorTags } from '@/app/lib/monitoring/browser-render-error'
+import { handleChunkLoadError } from '@/app/lib/client/chunk-reload'
 
 const logger = createComponentLogger('app.error')
 
@@ -16,6 +17,11 @@ export default function Error({
 }) {
   useEffect(() => {
     logger.error({ err: error }, 'Route error boundary caught an error')
+    // Stale/corrupted chunks get the guarded once-per-build reload; only
+    // errors the guard did not already report (or suppress) are captured here.
+    if (handleChunkLoadError(error) !== 'ignored') {
+      return
+    }
     // This boundary catches far more than global-error; report so nothing is lost.
     captureSentryException(error, {
       tags: {

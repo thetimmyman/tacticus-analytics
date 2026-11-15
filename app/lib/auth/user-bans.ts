@@ -135,7 +135,7 @@ async function findActiveBanForSubjects(
 
     if (authError) {
       logger.error({ error: authError }, 'Immutable ban lookup failed closed')
-      throw new Error('Unable to verify account access')
+      throw new Error('Unable to verify account access', { cause: authError })
     }
 
     const authMatch = authRows?.[0]
@@ -172,7 +172,7 @@ async function findActiveBanForSubjects(
   if (error) {
     // Security boundary: an ambiguous lookup must deny, not become a ban bypass.
     logger.error({ error }, 'Ban lookup failed closed')
-    throw new Error('Unable to verify account access')
+    throw new Error('Unable to verify account access', { cause: error })
   }
 
   // A value only bans on its own subject type.
@@ -208,7 +208,7 @@ export async function findActiveBanForUser(
       { error, userId: user.id },
       'Page/API provider identity lookup failed closed'
     )
-    throw new Error('Unable to verify account access')
+    throw new Error('Unable to verify account access', { cause: error })
   }
 
   // Resolve the Auth user so a replacement account's linked Discord identity is covered.
@@ -236,7 +236,7 @@ export async function findActiveBanForAuthUser(
       { error, userId: user.id },
       'Ban identity lookup failed closed'
     )
-    throw new Error('Unable to verify account access')
+    throw new Error('Unable to verify account access', { cause: error })
   }
 
   const subjects = banSubjectsForAuthUser(user)
@@ -281,7 +281,7 @@ export async function findActivelyBannedAuthUserIds(
           { error, userId },
           'Admin promotion identity lookup failed closed'
         )
-        throw new Error('Unable to verify account access')
+        throw new Error('Unable to verify account access', { cause: error })
       }
 
       const ban = await findActiveBanForAuthUser(data.user, supabase)

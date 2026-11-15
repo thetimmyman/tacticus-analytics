@@ -69,6 +69,34 @@ describe('chunk-reload', () => {
       expect(isChunkLoadError(undefined)).toBe(false)
       expect(isChunkLoadError(42)).toBe(false)
     })
+
+    it('matches a parse-failure SyntaxError from our own bundle', () => {
+      const error = new SyntaxError("Unexpected token '<'")
+      error.stack =
+        "SyntaxError: Unexpected token '<'\n" +
+        '    at https://app.example/_next/static/chunks/2619-abc.js:1:1'
+      expect(isChunkLoadError(error)).toBe(true)
+    })
+
+    it('matches a truncated parse failure with Next server chunk stack evidence', () => {
+      const error = new SyntaxError('Unexpected end of input')
+      error.stack =
+        'SyntaxError: Unexpected end of input\n' +
+        '    at node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:1:1'
+      expect(isChunkLoadError(error)).toBe(true)
+    })
+
+    it('does not match a parse-failure SyntaxError without bundle evidence', () => {
+      const error = new SyntaxError("Unexpected token '<'")
+      error.stack = "SyntaxError: Unexpected token '<'\n    at inpage.js:1:1"
+      expect(isChunkLoadError(error)).toBe(false)
+    })
+
+    it('does not match an unrelated SyntaxError even with bundle evidence', () => {
+      const error = new SyntaxError('Invalid regular expression: missing )')
+      error.stack = 'SyntaxError: invalid regex\n    at app/page.tsx:3:1'
+      expect(isChunkLoadError(error)).toBe(false)
+    })
   })
 
   describe('resolveBuildId', () => {

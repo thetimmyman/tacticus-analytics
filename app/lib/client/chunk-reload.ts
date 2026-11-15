@@ -14,6 +14,18 @@ const CHUNK_LOAD_ERROR_MESSAGE_PATTERNS: RegExp[] = [
   /Failed to fetch dynamically imported module/i
 ]
 
+// Parse failures from stale/corrupted chunks served as HTML after a deploy.
+// Conservative patterns to avoid false positives from extension-injected scripts.
+const CHUNK_PARSE_ERROR_MESSAGE_PATTERNS: RegExp[] = [
+  /^Unexpected token/u,
+  /^Unexpected end of input/u,
+  /^Invalid or unexpected token/u,
+  /^Unexpected reserved word/u,
+  /^Unexpected number/u,
+  /^Unexpected string/u,
+  /^Unexpected identifier/u
+]
+
 export type ChunkReloadOutcome = 'attempted' | 'suppressed' | 'ignored'
 
 interface ErrorLike {
@@ -41,13 +53,31 @@ function toErrorLike(value: unknown): ErrorLike | null {
   return null
 }
 
+// A parse-error SyntaxError counts as a stale/corrupted chunk only when the
+// stack names our own bundle; extension scripts can throw the same parse errors.
+const OUR_BUNDLE_STACK_EVIDENCE = /(?:^|\/)_next\/|node_modules[/\\]next[/\\]/mu
+
+function referencesOurBundle(value: unknown): boolean {
+  const stack = value instanceof Error ? value.stack : undefined
+  return typeof stack === 'string' && OUR_BUNDLE_STACK_EVIDENCE.test(stack)
+}
+
 export function isChunkLoadError(value: unknown): boolean {
   const errorLike = toErrorLike(value)
   if (!errorLike) return false
   if (errorLike.name === CHUNK_LOAD_ERROR_NAME) return true
   const message = errorLike.message ?? ''
-  return CHUNK_LOAD_ERROR_MESSAGE_PATTERNS.some((pattern) =>
-    pattern.test(message)
+  if (
+    CHUNK_LOAD_ERROR_MESSAGE_PATTERNS.some((pattern) => pattern.test(message))
+  ) {
+    return true
+  }
+  return (
+    errorLike.name === 'SyntaxError' &&
+    CHUNK_PARSE_ERROR_MESSAGE_PATTERNS.some((pattern) =>
+      pattern.test(message)
+    ) &&
+    referencesOurBundle(value)
   )
 }
 
