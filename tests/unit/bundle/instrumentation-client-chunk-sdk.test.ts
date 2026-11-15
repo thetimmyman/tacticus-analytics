@@ -265,6 +265,63 @@ describe('instrumentation-client + Sentry SDK chunk telemetry integration', () =
     )
   })
 
+  it('deduplicates a plain-object rejection processed globally before the handler capture', async () => {
+    const { chunkReload, sentry } = await loadClientModules()
+    const rejection = {
+      name: 'ChunkLoadError',
+      message: 'Failed to load chunk /_next/static/chunks/object.js'
+    }
+    sentry.addEventProcessor((event) => Promise.resolve(event))
+    sentry.withScope((scope) => {
+      scope.addEventProcessor((event) => {
+        if (event.exception?.values?.[0]) {
+          event.exception.values[0].mechanism = {
+            type: 'auto.browser.global_handlers.onunhandledrejection',
+            handled: false
+          }
+        }
+        return event
+      })
+      sentry.captureException(rejection)
+    })
+    await sentry.flush(1000)
+    expect(chunkReload.handleChunkLoadError(rejection)).toBe('attempted')
+    await sentry.flush(1000)
+
+    expect(sentEvents).toHaveLength(1)
+    expect(sentEvents[0]?.level).toBe('warning')
+    expect((sentEvents[0]?.tags as Record<string, string>)?.chunk_reload).toBe(
+      'attempted'
+    )
+  })
+
+  it('deduplicates a global string rejection delayed beyond the handler capture', async () => {
+    const { chunkReload, sentry } = await loadClientModules()
+    const rejection = 'Failed to load chunk /_next/static/chunks/delayed.js'
+
+    sentry.withScope((scope) => {
+      scope.addEventProcessor(async (event) => {
+        if (event.exception?.values?.[0]) {
+          event.exception.values[0].mechanism = {
+            type: 'auto.browser.global_handlers.onunhandledrejection',
+            handled: false
+          }
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        return event
+      })
+      sentry.captureException(rejection)
+    })
+    expect(chunkReload.handleChunkLoadError(rejection)).toBe('attempted')
+    await sentry.flush(1000)
+
+    expect(sentEvents).toHaveLength(1)
+    expect(sentEvents[0]?.level).toBe('warning')
+    expect((sentEvents[0]?.tags as Record<string, string>)?.chunk_reload).toBe(
+      'attempted'
+    )
+  })
+
   it('deduplicates global-handler captures after handleChunkLoadError even for non-Error string rejections under async event processors', async () => {
     const { chunkReload, sentry } = await loadClientModules()
     sentry.addEventProcessor((event) => Promise.resolve(event))

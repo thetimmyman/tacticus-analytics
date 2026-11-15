@@ -336,9 +336,9 @@ export function resolveChunkReloadOutcome(
 }
 
 const MAX_STRING_TRACKING_ENTRIES = 64
-const STRING_TRACKING_TTL_MS = 50
 
 const processedTaggedChunkObjects = new WeakSet<object>()
+const processedGlobalChunkObjects = new WeakSet<object>()
 const processedTaggedChunkStrings = new Map<string, Set<number>>()
 const processedGlobalChunkStrings = new Map<string, Set<number>>()
 const resolvedChunkObjectOutcomes = new WeakMap<
@@ -350,12 +350,6 @@ const resolvedChunkStringOutcomes = new Map<
   { outcome: 'attempted' | 'suppressed'; token: number }
 >()
 let nextTrackingToken = 0
-
-function unrefTimer(timer: ReturnType<typeof setTimeout>): void {
-  if (typeof timer === 'object' && timer !== null && 'unref' in timer) {
-    ;(timer as { unref?: () => void }).unref?.()
-  }
-}
 
 function evictOldestMapEntry<K, V>(map: Map<K, V>, maxEntries: number): void {
   if (map.size < maxEntries) return
@@ -376,15 +370,11 @@ function addPendingMessageToken(
     map.set(message, tokens)
   }
   const token = ++nextTrackingToken
+  if (tokens.size >= MAX_STRING_TRACKING_ENTRIES) {
+    const oldest = tokens.values().next().value
+    if (oldest !== undefined) tokens.delete(oldest)
+  }
   tokens.add(token)
-  const activeTokens = tokens
-  const timer = setTimeout(() => {
-    activeTokens.delete(token)
-    if (activeTokens.size === 0 && map.get(message) === activeTokens) {
-      map.delete(message)
-    }
-  }, STRING_TRACKING_TTL_MS)
-  unrefTimer(timer)
 }
 
 function consumePendingMessageToken(
@@ -417,12 +407,6 @@ function recordResolvedChunkOutcome(
     )
     const token = ++nextTrackingToken
     resolvedChunkStringOutcomes.set(value, { outcome, token })
-    const timer = setTimeout(() => {
-      if (resolvedChunkStringOutcomes.get(value)?.token === token) {
-        resolvedChunkStringOutcomes.delete(value)
-      }
-    }, STRING_TRACKING_TTL_MS)
-    unrefTimer(timer)
   }
 }
 
@@ -441,7 +425,9 @@ export function recordProcessedChunkEvent(
     }
     return
   }
-  if (typeof value === 'string') {
+  if (value && typeof value === 'object' && !(value instanceof Error)) {
+    processedGlobalChunkObjects.add(value)
+  } else if (typeof value === 'string') {
     addPendingMessageToken(processedGlobalChunkStrings, value)
   }
 }
@@ -458,9 +444,19 @@ export function consumeCapturedChunkReloadDuplicate(
       return true
     }
     if (typeof value === 'string') {
-      return consumePendingMessageToken(processedTaggedChunkStrings, value)
+      const duplicate = consumePendingMessageToken(
+        processedTaggedChunkStrings,
+        value
+      )
+      if (duplicate) resolvedChunkStringOutcomes.delete(value)
+      return duplicate
     }
     return false
+  }
+  if (value && typeof value === 'object') {
+    if (!processedGlobalChunkObjects.has(value)) return false
+    processedGlobalChunkObjects.delete(value)
+    return true
   }
   if (typeof value === 'string') {
     return consumePendingMessageToken(processedGlobalChunkStrings, value)
