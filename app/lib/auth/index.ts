@@ -682,7 +682,7 @@ export async function requireAuthAllowInactive(
   redirect('/auth/login?reason=required')
 }
 
-export async function requireActiveMembership(
+async function requireActiveMembershipImpl(
   client?: SupabaseAuthClient
 ): Promise<AuthData> {
   const supabase = await getClient(client)
@@ -714,6 +714,25 @@ export async function requireActiveMembership(
   }
 
   redirect('/onboarding')
+}
+
+/**
+ * Memoizes `requireActiveMembership` per request via React `cache()` with an
+ * explicit `client` argument so 0-arg and `undefined` callers share one trie
+ * entry while distinct clients isolate via `WeakMap` and redirects replay.
+ */
+const requireActiveMembershipCached = cacheCompat(((
+  client: SupabaseAuthClient | undefined
+): Promise<AuthData> => requireActiveMembershipImpl(client)) as (
+  ...args: readonly unknown[]
+) => Promise<AuthData>) as (
+  client: SupabaseAuthClient | undefined
+) => Promise<AuthData>
+
+export async function requireActiveMembership(
+  client?: SupabaseAuthClient
+): Promise<AuthData> {
+  return requireActiveMembershipCached(client)
 }
 
 export async function requireRole(
