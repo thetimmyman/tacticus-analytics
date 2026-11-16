@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { captureSentryException } from '@/app/lib/monitoring/sentry'
 import { browserRenderErrorTags } from '@/app/lib/monitoring/browser-render-error'
+import { isTransientBrowserBoundaryError } from '@/app/lib/monitoring/browser-boundary-filter'
 import {
   handleChunkLoadError,
   isChunkLoadError,
@@ -26,7 +27,7 @@ export default function GlobalError({
     const result = handleChunkLoadError(error)
     setOutcome(result)
     // Report only errors handleChunkLoadError did not already report.
-    if (result === 'ignored') {
+    if (result === 'ignored' && !isTransientBrowserBoundaryError(error)) {
       captureSentryException(error, {
         tags: {
           component: 'app-global-error',

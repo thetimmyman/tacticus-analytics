@@ -177,4 +177,55 @@ describe('route render failure capture tags', () => {
     expect(container).toBeEmptyDOMElement()
     expect(captureSentryException).not.toHaveBeenCalled()
   })
+
+  it('leaves app/error and boss-assignments/error empty without boundary capture when chunk reload is attempted', () => {
+    vi.mocked(isChunkLoadError).mockReturnValue(true)
+    vi.mocked(handleChunkLoadError).mockReturnValue('attempted')
+    const chunkError = Object.assign(new Error('Loading chunk 9 failed'), {
+      name: 'ChunkLoadError'
+    })
+
+    const routeRender = render(
+      <RouteError error={chunkError} reset={vi.fn()} />
+    )
+    expect(routeRender.container).toBeEmptyDOMElement()
+
+    const bossRender = render(
+      <BossAssignmentsError error={chunkError} reset={vi.fn()} />
+    )
+    expect(bossRender.container).toBeEmptyDOMElement()
+    expect(captureSentryException).not.toHaveBeenCalled()
+  })
+
+  it('renders boss-assignments fallback without double-capturing when chunk reload was suppressed', () => {
+    vi.mocked(isChunkLoadError).mockReturnValue(true)
+    vi.mocked(handleChunkLoadError).mockReturnValue('suppressed')
+    const chunkError = Object.assign(new Error('Loading chunk 9 failed'), {
+      name: 'ChunkLoadError'
+    })
+
+    render(<BossAssignmentsError error={chunkError} reset={vi.fn()} />)
+
+    expect(screen.getByText('Assignments unavailable')).toBeInTheDocument()
+    expect(handleChunkLoadError).toHaveBeenCalledWith(chunkError)
+    expect(captureSentryException).not.toHaveBeenCalled()
+  })
+
+  it('suppresses route-boundary Sentry capture for transient browser fetch/abort errors while keeping retry UI', () => {
+    const abortError = new DOMException(
+      'The operation was aborted.',
+      'AbortError'
+    )
+    const networkTypeError = new TypeError('Load failed')
+
+    render(<RouteError error={abortError} reset={vi.fn()} />)
+    expect(
+      screen.getByText('++ Cogitator fault ++ The Machine Spirit faltered.')
+    ).toBeInTheDocument()
+
+    render(<BossAssignmentsError error={networkTypeError} reset={vi.fn()} />)
+    expect(screen.getByText('Assignments unavailable')).toBeInTheDocument()
+
+    expect(captureSentryException).not.toHaveBeenCalled()
+  })
 })

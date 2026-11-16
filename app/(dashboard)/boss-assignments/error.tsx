@@ -1,10 +1,16 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { createComponentLogger } from '@/app/lib/logging/client'
 import { captureSentryException } from '@/app/lib/monitoring/sentry'
 import { browserRenderErrorTags } from '@/app/lib/monitoring/browser-render-error'
+import { isTransientBrowserBoundaryError } from '@/app/lib/monitoring/browser-boundary-filter'
+import {
+  handleChunkLoadError,
+  isChunkLoadError,
+  type ChunkReloadOutcome
+} from '@/app/lib/client/chunk-reload'
 
 const logger = createComponentLogger('boss-assignments.error')
 
@@ -14,8 +20,17 @@ interface ErrorProps {
 }
 
 export default function BossAssignmentsError({ error, reset }: ErrorProps) {
+  const [outcome, setOutcome] = useState<ChunkReloadOutcome | 'pending'>(() =>
+    isChunkLoadError(error) ? 'pending' : 'ignored'
+  )
+
   useEffect(() => {
     logger.error({ err: error }, 'Boss assignments error:')
+    const result = handleChunkLoadError(error)
+    setOutcome(result)
+    if (result !== 'ignored' || isTransientBrowserBoundaryError(error)) {
+      return
+    }
     // Route-segment boundaries bypass global-error, so report to Sentry here.
     captureSentryException(error, {
       tags: {
@@ -27,6 +42,10 @@ export default function BossAssignmentsError({ error, reset }: ErrorProps) {
       }
     })
   }, [error])
+
+  if (outcome === 'pending' || outcome === 'attempted') {
+    return null
+  }
 
   return (
     <div className="px-4 py-10">
