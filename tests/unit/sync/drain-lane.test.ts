@@ -8,6 +8,7 @@ vi.mock('@/app/lib/sync/sync-worker-service', () => ({
 }))
 
 import {
+  QUEUE_DEPTH_MAX_SAMPLE_MS,
   laneWindowMs,
   laneWorkerId,
   readQueueDepth,
@@ -91,12 +92,13 @@ type QueueQuery = {
   orders: QueueOrder[]
   after: { column: string; value: string } | null
   limit: number | null
+  signal: AbortSignal | null
 }
 
 /** PostgREST-shaped row set: eq/or filters, multi-key ORDER BY, keyset gt, LIMIT. */
 function queueRowClient(
   rows: QueueRow[],
-  options: { failFromPage?: number } = {}
+  options: { failFromPage?: number; pageDelayMs?: number } = {}
 ) {
   const queries: QueueQuery[] = []
   const orFilters: string[] = []
@@ -220,10 +222,23 @@ function queueRowClient(
         query.limit = count
         return chain
       },
+      abortSignal: (signal: AbortSignal) => {
+        query.signal = signal
+        return chain
+      },
       then: (
         resolve: (value: unknown) => unknown,
         reject?: (reason: unknown) => unknown
-      ) => Promise.resolve(execute(query)).then(resolve, reject)
+      ) => {
+        const delayMs = options.pageDelayMs ?? 0
+        const read =
+          delayMs > 0
+            ? new Promise((done) => setTimeout(done, delayMs)).then(() =>
+                execute(query)
+              )
+            : Promise.resolve(execute(query))
+        return read.then(resolve, reject)
+      }
     }
     return chain
   }
@@ -240,7 +255,8 @@ function queueRowClient(
           lteFilters: [],
           orders: [],
           after: null,
-          limit: null
+          limit: null,
+          signal: null
         }
         queries.push(query)
         return makeChain(query)
@@ -286,6 +302,7 @@ describe('drain lanes', () => {
   })
 
   afterEach(() => {
+    vi.useRealTimers()
     vi.restoreAllMocks()
   })
 
@@ -627,6 +644,159 @@ describe('drain lanes', () => {
       // NULL means "not measured", not an empty queue.
       expect(sample.pendingDepth).toBeNull()
       expect(sample.oldestPendingAgeSeconds).toBeNull()
+    })
+  })
+
+  describe('the queue depth sampling budget', () => {
+    const fixedNow = Date.parse('2026-11-16T06:45:00.000Z')
+    const claimableSince = isoAt(fixedNow - 60_000)
+    const claimableRows = (count: number): QueueRow[] =>
+      Array.from({ length: count }, () =>
+        queueRow({ created_at: claimableSince, scheduled_for: claimableSince })
+      )
+
+    // The worker route's order: sample depth first, then drain on the same clock.
+    async function sampleThenDrain(
+      queueClient: never,
+      jobs: ClaimRow[],
+      laneCount: number
+    ) {
+      const startTime = Date.now()
+      const lanes = makeClient(jobs)
+      let sample: Awaited<ReturnType<typeof readQueueDepth>> | undefined
+      void readQueueDepth(queueClient).then((value) => {
+        sample = value
+      })
+      while (sample === undefined && Date.now() - startTime < 120_000) {
+        await vi.advanceTimersByTimeAsync(100)
+      }
+      const samplingMs = Date.now() - startTime
+      const outcomes = await Promise.all(
+        Array.from({ length: laneCount }, (_unused, laneIndex) =>
+          runDrainLane({
+            supabase: lanes.client,
+            laneIndex,
+            laneWorkerId: laneWorkerId('w-run', laneIndex),
+            startTime,
+            budgetMs: WORKER_CONFIG.workerTimeout,
+            tailReserveMs: WORKER_CONFIG.laneTailReserveMs
+          })
+        )
+      )
+      return { sample, samplingMs, outcomes, lanes }
+    }
+
+    it('gives up a slow 5,001-row scan so the lanes keep their draining window', async () => {
+      // 21 pages at 2s each is 42s: longer than the whole 40s lane window.
+      vi.useFakeTimers({ now: fixedNow })
+      const queue = queueRowClient(claimableRows(5001), { pageDelayMs: 2_000 })
+      const jobs = ['a', 'b', 'c', 'd', 'e', 'f'].map(job)
+      const window = laneWindowMs(
+        WORKER_CONFIG.workerTimeout,
+        WORKER_CONFIG.laneTailReserveMs
+      )
+
+      const { sample, samplingMs, outcomes, lanes } = await sampleThenDrain(
+        queue.client,
+        jobs,
+        2
+      )
+      const claims = lanes.rpc.mock.calls.filter(
+        ([fn]) => fn === 'claim_next_job'
+      )
+      const drained = outcomes
+        .flatMap((outcome) => outcome.results.map((result) => result.jobId))
+        .sort()
+
+      expect.soft(samplingMs).toBeLessThanOrEqual(2_500)
+      expect.soft(window - samplingMs).toBeGreaterThanOrEqual(37_500)
+      expect.soft(sample).toEqual({
+        pendingDepth: null,
+        oldestPendingAgeSeconds: null
+      })
+      expect.soft(queue.queries.length).toBeLessThanOrEqual(2)
+      // The read still in flight at expiry is cancelled, not left running.
+      expect.soft(queue.queries.at(-1)?.signal?.aborted).toBe(true)
+      expect.soft(claims.length).toBeGreaterThan(0)
+      expect.soft(drained).toEqual(['a', 'b', 'c', 'd', 'e', 'f'])
+      expect
+        .soft(outcomes.map((outcome) => outcome.stoppedReason))
+        .toEqual(['queue_empty', 'queue_empty'])
+    })
+
+    it('still measures a deep queue whose pages arrive inside the budget', async () => {
+      vi.useFakeTimers({ now: fixedNow })
+      const queue = queueRowClient(claimableRows(5001), { pageDelayMs: 100 })
+
+      const { sample, samplingMs } = await sampleThenDrain(queue.client, [], 1)
+
+      expect(sample).toEqual({
+        pendingDepth: 5001,
+        oldestPendingAgeSeconds: 60
+      })
+      expect(samplingMs).toBeLessThanOrEqual(2_500)
+      expect(queue.queries).toHaveLength(21)
+      // Every finished read carries a live signal: nothing was cancelled.
+      expect(
+        queue.queries.every((query) => query.signal?.aborted === false)
+      ).toBe(true)
+    })
+
+    it('stops between pages once an injected clock passes maxSampleMs', async () => {
+      const queue = queueRowClient(claimableRows(600))
+
+      // Clock reads: sample time, page 1 check, page 2 check (budget spent).
+      const sample = await readQueueDepth(
+        queue.client,
+        fakeClock([fixedNow, fixedNow, fixedNow + 1_000]),
+        { maxSampleMs: 1_000 }
+      )
+
+      expect(sample).toEqual({
+        pendingDepth: null,
+        oldestPendingAgeSeconds: null
+      })
+      expect(queue.pagesRead()).toBe(1)
+    })
+
+    it('never samples past the worker deadline, even inside maxSampleMs', async () => {
+      const queue = queueRowClient(claimableRows(600))
+
+      const sample = await readQueueDepth(
+        queue.client,
+        fakeClock([fixedNow, fixedNow, fixedNow + 500]),
+        { maxSampleMs: 60_000, deadlineMs: fixedNow + 500 }
+      )
+
+      expect(sample).toEqual({
+        pendingDepth: null,
+        oldestPendingAgeSeconds: null
+      })
+      expect(queue.pagesRead()).toBe(1)
+    })
+
+    it('reads nothing when the deadline has already passed', async () => {
+      const queue = queueRowClient(claimableRows(3))
+
+      const sample = await readQueueDepth(queue.client, () => fixedNow, {
+        deadlineMs: fixedNow - 1
+      })
+
+      expect(sample).toEqual({
+        pendingDepth: null,
+        oldestPendingAgeSeconds: null
+      })
+      expect(queue.pagesRead()).toBe(0)
+    })
+
+    it('keeps the default budget a small fraction of the lane window', () => {
+      expect(QUEUE_DEPTH_MAX_SAMPLE_MS).toBe(2_500)
+      expect(QUEUE_DEPTH_MAX_SAMPLE_MS).toBeLessThan(
+        laneWindowMs(
+          WORKER_CONFIG.workerTimeout,
+          WORKER_CONFIG.laneTailReserveMs
+        ) / 10
+      )
     })
   })
 

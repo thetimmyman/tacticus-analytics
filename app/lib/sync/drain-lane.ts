@@ -39,6 +39,13 @@ export interface QueueDepthSample {
   oldestPendingAgeSeconds: number | null
 }
 
+export interface QueueDepthOptions {
+  /** Sampling budget in ms; a scan that outlives it reports "not measured". */
+  maxSampleMs?: number
+  /** Absolute epoch-ms cap on sampling, e.g. the end of the worker's lane window. */
+  deadlineMs?: number
+}
+
 export interface DrainLaneOptions {
   supabase: ServiceSupabaseClient
   laneIndex: number
@@ -221,6 +228,28 @@ function hasAttemptsLeft(row: {
   )
 }
 
+// Sampling runs ahead of the lanes on the worker's one elapsed budget, so it
+// gets a small fixed share: a slow scan is abandoned, never paid for in drain time.
+export const QUEUE_DEPTH_MAX_SAMPLE_MS = 2_500
+
+const SAMPLE_BUDGET_SPENT = Symbol('sample budget spent')
+
+/** Settles with the read, or with SAMPLE_BUDGET_SPENT once remainingMs has passed. */
+async function readWithinBudget<T>(
+  read: PromiseLike<T>,
+  remainingMs: number
+): Promise<T | typeof SAMPLE_BUDGET_SPENT> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const expiry = new Promise<typeof SAMPLE_BUDGET_SPENT>((resolve) => {
+    timer = setTimeout(() => resolve(SAMPLE_BUDGET_SPENT), remainingMs)
+  })
+  try {
+    return await Promise.race([read, expiry])
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 // Best-effort and non-throwing; null means "not measured", not zero.
 // The scan uses claim_next_job()'s `scheduled_for <= NOW()` leg, which is not
 // true for a later or a NULL schedule: depth and age exclude both, and age
@@ -229,7 +258,8 @@ function hasAttemptsLeft(row: {
 // "not measured" instead of a plausible-looking prefix.
 export async function readQueueDepth(
   supabase: ServiceSupabaseClient,
-  now: () => number = () => Date.now()
+  now: () => number = () => Date.now(),
+  options: QueueDepthOptions = {}
 ): Promise<QueueDepthSample> {
   const sample: QueueDepthSample = {
     pendingDepth: null,
@@ -237,12 +267,24 @@ export async function readQueueDepth(
   }
   const sampleTimeMs = now()
   const claimableAsOf = new Date(sampleTimeMs).toISOString()
+  const stopAtMs = Math.min(
+    sampleTimeMs + (options.maxSampleMs ?? QUEUE_DEPTH_MAX_SAMPLE_MS),
+    options.deadlineMs ?? Number.POSITIVE_INFINITY
+  )
   let depth = 0
   let oldestClaimableMs: number | null = null
   let lastId: string | null = null
 
   try {
     for (;;) {
+      // Checked before every page and enforced during it: neither many pages
+      // nor one stalled read can run past the budget.
+      const remainingMs = stopAtMs - now()
+      if (!(remainingMs > 0)) {
+        throw new Error('sync_queue scan exceeded its sampling budget')
+      }
+      const pageAbort = new AbortController()
+
       const claimableRows = supabase
         .from('sync_queue')
         .select(CLAIMABLE_ROW_COLUMNS)
@@ -251,9 +293,18 @@ export async function readQueueDepth(
       const pageQuery =
         lastId === null ? claimableRows : claimableRows.gt('id', lastId)
 
-      const page = (await pageQuery
-        .order('id', { ascending: true })
-        .limit(CLAIMABLE_SCAN_PAGE_SIZE)) as {
+      const pageRead = await readWithinBudget(
+        pageQuery
+          .order('id', { ascending: true })
+          .limit(CLAIMABLE_SCAN_PAGE_SIZE)
+          .abortSignal(pageAbort.signal),
+        remainingMs
+      )
+      if (pageRead === SAMPLE_BUDGET_SPENT) {
+        pageAbort.abort()
+        throw new Error('sync_queue scan exceeded its sampling budget')
+      }
+      const page = pageRead as {
         data?: unknown
         error?: { message?: string | null } | null
       } | null
