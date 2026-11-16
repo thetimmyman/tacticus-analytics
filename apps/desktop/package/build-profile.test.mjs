@@ -1,18 +1,22 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
+import { createServer } from 'node:net'
 import {
   mkdtemp,
   mkdir,
   readFile,
   writeFile,
   unlink,
-  rm
+  rm,
+  symlink
 } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
+  captureApplicationPayload,
   captureCleanCheckoutProvenance,
   desktopBuildEnvironment,
   desktopBuildRecord,
@@ -366,6 +370,47 @@ test('application payload manifest is canonical and refuses tampered or unbound 
     await writeFile(noticesPath, generated)
     await verifyApplicationPayload(root, record)
 
+    // Entries are opened without following links; links and special files are refused
+    // from the opened descriptor, and a FIFO is refused without blocking on a writer.
+    const special = async (name, create, message) => {
+      await create(join(root, name))
+      try {
+        await assert.rejects(verifyApplicationPayload(root, record), message)
+      } finally {
+        await rm(join(root, name), { recursive: true, force: true })
+      }
+    }
+    await special(
+      'linked.js',
+      (path) => symlink(join(root, 'server.js'), path),
+      /Symlink in staged application refused: linked\.js/
+    )
+    await special(
+      'linked-dir',
+      (path) => symlink(join(root, 'node_modules'), path),
+      /Symlink in staged application refused: linked-dir/
+    )
+    await special(
+      'pipe',
+      async (path) => execFileSync('mkfifo', [path]),
+      /Unsupported staged application entry: pipe/
+    )
+    // Node unlinks a Unix socket when its server closes, so keep it listening while checked.
+    const server = createServer()
+    await new Promise((done, fail) => {
+      server.once('error', fail)
+      server.listen(join(root, 'socket'), done)
+    })
+    try {
+      await assert.rejects(
+        verifyApplicationPayload(root, record),
+        /Unsupported staged application entry: socket/
+      )
+    } finally {
+      await new Promise((done) => server.close(done))
+    }
+    await verifyApplicationPayload(root, record)
+
     await assert.rejects(
       verifyApplicationPayload(root, {
         ...record,
@@ -397,6 +442,44 @@ test('application payload manifest is canonical and refuses tampered or unbound 
         }),
       /order/
     )
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+test('application payload capture follows links like the standalone copy and refuses special files', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'desktop-payload-capture-'))
+  try {
+    const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
+    await mkdir(join(root, '.next/standalone/lib'), { recursive: true })
+    await mkdir(join(root, '.next/static/chunks'), { recursive: true })
+    await mkdir(join(root, 'public'), { recursive: true })
+    await mkdir(join(root, 'outside'), { recursive: true })
+    await writeFile(join(root, '.next/standalone/server.js'), 'server\n')
+    await writeFile(join(root, '.next/standalone/lib/a.js'), 'a\n')
+    await writeFile(join(root, '.next/static/chunks/main.js'), 'main\n')
+    await writeFile(join(root, 'outside/linked.txt'), 'linked\n')
+    await symlink(
+      join(root, 'outside/linked.txt'),
+      join(root, 'public/linked.txt')
+    )
+    await symlink(join(root, 'outside'), join(root, 'public/dir'))
+    assert.deepEqual(await captureApplicationPayload(root), [
+      { path: '.next/static/chunks/main.js', bytes: 5, sha256: sha('main\n') },
+      { path: 'lib/a.js', bytes: 2, sha256: sha('a\n') },
+      { path: 'public/dir/linked.txt', bytes: 7, sha256: sha('linked\n') },
+      { path: 'public/linked.txt', bytes: 7, sha256: sha('linked\n') },
+      { path: 'server.js', bytes: 7, sha256: sha('server\n') }
+    ])
+
+    execFileSync('mkfifo', [join(root, 'public/pipe')])
+    await assert.rejects(
+      captureApplicationPayload(root),
+      /Unsupported desktop application payload entry: public\/pipe/
+    )
+    await unlink(join(root, 'public/pipe'))
+    await symlink(join(root, 'missing'), join(root, 'public/dangling'))
+    await assert.rejects(captureApplicationPayload(root), { code: 'ENOENT' })
   } finally {
     await rm(root, { recursive: true, force: true })
   }

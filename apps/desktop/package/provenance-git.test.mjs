@@ -216,8 +216,16 @@ async function createTempCheckout() {
 import { writeFile } from 'node:fs/promises'
 import { pathToFileURL } from 'node:url'
 let ranHook = false
-export async function build({ outfile }) {
-  await writeFile(outfile, '// synthetic addon bundle\\n')
+export async function build({ outfile, write }) {
+  const contents = new TextEncoder().encode('// synthetic addon bundle\\n')
+  if (write === false) {
+    await runHook()
+    return { outputFiles: [{ path: outfile, contents }] }
+  }
+  await writeFile(outfile, contents)
+  await runHook()
+}
+async function runHook() {
   if (!ranHook && existsSync(${JSON.stringify(bundleHookScript)})) {
     ranHook = true
     const mod = await import(pathToFileURL(${JSON.stringify(bundleHookScript)}).href)

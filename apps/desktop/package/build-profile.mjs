@@ -1,6 +1,14 @@
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { lstat, readdir, readFile, realpath, stat } from 'node:fs/promises'
+import { constants as fsConstants } from 'node:fs'
+import {
+  lstat,
+  open,
+  readdir,
+  readFile,
+  realpath,
+  stat
+} from 'node:fs/promises'
 import { basename, join } from 'node:path'
 
 const digest = (value) => createHash('sha256').update(value).digest('hex')
@@ -274,6 +282,43 @@ export function applicationManifestDigest(files) {
   return digest(JSON.stringify(normalizeApplicationFiles(files)))
 }
 
+// Open one payload entry and take its type and bytes from that same descriptor, so
+// nothing is checked by name and then read by name. O_NONBLOCK keeps a FIFO from
+// blocking the open; it does not change regular-file reads. Capture follows links
+// (as the standalone copy does); verification opens with O_NOFOLLOW and refuses them.
+async function openPayloadEntry(absolute, rel, followLinks) {
+  const unsupported = followLinks
+    ? `Unsupported desktop application payload entry: ${rel}`
+    : `Unsupported staged application entry: ${rel}`
+  const flags =
+    fsConstants.O_RDONLY |
+    fsConstants.O_NONBLOCK |
+    (followLinks ? 0 : fsConstants.O_NOFOLLOW)
+  let handle
+  try {
+    handle = await open(absolute, flags)
+  } catch (error) {
+    if (!followLinks && error?.code === 'ELOOP')
+      throw new Error(`Symlink in staged application refused: ${rel}`)
+    if (error?.code === 'ENXIO' || error?.code === 'EOPNOTSUPP')
+      throw new Error(unsupported)
+    throw error
+  }
+  try {
+    const info = await handle.stat()
+    if (info.isDirectory()) return { directory: true }
+    if (!info.isFile()) throw new Error(unsupported)
+    const bytes = await handle.readFile()
+    if (bytes.length !== info.size)
+      throw new Error(
+        `Desktop application payload entry changed while read: ${rel}`
+      )
+    return { directory: false, bytes }
+  } finally {
+    await handle.close()
+  }
+}
+
 // Hash the payload as stage-standalone.mjs copies it (cp dereference: true follows links).
 export async function captureApplicationPayload(root) {
   const files = new Map()
@@ -282,10 +327,10 @@ export async function captureApplicationPayload(root) {
     for (const name of entries) {
       const absolute = join(directory, name)
       const rel = prefix ? `${prefix}/${name}` : name
-      const info = await stat(absolute)
-      if (info.isDirectory()) await walk(absolute, rel)
-      else if (info.isFile()) {
-        const bytes = await readFile(absolute)
+      const opened = await openPayloadEntry(absolute, rel, true)
+      if (opened.directory) await walk(absolute, rel)
+      else {
+        const { bytes } = opened
         const entry = { path: rel, bytes: bytes.length, sha256: digest(bytes) }
         const existing = files.get(rel)
         if (existing && existing.sha256 !== entry.sha256)
@@ -293,8 +338,7 @@ export async function captureApplicationPayload(root) {
             `Conflicting desktop application payload path: ${rel}`
           )
         files.set(rel, entry)
-      } else
-        throw new Error(`Unsupported desktop application payload entry: ${rel}`)
+      }
     }
   }
   for (const { from, to } of APPLICATION_PAYLOAD_SOURCES)
@@ -327,19 +371,17 @@ export async function verifyApplicationPayload(applicationDirectory, record) {
     for (const name of entries) {
       const absolute = join(directory, name)
       const rel = prefix ? `${prefix}/${name}` : name
-      const info = await lstat(absolute)
-      if (info.isSymbolicLink())
-        throw new Error(`Symlink in staged application refused: ${rel}`)
-      if (info.isDirectory()) await walk(absolute, rel)
-      else if (info.isFile()) {
-        const bytes = await readFile(absolute)
+      const opened = await openPayloadEntry(absolute, rel, false)
+      if (opened.directory) await walk(absolute, rel)
+      else {
+        const { bytes } = opened
         digests.set(rel, { bytes: bytes.length, sha256: digest(bytes) })
         if (
           rel === APPLICATION_NOTICE_INVENTORY ||
           PACKAGE_MANIFEST_PATH.test(rel)
         )
           retained.set(rel, bytes)
-      } else throw new Error(`Unsupported staged application entry: ${rel}`)
+      }
     }
   }
   const root = await lstat(applicationDirectory)

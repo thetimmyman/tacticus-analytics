@@ -3,7 +3,6 @@ import {
   cp,
   lstat,
   mkdir,
-  mkdtemp,
   open,
   readFile,
   realpath,
@@ -14,7 +13,6 @@ import {
   writeFile,
   readdir
 } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
 import {
   resolve,
   join,
@@ -34,7 +32,7 @@ import {
   verifyApplicationPayload
 } from './build-profile.mjs'
 import { updateConfiguration } from '../launcher/updates.mjs'
-import { buildNativeAddons } from '../../addons/build-native.mjs'
+import { bundleNativeAddons } from '../../addons/build-native.mjs'
 import { generateSbom } from './generate-sbom.mjs'
 import { evaluate as scanInventory } from '../../../scripts/security/scan-release-artifact.mjs'
 
@@ -331,70 +329,27 @@ async function releaseOwnedOutput(owned) {
   }
 }
 
-// Bundle add-ons in a private scratch directory under a safe temporary root, never through
-// the output path. Once the bundler returns, ownership is re-checked before anything is
-// copied, and the results enter the pinned output only after their digests are verified.
-async function bundleNativeAddons(at, afterBuild) {
-  const scratchRoot = tmpdir()
-  const rootIdentity = await requireSafeDirectory(
-    scratchRoot,
-    'Temporary scratch'
-  )
-  const pinnedRoot = await openPinnedDirectory(scratchRoot, rootIdentity)
-  try {
-    const scratch = await mkdtemp(
-      join(pinnedPath(pinnedRoot.handle), 'ta-desktop-addons-')
+// Bundle add-ons in memory, so nothing is written through a temporary or output path by
+// name. Once the bundler returns, ownership is re-checked, and each result enters the
+// pinned output only after its digest matches the bundler's own declaration.
+async function stageNativeAddons(at, afterBuild) {
+  const { files, outputs } = await bundleNativeAddons()
+  await afterBuild()
+  const expected = ['native-components.json', ...files.map((file) => file.path)]
+  const names = outputs.map((output) => output.path)
+  if ([...names].sort().join('\0') !== [...expected].sort().join('\0'))
+    throw new Error('Native add-on bundle contains unexpected files')
+  const addons = at('apps/desktop/addons')
+  await mkdir(addons, { recursive: true, mode: 0o700 })
+  for (const { path, contents } of outputs) {
+    const declared = files.find((file) => file.path === path)
+    if (
+      declared &&
+      (contents.length !== declared.bytes ||
+        createHash('sha256').update(contents).digest('hex') !== declared.sha256)
     )
-    const scratchName = basename(scratch)
-    const pinnedScratch = await openPinnedDirectory(scratch)
-    const scratchIdentity = pinnedScratch.info
-    try {
-      if (
-        (ownUid !== null && scratchIdentity.uid !== ownUid) ||
-        (scratchIdentity.mode & 0o077) !== 0
-      )
-        throw new Error('Add-on scratch directory is not private')
-      const built = await buildNativeAddons(join(scratchRoot, scratchName))
-      await afterBuild()
-      const scratchNow = await lstat(join(scratchRoot, scratchName))
-      if (
-        scratchNow.isSymbolicLink() ||
-        !sameIdentity(scratchNow, scratchIdentity)
-      )
-        throw new Error('Add-on scratch directory changed identity')
-      const addons = at('apps/desktop/addons')
-      await mkdir(addons, { recursive: true, mode: 0o700 })
-      const names = (await readdir(pinnedPath(pinnedScratch.handle))).sort()
-      const expected = [
-        'native-components.json',
-        ...built.map((file) => file.path)
-      ].sort()
-      if (names.join('\0') !== expected.join('\0'))
-        throw new Error('Native add-on bundle contains unexpected files')
-      for (const name of names) {
-        const bytes = await readFile(pinnedPath(pinnedScratch.handle, name))
-        const declared = built.find((file) => file.path === name)
-        if (
-          declared &&
-          createHash('sha256').update(bytes).digest('hex') !== declared.sha256
-        )
-          throw new Error(`Native add-on bundle changed after build: ${name}`)
-        await writeFile(join(addons, name), bytes, { mode: 0o600, flag: 'wx' })
-      }
-    } finally {
-      await pinnedScratch.handle.close()
-      await removePinnedEntry(
-        pinnedRoot.handle,
-        scratchName,
-        scratchIdentity
-      ).catch((reason) => {
-        console.error(
-          `Refusing to remove add-on scratch directory ${join(scratchRoot, scratchName)}: ${reason.message}; left in place`
-        )
-      })
-    }
-  } finally {
-    await pinnedRoot.handle.close()
+      throw new Error(`Native add-on bundle changed after build: ${path}`)
+    await writeFile(join(addons, path), contents, { mode: 0o600, flag: 'wx' })
   }
 }
 
@@ -456,7 +411,7 @@ const ownedOutput = await acquireOutput(config.output)
 const at = (rel) => pinnedPath(ownedOutput.outputHandle, rel)
 try {
   await assertOwnedOutput(ownedOutput)
-  await bundleNativeAddons(at, () => assertOwnedOutput(ownedOutput))
+  await stageNativeAddons(at, () => assertOwnedOutput(ownedOutput))
   await assertOwnedOutput(ownedOutput)
   if (config.addonPolicy && !isAbsolute(config.addonPolicy))
     throw new Error('Absolute add-on policy path required')

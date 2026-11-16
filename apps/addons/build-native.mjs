@@ -1,45 +1,73 @@
 import { build } from 'esbuild'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
-export async function buildNativeAddons(output) {
-  await mkdir(output, { recursive: true, mode: 0o700 })
-  await build({
-    absWorkingDir: root,
-    entryPoints: ['apps/addons/native-runtime.ts'],
-    outfile: join(output, 'native-runtime.cjs'),
-    bundle: true,
-    format: 'cjs',
-    target: 'node22',
-    platform: 'node',
-    sourcemap: false
-  })
-  await build({
-    absWorkingDir: root,
-    entryPoints: ['apps/addons/native-manager.tsx'],
-    outfile: join(output, 'native-manager.js'),
-    bundle: true,
-    format: 'iife',
-    target: 'es2022',
-    platform: 'browser',
-    sourcemap: false,
-    define: { 'process.env.NODE_ENV': '"production"' }
-  })
-  const files = []
-  for (const path of ['native-runtime.cjs', 'native-manager.js']) {
-    const bytes = await readFile(join(output, path))
-    files.push({
+
+const ADDON_BUNDLES = [
+  {
+    path: 'native-runtime.cjs',
+    options: {
+      entryPoints: ['apps/addons/native-runtime.ts'],
+      format: 'cjs',
+      target: 'node22',
+      platform: 'node'
+    }
+  },
+  {
+    path: 'native-manager.js',
+    options: {
+      entryPoints: ['apps/addons/native-manager.tsx'],
+      format: 'iife',
+      target: 'es2022',
+      platform: 'browser',
+      define: { 'process.env.NODE_ENV': '"production"' }
+    }
+  }
+]
+
+// Bundle the add-ons in memory. Nothing is written to disk, so callers decide where the
+// bytes go and can write them through a directory they already hold.
+export async function bundleNativeAddons() {
+  const outputs = []
+  for (const { path, options } of ADDON_BUNDLES) {
+    const result = await build({
+      ...options,
+      absWorkingDir: root,
+      outfile: path,
+      bundle: true,
+      sourcemap: false,
+      write: false
+    })
+    if (result.outputFiles?.length !== 1)
+      throw new Error(
+        `Native add-on bundle produced unexpected output: ${path}`
+      )
+    outputs.push({
       path,
-      bytes: bytes.length,
-      sha256: createHash('sha256').update(bytes).digest('hex')
+      contents: Buffer.from(result.outputFiles[0].contents)
     })
   }
-  await writeFile(
-    join(output, 'native-components.json'),
-    JSON.stringify({ schemaVersion: 1, files }, null, 2) + '\n'
-  )
+  const files = outputs.map(({ path, contents }) => ({
+    path,
+    bytes: contents.length,
+    sha256: createHash('sha256').update(contents).digest('hex')
+  }))
+  outputs.push({
+    path: 'native-components.json',
+    contents: Buffer.from(
+      JSON.stringify({ schemaVersion: 1, files }, null, 2) + '\n'
+    )
+  })
+  return { files, outputs }
+}
+
+export async function buildNativeAddons(output) {
+  const { files, outputs } = await bundleNativeAddons()
+  await mkdir(output, { recursive: true, mode: 0o700 })
+  for (const { path, contents } of outputs)
+    await writeFile(join(output, path), contents)
   return files
 }
 if (
