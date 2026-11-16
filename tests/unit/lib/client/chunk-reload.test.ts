@@ -5,7 +5,8 @@ import {
   handleChunkLoadError,
   isChunkLoadError,
   initChunkReloadListeners,
-  resolveBuildId
+  resolveBuildId,
+  resolveChunkTelemetryEvent
 } from '@/app/lib/client/chunk-reload'
 
 vi.mock('@/app/lib/monitoring/sentry', () => ({
@@ -57,6 +58,31 @@ describe('chunk-reload', () => {
           new Error(
             'Failed to fetch dynamically imported module: https://app/x.js'
           )
+        )
+      ).toBe(true)
+    })
+
+    it('matches Turbopack, WebKit, and SpiderMonkey dynamic import chunk failures and cause-wrapped chunk errors', () => {
+      expect(
+        isChunkLoadError(
+          new Error(
+            'Failed to load chunk /_next/static/chunks/main.js from module 42'
+          )
+        )
+      ).toBe(true)
+      expect(
+        isChunkLoadError(new TypeError('Importing a module script failed.'))
+      ).toBe(true)
+      expect(
+        isChunkLoadError(
+          new TypeError('error loading dynamically imported module')
+        )
+      ).toBe(true)
+      expect(
+        isChunkLoadError(
+          new Error('Component failed to render', {
+            cause: new TypeError('Importing a module script failed.')
+          })
         )
       ).toBe(true)
     })
@@ -441,6 +467,109 @@ describe('chunk-reload', () => {
       cleanupA()
       cleanupB()
       addSpy.mockRestore()
+    })
+  })
+
+  describe('resolveChunkTelemetryEvent per-occurrence correlation', () => {
+    it('tracks attempted then suppressed outcomes independently for identical string messages and cleans up when Sentry is disabled', () => {
+      vi.stubEnv('NEXT_PUBLIC_BUILD_SHA', 'build-corr')
+      vi.mocked(captureSentryException).mockReturnValue(true)
+
+      const msg = 'Failed to load chunk /_next/static/chunks/unit-shared.js'
+      expect(handleChunkLoadError(msg)).toBe('attempted')
+      expect(handleChunkLoadError(msg)).toBe('suppressed')
+
+      expect(resolveChunkTelemetryEvent(msg, { isGlobalHandler: true })).toBe(
+        'attempted'
+      )
+      expect(resolveChunkTelemetryEvent(msg, { isGlobalHandler: true })).toBe(
+        'suppressed'
+      )
+
+      expect(
+        resolveChunkTelemetryEvent(msg, {
+          existingTag: 'attempted',
+          isGlobalHandler: false
+        })
+      ).toBe('duplicate')
+      expect(
+        resolveChunkTelemetryEvent(msg, {
+          existingTag: 'suppressed',
+          isGlobalHandler: false
+        })
+      ).toBe('duplicate')
+
+      // When captureSentryException returns false (Sentry disabled), occurrences are not retained.
+      sessionStorage.clear()
+      vi.mocked(captureSentryException).mockReturnValue(false)
+      const disabledMsg =
+        'Failed to load chunk /_next/static/chunks/disabled.js'
+      expect(handleChunkLoadError(disabledMsg)).toBe('attempted')
+      // Because sessionStorage now has '1' and no pending occurrence was retained, fallback is 'suppressed'.
+      expect(
+        resolveChunkTelemetryEvent(disabledMsg, { isGlobalHandler: true })
+      ).toBe('suppressed')
+    })
+
+    it('resolves the second provisional global capture as suppressed and drops only matching tagged duplicates when globals precede handlers', () => {
+      vi.stubEnv('NEXT_PUBLIC_BUILD_SHA', 'build-global-first')
+      vi.mocked(captureSentryException).mockReturnValue(true)
+
+      const msg = 'Failed to load chunk /_next/static/chunks/global-first.js'
+      expect(resolveChunkTelemetryEvent(msg, { isGlobalHandler: true })).toBe(
+        'attempted'
+      )
+      expect(resolveChunkTelemetryEvent(msg, { isGlobalHandler: true })).toBe(
+        'suppressed'
+      )
+
+      expect(handleChunkLoadError(msg)).toBe('attempted')
+      expect(handleChunkLoadError(msg)).toBe('suppressed')
+      expect(reloadMock).toHaveBeenCalledTimes(1)
+
+      expect(
+        resolveChunkTelemetryEvent(msg, {
+          existingTag: 'attempted',
+          isGlobalHandler: false
+        })
+      ).toBe('duplicate')
+      expect(
+        resolveChunkTelemetryEvent(msg, {
+          existingTag: 'suppressed',
+          isGlobalHandler: false
+        })
+      ).toBe('duplicate')
+    })
+
+    it('keeps a tagged capture whose real outcome disagrees with the provisional global outcome', () => {
+      vi.stubEnv('NEXT_PUBLIC_BUILD_SHA', 'build-mismatch')
+      vi.mocked(captureSentryException).mockReturnValue(true)
+
+      const first = 'Failed to load chunk /_next/static/chunks/first.js'
+      const second = 'Failed to load chunk /_next/static/chunks/second.js'
+      expect(resolveChunkTelemetryEvent(first, { isGlobalHandler: true })).toBe(
+        'attempted'
+      )
+      expect(
+        resolveChunkTelemetryEvent(second, { isGlobalHandler: true })
+      ).toBe('suppressed')
+
+      // Handlers run in the opposite order, so real outcomes swap.
+      expect(handleChunkLoadError(second)).toBe('attempted')
+      expect(handleChunkLoadError(first)).toBe('suppressed')
+
+      expect(
+        resolveChunkTelemetryEvent(second, {
+          existingTag: 'attempted',
+          isGlobalHandler: false
+        })
+      ).toBe('attempted')
+      expect(
+        resolveChunkTelemetryEvent(first, {
+          existingTag: 'suppressed',
+          isGlobalHandler: false
+        })
+      ).toBe('suppressed')
     })
   })
 })

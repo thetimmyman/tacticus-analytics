@@ -6,6 +6,8 @@
  * closed set of tag values only.
  */
 
+import { isChunkLoadError } from '@/app/lib/client/chunk-reload'
+
 export type BrowserRenderFamily =
   | 'home'
   | 'roster'
@@ -29,6 +31,7 @@ export type BrowserRenderErrorCode =
   | 'DOM_INSERT_TARGET_MISSING'
   | 'DOM_REMOVE_TARGET_MISSING'
   | 'DOM_NOT_FOUND'
+  | 'CHUNK_LOAD_FAILURE'
   | 'REACT_RENDER_FAILURE'
 
 export interface BrowserRenderErrorTags {
@@ -114,6 +117,10 @@ const readStringField = (
 }
 
 const resolveErrorCode = (error: unknown): BrowserRenderErrorCode => {
+  if (isChunkLoadError(error)) {
+    return 'CHUNK_LOAD_FAILURE'
+  }
+
   const message =
     typeof error === 'string' ? error : readStringField(error, 'message')
   const name = readStringField(error, 'name')
@@ -136,8 +143,18 @@ const resolveErrorCode = (error: unknown): BrowserRenderErrorCode => {
   }
 
   if (name === 'NotFoundError') {
-    if (message?.includes('insertBefore')) return 'DOM_INSERT_TARGET_MISSING'
-    if (message?.includes('removeChild')) return 'DOM_REMOVE_TARGET_MISSING'
+    if (
+      message?.includes('insertBefore') ||
+      message?.includes('inserted is not a child')
+    ) {
+      return 'DOM_INSERT_TARGET_MISSING'
+    }
+    if (
+      message?.includes('removeChild') ||
+      message?.includes('to be removed is not a child')
+    ) {
+      return 'DOM_REMOVE_TARGET_MISSING'
+    }
     return 'DOM_NOT_FOUND'
   }
 

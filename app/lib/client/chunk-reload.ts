@@ -11,7 +11,10 @@ const CHUNK_LOAD_ERROR_NAME = 'ChunkLoadError'
 
 const CHUNK_LOAD_ERROR_MESSAGE_PATTERNS: RegExp[] = [
   /Loading chunk [\w-]+ failed/i,
-  /Failed to fetch dynamically imported module/i
+  /Failed to load chunk\b/i,
+  /Failed to fetch dynamically imported module/i,
+  /Importing a module script failed/i,
+  /error loading dynamically imported module/i
 ]
 
 // Parse failures from stale/corrupted chunks served as HTML after a deploy.
@@ -43,18 +46,26 @@ interface ErrorLike {
   message?: string
 }
 
-function toErrorLike(value: unknown): ErrorLike | null {
-  if (value instanceof Error) {
-    return { name: value.name, message: value.message }
+function readStringProperty(
+  record: Record<string, unknown>,
+  key: 'name' | 'message'
+): string | undefined {
+  try {
+    const value = record[key]
+    return typeof value === 'string' ? value : undefined
+  } catch {
+    return undefined
   }
+}
+
+function toErrorLike(value: unknown): ErrorLike | null {
   if (typeof value === 'string') {
     return { message: value }
   }
   if (value && typeof value === 'object') {
     const record = value as Record<string, unknown>
-    const name = typeof record.name === 'string' ? record.name : undefined
-    const message =
-      typeof record.message === 'string' ? record.message : undefined
+    const name = readStringProperty(record, 'name')
+    const message = readStringProperty(record, 'message')
     if (name === undefined && message === undefined) {
       return null
     }
@@ -224,7 +235,7 @@ function hasChunkScriptParseEvidence(
   return false
 }
 
-export function isChunkLoadError(
+function matchesSingleChunkLoadError(
   value: unknown,
   context?: ChunkErrorContext
 ): boolean {
@@ -245,6 +256,23 @@ export function isChunkLoadError(
     ) &&
     hasChunkScriptParseEvidence(value, context?.resourceFilename)
   )
+}
+
+export function isChunkLoadError(
+  value: unknown,
+  context?: ChunkErrorContext
+): boolean {
+  try {
+    if (matchesSingleChunkLoadError(value, context)) {
+      return true
+    }
+    if (value instanceof Error && value.cause !== undefined) {
+      return matchesSingleChunkLoadError(value.cause, context)
+    }
+  } catch {
+    return false
+  }
+  return false
 }
 
 /** Without NEXT_PUBLIC_BUILD_SHA the guard cannot tell builds apart. */
@@ -307,13 +335,353 @@ export function resolveChunkReloadOutcome(
   return 'attempted'
 }
 
+type ResolvedChunkOutcome = 'attempted' | 'suppressed'
+
+interface ChunkOccurrenceRecord {
+  outcome: ResolvedChunkOutcome
+  taggedTag?: ResolvedChunkOutcome
+  handlerBound: boolean
+  globalBound: boolean
+  taggedBound: boolean
+  taggedProcessed: boolean
+  globalProcessed: boolean
+}
+
+const MAX_STRING_TRACKING_ENTRIES = 64
+const MAX_OCCURRENCES_PER_KEY = 64
+
+const objectChunkOccurrences = new WeakMap<object, ChunkOccurrenceRecord[]>()
+const stringChunkOccurrences = new Map<string, ChunkOccurrenceRecord[]>()
+
+function evictOldestMapEntry<K, V>(map: Map<K, V>, maxEntries: number): void {
+  if (map.size < maxEntries) return
+  const oldestKey = map.keys().next().value
+  if (oldestKey !== undefined) {
+    map.delete(oldestKey)
+  }
+}
+
+function getExistingOccurrenceQueue(
+  value: unknown
+): ChunkOccurrenceRecord[] | undefined {
+  if (value && typeof value === 'object') {
+    return objectChunkOccurrences.get(value)
+  }
+  if (typeof value === 'string') {
+    return stringChunkOccurrences.get(value)
+  }
+  return undefined
+}
+
+function getOrCreateOccurrenceQueue(
+  value: unknown
+): ChunkOccurrenceRecord[] | null {
+  if (value && typeof value === 'object') {
+    let queue = objectChunkOccurrences.get(value)
+    if (!queue) {
+      queue = []
+      objectChunkOccurrences.set(value, queue)
+    }
+    return queue
+  }
+  if (typeof value === 'string') {
+    let queue = stringChunkOccurrences.get(value)
+    if (!queue) {
+      evictOldestMapEntry(stringChunkOccurrences, MAX_STRING_TRACKING_ENTRIES)
+      queue = []
+      stringChunkOccurrences.set(value, queue)
+    }
+    return queue
+  }
+  return null
+}
+
+function pushBoundedOccurrence(
+  queue: ChunkOccurrenceRecord[],
+  record: ChunkOccurrenceRecord
+): void {
+  if (queue.length >= MAX_OCCURRENCES_PER_KEY) {
+    queue.shift()
+  }
+  queue.push(record)
+}
+
+function removeOccurrenceFromQueue(
+  value: unknown,
+  record: ChunkOccurrenceRecord
+): void {
+  const queue = getExistingOccurrenceQueue(value)
+  if (!queue) return
+  const index = queue.indexOf(record)
+  if (index !== -1) {
+    queue.splice(index, 1)
+  }
+  if (queue.length === 0 && typeof value === 'string') {
+    stringChunkOccurrences.delete(value)
+  }
+}
+
+function readFallbackSessionOutcome(): ResolvedChunkOutcome {
+  const storage = getSessionStorage()
+  if (!storage) {
+    return 'suppressed'
+  }
+  try {
+    return storage.getItem(sessionKey(resolveBuildId())) === '1'
+      ? 'suppressed'
+      : 'attempted'
+  } catch {
+    return 'suppressed'
+  }
+}
+
+// Session key of a global capture that provisionally claimed the single reload
+// before any handler ran. One reload per build session means a second
+// provisional global capture in the same window must resolve as suppressed.
+let provisionalAttemptClaimKey: string | null = null
+
+function readProvisionalGlobalOutcome(): ResolvedChunkOutcome {
+  const outcome = readFallbackSessionOutcome()
+  if (outcome !== 'attempted') {
+    return outcome
+  }
+  const key = sessionKey(resolveBuildId())
+  if (provisionalAttemptClaimKey === key) {
+    return 'suppressed'
+  }
+  provisionalAttemptClaimKey = key
+  return 'attempted'
+}
+
+function registerHandlerChunkOccurrence(
+  value: unknown,
+  outcome: ResolvedChunkOutcome
+): ChunkOccurrenceRecord | null {
+  const queue = getOrCreateOccurrenceQueue(value)
+  if (!queue) return null
+
+  const unmatchedGlobal = queue.find(
+    (entry) => entry.globalBound && !entry.handlerBound
+  )
+  if (unmatchedGlobal) {
+    unmatchedGlobal.handlerBound = true
+    unmatchedGlobal.taggedTag = outcome
+    return unmatchedGlobal
+  }
+
+  const record: ChunkOccurrenceRecord = {
+    outcome,
+    taggedTag: outcome,
+    handlerBound: true,
+    globalBound: false,
+    taggedBound: false,
+    taggedProcessed: false,
+    globalProcessed: false
+  }
+  pushBoundedOccurrence(queue, record)
+  return record
+}
+
+/**
+ * Correlate a single tagged or global-handler chunk capture per occurrence so
+ * concurrent same-text or shared-reference failures preserve each occurrence's
+ * attempted/suppressed outcome without dropping warnings.
+ */
+export function resolveChunkTelemetryEvent(
+  value: unknown,
+  options: { existingTag?: string; isGlobalHandler: boolean }
+): 'duplicate' | ResolvedChunkOutcome | undefined {
+  const { existingTag, isGlobalHandler } = options
+
+  if (existingTag === 'attempted' || existingTag === 'suppressed') {
+    const queue = getExistingOccurrenceQueue(value)
+    const matched =
+      queue?.find(
+        (entry) =>
+          !entry.taggedBound &&
+          (entry.taggedTag === existingTag ||
+            (!entry.handlerBound && entry.outcome === existingTag))
+      ) ?? queue?.find((entry) => !entry.taggedBound && !entry.handlerBound)
+
+    if (matched) {
+      matched.taggedBound = true
+      // Drop the tagged capture only when the global capture already reported
+      // this same outcome; a provisional global outcome that disagrees with
+      // the handler's real outcome must not swallow the real one.
+      if (matched.globalProcessed && matched.outcome === existingTag) {
+        matched.taggedProcessed = true
+        removeOccurrenceFromQueue(value, matched)
+        return 'duplicate'
+      }
+      matched.taggedProcessed = true
+      if (matched.globalBound) {
+        removeOccurrenceFromQueue(value, matched)
+      }
+      return existingTag
+    }
+
+    const createdQueue = getOrCreateOccurrenceQueue(value)
+    if (createdQueue) {
+      pushBoundedOccurrence(createdQueue, {
+        outcome: existingTag,
+        taggedTag: existingTag,
+        handlerBound: true,
+        globalBound: false,
+        taggedBound: true,
+        taggedProcessed: true,
+        globalProcessed: false
+      })
+    }
+    return existingTag
+  }
+
+  if (existingTag === undefined && isGlobalHandler) {
+    const queue = getExistingOccurrenceQueue(value)
+    const matched = queue?.find((entry) => !entry.globalBound)
+    if (matched) {
+      matched.globalBound = true
+      if (matched.taggedProcessed) {
+        matched.globalProcessed = true
+        removeOccurrenceFromQueue(value, matched)
+        return 'duplicate'
+      }
+      if (value instanceof Error) {
+        removeOccurrenceFromQueue(value, matched)
+      } else {
+        matched.globalProcessed = true
+      }
+      return matched.outcome
+    }
+
+    const fallbackOutcome = readProvisionalGlobalOutcome()
+    if (!(value instanceof Error)) {
+      const createdQueue = getOrCreateOccurrenceQueue(value)
+      if (createdQueue) {
+        pushBoundedOccurrence(createdQueue, {
+          outcome: fallbackOutcome,
+          handlerBound: false,
+          globalBound: true,
+          taggedBound: false,
+          taggedProcessed: false,
+          globalProcessed: true
+        })
+      }
+    }
+    return fallbackOutcome
+  }
+
+  return undefined
+}
+
+/** Record a chunk event only after Sentry beforeSend actually processes it. */
+export function recordProcessedChunkEvent(
+  value: unknown,
+  source: 'tagged' | 'global'
+): void {
+  if (source === 'tagged') {
+    const queue = getOrCreateOccurrenceQueue(value)
+    if (!queue) return
+    const pending = queue.find((entry) => !entry.taggedProcessed)
+    if (pending) {
+      pending.taggedBound = true
+      pending.taggedProcessed = true
+      if (pending.globalBound) {
+        removeOccurrenceFromQueue(value, pending)
+      }
+      return
+    }
+    const outcome = readFallbackSessionOutcome()
+    pushBoundedOccurrence(queue, {
+      outcome,
+      taggedTag: outcome,
+      handlerBound: true,
+      globalBound: false,
+      taggedBound: true,
+      taggedProcessed: true,
+      globalProcessed: false
+    })
+    return
+  }
+
+  if (value instanceof Error) return
+  const queue = getOrCreateOccurrenceQueue(value)
+  if (!queue) return
+  const pending = queue.find((entry) => !entry.globalProcessed)
+  if (pending) {
+    pending.globalBound = true
+    pending.globalProcessed = true
+    if (pending.taggedProcessed) {
+      removeOccurrenceFromQueue(value, pending)
+    }
+    return
+  }
+  pushBoundedOccurrence(queue, {
+    outcome: readFallbackSessionOutcome(),
+    handlerBound: false,
+    globalBound: true,
+    taggedBound: false,
+    taggedProcessed: false,
+    globalProcessed: true
+  })
+}
+
+/** True only when a matching chunk event already cleared Sentry beforeSend. */
+export function consumeCapturedChunkReloadDuplicate(
+  value: unknown,
+  source: 'tagged' | 'global' = 'tagged'
+): boolean {
+  const queue = getExistingOccurrenceQueue(value)
+  if (!queue || queue.length === 0) return false
+
+  if (source === 'tagged') {
+    const matched = queue.find(
+      (entry) => entry.taggedProcessed && !entry.globalBound
+    )
+    if (!matched) return false
+    matched.globalBound = true
+    matched.globalProcessed = true
+    removeOccurrenceFromQueue(value, matched)
+    return true
+  }
+
+  if (value instanceof Error) return false
+  const matched = queue.find(
+    (entry) => entry.globalProcessed && !entry.taggedBound
+  )
+  if (!matched) return false
+  matched.taggedBound = true
+  matched.taggedProcessed = true
+  removeOccurrenceFromQueue(value, matched)
+  return true
+}
+
+/** Read-only outcome for chunk failures seen via global handlers, even if async beforeSend runs after sessionStorage mutation. */
+export function peekChunkReloadOutcome(
+  value?: unknown
+): 'attempted' | 'suppressed' {
+  const queue = getExistingOccurrenceQueue(value)
+  const pending = queue?.find((entry) => !entry.globalBound)
+  if (pending) {
+    return pending.outcome
+  }
+  return readFallbackSessionOutcome()
+}
+
 export function handleChunkLoadError(
   value: unknown,
   context?: ChunkErrorContext
 ): ChunkReloadOutcome {
   const outcome = resolveChunkReloadOutcome(value, context)
   if (outcome === 'attempted' || outcome === 'suppressed') {
-    captureSentryException(value, { tags: { chunk_reload: outcome } })
+    // The handler has made the real decision; session storage is authoritative now.
+    provisionalAttemptClaimKey = null
+    const registered = registerHandlerChunkOccurrence(value, outcome)
+    const captured = captureSentryException(value, {
+      tags: { chunk_reload: outcome }
+    })
+    if (captured === false && registered) {
+      removeOccurrenceFromQueue(value, registered)
+    }
   }
   return outcome
 }

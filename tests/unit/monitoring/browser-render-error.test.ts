@@ -238,8 +238,24 @@ describe('browserRenderErrorTags', () => {
       message: 'The object can not be found here.'
     }
 
+    const webkitInsert = {
+      name: 'NotFoundError',
+      message:
+        'The node before which the new node is to be inserted is not a child of this node.'
+    }
+    const webkitRemove = {
+      name: 'NotFoundError',
+      message: 'The node to be removed is not a child of this node.'
+    }
+
     expect(tagsFor('/', insert).error_code).toBe('DOM_INSERT_TARGET_MISSING')
     expect(tagsFor('/', remove).error_code).toBe('DOM_REMOVE_TARGET_MISSING')
+    expect(tagsFor('/', webkitInsert).error_code).toBe(
+      'DOM_INSERT_TARGET_MISSING'
+    )
+    expect(tagsFor('/', webkitRemove).error_code).toBe(
+      'DOM_REMOVE_TARGET_MISSING'
+    )
     expect(tagsFor('/', other).error_code).toBe('DOM_NOT_FOUND')
     expect(tagsFor('/', { name: 'NotFoundError' }).error_code).toBe(
       'DOM_NOT_FOUND'
@@ -247,6 +263,25 @@ describe('browserRenderErrorTags', () => {
     expect(tagsFor('/', new Error('insertBefore removeChild')).error_code).toBe(
       'REACT_RENDER_FAILURE'
     )
+  })
+
+  it('classifies chunk and dynamic module load failures as CHUNK_LOAD_FAILURE', () => {
+    const chunkError = new Error(
+      'Failed to load chunk /_next/static/chunks/42.js'
+    )
+    chunkError.name = 'ChunkLoadError'
+
+    expect(tagsFor('/home', chunkError).error_code).toBe('CHUNK_LOAD_FAILURE')
+    expect(
+      tagsFor('/home', new TypeError('Importing a module script failed.'))
+        .error_code
+    ).toBe('CHUNK_LOAD_FAILURE')
+    expect(
+      tagsFor(
+        '/home',
+        new TypeError('error loading dynamically imported module')
+      ).error_code
+    ).toBe('CHUNK_LOAD_FAILURE')
   })
 
   it('falls back safely when reading error fields throws', () => {

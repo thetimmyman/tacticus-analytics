@@ -82,7 +82,10 @@ const SAFE_TAG_VALUE = /^[A-Za-z0-9_.:-]{1,80}$/u
 const PII_FIELD_SUFFIX =
   /(?:user|player|guild|cluster|discord|patreon)(?:id|ids|code|codes|name|names|username|usernames|tag|tags)$/u
 const ERROR_FIELD_NAMES = new Set(['err', 'error'])
-const SAFE_FINGERPRINTS = new Set(['supabase-auth-processlock-timeout'])
+const SAFE_FINGERPRINTS = new Set([
+  'supabase-auth-processlock-timeout',
+  'client-chunk-reload-attempted'
+])
 const SAFE_EVENT_MESSAGES = new Set([
   'Slow boss calculation detected',
   'Boss calculation failed',

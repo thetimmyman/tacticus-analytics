@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import { init } from '@sentry/nextjs'
 
 // The module calls Sentry init() at import time.
 vi.mock('@sentry/nextjs', () => ({
@@ -15,6 +16,50 @@ import {
 
 const LOCK_TIMEOUT_MESSAGE =
   'Acquiring process lock with name "lock:tacticus-auth-token" timed out'
+
+describe('cause-wrapped chunk telemetry', () => {
+  const beforeSend = vi.mocked(init).mock.calls[0][0]?.beforeSend as (
+    event: Record<string, unknown>,
+    hint: { originalException: unknown }
+  ) => Record<string, unknown> | null
+
+  it.each([
+    ['auto.browser.global_handlers.onunhandledrejection', 'attempted'],
+    ['auto.browser.global_handlers.onerror', 'suppressed']
+  ])(
+    'classifies the outer global handler %s as %s',
+    (mechanismType, outcome) => {
+      sessionStorage.clear()
+      const cause = new Error(
+        'Failed to load chunk /_next/static/chunks/page.js'
+      )
+      cause.name = 'ChunkLoadError'
+      const error = new Error('Application failed', { cause })
+      const sent = beforeSend(
+        {
+          level: 'error',
+          exception: {
+            values: [
+              { type: 'ChunkLoadError', value: cause.message },
+              {
+                type: 'Error',
+                value: error.message,
+                mechanism: { type: mechanismType, handled: false }
+              }
+            ]
+          }
+        },
+        { originalException: error }
+      )
+
+      expect(sent?.tags).toMatchObject({ chunk_reload: outcome })
+      expect(sent?.level).toBe(outcome === 'attempted' ? 'warning' : 'error')
+      if (outcome === 'attempted') {
+        expect(sent?.fingerprint).toEqual(['client-chunk-reload-attempted'])
+      }
+    }
+  )
+})
 
 describe('isProcessLockTimeout', () => {
   it.each([

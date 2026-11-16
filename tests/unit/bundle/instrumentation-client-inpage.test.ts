@@ -159,4 +159,153 @@ describe('client beforeSend', () => {
       beforeSend(event, { originalException: new Error('Application error') })
     ).not.toBeNull()
   })
+
+  it('preserves and classifies uncaptured global-handler ChunkLoadError events while downgrading attempted reloads to warning and keeping suppressed reloads as error', () => {
+    sessionStorage.clear()
+    const chunkError = new Error(
+      'Failed to load chunk /_next/static/chunks/main.js'
+    )
+    chunkError.name = 'ChunkLoadError'
+
+    const unhandledGlobalEvent = {
+      level: 'error',
+      exception: {
+        values: [
+          {
+            type: 'ChunkLoadError',
+            value: 'Application error',
+            mechanism: {
+              type: 'auto.browser.global_handlers.onunhandledrejection',
+              handled: false
+            },
+            stacktrace: {
+              frames: [
+                {
+                  filename: '[turbopack]/browser/runtime/base/runtime-base.ts',
+                  function: 'entry'
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+    const preservedGlobalAttempted = beforeSend(
+      structuredClone(unhandledGlobalEvent),
+      { originalException: chunkError }
+    )
+    expect(preservedGlobalAttempted).not.toBeNull()
+    expect(preservedGlobalAttempted?.level).toBe('warning')
+    expect(preservedGlobalAttempted?.fingerprint).toEqual([
+      'client-chunk-reload-attempted'
+    ])
+    expect(
+      (preservedGlobalAttempted?.tags as Record<string, string>)?.chunk_reload
+    ).toBe('attempted')
+
+    const attemptedEvent = {
+      level: 'error',
+      tags: { chunk_reload: 'attempted' },
+      exception: {
+        values: [
+          {
+            type: 'ChunkLoadError',
+            value: 'Application error',
+            mechanism: { type: 'generic', handled: true }
+          }
+        ]
+      }
+    }
+    const sentAttempted = beforeSend(attemptedEvent, {
+      originalException: chunkError
+    })
+    expect(sentAttempted).not.toBeNull()
+    expect(sentAttempted?.level).toBe('warning')
+    expect(sentAttempted?.fingerprint).toEqual([
+      'client-chunk-reload-attempted'
+    ])
+    expect((sentAttempted?.tags as Record<string, string>)?.chunk_reload).toBe(
+      'attempted'
+    )
+
+    const suppressedEvent = {
+      level: 'error',
+      tags: { chunk_reload: 'suppressed' },
+      exception: {
+        values: [
+          {
+            type: 'ChunkLoadError',
+            value: 'Application error',
+            mechanism: { type: 'generic', handled: true }
+          }
+        ]
+      }
+    }
+    const sentSuppressed = beforeSend(suppressedEvent, {
+      originalException: chunkError
+    })
+    expect(sentSuppressed).not.toBeNull()
+    expect(sentSuppressed?.level).toBe('error')
+    expect((sentSuppressed?.tags as Record<string, string>)?.chunk_reload).toBe(
+      'suppressed'
+    )
+  })
+
+  it('drops browser native fetch network-rejection TypeErrors while retaining ordinary runtime TypeErrors', () => {
+    for (const message of [
+      'Failed to fetch',
+      'Load failed',
+      'NetworkError when attempting to fetch resource.'
+    ]) {
+      const fetchError = new TypeError(message)
+      const fetchEvent = {
+        level: 'error',
+        tags: {
+          component: 'ErrorBoundary',
+          operation: 'browser.render.home',
+          error_code: 'REACT_RENDER_FAILURE',
+          source: 'react.error-boundary'
+        },
+        exception: {
+          values: [
+            {
+              type: 'TypeError',
+              value: 'Application error',
+              mechanism: { type: 'generic', handled: true },
+              stacktrace: null
+            }
+          ]
+        }
+      }
+      expect(
+        beforeSend(fetchEvent, { originalException: fetchError }),
+        `should drop browser fetch TypeError: ${message}`
+      ).toBeNull()
+    }
+
+    const runtimeTypeError = new TypeError(
+      "Cannot read properties of undefined (reading 'id')"
+    )
+    const runtimeEvent = {
+      level: 'error',
+      tags: {
+        component: 'ErrorBoundary',
+        operation: 'browser.render.home',
+        error_code: 'REACT_RENDER_FAILURE',
+        source: 'react.error-boundary'
+      },
+      exception: {
+        values: [
+          {
+            type: 'TypeError',
+            value: 'Application error',
+            mechanism: { type: 'generic', handled: true }
+          }
+        ]
+      }
+    }
+    expect(
+      beforeSend(runtimeEvent, { originalException: runtimeTypeError })
+    ).not.toBeNull()
+  })
 })

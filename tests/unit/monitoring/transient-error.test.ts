@@ -308,6 +308,11 @@ describe('beforeSend hooks across client, server, and edge configs', () => {
 
       const droppedCases = [
         wrapped(new TypeError('fetch failed')),
+        wrapped(new TypeError('Failed to fetch')),
+        wrapped(new TypeError('Load failed')),
+        wrapped(
+          new TypeError('NetworkError when attempting to fetch resource.')
+        ),
         wrapped(postgrestTransport)
       ]
 
