@@ -39,6 +39,13 @@ export interface QueueDepthSample {
   oldestPendingAgeSeconds: number | null
 }
 
+export interface QueueDepthOptions {
+  /** Sampling budget in ms; a scan that outlives it reports "not measured". */
+  maxSampleMs?: number
+  /** Absolute epoch-ms cap on sampling, e.g. the end of the worker's lane window. */
+  deadlineMs?: number
+}
+
 export interface DrainLaneOptions {
   supabase: ServiceSupabaseClient
   laneIndex: number
@@ -184,54 +191,172 @@ export async function runDrainLane(
   }
 }
 
+// claim_next_job() cannot compare attempts to max_attempts through a PostgREST
+// filter (filters compare against constants, not columns), so pages are read
+// with the claimable predicate and that leg is applied per row. Pages are
+// keyset-paged on id: the whole claimable set is measured, never a truncated
+// prefix of it.
+const CLAIMABLE_SCAN_PAGE_SIZE = 250
+const CLAIMABLE_ROW_COLUMNS =
+  'id, created_at, scheduled_for, attempts, max_attempts'
+
+// A scanned row always carries scheduled_for (the scan filters on it), so an
+// age is only reported when both timestamps parse.
+function effectiveClaimableTimestampMs(row: {
+  created_at?: unknown
+  scheduled_for?: unknown
+}): number | null {
+  if (typeof row.created_at !== 'string') return null
+  if (typeof row.scheduled_for !== 'string') return null
+  const createdAtMs = Date.parse(row.created_at)
+  const scheduledForMs = Date.parse(row.scheduled_for)
+  if (!Number.isFinite(createdAtMs) || !Number.isFinite(scheduledForMs)) {
+    return null
+  }
+  return Math.max(createdAtMs, scheduledForMs)
+}
+
+/** Mirrors `attempts < max_attempts` in claim_next_job(); SQL NULL there is "no claim". */
+function hasAttemptsLeft(row: {
+  attempts?: unknown
+  max_attempts?: unknown
+}): boolean {
+  return (
+    typeof row.attempts === 'number' &&
+    typeof row.max_attempts === 'number' &&
+    row.attempts < row.max_attempts
+  )
+}
+
+// Sampling runs ahead of the lanes on the worker's one elapsed budget, so it
+// gets a small fixed share: a slow scan is abandoned, never paid for in drain time.
+export const QUEUE_DEPTH_MAX_SAMPLE_MS = 2_500
+
+const SAMPLE_BUDGET_SPENT = Symbol('sample budget spent')
+
+/** Settles with the read, or with SAMPLE_BUDGET_SPENT once remainingMs has passed. */
+async function readWithinBudget<T>(
+  read: PromiseLike<T>,
+  remainingMs: number
+): Promise<T | typeof SAMPLE_BUDGET_SPENT> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const expiry = new Promise<typeof SAMPLE_BUDGET_SPENT>((resolve) => {
+    timer = setTimeout(() => resolve(SAMPLE_BUDGET_SPENT), remainingMs)
+  })
+  try {
+    return await Promise.race([read, expiry])
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 // Best-effort and non-throwing; null means "not measured", not zero.
+// The scan uses claim_next_job()'s `scheduled_for <= NOW()` leg, which is not
+// true for a later or a NULL schedule: depth and age exclude both, and age
+// starts once scheduled_for is reached.
+// Depth and age come from one complete scan so a half-read queue reports
+// "not measured" instead of a plausible-looking prefix.
 export async function readQueueDepth(
-  supabase: ServiceSupabaseClient
+  supabase: ServiceSupabaseClient,
+  now: () => number = () => Date.now(),
+  options: QueueDepthOptions = {}
 ): Promise<QueueDepthSample> {
   const sample: QueueDepthSample = {
     pendingDepth: null,
     oldestPendingAgeSeconds: null
   }
+  const sampleTimeMs = now()
+  const claimableAsOf = new Date(sampleTimeMs).toISOString()
+  const stopAtMs = Math.min(
+    sampleTimeMs + (options.maxSampleMs ?? QUEUE_DEPTH_MAX_SAMPLE_MS),
+    options.deadlineMs ?? Number.POSITIVE_INFINITY
+  )
+  let depth = 0
+  let oldestClaimableMs: number | null = null
+  let lastId: string | null = null
 
   try {
-    const countResult = (await supabase
-      .from('sync_queue')
-      .select('id', { count: 'exact', head: true })
-      .eq('status', 'pending')) as { count?: unknown } | null
+    for (;;) {
+      // Checked before every page and enforced during it: neither many pages
+      // nor one stalled read can run past the budget.
+      const remainingMs = stopAtMs - now()
+      if (!(remainingMs > 0)) {
+        throw new Error('sync_queue scan exceeded its sampling budget')
+      }
+      const pageAbort = new AbortController()
 
-    if (countResult && typeof countResult.count === 'number') {
-      sample.pendingDepth = countResult.count
-    }
-  } catch (error) {
-    logger.warn({ err: error }, 'Could not sample sync_queue depth')
-  }
+      const claimableRows = supabase
+        .from('sync_queue')
+        .select(CLAIMABLE_ROW_COLUMNS)
+        .eq('status', 'pending')
+        .lte('scheduled_for', claimableAsOf)
+      const pageQuery =
+        lastId === null ? claimableRows : claimableRows.gt('id', lastId)
 
-  try {
-    const oldestResult = (await supabase
-      .from('sync_queue')
-      .select('created_at')
-      .eq('status', 'pending')
-      .order('created_at', { ascending: true })
-      .limit(1)) as { data?: unknown } | null
+      const pageRead = await readWithinBudget(
+        pageQuery
+          .order('id', { ascending: true })
+          .limit(CLAIMABLE_SCAN_PAGE_SIZE)
+          .abortSignal(pageAbort.signal),
+        remainingMs
+      )
+      if (pageRead === SAMPLE_BUDGET_SPENT) {
+        pageAbort.abort()
+        throw new Error('sync_queue scan exceeded its sampling budget')
+      }
+      const page = pageRead as {
+        data?: unknown
+        error?: { message?: string | null } | null
+      } | null
 
-    const rows = oldestResult?.data
-    if (Array.isArray(rows) && rows.length > 0) {
-      const createdAt = (rows[0] as { created_at?: unknown }).created_at
-      if (typeof createdAt === 'string') {
-        const parsed = Date.parse(createdAt)
-        if (Number.isFinite(parsed)) {
-          sample.oldestPendingAgeSeconds = Math.max(
-            0,
-            Math.round((Date.now() - parsed) / 1000)
-          )
+      if (page?.error) {
+        throw new Error(page.error.message ?? 'sync_queue scan failed')
+      }
+      const rows = page?.data
+      if (!Array.isArray(rows)) {
+        throw new Error('sync_queue scan returned no rows')
+      }
+
+      for (const row of rows) {
+        const typedRow = row as {
+          id?: unknown
+          created_at?: unknown
+          scheduled_for?: unknown
+          attempts?: unknown
+          max_attempts?: unknown
+        }
+        if (!hasAttemptsLeft(typedRow)) continue
+        depth += 1
+        const claimableMs = effectiveClaimableTimestampMs(typedRow)
+        if (
+          claimableMs !== null &&
+          (oldestClaimableMs === null || claimableMs < oldestClaimableMs)
+        ) {
+          oldestClaimableMs = claimableMs
         }
       }
+
+      if (rows.length < CLAIMABLE_SCAN_PAGE_SIZE) break
+
+      const pageLastId: unknown = (
+        rows[rows.length - 1] as { id?: unknown } | undefined
+      )?.id
+      // Without an advancing key the next page would re-read this one forever.
+      if (typeof pageLastId !== 'string' || pageLastId === lastId) {
+        throw new Error('sync_queue scan page did not advance')
+      }
+      lastId = pageLastId
+    }
+
+    sample.pendingDepth = depth
+    if (oldestClaimableMs !== null) {
+      sample.oldestPendingAgeSeconds = Math.max(
+        0,
+        Math.round((sampleTimeMs - oldestClaimableMs) / 1000)
+      )
     }
   } catch (error) {
-    logger.warn(
-      { err: error },
-      'Could not sample oldest pending sync_queue row'
-    )
+    logger.warn({ err: error }, 'Could not sample sync_queue claimable depth')
   }
 
   return sample

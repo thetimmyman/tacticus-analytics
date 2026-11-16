@@ -8,6 +8,7 @@ vi.mock('@/app/lib/sync/sync-worker-service', () => ({
 }))
 
 import {
+  QUEUE_DEPTH_MAX_SAMPLE_MS,
   laneWindowMs,
   laneWorkerId,
   readQueueDepth,
@@ -67,6 +68,225 @@ function fakeClock(steps: number[]) {
   }
 }
 
+type QueueRow = {
+  id: string
+  status: string
+  created_at: string | null
+  scheduled_for: string | null
+  attempts: number | null
+  max_attempts: number | null
+}
+
+type QueueOrder = {
+  column: string
+  ascending: boolean
+  nullsFirst?: boolean | null
+}
+
+type QueueQuery = {
+  columns: string[]
+  head: boolean
+  filters: Array<{ column: string; value: unknown }>
+  orFilters: string[]
+  lteFilters: Array<{ column: string; value: string }>
+  orders: QueueOrder[]
+  after: { column: string; value: string } | null
+  limit: number | null
+  signal: AbortSignal | null
+}
+
+/** PostgREST-shaped row set: eq/or filters, multi-key ORDER BY, keyset gt, LIMIT. */
+function queueRowClient(
+  rows: QueueRow[],
+  options: { failFromPage?: number; pageDelayMs?: number } = {}
+) {
+  const queries: QueueQuery[] = []
+  const orFilters: string[] = []
+  const selectedColumns: string[] = []
+  let pages = 0
+
+  const matchesOr = (row: QueueRow, filter: string) =>
+    filter.split(',').some((term) => {
+      const first = term.indexOf('.')
+      const second = term.indexOf('.', first + 1)
+      const column = term.slice(0, first)
+      const operator = term.slice(first + 1, second)
+      const value = term.slice(second + 1)
+      const actual = (row as unknown as Record<string, unknown>)[column]
+      if (operator === 'is' && value === 'null') {
+        return actual === null || actual === undefined
+      }
+      if (operator === 'lte') {
+        return (
+          typeof actual === 'string' && Date.parse(actual) <= Date.parse(value)
+        )
+      }
+      throw new Error(`Unsupported or() term: ${term}`)
+    })
+
+  const compare = (query: QueueQuery) => (left: QueueRow, right: QueueRow) => {
+    for (const order of query.orders) {
+      const a =
+        (left as unknown as Record<string, unknown>)[order.column] ?? null
+      const b =
+        (right as unknown as Record<string, unknown>)[order.column] ?? null
+      if (a === b) continue
+      if (a === null || b === null) {
+        const nullsFirst = order.nullsFirst ?? !order.ascending
+        if (a === null) return nullsFirst ? -1 : 1
+        return nullsFirst ? 1 : -1
+      }
+      const cmp = String(a) < String(b) ? -1 : 1
+      return order.ascending ? cmp : -cmp
+    }
+    return 0
+  }
+
+  const execute = (query: QueueQuery) => {
+    pages += 1
+    if (options.failFromPage && pages >= options.failFromPage) {
+      return { data: null, error: { message: 'queue read failed' } }
+    }
+    let matched = rows.filter((row) =>
+      query.filters.every(
+        ({ column, value }) =>
+          (row as unknown as Record<string, unknown>)[column] === value
+      )
+    )
+    for (const filter of query.orFilters) {
+      matched = matched.filter((row) => matchesOr(row, filter))
+    }
+    // SQL `column <= value` is never true for NULL, exactly as in claim_next_job().
+    for (const { column, value } of query.lteFilters) {
+      matched = matched.filter((row) => {
+        const actual = (row as unknown as Record<string, unknown>)[column]
+        return (
+          typeof actual === 'string' && Date.parse(actual) <= Date.parse(value)
+        )
+      })
+    }
+    if (query.after) {
+      matched = matched.filter(
+        (row) =>
+          String(
+            (row as unknown as Record<string, unknown>)[query.after!.column]
+          ) > query.after!.value
+      )
+    }
+    const sorted = [...matched].sort(compare(query))
+    const limited = (
+      query.limit === null ? sorted : sorted.slice(0, query.limit)
+    ).map((row) => ({ ...row }))
+    return query.head
+      ? { data: null, count: limited.length, error: null }
+      : { data: limited, error: null }
+  }
+
+  const makeChain = (query: QueueQuery) => {
+    const chain = {
+      select: (columns: string, opts?: { head?: boolean }) => {
+        query.columns = columns.split(',').map((column) => column.trim())
+        query.head = Boolean(opts?.head)
+        selectedColumns.push(columns)
+        return chain
+      },
+      eq: (column: string, value: unknown) => {
+        query.filters.push({ column, value })
+        return chain
+      },
+      or: (filter: string) => {
+        query.orFilters.push(filter)
+        orFilters.push(filter)
+        return chain
+      },
+      lte: (column: string, value: string) => {
+        query.lteFilters.push({ column, value })
+        return chain
+      },
+      order: (
+        column: string,
+        opts?: { ascending?: boolean; nullsFirst?: boolean }
+      ) => {
+        query.orders.push({
+          column,
+          ascending: opts?.ascending ?? true,
+          nullsFirst: opts?.nullsFirst
+        })
+        return chain
+      },
+      gt: (column: string, value: string) => {
+        query.after = { column, value }
+        return chain
+      },
+      limit: (count: number) => {
+        query.limit = count
+        return chain
+      },
+      abortSignal: (signal: AbortSignal) => {
+        query.signal = signal
+        return chain
+      },
+      then: (
+        resolve: (value: unknown) => unknown,
+        reject?: (reason: unknown) => unknown
+      ) => {
+        const delayMs = options.pageDelayMs ?? 0
+        const read =
+          delayMs > 0
+            ? new Promise((done) => setTimeout(done, delayMs)).then(() =>
+                execute(query)
+              )
+            : Promise.resolve(execute(query))
+        return read.then(resolve, reject)
+      }
+    }
+    return chain
+  }
+
+  return {
+    client: {
+      from: (table: string) => {
+        if (table !== 'sync_queue') throw new Error(`unexpected table ${table}`)
+        const query: QueueQuery = {
+          columns: [],
+          head: false,
+          filters: [],
+          orFilters: [],
+          lteFilters: [],
+          orders: [],
+          after: null,
+          limit: null,
+          signal: null
+        }
+        queries.push(query)
+        return makeChain(query)
+      }
+    } as never,
+    queries,
+    orFilters,
+    selectedColumns,
+    pagesRead: () => pages
+  }
+}
+
+let rowSequence = 0
+function queueRow(overrides: Partial<QueueRow> = {}): QueueRow {
+  rowSequence += 1
+  return {
+    id: `00000000-0000-4000-8000-${String(rowSequence).padStart(12, '0')}`,
+    status: 'pending',
+    created_at: null,
+    scheduled_for: null,
+    attempts: 0,
+    max_attempts: 3,
+    ...overrides
+  }
+}
+
+function isoAt(epochMs: number): string {
+  return new Date(epochMs).toISOString()
+}
+
 describe('drain lanes', () => {
   beforeEach(() => {
     processJob.mockReset()
@@ -82,6 +302,7 @@ describe('drain lanes', () => {
   })
 
   afterEach(() => {
+    vi.useRealTimers()
     vi.restoreAllMocks()
   })
 
@@ -254,47 +475,328 @@ describe('drain lanes', () => {
   })
 
   describe('queue depth sampling', () => {
-    it('reports depth and oldest pending age', async () => {
-      const created = new Date(Date.now() - 600_000).toISOString()
-      const client = {
-        from: vi.fn(() => ({
-          select: vi.fn((_columns: string, opts?: { head?: boolean }) =>
-            opts?.head
-              ? {
-                  eq: vi.fn(async () => ({ count: 7, error: null }))
-                }
-              : {
-                  eq: vi.fn(() => ({
-                    order: vi.fn(() => ({
-                      limit: vi.fn(async () => ({
-                        data: [{ created_at: created }],
-                        error: null
-                      }))
-                    }))
-                  }))
-                }
-          )
-        }))
-      } as never
+    const fixedNow = Date.parse('2026-11-16T06:45:00.000Z')
+    const nowIso = isoAt(fixedNow)
 
-      const sample = await readQueueDepth(client)
+    it('reports the true oldest claimable age once the queue is deeper than one scan page', async () => {
+      // 260 young rows fill the first 250-row page ahead of an older deferred
+      // job; a single page therefore reported 60s instead of the job that has
+      // been claimable for an hour.
+      const young = isoAt(fixedNow - 60_000)
+      const oldCreated = isoAt(fixedNow - 7_200_000)
+      const oldScheduled = isoAt(fixedNow - 3_600_000)
+      const rows: QueueRow[] = Array.from({ length: 260 }, () =>
+        queueRow({ created_at: young, scheduled_for: young })
+      )
+      rows.push(
+        queueRow({
+          id: 'ffffffff-ffff-4fff-8fff-ffffffffffff',
+          created_at: oldCreated,
+          scheduled_for: oldScheduled
+        })
+      )
+      const queue = queueRowClient(rows)
 
-      expect(sample.pendingDepth).toBe(7)
-      expect(sample.oldestPendingAgeSeconds).toBeGreaterThanOrEqual(599)
+      const sample = await readQueueDepth(queue.client, () => fixedNow)
+
+      expect(sample.pendingDepth).toBe(261)
+      expect(sample.oldestPendingAgeSeconds).toBe(3600)
+      expect(queue.pagesRead()).toBeGreaterThan(1)
     })
 
-    it('reports nulls rather than zeros when the read cannot be made', async () => {
-      const client = {
+    it('counts only rows with attempts left, as claim_next_job does', async () => {
+      const exhausted = queueRow({
+        created_at: isoAt(fixedNow - 21_600_000),
+        scheduled_for: isoAt(fixedNow - 21_600_000),
+        attempts: 3,
+        max_attempts: 3
+      })
+      const claimable = queueRow({
+        created_at: isoAt(fixedNow - 120_000),
+        scheduled_for: isoAt(fixedNow - 120_000),
+        attempts: 2,
+        max_attempts: 3
+      })
+      const missingAttempts = queueRow({
+        created_at: isoAt(fixedNow - 43_200_000),
+        scheduled_for: isoAt(fixedNow - 43_200_000),
+        attempts: null,
+        max_attempts: 3
+      })
+      const queue = queueRowClient([exhausted, missingAttempts, claimable])
+
+      const sample = await readQueueDepth(queue.client, () => fixedNow)
+
+      expect(sample.pendingDepth).toBe(1)
+      expect(sample.oldestPendingAgeSeconds).toBe(120)
+    })
+
+    it('reads only claimable pending rows with the columns the claim predicate needs', async () => {
+      const queue = queueRowClient([])
+
+      const sample = await readQueueDepth(queue.client, () => fixedNow)
+
+      // claim_next_job() takes `scheduled_for <= NOW()` only: no IS NULL leg.
+      expect(queue.orFilters).toEqual([])
+      expect(queue.queries[0].lteFilters).toEqual([
+        { column: 'scheduled_for', value: nowIso }
+      ])
+      expect(queue.queries[0].filters).toEqual([
+        { column: 'status', value: 'pending' }
+      ])
+      expect(queue.selectedColumns[0]).toEqual(
+        expect.stringContaining('attempts')
+      )
+      expect(queue.selectedColumns[0]).toEqual(
+        expect.stringContaining('max_attempts')
+      )
+      // An empty claimable queue is a measured zero depth, not an unmeasured null.
+      expect(sample.pendingDepth).toBe(0)
+      expect(sample.oldestPendingAgeSeconds).toBeNull()
+    })
+
+    it('excludes a pending row with no schedule, which claim_next_job can never take', async () => {
+      // `scheduled_for <= NOW()` is not true for NULL, so the claim skips this
+      // row however old it is; it must add neither depth nor age.
+      const unscheduled = queueRow({
+        created_at: isoAt(fixedNow - 21_600_000),
+        scheduled_for: null
+      })
+      const claimable = queueRow({
+        created_at: isoAt(fixedNow - 90_000),
+        scheduled_for: isoAt(fixedNow - 90_000)
+      })
+      const queue = queueRowClient([unscheduled, claimable])
+
+      const sample = await readQueueDepth(queue.client, () => fixedNow)
+
+      expect(sample.pendingDepth).toBe(1)
+      expect(sample.oldestPendingAgeSeconds).toBe(90)
+    })
+
+    it('measures an empty claimable queue when every pending row lacks a schedule', async () => {
+      const queue = queueRowClient([
+        queueRow({
+          created_at: isoAt(fixedNow - 21_600_000),
+          scheduled_for: null
+        })
+      ])
+
+      const sample = await readQueueDepth(queue.client, () => fixedNow)
+
+      expect(sample.pendingDepth).toBe(0)
+      expect(sample.oldestPendingAgeSeconds).toBeNull()
+    })
+
+    it('does not count deferred wait before scheduled_for in oldestPendingAgeSeconds', async () => {
+      const queue = queueRowClient([
+        queueRow({
+          created_at: isoAt(fixedNow - 2_400_000),
+          scheduled_for: isoAt(fixedNow - 45_000)
+        })
+      ])
+
+      const sample = await readQueueDepth(queue.client, () => fixedNow)
+
+      expect(sample.pendingDepth).toBe(1)
+      expect(sample.oldestPendingAgeSeconds).toBe(45)
+    })
+
+    it('still counts a row whose timestamp cannot be parsed as depth, without inventing an age', async () => {
+      const queue = queueRowClient([
+        queueRow({
+          created_at: 'not-a-timestamp',
+          scheduled_for: isoAt(fixedNow - 60_000)
+        })
+      ])
+
+      const sample = await readQueueDepth(queue.client, () => fixedNow)
+
+      expect(sample.pendingDepth).toBe(1)
+      expect(sample.oldestPendingAgeSeconds).toBeNull()
+    })
+
+    it('reports nulls rather than a partial measurement when a page read fails', async () => {
+      const rows: QueueRow[] = Array.from({ length: 250 }, () =>
+        queueRow({
+          created_at: isoAt(fixedNow - 60_000),
+          scheduled_for: isoAt(fixedNow - 60_000)
+        })
+      )
+      const queue = queueRowClient(rows, { failFromPage: 2 })
+
+      const sample = await readQueueDepth(queue.client, () => fixedNow)
+
+      // A scan that stopped halfway cannot prove either the true depth or age.
+      expect(sample.pendingDepth).toBeNull()
+      expect(sample.oldestPendingAgeSeconds).toBeNull()
+    })
+
+    it('reports nulls rather than zeros when the client throws', async () => {
+      const throwingClient = {
         from: vi.fn(() => {
           throw new Error('no client')
         })
       } as never
 
-      const sample = await readQueueDepth(client)
+      const sample = await readQueueDepth(throwingClient)
 
       // NULL means "not measured", not an empty queue.
       expect(sample.pendingDepth).toBeNull()
       expect(sample.oldestPendingAgeSeconds).toBeNull()
+    })
+  })
+
+  describe('the queue depth sampling budget', () => {
+    const fixedNow = Date.parse('2026-11-16T06:45:00.000Z')
+    const claimableSince = isoAt(fixedNow - 60_000)
+    const claimableRows = (count: number): QueueRow[] =>
+      Array.from({ length: count }, () =>
+        queueRow({ created_at: claimableSince, scheduled_for: claimableSince })
+      )
+
+    // The worker route's order: sample depth first, then drain on the same clock.
+    async function sampleThenDrain(
+      queueClient: never,
+      jobs: ClaimRow[],
+      laneCount: number
+    ) {
+      const startTime = Date.now()
+      const lanes = makeClient(jobs)
+      let sample: Awaited<ReturnType<typeof readQueueDepth>> | undefined
+      void readQueueDepth(queueClient).then((value) => {
+        sample = value
+      })
+      while (sample === undefined && Date.now() - startTime < 120_000) {
+        await vi.advanceTimersByTimeAsync(100)
+      }
+      const samplingMs = Date.now() - startTime
+      const outcomes = await Promise.all(
+        Array.from({ length: laneCount }, (_unused, laneIndex) =>
+          runDrainLane({
+            supabase: lanes.client,
+            laneIndex,
+            laneWorkerId: laneWorkerId('w-run', laneIndex),
+            startTime,
+            budgetMs: WORKER_CONFIG.workerTimeout,
+            tailReserveMs: WORKER_CONFIG.laneTailReserveMs
+          })
+        )
+      )
+      return { sample, samplingMs, outcomes, lanes }
+    }
+
+    it('gives up a slow 5,001-row scan so the lanes keep their draining window', async () => {
+      // 21 pages at 2s each is 42s: longer than the whole 40s lane window.
+      vi.useFakeTimers({ now: fixedNow })
+      const queue = queueRowClient(claimableRows(5001), { pageDelayMs: 2_000 })
+      const jobs = ['a', 'b', 'c', 'd', 'e', 'f'].map(job)
+      const window = laneWindowMs(
+        WORKER_CONFIG.workerTimeout,
+        WORKER_CONFIG.laneTailReserveMs
+      )
+
+      const { sample, samplingMs, outcomes, lanes } = await sampleThenDrain(
+        queue.client,
+        jobs,
+        2
+      )
+      const claims = lanes.rpc.mock.calls.filter(
+        ([fn]) => fn === 'claim_next_job'
+      )
+      const drained = outcomes
+        .flatMap((outcome) => outcome.results.map((result) => result.jobId))
+        .sort()
+
+      expect.soft(samplingMs).toBeLessThanOrEqual(2_500)
+      expect.soft(window - samplingMs).toBeGreaterThanOrEqual(37_500)
+      expect.soft(sample).toEqual({
+        pendingDepth: null,
+        oldestPendingAgeSeconds: null
+      })
+      expect.soft(queue.queries.length).toBeLessThanOrEqual(2)
+      // The read still in flight at expiry is cancelled, not left running.
+      expect.soft(queue.queries.at(-1)?.signal?.aborted).toBe(true)
+      expect.soft(claims.length).toBeGreaterThan(0)
+      expect.soft(drained).toEqual(['a', 'b', 'c', 'd', 'e', 'f'])
+      expect
+        .soft(outcomes.map((outcome) => outcome.stoppedReason))
+        .toEqual(['queue_empty', 'queue_empty'])
+    })
+
+    it('still measures a deep queue whose pages arrive inside the budget', async () => {
+      vi.useFakeTimers({ now: fixedNow })
+      const queue = queueRowClient(claimableRows(5001), { pageDelayMs: 100 })
+
+      const { sample, samplingMs } = await sampleThenDrain(queue.client, [], 1)
+
+      expect(sample).toEqual({
+        pendingDepth: 5001,
+        oldestPendingAgeSeconds: 60
+      })
+      expect(samplingMs).toBeLessThanOrEqual(2_500)
+      expect(queue.queries).toHaveLength(21)
+      // Every finished read carries a live signal: nothing was cancelled.
+      expect(
+        queue.queries.every((query) => query.signal?.aborted === false)
+      ).toBe(true)
+    })
+
+    it('stops between pages once an injected clock passes maxSampleMs', async () => {
+      const queue = queueRowClient(claimableRows(600))
+
+      // Clock reads: sample time, page 1 check, page 2 check (budget spent).
+      const sample = await readQueueDepth(
+        queue.client,
+        fakeClock([fixedNow, fixedNow, fixedNow + 1_000]),
+        { maxSampleMs: 1_000 }
+      )
+
+      expect(sample).toEqual({
+        pendingDepth: null,
+        oldestPendingAgeSeconds: null
+      })
+      expect(queue.pagesRead()).toBe(1)
+    })
+
+    it('never samples past the worker deadline, even inside maxSampleMs', async () => {
+      const queue = queueRowClient(claimableRows(600))
+
+      const sample = await readQueueDepth(
+        queue.client,
+        fakeClock([fixedNow, fixedNow, fixedNow + 500]),
+        { maxSampleMs: 60_000, deadlineMs: fixedNow + 500 }
+      )
+
+      expect(sample).toEqual({
+        pendingDepth: null,
+        oldestPendingAgeSeconds: null
+      })
+      expect(queue.pagesRead()).toBe(1)
+    })
+
+    it('reads nothing when the deadline has already passed', async () => {
+      const queue = queueRowClient(claimableRows(3))
+
+      const sample = await readQueueDepth(queue.client, () => fixedNow, {
+        deadlineMs: fixedNow - 1
+      })
+
+      expect(sample).toEqual({
+        pendingDepth: null,
+        oldestPendingAgeSeconds: null
+      })
+      expect(queue.pagesRead()).toBe(0)
+    })
+
+    it('keeps the default budget a small fraction of the lane window', () => {
+      expect(QUEUE_DEPTH_MAX_SAMPLE_MS).toBe(2_500)
+      expect(QUEUE_DEPTH_MAX_SAMPLE_MS).toBeLessThan(
+        laneWindowMs(
+          WORKER_CONFIG.workerTimeout,
+          WORKER_CONFIG.laneTailReserveMs
+        ) / 10
+      )
     })
   })
 
