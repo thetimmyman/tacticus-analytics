@@ -2,10 +2,9 @@ import { writeFile, mkdir, readdir } from 'node:fs/promises'
 import { withEntry, readBounded } from '../proof/safe-files.mjs'
 import { join, relative, dirname } from 'node:path'
 import { createHash } from 'node:crypto'
+import { isApplicationNoticeName } from './build-profile.mjs'
 
-const noticeName = (name) =>
-  /^(?:LICEN[SC]E|NOTICE|COPYRIGHT|COPYING|AUTHORS)(?:[._-].*)?$/i.test(name) ||
-  /\.LEGAL\.txt$/i.test(name)
+const noticeName = isApplicationNoticeName
 const hash = (bytes) => createHash('sha256').update(bytes).digest('hex')
 async function directories(root, visit) {
   const entries = await readdir(root, { withFileTypes: true })

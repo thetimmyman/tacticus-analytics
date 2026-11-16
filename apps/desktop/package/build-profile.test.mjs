@@ -17,6 +17,7 @@ import {
   desktopBuildEnvironment,
   desktopBuildRecord,
   verifyApplicationLockfile,
+  verifyApplicationPayload,
   verifyDesktopBuild,
   verifyRecordedDesktopBuild,
   requireCleanBuildEnvironment
@@ -251,5 +252,75 @@ test('captureCleanCheckoutProvenance rejects non-git directories and nested subd
     )
   } finally {
     await rm(outer, { recursive: true, force: true })
+  }
+})
+
+test('application payload manifest is canonical and refuses tampered or unbound records', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'desktop-payload-manifest-'))
+  try {
+    const requiredFiles = JSON.stringify({
+      config: {
+        output: 'standalone',
+        experimental: { proxyClientMaxBodySize: 24 * 1024 * 1024 }
+      }
+    })
+    const serverBytes = '// synthetic server\n'
+    const applicationFiles = [
+      {
+        path: 'server.js',
+        bytes: serverBytes.length,
+        sha256: createHash('sha256').update(serverBytes).digest('hex')
+      }
+    ]
+    const record = desktopBuildRecord(requiredFiles, 'build-1', {
+      applicationFiles
+    })
+    assert.equal(
+      record.applicationManifestSha256,
+      createHash('sha256')
+        .update(JSON.stringify(applicationFiles))
+        .digest('hex')
+    )
+    await writeFile(join(root, 'server.js'), serverBytes)
+    await writeFile(join(root, 'desktop-build.json'), JSON.stringify(record))
+    const digests = await verifyApplicationPayload(root, record)
+    assert.deepEqual([...digests.keys()].sort(), [
+      'desktop-build.json',
+      'server.js'
+    ])
+
+    await assert.rejects(
+      verifyApplicationPayload(root, {
+        ...record,
+        applicationFiles: undefined
+      }),
+      /does not bind the application payload/
+    )
+    await assert.rejects(
+      verifyApplicationPayload(root, {
+        ...record,
+        applicationFiles: [{ ...applicationFiles[0], sha256: 'a'.repeat(64) }]
+      }),
+      /manifest digest mismatch/
+    )
+    assert.throws(
+      () =>
+        desktopBuildRecord(requiredFiles, 'build-1', {
+          applicationFiles: [{ ...applicationFiles[0], path: '../escape.js' }]
+        }),
+      /Invalid desktop build applicationFiles/
+    )
+    assert.throws(
+      () =>
+        desktopBuildRecord(requiredFiles, 'build-1', {
+          applicationFiles: [
+            { ...applicationFiles[0], path: 'z.js' },
+            { ...applicationFiles[0], path: 'a.js' }
+          ]
+        }),
+      /order/
+    )
+  } finally {
+    await rm(root, { recursive: true, force: true })
   }
 })

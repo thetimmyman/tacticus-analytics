@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { readFile, realpath, stat } from 'node:fs/promises'
-import { join } from 'node:path'
+import { lstat, readdir, readFile, realpath, stat } from 'node:fs/promises'
+import { basename, join } from 'node:path'
 
 const digest = (value) => createHash('sha256').update(value).digest('hex')
 const HEX_40 = /^[a-f0-9]{40}$/
@@ -186,14 +186,170 @@ export function desktopBuildRecord(requiredFiles, buildId, provenance = {}) {
     HEX_64,
     'packageLockSha256'
   )
+  const applicationFiles =
+    provenance.applicationFiles === undefined
+      ? undefined
+      : normalizeApplicationFiles(provenance.applicationFiles)
   return {
     format: 'ta-desktop-build-v1',
     profile: 'desktop',
     buildId: buildId.trim(),
     requiredFilesSha256: digest(requiredFiles),
     ...(sourceCommit ? { sourceCommit } : {}),
-    ...(packageLockSha256 ? { packageLockSha256 } : {})
+    ...(packageLockSha256 ? { packageLockSha256 } : {}),
+    ...(applicationFiles
+      ? {
+          applicationFiles,
+          applicationManifestSha256: applicationManifestDigest(applicationFiles)
+        }
+      : {})
   }
+}
+
+// Build outputs copied by stage-standalone.mjs into the packaged application tree.
+export const APPLICATION_PAYLOAD_SOURCES = Object.freeze([
+  Object.freeze({ from: '.next/standalone', to: '' }),
+  Object.freeze({ from: '.next/static', to: '.next/static' }),
+  Object.freeze({ from: 'public', to: 'public' })
+])
+
+// Files stage-standalone.mjs adds beside the compiled payload; each is verified separately.
+const APPLICATION_RECORD_FILES = new Set([
+  'desktop-build.json',
+  '.next/desktop-build.json',
+  'package-lock.json'
+])
+
+export const isApplicationNoticeName = (name) =>
+  /^(?:LICEN[SC]E|NOTICE|COPYRIGHT|COPYING|AUTHORS)(?:[._-].*)?$/i.test(name) ||
+  /\.LEGAL\.txt$/i.test(name)
+
+const comparePaths = (a, b) => (a < b ? -1 : a > b ? 1 : 0)
+
+function isSafeRelativePath(path) {
+  return (
+    typeof path === 'string' &&
+    path.length > 0 &&
+    !path.startsWith('/') &&
+    !path.includes('\\') &&
+    !path.includes('\0') &&
+    path.split('/').every((part) => part && part !== '.' && part !== '..')
+  )
+}
+
+function normalizeApplicationFiles(files) {
+  if (!Array.isArray(files) || files.length === 0)
+    throw new Error('Invalid desktop build applicationFiles')
+  const normalized = files.map((file) => {
+    if (
+      !file ||
+      typeof file !== 'object' ||
+      Object.keys(file).sort().join(',') !== 'bytes,path,sha256' ||
+      !isSafeRelativePath(file.path) ||
+      !Number.isSafeInteger(file.bytes) ||
+      file.bytes < 0 ||
+      typeof file.sha256 !== 'string' ||
+      !HEX_64.test(file.sha256)
+    )
+      throw new Error('Invalid desktop build applicationFiles')
+    return { path: file.path, bytes: file.bytes, sha256: file.sha256 }
+  })
+  for (let i = 1; i < normalized.length; i += 1)
+    if (comparePaths(normalized[i - 1].path, normalized[i].path) >= 0)
+      throw new Error('Invalid desktop build applicationFiles order')
+  return normalized
+}
+
+export function applicationManifestDigest(files) {
+  return digest(JSON.stringify(normalizeApplicationFiles(files)))
+}
+
+// Hash the payload as stage-standalone.mjs copies it (cp dereference: true follows links).
+export async function captureApplicationPayload(root) {
+  const files = new Map()
+  async function walk(directory, prefix) {
+    const entries = await readdir(directory)
+    for (const name of entries) {
+      const absolute = join(directory, name)
+      const rel = prefix ? `${prefix}/${name}` : name
+      const info = await stat(absolute)
+      if (info.isDirectory()) await walk(absolute, rel)
+      else if (info.isFile()) {
+        const bytes = await readFile(absolute)
+        const entry = { path: rel, bytes: bytes.length, sha256: digest(bytes) }
+        const existing = files.get(rel)
+        if (existing && existing.sha256 !== entry.sha256)
+          throw new Error(
+            `Conflicting desktop application payload path: ${rel}`
+          )
+        files.set(rel, entry)
+      } else
+        throw new Error(`Unsupported desktop application payload entry: ${rel}`)
+    }
+  }
+  for (const { from, to } of APPLICATION_PAYLOAD_SOURCES)
+    await walk(join(root, from), to)
+  return [...files.values()].sort((a, b) => comparePaths(a.path, b.path))
+}
+
+/**
+ * Re-hash every file in a staged application tree against the build record.
+ * Refuses symlinks, special files, missing, modified and unexpected files.
+ * Returns a digest for every file so callers can cross-check later copies.
+ */
+export async function verifyApplicationPayload(applicationDirectory, record) {
+  if (
+    !record ||
+    record.applicationFiles === undefined ||
+    typeof record.applicationManifestSha256 !== 'string'
+  )
+    throw new Error(
+      'Desktop build record does not bind the application payload; rebuild with npm run desktop:build'
+    )
+  const expected = normalizeApplicationFiles(record.applicationFiles)
+  if (applicationManifestDigest(expected) !== record.applicationManifestSha256)
+    throw new Error('Desktop build application manifest digest mismatch')
+  const manifest = new Map(expected.map((file) => [file.path, file]))
+  const digests = new Map()
+  async function walk(directory, prefix) {
+    const entries = await readdir(directory)
+    for (const name of entries) {
+      const absolute = join(directory, name)
+      const rel = prefix ? `${prefix}/${name}` : name
+      const info = await lstat(absolute)
+      if (info.isSymbolicLink())
+        throw new Error(`Symlink in staged application refused: ${rel}`)
+      if (info.isDirectory()) await walk(absolute, rel)
+      else if (info.isFile()) {
+        const bytes = await readFile(absolute)
+        digests.set(rel, { bytes: bytes.length, sha256: digest(bytes) })
+      } else throw new Error(`Unsupported staged application entry: ${rel}`)
+    }
+  }
+  const root = await lstat(applicationDirectory)
+  if (root.isSymbolicLink() || !root.isDirectory())
+    throw new Error('Staged application must be a real directory')
+  await walk(applicationDirectory, '')
+  for (const [rel, actual] of digests) {
+    const bound = manifest.get(rel)
+    if (bound) {
+      if (bound.sha256 !== actual.sha256 || bound.bytes !== actual.bytes)
+        throw new Error(
+          `Staged application file does not match build record: ${rel}`
+        )
+    } else if (
+      !APPLICATION_RECORD_FILES.has(rel) &&
+      !(
+        rel.startsWith('third-party-notices/') &&
+        isApplicationNoticeName(basename(rel))
+      )
+    )
+      throw new Error(`Unexpected file in staged application: ${rel}`)
+  }
+  for (const rel of manifest.keys())
+    if (!digests.has(rel))
+      throw new Error(`Staged application file is missing: ${rel}`)
+  return new Map([...digests].map(([rel, value]) => [rel, value.sha256]))
 }
 
 export function verifyDesktopBuild(

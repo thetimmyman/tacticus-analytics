@@ -8,8 +8,10 @@ import {
   mkdir,
   mkdtemp,
   readFile,
+  readdir,
   rm,
   stat,
+  symlink,
   unlink,
   writeFile
 } from 'node:fs/promises'
@@ -228,7 +230,7 @@ export async function build({ outfile }) {
   const npmRunner = join(home, 'npm-runner.mjs')
   await writeFile(
     npmRunner,
-    `import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+    `import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 writeFileSync(${JSON.stringify(npmLog)}, JSON.stringify(process.argv.slice(2)))
@@ -244,6 +246,17 @@ writeFileSync(
   })
 )
 writeFileSync(join(cwd, '.next/BUILD_ID'), 'synthetic-build-id\\n')
+// Synthetic standalone payload mirroring next build output: server entry, compiled server chunks and static assets.
+mkdirSync(join(cwd, '.next/standalone/.next/server'), { recursive: true })
+mkdirSync(join(cwd, '.next/static/chunks'), { recursive: true })
+writeFileSync(join(cwd, '.next/standalone/server.js'), '// synthetic standalone server\\n')
+writeFileSync(
+  join(cwd, '.next/standalone/.next/required-server-files.json'),
+  readFileSync(join(cwd, '.next/required-server-files.json'))
+)
+writeFileSync(join(cwd, '.next/standalone/.next/BUILD_ID'), 'synthetic-build-id\\n')
+writeFileSync(join(cwd, '.next/standalone/.next/server/app.js'), '// synthetic compiled app route\\n')
+writeFileSync(join(cwd, '.next/static/chunks/main.js'), '// synthetic client chunk\\n')
 if (existsSync(${JSON.stringify(hookScript)})) {
   const mod = await import(pathToFileURL(${JSON.stringify(hookScript)}).href)
   await mod.mutate(cwd)
@@ -261,19 +274,23 @@ if (existsSync(${JSON.stringify(hookScript)})) {
   )
 
   const inheritedPath = process.env.PATH ?? ''
-  const runNode = (scriptRelativePath, args = []) =>
-    spawnSync(process.execPath, [join(repo, scriptRelativePath), ...args], {
-      cwd: repo,
-      env: cleanGitEnv({
-        PATH: [bin, dirname(process.execPath), inheritedPath]
-          .filter(Boolean)
-          .join(delimiter),
-        HOME: home,
-        LANG: 'C'
-      }),
-      encoding: 'utf8',
-      timeout: 15000
-    })
+  const runNode = (scriptRelativePath, args = [], { nodeArgs = [] } = {}) =>
+    spawnSync(
+      process.execPath,
+      [...nodeArgs, join(repo, scriptRelativePath), ...args],
+      {
+        cwd: repo,
+        env: cleanGitEnv({
+          PATH: [bin, dirname(process.execPath), inheritedPath]
+            .filter(Boolean)
+            .join(delimiter),
+          HOME: home,
+          LANG: 'C'
+        }),
+        encoding: 'utf8',
+        timeout: 15000
+      }
+    )
 
   return {
     home,
@@ -382,6 +399,40 @@ test('build-application records exact clean HEAD and lockfile SHA-256 on a clean
   )
   assert.equal(record.sourceCommit, head)
   assert.equal(record.packageLockSha256, sha256(lockContents))
+
+  // The record binds the complete packaged payload: standalone tree, static assets and public assets.
+  const expectedFiles = []
+  for (const [from, to] of [
+    ['.next/standalone', ''],
+    ['.next/static', '.next/static'],
+    ['public', 'public']
+  ]) {
+    for (const rel of await listFiles(join(repo, from))) {
+      const bytes = await readFile(join(repo, from, rel))
+      expectedFiles.push({
+        path: to ? `${to}/${rel}` : rel,
+        bytes: bytes.length,
+        sha256: sha256(bytes)
+      })
+    }
+  }
+  expectedFiles.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0))
+  assert.deepEqual(
+    expectedFiles.map((file) => file.path),
+    [
+      '.next/BUILD_ID',
+      '.next/required-server-files.json',
+      '.next/server/app.js',
+      '.next/static/chunks/main.js',
+      'public/favicon.svg',
+      'server.js'
+    ]
+  )
+  assert.deepEqual(record.applicationFiles, expectedFiles)
+  assert.equal(
+    record.applicationManifestSha256,
+    sha256(JSON.stringify(expectedFiles))
+  )
 })
 
 test('build-application and stage-linux refuse gitignored source files such as app/api/debug/route.ts while permitting husky and Next build outputs', async (t) => {
@@ -497,31 +548,52 @@ test('build-application and stage-linux refuse gitignored source files such as a
   await unlink(join(repo, 'apps/desktop/launcher/launch.mjs.bak'))
 })
 
-async function createStageInputs(home, repo) {
-  const inputs = join(home, 'stage-inputs')
+async function listFiles(root, prefix = '') {
+  const out = []
+  for (const entry of await readdir(join(root, prefix), {
+    withFileTypes: true
+  })) {
+    const rel = prefix ? `${prefix}/${entry.name}` : entry.name
+    if (entry.isDirectory()) out.push(...(await listFiles(root, rel)))
+    else out.push(rel)
+  }
+  return out
+}
+
+async function createStageInputs(home, repo, name = 'stage-inputs') {
+  const inputs = join(home, name)
   const application = join(inputs, 'application')
   const postgres = join(inputs, 'postgres')
   const electron = join(inputs, 'electron')
   const auth = join(inputs, 'auth')
-  await mkdir(join(application, '.next'), { recursive: true })
+  // Mirror stage-standalone.mjs: record, standalone tree, static assets, public assets, notices.
+  await mkdir(application, { recursive: true })
   await cp(
     join(repo, '.next/desktop-build.json'),
     join(application, 'desktop-build.json')
   )
+  await cp(join(repo, '.next/standalone'), application, { recursive: true })
+  await cp(join(repo, '.next/static'), join(application, '.next/static'), {
+    recursive: true
+  })
+  await cp(join(repo, 'public'), join(application, 'public'), {
+    recursive: true
+  })
   await cp(
     join(repo, '.next/desktop-build.json'),
     join(application, '.next/desktop-build.json')
   )
   await cp(
-    join(repo, '.next/required-server-files.json'),
-    join(application, '.next/required-server-files.json')
-  )
-  await cp(join(repo, '.next/BUILD_ID'), join(application, '.next/BUILD_ID'))
-  await cp(
     join(repo, 'package-lock.json'),
     join(application, 'package-lock.json')
   )
-  await writeFile(join(application, 'server.js'), '// synthetic server\n')
+  await mkdir(join(application, 'third-party-notices/synthetic-pkg'), {
+    recursive: true
+  })
+  await writeFile(
+    join(application, 'third-party-notices/synthetic-pkg/LICENSE'),
+    'Synthetic MIT notice\n'
+  )
 
   await mkdir(postgres, { recursive: true })
   await writeFile(join(postgres, 'COPYRIGHT'), 'Synthetic PostgreSQL notice\n')
@@ -896,4 +968,232 @@ export async function mutate() {
   await assert.rejects(stat(join(outSwappedLock, 'package-inventory.json')), {
     code: 'ENOENT'
   })
+})
+
+async function snapshotRecords(application) {
+  const snapshot = {}
+  for (const rel of [
+    'desktop-build.json',
+    '.next/desktop-build.json',
+    '.next/required-server-files.json',
+    '.next/BUILD_ID',
+    'package-lock.json'
+  ])
+    snapshot[rel] = sha256(await readFile(join(application, rel)))
+  return snapshot
+}
+
+test('stage-linux binds the complete application payload and refuses payload-only replacement during native bundling', async (t) => {
+  const { home, repo, bundleHookScript, runNode } = await createTempCheckout()
+  t.after(() => rm(home, { recursive: true, force: true }))
+
+  const commitA = git(repo, ['rev-parse', 'HEAD'])
+  assert.equal(runNode('apps/desktop/proof/build-application.mjs').status, 0)
+
+  const cases = [
+    [
+      'replaced-server',
+      `await writeFile(join(app, 'server.js'), '// replaced standalone server\\n')`
+    ],
+    [
+      'replaced-next-server',
+      `await writeFile(join(app, '.next/server/app.js'), '// replaced compiled route\\n')`
+    ],
+    [
+      'extra-next-server',
+      `await writeFile(join(app, '.next/server/injected.js'), '// injected route\\n')`
+    ],
+    [
+      'missing-static',
+      `await unlink(join(app, '.next/static/chunks/main.js'))`
+    ],
+    [
+      'symlinked-server',
+      `const decoy = join(app, '..', 'decoy-server.js')
+  await writeFile(decoy, await readFile(join(app, 'server.js')))
+  await unlink(join(app, 'server.js'))
+  await symlink(decoy, join(app, 'server.js'))`
+    ]
+  ]
+  for (const [label, mutation] of cases) {
+    const config = await createStageInputs(home, repo, `inputs-${label}`)
+    const app = config.application
+    const before = await snapshotRecords(app)
+    await writeFile(
+      bundleHookScript,
+      `import { readFile, symlink, unlink, writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
+export async function mutate() {
+  const app = ${JSON.stringify(app)}
+  ${mutation}
+}
+`
+    )
+    const out = join(home, `out-${label}`)
+    const cfgPath = join(home, `stage-${label}.json`)
+    await writeFile(
+      cfgPath,
+      JSON.stringify({ ...config, output: out, sourceCommit: commitA })
+    )
+    const res = runNode('apps/desktop/package/stage-linux.mjs', [cfgPath])
+    // Payload-only: every build record, required-server-files, BUILD_ID and lockfile stayed byte-identical.
+    assert.deepEqual(await snapshotRecords(app), before, label)
+    assert.notEqual(
+      res.status,
+      0,
+      `${label}: payload-only application change during bundling must fail closed`
+    )
+    await assert.rejects(stat(out), { code: 'ENOENT' }, label)
+  }
+  await unlink(bundleHookScript)
+
+  // A symlink planted before staging is refused before output creation.
+  const linked = await createStageInputs(home, repo, 'inputs-prelinked')
+  const decoy = join(home, 'decoy-app.js')
+  await writeFile(
+    decoy,
+    await readFile(join(linked.application, '.next/server/app.js'))
+  )
+  await unlink(join(linked.application, '.next/server/app.js'))
+  await symlink(decoy, join(linked.application, '.next/server/app.js'))
+  const outLinked = join(home, 'out-prelinked')
+  const cfgLinked = join(home, 'stage-prelinked.json')
+  await writeFile(
+    cfgLinked,
+    JSON.stringify({ ...linked, output: outLinked, sourceCommit: commitA })
+  )
+  const resLinked = runNode('apps/desktop/package/stage-linux.mjs', [cfgLinked])
+  assert.notEqual(resLinked.status, 0, 'symlinked application entry must fail')
+  await assert.rejects(stat(outLinked), { code: 'ENOENT' })
+
+  // Control: the untouched payload stages, and every application file is in the inventory.
+  const clean = await createStageInputs(home, repo, 'inputs-clean')
+  const outClean = join(home, 'out-payload-clean')
+  const cfgClean = join(home, 'stage-payload-clean.json')
+  await writeFile(
+    cfgClean,
+    JSON.stringify({ ...clean, output: outClean, sourceCommit: commitA })
+  )
+  const resClean = runNode('apps/desktop/package/stage-linux.mjs', [cfgClean])
+  assert.equal(resClean.status, 0, resClean.stderr)
+  const inventory = JSON.parse(
+    await readFile(join(outClean, 'package-inventory.json'), 'utf8')
+  )
+  const appEntries = inventory.files
+    .filter((file) => file.path.startsWith('application/'))
+    .map((file) => file.path.slice('application/'.length))
+    .sort()
+  assert.deepEqual(appEntries, (await listFiles(clean.application)).sort())
+})
+
+test('stage-linux acquires its output directory exclusively and never removes a directory it did not create', async (t) => {
+  const { home, repo, bundleHookScript, runNode } = await createTempCheckout()
+  t.after(() => rm(home, { recursive: true, force: true }))
+
+  const commitA = git(repo, ['rev-parse', 'HEAD'])
+  assert.equal(runNode('apps/desktop/proof/build-application.mjs').status, 0)
+  const baseConfig = await createStageInputs(home, repo)
+
+  // 1. Output already present before staging starts.
+  const outExisting = join(home, 'out-existing')
+  await mkdir(outExisting)
+  await writeFile(join(outExisting, 'owner.txt'), 'other invocation\n')
+  const cfgExisting = join(home, 'stage-existing.json')
+  await writeFile(
+    cfgExisting,
+    JSON.stringify({
+      ...baseConfig,
+      output: outExisting,
+      sourceCommit: commitA
+    })
+  )
+  const resExisting = runNode('apps/desktop/package/stage-linux.mjs', [
+    cfgExisting
+  ])
+  assert.notEqual(resExisting.status, 0, 'existing output must fail closed')
+  assert.deepEqual(await readdir(outExisting), ['owner.txt'])
+
+  // 2. A concurrent invocation creates the output between any absence check and acquisition.
+  for (const [label, failBundling] of [
+    ['race-success', false],
+    ['race-failure', true]
+  ]) {
+    const out = join(home, `out-${label}`)
+    const preload = join(home, `preload-${label}.mjs`)
+    await writeFile(
+      preload,
+      `import fsp from 'node:fs/promises'
+import { syncBuiltinESMExports } from 'node:module'
+import { join } from 'node:path'
+const original = fsp.mkdir
+fsp.mkdir = async (path, options) => {
+  if (path === ${JSON.stringify(out)}) {
+    await original(path)
+    await fsp.writeFile(join(path, 'owner.txt'), 'other invocation\\n')
+  }
+  return original(path, options)
+}
+syncBuiltinESMExports()
+`
+    )
+    if (failBundling)
+      await writeFile(
+        bundleHookScript,
+        `export async function mutate() { throw new Error('synthetic bundling failure') }\n`
+      )
+    const cfgPath = join(home, `stage-${label}.json`)
+    await writeFile(
+      cfgPath,
+      JSON.stringify({ ...baseConfig, output: out, sourceCommit: commitA })
+    )
+    const res = runNode('apps/desktop/package/stage-linux.mjs', [cfgPath], {
+      nodeArgs: ['--import', preload]
+    })
+    if (failBundling) await unlink(bundleHookScript)
+    assert.notEqual(
+      res.status,
+      0,
+      `${label}: concurrently created output must fail closed`
+    )
+    assert.deepEqual(
+      await readdir(out),
+      ['owner.txt'],
+      `${label}: the other invocation's output must survive untouched`
+    )
+  }
+})
+
+test('stage-linux refuses output paths with symlinked or missing parent components', async (t) => {
+  const { home, repo, runNode } = await createTempCheckout()
+  t.after(() => rm(home, { recursive: true, force: true }))
+
+  const commitA = git(repo, ['rev-parse', 'HEAD'])
+  assert.equal(runNode('apps/desktop/proof/build-application.mjs').status, 0)
+  const baseConfig = await createStageInputs(home, repo)
+
+  const realParent = join(home, 'real-parent')
+  await mkdir(join(realParent, 'nested'), { recursive: true })
+  await symlink(realParent, join(home, 'link-parent'))
+  for (const [label, output, mustNotExist] of [
+    [
+      'symlink-parent',
+      join(home, 'link-parent', 'out'),
+      join(realParent, 'out')
+    ],
+    [
+      'symlink-ancestor',
+      join(home, 'link-parent', 'nested', 'out'),
+      join(realParent, 'nested', 'out')
+    ],
+    ['missing-parent', join(home, 'missing', 'out'), join(home, 'missing')]
+  ]) {
+    const cfgPath = join(home, `stage-${label}.json`)
+    await writeFile(
+      cfgPath,
+      JSON.stringify({ ...baseConfig, output, sourceCommit: commitA })
+    )
+    const res = runNode('apps/desktop/package/stage-linux.mjs', [cfgPath])
+    assert.notEqual(res.status, 0, `${label}: output path must be refused`)
+    await assert.rejects(stat(mustNotExist), { code: 'ENOENT' }, label)
+  }
 })

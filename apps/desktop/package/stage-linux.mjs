@@ -1,20 +1,21 @@
 import {
   cp,
+  lstat,
   mkdir,
   readFile,
   rm,
   writeFile,
-  stat,
   readdir
 } from 'node:fs/promises'
-import { resolve, join, dirname, isAbsolute } from 'node:path'
+import { resolve, join, dirname, isAbsolute, parse, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
 import {
   captureCleanCheckoutProvenance,
   requireCleanBuildEnvironment,
   verifyRecordedDesktopBuild,
-  verifyApplicationLockfile
+  verifyApplicationLockfile,
+  verifyApplicationPayload
 } from './build-profile.mjs'
 import { updateConfiguration } from '../launcher/updates.mjs'
 import { buildNativeAddons } from '../../addons/build-native.mjs'
@@ -52,45 +53,31 @@ function parseCliArgs(argv) {
 }
 
 async function verifyStagedApplication(appDir, expectedProvenance) {
+  const recordPath = join(appDir, 'desktop-build.json')
   const record = await verifyRecordedDesktopBuild(
     appDir,
-    join(appDir, 'desktop-build.json'),
+    recordPath,
     expectedProvenance
   )
   const nestedRecordPath = join(appDir, '.next/desktop-build.json')
-  const hasNestedRecord = await stat(nestedRecordPath)
-    .then(() => true)
-    .catch((error) => {
-      if (error.code === 'ENOENT') return false
-      throw error
-    })
-  if (hasNestedRecord) {
+  const nestedRecord = await readFile(nestedRecordPath).catch((error) => {
+    if (error.code === 'ENOENT') return null
+    throw error
+  })
+  if (nestedRecord !== null) {
     await verifyRecordedDesktopBuild(
       appDir,
       nestedRecordPath,
       expectedProvenance
     )
+    if (!nestedRecord.equals(await readFile(recordPath)))
+      throw new Error(
+        'Nested desktop build record disagrees with the root record'
+      )
   }
   await verifyApplicationLockfile(appDir, expectedProvenance.packageLockSha256)
-  const trackedRelPaths = [
-    'desktop-build.json',
-    '.next/required-server-files.json',
-    '.next/BUILD_ID',
-    ...(hasNestedRecord ? ['.next/desktop-build.json'] : [])
-  ]
-  const lockPath = join(appDir, 'package-lock.json')
-  const hasLockfile = await stat(lockPath)
-    .then(() => true)
-    .catch((error) => {
-      if (error.code === 'ENOENT') return false
-      throw error
-    })
-  if (hasLockfile) trackedRelPaths.push('package-lock.json')
-  const digests = new Map()
-  for (const rel of trackedRelPaths) {
-    const bytes = await readFile(join(appDir, rel))
-    digests.set(rel, createHash('sha256').update(bytes).digest('hex'))
-  }
+  // Every file is re-hashed against the payload manifest bound at build time.
+  const digests = await verifyApplicationPayload(appDir, record)
   return { record, digests }
 }
 
@@ -100,6 +87,31 @@ function sameDigests(left, right) {
     if (right.get(key) !== value) return false
   }
   return true
+}
+
+// Every existing component above the output must be a real directory, never a symlink.
+async function requireRealOutputParent(output) {
+  if (resolve(output) !== output)
+    throw new Error('Normalized absolute output path required')
+  const { root } = parse(output)
+  const parent = dirname(output)
+  if (parent === output) throw new Error('Output must not be a filesystem root')
+  let current = root
+  for (const part of parent.slice(root.length).split(sep).filter(Boolean)) {
+    current = join(current, part)
+    let info
+    try {
+      info = await lstat(current)
+    } catch (error) {
+      if (error.code === 'ENOENT')
+        throw new Error('Package output parent directory must already exist')
+      throw error
+    }
+    if (info.isSymbolicLink())
+      throw new Error('Package output path must not traverse a symlink')
+    if (!info.isDirectory())
+      throw new Error('Package output parent must be a directory')
+  }
 }
 
 const { configPath, cliSourceCommit } = parseCliArgs(process.argv.slice(2))
@@ -152,16 +164,21 @@ const expectedProvenance = {
   sourceCommit,
   packageLockSha256: sourceLockSha256
 }
+await requireRealOutputParent(config.output)
 const { record: buildRecord, digests: initialAppDigests } =
   await verifyStagedApplication(config.application, expectedProvenance)
+await requireRealOutputParent(config.output)
+// Atomic single-directory acquisition: EEXIST means another owner, so fail without touching it.
+let createdOutputDir = false
 try {
-  await stat(config.output)
-  throw new Error('Package output already exists')
+  await mkdir(config.output, { mode: 0o700 })
 } catch (error) {
-  if (error.code !== 'ENOENT') throw error
+  if (error.code === 'EEXIST') throw new Error('Package output already exists')
+  throw error
 }
-await mkdir(config.output, { recursive: true, mode: 0o700 })
+createdOutputDir = true
 try {
+  await requireRealOutputParent(config.output)
   await buildNativeAddons(join(config.output, 'apps/desktop/addons'))
   if (config.addonPolicy && !isAbsolute(config.addonPolicy))
     throw new Error('Absolute add-on policy path required')
@@ -172,7 +189,11 @@ try {
   )
   const copy = (from, to) =>
     cp(from, join(config.output, to), { recursive: true, dereference: true })
-  await copy(config.application, 'application')
+  // Preserve symlinks verbatim so the copied-tree check refuses them instead of following them.
+  await cp(config.application, join(config.output, 'application'), {
+    recursive: true,
+    verbatimSymlinks: true
+  })
   const copiedApplication = join(config.output, 'application')
   const copiedAppCheck = await verifyStagedApplication(
     copiedApplication,
@@ -336,6 +357,13 @@ try {
   const inventoryHashes = new Map(
     inventory.map((entry) => [entry.path.replaceAll('\\', '/'), entry.sha256])
   )
+  const inventoryApplicationPaths = [...inventoryHashes.keys()].filter((path) =>
+    path.startsWith('application/')
+  )
+  if (inventoryApplicationPaths.length !== verifiedCopiedApp.digests.size)
+    throw new Error(
+      'Copied application provenance disagrees with package inventory'
+    )
   for (const [rel, expectedSha] of verifiedCopiedApp.digests.entries()) {
     if (inventoryHashes.get(`application/${rel}`) !== expectedSha)
       throw new Error(
@@ -364,6 +392,8 @@ try {
     })
   )
 } catch (error) {
-  await rm(config.output, { recursive: true, force: true })
+  // Only remove an output directory this invocation created.
+  if (createdOutputDir)
+    await rm(config.output, { recursive: true, force: true })
   throw error
 }

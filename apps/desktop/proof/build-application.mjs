@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process'
 import { dirname, resolve, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
+  captureApplicationPayload,
   captureCleanCheckoutProvenance,
   desktopBuildEnvironment,
   desktopBuildRecord,
@@ -60,12 +61,15 @@ if (
   afterBuild.packageLockSha256 !== beforeBuild.packageLockSha256
 )
   throw new Error('Desktop checkout provenance changed during build')
+// Bind every file stage-standalone.mjs will package, not only the build metadata.
+const applicationFiles = await captureApplicationPayload(root)
 const record = desktopBuildRecord(
   await readFile(join(root, '.next/required-server-files.json'), 'utf8'),
   await readFile(join(root, '.next/BUILD_ID'), 'utf8'),
   {
     sourceCommit: beforeBuild.sourceCommit,
-    packageLockSha256: beforeBuild.packageLockSha256
+    packageLockSha256: beforeBuild.packageLockSha256,
+    applicationFiles
   }
 )
 await writeFile(recordPath, JSON.stringify(record, null, 2), { mode: 0o600 })
