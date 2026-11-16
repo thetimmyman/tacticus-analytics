@@ -16,7 +16,7 @@ import {
   writeFile
 } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { delimiter, dirname, join, resolve } from 'node:path'
+import { basename, delimiter, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
@@ -910,9 +910,20 @@ test('stage-linux refuses a tampered generated notice inventory from the real st
   }
   for (const [label, tamper, message] of [
     [
-      'notice-digest',
+      'traced-notice-digest',
       edit((inventory) => {
-        inventory.packages[0].notices[0].sha256 = 'a'.repeat(64)
+        inventory.packages[0].notices.find(
+          (notice) => notice.origin === 'traced-package'
+        ).sha256 = 'a'.repeat(64)
+      }),
+      /traced notice disagrees with the bound payload/
+    ],
+    [
+      'source-notice-digest',
+      edit((inventory) => {
+        inventory.packages[0].notices.find(
+          (notice) => notice.origin === 'installed-source-package'
+        ).sha256 = 'a'.repeat(64)
       }),
       /notice inventory does not match staged notice/
     ],
@@ -1250,10 +1261,10 @@ test('stage-linux acquires its output directory exclusively and never removes a 
       preload,
       `import fsp from 'node:fs/promises'
 import { syncBuiltinESMExports } from 'node:module'
-import { join, resolve } from 'node:path'
+import { basename, join } from 'node:path'
 const original = fsp.mkdir
 fsp.mkdir = async (path, options) => {
-  if (resolve(String(path)) === ${JSON.stringify(out)}) {
+  if (basename(String(path)) === ${JSON.stringify(basename(out))}) {
     await original(path)
     await fsp.writeFile(join(path, 'owner.txt'), 'other invocation\\n')
   }
@@ -1324,6 +1335,29 @@ test('stage-linux refuses output paths with symlinked or missing parent componen
   }
 })
 
+// Each swap leaves a victim directory with one sentinel; the victim must survive untouched.
+const OUTPUT_SWAPS = {
+  'parent-symlink': (parent, out, victim) => `
+  await fsp.rename(${JSON.stringify(parent)}, ${JSON.stringify(parent + '-moved')})
+  await fsp.mkdir(${JSON.stringify(join(victim, 'out'))}, { recursive: true })
+  await fsp.writeFile(${JSON.stringify(join(victim, 'out', 'owner.txt'))}, 'victim\\n')
+  await fsp.symlink(${JSON.stringify(victim)}, ${JSON.stringify(parent)})`,
+  'output-directory': (_parent, out) => `
+  await fsp.rename(${JSON.stringify(out)}, ${JSON.stringify(out + '-moved')})
+  await fsp.mkdir(${JSON.stringify(out)})
+  await fsp.writeFile(${JSON.stringify(join(out, 'owner.txt'))}, 'victim\\n')`,
+  'output-symlink': (parent, out, victim) => `
+  await fsp.rename(${JSON.stringify(out)}, ${JSON.stringify(out + '-moved')})
+  await fsp.mkdir(${JSON.stringify(victim)}, { recursive: true })
+  await fsp.writeFile(${JSON.stringify(join(victim, 'owner.txt'))}, 'victim\\n')
+  await fsp.symlink(${JSON.stringify(victim)}, ${JSON.stringify(out)})`
+}
+const OUTPUT_SWAP_VICTIM = {
+  'parent-symlink': (victim) => join(victim, 'out'),
+  'output-directory': (victim, out) => out,
+  'output-symlink': (victim) => victim
+}
+
 // Runs stage-linux with a swap injected at one point and asserts cleanup never deletes through it.
 test('stage-linux cleanup refuses to delete through a replaced parent or a replaced output directory', async (t) => {
   const { home, repo, bundleHookScript, runNode } = await createTempCheckout()
@@ -1333,28 +1367,8 @@ test('stage-linux cleanup refuses to delete through a replaced parent or a repla
   assert.equal(runNode('apps/desktop/proof/build-application.mjs').status, 0)
   const baseConfig = await createStageInputs(home, repo)
 
-  // Each swap leaves a victim directory with one sentinel; the victim must survive untouched.
-  const swaps = {
-    'parent-symlink': (parent, out, victim) => `
-  await fsp.rename(${JSON.stringify(parent)}, ${JSON.stringify(parent + '-moved')})
-  await fsp.mkdir(${JSON.stringify(join(victim, 'out'))}, { recursive: true })
-  await fsp.writeFile(${JSON.stringify(join(victim, 'out', 'owner.txt'))}, 'victim\\n')
-  await fsp.symlink(${JSON.stringify(victim)}, ${JSON.stringify(parent)})`,
-    'output-directory': (_parent, out) => `
-  await fsp.rename(${JSON.stringify(out)}, ${JSON.stringify(out + '-moved')})
-  await fsp.mkdir(${JSON.stringify(out)})
-  await fsp.writeFile(${JSON.stringify(join(out, 'owner.txt'))}, 'victim\\n')`,
-    'output-symlink': (parent, out, victim) => `
-  await fsp.rename(${JSON.stringify(out)}, ${JSON.stringify(out + '-moved')})
-  await fsp.mkdir(${JSON.stringify(victim)}, { recursive: true })
-  await fsp.writeFile(${JSON.stringify(join(victim, 'owner.txt'))}, 'victim\\n')
-  await fsp.symlink(${JSON.stringify(victim)}, ${JSON.stringify(out)})`
-  }
-  const victimOf = {
-    'parent-symlink': (victim) => join(victim, 'out'),
-    'output-directory': (victim, out) => out,
-    'output-symlink': (victim) => victim
-  }
+  const swaps = OUTPUT_SWAPS
+  const victimOf = OUTPUT_SWAP_VICTIM
 
   const outcomes = []
   for (const when of ['after-acquisition', 'during-bundling']) {
@@ -1372,12 +1386,12 @@ test('stage-linux cleanup refuses to delete through a replaced parent or a repla
           preload,
           `import fsp from 'node:fs/promises'
 import { syncBuiltinESMExports } from 'node:module'
-import { resolve } from 'node:path'
+import { basename } from 'node:path'
 const original = fsp.mkdir
 let swapped = false
 fsp.mkdir = async (path, options) => {
   const result = await original(path, options)
-  if (!swapped && resolve(String(path)) === ${JSON.stringify(out)}) {
+  if (!swapped && basename(String(path)) === 'out') {
     swapped = true
 ${swap(parent, out, victim)}
   }
@@ -1443,4 +1457,212 @@ ${when === 'during-bundling' ? swap(parent, out, victim) : ''}
   assert.notEqual(res.status, 0)
   assert.doesNotMatch(res.stderr, /Refusing to remove package output/)
   assert.deepEqual(await readdir(parent), [])
+})
+
+test('stage-linux refuses an output parent other users can rename entries in, unless it is sticky', async (t) => {
+  const { home, repo, runNode } = await createTempCheckout()
+  t.after(() => rm(home, { recursive: true, force: true }))
+
+  const commitA = git(repo, ['rev-parse', 'HEAD'])
+  assert.equal(runNode('apps/desktop/proof/build-application.mjs').status, 0)
+  const baseConfig = await createStageInputs(home, repo)
+
+  const outcomes = []
+  for (const [label, parentMode, ancestorMode, accepted] of [
+    ['world-writable-parent', 0o777, null, false],
+    ['group-writable-parent', 0o770, null, false],
+    ['world-writable-ancestor', 0o700, 0o777, false],
+    ['sticky-world-writable-parent', 0o1777, null, true],
+    ['private-parent', 0o700, null, true]
+  ]) {
+    const ancestor = join(home, `ancestor-${label}`)
+    const parent = join(ancestor, 'parent')
+    const out = join(parent, 'out')
+    await mkdir(parent, { recursive: true })
+    await chmod(parent, parentMode)
+    if (ancestorMode !== null) await chmod(ancestor, ancestorMode)
+    const cfgPath = join(home, `stage-${label}.json`)
+    await writeFile(
+      cfgPath,
+      JSON.stringify({ ...baseConfig, output: out, sourceCommit: commitA })
+    )
+    const res = runNode('apps/desktop/package/stage-linux.mjs', [cfgPath])
+    const created = await stat(join(out, 'package-inventory.json')).then(
+      () => 'staged',
+      () => (accepted ? res.stderr : 'absent')
+    )
+    outcomes.push([
+      label,
+      res.status === 0,
+      accepted ||
+        /must not be writable by other users unless sticky/.test(res.stderr),
+      accepted ? created : await readdir(parent)
+    ])
+    await chmod(ancestor, 0o700)
+  }
+  assert.deepEqual(outcomes, [
+    ['world-writable-parent', false, true, []],
+    ['group-writable-parent', false, true, []],
+    ['world-writable-ancestor', false, true, []],
+    ['sticky-world-writable-parent', true, true, 'staged'],
+    ['private-parent', true, true, 'staged']
+  ])
+})
+
+// The swap lands after cleanup has checked the discard entry and before it removes anything.
+test('stage-linux cleanup removes only through the pinned output descriptor and refuses a swap between check and removal', async (t) => {
+  const { home, repo, runNode } = await createTempCheckout()
+  t.after(() => rm(home, { recursive: true, force: true }))
+
+  const commitA = git(repo, ['rev-parse', 'HEAD'])
+  assert.equal(runNode('apps/desktop/proof/build-application.mjs').status, 0)
+  const baseConfig = await createStageInputs(home, repo)
+  // An invalid update configuration fails staging after most of the package is written.
+  const badUpdates = join(home, 'bad-updates.json')
+  await writeFile(badUpdates, '{ not json')
+
+  const parent = join(home, 'parent-check-swap')
+  const out = join(parent, 'out')
+  await mkdir(parent)
+  const preload = join(home, 'preload-check-swap.mjs')
+  await writeFile(
+    preload,
+    `import fsp from 'node:fs/promises'
+import { syncBuiltinESMExports } from 'node:module'
+import { basename, join } from 'node:path'
+let swapped = false
+async function swap(path) {
+  if (swapped || !basename(String(path)).startsWith('.out.discard-')) return
+  swapped = true
+  await fsp.rename(path, String(path) + '-moved')
+  await fsp.mkdir(path)
+  await fsp.writeFile(join(String(path), 'owner.txt'), 'replacement\\n')
+}
+for (const name of ['lstat', 'stat', 'open']) {
+  const original = fsp[name]
+  fsp[name] = async (path, ...rest) => {
+    const result = await original(path, ...rest)
+    await swap(path)
+    return result
+  }
+}
+syncBuiltinESMExports()
+`
+  )
+  const cfgPath = join(home, 'stage-check-swap.json')
+  await writeFile(
+    cfgPath,
+    JSON.stringify({
+      ...baseConfig,
+      output: out,
+      sourceCommit: commitA,
+      updateConfig: badUpdates
+    })
+  )
+  const res = runNode('apps/desktop/package/stage-linux.mjs', [cfgPath], {
+    nodeArgs: ['--import', preload]
+  })
+  assert.notEqual(res.status, 0)
+  const entries = (await readdir(parent)).sort()
+  assert.equal(entries.length, 2, entries.join(','))
+  const [replacement, moved] = entries
+  assert.match(replacement, /^\.out\.discard-[0-9a-f]+$/)
+  assert.equal(moved, `${replacement}-moved`)
+  assert.deepEqual(
+    {
+      replacement: await readdir(join(parent, replacement)),
+      original: await readdir(join(parent, moved)),
+      refused: /Refusing to remove package output/.test(res.stderr)
+    },
+    { replacement: ['owner.txt'], original: [], refused: true },
+    'the replacement survives; removal emptied only the pinned original'
+  )
+})
+
+test('stage-linux fails closed before writing anything else when bundling or a later phase replaces the output and returns normally', async (t) => {
+  const { home, repo, bundleHookScript, runNode } = await createTempCheckout()
+  t.after(() => rm(home, { recursive: true, force: true }))
+
+  const commitA = git(repo, ['rev-parse', 'HEAD'])
+  assert.equal(runNode('apps/desktop/proof/build-application.mjs').status, 0)
+  const baseConfig = await createStageInputs(home, repo)
+
+  const outcomes = []
+  for (const when of ['during-bundling', 'during-update-config-write']) {
+    for (const [kind, swap] of Object.entries(OUTPUT_SWAPS)) {
+      const label = `${when}-${kind}`
+      const parent = join(home, `parent-${label}`)
+      const out = join(parent, 'out')
+      const victim = join(home, `victim-${label}`)
+      await mkdir(parent)
+      const nodeArgs = []
+      if (when === 'during-bundling') {
+        // The bundler swaps the output and then returns successfully.
+        await writeFile(
+          bundleHookScript,
+          `import fsp from 'node:fs/promises'
+export async function mutate() {
+${swap(parent, out, victim)}
+}
+`
+        )
+      } else {
+        // A later phase swaps the output just before staging writes updates.json.
+        const preload = join(home, `preload-${label}.mjs`)
+        await writeFile(
+          preload,
+          `import fsp from 'node:fs/promises'
+import { syncBuiltinESMExports } from 'node:module'
+import { basename } from 'node:path'
+const original = fsp.writeFile
+let swapped = false
+fsp.writeFile = async (path, ...rest) => {
+  if (!swapped && basename(String(path)) === 'updates.json') {
+    swapped = true
+${swap(parent, out, victim)}
+  }
+  return original(path, ...rest)
+}
+syncBuiltinESMExports()
+`
+        )
+        nodeArgs.push('--import', preload)
+      }
+      const cfgPath = join(home, `stage-${label}.json`)
+      await writeFile(
+        cfgPath,
+        JSON.stringify({ ...baseConfig, output: out, sourceCommit: commitA })
+      )
+      const res = runNode('apps/desktop/package/stage-linux.mjs', [cfgPath], {
+        nodeArgs
+      })
+      await unlink(bundleHookScript).catch(() => {})
+      const survivor = await readdir(OUTPUT_SWAP_VICTIM[kind](victim, out))
+        .then((names) => names.sort())
+        .catch((error) => error.code)
+      // The moved original must not have received an inventory either.
+      const movedOriginal =
+        kind === 'parent-symlink'
+          ? join(`${parent}-moved`, 'out')
+          : `${out}-moved`
+      const published = await stat(
+        join(movedOriginal, 'package-inventory.json')
+      ).then(
+        () => true,
+        () => false
+      )
+      outcomes.push([
+        label,
+        res.status !== 0,
+        survivor,
+        /Package output directory changed identity/.test(res.stderr),
+        published
+      ])
+    }
+  }
+  assert.deepEqual(
+    outcomes,
+    outcomes.map(([label]) => [label, true, ['owner.txt'], true, false]),
+    '[label, staging failed, replacement contents, identity refusal, inventory published]'
+  )
 })

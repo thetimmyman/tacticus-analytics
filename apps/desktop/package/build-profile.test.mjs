@@ -401,3 +401,183 @@ test('application payload manifest is canonical and refuses tampered or unbound 
     await rm(root, { recursive: true, force: true })
   }
 })
+
+// Coordinated tampering: the inventory and the staged copies are rewritten together, so
+// self-consistency holds; only derivation from the bound payload can refuse them.
+test('application notice inventory derives traced notices and digests from the bound payload', async () => {
+  const requiredFiles = JSON.stringify({
+    config: {
+      output: 'standalone',
+      experimental: { proxyClientMaxBodySize: 24 * 1024 * 1024 }
+    }
+  })
+  const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
+  const payload = {
+    'server.js': '// synthetic server\n',
+    'node_modules/synthetic-pkg/package.json': JSON.stringify({
+      name: 'synthetic-pkg',
+      version: '1.0.0',
+      license: 'MIT'
+    }),
+    'node_modules/synthetic-pkg/LICENSE': 'Synthetic MIT notice\n',
+    'node_modules/synthetic-pkg/docs/NOTICE': 'Synthetic nested notice\n',
+    // The stager skips empty notices and anything under a nested node_modules.
+    'node_modules/synthetic-pkg/COPYING': '',
+    'node_modules/synthetic-pkg/node_modules/inner/LICENSE': 'Inner notice\n',
+    'node_modules/synthetic-pkg/node_modules/inner/package.json':
+      JSON.stringify({ name: 'inner', version: '2.0.0', license: 'ISC' }),
+    'node_modules/bare-pkg/package.json': JSON.stringify({
+      name: 'bare-pkg',
+      version: '3.0.0',
+      license: 'MIT'
+    }),
+    'node_modules/bare-pkg/index.js': 'module.exports = 3\n'
+  }
+  const applicationFiles = Object.entries(payload)
+    .map(([path, bytes]) => ({
+      path,
+      bytes: Buffer.byteLength(bytes),
+      sha256: sha(bytes)
+    }))
+    .sort((a, b) => (a.path < b.path ? -1 : 1))
+  const record = desktopBuildRecord(requiredFiles, 'build-1', {
+    applicationFiles
+  })
+
+  async function stage() {
+    const root = await mkdtemp(join(tmpdir(), 'desktop-notice-derive-'))
+    for (const [path, bytes] of Object.entries(payload)) {
+      await mkdir(dirname(join(root, path)), { recursive: true })
+      await writeFile(join(root, path), bytes)
+    }
+    await writeFile(join(root, 'desktop-build.json'), JSON.stringify(record))
+    // An installed source copy contributes one extra notice for bare-pkg.
+    const sourceModules = await mkdtemp(join(tmpdir(), 'desktop-source-mods-'))
+    await mkdir(join(sourceModules, 'bare-pkg'), { recursive: true })
+    await writeFile(
+      join(sourceModules, 'bare-pkg/package.json'),
+      payload['node_modules/bare-pkg/package.json']
+    )
+    await writeFile(join(sourceModules, 'bare-pkg/NOTICE'), 'Source notice\n')
+    try {
+      await stageApplicationNotices({ application: root, sourceModules })
+    } finally {
+      await rm(sourceModules, { recursive: true, force: true })
+    }
+    return root
+  }
+
+  // Control: the real stager's output is accepted, including the source-only notice.
+  const control = await stage()
+  try {
+    const digests = await verifyApplicationPayload(control, record)
+    assert.deepEqual(
+      [...digests.keys()]
+        .filter((rel) => rel.startsWith('third-party-'))
+        .sort(),
+      [
+        'third-party-notices/bare-pkg/NOTICE',
+        'third-party-notices/synthetic-pkg/LICENSE',
+        'third-party-notices/synthetic-pkg/docs/NOTICE',
+        'third-party-notices/synthetic-pkg/node_modules/inner/LICENSE'
+      ]
+    )
+  } finally {
+    await rm(control, { recursive: true, force: true })
+  }
+
+  const entryOf = (inventory, packagePath) =>
+    inventory.packages.find((entry) => entry.packagePath === packagePath)
+  const cases = {
+    // Sol 1: altered traced license copy, inventory digest updated to match the copy.
+    'altered-traced-copy': async (root, inventory) => {
+      const forged = 'Forged licence text\n'
+      await writeFile(
+        join(root, 'third-party-notices/synthetic-pkg/LICENSE'),
+        forged
+      )
+      entryOf(inventory, 'synthetic-pkg').notices.find(
+        (notice) => notice.path === 'third-party-notices/synthetic-pkg/LICENSE'
+      ).sha256 = sha(forged)
+    },
+    // Sol 2: every copied notice removed and the package marked review-required.
+    'review-required-despite-bound-license': async (root, inventory) => {
+      await rm(join(root, 'third-party-notices/synthetic-pkg/LICENSE'))
+      await rm(join(root, 'third-party-notices/synthetic-pkg/docs'), {
+        recursive: true
+      })
+      const entry = entryOf(inventory, 'synthetic-pkg')
+      entry.notices = []
+      entry.status = 'review-required'
+      inventory.packagesRequiringReview += 1
+    },
+    // One bound traced notice dropped from both the copies and the inventory.
+    'dropped-traced-notice': async (root, inventory) => {
+      await rm(join(root, 'third-party-notices/synthetic-pkg/docs'), {
+        recursive: true
+      })
+      const entry = entryOf(inventory, 'synthetic-pkg')
+      entry.notices = entry.notices.filter(
+        (notice) => !notice.path.endsWith('/docs/NOTICE')
+      )
+    },
+    // A bound traced notice relabelled as coming from the installed source tree.
+    'traced-relabelled-as-source': async (_root, inventory) => {
+      entryOf(inventory, 'synthetic-pkg').notices.find(
+        (notice) => notice.path === 'third-party-notices/synthetic-pkg/LICENSE'
+      ).origin = 'installed-source-package'
+    },
+    // An invented traced notice that is not in the bound payload.
+    'invented-traced-notice': async (root, inventory) => {
+      const invented = 'Invented notice\n'
+      await writeFile(
+        join(root, 'third-party-notices/bare-pkg/LICENSE'),
+        invented
+      )
+      entryOf(inventory, 'bare-pkg').notices.push({
+        path: 'third-party-notices/bare-pkg/LICENSE',
+        origin: 'traced-package',
+        sha256: sha(invented)
+      })
+    },
+    // A source notice must not shadow a traced notice of the same name.
+    'source-notice-shadows-traced': async (root, inventory) => {
+      const shadow = 'Shadow notice\n'
+      await writeFile(
+        join(root, 'third-party-notices/synthetic-pkg/LICENSE'),
+        shadow
+      )
+      const notice = entryOf(inventory, 'synthetic-pkg').notices.find(
+        (item) => item.path === 'third-party-notices/synthetic-pkg/LICENSE'
+      )
+      notice.origin = 'installed-source-package'
+      notice.sha256 = sha(shadow)
+    }
+  }
+  const outcomes = []
+  for (const [label, tamper] of Object.entries(cases)) {
+    const root = await stage()
+    try {
+      const noticesPath = join(root, 'application-notices.json')
+      const inventory = JSON.parse(await readFile(noticesPath, 'utf8'))
+      await tamper(root, inventory)
+      await writeFile(noticesPath, JSON.stringify(inventory, null, 2))
+      const error = await verifyApplicationPayload(root, record).then(
+        () => null,
+        (reason) => reason.message
+      )
+      outcomes.push([
+        label,
+        /disagree(s)? with the bound payload/.test(error ?? '')
+          ? 'refused'
+          : (error ?? 'accepted')
+      ])
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  }
+  assert.deepEqual(
+    outcomes,
+    Object.keys(cases).map((label) => [label, 'refused'])
+  )
+})

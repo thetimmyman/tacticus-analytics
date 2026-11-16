@@ -377,7 +377,8 @@ export async function verifyApplicationPayload(applicationDirectory, record) {
   verifyApplicationNotices(
     retained.get(APPLICATION_NOTICE_INVENTORY),
     digests,
-    packages
+    packages,
+    manifest
   )
   return new Map([...digests].map(([rel, value]) => [rel, value.sha256]))
 }
@@ -391,12 +392,40 @@ const hasExactKeys = (value, keys) =>
 const isPackagePath = (path) => path === '' || isSafeRelativePath(path)
 
 /**
- * Validate application-notices.json exactly as application-notices.mjs generates it:
- * canonical bytes, one entry per bound node_modules package manifest with matching
- * metadata, and notice paths under third-party-notices/<packagePath>/ whose digests
- * match the staged files. Every staged notice file must be listed.
+ * The traced notices application-notices.mjs must copy for one package, derived from the
+ * bound payload: every nonempty bound file under node_modules/<packagePath>/ whose name is
+ * a notice name and whose path has no nested node_modules segment. Maps the staged
+ * third-party-notices path to the bound digest.
  */
-function verifyApplicationNotices(bytes, digests, packages) {
+function boundTracedNotices(packagePath, manifest) {
+  const root = packagePath ? `node_modules/${packagePath}/` : 'node_modules/'
+  const prefix = packagePath
+    ? `third-party-notices/${packagePath}/`
+    : 'third-party-notices/'
+  const notices = new Map()
+  for (const [rel, file] of manifest) {
+    if (!rel.startsWith(root)) continue
+    const within = rel.slice(root.length)
+    if (
+      file.bytes === 0 ||
+      within.split('/').slice(0, -1).includes('node_modules') ||
+      !isApplicationNoticeName(basename(within))
+    )
+      continue
+    notices.set(`${prefix}${within}`, file.sha256)
+  }
+  return notices
+}
+
+/**
+ * Validate application-notices.json against the bound payload and the staged copies:
+ * canonical bytes; one entry per bound node_modules package manifest with matching
+ * metadata; exactly the traced-package notices derived from the bound payload, each with
+ * the bound digest; installed-source-package notices only beside them, matching their
+ * staged copies. Every staged notice file must be listed. The bytes of source-only
+ * notices come from the installed source tree, not the build record.
+ */
+function verifyApplicationNotices(bytes, digests, packages, manifest) {
   if (!bytes)
     throw new Error(
       'Staged application-notices.json is missing; restage with stage-standalone.mjs'
@@ -480,6 +509,7 @@ function verifyApplicationNotices(bytes, digests, packages) {
       ? `third-party-notices/${packagePath}/`
       : 'third-party-notices/'
     const paths = new Set()
+    const traced = boundTracedNotices(packagePath, manifest)
     for (const notice of entry.notices) {
       if (
         !hasExactKeys(notice, 'origin,path,sha256') ||
@@ -501,12 +531,25 @@ function verifyApplicationNotices(bytes, digests, packages) {
           `Staged application notice inventory path is invalid: ${notice.path}`
         )
       paths.add(notice.path)
+      // A bound traced notice is listed as traced, with its bound digest; nothing else is.
+      if (
+        (notice.origin === 'traced-package') !== traced.has(notice.path) ||
+        (traced.has(notice.path) && traced.get(notice.path) !== notice.sha256)
+      )
+        throw new Error(
+          `Staged application notice inventory traced notice disagrees with the bound payload: ${notice.path}`
+        )
       if (digests.get(notice.path)?.sha256 !== notice.sha256)
         throw new Error(
           `Staged application notice inventory does not match staged notice: ${notice.path}`
         )
       listed.add(notice.path)
     }
+    for (const path of traced.keys())
+      if (!paths.has(path))
+        throw new Error(
+          `Staged application notice inventory omits a traced notice and disagrees with the bound payload: ${path}`
+        )
     const status = entry.notices.length
       ? 'notices-preserved'
       : 'review-required'
