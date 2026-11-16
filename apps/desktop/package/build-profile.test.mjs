@@ -1,5 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
 import {
   mkdtemp,
   mkdir,
@@ -12,8 +13,10 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
+  captureCleanCheckoutProvenance,
   desktopBuildEnvironment,
   desktopBuildRecord,
+  verifyApplicationLockfile,
   verifyDesktopBuild,
   verifyRecordedDesktopBuild,
   requireCleanBuildEnvironment
@@ -151,4 +154,102 @@ test('the desktop build script is the entry point that writes the record', async
     'utf8'
   )
   assert.match(builder, /\.next\/desktop-build\.json/)
+  assert.match(builder, /sourceCommit/)
+  assert.match(builder, /packageLockSha256/)
+})
+
+test('desktop build provenance binds valid sourceCommit and packageLockSha256 and rejects drift', async () => {
+  const required = JSON.stringify({
+    config: {
+      output: 'standalone',
+      experimental: { proxyClientMaxBodySize: 24 * 1024 * 1024 }
+    }
+  })
+  const commit = 'a'.repeat(40)
+  const lockHash = 'b'.repeat(64)
+  const record = desktopBuildRecord(required, 'synthetic-build', {
+    sourceCommit: commit,
+    packageLockSha256: lockHash
+  })
+  assert.equal(record.sourceCommit, commit)
+  assert.equal(record.packageLockSha256, lockHash)
+  verifyDesktopBuild(record, required, 'synthetic-build', {
+    sourceCommit: commit,
+    packageLockSha256: lockHash
+  })
+  assert.throws(() =>
+    desktopBuildRecord(required, 'synthetic-build', {
+      sourceCommit: 'not-a-sha'
+    })
+  )
+  assert.throws(() =>
+    desktopBuildRecord(required, 'synthetic-build', {
+      packageLockSha256: 'bad'
+    })
+  )
+  assert.throws(() =>
+    verifyDesktopBuild(record, required, 'synthetic-build', {
+      sourceCommit: 'c'.repeat(40),
+      packageLockSha256: lockHash
+    })
+  )
+  assert.throws(() =>
+    verifyDesktopBuild(record, required, 'synthetic-build', {
+      sourceCommit: commit,
+      packageLockSha256: 'd'.repeat(64)
+    })
+  )
+})
+
+test('staged application lockfile check rejects stale lockfiles and stage-linux enforces provenance', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'desktop-lock-provenance-'))
+  try {
+    const expectedBytes =
+      '{"packages":{"node_modules/seroval":{"version":"1.6.11"}}}'
+    const expectedHash = createHash('sha256')
+      .update(expectedBytes)
+      .digest('hex')
+    await verifyApplicationLockfile(root, expectedHash)
+    await writeFile(join(root, 'package-lock.json'), expectedBytes)
+    await verifyApplicationLockfile(root, expectedHash)
+    await writeFile(
+      join(root, 'package-lock.json'),
+      '{"packages":{"node_modules/seroval":{"version":"1.6.8"}}}'
+    )
+    await assert.rejects(
+      verifyApplicationLockfile(root, expectedHash),
+      /Staged application package-lock\.json does not match source/
+    )
+    const stager = await readFile(
+      resolve(dirname(fileURLToPath(import.meta.url)), 'stage-linux.mjs'),
+      'utf8'
+    )
+    assert.match(stager, /verifyRecordedDesktopBuild/)
+    assert.match(stager, /verifyApplicationLockfile/)
+    assert.match(stager, /packageLockSha256/)
+    assert.match(stager, /sourceCommit/)
+  } finally {
+    await rm(root, { recursive: true })
+  }
+})
+
+test('captureCleanCheckoutProvenance rejects non-git directories and nested subdirectories', async () => {
+  const outer = await mkdtemp(join(tmpdir(), 'desktop-provenance-non-git-'))
+  try {
+    await writeFile(join(outer, 'package-lock.json'), '{}')
+    await assert.rejects(
+      captureCleanCheckoutProvenance(outer),
+      /git checkout|checkout root/
+    )
+    const repoRoot = resolve(
+      dirname(fileURLToPath(import.meta.url)),
+      '../../..'
+    )
+    await assert.rejects(
+      captureCleanCheckoutProvenance(join(repoRoot, 'apps/desktop')),
+      /checkout root directory/
+    )
+  } finally {
+    await rm(outer, { recursive: true, force: true })
+  }
 })

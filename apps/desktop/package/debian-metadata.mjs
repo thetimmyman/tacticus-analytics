@@ -2,6 +2,18 @@ import { createHash } from 'node:crypto'
 import { updateConfiguration } from '../launcher/updates.mjs'
 
 export function debianMetadata(bytes, inventory) {
+  if (
+    inventory.sourceCommit !== undefined &&
+    (typeof inventory.sourceCommit !== 'string' ||
+      !/^[a-f0-9]{40}$/.test(inventory.sourceCommit))
+  )
+    throw new Error('Invalid sourceCommit in package inventory')
+  if (
+    inventory.packageLockSha256 !== undefined &&
+    (typeof inventory.packageLockSha256 !== 'string' ||
+      !/^[a-f0-9]{64}$/.test(inventory.packageLockSha256))
+  )
+    throw new Error('Invalid packageLockSha256 in package inventory')
   const configuration = updateConfiguration(JSON.parse(bytes.toString('utf8')))
   const version = configuration.version
   const colon = version.indexOf(':')

@@ -188,6 +188,8 @@ test('deterministic CLI writes a stable CycloneDX BOM to --out', async () => {
     assert.ok(bom.serialNumber.startsWith('urn:uuid:'))
     assert.ok(bom.components.length > 0)
     assert.equal(bom.metadata.timestamp, undefined)
+    assert.equal(bom.metadata.properties[0].name, 'packageLockSha256')
+    assert.match(bom.metadata.properties[0].value, /^[a-f0-9]{64}$/)
 
     // Re-run; the on-disk BOM must be byte-for-byte identical (no timestamps).
     const outPath2 = join(root, 'bom2.json')
@@ -273,4 +275,30 @@ test('license expressions are not written as a single id', () => {
   assert.deepEqual(bom.components[0].licenses, [
     { expression: '(MIT OR CC0-1.0)' }
   ])
+})
+
+test('generateSbom records sourceCommit and packageLockSha256 provenance deterministically', () => {
+  const bom = generateSbom(syntheticRuntimeInputs(), syntheticLockPackages(), {
+    application: { name: 'ta-preview', version: '0.1.0' },
+    provenance: {
+      sourceCommit: 'a'.repeat(40),
+      packageLockSha256: 'b'.repeat(64)
+    }
+  })
+  assert.deepEqual(bom.metadata.properties, [
+    { name: 'sourceCommit', value: 'a'.repeat(40) },
+    { name: 'packageLockSha256', value: 'b'.repeat(64) }
+  ])
+  const other = generateSbom(
+    syntheticRuntimeInputs(),
+    syntheticLockPackages(),
+    {
+      application: { name: 'ta-preview', version: '0.1.0' },
+      provenance: {
+        sourceCommit: 'c'.repeat(40),
+        packageLockSha256: 'b'.repeat(64)
+      }
+    }
+  )
+  assert.notEqual(bom.serialNumber, other.serialNumber)
 })
