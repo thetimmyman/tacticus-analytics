@@ -87,6 +87,7 @@ type QueueQuery = {
   head: boolean
   filters: Array<{ column: string; value: unknown }>
   orFilters: string[]
+  lteFilters: Array<{ column: string; value: string }>
   orders: QueueOrder[]
   after: { column: string; value: string } | null
   limit: number | null
@@ -153,6 +154,15 @@ function queueRowClient(
     for (const filter of query.orFilters) {
       matched = matched.filter((row) => matchesOr(row, filter))
     }
+    // SQL `column <= value` is never true for NULL, exactly as in claim_next_job().
+    for (const { column, value } of query.lteFilters) {
+      matched = matched.filter((row) => {
+        const actual = (row as unknown as Record<string, unknown>)[column]
+        return (
+          typeof actual === 'string' && Date.parse(actual) <= Date.parse(value)
+        )
+      })
+    }
     if (query.after) {
       matched = matched.filter(
         (row) =>
@@ -185,6 +195,10 @@ function queueRowClient(
       or: (filter: string) => {
         query.orFilters.push(filter)
         orFilters.push(filter)
+        return chain
+      },
+      lte: (column: string, value: string) => {
+        query.lteFilters.push({ column, value })
         return chain
       },
       order: (
@@ -223,6 +237,7 @@ function queueRowClient(
           head: false,
           filters: [],
           orFilters: [],
+          lteFilters: [],
           orders: [],
           after: null,
           limit: null
@@ -447,14 +462,14 @@ describe('drain lanes', () => {
     const nowIso = isoAt(fixedNow)
 
     it('reports the true oldest claimable age once the queue is deeper than one scan page', async () => {
-      // 260 young unscheduled rows sort ahead of an older scheduled job under
-      // `scheduled_for NULLS FIRST, created_at`; a single 250-row page therefore
-      // reported 60s instead of the job that has been claimable for an hour.
+      // 260 young rows fill the first 250-row page ahead of an older deferred
+      // job; a single page therefore reported 60s instead of the job that has
+      // been claimable for an hour.
       const young = isoAt(fixedNow - 60_000)
       const oldCreated = isoAt(fixedNow - 7_200_000)
       const oldScheduled = isoAt(fixedNow - 3_600_000)
       const rows: QueueRow[] = Array.from({ length: 260 }, () =>
-        queueRow({ created_at: young, scheduled_for: null })
+        queueRow({ created_at: young, scheduled_for: young })
       )
       rows.push(
         queueRow({
@@ -472,22 +487,22 @@ describe('drain lanes', () => {
       expect(queue.pagesRead()).toBeGreaterThan(1)
     })
 
-    it('counts only rows with attempts left, matching the claim and health predicates', async () => {
+    it('counts only rows with attempts left, as claim_next_job does', async () => {
       const exhausted = queueRow({
         created_at: isoAt(fixedNow - 21_600_000),
-        scheduled_for: null,
+        scheduled_for: isoAt(fixedNow - 21_600_000),
         attempts: 3,
         max_attempts: 3
       })
       const claimable = queueRow({
         created_at: isoAt(fixedNow - 120_000),
-        scheduled_for: null,
+        scheduled_for: isoAt(fixedNow - 120_000),
         attempts: 2,
         max_attempts: 3
       })
       const missingAttempts = queueRow({
         created_at: isoAt(fixedNow - 43_200_000),
-        scheduled_for: null,
+        scheduled_for: isoAt(fixedNow - 43_200_000),
         attempts: null,
         max_attempts: 3
       })
@@ -504,8 +519,10 @@ describe('drain lanes', () => {
 
       const sample = await readQueueDepth(queue.client, () => fixedNow)
 
-      expect(queue.orFilters).toEqual([
-        `scheduled_for.is.null,scheduled_for.lte.${nowIso}`
+      // claim_next_job() takes `scheduled_for <= NOW()` only: no IS NULL leg.
+      expect(queue.orFilters).toEqual([])
+      expect(queue.queries[0].lteFilters).toEqual([
+        { column: 'scheduled_for', value: nowIso }
       ])
       expect(queue.queries[0].filters).toEqual([
         { column: 'status', value: 'pending' }
@@ -517,6 +534,39 @@ describe('drain lanes', () => {
         expect.stringContaining('max_attempts')
       )
       // An empty claimable queue is a measured zero depth, not an unmeasured null.
+      expect(sample.pendingDepth).toBe(0)
+      expect(sample.oldestPendingAgeSeconds).toBeNull()
+    })
+
+    it('excludes a pending row with no schedule, which claim_next_job can never take', async () => {
+      // `scheduled_for <= NOW()` is not true for NULL, so the claim skips this
+      // row however old it is; it must add neither depth nor age.
+      const unscheduled = queueRow({
+        created_at: isoAt(fixedNow - 21_600_000),
+        scheduled_for: null
+      })
+      const claimable = queueRow({
+        created_at: isoAt(fixedNow - 90_000),
+        scheduled_for: isoAt(fixedNow - 90_000)
+      })
+      const queue = queueRowClient([unscheduled, claimable])
+
+      const sample = await readQueueDepth(queue.client, () => fixedNow)
+
+      expect(sample.pendingDepth).toBe(1)
+      expect(sample.oldestPendingAgeSeconds).toBe(90)
+    })
+
+    it('measures an empty claimable queue when every pending row lacks a schedule', async () => {
+      const queue = queueRowClient([
+        queueRow({
+          created_at: isoAt(fixedNow - 21_600_000),
+          scheduled_for: null
+        })
+      ])
+
+      const sample = await readQueueDepth(queue.client, () => fixedNow)
+
       expect(sample.pendingDepth).toBe(0)
       expect(sample.oldestPendingAgeSeconds).toBeNull()
     })
@@ -537,7 +587,10 @@ describe('drain lanes', () => {
 
     it('still counts a row whose timestamp cannot be parsed as depth, without inventing an age', async () => {
       const queue = queueRowClient([
-        queueRow({ created_at: 'not-a-timestamp', scheduled_for: null })
+        queueRow({
+          created_at: 'not-a-timestamp',
+          scheduled_for: isoAt(fixedNow - 60_000)
+        })
       ])
 
       const sample = await readQueueDepth(queue.client, () => fixedNow)
@@ -548,7 +601,10 @@ describe('drain lanes', () => {
 
     it('reports nulls rather than a partial measurement when a page read fails', async () => {
       const rows: QueueRow[] = Array.from({ length: 250 }, () =>
-        queueRow({ created_at: isoAt(fixedNow - 60_000), scheduled_for: null })
+        queueRow({
+          created_at: isoAt(fixedNow - 60_000),
+          scheduled_for: isoAt(fixedNow - 60_000)
+        })
       )
       const queue = queueRowClient(rows, { failFromPage: 2 })
 

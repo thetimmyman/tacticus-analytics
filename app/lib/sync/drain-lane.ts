@@ -193,22 +193,20 @@ const CLAIMABLE_SCAN_PAGE_SIZE = 250
 const CLAIMABLE_ROW_COLUMNS =
   'id, created_at, scheduled_for, attempts, max_attempts'
 
+// A scanned row always carries scheduled_for (the scan filters on it), so an
+// age is only reported when both timestamps parse.
 function effectiveClaimableTimestampMs(row: {
   created_at?: unknown
   scheduled_for?: unknown
 }): number | null {
   if (typeof row.created_at !== 'string') return null
+  if (typeof row.scheduled_for !== 'string') return null
   const createdAtMs = Date.parse(row.created_at)
-  if (!Number.isFinite(createdAtMs)) return null
-
-  if (typeof row.scheduled_for === 'string') {
-    const scheduledForMs = Date.parse(row.scheduled_for)
-    if (Number.isFinite(scheduledForMs)) {
-      return Math.max(createdAtMs, scheduledForMs)
-    }
+  const scheduledForMs = Date.parse(row.scheduled_for)
+  if (!Number.isFinite(createdAtMs) || !Number.isFinite(scheduledForMs)) {
+    return null
   }
-
-  return createdAtMs
+  return Math.max(createdAtMs, scheduledForMs)
 }
 
 /** Mirrors `attempts < max_attempts` in claim_next_job(); SQL NULL there is "no claim". */
@@ -224,8 +222,9 @@ function hasAttemptsLeft(row: {
 }
 
 // Best-effort and non-throwing; null means "not measured", not zero.
-// Future-scheduled rows (scheduled_for > now) cannot be claimed yet, so both
-// depth and age exclude them and age starts once scheduled_for is reached.
+// The scan uses claim_next_job()'s `scheduled_for <= NOW()` leg, which is not
+// true for a later or a NULL schedule: depth and age exclude both, and age
+// starts once scheduled_for is reached.
 // Depth and age come from one complete scan so a half-read queue reports
 // "not measured" instead of a plausible-looking prefix.
 export async function readQueueDepth(
@@ -237,7 +236,7 @@ export async function readQueueDepth(
     oldestPendingAgeSeconds: null
   }
   const sampleTimeMs = now()
-  const claimableFilter = `scheduled_for.is.null,scheduled_for.lte.${new Date(sampleTimeMs).toISOString()}`
+  const claimableAsOf = new Date(sampleTimeMs).toISOString()
   let depth = 0
   let oldestClaimableMs: number | null = null
   let lastId: string | null = null
@@ -248,7 +247,7 @@ export async function readQueueDepth(
         .from('sync_queue')
         .select(CLAIMABLE_ROW_COLUMNS)
         .eq('status', 'pending')
-        .or(claimableFilter)
+        .lte('scheduled_for', claimableAsOf)
       const pageQuery =
         lastId === null ? claimableRows : claimableRows.gt('id', lastId)
 
