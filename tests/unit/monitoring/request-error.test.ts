@@ -72,6 +72,69 @@ describe('onRequestError', () => {
     expect(sentry.captureRequestError).not.toHaveBeenCalled()
   })
 
+  it('drops malformed Server Action request-body JSON.parse SyntaxErrors before any application frame runs', async () => {
+    const { isMalformedServerActionPayloadSyntaxError, onRequestError } =
+      await import('@/app/lib/monitoring/request-error')
+    const request = {
+      path: '/guild-ops/player-lookup',
+      method: 'POST',
+      headers: {}
+    }
+    const actionContext = {
+      routerKind: 'App Router' as const,
+      routePath: '/guild-ops/player-lookup/page',
+      routeType: 'action' as const,
+      revalidateReason: undefined
+    }
+
+    const frameworkDecodeSyntaxError = new SyntaxError(
+      'Unexpected token x in JSON at position 0'
+    )
+    frameworkDecodeSyntaxError.stack = [
+      'SyntaxError: Unexpected token x in JSON at position 0',
+      '    at JSON.parse (<anonymous>)',
+      '    at tI (/app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:15:70523)',
+      '    at tg.value [as then] (/app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:15:67272)',
+      '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      '    at async m (app:///_next/server/chunks/ssr/node_modules_next_dist_0-amwqbrge23p._.js:2:11865)',
+      '    at async o6.handleResponse (/app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:326:53836)'
+    ].join('\n')
+
+    expect(
+      isMalformedServerActionPayloadSyntaxError(frameworkDecodeSyntaxError)
+    ).toBe(true)
+
+    await onRequestError(frameworkDecodeSyntaxError, request, actionContext)
+
+    expect(sentry.withScope).not.toHaveBeenCalled()
+    expect(sentry.captureRequestError).not.toHaveBeenCalled()
+
+    // Negative control 1: same SyntaxError on a route handler or page render is still reported.
+    await onRequestError(frameworkDecodeSyntaxError, request, {
+      ...actionContext,
+      routeType: 'route' as const
+    })
+    expect(sentry.captureRequestError).toHaveBeenCalledTimes(1)
+
+    // Negative control 2: a JSON.parse SyntaxError with an application frame in a Server Action is still reported.
+    sentry.captureRequestError.mockClear()
+    const appActionSyntaxError = new SyntaxError(
+      'Unexpected token x in JSON at position 0'
+    )
+    appActionSyntaxError.stack = [
+      'SyntaxError: Unexpected token x in JSON at position 0',
+      '    at JSON.parse (<anonymous>)',
+      '    at saveSettings (/app/app/(dashboard)/guild-management/settings/actions.ts:42:17)',
+      '    at async o6.handleResponse (/app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:326:53836)'
+    ].join('\n')
+
+    expect(
+      isMalformedServerActionPayloadSyntaxError(appActionSyntaxError)
+    ).toBe(false)
+    await onRequestError(appActionSyntaxError, request, actionContext)
+    expect(sentry.captureRequestError).toHaveBeenCalledTimes(1)
+  })
+
   it('captures every other error once, unchanged, with route tags on the scope', async () => {
     const { onRequestError } =
       await import('@/app/lib/monitoring/request-error')
