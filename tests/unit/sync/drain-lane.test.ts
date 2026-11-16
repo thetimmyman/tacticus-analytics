@@ -254,43 +254,162 @@ describe('drain lanes', () => {
   })
 
   describe('queue depth sampling', () => {
-    it('reports depth and oldest pending age', async () => {
-      const created = new Date(Date.now() - 600_000).toISOString()
+    it('samples only claimable pending rows and measures age from claimable timestamp', async () => {
+      const fixedNow = Date.parse('2026-11-16T06:45:00.000Z')
+      const nowIso = new Date(fixedNow).toISOString()
+      const createdImmediate = new Date(fixedNow - 600_000).toISOString()
+      const createdStaggered = new Date(fixedNow - 2_400_000).toISOString()
+      const scheduledStaggered = new Date(fixedNow - 60_000).toISOString()
+      const countOrCalls: string[] = []
+      const ageOrCalls: string[] = []
+
+      const makeOrderChain = (
+        rows: Array<{ created_at: string; scheduled_for?: string | null }>
+      ) => {
+        const chain: Record<string, unknown> = {
+          order: vi.fn(() => chain),
+          limit: vi.fn(async () => ({
+            data: rows,
+            error: null
+          }))
+        }
+        return chain
+      }
+
       const client = {
         from: vi.fn(() => ({
           select: vi.fn((_columns: string, opts?: { head?: boolean }) =>
             opts?.head
               ? {
-                  eq: vi.fn(async () => ({ count: 7, error: null }))
+                  eq: vi.fn(() => ({
+                    or: vi.fn(async (filter: string) => {
+                      countOrCalls.push(filter)
+                      return { count: 7, error: null }
+                    })
+                  }))
                 }
               : {
                   eq: vi.fn(() => ({
-                    order: vi.fn(() => ({
-                      limit: vi.fn(async () => ({
-                        data: [{ created_at: created }],
-                        error: null
-                      }))
-                    }))
+                    or: vi.fn((filter: string) => {
+                      ageOrCalls.push(filter)
+                      return makeOrderChain([
+                        {
+                          created_at: createdStaggered,
+                          scheduled_for: scheduledStaggered
+                        },
+                        {
+                          created_at: createdImmediate,
+                          scheduled_for: null
+                        }
+                      ])
+                    })
                   }))
                 }
           )
         }))
       } as never
 
-      const sample = await readQueueDepth(client)
+      const sample = await readQueueDepth(client, () => fixedNow)
 
+      expect(countOrCalls).toEqual([
+        `scheduled_for.is.null,scheduled_for.lte.${nowIso}`
+      ])
+      expect(ageOrCalls).toEqual([
+        `scheduled_for.is.null,scheduled_for.lte.${nowIso}`
+      ])
       expect(sample.pendingDepth).toBe(7)
-      expect(sample.oldestPendingAgeSeconds).toBeGreaterThanOrEqual(599)
+      // Staggered row was created 2400s ago but only became claimable 60s ago;
+      // the unscheduled row from 600s ago is the oldest claimable job.
+      expect(sample.oldestPendingAgeSeconds).toBe(600)
     })
 
-    it('reports nulls rather than zeros when the read cannot be made', async () => {
+    it('does not count deferred wait before scheduled_for in oldestPendingAgeSeconds', async () => {
+      const fixedNow = Date.parse('2026-11-16T06:45:00.000Z')
+      const createdStaggered = new Date(fixedNow - 2_400_000).toISOString()
+      const scheduledStaggered = new Date(fixedNow - 45_000).toISOString()
+
+      const makeOrderChain = () => {
+        const chain: Record<string, unknown> = {
+          order: vi.fn(() => chain),
+          limit: vi.fn(async () => ({
+            data: [
+              {
+                created_at: createdStaggered,
+                scheduled_for: scheduledStaggered
+              }
+            ],
+            error: null
+          }))
+        }
+        return chain
+      }
+
       const client = {
+        from: vi.fn(() => ({
+          select: vi.fn((_columns: string, opts?: { head?: boolean }) =>
+            opts?.head
+              ? {
+                  eq: vi.fn(() => ({
+                    or: vi.fn(async () => ({ count: 3, error: null }))
+                  }))
+                }
+              : {
+                  eq: vi.fn(() => ({
+                    or: vi.fn(() => makeOrderChain())
+                  }))
+                }
+          )
+        }))
+      } as never
+
+      const sample = await readQueueDepth(client, () => fixedNow)
+
+      expect(sample.pendingDepth).toBe(3)
+      expect(sample.oldestPendingAgeSeconds).toBe(45)
+    })
+
+    it('reports nulls rather than zeros when timestamps are unparseable or reads fail', async () => {
+      const fixedNow = Date.parse('2026-11-16T06:45:00.000Z')
+      const makeBadTimestampChain = () => {
+        const chain: Record<string, unknown> = {
+          order: vi.fn(() => chain),
+          limit: vi.fn(async () => ({
+            data: [{ created_at: 'not-a-timestamp', scheduled_for: null }],
+            error: null
+          }))
+        }
+        return chain
+      }
+
+      const badTimestampClient = {
+        from: vi.fn(() => ({
+          select: vi.fn((_columns: string, opts?: { head?: boolean }) =>
+            opts?.head
+              ? {
+                  eq: vi.fn(() => ({
+                    or: vi.fn(async () => ({ count: null, error: null }))
+                  }))
+                }
+              : {
+                  eq: vi.fn(() => ({
+                    or: vi.fn(() => makeBadTimestampChain())
+                  }))
+                }
+          )
+        }))
+      } as never
+
+      const badSample = await readQueueDepth(badTimestampClient, () => fixedNow)
+      expect(badSample.pendingDepth).toBeNull()
+      expect(badSample.oldestPendingAgeSeconds).toBeNull()
+
+      const throwingClient = {
         from: vi.fn(() => {
           throw new Error('no client')
         })
       } as never
 
-      const sample = await readQueueDepth(client)
+      const sample = await readQueueDepth(throwingClient)
 
       // NULL means "not measured", not an empty queue.
       expect(sample.pendingDepth).toBeNull()

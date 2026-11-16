@@ -184,20 +184,46 @@ export async function runDrainLane(
   }
 }
 
+const CLAIMABLE_AGE_SCAN_LIMIT = 250
+
+function effectiveClaimableTimestampMs(row: {
+  created_at?: unknown
+  scheduled_for?: unknown
+}): number | null {
+  if (typeof row.created_at !== 'string') return null
+  const createdAtMs = Date.parse(row.created_at)
+  if (!Number.isFinite(createdAtMs)) return null
+
+  if (typeof row.scheduled_for === 'string') {
+    const scheduledForMs = Date.parse(row.scheduled_for)
+    if (Number.isFinite(scheduledForMs)) {
+      return Math.max(createdAtMs, scheduledForMs)
+    }
+  }
+
+  return createdAtMs
+}
+
 // Best-effort and non-throwing; null means "not measured", not zero.
+// Future-scheduled rows (scheduled_for > now) cannot be claimed yet, so both
+// depth and age exclude them and age starts once scheduled_for is reached.
 export async function readQueueDepth(
-  supabase: ServiceSupabaseClient
+  supabase: ServiceSupabaseClient,
+  now: () => number = () => Date.now()
 ): Promise<QueueDepthSample> {
   const sample: QueueDepthSample = {
     pendingDepth: null,
     oldestPendingAgeSeconds: null
   }
+  const sampleTimeMs = now()
+  const claimableFilter = `scheduled_for.is.null,scheduled_for.lte.${new Date(sampleTimeMs).toISOString()}`
 
   try {
     const countResult = (await supabase
       .from('sync_queue')
       .select('id', { count: 'exact', head: true })
-      .eq('status', 'pending')) as { count?: unknown } | null
+      .eq('status', 'pending')
+      .or(claimableFilter)) as { count?: unknown } | null
 
     if (countResult && typeof countResult.count === 'number') {
       sample.pendingDepth = countResult.count
@@ -209,22 +235,32 @@ export async function readQueueDepth(
   try {
     const oldestResult = (await supabase
       .from('sync_queue')
-      .select('created_at')
+      .select('created_at, scheduled_for')
       .eq('status', 'pending')
+      .or(claimableFilter)
+      .order('scheduled_for', { ascending: true, nullsFirst: true })
       .order('created_at', { ascending: true })
-      .limit(1)) as { data?: unknown } | null
+      .limit(CLAIMABLE_AGE_SCAN_LIMIT)) as { data?: unknown } | null
 
     const rows = oldestResult?.data
     if (Array.isArray(rows) && rows.length > 0) {
-      const createdAt = (rows[0] as { created_at?: unknown }).created_at
-      if (typeof createdAt === 'string') {
-        const parsed = Date.parse(createdAt)
-        if (Number.isFinite(parsed)) {
-          sample.oldestPendingAgeSeconds = Math.max(
-            0,
-            Math.round((Date.now() - parsed) / 1000)
-          )
+      let oldestClaimableMs: number | null = null
+      for (const row of rows) {
+        const claimableMs = effectiveClaimableTimestampMs(
+          row as { created_at?: unknown; scheduled_for?: unknown }
+        )
+        if (
+          claimableMs !== null &&
+          (oldestClaimableMs === null || claimableMs < oldestClaimableMs)
+        ) {
+          oldestClaimableMs = claimableMs
         }
+      }
+      if (oldestClaimableMs !== null) {
+        sample.oldestPendingAgeSeconds = Math.max(
+          0,
+          Math.round((sampleTimeMs - oldestClaimableMs) / 1000)
+        )
       }
     }
   } catch (error) {
