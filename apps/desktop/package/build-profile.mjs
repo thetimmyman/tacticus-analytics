@@ -1,8 +1,26 @@
+import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { readFile, stat } from 'node:fs/promises'
-import { join } from 'node:path'
+import { constants as fsConstants } from 'node:fs'
+import {
+  lstat,
+  open,
+  readdir,
+  readFile,
+  realpath,
+  stat
+} from 'node:fs/promises'
+import { basename, join } from 'node:path'
 
 const digest = (value) => createHash('sha256').update(value).digest('hex')
+const HEX_40 = /^[a-f0-9]{40}$/
+const HEX_64 = /^[a-f0-9]{64}$/
+
+function optionalHex(value, pattern, label) {
+  if (value === undefined) return undefined
+  if (typeof value !== 'string' || !pattern.test(value))
+    throw new Error(`Invalid desktop build ${label}`)
+  return value
+}
 
 export async function requireCleanBuildEnvironment(root) {
   for (const name of [
@@ -20,6 +38,109 @@ export async function requireCleanBuildEnvironment(root) {
     throw new Error(
       'Desktop builds require a checkout without automatic environment files'
     )
+  }
+}
+
+function isolatedGitEnv(env = process.env) {
+  const next = { ...env }
+  for (const key of [
+    'GIT_DIR',
+    'GIT_WORK_TREE',
+    'GIT_INDEX_FILE',
+    'GIT_COMMON_DIR',
+    'GIT_PREFIX',
+    'GIT_CEILING_DIRECTORIES'
+  ]) {
+    delete next[key]
+  }
+  return next
+}
+
+function isAllowedIgnoredPath(rawEntry, allowBuildOutputs) {
+  const entry = rawEntry.replaceAll('\\', '/')
+  if (
+    entry === 'node_modules' ||
+    entry.startsWith('node_modules/') ||
+    /^(?:packages|apps)\/[^/]+\/node_modules(?:\/|$)/.test(entry) ||
+    entry === '.husky/_' ||
+    entry.startsWith('.husky/_/') ||
+    entry === '.npm' ||
+    entry.startsWith('.npm/')
+  )
+    return true
+  if (!allowBuildOutputs) return false
+  return (
+    entry === '.next' ||
+    entry.startsWith('.next/') ||
+    entry === 'next-env.d.ts' ||
+    entry === 'tsconfig.tsbuildinfo' ||
+    entry === '.swc' ||
+    entry.startsWith('.swc/') ||
+    entry === '.turbo' ||
+    entry.startsWith('.turbo/')
+  )
+}
+
+export async function captureCleanCheckoutProvenance(root, options = {}) {
+  const { allowBuildOutputs = false } = options
+  const gitEnv = isolatedGitEnv()
+  const canonicalRoot = await realpath(root)
+  let topLevel
+  try {
+    topLevel = execFileSync('git', ['rev-parse', '--show-toplevel'], {
+      cwd: canonicalRoot,
+      env: gitEnv,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe']
+    }).trim()
+  } catch {
+    throw new Error('Desktop provenance requires a git checkout')
+  }
+  if ((await realpath(topLevel)) !== canonicalRoot)
+    throw new Error('Desktop provenance requires the checkout root directory')
+  const statusRaw = execFileSync(
+    'git',
+    [
+      'status',
+      '-z',
+      '--porcelain=v1',
+      '--ignored=matching',
+      '--untracked-files=all'
+    ],
+    {
+      cwd: canonicalRoot,
+      env: gitEnv,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe']
+    }
+  )
+  const records = statusRaw.split('\0').filter(Boolean)
+  if (records.some((record) => !record.startsWith('!! ')))
+    throw new Error(
+      'Desktop provenance requires a clean git checkout without uncommitted or untracked changes'
+    )
+  const ignoredEntries = records.map((record) => record.slice(3))
+  const disallowedIgnored = ignoredEntries.find(
+    (entry) => !isAllowedIgnoredPath(entry, allowBuildOutputs)
+  )
+  if (disallowedIgnored)
+    throw new Error(
+      `Desktop provenance refuses gitignored checkout path: ${disallowedIgnored}`
+    )
+  const sourceCommit = execFileSync('git', ['rev-parse', '--verify', 'HEAD'], {
+    cwd: canonicalRoot,
+    env: gitEnv,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe']
+  }).trim()
+  if (!HEX_40.test(sourceCommit))
+    throw new Error('Invalid desktop build sourceCommit')
+  const lockBytes = await readFile(join(canonicalRoot, 'package-lock.json'))
+  return {
+    sourceCommit,
+    packageLockSha256: digest(lockBytes),
+    lockBytes,
+    ignoredEntries
   }
 }
 
@@ -55,7 +176,7 @@ export function desktopBuildEnvironment(env) {
   }
 }
 
-export function desktopBuildRecord(requiredFiles, buildId) {
+export function desktopBuildRecord(requiredFiles, buildId, provenance = {}) {
   const { config } = JSON.parse(requiredFiles)
   if (
     config?.output !== 'standalone' ||
@@ -63,20 +184,452 @@ export function desktopBuildRecord(requiredFiles, buildId) {
     !buildId.trim()
   )
     throw new Error('A completed desktop standalone build is required')
+  const sourceCommit = optionalHex(
+    provenance.sourceCommit,
+    HEX_40,
+    'sourceCommit'
+  )
+  const packageLockSha256 = optionalHex(
+    provenance.packageLockSha256,
+    HEX_64,
+    'packageLockSha256'
+  )
+  const applicationFiles =
+    provenance.applicationFiles === undefined
+      ? undefined
+      : normalizeApplicationFiles(provenance.applicationFiles)
   return {
     format: 'ta-desktop-build-v1',
     profile: 'desktop',
     buildId: buildId.trim(),
-    requiredFilesSha256: digest(requiredFiles)
+    requiredFilesSha256: digest(requiredFiles),
+    ...(sourceCommit ? { sourceCommit } : {}),
+    ...(packageLockSha256 ? { packageLockSha256 } : {}),
+    ...(applicationFiles
+      ? {
+          applicationFiles,
+          applicationManifestSha256: applicationManifestDigest(applicationFiles)
+        }
+      : {})
   }
 }
 
-export function verifyDesktopBuild(record, requiredFiles, buildId) {
-  const expected = desktopBuildRecord(requiredFiles, buildId)
+// Build outputs copied by stage-standalone.mjs into the packaged application tree.
+export const APPLICATION_PAYLOAD_SOURCES = Object.freeze([
+  Object.freeze({ from: '.next/standalone', to: '' }),
+  Object.freeze({ from: '.next/static', to: '.next/static' }),
+  Object.freeze({ from: 'public', to: 'public' })
+])
+
+// Files stage-standalone.mjs adds beside the compiled payload; each is verified separately.
+const APPLICATION_RECORD_FILES = new Set([
+  'desktop-build.json',
+  '.next/desktop-build.json',
+  'package-lock.json'
+])
+
+// Generated by application-notices.mjs after the build; validated against the bound payload.
+const APPLICATION_NOTICE_INVENTORY = 'application-notices.json'
+export const APPLICATION_NOTICE_SCOPE =
+  'Traced application package notices; not a redistribution approval or complete native dependency audit'
+const APPLICATION_NOTICE_ORIGINS = new Set([
+  'traced-package',
+  'installed-source-package'
+])
+const PACKAGE_MANIFEST_PATH = /^node_modules\/(?:(.+)\/)?package\.json$/
+
+export const isApplicationNoticeName = (name) =>
+  /^(?:LICEN[SC]E|NOTICE|COPYRIGHT|COPYING|AUTHORS)(?:[._-].*)?$/i.test(name) ||
+  /\.LEGAL\.txt$/i.test(name)
+
+const comparePaths = (a, b) => (a < b ? -1 : a > b ? 1 : 0)
+
+function isSafeRelativePath(path) {
+  return (
+    typeof path === 'string' &&
+    path.length > 0 &&
+    !path.startsWith('/') &&
+    !path.includes('\\') &&
+    !path.includes('\0') &&
+    path.split('/').every((part) => part && part !== '.' && part !== '..')
+  )
+}
+
+function normalizeApplicationFiles(files) {
+  if (!Array.isArray(files) || files.length === 0)
+    throw new Error('Invalid desktop build applicationFiles')
+  const normalized = files.map((file) => {
+    if (
+      !file ||
+      typeof file !== 'object' ||
+      Object.keys(file).sort().join(',') !== 'bytes,path,sha256' ||
+      !isSafeRelativePath(file.path) ||
+      !Number.isSafeInteger(file.bytes) ||
+      file.bytes < 0 ||
+      typeof file.sha256 !== 'string' ||
+      !HEX_64.test(file.sha256)
+    )
+      throw new Error('Invalid desktop build applicationFiles')
+    return { path: file.path, bytes: file.bytes, sha256: file.sha256 }
+  })
+  for (let i = 1; i < normalized.length; i += 1)
+    if (comparePaths(normalized[i - 1].path, normalized[i].path) >= 0)
+      throw new Error('Invalid desktop build applicationFiles order')
+  return normalized
+}
+
+export function applicationManifestDigest(files) {
+  return digest(JSON.stringify(normalizeApplicationFiles(files)))
+}
+
+// Open one payload entry and take its type and bytes from that same descriptor, so
+// nothing is checked by name and then read by name. O_NONBLOCK keeps a FIFO from
+// blocking the open; it does not change regular-file reads. Capture follows links
+// (as the standalone copy does); verification opens with O_NOFOLLOW and refuses them.
+async function openPayloadEntry(absolute, rel, followLinks) {
+  const unsupported = followLinks
+    ? `Unsupported desktop application payload entry: ${rel}`
+    : `Unsupported staged application entry: ${rel}`
+  const flags =
+    fsConstants.O_RDONLY |
+    fsConstants.O_NONBLOCK |
+    (followLinks ? 0 : fsConstants.O_NOFOLLOW)
+  let handle
+  try {
+    handle = await open(absolute, flags)
+  } catch (error) {
+    if (!followLinks && error?.code === 'ELOOP')
+      throw new Error(`Symlink in staged application refused: ${rel}`)
+    if (error?.code === 'ENXIO' || error?.code === 'EOPNOTSUPP')
+      throw new Error(unsupported)
+    throw error
+  }
+  try {
+    const info = await handle.stat()
+    if (info.isDirectory()) return { directory: true }
+    if (!info.isFile()) throw new Error(unsupported)
+    const bytes = await handle.readFile()
+    if (bytes.length !== info.size)
+      throw new Error(
+        `Desktop application payload entry changed while read: ${rel}`
+      )
+    return { directory: false, bytes }
+  } finally {
+    await handle.close()
+  }
+}
+
+// Hash the payload as stage-standalone.mjs copies it (cp dereference: true follows links).
+export async function captureApplicationPayload(root) {
+  const files = new Map()
+  async function walk(directory, prefix) {
+    const entries = await readdir(directory)
+    for (const name of entries) {
+      const absolute = join(directory, name)
+      const rel = prefix ? `${prefix}/${name}` : name
+      const opened = await openPayloadEntry(absolute, rel, true)
+      if (opened.directory) await walk(absolute, rel)
+      else {
+        const { bytes } = opened
+        const entry = { path: rel, bytes: bytes.length, sha256: digest(bytes) }
+        const existing = files.get(rel)
+        if (existing && existing.sha256 !== entry.sha256)
+          throw new Error(
+            `Conflicting desktop application payload path: ${rel}`
+          )
+        files.set(rel, entry)
+      }
+    }
+  }
+  for (const { from, to } of APPLICATION_PAYLOAD_SOURCES)
+    await walk(join(root, from), to)
+  return [...files.values()].sort((a, b) => comparePaths(a.path, b.path))
+}
+
+/**
+ * Re-hash every file in a staged application tree against the build record.
+ * Refuses symlinks, special files, missing, modified and unexpected files.
+ * Returns a digest for every file so callers can cross-check later copies.
+ */
+export async function verifyApplicationPayload(applicationDirectory, record) {
   if (
     !record ||
-    Object.entries(expected).some(([key, value]) => record[key] !== value)
+    record.applicationFiles === undefined ||
+    typeof record.applicationManifestSha256 !== 'string'
   )
+    throw new Error(
+      'Desktop build record does not bind the application payload; rebuild with npm run desktop:build'
+    )
+  const expected = normalizeApplicationFiles(record.applicationFiles)
+  if (applicationManifestDigest(expected) !== record.applicationManifestSha256)
+    throw new Error('Desktop build application manifest digest mismatch')
+  const manifest = new Map(expected.map((file) => [file.path, file]))
+  const digests = new Map()
+  const retained = new Map()
+  async function walk(directory, prefix) {
+    const entries = await readdir(directory)
+    for (const name of entries) {
+      const absolute = join(directory, name)
+      const rel = prefix ? `${prefix}/${name}` : name
+      const opened = await openPayloadEntry(absolute, rel, false)
+      if (opened.directory) await walk(absolute, rel)
+      else {
+        const { bytes } = opened
+        digests.set(rel, { bytes: bytes.length, sha256: digest(bytes) })
+        if (
+          rel === APPLICATION_NOTICE_INVENTORY ||
+          PACKAGE_MANIFEST_PATH.test(rel)
+        )
+          retained.set(rel, bytes)
+      }
+    }
+  }
+  const root = await lstat(applicationDirectory)
+  if (root.isSymbolicLink() || !root.isDirectory())
+    throw new Error('Staged application must be a real directory')
+  await walk(applicationDirectory, '')
+  for (const [rel, actual] of digests) {
+    const bound = manifest.get(rel)
+    if (bound) {
+      if (bound.sha256 !== actual.sha256 || bound.bytes !== actual.bytes)
+        throw new Error(
+          `Staged application file does not match build record: ${rel}`
+        )
+    } else if (
+      !APPLICATION_RECORD_FILES.has(rel) &&
+      rel !== APPLICATION_NOTICE_INVENTORY &&
+      !(
+        rel.startsWith('third-party-notices/') &&
+        isApplicationNoticeName(basename(rel))
+      )
+    )
+      throw new Error(`Unexpected file in staged application: ${rel}`)
+  }
+  for (const rel of manifest.keys())
+    if (!digests.has(rel))
+      throw new Error(`Staged application file is missing: ${rel}`)
+  // Package manifests are bound above, so the notice inventory is checked against bound bytes.
+  const packages = new Map()
+  for (const [rel, bytes] of retained) {
+    const match = PACKAGE_MANIFEST_PATH.exec(rel)
+    if (!match || !manifest.has(rel)) continue
+    const info = JSON.parse(bytes.toString('utf8'))
+    if (info) packages.set(match[1] ?? '', info)
+  }
+  verifyApplicationNotices(
+    retained.get(APPLICATION_NOTICE_INVENTORY),
+    digests,
+    packages,
+    manifest
+  )
+  return new Map([...digests].map(([rel, value]) => [rel, value.sha256]))
+}
+
+const hasExactKeys = (value, keys) =>
+  Boolean(value) &&
+  typeof value === 'object' &&
+  !Array.isArray(value) &&
+  Object.keys(value).sort().join(',') === keys
+
+const isPackagePath = (path) => path === '' || isSafeRelativePath(path)
+
+/**
+ * The traced notices application-notices.mjs must copy for one package, derived from the
+ * bound payload: every nonempty bound file under node_modules/<packagePath>/ whose name is
+ * a notice name and whose path has no nested node_modules segment. Maps the staged
+ * third-party-notices path to the bound digest.
+ */
+function boundTracedNotices(packagePath, manifest) {
+  const root = packagePath ? `node_modules/${packagePath}/` : 'node_modules/'
+  const prefix = packagePath
+    ? `third-party-notices/${packagePath}/`
+    : 'third-party-notices/'
+  const notices = new Map()
+  for (const [rel, file] of manifest) {
+    if (!rel.startsWith(root)) continue
+    const within = rel.slice(root.length)
+    if (
+      file.bytes === 0 ||
+      within.split('/').slice(0, -1).includes('node_modules') ||
+      !isApplicationNoticeName(basename(within))
+    )
+      continue
+    notices.set(`${prefix}${within}`, file.sha256)
+  }
+  return notices
+}
+
+/**
+ * Validate application-notices.json against the bound payload and the staged copies:
+ * canonical bytes; one entry per bound node_modules package manifest with matching
+ * metadata; exactly the traced-package notices derived from the bound payload, each with
+ * the bound digest; installed-source-package notices only beside them, matching their
+ * staged copies. Every staged notice file must be listed. The bytes of source-only
+ * notices come from the installed source tree, not the build record.
+ */
+function verifyApplicationNotices(bytes, digests, packages, manifest) {
+  if (!bytes)
+    throw new Error(
+      'Staged application-notices.json is missing; restage with stage-standalone.mjs'
+    )
+  const text = bytes.toString('utf8')
+  let inventory
+  try {
+    inventory = JSON.parse(text)
+  } catch {
+    throw new Error('Staged application notice inventory is not valid JSON')
+  }
+  if (JSON.stringify(inventory, null, 2) !== text)
+    throw new Error('Staged application notice inventory is not canonical')
+  if (
+    !hasExactKeys(inventory, 'packages,packagesRequiringReview,scope') ||
+    inventory.scope !== APPLICATION_NOTICE_SCOPE ||
+    !Array.isArray(inventory.packages)
+  )
+    throw new Error('Staged application notice inventory fields are invalid')
+  const seen = new Set()
+  const listed = new Set()
+  let requiringReview = 0
+  for (const entry of inventory.packages) {
+    if (
+      !hasExactKeys(
+        entry,
+        'containingPackage,declaredLicense,name,notices,packagePath,sourceMatched,status,version'
+      )
+    )
+      throw new Error(
+        'Staged application notice inventory package fields are invalid'
+      )
+    const { packagePath } = entry
+    if (
+      typeof packagePath !== 'string' ||
+      !isPackagePath(packagePath) ||
+      seen.has(packagePath) ||
+      !packages.has(packagePath)
+    )
+      throw new Error(
+        `Staged application notice inventory package set disagrees with the bound payload: ${packagePath}`
+      )
+    seen.add(packagePath)
+    const info = packages.get(packagePath)
+    if (
+      entry.name !== (info.name ?? null) ||
+      entry.version !== (info.version ?? null) ||
+      JSON.stringify(entry.declaredLicense) !==
+        JSON.stringify(info.license ?? null) ||
+      typeof entry.sourceMatched !== 'boolean'
+    )
+      throw new Error(
+        `Staged application notice inventory package metadata disagrees with the bound payload: ${packagePath}`
+      )
+    const container = entry.containingPackage
+    if (container !== null) {
+      const containerInfo =
+        hasExactKeys(container, 'name,packagePath,version') &&
+        typeof container.packagePath === 'string' &&
+        isPackagePath(container.packagePath) &&
+        packages.get(container.packagePath)
+      if (
+        !containerInfo ||
+        entry.version ||
+        !entry.sourceMatched ||
+        !packagePath.startsWith(
+          container.packagePath ? `${container.packagePath}/` : ''
+        ) ||
+        container.name !== containerInfo.name ||
+        container.version !== containerInfo.version
+      )
+        throw new Error(
+          `Staged application notice inventory package metadata disagrees with the bound payload: ${packagePath}`
+        )
+    }
+    if (!Array.isArray(entry.notices))
+      throw new Error(
+        'Staged application notice inventory package fields are invalid'
+      )
+    const prefix = packagePath
+      ? `third-party-notices/${packagePath}/`
+      : 'third-party-notices/'
+    const paths = new Set()
+    const traced = boundTracedNotices(packagePath, manifest)
+    for (const notice of entry.notices) {
+      if (
+        !hasExactKeys(notice, 'origin,path,sha256') ||
+        !APPLICATION_NOTICE_ORIGINS.has(notice.origin) ||
+        typeof notice.sha256 !== 'string' ||
+        !HEX_64.test(notice.sha256) ||
+        typeof notice.path !== 'string'
+      )
+        throw new Error('Staged application notice inventory entry is invalid')
+      const within = notice.path.slice(prefix.length)
+      if (
+        !notice.path.startsWith(prefix) ||
+        !isSafeRelativePath(notice.path) ||
+        within.split('/').includes('node_modules') ||
+        !isApplicationNoticeName(basename(within)) ||
+        paths.has(notice.path)
+      )
+        throw new Error(
+          `Staged application notice inventory path is invalid: ${notice.path}`
+        )
+      paths.add(notice.path)
+      // A bound traced notice is listed as traced, with its bound digest; nothing else is.
+      if (
+        (notice.origin === 'traced-package') !== traced.has(notice.path) ||
+        (traced.has(notice.path) && traced.get(notice.path) !== notice.sha256)
+      )
+        throw new Error(
+          `Staged application notice inventory traced notice disagrees with the bound payload: ${notice.path}`
+        )
+      if (digests.get(notice.path)?.sha256 !== notice.sha256)
+        throw new Error(
+          `Staged application notice inventory does not match staged notice: ${notice.path}`
+        )
+      listed.add(notice.path)
+    }
+    for (const path of traced.keys())
+      if (!paths.has(path))
+        throw new Error(
+          `Staged application notice inventory omits a traced notice and disagrees with the bound payload: ${path}`
+        )
+    const status = entry.notices.length
+      ? 'notices-preserved'
+      : 'review-required'
+    if (entry.status !== status)
+      throw new Error(
+        `Staged application notice inventory status is invalid: ${packagePath}`
+      )
+    if (status === 'review-required') requiringReview += 1
+  }
+  for (const packagePath of packages.keys())
+    if (!seen.has(packagePath))
+      throw new Error(
+        `Staged application notice inventory package set disagrees with the bound payload: ${packagePath}`
+      )
+  if (inventory.packagesRequiringReview !== requiringReview)
+    throw new Error(
+      'Staged application notice inventory review count is invalid'
+    )
+  for (const rel of digests.keys())
+    if (rel.startsWith('third-party-notices/') && !listed.has(rel))
+      throw new Error(`Unlisted application notice file: ${rel}`)
+}
+
+export function verifyDesktopBuild(
+  record,
+  requiredFiles,
+  buildId,
+  expectedProvenance = {}
+) {
+  const expected = desktopBuildRecord(
+    requiredFiles,
+    buildId,
+    expectedProvenance
+  )
+  if (!record) throw new Error(staleBuildMessage)
+  optionalHex(record.sourceCommit, HEX_40, 'sourceCommit')
+  optionalHex(record.packageLockSha256, HEX_64, 'packageLockSha256')
+  if (Object.entries(expected).some(([key, value]) => record[key] !== value))
     throw new Error(staleBuildMessage)
 }
 
@@ -90,7 +643,11 @@ const readOptional = (path) =>
   })
 
 // A plain `next build` leaves no record; refuse it with the remedy, not ENOENT.
-export async function verifyRecordedDesktopBuild(directory, recordPath) {
+export async function verifyRecordedDesktopBuild(
+  directory,
+  recordPath,
+  expectedProvenance = {}
+) {
   const [record, requiredFiles, buildId] = await Promise.all([
     readOptional(recordPath),
     readOptional(join(directory, '.next/required-server-files.json')),
@@ -98,5 +655,29 @@ export async function verifyRecordedDesktopBuild(directory, recordPath) {
   ])
   if (record === null || requiredFiles === null || buildId === null)
     throw new Error(staleBuildMessage)
-  verifyDesktopBuild(JSON.parse(record), requiredFiles, buildId)
+  const parsed = JSON.parse(record)
+  verifyDesktopBuild(parsed, requiredFiles, buildId, expectedProvenance)
+  return parsed
+}
+
+export async function verifyApplicationLockfile(
+  applicationDirectory,
+  expectedPackageLockSha256
+) {
+  const expected = optionalHex(
+    expectedPackageLockSha256,
+    HEX_64,
+    'packageLockSha256'
+  )
+  if (!expected) throw new Error('Expected packageLockSha256 is required')
+  const lockBytes = await readFile(
+    join(applicationDirectory, 'package-lock.json')
+  ).catch((error) => {
+    if (error.code === 'ENOENT') return null
+    throw error
+  })
+  if (lockBytes !== null && digest(lockBytes) !== expected)
+    throw new Error(
+      'Staged application package-lock.json does not match source'
+    )
 }

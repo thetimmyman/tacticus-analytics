@@ -90,3 +90,21 @@ test('invalid Debian versions and stale or duplicate inventory entries refuse', 
     })
   )
 })
+
+test('debian metadata preserves valid source provenance and rejects malformed commit or lock hashes', () => {
+  const [bytes, inventory] = input(source)
+  const valid = {
+    ...inventory,
+    sourceCommit: 'a'.repeat(40),
+    packageLockSha256: 'b'.repeat(64)
+  }
+  const result = debianMetadata(bytes, valid)
+  assert.equal(result.inventory.sourceCommit, 'a'.repeat(40))
+  assert.equal(result.inventory.packageLockSha256, 'b'.repeat(64))
+  assert.throws(() =>
+    debianMetadata(bytes, { ...inventory, sourceCommit: 'bad-sha' })
+  )
+  assert.throws(() =>
+    debianMetadata(bytes, { ...inventory, packageLockSha256: 'bad-hash' })
+  )
+})

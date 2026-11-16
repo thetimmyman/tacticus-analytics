@@ -2,10 +2,12 @@ import { writeFile, mkdir, readdir } from 'node:fs/promises'
 import { withEntry, readBounded } from '../proof/safe-files.mjs'
 import { join, relative, dirname } from 'node:path'
 import { createHash } from 'node:crypto'
+import {
+  APPLICATION_NOTICE_SCOPE,
+  isApplicationNoticeName
+} from './build-profile.mjs'
 
-const noticeName = (name) =>
-  /^(?:LICEN[SC]E|NOTICE|COPYRIGHT|COPYING|AUTHORS)(?:[._-].*)?$/i.test(name) ||
-  /\.LEGAL\.txt$/i.test(name)
+const noticeName = isApplicationNoticeName
 const hash = (bytes) => createHash('sha256').update(bytes).digest('hex')
 async function directories(root, visit) {
   const entries = await readdir(root, { withFileTypes: true })
@@ -173,8 +175,7 @@ export async function stageApplicationNotices({ application, sourceModules }) {
     })
   }
   const inventory = {
-    scope:
-      'Traced application package notices; not a redistribution approval or complete native dependency audit',
+    scope: APPLICATION_NOTICE_SCOPE,
     packages: results,
     packagesRequiringReview: results.filter(
       (entry) => entry.status === 'review-required'

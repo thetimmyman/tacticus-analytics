@@ -86,6 +86,22 @@ package name and version. Versionless vendored packages additionally require the
 same package manifest, relative location and pinned containing package release.
 Staging reports missing notices as `review-required`; this inventory does not
 establish redistribution approval or cover all native runtime dependencies.
+`stage-linux.mjs` requires that inventory and checks it against the build record:
+it must be canonical JSON, list exactly the bound `node_modules` package manifests
+with their name, version and license, and list every staged notice file with its
+hash. Each package's `traced-package` notices must be exactly the nonempty notice
+files bound under its `node_modules` directory, with their bound digests, so a
+package with a bound notice cannot be `review-required`. Source-only notices are
+checked against their staged copies, not the build record.
+The output parent and every directory above it must be real directories owned by
+the packaging user or root and not writable by other users unless sticky. Staging
+holds descriptors for the parent and for the output it creates there, and writes
+every file through the output descriptor. Native add-ons are bundled in a private
+temporary directory and copied in after their digests are checked. Before each
+phase, staging checks that the output path still reaches the directory it created,
+and stops otherwise. On failure, the output is removed through its descriptor only
+while its path still reaches it. Otherwise staging leaves everything in place and
+reports the refusal.
 Build the guard on the target Linux toolchain with
 `node apps/desktop/package/build-runtime-guard.mjs /absolute/private/runtime-guard`.
 `Dockerfile.runtime-guard` builds it with the same pinned Ubuntu 22.04 base as

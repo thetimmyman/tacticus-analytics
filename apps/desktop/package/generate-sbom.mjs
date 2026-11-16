@@ -155,6 +155,31 @@ function compareComponents(a, b) {
   return a['bom-ref'].localeCompare(b['bom-ref'])
 }
 
+function provenanceProperties(provenance) {
+  if (!provenance) return []
+  const props = []
+  if (provenance.sourceCommit !== undefined) {
+    if (
+      typeof provenance.sourceCommit !== 'string' ||
+      !/^[a-f0-9]{40}$/.test(provenance.sourceCommit)
+    )
+      throw new Error('Invalid SBOM sourceCommit')
+    props.push({ name: 'sourceCommit', value: provenance.sourceCommit })
+  }
+  if (provenance.packageLockSha256 !== undefined) {
+    if (
+      typeof provenance.packageLockSha256 !== 'string' ||
+      !/^[a-f0-9]{64}$/.test(provenance.packageLockSha256)
+    )
+      throw new Error('Invalid SBOM packageLockSha256')
+    props.push({
+      name: 'packageLockSha256',
+      value: provenance.packageLockSha256
+    })
+  }
+  return props
+}
+
 export function generateSbom(runtimeInputs, lockPackages, options = {}) {
   const inputs = Array.isArray(runtimeInputs)
     ? runtimeInputs
@@ -165,6 +190,7 @@ export function generateSbom(runtimeInputs, lockPackages, options = {}) {
   const application =
     options.application ??
     (root && root.name ? { name: root.name, version: root.version } : null)
+  const properties = provenanceProperties(options.provenance)
 
   const runtimeComponents = buildRuntimeComponents(inputs)
   const npmComponents = buildNpmComponents(
@@ -183,7 +209,8 @@ export function generateSbom(runtimeInputs, lockPackages, options = {}) {
         specVersion: SPEC_VERSION,
         bomVersion: BOM_VERSION,
         components,
-        application: application ?? null
+        application: application ?? null,
+        ...(properties.length ? { properties } : {})
       })
     )
     .digest('hex')
@@ -191,6 +218,7 @@ export function generateSbom(runtimeInputs, lockPackages, options = {}) {
 
   const metadata = {
     tools: [TOOL],
+    ...(properties.length ? { properties } : {}),
     ...(application
       ? {
           component: {
@@ -237,7 +265,7 @@ async function main() {
   const out = args.out
   if (!out) {
     console.error(
-      'Usage: generate-sbom.mjs --out <bom.json> [--runtime-inputs <path>] [--package-lock <path>] [--timestamp <iso>]'
+      'Usage: generate-sbom.mjs --out <bom.json> [--runtime-inputs <path>] [--package-lock <path>] [--source-commit <sha>] [--timestamp <iso>]'
     )
     process.exit(2)
   }
@@ -246,15 +274,23 @@ async function main() {
     args['runtime-inputs'] ?? join(source, 'apps/desktop/runtime-inputs.json')
   const packageLockPath =
     args['package-lock'] ?? join(source, 'package-lock.json')
-  const [runtimeInputs, lock] = await Promise.all([
+  const [runtimeInputs, lockRaw] = await Promise.all([
     JSON.parse(await readFile(runtimeInputsPath, 'utf8')),
-    JSON.parse(await readFile(packageLockPath, 'utf8'))
+    readFile(packageLockPath, 'utf8')
   ])
+  const lock = JSON.parse(lockRaw)
+  const packageLockSha256 = createHash('sha256').update(lockRaw).digest('hex')
   const identity = JSON.parse(
     await readFile(join(source, 'apps/desktop/package/updates.json'), 'utf8')
   )
   const bom = generateSbom(runtimeInputs, lock, {
     application: { name: identity.packageName, version: identity.version },
+    provenance: {
+      ...(args['source-commit']
+        ? { sourceCommit: String(args['source-commit']) }
+        : {}),
+      packageLockSha256
+    },
     timestamp: args.timestamp ? String(args.timestamp) : undefined
   })
   await writeFile(resolve(out), JSON.stringify(bom, null, 2) + '\n', {
