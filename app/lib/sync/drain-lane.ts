@@ -184,7 +184,14 @@ export async function runDrainLane(
   }
 }
 
-const CLAIMABLE_AGE_SCAN_LIMIT = 250
+// claim_next_job() cannot compare attempts to max_attempts through a PostgREST
+// filter (filters compare against constants, not columns), so pages are read
+// with the claimable predicate and that leg is applied per row. Pages are
+// keyset-paged on id: the whole claimable set is measured, never a truncated
+// prefix of it.
+const CLAIMABLE_SCAN_PAGE_SIZE = 250
+const CLAIMABLE_ROW_COLUMNS =
+  'id, created_at, scheduled_for, attempts, max_attempts'
 
 function effectiveClaimableTimestampMs(row: {
   created_at?: unknown
@@ -204,9 +211,23 @@ function effectiveClaimableTimestampMs(row: {
   return createdAtMs
 }
 
+/** Mirrors `attempts < max_attempts` in claim_next_job(); SQL NULL there is "no claim". */
+function hasAttemptsLeft(row: {
+  attempts?: unknown
+  max_attempts?: unknown
+}): boolean {
+  return (
+    typeof row.attempts === 'number' &&
+    typeof row.max_attempts === 'number' &&
+    row.attempts < row.max_attempts
+  )
+}
+
 // Best-effort and non-throwing; null means "not measured", not zero.
 // Future-scheduled rows (scheduled_for > now) cannot be claimed yet, so both
 // depth and age exclude them and age starts once scheduled_for is reached.
+// Depth and age come from one complete scan so a half-read queue reports
+// "not measured" instead of a plausible-looking prefix.
 export async function readQueueDepth(
   supabase: ServiceSupabaseClient,
   now: () => number = () => Date.now()
@@ -217,38 +238,46 @@ export async function readQueueDepth(
   }
   const sampleTimeMs = now()
   const claimableFilter = `scheduled_for.is.null,scheduled_for.lte.${new Date(sampleTimeMs).toISOString()}`
+  let depth = 0
+  let oldestClaimableMs: number | null = null
+  let lastId: string | null = null
 
   try {
-    const countResult = (await supabase
-      .from('sync_queue')
-      .select('id', { count: 'exact', head: true })
-      .eq('status', 'pending')
-      .or(claimableFilter)) as { count?: unknown } | null
+    for (;;) {
+      const claimableRows = supabase
+        .from('sync_queue')
+        .select(CLAIMABLE_ROW_COLUMNS)
+        .eq('status', 'pending')
+        .or(claimableFilter)
+      const pageQuery =
+        lastId === null ? claimableRows : claimableRows.gt('id', lastId)
 
-    if (countResult && typeof countResult.count === 'number') {
-      sample.pendingDepth = countResult.count
-    }
-  } catch (error) {
-    logger.warn({ err: error }, 'Could not sample sync_queue depth')
-  }
+      const page = (await pageQuery
+        .order('id', { ascending: true })
+        .limit(CLAIMABLE_SCAN_PAGE_SIZE)) as {
+        data?: unknown
+        error?: { message?: string | null } | null
+      } | null
 
-  try {
-    const oldestResult = (await supabase
-      .from('sync_queue')
-      .select('created_at, scheduled_for')
-      .eq('status', 'pending')
-      .or(claimableFilter)
-      .order('scheduled_for', { ascending: true, nullsFirst: true })
-      .order('created_at', { ascending: true })
-      .limit(CLAIMABLE_AGE_SCAN_LIMIT)) as { data?: unknown } | null
+      if (page?.error) {
+        throw new Error(page.error.message ?? 'sync_queue scan failed')
+      }
+      const rows = page?.data
+      if (!Array.isArray(rows)) {
+        throw new Error('sync_queue scan returned no rows')
+      }
 
-    const rows = oldestResult?.data
-    if (Array.isArray(rows) && rows.length > 0) {
-      let oldestClaimableMs: number | null = null
       for (const row of rows) {
-        const claimableMs = effectiveClaimableTimestampMs(
-          row as { created_at?: unknown; scheduled_for?: unknown }
-        )
+        const typedRow = row as {
+          id?: unknown
+          created_at?: unknown
+          scheduled_for?: unknown
+          attempts?: unknown
+          max_attempts?: unknown
+        }
+        if (!hasAttemptsLeft(typedRow)) continue
+        depth += 1
+        const claimableMs = effectiveClaimableTimestampMs(typedRow)
         if (
           claimableMs !== null &&
           (oldestClaimableMs === null || claimableMs < oldestClaimableMs)
@@ -256,18 +285,28 @@ export async function readQueueDepth(
           oldestClaimableMs = claimableMs
         }
       }
-      if (oldestClaimableMs !== null) {
-        sample.oldestPendingAgeSeconds = Math.max(
-          0,
-          Math.round((sampleTimeMs - oldestClaimableMs) / 1000)
-        )
+
+      if (rows.length < CLAIMABLE_SCAN_PAGE_SIZE) break
+
+      const pageLastId: unknown = (
+        rows[rows.length - 1] as { id?: unknown } | undefined
+      )?.id
+      // Without an advancing key the next page would re-read this one forever.
+      if (typeof pageLastId !== 'string' || pageLastId === lastId) {
+        throw new Error('sync_queue scan page did not advance')
       }
+      lastId = pageLastId
+    }
+
+    sample.pendingDepth = depth
+    if (oldestClaimableMs !== null) {
+      sample.oldestPendingAgeSeconds = Math.max(
+        0,
+        Math.round((sampleTimeMs - oldestClaimableMs) / 1000)
+      )
     }
   } catch (error) {
-    logger.warn(
-      { err: error },
-      'Could not sample oldest pending sync_queue row'
-    )
+    logger.warn({ err: error }, 'Could not sample sync_queue claimable depth')
   }
 
   return sample

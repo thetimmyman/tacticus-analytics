@@ -67,6 +67,195 @@ function fakeClock(steps: number[]) {
   }
 }
 
+type QueueRow = {
+  id: string
+  status: string
+  created_at: string | null
+  scheduled_for: string | null
+  attempts: number | null
+  max_attempts: number | null
+}
+
+type QueueOrder = {
+  column: string
+  ascending: boolean
+  nullsFirst?: boolean | null
+}
+
+type QueueQuery = {
+  columns: string[]
+  head: boolean
+  filters: Array<{ column: string; value: unknown }>
+  orFilters: string[]
+  orders: QueueOrder[]
+  after: { column: string; value: string } | null
+  limit: number | null
+}
+
+/** PostgREST-shaped row set: eq/or filters, multi-key ORDER BY, keyset gt, LIMIT. */
+function queueRowClient(
+  rows: QueueRow[],
+  options: { failFromPage?: number } = {}
+) {
+  const queries: QueueQuery[] = []
+  const orFilters: string[] = []
+  const selectedColumns: string[] = []
+  let pages = 0
+
+  const matchesOr = (row: QueueRow, filter: string) =>
+    filter.split(',').some((term) => {
+      const first = term.indexOf('.')
+      const second = term.indexOf('.', first + 1)
+      const column = term.slice(0, first)
+      const operator = term.slice(first + 1, second)
+      const value = term.slice(second + 1)
+      const actual = (row as unknown as Record<string, unknown>)[column]
+      if (operator === 'is' && value === 'null') {
+        return actual === null || actual === undefined
+      }
+      if (operator === 'lte') {
+        return (
+          typeof actual === 'string' && Date.parse(actual) <= Date.parse(value)
+        )
+      }
+      throw new Error(`Unsupported or() term: ${term}`)
+    })
+
+  const compare = (query: QueueQuery) => (left: QueueRow, right: QueueRow) => {
+    for (const order of query.orders) {
+      const a =
+        (left as unknown as Record<string, unknown>)[order.column] ?? null
+      const b =
+        (right as unknown as Record<string, unknown>)[order.column] ?? null
+      if (a === b) continue
+      if (a === null || b === null) {
+        const nullsFirst = order.nullsFirst ?? !order.ascending
+        if (a === null) return nullsFirst ? -1 : 1
+        return nullsFirst ? 1 : -1
+      }
+      const cmp = String(a) < String(b) ? -1 : 1
+      return order.ascending ? cmp : -cmp
+    }
+    return 0
+  }
+
+  const execute = (query: QueueQuery) => {
+    pages += 1
+    if (options.failFromPage && pages >= options.failFromPage) {
+      return { data: null, error: { message: 'queue read failed' } }
+    }
+    let matched = rows.filter((row) =>
+      query.filters.every(
+        ({ column, value }) =>
+          (row as unknown as Record<string, unknown>)[column] === value
+      )
+    )
+    for (const filter of query.orFilters) {
+      matched = matched.filter((row) => matchesOr(row, filter))
+    }
+    if (query.after) {
+      matched = matched.filter(
+        (row) =>
+          String(
+            (row as unknown as Record<string, unknown>)[query.after!.column]
+          ) > query.after!.value
+      )
+    }
+    const sorted = [...matched].sort(compare(query))
+    const limited = (
+      query.limit === null ? sorted : sorted.slice(0, query.limit)
+    ).map((row) => ({ ...row }))
+    return query.head
+      ? { data: null, count: limited.length, error: null }
+      : { data: limited, error: null }
+  }
+
+  const makeChain = (query: QueueQuery) => {
+    const chain = {
+      select: (columns: string, opts?: { head?: boolean }) => {
+        query.columns = columns.split(',').map((column) => column.trim())
+        query.head = Boolean(opts?.head)
+        selectedColumns.push(columns)
+        return chain
+      },
+      eq: (column: string, value: unknown) => {
+        query.filters.push({ column, value })
+        return chain
+      },
+      or: (filter: string) => {
+        query.orFilters.push(filter)
+        orFilters.push(filter)
+        return chain
+      },
+      order: (
+        column: string,
+        opts?: { ascending?: boolean; nullsFirst?: boolean }
+      ) => {
+        query.orders.push({
+          column,
+          ascending: opts?.ascending ?? true,
+          nullsFirst: opts?.nullsFirst
+        })
+        return chain
+      },
+      gt: (column: string, value: string) => {
+        query.after = { column, value }
+        return chain
+      },
+      limit: (count: number) => {
+        query.limit = count
+        return chain
+      },
+      then: (
+        resolve: (value: unknown) => unknown,
+        reject?: (reason: unknown) => unknown
+      ) => Promise.resolve(execute(query)).then(resolve, reject)
+    }
+    return chain
+  }
+
+  return {
+    client: {
+      from: (table: string) => {
+        if (table !== 'sync_queue') throw new Error(`unexpected table ${table}`)
+        const query: QueueQuery = {
+          columns: [],
+          head: false,
+          filters: [],
+          orFilters: [],
+          orders: [],
+          after: null,
+          limit: null
+        }
+        queries.push(query)
+        return makeChain(query)
+      }
+    } as never,
+    queries,
+    orFilters,
+    selectedColumns,
+    pagesRead: () => pages
+  }
+}
+
+let rowSequence = 0
+function queueRow(overrides: Partial<QueueRow> = {}): QueueRow {
+  rowSequence += 1
+  return {
+    id: `00000000-0000-4000-8000-${String(rowSequence).padStart(12, '0')}`,
+    status: 'pending',
+    created_at: null,
+    scheduled_for: null,
+    attempts: 0,
+    max_attempts: 3,
+    ...overrides
+  }
+}
+
+function isoAt(epochMs: number): string {
+  return new Date(epochMs).toISOString()
+}
+
 describe('drain lanes', () => {
   beforeEach(() => {
     processJob.mockReset()
@@ -254,155 +443,123 @@ describe('drain lanes', () => {
   })
 
   describe('queue depth sampling', () => {
-    it('samples only claimable pending rows and measures age from claimable timestamp', async () => {
-      const fixedNow = Date.parse('2026-11-16T06:45:00.000Z')
-      const nowIso = new Date(fixedNow).toISOString()
-      const createdImmediate = new Date(fixedNow - 600_000).toISOString()
-      const createdStaggered = new Date(fixedNow - 2_400_000).toISOString()
-      const scheduledStaggered = new Date(fixedNow - 60_000).toISOString()
-      const countOrCalls: string[] = []
-      const ageOrCalls: string[] = []
+    const fixedNow = Date.parse('2026-11-16T06:45:00.000Z')
+    const nowIso = isoAt(fixedNow)
 
-      const makeOrderChain = (
-        rows: Array<{ created_at: string; scheduled_for?: string | null }>
-      ) => {
-        const chain: Record<string, unknown> = {
-          order: vi.fn(() => chain),
-          limit: vi.fn(async () => ({
-            data: rows,
-            error: null
-          }))
-        }
-        return chain
-      }
+    it('reports the true oldest claimable age once the queue is deeper than one scan page', async () => {
+      // 260 young unscheduled rows sort ahead of an older scheduled job under
+      // `scheduled_for NULLS FIRST, created_at`; a single 250-row page therefore
+      // reported 60s instead of the job that has been claimable for an hour.
+      const young = isoAt(fixedNow - 60_000)
+      const oldCreated = isoAt(fixedNow - 7_200_000)
+      const oldScheduled = isoAt(fixedNow - 3_600_000)
+      const rows: QueueRow[] = Array.from({ length: 260 }, () =>
+        queueRow({ created_at: young, scheduled_for: null })
+      )
+      rows.push(
+        queueRow({
+          id: 'ffffffff-ffff-4fff-8fff-ffffffffffff',
+          created_at: oldCreated,
+          scheduled_for: oldScheduled
+        })
+      )
+      const queue = queueRowClient(rows)
 
-      const client = {
-        from: vi.fn(() => ({
-          select: vi.fn((_columns: string, opts?: { head?: boolean }) =>
-            opts?.head
-              ? {
-                  eq: vi.fn(() => ({
-                    or: vi.fn(async (filter: string) => {
-                      countOrCalls.push(filter)
-                      return { count: 7, error: null }
-                    })
-                  }))
-                }
-              : {
-                  eq: vi.fn(() => ({
-                    or: vi.fn((filter: string) => {
-                      ageOrCalls.push(filter)
-                      return makeOrderChain([
-                        {
-                          created_at: createdStaggered,
-                          scheduled_for: scheduledStaggered
-                        },
-                        {
-                          created_at: createdImmediate,
-                          scheduled_for: null
-                        }
-                      ])
-                    })
-                  }))
-                }
-          )
-        }))
-      } as never
+      const sample = await readQueueDepth(queue.client, () => fixedNow)
 
-      const sample = await readQueueDepth(client, () => fixedNow)
+      expect(sample.pendingDepth).toBe(261)
+      expect(sample.oldestPendingAgeSeconds).toBe(3600)
+      expect(queue.pagesRead()).toBeGreaterThan(1)
+    })
 
-      expect(countOrCalls).toEqual([
+    it('counts only rows with attempts left, matching the claim and health predicates', async () => {
+      const exhausted = queueRow({
+        created_at: isoAt(fixedNow - 21_600_000),
+        scheduled_for: null,
+        attempts: 3,
+        max_attempts: 3
+      })
+      const claimable = queueRow({
+        created_at: isoAt(fixedNow - 120_000),
+        scheduled_for: null,
+        attempts: 2,
+        max_attempts: 3
+      })
+      const missingAttempts = queueRow({
+        created_at: isoAt(fixedNow - 43_200_000),
+        scheduled_for: null,
+        attempts: null,
+        max_attempts: 3
+      })
+      const queue = queueRowClient([exhausted, missingAttempts, claimable])
+
+      const sample = await readQueueDepth(queue.client, () => fixedNow)
+
+      expect(sample.pendingDepth).toBe(1)
+      expect(sample.oldestPendingAgeSeconds).toBe(120)
+    })
+
+    it('reads only claimable pending rows with the columns the claim predicate needs', async () => {
+      const queue = queueRowClient([])
+
+      const sample = await readQueueDepth(queue.client, () => fixedNow)
+
+      expect(queue.orFilters).toEqual([
         `scheduled_for.is.null,scheduled_for.lte.${nowIso}`
       ])
-      expect(ageOrCalls).toEqual([
-        `scheduled_for.is.null,scheduled_for.lte.${nowIso}`
+      expect(queue.queries[0].filters).toEqual([
+        { column: 'status', value: 'pending' }
       ])
-      expect(sample.pendingDepth).toBe(7)
-      // Staggered row was created 2400s ago but only became claimable 60s ago;
-      // the unscheduled row from 600s ago is the oldest claimable job.
-      expect(sample.oldestPendingAgeSeconds).toBe(600)
+      expect(queue.selectedColumns[0]).toEqual(
+        expect.stringContaining('attempts')
+      )
+      expect(queue.selectedColumns[0]).toEqual(
+        expect.stringContaining('max_attempts')
+      )
+      // An empty claimable queue is a measured zero depth, not an unmeasured null.
+      expect(sample.pendingDepth).toBe(0)
+      expect(sample.oldestPendingAgeSeconds).toBeNull()
     })
 
     it('does not count deferred wait before scheduled_for in oldestPendingAgeSeconds', async () => {
-      const fixedNow = Date.parse('2026-11-16T06:45:00.000Z')
-      const createdStaggered = new Date(fixedNow - 2_400_000).toISOString()
-      const scheduledStaggered = new Date(fixedNow - 45_000).toISOString()
+      const queue = queueRowClient([
+        queueRow({
+          created_at: isoAt(fixedNow - 2_400_000),
+          scheduled_for: isoAt(fixedNow - 45_000)
+        })
+      ])
 
-      const makeOrderChain = () => {
-        const chain: Record<string, unknown> = {
-          order: vi.fn(() => chain),
-          limit: vi.fn(async () => ({
-            data: [
-              {
-                created_at: createdStaggered,
-                scheduled_for: scheduledStaggered
-              }
-            ],
-            error: null
-          }))
-        }
-        return chain
-      }
+      const sample = await readQueueDepth(queue.client, () => fixedNow)
 
-      const client = {
-        from: vi.fn(() => ({
-          select: vi.fn((_columns: string, opts?: { head?: boolean }) =>
-            opts?.head
-              ? {
-                  eq: vi.fn(() => ({
-                    or: vi.fn(async () => ({ count: 3, error: null }))
-                  }))
-                }
-              : {
-                  eq: vi.fn(() => ({
-                    or: vi.fn(() => makeOrderChain())
-                  }))
-                }
-          )
-        }))
-      } as never
-
-      const sample = await readQueueDepth(client, () => fixedNow)
-
-      expect(sample.pendingDepth).toBe(3)
+      expect(sample.pendingDepth).toBe(1)
       expect(sample.oldestPendingAgeSeconds).toBe(45)
     })
 
-    it('reports nulls rather than zeros when timestamps are unparseable or reads fail', async () => {
-      const fixedNow = Date.parse('2026-11-16T06:45:00.000Z')
-      const makeBadTimestampChain = () => {
-        const chain: Record<string, unknown> = {
-          order: vi.fn(() => chain),
-          limit: vi.fn(async () => ({
-            data: [{ created_at: 'not-a-timestamp', scheduled_for: null }],
-            error: null
-          }))
-        }
-        return chain
-      }
+    it('still counts a row whose timestamp cannot be parsed as depth, without inventing an age', async () => {
+      const queue = queueRowClient([
+        queueRow({ created_at: 'not-a-timestamp', scheduled_for: null })
+      ])
 
-      const badTimestampClient = {
-        from: vi.fn(() => ({
-          select: vi.fn((_columns: string, opts?: { head?: boolean }) =>
-            opts?.head
-              ? {
-                  eq: vi.fn(() => ({
-                    or: vi.fn(async () => ({ count: null, error: null }))
-                  }))
-                }
-              : {
-                  eq: vi.fn(() => ({
-                    or: vi.fn(() => makeBadTimestampChain())
-                  }))
-                }
-          )
-        }))
-      } as never
+      const sample = await readQueueDepth(queue.client, () => fixedNow)
 
-      const badSample = await readQueueDepth(badTimestampClient, () => fixedNow)
-      expect(badSample.pendingDepth).toBeNull()
-      expect(badSample.oldestPendingAgeSeconds).toBeNull()
+      expect(sample.pendingDepth).toBe(1)
+      expect(sample.oldestPendingAgeSeconds).toBeNull()
+    })
 
+    it('reports nulls rather than a partial measurement when a page read fails', async () => {
+      const rows: QueueRow[] = Array.from({ length: 250 }, () =>
+        queueRow({ created_at: isoAt(fixedNow - 60_000), scheduled_for: null })
+      )
+      const queue = queueRowClient(rows, { failFromPage: 2 })
+
+      const sample = await readQueueDepth(queue.client, () => fixedNow)
+
+      // A scan that stopped halfway cannot prove either the true depth or age.
+      expect(sample.pendingDepth).toBeNull()
+      expect(sample.oldestPendingAgeSeconds).toBeNull()
+    })
+
+    it('reports nulls rather than zeros when the client throws', async () => {
       const throwingClient = {
         from: vi.fn(() => {
           throw new Error('no client')
