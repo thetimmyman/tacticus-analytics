@@ -3,13 +3,23 @@ import {
   lstat,
   mkdir,
   readFile,
+  realpath,
+  rename,
   rm,
   writeFile,
   readdir
 } from 'node:fs/promises'
-import { resolve, join, dirname, isAbsolute, parse, sep } from 'node:path'
+import {
+  resolve,
+  join,
+  dirname,
+  basename,
+  isAbsolute,
+  parse,
+  sep
+} from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { createHash } from 'node:crypto'
+import { createHash, randomBytes } from 'node:crypto'
 import {
   captureCleanCheckoutProvenance,
   requireCleanBuildEnvironment,
@@ -90,6 +100,7 @@ function sameDigests(left, right) {
 }
 
 // Every existing component above the output must be a real directory, never a symlink.
+// Returns the parent's (dev, ino) so later operations can prove they reach the same directory.
 async function requireRealOutputParent(output) {
   if (resolve(output) !== output)
     throw new Error('Normalized absolute output path required')
@@ -97,9 +108,9 @@ async function requireRealOutputParent(output) {
   const parent = dirname(output)
   if (parent === output) throw new Error('Output must not be a filesystem root')
   let current = root
+  let info
   for (const part of parent.slice(root.length).split(sep).filter(Boolean)) {
     current = join(current, part)
-    let info
     try {
       info = await lstat(current)
     } catch (error) {
@@ -111,6 +122,114 @@ async function requireRealOutputParent(output) {
       throw new Error('Package output path must not traverse a symlink')
     if (!info.isDirectory())
       throw new Error('Package output parent must be a directory')
+  }
+  info ??= await lstat(root)
+  if ((await realpath(parent)) !== parent)
+    throw new Error('Package output path must not traverse a symlink')
+  return { dev: info.dev, ino: info.ino }
+}
+
+const sameIdentity = (info, identity) =>
+  info.dev === identity.dev && info.ino === identity.ino
+
+// Run fn with the working directory pinned to the parent directory inode we verified.
+// Relative operations inside fn resolve against that inode even if the path is later
+// renamed or replaced with a symlink.
+async function withPinnedParent(parent, parentIdentity, fn) {
+  const previous = process.cwd()
+  process.chdir(parent)
+  try {
+    if (!sameIdentity(await lstat('.'), parentIdentity))
+      throw new Error('Package output parent directory changed identity')
+    return await fn()
+  } finally {
+    process.chdir(previous)
+  }
+}
+
+// Atomic single-directory acquisition inside the verified parent inode. EEXIST means
+// another owner, so fail without touching it.
+async function acquireOutput(output) {
+  const parent = dirname(output)
+  const name = basename(output)
+  const parentIdentity = await requireRealOutputParent(output)
+  return withPinnedParent(parent, parentIdentity, async () => {
+    try {
+      await mkdir(name, { mode: 0o700 })
+    } catch (error) {
+      if (error.code === 'EEXIST')
+        throw new Error('Package output already exists')
+      throw error
+    }
+    // mkdir returns no inode, so prove the entry is still the fresh private directory we made.
+    const created = await lstat(name)
+    if (
+      created.isSymbolicLink() ||
+      !created.isDirectory() ||
+      (typeof process.getuid === 'function' &&
+        created.uid !== process.getuid()) ||
+      (created.mode & 0o077) !== 0 ||
+      (await readdir(name)).length !== 0
+    ) {
+      console.error(
+        `Refusing to remove package output ${output}: package output directory changed identity during acquisition; left in place`
+      )
+      throw new Error(
+        'Package output directory changed identity during acquisition'
+      )
+    }
+    return {
+      output,
+      parent,
+      name,
+      parentIdentity,
+      outputIdentity: { dev: created.dev, ino: created.ino }
+    }
+  })
+}
+
+// The absolute output path must still reach exactly the directory this invocation created.
+async function assertOwnedOutput(owned) {
+  const parentIdentity = await requireRealOutputParent(owned.output)
+  const output = await lstat(owned.output)
+  if (
+    !sameIdentity(parentIdentity, owned.parentIdentity) ||
+    output.isSymbolicLink() ||
+    !output.isDirectory() ||
+    !sameIdentity(output, owned.outputIdentity)
+  )
+    throw new Error('Package output directory changed identity during staging')
+}
+
+// Remove only the directory this invocation created, reached through the verified parent
+// inode. Any identity change refuses cleanup and leaves every directory in place.
+async function releaseOwnedOutput(owned) {
+  try {
+    await withPinnedParent(owned.parent, owned.parentIdentity, async () => {
+      const entry = await lstat(owned.name)
+      if (
+        entry.isSymbolicLink() ||
+        !entry.isDirectory() ||
+        !sameIdentity(entry, owned.outputIdentity)
+      )
+        throw new Error('package output directory changed identity')
+      // Move it to a private name first so a later swap cannot redirect the recursive removal.
+      const discard = `.${owned.name}.discard-${randomBytes(8).toString('hex')}`
+      await rename(owned.name, discard)
+      const moved = await lstat(discard)
+      if (
+        moved.isSymbolicLink() ||
+        !sameIdentity(moved, owned.outputIdentity)
+      ) {
+        await rename(discard, owned.name).catch(() => {})
+        throw new Error('package output directory changed identity')
+      }
+      await rm(discard, { recursive: true, force: true })
+    })
+  } catch (reason) {
+    console.error(
+      `Refusing to remove package output ${owned.output}: ${reason.message}; left in place`
+    )
   }
 }
 
@@ -167,18 +286,9 @@ const expectedProvenance = {
 await requireRealOutputParent(config.output)
 const { record: buildRecord, digests: initialAppDigests } =
   await verifyStagedApplication(config.application, expectedProvenance)
-await requireRealOutputParent(config.output)
-// Atomic single-directory acquisition: EEXIST means another owner, so fail without touching it.
-let createdOutputDir = false
+const ownedOutput = await acquireOutput(config.output)
 try {
-  await mkdir(config.output, { mode: 0o700 })
-} catch (error) {
-  if (error.code === 'EEXIST') throw new Error('Package output already exists')
-  throw error
-}
-createdOutputDir = true
-try {
-  await requireRealOutputParent(config.output)
+  await assertOwnedOutput(ownedOutput)
   await buildNativeAddons(join(config.output, 'apps/desktop/addons'))
   if (config.addonPolicy && !isAbsolute(config.addonPolicy))
     throw new Error('Absolute add-on policy path required')
@@ -392,8 +502,7 @@ try {
     })
   )
 } catch (error) {
-  // Only remove an output directory this invocation created.
-  if (createdOutputDir)
-    await rm(config.output, { recursive: true, force: true })
+  // Only remove the output directory this invocation created, and only if it is still that directory.
+  await releaseOwnedOutput(ownedOutput)
   throw error
 }

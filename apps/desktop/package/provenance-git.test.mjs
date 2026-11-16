@@ -80,6 +80,8 @@ async function createTempCheckout() {
   for (const relativePath of [
     'apps/desktop/proof/build-application.mjs',
     'apps/desktop/proof/safe-files.mjs',
+    'apps/desktop/proof/stage-standalone.mjs',
+    'apps/desktop/package/application-notices.mjs',
     'apps/desktop/package/build-profile.mjs',
     'apps/desktop/package/generate-sbom.mjs',
     'apps/desktop/package/stage-linux.mjs',
@@ -225,6 +227,21 @@ export async function build({ outfile }) {
 `
   )
 
+  // Ignored installed source package: stage-standalone preserves its extra NOTICE from here.
+  await mkdir(join(repo, 'node_modules/synthetic-pkg'), { recursive: true })
+  await writeFile(
+    join(repo, 'node_modules/synthetic-pkg/package.json'),
+    JSON.stringify({ name: 'synthetic-pkg', version: '1.0.0', license: 'MIT' })
+  )
+  await writeFile(
+    join(repo, 'node_modules/synthetic-pkg/LICENSE'),
+    'Synthetic MIT notice\n'
+  )
+  await writeFile(
+    join(repo, 'node_modules/synthetic-pkg/NOTICE'),
+    'Synthetic source-only notice\n'
+  )
+
   const npmLog = join(home, 'npm-invoked.json')
   const hookScript = join(home, 'during-build-hook.mjs')
   const npmRunner = join(home, 'npm-runner.mjs')
@@ -257,6 +274,14 @@ writeFileSync(
 writeFileSync(join(cwd, '.next/standalone/.next/BUILD_ID'), 'synthetic-build-id\\n')
 writeFileSync(join(cwd, '.next/standalone/.next/server/app.js'), '// synthetic compiled app route\\n')
 writeFileSync(join(cwd, '.next/static/chunks/main.js'), '// synthetic client chunk\\n')
+// Traced runtime dependency, as Next copies it into the standalone node_modules.
+mkdirSync(join(cwd, '.next/standalone/node_modules/synthetic-pkg'), { recursive: true })
+writeFileSync(
+  join(cwd, '.next/standalone/node_modules/synthetic-pkg/package.json'),
+  JSON.stringify({ name: 'synthetic-pkg', version: '1.0.0', license: 'MIT' })
+)
+writeFileSync(join(cwd, '.next/standalone/node_modules/synthetic-pkg/index.js'), 'module.exports = 1\\n')
+writeFileSync(join(cwd, '.next/standalone/node_modules/synthetic-pkg/LICENSE'), 'Synthetic MIT notice\\n')
 if (existsSync(${JSON.stringify(hookScript)})) {
   const mod = await import(pathToFileURL(${JSON.stringify(hookScript)}).href)
   await mod.mutate(cwd)
@@ -424,6 +449,9 @@ test('build-application records exact clean HEAD and lockfile SHA-256 on a clean
       '.next/required-server-files.json',
       '.next/server/app.js',
       '.next/static/chunks/main.js',
+      'node_modules/synthetic-pkg/LICENSE',
+      'node_modules/synthetic-pkg/index.js',
+      'node_modules/synthetic-pkg/package.json',
       'public/favicon.svg',
       'server.js'
     ]
@@ -566,33 +594,21 @@ async function createStageInputs(home, repo, name = 'stage-inputs') {
   const postgres = join(inputs, 'postgres')
   const electron = join(inputs, 'electron')
   const auth = join(inputs, 'auth')
-  // Mirror stage-standalone.mjs: record, standalone tree, static assets, public assets, notices.
-  await mkdir(application, { recursive: true })
-  await cp(
-    join(repo, '.next/desktop-build.json'),
-    join(application, 'desktop-build.json')
+  // The real standalone stager builds the application, including application-notices.json.
+  const staged = spawnSync(
+    process.execPath,
+    [join(repo, 'apps/desktop/proof/stage-standalone.mjs'), application],
+    {
+      cwd: repo,
+      env: cleanGitEnv({ HOME: home, LANG: 'C' }),
+      encoding: 'utf8',
+      timeout: 15000
+    }
   )
-  await cp(join(repo, '.next/standalone'), application, { recursive: true })
-  await cp(join(repo, '.next/static'), join(application, '.next/static'), {
-    recursive: true
-  })
-  await cp(join(repo, 'public'), join(application, 'public'), {
-    recursive: true
-  })
-  await cp(
-    join(repo, '.next/desktop-build.json'),
-    join(application, '.next/desktop-build.json')
-  )
+  assert.equal(staged.status, 0, staged.stderr)
   await cp(
     join(repo, 'package-lock.json'),
     join(application, 'package-lock.json')
-  )
-  await mkdir(join(application, 'third-party-notices/synthetic-pkg'), {
-    recursive: true
-  })
-  await writeFile(
-    join(application, 'third-party-notices/synthetic-pkg/LICENSE'),
-    'Synthetic MIT notice\n'
   )
 
   await mkdir(postgres, { recursive: true })
@@ -842,6 +858,117 @@ test('stage-linux stages a clean matching checkout and records exact provenance 
     )
     assert.equal(props.sourceCommit, commitA)
     assert.equal(props.packageLockSha256, expectedLockHash)
+
+    // The real stager's generated notice inventory is packaged and bound to its notice files.
+    const notices = JSON.parse(
+      await readFile(
+        join(outDir, 'application/application-notices.json'),
+        'utf8'
+      )
+    )
+    assert.deepEqual(
+      notices.packages.map((entry) => [
+        entry.packagePath,
+        entry.status,
+        entry.notices.map((notice) => [notice.path, notice.origin])
+      ]),
+      [
+        [
+          'synthetic-pkg',
+          'notices-preserved',
+          [
+            ['third-party-notices/synthetic-pkg/LICENSE', 'traced-package'],
+            [
+              'third-party-notices/synthetic-pkg/NOTICE',
+              'installed-source-package'
+            ]
+          ]
+        ]
+      ]
+    )
+    const packaged = new Set(inventory.files.map((file) => file.path))
+    for (const path of [
+      'application/application-notices.json',
+      'application/third-party-notices/synthetic-pkg/LICENSE',
+      'application/third-party-notices/synthetic-pkg/NOTICE'
+    ])
+      assert.ok(packaged.has(path), `${label}: ${path} must be packaged`)
+  }
+})
+
+test('stage-linux refuses a tampered generated notice inventory from the real standalone stager', async (t) => {
+  const { home, repo, runNode } = await createTempCheckout()
+  t.after(() => rm(home, { recursive: true, force: true }))
+
+  const commitA = git(repo, ['rev-parse', 'HEAD'])
+  assert.equal(runNode('apps/desktop/proof/build-application.mjs').status, 0)
+  const edit = (change) => async (app) => {
+    const path = join(app, 'application-notices.json')
+    const inventory = JSON.parse(await readFile(path, 'utf8'))
+    change(inventory)
+    await writeFile(path, JSON.stringify(inventory, null, 2))
+  }
+  for (const [label, tamper, message] of [
+    [
+      'notice-digest',
+      edit((inventory) => {
+        inventory.packages[0].notices[0].sha256 = 'a'.repeat(64)
+      }),
+      /notice inventory does not match staged notice/
+    ],
+    [
+      'unlisted-notice-file',
+      async (app) =>
+        writeFile(
+          join(app, 'third-party-notices/synthetic-pkg/COPYING'),
+          'Unlisted notice\n'
+        ),
+      /Unlisted application notice/
+    ],
+    [
+      'invented-package',
+      edit((inventory) => {
+        inventory.packages.push({
+          ...inventory.packages[0],
+          packagePath: 'invented-pkg',
+          notices: []
+        })
+      }),
+      /notice inventory package set/
+    ],
+    [
+      'notice-outside-package',
+      edit((inventory) => {
+        inventory.packages[0].notices[0].path = 'server.js'
+      }),
+      /notice inventory path/
+    ],
+    [
+      'non-canonical-bytes',
+      async (app) => {
+        const path = join(app, 'application-notices.json')
+        await writeFile(path, (await readFile(path, 'utf8')) + '\n')
+      },
+      /notice inventory is not canonical/
+    ],
+    [
+      'missing-inventory',
+      async (app) => unlink(join(app, 'application-notices.json')),
+      /application-notices\.json is missing/
+    ]
+  ]) {
+    const config = await createStageInputs(home, repo, `inputs-${label}`)
+    await tamper(config.application)
+    const out = join(home, `out-${label}`)
+    const cfgPath = join(home, `stage-${label}.json`)
+    await writeFile(
+      cfgPath,
+      JSON.stringify({ ...config, output: out, sourceCommit: commitA })
+    )
+    const res = runNode('apps/desktop/package/stage-linux.mjs', [cfgPath])
+    assert.notEqual(res.status, 0, `${label}: must fail closed`)
+    assert.match(res.stderr, message, label)
+    await assert.rejects(stat(out), { code: 'ENOENT' }, label)
   }
 })
 
@@ -974,7 +1101,6 @@ async function snapshotRecords(application) {
   const snapshot = {}
   for (const rel of [
     'desktop-build.json',
-    '.next/desktop-build.json',
     '.next/required-server-files.json',
     '.next/BUILD_ID',
     'package-lock.json'
@@ -1124,10 +1250,10 @@ test('stage-linux acquires its output directory exclusively and never removes a 
       preload,
       `import fsp from 'node:fs/promises'
 import { syncBuiltinESMExports } from 'node:module'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 const original = fsp.mkdir
 fsp.mkdir = async (path, options) => {
-  if (path === ${JSON.stringify(out)}) {
+  if (resolve(String(path)) === ${JSON.stringify(out)}) {
     await original(path)
     await fsp.writeFile(join(path, 'owner.txt'), 'other invocation\\n')
   }
@@ -1196,4 +1322,125 @@ test('stage-linux refuses output paths with symlinked or missing parent componen
     assert.notEqual(res.status, 0, `${label}: output path must be refused`)
     await assert.rejects(stat(mustNotExist), { code: 'ENOENT' }, label)
   }
+})
+
+// Runs stage-linux with a swap injected at one point and asserts cleanup never deletes through it.
+test('stage-linux cleanup refuses to delete through a replaced parent or a replaced output directory', async (t) => {
+  const { home, repo, bundleHookScript, runNode } = await createTempCheckout()
+  t.after(() => rm(home, { recursive: true, force: true }))
+
+  const commitA = git(repo, ['rev-parse', 'HEAD'])
+  assert.equal(runNode('apps/desktop/proof/build-application.mjs').status, 0)
+  const baseConfig = await createStageInputs(home, repo)
+
+  // Each swap leaves a victim directory with one sentinel; the victim must survive untouched.
+  const swaps = {
+    'parent-symlink': (parent, out, victim) => `
+  await fsp.rename(${JSON.stringify(parent)}, ${JSON.stringify(parent + '-moved')})
+  await fsp.mkdir(${JSON.stringify(join(victim, 'out'))}, { recursive: true })
+  await fsp.writeFile(${JSON.stringify(join(victim, 'out', 'owner.txt'))}, 'victim\\n')
+  await fsp.symlink(${JSON.stringify(victim)}, ${JSON.stringify(parent)})`,
+    'output-directory': (_parent, out) => `
+  await fsp.rename(${JSON.stringify(out)}, ${JSON.stringify(out + '-moved')})
+  await fsp.mkdir(${JSON.stringify(out)})
+  await fsp.writeFile(${JSON.stringify(join(out, 'owner.txt'))}, 'victim\\n')`,
+    'output-symlink': (parent, out, victim) => `
+  await fsp.rename(${JSON.stringify(out)}, ${JSON.stringify(out + '-moved')})
+  await fsp.mkdir(${JSON.stringify(victim)}, { recursive: true })
+  await fsp.writeFile(${JSON.stringify(join(victim, 'owner.txt'))}, 'victim\\n')
+  await fsp.symlink(${JSON.stringify(victim)}, ${JSON.stringify(out)})`
+  }
+  const victimOf = {
+    'parent-symlink': (victim) => join(victim, 'out'),
+    'output-directory': (victim, out) => out,
+    'output-symlink': (victim) => victim
+  }
+
+  const outcomes = []
+  for (const when of ['after-acquisition', 'during-bundling']) {
+    for (const [kind, swap] of Object.entries(swaps)) {
+      const label = `${when}-${kind}`
+      const parent = join(home, `parent-${label}`)
+      const out = join(parent, 'out')
+      const victim = join(home, `victim-${label}`)
+      await mkdir(parent)
+      const nodeArgs = []
+      if (when === 'after-acquisition') {
+        // Swap immediately after this invocation's own mkdir of the output succeeds.
+        const preload = join(home, `preload-${label}.mjs`)
+        await writeFile(
+          preload,
+          `import fsp from 'node:fs/promises'
+import { syncBuiltinESMExports } from 'node:module'
+import { resolve } from 'node:path'
+const original = fsp.mkdir
+let swapped = false
+fsp.mkdir = async (path, options) => {
+  const result = await original(path, options)
+  if (!swapped && resolve(String(path)) === ${JSON.stringify(out)}) {
+    swapped = true
+${swap(parent, out, victim)}
+  }
+  return result
+}
+syncBuiltinESMExports()
+`
+        )
+        nodeArgs.push('--import', preload)
+      }
+      // Bundling always fails so the cleanup path runs.
+      await writeFile(
+        bundleHookScript,
+        `import fsp from 'node:fs/promises'
+export async function mutate() {
+${when === 'during-bundling' ? swap(parent, out, victim) : ''}
+  throw new Error('synthetic bundling failure')
+}
+`
+      )
+      const cfgPath = join(home, `stage-${label}.json`)
+      await writeFile(
+        cfgPath,
+        JSON.stringify({ ...baseConfig, output: out, sourceCommit: commitA })
+      )
+      const res = runNode('apps/desktop/package/stage-linux.mjs', [cfgPath], {
+        nodeArgs
+      })
+      await unlink(bundleHookScript).catch(() => {})
+      // Collect every interleaving's outcome so one run reports all of them.
+      const survivor = await readdir(victimOf[kind](victim, out)).catch(
+        (error) => error.code
+      )
+      outcomes.push([
+        label,
+        res.status !== 0,
+        survivor,
+        /Refusing to remove package output/.test(res.stderr)
+      ])
+    }
+  }
+  assert.deepEqual(
+    outcomes,
+    outcomes.map(([label]) => [label, true, ['owner.txt'], true]),
+    '[label, staging failed, replacement contents, cleanup refused]'
+  )
+
+  // Control: an unswapped failure still removes the output this invocation created.
+  const parent = join(home, 'parent-control')
+  const out = join(parent, 'out')
+  await mkdir(parent)
+  await writeFile(
+    bundleHookScript,
+    `export async function mutate() { throw new Error('synthetic bundling failure') }\n`
+  )
+  const cfgPath = join(home, 'stage-control.json')
+  await writeFile(
+    cfgPath,
+    JSON.stringify({ ...baseConfig, output: out, sourceCommit: commitA })
+  )
+  const res = runNode('apps/desktop/package/stage-linux.mjs', [cfgPath])
+  await unlink(bundleHookScript)
+  assert.notEqual(res.status, 0)
+  assert.doesNotMatch(res.stderr, /Refusing to remove package output/)
+  assert.deepEqual(await readdir(parent), [])
 })

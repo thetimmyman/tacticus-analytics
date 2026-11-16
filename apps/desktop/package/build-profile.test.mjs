@@ -22,6 +22,7 @@ import {
   verifyRecordedDesktopBuild,
   requireCleanBuildEnvironment
 } from './build-profile.mjs'
+import { stageApplicationNotices } from './application-notices.mjs'
 
 test('desktop build uses loopback placeholders and excludes inherited hosted secrets', () => {
   const env = desktopBuildEnvironment({
@@ -265,12 +266,21 @@ test('application payload manifest is canonical and refuses tampered or unbound 
       }
     })
     const serverBytes = '// synthetic server\n'
+    const packageBytes = JSON.stringify({
+      name: 'synthetic-pkg',
+      version: '1.0.0',
+      license: 'MIT'
+    })
+    const licenseBytes = 'Synthetic MIT notice\n'
+    const entry = (path, bytes) => ({
+      path,
+      bytes: Buffer.byteLength(bytes),
+      sha256: createHash('sha256').update(bytes).digest('hex')
+    })
     const applicationFiles = [
-      {
-        path: 'server.js',
-        bytes: serverBytes.length,
-        sha256: createHash('sha256').update(serverBytes).digest('hex')
-      }
+      entry('node_modules/synthetic-pkg/LICENSE', licenseBytes),
+      entry('node_modules/synthetic-pkg/package.json', packageBytes),
+      entry('server.js', serverBytes)
     ]
     const record = desktopBuildRecord(requiredFiles, 'build-1', {
       applicationFiles
@@ -282,12 +292,79 @@ test('application payload manifest is canonical and refuses tampered or unbound 
         .digest('hex')
     )
     await writeFile(join(root, 'server.js'), serverBytes)
+    await mkdir(join(root, 'node_modules/synthetic-pkg'), { recursive: true })
+    await writeFile(
+      join(root, 'node_modules/synthetic-pkg/package.json'),
+      packageBytes
+    )
+    await writeFile(
+      join(root, 'node_modules/synthetic-pkg/LICENSE'),
+      licenseBytes
+    )
     await writeFile(join(root, 'desktop-build.json'), JSON.stringify(record))
+    const sourceModules = await mkdtemp(join(tmpdir(), 'desktop-source-mods-'))
+    try {
+      // The real notice stager writes application-notices.json beside the payload.
+      await stageApplicationNotices({ application: root, sourceModules })
+    } finally {
+      await rm(sourceModules, { recursive: true, force: true })
+    }
     const digests = await verifyApplicationPayload(root, record)
     assert.deepEqual([...digests.keys()].sort(), [
+      'application-notices.json',
       'desktop-build.json',
-      'server.js'
+      'node_modules/synthetic-pkg/LICENSE',
+      'node_modules/synthetic-pkg/package.json',
+      'server.js',
+      'third-party-notices/synthetic-pkg/LICENSE'
     ])
+
+    // The generated inventory must describe the bound packages exactly.
+    const noticesPath = join(root, 'application-notices.json')
+    const generated = await readFile(noticesPath, 'utf8')
+    const rewrite = async (change) => {
+      const inventory = JSON.parse(generated)
+      change(inventory)
+      await writeFile(noticesPath, JSON.stringify(inventory, null, 2))
+    }
+    for (const [change, message] of [
+      [
+        (inventory) => {
+          inventory.packages[0].version = '9.9.9'
+        },
+        /notice inventory package metadata/
+      ],
+      [
+        (inventory) => {
+          inventory.packagesRequiringReview = 1
+        },
+        /notice inventory review count/
+      ],
+      [
+        (inventory) => {
+          inventory.packages[0].notices[0].origin = 'elsewhere'
+        },
+        /notice inventory entry/
+      ],
+      [
+        (inventory) => {
+          inventory.packages[0].extra = true
+        },
+        /notice inventory package fields/
+      ],
+      [
+        (inventory) => {
+          inventory.packages[0].notices[0].path =
+            'third-party-notices/synthetic-pkg/../synthetic-pkg/LICENSE'
+        },
+        /notice inventory path/
+      ]
+    ]) {
+      await rewrite(change)
+      await assert.rejects(verifyApplicationPayload(root, record), message)
+    }
+    await writeFile(noticesPath, generated)
+    await verifyApplicationPayload(root, record)
 
     await assert.rejects(
       verifyApplicationPayload(root, {
