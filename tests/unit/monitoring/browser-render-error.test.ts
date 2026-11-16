@@ -256,6 +256,28 @@ describe('browserRenderErrorTags', () => {
     expect(tagsFor('/', webkitRemove).error_code).toBe(
       'DOM_REMOVE_TARGET_MISSING'
     )
+    expect(
+      tagsFor('/', {
+        name: 'NotFoundError',
+        message: 'Application error',
+        stack: [
+          'NotFoundError: Application error',
+          '    at insertBefore ([native code])',
+          '    at insertOrAppendPlacementNode (node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.production.js:9326:35)'
+        ].join('\n')
+      }).error_code
+    ).toBe('DOM_INSERT_TARGET_MISSING')
+    expect(
+      tagsFor('/', {
+        name: 'NotFoundError',
+        message: 'Application error',
+        stack: [
+          'NotFoundError: Application error',
+          '    at removeChild ([native code])',
+          '    at commitDeletionEffectsOnFiber (node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.production.js:10400:15)'
+        ].join('\n')
+      }).error_code
+    ).toBe('DOM_REMOVE_TARGET_MISSING')
     expect(tagsFor('/', other).error_code).toBe('DOM_NOT_FOUND')
     expect(tagsFor('/', { name: 'NotFoundError' }).error_code).toBe(
       'DOM_NOT_FOUND'

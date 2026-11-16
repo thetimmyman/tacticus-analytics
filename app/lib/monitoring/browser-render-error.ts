@@ -98,9 +98,11 @@ const resolveFamily = (pathname: unknown): BrowserRenderFamily => {
   return FAMILY_BY_SEGMENT.get(firstSegment) ?? 'other'
 }
 
+const MAX_FIELD_LENGTH = 16_384
+
 const readStringField = (
   value: unknown,
-  field: 'name' | 'message'
+  field: 'name' | 'message' | 'stack'
 ): string | undefined => {
   if (
     value === null ||
@@ -110,7 +112,10 @@ const readStringField = (
   }
   try {
     const fieldValue = (value as Record<string, unknown>)[field]
-    return typeof fieldValue === 'string' ? fieldValue : undefined
+    return typeof fieldValue === 'string' &&
+      fieldValue.length <= MAX_FIELD_LENGTH
+      ? fieldValue
+      : undefined
   } catch {
     return undefined
   }
@@ -124,6 +129,7 @@ const resolveErrorCode = (error: unknown): BrowserRenderErrorCode => {
   const message =
     typeof error === 'string' ? error : readStringField(error, 'message')
   const name = readStringField(error, 'name')
+  const stack = readStringField(error, 'stack')
 
   if (message) {
     if (
@@ -145,13 +151,16 @@ const resolveErrorCode = (error: unknown): BrowserRenderErrorCode => {
   if (name === 'NotFoundError') {
     if (
       message?.includes('insertBefore') ||
-      message?.includes('inserted is not a child')
+      message?.includes('inserted is not a child') ||
+      stack?.includes('insertBefore') ||
+      stack?.includes('insertOrAppendPlacementNode')
     ) {
       return 'DOM_INSERT_TARGET_MISSING'
     }
     if (
       message?.includes('removeChild') ||
-      message?.includes('to be removed is not a child')
+      message?.includes('to be removed is not a child') ||
+      stack?.includes('removeChild')
     ) {
       return 'DOM_REMOVE_TARGET_MISSING'
     }
