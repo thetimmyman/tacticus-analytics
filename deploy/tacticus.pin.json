@@ -1,9 +1,9 @@
 {
   "namespace": "tacticus",
   "image": "ghcr.io/thetimmyman/tacticus-analytics-edge-runtime",
-  "tag": "aa718121",
-  "digest": "sha256:3fb4cff34734157a6df4ed9cbd01163a86af5648402fc266673e76648334a1e3",
-  "commit": "aa718121d4f867b61a326e2dc3de0d06e134688d",
+  "tag": "a8d11843",
+  "digest": "sha256:2c571bb1bf532e1f8080116703705b9e4cab9be56a261e6760f7092894855f44",
+  "commit": "a8d11843870b74fcd23571729c7bbfedf1184847",
   "functions_tree": "5664517147d1c8d686cd5a3012444796d33e0e8d",
-  "dockerfile_blob": "a9c61bf1965076f3be40ada1e055a1522a4a91ed"
+  "dockerfile_blob": "5cd7a79a7ec2eb7ec925aca93244c5186d585134"
 }
