@@ -232,8 +232,12 @@ describe('/api/auth/sync-discord canonical lifecycle', () => {
     await expect(response.json()).resolves.toMatchObject({
       error: { metadata: { code: 'DISCORD_RELINK_STATE_EXPIRED' } }
     })
-    expect(response.headers.get('set-cookie')).toContain('eot-discord-relink-state=;')
-    expect(response.headers.get('set-cookie')).toContain('Expires=Thu, 01 Jan 1970')
+    expect(response.headers.get('set-cookie')).toContain(
+      'eot-discord-relink-state=;'
+    )
+    expect(response.headers.get('set-cookie')).toContain(
+      'Expires=Thu, 01 Jan 1970'
+    )
     expect(supabase.rpc).not.toHaveBeenCalled()
     expect(supabase.from).not.toHaveBeenCalled()
     expect(supabase.auth.updateUser).not.toHaveBeenCalled()
@@ -249,7 +253,9 @@ describe('/api/auth/sync-discord canonical lifecycle', () => {
     const response = await POST(request('POST', true))
 
     expect(response.status).toBe(409)
-    expect(response.headers.get('set-cookie')).toContain('eot-discord-relink-state=;')
+    expect(response.headers.get('set-cookie')).toContain(
+      'eot-discord-relink-state=;'
+    )
     expect(supabase.from).not.toHaveBeenCalled()
     expect(supabase.auth.updateUser).not.toHaveBeenCalled()
   })

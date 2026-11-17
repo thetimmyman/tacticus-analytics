@@ -4,7 +4,10 @@ import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('api.auth.sync-discord')
 import { featureFlags } from '@/app/lib/utils/feature-flags'
 import { Errors } from '@/app/lib/errors/AppError'
-import { handleError, withErrorHandler } from '@/app/lib/middleware/errorHandler'
+import {
+  handleError,
+  withErrorHandler
+} from '@/app/lib/middleware/errorHandler'
 import { syncDiscordProfile } from '@/app/lib/discord/sync-profile'
 import {
   confirmDiscordIdentityUnlink,
