@@ -4,7 +4,10 @@ import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('api.auth.sync-discord')
 import { featureFlags } from '@/app/lib/utils/feature-flags'
 import { Errors } from '@/app/lib/errors/AppError'
-import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
+import {
+  handleError,
+  withErrorHandler
+} from '@/app/lib/middleware/errorHandler'
 import { syncDiscordProfile } from '@/app/lib/discord/sync-profile'
 import {
   confirmDiscordIdentityUnlink,
@@ -18,7 +21,10 @@ import {
   sealDiscordRelinkState,
   unsealDiscordRelinkState
 } from '@/app/lib/auth/discord-relink-state'
-import { activatePendingDiscordRelink } from '@/app/lib/auth/discord-relink-activation'
+import {
+  activatePendingDiscordRelink,
+  DiscordRelinkActivationError
+} from '@/app/lib/auth/discord-relink-activation'
 import { assertUnbannedAuthUser } from '@/app/lib/api/session-user'
 
 export const dynamic = 'force-dynamic'
@@ -68,6 +74,17 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     if (activation) response.cookies.delete(DISCORD_RELINK_STATE_COOKIE)
     return response
   } catch (err) {
+    if (err instanceof DiscordRelinkActivationError && err.discardState) {
+      const response = handleError(
+        Errors.conflict(
+          'Discord relink state is no longer valid. Start linking again.',
+          { code: 'DISCORD_RELINK_STATE_EXPIRED' }
+        ),
+        request
+      )
+      response.cookies.delete(DISCORD_RELINK_STATE_COOKIE)
+      return response
+    }
     logger.error({ err, userId: user.id }, '[Discord Sync] Sync failed')
     throw Errors.internal('Failed to sync Discord profile')
   }
