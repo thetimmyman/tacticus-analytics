@@ -222,6 +222,53 @@ describe('/api/auth/sync-discord canonical lifecycle', () => {
     )
   })
 
+  it('rejects expired relink state and clears it without syncing any profile', async () => {
+    mocks.unsealDiscordRelinkState.mockResolvedValueOnce(null)
+    const { POST } = await import('@/app/api/auth/sync-discord/route')
+
+    const response = await POST(request('POST', true))
+
+    expect(response.status).toBe(409)
+    await expect(response.json()).resolves.toMatchObject({
+      error: { metadata: { code: 'DISCORD_RELINK_STATE_EXPIRED' } }
+    })
+    expect(response.headers.get('set-cookie')).toContain('eot-discord-relink-state=;')
+    expect(response.headers.get('set-cookie')).toContain('Expires=Thu, 01 Jan 1970')
+    expect(supabase.rpc).not.toHaveBeenCalled()
+    expect(supabase.from).not.toHaveBeenCalled()
+    expect(supabase.auth.updateUser).not.toHaveBeenCalled()
+  })
+
+  it('rejects a stale generation and discards only its unusable cookie', async () => {
+    supabase.rpc.mockResolvedValueOnce({
+      data: null,
+      error: { code: '42501', message: 'Relink generation or nonce is stale' }
+    })
+    const { POST } = await import('@/app/api/auth/sync-discord/route')
+
+    const response = await POST(request('POST', true))
+
+    expect(response.status).toBe(409)
+    expect(response.headers.get('set-cookie')).toContain('eot-discord-relink-state=;')
+    expect(supabase.from).not.toHaveBeenCalled()
+    expect(supabase.auth.updateUser).not.toHaveBeenCalled()
+  })
+
+  it('keeps infrastructure activation failures visible and preserves retry state', async () => {
+    supabase.rpc.mockResolvedValueOnce({
+      data: null,
+      error: { code: '08006', message: 'Connection failure' }
+    })
+    const { POST } = await import('@/app/api/auth/sync-discord/route')
+
+    const response = await POST(request('POST', true))
+
+    expect(response.status).toBe(500)
+    expect(response.headers.get('set-cookie')).toBeNull()
+    expect(supabase.from).not.toHaveBeenCalled()
+    expect(supabase.auth.updateUser).not.toHaveBeenCalled()
+  })
+
   it('prepares DB authority before provider unlink without direct table writes', async () => {
     supabase.rpc.mockResolvedValue({
       data: {
