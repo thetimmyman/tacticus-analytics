@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { dbClient } from '@/app/lib/db/client'
 import { validateEmail } from '@/app/lib/validation/auth'
 import {
@@ -17,12 +18,19 @@ import {
 import { Button } from '@tacticus/ui-kit'
 import { LinkifiedText } from '@/app/components/ui/LinkifiedText'
 import { SITE_CONFIG } from '@/app/lib/config/constants'
+import {
+  RESET_LINK_UNUSABLE_NOTICE,
+  RESET_LINK_UNUSABLE_REASON
+} from '@/app/lib/auth/reset-link-reasons'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Fixed copy keyed by reason, so the URL cannot inject page text.
+  const resetLinkUnusable =
+    useSearchParams().get('reason') === RESET_LINK_UNUSABLE_REASON
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -122,6 +130,14 @@ export default function ForgotPasswordPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
+              {resetLinkUnusable && !error && (
+                <div
+                  role="status"
+                  className="bg-amber-500/10 border border-amber-500/30 rounded-md p-3 text-sm text-amber-300"
+                >
+                  {RESET_LINK_UNUSABLE_NOTICE}
+                </div>
+              )}
               {error && (
                 <div className="bg-red-500/10 border border-red-500/30 rounded-md p-3">
                   <LinkifiedText
