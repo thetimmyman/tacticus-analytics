@@ -19,6 +19,9 @@ import { findActiveBanForAuthUser } from '@/app/lib/auth/user-bans'
 
 const logger = createComponentLogger('auth.callback')
 
+const RECOVERY_LINK_UNUSABLE_MESSAGE =
+  'This password reset link could not be used here. Open it in the same browser where you requested it, or request a new one. If you are signed in to another account, sign out first.'
+
 export const dynamic = 'force-dynamic'
 
 async function suspendedRedirect(
@@ -259,6 +262,15 @@ async function handleCallback(request: Request) {
       data: { session: existingSession }
     } = await supabase.auth.getSession()
 
+    // A reset link may only continue with a session its own code created: a session that was
+    // already here belongs to another sign-in, and the reset page would change its password.
+    const isSessionFromThisCallback = (session: { access_token: string }) =>
+      !existingSession || session.access_token !== existingSession.access_token
+    const recoveryLinkUnusable = () =>
+      NextResponse.redirect(
+        `${origin}/auth/login?error=link_expired&message=${encodeURIComponent(RECOVERY_LINK_UNUSABLE_MESSAGE)}`
+      )
+
     const nextIsOnboardingSubpage =
       next.startsWith('/onboarding/') || next.includes('/onboarding/claim')
 
@@ -334,7 +346,10 @@ async function handleCallback(request: Request) {
         data: { session: checkSession }
       } = await supabase.auth.getSession()
 
-      if (checkSession) {
+      if (
+        checkSession &&
+        (!isRecovery || isSessionFromThisCallback(checkSession))
+      ) {
         sessionCreatedByCallback ||=
           !existingSession ||
           checkSession.access_token !== existingSession.access_token
@@ -390,6 +405,7 @@ async function handleCallback(request: Request) {
             },
             'Auth callback PKCE code verifier missing'
           )
+          if (isRecovery) return recoveryLinkUnusable()
           return NextResponse.redirect(
             `${origin}/auth/login?error=link_expired&message=${encodeURIComponent('This link has expired or was already used. Please request a new one.')}`
           )
@@ -400,6 +416,7 @@ async function handleCallback(request: Request) {
         sessionError.message?.includes('expired') ||
         sessionError.message?.includes('already been used')
       ) {
+        if (isRecovery) return recoveryLinkUnusable()
         const {
           data: { user }
         } = await supabase.auth.getUser()
