@@ -104,6 +104,12 @@ export const ROUTE_ERROR_CODES = {
     status: 403,
     copy: 'No unclaimed roster entry matches the player name on that API key.'
   },
+  SEAT_ALREADY_CLAIMED: {
+    // Only reachable after the key's own player name matched this seat, so telling the
+    // key holder it is taken reveals nothing they could not already prove.
+    status: 409,
+    copy: 'Your roster entry is already linked to another account. If you signed up before with a different login (for example Discord, Google or another email), sign in with that one. Otherwise, contact support to release it.'
+  },
   NAME_NOT_UNIQUE: {
     status: 409,
     copy: 'More than one roster entry carries that player name, so it cannot prove which one is yours. Ask an officer for an invite code.'

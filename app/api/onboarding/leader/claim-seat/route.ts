@@ -50,6 +50,7 @@ const WITNESS_OUTCOMES: Record<RouteErrorCode, string> = {
   GUILD_SYNC_STALE: 'rejected_invalid_input',
   NO_SYNCED_ACTIVITY: 'rejected_invalid_input',
   POSSESSION_NAME_MISMATCH: 'rejected_user_mismatch',
+  SEAT_ALREADY_CLAIMED: 'rejected_already_claimed',
   NAME_NOT_UNIQUE: 'rejected_invalid_input',
   TARGET_NOT_INVITE_CAPABLE: 'rejected_user_mismatch'
 }
@@ -366,22 +367,34 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
   }
 
   const candidate = nameMatches[0]
-  if (
-    !candidate ||
-    candidate.user_id !== null ||
-    candidate.ownership_attestation_id !== null
-  ) {
-    // Do not distinguish "no match" from "already claimed".
+  if (!candidate) {
     await auditRejection({
       service,
       request,
       userId: user.id,
       code: 'POSSESSION_NAME_MISMATCH',
       guildCode: targetGuildCode,
-      targetPlayerId: candidate?.player_id ?? null,
+      targetPlayerId: null,
       keyPlayerName
     })
     return rejection('POSSESSION_NAME_MISMATCH')
+  }
+  if (
+    candidate.user_id !== null ||
+    candidate.ownership_attestation_id !== null
+  ) {
+    // The key already proved this seat's name, so "taken" is safe to tell its holder;
+    // it is the usual cause when a leader returns on a second login.
+    await auditRejection({
+      service,
+      request,
+      userId: user.id,
+      code: 'SEAT_ALREADY_CLAIMED',
+      guildCode: targetGuildCode,
+      targetPlayerId: candidate.player_id,
+      keyPlayerName
+    })
+    return rejection('SEAT_ALREADY_CLAIMED')
   }
 
   // H3: the mint RPC re-checks this under its locks.

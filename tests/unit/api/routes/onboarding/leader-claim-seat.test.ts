@@ -303,7 +303,7 @@ describe('/api/onboarding/leader/claim-seat — Player-only registrar claim', ()
     [
       'ClaimPlayer',
       [unclaimed({ user_id: 'another-user', role: 'member' })],
-      'POSSESSION_NAME_MISMATCH'
+      'SEAT_ALREADY_CLAIMED'
     ]
   ])('refuses unsafe name evidence %#', async (playerName, roster, code) => {
     arrange({ playerName, roster })
@@ -311,6 +311,22 @@ describe('/api/onboarding/leader/claim-seat — Player-only registrar claim', ()
       (await (await POST(requestWith({ apiKey: 'k' }))).json()).error.code
     ).toBe(code)
   })
+
+  it.each([
+    ['a linked account', { user_id: 'another-user' }],
+    ['an ownership attestation', { ownership_attestation_id: 'att-1' }]
+  ])(
+    'tells the key holder when the matching seat is held by %s',
+    async (_label, claim) => {
+      arrange({ roster: [unclaimed(claim)] })
+      const response = await POST(requestWith({ apiKey: 'k' }))
+      expect(response.status).toBe(409)
+      const json = await response.json()
+      expect(json.error.code).toBe('SEAT_ALREADY_CLAIMED')
+      expect(JSON.stringify(json)).toContain('another account')
+      expect(mockService.rpc).not.toHaveBeenCalled()
+    }
+  )
 
   it('requires an invite-capable stored roster role', async () => {
     arrange({ roster: [unclaimed({ role: 'member' })] })
