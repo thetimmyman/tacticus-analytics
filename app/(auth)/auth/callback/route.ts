@@ -16,11 +16,9 @@ import {
 import { DISCORD_RELINK_STATE_COOKIE } from '@/app/lib/auth/discord-relink-state'
 import { CURRENT_USER_PLAYER_MAPPING } from '@/app/lib/player-mapping-relations'
 import { findActiveBanForAuthUser } from '@/app/lib/auth/user-bans'
+import { RESET_LINK_UNUSABLE_REASON } from '@/app/lib/auth/reset-link-reasons'
 
 const logger = createComponentLogger('auth.callback')
-
-const RECOVERY_LINK_UNUSABLE_MESSAGE =
-  'This password reset link could not be used here. Open it in the same browser where you requested it, or request a new one. If you are signed in to another account, sign out first.'
 
 export const dynamic = 'force-dynamic'
 
@@ -266,9 +264,10 @@ async function handleCallback(request: Request) {
     // already here belongs to another sign-in, and the reset page would change its password.
     const isSessionFromThisCallback = (session: { access_token: string }) =>
       !existingSession || session.access_token !== existingSession.access_token
+    // The forgot-password page explains the failure, and requesting a new link is the next step.
     const recoveryLinkUnusable = () =>
       NextResponse.redirect(
-        `${origin}/auth/login?error=link_expired&message=${encodeURIComponent(RECOVERY_LINK_UNUSABLE_MESSAGE)}`
+        `${origin}/auth/forgot-password?reason=${RESET_LINK_UNUSABLE_REASON}`
       )
 
     const nextIsOnboardingSubpage =

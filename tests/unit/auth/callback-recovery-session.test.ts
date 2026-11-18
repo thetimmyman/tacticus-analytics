@@ -117,8 +117,9 @@ describe('auth callback — password recovery never reuses an existing session',
     const location = await runRecoveryCallback(supabase)
 
     expect(location).not.toContain('/auth/reset-password')
-    expect(location).toContain('/auth/login?error=link_expired')
-    expect(decodeURIComponent(location)).toMatch(/same browser/i)
+    expect(location).toBe(
+      'https://tacticusanalytics.com/auth/forgot-password?reason=reset_link_unusable'
+    )
     expect(supabase.auth.signOut).not.toHaveBeenCalled()
   })
 
@@ -133,7 +134,9 @@ describe('auth callback — password recovery never reuses an existing session',
     const location = await runRecoveryCallback(supabase)
 
     expect(location).not.toContain('/auth/reset-password')
-    expect(location).toContain('/auth/login?error=link_expired')
+    expect(location).toBe(
+      'https://tacticusanalytics.com/auth/forgot-password?reason=reset_link_unusable'
+    )
   })
 
   it('still reaches the reset page when a racing request established a new session', async () => {
