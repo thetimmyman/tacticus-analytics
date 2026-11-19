@@ -190,6 +190,10 @@ describe.each(['outline', 'ghost'] as const)('%s button hover', (variant) => {
       'outer ring instead of inner'
     ).rejects.toThrow()
     await expect(
+      expectQuietPaint(`${without} ${ring}!`, variant),
+      'the right ring, but !important'
+    ).rejects.toThrow()
+    await expect(
       expectQuietPaint(
         `${without} ${variant === 'outline' ? 'hover:inset-ring-1' : 'hover:inset-ring-2'}`,
         variant
