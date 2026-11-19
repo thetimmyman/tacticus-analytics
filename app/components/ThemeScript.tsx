@@ -43,7 +43,7 @@ const themeScript = `
     root.style.setProperty(key, themeVars[key]);
   });
 
-  // The stylesheet keys its light block (and color-scheme) off this.
+  // The stylesheet keys its light-theme block off this attribute.
   root.setAttribute('data-theme', code);
 
   // Add class to prevent transitions during initial load
