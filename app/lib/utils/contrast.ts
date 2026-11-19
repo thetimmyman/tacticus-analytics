@@ -141,16 +141,29 @@ export function getCtaGradient(
 }
 
 /** Share of the colour opposite the label mixed into a fill on hover. */
-const HOVER_STEP = 0.14
+const HOVER_STEP = 0.2
+/** Smallest channel change (of 255) that reads as a different fill. */
+const HOVER_MIN_DELTA = 16
+
+function channelDelta(a: string, b: string): number {
+  const x = hexToRgb(a)
+  const y = hexToRgb(b)
+  if (!x || !y) return 0
+  return Math.max(Math.abs(x.r - y.r), Math.abs(x.g - y.g), Math.abs(x.b - y.b))
+}
 
 /**
  * A control's fill while hovered: one step toward the colour opposite its
  * label, so hover is never the weaker state. A translucent tint cannot do
- * this, because it moves toward whatever sits behind it.
+ * this, because it moves toward whatever sits behind it. A fill already at
+ * that far end (a white accent under a black label) has no room, so it steps
+ * toward the label instead, which stays far above 4.5:1 there.
  */
 export function getHoverFill(fill: string, label: string): string {
   const away = label === '#ffffff' ? '#000000' : '#ffffff'
-  return mixHex(fill, away, HOVER_STEP) ?? fill
+  const stepped = mixHex(fill, away, HOVER_STEP)
+  if (stepped && channelDelta(fill, stepped) >= HOVER_MIN_DELTA) return stepped
+  return mixHex(fill, label, HOVER_STEP) ?? fill
 }
 
 /**
@@ -181,7 +194,8 @@ export function getOnFillVariables(fills: {
 /**
  * Label and hover fill for a filled danger or warning control, from the
  * colours the theme actually paints for them (Light Mode paints darker ones).
- * Only the signed-in runtime sets these; no pre-hydration surface shows one.
+ * `applyThemeToCSS` sets these; the first-paint script and the public wrapper
+ * do not, and the stylesheet carries the dark defaults.
  */
 export function getStatusFillVariables(fills: {
   danger: string

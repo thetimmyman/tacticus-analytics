@@ -2,6 +2,7 @@
 
 import { useId, type ReactNode } from 'react'
 import clsx from 'clsx'
+import { OctagonAlert, TriangleAlert } from 'lucide-react'
 import { ModalShell } from './ModalShell'
 import { Spinner } from './Spinner'
 
@@ -34,6 +35,21 @@ const toneConfirmClass: Record<ConfirmDialogTone, string> = {
   danger: 'bg-(--danger) text-(--on-danger) hover:bg-(--danger-fill-hover)'
 }
 
+/**
+ * Warning and danger carry a round badge before the title: the status fill with
+ * its computed label, so the tone is not a colour in the title text alone.
+ */
+const toneBadge = {
+  warning: {
+    Icon: TriangleAlert,
+    className: 'bg-(--warning) text-(--on-warning)'
+  },
+  danger: {
+    Icon: OctagonAlert,
+    className: 'bg-(--danger) text-(--on-danger)'
+  }
+} as const
+
 export function ConfirmDialog({
   open,
   title,
@@ -49,6 +65,7 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   const titleId = useId()
   const descriptionId = useId()
+  const badge = tone === 'default' ? null : toneBadge[tone]
 
   if (!open) return null
 
@@ -60,9 +77,25 @@ export function ConfirmDialog({
       onClose={busy ? undefined : onCancel}
       showCloseButton={false}
     >
-      <h3 id={titleId} className="text-xl font-semibold text-primary-wh40k">
-        {title}
-      </h3>
+      <div className="flex items-center gap-3">
+        {badge && (
+          <span
+            aria-hidden="true"
+            className={clsx(
+              'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
+              badge.className
+            )}
+          >
+            <badge.Icon className="h-4 w-4" />
+          </span>
+        )}
+        <h3
+          id={titleId}
+          className="min-w-0 text-xl font-bold text-primary-wh40k"
+        >
+          {title}
+        </h3>
+      </div>
       {description && (
         <div
           id={descriptionId}
@@ -86,7 +119,7 @@ export function ConfirmDialog({
           onClick={onConfirm}
           disabled={busy}
           className={clsx(
-            'inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors duration-base disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto',
+            'inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border border-transparent px-4 py-2 text-sm font-semibold transition-colors duration-base disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto',
             toneConfirmClass[tone]
           )}
         >

@@ -4,7 +4,10 @@ import { ConfirmDialog } from './ConfirmDialog'
 /**
  * Visual qualification fixtures for the shared confirmation dialog in each
  * tone. It reads the theme's own tokens, so render it in every theme. Names
- * and values are invented.
+ * and values are invented. The preview wraps stories in the public theme
+ * wrapper, which re-declares accent and text colours without the theme's
+ * overrides; the signed-in app does not, so clear that wrapper's inline style
+ * before measuring a theme that has overrides.
  */
 const meta: Meta<typeof ConfirmDialog> = {
   title: 'UI/Confirm dialog',

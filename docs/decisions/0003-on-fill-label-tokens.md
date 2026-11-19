@@ -53,18 +53,23 @@ depend on the gradient (a flat theme has none to flip).
 
 A filled danger or warning control reads the colour the theme paints
 (`--danger`, `--warning`; Light Mode paints darker ones) and takes its label from
-`--on-danger` or `--on-warning`, set by `applyThemeToCSS` alongside the other
-on-fill tokens. Only the signed-in runtime sets them: no pre-hydration surface
-shows a status fill, and the stylesheet carries dark defaults.
+`--on-danger` or `--on-warning`. `applyThemeToCSS` sets them with the other
+on-fill tokens; the first-paint script and the public wrapper's own token lists
+leave them out, and the stylesheet carries dark defaults.
 
 Hover is a step away from the label colour, not a translucent tint. A tint moves
 toward whatever sits behind it, which lowered the label's contrast on hover.
-`--danger-fill-hover`, `--warning-fill-hover` and `--accent-fill-hover` mix 14%
+`--danger-fill-hover`, `--warning-fill-hover` and `--accent-fill-hover` mix 20%
 of the colour opposite the label into the fill, so hover never reads weaker than
-rest. Pair them as `bg-(--danger) text-(--on-danger) hover:bg-(--danger-fill-hover)`.
-The shared confirm dialog uses this for all three tones and sets its title in the
-page text colour: a title in the status colour fell under 4.5:1 on brighter card
-surfaces, and the confirm button carries the tone.
+rest. A fill already at that far end (a white accent under a black label) steps
+toward the label instead, still far above 4.5:1. Pair them as
+`bg-(--danger) text-(--on-danger) hover:bg-(--danger-fill-hover)`.
+
+The shared confirm dialog uses this for all three tones. Its title is set in the
+page text colour at 20px bold (WCAG large text, 3:1): a title in the status
+colour fell under 4.5:1 on brighter card surfaces. Warning and danger put a round
+badge in the status fill before the title, so the tone is not carried by colour
+in the title text alone.
 
 ## Consequences
 

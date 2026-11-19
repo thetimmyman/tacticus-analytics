@@ -3,12 +3,34 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { allThemes, applyThemeToCSS } from '@/app/lib/theme-system'
 import {
   getContrastRatio,
+  getHoverFill,
   getOnFillVariables,
   getStatusFillVariables
 } from '@/app/lib/utils/contrast'
 
 const root = () => document.documentElement
 const read = (name: string) => root().style.getPropertyValue(name)
+
+/** Largest per-channel change (of 255) between two hex colours. */
+function channelDelta(a: string, b: string): number {
+  const n = (hex: string, i: number) =>
+    parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16)
+  return Math.max(...[0, 1, 2].map((i) => Math.abs(n(a, i) - n(b, i))))
+}
+
+/**
+ * Hover must move the fill by an amount a person can see (checked per
+ * channel, case-insensitively: '#FFFFFF' and '#ffffff' are the same fill) and
+ * keep the label at 4.5:1. It is never weaker than rest unless rest is
+ * already past 7:1.
+ */
+function expectVisibleHover(fill: string, hover: string, label: string) {
+  const rest = getContrastRatio(label, fill)
+  const hovered = getContrastRatio(label, hover)
+  expect(channelDelta(fill, hover)).toBeGreaterThanOrEqual(16)
+  expect(hovered).toBeGreaterThanOrEqual(4.5)
+  expect(hovered).toBeGreaterThanOrEqual(Math.min(rest, 7))
+}
 
 describe('label and hover colour on filled danger and warning controls', () => {
   beforeEach(() => root().removeAttribute('style'))
@@ -21,32 +43,40 @@ describe('label and hover colour on filled danger and warning controls', () => {
       for (const status of ['danger', 'warning'] as const) {
         const fill = read(`--${status}`)
         const label = read(`--on-${status}`)
-        const hover = read(`--${status}-fill-hover`)
-        const rest = getContrastRatio(label, fill)
 
-        expect(rest).toBeGreaterThanOrEqual(4.5)
-        expect(hover).not.toBe(fill)
-        // Hover moves away from the label colour, so it is never the weaker state.
-        expect(getContrastRatio(label, hover)).toBeGreaterThanOrEqual(rest)
+        expect(getContrastRatio(label, fill)).toBeGreaterThanOrEqual(4.5)
+        expectVisibleHover(fill, read(`--${status}-fill-hover`), label)
       }
     }
   )
 
   it.each(Object.entries(allThemes))(
-    '%s: the accent fill has a hover step that keeps its label above 4.5:1',
+    '%s: the accent fill has a visible hover step that keeps its label above 4.5:1',
     (_code, theme) => {
       applyThemeToCSS(theme)
-      const rest = getContrastRatio(read('--on-accent'), read('--accent'))
-      const hover = getContrastRatio(
-        read('--on-accent'),
-        read('--accent-fill-hover')
-      )
 
-      expect(read('--accent-fill-hover')).not.toBe(read('--accent'))
-      expect(hover).toBeGreaterThanOrEqual(rest)
-      expect(hover).toBeGreaterThanOrEqual(4.5)
+      expectVisibleHover(
+        read('--accent'),
+        read('--accent-fill-hover'),
+        read('--on-accent')
+      )
     }
   )
+
+  it('steps toward the label when the fill is already at the far end', () => {
+    // A white accent under a black label cannot get lighter.
+    const vars = getOnFillVariables({
+      primary: '#111111',
+      secondary: '#222222',
+      accent: '#ffffff'
+    })
+
+    expect(vars['--on-accent']).toBe('#000000')
+    expect(vars['--accent-fill-hover']).not.toBe('#ffffff')
+    expect(
+      getContrastRatio('#000000', vars['--accent-fill-hover']!)
+    ).toBeGreaterThan(4.5)
+  })
 
   it('follows the colour a theme paints, not one fixed pair', () => {
     // Light Mode paints a dark red and amber; the dark themes paint light ones.
@@ -70,6 +100,20 @@ describe('label and hover colour on filled danger and warning controls', () => {
 
     expect(read('--warning')).toBe('#a16207')
     expect(read('--on-warning')).toBe('#ffffff')
+  })
+
+  it('derives label and hover from the warning a light theme paints when it has no override', () => {
+    // Light Mode defines its own warning, so only a synthetic light theme
+    // reaches the built-in light fallback.
+    applyThemeToCSS({ ...allThemes.light!, semanticOverrides: undefined })
+
+    expect(read('--warning')).toBe('#ca8a04')
+    expect(read('--warning-fill-hover')).toBe(
+      getHoverFill('#ca8a04', read('--on-warning'))
+    )
+    expect(read('--danger-fill-hover')).toBe(
+      getHoverFill(read('--danger'), read('--on-danger'))
+    )
   })
 
   it('does not widen the first-paint or public wrapper variables', () => {
