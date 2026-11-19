@@ -123,13 +123,10 @@ function pullToward(
 }
 
 /**
- * Stops and label for a call-to-action that fades from the primary to the
- * accent. One label has to read on every colour between the stops, and for 33
- * of 62 themes none does (a dark primary against a light accent). So the
- * label follows whichever colour needs the smaller change: the other colour is
- * pulled toward it, only as far as the label needs. A theme whose two colours
- * already agree keeps both. The gradient must be painted in sRGB
- * (`bg-linear-to-r/srgb`), the path sampled here.
+ * Stops and label for a primary-to-accent call-to-action. For 33 of 62 themes
+ * no one label reads on both colours, so the label follows whichever needs the
+ * smaller change and the other is pulled toward it only as far as needed (flat
+ * when the colours agree). Paint it in sRGB (`bg-linear-to-r/srgb`).
  */
 export function getCtaGradient(
   primary: string,
