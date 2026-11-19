@@ -692,8 +692,8 @@ export function DiscordIntegration({
                       <Button
                         onClick={() => deactivateInvite(invite.id)}
                         size="sm"
-                        variant="outline"
-                        className="justify-center text-red-600 hover:text-red-700 hover:bg-red-50 w-full md:w-auto"
+                        variant="danger"
+                        className="justify-center w-full md:w-auto"
                       >
                         <Trash className="w-4 h-4" />
                         Disable
