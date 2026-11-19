@@ -19,12 +19,21 @@ export interface FilterBarProps {
   primaryFilters?: ReactNode
   /** Anything else. Collapsed behind one control that reports its active count. */
   secondaryFilters?: ReactNode
+  /** Name of the control that opens the secondary group. */
+  secondaryLabel?: string
+  /**
+   * Keeps the secondary group open from the `sm` breakpoint up, where there is
+   * room for it, and hides its toggle there. Phones still collapse it.
+   */
+  secondaryOpenOnWide?: boolean
   /** How many secondary filters are currently applied. Drives the closed-state label. */
   activeSecondaryCount?: number
   /** How many filters are applied across every group. Drives reset visibility. */
   activeCount?: number
   /** Clears every filter, collapsed ones included. Shown whenever anything is active. */
   onReset?: () => void
+  /** Page-level action (such as a refresh) shown at the end of the control row. */
+  actions?: ReactNode
   /** Stated above the results, and says what it covers. */
   resultCount?: ReactNode
   children?: ReactNode
@@ -34,9 +43,12 @@ export function FilterBar({
   search,
   primaryFilters,
   secondaryFilters,
+  secondaryLabel = 'More filters',
+  secondaryOpenOnWide = false,
   activeSecondaryCount = 0,
   activeCount,
   onReset,
+  actions,
   resultCount,
   children
 }: FilterBarProps) {
@@ -50,26 +62,31 @@ export function FilterBar({
       {search && (
         <div className="flex flex-wrap items-center gap-2">{search}</div>
       )}
-      {(primaryFilters || secondaryFilters || onReset) && (
-        <div className="flex flex-wrap items-center gap-2">
+      {(primaryFilters || secondaryFilters || onReset || actions) && (
+        <div className="flex flex-wrap items-end gap-2">
           {primaryFilters}
           {secondaryFilters && (
             <button
               type="button"
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-(--card-border) px-3 text-sm"
+              className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-(--card-border) px-3 text-sm ${secondaryOpenOnWide ? 'sm:hidden' : ''}`}
               aria-expanded={open}
               aria-controls={secondaryId}
               onClick={() => setOpen((previous) => !previous)}
             >
-              <span>More filters</span>
-              {hasActive && (
-                <span
-                  className="font-semibold"
-                  data-testid="filter-bar-active-count"
-                >
-                  ({activeSecondaryCount} active)
-                </span>
-              )}
+              <span>
+                {secondaryLabel}
+                {activeSecondaryCount > 0 && (
+                  <>
+                    {' '}
+                    <span
+                      className="font-semibold"
+                      data-testid="filter-bar-active-count"
+                    >
+                      ({activeSecondaryCount} active)
+                    </span>
+                  </>
+                )}
+              </span>
               <ChevronDown
                 className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`}
                 aria-hidden="true"
@@ -86,12 +103,15 @@ export function FilterBar({
               <span>Reset</span>
             </button>
           )}
+          {actions && <div className="ml-auto">{actions}</div>}
         </div>
       )}
-      {secondaryFilters && open && (
+      {secondaryFilters && (open || secondaryOpenOnWide) && (
         <div
           id={secondaryId}
-          className="flex flex-wrap items-center gap-2 rounded-lg border border-(--card-border) p-2"
+          className={`flex-wrap items-center gap-2 rounded-lg border border-(--card-border) p-2 ${
+            open ? 'flex' : 'hidden sm:flex'
+          }`}
         >
           {secondaryFilters}
         </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useHasMounted } from '@/app/lib/hooks/useHasMounted'
 import { Trophy } from 'lucide-react'
 import { useGuildData, useRaritySelection, useGuildFiltering } from './hooks'
@@ -46,6 +46,12 @@ export default function ExploreContent(_props: ExploreContentProps) {
     paginatedGuilds
   } = useGuildFiltering(guilds)
 
+  const handleResetFilters = useCallback(() => {
+    setSearchQuery('')
+    setSelectedCluster('all')
+    handleRarityReset()
+  }, [setSearchQuery, setSelectedCluster, handleRarityReset])
+
   const showSkeletons = loading && guilds.length === 0
   const skeletonGuilds = useMemo(
     () =>
@@ -73,6 +79,7 @@ export default function ExploreContent(_props: ExploreContentProps) {
         rarityCounts={rarityCounts}
         onRarityChange={handleRarityChange}
         onRarityReset={handleRarityReset}
+        onResetFilters={handleResetFilters}
         lastRefreshed={lastRefreshed}
         hasMounted={hasMounted}
         refreshing={refreshing}
