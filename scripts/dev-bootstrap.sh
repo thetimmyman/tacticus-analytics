@@ -28,16 +28,18 @@ require_pre_commit() {
     die "Missing or non-executable pre-commit hook at $hook. Run scripts/dev-bootstrap.sh to install a missing hook, or restore the existing file and its execute permission."
 }
 
-hooks=$(git config --get core.hooksPath || :)
-case "$hooks" in
-  .husky/_)
-    if [[ $mode == --check ]]; then require_pre_commit; fi
-    ;;
-  '') for hook in "$(git rev-parse --git-path hooks)"/*; do
-        [[ ! -f $hook || ! -x $hook || $hook == *.sample ]] || die "Existing Git hook: $hook"
-      done ;;
-  *) die "Existing core.hooksPath ($hooks) would be replaced by npm ci." ;;
-esac
+if hooks=$(git config --get core.hooksPath); then
+  [[ $hooks == .husky/_ ]] || die "Existing core.hooksPath ($hooks) would be replaced by npm ci."
+  if [[ $mode == --check ]]; then require_pre_commit; fi
+else
+  [[ $? == 1 ]] || die 'Could not read core.hooksPath.'
+  for hook in "$(git rev-parse --git-path hooks)"/*; do
+    [[ ! -f $hook || ! -x $hook || $hook == *.sample ]] || die "Existing Git hook: $hook"
+  done
+  if [[ $mode == --check ]]; then
+    die 'Repository hooks are not configured. Run scripts/dev-bootstrap.sh in this checkout.'
+  fi
+fi
 
 major=$(<.nvmrc)
 # Select an installed runtime first. mise can provision Node on a new machine.
@@ -62,21 +64,23 @@ command -v npm >/dev/null || die 'Install npm with Node.'
 
 npm_package=$(node -p 'require("./package.json").packageManager')
 npm_version=${npm_package#npm@}
-if [[ $(npm --version) != "$npm_version" ]]; then
+npm_is_pinned() {
+  local version
+  version=$("$1" --version) && [[ $version == "$npm_version" ]]
+}
+
+if ! npm_is_pinned npm; then
   # Keep a mismatched global npm intact. Nested npm commands use the same pin.
-  cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/dev-bootstrap"
+  # Older cache prefixes were populated in place and can be incomplete.
+  cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/dev-bootstrap/published"
   tools_dir="$cache_dir/npm-$npm_version"
-  # An interrupted older installer may have left a nonempty prefix in place.
-  if [[ -d $tools_dir && ! -x $tools_dir/node_modules/.bin/npm ]]; then
-    tools_dir="$tools_dir/complete"
-  fi
-  if [[ ! -x $tools_dir/node_modules/.bin/npm && $mode != --check ]]; then
+  if [[ ! -e $tools_dir && ! -L $tools_dir && $mode != --check ]]; then
     (
       mkdir -p -- "$cache_dir"
       stage=$(mktemp -d "$cache_dir/.npm.XXXXXXXX")
       trap 'rm -rf -- "$stage"' EXIT
       npm install --prefix "$stage" --no-save --package-lock=false "$npm_package"
-      [[ $("$stage/node_modules/.bin/npm" --version) == "$npm_version" ]] ||
+      npm_is_pinned "$stage/node_modules/.bin/npm" ||
         die "Installation did not produce npm $npm_version."
 
       # Rename on the same filesystem. Only a complete prefix becomes visible.
@@ -91,14 +95,24 @@ if [[ $(npm --version) != "$npm_version" ]]; then
       ' "$stage" "$tools_dir"
     )
   fi
+  [[ -e $tools_dir || -L $tools_dir ]] || die "Use npm $npm_version or run setup."
+  cached_npm="$tools_dir/node_modules/.bin/npm"
+  if [[ ! -f $cached_npm || ! -x $cached_npm ]] || ! npm_is_pinned "$cached_npm"; then
+    die "Invalid cached npm at $tools_dir. Move that prefix aside and run scripts/dev-bootstrap.sh."
+  fi
   export PATH="$tools_dir/node_modules/.bin:$PATH"
 fi
-[[ $(npm --version) == "$npm_version" ]] || die "Use npm $npm_version or run setup."
 if [[ $mode != setup ]]; then
   command -v gitleaks >/dev/null || die 'Install gitleaks to run security:clean-repo.'
 fi
 echo "Using Node $(node --version) and npm $npm_version."
-[[ $mode != --check ]] || exit 0
+if [[ $mode == --check ]]; then
+  for tool in eslint husky lint-staged next tsc tsx vitest; do
+    executable="node_modules/.bin/$tool"
+    [[ -f $executable && -x $executable ]] || die "Missing executable $executable. Run scripts/dev-bootstrap.sh."
+  done
+  exit 0
+fi
 
 npm ci --include=dev
 [[ $(git config --get core.hooksPath) == .husky/_ ]] || die 'The repository hooks path was not configured.'
