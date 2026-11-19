@@ -61,9 +61,9 @@ function parseHex(value: string): RGB {
 }
 
 /**
- * The card surface behind a dialog: the theme's translucent card over each
- * stop of its page gradient, dimmed by the 60% black backdrop. The darkest or
- * lightest of the three decides.
+ * The card surface behind a dialog: the theme's translucent card over the
+ * middle stop of its page gradient (the part centred behind the dialog),
+ * dimmed by the 60% black backdrop.
  */
 function dialogSurfaces(theme: GuildTheme): string[] {
   const card = parseRgba(theme.cardBg)
@@ -167,6 +167,11 @@ describe('confirm dialog tones read on every theme', () => {
       // 20px at weight 700 is the large-text size the 3:1 check above assumes.
       expect(classes, tone).toContain('text-xl')
       expect(classes, tone).toContain('font-bold')
+      expect(title.getAttribute('style'), tone).toBeNull()
+      expect(
+        classes.filter((c) => c.includes('opacity')),
+        tone
+      ).toEqual([])
       cleanup()
     }
   })
@@ -190,11 +195,51 @@ describe('confirm dialog tones read on every theme', () => {
       if (tone === 'default') {
         expect(badge, tone).toBeNull()
       } else {
-        expect(badge?.className, tone).toContain(`bg-(--${tone})`)
-        expect(badge?.className, tone).toContain(`text-(--on-${tone})`)
+        const classes = badge!.className.split(/\s+/u)
+        expect(classes, tone).toContain(`bg-(--${tone})`)
+        expect(classes, tone).toContain(`text-(--on-${tone})`)
+        expect(
+          classes.filter((c) => c.includes('opacity') || /\/\d+$/u.test(c)),
+          tone
+        ).toEqual([])
         expect(badge?.querySelector('svg'), tone).not.toBeNull()
       }
       cleanup()
     }
+  })
+
+  it('keeps both buttons full width on a phone and at least 44px high', () => {
+    for (const tone of TONES) {
+      renderTone(tone)
+      for (const name of ['Remove key', 'Cancel']) {
+        const classes = screen
+          .getByRole('button', { name })
+          .className.split(/\s+/u)
+        expect(classes, `${tone} ${name}`).toContain('min-h-[44px]')
+        expect(classes, `${tone} ${name}`).toContain('w-full')
+      }
+      cleanup()
+    }
+  })
+
+  it('disables both buttons and says it is working while busy', () => {
+    render(
+      <ConfirmDialog
+        open
+        busy
+        tone="danger"
+        title="Remove example key?"
+        confirmLabel="Remove key"
+        busyLabel="Removing"
+        onCancel={() => {}}
+        onConfirm={() => {}}
+      />
+    )
+
+    const buttons = screen.getAllByRole('button')
+    expect(buttons).toHaveLength(2)
+    for (const button of buttons) expect(button).toBeDisabled()
+    expect(buttons[1]).toHaveTextContent('Removing')
+    expect(screen.queryByText('Remove key')).toBeNull()
   })
 })

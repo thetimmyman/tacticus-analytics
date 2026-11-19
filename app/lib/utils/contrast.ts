@@ -140,30 +140,30 @@ export function getCtaGradient(
   return { from: primary, to: keepPrimary.to, label: keepPrimary.label }
 }
 
-/** Share of the colour opposite the label mixed into a fill on hover. */
+/** Share of the way a fill moves toward the hover colour. */
 const HOVER_STEP = 0.2
-/** Smallest channel change (of 255) that reads as a different fill. */
-const HOVER_MIN_DELTA = 16
-
-function channelDelta(a: string, b: string): number {
-  const x = hexToRgb(a)
-  const y = hexToRgb(b)
-  if (!x || !y) return 0
-  return Math.max(Math.abs(x.r - y.r), Math.abs(x.g - y.g), Math.abs(x.b - y.b))
-}
+/** Hover keeps at least this label contrast, or the rest contrast if lower. */
+const HOVER_FLOOR = 6
 
 /**
- * A control's fill while hovered: one step toward the colour opposite its
- * label, so hover is never the weaker state. A translucent tint cannot do
- * this, because it moves toward whatever sits behind it. A fill already at
- * that far end (a white accent under a black label) has no room, so it steps
- * toward the label instead, which stays far above 4.5:1 there.
+ * A control's fill while hovered: one step toward black or white, whichever
+ * shows the larger change while the label keeps `min(rest, 6)`:1. Pale fills
+ * such as gold or white have no room to lighten, so they darken. A
+ * translucent tint cannot do this; it moves toward whatever sits behind it.
  */
 export function getHoverFill(fill: string, label: string): string {
-  const away = label === '#ffffff' ? '#000000' : '#ffffff'
-  const stepped = mixHex(fill, away, HOVER_STEP)
-  if (stepped && channelDelta(fill, stepped) >= HOVER_MIN_DELTA) return stepped
-  return mixHex(fill, label, HOVER_STEP) ?? fill
+  const opposite = label === '#ffffff' ? '#000000' : '#ffffff'
+  const floor = Math.min(getContrastRatio(label, fill), HOVER_FLOOR)
+  const candidates = [opposite, label]
+    .map((target) => mixHex(fill, target, HOVER_STEP))
+    .filter(
+      (colour): colour is string =>
+        colour !== null && getContrastRatio(label, colour) >= floor
+    )
+  candidates.sort(
+    (a, b) => getContrastRatio(fill, b) - getContrastRatio(fill, a)
+  )
+  return candidates[0] ?? fill
 }
 
 /**

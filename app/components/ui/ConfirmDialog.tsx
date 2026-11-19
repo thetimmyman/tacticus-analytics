@@ -25,7 +25,7 @@ interface ConfirmDialogProps {
 
 /**
  * Confirm button per tone: an opaque fill, the label the theme computed for
- * that fill, and a hover step that moves away from the label colour (see
+ * that fill, and a visible hover step that keeps the label readable (see
  * docs/decisions/0003-on-fill-label-tokens.md). A translucent tint let the
  * card behind it change the contrast, and hover made it worse.
  */
@@ -77,12 +77,12 @@ export function ConfirmDialog({
       onClose={busy ? undefined : onCancel}
       showCloseButton={false}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-start gap-3">
         {badge && (
           <span
             aria-hidden="true"
             className={clsx(
-              'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
+              'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-transparent',
               badge.className
             )}
           >
@@ -91,7 +91,7 @@ export function ConfirmDialog({
         )}
         <h3
           id={titleId}
-          className="min-w-0 text-xl font-bold text-primary-wh40k"
+          className="min-w-0 text-xl leading-8 font-bold text-primary-wh40k"
         >
           {title}
         </h3>

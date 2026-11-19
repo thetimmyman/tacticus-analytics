@@ -59,11 +59,12 @@ leave them out, and the stylesheet carries dark defaults.
 
 Hover is a step away from the label colour, not a translucent tint. A tint moves
 toward whatever sits behind it, which lowered the label's contrast on hover.
-`--danger-fill-hover`, `--warning-fill-hover` and `--accent-fill-hover` mix 20%
-of the colour opposite the label into the fill, so hover never reads weaker than
-rest. A fill already at that far end (a white accent under a black label) steps
-toward the label instead, still far above 4.5:1. Pair them as
-`bg-(--danger) text-(--on-danger) hover:bg-(--danger-fill-hover)`.
+`--danger-fill-hover`, `--warning-fill-hover` and `--accent-fill-hover` take a
+20% step of the fill toward black or white, whichever direction stays readable
+and moves the fill further. The label keeps at least 4.5:1, and at least
+min(its rest contrast, 6:1), so hover is never the weaker state. A fill already
+at one end (a white accent under a black label) can only step the other way.
+Pair them as `bg-(--danger) text-(--on-danger) hover:bg-(--danger-fill-hover)`.
 
 The shared confirm dialog uses this for all three tones. Its title is set in the
 page text colour at 20px bold (WCAG large text, 3:1): a title in the status

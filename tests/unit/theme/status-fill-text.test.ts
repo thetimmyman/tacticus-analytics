@@ -19,17 +19,17 @@ function channelDelta(a: string, b: string): number {
 }
 
 /**
- * Hover must move the fill by an amount a person can see (checked per
- * channel, case-insensitively: '#FFFFFF' and '#ffffff' are the same fill) and
- * keep the label at 4.5:1. It is never weaker than rest unless rest is
- * already past 7:1.
+ * Hover must move the fill by an amount a person can see (per channel and in
+ * luminance, compared case-insensitively: '#FFFFFF' and '#ffffff' are the same
+ * fill) and keep the label at 4.5:1. It stays at or above min(rest, 6):1.
  */
 function expectVisibleHover(fill: string, hover: string, label: string) {
   const rest = getContrastRatio(label, fill)
   const hovered = getContrastRatio(label, hover)
   expect(channelDelta(fill, hover)).toBeGreaterThanOrEqual(16)
+  expect(getContrastRatio(fill, hover)).toBeGreaterThanOrEqual(1.15)
   expect(hovered).toBeGreaterThanOrEqual(4.5)
-  expect(hovered).toBeGreaterThanOrEqual(Math.min(rest, 7))
+  expect(hovered).toBeGreaterThanOrEqual(Math.min(rest, 6))
 }
 
 describe('label and hover colour on filled danger and warning controls', () => {
@@ -63,8 +63,8 @@ describe('label and hover colour on filled danger and warning controls', () => {
     }
   )
 
-  it('steps toward the label when the fill is already at the far end', () => {
-    // A white accent under a black label cannot get lighter.
+  it('darkens a fill that cannot get lighter, and stays readable', () => {
+    // A white accent under a black label has no room to get lighter.
     const vars = getOnFillVariables({
       primary: '#111111',
       secondary: '#222222',
