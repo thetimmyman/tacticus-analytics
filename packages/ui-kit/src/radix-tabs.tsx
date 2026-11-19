@@ -30,7 +30,7 @@ const RadixTabsTrigger = React.forwardRef<
     ref={ref}
     className={`
       inline-flex items-center justify-center whitespace-nowrap rounded-xs
-      px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm font-medium ring-offset-background
+      px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm font-medium ring-offset-(--bg-primary)
       transition-all focus-visible:outline-hidden focus-visible:ring-2
       focus-visible:ring-(--accent) focus-visible:ring-offset-2
       disabled:pointer-events-none disabled:opacity-50
@@ -52,7 +52,7 @@ const RadixTabsContent = React.forwardRef<
   <TabsPrimitive.Content
     ref={ref}
     className={`
-      mt-2 ring-offset-background focus-visible:outline-hidden 
+      mt-2 ring-offset-(--bg-primary) focus-visible:outline-hidden 
       focus-visible:ring-2 focus-visible:ring-(--accent) 
       focus-visible:ring-offset-2
       ${className || ''}

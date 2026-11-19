@@ -37,9 +37,9 @@ interface MetaTeamTableProps {
 
 const STATUS: Record<
   TeamStatus,
-  { label: string; variant: 'default' | 'secondary' | 'destructive' }
+  { label: string; variant: 'success' | 'secondary' | 'destructive' }
 > = {
-  ready: { label: 'ready', variant: 'default' },
+  ready: { label: 'ready', variant: 'success' },
   used: { label: 'used', variant: 'secondary' },
   'not-ready': { label: 'not ready', variant: 'destructive' }
 }
