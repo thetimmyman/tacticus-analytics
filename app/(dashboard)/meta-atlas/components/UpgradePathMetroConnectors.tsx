@@ -28,7 +28,7 @@ function SwapUnitBadge({
   return (
     <div className="relative h-8 w-8" title={unit.name}>
       <div
-        className={`relative h-8 w-8 rounded-full border ${ringClass} bg-(--bg-secondary) overflow-hidden`}
+        className={`relative h-8 w-8 rounded-full border ${ringClass} bg-slate-900 overflow-hidden`}
       >
         {unit.icon_url ? (
           <img
@@ -38,7 +38,7 @@ function SwapUnitBadge({
             loading="lazy"
           />
         ) : (
-          <span className="flex h-full w-full items-center justify-center text-[10px] text-secondary-wh40k font-semibold">
+          <span className="flex h-full w-full items-center justify-center text-[10px] text-slate-300 font-semibold">
             {unit.name.slice(0, 2).toUpperCase()}
           </span>
         )}
@@ -80,7 +80,7 @@ export function StepDelta({
   const gainLabel = `${roundedGain >= 0 ? '+' : '-'}${formatNumber(Math.abs(roundedGain))}`
   const isLocked = step.is_owned === false
   const badgeClass = isLocked
-    ? 'border-slate-500/40 bg-slate-500/10 text-primary-wh40k'
+    ? 'border-slate-500/40 bg-slate-500/10 text-slate-100'
     : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200'
   const removeUnits = resolveSwapUnits(swapOut, heroMappings)
   const addUnits = resolveSwapUnits(swapIn, heroMappings)
@@ -106,7 +106,7 @@ export function StepDelta({
             </div>
           )}
           {removeUnits.length > 0 && addUnits.length > 0 && (
-            <ArrowRight className="h-3 w-3 text-secondary-wh40k" />
+            <ArrowRight className="h-3 w-3 text-slate-300" />
           )}
           {addUnits.length > 0 && (
             <div className="flex flex-wrap items-center gap-1">

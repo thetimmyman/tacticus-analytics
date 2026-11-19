@@ -355,7 +355,7 @@ export function UpgradePathMetro({
     <div className="relative">
       <div className="sm:hidden">
         <div
-          className="rounded-2xl border border-emerald-500/20 bg-linear-to-br from-slate-950/80 via-slate-900/70 to-slate-950/80 px-3 py-4 shadow-[0_12px_30px_rgba(0,0,0,0.35)] space-y-3"
+          className="scheme-dark rounded-2xl border border-emerald-500/20 bg-black bg-linear-to-br from-slate-950/80 via-slate-900/70 to-slate-950/80 px-3 py-4 shadow-[0_12px_30px_rgba(0,0,0,0.35)] space-y-3"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
@@ -404,7 +404,7 @@ export function UpgradePathMetro({
         </div>
       </div>
       <div className="relative hidden sm:block">
-        <div className="relative min-w-full rounded-2xl border border-emerald-500/20 bg-linear-to-br from-slate-950/80 via-slate-900/70 to-slate-950/80 px-4 py-5 shadow-[0_12px_30px_rgba(0,0,0,0.35)] sm:px-10 sm:py-6">
+        <div className="scheme-dark relative min-w-full rounded-2xl border border-emerald-500/20 bg-black bg-linear-to-br from-slate-950/80 via-slate-900/70 to-slate-950/80 px-4 py-5 shadow-[0_12px_30px_rgba(0,0,0,0.35)] sm:px-10 sm:py-6">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.18),transparent_50%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(56,189,248,0.12),transparent_55%)]" />
           <div

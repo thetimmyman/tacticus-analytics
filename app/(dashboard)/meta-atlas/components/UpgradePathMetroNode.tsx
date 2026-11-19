@@ -45,46 +45,42 @@ const toneStyles: Record<
   current: {
     card: 'border-sky-400/40 bg-sky-500/10',
     label: 'text-sky-100',
-    kicker: 'text-sky-300/80',
+    kicker: 'text-sky-200',
     icon: 'text-sky-300',
-    iconRing:
-      'border-sky-400/50 bg-[color-mix(in_srgb,var(--bg-secondary)_80%,transparent)]',
+    iconRing: 'border-sky-400/50 bg-slate-900/80',
     glow: 'bg-sky-400/20'
   },
   next: {
     card: 'border-emerald-400/40 bg-emerald-500/10',
     label: 'text-emerald-100',
-    kicker: 'text-emerald-300/80',
+    kicker: 'text-emerald-300',
     icon: 'text-emerald-300',
-    iconRing:
-      'border-emerald-400/50 bg-[color-mix(in_srgb,var(--bg-secondary)_80%,transparent)]',
+    iconRing: 'border-emerald-400/50 bg-slate-900/80',
     glow: 'bg-emerald-400/20'
   },
   final: {
     card: 'border-amber-400/40 bg-amber-500/10',
     label: 'text-amber-100',
-    kicker: 'text-amber-300/80',
+    kicker: 'text-amber-300',
     icon: 'text-amber-300',
-    iconRing:
-      'border-amber-400/50 bg-[color-mix(in_srgb,var(--bg-secondary)_80%,transparent)]',
+    iconRing: 'border-amber-400/50 bg-slate-900/80',
     glow: 'bg-amber-400/20'
   },
   step: {
     card: 'border-white/10 bg-white/5',
     label: 'text-slate-100',
-    kicker: 'text-secondary-wh40k',
-    icon: 'text-primary-wh40k',
-    iconRing:
-      'border-white/10 bg-[color-mix(in_srgb,var(--bg-secondary)_70%,transparent)]',
+    kicker: 'text-slate-300',
+    icon: 'text-slate-100',
+    iconRing: 'border-white/10 bg-slate-900/70',
     glow: 'bg-slate-500/10'
   },
   locked: {
-    card: 'border-card-border/70 bg-[color-mix(in_srgb,var(--bg-secondary)_70%,transparent)]',
-    label: 'text-secondary-wh40k',
-    kicker: 'text-secondary-wh40k',
-    icon: 'text-secondary-wh40k',
-    iconRing: 'border-(--card-border) bg-(--bg-secondary)',
-    glow: 'bg-card/20'
+    card: 'border-slate-600/60 bg-slate-900/70',
+    label: 'text-slate-300',
+    kicker: 'text-slate-300',
+    icon: 'text-slate-300',
+    iconRing: 'border-slate-600/60 bg-slate-900',
+    glow: 'bg-slate-500/20'
   }
 }
 
@@ -112,7 +108,7 @@ const strengthBadgeStyles: Record<
   },
   Locked: {
     label: 'Locked',
-    className: 'border-slate-500/40 bg-slate-500/10 text-primary-wh40k'
+    className: 'border-slate-500/40 bg-slate-500/10 text-slate-100'
   },
   Invalid: {
     label: 'Invalid',
@@ -120,7 +116,7 @@ const strengthBadgeStyles: Record<
   },
   Unknown: {
     label: 'Unknown',
-    className: 'border-(--card-border) bg-card/50 text-secondary-wh40k'
+    className: 'border-slate-600/60 bg-slate-800/50 text-slate-300'
   }
 }
 
@@ -164,7 +160,7 @@ export function MetroNode({
   const showHeroes = resolvedPortraitMode !== 'hidden'
   const availabilityClass =
     availabilityTone === 'locked'
-      ? 'border-slate-500/40 bg-slate-500/10 text-primary-wh40k'
+      ? 'border-slate-500/40 bg-slate-500/10 text-slate-100'
       : availabilityTone === 'invest'
         ? 'border-rose-500/40 bg-rose-500/10 text-rose-200'
         : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200'
@@ -254,10 +250,10 @@ export function MetroNode({
                     <div
                       className={`rounded-full border overflow-hidden flex items-center justify-center ${heroSizeClass} ${
                         locked
-                          ? 'border-(--card-border) bg-(--bg-secondary)'
+                          ? 'border-slate-600/60 bg-slate-900'
                           : investmentKeys.has(normalizeHeroKey(hero.name))
                             ? 'border-rose-400/70 bg-rose-500/10'
-                            : 'border-white/20 bg-card/70'
+                            : 'border-white/20 bg-slate-800/70'
                       }`}
                       title={
                         investmentKeys.has(normalizeHeroKey(hero.name))
@@ -273,7 +269,7 @@ export function MetroNode({
                           loading="lazy"
                         />
                       ) : (
-                        <span className="text-[8px] text-secondary-wh40k font-semibold sm:text-[9px]">
+                        <span className="text-[8px] text-slate-300 font-semibold sm:text-[9px]">
                           {hero.name.slice(0, 2).toUpperCase()}
                         </span>
                       )}
@@ -292,7 +288,7 @@ export function MetroNode({
             </div>
           ) : showDetails && composition ? (
             <div
-              className={`mt-2 text-[10px] ${locked ? 'text-secondary-wh40k' : 'text-primary-wh40k'} truncate max-w-44 sm:text-[11px] sm:max-w-48`}
+              className={`mt-2 text-[10px] ${locked ? 'text-slate-300' : 'text-slate-100'} truncate max-w-44 sm:text-[11px] sm:max-w-48`}
               title={composition}
             >
               {composition}
