@@ -20,13 +20,10 @@ const renderButton = (variant: Variant, className?: string) => {
 }
 
 /**
- * The quiet variants as painted. The label sits on the same background in
- * every frame (hover declares no fill, filter or opacity, and no text colour
- * but the rest one), so its contrast is the rest contrast on every theme; the
- * hover cue is an inner ring in the label's own colour. Every other state the
- * classes can reach (disabled, keyboard focus, and anything qualified by a
- * pseudo-class or a viewport) is pinned, so a fill hidden behind `sm:`,
- * `enabled:` or `active:` fails too.
+ * The quiet variants as painted: hover adds an inner ring and nothing that
+ * sits behind or recolours the label, so label contrast is the rest contrast.
+ * Every other state is pinned too, including ones hidden behind `sm:`,
+ * `enabled:` or `active:`.
  */
 async function expectQuietPaint(className: string, variant: Variant) {
   const { rest, hover, states, important } = await paint(className)

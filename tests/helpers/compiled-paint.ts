@@ -22,15 +22,11 @@ const compile = async (classes: string) => {
 export type Painted = Record<string, Array<{ source: string; value: string }>>
 
 /**
- * What an element with these classes paints, read from the compiled
- * stylesheet. `rest` holds the declarations that apply with no condition and
- * `hover` those whose selector ends in exactly `:hover`. `states` holds every
- * other bucket under the selector tail that qualifies it (`:disabled`,
- * `:hover:not(:disabled)`, `:active`, ...), and a rule inside a viewport media
- * query lands under `@width <tail>`, so a fill hidden behind `sm:` or
- * `enabled:` cannot go unseen. Each property keeps every class that declares
- * it, so two classes fighting over one property (the winner then depends on
- * stylesheet order) show up as two entries.
+ * What an element with these classes paints, from the compiled stylesheet.
+ * `rest` is unconditional, `hover` ends in exactly `:hover`, and `states`
+ * holds every other selector tail (`@width ` first inside a viewport query).
+ * Each property keeps every class that sets it, so a fight over one shows up
+ * as two entries.
  */
 export async function paint(className: string) {
   const classes = new Set(classTokens(className))
