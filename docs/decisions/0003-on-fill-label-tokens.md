@@ -84,6 +84,31 @@ inline style is not checked; measure those in the browser. For themes whose
 colours sit far apart (a navy primary with a gold accent) the dark end of the
 gradient is lightened noticeably, because gold cannot carry a white label.
 
+## Quiet buttons hover with a ring, never a fill
+
+`Button variant="outline"` and `variant="ghost"` have no fill of their own: the
+label is the theme's text colour on whatever sits behind them (page, card or
+dialog). Their old hover painted the card tint (`--card-bg`), a 10-20% wash of
+the theme's secondary colour. On a card or the page that wash is almost the
+same colour, so hover barely showed (under 1.15:1 against the surface on 51 of
+62 themes), and on 41 themes it moved the fill toward the label, so the label
+read worse under the pointer than at rest. No overlay fixes both: a step toward
+the label costs label contrast, a step away from it is invisible on dark pages,
+and 19 of 62 themes reach no visible step under a contrast floor at all.
+
+Hover therefore never changes the label's background, text colour, filter or
+opacity. It adds `hover:inset-ring-1` (an inner 1px ring in `currentcolor`) and,
+for the outline, `hover:border-current`, so the border and the ring together
+read as a 2px edge in the label's own colour, with no layout shift. The cue is
+as strong as the label (at least 1.5 times the faint rest border on all 62
+themes) and the label contrast is the rest contrast in every frame. A call site
+with its own colour keeps it, because `currentcolor` follows the label. Where a
+theme's own text colour is weak the ring is as weak as the text; that is theme
+data, not this control. The ring stacks with the keyboard focus ring, which is
+a different box-shadow layer. `ButtonQuietHover.test.tsx` reads the compiled
+stylesheet and rejects any hover fill, text colour, filter, opacity, outer ring
+or token border.
+
 ## Hover swaps are single-frame
 
 A control whose label token and fill token both change on hover (`btn-wh40k`,

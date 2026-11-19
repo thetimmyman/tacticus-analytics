@@ -32,9 +32,13 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const variantClasses = {
       default:
         'bg-accent-wh40k text-on-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)]',
+      // Quiet variants have no fill of their own, so hover never changes the
+      // label's background: it strengthens the edge in the label colour (an
+      // inner ring, plus the border for the outline) and the label keeps its
+      // rest contrast on every theme.
       outline:
-        'border border-(--card-border) bg-transparent text-primary-wh40k hover:bg-(--card-bg)',
-      ghost: 'text-primary-wh40k hover:bg-(--card-bg) hover:text-primary-wh40k'
+        'border border-(--card-border) bg-transparent text-primary-wh40k hover:border-current hover:inset-ring-1',
+      ghost: 'text-primary-wh40k hover:inset-ring-1'
     }
 
     const sizeClasses = {
