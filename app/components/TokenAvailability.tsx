@@ -310,7 +310,7 @@ export default function TokenAvailability({
           <div className="flex items-center justify-between gap-4">
             <div className="text-sm text-(--accent)">
               <AlertCircle className="mr-2 inline h-4 w-4" />
-              {error}
+              <span>{error}</span>
             </div>
             <Button
               className="flex items-center gap-2 whitespace-nowrap"
@@ -431,7 +431,7 @@ export default function TokenAvailability({
                       <span
                         className={`font-mono text-xs font-bold tabular-nums sm:text-[13px] ${getStatusColor(item.data!.current, item.data!.max)}`}
                       >
-                        {item.data!.current}/{item.data!.max}
+                        <span>{`${item.data!.current}/${item.data!.max}`}</span>
                         {item.data!.current === item.data!.max && (
                           <span className="ml-1 hidden text-[9px] text-green-400 sm:inline">
                             Full

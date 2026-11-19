@@ -186,8 +186,7 @@ function LapChart({
             />
           </div>
           <span className="mt-1 max-w-full text-center text-[9px] uppercase leading-tight tracking-wide text-(--text-tertiary)">
-            L{b.lap + 1}
-            {tagFor(b.kind) ? ` · ${tagFor(b.kind)}` : ''}
+            {`L${b.lap + 1}${tagFor(b.kind) ? ` · ${tagFor(b.kind)}` : ''}`}
           </span>
         </div>
       ))}
@@ -259,18 +258,18 @@ function SeasonOutlookCard({
               {finish ? (
                 <>
                   <p className="text-2xl font-bold leading-tight text-(--accent)">
-                    Lap {headlineLap}
-                    {finishDetailed ? ` · ${finish.bossName}` : ''}
+                    {`Lap ${headlineLap}${finishDetailed ? ` · ${finish.bossName}` : ''}`}
                   </p>
                   <p className="text-[11px] text-(--text-tertiary)">
-                    {finishDetailed
-                      ? `projected finish · ${finishPct >= 100 ? 'lap cleared' : `+${finishPct}% into lap`}`
-                      : 'projected finish · updating'}{' '}
-                    ·{' '}
+                    <span>
+                      {finishDetailed
+                        ? `projected finish · ${finishPct >= 100 ? 'lap cleared' : `+${finishPct}% into lap`} · `
+                        : 'projected finish · updating · '}
+                    </span>
                     <span
                       style={{ color: CONFIDENCE_COLOR[outlook!.confidence] }}
                     >
-                      {outlook!.confidence} confidence
+                      {`${outlook!.confidence} confidence`}
                     </span>
                   </p>
                 </>
@@ -382,9 +381,10 @@ function SeasonOutlookCard({
               <span>
                 <span className="font-semibold text-primary-wh40k">
                   {capBoundPlayers}
-                </span>{' '}
-                player{capBoundPlayers === 1 ? '' : 's'} may cap tokens before
-                season end
+                </span>
+                <span>
+                  {` ${capBoundPlayers === 1 ? 'player' : 'players'} may cap tokens before season end`}
+                </span>
               </span>
             </p>
           )}
