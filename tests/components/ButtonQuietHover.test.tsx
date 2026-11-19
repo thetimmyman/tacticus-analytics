@@ -100,8 +100,10 @@ async function expectQuietPaint(className: string, variant: Variant) {
     'outline-style'
   ])
   expect(only(focus, '--tw-ring-color')).toBe('var(--accent)')
-  expect(only(focus, '--tw-ring-shadow')).toBe(
-    'var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor)'
+  // Tailwind 4.3.3 and 4.3.5 print `var(--tw-ring-inset,)` and
+  // `var(--tw-ring-inset, )`, so compare without space after a comma.
+  expect(only(focus, '--tw-ring-shadow')?.replace(/,\s+/gu, ',')).toBe(
+    'var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor)'
   )
   // `!important` would let one colour beat the hover cue.
   expect(important).toEqual([])
