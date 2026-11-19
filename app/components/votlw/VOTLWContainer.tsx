@@ -47,7 +47,7 @@ const SeasonStatsSkeleton = () => (
       {[1, 2].map((i) => (
         <div
           key={`skeleton-dealer-${i}`}
-          className="animate-pulse bg-linear-to-br from-black via-gray-900 to-black rounded-xl p-6 border-2 border-(--card-border)"
+          className="animate-pulse bg-black bg-linear-to-br from-black via-gray-900 to-black rounded-xl p-6 border-2 border-(--card-border)"
         >
           <div className="text-center space-y-4">
             <div className="h-6 bg-(--card-bg) rounded-sm mx-auto w-48"></div>
@@ -63,7 +63,7 @@ const SeasonStatsSkeleton = () => (
     </div>
 
     {/* Honorable Mentions */}
-    <div className="bg-linear-to-br from-black via-amber-950/20 to-black rounded-lg border-2 border-amber-900/50 p-6">
+    <div className="bg-black bg-linear-to-br from-black via-amber-950/20 to-black rounded-lg border-2 border-amber-900/50 p-6">
       <div className="animate-pulse space-y-4">
         <div className="h-8 bg-amber-900/30 rounded-sm mx-auto w-48"></div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

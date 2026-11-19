@@ -1,7 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import VOTLWBattlefieldHonors from '@/app/components/votlw/VOTLWBattlefieldHonors'
 import VOTLWIndividualAwards from '@/app/components/votlw/VOTLWIndividualAwards'
 import VOTLWLeaderboard from '@/app/components/votlw/VOTLWLeaderboard'
-import type { PlayerPoints, SetWinner } from '@tacticus/app-core/votlw.types'
+import VOTLWSeasonStats from '@/app/components/votlw/VOTLWSeasonStats'
+import type {
+  PlayerPoints,
+  SeasonResults,
+  SetWinner
+} from '@tacticus/app-core/votlw.types'
 
 /**
  * Qualification fixture for the dark showpiece panels of the season recap.
@@ -70,20 +76,48 @@ const SET_WINNERS: SetWinner[] = [
   }
 ]
 
-function Surface({ scheme }: { scheme: 'light' | 'dark' }) {
+const SEASON: SeasonResults = {
+  topKiller: { player: 'Alpha', value: 14 },
+  bestBomber: { player: 'Bravo', value: 410_000 },
+  worstBomb: { player: 'Delta', value: 1_200 },
+  almostHadHim: { player: 'Charlie', boss: 'Sample Boss', hpLeft: 52_000 },
+  firstToken: { player: 'Alpha', time: '2026-01-01T00:05:00Z' },
+  lastToken: { player: 'Delta', time: '2026-01-07T23:40:00Z' },
+  tokenEfficiency: { player: 'Bravo', ratio: 1.8 },
+  mostDamage: { player: 'Alpha', damage: 9_000_000 },
+  bombMaster: { player: 'Bravo', bombs: 12 },
+  legendarySlayer: { player: 'Alpha', kills: 5 },
+  sideBossSlayer: { player: 'Charlie', kills: 3 },
+  mostImproved: { player: 'Delta', improvementPct: 22 }
+}
+
+function Surface({ scheme }: { scheme: 'light' | 'dark' | 'theme' }) {
+  // 'theme' follows the active application theme (set localStorage
+  // theme-override before load to compare Light Mode with a dark theme); the
+  // other two pin the page colours and the color-scheme.
+  const pinned = scheme !== 'theme'
   return (
     <section
       data-fixture={scheme}
-      style={{
-        colorScheme: scheme,
-        backgroundColor: scheme === 'light' ? '#ffffff' : '#0f172a',
-        color: scheme === 'light' ? '#111827' : '#f1f5f9'
-      }}
+      style={
+        pinned
+          ? {
+              colorScheme: scheme,
+              backgroundColor: scheme === 'light' ? '#ffffff' : '#0f172a',
+              color: scheme === 'light' ? '#111827' : '#f1f5f9'
+            }
+          : {
+              backgroundColor: 'var(--bg-primary)',
+              color: 'var(--text-primary)'
+            }
+      }
       className="space-y-6 p-6"
     >
       <p className="text-sm">Page surface: {scheme}</p>
       <VOTLWLeaderboard playerPoints={PLAYERS} />
       <VOTLWIndividualAwards setWinners={SET_WINNERS} />
+      <VOTLWSeasonStats seasonAwards={SEASON} />
+      <VOTLWBattlefieldHonors seasonAwards={SEASON} />
     </section>
   )
 }
@@ -94,4 +128,8 @@ export const LightPage: Story = {
 
 export const DarkPage: Story = {
   render: () => <Surface scheme="dark" />
+}
+
+export const ActiveTheme: Story = {
+  render: () => <Surface scheme="theme" />
 }

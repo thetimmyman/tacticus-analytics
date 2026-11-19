@@ -15,7 +15,7 @@ function VOTLWSeasonStats({ seasonAwards }: VOTLWSeasonStatsProps) {
       {/* Season Elite Awards - Death Dealers */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* TOP KILLER - DEATH INCARNATE */}
-        <div className="scheme-dark relative overflow-hidden bg-linear-to-br from-black via-red-950/40 to-black rounded-xl p-6 border-2 border-red-600 shadow-[0_0_40px_rgba(220,38,38,0.6)]">
+        <div className="scheme-dark relative overflow-hidden bg-black bg-linear-to-br from-black via-red-950/40 to-black rounded-xl p-6 border-2 border-red-600 shadow-[0_0_40px_rgba(220,38,38,0.6)]">
           {/* Blood splatter background */}
           <div className="absolute inset-0 opacity-20">
             <div className="absolute top-0 left-1/4 w-3 h-full bg-linear-to-b from-red-600 to-transparent animate-[drip_6s_ease-in-out_infinite]"></div>
@@ -68,7 +68,7 @@ function VOTLWSeasonStats({ seasonAwards }: VOTLWSeasonStatsProps) {
         </div>
 
         {/* BEST BOMBER - DEMOLITION EXPERT */}
-        <div className="scheme-dark relative overflow-hidden bg-linear-to-br from-black via-orange-950/40 to-black rounded-xl p-6 border-2 border-orange-600 shadow-[0_0_40px_rgba(234,88,12,0.6)]">
+        <div className="scheme-dark relative overflow-hidden bg-black bg-linear-to-br from-black via-orange-950/40 to-black rounded-xl p-6 border-2 border-orange-600 shadow-[0_0_40px_rgba(234,88,12,0.6)]">
           {/* Explosion particles background */}
           <div className="absolute inset-0 opacity-30">
             <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-orange-500 rounded-full animate-[float_4s_ease-in-out_infinite]"></div>

@@ -1,8 +1,14 @@
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
-import type { PlayerPoints, SetWinner } from '@tacticus/app-core/votlw.types'
+import type {
+  PlayerPoints,
+  SeasonResults,
+  SetWinner
+} from '@tacticus/app-core/votlw.types'
+import VOTLWBattlefieldHonors from '@/app/components/votlw/VOTLWBattlefieldHonors'
 import VOTLWIndividualAwards from '@/app/components/votlw/VOTLWIndividualAwards'
 import VOTLWLeaderboard from '@/app/components/votlw/VOTLWLeaderboard'
+import VOTLWSeasonStats from '@/app/components/votlw/VOTLWSeasonStats'
 
 // Player names resolve through a query client; the panels only need the text.
 vi.mock('@/app/components/ui/PlayerLink', () => ({
@@ -61,6 +67,21 @@ const winner: SetWinner = {
   biggestHit: 'Charlie'
 }
 
+const season: SeasonResults = {
+  topKiller: { player: 'Alpha', value: 14 },
+  bestBomber: { player: 'Bravo', value: 410_000 },
+  worstBomb: { player: 'Delta', value: 1_200 },
+  almostHadHim: { player: 'Charlie', boss: 'Sample Boss', hpLeft: 52_000 },
+  firstToken: { player: 'Alpha', time: '2026-01-01T00:05:00Z' },
+  lastToken: { player: 'Delta', time: '2026-01-07T23:40:00Z' },
+  tokenEfficiency: { player: 'Bravo', ratio: 1.8 },
+  mostDamage: { player: 'Alpha', damage: 9_000_000 },
+  bombMaster: { player: 'Bravo', bombs: 12 },
+  legendarySlayer: { player: 'Alpha', kills: 5 },
+  sideBossSlayer: { player: 'Charlie', kills: 3 },
+  mostImproved: { player: 'Delta', improvementPct: 22 }
+}
+
 function expectInsideOpaquePanel(element: Element, panel: Element | null) {
   const scope = element.closest('.scheme-dark')
   expect(scope).not.toBeNull()
@@ -98,5 +119,32 @@ describe('season recap panels keep their dark scope whole', () => {
     )
     expectInsideOpaquePanel(screen.getByText(/Showing: Level/u), panel)
     expectInsideOpaquePanel(screen.getByRole('table'), panel)
+  })
+
+  it('gives every black gradient card in the season stats its own opaque scope', () => {
+    const { container } = render(<VOTLWSeasonStats seasonAwards={season} />)
+    const cards = container.querySelectorAll(
+      '.via-red-950\\/40, .via-orange-950\\/40'
+    )
+
+    expect(cards).toHaveLength(2)
+    for (const card of cards) {
+      expectInsideOpaquePanel(card, card)
+    }
+    expectInsideOpaquePanel(screen.getByText(/DEATH DEALER/u), cards[0] ?? null)
+    expectInsideOpaquePanel(
+      screen.getByText(/DEMOLITION EXPERT/u),
+      cards[1] ?? null
+    )
+  })
+
+  it('scopes the battlefield honors captions to the panel', () => {
+    const { container } = render(
+      <VOTLWBattlefieldHonors seasonAwards={season} />
+    )
+    const panel = container.firstElementChild
+
+    expectInsideOpaquePanel(screen.getByText('Rising Star'), panel)
+    expectInsideOpaquePanel(screen.getByText('First Token Used'), panel)
   })
 })
