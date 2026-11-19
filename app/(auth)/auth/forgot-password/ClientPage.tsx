@@ -16,7 +16,7 @@ import {
   TRANSIENT_AUTH_USER_MESSAGE
 } from '@/app/lib/auth/retry-transient'
 import { Button } from '@tacticus/ui-kit'
-import { LinkifiedText } from '@/app/components/ui/LinkifiedText'
+import { ValidationError } from '@/app/components/ui/ValidationError'
 import { SITE_CONFIG } from '@/app/lib/config/constants'
 import {
   RESET_LINK_UNUSABLE_NOTICE,
@@ -28,12 +28,15 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Remounts the alert on each submit so a repeated identical failure is announced again.
+  const [submitCount, setSubmitCount] = useState(0)
   // Fixed copy keyed by reason, so the URL cannot inject page text.
   const resetLinkUnusable =
     useSearchParams().get('reason') === RESET_LINK_UNUSABLE_REASON
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSubmitCount((count) => count + 1)
     setError(null)
 
     const emailValidation = validateEmail(email)
@@ -138,15 +141,7 @@ export default function ForgotPasswordPage() {
                   {RESET_LINK_UNUSABLE_NOTICE}
                 </div>
               )}
-              {error && (
-                <div className="bg-red-500/10 border border-red-500/30 rounded-md p-3">
-                  <LinkifiedText
-                    text={error}
-                    className="text-sm text-red-400"
-                    linkClassName="text-red-300 hover:text-red-200 underline"
-                  />
-                </div>
-              )}
+              {error && <ValidationError key={submitCount} message={error} />}
 
               <div>
                 <label

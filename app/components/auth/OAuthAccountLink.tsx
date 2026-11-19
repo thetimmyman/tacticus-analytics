@@ -430,7 +430,10 @@ export default function OAuthAccountLink({
       )}
 
       {error && (
-        <div className="p-3 bg-red-900/20 border border-red-500/50 text-red-400 rounded-lg text-sm">
+        <div
+          role="alert"
+          className="p-3 bg-red-900/20 border border-red-500/50 text-red-400 rounded-lg text-sm"
+        >
           {error}
         </div>
       )}

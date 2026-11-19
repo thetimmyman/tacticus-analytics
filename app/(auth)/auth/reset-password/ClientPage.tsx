@@ -15,7 +15,7 @@ import {
   withTransientAuthRetry,
   TRANSIENT_AUTH_USER_MESSAGE
 } from '@/app/lib/auth/retry-transient'
-import { LinkifiedText } from '@/app/components/ui/LinkifiedText'
+import { ValidationError } from '@/app/components/ui/ValidationError'
 import { UI_CONFIG } from '@/app/lib/config/constants'
 import {
   validatePassword,
@@ -30,6 +30,8 @@ export default function ResetPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Remounts the alert on each submit so a repeated identical failure is announced again.
+  const [submitCount, setSubmitCount] = useState(0)
   const [success, setSuccess] = useState(false)
 
   useEffect(() => {
@@ -78,6 +80,7 @@ export default function ResetPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSubmitCount((count) => count + 1)
 
     if (password !== confirmPassword) {
       const enhancedError = createError(
@@ -218,12 +221,11 @@ export default function ResetPasswordPage() {
           </h1>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-6">
-              <LinkifiedText
-                text={error}
-                linkClassName="text-red-300 hover:text-red-200 underline"
-              />
-            </div>
+            <ValidationError
+              key={submitCount}
+              message={error}
+              className="mb-6"
+            />
           )}
 
           <form method="post" onSubmit={handleSubmit} className="space-y-6">
