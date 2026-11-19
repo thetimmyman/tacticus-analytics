@@ -74,7 +74,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
           <>
             {/* Desktop Table View - Two-line layout for better space utilization */}
             <div className="hidden lg:block">
-              <div className="overflow-x-auto rounded-lg bg-black/40">
+              <div className="scheme-dark overflow-x-auto rounded-lg bg-black/40">
                 <table className="w-full text-xs 2xl:text-sm">
                   <thead className="bg-purple-950/30 border-b-2 border-purple-700/50">
                     <tr className="text-purple-400">

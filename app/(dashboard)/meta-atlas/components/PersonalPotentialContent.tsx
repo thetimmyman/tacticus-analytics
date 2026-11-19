@@ -574,7 +574,7 @@ export function PersonalPotentialContent({
             </p>
             <Link
               href="/profile/edit"
-              className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-black hover:bg-amber-400 transition-colors"
+              className="scheme-dark inline-flex items-center gap-2 rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-black hover:bg-amber-400 transition-colors"
             >
               <Key className="w-3.5 h-3.5" />
               Configure API Key

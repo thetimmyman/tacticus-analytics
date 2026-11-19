@@ -68,7 +68,7 @@ export default function GuildWarBattlefields({
         <div
           role="group"
           aria-label="Guild War season"
-          className="flex flex-wrap gap-1 rounded-lg border border-slate-700 bg-slate-800/60 p-1"
+          className="scheme-dark flex flex-wrap gap-1 rounded-lg border border-slate-700 bg-slate-800/60 p-1"
         >
           {guildWarSeasonIds.map((id) => {
             const active = id === seasonId

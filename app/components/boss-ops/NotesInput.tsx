@@ -101,7 +101,7 @@ export function NotesInput({
         createPortal(
           <div
             // Above the parent sheet (z-[85]).
-            className="fixed inset-0 z-100 flex items-center justify-center bg-black/85 p-4 backdrop-blur-xs"
+            className="scheme-dark fixed inset-0 z-100 flex items-center justify-center bg-black/85 p-4 backdrop-blur-xs"
             role="dialog"
             aria-modal="true"
             aria-label={`${label} editor`}

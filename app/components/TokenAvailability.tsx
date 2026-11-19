@@ -411,7 +411,7 @@ export default function TokenAvailability({
               return (
                 <div
                   key={item.key}
-                  className="flex flex-col items-center gap-0.5 rounded-md border border-(--card-border) bg-black/50 p-1 text-center sm:flex-row sm:items-center sm:gap-2 sm:p-1.5 sm:text-left"
+                  className="scheme-dark flex flex-col items-center gap-0.5 rounded-md border border-(--card-border) bg-black/50 p-1 text-center sm:flex-row sm:items-center sm:gap-2 sm:p-1.5 sm:text-left"
                 >
                   <img
                     src={item.img}

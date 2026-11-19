@@ -75,7 +75,7 @@ function AuthErrorContent() {
 
   if (isChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-black via-red-950 to-black">
+      <div className="scheme-dark min-h-screen flex items-center justify-center bg-linear-to-br from-black via-red-950 to-black">
         <div className="text-center">
           <LoadingSpinner />
           <p className="text-amber-400/60 mt-4 font-mono text-sm uppercase">

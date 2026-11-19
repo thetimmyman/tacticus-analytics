@@ -173,7 +173,7 @@ function HeroPriorityGrid({
                 </div>
               )}
               {items.indexOf(item) < 3 && (
-                <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400 flex items-center justify-center">
+                <div className="scheme-dark absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400 flex items-center justify-center">
                   <Star
                     className="w-2.5 h-2.5 text-amber-900"
                     fill="currentColor"

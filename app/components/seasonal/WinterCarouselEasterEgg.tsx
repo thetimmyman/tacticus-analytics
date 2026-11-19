@@ -114,7 +114,7 @@ export function WinterCarouselEasterEgg({
       {/* Hint tooltip */}
       {showHint && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 animate-bounce">
-          <div className="bg-blue-900/90 text-blue-100 px-4 py-2 rounded-lg text-sm font-medium shadow-lg border border-blue-500/30">
+          <div className="scheme-dark bg-blue-900/90 text-blue-100 px-4 py-2 rounded-lg text-sm font-medium shadow-lg border border-blue-500/30">
             <Snowflake className="mr-2 inline h-4 w-4 text-blue-200" />
             Keep clicking... {CLICKS_REQUIRED - clickCount} more!
             <TreePine className="ml-2 inline h-4 w-4 text-green-300" />
@@ -151,7 +151,7 @@ export function WinterCarouselEasterEgg({
             </div>
 
             {/* Main message */}
-            <div className="bg-linear-to-r from-blue-900/95 to-green-900/95 p-8 rounded-2xl shadow-2xl border-2 border-yellow-400/50 animate-pulse">
+            <div className="scheme-dark bg-linear-to-r from-blue-900/95 to-green-900/95 p-8 rounded-2xl shadow-2xl border-2 border-yellow-400/50 animate-pulse">
               <div className="flex flex-col items-center gap-4">
                 <div className="flex items-center gap-3 text-4xl">
                   <span

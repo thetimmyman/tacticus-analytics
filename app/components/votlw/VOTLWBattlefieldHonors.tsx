@@ -14,7 +14,7 @@ interface VOTLWBattlefieldHonorsProps {
 
 function VOTLWBattlefieldHonors({ seasonAwards }: VOTLWBattlefieldHonorsProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg border-2 border-amber-900/50 bg-linear-to-br from-black via-amber-950/20 to-black p-6">
+    <div className="scheme-dark relative overflow-hidden rounded-lg border-2 border-amber-900/50 bg-linear-to-br from-black via-amber-950/20 to-black p-6">
       {/* Battle scarred background */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,0,0,0.1)_10px,rgba(255,0,0,0.1)_20px)]" />

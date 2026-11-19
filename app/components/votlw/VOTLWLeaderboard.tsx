@@ -113,7 +113,7 @@ function VOTLWLeaderboard({ playerPoints }: VOTLWLeaderboardProps) {
             return (
               <div
                 key={player.displayName}
-                className={`relative p-4 rounded-lg border-2 ${borderColors} ${glowColors} bg-linear-to-br from-black/80 to-yellow-950/30 hover:scale-[1.02] transition-transform`}
+                className={`scheme-dark relative p-4 rounded-lg border-2 ${borderColors} ${glowColors} bg-linear-to-br from-black/80 to-yellow-950/30 hover:scale-[1.02] transition-transform`}
               >
                 <div className="absolute -top-3 -left-3 text-4xl">{medals}</div>
                 <div className="flex justify-between items-center mb-2">
@@ -202,7 +202,7 @@ function VOTLWLeaderboard({ playerPoints }: VOTLWLeaderboardProps) {
 
         {/* Collapsible Full Leaderboard */}
         {showLeaderboard && (
-          <div className="mt-6 p-4 bg-black/60 rounded-lg border border-yellow-800/30">
+          <div className="scheme-dark mt-6 p-4 bg-black/60 rounded-lg border border-yellow-800/30">
             {/* Search and Pagination Controls */}
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
               <input
