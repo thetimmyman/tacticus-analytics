@@ -104,8 +104,10 @@ function PrimeBadge({ target }: { target: PrimeTarget }) {
       : 'Kill'
   return (
     <span className="inline-flex items-center gap-1 rounded-full border border-(--card-border) px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-(--text-tertiary)">
-      <Icon className="h-3 w-3" aria-hidden />
-      {label}
+      <span className="inline-flex shrink-0" aria-hidden="true">
+        <Icon className="h-3 w-3" aria-hidden />
+      </span>
+      <span>{label}</span>
     </span>
   )
 }
@@ -141,8 +143,10 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
           className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide"
           style={{ color: style.color, borderColor: style.color }}
         >
-          {style.icon}
-          {style.label}
+          <span className="inline-flex shrink-0" aria-hidden="true">
+            {style.icon}
+          </span>
+          <span>{style.label}</span>
         </span>
       </header>
 
@@ -161,16 +165,17 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
                 {move.target.displayName}
               </p>
               <p className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
-                {move.target.levelCode}
-                {move.target.encounterId === 0
-                  ? ' · Main'
-                  : ` · Prime ${move.target.encounterId}`}
+                {`${move.target.levelCode}${
+                  move.target.encounterId === 0
+                    ? ' · Main'
+                    : ` · Prime ${move.target.encounterId}`
+                }`}
               </p>
               <div className="mt-3 w-full">
                 <div className="flex justify-between text-[10px] text-(--text-tertiary)">
                   <span>HP remaining</span>
                   <span className="font-semibold text-secondary-wh40k">
-                    {Math.round(move.target.hpPercentage)}%
+                    {`${Math.round(move.target.hpPercentage)}%`}
                   </span>
                 </div>
                 <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[color-mix(in_srgb,var(--card-border)_60%,transparent)]">
@@ -216,12 +221,12 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
                     {p.displayName}
                   </span>
                   <span className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
-                    Prime {p.encounterId}
+                    {`Prime ${p.encounterId}`}
                   </span>
                   <span className="text-(--text-tertiary)" aria-hidden>
                     ·
                   </span>
-                  <span>HP {Math.round(p.hpPercentage)}%</span>
+                  <span>{`HP ${Math.round(p.hpPercentage)}%`}</span>
                   <PrimeBadge target={p} />
                 </li>
               ))}
@@ -237,9 +242,7 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
                 {move.economy.waitFor.displayName}
               </span>
               <span className="text-xs text-secondary-wh40k">
-                {move.economy.waitFor.levelCode} · +
-                {Math.round(move.economy.waitFor.upliftPct)}% ·{' '}
-                {move.economy.waitFor.etaLabel}
+                {`${move.economy.waitFor.levelCode} · +${Math.round(move.economy.waitFor.upliftPct)}% · ${move.economy.waitFor.etaLabel}`}
               </span>
             </div>
           )}
@@ -256,7 +259,7 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
                     style={{ backgroundColor: TONE_COLOR[check.tone] }}
                     aria-hidden
                   />
-                  {check.label}
+                  <span>{check.label}</span>
                 </li>
               ))}
             </ul>
@@ -268,8 +271,10 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
                 href={move.primaryAction.href}
                 className="inline-flex items-center gap-1.5 rounded-md bg-accent-wh40k px-3.5 py-2 text-sm font-semibold text-(--bg-primary) transition hover:brightness-110"
               >
-                {move.primaryAction.label}
-                <ArrowRight className="h-4 w-4" aria-hidden />
+                <span>{move.primaryAction.label}</span>
+                <span className="inline-flex shrink-0" aria-hidden="true">
+                  <ArrowRight className="h-4 w-4" aria-hidden />
+                </span>
               </Link>
             )}
             <span className="text-[10px] uppercase tracking-wide text-(--text-tertiary)">

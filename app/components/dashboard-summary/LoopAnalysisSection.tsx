@@ -68,12 +68,13 @@ export function LoopAnalysisSection({
         <div className="card-wh40k p-3 sm:p-4">
           <h3 className="subheading-wh40k mb-2">Loop Analysis</h3>
           <p className="text-xs text-secondary-wh40k mb-4">
-            Guild average damage by loop
-            {selectedDashboardBoss
-              ? ` for ${resolveLoopBossLabel(selectedDashboardBoss)}`
-              : showPrimesOnly
-                ? ' (all primes)'
-                : ' (all bosses)'}
+            {`Guild average damage by loop${
+              selectedDashboardBoss
+                ? ` for ${resolveLoopBossLabel(selectedDashboardBoss)}`
+                : showPrimesOnly
+                  ? ' (all primes)'
+                  : ' (all bosses)'
+            }`}
           </p>
 
           <LoopFilterChips
@@ -214,12 +215,16 @@ export function LoopAnalysisSection({
             onClick={() => setShowLoopAnalysisTable(!showLoopAnalysisTable)}
             className="flex items-center gap-2 mt-4 text-sm text-secondary-wh40k hover:text-(--primary) transition-colors"
           >
-            {showLoopAnalysisTable ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
-            {showLoopAnalysisTable ? 'Hide Details' : 'Show Details'}
+            <span className="inline-flex shrink-0" aria-hidden="true">
+              {showLoopAnalysisTable ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </span>
+            <span>
+              {showLoopAnalysisTable ? 'Hide Details' : 'Show Details'}
+            </span>
           </button>
 
           {showLoopAnalysisTable && (

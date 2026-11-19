@@ -56,16 +56,17 @@ export function ProgressBar({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-(--accent)">AVG: {formattedAvg}</span>
+          <span className="text-xs text-(--accent)">
+            {`AVG: ${formattedAvg}`}
+          </span>
           <span className="text-xs text-secondary-wh40k">
-            MAX: {formattedMax}
+            {`MAX: ${formattedMax}`}
           </span>
           {vsClusterPercent !== undefined && (
             <span
               className={`text-xs px-1 rounded-sm ${vsClusterColorClass(vsClusterPercent)}`}
             >
-              vsCluster {vsClusterPercent > 0 ? '+' : ''}
-              {Math.round(vsClusterPercent)}%
+              {`vsCluster ${vsClusterPercent > 0 ? '+' : ''}${Math.round(vsClusterPercent)}%`}
             </span>
           )}
         </div>
@@ -79,7 +80,7 @@ export function ProgressBar({
         >
           {showPercentage && percentage > 5 && (
             <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-primary-wh40k">
-              {Math.round(percentage)}%
+              {`${Math.round(percentage)}%`}
             </span>
           )}
         </div>
@@ -137,7 +138,7 @@ export function StackedProgressBar({
                                 : 'text-secondary-wh40k'
                 }
               >
-                {seg.label}: {seg.value}
+                {`${seg.label}: ${seg.value}`}
               </span>
               {idx < segments.length - 1 && (
                 <span className="mx-1 text-secondary-wh40k">•</span>
@@ -146,7 +147,7 @@ export function StackedProgressBar({
           ))}
           <span className="mx-1 text-secondary-wh40k">•</span>
           <span className="text-(--primary)">
-            Total: {segments.reduce((sum, seg) => sum + seg.value, 0)}
+            {`Total: ${segments.reduce((sum, seg) => sum + seg.value, 0)}`}
           </span>
         </span>
       </div>

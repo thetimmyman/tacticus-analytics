@@ -83,8 +83,7 @@ function BossIdentity({ row }: { row: MemberBossPerfRow }) {
           {prettyBossName(row.bossName)}
         </div>
         <div className="text-[10px] uppercase tracking-wide text-(--text-tertiary)">
-          {row.isCurrentTarget ? 'Current target · ' : ''}
-          {formatEncounterLabel(row.encounterId)}
+          {`${row.isCurrentTarget ? 'Current target · ' : ''}${formatEncounterLabel(row.encounterId)}`}
         </div>
       </div>
     </div>
@@ -349,7 +348,7 @@ export default function BossPerformanceTable({
             Boss performance
           </h2>
           <span className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
-            Damage per token{seasonNumber ? ` · Season ${seasonNumber}` : ''}
+            {`Damage per token${seasonNumber ? ` · Season ${seasonNumber}` : ''}`}
           </span>
           {data.overallVsGuildPct != null && (
             <span
@@ -359,7 +358,7 @@ export default function BossPerformanceTable({
                 borderColor: deltaColor(data.overallVsGuildPct)
               }}
             >
-              {pct(data.overallVsGuildPct)} vs guild
+              {`${pct(data.overallVsGuildPct)} vs guild`}
             </span>
           )}
         </div>
@@ -451,14 +450,15 @@ export default function BossPerformanceTable({
         <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[color-mix(in_srgb,var(--card-border)_50%,transparent)] px-4 py-2.5 text-xs text-secondary-wh40k">
           <span>
             <span className="font-semibold text-primary-wh40k">
-              Current target: {prettyBossName(currentTarget.bossName)}
-            </span>{' '}
-            — you are{' '}
-            {(currentTarget.vsTargetPct ?? 0) >= 0 ? 'above' : 'below'} target
-            here.
-            {data.strongestAlternate
-              ? ` If the directive changes, ${prettyBossName(data.strongestAlternate)} is your strongest proven alternate.`
-              : ''}
+              {`Current target: ${prettyBossName(currentTarget.bossName)}`}
+            </span>
+            <span>
+              {` — you are ${(currentTarget.vsTargetPct ?? 0) >= 0 ? 'above' : 'below'} target here.${
+                data.strongestAlternate
+                  ? ` If the directive changes, ${prettyBossName(data.strongestAlternate)} is your strongest proven alternate.`
+                  : ''
+              }`}
+            </span>
           </span>
           <Link
             href={getHrefWithSeason('/boss-playbooks', seasonNumber)}

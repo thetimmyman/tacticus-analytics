@@ -246,7 +246,7 @@ export default function BriefingPage({
           <div>
             {/* Visually hidden h1 keeps the heading outline for screen readers. */}
             <h1 className="sr-only">
-              Officer intelligence{guildName ? ` — ${guildName}` : ''}
+              {`Officer intelligence${guildName ? ` — ${guildName}` : ''}`}
             </h1>
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-(--accent)">
               Command / Officer briefing
@@ -263,17 +263,17 @@ export default function BriefingPage({
           <div>
             {/* Visually hidden h1 keeps the heading outline for screen readers. */}
             <h1 className="sr-only">
-              Daily briefing{guildName ? ` — ${guildName}` : ''}
+              {`Daily briefing${guildName ? ` — ${guildName}` : ''}`}
             </h1>
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-(--accent)">
               Command / Daily briefing
             </p>
             <p className="mt-1 text-sm text-secondary-wh40k">
-              {guildName ? `${guildName} · ` : ''}
+              {guildName && <span>{`${guildName} · `}</span>}
               <span className="font-semibold text-primary-wh40k">
                 {playerName}
               </span>
-              {rankLabel ? ` · ${rankLabel}` : ''}
+              {rankLabel && <span>{` · ${rankLabel}`}</span>}
             </p>
           </div>
         )}
