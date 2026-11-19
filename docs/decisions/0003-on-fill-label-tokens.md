@@ -84,10 +84,22 @@ inline style is not checked; measure those in the browser. For themes whose
 colours sit far apart (a navy primary with a gold accent) the dark end of the
 gradient is lightened noticeably, because gold cannot carry a white label.
 
+## Hover swaps are single-frame
+
+A control whose label token and fill token both change on hover (`btn-wh40k`,
+the creators website link, the reset-password submit) must not fade them. The
+app-wide `html * { transition: color .3s, background-color .3s }` rule fades
+both toward opposite ends, and the label and fill meet at about 1:1 half-way
+(33 of 62 themes for primary to accent, 23 for primary to secondary). Such
+controls opt out with `no-transition`, whose `!important` beats that rule;
+`btn-wh40k` declares it for itself and its children. A control that keeps one
+label across both fills may fade. `hover-label-swap.test.ts` rejects a file that
+writes `hover:text-on-*` without a `no-transition` class token.
+
 ## Compliance and Verification Gates
 
 ```sh
-npm test -- tests/unit/theme/on-fill-text.test.ts tests/unit/theme/on-fill-source-guard.test.ts tests/unit/theme/cta-gradient.test.ts tests/unit/theme/status-fill-text.test.ts tests/components/ConfirmDialogTones.test.tsx
+npm test -- tests/unit/theme/on-fill-text.test.ts tests/unit/theme/on-fill-source-guard.test.ts tests/unit/theme/cta-gradient.test.ts tests/unit/theme/status-fill-text.test.ts tests/unit/theme/hover-label-swap.test.ts tests/components/ConfirmDialogTones.test.tsx
 ```
 
 The first test checks all three tokens against 4.5:1 for every theme after
