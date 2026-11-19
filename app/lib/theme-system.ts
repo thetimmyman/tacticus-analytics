@@ -16,7 +16,10 @@ import {
   specialThemes,
   allThemes
 } from '@/app/lib/themes/definitions'
-import { getOnFillVariables } from '@/app/lib/utils/contrast'
+import {
+  getOnFillVariables,
+  getStatusFillVariables
+} from '@/app/lib/utils/contrast'
 
 const FALLBACK_THEME = (() => {
   const fallback =
@@ -424,4 +427,14 @@ export function applyThemeToCSS(theme: GuildTheme) {
     root.style.setProperty(name, value)
   })
   root.style.setProperty('--accent-foreground', onFill['--on-accent'] ?? '#000')
+
+  // Danger and warning fills read their label from the colour painted above
+  // (Light Mode paints darker ones), not from a fixed white or black.
+  const statusFill = getStatusFillVariables({
+    danger: dangerValue,
+    warning: isLightTheme ? (overrides?.warning ?? '#ca8a04') : warningValue
+  })
+  Object.entries(statusFill).forEach(([name, value]) => {
+    root.style.setProperty(name, value)
+  })
 }

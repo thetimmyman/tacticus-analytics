@@ -49,6 +49,23 @@ element is a link, add `hover:filter-none` so the global anchor brightening does
 not lighten the fill under a white label, and use a hover cue that does not
 depend on the gradient (a flat theme has none to flip).
 
+### Status fills and hover
+
+A filled danger or warning control reads the colour the theme paints
+(`--danger`, `--warning`; Light Mode paints darker ones) and takes its label from
+`--on-danger` or `--on-warning`, set by `applyThemeToCSS` alongside the other
+on-fill tokens. Only the signed-in runtime sets them: no pre-hydration surface
+shows a status fill, and the stylesheet carries dark defaults.
+
+Hover is a step away from the label colour, not a translucent tint. A tint moves
+toward whatever sits behind it, which lowered the label's contrast on hover.
+`--danger-fill-hover`, `--warning-fill-hover` and `--accent-fill-hover` mix 14%
+of the colour opposite the label into the fill, so hover never reads weaker than
+rest. Pair them as `bg-(--danger) text-(--on-danger) hover:bg-(--danger-fill-hover)`.
+The shared confirm dialog uses this for all three tones and sets its title in the
+page text colour: a title in the status colour fell under 4.5:1 on brighter card
+surfaces, and the confirm button carries the tone.
+
 ## Consequences
 
 A new theme needs no label tuning. Fixed-colour buttons such as destructive red
@@ -64,7 +81,7 @@ gradient is lightened noticeably, because gold cannot carry a white label.
 ## Compliance and Verification Gates
 
 ```sh
-npm test -- tests/unit/theme/on-fill-text.test.ts tests/unit/theme/on-fill-source-guard.test.ts tests/unit/theme/cta-gradient.test.ts
+npm test -- tests/unit/theme/on-fill-text.test.ts tests/unit/theme/on-fill-source-guard.test.ts tests/unit/theme/cta-gradient.test.ts tests/unit/theme/status-fill-text.test.ts tests/components/ConfirmDialogTones.test.tsx
 ```
 
 The first test checks all three tokens against 4.5:1 for every theme after

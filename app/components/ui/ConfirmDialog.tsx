@@ -22,19 +22,16 @@ interface ConfirmDialogProps {
   children?: ReactNode
 }
 
+/**
+ * Confirm button per tone: an opaque fill, the label the theme computed for
+ * that fill, and a hover step that moves away from the label colour (see
+ * docs/decisions/0003-on-fill-label-tokens.md). A translucent tint let the
+ * card behind it change the contrast, and hover made it worse.
+ */
 const toneConfirmClass: Record<ConfirmDialogTone, string> = {
-  default:
-    'bg-accent-wh40k text-on-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)]',
-  warning:
-    'border border-[color-mix(in_srgb,var(--warning)_60%,transparent)] bg-[color-mix(in_srgb,var(--warning)_80%,transparent)] text-(--bg-primary) hover:bg-(--warning)',
-  danger:
-    'border border-[color-mix(in_srgb,var(--danger)_60%,transparent)] bg-[color-mix(in_srgb,var(--danger)_80%,transparent)] text-white hover:bg-(--danger)'
-}
-
-const toneTitleClass: Record<ConfirmDialogTone, string> = {
-  default: 'text-primary-wh40k',
-  warning: 'text-(--warning)',
-  danger: 'text-(--danger)'
+  default: 'bg-(--accent) text-(--on-accent) hover:bg-(--accent-fill-hover)',
+  warning: 'bg-(--warning) text-(--on-warning) hover:bg-(--warning-fill-hover)',
+  danger: 'bg-(--danger) text-(--on-danger) hover:bg-(--danger-fill-hover)'
 }
 
 export function ConfirmDialog({
@@ -63,10 +60,7 @@ export function ConfirmDialog({
       onClose={busy ? undefined : onCancel}
       showCloseButton={false}
     >
-      <h3
-        id={titleId}
-        className={clsx('text-xl font-semibold', toneTitleClass[tone])}
-      >
+      <h3 id={titleId} className="text-xl font-semibold text-primary-wh40k">
         {title}
       </h3>
       {description && (

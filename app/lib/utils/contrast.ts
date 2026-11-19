@@ -140,11 +140,25 @@ export function getCtaGradient(
   return { from: primary, to: keepPrimary.to, label: keepPrimary.label }
 }
 
+/** Share of the colour opposite the label mixed into a fill on hover. */
+const HOVER_STEP = 0.14
+
+/**
+ * A control's fill while hovered: one step toward the colour opposite its
+ * label, so hover is never the weaker state. A translucent tint cannot do
+ * this, because it moves toward whatever sits behind it.
+ */
+export function getHoverFill(fill: string, label: string): string {
+  const away = label === '#ffffff' ? '#000000' : '#ffffff'
+  return mixHex(fill, away, HOVER_STEP) ?? fill
+}
+
 /**
  * Text colour for content on a filled primary, secondary or accent control.
  * Opaque black or white, whichever reads better: 62 of 62 theme fills reach
  * 4.5:1 this way, while a fixed white or black fails on about half of them.
- * The `--cta-*` trio is the same for a primary-to-accent gradient control.
+ * The `--cta-*` trio is the same for a primary-to-accent gradient control, and
+ * `--accent-fill-hover` is the accent fill's hover step.
  */
 export function getOnFillVariables(fills: {
   primary: string
@@ -152,13 +166,34 @@ export function getOnFillVariables(fills: {
   accent: string
 }): Record<string, string> {
   const cta = getCtaGradient(fills.primary, fills.accent)
+  const onAccent = getHighContrastText(fills.accent)
   return {
     '--on-primary': getHighContrastText(fills.primary),
     '--on-secondary': getHighContrastText(fills.secondary),
-    '--on-accent': getHighContrastText(fills.accent),
+    '--on-accent': onAccent,
+    '--accent-fill-hover': getHoverFill(fills.accent, onAccent),
     '--cta-from': cta.from,
     '--cta-to': cta.to,
     '--on-cta': cta.label
+  }
+}
+
+/**
+ * Label and hover fill for a filled danger or warning control, from the
+ * colours the theme actually paints for them (Light Mode paints darker ones).
+ * Only the signed-in runtime sets these; no pre-hydration surface shows one.
+ */
+export function getStatusFillVariables(fills: {
+  danger: string
+  warning: string
+}): Record<string, string> {
+  const onDanger = getHighContrastText(fills.danger)
+  const onWarning = getHighContrastText(fills.warning)
+  return {
+    '--on-danger': onDanger,
+    '--danger-fill-hover': getHoverFill(fills.danger, onDanger),
+    '--on-warning': onWarning,
+    '--warning-fill-hover': getHoverFill(fills.warning, onWarning)
   }
 }
 
