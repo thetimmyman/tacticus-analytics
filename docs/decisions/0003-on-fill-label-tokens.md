@@ -49,6 +49,29 @@ element is a link, add `hover:filter-none` so the global anchor brightening does
 not lighten the fill under a white label, and use a hover cue that does not
 depend on the gradient (a flat theme has none to flip).
 
+### Status fills and hover
+
+A filled danger or warning control reads the colour the theme paints
+(`--danger`, `--warning`; Light Mode paints darker ones) and takes its label from
+`--on-danger` or `--on-warning`. `applyThemeToCSS` sets them with the other
+on-fill tokens; the first-paint script and the public wrapper's own token lists
+leave them out, and the stylesheet carries dark defaults.
+
+Hover is a step away from the label colour, not a translucent tint. A tint moves
+toward whatever sits behind it, which lowered the label's contrast on hover.
+`--danger-fill-hover`, `--warning-fill-hover` and `--accent-fill-hover` take a
+20% step of the fill toward black or white, whichever direction stays readable
+and moves the fill further. The label keeps at least 4.5:1, and at least
+min(its rest contrast, 6:1), so hover is never the weaker state. A fill already
+at one end (a white accent under a black label) can only step the other way.
+Pair them as `bg-(--danger) text-(--on-danger) hover:bg-(--danger-fill-hover)`.
+
+The shared confirm dialog uses this for all three tones. Its title is set in the
+page text colour at 20px bold (WCAG large text, 3:1): a title in the status
+colour fell under 4.5:1 on brighter card surfaces. Warning and danger put a round
+badge in the status fill before the title, so the tone is not carried by colour
+in the title text alone.
+
 ## Consequences
 
 A new theme needs no label tuning. Fixed-colour buttons such as destructive red
@@ -64,7 +87,7 @@ gradient is lightened noticeably, because gold cannot carry a white label.
 ## Compliance and Verification Gates
 
 ```sh
-npm test -- tests/unit/theme/on-fill-text.test.ts tests/unit/theme/on-fill-source-guard.test.ts tests/unit/theme/cta-gradient.test.ts
+npm test -- tests/unit/theme/on-fill-text.test.ts tests/unit/theme/on-fill-source-guard.test.ts tests/unit/theme/cta-gradient.test.ts tests/unit/theme/status-fill-text.test.ts tests/components/ConfirmDialogTones.test.tsx
 ```
 
 The first test checks all three tokens against 4.5:1 for every theme after
