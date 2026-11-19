@@ -147,7 +147,7 @@ export function PerformanceControls({
               aria-pressed={performanceMode === 'battle-weighted'}
               className={`px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
                 performanceMode === 'battle-weighted'
-                  ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
+                  ? 'bg-accent-wh40k text-on-accent-wh40k border-accent-wh40k'
                   : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
               }`}
               type="button"
@@ -159,7 +159,7 @@ export function PerformanceControls({
               aria-pressed={performanceMode === 'token-weighted'}
               className={`px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
                 performanceMode === 'token-weighted'
-                  ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
+                  ? 'bg-accent-wh40k text-on-accent-wh40k border-accent-wh40k'
                   : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
               } ${tokenModeAvailable ? '' : 'opacity-60 cursor-not-allowed'}`}
               type="button"
@@ -172,7 +172,7 @@ export function PerformanceControls({
               aria-pressed={performanceMode === 'target-weighted'}
               className={`px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
                 performanceMode === 'target-weighted'
-                  ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
+                  ? 'bg-accent-wh40k text-on-accent-wh40k border-accent-wh40k'
                   : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
               }`}
               type="button"
@@ -205,7 +205,7 @@ export function PerformanceControls({
                   aria-pressed={tokenWeightingMode === 'max'}
                   className={`px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
                     tokenWeightingMode === 'max'
-                      ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
+                      ? 'bg-accent-wh40k text-on-accent-wh40k border-accent-wh40k'
                       : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
                   }`}
                 >
@@ -217,7 +217,7 @@ export function PerformanceControls({
                   aria-pressed={tokenWeightingMode === 'average'}
                   className={`px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
                     tokenWeightingMode === 'average'
-                      ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
+                      ? 'bg-accent-wh40k text-on-accent-wh40k border-accent-wh40k'
                       : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
                   }`}
                 >
@@ -245,7 +245,7 @@ export function PerformanceControls({
               aria-pressed={compareMode === 'guild'}
               className={`px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
                 compareMode === 'guild'
-                  ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
+                  ? 'bg-accent-wh40k text-on-accent-wh40k border-accent-wh40k'
                   : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
               }`}
             >
@@ -257,7 +257,7 @@ export function PerformanceControls({
               title={bossOnlyTitle}
               className={`px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
                 compareMode === 'guild-boss'
-                  ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
+                  ? 'bg-accent-wh40k text-on-accent-wh40k border-accent-wh40k'
                   : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
               }`}
             >
@@ -270,7 +270,7 @@ export function PerformanceControls({
                   aria-pressed={compareMode === 'cluster'}
                   className={`px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
                     compareMode === 'cluster'
-                      ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
+                      ? 'bg-accent-wh40k text-on-accent-wh40k border-accent-wh40k'
                       : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
                   }`}
                 >
@@ -282,7 +282,7 @@ export function PerformanceControls({
                   title={bossOnlyTitle}
                   className={`px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
                     compareMode === 'cluster-boss'
-                      ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
+                      ? 'bg-accent-wh40k text-on-accent-wh40k border-accent-wh40k'
                       : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
                   }`}
                 >

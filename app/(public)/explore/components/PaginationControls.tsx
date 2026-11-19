@@ -29,6 +29,7 @@ export function PaginationControls({
 
         {/* Items per page selector */}
         <select
+          aria-label="Guilds per page"
           value={itemsPerPage}
           onChange={(e) => {
             const newItemsPerPage = parseInt(e.target.value)
@@ -46,11 +47,13 @@ export function PaginationControls({
         </select>
       </div>
 
-      <div className="flex items-center gap-2">
+      <nav aria-label="Guild list pages" className="flex items-center gap-2">
         <button
+          type="button"
+          aria-label="Previous page"
           onClick={() => onPageChange(Math.max(1, currentPage - 1))}
           disabled={currentPage === 1}
-          className={`px-3 py-1 rounded border ${
+          className={`min-h-11 lg:min-h-0 px-3 py-1 rounded border ${
             currentPage === 1
               ? 'border-(--card-border) text-(--text-tertiary) cursor-not-allowed'
               : 'border-(--card-border) text-primary-wh40k hover:bg-(--card-bg)'
@@ -59,18 +62,27 @@ export function PaginationControls({
           Previous
         </button>
 
-        <div className="flex items-center gap-1">
+        {/* The numbered row is up to eleven items wide; it needs a desktop width. */}
+        <span className="lg:hidden px-1 text-sm text-secondary-wh40k whitespace-nowrap">
+          Page {currentPage} of {totalPages}
+        </span>
+
+        <div className="hidden lg:flex items-center gap-1">
           {/* Show first page */}
           {currentPage > 3 && (
             <>
               <button
+                type="button"
+                aria-label="Page 1"
                 onClick={() => onPageChange(1)}
                 className="px-3 py-1 rounded-sm border border-(--card-border) text-primary-wh40k hover:bg-(--card-bg)"
               >
                 1
               </button>
               {currentPage > 4 && (
-                <span className="text-(--text-tertiary)">...</span>
+                <span aria-hidden="true" className="text-(--text-tertiary)">
+                  ...
+                </span>
               )}
             </>
           )}
@@ -83,11 +95,14 @@ export function PaginationControls({
             })
             .map((page) => (
               <button
+                type="button"
                 key={`page-${page}`}
+                aria-label={`Page ${page}`}
+                aria-current={page === currentPage ? 'page' : undefined}
                 onClick={() => onPageChange(page)}
                 className={`px-3 py-1 rounded border ${
                   page === currentPage
-                    ? 'border-primary-wh40k bg-primary-wh40k text-white'
+                    ? 'border-primary-wh40k bg-primary-wh40k text-on-primary-wh40k'
                     : 'border-(--card-border) text-primary-wh40k hover:bg-(--card-bg)'
                 }`}
               >
@@ -99,9 +114,13 @@ export function PaginationControls({
           {currentPage < totalPages - 2 && (
             <>
               {currentPage < totalPages - 3 && (
-                <span className="text-(--text-tertiary)">...</span>
+                <span aria-hidden="true" className="text-(--text-tertiary)">
+                  ...
+                </span>
               )}
               <button
+                type="button"
+                aria-label={`Page ${totalPages}`}
                 onClick={() => onPageChange(totalPages)}
                 className="px-3 py-1 rounded-sm border border-(--card-border) text-primary-wh40k hover:bg-(--card-bg)"
               >
@@ -112,9 +131,11 @@ export function PaginationControls({
         </div>
 
         <button
+          type="button"
+          aria-label="Next page"
           onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
           disabled={currentPage === totalPages}
-          className={`px-3 py-1 rounded border ${
+          className={`min-h-11 lg:min-h-0 px-3 py-1 rounded border ${
             currentPage === totalPages
               ? 'border-(--card-border) text-(--text-tertiary) cursor-not-allowed'
               : 'border-(--card-border) text-primary-wh40k hover:bg-(--card-bg)'
@@ -122,7 +143,7 @@ export function PaginationControls({
         >
           Next
         </button>
-      </div>
+      </nav>
     </div>
   )
 }

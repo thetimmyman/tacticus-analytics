@@ -16,6 +16,10 @@ import {
   specialThemes,
   allThemes
 } from '@/app/lib/themes/definitions'
+import {
+  getOnFillVariables,
+  getStatusFillVariables
+} from '@/app/lib/utils/contrast'
 
 const FALLBACK_THEME = (() => {
   const fallback =
@@ -342,7 +346,6 @@ export function applyThemeToCSS(theme: GuildTheme) {
   root.style.setProperty('--card-border-hover', theme.accent)
   root.style.setProperty('--accent-primary', theme.accent)
   root.style.setProperty('--accent-hover', theme.primary)
-  root.style.setProperty('--accent-foreground', '#ffffff')
   root.style.setProperty('--primary-wh40k', theme.primary)
   root.style.setProperty('--secondary-wh40k', theme.secondary)
   root.style.setProperty('--accent-wh40k', theme.accent)
@@ -414,4 +417,26 @@ export function applyThemeToCSS(theme: GuildTheme) {
     root.style.setProperty('--accent', overrides.accent)
     root.style.setProperty('--text-accent', overrides.accent)
   }
+
+  // Filled controls read their label colour from these, not a fixed white or
+  // black; they follow the accent that is actually painted.
+  const onFill = getOnFillVariables({
+    primary: theme.primary,
+    secondary: theme.secondary,
+    accent: overrides?.accent ?? theme.accent
+  })
+  Object.entries(onFill).forEach(([name, value]) => {
+    root.style.setProperty(name, value)
+  })
+  root.style.setProperty('--accent-foreground', onFill['--on-accent'] ?? '#000')
+
+  // Danger and warning fills read their label from the colour painted above
+  // (Light Mode paints darker ones), not from a fixed white or black.
+  const statusFill = getStatusFillVariables({
+    danger: dangerValue,
+    warning: isLightTheme ? (overrides?.warning ?? '#ca8a04') : warningValue
+  })
+  Object.entries(statusFill).forEach(([name, value]) => {
+    root.style.setProperty(name, value)
+  })
 }

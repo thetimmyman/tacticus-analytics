@@ -33,7 +33,7 @@ export function FinalCTA({ isAuthenticated: initialAuth }: FinalCTAProps) {
             <>
               <Link
                 href="/dashboard"
-                className="px-8 py-4 bg-linear-to-r from-(--primary) to-(--accent) hover:from-(--accent) hover:to-(--primary) text-black font-bold rounded-lg text-lg transition-all duration-300 hover:shadow-lg hover:shadow-[color-mix(in_srgb,var(--accent)_25%,transparent)] hover:scale-105"
+                className="px-8 py-4 bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) hover:from-(--cta-to) hover:to-(--cta-from) hover:filter-none text-on-cta-wh40k font-bold rounded-lg text-lg transition-all duration-300 hover:shadow-lg hover:shadow-[color-mix(in_srgb,var(--accent)_25%,transparent)] hover:scale-105"
               >
                 View Dashboard
               </Link>
@@ -47,7 +47,7 @@ export function FinalCTA({ isAuthenticated: initialAuth }: FinalCTAProps) {
           ) : (
             <Link
               href="/auth/signup"
-              className="px-8 py-4 bg-linear-to-r from-(--primary) to-(--accent) hover:from-(--accent) hover:to-(--primary) text-black font-bold rounded-lg text-lg transition-all duration-300 hover:shadow-lg hover:shadow-[color-mix(in_srgb,var(--accent)_25%,transparent)] hover:scale-105"
+              className="px-8 py-4 bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) hover:from-(--cta-to) hover:to-(--cta-from) hover:filter-none text-on-cta-wh40k font-bold rounded-lg text-lg transition-all duration-300 hover:shadow-lg hover:shadow-[color-mix(in_srgb,var(--accent)_25%,transparent)] hover:scale-105"
             >
               Sign Up Free →
             </Link>

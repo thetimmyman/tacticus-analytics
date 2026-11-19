@@ -405,7 +405,7 @@ export function PlayerActivityChart({
                     onClick={() => toggleRarity(rarity)}
                     className={`px-2 py-1 text-xs rounded-md border transition-colors ${
                       selectedRarities.includes(rarity)
-                        ? 'bg-(--accent-primary) border-(--accent-primary) text-white'
+                        ? 'bg-accent-wh40k border-accent-wh40k text-on-accent-wh40k'
                         : 'bg-(--bg-tertiary) border-(--card-border) text-secondary-wh40k hover:border-(--accent-primary)'
                     }`}
                   >

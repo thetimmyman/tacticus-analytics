@@ -15,7 +15,7 @@ export default function BossNotFound() {
         </p>
         <Link
           href="/boss-playbooks"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-accent-wh40k text-white hover:opacity-90 transition-opacity"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-accent-wh40k text-on-accent-wh40k hover:opacity-90 transition-opacity"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to All Playbooks

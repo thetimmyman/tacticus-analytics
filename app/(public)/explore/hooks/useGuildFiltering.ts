@@ -9,7 +9,9 @@ export function useGuildFiltering(guilds: GuildData[]) {
   const [sortBy, setSortBy] = useState<SortBy>('ranking')
   const [expandedGuild, setExpandedGuild] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState<string>('')
-  const debouncedSearchQuery = useDebounce(searchQuery, 300)
+  const laggedSearchQuery = useDebounce(searchQuery, 300)
+  // Typing waits for a pause; an emptied box (or Reset) shows everything at once.
+  const debouncedSearchQuery = searchQuery === '' ? '' : laggedSearchQuery
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(20) // Show 20 guilds per page
 
@@ -94,10 +96,6 @@ export function useGuildFiltering(guilds: GuildData[]) {
   useEffect(() => {
     setCurrentPage(1)
   }, [selectedCluster, debouncedSearchQuery, sortBy])
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [currentPage])
 
   const toggleGuildExpansion = useCallback((guildCode: string) => {
     setExpandedGuild((prev) => (prev === guildCode ? null : guildCode))

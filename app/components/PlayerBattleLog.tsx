@@ -23,12 +23,12 @@ const PLAYER_BATTLE_FILTERS = [
   {
     value: 'all',
     label: 'All',
-    activeClassName: 'bg-accent-wh40k text-(--bg-primary)'
+    activeClassName: 'bg-accent-wh40k text-on-accent-wh40k'
   },
   {
     value: 'battles',
     label: '\u2694\uFE0F Battles',
-    activeClassName: 'bg-primary-wh40k text-black'
+    activeClassName: 'bg-primary-wh40k text-on-primary-wh40k'
   },
   {
     value: 'bombs',

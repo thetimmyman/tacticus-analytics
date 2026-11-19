@@ -344,11 +344,11 @@ export default function BattleLog({
           }
           const active = showType === t
           const activeColors: Record<string, string> = {
-            all: 'bg-accent-wh40k text-(--bg-primary)',
-            bosses: 'bg-primary-wh40k text-black',
-            prime1: 'bg-accent-wh40k text-black',
-            prime2: 'bg-accent-wh40k text-black',
-            bombs: 'bg-accent-wh40k text-black'
+            all: 'bg-accent-wh40k text-on-accent-wh40k',
+            bosses: 'bg-primary-wh40k text-on-primary-wh40k',
+            prime1: 'bg-accent-wh40k text-on-accent-wh40k',
+            prime2: 'bg-accent-wh40k text-on-accent-wh40k',
+            bombs: 'bg-accent-wh40k text-on-accent-wh40k'
           }
           return (
             <button

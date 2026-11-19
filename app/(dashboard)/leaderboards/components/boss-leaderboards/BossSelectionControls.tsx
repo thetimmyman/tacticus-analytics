@@ -150,7 +150,7 @@ export function BossSelectionControls({
                     onClick={() => onBossSelect(bossId)}
                     className={`px-4 py-2 rounded-lg border transition-colors ${
                       selectedBossId === bossId
-                        ? 'bg-primary-wh40k text-black border-primary-wh40k font-semibold'
+                        ? 'bg-primary-wh40k text-on-primary-wh40k border-primary-wh40k font-semibold'
                         : 'bg-(--card-bg) border-(--card-border) text-primary-wh40k hover:bg-card/80'
                     }`}
                   >

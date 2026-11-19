@@ -550,7 +550,10 @@ export function MemberDetailPanel({
                 onClick={() => handleCopy(data.displayName, noteDraft)}
                 disabled={!noteDraft}
                 className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[11px] font-bold disabled:opacity-40"
-                style={{ backgroundColor: 'var(--accent)', color: '#111' }}
+                style={{
+                  backgroundColor: 'var(--accent)',
+                  color: 'var(--on-accent)'
+                }}
               >
                 {copied ? (
                   <>

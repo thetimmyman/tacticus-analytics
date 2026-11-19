@@ -5,7 +5,7 @@ import { DiscordIcon } from '@/app/components/icons/DiscordIcon'
 import { GitHubIcon } from '@/app/components/icons/GitHubIcon'
 import { Film, Globe, MessageCircle } from 'lucide-react'
 
-type LinkType =
+export type LinkType =
   | 'youtube'
   | 'tiktok'
   | 'sheets'
@@ -27,24 +27,36 @@ type ResourceEntry = {
   links: ResourceLink[]
 }
 
-const LINK_BUTTON_CLASS: Record<LinkType, string> = {
+// Every style states its fill and its label together. Brand fills are dark
+// tiers with a white label (4.5:1 or better at both stops, and on hover, where
+// the fill darkens); the website style uses the theme's on-primary pair.
+// Hover never brightens: the global link rule is switched off so a white label
+// does not lose contrast on a lighter fill.
+export const LINK_BUTTON_CLASS: Record<LinkType, string> = {
   youtube:
-    'bg-linear-to-r from-red-600 to-red-500 hover:brightness-110 border-red-500/50',
+    'bg-linear-to-r from-red-700 to-red-600 hover:from-red-800 hover:to-red-700 border-red-500/50 text-white',
   tiktok:
-    'bg-linear-to-r from-(--bg-from) to-(--bg-to) hover:brightness-110 border-(--card-border)',
+    'bg-linear-to-r from-zinc-950 to-zinc-800 hover:from-black hover:to-zinc-900 border-zinc-600 text-white',
   sheets:
-    'bg-linear-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 border-green-500/50',
+    'bg-linear-to-r from-green-800 to-green-700 hover:from-green-900 hover:to-green-800 border-green-600/50 text-white',
   sheets2:
-    'bg-linear-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 border-green-500/50',
+    'bg-linear-to-r from-green-800 to-green-700 hover:from-green-900 hover:to-green-800 border-green-600/50 text-white',
   website:
-    'bg-linear-to-r from-(--primary) to-blue-500 hover:from-blue-500 hover:to-blue-400 border-blue-500/50',
+    'bg-primary-wh40k hover:bg-accent-wh40k border-primary-wh40k hover:border-accent-wh40k text-on-primary-wh40k hover:text-on-accent-wh40k',
   github:
-    'bg-linear-to-r from-(--card-bg) to-(--bg-via) hover:brightness-110 border-(--card-border)',
+    'bg-linear-to-r from-slate-900 to-slate-700 hover:from-slate-950 hover:to-slate-800 border-slate-500 text-white',
   reddit:
-    'bg-linear-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 border-orange-500/50',
+    'bg-linear-to-r from-orange-800 to-orange-700 hover:from-orange-900 hover:to-orange-800 border-orange-600/50 text-white',
   discord:
-    'bg-linear-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 border-indigo-500/50'
+    'bg-linear-to-r from-indigo-700 to-indigo-600 hover:from-indigo-800 hover:to-indigo-700 border-indigo-500/50 text-white'
 }
+
+// Focus: a white ring between two black bands, so it shows on dark and light
+// cards and on any fill; hover lifts, and reduced motion keeps the button still.
+// no-transition: the website style changes fill and label together on hover,
+// and two fades toward opposite ends cross at about 1:1 mid-way.
+const LINK_BUTTON_BASE =
+  'inline-flex items-center justify-center px-4 py-2 text-sm font-bold rounded-lg border no-transition hover:filter-none hover:-translate-y-0.5 hover:shadow-lg motion-reduce:hover:translate-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:shadow-[0_0_0_6px_black]'
 
 const LINK_DEFAULT_LABEL: Record<LinkType, string> = {
   youtube: 'YouTube',
@@ -83,7 +95,7 @@ function ResourceLinkButton({ link }: { link: ResourceLink }) {
       href={link.url}
       target="_blank"
       rel="noopener noreferrer"
-      className={`inline-flex items-center justify-center px-4 py-2 ${LINK_BUTTON_CLASS[link.type]} text-primary-wh40k text-sm font-bold rounded-lg transition-all duration-200 border`}
+      className={`${LINK_BUTTON_BASE} ${LINK_BUTTON_CLASS[link.type]}`}
     >
       <LinkIcon type={link.type} />
       {link.label ?? LINK_DEFAULT_LABEL[link.type]}
@@ -101,7 +113,7 @@ function ResourceGrid({ entries }: { entries: ResourceEntry[] }) {
         >
           <div className="text-center">
             <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden bg-linear-to-br from-red-500 to-red-700 border border-red-500/30">
-              <Film className="h-7 w-7 text-primary-wh40k" />
+              <Film className="h-7 w-7 text-white" />
             </div>
             <h3 className="text-lg font-semibold text-red-400 mb-2 tracking-wide">
               {entry.name}

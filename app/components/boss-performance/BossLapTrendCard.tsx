@@ -372,7 +372,7 @@ export function BossLapTrendCard() {
                 onClick={() => setViewMode('chart')}
                 className={`p-1.5 rounded transition-colors ${
                   viewMode === 'chart'
-                    ? 'bg-primary-wh40k text-(--bg-primary)'
+                    ? 'bg-primary-wh40k text-on-primary-wh40k'
                     : 'text-secondary-wh40k hover:text-primary-wh40k'
                 }`}
                 title="Chart view"
@@ -384,7 +384,7 @@ export function BossLapTrendCard() {
                 onClick={() => setViewMode('table')}
                 className={`p-1.5 rounded transition-colors ${
                   viewMode === 'table'
-                    ? 'bg-primary-wh40k text-(--bg-primary)'
+                    ? 'bg-primary-wh40k text-on-primary-wh40k'
                     : 'text-secondary-wh40k hover:text-primary-wh40k'
                 }`}
                 title="Table view"

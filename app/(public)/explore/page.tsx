@@ -37,15 +37,15 @@ export default async function ExplorePage() {
       <NavigationServer user={authData?.user} profile={authData?.profile} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-        <div className="mb-4">
+        <div className="mb-2 sm:mb-4">
           <Breadcrumbs items={[{ name: 'Explore Guilds', href: '/explore' }]} />
         </div>
 
-        <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary-wh40k mb-3 sm:mb-4">
+        <div className="text-center mb-4 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-primary-wh40k mb-2 sm:mb-4">
             Explore Guilds
           </h1>
-          <p className="text-secondary-wh40k text-base sm:text-lg max-w-2xl mx-auto px-4">
+          <p className="text-secondary-wh40k text-sm sm:text-lg max-w-2xl mx-auto sm:px-4">
             Compare public guild raid damage, boss hits, and cluster rankings
             from shared snapshots
           </p>

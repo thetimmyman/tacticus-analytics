@@ -76,6 +76,141 @@ export function getContrastAwareTextColor(backgroundColor: string): string {
   }
 }
 
+/** Contrast the gradient label keeps on every colour along the gradient. */
+const CTA_TARGET = 4.6
+const CTA_SAMPLES = 32
+const CTA_PULL_STEPS = 20
+
+function mixHex(from: string, to: string, t: number): string | null {
+  const a = hexToRgb(from)
+  const b = hexToRgb(to)
+  if (!a || !b) return null
+  const channel = (x: number, y: number) =>
+    Math.round(x + (y - x) * t)
+      .toString(16)
+      .padStart(2, '0')
+  return `#${channel(a.r, b.r)}${channel(a.g, b.g)}${channel(a.b, b.b)}`
+}
+
+/** Lowest contrast `label` has on any colour of the straight sRGB line. */
+function lowestContrastAlong(label: string, from: string, to: string): number {
+  let lowest = Infinity
+  for (let i = 0; i <= CTA_SAMPLES; i++) {
+    const colour = mixHex(from, to, i / CTA_SAMPLES)
+    if (!colour) return 1
+    lowest = Math.min(lowest, getContrastRatio(label, colour))
+  }
+  return lowest
+}
+
+/**
+ * How far `other` has to move toward `anchor` before the anchor's best label
+ * reads on the whole gradient (0 = not at all, 1 = a solid anchor colour).
+ */
+function pullToward(
+  anchor: string,
+  other: string
+): { step: number; to: string; label: string } {
+  const label = getHighContrastText(anchor)
+  for (let step = 0; step < CTA_PULL_STEPS; step++) {
+    const to = mixHex(other, anchor, step / CTA_PULL_STEPS)
+    if (to && lowestContrastAlong(label, anchor, to) >= CTA_TARGET) {
+      return { step, to: step === 0 ? other : to, label }
+    }
+  }
+  // Solid anchor: the label already reads on it (4.58:1 at worst).
+  return { step: CTA_PULL_STEPS, to: anchor, label }
+}
+
+/**
+ * Stops and label for a primary-to-accent call-to-action. For 33 of 62 themes
+ * no one label reads on both colours, so the label follows whichever needs the
+ * smaller change and the other is pulled toward it only as far as needed (flat
+ * when the colours agree). Paint it in sRGB (`bg-linear-to-r/srgb`).
+ */
+export function getCtaGradient(
+  primary: string,
+  accent: string
+): { from: string; to: string; label: string } {
+  const keepPrimary = pullToward(primary, accent)
+  const keepAccent = pullToward(accent, primary)
+  if (keepAccent.step < keepPrimary.step) {
+    return { from: keepAccent.to, to: accent, label: keepAccent.label }
+  }
+  return { from: primary, to: keepPrimary.to, label: keepPrimary.label }
+}
+
+/** Share of the way a fill moves toward the hover colour. */
+const HOVER_STEP = 0.2
+/** Hover keeps at least this label contrast, or the rest contrast if lower. */
+const HOVER_FLOOR = 6
+
+/**
+ * A control's fill while hovered: one step toward black or white, whichever
+ * shows the larger change while the label keeps `min(rest, 6)`:1. Pale fills
+ * such as gold or white have no room to lighten, so they darken. A
+ * translucent tint cannot do this; it moves toward whatever sits behind it.
+ */
+export function getHoverFill(fill: string, label: string): string {
+  const opposite = label === '#ffffff' ? '#000000' : '#ffffff'
+  const floor = Math.min(getContrastRatio(label, fill), HOVER_FLOOR)
+  const candidates = [opposite, label]
+    .map((target) => mixHex(fill, target, HOVER_STEP))
+    .filter(
+      (colour): colour is string =>
+        colour !== null && getContrastRatio(label, colour) >= floor
+    )
+  candidates.sort(
+    (a, b) => getContrastRatio(fill, b) - getContrastRatio(fill, a)
+  )
+  return candidates[0] ?? fill
+}
+
+/**
+ * Text colour for content on a filled primary, secondary or accent control.
+ * Opaque black or white, whichever reads better: 62 of 62 theme fills reach
+ * 4.5:1 this way, while a fixed white or black fails on about half of them.
+ * The `--cta-*` trio is the same for a primary-to-accent gradient control, and
+ * `--accent-fill-hover` is the accent fill's hover step.
+ */
+export function getOnFillVariables(fills: {
+  primary: string
+  secondary: string
+  accent: string
+}): Record<string, string> {
+  const cta = getCtaGradient(fills.primary, fills.accent)
+  const onAccent = getHighContrastText(fills.accent)
+  return {
+    '--on-primary': getHighContrastText(fills.primary),
+    '--on-secondary': getHighContrastText(fills.secondary),
+    '--on-accent': onAccent,
+    '--accent-fill-hover': getHoverFill(fills.accent, onAccent),
+    '--cta-from': cta.from,
+    '--cta-to': cta.to,
+    '--on-cta': cta.label
+  }
+}
+
+/**
+ * Label and hover fill for a filled danger or warning control, from the
+ * colours the theme actually paints for them (Light Mode paints darker ones).
+ * `applyThemeToCSS` sets these; the first-paint script and the public wrapper
+ * do not, and the stylesheet carries the dark defaults.
+ */
+export function getStatusFillVariables(fills: {
+  danger: string
+  warning: string
+}): Record<string, string> {
+  const onDanger = getHighContrastText(fills.danger)
+  const onWarning = getHighContrastText(fills.warning)
+  return {
+    '--on-danger': onDanger,
+    '--danger-fill-hover': getHoverFill(fills.danger, onDanger),
+    '--on-warning': onWarning,
+    '--warning-fill-hover': getHoverFill(fills.warning, onWarning)
+  }
+}
+
 export function generateContrastVariables(theme: {
   cardBg: string
   primary: string

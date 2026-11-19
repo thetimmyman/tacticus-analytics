@@ -107,7 +107,7 @@ export default function WarsListClient({ guildCode }: WarsListClientProps) {
           <p className="text-secondary-wh40k">Failed to load war data.</p>
           <button
             onClick={() => refetch()}
-            className="mt-3 px-4 py-2 text-sm rounded-sm bg-accent-wh40k text-white hover:opacity-90 transition-opacity"
+            className="mt-3 px-4 py-2 text-sm rounded-sm bg-accent-wh40k text-on-accent-wh40k hover:opacity-90 transition-opacity"
           >
             Try again
           </button>

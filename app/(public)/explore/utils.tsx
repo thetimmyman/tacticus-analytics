@@ -277,7 +277,8 @@ export const transformGuildSnapshot = (snapshot: GuildSnapshot): GuildData => {
     ),
     cluster_code: snapshot.cluster_code,
     cluster_name: snapshot.cluster_name,
-    season: snapshot.season?.toString() || '83',
+    // Empty means the snapshot did not say; the page shows a dash, not a guess.
+    season: snapshot.season?.toString() || '',
     current_gr_ranking: snapshot.rank ?? null,
     current_war_rank: snapshot.war_rank ?? null,
     war_rank: snapshot.war_rank ?? null,

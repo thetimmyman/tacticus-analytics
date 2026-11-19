@@ -36,7 +36,7 @@ export function OnboardingNav({ onLogout }: OnboardingNavProps) {
             </Link>
             <Link
               href="/onboarding/dashboard"
-              className="inline-flex items-center gap-2 rounded-md bg-accent-wh40k px-3 py-2 text-sm font-medium text-(--bg-primary) hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] transition-colors"
+              className="inline-flex items-center gap-2 rounded-md bg-accent-wh40k px-3 py-2 text-sm font-medium text-on-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] transition-colors"
             >
               Continue Onboarding
               <ChevronRight className="w-4 h-4" />

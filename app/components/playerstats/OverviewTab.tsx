@@ -487,7 +487,7 @@ export function PlayerOverview({
               onClick={() => setCompareToUserGuild(false)}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                 !isCompareToUserGuild
-                  ? 'bg-primary-wh40k text-white'
+                  ? 'bg-primary-wh40k text-on-primary-wh40k'
                   : 'text-secondary-wh40k hover:text-primary-wh40k'
               }`}
             >
@@ -498,7 +498,7 @@ export function PlayerOverview({
               onClick={() => setCompareToUserGuild(true)}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                 isCompareToUserGuild
-                  ? 'bg-primary-wh40k text-white'
+                  ? 'bg-primary-wh40k text-on-primary-wh40k'
                   : 'text-secondary-wh40k hover:text-primary-wh40k'
               }`}
             >

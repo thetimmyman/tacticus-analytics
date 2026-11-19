@@ -314,8 +314,8 @@ export default function BossFavorites({
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 sm:mb-6">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-linear-to-r from-(--primary) to-(--accent) rounded-lg flex items-center justify-center">
-            <span className="text-(--bg-primary) font-bold text-sm">B</span>
+          <div className="w-8 h-8 bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) rounded-lg flex items-center justify-center">
+            <span className="text-on-cta-wh40k font-bold text-sm">B</span>
           </div>
           <div>
             <h3 className="text-lg font-bold text-accent-wh40k">
@@ -462,7 +462,7 @@ export default function BossFavorites({
             disabled={!hasChanges || saving}
             className={`px-4 py-2 rounded text-sm font-medium transition-all ${
               hasChanges && !saving
-                ? 'bg-linear-to-r from-(--primary) to-(--accent) text-(--bg-primary) hover:brightness-110'
+                ? 'bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) hover:from-(--cta-to) hover:to-(--cta-from) hover:filter-none hover:-translate-y-0.5 text-on-cta-wh40k'
                 : 'bg-[color-mix(in_srgb,var(--primary)_20%,transparent)] text-[color-mix(in_srgb,var(--text-primary)_50%,transparent)] cursor-not-allowed'
             }`}
           >

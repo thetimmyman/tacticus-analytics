@@ -270,7 +270,7 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={isLoading || !password || !confirmPassword}
-              className="w-full py-3 px-4 bg-primary-wh40k hover:bg-(--secondary) disabled:bg-gray-600 disabled:cursor-not-allowed text-black font-semibold rounded-lg transition-colors"
+              className="w-full py-3 px-4 bg-primary-wh40k hover:bg-(--secondary) disabled:bg-gray-600 disabled:cursor-not-allowed text-on-primary-wh40k hover:text-on-secondary-wh40k font-semibold rounded-lg no-transition"
             >
               {isLoading ? 'Resetting...' : 'Reset Password'}
             </button>

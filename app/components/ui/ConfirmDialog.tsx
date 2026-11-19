@@ -2,6 +2,7 @@
 
 import { useId, type ReactNode } from 'react'
 import clsx from 'clsx'
+import { OctagonAlert, TriangleAlert } from 'lucide-react'
 import { ModalShell } from './ModalShell'
 import { Spinner } from './Spinner'
 
@@ -22,20 +23,32 @@ interface ConfirmDialogProps {
   children?: ReactNode
 }
 
+/**
+ * Confirm button per tone: an opaque fill, the label the theme computed for
+ * that fill, and a visible hover step that keeps the label readable (see
+ * docs/decisions/0003-on-fill-label-tokens.md). A translucent tint let the
+ * card behind it change the contrast, and hover made it worse.
+ */
 const toneConfirmClass: Record<ConfirmDialogTone, string> = {
-  default:
-    'bg-accent-wh40k text-black hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)]',
-  warning:
-    'border border-[color-mix(in_srgb,var(--warning)_60%,transparent)] bg-[color-mix(in_srgb,var(--warning)_80%,transparent)] text-(--bg-primary) hover:bg-(--warning)',
-  danger:
-    'border border-[color-mix(in_srgb,var(--danger)_60%,transparent)] bg-[color-mix(in_srgb,var(--danger)_80%,transparent)] text-white hover:bg-(--danger)'
+  default: 'bg-(--accent) text-(--on-accent) hover:bg-(--accent-fill-hover)',
+  warning: 'bg-(--warning) text-(--on-warning) hover:bg-(--warning-fill-hover)',
+  danger: 'bg-(--danger) text-(--on-danger) hover:bg-(--danger-fill-hover)'
 }
 
-const toneTitleClass: Record<ConfirmDialogTone, string> = {
-  default: 'text-primary-wh40k',
-  warning: 'text-(--warning)',
-  danger: 'text-(--danger)'
-}
+/**
+ * Warning and danger carry a round badge before the title: the status fill with
+ * its computed label, so the tone is not a colour in the title text alone.
+ */
+const toneBadge = {
+  warning: {
+    Icon: TriangleAlert,
+    className: 'bg-(--warning) text-(--on-warning)'
+  },
+  danger: {
+    Icon: OctagonAlert,
+    className: 'bg-(--danger) text-(--on-danger)'
+  }
+} as const
 
 export function ConfirmDialog({
   open,
@@ -52,6 +65,7 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   const titleId = useId()
   const descriptionId = useId()
+  const badge = tone === 'default' ? null : toneBadge[tone]
 
   if (!open) return null
 
@@ -63,12 +77,25 @@ export function ConfirmDialog({
       onClose={busy ? undefined : onCancel}
       showCloseButton={false}
     >
-      <h3
-        id={titleId}
-        className={clsx('text-xl font-semibold', toneTitleClass[tone])}
-      >
-        {title}
-      </h3>
+      <div className="flex items-start gap-3">
+        {badge && (
+          <span
+            aria-hidden="true"
+            className={clsx(
+              'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-transparent',
+              badge.className
+            )}
+          >
+            <badge.Icon className="h-4 w-4" />
+          </span>
+        )}
+        <h3
+          id={titleId}
+          className="min-w-0 text-xl leading-8 font-bold text-primary-wh40k"
+        >
+          {title}
+        </h3>
+      </div>
       {description && (
         <div
           id={descriptionId}
@@ -92,7 +119,7 @@ export function ConfirmDialog({
           onClick={onConfirm}
           disabled={busy}
           className={clsx(
-            'inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors duration-base disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto',
+            'inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border border-transparent px-4 py-2 text-sm font-semibold transition-colors duration-base disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto',
             toneConfirmClass[tone]
           )}
         >
