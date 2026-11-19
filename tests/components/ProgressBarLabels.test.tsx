@@ -122,6 +122,17 @@ describe('progress bar label: readable on the surface under each glyph', () => {
     }
   })
 
+  it('purple and pink run accent to primary, blue and cyan primary to accent', () => {
+    expect(BAR_PAINT.purple.fill).toBe(BAR_PAINT.pink.fill)
+    expect(BAR_PAINT.blue.fill).toBe(BAR_PAINT.cyan.fill)
+    expect(tokens(BAR_PAINT.blue.fill)).toEqual(
+      expect.arrayContaining(['from-(--cta-from)', 'to-(--cta-to)'])
+    )
+    expect(tokens(BAR_PAINT.purple.fill)).toEqual(
+      expect.arrayContaining(['from-(--cta-to)', 'to-(--cta-from)'])
+    )
+  })
+
   it('the rendered bar paints with the table: the fill and the label over it', () => {
     for (const color of COLORS) {
       if (color === 'pink') continue
@@ -163,7 +174,7 @@ describe('progress bar label: readable on the surface under each glyph', () => {
       // Both boxes clip their label; a transform or clip-path cut is not used
       // because it lands on a different device pixel than the fill's edge.
       expect(tokens(fill.getAttribute('class') ?? '')).toEqual(
-        expect.arrayContaining(['relative', 'overflow-hidden'])
+        expect.arrayContaining(['relative', 'h-full', 'overflow-hidden'])
       )
       expect(tokens(wrapper!.getAttribute('class') ?? '')).toEqual(
         expect.arrayContaining(['absolute', 'inset-y-0', 'overflow-hidden'])
