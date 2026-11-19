@@ -284,11 +284,18 @@
 
 @utility btn-wh40k {
   /* Buttons */
-  @apply px-4 py-2 rounded-sm font-semibold uppercase tracking-wider text-sm transition-all duration-300;
+  @apply px-4 py-2 rounded-sm font-semibold uppercase tracking-wider text-sm;
   /* Hover swaps the fill to the accent, so the label follows through a
      variable: a tinted variant that sets its own text-* keeps that label on
      hover instead of a rule here overriding it. The global anchor brightening
-     is off because it would lighten the fill under a white label. */
+     is off because it would lighten the fill under a white label. The pair
+     swaps in one frame: fading both crosses them at about 1:1 half-way, and
+     a child that inherits the label must not fade either. */
+  transition: none !important;
+
+  & * {
+    transition: none !important;
+  }
   --btn-label: var(--on-primary);
   background: var(--primary);
   color: var(--btn-label);

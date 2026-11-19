@@ -184,6 +184,18 @@ describe('resource link buttons: a label chosen for its own fill', () => {
     }
   })
 
+  it('every link swaps colours in one frame, so a label and fill that change together never cross mid-fade', () => {
+    // Website: label on-primary -> on-accent while the fill goes primary ->
+    // accent; two 0.3s fades meet at about 1:1 on 33 of 62 themes.
+    const links = renderedLinks()
+    expect(links.length).toBeGreaterThan(10)
+    for (const link of links) {
+      expect(tokensOf(link.getAttribute('class') ?? '')).toContain(
+        'no-transition'
+      )
+    }
+  })
+
   it('the film glyph on the red avatar is opaque white and reads on both avatar colours', () => {
     const { container } = render(<ContentCreators />)
     const glyph = container.querySelector('svg.h-7.w-7')

@@ -53,8 +53,10 @@ export const LINK_BUTTON_CLASS: Record<LinkType, string> = {
 
 // Focus: a white ring between two black bands, so it shows on dark and light
 // cards and on any fill; hover lifts, and reduced motion keeps the button still.
+// no-transition: the website style changes fill and label together on hover,
+// and two fades toward opposite ends cross at about 1:1 mid-way.
 const LINK_BUTTON_BASE =
-  'inline-flex items-center justify-center px-4 py-2 text-sm font-bold rounded-lg border transition-all duration-200 hover:filter-none hover:-translate-y-0.5 hover:shadow-lg motion-reduce:hover:translate-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:shadow-[0_0_0_6px_black]'
+  'inline-flex items-center justify-center px-4 py-2 text-sm font-bold rounded-lg border no-transition hover:filter-none hover:-translate-y-0.5 hover:shadow-lg motion-reduce:hover:translate-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:shadow-[0_0_0_6px_black]'
 
 const LINK_DEFAULT_LABEL: Record<LinkType, string> = {
   youtube: 'YouTube',
