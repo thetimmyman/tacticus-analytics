@@ -72,7 +72,11 @@ export default function AuthPage() {
                 />
               }
             >
-              {mode === 'login' ? <LoginForm /> : <SimplifiedSignupForm />}
+              {mode === 'login' ? (
+                <LoginForm titleLevel={2} />
+              ) : (
+                <SimplifiedSignupForm />
+              )}
             </Suspense>
           </div>
         </div>
