@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useId, useRef } from 'react'
 import {
   Users,
   Sword,
@@ -36,15 +37,26 @@ export function GuildCard({
   hasMounted
 }: GuildCardProps) {
   const isPremium = guild.is_premium === true
+  const detailsId = useId()
+  const headerRef = useRef<HTMLDivElement>(null)
+
+  // Opening one guild closes the open one, which can sit above this card and
+  // push its header off-screen, taking the keyboard focus with it.
+  useEffect(() => {
+    if (isExpanded) headerRef.current?.scrollIntoView({ block: 'nearest' })
+  }, [isExpanded])
 
   return (
     <div className={getGuildCardClasses(guild)}>
       {isPremium && (
         <div className="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-amber-500 to-transparent" />
       )}
-      {/* Guild Header */}
+      {/* Guild Header. The whole row is a pointer target; the button in the
+          title is the keyboard and screen-reader control (its click bubbles
+          up to this handler, so there is exactly one toggle path). */}
       <div
-        className="p-4 cursor-pointer transition-colors duration-200 hover:bg-(--card-hover)"
+        ref={headerRef}
+        className="scroll-mt-24 p-4 cursor-pointer transition-colors duration-200 hover:bg-(--card-hover) has-focus-visible:bg-(--card-hover)"
         onClick={() => onToggleExpand(guild.guild_code)}
       >
         <div className="flex items-center justify-between">
@@ -85,7 +97,17 @@ export function GuildCard({
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-lg font-bold text-primary-wh40k">
-                  {guild.guild_name}
+                  {/* Two-tone focus mark (black band under a white outline): one of
+                      the two clears 3:1 on any theme background; the outline also
+                      survives forced-colors mode, which drops box-shadow. */}
+                  <button
+                    type="button"
+                    aria-expanded={isExpanded}
+                    aria-controls={isExpanded ? detailsId : undefined}
+                    className="-mx-1 -my-0.5 rounded-sm px-1 py-0.5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:shadow-[0_0_0_2px_black]"
+                  >
+                    {guild.guild_name}
+                  </button>
                 </h3>
                 {isPremium && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400 border border-amber-500/30">
@@ -145,9 +167,15 @@ export function GuildCard({
             </div>
             <div>
               {isExpanded ? (
-                <ChevronUp className="w-5 h-5 text-secondary-wh40k" />
+                <ChevronUp
+                  className="w-5 h-5 text-secondary-wh40k"
+                  aria-hidden="true"
+                />
               ) : (
-                <ChevronDown className="w-5 h-5 text-secondary-wh40k" />
+                <ChevronDown
+                  className="w-5 h-5 text-secondary-wh40k"
+                  aria-hidden="true"
+                />
               )}
             </div>
           </div>
@@ -156,7 +184,10 @@ export function GuildCard({
 
       {/* Expanded Details */}
       {isExpanded && (
-        <div className="border-t border-(--card-border) p-4 space-y-4">
+        <div
+          id={detailsId}
+          className="border-t border-(--card-border) p-4 space-y-4"
+        >
           {/* Last Updated */}
           <div className="flex items-center justify-end mb-4">
             <div className="text-xs text-(--text-tertiary)">
