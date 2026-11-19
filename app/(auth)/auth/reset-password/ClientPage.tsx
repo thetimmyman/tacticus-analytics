@@ -194,9 +194,9 @@ export default function ResetPasswordPage() {
                 />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-primary-wh40k mb-2">
+            <h1 className="text-2xl font-bold text-primary-wh40k mb-2">
               Password Reset Successful!
-            </h2>
+            </h1>
             <p className="text-secondary-wh40k mb-4">
               Your password has been successfully reset.
             </p>
@@ -213,9 +213,9 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-(--bg-primary) px-4">
       <div className="max-w-md w-full">
         <div className="bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 border border-(--card-border) rounded-lg p-8">
-          <h2 className="text-2xl font-bold text-primary-wh40k mb-6 text-center">
+          <h1 className="text-2xl font-bold text-primary-wh40k mb-6 text-center">
             Reset Your Password
-          </h2>
+          </h1>
 
           {error && (
             <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-6">

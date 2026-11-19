@@ -67,9 +67,9 @@ function VerifyEmailContent() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-primary-wh40k">
+          <h1 className="text-3xl font-bold text-primary-wh40k">
             Email Verification
-          </h2>
+          </h1>
         </div>
 
         <div className="card-wh40k p-8">
@@ -97,9 +97,9 @@ function VerifyEmailContent() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-primary-wh40k">
+              <h2 className="text-xl font-semibold text-primary-wh40k">
                 Email Verified!
-              </h3>
+              </h2>
               <p className="text-secondary-wh40k">
                 Your email has been successfully verified. You can now log in to
                 your account.
@@ -125,9 +125,9 @@ function VerifyEmailContent() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-primary-wh40k">
+              <h2 className="text-xl font-semibold text-primary-wh40k">
                 Verification Failed
-              </h3>
+              </h2>
               <p className="text-secondary-wh40k">
                 {error ? (
                   <LinkifiedText text={error} />

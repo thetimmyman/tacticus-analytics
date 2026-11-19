@@ -1,13 +1,17 @@
 import type { HTMLAttributes } from 'react'
 import { cn } from './cn'
 
-export type BadgeVariant = 'default' | 'secondary' | 'warning' | 'destructive'
+export type BadgeVariant =
+  'default' | 'secondary' | 'success' | 'warning' | 'destructive'
 
+// Each variant names the theme's own tokens, so a pill is visible in every theme.
+// Status colour is a tint behind the label; the label always states the status.
 const variantStyles: Record<BadgeVariant, string> = {
-  default: 'border-transparent bg-primary text-primary-foreground',
-  secondary: 'border-transparent bg-muted text-muted-foreground',
-  warning: 'border-transparent bg-amber-500/15 text-amber-600',
-  destructive: 'border-transparent bg-destructive text-destructive-foreground'
+  default: 'border-(--card-border) text-primary-wh40k',
+  secondary: 'border-(--card-border) bg-(--bg-secondary) text-secondary-wh40k',
+  success: 'border-(--success-border) bg-(--success-bg) text-primary-wh40k',
+  warning: 'border-(--warning-border) bg-(--warning-bg) text-primary-wh40k',
+  destructive: 'border-(--error-border) bg-(--error-bg) text-primary-wh40k'
 }
 
 interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
