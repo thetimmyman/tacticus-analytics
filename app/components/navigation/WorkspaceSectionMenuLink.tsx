@@ -77,11 +77,13 @@ export const WorkspaceSectionMenuLink = forwardRef<
   const stateClass = isActive
     ? isAdminLink
       ? 'bg-linear-to-r from-red-500 to-red-600 text-white'
-      : 'bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) text-on-cta-wh40k'
+      : 'bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) hover:filter-none text-on-cta-wh40k'
     : isAdminLink
       ? 'hover:bg-red-500/10 bg-(--card-bg) border border-red-500/30'
       : 'hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] bg-(--card-bg)'
 
+  // The mobile menu's item wrapper hands this link its own text colour, which
+  // would beat the anchor's label on the active gradient; the label span states it again.
   return (
     <Link
       {...rest}
@@ -89,7 +91,15 @@ export const WorkspaceSectionMenuLink = forwardRef<
       href={href}
       className={mergeClass(`${baseClass} ${spacingClass} ${stateClass}`)}
     >
-      <span className={labelClass}>{section.label}</span>
+      <span
+        className={
+          isActive && !isAdminLink
+            ? `${labelClass} text-on-cta-wh40k`
+            : labelClass
+        }
+      >
+        {section.label}
+      </span>
     </Link>
   )
 })

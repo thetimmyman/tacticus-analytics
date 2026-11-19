@@ -131,7 +131,8 @@
 @utility text-on-cta-wh40k {
   /* Label on a primary-to-accent gradient: pair with
      `bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to)`. The stops, not the
-     raw theme colours, keep the label readable end to end. */
+     raw theme colours, keep the label readable end to end. Declared after
+     text-on-accent-wh40k so it wins over the ui-kit Button default. */
   color: var(--on-cta);
 }
 

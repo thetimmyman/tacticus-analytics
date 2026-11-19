@@ -16,11 +16,12 @@ const FILL = new RegExp(
 // --accent-primary is the unoverridden accent: not the colour --on-accent is for.
 const ACCENT_PRIMARY_FILL =
   /^bg-(?:\(--accent-primary\)|\[var\(--accent-primary\)\])(?:\/\d+)?$/u
-const GRADIENT_FILL = /^(?:from|via|to)-\(--(?:primary|secondary|accent)\)$/u
+const GRADIENT_FILL =
+  /^(?:from|via|to)-(?:\(--(?:primary|secondary|accent)\)|\[var\(--(?:primary|secondary|accent)\)\])$/u
 const ON_LABEL =
   /^text-(?:on-(?:primary|secondary|accent)-wh40k|\(--on-(?:primary|secondary|accent)\))$/u
 const FIXED_LABEL = new RegExp(
-  String.raw`^text-(?:(?:white|black)(?:/\d+)?|\((?:--bg-primary|--accent-foreground)\)|\[var\(--(?:bg-primary|accent-foreground)\)\]|\[#[0-9a-f]{3,8}\]|(?:gray|slate|zinc|neutral|stone)-\d+)$`,
+  String.raw`^text-(?:(?:white|black)(?:/\d+)?|\((?:--bg-primary|--accent-foreground)\)|\[var\(--(?:bg-primary|accent-foreground)\)\]|\[#[0-9a-f]{3,8}\]|\[(?:black|white)\]|(?:gray|slate|zinc|neutral|stone)-\d+)$`,
   'iu'
 )
 
@@ -29,6 +30,10 @@ const FIXED_LABEL = new RegExp(
 // chosen by sampling the sRGB path, so the gradient must be painted in sRGB.
 const CTA_STOP = /^(?:from|via|to)-\(--cta-(?:from|to)\)$/u
 const SRGB_GRADIENT = /^bg-linear-(?:to-(?:t|b|l|r|tl|tr|bl|br)|\d+)\/srgb$/u
+const ON_CTA = /^text-(?:on-cta-wh40k|\(--on-cta\))$/u
+// Any text colour: not a size, alignment, wrapping or transparent utility.
+const TEXT_COLOUR =
+  /^text-(?!transparent$|(?:xs|sm|base|lg|xl|[2-9]xl|2xs)$|(?:left|center|right|justify|start|end|wrap|nowrap|balance|pretty|ellipsis|clip)$|\[\d)/u
 
 const CLASS_HELPERS = new Set([
   'clsx',
@@ -59,7 +64,11 @@ function tokens(text: string): Token[] {
         else if (c === ']' || c === ')') depth--
         else if (c === ':' && depth === 0) cut = i
       }
-      return { prefix: raw.slice(0, cut + 1), utility: raw.slice(cut + 1) }
+      // `!text-black` and `text-black!` are the same utility, made important.
+      return {
+        prefix: raw.slice(0, cut + 1),
+        utility: raw.slice(cut + 1).replace(/^!|!$/gu, '')
+      }
     })
 }
 
@@ -94,15 +103,20 @@ function judge(text: string): Verdict {
   ) {
     return 'accent-primary'
   }
-  const stops = toks.some(
-    (t) => GRADIENT_FILL.test(t.utility) || CTA_STOP.test(t.utility)
-  )
-  // Raw theme stops need the --cta-* ones, and any label but --on-cta (also
-  // --on-primary, which reads on one end only) is wrong on either.
-  if (stops && (fixed.length > 0 || on.length > 0)) return 'gradient'
+  const labels = toks.filter((t) => TEXT_COLOUR.test(t.utility))
+  // Raw theme stops have no label that reads on both ends (not even --on-cta,
+  // which was chosen for the --cta-* stops), and a --cta-* gradient takes
+  // only --on-cta.
+  if (toks.some((t) => GRADIENT_FILL.test(t.utility)) && labels.length > 0)
+    return 'gradient'
   if (
     toks.some((t) => CTA_STOP.test(t.utility)) &&
-    !toks.some((t) => SRGB_GRADIENT.test(t.utility))
+    labels.some((t) => !ON_CTA.test(t.utility))
+  )
+    return 'gradient'
+  if (
+    toks.some((t) => CTA_STOP.test(t.utility)) &&
+    !toks.some((t) => t.prefix === '' && SRGB_GRADIENT.test(t.utility))
   )
     return 'cta-space'
   return 'ok'
@@ -400,6 +414,32 @@ describe('judging a class string', () => {
       'bg-linear-to-r from-(--primary) to-(--accent) bg-clip-text text-transparent',
       'ok'
     ],
+    [
+      'bg-linear-to-r from-(--primary) to-(--accent) text-on-cta-wh40k',
+      'gradient'
+    ],
+    [
+      'bg-linear-to-r from-(--primary) to-(--accent) text-(--text-primary)',
+      'gradient'
+    ],
+    ['bg-linear-to-r from-[var(--primary)] to-blue-500 text-black', 'gradient'],
+    ['bg-linear-to-r from-(--primary) to-(--accent) text-white!', 'gradient'],
+    ['bg-linear-to-r from-(--primary) to-(--accent) !text-black', 'gradient'],
+    ['bg-linear-to-r from-(--primary) to-(--accent) text-[black]', 'gradient'],
+    [
+      'bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) text-(--text-primary)',
+      'gradient'
+    ],
+    [
+      'bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) text-sm font-bold text-on-cta-wh40k',
+      'ok'
+    ],
+    [
+      'md:bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) text-on-cta-wh40k',
+      'cta-space'
+    ],
+    ['bg-linear-to-r from-(--primary) to-(--accent) text-xs', 'ok'],
+    ['bg-accent-wh40k text-white!', 'fixed-label'],
     ['bg-accent-wh40k text-on-accent-wh40k', 'ok'],
     ['bg-(--accent)/20 text-white', 'ok'],
     ['bg-red-600 text-white', 'ok'],
@@ -434,7 +474,7 @@ describe('text on a filled theme control follows the theme', () => {
 
   it('gradient call-to-actions take their stops and label from --cta-*', () => {
     // The label that reads on a theme's primary does not read on its accent
-    // (39 of 62 themes): use from-(--cta-from) to-(--cta-to) text-on-cta-wh40k.
+    // (33 of 62 themes): use from-(--cta-from) to-(--cta-to) text-on-cta-wh40k.
     expect(found.gradient).toEqual([])
   })
 

@@ -38,8 +38,8 @@ light accent). The runtime therefore also sets `--cta-from`, `--cta-to` and
 `--on-cta`. It keeps whichever of the two theme colours needs the smaller
 change, pulls the other toward it only until the label reaches 4.6:1 on every
 colour of the sRGB line between the stops, and falls back to a flat fill when
-the two colours are the same. A red-to-gold theme stays red-to-gold; only the
-red moves a few percent.
+the two colours are the same. A red-to-gold theme stays red-to-gold, the red
+moving a few percent.
 
 Paint these with
 `bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) text-on-cta-wh40k`. The
@@ -52,9 +52,14 @@ depend on the gradient (a flat theme has none to flip).
 ## Consequences
 
 A new theme needs no label tuning. Fixed-colour buttons such as destructive red
-keep their own label and say so with an explicit class. A gradient built from
-the raw `--primary` and `--accent`, or any `--cta-*` gradient with a different
-label or without `/srgb`, fails the source guard.
+keep their own label and say so with an explicit class. The source guard
+rejects a class string that pairs raw `--primary`/`--accent` stops with any text
+colour, a `--cta-*` gradient with any label but `--on-cta`, and a `--cta-*`
+gradient not painted in sRGB at every width. It reads one class string at a
+time, so a label on a child element, a class chosen from a lookup table or an
+inline style is not checked; measure those in the browser. For themes whose
+colours sit far apart (a navy primary with a gold accent) the dark end of the
+gradient is lightened noticeably, because gold cannot carry a white label.
 
 ## Compliance and Verification Gates
 
