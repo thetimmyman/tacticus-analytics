@@ -271,7 +271,7 @@ export function ActivityAnalytics() {
           <p className="text-red-400">{error}</p>
           <button
             onClick={fetchData}
-            className="mt-4 px-4 py-2 bg-accent-wh40k text-on-accent-wh40k rounded-sm hover:bg-(--accent-hover) hover:text-on-primary-wh40k"
+            className="mt-4 px-4 py-2 bg-accent-wh40k text-on-accent-wh40k rounded-sm no-transition hover:bg-(--accent-hover) hover:text-on-primary-wh40k"
           >
             Retry
           </button>
