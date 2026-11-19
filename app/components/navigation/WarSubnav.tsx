@@ -102,7 +102,7 @@ export function WarSubnav({ mode, className }: WarSubnavProps) {
             <button
               className={cn(
                 'inline-flex min-h-11 items-center gap-2 rounded-md px-3 py-2 text-xs font-medium w-full',
-                'bg-linear-to-r from-(--primary) to-(--accent) text-(--bg-primary)'
+                'bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) text-on-cta-wh40k'
               )}
             >
               {ActiveIcon && (

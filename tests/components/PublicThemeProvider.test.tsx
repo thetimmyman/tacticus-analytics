@@ -63,5 +63,9 @@ describe('PublicThemeProvider', () => {
     })
     expect(wrapper.style.getPropertyValue('--on-primary')).toBe('#ffffff')
     expect(wrapper.style.getPropertyValue('--on-accent')).toBe('#ffffff')
+    // Gradient call-to-actions: Light Mode's blue pair keeps both stops.
+    expect(wrapper.style.getPropertyValue('--cta-from')).toBe('#1d4ed8')
+    expect(wrapper.style.getPropertyValue('--cta-to')).not.toBe('')
+    expect(wrapper.style.getPropertyValue('--on-cta')).toBe('#ffffff')
   })
 })

@@ -2,7 +2,10 @@ import { afterEach, beforeEach, describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react'
 import { ThemeScript } from '@/app/components/ThemeScript'
 import { applyThemeToCSS, getGuildTheme } from '@/app/lib/theme-system'
-import { getHighContrastText } from '@/app/lib/utils/contrast'
+import {
+  getHighContrastText,
+  getOnFillVariables
+} from '@/app/lib/utils/contrast'
 
 /** Runs the inline pre-hydration script the way the browser would. */
 function runThemeScript(): void {
@@ -85,6 +88,15 @@ describe('ThemeScript', () => {
         expect(style.getPropertyValue('--on-accent')).toBe(
           getHighContrastText(theme.semanticOverrides?.accent ?? theme.accent)
         )
+        // The gradient call-to-action tokens must match what hydration sets.
+        const cta = getOnFillVariables({
+          primary: theme.primary,
+          secondary: theme.secondary,
+          accent: theme.semanticOverrides?.accent ?? theme.accent
+        })
+        for (const name of ['--cta-from', '--cta-to', '--on-cta']) {
+          expect(style.getPropertyValue(name)).toBe(cta[name])
+        }
       }
     )
 

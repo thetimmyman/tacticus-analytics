@@ -16,30 +16,24 @@ const FILL = new RegExp(
 // --accent-primary is the unoverridden accent: not the colour --on-accent is for.
 const ACCENT_PRIMARY_FILL =
   /^bg-(?:\(--accent-primary\)|\[var\(--accent-primary\)\])(?:\/\d+)?$/u
-const GRADIENT_FILL = /^(?:from|via|to)-\(--(?:primary|secondary|accent)\)$/u
+const GRADIENT_FILL =
+  /^(?:from|via|to)-(?:\(--(?:primary|secondary|accent)\)|\[var\(--(?:primary|secondary|accent)\)\])$/u
 const ON_LABEL =
   /^text-(?:on-(?:primary|secondary|accent)-wh40k|\(--on-(?:primary|secondary|accent)\))$/u
 const FIXED_LABEL = new RegExp(
-  String.raw`^text-(?:(?:white|black)(?:/\d+)?|\((?:--bg-primary|--accent-foreground)\)|\[var\(--(?:bg-primary|accent-foreground)\)\]|\[#[0-9a-f]{3,8}\]|(?:gray|slate|zinc|neutral|stone)-\d+)$`,
+  String.raw`^text-(?:(?:white|black)(?:/\d+)?|\((?:--bg-primary|--accent-foreground)\)|\[var\(--(?:bg-primary|accent-foreground)\)\]|\[#[0-9a-f]{3,8}\]|\[(?:black|white)\]|(?:gray|slate|zinc|neutral|stone)-\d+)$`,
   'iu'
 )
 
-/**
- * Gradient call-to-actions (primary to accent) with a fixed label, per file.
- * No single label reads on both ends of every theme's gradient, so these need
- * a design decision, not this token. A count may only go down.
- */
-const KNOWN_GRADIENT_LABELS: Record<string, number> = {
-  'app/(dashboard)/wars/_components/SideTogglePills.tsx': 1,
-  'app/(public)/creators/page.tsx': 1,
-  'app/components/BossFavorites.tsx': 1,
-  'app/components/homepage/FinalCTA.tsx': 2,
-  'app/components/homepage/HeroCTA.tsx': 2,
-  'app/components/navigation/PublicNav.tsx': 2,
-  'app/components/navigation/WarSubnav.tsx': 1,
-  'app/components/navigation/WorkspaceSectionMenuLink.tsx': 1,
-  'packages/ui-kit/src/Avatar.tsx': 1
-}
+// A primary-to-accent gradient takes its stops and label from the --cta-*
+// tokens: no single label reads on both raw theme colours. The label was
+// chosen by sampling the sRGB path, so the gradient must be painted in sRGB.
+const CTA_STOP = /^(?:from|via|to)-\(--cta-(?:from|to)\)$/u
+const SRGB_GRADIENT = /^bg-linear-(?:to-(?:t|b|l|r|tl|tr|bl|br)|\d+)\/srgb$/u
+const ON_CTA = /^text-(?:on-cta-wh40k|\(--on-cta\))$/u
+// Any text colour: not a size, alignment, wrapping or transparent utility.
+const TEXT_COLOUR =
+  /^text-(?!transparent$|(?:xs|sm|base|lg|xl|[2-9]xl|2xs)$|(?:left|center|right|justify|start|end|wrap|nowrap|balance|pretty|ellipsis|clip)$|\[\d)/u
 
 const CLASS_HELPERS = new Set([
   'clsx',
@@ -70,7 +64,11 @@ function tokens(text: string): Token[] {
         else if (c === ']' || c === ')') depth--
         else if (c === ':' && depth === 0) cut = i
       }
-      return { prefix: raw.slice(0, cut + 1), utility: raw.slice(cut + 1) }
+      // `!text-black` and `text-black!` are the same utility, made important.
+      return {
+        prefix: raw.slice(0, cut + 1),
+        utility: raw.slice(cut + 1).replace(/^!|!$/gu, '')
+      }
     })
 }
 
@@ -78,7 +76,8 @@ function tokens(text: string): Token[] {
 const applies = (p: string, q: string): boolean =>
   q === '' || p === '' || p === q
 
-type Verdict = 'ok' | 'fixed-label' | 'accent-primary' | 'gradient'
+type Verdict =
+  'ok' | 'fixed-label' | 'accent-primary' | 'gradient' | 'cta-space'
 
 function judge(text: string): Verdict {
   const toks = tokens(text)
@@ -104,8 +103,22 @@ function judge(text: string): Verdict {
   ) {
     return 'accent-primary'
   }
-  if (toks.some((t) => GRADIENT_FILL.test(t.utility)) && fixed.length > 0)
+  const labels = toks.filter((t) => TEXT_COLOUR.test(t.utility))
+  // Raw theme stops have no label that reads on both ends (not even --on-cta,
+  // which was chosen for the --cta-* stops), and a --cta-* gradient takes
+  // only --on-cta.
+  if (toks.some((t) => GRADIENT_FILL.test(t.utility)) && labels.length > 0)
     return 'gradient'
+  if (
+    toks.some((t) => CTA_STOP.test(t.utility)) &&
+    labels.some((t) => !ON_CTA.test(t.utility))
+  )
+    return 'gradient'
+  if (
+    toks.some((t) => CTA_STOP.test(t.utility)) &&
+    !toks.some((t) => t.prefix === '' && SRGB_GRADIENT.test(t.utility))
+  )
+    return 'cta-space'
   return 'ok'
 }
 
@@ -146,7 +159,8 @@ function join(a: string[], b: string[]): string[] {
 interface Findings {
   fixed: string[]
   accentPrimary: string[]
-  gradient: Map<string, Set<number>>
+  gradient: string[]
+  ctaSpace: string[]
   inline: string[]
 }
 
@@ -261,7 +275,7 @@ function scan(file: string, found: Findings): void {
     return ['']
   }
 
-  const check = (n: ts.Node, text: string, site: number): void => {
+  const check = (n: ts.Node, text: string): void => {
     const verdict = judge(text)
     if (verdict === 'fixed-label')
       found.fixed.push(
@@ -271,10 +285,14 @@ function scan(file: string, found: Findings): void {
       found.accentPrimary.push(
         `${where(n)}: ${text.replace(/\s+/gu, ' ').slice(0, 110)}`
       )
-    else if (verdict === 'gradient') {
-      const key = file.split(path.sep).join('/')
-      found.gradient.set(key, (found.gradient.get(key) ?? new Set()).add(site))
-    }
+    else if (verdict === 'gradient')
+      found.gradient.push(
+        `${where(n)}: ${text.replace(/\s+/gu, ' ').slice(0, 110)}`
+      )
+    else if (verdict === 'cta-space')
+      found.ctaSpace.push(
+        `${where(n)}: ${text.replace(/\s+/gu, ' ').slice(0, 110)}`
+      )
   }
 
   const visit = (node: ts.Node, rootStart: number | undefined): void => {
@@ -287,7 +305,7 @@ function scan(file: string, found: Findings): void {
       ts.isTemplateMiddle(node) ||
       ts.isTemplateTail(node)
     ) {
-      check(node, node.text, rootStart ?? node.getStart(sf))
+      check(node, node.text)
     }
     // A className attribute or clsx()/cn() call: a fill and its label can sit in separate pieces.
     const isRoot =
@@ -300,7 +318,7 @@ function scan(file: string, found: Findings): void {
           CLASS_HELPERS.has(node.expression.text)))
     if (isRoot) {
       const expr = ts.isJsxAttribute(node) ? node.initializer : node
-      for (const v of variants(expr)) check(node, v, node.getStart(sf))
+      for (const v of variants(expr)) check(node, v)
       nested = node.getStart(sf)
     }
     // Inline styles: a theme background with a label that is not an --on-* token.
@@ -347,7 +365,8 @@ function scan(file: string, found: Findings): void {
 const found: Findings = {
   fixed: [],
   accentPrimary: [],
-  gradient: new Map(),
+  gradient: [],
+  ctaSpace: [],
   inline: []
 }
 for (const root of ROOTS)
@@ -367,6 +386,60 @@ describe('judging a class string', () => {
     ['bg-accent-wh40k text-(--bg-primary)', 'fixed-label'],
     ['bg-(--accent-primary) text-on-accent-wh40k', 'accent-primary'],
     ['bg-linear-to-r from-(--primary) to-(--accent) text-white', 'gradient'],
+    [
+      'bg-linear-to-r from-(--primary) to-(--accent) text-on-primary-wh40k',
+      'gradient'
+    ],
+    [
+      'bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) text-white',
+      'gradient'
+    ],
+    [
+      'bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) text-on-accent-wh40k',
+      'gradient'
+    ],
+    [
+      'bg-linear-to-r from-(--cta-from) to-(--cta-to) text-on-cta-wh40k',
+      'cta-space'
+    ],
+    [
+      'bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) text-on-cta-wh40k',
+      'ok'
+    ],
+    [
+      'bg-linear-to-br/srgb from-(--cta-from) to-(--cta-to) hover:from-(--cta-to) hover:to-(--cta-from) text-on-cta-wh40k',
+      'ok'
+    ],
+    [
+      'bg-linear-to-r from-(--primary) to-(--accent) bg-clip-text text-transparent',
+      'ok'
+    ],
+    [
+      'bg-linear-to-r from-(--primary) to-(--accent) text-on-cta-wh40k',
+      'gradient'
+    ],
+    [
+      'bg-linear-to-r from-(--primary) to-(--accent) text-(--text-primary)',
+      'gradient'
+    ],
+    ['bg-linear-to-r from-[var(--primary)] to-blue-500 text-black', 'gradient'],
+    ['bg-linear-to-r from-(--primary) to-(--accent) text-white!', 'gradient'],
+    ['bg-linear-to-r from-(--primary) to-(--accent) !text-black', 'gradient'],
+    ['bg-linear-to-r from-(--primary) to-(--accent) text-[black]', 'gradient'],
+    [
+      'bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) text-(--text-primary)',
+      'gradient'
+    ],
+    [
+      'bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) text-sm font-bold text-on-cta-wh40k',
+      'ok'
+    ],
+    [
+      'md:bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) text-on-cta-wh40k',
+      'cta-space'
+    ],
+    ['bg-linear-to-r from-(--primary) to-(--accent) text-xs', 'ok'],
+    ['bg-accent-wh40k text-white!', 'fixed-label'],
     ['bg-accent-wh40k text-on-accent-wh40k', 'ok'],
     ['bg-(--accent)/20 text-white', 'ok'],
     ['bg-red-600 text-white', 'ok'],
@@ -399,12 +472,14 @@ describe('text on a filled theme control follows the theme', () => {
     expect(found.inline).toEqual([])
   })
 
-  it('gradient call-to-actions with a fixed label are a shrinking list', () => {
-    // Fix one and lower its count; a new one fails here.
-    const counts = Object.fromEntries(
-      [...found.gradient].map(([file, nodes]) => [file, nodes.size])
-    )
-    expect(counts).toEqual(KNOWN_GRADIENT_LABELS)
+  it('gradient call-to-actions take their stops and label from --cta-*', () => {
+    // The label that reads on a theme's primary does not read on its accent
+    // (33 of 62 themes): use from-(--cta-from) to-(--cta-to) text-on-cta-wh40k.
+    expect(found.gradient).toEqual([])
+  })
+
+  it('--cta-* gradients are painted in sRGB, the path the label was chosen on', () => {
+    expect(found.ctaSpace).toEqual([])
   })
 
   it('shared stylesheet rules that paint a theme fill take the label from --on-*', () => {

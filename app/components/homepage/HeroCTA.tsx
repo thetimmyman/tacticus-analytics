@@ -11,7 +11,7 @@ export function HeroCTA({ isAuthenticated: initialAuth }: HeroCTAProps) {
       <>
         <Link
           href="/home"
-          className="px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 bg-linear-to-r from-(--primary) to-(--accent) hover:from-(--accent) hover:to-(--primary) text-black font-bold rounded-lg text-sm sm:text-base md:text-lg transition-all duration-300 hover:shadow-lg hover:shadow-[color-mix(in_srgb,var(--accent)_25%,transparent)] hover:scale-105"
+          className="px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) hover:from-(--cta-to) hover:to-(--cta-from) hover:filter-none text-on-cta-wh40k font-bold rounded-lg text-sm sm:text-base md:text-lg transition-all duration-300 hover:shadow-lg hover:shadow-[color-mix(in_srgb,var(--accent)_25%,transparent)] hover:scale-105"
         >
           Go to Dashboard →
         </Link>
@@ -29,7 +29,7 @@ export function HeroCTA({ isAuthenticated: initialAuth }: HeroCTAProps) {
     <>
       <Link
         href="/explore"
-        className="px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 bg-linear-to-r from-(--primary) to-(--accent) hover:from-(--accent) hover:to-(--primary) text-black font-bold rounded-lg text-sm sm:text-base md:text-lg transition-all duration-300 hover:shadow-lg hover:shadow-[color-mix(in_srgb,var(--accent)_25%,transparent)] hover:scale-105"
+        className="px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) hover:from-(--cta-to) hover:to-(--cta-from) hover:filter-none text-on-cta-wh40k font-bold rounded-lg text-sm sm:text-base md:text-lg transition-all duration-300 hover:shadow-lg hover:shadow-[color-mix(in_srgb,var(--accent)_25%,transparent)] hover:scale-105"
       >
         Explore Clusters
       </Link>
