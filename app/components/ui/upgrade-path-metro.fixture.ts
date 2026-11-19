@@ -9,7 +9,7 @@ import type { HeroMapping } from '@/app/(dashboard)/meta-atlas/utils/hero-mappin
 
 /**
  * Synthetic upgrade path shared by the Storybook fixture and the panel tests:
- * three steps (one locked) over a roster that walks every strength state.
+ * three steps (the middle one locked, the last one owned) over a roster that walks every strength state.
  */
 
 const NAMES = [
@@ -99,13 +99,13 @@ const step = (
 
 const T0 = 'Alpha, Bravo, Charlie, Delta, Echo + Walker'
 const T1 = 'Alpha, Bravo, Charlie, Delta, Foxtrot + Walker'
-const T2 = 'Alpha, Bravo, Charlie, Golf, Foxtrot + Walker'
-const T3 = 'Alpha, Bravo, Hotel, Golf, Foxtrot + Walker'
+const T2 = 'Alpha, Bravo, Hotel, Delta, Foxtrot + Walker'
+const T3 = 'Alpha, Bravo, Charlie, Golf, Foxtrot + Walker'
 
 const STEPS: UpgradeStep[] = [
   step(1, T0, T1, 'Echo', 'Foxtrot', 100_000, 1_100_000, true),
-  step(2, T1, T2, 'Delta', 'Golf', 150_000, 1_250_000, true),
-  step(3, T2, T3, 'Charlie', 'Hotel', 200_000, 1_450_000, false)
+  step(2, T1, T2, 'Charlie', 'Hotel', 120_000, 1_220_000, false),
+  step(3, T2, T3, 'Hotel, Delta', 'Charlie, Golf', 230_000, 1_450_000, true)
 ]
 
 export const METRO_FIXTURE_PROPS: ComponentProps<typeof UpgradePathMetro> = {

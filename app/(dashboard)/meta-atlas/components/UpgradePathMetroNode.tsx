@@ -45,7 +45,7 @@ const toneStyles: Record<
   current: {
     card: 'border-sky-400/40 bg-sky-500/10',
     label: 'text-sky-100',
-    kicker: 'text-sky-200',
+    kicker: 'text-sky-100',
     icon: 'text-sky-300',
     iconRing: 'border-sky-400/50 bg-slate-900/80',
     glow: 'bg-sky-400/20'
@@ -53,7 +53,7 @@ const toneStyles: Record<
   next: {
     card: 'border-emerald-400/40 bg-emerald-500/10',
     label: 'text-emerald-100',
-    kicker: 'text-emerald-300',
+    kicker: 'text-emerald-200',
     icon: 'text-emerald-300',
     iconRing: 'border-emerald-400/50 bg-slate-900/80',
     glow: 'bg-emerald-400/20'
@@ -61,7 +61,7 @@ const toneStyles: Record<
   final: {
     card: 'border-amber-400/40 bg-amber-500/10',
     label: 'text-amber-100',
-    kicker: 'text-amber-300',
+    kicker: 'text-amber-100',
     icon: 'text-amber-300',
     iconRing: 'border-amber-400/50 bg-slate-900/80',
     glow: 'bg-amber-400/20'
@@ -69,7 +69,7 @@ const toneStyles: Record<
   step: {
     card: 'border-white/10 bg-white/5',
     label: 'text-slate-100',
-    kicker: 'text-slate-300',
+    kicker: 'text-slate-200',
     icon: 'text-slate-100',
     iconRing: 'border-white/10 bg-slate-900/70',
     glow: 'bg-slate-500/10'
@@ -237,7 +237,7 @@ export function MetroNode({
           </div>
           {showHeroes && heroes && heroes.length > 0 ? (
             <div
-              className={`mt-2 flex flex-nowrap max-w-full overflow-hidden justify-center ${heroGapClass} sm:mt-3 ${locked ? 'opacity-70 grayscale' : ''}`}
+              className={`mt-2 flex flex-nowrap max-w-full overflow-hidden justify-center ${heroGapClass} sm:mt-3 ${locked ? 'opacity-85 grayscale' : ''}`}
             >
               {heroes.map((hero) => {
                 const unitState = resolveUnitState(hero.name)

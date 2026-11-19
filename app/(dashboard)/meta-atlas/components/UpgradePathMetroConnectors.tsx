@@ -21,8 +21,8 @@ function SwapUnitBadge({
   const overlayClass = isAdd ? 'bg-emerald-500/30' : 'bg-rose-500/30'
   const ringClass = isAdd ? 'border-emerald-400/50' : 'border-rose-400/50'
   const badgeClass = isAdd
-    ? 'bg-emerald-500 text-white'
-    : 'bg-rose-500 text-white'
+    ? 'bg-emerald-600 text-white'
+    : 'bg-rose-600 text-white'
   const Icon = isAdd ? Plus : Minus
 
   return (

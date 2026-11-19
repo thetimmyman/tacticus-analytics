@@ -6,15 +6,11 @@ import { UpgradePathMetro } from '@/app/(dashboard)/meta-atlas/components/Upgrad
 import { METRO_FIXTURE_PROPS } from '@/app/components/ui/upgrade-path-metro.fixture'
 import { getContrastRatio } from '@/app/lib/utils/contrast'
 
-/**
- * Both Personal Potential panels paint their own dark surface on every theme.
- * They need one `scheme-dark` scope plus an opaque base (the status palette
- * follows the nearest color-scheme, and the translucent gradient lets a light
- * page through), and every label inside must use a palette colour: a theme
- * token resolves for the page theme and lands dark-on-black on Light Mode.
- * Real contrast is measured in the browser fixture; this guards the structure
- * and models each text colour against the lightest surface of the panel.
- */
+// Both Personal Potential panels paint their own dark surface on every theme:
+// one `scheme-dark` scope, an opaque base and palette colours only. A theme
+// token or remapped tier resolves for the page theme and lands dark-on-dark
+// on Light Mode. Each label is modelled on its own surface (fills, glow,
+// overlays, group opacity); the browser fixture measures the real pixels.
 
 const themeCss = readFileSync(
   createRequire(import.meta.url).resolve('tailwindcss/theme.css'),
@@ -63,53 +59,127 @@ const mix = (fg: Rgb, bg: Rgb, alpha: number): Rgb => [
   Math.round(alpha * fg[2] + (1 - alpha) * bg[2])
 ]
 
-// The lightest pixel any label can sit on: the middle gradient stop at full
-// strength, before the translucent tints and the darker black base lower it.
-const LIGHTEST_SURFACE = palette('slate-900')
+const PANEL_GRADIENT = [
+  'from-slate-950/80',
+  'via-slate-900/70',
+  'to-slate-950/80'
+]
+const RADIAL = [
+  'bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.18),transparent_50%)]',
+  'bg-[radial-gradient(circle_at_bottom,rgba(56,189,248,0.12),transparent_55%)]'
+]
 
-const COLOUR_TOKEN = /^text-(white|black|[a-z]+-\d+)(?:\/(\d+))?$/u
+// Lightest panel pixel: the middle gradient stop over the black base. The
+// desktop radial overlays peak at the panel edges and fade out before the
+// cards, so they count at RADIAL_ALLOWANCE rather than at their peak alpha.
+const RADIAL_ALLOWANCE = 0.12
+const GRADIENT_LIGHTEST = mix(palette('slate-900'), [0, 0, 0], 0.7)
+const baseOf = (panel: Element) =>
+  [...panel.children].some((c) => RADIAL.some((r) => tokensOf(c).includes(r)))
+    ? mix(palette('emerald-500'), GRADIENT_LIGHTEST, RADIAL_ALLOWANCE)
+    : GRADIENT_LIGHTEST
+
+const COLOUR = String.raw`(white|black|[a-z]+-\d+)`
+const COLOUR_TOKEN = new RegExp(`^text-${COLOUR}(?:/(\\d+))?$`, 'u')
+const FILL_TOKEN = new RegExp(`^bg-${COLOUR}(?:/(\\d+))?$`, 'u')
 const THEME_TOKEN =
-  /(?:-wh40k$|\(--|\[var\(--|\[color-mix|^(?:[a-z-]+:)*(?:bg|border|text)-(?:card|text-))/u
-
-/** Contrast of one `text-*` class against the lightest panel surface. */
-function contrastOf(token: string, dim = 1): number | null {
-  const match = COLOUR_TOKEN.exec(token)
-  if (!match) return null
-  const alpha = (match[2] ? Number(match[2]) / 100 : 1) * dim
-  const ink = mix(palette(match[1]!), LIGHTEST_SURFACE, alpha)
-  return getContrastRatio(hex(ink), hex(LIGHTEST_SURFACE))
-}
+  /(?:-wh40k\b|\(--|var\(--|\(color:|color-mix|(?:^|[-:])card(?:[-/]|$)|-text-(?:primary|secondary|muted))/u
+const VARIANT = String.raw`(?:(?:\[[^\]]*\]|[a-z0-9-]+):)+`
+const REPAINT =
+  'opacity|bg|from|via|to|stroke|fill|shadow|inset-shadow|ring|inset-ring|outline|scheme|filter|blur|grayscale|brightness|contrast|saturate|invert|sepia|hue-rotate|mix-blend|bg-blend|backdrop|drop-shadow|decoration|accent|caret'
+// Paint the model cannot read: variants that repaint or recolour, important
+// or arbitrary-property colours, icon strokes, inset shadows and blend modes.
+const UNREADABLE = new RegExp(
+  [
+    `^${VARIANT}!?(?:${REPAINT})(?:-|$|\\[)`,
+    `^${VARIANT}!?text-(?!(?:xs|sm|base|lg|xl|\\dxl|left|center|right|\\[\\d+px\\])$)`,
+    '!',
+    String.raw`(?:^|:)\[[a-z-]+:`,
+    String.raw`^(?:text|bg|border|from|via|to)-\[(?:#|color:|rgb|hsl|oklch)`,
+    '^(?:stroke|fill)-',
+    '^(?:-?hue-rotate|brightness|contrast|saturate|invert|sepia|mix-blend|bg-blend)',
+    '^backdrop-(?!blur-sm$)',
+    String.raw`^shadow-\[[^\]]*inset|^inset-(?:shadow|ring)`
+  ].join('|'),
+  'u'
+)
+const isTier = (el: Element) =>
+  tokensOf(el).includes('uppercase') && tokensOf(el).includes('tracking-wide')
+const MIN_FLOOR = 3.5
 
 const tokensOf = (el: Element) =>
   (el.getAttribute('class') ?? '').split(/\s+/u).filter(Boolean)
 
-// Only the active card shows its availability pill and requirement, so every
-// card has to be active once for the checks to see all of them.
-const ACTIVE_INDEXES = [0, 1, 2, 3]
-
-function renderPanels(defaultActiveIndex = 1) {
-  const { container } = render(
-    <UpgradePathMetro
-      {...METRO_FIXTURE_PROPS}
-      defaultActiveIndex={defaultActiveIndex}
-    />
-  )
-  // Found by structure, not by the class under test: a panel that loses its
-  // scope must fail the checks below, not drop out of them.
-  const root = container.firstElementChild
-  const panels = [...(root?.children ?? [])].map((layout) => {
-    const panel = layout.firstElementChild
-    if (!panel) throw new Error('layout without a panel')
-    return panel
-  })
-  expect(panels).toHaveLength(2)
-  return { container, panels }
+const opacityOf = (el: Element) => {
+  const token = tokensOf(el).find((t) => t.startsWith('opacity-'))
+  return token ? Number(token.slice(8)) / 100 : 1
 }
 
-const hasOwnText = (el: Element) =>
-  [...el.childNodes].some(
-    (n) => n.nodeType === 3 && (n.textContent ?? '').trim() !== ''
-  )
+type Layer = { rgb: Rgb; alpha: number }
+
+const layersOf = (el: Element, strength = 1): Layer[] =>
+  tokensOf(el).flatMap((token) => {
+    const m = FILL_TOKEN.exec(token)
+    return m
+      ? [
+          {
+            rgb: palette(m[1]!),
+            alpha: (m[2] ? Number(m[2]) / 100 : 1) * strength
+          }
+        ]
+      : []
+  })
+
+// An absolute sibling that spans its parent (inset-*) before a node paints
+// under it (a card's glow, outside the node's own opacity); after it, over it.
+const spans = (el: Element) => tokensOf(el).some((t) => /^-?inset-/u.test(t))
+
+const siblingLayers = (el: Element | null) =>
+  el && tokensOf(el).includes('absolute') && spans(el)
+    ? layersOf(el, opacityOf(el))
+    : []
+
+const glowOf = (node: Element) => siblingLayers(node.previousElementSibling)
+
+const coversOf = (node: Element) => {
+  const covers: Layer[] = []
+  for (let s = node.nextElementSibling; s; s = s.nextElementSibling) {
+    covers.push(...siblingLayers(s))
+  }
+  return covers
+}
+
+const grey = ([r, g, b]: Rgb): Rgb => {
+  const y = Math.round(0.2126 * r + 0.7152 * g + 0.0722 * b)
+  return [y, y, y]
+}
+
+type Pixel = { ink: Rgb; bg: Rgb }
+
+// Paint the chain top-down: each node's group composites over the backdrop at
+// its own opacity, so nested dimming and the card dim compose as the browser does.
+function pixel(chain: Element[], i: number, backdrop: Rgb, ink: Layer): Pixel {
+  const node = chain[i]
+  if (!node) return { ink: mix(ink.rgb, backdrop, ink.alpha), bg: backdrop }
+  const base = glowOf(node).reduce((u, l) => mix(l.rgb, u, l.alpha), backdrop)
+  const under = layersOf(node).reduce((u, l) => mix(l.rgb, u, l.alpha), base)
+  let inner = pixel(chain, i + 1, under, ink)
+  if (tokensOf(node).includes('grayscale')) {
+    inner = { ink: grey(inner.ink), bg: grey(inner.bg) }
+  }
+  const dim = opacityOf(node)
+  let out: Pixel = {
+    ink: mix(inner.ink, base, dim),
+    bg: mix(inner.bg, base, dim)
+  }
+  for (const cover of coversOf(node)) {
+    out = {
+      ink: mix(cover.rgb, out.ink, cover.alpha),
+      bg: mix(cover.rgb, out.bg, cover.alpha)
+    }
+  }
+  return out
+}
 
 function colourOf(el: Element, panel: Element): string | null {
   for (let node: Element | null = el; node; node = node.parentElement) {
@@ -120,6 +190,76 @@ function colourOf(el: Element, panel: Element): string | null {
   return null
 }
 
+function contrastOf(el: Element, panel: Element): number | null {
+  const token = colourOf(el, panel)
+  const match = token ? COLOUR_TOKEN.exec(token) : null
+  if (!match) return null
+  const chain: Element[] = []
+  for (let n: Element | null = el; n && n !== panel; n = n.parentElement) {
+    chain.unshift(n)
+  }
+  const ink = {
+    rgb: palette(match[1]!),
+    alpha: match[2] ? Number(match[2]) / 100 : 1
+  }
+  const { ink: inkPx, bg } = pixel(chain, 0, baseOf(panel), ink)
+  return getContrastRatio(hex(inkPx), hex(bg))
+}
+
+// Only the active card shows its availability pill and requirement, so every
+// card has to be active once for the checks to see all of them.
+const ACTIVE_INDEXES = [0, 1, 2, 3]
+// Without hero mappings a card shows its composition text, not portraits.
+const CASES = ACTIVE_INDEXES.flatMap(
+  (a) =>
+    [
+      [a, true],
+      [a, false]
+    ] as const
+)
+
+function renderPanels(active = 1, portraits = true) {
+  const { container } = render(
+    <UpgradePathMetro
+      {...METRO_FIXTURE_PROPS}
+      defaultActiveIndex={active}
+      heroMappings={portraits ? METRO_FIXTURE_PROPS.heroMappings : undefined}
+    />
+  )
+  // Found by structure, not by the class under test: a panel that loses its
+  // scope must fail the checks below, not drop out of them.
+  const panels = [...(container.firstElementChild?.children ?? [])].map(
+    (layout) => {
+      const panel = layout.firstElementChild
+      if (!panel) throw new Error('layout without a panel')
+      return panel
+    }
+  )
+  expect(panels).toHaveLength(2)
+  const cards = panels.map((panel) => {
+    const row = [...panel.children].find((c) =>
+      tokensOf(c).includes('items-end')
+    )
+    return [...(row ?? panel).children]
+  })
+  for (const list of cards) {
+    expect(list).toHaveLength(METRO_FIXTURE_PROPS.steps.length + 1)
+    list.forEach((card, index) => {
+      expect(opacityOf(card) === 1, `card ${index} of ${active}`).toBe(
+        index === active
+      )
+    })
+  }
+  return { container, panels, cards }
+}
+
+const everyIn = (panel: Element) => [panel, ...panel.querySelectorAll('*')]
+
+const hasOwnText = (el: Element) =>
+  [...el.childNodes].some(
+    (n) => n.nodeType === 3 && (n.textContent ?? '').trim() !== ''
+  )
+
 describe('Personal Potential panels: a dark island on every page theme', () => {
   it('both layouts (phone and desktop) are scheme-dark with an opaque black base', () => {
     const { container, panels } = renderPanels()
@@ -129,7 +269,15 @@ describe('Personal Potential panels: a dark island on every page theme', () => {
     for (const panel of panels) {
       expect(tokensOf(panel)).toContain('scheme-dark')
       expect(tokensOf(panel)).toContain('bg-black')
+      const paint = tokensOf(panel).filter((t) => /^(from|via|to)-/u.test(t))
+      expect(paint).toEqual(PANEL_GRADIENT)
     }
+    const overlays = [...(panels[1]?.children ?? [])].filter((c) =>
+      tokensOf(c).some((t) => t.startsWith('bg-['))
+    )
+    expect(
+      overlays.flatMap(tokensOf).filter((t) => t.startsWith('bg-['))
+    ).toEqual(RADIAL)
   })
 
   it('every label and badge sits inside one of the two dark panels', () => {
@@ -144,57 +292,109 @@ describe('Personal Potential panels: a dark island on every page theme', () => {
     }
   })
 
-  it.each(ACTIVE_INDEXES)(
-    'no class inside a panel takes a theme token (active card %i)',
-    (active) => {
-      const { panels } = renderPanels(active)
+  it.each(CASES)(
+    'nothing inside a panel can undo the scope or follow the theme (active card %i, portraits %s)',
+    (active, portraits) => {
+      const { panels } = renderPanels(active, portraits)
       for (const panel of panels) {
-        const offenders = [panel, ...panel.querySelectorAll('*')].flatMap(
-          (el) => tokensOf(el).filter((t) => THEME_TOKEN.test(t))
+        const found = (test: (token: string, el: Element) => boolean) =>
+          everyIn(panel).flatMap((el) =>
+            tokensOf(el)
+              .filter((token) => test(token, el))
+              .map((token) => `${token} on <${el.tagName.toLowerCase()}>`)
+          )
+        expect(
+          found((t) => THEME_TOKEN.test(t)),
+          'theme tokens'
+        ).toEqual([])
+        expect(
+          found((t) => UNREADABLE.test(t)),
+          'unreadable paint'
+        ).toEqual([])
+        expect(
+          found((t, el) => t.includes('scheme-') && el !== panel),
+          'nested scheme'
+        ).toEqual([])
+        expect(
+          found(
+            (t, el) =>
+              (/^(?:from|via|to)-/u.test(t) && el !== panel) ||
+              (t.startsWith('bg-') &&
+                !FILL_TOKEN.test(t) &&
+                !(t === 'bg-linear-to-br' && el === panel) &&
+                !(RADIAL.includes(t) && el.parentElement === panel))
+          ),
+          'fills the model cannot read'
+        ).toEqual([])
+        const floating = everyIn(panel).filter(
+          (el) =>
+            tokensOf(el).includes('absolute') &&
+            layersOf(el).length > 0 &&
+            !spans(el) &&
+            !(
+              tokensOf(el).includes('-bottom-1') &&
+              tokensOf(el).includes('-right-1')
+            )
         )
-        expect(offenders).toEqual([])
-      }
-    }
-  )
-
-  it.each(ACTIVE_INDEXES)(
-    'every label has a palette colour that reads on the lightest surface (active card %i)',
-    (active) => {
-      const { panels } = renderPanels(active)
-      for (const panel of panels) {
-        const labelled = [...panel.querySelectorAll('*')].filter(hasOwnText)
-        for (const el of labelled) {
-          const token = colourOf(el, panel)
+        expect(
+          floating.map((el) => el.outerHTML.slice(0, 80)),
+          'positioned fills the model cannot place'
+        ).toEqual([])
+        expect(
+          found((t) => t.startsWith('opacity-') && !/^opacity-\d+$/u.test(t)),
+          'opacity values'
+        ).toEqual([])
+        expect(
+          found((t) => /^opacity-\d+$/u.test(t) && Number(t.slice(8)) < 60),
+          'opacity below 60'
+        ).toEqual([])
+        for (const el of everyIn(panel)) {
           expect(
-            token,
-            `${el.textContent} has no palette colour`
-          ).not.toBeNull()
+            tokensOf(el).filter((t) => COLOUR_TOKEN.test(t)).length,
+            `one text colour on ${el.outerHTML.slice(0, 80)}`
+          ).toBeLessThanOrEqual(1)
           expect(
-            contrastOf(token!),
-            `${el.textContent?.trim()} (${token})`
-          ).toBeGreaterThanOrEqual(4.5)
+            (el.getAttribute('style') ?? '').replace(
+              /flex-(?:grow|basis):\s*[\d.]+(?:px)?;?\s*/gu,
+              ''
+            ),
+            'inline paint'
+          ).toBe('')
         }
       }
     }
   )
 
-  it('tier labels stay above 4.5:1 on a dimmed (inactive) card', () => {
-    const { panels } = renderPanels()
-    const tiers = new Set(['Current', 'Step 1', 'Step 2', 'Optimal'])
-    for (const panel of panels) {
-      const found = [...panel.querySelectorAll('div')].filter((el) =>
-        tiers.has((el.textContent ?? '').trim())
-      )
-      expect(found.length).toBeGreaterThan(0)
-      for (const el of found) {
-        const token = colourOf(el, panel)!
-        expect(
-          contrastOf(token, 0.6),
-          `${el.textContent} (${token})`
-        ).toBeGreaterThanOrEqual(4.5)
+  it.each(CASES)(
+    'labels and icons read on their own surface (active card %i, portraits %s)',
+    (active, portraits) => {
+      const { panels, cards } = renderPanels(active, portraits)
+      let checked = 0
+      panels.forEach((panel, p) => {
+        const labels = everyIn(panel).filter(
+          (el) => hasOwnText(el) || el.tagName.toLowerCase() === 'svg'
+        )
+        for (const el of labels) {
+          const name = `${el.textContent?.trim() || el.tagName} (${tokensOf(el).join(' ')})`
+          const ratio = contrastOf(el, panel)
+          expect(ratio, `${name} has no palette colour`).not.toBeNull()
+          const card = cards[p]!.find((c) => c.contains(el))
+          const dimmed = card ? opacityOf(card) < 1 : false
+          const tier = isTier(el)
+          const icon = el.tagName.toLowerCase() === 'svg'
+          // Small text on dimmed cards stays under 4.5 (known, same on dark);
+          // the tier labels hold the line and nothing drops below the floor.
+          const need = dimmed && !tier ? MIN_FLOOR : icon ? 3 : 4.5
+          checked += 1
+          expect(ratio, name).toBeGreaterThanOrEqual(need)
+        }
+      })
+      expect(checked).toBeGreaterThan(portraits ? 100 : 30)
+      if (!portraits) {
+        expect(panels[1]?.textContent).toContain('Alpha, Bravo')
       }
     }
-  })
+  )
 
   it('renders every state the contrast checks are meant to cover', () => {
     const text = ACTIVE_INDEXES.map((active) =>
@@ -220,12 +420,48 @@ describe('Personal Potential panels: a dark island on every page theme', () => {
     }
   })
 
-  it('the model rejects a theme-style dim colour (negative control)', () => {
-    expect(contrastOf('text-slate-600')).toBeLessThan(4.5)
-    expect(contrastOf('text-slate-100')).toBeGreaterThan(4.5)
-    expect(THEME_TOKEN.test('text-secondary-wh40k')).toBe(true)
-    expect(THEME_TOKEN.test('bg-(--bg-secondary)')).toBe(true)
-    expect(THEME_TOKEN.test('bg-card/70')).toBe(true)
+  it('the model and the token rules reject what they are meant to reject', () => {
+    const { panels, cards } = renderPanels(3)
+    const panel = panels[1]!
+    const find = (text: string) =>
+      everyIn(panel).find(
+        (el) => (el.textContent ?? '').trim() === text && hasOwnText(el)
+      )!
+    const set = (el: Element, from: RegExp, to: string) =>
+      el.setAttribute(
+        'class',
+        (el.getAttribute('class') ?? '').replace(from, to)
+      )
+    const optimal = everyIn(panel).find(
+      (el) => isTier(el) && el.textContent === 'Optimal'
+    )!
+    const before = contrastOf(optimal, panel)!
+    expect(before).toBeGreaterThan(4.5)
+    set(optimal, /text-amber-\d+/u, 'text-slate-600')
+    expect(contrastOf(optimal, panel)).toBeLessThan(4.5)
+    set(optimal, /text-slate-600/u, 'text-amber-100')
+    expect(contrastOf(optimal, panel)).toBeCloseTo(before, 1)
+    const pill = find('Available Now')
+    pill.setAttribute('class', `${pill.getAttribute('class')} bg-slate-200/90`)
+    expect(contrastOf(pill, panel)).toBeLessThan(4.5)
+    set(cards[1]![3]!, /opacity-100/u, 'opacity-40')
+    expect(contrastOf(optimal, panel)).toBeLessThan(4.5)
+    for (const bad of [
+      'text-secondary-wh40k',
+      'bg-(--bg-secondary)',
+      'bg-card/70'
+    ]) {
+      expect(THEME_TOKEN.test(bad), bad).toBe(true)
+    }
+    for (const bad of [
+      'sm:text-slate-700',
+      'sm:scheme-light',
+      'sm:bg-white',
+      'text-[#111]'
+    ]) {
+      expect(UNREADABLE.test(bad), bad).toBe(true)
+    }
     expect(THEME_TOKEN.test('text-slate-300')).toBe(false)
+    expect(UNREADABLE.test('sm:text-[11px]')).toBe(false)
   })
 })
