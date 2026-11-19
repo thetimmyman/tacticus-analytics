@@ -77,7 +77,7 @@ export const WorkspaceSectionMenuLink = forwardRef<
   const stateClass = isActive
     ? isAdminLink
       ? 'bg-linear-to-r from-red-500 to-red-600 text-white'
-      : 'bg-linear-to-r from-(--primary) to-(--accent) text-(--bg-primary)'
+      : 'bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) text-on-cta-wh40k'
     : isAdminLink
       ? 'hover:bg-red-500/10 bg-(--card-bg) border border-red-500/30'
       : 'hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] bg-(--card-bg)'

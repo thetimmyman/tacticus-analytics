@@ -61,7 +61,7 @@ export default function SideTogglePills({
         side === active ? (
           <span
             key={side}
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium bg-linear-to-r from-(--primary) to-(--accent) text-(--bg-primary)"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) text-on-cta-wh40k"
           >
             {SIDE_LABELS[side]}
           </span>

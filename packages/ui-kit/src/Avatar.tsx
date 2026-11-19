@@ -47,7 +47,7 @@ export function Avatar({
   return (
     <div
       data-guild-code={guildCode || undefined}
-      className={`${sizeClasses[size]} rounded-full bg-linear-to-br from-(--primary) to-(--accent) flex items-center justify-center font-bold text-(--bg-primary) ${className}`}
+      className={`${sizeClasses[size]} rounded-full bg-linear-to-br/srgb from-(--cta-from) to-(--cta-to) flex items-center justify-center font-bold text-on-cta-wh40k ${className}`}
     >
       {initials}
     </div>

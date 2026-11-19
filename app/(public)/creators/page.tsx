@@ -305,7 +305,7 @@ function ContactForm() {
       <div className="text-center">
         <Button
           type="submit"
-          className="inline-flex items-center px-8 py-3 bg-linear-to-r from-(--primary) to-(--accent) hover:brightness-110 text-(--bg-primary) font-semibold rounded-lg transition-all duration-200"
+          className="inline-flex items-center px-8 py-3 bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) hover:from-(--cta-to) hover:to-(--cta-from) hover:filter-none hover:-translate-y-0.5 text-on-cta-wh40k font-semibold rounded-lg transition-all duration-200"
         >
           <Mail className="w-5 h-5 mr-2" />
           Send Request

@@ -55,7 +55,7 @@ export function PublicNav({ guildThemeData }: PublicNavProps) {
             <DiscordNavButton />
             <Link
               href="/auth/login"
-              className="bg-linear-to-r from-(--primary) to-(--accent) hover:brightness-110 text-(--bg-primary) px-4 py-2 rounded-md text-sm font-bold transition-all duration-200 border border-[color-mix(in_srgb,var(--primary)_50%,transparent)] font-mono tracking-wide shadow-lg shadow-[color-mix(in_srgb,var(--primary)_20%,transparent)]"
+              className="bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) hover:from-(--cta-to) hover:to-(--cta-from) hover:filter-none hover:-translate-y-0.5 text-on-cta-wh40k px-4 py-2 rounded-md text-sm font-bold transition-all duration-200 border border-[color-mix(in_srgb,var(--primary)_50%,transparent)] font-mono tracking-wide shadow-lg shadow-[color-mix(in_srgb,var(--primary)_20%,transparent)]"
             >
               Login
             </Link>
@@ -69,7 +69,7 @@ export function PublicNav({ guildThemeData }: PublicNavProps) {
           <div className="flex md:hidden items-center space-x-2">
             <Link
               href="/auth/login"
-              className="bg-linear-to-r from-(--primary) to-(--accent) hover:brightness-110 text-(--bg-primary) px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 border border-[color-mix(in_srgb,var(--primary)_50%,transparent)] font-mono tracking-wide"
+              className="bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to) hover:from-(--cta-to) hover:to-(--cta-from) hover:filter-none hover:-translate-y-0.5 text-on-cta-wh40k px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-200 border border-[color-mix(in_srgb,var(--primary)_50%,transparent)] font-mono tracking-wide"
             >
               Login
             </Link>
