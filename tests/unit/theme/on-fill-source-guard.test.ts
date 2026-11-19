@@ -6,40 +6,108 @@ import tailwindcss from '@tailwindcss/postcss'
 import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 
-// Variants such as `hover:` or `data-[state=active]:` in front of a utility.
-const PREFIX = String.raw`(?:[\w[\]=&>*()-]+:)*`
+const FILL_VARS =
+  'primary|secondary|accent|primary-wh40k|secondary-wh40k|accent-wh40k'
+// A fill is opaque, or a mix that keeps at least 70% of the theme colour.
 const FILL = new RegExp(
-  String.raw`(?<![\w/-])${PREFIX}bg-(?:(?:primary|secondary|accent)-wh40k|\(--(?:primary|secondary|accent|accent-primary|primary-wh40k|secondary-wh40k|accent-wh40k)\)|\[var\(--(?:primary|secondary|accent|accent-primary)\)\])(?![/\w-])`,
+  String.raw`^bg-(?:(?:primary|secondary|accent)-wh40k|\(--(?:${FILL_VARS})\)|\[var\(--(?:${FILL_VARS})\)\])(?:/(?:[7-9]\d|100))?$|^bg-\[color-mix\(in_srgb,var\(--(?:primary|secondary|accent)\)_(?:[7-9]\d|100)%,transparent\)\]$`,
   'u'
 )
-const GRADIENT_FILL = new RegExp(
-  String.raw`(?<![\w/-])${PREFIX}(?:from|via|to)-\(--(?:primary|secondary|accent)\)(?![\w-])`,
-  'u'
-)
+// --accent-primary is the unoverridden accent: not the colour --on-accent is for.
+const ACCENT_PRIMARY_FILL =
+  /^bg-(?:\(--accent-primary\)|\[var\(--accent-primary\)\])(?:\/\d+)?$/u
+const GRADIENT_FILL = /^(?:from|via|to)-\(--(?:primary|secondary|accent)\)$/u
+const ON_LABEL =
+  /^text-(?:on-(?:primary|secondary|accent)-wh40k|\(--on-(?:primary|secondary|accent)\))$/u
 const FIXED_LABEL = new RegExp(
-  String.raw`(?<![/\w-])${PREFIX}text-(?:(?:white|black)(?:/\d+)?|\((?:--bg-primary|--accent-foreground)\)|\[var\(--(?:bg-primary|accent-foreground)\)\]|\[#[0-9a-f]{3,8}\])(?![\w-])`,
+  String.raw`^text-(?:(?:white|black)(?:/\d+)?|\((?:--bg-primary|--accent-foreground)\)|\[var\(--(?:bg-primary|accent-foreground)\)\]|\[#[0-9a-f]{3,8}\]|(?:gray|slate|zinc|neutral|stone)-\d+)$`,
   'iu'
 )
 
 /**
- * Gradient call-to-action buttons (primary to accent) with a fixed label.
- * Neither end of the gradient has a single label that reads on every theme,
- * so they need a design decision, not this token. The list may only shrink.
+ * Gradient call-to-actions (primary to accent) with a fixed label, per file.
+ * No single label reads on both ends of every theme's gradient, so these need
+ * a design decision, not this token. A count may only go down.
  */
-const KNOWN_GRADIENT_LABELS = [
-  'app/(dashboard)/wars/_components/SideTogglePills.tsx',
-  'app/(public)/creators/page.tsx',
-  'app/components/BossFavorites.tsx',
-  'app/components/homepage/FinalCTA.tsx',
-  'app/components/homepage/HeroCTA.tsx',
-  'app/components/navigation/PublicNav.tsx',
-  'app/components/navigation/WarSubnav.tsx',
-  'app/components/navigation/WorkspaceSectionMenuLink.tsx',
-  'packages/ui-kit/src/Avatar.tsx'
-]
+const KNOWN_GRADIENT_LABELS: Record<string, number> = {
+  'app/(dashboard)/wars/_components/SideTogglePills.tsx': 1,
+  'app/(public)/creators/page.tsx': 1,
+  'app/components/BossFavorites.tsx': 1,
+  'app/components/homepage/FinalCTA.tsx': 2,
+  'app/components/homepage/HeroCTA.tsx': 2,
+  'app/components/navigation/PublicNav.tsx': 2,
+  'app/components/navigation/WarSubnav.tsx': 1,
+  'app/components/navigation/WorkspaceSectionMenuLink.tsx': 1,
+  'packages/ui-kit/src/Avatar.tsx': 1
+}
 
-const CLASS_HELPERS = new Set(['clsx', 'cn', 'twMerge', 'classNames', 'cx'])
+const CLASS_HELPERS = new Set([
+  'clsx',
+  'cn',
+  'twMerge',
+  'twJoin',
+  'classNames',
+  'cx'
+])
 const CAP = 256
+
+interface Token {
+  prefix: string
+  utility: string
+}
+
+/** Splits `hover:data-[state=active]:bg-x` at the last colon outside brackets. */
+function tokens(text: string): Token[] {
+  return text
+    .split(/\s+/u)
+    .filter(Boolean)
+    .map((raw) => {
+      let depth = 0
+      let cut = -1
+      for (let i = 0; i < raw.length; i++) {
+        const c = raw[i]
+        if (c === '[' || c === '(') depth++
+        else if (c === ']' || c === ')') depth--
+        else if (c === ':' && depth === 0) cut = i
+      }
+      return { prefix: raw.slice(0, cut + 1), utility: raw.slice(cut + 1) }
+    })
+}
+
+/** Does a label under variant `q` apply while a fill under variant `p` is painted? */
+const applies = (p: string, q: string): boolean =>
+  q === '' || p === '' || p === q
+
+type Verdict = 'ok' | 'fixed-label' | 'accent-primary' | 'gradient'
+
+function judge(text: string): Verdict {
+  const toks = tokens(text)
+  const fills = toks.filter((t) => FILL.test(t.utility))
+  const fixed = toks.filter((t) => FIXED_LABEL.test(t.utility))
+  const on = toks.filter((t) => ON_LABEL.test(t.utility))
+  // A variant's own on-label beats a plain label (`text-white data-[x]:bg-a data-[x]:text-on-a`).
+  const conflicts = fills.some((f) =>
+    fixed.some(
+      (x) =>
+        applies(f.prefix, x.prefix) &&
+        !(
+          x.prefix === '' &&
+          f.prefix !== '' &&
+          on.some((o) => o.prefix === f.prefix)
+        )
+    )
+  )
+  if (conflicts) return 'fixed-label'
+  if (
+    toks.some((t) => ACCENT_PRIMARY_FILL.test(t.utility)) &&
+    (on.length > 0 || fixed.length > 0)
+  ) {
+    return 'accent-primary'
+  }
+  if (toks.some((t) => GRADIENT_FILL.test(t.utility)) && fixed.length > 0)
+    return 'gradient'
+  return 'ok'
+}
 
 function* sourceFiles(dir: string): Generator<string> {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -75,88 +143,16 @@ function join(a: string[], b: string[]): string[] {
   return out.slice(0, CAP)
 }
 
-/** Every class string an expression can produce (branches kept apart). */
-function variants(node: ts.Node | undefined): string[] {
-  if (!node) return ['']
-  if (ts.isStringLiteralLike(node)) return [node.text]
-  if (ts.isTemplateExpression(node)) {
-    let acc = [node.head.text]
-    for (const span of node.templateSpans) {
-      acc = join(acc, variants(span.expression)).map(
-        (v) => `${v}${span.literal.text}`
-      )
-    }
-    return acc
-  }
-  if (ts.isConditionalExpression(node)) {
-    return [...variants(node.whenTrue), ...variants(node.whenFalse)].slice(
-      0,
-      CAP
-    )
-  }
-  if (ts.isBinaryExpression(node)) {
-    const op = node.operatorToken.kind
-    if (op === ts.SyntaxKind.AmpersandAmpersandToken)
-      return ['', ...variants(node.right)]
-    if (
-      op === ts.SyntaxKind.BarBarToken ||
-      op === ts.SyntaxKind.QuestionQuestionToken
-    ) {
-      return [...variants(node.left), ...variants(node.right)].slice(0, CAP)
-    }
-    if (op === ts.SyntaxKind.PlusToken)
-      return join(variants(node.left), variants(node.right))
-    return ['']
-  }
-  if (
-    ts.isParenthesizedExpression(node) ||
-    ts.isAsExpression(node) ||
-    ts.isNonNullExpression(node) ||
-    ts.isJsxExpression(node)
-  ) {
-    return variants(node.expression)
-  }
-  if (
-    ts.isCallExpression(node) &&
-    ts.isIdentifier(node.expression) &&
-    CLASS_HELPERS.has(node.expression.text)
-  ) {
-    return node.arguments.reduce<string[]>(
-      (acc, arg) => join(acc, variants(arg)),
-      ['']
-    )
-  }
-  if (ts.isArrayLiteralExpression(node)) {
-    return node.elements.reduce<string[]>(
-      (acc, el) => join(acc, variants(el)),
-      ['']
-    )
-  }
-  if (ts.isObjectLiteralExpression(node)) {
-    return node.properties.reduce<string[]>(
-      (acc, prop) => {
-        const key =
-          ts.isPropertyAssignment(prop) &&
-          (ts.isStringLiteralLike(prop.name) || ts.isIdentifier(prop.name))
-            ? prop.name.text
-            : ''
-        return join(acc, ['', key])
-      },
-      ['']
-    )
-  }
-  return ['']
-}
-
 interface Findings {
   fixed: string[]
-  gradient: Set<string>
+  accentPrimary: string[]
+  gradient: Map<string, Set<number>>
   inline: string[]
 }
 
 function scan(file: string, found: Findings): void {
   const source = readFileSync(file, 'utf8')
-  if (!/bg-|--primary|--accent|--secondary/u.test(source)) return
+  if (!/bg-|--primary|--accent|--secondary|from-|to-/u.test(source)) return
   const sf = ts.createSourceFile(
     file,
     source,
@@ -166,18 +162,124 @@ function scan(file: string, found: Findings): void {
   )
   const where = (n: ts.Node): string =>
     `${file}:${sf.getLineAndCharacterOfPosition(n.getStart(sf)).line + 1}`
-  const check = (n: ts.Node, text: string): void => {
-    if (FIXED_LABEL.test(text) && FILL.test(text)) {
+
+  // `const base = 'bg-accent-wh40k'` followed by `${base} text-white`.
+  const consts = new Map<string, string>()
+  const collect = (n: ts.Node): void => {
+    if (
+      ts.isVariableDeclaration(n) &&
+      ts.isIdentifier(n.name) &&
+      n.initializer &&
+      ts.isStringLiteralLike(n.initializer)
+    ) {
+      consts.set(n.name.text, n.initializer.text)
+    }
+    ts.forEachChild(n, collect)
+  }
+  collect(sf)
+
+  /** Every class string an expression can produce (branches kept apart). */
+  const variants = (node: ts.Node | undefined): string[] => {
+    if (!node) return ['']
+    if (ts.isStringLiteralLike(node)) return [node.text]
+    if (ts.isIdentifier(node)) return [consts.get(node.text) ?? '']
+    if (ts.isTemplateExpression(node)) {
+      let acc = [node.head.text]
+      for (const span of node.templateSpans) {
+        acc = join(acc, variants(span.expression)).map(
+          (v) => `${v}${span.literal.text}`
+        )
+      }
+      return acc
+    }
+    if (ts.isConditionalExpression(node)) {
+      return [...variants(node.whenTrue), ...variants(node.whenFalse)].slice(
+        0,
+        CAP
+      )
+    }
+    if (ts.isBinaryExpression(node)) {
+      const op = node.operatorToken.kind
+      if (op === ts.SyntaxKind.AmpersandAmpersandToken)
+        return ['', ...variants(node.right)]
+      if (
+        op === ts.SyntaxKind.BarBarToken ||
+        op === ts.SyntaxKind.QuestionQuestionToken
+      ) {
+        return [...variants(node.left), ...variants(node.right)].slice(0, CAP)
+      }
+      if (op === ts.SyntaxKind.PlusToken)
+        return join(variants(node.left), variants(node.right))
+      return ['']
+    }
+    if (
+      ts.isParenthesizedExpression(node) ||
+      ts.isAsExpression(node) ||
+      ts.isNonNullExpression(node) ||
+      ts.isJsxExpression(node)
+    ) {
+      return variants(node.expression)
+    }
+    if (ts.isCallExpression(node)) {
+      if (
+        ts.isIdentifier(node.expression) &&
+        CLASS_HELPERS.has(node.expression.text)
+      ) {
+        return node.arguments.reduce<string[]>(
+          (acc, arg) => join(acc, variants(arg)),
+          ['']
+        )
+      }
+      // ['bg-accent-wh40k', 'text-white'].join(' ')
+      if (
+        ts.isPropertyAccessExpression(node.expression) &&
+        node.expression.name.text === 'join'
+      ) {
+        return variants(node.expression.expression)
+      }
+      return ['']
+    }
+    if (ts.isArrayLiteralExpression(node)) {
+      return node.elements.reduce<string[]>(
+        (acc, el) => join(acc, variants(el)),
+        ['']
+      )
+    }
+    if (ts.isObjectLiteralExpression(node)) {
+      return node.properties.reduce<string[]>(
+        (acc, prop) => {
+          const key =
+            ts.isPropertyAssignment(prop) &&
+            (ts.isStringLiteralLike(prop.name) || ts.isIdentifier(prop.name))
+              ? prop.name.text
+              : ''
+          return join(acc, ['', key])
+        },
+        ['']
+      )
+    }
+    return ['']
+  }
+
+  const check = (n: ts.Node, text: string, site: number): void => {
+    const verdict = judge(text)
+    if (verdict === 'fixed-label')
       found.fixed.push(
         `${where(n)}: ${text.replace(/\s+/gu, ' ').slice(0, 110)}`
       )
-    } else if (FIXED_LABEL.test(text) && GRADIENT_FILL.test(text)) {
-      found.gradient.add(file.split(path.sep).join('/'))
+    else if (verdict === 'accent-primary')
+      found.accentPrimary.push(
+        `${where(n)}: ${text.replace(/\s+/gu, ' ').slice(0, 110)}`
+      )
+    else if (verdict === 'gradient') {
+      const key = file.split(path.sep).join('/')
+      found.gradient.set(key, (found.gradient.get(key) ?? new Set()).add(site))
     }
   }
 
-  const visit = (node: ts.Node, inClassRoot: boolean): void => {
-    let nested = inClassRoot
+  const visit = (node: ts.Node, rootStart: number | undefined): void => {
+    const inClassRoot = rootStart !== undefined
+    let nested = rootStart
     // A single class string, wherever it lives (maps, constants, props).
     if (
       ts.isStringLiteralLike(node) ||
@@ -185,7 +287,7 @@ function scan(file: string, found: Findings): void {
       ts.isTemplateMiddle(node) ||
       ts.isTemplateTail(node)
     ) {
-      check(node, node.getText(sf))
+      check(node, node.text, rootStart ?? node.getStart(sf))
     }
     // A className attribute or clsx()/cn() call: a fill and its label can sit in separate pieces.
     const isRoot =
@@ -198,10 +300,10 @@ function scan(file: string, found: Findings): void {
           CLASS_HELPERS.has(node.expression.text)))
     if (isRoot) {
       const expr = ts.isJsxAttribute(node) ? node.initializer : node
-      for (const v of variants(expr)) check(node, v)
-      nested = true
+      for (const v of variants(expr)) check(node, v, node.getStart(sf))
+      nested = node.getStart(sf)
     }
-    // Inline styles: a primary/accent background with a label that is not a token.
+    // Inline styles: a theme background with a label that is not an --on-* token.
     if (
       ts.isJsxAttribute(node) &&
       ts.isIdentifier(node.name) &&
@@ -227,7 +329,9 @@ function scan(file: string, found: Findings): void {
         const color = get('color')
         if (
           bg &&
-          /^var\(--(?:primary|secondary|accent|accent-primary)\)$/u.test(bg) &&
+          /^var\(--(?:primary|secondary|accent|accent-primary|primary-wh40k|secondary-wh40k|accent-wh40k)\)$/u.test(
+            bg
+          ) &&
           color &&
           !color.startsWith('var(--on-')
         ) {
@@ -237,19 +341,58 @@ function scan(file: string, found: Findings): void {
     }
     ts.forEachChild(node, (child) => visit(child, nested))
   }
-  visit(sf, false)
+  visit(sf, undefined)
 }
 
-const found: Findings = { fixed: [], gradient: new Set(), inline: [] }
+const found: Findings = {
+  fixed: [],
+  accentPrimary: [],
+  gradient: new Map(),
+  inline: []
+}
 for (const root of ROOTS)
   for (const file of sourceFiles(root)) scan(file, found)
 
+describe('judging a class string', () => {
+  it.each([
+    ['bg-accent-wh40k text-white', 'fixed-label'],
+    ['bg-accent-wh40k text-gray-900', 'fixed-label'],
+    ['bg-accent-wh40k/90 text-white', 'fixed-label'],
+    [
+      'bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] text-white',
+      'fixed-label'
+    ],
+    ['bg-[var(--accent-wh40k)] text-white', 'fixed-label'],
+    ['bg-accent-wh40k hover:text-white', 'fixed-label'],
+    ['bg-accent-wh40k text-(--bg-primary)', 'fixed-label'],
+    ['bg-(--accent-primary) text-on-accent-wh40k', 'accent-primary'],
+    ['bg-linear-to-r from-(--primary) to-(--accent) text-white', 'gradient'],
+    ['bg-accent-wh40k text-on-accent-wh40k', 'ok'],
+    ['bg-(--accent)/20 text-white', 'ok'],
+    ['bg-red-600 text-white', 'ok'],
+    [
+      'bg-gray-800 text-white hover:bg-accent-wh40k hover:text-on-accent-wh40k',
+      'ok'
+    ],
+    [
+      'text-white data-[state=active]:bg-accent-wh40k data-[state=active]:text-on-accent-wh40k',
+      'ok'
+    ]
+  ])('%s -> %s', (text, expected) => {
+    expect(judge(text)).toBe(expected)
+  })
+})
+
 describe('text on a filled theme control follows the theme', () => {
   it('no component pairs a primary/secondary/accent fill with a fixed label colour', () => {
-    // text-white / text-black / text-(--bg-primary) / text-(--accent-foreground)
-    // on these fills fall under 4.5:1 on many of the 62 themes. Use
-    // text-on-primary-wh40k, text-on-secondary-wh40k or text-on-accent-wh40k.
+    // text-white / text-black / text-(--bg-primary) / text-gray-900 on these
+    // fills fall under 4.5:1 on many of the 62 themes. Use text-on-primary-wh40k,
+    // text-on-secondary-wh40k or text-on-accent-wh40k.
     expect(found.fixed).toEqual([])
+  })
+
+  it('--accent-primary is not the painted accent, so it never carries an --on-* label', () => {
+    expect(found.accentPrimary).toEqual([])
   })
 
   it('inline styles that paint a theme fill take the label from --on-*', () => {
@@ -257,34 +400,53 @@ describe('text on a filled theme control follows the theme', () => {
   })
 
   it('gradient call-to-actions with a fixed label are a shrinking list', () => {
-    // Fix one and delete it from KNOWN_GRADIENT_LABELS; a new one fails here.
-    expect([...found.gradient].sort()).toEqual(
-      [...KNOWN_GRADIENT_LABELS].sort()
+    // Fix one and lower its count; a new one fails here.
+    const counts = Object.fromEntries(
+      [...found.gradient].map(([file, nodes]) => [file, nodes.size])
     )
+    expect(counts).toEqual(KNOWN_GRADIENT_LABELS)
   })
 
   it('shared stylesheet rules that paint a theme fill take the label from --on-*', () => {
-    const css = readFileSync('app/globals.css', 'utf8')
+    const root = postcss.parse(readFileSync('app/globals.css', 'utf8'))
     const offenders: string[] = []
-    for (const [, body = ''] of css.matchAll(/\{([^{}]*)\}/gu)) {
+    root.walk((node) => {
       if (
-        !/background(?:-color)?:\s*var\(--(?:primary|secondary|accent)\)/u.test(
-          body
-        )
+        node.type !== 'rule' &&
+        !(node.type === 'atrule' && node.name === 'utility')
       )
-        continue
-      for (const [, value = ''] of body.matchAll(
-        /(?<![\w-])color:\s*([^;]+);/gu
-      )) {
+        return
+      const own = (node.nodes ?? []).filter(
+        (n): n is postcss.Declaration => n.type === 'decl'
+      )
+      const paints = own.some(
+        (d) =>
+          /^background(?:-color)?$/u.test(d.prop) &&
+          /var\(--(?:primary|secondary|accent)\)/u.test(d.value)
+      )
+      if (!paints) return
+      for (const d of own) {
         if (
+          d.prop === 'color' &&
           !/^var\(--(?:on-(?:primary|secondary|accent)|btn-label)\)$/u.test(
-            value.trim()
+            d.value.trim()
           )
         ) {
-          offenders.push(value.trim())
+          offenders.push(
+            `${d.parent && 'selector' in d.parent ? String(d.parent.selector) : '@utility'}: color ${d.value}`
+          )
         }
       }
-    }
+      for (const a of node.nodes ?? []) {
+        if (
+          a.type === 'atrule' &&
+          a.name === 'apply' &&
+          /(?:^|\s)text-(?:white|black)(?:\s|$)/u.test(a.params)
+        ) {
+          offenders.push(`@apply ${a.params}`)
+        }
+      }
+    })
     expect(offenders).toEqual([])
   })
 
