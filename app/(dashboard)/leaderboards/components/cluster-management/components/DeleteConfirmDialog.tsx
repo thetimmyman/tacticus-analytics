@@ -63,8 +63,7 @@ export function DeleteConfirmDialog({
             Cancel
           </Button>
           <Button
-            variant="outline"
-            className="text-red-500 border-red-500 hover:bg-red-50"
+            variant="danger"
             onClick={onConfirm}
             disabled={confirmText !== 'delete this guild'}
           >
