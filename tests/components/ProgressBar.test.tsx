@@ -24,7 +24,9 @@ describe('ProgressBar', () => {
     expect(screen.getByText('Season 1')).toBeInTheDocument()
     expect(screen.getByText('AVG: fmt-50')).toBeInTheDocument()
     expect(screen.getByText('MAX: fmt-100')).toBeInTheDocument()
-    expect(screen.getByText('50%')).toBeInTheDocument()
+    expect(
+      screen.getByText('50%', { ignore: '[aria-hidden="true"]' })
+    ).toBeInTheDocument()
   })
 
   it('renders vsCluster annotations for positive and negative values', () => {
