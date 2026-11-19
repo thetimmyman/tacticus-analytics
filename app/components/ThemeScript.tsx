@@ -1,84 +1,60 @@
+import { getFirstPaintThemes } from '@/app/lib/themes/first-paint'
+
 /** Runs before hydration to prevent theme flash; inline with the CSP nonce. */
 
 interface ThemeScriptProps {
   nonce?: string
 }
 
-export function ThemeScript({ nonce }: ThemeScriptProps) {
-  const themeScript = `
-    (function() {
-      // Get saved theme from localStorage or use default
-      let savedTheme = null;
-      try {
-        savedTheme = localStorage.getItem('theme-override');
-      } catch (e) {}
-      
-      // Default to dark theme for consistency
-      const theme = savedTheme || 'dark';
-      
-      // Define theme configurations
-      const themes = {
-        'dark': {
-          '--primary': '#60a5fa',
-          '--secondary': '#3b82f6',
-          '--accent': '#93c5fd',
-          '--bg-from': '#0f172a',
-          '--bg-via': '#1e293b',
-          '--bg-to': '#0f172a',
-          '--card-bg': 'rgba(30, 41, 59, 0.8)',
-          '--card-border': 'rgba(71, 85, 105, 0.5)',
-          '--text-primary': '#f3f4f6',
-          '--text-secondary': '#d1d5db',
-          '--text-accent': '#60a5fa',
-          '--bg-primary': '#0f172a',
-          '--primary-wh40k': '#60a5fa',
-          '--secondary-wh40k': '#3b82f6',
-          '--accent-wh40k': '#93c5fd',
-          '--card': 'rgba(30, 41, 59, 0.8)',
-          '--light': 'rgba(71, 85, 105, 0.5)'
-        },
-        'HORUS_HERESY': {
-          '--primary': '#DC143C',
-          '--secondary': '#FFD700',
-          '--accent': '#FF6347',
-          '--bg-from': '#1a0000',
-          '--bg-via': '#330000',
-          '--bg-to': '#1a0000',
-          '--card-bg': 'rgba(139, 0, 0, 0.3)',
-          '--card-border': 'rgba(220, 20, 60, 0.5)',
-          '--text-primary': '#FFD700',
-          '--text-secondary': '#FFA500',
-          '--text-accent': '#FF6347',
-          '--bg-primary': '#1a0000',
-          '--primary-wh40k': '#DC143C',
-          '--secondary-wh40k': '#FFD700',
-          '--accent-wh40k': '#FF6347',
-          '--card': 'rgba(139, 0, 0, 0.3)',
-          '--light': 'rgba(220, 20, 60, 0.5)'
-        }
-      };
-      
-      // Apply theme CSS variables immediately
-      const root = document.documentElement;
-      const themeVars = themes[theme] || themes['dark'];
-      
-      Object.entries(themeVars).forEach(([key, value]) => {
-        root.style.setProperty(key, value);
-      });
-      
-      // Set data-theme attribute
-      root.setAttribute('data-theme', theme);
-      
-      // Add class to prevent transitions during initial load
-      root.classList.add('theme-loading');
-      
-      // Remove loading class after a short delay
-      setTimeout(() => {
-        root.classList.remove('theme-loading');
-      }, 0);
-    })();
-  `.trim()
+// `<` is escaped so no theme value can ever close the script element.
+const FIRST_PAINT_THEMES_JSON = JSON.stringify(getFirstPaintThemes()).replace(
+  /</g,
+  '\\u003c'
+)
 
+const themeScript = `
+(function() {
+  var themes = ${FIRST_PAINT_THEMES_JSON};
+  var validCode = /^[A-Za-z0-9_-]+$/;
+
+  // The app stores the choice as JSON ("light", with quotes); older values
+  // may be bare. Anything that is not a plain theme code means dark.
+  var code = 'dark';
+  try {
+    var saved = localStorage.getItem('theme-override');
+    if (saved) {
+      var parsed;
+      try {
+        parsed = JSON.parse(saved);
+      } catch (e) {
+        parsed = saved;
+      }
+      if (typeof parsed === 'string' && validCode.test(parsed)) {
+        code = parsed;
+      }
+    }
+  } catch (e) {}
+
+  var own = Object.prototype.hasOwnProperty;
+  var themeVars = own.call(themes, code) ? themes[code] : themes.dark;
+
+  var root = document.documentElement;
+  Object.keys(themeVars).forEach(function(key) {
+    root.style.setProperty(key, themeVars[key]);
+  });
+
+  // The stylesheet keys its light block (and color-scheme) off this.
+  root.setAttribute('data-theme', code);
+
+  // Add class to prevent transitions during initial load
+  root.classList.add('theme-loading');
+  setTimeout(function() {
+    root.classList.remove('theme-loading');
+  }, 0);
+})();
+`.trim()
+
+export function ThemeScript({ nonce }: ThemeScriptProps) {
   return (
     <script
       nonce={nonce}
