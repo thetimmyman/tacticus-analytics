@@ -97,10 +97,6 @@ export function useGuildFiltering(guilds: GuildData[]) {
     setCurrentPage(1)
   }, [selectedCluster, debouncedSearchQuery, sortBy])
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [currentPage])
-
   const toggleGuildExpansion = useCallback((guildCode: string) => {
     setExpandedGuild((prev) => (prev === guildCode ? null : guildCode))
   }, [])
