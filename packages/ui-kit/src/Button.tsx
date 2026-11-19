@@ -2,7 +2,7 @@ import React from 'react'
 import { Tooltip } from './Tooltip'
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'default' | 'outline' | 'ghost'
+  variant?: 'default' | 'outline' | 'ghost' | 'danger'
   size?: 'sm' | 'md' | 'lg'
   tooltip?: string | React.ReactNode
   tooltipPosition?: 'top' | 'bottom' | 'left' | 'right'
@@ -40,7 +40,12 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       // colour, so a call-site `hover:text-*` class still loses as before.
       outline:
         'border border-(--card-border) bg-transparent text-primary-wh40k hover:inset-ring-2',
-      ghost: 'text-primary-wh40k hover:text-primary-wh40k hover:inset-ring-1'
+      ghost: 'text-primary-wh40k hover:text-primary-wh40k hover:inset-ring-1',
+      // Outline with the theme's danger colour on the border; hover paints the
+      // opaque danger fill and its on-danger label in one frame (no-transition),
+      // so the two colours never cross mid-fade.
+      danger:
+        'no-transition border border-(--danger) bg-transparent text-primary-wh40k hover:bg-(--danger) hover:text-(--on-danger)'
     }
 
     const sizeClasses = {

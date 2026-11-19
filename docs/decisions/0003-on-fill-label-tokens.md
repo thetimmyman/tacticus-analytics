@@ -129,10 +129,18 @@ controls opt out with `no-transition`, whose `!important` beats that rule;
 label across both fills may fade. `hover-label-swap.test.ts` rejects a file that
 writes `hover:text-on-*` without a `no-transition` class token.
 
+`Button variant="danger"` follows the same rule for a destructive outline: the
+border is the theme's `--danger`, the rest label is the page text colour (like
+the neighbouring outline buttons), and hover paints `--danger` with `--on-danger`
+in one frame. Palette reds (`text-red-600 hover:bg-red-50`) faded a near-white
+fill under a red label and crossed at about 1:1 on dark themes.
+`ButtonDanger.test.tsx` checks the pair on every theme. The rest label is only
+as readable as the theme's own text colour on its card.
+
 ## Compliance and Verification Gates
 
 ```sh
-npm test -- tests/unit/theme/on-fill-text.test.ts tests/unit/theme/on-fill-source-guard.test.ts tests/unit/theme/cta-gradient.test.ts tests/unit/theme/status-fill-text.test.ts tests/unit/theme/hover-label-swap.test.ts tests/components/ConfirmDialogTones.test.tsx
+npm test -- tests/unit/theme/on-fill-text.test.ts tests/unit/theme/on-fill-source-guard.test.ts tests/unit/theme/cta-gradient.test.ts tests/unit/theme/status-fill-text.test.ts tests/unit/theme/hover-label-swap.test.ts tests/components/ConfirmDialogTones.test.tsx tests/components/ButtonDanger.test.tsx
 ```
 
 The first test checks all three tokens against 4.5:1 for every theme after
