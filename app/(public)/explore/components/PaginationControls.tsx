@@ -87,7 +87,7 @@ export function PaginationControls({
                 onClick={() => onPageChange(page)}
                 className={`px-3 py-1 rounded border ${
                   page === currentPage
-                    ? 'border-primary-wh40k bg-primary-wh40k text-white'
+                    ? 'border-primary-wh40k bg-primary-wh40k text-on-primary-wh40k'
                     : 'border-(--card-border) text-primary-wh40k hover:bg-(--card-bg)'
                 }`}
               >

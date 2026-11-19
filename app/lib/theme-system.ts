@@ -16,6 +16,7 @@ import {
   specialThemes,
   allThemes
 } from '@/app/lib/themes/definitions'
+import { getOnFillVariables } from '@/app/lib/utils/contrast'
 
 const FALLBACK_THEME = (() => {
   const fallback =
@@ -412,4 +413,15 @@ export function applyThemeToCSS(theme: GuildTheme) {
     root.style.setProperty('--accent', overrides.accent)
     root.style.setProperty('--text-accent', overrides.accent)
   }
+
+  // Filled controls read their label colour from these, not a fixed white or
+  // black; they follow the accent that is actually painted.
+  const onFill = getOnFillVariables({
+    primary: theme.primary,
+    secondary: theme.secondary,
+    accent: overrides?.accent ?? theme.accent
+  })
+  Object.entries(onFill).forEach(([name, value]) => {
+    root.style.setProperty(name, value)
+  })
 }

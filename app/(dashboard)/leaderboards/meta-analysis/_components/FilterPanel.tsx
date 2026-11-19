@@ -141,7 +141,7 @@ export function FilterPanel({
         <div className="flex items-end">
           <button
             onClick={onRefresh}
-            className="px-4 py-2 bg-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_80%,transparent)] text-black rounded-lg transition-colors"
+            className="px-4 py-2 bg-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_80%,transparent)] text-on-accent-wh40k rounded-lg transition-colors"
           >
             Refresh Analysis
           </button>

@@ -24,7 +24,7 @@ interface ConfirmDialogProps {
 
 const toneConfirmClass: Record<ConfirmDialogTone, string> = {
   default:
-    'bg-accent-wh40k text-black hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)]',
+    'bg-accent-wh40k text-on-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)]',
   warning:
     'border border-[color-mix(in_srgb,var(--warning)_60%,transparent)] bg-[color-mix(in_srgb,var(--warning)_80%,transparent)] text-(--bg-primary) hover:bg-(--warning)',
   danger:

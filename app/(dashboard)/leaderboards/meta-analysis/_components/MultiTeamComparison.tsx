@@ -199,7 +199,7 @@ export function MultiTeamComparison({
                 stats.teamName === mostConsistentWinner.teamName) && (
                 <div className="absolute -top-3 left-0 right-0 flex justify-center gap-1 flex-wrap">
                   {stats.teamName === recommendedWinner.teamName && (
-                    <span className="bg-accent-wh40k text-black text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1 shadow-lg">
+                    <span className="bg-accent-wh40k text-on-accent-wh40k text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1 shadow-lg">
                       RECOMMENDED
                     </span>
                   )}

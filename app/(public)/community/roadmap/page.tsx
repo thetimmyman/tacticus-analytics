@@ -152,7 +152,7 @@ export default async function ProductRoadmapPage() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/onboarding"
-              className="inline-flex items-center gap-2 rounded-md bg-primary-wh40k px-5 py-3 text-lg font-semibold text-black shadow-[0_12px_35px_rgba(0,0,0,0.35)] hover:bg-[color-mix(in_srgb,var(--primary)_90%,transparent)]"
+              className="inline-flex items-center gap-2 rounded-md bg-primary-wh40k px-5 py-3 text-lg font-semibold text-on-primary-wh40k shadow-[0_12px_35px_rgba(0,0,0,0.35)] hover:bg-[color-mix(in_srgb,var(--primary)_90%,transparent)]"
             >
               Get Started
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -268,7 +268,7 @@ export default async function ProductRoadmapPage() {
             </div>
             <Link
               href="/support-creator"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary-wh40k px-6 py-3 text-lg font-semibold text-black hover:bg-[color-mix(in_srgb,var(--primary)_90%,transparent)] whitespace-nowrap"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary-wh40k px-6 py-3 text-lg font-semibold text-on-primary-wh40k hover:bg-[color-mix(in_srgb,var(--primary)_90%,transparent)] whitespace-nowrap"
             >
               <Heart className="h-5 w-5" />
               Support Us

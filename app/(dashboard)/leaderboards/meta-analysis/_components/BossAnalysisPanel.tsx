@@ -226,7 +226,7 @@ export function BossAnalysisPanel({
               }}
               className={`px-3 py-1 text-xs rounded transition-colors ${
                 showBossComparison
-                  ? 'bg-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_80%,transparent)] text-black'
+                  ? 'bg-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_80%,transparent)] text-on-accent-wh40k'
                   : 'bg-(--card-bg) hover:bg-(--card-bg) text-primary-wh40k'
               }`}
             >

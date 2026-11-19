@@ -123,7 +123,7 @@ export default function RecentActivityClient({ warId }: { warId: string }) {
                 onClick={() => setFilter(f)}
                 className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   filter === f
-                    ? 'bg-primary-wh40k text-white'
+                    ? 'bg-primary-wh40k text-on-primary-wh40k'
                     : 'bg-(--bg-secondary) text-secondary-wh40k hover:text-primary-wh40k'
                 }`}
               >

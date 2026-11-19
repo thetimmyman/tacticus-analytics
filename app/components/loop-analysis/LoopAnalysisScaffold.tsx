@@ -63,7 +63,7 @@ export function LoopFilterChips({
             aria-pressed={selected}
             className={`rounded-full border px-3 py-1 text-xs transition-colors ${
               selected
-                ? 'border-primary-wh40k bg-primary-wh40k text-(--bg-primary)'
+                ? 'border-primary-wh40k bg-primary-wh40k text-on-primary-wh40k'
                 : 'border-(--card-border) text-secondary-wh40k hover:border-primary-wh40k hover:text-(--primary)'
             }`}
           >

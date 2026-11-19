@@ -556,7 +556,7 @@ export function TokenAlertSettings() {
         {needsLink && (
           <a
             href="#connected-accounts"
-            className="inline-flex px-3 py-1.5 text-xs font-semibold rounded-md bg-accent-wh40k text-(--bg-primary) hover:opacity-90 transition-colors"
+            className="inline-flex px-3 py-1.5 text-xs font-semibold rounded-md bg-accent-wh40k text-on-accent-wh40k hover:opacity-90 transition-colors"
           >
             Link Discord
           </a>

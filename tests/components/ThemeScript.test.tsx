@@ -66,6 +66,21 @@ describe('ThemeScript', () => {
       expect(root.style.getPropertyValue('--text-primary')).toBe('#0f172a')
     })
 
+    it('paints readable labels for filled controls before React runs', () => {
+      // Fixed white on the default blue is 2.54:1; Light Mode's blue needs white.
+      runThemeScript()
+      expect(
+        document.documentElement.style.getPropertyValue('--on-primary')
+      ).toBe('#000000')
+
+      resetRoot()
+      window.localStorage.setItem('theme-override', JSON.stringify('light'))
+      runThemeScript()
+      expect(
+        document.documentElement.style.getPropertyValue('--on-primary')
+      ).toBe('#ffffff')
+    })
+
     it('still understands an older unquoted stored value', () => {
       window.localStorage.setItem('theme-override', 'light')
       runThemeScript()

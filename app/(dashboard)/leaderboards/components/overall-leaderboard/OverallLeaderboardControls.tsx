@@ -64,7 +64,7 @@ export function OverallLeaderboardControls({
             onClick={() => onScoringModeChange('battle')}
             className={`px-3 py-1.5 rounded-md border text-xs sm:text-sm font-semibold transition-all ${
               !scoring.isTokenModeActive
-                ? 'bg-primary-wh40k text-(--bg-primary) border-primary-wh40k shadow-md'
+                ? 'bg-primary-wh40k text-on-primary-wh40k border-primary-wh40k shadow-md'
                 : 'bg-(--card-bg) border-(--card-border) text-primary-wh40k hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]'
             }`}
           >
@@ -85,7 +85,7 @@ export function OverallLeaderboardControls({
             disabled={!scoring.tokenMaxAvailable}
             className={`px-3 py-1.5 rounded-md border text-xs sm:text-sm font-semibold transition-all ${
               scoring.isTokenModeActive && scoring.tokenWeightingMode === 'max'
-                ? 'bg-primary-wh40k text-(--bg-primary) border-primary-wh40k shadow-md'
+                ? 'bg-primary-wh40k text-on-primary-wh40k border-primary-wh40k shadow-md'
                 : 'bg-(--card-bg) border-(--card-border) text-primary-wh40k hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]'
             } ${!scoring.tokenMaxAvailable ? 'opacity-50 cursor-not-allowed hover:border-(--card-border)' : ''}`}
           >
@@ -98,7 +98,7 @@ export function OverallLeaderboardControls({
             className={`px-3 py-1.5 rounded-md border text-xs sm:text-sm font-semibold transition-all ${
               scoring.isTokenModeActive &&
               scoring.tokenWeightingMode === 'average'
-                ? 'bg-primary-wh40k text-(--bg-primary) border-primary-wh40k shadow-md'
+                ? 'bg-primary-wh40k text-on-primary-wh40k border-primary-wh40k shadow-md'
                 : 'bg-(--card-bg) border-(--card-border) text-primary-wh40k hover:border-[color-mix(in_srgb,var(--primary)_60%,transparent)]'
             } ${!scoring.tokenAverageAvailable ? 'opacity-50 cursor-not-allowed hover:border-(--card-border)' : ''}`}
           >

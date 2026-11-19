@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { getGuildThemeClient, applyThemeToCSS } from '@/app/lib/theme-system'
 import type { GuildTheme } from '@/app/lib/theme-system'
 import { useLocalStorage } from '@/app/lib/hooks/useLocalStorage'
+import { getOnFillVariables } from '@/app/lib/utils/contrast'
 
 export function PublicThemeProvider({
   children
@@ -45,7 +46,9 @@ export function PublicThemeProvider({
         '--card-border': theme.cardBorder,
         '--text-primary': theme.text.primary,
         '--text-secondary': theme.text.secondary,
-        '--text-accent': theme.text.accent
+        '--text-accent': theme.text.accent,
+        // The wrapper re-declares the fills, so their label colours too.
+        ...getOnFillVariables(theme)
       } as React.CSSProperties)
     : undefined
 

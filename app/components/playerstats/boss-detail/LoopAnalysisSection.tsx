@@ -90,7 +90,7 @@ export function LoopAnalysisSection({
             onClick={() => setLoopAnalysisView('table')}
             className={`p-1.5 rounded transition-colors ${
               loopAnalysisView === 'table'
-                ? 'bg-primary-wh40k text-(--bg-primary)'
+                ? 'bg-primary-wh40k text-on-primary-wh40k'
                 : 'text-secondary-wh40k hover:text-primary-wh40k'
             }`}
             title="Table view"
@@ -102,7 +102,7 @@ export function LoopAnalysisSection({
             onClick={() => setLoopAnalysisView('chart')}
             className={`p-1.5 rounded transition-colors ${
               loopAnalysisView === 'chart'
-                ? 'bg-primary-wh40k text-(--bg-primary)'
+                ? 'bg-primary-wh40k text-on-primary-wh40k'
                 : 'text-secondary-wh40k hover:text-primary-wh40k'
             }`}
             title="Chart view"

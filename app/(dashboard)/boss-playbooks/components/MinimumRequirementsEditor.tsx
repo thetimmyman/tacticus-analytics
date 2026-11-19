@@ -675,7 +675,7 @@ export function MinimumRequirementsEditor({
                     type="button"
                     onClick={handleSave}
                     disabled={!selectedMetaTeamId || isSaving}
-                    className="inline-flex items-center gap-2 rounded-md bg-accent-wh40k px-3 py-2 text-xs font-semibold text-white hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-md bg-accent-wh40k px-3 py-2 text-xs font-semibold text-on-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] disabled:opacity-50"
                   >
                     <CheckCircle2 className="h-4 w-4" />
                     {isSaving ? 'Saving...' : 'Save Requirements'}

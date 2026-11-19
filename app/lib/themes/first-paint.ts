@@ -1,4 +1,5 @@
 import { allThemes, type GuildTheme } from '@/app/lib/themes/definitions'
+import { getOnFillVariables } from '@/app/lib/utils/contrast'
 
 /**
  * Themes the inline pre-hydration script can paint before React runs. Any
@@ -40,7 +41,12 @@ export function getFirstPaintVariables(
     '--secondary-wh40k': theme.secondary,
     '--accent-wh40k': theme.accent,
     '--card': theme.cardBg,
-    '--light': theme.cardBorder
+    '--light': theme.cardBorder,
+    ...getOnFillVariables({
+      primary: theme.primary,
+      secondary: theme.secondary,
+      accent
+    })
   }
 }
 

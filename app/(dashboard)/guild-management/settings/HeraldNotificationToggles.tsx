@@ -420,7 +420,7 @@ export function HeraldNotificationToggles({
                         className={cn(
                           'rounded-sm px-2 py-1.5 text-xs font-medium transition-colors',
                           active
-                            ? 'bg-accent-wh40k text-(--bg-primary)'
+                            ? 'bg-accent-wh40k text-on-accent-wh40k'
                             : 'text-secondary-wh40k hover:bg-[color-mix(in_srgb,var(--bg-secondary)_60%,transparent)]'
                         )}
                         aria-pressed={active}

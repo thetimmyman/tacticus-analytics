@@ -46,4 +46,22 @@ describe('PublicThemeProvider', () => {
     expect(wrapper.style.getPropertyValue('--text-primary')).toBe('#0f172a')
     expect(document.documentElement.getAttribute('data-theme')).toBe('light')
   })
+
+  it('re-declares the label colours with the fills, so buttons stay readable on the wrapper', async () => {
+    // The wrapper's --primary/--accent shadow the ones on <html>; labels that
+    // inherited html's would sit on the wrong fill.
+    window.localStorage.setItem('theme-override', JSON.stringify('light'))
+    const { container } = render(
+      <PublicThemeProvider>
+        <p>content</p>
+      </PublicThemeProvider>
+    )
+
+    const wrapper = container.firstElementChild as HTMLElement
+    await waitFor(() => {
+      expect(wrapper.style.getPropertyValue('--primary')).toBe('#1d4ed8')
+    })
+    expect(wrapper.style.getPropertyValue('--on-primary')).toBe('#ffffff')
+    expect(wrapper.style.getPropertyValue('--on-accent')).toBe('#ffffff')
+  })
 })

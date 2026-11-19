@@ -327,7 +327,7 @@ export function ProfileClaimCard({
               className={cn(
                 'inline-flex w-full items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors',
                 guildComplete && syncComplete
-                  ? 'bg-accent-wh40k text-(--bg-primary) hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)]'
+                  ? 'bg-accent-wh40k text-on-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)]'
                   : 'pointer-events-none bg-(--card-border) text-secondary-wh40k opacity-60'
               )}
               aria-disabled={!guildComplete || !syncComplete}
@@ -354,7 +354,7 @@ export function ProfileClaimCard({
             <div className="flex flex-wrap gap-2">
               <Link
                 href="/home"
-                className="inline-flex items-center justify-center rounded-md bg-accent-wh40k px-3 py-2 text-sm font-medium text-(--bg-primary) hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] transition-colors"
+                className="inline-flex items-center justify-center rounded-md bg-accent-wh40k px-3 py-2 text-sm font-medium text-on-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] transition-colors"
               >
                 Open dashboard
               </Link>

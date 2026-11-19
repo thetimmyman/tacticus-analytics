@@ -119,7 +119,7 @@ export function DiscordBotSection({
                 disabled={
                   generatingInviteFor === 'cluster' || discordLinksLoading
                 }
-                className="bg-primary-wh40k hover:bg-[color-mix(in_srgb,var(--primary)_90%,transparent)] text-white flex items-center gap-2 self-start sm:self-auto"
+                className="bg-primary-wh40k hover:bg-[color-mix(in_srgb,var(--primary)_90%,transparent)] text-on-primary-wh40k flex items-center gap-2 self-start sm:self-auto"
               >
                 {generatingInviteFor === 'cluster' ? (
                   <>
