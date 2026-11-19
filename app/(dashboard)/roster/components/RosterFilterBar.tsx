@@ -100,7 +100,7 @@ export function RosterFilterBar({ rf }: { rf: RosterFiltersApi }) {
             <SlidersHorizontal className="h-4 w-4" />
             Filters
             {activeCount > 0 && (
-              <span className="rounded-full bg-accent-wh40k px-1.5 text-[10px] font-bold leading-4 text-(--bg-primary)">
+              <span className="rounded-full bg-accent-wh40k px-1.5 text-[10px] font-bold leading-4 text-on-accent-wh40k">
                 {activeCount}
               </span>
             )}

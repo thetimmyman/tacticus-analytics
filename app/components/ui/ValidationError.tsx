@@ -77,7 +77,7 @@ export function ValidationError({
                           transition-all duration-200 group
                           ${
                             action.type === 'primary'
-                              ? 'bg-accent-wh40k text-(--bg-primary) hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] shadow-md hover:shadow-lg'
+                              ? 'bg-accent-wh40k text-on-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] shadow-md hover:shadow-lg'
                               : 'bg-(--card-bg) border border-(--card-border) text-primary-wh40k hover:bg-(--card-hover) hover:border-[color-mix(in_srgb,var(--accent)_30%,transparent)]'
                           }
                         `}

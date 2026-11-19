@@ -18,7 +18,7 @@ const choiceLinkClass =
 
 function ChoiceCta({ label }: { label: string }) {
   return (
-    <span className="inline-flex min-h-[44px] w-full items-center justify-between rounded-md bg-accent-wh40k px-4 py-2 font-medium text-(--bg-primary) transition-colors group-hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)]">
+    <span className="inline-flex min-h-[44px] w-full items-center justify-between rounded-md bg-accent-wh40k px-4 py-2 font-medium text-on-accent-wh40k transition-colors group-hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)]">
       {label}
       <ArrowRight aria-hidden="true" className="h-4 w-4" />
     </span>

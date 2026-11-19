@@ -42,7 +42,7 @@ const ROSTER_OPTIONS: ReadonlyArray<{ value: RosterScope; label: string }> = [
 const segBtn = (active: boolean): string =>
   `px-3 py-2 rounded text-sm font-medium transition-all duration-300 border ${
     active
-      ? 'bg-accent-wh40k text-(--bg-primary) border-accent-wh40k'
+      ? 'bg-accent-wh40k text-on-accent-wh40k border-accent-wh40k'
       : 'bg-card-bg border-primary-wh40k text-primary-wh40k hover:text-accent-wh40k'
   }`
 

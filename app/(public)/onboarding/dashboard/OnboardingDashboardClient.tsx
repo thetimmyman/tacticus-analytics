@@ -465,7 +465,7 @@ export default function OnboardingDashboardClient({
           <div className="flex flex-wrap gap-2">
             <a
               href="/dashboard"
-              className="inline-flex items-center justify-center rounded-md bg-accent-wh40k px-3 py-2 text-sm font-medium text-(--bg-primary) hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] transition-colors"
+              className="inline-flex items-center justify-center rounded-md bg-accent-wh40k px-3 py-2 text-sm font-medium text-on-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] transition-colors"
             >
               Go to analytics dashboard
             </a>

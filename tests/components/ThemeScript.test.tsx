@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react'
 import { ThemeScript } from '@/app/components/ThemeScript'
 import { applyThemeToCSS, getGuildTheme } from '@/app/lib/theme-system'
+import { getHighContrastText } from '@/app/lib/utils/contrast'
 
 /** Runs the inline pre-hydration script the way the browser would. */
 function runThemeScript(): void {
@@ -64,6 +65,41 @@ describe('ThemeScript', () => {
       expect(root.getAttribute('data-theme')).toBe('light')
       expect(root.style.getPropertyValue('--bg-from')).toBe('#ffffff')
       expect(root.style.getPropertyValue('--text-primary')).toBe('#0f172a')
+    })
+
+    it.each(['dark', 'light', 'HORUS_HERESY'])(
+      'paints the label colour for every filled control before React runs (%s)',
+      (code) => {
+        // Fixed white on the default blue is 2.54:1; Light Mode's blue needs white.
+        window.localStorage.setItem('theme-override', JSON.stringify(code))
+        runThemeScript()
+
+        const theme = getGuildTheme(code)
+        const style = document.documentElement.style
+        expect(style.getPropertyValue('--on-primary')).toBe(
+          getHighContrastText(theme.primary)
+        )
+        expect(style.getPropertyValue('--on-secondary')).toBe(
+          getHighContrastText(theme.secondary)
+        )
+        expect(style.getPropertyValue('--on-accent')).toBe(
+          getHighContrastText(theme.semanticOverrides?.accent ?? theme.accent)
+        )
+      }
+    )
+
+    it('paints white labels on Light Mode and black on the default blue', () => {
+      runThemeScript()
+      expect(
+        document.documentElement.style.getPropertyValue('--on-primary')
+      ).toBe('#000000')
+
+      resetRoot()
+      window.localStorage.setItem('theme-override', JSON.stringify('light'))
+      runThemeScript()
+      expect(
+        document.documentElement.style.getPropertyValue('--on-primary')
+      ).toBe('#ffffff')
     })
 
     it('still understands an older unquoted stored value', () => {

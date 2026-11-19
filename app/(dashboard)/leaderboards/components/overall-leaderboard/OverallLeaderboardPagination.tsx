@@ -51,7 +51,7 @@ export function OverallLeaderboardPagination({
               onClick={() => setCurrentPage(pageNumber)}
               className={`px-3 py-2 rounded text-sm ${
                 currentPage === pageNumber
-                  ? 'bg-primary-wh40k text-(--bg-primary) font-bold'
+                  ? 'bg-primary-wh40k text-on-primary-wh40k font-bold'
                   : 'bg-(--card-bg) border border-(--card-border) text-primary-wh40k'
               }`}
             >
@@ -107,7 +107,7 @@ export function OverallLeaderboardPagination({
               onClick={() => setCurrentPage(pageNumber)}
               className={`px-3 py-1 rounded ${
                 currentPage === pageNumber
-                  ? 'bg-primary-wh40k text-(--bg-primary) font-bold'
+                  ? 'bg-primary-wh40k text-on-primary-wh40k font-bold'
                   : 'bg-(--card-bg) border border-(--card-border) text-primary-wh40k'
               }`}
             >

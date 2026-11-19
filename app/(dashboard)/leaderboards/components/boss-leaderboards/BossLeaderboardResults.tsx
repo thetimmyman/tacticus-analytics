@@ -248,7 +248,7 @@ export function BossLeaderboardResults({
                   onClick={() => onRankByChange(option.value)}
                   className={`px-3 py-1.5 text-sm transition-colors ${
                     rankBy === option.value
-                      ? 'bg-primary-wh40k text-black font-semibold'
+                      ? 'bg-primary-wh40k text-on-primary-wh40k font-semibold'
                       : 'bg-(--card-bg) text-primary-wh40k hover:bg-card/80'
                   }`}
                 >

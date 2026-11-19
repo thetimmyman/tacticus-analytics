@@ -271,7 +271,7 @@ export function ActivityAnalytics() {
           <p className="text-red-400">{error}</p>
           <button
             onClick={fetchData}
-            className="mt-4 px-4 py-2 bg-accent-wh40k text-white rounded-sm hover:bg-(--accent-hover)"
+            className="mt-4 px-4 py-2 bg-accent-wh40k text-on-accent-wh40k rounded-sm hover:bg-(--accent-hover) hover:text-on-primary-wh40k"
           >
             Retry
           </button>
@@ -312,7 +312,7 @@ export function ActivityAnalytics() {
               flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors
               ${
                 showFilters || hasActiveFilters
-                  ? 'bg-accent-wh40k text-white'
+                  ? 'bg-accent-wh40k text-on-accent-wh40k'
                   : 'bg-(--card-bg) text-secondary-wh40k hover:text-primary-wh40k border border-(--card-border)'
               }
             `}

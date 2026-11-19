@@ -114,6 +114,20 @@
   color: var(--text-accent);
 }
 
+@utility text-on-primary-wh40k {
+  /* Label on a filled primary/secondary/accent control: black or white,
+     whichever reads better on the active theme's fill. */
+  color: var(--on-primary);
+}
+
+@utility text-on-secondary-wh40k {
+  color: var(--on-secondary);
+}
+
+@utility text-on-accent-wh40k {
+  color: var(--on-accent);
+}
+
 @utility border-primary-wh40k {
   /* Borders */
   border-color: var(--primary);
@@ -263,21 +277,32 @@
 @utility btn-wh40k {
   /* Buttons */
   @apply px-4 py-2 rounded-sm font-semibold uppercase tracking-wider text-sm transition-all duration-300;
+  /* Hover swaps the fill to the accent, so the label follows through a
+     variable: a tinted variant that sets its own text-* keeps that label on
+     hover instead of a rule here overriding it. The global anchor brightening
+     is off because it would lighten the fill under a white label. */
+  --btn-label: var(--on-primary);
   background: var(--primary);
-  color: #000;
+  color: var(--btn-label);
   border: 1px solid var(--primary);
 
   &:hover {
+    --btn-label: var(--on-accent);
     background: var(--accent);
     border-color: var(--accent);
+    filter: none;
     @apply transform -translate-y-0.5 shadow-lg;
   }
 }
 
 @utility btn-accent-wh40k {
   background: var(--accent);
-  color: #000;
+  color: var(--on-accent);
   border: 1px solid var(--accent);
+
+  &:hover {
+    filter: none;
+  }
 }
 
 @utility input-wh40k {
@@ -363,12 +388,12 @@
   /* Badges */
   @apply inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-semibold uppercase tracking-wider;
   background: var(--primary);
-  color: #000;
+  color: var(--on-primary);
 }
 
 @utility badge-accent-wh40k {
   background: var(--accent);
-  color: #000;
+  color: var(--on-accent);
 }
 
 @utility pulse-accent {
@@ -530,6 +555,9 @@
     --primary-wh40k: #60a5fa;
     --secondary-wh40k: #3b82f6;
     --accent-wh40k: #93c5fd;
+    --on-primary: #000000;
+    --on-secondary: #000000;
+    --on-accent: #000000;
     --card: rgba(30, 41, 59, 0.8);
     --card-bg-rgb: 30 41 59;
     --card-border-rgb: 71 85 105;
@@ -548,7 +576,7 @@
     --accent-primary: var(--accent);
     --accent-hover: #bfdbfe;
     --accent-rgb: 147, 197, 253;
-    --accent-foreground: #ffffff;
+    --accent-foreground: #000000;
     --text-muted: #9ca3af;
     --portrait-width: 6rem;
     --portrait-width-medium: 4rem;
@@ -842,7 +870,7 @@
   select option:focus,
   select option:checked {
     background-color: var(--accent);
-    color: var(--bg-primary);
+    color: var(--on-accent);
   }
 
   /* Fix dropdown arrow visibility - ensure text doesn't overlap arrow */

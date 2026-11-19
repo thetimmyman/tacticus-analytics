@@ -242,13 +242,13 @@ export function HistoricalPerformanceSection({
                 <div className="flex gap-1 mb-2 md:hidden">
                   <button
                     onClick={() => setMobileViewMode('guild')}
-                    className={`px-2 py-1 text-xs rounded-sm ${mobileViewMode === 'guild' ? 'bg-primary-wh40k text-white' : 'bg-(--card-border) text-secondary-wh40k'}`}
+                    className={`px-2 py-1 text-xs rounded-sm ${mobileViewMode === 'guild' ? 'bg-primary-wh40k text-on-primary-wh40k' : 'bg-(--card-border) text-secondary-wh40k'}`}
                   >
                     Guild
                   </button>
                   <button
                     onClick={() => setMobileViewMode('cluster')}
-                    className={`px-2 py-1 text-xs rounded-sm ${mobileViewMode === 'cluster' ? 'bg-primary-wh40k text-white' : 'bg-(--card-border) text-secondary-wh40k'}`}
+                    className={`px-2 py-1 text-xs rounded-sm ${mobileViewMode === 'cluster' ? 'bg-primary-wh40k text-on-primary-wh40k' : 'bg-(--card-border) text-secondary-wh40k'}`}
                   >
                     Cluster
                   </button>

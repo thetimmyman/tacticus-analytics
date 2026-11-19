@@ -259,7 +259,7 @@ export function DamageTrendsChart({
                     onClick={() => setViewMode('summary')}
                     className={`px-2 md:px-3 py-1 text-xs md:text-sm rounded ${
                       viewMode === 'summary'
-                        ? 'bg-primary-wh40k text-white'
+                        ? 'bg-primary-wh40k text-on-primary-wh40k'
                         : 'bg-(--bg-secondary) text-secondary-wh40k'
                     }`}
                   >
@@ -269,7 +269,7 @@ export function DamageTrendsChart({
                     onClick={() => setViewMode('bosses')}
                     className={`px-2 md:px-3 py-1 text-xs md:text-sm rounded ${
                       viewMode === 'bosses'
-                        ? 'bg-primary-wh40k text-white'
+                        ? 'bg-primary-wh40k text-on-primary-wh40k'
                         : 'bg-(--bg-secondary) text-secondary-wh40k'
                     }`}
                   >
