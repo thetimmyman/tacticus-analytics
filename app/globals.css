@@ -289,8 +289,13 @@
      variable: a tinted variant that sets its own text-* keeps that label on
      hover instead of a rule here overriding it. The global anchor brightening
      is off because it would lighten the fill under a white label. The pair
-     swaps in one frame: fading both crosses them at about 1:1 half-way. */
+     swaps in one frame: fading both crosses them at about 1:1 half-way, and
+     a child that inherits the label must not fade either. */
   transition: none !important;
+
+  & * {
+    transition: none !important;
+  }
   --btn-label: var(--on-primary);
   background: var(--primary);
   color: var(--btn-label);

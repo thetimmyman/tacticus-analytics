@@ -3,6 +3,7 @@ import { readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import postcss from 'postcss'
 import tailwindcss from '@tailwindcss/postcss'
+import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 
 // A control whose label token and fill token both change on hover must swap in
@@ -23,26 +24,37 @@ const compile = async (classes: string) => {
   return postcss.parse(css)
 }
 
-/** The `transition` declaration of the rule whose selector is exactly `selector`. */
-function transitionOf(root: postcss.Root, selector: string) {
+/**
+ * The rule's OWN `transition` declarations (a nested `:hover` rule is another
+ * rule). `nested` selects a rule written inside it, e.g. `& *`.
+ */
+function transitionOf(root: postcss.Root, selector: string, nested?: string) {
   let rule: postcss.Rule | undefined
   root.walkRules((r) => {
     if (r.selector.replace(/\s+/gu, ' ') === selector) rule = r
   })
   expect(rule, `rule ${selector} is emitted`).toBeDefined()
-  const found: { value: string; important: boolean }[] = []
-  rule!.walkDecls('transition', (d) =>
-    found.push({ value: d.value, important: d.important })
-  )
-  return found
+  if (nested) {
+    rule = rule!.nodes?.find(
+      (n): n is postcss.Rule => n.type === 'rule' && n.selector === nested
+    )
+    expect(rule, `rule ${selector} { ${nested} } is emitted`).toBeDefined()
+  }
+  return (rule!.nodes ?? [])
+    .filter((n): n is postcss.Declaration => n.type === 'decl')
+    .filter((d) => d.prop === 'transition' || d.prop.startsWith('transition-'))
+    .map((d) => ({ prop: d.prop, value: d.value, important: d.important }))
 }
 
+const NONE = [{ prop: 'transition', value: 'none', important: true }]
+
 describe('colour swaps on hover happen in one frame', () => {
-  it('btn-wh40k, whose label follows its fill to the accent, never fades colours', async () => {
+  it('btn-wh40k and its children never fade colours', async () => {
+    // A child span or icon inherits the label colour: if it fades while the
+    // fill snaps, the label sits on the new fill at about 1:1 for a moment.
     const root = await compile('btn-wh40k')
-    expect(transitionOf(root, '.btn-wh40k')).toEqual([
-      { value: 'none', important: true }
-    ])
+    expect(transitionOf(root, '.btn-wh40k')).toEqual(NONE)
+    expect(transitionOf(root, '.btn-wh40k', '& *')).toEqual(NONE)
   })
 
   it('the no-transition opt-out beats the app-wide colour fade', async () => {
@@ -52,7 +64,7 @@ describe('colour swaps on hover happen in one frame', () => {
         root,
         'html:not(.theme-loading) .no-transition, html:not(.theme-loading) .no-transition *'
       )
-    ).toEqual([{ value: 'none', important: true }])
+    ).toEqual(NONE)
   })
 
   function* sourceFiles(dir: string): Generator<string> {
@@ -61,13 +73,43 @@ describe('colour swaps on hover happen in one frame', () => {
       if (entry.isDirectory()) {
         if (entry.name !== 'node_modules') yield* sourceFiles(full)
       } else if (
-        /\.tsx?$/u.test(entry.name) &&
+        /\.[jt]sx?$/u.test(entry.name) &&
         !/\.stories\./u.test(entry.name)
       ) {
         yield full
       }
     }
   }
+
+  /** Text of every string and template literal: comments never count. */
+  function literals(file: string): string[] {
+    const source = ts.createSourceFile(
+      file,
+      readFileSync(file, 'utf8'),
+      ts.ScriptTarget.Latest,
+      true,
+      /x$/u.test(file) ? ts.ScriptKind.TSX : ts.ScriptKind.TS
+    )
+    const found: string[] = []
+    const visit = (node: ts.Node) => {
+      if (
+        ts.isStringLiteral(node) ||
+        ts.isNoSubstitutionTemplateLiteral(node) ||
+        ts.isTemplateHead(node) ||
+        ts.isTemplateMiddle(node) ||
+        ts.isTemplateTail(node)
+      ) {
+        found.push(node.text)
+      }
+      ts.forEachChild(node, visit)
+    }
+    visit(source)
+    return found
+  }
+
+  // The on-token written as a utility, an arbitrary-property var or a raw var.
+  const ON_TOKEN_SWAP =
+    /(?:^|[\s:])hover:text-(?:on-[a-z0-9-]+|\(--on-[a-z0-9-]+\)|\[var\(--on-[a-z0-9-]+\)\])(?=\s|$)/u
 
   it('every file that swaps an on-token label on hover opts out of the fade', () => {
     const roots = [
@@ -87,12 +129,14 @@ describe('colour swaps on hover happen in one frame', () => {
     let swappers = 0
     for (const root of roots) {
       for (const file of sourceFiles(root)) {
-        const text = readFileSync(file, 'utf8')
-        if (!/hover:text-on-[a-z-]+/u.test(text)) continue
+        const strings = literals(file)
+        if (!strings.some((text) => ON_TOKEN_SWAP.test(text))) continue
         swappers++
-        if (!/(^|[\s'"`])no-transition([\s'"`]|$)/u.test(text)) {
-          missing.push(file)
-        }
+        // A class token, so a comment, `md:no-transition` or a prefix do not count.
+        const optedOut = strings.some((text) =>
+          text.split(/\s+/u).includes('no-transition')
+        )
+        if (!optedOut) missing.push(file)
       }
     }
     expect(swappers).toBeGreaterThanOrEqual(3)
