@@ -6,7 +6,7 @@ CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 SET LOCAL timezone TO 'UTC';
 
-SELECT plan(38);
+SELECT plan(47);
 
 SELECT is(
   current_database()::text,
@@ -416,6 +416,114 @@ SELECT is(
       AND status = 'cleared'),
   2,
   '38. NEGATIVE CONTROL: an enabled guild whose alert is cleared keeps its row, even an aged one'
+);
+
+-- An enabled guild the monitor cannot assess (too_few_rows, never_synced) is still visited every
+-- run. Leaving its key unstamped let it age past the roster.write.% expectation, so a guild whose
+-- roster shrank below the floor raised a false monitoring.staleness alert every evaluation.
+DO $unassessed$
+BEGIN
+  INSERT INTO public.guild_config
+    (guild_code, display_name, enabled, last_successful_sync,
+     consecutive_sync_failures, consecutive_loki_failures)
+  VALUES
+    ('TP513SHRUNK',     'Synthetic shrunk guild, cleared key', true, now() - INTERVAL '4 minutes', 0, 0),
+    ('TP513SHRUNKFIRE', 'Synthetic shrunk guild, firing key',  true, now() - INTERVAL '4 minutes', 0, 0),
+    ('TP513NEVER',      'Synthetic never-synced guild',        true, NULL,                         0, 0),
+    ('TP513TINY',       'Synthetic tiny guild, no key',        true, now() - INTERVAL '4 minutes', 0, 0);
+
+  ALTER TABLE public.player_mapping DISABLE TRIGGER USER;
+  INSERT INTO public.player_mapping
+    (player_id, display_name, guild_code, is_current, is_active, updated_at)
+  VALUES
+    ('TP513SHRUNK-1',     'shrunk leader',      'TP513SHRUNK',     true, true, now() - INTERVAL '1 hour'),
+    ('TP513SHRUNKFIRE-1', 'shrunk fire leader', 'TP513SHRUNKFIRE', true, true, now() - INTERVAL '20 days'),
+    ('TP513TINY-1',       'tiny leader',        'TP513TINY',       true, true, now() - INTERVAL '1 hour');
+  ALTER TABLE public.player_mapping ENABLE TRIGGER USER;
+
+  PERFORM monitoring.notify('roster.write.TP513SHRUNK', 'cleared',
+    'Roster write stalled: TP513SHRUNK', 'synthetic prior: 29 of 29 is_current rows stamped', true);
+  PERFORM monitoring.notify('roster.write.TP513SHRUNKFIRE', 'firing',
+    'Roster write stalled: TP513SHRUNKFIRE', 'synthetic prior firing body', true);
+  PERFORM monitoring.notify('roster.write.TP513NEVER', 'cleared',
+    'Roster write stalled: TP513NEVER', 'synthetic prior alert', true);
+  -- Three days without a report, past the roster.write.% expectation; the firing key has
+  -- already posted one reminder a day ago.
+  UPDATE monitoring.alert_state SET last_seen_at = now() - INTERVAL '3 days'
+   WHERE alert_key IN ('roster.write.TP513SHRUNK', 'roster.write.TP513SHRUNKFIRE',
+                       'roster.write.TP513NEVER');
+  UPDATE monitoring.alert_state
+     SET last_notified_at = now() - INTERVAL '1 day', renotify_count = 1
+   WHERE alert_key = 'roster.write.TP513SHRUNKFIRE';
+END
+$unassessed$;
+
+SELECT is(
+  (SELECT string_agg(guild_code || '=' || verdict, ',' ORDER BY guild_code)
+     FROM public.guild_roster_write_health(7, 0.5, 3)
+    WHERE guild_code IN ('TP513SHRUNK', 'TP513SHRUNKFIRE', 'TP513NEVER', 'TP513TINY')),
+  'TP513NEVER=never_synced,TP513SHRUNK=too_few_rows,TP513SHRUNKFIRE=too_few_rows,TP513TINY=too_few_rows'::text,
+  '39. fixture: the four enabled guilds are unassessable (too_few_rows or never_synced)'
+);
+
+SELECT is(
+  (SELECT count(*)::integer FROM monitoring.stale_alerts()
+    WHERE alert_key IN ('roster.write.TP513SHRUNK', 'roster.write.TP513SHRUNKFIRE',
+                        'roster.write.TP513NEVER')),
+  3,
+  '40. BEFORE: the keys of enabled but unassessable guilds read as stopped monitors'
+);
+
+DO $run$ BEGIN PERFORM public.check_guild_roster_write_health(7, 0.5, 3, true); END $run$;
+
+SELECT is(
+  (SELECT count(*)::integer FROM monitoring.stale_alerts()
+    WHERE alert_key IN ('roster.write.TP513SHRUNK', 'roster.write.TP513SHRUNKFIRE',
+                        'roster.write.TP513NEVER')),
+  0,
+  '41. THE MONITOR REPORTS: a visited but unassessable guild''s key is no longer stale'
+);
+
+SELECT is(
+  (SELECT count(*)::integer FROM monitoring.alert_state
+    WHERE alert_key IN ('roster.write.TP513SHRUNK', 'roster.write.TP513SHRUNKFIRE',
+                        'roster.write.TP513NEVER')
+      AND last_seen_at > now() - INTERVAL '1 minute'),
+  3,
+  '42. each unassessable key was stamped by this run'
+);
+
+SELECT is(
+  (SELECT status FROM monitoring.alert_state WHERE alert_key = 'roster.write.TP513SHRUNKFIRE'),
+  'firing'::text,
+  '43. NEGATIVE CONTROL: cannot tell is not cleared, so a firing key stays firing'
+);
+
+SELECT is(
+  (SELECT last_body || ' | ' || renotify_count::text || ' | '
+          || (last_notified_at < now() - INTERVAL '23 hours')::text
+     FROM monitoring.alert_state WHERE alert_key = 'roster.write.TP513SHRUNKFIRE'),
+  'synthetic prior firing body | 1 | true'::text,
+  '44. the firing key keeps its evidence and reminder clock: only liveness moved'
+);
+
+SELECT is(
+  (SELECT status FROM monitoring.alert_state WHERE alert_key = 'roster.write.TP513SHRUNK'),
+  'cleared'::text,
+  '45. a cleared key stays cleared'
+);
+
+SELECT ok(
+  (SELECT last_body FROM monitoring.alert_state WHERE alert_key = 'roster.write.TP513SHRUNK')
+    LIKE '%TP513SHRUNK has 1 is_current row(s), below the floor of 3%not assessable%',
+  '46. the cleared key no longer quotes the old healthy roster: it says the guild is not assessable'
+);
+
+SELECT is(
+  (SELECT count(*)::integer FROM monitoring.alert_state
+    WHERE alert_key = 'roster.write.TP513TINY'),
+  0,
+  '47. NEGATIVE CONTROL: an unassessable guild with no key is not registered as cleared'
 );
 
 SELECT * FROM finish();

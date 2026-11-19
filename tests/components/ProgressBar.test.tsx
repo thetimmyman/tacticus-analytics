@@ -24,7 +24,13 @@ describe('ProgressBar', () => {
     expect(screen.getByText('Season 1')).toBeInTheDocument()
     expect(screen.getByText('AVG: fmt-50')).toBeInTheDocument()
     expect(screen.getByText('MAX: fmt-100')).toBeInTheDocument()
-    expect(screen.getByText('50%')).toBeInTheDocument()
+    // The figure is written twice for contrast; one copy is hidden from
+    // assistive technology.
+    expect(
+      screen
+        .getAllByText('50%')
+        .filter((node) => !node.closest('[aria-hidden="true"]'))
+    ).toHaveLength(1)
   })
 
   it('renders vsCluster annotations for positive and negative values', () => {

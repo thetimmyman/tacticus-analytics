@@ -137,10 +137,22 @@ fill under a red label and crossed at about 1:1 on dark themes.
 `ButtonDanger.test.tsx` checks the pair on every theme. The rest label is only
 as readable as the theme's own text colour on its card.
 
+### Progress bar labels
+
+The percentage on a progress bar is centred on the track, so the fill slides
+under it as the value grows and one colour cannot read on both surfaces. It is
+drawn twice and cut at the fill edge: the copy over the fill takes the fill's
+own label (`--on-cta` on the shared `--cta-*` stops for theme-colour bars,
+black on the status greens, reds and yellows), the copy over the empty track
+keeps the theme text colour, and only one copy is exposed to assistive
+technology. `BAR_PAINT` pairs each fill with its label, and
+`ProgressBarLabels.test.tsx` checks every pair on every theme. The part over
+the empty track is only as readable as the theme's own text colour on its card.
+
 ## Compliance and Verification Gates
 
 ```sh
-npm test -- tests/unit/theme/on-fill-text.test.ts tests/unit/theme/on-fill-source-guard.test.ts tests/unit/theme/cta-gradient.test.ts tests/unit/theme/status-fill-text.test.ts tests/unit/theme/hover-label-swap.test.ts tests/components/ConfirmDialogTones.test.tsx tests/components/ButtonDanger.test.tsx
+npm test -- tests/unit/theme/on-fill-text.test.ts tests/unit/theme/on-fill-source-guard.test.ts tests/unit/theme/cta-gradient.test.ts tests/unit/theme/status-fill-text.test.ts tests/unit/theme/hover-label-swap.test.ts tests/components/ConfirmDialogTones.test.tsx tests/components/ButtonDanger.test.tsx tests/components/ProgressBarLabels.test.tsx
 ```
 
 The first test checks all three tokens against 4.5:1 for every theme after

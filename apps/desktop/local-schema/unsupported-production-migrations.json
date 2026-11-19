@@ -630,6 +630,11 @@
       "file": "20261115120000_sync_drain_health_claimable_age.sql",
       "reason": "production-app-schema",
       "detail": "Updates hosted queue monitoring, which is absent from the desktop bootstrap."
+    },
+    {
+      "file": "20261119150000_roster_write_stamp_unassessable_guild_keys.sql",
+      "reason": "hosted-service-integration",
+      "detail": "Updates the hosted roster-write monitor, whose alert state is absent from the desktop bootstrap."
     }
   ]
 }
