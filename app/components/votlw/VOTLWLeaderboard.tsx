@@ -54,7 +54,7 @@ function VOTLWLeaderboard({ playerPoints }: VOTLWLeaderboardProps) {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-lg border-2 border-yellow-700/30 bg-linear-to-br from-yellow-950/20 via-black to-yellow-950/20 p-6">
+    <div className="scheme-dark relative overflow-hidden rounded-lg border-2 border-yellow-700/30 bg-black bg-linear-to-br from-yellow-950/20 via-black to-yellow-950/20 p-6">
       {/* Decorative elements */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-0 w-full h-full bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(234,179,8,0.03)_10px,rgba(234,179,8,0.03)_20px)]" />
@@ -113,7 +113,7 @@ function VOTLWLeaderboard({ playerPoints }: VOTLWLeaderboardProps) {
             return (
               <div
                 key={player.displayName}
-                className={`scheme-dark relative p-4 rounded-lg border-2 ${borderColors} ${glowColors} bg-linear-to-br from-black/80 to-yellow-950/30 hover:scale-[1.02] transition-transform`}
+                className={`relative p-4 rounded-lg border-2 ${borderColors} ${glowColors} bg-linear-to-br from-black/80 to-yellow-950/30 hover:scale-[1.02] transition-transform`}
               >
                 <div className="absolute -top-3 -left-3 text-4xl">{medals}</div>
                 <div className="flex justify-between items-center mb-2">
@@ -202,7 +202,7 @@ function VOTLWLeaderboard({ playerPoints }: VOTLWLeaderboardProps) {
 
         {/* Collapsible Full Leaderboard */}
         {showLeaderboard && (
-          <div className="scheme-dark mt-6 p-4 bg-black/60 rounded-lg border border-yellow-800/30">
+          <div className="mt-6 p-4 bg-black/60 rounded-lg border border-yellow-800/30">
             {/* Search and Pagination Controls */}
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
               <input

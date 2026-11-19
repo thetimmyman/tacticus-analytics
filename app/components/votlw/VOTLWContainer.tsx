@@ -89,7 +89,7 @@ const SeasonStatsSkeleton = () => (
 )
 
 const LeaderboardSkeleton = () => (
-  <div className="bg-linear-to-br from-yellow-950/20 via-black to-yellow-950/20 rounded-lg border-2 border-yellow-700/30 p-6">
+  <div className="bg-black bg-linear-to-br from-yellow-950/20 via-black to-yellow-950/20 rounded-lg border-2 border-yellow-700/30 p-6">
     <div className="animate-pulse space-y-4">
       {/* Header */}
       <div className="flex justify-between items-center">

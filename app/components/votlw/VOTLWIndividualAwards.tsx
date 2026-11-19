@@ -32,7 +32,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
     })
 
   return (
-    <div className="relative overflow-hidden rounded-lg border-2 border-purple-700/30 bg-linear-to-br from-purple-950/20 via-black to-purple-950/20 p-6">
+    <div className="scheme-dark relative overflow-hidden rounded-lg border-2 border-purple-700/30 bg-black bg-linear-to-br from-purple-950/20 via-black to-purple-950/20 p-6">
       {/* Decorative elements */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-0 w-full h-full bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(147,51,234,0.03)_10px,rgba(147,51,234,0.03)_20px)]" />
@@ -53,14 +53,14 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
           >
             Champion Stats
           </span>
-          <div className="text-xs text-purple-400/60 mt-1">
+          <div className="text-xs text-purple-400/80 mt-1">
             Battle Records & Achievements
           </div>
         </h3>
 
         {/* Responsive info for desktop */}
         {sortedWinners.length > 0 && (
-          <div className="hidden lg:block text-xs text-purple-400/40 mb-2">
+          <div className="hidden lg:block text-xs text-purple-400/80 mb-2">
             Showing: Level, Boss Name, all award categories
           </div>
         )}
@@ -74,7 +74,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
           <>
             {/* Desktop Table View - Two-line layout for better space utilization */}
             <div className="hidden lg:block">
-              <div className="scheme-dark overflow-x-auto rounded-lg bg-black/40">
+              <div className="overflow-x-auto rounded-lg bg-black/40">
                 <table className="w-full text-xs 2xl:text-sm">
                   <thead className="bg-purple-950/30 border-b-2 border-purple-700/50">
                     <tr className="text-purple-400">
@@ -118,7 +118,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                             {set.levelString}
                           </div>
                           <div
-                            className="text-xs text-purple-300/60 mt-0.5 truncate"
+                            className="text-xs text-purple-300/80 mt-0.5 truncate"
                             title={getBossDisplayName(set.bossName)}
                           >
                             {getBossDisplayName(set.bossName)}
@@ -136,7 +136,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                                   </span>
                                 </PlayerLink>
                               </div>
-                              <div className="text-xs text-yellow-300/60 mt-0.5">
+                              <div className="text-xs text-yellow-300/80 mt-0.5">
                                 {set.goldValue
                                   ? formatDamage(set.goldValue, 1)
                                   : '-'}
@@ -184,7 +184,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                                   </span>
                                 </PlayerLink>
                               </div>
-                              <div className="text-xs text-orange-400/60 mt-0.5">
+                              <div className="text-xs text-orange-400/80 mt-0.5">
                                 {set.bronzeValue
                                   ? formatDamage(set.bronzeValue, 1)
                                   : '-'}
@@ -208,7 +208,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                                   </span>
                                 </PlayerLink>
                               </div>
-                              <div className="text-xs text-red-400/60 mt-0.5">
+                              <div className="text-xs text-red-400/80 mt-0.5">
                                 {set.mostDamageValue
                                   ? formatDamage(set.mostDamageValue, 1)
                                   : '-'}
@@ -232,7 +232,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                                   </span>
                                 </PlayerLink>
                               </div>
-                              <div className="text-xs text-purple-400/60 mt-0.5">
+                              <div className="text-xs text-purple-400/80 mt-0.5">
                                 {set.sideBoss1Value
                                   ? formatDamage(set.sideBoss1Value, 1)
                                   : '-'}
@@ -256,7 +256,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                                   </span>
                                 </PlayerLink>
                               </div>
-                              <div className="text-xs text-purple-400/60 mt-0.5">
+                              <div className="text-xs text-purple-400/80 mt-0.5">
                                 {set.sideBoss2Value
                                   ? formatDamage(set.sideBoss2Value, 1)
                                   : '-'}
@@ -280,7 +280,7 @@ function VOTLWIndividualAwards({ setWinners }: VOTLWIndividualAwardsProps) {
                                   </span>
                                 </PlayerLink>
                               </div>
-                              <div className="text-xs text-blue-400/60 mt-0.5">
+                              <div className="text-xs text-blue-400/80 mt-0.5">
                                 {set.biggestHitValue
                                   ? formatDamage(set.biggestHitValue, 1)
                                   : '-'}
