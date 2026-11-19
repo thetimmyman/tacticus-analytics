@@ -103,11 +103,10 @@ describe('OAuthAccountLink Discord unlink', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Unlink' }))
 
-    expect(
-      await screen.findByText(
-        'Could not safely prepare Discord unlink. No provider change was made.'
-      )
-    ).toBeInTheDocument()
+    // The failure is announced to assistive technology, not just painted.
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Could not safely prepare Discord unlink. No provider change was made.'
+    )
     expect(unlinkIdentity).not.toHaveBeenCalled()
   })
 
