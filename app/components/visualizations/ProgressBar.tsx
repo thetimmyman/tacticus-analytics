@@ -14,15 +14,46 @@ interface ProgressBarProps {
   animate?: boolean
 }
 
-const colorClasses = {
-  blue: 'from-(--primary) to-(--accent)',
-  green: 'from-green-500 to-green-400', // Keep for success states
-  red: 'from-red-500 to-red-400', // Keep for error states
-  purple: 'from-(--accent) to-(--primary)',
-  yellow: 'from-yellow-500 to-yellow-400', // Keep for warning states
-  cyan: 'from-(--primary) to-(--accent)',
-  pink: 'from-(--accent) to-(--primary)'
+// Fill and the label that reads on it, chosen together. Theme-colour bars use
+// the shared call-to-action stops, so one label reads along the whole
+// gradient on every theme; the status colours keep their hue with a black
+// label (at least 5.6:1). The percentage is written twice, once inside the
+// fill and once over the empty track, so each copy keeps its own surface.
+const THEME_FILL = 'bg-linear-to-r/srgb from-(--cta-from) to-(--cta-to)'
+const THEME_FILL_REVERSED =
+  'bg-linear-to-r/srgb from-(--cta-to) to-(--cta-from)'
+const THEME_LABEL = 'text-on-cta-wh40k'
+
+export const BAR_PAINT = {
+  blue: { fill: THEME_FILL, label: THEME_LABEL },
+  green: {
+    fill: 'bg-linear-to-r from-green-500 to-green-400',
+    label: 'text-black'
+  },
+  red: { fill: 'bg-linear-to-r from-red-500 to-red-400', label: 'text-black' },
+  purple: { fill: THEME_FILL_REVERSED, label: THEME_LABEL },
+  yellow: {
+    fill: 'bg-linear-to-r from-yellow-500 to-yellow-400',
+    label: 'text-black'
+  },
+  cyan: { fill: THEME_FILL, label: THEME_LABEL },
+  pink: { fill: THEME_FILL_REVERSED, label: THEME_LABEL }
 } as const
+
+// What a bar paints when nothing is written on it: the plain theme gradient,
+// which the legend text beside a stacked bar is coloured to match.
+const PLAIN_FILL = {
+  blue: 'bg-linear-to-r from-(--primary) to-(--accent)',
+  green: BAR_PAINT.green.fill,
+  red: BAR_PAINT.red.fill,
+  purple: 'bg-linear-to-r from-(--accent) to-(--primary)',
+  yellow: BAR_PAINT.yellow.fill,
+  cyan: 'bg-linear-to-r from-(--primary) to-(--accent)',
+  pink: 'bg-linear-to-r from-(--accent) to-(--primary)'
+} as const
+
+const LABEL_CLASS =
+  'pointer-events-none absolute inset-y-0 flex items-center justify-center text-xs font-semibold'
 
 const vsClusterColorClass = (percent: number) => {
   if (percent > 0) return 'text-green-400 bg-green-400/20' // Keep for positive
@@ -41,6 +72,10 @@ export function ProgressBar({
   animate = true
 }: ProgressBarProps) {
   const percentage = maxValue > 0 ? (avgValue / maxValue) * 100 : 0
+  const filled = Math.min(percentage, 100)
+  const paint = BAR_PAINT[color]
+  const text = `${Math.round(percentage)}%`
+  const showLabel = showPercentage && percentage > 5
   const formattedAvg = formatDamage(avgValue)
   const formattedMax = formatDamage(maxValue)
 
@@ -71,19 +106,41 @@ export function ProgressBar({
           )}
         </div>
       </div>
-      <div className="w-full bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-full h-6 overflow-hidden relative">
+      <div
+        data-bar
+        className="w-full bg-(--card-bg) transition-colors duration-200 rounded-full h-6 overflow-hidden relative"
+      >
         <div
-          className={`h-full bg-linear-to-r ${colorClasses[color]} transition-all ${
+          className={`relative h-full overflow-hidden ${paint.fill} transition-all ${
             animate ? 'duration-1000 ease-out' : ''
           }`}
-          style={{ width: `${Math.min(percentage, 100)}%` }}
+          style={{ width: `${filled}%` }}
         >
-          {showPercentage && percentage > 5 && (
-            <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-primary-wh40k">
-              {`${Math.round(percentage)}%`}
+          {showLabel && (
+            <span
+              className={`${LABEL_CLASS} start-0 ${paint.label}`}
+              style={{ width: `${10000 / filled}%` }}
+              data-label="fill"
+            >
+              {text}
             </span>
           )}
         </div>
+        {showLabel && filled < 100 && (
+          <div
+            className="pointer-events-none absolute inset-y-0 select-none overflow-hidden"
+            style={{ insetInlineStart: `${filled}%`, insetInlineEnd: 0 }}
+            aria-hidden="true"
+          >
+            <span
+              className={`${LABEL_CLASS} end-0 text-primary-wh40k`}
+              style={{ width: `${10000 / (100 - filled)}%` }}
+              data-label="track"
+            >
+              {text}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -151,7 +208,7 @@ export function StackedProgressBar({
           </span>
         </span>
       </div>
-      <div className="w-full bg-(--card-bg) hover:bg-card/80 transition-colors duration-200 rounded-full h-8 overflow-hidden relative">
+      <div className="w-full bg-(--card-bg) transition-colors duration-200 rounded-full h-8 overflow-hidden relative">
         {segments.map((segment, idx) => {
           const percentage = total > 0 ? (segment.value / total) * 100 : 0
           const leftPosition = cumulativePercent
@@ -160,9 +217,9 @@ export function StackedProgressBar({
           return (
             <div
               key={idx}
-              className={`h-full bg-linear-to-r ${colorClasses[segment.color]} transition-all ${
+              className={`h-full ${showLabels ? BAR_PAINT[segment.color].fill : PLAIN_FILL[segment.color]} transition-all ${
                 animate ? 'duration-500' : ''
-              } absolute flex items-center justify-center`}
+              } absolute flex items-center justify-center overflow-hidden`}
               style={{
                 width: `${percentage}%`,
                 left: `${leftPosition}%`
@@ -170,7 +227,9 @@ export function StackedProgressBar({
               title={`${segment.label}: ${segment.value}`}
             >
               {showLabels && percentage > 10 && (
-                <span className="text-xs font-semibold text-primary-wh40k">
+                <span
+                  className={`truncate px-1 text-xs font-semibold ${BAR_PAINT[segment.color].label}`}
+                >
                   {segment.label}: {segment.value}
                 </span>
               )}
