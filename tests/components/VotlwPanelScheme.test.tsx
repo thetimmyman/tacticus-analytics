@@ -22,13 +22,10 @@ vi.mock('@/app/components/ui/PlayerLink', () => ({
 }))
 
 /**
- * Each season-recap showpiece paints its own black surface, so the whole
- * panel must sit inside one `scheme-dark` scope that also has an opaque base:
- * the status palette resolves light-dark() against the nearest color-scheme,
- * and a header or caption outside that scope (or on a translucent gradient
- * edge that shows the page) reads against the wrong background on the light
- * theme. Contrast itself is measured in the browser fixture
- * (UI/Season recap panels story); this guards the structure it relies on.
+ * Each recap panel paints its own black surface, so the whole panel needs one
+ * `scheme-dark` scope plus an opaque base: light-dark() follows the nearest
+ * color-scheme, and a translucent gradient edge shows the light page through.
+ * Contrast is measured in the browser fixture; this guards the structure.
  */
 
 const player: PlayerPoints = {
