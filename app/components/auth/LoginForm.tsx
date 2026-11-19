@@ -56,11 +56,19 @@ const GoogleIcon = () => (
 
 interface LoginFormProps {
   timeoutMs?: number
+  /**
+   * Heading level of the "Welcome Back" title. It is the page title (1) on the
+   * standalone sign-in page; the combined /auth page already has its own h1,
+   * so it passes 2 to keep one h1 per page.
+   */
+  titleLevel?: 1 | 2
 }
 
 export default function LoginForm({
-  timeoutMs = DEFAULT_LOGIN_TIMEOUT_MS
+  timeoutMs = DEFAULT_LOGIN_TIMEOUT_MS,
+  titleLevel = 1
 }: LoginFormProps = {}) {
+  const Title = titleLevel === 1 ? 'h1' : 'h2'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(true)
@@ -311,9 +319,9 @@ export default function LoginForm({
       <div className="w-full max-w-md mx-auto space-y-8">
         {/* Header */}
         <div className="text-center">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-primary-wh40k mb-2">
+          <Title className="text-2xl sm:text-3xl font-extrabold text-primary-wh40k mb-2">
             Welcome Back
-          </h2>
+          </Title>
           <p className="text-sm sm:text-base text-secondary-wh40k">
             Sign in to access the Command Deck
           </p>
