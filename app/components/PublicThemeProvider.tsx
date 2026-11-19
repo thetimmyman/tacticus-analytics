@@ -30,30 +30,24 @@ export function PublicThemeProvider({
     loadTheme()
   }, [isHydrated, themeOverride])
 
-  const fallbackTheme = {
-    primary: '#C0C0C0',
-    secondary: '#808080',
-    accent: '#FF6B35',
-    background: { from: '#000000', via: '#111111', to: '#000000' },
-    cardBg: '#1A1A1A',
-    cardBorder: '#333333',
-    text: { primary: '#FFFFFF', secondary: '#CCCCCC', accent: '#FF6B35' }
-  }
-
-  const activeTheme = theme || fallbackTheme
-  const themeStyles = {
-    '--primary': activeTheme.primary,
-    '--secondary': activeTheme.secondary,
-    '--accent': activeTheme.accent,
-    '--bg-from': activeTheme.background.from,
-    '--bg-via': activeTheme.background.via,
-    '--bg-to': activeTheme.background.to,
-    '--card-bg': activeTheme.cardBg,
-    '--card-border': activeTheme.cardBorder,
-    '--text-primary': activeTheme.text.primary,
-    '--text-secondary': activeTheme.text.secondary,
-    '--text-accent': activeTheme.text.accent
-  } as React.CSSProperties
+  // Until the stored theme has loaded, set nothing: the wrapper inherits the
+  // variables the pre-hydration script put on <html> (the stored theme, else
+  // the :root dark defaults). A different fallback here would paint over them.
+  const themeStyles = theme
+    ? ({
+        '--primary': theme.primary,
+        '--secondary': theme.secondary,
+        '--accent': theme.accent,
+        '--bg-from': theme.background.from,
+        '--bg-via': theme.background.via,
+        '--bg-to': theme.background.to,
+        '--card-bg': theme.cardBg,
+        '--card-border': theme.cardBorder,
+        '--text-primary': theme.text.primary,
+        '--text-secondary': theme.text.secondary,
+        '--text-accent': theme.text.accent
+      } as React.CSSProperties)
+    : undefined
 
   return (
     <div style={themeStyles} className="contents">
