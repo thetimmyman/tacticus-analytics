@@ -341,7 +341,6 @@ export function applyThemeToCSS(theme: GuildTheme) {
   root.style.setProperty('--card-border-hover', theme.accent)
   root.style.setProperty('--accent-primary', theme.accent)
   root.style.setProperty('--accent-hover', theme.primary)
-  root.style.setProperty('--accent-foreground', '#ffffff')
   root.style.setProperty('--primary-wh40k', theme.primary)
   root.style.setProperty('--secondary-wh40k', theme.secondary)
   root.style.setProperty('--accent-wh40k', theme.accent)
@@ -424,4 +423,5 @@ export function applyThemeToCSS(theme: GuildTheme) {
   Object.entries(onFill).forEach(([name, value]) => {
     root.style.setProperty(name, value)
   })
+  root.style.setProperty('--accent-foreground', onFill['--on-accent'] ?? '#000')
 }

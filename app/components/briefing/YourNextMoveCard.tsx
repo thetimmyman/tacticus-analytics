@@ -269,7 +269,7 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
             {move.primaryAction && (
               <Link
                 href={move.primaryAction.href}
-                className="inline-flex items-center gap-1.5 rounded-md bg-accent-wh40k px-3.5 py-2 text-sm font-semibold text-on-accent-wh40k transition hover:brightness-110"
+                className="inline-flex items-center gap-1.5 rounded-md bg-accent-wh40k px-3.5 py-2 text-sm font-semibold text-on-accent-wh40k transition hover:-translate-y-px hover:shadow-md hover:filter-none"
               >
                 <span>{move.primaryAction.label}</span>
                 <span className="inline-flex shrink-0" aria-hidden="true">

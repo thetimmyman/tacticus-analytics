@@ -243,7 +243,7 @@ export default function RequestMyDataButton() {
                 <button
                   onClick={handleRequest}
                   disabled={recovering}
-                  className="btn-wh40k bg-blue-600 hover:bg-blue-700"
+                  className="btn-wh40k bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   {recovering ? 'Recovering export…' : 'Request My Data'}
                 </button>

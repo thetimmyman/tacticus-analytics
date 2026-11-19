@@ -35,7 +35,7 @@ const RadixTabsTrigger = React.forwardRef<
       focus-visible:ring-(--accent) focus-visible:ring-offset-2
       disabled:pointer-events-none disabled:opacity-50
       data-[state=active]:bg-accent-wh40k
-      data-[state=active]:text-(--accent-foreground)
+      data-[state=active]:text-on-accent-wh40k
       data-[state=active]:shadow-xs
       hover:bg-(--hover-bg) hover:text-primary-wh40k
       ${className || ''}

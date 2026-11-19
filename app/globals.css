@@ -277,14 +277,20 @@
 @utility btn-wh40k {
   /* Buttons */
   @apply px-4 py-2 rounded-sm font-semibold uppercase tracking-wider text-sm transition-all duration-300;
+  /* Hover swaps the fill to the accent, so the label follows through a
+     variable: a tinted variant that sets its own text-* keeps that label on
+     hover instead of a rule here overriding it. The global anchor brightening
+     is off because it would lighten the fill under a white label. */
+  --btn-label: var(--on-primary);
   background: var(--primary);
-  color: var(--on-primary);
+  color: var(--btn-label);
   border: 1px solid var(--primary);
 
   &:hover {
+    --btn-label: var(--on-accent);
     background: var(--accent);
-    color: var(--on-accent);
     border-color: var(--accent);
+    filter: none;
     @apply transform -translate-y-0.5 shadow-lg;
   }
 }
@@ -293,6 +299,10 @@
   background: var(--accent);
   color: var(--on-accent);
   border: 1px solid var(--accent);
+
+  &:hover {
+    filter: none;
+  }
 }
 
 @utility input-wh40k {
@@ -566,7 +576,7 @@
     --accent-primary: var(--accent);
     --accent-hover: #bfdbfe;
     --accent-rgb: 147, 197, 253;
-    --accent-foreground: #ffffff;
+    --accent-foreground: #000000;
     --text-muted: #9ca3af;
     --portrait-width: 6rem;
     --portrait-width-medium: 4rem;

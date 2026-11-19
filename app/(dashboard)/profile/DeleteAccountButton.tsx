@@ -179,7 +179,7 @@ export default function DeleteAccountButton({ userId }: { userId: string }) {
             <button
               onClick={handleDelete}
               disabled={isDeleting || confirmText !== 'DELETE'}
-              className="btn-wh40k bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="btn-wh40k bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isDeleting ? (
                 <>
