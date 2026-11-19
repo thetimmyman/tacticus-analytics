@@ -33,12 +33,14 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       default:
         'bg-accent-wh40k text-on-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)]',
       // Quiet variants have no fill of their own, so hover never changes the
-      // label's background: it strengthens the edge in the label colour (an
-      // inner ring, plus the border for the outline) and the label keeps its
-      // rest contrast on every theme.
+      // label's background: it paints an inner ring in the label colour (2px
+      // for the outline, 1px for the chrome-less ghost) and leaves the border
+      // colour to the call site. The label keeps its rest contrast on every
+      // theme. Ghost keeps `hover:text-primary-wh40k`, equal to its rest
+      // colour, so a call-site `hover:text-*` class still loses as before.
       outline:
-        'border border-(--card-border) bg-transparent text-primary-wh40k hover:border-current hover:inset-ring-1',
-      ghost: 'text-primary-wh40k hover:inset-ring-1'
+        'border border-(--card-border) bg-transparent text-primary-wh40k hover:inset-ring-2',
+      ghost: 'text-primary-wh40k hover:text-primary-wh40k hover:inset-ring-1'
     }
 
     const sizeClasses = {

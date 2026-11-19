@@ -21,12 +21,15 @@ const renderButton = (variant: Variant, className?: string) => {
 
 /**
  * The quiet variants as painted. The label sits on the same background in
- * every frame (hover declares no fill, text colour, filter or opacity), so
- * its contrast is the rest contrast on every theme; the hover cue is a ring
- * in the label's own colour.
+ * every frame (hover declares no fill, filter or opacity, and no text colour
+ * but the rest one), so its contrast is the rest contrast on every theme; the
+ * hover cue is an inner ring in the label's own colour. Every other state the
+ * classes can reach (disabled, keyboard focus, and anything qualified by a
+ * pseudo-class or a viewport) is pinned, so a fill hidden behind `sm:`,
+ * `enabled:` or `active:` fails too.
  */
 async function expectQuietPaint(className: string, variant: Variant) {
-  const { rest, hover, important } = await paint(className)
+  const { rest, hover, states, important } = await paint(className)
   expect(only(rest, 'color')).toBe('var(--text-primary)')
   if (variant === 'outline') {
     expect(only(rest, 'background-color')).toBe('transparent')
@@ -36,24 +39,73 @@ async function expectQuietPaint(className: string, variant: Variant) {
     expect(rest['background-color']).toBeUndefined()
     expect(rest['border-width']).toBeUndefined()
   }
-  for (const prop of ['opacity', 'filter', 'background-image']) {
-    expect(rest[prop], `${prop} at rest`).toBeUndefined()
-  }
-
-  // Hover paints an inner ring and, with a border, strengthens the border:
-  // nothing that sits behind or changes the label.
-  const allowed =
+  // Nothing else is painted at rest: no shadow, ring, filter or opacity.
+  const layout = [
+    '--tw-font-weight',
+    'align-items',
+    'border-radius',
+    'color',
+    'display',
+    'font-weight',
+    'height',
+    'justify-content',
+    'padding-block',
+    'padding-inline',
+    'transition-duration',
+    'transition-property',
+    'transition-timing-function'
+  ]
+  expect(Object.keys(rest).sort()).toEqual(
     variant === 'outline'
-      ? ['--tw-inset-ring-shadow', 'border-color', 'box-shadow']
-      : ['--tw-inset-ring-shadow', 'box-shadow']
-  expect(Object.keys(hover).sort()).toEqual(allowed)
+      ? [
+          ...layout,
+          'background-color',
+          'border-color',
+          'border-style',
+          'border-width'
+        ].sort()
+      : layout
+  )
+
+  // Hover paints an inner ring (2px with a border, 1px without) and nothing
+  // that sits behind or recolours the label; the border colour stays the
+  // call site's. Ghost restates its rest text colour so a call-site
+  // `hover:text-*` class keeps losing.
+  expect(Object.keys(hover).sort()).toEqual(
+    variant === 'outline'
+      ? ['--tw-inset-ring-shadow', 'box-shadow']
+      : ['--tw-inset-ring-shadow', 'box-shadow', 'color']
+  )
   expect(only(hover, '--tw-inset-ring-shadow')).toBe(
-    'inset 0 0 0 1px var(--tw-inset-ring-color, currentcolor)'
+    `inset 0 0 0 ${variant === 'outline' ? 2 : 1}px var(--tw-inset-ring-color, currentcolor)`
   )
   expect(only(hover, 'box-shadow')).toMatch(/var\(--tw-inset-ring-shadow\)/u)
-  if (variant === 'outline') {
-    expect(only(hover, 'border-color')).toBe('currentcolor')
+  if (variant === 'ghost') {
+    expect(only(hover, 'color')).toBe(only(rest, 'color'))
   }
+
+  // The only other states: disabled (half strength, no pointer) and the
+  // keyboard focus ring, an outer 2px ring in the accent that stacks with the
+  // hover ring because both compose into one box-shadow.
+  expect(Object.keys(states).sort()).toEqual([':disabled', ':focus-visible'])
+  expect(only(states[':disabled']!, 'opacity')).toBe('50%')
+  expect(only(states[':disabled']!, 'pointer-events')).toBe('none')
+  expect(Object.keys(states[':disabled']!).sort()).toEqual([
+    'opacity',
+    'pointer-events'
+  ])
+  const focus = states[':focus-visible']!
+  expect(Object.keys(focus).sort()).toEqual([
+    '--tw-outline-style',
+    '--tw-ring-color',
+    '--tw-ring-shadow',
+    'box-shadow',
+    'outline-style'
+  ])
+  expect(only(focus, '--tw-ring-color')).toBe('var(--accent)')
+  expect(only(focus, '--tw-ring-shadow')).toBe(
+    'var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor)'
+  )
   // `!important` would let one colour beat the hover cue.
   expect(important).toEqual([])
 }
@@ -85,22 +137,19 @@ describe.each(['outline', 'ghost'] as const)('%s button hover', (variant) => {
     expect(onClick).not.toHaveBeenCalled()
   })
 
-  it('keeps its keyboard focus ring beside the hover ring', async () => {
-    const list = classTokens(renderButton(variant).className)
-    expect(list).toContain('focus-visible:ring-2')
-    // Both rings are composed into one box-shadow by the same utilities, so
-    // neither replaces the other.
-    const { hover } = await paint(list.join(' '))
-    expect(only(hover, 'box-shadow')).toMatch(/var\(--tw-ring-shadow\)/u)
-  })
-
   it('catches a class that changes the label background or colour (the checker itself)', async () => {
     const cls = renderButton(variant).className
     await expectQuietPaint(cls, variant) // the control passes
-    for (const extra of [
+    const extras = [
       'hover:bg-(--card-bg)',
       'hover:bg-white/10',
       'hover:bg-[color-mix(in_srgb,var(--text-primary)_10%,transparent)]',
+      'hover:bg-(--card-bg)!',
+      'hover:not-disabled:bg-(--card-bg)',
+      'enabled:hover:bg-(--card-bg)',
+      'sm:hover:bg-(--card-bg)',
+      'active:bg-(--card-bg)',
+      'focus:bg-(--card-bg)',
       'hover:text-(--accent)',
       'hover:opacity-80',
       'hover:brightness-110',
@@ -109,42 +158,44 @@ describe.each(['outline', 'ghost'] as const)('%s button hover', (variant) => {
       'text-red-500',
       'opacity-70',
       'hover:ring-2',
-      'hover:inset-ring-2'
-    ]) {
-      await expect(
-        expectQuietPaint(`${cls} ${extra}`, variant),
-        extra
-      ).rejects.toThrow()
+      'hover:inset-ring-4',
+      'hover:border-current',
+      'hover:border-(--accent)',
+      'ring-inset',
+      'focus-visible:ring-inset',
+      'focus-visible:ring-current',
+      'focus-visible:bg-(--card-bg)'
+    ]
+    const survivors: string[] = []
+    for (const extra of extras) {
+      const accepted = await expectQuietPaint(`${cls} ${extra}`, variant).then(
+        () => true,
+        () => false
+      )
+      if (accepted) survivors.push(extra)
     }
-    // The cue itself is required, and the right kind.
-    const without = (drop: RegExp) =>
-      classTokens(cls)
-        .filter((c) => !drop.test(c))
-        .join(' ')
+    expect(survivors, 'classes the checker accepted').toEqual([])
+    // The cue itself is required, and the right kind and width.
+    const ring =
+      variant === 'outline' ? 'hover:inset-ring-2' : 'hover:inset-ring-1'
+    const without = classTokens(cls)
+      .filter((c) => c !== ring)
+      .join(' ')
     await expect(
-      expectQuietPaint(without(/^hover:inset-ring-1$/u), variant),
+      expectQuietPaint(without, variant),
       'no ring'
     ).rejects.toThrow()
     await expect(
-      expectQuietPaint(
-        without(/^hover:inset-ring-1$/u) + ' hover:ring-1',
-        variant
-      ),
+      expectQuietPaint(`${without} hover:ring-1`, variant),
       'outer ring instead of inner'
     ).rejects.toThrow()
-    if (variant === 'outline') {
-      await expect(
-        expectQuietPaint(without(/^hover:border-current$/u), variant),
-        'border stays faint'
-      ).rejects.toThrow()
-      await expect(
-        expectQuietPaint(
-          without(/^hover:border-current$/u) + ' hover:border-(--accent)',
-          variant
-        ),
-        'border takes a theme token'
-      ).rejects.toThrow()
-    }
+    await expect(
+      expectQuietPaint(
+        `${without} ${variant === 'outline' ? 'hover:inset-ring-1' : 'hover:inset-ring-2'}`,
+        variant
+      ),
+      'wrong ring width'
+    ).rejects.toThrow()
   })
 })
 

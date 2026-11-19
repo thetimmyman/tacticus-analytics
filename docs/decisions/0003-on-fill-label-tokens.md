@@ -88,26 +88,34 @@ gradient is lightened noticeably, because gold cannot carry a white label.
 
 `Button variant="outline"` and `variant="ghost"` have no fill of their own: the
 label is the theme's text colour on whatever sits behind them (page, card or
-dialog). Their old hover painted the card tint (`--card-bg`), a 10-20% wash of
-the theme's secondary colour. On a card or the page that wash is almost the
-same colour, so hover barely showed (under 1.15:1 against the surface on 51 of
-62 themes), and on 41 themes it moved the fill toward the label, so the label
-read worse under the pointer than at rest. No overlay fixes both: a step toward
-the label costs label contrast, a step away from it is invisible on dark pages,
-and 19 of 62 themes reach no visible step under a contrast floor at all.
+dialog), and about 150 call sites use them. Their old hover painted the card
+tint (`--card-bg`), a 10-20% wash of the theme's secondary colour. The wash
+moves the fill toward the label, so on 8 of 13 and 9 of 14 sampled themes the
+label read worse under the pointer than at rest and ended under 4.5:1 (lowest
+1.9:1), and on 4 to 7 of those themes the step against the surface was under
+1.15:1, so hover barely showed. No overlay fixes both: a step toward the label
+costs label contrast and a step away from it is hard to see on dark pages.
 
-Hover therefore never changes the label's background, text colour, filter or
-opacity. It adds `hover:inset-ring-1` (an inner 1px ring in `currentcolor`) and,
-for the outline, `hover:border-current`, so the border and the ring together
-read as a 2px edge in the label's own colour, with no layout shift. The cue is
-as strong as the label (at least 1.5 times the faint rest border on all 62
-themes) and the label contrast is the rest contrast in every frame. A call site
-with its own colour keeps it, because `currentcolor` follows the label. Where a
-theme's own text colour is weak the ring is as weak as the text; that is theme
-data, not this control. The ring stacks with the keyboard focus ring, which is
-a different box-shadow layer. `ButtonQuietHover.test.tsx` reads the compiled
-stylesheet and rejects any hover fill, text colour, filter, opacity, outer ring
-or token border.
+Hover therefore never changes the label's background, filter or opacity, nor
+its text colour. It adds an inner ring in `currentcolor` (`hover:inset-ring-2`
+on the outline, `hover:inset-ring-1` on the ghost, which has no border), with no
+layout shift. The border colour is left to the call site, so a toggle that
+shows its on-state through an accent border keeps showing it. The cue is as
+strong as the label (at least 1.5 times the faint rest border on all 62
+themes) and the label contrast is the rest contrast in every frame. Where a
+theme's own text colour is weak the ring is as weak as the text (26 of 62
+themes read the label under 3:1 on a card); that is theme data, not this
+control. Ghost keeps `hover:text-primary-wh40k`, equal to its rest colour: it
+makes call-site `hover:text-*` classes lose, as they always did, and removing it
+would let nine of them recolour the label on hover. The ring stacks with the
+keyboard focus ring, which is another layer of the same box-shadow. In forced
+colours box-shadow is dropped, so there is no hover cue there (unchanged); the
+focus outline remains. `ButtonQuietHover.test.tsx` reads the compiled
+stylesheet and pins every rest, hover, disabled, focus and qualified-state
+declaration (including `sm:`, `enabled:`, `active:` and `!important`), so a
+hover fill, text colour, filter, opacity, outer ring or border change fails.
+Other controls that look like outline buttons (pagination, section tabs) still
+use their own hover and are not covered.
 
 ## Hover swaps are single-frame
 

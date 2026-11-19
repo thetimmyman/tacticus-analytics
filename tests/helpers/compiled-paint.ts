@@ -23,40 +23,48 @@ export type Painted = Record<string, Array<{ source: string; value: string }>>
 
 /**
  * What an element with these classes paints, read from the compiled
- * stylesheet: the declarations that apply at rest, and those that apply only
- * on hover. Each property keeps every class that declares it, so two classes
- * fighting over one property (the winner then depends on stylesheet order)
- * show up as two entries. Viewport media and other pseudo-classes are left out.
+ * stylesheet. `rest` holds the declarations that apply with no condition and
+ * `hover` those whose selector ends in exactly `:hover`. `states` holds every
+ * other bucket under the selector tail that qualifies it (`:disabled`,
+ * `:hover:not(:disabled)`, `:active`, ...), and a rule inside a viewport media
+ * query lands under `@width <tail>`, so a fill hidden behind `sm:` or
+ * `enabled:` cannot go unseen. Each property keeps every class that declares
+ * it, so two classes fighting over one property (the winner then depends on
+ * stylesheet order) show up as two entries.
  */
 export async function paint(className: string) {
   const classes = new Set(classTokens(className))
   const sheet = await compile([...classes].join(' '))
   const rest: Painted = {}
   const hover: Painted = {}
+  const states: Record<string, Painted> = {}
   const important: string[] = []
   sheet.walkRules((rule) => {
     const match = /^\.((?:\\.|[^\\:\s,.])+)(.*)$/u.exec(rule.selector)
     if (!match) return
     const name = match[1]!.replace(/\\(.)/gu, '$1')
     if (!classes.has(name)) return
+    let responsive = false
     let outer: postcss.Container | postcss.Document | undefined = rule.parent
     for (; outer; outer = outer.parent) {
       if (
         outer.type === 'atrule' &&
         /width/u.test((outer as postcss.AtRule).params)
       ) {
-        return
+        responsive = true
       }
     }
-    const target = match[2] === '' ? rest : match[2] === ':hover' ? hover : null
-    if (!target) return
+    const tail = match[2]!
+    const key = `${responsive ? '@width ' : ''}${tail}`
+    const target =
+      key === '' ? rest : key === ':hover' ? hover : (states[key] ??= {})
     for (const node of rule.nodes ?? []) {
       if (node.type !== 'decl') continue
       ;(target[node.prop] ??= []).push({ source: name, value: node.value })
       if (node.important) important.push(`${name}: ${node.prop}`)
     }
   })
-  return { rest, hover, important }
+  return { rest, hover, states, important }
 }
 
 /** The single value a property has, failing when two classes both set it. */
