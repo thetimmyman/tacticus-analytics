@@ -76,3 +76,17 @@ _Avoid_: Recalculated plan
 
 **Guild roster evidence**:
 A complete member list from the documented guild response, bound to the expected upstream guild. Missing or mismatched guild identity, an empty roster, or malformed members provide no membership authority. Reuse stays within the authorized operation.
+
+## Cluster membership
+
+**Leave cluster**:
+A guild leader takes their own guild out of its cluster. The guild and every one of its
+member mappings lose the cluster in one transaction, so its members lose the cluster's
+shared views at once. The guild keeps its members, roles, logins and syncing, and can join
+another cluster with an invite code. The leader who created the cluster cannot leave it.
+_Avoid_: Delete guild, remove guild
+
+**Disable guild**:
+A cluster leader stops a guild's syncing. The guild stays in the cluster and its members
+keep their access; it can be switched back on.
+_Avoid_: Delete guild, leave cluster

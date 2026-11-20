@@ -194,7 +194,8 @@ export default function GuildSettingsClient({
     openJoinCluster,
     closeClusterWizard,
     closeJoinCluster,
-    handleClusterCreated
+    handleClusterCreated,
+    leaveCluster
   } = useGuildClusterSettings(config)
 
   const hasMounted = useHasMounted()
@@ -875,6 +876,7 @@ export default function GuildSettingsClient({
                     onCreateCluster={openClusterWizard}
                     onJoinCluster={openJoinCluster}
                     saving={saving}
+                    leaveCluster={leaveCluster}
                   />
                 </section>
               )}

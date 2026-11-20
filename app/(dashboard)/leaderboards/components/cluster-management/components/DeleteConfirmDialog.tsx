@@ -12,6 +12,9 @@ import {
 } from '@tacticus/ui-kit/radix-dialog'
 import { formatGuildDisplayLabel } from '@/app/lib/format/guild'
 
+/** The phrase a cluster leader types to disable a guild's syncing. */
+export const DISABLE_GUILD_CONFIRM_PHRASE = 'disable this guild'
+
 interface DeleteConfirmDialogProps {
   open: boolean
   guildCode: string | null
@@ -38,14 +41,20 @@ export function DeleteConfirmDialog({
       <RadixDialogContent className="sm:max-w-md">
         <RadixDialogHeader>
           <RadixDialogTitle className="text-red-400">
-            Confirm Guild Deletion
+            Disable guild syncing
           </RadixDialogTitle>
           <RadixDialogDescription className="text-secondary-wh40k">
-            This action is PERMANENT and will disable{' '}
-            <strong>{guildLabel}</strong> from the entire cluster.
+            This stops syncing <strong>{guildLabel}</strong>. The guild stays in
+            this cluster and its members keep their access. You can switch it
+            back on from Edit at any time.
             <br />
             <br />
-            To confirm, please type exactly: <strong>delete this guild</strong>
+            To take a guild out of the cluster, its leader uses Leave cluster in
+            Guild Settings.
+            <br />
+            <br />
+            To confirm, type exactly:{' '}
+            <strong>{DISABLE_GUILD_CONFIRM_PHRASE}</strong>
           </RadixDialogDescription>
         </RadixDialogHeader>
 
@@ -53,7 +62,7 @@ export function DeleteConfirmDialog({
           <Input
             value={confirmText}
             onChange={(e) => onConfirmTextChange(e.target.value)}
-            placeholder="Type: delete this guild"
+            placeholder={`Type: ${DISABLE_GUILD_CONFIRM_PHRASE}`}
             className="w-full"
           />
         </div>
@@ -65,9 +74,9 @@ export function DeleteConfirmDialog({
           <Button
             variant="danger"
             onClick={onConfirm}
-            disabled={confirmText !== 'delete this guild'}
+            disabled={confirmText !== DISABLE_GUILD_CONFIRM_PHRASE}
           >
-            Delete Guild
+            Disable Guild
           </Button>
         </RadixDialogFooter>
       </RadixDialogContent>
