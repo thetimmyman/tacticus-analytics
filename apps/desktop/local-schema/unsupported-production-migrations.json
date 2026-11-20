@@ -635,6 +635,11 @@
       "file": "20261119150000_roster_write_stamp_unassessable_guild_keys.sql",
       "reason": "hosted-service-integration",
       "detail": "Updates the hosted roster-write monitor, whose alert state is absent from the desktop bootstrap."
+    },
+    {
+      "file": "20261120170000_guild_leave_cluster.sql",
+      "reason": "production-app-schema",
+      "detail": "Adds the hosted leave-cluster function and its cluster-preservation trigger bypass; the desktop bootstrap has no clusters, cluster triggers or audit log."
     }
   ]
 }

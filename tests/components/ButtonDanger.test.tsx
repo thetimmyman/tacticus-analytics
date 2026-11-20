@@ -239,10 +239,10 @@ describe('danger button variant', () => {
     const onClick = vi.fn()
     render(
       <Button variant="danger" disabled onClick={onClick}>
-        Delete Guild
+        Disable Guild
       </Button>
     )
-    const button = screen.getByRole('button', { name: 'Delete Guild' })
+    const button = screen.getByRole('button', { name: 'Disable Guild' })
     expect(tokens(button.className)).toEqual(
       expect.arrayContaining([
         'disabled:opacity-50',
@@ -267,14 +267,14 @@ describe('destructive buttons use the danger variant', () => {
     onCancel: () => {}
   })
 
-  it('Delete Guild paints the danger outline as its only extra styling', async () => {
+  it('Disable Guild paints the danger outline as its only extra styling', async () => {
     render(<DeleteConfirmDialog {...dialogProps('')} />)
-    const button = screen.getByRole('button', { name: 'Delete Guild' })
+    const button = screen.getByRole('button', { name: 'Disable Guild' })
     await expectDangerPaint(button.className)
 
     // The caller adds no class of its own: every token is the variant's or
     // the shared size and base, so a colour override cannot sneak in.
-    const bare = render(<Button variant="danger">Delete Guild</Button>)
+    const bare = render(<Button variant="danger">Disable Guild</Button>)
     const reference = tokens(
       within(bare.container).getByRole('button').className
     ).sort()
@@ -286,7 +286,7 @@ describe('destructive buttons use the danger variant', () => {
     expect(tokens(cancel.className)).not.toContain('hover:bg-(--danger)')
   })
 
-  it('Delete Guild stays disabled until the exact phrase is typed, then confirms once', async () => {
+  it('Disable Guild stays disabled until the exact phrase is typed, then confirms once', async () => {
     const onConfirm = vi.fn()
     const user = userEvent.setup()
     const { rerender } = render(
@@ -294,28 +294,36 @@ describe('destructive buttons use the danger variant', () => {
     )
     for (const typed of [
       '',
-      'delete',
-      'delete this guil',
-      'delete this guild ',
-      ' delete this guild',
-      'Delete this guild',
-      'delete this guildx',
-      'delete t'
+      'disable',
+      'disable this guil',
+      'disable this guild ',
+      ' disable this guild',
+      'Disable this guild',
+      'disable this guildx',
+      'disable t'
     ]) {
       rerender(<DeleteConfirmDialog {...dialogProps(typed, onConfirm)} />)
-      const button = screen.getByRole('button', { name: 'Delete Guild' })
+      const button = screen.getByRole('button', { name: 'Disable Guild' })
       expect(button, JSON.stringify(typed)).toBeDisabled()
       await user.click(button)
     }
     expect(onConfirm).not.toHaveBeenCalled()
 
     rerender(
-      <DeleteConfirmDialog {...dialogProps('delete this guild', onConfirm)} />
+      <DeleteConfirmDialog {...dialogProps('disable this guild', onConfirm)} />
     )
-    const ready = screen.getByRole('button', { name: 'Delete Guild' })
+    const ready = screen.getByRole('button', { name: 'Disable Guild' })
     expect(ready).toBeEnabled()
     await user.click(ready)
     expect(onConfirm).toHaveBeenCalledTimes(1)
+  })
+
+  it('Disable Guild says the guild stays in the cluster and points to Leave cluster', () => {
+    render(<DeleteConfirmDialog {...dialogProps('')} />)
+    const dialog = screen.getByRole('dialog')
+    expect(dialog.textContent).toContain('stays in this cluster')
+    expect(dialog.textContent).toContain('Leave cluster')
+    expect(dialog.textContent).not.toMatch(/permanent|delet/i)
   })
 
   it('Disable on an invite row paints the danger outline, beside a neutral Copy Code, and still disables that invite', async () => {
