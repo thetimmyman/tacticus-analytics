@@ -13,7 +13,7 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen bg-linear-to-br from-(--bg-from) via-red-900 to-(--bg-to) flex items-center justify-center">
       <div className="max-w-md w-full mx-auto p-6">
-        <div className="bg-black/60 backdrop-blur-xs rounded-lg border border-red-500/30 p-8">
+        <div className="scheme-dark bg-black/60 backdrop-blur-xs rounded-lg border border-red-500/30 p-8">
           <div className="text-center mb-8">
             <Link href="/" className="inline-block">
               <div className="relative mb-6 inline-block">

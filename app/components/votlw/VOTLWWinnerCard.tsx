@@ -13,7 +13,7 @@ function VOTLWWinnerCard({ veteran }: VOTLWWinnerCardProps) {
   if (!veteran) return null
 
   return (
-    <div className="relative overflow-hidden bg-linear-to-br from-red-950 via-gray-900 to-black rounded-xl p-8 border-2 border-red-800 shadow-[0_0_50px_rgba(220,38,38,0.5)]">
+    <div className="scheme-dark relative overflow-hidden bg-linear-to-br from-red-950 via-gray-900 to-black rounded-xl p-8 border-2 border-red-800 shadow-[0_0_50px_rgba(220,38,38,0.5)]">
       {/* Animated background effects */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-0 left-1/4 w-2 h-full bg-linear-to-b from-red-600 to-transparent animate-[drip_8s_ease-in-out_infinite]"></div>

@@ -45,7 +45,7 @@ export const RosterTokenTooltip = forwardRef<RosterTooltipHandle>(
 
     return createPortal(
       <div
-        className="fixed z-50 pointer-events-none min-w-[180px] rounded-lg border border-slate-600/80 bg-slate-800 px-3.5 py-2.5 text-xs shadow-xl shadow-black/50"
+        className="scheme-dark fixed z-50 pointer-events-none min-w-[180px] rounded-lg border border-slate-600/80 bg-slate-800 px-3.5 py-2.5 text-xs shadow-xl shadow-black/50"
         style={{
           left: Math.min(x + 8, window.innerWidth - 230),
           top: Math.min(y, window.innerHeight - 96)

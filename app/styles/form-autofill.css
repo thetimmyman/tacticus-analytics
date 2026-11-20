@@ -1,8 +1,6 @@
-/* Tell browsers to use dark-theme form controls (defeats default white
-   autofill backgrounds on Chromium/Firefox dark sites). */
-:root {
-  color-scheme: dark;
-}
+/* color-scheme (dark controls on dark themes, and the dark/light status
+   palette) is owned by globals.css and applyThemeToCSS. An un-layered rule
+   here would beat their layered, theme-specific ones. */
 
 /* Override Chrome/Edge/Safari autofill recolouring. The browser ignores
    `background-color` once autofill kicks in; the only reliable way to

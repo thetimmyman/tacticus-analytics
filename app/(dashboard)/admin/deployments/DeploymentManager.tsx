@@ -404,7 +404,7 @@ export function DeploymentManager() {
         <p className="text-secondary-wh40k text-sm mb-4">
           If the web UI is unavailable, use these commands via SSH:
         </p>
-        <div className="bg-black rounded-lg p-4 font-mono text-sm space-y-2">
+        <div className="scheme-dark bg-black rounded-lg p-4 font-mono text-sm space-y-2">
           <div className="text-secondary-wh40k"># Current k3s deploy path</div>
           <div className="text-green-400">
             ./scripts/deploy/deploy-production-k3s.sh --tag &lt;sha&gt;

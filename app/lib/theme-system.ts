@@ -319,6 +319,8 @@ export function applyThemeToCSS(theme: GuildTheme) {
   )
 
   const isLightTheme = isLightBackground(bgColor)
+  // The palette's light-dark() tiers and native controls follow this.
+  root.style.setProperty('color-scheme', isLightTheme ? 'light' : 'dark')
   const interactionHoverBg = isLightTheme
     ? 'rgba(0, 0, 0, 0.06)'
     : 'rgba(255, 255, 255, 0.08)'

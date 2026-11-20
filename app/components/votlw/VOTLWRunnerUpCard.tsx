@@ -13,7 +13,7 @@ function VOTLWRunnerUpCard({ runnerUp }: VOTLWRunnerUpCardProps) {
   if (!runnerUp) return null
 
   return (
-    <div className="relative overflow-hidden bg-linear-to-br from-gray-800 via-gray-900 to-black rounded-lg p-6 border border-(--card-border)">
+    <div className="scheme-dark relative overflow-hidden bg-linear-to-br from-gray-800 via-gray-900 to-black rounded-lg p-6 border border-(--card-border)">
       <div className="absolute top-3 right-3 text-5xl opacity-10">🛡️</div>
 
       <div className="relative text-center">

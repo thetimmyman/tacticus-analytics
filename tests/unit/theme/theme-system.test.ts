@@ -86,6 +86,23 @@ describe('applyThemeToCSS semantic tokens', () => {
     expect(style.getPropertyValue('--info')).toBe('#0369a1')
   })
 
+  it.each([
+    ['a dark', '#0f172a', 'dark'],
+    ['a light', '#ffffff', 'light']
+  ])(
+    'sets color-scheme for %s theme so native controls and the status palette match',
+    (_label, background, scheme) => {
+      applyThemeToCSS({
+        ...baseTheme,
+        background: { from: background, via: background, to: background }
+      })
+
+      expect(
+        document.documentElement.style.getPropertyValue('color-scheme')
+      ).toBe(scheme)
+    }
+  )
+
   it('applies accent semantic overrides to accent and text-accent vars', () => {
     applyThemeToCSS({
       ...baseTheme,

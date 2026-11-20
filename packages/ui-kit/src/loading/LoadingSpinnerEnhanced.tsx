@@ -266,7 +266,7 @@ export function LoadingSpinner({
     }
 
     return (
-      <div className="flex flex-col items-center justify-center space-y-4 p-6 bg-black/50 border border-red-900/30 rounded-lg">
+      <div className="scheme-dark flex flex-col items-center justify-center space-y-4 p-6 bg-black/50 border border-red-900/30 rounded-lg">
         <div className="flex items-center space-x-6">
           {/* Status indicator */}
           <div className="flex flex-col items-center">
@@ -427,7 +427,7 @@ export function LoadingSpinner({
 
 export function PageLoading({ message }: { message?: string }) {
   return (
-    <div className="min-h-[400px] flex items-center justify-center bg-linear-to-br from-gray-900/50 via-red-900/20 to-gray-900/50 border border-red-900/30 rounded-lg">
+    <div className="scheme-dark min-h-[400px] flex items-center justify-center bg-linear-to-br from-gray-900/50 via-red-900/20 to-gray-900/50 border border-red-900/30 rounded-lg">
       <LoadingSpinner
         size="lg"
         message={message || '🔧 Initializing sacred systems...'}
@@ -476,7 +476,7 @@ export function LoadingOverlay({
   return (
     <div className="relative">
       <div className="opacity-30 pointer-events-none">{children}</div>
-      <div className="absolute inset-0 flex items-center justify-center bg-black/70 backdrop-blur-xs border border-red-900/30 rounded-sm">
+      <div className="scheme-dark absolute inset-0 flex items-center justify-center bg-black/70 backdrop-blur-xs border border-red-900/30 rounded-sm">
         <LoadingSpinner message={message} variant="protocol" size="lg" />
       </div>
     </div>
@@ -510,7 +510,7 @@ export function TableSkeleton({
   columns?: number
 }) {
   return (
-    <div className="space-y-2 p-4 border border-red-900/30 rounded-lg bg-black/30">
+    <div className="scheme-dark space-y-2 p-4 border border-red-900/30 rounded-lg bg-black/30">
       {/* Header */}
       <div
         className="grid gap-2"

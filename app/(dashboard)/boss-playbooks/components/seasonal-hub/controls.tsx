@@ -191,7 +191,7 @@ export function EncounterCommandRow({
             aria-label={`Close ops for ${title}`}
             onClick={() => setMobileOpsOpen(false)}
           />
-          <div className="relative max-h-[88vh] w-full overflow-y-auto rounded-t-lg border border-(--card-border) bg-[#171a1f] shadow-2xl">
+          <div className="scheme-dark relative max-h-[88vh] w-full overflow-y-auto rounded-t-lg border border-(--card-border) bg-[#171a1f] shadow-2xl">
             <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-(--card-border) bg-[#1b1f25] px-4 py-3">
               <div>
                 <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-(--accent)">

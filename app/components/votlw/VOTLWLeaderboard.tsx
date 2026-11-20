@@ -54,7 +54,7 @@ function VOTLWLeaderboard({ playerPoints }: VOTLWLeaderboardProps) {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-lg border-2 border-yellow-700/30 bg-linear-to-br from-yellow-950/20 via-black to-yellow-950/20 p-6">
+    <div className="scheme-dark relative overflow-hidden rounded-lg border-2 border-yellow-700/30 bg-black bg-linear-to-br from-yellow-950/20 via-black to-yellow-950/20 p-6">
       {/* Decorative elements */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-0 w-full h-full bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(234,179,8,0.03)_10px,rgba(234,179,8,0.03)_20px)]" />

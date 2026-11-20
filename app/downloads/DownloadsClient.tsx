@@ -200,7 +200,7 @@ export default function DownloadsClient({
                 {release.artifact.format}
               </p>
               <a
-                className="my-5 inline-block rounded bg-cyan-300 px-4 py-3 font-semibold text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="scheme-dark my-5 inline-block rounded bg-cyan-300 px-4 py-3 font-semibold text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                 href={`/api/downloads/${release.id}`}
                 rel="noreferrer"
               >

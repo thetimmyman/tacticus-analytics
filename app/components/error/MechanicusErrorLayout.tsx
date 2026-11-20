@@ -34,7 +34,7 @@ export function MechanicusErrorLayout({
   children
 }: MechanicusErrorLayoutProps) {
   return (
-    <div className="min-h-screen bg-linear-to-br from-black via-red-950 to-black flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="scheme-dark min-h-screen bg-linear-to-br from-black via-red-950 to-black flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-20 left-10 w-64 h-64 bg-red-500 rounded-full filter blur-3xl animate-pulse" />
