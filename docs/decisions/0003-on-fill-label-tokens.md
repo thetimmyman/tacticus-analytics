@@ -84,6 +84,39 @@ inline style is not checked; measure those in the browser. For themes whose
 colours sit far apart (a navy primary with a gold accent) the dark end of the
 gradient is lightened noticeably, because gold cannot carry a white label.
 
+## Quiet buttons hover with a ring, never a fill
+
+`Button variant="outline"` and `variant="ghost"` have no fill of their own: the
+label is the theme's text colour on whatever sits behind them (page, card or
+dialog), and about 150 call sites use them. Their old hover painted the card
+tint (`--card-bg`), a 10-20% wash of the theme's secondary colour. The wash
+moves the fill toward the label, so on 8 of 13 and 9 of 14 sampled themes the
+label read worse under the pointer than at rest and ended under 4.5:1 (lowest
+1.9:1), and on 4 to 7 of those themes the step against the surface was under
+1.15:1, so hover barely showed. No overlay fixes both: a step toward the label
+costs label contrast and a step away from it is hard to see on dark pages.
+
+Hover therefore never changes the label's background, filter or opacity, nor
+its text colour. It adds an inner ring in `currentcolor` (`hover:inset-ring-2`
+on the outline, `hover:inset-ring-1` on the ghost, which has no border), with no
+layout shift. The border colour is left to the call site, so a toggle that
+shows its on-state through an accent border keeps showing it. The cue is as
+strong as the label (at least 1.5 times the faint rest border on all 62
+themes) and the label contrast is the rest contrast in every frame. Where a
+theme's own text colour is weak the ring is as weak as the text (26 of 62
+themes read the label under 3:1 on a card); that is theme data, not this
+control. Ghost keeps `hover:text-primary-wh40k`, equal to its rest colour: it
+makes call-site `hover:text-*` classes lose, as they always did, and removing it
+would let nine of them recolour the label on hover. The ring stacks with the
+keyboard focus ring, which is another layer of the same box-shadow. In forced
+colours box-shadow is dropped, so there is no hover cue there (unchanged); the
+focus outline remains. `ButtonQuietHover.test.tsx` reads the compiled
+stylesheet and pins every rest, hover, disabled, focus and qualified-state
+declaration (including `sm:`, `enabled:`, `active:` and `!important`), so a
+hover fill, text colour, filter, opacity, outer ring or border change fails.
+Other controls that look like outline buttons (pagination, section tabs) still
+use their own hover and are not covered.
+
 ## Hover swaps are single-frame
 
 A control whose label token and fill token both change on hover (`btn-wh40k`,
