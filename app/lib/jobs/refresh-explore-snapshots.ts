@@ -17,7 +17,9 @@ const refreshExploreSnapshotsHandler: JobHandler = async (_payload, ctx) => {
     const { data, error } = await db.rpc('manual_refresh_guild_snapshots')
 
     if (error) {
-      throw new Error(`Failed to refresh explore snapshots: ${error}`)
+      throw new Error(
+        `Failed to refresh explore snapshots: ${getErrorMessage(error)}`
+      )
     }
 
     const durationMs = Date.now() - startTime
