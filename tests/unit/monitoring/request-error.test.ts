@@ -72,8 +72,8 @@ describe('onRequestError', () => {
     expect(sentry.captureRequestError).not.toHaveBeenCalled()
   })
 
-  it('drops malformed Server Action request-body JSON.parse SyntaxErrors before any application frame runs', async () => {
-    const { isMalformedServerActionPayloadSyntaxError, onRequestError } =
+  it('drops malformed Server Action and RSC request-body JSON.parse SyntaxErrors before any application frame runs', async () => {
+    const { isMalformedRequestPayloadSyntaxError, onRequestError } =
       await import('@/app/lib/monitoring/request-error')
     const request = {
       path: '/guild-ops/player-lookup',
@@ -101,7 +101,7 @@ describe('onRequestError', () => {
     ].join('\n')
 
     expect(
-      isMalformedServerActionPayloadSyntaxError(frameworkDecodeSyntaxError)
+      isMalformedRequestPayloadSyntaxError(frameworkDecodeSyntaxError)
     ).toBe(true)
 
     await onRequestError(frameworkDecodeSyntaxError, request, actionContext)
@@ -109,7 +109,15 @@ describe('onRequestError', () => {
     expect(sentry.withScope).not.toHaveBeenCalled()
     expect(sentry.captureRequestError).not.toHaveBeenCalled()
 
-    // Negative control 1: same SyntaxError on a route handler or page render is still reported.
+    // The same Next.js-runtime JSON.parse SyntaxError on an RSC page render
+    // (routeType 'render') is also dropped.
+    await onRequestError(frameworkDecodeSyntaxError, request, {
+      ...actionContext,
+      routeType: 'render' as const
+    })
+    expect(sentry.captureRequestError).not.toHaveBeenCalled()
+
+    // Negative control 1: same SyntaxError on a route handler is still reported.
     await onRequestError(frameworkDecodeSyntaxError, request, {
       ...actionContext,
       routeType: 'route' as const
@@ -128,9 +136,9 @@ describe('onRequestError', () => {
       '    at async o6.handleResponse (/app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:326:53836)'
     ].join('\n')
 
-    expect(
-      isMalformedServerActionPayloadSyntaxError(appActionSyntaxError)
-    ).toBe(false)
+    expect(isMalformedRequestPayloadSyntaxError(appActionSyntaxError)).toBe(
+      false
+    )
     await onRequestError(appActionSyntaxError, request, actionContext)
     expect(sentry.captureRequestError).toHaveBeenCalledTimes(1)
 
@@ -146,7 +154,7 @@ describe('onRequestError', () => {
       '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)'
     ].join('\n')
     expect(
-      isMalformedServerActionPayloadSyntaxError(unminifiedDecoderSyntaxError)
+      isMalformedRequestPayloadSyntaxError(unminifiedDecoderSyntaxError)
     ).toBe(true)
     await onRequestError(unminifiedDecoderSyntaxError, request, actionContext)
     expect(sentry.captureRequestError).not.toHaveBeenCalled()
@@ -167,9 +175,7 @@ describe('onRequestError', () => {
         extraFrame,
         '    at async o6.handleResponse (/app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:326:53836)'
       ].join('\n')
-      expect(isMalformedServerActionPayloadSyntaxError(mixedFrameError)).toBe(
-        false
-      )
+      expect(isMalformedRequestPayloadSyntaxError(mixedFrameError)).toBe(false)
       await onRequestError(mixedFrameError, request, actionContext)
       expect(sentry.captureRequestError).toHaveBeenCalledTimes(1)
     }
@@ -182,7 +188,7 @@ describe('onRequestError', () => {
       '    at JSON.parse (<anonymous>)',
       '    at readConfig (/app/node_modules/next/dist/shared/lib/config-helper.js:12:4)'
     ].join('\n')
-    expect(isMalformedServerActionPayloadSyntaxError(nonDecoderNextError)).toBe(
+    expect(isMalformedRequestPayloadSyntaxError(nonDecoderNextError)).toBe(
       false
     )
     await onRequestError(nonDecoderNextError, request, actionContext)

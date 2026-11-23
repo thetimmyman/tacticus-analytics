@@ -10,7 +10,10 @@ import {
   sanitizeObservabilityValue,
   sanitizeSentryEvent
 } from './app/lib/monitoring/sentry-privacy'
-import { hasTransientCause } from './app/lib/monitoring/transient-error'
+import {
+  hasTransientCause,
+  isTransientUpstreamError
+} from './app/lib/monitoring/transient-error'
 
 const primaryDsn = process.env.SENTRY_DSN
 const backupDsn = process.env.GLITCHTIP_DSN
@@ -200,6 +203,11 @@ Sentry.init({
 
       // A transient failure behind a fail-closed wrapper is the same event.
       if (hasTransientCause(error)) {
+        return null // Don't send to Sentry
+      }
+
+      // Recoverable upstream failures (5xx, throttled 4xx, circuit trips).
+      if (isTransientUpstreamError(error)) {
         return null // Don't send to Sentry
       }
 

@@ -217,7 +217,11 @@ describe('/api/worker/hooks', () => {
       expect(routeCapture).not.toHaveBeenCalled()
       expect(middlewareCapture).toHaveBeenCalledOnce()
       expect(middlewareCapture.mock.calls[0][1]).toEqual({
-        tags: { operation: 'POST:api.worker.hooks', status_code: '500' }
+        tags: {
+          operation: 'POST:api.worker.hooks',
+          status_code: '500',
+          request_id: expect.stringMatching(/^req_/)
+        }
       })
     })
   })

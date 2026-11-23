@@ -113,7 +113,11 @@ export async function fetchTacticusApi(
         }
 
         if (!response.ok) {
-          throw new Error(`API returned ${response.status}`)
+          // Transient upstream status (5xx / 408 / 425 / 429): carry it so
+          // lifecycle classification treats it as transient without re-parsing.
+          throw Object.assign(new Error(`API returned ${response.status}`), {
+            statusCode: response.status
+          })
         }
 
         // Empty 2xx body becomes '{}' so callers' .json() cannot throw outside the wrapper.

@@ -1,7 +1,10 @@
 import { PostgrestClient } from '@supabase/postgrest-js'
 import { GoTrueClient } from '@supabase/auth-js'
 import { describe, expect, it, vi } from 'vitest'
-import { hasTransientCause } from '@/app/lib/monitoring/transient-error'
+import {
+  hasTransientCause,
+  isTransientUpstreamError
+} from '@/app/lib/monitoring/transient-error'
 
 const sentry = vi.hoisted(() => ({
   addIntegration: vi.fn(),
@@ -266,6 +269,49 @@ describe('hasTransientCause', () => {
   })
 })
 
+describe('isTransientUpstreamError', () => {
+  it('recognizes recoverable upstream statuses and circuit-breaker trips', () => {
+    expect(
+      isTransientUpstreamError(
+        Object.assign(new Error('API returned 500'), { statusCode: 500 })
+      )
+    ).toBe(true)
+    expect(isTransientUpstreamError(new Error('API returned 500'))).toBe(true)
+    expect(isTransientUpstreamError(new Error('API returned 503'))).toBe(true)
+    expect(isTransientUpstreamError(new Error('API returned 429'))).toBe(true)
+    expect(isTransientUpstreamError(new Error('API returned 408'))).toBe(true)
+    expect(
+      isTransientUpstreamError(
+        Object.assign(new Error('Bad Gateway'), { status: 502 })
+      )
+    ).toBe(true)
+    expect(
+      isTransientUpstreamError(
+        new Error('Circuit breaker is OPEN — too many recent failures')
+      )
+    ).toBe(true)
+  })
+
+  it('rejects permanent 4xx, non-transient text, and non-numeric statuses', () => {
+    expect(isTransientUpstreamError(new Error('API returned 400'))).toBe(false)
+    expect(isTransientUpstreamError(new Error('API returned 404'))).toBe(false)
+    expect(
+      isTransientUpstreamError(
+        Object.assign(new Error('Bad Gateway'), { statusCode: 409 })
+      )
+    ).toBe(false)
+    expect(
+      isTransientUpstreamError(
+        Object.assign(new Error('Bad Gateway'), { statusCode: '500' })
+      )
+    ).toBe(false)
+    expect(isTransientUpstreamError(new Error('duplicate key'))).toBe(false)
+    expect(isTransientUpstreamError(undefined)).toBe(false)
+    expect(isTransientUpstreamError(null)).toBe(false)
+    expect(isTransientUpstreamError('API returned 500')).toBe(false)
+  })
+})
+
 describe('beforeSend hooks across client, server, and edge configs', () => {
   it('retains security/permission/schema errors while dropping verified transport-backed account-access wrappers', async () => {
     const hooks = await loadBeforeSendHooks()
@@ -322,6 +368,34 @@ describe('beforeSend hooks across client, server, and edge configs', () => {
           `${hookName} should drop: ${err.message}`
         ).toBeNull()
       }
+    }
+  })
+
+  it('server beforeSend drops transient upstream failures without affecting client/edge', async () => {
+    const hooks = await loadBeforeSendHooks()
+    const upstreamErrors = [
+      Object.assign(new Error('API returned 500'), { statusCode: 500 }),
+      Object.assign(new Error('API returned 429'), { statusCode: 429 }),
+      new Error('Circuit breaker is OPEN — too many recent failures')
+    ]
+
+    for (const err of upstreamErrors) {
+      expect(
+        hooks.server(makeEvent(err), { originalException: err }),
+        `server should drop: ${err.message}`
+      ).toBeNull()
+    }
+
+    // Client and edge keep these (they only see browser/edge failures).
+    for (const err of upstreamErrors) {
+      expect(
+        hooks.client(makeEvent(err), { originalException: err }),
+        `client should retain: ${err.message}`
+      ).not.toBeNull()
+      expect(
+        hooks.edge(makeEvent(err), { originalException: err }),
+        `edge should retain: ${err.message}`
+      ).not.toBeNull()
     }
   })
 })
