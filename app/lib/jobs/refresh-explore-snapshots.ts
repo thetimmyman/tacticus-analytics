@@ -12,14 +12,23 @@ const refreshExploreSnapshotsHandler: JobHandler = async (_payload, ctx) => {
   const startTime = Date.now()
 
   try {
+    ctx.signal?.throwIfAborted()
     const db = createDirectClient()
 
-    const { data, error } = await db.rpc('manual_refresh_guild_snapshots')
+    const { data, error } = await db.rpc(
+      'manual_refresh_guild_snapshots',
+      {},
+      {
+        signal: ctx.signal
+      }
+    )
 
     if (error) {
-      throw new Error(
-        `Failed to refresh explore snapshots: ${getErrorMessage(error)}`
-      )
+      // Serialize the RPC failure cleanly and keep the raw error as the cause.
+      const message = `Failed to refresh explore snapshots: ${getErrorMessage(
+        error
+      )}`
+      throw new Error(message, { cause: error })
     }
 
     const durationMs = Date.now() - startTime

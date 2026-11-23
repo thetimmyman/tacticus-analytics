@@ -57,7 +57,8 @@ export function createDirectClient() {
 
     async rpc<T = unknown>(
       functionName: string,
-      args: Record<string, unknown> = {}
+      args: Record<string, unknown> = {},
+      options: { signal?: AbortSignal } = {}
     ): Promise<{ data: T | null; error: string | null }> {
       try {
         const resp = await fetch(
@@ -65,7 +66,8 @@ export function createDirectClient() {
           {
             method: 'POST',
             headers,
-            body: JSON.stringify(args)
+            body: JSON.stringify(args),
+            signal: options.signal
           }
         )
         if (!resp.ok) {

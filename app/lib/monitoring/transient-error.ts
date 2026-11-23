@@ -144,6 +144,37 @@ function isVerifiedPostgrestTransportObject(value: unknown): boolean {
   return hasTransportText(record.message) || hasTransportText(record.details)
 }
 
+/** Statuses that always mean a recoverable upstream failure, never a caller bug. */
+const TRANSIENT_UPSTREAM_HTTP_STATUSES = new Set([408, 425, 429])
+
+function isTransientUpstreamStatus(status: number): boolean {
+  return (
+    (status >= 500 && status <= 599) ||
+    TRANSIENT_UPSTREAM_HTTP_STATUSES.has(status)
+  )
+}
+
+/** True when an error is a recoverable upstream failure (5xx, throttled 4xx,
+ *  or a circuit-breaker trip) that must not pollute Sentry. */
+export function isTransientUpstreamError(error: unknown): boolean {
+  const record =
+    typeof error === 'object' && error !== null
+      ? (error as Record<string, unknown>)
+      : null
+  if (!record) return false
+
+  const status = record.statusCode ?? record.status
+  if (typeof status === 'number' && Number.isInteger(status)) {
+    if (isTransientUpstreamStatus(status)) return true
+  }
+
+  const message = typeof record.message === 'string' ? record.message : ''
+  if (/\bcircuit breaker is open\b/iu.test(message)) return true
+  const apiReturned = /API returned (\d{3})/.exec(message)
+  if (apiReturned) return isTransientUpstreamStatus(Number(apiReturned[1]))
+  return false
+}
+
 /** True only when an allowlisted fail-closed wrapper wraps a verified transport failure. */
 export function hasTransientCause(error: unknown): boolean {
   if (!isAllowedWrapperError(error)) {

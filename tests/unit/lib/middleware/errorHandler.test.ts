@@ -162,7 +162,8 @@ describe('errorHandler', () => {
         tags: {
           operation: 'GET:api.test',
           status_code: '500',
-          error_code: String(error.code)
+          error_code: String(error.code),
+          request_id: expect.stringMatching(/^req_/)
         }
       })
     })
@@ -196,7 +197,11 @@ describe('errorHandler', () => {
       expect(response.body.error.statusCode).toBe(500)
       expect(response.body.error.requestId).toBeDefined()
       expect(captureException).toHaveBeenCalledWith(error, {
-        tags: { operation: 'GET:api.test', status_code: '500' }
+        tags: {
+          operation: 'GET:api.test',
+          status_code: '500',
+          request_id: expect.stringMatching(/^req_/)
+        }
       })
     })
 
@@ -212,6 +217,27 @@ describe('errorHandler', () => {
       expect(response.body.error.metadata?.requiresNewKey).toBe(true)
       expect(response.body.error.code).toBeDefined()
       expect(response.body.error.requestId).toBeDefined()
+    })
+
+    it('masks the route and mints a fresh request id in 5xx capture tags', () => {
+      const victimUuid = '123e4567-e89b-42d3-a456-426614174000'
+      mockRequest = {
+        url: `http://localhost/api/players/${victimUuid}`,
+        method: 'POST'
+      } as unknown as NextRequest
+
+      handleError(Errors.internal('boom'), mockRequest)
+
+      const [captured, context] = captureException.mock.calls[0] as [
+        unknown,
+        { tags: Record<string, string> }
+      ]
+      expect(captured).toBeInstanceOf(AppError)
+      expect(context.tags.operation).toBe('POST:api.players._')
+      expect(context.tags.request_id).toMatch(/^req_/)
+      expect(JSON.stringify(captureException.mock.calls)).not.toContain(
+        victimUuid
+      )
     })
   })
 
@@ -236,7 +262,8 @@ describe('errorHandler', () => {
         tags: {
           operation: 'GET:api.wars.analytics.cores',
           status_code: '502',
-          error_code: expect.stringMatching(/^[0-9]+$/u)
+          error_code: expect.stringMatching(/^[0-9]+$/u),
+          request_id: expect.stringMatching(/^req_/)
         }
       })
     })

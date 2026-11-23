@@ -16,12 +16,13 @@ import {
 
 const logger = createComponentLogger('lib.sync.sync-job-lifecycle')
 
-const TRANSIENT_GATEWAY_HTTP_STATUSES = new Set([
-  ...TRANSIENT_NONCOUNTING_HTTP_STATUSES,
-  502,
-  503,
-  504
-])
+/** Recoverable upstream statuses: throttled/transient 4xx plus every 5xx. */
+function isTransientHttpStatus(status: number): boolean {
+  return (
+    (status >= 500 && status <= 599) ||
+    TRANSIENT_NONCOUNTING_HTTP_STATUSES.has(status)
+  )
+}
 
 const TRANSIENT_ERROR_CODES = new Set([
   '502',
@@ -46,7 +47,8 @@ const TRANSIENT_SYNC_MESSAGE_PATTERNS: readonly RegExp[] = [
   /\beconnreset\b/iu,
   /\bconnection reset\b/iu,
   /\betimedout\b/iu,
-  /\bsocket hang up\b/iu
+  /\bsocket hang up\b/iu,
+  /\bcircuit breaker is open\b/iu
 ]
 
 const NON_TRANSIENT_SYNC_DIAGNOSIS_PATTERN =
@@ -125,7 +127,7 @@ function classifyCauseNode(node: object): CauseNodeVerdict {
     if (
       typeof rawStatus !== 'number' ||
       !Number.isInteger(rawStatus) ||
-      !TRANSIENT_GATEWAY_HTTP_STATUSES.has(rawStatus)
+      !isTransientHttpStatus(rawStatus)
     ) {
       return 'actionable'
     }

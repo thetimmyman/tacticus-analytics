@@ -74,7 +74,8 @@ function sentryErrorTags(
   method: string | undefined,
   pathname: string,
   statusCode: number,
-  errorCode?: unknown
+  errorCode?: unknown,
+  requestId?: string
 ): Record<string, string> {
   const tags: Record<string, string> = {
     operation: sentryOperationTag(method, pathname),
@@ -86,6 +87,9 @@ function sentryErrorTags(
     tags.error_code = Number.isInteger(errorCode)
       ? String(errorCode)
       : 'invalid'
+  }
+  if (requestId !== undefined) {
+    tags.request_id = requestId
   }
   return tags
 }
@@ -145,7 +149,8 @@ export function handleError(
           req?.method,
           pathname,
           error.statusCode,
-          error.code
+          error.code,
+          reqId
         )
       })
     } else {
@@ -217,7 +222,7 @@ export function handleError(
     url: pathname
   })
   captureException(error, {
-    tags: sentryErrorTags(req?.method, pathname, 500)
+    tags: sentryErrorTags(req?.method, pathname, 500, undefined, reqId)
   })
 
   return createErrorResponse(
@@ -418,7 +423,8 @@ async function normalizeErrorResponse(
         req.method,
         pathname,
         appError.statusCode,
-        appError.code
+        appError.code,
+        requestId
       )
     })
   } else {

@@ -143,12 +143,11 @@ function readBoundedErrorString(
 }
 
 /**
- * True when Next.js's Server Action request decoder threw `SyntaxError` in `JSON.parse`
- * on a malformed client/scanner POST body and every frame on the stack is Next.js/Node runtime.
+ * True when Next.js's request decoder threw `SyntaxError` in `JSON.parse` on a
+ * malformed client/scanner payload (Server Action or RSC/flight) and every frame
+ * on the stack is Next.js/Node runtime — never application code.
  */
-export function isMalformedServerActionPayloadSyntaxError(
-  error: unknown
-): boolean {
+export function isMalformedRequestPayloadSyntaxError(error: unknown): boolean {
   const isSyntax =
     error instanceof SyntaxError ||
     readBoundedErrorString(error, 'name') === 'SyntaxError'
@@ -192,8 +191,8 @@ export const onRequestError: Instrumentation.onRequestError = (
     return
   }
   if (
-    context.routeType === 'action' &&
-    isMalformedServerActionPayloadSyntaxError(error)
+    FLIGHT_ROUTE_TYPES.has(context.routeType) &&
+    isMalformedRequestPayloadSyntaxError(error)
   ) {
     return
   }
