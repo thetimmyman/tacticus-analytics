@@ -23,6 +23,7 @@ export const guildThemes3: Record<string, GuildTheme> = {
     pattern: 'titans',
     // Red-text collapse on dark-red cardBg.
     semanticOverrides: {
+      textPrimary: '#ffa79f',
       textSecondary: '#ffcccc'
     }
   },
@@ -44,9 +45,10 @@ export const guildThemes3: Record<string, GuildTheme> = {
       secondary: '#4ade80',
       accent: '#fbbf24'
     },
-    // Amber-gold accent because dark gray is invisible on the dark green background.
+    // Amber-gold accent on dark green bg; textPrimary lightened for AA contrast.
     semanticOverrides: {
-      accent: '#fbbf24'
+      accent: '#fbbf24',
+      textPrimary: '#fcfffd'
     },
     heraldry: '💀',
     motto: 'Death is Temporary',
@@ -73,9 +75,10 @@ export const guildThemes3: Record<string, GuildTheme> = {
     heraldry: '🛸',
     motto: 'For the Greater Good',
     pattern: 'tech',
-    // Red accent + warm orange cardBg = hue clash, white reads cleanly.
+    // Red accent clashes with orange cardBg; textPrimary lightened for AA.
     semanticOverrides: {
-      accent: '#FFFFFF'
+      accent: '#FFFFFF',
+      textPrimary: '#ffe8d8'
     }
   },
 
@@ -98,7 +101,11 @@ export const guildThemes3: Record<string, GuildTheme> = {
     },
     heraldry: '🗡️',
     motto: 'Pain is Pleasure',
-    pattern: 'spikes'
+    pattern: 'spikes',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#c492ff'
+    }
   },
 
   GENESTEALER: {
@@ -120,7 +127,11 @@ export const guildThemes3: Record<string, GuildTheme> = {
     },
     heraldry: '🦄',
     motto: 'The Star Gods Call',
-    pattern: 'cult'
+    pattern: 'cult',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#ff9d78'
+    }
   },
 
   CRAFTWORLD_ULTHWE: {
@@ -168,7 +179,11 @@ export const guildThemes3: Record<string, GuildTheme> = {
     },
     heraldry: '🌿',
     motto: 'The Swordwind Comes',
-    pattern: 'leaf'
+    pattern: 'leaf',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#6bfc91'
+    }
   },
 
   CRAFTWORLD_SAIM_HANN: {
@@ -190,7 +205,11 @@ export const guildThemes3: Record<string, GuildTheme> = {
     },
     heraldry: '🏍️',
     motto: 'Wild Riders',
-    pattern: 'speed'
+    pattern: 'speed',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#ffa79f'
+    }
   },
 
   HARLEQUINS: {
@@ -212,7 +231,11 @@ export const guildThemes3: Record<string, GuildTheme> = {
     },
     heraldry: '🎭',
     motto: 'Dance of Death',
-    pattern: 'diamond'
+    pattern: 'diamond',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#fdecff'
+    }
   },
 
   VOTANN: {
@@ -257,8 +280,9 @@ export const guildThemes3: Record<string, GuildTheme> = {
     heraldry: '👹',
     motto: 'Embrace Chaos',
     pattern: 'chaos',
-    // Purple secondary on dark-red cardBg = chromatic clash.
+    // Brighter text tokens fix contrast on dark-red/purple surfaces.
     semanticOverrides: {
+      textPrimary: '#ff958c',
       textSecondary: '#ffcccc'
     }
   },
@@ -285,6 +309,7 @@ export const guildThemes3: Record<string, GuildTheme> = {
     pattern: 'skulls',
     // Red-text collapse on dark-red cardBg.
     semanticOverrides: {
+      textPrimary: '#ffc3bc',
       textSecondary: '#ffcccc'
     }
   },
@@ -308,7 +333,11 @@ export const guildThemes3: Record<string, GuildTheme> = {
     },
     heraldry: '🔮',
     motto: 'Change is the Only Constant',
-    pattern: 'mutation'
+    pattern: 'mutation',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#acd0ff'
+    }
   },
 
   NURGLE: {
@@ -331,9 +360,10 @@ export const guildThemes3: Record<string, GuildTheme> = {
     heraldry: '☠️',
     motto: "Grandfather's Gifts",
     pattern: 'decay',
-    // Brown accent invisible on green cardBg.
+    // Brown accent invisible on green cardBg; textPrimary lightened for AA.
     semanticOverrides: {
-      accent: '#FFFFFF'
+      accent: '#FFFFFF',
+      textPrimary: '#aef245'
     }
   },
 
@@ -356,7 +386,11 @@ export const guildThemes3: Record<string, GuildTheme> = {
     },
     heraldry: '🎭',
     motto: 'Perfection Through Excess',
-    pattern: 'excess'
+    pattern: 'excess',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#fdecff'
+    }
   },
 
   LEGION_DAMNED: {
@@ -379,8 +413,9 @@ export const guildThemes3: Record<string, GuildTheme> = {
     heraldry: '🔥',
     motto: 'In Dedicato Imperatum',
     pattern: 'flames',
-    // Orange-red secondary faded on near-black bg.
+    // Brighter text tokens clear WCAG AA on dark/orange-tinted surfaces.
     semanticOverrides: {
+      textPrimary: '#ff6c46',
       textSecondary: '#ffcccc'
     }
   },
@@ -433,6 +468,7 @@ export const guildThemes3: Record<string, GuildTheme> = {
     pattern: 'inquisition',
     // Red text fading on very-dark cardBg.
     semanticOverrides: {
+      textPrimary: '#ff4a5b',
       textSecondary: '#ffcccc'
     }
   },
@@ -456,7 +492,11 @@ export const guildThemes3: Record<string, GuildTheme> = {
     },
     heraldry: '⚙️',
     motto: 'Steel Within, Steel Without',
-    pattern: 'industrial'
+    pattern: 'industrial',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#7d8e9e'
+    }
   },
 
   VALHALLAN: {

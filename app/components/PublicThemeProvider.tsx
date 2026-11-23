@@ -35,21 +35,29 @@ export function PublicThemeProvider({
   // variables the pre-hydration script put on <html> (the stored theme, else
   // the :root dark defaults). A different fallback here would paint over them.
   const themeStyles = theme
-    ? ({
-        '--primary': theme.primary,
-        '--secondary': theme.secondary,
-        '--accent': theme.accent,
-        '--bg-from': theme.background.from,
-        '--bg-via': theme.background.via,
-        '--bg-to': theme.background.to,
-        '--card-bg': theme.cardBg,
-        '--card-border': theme.cardBorder,
-        '--text-primary': theme.text.primary,
-        '--text-secondary': theme.text.secondary,
-        '--text-accent': theme.text.accent,
-        // The wrapper re-declares the fills, so their label colours too.
-        ...getOnFillVariables(theme)
-      } as React.CSSProperties)
+    ? (() => {
+        const overrides = theme.semanticOverrides
+        const accent = overrides?.accent ?? theme.accent
+        return {
+          '--primary': theme.primary,
+          '--secondary': theme.secondary,
+          '--accent': accent,
+          '--bg-from': theme.background.from,
+          '--bg-via': theme.background.via,
+          '--bg-to': theme.background.to,
+          '--card-bg': theme.cardBg,
+          '--card-border': theme.cardBorder,
+          '--text-primary': overrides?.textPrimary ?? theme.text.primary,
+          '--text-secondary': overrides?.textSecondary ?? theme.text.secondary,
+          '--text-accent': overrides?.accent ?? theme.text.accent,
+          // The wrapper re-declares the fills, so their label colours too.
+          ...getOnFillVariables({
+            primary: theme.primary,
+            secondary: theme.secondary,
+            accent
+          })
+        } as React.CSSProperties
+      })()
     : undefined
 
   return (

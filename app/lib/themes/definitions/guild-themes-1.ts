@@ -71,6 +71,10 @@ export const guildThemes1: Record<string, GuildTheme> = {
       secondary: '#B0E0E6',
       accent: '#40E0D0'
     },
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#2edddf'
+    },
     heraldry: '🐍',
     motto: 'Hydra Dominatus',
     pattern: 'scales',
@@ -119,6 +123,10 @@ export const guildThemes1: Record<string, GuildTheme> = {
       secondary: '#B0C4DE',
       accent: '#20B2AA'
     },
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#93a4b5'
+    },
     heraldry: '🐍',
     motto: 'Hydra Eternal',
     pattern: 'hydra',
@@ -165,6 +173,10 @@ export const guildThemes1: Record<string, GuildTheme> = {
       primary: '#228B22',
       secondary: '#90EE90',
       accent: '#F5DEB3'
+    },
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#56b952'
     },
     heraldry: '⚔️',
     motto: 'Repent! For tomorrow you die!',
@@ -263,6 +275,10 @@ export const guildThemes1: Record<string, GuildTheme> = {
       secondary: '#BA55D3',
       accent: '#DDA0DD'
     },
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#9e7be7'
+    },
     heraldry: '🌙',
     motto: 'In Shadow We Trust',
     pattern: 'lodge',
@@ -309,6 +325,10 @@ export const guildThemes1: Record<string, GuildTheme> = {
       primary: '#4169E1',
       secondary: '#6495ED',
       accent: '#FFD700'
+    },
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#7ba1ff'
     },
     heraldry: '🔮',
     motto: 'All is Dust',
@@ -358,6 +378,10 @@ export const guildThemes1: Record<string, GuildTheme> = {
       secondary: '#93c5fd',
       accent: '#ffd700'
     },
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#70b0ff'
+    },
     heraldry: '⚔️',
     motto: 'Courage and Honour!',
     pattern: 'roman'
@@ -379,6 +403,10 @@ export const guildThemes1: Record<string, GuildTheme> = {
       primary: '#ef4444',
       secondary: '#f87171',
       accent: '#ffd700'
+    },
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#ffa79f'
     },
     heraldry: '🩸',
     motto: 'For Sanguinius!',
@@ -402,9 +430,10 @@ export const guildThemes1: Record<string, GuildTheme> = {
       secondary: '#fcd34d',
       accent: '#1f2937'
     },
-    // Accent is yellow-300 because dark gray is invisible on the brown background.
+    // Accent is yellow-300 on brown bg; textPrimary lightened for AA contrast.
     semanticOverrides: {
-      accent: '#fde047'
+      accent: '#fde047',
+      textPrimary: '#ffdb90'
     },
     heraldry: '🏰',
     motto: 'Fortify!',
@@ -450,6 +479,10 @@ export const guildThemes1: Record<string, GuildTheme> = {
       secondary: '#d1d5db',
       accent: '#fbbf24'
     },
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#b5bcc8'
+    },
     heraldry: '🐺',
     motto: 'For Russ and the Allfather!',
     pattern: 'wolves'
@@ -472,6 +505,10 @@ export const guildThemes1: Record<string, GuildTheme> = {
       secondary: '#4ade80',
       accent: '#f97316'
     },
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#6bfc91'
+    },
     heraldry: '🔥',
     motto: 'Into the fires of battle!',
     pattern: 'flames'
@@ -493,6 +530,10 @@ export const guildThemes1: Record<string, GuildTheme> = {
       primary: '#e879f9',
       secondary: '#f0abfc',
       accent: '#fbbf24'
+    },
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#fdecff'
     },
     heraldry: '🎭',
     motto: 'Children of the Emperor!',
