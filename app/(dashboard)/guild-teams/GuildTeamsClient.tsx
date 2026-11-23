@@ -666,7 +666,7 @@ export function GuildTeamsClient({
             onClick={() => fetchRosterData(selectedTeam, { silent: true })}
             disabled={loading || refreshing}
             title="Refresh roster data"
-            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-secondary-wh40k hover:text-white hover:bg-card/50 disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-secondary-wh40k enabled:hover:text-primary-wh40k enabled:hover:inset-ring-1 disabled:opacity-50"
           >
             <RefreshCw
               className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`}
@@ -677,7 +677,7 @@ export function GuildTeamsClient({
       </div>
 
       {/* Team tabs */}
-      <div className="flex gap-1 bg-card/50 p-1 rounded-lg flex-wrap">
+      <div className="flex gap-1 bg-(--card-bg) p-1 rounded-lg flex-wrap">
         {RAID_TEAMS.map((team) => (
           <button
             key={team.id}
@@ -685,7 +685,7 @@ export function GuildTeamsClient({
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               selectedTeamId === team.id
                 ? 'bg-indigo-600 text-white'
-                : 'text-secondary-wh40k hover:text-white hover:bg-card/50'
+                : 'text-secondary-wh40k hover:text-primary-wh40k hover:inset-ring-1'
             }`}
           >
             {team.name}
@@ -696,7 +696,7 @@ export function GuildTeamsClient({
           className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
             selectedTeamId === 'custom'
               ? 'bg-indigo-600 text-white'
-              : 'text-secondary-wh40k hover:text-white hover:bg-card/50'
+              : 'text-secondary-wh40k hover:text-primary-wh40k hover:inset-ring-1'
           }`}
         >
           Custom

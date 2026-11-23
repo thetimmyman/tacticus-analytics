@@ -72,7 +72,7 @@ export function GuildTeamsToolbar({
           className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
             sortField === 'name'
               ? 'bg-indigo-600 text-white'
-              : 'text-secondary-wh40k hover:text-white hover:bg-card/50'
+              : 'text-secondary-wh40k hover:text-primary-wh40k hover:inset-ring-1'
           }`}
         >
           Name
@@ -82,7 +82,7 @@ export function GuildTeamsToolbar({
           className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
             sortField === 'team_score'
               ? 'bg-indigo-600 text-white'
-              : 'text-secondary-wh40k hover:text-white hover:bg-card/50'
+              : 'text-secondary-wh40k hover:text-primary-wh40k hover:inset-ring-1'
           }`}
         >
           Team Score
@@ -96,7 +96,7 @@ export function GuildTeamsToolbar({
           onClick={() =>
             setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'))
           }
-          className="px-2 py-1 rounded-sm text-xs text-secondary-wh40k hover:text-white hover:bg-card/50 transition-colors"
+          className="px-2 py-1 rounded-sm text-xs text-secondary-wh40k hover:text-primary-wh40k hover:inset-ring-1 transition-colors"
           title={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
         >
           {sortDirection === 'asc' ? '\u2191' : '\u2193'}
@@ -113,7 +113,7 @@ export function GuildTeamsToolbar({
             className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors ${
               selectedHeroUnitIds !== null
                 ? 'bg-indigo-600 text-white'
-                : 'text-secondary-wh40k hover:text-white hover:bg-card/50'
+                : 'text-secondary-wh40k hover:text-primary-wh40k hover:inset-ring-1'
             }`}
           >
             Heroes
@@ -149,7 +149,7 @@ export function GuildTeamsToolbar({
                 if (tierHeroes.length === 0) return null
                 return (
                   <div key={tier}>
-                    <div className="px-2 py-1 text-[10px] text-secondary-wh40k uppercase tracking-wider bg-card/50">
+                    <div className="px-2 py-1 text-[10px] text-secondary-wh40k uppercase tracking-wider bg-(--card-bg)">
                       {TIER_LABELS[tier]}
                     </div>
                     {tierHeroes.map((hero) => {
@@ -161,7 +161,7 @@ export function GuildTeamsToolbar({
                         <button
                           key={hero.unitId}
                           onClick={() => handleHeroFilterToggle(hero.unitId)}
-                          className="flex items-center gap-2 w-full px-2 py-1.5 text-left hover:bg-card/50 transition-colors"
+                          className="flex items-center gap-2 w-full px-2 py-1.5 text-left hover:text-primary-wh40k hover:inset-ring-1 transition-colors"
                         >
                           <div
                             className={`w-4 h-4 rounded border flex items-center justify-center ${
