@@ -354,7 +354,7 @@ export default function BattleLog({
             <button
               key={t}
               onClick={() => setShowType(t)}
-              className={`px-3 py-2 rounded-lg transition-all text-sm sm:text-base ${active ? `${activeColors[t]} font-bold cursor-default` : 'bg-(--card-bg) text-secondary-wh40k hover:bg-(--card-bg)'}`}
+              className={`px-3 py-2 rounded-lg transition-all text-sm sm:text-base ${active ? `${activeColors[t]} font-bold cursor-default` : 'bg-(--card-bg) text-secondary-wh40k hover:inset-ring-1'}`}
             >
               {labels[t]}
             </button>

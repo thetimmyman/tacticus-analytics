@@ -180,7 +180,7 @@ export function SectionSubnav({
                     'inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors',
                     active
                       ? 'border-[color-mix(in_srgb,var(--accent)_70%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-(--accent)'
-                      : 'border-(--card-border) bg-(--card-bg) text-secondary-wh40k hover:border-(--card-border) hover:bg-(--card-bg) hover:text-primary-wh40k'
+                      : 'border-(--card-border) bg-(--card-bg) text-secondary-wh40k hover:border-(--card-border) hover:inset-ring-2 hover:text-primary-wh40k'
                   )}
                 >
                   <span>{section.label}</span>

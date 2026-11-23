@@ -55,7 +55,7 @@ export function BattleLogControls<T extends string>({
               key={option.value}
               type="button"
               onClick={() => onChange(option.value)}
-              className={`rounded-sm px-2 py-1 text-xs transition-all ${active ? `${option.activeClassName} font-medium` : 'bg-(--card-bg) text-secondary-wh40k hover:bg-(--bg-tertiary)'}`}
+              className={`rounded-sm px-2 py-1 text-xs transition-all ${active ? `${option.activeClassName} font-medium` : 'bg-(--card-bg) text-secondary-wh40k hover:inset-ring-1'}`}
             >
               {option.label}
             </button>

@@ -114,8 +114,9 @@ focus outline remains. `ButtonQuietHover.test.tsx` reads the compiled
 stylesheet and pins every rest, hover, disabled, focus and qualified-state
 declaration (including `sm:`, `enabled:`, `active:` and `!important`), so a
 hover fill, text colour, filter, opacity, outer ring or border change fails.
-Other controls that look like outline buttons (pagination, section tabs) still
-use their own hover and are not covered.
+Outline-like controls that are not Button (pagination, section tabs, pill
+toggles) use the same inner ring and are pinned by
+`outline-control-hover.test.ts`.
 
 ## Hover swaps are single-frame
 
