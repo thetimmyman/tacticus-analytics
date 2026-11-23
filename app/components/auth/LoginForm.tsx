@@ -22,7 +22,12 @@ import { FormField } from '@/app/components/ui/FormField'
 import { ValidationError } from '@/app/components/ui/ValidationError'
 import { useFeatureFlag } from '@/app/lib/utils/feature-flags'
 import { brandColors } from '@/app/lib/utils/brand-buttons'
-import { captureMessage, type SeverityLevel, withScope } from '@sentry/nextjs'
+import {
+  addBreadcrumb,
+  captureMessage,
+  type SeverityLevel,
+  withScope
+} from '@sentry/nextjs'
 import { withTimeout, TimeoutError } from '@/app/lib/utils/async-timeout'
 import { validateRedirectPath } from '@/app/lib/auth/redirect'
 
@@ -30,6 +35,28 @@ import { validateRedirectPath } from '@/app/lib/auth/redirect'
 const DEFAULT_LOGIN_TIMEOUT_MS = 20_000
 const TIMEOUT_MESSAGE =
   'Sign-in timed out. Check your connection and try again.'
+
+// Only allowlisted scalar fields ever reach Sentry, and an errorCode must be a
+// bare uppercase token so raw error text or query params cannot leak into tags.
+const SAFE_ERROR_CODE_RE = /^[A-Z0-9_]{1,64}$/u
+
+function buildSafeAuthContext(payload: Record<string, unknown>) {
+  return {
+    ...(typeof payload.errorCode === 'string' &&
+    SAFE_ERROR_CODE_RE.test(payload.errorCode)
+      ? { errorCode: payload.errorCode }
+      : {}),
+    ...(typeof payload.supabaseStatus === 'number'
+      ? { supabaseStatus: payload.supabaseStatus }
+      : {}),
+    ...(typeof payload.hasSession === 'boolean'
+      ? { hasSession: payload.hasSession }
+      : {}),
+    ...(typeof payload.hasUser === 'boolean'
+      ? { hasUser: payload.hasUser }
+      : {})
+  }
+}
 
 type OAuthProvider = 'discord' | 'google'
 
@@ -100,28 +127,33 @@ export default function LoginForm({
         scope.setLevel(level)
         scope.setTag('auth_event', event)
         scope.setTag('auth_flow', 'password')
-        if (payload.errorCode) {
-          scope.setTag('auth_error_code', String(payload.errorCode))
+        if (
+          typeof payload.errorCode === 'string' &&
+          SAFE_ERROR_CODE_RE.test(payload.errorCode)
+        ) {
+          scope.setTag('auth_error_code', payload.errorCode)
         }
-        const safeContext = {
-          ...(typeof payload.errorCode === 'string' &&
-          /^[A-Z0-9_]{1,64}$/u.test(payload.errorCode)
-            ? { errorCode: payload.errorCode }
-            : {}),
-          ...(typeof payload.supabaseStatus === 'number'
-            ? { supabaseStatus: payload.supabaseStatus }
-            : {}),
-          ...(typeof payload.hasSession === 'boolean'
-            ? { hasSession: payload.hasSession }
-            : {}),
-          ...(typeof payload.hasUser === 'boolean'
-            ? { hasUser: payload.hasUser }
-            : {})
-        }
+        const safeContext = buildSafeAuthContext(payload)
         if (Object.keys(safeContext).length > 0) {
           scope.setContext('auth', safeContext)
         }
         captureMessage(`auth_${event}`)
+      })
+    },
+    []
+  )
+
+  // Expected user errors (wrong password, unconfirmed email) stay local
+  // breadcrumbs: normal traffic, not alerts, so they never page anyone.
+  const recordAuthBreadcrumb = useCallback(
+    (event: string, payload: Record<string, unknown>) => {
+      if (!process.env.NEXT_PUBLIC_SENTRY_DSN) return
+
+      addBreadcrumb({
+        category: 'auth',
+        message: `auth_${event}`,
+        level: 'info',
+        data: buildSafeAuthContext(payload)
       })
     },
     []
@@ -138,7 +170,8 @@ export default function LoginForm({
       {
         error: errorParam,
         reason: reason ?? null,
-        redirectTo
+        redirectTo,
+        errorCode: 'REDIRECT_FAILED'
       },
       'warning'
     )
@@ -257,14 +290,19 @@ export default function LoginForm({
         const userError = formatErrorForUser(enhancedError)
         // ValidationError renders nothing for a falsy message, so never pass an empty one.
         setError(userError.displayMessage || errorMessage)
-        if (!isInvalidCreds) {
-          reportAuthTelemetry('login_failed', {
-            errorCode,
-            supabaseStatus: authError?.status ?? null,
-            hasSession: Boolean(data.session),
-            hasUser: Boolean(data.user),
-            redirectTo
-          })
+        const loginFailurePayload = {
+          errorCode,
+          supabaseStatus: authError?.status ?? null,
+          hasSession: Boolean(data.session),
+          hasUser: Boolean(data.user),
+          redirectTo
+        }
+        // A 5xx is a system failure worth a Sentry event; every other login
+        // failure here is an expected user error and only leaves a breadcrumb.
+        if (typeof authError?.status === 'number' && authError.status >= 500) {
+          reportAuthTelemetry('login_failed', loginFailurePayload, 'error')
+        } else {
+          recordAuthBreadcrumb('login_failed', loginFailurePayload)
         }
         return
       }

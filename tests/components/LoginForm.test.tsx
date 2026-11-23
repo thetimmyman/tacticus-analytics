@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import LoginForm from '@/app/components/auth/LoginForm'
 
@@ -6,6 +6,23 @@ const mockSignInWithPassword = vi.fn()
 const mockSignInWithOAuth = vi.fn()
 const mockFetch = vi.fn()
 const searchParams = vi.hoisted(() => ({ current: new URLSearchParams() }))
+
+const sentry = vi.hoisted(() => {
+  const scope = {
+    setLevel: vi.fn(),
+    setTag: vi.fn(),
+    setContext: vi.fn()
+  }
+  return {
+    scope,
+    captureMessage: vi.fn(),
+    addBreadcrumb: vi.fn(),
+    withScope: (callback: (mockScope: typeof scope) => void) => callback(scope)
+  }
+})
+
+vi.mock('@sentry/nextjs', () => sentry)
+
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
   useSearchParams: () => searchParams.current,
@@ -102,6 +119,11 @@ vi.mock('@/app/lib/utils/brand-buttons', () => ({
 describe('LoginForm', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    searchParams.current = new URLSearchParams()
+    vi.stubEnv(
+      'NEXT_PUBLIC_SENTRY_DSN',
+      'https://public-key@test.ingest.sentry.io/1'
+    )
     mockSignInWithPassword.mockResolvedValue({
       data: {
         user: { id: 'user-123' },
@@ -118,6 +140,10 @@ describe('LoginForm', () => {
     vi.stubGlobal('fetch', mockFetch)
     delete (window as any).location
     window.location = { href: '' } as any
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
   })
 
   it('renders login form with all fields', () => {
@@ -430,6 +456,149 @@ describe('LoginForm', () => {
       } finally {
         vi.useRealTimers()
       }
+    })
+  })
+
+  describe('auth Sentry telemetry', () => {
+    const fillAndSubmit = () => {
+      fireEvent.change(screen.getByLabelText(/email address/i), {
+        target: { value: 'test@example.com' }
+      })
+      fireEvent.change(screen.getByLabelText(/password/i), {
+        target: { value: 'wrongpassword' }
+      })
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }))
+    }
+
+    it('records an invalid-credential failure as a breadcrumb without captureMessage', async () => {
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 401,
+        json: () =>
+          Promise.resolve({ error: { message: 'Invalid login credentials' } })
+      })
+
+      render(<LoginForm />)
+      fillAndSubmit()
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/invalid email or password/i)
+        ).toBeInTheDocument()
+      })
+      expect(sentry.captureMessage).not.toHaveBeenCalled()
+      expect(sentry.addBreadcrumb).toHaveBeenCalledTimes(1)
+      expect(sentry.addBreadcrumb.mock.calls[0][0]).toEqual({
+        category: 'auth',
+        message: 'auth_login_failed',
+        level: 'info',
+        data: {
+          errorCode: 'LOGIN_INVALID_CREDENTIALS',
+          supabaseStatus: 401,
+          hasSession: false,
+          hasUser: false
+        }
+      })
+    })
+
+    it('reports an unexpected login exception with safe tags and no PII', async () => {
+      mockFetch.mockRejectedValue(new TypeError('Failed to fetch'))
+
+      render(<LoginForm />)
+      fillAndSubmit()
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/unexpected error occurred during login/i)
+        ).toBeInTheDocument()
+      })
+      expect(sentry.captureMessage).toHaveBeenCalledWith('auth_login_exception')
+      expect(sentry.addBreadcrumb).not.toHaveBeenCalled()
+      expect(sentry.scope.setLevel).toHaveBeenCalledWith('error')
+      expect(sentry.scope.setTag).toHaveBeenCalledWith(
+        'auth_event',
+        'login_exception'
+      )
+      expect(sentry.scope.setTag).toHaveBeenCalledWith(
+        'auth_error_code',
+        'AUTH_FAILED'
+      )
+      expect(sentry.scope.setContext).toHaveBeenCalledWith('auth', {
+        errorCode: 'AUTH_FAILED'
+      })
+    })
+
+    it('reports a 5xx login failure as a Sentry event with a safe tag', async () => {
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 503,
+        json: () =>
+          Promise.resolve({ error: { message: 'Service unavailable' } })
+      })
+
+      render(<LoginForm />)
+      fillAndSubmit()
+
+      await waitFor(() => {
+        expect(screen.getByText(/service unavailable/i)).toBeInTheDocument()
+      })
+      expect(sentry.captureMessage).toHaveBeenCalledWith('auth_login_failed')
+      expect(sentry.addBreadcrumb).not.toHaveBeenCalled()
+      expect(sentry.scope.setLevel).toHaveBeenCalledWith('error')
+      expect(sentry.scope.setTag).toHaveBeenCalledWith(
+        'auth_error_code',
+        'AUTH_FAILED'
+      )
+    })
+
+    it('attaches a safe errorCode tag to login_redirect_error', async () => {
+      searchParams.current = new URLSearchParams({
+        error: 'server_error',
+        reason: 'oauth'
+      })
+
+      render(<LoginForm />)
+
+      await waitFor(() => {
+        expect(sentry.captureMessage).toHaveBeenCalledWith(
+          'auth_login_redirect_error'
+        )
+      })
+      expect(sentry.scope.setLevel).toHaveBeenCalledWith('warning')
+      expect(sentry.scope.setTag).toHaveBeenCalledWith(
+        'auth_event',
+        'login_redirect_error'
+      )
+      expect(sentry.scope.setTag).toHaveBeenCalledWith(
+        'auth_error_code',
+        'REDIRECT_FAILED'
+      )
+      expect(sentry.scope.setContext).toHaveBeenCalledWith('auth', {
+        errorCode: 'REDIRECT_FAILED'
+      })
+    })
+
+    it('never sends credentials, emails, or raw query params to Sentry', async () => {
+      searchParams.current = new URLSearchParams({
+        error: 'server_error&email=test@example.com'
+      })
+      mockFetch.mockRejectedValue(new TypeError('Failed to fetch'))
+
+      render(<LoginForm />)
+      fillAndSubmit()
+
+      await waitFor(() => {
+        expect(sentry.captureMessage).toHaveBeenCalled()
+      })
+      const sentryCalls = JSON.stringify({
+        messages: sentry.captureMessage.mock.calls,
+        breadcrumbs: sentry.addBreadcrumb.mock.calls,
+        tags: sentry.scope.setTag.mock.calls,
+        contexts: sentry.scope.setContext.mock.calls
+      })
+      expect(sentryCalls).not.toContain('test@example.com')
+      expect(sentryCalls).not.toContain('wrongpassword')
+      expect(sentryCalls).not.toContain('server_error')
     })
   })
 })
