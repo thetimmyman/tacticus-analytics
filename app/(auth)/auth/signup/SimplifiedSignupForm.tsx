@@ -175,7 +175,11 @@ export default function SimplifiedSignupForm() {
 
       {requiresEmailConfirm && (
         <div className="space-y-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
-          <div className="flex items-start gap-2">
+          <div
+            role="status"
+            aria-live="polite"
+            className="flex items-start gap-2"
+          >
             <CheckCircle2 className="h-5 w-5 shrink-0" />
             <span>
               Check your inbox for a confirmation email. Once verified, sign in

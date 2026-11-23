@@ -247,6 +247,12 @@ describe('SimplifiedSignupForm', () => {
       screen.getByText(/check your inbox for a confirmation email/i)
     ).toBeInTheDocument()
 
+    const status = screen.getByRole('status')
+    expect(status).toHaveTextContent(
+      /check your inbox for a confirmation email/i
+    )
+    expect(status).toHaveAttribute('aria-live', 'polite')
+
     await act(async () => {
       await vi.advanceTimersByTimeAsync(6000)
     })

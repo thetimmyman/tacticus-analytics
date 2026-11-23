@@ -319,7 +319,7 @@ export default function OAuthAccountLink({
               {meta.label} Account
             </h3>
             {linked ? (
-              <div className="space-y-1">
+              <div role="status" aria-live="polite" className="space-y-1">
                 <p className="text-xs text-secondary-wh40k">
                   Connected
                   {connectedName ? (
@@ -342,7 +342,7 @@ export default function OAuthAccountLink({
                 </div>
               </div>
             ) : (
-              <div className="space-y-1">
+              <div role="status" aria-live="polite" className="space-y-1">
                 <p className="text-xs text-secondary-wh40k">
                   {meta.description}
                 </p>
@@ -391,7 +391,11 @@ export default function OAuthAccountLink({
       </div>
 
       {showConfirmation && (
-        <div className="p-4 bg-amber-900/20 border border-amber-500/50 rounded-lg">
+        <div
+          role="status"
+          aria-live="polite"
+          className="p-4 bg-amber-900/20 border border-amber-500/50 rounded-lg"
+        >
           <p className="text-amber-200 text-sm font-medium mb-2">
             Confirm {meta.label} Account
           </p>
