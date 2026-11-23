@@ -48,6 +48,14 @@
   textarea::placeholder {
     color: var(--color-gray-400);
   }
+
+  /* Reset inherited light-mode body color on dark islands while letting
+     Tailwind text-* utilities in @layer utilities win on the element itself. */
+  :root[data-theme='light'] .scheme-dark,
+  [data-theme='light'] .scheme-dark,
+  .light-theme .scheme-dark {
+    color: var(--text-primary);
+  }
 }
 
 @utility scrollbar-hide {
@@ -731,6 +739,88 @@
 
     /* Native controls, scrollbars and light-dark() follow the page. */
     color-scheme: light;
+  }
+
+  /* Dark-surface islands inside Light Mode: reset theme tokens to dark defaults
+     so text, accents, cards, and inputs keep >= 4.5:1 contrast on dark panels
+     while leaving Dark Mode and all guild themes untouched. */
+  :root[data-theme='light'] .scheme-dark,
+  [data-theme='light'] .scheme-dark,
+  .light-theme .scheme-dark {
+    --primary: #60a5fa;
+    --secondary: #3b82f6;
+    --accent: #93c5fd;
+    --primary-wh40k: #60a5fa;
+    --secondary-wh40k: #3b82f6;
+    --accent-wh40k: #93c5fd;
+    --accent-primary: #93c5fd;
+    --accent-hover: #bfdbfe;
+    --accent-rgb: 147, 197, 253;
+    --accent-opacity-20: rgba(96, 165, 250, 0.2);
+    --accent-foreground: #000000;
+    --accent-fill-hover: #769eca;
+    --on-primary: #000000;
+    --on-secondary: #000000;
+    --on-accent: #000000;
+    --cta-from: #60a5fa;
+    --cta-to: #93c5fd;
+    --on-cta: #000000;
+
+    --text-primary: #f3f4f6;
+    --text-secondary: #d1d5db;
+    --text-muted: #9ca3af;
+    --text-tertiary: #9ca3af;
+    --text-accent: #60a5fa;
+    --text-high-contrast: rgba(255, 255, 255, 0.95);
+    --text-on-bg: rgba(255, 255, 255, 0.95);
+    --text-on-primary: rgba(0, 0, 0, 0.87);
+    --text-on-secondary: rgba(0, 0, 0, 0.87);
+    --text-on-accent: rgba(0, 0, 0, 0.87);
+    --btn-text-primary: rgba(0, 0, 0, 0.87);
+    --btn-text-secondary: rgba(0, 0, 0, 0.87);
+
+    --bg-primary: #0f172a;
+    --bg-secondary: rgba(30, 41, 59, 0.55);
+    --bg-tertiary: rgba(0, 0, 0, 0.2);
+    --background: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.8);
+    --card: rgba(30, 41, 59, 0.8);
+    --card-bg-rgb: 30 41 59;
+    --card-border: rgba(71, 85, 105, 0.5);
+    --card-border-rgb: 71 85 105;
+    --border: rgba(71, 85, 105, 0.5);
+    --border-color: rgba(71, 85, 105, 0.5);
+    --border-primary: rgba(71, 85, 105, 0.5);
+    --light: rgba(71, 85, 105, 0.5);
+    --surface: rgba(30, 41, 59, 0.8);
+    --surface-raised: rgba(51, 65, 85, 0.9);
+    --card-hover: rgba(51, 65, 85, 0.75);
+    --card-bg-hover: rgba(51, 65, 85, 0.85);
+    --card-hover-rgb: 51, 65, 85;
+    --card-border-hover: #93c5fd;
+    --card-header: rgba(30, 41, 59, 0.8);
+    --hover-bg: rgba(96, 165, 250, 0.1);
+    --dropdown-bg: rgba(15, 23, 42, 0.95);
+    --dropdown-bg-solid: #0f172a;
+
+    --input-bg: rgba(30, 41, 59, 0.9);
+    --input-text: #f3f4f6;
+    --input-border: rgba(71, 85, 105, 0.6);
+    --select-arrow: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2393c5fd' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+
+    --warning: #fbbf24;
+    --warning-text: #fde68a;
+    --on-warning: #000000;
+    --warning-fill-hover: #c9991d;
+    --success: #4ade80;
+    --danger: #ff6b6b;
+    --error: #ff6b6b;
+    --on-danger: #000000;
+    --danger-fill-hover: #ff8989;
+    --info: #0ea5e9;
+
+    --chart-text: #d1d5db;
+    --chart-axis: #9ca3af;
   }
 
   /* Status and accent hues are tuned for dark surfaces: the 200-400 tiers
