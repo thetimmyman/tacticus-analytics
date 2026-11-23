@@ -565,7 +565,7 @@ export function PersonalPotentialContent({
             <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center mb-2">
               <Key className="w-5 h-5 text-amber-400" />
             </div>
-            <h3 className="text-sm font-semibold text-white mb-1">
+            <h3 className="text-sm font-semibold text-primary-wh40k mb-1">
               Connect Your Roster
             </h3>
             <p className="text-xs text-secondary-wh40k max-w-sm mb-3">

@@ -43,6 +43,8 @@ const { default: VerifyEmailPage } =
   await import('@/app/(auth)/auth/verify-email/ClientPage')
 const { default: ResetPasswordPage } =
   await import('@/app/(auth)/auth/reset-password/ClientPage')
+const { default: ConfirmEmailPage } =
+  await import('@/app/(auth)/auth/confirm-email/page')
 
 // The sign-in form's "Remember me" tooltip needs the provider the auth layout supplies.
 function renderLogin() {
@@ -173,6 +175,15 @@ describe('auth screens expose one h1 and a gap-free heading outline', () => {
       })
     ).toBeInTheDocument()
     expectSingleTitleAndNoSkippedLevels(failed.container)
+  })
+
+  it('confirm email: names the page with an h1', () => {
+    const { container } = render(<ConfirmEmailPage />)
+
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Check Your Email' })
+    ).toBeInTheDocument()
+    expectSingleTitleAndNoSkippedLevels(container)
   })
 
   it('reset password: form and success', async () => {
