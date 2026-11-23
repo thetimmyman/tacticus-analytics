@@ -15,9 +15,9 @@ export default function ConfirmEmailPage() {
       <div className="max-w-md w-full mx-auto p-6">
         <div className="scheme-dark bg-black/60 backdrop-blur-xs rounded-lg border border-amber-500/30 p-8 text-center">
           <div className="text-6xl mb-4">📧</div>
-          <h2 className="text-2xl font-bold text-yellow-400 mb-4">
+          <h1 className="text-2xl font-bold text-yellow-400 mb-4">
             Check Your Email
-          </h2>
+          </h1>
           <p className="text-amber-100/80 mb-6">
             We&apos;ve sent a confirmation email to verify your account.
           </p>

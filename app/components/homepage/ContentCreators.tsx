@@ -115,7 +115,7 @@ function ResourceGrid({ entries }: { entries: ResourceEntry[] }) {
             <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden bg-linear-to-br from-red-500 to-red-700 border border-red-500/30">
               <Film className="h-7 w-7 text-white" />
             </div>
-            <h3 className="text-lg font-semibold text-red-400 mb-2 tracking-wide">
+            <h3 className="text-lg font-semibold text-primary-wh40k mb-2 tracking-wide">
               {entry.name}
             </h3>
             <p className="text-sm text-secondary-wh40k mb-4">

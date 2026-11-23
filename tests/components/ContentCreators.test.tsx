@@ -152,6 +152,19 @@ describe('resource link buttons: a label chosen for its own fill', () => {
     }
   })
 
+  it('creator names use a theme-aware token, never a fixed red that fails Light Mode', () => {
+    const { container } = render(<ContentCreators />)
+    const names = [...container.querySelectorAll('h3')].filter((h) =>
+      tokensOf(h.getAttribute('class') ?? '').includes('text-lg')
+    )
+    expect(names.length).toBeGreaterThan(10)
+    for (const name of names) {
+      const tokens = tokensOf(name.getAttribute('class') ?? '')
+      expect(tokens, name.textContent ?? '').not.toContain('text-red-400')
+      expect(tokens).toContain('text-primary-wh40k')
+    }
+  })
+
   it('the film glyph on the red avatar is opaque white and reads on both avatar colours', () => {
     const { container } = render(<ContentCreators />)
     const glyph = container.querySelector('svg.h-7.w-7')
