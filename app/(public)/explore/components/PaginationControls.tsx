@@ -56,7 +56,7 @@ export function PaginationControls({
           className={`min-h-11 lg:min-h-0 px-3 py-1 rounded border ${
             currentPage === 1
               ? 'border-(--card-border) text-(--text-tertiary) cursor-not-allowed'
-              : 'border-(--card-border) text-primary-wh40k hover:bg-(--card-bg)'
+              : 'border-(--card-border) text-primary-wh40k hover:inset-ring-2'
           }`}
         >
           Previous
@@ -75,7 +75,7 @@ export function PaginationControls({
                 type="button"
                 aria-label="Page 1"
                 onClick={() => onPageChange(1)}
-                className="px-3 py-1 rounded-sm border border-(--card-border) text-primary-wh40k hover:bg-(--card-bg)"
+                className="px-3 py-1 rounded-sm border border-(--card-border) text-primary-wh40k hover:inset-ring-2"
               >
                 1
               </button>
@@ -103,7 +103,7 @@ export function PaginationControls({
                 className={`px-3 py-1 rounded border ${
                   page === currentPage
                     ? 'border-primary-wh40k bg-primary-wh40k text-on-primary-wh40k'
-                    : 'border-(--card-border) text-primary-wh40k hover:bg-(--card-bg)'
+                    : 'border-(--card-border) text-primary-wh40k hover:inset-ring-2'
                 }`}
               >
                 {page}
@@ -122,7 +122,7 @@ export function PaginationControls({
                 type="button"
                 aria-label={`Page ${totalPages}`}
                 onClick={() => onPageChange(totalPages)}
-                className="px-3 py-1 rounded-sm border border-(--card-border) text-primary-wh40k hover:bg-(--card-bg)"
+                className="px-3 py-1 rounded-sm border border-(--card-border) text-primary-wh40k hover:inset-ring-2"
               >
                 {totalPages}
               </button>
@@ -138,7 +138,7 @@ export function PaginationControls({
           className={`min-h-11 lg:min-h-0 px-3 py-1 rounded border ${
             currentPage === totalPages
               ? 'border-(--card-border) text-(--text-tertiary) cursor-not-allowed'
-              : 'border-(--card-border) text-primary-wh40k hover:bg-(--card-bg)'
+              : 'border-(--card-border) text-primary-wh40k hover:inset-ring-2'
           }`}
         >
           Next

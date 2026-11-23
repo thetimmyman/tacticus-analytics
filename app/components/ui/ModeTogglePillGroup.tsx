@@ -125,7 +125,9 @@ export function ModeTogglePillGroup<T extends string>({
                 ? accentClassMap[optAccent]
                 : clsx(
                     'border-transparent text-secondary-wh40k hover:text-primary-wh40k',
-                    appearance === 'plain' && 'hover:bg-(--card-bg)'
+                    appearance === 'plain'
+                      ? 'enabled:hover:inset-ring-1'
+                      : 'enabled:hover:inset-ring-2'
                   ),
               (disabled || opt.disabled) && 'opacity-40 cursor-not-allowed'
             )}

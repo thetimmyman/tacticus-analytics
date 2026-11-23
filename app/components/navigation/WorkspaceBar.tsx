@@ -110,7 +110,7 @@ export function WorkspaceBar({
                       'inline-flex items-center gap-2 rounded-md border px-3 py-1.5 font-mono text-xs font-semibold uppercase tracking-[0.16em] transition-colors',
                       isActive
                         ? 'border-[color-mix(in_srgb,var(--accent)_70%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-(--accent)'
-                        : 'border-transparent text-secondary-wh40k hover:border-(--card-border) hover:bg-(--card-bg) hover:text-primary-wh40k'
+                        : 'border-transparent text-secondary-wh40k hover:border-(--card-border) hover:inset-ring-2 hover:text-primary-wh40k'
                     )}
                   >
                     <span>{ws.label}</span>

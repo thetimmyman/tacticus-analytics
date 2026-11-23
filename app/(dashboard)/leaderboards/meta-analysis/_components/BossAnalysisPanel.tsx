@@ -227,7 +227,7 @@ export function BossAnalysisPanel({
               className={`px-3 py-1 text-xs rounded transition-colors ${
                 showBossComparison
                   ? 'bg-accent-wh40k hover:bg-[color-mix(in_srgb,var(--accent)_90%,transparent)] text-on-accent-wh40k'
-                  : 'bg-(--card-bg) hover:bg-(--card-bg) text-primary-wh40k'
+                  : 'bg-(--card-bg) text-primary-wh40k hover:inset-ring-1'
               }`}
             >
               {showBossComparison
@@ -437,7 +437,7 @@ export function BossAnalysisPanel({
               <button
                 onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 bg-(--card-bg) hover:bg-(--card-bg) disabled:opacity-50 disabled:cursor-not-allowed text-sm rounded-sm"
+                className="px-3 py-1 bg-(--card-bg) enabled:hover:inset-ring-1 disabled:opacity-50 disabled:cursor-not-allowed text-sm rounded-sm"
               >
                 Previous
               </button>
@@ -451,7 +451,7 @@ export function BossAnalysisPanel({
                   handlePageChange(Math.min(totalPages, currentPage + 1))
                 }
                 disabled={currentPage === totalPages}
-                className="px-3 py-1 bg-(--card-bg) hover:bg-(--card-bg) disabled:opacity-50 disabled:cursor-not-allowed text-sm rounded-sm"
+                className="px-3 py-1 bg-(--card-bg) enabled:hover:inset-ring-1 disabled:opacity-50 disabled:cursor-not-allowed text-sm rounded-sm"
               >
                 Next
               </button>

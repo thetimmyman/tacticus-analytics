@@ -197,7 +197,7 @@ export function GlobalThresholdsManager() {
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     selectedRarity === rarity
                       ? `${getRarityColor(rarity)} bg-(--card-bg) border border-current`
-                      : 'text-secondary-wh40k hover:text-primary-wh40k hover:bg-(--card-bg)'
+                      : 'text-secondary-wh40k hover:text-primary-wh40k hover:inset-ring-1'
                   }`}
                 >
                   {rarity}

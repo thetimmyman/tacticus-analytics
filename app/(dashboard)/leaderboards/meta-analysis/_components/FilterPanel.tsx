@@ -125,7 +125,7 @@ export function FilterPanel({
               {selectedMetaTeams.size > 0 && (
                 <button
                   onClick={() => setSelectedMetaTeams(new Set())}
-                  className="px-3 py-1 text-xs rounded-lg bg-(--card-bg) text-secondary-wh40k border border-(--card-border) hover:bg-(--card-bg)"
+                  className="px-3 py-1 text-xs rounded-lg bg-(--card-bg) text-secondary-wh40k border border-(--card-border) hover:inset-ring-2"
                 >
                   Clear All
                 </button>
