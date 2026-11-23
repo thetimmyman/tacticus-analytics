@@ -68,4 +68,19 @@ describe('PublicThemeProvider', () => {
     expect(wrapper.style.getPropertyValue('--cta-to')).not.toBe('')
     expect(wrapper.style.getPropertyValue('--on-cta')).toBe('#ffffff')
   })
+
+  it('applies semanticOverrides textPrimary on the wrapper so public pages stay WCAG AA', async () => {
+    window.localStorage.setItem('theme-override', JSON.stringify('KHORNE'))
+    const { container } = render(
+      <PublicThemeProvider>
+        <p>content</p>
+      </PublicThemeProvider>
+    )
+
+    const wrapper = container.firstElementChild as HTMLElement
+    await waitFor(() => {
+      expect(wrapper.style.getPropertyValue('--text-primary')).toBe('#ffc3bc')
+    })
+    expect(wrapper.style.getPropertyValue('--text-secondary')).toBe('#ffcccc')
+  })
 })

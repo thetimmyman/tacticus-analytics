@@ -23,6 +23,7 @@ export const guildThemes2: Record<string, GuildTheme> = {
     pattern: 'skulls',
     // Red-text collapse on dark-red cardBg.
     semanticOverrides: {
+      textPrimary: '#ffc3bc',
       textSecondary: '#ffcccc'
     }
   },
@@ -46,7 +47,11 @@ export const guildThemes2: Record<string, GuildTheme> = {
     },
     heraldry: '☠️',
     motto: "Papa Nurgle's Gift",
-    pattern: 'plague'
+    pattern: 'plague',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#aef245'
+    }
   },
 
   NL: {
@@ -68,7 +73,11 @@ export const guildThemes2: Record<string, GuildTheme> = {
     },
     heraldry: '🦇',
     motto: 'Ave Dominus Nox',
-    pattern: 'lightning'
+    pattern: 'lightning',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#478dff'
+    }
   },
 
   WB: {
@@ -90,7 +99,11 @@ export const guildThemes2: Record<string, GuildTheme> = {
     },
     heraldry: '📜',
     motto: 'The Emperor was False',
-    pattern: 'scripture'
+    pattern: 'scripture',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#ffa79f'
+    }
   },
 
   IH_LOYALIST: {
@@ -138,7 +151,11 @@ export const guildThemes2: Record<string, GuildTheme> = {
     },
     heraldry: '✊',
     motto: 'No Pity! No Remorse! No Fear!',
-    pattern: 'fists'
+    pattern: 'fists',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#80b1ff'
+    }
   },
 
   BT: {
@@ -257,7 +274,11 @@ export const guildThemes2: Record<string, GuildTheme> = {
     },
     heraldry: '💚',
     motto: 'WAAAGH!',
-    pattern: 'crude'
+    pattern: 'crude',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#6bfc91'
+    }
   },
 
   ELDAR: {
@@ -279,7 +300,11 @@ export const guildThemes2: Record<string, GuildTheme> = {
     },
     heraldry: '🔮',
     motto: 'For Isha and Khaine',
-    pattern: 'runes'
+    pattern: 'runes',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#acd0ff'
+    }
   },
 
   TYRANIDS: {
@@ -301,7 +326,11 @@ export const guildThemes2: Record<string, GuildTheme> = {
     },
     heraldry: '🦠',
     motto: 'The Great Devourer',
-    pattern: 'organic'
+    pattern: 'organic',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#fb6726'
+    }
   },
 
   CADIA: {
@@ -323,7 +352,11 @@ export const guildThemes2: Record<string, GuildTheme> = {
     },
     heraldry: '🎖️',
     motto: 'Cadia Stands!',
-    pattern: 'military'
+    pattern: 'military',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#fb6726'
+    }
   },
 
   CATACHAN: {
@@ -346,9 +379,10 @@ export const guildThemes2: Record<string, GuildTheme> = {
     heraldry: '🌿',
     motto: 'Born to Fight',
     pattern: 'jungle',
-    // Brown accent invisible on green cardBg.
+    // Brown accent invisible on green cardBg; textPrimary lightened for AA.
     semanticOverrides: {
-      accent: '#FFFFFF'
+      accent: '#FFFFFF',
+      textPrimary: '#6bfc91'
     }
   },
 
@@ -372,8 +406,9 @@ export const guildThemes2: Record<string, GuildTheme> = {
     heraldry: '⚙️',
     motto: 'Praise the Omnissiah',
     pattern: 'binary',
-    // Brighter textSecondary breaks red-on-red collapse on the dark-red cardBg.
+    // Brighter text tokens break red-on-red collapse on dark-red surfaces.
     semanticOverrides: {
+      textPrimary: '#ffa79f',
       textSecondary: '#ffcccc'
     }
   },
@@ -451,7 +486,11 @@ export const guildThemes2: Record<string, GuildTheme> = {
     },
     heraldry: '👑',
     motto: 'Only in Death',
-    pattern: 'aquila'
+    pattern: 'aquila',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#fff1d6'
+    }
   },
 
   NAVY: {
@@ -473,7 +512,11 @@ export const guildThemes2: Record<string, GuildTheme> = {
     },
     heraldry: '⚓',
     motto: 'Rule the Void',
-    pattern: 'nautical'
+    pattern: 'nautical',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#80b1ff'
+    }
   },
 
   KNIGHTS: {
@@ -495,6 +538,10 @@ export const guildThemes2: Record<string, GuildTheme> = {
     },
     heraldry: '🏰',
     motto: 'Honor Above All',
-    pattern: 'heraldic'
+    pattern: 'heraldic',
+    // Lightened in OKLCH to clear WCAG AA (>= 4.5:1) on page/card surfaces.
+    semanticOverrides: {
+      textPrimary: '#acb4c0'
+    }
   }
 }
