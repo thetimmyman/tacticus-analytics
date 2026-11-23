@@ -110,6 +110,50 @@ describe('OAuthAccountLink Discord unlink', () => {
     expect(unlinkIdentity).not.toHaveBeenCalled()
   })
 
+  it('announces the linked status and confirmation panel politely', async () => {
+    const client = mocks.dbClient()
+    client.auth.getUser.mockResolvedValue({
+      data: { user: { id: 'user-1', identities: [] } }
+    })
+
+    render(
+      <OAuthAccountLink
+        provider="discord"
+        isLinked={false}
+        displayName={null}
+      />
+    )
+
+    const status = await screen.findByRole('status')
+    expect(status).toHaveTextContent(/not linked/i)
+    expect(status).toHaveAttribute('aria-live', 'polite')
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: /link discord/i })
+    )
+
+    const statuses = await screen.findAllByRole('status')
+    expect(
+      statuses.some((element) =>
+        /confirm discord account/i.test(element.textContent ?? '')
+      )
+    ).toBe(true)
+  })
+
+  it('announces the already-linked status politely', async () => {
+    render(
+      <OAuthAccountLink
+        provider="discord"
+        isLinked
+        displayName="Discord User"
+      />
+    )
+
+    const status = await screen.findByRole('status')
+    expect(status).toHaveTextContent(/linked/i)
+    expect(status).toHaveAttribute('aria-live', 'polite')
+  })
+
   it('prepares a fresh Discord generation before starting link OAuth', async () => {
     const order: string[] = []
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (_url, init) => {

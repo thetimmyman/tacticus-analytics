@@ -105,7 +105,11 @@ export default function ForgotPasswordPage() {
 
         <div className="card-wh40k p-8">
           {success ? (
-            <div className="text-center space-y-4">
+            <div
+              role="status"
+              aria-live="polite"
+              className="text-center space-y-4"
+            >
               <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto">
                 <svg
                   className="w-8 h-8 text-emerald-400"

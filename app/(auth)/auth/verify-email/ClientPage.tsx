@@ -74,14 +74,18 @@ function VerifyEmailContent() {
 
         <div className="card-wh40k p-8">
           {verifying ? (
-            <div className="text-center">
+            <div role="status" aria-live="polite" className="text-center">
               <Spinner size="lg" className="mx-auto h-12 w-12" />
               <p className="mt-4 text-secondary-wh40k">
                 Verifying your email...
               </p>
             </div>
           ) : success ? (
-            <div className="text-center space-y-4">
+            <div
+              role="status"
+              aria-live="polite"
+              className="text-center space-y-4"
+            >
               <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto">
                 <svg
                   className="w-8 h-8 text-emerald-400"
@@ -109,7 +113,7 @@ function VerifyEmailContent() {
               </Link>
             </div>
           ) : (
-            <div className="text-center space-y-4">
+            <div role="alert" className="text-center space-y-4">
               <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto">
                 <svg
                   className="w-8 h-8 text-red-400"
