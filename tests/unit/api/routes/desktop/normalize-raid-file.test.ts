@@ -115,4 +115,20 @@ describe('desktop internal normalization boundary', () => {
     expect(response.status).toBe(400)
     expect(JSON.stringify(await response.json())).not.toContain(sentinel)
   })
+  it('prefers DESKTOP_API_SECRET over CRON_SECRET and fails closed when neither is set', async () => {
+    const dedicated = randomBytes(32).toString('hex')
+    vi.stubEnv('DESKTOP_API_SECRET', dedicated)
+    expect((await POST(request(payload(), `Bearer ${secret}`))).status).toBe(
+      401
+    )
+    expect((await POST(request(payload(), `Bearer ${dedicated}`))).status).toBe(
+      200
+    )
+
+    vi.stubEnv('DESKTOP_API_SECRET', '')
+    vi.stubEnv('CRON_SECRET', '')
+    expect((await POST(request(payload(), `Bearer ${dedicated}`))).status).toBe(
+      500
+    )
+  })
 })

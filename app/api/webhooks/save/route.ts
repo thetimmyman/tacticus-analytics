@@ -11,12 +11,15 @@ import { requireGuildOfficerOrClusterLeader } from '@/app/lib/auth/guild-permiss
 import { isClusterLeaderRole } from '@/app/lib/auth/role-predicates'
 import {
   WEBHOOK_METADATA_COLUMNS,
+  loadWebhookUrlById,
   loadWebhookUrlsByIds
 } from '@/app/lib/webhooks/webhook-url-lookup'
 import {
   DIAGNOSTIC_WEBHOOK_TYPE,
   LEGACY_TOKEN_CAP_ALERTS_WEBHOOK_TYPE,
+  isMaskedDiscordWebhookUrl,
   isProactiveTokenManagementWebhookType,
+  maskDiscordWebhookUrl,
   normalizeProactiveTokenManagementWebhookType,
   requireProactiveTokenManagementAccess,
   findExistingWebhook,
@@ -204,13 +207,22 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
           ? false
           : true
 
-    let normalizedUrl =
+    const hasWebhookUrlField = Object.prototype.hasOwnProperty.call(
+      body,
+      'webhook_url'
+    )
+    const rawSubmittedUrl =
       typeof webhook_url === 'string' && webhook_url.trim().length > 0
         ? webhook_url.trim()
         : null
+    const keepExistingUrl =
+      Boolean(existing) &&
+      (!hasWebhookUrlField || isMaskedDiscordWebhookUrl(rawSubmittedUrl))
+
+    let normalizedUrl = keepExistingUrl ? null : rawSubmittedUrl
 
     // Reject channel URLs: Discord's SPA returns 2xx for them but never delivers.
-    if (normalizedUrl !== null) {
+    if (!keepExistingUrl && normalizedUrl !== null) {
       const urlValidation = validateDiscordWebhookUrl(normalizedUrl)
       if (!urlValidation.ok) {
         const body: Record<string, unknown> = {
@@ -246,7 +258,7 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
       const updateQuery = persistenceDb
         .from('webhook_config')
         .update({
-          webhook_url: normalizedUrl,
+          ...(keepExistingUrl ? {} : { webhook_url: normalizedUrl }),
           enabled: normalizedEnabled,
           thread_id: normalizedThreadId,
           ...(typeUpdateNeeded ? { webhook_type: normalizedWebhookType } : {}),
@@ -404,9 +416,14 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
       'Webhook saved successfully'
     )
 
+    const echoedUrl =
+      keepExistingUrl && existing
+        ? maskDiscordWebhookUrl(await loadWebhookUrlById(existing.id))
+        : maskDiscordWebhookUrl(normalizedUrl)
+
     return NextResponse.json({
       success: true,
-      webhook: { ...result, webhook_url: normalizedUrl },
+      webhook: { ...result, webhook_url: echoedUrl },
       message: 'Webhook configuration saved successfully'
     })
   } catch (error) {
@@ -497,7 +514,7 @@ export const GET = withErrorHandler(async (req: NextRequest) => {
     const normalizedWebhooks = normalizeWebhookRows(
       visibleWebhooks.map((row) => ({
         ...row,
-        webhook_url: urls.get(row.id) ?? null
+        webhook_url: maskDiscordWebhookUrl(urls.get(row.id) ?? null)
       })) as WebhookRow[]
     )
 

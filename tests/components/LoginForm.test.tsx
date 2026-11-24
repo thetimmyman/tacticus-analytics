@@ -57,30 +57,6 @@ vi.mock('@/app/lib/auth/config', () => ({
   }
 }))
 
-vi.mock('@tacticus/ui-kit/radix-switch', () => ({
-  RadixSwitch: ({ checked, onCheckedChange, id }: any) => (
-    <input
-      type="checkbox"
-      id={id}
-      checked={checked}
-      onChange={(e) => onCheckedChange(e.target.checked)}
-      data-testid="remember-me-switch"
-    />
-  )
-}))
-
-vi.mock('@tacticus/ui-kit/radix-tooltip', () => ({
-  RadixTooltip: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  ),
-  RadixTooltipTrigger: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  ),
-  RadixTooltipContent: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  )
-}))
-
 vi.mock(
   '@tacticus/app-core/logger',
   () => import('@/tests/helpers/logger-mock')
@@ -159,9 +135,9 @@ describe('LoginForm', () => {
     expect(screen.getByText('Welcome Back')).toBeInTheDocument()
   })
 
-  it('renders remember me switch', () => {
+  it('does not render a no-op remember me switch', () => {
     render(<LoginForm />)
-    expect(screen.getByTestId('remember-me-switch')).toBeInTheDocument()
+    expect(screen.queryByLabelText(/remember me/i)).not.toBeInTheDocument()
   })
 
   it('renders forgot password link', () => {
@@ -188,15 +164,6 @@ describe('LoginForm', () => {
     expect(passwordInput).toHaveValue('password123')
   })
 
-  it('toggles remember me switch', () => {
-    render(<LoginForm />)
-    const rememberMeSwitch = screen.getByTestId('remember-me-switch')
-
-    expect(rememberMeSwitch).toBeChecked()
-    fireEvent.click(rememberMeSwitch)
-    expect(rememberMeSwitch).not.toBeChecked()
-  })
-
   it('submits form with valid credentials', async () => {
     render(<LoginForm />)
 
@@ -216,8 +183,7 @@ describe('LoginForm', () => {
           credentials: 'same-origin',
           body: JSON.stringify({
             email: 'test@example.com',
-            password: 'password123',
-            rememberMe: true
+            password: 'password123'
           })
         })
       )

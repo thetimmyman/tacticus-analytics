@@ -269,8 +269,9 @@ describe('/api/webhooks/save', () => {
         expect(response.status).toBe(200)
         expect(body.success).toBe(true)
         expect(body.webhook.webhook_url).toBe(
-          'https://discord.com/api/webhooks/123/abc'
+          'https://discord.com/api/webhooks/123/••••'
         )
+        expect(JSON.stringify(body)).not.toContain('/123/abc')
         expect(insertSelect).toHaveBeenCalledWith(
           expect.not.stringContaining('webhook_url')
         )
@@ -810,6 +811,99 @@ describe('/api/webhooks/save', () => {
         expect(updateData).not.toBeNull()
         expect(updateData!.webhook_type).toBe('token_cap_notification')
       })
+
+      it('preserves stored webhook_url when updating an existing row with a masked URL', async () => {
+        let updateData: Record<string, unknown> | null = null
+
+        const webhookConfigQuery = {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({
+            data: { id: 'existing-1', webhook_type: 'leaderboard' },
+            error: null
+          }),
+          update: vi
+            .fn()
+            .mockImplementation((data: Record<string, unknown>) => {
+              updateData = data
+              return {
+                eq: vi.fn().mockReturnValue({
+                  select: vi.fn().mockReturnValue({
+                    single: vi.fn().mockResolvedValue({
+                      data: {
+                        id: 'existing-1',
+                        webhook_type: 'leaderboard',
+                        enabled: false
+                      },
+                      error: null
+                    })
+                  })
+                })
+              }
+            }),
+          limit: vi.fn().mockResolvedValue({ data: [], error: null })
+        }
+
+        mockSupabase.from.mockImplementation((table: string) => {
+          if (table === 'webhook_config') return webhookConfigQuery
+          if (table === 'guild_config') {
+            return {
+              update: vi.fn().mockReturnThis(),
+              eq: vi.fn().mockResolvedValue({ error: null })
+            }
+          }
+          return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis()
+          }
+        })
+
+        const request = new Request('http://localhost/api/webhooks/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            webhook_type: 'leaderboard',
+            webhook_url: 'https://discord.com/api/webhooks/1001/••••oken',
+            enabled: false,
+            guild_code: 'GUILD1'
+          })
+        })
+
+        const response = await POST(request)
+        const body = await response.json()
+
+        expect(response.status).toBe(200)
+        expect(updateData).not.toBeNull()
+        expect('webhook_url' in updateData!).toBe(false)
+        expect(body.webhook.webhook_url).toBe(
+          'https://discord.com/api/webhooks/1001/••••oken'
+        )
+        expect(JSON.stringify(body)).not.toContain('test-token')
+      })
+
+      it('rejects a masked URL when creating a new webhook', async () => {
+        const webhookConfigQuery = {
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          single: vi
+            .fn()
+            .mockResolvedValue({ data: null, error: { code: 'PGRST116' } })
+        }
+        mockSupabase.from.mockReturnValue(webhookConfigQuery)
+
+        const request = new Request('http://localhost/api/webhooks/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            webhook_type: 'leaderboard',
+            webhook_url: 'https://discord.com/api/webhooks/1001/••••oken',
+            guild_code: 'GUILD1'
+          })
+        })
+
+        const response = await POST(request)
+        expect(response.status).toBe(400)
+      })
     })
   })
 
@@ -887,8 +981,9 @@ describe('/api/webhooks/save', () => {
         expect(webhookConfigQuery.select).not.toHaveBeenCalledWith()
         expect(mockServiceIn).toHaveBeenCalledWith('id', ['1', '2'])
         expect(body.webhooks[0].webhook_url).toBe(
-          'https://discord.com/api/webhooks/1001/test-token'
+          'https://discord.com/api/webhooks/1001/••••oken'
         )
+        expect(JSON.stringify(body)).not.toContain('test-token')
       })
 
       it('returns 403 before reading webhook_config for unauthorized explicit guild scope', async () => {

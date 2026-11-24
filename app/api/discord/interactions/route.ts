@@ -9,7 +9,10 @@ import {
   type APIMessageComponentInteraction,
   type APIModalSubmitInteraction
 } from 'discord-api-types/v10'
-import { verifyDiscordRequest } from '@/app/lib/utils/discord-verify'
+import {
+  isFreshDiscordTimestamp,
+  verifyDiscordRequest
+} from '@/app/lib/utils/discord-verify'
 import { serviceDb } from '@/app/lib/db'
 import { createComponentLogger } from '@/app/lib/logging'
 import { sendDiscordFollowupMessage } from '@/app/lib/discord/followup-message'
@@ -94,6 +97,9 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     const timestamp = request.headers.get('x-signature-timestamp')
 
     if (signature && timestamp) {
+      if (!isFreshDiscordTimestamp(timestamp)) {
+        throw Errors.fromResponse(401, { error: 'Invalid request timestamp' })
+      }
       const isValid = await verifyDiscordRequest('', signature, timestamp)
 
       if (!isValid) {
@@ -116,6 +122,10 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
 
     if (!signature || !timestamp) {
       throw Errors.fromResponse(401, { error: 'Missing signature headers' })
+    }
+
+    if (!isFreshDiscordTimestamp(timestamp)) {
+      throw Errors.fromResponse(401, { error: 'Invalid request timestamp' })
     }
 
     const rawBody = await request.text()

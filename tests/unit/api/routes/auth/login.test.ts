@@ -153,12 +153,11 @@ describe('POST /api/auth/login', () => {
 
       expect(signInWithPassword).toHaveBeenCalledWith({
         email: 'test@example.com',
-        password: 'password123',
-        rememberMe: false
+        password: 'password123'
       })
     })
 
-    it('passes rememberMe flag to signIn', async () => {
+    it('ignores legacy rememberMe field in request body', async () => {
       signInWithPassword.mockResolvedValue({
         user: { id: 'user-123' },
         session: {},
@@ -174,8 +173,7 @@ describe('POST /api/auth/login', () => {
 
       expect(signInWithPassword).toHaveBeenCalledWith({
         email: 'test@example.com',
-        password: 'password123',
-        rememberMe: true
+        password: 'password123'
       })
     })
   })

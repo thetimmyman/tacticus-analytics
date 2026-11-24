@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/app/lib/db'
 import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('api.onboarding.start')
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { requireSessionUser } from '@/app/lib/api/session-user'
@@ -12,6 +13,11 @@ import {
 import type { GuildMode } from '@tacticus/app-core/onboarding.types'
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
+  const limited = await apiSecurityMiddleware(request, {
+    skipSecurityChecks: true
+  })
+  if (limited) return limited
+
   try {
     const supabase = await db()
     const user = await requireSessionUser(supabase, () =>

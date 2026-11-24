@@ -11,3 +11,4 @@ export {
 } from './webhook-service'
 
 export { validateDiscordWebhookUrl } from './validate-url'
+export { maskDiscordWebhookUrl, isMaskedDiscordWebhookUrl } from './mask-url'

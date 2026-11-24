@@ -19,6 +19,16 @@ interface GuildConfigRow {
 
 const ADMIN_UNAUTHORIZED_METADATA = { error: 'Unauthorized' }
 const ADMIN_DENIED_METADATA = { error: 'Forbidden' }
+const DEFAULT_DAYS_BACK = 30
+const MIN_DAYS_BACK = 1
+const MAX_DAYS_BACK = 365
+
+function parseDaysBack(raw: string | null): number {
+  if (!raw) return DEFAULT_DAYS_BACK
+  const parsed = Number.parseInt(raw, 10)
+  if (!Number.isFinite(parsed)) return DEFAULT_DAYS_BACK
+  return Math.min(MAX_DAYS_BACK, Math.max(MIN_DAYS_BACK, parsed))
+}
 
 export const GET = withAdminGuards(
   {
@@ -37,7 +47,7 @@ export const GET = withAdminGuards(
     const guildCode = searchParams.get('guild_code')
     const clusterCode = searchParams.get('cluster_code')
     const role = searchParams.get('role')
-    const daysBack = parseInt(searchParams.get('days_back') || '30')
+    const daysBack = parseDaysBack(searchParams.get('days_back'))
 
     try {
       const { data: guildConfigs } = await privilegedSupabase

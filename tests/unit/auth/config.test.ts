@@ -3,10 +3,9 @@ import { describe, it, expect } from 'vitest'
 // authConfig is mostly a static literal; only security invariants are tested here.
 describe('Auth Configuration', () => {
   describe('security-relevant invariants', () => {
-    it('keeps a non-trivial password floor and CSRF token length', async () => {
+    it('keeps a non-trivial password floor', async () => {
       const { authConfig } = await import('@/app/lib/auth/config')
       expect(authConfig.email.passwordMinLength).toBeGreaterThanOrEqual(8)
-      expect(authConfig.csrf.tokenLength).toBeGreaterThanOrEqual(32)
     })
 
     it('rate-limits signup at least as strictly as login', async () => {
@@ -17,9 +16,10 @@ describe('Auth Configuration', () => {
       expect(signup.attempts).toBeLessThanOrEqual(login.attempts)
     })
 
-    it('defines no dead cookie block: Supabase SSR owns session cookies', async () => {
+    it('defines no dead cookie or csrf blocks', async () => {
       const { authConfig } = await import('@/app/lib/auth/config')
       expect('cookies' in authConfig).toBe(false)
+      expect('csrf' in authConfig).toBe(false)
     })
   })
 })

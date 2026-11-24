@@ -99,4 +99,14 @@ describe('desktop worker boundary', () => {
     expect(JSON.stringify(body)).not.toContain('synthetic private detail')
     expect(JSON.stringify(body)).not.toContain('synthetic-worker')
   })
+  it('prefers DESKTOP_API_SECRET over CRON_SECRET and fails closed when neither is set', async () => {
+    const dedicated = randomBytes(32).toString('hex')
+    vi.stubEnv('DESKTOP_API_SECRET', dedicated)
+    expect((await POST(request(`Bearer ${secret}`))).status).toBe(401)
+    expect((await POST(request(`Bearer ${dedicated}`))).status).toBe(200)
+
+    vi.stubEnv('DESKTOP_API_SECRET', '')
+    vi.stubEnv('CRON_SECRET', '')
+    expect((await POST(request(`Bearer ${dedicated}`))).status).toBe(500)
+  })
 })

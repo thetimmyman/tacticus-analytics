@@ -33,12 +33,6 @@ export const authConfig = {
     onboarding: '/onboarding'
   },
 
-  csrf: {
-    cookieName: 'csrf-token',
-    headerName: 'x-csrf-token',
-    tokenLength: 32
-  },
-
   guild: {
     maxPlayersPerGuild: 30,
     defaultRole: 'member' as const,

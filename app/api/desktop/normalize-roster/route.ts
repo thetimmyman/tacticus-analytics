@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
-import { requireCronSecret } from '@/app/lib/scheduler/require-cron-secret'
+import { requireDesktopApiSecret } from '@/app/lib/desktop/require-desktop-secret'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { serviceDb } from '@/app/lib/db'
 import { buildRosterSnapshotRows } from '@/app/lib/player/roster-sync'
@@ -10,7 +10,7 @@ import { parseRosterSnapshot } from '@/apps/desktop/launcher/roster-validation.m
 // the validated snapshot; this operation never receives a game API key.
 export const POST = withErrorHandler(
   async (request: NextRequest) => {
-    requireCronSecret(request)
+    requireDesktopApiSecret(request)
     if (getRuntimeProfile() !== 'desktop')
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     try {

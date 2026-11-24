@@ -16,6 +16,12 @@ export const RATE_LIMIT_CONFIG = {
       limit: 10,
       window: 60 * 60 * 1000
     },
+    '/api/onboarding/guild/start': { limit: 10, window: 60 * 1000 },
+    '/api/onboarding/data-sync/start': { limit: 10, window: 60 * 1000 },
+    '/api/onboarding/cluster/': { limit: 10, window: 60 * 1000 },
+    '/api/onboarding/': { limit: 20, window: 60 * 1000 },
+    '/api/officer/briefing': { limit: 20, window: 60 * 1000 },
+    '/api/officer/': { limit: 30, window: 60 * 1000 },
     '/api/guild/': { limit: 50, window: 60 * 1000 },
     '/api/discord-webhooks/new-member': { limit: 12, window: 60 * 1000 },
     '/api/admin/': { limit: 10, window: 60 * 1000 },

@@ -103,7 +103,6 @@ export interface AuthData {
 export interface SignInWithPasswordParams {
   email: string
   password: string
-  rememberMe?: boolean
 }
 
 export interface SignInResult {

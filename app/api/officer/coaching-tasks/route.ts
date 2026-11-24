@@ -1,6 +1,8 @@
 /** Own guild, officer+, behind `officer_command_center`. POST re-derives the verdict via analyzeMember. */
 
+import type { NextRequest } from 'next/server'
 import { serviceDb } from '@/app/lib/db'
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors } from '@/app/lib/errors/AppError'
 import { createHash } from 'node:crypto'
@@ -131,7 +133,12 @@ async function loadPostAssignmentUsage(
   return dominantPostAssignmentUsage(data ?? [])
 }
 
-export const GET = withErrorHandler(async (request: Request) => {
+export const GET = withErrorHandler(async (request: NextRequest) => {
+  const limited = await apiSecurityMiddleware(request, {
+    skipSecurityChecks: true
+  })
+  if (limited) return limited
+
   const { guildCode } = await requireActiveOfficerCommandAccess()
   const { searchParams } = new URL(request.url)
   const season = searchParams.get('season')?.trim()
@@ -210,7 +217,12 @@ export const GET = withErrorHandler(async (request: Request) => {
   return Response.json({ tasks: results })
 })
 
-export const POST = withErrorHandler(async (request: Request) => {
+export const POST = withErrorHandler(async (request: NextRequest) => {
+  const limited = await apiSecurityMiddleware(request, {
+    skipSecurityChecks: true
+  })
+  if (limited) return limited
+
   const { user, guildCode } = await requireActiveOfficerCommandAccess()
 
   const body = (await request.json().catch(() => ({}))) as {

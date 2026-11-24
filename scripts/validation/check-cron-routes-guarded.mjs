@@ -18,9 +18,10 @@ const ROOT = path.resolve(SCRIPT_DIR, '..', '..')
 const GUARD_EXPORT = 'requireCronSecret'
 const GUARD_MODULE = 'app/lib/scheduler/require-cron-secret'
 
-// Re-exports of the guard under another name (e.g. a deprecated alias).
+// Re-exports or sibling guards recognized by the static gate.
 const GUARD_REEXPORTS = new Map([
-  ['app/lib/sync/worker-utils', 'requireCronAuthorization']
+  ['app/lib/sync/worker-utils', 'requireCronAuthorization'],
+  ['app/lib/desktop/require-desktop-secret', 'requireDesktopApiSecret']
 ])
 
 const MANIFEST_PATH = 'scripts/validation/cron-guarded-handlers.json'
