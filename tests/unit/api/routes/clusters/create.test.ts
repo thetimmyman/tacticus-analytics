@@ -407,7 +407,7 @@ describe('POST /api/clusters/create', () => {
       CURRENT_USER_PLAYER_MAPPING: 'player_mapping'
     }))
 
-    vi.doMock('@/app/lib/middleware/rate-limit', () => ({
+    vi.doMock('@/app/lib/middleware/api-security-middleware', () => ({
       apiSecurityMiddleware: mockApiSecurityMiddleware
     }))
 

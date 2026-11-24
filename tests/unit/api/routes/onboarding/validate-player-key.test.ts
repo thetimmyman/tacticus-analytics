@@ -18,7 +18,7 @@ describe('/api/onboarding/validate-player-key', () => {
     vi.doMock('@/app/lib/api/tacticus-client', () => ({
       tacticusAPI: mockTacticusAPI
     }))
-    vi.doMock('@/app/lib/middleware/rate-limit', () => ({
+    vi.doMock('@/app/lib/middleware/api-security-middleware', () => ({
       apiSecurityMiddleware: mockApiSecurityMiddleware
     }))
     vi.doMock('@tacticus/app-core/logger', () => ({

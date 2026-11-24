@@ -8,7 +8,7 @@ import {
   MechanicusLoadingAssembly,
   BinaryStream
 } from '../MechanicusSpinners'
-import { StatusLabel } from '@tacticus/ui-kit'
+import { StatusLabel } from '../StatusLabel'
 
 const SACRED_MESSAGES = [
   '⚙️ Awakening machine spirits...',

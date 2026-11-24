@@ -78,7 +78,10 @@ const writeQueueMock = vi.hoisted(() => ({
 
 vi.mock('@/app/lib/db', () => ({
   db: dbMock,
-  retryMetrics: retryMetricsMock,
+  retryMetrics: retryMetricsMock
+}))
+
+vi.mock('@/app/lib/db/write-queue', () => ({
   writeQueue: writeQueueMock
 }))
 

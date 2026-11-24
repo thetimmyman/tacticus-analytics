@@ -3,7 +3,7 @@ import { validateApiKeyWithTacticus } from '@tacticus/app-core/api-key-validatio
 import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('api.player.test-api-key')
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
-import { apiSecurityMiddleware } from '@/app/lib/middleware/rate-limit'
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 
 interface ValidationRequestBody {

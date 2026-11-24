@@ -121,7 +121,7 @@ describe('POST /api/account/delete closes its Article 17 record', () => {
     vi.doMock('@/app/lib/auth/user-bans', () => ({
       findActiveBanForAuthUser: vi.fn().mockResolvedValue(null)
     }))
-    vi.doMock('@/app/lib/middleware/rate-limit', () => ({
+    vi.doMock('@/app/lib/middleware/api-security-middleware', () => ({
       apiSecurityMiddleware: vi.fn().mockResolvedValue(null)
     }))
     vi.doMock('@/app/lib/logging', async (importOriginal) => ({

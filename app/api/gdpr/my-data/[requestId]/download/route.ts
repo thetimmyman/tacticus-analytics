@@ -6,7 +6,7 @@ import type {
 } from '@tacticus/app-core/database-extensions'
 import { db } from '@/app/lib/db'
 import { requireSessionUser } from '@/app/lib/api/session-user'
-import { apiSecurityMiddleware } from '@/app/lib/middleware/rate-limit'
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors } from '@/app/lib/errors/AppError'
 

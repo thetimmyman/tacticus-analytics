@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createComponentLogger } from '@/app/lib/logging'
-import { apiSecurityMiddleware } from '@/app/lib/middleware/rate-limit'
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors } from '@/app/lib/errors/AppError'
 import { validateDiscordWebhookUrl } from '@/app/lib/webhooks/validate-url'

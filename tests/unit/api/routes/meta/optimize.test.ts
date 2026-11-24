@@ -41,7 +41,7 @@ describe('POST /api/meta/optimize', () => {
       }
     }))
 
-    vi.doMock('@/app/lib/middleware/rate-limit', () => ({
+    vi.doMock('@/app/lib/middleware/api-security-middleware', () => ({
       apiSecurityMiddleware: mockApiSecurityMiddleware
     }))
 

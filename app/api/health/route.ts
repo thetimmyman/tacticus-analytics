@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { writeQueue, serviceDb } from '@/app/lib/db'
+import { serviceDb } from '@/app/lib/db'
+import { writeQueue } from '@/app/lib/db/write-queue'
 import {
   getRuntimeProfile,
   requireDesktopServiceUrl

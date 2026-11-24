@@ -10,7 +10,7 @@ describe('POST /api/validate-discord-webhook', () => {
     vi.resetModules()
     mockApiSecurityMiddleware = vi.fn()
 
-    vi.doMock('@/app/lib/middleware/rate-limit', () => ({
+    vi.doMock('@/app/lib/middleware/api-security-middleware', () => ({
       apiSecurityMiddleware: mockApiSecurityMiddleware
     }))
     vi.doMock('@tacticus/app-core/logger', () => ({

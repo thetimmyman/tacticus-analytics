@@ -15,7 +15,7 @@ import {
   validateApiKeyWithTacticus,
   generateApiKeyUpdatePayload
 } from '@tacticus/app-core/api-key-validation'
-import { apiSecurityMiddleware } from '@/app/lib/middleware/rate-limit'
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import { validateInviteCode } from '@/app/lib/utils/invite-codes'
 import {
   writeAndReconcileGuildAuthority,

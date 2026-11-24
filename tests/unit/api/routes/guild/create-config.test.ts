@@ -44,7 +44,7 @@ describe('POST /api/guild/create-config', () => {
       createServiceClient: mockCreateServiceClient
     }))
 
-    vi.doMock('@/app/lib/middleware/rate-limit', () => ({
+    vi.doMock('@/app/lib/middleware/api-security-middleware', () => ({
       apiSecurityMiddleware: mockApiSecurityMiddleware
     }))
 

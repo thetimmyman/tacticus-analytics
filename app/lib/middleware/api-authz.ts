@@ -46,7 +46,8 @@ export async function checkApiSecurity(
     }
 
     const userRole = userProfile?.role || 'member'
-    if (requiredRole && !requiredRole.includes(userRole)) {
+    // Lowercase so a mixed-case stored role can't silently deny an authorized caller.
+    if (requiredRole && !requiredRole.includes(userRole.toLowerCase())) {
       return {
         allowed: false,
         user,

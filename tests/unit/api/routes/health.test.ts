@@ -80,7 +80,10 @@ vi.mock('@/app/lib/db', () => ({
       averageAttempts: 0,
       recentMetrics: []
     }))
-  },
+  }
+}))
+
+vi.mock('@/app/lib/db/write-queue', () => ({
   writeQueue: {
     getStats: vi.fn(() =>
       Promise.resolve({

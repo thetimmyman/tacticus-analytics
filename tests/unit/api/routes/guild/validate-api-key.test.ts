@@ -62,7 +62,7 @@ describe('POST /api/guild/validate-api-key', () => {
       validateApiKeyWithTacticus: mockValidateApiKeyWithTacticus
     }))
 
-    vi.doMock('@/app/lib/middleware/rate-limit', () => ({
+    vi.doMock('@/app/lib/middleware/api-security-middleware', () => ({
       apiSecurityMiddleware: mockApiSecurityMiddleware
     }))
 

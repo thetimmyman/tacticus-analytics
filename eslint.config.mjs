@@ -59,11 +59,6 @@ const authServerFactoryRestriction = {
     "Import { db, serviceDb } from '@/app/lib/db' instead of the raw factories."
 }
 
-const writeQueuePath = {
-  name: '@/app/lib/db/write-queue',
-  message: 'Import writeQueue from @/app/lib/db instead of internal db modules.'
-}
-
 const uiKitMigrationPaths = [
   '@/app/components/ui/Button',
   '@/app/components/ui/badge',
@@ -208,11 +203,7 @@ const appCoreMigrationPaths = [
   }
 ]
 
-const alwaysApplyPaths = [
-  ...uiKitMigrationPaths,
-  ...appCoreMigrationPaths,
-  writeQueuePath
-]
+const alwaysApplyPaths = [...uiKitMigrationPaths, ...appCoreMigrationPaths]
 
 const clientPaths = [
   ...alwaysApplyPaths,

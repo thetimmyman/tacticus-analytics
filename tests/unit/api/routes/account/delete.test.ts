@@ -65,7 +65,7 @@ describe('POST /api/account/delete', () => {
       createServiceClient: mockCreateServiceClient,
       createClient: vi.fn().mockResolvedValue({})
     }))
-    vi.doMock('@/app/lib/middleware/rate-limit', () => ({
+    vi.doMock('@/app/lib/middleware/api-security-middleware', () => ({
       apiSecurityMiddleware: mockApiSecurityMiddleware
     }))
     vi.doMock('@/app/lib/compliance/gdpr-manager', () => ({

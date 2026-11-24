@@ -5,7 +5,7 @@ import { db } from '@/app/lib/db'
 import { serviceDb } from '@/app/lib/db'
 import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('api.account.delete')
-import { apiSecurityMiddleware } from '@/app/lib/middleware/rate-limit'
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import { sanitizeErrorForLog } from '@tacticus/app-core/logging-sanitizer'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { gdprManager } from '@/app/lib/compliance/gdpr-manager'

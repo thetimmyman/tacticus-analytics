@@ -11,7 +11,7 @@ import {
   encounterLabel,
   levelLabel,
   type MergedRow
-} from '../TargetsClient'
+} from '../model'
 
 export interface TargetsAccordionProps {
   rows: MergedRow[]
