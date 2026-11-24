@@ -165,17 +165,12 @@ export default function LoginForm({
     if (lastReportedError.current === errorParam) return
     lastReportedError.current = errorParam
 
-    reportAuthTelemetry(
-      'login_redirect_error',
-      {
-        error: errorParam,
-        reason: reason ?? null,
-        redirectTo,
-        errorCode: 'REDIRECT_FAILED'
-      },
-      'warning'
-    )
-  }, [searchParams, reason, redirectTo, reportAuthTelemetry])
+    // Expected redirect failures (user/OAuth cancel, expired link) are normal
+    // traffic: leave a breadcrumb instead of paging Sentry.
+    recordAuthBreadcrumb('login_redirect_error', {
+      errorCode: 'REDIRECT_FAILED'
+    })
+  }, [searchParams, recordAuthBreadcrumb])
 
   async function handleOAuthLogin(provider: OAuthProvider) {
     if (isLoading) return
