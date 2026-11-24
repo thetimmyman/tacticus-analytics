@@ -38,9 +38,6 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
   } catch (error) {
     rethrowIfAppError(error)
     logger.error({ err: error }, 'GDPR cleanup cron error:')
-    throw Errors.fromResponse(500, {
-      error: 'Internal server error',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    })
+    throw Errors.fromResponse(500, { error: 'Internal server error' })
   }
 })

@@ -86,8 +86,7 @@ function requireSuccessfulPlayerApiKeyRpc(
     logger.error({ error: rpcError, playerId }, 'RPC function failed:')
     throw Errors.fromResponse(500, {
       error: `Failed to ${action} API key via RPC`,
-      code: 'RPC_ERROR',
-      details: rpcError.message || 'Unknown RPC error'
+      code: 'RPC_ERROR'
     })
   }
   if (!rpcResult?.success) {

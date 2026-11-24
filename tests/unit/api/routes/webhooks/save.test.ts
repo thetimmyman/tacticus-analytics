@@ -285,6 +285,37 @@ describe('/api/webhooks/save', () => {
       })
     })
 
+    describe('raw error containment', () => {
+      beforeEach(() => {
+        mockSupabase.auth.getUser.mockResolvedValue({
+          data: { user: { id: 'user-123' } }
+        })
+      })
+
+      it('returns a generic 500 without raw database text when persistence fails', async () => {
+        mockSupabase.from.mockImplementation(() => {
+          throw new Error('connection refused to db.internal.example')
+        })
+
+        const request = new Request('http://localhost/api/webhooks/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            webhook_type: 'leaderboard',
+            webhook_url: 'https://discord.com/api/webhooks/123/abc',
+            guild_code: 'GUILD1'
+          })
+        })
+
+        const response = await POST(request)
+        const body = await response.json()
+
+        expect(response.status).toBe(500)
+        expect(body.error.message).toBe('Failed to save webhook configuration')
+        expect(JSON.stringify(body)).not.toContain('db.internal.example')
+      })
+    })
+
     describe('proactive token management access', () => {
       beforeEach(() => {
         mockSupabase.auth.getUser.mockResolvedValue({

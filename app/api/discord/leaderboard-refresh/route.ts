@@ -137,8 +137,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       )
 
       throw Errors.fromResponse(502, {
-        error: 'Failed to trigger leaderboard refresh',
-        details: invokeError.message || 'Edge function returned an error'
+        error: 'Failed to trigger leaderboard refresh'
       })
     }
 
@@ -167,8 +166,11 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       'Unhandled error in leaderboard-refresh route'
     )
 
+    if (error instanceof RetryTimeoutError) {
+      throw Errors.fromResponse(500, { error: 'Leaderboard refresh timed out' })
+    }
     throw Errors.fromResponse(500, {
-      error: `Unexpected error triggering leaderboard refresh: ${errorMessage}`
+      error: 'Unexpected error triggering leaderboard refresh'
     })
   }
 })

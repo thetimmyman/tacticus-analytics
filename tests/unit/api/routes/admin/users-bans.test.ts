@@ -202,6 +202,26 @@ describe('admin user bans', () => {
     )
   })
 
+  it('returns a generic 500 without raw database text when the ban list query fails', async () => {
+    mocks.serviceDb.mockReturnValue({
+      from: vi.fn().mockReturnValueOnce(
+        listChain({
+          data: [],
+          error: { message: 'permission denied for table user_bans' }
+        })
+      )
+    })
+
+    const { GET } = await import('@/app/api/admin/users/bans/route')
+    const response = await GET(
+      new NextRequest('http://localhost/api/admin/users/bans')
+    )
+    const body = await response.json()
+
+    expect(response.status).toBe(500)
+    expect(JSON.stringify(body)).not.toContain('permission denied')
+  })
+
   it('requires an audit reason', async () => {
     const { POST } = await import('@/app/api/admin/users/bans/route')
     const response = await POST(

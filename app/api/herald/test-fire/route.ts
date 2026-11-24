@@ -105,8 +105,7 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
       'Herald test-fire failed'
     )
     throw Errors.internal('Herald test-fire failed', {
-      endpoint: '/api/herald/test-fire',
-      details: error instanceof Error ? error.message : String(error)
+      endpoint: '/api/herald/test-fire'
     })
   }
 })

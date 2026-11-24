@@ -51,23 +51,11 @@ const DIALOG_CASES: DialogCase[] = [
   },
   {
     title: /Add Player API Key/u,
-    open: (onClose) => (
-      <ApiKeyModal
-        member={member}
-        onClose={onClose}
-        onMemberUpdate={onMemberUpdate}
-      />
-    )
+    open: (onClose) => <ApiKeyModal member={member} onClose={onClose} />
   },
   {
     title: /Invite Code/u,
-    open: (onClose) => (
-      <InviteCodeModal
-        member={member}
-        onClose={onClose}
-        onMemberUpdate={onMemberUpdate}
-      />
-    )
+    open: (onClose) => <InviteCodeModal member={member} onClose={onClose} />
   },
   {
     title: /Unlink Player/u,
@@ -140,13 +128,7 @@ const DIALOG_CASES: DialogCase[] = [
   },
   {
     title: /^Roster/u,
-    open: (onClose) => (
-      <RosterViewerModal
-        member={member}
-        onClose={onClose}
-        onMemberUpdate={onMemberUpdate}
-      />
-    )
+    open: (onClose) => <RosterViewerModal member={member} onClose={onClose} />
   }
 ]
 

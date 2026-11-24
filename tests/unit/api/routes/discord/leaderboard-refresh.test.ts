@@ -287,6 +287,7 @@ describe('POST /api/discord/leaderboard-refresh', () => {
       expect(body.error.message).toContain(
         'Unexpected error triggering leaderboard refresh'
       )
+      expect(JSON.stringify(body)).not.toContain('Edge function failed')
     })
 
     it('times out hung edge function invoke', async () => {

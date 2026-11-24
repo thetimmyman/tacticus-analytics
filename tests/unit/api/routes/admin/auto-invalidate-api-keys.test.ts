@@ -115,6 +115,26 @@ describe('Auto Invalidate API Keys', () => {
       expect(response.status).toBe(500)
     })
 
+    it('returns a generic 500 without raw database text when query fails', async () => {
+      mockRequireActiveMembership.mockResolvedValue(APP_ADMIN)
+
+      mockSupabase.from.mockReturnValue({
+        select: vi.fn().mockReturnThis(),
+        or: vi.fn().mockResolvedValue({
+          data: null,
+          error: {
+            message: 'permission denied for table guild_config'
+          }
+        })
+      })
+
+      const response = await POST()
+      const body = await response.json()
+
+      expect(response.status).toBe(500)
+      expect(JSON.stringify(body)).not.toContain('permission denied')
+    })
+
     it('returns success with no updates when no problematic guilds', async () => {
       mockRequireActiveMembership.mockResolvedValue(APP_ADMIN)
 

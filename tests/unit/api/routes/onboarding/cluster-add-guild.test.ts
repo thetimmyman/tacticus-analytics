@@ -210,6 +210,7 @@ describe('POST /api/onboarding/cluster/add-guild', () => {
 
     expect(response.status).toBe(500)
     expect(json.error.message).toBe('Unable to verify cluster ownership.')
+    expect(JSON.stringify(json)).not.toContain('Database error')
   })
 
   it('returns 404 when cluster is not found', async () => {
@@ -502,7 +503,10 @@ describe('POST /api/onboarding/cluster/add-guild', () => {
     const json = await response.json()
 
     expect(response.status).toBe(500)
-    expect(json.error.message).toBe('Queue unavailable')
+    expect(json.error.message).toBe(
+      'Unable to queue initial sync job for the guild.'
+    )
+    expect(JSON.stringify(json)).not.toContain('Queue unavailable')
   })
 
   it('retries queue repair when create-config already added the guild to the cluster', async () => {
@@ -932,6 +936,7 @@ describe('POST /api/onboarding/cluster/add-guild', () => {
     const json = await response.json()
 
     expect(response.status).toBe(500)
-    expect(json.error.message).toBe('Unexpected failure')
+    expect(json.error.message).toBe('Internal server error')
+    expect(JSON.stringify(json)).not.toContain('Unexpected failure')
   })
 })

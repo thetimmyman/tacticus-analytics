@@ -141,9 +141,7 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
   } catch (error) {
     rethrowIfAppError(error)
     logger.error({ err: error }, `[Worker ${workerId}] Fatal error:`)
-    throw Errors.fromResponse(500, {
-      error: error instanceof Error ? error.message : 'Unknown error'
-    })
+    throw Errors.fromResponse(500, { error: 'Internal error' })
   }
 })
 
@@ -196,12 +194,13 @@ export const GET = withErrorHandler(async (req: NextRequest) => {
       guilds_measured: (rosterHealth ?? []).length,
       alerting: rosterAlerting
     },
+    // Fixed codes only: raw DB/PostgREST text must not reach the client.
     ...(degraded
       ? {
           errors: {
-            queue: statsError?.message ?? null,
-            health: healthError?.message ?? null,
-            roster_write: rosterError?.message ?? null
+            queue: statsError ? 'queue_stats_unavailable' : null,
+            health: healthError ? 'sync_health_unavailable' : null,
+            roster_write: rosterError ? 'roster_health_unavailable' : null
           }
         }
       : {})

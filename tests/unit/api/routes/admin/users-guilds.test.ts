@@ -141,4 +141,25 @@ describe('GET /api/admin/users/guilds', () => {
     const response = await GET()
     expect(response.status).toBe(500)
   })
+
+  it('returns a generic 500 without raw database text on failure', async () => {
+    mockRequireAuth.mockResolvedValue({
+      profile: { is_app_admin: true }
+    })
+
+    mockSupabase.from.mockReturnValue({
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      order: vi.fn().mockResolvedValue({
+        data: null,
+        error: { message: 'permission denied for table guild_config' }
+      })
+    })
+
+    const response = await GET()
+    const body = await response.json()
+
+    expect(response.status).toBe(500)
+    expect(JSON.stringify(body)).not.toContain('permission denied')
+  })
 })

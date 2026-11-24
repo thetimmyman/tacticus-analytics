@@ -69,8 +69,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         '[cluster/add-guild] Cluster lookup failed'
       )
       throw Errors.fromResponse(500, {
-        error: 'Unable to verify cluster ownership.',
-        details: clusterError.message
+        error: 'Unable to verify cluster ownership.'
       })
     }
 
@@ -97,8 +96,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
           '[cluster/add-guild] Admin check failed'
         )
         throw Errors.fromResponse(500, {
-          error: 'Unable to verify cluster membership.',
-          details: adminCheckError.message
+          error: 'Unable to verify cluster membership.'
         })
       }
 
@@ -116,8 +114,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
             '[cluster/add-guild] Cluster guild codes lookup failed'
           )
           throw Errors.fromResponse(500, {
-            error: 'Unable to verify cluster membership.',
-            details: clusterGuildCodesError.message
+            error: 'Unable to verify cluster membership.'
           })
         }
 
@@ -145,8 +142,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
             '[cluster/add-guild] Leader guild lookup failed'
           )
           throw Errors.fromResponse(500, {
-            error: 'Unable to verify cluster membership.',
-            details: leaderGuildsError.message
+            error: 'Unable to verify cluster membership.'
           })
         }
 
@@ -182,8 +178,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
           '[cluster/add-guild] Existing guild lookup failed'
         )
         throw Errors.fromResponse(500, {
-          error: 'Unable to verify existing guild cluster assignment.',
-          details: existingGuildError.message
+          error: 'Unable to verify existing guild cluster assignment.'
         })
       }
 
@@ -281,8 +276,14 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     )
 
     if (!job) {
+      if (jobError) {
+        logger.error(
+          { jobError },
+          '[cluster/add-guild] Initial sync job enqueue failed'
+        )
+      }
       throw Errors.fromResponse(500, {
-        error: jobError || 'Unable to queue initial sync job for the guild.'
+        error: 'Unable to queue initial sync job for the guild.'
       })
     }
 
@@ -331,8 +332,6 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
   } catch (error: unknown) {
     rethrowIfAppError(error)
     logger.error({ err: error }, '[cluster/add-guild] Unexpected error')
-    const message =
-      error instanceof Error ? error.message : 'Internal server error'
-    throw Errors.fromResponse(500, { error: message })
+    throw Errors.fromResponse(500, { error: 'Internal server error' })
   }
 })

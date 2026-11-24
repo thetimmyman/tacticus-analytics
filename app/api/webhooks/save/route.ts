@@ -50,8 +50,7 @@ async function loadWebhookAccessProfile(
   if (error) {
     logger.error({ err: error }, 'Error fetching user profile:')
     throw Errors.internal('Failed to verify permissions', {
-      endpoint: '/api/webhooks/save',
-      details: error.message
+      endpoint: '/api/webhooks/save'
     })
   }
 
@@ -270,7 +269,9 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
           },
           'Error updating webhook:'
         )
-        throw error
+        throw Errors.updateFailed('Failed to update webhook configuration', {
+          endpoint: '/api/webhooks/save'
+        })
       }
       result = data
       logger.info(
@@ -314,7 +315,9 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
           },
           'Error creating webhook:'
         )
-        throw error
+        throw Errors.updateFailed('Failed to save webhook configuration', {
+          endpoint: '/api/webhooks/save'
+        })
       }
       result = data
       logger.info(
@@ -419,8 +422,7 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
     )
     logger.error({ err: error }, 'Error saving webhook:')
     throw Errors.updateFailed('Failed to save webhook configuration', {
-      endpoint: '/api/webhooks/save',
-      details: normalizedError.message
+      endpoint: '/api/webhooks/save'
     })
   }
 })
@@ -483,7 +485,9 @@ export const GET = withErrorHandler(async (req: NextRequest) => {
 
     if (error) {
       logger.error({ err: error }, 'Error fetching webhooks:')
-      throw error
+      throw Errors.fetchFailed('Failed to fetch webhook configurations', {
+        endpoint: '/api/webhooks/save'
+      })
     }
 
     const visibleWebhooks = webhooks ?? []
@@ -514,10 +518,8 @@ export const GET = withErrorHandler(async (req: NextRequest) => {
   } catch (error) {
     rethrowIfAppError(error)
     logger.error({ err: error }, 'Error fetching webhooks:')
-    const normalizedError = normalizeError(error)
     throw Errors.fetchFailed('Failed to fetch webhook configurations', {
-      endpoint: '/api/webhooks/save',
-      details: normalizedError.message
+      endpoint: '/api/webhooks/save'
     })
   }
 })

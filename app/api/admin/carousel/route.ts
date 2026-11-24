@@ -1,7 +1,10 @@
 import { withAdminGuards } from '@/app/api/admin/_lib/with-admin-guards'
 import { NextResponse, type NextRequest } from 'next/server'
 import { db } from '@/app/lib/db'
+import { createComponentLogger } from '@/app/lib/logging'
 import { Errors } from '@/app/lib/errors/AppError'
+
+const logger = createComponentLogger('api.admin.carousel')
 
 export const GET = withAdminGuards({ guard: 'app-admin' }, async () => {
   const supabase = await db()
@@ -13,7 +16,8 @@ export const GET = withAdminGuards({ guard: 'app-admin' }, async () => {
     .order('created_at', { ascending: false })
 
   if (error) {
-    throw Errors.database(error.message)
+    logger.error({ err: error }, 'Carousel items query failed')
+    throw Errors.database('Failed to load carousel items')
   }
 
   return NextResponse.json({ items: items || [] })
@@ -48,7 +52,8 @@ export const POST = withAdminGuards(
       .single()
 
     if (error) {
-      throw Errors.database(error.message)
+      logger.error({ err: error }, 'Carousel item insert failed')
+      throw Errors.database('Failed to create carousel item')
     }
 
     return NextResponse.json({ item })

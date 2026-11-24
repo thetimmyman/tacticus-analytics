@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { withAdminGuards } from '@/app/api/admin/_lib/with-admin-guards'
+import { createComponentLogger } from '@/app/lib/logging'
 import path from 'path'
 import fs from 'fs/promises'
+
+const logger = createComponentLogger('api.admin.deployments')
 
 /** Allowlist for values passed to deploy/rollback scripts. */
 const VALID_SERVICES = new Set(['nextjs', 'nextjs-app', 'all'])
@@ -77,10 +80,8 @@ export const GET = withAdminGuards(DEPLOYMENT_ADMIN_GUARD, async () => {
     })
   } catch (error) {
     rethrowIfAppError(error)
-    console.error('Error getting versions:', error)
-    throw Errors.internal('Failed to get version information', {
-      details: error instanceof Error ? error.message : 'Unknown error'
-    })
+    logger.error({ err: error }, 'Failed to get version information')
+    throw Errors.internal('Failed to get version information')
   }
 })
 
@@ -133,10 +134,8 @@ export const POST = withAdminGuards(
       )
     } catch (error) {
       rethrowIfAppError(error)
-      console.error('Deployment action failed:', error)
-      throw Errors.internal('Deployment action failed', {
-        details: error instanceof Error ? error.message : 'Unknown error'
-      })
+      logger.error({ err: error }, 'Deployment action failed')
+      throw Errors.internal('Deployment action failed')
     }
   }
 )

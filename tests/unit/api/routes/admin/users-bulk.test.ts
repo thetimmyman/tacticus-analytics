@@ -547,7 +547,7 @@ describe('/api/admin/users/bulk', () => {
 
         expect(response.status).toBe(500)
         await expect(response.json()).resolves.toMatchObject({
-          error: { message: 'revocation failed' }
+          error: { message: 'Internal error' }
         })
       })
 
@@ -697,6 +697,70 @@ describe('/api/admin/users/bulk', () => {
         const response = await POST(request)
 
         expect(response.status).toBe(500)
+      })
+
+      it('returns a generic 500 without raw database text when the guild roster lookup fails', async () => {
+        mockSupabase.from.mockImplementation((table: string) => {
+          if (table === 'player_mapping') {
+            return {
+              select: vi.fn().mockReturnThis(),
+              eq: vi.fn().mockReturnThis(),
+              not: vi.fn().mockResolvedValue({
+                data: null,
+                error: { message: 'permission denied for table player_mapping' }
+              })
+            }
+          }
+          return { select: vi.fn().mockReturnThis() }
+        })
+
+        const request = new NextRequest(
+          'http://localhost/api/admin/users/bulk',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'add',
+              role_type: 'beta_tester',
+              guild_code: 'GUILD1'
+            })
+          }
+        )
+
+        const response = await POST(request)
+        const body = await response.json()
+
+        expect(response.status).toBe(500)
+        expect(body.error.message).toBe('Failed to resolve guild members')
+        expect(JSON.stringify(body)).not.toContain('permission denied')
+      })
+
+      it('reports per-user grant failures without raw database text', async () => {
+        mockSupabase.from.mockReturnValue({
+          upsert: vi.fn().mockResolvedValue({
+            error: { message: 'duplicate key value violates unique constraint' }
+          })
+        })
+
+        const request = new NextRequest(
+          'http://localhost/api/admin/users/bulk',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'add',
+              role_type: 'beta_tester',
+              user_ids: ['user-1']
+            })
+          }
+        )
+
+        const response = await POST(request)
+        const body = await response.json()
+
+        expect(response.status).toBe(200)
+        expect(body.success).toBe(false)
+        expect(JSON.stringify(body)).not.toContain('unique constraint')
       })
     })
   })

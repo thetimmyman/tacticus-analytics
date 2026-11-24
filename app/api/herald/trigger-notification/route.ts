@@ -201,8 +201,7 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
       'Herald trigger-notification failed'
     )
     throw Errors.internal('Herald trigger-notification failed', {
-      endpoint: ENDPOINT,
-      details: error instanceof Error ? error.message : String(error)
+      endpoint: ENDPOINT
     })
   }
 })
