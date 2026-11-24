@@ -13,7 +13,10 @@ import { appCache } from '@tacticus/app-core/app-cache'
 import { createComponentLogger } from '@/app/lib/logging'
 import { API_URLS } from '@tacticus/app-core/api-constants'
 import { authConfig } from '@/app/lib/auth/config'
-import { hardenSessionCookieOptions } from '@/app/lib/auth/session-cookies'
+import {
+  hardenSessionCookieOptions,
+  resolveSessionCookieDomain
+} from '@/app/lib/auth/session-cookies'
 import { boundMap } from '@/app/lib/middleware/bounded-map'
 import {
   AUTH_RESET_COOKIE,
@@ -74,22 +77,44 @@ const OG_PROTECTED_PATHS: Record<
   }
 }
 
-/** Paths that require auth; the top-level catch uses it for redirect-vs-passthrough. */
+/**
+ * Paths that require auth; the top-level catch uses it for redirect-vs-passthrough.
+ * Enumerates every top-level segment of `app/(dashboard)/` so a new dashboard
+ * route group cannot ship unauthenticated; tests/unit/auth/proxy-hardening.test.ts
+ * fails when the two drift apart.
+ */
 const PROTECTED_PATHS = [
   '/home',
+  '/achievements',
+  '/admin',
+  '/api-keys',
+  '/boss',
+  '/boss-assignments',
+  '/boss-playbooks',
+  '/clusters',
   '/dashboard',
+  '/error-codes',
+  '/error-monitoring',
+  '/guild-management',
+  '/guild-ops',
+  '/guild-settings',
+  '/guild-teams',
+  '/guild-trends',
+  '/leaderboards',
+  '/members',
+  '/meta-atlas',
   '/player-performance',
   '/player-stats',
-  '/token-usage',
-  '/boss',
-  // Page-level requireAuth() gates it too; listing it makes the redirect carry `redirectTo`.
-  '/replays',
-  '/votlw',
   '/profile',
+  '/replays',
+  '/roster',
+  '/roster-development',
   '/settings',
-  '/members',
-  '/api-keys',
-  '/guild-management'
+  '/token-usage',
+  '/votlw',
+  '/war-explorer',
+  '/war-room',
+  '/wars'
 ]
 
 function getClientIp(request: NextRequest): string {
@@ -523,10 +548,10 @@ async function handleProxyRequest(request: NextRequest) {
     // URL still drives CSP and the storageKey, so sessions are unaffected.
     const authSupabaseUrl = proxySupabaseUrls.authSupabaseUrl
 
-    // Cookie domain only in production (cross-subdomain auth); localhost uses the origin.
+    // Cookie domain only when the request host belongs to the configured apex
+    // (cross-subdomain auth); loopback and foreign hosts use a host-only cookie.
     const hostname = request.nextUrl.hostname
-    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1'
-    const cookieDomain = isLocalhost ? undefined : '.tacticusanalytics.com'
+    const cookieDomain = resolveSessionCookieDomain(hostname)
 
     const instantiateSupabase = (signal?: AbortSignal) => {
       const cookies = {
@@ -813,11 +838,13 @@ export const config = {
 }
 
 export const __internal = {
+  PROTECTED_PATHS,
   sessionCache,
   setCachedUser,
   MAX_CACHE_SIZE,
   edgeRateLimits,
   checkEdgeRateLimitInMemory,
   EDGE_RATE_LIMIT_MAX_ENTRIES,
-  STRICT_TRANSPORT_SECURITY
+  STRICT_TRANSPORT_SECURITY,
+  resolveSessionCookieDomain
 }
