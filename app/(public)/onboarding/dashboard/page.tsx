@@ -3,7 +3,10 @@ import { serviceDb } from '@/app/lib/db'
 import { getOrCreateOnboardingProgress } from '@/app/lib/onboarding/progress'
 import { fetchLatestJobForGuild } from '@/app/lib/onboarding/jobs'
 import { resolveOnboardingMembershipState } from '@/app/lib/onboarding/membership-state'
-import { isGuildAwaitingFirstClaim } from '@/app/lib/onboarding/first-claim'
+import {
+  hasGuildRegistrationReceipt,
+  isGuildAwaitingFirstClaim
+} from '@/app/lib/onboarding/first-claim'
 import type {
   OnboardingProgress,
   OnboardingJob,
@@ -264,10 +267,19 @@ export default async function OnboardingDashboardPage() {
     progress.guild_code,
     user.id
   )
+  // The seat route also requires this account's own guild-scoped registration receipt.
+  const canSelfClaimSeat =
+    guildAwaitingFirstClaim &&
+    (await hasGuildRegistrationReceipt(
+      serviceSupabase,
+      user.id,
+      progress.guild_code
+    ))
 
   return (
     <OnboardingDashboardClient
       guildAwaitingFirstClaim={guildAwaitingFirstClaim}
+      canSelfClaimSeat={canSelfClaimSeat}
       user={{
         id: user.id,
         email: user.email || '',

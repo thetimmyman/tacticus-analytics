@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   getOrCreateOnboardingProgress: vi.fn(),
   fetchLatestJobForGuild: vi.fn(),
   isGuildAwaitingFirstClaim: vi.fn(),
+  hasGuildRegistrationReceipt: vi.fn(),
   redirect: vi.fn((destination: string) => {
     throw new Error(`NEXT_REDIRECT:${destination}`)
   })
@@ -31,7 +32,8 @@ vi.mock('@/app/lib/onboarding/jobs', () => ({
 }))
 
 vi.mock('@/app/lib/onboarding/first-claim', () => ({
-  isGuildAwaitingFirstClaim: mocks.isGuildAwaitingFirstClaim
+  isGuildAwaitingFirstClaim: mocks.isGuildAwaitingFirstClaim,
+  hasGuildRegistrationReceipt: mocks.hasGuildRegistrationReceipt
 }))
 
 vi.mock('next/navigation', () => ({ redirect: mocks.redirect }))
@@ -67,6 +69,7 @@ describe('OnboardingDashboardPage membership boundary', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.isGuildAwaitingFirstClaim.mockResolvedValue(false)
+    mocks.hasGuildRegistrationReceipt.mockResolvedValue(false)
     mocks.db.mockResolvedValue(authClient)
     mocks.requireAuthAllowInactive.mockResolvedValue({
       id: 'onboarding-user',
@@ -155,6 +158,7 @@ describe('OnboardingDashboardPage membership boundary', () => {
     })
     mocks.fetchLatestJobForGuild.mockResolvedValue(null)
     mocks.isGuildAwaitingFirstClaim.mockResolvedValue(true)
+    mocks.hasGuildRegistrationReceipt.mockResolvedValue(true)
 
     const element = (await OnboardingDashboardPage()) as {
       props: Record<string, unknown>
@@ -166,5 +170,45 @@ describe('OnboardingDashboardPage membership boundary', () => {
       'onboarding-user'
     )
     expect(element.props.guildAwaitingFirstClaim).toBe(true)
+    // The receipt gate scopes the direct claim box to the account that registered the guild.
+    expect(mocks.hasGuildRegistrationReceipt).toHaveBeenCalledWith(
+      serviceClient,
+      'onboarding-user',
+      'ZKFPH'
+    )
+    expect(element.props.canSelfClaimSeat).toBe(true)
+  })
+
+  it('withholds canSelfClaimSeat when the account has no registration receipt', async () => {
+    const chain: Record<string, unknown> = {}
+    for (const method of ['select', 'eq', 'not', 'order', 'limit']) {
+      chain[method] = vi.fn(() => chain)
+    }
+    chain.maybeSingle = vi.fn(async () => ({ data: null, error: null }))
+    chain.single = vi.fn(async () => ({ data: null, error: null }))
+    chain.then = (resolve: (value: unknown) => unknown) =>
+      Promise.resolve({ data: [], error: null, count: 0 }).then(resolve)
+    const serviceClient = { from: vi.fn(() => chain) }
+    mocks.serviceDb.mockReturnValue(serviceClient)
+    mocks.getOrCreateOnboardingProgress.mockResolvedValue({
+      user_id: 'onboarding-user',
+      guild_mode: 'new_guild',
+      role_intent: 'member',
+      guild_status: 'complete',
+      guild_code: 'ZKFPH',
+      guild_name: 'Claim Test Guild',
+      sync_status: 'complete',
+      profile_status: 'not_started'
+    })
+    mocks.fetchLatestJobForGuild.mockResolvedValue(null)
+    mocks.isGuildAwaitingFirstClaim.mockResolvedValue(true)
+    mocks.hasGuildRegistrationReceipt.mockResolvedValue(false)
+
+    const element = (await OnboardingDashboardPage()) as {
+      props: Record<string, unknown>
+    }
+
+    expect(element.props.guildAwaitingFirstClaim).toBe(true)
+    expect(element.props.canSelfClaimSeat).toBe(false)
   })
 })

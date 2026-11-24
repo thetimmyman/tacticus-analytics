@@ -70,7 +70,8 @@ export default function OnboardingDashboardClient({
   initialJob,
   initialCluster,
   initialClusterGuilds,
-  guildAwaitingFirstClaim = false
+  guildAwaitingFirstClaim = false,
+  canSelfClaimSeat = null
 }: OnboardingDashboardProps) {
   const progressState = useOnboardingProgress({
     initialProgress,
@@ -78,7 +79,8 @@ export default function OnboardingDashboardClient({
     initialJob,
     initialCluster,
     initialClusterGuilds,
-    guildAwaitingFirstClaim
+    guildAwaitingFirstClaim,
+    canSelfClaimSeat
   })
   const {
     progress,
@@ -98,6 +100,7 @@ export default function OnboardingDashboardClient({
     setClusterGuilds,
     awaitingFirstClaim,
     setAwaitingFirstClaim,
+    canSelfClaimSeat: selfClaimSeat,
     seatClaimed,
     setSeatClaimed,
     refreshProgress
@@ -430,6 +433,7 @@ export default function OnboardingDashboardClient({
           guildComplete={guildComplete}
           syncComplete={syncComplete}
           guildAwaitingFirstClaim={awaitingFirstClaim}
+          canSelfClaimSeat={selfClaimSeat}
           seatClaimed={seatClaimed}
           onSeatClaimed={() => setSeatClaimed(true)}
         />

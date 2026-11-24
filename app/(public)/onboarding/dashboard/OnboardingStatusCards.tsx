@@ -263,6 +263,8 @@ interface ProfileClaimCardProps {
   guildComplete: boolean
   syncComplete: boolean
   guildAwaitingFirstClaim?: boolean | null
+  /** The seat route also demands this account's registration receipt; `null` = unknown. */
+  canSelfClaimSeat?: boolean | null
   seatClaimed?: boolean
   onSeatClaimed?: () => void
 }
@@ -274,12 +276,16 @@ export function ProfileClaimCard({
   guildComplete,
   syncComplete,
   guildAwaitingFirstClaim = false,
+  canSelfClaimSeat = null,
   seatClaimed = false,
   onSeatClaimed
 }: ProfileClaimCardProps) {
   // The server flag flips false once the seat is bound, which would swap the success panel away.
   const showSeatBootstrap = guildAwaitingFirstClaim === true || seatClaimed
   const claimOptionsUnknown = guildAwaitingFirstClaim === null && !seatClaimed
+  // The seat route rejects accounts without a registration receipt (REGISTRATION_AUTHORITY_REQUIRED).
+  const seatClaimAvailable =
+    showSeatBootstrap && (seatClaimed || canSelfClaimSeat === true)
   // Neither claim route works until the roster has synced.
   const rosterNotReady = guildComplete && !syncComplete
 
@@ -296,14 +302,14 @@ export function ProfileClaimCard({
           </StatusLabel>
         </div>
         <p className="text-sm text-secondary-wh40k">
-          {showSeatBootstrap
+          {seatClaimAvailable
             ? 'Link your own roster profile with a Player API key. No invite code is required for the first registrar.'
             : 'Use the single-use invite issued for your exact roster entry. Player IDs and display names are not ownership proof.'}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* A new guild's registrar has nobody to ask for an invite code. */}
-        {!profileComplete && guildComplete && showSeatBootstrap && (
+        {!profileComplete && guildComplete && seatClaimAvailable && (
           <LeaderSeatClaim
             guildName={progress.guild_name}
             onClaimed={onSeatClaimed}
@@ -315,12 +321,15 @@ export function ProfileClaimCard({
             <p className="text-xs text-secondary-wh40k">
               {claimOptionsUnknown
                 ? 'Checking how you can claim your seat…'
-                : showSeatBootstrap
-                  ? 'Already have an invite code? Use it here instead.'
-                  : rosterNotReady
-                    ? // isGuildAwaitingFirstClaim() is false until the roster syncs.
-                      'Finish Step 2 first — your roster is still syncing. Your claim options appear here once it completes.'
-                    : 'Ask a guild officer or administrator for a fresh invite code, then consume it while signed in to this account.'}
+                : showSeatBootstrap && !seatClaimAvailable
+                  ? // The corridor exists, but this account cannot use it yet.
+                    'This account has not proved guild key custody for this guild yet. Use "Register New Guild" in Step 1 with a valid guild key — once verified, the direct claim opens here. If a leader or officer has already linked this guild, ask them for an invite code.'
+                  : showSeatBootstrap
+                    ? 'Already have an invite code? Use it here instead.'
+                    : rosterNotReady
+                      ? // isGuildAwaitingFirstClaim() is false until the roster syncs.
+                        'Finish Step 2 first — your roster is still syncing. Your claim options appear here once it completes.'
+                      : 'Ask a guild officer or administrator for a fresh invite code, then consume it while signed in to this account.'}
             </p>
             <Link
               href="/onboarding/claim"

@@ -16,7 +16,10 @@ import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { requireSessionUser } from '@/app/lib/api/session-user'
 import { sanitizeInactiveOnboardingProgress } from '@/app/lib/onboarding/inactive-progress'
 import { resolveOnboardingMembershipState } from '@/app/lib/onboarding/membership-state'
-import { isGuildAwaitingFirstClaim } from '@/app/lib/onboarding/first-claim'
+import {
+  hasGuildRegistrationReceipt,
+  isGuildAwaitingFirstClaim
+} from '@/app/lib/onboarding/first-claim'
 
 export const GET = withErrorHandler(async () => {
   try {
@@ -272,6 +275,14 @@ export const GET = withErrorHandler(async () => {
       progress.guild_code,
       user.id
     )
+    // The seat route also requires this account's own guild-scoped registration receipt.
+    const canSelfClaimSeat =
+      guildAwaitingFirstClaim === true &&
+      (await hasGuildRegistrationReceipt(
+        serviceSupabase,
+        user.id,
+        progress.guild_code
+      ))
 
     return NextResponse.json({
       progress,
@@ -280,7 +291,8 @@ export const GET = withErrorHandler(async () => {
       job: latestJob,
       cluster,
       clusterGuilds,
-      guildAwaitingFirstClaim
+      guildAwaitingFirstClaim,
+      canSelfClaimSeat
     })
   } catch (error) {
     rethrowIfAppError(error)

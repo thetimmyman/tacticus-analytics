@@ -1,6 +1,9 @@
 import type { TypedSupabaseClient } from '@tacticus/app-core/types'
 import { describe, expect, it, vi } from 'vitest'
-import { isGuildAwaitingFirstClaim } from '@/app/lib/onboarding/first-claim'
+import {
+  hasGuildRegistrationReceipt,
+  isGuildAwaitingFirstClaim
+} from '@/app/lib/onboarding/first-claim'
 
 vi.mock(
   '@tacticus/app-core/logger',
@@ -182,5 +185,60 @@ describe('isGuildAwaitingFirstClaim', () => {
     await expect(isGuildAwaitingFirstClaim(client, 'ZKFPH')).resolves.toBe(
       false
     )
+  })
+})
+
+describe('hasGuildRegistrationReceipt', () => {
+  function createReceiptClient(result: {
+    data: { id: number } | null
+    error: { message: string } | null
+  }) {
+    const chain: Record<string, unknown> = {}
+    for (const method of ['select', 'eq', 'limit']) {
+      chain[method] = vi.fn(() => chain)
+    }
+    chain.maybeSingle = vi.fn(async () => result)
+    const client = {
+      from: vi.fn(() => chain)
+    } as unknown as TypedSupabaseClient
+    return { client, chain }
+  }
+
+  it('is true when the guild-scoped bootstrap receipt exists', async () => {
+    const { client, chain } = createReceiptClient({
+      data: { id: 42 },
+      error: null
+    })
+
+    await expect(
+      hasGuildRegistrationReceipt(client, 'registrar-user', 'ZKFPH')
+    ).resolves.toBe(true)
+    expect(client.from).toHaveBeenCalledWith('player_claim_audit')
+    expect(chain.eq).toHaveBeenCalledWith('guild_code', 'ZKFPH')
+    expect(chain.eq).toHaveBeenCalledWith(
+      'source_path',
+      'onboarding/guild-registration/bootstrap-authority'
+    )
+    expect(chain.eq).toHaveBeenCalledWith('outcome', 'success')
+  })
+
+  it('is false when no receipt exists', async () => {
+    const { client } = createReceiptClient({ data: null, error: null })
+
+    await expect(
+      hasGuildRegistrationReceipt(client, 'member-user', 'ZKFPH')
+    ).resolves.toBe(false)
+  })
+
+  // Fails closed: an audit read blip must not unlock the direct claim box.
+  it('is false when the receipt lookup errors', async () => {
+    const { client } = createReceiptClient({
+      data: null,
+      error: { message: 'lookup unavailable' }
+    })
+
+    await expect(
+      hasGuildRegistrationReceipt(client, 'registrar-user', 'ZKFPH')
+    ).resolves.toBe(false)
   })
 })

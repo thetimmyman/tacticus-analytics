@@ -23,6 +23,7 @@ type ProgressInputs = Pick<
   | 'initialCluster'
   | 'initialClusterGuilds'
   | 'guildAwaitingFirstClaim'
+  | 'canSelfClaimSeat'
 >
 
 export function useOnboardingProgress({
@@ -31,7 +32,8 @@ export function useOnboardingProgress({
   initialJob,
   initialCluster,
   initialClusterGuilds,
-  guildAwaitingFirstClaim = false
+  guildAwaitingFirstClaim = false,
+  canSelfClaimSeat = null
 }: ProgressInputs) {
   const { toast } = useToast()
   const [progress, setProgress] = useState<OnboardingProgress>(initialProgress)
@@ -49,6 +51,9 @@ export function useOnboardingProgress({
     useState<ClusterGuildSummary[]>(initialClusterGuilds)
   const [awaitingFirstClaim, setAwaitingFirstClaim] = useState<boolean | null>(
     guildAwaitingFirstClaim
+  )
+  const [canSelfClaimSeatState, setCanSelfClaimSeat] = useState<boolean | null>(
+    canSelfClaimSeat
   )
   const [seatClaimed, setSeatClaimed] = useState(false)
 
@@ -69,12 +74,16 @@ export function useOnboardingProgress({
   useEffect(() => {
     setAwaitingFirstClaim(guildAwaitingFirstClaim)
   }, [guildAwaitingFirstClaim])
+  useEffect(() => {
+    setCanSelfClaimSeat(canSelfClaimSeat)
+  }, [canSelfClaimSeat])
 
   const refreshProgress = useCallback(
     async (showToast = false) => {
       setPendingAction('refresh')
       // Step 1 blanks this on guild change; a failed refresh must restore it.
       const lastKnownAwaitingFirstClaim = awaitingFirstClaim
+      const lastKnownCanSelfClaimSeat = canSelfClaimSeatState
       try {
         const response = await fetch('/api/onboarding/progress')
         if (!response.ok) {
@@ -101,6 +110,11 @@ export function useOnboardingProgress({
             ? data.guildAwaitingFirstClaim
             : null
         )
+        setCanSelfClaimSeat(
+          typeof data?.canSelfClaimSeat === 'boolean'
+            ? data.canSelfClaimSeat
+            : null
+        )
         if (showToast) {
           toast.success(
             'Progress updated',
@@ -109,6 +123,7 @@ export function useOnboardingProgress({
         }
       } catch (error) {
         setAwaitingFirstClaim(lastKnownAwaitingFirstClaim)
+        setCanSelfClaimSeat(lastKnownCanSelfClaimSeat)
         toast.error(
           'Refresh failed',
           (error as Error)?.message ?? 'Unable to refresh progress.'
@@ -117,7 +132,7 @@ export function useOnboardingProgress({
         setPendingAction(null)
       }
     },
-    [awaitingFirstClaim, toast]
+    [awaitingFirstClaim, canSelfClaimSeatState, toast]
   )
 
   useEffect(() => {
@@ -144,6 +159,7 @@ export function useOnboardingProgress({
     setClusterGuilds,
     awaitingFirstClaim,
     setAwaitingFirstClaim,
+    canSelfClaimSeat: canSelfClaimSeatState,
     seatClaimed,
     setSeatClaimed,
     refreshProgress

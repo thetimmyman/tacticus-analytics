@@ -55,9 +55,12 @@ vi.mock('@/app/lib/onboarding/membership-state', () => ({
 }))
 
 const mockIsGuildAwaitingFirstClaim = vi.fn()
+const mockHasGuildRegistrationReceipt = vi.fn()
 vi.mock('@/app/lib/onboarding/first-claim', () => ({
   isGuildAwaitingFirstClaim: (...args: any[]) =>
-    mockIsGuildAwaitingFirstClaim(...args)
+    mockIsGuildAwaitingFirstClaim(...args),
+  hasGuildRegistrationReceipt: (...args: any[]) =>
+    mockHasGuildRegistrationReceipt(...args)
 }))
 
 describe('GET /api/onboarding/progress', () => {
@@ -72,6 +75,7 @@ describe('GET /api/onboarding/progress', () => {
     mockGuildConfigGetBasic.mockResolvedValue(null)
     mockGuildConfigGetClusterGuilds.mockResolvedValue([])
     mockIsGuildAwaitingFirstClaim.mockResolvedValue(false)
+    mockHasGuildRegistrationReceipt.mockResolvedValue(false)
   })
 
   // RLS hides a not-yet-joined guild's roster, so the client cannot recompute this flag.
@@ -87,16 +91,44 @@ describe('GET /api/onboarding/progress', () => {
       mockServiceSupabase.from.mockReturnValue(createChainedMock(null))
       mockFetchLatestJobForGuild.mockResolvedValue(null)
       mockIsGuildAwaitingFirstClaim.mockResolvedValue(true)
+      mockHasGuildRegistrationReceipt.mockResolvedValue(true)
 
       const { GET } = await import('@/app/api/onboarding/progress/route')
       const json = await (await GET()).json()
 
       expect(json.guildAwaitingFirstClaim).toBe(true)
+      expect(json.canSelfClaimSeat).toBe(true)
       expect(mockIsGuildAwaitingFirstClaim).toHaveBeenCalledWith(
         mockServiceSupabase,
         'GUILD1',
         'user-123'
       )
+      expect(mockHasGuildRegistrationReceipt).toHaveBeenCalledWith(
+        mockServiceSupabase,
+        'user-123',
+        'GUILD1'
+      )
+    })
+
+    // The seat route rejects without the receipt, so the UI must not offer the box.
+    it('answers canSelfClaimSeat false when the account lacks the registration receipt', async () => {
+      mockGetOrCreateOnboardingProgress.mockResolvedValue({
+        user_id: mockUser.id,
+        guild_code: 'GUILD1',
+        role_intent: 'member',
+        guild_status: 'complete'
+      })
+      mockSupabase.from.mockReturnValue(createChainedMock(null))
+      mockServiceSupabase.from.mockReturnValue(createChainedMock(null))
+      mockFetchLatestJobForGuild.mockResolvedValue(null)
+      mockIsGuildAwaitingFirstClaim.mockResolvedValue(true)
+      mockHasGuildRegistrationReceipt.mockResolvedValue(false)
+
+      const { GET } = await import('@/app/api/onboarding/progress/route')
+      const json = await (await GET()).json()
+
+      expect(json.guildAwaitingFirstClaim).toBe(true)
+      expect(json.canSelfClaimSeat).toBe(false)
     })
 
     // `false`, never `undefined`: the client's boolean guard would show the unknown state.
