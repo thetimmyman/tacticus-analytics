@@ -53,7 +53,7 @@ function EncounterContent({ encounter }: { encounter: SeasonalEncounterData }) {
         <section className="rounded-md border border-[color-mix(in_srgb,var(--accent)_25%,transparent)] bg-[color-mix(in_srgb,var(--accent)_6%,transparent)] p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--accent)">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--accent)">
                 Meta Atlas benchmark
               </div>
               <div className="mt-1 flex flex-wrap items-center gap-2">
@@ -66,7 +66,7 @@ function EncounterContent({ encounter }: { encounter: SeasonalEncounterData }) {
                 <div className="text-sm font-semibold text-emerald-300">
                   {formatDamage(benchmark)}
                 </div>
-                <div className="text-[9px] uppercase tracking-wide text-(--text-tertiary)">
+                <div className="text-[11px] uppercase tracking-wide text-(--text-tertiary)">
                   {team.damageP90 !== null
                     ? 'P90'
                     : team.damageP75 !== null
@@ -194,7 +194,7 @@ export function EncounterCommandRow({
           <div className="scheme-dark relative max-h-[88vh] w-full overflow-y-auto rounded-t-lg border border-(--card-border) bg-[#171a1f] shadow-2xl">
             <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-(--card-border) bg-[#1b1f25] px-4 py-3">
               <div>
-                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-(--accent)">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-(--accent)">
                   Encounter ops
                 </div>
                 <h3
@@ -283,7 +283,7 @@ export function TargetTokenControl({
 
   return (
     <div className="space-y-1">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
         Target tokens
       </div>
       <div className="flex items-stretch gap-1">
@@ -341,7 +341,7 @@ export function TargetTokenControl({
         </button>
       </div>
       {status === 'error' && (
-        <div className="text-[10px] text-red-400">Save failed</div>
+        <div className="text-[11px] text-red-400">Save failed</div>
       )}
     </div>
   )
@@ -420,7 +420,7 @@ export function MessageIncludePicker({
 
   return (
     <div className="space-y-2">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
         Include in Herald message
       </div>
       <div className="flex flex-wrap gap-1.5">

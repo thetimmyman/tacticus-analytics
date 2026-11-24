@@ -241,7 +241,7 @@ export function SourceBadge({ source }: { source: ScoreSource }) {
   return (
     <span
       title={config.title}
-      className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[9px] uppercase tracking-wide ${config.className}`}
+      className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[11px] uppercase tracking-wide ${config.className}`}
     >
       {config.label}
     </span>

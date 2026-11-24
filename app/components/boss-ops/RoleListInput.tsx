@@ -115,7 +115,7 @@ export function RoleListInput({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
           {label}
         </div>
         {!disabled && (
@@ -157,7 +157,7 @@ export function RoleListInput({
                         <span className="block truncate text-xs font-semibold text-primary-wh40k">
                           {role.label || role.id}
                         </span>
-                        <span className="mt-0.5 block truncate font-mono text-[10px] text-(--text-tertiary)">
+                        <span className="mt-0.5 block truncate font-mono text-[11px] text-(--text-tertiary)">
                           {role.id}
                         </span>
                       </button>

@@ -148,7 +148,7 @@ export function MetaFilterBar({
             <SlidersHorizontal aria-hidden="true" className="h-3.5 w-3.5" />
             Filters
             {activeFilterCount > 0 && (
-              <span className="rounded-full bg-purple-500/30 px-1.5 py-0.5 text-[10px] font-medium text-purple-200">
+              <span className="rounded-full bg-purple-500/30 px-1.5 py-0.5 text-[11px] font-medium text-purple-200">
                 {activeFilterCount}
               </span>
             )}

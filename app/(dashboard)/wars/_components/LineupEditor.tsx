@@ -272,7 +272,7 @@ export default function LineupEditor({
                 {isEmpty ? (
                   <div className="text-center py-4">
                     <Plus className="h-6 w-6 text-(--text-tertiary) mx-auto mb-1" />
-                    <p className="text-[10px] text-(--text-tertiary)">
+                    <p className="text-[11px] text-(--text-tertiary)">
                       Add Lineup
                     </p>
                   </div>
@@ -299,7 +299,7 @@ export default function LineupEditor({
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-[8px] text-secondary-wh40k">
+                              <div className="w-full h-full flex items-center justify-center text-[11px] text-secondary-wh40k">
                                 {heroId.slice(0, 2).toUpperCase()}
                               </div>
                             )}
@@ -307,7 +307,7 @@ export default function LineupEditor({
                         )
                       })}
                       {lineup?.heroes.length === 0 && (
-                        <span className="text-[10px] text-(--text-tertiary)">
+                        <span className="text-[11px] text-(--text-tertiary)">
                           No heroes
                         </span>
                       )}
@@ -316,7 +316,7 @@ export default function LineupEditor({
                     {lineup?.machine_of_war && (
                       <div className="flex items-center gap-1 pt-1 border-t border-(--border)">
                         <Cog className="h-3 w-3 text-orange-400" />
-                        <span className="text-[10px] text-secondary-wh40k truncate">
+                        <span className="text-[11px] text-secondary-wh40k truncate">
                           {getHeroById(lineup.machine_of_war)?.display_name ||
                             lineup.machine_of_war}
                         </span>
@@ -325,7 +325,7 @@ export default function LineupEditor({
 
                     {lineup?.notes && (
                       <div className="pt-1 border-t border-(--border)">
-                        <p className="text-[9px] text-(--text-tertiary) line-clamp-2">
+                        <p className="text-[11px] text-(--text-tertiary) line-clamp-2">
                           {lineup.notes}
                         </p>
                       </div>
@@ -429,7 +429,7 @@ export default function LineupEditor({
                             {hero?.display_name || heroId}
                           </span>
                           {rosterUnit && (
-                            <span className="text-[10px] text-secondary-wh40k flex items-center gap-1 flex-wrap">
+                            <span className="text-[11px] text-secondary-wh40k flex items-center gap-1 flex-wrap">
                               <span
                                 className={getRankColor(rosterUnit.rank ?? 0)}
                               >
@@ -585,12 +585,12 @@ export default function LineupEditor({
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-[10px] text-secondary-wh40k">
+                              <div className="w-full h-full flex items-center justify-center text-[11px] text-secondary-wh40k">
                                 {unit.id.slice(0, 2).toUpperCase()}
                               </div>
                             )}
                           </div>
-                          <span className="text-[8px] text-secondary-wh40k truncate w-full text-center mt-0.5">
+                          <span className="text-[11px] text-secondary-wh40k truncate w-full text-center mt-0.5">
                             {unit.name}
                           </span>
                           <div className="flex flex-col items-center gap-0.5">
@@ -651,12 +651,12 @@ export default function LineupEditor({
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center text-[10px] text-secondary-wh40k">
+                                <div className="w-full h-full flex items-center justify-center text-[11px] text-secondary-wh40k">
                                   {hero.unit_id.slice(0, 2).toUpperCase()}
                                 </div>
                               )}
                             </div>
-                            <span className="text-[8px] text-secondary-wh40k truncate w-full text-center mt-0.5">
+                            <span className="text-[11px] text-secondary-wh40k truncate w-full text-center mt-0.5">
                               {hero.display_name || hero.unit_id}
                             </span>
                           </button>
@@ -738,12 +738,12 @@ export default function LineupEditor({
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[10px] text-secondary-wh40k">
+                          <div className="w-full h-full flex items-center justify-center text-[11px] text-secondary-wh40k">
                             {mow.unit_id.slice(0, 2).toUpperCase()}
                           </div>
                         )}
                       </div>
-                      <span className="text-[8px] text-secondary-wh40k truncate w-full text-center mt-0.5">
+                      <span className="text-[11px] text-secondary-wh40k truncate w-full text-center mt-0.5">
                         {mow.display_name || mow.unit_id}
                       </span>
                     </button>

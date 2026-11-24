@@ -40,14 +40,14 @@ export const HeroRosterCell = memo(function HeroRosterCell({
 
       {/* Level */}
       {data.xp_level != null && (
-        <span className="text-[10px] text-primary-wh40k leading-none">
+        <span className="text-[11px] text-primary-wh40k leading-none">
           L{data.xp_level}
         </span>
       )}
 
       {/* Ability Levels */}
       {hasAbilities && (
-        <span className="text-[10px] text-secondary-wh40k leading-none whitespace-nowrap">
+        <span className="text-[11px] text-secondary-wh40k leading-none whitespace-nowrap">
           A:{data.active_ability_level ?? '?'} P:
           {data.passive_ability_level ?? '?'}
         </span>

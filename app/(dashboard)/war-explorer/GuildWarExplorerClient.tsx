@@ -353,13 +353,13 @@ export default function GuildWarExplorerClient({
       render: (attempt) => (
         <>
           <div className="text-primary-wh40k">{attempt.player_name}</div>
-          <div className="md:hidden text-[10px] text-secondary-wh40k">
+          <div className="md:hidden text-[11px] text-secondary-wh40k">
             {formatWarGuildLabel(
               attempt.guild_code,
               attempt.attacker_guild_name
             )}
             {attempt.is_guild_member === false && (
-              <Badge className="ml-1 bg-(--bg-secondary) text-secondary-wh40k border-(--border) text-[10px]">
+              <Badge className="ml-1 bg-(--bg-secondary) text-secondary-wh40k border-(--border) text-[11px]">
                 Opponent
               </Badge>
             )}
@@ -446,7 +446,7 @@ export default function GuildWarExplorerClient({
             <Badge className="bg-(--bg-secondary) text-secondary-wh40k border-(--border)">
               {zoneDisplayName(zone.zone_type)}
             </Badge>
-            <div className="mt-1 text-[10px] text-secondary-wh40k lg:hidden">
+            <div className="mt-1 text-[11px] text-secondary-wh40k lg:hidden">
               {assignedPlayers.length > 0
                 ? `${assignedPlayers.length} assigned`
                 : 'No assignments'}
@@ -685,7 +685,7 @@ export default function GuildWarExplorerClient({
               Guild War Explorer
             </h1>
             {releaseStage && releaseStage !== 'public' && (
-              <Badge className="border-(--border) bg-(--bg-secondary) text-secondary-wh40k text-[10px] uppercase tracking-wide">
+              <Badge className="border-(--border) bg-(--bg-secondary) text-secondary-wh40k text-[11px] uppercase tracking-wide">
                 {releaseStage}
               </Badge>
             )}

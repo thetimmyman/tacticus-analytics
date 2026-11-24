@@ -424,7 +424,7 @@ export default function TokenAvailability({
                     className="h-6 w-6 shrink-0 object-contain sm:h-5 sm:w-5"
                   />
                   <div className="min-w-0 sm:flex-1">
-                    <div className="hidden truncate font-mono text-[9px] uppercase tracking-wider text-[#888] sm:block">
+                    <div className="hidden truncate font-mono text-[11px] uppercase tracking-wider text-[#888] sm:block">
                       {item.label}
                     </div>
                     <div className="flex items-center justify-center gap-1.5 sm:justify-start">
@@ -433,13 +433,13 @@ export default function TokenAvailability({
                       >
                         <span>{`${item.data!.current}/${item.data!.max}`}</span>
                         {item.data!.current === item.data!.max && (
-                          <span className="ml-1 hidden text-[9px] text-green-400 sm:inline">
+                          <span className="ml-1 hidden text-[11px] text-green-400 sm:inline">
                             Full
                           </span>
                         )}
                       </span>
                       {showTimer && (
-                        <span className="hidden font-mono text-[10px] tabular-nums text-(--accent) sm:inline">
+                        <span className="hidden font-mono text-[11px] tabular-nums text-(--accent) sm:inline">
                           {formatTime(remaining ?? 0)}
                         </span>
                       )}

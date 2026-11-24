@@ -167,7 +167,7 @@ export function RaidTeamsTab({ playerName, guildCode }: RaidTeamsTabProps) {
                         className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ${TIER_DOT[hero.tier]}`}
                       />
                     </div>
-                    <span className="text-[9px] text-secondary-wh40k leading-tight text-center truncate w-full px-0.5">
+                    <span className="text-[11px] text-secondary-wh40k leading-tight text-center truncate w-full px-0.5">
                       {hero.displayName}
                     </span>
                   </div>

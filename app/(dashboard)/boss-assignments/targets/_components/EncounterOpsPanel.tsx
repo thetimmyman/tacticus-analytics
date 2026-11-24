@@ -133,7 +133,7 @@ export function EncounterOpsPanel({
         : f.status === 'error'
           ? (f.note ?? 'Save failed')
           : (f.note ?? 'Saved')
-    return <div className={`mt-1 text-[10px] ${tone}`}>{label}</div>
+    return <div className={`mt-1 text-[11px] ${tone}`}>{label}</div>
   }
 
   return (
@@ -178,7 +178,7 @@ export function EncounterOpsPanel({
           }}
         />
         {/* Roles are keyed (guild_code, boss_id), so they are not season-scoped. */}
-        <div className="mt-1 text-[10px] text-(--text-tertiary)">
+        <div className="mt-1 text-[11px] text-(--text-tertiary)">
           Ping roles apply to every season, not just S{seasonNumber}.
         </div>
         {statusLine('roles')}
@@ -199,7 +199,7 @@ export function EncounterOpsPanel({
 
       {isPrime && (
         <div>
-          <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
+          <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
             Rule
           </div>
           <BehaviourToggle
@@ -221,7 +221,7 @@ export function EncounterOpsPanel({
           />
           {behaviour === 'threshold' && (
             <div className="mt-2">
-              <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
+              <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
                 Threshold — HP remaining
               </div>
               <ThresholdPicker
@@ -248,7 +248,7 @@ export function EncounterOpsPanel({
       )}
 
       {!canManage && (
-        <div className="text-[10px] text-(--text-tertiary)">
+        <div className="text-[11px] text-(--text-tertiary)">
           Ops settings are read-only — officers and leaders of this guild can
           edit them.
         </div>

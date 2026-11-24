@@ -70,7 +70,7 @@ export function PageTabsSubnav({
               {tab.badge && (
                 <span
                   className={cn(
-                    'ml-1 inline-flex items-center rounded-sm px-1.5 py-0.5 text-[9px] font-bold leading-none uppercase tracking-wider',
+                    'ml-1 inline-flex items-center rounded-sm px-1.5 py-0.5 text-[11px] font-bold leading-none uppercase tracking-wider',
                     active
                       ? 'bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-(--accent)'
                       : 'bg-(--card-bg) text-secondary-wh40k'

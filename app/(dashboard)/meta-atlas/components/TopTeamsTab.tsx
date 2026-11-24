@@ -62,7 +62,7 @@ function HeroTile({
     />
   ) : (
     <div
-      className={`${HERO_TILE} shrink-0 rounded-md border border-white/10 bg-gray-700 flex items-center justify-center text-[10px] font-bold text-secondary-wh40k`}
+      className={`${HERO_TILE} shrink-0 rounded-md border border-white/10 bg-gray-700 flex items-center justify-center text-[11px] font-bold text-secondary-wh40k`}
       title={name}
     >
       {name.slice(0, 2)}
@@ -154,7 +154,7 @@ function CompactEncounter({
       <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
         {topRec.meta_team && (
           <span
-            className={`px-1.5 py-0.5 text-[10px] rounded-full border font-medium ${getMetaTeamColorClasses(topRec.meta_team, false)}`}
+            className={`px-1.5 py-0.5 text-[11px] rounded-full border font-medium ${getMetaTeamColorClasses(topRec.meta_team, false)}`}
           >
             {topRec.meta_team}
           </span>
@@ -241,7 +241,7 @@ export function TopTeamsTab({
                   <CardContent className="min-w-0 py-3 px-3">
                     <div className="mb-2 flex min-w-0 items-center gap-2 border-b border-(--card-border) pb-2">
                       <span
-                        className={`shrink-0 px-1.5 py-0.5 text-[10px] rounded-full border font-medium ${getRaritySetBadgeStyle(group.raritySet)}`}
+                        className={`shrink-0 px-1.5 py-0.5 text-[11px] rounded-full border font-medium ${getRaritySetBadgeStyle(group.raritySet)}`}
                       >
                         {group.raritySet}
                       </span>

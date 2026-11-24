@@ -61,7 +61,7 @@ export function TrendingTeamCard({ trend, type }: TrendingTeamCardProps) {
           {trend.damage_delta_pct}%
         </span>
       </div>
-      <div className="grid grid-cols-2 gap-1.5 sm:gap-2 text-[10px] sm:text-xs">
+      <div className="grid grid-cols-2 gap-1.5 sm:gap-2 text-[11px] sm:text-xs">
         <div>
           <div className="text-secondary-wh40k">P90 Damage</div>
           <div className="text-white font-medium">
@@ -113,22 +113,22 @@ export function OffMetaGemCard({ gem, rank }: OffMetaGemCardProps) {
             <div className="font-semibold text-white text-xs sm:text-sm">
               {gem.meta_team || 'Custom Team'}
             </div>
-            <div className="text-[10px] sm:text-xs text-secondary-wh40k">
+            <div className="text-[11px] sm:text-xs text-secondary-wh40k">
               {getBossDisplayName(gem.boss_type)}
             </div>
           </div>
         </div>
-        <span className="text-[10px] sm:text-xs text-amber-400 font-medium">
+        <span className="text-[11px] sm:text-xs text-amber-400 font-medium">
           #{rank}
         </span>
       </div>
       <div
-        className="text-[10px] sm:text-xs text-secondary-wh40k mb-2 truncate"
+        className="text-[11px] sm:text-xs text-secondary-wh40k mb-2 truncate"
         title={gem.team_composition}
       >
         {gem.team_composition}
       </div>
-      <div className="grid grid-cols-3 gap-1.5 sm:gap-2 text-[10px] sm:text-xs">
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-2 text-[11px] sm:text-xs">
         <div>
           <div className="text-secondary-wh40k">P90</div>
           <div className="text-purple-400 font-medium">
@@ -146,7 +146,7 @@ export function OffMetaGemCard({ gem, rank }: OffMetaGemCardProps) {
           </div>
         </div>
       </div>
-      <div className="mt-2 pt-2 border-t border-white/10 text-[10px] sm:text-xs text-amber-300/70">
+      <div className="mt-2 pt-2 border-t border-white/10 text-[11px] sm:text-xs text-amber-300/70">
         Low usage, high damage - hidden value!
       </div>
     </div>
@@ -209,7 +209,7 @@ export function TrendingTeamsGrid({
           <h3 className="text-sm sm:text-md font-semibold text-amber-400 flex items-center gap-2 mb-2 sm:mb-3">
             <Star className="w-3 h-3 sm:w-4 sm:h-4" />
             Off-Meta Gems
-            <span className="text-[10px] sm:text-xs text-secondary-wh40k font-normal">
+            <span className="text-[11px] sm:text-xs text-secondary-wh40k font-normal">
               (high damage, low usage)
             </span>
           </h3>

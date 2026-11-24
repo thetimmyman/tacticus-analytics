@@ -261,7 +261,7 @@ export default function GRAvailability({
             />
           )}
 
-          <div className="mt-2 text-[10px] text-(--text-tertiary) text-right">
+          <div className="mt-2 text-[11px] text-(--text-tertiary) text-right">
             {autoRefresh && 'Auto-refresh enabled • Syncing every minute'}
           </div>
         </CardContent>

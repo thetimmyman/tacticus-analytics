@@ -199,7 +199,7 @@ export function CustomTeamBuilder({
                             {mapping.display_name ?? mapping.unit_id}
                           </span>
                           {mapping.category && (
-                            <span className="text-[10px] text-secondary-wh40k ml-auto">
+                            <span className="text-[11px] text-secondary-wh40k ml-auto">
                               {mapping.category}
                             </span>
                           )}

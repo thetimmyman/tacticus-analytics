@@ -103,7 +103,7 @@ function PrimeBadge({ target }: { target: PrimeTarget }) {
       ? `↓${target.thresholdHpPct}%`
       : 'Kill'
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-(--card-border) px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-(--text-tertiary)">
+    <span className="inline-flex items-center gap-1 rounded-full border border-(--card-border) px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-(--text-tertiary)">
       <span className="inline-flex shrink-0" aria-hidden="true">
         <Icon className="h-3 w-3" aria-hidden />
       </span>
@@ -135,12 +135,12 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
           <h2 className="text-sm font-semibold text-primary-wh40k">
             Your next move
           </h2>
-          <span className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
+          <span className="text-[11px] uppercase tracking-wider text-(--text-tertiary)">
             Personal priority
           </span>
         </div>
         <span
-          className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide"
+          className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide"
           style={{ color: style.color, borderColor: style.color }}
         >
           <span className="inline-flex shrink-0" aria-hidden="true">
@@ -164,7 +164,7 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
               <p className="mt-3 text-sm font-semibold text-primary-wh40k">
                 {move.target.displayName}
               </p>
-              <p className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
+              <p className="text-[11px] uppercase tracking-wider text-(--text-tertiary)">
                 {`${move.target.levelCode}${
                   move.target.encounterId === 0
                     ? ' · Main'
@@ -172,7 +172,7 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
                 }`}
               </p>
               <div className="mt-3 w-full">
-                <div className="flex justify-between text-[10px] text-(--text-tertiary)">
+                <div className="flex justify-between text-[11px] text-(--text-tertiary)">
                   <span>HP remaining</span>
                   <span className="font-semibold text-secondary-wh40k">
                     {`${Math.round(move.target.hpPercentage)}%`}
@@ -198,7 +198,7 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
         {/* Recommendation column */}
         <div className="min-w-0">
           <p
-            className="text-[10px] font-bold uppercase tracking-widest"
+            className="text-[11px] font-bold uppercase tracking-widest"
             style={{ color: style.color }}
           >
             Recommended now
@@ -220,7 +220,7 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
                   <span className="font-semibold text-primary-wh40k">
                     {p.displayName}
                   </span>
-                  <span className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
+                  <span className="text-[11px] uppercase tracking-wider text-(--text-tertiary)">
                     {`Prime ${p.encounterId}`}
                   </span>
                   <span className="text-(--text-tertiary)" aria-hidden>
@@ -235,7 +235,7 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
 
           {move.economy?.waitFor && (
             <div className="mt-3 inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-0.5 rounded-lg border border-[color-mix(in_srgb,var(--warning)_40%,transparent)] bg-[color-mix(in_srgb,var(--warning)_5%,transparent)] px-3 py-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wide text-(--warning)">
+              <span className="text-[11px] font-bold uppercase tracking-wide text-(--warning)">
                 Wait for
               </span>
               <span className="text-sm font-semibold text-primary-wh40k">
@@ -277,7 +277,7 @@ function YourNextMoveCard({ move }: YourNextMoveCardProps) {
                 </span>
               </Link>
             )}
-            <span className="text-[10px] uppercase tracking-wide text-(--text-tertiary)">
+            <span className="text-[11px] uppercase tracking-wide text-(--text-tertiary)">
               {CONFIDENCE_LABEL[move.confidence]}
             </span>
           </div>

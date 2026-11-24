@@ -160,7 +160,7 @@ export function MemberReviewRow({
           </p>
           {badge && (
             <span
-              className="shrink-0 rounded-full border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide"
+              className="shrink-0 rounded-full border px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide"
               style={{ color: badge.color, borderColor: badge.color }}
             >
               {badge.label}

@@ -65,7 +65,7 @@ export const WorkspaceSectionMenuLink = forwardRef<
         )}
         <span className={labelClass}>{section.label}</span>
         <span
-          className="ml-auto text-[10px] text-secondary-wh40k"
+          className="ml-auto text-[11px] text-secondary-wh40k"
           aria-hidden="true"
         >
           ↗

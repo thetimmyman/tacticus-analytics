@@ -248,7 +248,7 @@ function TargetCell({
         </button>
       </div>
       {status === 'error' && (
-        <span className="text-[10px] text-red-400" role="alert">
+        <span className="text-[11px] text-red-400" role="alert">
           failed
         </span>
       )}
@@ -536,16 +536,16 @@ export function PerformanceTargetTokensTable({
                     </td>
                     <td className="px-3 py-2 text-center">
                       {noneAvailable ? (
-                        <span className="px-2 py-0.5 rounded-sm text-[10px] font-semibold bg-red-500/20 text-red-300 border border-red-500/40">
+                        <span className="px-2 py-0.5 rounded-sm text-[11px] font-semibold bg-red-500/20 text-red-300 border border-red-500/40">
                           None available
                         </span>
                       ) : skipped ? (
-                        <span className="px-2 py-0.5 rounded-sm text-[10px] bg-gray-500/20 text-gray-300 border border-gray-500/30">
+                        <span className="px-2 py-0.5 rounded-sm text-[11px] bg-gray-500/20 text-gray-300 border border-gray-500/30">
                           Skip
                         </span>
                       ) : row.target ? (
                         <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                          className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
                             row.target.source === 'officer_manual'
                               ? 'bg-green-500/20 text-green-300 border border-green-500/30'
                               : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
@@ -562,7 +562,7 @@ export function PerformanceTargetTokensTable({
                             : 'Seeded'}
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded-sm text-[10px] text-amber-100/40 border border-amber-100/10">
+                        <span className="px-2 py-0.5 rounded-sm text-[11px] text-amber-100/40 border border-amber-100/10">
                           Unset
                         </span>
                       )}

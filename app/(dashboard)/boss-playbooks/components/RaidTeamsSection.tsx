@@ -291,7 +291,7 @@ export function RaidTeamsSection({ bossId, bossName }: RaidTeamsSectionProps) {
                         <div className="flex items-center justify-between gap-2">
                           <span className="flex min-w-0 items-center gap-1.5">
                             {isTopPick && (
-                              <span className="inline-flex shrink-0 items-center rounded-sm px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent)">
+                              <span className="inline-flex shrink-0 items-center rounded-sm px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent)">
                                 Top P90
                               </span>
                             )}
@@ -301,13 +301,13 @@ export function RaidTeamsSection({ bossId, bossName }: RaidTeamsSectionProps) {
                                 className="text-xs"
                               />
                             ) : (
-                              <span className="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-medium bg-gray-400/20 text-gray-300">
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[11px] font-medium bg-gray-400/20 text-gray-300">
                                 Custom
                               </span>
                             )}
                           </span>
                           {team.season && (
-                            <span className="text-[10px] text-(--text-tertiary)">
+                            <span className="text-[11px] text-(--text-tertiary)">
                               S{team.season}
                             </span>
                           )}
@@ -316,7 +316,7 @@ export function RaidTeamsSection({ bossId, bossName }: RaidTeamsSectionProps) {
                           heroDetails={heroDetails}
                           machineOfWarDetails={machineOfWarDetails}
                         />
-                        <div className="flex flex-wrap gap-2 text-[10px] text-secondary-wh40k">
+                        <div className="flex flex-wrap gap-2 text-[11px] text-secondary-wh40k">
                           {p50 != null && (
                             <span>P50: {formatNumber(Math.round(p50))}</span>
                           )}

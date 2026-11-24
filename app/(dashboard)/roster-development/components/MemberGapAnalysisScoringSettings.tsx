@@ -147,7 +147,7 @@ export function MemberGapAnalysisScoringSettings({
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
                               <span
-                                className={`rounded-full border px-2 py-0.5 text-[10px] ${meta.badgeClass}`}
+                                className={`rounded-full border px-2 py-0.5 text-[11px] ${meta.badgeClass}`}
                               >
                                 {meta.short}
                               </span>
@@ -280,7 +280,7 @@ export function MemberGapAnalysisScoringSettings({
                       return (
                         <span
                           key={source}
-                          className={`inline-flex items-center gap-2 rounded-full border px-2 py-1 text-[10px] ${meta.badgeClass} ${isActive ? 'ring-1 ring-white/30' : 'opacity-70'}`}
+                          className={`inline-flex items-center gap-2 rounded-full border px-2 py-1 text-[11px] ${meta.badgeClass} ${isActive ? 'ring-1 ring-white/30' : 'opacity-70'}`}
                         >
                           {isActive && <Users className="w-3 h-3" />}
                           {meta.short}

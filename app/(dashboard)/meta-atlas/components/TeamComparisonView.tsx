@@ -181,7 +181,7 @@ export function TeamComparisonView({
 
       {showGap && (
         <div className="px-6 py-4 rounded-xl bg-white/5 border border-white/10 flex flex-col justify-center min-w-[120px]">
-          <span className="text-[10px] uppercase text-secondary-wh40k font-bold mb-1">
+          <span className="text-[11px] uppercase text-secondary-wh40k font-bold mb-1">
             Gap
           </span>
           <span className="text-2xl font-bold text-emerald-400">

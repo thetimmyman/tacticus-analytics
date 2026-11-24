@@ -94,7 +94,7 @@ export default function WarRoomAnalytics({
                   className="h-7 w-7 rounded-full object-cover ring-1 ring-(--card-border)"
                 />
               ) : (
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-(--bg-secondary) text-[9px] font-bold uppercase text-(--text-tertiary)">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-(--bg-secondary) text-[11px] font-bold uppercase text-(--text-tertiary)">
                   {portrait.fallbackBadge}
                 </span>
               )}

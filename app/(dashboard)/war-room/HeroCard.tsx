@@ -212,7 +212,7 @@ export default function HeroCard({
         </span>
         <span
           className={clsx(
-            'rounded-sm px-1 text-[8px] font-bold uppercase leading-3',
+            'rounded-sm px-1 text-[11px] font-bold uppercase leading-3.5',
             ROLE_STYLES[role]
           )}
         >

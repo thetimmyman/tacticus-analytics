@@ -249,7 +249,7 @@ export function DamageTrendsChart({
                       {data.trends.cagr > 0 ? '+' : ''}
                       {data.trends.cagr}%
                     </span>
-                    <span className="text-[10px] md:text-xs text-secondary-wh40k ml-1">
+                    <span className="text-[11px] md:text-xs text-secondary-wh40k ml-1">
                       CAGR
                     </span>
                   </div>
@@ -290,7 +290,7 @@ export function DamageTrendsChart({
                 Avg Damage per Attack
               </h4>
               {data.trends.has_enough_data && (
-                <span className="text-[10px] md:text-xs text-secondary-wh40k">
+                <span className="text-[11px] md:text-xs text-secondary-wh40k">
                   R² = {data.trends.regression_r2.toFixed(2)}
                 </span>
               )}
@@ -397,7 +397,7 @@ export function DamageTrendsChart({
                       }
                       setSelectedBosses(newSelected)
                     }}
-                    className={`px-1.5 md:px-2 py-0.5 text-[10px] md:text-xs rounded transition-colors shrink-0 ${
+                    className={`px-1.5 md:px-2 py-0.5 text-[11px] md:text-xs rounded transition-colors shrink-0 ${
                       selectedBosses.has(boss)
                         ? 'text-white'
                         : 'bg-(--bg-secondary) text-secondary-wh40k'

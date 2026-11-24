@@ -113,7 +113,7 @@ function SummaryTile({
   const toneStyle = summaryToneStyles[tone]
   return (
     <div className={`stat-card-wh40k p-3 sm:p-4 ${toneStyle.border}`}>
-      <div className="text-[10px] uppercase tracking-wide text-(--text-tertiary)">
+      <div className="text-[11px] uppercase tracking-wide text-(--text-tertiary)">
         {label}
       </div>
       <div className={`text-lg sm:text-xl font-semibold ${toneStyle.text}`}>
@@ -412,7 +412,7 @@ export default function WarAnalytics({ guildCode }: WarAnalyticsProps) {
           <div className="rounded-lg border border-(--border) bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-3">
             <div className="flex items-center justify-between gap-2">
               <div>
-                <p className="text-[10px] uppercase tracking-wide text-(--text-tertiary)">
+                <p className="text-[11px] uppercase tracking-wide text-(--text-tertiary)">
                   Top Scorer
                 </p>
                 <p className="text-sm font-semibold text-primary-wh40k">
@@ -431,7 +431,7 @@ export default function WarAnalytics({ guildCode }: WarAnalyticsProps) {
           <div className="rounded-lg border border-(--border) bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-3">
             <div className="flex items-center justify-between gap-2">
               <div>
-                <p className="text-[10px] uppercase tracking-wide text-(--text-tertiary)">
+                <p className="text-[11px] uppercase tracking-wide text-(--text-tertiary)">
                   Most Active
                 </p>
                 <p className="text-sm font-semibold text-primary-wh40k">
@@ -454,7 +454,7 @@ export default function WarAnalytics({ guildCode }: WarAnalyticsProps) {
           <div className="rounded-lg border border-(--border) bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-3">
             <div className="flex items-center justify-between gap-2">
               <div>
-                <p className="text-[10px] uppercase tracking-wide text-(--text-tertiary)">
+                <p className="text-[11px] uppercase tracking-wide text-(--text-tertiary)">
                   Best Win Rate
                 </p>
                 <p className="text-sm font-semibold text-primary-wh40k">
@@ -476,7 +476,7 @@ export default function WarAnalytics({ guildCode }: WarAnalyticsProps) {
         </div>
 
         <div>
-          <div className="text-[10px] uppercase tracking-wide text-(--text-tertiary)">
+          <div className="text-[11px] uppercase tracking-wide text-(--text-tertiary)">
             Recent Wars
           </div>
           {recentWars.length === 0 ? (

@@ -360,7 +360,7 @@ export function BossPerformanceBossList({
                               {getTrendIcon(stat.trend)}
                               <span
                                 className={`
-                                              text-[10px] uppercase font-semibold
+                                              text-[11px] uppercase font-semibold
                                               ${
                                                 stat.trend === 'improving'
                                                   ? 'text-green-400'

@@ -35,7 +35,7 @@ function PrimesCell({ entry }: { entry: BossStageEntry }) {
     <>
       {activeCount > 0 ? `+${activeCount}` : '—'}
       {skippedCount > 0 && (
-        <span className="ml-1 text-[10px] uppercase tracking-wide text-(--text-tertiary)">
+        <span className="ml-1 text-[11px] uppercase tracking-wide text-(--text-tertiary)">
           {skippedCount} Skipped
         </span>
       )}
@@ -58,7 +58,7 @@ const renderStageCell = (entry: BossStageEntry) => (
     {entry.stageCode}
     <span className="text-(--text-tertiary)"> L{entry.loopIndex}</span>
     {entry.isCurrentStage && (
-      <span className="ml-1 text-[10px] text-(--accent)">now</span>
+      <span className="ml-1 text-[11px] text-(--accent)">now</span>
     )}
   </>
 )

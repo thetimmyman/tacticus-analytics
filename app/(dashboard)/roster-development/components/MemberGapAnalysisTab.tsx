@@ -298,13 +298,13 @@ export function MemberGapAnalysisTab() {
                 {data.targets_analyzed.slice(0, 8).map((target) => (
                   <span
                     key={target.target_id}
-                    className="rounded-full border border-(--card-border) px-2 py-0.5 text-[10px] text-secondary-wh40k"
+                    className="rounded-full border border-(--card-border) px-2 py-0.5 text-[11px] text-secondary-wh40k"
                   >
                     {target.target_name}
                   </span>
                 ))}
                 {data.targets_analyzed.length > 8 && (
-                  <span className="rounded-full border border-(--card-border) px-2 py-0.5 text-[10px] text-secondary-wh40k">
+                  <span className="rounded-full border border-(--card-border) px-2 py-0.5 text-[11px] text-secondary-wh40k">
                     +{data.targets_analyzed.length - 8} more
                   </span>
                 )}
@@ -323,7 +323,7 @@ export function MemberGapAnalysisTab() {
                 {fallbackChain.map((source) => (
                   <span
                     key={source}
-                    className={`rounded-full border px-2 py-0.5 text-[10px] ${SOURCE_LABELS[source].badgeClass} ${data.active_source === source ? '' : 'opacity-60'}`}
+                    className={`rounded-full border px-2 py-0.5 text-[11px] ${SOURCE_LABELS[source].badgeClass} ${data.active_source === source ? '' : 'opacity-60'}`}
                   >
                     {SOURCE_LABELS[source].short}
                   </span>
@@ -430,7 +430,7 @@ export function MemberGapAnalysisTab() {
               {targetScores.map((target) => (
                 <span
                   key={`${member.player_id}-${target.target_id}`}
-                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] ${
+                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[11px] ${
                     STATUS_CONFIG[target.status].badgeClass
                   } ${target.coach_highlight ? 'ring-1 ring-amber-400/40' : ''}`}
                 >

@@ -72,7 +72,7 @@ function StageBadge({
         <div className="flex items-center gap-1.5">
           <span className="font-bold">{stage.stageCode}</span>
           {stage.isCurrentStage && (
-            <span className="rounded-sm bg-amber-500/30 px-1 py-px text-[9px] font-semibold leading-tight text-amber-300">
+            <span className="rounded-sm bg-amber-500/30 px-1 py-px text-[11px] font-semibold leading-tight text-amber-300">
               NOW
             </span>
           )}
@@ -255,11 +255,11 @@ function StageDetailCard({
               {getBossDisplayName(stage.mainBoss)}
               {stage.isCurrentStage ? (
                 // Top panel = actuals (who attacked); this card = pending plan (who is next).
-                <span className="ml-2 rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-semibold text-amber-400">
+                <span className="ml-2 rounded-full bg-amber-500/20 px-2 py-0.5 text-[11px] font-semibold text-amber-400">
                   Pending · Current stage
                 </span>
               ) : (
-                <span className="ml-2 rounded-full bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] px-2 py-0.5 text-[10px] font-semibold text-secondary-wh40k">
+                <span className="ml-2 rounded-full bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] px-2 py-0.5 text-[11px] font-semibold text-secondary-wh40k">
                   Upcoming
                 </span>
               )}

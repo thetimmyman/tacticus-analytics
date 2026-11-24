@@ -315,7 +315,7 @@ export default function RosterStrategySection({
                     <div className="mt-3 grid grid-cols-2 gap-3">
                       {strategyDeltaMetric(row.delta).map((metric) => (
                         <div key={metric.label}>
-                          <div className="text-[10px] uppercase tracking-wide text-secondary-wh40k">
+                          <div className="text-[11px] uppercase tracking-wide text-secondary-wh40k">
                             {metric.label}
                           </div>
                           <div

@@ -105,7 +105,7 @@ export function MatrixMobileCards<Row, Col>({
                     }`}
                     style={cell.style}
                   >
-                    <div className="max-w-full truncate text-[9px] font-medium leading-tight text-secondary-wh40k">
+                    <div className="max-w-full truncate text-[11px] font-medium leading-tight text-secondary-wh40k">
                       {renderColLabel(col)}
                     </div>
                     <div className="text-xs text-primary-wh40k">

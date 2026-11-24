@@ -111,7 +111,7 @@ export default function BattlefieldSelectorPanel({
                     <span className="font-black tracking-wider md:tracking-widest text-sm md:text-base">
                       BF{level}
                     </span>
-                    <span className="text-[8px] md:text-[10px] opacity-70 font-normal hidden sm:block">
+                    <span className="text-[11px] md:text-xs opacity-70 font-normal hidden sm:block">
                       {level === 1
                         ? 'Recruit'
                         : level === 2
@@ -124,7 +124,7 @@ export default function BattlefieldSelectorPanel({
                     </span>
                   </div>
                   {isRecommended && (
-                    <div className="absolute -top-1 -right-1 px-1.5 py-0.5 bg-green-500 text-[8px] font-bold text-white rounded-bl-md rounded-tr-md shadow-lg">
+                    <div className="absolute -top-1 -right-1 px-1.5 py-0.5 bg-green-500 text-[11px] font-bold text-white rounded-bl-md rounded-tr-md shadow-lg">
                       REC
                     </div>
                   )}
@@ -135,7 +135,7 @@ export default function BattlefieldSelectorPanel({
         </RadixTabs>
 
         <div className="mt-3 md:mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div className="flex items-center gap-2 text-[10px] md:text-xs">
+          <div className="flex items-center gap-2 text-[11px] md:text-xs">
             <Info className="h-3 w-3 md:h-4 md:w-4 text-secondary-wh40k shrink-0" />
             <span className="text-secondary-wh40k">
               {BATTLEFIELD_MULTIPLIERS[battlefieldLevel]}x multiplier
@@ -144,7 +144,7 @@ export default function BattlefieldSelectorPanel({
           {averagePlayerLevel > 0 && (
             <div className="flex items-center gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-full bg-green-500/10 border border-green-500/30 self-start sm:self-auto">
               <Sparkles className="h-3 w-3 text-green-400" />
-              <span className="text-[10px] md:text-xs text-green-400 font-medium">
+              <span className="text-[11px] md:text-xs text-green-400 font-medium">
                 Avg Level: {averagePlayerLevel}
               </span>
             </div>

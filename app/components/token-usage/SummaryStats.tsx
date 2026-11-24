@@ -109,7 +109,7 @@ function SummaryStats({
               </span>
             </div>
             {avgRegenSeconds !== null && (
-              <div className="text-[10px] text-(--text-tertiary) mt-1">
+              <div className="text-[11px] text-(--text-tertiary) mt-1">
                 Avg regen: {formatShortDuration(avgRegenSeconds)}
               </div>
             )}
@@ -134,7 +134,7 @@ function SummaryStats({
       </div>
 
       {showBurned && (
-        <p className="text-[10px] sm:text-xs italic text-(--text-tertiary)">
+        <p className="text-[11px] sm:text-xs italic text-(--text-tertiary)">
           Behind pace = tokens behind the guild&apos;s most active member
           (participation proxy). Overcapped = tokens physically wasted at the
           3/3 cap (unrecoverable).

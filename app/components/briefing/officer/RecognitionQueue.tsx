@@ -38,12 +38,12 @@ export function RecognitionQueue({
             <h2 className="text-sm font-semibold text-primary-wh40k">
               Recognition queue
             </h2>
-            <p className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
+            <p className="text-[11px] uppercase tracking-wider text-(--text-tertiary)">
               Performance vs target score
             </p>
           </div>
         </div>
-        <span className="shrink-0 rounded-full border border-[color-mix(in_srgb,var(--success)_45%,transparent)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-secondary-wh40k">
+        <span className="shrink-0 rounded-full border border-[color-mix(in_srgb,var(--success)_45%,transparent)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-secondary-wh40k">
           {recognition.length} candidate{recognition.length === 1 ? '' : 's'}
         </span>
       </header>
@@ -78,7 +78,7 @@ export function RecognitionQueue({
                         : null
                     )}
                   </span>
-                  <span className="text-[9px] uppercase tracking-wide text-(--text-tertiary)">
+                  <span className="text-[11px] uppercase tracking-wide text-(--text-tertiary)">
                     vs target
                   </span>
                 </span>

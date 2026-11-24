@@ -192,11 +192,9 @@ export function MetroNode({
   const badgeSizeClass =
     resolvedPortraitMode === 'micro'
       ? 'text-[8px] sm:text-[9px]'
-      : 'text-[10px] sm:text-[11px]'
+      : 'text-[11px]'
   const labelClass = `uppercase tracking-wide ${style.kicker} ${
-    compact
-      ? 'text-[9px] sm:text-[10px] truncate max-w-20'
-      : 'text-[10px] sm:text-[11px]'
+    compact ? 'text-[9px] sm:text-[10px] truncate max-w-20' : 'text-[11px]'
   }`
   const damageClass = `${style.label} font-semibold ${
     compact
@@ -217,7 +215,7 @@ export function MetroNode({
         className={`relative z-10 flex w-full flex-col items-center gap-2 rounded-2xl border ${compact ? 'px-3 py-3' : 'px-4 py-4 sm:px-5 sm:py-5'} backdrop-blur-sm sm:gap-3 ${style.card}`}
       >
         {activeBadgeLabel && showDetails && (
-          <span className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2 py-0.5 text-[9px] font-semibold text-emerald-200">
+          <span className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-200">
             {activeBadgeLabel}
           </span>
         )}
@@ -269,7 +267,7 @@ export function MetroNode({
                           loading="lazy"
                         />
                       ) : (
-                        <span className="text-[10px] text-slate-300 font-semibold sm:text-[11px]">
+                        <span className="text-[11px] text-slate-300 font-semibold">
                           {hero.name.slice(0, 2).toUpperCase()}
                         </span>
                       )}
@@ -288,7 +286,7 @@ export function MetroNode({
             </div>
           ) : showDetails && composition ? (
             <div
-              className={`mt-2 text-[10px] ${locked ? 'text-slate-300' : 'text-slate-100'} truncate max-w-44 sm:text-[11px] sm:max-w-48`}
+              className={`mt-2 text-[11px] ${locked ? 'text-slate-300' : 'text-slate-100'} truncate max-w-44 sm:max-w-48`}
               title={composition}
             >
               {composition}
@@ -297,13 +295,13 @@ export function MetroNode({
         </div>
         {showDetails && availabilityLabel && (
           <span
-            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${availabilityClass}`}
+            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${availabilityClass}`}
           >
             {availabilityLabel}
           </span>
         )}
         {showDetails && locked && requires && (
-          <span className="text-[10px] text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">
+          <span className="text-[11px] text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">
             Requires {requires}
           </span>
         )}

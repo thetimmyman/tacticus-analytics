@@ -45,7 +45,7 @@ export function ClusterHeader({
               <p className="text-lg sm:text-2xl font-bold text-primary-wh40k">
                 {guilds.length}
               </p>
-              <p className="text-[10px] sm:text-sm text-secondary-wh40k">
+              <p className="text-[11px] sm:text-sm text-secondary-wh40k">
                 Guilds
               </p>
             </div>
@@ -59,7 +59,7 @@ export function ClusterHeader({
               <p className="text-lg sm:text-2xl font-bold text-primary-wh40k">
                 {guilds.filter((g) => g.enabled).length}
               </p>
-              <p className="text-[10px] sm:text-sm text-secondary-wh40k">
+              <p className="text-[11px] sm:text-sm text-secondary-wh40k">
                 Active
               </p>
             </div>
@@ -73,7 +73,7 @@ export function ClusterHeader({
               <p className="text-lg sm:text-2xl font-bold text-primary-wh40k">
                 {guilds.filter((g) => g.has_api_key).length}
               </p>
-              <p className="text-[10px] sm:text-sm text-secondary-wh40k">
+              <p className="text-[11px] sm:text-sm text-secondary-wh40k">
                 API Keys
               </p>
             </div>

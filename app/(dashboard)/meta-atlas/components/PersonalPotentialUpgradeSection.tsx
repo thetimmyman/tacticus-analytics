@@ -79,7 +79,7 @@ export function PersonalPotentialUpgradeSection({
 }: PersonalPotentialUpgradeSectionProps) {
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] uppercase tracking-wide text-emerald-300">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] uppercase tracking-wide text-emerald-300">
         <span>Upgrade Line</span>
         {resolvedDeltaLabel && (
           <span className={resolvedDeltaTone}>Net {resolvedDeltaLabel}</span>
@@ -87,7 +87,7 @@ export function PersonalPotentialUpgradeSection({
       </div>
       <div className="flex flex-wrap items-baseline gap-4 text-[11px] text-primary-wh40k">
         <div>
-          <span className="text-secondary-wh40k uppercase tracking-wide text-[9px]">
+          <span className="text-secondary-wh40k uppercase tracking-wide text-[11px]">
             Current P90{' '}
           </span>
           <span className="text-emerald-200 font-semibold">
@@ -97,7 +97,7 @@ export function PersonalPotentialUpgradeSection({
           </span>
         </div>
         <div>
-          <span className="text-secondary-wh40k uppercase tracking-wide text-[9px]">
+          <span className="text-secondary-wh40k uppercase tracking-wide text-[11px]">
             Target P90{' '}
           </span>
           <span className="text-amber-200 font-semibold">
@@ -107,7 +107,7 @@ export function PersonalPotentialUpgradeSection({
           </span>
         </div>
         <div>
-          <span className="text-secondary-wh40k uppercase tracking-wide text-[9px]">
+          <span className="text-secondary-wh40k uppercase tracking-wide text-[11px]">
             Net{' '}
           </span>
           <span className={`font-semibold ${resolvedDeltaTone}`}>
@@ -138,7 +138,7 @@ export function PersonalPotentialUpgradeSection({
       />
       {showTeamFloor && (
         <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-3">
-          <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] uppercase tracking-wide text-secondary-wh40k">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] uppercase tracking-wide text-secondary-wh40k">
             <span>Minimums (P90 floor)</span>
             {teamFloorQuery.isLoading ? (
               <span className="text-secondary-wh40k">Loading...</span>
@@ -236,7 +236,7 @@ export function PersonalPotentialUpgradeSection({
                           loading="lazy"
                         />
                       ) : (
-                        <span className="text-[10px] text-secondary-wh40k font-semibold">
+                        <span className="text-[11px] text-secondary-wh40k font-semibold">
                           {unit.displayName.slice(0, 2).toUpperCase()}
                         </span>
                       )}
@@ -247,14 +247,14 @@ export function PersonalPotentialUpgradeSection({
                     >
                       {unit.displayName}
                     </div>
-                    <div className="text-[10px] text-secondary-wh40k">
+                    <div className="text-[11px] text-secondary-wh40k">
                       Min: {minLabel}
                     </div>
-                    <div className="text-[10px] text-secondary-wh40k">
+                    <div className="text-[11px] text-secondary-wh40k">
                       You: {rosterLabel}
                     </div>
                     <span
-                      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[9px] font-semibold ${statusTone}`}
+                      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${statusTone}`}
                     >
                       {statusLabel}
                     </span>

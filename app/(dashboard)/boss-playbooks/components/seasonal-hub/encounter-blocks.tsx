@@ -91,7 +91,7 @@ export function EncounterMedia({
           <span className="text-xs">{encounter.boardId}</span>
         </div>
       )}
-      <div className="absolute inset-x-0 bottom-0 bg-black/65 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-white/80">
+      <div className="absolute inset-x-0 bottom-0 bg-black/65 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/80">
         {encounter.boardId}
       </div>
     </div>
@@ -207,7 +207,7 @@ export function MetricsStrip({
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-(--card-border) bg-black/20 px-3 py-2">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
         {label}
       </div>
       <div className="mt-1 truncate font-semibold text-primary-wh40k">
@@ -224,7 +224,7 @@ function LoopTokenMetric({
 }) {
   return (
     <div className="rounded-md border border-(--card-border) bg-black/20 px-3 py-2">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
         Loop tokens
       </div>
       {metrics && metrics.tokensByLoop.length > 0 ? (
@@ -250,7 +250,7 @@ function LoopTokenMetric({
 export function MetaTeamBadge({ team }: { team: SeasonalHubMetaAtlasTeam }) {
   if (!team.metaTeam) return null
   return (
-    <span className="inline-flex max-w-full items-center rounded-sm border border-[color-mix(in_srgb,var(--accent)_35%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] px-1.5 py-0.5 text-[10px] font-semibold text-(--accent)">
+    <span className="inline-flex max-w-full items-center rounded-sm border border-[color-mix(in_srgb,var(--accent)_35%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] px-1.5 py-0.5 text-[11px] font-semibold text-(--accent)">
       <span className="truncate">{team.metaTeam}</span>
     </span>
   )

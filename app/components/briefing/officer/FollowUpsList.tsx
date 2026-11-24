@@ -123,7 +123,7 @@ function TaskRow({
           </p>
         </div>
         <span
-          className="rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide"
+          className="rounded-full border px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide"
           style={{ color: meta.color, borderColor: meta.color }}
         >
           {meta.label}

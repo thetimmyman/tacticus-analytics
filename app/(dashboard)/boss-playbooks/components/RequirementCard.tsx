@@ -53,7 +53,7 @@ function HeroCardCell({ hero }: { hero: HeroRequirement }) {
           className="h-8 w-8 rounded-full object-cover border border-(--card-border) shrink-0"
         />
       ) : (
-        <div className="h-8 w-8 rounded-full bg-(--card-bg) border border-(--card-border) flex items-center justify-center text-[10px] font-bold text-(--text-tertiary) shrink-0">
+        <div className="h-8 w-8 rounded-full bg-(--card-bg) border border-(--card-border) flex items-center justify-center text-[11px] font-bold text-(--text-tertiary) shrink-0">
           {fallbackBadge}
         </div>
       )}
@@ -65,7 +65,7 @@ function HeroCardCell({ hero }: { hero: HeroRequirement }) {
           {displayName}
         </div>
         {hasStats && (
-          <div className="flex items-center gap-1.5 text-[9px] text-(--text-tertiary) flex-wrap">
+          <div className="flex items-center gap-1.5 text-[11px] text-(--text-tertiary) flex-wrap">
             {hero.min_rank && (
               <span className="font-mono">{abbreviateRank(hero.min_rank)}</span>
             )}
@@ -126,7 +126,7 @@ function RequirementCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span
-              className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] rounded-sm border ${colorClasses[scopeColor]}`}
+              className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[11px] rounded-sm border ${colorClasses[scopeColor]}`}
             >
               {scopeIcon}
               {scopeLabel}
@@ -144,7 +144,7 @@ function RequirementCard({
           </div>
           {requirement.overall_notes && (
             <div
-              className="text-[10px] text-(--text-tertiary) italic mt-1.5 line-clamp-2"
+              className="text-[11px] text-(--text-tertiary) italic mt-1.5 line-clamp-2"
               title={requirement.overall_notes}
             >
               {requirement.overall_notes}
@@ -177,7 +177,7 @@ function RequirementCard({
         {/* MOW (if present) */}
         {mow && (
           <div className="pt-1.5 border-t border-card-border/50">
-            <div className="text-[9px] uppercase tracking-wide text-(--text-tertiary) mb-1">
+            <div className="text-[11px] uppercase tracking-wide text-(--text-tertiary) mb-1">
               Machine of War
             </div>
             <HeroCardCell hero={mow} />
@@ -186,7 +186,7 @@ function RequirementCard({
 
         {/* Empty state */}
         {regularHeroes.length === 0 && !mow && (
-          <div className="text-[10px] text-(--text-tertiary) italic text-center py-2">
+          <div className="text-[11px] text-(--text-tertiary) italic text-center py-2">
             No hero requirements defined
           </div>
         )}

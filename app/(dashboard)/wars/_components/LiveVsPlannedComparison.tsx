@@ -142,7 +142,7 @@ export default function LiveVsPlannedComparison({
               <p className="text-lg sm:text-2xl font-bold text-green-400">
                 {stats.matching}
               </p>
-              <p className="text-[10px] sm:text-xs text-green-400/80">
+              <p className="text-[11px] sm:text-xs text-green-400/80">
                 Matching
               </p>
             </div>
@@ -150,7 +150,7 @@ export default function LiveVsPlannedComparison({
               <p className="text-lg sm:text-2xl font-bold text-yellow-400">
                 {stats.different}
               </p>
-              <p className="text-[10px] sm:text-xs text-yellow-400/80">
+              <p className="text-[11px] sm:text-xs text-yellow-400/80">
                 Different
               </p>
             </div>
@@ -158,7 +158,7 @@ export default function LiveVsPlannedComparison({
               <p className="text-lg sm:text-2xl font-bold text-blue-400">
                 {stats.onlyLive}
               </p>
-              <p className="text-[10px] sm:text-xs text-blue-400/80">
+              <p className="text-[11px] sm:text-xs text-blue-400/80">
                 New in Game
               </p>
             </div>
@@ -166,7 +166,7 @@ export default function LiveVsPlannedComparison({
               <p className="text-lg sm:text-2xl font-bold text-orange-400">
                 {stats.onlyPlanned}
               </p>
-              <p className="text-[10px] sm:text-xs text-orange-400/80">
+              <p className="text-[11px] sm:text-xs text-orange-400/80">
                 Only Planned
               </p>
             </div>

@@ -86,7 +86,7 @@ export default function GuildWarBattlefields({
               >
                 {seasonLabel(id)}
                 {id === inferred && observedZoneTypes.length > 0 ? (
-                  <span className="ml-1 text-[10px] text-emerald-400">•</span>
+                  <span className="ml-1 text-[11px] text-emerald-400">•</span>
                 ) : null}
               </button>
             )
@@ -129,7 +129,7 @@ export default function GuildWarBattlefields({
                     {zoneDisplayName(zoneType)}
                   </span>
                   {typeof cfg?.score === 'number' ? (
-                    <span className="text-[10px] tabular-nums text-slate-500">
+                    <span className="text-[11px] tabular-nums text-slate-500">
                       {cfg.score.toLocaleString()} pts
                     </span>
                   ) : null}
@@ -172,7 +172,7 @@ export default function GuildWarBattlefields({
                       {boardName}
                     </span>
                     {typeof spawnPointsSet === 'number' ? (
-                      <span className="block px-2 pb-1.5 text-[10px] text-slate-500">
+                      <span className="block px-2 pb-1.5 text-[11px] text-slate-500">
                         Spawn set {spawnPointsSet}
                       </span>
                     ) : null}
@@ -181,7 +181,7 @@ export default function GuildWarBattlefields({
                   <div className="w-full overflow-hidden rounded-lg border border-dashed border-slate-700 bg-slate-800/30">
                     <div className="flex aspect-square w-full flex-col items-center justify-center gap-1 text-slate-600">
                       <ImageOff className="h-6 w-6" aria-hidden="true" />
-                      <span className="px-2 text-center text-[10px] leading-tight">
+                      <span className="px-2 text-center text-[11px] leading-tight">
                         no art in this build
                       </span>
                     </div>
@@ -189,7 +189,7 @@ export default function GuildWarBattlefields({
                       {boardName}
                     </span>
                     {typeof spawnPointsSet === 'number' ? (
-                      <span className="block px-2 pb-1.5 text-[10px] text-slate-500">
+                      <span className="block px-2 pb-1.5 text-[11px] text-slate-500">
                         Spawn set {spawnPointsSet}
                       </span>
                     ) : null}

@@ -157,7 +157,7 @@ function LapChart({
           key={b.lap}
           className="flex h-full flex-col items-center justify-end"
         >
-          <strong className="mb-1 text-[10px] font-semibold tabular-nums text-secondary-wh40k">
+          <strong className="mb-1 text-[11px] font-semibold tabular-nums text-secondary-wh40k">
             {b.value || ' '}
           </strong>
           <div
@@ -185,7 +185,7 @@ function LapChart({
               }}
             />
           </div>
-          <span className="mt-1 max-w-full text-center text-[9px] uppercase leading-tight tracking-wide text-(--text-tertiary)">
+          <span className="mt-1 max-w-full text-center text-[11px] uppercase leading-tight tracking-wide text-(--text-tertiary)">
             {`L${b.lap + 1}${tagFor(b.kind) ? ` · ${tagFor(b.kind)}` : ''}`}
           </span>
         </div>
@@ -240,7 +240,7 @@ function SeasonOutlookCard({
           <TrendingUp className="h-4 w-4 text-(--accent)" aria-hidden />
           Season outlook
         </h2>
-        <span className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
+        <span className="text-[11px] uppercase tracking-wider text-(--text-tertiary)">
           Guild forecast
         </span>
       </div>
@@ -288,7 +288,7 @@ function SeasonOutlookCard({
               <p className="text-xl font-bold tabular-nums text-primary-wh40k">
                 {hasMounted ? formatTimeRemaining(secs) : '—'}
               </p>
-              <p className="text-[9px] uppercase tracking-wider text-(--text-tertiary)">
+              <p className="text-[11px] uppercase tracking-wider text-(--text-tertiary)">
                 Time left
               </p>
             </div>
@@ -305,7 +305,7 @@ function SeasonOutlookCard({
                   style={{ width: `${progress * 100}%` }}
                 />
               </div>
-              <div className="mt-1 flex justify-between text-[10px] text-(--text-tertiary)">
+              <div className="mt-1 flex justify-between text-[11px] text-(--text-tertiary)">
                 <span>Season start</span>
                 <span>{Math.round(progress * 100)}% elapsed</span>
                 <span>End</span>
@@ -317,7 +317,7 @@ function SeasonOutlookCard({
           {outlook && (
             <div className="mt-3 grid grid-cols-3 gap-2">
               <div className="rounded-lg border border-[color-mix(in_srgb,var(--card-border)_60%,transparent)] bg-(--bg-primary) p-2.5">
-                <p className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
+                <p className="text-[11px] uppercase tracking-wider text-(--text-tertiary)">
                   Tokens used
                 </p>
                 <p className="text-lg font-bold text-primary-wh40k">
@@ -326,29 +326,29 @@ function SeasonOutlookCard({
                     0
                   )}
                 </p>
-                <p className="text-[9px] text-(--text-tertiary)">
+                <p className="text-[11px] text-(--text-tertiary)">
                   of {formatNumber(outlook.seasonBudget, 0)} this season
                 </p>
               </div>
               <div className="rounded-lg border border-[color-mix(in_srgb,var(--card-border)_60%,transparent)] bg-(--bg-primary) p-2.5">
-                <p className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
+                <p className="text-[11px] uppercase tracking-wider text-(--text-tertiary)">
                   Tokens left
                 </p>
                 <p className="text-lg font-bold text-primary-wh40k">
                   {formatNumber(outlook.tokensRemaining, 0)}
                 </p>
-                <p className="text-[9px] text-(--text-tertiary)">
+                <p className="text-[11px] text-(--text-tertiary)">
                   still spendable
                 </p>
               </div>
               <div className="rounded-lg border border-[color-mix(in_srgb,var(--card-border)_60%,transparent)] bg-(--bg-primary) p-2.5">
-                <p className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
+                <p className="text-[11px] uppercase tracking-wider text-(--text-tertiary)">
                   Waste risk
                 </p>
                 <p className="text-lg font-bold text-primary-wh40k">
                   {formatNumber(outlook.projectedWaste, 0)}
                 </p>
-                <p className="text-[9px] text-(--text-tertiary)">
+                <p className="text-[11px] text-(--text-tertiary)">
                   at current pace
                 </p>
               </div>

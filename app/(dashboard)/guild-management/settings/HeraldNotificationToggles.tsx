@@ -324,7 +324,7 @@ export function HeraldNotificationToggles({
                         setClearWebhook((prev) => !prev)
                         setBombAlert((b) => ({ ...b, webhookUrl: '' }))
                       }}
-                      className="text-[10px] uppercase tracking-wide text-(--text-tertiary) hover:text-(--accent) flex items-center gap-1"
+                      className="text-[11px] uppercase tracking-wide text-(--text-tertiary) hover:text-(--accent) flex items-center gap-1"
                       disabled={savingBombAlert}
                     >
                       <RotateCcw className="w-3 h-3" />{' '}
@@ -348,7 +348,7 @@ export function HeraldNotificationToggles({
                   disabled={!controlsEnabled || savingBombAlert}
                   className="font-mono text-xs"
                 />
-                <p className="text-[10px] text-(--text-tertiary)">
+                <p className="text-[11px] text-(--text-tertiary)">
                   Write-only: the saved URL is never shown here. Leave blank to
                   keep it, type a new URL to replace it, or use “Clear saved
                   webhook” to remove it.
@@ -372,7 +372,7 @@ export function HeraldNotificationToggles({
                       onClick={() =>
                         setBombAlert((b) => ({ ...b, guildLevel: '' }))
                       }
-                      className="text-[10px] uppercase tracking-wide text-(--text-tertiary) hover:text-(--accent) flex items-center gap-1"
+                      className="text-[11px] uppercase tracking-wide text-(--text-tertiary) hover:text-(--accent) flex items-center gap-1"
                       disabled={savingBombAlert}
                     >
                       <RotateCcw className="w-3 h-3" /> Clear override
@@ -397,7 +397,7 @@ export function HeraldNotificationToggles({
                   disabled={!controlsEnabled || savingBombAlert}
                   className="font-mono"
                 />
-                <p className="text-[10px] text-(--text-tertiary)">
+                <p className="text-[11px] text-(--text-tertiary)">
                   Auto-syncs from the server-side data feed. A value here
                   overrides until the next sync overwrites it.
                 </p>
@@ -430,7 +430,7 @@ export function HeraldNotificationToggles({
                     )
                   })}
                 </div>
-                <p className="text-[10px] text-(--text-tertiary)">
+                <p className="text-[11px] text-(--text-tertiary)">
                   {MODE_HINT[bombAlert.calculationMode]}
                 </p>
               </div>

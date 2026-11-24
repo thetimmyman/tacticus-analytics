@@ -184,7 +184,7 @@ export function MemberListTable({
                   }}
                 />
                 {member.player_level != null && (
-                  <span className="scheme-dark absolute -bottom-1.5 left-1/2 -translate-x-1/2 text-[9px] font-bold leading-none px-1 py-px rounded-full bg-black/85 border border-amber-500/50 text-amber-300 whitespace-nowrap pointer-events-none">
+                  <span className="scheme-dark absolute -bottom-1.5 left-1/2 -translate-x-1/2 text-[11px] font-bold leading-none px-1 py-px rounded-full bg-black/85 border border-amber-500/50 text-amber-300 whitespace-nowrap pointer-events-none">
                     {member.player_level}
                   </span>
                 )}
