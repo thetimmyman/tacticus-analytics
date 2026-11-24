@@ -5,7 +5,7 @@ import {
   formatDamageWithPrivacy
 } from '@tacticus/app-core/explore-privacy'
 import type { GuildSnapshot } from '@tacticus/app-core/database-extensions'
-import type { GuildData } from '@/app/(public)/explore/types'
+import type { GuildData, VOTLWChampion } from '@/app/(public)/explore/types'
 
 /** /explore renders what the old browser-side redaction did, except hide_players also redacts champions. */
 
@@ -86,7 +86,7 @@ const rendered = (guilds: GuildData[]) =>
     total_damage: g.total_damage,
     avg_damage_per_battle: g.avg_damage_per_battle,
     isObfuscated: g.isObfuscated,
-    champions: g.votlw_champions.map((c) => ({
+    champions: g.votlw_champions.map((c: VOTLWChampion) => ({
       season: c.season,
       player: c.player
     })),
@@ -128,17 +128,17 @@ describe('explore mapping over the server-redacted shape', () => {
 
   it('hide_players anonymizes votlw_champions -- a deliberate behaviour change', () => {
     const fromRaw = render([snapshot(['hide_players'], HITS_RAW)])[0]
-    expect(fromRaw.votlw_champions.map((c) => c.player)).toEqual([
-      'Anonymous Warrior',
-      'Anonymous Warrior'
-    ])
-    expect(fromRaw.votlw_champions.map((c) => c.season)).toEqual(['83', '82'])
+    expect(fromRaw.votlw_champions.map((c: VOTLWChampion) => c.player)).toEqual(
+      ['Anonymous Warrior', 'Anonymous Warrior']
+    )
+    expect(fromRaw.votlw_champions.map((c: VOTLWChampion) => c.season)).toEqual(
+      ['83', '82']
+    )
 
     const publicGuild = render([snapshot(['public'], HITS_RAW)])[0]
-    expect(publicGuild.votlw_champions.map((c) => c.player)).toEqual([
-      'Alice',
-      'Bob'
-    ])
+    expect(
+      publicGuild.votlw_champions.map((c: VOTLWChampion) => c.player)
+    ).toEqual(['Alice', 'Bob'])
   })
 
   it('hide_primes renders identically from the redacted shape', () => {

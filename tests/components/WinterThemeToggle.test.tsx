@@ -10,6 +10,8 @@ vi.mock('@/app/components/seasonal/WinterThemeProvider', () => ({
 const buildBaseState = () => ({
   isWinterThemeActive: false,
   toggleWinterTheme: vi.fn(),
+  activateWinterTheme: vi.fn(),
+  deactivateWinterTheme: vi.fn(),
   snowIntensity: 'light' as const,
   setSnowIntensity: vi.fn(),
   showLights: false,

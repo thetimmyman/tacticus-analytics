@@ -1034,7 +1034,7 @@ describe('POST /api/clusters/create', () => {
               }
               updateChain.then = ((resolve: ThenResolve) =>
                 resolve(
-                  overrides.guildConfigUpdate ?? { error: null }
+                  resolveResult(overrides.guildConfigUpdate, { error: null })
                 )) as unknown as ReturnType<typeof vi.fn>
               return updateChain
             })

@@ -19,6 +19,7 @@ function progressFixture(
 ): OnboardingProgress {
   return {
     user_id: 'user-1',
+    guild_attempt_generation: 1,
     guild_mode: 'new_guild',
     role_intent: 'leader',
     guild_status: 'complete',

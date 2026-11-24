@@ -95,22 +95,25 @@ describe('edge damage-classification', () => {
   })
 
   describe('applyQualifyingSweepException parity with app sweep-helpers', () => {
-    const CASES = [
+    const CASES: Array<{
+      name: string
+      args: [number, number, number[], number, number?]
+    }> = [
       {
         name: 'qualifying sweep above both gates is folded in',
-        args: [1_000_000, 1, [1_500_000], 800_000, 1_000_000] as const
+        args: [1_000_000, 1, [1_500_000], 800_000, 1_000_000]
       },
       {
         name: 'sweep below the player own avg is dropped',
-        args: [2_000_000, 2, [900_000], 800_000, 1_000_000] as const
+        args: [2_000_000, 2, [900_000], 800_000, 1_000_000]
       },
       {
         name: 'sweep below the reference avg is dropped',
-        args: [0, 0, [500_000], 800_000, 0] as const
+        args: [0, 0, [500_000], 800_000, 0]
       },
       {
         name: 'no reference baseline drops all sweeps',
-        args: [1_000_000, 1, [5_000_000], 0, 1_000_000] as const
+        args: [1_000_000, 1, [5_000_000], 0, 1_000_000]
       },
       {
         name: 'mixed sweeps: only those >= GREATEST gate count',
@@ -120,7 +123,7 @@ describe('edge damage-classification', () => {
           [900_000, 1_100_000, 2_000_000],
           950_000,
           1_000_000
-        ] as const
+        ]
       }
     ]
 

@@ -13,8 +13,7 @@ export async function getSkippedPrimeEncounters(
   const skipped = new Set<1 | 2>()
   try {
     const { data, error } = await supabase
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generated types do not include upcoming_season_bosses yet
-      .from('upcoming_season_bosses' as any)
+      .from('upcoming_season_bosses')
       .select('sub_bosses')
       .eq('guild_code', guildCode)
       .eq('season_number', season)

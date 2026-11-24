@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 import type { UserAccessLevels } from '@/app/lib/services/feature-release-service'
 
 let mockCreateClient: ReturnType<typeof vi.fn>
@@ -13,11 +14,11 @@ const createNextRequest = (url: string) => {
     nextUrl: {
       searchParams: urlObj.searchParams
     }
-  } as unknown as Request
+  } as unknown as NextRequest
 }
 
 describe('GET /api/members/roster', () => {
-  let GET: (request: Request) => Promise<Response>
+  let GET: (request: NextRequest) => Promise<Response>
   let mockSupabase: {
     auth: { getUser: ReturnType<typeof vi.fn> }
     from: ReturnType<typeof vi.fn>

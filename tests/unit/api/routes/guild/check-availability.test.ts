@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 
 let mockCreateClient: ReturnType<typeof vi.fn>
 
 describe('GET /api/guild/check-availability', () => {
-  let GET: (request: Request) => Promise<Response>
+  let GET: (request: NextRequest) => Promise<Response>
   let mockSupabase: {
     rpc: ReturnType<typeof vi.fn>
   }
@@ -33,7 +34,7 @@ describe('GET /api/guild/check-availability', () => {
 
   describe('validation', () => {
     it('returns 400 when guild_code is missing', async () => {
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/guild/check-availability'
       )
 
@@ -45,7 +46,7 @@ describe('GET /api/guild/check-availability', () => {
     })
 
     it('returns 400 for invalid guild code format - too short', async () => {
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/guild/check-availability?guild_code=A'
       )
 
@@ -57,7 +58,7 @@ describe('GET /api/guild/check-availability', () => {
     })
 
     it('returns 400 for invalid guild code format - too long', async () => {
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/guild/check-availability?guild_code=ABCDEFGH'
       )
 
@@ -69,7 +70,7 @@ describe('GET /api/guild/check-availability', () => {
     })
 
     it('returns 400 for invalid guild code format - contains numbers', async () => {
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/guild/check-availability?guild_code=ABC123'
       )
 
@@ -88,7 +89,7 @@ describe('GET /api/guild/check-availability', () => {
         })
       })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/guild/check-availability?guild_code=test'
       )
 
@@ -114,7 +115,7 @@ describe('GET /api/guild/check-availability', () => {
         })
       })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/guild/check-availability?guild_code=NEWGLD'
       )
 
@@ -140,7 +141,7 @@ describe('GET /api/guild/check-availability', () => {
         })
       })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/guild/check-availability?guild_code=EXIST'
       )
 
@@ -166,7 +167,7 @@ describe('GET /api/guild/check-availability', () => {
         })
       })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/guild/check-availability?guild_code=RESUME'
       )
 
@@ -190,7 +191,7 @@ describe('GET /api/guild/check-availability', () => {
         })
       })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/guild/check-availability?guild_code=ERROR'
       )
 
@@ -206,7 +207,7 @@ describe('GET /api/guild/check-availability', () => {
         throw new Error('Unexpected error')
       })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/guild/check-availability?guild_code=CRASH'
       )
 

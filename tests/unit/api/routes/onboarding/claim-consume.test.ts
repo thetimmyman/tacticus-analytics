@@ -101,7 +101,7 @@ function otherRow(overrides: Record<string, unknown> = {}) {
 // Each test overrides exactly one leg so a failure names the broken hypothesis.
 function arrange({
   inviteRow = invite(),
-  upstreamGuildId = INVITE_GUILD_ID,
+  upstreamGuildId = INVITE_GUILD_ID as string | null,
   resolvedGuildCode = INVITE_GUILD as string | null,
   members = [{ userId: TARGET_PLAYER, role: 'MEMBER' }] as unknown[],
   lastSync = FRESH_SYNC as string | null,

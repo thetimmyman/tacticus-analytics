@@ -105,7 +105,8 @@ describe('refreshAutoUpdateMappings', () => {
         }
       ],
       unmappedBosses: [],
-      season: '98'
+      season: '98',
+      seasonsTried: ['98']
     })
     const staleIso = new Date(
       NOW_MS - AUTO_UPDATE_THROTTLE_MS - 60_000
@@ -148,7 +149,8 @@ describe('refreshAutoUpdateMappings', () => {
         { meta_team: 'Neuro', boss_ids: ['Belisarius_E0'], sample_rows: 1 }
       ],
       unmappedBosses: [],
-      season: '98'
+      season: '98',
+      seasonsTried: ['98']
     })
     const supabase = makeSupabase([
       { id: 20, meta_team_slug: 'Neuro', last_auto_updated_at: null }
@@ -170,7 +172,8 @@ describe('refreshAutoUpdateMappings', () => {
     vi.mocked(fetchHeraldSeedFromMetaAtlas).mockResolvedValue({
       teams: [], // no teams seeded this round
       unmappedBosses: [],
-      season: '98'
+      season: '98',
+      seasonsTried: ['98']
     })
     const supabase = makeSupabase([
       { id: 30, meta_team_slug: 'Abaddon', last_auto_updated_at: null }
@@ -193,7 +196,8 @@ describe('refreshAutoUpdateMappings', () => {
         { meta_team: 'AdMech', boss_ids: ['Ghazghkull_E0'], sample_rows: 1 }
       ],
       unmappedBosses: [],
-      season: '98'
+      season: '98',
+      seasonsTried: ['98']
     })
     const supabase = makeSupabase([
       { id: 40, meta_team_slug: 'AdMech', last_auto_updated_at: null }
@@ -213,7 +217,8 @@ describe('refreshAutoUpdateMappings', () => {
         { meta_team: 'AdMech', boss_ids: ['Ghazghkull_E0'], sample_rows: 1 }
       ],
       unmappedBosses: [],
-      season: '98'
+      season: '98',
+      seasonsTried: ['98']
     })
     const supabase = makeSupabase([
       { id: 50, meta_team_slug: 'AdMech', last_auto_updated_at: null }

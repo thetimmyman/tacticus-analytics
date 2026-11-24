@@ -93,23 +93,56 @@ function buildState(overrides: Partial<UserTokenAlertState>) {
     dm_blocked_at: null,
     dm_channel_id: null,
     dm_channel_recipient_id: null,
+    // v0-era baselines: bomb/quiet/burn guards never fired, so all unobserved.
+    last_bombs: null,
+    last_time_to_bomb_seconds: null,
+    last_bomb_ready_alert_at: null,
+    last_bomb_prewarn_alert_at: null,
+    quiet_hours_deferred_since: null,
+    capped_since: null,
+    last_pre_quiet_alert_at: null,
+    last_burn_prewarn_alert_at: null,
     ...overrides
   } satisfies UserTokenAlertState
+}
+
+// v0-era prefs predate the bomb/quiet/burn toggles; defaults keep them disabled.
+function buildPrefs(
+  overrides: Partial<UserTokenAlertPrefs>
+): UserTokenAlertPrefs {
+  return {
+    user_id: 'user-1',
+    alert_on_full: false,
+    alert_on_full_repeat_hours: null,
+    alert_before_full: false,
+    alert_before_full_minutes: 60,
+    alert_on_token_gained: false,
+    alert_on_bomb_ready: false,
+    alert_before_bomb_ready: false,
+    alert_before_bomb_ready_minutes: 60,
+    quiet_hours_start: null,
+    quiet_hours_end: null,
+    quiet_hours_timezone: null,
+    alert_before_quiet_hours: false,
+    alert_before_quiet_hours_minutes: 60,
+    alert_before_burn: false,
+    alert_before_burn_minutes: 60,
+    ...overrides
+  }
 }
 
 function randomSample(rand: () => number): Sample {
   const pick = <T>(xs: readonly T[]): T => xs[Math.floor(rand() * xs.length)]!
   const hasState = rand() < 0.85
   return {
-    prefs: {
-      user_id: 'user-1',
+    prefs: buildPrefs({
       alert_on_full: pick(BOOLS),
       // Repeat cadence disabled to keep the v0 comparison apples-to-apples.
       alert_on_full_repeat_hours: null,
       alert_before_full: pick(BOOLS),
       alert_before_full_minutes: pick(PREWARN_MINUTES),
       alert_on_token_gained: pick(BOOLS)
-    },
+    }),
     state: hasState
       ? buildState({
           last_tokens: pick(LAST_TOKENS),
@@ -164,13 +197,12 @@ describe('decision-core differential — generalized vs frozen', () => {
           for (const lastTokens of LAST_TOKENS) {
             for (const lastTtf of LAST_TTF) {
               const sample: Sample = {
-                prefs: {
-                  user_id: 'user-1',
+                prefs: buildPrefs({
                   alert_on_full: true,
                   alert_before_full: true,
                   alert_before_full_minutes: minutes,
                   alert_on_token_gained: true
-                },
+                }),
                 state: buildState({
                   last_tokens: lastTokens,
                   last_time_to_full_seconds: lastTtf
@@ -204,13 +236,12 @@ describe('decision-core differential — generalized vs frozen', () => {
             for (const prewarnAt of ALERT_AGES) {
               for (const gainAt of ALERT_AGES) {
                 const sample: Sample = {
-                  prefs: {
-                    user_id: 'user-1',
+                  prefs: buildPrefs({
                     alert_on_full: onFull,
                     alert_before_full: beforeFull,
                     alert_before_full_minutes: 120,
                     alert_on_token_gained: onGained
-                  },
+                  }),
                   state: buildState({
                     last_tokens: 2,
                     last_time_to_full_seconds: 43200,
@@ -239,13 +270,12 @@ describe('decision-core differential — generalized vs frozen', () => {
     for (const tokens of TOKEN_VALUES) {
       for (const tokenNextInSeconds of NEXT_VALUES) {
         const sample: Sample = {
-          prefs: {
-            user_id: 'user-1',
+          prefs: buildPrefs({
             alert_on_full: true,
             alert_before_full: true,
             alert_before_full_minutes: 120,
             alert_on_token_gained: true
-          },
+          }),
           state: null,
           tokens,
           tokenNextInSeconds

@@ -535,7 +535,7 @@ export const postHeraldManualOverride = async (
       const firstHash = createHash('sha256')
         .update(firstChannel.webhookUrl)
         .digest('hex')
-      const mentionedRoles: Array<unknown> = [
+      const mentionedRoles = [
         {
           role: MANUAL_OVERRIDE_AUDIT_ROLE,
           prime,
@@ -543,7 +543,6 @@ export const postHeraldManualOverride = async (
           invocation_id: invocationId
         }
       ]
-      // Columns not yet in the generated Supabase types; cast through unknown.
       const { error: auditError } = await supabase
         .from('discord_webhook_logs')
         .insert({
@@ -558,8 +557,7 @@ export const postHeraldManualOverride = async (
           threshold_breach_type:
             prime === 'a' ? 'prime_a_threshold' : 'prime_b_threshold',
           manual_override: true
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- columns not yet in generated types
-        } as any)
+        })
       if (auditError) {
         logger.warn(
           {

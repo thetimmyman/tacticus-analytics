@@ -127,7 +127,11 @@ describe('Navigation', () => {
         userAccessLevels={{
           max_access_level: 'alpha',
           is_app_admin: false,
-          is_admin: false
+          is_admin: false,
+          is_alpha_tester: false,
+          has_premium: false,
+          cluster_code: null,
+          guild_code: null
         }}
       />
     )

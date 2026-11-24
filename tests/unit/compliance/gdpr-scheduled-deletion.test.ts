@@ -200,7 +200,7 @@ describe('scheduled GDPR deletion fail-closed lifecycle', () => {
     }
   )
 
-  it.each([[], ['analytics']])(
+  it.each([[undefined], [['analytics']]] as [string[] | undefined][])(
     'rejects a partial request before creating a scheduled row: %j',
     async (categories) => {
       const from = vi.fn()
@@ -218,7 +218,7 @@ describe('scheduled GDPR deletion fail-closed lifecycle', () => {
     }
   )
 
-  it.each([[], ['analytics']])(
+  it.each([[undefined], [['analytics']]] as [string[] | undefined][])(
     'keeps a directly inserted partial request scheduled: %j',
     async (categories) => {
       const { client, statuses } = await run(null, 'partial', categories)

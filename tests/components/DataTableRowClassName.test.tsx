@@ -45,7 +45,7 @@ describe('DataTable rowClassName', () => {
   })
 
   it('is called once per rendered row with that row', () => {
-    const rowClassName = vi.fn(() => undefined)
+    const rowClassName = vi.fn((_row: Row) => undefined)
     render(
       <DataTable
         rows={rows}

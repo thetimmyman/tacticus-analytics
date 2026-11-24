@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 
 let mockRequireRole: ReturnType<typeof vi.fn>
 let mockEnsureRotationSnapshot: ReturnType<typeof vi.fn>
 
 describe('GET /api/assignments/current-season-bosses', () => {
-  let GET: () => Promise<Response>
+  let GET: (request: NextRequest) => Promise<Response>
 
   beforeEach(async () => {
     vi.resetModules()
@@ -50,7 +51,11 @@ describe('GET /api/assignments/current-season-bosses', () => {
       ;(authError as any).status = 401
       mockRequireRole.mockRejectedValue(authError)
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest(
+          'http://localhost/api/assignments/current-season-bosses'
+        )
+      )
       const body = await response.json()
 
       expect(response.status).toBe(500)
@@ -62,7 +67,11 @@ describe('GET /api/assignments/current-season-bosses', () => {
       ;(roleError as any).status = 403
       mockRequireRole.mockRejectedValue(roleError)
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest(
+          'http://localhost/api/assignments/current-season-bosses'
+        )
+      )
       const body = await response.json()
 
       expect(response.status).toBe(500)
@@ -81,7 +90,11 @@ describe('GET /api/assignments/current-season-bosses', () => {
     it('returns 503 when rotation snapshot is unavailable', async () => {
       mockEnsureRotationSnapshot.mockResolvedValue(null)
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest(
+          'http://localhost/api/assignments/current-season-bosses'
+        )
+      )
       const body = await response.json()
 
       expect(response.status).toBe(503)
@@ -109,7 +122,11 @@ describe('GET /api/assignments/current-season-bosses', () => {
       }
       mockEnsureRotationSnapshot.mockResolvedValue(mockSnapshot)
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest(
+          'http://localhost/api/assignments/current-season-bosses'
+        )
+      )
       const body = await response.json()
 
       expect(response.status).toBe(200)
@@ -141,7 +158,11 @@ describe('GET /api/assignments/current-season-bosses', () => {
       }
       mockEnsureRotationSnapshot.mockResolvedValue(mockSnapshot)
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest(
+          'http://localhost/api/assignments/current-season-bosses'
+        )
+      )
       const body = await response.json()
 
       expect(response.status).toBe(200)
@@ -166,7 +187,11 @@ describe('GET /api/assignments/current-season-bosses', () => {
       }
       mockEnsureRotationSnapshot.mockResolvedValue(mockSnapshot)
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest(
+          'http://localhost/api/assignments/current-season-bosses'
+        )
+      )
       const body = await response.json()
 
       expect(response.status).toBe(200)
@@ -187,7 +212,11 @@ describe('GET /api/assignments/current-season-bosses', () => {
       }
       mockEnsureRotationSnapshot.mockResolvedValue(mockSnapshot)
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest(
+          'http://localhost/api/assignments/current-season-bosses'
+        )
+      )
       const body = await response.json()
 
       expect(response.status).toBe(200)
@@ -211,7 +240,11 @@ describe('GET /api/assignments/current-season-bosses', () => {
       mockRequireRole.mockResolvedValue({ user: { id: 'user-123' } })
       mockEnsureRotationSnapshot.mockRejectedValue(new Error('Cache error'))
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest(
+          'http://localhost/api/assignments/current-season-bosses'
+        )
+      )
       const body = await response.json()
 
       expect(response.status).toBe(500)

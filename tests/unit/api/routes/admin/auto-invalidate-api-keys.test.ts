@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 
 // Touches every guild's config, so it gates on app admin, not guild rank.
 let mockRequireActiveMembership: ReturnType<typeof vi.fn>
@@ -64,7 +65,7 @@ describe('Auto Invalidate API Keys', () => {
   })
 
   describe('POST /api/admin/auto-invalidate-api-keys', () => {
-    let POST: () => Promise<Response>
+    let POST: (request: NextRequest) => Promise<Response>
 
     beforeEach(async () => {
       const routeModule =
@@ -75,7 +76,9 @@ describe('Auto Invalidate API Keys', () => {
     it('rejects a guild leader who is not an app admin with 403', async () => {
       mockRequireActiveMembership.mockResolvedValue(GUILD_LEADER_NOT_APP_ADMIN)
 
-      const response = await POST()
+      const response = await POST(
+        new NextRequest('http://localhost/api/admin/auto-invalidate-api-keys')
+      )
 
       expect(response.status).toBe(403)
       expect(mockSupabase.from).not.toHaveBeenCalled()
@@ -88,7 +91,9 @@ describe('Auto Invalidate API Keys', () => {
         or: vi.fn().mockResolvedValue({ data: [], error: null })
       })
 
-      const response = await POST()
+      const response = await POST(
+        new NextRequest('http://localhost/api/admin/auto-invalidate-api-keys')
+      )
 
       expect(response.status).toBe(200)
       expect(mockSupabase.from).toHaveBeenCalledWith('guild_config')
@@ -97,7 +102,9 @@ describe('Auto Invalidate API Keys', () => {
     it('returns 500 when the caller cannot be resolved', async () => {
       mockRequireActiveMembership.mockRejectedValue(new Error('Not authorized'))
 
-      const response = await POST()
+      const response = await POST(
+        new NextRequest('http://localhost/api/admin/auto-invalidate-api-keys')
+      )
       expect(response.status).toBe(500)
     })
 
@@ -111,7 +118,9 @@ describe('Auto Invalidate API Keys', () => {
           .mockResolvedValue({ data: null, error: { message: 'Query failed' } })
       })
 
-      const response = await POST()
+      const response = await POST(
+        new NextRequest('http://localhost/api/admin/auto-invalidate-api-keys')
+      )
       expect(response.status).toBe(500)
     })
 
@@ -128,7 +137,9 @@ describe('Auto Invalidate API Keys', () => {
         })
       })
 
-      const response = await POST()
+      const response = await POST(
+        new NextRequest('http://localhost/api/admin/auto-invalidate-api-keys')
+      )
       const body = await response.json()
 
       expect(response.status).toBe(500)
@@ -143,7 +154,9 @@ describe('Auto Invalidate API Keys', () => {
         or: vi.fn().mockResolvedValue({ data: [], error: null })
       })
 
-      const response = await POST()
+      const response = await POST(
+        new NextRequest('http://localhost/api/admin/auto-invalidate-api-keys')
+      )
       expect(response.status).toBe(200)
 
       const body = await response.json()
@@ -178,7 +191,9 @@ describe('Auto Invalidate API Keys', () => {
         in: inMock
       }))
 
-      const response = await POST()
+      const response = await POST(
+        new NextRequest('http://localhost/api/admin/auto-invalidate-api-keys')
+      )
       expect(response.status).toBe(200)
 
       const body = await response.json()
@@ -214,7 +229,9 @@ describe('Auto Invalidate API Keys', () => {
         in: inMock
       }))
 
-      const response = await POST()
+      const response = await POST(
+        new NextRequest('http://localhost/api/admin/auto-invalidate-api-keys')
+      )
       expect(response.status).toBe(200)
 
       const body = await response.json()
@@ -252,7 +269,9 @@ describe('Auto Invalidate API Keys', () => {
         in: serviceIn
       }))
 
-      const response = await POST()
+      const response = await POST(
+        new NextRequest('http://localhost/api/admin/auto-invalidate-api-keys')
+      )
 
       expect(response.status).toBe(200)
       expect(rlsUpdate).not.toHaveBeenCalled()
@@ -289,7 +308,9 @@ describe('Auto Invalidate API Keys', () => {
         in: vi.fn().mockResolvedValue({ error: { message: 'Update failed' } })
       }))
 
-      const response = await POST()
+      const response = await POST(
+        new NextRequest('http://localhost/api/admin/auto-invalidate-api-keys')
+      )
       expect(response.status).toBe(500)
     })
 
@@ -334,7 +355,9 @@ describe('Auto Invalidate API Keys', () => {
         in: inMock
       }))
 
-      const response = await POST()
+      const response = await POST(
+        new NextRequest('http://localhost/api/admin/auto-invalidate-api-keys')
+      )
       expect(response.status).toBe(200)
 
       const body = await response.json()

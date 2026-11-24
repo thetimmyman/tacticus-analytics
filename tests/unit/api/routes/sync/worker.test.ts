@@ -11,6 +11,7 @@ describe('/api/sync/worker', () => {
   let mockSupabase: {
     from: ReturnType<typeof vi.fn>
     rpc: ReturnType<typeof vi.fn>
+    functions: { invoke: ReturnType<typeof vi.fn> }
   }
 
   const CRON_SECRET = 'test-cron-secret'

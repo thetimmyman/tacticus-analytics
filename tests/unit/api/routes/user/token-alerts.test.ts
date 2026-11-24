@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 vi.mock('@/app/lib/player-mapping-relations', () => ({
   CURRENT_USER_PLAYER_MAPPING: 'player_mapping'
 }))
@@ -47,7 +48,7 @@ type Chain = ReturnType<typeof makeChain>
 
 describe('/api/user/token-alerts', () => {
   let GET: () => Promise<Response>
-  let PUT: (request: Request) => Promise<Response>
+  let PUT: (request: NextRequest) => Promise<Response>
   let mockSupabase: {
     auth: { getUser: ReturnType<typeof vi.fn> }
     from: ReturnType<typeof vi.fn>
@@ -125,7 +126,7 @@ describe('/api/user/token-alerts', () => {
   }
 
   function createPutRequest(body: Json) {
-    return new Request('http://localhost/api/user/token-alerts', {
+    return new NextRequest('http://localhost/api/user/token-alerts', {
       method: 'PUT',
       body: JSON.stringify(body)
     })

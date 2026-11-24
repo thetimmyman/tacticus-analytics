@@ -382,8 +382,7 @@ const resolveDiscordRoleIds = async (
   }
 
   const { data, error } = await supabase
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- herald_meta_role_mapping display labels are ahead of generated types in this app package
-    .from('herald_meta_role_mapping' as any)
+    .from('herald_meta_role_mapping')
     .select('discord_role_id, display_label, meta_team_slug')
     .eq('guild_code', guildCode)
     .not('discord_role_id', 'is', null)

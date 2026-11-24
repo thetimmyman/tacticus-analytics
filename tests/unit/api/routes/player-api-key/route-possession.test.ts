@@ -6,7 +6,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
  */
 describe('POST /api/player-api-key — possession check', () => {
   let POST: (request: unknown) => Promise<Response>
-  let mockTacticusAPI: { getPlayer: ReturnType<typeof vi.fn> }
+  let mockTacticusAPI: {
+    getPlayer: ReturnType<typeof vi.fn>
+    getCurrentGuildRaid: ReturnType<typeof vi.fn>
+  }
   let mockPersist: ReturnType<typeof vi.fn>
   let mockSupabase: {
     auth: { getUser: ReturnType<typeof vi.fn> }

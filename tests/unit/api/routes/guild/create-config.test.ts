@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { NextRequest } from 'next/server'
 import { SERVICE_TIMEOUTS } from '@/app/lib/utils/async-timeout'
 
 let mockCreateServiceClient: ReturnType<typeof vi.fn>
@@ -10,7 +11,7 @@ let mockResolveLokiBuildString: ReturnType<typeof vi.fn>
 let mockFetch: ReturnType<typeof vi.fn>
 
 describe('POST /api/guild/create-config', () => {
-  let POST: (request: Request) => Promise<Response>
+  let POST: (request: NextRequest) => Promise<Response>
   let mockAuthedSupabase: {
     auth: {
       getUser: ReturnType<typeof vi.fn>
@@ -147,15 +148,18 @@ describe('POST /api/guild/create-config', () => {
       )
       mockApiSecurityMiddleware.mockResolvedValue(rateLimitResponse)
 
-      const request = new Request('http://localhost/api/guild/create-config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'TEST',
-          display_name: 'Test Guild',
-          api_key: 'test-key'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/create-config',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'TEST',
+            display_name: 'Test Guild',
+            api_key: 'test-key'
+          })
+        }
+      )
 
       const response = await POST(request)
 
@@ -165,14 +169,17 @@ describe('POST /api/guild/create-config', () => {
 
   describe('validation', () => {
     it('returns error when guild_code is missing', async () => {
-      const request = new Request('http://localhost/api/guild/create-config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          display_name: 'Test Guild',
-          api_key: 'test-key'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/create-config',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            display_name: 'Test Guild',
+            api_key: 'test-key'
+          })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -181,14 +188,17 @@ describe('POST /api/guild/create-config', () => {
     })
 
     it('returns error when display_name is missing', async () => {
-      const request = new Request('http://localhost/api/guild/create-config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'TEST',
-          api_key: 'test-key'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/create-config',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'TEST',
+            api_key: 'test-key'
+          })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -197,14 +207,17 @@ describe('POST /api/guild/create-config', () => {
     })
 
     it('returns error when api_key is missing', async () => {
-      const request = new Request('http://localhost/api/guild/create-config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'TEST',
-          display_name: 'Test Guild'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/create-config',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'TEST',
+            display_name: 'Test Guild'
+          })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -213,15 +226,18 @@ describe('POST /api/guild/create-config', () => {
     })
 
     it('rejects protected guild codes', async () => {
-      const request = new Request('http://localhost/api/guild/create-config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'TEST',
-          display_name: 'Example Alliance',
-          api_key: 'test-key'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/create-config',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'TEST',
+            display_name: 'Example Alliance',
+            api_key: 'test-key'
+          })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -304,15 +320,18 @@ describe('POST /api/guild/create-config', () => {
         error: null
       })
 
-      const request = new Request('http://localhost/api/guild/create-config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'newxyz',
-          display_name: 'My Test Guild',
-          api_key: 'valid-key'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/create-config',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'newxyz',
+            display_name: 'My Test Guild',
+            api_key: 'valid-key'
+          })
+        }
+      )
 
       await POST(request)
 
@@ -335,15 +354,18 @@ describe('POST /api/guild/create-config', () => {
         })
       })
 
-      const request = new Request('http://localhost/api/guild/create-config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'DUPGLD',
-          display_name: 'My Guild',
-          api_key: 'valid-key'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/create-config',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'DUPGLD',
+            display_name: 'My Guild',
+            api_key: 'valid-key'
+          })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -567,7 +589,7 @@ describe('POST /api/guild/create-config', () => {
     }
 
     function clusterRequest() {
-      return new Request('http://localhost/api/guild/create-config', {
+      return new NextRequest('http://localhost/api/guild/create-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -921,7 +943,7 @@ describe('POST /api/guild/create-config', () => {
 
       return {
         guildUpsert,
-        request: new Request('http://localhost/api/guild/create-config', {
+        request: new NextRequest('http://localhost/api/guild/create-config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -965,7 +987,7 @@ describe('POST /api/guild/create-config', () => {
 
     it('still 409s a claimed guild when no cluster was requested', async () => {
       const { request, guildUpsert } = collisionFixture(null)
-      const noClusterRequest = new Request(
+      const noClusterRequest = new NextRequest(
         'http://localhost/api/guild/create-config',
         {
           method: 'POST',
@@ -1006,15 +1028,18 @@ describe('POST /api/guild/create-config', () => {
         canAccessRaidData: false
       })
 
-      const request = new Request('http://localhost/api/guild/create-config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'NEW',
-          display_name: 'My New Guild',
-          api_key: 'invalid-key'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/create-config',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'NEW',
+            display_name: 'My New Guild',
+            api_key: 'invalid-key'
+          })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -1030,15 +1055,18 @@ describe('POST /api/guild/create-config', () => {
         guildInfo: { guildCode: 'OTHER', guildName: 'Other Guild' }
       })
 
-      const request = new Request('http://localhost/api/guild/create-config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'NEW',
-          display_name: 'My New Guild',
-          api_key: 'valid-key-wrong-guild'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/create-config',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'NEW',
+            display_name: 'My New Guild',
+            api_key: 'valid-key-wrong-guild'
+          })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -1055,15 +1083,18 @@ describe('POST /api/guild/create-config', () => {
         error: 'Cannot access guild'
       })
 
-      const request = new Request('http://localhost/api/guild/create-config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'NEW',
-          display_name: 'My New Guild',
-          api_key: 'partial-key'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/create-config',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'NEW',
+            display_name: 'My New Guild',
+            api_key: 'partial-key'
+          })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -1107,15 +1138,18 @@ describe('POST /api/guild/create-config', () => {
         return Promise.resolve({ ok: false })
       })
 
-      const request = new Request('http://localhost/api/guild/create-config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'NEW',
-          display_name: 'My New Guild',
-          api_key: 'valid-key'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/create-config',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'NEW',
+            display_name: 'My New Guild',
+            api_key: 'valid-key'
+          })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -1205,15 +1239,18 @@ describe('POST /api/guild/create-config', () => {
     })
 
     it('creates guild config successfully', async () => {
-      const request = new Request('http://localhost/api/guild/create-config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'NEWGLD',
-          display_name: 'New Guild',
-          api_key: 'valid-key'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/create-config',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'NEWGLD',
+            display_name: 'New Guild',
+            api_key: 'valid-key'
+          })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -1267,7 +1304,7 @@ describe('POST /api/guild/create-config', () => {
       })
 
       const responsePromise = POST(
-        new Request('http://localhost/api/guild/create-config', {
+        new NextRequest('http://localhost/api/guild/create-config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1334,7 +1371,7 @@ describe('POST /api/guild/create-config', () => {
       })
 
       const responsePromise = POST(
-        new Request('http://localhost/api/guild/create-config', {
+        new NextRequest('http://localhost/api/guild/create-config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1393,7 +1430,7 @@ describe('POST /api/guild/create-config', () => {
       })
 
       const responsePromise = POST(
-        new Request('http://localhost/api/guild/create-config', {
+        new NextRequest('http://localhost/api/guild/create-config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1461,7 +1498,7 @@ describe('POST /api/guild/create-config', () => {
       })
 
       const responsePromise = POST(
-        new Request('http://localhost/api/guild/create-config', {
+        new NextRequest('http://localhost/api/guild/create-config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1537,7 +1574,7 @@ describe('POST /api/guild/create-config', () => {
       })
 
       const responsePromise = POST(
-        new Request('http://localhost/api/guild/create-config', {
+        new NextRequest('http://localhost/api/guild/create-config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1569,7 +1606,7 @@ describe('POST /api/guild/create-config', () => {
       )
 
       const responsePromise = POST(
-        new Request('http://localhost/api/guild/create-config', {
+        new NextRequest('http://localhost/api/guild/create-config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1595,15 +1632,18 @@ describe('POST /api/guild/create-config', () => {
     })
 
     it('triggers initial sync after creation', async () => {
-      const request = new Request('http://localhost/api/guild/create-config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'NEWGLD',
-          display_name: 'New Guild',
-          api_key: 'valid-key'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/create-config',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'NEWGLD',
+            display_name: 'New Guild',
+            api_key: 'valid-key'
+          })
+        }
+      )
 
       await POST(request)
 
@@ -1715,15 +1755,18 @@ describe('POST /api/guild/create-config', () => {
         error: null
       })
 
-      const request = new Request('http://localhost/api/guild/create-config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'egb',
-          display_name: 'Example Guild Two',
-          api_key: 'valid-key'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/create-config',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'egb',
+            display_name: 'Example Guild Two',
+            api_key: 'valid-key'
+          })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -1873,15 +1916,18 @@ describe('POST /api/guild/create-config', () => {
         error: null
       })
 
-      const request = new Request('http://localhost/api/guild/create-config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'egb',
-          display_name: 'Example Guild Two',
-          api_key: 'valid-key'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/create-config',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'egb',
+            display_name: 'Example Guild Two',
+            api_key: 'valid-key'
+          })
+        }
+      )
 
       const response = await POST(request)
       expect((await response.json()).success).toBe(true)
@@ -2026,15 +2072,18 @@ describe('POST /api/guild/create-config', () => {
         error: null
       })
 
-      const request = new Request('http://localhost/api/guild/create-config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'egb',
-          display_name: 'Example Guild Two',
-          api_key: 'valid-key'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/create-config',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'egb',
+            display_name: 'Example Guild Two',
+            api_key: 'valid-key'
+          })
+        }
+      )
 
       await POST(request)
 
@@ -2086,15 +2135,18 @@ describe('POST /api/guild/create-config', () => {
     it('returns error when encryption fails', async () => {
       mockEncryptApiKey.mockRejectedValue(new Error('Encryption failed'))
 
-      const request = new Request('http://localhost/api/guild/create-config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'NEW',
-          display_name: 'My New Guild',
-          api_key: 'valid-key'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/create-config',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'NEW',
+            display_name: 'My New Guild',
+            api_key: 'valid-key'
+          })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()

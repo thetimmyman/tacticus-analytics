@@ -1,8 +1,23 @@
 import type { ReactNode } from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
+import type { UseQueryResult } from '@tanstack/react-query'
 import { BossPerformanceTrends } from '@/app/components/dashboard/BossPerformanceTrends'
 import * as queryHooks from '@/app/lib/hooks/queries'
+import type { BossPerformanceMetric } from '@/app/lib/hooks/queries'
+import type {
+  BossDifficultyResult,
+  DamageByBossLoopResult,
+  TokenUsageByLoopResult
+} from '@/app/lib/data/dashboard-calculations'
+
+// The component only destructures { data, isLoading } from these hooks, so the
+// mocks stay minimal instead of faking a full react-query result object.
+const queryResult = <T,>(
+  data: T | undefined,
+  isLoading = false
+): UseQueryResult<T, Error> =>
+  ({ data, isLoading }) as unknown as UseQueryResult<T, Error>
 
 vi.mock('@/app/lib/hooks/queries', () => ({
   useBossPerformanceMetrics: vi.fn(),
@@ -70,24 +85,18 @@ describe('BossPerformanceTrends', () => {
   })
 
   it('renders loading state', () => {
-    mockedQueries.useBossPerformanceMetrics.mockReturnValue({
-      data: undefined,
-      isLoading: true
-    })
-    mockedQueries.useBossDifficultyAnalysis.mockReturnValue({
-      data: [],
-      isLoading: false
-    })
-    // @ts-expect-error - mock types are partial
-    mockedQueries.useDamageByBossLoop.mockReturnValue({
-      data: undefined,
-      isLoading: true
-    })
-    // @ts-expect-error - mock types are partial
-    mockedQueries.useTokenUsageByLoop.mockReturnValue({
-      data: undefined,
-      isLoading: true
-    })
+    mockedQueries.useBossPerformanceMetrics.mockReturnValue(
+      queryResult<BossPerformanceMetric[]>(undefined, true)
+    )
+    mockedQueries.useBossDifficultyAnalysis.mockReturnValue(
+      queryResult<BossDifficultyResult[]>([])
+    )
+    mockedQueries.useDamageByBossLoop.mockReturnValue(
+      queryResult<DamageByBossLoopResult>(undefined, true)
+    )
+    mockedQueries.useTokenUsageByLoop.mockReturnValue(
+      queryResult<TokenUsageByLoopResult>(undefined, true)
+    )
 
     render(<BossPerformanceTrends selectedGuild="TEST" selectedSeason="1" />)
 
@@ -95,24 +104,22 @@ describe('BossPerformanceTrends', () => {
   })
 
   it('renders empty state when no metrics are available', () => {
-    mockedQueries.useBossPerformanceMetrics.mockReturnValue({
-      data: [],
-      isLoading: false
-    })
-    mockedQueries.useBossDifficultyAnalysis.mockReturnValue({
-      data: [],
-      isLoading: false
-    })
-    // @ts-expect-error - mock types are partial
-    mockedQueries.useDamageByBossLoop.mockReturnValue({
-      data: { data: [], bosses: [] },
-      isLoading: false
-    })
-    // @ts-expect-error - mock types are partial
-    mockedQueries.useTokenUsageByLoop.mockReturnValue({
-      data: {},
-      isLoading: false
-    })
+    mockedQueries.useBossPerformanceMetrics.mockReturnValue(
+      queryResult<BossPerformanceMetric[]>([])
+    )
+    mockedQueries.useBossDifficultyAnalysis.mockReturnValue(
+      queryResult<BossDifficultyResult[]>([])
+    )
+    mockedQueries.useDamageByBossLoop.mockReturnValue(
+      queryResult<DamageByBossLoopResult>({
+        data: [],
+        bosses: [],
+        detailedData: []
+      })
+    )
+    mockedQueries.useTokenUsageByLoop.mockReturnValue(
+      queryResult<TokenUsageByLoopResult>({})
+    )
 
     render(<BossPerformanceTrends selectedGuild="TEST" selectedSeason="1" />)
 
@@ -122,59 +129,68 @@ describe('BossPerformanceTrends', () => {
   })
 
   it('filters by target type selection', () => {
-    mockedQueries.useBossPerformanceMetrics.mockReturnValue({
-      data: [
+    mockedQueries.useBossPerformanceMetrics.mockReturnValue(
+      queryResult<BossPerformanceMetric[]>([
         {
           bossName: 'Mortar',
+          Name: null,
+          tier: null,
           encounterId: 0,
           rarity: 'Legendary',
           set: 0,
           avgDamage: 10000,
           hitCount: 60,
           totalDamage: 600000,
-          maxDamage: 20000
+          maxDamage: 20000,
+          maxHp: 0
         },
         {
           bossName: 'Prime X',
+          Name: null,
+          tier: null,
           encounterId: 1,
           rarity: 'Mythic',
           set: 1,
           avgDamage: 40000,
           hitCount: 4,
           totalDamage: 160000,
-          maxDamage: 50000
+          maxDamage: 50000,
+          maxHp: 0
         }
-      ],
-      isLoading: false
-    })
-    mockedQueries.useBossDifficultyAnalysis.mockReturnValue({
-      data: [
+      ])
+    )
+    mockedQueries.useBossDifficultyAnalysis.mockReturnValue(
+      queryResult<BossDifficultyResult[]>([
         {
           name: 'Mortar',
+          displayName: 'Mortar',
+          tier: 'L1',
           rarity: 'Legendary',
           set: 0,
           encounterId: 0,
+          attempts: 1,
           timeMinutes: 12,
-          completedLoops: 1
+          hitCount: 60,
+          totalDamage: 600000,
+          completedLoops: 1,
+          totalLoops: 1,
+          completionRate: 1,
+          avgDamagePerAttempt: 600000
         }
-      ],
-      isLoading: false
-    })
-    // @ts-expect-error - mock types are partial
-    mockedQueries.useDamageByBossLoop.mockReturnValue({
-      data: {
+      ])
+    )
+    mockedQueries.useDamageByBossLoop.mockReturnValue(
+      queryResult<DamageByBossLoopResult>({
         data: [{ loop: 0, 'L1 Mortar': 10000 }],
-        bosses: ['L1 Mortar']
-      },
-      isLoading: false
-    })
-    // @ts-expect-error - mock types are partial
-    mockedQueries.useTokenUsageByLoop.mockReturnValue({
-      data: {
+        bosses: ['L1 Mortar'],
+        detailedData: []
+      })
+    )
+    mockedQueries.useTokenUsageByLoop.mockReturnValue(
+      queryResult<TokenUsageByLoopResult>({
         0: { bosses: 60, primes: 0, rarities: ['Legendary'], displayLoop: 0 }
-      },
-      isLoading: false
-    })
+      })
+    )
 
     render(<BossPerformanceTrends selectedGuild="TEST" selectedSeason="1" />)
 
@@ -191,37 +207,45 @@ describe('BossPerformanceTrends', () => {
   })
 
   it('expands the loop analysis table and boss detail rows through the extracted sections', () => {
-    mockedQueries.useBossPerformanceMetrics.mockReturnValue({
-      data: [
+    mockedQueries.useBossPerformanceMetrics.mockReturnValue(
+      queryResult<BossPerformanceMetric[]>([
         {
           bossName: 'Mortar',
+          Name: null,
+          tier: null,
           encounterId: 0,
           rarity: 'Legendary',
           set: 0,
           avgDamage: 10000,
           hitCount: 60,
           totalDamage: 600000,
-          maxDamage: 20000
+          maxDamage: 20000,
+          maxHp: 0
         }
-      ],
-      isLoading: false
-    })
-    mockedQueries.useBossDifficultyAnalysis.mockReturnValue({
-      data: [
+      ])
+    )
+    mockedQueries.useBossDifficultyAnalysis.mockReturnValue(
+      queryResult<BossDifficultyResult[]>([
         {
           name: 'Mortar',
+          displayName: 'Mortar',
+          tier: 'L1',
           rarity: 'Legendary',
           set: 0,
           encounterId: 0,
+          attempts: 1,
           timeMinutes: 12,
-          completedLoops: 1
+          hitCount: 60,
+          totalDamage: 600000,
+          completedLoops: 1,
+          totalLoops: 1,
+          completionRate: 1,
+          avgDamagePerAttempt: 600000
         }
-      ],
-      isLoading: false
-    })
-    // @ts-expect-error - mock types are partial
-    mockedQueries.useDamageByBossLoop.mockReturnValue({
-      data: {
+      ])
+    )
+    mockedQueries.useDamageByBossLoop.mockReturnValue(
+      queryResult<DamageByBossLoopResult>({
         data: [{ loop: 0, 'L1 Mortar': 10000 }],
         bosses: ['L1 Mortar'],
         detailedData: [
@@ -237,16 +261,13 @@ describe('BossPerformanceTrends', () => {
             isPrime: false
           }
         ]
-      },
-      isLoading: false
-    })
-    // @ts-expect-error - mock types are partial
-    mockedQueries.useTokenUsageByLoop.mockReturnValue({
-      data: {
+      })
+    )
+    mockedQueries.useTokenUsageByLoop.mockReturnValue(
+      queryResult<TokenUsageByLoopResult>({
         0: { bosses: 60, primes: 0, rarities: ['Legendary'], displayLoop: 0 }
-      },
-      isLoading: false
-    })
+      })
+    )
 
     render(<BossPerformanceTrends selectedGuild="TEST" selectedSeason="1" />)
 

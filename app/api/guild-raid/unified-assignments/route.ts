@@ -138,12 +138,8 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
 
     const serviceClient = serviceDb()
 
-    // skip=true is the only exclusion: encounter_id=0 drops the whole sequence entry. Not in generated types.
-    /* eslint-disable @typescript-eslint/no-explicit-any, no-restricted-syntax */
-    const targetsTable = serviceClient.from(
-      'boss_target_tokens' as never
-    ) as any
-    /* eslint-enable @typescript-eslint/no-explicit-any, no-restricted-syntax */
+    // skip=true is the only exclusion: encounter_id=0 drops the whole sequence entry.
+    const targetsTable = serviceClient.from('boss_target_tokens')
     const { data: skipRowsRaw, error: skipQueryError } = await targetsTable
       .select(
         'boss_name, rarity, set, encounter_id, source, seeded_from_seasons, skip, season_number, target_tokens'

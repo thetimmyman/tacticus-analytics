@@ -39,7 +39,21 @@ const baseProps = {
   selectedMetaTeams: new Set<string>(),
   onToggleMetaTeam: vi.fn(),
   onClearMetaTeams: vi.fn(),
-  currentSeason: '106'
+  currentSeason: '106',
+  filterControls: {
+    bossFilter: '',
+    onBossFilterChange: vi.fn(),
+    showAllBosses: false,
+    onToggleShowAll: vi.fn(),
+    selectedRaritySets: new Set<string>(),
+    onToggleRaritySet: vi.fn(),
+    onSelectAllRaritySets: vi.fn(),
+    onClearRaritySets: vi.fn(),
+    selectedMetaTeams: new Set<string>(),
+    onToggleMetaTeam: vi.fn(),
+    onClearMetaTeams: vi.fn(),
+    displayBossCount: 0
+  }
 }
 
 describe('BestTeamsTab', () => {

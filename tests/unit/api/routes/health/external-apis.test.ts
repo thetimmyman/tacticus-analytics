@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 
 let mockRunExternalApiHealthChecks: ReturnType<typeof vi.fn>
 let mockGetExternalApiHealthSummary: ReturnType<typeof vi.fn>
 
 describe('GET /api/health/external-apis', () => {
-  let GET: () => Promise<NextResponse>
-  let rawGET: (request: NextRequest) => Promise<NextResponse>
+  let GET: () => Promise<Response>
+  let rawGET: (request: NextRequest) => Promise<Response>
 
   const makeRequest = (secret = 'test-health-secret') =>
     new NextRequest('http://localhost/api/health/external-apis', {

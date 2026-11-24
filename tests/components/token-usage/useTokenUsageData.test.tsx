@@ -244,22 +244,24 @@ describe('useTokenUsageData', () => {
   })
 
   it('passes the query abort signal to token and battle fetches', async () => {
-    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
-      const url = String(input)
-      if (url.startsWith('/api/guild-tokens?')) {
-        return {
-          ok: true,
-          json: async () => ({ players: [] })
+    const fetchMock = vi.fn(
+      async (input: RequestInfo | URL, _init?: RequestInit) => {
+        const url = String(input)
+        if (url.startsWith('/api/guild-tokens?')) {
+          return {
+            ok: true,
+            json: async () => ({ players: [] })
+          }
         }
-      }
-      if (url.startsWith('/api/members/token-usage/battles?')) {
-        return {
-          ok: true,
-          json: async () => []
+        if (url.startsWith('/api/members/token-usage/battles?')) {
+          return {
+            ok: true,
+            json: async () => []
+          }
         }
+        throw new Error(`Unexpected fetch: ${url}`)
       }
-      throw new Error(`Unexpected fetch: ${url}`)
-    })
+    )
     vi.stubGlobal('fetch', fetchMock)
 
     const { result } = renderHook(

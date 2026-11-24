@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest'
 import { NextRequest, NextResponse } from 'next/server'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
-import { AppError } from '@/app/lib/errors/AppError'
+import { AppError, ErrorCode } from '@/app/lib/errors/AppError'
 
 const PRIVATE_HEADERS = {
   'Cache-Control': 'private, no-store',
@@ -20,7 +20,7 @@ describe('withErrorHandler — route header preservation on error responses', ()
     const handler = withErrorHandler(async (_request: NextRequest) =>
       NextResponse.json(
         new AppError(
-          'REPLAY_CONVERSION_FAILED',
+          ErrorCode.VALIDATION_FAILED,
           'Conversion failed',
           422
         ).toJSON(),

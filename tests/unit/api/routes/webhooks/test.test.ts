@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 
 let mockCreateClient: ReturnType<typeof vi.fn>
 let mockCreateServiceClient: ReturnType<typeof vi.fn>
@@ -9,7 +10,7 @@ let mockFetch: ReturnType<typeof vi.fn>
 let mockRequireGuildOfficerOrClusterLeader: ReturnType<typeof vi.fn>
 
 describe('POST /api/webhooks/test', () => {
-  let POST: (request: Request) => Promise<Response>
+  let POST: (request: NextRequest) => Promise<Response>
   let mockSupabase: {
     auth: { getUser: ReturnType<typeof vi.fn> }
     from: ReturnType<typeof vi.fn>
@@ -81,7 +82,7 @@ describe('POST /api/webhooks/test', () => {
     it('returns 401 when not authenticated', async () => {
       mockSupabase.auth.getUser.mockResolvedValue({ data: { user: null } })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ webhook_id: 'abc123' })
@@ -101,7 +102,7 @@ describe('POST /api/webhooks/test', () => {
     })
 
     it('returns 400 when neither webhook_id nor webhook_type/url provided', async () => {
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({})
@@ -126,7 +127,7 @@ describe('POST /api/webhooks/test', () => {
       }
       mockSupabase.from.mockReturnValue(mockQuery)
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ webhook_id: 'nonexistent' })
@@ -156,7 +157,7 @@ describe('POST /api/webhooks/test', () => {
         error: null
       })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ webhook_id: 'abc' })
@@ -177,7 +178,7 @@ describe('POST /api/webhooks/test', () => {
         throw new Error('connection refused to db.internal.example')
       })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ webhook_id: 'abc' })
@@ -205,7 +206,7 @@ describe('POST /api/webhooks/test', () => {
         error: null
       })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -233,7 +234,7 @@ describe('POST /api/webhooks/test', () => {
       })
       mockFetch.mockResolvedValue({ ok: true })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -266,7 +267,7 @@ describe('POST /api/webhooks/test', () => {
     })
 
     it('validates URL format without sending', async () => {
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -286,7 +287,7 @@ describe('POST /api/webhooks/test', () => {
     })
 
     it('rejects invalid Discord webhook URL format', async () => {
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -329,7 +330,7 @@ describe('POST /api/webhooks/test', () => {
             })
         )
 
-        const request = new Request('http://localhost/api/webhooks/test', {
+        const request = new NextRequest('http://localhost/api/webhooks/test', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -377,7 +378,7 @@ describe('POST /api/webhooks/test', () => {
           } as Response)
         })
 
-        const request = new Request('http://localhost/api/webhooks/test', {
+        const request = new NextRequest('http://localhost/api/webhooks/test', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -404,7 +405,7 @@ describe('POST /api/webhooks/test', () => {
     it('sends test message successfully with direct webhook_type and webhook_url', async () => {
       mockFetch.mockResolvedValue({ ok: true })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -431,7 +432,7 @@ describe('POST /api/webhooks/test', () => {
     it('sends custom message when provided', async () => {
       mockFetch.mockResolvedValue({ ok: true })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -450,7 +451,7 @@ describe('POST /api/webhooks/test', () => {
     it('uses predefined template for known webhook types', async () => {
       mockFetch.mockResolvedValue({ ok: true })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -518,7 +519,7 @@ describe('POST /api/webhooks/test', () => {
 
       mockFetch.mockResolvedValue({ ok: true })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -542,7 +543,7 @@ describe('POST /api/webhooks/test', () => {
     it('blocks direct diagnostic_messages tests without saved guild opt-in config', async () => {
       mockFetch.mockResolvedValue({ ok: true })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -607,7 +608,7 @@ describe('POST /api/webhooks/test', () => {
 
       mockFetch.mockResolvedValue({ ok: true })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ webhook_id: 'diag-2' })
@@ -628,7 +629,7 @@ describe('POST /api/webhooks/test', () => {
       process.env.DISABLE_DIAGNOSTIC_MESSAGES = 'true'
       mockFetch.mockResolvedValue({ ok: true })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -649,7 +650,7 @@ describe('POST /api/webhooks/test', () => {
     it('uses fallback message for unknown webhook types', async () => {
       mockFetch.mockResolvedValue({ ok: true })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -671,7 +672,7 @@ describe('POST /api/webhooks/test', () => {
         text: async () => 'Rate limited'
       })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -748,7 +749,7 @@ describe('POST /api/webhooks/test', () => {
 
       mockFetch.mockResolvedValue({ ok: true })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ webhook_id: 'webhook-1' })
@@ -820,7 +821,7 @@ describe('POST /api/webhooks/test', () => {
       })
       mockFetch.mockResolvedValue({ ok: true })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ webhook_id: 'proactive-1' })
@@ -885,7 +886,7 @@ describe('POST /api/webhooks/test', () => {
 
       mockFetch.mockResolvedValue({ ok: true })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ webhook_id: 'webhook-x' })
@@ -916,7 +917,7 @@ describe('POST /api/webhooks/test', () => {
       mockSupabase.from.mockReturnValue(mockWebhookQuery)
 
       const response = await POST(
-        new Request('http://localhost/api/webhooks/test', {
+        new NextRequest('http://localhost/api/webhooks/test', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ webhook_id: 'unscoped-webhook' })
@@ -975,7 +976,7 @@ describe('POST /api/webhooks/test', () => {
 
       mockFetch.mockResolvedValue({ ok: true })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ webhook_id: 'webhook-1' })
@@ -999,7 +1000,7 @@ describe('POST /api/webhooks/test', () => {
         throw new Error('Database connection failed')
       })
 
-      const request = new Request('http://localhost/api/webhooks/test', {
+      const request = new NextRequest('http://localhost/api/webhooks/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ webhook_id: 'abc' })

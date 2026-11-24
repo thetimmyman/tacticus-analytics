@@ -144,7 +144,7 @@ describe('/monitoring route fanout', () => {
     const primaryUrl = toExpectedEndpoint(PRIMARY_DSN)
     const backupUrl = toExpectedEndpoint(BACKUP_DSN)
 
-    const fetchMock = vi.fn(async (url: string | URL) => {
+    const fetchMock = vi.fn(async (url: string | URL, _init?: RequestInit) => {
       if (String(url) === primaryUrl) {
         return {
           status: 202,
@@ -214,7 +214,7 @@ describe('/monitoring route fanout', () => {
     const primaryUrl = toExpectedEndpoint(PRIMARY_DSN)
     const backupUrl = toExpectedEndpoint(BACKUP_DSN)
 
-    const fetchMock = vi.fn(async (url: string | URL) => {
+    const fetchMock = vi.fn(async (url: string | URL, _init?: RequestInit) => {
       if (String(url) === primaryUrl) {
         return { status: 201, headers: new Headers() } as Response
       }

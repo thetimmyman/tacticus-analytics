@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 
 // The composition aggregate itself is global; this pins the route's own access gate.
 
@@ -16,11 +17,11 @@ const createNextRequest = (url: string) => {
     nextUrl: {
       searchParams: urlObj.searchParams
     }
-  } as unknown as Request
+  } as unknown as NextRequest
 }
 
 describe('GET /api/meta-analysis/batch', () => {
-  let GET: (request: Request) => Promise<Response>
+  let GET: (request: NextRequest) => Promise<Response>
   let mockSupabase: {
     auth: { getUser: ReturnType<typeof vi.fn> }
     from: ReturnType<typeof vi.fn>

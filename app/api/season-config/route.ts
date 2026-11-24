@@ -260,8 +260,7 @@ export const GET = withErrorHandler(async (req: NextRequest) => {
       .in('boss_id', bossIds),
 
     supabase
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generated types do not include herald_meta_role_mapping yet
-      .from('herald_meta_role_mapping' as any)
+      .from('herald_meta_role_mapping')
       .select(
         'id, meta_team_slug, rarity_set, discord_role_id, display_label, enabled, active_boss_ids, auto_update, updated_at'
       )
@@ -273,8 +272,7 @@ export const GET = withErrorHandler(async (req: NextRequest) => {
       .eq('boss_type', bossType),
     seasonStr.length > 0
       ? supabase
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generated types do not include upcoming_season_bosses yet
-          .from('upcoming_season_bosses' as any)
+          .from('upcoming_season_bosses')
           .select('level, sub_bosses')
           .eq('guild_code', guildCode)
           .eq('season_number', seasonStr)
@@ -284,8 +282,7 @@ export const GET = withErrorHandler(async (req: NextRequest) => {
     // boss_name may be the display name; boss_mapping bridges bossType to display.
     Number.isFinite(setNumber) && setNumber >= 1 && setNumber <= 5
       ? supabase
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generated types do not include boss_target_tokens yet
-          .from('boss_target_tokens' as any)
+          .from('boss_target_tokens')
           .select('boss_name, encounter_id, target_tokens, skip')
           .eq('guild_code', guildCode)
           .eq('rarity', rarity)

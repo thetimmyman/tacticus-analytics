@@ -4,7 +4,10 @@ import {
   normalizeRaidFile,
   RAID_FILE_MAX_BYTES
 } from '@/app/lib/desktop/raid-file'
-import { processRaidEntry } from '@/app/lib/sync/transformers'
+import {
+  processRaidEntry,
+  type RawRaidEntry
+} from '@/app/lib/sync/transformers'
 
 vi.mock('@/app/lib/logging', () => ({
   createComponentLogger: () => ({
@@ -50,7 +53,7 @@ describe('local raid file boundary', () => {
       const rows = normalizeRaidFile(JSON.stringify(file()), context)
       expect(rows).toEqual([
         processRaidEntry(
-          entry,
+          entry as unknown as RawRaidEntry,
           'SYN001',
           '9999',
           context.playerMappings,

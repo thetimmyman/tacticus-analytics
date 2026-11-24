@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import type { CatalogHero } from '@/app/lib/catalogs/types'
 import {
   compareTeamUnitNamesForDisplay,
   isKnownMachineOfWarName,
@@ -7,23 +8,52 @@ import {
 
 const catalog = {
   getByName: (name: string) => {
-    const values: Record<
-      string,
-      { displayName: string; category: 'hero' | 'mow' }
-    > = {
-      rho: { displayName: 'Exitor-Rho-1.15/x', category: 'hero' },
-      biovore: { displayName: 'Biovore', category: 'mow' },
-      galatian: { displayName: 'Galatian', category: 'mow' }
+    const values: Record<string, CatalogHero> = {
+      rho: {
+        displayName: 'Exitor-Rho-1.15/x',
+        category: 'hero',
+        unitId: 'rho',
+        faction: 'Imperium',
+        traits: [],
+        iconUrl: ''
+      },
+      biovore: {
+        displayName: 'Biovore',
+        category: 'mow',
+        unitId: 'biovore',
+        faction: 'Chaos',
+        traits: [],
+        iconUrl: ''
+      },
+      galatian: {
+        displayName: 'Galatian',
+        category: 'mow',
+        unitId: 'galatian',
+        faction: 'Chaos',
+        traits: [],
+        iconUrl: ''
+      }
     }
     return values[name.toLowerCase()] ?? null
   },
   getById: (id: string) => {
-    const values: Record<
-      string,
-      { displayName: string; category: 'hero' | 'mow' }
-    > = {
-      hero_zed_id: { displayName: 'Alpha Hero', category: 'hero' },
-      hero_alpha_id: { displayName: 'Zed Hero', category: 'hero' }
+    const values: Record<string, CatalogHero> = {
+      hero_zed_id: {
+        displayName: 'Alpha Hero',
+        category: 'hero',
+        unitId: 'hero_zed_id',
+        faction: 'Imperium',
+        traits: [],
+        iconUrl: ''
+      },
+      hero_alpha_id: {
+        displayName: 'Zed Hero',
+        category: 'hero',
+        unitId: 'hero_alpha_id',
+        faction: 'Imperium',
+        traits: [],
+        iconUrl: ''
+      }
     }
     return values[id] ?? null
   }

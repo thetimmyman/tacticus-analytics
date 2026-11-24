@@ -14,7 +14,7 @@ vi.mock(
 )
 
 const getIdleWindow = () =>
-  window as Window & { requestIdleCallback?: (cb: () => void) => void }
+  window as unknown as { requestIdleCallback?: (cb: () => void) => void }
 
 describe('PerformanceWrapper utilities', () => {
   it('debounces input changes', () => {

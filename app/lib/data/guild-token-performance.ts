@@ -135,9 +135,8 @@ export async function getGuildTokenPerformance(
     const officerTargetsByBossKey: Record<string, number> =
       prefetched?.officerTargetsByBossKey ?? {}
     if (prefetched?.officerTargetsByBossKey === undefined && supabase) {
-      /* eslint-disable @typescript-eslint/no-explicit-any, no-restricted-syntax */
-      let targetsQuery = (supabase.from('boss_target_tokens' as never) as any)
-        /* eslint-enable @typescript-eslint/no-explicit-any, no-restricted-syntax */
+      let targetsQuery = supabase
+        .from('boss_target_tokens')
         .select(
           'boss_name, rarity, set, target_tokens, season_number, encounter_id'
         )

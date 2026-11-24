@@ -1,3 +1,4 @@
+import type { ExplorePrivacyModes } from '@tacticus/app-core/explore-privacy'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const SECRET = 'chart-labels-secret-0123456789abcd'
@@ -10,7 +11,7 @@ const { rendered, getPlayerPerformanceSummaryRPC, loadModes } = vi.hoisted(
       { displayName: 'RealPlayerOne', avg_vs_guild: 1.5 },
       { displayName: 'RealPlayerTwo', avg_vs_guild: -0.5 }
     ]),
-    loadModes: vi.fn(async () => ['public'] as string[])
+    loadModes: vi.fn(async () => ['public'] as ExplorePrivacyModes)
   })
 )
 

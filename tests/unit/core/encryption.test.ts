@@ -217,12 +217,12 @@ describe('getEncryptionKey hard-fail', () => {
     } else {
       process.env.ENCRYPTION_KEY = originalKey
     }
-    process.env.NODE_ENV = originalNodeEnv
+    vi.stubEnv('NODE_ENV', originalNodeEnv)
   })
 
   it('throws when ENCRYPTION_KEY is unset outside development', async () => {
     delete process.env.ENCRYPTION_KEY
-    process.env.NODE_ENV = 'production'
+    vi.stubEnv('NODE_ENV', 'production')
 
     await expect(encrypt('x')).rejects.toThrow('Failed to encrypt data')
   })

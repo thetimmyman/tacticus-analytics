@@ -32,6 +32,7 @@ describe('resolveGuildScope', () => {
     mockGetClusterGuilds.mockResolvedValue([
       {
         guild_code: 'GUILD1',
+        guild_tag: null,
         display_name: 'G1',
         enabled: true,
         cluster_code: 'C1',
@@ -40,6 +41,7 @@ describe('resolveGuildScope', () => {
       },
       {
         guild_code: 'GUILD2',
+        guild_tag: null,
         display_name: 'G2',
         enabled: true,
         cluster_code: 'C1',
@@ -48,6 +50,7 @@ describe('resolveGuildScope', () => {
       },
       {
         guild_code: 'GUILD3',
+        guild_tag: null,
         display_name: 'G3',
         enabled: true,
         cluster_code: 'C1',

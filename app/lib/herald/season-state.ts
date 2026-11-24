@@ -113,8 +113,8 @@ export const loadSkippedPrimesForSeasons = async (
   }
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- boss_target_tokens is ahead of generated app DB types
-    const { data, error } = await (supabase.from('boss_target_tokens') as any)
+    const { data, error } = await supabase
+      .from('boss_target_tokens')
       .select(
         'boss_name, rarity, set, encounter_id, skip, source, seeded_from_seasons'
       )
@@ -388,8 +388,7 @@ export const loadSeasonNotesForTransitions = async (
 
   try {
     const { data, error } = await supabase
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generated types lag
-      .from('upcoming_season_bosses' as any)
+      .from('upcoming_season_bosses')
       .select('season_number, level, sub_bosses')
       .eq('guild_code', guildCode)
       .in('season_number', seasons)

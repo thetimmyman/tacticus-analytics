@@ -33,7 +33,8 @@ describe('boss-calculations HP helpers', () => {
     const bossHpData: BossHpData = {
       legendary: { L1: 4_888_667 },
       mythic: { M1: 29_333_333 },
-      primes: { Rogaldorn_L1: 400_000, Rogaldorn_prime2_L1: 350_000 }
+      primes: { Rogaldorn_L1: 400_000, Rogaldorn_prime2_L1: 350_000 },
+      byBossName: {}
     }
 
     const primeHpData = { Thaddeus_M1: 2_400_000 }
@@ -54,7 +55,8 @@ describe('boss-calculations HP helpers', () => {
     const bossHpData: BossHpData = {
       legendary: { L1: 4_888_667 },
       mythic: { M1: 29_333_333 },
-      primes: { Rogaldorn_M1: 2_400_000, Rogaldorn_prime2_M1: 2_100_000 }
+      primes: { Rogaldorn_M1: 2_400_000, Rogaldorn_prime2_M1: 2_100_000 },
+      byBossName: {}
     }
 
     const primeHpData = { Thaddeus_M1: 2_400_000 }

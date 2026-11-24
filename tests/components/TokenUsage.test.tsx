@@ -105,7 +105,7 @@ vi.mock('@/app/components/token-usage', () => ({
 describe('TokenUsage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    process.env.NODE_ENV = 'test'
+    vi.stubEnv('NODE_ENV', 'test')
   })
 
   it('renders loading state', async () => {

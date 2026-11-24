@@ -253,8 +253,8 @@ async function loadBattleMetricsBySeason(
 
   try {
     const supabase = await db()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- EOT_GR_data generated type is intentionally narrow in older app packages
-    const { data, error } = await (supabase.from('EOT_GR_data') as any)
+    const { data, error } = await supabase
+      .from('EOT_GR_data')
       .select('Season, rarity, set, encounterId, damageDealt, loopIndex')
       .eq('Guild', guildCode)
       .in(
@@ -481,8 +481,8 @@ async function loadTargetTokensBySlot(
   try {
     const supabase = await db()
     // Keyed by seasonalTargetTokenSeasonKey; the renderer prefers the season row over '' legacy.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- boss_target_tokens is ahead of generated app DB types
-    const { data, error } = await (supabase.from('boss_target_tokens') as any)
+    const { data, error } = await supabase
+      .from('boss_target_tokens')
       .select(
         'boss_name, rarity, set, encounter_id, target_tokens, source, seeded_from_seasons, skip, season_number'
       )

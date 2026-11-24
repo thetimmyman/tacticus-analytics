@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 
 let mockRequireRole: ReturnType<typeof vi.fn>
 let mockEnsureRotationSnapshot: ReturnType<typeof vi.fn>
@@ -6,7 +7,7 @@ let mockComputeFutureConfigBosses: ReturnType<typeof vi.fn>
 let mockGetSeasonConfigIdForOffset: ReturnType<typeof vi.fn>
 
 describe('GET /api/assignments/next-season-bosses', () => {
-  let GET: () => Promise<Response>
+  let GET: (request: NextRequest) => Promise<Response>
 
   beforeEach(async () => {
     vi.resetModules()
@@ -54,7 +55,9 @@ describe('GET /api/assignments/next-season-bosses', () => {
     it('returns 500 when authentication fails', async () => {
       mockRequireRole.mockRejectedValue(new Error('Authentication required'))
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest('http://localhost/api/assignments/next-season-bosses')
+      )
       const body = await response.json()
 
       expect(response.status).toBe(500)
@@ -65,7 +68,9 @@ describe('GET /api/assignments/next-season-bosses', () => {
       const roleError = new Error('Insufficient permissions')
       mockRequireRole.mockRejectedValue(roleError)
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest('http://localhost/api/assignments/next-season-bosses')
+      )
       const body = await response.json()
 
       expect(response.status).toBe(500)
@@ -84,7 +89,9 @@ describe('GET /api/assignments/next-season-bosses', () => {
     it('returns 503 when rotation snapshot is unavailable', async () => {
       mockEnsureRotationSnapshot.mockResolvedValue(null)
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest('http://localhost/api/assignments/next-season-bosses')
+      )
       const body = await response.json()
 
       expect(response.status).toBe(503)
@@ -117,7 +124,9 @@ describe('GET /api/assignments/next-season-bosses', () => {
       ])
       mockGetSeasonConfigIdForOffset.mockReturnValue({ id: 'config-125' })
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest('http://localhost/api/assignments/next-season-bosses')
+      )
       const body = await response.json()
 
       expect(response.status).toBe(200)
@@ -154,7 +163,9 @@ describe('GET /api/assignments/next-season-bosses', () => {
       mockComputeFutureConfigBosses.mockReturnValue([])
       mockGetSeasonConfigIdForOffset.mockReturnValue({ id: 'config-125' })
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest('http://localhost/api/assignments/next-season-bosses')
+      )
       const body = await response.json()
 
       expect(response.status).toBe(200)
@@ -182,7 +193,9 @@ describe('GET /api/assignments/next-season-bosses', () => {
       ])
       mockGetSeasonConfigIdForOffset.mockReturnValue({ id: 'config-125' })
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest('http://localhost/api/assignments/next-season-bosses')
+      )
       const body = await response.json()
 
       expect(response.status).toBe(200)
@@ -208,7 +221,9 @@ describe('GET /api/assignments/next-season-bosses', () => {
       mockComputeFutureConfigBosses.mockReturnValue([])
       mockGetSeasonConfigIdForOffset.mockReturnValue({ id: 'config-125' })
 
-      await GET()
+      await GET(
+        new NextRequest('http://localhost/api/assignments/next-season-bosses')
+      )
 
       expect(mockComputeFutureConfigBosses).toHaveBeenCalledWith(
         2,
@@ -234,7 +249,9 @@ describe('GET /api/assignments/next-season-bosses', () => {
       mockComputeFutureConfigBosses.mockReturnValue([])
       mockGetSeasonConfigIdForOffset.mockReturnValue({ id: 'config-125' })
 
-      await GET()
+      await GET(
+        new NextRequest('http://localhost/api/assignments/next-season-bosses')
+      )
 
       expect(mockGetSeasonConfigIdForOffset).toHaveBeenCalledWith(
         2,
@@ -257,7 +274,9 @@ describe('GET /api/assignments/next-season-bosses', () => {
       mockComputeFutureConfigBosses.mockReturnValue([])
       mockGetSeasonConfigIdForOffset.mockReturnValue({ id: 'config-125' })
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest('http://localhost/api/assignments/next-season-bosses')
+      )
       const body = await response.json()
 
       expect(response.status).toBe(200)
@@ -281,7 +300,9 @@ describe('GET /api/assignments/next-season-bosses', () => {
       mockRequireRole.mockResolvedValue({ user: { id: 'user-123' } })
       mockEnsureRotationSnapshot.mockRejectedValue(new Error('Cache error'))
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest('http://localhost/api/assignments/next-season-bosses')
+      )
       const body = await response.json()
 
       expect(response.status).toBe(500)
@@ -305,7 +326,9 @@ describe('GET /api/assignments/next-season-bosses', () => {
         throw new Error('Compute error')
       })
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest('http://localhost/api/assignments/next-season-bosses')
+      )
       const body = await response.json()
 
       expect(response.status).toBe(500)

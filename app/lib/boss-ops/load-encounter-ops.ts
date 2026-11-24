@@ -134,15 +134,14 @@ export async function loadSeasonOpsBySlot(
 
   try {
     const supabase = await db()
-    const { data, error } =
-      await // eslint-disable-next-line @typescript-eslint/no-explicit-any -- upcoming_season_bosses is ahead of generated types in this app package
-      (supabase.from('upcoming_season_bosses') as any)
-        .select('season_number, level, sub_bosses')
-        .eq('guild_code', guildCode)
-        .in(
-          'season_number',
-          Array.from(new Set(seasonNumbers.map((season) => String(season))))
-        )
+    const { data, error } = await supabase
+      .from('upcoming_season_bosses')
+      .select('season_number, level, sub_bosses')
+      .eq('guild_code', guildCode)
+      .in(
+        'season_number',
+        Array.from(new Set(seasonNumbers.map((season) => String(season))))
+      )
 
     if (error) {
       console.warn('[boss-ops] Failed to load season ops', {

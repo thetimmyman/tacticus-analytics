@@ -62,7 +62,7 @@ function mockFetch(options: {
   freshness?: unknown
   sync?: unknown
 }): ReturnType<typeof vi.fn> {
-  const fn = vi.fn(async (url: string) => {
+  const fn = vi.fn(async (url: string, _init?: RequestInit) => {
     if (String(url).includes('/api/sync/freshness')) {
       return options.freshness ?? freshnessResponse(null)
     }

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 vi.mock('@/app/lib/player-mapping-relations', () => ({
   CURRENT_USER_PLAYER_MAPPING: 'player_mapping'
 }))
@@ -13,7 +14,7 @@ const createNextRequest = (url: string) => {
   const urlObj = new URL(url)
   return {
     nextUrl: { searchParams: urlObj.searchParams }
-  } as unknown as Request
+  } as unknown as NextRequest
 }
 
 const baseUrl =
@@ -42,7 +43,7 @@ const composition = {
 }
 
 describe('GET /api/meta-analysis', () => {
-  let GET: (request: Request) => Promise<Response>
+  let GET: (request: NextRequest) => Promise<Response>
   let mockSupabase: {
     auth: { getUser: ReturnType<typeof vi.fn> }
     from: ReturnType<typeof vi.fn>

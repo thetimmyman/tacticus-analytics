@@ -112,8 +112,7 @@ async function readStoredBattleKeys(
 ): Promise<Set<string> | null> {
   let lastId: number | null = null
   for (;;) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let query = (supabase as any)
+    let query = supabase
       .from('EOT_GR_data')
       .select(`id,${UPSERT_CONFLICT_KEY}`)
       .eq('Guild', guildCode)
@@ -450,8 +449,7 @@ async function runRaidSync(
     ) {
       for (let i = 0; i < validEntries.length; i += WORKER_CONFIG.batchSize) {
         const batch = validEntries.slice(i, i + WORKER_CONFIG.batchSize)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data, error } = await (supabase as any)
+        const { data, error } = await supabase
           .from('EOT_GR_data')
           .upsert(batch.map(withoutWriteClock), {
             onConflict: UPSERT_CONFLICT_KEY,
@@ -484,8 +482,7 @@ async function runRaidSync(
         }
       }
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('EOT_GR_data')
         .upsert(validEntries.map(withoutWriteClock), {
           onConflict: UPSERT_CONFLICT_KEY,

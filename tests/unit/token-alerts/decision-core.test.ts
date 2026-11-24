@@ -26,7 +26,17 @@ const ALL_ON: UserTokenAlertPrefs = {
   alert_on_full_repeat_hours: null,
   alert_before_full: true,
   alert_before_full_minutes: 120,
-  alert_on_token_gained: true
+  alert_on_token_gained: true,
+  alert_on_bomb_ready: false,
+  alert_before_bomb_ready: false,
+  alert_before_bomb_ready_minutes: 60,
+  quiet_hours_start: null,
+  quiet_hours_end: null,
+  quiet_hours_timezone: null,
+  alert_before_quiet_hours: false,
+  alert_before_quiet_hours_minutes: 60,
+  alert_before_burn: false,
+  alert_before_burn_minutes: 60
 }
 
 const ALL_OFF: UserTokenAlertPrefs = {
@@ -54,6 +64,14 @@ const state = (
   dm_blocked_at: null,
   dm_channel_id: null,
   dm_channel_recipient_id: null,
+  last_bombs: null,
+  last_time_to_bomb_seconds: null,
+  last_bomb_ready_alert_at: null,
+  last_bomb_prewarn_alert_at: null,
+  quiet_hours_deferred_since: null,
+  capped_since: null,
+  last_pre_quiet_alert_at: null,
+  last_burn_prewarn_alert_at: null,
   ...overrides
 })
 

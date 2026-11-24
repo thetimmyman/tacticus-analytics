@@ -1,3 +1,4 @@
+import type { ExplorePrivacyModes } from '@tacticus/app-core/explore-privacy'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const SECRET = 'chart-route-secret-0123456789abcdef'
@@ -20,7 +21,7 @@ const { fetchBossLeaderboardSummary, loadModes } = vi.hoisted(() => ({
       leaderboard: [{ name: 'Boss', level: 1, loop: 1, totalDamage: 10 }]
     }
   })),
-  loadModes: vi.fn(async () => ['public'] as string[])
+  loadModes: vi.fn(async () => ['public'] as ExplorePrivacyModes)
 }))
 
 vi.mock(

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { NextRequest } from 'next/server'
 vi.mock('@/app/lib/player-mapping-relations', () => ({
   CURRENT_USER_PLAYER_MAPPING: 'player_mapping'
 }))
@@ -8,7 +9,7 @@ let mockEncryptApiKey: ReturnType<typeof vi.fn>
 let mockValidateApiKeyWithTacticus: ReturnType<typeof vi.fn>
 
 describe('POST /api/guild/replace-api-key', () => {
-  let POST: (request: Request) => Promise<Response>
+  let POST: (request: NextRequest) => Promise<Response>
   let mockSupabase: {
     auth: { getUser: ReturnType<typeof vi.fn> }
     from: ReturnType<typeof vi.fn>
@@ -106,7 +107,7 @@ describe('POST /api/guild/replace-api-key', () => {
   })
 
   const makeRequest = (body: unknown) =>
-    new Request('http://localhost/api/guild/replace-api-key', {
+    new NextRequest('http://localhost/api/guild/replace-api-key', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)

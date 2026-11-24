@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { NextRequest } from 'next/server'
+import { NextRequest, type NextRequestInit } from 'next/server'
 
 let mockCreateServiceClient: ReturnType<typeof vi.fn>
 let mockReadFile: ReturnType<typeof vi.fn>
@@ -103,7 +103,7 @@ describe('/api/discord-webhooks/version-update', () => {
     body: object | null = null,
     headers: Record<string, string> = {}
   ) => {
-    const options: RequestInit & { headers: Record<string, string> } = {
+    const options: NextRequestInit = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

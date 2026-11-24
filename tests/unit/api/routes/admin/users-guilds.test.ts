@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 
 let mockRequireAuth: ReturnType<typeof vi.fn>
 let mockCreateServiceClient: ReturnType<typeof vi.fn>
-let GET: () => Promise<Response>
+let GET: (request: NextRequest) => Promise<Response>
 
 describe('GET /api/admin/users/guilds', () => {
   let mockSupabase: {
@@ -45,7 +46,9 @@ describe('GET /api/admin/users/guilds', () => {
       profile: { is_app_admin: false }
     })
 
-    const response = await GET()
+    const response = await GET(
+      new NextRequest('http://localhost/api/admin/users-guilds')
+    )
     expect(response.status).toBe(403)
   })
 
@@ -73,7 +76,9 @@ describe('GET /api/admin/users/guilds', () => {
       return { select: vi.fn().mockReturnThis() }
     })
 
-    const response = await GET()
+    const response = await GET(
+      new NextRequest('http://localhost/api/admin/users-guilds')
+    )
     const body = await response.json()
 
     expect(response.status).toBe(200)
@@ -116,7 +121,9 @@ describe('GET /api/admin/users/guilds', () => {
       return { select: vi.fn().mockReturnThis() }
     })
 
-    const response = await GET()
+    const response = await GET(
+      new NextRequest('http://localhost/api/admin/users-guilds')
+    )
     const body = await response.json()
 
     expect(response.status).toBe(200)
@@ -138,7 +145,9 @@ describe('GET /api/admin/users/guilds', () => {
         .mockResolvedValue({ data: null, error: { message: 'DB error' } })
     })
 
-    const response = await GET()
+    const response = await GET(
+      new NextRequest('http://localhost/api/admin/users-guilds')
+    )
     expect(response.status).toBe(500)
   })
 
@@ -156,7 +165,9 @@ describe('GET /api/admin/users/guilds', () => {
       })
     })
 
-    const response = await GET()
+    const response = await GET(
+      new NextRequest('http://localhost/api/admin/users-guilds')
+    )
     const body = await response.json()
 
     expect(response.status).toBe(500)

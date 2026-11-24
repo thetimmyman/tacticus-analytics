@@ -40,7 +40,7 @@ function freshProgress(
     guild_error_message: null,
     guild_can_retry: true,
     guild_lock_expires_at: null,
-    sync_status: 'not_started',
+    sync_status: 'not_required',
     sync_progress: 0,
     sync_records_synced: 0,
     sync_error_message: null,
@@ -151,7 +151,7 @@ describe('onboarding dashboard — seat claim appears in the session that regist
 
   // For one round trip guildComplete is true while the flag is stale.
   it('never shows the officer dead end between submit and answer', async () => {
-    let releaseProgress: (() => void) | null = null
+    let releaseProgress: () => void = () => {}
     const progressGate = new Promise<void>((resolve) => {
       releaseProgress = resolve
     })
@@ -202,7 +202,7 @@ describe('onboarding dashboard — seat claim appears in the session that regist
       screen.getByRole('link', { name: /enter invite code/i })
     ).toBeTruthy()
 
-    releaseProgress?.()
+    releaseProgress()
 
     expect(
       await screen.findByRole('button', { name: /link my profile/i })

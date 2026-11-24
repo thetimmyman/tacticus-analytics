@@ -26,8 +26,8 @@ const baseGuild = (): GuildDataWithPrivacy => ({
   total_damage: 123456,
   avg_damage_per_battle: 12345,
   top_boss_hits: [
-    { encounterId: 0, damage: 110000, player: 'Hero' },
-    { encounterId: 1, damage: 50000, player: 'Prime' }
+    { encounterId: 0, damage: 110000, player: 'Hero', rarity: 'Legendary' },
+    { encounterId: 1, damage: 50000, player: 'Prime', rarity: 'Mythic' }
   ],
   veteran_count: 2,
   last_updated: '2026-01-01T00:00:00Z'
@@ -151,8 +151,14 @@ describe('explore-privacy', () => {
   })
 
   it('filters guild arrays based on privacy', () => {
-    const visibleGuild = { ...baseGuild(), explore_privacy_mode: ['public'] }
-    const hiddenGuild = { ...baseGuild(), explore_privacy_mode: ['hide_all'] }
+    const visibleGuild: GuildDataWithPrivacy = {
+      ...baseGuild(),
+      explore_privacy_mode: ['public']
+    }
+    const hiddenGuild: GuildDataWithPrivacy = {
+      ...baseGuild(),
+      explore_privacy_mode: ['hide_all']
+    }
     const result = filterGuildsByPrivacy([visibleGuild, hiddenGuild])
     expect(result).toHaveLength(1)
     expect(result[0].guild_code).toBe('ABC')

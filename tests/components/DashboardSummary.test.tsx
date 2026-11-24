@@ -1,7 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor, act } from '@testing-library/react'
+import type { UseQueryResult } from '@tanstack/react-query'
 import DashboardSummary from '@/app/components/DashboardSummary'
 import * as queryHooks from '@/app/lib/hooks/queries'
+
+// The component only destructures { data, isLoading } from these hooks, so the
+// mocks stay minimal instead of faking a full react-query result object.
+const queryResult = <T,>(data: T): UseQueryResult<T, Error> =>
+  ({ data, isLoading: false }) as unknown as UseQueryResult<T, Error>
 
 vi.mock('@/app/lib/hooks/queries', () => ({
   useTokenUsageByLoop: vi.fn(() => ({ data: [], isLoading: false })),
@@ -155,35 +161,16 @@ describe('DashboardSummary', () => {
       Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
     ) as any
 
-    mockedQueries.useTokenUsageByLoop.mockReturnValue({
-      data: {},
-      isLoading: false
-    })
-    mockedQueries.useTokenUsageByLoopAndSet.mockReturnValue({
-      data: {},
-      isLoading: false
-    })
-    mockedQueries.useDamageByBossLoop.mockReturnValue({
-      data: { data: [], bosses: [] },
-      isLoading: false
-    })
-    mockedQueries.useBossPerformanceMetrics.mockReturnValue({
-      data: [],
-      isLoading: false
-    })
-    mockedQueries.useGuildVsClusterBoss.mockReturnValue({
-      data: [],
-      isLoading: false
-    })
-    mockedQueries.useGuildVsClusterPrime.mockReturnValue({
-      data: [],
-      isLoading: false
-    })
-    mockedQueries.useTotalDamage.mockReturnValue({
-      data: 1000000,
-      isLoading: false
-    })
-    mockedQueries.useMaxLoop.mockReturnValue({ data: 0, isLoading: false })
+    mockedQueries.useTokenUsageByLoop.mockReturnValue(queryResult({}))
+    mockedQueries.useTokenUsageByLoopAndSet.mockReturnValue(queryResult({}))
+    mockedQueries.useDamageByBossLoop.mockReturnValue(
+      queryResult({ data: [], bosses: [], detailedData: [] })
+    )
+    mockedQueries.useBossPerformanceMetrics.mockReturnValue(queryResult([]))
+    mockedQueries.useGuildVsClusterBoss.mockReturnValue(queryResult([]))
+    mockedQueries.useGuildVsClusterPrime.mockReturnValue(queryResult([]))
+    mockedQueries.useTotalDamage.mockReturnValue(queryResult(1000000))
+    mockedQueries.useMaxLoop.mockReturnValue(queryResult(0))
   })
 
   afterEach(() => {
@@ -254,79 +241,84 @@ describe('DashboardSummary', () => {
   it('renders progress bars and charts when data is available', () => {
     vi.useFakeTimers()
 
-    mockedQueries.useBossPerformanceMetrics.mockReturnValue({
-      data: [
+    mockedQueries.useBossPerformanceMetrics.mockReturnValue(
+      queryResult([
         {
           bossName: 'Boss Alpha',
+          Name: null,
           tier: 2,
           set: 1,
           rarity: 'Legendary',
           avgDamage: 1000,
           maxDamage: 2000,
+          totalDamage: 5000,
           hitCount: 5,
+          maxHp: 100,
           encounterId: 0
         },
         {
-          primeName: 'Prime Omega',
+          bossName: null,
+          Name: 'Prime Omega',
           tier: 1,
           set: 0,
           rarity: 'Mythic',
           avgDamage: 500,
           maxDamage: 800,
+          totalDamage: 1600,
           hitCount: 2,
+          maxHp: 100,
           encounterId: 1
         }
-      ],
-      isLoading: false
-    })
-    mockedQueries.useGuildVsClusterBoss.mockReturnValue({
-      data: [
+      ])
+    )
+    mockedQueries.useGuildVsClusterBoss.mockReturnValue(
+      queryResult([
         {
           boss_name: 'Boss Alpha',
           set: 1,
           rarity: 'Legendary',
           encounter_type: 'Boss',
-          vs_cluster_percent: 0.25
+          vs_cluster_percent: 0.25,
+          guild_avg_damage: null,
+          cluster_avg_damage: null
         }
-      ],
-      isLoading: false
-    })
-    mockedQueries.useGuildVsClusterPrime.mockReturnValue({
-      data: [
+      ])
+    )
+    mockedQueries.useGuildVsClusterPrime.mockReturnValue(
+      queryResult([
         {
           prime_name: 'Prime Omega',
           set: 0,
           rarity: 'Mythic',
-          vs_cluster_percent: 0.4
+          vs_cluster_percent: 0.4,
+          guild_avg_damage: null,
+          cluster_avg_damage: null
         }
-      ],
-      isLoading: false
-    })
-    mockedQueries.useTokenUsageByLoop.mockReturnValue({
-      data: {
-        0: { bosses: 2, primes: 1, rarities: ['Legendary'] },
-        2: { bosses: 1, primes: 0, rarities: [] }
-      },
-      isLoading: false
-    })
-    mockedQueries.useTokenUsageByLoopAndSet.mockReturnValue({
-      data: {
+      ])
+    )
+    mockedQueries.useTokenUsageByLoop.mockReturnValue(
+      queryResult({
+        0: { bosses: 2, primes: 1, rarities: ['Legendary'], displayLoop: 0 },
+        2: { bosses: 1, primes: 0, rarities: [], displayLoop: 2 }
+      })
+    )
+    mockedQueries.useTokenUsageByLoopAndSet.mockReturnValue(
+      queryResult({
         0: { total: 3, L1: 1, L2: 2 },
         2: { total: 1, M1: 1 }
-      },
-      isLoading: false
-    })
-    mockedQueries.useDamageByBossLoop.mockReturnValue({
-      data: {
+      })
+    )
+    mockedQueries.useDamageByBossLoop.mockReturnValue(
+      queryResult({
         data: [
           { loop: 0, 'Boss Alpha': 1000 },
           { loop: 2, 'Boss Alpha': 1200 }
         ],
-        bosses: ['Boss Alpha']
-      },
-      isLoading: false
-    })
-    mockedQueries.useMaxLoop.mockReturnValue({ data: 2, isLoading: false })
+        bosses: ['Boss Alpha'],
+        detailedData: []
+      })
+    )
+    mockedQueries.useMaxLoop.mockReturnValue(queryResult(2))
 
     render(
       <DashboardSummary
