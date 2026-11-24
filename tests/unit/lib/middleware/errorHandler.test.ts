@@ -249,7 +249,7 @@ describe('errorHandler', () => {
         headers: new Headers()
       } as unknown as NextRequest
       const handler = vi.fn(
-        async () =>
+        async (_req: NextRequest) =>
           new Response(JSON.stringify({ error: 'upstream unavailable' }), {
             status: 502,
             headers: { 'content-type': 'application/json' }
@@ -343,6 +343,22 @@ describe('errorHandler', () => {
 
       expect(innerRequestId).toMatch(/^req_/u)
       expect(response.body.error.requestId).toBe(innerRequestId)
+    })
+
+    it('normalizes a 0-arg handler error without a request (no TypeError)', async () => {
+      const wrapped = withErrorHandler(
+        async () =>
+          new Response(JSON.stringify({ error: 'no request context' }), {
+            status: 500,
+            headers: { 'content-type': 'application/json' }
+          })
+      )
+
+      const response = (await wrapped()) as any
+
+      expect(response.status).toBe(500)
+      expect(response.body.error).toBeDefined()
+      expect(response.body.error.statusCode).toBe(500)
     })
   })
 

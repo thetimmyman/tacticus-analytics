@@ -1,5 +1,4 @@
 import { beforeEach, expect, it, vi } from 'vitest'
-import { NextRequest } from 'next/server'
 
 const mocks = vi.hoisted(() => ({
   auth: vi.fn(),
@@ -19,8 +18,6 @@ vi.mock('@/app/lib/middleware/errorHandler', () => ({
   withErrorHandler: (fn: unknown) => fn
 }))
 import { GET } from '@/app/api/guild-teams/freshness/route'
-const request = () =>
-  new NextRequest('http://localhost/api/guild-teams/freshness')
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -42,7 +39,7 @@ beforeEach(() => {
   })
 })
 it('returns only verification coverage for the authorized own-guild cohort', async () => {
-  const response = await GET(request())
+  const response = await GET()
   expect(await response.json()).toEqual({
     available: true,
     total: 2,
@@ -61,11 +58,11 @@ it('returns only verification coverage for the authorized own-guild cohort', asy
 })
 it('requires officer authorization before creating privileged database access', async () => {
   mocks.auth.mockRejectedValue(new Error('denied'))
-  await expect(GET(request())).rejects.toThrow('denied')
+  await expect(GET()).rejects.toThrow('denied')
   expect(mocks.serviceDb).not.toHaveBeenCalled()
 })
 it('keeps desktop on its local imported roster without hosted metadata access', async () => {
   mocks.desktop = true
-  expect(await (await GET(request())).json()).toEqual({ available: false })
+  expect(await (await GET()).json()).toEqual({ available: false })
   expect(mocks.serviceDb).not.toHaveBeenCalled()
 })

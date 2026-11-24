@@ -5,6 +5,7 @@ import path from 'path'
 const alias = {
   '@': path.resolve(__dirname, '.'),
   '@/app': path.resolve(__dirname, 'app'),
+  '@/components': path.resolve(__dirname, 'app/components'),
   '@/lib': path.resolve(__dirname, 'app/lib'),
   '@/types': path.resolve(__dirname, 'app/types'),
   '@/tests': path.resolve(__dirname, 'tests'),
@@ -14,6 +15,11 @@ const alias = {
   '@tacticus/app-core/*': path.resolve(__dirname, 'packages/app-core/src/*'),
   '@tacticus/charting': path.resolve(__dirname, 'packages/charting/src'),
   '@tacticus/charting/*': path.resolve(__dirname, 'packages/charting/src/*'),
+  '@tacticus/solver-core': path.resolve(__dirname, 'packages/solver-core/src'),
+  '@tacticus/solver-core/*': path.resolve(
+    __dirname,
+    'packages/solver-core/src/*'
+  ),
   'server-only': path.resolve(__dirname, 'tests/mocks/server-only.ts')
 }
 
@@ -52,6 +58,7 @@ const SHARED_EXCLUDE = [
   'tests/e2e/'
 ]
 
+// Integration setup self-scopes its mock restore; `/tests/integration/` files only.
 const setupFiles = ['./tests/setup.vitest.ts', './tests/integration/setup.ts']
 
 const writesTestReports =
@@ -80,8 +87,6 @@ export default defineConfig({
       : {}),
     projects: [
       {
-        plugins: [react()],
-        resolve: { alias },
         test: {
           name: 'node',
           globals: true,
@@ -94,8 +99,6 @@ export default defineConfig({
         }
       },
       {
-        plugins: [react()],
-        resolve: { alias },
         test: {
           name: 'happy-dom',
           globals: true,

@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { NextRequest } from 'next/server'
 
 const { serviceDbMock, requireAuthForApiMock } = vi.hoisted(() => ({
   serviceDbMock: vi.fn(),
@@ -69,9 +68,6 @@ function useQueryResults(
     })
   })
 }
-
-const telemetryRequest = () =>
-  new NextRequest('http://localhost/api/health/telemetry')
 
 async function expectUnavailable(response: Response) {
   expect(response.status).toBe(503)
@@ -177,7 +173,7 @@ describe('GET /api/health/telemetry', () => {
       total: { count: 0, error: null },
       failed: { count: 0, error: null }
     })
-    const response = await GET(telemetryRequest())
+    const response = await GET()
     expect(response.status).toBe(200)
     expect(response.headers.get('cache-control')).toBe('no-store')
     expect(await response.json()).toEqual({
@@ -192,7 +188,7 @@ describe('GET /api/health/telemetry', () => {
     serviceDbMock.mockImplementationOnce(() => {
       throw new Error('synthetic database query failure')
     })
-    await expectUnavailable(await GET(telemetryRequest()))
+    await expectUnavailable(await GET())
   })
 
   it.each(['latest', 'total', 'failed'] as const)(
@@ -203,7 +199,7 @@ describe('GET /api/health/telemetry', () => {
           error: { message: 'synthetic database query failure' }
         }
       })
-      await expectUnavailable(await GET(telemetryRequest()))
+      await expectUnavailable(await GET())
     }
   )
 
@@ -216,7 +212,7 @@ describe('GET /api/health/telemetry', () => {
     'returns unavailable for an absent %s count (%s)',
     async (name, count) => {
       useQueryResults({ [name]: { count, error: null } })
-      await expectUnavailable(await GET(telemetryRequest()))
+      await expectUnavailable(await GET())
     }
   )
 })

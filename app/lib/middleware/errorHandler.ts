@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
 import { AppError, ErrorCode, Errors } from '@/app/lib/errors/AppError'
 import { captureException, setTag as setSentryTag } from '@sentry/nextjs'
@@ -94,11 +93,14 @@ function sentryErrorTags(
   return tags
 }
 
-export function withErrorHandler(
-  handler: (req: NextRequest, ...args: any[]) => Promise<Response>,
+// Generic over the handler's own args so 0-arg and Request-typed routes keep their
+// signature; erasing to (req, ...any[]) made every wrapped export unassignable.
+export function withErrorHandler<Args extends unknown[]>(
+  handler: (...args: Args) => Promise<Response>,
   options: { maxJsonBodyBytes?: () => number } = {}
-) {
-  return async (req: NextRequest, ...args: any[]): Promise<Response> => {
+): (...args: Args) => Promise<Response> {
+  return async (...args: Args): Promise<Response> => {
+    const req = (args as unknown[])[0] as NextRequest | undefined
     const bodyLimitResponse = enforceJsonBodyLimit(
       req,
       options.maxJsonBodyBytes?.()
@@ -108,7 +110,7 @@ export function withErrorHandler(
     }
 
     try {
-      const response = await handler(req, ...args)
+      const response = await handler(...args)
       const normalized = await normalizeErrorResponse(response, req)
       return applyRateLimitHeaders(normalized, req)
     } catch (error) {
@@ -331,7 +333,7 @@ function applyRateLimitHeaders(
 }
 async function normalizeErrorResponse(
   response: Response,
-  req: NextRequest
+  req?: NextRequest
 ): Promise<Response> {
   if (!response || response.status < 400) {
     return response
@@ -414,13 +416,13 @@ async function normalizeErrorResponse(
   if (appError.statusCode >= 500) {
     logError(logger, appError, 'Normalized error response', {
       requestId,
-      method: req.method,
+      method: req?.method,
       url: pathname,
       originalStatus: response.status
     })
     captureException(appError, {
       tags: sentryErrorTags(
-        req.method,
+        req?.method,
         pathname,
         appError.statusCode,
         appError.code,

@@ -17,7 +17,7 @@ function request(): NextRequest {
 
 describe('withErrorHandler — route header preservation on error responses', () => {
   it('preserves route headers when the error body is AppError-shaped', async () => {
-    const handler = withErrorHandler(async () =>
+    const handler = withErrorHandler(async (_request: NextRequest) =>
       NextResponse.json(
         new AppError(
           'REPLAY_CONVERSION_FAILED',
@@ -38,7 +38,7 @@ describe('withErrorHandler — route header preservation on error responses', ()
 
   it('DROPS route headers when the error body is a bare string (the defect shape)', async () => {
     // Fails if the normalizer ever preserves headers unconditionally.
-    const handler = withErrorHandler(async () =>
+    const handler = withErrorHandler(async (_request: NextRequest) =>
       NextResponse.json(
         { error: 'Conversion failed' },
         { status: 422, headers: PRIVATE_HEADERS }
