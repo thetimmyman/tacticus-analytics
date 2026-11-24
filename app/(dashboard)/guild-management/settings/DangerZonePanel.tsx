@@ -53,13 +53,16 @@ export function DangerZonePanel({
       tone="danger"
     >
       <div className="space-y-6">
-        <div className="rounded-2xl border border-red-600/40 bg-red-950/40 p-5 shadow-inner shadow-red-900/30">
+        <div className="scheme-dark rounded-2xl border border-red-600/40 bg-red-950 p-5 shadow-inner shadow-red-900/30">
           <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-red-500/60 bg-red-900/50 text-red-200">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-red-500/60 bg-red-900 text-red-200">
               <AlertTriangle className="h-5 w-5" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-red-100">
+              <h3
+                id="disable-guild-analytics-title"
+                className="text-lg font-semibold text-red-100"
+              >
                 Disable guild analytics
               </h3>
               <p className="text-sm text-red-200/80">
@@ -68,6 +71,8 @@ export function DangerZonePanel({
               </p>
             </div>
             <Switch
+              id="disable-guild-analytics-switch"
+              aria-labelledby="disable-guild-analytics-title"
               checked={enabled}
               onCheckedChange={onEnabledChange}
               disabled={saving || !canModifyStatus}
@@ -80,9 +85,9 @@ export function DangerZonePanel({
           )}
         </div>
 
-        <div className="rounded-2xl border border-red-700/50 bg-red-950/60 p-6 shadow-inner shadow-red-900/30">
+        <div className="scheme-dark rounded-2xl border border-red-700/50 bg-black p-6 shadow-inner shadow-red-900/30">
           <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-red-600/60 bg-red-900/60 text-red-200">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-red-600/60 bg-red-900 text-red-200">
               <Slash className="h-5 w-5" />
             </div>
             <div className="flex-1">
@@ -109,7 +114,7 @@ export function DangerZonePanel({
                   value={confirmationText}
                   onChange={(event) => setConfirmationText(event.target.value)}
                   placeholder={guildDisplayLabel}
-                  className="rounded-xl border-red-500/40 bg-red-900/40 text-red-100 placeholder:text-red-300/50 focus:border-red-400 focus:ring-red-400"
+                  className="rounded-xl border-red-500/40 bg-red-900 text-red-100 placeholder:text-red-300/50 focus:border-red-400 focus:ring-red-400"
                   disabled={deleting || !canDeleteGuild}
                 />
                 <p className="text-xs text-red-200/70">
@@ -129,7 +134,7 @@ export function DangerZonePanel({
                   loading={deleting}
                   loadingText="Deleting..."
                   className={cn(
-                    'w-full justify-center border border-red-500/60 bg-red-700/80 text-red-50 hover:bg-red-600',
+                    'w-full justify-center border border-red-500/60 bg-red-700 text-red-50 hover:bg-red-600',
                     'rounded-xl font-semibold shadow-lg shadow-red-900/40'
                   )}
                 >
