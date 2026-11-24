@@ -3,7 +3,7 @@ import { db, serviceDb } from '@/app/lib/db'
 import { CURRENT_USER_PLAYER_MAPPING } from '@/app/lib/player-mapping-relations'
 import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('api.clusters.create')
-import { apiSecurityMiddleware } from '@/app/lib/middleware/rate-limit'
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import { generateInviteCode } from '@/app/lib/utils/invite-codes'
 import { encryptApiKey } from '@tacticus/app-core/encryption'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'

@@ -9,7 +9,7 @@ import {
 } from '@/app/lib/middleware/errorHandler'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { isClusterLeaderRole } from '@/app/lib/auth/role-predicates'
-import { apiSecurityMiddleware } from '@/app/lib/middleware/rate-limit'
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import { guildIdentitiesMatch } from '@/app/api/clusters/_lib/guild-identity'
 
 const logger = createComponentLogger('api.clusters.leave')

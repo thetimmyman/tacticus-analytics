@@ -26,7 +26,7 @@ describe('GET /api/gdpr/my-data/[requestId]', () => {
     vi.doMock('@/app/lib/auth/server', () => ({
       createClient: mockCreateClient
     }))
-    vi.doMock('@/app/lib/middleware/rate-limit', () => ({
+    vi.doMock('@/app/lib/middleware/api-security-middleware', () => ({
       apiSecurityMiddleware: mockApiSecurityMiddleware
     }))
     vi.doMock('@tacticus/app-core/logger', () => ({

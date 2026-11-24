@@ -14,7 +14,7 @@ const logger = createComponentLogger('api.meta.optimize')
 import bossesConfig from '@/config/bosses.json'
 import { getBossDisplayName as resolveCuratedBossName } from '@/app/lib/utils/bossNames'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
-import { apiSecurityMiddleware } from '@/app/lib/middleware/rate-limit'
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 
 const OPTIMIZER_LIMITS = {

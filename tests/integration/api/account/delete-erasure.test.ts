@@ -289,7 +289,7 @@ async function loadRoute(db: FakeDb) {
     db: async () => clientRef.current,
     serviceDb: () => clientRef.current
   }))
-  vi.doMock('@/app/lib/middleware/rate-limit', () => ({
+  vi.doMock('@/app/lib/middleware/api-security-middleware', () => ({
     apiSecurityMiddleware: async () => null
   }))
   // The shared error handler needs the real helpers.

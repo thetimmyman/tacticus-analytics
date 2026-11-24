@@ -37,8 +37,28 @@ export const fetchCurrentProfile = async (
   return (data as ProfileRow | null) ?? null
 }
 
-// Current member of the target guild only. Cluster leaders are NOT admitted:
-// cross-guild reads belong on the officer/cluster-leader path.
+/** True only for a cluster leader whose own guild shares the target's cluster. */
+const isClusterLeaderOfTarget = async (
+  supabase: SupabaseDb,
+  profile: ProfileRow,
+  targetGuildCode: string
+): Promise<boolean> => {
+  if (!isClusterLeaderRole(profile.role) || !profile.guild_code) return false
+  const { data: guilds } = await supabase
+    .from('guild_config')
+    .select(CLUSTER_LOOKUP_SELECT)
+    .in('guild_code', [profile.guild_code, targetGuildCode])
+  const userCluster = guilds?.find(
+    (g) => g.guild_code === profile.guild_code
+  )?.cluster_code
+  const targetCluster = guilds?.find(
+    (g) => g.guild_code === targetGuildCode
+  )?.cluster_code
+  return !!(userCluster && targetCluster && userCluster === targetCluster)
+}
+
+// Current member of the target guild, or a cluster leader whose own guild
+// shares the target's cluster (same-cluster peer reads).
 export const requireGuildMember = async (
   supabase: SupabaseDb,
   userId: string,
@@ -51,19 +71,7 @@ export const requireGuildMember = async (
   }
   if (profile.guild_code === targetGuildCode) return
 
-  if (isClusterLeaderRole(profile.role) && profile.guild_code) {
-    const { data: guilds } = await supabase
-      .from('guild_config')
-      .select(CLUSTER_LOOKUP_SELECT)
-      .in('guild_code', [profile.guild_code, targetGuildCode])
-    const userCluster = guilds?.find(
-      (g) => g.guild_code === profile.guild_code
-    )?.cluster_code
-    const targetCluster = guilds?.find(
-      (g) => g.guild_code === targetGuildCode
-    )?.cluster_code
-    if (userCluster && targetCluster && userCluster === targetCluster) return
-  }
+  if (await isClusterLeaderOfTarget(supabase, profile, targetGuildCode)) return
 
   throw Errors.forbidden('Not a member of this guild', {
     endpoint,
@@ -88,19 +96,8 @@ export const requireGuildOfficerOrClusterLeader = async (
     profile.guild_code === targetGuildCode && canManageHeraldRole(profile.role)
   if (isGuildOfficer) return profile
 
-  if (isClusterLeaderRole(profile.role) && profile.guild_code) {
-    const { data: guilds } = await supabase
-      .from('guild_config')
-      .select(CLUSTER_LOOKUP_SELECT)
-      .in('guild_code', [profile.guild_code, targetGuildCode])
-    const userCluster = guilds?.find(
-      (g) => g.guild_code === profile.guild_code
-    )?.cluster_code
-    const targetCluster = guilds?.find(
-      (g) => g.guild_code === targetGuildCode
-    )?.cluster_code
-    if (userCluster && targetCluster && userCluster === targetCluster)
-      return profile
+  if (await isClusterLeaderOfTarget(supabase, profile, targetGuildCode)) {
+    return profile
   }
 
   throw Errors.forbidden(

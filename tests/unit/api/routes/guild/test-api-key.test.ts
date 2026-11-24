@@ -39,7 +39,7 @@ describe('POST /api/guild/test-api-key', () => {
       TACTICUS_API: { BASE_URL: 'https://api.tacticusgame.com' }
     }))
 
-    vi.doMock('@/app/lib/middleware/rate-limit', () => ({
+    vi.doMock('@/app/lib/middleware/api-security-middleware', () => ({
       apiSecurityMiddleware: mockApiSecurityMiddleware
     }))
 

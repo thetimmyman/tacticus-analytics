@@ -34,7 +34,7 @@ vi.mock('@/app/lib/loki/build-string', () => ({
   resolveLokiBuildString: vi.fn()
 }))
 
-vi.mock('@/app/lib/middleware/rate-limit', () => ({
+vi.mock('@/app/lib/middleware/api-security-middleware', () => ({
   apiSecurityMiddleware: vi.fn()
 }))
 
@@ -142,7 +142,8 @@ describe('Guild Create Config Route', () => {
     const validationModule =
       await import('@tacticus/app-core/api-key-validation')
     const errorModule = await import('@tacticus/app-core/api-errors')
-    const rateLimitModule = await import('@/app/lib/middleware/rate-limit')
+    const securityModule =
+      await import('@/app/lib/middleware/api-security-middleware')
     const lokiModule = await import('@/app/lib/loki/build-string')
 
     createClient = vi.mocked(serverModule.createClient)
@@ -152,7 +153,7 @@ describe('Guild Create Config Route', () => {
       validationModule.validateApiKeyWithTacticus
     )
     validateGuildCode = vi.mocked(errorModule.validateGuildCode)
-    apiSecurityMiddleware = vi.mocked(rateLimitModule.apiSecurityMiddleware)
+    apiSecurityMiddleware = vi.mocked(securityModule.apiSecurityMiddleware)
     resolveLokiBuildString = vi.mocked(lokiModule.resolveLokiBuildString)
 
     createClient.mockResolvedValue(mockAuthedSupabase)

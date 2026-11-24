@@ -7,7 +7,7 @@ import {
 } from '@tacticus/app-core/logging-sanitizer'
 import { TACTICUS_API } from '@tacticus/app-core/app-config'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
-import { apiSecurityMiddleware } from '@/app/lib/middleware/rate-limit'
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 import {
   detectSeason,

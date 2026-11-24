@@ -26,7 +26,7 @@ describe('POST /api/player/test-api-key', () => {
       }
     }))
 
-    vi.doMock('@/app/lib/middleware/rate-limit', () => ({
+    vi.doMock('@/app/lib/middleware/api-security-middleware', () => ({
       apiSecurityMiddleware: mockApiSecurityMiddleware
     }))
 

@@ -5,7 +5,7 @@ const logger = createComponentLogger('api.clusters.create-cluster')
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { requireSessionUser } from '@/app/lib/api/session-user'
-import { apiSecurityMiddleware } from '@/app/lib/middleware/rate-limit'
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
   // Onboarding users have no profile yet at this step.

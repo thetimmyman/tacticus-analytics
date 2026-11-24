@@ -100,6 +100,12 @@ async function loadCheckRateLimit() {
   return (await loadPod()).checkRateLimit
 }
 
+/** Fresh security middleware instance; its limiter bindings reload with it. */
+async function loadSecurityMiddleware() {
+  vi.resetModules()
+  return import('@/app/lib/middleware/api-security-middleware')
+}
+
 const LOGIN = '/api/auth/login'
 
 beforeEach(() => {
@@ -116,7 +122,7 @@ beforeEach(() => {
 describe('apiSecurityMiddleware authentication', () => {
   it('does not bypass required authentication during production builds', async () => {
     vi.stubEnv('NEXT_PHASE', 'phase-production-build')
-    const { apiSecurityMiddleware } = await loadPod()
+    const { apiSecurityMiddleware } = await loadSecurityMiddleware()
     const response = await apiSecurityMiddleware(
       new NextRequest('https://tacticusanalytics.com/api/private', {
         method: 'GET'
@@ -131,7 +137,7 @@ describe('apiSecurityMiddleware authentication', () => {
   it('allows an authenticated request through the same build phase', async () => {
     vi.stubEnv('NEXT_PHASE', 'phase-production-build')
     authState.authenticated = true
-    const { apiSecurityMiddleware } = await loadPod()
+    const { apiSecurityMiddleware } = await loadSecurityMiddleware()
     const response = await apiSecurityMiddleware(
       new NextRequest('https://tacticusanalytics.com/api/private', {
         method: 'GET'
@@ -146,7 +152,7 @@ describe('apiSecurityMiddleware authentication', () => {
   it('returns forbidden for an authenticated suspended session', async () => {
     authState.authenticated = true
     authState.banned = true
-    const { apiSecurityMiddleware } = await loadPod()
+    const { apiSecurityMiddleware } = await loadSecurityMiddleware()
 
     const response = await apiSecurityMiddleware(
       new NextRequest('https://tacticusanalytics.com/api/private', {

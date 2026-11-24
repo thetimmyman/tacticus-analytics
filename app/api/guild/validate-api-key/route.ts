@@ -8,7 +8,7 @@ import {
   validateApiKeyWithTacticus,
   type ApiKeyValidationResult
 } from '@tacticus/app-core/api-key-validation'
-import { apiSecurityMiddleware } from '@/app/lib/middleware/rate-limit'
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import { sanitizeErrorForLog } from '@tacticus/app-core/logging-sanitizer'
 import {
   rethrowIfAuthError,

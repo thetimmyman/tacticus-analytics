@@ -7,7 +7,7 @@
 import {
   clampThreshold,
   loadExistingBossConfig
-} from '@/app/lib/boss-ops/persistence'
+} from '@/app/lib/boss-ops/herald-config-io'
 import {
   difficultyCodeFromOneBasedSet,
   heraldBossId,

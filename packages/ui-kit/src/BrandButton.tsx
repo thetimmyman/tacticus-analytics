@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { brandColors, BrandType } from './brand-buttons'
-import { Tooltip } from '@tacticus/ui-kit'
+import { Tooltip } from './Tooltip'
 
 interface BrandButtonProps {
   brand?: BrandType

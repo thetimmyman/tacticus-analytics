@@ -20,7 +20,7 @@ describe('POST /api/gdpr/my-data', () => {
     vi.doMock('@/app/lib/auth/server', () => ({
       createClient: mockCreateClient
     }))
-    vi.doMock('@/app/lib/middleware/rate-limit', () => ({
+    vi.doMock('@/app/lib/middleware/api-security-middleware', () => ({
       apiSecurityMiddleware: mockApiSecurityMiddleware
     }))
     vi.doMock('@/app/lib/compliance/gdpr-manager', () => ({

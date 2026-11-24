@@ -102,5 +102,3 @@ export const patterns = {
 
 export type Database = TypedSupabaseClient
 export type DbError = { message: string; code?: string }
-
-export { writeQueue } from './write-queue'

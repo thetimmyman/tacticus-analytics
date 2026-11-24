@@ -7,7 +7,6 @@ import { RATE_LIMIT_CONFIG } from '@/app/lib/middleware/rate-limit-config'
 
 export { RATE_LIMIT_CONFIG } from '@/app/lib/middleware/rate-limit-config'
 export { checkApiSecurity } from '@/app/lib/middleware/api-authz'
-export { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 export { performSecurityChecks } from '@/app/lib/middleware/request-filter'
 
 export interface ActionRateLimitResult {

@@ -145,7 +145,7 @@ describe('POST /api/guild/claim', () => {
       validateApiKeyWithTacticus: mockValidateApiKeyWithTacticus,
       generateApiKeyUpdatePayload: mockGenerateApiKeyUpdatePayload
     }))
-    vi.doMock('@/app/lib/middleware/rate-limit', () => ({
+    vi.doMock('@/app/lib/middleware/api-security-middleware', () => ({
       apiSecurityMiddleware: mockApiSecurityMiddleware
     }))
     vi.doMock('@/app/lib/auth/verified-player-authority', () => ({

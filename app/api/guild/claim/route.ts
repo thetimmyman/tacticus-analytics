@@ -10,7 +10,7 @@ import {
   validateApiKeyWithTacticus,
   generateApiKeyUpdatePayload
 } from '@tacticus/app-core/api-key-validation'
-import { apiSecurityMiddleware } from '@/app/lib/middleware/rate-limit'
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import { resolveVerifiedPlayers } from '@/app/lib/auth/verified-player-authority'
 import { runInitialGuildSync } from '@/app/lib/onboarding/initial-guild-sync'
 

@@ -10,7 +10,7 @@ import { resolveVerifiedPlayers } from '@/app/lib/auth/verified-player-authority
 import { isClusterLeaderRole } from '@/app/lib/auth/role-predicates'
 import { validateApiKeyWithTacticus } from '@tacticus/app-core/api-key-validation'
 import { validateGuildCode } from '@tacticus/app-core/api-errors'
-import { apiSecurityMiddleware } from '@/app/lib/middleware/rate-limit'
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@tacticus/app-core/types'
 import { buildGuildConfigData } from './config-data'
