@@ -8,6 +8,7 @@ import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { formatGuildDisplayLabel } from '@/app/lib/format/guild'
 import { requireHeaderSecret } from '@/app/lib/auth/require-header-secret'
 import { getClientIp } from '@/app/lib/middleware/rate-limit'
+import { checkRateLimit } from '@/app/lib/middleware/rate-limit'
 import { postDiscordWebhookWithTimeout } from '@/app/lib/discord/webhook-fetch'
 import { sleep as delay } from '@/app/lib/utils/async-timeout'
 import { getMemberLabelMap } from '@/app/lib/member-labels-server'
@@ -17,19 +18,11 @@ import {
   resolveVerifiedDiscordIdentities
 } from '@/app/lib/auth/verified-player-authority'
 
-const RATE_LIMIT_WINDOW_MS = 60_000
-const RATE_LIMIT_MAX_REQUESTS = 12
+const RATE_LIMIT_ENDPOINT = '/api/discord-webhooks/new-member'
 const RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504])
 const DISABLE_WEBHOOK =
   process.env.DISABLE_DISCORD_NEW_MEMBER_WEBHOOK === 'true'
 const WEBHOOK_SECRET = process.env.DISCORD_WEBHOOK_SECRET?.trim()
-
-type RateLimitEntry = {
-  count: number
-  resetAt: number
-}
-
-const rateLimitStore = new Map<string, RateLimitEntry>()
 
 const sanitizeForDiscord = (value: string | undefined | null) => {
   if (!value) return ''
@@ -173,21 +166,12 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     }
 
     // cf-connecting-ip first; never trust the caller-controlled first x-forwarded-for hop.
+    // The shared limiter replaces the unbounded per-route Map: Redis across replicas, bounded
+    // in-memory fallback on outage.
     const requesterIp = getClientIp(request)
-    const now = Date.now()
-    const existingEntry = rateLimitStore.get(requesterIp)
-    if (!existingEntry || existingEntry.resetAt <= now) {
-      rateLimitStore.set(requesterIp, {
-        count: 1,
-        resetAt: now + RATE_LIMIT_WINDOW_MS
-      })
-    } else if (existingEntry.count >= RATE_LIMIT_MAX_REQUESTS) {
+    const limit = await checkRateLimit(`ip:${requesterIp}`, RATE_LIMIT_ENDPOINT)
+    if (!limit.allowed) {
       throw Errors.rateLimit()
-    } else {
-      rateLimitStore.set(requesterIp, {
-        ...existingEntry,
-        count: existingEntry.count + 1
-      })
     }
 
     const supabase = serviceDb()

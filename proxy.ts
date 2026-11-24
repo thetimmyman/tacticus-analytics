@@ -13,6 +13,8 @@ import { appCache } from '@tacticus/app-core/app-cache'
 import { createComponentLogger } from '@/app/lib/logging'
 import { API_URLS } from '@tacticus/app-core/api-constants'
 import { authConfig } from '@/app/lib/auth/config'
+import { hardenSessionCookieOptions } from '@/app/lib/auth/session-cookies'
+import { boundMap } from '@/app/lib/middleware/bounded-map'
 import {
   AUTH_RESET_COOKIE,
   AUTH_RESET_VERSION
@@ -26,7 +28,12 @@ const logger = createComponentLogger('proxy')
 // Auth-route rate limit: the proxy runs on Node with `react-server`, so app-cache's shared Redis counter
 // holds across replicas. The Map is only the fail-open fallback.
 const edgeRateLimits = new Map<string, { count: number; resetTime: number }>()
+const EDGE_RATE_LIMIT_MAX_ENTRIES = 10_000
+const EDGE_RATE_LIMIT_SWEEP_BATCH = 100
 const AUTH_RATE_LIMIT = { max: 10, windowMs: 60 * 1000 } // 10 requests per minute per IP
+
+// Kept in sync with the headers() entry in next.config.js so either path emits one policy.
+const STRICT_TRANSPORT_SECURITY = 'max-age=63072000; includeSubDomains; preload'
 const EDGE_RATE_LIMIT_KEY_PREFIX = 'ratelimit:proxy-auth'
 const PROXY_TIMING = {
   AUTH_TIMEOUT: 10_000,
@@ -121,6 +128,20 @@ async function checkEdgeRateLimit(clientId: string): Promise<{
   return checkEdgeRateLimitInMemory(clientId)
 }
 
+/** Keyed on caller input, so a burst of distinct IPs would grow without bound. */
+function rememberEdgeRateLimit(
+  clientId: string,
+  record: { count: number; resetTime: number }
+): void {
+  boundMap(
+    edgeRateLimits,
+    EDGE_RATE_LIMIT_MAX_ENTRIES,
+    (entry, now) => now > entry.resetTime,
+    EDGE_RATE_LIMIT_SWEEP_BATCH
+  )
+  edgeRateLimits.set(clientId, record)
+}
+
 function checkEdgeRateLimitInMemory(clientId: string): {
   allowed: boolean
   remaining: number
@@ -129,7 +150,7 @@ function checkEdgeRateLimitInMemory(clientId: string): {
   const record = edgeRateLimits.get(clientId)
 
   if (!record || now > record.resetTime) {
-    edgeRateLimits.set(clientId, {
+    rememberEdgeRateLimit(clientId, {
       count: 1,
       resetTime: now + AUTH_RATE_LIMIT.windowMs
     })
@@ -297,7 +318,22 @@ function isFrameworkStaticPath(pathname: string): boolean {
   )
 }
 
-export default async function proxy(request: NextRequest) {
+/** One wrapper covers every exit: redirects, JSON denials and next() alike. */
+function withTransportSecurity(
+  request: NextRequest,
+  response: NextResponse
+): NextResponse {
+  if (
+    process.env.NODE_ENV === 'production' &&
+    request.nextUrl.protocol === 'https:' &&
+    !response.headers.has('Strict-Transport-Security')
+  ) {
+    response.headers.set('Strict-Transport-Security', STRICT_TRANSPORT_SECURITY)
+  }
+  return response
+}
+
+async function handleProxyRequest(request: NextRequest) {
   if (getRuntimeProfile() === 'desktop') {
     const expected = process.env.DESKTOP_TRANSPORT_KEY
     const supplied = request.headers.get('x-desktop-transport')
@@ -514,8 +550,13 @@ export default async function proxy(request: NextRequest) {
               const cookieWithDomain = {
                 name,
                 value,
-                ...options,
-                ...(cookieDomain && { domain: cookieDomain })
+                ...hardenSessionCookieOptions(
+                  {
+                    ...options,
+                    ...(cookieDomain && { domain: cookieDomain })
+                  },
+                  hostname
+                )
               }
               request.cookies.set(cookieWithDomain)
               response.cookies.set(cookieWithDomain)
@@ -761,6 +802,12 @@ export default async function proxy(request: NextRequest) {
   }
 }
 
+export default async function proxy(
+  request: NextRequest
+): Promise<NextResponse> {
+  return withTransportSecurity(request, await handleProxyRequest(request))
+}
+
 export const config = {
   matcher: ['/:path*']
 }
@@ -768,5 +815,9 @@ export const config = {
 export const __internal = {
   sessionCache,
   setCachedUser,
-  MAX_CACHE_SIZE
+  MAX_CACHE_SIZE,
+  edgeRateLimits,
+  checkEdgeRateLimitInMemory,
+  EDGE_RATE_LIMIT_MAX_ENTRIES,
+  STRICT_TRANSPORT_SECURITY
 }

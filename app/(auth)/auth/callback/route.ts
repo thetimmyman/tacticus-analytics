@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { serverEnv } from '@tacticus/app-core/server-env'
 import { authConfig } from '@/app/lib/auth/config'
+import { hardenSessionCookieOptions } from '@/app/lib/auth/session-cookies'
 import { featureFlags } from '@/app/lib/utils/feature-flags'
 import type { SupabaseClient, User } from '@supabase/supabase-js'
 import { createComponentLogger, generateRequestId } from '@/app/lib/logging'
@@ -244,10 +245,17 @@ async function handleCallback(request: Request) {
           },
           setAll(cookiesToSet) {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, {
-                ...options,
-                ...(cookieDomain && { domain: cookieDomain })
-              })
+              cookieStore.set(
+                name,
+                value,
+                hardenSessionCookieOptions(
+                  {
+                    ...options,
+                    ...(cookieDomain && { domain: cookieDomain })
+                  },
+                  origin
+                )
+              )
             )
           }
         }

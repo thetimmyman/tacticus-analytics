@@ -17,6 +17,7 @@ export const RATE_LIMIT_CONFIG = {
       window: 60 * 60 * 1000
     },
     '/api/guild/': { limit: 50, window: 60 * 1000 },
+    '/api/discord-webhooks/new-member': { limit: 12, window: 60 * 1000 },
     '/api/admin/': { limit: 10, window: 60 * 1000 },
     default: { limit: 60, window: 60 * 1000 }
   },
