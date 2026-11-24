@@ -7,7 +7,10 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Acknowledgements | Tacticus Analytics',
-  description: 'Honoring the contributors who made this project possible'
+  description: 'Honoring the contributors who made this project possible',
+  alternates: {
+    canonical: '/acknowledgements'
+  }
 }
 
 const contributors = [

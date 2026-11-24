@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   title: 'Content Creators | Tacticus Analytics',
   description:
     'Find Tacticus strategy guides, planning tools, roster resources, and community creators.',
+  alternates: {
+    canonical: '/creators'
+  },
   openGraph: {
     title: 'Content Creators | Tacticus Analytics',
     description:

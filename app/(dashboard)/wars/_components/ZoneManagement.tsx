@@ -584,12 +584,16 @@ export default function ZoneManagement({
               {activeTab === 'planning' ? 'Compare' : 'Plan'}
             </Button>
           )}
+          {/* Active state swaps to the filled variant: call-site colour
+              classes would fight the outline variant's border/text utilities
+              in the CSS cascade. */}
           {defenseLiveZones.length > 0 && (
             <Button
-              variant="outline"
+              variant={useLiveLayout ? 'default' : 'outline'}
               size="sm"
               onClick={() => setUseLiveLayout((v) => !v)}
-              className={`text-xs ${useLiveLayout ? 'border-[color-mix(in_srgb,var(--accent)_50%,transparent)] text-(--accent)' : ''}`}
+              aria-pressed={useLiveLayout}
+              className="text-xs"
               title="Reposition the planning grid to match live zone numbers"
             >
               <GripVertical className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />

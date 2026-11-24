@@ -10,7 +10,10 @@ export const metadata: Metadata = {
   description:
     'Learn how Tacticus Analytics protects your data and privacy. This privacy policy covers data collection, usage, storage, and your rights regarding personal information.',
   keywords:
-    'tacticus analytics privacy, data protection, privacy policy, data security, personal information, gdpr compliance'
+    'tacticus analytics privacy, data protection, privacy policy, data security, personal information, gdpr compliance',
+  alternates: {
+    canonical: '/privacy'
+  }
 }
 
 export default async function PrivacyPolicy() {

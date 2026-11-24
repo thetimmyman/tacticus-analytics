@@ -54,6 +54,8 @@ function WebhookManagementSection({
           variant="outline"
           size="sm"
           onClick={() => onExpandedChange(!expanded)}
+          aria-expanded={expanded}
+          aria-controls="discord-webhook-management"
           className="flex shrink-0 items-center gap-2 self-start sm:self-auto"
         >
           {expanded ? (

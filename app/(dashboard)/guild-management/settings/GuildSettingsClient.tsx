@@ -1,6 +1,13 @@
 'use client'
 
-import { useCallback, useMemo, useRef, useState, type FormEvent } from 'react'
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent as ReactKeyboardEvent
+} from 'react'
 import { useHasMounted } from '@/app/lib/hooks/useHasMounted'
 import { Button } from '@tacticus/ui-kit'
 import { StatusLabel } from '@tacticus/ui-kit'
@@ -258,6 +265,26 @@ export default function GuildSettingsClient({
     }),
     []
   )
+
+  const tabRefs = useRef<Partial<Record<SectionId, HTMLButtonElement | null>>>(
+    {}
+  )
+
+  // WAI-ARIA tabs: Left/Right arrows move focus and activate, wrapping.
+  const handleTabKeyDown = (
+    event: ReactKeyboardEvent<HTMLButtonElement>,
+    index: number
+  ) => {
+    if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return
+    event.preventDefault()
+    const delta = event.key === 'ArrowRight' ? 1 : -1
+    const nextIndex =
+      (index + delta + SECTION_DEFS.length) % SECTION_DEFS.length
+    const nextSection = SECTION_DEFS[nextIndex]
+    if (!nextSection) return
+    setActiveSection(nextSection.id)
+    tabRefs.current[nextSection.id]?.focus()
+  }
 
   const [activeSection, setActiveSection] = useState<SectionId>('integrations')
   const canModifyDangerZone = userRole === 'leader' || userRole === 'officer'
@@ -773,16 +800,23 @@ export default function GuildSettingsClient({
             aria-label="Settings sections"
             className="flex flex-wrap gap-2 rounded-2xl border border-card-border/50 bg-[color-mix(in_srgb,var(--bg-secondary)_40%,transparent)] p-2 shadow-[0_18px_30px_rgba(4,8,20,0.35)]"
           >
-            {SECTION_DEFS.map((section) => {
+            {SECTION_DEFS.map((section, index) => {
               const Icon = section.icon
               const isActive = activeSection === section.id
               return (
                 <button
                   key={section.id}
+                  ref={(node) => {
+                    tabRefs.current[section.id] = node
+                  }}
+                  id={`settings-tab-${section.id}`}
                   type="button"
                   role="tab"
                   aria-selected={isActive}
+                  aria-controls={`settings-panel-${section.id}`}
+                  tabIndex={isActive ? 0 : -1}
                   onClick={() => setActiveSection(section.id)}
+                  onKeyDown={(event) => handleTabKeyDown(event, index)}
                   className={cn(
                     'flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition-colors',
                     isActive
@@ -820,6 +854,9 @@ export default function GuildSettingsClient({
                 <section
                   ref={sectionRefs.integrations}
                   data-section="integrations"
+                  role="tabpanel"
+                  id="settings-panel-integrations"
+                  aria-labelledby="settings-tab-integrations"
                 >
                   <IntegrationSettingsPanel
                     userRole={userRole}
@@ -851,6 +888,9 @@ export default function GuildSettingsClient({
                 <section
                   ref={sectionRefs.identity}
                   data-section="identity"
+                  role="tabpanel"
+                  id="settings-panel-identity"
+                  aria-labelledby="settings-tab-identity"
                   className="space-y-10"
                 >
                   <IdentitySettingsPanel
@@ -888,13 +928,22 @@ export default function GuildSettingsClient({
                 <section
                   ref={sectionRefs.permissions}
                   data-section="permissions"
+                  role="tabpanel"
+                  id="settings-panel-permissions"
+                  aria-labelledby="settings-tab-permissions"
                 >
                   <PermissionsMatrixPanel />
                 </section>
               )}
 
               {activeSection === 'privacy' && (
-                <section ref={sectionRefs.privacy} data-section="privacy">
+                <section
+                  ref={sectionRefs.privacy}
+                  data-section="privacy"
+                  role="tabpanel"
+                  id="settings-panel-privacy"
+                  aria-labelledby="settings-tab-privacy"
+                >
                   <SettingsSection
                     title="Privacy Settings"
                     description="Control how your guild appears on public Explore and leaderboard pages."
@@ -914,7 +963,13 @@ export default function GuildSettingsClient({
               )}
 
               {activeSection === 'danger' && (
-                <section ref={sectionRefs.danger} data-section="danger">
+                <section
+                  ref={sectionRefs.danger}
+                  data-section="danger"
+                  role="tabpanel"
+                  id="settings-panel-danger"
+                  aria-labelledby="settings-tab-danger"
+                >
                   <DangerZonePanel
                     guildCode={config.guild_code}
                     enabled={enabled}

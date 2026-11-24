@@ -108,6 +108,11 @@ export function ProgressBar({
       </div>
       <div
         data-bar
+        role="progressbar"
+        aria-label={label}
+        aria-valuenow={Math.round(filled)}
+        aria-valuemin={0}
+        aria-valuemax={100}
         className="w-full bg-(--card-bg) transition-colors duration-200 rounded-full h-6 overflow-hidden relative"
       >
         <div

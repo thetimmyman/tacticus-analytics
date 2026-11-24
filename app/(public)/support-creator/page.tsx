@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   title: 'Support the Creator | Tacticus Analytics',
   description:
     'Tacticus Analytics is 100% free. If you find it useful, you can leave a tip via Buy Me a Coffee or Patreon — purely optional.',
+  alternates: {
+    canonical: '/support-creator'
+  },
   openGraph: {
     title: 'Support the Creator | Tacticus Analytics',
     description:

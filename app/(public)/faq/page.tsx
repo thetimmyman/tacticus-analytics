@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     'Get answers to common questions about using Tacticus Analytics for Warhammer 40,000: Tacticus guild raids. Learn about token tracking, performance metrics, API keys, and more.',
   keywords:
     'tacticus analytics faq, tacticus help, guild raid questions, token tracking help, api key setup, performance metrics guide',
+  alternates: {
+    canonical: '/faq'
+  },
   openGraph: {
     title: 'FAQ - Tacticus Analytics',
     description:

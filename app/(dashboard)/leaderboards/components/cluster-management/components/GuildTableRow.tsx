@@ -8,7 +8,7 @@ import { Spinner } from '@tacticus/ui-kit'
 import { Switch } from '@tacticus/ui-kit'
 import { Save, X, CheckCircle, MessageSquare } from 'lucide-react'
 import type { Guild } from '../types'
-import { formatGuildTag } from '@/app/lib/format/guild'
+import { formatGuildTag, formatGuildDisplayLabel } from '@/app/lib/format/guild'
 import { GuildActionsMenu } from './GuildActionsMenu'
 import { GUILD_DISPLAY_NAME_MAX_LENGTH } from '@/app/lib/validation/guild-display-name'
 
@@ -75,6 +75,7 @@ export function GuildTableRow({
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 onEditedGuildChange({ ...editedGuild, api_key: e.target.value })
               }
+              aria-label="API key"
               placeholder="Enter API key"
               className="font-mono max-w-[100px]"
               autoComplete="off"
@@ -87,6 +88,7 @@ export function GuildTableRow({
               variant="ghost"
               onClick={() => onValidateKey(editedGuild.guild_code)}
               disabled={validatingKey === editedGuild?.guild_code}
+              aria-label="Validate API key"
               className="text-(--accent) hover:text-blue-300"
               title="Validate API key"
             >
@@ -104,6 +106,7 @@ export function GuildTableRow({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               onEditedGuildChange({ ...editedGuild, API_Owner: e.target.value })
             }
+            aria-label="API key owner"
             placeholder="Owner name"
             className="max-w-[120px]"
           />
@@ -114,6 +117,7 @@ export function GuildTableRow({
             onCheckedChange={(checked: boolean) =>
               onEditedGuildChange({ ...editedGuild, enabled: checked })
             }
+            aria-label="Guild enabled"
           />
         </td>
         <td className="px-4 py-3">
@@ -137,6 +141,7 @@ export function GuildTableRow({
               size="sm"
               variant="ghost"
               onClick={onSaveEdit}
+              aria-label="Save guild changes"
               className="text-green-500 hover:text-green-400"
             >
               <Save className="w-4 h-4" />
@@ -145,6 +150,7 @@ export function GuildTableRow({
               size="sm"
               variant="ghost"
               onClick={onCancelEdit}
+              aria-label="Cancel editing"
               className="text-(--accent) hover:text-(--accent)"
             >
               <X className="w-4 h-4" />
@@ -183,6 +189,7 @@ export function GuildTableRow({
                 variant="ghost"
                 onClick={() => onValidateKey(guild.guild_code)}
                 disabled={validatingKey === guild.guild_code}
+                aria-label="Validate API key"
                 className={`p-1 transition-colors ${
                   guild.api_key_is_valid === true
                     ? 'text-green-500 hover:text-green-400'
@@ -240,6 +247,9 @@ export function GuildTableRow({
           size="sm"
           variant="ghost"
           onClick={() => onToggleWebhooks(guild.guild_code)}
+          aria-label={`Manage webhooks for ${formatGuildDisplayLabel(guild, guild.guild_code)}`}
+          aria-expanded={expandedWebhooks === guild.guild_code}
+          aria-controls={`guild-webhooks-${guild.guild_code}`}
         >
           <MessageSquare className="w-4 h-4" />
         </Button>
