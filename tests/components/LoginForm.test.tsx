@@ -551,7 +551,7 @@ describe('LoginForm', () => {
       )
     })
 
-    it('attaches a safe errorCode tag to login_redirect_error', async () => {
+    it('records login_redirect_error as a breadcrumb instead of a Sentry message', async () => {
       searchParams.current = new URLSearchParams({
         error: 'server_error',
         reason: 'oauth'
@@ -560,22 +560,17 @@ describe('LoginForm', () => {
       render(<LoginForm />)
 
       await waitFor(() => {
-        expect(sentry.captureMessage).toHaveBeenCalledWith(
-          'auth_login_redirect_error'
-        )
+        expect(sentry.addBreadcrumb).toHaveBeenCalledWith({
+          category: 'auth',
+          message: 'auth_login_redirect_error',
+          level: 'info',
+          data: { errorCode: 'REDIRECT_FAILED' }
+        })
       })
-      expect(sentry.scope.setLevel).toHaveBeenCalledWith('warning')
-      expect(sentry.scope.setTag).toHaveBeenCalledWith(
-        'auth_event',
-        'login_redirect_error'
-      )
-      expect(sentry.scope.setTag).toHaveBeenCalledWith(
-        'auth_error_code',
-        'REDIRECT_FAILED'
-      )
-      expect(sentry.scope.setContext).toHaveBeenCalledWith('auth', {
-        errorCode: 'REDIRECT_FAILED'
-      })
+      expect(sentry.captureMessage).not.toHaveBeenCalled()
+      expect(sentry.scope.setLevel).not.toHaveBeenCalled()
+      expect(sentry.scope.setTag).not.toHaveBeenCalled()
+      expect(sentry.scope.setContext).not.toHaveBeenCalled()
     })
 
     it('never sends credentials, emails, or raw query params to Sentry', async () => {

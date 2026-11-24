@@ -96,6 +96,52 @@ describe('refresh-explore-snapshots handler', () => {
       'Failed to refresh explore snapshots: boom'
     )
     expect(mocks.capture).toHaveBeenCalledTimes(1)
+    expect(mocks.logger.error).toHaveBeenCalledTimes(1)
+    expect(mocks.logger.warn).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    ['a 504 gateway timeout', 'HTTP 504: gateway timeout'],
+    ['a statement timeout', 'canceling statement due to statement timeout']
+  ])(
+    'logs a warning instead of reporting %s and still rethrows',
+    async (_label, rpcError) => {
+      mocks.rpc.mockResolvedValue({ data: null, error: rpcError })
+
+      const err = await handler()({}, context).then(
+        () => {
+          throw new Error('expected the handler to reject')
+        },
+        (error: unknown) => error
+      )
+
+      expect((err as Error).message).toBe(
+        `Failed to refresh explore snapshots: ${rpcError}`
+      )
+      expect((err as Error).cause).toBe(rpcError)
+      expect(mocks.capture).not.toHaveBeenCalled()
+      expect(mocks.logger.error).not.toHaveBeenCalled()
+      expect(mocks.logger.warn).toHaveBeenCalledTimes(1)
+    }
+  )
+
+  it.each([
+    ['An AbortError cause', new DOMException('aborted', 'AbortError')],
+    ['A TimeoutError cause', new DOMException('timed out', 'TimeoutError')]
+  ])('treats %s as transient and still rethrows', async (_label, cause) => {
+    mocks.rpc.mockResolvedValue({ data: null, error: cause })
+
+    const err = await handler()({}, context).then(
+      () => {
+        throw new Error('expected the handler to reject')
+      },
+      (error: unknown) => error
+    )
+
+    expect(err).toBeInstanceOf(Error)
+    expect(mocks.capture).not.toHaveBeenCalled()
+    expect(mocks.logger.error).not.toHaveBeenCalled()
+    expect(mocks.logger.warn).toHaveBeenCalledTimes(1)
   })
 
   it('passes the tick signal to the RPC and aborts a cancelled job early', async () => {
