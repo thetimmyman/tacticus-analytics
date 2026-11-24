@@ -32,6 +32,8 @@ let mockGuildConfigService: {
 let mockGetGuild: AnyMock
 let mockCaptureGuildConflict: AnyMock
 let mockReconcileGuildConflict: AnyMock
+let mockEncryptApiKey: AnyMock
+let mockFunctionsInvoke: AnyMock
 
 async function hasSettled<T>(promise: Promise<T>): Promise<boolean> {
   const pending = Symbol('pending')
@@ -83,8 +85,10 @@ describe('/api/onboarding/guild/start', () => {
           })
         }
         return Promise.resolve({ data: null, error: null })
-      })
+      }),
+      functions: { invoke: (mockFunctionsInvoke = vi.fn()) }
     }
+    mockEncryptApiKey = vi.fn().mockResolvedValue('encrypted-custody-key')
     mockGetOrCreateOnboardingProgress = vi.fn()
     mockResetStatusFields = vi.fn((progress, updates) => ({
       ...progress,
@@ -129,6 +133,9 @@ describe('/api/onboarding/guild/start', () => {
     }))
     vi.doMock('@tacticus/app-core/api-key-validation', () => ({
       validateApiKeyWithTacticus: mockValidateApiKeyWithTacticus
+    }))
+    vi.doMock('@tacticus/app-core/encryption', () => ({
+      encryptApiKey: mockEncryptApiKey
     }))
     vi.doMock('@/app/lib/services/guild-config-service', () => ({
       GuildConfigService: mockGuildConfigService
@@ -584,9 +591,14 @@ describe('/api/onboarding/guild/start', () => {
         mockServiceSupabase.from.mockReturnValue({
           select: vi.fn().mockReturnThis(),
           eq: vi.fn().mockReturnThis(),
-          maybeSingle: vi
-            .fn()
-            .mockResolvedValue({ data: { guild_id: 'guild-uuid-1' } })
+          maybeSingle: vi.fn().mockResolvedValue({
+            data: {
+              guild_id: 'guild-uuid-1',
+              // A working stored key must survive the resume untouched.
+              api_key_is_valid: true,
+              api_key_encrypted: 'stored-encrypted-key'
+            }
+          })
         })
         mockGetGuild.mockResolvedValue({ guildId: 'guild-uuid-1' })
         const conflict = {
@@ -713,6 +725,184 @@ describe('/api/onboarding/guild/start', () => {
         )
 
         expect((await POST(request)).status).toBe(409)
+      })
+
+      // The deadlock: a dead stored guild key cannot be replaced without an attested member.
+      describe('stored guild key restore on resume', () => {
+        const USER = { id: 'user-123' }
+
+        function requestFor(apiKey: string) {
+          return new NextRequest(
+            'http://localhost/api/onboarding/guild/start',
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                guildMode: 'new_guild',
+                guildCode: 'ZKFPH',
+                guildName: 'Claim Test Guild',
+                apiKey
+              })
+            }
+          )
+        }
+
+        function serviceClientForStoredKey(storedRow: Record<string, unknown>) {
+          const updatePayloads: Array<Record<string, unknown>> = []
+          const upsertPayloads: Array<Record<string, unknown>> = []
+          mockServiceSupabase.from.mockImplementation((table: string) => {
+            if (table === 'guild_config') {
+              return {
+                select: vi.fn().mockReturnThis(),
+                eq: vi.fn().mockReturnThis(),
+                maybeSingle: vi
+                  .fn()
+                  .mockResolvedValue({ data: storedRow, error: null }),
+                update: vi.fn((payload: Record<string, unknown>) => {
+                  updatePayloads.push(payload)
+                  return {
+                    eq: vi.fn().mockResolvedValue({ data: null, error: null })
+                  }
+                })
+              }
+            }
+            if (table === 'guild_sync_status') {
+              return {
+                upsert: vi.fn((payload: Record<string, unknown>) => {
+                  upsertPayloads.push(payload)
+                  return Promise.resolve({ data: null, error: null })
+                })
+              }
+            }
+            return {
+              select: vi.fn().mockReturnThis(),
+              eq: vi.fn().mockReturnThis(),
+              maybeSingle: vi
+                .fn()
+                .mockResolvedValue({ data: null, error: null })
+            }
+          })
+          return { updatePayloads, upsertPayloads }
+        }
+
+        async function setupResumeScenario() {
+          mockAuthedSupabase.auth.getUser.mockResolvedValue({
+            data: { user: USER }
+          })
+          mockGetOrCreateOnboardingProgress.mockResolvedValue({
+            guild_mode: 'new_guild',
+            user_id: USER.id
+          })
+          mockGuildConfigService.getFull.mockResolvedValue({
+            guild_code: 'ZKFPH',
+            display_name: 'Claim Test Guild',
+            enabled: true,
+            onboarding_completed: true
+          })
+          mockGetGuild.mockResolvedValue({ guildId: 'guild-uuid-1' })
+          mockCaptureGuildConflict.mockResolvedValue(null)
+          mockReconcileGuildConflict.mockResolvedValue({ reconciled: false })
+          mockAuthedSupabase.from.mockReturnValue({
+            update: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            select: vi.fn().mockReturnThis(),
+            single: vi.fn().mockResolvedValue({
+              data: { guild_status: 'complete' },
+              error: null
+            })
+          })
+          // The role reconcile fetch fails soft; the workflow invoke is what matters.
+          mockFetch.mockResolvedValue({ ok: false, status: 503 })
+          mockFunctionsInvoke.mockResolvedValue({ data: null, error: null })
+        }
+
+        it.each([
+          [
+            'invalid',
+            {
+              guild_id: 'guild-uuid-1',
+              api_key_is_valid: false,
+              api_key_encrypted: 'dead-key'
+            }
+          ],
+          [
+            'absent',
+            {
+              guild_id: 'guild-uuid-1',
+              api_key_is_valid: null,
+              api_key_encrypted: null
+            }
+          ]
+        ])(
+          'stores the custody-proven key over a %s stored key and triggers sync',
+          async (_label, storedRow) => {
+            await setupResumeScenario()
+            const { updatePayloads, upsertPayloads } =
+              serviceClientForStoredKey(storedRow)
+
+            const response = await POST(requestFor('fresh-custody-key'))
+            const body = await response.json()
+
+            expect(response.status).toBe(200)
+            expect(body.alreadyRegistered).toBe(true)
+            expect(mockEncryptApiKey).toHaveBeenCalledWith('fresh-custody-key')
+            expect(updatePayloads).toHaveLength(1)
+            expect(updatePayloads[0]).toEqual({
+              api_key_encrypted: 'encrypted-custody-key',
+              api_key_is_valid: true,
+              api_key_last_validated: expect.any(String),
+              auto_sync_enabled: true,
+              consecutive_sync_failures: 0,
+              updated_at: expect.any(String)
+            })
+            expect(upsertPayloads).toHaveLength(1)
+            expect(mockFunctionsInvoke).toHaveBeenCalledWith(
+              'sync-modular-workflow',
+              { body: { guild_code: 'ZKFPH' } }
+            )
+            expect(latestGuildSettlementArgs()).toEqual(
+              expect.objectContaining({
+                p_outcome: 'complete',
+                p_guild_code: 'ZKFPH'
+              })
+            )
+          }
+        )
+
+        it('does not overwrite a currently valid stored key', async () => {
+          await setupResumeScenario()
+          const { updatePayloads } = serviceClientForStoredKey({
+            guild_id: 'guild-uuid-1',
+            api_key_is_valid: true,
+            api_key_encrypted: 'working-encrypted-key'
+          })
+
+          const response = await POST(requestFor('fresh-custody-key'))
+          const body = await response.json()
+
+          expect(response.status).toBe(200)
+          expect(body.alreadyRegistered).toBe(true)
+          expect(mockEncryptApiKey).not.toHaveBeenCalled()
+          expect(updatePayloads).toHaveLength(0)
+          expect(mockFunctionsInvoke).not.toHaveBeenCalled()
+        })
+
+        it('surfaces a failed key restore instead of reporting a custody mismatch', async () => {
+          await setupResumeScenario()
+          serviceClientForStoredKey({
+            guild_id: 'guild-uuid-1',
+            api_key_is_valid: false,
+            api_key_encrypted: 'dead-key'
+          })
+          mockEncryptApiKey.mockRejectedValue(new Error('no ENCRYPTION_KEY'))
+
+          const response = await POST(requestFor('fresh-custody-key'))
+          const body = await response.json()
+
+          expect(response.status).toBe(503)
+          expect(body.error.message).toContain('could not be saved')
+          expect(latestGuildSettlementArgs()).toBeUndefined()
+        })
       })
 
       it('retries incomplete standard guild registration instead of returning 409', async () => {

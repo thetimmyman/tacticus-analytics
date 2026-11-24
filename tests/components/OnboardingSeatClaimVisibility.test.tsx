@@ -122,7 +122,8 @@ describe('onboarding dashboard — seat claim appears in the session that regist
               job: null,
               cluster: null,
               clusterGuilds: [],
-              guildAwaitingFirstClaim: true
+              guildAwaitingFirstClaim: true,
+              canSelfClaimSeat: true
             })
           } as Response
         }
@@ -177,7 +178,8 @@ describe('onboarding dashboard — seat claim appears in the session that regist
               job: null,
               cluster: null,
               clusterGuilds: [],
-              guildAwaitingFirstClaim: true
+              guildAwaitingFirstClaim: true,
+              canSelfClaimSeat: true
             })
           } as Response
         }

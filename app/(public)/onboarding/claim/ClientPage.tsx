@@ -38,6 +38,9 @@ function isKeyFixableRejection(code: unknown): boolean {
   )
 }
 
+/** Whether /onboarding/dashboard's direct Player-key claim can work for this account. */
+type ClaimCorridorState = 'open' | 'closed' | 'unknown'
+
 function ClaimPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -73,6 +76,8 @@ function ClaimPageContent() {
     email?: string
   } | null>(null)
   const [authChecking, setAuthChecking] = useState(true)
+  const [claimCorridor, setClaimCorridor] =
+    useState<ClaimCorridorState>('unknown')
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -84,6 +89,34 @@ function ClaimPageContent() {
     }
     checkAuth()
   }, [supabase])
+
+  useEffect(() => {
+    // Signed-out visitors have no account to reason about; keep the generic pointer.
+    if (!currentUser) {
+      setClaimCorridor('unknown')
+      return
+    }
+    let cancelled = false
+    // canSelfClaimSeat is true only when the direct claim route can succeed for this account.
+    fetch('/api/onboarding/progress')
+      .then(async (response) =>
+        response.ok
+          ? ((await response.json()) as { canSelfClaimSeat?: boolean } | null)
+          : null
+      )
+      .then((data) => {
+        if (cancelled) return
+        setClaimCorridor(
+          data?.canSelfClaimSeat === true ? 'open' : data ? 'closed' : 'unknown'
+        )
+      })
+      .catch(() => {
+        if (!cancelled) setClaimCorridor('unknown')
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [currentUser])
 
   useEffect(() => {
     if (searchParams.get('code') && !codeInfo) {
@@ -369,16 +402,38 @@ function ClaimPageContent() {
                   Don&apos;t have a code? Ask your guild leader or officer to
                   generate one for you.
                 </p>
-                <p className="text-xs text-secondary-wh40k">
-                  Lead the guild yourself, or nobody there has set it up?{' '}
-                  <Link
-                    href="/onboarding/dashboard"
-                    className="text-(--accent) hover:underline"
-                  >
-                    Claim your seat with your API key
-                  </Link>{' '}
-                  — no invite code needed.
-                </p>
+                {claimCorridor === 'open' ? (
+                  <p className="text-xs text-secondary-wh40k">
+                    Lead the guild yourself, or nobody there has set it up?{' '}
+                    <Link
+                      href="/onboarding/dashboard"
+                      className="text-(--accent) hover:underline"
+                    >
+                      Claim your seat with your API key
+                    </Link>{' '}
+                    — no invite code needed.
+                  </p>
+                ) : claimCorridor === 'closed' ? (
+                  // The direct claim would dead-end for this account, so say which step comes first.
+                  <p className="text-xs text-secondary-wh40k">
+                    Your guild already has a linked leader or officer, so seats
+                    are invite-only. If nobody has linked it yet, use
+                    &quot;Register New Guild&quot; on the onboarding dashboard
+                    to prove you hold its guild key first.
+                  </p>
+                ) : (
+                  <p className="text-xs text-secondary-wh40k">
+                    Lead the guild yourself, or nobody there has set it up?{' '}
+                    <Link
+                      href="/onboarding/dashboard"
+                      className="text-(--accent) hover:underline"
+                    >
+                      Open the onboarding dashboard
+                    </Link>{' '}
+                    while signed in — if the seat is still unclaimed, your API
+                    key can claim it.
+                  </p>
+                )}
               </div>
             ) : (
               <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-4">

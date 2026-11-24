@@ -12,7 +12,9 @@ import {
   type OnboardingProgress
 } from '@/app/lib/onboarding/progress'
 import { validateApiKeyWithTacticus } from '@tacticus/app-core/api-key-validation'
+import { encryptApiKey } from '@tacticus/app-core/encryption'
 import { tacticusAPI } from '@/app/lib/api/tacticus-client'
+import { runInitialGuildSync } from '@/app/lib/onboarding/initial-guild-sync'
 import {
   fetchCreateConfig,
   isCreateConfigTimeoutError
@@ -152,7 +154,87 @@ async function recordBootstrapClaimAuthority({
   }
 }
 
-/** True when `apiKey` resolves to the guild `guildCode` is registered under; null never matches. */
+type StoredGuildKeyState = {
+  guild_id?: string | null
+  api_key_is_valid?: boolean | null
+  api_key_encrypted?: string | null
+}
+
+/** Only a dead or missing stored key is replaced; a working key is left alone. */
+function storedGuildKeyIsDead(stored: StoredGuildKeyState | null): boolean {
+  return stored?.api_key_is_valid === false || !stored?.api_key_encrypted
+}
+
+/**
+ * Saves a custody-proven key with replace-api-key's verified-write fields and
+ * restarts sync (non-fatal, like registration). Never called for a working key.
+ */
+async function restoreCustodyProvenGuildKey({
+  serviceSupabase,
+  guildCode,
+  apiKey
+}: {
+  serviceSupabase: ReturnType<typeof serviceDb>
+  guildCode: string
+  apiKey: string
+}): Promise<void> {
+  let encryptedApiKey: string
+  try {
+    encryptedApiKey = await encryptApiKey(apiKey)
+  } catch (encryptError) {
+    logger.error(
+      { err: encryptError, guildCode },
+      'Could not encrypt the custody-proven guild key'
+    )
+    throw Errors.fromResponse(503, {
+      error:
+        'Your guild was verified, but its API key could not be saved. Please retry.'
+    })
+  }
+
+  // Same field set as replace-api-key: the batch sync lane skips auto-sync-off and failure-capped guilds.
+  const verifiedAt = new Date().toISOString()
+  const { error: updateError } = await serviceSupabase
+    .from('guild_config')
+    .update({
+      api_key_encrypted: encryptedApiKey,
+      api_key_is_valid: true,
+      api_key_last_validated: verifiedAt,
+      auto_sync_enabled: true,
+      consecutive_sync_failures: 0,
+      updated_at: verifiedAt
+    })
+    .eq('guild_code', guildCode)
+
+  if (updateError) {
+    logger.error(
+      { err: updateError, guildCode },
+      'Could not store the custody-proven guild key'
+    )
+    throw Errors.fromResponse(503, {
+      error:
+        'Your guild was verified, but its API key could not be saved. Please retry.'
+    })
+  }
+
+  logger.info(
+    { guildCode },
+    'Stored a custody-proven key over a dead or missing guild key'
+  )
+
+  // Fails soft inside the helper; a sync blip must not fail the resumed registration.
+  await runInitialGuildSync({
+    supabase: serviceSupabase,
+    guildCode,
+    apiKey,
+    reconcileRoles: true
+  })
+}
+
+/**
+ * Resumes an already-registered guild when `apiKey` proves custody of its
+ * `guild_id`, refreshing a dead or missing stored key on the way; null never matches.
+ */
 async function resumeOwnedGuildRegistration({
   apiKey,
   guildCode,
@@ -165,20 +247,30 @@ async function resumeOwnedGuildRegistration({
   try {
     const { data: row } = await serviceSupabase
       .from('guild_config')
-      .select('guild_id')
+      .select('guild_id, api_key_is_valid, api_key_encrypted')
       .eq('guild_code', guildCode)
       .maybeSingle()
 
-    const registeredGuildId = (row as { guild_id?: string | null } | null)
-      ?.guild_id
+    const stored = row as StoredGuildKeyState | null
+    const registeredGuildId = stored?.guild_id
     if (!registeredGuildId) return null
 
     const upstream = await tacticusAPI.getGuild(apiKey)
     const keyGuildId = upstream?.guildId
-    if (!keyGuildId) return null
+    if (!keyGuildId || keyGuildId !== registeredGuildId) return null
 
-    return keyGuildId === registeredGuildId ? registeredGuildId : null
+    if (storedGuildKeyIsDead(stored)) {
+      await restoreCustodyProvenGuildKey({
+        serviceSupabase,
+        guildCode,
+        apiKey
+      })
+    }
+
+    return registeredGuildId
   } catch (error) {
+    // A failed key restore must surface, not read as "not the owner".
+    if (error instanceof AppError) throw error
     logger.warn(
       { err: error, guildCode },
       'Could not verify guild key custody for an already-registered guild'

@@ -59,15 +59,39 @@ function renderCard(
 }
 
 const OFFICER_DEAD_END = /Ask a guild officer or administrator/
+const NO_RECEIPT_STEP = /Register New Guild/
 
 describe('ProfileClaimCard — seat bootstrap visibility', () => {
   it('offers the seat claim while the guild has nobody who can invite', () => {
-    renderCard({ guildAwaitingFirstClaim: true })
+    renderCard({ guildAwaitingFirstClaim: true, canSelfClaimSeat: true })
 
     expect(
       screen.getByRole('button', { name: /link my profile/i })
     ).toBeTruthy()
     expect(screen.queryByText(OFFICER_DEAD_END)).toBeNull()
+  })
+
+  // REGISTRATION_AUTHORITY_REQUIRED: the corridor exists but this account cannot use it.
+  it('hides the direct claim and explains the custody step without a receipt', () => {
+    renderCard({ guildAwaitingFirstClaim: true, canSelfClaimSeat: false })
+
+    expect(
+      screen.queryByRole('button', { name: /link my profile/i })
+    ).toBeNull()
+    expect(screen.queryByText(OFFICER_DEAD_END)).toBeNull()
+    expect(screen.getByText(NO_RECEIPT_STEP)).toBeTruthy()
+    expect(
+      screen.getByRole('link', { name: /enter invite code/i })
+    ).toBeTruthy()
+  })
+
+  it('also hides the direct claim while the receipt state is unknown', () => {
+    renderCard({ guildAwaitingFirstClaim: true, canSelfClaimSeat: null })
+
+    expect(
+      screen.queryByRole('button', { name: /link my profile/i })
+    ).toBeNull()
+    expect(screen.getByText(NO_RECEIPT_STEP)).toBeTruthy()
   })
 
   it('shows the ordinary invite copy for a healthy guild', () => {

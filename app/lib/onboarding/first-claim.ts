@@ -15,6 +15,52 @@ const INVITE_CAPABLE_ROLES = new Set(['leader', 'officer'])
 
 // Linked app admins also close the corridor: the RPC's peer check includes `is_app_admin`.
 
+const REGISTRATION_AUTHORITY_SOURCE_PATH =
+  'onboarding/guild-registration/bootstrap-authority'
+
+/** The server-written receipt behind the seat route's H1 gate; null when absent. */
+async function findRegistrationReceipt(
+  serviceClient: TypedSupabaseClient,
+  userId: string,
+  guildCode?: string | null
+): Promise<{
+  receipt: { id: number } | null
+  error: { message: string } | null
+}> {
+  let query = serviceClient
+    .from('player_claim_audit')
+    .select('id')
+    .eq('user_id', userId)
+  if (guildCode) query = query.eq('guild_code', guildCode)
+  const { data, error } = await query
+    .eq('source_path', REGISTRATION_AUTHORITY_SOURCE_PATH)
+    .eq('outcome', 'success')
+    .limit(1)
+    .maybeSingle()
+  return { receipt: data as { id: number } | null, error }
+}
+
+/** Whether this account's proved guild-key custody receipt exists (fails closed). */
+export async function hasGuildRegistrationReceipt(
+  serviceClient: TypedSupabaseClient,
+  userId: string,
+  guildCode?: string | null
+): Promise<boolean> {
+  const { receipt, error } = await findRegistrationReceipt(
+    serviceClient,
+    userId,
+    guildCode
+  )
+  if (error) {
+    logger.warn(
+      { userId, error: error.message },
+      'Registration receipt lookup failed; treating the account as unverified'
+    )
+    return false
+  }
+  return receipt !== null
+}
+
 /** Same predicate as mint_bootstrap_seat_invite (keep in step): no linked leader/officer/admin
  * and a non-empty roster. Fails closed on lookup errors. */
 export async function isGuildAwaitingFirstClaim(
@@ -45,15 +91,11 @@ export async function isGuildAwaitingFirstClaim(
   // A verified registrar keeps the right to self-link. The receipt is
   // server-written; onboarding_progress is browser-editable, so it is not used.
   if (registrarUserId) {
-    const { data: receipt, error: receiptError } = await serviceClient
-      .from('player_claim_audit')
-      .select('id')
-      .eq('user_id', registrarUserId)
-      .eq('guild_code', guildCode)
-      .eq('source_path', 'onboarding/guild-registration/bootstrap-authority')
-      .eq('outcome', 'success')
-      .limit(1)
-      .maybeSingle()
+    const { receipt, error: receiptError } = await findRegistrationReceipt(
+      serviceClient,
+      registrarUserId,
+      guildCode
+    )
 
     if (receiptError) {
       logger.warn(

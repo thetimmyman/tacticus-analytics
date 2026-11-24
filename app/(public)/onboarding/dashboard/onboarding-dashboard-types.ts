@@ -39,4 +39,6 @@ export interface OnboardingDashboardProps {
   initialClusterGuilds: ClusterGuildSummary[]
   /** `null` = not known yet for the current guild. */
   guildAwaitingFirstClaim?: boolean | null
+  /** True only when this account also holds the guild's registration receipt. `null` = unknown. */
+  canSelfClaimSeat?: boolean | null
 }
