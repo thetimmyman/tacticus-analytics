@@ -46,9 +46,11 @@ export const POST = withAdminGuards({ guard: 'app-admin' }, async () => {
     )
 
   if (queryError) {
-    throw Errors.database('Failed to query guilds', {
-      details: queryError.message
-    })
+    logger.error(
+      { err: queryError },
+      'Auto-invalidate problematic guild query failed'
+    )
+    throw Errors.database('Failed to query guilds')
   }
 
   const updates: AutoInvalidationRecord[] = []
@@ -87,9 +89,11 @@ export const POST = withAdminGuards({ guard: 'app-admin' }, async () => {
       )
 
     if (updateError) {
-      throw Errors.database('Failed to apply auto-invalidations', {
-        details: updateError.message
-      })
+      logger.error(
+        { err: updateError },
+        'Auto-invalidate guild config update failed'
+      )
+      throw Errors.database('Failed to apply auto-invalidations')
     }
   }
 

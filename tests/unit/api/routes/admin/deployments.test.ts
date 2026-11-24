@@ -72,7 +72,9 @@ describe('/api/admin/deployments', () => {
     const { GET } = await loadRoute({ selfHosted: false })
     mockDb.mockResolvedValue(createSupabase({ user: null }))
 
-    const response = await GET()
+    const response = await GET(
+      new NextRequest('http://localhost/api/admin/deployments')
+    )
     const body = await response.json()
 
     expect(response.status).toBe(401)
@@ -83,7 +85,9 @@ describe('/api/admin/deployments', () => {
     const { GET } = await loadRoute({ selfHosted: false })
     mockDb.mockResolvedValue(createSupabase())
 
-    const response = await GET()
+    const response = await GET(
+      new NextRequest('http://localhost/api/admin/deployments')
+    )
     const body = await response.json()
 
     expect(response.status).toBe(400)
@@ -128,7 +132,9 @@ describe('/api/admin/deployments', () => {
     const { GET } = await loadRoute({ selfHosted: true })
     mockDb.mockResolvedValue(createSupabase({ user: null }))
 
-    const response = await GET()
+    const response = await GET(
+      new NextRequest('http://localhost/api/admin/deployments')
+    )
     const body = await response.json()
 
     expect(response.status).toBe(401)
@@ -139,7 +145,9 @@ describe('/api/admin/deployments', () => {
     const { GET } = await loadRoute({ selfHosted: true })
     mockDb.mockResolvedValue(createSupabase({ isAdmin: false }))
 
-    const response = await GET()
+    const response = await GET(
+      new NextRequest('http://localhost/api/admin/deployments')
+    )
     const body = await response.json()
 
     expect(response.status).toBe(403)
@@ -150,7 +158,9 @@ describe('/api/admin/deployments', () => {
     const { GET } = await loadRoute({ selfHosted: true })
     mockDb.mockResolvedValue(createSupabase())
 
-    const response = await GET()
+    const response = await GET(
+      new NextRequest('http://localhost/api/admin/deployments')
+    )
     const body = await response.json()
 
     expect(response.status).toBe(200)

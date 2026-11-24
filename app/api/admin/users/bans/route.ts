@@ -112,8 +112,13 @@ async function compensateCredentialAfterLostLease(
     .is('lifted_at', null)
     .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
 
-  if (error)
-    throw new Error(`Credential compensation lookup failed: ${error.message}`)
+  if (error) {
+    logger.error(
+      { err: error, user_id: userId },
+      'Credential compensation lookup failed'
+    )
+    throw new Error('Credential compensation lookup failed')
+  }
 
   const { error: credentialError } = await supabase.auth.admin.updateUserById(
     userId,
@@ -122,9 +127,11 @@ async function compensateCredentialAfterLostLease(
     }
   )
   if (credentialError) {
-    throw new Error(
-      `Credential compensation update failed: ${credentialError.message}`
+    logger.error(
+      { err: credentialError, user_id: userId },
+      'Credential compensation update failed'
     )
+    throw new Error('Credential compensation update failed')
   }
 }
 
@@ -142,7 +149,11 @@ async function findCurrentMappedAppAdminUserIds(
     .eq('is_app_admin', true)
 
   if (error) {
-    throw new Error(`Ban admin compensation lookup failed: ${error.message}`)
+    logger.error(
+      { err: error, candidateUserIds: [...candidateUserIds] },
+      'Ban admin compensation lookup failed'
+    )
+    throw new Error('Ban admin compensation lookup failed')
   }
 
   return [
@@ -198,7 +209,7 @@ export const GET = withAdminGuards(
 
       if (error) {
         logger.error({ error }, 'Active ban list query failed')
-        throw Errors.fromResponse(500, { error: error.message })
+        throw Errors.fromResponse(500, { error: 'Failed to load bans' })
       }
       activeBans.push(...(data ?? []))
       if ((data?.length ?? 0) < ACTIVE_PAGE_SIZE) break
@@ -225,7 +236,7 @@ export const GET = withAdminGuards(
 
     if (historyError) {
       logger.error({ error: historyError }, 'Ban history query failed')
-      throw Errors.fromResponse(500, { error: historyError.message })
+      throw Errors.fromResponse(500, { error: 'Failed to load ban history' })
     }
 
     const historyPage = historyBans ?? []
@@ -341,7 +352,7 @@ export const POST = withAdminGuards(
             'Ban target mapping preflight failed'
           )
           throw Errors.fromResponse(500, {
-            error: preliminaryMappingResult.error.message
+            error: 'Failed to verify ban target'
           })
         }
         if (preliminaryIdentityResult.error) {
@@ -353,7 +364,7 @@ export const POST = withAdminGuards(
             'Ban target provider identity preflight failed'
           )
           throw Errors.fromResponse(500, {
-            error: preliminaryIdentityResult.error.message
+            error: 'Failed to verify ban target'
           })
         }
 
@@ -384,7 +395,7 @@ export const POST = withAdminGuards(
               'Ban subject owner preflight failed'
             )
             throw Errors.fromResponse(500, {
-              error: preliminaryOwnersError.message
+              error: 'Failed to verify ban subject owners'
             })
           }
           for (const owner of preliminaryOwners ?? []) {
@@ -421,7 +432,9 @@ export const POST = withAdminGuards(
             { error: mappingResult.error, user_id: canonicalUserId },
             'Ban target mapping lookup failed'
           )
-          throw Errors.fromResponse(500, { error: mappingResult.error.message })
+          throw Errors.fromResponse(500, {
+            error: 'Failed to verify ban target'
+          })
         }
         if (authEmailResult.error) {
           logger.error(
@@ -429,7 +442,7 @@ export const POST = withAdminGuards(
             'Ban target auth lookup failed'
           )
           throw Errors.fromResponse(500, {
-            error: authEmailResult.error.message
+            error: 'Failed to verify ban target'
           })
         }
         if (authIdentityResult.error) {
@@ -438,7 +451,7 @@ export const POST = withAdminGuards(
             'Ban target provider identity lookup failed'
           )
           throw Errors.fromResponse(500, {
-            error: authIdentityResult.error.message
+            error: 'Failed to verify ban target'
           })
         }
         const mapping = mappingResult.data
@@ -518,7 +531,7 @@ export const POST = withAdminGuards(
               'Ban subject admin-owner lookup failed'
             )
             throw Errors.fromResponse(500, {
-              error: matchedOwnersError.message
+              error: 'Failed to verify ban subject owners'
             })
           }
           const lockedUserIds = new Set(
@@ -567,7 +580,9 @@ export const POST = withAdminGuards(
               { error: expiryCloseError, subject_type },
               'Expired ban closeout failed'
             )
-            throw Errors.fromResponse(500, { error: expiryCloseError.message })
+            throw Errors.fromResponse(500, {
+              error: 'Failed to prepare identifiers for re-ban'
+            })
           }
         }
 
@@ -595,7 +610,7 @@ export const POST = withAdminGuards(
             })
           }
           logger.error({ error, user_id: canonicalUserId }, 'Ban insert failed')
-          throw Errors.fromResponse(500, { error: error.message })
+          throw Errors.fromResponse(500, { error: 'Failed to create ban' })
         }
         if (!data || data.length !== rows.length) {
           const { error: rollbackError } = await supabase
@@ -636,7 +651,9 @@ export const POST = withAdminGuards(
             },
             'Effective credential-ban lookup failed'
           )
-          throw Errors.fromResponse(500, { error: effectiveBansError.message })
+          throw Errors.fromResponse(500, {
+            error: 'Failed to apply credential ban'
+          })
         }
 
         const banDuration = credentialBanDuration(effectiveBans ?? [])
@@ -719,9 +736,14 @@ export const POST = withAdminGuards(
                   compensation.error ||
                   !hasExactUpdatedUsers(compensation.data, bannedAdminUserIds)
                 ) {
+                  if (compensation.error) {
+                    logger.error(
+                      { err: compensation.error },
+                      'Ban compensation admin revocation failed'
+                    )
+                  }
                   throw new Error(
-                    compensation.error?.message ||
-                      'Ban compensation did not revoke the exact banned admin set'
+                    'Ban compensation did not revoke the exact banned admin set'
                   )
                 }
               }
@@ -747,9 +769,7 @@ export const POST = withAdminGuards(
       rethrowIfAppError(err)
       rethrowIfAuthError(err)
       logger.error({ error: err }, 'Ban creation exception')
-      throw Errors.fromResponse(500, {
-        error: err instanceof Error ? err.message : 'Internal error'
-      })
+      throw Errors.fromResponse(500, { error: 'Internal error' })
     }
   }
 )

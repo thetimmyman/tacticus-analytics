@@ -726,8 +726,10 @@ describe('/api/sync/worker', () => {
         })
 
         const response = await POST(request)
+        const body = await response.json()
 
         expect(response.status).toBe(500)
+        expect(JSON.stringify(body)).not.toContain('Database connection lost')
       })
     })
 
@@ -1165,7 +1167,8 @@ describe('/api/sync/worker', () => {
 
       expect(response.status).toBe(200)
       expect(body.status).toBe('degraded')
-      expect(body.errors.queue).toBe('get_queue_stats exploded')
+      expect(body.errors.queue).toBe('queue_stats_unavailable')
+      expect(JSON.stringify(body)).not.toContain('get_queue_stats exploded')
     })
 
     it('returns health status and queue stats', async () => {

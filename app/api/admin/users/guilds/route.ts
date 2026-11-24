@@ -1,7 +1,10 @@
 import { withAdminGuards } from '@/app/api/admin/_lib/with-admin-guards'
 import { NextResponse } from 'next/server'
 import { serviceDb } from '@/app/lib/db'
+import { createComponentLogger } from '@/app/lib/logging'
 import { Errors } from '@/app/lib/errors/AppError'
+
+const logger = createComponentLogger('api.admin.users.guilds')
 
 export const GET = withAdminGuards({ guard: 'app-admin' }, async () => {
   const supabase = serviceDb()
@@ -13,7 +16,8 @@ export const GET = withAdminGuards({ guard: 'app-admin' }, async () => {
     .order('display_name', { ascending: true })
 
   if (error) {
-    throw Errors.internal(error.message)
+    logger.error({ err: error }, 'Sync-enabled guild list query failed')
+    throw Errors.internal('Failed to load guilds')
   }
 
   const guildCodes = (guilds || []).map((g) => g.guild_code)

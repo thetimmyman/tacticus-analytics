@@ -168,6 +168,28 @@ describe('POST /api/webhooks/test', () => {
       expect(response.status).toBe(400)
       expect(body.error.message).toBe('Webhook URL is not configured')
     })
+
+    it('returns a generic 500 without raw database text when the lookup throws', async () => {
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: 'user-123' } }
+      })
+      mockSupabase.from.mockImplementation(() => {
+        throw new Error('connection refused to db.internal.example')
+      })
+
+      const request = new Request('http://localhost/api/webhooks/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ webhook_id: 'abc' })
+      })
+
+      const response = await POST(request)
+      const body = await response.json()
+
+      expect(response.status).toBe(500)
+      expect(body.error.message).toBe('Failed to test webhook')
+      expect(JSON.stringify(body)).not.toContain('db.internal.example')
+    })
   })
 
   describe('proactive token management access', () => {

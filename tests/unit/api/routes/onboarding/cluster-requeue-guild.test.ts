@@ -151,7 +151,7 @@ describe('POST /api/onboarding/cluster/requeue-guild', () => {
 
     expect(response.status).toBe(500)
     expect(json.error.message).toBe('Unable to verify cluster ownership.')
-    expect(json.error.metadata?.details).toBe('Database error')
+    expect(JSON.stringify(json)).not.toContain('Database error')
   })
 
   it('returns 404 when cluster is not found', async () => {
@@ -306,7 +306,10 @@ describe('POST /api/onboarding/cluster/requeue-guild', () => {
     const json = await response.json()
 
     expect(response.status).toBe(500)
-    expect(json.error.message).toBe('Queue unavailable')
+    expect(json.error.message).toBe(
+      'Unable to queue guild sync. Please try again.'
+    )
+    expect(JSON.stringify(json)).not.toContain('Queue unavailable')
   })
 
   it('successfully requeues guild sync job', async () => {
@@ -409,6 +412,7 @@ describe('POST /api/onboarding/cluster/requeue-guild', () => {
     const json = await response.json()
 
     expect(response.status).toBe(500)
-    expect(json.error.message).toBe('Unexpected database failure')
+    expect(json.error.message).toBe('Internal server error')
+    expect(JSON.stringify(json)).not.toContain('Unexpected database failure')
   })
 })

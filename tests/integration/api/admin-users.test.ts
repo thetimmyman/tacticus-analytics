@@ -334,7 +334,8 @@ describe('Admin Users Bulk Route', () => {
 
       expect(response.status).toBe(500)
       const body = await response.json()
-      expect(body.error.message).toBe('Database error')
+      expect(body.error.message).toBe('Failed to resolve guild members')
+      expect(JSON.stringify(body)).not.toContain('Database error')
     })
 
     it('filters out null user_ids from guild members', async () => {
@@ -565,7 +566,8 @@ describe('Admin Users Bulk Route', () => {
       const body = await response.json()
 
       expect(body.errors).toBeDefined()
-      expect(body.errors).toContain('Delete failed')
+      expect(body.errors).toContain('Bulk access level update failed')
+      expect(JSON.stringify(body)).not.toContain('Delete failed')
     })
   })
 

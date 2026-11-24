@@ -46,9 +46,7 @@ export const GET = withAdminGuards(
       rethrowIfAppError(err)
       rethrowIfAuthError(err)
       logger.error({ error: err }, 'Admin invite code fetch error')
-      throw Errors.fromResponse(500, {
-        error: err instanceof Error ? err.message : 'Internal error'
-      })
+      throw Errors.fromResponse(500, { error: 'Internal error' })
     }
   }
 )
@@ -144,9 +142,7 @@ export const POST = withAdminGuards(
       rethrowIfAppError(err)
       rethrowIfAuthError(err)
       logger.error({ error: err }, 'Admin invite code creation error')
-      throw Errors.fromResponse(500, {
-        error: err instanceof Error ? err.message : 'Internal error'
-      })
+      throw Errors.fromResponse(500, { error: 'Internal error' })
     }
   }
 )
@@ -191,9 +187,7 @@ export const DELETE = withAdminGuards(
       rethrowIfAppError(err)
       rethrowIfAuthError(err)
       logger.error({ error: err }, 'Admin invite code revoke error')
-      throw Errors.fromResponse(500, {
-        error: err instanceof Error ? err.message : 'Internal error'
-      })
+      throw Errors.fromResponse(500, { error: 'Internal error' })
     }
   }
 )

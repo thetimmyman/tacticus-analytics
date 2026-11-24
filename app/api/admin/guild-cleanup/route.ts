@@ -106,7 +106,7 @@ export const POST = withAdminGuards(
                 results.push({
                   guild_id: guildId,
                   success: false,
-                  error: error.message
+                  error: 'Guild deletion failed'
                 })
                 continue
               }
@@ -143,16 +143,14 @@ export const POST = withAdminGuards(
                 ...(refusal && { error_code: refusal.errorCode })
               })
             } catch (err) {
-              const errorMessage =
-                err instanceof Error ? err.message : 'Unknown error'
               logger.error(
-                { guild_id: guildId, error: errorMessage },
+                { guild_id: guildId, error: err },
                 'Error deleting guild'
               )
               results.push({
                 guild_id: guildId,
                 success: false,
-                error: errorMessage
+                error: 'Guild deletion failed'
               })
             }
           }
@@ -210,7 +208,7 @@ export const POST = withAdminGuards(
                 results.push({
                   player_id: playerId,
                   success: false,
-                  error: deleteError.message
+                  error: 'Failed to remove orphaned player mapping'
                 })
               } else {
                 logger.info(
@@ -224,16 +222,14 @@ export const POST = withAdminGuards(
                 })
               }
             } catch (err) {
-              const errorMessage =
-                err instanceof Error ? err.message : 'Unknown error'
               logger.error(
-                { player_id: playerId, error: errorMessage },
+                { player_id: playerId, error: err },
                 'Error fixing orphaned player'
               )
               results.push({
                 player_id: playerId,
                 success: false,
-                error: errorMessage
+                error: 'Failed to remove orphaned player mapping'
               })
             }
           }
@@ -324,7 +320,7 @@ export const POST = withAdminGuards(
                     guild_id: guildId,
                     guild_code: guildInfo.guild_code,
                     success: false,
-                    error: updateError.message
+                    error: 'Failed to clean corrupted guild data'
                   })
                 } else {
                   logger.info(
@@ -352,16 +348,14 @@ export const POST = withAdminGuards(
                 })
               }
             } catch (err) {
-              const errorMessage =
-                err instanceof Error ? err.message : 'Unknown error'
               logger.error(
-                { guild_id: guildId, error: errorMessage },
+                { guild_id: guildId, error: err },
                 'Error cleaning corrupted guild data'
               )
               results.push({
                 guild_id: guildId,
                 success: false,
-                error: errorMessage
+                error: 'Failed to clean corrupted guild data'
               })
             }
           }
@@ -402,11 +396,9 @@ export const POST = withAdminGuards(
     } catch (error) {
       rethrowIfAppError(error)
       rethrowIfAuthError(error)
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error'
       logger.error(
         {
-          error: errorMessage,
+          error,
           stack: error instanceof Error ? error.stack : undefined
         },
         'Guild cleanup operation failed'
@@ -414,8 +406,7 @@ export const POST = withAdminGuards(
 
       throw Errors.fromResponse(500, {
         success: false,
-        error: 'Failed to perform cleanup operation',
-        details: errorMessage
+        error: 'Failed to perform cleanup operation'
       })
     }
   }

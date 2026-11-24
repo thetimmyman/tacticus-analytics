@@ -458,6 +458,52 @@ describe('POST /api/admin/guild-cleanup', () => {
       expect(body.success).toBe(true)
       expect(body.action).toBe('fix_orphaned_players')
     })
+
+    it('reports orphaned-player deletion failures without raw database text', async () => {
+      mockSupabase.from.mockImplementation((table: string) => {
+        if (table === 'player_mapping') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            single: vi.fn().mockResolvedValue({ data: null, error: null }),
+            delete: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({
+                  is: vi.fn().mockResolvedValue({
+                    error: {
+                      message:
+                        'update or delete on table "player_mapping" violates foreign key constraint'
+                    }
+                  })
+                })
+              })
+            })
+          }
+        }
+        return { select: vi.fn().mockReturnThis() }
+      })
+
+      const request = new NextRequest(
+        'http://localhost/api/admin/guild-cleanup',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'fix_orphaned_players',
+            player_ids: ['player-1']
+          })
+        }
+      )
+
+      const response = await POST(request)
+      const body = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body.results[0].success).toBe(false)
+      expect(body.results[0].error).toBe(
+        'Failed to remove orphaned player mapping'
+      )
+      expect(JSON.stringify(body)).not.toContain('violates foreign key')
+    })
   })
 
   describe('merge_guilds action', () => {

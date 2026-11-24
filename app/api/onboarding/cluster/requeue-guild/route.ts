@@ -46,8 +46,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         '[cluster/requeue-guild] Cluster lookup failed'
       )
       throw Errors.fromResponse(500, {
-        error: 'Unable to verify cluster ownership.',
-        details: clusterError.message
+        error: 'Unable to verify cluster ownership.'
       })
     }
 
@@ -113,8 +112,14 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
     )
 
     if (!newJob) {
+      if (jobError) {
+        logger.error(
+          { jobError },
+          '[cluster/requeue-guild] Guild sync job enqueue failed'
+        )
+      }
       throw Errors.fromResponse(500, {
-        error: jobError || 'Unable to queue guild sync. Please try again.'
+        error: 'Unable to queue guild sync. Please try again.'
       })
     }
 
@@ -142,8 +147,6 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
   } catch (error: unknown) {
     rethrowIfAppError(error)
     logger.error({ err: error }, '[cluster/requeue-guild] Unexpected error')
-    const message =
-      error instanceof Error ? error.message : 'Internal server error'
-    throw Errors.fromResponse(500, { error: message })
+    throw Errors.fromResponse(500, { error: 'Internal server error' })
   }
 })

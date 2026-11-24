@@ -524,7 +524,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         results.push({
           id: reminder.id,
           status: 'failed',
-          reason: `discord_exception:${message}`
+          reason: 'discord_exception'
         })
         continue
       }
@@ -583,9 +583,6 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
   } catch (error) {
     rethrowIfAppError(error)
     logger.error({ err: error }, '[Token Reminders] Cron job error')
-    throw Errors.fromResponse(500, {
-      error: 'Internal server error',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    })
+    throw Errors.fromResponse(500, { error: 'Internal server error' })
   }
 })

@@ -425,7 +425,7 @@ describe('/api/cron/token-reminders', () => {
       expect(body.success).toBe(true)
       expect(body.results).toHaveLength(2)
       expect(body.results[0].status).toBe('failed')
-      expect(body.results[0].reason).toContain('discord_exception')
+      expect(body.results[0].reason).toBe('discord_exception')
       expect(body.results[1].status).toBe('sent')
       expect(mockPostToWebhook).toHaveBeenCalledTimes(2)
     })

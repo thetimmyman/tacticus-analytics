@@ -53,6 +53,29 @@ describe('/api/admin/invite-codes', () => {
   })
 
   describe('GET /api/admin/invite-codes', () => {
+    it('returns a generic 500 without raw database text on database error', async () => {
+      mockRequireAuth.mockResolvedValue({
+        profile: { is_app_admin: true },
+        user: { id: 'admin-123' }
+      })
+
+      mockSupabase.rpc.mockResolvedValue({
+        data: null,
+        error: {
+          code: 'XX000',
+          message: 'permission denied for function list_player_invite_codes'
+        }
+      })
+
+      const request = new NextRequest('http://localhost/api/admin/invite-codes')
+
+      const response = await GET(request)
+      const body = await response.json()
+
+      expect(response.status).toBe(500)
+      expect(JSON.stringify(body)).not.toContain('permission denied')
+    })
+
     it('returns 403 when user is not admin', async () => {
       mockRequireAuth.mockResolvedValue({
         profile: { is_app_admin: false },

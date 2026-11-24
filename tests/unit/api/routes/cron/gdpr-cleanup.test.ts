@@ -120,6 +120,9 @@ describe('POST /api/cron/gdpr-cleanup (route handler)', () => {
     mockCleanupExpiredData.mockRejectedValue(new Error('db exploded'))
     const res = await POST(makeRequest('Bearer top-secret'))
     expect(res.status).toBe(500)
+
+    const body = await res.json()
+    expect(JSON.stringify(body)).not.toContain('db exploded')
   })
 })
 

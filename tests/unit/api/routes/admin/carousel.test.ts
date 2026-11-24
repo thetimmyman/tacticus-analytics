@@ -116,6 +116,28 @@ describe('/api/admin/carousel', () => {
       const response = await GET(makeGetRequest())
       expect(response.status).toBe(500)
     })
+
+    it('returns a generic 500 without raw database text on failure', async () => {
+      mockRequireAuth.mockResolvedValue({
+        profile: { is_app_admin: true }
+      })
+
+      mockSupabase.from.mockReturnValue({
+        select: vi.fn().mockReturnThis(),
+        order: vi.fn().mockReturnValue({
+          order: vi.fn().mockResolvedValue({
+            data: null,
+            error: { message: 'permission denied for table carousel_items' }
+          })
+        })
+      })
+
+      const response = await GET(makeGetRequest())
+      const body = await response.json()
+
+      expect(response.status).toBe(500)
+      expect(JSON.stringify(body)).not.toContain('permission denied')
+    })
   })
 
   describe('POST /api/admin/carousel', () => {
@@ -241,6 +263,37 @@ describe('/api/admin/carousel', () => {
 
       const response = await POST(request)
       expect(response.status).toBe(500)
+    })
+
+    it('returns a generic 500 without raw database text on insert failure', async () => {
+      mockRequireAuth.mockResolvedValue({
+        profile: { is_app_admin: true },
+        user: { id: 'user-1' }
+      })
+
+      mockSupabase.from.mockReturnValue({
+        insert: vi.fn().mockReturnValue({
+          select: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: null,
+              error: {
+                message: 'insert violates check constraint carousel_items_check'
+              }
+            })
+          })
+        })
+      })
+
+      const request = new NextRequest('http://localhost/api/admin/carousel', {
+        method: 'POST',
+        body: JSON.stringify({ title: 'New Item' })
+      })
+
+      const response = await POST(request)
+      const body = await response.json()
+
+      expect(response.status).toBe(500)
+      expect(JSON.stringify(body)).not.toContain('carousel_items_check')
     })
   })
 })

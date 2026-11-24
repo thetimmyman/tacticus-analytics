@@ -183,4 +183,17 @@ describe('POST /api/herald/trigger-notification', () => {
     expect(mod.__testing.computePrimeBossId('Magnus_E0', 'a')).toBe('Magnus_E1')
     expect(mod.__testing.computePrimeBossId('Magnus_E0', 'b')).toBe('Magnus_E2')
   })
+
+  it('returns a generic 500 without raw database text when the override fails', async () => {
+    mockPostHeraldManualOverride.mockRejectedValue(
+      new Error('permission denied for table discord_webhook_logs')
+    )
+
+    const resp = await callRoute()
+    const body = await resp.json()
+
+    expect(resp.status).toBe(500)
+    expect(body.error.message).toBe('Herald trigger-notification failed')
+    expect(JSON.stringify(body)).not.toContain('permission denied')
+  })
 })

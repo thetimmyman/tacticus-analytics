@@ -212,6 +212,42 @@ describe('Player API Key Admin Route', () => {
       expect(body.error.code).toBe(5001)
     })
 
+    it('returns a generic 500 without raw RPC error text when RPC fails', async () => {
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: 'user-1' } },
+        error: null
+      })
+
+      mockValidateApiKeyWithTacticus.mockResolvedValue({
+        isValid: true,
+        canAccessGuild: true,
+        canAccessRaidData: true
+      })
+
+      mockEncryptApiKey.mockResolvedValue('encrypted-key')
+
+      mockSupabase.rpc.mockResolvedValue({
+        data: null,
+        error: {
+          message: 'update_player_api_key_admin: tuple concurrently updated'
+        }
+      })
+
+      const request = new NextRequest(
+        'http://localhost/api/admin/player-api-key',
+        {
+          method: 'POST',
+          body: JSON.stringify({ playerId: 'player-1', apiKey: 'valid-key' })
+        }
+      )
+
+      const response = await POST(request)
+      const body = await response.json()
+
+      expect(response.status).toBe(500)
+      expect(JSON.stringify(body)).not.toContain('tuple concurrently updated')
+    })
+
     it('returns 400 when RPC returns unsuccessful result', async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: 'user-1' } },

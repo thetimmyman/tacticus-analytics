@@ -79,7 +79,13 @@ export const POST = withAdminGuards(
           )
 
         if (guildError) {
-          throw Errors.fromResponse(500, { error: guildError.message })
+          logger.error(
+            { err: guildError, guild_code },
+            'Bulk guild roster lookup failed'
+          )
+          throw Errors.fromResponse(500, {
+            error: 'Failed to resolve guild members'
+          })
         }
 
         targetUserIds = (guildMembers || [])
@@ -173,9 +179,14 @@ export const POST = withAdminGuards(
                     compensation.error ||
                     !hasExactUpdatedUsers(compensation.data, bannedUserIds)
                   ) {
+                    if (compensation.error) {
+                      logger.error(
+                        { err: compensation.error },
+                        'Admin grant compensation update failed'
+                      )
+                    }
                     throw new Error(
-                      compensation.error?.message ||
-                        'Admin grant compensation did not return the exact banned user set'
+                      'Admin grant compensation did not return the exact banned user set'
                     )
                   }
                 }
@@ -189,7 +200,8 @@ export const POST = withAdminGuards(
         })
 
         if (error) {
-          errors.push(error.message || 'Bulk admin update failed')
+          logger.error({ err: error }, 'Bulk admin update failed')
+          errors.push('Bulk admin update failed')
           errorCount = adminTargetUserIds.length
         } else if (!hasExactUpdatedUsers(data, adminTargetUserIds)) {
           errors.push(
@@ -216,7 +228,11 @@ export const POST = withAdminGuards(
               .upsert(record, { onConflict: 'user_id,access_level' })
 
             if (error) {
-              errors.push(`Failed for user ${record.user_id}: ${error.message}`)
+              logger.error(
+                { err: error, user_id: record.user_id },
+                'Feature access grant upsert failed'
+              )
+              errors.push(`Failed for user ${record.user_id}`)
               errorCount++
             } else {
               successCount++
@@ -230,7 +246,11 @@ export const POST = withAdminGuards(
             .eq('access_level', accessLevel)
 
           if (error) {
-            errors.push(error.message)
+            logger.error(
+              { err: error, access_level: accessLevel },
+              'Feature access grant delete failed'
+            )
+            errors.push('Bulk access level update failed')
             errorCount = targetUserIds.length
           } else {
             successCount = targetUserIds.length
@@ -252,9 +272,7 @@ export const POST = withAdminGuards(
       rethrowIfAppError(err)
       rethrowIfAuthError(err)
       logger.error({ error: err }, 'Bulk operation exception')
-      throw Errors.fromResponse(500, {
-        error: err instanceof Error ? err.message : 'Internal error'
-      })
+      throw Errors.fromResponse(500, { error: 'Internal error' })
     }
   }
 )
