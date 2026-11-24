@@ -11922,6 +11922,19 @@ export type Database = {
         Args: { p_user_id?: string }
         Returns: boolean
       }
+      leave_guild_cluster: {
+        Args: {
+          p_actor_user_id: string
+          p_expected_cluster_id: string
+          p_guild_code: string
+        }
+        Returns: {
+          cleared_mappings: number
+          guild_code: string
+          previous_cluster_code: string
+          previous_cluster_id: string
+        }[]
+      }
       list_active_player_invite_codes: {
         Args: { p_guild_code: string }
         Returns: {

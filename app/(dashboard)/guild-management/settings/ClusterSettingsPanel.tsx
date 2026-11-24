@@ -11,7 +11,8 @@ import {
   AlertCircle,
   Loader2,
   Settings,
-  Hash
+  Hash,
+  LogOut
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { UserRole } from '@tacticus/app-core/types'
@@ -19,7 +20,9 @@ import type {
   GuildSettingsRecord,
   ClusterDetails
 } from '@/app/lib/services/guild-settings-service'
+import { ConfirmDialog } from '@/app/components/ui/ConfirmDialog'
 import { SettingsSection } from './SettingsSection'
+import type { LeaveClusterControls } from './useGuildClusterSettings'
 import { cn } from '@/app/lib/utils/cn'
 
 interface ClusterSettingsPanelProps {
@@ -30,6 +33,7 @@ interface ClusterSettingsPanelProps {
   onCreateCluster: () => void
   onJoinCluster: () => void
   saving: boolean
+  leaveCluster: LeaveClusterControls
 }
 
 export function ClusterSettingsPanel({
@@ -39,7 +43,8 @@ export function ClusterSettingsPanel({
   clusterInfo,
   onCreateCluster,
   onJoinCluster,
-  saving
+  saving,
+  leaveCluster
 }: ClusterSettingsPanelProps) {
   if (userRole !== 'leader' && userRole !== 'officer') {
     return (
@@ -171,7 +176,76 @@ export function ClusterSettingsPanel({
           Unable to load cluster details—refresh to retry or verify permissions.
         </div>
       )}
+      {userRole === 'leader' && (
+        <LeaveClusterAction
+          clusterName={
+            clusterInfo?.display_name ||
+            clusterInfo?.cluster_code ||
+            guildConfig.cluster_code ||
+            'this cluster'
+          }
+          disabled={saving || loadingClusterInfo}
+          controls={leaveCluster}
+        />
+      )}
     </SettingsSection>
+  )
+}
+
+function LeaveClusterAction({
+  clusterName,
+  disabled,
+  controls
+}: {
+  clusterName: string
+  disabled: boolean
+  controls: LeaveClusterControls
+}) {
+  return (
+    <div className="mt-6 flex flex-col gap-3 border-t border-card-border/40 pt-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="space-y-1">
+        <h3 className="text-sm font-semibold text-primary-wh40k">
+          Leave this cluster
+        </h3>
+        <p className="text-sm text-secondary-wh40k">
+          Take your guild out of {clusterName}. Your guild keeps syncing, and
+          you can join another cluster with an invite code afterwards.
+        </p>
+      </div>
+      <Button
+        type="button"
+        variant="danger"
+        onClick={controls.onOpen}
+        disabled={disabled || controls.busy}
+        className="shrink-0"
+      >
+        <LogOut className="w-4 h-4 mr-2" />
+        Leave cluster
+      </Button>
+      <ConfirmDialog
+        open={controls.open}
+        tone="danger"
+        title={`Leave ${clusterName}?`}
+        confirmLabel="Leave cluster"
+        busyLabel="Leaving..."
+        busy={controls.busy}
+        onCancel={controls.onCancel}
+        onConfirm={controls.onConfirm}
+        description={
+          <div className="space-y-3">
+            <p>
+              Every member of your guild loses access to the shared dashboards,
+              leaderboards and raid data of this cluster straight away.
+            </p>
+            <p>
+              Your guild, its members, roles and syncing stay as they are. To
+              join another cluster, choose Join with invite code on this page
+              once you have left.
+            </p>
+          </div>
+        }
+      />
+    </div>
   )
 }
 

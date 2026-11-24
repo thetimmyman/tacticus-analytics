@@ -8,6 +8,7 @@ import { formatGuildDisplayLabel } from '@/app/lib/format/guild'
 import { createComponentLogger } from '@/app/lib/logging/client'
 import { validateGuildDisplayName } from '@/app/lib/validation/guild-display-name'
 import type { Guild } from '../types'
+import { DISABLE_GUILD_CONFIRM_PHRASE } from '../components/DeleteConfirmDialog'
 import { extractErrorMessage } from './useClusterData'
 
 const logger = createComponentLogger(
@@ -226,10 +227,8 @@ export function useGuildEditingActions({
 
   const handleDeleteConfirmed = async () => {
     if (!guildToDelete) return
-    if (deleteConfirmText !== 'delete this guild') {
-      toast.warning(
-        'Confirmation text did not match. Deletion cancelled for safety.'
-      )
+    if (deleteConfirmText !== DISABLE_GUILD_CONFIRM_PHRASE) {
+      toast.warning('Confirmation text did not match. Nothing was disabled.')
       return
     }
 
@@ -244,7 +243,7 @@ export function useGuildEditingActions({
         .eq('guild_code', guildCode)
       if (error) throw error
       toast.success(
-        `${formatGuildDisplayLabel(null, guildCode)} has been disabled from the cluster.`
+        `${formatGuildDisplayLabel(null, guildCode)} is disabled: it stays in the cluster but no longer syncs.`
       )
       await fetchGuilds()
     } catch (error) {
