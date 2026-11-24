@@ -1,5 +1,6 @@
 'use client'
 
+import { useId } from 'react'
 import { Button } from '@tacticus/ui-kit'
 import { ModalShell } from '@/app/components/ui/ModalShell'
 import { MemberName } from '@/app/components/ui/MemberName'
@@ -29,10 +30,14 @@ export function HeraldRolesModal({
   onChange
 }: HeraldRolesModalProps) {
   const { labelFor } = useMemberLabels()
+  const titleId = useId()
 
   return (
-    <ModalShell>
-      <h3 className="text-lg font-semibold text-primary-wh40k mb-2">
+    <ModalShell onClose={onClose} titleId={titleId}>
+      <h3
+        id={titleId}
+        className="text-lg font-semibold text-primary-wh40k mb-2"
+      >
         Herald Roles - <MemberName value={member.display_name} />
       </h3>
       <p className="text-xs text-secondary-wh40k mb-4">

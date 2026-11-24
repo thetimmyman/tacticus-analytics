@@ -187,12 +187,12 @@ export function MetroNode({
         : 'h-7 w-7 sm:h-8 sm:w-8'
   const heroGapClass =
     resolvedPortraitMode === 'micro' ? 'gap-1 sm:gap-1.5' : 'gap-1.5 sm:gap-2'
+  // Micro cards sit in narrow columns where a 10px badge would clip; the
+  // wider compact and full cards carry readable badge sizes.
   const badgeSizeClass =
     resolvedPortraitMode === 'micro'
-      ? 'text-[5px] sm:text-[6px]'
-      : resolvedPortraitMode === 'compact'
-        ? 'text-[6px] sm:text-[7px]'
-        : 'text-[7px] sm:text-[8px]'
+      ? 'text-[8px] sm:text-[9px]'
+      : 'text-[10px] sm:text-[11px]'
   const labelClass = `uppercase tracking-wide ${style.kicker} ${
     compact
       ? 'text-[9px] sm:text-[10px] truncate max-w-20'
@@ -230,14 +230,14 @@ export function MetroNode({
             <Unlock className={`h-5 w-5 sm:h-6 sm:w-6 ${style.icon}`} />
           )}
         </div>
-        <div className="text-center">
+        <div className="w-full min-w-0 text-center">
           <div className={labelClass}>{label}</div>
           <div className={damageClass}>
             {damage != null ? formatNumber(Math.round(damage)) : '--'}
           </div>
           {showHeroes && heroes && heroes.length > 0 ? (
             <div
-              className={`mt-2 flex flex-nowrap max-w-full overflow-hidden justify-center ${heroGapClass} sm:mt-3 ${locked ? 'opacity-85 grayscale' : ''}`}
+              className={`mt-2 flex w-full min-w-0 flex-wrap max-w-full overflow-hidden justify-center ${heroGapClass} sm:mt-3 ${locked ? 'opacity-85 grayscale' : ''}`}
             >
               {heroes.map((hero) => {
                 const unitState = resolveUnitState(hero.name)
@@ -245,7 +245,7 @@ export function MetroNode({
                 return (
                   <div
                     key={`hero-portrait-${hero.name}`}
-                    className="flex flex-col items-center gap-1"
+                    className="flex min-w-0 flex-col items-center gap-1"
                   >
                     <div
                       className={`rounded-full border overflow-hidden flex items-center justify-center ${heroSizeClass} ${
@@ -269,7 +269,7 @@ export function MetroNode({
                           loading="lazy"
                         />
                       ) : (
-                        <span className="text-[8px] text-slate-300 font-semibold sm:text-[9px]">
+                        <span className="text-[10px] text-slate-300 font-semibold sm:text-[11px]">
                           {hero.name.slice(0, 2).toUpperCase()}
                         </span>
                       )}

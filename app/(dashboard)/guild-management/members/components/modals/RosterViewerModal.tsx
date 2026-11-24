@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useId } from 'react'
 import { Button } from '@tacticus/ui-kit'
 import { formatNumber } from '@tacticus/app-core/formatters'
 import { ModalShell } from '@/app/components/ui/ModalShell'
@@ -51,6 +51,7 @@ export function RosterViewerModal({ member, onClose }: RosterViewerModalProps) {
   } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const titleId = useId()
 
   useEffect(() => {
     const fetchRoster = async () => {
@@ -79,8 +80,11 @@ export function RosterViewerModal({ member, onClose }: RosterViewerModalProps) {
   }, [member.player_id])
 
   return (
-    <ModalShell>
-      <h3 className="text-lg font-semibold text-primary-wh40k mb-4">
+    <ModalShell onClose={onClose} titleId={titleId}>
+      <h3
+        id={titleId}
+        className="text-lg font-semibold text-primary-wh40k mb-4"
+      >
         Roster - <MemberName value={member.display_name} />
       </h3>
       {loading && (

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useId } from 'react'
 import { Button } from '@tacticus/ui-kit'
 import type { AdminActionResult } from '@tacticus/app-core/types'
 import { useToast } from '@/app/hooks/useToast'
@@ -23,6 +23,7 @@ export function MetaTeamsModal({
   })
   const [saving, setSaving] = useState(false)
   const { toast } = useToast()
+  const titleId = useId()
 
   useEffect(() => {
     setDraft({
@@ -73,8 +74,11 @@ export function MetaTeamsModal({
   }
 
   return (
-    <ModalShell>
-      <h3 className="text-lg font-semibold text-primary-wh40k mb-4">
+    <ModalShell onClose={onClose} titleId={titleId}>
+      <h3
+        id={titleId}
+        className="text-lg font-semibold text-primary-wh40k mb-4"
+      >
         Meta Team Preferences - <MemberName value={member.display_name} />
       </h3>
       {metaTeamsLoading ? (

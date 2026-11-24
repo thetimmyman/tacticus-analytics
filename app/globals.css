@@ -105,6 +105,17 @@
   }
 }
 
+/* Keyboard ring for the metro step cards: the panels are dark islands that
+   use palette colours only, so the ring is emerald, not a theme token. */
+@utility metro-step-focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-emerald-400);
+  }
+}
+
 @utility card-compact {
   @apply p-3 space-y-2;
 }
