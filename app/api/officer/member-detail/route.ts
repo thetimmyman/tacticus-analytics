@@ -1,13 +1,20 @@
 /** Officer+, own guild, `officer_command_center`; runs the expensive analyze-member classification. */
 
+import type { NextRequest } from 'next/server'
 import { serviceDb } from '@/app/lib/db'
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors } from '@/app/lib/errors/AppError'
 import { getLatestSeason } from '@/app/lib/utils/season'
 import { analyzeMember } from '@/app/lib/officer-briefing/analyze-member'
 import { requireActiveOfficerCommandAccess } from '../_shared/access'
 
-export const GET = withErrorHandler(async (request: Request) => {
+export const GET = withErrorHandler(async (request: NextRequest) => {
+  const limited = await apiSecurityMiddleware(request, {
+    skipSecurityChecks: true
+  })
+  if (limited) return limited
+
   const { guildCode } = await requireActiveOfficerCommandAccess()
 
   const { searchParams } = new URL(request.url)

@@ -6,6 +6,7 @@ import { Label } from '@tacticus/ui-kit'
 import { Switch } from '@tacticus/ui-kit'
 import { createComponentLogger } from '@/app/lib/logging/client'
 import { validateDiscordWebhookUrl } from '@/app/lib/webhooks/validate-url'
+import { isMaskedDiscordWebhookUrl } from '@/app/lib/webhooks/mask-url'
 import {
   Save,
   AlertTriangle,
@@ -133,7 +134,8 @@ export default function WebhookCard({
             {(() => {
               if (
                 !webhook.webhook_url ||
-                webhook.webhook_url.trim().length === 0
+                webhook.webhook_url.trim().length === 0 ||
+                isMaskedDiscordWebhookUrl(webhook.webhook_url)
               ) {
                 return null
               }

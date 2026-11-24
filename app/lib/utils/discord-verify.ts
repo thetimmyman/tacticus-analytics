@@ -2,6 +2,27 @@ import { webcrypto } from 'crypto'
 import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('lib.utils.discord-verify')
 
+export const DISCORD_TIMESTAMP_WINDOW_SECONDS = 300
+
+const DIGITS_ONLY_RE = /^\d+$/
+
+export function isFreshDiscordTimestamp(
+  timestamp: string | null | undefined,
+  nowMs: number = Date.now()
+): boolean {
+  if (!timestamp || !DIGITS_ONLY_RE.test(timestamp)) {
+    return false
+  }
+  const timestampSeconds = Number(timestamp)
+  if (!Number.isSafeInteger(timestampSeconds)) {
+    return false
+  }
+  return (
+    Math.abs(nowMs - timestampSeconds * 1000) <=
+    DISCORD_TIMESTAMP_WINDOW_SECONDS * 1000
+  )
+}
+
 export async function verifyDiscordRequest(
   body: string,
   signature: string,

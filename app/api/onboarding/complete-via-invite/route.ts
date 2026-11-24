@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db, serviceDb } from '@/app/lib/db'
 import { createComponentLogger } from '@/app/lib/logging'
 const logger = createComponentLogger('api.onboarding.complete-via-invite')
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors, rethrowIfAppError } from '@/app/lib/errors/AppError'
 import { requireSessionUser } from '@/app/lib/api/session-user'
@@ -13,7 +14,12 @@ import { syncDiscordProfile } from '@/app/lib/discord/sync-profile'
 import { canManageHeraldRole } from '@/app/lib/auth/role-predicates'
 
 /** Uses the caller's player_mapping; no body. */
-export const POST = withErrorHandler(async (_request: NextRequest) => {
+export const POST = withErrorHandler(async (request: NextRequest) => {
+  const limited = await apiSecurityMiddleware(request, {
+    skipSecurityChecks: true
+  })
+  if (limited) return limited
+
   const authedSupabase = await db()
   const user = await requireSessionUser(authedSupabase, () =>
     Errors.fromResponse(401, { error: 'Unauthorized' })

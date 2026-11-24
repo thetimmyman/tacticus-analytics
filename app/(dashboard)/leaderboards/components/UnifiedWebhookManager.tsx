@@ -6,6 +6,7 @@ const logger = createComponentLogger(
   'leaderboards.components.UnifiedWebhookManager'
 )
 import { validateDiscordWebhookUrl } from '@/app/lib/webhooks/validate-url'
+import { isMaskedDiscordWebhookUrl } from '@/app/lib/webhooks/mask-url'
 import {
   AlertCircle,
   CheckCircle,
@@ -271,12 +272,16 @@ export default function UnifiedWebhookManager({
       setMessage({ type: 'error', text: 'Please enter a webhook URL first' })
       return
     }
-    // Catch pasted channel URLs immediately; the server enforces it too.
-    const urlValidation = validateDiscordWebhookUrl(webhook.webhook_url)
-    if (!urlValidation.ok) {
-      const hint = 'hint' in urlValidation ? ` ${urlValidation.hint}` : ''
-      setMessage({ type: 'error', text: `${urlValidation.message}${hint}` })
-      return
+    const isMaskedSavedUrl =
+      Boolean(webhook.id) && isMaskedDiscordWebhookUrl(webhook.webhook_url)
+    if (!isMaskedSavedUrl) {
+      // Catch pasted channel URLs immediately; the server enforces it too.
+      const urlValidation = validateDiscordWebhookUrl(webhook.webhook_url)
+      if (!urlValidation.ok) {
+        const hint = 'hint' in urlValidation ? ` ${urlValidation.hint}` : ''
+        setMessage({ type: 'error', text: `${urlValidation.message}${hint}` })
+        return
+      }
     }
     setTesting(webhook.webhook_type)
     try {
@@ -289,13 +294,16 @@ export default function UnifiedWebhookManager({
         'daily_summary',
         'boss_assignments'
       ]
+      const targetRef = isMaskedSavedUrl
+        ? { webhook_id: webhook.id }
+        : { webhook_url: webhook.webhook_url }
       const body = specializedTypes.includes(webhook.webhook_type)
         ? {
-            webhook_url: webhook.webhook_url,
+            ...targetRef,
             webhook_type: webhook.webhook_type
           }
         : {
-            webhook_url: webhook.webhook_url,
+            ...targetRef,
             webhook_type: webhook.webhook_type,
             custom_message: `**Test Message** - ${config.label}\n\nThis is a test notification for ${config.description}.`
           }
@@ -357,6 +365,17 @@ export default function UnifiedWebhookManager({
       })
       const result = await response.json()
       if (response.ok) {
+        if (result?.webhook) {
+          const description =
+            WEBHOOK_TYPES[type as keyof typeof WEBHOOK_TYPES]?.description
+          setEditedWebhooks((prev) =>
+            prev.map((w) =>
+              w.webhook_type === type
+                ? mergeEditedWebhook(w, result.webhook, description)
+                : w
+            )
+          )
+        }
         setUnsavedChanges((prev) => {
           const newSet = new Set(prev)
           newSet.delete(type)

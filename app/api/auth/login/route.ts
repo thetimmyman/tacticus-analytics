@@ -17,7 +17,6 @@ export const dynamic = 'force-dynamic'
 type LoginRequestBody = {
   email?: string
   password?: string
-  rememberMe?: boolean
   // Turnstile CAPTCHA is handled by Supabase.
 }
 
@@ -108,7 +107,6 @@ export const POST = withErrorHandler(
     }
     const email = body.email?.trim().toLowerCase()
     const password = body.password
-    const rememberMe = Boolean(body.rememberMe)
 
     if (!email || !password) {
       throw Errors.validation('Email and password are required', {
@@ -118,8 +116,7 @@ export const POST = withErrorHandler(
 
     const result = await signInWithPassword({
       email,
-      password,
-      rememberMe
+      password
     })
 
     if (!result.user || result.error) {
@@ -139,7 +136,6 @@ export const POST = withErrorHandler(
           requestId,
           code,
           supabaseError: result.error?.code ?? null,
-          rememberMe,
           durationMs: Date.now() - startedAt
         },
         'Auth login failed'
@@ -160,7 +156,6 @@ export const POST = withErrorHandler(
         event: 'login_success',
         requestId,
         userId: result.user.id,
-        rememberMe,
         durationMs: Date.now() - startedAt
       },
       'Auth login succeeded'

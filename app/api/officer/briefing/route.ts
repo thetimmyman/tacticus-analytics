@@ -1,6 +1,8 @@
 /** Ranks members by target score (1.0 = on target). Officer+, own guild only, behind `officer_command_center`. */
 
+import type { NextRequest } from 'next/server'
 import { serviceDb } from '@/app/lib/db'
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors } from '@/app/lib/errors/AppError'
 import { getLatestSeason } from '@/app/lib/utils/season'
@@ -64,7 +66,12 @@ interface BossPerfRow {
   player_vs_guild_avg: number | null
 }
 
-export const GET = withErrorHandler(async (request: Request) => {
+export const GET = withErrorHandler(async (request: NextRequest) => {
+  const limited = await apiSecurityMiddleware(request, {
+    skipSecurityChecks: true
+  })
+  if (limited) return limited
+
   // guildCode comes from the caller's profile, never the request.
   const { user, guildCode } = await requireActiveOfficerCommandAccess()
 

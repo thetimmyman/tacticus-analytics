@@ -140,8 +140,7 @@ export default function ChangePasswordClient({
         credentials: 'include',
         body: JSON.stringify({
           email: userEmail,
-          password: currentPassword,
-          rememberMe: true
+          password: currentPassword
         })
       })
 

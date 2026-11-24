@@ -32,38 +32,6 @@ vi.mock('@/app/lib/auth/config', () => ({
   }
 }))
 
-vi.mock('@tacticus/ui-kit/radix-switch', () => ({
-  RadixSwitch: ({
-    checked,
-    onCheckedChange,
-    id
-  }: {
-    checked: boolean
-    onCheckedChange: (value: boolean) => void
-    id: string
-  }) => (
-    <input
-      type="checkbox"
-      id={id}
-      checked={checked}
-      onChange={(e) => onCheckedChange(e.target.checked)}
-      data-testid="remember-me-switch"
-    />
-  )
-}))
-
-vi.mock('@tacticus/ui-kit/radix-tooltip', () => ({
-  RadixTooltip: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  ),
-  RadixTooltipTrigger: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  ),
-  RadixTooltipContent: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  )
-}))
-
 vi.mock(
   '@tacticus/app-core/logger',
   () => import('@/tests/helpers/logger-mock')

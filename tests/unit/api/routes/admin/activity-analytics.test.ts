@@ -270,6 +270,65 @@ describe('/api/admin/activity-analytics', () => {
       expect(inMock).toHaveBeenCalledWith('guild_code', ['GUILD1', 'GUILD2'])
     })
 
+    it.each([
+      ['99999', 365],
+      ['366', 365],
+      ['0', 1],
+      ['-25', 1],
+      ['not-a-number', 30]
+    ])('clamps days_back=%s to %d', async (rawDaysBack, expectedDaysBack) => {
+      const playerQuery = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        not: vi.fn().mockReturnThis(),
+        in: vi.fn().mockReturnThis(),
+        data: [],
+        error: null
+      }
+
+      let playerMappingCalls = 0
+      let guildConfigCalls = 0
+
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: 'user-1' } }
+      })
+      mockSupabase.from.mockImplementation((table: string) => {
+        if (table === 'player_mapping') {
+          playerMappingCalls += 1
+          return playerMappingCalls === 1
+            ? createAdminProfileQuery(true)
+            : playerQuery
+        }
+        if (table === 'guild_config') {
+          guildConfigCalls += 1
+          if (guildConfigCalls === 1) {
+            return { select: vi.fn().mockResolvedValue({ data: [] }) }
+          }
+          if (guildConfigCalls === 2) {
+            return {
+              select: vi.fn().mockReturnThis(),
+              order: vi.fn().mockResolvedValue({ data: [] })
+            }
+          }
+          return {
+            select: vi.fn().mockReturnThis(),
+            not: vi.fn().mockResolvedValue({ data: [] })
+          }
+        }
+        return { select: vi.fn().mockReturnThis() }
+      })
+
+      const request = new NextRequest(
+        `http://localhost/api/admin/activity-analytics?days_back=${encodeURIComponent(rawDaysBack)}`
+      )
+      const response = await GET(request)
+      const body = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(body.summary.daysBack).toBe(expectedDaysBack)
+      expect(body.dailyActivity).toHaveLength(expectedDaysBack)
+    })
+
     it('returns 500 when activity query fails', async () => {
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 

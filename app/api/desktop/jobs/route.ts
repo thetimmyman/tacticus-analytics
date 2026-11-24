@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
-import { requireCronSecret } from '@/app/lib/scheduler/require-cron-secret'
+import { requireDesktopApiSecret } from '@/app/lib/desktop/require-desktop-secret'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { runWorkerTick } from '@/app/lib/jobs/worker-tick'
 import { registerRefreshExploreSnapshotsHandler } from '@/app/lib/jobs/refresh-explore-snapshots'
@@ -10,7 +10,7 @@ import { registerLocalAchievementsHandler } from '@/app/lib/jobs/refresh-local-a
 import { registerLocalProfileExportHandler } from '@/app/lib/jobs/export-local-profile-data'
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
-  requireCronSecret(request)
+  requireDesktopApiSecret(request)
   if (getRuntimeProfile() !== 'desktop')
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   if (!getJobHandler('refresh-explore-snapshots'))

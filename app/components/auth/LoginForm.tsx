@@ -5,12 +5,6 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { dbClient } from '@/app/lib/db/client'
 import { authConfig } from '@/app/lib/auth/config'
-import { RadixSwitch } from '@tacticus/ui-kit/radix-switch'
-import {
-  RadixTooltip,
-  RadixTooltipTrigger,
-  RadixTooltipContent
-} from '@tacticus/ui-kit/radix-tooltip'
 import { Button } from '@tacticus/ui-kit'
 import { createComponentLogger } from '@/app/lib/logging/client'
 const logger = createComponentLogger('components.auth.LoginForm')
@@ -98,7 +92,6 @@ export default function LoginForm({
   const Title = titleLevel === 1 ? 'h1' : 'h2'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [rememberMe, setRememberMe] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const lastReportedError = useRef<string | null>(null)
@@ -236,8 +229,7 @@ export default function LoginForm({
             credentials: 'same-origin',
             body: JSON.stringify({
               email: email.trim().toLowerCase(),
-              password,
-              rememberMe
+              password
             })
           })
           const body = await res.json()
@@ -416,29 +408,8 @@ export default function LoginForm({
             />
           </div>
 
-          {/* Remember me and forgot password */}
-          <div className="flex items-center justify-between pt-2">
-            <div className="flex items-center space-x-2">
-              <RadixSwitch
-                id="remember-me"
-                checked={rememberMe}
-                onCheckedChange={setRememberMe}
-                className="data-[state=checked]:bg-primary-wh40k"
-              />
-              <RadixTooltip>
-                <RadixTooltipTrigger asChild>
-                  <label
-                    htmlFor="remember-me"
-                    className="text-sm text-secondary-wh40k cursor-pointer hover:text-primary-wh40k transition-colors"
-                  >
-                    Remember me
-                  </label>
-                </RadixTooltipTrigger>
-                <RadixTooltipContent>
-                  <p className="text-xs">Keep me signed in on this device</p>
-                </RadixTooltipContent>
-              </RadixTooltip>
-            </div>
+          {/* Forgot password */}
+          <div className="flex justify-end pt-2">
             <div className="text-sm">
               <Link
                 href="/auth/forgot-password"

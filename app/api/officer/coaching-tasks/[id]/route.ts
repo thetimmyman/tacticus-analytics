@@ -1,6 +1,8 @@
 /** The task's guild_code check is the real boundary (service role bypasses RLS). Closed tasks are terminal. */
 
+import type { NextRequest } from 'next/server'
 import { serviceDb } from '@/app/lib/db'
+import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { Errors } from '@/app/lib/errors/AppError'
 import { requireActiveOfficerCommandAccess } from '../../_shared/access'
@@ -15,7 +17,15 @@ import {
 } from '../_guards'
 
 export const PATCH = withErrorHandler(
-  async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  async (
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+  ) => {
+    const limited = await apiSecurityMiddleware(request, {
+      skipSecurityChecks: true
+    })
+    if (limited) return limited
+
     const { guildCode } = await requireActiveOfficerCommandAccess()
 
     const { id } = await params

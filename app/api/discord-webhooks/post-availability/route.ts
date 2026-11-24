@@ -12,6 +12,7 @@ import { throwDiscordWebhookError } from '@/app/lib/discord/webhook-error-mappin
 import type { PlayerMapping } from '@tacticus/app-core/types'
 import { assertUnbannedAuthUser } from '@/app/lib/api/session-user'
 import { loadWebhookCallerProfile } from '@/app/api/discord-webhooks/_shared/caller-profile'
+import { maskDiscordWebhookUrl } from '@/app/lib/webhooks/mask-url'
 
 type PostAvailabilityPayload = {
   guild?: string
@@ -174,7 +175,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
       {
         guild,
         messageLength: content.length,
-        webhookUrl: webhookUrl.substring(0, 50) + '...',
+        webhookUrl: maskDiscordWebhookUrl(webhookUrl),
         user: user.id
       },
       '[Discord Post] Attempting to post to Discord'
@@ -192,7 +193,7 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
         logger,
         logMessage: 'Discord webhook error:',
         logContext: {
-          webhookUrl: webhookUrl.substring(0, 50) + '...',
+          webhookUrl: maskDiscordWebhookUrl(webhookUrl),
           guild,
           messageLength: content.length,
           messageSample: content.substring(0, 200)

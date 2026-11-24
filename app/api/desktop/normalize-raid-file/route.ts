@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getRuntimeProfile } from '@tacticus/app-core/runtime-profile'
-import { requireCronSecret } from '@/app/lib/scheduler/require-cron-secret'
+import { requireDesktopApiSecret } from '@/app/lib/desktop/require-desktop-secret'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 import { normalizeRaidFile } from '@/app/lib/desktop/raid-file'
 import type { BossMappings } from '@/app/lib/sync/transformers'
@@ -10,7 +10,7 @@ import type { BossMappings } from '@/app/lib/sync/transformers'
 // is exposed to the renderer. This endpoint does not write data or make calls.
 export const POST = withErrorHandler(
   async (request: NextRequest) => {
-    requireCronSecret(request)
+    requireDesktopApiSecret(request)
     if (getRuntimeProfile() !== 'desktop')
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     try {
