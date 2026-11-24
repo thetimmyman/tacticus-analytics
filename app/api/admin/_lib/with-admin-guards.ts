@@ -84,7 +84,8 @@ export function withAdminGuards<O extends AdminGuardOptions, C = unknown>(
     auth: AdminGuardAuth<O>
   ) => Promise<Response> | Response
 ) {
-  return withErrorHandler(async (request: NextRequest, context: C) => {
+  // Context stays optional: wildcard routes pass params, static ones only a request.
+  return withErrorHandler(async (request: NextRequest, context?: C) => {
     // IP-keyed, before the guard so an unauthenticated flood cannot amplify via auth round-trips.
     // skipSecurityChecks: the bot filter would reject curl/scripts.
     const limited = await apiSecurityMiddleware(request, {
@@ -94,6 +95,7 @@ export function withAdminGuards<O extends AdminGuardOptions, C = unknown>(
 
     const auth = (await resolveGuard(options)) as AdminGuardAuth<O>
 
-    return handler(request, context, auth)
+    // Next always supplies context; the cast only serves static routes' 1-arg calls.
+    return handler(request, context as C, auth)
   })
 }
