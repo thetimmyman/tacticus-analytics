@@ -1,12 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { NextResponse } from 'next/server'
 
 let mockRunSyncHealthChecks: ReturnType<typeof vi.fn>
 let mockRunDataIntegrityHealthChecks: ReturnType<typeof vi.fn>
 let mockGetOptionalAuthForApi: ReturnType<typeof vi.fn>
 
 describe('GET /api/health/sync-status', () => {
-  let GET: () => Promise<NextResponse>
+  let GET: () => Promise<Response>
 
   beforeEach(async () => {
     vi.resetModules()

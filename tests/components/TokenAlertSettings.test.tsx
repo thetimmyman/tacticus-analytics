@@ -310,7 +310,7 @@ describe('TokenAlertSettings', () => {
   })
 
   function stubLinked(prefs: Record<string, unknown> = {}) {
-    const fetchMock = vi.fn().mockImplementation(() =>
+    const fetchMock = vi.fn(async (_url: string, _init?: RequestInit) =>
       jsonResponse(200, {
         available: true,
         linked: true,

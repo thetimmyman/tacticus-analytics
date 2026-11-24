@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
+import { NextRequest } from 'next/server'
 
 // vitest 5 types a bare vi.fn() as function-or-constructor; these mocks are called.
 type AnyMock = Mock<(...args: any[]) => any>
@@ -13,7 +14,7 @@ let mockResolveVerifiedDiscordIdentities: AnyMock
 let mockFindVerifiedDiscordForMapping: AnyMock
 
 describe('POST /api/members/request-api-key', () => {
-  let POST: (request: Request) => Promise<Response>
+  let POST: (request: NextRequest) => Promise<Response>
   let mockSupabase: {
     auth: { getUser: AnyMock }
     from: AnyMock
@@ -81,7 +82,7 @@ describe('POST /api/members/request-api-key', () => {
   })
 
   const createRequest = () =>
-    new Request('http://localhost/api/members/request-api-key', {
+    new NextRequest('http://localhost/api/members/request-api-key', {
       method: 'POST',
       body: JSON.stringify({ playerId: 'player-123' })
     })
@@ -125,7 +126,7 @@ describe('POST /api/members/request-api-key', () => {
         error: null
       })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/members/request-api-key',
         {
           method: 'POST',
@@ -146,7 +147,7 @@ describe('POST /api/members/request-api-key', () => {
         error: { message: 'Auth error' }
       })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/members/request-api-key',
         {
           method: 'POST',
@@ -227,7 +228,7 @@ describe('POST /api/members/request-api-key', () => {
     })
 
     it('returns 400 when playerId is missing', async () => {
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/members/request-api-key',
         {
           method: 'POST',
@@ -252,7 +253,7 @@ describe('POST /api/members/request-api-key', () => {
         })
       })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/members/request-api-key',
         {
           method: 'POST',
@@ -288,7 +289,7 @@ describe('POST /api/members/request-api-key', () => {
         return {}
       })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/members/request-api-key',
         {
           method: 'POST',
@@ -341,7 +342,7 @@ describe('POST /api/members/request-api-key', () => {
         })
       })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/members/request-api-key',
         {
           method: 'POST',
@@ -396,7 +397,7 @@ describe('POST /api/members/request-api-key', () => {
           json: () => Promise.resolve({ id: 'message-123' })
         })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/members/request-api-key',
         {
           method: 'POST',
@@ -525,7 +526,7 @@ describe('POST /api/members/request-api-key', () => {
         })
       })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/members/request-api-key',
         {
           method: 'POST',
@@ -568,7 +569,7 @@ describe('POST /api/members/request-api-key', () => {
         })
       })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/members/request-api-key',
         {
           method: 'POST',
@@ -620,7 +621,7 @@ describe('POST /api/members/request-api-key', () => {
         json: () => Promise.resolve({ message: 'Cannot send DM' })
       })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/members/request-api-key',
         {
           method: 'POST',
@@ -677,7 +678,7 @@ describe('POST /api/members/request-api-key', () => {
           json: () => Promise.resolve({ message: 'Message failed' })
         })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/members/request-api-key',
         {
           method: 'POST',
@@ -741,7 +742,7 @@ describe('POST /api/members/request-api-key', () => {
           json: () => Promise.resolve({ id: 'message-123' })
         })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/members/request-api-key',
         {
           method: 'POST',
@@ -762,7 +763,7 @@ describe('POST /api/members/request-api-key', () => {
     it('returns 500 on unexpected error', async () => {
       mockSupabase.auth.getUser.mockRejectedValue(new Error('Unexpected error'))
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/members/request-api-key',
         {
           method: 'POST',

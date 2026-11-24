@@ -4,11 +4,11 @@ import { NextRequest } from 'next/server'
 let mockRequireAuth: ReturnType<typeof vi.fn>
 let mockCreateClient: ReturnType<typeof vi.fn>
 let PUT: (
-  request: Request,
+  request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) => Promise<Response>
 let DELETE: (
-  request: Request,
+  request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) => Promise<Response>
 

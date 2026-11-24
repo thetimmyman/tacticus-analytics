@@ -641,12 +641,14 @@ describe('AnnouncementSlot index bookkeeping on a dynamic slide list', () => {
     id: 'a',
     type: 'announcement',
     title: 'First',
+    description: 'First announcement',
     href: '/a'
   }
   const SLIDE_B: NewsItem = {
     id: 'b',
     type: 'announcement',
     title: 'Second',
+    description: 'Second announcement',
     href: '/b'
   }
 

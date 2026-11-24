@@ -237,7 +237,7 @@ describe('user ban mutation lock', () => {
         .mockRejectedValueOnce(new UserBanLockLostError())
         .mockResolvedValue({ data: { lock_id: 'owned' }, error: null })
       const operation = vi.fn(
-        async (leases: Array<{ assertHeld: () => Promise<void> }>) => {
+        async (leases: readonly { assertHeld: () => Promise<void> }[]) => {
           await leases[0]!.assertHeld()
           return 'reconciled'
         }

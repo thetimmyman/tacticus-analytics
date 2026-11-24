@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { NextRequest } from 'next/server'
 
 // Key invariant: DELETE clears only the caller's current mapping row.
 
@@ -10,7 +11,7 @@ let mockGetPlayer: ReturnType<typeof vi.fn>
 
 describe('/api/player-api-key route handlers', () => {
   let GET: () => Promise<Response>
-  let POST: (request: Request) => Promise<Response>
+  let POST: (request: NextRequest) => Promise<Response>
   let DELETE: () => Promise<Response>
 
   let mockSupabase: {
@@ -151,7 +152,7 @@ describe('/api/player-api-key route handlers', () => {
 
   describe('POST', () => {
     const makeRequest = (body: Record<string, unknown>) =>
-      new Request('http://localhost/api/player-api-key', {
+      new NextRequest('http://localhost/api/player-api-key', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)

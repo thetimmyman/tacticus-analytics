@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 import type { Errors as ErrorsType } from '@/app/lib/errors/AppError'
 
 let mockRequireAppAdmin: ReturnType<typeof vi.fn>
@@ -6,7 +7,7 @@ let mockListAppAdmins: ReturnType<typeof vi.fn>
 let Errors: typeof ErrorsType
 
 describe('/api/admin/app-admins', () => {
-  let GET: () => Promise<Response>
+  let GET: (request: NextRequest) => Promise<Response>
 
   beforeEach(async () => {
     vi.resetModules()
@@ -32,7 +33,9 @@ describe('/api/admin/app-admins', () => {
         Errors.forbidden('Admin access required')
       )
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest('http://localhost/api/admin/app-admins')
+      )
 
       expect(response.status).toBe(403)
     })
@@ -41,7 +44,9 @@ describe('/api/admin/app-admins', () => {
       mockRequireAppAdmin.mockResolvedValue({ user_id: 'admin-1' })
       mockListAppAdmins.mockResolvedValue([])
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest('http://localhost/api/admin/app-admins')
+      )
       const body = await response.json()
 
       expect(response.status).toBe(200)
@@ -63,7 +68,9 @@ describe('/api/admin/app-admins', () => {
         }
       ])
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest('http://localhost/api/admin/app-admins')
+      )
       const body = await response.json()
 
       expect(response.status).toBe(200)
@@ -80,7 +87,9 @@ describe('/api/admin/app-admins', () => {
       mockRequireAppAdmin.mockResolvedValue({ user_id: 'admin-1' })
       mockListAppAdmins.mockRejectedValue(Errors.database('DB error'))
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest('http://localhost/api/admin/app-admins')
+      )
 
       expect(response.status).toBe(500)
     })
@@ -88,7 +97,9 @@ describe('/api/admin/app-admins', () => {
     it('returns 500 on unexpected error', async () => {
       mockRequireAppAdmin.mockRejectedValue(new Error('Auth service down'))
 
-      const response = await GET()
+      const response = await GET(
+        new NextRequest('http://localhost/api/admin/app-admins')
+      )
 
       expect(response.status).toBe(500)
     })

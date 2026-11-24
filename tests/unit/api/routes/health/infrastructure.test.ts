@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 
 let mockRunInfrastructureHealthChecks: ReturnType<typeof vi.fn>
 let mockRunSystemHealthChecks: ReturnType<typeof vi.fn>
@@ -7,7 +7,7 @@ let mockRunDockerHealthChecks: ReturnType<typeof vi.fn>
 
 describe('GET /api/health/infrastructure', () => {
   const HEALTH_CHECK_SECRET = 'test-secret-123'
-  let GET: (request: NextRequest) => Promise<NextResponse>
+  let GET: (request: NextRequest) => Promise<Response>
   const originalEnv = process.env.HEALTH_CHECK_SECRET
 
   const makeRequest = (

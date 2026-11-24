@@ -153,8 +153,7 @@ export async function loadTargetTokenRowsForSeason(
 ): Promise<TargetTokenSkipRow[]> {
   try {
     const { data, error } = await supabase
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generated types do not include boss_target_tokens yet
-      .from('boss_target_tokens' as any)
+      .from('boss_target_tokens')
       .select(
         'boss_name, rarity, set, encounter_id, source, seeded_from_seasons, skip, season_number, target_tokens'
       )
@@ -189,8 +188,7 @@ export async function loadSeasonOpsSkipRowsForSeason(
 ): Promise<SeasonOpsSkipRow[]> {
   try {
     const { data, error } = await supabase
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generated types do not include upcoming_season_bosses yet
-      .from('upcoming_season_bosses' as any)
+      .from('upcoming_season_bosses')
       .select('level, sub_bosses')
       .eq('guild_code', guildCode)
       .eq('season_number', season)

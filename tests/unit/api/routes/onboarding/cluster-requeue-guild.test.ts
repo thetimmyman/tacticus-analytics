@@ -34,7 +34,8 @@ const mockResetStatusFields = vi.fn((progress, updates) => ({
 vi.mock('@/app/lib/onboarding/progress', () => ({
   getOrCreateOnboardingProgress: (...args: any[]) =>
     mockGetOrCreateOnboardingProgress(...args),
-  resetStatusFields: (...args: any[]) => mockResetStatusFields(...args)
+  resetStatusFields: (progress: unknown, updates: unknown) =>
+    mockResetStatusFields(progress, updates)
 }))
 
 function createRequest(body: any): NextRequest {

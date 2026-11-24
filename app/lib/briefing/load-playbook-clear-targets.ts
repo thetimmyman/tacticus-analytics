@@ -56,11 +56,8 @@ async function resolvePlaybookClearTargets(
     )
     if (slots.length === 0) return new Map()
 
-    /* eslint-disable @typescript-eslint/no-explicit-any, no-restricted-syntax */
-    const { data: rawTargets } = await (
-      supabase.from('boss_target_tokens' as never) as any
-    )
-      /* eslint-enable @typescript-eslint/no-explicit-any, no-restricted-syntax */
+    const { data: rawTargets } = await supabase
+      .from('boss_target_tokens')
       .select(
         'boss_name, rarity, set, target_tokens, season_number, encounter_id, skip, source, seeded_from_seasons'
       )

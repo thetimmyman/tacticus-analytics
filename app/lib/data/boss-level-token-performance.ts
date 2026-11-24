@@ -179,8 +179,8 @@ export async function getBossLevelTokenPerformance(
         .gt('damageDealt', 0)
         .in('encounterId', [0, 1, 2])
         .order('startedOn', { ascending: false }),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-restricted-syntax
-      (supabase.from('boss_target_tokens' as never) as any)
+      supabase
+        .from('boss_target_tokens')
         .select(
           'boss_name, encounter_id, target_tokens, skip, source, seeded_from_seasons, season_number'
         )

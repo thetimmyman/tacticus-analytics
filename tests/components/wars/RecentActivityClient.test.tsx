@@ -31,7 +31,6 @@ const makeAttempt = (id: string): RecentAttempt => ({
   defender: { name: `Defender ${id}`, guildTag: 'DEF' },
   attackerUnits: [],
   defenderUnits: [],
-  zoneName: 'Outer Reach',
   zoneType: 'Standard',
   score: 1000,
   kills: 1,

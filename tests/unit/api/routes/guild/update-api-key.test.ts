@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { NextRequest } from 'next/server'
 vi.mock('@/app/lib/player-mapping-relations', () => ({
   CURRENT_USER_PLAYER_MAPPING: 'player_mapping'
 }))
@@ -18,7 +19,7 @@ const LEADER_PROFILE = {
 }
 
 describe('POST /api/guild/update-api-key', () => {
-  let POST: (request: Request) => Promise<Response>
+  let POST: (request: NextRequest) => Promise<Response>
   let mockSupabase: {
     auth: { getUser: ReturnType<typeof vi.fn> }
     from: ReturnType<typeof vi.fn>
@@ -191,11 +192,14 @@ describe('POST /api/guild/update-api-key', () => {
         error: { message: 'Not authenticated' }
       })
 
-      const request = new Request('http://localhost/api/guild/update-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST', api_key: 'test-key' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/update-api-key',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST', api_key: 'test-key' })
+        }
+      )
 
       const response = await POST(request)
 
@@ -230,7 +234,7 @@ describe('POST /api/guild/update-api-key', () => {
 
     const post = (body: Record<string, unknown>) =>
       POST(
-        new Request('http://localhost/api/guild/update-api-key', {
+        new NextRequest('http://localhost/api/guild/update-api-key', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body)
@@ -286,11 +290,14 @@ describe('POST /api/guild/update-api-key', () => {
     })
 
     it('returns 400 when guild_code is missing', async () => {
-      const request = new Request('http://localhost/api/guild/update-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ api_key: 'test-key' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/update-api-key',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ api_key: 'test-key' })
+        }
+      )
 
       const response = await POST(request)
 
@@ -298,11 +305,14 @@ describe('POST /api/guild/update-api-key', () => {
     })
 
     it('returns 400 when api_key is missing', async () => {
-      const request = new Request('http://localhost/api/guild/update-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/update-api-key',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST' })
+        }
+      )
 
       const response = await POST(request)
 
@@ -351,11 +361,14 @@ describe('POST /api/guild/update-api-key', () => {
     })
 
     it('clears the stored key and verification trail without Tacticus validation', async () => {
-      const request = new Request('http://localhost/api/guild/update-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST', remove: true })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/update-api-key',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST', remove: true })
+        }
+      )
 
       const response = await POST(request)
 
@@ -376,11 +389,14 @@ describe('POST /api/guild/update-api-key', () => {
     it('fails closed when RLS allows the lookup but updates zero rows', async () => {
       updateSelectSpy.mockResolvedValue({ data: [], error: null })
 
-      const request = new Request('http://localhost/api/guild/update-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST', remove: true })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/update-api-key',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST', remove: true })
+        }
+      )
 
       const response = await POST(request)
       const payload = await response.json()
@@ -391,11 +407,14 @@ describe('POST /api/guild/update-api-key', () => {
     })
 
     it('returns 400 when remove is requested without a guild_code', async () => {
-      const request = new Request('http://localhost/api/guild/update-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ remove: true })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/update-api-key',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ remove: true })
+        }
+      )
 
       const response = await POST(request)
 
@@ -434,11 +453,14 @@ describe('POST /api/guild/update-api-key', () => {
         }
       })
 
-      const request = new Request('http://localhost/api/guild/update-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'NOTFOUND', api_key: 'test-key' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/update-api-key',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'NOTFOUND', api_key: 'test-key' })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -463,11 +485,14 @@ describe('POST /api/guild/update-api-key', () => {
         error: 'API key is invalid'
       })
 
-      const request = new Request('http://localhost/api/guild/update-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST', api_key: 'invalid-key' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/update-api-key',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST', api_key: 'invalid-key' })
+        }
+      )
 
       const response = await POST(request)
 
@@ -485,11 +510,14 @@ describe('POST /api/guild/update-api-key', () => {
         }
       })
 
-      const request = new Request('http://localhost/api/guild/update-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST', api_key: 'valid-key' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/update-api-key',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST', api_key: 'valid-key' })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -507,11 +535,14 @@ describe('POST /api/guild/update-api-key', () => {
         canAccessRaidData: true
       })
 
-      const request = new Request('http://localhost/api/guild/update-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST', api_key: 'valid-key' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/update-api-key',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST', api_key: 'valid-key' })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -541,15 +572,18 @@ describe('POST /api/guild/update-api-key', () => {
         json: async () => ({})
       } as never)
 
-      const request = new Request('http://localhost/api/guild/update-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'TEST',
-          api_key: 'valid-key',
-          api_owner: 'Forged Label'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/update-api-key',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'TEST',
+            api_key: 'valid-key',
+            api_owner: 'Forged Label'
+          })
+        }
+      )
 
       await POST(request)
 
@@ -591,15 +625,18 @@ describe('POST /api/guild/update-api-key', () => {
         json: async () => ({})
       } as never)
 
-      const request = new Request('http://localhost/api/guild/update-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'TEST',
-          api_key: 'valid-key',
-          api_owner: 'Forged Label'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/update-api-key',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'TEST',
+            api_key: 'valid-key',
+            api_owner: 'Forged Label'
+          })
+        }
+      )
 
       await POST(request)
 
@@ -636,11 +673,14 @@ describe('POST /api/guild/update-api-key', () => {
     it('returns 500 when encryption fails', async () => {
       mockEncryptApiKey.mockRejectedValue(new Error('ENCRYPTION_KEY not set'))
 
-      const request = new Request('http://localhost/api/guild/update-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST', api_key: 'valid-key' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/update-api-key',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST', api_key: 'valid-key' })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -675,11 +715,14 @@ describe('POST /api/guild/update-api-key', () => {
         updateError: { code: '42501', message: 'Permission denied' }
       })
 
-      const request = new Request('http://localhost/api/guild/update-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST', api_key: 'valid-key' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/update-api-key',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST', api_key: 'valid-key' })
+        }
+      )
 
       const response = await POST(request)
 
@@ -689,11 +732,14 @@ describe('POST /api/guild/update-api-key', () => {
     it('returns 404 when no rows are updated', async () => {
       mockGuildUpdateQueries({ updateData: [] })
 
-      const request = new Request('http://localhost/api/guild/update-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST', api_key: 'valid-key' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/update-api-key',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST', api_key: 'valid-key' })
+        }
+      )
 
       const response = await POST(request)
 
@@ -707,15 +753,18 @@ describe('POST /api/guild/update-api-key', () => {
         json: async () => ({ success: true })
       })
 
-      const request = new Request('http://localhost/api/guild/update-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'TEST',
-          api_key: 'valid-key',
-          api_owner: 'New Owner'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/update-api-key',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'TEST',
+            api_key: 'valid-key',
+            api_owner: 'New Owner'
+          })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -745,15 +794,18 @@ describe('POST /api/guild/update-api-key', () => {
           })
       )
 
-      const request = new Request('http://localhost/api/guild/update-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'TEST',
-          api_key: 'valid-key',
-          api_owner: 'New Owner'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/update-api-key',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'TEST',
+            api_key: 'valid-key',
+            api_owner: 'New Owner'
+          })
+        }
+      )
 
       const responsePromise = POST(request)
 
@@ -784,15 +836,18 @@ describe('POST /api/guild/update-api-key', () => {
         json: async () => ({ success: true })
       })
 
-      const request = new Request('http://localhost/api/guild/update-api-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guild_code: 'TEST',
-          api_key: 'valid-key',
-          api_owner: 'New Owner'
-        })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/update-api-key',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guild_code: 'TEST',
+            api_key: 'valid-key',
+            api_owner: 'New Owner'
+          })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()

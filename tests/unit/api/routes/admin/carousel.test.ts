@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server'
 let mockRequireAuth: ReturnType<typeof vi.fn>
 let mockCreateClient: ReturnType<typeof vi.fn>
 let GET: (request: NextRequest) => Promise<Response>
-let POST: (request: Request) => Promise<Response>
+let POST: (request: NextRequest) => Promise<Response>
 
 describe('/api/admin/carousel', () => {
   let mockSupabase: {

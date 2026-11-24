@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import type { NextResponse } from 'next/server'
 
 const dbMock = vi.hoisted(() => vi.fn())
@@ -194,7 +195,7 @@ const createSupabaseMock = (result: SupabaseSelectResult) => {
 describe('GET /api/health', () => {
   // Full payload needs the HEALTH_CHECK_SECRET bearer; anonymous callers get a projection.
   const makeRequest = () =>
-    new Request('http://localhost/api/health', {
+    new NextRequest('http://localhost/api/health', {
       headers: { authorization: 'Bearer test-health-secret' }
     })
 
@@ -243,7 +244,7 @@ describe('GET /api/health', () => {
 
     const { GET } = await import('@/app/api/health/route')
     const response = (await GET(
-      new Request('http://localhost/api/health')
+      new NextRequest('http://localhost/api/health')
     )) as NextResponse
     expect(response.status).toBe(200)
 

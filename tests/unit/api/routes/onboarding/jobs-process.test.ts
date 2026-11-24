@@ -26,7 +26,8 @@ const mockResetStatusFields = vi.fn((progress, updates) => ({
   ...updates
 }))
 vi.mock('@/app/lib/onboarding/progress', () => ({
-  resetStatusFields: (...args: any[]) => mockResetStatusFields(...args)
+  resetStatusFields: (progress: unknown, updates: unknown) =>
+    mockResetStatusFields(progress, updates)
 }))
 
 // `null` omits the token, a string overrides it.

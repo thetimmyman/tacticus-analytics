@@ -19,6 +19,15 @@ import {
   type GuildRaidApiResponse
 } from '@/app/lib/sync/transformers'
 
+// processRaidEntry returns null for invalid entries; the valid-entry tests below
+// assert on the shape, so unwrap once to keep those assertions type-safe.
+const unwrapEntry = (
+  result: ReturnType<typeof processRaidEntry>
+): NonNullable<ReturnType<typeof processRaidEntry>> => {
+  if (result === null) throw new Error('processRaidEntry returned null')
+  return result
+}
+
 describe('normalizeAppRole', () => {
   it('returns "member" for null/undefined', () => {
     expect(normalizeAppRole(null)).toBe('member')
@@ -415,14 +424,16 @@ describe('processRaidEntry', () => {
       rarity: 'Epic'
     }
 
-    const result = processRaidEntry(
-      entry,
-      'TESTGUILD',
-      '100',
-      playerMappings,
-      baseMappings,
-      null,
-      null
+    const result = unwrapEntry(
+      processRaidEntry(
+        entry,
+        'TESTGUILD',
+        '100',
+        playerMappings,
+        baseMappings,
+        null,
+        null
+      )
     )
 
     expect(result.Guild).toBe('TESTGUILD')
@@ -442,14 +453,16 @@ describe('processRaidEntry', () => {
       damageDealt: 100000
     }
 
-    const result = processRaidEntry(
-      entry,
-      'GUILD',
-      '100',
-      playerMappings,
-      baseMappings,
-      null,
-      null
+    const result = unwrapEntry(
+      processRaidEntry(
+        entry,
+        'GUILD',
+        '100',
+        playerMappings,
+        baseMappings,
+        null,
+        null
+      )
     )
 
     expect(result.Name).toBe('Szarekh Prime 1')
@@ -462,14 +475,16 @@ describe('processRaidEntry', () => {
       encounterIndex: 5
     }
 
-    const result = processRaidEntry(
-      entry,
-      'GUILD',
-      '100',
-      playerMappings,
-      baseMappings,
-      null,
-      null
+    const result = unwrapEntry(
+      processRaidEntry(
+        entry,
+        'GUILD',
+        '100',
+        playerMappings,
+        baseMappings,
+        null,
+        null
+      )
     )
 
     expect(result.Name).toBe('Szarekh Prime 5')
@@ -483,14 +498,8 @@ describe('processRaidEntry', () => {
       damageType: 'Bomb'
     }
 
-    const result = processRaidEntry(
-      entry,
-      'GUILD',
-      '100',
-      playerMappings,
-      {},
-      null,
-      null
+    const result = unwrapEntry(
+      processRaidEntry(entry, 'GUILD', '100', playerMappings, {}, null, null)
     )
 
     expect(result.damageType).toBe('Bomb')
@@ -503,14 +512,8 @@ describe('processRaidEntry', () => {
       encounterIndex: 0
     }
 
-    const result = processRaidEntry(
-      entry,
-      'GUILD',
-      '100',
-      playerMappings,
-      {},
-      null,
-      null
+    const result = unwrapEntry(
+      processRaidEntry(entry, 'GUILD', '100', playerMappings, {}, null, null)
     )
 
     expect(result.damageType).toBe('Battle')
@@ -523,14 +526,8 @@ describe('processRaidEntry', () => {
       encounterIndex: 0
     }
 
-    const result = processRaidEntry(
-      entry,
-      'GUILD',
-      '100',
-      new Map(),
-      {},
-      null,
-      null
+    const result = unwrapEntry(
+      processRaidEntry(entry, 'GUILD', '100', new Map(), {}, null, null)
     )
 
     expect(result.displayName).toBe('Player#UNKNOW')
@@ -545,14 +542,8 @@ describe('processRaidEntry', () => {
       encounterIndex: 0
     }
 
-    const result = processRaidEntry(
-      entry,
-      'GUILD',
-      '100',
-      new Map(),
-      {},
-      null,
-      null
+    const result = unwrapEntry(
+      processRaidEntry(entry, 'GUILD', '100', new Map(), {}, null, null)
     )
 
     expect(result.displayName).toBe('RealUpstreamName')
@@ -566,14 +557,8 @@ describe('processRaidEntry', () => {
       encounterIndex: 0
     }
 
-    const result = processRaidEntry(
-      entry,
-      'GUILD',
-      '100',
-      playerMappings,
-      {},
-      null,
-      null
+    const result = unwrapEntry(
+      processRaidEntry(entry, 'GUILD', '100', playerMappings, {}, null, null)
     )
 
     expect(result.displayName).toBe('TestPlayer')
@@ -588,14 +573,8 @@ describe('processRaidEntry', () => {
       encounterIndex: 0
     }
 
-    const result = processRaidEntry(
-      entry,
-      'GUILD',
-      '100',
-      new Map(),
-      {},
-      null,
-      null
+    const result = unwrapEntry(
+      processRaidEntry(entry, 'GUILD', '100', new Map(), {}, null, null)
     )
 
     expect(result.displayName).toBe('Player#ALIASP')
@@ -609,14 +588,16 @@ describe('processRaidEntry', () => {
       encounterIndex: 0
     }
 
-    const result = processRaidEntry(
-      entry,
-      'GUILD',
-      '100',
-      playerMappings,
-      {},
-      'EOT',
-      'cluster-123'
+    const result = unwrapEntry(
+      processRaidEntry(
+        entry,
+        'GUILD',
+        '100',
+        playerMappings,
+        {},
+        'EOT',
+        'cluster-123'
+      )
     )
 
     expect(result.cluster_code).toBe('EOT')
@@ -633,14 +614,8 @@ describe('processRaidEntry', () => {
       completedOn: '2026-05-06T10:18:08.993Z'
     }
 
-    const result = processRaidEntry(
-      entry,
-      'GUILD',
-      '100',
-      playerMappings,
-      {},
-      null,
-      null
+    const result = unwrapEntry(
+      processRaidEntry(entry, 'GUILD', '100', playerMappings, {}, null, null)
     )
 
     expect(result.startedOn).toBe('2026-05-06T10:18:07.000Z')
@@ -654,14 +629,16 @@ describe('processRaidEntry', () => {
       encounterIndex: 0
     }
 
-    const result = processRaidEntry(
-      entry,
-      'GUILD',
-      '100',
-      playerMappings,
-      {},
-      'null',
-      'undefined'
+    const result = unwrapEntry(
+      processRaidEntry(
+        entry,
+        'GUILD',
+        '100',
+        playerMappings,
+        {},
+        'null',
+        'undefined'
+      )
     )
 
     expect(result.cluster_code).toBeNull()
@@ -677,14 +654,8 @@ describe('processRaidEntry', () => {
       rarity: 'Legendary'
     }
 
-    const result = processRaidEntry(
-      entry,
-      'GUILD',
-      '100',
-      playerMappings,
-      {},
-      null,
-      null
+    const result = unwrapEntry(
+      processRaidEntry(entry, 'GUILD', '100', playerMappings, {}, null, null)
     )
 
     expect(result.rarity).toBe('Mythic')

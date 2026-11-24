@@ -123,13 +123,13 @@ function makeMove(overrides: Partial<NextMove> = {}): NextMove {
     confidence: 'high',
     reasonCodes: ['main_alive', 'no_token'],
     basis: ['Current loop snapshot'],
+    sourceTimestamps: {},
     target: {
       name: 'Mortarion',
       displayName: 'Mortarion',
       levelCode: 'L5',
       encounterId: 0,
-      hpPercentage: 64,
-      remainingHp: 1200000
+      hpPercentage: 64
     },
     primaryAction: {
       label: 'Open playbook',
@@ -146,6 +146,7 @@ function makePrimeTarget(overrides: Partial<PrimeTarget> = {}): PrimeTarget {
     displayName: 'Mantis Warrior',
     levelCode: 'L5',
     hpPercentage: 80,
+    remainingHp: null,
     behaviour: 'kill',
     thresholdHpPct: null,
     ...overrides
@@ -288,8 +289,7 @@ describe('DOM translation resilience for home and dashboard components', () => {
             displayName: 'Mortarion',
             levelCode: 'L5',
             encounterId: 1,
-            hpPercentage: 30,
-            remainingHp: 400000
+            hpPercentage: 30
           }
         })}
       />
@@ -390,6 +390,12 @@ describe('DOM translation resilience for home and dashboard components', () => {
     }
 
     const outlookOne: SeasonOutlookProjection = {
+      guildCode: 'TEST',
+      season: 100,
+      generatedAt: '2026-01-01T00:00:00Z',
+      memberCount: 10,
+      seasonMaxTokensPerPlayer: 20,
+      projectedForwardSpend: 40,
       confidence: 'medium',
       secondsRemaining: 172800,
       tokensUsed: 120,
@@ -398,9 +404,11 @@ describe('DOM translation resilience for home and dashboard components', () => {
       projectedWaste: 2,
       playersAtCapRisk: 1,
       finish: {
+        stageCode: 'L5',
         loopIndex: 2,
         bossName: 'Mortarion',
-        pctIntoFinalStage: 0.4
+        pctIntoFinalStage: 0.4,
+        bossesDefeatedForward: 0
       }
     }
 
@@ -418,9 +426,11 @@ describe('DOM translation resilience for home and dashboard components', () => {
       ...outlookOne,
       playersAtCapRisk: 3,
       finish: {
+        stageCode: 'L5',
         loopIndex: 4,
         bossName: 'Szarekh',
-        pctIntoFinalStage: 0.65
+        pctIntoFinalStage: 0.65,
+        bossesDefeatedForward: 8
       }
     }
 
@@ -450,6 +460,8 @@ describe('DOM translation resilience for home and dashboard components', () => {
           yourTarget: 190000,
           guildAvg: 185000,
           vsTargetPct: 5,
+          vsGuildPct: null,
+          battleCount: 0,
           targetSource: 'playbook'
         }
       ]

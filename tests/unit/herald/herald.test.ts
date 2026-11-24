@@ -14,6 +14,10 @@ import {
   type HeraldBossConfigRow
 } from '@/app/lib/herald/engine'
 import { postToWebhook } from '@/app/lib/discord/webhook-service'
+import type {
+  HeraldChannel,
+  HeraldRoleMappingRow
+} from '@/app/lib/herald/config'
 
 vi.mock('@/app/lib/discord/webhook-service', () => ({
   postToWebhook: vi.fn(async () => ({
@@ -72,6 +76,21 @@ const bossConfig = (
   side2_threshold_hp_pct: null,
   ping_mode: 'per_side',
   ping_mode_explicit: false,
+  ...overrides
+})
+
+// Guild-wide catch-all mapping row: tests override only the fields they assert on.
+const roleRow = (
+  overrides: Partial<HeraldRoleMappingRow> &
+    Pick<HeraldRoleMappingRow, 'discord_role_id'>
+): HeraldRoleMappingRow => ({
+  active_boss_ids: null,
+  rarity_set: null,
+  meta_team_slug: null,
+  display_label: null,
+  prime_scope: 'all',
+  track_only: false,
+  custom_message_only: false,
   ...overrides
 })
 
@@ -544,7 +563,12 @@ describe('filterRoleIdsForBoss', () => {
 
   it('includes mappings with null active_boss_ids (all-bosses default)', () => {
     const result = __testing.filterRoleIdsForBoss(
-      [{ discord_role_id: '111111111111111111', active_boss_ids: null }],
+      [
+        roleRow({
+          discord_role_id: '111111111111111111',
+          active_boss_ids: null
+        })
+      ],
       bossA
     )
     expect(result).toEqual(['111111111111111111'])
@@ -552,7 +576,7 @@ describe('filterRoleIdsForBoss', () => {
 
   it('excludes mappings with empty active_boss_ids', () => {
     const result = __testing.filterRoleIdsForBoss(
-      [{ discord_role_id: '111111111111111111', active_boss_ids: [] }],
+      [roleRow({ discord_role_id: '111111111111111111', active_boss_ids: [] })],
       bossA
     )
     expect(result).toEqual([])
@@ -561,11 +585,14 @@ describe('filterRoleIdsForBoss', () => {
   it('includes mappings whose active_boss_ids contains the target boss', () => {
     const result = __testing.filterRoleIdsForBoss(
       [
-        {
+        roleRow({
           discord_role_id: '111111111111111111',
           active_boss_ids: [bossA, bossB]
-        },
-        { discord_role_id: '222222222222222222', active_boss_ids: [bossB] }
+        }),
+        roleRow({
+          discord_role_id: '222222222222222222',
+          active_boss_ids: [bossB]
+        })
       ],
       bossA
     )
@@ -575,9 +602,18 @@ describe('filterRoleIdsForBoss', () => {
   it('mixes null-scope and specific-scope mappings correctly', () => {
     const result = __testing.filterRoleIdsForBoss(
       [
-        { discord_role_id: '111111111111111111', active_boss_ids: null }, // all
-        { discord_role_id: '222222222222222222', active_boss_ids: [bossB] }, // other boss
-        { discord_role_id: '333333333333333333', active_boss_ids: [bossA] } // this boss
+        roleRow({
+          discord_role_id: '111111111111111111',
+          active_boss_ids: null
+        }), // all
+        roleRow({
+          discord_role_id: '222222222222222222',
+          active_boss_ids: [bossB]
+        }), // other boss
+        roleRow({
+          discord_role_id: '333333333333333333',
+          active_boss_ids: [bossA]
+        }) // this boss
       ],
       bossA
     )
@@ -587,8 +623,14 @@ describe('filterRoleIdsForBoss', () => {
   it('deduplicates identical role IDs across multiple mappings', () => {
     const result = __testing.filterRoleIdsForBoss(
       [
-        { discord_role_id: '111111111111111111', active_boss_ids: null },
-        { discord_role_id: '111111111111111111', active_boss_ids: [bossA] }
+        roleRow({
+          discord_role_id: '111111111111111111',
+          active_boss_ids: null
+        }),
+        roleRow({
+          discord_role_id: '111111111111111111',
+          active_boss_ids: [bossA]
+        })
       ],
       bossA
     )
@@ -597,7 +639,12 @@ describe('filterRoleIdsForBoss', () => {
 
   it('returns empty array when no mappings match', () => {
     const result = __testing.filterRoleIdsForBoss(
-      [{ discord_role_id: '111111111111111111', active_boss_ids: [bossB] }],
+      [
+        roleRow({
+          discord_role_id: '111111111111111111',
+          active_boss_ids: [bossB]
+        })
+      ],
       bossA
     )
     expect(result).toEqual([])
@@ -607,12 +654,12 @@ describe('filterRoleIdsForBoss', () => {
     it('uses the catch-all (rarity_set IS NULL) row when no per-stage row exists', () => {
       const result = __testing.filterRoleIdsForBoss(
         [
-          {
+          roleRow({
             discord_role_id: '111111111111111111',
             active_boss_ids: null,
             meta_team_slug: 'admech',
             rarity_set: null
-          }
+          })
         ],
         bossA,
         'L4'
@@ -623,18 +670,18 @@ describe('filterRoleIdsForBoss', () => {
     it('per-stage row beats catch-all for the same meta_team_slug', () => {
       const result = __testing.filterRoleIdsForBoss(
         [
-          {
+          roleRow({
             discord_role_id: '111111111111111111',
             active_boss_ids: null,
             meta_team_slug: 'admech',
             rarity_set: null
-          },
-          {
+          }),
+          roleRow({
             discord_role_id: '222222222222222222',
             active_boss_ids: null,
             meta_team_slug: 'admech',
             rarity_set: 'L4'
-          }
+          })
         ],
         bossA,
         'L4'
@@ -645,18 +692,18 @@ describe('filterRoleIdsForBoss', () => {
     it('per-stage row for a DIFFERENT stage does not shadow the catch-all', () => {
       const result = __testing.filterRoleIdsForBoss(
         [
-          {
+          roleRow({
             discord_role_id: '111111111111111111',
             active_boss_ids: null,
             meta_team_slug: 'admech',
             rarity_set: null
-          },
-          {
+          }),
+          roleRow({
             discord_role_id: '222222222222222222',
             active_boss_ids: null,
             meta_team_slug: 'admech',
             rarity_set: 'M2'
-          }
+          })
         ],
         bossA,
         'L4'
@@ -667,18 +714,18 @@ describe('filterRoleIdsForBoss', () => {
     it('precedence is per meta_team_slug — different slugs resolve independently', () => {
       const result = __testing.filterRoleIdsForBoss(
         [
-          {
+          roleRow({
             discord_role_id: '111111111111111111',
             active_boss_ids: null,
             meta_team_slug: 'admech',
             rarity_set: null
-          },
-          {
+          }),
+          roleRow({
             discord_role_id: '222222222222222222',
             active_boss_ids: null,
             meta_team_slug: 'custodes',
             rarity_set: 'L4'
-          }
+          })
         ],
         bossA,
         'L4'
@@ -691,12 +738,12 @@ describe('filterRoleIdsForBoss', () => {
     it('per-stage row still honors active_boss_ids filter', () => {
       const result = __testing.filterRoleIdsForBoss(
         [
-          {
+          roleRow({
             discord_role_id: '111111111111111111',
             active_boss_ids: [bossB],
             meta_team_slug: 'admech',
             rarity_set: 'L4'
-          }
+          })
         ],
         bossA,
         'L4'
@@ -835,8 +882,12 @@ describe('normalizeCompletedOn', () => {
 
 describe('postHeraldEvent', () => {
   const transition = detectDefeatTransitions([kill()], { nowMs: NOW_MS })[0]
-  const singleChannel = [
-    { webhookId: null, webhookUrl: 'https://discord.com/api/webhooks/1/token' }
+  const singleChannel: HeraldChannel[] = [
+    {
+      webhookId: null,
+      webhookUrl: 'https://discord.com/api/webhooks/1/token',
+      threadId: null
+    }
   ]
 
   const makeSupabaseMock = (overrides: {
@@ -1005,14 +1056,16 @@ describe('postHeraldEvent', () => {
 
   it('keeps the dedup claim on PARTIAL fanout failure (no duplicate on the successful channel)', async () => {
     const { supabase, deleteEq } = makeSupabaseMock({})
-    const twoChannels = [
+    const twoChannels: HeraldChannel[] = [
       {
         webhookId: 'wh-1',
-        webhookUrl: 'https://discord.com/api/webhooks/1/token'
+        webhookUrl: 'https://discord.com/api/webhooks/1/token',
+        threadId: null
       },
       {
         webhookId: 'wh-2',
-        webhookUrl: 'https://discord.com/api/webhooks/2/token'
+        webhookUrl: 'https://discord.com/api/webhooks/2/token',
+        threadId: null
       }
     ]
     vi.mocked(postToWebhook).mockResolvedValueOnce({
@@ -1062,10 +1115,11 @@ describe('postHeraldAvailabilityEvent — snapshot-claim rollback', () => {
     season: 42,
     loop_index: 0
   }
-  const singleChannel = [
+  const singleChannel: HeraldChannel[] = [
     {
       webhookId: 'wh-a',
-      webhookUrl: 'https://discord.com/api/webhooks/1/token'
+      webhookUrl: 'https://discord.com/api/webhooks/1/token',
+      threadId: null
     }
   ]
 
@@ -1385,7 +1439,12 @@ describe('resolveRoleIdsForTransition', () => {
     })
     const result = __testing.resolveRoleIdsForTransition(
       config,
-      [{ discord_role_id: '999999999999999999', active_boss_ids: null }],
+      [
+        roleRow({
+          discord_role_id: '999999999999999999',
+          active_boss_ids: null
+        })
+      ],
       'Ghazghkull_E0'
     )
     expect(result).toEqual(['111111111111111111', '222222222222222222'])
@@ -1398,7 +1457,12 @@ describe('resolveRoleIdsForTransition', () => {
     })
     const result = __testing.resolveRoleIdsForTransition(
       config,
-      [{ discord_role_id: '999999999999999999', active_boss_ids: null }],
+      [
+        roleRow({
+          discord_role_id: '999999999999999999',
+          active_boss_ids: null
+        })
+      ],
       'Ghazghkull_E0'
     )
     expect(result).toEqual(['999999999999999999'])
@@ -1411,7 +1475,12 @@ describe('resolveRoleIdsForTransition', () => {
     })
     const result = __testing.resolveRoleIdsForTransition(
       config,
-      [{ discord_role_id: '999999999999999999', active_boss_ids: null }],
+      [
+        roleRow({
+          discord_role_id: '999999999999999999',
+          active_boss_ids: null
+        })
+      ],
       'Ghazghkull_E0'
     )
     expect(result).toEqual(['111111111111111111'])
@@ -2025,11 +2094,11 @@ describe('runHeraldForSync — bomb range', () => {
     const inserts: Record<string, unknown[]> = {}
     const query = (
       payload: {
-        data: Record<string, unknown> | null
+        data: unknown
         error: Record<string, unknown> | null
       },
       maybeSinglePayload: {
-        data: Record<string, unknown> | null
+        data: unknown
         error: Record<string, unknown> | null
       } = payload
     ) => {
@@ -2049,7 +2118,7 @@ describe('runHeraldForSync — bomb range', () => {
       proxy.maybeSingle = vi.fn(() => Promise.resolve(maybeSinglePayload))
       proxy.then = (
         resolve: (value: {
-          data: Record<string, unknown> | null
+          data: unknown
           error: Record<string, unknown> | null
         }) => unknown,
         reject: (reason?: unknown) => unknown
@@ -2402,7 +2471,8 @@ describe('formatAvailabilityMessage', () => {
     tier: 5,
     set: 2,
     encounter_index: 0,
-    season: 99
+    season: 99,
+    loop_index: 0
   }
 
   it('renders title + stage code detail line', () => {
@@ -2606,7 +2676,8 @@ describe('formatAvailabilityEmbed', () => {
     tier: 5,
     set: 2,
     encounter_index: 0,
-    season: 99
+    season: 99,
+    loop_index: 0
   }
 
   it('renders an embed with title, description, and color for Legendary', () => {
@@ -2727,7 +2798,8 @@ describe('formatAvailabilityCompactMessage', () => {
     tier: 5,
     set: 2,
     encounter_index: 0,
-    season: 99
+    season: 99,
+    loop_index: 0
   }
 
   it('renders a single string with title + stage code; omits Links when there are no extras', () => {
@@ -2846,7 +2918,8 @@ describe('formatAvailabilityEmbed with emoji resolver', () => {
     tier: 5,
     set: 1,
     encounter_index: 0,
-    season: 101
+    season: 101,
+    loop_index: 0
   }
 
   it('resolves shortcodes inside the officer note before truncation', () => {
@@ -2892,7 +2965,8 @@ describe('formatAvailabilityCompactMessage with emoji resolver', () => {
     tier: 5,
     set: 1,
     encounter_index: 0,
-    season: 101
+    season: 101,
+    loop_index: 0
   }
 
   it('resolves shortcodes in note and customDescription', () => {
@@ -2988,27 +3062,27 @@ describe('loadHeroEmojiMap', () => {
 
 describe('pingedMetaTeamNamesForBoss', () => {
   const baseMappings = [
-    {
+    roleRow({
       discord_role_id: '111111111111111111',
       active_boss_ids: null,
       rarity_set: null,
       meta_team_slug: 'Admech',
       display_label: null
-    },
-    {
+    }),
+    roleRow({
       discord_role_id: '222222222222222222',
       active_boss_ids: null,
       rarity_set: null,
       meta_team_slug: 'Battlesuits',
       display_label: null
-    },
-    {
+    }),
+    roleRow({
       discord_role_id: '333333333333333333',
       active_boss_ids: null,
       rarity_set: 'L4',
       meta_team_slug: 'Admech',
       display_label: null
-    }
+    })
   ]
 
   it('returns empty when no roles are pinged', () => {
@@ -3051,13 +3125,13 @@ describe('pingedMetaTeamNamesForBoss', () => {
 
   it("respects active_boss_ids scope — drops teams that don't apply to this boss", () => {
     const scoped = [
-      {
+      roleRow({
         discord_role_id: '999999999999999999',
         active_boss_ids: ['Magnus_E1'],
         rarity_set: null,
         meta_team_slug: 'Specialist',
         display_label: null
-      }
+      })
     ]
     const onScopeBoss = __testing.pingedMetaTeamNamesForBoss(
       scoped,
@@ -3078,20 +3152,20 @@ describe('pingedMetaTeamNamesForBoss', () => {
 
   it('drops mappings with null/empty meta_team_slug or discord_role_id', () => {
     const messy = [
-      {
+      roleRow({
         discord_role_id: '',
         active_boss_ids: null,
         rarity_set: null,
         meta_team_slug: 'Admech',
         display_label: null
-      },
-      {
+      }),
+      roleRow({
         discord_role_id: '111',
         active_boss_ids: null,
         rarity_set: null,
         meta_team_slug: null,
         display_label: null
-      }
+      })
     ]
     const out = __testing.pingedMetaTeamNamesForBoss(messy, 'Magnus_E0', null, [
       '111',

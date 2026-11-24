@@ -300,7 +300,11 @@ describe('MobileNav', () => {
         userAccessLevels={{
           max_access_level: 'beta',
           is_app_admin: false,
-          is_admin: false
+          is_admin: false,
+          is_alpha_tester: false,
+          has_premium: false,
+          cluster_code: null,
+          guild_code: null
         }}
         featureReleaseStages={{ '/meta-atlas': 'beta' }}
       />

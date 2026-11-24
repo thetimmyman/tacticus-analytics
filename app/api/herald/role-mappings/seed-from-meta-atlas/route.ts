@@ -149,8 +149,7 @@ export const POST = withErrorHandler(async (req: NextRequest) => {
     updated_at: new Date().toISOString()
   }))
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error: insertError } = await (adminDb as any)
+  const { error: insertError } = await adminDb
     .from('herald_meta_role_mapping')
     .insert(rows)
   if (insertError) {

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 
 let mockDb: ReturnType<typeof vi.fn>
 let mockRequireGuildMember: ReturnType<typeof vi.fn>
@@ -113,7 +114,7 @@ describe('GET /api/herald/config-versions', () => {
 
     const mod = await import('@/app/api/herald/config-versions/route')
     const response = await mod.GET(
-      new Request(
+      new NextRequest(
         'http://localhost/api/herald/config-versions?guild_code=GUILD1&list=1'
       )
     )
@@ -153,7 +154,7 @@ describe('GET /api/herald/config-versions', () => {
 
     const mod = await import('@/app/api/herald/config-versions/route')
     const response = await mod.GET(
-      new Request(
+      new NextRequest(
         'http://localhost/api/herald/config-versions?guild_code=GUILD1&list=1'
       )
     )
@@ -172,7 +173,7 @@ describe('GET /api/herald/config-versions', () => {
 
     const mod = await import('@/app/api/herald/config-versions/route')
     const response = await mod.POST(
-      new Request('http://localhost/api/herald/config-versions', {
+      new NextRequest('http://localhost/api/herald/config-versions', {
         method: 'POST',
         body: JSON.stringify({
           guild_code: 'GUILD1',

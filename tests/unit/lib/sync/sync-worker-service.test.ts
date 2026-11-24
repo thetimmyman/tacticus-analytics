@@ -41,17 +41,19 @@ vi.mock('@/app/lib/sync/post-sync-hooks', () => ({
   checkSeasonCoverage: vi.fn().mockResolvedValue(undefined)
 }))
 
-const mockExtractEntries = vi.fn(() => [])
-const mockSanitizeRaidEntries = vi.fn((entries: readonly unknown[]) => ({
-  sanitized: entries,
+const mockExtractEntries = vi.fn(
+  (..._args: readonly unknown[]) => [] as unknown[]
+)
+const mockSanitizeRaidEntries = vi.fn((...args: readonly unknown[]) => ({
+  sanitized: args[0],
   dropped: 0
 }))
-const mockProcessRaidEntry = vi.fn((_entry, guild, season) => ({
-  Guild: guild,
-  Season: season,
+const mockProcessRaidEntry = vi.fn((...args: readonly unknown[]) => ({
+  Guild: args[1],
+  Season: args[2],
   Name: 'player1'
 }))
-const mockFilterProcessedData = vi.fn((entries: readonly unknown[]) => entries)
+const mockFilterProcessedData = vi.fn((...args: readonly unknown[]) => args[0])
 
 // Partial mock: the display-name dedup suffix is a join key, so it stays real.
 vi.mock('@/app/lib/sync/transformers', async (importOriginal) => ({
@@ -143,6 +145,15 @@ type TableCall = {
   table: string
   operation: string
   args: readonly unknown[]
+}
+
+// Array.prototype.findLastIndex is ES2023; the tests lib target is ES2022.
+function findLastCallIndex(
+  calls: TableCall[],
+  predicate: (call: TableCall) => boolean
+): number {
+  for (let i = calls.length - 1; i >= 0; i--) if (predicate(calls[i])) return i
+  return -1
 }
 
 function buildRecordingFromMock(
@@ -277,15 +288,18 @@ describe('processJob', () => {
     })
     mockExtractEntries.mockReturnValue([])
     mockSanitizeRaidEntries.mockImplementation(
-      (entries: readonly unknown[]) => ({ sanitized: entries, dropped: 0 })
+      (...args: readonly unknown[]) => ({
+        sanitized: args[0],
+        dropped: 0
+      })
     )
-    mockProcessRaidEntry.mockImplementation((_entry, guild, season) => ({
-      Guild: guild,
-      Season: season,
+    mockProcessRaidEntry.mockImplementation((...args: readonly unknown[]) => ({
+      Guild: args[1],
+      Season: args[2],
       Name: 'player1'
     }))
     mockFilterProcessedData.mockImplementation(
-      (entries: readonly unknown[]) => entries
+      (...args: readonly unknown[]) => args[0]
     )
   })
 
@@ -638,7 +652,8 @@ describe('processJob', () => {
     const lockInsert = recording.calls.find(
       (call) => call.table === 'execution_locks' && call.operation === 'insert'
     )
-    const lockReleaseIndex = recording.calls.findLastIndex(
+    const lockReleaseIndex = findLastCallIndex(
+      recording.calls,
       (call) => call.table === 'execution_locks' && call.operation === 'delete'
     )
     const raidDeleteIndex = recording.calls.findIndex(
@@ -770,7 +785,8 @@ describe('processJob', () => {
     }
     const result = await processJob(job, supabase, 'worker-a')
 
-    const lockReleaseIndex = recording.calls.findLastIndex(
+    const lockReleaseIndex = findLastCallIndex(
+      recording.calls,
       (call) => call.table === 'execution_locks' && call.operation === 'delete'
     )
     const failJobCall = rpc.calls['fail_job']?.[0]

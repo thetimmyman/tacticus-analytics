@@ -114,12 +114,12 @@ describe('getUnitCatalog', () => {
     const { getUnitCatalog } = await importFresh()
     const catalog = await getUnitCatalog('/repo')
 
-    expect(catalog.aliases.get('tigurius')).toBe('tigurius')
-    expect(catalog.aliases.get('abaddonthedespoiler')).toBe('abaddon')
-    expect(catalog.aliases.get('malleusrocketlauncher')).toBe(
+    expect(catalog.aliases?.get('tigurius')).toBe('tigurius')
+    expect(catalog.aliases?.get('abaddonthedespoiler')).toBe('abaddon')
+    expect(catalog.aliases?.get('malleusrocketlauncher')).toBe(
       'malleus-rocket-launcher'
     )
-    expect(catalog.aliases.has('inceptor')).toBe(false)
+    expect(catalog.aliases?.has('inceptor')).toBe(false)
   })
 })
 

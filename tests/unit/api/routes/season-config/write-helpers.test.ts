@@ -233,14 +233,12 @@ describe('season config write helpers', () => {
       existingRow: null
     })
 
+    // Route inputs carry sub_index beyond the base shape; keep it off the literal.
+    const input = { ...baseInput, sub_index: 2, kill_threshold_pct: 25 }
     await mergeSeasonConfigSubBossPatch({
       supabase,
       selectedBy: 'user-123',
-      input: {
-        ...baseInput,
-        sub_index: 2,
-        kill_threshold_pct: 25
-      },
+      input,
       patch: { sub2_kill_threshold_pct: 25 },
       endpoint: '/api/season-config/kill-threshold',
       lookupFailureMessage: 'lookup failed',

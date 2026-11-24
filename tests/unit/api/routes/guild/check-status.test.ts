@@ -1,11 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 
 let mockCreateServiceClient: ReturnType<typeof vi.fn>
 let mockGuildConfigGetFull: ReturnType<typeof vi.fn>
 let mockRequireAuthForApi: ReturnType<typeof vi.fn>
 
 describe('GET /api/guild/check-status', () => {
-  let GET: (request: Request) => Promise<Response>
+  let GET: (request: NextRequest) => Promise<Response>
   let mockSupabase: {
     from: ReturnType<typeof vi.fn>
   }
@@ -59,7 +60,7 @@ describe('GET /api/guild/check-status', () => {
         new AuthError('Authentication required', 'UNAUTHENTICATED')
       )
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/guild/check-status?guild_code=TEST'
       )
 
@@ -74,7 +75,7 @@ describe('GET /api/guild/check-status', () => {
 
   describe('validation', () => {
     it('returns 400 when guild_code is missing', async () => {
-      const request = new Request('http://localhost/api/guild/check-status')
+      const request = new NextRequest('http://localhost/api/guild/check-status')
 
       const response = await GET(request)
       const body = await response.json()
@@ -88,7 +89,7 @@ describe('GET /api/guild/check-status', () => {
     it('returns exists=false when guild config does not exist', async () => {
       mockGuildConfigGetFull.mockResolvedValue(null)
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/guild/check-status?guild_code=NONE'
       )
 
@@ -125,7 +126,7 @@ describe('GET /api/guild/check-status', () => {
     })
 
     it('returns complete status for existing guild with data', async () => {
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/guild/check-status?guild_code=test'
       )
 
@@ -167,7 +168,9 @@ describe('GET /api/guild/check-status', () => {
         })
 
         const response = await GET(
-          new Request('http://localhost/api/guild/check-status?guild_code=TEST')
+          new NextRequest(
+            'http://localhost/api/guild/check-status?guild_code=TEST'
+          )
         )
         const body = await response.json()
 
@@ -176,7 +179,7 @@ describe('GET /api/guild/check-status', () => {
     })
 
     it('normalizes guild code to uppercase', async () => {
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/guild/check-status?guild_code=lowercase'
       )
 
@@ -210,7 +213,7 @@ describe('GET /api/guild/check-status', () => {
         return { select: vi.fn().mockReturnThis() }
       })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/guild/check-status?guild_code=EMPTY'
       )
 
@@ -229,7 +232,7 @@ describe('GET /api/guild/check-status', () => {
         new Error('Database connection failed')
       )
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/guild/check-status?guild_code=ERROR'
       )
 
@@ -263,7 +266,7 @@ describe('GET /api/guild/check-status', () => {
         return { select: vi.fn().mockReturnThis() }
       })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/guild/check-status?guild_code=TEST'
       )
 

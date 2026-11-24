@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 vi.mock('@/app/lib/player-mapping-relations', () => ({
   CURRENT_USER_PLAYER_MAPPING: 'player_mapping'
 }))
@@ -10,8 +11,8 @@ let mockGuildConfigGetBasic: ReturnType<typeof vi.fn>
 let mockRequireGuildOfficerOrClusterLeader: ReturnType<typeof vi.fn>
 
 describe('/api/webhooks/save', () => {
-  let POST: (request: Request) => Promise<Response>
-  let GET: (request: Request) => Promise<Response>
+  let POST: (request: NextRequest) => Promise<Response>
+  let GET: (request: NextRequest) => Promise<Response>
   let mockSupabase: {
     auth: { getUser: ReturnType<typeof vi.fn> }
     from: ReturnType<typeof vi.fn>
@@ -94,7 +95,7 @@ describe('/api/webhooks/save', () => {
       it('returns error when not authenticated', async () => {
         mockSupabase.auth.getUser.mockResolvedValue({ data: { user: null } })
 
-        const request = new Request('http://localhost/api/webhooks/save', {
+        const request = new NextRequest('http://localhost/api/webhooks/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -119,7 +120,7 @@ describe('/api/webhooks/save', () => {
       })
 
       it('returns error when webhook_type is missing', async () => {
-        const request = new Request('http://localhost/api/webhooks/save', {
+        const request = new NextRequest('http://localhost/api/webhooks/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -135,7 +136,7 @@ describe('/api/webhooks/save', () => {
       })
 
       it('returns 400 when neither guild_code nor cluster_id provided', async () => {
-        const request = new Request('http://localhost/api/webhooks/save', {
+        const request = new NextRequest('http://localhost/api/webhooks/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -175,7 +176,7 @@ describe('/api/webhooks/save', () => {
 
         mockSupabase.from.mockReturnValue(mockPlayerMapping)
 
-        const request = new Request('http://localhost/api/webhooks/save', {
+        const request = new NextRequest('http://localhost/api/webhooks/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -253,7 +254,7 @@ describe('/api/webhooks/save', () => {
           return mockWebhookQuery
         })
 
-        const request = new Request('http://localhost/api/webhooks/save', {
+        const request = new NextRequest('http://localhost/api/webhooks/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -298,7 +299,7 @@ describe('/api/webhooks/save', () => {
           throw new Error('connection refused to db.internal.example')
         })
 
-        const request = new Request('http://localhost/api/webhooks/save', {
+        const request = new NextRequest('http://localhost/api/webhooks/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -347,7 +348,7 @@ describe('/api/webhooks/save', () => {
           }
         })
 
-        const request = new Request('http://localhost/api/webhooks/save', {
+        const request = new NextRequest('http://localhost/api/webhooks/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -392,7 +393,7 @@ describe('/api/webhooks/save', () => {
 
         mockSupabase.from.mockReturnValue(mockPlayerMapping)
 
-        const request = new Request('http://localhost/api/webhooks/save', {
+        const request = new NextRequest('http://localhost/api/webhooks/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -419,7 +420,7 @@ describe('/api/webhooks/save', () => {
 
         mockSupabase.from.mockReturnValue(mockPlayerMapping)
 
-        const request = new Request('http://localhost/api/webhooks/save', {
+        const request = new NextRequest('http://localhost/api/webhooks/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -495,7 +496,7 @@ describe('/api/webhooks/save', () => {
           }
         })
 
-        const request = new Request('http://localhost/api/webhooks/save', {
+        const request = new NextRequest('http://localhost/api/webhooks/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -560,7 +561,7 @@ describe('/api/webhooks/save', () => {
           }
         })
 
-        const request = new Request('http://localhost/api/webhooks/save', {
+        const request = new NextRequest('http://localhost/api/webhooks/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -627,7 +628,7 @@ describe('/api/webhooks/save', () => {
           }
         })
 
-        const request = new Request('http://localhost/api/webhooks/save', {
+        const request = new NextRequest('http://localhost/api/webhooks/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -703,7 +704,7 @@ describe('/api/webhooks/save', () => {
           }
         })
 
-        const request = new Request('http://localhost/api/webhooks/save', {
+        const request = new NextRequest('http://localhost/api/webhooks/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -795,7 +796,7 @@ describe('/api/webhooks/save', () => {
           }
         })
 
-        const request = new Request('http://localhost/api/webhooks/save', {
+        const request = new NextRequest('http://localhost/api/webhooks/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -858,7 +859,7 @@ describe('/api/webhooks/save', () => {
           }
         })
 
-        const request = new Request('http://localhost/api/webhooks/save', {
+        const request = new NextRequest('http://localhost/api/webhooks/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -891,7 +892,7 @@ describe('/api/webhooks/save', () => {
         }
         mockSupabase.from.mockReturnValue(webhookConfigQuery)
 
-        const request = new Request('http://localhost/api/webhooks/save', {
+        const request = new NextRequest('http://localhost/api/webhooks/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -912,7 +913,7 @@ describe('/api/webhooks/save', () => {
       it('returns error when not authenticated', async () => {
         mockSupabase.auth.getUser.mockResolvedValue({ data: { user: null } })
 
-        const request = new Request('http://localhost/api/webhooks/save', {
+        const request = new NextRequest('http://localhost/api/webhooks/save', {
           method: 'GET'
         })
 
@@ -961,7 +962,7 @@ describe('/api/webhooks/save', () => {
           }
         })
 
-        const request = new Request(
+        const request = new NextRequest(
           'http://localhost/api/webhooks/save?guild_code=GUILD1',
           {
             method: 'GET'
@@ -1032,7 +1033,7 @@ describe('/api/webhooks/save', () => {
           }
         })
 
-        const request = new Request(
+        const request = new NextRequest(
           'http://localhost/api/webhooks/save?guild_code=VICTIM',
           {
             method: 'GET'
@@ -1096,7 +1097,7 @@ describe('/api/webhooks/save', () => {
           }
         })
 
-        const request = new Request(
+        const request = new NextRequest(
           'http://localhost/api/webhooks/save?cluster_id=cluster-1',
           {
             method: 'GET'
@@ -1113,7 +1114,9 @@ describe('/api/webhooks/save', () => {
       it.each(['http://localhost/api/webhooks/save'])(
         'requires explicit guild or cluster scope before any table query: %s',
         async (requestUrl) => {
-          const response = await GET(new Request(requestUrl, { method: 'GET' }))
+          const response = await GET(
+            new NextRequest(requestUrl, { method: 'GET' })
+          )
           const body = await response.json()
 
           expect(response.status).toBe(400)
@@ -1144,7 +1147,7 @@ describe('/api/webhooks/save', () => {
           })
         })
 
-        const request = new Request(
+        const request = new NextRequest(
           'http://localhost/api/webhooks/save?guild_code=GUILD1',
           {
             method: 'GET'

@@ -19,6 +19,7 @@ let mockAuthedSupabase: {
 let mockServiceSupabase: {
   from: AnyMock
   rpc: AnyMock
+  functions: { invoke: AnyMock }
 }
 let mockGetOrCreateOnboardingProgress: AnyMock
 let mockResetStatusFields: AnyMock

@@ -52,11 +52,9 @@ async function loadGuildBombsAvailable(
 ): Promise<number | null> {
   try {
     const supabase = serviceDb()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- get_guild_bombs_available is ahead of generated DB types
-    const { data, error } = await (supabase.rpc as any)(
-      'get_guild_bombs_available',
-      { p_guild_code: guildCode }
-    )
+    const { data, error } = await supabase.rpc('get_guild_bombs_available', {
+      p_guild_code: guildCode
+    })
     if (error) {
       logger.warn(
         { error: error.message },

@@ -1,11 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 
 let mockDb: ReturnType<typeof vi.fn>
 let mockServiceDb: ReturnType<typeof vi.fn>
 let mockGuildConfigGetBasic: ReturnType<typeof vi.fn>
 
 describe('GET /api/members/token-usage/battles', () => {
-  let GET: (request: Request) => Promise<Response>
+  let GET: (request: NextRequest) => Promise<Response>
 
   beforeEach(async () => {
     vi.resetModules()
@@ -75,7 +76,7 @@ describe('GET /api/members/token-usage/battles', () => {
     })
 
     const response = await GET(
-      new Request(
+      new NextRequest(
         `http://localhost/api/members/token-usage/battles?guild=${inputGuild}&seasons=100,99&rarities=Legendary,Mythic`
       )
     )
@@ -104,7 +105,7 @@ describe('GET /api/members/token-usage/battles', () => {
     })
 
     const response = await GET(
-      new Request(
+      new NextRequest(
         'http://localhost/api/members/token-usage/battles?guild=TEST&seasons=100'
       )
     )

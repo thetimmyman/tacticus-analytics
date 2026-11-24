@@ -65,7 +65,7 @@ const mockDecryptApiKey = vi.fn(async (stored: string) =>
   stored.replace(/^enc:/, '')
 )
 vi.mock('@tacticus/app-core/encryption', () => ({
-  decryptApiKey: (...args: any[]) => mockDecryptApiKey(...args)
+  decryptApiKey: (stored: string) => mockDecryptApiKey(stored)
 }))
 
 const mockGetOrCreateOnboardingProgress = vi.fn()
@@ -76,7 +76,8 @@ const mockResetStatusFields = vi.fn((progress, updates) => ({
 vi.mock('@/app/lib/onboarding/progress', () => ({
   getOrCreateOnboardingProgress: (...args: any[]) =>
     mockGetOrCreateOnboardingProgress(...args),
-  resetStatusFields: (...args: any[]) => mockResetStatusFields(...args)
+  resetStatusFields: (progress: unknown, updates: unknown) =>
+    mockResetStatusFields(progress, updates)
 }))
 
 const mockEnqueueOnboardingJob = vi.fn()

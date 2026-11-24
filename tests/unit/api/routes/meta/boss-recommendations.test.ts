@@ -151,8 +151,7 @@ describe('/api/meta/boss-recommendations', () => {
 
       const eqCalls = eqMock.mock.calls
       const rarityCall = eqCalls.find(
-        (call: [string, unknown, ...unknown[]]) =>
-          call[0] === 'rarity' && call[1] === 'Legendary'
+        (call) => call[0] === 'rarity' && call[1] === 'Legendary'
       )
       expect(rarityCall).toBeDefined()
     })
@@ -180,8 +179,7 @@ describe('/api/meta/boss-recommendations', () => {
 
       const eqCalls = eqMock.mock.calls
       const raritySetCall = eqCalls.find(
-        (call: [string, unknown, ...unknown[]]) =>
-          call[0] === 'rarity_set' && call[1] === 'L3'
+        (call) => call[0] === 'rarity_set' && call[1] === 'L3'
       )
       expect(raritySetCall).toBeDefined()
     })
@@ -209,8 +207,7 @@ describe('/api/meta/boss-recommendations', () => {
 
       const eqCalls = eqMock.mock.calls
       const seasonCall = eqCalls.find(
-        (call: [string, unknown, ...unknown[]]) =>
-          call[0] === 'season' && call[1] === '45'
+        (call) => call[0] === 'season' && call[1] === '45'
       )
       expect(seasonCall).toBeDefined()
     })
@@ -238,8 +235,7 @@ describe('/api/meta/boss-recommendations', () => {
 
       const gteCalls = gteMock.mock.calls
       const attackCountCall = gteCalls.find(
-        (call: [string, unknown, ...unknown[]]) =>
-          call[0] === 'attack_count' && call[1] === 50
+        (call) => call[0] === 'attack_count' && call[1] === 50
       )
       expect(attackCountCall).toBeDefined()
     })

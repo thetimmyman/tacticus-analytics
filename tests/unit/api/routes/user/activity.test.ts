@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { NextRequest } from 'next/server'
 vi.mock('@/app/lib/player-mapping-relations', () => ({
   CURRENT_USER_PLAYER_MAPPING: 'player_mapping'
 }))
 
 describe('POST /api/user/activity', () => {
-  let POST: () => Promise<Response>
+  let POST: (request: NextRequest) => Promise<Response>
   let mockCreateClient: ReturnType<typeof vi.fn>
   let mockCreateServiceClient: ReturnType<typeof vi.fn>
   let mockSupabase: {
@@ -54,7 +55,9 @@ describe('POST /api/user/activity', () => {
       error: null
     })
 
-    const response = await POST()
+    const response = await POST(
+      new NextRequest('http://localhost/api/user/activity')
+    )
     const body = await response.json()
 
     expect(response.status).toBe(401)
@@ -75,7 +78,9 @@ describe('POST /api/user/activity', () => {
     const update = vi.fn().mockReturnValue({ eq: firstEq })
     mockSupabase.from.mockReturnValue({ update })
 
-    const response = await POST()
+    const response = await POST(
+      new NextRequest('http://localhost/api/user/activity')
+    )
     const body = await response.json()
 
     expect(response.status).toBe(500)
@@ -105,7 +110,9 @@ describe('POST /api/user/activity', () => {
       const update = vi.fn().mockReturnValue({ eq: firstEq })
       mockSupabase.from.mockReturnValue({ update })
 
-      const response = await POST()
+      const response = await POST(
+        new NextRequest('http://localhost/api/user/activity')
+      )
       const body = await response.json()
 
       expect(response.status).toBe(503)
@@ -129,7 +136,9 @@ describe('POST /api/user/activity', () => {
     const update = vi.fn().mockReturnValue({ eq: firstEq })
     mockSupabase.from.mockReturnValue({ update })
 
-    const response = await POST()
+    const response = await POST(
+      new NextRequest('http://localhost/api/user/activity')
+    )
     const body = await response.json()
 
     expect(response.status).toBe(200)
@@ -156,7 +165,9 @@ describe('POST /api/user/activity', () => {
     const update = vi.fn().mockReturnValue({ eq: firstEq })
     mockSupabase.from.mockReturnValue({ update })
 
-    const response = await POST()
+    const response = await POST(
+      new NextRequest('http://localhost/api/user/activity')
+    )
     const body = await response.json()
 
     expect(response.status).toBe(200)

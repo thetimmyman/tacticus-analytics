@@ -200,11 +200,8 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
       })
     }
 
-    // season_number is not in generated types.
-    /* eslint-disable @typescript-eslint/no-explicit-any, no-restricted-syntax */
-    const targetsTable = supabase.from('boss_target_tokens' as never) as any
-    /* eslint-enable @typescript-eslint/no-explicit-any, no-restricted-syntax */
-    let query = targetsTable
+    let query = supabase
+      .from('boss_target_tokens')
       .select(
         'boss_name, rarity, set, encounter_id, target_tokens, source, seeded_from_seasons, notes, updated_by, updated_at, skip, season_number'
       )

@@ -24,7 +24,7 @@ type QueryConfig = {
   enabled?: boolean
 }
 
-let tokenStatsData: MockRow | null = null
+let tokenStatsData: MockRow[] | null = null
 let tokenBurnStatsData: MockRow[] = []
 let rosterMembershipData = new Map<string, boolean>()
 let rosterMembershipLoaded = true

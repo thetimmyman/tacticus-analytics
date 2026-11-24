@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { NextRequest } from 'next/server'
 import { SERVICE_TIMEOUTS } from '@/app/lib/utils/async-timeout'
 
 let mockCreateServiceClient: ReturnType<typeof vi.fn>
@@ -9,7 +10,7 @@ let mockAppCache: {
 }
 
 describe('POST /api/guild/trigger-sync', () => {
-  let POST: (request: Request) => Promise<Response>
+  let POST: (request: NextRequest) => Promise<Response>
   let mockSupabase: {
     from: ReturnType<typeof vi.fn>
     functions: { invoke: ReturnType<typeof vi.fn> }
@@ -128,7 +129,7 @@ describe('POST /api/guild/trigger-sync', () => {
       })
       mockSupabase.functions.invoke.mockResolvedValue({ data, error: null })
       const response = await POST(
-        new Request('http://localhost/api/guild/trigger-sync', {
+        new NextRequest('http://localhost/api/guild/trigger-sync', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ guild_code: 'TEST' })
@@ -150,7 +151,7 @@ describe('POST /api/guild/trigger-sync', () => {
       error: null
     })
     const response = await POST(
-      new Request('http://localhost/api/guild/trigger-sync', {
+      new NextRequest('http://localhost/api/guild/trigger-sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ guild_code: 'TEST' })
@@ -172,11 +173,14 @@ describe('POST /api/guild/trigger-sync', () => {
       Object.setPrototypeOf(authError, AuthError.prototype)
       mockRequireRole.mockRejectedValue(authError)
 
-      const request = new Request('http://localhost/api/guild/trigger-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/trigger-sync',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST' })
+        }
+      )
 
       const response = await POST(request)
       expect(response.status).toBe(401)
@@ -187,11 +191,14 @@ describe('POST /api/guild/trigger-sync', () => {
         profile: { guild_code: 'OTHER', role: 'member' }
       })
 
-      const request = new Request('http://localhost/api/guild/trigger-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/trigger-sync',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST' })
+        }
+      )
 
       const response = await POST(request)
       expect(response.status).toBe(403)
@@ -200,11 +207,14 @@ describe('POST /api/guild/trigger-sync', () => {
 
   describe('validation', () => {
     it('returns 400 when guild_code is missing', async () => {
-      const request = new Request('http://localhost/api/guild/trigger-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/trigger-sync',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -218,11 +228,14 @@ describe('POST /api/guild/trigger-sync', () => {
     it('returns 429 when rate limited', async () => {
       mockAppCache.get.mockResolvedValue(Date.now() - 10000)
 
-      const request = new Request('http://localhost/api/guild/trigger-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/trigger-sync',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST' })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -243,11 +256,14 @@ describe('POST /api/guild/trigger-sync', () => {
         error: null
       })
 
-      const request = new Request('http://localhost/api/guild/trigger-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/trigger-sync',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST' })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -268,11 +284,14 @@ describe('POST /api/guild/trigger-sync', () => {
         error: null
       })
 
-      const request = new Request('http://localhost/api/guild/trigger-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'test' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/trigger-sync',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'test' })
+        }
+      )
 
       await POST(request)
 
@@ -314,11 +333,14 @@ describe('POST /api/guild/trigger-sync', () => {
         error: null
       })
 
-      const request = new Request('http://localhost/api/guild/trigger-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/trigger-sync',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST' })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -342,11 +364,14 @@ describe('POST /api/guild/trigger-sync', () => {
         error: null
       })
 
-      const request = new Request('http://localhost/api/guild/trigger-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/trigger-sync',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST' })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -368,11 +393,14 @@ describe('POST /api/guild/trigger-sync', () => {
         error: { message: 'Failed to decrypt API key' }
       })
 
-      const request = new Request('http://localhost/api/guild/trigger-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/trigger-sync',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST' })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -392,11 +420,14 @@ describe('POST /api/guild/trigger-sync', () => {
         error: { message: 'Guild configuration not found' }
       })
 
-      const request = new Request('http://localhost/api/guild/trigger-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'MISSING' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/trigger-sync',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'MISSING' })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -413,11 +444,14 @@ describe('POST /api/guild/trigger-sync', () => {
         error: { message: 'Some other error' }
       })
 
-      const request = new Request('http://localhost/api/guild/trigger-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/trigger-sync',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST' })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -432,11 +466,14 @@ describe('POST /api/guild/trigger-sync', () => {
         new Error('Network error')
       )
 
-      const request = new Request('http://localhost/api/guild/trigger-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'TEST' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/trigger-sync',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'TEST' })
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -453,7 +490,7 @@ describe('POST /api/guild/trigger-sync', () => {
       )
 
       const responsePromise = POST(
-        new Request('http://localhost/api/guild/trigger-sync', {
+        new NextRequest('http://localhost/api/guild/trigger-sync', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ guild_code: 'TEST' })
@@ -476,11 +513,14 @@ describe('POST /api/guild/trigger-sync', () => {
 
   describe('error handling', () => {
     it('returns 500 when JSON parsing fails', async () => {
-      const request = new Request('http://localhost/api/guild/trigger-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: 'invalid json'
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/trigger-sync',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: 'invalid json'
+        }
+      )
 
       const response = await POST(request)
       const body = await response.json()
@@ -503,11 +543,14 @@ describe('POST /api/guild/trigger-sync', () => {
         error: null
       })
 
-      const request = new Request('http://localhost/api/guild/trigger-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guild_code: 'lowercase' })
-      })
+      const request = new NextRequest(
+        'http://localhost/api/guild/trigger-sync',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guild_code: 'lowercase' })
+        }
+      )
 
       await POST(request)
 

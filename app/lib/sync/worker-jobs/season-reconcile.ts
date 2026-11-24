@@ -12,8 +12,7 @@ export async function reconcileSeasonDelete(
   writtenIds: number[],
   result: WorkerResult
 ): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: currentRows, error: selectError } = await (supabase as any)
+  const { data: currentRows, error: selectError } = await supabase
     .from('EOT_GR_data')
     .select('id')
     .eq('Guild', guildCode)

@@ -14,7 +14,7 @@ vi.mock('@tacticus/app-core/logger', () => ({
 const ORIGINAL_ENV = process.env.NODE_ENV
 
 const loadMonitor = async (env: string) => {
-  process.env.NODE_ENV = env
+  vi.stubEnv('NODE_ENV', env)
   vi.resetModules()
   return await import('@tacticus/app-core/performance-monitor')
 }
@@ -28,7 +28,7 @@ const setupTime = () => {
 }
 
 afterEach(() => {
-  process.env.NODE_ENV = ORIGINAL_ENV
+  vi.stubEnv('NODE_ENV', ORIGINAL_ENV)
   vi.restoreAllMocks()
   vi.clearAllMocks()
 })

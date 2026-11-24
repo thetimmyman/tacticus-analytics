@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 
 let mockDb: ReturnType<typeof vi.fn>
 let mockRequireGuildMember: ReturnType<typeof vi.fn>
@@ -55,7 +56,7 @@ const versionRow = {
   config_snapshot: snapshot
 }
 
-const makeClient = (row = versionRow) => {
+const makeClient = (row: unknown = versionRow) => {
   const query: Record<string, ReturnType<typeof vi.fn>> = {}
   query.select = vi.fn(() => query)
   query.eq = vi.fn(() => query)
@@ -104,7 +105,7 @@ describe('Herald config snapshot readers', () => {
 
     const mod = await import('@/app/api/herald/role-mappings/route')
     const response = await mod.GET(
-      new Request(
+      new NextRequest(
         'http://localhost/api/herald/role-mappings?guild_code=GUILD1&season=98'
       )
     )
@@ -129,7 +130,7 @@ describe('Herald config snapshot readers', () => {
 
     const mod = await import('@/app/api/herald/boss-config/route')
     const response = await mod.GET(
-      new Request(
+      new NextRequest(
         'http://localhost/api/herald/boss-config?guild_code=GUILD1&boss_id=Magnus_E0&rarity_set=&default=1'
       )
     )
@@ -161,7 +162,7 @@ describe('Herald config snapshot readers', () => {
 
     const mod = await import('@/app/api/herald/boss-config/route')
     const response = await mod.POST(
-      new Request('http://localhost/api/herald/boss-config', {
+      new NextRequest('http://localhost/api/herald/boss-config', {
         method: 'POST',
         body: JSON.stringify({
           guild_code: 'GUILD1',
@@ -223,7 +224,7 @@ describe('Herald config snapshot readers', () => {
 
     const mod = await import('@/app/api/herald/boss-config/route')
     const response = await mod.POST(
-      new Request('http://localhost/api/herald/boss-config', {
+      new NextRequest('http://localhost/api/herald/boss-config', {
         method: 'POST',
         body: JSON.stringify({
           guild_code: 'GUILD1',
@@ -271,7 +272,7 @@ describe('Herald config snapshot readers', () => {
 
     const mod = await import('@/app/api/herald/boss-config/route')
     const response = await mod.POST(
-      new Request('http://localhost/api/herald/boss-config', {
+      new NextRequest('http://localhost/api/herald/boss-config', {
         method: 'POST',
         body: JSON.stringify({
           guild_code: 'GUILD1',
@@ -312,7 +313,7 @@ describe('Herald config snapshot readers', () => {
 
     const mod = await import('@/app/api/herald/boss-config/route')
     const response = await mod.POST(
-      new Request('http://localhost/api/herald/boss-config', {
+      new NextRequest('http://localhost/api/herald/boss-config', {
         method: 'POST',
         body: JSON.stringify({
           guild_code: 'GUILD1',

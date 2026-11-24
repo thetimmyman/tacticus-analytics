@@ -79,7 +79,9 @@ describe('GET /api/admin/progression-config', () => {
       { id: 'guild-id', scope: 'TEST', is_active: true }
     ]
 
-    const response = await GET()
+    const response = await GET(
+      new NextRequest('http://localhost/api/admin/progression-config')
+    )
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual({

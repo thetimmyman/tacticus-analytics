@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextRequest } from 'next/server'
 
 let mockDb: ReturnType<typeof vi.fn>
 let mockRequireActiveMembershipForApi: ReturnType<typeof vi.fn>
@@ -13,7 +14,7 @@ let consoleLogSpy: ReturnType<typeof vi.spyOn>
 
 /** The auth gate runs BEFORE parameter validation, or an anonymous caller learns which combinations are valid. */
 describe('GET /api/player-stats/historical-performance', () => {
-  let GET: (request: Request) => Promise<Response>
+  let GET: (request: NextRequest) => Promise<Response>
 
   beforeEach(async () => {
     vi.resetModules()
@@ -71,7 +72,7 @@ describe('GET /api/player-stats/historical-performance', () => {
       )
 
       // A 400 would mean validation runs before the gate.
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/player-stats/historical-performance'
       )
 
@@ -91,7 +92,7 @@ describe('GET /api/player-stats/historical-performance', () => {
         )
       )
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/player-stats/historical-performance?player=P&guild_code=TESTGLD&season=45'
       )
 
@@ -104,7 +105,7 @@ describe('GET /api/player-stats/historical-performance', () => {
 
   describe('validation', () => {
     it('still returns 400 for missing params once authenticated', async () => {
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/player-stats/historical-performance?player=P'
       )
 
@@ -122,7 +123,7 @@ describe('GET /api/player-stats/historical-performance', () => {
     it('returns the fetched payload for an authenticated member', async () => {
       mockFetchHistoricalPerformance.mockResolvedValue({ seasons: [1, 2] })
 
-      const request = new Request(
+      const request = new NextRequest(
         'http://localhost/api/player-stats/historical-performance?player=P&guild_code=TESTGLD&season=45'
       )
 

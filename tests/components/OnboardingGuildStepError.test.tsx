@@ -37,7 +37,7 @@ function progressFixture(
     guild_error_message: null,
     guild_can_retry: true,
     guild_lock_expires_at: null,
-    sync_status: 'not_started',
+    sync_status: 'not_required',
     sync_progress: 0,
     sync_records_synced: 0,
     sync_error_message: null,
