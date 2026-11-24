@@ -1,7 +1,15 @@
 BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
-SELECT plan(5);
+SELECT plan(6);
+
+SELECT is(
+  (SELECT proconfig
+   FROM pg_proc
+   WHERE oid = 'public.get_public_stats_live()'::regprocedure),
+  ARRAY['search_path=pg_catalog, public']::text[],
+  'public statistics resolve pg_catalog before public'
+);
 
 -- Rollback restores the original relation and its planner statistics.
 ALTER TABLE public."EOT_GR_data" RENAME TO public_stats_original_history;

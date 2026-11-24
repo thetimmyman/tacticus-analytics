@@ -640,6 +640,11 @@
       "file": "20261120170000_guild_leave_cluster.sql",
       "reason": "production-app-schema",
       "detail": "Adds the hosted leave-cluster function and its cluster-preservation trigger bypass; the desktop bootstrap has no clusters, cluster triggers or audit log."
+    },
+    {
+      "file": "20261124180000_fix_definer_search_path_order.sql",
+      "reason": "production-app-schema",
+      "detail": "Re-pins search_path on two hosted app-schema functions absent from the local bootstrap; it changes no signatures, grants or canonical desktop objects."
     }
   ]
 }
