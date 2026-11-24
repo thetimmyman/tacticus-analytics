@@ -38,7 +38,7 @@
 
 # === ROSTER ===
 guild_season_lookup.sql # 8
-public_stats_lookup.sql # 5
+public_stats_lookup.sql # 6
 adversarial_progression_and_meta_hardening.sql # 29
 bootstrap_authority_canonical_guild_code.sql # 12
 bootstrap_first_leader_seat_claim.sql # 9
@@ -79,7 +79,7 @@ cluster_applications_api_key_columns.sql # 10
 alert_staleness_and_renotify.sql # 40
 guild_war_zones_match_fk.sql # 12
 erase_residual_player_mapping_identity.sql # 65
-player_api_key_strike_counter.sql # 9
+player_api_key_strike_counter.sql # 10
 player_mapping_analytics_ro.sql # 14
 roster_write_monitor.sql # 47
 guild_war_sync_remnants.sql # 18

@@ -3,12 +3,20 @@ BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET search_path TO extensions, public, pg_catalog;
 
-SELECT plan(9);
+SELECT plan(10);
 
 SELECT has_function(
   'public', 'record_player_api_key_auth_failure',
   ARRAY['text', 'integer', 'integer', 'integer'],
   'the key strike counter exists on a database built from migrations'
+);
+
+SELECT is(
+  (SELECT proconfig
+   FROM pg_proc
+   WHERE oid = 'public.record_player_api_key_auth_failure(text, integer, integer, integer)'::regprocedure),
+  ARRAY['search_path=pg_catalog, public']::text[],
+  'the strike counter resolves pg_catalog before public'
 );
 
 SELECT ok(
