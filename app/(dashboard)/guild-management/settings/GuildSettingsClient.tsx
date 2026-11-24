@@ -281,6 +281,7 @@ export default function GuildSettingsClient({
     const nextIndex =
       (index + delta + SECTION_DEFS.length) % SECTION_DEFS.length
     const nextSection = SECTION_DEFS[nextIndex]
+    if (!nextSection) return
     setActiveSection(nextSection.id)
     tabRefs.current[nextSection.id]?.focus()
   }
