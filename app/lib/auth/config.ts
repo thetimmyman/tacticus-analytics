@@ -33,15 +33,6 @@ export const authConfig = {
     onboarding: '/onboarding'
   },
 
-  cookies: {
-    name: 'tacticus-auth',
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax' as const,
-    path: '/',
-    maxAge: 60 * 60 * 24 * 7 // 7 days
-  },
-
   csrf: {
     cookieName: 'csrf-token',
     headerName: 'x-csrf-token',

@@ -3,11 +3,17 @@ import {
   dsnFromString,
   getEnvelopeEndpointWithUrlEncodedAuth
 } from '@sentry/core'
+import { checkRateLimit, getClientId } from '@/app/lib/middleware/rate-limit'
+import {
+  TUNNEL_ALLOWED_ORIGINS,
+  isAllowedOrigin
+} from '@/app/lib/middleware/origin-allowlist'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 const FORWARD_TIMEOUT_MS = 5000
+const TUNNEL_ENDPOINT = '/monitoring'
 export const MAX_ENVELOPE_BYTES = 1024 * 1024
 
 async function readEnvelopeWithLimit(request: Request): Promise<Uint8Array> {
@@ -170,7 +176,41 @@ export function GET(): Response {
   return new Response('ok', { status: 200 })
 }
 
+/**
+ * Only this app's browser SDK posts here. Without a same-site Origin (or Referer) the route
+ * would relay any origin's envelopes to the configured DSNs.
+ */
+function hasTrustedOrigin(request: Request): boolean {
+  const origin = request.headers.get('origin')
+  if (origin !== null) return isAllowedOrigin(origin, TUNNEL_ALLOWED_ORIGINS)
+
+  const referer = request.headers.get('referer')
+  if (referer === null) return false
+  try {
+    return isAllowedOrigin(new URL(referer).origin, TUNNEL_ALLOWED_ORIGINS)
+  } catch {
+    return false
+  }
+}
+
 export async function POST(request: Request): Promise<Response> {
+  if (!hasTrustedOrigin(request)) {
+    return new Response('Forbidden', { status: 403 })
+  }
+
+  // Per-IP ceiling so the tunnel cannot be used as an open relay under a captured origin.
+  const limit = await checkRateLimit(getClientId(request), TUNNEL_ENDPOINT)
+  if (!limit.allowed) {
+    return new Response('', {
+      status: 429,
+      headers: {
+        'Retry-After': String(
+          Math.max(1, Math.ceil((limit.resetTime - Date.now()) / 1000))
+        )
+      }
+    })
+  }
+
   const primaryDsn = getPrimaryDsn()
   const backupDsn = getBackupDsn()
 

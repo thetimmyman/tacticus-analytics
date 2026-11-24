@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import type { Database } from '@tacticus/app-core/types'
 import { serverEnv } from '@tacticus/app-core/server-env'
 import { authConfig } from './config'
+import { hardenSessionCookieOptions } from './session-cookies'
 import { getSharedFetch } from '@/app/lib/network/undici-agent'
 
 /** Use only getAll/setAll: per-cookie get/set/remove break auth. */
@@ -32,10 +33,17 @@ export async function createClient(): Promise<
           setAll(cookiesToSet) {
             try {
               cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, {
-                  ...options,
-                  ...(cookieDomain && { domain: cookieDomain })
-                })
+                cookieStore.set(
+                  name,
+                  value,
+                  hardenSessionCookieOptions(
+                    {
+                      ...options,
+                      ...(cookieDomain && { domain: cookieDomain })
+                    },
+                    siteUrl
+                  )
+                )
               )
             } catch {
               // Called from a Server Component; middleware refreshes sessions.

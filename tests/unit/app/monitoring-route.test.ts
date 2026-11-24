@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   dsnFromString,
@@ -67,7 +68,10 @@ describe('/monitoring route fanout', () => {
     const response = await POST(
       new Request('http://localhost/monitoring', {
         method: 'POST',
-        headers: { 'content-type': 'application/x-sentry-envelope' },
+        headers: {
+          'content-type': 'application/x-sentry-envelope',
+          origin: 'http://localhost:3000'
+        },
         body: createEnvelopePayload()
       })
     )
@@ -81,7 +85,10 @@ describe('/monitoring route fanout', () => {
     const response = await POST(
       new Request('http://localhost/monitoring', {
         method: 'POST',
-        headers: { 'content-type': 'application/x-sentry-envelope' },
+        headers: {
+          'content-type': 'application/x-sentry-envelope',
+          origin: 'http://localhost:3000'
+        },
         body: createEnvelopePayload()
       })
     )
@@ -96,7 +103,10 @@ describe('/monitoring route fanout', () => {
 
     const request = new Request('http://localhost/monitoring', {
       method: 'POST',
-      headers: { 'content-type': 'application/x-sentry-envelope' },
+      headers: {
+        'content-type': 'application/x-sentry-envelope',
+        origin: 'http://localhost:3000'
+      },
       body: createEnvelopePayload()
     })
     request.headers.set('content-length', String(1024 * 1024 + 1))
@@ -115,7 +125,10 @@ describe('/monitoring route fanout', () => {
     const response = await POST(
       new Request('http://localhost/monitoring', {
         method: 'POST',
-        headers: { 'content-type': 'application/x-sentry-envelope' },
+        headers: {
+          'content-type': 'application/x-sentry-envelope',
+          origin: 'http://localhost:3000'
+        },
         body: 'x'.repeat(1024 * 1024 + 1)
       })
     )
@@ -156,7 +169,10 @@ describe('/monitoring route fanout', () => {
     const response = await POST(
       new Request('http://localhost/monitoring', {
         method: 'POST',
-        headers: { 'content-type': 'application/x-sentry-envelope' },
+        headers: {
+          'content-type': 'application/x-sentry-envelope',
+          origin: 'http://localhost:3000'
+        },
         body: createEnvelopePayload()
       })
     )
@@ -212,7 +228,10 @@ describe('/monitoring route fanout', () => {
     const response = await POST(
       new Request('http://localhost/monitoring', {
         method: 'POST',
-        headers: { 'content-type': 'application/x-sentry-envelope' },
+        headers: {
+          'content-type': 'application/x-sentry-envelope',
+          origin: 'http://localhost:3000'
+        },
         body: createEnvelopePayload()
       })
     )
@@ -236,7 +255,10 @@ describe('/monitoring route fanout', () => {
     const response = await POST(
       new Request('http://localhost/monitoring', {
         method: 'POST',
-        headers: { 'content-type': 'application/x-sentry-envelope' },
+        headers: {
+          'content-type': 'application/x-sentry-envelope',
+          origin: 'http://localhost:3000'
+        },
         body: createEnvelopePayload()
       })
     )
@@ -257,7 +279,10 @@ describe('/monitoring route fanout', () => {
     const response = await POST(
       new Request('http://localhost/monitoring', {
         method: 'POST',
-        headers: { 'content-type': 'application/x-sentry-envelope' },
+        headers: {
+          'content-type': 'application/x-sentry-envelope',
+          origin: 'http://localhost:3000'
+        },
         body: createEnvelopePayload()
       })
     )

@@ -10,7 +10,9 @@ import {
 } from '@/app/lib/auth/app-admin'
 import { requireAppAdmin } from '@/app/lib/services/feature-release-service'
 import { db } from '@/app/lib/db'
+import { Errors } from '@/app/lib/errors/AppError'
 import { apiSecurityMiddleware } from '@/app/lib/middleware/api-security-middleware'
+import { isCrossSiteAdminWrite } from '@/app/lib/middleware/request-filter'
 import { withErrorHandler } from '@/app/lib/middleware/errorHandler'
 
 /**
@@ -92,6 +94,15 @@ export function withAdminGuards<O extends AdminGuardOptions, C = unknown>(
       skipSecurityChecks: true
     })
     if (limited) return limited
+
+    // Replaces the skipped performSecurityChecks pass: a cross-site state change must not
+    // ride a cookie session. Origin-less server-to-server calls are unaffected.
+    if (isCrossSiteAdminWrite(request)) {
+      throw Errors.forbidden('Unauthorized origin for admin endpoint', {
+        reason: 'cross_site_origin',
+        endpoint: request.nextUrl.pathname
+      })
+    }
 
     const auth = (await resolveGuard(options)) as AdminGuardAuth<O>
 

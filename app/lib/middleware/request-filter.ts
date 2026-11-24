@@ -1,6 +1,26 @@
 import { NextRequest } from 'next/server'
-import { APP_ORIGINS } from '@tacticus/app-core/app-config'
 import { RATE_LIMIT_CONFIG } from '@/app/lib/middleware/rate-limit-config'
+import {
+  ADMIN_ALLOWED_ORIGINS,
+  isAllowedOrigin
+} from '@/app/lib/middleware/origin-allowlist'
+
+const STATE_MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
+
+/**
+ * A request without Origin is not browser cross-site: server-to-server and test callers send
+ * none. A present Origin must match exactly, so a look-alike like `evil-tacticusanalytics.com`
+ * and the opaque `Origin: null` are both refused. A missing request carries no Origin.
+ */
+export function isCrossSiteAdminWrite(
+  request: Pick<NextRequest, 'method' | 'headers'> | null | undefined
+): boolean {
+  if (!request) return false
+  if (!STATE_MUTATING_METHODS.has(request.method)) return false
+  const origin = request.headers.get('origin')
+  if (origin === null) return false
+  return !isAllowedOrigin(origin, ADMIN_ALLOWED_ORIGINS)
+}
 
 export interface SecurityCheck {
   passed: boolean
@@ -47,16 +67,8 @@ export function performSecurityChecks(request: NextRequest): SecurityCheck {
   }
 
   if (request.nextUrl.pathname.startsWith('/api/admin/')) {
-    const allowedOrigins = [
-      APP_ORIGINS.CURRENT,
-      'https://www.tacticusanalytics.com',
-      'https://tacticusanalytics.com'
-    ].filter((url): url is string => Boolean(url))
-
-    if (
-      origin &&
-      !allowedOrigins.some((allowed) => origin.startsWith(allowed))
-    ) {
+    // get() is null for a missing header, so `Origin: null` still reaches the exact match.
+    if (origin !== null && !isAllowedOrigin(origin, ADMIN_ALLOWED_ORIGINS)) {
       return {
         passed: false,
         reason: 'Unauthorized origin for admin endpoint',

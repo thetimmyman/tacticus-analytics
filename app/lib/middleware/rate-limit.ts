@@ -58,14 +58,17 @@ interface RateLimitResult {
 
 /** Canonical client IP; never re-implement inline. `cf-connecting-ip` first: Cloudflare appends to
  * XFF, so XFF hop 0 is caller-controlled and would let an attacker rotate buckets. */
-export function getClientIp(request: NextRequest): string {
+export function getClientIp(request: Pick<NextRequest, 'headers'>): string {
   const cfIp = request.headers.get('cf-connecting-ip')
   const forwarded = request.headers.get('x-forwarded-for')
   const realIp = request.headers.get('x-real-ip')
   return cfIp || forwarded?.split(',')[0]?.trim() || realIp || 'unknown'
 }
 
-export function getClientId(request: NextRequest, userId?: string): string {
+export function getClientId(
+  request: Pick<NextRequest, 'headers'>,
+  userId?: string
+): string {
   if (userId) return `user:${userId}`
   return `ip:${getClientIp(request)}`
 }
