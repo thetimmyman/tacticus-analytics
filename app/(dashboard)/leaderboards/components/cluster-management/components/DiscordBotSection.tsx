@@ -252,6 +252,7 @@ function InviteCard({
             size="sm"
             variant="ghost"
             onClick={() => onCopy(invite.inviteCode)}
+            aria-label={`Copy invite ${invite.inviteCode}`}
             className="text-secondary-wh40k hover:text-primary-wh40k"
           >
             {copiedInvite === invite.inviteCode ? (
@@ -266,6 +267,7 @@ function InviteCard({
               variant="ghost"
               onClick={() => onDelete(invite.id)}
               disabled={deletingInviteId === invite.id}
+              aria-label={`Delete invite ${invite.inviteCode}`}
               className="text-red-400 hover:text-red-300"
             >
               {deletingInviteId === invite.id ? (
@@ -475,6 +477,7 @@ function SmallInviteCard({
             size="sm"
             variant="ghost"
             onClick={() => onCopy(invite.inviteCode)}
+            aria-label={`Copy invite ${invite.inviteCode}`}
             className="text-secondary-wh40k hover:text-primary-wh40k"
           >
             {copiedInvite === invite.inviteCode ? (
@@ -489,6 +492,7 @@ function SmallInviteCard({
               variant="ghost"
               onClick={() => onDelete(invite.id)}
               disabled={deletingInviteId === invite.id}
+              aria-label={`Delete invite ${invite.inviteCode}`}
               className="text-red-400 hover:text-red-300"
             >
               {deletingInviteId === invite.id ? (

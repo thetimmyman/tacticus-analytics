@@ -12,7 +12,10 @@ export const metadata: Metadata = {
   description:
     'Exercise your California Consumer Privacy Act (CCPA) rights to opt out of the sale of your personal information.',
   keywords:
-    'ccpa, do not sell, personal information, privacy rights, california consumer privacy act'
+    'ccpa, do not sell, personal information, privacy rights, california consumer privacy act',
+  alternates: {
+    canonical: '/do-not-sell'
+  }
 }
 
 export default async function DoNotSellPage() {

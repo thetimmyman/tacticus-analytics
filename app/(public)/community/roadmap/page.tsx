@@ -110,7 +110,10 @@ async function getFeatures(): Promise<FeatureRow[]> {
 export const metadata: Metadata = {
   title: 'Product Roadmap | Tacticus Analytics',
   description:
-    'Live roadmap for Tacticus Analytics. Track public features, test releases, and planned guild raid workflows.'
+    'Live roadmap for Tacticus Analytics. Track public features, test releases, and planned guild raid workflows.',
+  alternates: {
+    canonical: '/community/roadmap'
+  }
 }
 
 export const revalidate = 300

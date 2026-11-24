@@ -6,7 +6,10 @@ export const metadata: Metadata = {
   title: 'Service Status | Tacticus Analytics',
   description:
     'Real-time status of Tacticus Analytics services and infrastructure.',
-  robots: 'noindex, nofollow' // Don't index status page
+  robots: 'noindex, nofollow', // Don't index status page
+  alternates: {
+    canonical: '/status'
+  }
 }
 
 export const dynamic = 'force-dynamic'

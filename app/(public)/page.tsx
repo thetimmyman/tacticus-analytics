@@ -16,7 +16,8 @@ export const metadata = createPageMetadata({
   title: 'Guild Raid Analytics for Tacticus',
   description:
     'Track guild raid tokens, battle performance, leaderboards, and meta teams for Warhammer 40,000: Tacticus.',
-  path: '/'
+  path: '/',
+  image: '/WarpForgedDashboard.png'
 })
 
 // Zeros make LiveStatsSection show its static snapshot numbers while streaming.

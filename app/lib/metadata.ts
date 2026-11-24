@@ -6,12 +6,16 @@ interface PageMetadataOptions {
   title: string
   description: string
   path?: `/${string}`
+  // Absolute-or-site-root og image; keeps the card when a page overrides
+  // the root layout's openGraph/twitter objects wholesale.
+  image?: string
 }
 
 export function createPageMetadata({
   title,
   description,
-  path
+  path,
+  image
 }: PageMetadataOptions): Metadata {
   const fullTitle = title.includes(SITE_NAME)
     ? title
@@ -26,12 +30,14 @@ export function createPageMetadata({
       description,
       siteName: SITE_NAME,
       type: 'website',
-      ...(path ? { url: path } : {})
+      ...(path ? { url: path } : {}),
+      ...(image ? { images: [image] } : {})
     },
     twitter: {
       card: 'summary_large_image',
       title: fullTitle,
-      description
+      description,
+      ...(image ? { images: [image] } : {})
     }
   }
 }

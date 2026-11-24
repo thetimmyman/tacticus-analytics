@@ -14,6 +14,9 @@ export const metadata: Metadata = {
     'Compare public Tacticus guild raid snapshots, boss damage, and cluster rankings.',
   keywords:
     'tacticus guilds, guild rankings, guild performance, cluster rankings, guild statistics, tacticus leaderboards',
+  alternates: {
+    canonical: '/explore'
+  },
   openGraph: {
     title: 'Explore Guilds - Tacticus Analytics',
     description:

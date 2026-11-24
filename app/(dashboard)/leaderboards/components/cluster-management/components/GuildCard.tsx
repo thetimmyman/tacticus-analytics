@@ -61,6 +61,7 @@ export function GuildCard({
                 size="sm"
                 variant="ghost"
                 onClick={onSaveEdit}
+                aria-label="Save guild changes"
                 className="text-green-500 hover:text-green-400"
               >
                 <Save className="w-4 h-4" />
@@ -69,6 +70,7 @@ export function GuildCard({
                 size="sm"
                 variant="ghost"
                 onClick={onCancelEdit}
+                aria-label="Cancel editing"
                 className="text-(--accent) hover:text-(--accent)"
               >
                 <X className="w-4 h-4" />
@@ -101,9 +103,15 @@ export function GuildCard({
             </div>
 
             <div>
-              <Label className="text-xs">API Key</Label>
+              <Label
+                htmlFor={`guild-api-key-${editedGuild.guild_code}`}
+                className="text-xs"
+              >
+                API Key
+              </Label>
               <div className="flex items-center gap-2 mt-1">
                 <Input
+                  id={`guild-api-key-${editedGuild.guild_code}`}
                   type="text"
                   value={editedGuild?.api_key || ''}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -124,6 +132,7 @@ export function GuildCard({
                   variant="ghost"
                   onClick={() => onValidateKey(editedGuild.guild_code)}
                   disabled={validatingKey === editedGuild?.guild_code}
+                  aria-label="Validate API key"
                   className="text-(--accent) hover:text-blue-300"
                   title="Validate API key"
                 >
@@ -137,8 +146,14 @@ export function GuildCard({
             </div>
 
             <div>
-              <Label className="text-xs">API Key Owner</Label>
+              <Label
+                htmlFor={`guild-api-owner-${editedGuild.guild_code}`}
+                className="text-xs"
+              >
+                API Key Owner
+              </Label>
               <Input
+                id={`guild-api-owner-${editedGuild.guild_code}`}
                 value={editedGuild?.API_Owner || ''}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   onEditedGuildChange({
@@ -176,12 +191,15 @@ export function GuildCard({
 
             <div className="flex items-center gap-2">
               <Switch
+                id={`guild-enabled-${editedGuild.guild_code}`}
                 checked={editedGuild?.enabled ?? false}
                 onCheckedChange={(checked: boolean) =>
                   onEditedGuildChange({ ...editedGuild, enabled: checked })
                 }
               />
-              <Label>Guild Enabled</Label>
+              <Label htmlFor={`guild-enabled-${editedGuild.guild_code}`}>
+                Guild Enabled
+              </Label>
             </div>
           </div>
         </div>
@@ -246,6 +264,8 @@ export function GuildCard({
                     : guild.guild_code
                 )
               }
+              aria-expanded={expandedWebhooks === guild.guild_code}
+              aria-controls={`guild-webhooks-${guild.guild_code}`}
               className="text-secondary-wh40k hover:text-primary-wh40k min-h-[36px] w-full justify-start"
             >
               <MessageSquare className="w-3 h-3 mr-1 shrink-0" />
@@ -297,7 +317,10 @@ export function GuildCard({
         </div>
 
         {expandedWebhooks === guild.guild_code && clusterId && (
-          <div className="mt-3 pt-3 border-t border-(--card-border)">
+          <div
+            id={`guild-webhooks-${guild.guild_code}`}
+            className="mt-3 pt-3 border-t border-(--card-border)"
+          >
             <InlineWebhookManager
               guildCode={guild.guild_code}
               guildName={guild.display_name || guild.guild_code}

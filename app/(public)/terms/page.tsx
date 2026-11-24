@@ -9,7 +9,10 @@ export const metadata: Metadata = {
   description:
     'Read the terms and conditions for using Tacticus Analytics. Understand your rights and responsibilities when using our guild raid analytics platform.',
   keywords:
-    'tacticus analytics terms, service agreement, terms of service, user agreement, legal terms, conditions of use'
+    'tacticus analytics terms, service agreement, terms of service, user agreement, legal terms, conditions of use',
+  alternates: {
+    canonical: '/terms'
+  }
 }
 
 export default async function TermsAndConditions() {

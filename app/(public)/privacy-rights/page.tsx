@@ -11,7 +11,10 @@ export const metadata: Metadata = {
   description:
     'Learn about your privacy rights under GDPR, CCPA, and other data protection regulations.',
   keywords:
-    'gdpr, privacy rights, data protection, ccpa, personal data, privacy laws'
+    'gdpr, privacy rights, data protection, ccpa, personal data, privacy laws',
+  alternates: {
+    canonical: '/privacy-rights'
+  }
 }
 
 export default async function PrivacyRightsPage() {
@@ -87,7 +90,7 @@ export default async function PrivacyRightsPage() {
                     </div>
                     <div className="bg-card/30 border border-card-border/30 rounded-lg p-4">
                       <h3 className="font-semibold text-(--accent) mb-2">
-                        4. Right to Erasure (&quot;Right to be Forgotten&quot;)
+                        4. Right to Erasure (&quot;Right to Deletion&quot;)
                       </h3>
                       <p className="text-sm">
                         You can request deletion of your personal data in
