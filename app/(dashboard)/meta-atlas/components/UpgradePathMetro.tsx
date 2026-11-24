@@ -1,7 +1,11 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import type { MouseEvent, TouchEvent } from 'react'
+import type {
+  KeyboardEvent as ReactKeyboardEvent,
+  MouseEvent,
+  TouchEvent
+} from 'react'
 import type { RosterInputEntry } from '@/app/lib/meta/roster-input'
 import {
   buildRosterLookup,
@@ -249,6 +253,23 @@ export function UpgradePathMetro({
   const cardRefs = useRef<Array<HTMLDivElement | null>>([])
   const touchStartRef = useRef<number | null>(null)
 
+  const selectStep = (index: number) => {
+    setHasActiveSelection(true)
+    setActiveIndex(index)
+  }
+
+  // Step cards are divs (they wrap connectors and nodes), so they carry the
+  // button semantics and Enter/Space activation explicitly.
+  const handleStepKeyDown = (
+    event: ReactKeyboardEvent<HTMLDivElement>,
+    index: number
+  ) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      selectStep(index)
+    }
+  }
+
   const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
     if (!desktopRef.current || states.length <= 1) return
     let nearestIndex = resolvedActiveIndex
@@ -265,8 +286,7 @@ export function UpgradePathMetro({
     })
     const nextIndex = clampIndex(nearestIndex)
     if (nextIndex !== resolvedActiveIndex) {
-      setHasActiveSelection(true)
-      setActiveIndex(nextIndex)
+      selectStep(nextIndex)
     }
   }
 
@@ -283,8 +303,7 @@ export function UpgradePathMetro({
       const nextIndex = clampIndex(
         delta > 0 ? resolvedActiveIndex - 1 : resolvedActiveIndex + 1
       )
-      setHasActiveSelection(true)
-      setActiveIndex(nextIndex)
+      selectStep(nextIndex)
     }
     touchStartRef.current = null
   }
@@ -365,11 +384,12 @@ export function UpgradePathMetro({
             return (
               <div
                 key={`mobile-${state.key}`}
-                className={`transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`}
-                onClick={() => {
-                  setHasActiveSelection(true)
-                  setActiveIndex(index)
-                }}
+                role="button"
+                tabIndex={0}
+                aria-current={isActive ? 'step' : undefined}
+                className={`metro-step-focus cursor-pointer transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`}
+                onClick={() => selectStep(index)}
+                onKeyDown={(event) => handleStepKeyDown(event, index)}
               >
                 {state.step && (
                   <div className="flex items-center justify-center pb-2">
@@ -435,11 +455,12 @@ export function UpgradePathMetro({
                     cardRefs.current[index] = node
                   }}
                   style={{ flexGrow, flexBasis: 0 }}
-                  className={`flex min-w-0 flex-col items-center gap-2 origin-bottom cursor-pointer transition-[flex-grow,opacity,transform] duration-500 ease-out ${opacityClass} ${scaleClass} ${zClass}`}
-                  onClick={() => {
-                    setHasActiveSelection(true)
-                    setActiveIndex(index)
-                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-current={isActive ? 'step' : undefined}
+                  className={`metro-step-focus flex min-w-0 flex-col items-center gap-2 origin-bottom cursor-pointer transition-[flex-grow,opacity,transform] duration-500 ease-out ${opacityClass} ${scaleClass} ${zClass}`}
+                  onClick={() => selectStep(index)}
+                  onKeyDown={(event) => handleStepKeyDown(event, index)}
                 >
                   {state.step && (
                     <StepDelta

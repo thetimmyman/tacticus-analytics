@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { Button } from '@tacticus/ui-kit'
 import { ValidatedApiKeyInput } from '@/app/components/validation/ValidatedApiKeyInput'
 import { TACTICUS_API } from '@tacticus/app-core/app-config'
@@ -18,6 +18,7 @@ export function ApiKeyModal({ member, onClose }: ApiKeyModalProps) {
   const [apiKeyValidated, setApiKeyValidated] = useState(false)
   const [saving, setSaving] = useState(false)
   const { toast } = useToast()
+  const titleId = useId()
 
   const handleSave = async () => {
     if (!apiKeyValue.trim() || !apiKeyValidated) return
@@ -52,8 +53,8 @@ export function ApiKeyModal({ member, onClose }: ApiKeyModalProps) {
   }
 
   return (
-    <ModalShell>
-      <h3 className="text-lg font-semibold text-primary-wh40k">
+    <ModalShell onClose={onClose} titleId={titleId}>
+      <h3 id={titleId} className="text-lg font-semibold text-primary-wh40k">
         Add Player API Key - <MemberName value={member.display_name} />
       </h3>
       <p className="text-sm text-secondary-wh40k">

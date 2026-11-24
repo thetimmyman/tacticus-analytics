@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useId } from 'react'
 import { Button } from '@tacticus/ui-kit'
 import type { AdminActionResult } from '@tacticus/app-core/types'
 import { useToast } from '@/app/hooks/useToast'
@@ -17,6 +17,7 @@ export function NotesModal({
   const [notesForm, setNotesForm] = useState({ officer: '', player: '' })
   const [saving, setSaving] = useState(false)
   const { toast } = useToast()
+  const titleId = useId()
 
   useEffect(() => {
     setNotesForm({
@@ -61,8 +62,8 @@ export function NotesModal({
   }
 
   return (
-    <ModalShell>
-      <h3 className="text-lg font-semibold text-primary-wh40k">
+    <ModalShell onClose={onClose} titleId={titleId}>
+      <h3 id={titleId} className="text-lg font-semibold text-primary-wh40k">
         Edit Notes - <MemberName value={member.display_name} />
       </h3>
       <div className="space-y-4">

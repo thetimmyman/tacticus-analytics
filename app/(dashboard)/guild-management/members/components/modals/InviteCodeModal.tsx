@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { useHasMounted } from '@/app/lib/hooks/useHasMounted'
 import { Button, Input } from '@tacticus/ui-kit'
 import { ModalShell } from '@/app/components/ui/ModalShell'
@@ -16,6 +16,7 @@ export function InviteCodeModal({ member, onClose }: InviteCodeModalProps) {
   const [generatedCode, setGeneratedCode] = useState<string | null>(null)
   const [expiresAt, setExpiresAt] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const titleId = useId()
 
   const handleGenerate = async () => {
     setLoading(true)
@@ -81,8 +82,8 @@ export function InviteCodeModal({ member, onClose }: InviteCodeModalProps) {
   }
 
   return (
-    <ModalShell>
-      <h3 className="text-lg font-semibold text-primary-wh40k">
+    <ModalShell onClose={handleClose} titleId={titleId}>
+      <h3 id={titleId} className="text-lg font-semibold text-primary-wh40k">
         Invite Code - <MemberName value={member.display_name} />
       </h3>
       <div className="space-y-4">

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { Button } from '@tacticus/ui-kit'
 import { ModalShell } from '@/app/components/ui/ModalShell'
 import { MemberName } from '@/app/components/ui/MemberName'
@@ -20,6 +20,7 @@ export function AdminUnlinkModal({
   const [success, setSuccess] = useState<{ priorUserId: string | null } | null>(
     null
   )
+  const titleId = useId()
 
   const trimmedReason = reason.trim()
   const reasonValid = trimmedReason.length >= MIN_REASON_LENGTH
@@ -76,8 +77,8 @@ export function AdminUnlinkModal({
   }
 
   return (
-    <ModalShell>
-      <h3 className="text-lg font-semibold text-primary-wh40k">
+    <ModalShell onClose={onClose} titleId={titleId}>
+      <h3 id={titleId} className="text-lg font-semibold text-primary-wh40k">
         Unlink Player — <MemberName value={member.display_name} />
       </h3>
 

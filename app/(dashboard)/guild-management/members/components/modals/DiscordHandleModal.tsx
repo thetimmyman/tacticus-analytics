@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useId } from 'react'
 import { Input } from '@tacticus/ui-kit'
 import { Button } from '@tacticus/ui-kit'
 import type { AdminActionResult } from '@tacticus/app-core/types'
@@ -21,6 +21,7 @@ export function DiscordHandleModal({
   const [discordHandle, setDiscordHandle] = useState('')
   const [saving, setSaving] = useState(false)
   const { toast } = useToast()
+  const titleId = useId()
 
   useEffect(() => {
     setDiscordHandle(member.discord_username ?? '')
@@ -60,8 +61,8 @@ export function DiscordHandleModal({
   }
 
   return (
-    <ModalShell>
-      <h3 className="text-lg font-semibold text-primary-wh40k">
+    <ModalShell onClose={onClose} titleId={titleId}>
+      <h3 id={titleId} className="text-lg font-semibold text-primary-wh40k">
         Set Discord Handle - <MemberName value={member.display_name} />
       </h3>
       <div className="space-y-4">
