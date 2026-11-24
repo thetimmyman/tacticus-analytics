@@ -38,7 +38,7 @@ function SwapUnitBadge({
             loading="lazy"
           />
         ) : (
-          <span className="flex h-full w-full items-center justify-center text-[10px] text-slate-300 font-semibold">
+          <span className="flex h-full w-full items-center justify-center text-[11px] text-slate-300 font-semibold">
             {unit.name.slice(0, 2).toUpperCase()}
           </span>
         )}
@@ -88,7 +88,7 @@ export function StepDelta({
   return (
     <div className="flex items-center gap-2">
       <span
-        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[9px] font-semibold ${badgeClass}`}
+        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${badgeClass}`}
       >
         {gainLabel}
       </span>

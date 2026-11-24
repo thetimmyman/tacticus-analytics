@@ -204,7 +204,7 @@ function RankingCard({
                 key={`${player.displayName}-${sortKey}`}
                 className="flex items-start gap-2"
               >
-                <span className="text-[10px] sm:text-xs text-secondary-wh40k w-4 sm:w-6 mt-0.5">
+                <span className="text-[11px] sm:text-xs text-secondary-wh40k w-4 sm:w-6 mt-0.5">
                   #{actualRank}
                 </span>
                 <div className="flex-1 min-w-0">
@@ -212,7 +212,7 @@ function RankingCard({
                     <span className="text-xs font-medium text-secondary-wh40k truncate shrink">
                       {player.displayName}
                     </span>
-                    <div className="flex items-center gap-2 text-[9px] sm:text-[10px] shrink-0">
+                    <div className="flex items-center gap-2 text-[11px] shrink-0">
                       {renderMetrics(player)}
                     </div>
                   </div>

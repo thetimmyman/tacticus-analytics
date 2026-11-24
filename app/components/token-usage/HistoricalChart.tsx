@@ -32,7 +32,7 @@ function HistoricalChart({ players }: HistoricalChartProps) {
       <h3 className="heading-wh40k text-base sm:text-lg mb-2">
         Historical Token Usage (5-Season Average)
       </h3>
-      <p className="text-[10px] sm:text-xs text-secondary-wh40k mb-3">
+      <p className="text-xs text-secondary-wh40k mb-3">
         Only showing players who participated in all of the past 5 completed
         seasons
       </p>

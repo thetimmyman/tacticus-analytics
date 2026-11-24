@@ -537,7 +537,7 @@ export function GuildTeamsClient({
               <MemberName value={playerName} />
             </span>
             {tokenInfo && (
-              <span className="shrink-0 text-[10px] text-secondary-wh40k">
+              <span className="shrink-0 text-[11px] text-secondary-wh40k">
                 {tokens}/{TOKEN_CAP} tokens ·{' '}
                 {bombReady ? (
                   <span className="font-medium text-green-400">bomb ✓</span>
@@ -558,7 +558,7 @@ export function GuildTeamsClient({
           <div className="space-y-2 p-2">
             {herosByTier.map((group) => (
               <div key={group.tier}>
-                <div className="mb-1 text-[9px] font-semibold uppercase tracking-wider text-secondary-wh40k">
+                <div className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-secondary-wh40k">
                   {TIER_LABELS[group.tier]}
                 </div>
                 <div className="grid grid-cols-3 gap-1 min-[420px]:grid-cols-4 sm:grid-cols-5 md:grid-cols-6">
@@ -583,7 +583,7 @@ export function GuildTeamsClient({
                               unoptimized
                             />
                           )}
-                          <span className="truncate text-[9px] leading-tight text-secondary-wh40k">
+                          <span className="truncate text-[11px] leading-tight text-secondary-wh40k">
                             {name}
                           </span>
                         </div>

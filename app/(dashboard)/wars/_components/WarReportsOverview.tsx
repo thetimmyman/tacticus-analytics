@@ -187,10 +187,10 @@ function WarCountdownTimer({
               <span className="text-xs text-(--text-tertiary) block">
                 {seasonLabel} - {phaseLabel}
               </span>
-              <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-wide text-(--text-tertiary)">
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-wide text-(--text-tertiary)">
                 <span>Source: {phaseInfo.sourceLabel}</span>
                 {phaseInfo.isEstimated && (
-                  <Badge className="border-(--border) bg-(--bg-secondary) text-secondary-wh40k text-[10px] uppercase tracking-wide">
+                  <Badge className="border-(--border) bg-(--bg-secondary) text-secondary-wh40k text-[11px] uppercase tracking-wide">
                     Estimated
                   </Badge>
                 )}
@@ -207,7 +207,7 @@ function WarCountdownTimer({
                 <span className="text-xl sm:text-2xl font-bold text-primary-wh40k font-mono">
                   {timeLeft.days}
                 </span>
-                <span className="text-[10px] sm:text-xs text-secondary-wh40k block">
+                <span className="text-[11px] sm:text-xs text-secondary-wh40k block">
                   Days
                 </span>
               </div>
@@ -218,7 +218,7 @@ function WarCountdownTimer({
                 <span className="text-xl sm:text-2xl font-bold text-primary-wh40k font-mono">
                   {String(timeLeft.hours).padStart(2, '0')}
                 </span>
-                <span className="text-[10px] sm:text-xs text-secondary-wh40k block">
+                <span className="text-[11px] sm:text-xs text-secondary-wh40k block">
                   Hours
                 </span>
               </div>
@@ -229,7 +229,7 @@ function WarCountdownTimer({
                 <span className="text-xl sm:text-2xl font-bold text-primary-wh40k font-mono">
                   {String(timeLeft.minutes).padStart(2, '0')}
                 </span>
-                <span className="text-[10px] sm:text-xs text-secondary-wh40k block">
+                <span className="text-[11px] sm:text-xs text-secondary-wh40k block">
                   Mins
                 </span>
               </div>
@@ -240,7 +240,7 @@ function WarCountdownTimer({
                 <span className="text-xl sm:text-2xl font-bold text-(--accent) font-mono">
                   {String(timeLeft.seconds).padStart(2, '0')}
                 </span>
-                <span className="text-[10px] sm:text-xs text-secondary-wh40k block">
+                <span className="text-[11px] sm:text-xs text-secondary-wh40k block">
                   Secs
                 </span>
               </div>

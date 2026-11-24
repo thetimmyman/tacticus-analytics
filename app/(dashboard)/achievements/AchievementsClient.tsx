@@ -665,7 +665,7 @@ function SeriesCard({ series, hasMounted }: SeriesCardProps) {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span
-              className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+              className={`rounded-full border px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${
                 rarityClasses[rarityForBadge] ?? rarityClasses.common
               }`}
             >
@@ -675,12 +675,12 @@ function SeriesCard({ series, hasMounted }: SeriesCardProps) {
               {series.categoryLabel}
             </span>
             {isMaxed && (
-              <span className="rounded-full border border-amber-400/40 bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-200">
+              <span className="rounded-full border border-amber-400/40 bg-amber-500/15 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-amber-200">
                 Maxed
               </span>
             )}
             {isJustUnlocked && (
-              <span className="rounded-full border border-amber-300/50 bg-amber-400/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-100">
+              <span className="rounded-full border border-amber-300/50 bg-amber-400/15 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-amber-100">
                 Just unlocked
               </span>
             )}
@@ -775,7 +775,7 @@ function SeriesCard({ series, hasMounted }: SeriesCardProps) {
             >
               <span className="flex min-w-0 items-center gap-2">
                 <span
-                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border text-[9px] ${
+                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border text-[11px] ${
                     tier.unlocked
                       ? 'border-[color-mix(in_srgb,var(--accent)_60%,transparent)] bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-(--accent)'
                       : 'border-white/15 text-secondary-wh40k'
@@ -789,7 +789,7 @@ function SeriesCard({ series, hasMounted }: SeriesCardProps) {
               <span className="flex items-center gap-2 text-secondary-wh40k">
                 <span>{formatNumber(tier.threshold ?? 0)}</span>
                 <span
-                  className={`rounded-full border px-1.5 py-0 text-[9px] font-bold uppercase tracking-wide ${
+                  className={`rounded-full border px-1.5 py-0 text-[11px] font-bold uppercase tracking-wide ${
                     rarityClasses[tier.rarity] ?? rarityClasses.common
                   }`}
                 >

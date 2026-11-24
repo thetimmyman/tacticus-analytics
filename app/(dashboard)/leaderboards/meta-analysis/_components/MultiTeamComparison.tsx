@@ -204,12 +204,12 @@ export function MultiTeamComparison({
                     </span>
                   )}
                   {stats.teamName === highestDamageWinner.teamName && (
-                    <span className="bg-accent-wh40k text-on-accent-wh40k text-[10px] px-2 py-0.5 rounded-full font-medium">
+                    <span className="bg-accent-wh40k text-on-accent-wh40k text-[11px] px-2 py-0.5 rounded-full font-medium">
                       HIGHEST DMG
                     </span>
                   )}
                   {stats.teamName === mostConsistentWinner.teamName && (
-                    <span className="bg-yellow-600/80 text-black text-[10px] px-2 py-0.5 rounded-full font-medium">
+                    <span className="bg-yellow-600/80 text-black text-[11px] px-2 py-0.5 rounded-full font-medium">
                       MOST STABLE
                     </span>
                   )}

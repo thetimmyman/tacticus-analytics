@@ -39,7 +39,7 @@ export function GuildPatterns({ patterns }: { patterns: GuildPattern[] }) {
         <h2 className="text-sm font-semibold text-primary-wh40k">
           Guild patterns
         </h2>
-        <p className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
+        <p className="text-[11px] uppercase tracking-wider text-(--text-tertiary)">
           Signals worth acting on once, not member by member
         </p>
       </header>
@@ -53,7 +53,7 @@ export function GuildPatterns({ patterns }: { patterns: GuildPattern[] }) {
               className="rounded-lg border border-[color-mix(in_srgb,var(--card-border)_60%,transparent)] bg-(--bg-primary) p-3"
             >
               <p
-                className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider"
+                className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider"
                 style={{ color: meta.color }}
               >
                 {meta.icon}

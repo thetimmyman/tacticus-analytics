@@ -44,11 +44,7 @@ export function AccountMenuHeader({
         className={isMobile ? 'h-3.5 w-3.5' : 'h-4 w-4'}
         aria-hidden="true"
       />
-      <span
-        className={`${isMobile ? 'text-[8px]' : 'text-[9px]'} text-secondary-wh40k`}
-      >
-        Profile
-      </span>
+      <span className="text-[11px] text-secondary-wh40k">Profile</span>
     </Link>
   )
 
@@ -73,7 +69,7 @@ export function AccountMenuHeader({
               <MemberName value={profile?.display_name || user.email} />
             </p>
             <p
-              className={`${isMobile ? 'text-[10px]' : 'text-xs'} text-secondary-wh40k`}
+              className={`${isMobile ? 'text-[11px]' : 'text-xs'} text-secondary-wh40k`}
             >
               {guildDisplayLabel} •{' '}
               {inactiveNavigation ? (

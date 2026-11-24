@@ -70,7 +70,7 @@ export function OverallLeaderboardControls({
           >
             Battle Weighted
             <span
-              className={`ml-1.5 rounded px-1 text-[10px] font-medium uppercase tracking-wide ${
+              className={`ml-1.5 rounded px-1 text-[11px] font-medium uppercase tracking-wide ${
                 !scoring.isTokenModeActive
                   ? 'bg-black/15 text-(--bg-primary)'
                   : 'bg-[color-mix(in_srgb,var(--primary)_15%,transparent)] text-secondary-wh40k'

@@ -526,7 +526,7 @@ export function OpsPanel({
     >
       <div className="flex items-center justify-between gap-2">
         <div>
-          <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
             Main encounter
           </div>
           <div className="text-sm font-semibold text-primary-wh40k">
@@ -572,7 +572,7 @@ export function OpsPanel({
       {card.sideEncounters.length > 0 && (
         <div className="space-y-2 rounded-md border border-(--card-border) bg-black/15 p-3">
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-(--accent)">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-(--accent)">
               Prime ping mode
             </div>
             <div className="mt-1 text-xs text-(--text-tertiary)">
@@ -591,7 +591,7 @@ export function OpsPanel({
           )}
           {state.pingMode === 'combined' && (
             <div className="space-y-1">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
                 Combined prime ping — preview
               </div>
               {combinedPrimeNotesPreview.length > 0 ? (
@@ -604,7 +604,7 @@ export function OpsPanel({
                   Prime 2 notes below appears here.
                 </p>
               )}
-              <p className="text-[10px] text-(--text-tertiary)">
+              <p className="text-[11px] text-(--text-tertiary)">
                 Built from the Prime 1 and Prime 2 notes below — edit those.
                 Matching notes post once; different ones get side headings.
               </p>
@@ -675,7 +675,7 @@ export function OpsPanel({
             >
               <div className="flex items-center justify-between gap-2">
                 <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
                     Prime {index + 1}
                   </div>
                   <div className="text-sm font-semibold text-primary-wh40k">
@@ -736,7 +736,7 @@ export function OpsPanel({
                 }
               />
               <div className="space-y-1">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
                   Behavior
                 </div>
                 <BehaviourToggle
@@ -747,7 +747,7 @@ export function OpsPanel({
               </div>
               {side.behaviour === 'threshold' && (
                 <div className="space-y-1">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
                     Threshold HP remaining
                   </div>
                   <ThresholdPicker
@@ -796,7 +796,7 @@ export function OpsPanel({
             }
             canExpandOps={canExpandOps}
           >
-            <span className="rounded-md border border-(--card-border) px-2 py-1 text-[10px] font-semibold uppercase text-(--text-tertiary)">
+            <span className="rounded-md border border-(--card-border) px-2 py-1 text-[11px] font-semibold uppercase text-(--text-tertiary)">
               {targetLabel(encounter)}
             </span>
           </EncounterCommandRow>

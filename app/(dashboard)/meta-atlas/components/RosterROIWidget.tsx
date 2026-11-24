@@ -154,7 +154,7 @@ export function RosterROIWidget({
                         {displayName}
                       </h3>
                       <span
-                        className={`inline-block px-1.5 py-0.5 rounded-sm text-[9px] uppercase font-bold border ${badge.className}`}
+                        className={`inline-block px-1.5 py-0.5 rounded-sm text-[11px] uppercase font-bold border ${badge.className}`}
                       >
                         {badge.label}
                       </span>
@@ -165,7 +165,7 @@ export function RosterROIWidget({
                     {entry.unlock_count !== 1 ? 's' : ''}
                   </p>
                   {statusLabel && (
-                    <p className="text-[9px] uppercase text-secondary-wh40k mt-0.5">
+                    <p className="text-[11px] uppercase text-secondary-wh40k mt-0.5">
                       {statusLabel}
                     </p>
                   )}

@@ -46,7 +46,7 @@ export const HeroUnitPortrait = memo(function HeroUnitPortrait({
 
   return (
     <div
-      className={`${sizeClasses[size]} rounded-full border border-[color-mix(in_srgb,var(--accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] flex items-center justify-center text-[10px] uppercase tracking-wide text-(--accent) font-semibold shrink-0 ${className}`.trim()}
+      className={`${sizeClasses[size]} rounded-full border border-[color-mix(in_srgb,var(--accent)_30%,transparent)] bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] flex items-center justify-center text-[11px] uppercase tracking-wide text-(--accent) font-semibold shrink-0 ${className}`.trim()}
       title={displayName}
     >
       {fallbackBadge}

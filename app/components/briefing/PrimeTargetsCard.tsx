@@ -18,7 +18,7 @@ function PrimeBadge({ target }: { target: PrimeTarget }) {
       ? `Threshold ↓${target.thresholdHpPct}%`
       : 'Kill'
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-(--card-border) px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-secondary-wh40k">
+    <span className="inline-flex items-center gap-1 rounded-full border border-(--card-border) px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-secondary-wh40k">
       <span className="inline-flex shrink-0" aria-hidden="true">
         <Icon className="h-3 w-3" aria-hidden />
       </span>
@@ -41,7 +41,7 @@ function PrimeTargetsCard({ targets }: PrimeTargetsCardProps) {
           <h2 className="text-sm font-semibold text-primary-wh40k">
             Prime targets
           </h2>
-          <span className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
+          <span className="text-[11px] uppercase tracking-wider text-(--text-tertiary)">
             Clear before the main
           </span>
         </div>
@@ -66,11 +66,11 @@ function PrimeTargetsCard({ targets }: PrimeTargetsCardProps) {
                 </p>
                 <PrimeBadge target={target} />
               </div>
-              <p className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
+              <p className="text-[11px] uppercase tracking-wider text-(--text-tertiary)">
                 {target.levelCode} · Prime {target.encounterId}
               </p>
               <div className="mt-2">
-                <div className="flex justify-between text-[10px] text-(--text-tertiary)">
+                <div className="flex justify-between text-[11px] text-(--text-tertiary)">
                   <span>HP remaining</span>
                   <span className="font-semibold text-secondary-wh40k">
                     {Math.round(target.hpPercentage)}%

@@ -74,7 +74,7 @@ export const AvailabilitySummary = ({
       )}
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 sm:gap-2 mb-3">
         <div>
-          <p className="text-[10px] text-(--text-tertiary) uppercase tracking-wider font-medium">
+          <p className="text-[11px] text-(--text-tertiary) uppercase tracking-wider font-medium">
             Players
           </p>
           <p className="text-base sm:text-lg font-bold text-primary-wh40k">
@@ -82,7 +82,7 @@ export const AvailabilitySummary = ({
           </p>
         </div>
         <div>
-          <p className="text-[10px] text-(--text-tertiary) uppercase tracking-wider font-medium">
+          <p className="text-[11px] text-(--text-tertiary) uppercase tracking-wider font-medium">
             Tokens
           </p>
           <p className="text-base sm:text-lg font-bold text-(--success)">
@@ -90,7 +90,7 @@ export const AvailabilitySummary = ({
           </p>
         </div>
         <div>
-          <p className="text-[10px] text-(--text-tertiary) uppercase tracking-wider">
+          <p className="text-[11px] text-(--text-tertiary) uppercase tracking-wider">
             Bombs
           </p>
           <p className="text-base sm:text-lg font-bold text-(--accent)">
@@ -98,7 +98,7 @@ export const AvailabilitySummary = ({
           </p>
         </div>
         <div className="hidden sm:block">
-          <p className="text-[10px] text-(--text-tertiary) uppercase tracking-wider">
+          <p className="text-[11px] text-(--text-tertiary) uppercase tracking-wider">
             Capped
           </p>
           <p className="text-base sm:text-lg font-bold text-(--accent)">
@@ -106,7 +106,7 @@ export const AvailabilitySummary = ({
           </p>
         </div>
         <div className="hidden sm:block">
-          <p className="text-[10px] text-(--text-tertiary) uppercase tracking-wider">
+          <p className="text-[11px] text-(--text-tertiary) uppercase tracking-wider">
             API Keys
           </p>
           <p className="text-base sm:text-lg font-bold text-emerald-400">

@@ -315,7 +315,7 @@ export function PrivacySettingsPanel({
                           ariaLabel="Obfuscation percent"
                         />
                       </fieldset>
-                      <div className="flex justify-between text-[10px] uppercase tracking-wide text-(--text-tertiary)">
+                      <div className="flex justify-between text-[11px] uppercase tracking-wide text-(--text-tertiary)">
                         <span>lighter fuzz</span>
                         <span>heavier fuzz</span>
                       </div>

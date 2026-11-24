@@ -61,7 +61,7 @@ export default function ZonePlanningBoard({
   return (
     <div className="flex flex-col-reverse md:flex-row gap-4">
       <div className="flex-1 space-y-3">
-        <div className="flex items-center justify-center flex-wrap gap-2 md:gap-4 text-[10px] md:text-xs text-secondary-wh40k">
+        <div className="flex items-center justify-center flex-wrap gap-2 md:gap-4 text-[11px] md:text-xs text-secondary-wh40k">
           <span className="flex items-center">
             <span className="w-2 h-2 rounded-sm bg-gray-500/50 mr-1" /> Common
           </span>
@@ -130,13 +130,13 @@ export default function ZonePlanningBoard({
                               <h3 className="font-semibold text-primary-wh40k text-xs leading-tight">
                                 {zoneDisplayName(zone.zoneId)}
                               </h3>
-                              <p className="text-[10px] text-secondary-wh40k">
+                              <p className="text-[11px] text-secondary-wh40k">
                                 {formatPower(zone.recommendedPower)} rec
                               </p>
                             </div>
                           </div>
                           <Badge
-                            className={`text-[10px] px-1.5 py-0.5 ${getRarityColor(zone.baseRarity)}`}
+                            className={`text-[11px] px-1.5 py-0.5 ${getRarityColor(zone.baseRarity)}`}
                           >
                             {RARITY_LABELS[zone.baseRarity]}
                           </Badge>
@@ -183,7 +183,7 @@ export default function ZonePlanningBoard({
                                     </div>
                                     <div className="flex items-center space-x-1 shrink-0">
                                       {level > 0 && (
-                                        <span className="text-secondary-wh40k text-[10px]">
+                                        <span className="text-secondary-wh40k text-[11px]">
                                           Lv.{level}
                                         </span>
                                       )}
@@ -203,7 +203,7 @@ export default function ZonePlanningBoard({
                                     </div>
                                   </>
                                 ) : (
-                                  <span className="text-secondary-wh40k italic text-[10px]">
+                                  <span className="text-secondary-wh40k italic text-[11px]">
                                     Drop player here
                                   </span>
                                 )}
@@ -213,7 +213,7 @@ export default function ZonePlanningBoard({
                         </div>
 
                         {assignedPlayers.length > 0 && combinedLevel > 0 && (
-                          <div className="flex items-center justify-between text-[10px] pt-1 border-t border-card-border/10">
+                          <div className="flex items-center justify-between text-[11px] pt-1 border-t border-card-border/10">
                             <span className="text-secondary-wh40k">
                               Avg Level:
                             </span>
@@ -305,18 +305,18 @@ export default function ZonePlanningBoard({
                           }}
                         />
                         {member.player_level && member.player_level > 0 && (
-                          <div className="absolute -bottom-1 -right-1 bg-card/80 text-primary-wh40k text-[8px] font-bold px-1 rounded-full min-w-[16px] text-center border border-(--border)">
+                          <div className="absolute -bottom-1 -right-1 bg-card/80 text-primary-wh40k text-[11px] font-bold px-1 rounded-full min-w-[16px] text-center border border-(--border)">
                             {member.player_level}
                           </div>
                         )}
                       </div>
 
                       <div className="flex-1 min-w-0 text-center md:text-left mt-1 md:mt-0">
-                        <p className="text-[10px] md:text-sm font-medium text-primary-wh40k truncate">
+                        <p className="text-[11px] md:text-sm font-medium text-primary-wh40k truncate">
                           {member.display_name}
                         </p>
                         {member.player_level && member.player_level > 0 && (
-                          <div className="text-[9px] md:text-[10px] text-secondary-wh40k">
+                          <div className="text-[11px] text-secondary-wh40k">
                             Level {member.player_level}
                           </div>
                         )}

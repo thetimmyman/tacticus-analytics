@@ -118,7 +118,7 @@ export function GuildTeamsToolbar({
           >
             Heroes
             {selectedHeroUnitIds !== null && (
-              <span className="ml-0.5 text-[10px] opacity-80">
+              <span className="ml-0.5 text-[11px] opacity-80">
                 ({selectedHeroUnitIds.size}/{selectedTeam.heroes.length})
               </span>
             )}
@@ -131,7 +131,7 @@ export function GuildTeamsToolbar({
                   onClick={() => {
                     setSelectedHeroUnitIds(null)
                   }}
-                  className="text-[10px] text-indigo-400 hover:text-indigo-300"
+                  className="text-[11px] text-indigo-400 hover:text-indigo-300"
                 >
                   All
                 </button>
@@ -149,7 +149,7 @@ export function GuildTeamsToolbar({
                 if (tierHeroes.length === 0) return null
                 return (
                   <div key={tier}>
-                    <div className="px-2 py-1 text-[10px] text-secondary-wh40k uppercase tracking-wider bg-(--card-bg)">
+                    <div className="px-2 py-1 text-[11px] text-secondary-wh40k uppercase tracking-wider bg-(--card-bg)">
                       {TIER_LABELS[tier]}
                     </div>
                     {tierHeroes.map((hero) => {

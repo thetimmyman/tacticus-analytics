@@ -273,7 +273,7 @@
   @apply text-xs uppercase tracking-wider;
   color: var(--text-secondary);
   @media (max-width: 640px) {
-    @apply text-[10px];
+    @apply text-[11px];
   }
 }
 

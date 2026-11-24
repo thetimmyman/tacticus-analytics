@@ -83,7 +83,7 @@ export function FilterChips({ active, counts, onChange }: FilterChipsProps) {
             <span style={{ color: chip.color }}>{chip.icon}</span>
             {chip.label}
             <span
-              className="rounded-full px-1.5 text-[10px] font-bold"
+              className="rounded-full px-1.5 text-[11px] font-bold"
               style={{
                 color: isActive ? 'var(--bg-primary)' : chip.color,
                 backgroundColor: isActive ? chip.color : 'transparent'

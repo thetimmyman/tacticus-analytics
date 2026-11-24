@@ -300,7 +300,7 @@ export default function WebhookCard({
                     <span className="text-(--text-tertiary) font-semibold block mb-1">
                       Example Output:
                     </span>
-                    <pre className="text-secondary-wh40k whitespace-pre-wrap font-mono text-[10px]">
+                    <pre className="text-secondary-wh40k whitespace-pre-wrap font-mono text-[11px]">
                       {config.details.example}
                     </pre>
                   </div>

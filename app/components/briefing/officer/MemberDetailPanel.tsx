@@ -403,7 +403,7 @@ export function MemberDetailPanel({
               tokens
             ].filter(Boolean)
             return parts.length > 0 ? (
-              <p className="text-[10px] text-(--text-tertiary)">
+              <p className="text-[11px] text-(--text-tertiary)">
                 {parts.join(' · ')}
               </p>
             ) : null
@@ -527,7 +527,7 @@ export function MemberDetailPanel({
                 ×
               </button>
             </div>
-            <p className="mb-1 text-[10px] uppercase tracking-wider text-(--text-tertiary)">
+            <p className="mb-1 text-[11px] uppercase tracking-wider text-(--text-tertiary)">
               Suggested message
             </p>
             <textarea
@@ -603,7 +603,7 @@ export function MemberDetailPanel({
 
         {others.length > 0 && (
           <div>
-            <p className="mb-1 text-[10px] uppercase tracking-widest text-(--text-tertiary)">
+            <p className="mb-1 text-[11px] uppercase tracking-widest text-(--text-tertiary)">
               Other bosses
             </p>
             <ul className="divide-y divide-[color-mix(in_srgb,var(--card-border)_40%,transparent)]">
@@ -618,7 +618,7 @@ export function MemberDetailPanel({
         )}
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[color-mix(in_srgb,var(--card-border)_40%,transparent)] px-4 py-2 text-[10px] text-(--text-tertiary)">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[color-mix(in_srgb,var(--card-border)_40%,transparent)] px-4 py-2 text-[11px] text-(--text-tertiary)">
         <span>
           Model compares boss, difficulty, upgrades, and roster-feasible teams.
         </span>

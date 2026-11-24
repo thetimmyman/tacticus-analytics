@@ -219,13 +219,13 @@ export function AssignedAttackersTable({
                         return (
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <span
-                              className={`inline-flex items-center rounded-sm border px-1.5 py-0.5 text-[10px] font-medium ${badge.className}`}
+                              className={`inline-flex items-center rounded-sm border px-1.5 py-0.5 text-[11px] font-medium ${badge.className}`}
                             >
                               {badge.label}
                             </span>
                             {row.unplanned && (
                               <span
-                                className="inline-flex items-center rounded-sm border border-orange-500/40 bg-orange-500/20 px-1.5 py-0.5 text-[10px] font-medium text-orange-300"
+                                className="inline-flex items-center rounded-sm border border-orange-500/40 bg-orange-500/20 px-1.5 py-0.5 text-[11px] font-medium text-orange-300"
                                 title="Attacker landed on this target without being assigned here by the solver."
                               >
                                 unplanned
@@ -242,7 +242,7 @@ export function AssignedAttackersTable({
                         <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
                           {detailFields.map((field) => (
                             <div key={field.label} className="flex flex-col">
-                              <dt className="text-[10px] uppercase tracking-wide text-secondary-wh40k">
+                              <dt className="text-[11px] uppercase tracking-wide text-secondary-wh40k">
                                 {field.label}
                               </dt>
                               <dd className="text-xs text-primary-wh40k">

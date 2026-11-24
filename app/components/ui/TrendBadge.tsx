@@ -40,7 +40,7 @@ export function TrendBadge({
       <Icon className={`h-3 w-3 ${colorClassName}`} />
       {showLabel && (
         <span
-          className={`text-[10px] uppercase font-semibold ${colorClassName}`}
+          className={`text-[11px] uppercase font-semibold ${colorClassName}`}
         >
           {trend}
         </span>

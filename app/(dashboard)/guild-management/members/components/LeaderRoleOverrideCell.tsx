@@ -178,7 +178,7 @@ export function LeaderRoleOverrideCell({
             return (
               <span
                 key={r.id}
-                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-[10px] border ${badge.className}`}
+                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-[11px] border ${badge.className}`}
                 title={`Source: ${r.source}`}
               >
                 <span>{team?.team_name ?? r.meta_team_id.slice(0, 6)}</span>
@@ -193,7 +193,7 @@ export function LeaderRoleOverrideCell({
             <RadixDropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-[10px] border border-(--card-border) bg-(--bg-secondary) text-secondary-wh40k hover:border-[color-mix(in_srgb,var(--accent)_40%,transparent)] hover:text-(--accent) transition-colors"
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-[11px] border border-(--card-border) bg-(--bg-secondary) text-secondary-wh40k hover:border-[color-mix(in_srgb,var(--accent)_40%,transparent)] hover:text-(--accent) transition-colors"
                 aria-label={`Edit Herald roles for ${targetDisplayName ?? 'member'}`}
               >
                 <Pencil className="h-3 w-3" />
@@ -236,7 +236,7 @@ export function LeaderRoleOverrideCell({
                         {isPending ? (
                           <Loader2 className="h-3 w-3 animate-spin" />
                         ) : sourceLabel ? (
-                          <span className="text-[10px] opacity-60">
+                          <span className="text-[11px] opacity-60">
                             {sourceLabel}
                           </span>
                         ) : null}
@@ -250,7 +250,7 @@ export function LeaderRoleOverrideCell({
         )}
       </div>
 
-      {error && <div className="text-[10px] text-rose-300">{error}</div>}
+      {error && <div className="text-[11px] text-rose-300">{error}</div>}
     </div>
   )
 }

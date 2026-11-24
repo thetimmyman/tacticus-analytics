@@ -829,7 +829,7 @@ export default function GuildSettingsClient({
                   {section.leaderOnly && (
                     <StatusLabel
                       type="warning"
-                      className="text-[10px] uppercase tracking-wide"
+                      className="text-[11px] uppercase tracking-wide"
                     >
                       Leader
                     </StatusLabel>

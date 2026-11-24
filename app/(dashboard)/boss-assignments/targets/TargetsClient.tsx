@@ -139,7 +139,7 @@ export default function TargetsClient({
     const actual = actuals[targetRowKey(row)]
     return actual ? (
       <div
-        className="text-[10px] text-amber-100/40 font-normal"
+        className="text-[11px] text-amber-100/40 font-normal"
         title={`Recent guild actual: ${actual.tokensToKill.toFixed(1)} tokens to kill (S${actual.season}, ${actual.sampleCount} attacks)`}
       >
         actual ≈ {actual.tokensToKill.toFixed(1)}
@@ -558,7 +558,7 @@ export default function TargetsClient({
                             const inlineHint =
                               actual && !isEditing ? (
                                 <div
-                                  className="text-[10px] text-amber-100/40 font-normal"
+                                  className="text-[11px] text-amber-100/40 font-normal"
                                   title={tooltip}
                                 >
                                   actual ≈ {actual.tokensToKill.toFixed(1)}
@@ -605,14 +605,14 @@ export default function TargetsClient({
                         <td className="px-4 py-2 text-center">
                           {isNoneAvailable ? (
                             <span
-                              className="px-2 py-0.5 rounded-sm text-[10px] font-semibold bg-red-500/20 text-red-300 border border-red-500/40"
+                              className="px-2 py-0.5 rounded-sm text-[11px] font-semibold bg-red-500/20 text-red-300 border border-red-500/40"
                               title="No historical data at this tier or any tier below. Manual entry recommended."
                             >
                               None available
                             </span>
                           ) : showSkipped ? (
                             <span
-                              className="px-2 py-0.5 rounded-sm text-[10px] bg-gray-500/20 text-gray-300 border border-gray-500/30"
+                              className="px-2 py-0.5 rounded-sm text-[11px] bg-gray-500/20 text-gray-300 border border-gray-500/30"
                               title={
                                 isSkipped
                                   ? undefined
@@ -625,14 +625,14 @@ export default function TargetsClient({
                             </span>
                           ) : isTierFallback ? (
                             <span
-                              className="px-2 py-0.5 rounded-sm text-[10px] font-semibold bg-orange-500/20 text-orange-300 border border-orange-500/40"
+                              className="px-2 py-0.5 rounded-sm text-[11px] font-semibold bg-orange-500/20 text-orange-300 border border-orange-500/40"
                               title={`Derived from ${tierFallbackLabel} (same boss, lower tier). ${row.target?.seeded_from_seasons ?? ''}`}
                             >
                               Fallback: {tierFallbackLabel}
                             </span>
                           ) : hasTarget ? (
                             <span
-                              className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                              className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
                                 row.target!.source === 'officer_manual'
                                   ? 'bg-green-500/20 text-green-300 border border-green-500/30'
                                   : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
@@ -649,7 +649,7 @@ export default function TargetsClient({
                                 : 'Seeded'}
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 rounded-sm text-[10px] text-amber-100/40 border border-amber-100/10">
+                            <span className="px-2 py-0.5 rounded-sm text-[11px] text-amber-100/40 border border-amber-100/10">
                               Unset
                             </span>
                           )}

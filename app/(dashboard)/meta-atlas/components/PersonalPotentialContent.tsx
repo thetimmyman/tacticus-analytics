@@ -478,7 +478,7 @@ export function PersonalPotentialContent({
           </div>
           {historyEqualsRoster && hasHistoryData && (
             <div
-              className="ml-2 flex items-center gap-1 text-[10px] text-secondary-wh40k"
+              className="ml-2 flex items-center gap-1 text-[11px] text-secondary-wh40k"
               title="Your battle history team matches your best roster team"
             >
               <Equal className="w-3 h-3" />

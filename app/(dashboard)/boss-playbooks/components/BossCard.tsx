@@ -41,7 +41,7 @@ export function BossCard({ boss, milestone }: BossCardProps) {
             />
             {milestone && (
               <span
-                className={`absolute -top-1 -right-1 text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                className={`absolute -top-1 -right-1 text-[11px] font-bold px-1.5 py-0.5 rounded ${
                   isMythic
                     ? 'bg-purple-500/90 text-white'
                     : 'bg-amber-500/90 text-white'

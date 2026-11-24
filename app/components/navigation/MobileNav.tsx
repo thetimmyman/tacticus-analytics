@@ -107,7 +107,7 @@ export function MobileNav({
                   <div className="hidden min-w-0 max-w-40 text-right sm:block">
                     <div
                       data-testid="mobile-account-player-label"
-                      className="min-w-0 truncate text-[9px] leading-tight text-secondary-wh40k"
+                      className="min-w-0 truncate text-[11px] leading-tight text-secondary-wh40k"
                     >
                       <MemberName
                         value={profile?.display_name}
@@ -116,7 +116,7 @@ export function MobileNav({
                     </div>
                     <div
                       data-testid="mobile-account-guild-label"
-                      className="min-w-0 truncate text-[9px] font-semibold leading-tight text-(--primary)"
+                      className="min-w-0 truncate text-[11px] font-semibold leading-tight text-(--primary)"
                     >
                       {guildDisplayLabel === 'No Guild'
                         ? 'NO GUILD'
@@ -160,7 +160,7 @@ export function MobileNav({
 
                     return (
                       <div key={workspace.id}>
-                        <p className="text-[10px] font-bold text-secondary-wh40k mb-1 px-2 uppercase tracking-wide mt-2">
+                        <p className="text-[11px] font-bold text-secondary-wh40k mb-1 px-2 uppercase tracking-wide mt-2">
                           <WorkspaceIcon
                             className="mr-1 inline h-3 w-3 align-[-2px]"
                             aria-hidden="true"

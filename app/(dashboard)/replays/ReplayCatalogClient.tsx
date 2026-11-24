@@ -104,13 +104,13 @@ function ReplayCard({ replay }: { replay: CommunityReplay }) {
           </a>
         )}
         {replay.encounterRole && (
-          <span className="rounded-sm border border-(--card-border) bg-black/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-(--text-tertiary)">
+          <span className="rounded-sm border border-(--card-border) bg-black/20 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-(--text-tertiary)">
             {replay.encounterRole}
           </span>
         )}
         {replay.visibility && replay.visibility !== 'public' && (
           <span
-            className="inline-flex items-center gap-1 rounded-sm border border-sky-300/40 bg-sky-300/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-200"
+            className="inline-flex items-center gap-1 rounded-sm border border-sky-300/40 bg-sky-300/10 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-sky-200"
             title={`Visible to your ${replay.visibility}`}
           >
             <Pin className="h-3 w-3" />
@@ -189,7 +189,7 @@ export function ReplayCatalogClient({
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[260px_1fr]">
         <aside className="space-y-4">
           <label className="block">
-            <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
+            <span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
               Search
             </span>
             <div className="relative">
@@ -277,7 +277,7 @@ export function ReplayCatalogClient({
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
                 Sort
               </span>
               <select
@@ -373,7 +373,7 @@ function FacetSelect({
   if (options.length === 0) return null
   return (
     <label className="block">
-      <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
+      <span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
         {label}
       </span>
       <select

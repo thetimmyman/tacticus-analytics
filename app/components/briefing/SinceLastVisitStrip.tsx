@@ -42,7 +42,7 @@ export default function SinceLastVisitStrip({
       aria-label="Since your last visit"
     >
       <Sparkles className="h-4 w-4 shrink-0 text-(--accent)" aria-hidden />
-      <span className="shrink-0 whitespace-nowrap text-[10px] font-bold uppercase tracking-wider text-(--accent)">
+      <span className="shrink-0 whitespace-nowrap text-[11px] font-bold uppercase tracking-wider text-(--accent)">
         Since your last visit
       </span>
       <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-xs text-secondary-wh40k">

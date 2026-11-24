@@ -156,7 +156,7 @@ export function TrendChartCard({
             {title}
           </CardTitle>
           {trend && (
-            <div className="text-right text-[10px]" title={badge.hoverTitle}>
+            <div className="text-right text-[11px]" title={badge.hoverTitle}>
               <span className="text-secondary-wh40k">
                 {badge.variant === 'cagr' ? 'CAGR: ' : 'Trend: '}
               </span>

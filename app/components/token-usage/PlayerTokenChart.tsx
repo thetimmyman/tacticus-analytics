@@ -99,10 +99,7 @@ function PlayerTokenChart({
           )}
         </select>
       </div>
-      <p
-        className="text-[10px] sm:text-xs italic text-amber-300/80 mb-3"
-        role="note"
-      >
+      <p className="text-xs italic text-amber-300/80 mb-3" role="note">
         If player API keys have not been entered for each player these will be
         calculated using an imperfect battle history formula.
       </p>

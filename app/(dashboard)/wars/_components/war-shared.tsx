@@ -78,7 +78,7 @@ export function UnitPortrait({
   className?: string
 }) {
   const sizeClasses = {
-    sm: 'h-8 w-8 text-[10px]',
+    sm: 'h-8 w-8 text-[11px]',
     md: 'h-10 w-10 text-xs',
     lg: 'h-12 w-12 text-sm'
   }

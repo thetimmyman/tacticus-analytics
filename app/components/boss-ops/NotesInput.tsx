@@ -58,7 +58,7 @@ export function NotesInput({
 
   return (
     <div className="space-y-1">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
         {label}
       </div>
       <div className="rounded-md border border-(--card-border) bg-black/20">
@@ -79,7 +79,7 @@ export function NotesInput({
                 'No notes configured.'
               )}
             </div>
-            <div className="mt-1 text-[10px] uppercase tracking-[0.14em] text-(--text-tertiary)">
+            <div className="mt-1 text-[11px] uppercase tracking-[0.14em] text-(--text-tertiary)">
               {trimmed
                 ? `${lineCount} ${lineCount === 1 ? 'line' : 'lines'} / ${value.length} chars`
                 : 'Optional tactics narrative'}
@@ -115,7 +115,7 @@ export function NotesInput({
             <div className="w-full max-w-3xl rounded-lg border border-(--card-border) bg-[#171a1f] shadow-2xl">
               <div className="flex items-start justify-between gap-3 border-b border-(--card-border) bg-[#1b1f25] px-4 py-3">
                 <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-(--accent)">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-(--accent)">
                     Tactics narrative
                   </div>
                   <h3 className="mt-1 text-lg font-semibold text-primary-wh40k">

@@ -161,7 +161,7 @@ export const ApiKeyPanel = ({
         )}
 
         {hasApiKey && !saveStatus.type && (
-          <div className="text-[10px] text-green-400/70 flex items-start gap-1">
+          <div className="text-[11px] text-green-400/70 flex items-start gap-1">
             <CheckCircle className="h-3 w-3 mt-0.5 shrink-0" />
             <span>
               API key is saved and connected to live Tacticus data.
@@ -178,7 +178,7 @@ export const ApiKeyPanel = ({
         )}
 
         {/* Instructional text below the API key form */}
-        <div className="text-[10px] text-(--text-tertiary)">
+        <div className="text-[11px] text-(--text-tertiary)">
           Add your Player API key for real-time accuracy from{' '}
           <a
             href={TACTICUS_SITE}
@@ -205,7 +205,7 @@ export const ApiKeyPanel = ({
           )}
         </button>
         {showHowItWorks && (
-          <ul className="text-[10px] text-(--text-tertiary) space-y-0.5 mt-2">
+          <ul className="text-[11px] text-(--text-tertiary) space-y-0.5 mt-2">
             <li>• Players start each season with 2 tokens</li>
             <li>• Tokens regenerate 1 every 12 hours (max 3)</li>
             <li>• Season cap is 28 tokens total</li>

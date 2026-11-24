@@ -269,7 +269,7 @@ export function SeasonalBossHub({ data }: SeasonalBossHubProps) {
         {filteredGroups.length > 0 ? (
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-[340px_minmax(0,1fr)]">
             <aside className="rounded-lg border border-(--card-border) bg-[color-mix(in_srgb,var(--bg-secondary)_65%,transparent)] p-2 xl:sticky xl:top-32 xl:max-h-[calc(100vh-9rem)] xl:overflow-auto">
-              <div className="px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-(--text-tertiary)">
+              <div className="px-2 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-(--text-tertiary)">
                 Encounters
               </div>
               {/* Scrollable strip on mobile; block list with side-encounter detail on desktop. */}
@@ -287,7 +287,7 @@ export function SeasonalBossHub({ data }: SeasonalBossHubProps) {
                         : 'border-transparent bg-[color-mix(in_srgb,var(--bg-tertiary)_50%,transparent)] hover:border-(--card-border)'
                     )}
                   >
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-(--text-tertiary)">
+                    <span className="text-[11px] font-semibold uppercase tracking-wide text-(--text-tertiary)">
                       {card.difficultyCode}
                     </span>
                     <BossPortrait
@@ -327,14 +327,14 @@ export function SeasonalBossHub({ data }: SeasonalBossHubProps) {
                         <span className="block truncate text-sm font-semibold text-primary-wh40k">
                           {card.bossName}
                         </span>
-                        <span className="block truncate text-[10px] uppercase tracking-wide text-(--text-tertiary)">
+                        <span className="block truncate text-[11px] uppercase tracking-wide text-(--text-tertiary)">
                           {card.difficultyCode} · {card.boardId}
                         </span>
                       </span>
                       {data.canManageHerald ? (
                         <StatusPill card={card} />
                       ) : (
-                        <span className="rounded-md border border-(--card-border) px-2 py-1 text-[10px] font-semibold uppercase text-(--text-tertiary)">
+                        <span className="rounded-md border border-(--card-border) px-2 py-1 text-[11px] font-semibold uppercase text-(--text-tertiary)">
                           {card.difficultyCode}
                         </span>
                       )}
@@ -363,7 +363,7 @@ export function SeasonalBossHub({ data }: SeasonalBossHubProps) {
                                   >
                                     {encounter.bossName}
                                   </span>
-                                  <span className="mt-0.5 block break-all text-[10px] uppercase tracking-wide text-(--text-tertiary)">
+                                  <span className="mt-0.5 block break-all text-[11px] uppercase tracking-wide text-(--text-tertiary)">
                                     {encounter.boardId}
                                   </span>
                                 </span>

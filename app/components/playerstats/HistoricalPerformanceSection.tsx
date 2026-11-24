@@ -255,7 +255,7 @@ export function HistoricalPerformanceSection({
                 </div>
               )}
               <div className="overflow-x-auto">
-                <table className="w-full text-[10px] md:text-xs">
+                <table className="w-full text-[11px] md:text-xs">
                   <thead>
                     <tr className="border-b border-(--card-border)">
                       <th className="text-left py-2 px-1 text-secondary-wh40k font-medium">
@@ -398,7 +398,7 @@ export function HistoricalPerformanceSection({
               </p>
             </div>
             {vsGuildTrend && (
-              <div className="text-right text-[10px] space-y-0.5">
+              <div className="text-right text-[11px] space-y-0.5">
                 <div
                   className="flex items-center gap-1 justify-end"
                   title="Change per season of the vs-Guild regression trendline, in percentage points."
@@ -551,7 +551,7 @@ export function HistoricalPerformanceSection({
               </p>
             </div>
             {reliabilityTrend && (
-              <div className="text-right text-[10px]">
+              <div className="text-right text-[11px]">
                 <div
                   className="flex items-center gap-1 justify-end"
                   title="Change per season of the reliability regression trendline, in score points."
@@ -635,7 +635,7 @@ export function HistoricalPerformanceSection({
             </p>
           </div>
           {damageTrend && (
-            <div className="text-right text-[10px]">
+            <div className="text-right text-[11px]">
               <div className="flex items-center gap-1 justify-end">
                 <span className="text-secondary-wh40k">Damage CAGR:</span>
                 <span

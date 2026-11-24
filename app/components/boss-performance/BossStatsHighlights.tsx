@@ -80,7 +80,7 @@ export function BossStatsHighlights() {
           key={card.label}
           className={`stat-card-wh40k p-2 sm:p-3 md:p-4 ${card.tone ?? ''}`}
         >
-          <div className="stat-label-wh40k text-[10px] sm:text-xs">
+          <div className="stat-label-wh40k text-[11px] sm:text-xs">
             {card.label}
           </div>
           <div
@@ -90,7 +90,7 @@ export function BossStatsHighlights() {
           </div>
           {card.helper && (
             <div
-              className="text-[9px] sm:text-[10px] md:text-xs text-secondary-wh40k truncate"
+              className="text-[11px] md:text-xs text-secondary-wh40k truncate"
               title={card.helper}
             >
               {card.helper}

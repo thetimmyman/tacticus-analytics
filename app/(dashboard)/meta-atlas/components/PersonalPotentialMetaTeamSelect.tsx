@@ -43,7 +43,7 @@ export function PersonalPotentialMetaTeamSelect({
 }: PersonalPotentialMetaTeamSelectProps) {
   return (
     <div className="flex flex-wrap items-center justify-center gap-3 text-xs">
-      <span className="text-[10px] uppercase tracking-wide text-secondary-wh40k">
+      <span className="text-[11px] uppercase tracking-wide text-secondary-wh40k">
         Meta Team
       </span>
       <Select
@@ -57,23 +57,23 @@ export function PersonalPotentialMetaTeamSelect({
           <div className="flex w-full items-center gap-2">
             {selectedMetaTeamRank != null && (
               <span
-                className={`order-1 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${resolveRankBadgeClass(selectedMetaTeamRank)}`}
+                className={`order-1 inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${resolveRankBadgeClass(selectedMetaTeamRank)}`}
               >
                 Rank #{selectedMetaTeamRank}
               </span>
             )}
             <span
-              className={`order-2 inline-flex max-w-[150px] items-center truncate rounded-full border px-2 py-0.5 text-[10px] font-semibold sm:order-4 sm:ml-auto ${resolveMetaTeamLabelClass(selectedMetaTeam?.meta_team ?? null, true)}`}
+              className={`order-2 inline-flex max-w-[150px] items-center truncate rounded-full border px-2 py-0.5 text-[11px] font-semibold sm:order-4 sm:ml-auto ${resolveMetaTeamLabelClass(selectedMetaTeam?.meta_team ?? null, true)}`}
             >
               {selectedMetaTeamLabel}
             </span>
             <span
-              className={`order-3 ml-auto inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold sm:order-2 sm:ml-0 ${selectedMetaTeamAvailabilityBadge.className}`}
+              className={`order-3 ml-auto inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold sm:order-2 sm:ml-0 ${selectedMetaTeamAvailabilityBadge.className}`}
             >
               {selectedMetaTeamAvailabilityBadge.label}
             </span>
             <span
-              className={`order-4 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold sm:order-3 ${selectedMetaTeamBadge.className}`}
+              className={`order-4 inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold sm:order-3 ${selectedMetaTeamBadge.className}`}
             >
               {selectedMetaTeamBadge.label}
             </span>
@@ -93,23 +93,23 @@ export function PersonalPotentialMetaTeamSelect({
                 <span className="flex w-full items-center gap-2">
                   {rank != null && (
                     <span
-                      className={`order-1 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${rankClass}`}
+                      className={`order-1 inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${rankClass}`}
                     >
                       Rank #{rank}
                     </span>
                   )}
                   <span
-                    className={`order-2 inline-flex max-w-[150px] items-center truncate rounded-full border px-2 py-0.5 text-[10px] font-semibold sm:order-4 sm:ml-auto ${resolveMetaTeamLabelClass(entry.meta_team ?? null, false)}`}
+                    className={`order-2 inline-flex max-w-[150px] items-center truncate rounded-full border px-2 py-0.5 text-[11px] font-semibold sm:order-4 sm:ml-auto ${resolveMetaTeamLabelClass(entry.meta_team ?? null, false)}`}
                   >
                     {entry.meta_team ?? 'Custom Team'}
                   </span>
                   <span
-                    className={`order-3 ml-auto inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold sm:order-2 sm:ml-0 ${availabilityBadge.className}`}
+                    className={`order-3 ml-auto inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold sm:order-2 sm:ml-0 ${availabilityBadge.className}`}
                   >
                     {availabilityBadge.label}
                   </span>
                   <span
-                    className={`order-4 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold sm:order-3 ${badge.className}`}
+                    className={`order-4 inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold sm:order-3 ${badge.className}`}
                   >
                     {badge.label}
                   </span>

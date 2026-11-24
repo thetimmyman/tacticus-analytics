@@ -84,7 +84,7 @@ function HeroRequirementCard({
         </div>
 
         <div className="grid grid-cols-3 gap-2">
-          <label className="text-[10px] text-(--text-tertiary) space-y-0.5">
+          <label className="text-[11px] text-(--text-tertiary) space-y-0.5">
             <span>Min Rank</span>
             <select
               value={value.min_rank ?? ''}
@@ -98,7 +98,7 @@ function HeroRequirementCard({
                   min_rank_index: selected?.index ?? null
                 })
               }}
-              className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[10px] text-primary-wh40k"
+              className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[11px] text-primary-wh40k"
             >
               <option value="">-</option>
               {rankOptions.map((opt) => (
@@ -109,7 +109,7 @@ function HeroRequirementCard({
             </select>
           </label>
 
-          <label className="text-[10px] text-(--text-tertiary) space-y-0.5">
+          <label className="text-[11px] text-(--text-tertiary) space-y-0.5">
             <span>Stars</span>
             <input
               type="number"
@@ -120,17 +120,17 @@ function HeroRequirementCard({
                 const parsed = Number(e.target.value)
                 setField('min_stars', Number.isFinite(parsed) ? parsed : null)
               }}
-              className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[10px] text-primary-wh40k"
+              className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[11px] text-primary-wh40k"
               placeholder="0"
             />
           </label>
 
-          <label className="text-[10px] text-(--text-tertiary) space-y-0.5">
+          <label className="text-[11px] text-(--text-tertiary) space-y-0.5">
             <span>Rarity</span>
             <select
               value={value.min_rarity ?? ''}
               onChange={(e) => setField('min_rarity', e.target.value || null)}
-              className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[10px] text-primary-wh40k"
+              className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[11px] text-primary-wh40k"
             >
               <option value="">-</option>
               {rarityOptions.map((r) => (
@@ -143,7 +143,7 @@ function HeroRequirementCard({
         </div>
 
         <div className="grid grid-cols-3 gap-2">
-          <label className="text-[10px] text-(--text-tertiary) space-y-0.5">
+          <label className="text-[11px] text-(--text-tertiary) space-y-0.5">
             <span>Active</span>
             <input
               type="number"
@@ -156,12 +156,12 @@ function HeroRequirementCard({
                   Number.isFinite(parsed) ? parsed : null
                 )
               }}
-              className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[10px] text-primary-wh40k"
+              className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[11px] text-primary-wh40k"
               placeholder="55"
             />
           </label>
 
-          <label className="text-[10px] text-(--text-tertiary) space-y-0.5">
+          <label className="text-[11px] text-(--text-tertiary) space-y-0.5">
             <span>Passive</span>
             <input
               type="number"
@@ -174,12 +174,12 @@ function HeroRequirementCard({
                   Number.isFinite(parsed) ? parsed : null
                 )
               }}
-              className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[10px] text-primary-wh40k"
+              className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[11px] text-primary-wh40k"
               placeholder="55"
             />
           </label>
 
-          <label className="text-[10px] text-(--text-tertiary) space-y-0.5">
+          <label className="text-[11px] text-(--text-tertiary) space-y-0.5">
             <span>Mythic</span>
             <input
               type="number"
@@ -193,18 +193,18 @@ function HeroRequirementCard({
                   Number.isFinite(parsed) ? parsed : null
                 )
               }}
-              className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[10px] text-primary-wh40k"
+              className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[11px] text-primary-wh40k"
               placeholder="0-4"
             />
           </label>
         </div>
 
-        <label className="text-[10px] text-(--text-tertiary) space-y-0.5">
+        <label className="text-[11px] text-(--text-tertiary) space-y-0.5">
           <span>Notes</span>
           <input
             value={value.notes ?? ''}
             onChange={(e) => setField('notes', e.target.value || null)}
-            className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[10px] text-primary-wh40k"
+            className="w-full rounded-sm border border-(--card-border) bg-(--bg-secondary) px-1 py-0.5 text-[11px] text-primary-wh40k"
             placeholder="Equipment, strategy notes..."
           />
         </label>
@@ -237,7 +237,7 @@ function HeroRequirementCard({
             <StarDisplayFromCount stars={value.min_stars} size="sm" showLabel />
           )}
         </div>
-        <div className="flex items-center gap-2 text-[10px] text-secondary-wh40k">
+        <div className="flex items-center gap-2 text-[11px] text-secondary-wh40k">
           {value.min_rank && (
             <span className="font-mono">{abbreviateRank(value.min_rank)}</span>
           )}
@@ -254,7 +254,7 @@ function HeroRequirementCard({
           )}
         </div>
         {value.notes && (
-          <div className="text-[9px] text-(--text-tertiary) italic truncate mt-0.5">
+          <div className="text-[11px] text-(--text-tertiary) italic truncate mt-0.5">
             {value.notes}
           </div>
         )}

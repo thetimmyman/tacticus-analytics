@@ -82,7 +82,7 @@ function BossIdentity({ row }: { row: MemberBossPerfRow }) {
         <div className="truncate font-medium text-primary-wh40k group-hover:underline">
           {prettyBossName(row.bossName)}
         </div>
-        <div className="text-[10px] uppercase tracking-wide text-(--text-tertiary)">
+        <div className="text-[11px] uppercase tracking-wide text-(--text-tertiary)">
           {`${row.isCurrentTarget ? 'Current target · ' : ''}${formatEncounterLabel(row.encounterId)}`}
         </div>
       </div>
@@ -107,7 +107,7 @@ function MetricTile({
 }) {
   return (
     <div className="rounded-lg border border-[color-mix(in_srgb,var(--card-border)_40%,transparent)] bg-card/20 px-2.5 py-1.5">
-      <div className="flex items-center gap-1 text-[9px] uppercase tracking-wider text-(--text-tertiary)">
+      <div className="flex items-center gap-1 text-[11px] uppercase tracking-wider text-(--text-tertiary)">
         <span className="truncate">{label}</span>
         {chip && <span className="shrink-0">{chip}</span>}
       </div>
@@ -285,7 +285,7 @@ function BulletRow({
               aria-hidden="true"
             />
           )}
-          <span className="w-9 text-left text-[9px] uppercase tracking-wider text-(--text-tertiary)">
+          <span className="w-9 text-left text-[11px] uppercase tracking-wider text-(--text-tertiary)">
             You
           </span>
           <span className="font-mono tabular-nums text-[14px] font-bold text-primary-wh40k">
@@ -302,7 +302,7 @@ function BulletRow({
         </div>
         <div className="flex items-center justify-end gap-1.5">
           <MarkSwatch kind="target" />
-          <span className="w-9 text-left text-[9px] uppercase tracking-wider text-(--text-tertiary)">
+          <span className="w-9 text-left text-[11px] uppercase tracking-wider text-(--text-tertiary)">
             Target
           </span>
           <span className="font-mono tabular-nums text-[12px] font-semibold text-(--accent)">
@@ -314,7 +314,7 @@ function BulletRow({
         </div>
         <div className="flex items-center justify-end gap-1.5">
           <MarkSwatch kind="guild" />
-          <span className="w-9 text-left text-[9px] uppercase tracking-wider text-(--text-tertiary)">
+          <span className="w-9 text-left text-[11px] uppercase tracking-wider text-(--text-tertiary)">
             Guild
           </span>
           <span className="font-mono tabular-nums text-[12px] text-secondary-wh40k">
@@ -347,12 +347,12 @@ export default function BossPerformanceTable({
           <h2 className="text-sm font-semibold text-primary-wh40k">
             Boss performance
           </h2>
-          <span className="text-[10px] uppercase tracking-wider text-(--text-tertiary)">
+          <span className="text-[11px] uppercase tracking-wider text-(--text-tertiary)">
             {`Damage per token${seasonNumber ? ` · Season ${seasonNumber}` : ''}`}
           </span>
           {data.overallVsGuildPct != null && (
             <span
-              className="rounded-full border px-2 py-0.5 text-[10px] font-bold"
+              className="rounded-full border px-2 py-0.5 text-[11px] font-bold"
               style={{
                 color: deltaColor(data.overallVsGuildPct),
                 borderColor: deltaColor(data.overallVsGuildPct)

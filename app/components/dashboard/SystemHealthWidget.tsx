@@ -85,7 +85,7 @@ export function SystemHealthWidget({ userRole }: SystemHealthWidgetProps) {
               System Status:{' '}
               {health.status.charAt(0).toUpperCase() + health.status.slice(1)}
             </h3>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-0 sm:space-x-4 mt-1 text-[10px] sm:text-xs text-secondary-wh40k">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-0 sm:space-x-4 mt-1 text-[11px] sm:text-xs text-secondary-wh40k">
               <span className="flex items-center space-x-1">
                 <div
                   className={`w-2 h-2 rounded-full ${getStatusColor(health.checks.database.status)}`}

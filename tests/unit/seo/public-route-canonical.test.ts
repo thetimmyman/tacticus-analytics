@@ -1,7 +1,24 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
-import { describe, expect, it } from 'vitest'
-import { createPageMetadata } from '@/app/lib/metadata'
+import { describe, expect, it, vi } from 'vitest'
+import { createPageMetadata, DEFAULT_OG_IMAGE } from '@/app/lib/metadata'
+
+vi.mock('next/navigation', () => ({ redirect: vi.fn() }))
+vi.mock('@/app/lib/auth', () => ({ getAuthUser: vi.fn() }))
+vi.mock('@/app/lib/data/get-live-stats', () => ({ getLiveStats: vi.fn() }))
+vi.mock('@/app/components/NavigationServer', () => ({
+  NavigationServer: () => null
+}))
+vi.mock('@/app/components/homepage/LiveStatsSection', () => ({
+  LiveStatsSection: () => null
+}))
+vi.mock('@/app/components/homepage/HeroCTA', () => ({ HeroCTA: () => null }))
+vi.mock('@/app/components/homepage/FinalCTA', () => ({ FinalCTA: () => null }))
+vi.mock('@/app/components/homepage/MarketingDeferredSections', () => ({
+  MarketingDeferredSections: () => null
+}))
+
+import { metadata as homepageMetadata } from '@/app/(public)/page'
 
 // Every public page must declare its own canonical path so no route
 // collapses its canonical to the site root.
@@ -21,7 +38,7 @@ function routeOf(file: string): string {
 }
 
 describe('public route metadata', () => {
-  it('createPageMetadata emits the route canonical and og url', () => {
+  it('createPageMetadata emits the route canonical, og url, and default og image', () => {
     const metadata = createPageMetadata({
       title: 'Explore Guilds',
       description: 'd',
@@ -29,9 +46,11 @@ describe('public route metadata', () => {
     })
     expect(metadata.alternates?.canonical).toBe('/explore')
     expect(metadata.openGraph?.url).toBe('/explore')
+    expect(metadata.openGraph?.images).toEqual([DEFAULT_OG_IMAGE])
+    expect(metadata.twitter?.images).toEqual([DEFAULT_OG_IMAGE.url])
   })
 
-  it('createPageMetadata keeps og/twitter images when set', () => {
+  it('createPageMetadata keeps custom og/twitter images when set', () => {
     const metadata = createPageMetadata({
       title: 'Home',
       description: 'd',
@@ -55,8 +74,18 @@ describe('public route metadata', () => {
     }
   )
 
-  it('homepage keeps the site og image', () => {
-    const source = readFileSync(path.join(PUBLIC_DIR, 'page.tsx'), 'utf8')
-    expect(source).toContain('/WarpForgedDashboard.png')
+  it('homepage metadata explicitly includes openGraph.images and twitter.images', () => {
+    expect(homepageMetadata.alternates?.canonical).toBe('/')
+    expect(homepageMetadata.openGraph?.images).toEqual([
+      {
+        url: '/WarpForgedDashboard.png',
+        width: 1536,
+        height: 1024,
+        alt: 'Tacticus Analytics'
+      }
+    ])
+    expect(homepageMetadata.twitter?.images).toEqual([
+      '/WarpForgedDashboard.png'
+    ])
   })
 })

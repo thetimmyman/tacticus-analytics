@@ -255,7 +255,7 @@ export function MetaTeamMembership({
               >
                 {isPending ? '…' : team.team_name}
                 {lockBadge && (
-                  <span className="ml-1 opacity-70 text-[10px]">
+                  <span className="ml-1 opacity-70 text-[11px]">
                     {lockBadge}
                   </span>
                 )}

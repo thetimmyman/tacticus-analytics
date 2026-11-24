@@ -37,15 +37,15 @@ function HeroCell({
             className="h-6 w-6 rounded-full object-cover border border-(--card-border) shrink-0"
           />
         ) : (
-          <div className="h-6 w-6 rounded-full bg-(--card-bg) border border-(--card-border) flex items-center justify-center text-[9px] font-bold text-(--text-tertiary) shrink-0">
+          <div className="h-6 w-6 rounded-full bg-(--card-bg) border border-(--card-border) flex items-center justify-center text-[11px] font-bold text-(--text-tertiary) shrink-0">
             {fallbackBadge}
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <div className="text-[10px] font-medium text-primary-wh40k truncate">
+          <div className="text-[11px] font-medium text-primary-wh40k truncate">
             {displayName}
           </div>
-          <div className="flex items-center gap-1 text-[9px] text-(--text-tertiary)">
+          <div className="flex items-center gap-1 text-[11px] text-(--text-tertiary)">
             {hero.min_rank && (
               <span className="font-mono">{abbreviateRank(hero.min_rank)}</span>
             )}
@@ -66,7 +66,7 @@ function HeroCell({
       </div>
       {hero.notes && (
         <div
-          className="text-[9px] text-(--text-tertiary) italic pl-7 truncate"
+          className="text-[11px] text-(--text-tertiary) italic pl-7 truncate"
           title={hero.notes}
         >
           {hero.notes}
@@ -107,7 +107,7 @@ export function RequirementDisplayRow({
     >
       <td className="py-2 px-2">
         <span
-          className={`px-1.5 py-0.5 text-[9px] rounded-sm border ${colorClasses[scopeColor]}`}
+          className={`px-1.5 py-0.5 text-[11px] rounded-sm border ${colorClasses[scopeColor]}`}
         >
           {scopeLabel}
         </span>
@@ -125,7 +125,7 @@ export function RequirementDisplayRow({
         </div>
         {requirement.overall_notes && (
           <div
-            className="text-[9px] text-(--text-tertiary) italic mt-0.5 truncate max-w-[150px]"
+            className="text-[11px] text-(--text-tertiary) italic mt-0.5 truncate max-w-[150px]"
             title={requirement.overall_notes}
           >
             {requirement.overall_notes}
@@ -137,7 +137,7 @@ export function RequirementDisplayRow({
           {regularHeroes[idx] ? (
             <HeroCell hero={regularHeroes[idx]!} heroCatalog={heroCatalog} />
           ) : (
-            <span className="text-[9px] text-(--text-tertiary)">-</span>
+            <span className="text-[11px] text-(--text-tertiary)">-</span>
           )}
         </td>
       ))}
@@ -145,7 +145,7 @@ export function RequirementDisplayRow({
         {mow ? (
           <HeroCell hero={mow} heroCatalog={heroCatalog} />
         ) : (
-          <span className="text-[9px] text-(--text-tertiary)">-</span>
+          <span className="text-[11px] text-(--text-tertiary)">-</span>
         )}
       </td>
       <td className="py-2 px-1">
@@ -231,7 +231,7 @@ export function RequirementEditRow({
       <tr className="border-b border-(--card-border) bg-[color-mix(in_srgb,var(--accent)_5%,transparent)]">
         <td className="py-2 px-2">
           <span
-            className={`px-1.5 py-0.5 text-[9px] rounded-sm border ${colorClasses[scopeColor]}`}
+            className={`px-1.5 py-0.5 text-[11px] rounded-sm border ${colorClasses[scopeColor]}`}
           >
             {scopeLabel}
           </span>
@@ -244,7 +244,7 @@ export function RequirementEditRow({
                   requirement.team_name ? [requirement.team_name] : ['Unknown']
                 }
               />
-              <span className="text-[10px] text-(--text-tertiary)">
+              <span className="text-[11px] text-(--text-tertiary)">
                 - Editing
               </span>
             </div>
@@ -276,7 +276,7 @@ export function RequirementEditRow({
           <div className="space-y-3">
             {/* Hero requirements */}
             <div className="space-y-2">
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-(--text-tertiary)">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-(--text-tertiary)">
                 Hero Requirements
               </div>
               {heroRequirements.map((entry, index) => (
@@ -304,7 +304,7 @@ export function RequirementEditRow({
 
             {/* Overall notes */}
             <div>
-              <label className="text-[10px] font-semibold uppercase tracking-wide text-(--text-tertiary) block mb-1">
+              <label className="text-[11px] font-semibold uppercase tracking-wide text-(--text-tertiary) block mb-1">
                 Overall Notes
               </label>
               <textarea

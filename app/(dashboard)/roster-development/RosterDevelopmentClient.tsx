@@ -195,13 +195,13 @@ function HeroPriorityGrid({
                 {item.boss_types.slice(0, 3).map((boss) => (
                   <span
                     key={boss}
-                    className="text-[10px] px-1.5 py-0.5 rounded-sm bg-(--card-bg) text-secondary-wh40k"
+                    className="text-[11px] px-1.5 py-0.5 rounded-sm bg-(--card-bg) text-secondary-wh40k"
                   >
                     {getBossDisplayName(boss).slice(0, 10)}
                   </span>
                 ))}
                 {item.boss_types.length > 3 && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-sm bg-(--card-bg) text-secondary-wh40k">
+                  <span className="text-[11px] px-1.5 py-0.5 rounded-sm bg-(--card-bg) text-secondary-wh40k">
                     +{item.boss_types.length - 3}
                   </span>
                 )}
@@ -282,7 +282,7 @@ function DataCoverageCard({
                 Data Coverage
               </span>
               <span
-                className={`text-[10px] px-2 py-0.5 rounded-full ${statusClass}`}
+                className={`text-[11px] px-2 py-0.5 rounded-full ${statusClass}`}
               >
                 {statusLabel}
               </span>
@@ -585,7 +585,7 @@ function CompositionsTab({
                       attacks
                     </div>
                     {team.rarity_set && (
-                      <div className="mt-1 text-[10px] uppercase tracking-wide text-secondary-wh40k">
+                      <div className="mt-1 text-[11px] uppercase tracking-wide text-secondary-wh40k">
                         {team.rarity_set}
                       </div>
                     )}
@@ -594,7 +594,7 @@ function CompositionsTab({
                         {team.missing_units.map((unit) => (
                           <span
                             key={unit}
-                            className="text-[10px] px-1.5 py-0.5 rounded-sm bg-amber-500/20 text-amber-300"
+                            className="text-[11px] px-1.5 py-0.5 rounded-sm bg-amber-500/20 text-amber-300"
                           >
                             Missing {unit}
                           </span>

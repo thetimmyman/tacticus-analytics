@@ -324,7 +324,7 @@ export function BossSearchCombobox({
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="truncate">{boss.boss_name}</span>
                     {boss.isCurrentSeason && (
-                      <span className="shrink-0 px-1.5 py-0.5 text-[10px] font-medium bg-green-500/20 text-green-400 rounded-sm">
+                      <span className="shrink-0 px-1.5 py-0.5 text-[11px] font-medium bg-green-500/20 text-green-400 rounded-sm">
                         Current
                       </span>
                     )}

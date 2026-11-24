@@ -100,7 +100,7 @@ export function PeopleToReviewList({
             People to review
           </h2>
         </div>
-        <p className="mt-0.5 pl-6 text-[10px] uppercase tracking-wider text-(--text-tertiary)">
+        <p className="mt-0.5 pl-6 text-[11px] uppercase tracking-wider text-(--text-tertiary)">
           Ranked by impact × confidence × urgency
         </p>
       </header>

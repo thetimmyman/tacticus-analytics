@@ -128,7 +128,7 @@ function SeasonFeasibilityCard({
           </dd>
           {/* Pace is cap-limited and can undercut the bank, so col1 + col2 need not equal col3. */}
           {figures.source === 'pace' && (
-            <div className="text-[10px] leading-tight text-(--text-tertiary)">
+            <div className="text-[11px] leading-tight text-(--text-tertiary)">
               cap-limited — not bank + new
             </div>
           )}

@@ -88,12 +88,12 @@ export function GuildTeamsDesktopTable({
                         unoptimized
                       />
                     ) : (
-                      <div className="w-7 h-7 bg-(--card-bg) rounded-xs flex items-center justify-center text-[10px] text-secondary-wh40k">
+                      <div className="w-7 h-7 bg-(--card-bg) rounded-xs flex items-center justify-center text-[11px] text-secondary-wh40k">
                         ?
                       </div>
                     )}
                     <span
-                      className="text-[10px] text-secondary-wh40k leading-tight max-w-[75px] truncate"
+                      className="text-[11px] text-secondary-wh40k leading-tight max-w-[75px] truncate"
                       title={`${name} \u2014 click to sort`}
                     >
                       {name}

@@ -67,7 +67,7 @@ export function ReadOnlyRequirementsView({
           <div className="hidden md:block overflow-x-auto -mx-4 px-4">
             <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
-                <tr className="border-b border-(--card-border) text-[10px] text-(--text-tertiary)">
+                <tr className="border-b border-(--card-border) text-[11px] text-(--text-tertiary)">
                   <th className="py-2 px-2 font-medium">Category</th>
                   <th className="py-2 px-2 font-medium">Meta Team</th>
                   <th className="py-2 px-1 font-medium">Hero 1</th>

@@ -104,7 +104,7 @@ export default function VOTLWGuildSettingsPanel({
         </div>
         <StatusLabel
           type="warning"
-          className="text-[10px] uppercase tracking-wide"
+          className="text-[11px] uppercase tracking-wide"
         >
           Officer + Leader
         </StatusLabel>

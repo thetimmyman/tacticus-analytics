@@ -73,7 +73,7 @@ export function TeamCard({
                   />
                 ) : (
                   <div
-                    className="w-7 h-7 rounded-md bg-gray-700 flex items-center justify-center text-[9px] font-bold text-secondary-wh40k"
+                    className="w-7 h-7 rounded-md bg-gray-700 flex items-center justify-center text-[11px] font-bold text-secondary-wh40k"
                     title={hero}
                   >
                     {hero.slice(0, 2)}
@@ -98,7 +98,7 @@ export function TeamCard({
                   />
                 ) : (
                   <div
-                    className="w-7 h-7 rounded-md bg-gray-700 flex items-center justify-center text-[9px] font-bold text-secondary-wh40k"
+                    className="w-7 h-7 rounded-md bg-gray-700 flex items-center justify-center text-[11px] font-bold text-secondary-wh40k"
                     title={mow}
                   >
                     {mow.slice(0, 2)}
@@ -109,7 +109,7 @@ export function TeamCard({
           )}
         </div>
         {rec.meta_team && (
-          <span className="px-1.5 py-0.5 text-[10px] rounded-full bg-purple-500/20 text-purple-400 font-medium shrink-0">
+          <span className="px-1.5 py-0.5 text-[11px] rounded-full bg-purple-500/20 text-purple-400 font-medium shrink-0">
             {rec.meta_team}
           </span>
         )}

@@ -90,13 +90,13 @@ export function EncounterReplays({
   return (
     <section className="rounded-md border border-(--card-border) bg-black/15 p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-tertiary)">
           Community replays
         </div>
         {availableReplayCount > 0 && (
           <Link
             href={encounterCatalogHref(encounter)}
-            className="text-[10px] font-semibold uppercase tracking-[0.14em] text-(--accent) hover:underline"
+            className="text-[11px] font-semibold uppercase tracking-[0.14em] text-(--accent) hover:underline"
           >
             {availableReplayCount === 1
               ? 'View 1 replay'

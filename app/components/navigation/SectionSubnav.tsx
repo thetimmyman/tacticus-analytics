@@ -187,7 +187,7 @@ export function SectionSubnav({
                   {section.external && (
                     <>
                       <span
-                        className="text-[10px] text-secondary-wh40k"
+                        className="text-[11px] text-secondary-wh40k"
                         aria-hidden="true"
                       >
                         ↗

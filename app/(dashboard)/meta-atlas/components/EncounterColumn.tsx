@@ -22,7 +22,7 @@ export function EncounterColumn({
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-[10px] font-semibold text-secondary-wh40k uppercase tracking-wide shrink-0">
+        <span className="text-[11px] font-semibold text-secondary-wh40k uppercase tracking-wide shrink-0">
           {encounterLabel}
         </span>
         {bossData && (

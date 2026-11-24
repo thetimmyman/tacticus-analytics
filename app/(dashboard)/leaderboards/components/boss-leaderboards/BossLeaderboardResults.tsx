@@ -4,6 +4,10 @@ import { useMemo, useState } from 'react'
 import { ClientDate } from '@tacticus/ui-kit'
 import { formatNumber } from '@tacticus/app-core/formatters'
 import { PlayerLink } from '@/app/components/ui/PlayerLink'
+import {
+  MobileCardList,
+  type MobileCardListItem
+} from '@/app/components/ui/MobileCardList'
 import { DataTable, type DataTableColumn } from '@tacticus/ui-kit'
 import { BossLink } from '@/app/components/ui/BossLink'
 import MultipleCategoryBadges from '@/app/components/MultipleCategoryBadges'
@@ -184,6 +188,78 @@ export function BossLeaderboardResults({
     }
   ]
 
+  const mobileItems: MobileCardListItem[] = entries.map((entry, index) => ({
+    id: `entry-${stableBossPlayerId(entry)}-${entry.damageDealt}-${entry.completedOn}`,
+    title: (
+      <div>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-lg font-bold text-(--primary)">
+            #{index + 1}
+          </span>
+          <PlayerLink
+            playerName={entry.displayName}
+            className={`font-medium text-lg ${getGuildColor(entry.Guild)}`}
+          >
+            {entry.displayName}
+          </PlayerLink>
+        </div>
+        <div className="text-sm font-normal text-secondary-wh40k">
+          {renderGuild(entry.Guild)}
+        </div>
+      </div>
+    ),
+    state: (
+      <div className="text-right">
+        <div className="text-(--primary) font-bold text-lg">
+          {formatNumber(
+            rankBy === 'avg'
+              ? Math.round(entry.avgDamage ?? 0)
+              : entry.damageDealt
+          )}
+        </div>
+        <div className="text-xs font-normal text-secondary-wh40k">
+          {rankBy === 'avg'
+            ? `${entry.avgBattleCount ?? 0} battles · max ${formatNumber(entry.damageDealt)}`
+            : entry.avgDamage !== undefined
+              ? `avg ${formatNumber(Math.round(entry.avgDamage))}`
+              : ''}
+        </div>
+        {entry.completedOn && (
+          <div className="text-xs font-normal text-secondary-wh40k">
+            <ClientDate date={entry.completedOn} format="date" />
+          </div>
+        )}
+      </div>
+    ),
+    detail: (
+      <div className="mt-2 space-y-2">
+        {entry.categories && entry.categories.length > 0 && (
+          <div className="pt-2 border-t border-(--card-border)">
+            <div className="text-xs text-secondary-wh40k mb-1">Meta Team:</div>
+            <MultipleCategoryBadges categories={entry.categories} />
+          </div>
+        )}
+        <BossLeaderboardTeam
+          entry={entry}
+          heroMappings={heroMappings}
+          variant="mobile"
+        />
+      </div>
+    ),
+    meta: [
+      <span key="level" className="text-sm text-secondary-wh40k">
+        Level: {getLevelDisplay(entry.set, entry.rarity)}
+      </span>,
+      ...(entry.loopIndex >= 0
+        ? [
+            <span key="loop" className="text-sm text-secondary-wh40k">
+              Loop: {entry.loopIndex}
+            </span>
+          ]
+        : [])
+    ]
+  }))
+
   const isMythic = activeLevel.startsWith('M')
 
   return (
@@ -277,78 +353,10 @@ export function BossLeaderboardResults({
           </div>
         ) : (
           <>
-            <div className="lg:hidden space-y-3 p-3 sm:p-4">
-              {entries.map((entry, index) => (
-                <div
-                  key={`entry-${stableBossPlayerId(entry)}-${entry.damageDealt}-${entry.completedOn}`}
-                  className="bg-(--background) border border-(--card-border) rounded-lg p-3 sm:p-4 space-y-2 sm:space-y-3"
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-lg font-bold text-(--primary)">
-                          #{index + 1}
-                        </span>
-                        <PlayerLink
-                          playerName={entry.displayName}
-                          className={`font-medium text-lg ${getGuildColor(entry.Guild)}`}
-                        >
-                          {entry.displayName}
-                        </PlayerLink>
-                      </div>
-                      <div className="text-sm text-secondary-wh40k">
-                        {renderGuild(entry.Guild)}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-(--primary) font-bold text-lg">
-                        {formatNumber(
-                          rankBy === 'avg'
-                            ? Math.round(entry.avgDamage ?? 0)
-                            : entry.damageDealt
-                        )}
-                      </div>
-                      <div className="text-xs text-secondary-wh40k">
-                        {rankBy === 'avg'
-                          ? `${entry.avgBattleCount ?? 0} battles · max ${formatNumber(entry.damageDealt)}`
-                          : entry.avgDamage !== undefined
-                            ? `avg ${formatNumber(Math.round(entry.avgDamage))}`
-                            : ''}
-                      </div>
-                      {entry.completedOn && (
-                        <div className="text-xs text-secondary-wh40k">
-                          <ClientDate date={entry.completedOn} format="date" />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {entry.categories && entry.categories.length > 0 && (
-                    <div className="pt-2 border-t border-(--card-border)">
-                      <div className="text-xs text-secondary-wh40k mb-1">
-                        Meta Team:
-                      </div>
-                      <MultipleCategoryBadges categories={entry.categories} />
-                    </div>
-                  )}
-
-                  <BossLeaderboardTeam
-                    entry={entry}
-                    heroMappings={heroMappings}
-                    variant="mobile"
-                  />
-
-                  <div className="flex justify-between text-sm text-secondary-wh40k">
-                    <span>
-                      Level: {getLevelDisplay(entry.set, entry.rarity)}
-                    </span>
-                    {entry.loopIndex >= 0 && (
-                      <span>Loop: {entry.loopIndex}</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <MobileCardList
+              items={mobileItems}
+              className="lg:hidden space-y-3 p-3 sm:p-4"
+            />
 
             <DataTable
               className="hidden lg:block"

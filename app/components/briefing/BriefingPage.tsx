@@ -248,7 +248,7 @@ export default function BriefingPage({
             <h1 className="sr-only">
               {`Officer intelligence${guildName ? ` — ${guildName}` : ''}`}
             </h1>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-(--accent)">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-(--accent)">
               Command / Officer briefing
             </p>
             <p className="mt-1 text-lg font-bold text-primary-wh40k">
@@ -265,7 +265,7 @@ export default function BriefingPage({
             <h1 className="sr-only">
               {`Daily briefing${guildName ? ` — ${guildName}` : ''}`}
             </h1>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-(--accent)">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-(--accent)">
               Command / Daily briefing
             </p>
             <p className="mt-1 text-sm text-secondary-wh40k">

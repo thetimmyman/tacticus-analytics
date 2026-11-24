@@ -55,8 +55,8 @@ export function ReleaseStageBadge({
   const Icon = config.icon
 
   const sizeClasses = {
-    sm: 'text-[9px] px-1 py-px gap-0.5',
-    md: 'text-[10px] px-1.5 py-0.5 gap-0.5',
+    sm: 'text-[11px] px-1 py-px gap-0.5',
+    md: 'text-[11px] px-1.5 py-0.5 gap-0.5',
     lg: 'text-xs px-2 py-1 gap-1'
   }
 
