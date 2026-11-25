@@ -44,7 +44,9 @@ describe('Discord webhook circuit breaker', () => {
   beforeAll(async () => {
     discordCircuit.reset()
     notificationQueue.clearAll()
-    const fetchMock = vi.fn(async () => serverErrorResponse())
+    const fetchMock = vi.fn(async (_url: string, _init?: RequestInit) =>
+      serverErrorResponse()
+    )
     vi.stubGlobal('fetch', fetchMock)
     let count = 0
     while (discordCircuit.getState() === 'CLOSED' && count < 1000) {
@@ -96,7 +98,9 @@ describe('Discord webhook circuit breaker', () => {
   it('opens after N consecutive 5xx failures, then queues the next call for retry', async () => {
     const threshold = failureThreshold()
 
-    const fetchMock = vi.fn(async () => serverErrorResponse())
+    const fetchMock = vi.fn(async (_url: string, _init?: RequestInit) =>
+      serverErrorResponse()
+    )
     vi.stubGlobal('fetch', fetchMock)
 
     expect(discordCircuit.getState()).toBe('CLOSED')
@@ -126,7 +130,9 @@ describe('Discord webhook circuit breaker', () => {
 
   it('preserves Discord thread routing when a queued call is retried', async () => {
     const threshold = failureThreshold()
-    const fetchMock = vi.fn(async () => serverErrorResponse())
+    const fetchMock = vi.fn(async (_url: string, _init?: RequestInit) =>
+      serverErrorResponse()
+    )
     vi.stubGlobal('fetch', fetchMock)
 
     for (let i = 0; i < threshold; i += 1) {
@@ -152,7 +158,9 @@ describe('Discord webhook circuit breaker', () => {
 
   it('respects queueOnCircuitOpen:false — open circuit returns queued result but does NOT enqueue', async () => {
     const threshold = failureThreshold()
-    const fetchMock = vi.fn(async () => serverErrorResponse())
+    const fetchMock = vi.fn(async (_url: string, _init?: RequestInit) =>
+      serverErrorResponse()
+    )
     vi.stubGlobal('fetch', fetchMock)
 
     for (let i = 0; i < threshold; i += 1) {

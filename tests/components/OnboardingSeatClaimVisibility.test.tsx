@@ -39,6 +39,7 @@ function freshProgress(
     guild_name: null,
     guild_error_message: null,
     guild_can_retry: true,
+    guild_attempt_generation: 0,
     guild_lock_expires_at: null,
     sync_status: 'not_required',
     sync_progress: 0,

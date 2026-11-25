@@ -193,11 +193,12 @@ function makeResult(): WorkerResult {
   } as WorkerResult
 }
 
-const JOB = {
+const BASE_JOB = {
   id: 'job-1',
   guild_code: 'GUILD',
   job_type: 'incremental_sync'
-} as never
+}
+const JOB = BASE_JOB as never
 
 const CONFIG = {
   guild_code: 'GUILD',
@@ -472,7 +473,7 @@ describe('runRaidSync — identity is resolved before the raid rows are written'
     const result = makeResult()
 
     await runRaidSyncWithOptionalExecutionLock(
-      { ...JOB, job_type: 'incremental_sync' } as never,
+      { ...BASE_JOB, job_type: 'incremental_sync' } as never,
       CONFIG,
       'api-key',
       makeSupabase(recorder),
@@ -543,7 +544,7 @@ describe('runRaidSync — identity is resolved before the raid rows are written'
     const result = makeResult()
 
     await runRaidSyncWithOptionalExecutionLock(
-      { ...JOB, job_type: 'incremental_sync' } as never,
+      { ...BASE_JOB, job_type: 'incremental_sync' } as never,
       CONFIG,
       'api-key',
       makeSupabase(recorder),

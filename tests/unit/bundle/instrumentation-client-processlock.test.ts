@@ -18,7 +18,8 @@ const LOCK_TIMEOUT_MESSAGE =
   'Acquiring process lock with name "lock:tacticus-auth-token" timed out'
 
 describe('cause-wrapped chunk telemetry', () => {
-  const beforeSend = vi.mocked(init).mock.calls[0][0]?.beforeSend as (
+  const beforeSend = vi.mocked(init).mock.calls[0][0]
+    ?.beforeSend as unknown as (
     event: Record<string, unknown>,
     hint: { originalException: unknown }
   ) => Record<string, unknown> | null

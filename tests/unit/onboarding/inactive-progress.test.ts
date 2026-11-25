@@ -11,6 +11,7 @@ const historicalProgress: OnboardingProgress = {
   guild_name: 'Former Guild',
   guild_error_message: 'former error',
   guild_can_retry: false,
+  guild_attempt_generation: 0,
   guild_lock_expires_at: '2026-08-04T00:00:00Z',
   sync_status: 'failed',
   sync_progress: 73,

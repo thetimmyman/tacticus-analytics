@@ -44,7 +44,10 @@ describe('leader analytics model', () => {
       ],
       playerMappings: [
         { guild_code: 'EOT', user_id: 'user-1' } as LeaderPlayerMappingRow,
-        { guild_code: 'EOT', user_id: null } as LeaderPlayerMappingRow
+        {
+          guild_code: 'EOT',
+          user_id: null
+        } as unknown as LeaderPlayerMappingRow
       ],
       apiCoverage: [
         {

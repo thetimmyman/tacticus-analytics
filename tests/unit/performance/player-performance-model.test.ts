@@ -47,7 +47,21 @@ describe('player performance model', () => {
     const summary = buildBurnStatsSummary({
       showFiveSeasonAverage: false,
       rows,
-      summaries: [{ playerId: 'one', displayName: 'Current Name' }],
+      summaries: [
+        {
+          playerId: 'one',
+          displayName: 'Current Name',
+          avg_vs_cluster: 0,
+          avg_vs_guild: 0,
+          avg_vs_cluster_boss_only: 0,
+          avg_vs_guild_boss_only: 0,
+          total_battles: 0,
+          bosses_played: 0,
+          primes_played: 0,
+          boss_hits: 0,
+          prime_hits: 0
+        }
+      ],
       lookup
     })
     expect(summary).toMatchObject({

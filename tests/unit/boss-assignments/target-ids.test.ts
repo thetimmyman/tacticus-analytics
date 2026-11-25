@@ -66,7 +66,7 @@ describe('normalizePlayerTokenAllocations', () => {
 
   it('preserves reserved player names without changing object prototypes', () => {
     const normalized = normalizePlayerTokenAllocations(
-      Object.fromEntries([
+      Object.fromEntries<Record<string, number>>([
         ['__proto__', { L4_main: 2 }],
         ['constructor', { L4_prime1: 1 }]
       ])

@@ -19,7 +19,7 @@ export const createMockRequest = (
     })
   }
 
-  const init: RequestInit = {
+  const init: ConstructorParameters<typeof NextRequest>[1] = {
     method: options.method || 'GET',
     headers: {
       'Content-Type': 'application/json',

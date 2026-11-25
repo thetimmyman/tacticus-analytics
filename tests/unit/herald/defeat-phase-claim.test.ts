@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { ServiceSupabaseClient } from '@/app/lib/sync/worker-types'
 import { DEFAULT_GUILD_HERALD_CONFIG } from '@/app/lib/herald/config'
 import type { DefeatTransition } from '@/app/lib/herald/contracts'
 import { createEmptyHeraldRunResult } from '@/app/lib/herald/run-types'
@@ -38,11 +38,13 @@ function clientReturning(error: { code: string; message: string } | null) {
   const insert = vi.fn().mockResolvedValue({ data: null, error })
   return {
     insert,
-    supabase: { from: vi.fn(() => ({ insert })) } as unknown as SupabaseClient
+    supabase: {
+      from: vi.fn(() => ({ insert }))
+    } as unknown as ServiceSupabaseClient
   }
 }
 
-async function runWith(supabase: SupabaseClient) {
+async function runWith(supabase: ServiceSupabaseClient) {
   await dispatchDefeatPhase({
     supabase,
     guildCode: 'GUILD',

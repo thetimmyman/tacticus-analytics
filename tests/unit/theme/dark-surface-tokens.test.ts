@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
-import postcss, { type Root, type Rule } from 'postcss'
+import postcss, { type Document, type Root, type Rule } from 'postcss'
 import tailwindcss from '@tailwindcss/postcss'
 import { beforeAll, describe, expect, it } from 'vitest'
 import {
@@ -93,7 +93,7 @@ function compile(optimize: boolean): Promise<Root> {
 }
 
 function parentLayerOf(rule: Rule): string | null {
-  let node = rule.parent
+  let node: Rule['parent'] | Document = rule.parent
   while (node) {
     if (node.type === 'atrule' && node.name === 'layer') {
       return node.params.trim()

@@ -37,7 +37,8 @@ describe('/api/sync/worker', () => {
 
     mockSupabase = {
       from: vi.fn(),
-      rpc: vi.fn()
+      rpc: vi.fn(),
+      functions: { invoke: vi.fn() }
     }
 
     mockCreateServiceClient.mockReturnValue(mockSupabase)

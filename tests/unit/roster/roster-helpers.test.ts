@@ -248,7 +248,7 @@ describe('optional official roster labels', () => {
       abilities: []
     }
     const merged = mergeRosterUnits(
-      [minimal as Parameters<typeof mergeRosterUnits>[0][number]],
+      [minimal as unknown as Parameters<typeof mergeRosterUnits>[0][number]],
       []
     )
     expect(merged[0].name).toBe('syntheticUncatalogued')

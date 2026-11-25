@@ -106,18 +106,20 @@ function createHarness(
   if (options.staleObject) objects.set(OBJECT_NAME, '{"stale":true}')
 
   const storageBucket = {
-    upload: vi.fn(async (name: string, body: Buffer) => {
-      uploadAttempts += 1
-      uploads.push({ name, body: body.toString('utf8') })
-      if (uploadAttempts <= failUploads) {
-        return { data: null, error: { message: 'storage unavailable' } }
+    upload: vi.fn(
+      async (name: string, body: Buffer, _options?: { upsert?: boolean }) => {
+        uploadAttempts += 1
+        uploads.push({ name, body: body.toString('utf8') })
+        if (uploadAttempts <= failUploads) {
+          return { data: null, error: { message: 'storage unavailable' } }
+        }
+        if (objects.has(name)) {
+          return { data: null, error: { message: 'Duplicate', status: 409 } }
+        }
+        objects.set(name, body.toString('utf8'))
+        return { data: { path: name }, error: null }
       }
-      if (objects.has(name)) {
-        return { data: null, error: { message: 'Duplicate', status: 409 } }
-      }
-      objects.set(name, body.toString('utf8'))
-      return { data: { path: name }, error: null }
-    }),
+    ),
     createSignedUrl: vi.fn(async (name: string) => ({
       data: { signedUrl: `https://storage.test/${name}?token=x` },
       error: null

@@ -68,7 +68,7 @@ const GLOBAL_CONFIG = readJson('data/loki-api/GlobalConfig.json')
 const EXISTING_OVERLAY = readJson('data/loki-api/season-lineups.json')
 // Same capture time as the baked snapshot, different configVersion, so future seasons update.
 const FIXTURE_CAPTURED_AT = GLOBAL_CONFIG.extractedAt as string
-const FIXTURE_GLOBAL_CONFIG = {
+const FIXTURE_GLOBAL_CONFIG: JsonObject = {
   ...structuredClone(GLOBAL_CONFIG),
   configVersion: 'fixture-config-version',
   extractedAt: FIXTURE_CAPTURED_AT
