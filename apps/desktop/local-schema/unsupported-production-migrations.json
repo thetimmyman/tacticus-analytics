@@ -645,6 +645,11 @@
       "file": "20261124180000_fix_definer_search_path_order.sql",
       "reason": "production-app-schema",
       "detail": "Re-pins search_path on two hosted app-schema functions absent from the local bootstrap; it changes no signatures, grants or canonical desktop objects."
+    },
+    {
+      "file": "20261125160000_alert_route_tracing_and_ta_release.sql",
+      "reason": "hosted-service-integration",
+      "detail": "Adds hosted alert-channel routing entries to monitoring.alert_route, which is absent from the local desktop bootstrap."
     }
   ]
 }
