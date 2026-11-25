@@ -17,7 +17,7 @@ const TRANSIENT_ERROR_NAMES = new Set(['AbortError', 'TimeoutError'])
 const TRANSIENT_DB_CODES = new Set(['57014'])
 
 const TRANSIENT_MESSAGE_PATTERN =
-  /\b(?:http\s+)?504\b|\bgateway time-?out\b|\bstatement time-?out\b|\brequest timed out\b/iu
+  /\b(?:http\s+)?504\b|\bgateway time-?out\b|\bstatement time-?out\b|\bhttpFetch: request timed out\b/iu
 
 const MAX_CAUSE_DEPTH = 8
 
