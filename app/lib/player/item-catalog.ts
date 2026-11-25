@@ -7,8 +7,27 @@ import { GAME_DATA_ROOT } from '@/app/lib/data/game-data-root'
 
 const logger = createComponentLogger('player.item-catalog')
 const ITEMS_JSON_PATH = path.join(GAME_DATA_ROOT, 'items.json')
+const MAX_WARNED_FALLBACK_IDS = 500
+
+const CANONICAL_ITEM_TYPE_PREFIXES: ReadonlyArray<readonly [RegExp, string]> = [
+  [/^(?:I|R)_Booster_Block_/, 'I_Booster_Block'],
+  [/^(?:I|R)_Booster_Crit_/, 'I_Booster_Crit'],
+  [/^(?:I|R)_Crit_/, 'I_Crit'],
+  [/^(?:I|R)_Block_/, 'I_Block'],
+  [/^(?:I|R)_Defensive_/, 'I_Defensive']
+]
+
+/** Infer equipment slot type from canonical Snowprint item/relic ID prefixes. */
+export function inferItemTypeFromId(itemId: string): string | null {
+  if (!itemId) return null
+  for (const [pattern, itemType] of CANONICAL_ITEM_TYPE_PREFIXES) {
+    if (pattern.test(itemId)) return itemType
+  }
+  return null
+}
 
 let cachedItemTypes: Map<string, string> | null = null
+const warnedFallbackItemIds = new Set<string>()
 
 async function loadItemTypes(): Promise<Map<string, string>> {
   if (cachedItemTypes) return cachedItemTypes
@@ -44,9 +63,29 @@ export async function loadItemTypeMap(
 ): Promise<Map<string, string>> {
   const catalog = await loadItemTypes()
   const result = new Map<string, string>()
+  if (catalog.size === 0) return result
+
   for (const itemId of itemIds) {
     const itemType = catalog.get(itemId)
-    if (itemType) result.set(itemId, itemType)
+    if (itemType) {
+      result.set(itemId, itemType)
+      continue
+    }
+
+    const inferredType = inferItemTypeFromId(itemId)
+    if (!inferredType) continue
+
+    result.set(itemId, inferredType)
+    if (
+      !warnedFallbackItemIds.has(itemId) &&
+      warnedFallbackItemIds.size < MAX_WARNED_FALLBACK_IDS
+    ) {
+      warnedFallbackItemIds.add(itemId)
+      logger.warn(
+        { itemId, inferredType },
+        'Item ID absent from items.json; classified via canonical prefix fallback'
+      )
+    }
   }
   return result
 }
