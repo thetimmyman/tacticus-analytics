@@ -144,9 +144,12 @@ describe('persistSideSettings baseline (D6)', () => {
 
   it('does not drop a REVERT when the baseline is advanced after each save', async () => {
     // Without advancing the baseline, Skip → Save → Kill → Save writes nothing.
-    let baseline = {
-      side1Behaviour: 'kill' as const,
-      side2Behaviour: 'kill' as const
+    let baseline: {
+      side1Behaviour: 'kill' | 'skip'
+      side2Behaviour: 'kill' | 'skip'
+    } = {
+      side1Behaviour: 'kill',
+      side2Behaviour: 'kill'
     }
 
     await persistSideSettings(

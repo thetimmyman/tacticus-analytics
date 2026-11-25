@@ -64,6 +64,22 @@ const plannerResult = (
         bossName: 'Boss',
         maxHp: 1000,
         remainingHp: 0
+      },
+      1: {
+        encounterId: 1,
+        stageCode: 'L1',
+        loopIndex: 0,
+        bossName: 'Prime 1',
+        maxHp: 500,
+        remainingHp: 0
+      },
+      2: {
+        encounterId: 2,
+        stageCode: 'L1',
+        loopIndex: 0,
+        bossName: 'Prime 2',
+        maxHp: 500,
+        remainingHp: 0
       }
     }
   },
@@ -108,7 +124,7 @@ const makeGuildService = (args: {
   }
 
   return {
-    service: service as Parameters<typeof __testing.loadGuilds>[0],
+    service: service as unknown as Parameters<typeof __testing.loadGuilds>[0],
     listQuery
   }
 }
@@ -146,7 +162,7 @@ describe('roster strategy service helpers', () => {
     }
 
     await __testing.loadBattleRows({
-      service: service as Parameters<
+      service: service as unknown as Parameters<
         typeof __testing.loadBattleRows
       >[0]['service'],
       guildCodes: ['G1', 'G2'],

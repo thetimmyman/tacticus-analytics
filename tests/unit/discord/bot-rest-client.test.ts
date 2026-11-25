@@ -19,7 +19,7 @@ describe('discord bot REST read helpers', () => {
   })
 
   it('fetches channel metadata and message previews with GET only', async () => {
-    const fetchMock = vi.fn((url: string) => {
+    const fetchMock = vi.fn((url: string, _init?: RequestInit) => {
       if (url.includes('/messages?limit=1')) {
         return Promise.resolve(
           new Response(JSON.stringify([{ id: '200000000000000000' }]), {

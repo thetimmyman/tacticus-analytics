@@ -177,27 +177,25 @@ describe('TokenAlertSettings', () => {
   })
 
   it('enables toggles when linked and saves via PUT', async () => {
-    const fetchMock = vi
-      .fn()
-      .mockImplementation((url: string, init?: RequestInit) => {
-        if (!init || init.method === undefined) {
-          return jsonResponse(200, {
-            available: true,
-            linked: true,
-            dmBlocked: false,
-            prefs: DEFAULT_PREFS
-          })
-        }
-        if (init.method === 'PUT') {
-          return jsonResponse(200, {
-            available: true,
-            linked: true,
-            dmBlocked: false,
-            prefs: { ...DEFAULT_PREFS, alert_on_full: true }
-          })
-        }
-        return jsonResponse(200, { available: false })
-      })
+    const fetchMock = vi.fn((url: string, init?: RequestInit) => {
+      if (!init || init.method === undefined) {
+        return jsonResponse(200, {
+          available: true,
+          linked: true,
+          dmBlocked: false,
+          prefs: DEFAULT_PREFS
+        })
+      }
+      if (init.method === 'PUT') {
+        return jsonResponse(200, {
+          available: true,
+          linked: true,
+          dmBlocked: false,
+          prefs: { ...DEFAULT_PREFS, alert_on_full: true }
+        })
+      }
+      return jsonResponse(200, { available: false })
+    })
     vi.stubGlobal('fetch', fetchMock)
 
     render(<TokenAlertSettings />)
@@ -220,10 +218,10 @@ describe('TokenAlertSettings', () => {
     ).toBeInTheDocument()
 
     const putCall = fetchMock.mock.calls.find(
-      ([, init]: [string, RequestInit?]) => init?.method === 'PUT'
+      ([, init]) => init?.method === 'PUT'
     )
     expect(putCall).toBeDefined()
-    expect(JSON.parse(putCall![1].body as string)).toEqual({
+    expect(JSON.parse(putCall![1]?.body as string)).toEqual({
       ...DEFAULT_PREFS,
       alert_on_full: true
     })
@@ -258,10 +256,10 @@ describe('TokenAlertSettings', () => {
     fireEvent.click(screen.getByRole('button', { name: /save/i }))
     await waitFor(() => {
       const putCall = fetchMock.mock.calls.find(
-        ([, init]: [string, RequestInit?]) => init?.method === 'PUT'
+        ([, init]) => init?.method === 'PUT'
       )
       expect(putCall).toBeDefined()
-      expect(JSON.parse(putCall![1].body as string)).toMatchObject({
+      expect(JSON.parse(putCall![1]?.body as string)).toMatchObject({
         alert_on_full: false,
         alert_on_full_repeat_hours: null
       })
@@ -359,7 +357,7 @@ describe('TokenAlertSettings', () => {
     await waitFor(() => {
       const put = fetchMock.mock.calls.find((c) => c[1]?.method === 'PUT')
       expect(put).toBeDefined()
-      const sent = JSON.parse(put![1].body as string)
+      const sent = JSON.parse(put![1]?.body as string)
       // A hidden sub-toggle left true would keep sending DMs turned off at group level.
       expect(sent.alert_on_bomb_ready).toBe(false)
       expect(sent.alert_before_bomb_ready).toBe(false)
@@ -379,7 +377,7 @@ describe('TokenAlertSettings', () => {
     await waitFor(() => {
       const put = fetchMock.mock.calls.find((c) => c[1]?.method === 'PUT')
       expect(put).toBeDefined()
-      const sent = JSON.parse(put![1].body as string)
+      const sent = JSON.parse(put![1]?.body as string)
       // A DB CHECK makes a partial triple unrepresentable.
       expect(sent.quiet_hours_start).toEqual(expect.any(Number))
       expect(sent.quiet_hours_end).toEqual(expect.any(Number))
@@ -421,7 +419,7 @@ describe('TokenAlertSettings', () => {
     await waitFor(() => {
       const put = fetchMock.mock.calls.find((c) => c[1]?.method === 'PUT')
       expect(put).toBeDefined()
-      const sent = JSON.parse(put![1].body as string)
+      const sent = JSON.parse(put![1]?.body as string)
       expect(sent.quiet_hours_start).toBeNull()
       expect(sent.quiet_hours_end).toBeNull()
       expect(sent.quiet_hours_timezone).toBeNull()
@@ -460,7 +458,7 @@ describe('TokenAlertSettings', () => {
     await waitFor(() => {
       const put = fetchMock.mock.calls.find((c) => c[1]?.method === 'PUT')
       expect(put).toBeDefined()
-      const sent = JSON.parse(put![1].body as string)
+      const sent = JSON.parse(put![1]?.body as string)
       expect(sent.alert_before_burn).toBe(true)
       expect(sent.alert_before_burn_minutes).toBe(30)
     })

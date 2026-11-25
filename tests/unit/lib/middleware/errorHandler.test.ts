@@ -173,7 +173,6 @@ describe('errorHandler', () => {
         {
           code: 'invalid_type',
           expected: 'string',
-          received: 'number',
           path: ['name'],
           message: 'Expected string, received number'
         }
@@ -228,16 +227,16 @@ describe('errorHandler', () => {
 
       handleError(Errors.internal('boom'), mockRequest)
 
-      const [captured, context] = captureException.mock.calls[0] as [
+      const [captured, context] = vi.mocked(captureException).mock.calls[0] as [
         unknown,
         { tags: Record<string, string> }
       ]
       expect(captured).toBeInstanceOf(AppError)
       expect(context.tags.operation).toBe('POST:api.players._')
       expect(context.tags.request_id).toMatch(/^req_/)
-      expect(JSON.stringify(captureException.mock.calls)).not.toContain(
-        victimUuid
-      )
+      expect(
+        JSON.stringify(vi.mocked(captureException).mock.calls)
+      ).not.toContain(victimUuid)
     })
   })
 

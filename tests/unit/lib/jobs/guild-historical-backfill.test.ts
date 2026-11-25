@@ -1,10 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const ctx = { jobId: 9, workerId: 'test', attempts: 1 }
+type JobContext = typeof ctx
 let invoke: ReturnType<typeof vi.fn>
 let handler: (
   payload: Record<string, unknown>,
-  ctx: typeof ctx
+  context: JobContext
 ) => Promise<Record<string, unknown> | void>
 
 async function loadHandler() {

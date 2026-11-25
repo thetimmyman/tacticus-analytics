@@ -30,7 +30,7 @@ describe('Array optimizations', () => {
     })
 
     it('skips undefined values in the tail', () => {
-      const result = getTopK([4, 1, 3, undefined, 2], 2, asc)
+      const result = getTopK([4, 1, 3, undefined, 2] as number[], 2, asc)
       expect(result).toEqual([1, 2])
     })
   })

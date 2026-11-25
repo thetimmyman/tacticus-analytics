@@ -161,10 +161,10 @@ describe('buildBattleRowsQuery (canonical battle-row stack)', () => {
     expect(calls.some((c) => String(c[1]).includes('remainingHp'))).toBe(false)
 
     // A remainingHp param must not compile; if one is added the directive goes unused.
-    // @ts-expect-error -- remainingHp is deliberately not a parameter
     const invalid: BattleRowsParams = {
       select: 'a',
       scope: { guild: 'G' },
+      // @ts-expect-error -- remainingHp is deliberately not a parameter
       remainingHp: 0
     }
     void invalid

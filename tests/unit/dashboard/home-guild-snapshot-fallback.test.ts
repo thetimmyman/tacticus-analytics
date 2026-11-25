@@ -17,7 +17,7 @@ const makeClient = (data: unknown, error: unknown = null) => {
   const maybeSingle = vi.fn().mockResolvedValue({ data, error })
   const eqSeason = vi.fn(() => ({ maybeSingle }))
   const eqGuild = vi.fn(() => ({ eq: eqSeason }))
-  const select = vi.fn(() => ({ eq: eqGuild }))
+  const select = vi.fn((_columns?: string) => ({ eq: eqGuild }))
   const from = vi.fn(() => ({ select }))
   return {
     client: { from } as unknown as TypedSupabaseClient,

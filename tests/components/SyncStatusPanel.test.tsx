@@ -144,7 +144,8 @@ describe('SyncStatusPanel', () => {
   it('aborts an IN-FLIGHT freshness poll before a hard navigation', async () => {
     mockGuildCode = 'GUILD'
     const fetchMock = vi.fn(
-      () => new Promise(() => {}) as unknown as Promise<Response>
+      (_input: RequestInfo | URL, _init?: RequestInit) =>
+        new Promise(() => {}) as unknown as Promise<Response>
     )
     global.fetch = fetchMock as unknown as typeof fetch
 

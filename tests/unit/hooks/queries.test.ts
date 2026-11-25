@@ -369,7 +369,11 @@ describe('Dashboard Calculation Hooks', () => {
     it('should call getDamageByBossLoop with correct parameters', async () => {
       const { getDamageByBossLoop } =
         await import('@/app/lib/data/dashboard-calculations')
-      vi.mocked(getDamageByBossLoop).mockResolvedValue([])
+      vi.mocked(getDamageByBossLoop).mockResolvedValue({
+        data: [],
+        bosses: [],
+        detailedData: []
+      })
 
       const { useDamageByBossLoop } = await import('@/app/lib/hooks/queries')
       const { result } = renderHook(() => useDamageByBossLoop('GUILD', 'S1'), {

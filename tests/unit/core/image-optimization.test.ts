@@ -160,7 +160,9 @@ describe('trackImagePerformance', () => {
 
 describe('createLazyLoadObserver', () => {
   it('returns null when IntersectionObserver is unavailable', () => {
-    globalAny.IntersectionObserver = undefined
+    ;(
+      globalAny as { IntersectionObserver?: typeof IntersectionObserver }
+    ).IntersectionObserver = undefined
 
     expect(createLazyLoadObserver(() => {})).toBeNull()
   })

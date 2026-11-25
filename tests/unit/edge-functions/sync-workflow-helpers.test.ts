@@ -13,7 +13,8 @@ describe('sync workflow helpers', () => {
       computeSeasonWindow(1, {
         firstSeasonStartMs: 0,
         seasonCycleSeconds: 100,
-        seasonGapSeconds: 10
+        seasonGapSeconds: 10,
+        source: 'loki-globalconfig'
       })
     ).toEqual({
       startsAtIso: '1970-01-01T00:16:50.000Z',

@@ -347,11 +347,11 @@ describe('fetchHeraldSeedFromMetaAtlas', () => {
 
   it('skips rows with null or empty meta_team', async () => {
     const supabase = makeSupabaseMock([
-      // @ts-expect-error — testing null resilience
       {
         boss_type: 'Belisarius',
         sub_boss_name: 'Belisarius Cawl',
         rarity: 'Legendary',
+        // @ts-expect-error — testing null resilience
         meta_team: null,
         damage_p90: 5_000_000,
         attack_count: 50,

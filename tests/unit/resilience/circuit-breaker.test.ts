@@ -184,7 +184,7 @@ describe('CircuitBreaker', () => {
         successThreshold: 1,
         timeout: 1000,
         registerInRegistry: false,
-        fallback: async () => 'fallback-value'
+        fallback: (async () => 'fallback-value') as <T>() => Promise<T>
       })
 
       try {

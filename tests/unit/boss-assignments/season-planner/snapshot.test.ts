@@ -15,9 +15,9 @@ const S107_CONFIG = {
   gameVersion: 'test-s107'
 }
 
-describe('plan-from-now snapshot stage logic', () => {
-  type QueryValue = string | number | boolean | null
+type QueryValue = string | number | boolean | null
 
+describe('plan-from-now snapshot stage logic', () => {
   it('derives stage codes from rarity/set', () => {
     expect(deriveStageCodeFromSetAndRarity(0, 'Legendary')).toBe('L1')
     expect(deriveStageCodeFromSetAndRarity(4, 'Legendary')).toBe('L5')

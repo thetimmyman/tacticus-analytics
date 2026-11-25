@@ -55,7 +55,7 @@ const supabaseWithLinkRead = (result: {
   chain.eq.mockReturnValue(chain)
   return {
     from: vi.fn(() => chain)
-  } as Pick<Supabase, 'from'> as Supabase
+  } as unknown as Supabase
 }
 
 describe('linked-guild read outcomes', () => {

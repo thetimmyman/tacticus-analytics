@@ -356,14 +356,11 @@ describe('ErrorBoundary browser render telemetry', () => {
 
     try {
       render(
-        React.createElement(
-          ErrorBoundary,
-          {
-            autoReset: false,
-            showDetails: false
-          },
-          React.createElement(Explodes)
-        )
+        React.createElement(ErrorBoundary, {
+          autoReset: false,
+          showDetails: false,
+          children: React.createElement(Explodes)
+        })
       )
     } finally {
       consoleError.mockRestore()

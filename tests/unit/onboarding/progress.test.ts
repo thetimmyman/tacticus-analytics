@@ -21,6 +21,7 @@ describe('Onboarding Progress Utilities', () => {
     guild_name: 'Test Guild',
     guild_error_message: 'Previous error',
     guild_can_retry: false,
+    guild_attempt_generation: 0,
     guild_lock_expires_at: null,
     sync_status: 'complete' as OnboardingSyncStatus,
     sync_progress: 100,
