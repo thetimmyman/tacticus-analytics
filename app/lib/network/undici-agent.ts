@@ -184,7 +184,11 @@ function httpFetch(
       req.on('timeout', () => {
         requestBody?.destroy()
         req.destroy()
-        reject(new Error('httpFetch: request timed out after 120s'))
+        const timeoutError = new Error(
+          'httpFetch: request timed out after 120s'
+        )
+        timeoutError.name = 'TimeoutError'
+        reject(timeoutError)
       })
       req.once('close', () => {
         signal?.removeEventListener('abort', abort)
