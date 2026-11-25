@@ -105,12 +105,19 @@ describe('check-test-typecheck-ratchet fails closed on unusable tsc runs', () =>
     expect(result.output).not.toContain('ratchet OK')
   })
 
-  it('still passes on an ordinary diagnostic run below the baseline', () => {
+  it('passes on a clean diagnostic run at the zero baseline', () => {
+    const result = runCheck('')
+    expect(result.status).toBe(0)
+    expect(result.output).toContain('ratchet OK')
+  })
+
+  it('counts ordinary TS6133 diagnostics normally instead of failing closed', () => {
     const result = runCheck(
       "tests/unit/a.test.ts(3,7): error TS6133: 'x' is declared but its value is never read.\nFound 1 error in 1 file.\n"
     )
-    expect(result.status).toBe(0)
-    expect(result.output).toContain('ratchet OK')
+    expect(result.status).toBe(1)
+    expect(result.output).toContain('1 error(s)')
+    expect(result.output).not.toContain('Failing closed')
   })
 
   it('refuses to count over a node_modules that does not match package-lock.json', () => {
