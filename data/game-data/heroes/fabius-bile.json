@@ -1,0 +1,46 @@
+{
+  "activeAbility": "PrimeTestSubject",
+  "allianceId": "Chaos",
+  "baseRarity": "Legendary",
+  "damageProfiles": [
+    "Physical",
+    "Toxic"
+  ],
+  "description": "",
+  "factionId": "TheLostAndTheDamned",
+  "gameId": "lostaBile",
+  "id": "fabius-bile",
+  "itemSlots": [
+    "I_Crit",
+    "I_Defensive",
+    "I_Booster_Crit"
+  ],
+  "longName": "Fabius Bile",
+  "meleeWeapon": {
+    "damageProfile": "Physical",
+    "hits": 3,
+    "pierceDescription": "",
+    "piercingRatio": 0,
+    "range": null,
+    "traits": []
+  },
+  "movement": 3,
+  "mowActiveAbility": [],
+  "mythicAbilities": null,
+  "name": "Fabius Bile",
+  "passiveAbility": "DiabolicRegeneration",
+  "rangeWeapon": {
+    "damageProfile": "Toxic",
+    "hits": 1,
+    "pierceDescription": "",
+    "piercingRatio": 0,
+    "range": 2,
+    "traits": []
+  },
+  "ranks": [],
+  "sorting": 129,
+  "traits": [
+    "Healer",
+    "Resilient"
+  ]
+}

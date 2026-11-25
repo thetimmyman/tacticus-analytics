@@ -1,0 +1,26 @@
+{
+  "activeAbility": "WrathfulAdvance",
+  "allianceId": "Imperial",
+  "baseRarity": "Common",
+  "damageProfiles": [],
+  "description": "",
+  "factionId": "Custodes",
+  "gameId": "custoDreadnought",
+  "id": "boudicari",
+  "itemSlots": [],
+  "longName": "Boudicari",
+  "meleeWeapon": null,
+  "movement": 3,
+  "mowActiveAbility": [],
+  "mythicAbilities": [
+    "DefiantToTheLast"
+  ],
+  "name": "Boudicari",
+  "passiveAbility": null,
+  "rangeWeapon": null,
+  "ranks": [],
+  "sorting": 130,
+  "traits": [
+    "MachineOfWar"
+  ]
+}

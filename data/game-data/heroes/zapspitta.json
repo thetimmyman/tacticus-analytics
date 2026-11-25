@@ -1,0 +1,46 @@
+{
+  "activeAbility": "PowerVomit",
+  "allianceId": "Xenos",
+  "baseRarity": "Rare",
+  "damageProfiles": [
+    "Psychic"
+  ],
+  "description": "",
+  "factionId": "Orks",
+  "gameId": "orksWeirdboy",
+  "id": "zapspitta",
+  "itemSlots": [
+    "I_Crit",
+    "I_Defensive",
+    "I_Booster_Crit"
+  ],
+  "longName": "Grubak Zapspitta",
+  "meleeWeapon": {
+    "damageProfile": "Psychic",
+    "hits": 3,
+    "pierceDescription": "",
+    "piercingRatio": 0,
+    "range": null,
+    "traits": []
+  },
+  "movement": 3,
+  "mowActiveAbility": [],
+  "mythicAbilities": null,
+  "name": "Zapspitta",
+  "passiveAbility": "WaaaghEnergy",
+  "rangeWeapon": {
+    "damageProfile": "Psychic",
+    "hits": 2,
+    "pierceDescription": "",
+    "piercingRatio": 0,
+    "range": 2,
+    "traits": []
+  },
+  "ranks": [],
+  "sorting": 127,
+  "traits": [
+    "GetStuckIn",
+    "Psyker",
+    "Explodes"
+  ]
+}

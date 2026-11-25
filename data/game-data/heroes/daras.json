@@ -1,0 +1,47 @@
+{
+  "activeAbility": "ProclivityForMurder",
+  "allianceId": "Chaos",
+  "baseRarity": "Uncommon",
+  "damageProfiles": [
+    "Physical",
+    "Bolter"
+  ],
+  "description": "",
+  "factionId": "TheLostAndTheDamned",
+  "gameId": "lostaFearmonger",
+  "id": "daras",
+  "itemSlots": [
+    "I_Crit",
+    "I_Defensive",
+    "I_Booster_Crit"
+  ],
+  "longName": "Daras Carrow",
+  "meleeWeapon": {
+    "damageProfile": "Physical",
+    "hits": 3,
+    "pierceDescription": "",
+    "piercingRatio": 0,
+    "range": null,
+    "traits": []
+  },
+  "movement": 3,
+  "mowActiveAbility": [],
+  "mythicAbilities": null,
+  "name": "Daras",
+  "passiveAbility": "TerrorchemPoison",
+  "rangeWeapon": {
+    "damageProfile": "Bolter",
+    "hits": 1,
+    "pierceDescription": "",
+    "piercingRatio": 0,
+    "range": 2,
+    "traits": []
+  },
+  "ranks": [],
+  "sorting": 128,
+  "traits": [
+    "Overwatch",
+    "Camouflage",
+    "Terrifying"
+  ]
+}
