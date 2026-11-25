@@ -190,7 +190,10 @@ export class CircuitBreaker {
     }
   }
 
-  async execute<T>(fn: () => Promise<T>): Promise<T> {
+  async execute<T>(
+    fn: () => Promise<T>,
+    options?: { shouldCountFailure?: (error: unknown) => boolean }
+  ): Promise<T> {
     this.totalRequests++
 
     this.maybeEnterHalfOpen()
@@ -210,6 +213,9 @@ export class CircuitBreaker {
       return result
     } catch (error) {
       if (error instanceof ProviderAdmissionError) throw error
+      if (options?.shouldCountFailure && !options.shouldCountFailure(error)) {
+        throw error
+      }
       this.onFailure()
       throw error
     }

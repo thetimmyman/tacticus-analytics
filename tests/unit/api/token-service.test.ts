@@ -407,6 +407,59 @@ describe('Token Service', () => {
       expect(result.players[0].api_key_is_valid).toBe(false)
     })
 
+    it('skips live API fetch for encrypted keys already flagged api_key_is_valid=false', async () => {
+      const invalidEncryptedMember = {
+        ...mockMember,
+        api_key_is_valid: false,
+        tacticus_api_key_encrypted: 'encrypted-dead-key'
+      }
+      mockSupabase.from.mockImplementation(
+        createMockFrom({
+          player_mapping: () => ({
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({
+                  order: vi.fn().mockResolvedValue({
+                    data: [invalidEncryptedMember],
+                    error: null
+                  })
+                })
+              })
+            })
+          }),
+          token_burn_state: () => ({
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                eq: vi.fn().mockResolvedValue({ data: [], error: null })
+              })
+            })
+          }),
+          EOT_GR_data: () => ({
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({
+                  in: vi.fn().mockReturnValue({
+                    order: vi.fn().mockResolvedValue({ data: [], error: null })
+                  })
+                })
+              })
+            })
+          })
+        })
+      )
+
+      const { loadGuildTokenStatuses } =
+        await import('@/app/api/guild-tokens/token-service')
+      const result = await loadGuildTokenStatuses(
+        mockSupabase as unknown as SupabaseClient,
+        { guildCode: 'TEST', season: '42' }
+      )
+
+      expect(getPlayerApiKey).not.toHaveBeenCalled()
+      expect(getPlayerWithRetry).not.toHaveBeenCalled()
+      expect(result.players[0].data_source).toBe('calculated')
+    })
+
     it('retains replay spends whose historical display name is null', async () => {
       mockSupabase.from.mockImplementation(
         createMockFrom({

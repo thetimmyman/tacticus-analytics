@@ -37,7 +37,8 @@ async function sendCircuitAlert(
 ): Promise<void> {
   const isSignificant =
     newState === 'OPEN' || // Always alert when opening
-    (previousState === 'OPEN' && newState === 'CLOSED') // Alert on recovery
+    ((previousState === 'OPEN' || previousState === 'HALF_OPEN') &&
+      newState === 'CLOSED') // Alert on recovery (normal HALF_OPEN -> CLOSED or manual reset)
 
   if (!isSignificant) {
     logger.debug(

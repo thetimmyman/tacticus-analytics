@@ -111,9 +111,11 @@ function resolveAbilityLevels(
 }
 
 /** The unit's own itemType wins, else items.json (there is no items table). Never throws. */
-async function buildItemTypeMap(
-  units: AnyUnit[]
-): Promise<{ map: Map<string, string>; complete: boolean }> {
+async function buildItemTypeMap(units: AnyUnit[]): Promise<{
+  map: Map<string, string>
+  complete: boolean
+  missingItemIds: string[]
+}> {
   const map = new Map<string, string>()
   const needLookup = new Set<string>()
 
@@ -129,7 +131,7 @@ async function buildItemTypeMap(
     }
   }
 
-  if (needLookup.size === 0) return { map, complete: true }
+  if (needLookup.size === 0) return { map, complete: true, missingItemIds: [] }
 
   try {
     const resolved = await loadItemTypeMap(needLookup)
@@ -140,7 +142,8 @@ async function buildItemTypeMap(
       '[RosterSync] itemType resolution from items.json threw; equipment slots may be left null'
     )
   }
-  return { map, complete: [...needLookup].every((id) => map.has(id)) }
+  const missingItemIds = [...needLookup].filter((id) => !map.has(id))
+  return { map, complete: missingItemIds.length === 0, missingItemIds }
 }
 
 const normalizePlayerPower = (
@@ -172,7 +175,18 @@ async function prepareRosterSnapshot(
     .select('id, unit_id')
     .in('unit_id', unitIds)
 
-  if (mapErr || !mappings?.length) return { rows: [], complete: false }
+  if (mapErr || !mappings?.length) {
+    if (!mapErr) {
+      logger.warn(
+        {
+          unmappedUnitIds: unitIds.slice(0, 20),
+          unmappedUnitCount: unitIds.length
+        },
+        '[RosterSync] Skipping roster write due to incomplete catalog coverage'
+      )
+    }
+    return { rows: [], complete: false }
+  }
 
   const unitIdToMappingId = new Map<string, number>(
     (mappings as Array<{ id: number; unit_id: string }>).map((m) => [
@@ -181,8 +195,11 @@ async function prepareRosterSnapshot(
     ])
   )
 
-  const { map: itemTypeById, complete: equipmentComplete } =
-    await buildItemTypeMap(allUnits)
+  const {
+    map: itemTypeById,
+    complete: equipmentComplete,
+    missingItemIds
+  } = await buildItemTypeMap(allUnits)
 
   const rows = allUnits
     .filter((u) => u.id && unitIdToMappingId.has(u.id))
@@ -209,14 +226,27 @@ async function prepareRosterSnapshot(
       }
     })
 
-  return {
-    rows,
-    complete:
-      equipmentComplete &&
-      allUnits.length === unitIds.length &&
-      allUnits.every((unit) => Boolean(unit.id)) &&
-      rows.length === unitIds.length
+  const complete =
+    equipmentComplete &&
+    allUnits.length === unitIds.length &&
+    allUnits.every((unit) => Boolean(unit.id)) &&
+    rows.length === unitIds.length
+
+  if (!complete) {
+    const unmappedUnitIds = unitIds.filter((id) => !unitIdToMappingId.has(id))
+    logger.warn(
+      {
+        unmappedUnitIds: unmappedUnitIds.slice(0, 20),
+        unmappedUnitCount: unmappedUnitIds.length,
+        unclassifiedItemIds: missingItemIds.slice(0, 20),
+        unclassifiedItemCount: missingItemIds.length,
+        duplicateUnitCount: allUnits.length - unitIds.length
+      },
+      '[RosterSync] Skipping roster write due to incomplete catalog coverage'
+    )
   }
+
+  return { rows, complete }
 }
 
 /** Preserve local import normalization; hosted writes require complete evidence. */

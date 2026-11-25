@@ -17,7 +17,9 @@ export async function fetchLiveTokenDataForMembers(
   supabase: SupabaseClient
 ): Promise<Map<string, LiveTokenData>> {
   const liveData = new Map<string, LiveTokenData>()
-  const allMembersWithKeys = members.filter((m) => m.tacticus_api_key_encrypted)
+  const allMembersWithKeys = members.filter(
+    (m) => m.tacticus_api_key_encrypted && m.api_key_is_valid !== false
+  )
   if (allMembersWithKeys.length === 0) return liveData
 
   const membersWithKeys = allMembersWithKeys.slice(

@@ -565,6 +565,7 @@ export async function runTokenAudit(
     )
     .eq('is_current', true)
     .not('tacticus_api_key_encrypted', 'is', null)
+    .not('api_key_is_valid', 'is', false)
     .not('guild_code', 'is', null)
   if (keyHolderError) {
     throw new Error(`key-holder query failed: ${keyHolderError.message}`)
@@ -572,7 +573,8 @@ export async function runTokenAudit(
 
   const byGuild = new Map<string, KeyHolderRow[]>()
   for (const row of (keyHolders ?? []) as KeyHolderRow[]) {
-    if (!row.guild_code || !row.player_id) continue
+    if (!row.guild_code || !row.player_id || row.api_key_is_valid === false)
+      continue
     const list = byGuild.get(row.guild_code) ?? []
     list.push(row)
     byGuild.set(row.guild_code, list)
@@ -666,13 +668,18 @@ export async function runTokenAuditForGuild(options: {
     db,
     options.guildCode,
     'player_id, display_name, guild_code, tacticus_api_key_encrypted, last_sync_tokens, last_sync_bombs, next_token_seconds, next_bomb_seconds, api_key_is_valid'
-  ).not('tacticus_api_key_encrypted', 'is', null)
+  )
+    .not('tacticus_api_key_encrypted', 'is', null)
+    .not('api_key_is_valid', 'is', false)
   if (keyHolderError) {
     throw new Error(`key-holder query failed: ${keyHolderError.message}`)
   }
 
   const members = ((keyHolders ?? []) as KeyHolderRow[]).filter(
-    (row) => Boolean(row.guild_code) && Boolean(row.player_id)
+    (row) =>
+      Boolean(row.guild_code) &&
+      Boolean(row.player_id) &&
+      row.api_key_is_valid !== false
   )
   if (members.length === 0) {
     return {

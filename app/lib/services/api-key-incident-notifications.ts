@@ -23,6 +23,7 @@ type GuildConfigRow = Pick<
   | 'last_successful_sync'
   | 'last_sync_attempt'
   | 'user_id'
+  | 'cluster_id'
 >
 
 type IncidentType = 'invalid_api_key' | 'sync_failures'
@@ -70,7 +71,11 @@ type IncidentStateTableClient = {
 type Recipient = {
   email: string
   userId: string | null
-  source: 'leader_or_officer' | 'guild_owner_fallback'
+  source:
+    | 'leader_or_officer'
+    | 'guild_owner_fallback'
+    | 'cluster_owner_fallback'
+    | 'cluster_leader_fallback'
 }
 
 export type ApiKeyIncident = {
@@ -100,6 +105,10 @@ const LEADERSHIP_ROLES: Database['public']['Enums']['app_role'][] = [
   'officer',
   'Leader',
   'Officer'
+]
+const CLUSTER_LEADER_ROLES: Database['public']['Enums']['app_role'][] = [
+  'leader',
+  'Leader'
 ]
 
 const LOOKBACK_DAYS = Number.parseInt(
@@ -220,7 +229,7 @@ function buildIncidentEmailHtml(args: {
           <tr>
             <td style="padding:24px;">
               <p style="margin:0 0 16px 0;font-size:15px;color:#1f2937;">
-                You are receiving this because your account is mapped as a guild leader/officer (or fallback guild owner).
+                You are receiving this because your account is mapped as a guild leader/officer, fallback guild owner, or cluster administrator.
               </p>
 
               <div style="border:1px solid #fecaca;background:#fef2f2;border-radius:8px;padding:14px 16px;margin-bottom:20px;">
@@ -414,6 +423,138 @@ async function resolveRecipientEmails(
     }
   }
 
+  if (recipients.length === 0 && guild.cluster_id) {
+    const { data: clusterRow, error: clusterError } = await supabase
+      .from('clusters')
+      .select('created_by')
+      .eq('id', guild.cluster_id)
+      .maybeSingle()
+
+    if (clusterError) {
+      logger.error(
+        {
+          guildCode: guild.guild_code,
+          clusterId: guild.cluster_id,
+          error: clusterError.message
+        },
+        '[api-key-notifications] Failed querying cluster owner'
+      )
+      throw new Error('API key incident recipient lookup failed')
+    }
+
+    if (clusterRow?.created_by) {
+      const { data: ownerEmailRow, error: ownerEmailError } = await supabase
+        .from('auth_user_emails')
+        .select('user_id, email')
+        .eq('user_id', clusterRow.created_by)
+        .maybeSingle()
+
+      if (ownerEmailError) {
+        logger.error(
+          {
+            guildCode: guild.guild_code,
+            clusterId: guild.cluster_id,
+            error: ownerEmailError.message
+          },
+          '[api-key-notifications] Failed querying cluster owner email'
+        )
+        throw new Error('API key incident recipient lookup failed')
+      } else if (ownerEmailRow?.email) {
+        recipients.push({
+          email: ownerEmailRow.email,
+          userId: ownerEmailRow.user_id,
+          source: 'cluster_owner_fallback'
+        })
+      }
+    }
+
+    if (recipients.length === 0) {
+      const { data: siblingGuilds, error: siblingError } = await supabase
+        .from('guild_config')
+        .select('guild_code')
+        .eq('cluster_id', guild.cluster_id)
+        .eq('enabled', true)
+        .neq('guild_code', guild.guild_code)
+
+      if (siblingError) {
+        logger.error(
+          {
+            guildCode: guild.guild_code,
+            clusterId: guild.cluster_id,
+            error: siblingError.message
+          },
+          '[api-key-notifications] Failed querying sibling cluster guilds'
+        )
+        throw new Error('API key incident recipient lookup failed')
+      }
+
+      const siblingCodes = (siblingGuilds ?? []).map((row) => row.guild_code)
+      if (siblingCodes.length > 0) {
+        const { data: clusterLeaders, error: clusterLeaderError } =
+          await supabase
+            .from('player_mapping')
+            .select('user_id')
+            .in('guild_code', siblingCodes)
+            .eq('is_current', true)
+            .not('user_id', 'is', null)
+            .in('role', CLUSTER_LEADER_ROLES)
+
+        if (clusterLeaderError) {
+          logger.error(
+            {
+              guildCode: guild.guild_code,
+              clusterId: guild.cluster_id,
+              error: clusterLeaderError.message
+            },
+            '[api-key-notifications] Failed querying cluster leader mappings'
+          )
+          throw new Error('API key incident recipient lookup failed')
+        }
+
+        const clusterLeaderIds = Array.from(
+          new Set(
+            (clusterLeaders ?? [])
+              .map((row) => row.user_id)
+              .filter(
+                (value): value is string =>
+                  typeof value === 'string' && value.length > 0
+              )
+          )
+        )
+
+        if (clusterLeaderIds.length > 0) {
+          const { data: clusterEmails, error: clusterEmailError } =
+            await supabase
+              .from('auth_user_emails')
+              .select('user_id, email')
+              .in('user_id', clusterLeaderIds)
+              .not('email', 'is', null)
+
+          if (clusterEmailError) {
+            logger.error(
+              {
+                guildCode: guild.guild_code,
+                clusterId: guild.cluster_id,
+                error: clusterEmailError.message
+              },
+              '[api-key-notifications] Failed querying cluster leader emails'
+            )
+            throw new Error('API key incident recipient lookup failed')
+          }
+
+          for (const row of clusterEmails ?? []) {
+            if (!row.email) continue
+            recipients.push({
+              email: row.email,
+              userId: row.user_id,
+              source: 'cluster_leader_fallback'
+            })
+          }
+        }
+      }
+    }
+  }
+
   const dedupedByEmail = new Map<string, Recipient>()
   for (const recipient of recipients) {
     const normalized = recipient.email.trim().toLowerCase()
@@ -526,7 +667,7 @@ export async function sendApiKeyIncidentNotifications(
     const { data: guildRows, error: guildError } = await supabase
       .from('guild_config')
       .select(
-        'guild_code, enabled, display_name, api_key_is_valid, consecutive_sync_failures, last_successful_sync, last_sync_attempt, user_id'
+        'guild_code, enabled, display_name, api_key_is_valid, consecutive_sync_failures, last_successful_sync, last_sync_attempt, user_id, cluster_id'
       )
       .order('guild_code')
       .range(offset, offset + pageSize - 1)
