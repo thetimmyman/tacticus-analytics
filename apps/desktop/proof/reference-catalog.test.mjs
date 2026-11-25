@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { mkdtemp, mkdir, writeFile, symlink, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import {
   readReferenceHeroes,
   initializeReferenceHeroes
@@ -175,4 +175,15 @@ test('boss catalogue validates every packaged encounter before a preserving tran
   } finally {
     await rm(root, { recursive: true, force: true })
   }
+})
+
+test('real bundled data/game-data/heroes parses cleanly including current playable units', async () => {
+  const heroes = await readReferenceHeroes(resolve('data/game-data'))
+  const byUnitId = new Map(heroes.map((h) => [h.unitId, h]))
+
+  assert.equal(byUnitId.get('orksWeirdboy')?.category, 'Hero')
+  assert.equal(byUnitId.get('lostaBile')?.category, 'Hero')
+  assert.equal(byUnitId.get('lostaFearmonger')?.category, 'Hero')
+  assert.equal(byUnitId.get('astarEradicator')?.category, 'Hero')
+  assert.equal(byUnitId.get('custoDreadnought')?.category, 'MOW')
 })

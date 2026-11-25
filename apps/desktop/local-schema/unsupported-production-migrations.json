@@ -650,6 +650,11 @@
       "file": "20261125160000_alert_route_tracing_and_ta_release.sql",
       "reason": "hosted-service-integration",
       "detail": "Adds hosted alert-channel routing entries to monitoring.alert_route, which is absent from the local desktop bootstrap."
+    },
+    {
+      "file": "20261125180000_seed_missing_hero_mappings.sql",
+      "reason": "data-backfill",
+      "detail": "Seeds newly released playable units into hosted public.hero_mappings; the desktop launcher initializes hero_mappings from bundled data/game-data/heroes/*.json."
     }
   ]
 }

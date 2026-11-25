@@ -21,6 +21,8 @@ const FACTION_COLORS: Record<string, string> = {
   Genestealers: 'text-purple-400',
   Custodes: 'text-yellow-500',
   EmperorsChildren: 'text-pink-400',
+  AdeptusAstartes: 'text-emerald-500',
+  TheLostAndTheDamned: 'text-purple-400',
   'Black Legion': 'text-primary-wh40k',
   'Astra Militarum': 'text-yellow-600',
   'Death Guard': 'text-lime-500',
@@ -34,7 +36,9 @@ const FACTION_COLORS: Record<string, string> = {
   'Leagues of Votann': 'text-orange-400',
   'Adeptus Mechanicus': 'text-red-500',
   'Blood Angels': 'text-red-500',
-  "Emperor's Children": 'text-pink-400'
+  "Emperor's Children": 'text-pink-400',
+  'Adeptus Astartes': 'text-emerald-500',
+  'The Lost and the Damned': 'text-purple-400'
 }
 
 interface FactionIconProps {
