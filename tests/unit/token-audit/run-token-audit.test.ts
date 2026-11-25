@@ -367,4 +367,38 @@ describe('runTokenAuditForGuild snapshot write-back (Phase 3 S1)', () => {
     // A post-completion cutoff would clobber fresher overlay writes that landed mid-flight.
     expect(guardMs).toBeLessThan(fetchResolvedAtMs)
   })
+
+  it('skips members with api_key_is_valid=false while keeping true and unvalidated null keys', async () => {
+    const invalidMember = {
+      ...MEMBER_TWO,
+      player_id: 'p-invalid',
+      display_name: 'Invalid Key Player',
+      api_key_is_valid: false
+    }
+    const unvalidatedMember = {
+      ...MEMBER_TWO,
+      player_id: 'p-null',
+      display_name: 'Unvalidated Key Player',
+      api_key_is_valid: null
+    }
+    const { runTokenAuditForGuild, db } = await setup({
+      keyHolders: [MEMBER, invalidMember, unvalidatedMember]
+    })
+    const { tacticusAPI } = await import('@/app/lib/api/tacticus-client')
+    const { getPlayerApiKey } =
+      await import('@tacticus/app-core/api-key-helper')
+
+    const summary = await run(runTokenAuditForGuild)
+
+    expect(summary.skipped).toBe(false)
+    expect(summary.result?.live_eligible).toBe(2)
+    expect(summary.result?.live_fetched).toBe(2)
+    expect(getPlayerApiKey).toHaveBeenCalledTimes(2)
+    expect(tacticusAPI.getPlayerWithRetry).toHaveBeenCalledTimes(2)
+    const playerMappingCallIdx = db.from.mock.calls.findIndex(
+      ([table]) => table === 'player_mapping'
+    )
+    const chain = db.from.mock.results[playerMappingCallIdx]?.value as MockChain
+    expect(chain.not).toHaveBeenCalledWith('api_key_is_valid', 'is', false)
+  })
 })

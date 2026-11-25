@@ -2,7 +2,8 @@ import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
   serviceDb: vi.fn(),
-  loggerWarn: vi.fn()
+  loggerWarn: vi.fn(),
+  resendSend: vi.fn()
 }))
 
 vi.mock('@/app/lib/db', () => ({ serviceDb: mocks.serviceDb }))
@@ -14,7 +15,11 @@ vi.mock('@/app/lib/logging', () => ({
     error: vi.fn()
   })
 }))
-vi.mock('resend', () => ({ Resend: vi.fn() }))
+vi.mock('resend', () => ({
+  Resend: vi.fn(function () {
+    return { emails: { send: mocks.resendSend } }
+  })
+}))
 
 import {
   classifyApiIncident,
@@ -31,6 +36,7 @@ type TestGuild = {
   last_successful_sync: string | null
   last_sync_attempt: string | null
   user_id: string | null
+  cluster_id?: string | null
 }
 
 type TestIncidentState = {
@@ -50,34 +56,95 @@ const TEST_NOW = new Date('2026-10-05T12:00:00.000Z')
 function makeNotificationClient(
   guildRows: TestGuild[],
   stateRows: TestIncidentState[],
-  failingTable?: string
+  failingTable?: string,
+  extras?: {
+    clusters?: Array<{ id: string; created_by: string | null }>
+    playerMappings?: Array<{
+      guild_code: string
+      user_id: string | null
+      role: string
+      is_current?: boolean
+    }>
+    authEmails?: Array<{ user_id: string; email: string | null }>
+  }
 ) {
   const upserts: Array<Record<string, unknown>> = []
   const client = {
     from: vi.fn((table: string) => {
+      const filters: Array<{ op: string; col: string; val: unknown }> = []
       const builder: Record<string, ReturnType<typeof vi.fn>> = {}
-      builder.select = vi.fn(() => builder)
-      builder.eq = vi.fn(() => builder)
-      builder.not = vi.fn(() => builder)
+      const applyFilters = <T extends Record<string, unknown>>(rows: T[]) =>
+        rows.filter((row) =>
+          filters.every((f) => {
+            if (f.op === 'eq') return row[f.col] === f.val
+            if (f.op === 'neq') return row[f.col] !== f.val
+            if (f.op === 'not_null')
+              return row[f.col] !== null && row[f.col] !== undefined
+            if (f.op === 'in') return (f.val as unknown[]).includes(row[f.col])
+            return true
+          })
+        )
+      const resolveRows = () => {
+        if (table === failingTable) {
+          return { data: null, error: { message: 'synthetic read failure' } }
+        }
+        if (table === 'guild_api_incident_notification_state') {
+          return { data: applyFilters(stateRows), error: null }
+        }
+        if (table === 'guild_config') {
+          return { data: applyFilters(guildRows), error: null }
+        }
+        if (table === 'clusters') {
+          return { data: applyFilters(extras?.clusters ?? []), error: null }
+        }
+        if (table === 'player_mapping') {
+          return {
+            data: applyFilters(extras?.playerMappings ?? []),
+            error: null
+          }
+        }
+        if (table === 'auth_user_emails') {
+          return { data: applyFilters(extras?.authEmails ?? []), error: null }
+        }
+        return { data: [], error: null }
+      }
+      builder.select = vi.fn(() => {
+        filters.length = 0
+        return builder
+      })
+      builder.eq = vi.fn((col: string, val: unknown) => {
+        filters.push({ op: 'eq', col, val })
+        return builder
+      })
+      builder.neq = vi.fn((col: string, val: unknown) => {
+        filters.push({ op: 'neq', col, val })
+        return builder
+      })
+      builder.not = vi.fn((col: string, _op: string, _val: unknown) => {
+        filters.push({ op: 'not_null', col, val: null })
+        return builder
+      })
       builder.order = vi.fn(() => builder)
-      builder.in = vi.fn(async (_column: string, codes: string[]) => ({
-        data:
-          table === 'guild_api_incident_notification_state'
-            ? stateRows.filter((row) => codes.includes(row.guild_code))
-            : [],
-        error:
-          table === failingTable ? { message: 'synthetic read failure' } : null
-      }))
+      builder.in = vi.fn((col: string, values: unknown[]) => {
+        filters.push({ op: 'in', col, val: values })
+        return builder
+      })
       builder.range = vi.fn(async (start: number, end: number) => ({
         data: guildRows.slice(start, end + 1),
         error:
           table === failingTable ? { message: 'synthetic read failure' } : null
       }))
-      builder.maybeSingle = vi.fn(async () => ({ data: null, error: null }))
+      builder.maybeSingle = vi.fn(async () => {
+        const res = resolveRows()
+        if (res.error) return { data: null, error: res.error }
+        return { data: (res.data as unknown[])[0] ?? null, error: null }
+      })
       builder.upsert = vi.fn(async (row: Record<string, unknown>) => {
         upserts.push(row)
         return { error: null }
       })
+      ;(builder as unknown as PromiseLike<unknown>).then = (resolve, reject) =>
+        Promise.resolve(resolveRows()).then(resolve, reject)
       return builder
     })
   }
@@ -316,6 +383,134 @@ describe('api-key incident no-recipient operations rollup', () => {
         notified_recipient_count: 0,
         resolved_at: TEST_NOW.toISOString()
       })
+    )
+  })
+
+  it('falls back to cluster creator email when a cluster guild has no guild-level recipients', async () => {
+    mocks.resendSend.mockResolvedValue({ data: { id: 'msg-1' }, error: null })
+    const guild = { ...invalidKeyGuild(), cluster_id: 'cluster-1' }
+    const { client, upserts } = makeNotificationClient(
+      [guild],
+      [incidentState()],
+      undefined,
+      {
+        clusters: [{ id: 'cluster-1', created_by: 'cluster-owner-1' }],
+        authEmails: [
+          { user_id: 'cluster-owner-1', email: 'owner@example.test' }
+        ]
+      }
+    )
+    mocks.serviceDb.mockReturnValue(client)
+
+    const result = await sendApiKeyIncidentNotifications()
+
+    expect(result.guildsNotified).toBe(1)
+    expect(result.emailsSent).toBe(1)
+    expect(result.skippedNoRecipients).toBe(0)
+    expect(result.staleInvalidKeyIncidentsWithoutRecipients).toBe(0)
+    expect(mocks.resendSend).toHaveBeenCalledWith(
+      expect.objectContaining({ to: 'owner@example.test' })
+    )
+    expect(upserts.at(-1)).toMatchObject({
+      notified_recipient_count: 1,
+      notified_recipients: ['owner@example.test']
+    })
+  })
+
+  it('falls back to sibling enabled-guild leaders when cluster creator has no email', async () => {
+    mocks.resendSend.mockResolvedValue({ data: { id: 'msg-2' }, error: null })
+    const brokenGuild = { ...invalidKeyGuild(), cluster_id: 'cluster-1' }
+    const siblingGuild = {
+      ...invalidKeyGuild(),
+      guild_code: 'synthetic-sibling',
+      api_key_is_valid: true,
+      consecutive_sync_failures: 0,
+      cluster_id: 'cluster-1'
+    }
+    const { client } = makeNotificationClient(
+      [brokenGuild, siblingGuild],
+      [incidentState()],
+      undefined,
+      {
+        clusters: [{ id: 'cluster-1', created_by: null }],
+        playerMappings: [
+          {
+            guild_code: 'synthetic-sibling',
+            user_id: 'sib-leader-1',
+            role: 'leader',
+            is_current: true
+          },
+          {
+            guild_code: 'synthetic-sibling',
+            user_id: 'sib-officer-1',
+            role: 'officer',
+            is_current: true
+          }
+        ],
+        authEmails: [
+          { user_id: 'sib-leader-1', email: 'leader@example.test' },
+          { user_id: 'sib-officer-1', email: 'officer@example.test' }
+        ]
+      }
+    )
+    mocks.serviceDb.mockReturnValue(client)
+
+    const result = await sendApiKeyIncidentNotifications()
+
+    expect(result.guildsNotified).toBe(1)
+    expect(result.emailsSent).toBe(1)
+    expect(result.skippedNoRecipients).toBe(0)
+    expect(mocks.resendSend).toHaveBeenCalledWith(
+      expect.objectContaining({ to: 'leader@example.test' })
+    )
+  })
+
+  it('does not notify cluster owner when the guild already has a linked leader', async () => {
+    mocks.resendSend.mockResolvedValue({ data: { id: 'msg-3' }, error: null })
+    const guild = { ...invalidKeyGuild(), cluster_id: 'cluster-1' }
+    const { client } = makeNotificationClient(
+      [guild],
+      [incidentState()],
+      undefined,
+      {
+        clusters: [{ id: 'cluster-1', created_by: 'cluster-owner-1' }],
+        playerMappings: [
+          {
+            guild_code: 'synthetic-guild',
+            user_id: 'guild-leader-1',
+            role: 'leader',
+            is_current: true
+          }
+        ],
+        authEmails: [
+          { user_id: 'guild-leader-1', email: 'guild-leader@example.test' },
+          { user_id: 'cluster-owner-1', email: 'cluster-owner@example.test' }
+        ]
+      }
+    )
+    mocks.serviceDb.mockReturnValue(client)
+
+    const result = await sendApiKeyIncidentNotifications()
+
+    expect(result.guildsNotified).toBe(1)
+    expect(result.emailsSent).toBe(1)
+    expect(mocks.resendSend).toHaveBeenCalledTimes(1)
+    expect(mocks.resendSend).toHaveBeenCalledWith(
+      expect.objectContaining({ to: 'guild-leader@example.test' })
+    )
+  })
+
+  it('rejects the sweep when the clusters fallback query fails', async () => {
+    const guild = { ...invalidKeyGuild(), cluster_id: 'cluster-1' }
+    const { client } = makeNotificationClient(
+      [guild],
+      [incidentState()],
+      'clusters'
+    )
+    mocks.serviceDb.mockReturnValue(client)
+
+    await expect(sendApiKeyIncidentNotifications()).rejects.toThrow(
+      /recipient lookup failed/
     )
   })
 })

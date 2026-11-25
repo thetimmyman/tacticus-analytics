@@ -96,6 +96,17 @@ function shouldTripCircuit(status: number): boolean {
   return status >= 500
 }
 
+/** Local caller-imposed timeout (not an upstream 5xx or transport failure). */
+function isLocalTimeoutError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false
+  if (error.name === 'RetryTimeoutError') return true
+  if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+    const cause = (error as Error & { cause?: unknown }).cause
+    return cause === undefined
+  }
+  return false
+}
+
 export interface Token {
   current: number
   max: number
@@ -450,99 +461,115 @@ export class TacticusAPIClient {
 
   /**
    * Retrying, circuit-protected fetch. Fan-out callers cap the timeout and disable retries
-   * so one bad key cannot park a Promise.allSettled batch for ~80s.
+   * so one bad key cannot park a Promise.allSettled batch for ~80s. Caller-tightened
+   * deadlines do not count toward opening the shared circuit; upstream 5xx/transport errors still do.
    */
   async getPlayerWithRetry(
     apiKey: string,
-    options?: { timeoutMs?: number; maxRetries?: number }
+    options?: {
+      timeoutMs?: number
+      maxRetries?: number
+      tripCircuitOnTimeout?: boolean
+    }
   ): Promise<TacticusPlayer | null> {
     const timeoutMs = options?.timeoutMs ?? PLAYER_API_TIMEOUT
     const maxRetries = options?.maxRetries ?? PLAYER_API_MAX_RETRIES
+    const tripCircuitOnTimeout =
+      options?.tripCircuitOnTimeout ??
+      (options?.timeoutMs === undefined ||
+        options.timeoutMs >= PLAYER_API_TIMEOUT)
     try {
-      return await tacticusCircuit.execute(async () => {
-        logger.debug(
-          {
-            url: `${this.baseUrl}/player`,
-            timeout: timeoutMs,
-            maxRetries
-          },
-          'Fetching player from Tacticus API with retry'
-        )
-
-        let requestAttempt = 0
-        const response = await withRetry(
-          () =>
-            withProviderRetry(requestAttempt++ > 0, async () => {
-              // attemptTimeout only rejects the wrapper; without this signal the
-              // orphaned fetch holds its undici connection and starves the pod.
-              const res = await providerFetch(
-                `${this.baseUrl}/player`,
-                {
-                  method: 'GET',
-                  headers: {
-                    Accept: 'application/json',
-                    'X-API-KEY': apiKey
-                  },
-                  signal: AbortSignal.timeout(timeoutMs)
-                },
-                false,
-                {
-                  purpose: 'roster-fetch',
-                  trigger: 'user',
-                  timeoutMs: PLAYER_API_TIMEOUT
-                }
-              )
-              if (!res.ok && res.status >= 500) {
-                cancelResponseBody(res)
-                throw new ServiceError(
-                  res.status,
-                  `Tacticus API: ${res.status} ${res.statusText}`
-                )
-              }
-              return res
-            }),
-          {
-            ...TACTICUS_API_POLICY,
-            maxAttempts: maxRetries + 1,
-            baseDelayMs: PLAYER_API_RETRY_DELAY,
-            attemptTimeout: timeoutMs
-          }
-        )
-
-        if (!response.ok) {
-          const status = response.status
-
-          if (shouldTripCircuit(status)) {
-            logger.error(
-              { status, statusText: response.statusText },
-              'Player fetch failed - service error'
-            )
-            throw new ServiceError(
-              status,
-              `Tacticus API service error: ${status} ${response.statusText}`
-            )
-          }
-
-          logger.warn(
-            { status, statusText: response.statusText },
-            'Player fetch failed - client error (not tripping circuit)'
+      return await tacticusCircuit.execute(
+        async () => {
+          logger.debug(
+            {
+              url: `${this.baseUrl}/player`,
+              timeout: timeoutMs,
+              maxRetries
+            },
+            'Fetching player from Tacticus API with retry'
           )
+
+          let requestAttempt = 0
+          const response = await withRetry(
+            () =>
+              withProviderRetry(requestAttempt++ > 0, async () => {
+                // attemptTimeout only rejects the wrapper; without this signal the
+                // orphaned fetch holds its undici connection and starves the pod.
+                const res = await providerFetch(
+                  `${this.baseUrl}/player`,
+                  {
+                    method: 'GET',
+                    headers: {
+                      Accept: 'application/json',
+                      'X-API-KEY': apiKey
+                    },
+                    signal: AbortSignal.timeout(timeoutMs)
+                  },
+                  false,
+                  {
+                    purpose: 'roster-fetch',
+                    trigger: 'user',
+                    timeoutMs
+                  }
+                )
+                if (!res.ok && res.status >= 500) {
+                  cancelResponseBody(res)
+                  throw new ServiceError(
+                    res.status,
+                    `Tacticus API: ${res.status} ${res.statusText}`
+                  )
+                }
+                return res
+              }),
+            {
+              ...TACTICUS_API_POLICY,
+              maxAttempts: maxRetries + 1,
+              baseDelayMs: PLAYER_API_RETRY_DELAY,
+              attemptTimeout: timeoutMs,
+              context: { operationName: 'tacticus-api.getPlayer' }
+            }
+          )
+
+          if (!response.ok) {
+            const status = response.status
+
+            if (shouldTripCircuit(status)) {
+              logger.error(
+                { status, statusText: response.statusText },
+                'Player fetch failed - service error'
+              )
+              throw new ServiceError(
+                status,
+                `Tacticus API service error: ${status} ${response.statusText}`
+              )
+            }
+
+            logger.warn(
+              { status, statusText: response.statusText },
+              'Player fetch failed - client error (not tripping circuit)'
+            )
+            return null
+          }
+
+          const data = await response.json()
+
+          if (data && data.player) {
+            return data.player as TacticusPlayer
+          }
+
+          if (data && data.details) {
+            return data as TacticusPlayer
+          }
+
+          logger.warn({ data }, 'Unexpected player API response format')
           return null
+        },
+        {
+          shouldCountFailure: (error) =>
+            tripCircuitOnTimeout || !isLocalTimeoutError(error)
         }
-
-        const data = await response.json()
-
-        if (data && data.player) {
-          return data.player as TacticusPlayer
-        }
-
-        if (data && data.details) {
-          return data as TacticusPlayer
-        }
-
-        logger.warn({ data }, 'Unexpected player API response format')
-        return null
-      })
+      )
     } catch (error: unknown) {
       if (error instanceof ProviderAdmissionError) throw error
       if (error instanceof CircuitOpenError) {
@@ -555,7 +582,9 @@ export class TacticusAPIClient {
         return null
       }
       const details = extractErrorDetails(error)
-      logger.error(
+      const level =
+        !tripCircuitOnTimeout && isLocalTimeoutError(error) ? 'warn' : 'error'
+      logger[level](
         {
           err: error,
           errMessage: details?.message,

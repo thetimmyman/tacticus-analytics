@@ -133,6 +133,54 @@ describe('CircuitBreaker', () => {
 
       expect(breaker.getState()).toBe('OPEN')
     })
+
+    it('does not count failures excluded by shouldCountFailure', async () => {
+      for (let i = 0; i < 5; i++) {
+        await expect(
+          breaker.execute(
+            async () => {
+              throw new Error(`local-deadline-${i}`)
+            },
+            { shouldCountFailure: () => false }
+          )
+        ).rejects.toThrow(`local-deadline-${i}`)
+      }
+
+      const metrics = breaker.getMetrics()
+      expect(metrics.state).toBe('CLOSED')
+      expect(metrics.failureCount).toBe(0)
+      expect(metrics.totalFailures).toBe(0)
+    })
+
+    it('leaves HALF_OPEN unchanged on an excluded failure (neither re-opens nor closes)', async () => {
+      const fastBreaker = new CircuitBreaker({
+        name: 'half-open-excluded',
+        failureThreshold: 1,
+        successThreshold: 1,
+        timeout: 50,
+        registerInRegistry: false
+      })
+
+      await expect(
+        fastBreaker.execute(async () => {
+          throw new Error('upstream-503')
+        })
+      ).rejects.toThrow('upstream-503')
+      expect(fastBreaker.getState()).toBe('OPEN')
+
+      await new Promise((resolve) => setTimeout(resolve, 60))
+
+      await expect(
+        fastBreaker.execute(
+          async () => {
+            throw new Error('caller-timeout')
+          },
+          { shouldCountFailure: () => false }
+        )
+      ).rejects.toThrow('caller-timeout')
+
+      expect(fastBreaker.getState()).toBe('HALF_OPEN')
+    })
   })
 
   describe('OPEN state', () => {

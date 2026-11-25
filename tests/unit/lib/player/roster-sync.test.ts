@@ -2,12 +2,14 @@ import { describe, expect, it, vi } from 'vitest'
 import { persistRosterSnapshot } from '@/app/lib/player/roster-sync'
 import { loadItemTypeMap } from '@/app/lib/player/item-catalog'
 
+const mockLogger = vi.hoisted(() => ({
+  warn: vi.fn(),
+  info: vi.fn(),
+  error: vi.fn()
+}))
+
 vi.mock('@/app/lib/logging', () => ({
-  createComponentLogger: () => ({
-    warn: vi.fn(),
-    info: vi.fn(),
-    error: vi.fn()
-  })
+  createComponentLogger: () => mockLogger
 }))
 vi.mock('@/app/(dashboard)/roster/utils/roster-helpers', () => ({
   getRankName: () => 'Stone 1',
@@ -109,7 +111,8 @@ describe('persistRosterSnapshot', () => {
       )
     }
   )
-  it('does not persist a partial mapping result as a complete roster', async () => {
+  it('does not persist a partial mapping result as a complete roster and logs missing catalog IDs', async () => {
+    mockLogger.warn.mockClear()
     const supabase = client()
     await persistRosterSnapshot(
       owner,
@@ -122,6 +125,12 @@ describe('persistRosterSnapshot', () => {
     expect(supabase.rpc).toHaveBeenCalledWith(
       'persist_player_roster_snapshot',
       expect.objectContaining({ p_rows: [], p_complete: false })
+    )
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        unmappedUnitIds: ['unmapped-unit']
+      }),
+      expect.stringContaining('incomplete')
     )
   })
   it('normalizes trusted power and preserves the scoped observation for an empty roster', async () => {
