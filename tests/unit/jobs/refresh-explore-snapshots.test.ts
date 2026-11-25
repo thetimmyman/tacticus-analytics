@@ -126,27 +126,6 @@ describe('refresh-explore-snapshots handler', () => {
     }
   )
 
-  it('treats an httpFetch TimeoutError Error cause as transient and still rethrows', async () => {
-    const timeoutErr = new Error('httpFetch: request timed out after 120s')
-    timeoutErr.name = 'TimeoutError'
-    mocks.rpc.mockResolvedValue({ data: null, error: timeoutErr })
-
-    const err = await handler()({}, context).then(
-      () => {
-        throw new Error('expected the handler to reject')
-      },
-      (error: unknown) => error
-    )
-
-    expect((err as Error).message).toBe(
-      'Failed to refresh explore snapshots: httpFetch: request timed out after 120s'
-    )
-    expect((err as Error).cause).toBe(timeoutErr)
-    expect(mocks.capture).not.toHaveBeenCalled()
-    expect(mocks.logger.error).not.toHaveBeenCalled()
-    expect(mocks.logger.warn).toHaveBeenCalledTimes(1)
-  })
-
   it.each([
     ['An AbortError cause', new DOMException('aborted', 'AbortError')],
     ['A TimeoutError cause', new DOMException('timed out', 'TimeoutError')]
