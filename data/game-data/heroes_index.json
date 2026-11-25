@@ -199,6 +199,14 @@
     "id": "boss-gulgortz",
     "name": "Gulgortz"
   },
+  "boudicari": {
+    "allianceId": "Imperial",
+    "baseRarity": "Common",
+    "factionId": "Custodes",
+    "file": "heroes/boudicari.json",
+    "id": "boudicari",
+    "name": "Boudicari"
+  },
   "brother-burchard": {
     "allianceId": "Imperial",
     "baseRarity": "Uncommon",
@@ -295,6 +303,14 @@
     "id": "dante",
     "name": "Dante"
   },
+  "daras": {
+    "allianceId": "Chaos",
+    "baseRarity": "Uncommon",
+    "factionId": "TheLostAndTheDamned",
+    "file": "heroes/daras.json",
+    "id": "daras",
+    "name": "Daras"
+  },
   "darkstrider": {
     "allianceId": "Xenos",
     "baseRarity": "Rare",
@@ -334,6 +350,14 @@
     "file": "heroes/exorcist.json",
     "id": "exorcist",
     "name": "Exorcist"
+  },
+  "fabius-bile": {
+    "allianceId": "Chaos",
+    "baseRarity": "Legendary",
+    "factionId": "TheLostAndTheDamned",
+    "file": "heroes/fabius-bile.json",
+    "id": "fabius-bile",
+    "name": "Fabius Bile"
   },
   "farsight": {
     "allianceId": "Xenos",
@@ -638,6 +662,14 @@
     "file": "heroes/nicodemus.json",
     "id": "nicodemus",
     "name": "Nicodemus"
+  },
+  "nubari": {
+    "allianceId": "Imperial",
+    "baseRarity": "Uncommon",
+    "factionId": "AdeptusAstartes",
+    "file": "heroes/nubari.json",
+    "id": "nubari",
+    "name": "Nubari"
   },
   "parasite-of-mortrex": {
     "allianceId": "Xenos",
@@ -1006,6 +1038,14 @@
     "file": "heroes/yazaghor.json",
     "id": "yazaghor",
     "name": "Yazaghor"
+  },
+  "zapspitta": {
+    "allianceId": "Xenos",
+    "baseRarity": "Rare",
+    "factionId": "Orks",
+    "file": "heroes/zapspitta.json",
+    "id": "zapspitta",
+    "name": "Zapspitta"
   },
   "zkar": {
     "allianceId": "Chaos",

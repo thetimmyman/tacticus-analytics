@@ -59,7 +59,8 @@
       "Custodes",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Block",
     "levels": [
@@ -166,7 +167,8 @@
       "DeathGuard",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Block",
     "levels": [
@@ -373,7 +375,8 @@
       "Custodes",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Block",
     "levels": [
@@ -624,7 +627,8 @@
       "DeathGuard",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Block",
     "levels": [
@@ -990,7 +994,8 @@
       "Custodes",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Block",
     "levels": [
@@ -1288,7 +1293,8 @@
       "DeathGuard",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Block",
     "levels": [
@@ -1599,7 +1605,8 @@
       "Custodes",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Block",
     "levels": [
@@ -1778,7 +1785,8 @@
       "Custodes",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Block",
     "levels": [
@@ -1985,7 +1993,8 @@
       "DeathGuard",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Block",
     "levels": [
@@ -2256,7 +2265,8 @@
       "Custodes",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Block",
     "levels": [
@@ -2411,7 +2421,8 @@
       "DeathGuard",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Block",
     "levels": [
@@ -2611,7 +2622,8 @@
       "Custodes",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Booster_Block",
     "levels": [
@@ -2744,7 +2756,8 @@
       "Custodes",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Booster_Block",
     "levels": [
@@ -2941,7 +2954,8 @@
       "Custodes",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Booster_Block",
     "levels": [
@@ -3060,7 +3074,8 @@
       "Custodes",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Booster_Block",
     "levels": [
@@ -3232,7 +3247,8 @@
       "Custodes",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Booster_Block",
     "levels": [
@@ -3365,7 +3381,8 @@
       "Custodes",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Booster_Block",
     "levels": [
@@ -3497,7 +3514,8 @@
       "DeathGuard",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Booster_Crit",
     "levels": [
@@ -3813,7 +3831,8 @@
       "DeathGuard",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Booster_Crit",
     "levels": [
@@ -4353,7 +4372,8 @@
       "DeathGuard",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Booster_Crit",
     "levels": [
@@ -4939,7 +4959,8 @@
       "DeathGuard",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Booster_Crit",
     "levels": [
@@ -5443,7 +5464,8 @@
       "DeathGuard",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Booster_Crit",
     "levels": [
@@ -5823,7 +5845,8 @@
       "DeathGuard",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Booster_Crit",
     "levels": [
@@ -6041,7 +6064,8 @@
       "Genestealers",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Crit",
     "levels": [
@@ -6189,7 +6213,8 @@
       "DeathGuard",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Crit",
     "levels": [
@@ -6414,7 +6439,8 @@
       "Genestealers",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Crit",
     "levels": [
@@ -6754,7 +6780,8 @@
       "DeathGuard",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Crit",
     "levels": [
@@ -7267,7 +7294,8 @@
       "Genestealers",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Crit",
     "levels": [
@@ -7670,7 +7698,8 @@
       "DeathGuard",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Crit",
     "levels": [
@@ -8376,7 +8405,8 @@
       "Genestealers",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Crit",
     "levels": [
@@ -8655,7 +8685,8 @@
       "DeathGuard",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Crit",
     "levels": [
@@ -9210,7 +9241,8 @@
       "Genestealers",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Crit",
     "levels": [
@@ -9486,7 +9518,8 @@
       "DeathGuard",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Crit",
     "levels": [
@@ -9903,7 +9936,8 @@
       "Genestealers",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Crit",
     "levels": [
@@ -10169,7 +10203,8 @@
       "DeathGuard",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Crit",
     "levels": [
@@ -10563,7 +10598,8 @@
       "Custodes",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Defensive",
     "levels": [
@@ -10706,7 +10742,8 @@
       "Orks",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Defensive",
     "levels": [
@@ -10925,7 +10962,8 @@
       "Custodes",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Defensive",
     "levels": [
@@ -11254,7 +11292,8 @@
       "Orks",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Defensive",
     "levels": [
@@ -11552,7 +11591,8 @@
       "Custodes",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Defensive",
     "levels": [
@@ -11942,7 +11982,8 @@
       "Orks",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Defensive",
     "levels": [
@@ -12059,7 +12100,8 @@
       "Custodes",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Defensive",
     "levels": [
@@ -12471,7 +12513,8 @@
       "Custodes",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Defensive",
     "levels": [
@@ -12738,7 +12781,8 @@
       "Orks",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Defensive",
     "levels": [
@@ -12925,7 +12969,8 @@
       "Custodes",
       "EmperorsChildren",
       "LeaguesOfVotann",
-      "AdeptusAstartes"
+      "AdeptusAstartes",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Defensive",
     "levels": [
@@ -13130,7 +13175,8 @@
       "Orks",
       "ThousandSons",
       "WorldEaters",
-      "EmperorsChildren"
+      "EmperorsChildren",
+      "TheLostAndTheDamned"
     ],
     "itemType": "I_Defensive",
     "levels": [
@@ -13271,6 +13317,98 @@
       }
     ],
     "name": "Daemonflesh Plate",
+    "rarity": "Mythic"
+  },
+  "R_Booster_Block_LionHelmRelic": {
+    "abilityId": "LionHelmRelic",
+    "allowedUnits": [
+      "darkaAzrael"
+    ],
+    "isRelic": true,
+    "isUniqueRelic": true,
+    "itemType": "I_Booster_Block",
+    "levels": [
+      {
+        "mythicDustCost": 100,
+        "stats": {
+          "blockChanceBonus": 6,
+          "blockDmgBonus": 350
+        }
+      },
+      {
+        "goldCost": 50000,
+        "mythicDustCost": 50,
+        "stats": {
+          "blockChanceBonus": 6,
+          "blockDmgBonus": 369
+        }
+      },
+      {
+        "goldCost": 60000,
+        "mythicDustCost": 75,
+        "stats": {
+          "blockChanceBonus": 6,
+          "blockDmgBonus": 388
+        }
+      },
+      {
+        "goldCost": 70000,
+        "mythicDustCost": 100,
+        "stats": {
+          "blockChanceBonus": 6,
+          "blockDmgBonus": 407
+        }
+      },
+      {
+        "goldCost": 85000,
+        "mythicDustCost": 125,
+        "stats": {
+          "blockChanceBonus": 6,
+          "blockDmgBonus": 426
+        }
+      },
+      {
+        "goldCost": 100000,
+        "mythicDustCost": 150,
+        "stats": {
+          "blockChanceBonus": 6,
+          "blockDmgBonus": 445
+        }
+      },
+      {
+        "goldCost": 125000,
+        "mythicDustCost": 200,
+        "stats": {
+          "blockChanceBonus": 6,
+          "blockDmgBonus": 464
+        }
+      },
+      {
+        "goldCost": 150000,
+        "mythicDustCost": 300,
+        "stats": {
+          "blockChanceBonus": 6,
+          "blockDmgBonus": 483
+        }
+      },
+      {
+        "goldCost": 175000,
+        "mythicDustCost": 500,
+        "stats": {
+          "blockChanceBonus": 6,
+          "blockDmgBonus": 502
+        }
+      },
+      {
+        "goldCost": 200000,
+        "mythicDustCost": 1000,
+        "stats": {
+          "blockChanceBonus": 6,
+          "blockDmgBonus": 521
+        }
+      }
+    ],
+    "name": "Lion Helm",
     "rarity": "Mythic"
   },
   "R_Booster_Block_NornCrown": {
@@ -14666,6 +14804,98 @@
       }
     ],
     "name": "DW-02 Advanced Burst Cannon",
+    "rarity": "Mythic"
+  },
+  "R_Crit_Fidelity": {
+    "abilityId": "Fidelity",
+    "allowedUnits": [
+      "tauAunShi"
+    ],
+    "isRelic": true,
+    "isUniqueRelic": true,
+    "itemType": "I_Crit",
+    "levels": [
+      {
+        "mythicDustCost": 100,
+        "stats": {
+          "critChance": 35,
+          "critDmg": 1050
+        }
+      },
+      {
+        "goldCost": 50000,
+        "mythicDustCost": 50,
+        "stats": {
+          "critChance": 35,
+          "critDmg": 1107
+        }
+      },
+      {
+        "goldCost": 60000,
+        "mythicDustCost": 75,
+        "stats": {
+          "critChance": 35,
+          "critDmg": 1164
+        }
+      },
+      {
+        "goldCost": 70000,
+        "mythicDustCost": 100,
+        "stats": {
+          "critChance": 35,
+          "critDmg": 1221
+        }
+      },
+      {
+        "goldCost": 85000,
+        "mythicDustCost": 125,
+        "stats": {
+          "critChance": 35,
+          "critDmg": 1277
+        }
+      },
+      {
+        "goldCost": 100000,
+        "mythicDustCost": 150,
+        "stats": {
+          "critChance": 35,
+          "critDmg": 1334
+        }
+      },
+      {
+        "goldCost": 125000,
+        "mythicDustCost": 200,
+        "stats": {
+          "critChance": 35,
+          "critDmg": 1391
+        }
+      },
+      {
+        "goldCost": 150000,
+        "mythicDustCost": 300,
+        "stats": {
+          "critChance": 35,
+          "critDmg": 1447
+        }
+      },
+      {
+        "goldCost": 175000,
+        "mythicDustCost": 500,
+        "stats": {
+          "critChance": 35,
+          "critDmg": 1504
+        }
+      },
+      {
+        "goldCost": 200000,
+        "mythicDustCost": 1000,
+        "stats": {
+          "critChance": 35,
+          "critDmg": 1561
+        }
+      }
+    ],
+    "name": "Fidelity",
     "rarity": "Mythic"
   },
   "R_Crit_HeadwoppasKillchoppa": {
@@ -16153,6 +16383,98 @@
       }
     ],
     "name": "Supa-Cybork Body",
+    "rarity": "Mythic"
+  },
+  "R_Defensive_Thrydderghyre": {
+    "abilityId": "Thrydderghyre",
+    "allowedUnits": [
+      "thousTzaangor"
+    ],
+    "isRelic": true,
+    "isUniqueRelic": true,
+    "itemType": "I_Defensive",
+    "levels": [
+      {
+        "mythicDustCost": 100,
+        "stats": {
+          "fixedArmor": 320,
+          "hp": 600
+        }
+      },
+      {
+        "goldCost": 50000,
+        "mythicDustCost": 50,
+        "stats": {
+          "fixedArmor": 338,
+          "hp": 633
+        }
+      },
+      {
+        "goldCost": 60000,
+        "mythicDustCost": 75,
+        "stats": {
+          "fixedArmor": 355,
+          "hp": 665
+        }
+      },
+      {
+        "goldCost": 70000,
+        "mythicDustCost": 100,
+        "stats": {
+          "fixedArmor": 372,
+          "hp": 698
+        }
+      },
+      {
+        "goldCost": 85000,
+        "mythicDustCost": 125,
+        "stats": {
+          "fixedArmor": 390,
+          "hp": 730
+        }
+      },
+      {
+        "goldCost": 100000,
+        "mythicDustCost": 150,
+        "stats": {
+          "fixedArmor": 407,
+          "hp": 762
+        }
+      },
+      {
+        "goldCost": 125000,
+        "mythicDustCost": 200,
+        "stats": {
+          "fixedArmor": 424,
+          "hp": 795
+        }
+      },
+      {
+        "goldCost": 150000,
+        "mythicDustCost": 300,
+        "stats": {
+          "fixedArmor": 441,
+          "hp": 827
+        }
+      },
+      {
+        "goldCost": 175000,
+        "mythicDustCost": 500,
+        "stats": {
+          "fixedArmor": 459,
+          "hp": 860
+        }
+      },
+      {
+        "goldCost": 200000,
+        "mythicDustCost": 1000,
+        "stats": {
+          "fixedArmor": 476,
+          "hp": 892
+        }
+      }
+    ],
+    "name": "Thrydderghyre",
     "rarity": "Mythic"
   }
 }

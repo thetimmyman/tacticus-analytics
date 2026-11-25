@@ -41,7 +41,12 @@ export const FACTIONS: FactionDef[] = [
   { id: 'BloodAngels', label: 'Blood Angels' },
   { id: 'Genestealers', label: 'Genestealer Cults', aliases: ['GSC'] },
   { id: 'Custodes', label: 'Adeptus Custodes' },
-  { id: 'EmperorsChildren', label: "Emperor's Children" }
+  { id: 'EmperorsChildren', label: "Emperor's Children" },
+  { id: 'AdeptusAstartes', label: 'Adeptus Astartes' },
+  {
+    id: 'TheLostAndTheDamned',
+    label: 'The Lost and the Damned'
+  }
 ]
 
 export const GRAND_ALLIANCES = ['Imperial', 'Chaos', 'Xenos']
